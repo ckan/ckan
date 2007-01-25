@@ -1,8 +1,8 @@
 import py.test
 
 import ckan.model
-# mod = ckan.model.DomainModel()
-# mod.rebuild()
+mod = ckan.model.DomainModel()
+mod.rebuild()
 
 class TestRevision:
     mod = ckan.model.DomainModel()
@@ -21,15 +21,20 @@ class TestRevision:
 class TestModel:
 
     mod = ckan.model.DomainModel()
-    package = ckan.model.Package(title='The Ninth Symphony')
 
     def setup_class(self):
+        # create a package the 'crude' way (without a revision)
+        self.package = ckan.model.Package(title='The Ninth Symphony')
         newrev = self.mod.begin_revision()
         self.title = 'La boheme'
         self.newnotes = 'Written by Puccini'
         self.packagerev = self.mod.packages.create(newrev, title=self.title, notes='blah')
         self.packagerev.notes = self.newnotes 
         newrev.commit(message='Creating a package')
+
+    def teardown_class(self):
+        ckan.model.Package.purge(self.package.id)
+        ckan.model.Package.purge(self.packagerev.base.id)
 
     def test_create_package(self):
         # test the revision
@@ -41,9 +46,19 @@ class TestModel:
         assert out.title == self.title
         assert out.notes == self.newnotes
 
-    def test_change_package(self):
-        newrev = self.mod.begin_revision()
-        # package = newrev.package_revisions.by_name('beethoven_ninth') 
-        # package.notes = 'Written by Beethoven'
-        # newrev.commit(msg='Creating a package')
+    def test_commit_locking(self):
+        # TODO: if edit simultaneously get a conflict warning ...
+        pass
+
+#    def test_change_package(self):
+#        newrev = self.mod.begin_revision()
+#        # really i am getting package revision ...
+#        # what happens if I do a get on this though?
+#        packagerev = mod.packages.get(self.package.id, newrev)
+#        packagerev.notes = 'Written by Beethoven'
+#        newrev.commit(msg='Modifying a package')
+
+
+    def test_delete_package(self):
+        pass
 

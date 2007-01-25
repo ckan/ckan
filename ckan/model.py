@@ -5,10 +5,10 @@ connection = sqlobject.connectionForURI(cfg.db_uri)
 sqlobject.sqlhub.processConnection = connection
 
 
-class PdwException(Exception):
+class CkanException(Exception):
     pass
 
-class EmptyRevisionException(PdwException):
+class EmptyRevisionException(CkanException):
     pass
 
 class User(sqlobject.SQLObject):
@@ -58,21 +58,40 @@ class BaseRegistry(object):
         rev = self.registry_object_revision(**kwargs)
         return rev
 
+class State(sqlobject.SQLObject):
+
+    name = sqlobject.UnicodeCol(alternateID=True)
 
 # American spelling ...
 class License(sqlobject.SQLObject):
     pass
 
-class Package(sqlobject.SQLObject):
+class _Package(sqlobject.SQLObject):
 
     title = sqlobject.UnicodeCol()
     url = sqlobject.UnicodeCol(default=None)
     notes = sqlobject.UnicodeCol(default=None)
     license = sqlobject.ForeignKey('License', default=None)
     open = sqlobject.BoolCol(default=True)
-    # state = 
+    state = sqlobject.ForeignKey('State', default=None)
 
-class PackageRevision(Package):
+class Package(_Package):
+
+    revisions = sqlobject.MultipleJoin('PackageRevision')
+
+    @classmethod
+    def purge(self, id):
+        pkg = ckan.model.Package.get(id)
+        for rev in pkg.revisions:
+            ckan.model.PackageRevision.delete(rev.id)
+        ckan.model.Package.delete(id)
+
+    def delete(self):
+        # TODO: set state to deleted
+        pass
+
+
+class PackageRevision(_Package):
 
     base = sqlobject.ForeignKey('Package')
     revision = sqlobject.ForeignKey('Revision')
@@ -87,7 +106,7 @@ class PackageRegistry(BaseRegistry):
 class DomainModel:
 
     # should be in order needed for creation
-    classes = [ Revision, License, Package, PackageRevision ]
+    classes = [ User, Revision, State, License, Package, PackageRevision ]
 
     packages = PackageRegistry()
 
@@ -117,6 +136,6 @@ class DomainModel:
 
     @classmethod
     def init(self):
-        pass
-
+        ckan.model.State(name='active')
+        ckan.model.State(name='deleted')
 
