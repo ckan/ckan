@@ -1,0 +1,191 @@
+/* ---------- ( Form Styling ) -------------------------------------------- */
+
+textarea,
+/*input[type=text], input[type=password], input[type=submit]*/
+input,
+select
+{
+  padding: 3px;
+  background: #f6f6f6;
+  border: 1px solid #ccc;
+  border-top-color:  #999;
+  border-left-color: #999;
+}
+
+textarea:hover,
+input:hover,
+select:hover
+/*input[type=text]:hover, 
+input[type=password]:hover,
+input[type=submit]:hover*/
+{
+  background: #fff;
+}
+
+textarea:focus,
+input:focus,
+select:focus
+/*input[type=text]:focus, 
+input[type=password]:focus,
+input[type=submit]:focus*/
+{
+  padding: 2px;
+  background: #fff;
+  border: 2px solid #df6464;
+  border-top-color: #ac3e3e;
+  border-left-color: #ac3e3e;
+}
+
+select, select:focus
+{
+  border: 1px solid;
+  border-top-color:  #999;
+  border-left-color: #999;
+  padding: 0;
+}
+
+input[type=submit]:active
+{
+  color: #fff;
+  background: #b44;
+  border: 2px solid #fff;
+  border-top-color:  #d99;
+  border-left-color: #d99;
+}
+
+fieldset
+{
+  border: none;
+  border-top: 2px solid #bbb;
+  padding: 0.7em 1.2em 0.2em 0;
+  margin: 0 0 1.2em 0;
+}
+
+legend
+{
+  font-size: 1.3em;
+  font-family: "Hoefler Text", Hoeflertext, Georgia, "Lucida Bright", Lucidabright, "Bitstream Vera Serif", serif;
+  color: #aaa;
+}
+
+fieldset br
+{
+  display: none;
+}
+
+label
+{
+  margin: 1em 0 0 0;
+  padding: 0;
+  display: block;
+  font-size: 1em;
+  color: #444;
+}
+
+label strong, strong.fieldset
+{
+  color: #c00;
+}
+
+fieldset label
+{
+  margin: 1em 0 0 1em;
+}
+
+fieldset textarea
+{
+  font-family: monospace;
+  color: #b22;
+  margin: 0.2em 0 0.5em 1.2em;
+  width: 25em;
+  height: 15em;
+}
+
+fieldset input, fieldset select, fieldset p
+{
+  font-size: 1em;
+  margin: 0.2em 0 0.5em 1.1em;
+  color: #b22;
+}
+
+fieldset select
+{
+  color: #000;
+}
+
+.desc
+{
+  line-height: 1.3em;
+  color: #444;
+  display: block;
+  font-size: 0.85em;
+  margin-top: 0.2em;
+  margin-left: 1.18em;
+}
+
+ul.desc { list-style-type: circle; }
+
+.field-with-error
+{
+  padding: 2px;
+  background-color: #c00;
+  display: table;
+  margin-left: 1em;
+}
+
+.field-with-error input,
+.field-with-error select,
+.field-with-error textarea
+{
+  margin: 0;
+}
+
+.form-errors
+{
+  padding: 1em;
+  margin: 1em 0;
+  background-color: #f0f0f0;
+}
+
+.form-errors h3
+{
+  text-align: left;
+  font-weight: bold;
+  padding: 0.5em 1.4em;
+  font-size: 0.9em;
+  margin: -1em -1em 0 -1em;
+  background-color: #c00;
+  color: #fff;
+}
+
+.form-errors ul
+{
+  margin: 1em 0 0 0;
+}
+
+.form-errors ul li
+{
+  font-size: 0.85em;
+  list-style: square;
+}
+
+#top-login-form, #top-login-form p
+{
+  font-size: 0.9em;
+  color: #444;
+  margin: 0;
+  padding: 0;
+  display: inline;
+}
+
+#top-login-form input
+{
+  font-size: 0.9em;  
+  width: 8em;
+}
+
+#top-login-form input#loginform-submit
+{ 
+  width: 5em;
+}
+

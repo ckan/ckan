@@ -1,0 +1,93 @@
+#navigation
+{
+  /*width: 94%;*/
+  margin: 0 3% 0 3%;
+  padding: 0 0 0 0;
+  list-style-type: none;
+}
+
+#navigation li, #subnav li
+{
+  font-size: 0.9em;
+  float: left;
+  margin: 0;
+  padding: 0;
+  width: auto;
+  display: block;
+}
+
+#navigation li a, #navigation li a:link, #navigation li a:visited
+{
+  background: #fff;
+  color: #A95A5A;
+  text-decoration: none;
+  padding: 0.4em 0.4em;
+  margin: 0 0.6em 0 0;
+  display: block;
+}
+
+#navigation li a:hover, #navigation li a:active
+{
+  color: #c22;
+  /*border-bottom: 3px solid #bbb;*/
+  background: #eee;
+}
+
+#navigation li a#current, #navigation li a#current:link, #navigation li a#current:visited
+{
+  background: #eee;
+  color: #000;
+  font-weight: bold;
+  /*border-bottom: 3px solid #999;*/
+}
+
+#navigation li a#current:hover, #navigation li a#current:active
+{
+  /*border-bottom: 3px solid #c22;*/
+  background: #eee;
+}
+
+#subnav
+{
+  background: #f8f8f8 url(../images/nav-hook.png) no-repeat center left;
+  border-top: 1px dotted #aaa;
+  height: 1.7em;
+  display: block;
+  margin: 0 3% 0.2em 3%;
+  padding: 0.3em 0 0 1.8em;
+  list-style-type: none;
+  clear: left; 
+}
+
+#subnav li
+{
+  font-size: 0.8em;
+}
+
+#subnav li a, #subnav li a:link, #subnav li a:visited
+{
+  margin: 0 0.6em 0 0;
+  padding: 0.2em 0.2em;
+  color: #555;
+  text-decoration: none;
+}
+
+#subnav li a:hover, #subnav li a:active
+{
+  color: #b22;
+  background: none;
+}
+
+#subnav li a#sub-current, #subnav li a#sub-current:link, #subnav li a#sub-current:visited
+{
+  color: #000;
+  font-weight: bold;
+  /*border-bottom: 3px solid #999;*/
+}
+
+#subnav li a#sub-current:hover, #subnav li a#sub-current:active
+{
+  /*border-bottom: 3px solid #c22;*/
+  background: #eee;
+}
+
