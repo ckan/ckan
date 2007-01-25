@@ -14,6 +14,21 @@ Licensed under the MIT license.
 
 Rufus Pollock <rufus@rufuspollock.org>
 
-## Install
+## Installation and Setup
 
-  * To run the tests you should use py.test
+Install ``ckan`` using easy_install::
+
+    easy_install ckan
+
+Make a config file as follows::
+
+    paster make-config ckan config.ini
+
+Tweak the config file as appropriate and then setup the application::
+
+    paster setup-app config.ini
+
+## Tests
+
+To run the tests you should use py.test
+

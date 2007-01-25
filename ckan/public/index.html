@@ -1,0 +1,83 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <title>Pylons Default Page</title>
+  <style>
+    body { background-color: #fff; color: #333; }
+
+    body, p {
+      font-family: verdana, arial, helvetica, sans-serif;
+      font-size:   12px;
+      line-height: 18px;
+    }
+    pre {
+      background-color: #eee;
+      padding: 10px;
+      font-size: 11px;
+      line-height: 13px;
+    }
+
+    a { color: #000; }
+    a:visited { color: #666; }
+    a:hover { color: #fff; background-color:#000; }
+  </style>
+</head>
+<body>
+
+<h1>Welcome to your Pylons Web Application</h1>
+
+<h2>Weren't expecting to see this page?</h2>
+
+<p>The ckan/public/ directory is searched for static files
+ <i>before</i> your controllers are run. Remove this file (ckan/public/index.html) and edit
+  the routes in <tt>ckan/config/routing.py</tt> like so:
+  <pre> map.connect('', controller='hello', action='index')</pre>
+</p>
+
+<h2>Getting Started</h2>
+<p>You're now ready to start creating your own web application. Here's what a basic controller looks
+like to print out 'Hello World' and respond to http://127.0.0.1:5000/hello:
+<pre>
+# ckan/controllers/hello.py
+# Note that the line above is the file you should create and put the following into...
+
+from ckan.lib.base import *
+
+class HelloController(BaseController):
+    def index(self):
+        return Response('Hello World')
+        
+</pre>
+</p>
+
+<h3>Using a template</h3>
+<p>If you want to call a template and do something a little more complex, here's an example printing out some
+request information from a Myghty template.
+<pre>
+# ckan/templates/serverinfo.myt
+
+&lt;p>Hi, here's the server environment: &lt;br />
+&lt;% str(request.environ) %>&lt;/p>
+
+&lt;p>
+here's the URL you called: &lt;% h.url_for() %>
+&lt;/p>
+
+&lt;p>
+and here's the name you set: &lt;% c.name %>
+&lt;/p>
+
+</pre>
+
+Then add this to your hello controller class:
+<pre>
+    def serverinfo(self):
+        c.name = 'The Black Knight'
+        return render_response('/serverinfo.myt')
+</pre>
+
+You can now view the page at: <tt>http://127.0.0.1:5000/hello/serverinfo</tt>
+</p>
+</body>
+</html>
