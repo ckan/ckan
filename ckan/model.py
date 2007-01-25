@@ -1,6 +1,6 @@
 import sqlobject
-import ckan.config
-cfg = ckan.config.Config()
+import ckan.cfg
+cfg = ckan.cfg.Config()
 connection = sqlobject.connectionForURI(cfg.db_uri)
 sqlobject.sqlhub.processConnection = connection
 
@@ -77,18 +77,15 @@ class _Package(sqlobject.SQLObject):
 
 class Package(_Package):
 
-    revisions = sqlobject.MultipleJoin('PackageRevision')
+    revisions = sqlobject.MultipleJoin('PackageRevision',
+        joinColumn='base_id')
 
     @classmethod
     def purge(self, id):
         pkg = ckan.model.Package.get(id)
         for rev in pkg.revisions:
             ckan.model.PackageRevision.delete(rev.id)
-        ckan.model.Package.delete(id)
-
-    def delete(self):
-        # TODO: set state to deleted
-        pass
+        Package.delete(id)
 
 
 class PackageRevision(_Package):
@@ -106,7 +103,7 @@ class PackageRegistry(BaseRegistry):
 class DomainModel:
 
     # should be in order needed for creation
-    classes = [ User, Revision, State, License, Package, PackageRevision ]
+    classes = [ User, Revision, State, License, _Package, Package, PackageRevision ]
 
     packages = PackageRegistry()
 

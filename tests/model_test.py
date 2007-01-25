@@ -46,6 +46,15 @@ class TestModel:
         assert out.title == self.title
         assert out.notes == self.newnotes
 
+    def test_package_purge(self):
+        newrev = self.mod.begin_revision()
+        pkgrev = self.mod.packages.create(newrev, title='sometitle')
+        newrev.commit(message='testing purge')
+        id = pkgrev.base.id
+        ckan.model.Package.purge(id)
+        results = list(ckan.model.Package.select(ckan.model.Package.q.id==id))
+        assert len(results) == 0 
+
     def test_commit_locking(self):
         # TODO: if edit simultaneously get a conflict warning ...
         pass
