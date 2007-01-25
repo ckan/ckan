@@ -28,6 +28,10 @@ def make_app(global_conf, full_stack=True, **app_conf):
     # Load our Pylons configuration defaults
     config = load_environment(global_conf, app_conf)
     config.init_app(global_conf, app_conf, package='ckan')
+
+    # Setup Genshi (only) Template Engine
+    config.template_engines = []
+    config.add_template_engine('genshi', 'ckan.templates', {})
         
     # Load our default Pylons WSGI app and make g available
     app = pylons.wsgiapp.PylonsApp(config, helpers=ckan.lib.helpers,
