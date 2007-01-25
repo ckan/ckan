@@ -1,9 +1,8 @@
 import sqlobject
-import ckan.cfg
-cfg = ckan.cfg.Config()
-connection = sqlobject.connectionForURI(cfg.db_uri)
-sqlobject.sqlhub.processConnection = connection
-
+from sqlobject import *
+from pylons.database import PackageHub
+hub = PackageHub('ckan')
+__connection__ = hub
 
 class CkanException(Exception):
     pass
@@ -82,9 +81,9 @@ class Package(_Package):
 
     @classmethod
     def purge(self, id):
-        pkg = ckan.model.Package.get(id)
+        pkg = Package.get(id)
         for rev in pkg.revisions:
-            ckan.model.PackageRevision.delete(rev.id)
+            PackageRevision.delete(rev.id)
         Package.delete(id)
 
 
@@ -133,6 +132,6 @@ class DomainModel:
 
     @classmethod
     def init(self):
-        ckan.model.State(name='active')
-        ckan.model.State(name='deleted')
+        ckan.models.State(name='active')
+        ckan.models.State(name='deleted')
 
