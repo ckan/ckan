@@ -1,5 +1,7 @@
 from ckan.lib.base import *
 
 class PackageController(BaseController):
+
     def index(self):
-        return Response('')
+        c.package_count = 0
+        return render_response('package/index')

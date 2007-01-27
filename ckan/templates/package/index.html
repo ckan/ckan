@@ -1,0 +1,15 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+  
+  <py:def function="page_title">Packages - Index</py:def>
+
+  <div py:match="content">
+		<h2>Packages</h2>
+		<p>There are ${c.package_count} packages.</p>
+
+		<h3>Register new packages</h3>
+		<p>Unfortunately this functionality is not yet available.</p>
+	</div>
+
+  <xi:include href="../layout.html" />
+</html>

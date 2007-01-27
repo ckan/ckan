@@ -7,3 +7,4 @@ class TestPackageController(TestControllerTwill):
         url = self.siteurl + offset
         web.go(url)
         web.code(200)
+        web.title('Packages - Index')
