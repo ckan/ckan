@@ -30,10 +30,22 @@ CONFIG.push_process_config({'app_conf': conf.local_conf,
 cmd = paste.script.appinstall.SetupCommand('setup-app')
 cmd.run([test_file])
 
-class TestController(TestCase):
-    def __init__(self, *args):
-        wsgiapp = loadapp('config:test.ini', relative_to=conf_dir)
-        self.app = paste.fixture.TestApp(wsgiapp)
-        TestCase.__init__(self, *args)
+import twill
+from StringIO import StringIO
+from twill import commands as web
+class TestControllerTwill(object):
 
-__all__ = ['url_for', 'TestController']
+    port = 8083
+    host = 'localhost'
+    wsgiapp = loadapp('config:test.ini', relative_to=conf_dir)
+    siteurl = 'http://%s:%s' % (host, port)
+
+    def setup_method(self, name=''):
+        twill.add_wsgi_intercept(self.host, self.port, lambda : self.wsgiapp)
+        self.outp = StringIO()
+        twill.set_output(self.outp)
+
+    def teardown_method(self, name=''):
+        twill.remove_wsgi_intercept(self.host, self.port)
+
+__all__ = ['url_for', 'TestControllerTwill', 'web']
