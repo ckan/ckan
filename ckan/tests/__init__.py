@@ -48,4 +48,11 @@ class TestControllerTwill(object):
     def teardown_method(self, name=''):
         twill.remove_wsgi_intercept(self.host, self.port)
 
-__all__ = ['url_for', 'TestControllerTwill', 'web']
+def create_test_data():
+    import ckan.models
+    ckan.models.DomainModel.create_tables()
+    ckan.models.DomainModel.init()
+    pkg1 = ckan.models.Package(title='War and Peace')
+    pkg2 = ckan.models.Package(title='Anna Karenina')
+
+__all__ = ['url_for', 'TestControllerTwill', 'web', 'create_test_data']

@@ -132,6 +132,6 @@ class DomainModel:
 
     @classmethod
     def init(self):
-        ckan.models.State(name='active')
-        ckan.models.State(name='deleted')
+        State(name='active')
+        State(name='deleted')
 

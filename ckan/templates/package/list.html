@@ -1,0 +1,17 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+  
+  <py:def function="page_title">Packages - List</py:def>
+
+  <div py:match="content">
+    <h2>Packages</h2>
+    <p>There are ${c.package_count} packages.</p>
+    <ul>
+      <py:for each="package in c.packages">
+        <li>${package.title}</li>
+      </py:for>
+    </ul>
+  </div>
+
+  <xi:include href="../layout.html" />
+</html>
