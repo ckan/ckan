@@ -27,11 +27,11 @@ class TestModel:
 
     def setup_class(self):
         # create a package the 'crude' way (without a revision)
-        self.package = ckan.models.Package(title='The Ninth Symphony')
+        self.package = ckan.models.Package(name='geodata')
         newrev = self.mod.begin_revision()
-        self.title = 'La boheme'
+        self.name = 'geodata2'
         self.newnotes = 'Written by Puccini'
-        self.packagerev = self.mod.packages.create(newrev, title=self.title, notes='blah')
+        self.packagerev = self.mod.packages.create(newrev, name=self.name, notes='blah')
         self.packagerev.notes = self.newnotes 
         newrev.commit(message='Creating a package')
 
@@ -42,16 +42,16 @@ class TestModel:
     def test_create_package(self):
         # test the revision
         out = ckan.models.PackageRevision.get(self.packagerev.id)
-        assert out.title == self.title
+        assert out.name == self.name
         assert out.notes == self.newnotes
         # test the base object
         out = ckan.models.Package.get(self.packagerev.base.id)
-        assert out.title == self.title
+        assert out.name == self.name
         assert out.notes == self.newnotes
 
     def test_package_purge(self):
         newrev = self.mod.begin_revision()
-        pkgrev = self.mod.packages.create(newrev, title='sometitle')
+        pkgrev = self.mod.packages.create(newrev, name='somename')
         newrev.commit(message='testing purge')
         id = pkgrev.base.id
         ckan.models.Package.purge(id)

@@ -15,4 +15,4 @@ class TestPackageController(TestControllerTwill):
         web.go(url)
         web.code(200)
         web.title('Packages - List')
-        web.find('Anna Karenina')
+        web.find('annakarenina')

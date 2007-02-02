@@ -67,7 +67,7 @@ class License(sqlobject.SQLObject):
 
 class _Package(sqlobject.SQLObject):
 
-    title = sqlobject.UnicodeCol()
+    name = sqlobject.UnicodeCol(alternateID=True)
     url = sqlobject.UnicodeCol(default=None)
     notes = sqlobject.UnicodeCol(default=None)
     license = sqlobject.ForeignKey('License', default=None)

@@ -50,9 +50,7 @@ class TestControllerTwill(object):
 
 def create_test_data():
     import ckan.models
-    ckan.models.DomainModel.create_tables()
-    ckan.models.DomainModel.init()
-    pkg1 = ckan.models.Package(title='War and Peace')
-    pkg2 = ckan.models.Package(title='Anna Karenina')
+    pkg1 = ckan.models.Package(name='warandpeace')
+    pkg2 = ckan.models.Package(name='annakarenina')
 
 __all__ = ['url_for', 'TestControllerTwill', 'web', 'create_test_data']
