@@ -30,5 +30,13 @@ Tweak the config file as appropriate and then setup the application::
 
 ## Tests
 
-To run the tests you should use py.test
+When starting from a clean system for the tests to run properly you will need
+to:
+
+  1. Create the basic db structure: $ bin/ckan-admin rebuild
+  2. Create some basic test data: $ bin/ckan-admin testdata
+
+To run the tests you should use py.test:
+
+    $ py.test ckan/tests
 
