@@ -4,14 +4,12 @@ from pylons.database import PackageHub
 hub = PackageHub('ckan')
 __connection__ = hub
 
-class CkanException(Exception):
-    pass
+from ckan.exceptions import *
 
-class EmptyRevisionException(CkanException):
-    pass
 
 class User(sqlobject.SQLObject):
     pass
+
 
 class Revision(sqlobject.SQLObject):
 
@@ -43,6 +41,7 @@ class Revision(sqlobject.SQLObject):
                 value = getattr(revobj, key)
                 setattr(baseobj, key, value)
 
+
 class BaseRegistry(object):
 
     # domain object to which this registry relates
@@ -57,13 +56,16 @@ class BaseRegistry(object):
         rev = self.registry_object_revision(**kwargs)
         return rev
 
+
 class State(sqlobject.SQLObject):
 
     name = sqlobject.UnicodeCol(alternateID=True)
 
+
 # American spelling ...
 class License(sqlobject.SQLObject):
     pass
+
 
 class _Package(sqlobject.SQLObject):
 
@@ -73,6 +75,7 @@ class _Package(sqlobject.SQLObject):
     license = sqlobject.ForeignKey('License', default=None)
     open = sqlobject.BoolCol(default=True)
     state = sqlobject.ForeignKey('State', default=None)
+
 
 class Package(_Package):
 
@@ -92,11 +95,11 @@ class PackageRevision(_Package):
     base = sqlobject.ForeignKey('Package')
     revision = sqlobject.ForeignKey('Revision')
 
+
 class PackageRegistry(BaseRegistry):
 
     registry_object = Package
     registry_object_revision = PackageRevision
-
 
 
 class DomainModel:

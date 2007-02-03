@@ -2,7 +2,7 @@ import py.test
 
 # needed for config to be set and db access to work
 import ckan.tests
-
+import ckan.exceptions
 import ckan.models
 mod = ckan.models.DomainModel
 mod.rebuild()
@@ -18,7 +18,8 @@ class TestRevision:
 
     def test_revision_2(self):
         newrev = self.mod.begin_revision()
-        py.test.raises(ckan.models.EmptyRevisionException, newrev.commit, 'This is an empty revision')
+        py.test.raises(ckan.exceptions.EmptyRevisionException, newrev.commit,
+                'This is an empty revision')
 
 
 class TestModel:
