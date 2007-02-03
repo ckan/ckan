@@ -5,6 +5,7 @@ hub = PackageHub('ckan')
 __connection__ = hub
 
 from ckan.exceptions import *
+from base import *
 
 
 class User(sqlobject.SQLObject):
@@ -40,21 +41,6 @@ class Revision(sqlobject.SQLObject):
             if key not in ['base', 'revision']:
                 value = getattr(revobj, key)
                 setattr(baseobj, key, value)
-
-
-class BaseRegistry(object):
-
-    # domain object to which this registry relates
-    registry_object = None
-    # ditto but for the revison of the object 
-    registry_object_revision = None
-
-    def create(self, revision, **kwargs):
-        base = self.registry_object(**kwargs)
-        kwargs['base'] = base 
-        kwargs['revision'] = revision
-        rev = self.registry_object_revision(**kwargs)
-        return rev
 
 
 class State(sqlobject.SQLObject):
@@ -100,41 +86,4 @@ class PackageRegistry(BaseRegistry):
 
     registry_object = Package
     registry_object_revision = PackageRevision
-
-
-class DomainModel:
-
-    # should be in order needed for creation
-    classes = [ User, Revision, State, License, _Package, Package, PackageRevision ]
-
-    packages = PackageRegistry()
-
-    def begin_revision(self):
-        return Revision()
-    
-    @classmethod
-    def create_tables(self):
-        for cls in self.classes:
-            cls.createTable(ifNotExists=True)
-
-    @classmethod
-    def drop_tables(self):
-        # cannot just use reversed as this operates in place
-        size = len(self.classes)
-        indices = range(size)
-        indices.reverse()
-        reversed = [ self.classes[xx] for xx in indices ]
-        for cls in reversed:
-            cls.dropTable(ifExists=True)
-    
-    @classmethod
-    def rebuild(self):
-        self.drop_tables()
-        self.create_tables()
-        self.init()
-
-    @classmethod
-    def init(self):
-        State(name='active')
-        State(name='deleted')
 

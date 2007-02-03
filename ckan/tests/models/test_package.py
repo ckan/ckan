@@ -4,11 +4,9 @@ import py.test
 import ckan.tests
 import ckan.exceptions
 import ckan.models
-mod = ckan.models.DomainModel
-mod.rebuild()
 
 class TestRevision:
-    mod = ckan.models.DomainModel()
+    mod = ckan.models.dm
 
     def test_revision(self):
         rr = ckan.models.Revision()
@@ -24,7 +22,7 @@ class TestRevision:
 
 class TestModel:
 
-    mod = ckan.models.DomainModel()
+    mod = ckan.models.dm
 
     def setup_class(self):
         # create a package the 'crude' way (without a revision)
