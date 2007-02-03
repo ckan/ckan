@@ -9,6 +9,18 @@ class TestPackageController(TestControllerTwill):
         web.code(200)
         web.title('Packages - Index')
 
+    def test_layout(self)
+        # test sidebar and minor navigation
+        offset = url_for(controller='package')
+        url = self.siteurl + offset
+        web.go(url)
+        web.code(200)
+        # sidebar
+        web.find('Packages section')
+        # minor navigation
+        # TODO: make this a bit more rigorous!
+        web.find('List')
+
     def test_read(self):
         name = 'annakarenina'
         offset = url_for(controller='package', action='read', id=name)
