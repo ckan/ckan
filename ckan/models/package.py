@@ -87,3 +87,23 @@ class PackageRegistry(BaseRegistry):
     registry_object = Package
     registry_object_revision = PackageRevision
 
+    def get(self, name, revision=None):
+        """Get a package.
+
+        TODO: ambiguity of meaning for revision argument. Does it mean get a
+        package as it was at 'revision' OR make a new revision of this package
+        using this revision (current usage)
+        """
+        base = self.registry_object.byName(name)
+        if revision is None:
+            return base
+        else: # want to edit it
+            kwargs = {}
+            for key in base.sqlmeta.columns:
+                value = getattr(base, key)
+                kwargs[key] = value
+            kwargs['base'] = base
+            kwargs['revision'] = revision
+            rev = self.registry_object_revision(**kwargs)
+            return rev
+
