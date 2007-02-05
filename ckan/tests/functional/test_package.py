@@ -99,3 +99,28 @@ class TestPackageController2(TestControllerTwill):
         pkg = ckan.models.Package.byName(self.editpkg.name)
         assert pkg.url == newurl
 
+    def test_create(self):
+        offset = url_for(controller='package', action='create')
+        url = self.siteurl + offset
+        web.go(url)
+        web.code(200)
+        web.title('Packages - Creating')
+        web.find('There was an error')
+
+    def test_new(self):
+        offset = url_for(controller='package', action='new')
+        url = self.siteurl + offset
+        web.go(url)
+        web.code(200)
+        web.title('Packages - New')
+        fn = 2
+        web.fv(fn, 'name', self.testpkg['name'])
+        web.fv(fn, 'url', self.testpkg['url'])
+        web.submit()
+        web.code(200)
+        print web.show()
+        web.find('Create successful.')
+        pkg = ckan.models.Package.byName(self.testpkg['name'])
+        assert pkg.url == self.testpkg['url']
+
+

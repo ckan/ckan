@@ -49,3 +49,23 @@ class PackageController(BaseController):
         # also strips of ending </form>
         return render_response('package/edit')
 
+    def create(self):
+        c.error = ''
+        # should validate I suppose
+        try:
+            rev = model.dm.begin_revision()
+            newdict = dict(request.params)
+            pkg = model.dm.packages.create(
+                    revision=rev,
+                    name=request.params['name'],
+                    url=request.params.get('url', ''),
+                    notes=request.params.get('notes', '')
+                    )
+            rev.commit()
+        except Exception, inst:
+            c.error = '%s' % inst
+        return render_response('package/create')
+    
+    @validate(schema=ckan.forms.PackageSchema(), form='new')
+    def new(self):
+        return render_response('package/new')

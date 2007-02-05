@@ -1,0 +1,21 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+  
+  <py:def function="page_title">Packages - New</py:def>
+
+  <div py:match="content">
+    <h2>Register New Package</h2>
+    <form action="${h.url(action='create')}" method="post"> 
+      <label for="name">Name:</label>
+      ${XML(h.text_field('name', size=30))} <br />
+      <label for="url">Url:</label>
+      ${XML(h.text_field('url', size=30))} <br />
+      <label for="notes">Notes:</label>
+      ${XML(h.text_area('notes', size="25x10"))} <br />
+      ${XML(h.submit())}
+    </form>
+  </div>
+
+  <xi:include href="layout.html" />
+</html>
+
