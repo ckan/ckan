@@ -1,0 +1,13 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+  
+  <py:def function="page_title">Packages - Edit</py:def>
+
+  <div py:match="content">
+    <h2>Edit Package ${c.pkg.name}</h2>
+    ${HTML(c.form)}
+  </div>
+
+  <xi:include href="layout.html" />
+</html>
+

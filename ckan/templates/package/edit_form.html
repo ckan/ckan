@@ -1,0 +1,9 @@
+    <form action="${h.url(action='update')}" method="post"> 
+      ${XML(h.hidden_field('name'))}
+      <label for="url">Url:</label>
+      ${XML(h.text_field('url', size=30))} <br />
+      <label for="notes">Notes:</label>
+      ${XML(h.text_area('notes', size="25x10"))} <br />
+      ${XML(h.submit())}
+    </form>
+

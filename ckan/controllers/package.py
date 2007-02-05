@@ -1,4 +1,5 @@
 from ckan.lib.base import *
+import ckan.forms
 
 class PackageController(BaseController):
 
@@ -18,3 +19,33 @@ class PackageController(BaseController):
         c.package_count = len(packages)
         c.packages = packages
         return render_response('package/list')
+
+    def update(self):
+        c.error = ''
+        if not request.params.has_key('name'):
+            c.error = 'No package name was specified'
+        else:
+            try:
+                name = request.params['name']
+                rev = model.dm.begin_revision()
+                pkg = model.dm.packages.get(name, revision=rev)
+                pkg.url = request.params['url']
+                rev.commit()
+            except Exception, inst:
+                c.error = '%s' % inst
+        return render_response('package/update')
+
+    @validate(schema=ckan.forms.PackageSchema(), form='edit')
+    def edit(self, id):
+        # TODO insert the existing object content or raise and error if there
+        # is no package with than id
+        from formencode import htmlfill
+        c.pkg = model.dm.packages.get(id)
+        content = render('package/edit_form')
+        schema = ckan.forms.PackageSchema()
+        defaults = schema.from_python(c.pkg)
+        c.form = htmlfill.render(content, defaults)
+        # htmlfill.render uses HTMLParser which returns broken xhtml
+        # also strips of ending </form>
+        return render_response('package/edit')
+

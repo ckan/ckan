@@ -1,4 +1,5 @@
 from ckan.tests import *
+import ckan.models
 
 class TestPackageController(TestControllerTwill):
 
@@ -9,7 +10,7 @@ class TestPackageController(TestControllerTwill):
         web.code(200)
         web.title('Packages - Index')
 
-    def test_layout(self)
+    def test_layout(self):
         # test sidebar and minor navigation
         offset = url_for(controller='package')
         url = self.siteurl + offset
@@ -49,4 +50,52 @@ class TestPackageController(TestControllerTwill):
         web.follow(name)
         web.code(200)
         web.title('Packages - %s' % name)
+
+
+class TestPackageController2(TestControllerTwill):
+
+    testpkg = { 'name' : 'testpkg', 'url' : 'http://testpkg.org' }
+    editpkg = ckan.models.Package(
+            name='editpkgtest',
+            url='editpkgurl.com',
+            notes='this is editpkg'
+            )
+
+    def teardown_class(self):
+        # TODO call super on this class method
+        try:
+            pkg = ckan.models.Package.byName(self.testpkg['name'])
+            ckan.models.Package.purge(pkg.id)
+        except:
+            pass
+        try:
+            ckan.models.Package.purge(self.editpkg.id)
+        except:
+            pass
+
+    def test_update(self):
+        offset = url_for(controller='package', action='update')
+        url = self.siteurl + offset
+        web.go(url)
+        web.code(200)
+        web.title('Packages - Updating')
+        web.find('There was an error')
+
+    def test_edit(self):
+        offset = url_for(controller='package', action='edit', id=self.editpkg.name)
+        url = self.siteurl + offset
+        web.go(url)
+        web.code(200)
+        web.title('Packages - Edit')
+        # really want to check it is in the form ...
+        web.find(self.editpkg.notes)
+        fn = 2
+        newurl = 'www.editpkgnewurl.com'
+        web.fv(fn, 'url', newurl)
+        web.submit()
+        web.code(200)
+        print web.show()
+        web.find('Update successful.')
+        pkg = ckan.models.Package.byName(self.editpkg.name)
+        assert pkg.url == newurl
 
