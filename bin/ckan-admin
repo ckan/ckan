@@ -9,7 +9,7 @@ if __name__ == '__main__':
     action = sys.argv[1]
     print action
     if action == 'rebuild':
-        ckan.models.DomainModel.rebuild()
+        ckan.models.dm.rebuild()
     elif action == 'testdata':
         ckan.tests.create_test_data()
     else:
