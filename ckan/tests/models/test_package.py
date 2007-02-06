@@ -18,73 +18,55 @@ class TestRevision:
         rr2 = ckan.models.Revision.get(rr.id)
         assert rr2.log == rr.log
 
-    def test_revision_2(self):
-        newrev = self.dm.begin_revision()
-        py.test.raises(ckan.exceptions.EmptyRevisionException, newrev.commit,
-                'This is an empty revision')
-
 
 class TestPackage:
 
     dm = ckan.models.dm
-    pkgreg = ckan.models.dm.packages
 
     def setup_class(self):
         # create a package the 'crude' way (without a revision)
-        self.pkg1 = ckan.models.Package(name='geodata')
-        newrev = self.dm.begin_revision()
-        self.name = 'geodata2'
-        self.newnotes = 'Written by Puccini'
-        self.packagerev = self.dm.packages.create(newrev, name=self.name, notes='blah')
-        self.packagerev.notes = self.newnotes 
-        newrev.commit(log='Creating a package')
+        self.name = 'geodata'
+        self.notes = 'Written by Puccini'
+        self.name2 = 'geodata2'
+        self.pkg1 = ckan.models.Package(name=self.name, notes=self.notes)
 
     def teardown_class(self):
-        ckan.models.Package.purge(self.pkg1.id)
-        ckan.models.Package.purge(self.packagerev.base.id)
-
-    def test_registry_get(self):
-        pkg = self.pkgreg.get(self.name)
-        assert pkg.notes == self.newnotes
-        # TODO
-        # ensure you cannot write on pkg
-        # py.test.raises(...)
+        self.dm.packages.purge(self.pkg1.name)
+        self.dm.packages.purge(self.name2)
 
     def test_create_package(self):
-        # test the revision
-        out = ckan.models.PackageRevision.get(self.packagerev.id)
+        out = self.dm.packages.get(self.name)
         assert out.name == self.name
-        assert out.notes == self.newnotes
-        # test the base object
-        out = ckan.models.Package.get(self.packagerev.base.id)
-        assert out.name == self.name
-        assert out.notes == self.newnotes
+        assert out.notes == self.notes
 
     def test_package_purge(self):
-        newrev = self.dm.begin_revision()
-        pkgrev = self.dm.packages.create(newrev, name='somename')
-        newrev.commit(log='testing purge')
-        id = pkgrev.base.id
-        ckan.models.Package.purge(id)
-        results = list(ckan.models.Package.select(ckan.models.Package.q.id==id))
+        name = 'somename'
+        pkg = self.dm.packages.create(name=name)
+        self.dm.packages.purge(name)
+        results = list(ckan.models.Package.select(
+            ckan.models.Package.q.name==name))
         assert len(results) == 0 
 
-    def test_change_package(self):
-        newrev = self.dm.begin_revision()
+    def test_create_package_2(self):
+        # now do it the proper way
+        author = 'jones2'
+        self.pkg2 = self.dm.packages.create(author,
+                name=self.name2,
+                notes=self.notes)
+        out = self.dm.packages.get(self.name2)
+        assert out.notes == self.notes
+        assert out.revisions[0].author == author
+
+    def test_update_package(self):
         newnotes = 'Written by Beethoven'
-        packagerev = self.dm.packages.get(self.pkg1.name, newrev)
-        packagerev.notes = newnotes
-        newrev.commit(log='Modifying a package')
-        outpkg = self.pkgreg.get(self.pkg1.name)
+        pkg = self.dm.packages.get(self.pkg1.name)
+        pkg.notes = newnotes
+        author = 'jones'
+        pkg.save(author=author, log='a log message')
+        outpkg = self.dm.packages.get(self.pkg1.name)
         assert outpkg.notes == newnotes
         assert len(outpkg.revisions) > 0
+        assert outpkg.revisions[-1].author == author
         # have a teardown method to reset values?
         # as py.test guarantees order of execution might not be necessary
-
-    def test_commit_locking(self):
-        # TODO: if edit simultaneously get a conflict warning ...
-        pass
-
-    def test_delete_package(self):
-        pass
 

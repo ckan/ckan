@@ -63,15 +63,13 @@ class TestPackageController2(TestControllerTwill):
 
     def teardown_class(self):
         # TODO call super on this class method
+        error = ''
         try:
-            pkg = ckan.models.Package.byName(self.testpkg['name'])
-            ckan.models.Package.purge(pkg.id)
-        except:
-            pass
-        try:
-            ckan.models.Package.purge(self.editpkg.id)
-        except:
-            pass
+            ckan.models.dm.packages.purge(self.testpkg['name'])
+        except Exception, inst:
+            error = str(inst)
+        ckan.models.dm.packages.purge(self.editpkg.name)
+        if error: raise Exception(error)
 
     def test_update(self):
         offset = url_for(controller='package', action='update')

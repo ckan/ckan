@@ -5,41 +5,7 @@ hub = PackageHub('ckan')
 __connection__ = hub
 
 from ckan.exceptions import *
-from base import *
-
-
-class Revision(sqlobject.SQLObject):
-
-    author = sqlobject.UnicodeCol(default=None)
-    log = sqlobject.UnicodeCol(default=None)
-    date = sqlobject.DateTimeCol(default=None)
-    # this is kind of nasty in that revision has to know about every kind of
-    # object (really would like it the dependency to flow other way round ...)
-    # i guess I am saying this should be in the model but that doesn't really
-    # work
-    package_revisions = sqlobject.MultipleJoin('PackageRevision')
-
-    def _get_object_revisions(self):
-        return self.package_revisions
-
-    def commit(self, log=''):
-        changed = self._get_object_revisions()
-        if len(changed) == 0:
-            raise EmptyRevisionException()
-        self.log = log
-        for object in changed:
-            # TODO: locks
-            for revobj in changed: 
-                self._commit_changes_to_base_object(revobj)
-            # TODO: remove locks
-
-    def _commit_changes_to_base_object(self, revobj):
-        baseobj = revobj.base 
-        for key in revobj.sqlmeta.columns:
-            if key not in ['base', 'revision']:
-                value = getattr(revobj, key)
-                setattr(baseobj, key, value)
-
+from datetime import datetime
 
 class State(sqlobject.SQLObject):
 
@@ -51,57 +17,55 @@ class License(sqlobject.SQLObject):
     pass
 
 
-class _Package(sqlobject.SQLObject):
+class Revision(sqlobject.SQLObject):
+
+    author = sqlobject.UnicodeCol(default=None)
+    log = sqlobject.UnicodeCol(default=None)
+    date = sqlobject.DateTimeCol(default=datetime.now())
+
+    packages = sqlobject.RelatedJoin('Package')
+
+
+class Package(sqlobject.SQLObject):
+
+    class sqlmeta:
+        lazyUpdate = True
 
     name = sqlobject.UnicodeCol(alternateID=True)
     url = sqlobject.UnicodeCol(default=None)
     notes = sqlobject.UnicodeCol(default=None)
     license = sqlobject.ForeignKey('License', default=None)
-    open = sqlobject.BoolCol(default=True)
     state = sqlobject.ForeignKey('State', default=None)
 
+    revisions = sqlobject.RelatedJoin('Revision')
 
-class Package(_Package):
+    def save(self, author=None, log=None):
+        # TODO: wrap this in a transaction
+        self.sync()
+        rev = Revision(author=author, log=log)
+        rev.addPackage(self)
 
-    revisions = sqlobject.MultipleJoin('PackageRevision',
-        joinColumn='base_id')
+class PackageRegistry(object):
 
-    @classmethod
-    def purge(self, id):
-        pkg = Package.get(id)
-        for rev in pkg.revisions:
-            PackageRevision.delete(rev.id)
-        Package.delete(id)
+    def get(self, name):
+        return Package.byName(name)
+    
+    def create(self, revision_creator=None, log_message=None, **kwargs):
+        """Create a new Package.
 
-
-class PackageRevision(_Package):
-
-    base = sqlobject.ForeignKey('Package')
-    revision = sqlobject.ForeignKey('Revision')
-
-
-class PackageRegistry(BaseRegistry):
-
-    registry_object = Package
-    registry_object_revision = PackageRevision
-
-    def get(self, name, revision=None):
-        """Get a package.
-
-        TODO: ambiguity of meaning for revision argument. Does it mean get a
-        package as it was at 'revision' OR make a new revision of this package
-        using this revision (current usage)
+        @kwargs: standard name, value pairs for package attributes (as for
+        Package(...)
         """
-        base = self.registry_object.byName(name)
-        if revision is None:
-            return base
-        else: # want to edit it
-            kwargs = {}
-            for key in base.sqlmeta.columns:
-                value = getattr(base, key)
-                kwargs[key] = value
-            kwargs['base'] = base
-            kwargs['revision'] = revision
-            rev = self.registry_object_revision(**kwargs)
-            return rev
+        rev = Revision(author=revision_creator,
+                log=log_message)
+        pkg = Package(**kwargs)
+        rev.addPackage(pkg)
+        return pkg
+
+    def purge(self, name):
+        pkg = Package.byName(name)
+        for rev in pkg.revisions:
+            pkg.removeRevision(rev)
+            Revision.delete(rev.id)
+        Package.delete(pkg.id)
 

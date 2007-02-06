@@ -27,10 +27,9 @@ class PackageController(BaseController):
         else:
             try:
                 name = request.params['name']
-                rev = model.dm.begin_revision()
-                pkg = model.dm.packages.get(name, revision=rev)
+                pkg = model.dm.packages.get(name)
                 pkg.url = request.params['url']
-                rev.commit()
+                pkg.save()
             except Exception, inst:
                 c.error = '%s' % inst
         return render_response('package/update')
@@ -53,15 +52,12 @@ class PackageController(BaseController):
         c.error = ''
         # should validate I suppose
         try:
-            rev = model.dm.begin_revision()
             newdict = dict(request.params)
             pkg = model.dm.packages.create(
-                    revision=rev,
                     name=request.params['name'],
                     url=request.params.get('url', ''),
                     notes=request.params.get('notes', '')
                     )
-            rev.commit()
         except Exception, inst:
             c.error = '%s' % inst
         return render_response('package/create')
