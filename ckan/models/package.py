@@ -8,13 +8,11 @@ from ckan.exceptions import *
 from base import *
 
 
-class User(sqlobject.SQLObject):
-    pass
-
-
 class Revision(sqlobject.SQLObject):
 
-    message = sqlobject.UnicodeCol(default=None)
+    author = sqlobject.UnicodeCol(default=None)
+    log = sqlobject.UnicodeCol(default=None)
+    date = sqlobject.DateTimeCol(default=None)
     # this is kind of nasty in that revision has to know about every kind of
     # object (really would like it the dependency to flow other way round ...)
     # i guess I am saying this should be in the model but that doesn't really
@@ -24,11 +22,11 @@ class Revision(sqlobject.SQLObject):
     def _get_object_revisions(self):
         return self.package_revisions
 
-    def commit(self, message=''):
+    def commit(self, log=''):
         changed = self._get_object_revisions()
         if len(changed) == 0:
             raise EmptyRevisionException()
-        self.message = message
+        self.log = log
         for object in changed:
             # TODO: locks
             for revobj in changed: 

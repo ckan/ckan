@@ -5,14 +5,18 @@ import ckan.tests
 import ckan.exceptions
 import ckan.models
 
+from datetime import datetime
+
 class TestRevision:
     dm = ckan.models.dm
 
     def test_revision(self):
         rr = ckan.models.Revision()
-        rr.message = 'This is a message'
+        rr.log = 'This is a log'
+        rr.author = 'tolstoy'
+        rr.date = datetime.now()
         rr2 = ckan.models.Revision.get(rr.id)
-        assert rr2.message == rr.message
+        assert rr2.log == rr.log
 
     def test_revision_2(self):
         newrev = self.dm.begin_revision()
@@ -33,7 +37,7 @@ class TestPackage:
         self.newnotes = 'Written by Puccini'
         self.packagerev = self.dm.packages.create(newrev, name=self.name, notes='blah')
         self.packagerev.notes = self.newnotes 
-        newrev.commit(message='Creating a package')
+        newrev.commit(log='Creating a package')
 
     def teardown_class(self):
         ckan.models.Package.purge(self.pkg1.id)
@@ -59,7 +63,7 @@ class TestPackage:
     def test_package_purge(self):
         newrev = self.dm.begin_revision()
         pkgrev = self.dm.packages.create(newrev, name='somename')
-        newrev.commit(message='testing purge')
+        newrev.commit(log='testing purge')
         id = pkgrev.base.id
         ckan.models.Package.purge(id)
         results = list(ckan.models.Package.select(ckan.models.Package.q.id==id))
@@ -70,7 +74,7 @@ class TestPackage:
         newnotes = 'Written by Beethoven'
         packagerev = self.dm.packages.get(self.pkg1.name, newrev)
         packagerev.notes = newnotes
-        newrev.commit(message='Modifying a package')
+        newrev.commit(log='Modifying a package')
         outpkg = self.pkgreg.get(self.pkg1.name)
         assert outpkg.notes == newnotes
         assert len(outpkg.revisions) > 0

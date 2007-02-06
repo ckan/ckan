@@ -8,7 +8,7 @@ from package import *
 class DomainModel(object):
 
     # should be in order needed for creation
-    classes = [ User, Revision, State, License, Package, PackageRevision ]
+    classes = [ Revision, State, License, Package, PackageRevision ]
 
     packages = PackageRegistry()
 
