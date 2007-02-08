@@ -364,6 +364,7 @@ body.yellowboxen .box .rbottom *
   padding: 0.6em;
   color: #666;
   font-size: 0.75em;
+  text-align: center;
 }
 
 #footer p
@@ -397,3 +398,24 @@ body.yellowboxen .box .rbottom *
   background: #ddd;
 }
 
+.colophon-icon
+{
+  display: block;/* */
+  display: inline-block;
+  text-decoration: none;
+  overflow: hidden;
+  border: 0;
+  margin: 0 auto;
+  padding: 0;
+  padding-top: 15px;
+  height: 0px !important;
+  width: 80px;
+  vertical-align:top;}
+}
+
+a.colophonIcon {cursor: pointer;}
+
+.colophon-icon-ok
+{
+  background-image: url(http://m.okfn.org/images/ok_buttons/ok_80x15_blue.png);
+}

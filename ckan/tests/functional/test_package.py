@@ -10,17 +10,28 @@ class TestPackageController(TestControllerTwill):
         web.code(200)
         web.title('Packages - Index')
 
-    def test_layout(self):
-        # test sidebar and minor navigation
+    def _go_package_home(self):
         offset = url_for(controller='package')
         url = self.siteurl + offset
         web.go(url)
         web.code(200)
+
+    def test_sidebar(self):
+        self._go_package_home()
         # sidebar
         web.find('Packages section')
-        # minor navigation
+
+    def test_minornavigation(self):
+        self._go_package_home()
         # TODO: make this a bit more rigorous!
         web.find('List')
+        web.follow('List')
+        web.title('Packages - List')
+    
+    def test_minornavigation_2(self):
+        self._go_package_home()
+        web.follow('New')
+        web.title('Packages - New')
 
     def test_read(self):
         name = 'annakarenina'

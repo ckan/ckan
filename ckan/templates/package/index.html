@@ -7,8 +7,12 @@
 		<h2>Packages</h2>
 		<p>There are ${c.package_count} packages.</p>
 
-		<h3>Register new packages</h3>
-		<p>Unfortunately this functionality is not yet available.</p>
+    <h3>Find a package</h3>
+    <p>You can browse the ${XML(h.link_to('package list', h.url_for(controller='package', action='list')))}.</p>
+
+		<h3>Register a new package</h3>
+    <p>Follow this link to register a ${XML(h.link_to('new package', h.url_for(controller='package', action='new')))}.</p>
+    
 	</div>
 
   <xi:include href="layout.html" />
