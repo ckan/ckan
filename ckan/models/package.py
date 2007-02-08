@@ -26,6 +26,14 @@ class Revision(sqlobject.SQLObject):
     packages = sqlobject.RelatedJoin('Package')
 
 
+class Tag(sqlobject.SQLObject):
+
+    name = sqlobject.UnicodeCol(alternateID=True)
+    created = sqlobject.DateTimeCol(default=datetime.now())
+
+    packages = sqlobject.RelatedJoin('Package')
+
+
 class Package(sqlobject.SQLObject):
 
     class sqlmeta:
@@ -38,10 +46,19 @@ class Package(sqlobject.SQLObject):
     state = sqlobject.ForeignKey('State', default=None)
 
     revisions = sqlobject.RelatedJoin('Revision')
+    tags = sqlobject.RelatedJoin('Tag')
+
+    def add_tag_by_name(self, tag_name):
+        try:
+            tag = Tag.byName(tag_name)
+        except sqlobject.SQLObjectNotFound:
+            tag = Tag(name=tag_name)
+        self.addTag(tag)
 
     def save(self, author=None, log=None):
+        # TODO: ? check sqlmeta.dirty to see if anything needs to be done
         # TODO: wrap this in a transaction
-        self.sync()
+        self.syncUpdate()
         rev = Revision(author=author, log=log)
         rev.addPackage(self)
 
@@ -55,6 +72,7 @@ class PackageRegistry(object):
 
         @kwargs: standard name, value pairs for package attributes (as for
         Package(...)
+        TODO: add create_revision option
         """
         rev = Revision(author=revision_creator,
                 log=log_message)
