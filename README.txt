@@ -8,7 +8,9 @@ the Comprehensive knowledge Archive Network) which provides a listing of
 
 Copyright (c) 2006-2007 Open Knowledge Foundation.
 
-Licensed under the MIT license.
+Licensed under the MIT license:
+  
+  <http://www.opensource.org/licenses/mit-license.php>
 
 ## Authors
 
@@ -40,3 +42,4 @@ To run the tests you should use py.test:
 
     $ py.test ckan/tests
 
+Note that the functional tests require twill: <http://twill.idyll.org/>
