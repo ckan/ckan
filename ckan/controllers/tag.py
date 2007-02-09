@@ -12,3 +12,9 @@ class TagController(BaseController):
             abort(404)
         return render_response('tag/read')
 
+    def list(self):
+        tags = list(model.Tag.select())
+        c.tag_count = len(tags)
+        c.tags = tags
+        return render_response('tag/list')
+
