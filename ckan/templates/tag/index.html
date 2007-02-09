@@ -1,0 +1,14 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+  
+  <py:def function="page_title">Tags - Index</py:def>
+
+  <div py:match="content">
+		<h2>Tags</h2>
+
+    <h3>Browse Tags</h3>
+    <p>You can browse the ${XML(h.link_to('list of tags', h.url_for(controller='tag', action='list')))}.</p>
+	</div>
+
+  <xi:include href="layout.html" />
+</html>

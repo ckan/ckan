@@ -1,0 +1,18 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <py:match path="primarysidebar">
+    <div class="box">
+      <h2>Tags section</h2>
+      <p>You&rsquo;re currently in the <strong>tags</strong> section.</p>
+    </div>
+  </py:match>
+
+  <py:match path="minornavigation">
+    <li>${XML(h.link_to('Home', h.url_for(controller='tag', action='index', id='None')))}</li>
+    <li>${XML(h.link_to('List', h.url_for(controller='tag', action='list', id='None')))}</li>
+  </py:match>
+  
+  <xi:include href="../layout.html" />
+</html>
+
