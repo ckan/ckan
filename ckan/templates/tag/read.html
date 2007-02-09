@@ -1,0 +1,26 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+  
+  <py:def function="page_title">Tags - ${c.tag.name}</py:def>
+
+  <div py:match="content">
+    <h2>Tag: ${c.tag.name}</h2>
+    <ul>
+      <li>Created: ${c.tag.created}</li>
+      <li>Packages:
+        <ul>
+          <py:for each="pkg in c.tag.packages">
+          <li>
+          ${XML(h.link_to(pkg.name,
+            h.url_for(controller='package', action='read', id=pkg.name)))}
+          </li>
+          </py:for>
+        </ul>
+      </li>
+    </ul>
+  </div>
+
+  <xi:include href="layout.html" />
+</html>
+
+

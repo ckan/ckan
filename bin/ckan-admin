@@ -11,6 +11,7 @@ if __name__ == '__main__':
     if action == 'rebuild':
         ckan.models.dm.rebuild()
     elif action == 'testdata':
+        ckan.models.dm.rebuild()
         ckan.tests.create_test_data()
     else:
         print 'Unknown action %s' % action

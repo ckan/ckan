@@ -12,3 +12,14 @@ class TestPackageController(TestControllerTwill):
         web.code(200)
         web.title('Tags - Index')
 
+    def test_read(self):
+        name = 'tolstoy'
+        pkgname = 'warandpeace'
+        offset = url_for(controller='tag', action='read', id=name)
+        url = self.siteurl + offset
+        web.go(url)
+        web.title('Tags - %s' % name)
+        web.find(name)
+        web.follow(pkgname)
+        web.title('Packages - %s' % pkgname)
+
