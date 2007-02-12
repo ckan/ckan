@@ -14,7 +14,13 @@ class State(sqlobject.SQLObject):
 
 # American spelling ...
 class License(sqlobject.SQLObject):
-    pass
+
+    class sqlmeta:
+        _defaultOrder = 'name'
+
+    name = sqlobject.UnicodeCol(alternateID=True)
+
+    packages = sqlobject.RelatedJoin('Package')
 
 
 class Revision(sqlobject.SQLObject):
@@ -28,6 +34,9 @@ class Revision(sqlobject.SQLObject):
 
 class Tag(sqlobject.SQLObject):
 
+    class sqlmeta:
+        _defaultOrder = 'name'
+
     name = sqlobject.UnicodeCol(alternateID=True)
     created = sqlobject.DateTimeCol(default=datetime.now())
 
@@ -38,6 +47,7 @@ class Package(sqlobject.SQLObject):
 
     class sqlmeta:
         lazyUpdate = True
+        _defaultOrder = 'name'
 
     name = sqlobject.UnicodeCol(alternateID=True)
     url = sqlobject.UnicodeCol(default=None)
@@ -47,6 +57,7 @@ class Package(sqlobject.SQLObject):
 
     revisions = sqlobject.RelatedJoin('Revision')
     tags = sqlobject.RelatedJoin('Tag')
+    licenses = sqlobject.RelatedJoin('License')
 
     def add_tag_by_name(self, tag_name):
         try:

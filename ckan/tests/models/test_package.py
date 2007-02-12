@@ -21,6 +21,7 @@ class TestRevision:
         rr2 = ckan.models.Revision.get(self.rr.id)
         assert rr2.log == self.rr.log
 
+
 class TestTag:
     dm = ckan.models.dm
     name = 'testtag'
@@ -34,6 +35,20 @@ class TestTag:
         created = str(tag.created)
         exp = str(datetime.now())
         assert created[:10] == exp[:10]
+
+
+class TestLicense:
+    dm = ckan.models.dm
+    name = 'testlicense'
+
+    def teardown_class(cls):
+        license = ckan.models.License.byName(cls.name)
+        ckan.models.License.delete(license.id)
+
+    def test_license(self):
+        license = ckan.models.License(name=self.name)
+        exp = ckan.models.License.byName(self.name)
+        assert exp.id == license.id
 
 
 class TestPackage:
@@ -86,6 +101,7 @@ class TestPackage:
         # have a teardown method to reset values?
         # as py.test guarantees order of execution might not be necessary
 
+
 class TestPackageWithTags:
     """
     WARNING: with sqlite these tests may fail (depending on the order they are
@@ -132,4 +148,24 @@ class TestPackageWithTags:
         pkg.save()
         outpkg = self.dm.packages.get(self.pkg1.name)
         assert len(outpkg.tags) == 2
+
+
+class TestPackageWithLicense:
+
+    dm = ckan.models.dm
+
+    def setup_method(self, method):
+        name = 'geodata'
+        self.license = ckan.models.License(name='testlicense')
+        self.pkg1 = self.dm.packages.create(name=name)
+
+    def teardown_method(self, method):
+        self.dm.packages.purge(self.pkg1.name)
+        ckan.models.License.delete(self.license.id)
+
+    def test_add_license(self):
+        self.pkg1.addLicense(self.license)
+        out = self.dm.packages.get(self.pkg1.name)
+        assert len(out.licenses) == 1
+        assert out.licenses[0].name == self.license.name
 
