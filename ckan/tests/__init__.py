@@ -51,12 +51,17 @@ class TestControllerTwill(object):
 
 def create_test_data():
     import ckan.models
-    pkg1 = ckan.models.Package(name='warandpeace')
-    pkg2 = ckan.models.Package(name='annakarenina')
+    pkg1 = ckan.models.Package(
+            name='annakarenina',
+            url='http://www.annakarenina.com',
+            notes='Some test notes')
+    pkg2 = ckan.models.Package(name='warandpeace')
     tag1 = ckan.models.Tag(name='russian')
     tag2 = ckan.models.Tag(name='tolstoy')
+    license1 = ckan.models.License.byName('OKD Compliant::Other')
     pkg1.addTag(tag1)
     pkg1.addTag(tag2)
+    pkg1.addLicense(license1)
     pkg1.save()
     pkg2.addTag(tag1)
     pkg2.addTag(tag2)

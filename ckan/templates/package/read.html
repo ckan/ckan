@@ -7,8 +7,13 @@
     <h2>Package: ${c.pkg.name}</h2>
     <ul>
       <li>Name: ${c.pkg.name}</li>
-			<li>Link: ${c.pkg.url}</li>
-			<li>Notes: ${c.pkg.notes}</li>
+      <li>Url: ${XML(h.link_to(c.pkg.url, c.pkg.url))}</li>
+      <li>Licenses:
+        <ul>
+          <li py:for="license in c.pkg.licenses">${license.name}</li>
+        </ul>
+      </li>
+      <li>Notes: ${c.pkg.notes}</li>
     </ul>
   </div>
 

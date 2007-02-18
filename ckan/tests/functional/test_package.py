@@ -3,6 +3,8 @@ import ckan.models
 
 class TestPackageController(TestControllerTwill):
 
+    anna = ckan.models.dm.packages.get('annakarenina')
+
     def test_index(self):
         offset = url_for(controller='package')
         url = self.siteurl + offset
@@ -34,14 +36,19 @@ class TestPackageController(TestControllerTwill):
         web.title('Packages - New')
 
     def test_read(self):
-        name = 'annakarenina'
+        name = self.anna.name
         offset = url_for(controller='package', action='read', id=name)
         url = self.siteurl + offset
         web.go(url)
         web.code(200)
+        print web.show()
         web.title('Packages - %s' % name)
         web.find(name)
+        web.find('Url: ')
+        web.find(self.anna.url)
         web.find('Notes: ')
+        web.find('Licenses:')
+        web.find('OKD Compliant::')
 
     def test_read_nonexistentpackage(self):
         name = 'anonexistentpackage'
@@ -63,24 +70,17 @@ class TestPackageController(TestControllerTwill):
         web.title('Packages - %s' % name)
 
 
-class TestPackageController2(TestControllerTwill):
+class TestPackageControllerEdit(TestControllerTwill):
 
-    testpkg = { 'name' : 'testpkg', 'url' : 'http://testpkg.org' }
-    editpkg = ckan.models.Package(
-            name='editpkgtest',
-            url='editpkgurl.com',
-            notes='this is editpkg'
-            )
+    def setup_class(self):
+        self.editpkg = ckan.models.Package(
+                name='editpkgtest',
+                url='editpkgurl.com',
+                notes='this is editpkg'
+                )
 
     def teardown_class(self):
-        # TODO call super on this class method
-        error = ''
-        try:
-            ckan.models.dm.packages.purge(self.testpkg['name'])
-        except Exception, inst:
-            error = str(inst)
         ckan.models.dm.packages.purge(self.editpkg.name)
-        if error: raise Exception(error)
 
     def test_update(self):
         offset = url_for(controller='package', action='update')
@@ -100,13 +100,25 @@ class TestPackageController2(TestControllerTwill):
         web.find(self.editpkg.notes)
         fn = 2
         newurl = 'www.editpkgnewurl.com'
+        newlicense = 'Non-OKD Compliant::Other'
         web.fv(fn, 'url', newurl)
+        web.fv(fn, 'license', newlicense)
         web.submit()
         web.code(200)
         print web.show()
         web.find('Update successful.')
         pkg = ckan.models.Package.byName(self.editpkg.name)
         assert pkg.url == newurl
+        licenses = [ license.name for license in pkg.licenses]
+        assert newlicense in licenses
+
+class TestPackageControllerNew(TestControllerTwill):
+
+    def setup_class(self):
+        self.testpkg = { 'name' : 'testpkg', 'url' : 'http://testpkg.org' }
+
+    def teardown_class(self):
+        ckan.models.dm.packages.purge(self.testpkg['name'])
 
     def test_create(self):
         offset = url_for(controller='package', action='create')
