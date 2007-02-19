@@ -17,3 +17,11 @@ class TestHomeController(TestControllerTwill):
         web.follow('Packages')
         web.code(200)
         
+    def test_tags_link(self):
+        offset = url_for(controller='home')
+        url = self.siteurl
+        web.go(url)
+        web.code(200)
+        web.follow('Tags')
+        web.code(200)
+        
