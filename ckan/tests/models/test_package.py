@@ -125,6 +125,8 @@ class TestPackageWithTags:
         self.dm.packages.purge(self.name)
         tag = ckan.models.Tag.byName(self.tagname1)
         ckan.models.Tag.delete(tag.id)
+        tag2 = ckan.models.Tag.byName(self.tagname2)
+        ckan.models.Tag.delete(tag2.id)
         if method == 'test_add_tag_by_name':
             tag = ckan.models.Tag.byName(self.tagname2)
             ckan.models.Tag.delete(tag.id)
@@ -148,6 +150,26 @@ class TestPackageWithTags:
         pkg.save()
         outpkg = self.dm.packages.get(self.pkg1.name)
         assert len(outpkg.tags) == 2
+        assert len(self.tag1.packages) == 1
+    
+    def test_package_purge_deletes_tag_relations(self):
+        # consider following 
+        name = 'blahblah'
+        tagname = 'tagblahblah'
+        pkg1 = self.dm.packages.create(name=name)
+        tag1 = self.dm.Tag(name='tagblah')
+        pkg1.addTag(tag1)
+        self.dm.packages.purge(name)
+        # Deleting package alone appears to leave the joined item in the db
+        # thus when a lookup from tag happens an error occurs
+        try:
+            # error!
+            numpkgs = len(tag1.packages)
+        except:
+            pass
+        # however if we now delete tag
+        self.dm.Tag.delete(tag1.id)
+        # one can hand check that row now removed from db ...
 
 
 class TestPackageWithLicense:

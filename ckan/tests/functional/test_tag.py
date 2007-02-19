@@ -28,6 +28,7 @@ class TestPackageController(TestControllerTwill):
         offset = url_for(controller='tag', action='list')
         url = self.siteurl + offset
         web.go(url)
+        web.code(200)
         web.title('Tags - List')
         web.find(tagname)
         print web.show()
