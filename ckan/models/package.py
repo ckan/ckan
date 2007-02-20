@@ -20,7 +20,10 @@ class License(sqlobject.SQLObject):
 
     name = sqlobject.UnicodeCol(alternateID=True)
 
-    packages = sqlobject.RelatedJoin('Package')
+    packages = sqlobject.RelatedJoin('Package',
+            createRelatedTable=False,
+            intermediateTable='package_license'
+            )
 
 
 class Revision(sqlobject.SQLObject):
@@ -40,8 +43,10 @@ class Tag(sqlobject.SQLObject):
     name = sqlobject.UnicodeCol(alternateID=True)
     created = sqlobject.DateTimeCol(default=datetime.now())
 
-    packages = sqlobject.RelatedJoin('Package')
-
+    packages = sqlobject.RelatedJoin('Package',
+            createRelatedTable=False,
+            intermediateTable='package_tag'
+            )
 
 class Package(sqlobject.SQLObject):
 
@@ -52,12 +57,17 @@ class Package(sqlobject.SQLObject):
     name = sqlobject.UnicodeCol(alternateID=True)
     url = sqlobject.UnicodeCol(default=None)
     notes = sqlobject.UnicodeCol(default=None)
-    license = sqlobject.ForeignKey('License', default=None)
     state = sqlobject.ForeignKey('State', default=None)
 
     revisions = sqlobject.RelatedJoin('Revision')
-    tags = sqlobject.RelatedJoin('Tag')
-    licenses = sqlobject.RelatedJoin('License')
+    licenses = sqlobject.RelatedJoin('License',
+            createRelatedTable=False,
+            intermediateTable='package_license'
+            )
+    tags = sqlobject.RelatedJoin('Tag',
+            createRelatedTable=False,
+            intermediateTable='package_tag'
+            )
 
     def add_tag_by_name(self, tag_name):
         try:
@@ -72,6 +82,21 @@ class Package(sqlobject.SQLObject):
         self.syncUpdate()
         rev = Revision(author=author, log=log)
         rev.addPackage(self)
+
+
+# cannot use simple RelatedJoin because SQLObject does not cascade
+class PackageLicense(sqlobject.SQLObject):
+
+    package = sqlobject.ForeignKey('Package', cascade=True)
+    license = sqlobject.ForeignKey('License', cascade=True)
+
+
+# cannot use simple RelatedJoin because SQLObject does not cascade
+class PackageTag(sqlobject.SQLObject):
+
+    package = sqlobject.ForeignKey('Package', cascade=True)
+    tag = sqlobject.ForeignKey('Tag', cascade=True)
+
 
 class PackageRegistry(object):
 
