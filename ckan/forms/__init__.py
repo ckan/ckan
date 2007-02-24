@@ -12,7 +12,6 @@ class PackageSchema(formencode.sqlschema.SQLSchema):
         tagnames = [ tag.name for tag in obj.tags ]
         return ' '.join(tagnames)
 
-
     def get_current(self, obj, state):
         # single super is a mess, see:
         # http://groups.google.co.uk/group/comp.lang.python/browse_thread/thread/6d94ebc1016b7ddb/34684c138cf9f3%2334684c138cf9f3 
@@ -21,14 +20,46 @@ class PackageSchema(formencode.sqlschema.SQLSchema):
         value = formencode.sqlschema.SQLSchema.get_current(self, obj, state)
         tags_as_string = self._convert_tags(obj)
         value['tags'] = tags_as_string
+        licenses = [ license.name for license in obj.licenses ]
+        value['licenses'] = licenses
         return value
 
+    def _update_tags(self, pkg, tags_as_string):
+        taglist = tags_as_string.split(' ')
+        print taglist
+        for name in taglist:
+            tag = ckan.models.Tag.byName(name)
+            if tag not in pkg.tags:
+                pkg.addTag(tag)
+        for tag in pkg.tags:
+            if tag.name not in taglist:
+                pkg.removeTag(tag)
+        return pkg
+
+    def _update_licenses(self, pkg, licenses):
+        # sort of lame but what would be more efficient ...
+        for name in licenses:
+            license = ckan.models.License.byName(name)
+            if license not in pkg.licenses:
+                pkg.addLicense(license)
+        for license in pkg.licenses:
+            if license.name not in licenses:
+                pkg.removeLicense(license)
+        return pkg
+
     def update_object(self, columns, extra, state):
-        tags = extra.pop('tags')
+        tags = extra.pop('tags', '')
+        licenses = extra.pop('licenses', [])
+        # update_object requires existence of id to do updates
+        if 'id' not in columns:
+            tmp = ckan.models.dm.packages.get(columns['name'])
+            columns['id'] = tmp.id
+        # discard rest of extra so as not to get errors
+        extra = {}
         outobj = super(PackageSchema, self).update_object(
             columns, extra, state)
-        taglist = tags.split(' ')
-        for tag in taglist:
-            outobj.add_tag_by_name(tag)
+        print 'tags', tags
+        outobj = self._update_tags(outobj, tags)
+        outobj = self._update_licenses(outobj, licenses)
         return outobj
 
