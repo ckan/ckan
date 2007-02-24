@@ -25,7 +25,7 @@ class PackageSchema(formencode.sqlschema.SQLSchema):
         return value
 
     def _update_tags(self, pkg, tags_as_string):
-        taglist = tags_as_string.split(' ')
+        taglist = tags_as_string.split()
         print taglist
         for name in taglist:
             tag = ckan.models.Tag.byName(name)

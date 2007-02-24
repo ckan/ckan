@@ -26,22 +26,12 @@ class PackageController(BaseController):
             c.error = 'No package name was specified'
         else:
             try:
-                # can't use schema.to_python because of problems with licenses
-                # and commit dictionary items
-                name = request.params['name']
-                pkg = model.dm.packages.get(name)
-                pkg.url = request.params['url']
-                pkg.notes = request.params['notes']
-                # currently only returns one so need to wrap in an array
-                licenses = [request.params['licenses']]
-                # sort of lame but what does one do ...
-                for name in licenses:
-                    license = model.License.byName(name)
-                    if license not in pkg.licenses:
-                        pkg.addLicense(license)
-                for license in pkg.licenses:
-                    if license.name not in licenses:
-                        pkg.removeLicense(license)
+                schema = ckan.forms.PackageSchema()
+                # currently only returns one value because of problems with
+                # genshi and multiple on select so need to wrap in an array
+                indict = dict(request.params)
+                indict['licenses'] = [request.params['licenses']]
+                pkg = schema.to_python(indict)
                 pkg.save()
             except Exception, inst:
                 c.error = '%s' % inst
