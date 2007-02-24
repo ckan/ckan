@@ -111,9 +111,9 @@ class TestPackageWithTags:
     dm  = ckan.models.dm
 
     def setup_method(self, method): 
-        self.name = 'geodata'
-        self.tagname1 = 'testtag1'
-        self.tagname2 = 'geodata'
+        self.name = u'geodata'
+        self.tagname1 = u'testtag1'
+        self.tagname2 = u'geodata'
         try:
             self.teardown_method()
         except:
@@ -122,6 +122,8 @@ class TestPackageWithTags:
         self.tag1 = ckan.models.Tag(name=self.tagname1)
 
     def teardown_method(self, method):
+        # just use object names (not objects) so that this work even if create
+        # failed
         self.dm.packages.purge(self.name)
         tag = ckan.models.Tag.byName(self.tagname1)
         ckan.models.Tag.delete(tag.id)
@@ -142,13 +144,20 @@ class TestPackageWithTags:
         assert outpkg.revisions[-1].author == author
 
     def test_add_tag_by_name(self):
-        pkg = self.dm.packages.get(self.pkg1.name)
+        pkg = self.pkg1
         pkg.addTag(self.tag1)
         pkg.add_tag_by_name(self.tagname2)
         pkg.save()
         outpkg = self.dm.packages.get(self.pkg1.name)
         assert len(outpkg.tags) == 2
         assert len(self.tag1.packages) == 1
+
+    def test_add_tag_by_name_existing(self):
+        pkg = self.pkg1
+        pkg.add_tag_by_name(self.tag1.name)
+        pkg.save()
+        outpkg = self.dm.packages.get(self.pkg1.name)
+        assert len(outpkg.tags) == 1
     
     def test_package_purge_deletes_tag_relations(self):
         # using simple RelatedJoin this fails (items in join table not deleted)
