@@ -72,15 +72,19 @@ class TestPackageController(TestControllerTwill):
 
 class TestPackageControllerEdit(TestControllerTwill):
 
-    def setup_class(self):
+    def setup_method(self, method):
+        super(TestPackageControllerEdit, self).setup_method(method)
         self.editpkg = ckan.models.Package(
                 name='editpkgtest',
                 url='editpkgurl.com',
                 notes='this is editpkg'
                 )
 
-    def teardown_class(self):
+    def teardown_method(self, method):
+        super(TestPackageControllerEdit, self).teardown_method(method)
         ckan.models.dm.packages.purge(self.editpkg.name)
+        # if method == 'test_edit_2':
+            # self._teardown_test_edit2()
 
     def test_update(self):
         offset = url_for(controller='package', action='update')
@@ -111,6 +115,29 @@ class TestPackageControllerEdit(TestControllerTwill):
         assert pkg.url == newurl
         licenses = [ license.name for license in pkg.licenses]
         assert newlicense in licenses
+
+    def test_edit_2(self):
+        offset = url_for(controller='package', action='edit', id=self.editpkg.name)
+        url = self.siteurl + offset
+        web.go(url)
+        web.code(200)
+        web.title('Packages - Edit')
+        # really want to check it is in the form ...
+        web.find(self.editpkg.notes)
+        fn = 2
+        newtags = ['russian']
+        tagvalues = ' '.join(newtags)
+        web.fv(fn, 'tags', tagvalues)
+        web.submit()
+        web.code(200)
+        print web.show()
+        web.find('Update successful.')
+        pkg = ckan.models.Package.byName(self.editpkg.name)
+        assert len(pkg.tags) == 1
+        outtags = [ tag.name for tag in pkg.tags ]
+        for tag in newtags:
+            assert tag in outtags 
+
 
 class TestPackageControllerNew(TestControllerTwill):
 

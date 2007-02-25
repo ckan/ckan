@@ -12,6 +12,8 @@
       ${XML(h.select('licenses',
         h.options_for_select_from_objects(c.licenses, selected=[s.id for s in c.pkg.licenses], name_attr='name'), multiple=True)
       )}
+      <label for="tags">Tags:</label>
+      ${XML(h.text_field('tags', size=60))} <br />
       <label for="notes">Notes:</label>
       ${XML(h.text_area('notes', size="25x10"))} <br />
       ${XML(h.submit())}
