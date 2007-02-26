@@ -4,7 +4,9 @@
   <py:def function="page_title">Packages - ${c.pkg.name}</py:def>
 
   <div py:match="content">
-    <h2>Package: ${c.pkg.name}</h2>
+    <h2>Package: ${c.pkg.name}
+      ${ XML(h.link_to('[edit]', h.url_for(action='edit', id=c.pkg.name))) }
+    </h2>
     <ul>
       <li>Name: ${c.pkg.name}</li>
       <li>Url: ${XML(h.link_to(c.pkg.url, c.pkg.url))}</li>
