@@ -54,18 +54,15 @@ class PackageController(BaseController):
 
     def create(self):
         c.error = ''
-        # should validate I suppose
+        c.name = ''
+        schema = ckan.forms.PackageNameSchema()
         try:
-            newdict = dict(request.params)
-            pkg = model.dm.packages.create(
-                    name=request.params['name'],
-                    url=request.params.get('url', ''),
-                    notes=request.params.get('notes', '')
-                    )
+            c.name = schema.to_python(request.params)['name']
+            pkg = model.dm.packages.create(name=c.name)
         except Exception, inst:
             c.error = '%s' % inst
         return render_response('package/create')
     
-    @validate(schema=ckan.forms.PackageSchema(), form='new')
+    @validate(schema=ckan.forms.PackageNameSchema(), form='new')
     def new(self):
         return render_response('package/new')

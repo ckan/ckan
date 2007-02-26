@@ -8,10 +8,17 @@
     <form action="${h.url(action='create')}" method="post"> 
       <label for="name">Name:</label>
       ${XML(h.text_field('name', size=30))} <br />
-      <label for="url">Url:</label>
-      ${XML(h.text_field('url', size=30))} <br />
-      <label for="notes">Notes:</label>
-      ${XML(h.text_area('notes', size="25x10"))} <br />
+      <p class="desc">Please choose a short name for the package (once this is done you will be able to edit the other package attributes).</p>
+      <p class="desc">The name has several restrictions because it is used as a universal identifier for the package:</p>
+      <ul class="desc">
+        <li>cannot match the name of any other package</li>
+
+        <li>must be at least 2 characters in length</li>
+        <li>must be in lower case</li>
+        <li>can only contain alphanumeric characters, dashes and underscrores</li>
+        <li>cannot match one of the reserved names</li>
+      </ul>
+      <p class="desc">Package names can be changed after registration.</p>
       ${XML(h.submit())}
     </form>
   </div>

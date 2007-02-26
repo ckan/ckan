@@ -1,6 +1,43 @@
+import formencode
 import formencode.sqlschema
 
 import ckan.models
+
+class UniquePackageName(formencode.FancyValidator):
+    def _to_python(self, value, state):
+        error = False
+        try:
+            ckan.models.dm.packages.get(value)
+            error = True
+        except:
+            pass
+        if error:
+            raise formencode.Invalid(
+                'That username already exists',
+                value, state)
+        else:
+            return value
+
+class LowerCase(formencode.FancyValidator):
+
+     def _to_python(self, value, state):
+         lower = value.strip().lower()
+         if value != lower:
+             raise formencode.Invalid(
+                 'Please use only lower case characters', value, state)
+         return value
+
+package_name_validator = formencode.All(
+        formencode.validators.MinLength(2),
+        formencode.validators.PlainText(),
+        LowerCase(),
+        UniquePackageName(),
+        )
+
+class PackageNameSchema(formencode.Schema):
+
+    name = package_name_validator
+    allow_extra_fields = True
 
 class PackageSchema(formencode.sqlschema.SQLSchema):
     wrap = ckan.models.Package

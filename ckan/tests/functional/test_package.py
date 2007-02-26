@@ -142,10 +142,10 @@ class TestPackageControllerEdit(TestControllerTwill):
 class TestPackageControllerNew(TestControllerTwill):
 
     def setup_class(self):
-        self.testpkg = { 'name' : 'testpkg', 'url' : 'http://testpkg.org' }
+        self.testvalues = { 'name' : 'testpkg' }
 
     def teardown_class(self):
-        ckan.models.dm.packages.purge(self.testpkg['name'])
+        ckan.models.dm.packages.purge(self.testvalues['name'])
 
     def test_create(self):
         offset = url_for(controller='package', action='create')
@@ -162,13 +162,15 @@ class TestPackageControllerNew(TestControllerTwill):
         web.code(200)
         web.title('Packages - New')
         fn = 2
-        web.fv(fn, 'name', self.testpkg['name'])
-        web.fv(fn, 'url', self.testpkg['url'])
+        web.fv(fn, 'name', self.testvalues['name'])
         web.submit()
         web.code(200)
         print web.show()
         web.find('Create successful.')
-        pkg = ckan.models.Package.byName(self.testpkg['name'])
-        assert pkg.url == self.testpkg['url']
-
+        pkg = ckan.models.Package.byName(self.testvalues['name'])
+        assert pkg.name == self.testvalues['name']
+        web.find('To continue editing')
+        web.follow(self.testvalues['name'])
+        web.code(200)
+        web.title('Packages - Edit')
 

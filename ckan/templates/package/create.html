@@ -6,7 +6,9 @@
   <div py:match="content" py:choose="">
     <h2>Package Create</h2>
     <p py:when="c.error"><strong>There was an error: ${c.error}</strong></p>
-    <p py:otherwise="">Create successful.</p>
+    <p py:otherwise="">Create successful. To continue editing click here:
+      ${ XML(h.link_to(c.name, h.url_for(action='edit', id=c.name))) }
+    </p>
   </div>
 
   <xi:include href="layout.html" />
