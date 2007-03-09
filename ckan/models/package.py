@@ -74,7 +74,8 @@ class Package(sqlobject.SQLObject):
             tag = Tag.byName(tag_name)
         except sqlobject.SQLObjectNotFound:
             tag = Tag(name=tag_name)
-        self.addTag(tag)
+        if not tag in self.tags:
+            self.addTag(tag)
 
     def save(self, author=None, log=None):
         # TODO: ? check sqlmeta.dirty to see if anything needs to be done

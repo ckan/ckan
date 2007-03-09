@@ -63,11 +63,8 @@ class PackageSchema(formencode.sqlschema.SQLSchema):
 
     def _update_tags(self, pkg, tags_as_string):
         taglist = tags_as_string.split()
-        print taglist
         for name in taglist:
-            tag = ckan.models.Tag.byName(name)
-            if tag not in pkg.tags:
-                pkg.addTag(tag)
+            pkg.add_tag_by_name(name)
         for tag in pkg.tags:
             if tag.name not in taglist:
                 pkg.removeTag(tag)
@@ -95,7 +92,6 @@ class PackageSchema(formencode.sqlschema.SQLSchema):
         extra = {}
         outobj = super(PackageSchema, self).update_object(
             columns, extra, state)
-        print 'tags', tags
         outobj = self._update_tags(outobj, tags)
         outobj = self._update_licenses(outobj, licenses)
         return outobj

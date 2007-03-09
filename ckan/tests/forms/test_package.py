@@ -73,19 +73,26 @@ class TestPackageSchemaToPython:
         self.schema = ckan.forms.PackageSchema()
         self.testname = u'schematestpkg'
         self.testname2 = u'schematestpkg2'
+        self.newtagname = u'schematesttag'
         self.testpkg = ckan.models.dm.packages.create(name=self.testname)
         self.indict = {
                 # do not need id as name should be enough
                 # 'id'   : testpkg.id,
                 'name' : self.testname,
                 'notes': u'some new notes',
-                'tags' : u'russian tolstoy',
+                'tags' : u'russian tolstoy ' + self.newtagname,
                 'licenses': [ 'OKD Compliant::Other' ] 
                 }
 
     def teardown_class(self):
-        ckan.models.dm.packages.purge(self.testname)
-        ckan.models.dm.packages.purge(self.testname2)
+        try: ckan.models.dm.packages.purge(self.testname)
+        except: pass
+        try: ckan.models.dm.packages.purge(self.testname2)
+        except: pass
+        try:
+            tag = ckan.models.Tag.byName(self.newtagname)
+            ckan.models.Tag.delete(tag.id)
+        except: pass
 
     def test_to_python(self):
         outpkg = self.schema.to_python(self.indict)
@@ -98,13 +105,13 @@ class TestPackageSchemaToPython:
             taglist.append(xx.name)
         assert u'russian' in taglist
         assert u'tolstoy' in taglist
+        assert self.newtagname in taglist
 
     def test_to_python_licenses(self):
         outpkg = self.schema.to_python(self.indict)
         out = [ license.name for license in outpkg.licenses ]
         assert self.indict['licenses'] == out
 
-    # TODO: test when we delete a tag from list ...
     def test_to_python_tags_2(self):
         testpkg2 = ckan.models.dm.packages.create(name=self.testname2)
         testpkg2.add_tag_by_name('russian')
