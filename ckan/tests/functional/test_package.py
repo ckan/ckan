@@ -44,11 +44,13 @@ class TestPackageController(TestControllerTwill):
         print web.show()
         web.title('Packages - %s' % name)
         web.find(name)
-        web.find('Url: ')
+        web.find('Url:')
         web.find(self.anna.url)
-        web.find('Notes: ')
+        web.find('Notes:')
         web.find('Licenses:')
         web.find('OKD Compliant::')
+        web.find('Tags:')
+        web.find('russian')
 
     def test_read_nonexistentpackage(self):
         name = 'anonexistentpackage'
