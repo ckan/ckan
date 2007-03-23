@@ -1,49 +1,34 @@
-from sqlobject import *
+import sqlobject
 from pylons.database import PackageHub
 hub = PackageHub('ckan')
-__connection__ = hub
+sqlobject.sqlhub.processConnection = hub.getConnection()
 
 from package import *
+import vdm.base
+from vdm.base import State
 
 class DomainModel(object):
 
     # should be in order needed for creation
     classes = [
-            State,
             License,
-            Revision,
-            Tag,
             Package,
-            PackageLicense,
+            PackageRevision,
+            Tag,
+            TagRevision,
             PackageTag,
+            PackageTagRevision,
             ]
 
-    packages = PackageRegistry()
+    def __init__(self, revision, transaction=None):
+        self.revision = revision
+        self.transaction = transaction
+        self.packages = vdm.base.VersionedDomainObjectRegister(Package, 'name', revision, transaction)
+        self.tags = vdm.base.VersionedDomainObjectRegister(Tag, 'name', revision, transaction)
+        self.package_tags = vdm.base.VersionedDomainObjectRegister(PackageTag, 'id', revision, transaction)
 
-    def begin_revision(self):
-        return Revision()
-    
-    def create_tables(self):
-        for cls in self.classes:
-            cls.createTable(ifNotExists=True)
-
-    def drop_tables(self):
-        # cannot just use reversed as this operates in place
-        size = len(self.classes)
-        indices = range(size)
-        indices.reverse()
-        reversed = [ self.classes[xx] for xx in indices ]
-        for cls in reversed:
-            cls.dropTable(ifExists=True)
-    
-    def rebuild(self):
-        self.drop_tables()
-        self.create_tables()
-        self.init()
-
-    def init(self):
-        State(name='active')
-        State(name='deleted')
+    @classmethod
+    def initialise_repository(self):
         # all OSI licenses from http://www.opensource.org/licenses/
         # but excluding some that have been deprecated by their authors
         # e.g. 'Historical Permission Notice and Disclaimer'
@@ -111,4 +96,5 @@ class DomainModel(object):
         License(name='OSI Approved::Zope Public License')
         License(name='OSI Approved::zlib/libpng license')
 
-dm = DomainModel()
+repo = vdm.base.Repository(DomainModel)
+

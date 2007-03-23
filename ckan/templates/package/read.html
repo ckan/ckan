@@ -14,15 +14,14 @@
       <strong>Url:</strong> ${XML(h.link_to(c.pkg.url, c.pkg.url))}
     </p>
     <p><strong>Tags:</strong>
-      <py:for each="tag in c.pkg.tags">
-      ${XML(h.link_to(tag.name,
-        h.url_for(controller='tag', action='read', id=tag.name)))}
+      <py:for each="pkg2tag in c.pkg.tags">
+      ${XML(h.link_to(pkg2tag.tag.name,
+        h.url_for(controller='tag', action='read', id=pkg2tag.tag.name)))}
       </py:for>
     </p>
-    <p><strong>Licenses:</strong></p>
-    <ul>
-      <li py:for="license in c.pkg.licenses">${license.name}</li>
-    </ul>
+    <p><strong>Licenses:</strong>
+      ${c.pkg.license.name}
+    </p>
     <p><strong>Notes:</strong></p>
     ${c.pkg.notes}
   </div>

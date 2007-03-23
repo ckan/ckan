@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='ckan',
-    version='0.2',
+    version='0.3dev',
     author='Open Knowledge Foundation',
     author_email='info@okfn.org',
     license='MIT',

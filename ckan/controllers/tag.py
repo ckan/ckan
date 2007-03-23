@@ -1,19 +1,22 @@
 from ckan.lib.base import *
 
 class TagController(BaseController):
+    repo = model.repo
 
     def index(self):
         return render_response('tag/index')
 
     def read(self, id):
         try:
-            c.tag = model.Tag.byName(id)
+            rev = self.repo.youngest_revision()
+            c.tag = rev.model.tags.get(id)
         except:
             abort(404)
         return render_response('tag/read')
 
     def list(self):
-        tags = list(model.Tag.select())
+        rev = self.repo.youngest_revision()
+        tags = rev.model.tags
         c.tag_count = len(tags)
         c.tags = tags
         return render_response('tag/list')

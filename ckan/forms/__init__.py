@@ -5,13 +5,14 @@ import ckan.models
 
 class UniquePackageName(formencode.FancyValidator):
     def _to_python(self, value, state):
-        error = False
+        exists = False
+        rev = ckan.models.repo.youngest_revision()
         try:
-            ckan.models.dm.packages.get(value)
-            error = True
+            rev.model.packages.get(value)
+            exists = True
         except:
             pass
-        if error:
+        if exists:
             raise formencode.Invalid(
                 'That username already exists',
                 value, state)
@@ -46,7 +47,7 @@ class PackageSchema(formencode.sqlschema.SQLSchema):
     # filter_extra_fields = True
 
     def _convert_tags(self, obj):
-        tagnames = [ tag.name for tag in obj.tags ]
+        tagnames = [ pkg2tag.tag.name for pkg2tag in obj.tags ]
         return ' '.join(tagnames)
 
     def get_current(self, obj, state):
@@ -55,9 +56,15 @@ class PackageSchema(formencode.sqlschema.SQLSchema):
         # not sure why it is in the example code ...
         # value = super(PackageSchema).get_current(obj, state)
         value = formencode.sqlschema.SQLSchema.get_current(self, obj, state)
+        for name in obj.versioned_attributes:
+            value[name] = getattr(obj, name)
         tags_as_string = self._convert_tags(obj)
         value['tags'] = tags_as_string
-        licenses = [ license.name for license in obj.licenses ]
+        # convert licenses
+        del value['license']
+        licenses = []
+        if obj.license is not None:
+            licenses.append(obj.license.name)
         value['licenses'] = licenses
         return value
 
@@ -65,34 +72,26 @@ class PackageSchema(formencode.sqlschema.SQLSchema):
         taglist = tags_as_string.split()
         for name in taglist:
             pkg.add_tag_by_name(name)
-        for tag in pkg.tags:
-            if tag.name not in taglist:
-                pkg.removeTag(tag)
-        return pkg
-
-    def _update_licenses(self, pkg, licenses):
-        # sort of lame but what would be more efficient ...
-        for name in licenses:
-            license = ckan.models.License.byName(name)
-            if license not in pkg.licenses:
-                pkg.addLicense(license)
-        for license in pkg.licenses:
-            if license.name not in licenses:
-                pkg.removeLicense(license)
+        for pkg2tag in pkg.tags:
+            if pkg2tag.tag.name not in taglist:
+                pkg2tag.delete()
         return pkg
 
     def update_object(self, columns, extra, state):
+        txn = state
         tags = extra.pop('tags', '')
         licenses = extra.pop('licenses', [])
-        # update_object requires existence of id to do updates
-        if 'id' not in columns:
-            tmp = ckan.models.dm.packages.get(columns['name'])
-            columns['id'] = tmp.id
-        # discard rest of extra so as not to get errors
-        extra = {}
-        outobj = super(PackageSchema, self).update_object(
-            columns, extra, state)
+        # TODO: create the object if it does not already exist
+        outobj = txn.model.packages.get(columns['name'])
+        columns.pop('name')
+        if len(licenses) > 0:
+            licenseobj = ckan.models.License.byName(licenses[0])
+            columns['license'] = licenseobj
+        print columns, extra
+        for key in columns:
+            setattr(outobj, key, columns[key])
+        for key in extra:
+            setattr(outobj, key, extra[key])
         outobj = self._update_tags(outobj, tags)
-        outobj = self._update_licenses(outobj, licenses)
         return outobj
 

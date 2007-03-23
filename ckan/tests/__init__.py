@@ -48,24 +48,23 @@ class TestControllerTwill(object):
     def teardown_method(self, name=''):
         twill.remove_wsgi_intercept(self.host, self.port)
 
-
 def create_test_data():
     import ckan.models
-    pkg1 = ckan.models.Package(
-            name='annakarenina',
-            url='http://www.annakarenina.com',
-            notes='Some test notes')
-    pkg2 = ckan.models.Package(name='warandpeace')
-    tag1 = ckan.models.Tag(name='russian')
-    tag2 = ckan.models.Tag(name='tolstoy')
+    txn = ckan.models.repo.begin_transaction()
+    model = txn.model
+    pkg1 = model.packages.create(name='annakarenina')
+    pkg1.url = 'http://www.annakarenina.com'
+    pkg1.notes = 'Some test notes'
+    pkg2 = model.packages.create(name='warandpeace')
+    tag1 = model.tags.create(name='russian')
+    tag2 = model.tags.create(name='tolstoy')
     license1 = ckan.models.License.byName('OKD Compliant::Other')
-    pkg1.addTag(tag1)
-    pkg1.addTag(tag2)
-    pkg1.addLicense(license1)
-    pkg1.save()
-    pkg2.addTag(tag1)
-    pkg2.addTag(tag2)
-    pkg2.save()
+    pkg1.tags.create(tag=tag1)
+    pkg1.tags.create(tag=tag2)
+    pkg1.license = license1
+    pkg2.tags.create(tag=tag1)
+    pkg2.tags.create(tag=tag2)
+    txn.commit()
 
 
 __all__ = ['url_for', 'TestControllerTwill', 'web', 'create_test_data']

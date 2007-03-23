@@ -8,9 +8,14 @@
 
       The issue goes deep in genshi as this still does not work even if you
       hand define the select tag: <select multiple="multiple">
-      -->
+
+      Go back to single license value for time being
       ${XML(h.select('licenses',
         h.options_for_select_from_objects(c.licenses, selected=[s.id for s in c.pkg.licenses], name_attr='name'), multiple=True)
+      )}
+      -->
+      ${XML(h.select('licenses',
+        c.license_options, multiple=True)
       )}
       <label for="tags">Tags:</label>
       ${XML(h.text_field('tags', size=60))} <br />

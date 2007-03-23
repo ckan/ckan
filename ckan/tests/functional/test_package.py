@@ -3,7 +3,10 @@ import ckan.models
 
 class TestPackageController(TestControllerTwill):
 
-    anna = ckan.models.dm.packages.get('annakarenina')
+    def setup_class(self):
+        repo = ckan.models.repo
+        rev = repo.youngest_revision()
+        self.anna = rev.model.packages.get('annakarenina')
 
     def test_index(self):
         offset = url_for(controller='package')
@@ -76,15 +79,16 @@ class TestPackageControllerEdit(TestControllerTwill):
 
     def setup_method(self, method):
         super(TestPackageControllerEdit, self).setup_method(method)
-        self.editpkg = ckan.models.Package(
-                name='editpkgtest',
-                url='editpkgurl.com',
-                notes='this is editpkg'
-                )
+        txn = ckan.models.repo.begin_transaction()
+        self.editpkg = txn.model.packages.create(name='editpkgtest')
+        self.editpkg.url = 'editpkgurl.com'
+        self.editpkg.notes='this is editpkg'
+        txn.commit()
 
     def teardown_method(self, method):
         super(TestPackageControllerEdit, self).teardown_method(method)
-        ckan.models.dm.packages.purge(self.editpkg.name)
+        rev = ckan.models.repo.youngest_revision()
+        rev.model.packages.purge(self.editpkg.name)
         # if method == 'test_edit_2':
             # self._teardown_test_edit2()
 
@@ -113,9 +117,10 @@ class TestPackageControllerEdit(TestControllerTwill):
         web.code(200)
         print web.show()
         web.find('Update successful.')
-        pkg = ckan.models.Package.byName(self.editpkg.name)
+        rev = ckan.models.repo.youngest_revision()
+        pkg = rev.model.packages.get(self.editpkg.name)
         assert pkg.url == newurl
-        licenses = [ license.name for license in pkg.licenses]
+        licenses = [ pkg.license.name ]
         assert newlicense in licenses
 
     def test_edit_2(self):
@@ -134,9 +139,10 @@ class TestPackageControllerEdit(TestControllerTwill):
         web.code(200)
         print web.show()
         web.find('Update successful.')
-        pkg = ckan.models.Package.byName(self.editpkg.name)
-        assert len(pkg.tags) == 1
-        outtags = [ tag.name for tag in pkg.tags ]
+        rev = ckan.models.repo.youngest_revision()
+        pkg = rev.model.packages.get(self.editpkg.name)
+        assert len(pkg.tags.list()) == 1
+        outtags = [ pkg2tag.tag.name for pkg2tag in pkg.tags ]
         for tag in newtags:
             assert tag in outtags 
 
@@ -147,7 +153,8 @@ class TestPackageControllerNew(TestControllerTwill):
         self.testvalues = { 'name' : 'testpkg' }
 
     def teardown_class(self):
-        ckan.models.dm.packages.purge(self.testvalues['name'])
+        rev = ckan.models.repo.youngest_revision()
+        rev.model.packages.purge(self.testvalues['name'])
 
     def test_create(self):
         offset = url_for(controller='package', action='create')
@@ -169,7 +176,8 @@ class TestPackageControllerNew(TestControllerTwill):
         web.code(200)
         print web.show()
         web.find('Create successful.')
-        pkg = ckan.models.Package.byName(self.testvalues['name'])
+        rev = ckan.models.repo.youngest_revision()
+        pkg = rev.model.packages.get(self.testvalues['name'])
         assert pkg.name == self.testvalues['name']
         web.find('To continue editing')
         web.follow(self.testvalues['name'])

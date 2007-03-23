@@ -7,38 +7,8 @@ import ckan.models
 
 from datetime import datetime
 
-class TestRevision:
-    dm = ckan.models.dm
-    rr = ckan.models.Revision()
-
-    def teardown_class(cls):
-        ckan.models.Revision.delete(cls.rr.id)
-
-    def test_revision(self):
-        self.rr.log = 'This is a log'
-        self.rr.author = 'tolstoy'
-        self.rr.date = datetime.now()
-        rr2 = ckan.models.Revision.get(self.rr.id)
-        assert rr2.log == self.rr.log
-
-
-class TestTag:
-    dm = ckan.models.dm
-    name = 'testtag'
-
-    def teardown_class(cls):
-        tag = ckan.models.Tag.byName(cls.name)
-        ckan.models.Tag.delete(tag.id)
-
-    def test_tag(self):
-        tag = ckan.models.Tag(name=self.name)
-        created = str(tag.created)
-        exp = str(datetime.now())
-        assert created[:10] == exp[:10]
-
 
 class TestLicense:
-    dm = ckan.models.dm
     name = 'testlicense'
 
     def teardown_class(cls):
@@ -52,142 +22,145 @@ class TestLicense:
 
 
 class TestPackage:
-    dm = ckan.models.dm
 
     def setup_class(self):
-        # create a package the 'crude' way (without a revision)
+        self.repo = ckan.models.repo
         self.name = 'geodata'
         self.notes = 'Written by Puccini'
-        self.name2 = 'geodata2'
-        self.pkg1 = ckan.models.Package(name=self.name, notes=self.notes)
+        txn = self.repo.begin_transaction()
+        self.pkg1 = txn.model.packages.create(name=self.name)
+        self.pkg1.notes = self.notes
+        txn.commit()
 
     def teardown_class(self):
-        self.dm.packages.purge(self.pkg1.name)
-        self.dm.packages.purge(self.name2)
+        self.pkg1.purge()
 
     def test_create_package(self):
-        out = self.dm.packages.get(self.name)
+        rev = self.repo.youngest_revision()
+        out = rev.model.packages.get(self.name)
         assert out.name == self.name
         assert out.notes == self.notes
 
-    def test_package_purge(self):
-        name = 'somename'
-        pkg = self.dm.packages.create(name=name)
-        self.dm.packages.purge(name)
-        results = list(ckan.models.Package.select(
-            ckan.models.Package.q.name==name))
-        assert len(results) == 0 
-
-    def test_create_package_2(self):
-        # now do it the proper way
-        author = 'jones2'
-        self.pkg2 = self.dm.packages.create(author,
-                name=self.name2,
-                notes=self.notes)
-        out = self.dm.packages.get(self.name2)
-        assert out.notes == self.notes
-        assert out.revisions[0].author == author
-
     def test_update_package(self):
         newnotes = 'Written by Beethoven'
-        pkg = self.dm.packages.get(self.pkg1.name)
-        pkg.notes = newnotes
         author = 'jones'
-        pkg.save(author=author, log='a log message')
-        outpkg = self.dm.packages.get(self.pkg1.name)
+        txn = self.repo.begin_transaction()
+        pkg = txn.model.packages.get(self.name)
+        pkg.notes = newnotes
+        txn.author = 'jones'
+        txn.commit()
+        newrev = self.repo.youngest_revision()
+        outpkg = newrev.model.packages.get(self.name)
         assert outpkg.notes == newnotes
-        assert len(outpkg.revisions) > 0
-        assert outpkg.revisions[-1].author == author
-        # have a teardown method to reset values?
-        # as py.test guarantees order of execution might not be necessary
+        assert len(outpkg.history) > 0
+        assert outpkg.history[-1].revision.author == author
 
 
 class TestPackageWithTags:
     """
     WARNING: with sqlite these tests may fail (depending on the order they are
-    run in) as sqlite does not support RelatedJoin properly.
+    run in) as sqlite does not support ForeignKeys properly.
     """
 
-    dm  = ckan.models.dm
+    def setup_class(self):
+        self.repo = ckan.models.repo
 
-    def setup_method(self, method): 
-        self.name = u'geodata'
-        self.tagname1 = u'testtag1'
-        self.tagname2 = u'geodata'
-        try:
-            self.teardown_method()
-        except:
-            pass
-        self.pkg1 = self.dm.packages.create(name=self.name)
-        self.tag1 = ckan.models.Tag(name=self.tagname1)
+        txn = self.repo.begin_transaction()
+        self.tagname = 'testtagm2m'
+        self.tagname2 = 'testtagm2m2'
+        self.tagname3 = 'testtag3'
+        self.pkgname = 'testpkgm2m'
+        pkg = txn.model.packages.create(name=self.pkgname)
+        self.tag = txn.model.tags.create(name=self.tagname)
+        self.tag2 = txn.model.tags.create(name=self.tagname2)
+        pkg2tag = txn.model.package_tags.create(package=pkg, tag=self.tag)
+        self.pkg2tag_id = pkg2tag.id
+        pkg.tags.create(tag=self.tag2)
+        txn.commit()
+        self.rev = self.repo.youngest_revision()
 
-    def teardown_method(self, method):
-        # just use object names (not objects) so that this work even if create
-        # failed
-        self.dm.packages.purge(self.name)
-        tag = ckan.models.Tag.byName(self.tagname1)
-        ckan.models.Tag.delete(tag.id)
-        if method == 'test_add_tag_by_name':
-            tag = ckan.models.Tag.byName(self.tagname2)
-            ckan.models.Tag.delete(tag.id)
+    def teardown_class(self):
+        rev = self.repo.youngest_revision()
+        rev.model.packages.purge(self.pkgname)
+        rev.model.tags.purge(self.tagname)
+        rev.model.tags.purge(self.tagname2)
+        rev.model.tags.purge(self.tagname3)
 
-    def test_addTag(self):
-        pkg = self.dm.packages.get(self.pkg1.name)
-        print pkg.id
-        pkg.addTag(self.tag1)
-        author = 'jones'
-        pkg.save(author=author, log='a log message')
-        outpkg = self.dm.packages.get(self.pkg1.name)
-        print outpkg.tags
-        assert len(outpkg.tags) == 1
-        assert len(outpkg.revisions) > 1
-        assert outpkg.revisions[-1].author == author
+    def test_1(self):
+        pkg = self.rev.model.packages.get(self.pkgname)
+        pkg2tag = self.rev.model.package_tags.get(self.pkg2tag_id)
+        assert pkg2tag.package.name == self.pkgname
+
+    def test_2(self):
+        pkg = self.rev.model.packages.get(self.pkgname)
+        pkg2tag = pkg.tags.get(self.tag2)
+        assert pkg2tag.package.name == self.pkgname
+        pkg2tag2 = pkg.tags.get(self.tag)
+        assert pkg2tag2.package.name == self.pkgname
+        assert pkg2tag2.tag.name == self.tagname
+
+    def test_list(self):
+        pkg = self.rev.model.packages.get(self.pkgname)
+
+        # 2 default packages each with 2 tags so we have 2 + 4
+        all = self.rev.model.package_tags.list() 
+        assert len(all) == 6
+        pkgtags = pkg.tags.list()
+        assert len(pkgtags) == 2
 
     def test_add_tag_by_name(self):
-        pkg = self.pkg1
-        pkg.addTag(self.tag1)
-        pkg.add_tag_by_name(self.tagname2)
-        pkg.save()
-        outpkg = self.dm.packages.get(self.pkg1.name)
-        assert len(outpkg.tags) == 2
-        assert len(self.tag1.packages) == 1
+        txn = self.repo.begin_transaction()
+        pkg = txn.model.packages.get(self.pkgname)
+        pkg.add_tag_by_name(self.tagname3)
+        txn.commit()
+        newrev = self.repo.youngest_revision()
+        outpkg = newrev.model.packages.get(self.pkgname)
+        assert len(outpkg.tags.list()) == 3
+        # assert len(self.tag1.packages) == 1
 
-    def test_add_tag_by_name_existing(self):
-        pkg = self.pkg1
-        pkg.add_tag_by_name(self.tag1.name)
-        pkg.save()
-        outpkg = self.dm.packages.get(self.pkg1.name)
-        assert len(outpkg.tags) == 1
+#    def test_add_tag_by_name_existing(self):
+#        pkg = self.pkg1
+#        pkg.add_tag_by_name(self.tag1.name)
+#        pkg.save()
+#        outpkg = self.dm.packages.get(self.pkg1.name)
+#        assert len(outpkg.tags) == 1
     
-    def test_package_purge_deletes_tag_relations(self):
-        # using simple RelatedJoin this fails (items in join table not deleted)
-        name = 'blahblah'
-        tagname = 'tagblahblah'
-        pkg1 = self.dm.packages.create(name=name)
-        tag1 = ckan.models.Tag(name='tagblah')
-        pkg1.addTag(tag1)
-        self.dm.packages.purge(name)
-        numpkgs = len(tag1.packages)
-        assert numpkgs == 0
-        ckan.models.Tag.delete(tag1.id)
-
 
 class TestPackageWithLicense:
 
-    dm = ckan.models.dm
+    def setup_class(self):
+        self.repo = ckan.models.repo
+        self.license1 = ckan.models.License(name='test_license1')
+        self.license2 = ckan.models.License(name='test_license2')
+        txn = self.repo.begin_transaction()
+        self.pkgname = 'testpkgfk'
+        pkg = txn.model.packages.create(name=self.pkgname)
+        pkg.license = self.license1
+        txn.commit()
 
-    def setup_method(self, method):
-        name = 'geodata'
-        self.license = ckan.models.License(name='testlicense')
-        self.pkg1 = self.dm.packages.create(name=name)
+        txn2 = self.repo.begin_transaction()
+        pkg = txn2.model.packages.get(self.pkgname)
+        pkg.license = self.license2
+        txn2.commit()
+        self.rev1id = txn.id
+        self.rev2id = txn2.id
 
-    def teardown_method(self, method):
-        self.dm.packages.purge(self.pkg1.name)
-        ckan.models.License.delete(self.license.id)
+    def teardown_class(self):
+        rev = self.repo.youngest_revision()
+        rev.model.packages.purge(self.pkgname)
+        ckan.models.License.delete(self.license1.id)
+        ckan.models.License.delete(self.license2.id)
+ 
+    def test_set1(self):
+        rev = self.repo.get_revision(self.rev1id)
+        pkg = rev.model.packages.get(self.pkgname)
+        out = pkg.license.name 
+        exp = self.license1.name
+        assert out == exp
 
-    def test_add_license(self):
-        self.pkg1.addLicense(self.license)
-        out = self.dm.packages.get(self.pkg1.name)
-        assert len(out.licenses) == 1
-        assert out.licenses[0].name == self.license.name
-
+    def test_set2(self):
+        rev = self.repo.get_revision(self.rev2id)
+        pkg = rev.model.packages.get(self.pkgname)
+        out = pkg.license.name 
+        exp = self.license2.name
+        assert out == exp
