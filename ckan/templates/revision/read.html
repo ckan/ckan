@@ -1,0 +1,22 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+  
+  <py:def function="page_title">Revision ${c.revision.id}</py:def>
+
+  <div py:match="content">
+    <h2>
+      Revision: ${c.revision.number}
+    </h2>
+    <p>
+      <strong>Author:</strong> ${c.revision.author}
+    </p>
+    <p>
+      <strong>Timestamp:</strong> ${c.revision.timestamp}
+    </p>
+    <p><strong>Log Message:</strong></p>
+    ${c.revision.log_message}
+  </div>
+
+  <xi:include href="layout.html" />
+</html>
+

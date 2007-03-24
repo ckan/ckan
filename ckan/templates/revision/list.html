@@ -13,10 +13,21 @@
       </tr>
       <py:for each="rev in c.revisions">
       <tr>
-          <td>${rev.number}</td>
-          <td>${rev.timestamp}</td>
-          <td>${rev.author}</td>
-          <td>${rev.log_message}</td>
+        <td>
+          ${
+            XML(
+            h.link_to(rev.number,
+              h.url_for(
+                controller='revision',
+                action='read',
+                id=rev.number)
+              )
+            )
+          }
+        </td>
+        <td>${rev.timestamp}</td>
+        <td>${rev.author}</td>
+        <td>${rev.log_message}</td>
       </tr>
       </py:for>
     </table>
