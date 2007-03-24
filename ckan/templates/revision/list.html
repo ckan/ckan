@@ -1,0 +1,27 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+  
+  <py:def function="page_title">Repository History</py:def>
+
+  <div py:match="content">
+    <h2>Repository History</h2>
+    <p>This page lists all changes to package database, with most recent
+    changes first.</p>
+    <table>
+      <tr>
+        <th>Number</th><th>Timestamp</th><th>Author</th><th>Log Message</th>
+      </tr>
+      <py:for each="rev in c.revisions">
+      <tr>
+          <td>${rev.number}</td>
+          <td>${rev.timestamp}</td>
+          <td>${rev.author}</td>
+          <td>${rev.log_message}</td>
+      </tr>
+      </py:for>
+    </table>
+
+  </div>
+
+  <xi:include href="layout.html" />
+</html>

@@ -51,6 +51,12 @@ class TestControllerTwill(object):
 def create_test_data():
     import ckan.models
     txn = ckan.models.repo.begin_transaction()
+    txn.author = 'tolstoy'
+    txn.log_message = '''Creating test data.
+ * Package: annakarenina
+ * Package: warandpeace
+ * Associated tags, etc etc
+'''
     model = txn.model
     pkg1 = model.packages.create(name='annakarenina')
     pkg1.url = 'http://www.annakarenina.com'
