@@ -135,6 +135,8 @@ class TestPackageControllerEdit(TestControllerTwill):
         newtags = ['russian']
         tagvalues = ' '.join(newtags)
         web.fv(fn, 'tags', tagvalues)
+        exp_log_message = 'test_edit_2: making some changes'
+        web.fv(fn, 'log_message', exp_log_message)
         web.submit()
         web.code(200)
         print web.show()
@@ -145,6 +147,9 @@ class TestPackageControllerEdit(TestControllerTwill):
         outtags = [ pkg2tag.tag.name for pkg2tag in pkg.tags ]
         for tag in newtags:
             assert tag in outtags 
+        # for some reason environ['REMOTE_ADDR'] is undefined when using twill
+        assert rev.author == 'Unknown IP Address'
+        assert rev.log_message == exp_log_message
 
 
 class TestPackageControllerNew(TestControllerTwill):
@@ -179,6 +184,10 @@ class TestPackageControllerNew(TestControllerTwill):
         rev = ckan.models.repo.youngest_revision()
         pkg = rev.model.packages.get(self.testvalues['name'])
         assert pkg.name == self.testvalues['name']
+        # for some reason environ['REMOTE_ADDR'] is undefined when using twill
+        assert rev.author == 'Unknown IP Address'
+        exp_log_message = 'Creating package %s' % self.testvalues['name']
+        assert rev.log_message == exp_log_message
         web.find('To continue editing')
         web.follow(self.testvalues['name'])
         web.code(200)

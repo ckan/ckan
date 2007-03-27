@@ -1,4 +1,7 @@
-    <form action="${h.url(action='update')}" method="post"> 
+    <form action="${h.url(action='update')}" method="post"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
       ${XML(h.hidden_field('name'))}
       <label for="url">Url:</label>
       ${XML(h.text_field('url', size=30))} <br />
@@ -20,7 +23,15 @@
       <label for="tags">Tags:</label>
       ${XML(h.text_field('tags', size=60))} <br />
       <label for="notes">Notes:</label>
-      ${XML(h.text_area('notes', size="25x10"))} <br />
+      ${XML(h.text_area('notes', size="60x15"))} <br />
+      <label for="log_message">Log Message:</label>
+      ${XML(h.text_area('log_message', size="60x3"))} <br />
+      <label>Author: ${c.author}</label>
+      <p class="desc">
+      If you have not signed in this will just be your IP address. If you want
+      to sign please follow the link at the top of the page.
+      </p>
+
       ${XML(h.submit())}
     </form>
 

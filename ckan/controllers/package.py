@@ -4,6 +4,15 @@ import ckan.forms
 class PackageController(BaseController):
     repo = model.repo
 
+    def __before__(self, action, **params):
+        # what is different between session['user'] and environ['REMOTE_USER']
+        c.user = session.get('user', None)
+        c.remote_addr = request.environ.get('REMOTE_ADDR', 'Unknown IP Address')
+        if c.user:
+            c.author = self.c.user
+        else:
+            c.author = c.remote_addr
+
     def index(self):
         rev = self.repo.youngest_revision()
         c.package_count = len(rev.model.packages)
@@ -37,6 +46,8 @@ class PackageController(BaseController):
                 indict = dict(request.params)
                 indict['licenses'] = [request.params['licenses']]
                 txn = self.repo.begin_transaction()
+                txn.author = c.author
+                txn.log_message = indict.get('log_message', '')
                 pkg = schema.to_python(indict, state=txn)
                 txn.commit()
             except Exception, inst:
@@ -63,8 +74,6 @@ class PackageController(BaseController):
         schema = ckan.forms.PackageSchema()
         defaults = schema.from_python(c.pkg)
         c.form = htmlfill.render(content, defaults)
-        # htmlfill.render uses HTMLParser which returns broken xhtml
-        # also strips of ending </form>
         return render_response('package/edit')
 
     def create(self):
@@ -75,6 +84,8 @@ class PackageController(BaseController):
             txn = self.repo.begin_transaction()
             c.name = schema.to_python(request.params)['name']
             pkg = txn.model.packages.create(name=c.name)
+            txn.author = c.author
+            txn.log_message = 'Creating package %s' % c.name
             txn.commit()
         except Exception, inst:
             c.error = '%s' % inst
