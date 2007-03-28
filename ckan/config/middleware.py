@@ -50,6 +50,10 @@ def make_app(global_conf, full_stack=True, **app_conf):
     if asbool(full_stack):
         # Change HTTPExceptions to HTTP responses
         app = httpexceptions.make_middleware(app, global_conf)
+
+        # added authkit middleware to do authentication
+        import authkit.authenticate
+        app = authkit.authenticate.middleware(app, config_paste=app_conf)
     
         # Error Handling
         app = ErrorHandler(app, global_conf, error_template=error_template, **config.errorware)

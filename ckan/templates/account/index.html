@@ -1,0 +1,34 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+  
+  <py:def function="page_title">Account - Home</py:def>
+
+  <div py:match="content">
+    <h2>Accounts</h2>
+    <p>
+    CKAN uses <a href="http://openid.net/">OpenID</a> for user
+    authentication thus you do <strong>not</strong> need to register a new
+    username and password to use this site - instead you can reuse your
+    existing openid account.
+    </p>
+
+    <h3>Getting an OpenID</h3>
+    <p>
+    If you haven't already got an OpenID it is <a
+      href="http://openid.net/wiki/index.php/FAQ#How_can_I_get_an_OpenID_Identifier.3F">easy
+      to get one</a>. Probably the easiest way is sign up with a free OpenID
+    provider such as <a
+      href="https://www.myopenid.com/">https://www.myopenid.com/</a>.
+    </p>
+
+    <h3>Logging In</h3>
+    <p>
+    If you have already got an OpenID just visit the
+    ${XML(
+      h.link_to('login page', h.url_for(controller='account', action='login'))
+    )}
+    .</p>
+  </div>
+
+  <xi:include href="layout.html" />
+</html>
