@@ -25,28 +25,20 @@
       <div id="top-bar">
         <topbar>
         
-        <!--
-        {% if session %}
+        <py:choose>
+        <py:when test="c.user">
         <p>
-          Logged in as <strong>{{ session.person.name }}</strong> 
-          {% comment %}| <a href="/logout{% firstof redirect path %}">Logout</a>{% endcomment %}
-          | <a href="/logout/">Logout</a>
+          Logged in as <strong>${c.user}</strong> 
+          | <a href="/account/logout/">Logout</a>
         </p>
-        {% else %}
-        -->
-        <form action="/login/" method="post" id="top-login-form">
+        </py:when>
+        <py:otherwise>
           <p>
-            <a href="/persons/create/{{ returnPath }}">Register</a> or log in:
-            <label for="loginform-name" class="hidden">Name:</label>
-            <input type="text" id="loginform-name" name="name" title="Name" />
-            <label for="loginform-password" class="hidden">Password:</label>
-            <input type="password" id="loginform-password" name="password" title="Password" />
-            <input type="submit" id="loginform-submit" name="submit" value="Log in &raquo;" />
-            <input type="hidden" name="returnPath" value="{{ returnPath }}" />
+          <a href="/account/">Register</a> or
+          <a href="/account/login/">Login</a>
           </p>
-          
-        </form>
-        <!--{% endif %}-->
+        </py:otherwise>
+        </py:choose>
         </topbar>
       </div><!-- /top-bar -->
       

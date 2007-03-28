@@ -1,6 +1,7 @@
 from ckan.lib.base import *
+from ckan.controllers.base import CkanBaseController
 
-class RevisionController(BaseController):
+class RevisionController(CkanBaseController):
 
     def index(self):
         return self.list()

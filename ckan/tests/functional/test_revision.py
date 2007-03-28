@@ -1,6 +1,6 @@
 from ckan.tests import *
 
-class TestHomeController(TestControllerTwill):
+class TestRevisionController(TestControllerTwill):
 
     def test_link_major_navigation(self):
         offset = url_for(controller='home')
@@ -41,9 +41,9 @@ class TestHomeController(TestControllerTwill):
         web.code(200)
         print web.show()
         print web.showlinks()
-        # must be 2$ and not just 2 as twill with otherwise follow the second
+        # must be ^2$ and not just 2 as twill with otherwise follow the second
         # link found on the page
-        web.follow('2$')
+        web.follow('^2$')
         web.code(200)
         print web.show()
         web.title('Revision 2')

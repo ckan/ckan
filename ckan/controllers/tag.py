@@ -1,6 +1,7 @@
 from ckan.lib.base import *
+from ckan.controllers.base import CkanBaseController
 
-class TagController(BaseController):
+class TagController(CkanBaseController):
     repo = model.repo
 
     def index(self):

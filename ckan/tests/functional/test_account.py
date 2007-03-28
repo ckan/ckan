@@ -60,3 +60,27 @@ class TestHomeController(TestControllerTwill):
         web.code(200)
         web.find('You have logged out successfully.')
 
+    # -----------
+    # tests for top links present in every page
+
+    def test_home_register(self):
+        offset = url_for(controller='home')
+        url = self.siteurl + offset
+        web.go(url)
+        web.code(200)
+        web.follow('Register')
+        web.title('Account - Home')
+
+    def test_home_login(self):
+        offset = url_for(controller='home')
+        url = self.siteurl + offset
+        web.go(url)
+        web.code(200)
+        web.follow('Login')
+        # be generic (form has Please Login, openid has Please Sign In)
+        web.title('Please ')
+
+     # TODO: test sign in results in:
+     # a) a username at top of page
+     # b) logout link
+

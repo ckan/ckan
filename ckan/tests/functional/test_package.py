@@ -108,7 +108,7 @@ class TestPackageControllerEdit(TestControllerTwill):
         web.title('Packages - Edit')
         # really want to check it is in the form ...
         web.find(self.editpkg.notes)
-        fn = 2
+        fn = 1
         newurl = 'www.editpkgnewurl.com'
         newlicense = 'Non-OKD Compliant::Other'
         web.fv(fn, 'url', newurl)
@@ -131,7 +131,7 @@ class TestPackageControllerEdit(TestControllerTwill):
         web.title('Packages - Edit')
         # really want to check it is in the form ...
         web.find(self.editpkg.notes)
-        fn = 2
+        fn = 1
         newtags = ['russian']
         tagvalues = ' '.join(newtags)
         web.fv(fn, 'tags', tagvalues)
@@ -175,7 +175,7 @@ class TestPackageControllerNew(TestControllerTwill):
         web.go(url)
         web.code(200)
         web.title('Packages - New')
-        fn = 2
+        fn = 1
         web.fv(fn, 'name', self.testvalues['name'])
         web.submit()
         web.code(200)

@@ -1,6 +1,7 @@
 from ckan.lib.base import *
+from ckan.controllers.base import CkanBaseController
 
-class AccountController(BaseController):
+class AccountController(CkanBaseController):
     def index(self):
         c.login_page = h.url_for(controller='account', action='login')
         return render_response('account/index')
