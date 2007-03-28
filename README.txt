@@ -31,6 +31,10 @@ Rufus Pollock <rufus@rufuspollock.org>
    
       $ sudo python setup.py develop
 
+   This step should install most the library dependencies for CKAN. However
+   some dependencies may not be able to be installed automatically. Please see
+   install_requires option (and associated comments) in setup.py.
+
 3. Make a config file as follows:
 
       $ paster make-config ckan config.ini
@@ -51,7 +55,7 @@ Rufus Pollock <rufus@rufuspollock.org>
    config file then youl will need to change 5000 to whatever port value you
    chose).
 
-7. [optional] Production deployment. Ckan2 is built using pylons. A full
+7. [optional] Production deployment. CKAN2 is built using pylons. A full
    walkthrough of production deployment can be found at:
 
    http://pylonshq.com/project/pylonshq/wiki/FastCGI.
