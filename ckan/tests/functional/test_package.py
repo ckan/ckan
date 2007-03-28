@@ -50,6 +50,8 @@ class TestPackageController(TestControllerTwill):
         web.find('Url:')
         web.find(self.anna.url)
         web.find('Notes:')
+        web.find('Some test notes')
+        web.find('<strong>Some bolded text.</strong>')
         web.find('Licenses:')
         web.find('OKD Compliant::')
         web.find('Tags:')

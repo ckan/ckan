@@ -60,7 +60,14 @@ def create_test_data():
     model = txn.model
     pkg1 = model.packages.create(name='annakarenina')
     pkg1.url = 'http://www.annakarenina.com'
-    pkg1.notes = 'Some test notes'
+    pkg1.notes = '''Some test notes
+
+### A 3rd level heading
+
+**Some bolded text.**
+
+*Some italicized text.*
+'''
     pkg2 = model.packages.create(name='warandpeace')
     tag1 = model.tags.create(name='russian')
     tag2 = model.tags.create(name='tolstoy')

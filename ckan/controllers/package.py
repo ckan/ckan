@@ -14,6 +14,9 @@ class PackageController(CkanBaseController):
         try:
             rev = self.repo.youngest_revision()
             c.pkg = rev.model.packages.get(id)
+            import ckan.misc
+            format = ckan.misc.MarkdownFormat()
+            c.pkg_notes_formatted = format.to_html(c.pkg.notes)
         except:
             abort(404)
         return render_response('package/read')
