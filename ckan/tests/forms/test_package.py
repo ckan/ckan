@@ -51,7 +51,14 @@ class TestPackageSchemaFromPython:
         active = ckan.models.State.byName('active')
         self.exp = {
                 'url'     : u'http://www.annakarenina.com',
-                'notes'   : u'Some test notes',
+                'notes'   : u'''Some test notes
+
+### A 3rd level heading
+
+**Some bolded text.**
+
+*Some italicized text.*
+''',
                 'state'   : active,
                 'id'      : 1,
                 'name'    : u'annakarenina',

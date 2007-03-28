@@ -21,3 +21,10 @@ class TestFormatText:
         format = MarkdownFormat()
         out = format.to_html(instr)
         assert out == exp
+
+    def test_markdown_2(self):
+        instr = None
+        format = MarkdownFormat()
+        out = format.to_html(instr)
+        assert out == ''
+
