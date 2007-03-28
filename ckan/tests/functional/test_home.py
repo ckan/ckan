@@ -25,3 +25,15 @@ class TestHomeController(TestControllerTwill):
         web.follow('Tags')
         web.code(200)
         
+    def test_404(self):
+        url = self.siteurl + '/some_nonexistent_url'
+        web.go(url)
+        web.code(404)
+
+    def test_license(self):
+        offset = url_for(controller='license')
+        url = self.siteurl + offset
+        web.go(url)
+        web.code(200)
+        web.find('All</strong> material contained in CKAN is .*open')
+
