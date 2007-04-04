@@ -70,8 +70,10 @@ class PackageSchema(formencode.sqlschema.SQLSchema):
 
     def _update_tags(self, pkg, tags_as_string):
         taglist = tags_as_string.split()
+        current_tags = [ pkg2tag.tag.name for pkg2tag in pkg.tags ]
         for name in taglist:
-            pkg.add_tag_by_name(name)
+            if name not in current_tags:
+                pkg.add_tag_by_name(name)
         for pkg2tag in pkg.tags:
             if pkg2tag.tag.name not in taglist:
                 pkg2tag.delete()

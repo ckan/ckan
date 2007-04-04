@@ -137,6 +137,7 @@ class TestPackageSchemaToPython2:
         try:
             testpkg2 = txn.model.packages.create(name=self.testname2)
             testpkg2.add_tag_by_name('russian')
+            testpkg2.add_tag_by_name('tolstoy')
             indict2 = {
                     'name' : self.testname2,
                     'tags' : u'tolstoy',
@@ -155,7 +156,7 @@ class TestPackageSchemaToPython2:
         rev = ckan.models.repo.youngest_revision()
         rev.model.packages.purge(self.testname2)
 
-    def test_to_python_tags_2(self):
+    def test_to_python_tags_delete_and_keep(self):
         taglist = []
         for xx in self.outpkg.tags:
             taglist.append(xx.tag.name)
