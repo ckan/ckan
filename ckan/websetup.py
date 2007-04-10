@@ -7,5 +7,7 @@ def setup_config(command, filename, section, vars):
     conf = paste.deploy.appconfig('config:' + filename)
     paste.deploy.CONFIG.push_process_config({'app_conf':conf.local_conf,
                                              'global_conf':conf.global_conf})
-    pass
+    print '(Re)building the database'
+    import ckan.models
+    ckan.models.repo.rebuild()
 
