@@ -89,7 +89,6 @@ class PackageSchema(formencode.sqlschema.SQLSchema):
         if len(licenses) > 0:
             licenseobj = ckan.models.License.byName(licenses[0])
             columns['license'] = licenseobj
-        print columns, extra
         for key in columns:
             setattr(outobj, key, columns[key])
         for key in extra:
