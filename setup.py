@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='ckan',
-    version='0.3dev',
+    version='0.3',
     author='Open Knowledge Foundation',
     author_email='info@okfn.org',
     license='MIT',
@@ -14,7 +14,8 @@ CKAN is a web application to manage listings of knowledge packages.
 ''',
     # markdown should install automatically but might need to check
     install_requires=["Pylons>=0.9.4", "SQLObject>=0.7", "AuthKit>=0.3.0pre5",
-        "markdown>=1.5"],
+        "markdown>=1.5",
+        ],
     packages=find_packages(),
     include_package_data=True,
     package_data={'ckan': ['i18n/*/LC_MESSAGES/*.mo']},
