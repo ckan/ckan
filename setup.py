@@ -17,6 +17,7 @@ CKAN is a web application to manage listings of knowledge packages.
         "markdown>=1.5",
         ],
     packages=find_packages(),
+    scripts = ['bin/ckan-admin'],
     include_package_data=True,
     package_data={'ckan': ['i18n/*/LC_MESSAGES/*.mo']},
     entry_points='''
