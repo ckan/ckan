@@ -1,0 +1,28 @@
+# CKAN CHANGELOG
+
+v0.3 2007-04-12
+===============
+
+  * System now in a suitable state for production deployment as a beta
+  * Domain model versioning via the vdm package (currently released separately)
+  * Basic Recent Changes listing log messages
+  * User authentication (login/logout) via open ID
+  * License page
+  * Myriad of small fixes and improvements
+
+v0.2 2007-02
+============
+
+  * Complete rewrite of ckan to use pylons web framework
+  * Support for full CRUD on packages and tags
+  * No support for users (authentication)
+  * No versioning of domain model objects
+
+v0.1 2006-05
+============
+
+NB: not an official release
+
+  * Almost functional system with support for persons, packages
+  * Tag support only half-functional (tags are per package not global)
+  * Limited release and file support
