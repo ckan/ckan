@@ -54,11 +54,22 @@
       <li><a href="/package/">Packages</a></li>
       <li><a href="/tag/">Tags</a></li>
       <li><a href="/revision/">Recent Changes</a></li>
+      <li><a href="/account/">User Accounts</a></li>
     </ul>
     <h3 class="hidden">In this section:</h3>
     <ul id="subnav">
       <minornavigation>
       <li><a href="/">Home</a></li>
+      <py:choose>
+      <py:when test="c.user">
+      <li><a href="/account/logout/">Logout</a></li>
+      </py:when>
+      <py:otherwise>
+      <li><a href="/account/">Register</a></li>
+      <li><a href="/account/login/">Login</a></li>
+      </py:otherwise>
+      </py:choose>
+      <li><a href="/package/new/">New Package</a></li>
       </minornavigation>
     </ul>
        
