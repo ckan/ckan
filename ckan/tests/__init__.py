@@ -27,8 +27,9 @@ conf = paste.deploy.appconfig('config:' + test_file)
 CONFIG.push_process_config({'app_conf': conf.local_conf,
                             'global_conf': conf.global_conf}) 
 
-cmd = paste.script.appinstall.SetupCommand('setup-app')
-cmd.run([test_file])
+# do not run this for the time being as this rebuilds the database ...
+# cmd = paste.script.appinstall.SetupCommand('setup-app')
+# cmd.run([test_file])
 
 import twill
 from StringIO import StringIO
