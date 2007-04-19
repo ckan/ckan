@@ -3,8 +3,10 @@
       xmlns:xi="http://www.w3.org/2001/XInclude">
 
       ${XML(h.hidden_field('name'))}
+
       <label for="url">Url:</label>
       ${XML(h.text_field('url', size=30))} <br />
+
       <label for="licenses">Licenses:</label>
       <!-- REALLY WEIRD behaviour: genshi HTML and XML function strip away
       multiple="multiple" attribute 
@@ -20,12 +22,27 @@
       ${XML(h.select('licenses',
         c.license_options, multiple=True)
       )}
+
       <label for="tags">Tags:</label>
+      <p class="desc">
+      A space separated list of tag names. Tag names should:
+      </p>
+      <ul class="desc">
+        <li>Only use alphanumerics (a-z, 0-9) along with '-' and '_'</li>
+        <li>Only use lowercase letters</li> 
+      </ul>
       ${XML(h.text_field('tags', size=60))} <br />
+
       <label for="notes">Notes:</label>
+      <p class="desc">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.</p>
       ${XML(h.text_area('notes', size="60x15"))} <br />
-      <label for="log_message">Log Message:</label>
+
+      <hr />
+
+      <label for="log_message">Optional Log Message about this Change:</label>
+      <p class="desc">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.</p>
       ${XML(h.text_area('log_message', size="60x3"))} <br />
+
       <label>Author: ${c.author}</label>
       <p class="desc">
       If you have not signed in this will just be your IP address. If you want
