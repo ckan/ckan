@@ -24,6 +24,15 @@ class TestPackageName:
     def test_lower_case_ok(self):
         self.lower.to_python(self.good_names[0])
 
+    def test_std_object_name(self):
+        bad_names = [ 'blAh', 'a', 'geodata,' ]
+        good_names = [ 'blah', 'ab', 'ab1', 'some-random-made-up-name' ]
+        validator = ckan.forms.std_object_name.to_python
+        for name in bad_names:
+            self._check_raises(validator, name)
+        for name in good_names:
+            validator(name)
+
     def test_unique_username(self):
         self._check_raises(self.unique.to_python, self.bad_names[-1])
 
@@ -162,4 +171,24 @@ class TestPackageSchemaToPython2:
             taglist.append(xx.tag.name)
         assert u'russian' not in taglist
         assert u'tolstoy' in taglist
+
+class TestPackageSchemaToPythonBadTagName:
+
+    def setup_class(self):
+        self.schema = ckan.forms.PackageSchema()
+
+    def test_bad_tag_name_does_not_work(self):
+        try:
+            txn = ckan.models.repo.begin_transaction()
+            # ok to use annakarenina since change should fail due to bad tag
+            indict2 = {
+                    'name' : 'annakarenina',
+                    'tags' : u'tolstoy,',
+                    }
+            self.schema.to_python(indict2, state=txn)
+            txn.commit()
+        except formencode.Invalid, inst:
+            ok = True
+        if not ok:
+            assert False, 'Failed to raise an exception given bad tag name'
 

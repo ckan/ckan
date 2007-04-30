@@ -28,6 +28,12 @@ class LowerCase(formencode.FancyValidator):
                  'Please use only lower case characters', value, state)
          return value
 
+std_object_name = formencode.All(
+        formencode.validators.MinLength(2, strip=True),
+        formencode.validators.PlainText(strip=True),
+        LowerCase(strip=True),
+        )
+
 package_name_validator = formencode.All(
         formencode.validators.MinLength(2),
         formencode.validators.PlainText(),
@@ -70,6 +76,8 @@ class PackageSchema(formencode.sqlschema.SQLSchema):
 
     def _update_tags(self, pkg, tags_as_string):
         taglist = tags_as_string.split()
+        # validate and normalize
+        taglist = [ std_object_name.to_python(name) for name in taglist ]
         current_tags = [ pkg2tag.tag.name for pkg2tag in pkg.tags ]
         for name in taglist:
             if name not in current_tags:
