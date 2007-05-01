@@ -419,3 +419,13 @@ a.colophonIcon {cursor: pointer;}
 {
   background-image: url(http://m.okfn.org/images/ok_buttons/ok_80x15_blue.png);
 }
+
+#top-inner h1
+{
+	font-size: 2.2em;
+}
+
+#top-inner h1 sup
+{
+	font-size: 0.4em;
+}
