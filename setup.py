@@ -13,8 +13,10 @@ setup(
 CKAN is a web application to manage listings of knowledge packages.
 ''',
     # markdown should install automatically but might need to check
-    install_requires=["Pylons>=0.9.4", "SQLObject>=0.7", "AuthKit>=0.3.0pre5",
-        "markdown>=1.5",
+    install_requires=[
+        "vdm==0.1",
+        "Pylons>=0.9.4", "SQLObject>=0.7", "AuthKit>=0.3.0pre5",
+        # "markdown>=1.5",
         ],
     packages=find_packages(),
     scripts = ['bin/ckan-admin'],
