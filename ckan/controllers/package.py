@@ -1,6 +1,7 @@
 from ckan.lib.base import *
 import ckan.forms
 from ckan.controllers.base import CkanBaseController
+import genshi
 
 class PackageController(CkanBaseController):
     repo = model.repo
@@ -14,11 +15,13 @@ class PackageController(CkanBaseController):
         try:
             rev = self.repo.youngest_revision()
             c.pkg = rev.model.packages.get(id)
-            import ckan.misc
-            format = ckan.misc.MarkdownFormat()
-            c.pkg_notes_formatted = format.to_html(c.pkg.notes)
         except:
             abort(404)
+        import ckan.misc
+        format = ckan.misc.MarkdownFormat()
+        notes_formatted = format.to_html(c.pkg.notes)
+        notes_formatted = genshi.HTML(notes_formatted)
+        c.pkg_notes_formatted = notes_formatted
         return render_response('package/read')
 
     def list(self):
