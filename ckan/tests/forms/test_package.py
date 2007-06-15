@@ -92,14 +92,13 @@ class TestPackageSchemaToPython:
         txn = ckan.models.repo.begin_transaction()
         self.schema = ckan.forms.PackageSchema()
         self.testname = u'schematestpkg'
-        self.testname2 = u'schematestpkg2'
         self.newtagname = u'schematesttag'
         self.indict = {
                 # do not need id as name should be enough
                 # 'id'   : testpkg.id,
                 'name' : self.testname,
                 'notes': u'some new notes',
-                'tags' : u'russian tolstoy ' + self.newtagname,
+                'tags' : u'russian tolstoy, ' + self.newtagname,
                 'licenses': [ 'OKD Compliant::Other' ] 
                 }
         try: # wrap this so that teardown still gets called if there is an error
@@ -179,11 +178,12 @@ class TestPackageSchemaToPythonBadTagName:
 
     def test_bad_tag_name_does_not_work(self):
         try:
+            ok = False
             txn = ckan.models.repo.begin_transaction()
             # ok to use annakarenina since change should fail due to bad tag
             indict2 = {
                     'name' : 'annakarenina',
-                    'tags' : u'tolstoy,',
+                    'tags' : u'tolstoy%%',
                     }
             self.schema.to_python(indict2, state=txn)
             txn.commit()

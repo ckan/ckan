@@ -75,6 +75,8 @@ class PackageSchema(formencode.sqlschema.SQLSchema):
         return value
 
     def _update_tags(self, pkg, tags_as_string):
+        # replace all commas with spaces
+        tags_as_string = tags_as_string.replace(',', ' ')
         taglist = tags_as_string.split()
         # validate and normalize
         taglist = [ std_object_name.to_python(name) for name in taglist ]
