@@ -31,37 +31,58 @@ class PackageController(CkanBaseController):
         c.packages = packages
         return render_response('package/list')
 
-    def update(self):
-        c.error = ''
-        if not request.params.has_key('name'):
-            c.error = 'No package name was specified'
-        else:
+    def _update(self):
+        error_msg = ''
+        try:
             c.pkg_name = request.params['name']
-            try:
-                schema = ckan.forms.PackageSchema()
-                # currently only returns one value because of problems with
-                # genshi and multiple on select so need to wrap in an array
-                indict = dict(request.params)
-                indict['licenses'] = [request.params['licenses']]
-                txn = self.repo.begin_transaction()
-                txn.author = c.author
-                txn.log_message = indict.get('log_message', '')
-                pkg = schema.to_python(indict, state=txn)
-                txn.commit()
-            except Exception, inst:
-                c.error = '%s' % inst
+            schema = ckan.forms.PackageSchema()
+            indict = dict(request.params)
+            # currently only returns one value because of problems with
+            # genshi and multiple on select so need to wrap in an array
+            indict['licenses'] = [request.params['licenses']]
+            txn = self.repo.begin_transaction()
+            txn.author = c.author
+            txn.log_message = indict.get('log_message', '')
+            pkg = schema.to_python(indict, state=txn)
+            txn.commit()
+        except Exception, inst:
+            error_msg = '%s' % inst
+        return error_msg
+
+    def update(self):
+        c.error = self._update()
         return render_response('package/update')
 
-    @validate(schema=ckan.forms.PackageSchema(), form='edit')
+    # TODO: support validation again ...
+    # @validate(schema=ckan.forms.PackageSchema(), form='edit')
     def edit(self, id):
-        # TODO insert the existing object content or raise and error if there
-        # is no package with than id
+        # if preview use the dictionary and render the two forms
+        if request.params.has_key('preview'):
+            indict = dict(request.params)
+            c.form = self._render_edit_form(indict)
+            c.preview = genshi.HTML(self._render_preview(indict))
+            return render_response('package/edit')
+        elif request.params.has_key('commit'):
+            self._update()
+            h.redirect_to(action='read', id=id)
+        else: # if neither preview nor save do normal render
+            # TODO: check we have a package with this id
+            try:
+                rev = self.repo.youngest_revision()
+                c.pkg = rev.model.packages.get(id)
+                schema = ckan.forms.PackageSchema()
+                defaults = schema.from_python(c.pkg)
+                c.form = self._render_edit_form(defaults)
+            except Exception, inst:
+                c.form = 'There was an error rendering the preview: %s' % inst
+            return render_response('package/edit')
+    
+    def _render_edit_form(self, value_dict):
         from formencode import htmlfill
         rev = self.repo.youngest_revision()
-        c.pkg = rev.model.packages.get(id)
         all_licenses = list(model.License.select()) 
-        if c.pkg.license is not None:
-            selected = [ c.pkg.license.id ]
+        if value_dict.has_key('licenses'):
+            selected = value_dict['licenses']
         else:
             selected = []
         c.license_options = h.options_for_select_from_objects(
@@ -69,10 +90,24 @@ class PackageController(CkanBaseController):
                 selected=selected,
                 name_attr='name')
         content = render('package/edit_form')
-        schema = ckan.forms.PackageSchema()
-        defaults = schema.from_python(c.pkg)
-        c.form = htmlfill.render(content, defaults)
-        return render_response('package/edit')
+        form = htmlfill.render(content, value_dict)
+        return form
+
+
+    def _render_preview(self, indict):
+        try:
+            c.pkg_url = indict['url']
+            c.pkg_license = indict['licenses']
+            c.pkg_tags = indict['tags'].split()
+            import ckan.misc
+            format = ckan.misc.MarkdownFormat()
+            notes_formatted = format.to_html(indict['notes'])
+            notes_formatted = genshi.HTML(notes_formatted)
+            c.pkg_notes_formatted = notes_formatted
+            preview = render('package/read_content')
+        except Exception, inst:
+            preview = 'There was an error rendering the preview: %s' % inst
+        return preview
 
     def create(self):
         c.error = ''

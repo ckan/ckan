@@ -76,23 +76,7 @@ class TestPackageController(TestControllerTwill):
         web.code(200)
         web.title('Packages - %s' % name)
 
-
-class TestPackageControllerEdit(TestControllerTwill):
-
-    def setup_method(self, method):
-        super(TestPackageControllerEdit, self).setup_method(method)
-        txn = ckan.models.repo.begin_transaction()
-        self.editpkg = txn.model.packages.create(name='editpkgtest')
-        self.editpkg.url = 'editpkgurl.com'
-        self.editpkg.notes='this is editpkg'
-        txn.commit()
-
-    def teardown_method(self, method):
-        super(TestPackageControllerEdit, self).teardown_method(method)
-        rev = ckan.models.repo.youngest_revision()
-        rev.model.packages.purge(self.editpkg.name)
-        # if method == 'test_edit_2':
-            # self._teardown_test_edit2()
+class TestPackageControllerUpdate(TestControllerTwill):
 
     def test_update(self):
         offset = url_for(controller='package', action='update')
@@ -102,7 +86,17 @@ class TestPackageControllerEdit(TestControllerTwill):
         web.title('Packages - Updating')
         web.find('There was an error')
 
-    def test_edit(self):
+
+class TestPackageControllerEdit(TestControllerTwill):
+
+    def setup_method(self, method):
+        super(TestPackageControllerEdit, self).setup_method(method)
+        txn = ckan.models.repo.begin_transaction()
+        self.editpkg_name = 'editpkgtest'
+        self.editpkg = txn.model.packages.create(name=self.editpkg_name)
+        self.editpkg.url = 'editpkgurl.com'
+        self.editpkg.notes='this is editpkg'
+        txn.commit()
         offset = url_for(controller='package', action='edit', id=self.editpkg.name)
         url = self.siteurl + offset
         web.go(url)
@@ -110,15 +104,24 @@ class TestPackageControllerEdit(TestControllerTwill):
         web.title('Packages - Edit')
         # really want to check it is in the form ...
         web.find(self.editpkg.notes)
+
+    def teardown_method(self, method):
+        super(TestPackageControllerEdit, self).teardown_method(method)
+        rev = ckan.models.repo.youngest_revision()
+        rev.model.packages.purge(self.editpkg.name)
+        # if method == 'test_edit_2':
+            # self._teardown_test_edit2()
+
+    def test_edit(self):
         fn = 1
         newurl = 'www.editpkgnewurl.com'
         newlicense = 'Non-OKD Compliant::Other'
         web.fv(fn, 'url', newurl)
         web.fv(fn, 'license', newlicense)
-        web.submit()
+        web.submit('Save changes')
         web.code(200)
         print web.show()
-        web.find('Update successful.')
+        web.title('Packages - %s' % self.editpkg_name)
         rev = ckan.models.repo.youngest_revision()
         pkg = rev.model.packages.get(self.editpkg.name)
         assert pkg.url == newurl
@@ -126,23 +129,16 @@ class TestPackageControllerEdit(TestControllerTwill):
         assert newlicense in licenses
 
     def test_edit_2(self):
-        offset = url_for(controller='package', action='edit', id=self.editpkg.name)
-        url = self.siteurl + offset
-        web.go(url)
-        web.code(200)
-        web.title('Packages - Edit')
-        # really want to check it is in the form ...
-        web.find(self.editpkg.notes)
         fn = 1
         newtags = ['russian']
         tagvalues = ' '.join(newtags)
         web.fv(fn, 'tags', tagvalues)
         exp_log_message = 'test_edit_2: making some changes'
         web.fv(fn, 'log_message', exp_log_message)
-        web.submit()
+        web.submit('Save changes')
         web.code(200)
         print web.show()
-        web.find('Update successful.')
+        web.title('Packages - %s' % self.editpkg_name)
         rev = ckan.models.repo.youngest_revision()
         pkg = rev.model.packages.get(self.editpkg.name)
         assert len(pkg.tags.list()) == 1
@@ -152,6 +148,22 @@ class TestPackageControllerEdit(TestControllerTwill):
         # for some reason environ['REMOTE_ADDR'] is undefined when using twill
         assert rev.author == 'Unknown IP Address'
         assert rev.log_message == exp_log_message
+
+    def test_edit_preview(self):
+        fn = 1
+        newurl = 'www.editpkgnewurl.com'
+        newnotes = '''
+### A title
+
+Hello world.
+'''
+        web.fv(fn, 'url', newurl)
+        web.fv(fn, 'notes', newnotes)
+        web.submit('preview')
+        web.code(200)
+        print web.show()
+        web.title('Packages - Edit')
+        web.find('Preview')
 
 
 class TestPackageControllerNew(TestControllerTwill):

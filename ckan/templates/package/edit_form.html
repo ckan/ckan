@@ -1,4 +1,4 @@
-    <form action="${h.url(action='update')}" method="post"
+    <form action="${h.url(action='edit')}" method="post"
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:xi="http://www.w3.org/2001/XInclude">
 
@@ -49,6 +49,7 @@
       to sign please follow the link at the top of the page.
       </p>
 
+      <input name="preview" type="submit" value="Preview" />
       ${XML(h.submit())}
     </form>
 
