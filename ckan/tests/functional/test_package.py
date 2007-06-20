@@ -49,6 +49,7 @@ class TestPackageController(TestControllerTwill):
         web.find(name)
         web.find('Url:')
         web.find(self.anna.url)
+        web.find(self.anna.download_url)
         web.find('Notes:')
         web.find('Some test notes')
         web.find('<strong>Some bolded text.</strong>')
@@ -114,9 +115,13 @@ class TestPackageControllerEdit(TestControllerTwill):
 
     def test_edit(self):
         fn = 1
-        newurl = 'www.editpkgnewurl.com'
+        new_title = 'A Short Description of this Package'
+        newurl = 'http://www.editpkgnewurl.com'
+        new_download_url = newurl + '/download/'
         newlicense = 'Non-OKD Compliant::Other'
+        web.fv(fn, 'title', new_title)
         web.fv(fn, 'url', newurl)
+        web.fv(fn, 'download_url', new_download_url)
         web.fv(fn, 'license', newlicense)
         web.submit('Save changes')
         web.code(200)
@@ -124,11 +129,14 @@ class TestPackageControllerEdit(TestControllerTwill):
         web.title('Packages - %s' % self.editpkg_name)
         rev = ckan.models.repo.youngest_revision()
         pkg = rev.model.packages.get(self.editpkg.name)
+        assert pkg.title == new_title 
         assert pkg.url == newurl
+        assert pkg.download_url == new_download_url
         licenses = [ pkg.license.name ]
         assert newlicense in licenses
 
     def test_edit_2(self):
+        # testing tag updating
         fn = 1
         newtags = ['russian']
         tagvalues = ' '.join(newtags)

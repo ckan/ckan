@@ -4,8 +4,14 @@
 
       ${XML(h.hidden_field('name'))}
 
+      <label for="title">Title:</label>
+      ${XML(h.text_field('title', size=40))} <br />
+
       <label for="url">Url:</label>
-      ${XML(h.text_field('url', size=30))} <br />
+      ${XML(h.text_field('url', size=40))} <br />
+
+      <label for="download_url">Download Url:</label>
+      ${XML(h.text_field('download_url', size=40))} <br />
 
       <label for="licenses">Licenses:</label>
       <!-- REALLY WEIRD behaviour: genshi HTML and XML function strip away

@@ -7,21 +7,7 @@
     <h2>Package: ${c.pkg.name}
       ${ XML(h.link_to('[edit]', h.url_for(action='edit', id=c.pkg.name))) }
     </h2>
-    <h3>Metadata:</h3>
-    <ul>
-      <li><strong>Url:</strong> ${XML(h.link_to(c.pkg.url, c.pkg.url))}</li>
-      <li><strong>Tags:</strong>
-        <py:for each="pkg2tag in c.pkg.tags">
-        ${XML(h.link_to(pkg2tag.tag.name,
-          h.url_for(controller='tag', action='read', id=pkg2tag.tag.name)))}
-        </py:for>
-      </li>
-      <li><strong>Licenses:</strong> ${c.pkg.license.name}</li>
-    </ul>
-    <h3>Notes:</h3>
-    <div>
-      ${c.pkg_notes_formatted}
-    </div>
+    ${c.content}
   </div>
 
   <xi:include href="layout.html" />

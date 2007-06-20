@@ -19,9 +19,11 @@ class License(sqlobject.SQLObject):
 class PackageRevision(vdm.base.ObjectRevisionSQLObject):
 
     base = sqlobject.ForeignKey('Package', cascade=True)
-    notes = sqlobject.UnicodeCol(default=None)
+    title = sqlobject.UnicodeCol(default=None)
     url = sqlobject.UnicodeCol(default=None)
+    download_url = sqlobject.UnicodeCol(default=None)
     license = sqlobject.ForeignKey('License', default=None)
+    notes = sqlobject.UnicodeCol(default=None)
 
 
 class TagRevision(vdm.base.ObjectRevisionSQLObject):

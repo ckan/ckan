@@ -59,7 +59,9 @@ class TestPackageSchemaFromPython:
         self.out = self.schema.from_python(self.pkg)
         active = ckan.models.State.byName('active')
         self.exp = {
+                'title'   : u'A Novel By Tolstoy',
                 'url'     : u'http://www.annakarenina.com',
+                'download_url'     : u'http://www.annakarenina.com/download/',
                 'notes'   : u'''Some test notes
 
 ### A 3rd level heading

@@ -60,7 +60,9 @@ def create_test_data():
 '''
     model = txn.model
     pkg1 = model.packages.create(name='annakarenina')
+    pkg1.title = 'A Novel By Tolstoy'
     pkg1.url = 'http://www.annakarenina.com'
+    pkg1.download_url = 'http://www.annakarenina.com/download/'
     pkg1.notes = '''Some test notes
 
 ### A 3rd level heading

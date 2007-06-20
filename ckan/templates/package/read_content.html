@@ -3,7 +3,9 @@
     xmlns:xi="http://www.w3.org/2001/XInclude">
     <h3>Metadata:</h3>
     <ul>
+      <li><strong>Title:</strong> ${c.pkg_title}</li>
       <li><strong>Url:</strong> ${XML(h.link_to(c.pkg_url, c.pkg_url))}</li>
+      <li><strong>Download Url:</strong> ${XML(h.link_to(c.pkg_download_url, c.pkg_download_url))}</li>
       <li><strong>Tags:</strong>
         <py:for each="tag_name in c.pkg_tags">
         ${XML(h.link_to(tag_name,

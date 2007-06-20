@@ -11,17 +11,33 @@ class PackageController(CkanBaseController):
         c.package_count = len(rev.model.packages)
         return render_response('package/index')
 
+    def _render_package(self, indict):
+        try:
+            c.pkg_name = indict['name']
+            c.pkg_title = indict['title']
+            c.pkg_url = indict['url']
+            c.pkg_download_url = indict['download_url']
+            c.pkg_license = indict['licenses']
+            c.pkg_tags = indict['tags'].split()
+            import ckan.misc
+            format = ckan.misc.MarkdownFormat()
+            notes_formatted = format.to_html(indict['notes'])
+            notes_formatted = genshi.HTML(notes_formatted)
+            c.pkg_notes_formatted = notes_formatted
+            preview = render('package/read_content')
+        except Exception, inst:
+            preview = 'There was an error rendering the pacakge: %s' % inst
+        return preview
+
     def read(self, id):
         try:
             rev = self.repo.youngest_revision()
             c.pkg = rev.model.packages.get(id)
         except:
             abort(404)
-        import ckan.misc
-        format = ckan.misc.MarkdownFormat()
-        notes_formatted = format.to_html(c.pkg.notes)
-        notes_formatted = genshi.HTML(notes_formatted)
-        c.pkg_notes_formatted = notes_formatted
+        schema = ckan.forms.PackageSchema()
+        defaults = schema.from_python(c.pkg)
+        c.content = genshi.HTML(self._render_package(defaults))
         return render_response('package/read')
 
     def list(self):
@@ -60,7 +76,7 @@ class PackageController(CkanBaseController):
         if request.params.has_key('preview'):
             indict = dict(request.params)
             c.form = self._render_edit_form(indict)
-            c.preview = genshi.HTML(self._render_preview(indict))
+            c.preview = genshi.HTML(self._render_package(indict))
             return render_response('package/edit')
         elif request.params.has_key('commit'):
             self._update()
@@ -92,22 +108,6 @@ class PackageController(CkanBaseController):
         content = render('package/edit_form')
         form = htmlfill.render(content, value_dict)
         return form
-
-
-    def _render_preview(self, indict):
-        try:
-            c.pkg_url = indict['url']
-            c.pkg_license = indict['licenses']
-            c.pkg_tags = indict['tags'].split()
-            import ckan.misc
-            format = ckan.misc.MarkdownFormat()
-            notes_formatted = format.to_html(indict['notes'])
-            notes_formatted = genshi.HTML(notes_formatted)
-            c.pkg_notes_formatted = notes_formatted
-            preview = render('package/read_content')
-        except Exception, inst:
-            preview = 'There was an error rendering the preview: %s' % inst
-        return preview
 
     def create(self):
         c.error = ''
