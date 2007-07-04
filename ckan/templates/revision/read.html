@@ -15,6 +15,35 @@
     </p>
     <p><strong>Log Message:</strong></p>
     ${c.revision.log_message}
+
+    <h3>Changes</h3>
+    <h4>Packages</h4>
+    <ul>
+      <py:for each="pkg in c.packages">
+      <li>
+      ${XML(h.link_to(pkg.name, h.url_for(controller='package', action='read', id=pkg.name)))}
+      </li>
+      </py:for>
+    </ul>
+
+    <h4>Tags</h4>
+    <ul>
+      <py:for each="tag in c.tags">
+      <li>
+      ${XML(h.link_to(tag.name, h.url_for(controller='tag', action='read', id=tag.name)))}
+      </li>
+      </py:for>
+    </ul>
+
+    <h4>Packages' Tags</h4>
+    <ul>
+      <py:for each="pkgtag in c.pkgtags">
+      <li>
+      Package - ${XML(h.link_to(pkgtag.package.name, h.url_for(controller='package', action='read', id=pkgtag.package.name)))},
+      Tag - ${XML(h.link_to(pkgtag.tag.name, h.url_for(controller='tag', action='read', id=pkgtag.tag.name)))}
+      </li>
+      </py:for>
+    </ul>
   </div>
 
   <xi:include href="layout.html" />

@@ -69,4 +69,7 @@ class TestRevisionController(TestControllerTwill):
         web.find('Log Message:')
         web.find('Creating test data.')
         web.find(' * Package: annakarenina')
+        web.find("Packages' Tags")
+        web.follow('annakarenina')
+        web.title('Packages - annakarenina')
         
