@@ -1,5 +1,13 @@
 # CKAN CHANGELOG
 
+v0.4 2007-07-04
+===============
+
+  * Preview support when editing a package (ticket:36).
+  * Correctly list IP address of of not logged in users (ticket:35).
+  * Improve read action for revision to list details of changed items (r179).
+  * Sort out deployment using modpython.
+
 v0.3 2007-04-12
 ===============
 
