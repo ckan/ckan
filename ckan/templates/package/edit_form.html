@@ -57,5 +57,15 @@
 
       <input name="preview" type="submit" value="Preview" />
       ${XML(h.submit())}
+
+      <label>Please Note:</label>
+      <ul class="desc">
+        <li>By submitting content, you agree to release your contributions
+        under the open license specified on the ${XML(h.link_to('license page',
+        h.url_for(str('/license'))))} (essentially Creative Commons
+        Attribution-Share Alike v3.0).</li>
+        <li>If you are not happy for this to occur please refrain from editing
+        this page.</li>
+      </ul>
     </form>
 
