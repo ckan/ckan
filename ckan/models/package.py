@@ -63,6 +63,13 @@ class Tag(vdm.base.VersionedDomainObject):
 
     m2m = [ ('packages', 'ckan.models.package', 'Package', 'PackageTag') ]
 
+    @classmethod
+    def search_by_name(self, search_string):
+        # sqlobject specific
+        term = '%' + search_string + '%'
+        query = '''UPPER(tag.name) LIKE UPPER('%s')''' % term
+        return self.select(query)
+
 
 class PackageTag(vdm.base.VersionedDomainObject):
 

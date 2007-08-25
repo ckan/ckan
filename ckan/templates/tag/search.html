@@ -1,0 +1,29 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+  
+  <py:def function="page_title">Tags - Search</py:def>
+
+  <div py:match="content">
+    <h2>Tags - Search</h2>
+    <form action="" method="GET">
+      <input type="text" id="search_terms" name="search_terms"
+      value="${c.search_terms}"
+          />
+      <input type="submit" name="search" value="Search &raquo;" />
+    </form>
+    <py:if test="c.search_terms">
+    <p>There are ${c.tag_count} results.</p>
+    <ul>
+      <py:for each="tag in c.tags">
+      <li>
+      ${XML(h.link_to(tag.name, h.url_for(action='read', id=tag.name)))}
+      </li>
+      </py:for>
+    </ul>
+    </py:if>
+  </div>
+
+  <xi:include href="layout.html" />
+</html>
+
+

@@ -22,3 +22,9 @@ class TagController(CkanBaseController):
         c.tags = tags
         return render_response('tag/list')
 
+    def search(self):
+        c.search_terms = request.params.get('search_terms', '')
+        if c.search_terms:
+            c.tags = list(model.Tag.search_by_name(c.search_terms))
+            c.tag_count = len(c.tags)
+        return render_response('tag/search')

@@ -164,3 +164,18 @@ class TestPackageWithLicense:
         out = pkg.license.name 
         exp = self.license2.name
         assert out == exp
+
+class TestTag:
+
+    def test_search_1(self):
+        out = list(ckan.models.Tag.search_by_name('russian'))
+        assert len(out) == 1
+        assert out[0].name == 'russian'
+
+    def test_search_2(self):
+        out = list(ckan.models.Tag.search_by_name('us'))
+        assert len(out) == 1
+
+    def test_search_3(self):
+        out = list(ckan.models.Tag.search_by_name('s'))
+        assert len(out) == 2

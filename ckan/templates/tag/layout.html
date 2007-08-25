@@ -15,6 +15,7 @@
   <py:match path="minornavigation">
     <li>${XML(h.link_to('Home', h.url_for(controller='tag', action='index', id='None')))}</li>
     <li>${XML(h.link_to('List', h.url_for(controller='tag', action='list', id='None')))}</li>
+    <li>${XML(h.link_to('Search', h.url_for(controller='tag', action='search', id='None')))}</li>
   </py:match>
   
   <xi:include href="../layout.html" />

@@ -36,4 +36,20 @@ class TestPackageController(TestControllerTwill):
         web.follow(tagname)
         web.code(200)
         web.title('Tags - %s' % tagname)
+    
+    def test_search(self):
+        offset = url_for(controller='tag', action='search')
+        url = self.siteurl + offset
+        web.go(url)
+        web.code(200)
+        web.title('Tags - Search')
+        fn = 1
+        search_term = 's'
+        web.fv(fn, 'search_terms', search_term)
+        web.submit()
+        web.code(200)
+        web.title('Tags - Search')
+        web.find('There are 2 results')
+        web.find('russian')
+        web.find('tolstoy')
 
