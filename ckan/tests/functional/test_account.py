@@ -17,6 +17,7 @@ class TestHomeController(TestControllerTwill):
         web.go(url)
         web.code(200)
         # for some unknown reason this really will not work ...
+        # get a 500 error ...
         # self._login_form()
         # neither does this plus it is slow as it is external
         # self._login_openid()
@@ -26,6 +27,7 @@ class TestHomeController(TestControllerTwill):
         username = 'okfntest'
         password = 'okfntest'
         web.code(200)
+        web.title('Please Login!')
         web.find('Please Login')
         web.fv(1, 'username', username)
         web.fv(1, 'password', password)

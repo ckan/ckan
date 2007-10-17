@@ -1,0 +1,15 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+  
+  <py:def function="page_title">Revisions - Purge</py:def>
+
+  <div py:match="content" py:choose="">
+    <h2>Revision Purge</h2>
+    <p py:when="c.error"><strong>There was an error: ${c.error}</strong></p>
+    <p py:otherwise="">Purge successful.</p>
+  </div>
+
+  <xi:include href="layout.html" />
+</html>
+
+

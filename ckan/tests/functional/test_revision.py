@@ -73,3 +73,11 @@ class TestRevisionController(TestControllerTwill):
         web.follow('annakarenina')
         web.title('Packages - annakarenina')
         
+    def test_purge(self):
+        offset = url_for(controller='revision', action='purge', id=None)
+        url = self.siteurl + offset
+        web.go(url)
+        web.code(200)
+        web.find('No revision id specified')
+        # hmmm i have to be logged in to do proper testing 
+        # TODO: come back once login is sorted out

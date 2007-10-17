@@ -16,14 +16,27 @@
         <td>
           ${
             XML(
-            h.link_to(rev.number,
+            h.link_to(rev.id,
               h.url_for(
                 controller='revision',
                 action='read',
-                id=rev.number)
+                id=rev.id)
               )
             )
           }
+          <py:if test="c.show_purge_links">
+          ${
+            XML(
+            h.link_to('Purge',
+              h.url_for(
+                controller='revision',
+                action='purge',
+                id=rev.id),
+              confirm='Are you sure?'
+              )
+            )
+          }
+          </py:if>
         </td>
         <td>${rev.timestamp}</td>
         <td>${rev.author}</td>
