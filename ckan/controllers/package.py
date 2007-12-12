@@ -26,7 +26,7 @@ class PackageController(CkanBaseController):
             c.pkg_notes_formatted = notes_formatted
             preview = render('package/read_content')
         except Exception, inst:
-            preview = 'There was an error rendering the pacakge: %s' % inst
+            preview = 'There was an error rendering the package: %s' % inst
         return preview
 
     def read(self, id):
