@@ -1,31 +1,30 @@
 from ckan.lib.base import *
 
 class TemplateController(BaseController):
+
     def view(self, url):
-        """
-        This is the last place which is tried during a request to try to find a 
-        file to serve. It could be used for example to display a template::
-        
+        """By default, the final controller tried to fulfill the request
+        when no other routes match. It may be used to display a template
+        when all else fails, e.g.::
+
             def view(self, url):
-                return render_response(url)
-        
-        Or, if you're using Myghty and would like to catch the component not
-        found error which will occur when the template doesn't exist; you
-        can use the following version which will provide a 404 if the template
-        doesn't exist::
-        
-            import myghty.exception
-            
+                return render('/%s' % url)
+
+        Or if you're using Mako and want to explicitly send a 404 (Not
+        Found) response code when the requested template doesn't exist::
+
+            import mako.exceptions
+
             def view(self, url):
                 try:
-                    return render_response('/'+url)
-                except myghty.exception.ComponentNotFound:
-                    return Response(code=404)
-        
-        The default is just to abort the request with a 404 File not found
-        status message.
+                    return render('/%s' % url)
+                except mako.exceptions.TopLevelLookupException:
+                    abort(404)
+
+        By default this controller aborts the request with a 404 (Not
+        Found)
         """
         try:
-            return render_response(url)
+            return render(url)
         except:
             abort(404)

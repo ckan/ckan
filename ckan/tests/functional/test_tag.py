@@ -1,55 +1,43 @@
 from ckan.tests import *
 
-class TestPackageController(TestControllerTwill):
-
-    def _go_index(self):
-        offset = url_for(controller='tag')
-        url = self.siteurl + offset
-        web.go(url)
+class TestPackageController(TestController2):
 
     def test_index(self):
-        self._go_index()
-        web.code(200)
-        web.title('Tags - Index')
+        offset = url_for(controller='tag')
+        res = self.app.get(offset)
+        assert 'Tags - Index' in res
 
     def test_read(self):
         name = 'tolstoy'
         pkgname = 'warandpeace'
         offset = url_for(controller='tag', action='read', id=name)
-        url = self.siteurl + offset
-        web.go(url)
-        web.title('Tags - %s' % name)
-        web.find(name)
-        web.follow(pkgname)
-        web.title('Packages - %s' % pkgname)
+        res = self.app.get(offset)
+        assert 'Tags - %s' % name in res
+        assert name in res
+        res = res.click(pkgname)
+        assert 'Packages - %s' % pkgname in res
 
     def test_list(self):
         tagname = 'tolstoy'
         offset = url_for(controller='tag', action='list')
-        url = self.siteurl + offset
-        web.go(url)
-        web.code(200)
-        web.title('Tags - List')
-        web.find(tagname)
-        print web.show()
-        web.find('\(2 packages\)')
-        web.follow(tagname)
-        web.code(200)
-        web.title('Tags - %s' % tagname)
+        res = self.app.get(offset)
+        assert 'Tags - List' in res
+        assert tagname in res
+        print str(res)
+        assert '(2 packages)' in res
+        res = res.click(tagname)
+        assert 'Tags - %s' % tagname in res
     
     def test_search(self):
         offset = url_for(controller='tag', action='search')
-        url = self.siteurl + offset
-        web.go(url)
-        web.code(200)
-        web.title('Tags - Search')
-        fn = 1
+        res = self.app.get(offset)
+        assert 'Tags - Search' in res
         search_term = 's'
-        web.fv(fn, 'search_terms', search_term)
-        web.submit()
-        web.code(200)
-        web.title('Tags - Search')
-        web.find('There are 2 results')
-        web.find('russian')
-        web.find('tolstoy')
+        fv = res.forms[0]
+        fv['search_terms'] =  search_term
+        res = fv.submit()
+        assert 'Tags - Search' in res
+        assert 'There are 2 results' in res
+        assert 'russian' in res
+        assert 'tolstoy' in res
 

@@ -3,4 +3,4 @@ from ckan.controllers.base import CkanBaseController
 
 class HomeController(CkanBaseController):
     def index(self):
-        return render_response('home')
+        return render('home')

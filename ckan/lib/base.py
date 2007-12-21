@@ -1,17 +1,25 @@
-from pylons import Response, c, g, cache, request, session
+"""The base Controller API
+
+Provides the BaseController class for subclassing, and other objects
+utilized by Controllers.
+"""
+from pylons import c, cache, config, g, request, response, session
 from pylons.controllers import WSGIController
+from pylons.controllers.util import abort, etag_cache, redirect_to
 from pylons.decorators import jsonify, validate
-from pylons.templating import render, render_response
-from pylons.helpers import abort, redirect_to, etag_cache
-from pylons.i18n import N_, _, ungettext
-import ckan.models as model
+from pylons.i18n import _, ungettext, N_
+from pylons.templating import render
+
 import ckan.lib.helpers as h
+import ckan.model as model
 
 class BaseController(WSGIController):
+
     def __call__(self, environ, start_response):
-        # Insert any code to be run per request here. The Routes match
-        # is under environ['pylons.routes_dict'] should you want to check
-        # the action or route vars here
+        """Invoke the Controller"""
+        # WSGIController.__call__ dispatches to the Controller method
+        # the request is routed to. This routing information is
+        # available in environ['pylons.routes_dict']
         return WSGIController.__call__(self, environ, start_response)
 
 # Include the '_' function in the public names

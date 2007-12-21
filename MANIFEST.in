@@ -1,6 +1,3 @@
-recursive-include ckan/i18n *
 recursive-include ckan/public *
 recursive-include ckan/templates *
-recursive-include ckan/docs *
 include CHANGELOG.txt
-include development.ini

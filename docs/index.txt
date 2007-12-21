@@ -1,0 +1,12 @@
+ckan
+++++
+
+This is the main index page of your documentation. It should be written in
+`reStructuredText format <http://docutils.sourceforge.net/rst.html>`_.
+
+You can generate your documentation in HTML format by running this command::
+
+    setup.py pudge
+
+For this to work you will need to download and install ``buildutils`` and
+``pudge``.

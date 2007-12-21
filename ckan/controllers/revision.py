@@ -12,7 +12,7 @@ class RevisionController(CkanBaseController):
     def list(self):
         c.revisions = model.repo.history()
         c.show_purge_links = self._has_purge_permissions()
-        return render_response('revision/list')
+        return render('revision/list')
 
     def read(self, id=None):
         if id is None:
@@ -25,7 +25,7 @@ class RevisionController(CkanBaseController):
         c.tags = [ tag.base for tag in tags ]
         pkgtags = model.PackageTagRevision.selectBy(revision=c.revision)
         c.pkgtags = [ pkgtag.base for pkgtag in pkgtags ]
-        return render_response('revision/read')
+        return render('revision/read')
 
     def _has_purge_permissions(self):
         authorizer = ckan.authz.Authorizer()
@@ -35,10 +35,10 @@ class RevisionController(CkanBaseController):
     def purge(self, id=None):
         if id is None:
             c.error = 'No revision id specified'
-            return render_response('revision/purge')
+            return render('revision/purge')
         if not self._has_purge_permissions():
             c.error = 'You are not authorized to perform this action'
-            return render_response('revision/purge')
+            return render('revision/purge')
         else:
             revision = model.repo.get_revision(id)
             cmd = ckan.commands.revision.PurgeRevision(revision)
@@ -48,5 +48,5 @@ class RevisionController(CkanBaseController):
                 # is this a security risk?
                 # probably not because only admins get to here
                 c.error = 'Purge of revision failed: %s' % inst
-            return render_response('revision/purge')
+            return render('revision/purge')
 

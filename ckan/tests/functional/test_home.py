@@ -1,39 +1,30 @@
 from ckan.tests import *
 
-class TestHomeController(TestControllerTwill):
+class TestHomeController(TestController2):
 
     def test_home_page(self):
         offset = url_for(controller='home')
-        url = self.siteurl
-        web.go(url)
-        web.code(200)
-        web.find('Packages')
+        res = self.app.get(offset)
+        print str(res)
+        assert 'Packages' in res
 
     def test_packages_link(self):
         offset = url_for(controller='home')
-        url = self.siteurl
-        web.go(url)
-        web.code(200)
-        web.follow('Packages')
-        web.code(200)
+        res = self.app.get(offset)
+        res.click('Packages')
         
     def test_tags_link(self):
         offset = url_for(controller='home')
-        url = self.siteurl
-        web.go(url)
-        web.code(200)
-        web.follow('Tags')
-        web.code(200)
+        res = self.app.get(offset)
+        res.click('Tags')
         
     def test_404(self):
-        url = self.siteurl + '/some_nonexistent_url'
-        web.go(url)
-        web.code(404)
+        offset = '/some_nonexistent_url'
+        res = self.app.get(offset, status=404)
 
     def test_license(self):
         offset = url_for(controller='license')
-        url = self.siteurl + offset
-        web.go(url)
-        web.code(200)
-        web.find('All</strong> material contained in CKAN is .*open')
+        res = self.app.get(offset)
+        print str(res)
+        assert 'All content and data on CKAN is ' in res
 

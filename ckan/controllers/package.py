@@ -9,7 +9,7 @@ class PackageController(CkanBaseController):
     def index(self):
         rev = self.repo.youngest_revision()
         c.package_count = len(rev.model.packages)
-        return render_response('package/index')
+        return render('package/index')
 
     def _render_package(self, indict):
         try:
@@ -38,14 +38,14 @@ class PackageController(CkanBaseController):
         schema = ckan.forms.PackageSchema()
         defaults = schema.from_python(c.pkg)
         c.content = genshi.HTML(self._render_package(defaults))
-        return render_response('package/read')
+        return render('package/read')
 
     def list(self):
         rev = self.repo.youngest_revision()
         packages = rev.model.packages.list()
         c.package_count = len(packages)
         c.packages = packages
-        return render_response('package/list')
+        return render('package/list')
 
     def _update(self):
         error_msg = ''
@@ -67,7 +67,7 @@ class PackageController(CkanBaseController):
 
     def update(self):
         c.error = self._update()
-        return render_response('package/update')
+        return render('package/update')
 
     # TODO: support validation again ...
     # @validate(schema=ckan.forms.PackageSchema(), form='edit')
@@ -77,7 +77,7 @@ class PackageController(CkanBaseController):
             indict = dict(request.params)
             c.form = self._render_edit_form(indict)
             c.preview = genshi.HTML(self._render_package(indict))
-            return render_response('package/edit')
+            return render('package/edit')
         elif request.params.has_key('commit'):
             self._update()
             h.redirect_to(action='read', id=id)
@@ -91,7 +91,7 @@ class PackageController(CkanBaseController):
                 c.form = self._render_edit_form(defaults)
             except Exception, inst:
                 c.form = 'There was an error rendering the preview: %s' % inst
-            return render_response('package/edit')
+            return render('package/edit')
     
     def _render_edit_form(self, value_dict):
         from formencode import htmlfill
@@ -122,8 +122,8 @@ class PackageController(CkanBaseController):
             txn.commit()
         except Exception, inst:
             c.error = '%s' % inst
-        return render_response('package/create')
+        return render('package/create')
     
     @validate(schema=ckan.forms.PackageNameSchema(), form='new')
     def new(self):
-        return render_response('package/new')
+        return render('package/new')

@@ -1,53 +1,59 @@
+"""Pylons application test package
+
+When the test runner finds and executes tests within this directory,
+this file will be loaded to setup the test environment.
+
+It registers the root directory of the project in sys.path and
+pkg_resources, in case the project hasn't been installed with
+setuptools. It also initializes the application via websetup (paster
+setup-app) with the project's test.ini configuration file.
+"""
 import os
 import sys
 from unittest import TestCase
+
+import pkg_resources
+import paste.fixture
+import paste.script.appinstall
+from paste.deploy import loadapp
+from routes import url_for
+
+__all__ = ['url_for',
+        # cannot include this as it breaks py.test ...
+        # 'TestController',
+        'TestController2', 'create_test_data' ]
 
 here_dir = os.path.dirname(os.path.abspath(__file__))
 conf_dir = os.path.dirname(os.path.dirname(here_dir))
 
 sys.path.insert(0, conf_dir)
-
-import pkg_resources
-
 pkg_resources.working_set.add_entry(conf_dir)
-
 pkg_resources.require('Paste')
 pkg_resources.require('PasteScript')
 
-from paste.deploy import loadapp, CONFIG
-import paste.deploy
-import paste.fixture
-import paste.script.appinstall
-
-from ckan.config.routing import *
-from routes import request_config, url_for
-
 test_file = os.path.join(conf_dir, 'test.ini')
-conf = paste.deploy.appconfig('config:' + test_file)
-CONFIG.push_process_config({'app_conf': conf.local_conf,
-                            'global_conf': conf.global_conf}) 
 
 # do not run this for the time being as this rebuilds the database ...
 # cmd = paste.script.appinstall.SetupCommand('setup-app')
 # cmd.run([test_file])
+# so do it by hand ...
+from paste.deploy import appconfig
+from ckan.config.environment import load_environment
+conf = appconfig('config:' + test_file)
+load_environment(conf.global_conf, conf.local_conf)
 
-import twill
-from StringIO import StringIO
-from twill import commands as web
-class TestControllerTwill(object):
+class TestController(TestCase):
 
-    port = 8083
-    host = 'localhost'
-    wsgiapp = loadapp('config:test.ini', relative_to=conf_dir)
-    siteurl = 'http://%s:%s' % (host, port)
+    def __init__(self, *args, **kwargs):
+        wsgiapp = loadapp('config:test.ini', relative_to=conf_dir)
+        self.app = paste.fixture.TestApp(wsgiapp)
+        TestCase.__init__(self, *args, **kwargs)
 
-    def setup_method(self, name=''):
-        twill.add_wsgi_intercept(self.host, self.port, lambda : self.wsgiapp)
-        self.outp = StringIO()
-        twill.set_output(self.outp)
+class TestController2(object):
 
-    def teardown_method(self, name=''):
-        twill.remove_wsgi_intercept(self.host, self.port)
+    def __init__(self, *args, **kwargs):
+        wsgiapp = loadapp('config:test.ini', relative_to=conf_dir)
+        self.app = paste.fixture.TestApp(wsgiapp)
 
 def create_test_data():
     import ckan.models
@@ -82,5 +88,3 @@ def create_test_data():
     pkg2.tags.create(tag=tag2)
     txn.commit()
 
-
-__all__ = ['url_for', 'TestControllerTwill', 'web', 'create_test_data']

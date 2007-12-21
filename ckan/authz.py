@@ -15,8 +15,8 @@ class Authorizer(object):
     '''
 
     def is_authorized(self, username, action):
-        from paste.deploy import CONFIG
-        admins_string = CONFIG['app_conf'].get('auth.admins', '')
+        from pylons import config
+        admins_string = config.get('auth.admins', '')
         admins = admins_string.split()
         if username in admins:
             return True

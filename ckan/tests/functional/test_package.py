@@ -1,7 +1,7 @@
 from ckan.tests import *
 import ckan.models
 
-class TestPackageController(TestControllerTwill):
+class TestPackageController(TestController2):
 
     def setup_class(self):
         repo = ckan.models.repo
@@ -10,88 +10,73 @@ class TestPackageController(TestControllerTwill):
 
     def test_index(self):
         offset = url_for(controller='package')
-        url = self.siteurl + offset
-        web.go(url)
-        web.code(200)
-        web.title('Packages - Index')
-
-    def _go_package_home(self):
-        offset = url_for(controller='package')
-        url = self.siteurl + offset
-        web.go(url)
-        web.code(200)
+        res = self.app.get(offset)
+        assert 'Packages - Index' in res
 
     def test_sidebar(self):
-        self._go_package_home()
+        offset = url_for(controller='package')
+        res = self.app.get(offset)
         # sidebar
-        web.find('Packages section')
+        assert 'Packages section' in res
 
     def test_minornavigation(self):
-        self._go_package_home()
+        offset = url_for(controller='package')
+        res = self.app.get(offset)
         # TODO: make this a bit more rigorous!
-        web.find('List')
-        web.follow('List')
-        web.title('Packages - List')
+        assert 'List' in res
+        res = res.click('List')
+        assert 'Packages - List' in res
     
     def test_minornavigation_2(self):
-        self._go_package_home()
-        web.follow('New')
-        web.title('Packages - New')
+        offset = url_for(controller='package')
+        res = self.app.get(offset)
+        res = res.click('New')
+        assert 'Packages - New' in res
 
     def test_read(self):
         name = self.anna.name
         offset = url_for(controller='package', action='read', id=name)
-        url = self.siteurl + offset
-        web.go(url)
-        web.code(200)
-        print web.show()
-        web.title('Packages - %s' % name)
-        web.find(name)
-        web.find('Url:')
-        web.find(self.anna.url)
-        web.find(self.anna.download_url)
-        web.find('Notes:')
-        web.find('Some test notes')
-        web.find('<strong>Some bolded text.</strong>')
-        web.find('Licenses:')
-        web.find('OKD Compliant::')
-        web.find('Tags:')
-        web.find('russian')
+        res = self.app.get(offset)
+        assert 'Packages - %s' % name in res
+        assert name in res
+        assert 'Url:' in res
+        assert self.anna.url in res
+        assert self.anna.download_url in res
+        assert 'Notes:' in res
+        assert 'Some test notes' in res
+        assert '<strong>Some bolded text.</strong>' in res
+        assert 'Licenses:' in res
+        assert 'OKD Compliant::' in res
+        assert 'Tags:' in res
+        assert 'russian' in res
 
     def test_read_nonexistentpackage(self):
         name = 'anonexistentpackage'
         offset = url_for(controller='package', action='read', id=name)
-        url = self.siteurl + offset
-        web.go(url)
-        web.code(404)
+        res = self.app.get(offset, status=404)
 
     def test_list(self):
         offset = url_for(controller='package', action='list')
-        url = self.siteurl + offset
-        web.go(url)
-        web.code(200)
-        web.title('Packages - List')
+        res = self.app.get(offset)
+        assert 'Packages - List' in res
         name = 'annakarenina'
-        web.find(name)
-        web.follow(name)
-        web.code(200)
-        web.title('Packages - %s' % name)
+        assert name in res
+        res = res.click(name)
+        assert 'Packages - %s' % name in res
 
-class TestPackageControllerUpdate(TestControllerTwill):
+class TestPackageControllerUpdate(TestController2):
 
     def test_update(self):
         offset = url_for(controller='package', action='update')
-        url = self.siteurl + offset
-        web.go(url)
-        web.code(200)
-        web.title('Packages - Updating')
-        web.find('There was an error')
+        res = self.app.get(offset)
+        assert 'Packages - Updating' in res
+        assert 'There was an error' in res
 
 
-class TestPackageControllerEdit(TestControllerTwill):
+class TestPackageControllerEdit(TestController2):
 
     def setup_method(self, method):
-        super(TestPackageControllerEdit, self).setup_method(method)
+        # super(TestPackageControllerEdit, self).setup_method(method)
         txn = ckan.models.repo.begin_transaction()
         self.editpkg_name = 'editpkgtest'
         self.editpkg = txn.model.packages.create(name=self.editpkg_name)
@@ -99,34 +84,35 @@ class TestPackageControllerEdit(TestControllerTwill):
         self.editpkg.notes='this is editpkg'
         txn.commit()
         offset = url_for(controller='package', action='edit', id=self.editpkg.name)
-        url = self.siteurl + offset
-        web.go(url)
-        web.code(200)
-        web.title('Packages - Edit')
-        # really want to check it is in the form ...
-        web.find(self.editpkg.notes)
+        self.res = self.app.get(offset)
 
     def teardown_method(self, method):
-        super(TestPackageControllerEdit, self).teardown_method(method)
+        # super(TestPackageControllerEdit, self).teardown_method(method)
         rev = ckan.models.repo.youngest_revision()
         rev.model.packages.purge(self.editpkg.name)
         # if method == 'test_edit_2':
             # self._teardown_test_edit2()
 
+    def test_setup_ok(self):
+        assert 'Packages - Edit' in self.res
+        # really want to check it is in the form ...
+        assert self.editpkg.notes in self.res
+
     def test_edit(self):
-        fn = 1
         new_title = 'A Short Description of this Package'
         newurl = 'http://www.editpkgnewurl.com'
         new_download_url = newurl + '/download/'
         newlicense = 'Non-OKD Compliant::Other'
-        web.fv(fn, 'title', new_title)
-        web.fv(fn, 'url', newurl)
-        web.fv(fn, 'download_url', new_download_url)
-        web.fv(fn, 'license', newlicense)
-        web.submit('Save changes')
-        web.code(200)
-        print web.show()
-        web.title('Packages - %s' % self.editpkg_name)
+        fv = self.res.forms[0]
+        fv['title'] =  new_title
+        fv['url'] =  newurl
+        fv['download_url'] =  new_download_url
+        fv['licenses'] =  newlicense
+        res = fv.submit('commit')
+        # get redirected ...
+        res = res.follow()
+        print str(self.res)
+        assert 'Packages - %s' % self.editpkg_name in res
         rev = ckan.models.repo.youngest_revision()
         pkg = rev.model.packages.get(self.editpkg.name)
         assert pkg.title == new_title 
@@ -137,16 +123,17 @@ class TestPackageControllerEdit(TestControllerTwill):
 
     def test_edit_2(self):
         # testing tag updating
-        fn = 1
         newtags = ['russian']
         tagvalues = ' '.join(newtags)
-        web.fv(fn, 'tags', tagvalues)
+        fv = self.res.forms[0]
+        fv['tags'] =  tagvalues
         exp_log_message = 'test_edit_2: making some changes'
-        web.fv(fn, 'log_message', exp_log_message)
-        web.submit('Save changes')
-        web.code(200)
-        print web.show()
-        web.title('Packages - %s' % self.editpkg_name)
+        fv['log_message'] =  exp_log_message
+        res = fv.submit('commit')
+        # get redirected ...
+        res = res.follow()
+        print str(res)
+        assert 'Packages - %s' % self.editpkg_name in res
         rev = ckan.models.repo.youngest_revision()
         pkg = rev.model.packages.get(self.editpkg.name)
         assert len(pkg.tags.list()) == 1
@@ -158,51 +145,48 @@ class TestPackageControllerEdit(TestControllerTwill):
         assert rev.log_message == exp_log_message
 
     def test_edit_preview(self):
-        fn = 1
         newurl = 'www.editpkgnewurl.com'
         newnotes = '''
 ### A title
 
 Hello world.
 '''
-        web.fv(fn, 'url', newurl)
-        web.fv(fn, 'notes', newnotes)
-        web.submit('preview')
-        web.code(200)
-        print web.show()
-        web.title('Packages - Edit')
-        web.find('Preview')
+        fv = self.res.forms[0]
+        fv['url'] =  newurl
+        fv['notes'] =  newnotes
+        res = fv.submit('preview')
+        print str(res)
+        assert 'Packages - Edit' in res
+        assert 'Preview' in res
 
 
-class TestPackageControllerNew(TestControllerTwill):
+class TestPackageControllerNew(TestController2):
 
     def setup_class(self):
         self.testvalues = { 'name' : 'testpkg' }
 
     def teardown_class(self):
         rev = ckan.models.repo.youngest_revision()
-        rev.model.packages.purge(self.testvalues['name'])
+        try:
+            rev.model.packages.purge(self.testvalues['name'])
+        except:
+            pass
 
     def test_create(self):
         offset = url_for(controller='package', action='create')
-        url = self.siteurl + offset
-        web.go(url)
-        web.code(200)
-        web.title('Packages - Creating')
-        web.find('There was an error')
+        res = self.app.get(offset)
+        assert 'Packages - Creating' in res
+        assert 'There was an error' in res
 
     def test_new(self):
         offset = url_for(controller='package', action='new')
-        url = self.siteurl + offset
-        web.go(url)
-        web.code(200)
-        web.title('Packages - New')
-        fn = 1
-        web.fv(fn, 'name', self.testvalues['name'])
-        web.submit()
-        web.code(200)
-        print web.show()
-        web.find('Create successful.')
+        res = self.app.get(offset)
+        assert 'Packages - New' in res
+        fv = res.forms[0]
+        fv['name'] = self.testvalues['name']
+        res = fv.submit()
+        print str(res)
+        assert 'Create successful.' in res
         rev = ckan.models.repo.youngest_revision()
         pkg = rev.model.packages.get(self.testvalues['name'])
         assert pkg.name == self.testvalues['name']
@@ -210,8 +194,7 @@ class TestPackageControllerNew(TestControllerTwill):
         assert rev.author == 'Unknown IP Address'
         exp_log_message = 'Creating package %s' % self.testvalues['name']
         assert rev.log_message == exp_log_message
-        web.find('To continue editing')
-        web.follow(self.testvalues['name'])
-        web.code(200)
-        web.title('Packages - Edit')
+        assert 'To continue editing' in res
+        res = res.click(self.testvalues['name'])
+        assert 'Packages - Edit' in res
 

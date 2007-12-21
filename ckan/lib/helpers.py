@@ -1,8 +1,6 @@
-"""
-Helper functions
+"""Helper functions
 
-All names available in this module will be available under the Pylons h object.
+Consists of functions to typically be used within templates, but also
+available to Controllers. This module is available to both as 'h'.
 """
 from webhelpers import *
-from pylons.helpers import log
-from pylons.i18n import get_lang, set_lang
