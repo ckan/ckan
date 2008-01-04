@@ -5,13 +5,14 @@ import ckan.models
 class PurgeRevision(CommandBase):
     '''Purge all changes associated with a revision.
 
-    For the sake of having a record leave revision in existence but chagne
-    log_message to "PURGED".
+    If leave_record is True leave revision in existence but change
+    log_message to "PURGED", and otherwise delete revision object as well.
     '''
 
-    def __init__(self, revision):
+    def __init__(self, revision, leave_record=True):
         super(PurgeRevision, self).__init__()
         self.revision = revision
+        self.leave_record = leave_record
 
     def execute(self):
         # list everything affected by this transaction
@@ -38,5 +39,8 @@ class PurgeRevision(CommandBase):
                 revobj.delete(item.id)
         for item in to_purge:
             item.purge()
-        self.revision.log_message = 'PURGED'
+        if self.leave_record:
+            self.revision.log_message = 'PURGED'
+        else:
+            self.revision.__class__.delete(self.revision.id)
 

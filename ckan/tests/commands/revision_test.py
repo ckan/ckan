@@ -37,7 +37,7 @@ class TestRevisionPurge:
 
     def test_1(self):
         rev = self.repo.youngest_revision()
-        cmd = ckan.commands.revision.PurgeRevision(rev)
+        cmd = ckan.commands.revision.PurgeRevision(rev, leave_record=True)
         cmd.execute()
 
         rev = self.repo.youngest_revision()
@@ -51,4 +51,14 @@ class TestRevisionPurge:
             assert False, 'Should have raised an exception'
         except:
             pass
+
+    def test_2(self):
+        # important this is run after test_1
+        rev = self.repo.youngest_revision()
+        num = rev.id
+        cmd = ckan.commands.revision.PurgeRevision(rev, leave_record=False)
+        cmd.execute()
+
+        rev = self.repo.youngest_revision()
+        assert rev.id < num
 
