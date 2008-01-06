@@ -2,7 +2,7 @@ import ckan.commands.revision
 
 class TestRevisionPurge:
 
-    def setup_class(self):
+    def setup_method(self, name=''):
         import ckan.models
         self.repo = ckan.models.repo
 
@@ -28,7 +28,7 @@ class TestRevisionPurge:
         self.pkg_new = txn2.model.packages.create(name=self.pkgname2)
         txn2.commit()
 
-    def teardown_class(self):
+    def teardown_method(self, name=''):
         try:
             self.pkg_new.purge()
         except:
@@ -53,7 +53,6 @@ class TestRevisionPurge:
             pass
 
     def test_2(self):
-        # important this is run after test_1
         rev = self.repo.youngest_revision()
         num = rev.id
         cmd = ckan.commands.revision.PurgeRevision(rev, leave_record=False)
@@ -61,4 +60,22 @@ class TestRevisionPurge:
 
         rev = self.repo.youngest_revision()
         assert rev.id < num
+
+    def test_purge_first_revision(self):
+        rev = self.repo.youngest_revision()
+        num = rev.id
+        rev2 = self.repo.get_revision(rev.id - 1)
+        cmd = ckan.commands.revision.PurgeRevision(rev2, leave_record=False)
+        cmd.execute()
+
+        rev = self.repo.youngest_revision()
+        assert rev.id == num
+        # either none or should equal num - 2 or be None (if no lower revision)
+        if rev.base_revision != None:
+            baseid = rev.base_revision.id
+            # cannot use == and as no guarantee next one down is only 2 below
+            # however suspicious if 1 ...
+            assert baseid <= num - 2 and baseid > 1
+        pkg = rev.model.packages.get(self.pkgname)
+        assert len(pkg.history) == 1
 

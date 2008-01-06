@@ -4,8 +4,14 @@ hub = PackageHub('ckan')
 sqlobject.sqlhub.processConnection = hub.getConnection()
 
 from package import *
-import vdm.base
-from vdm.base import State
+try:
+    # vdm >= 0.2
+    import vdm.sqlobject.base as vdmbase
+    from vdm.sqlobject.base import State, Revision
+except:
+    # vdm == 0.1
+    import vdm.base as vdmbase
+    from vdm.base import State, Revision
 
 class DomainModel(object):
 
@@ -23,9 +29,9 @@ class DomainModel(object):
     def __init__(self, revision, transaction=None):
         self.revision = revision
         self.transaction = transaction
-        self.packages = vdm.base.VersionedDomainObjectRegister(Package, 'name', revision, transaction)
-        self.tags = vdm.base.VersionedDomainObjectRegister(Tag, 'name', revision, transaction)
-        self.package_tags = vdm.base.VersionedDomainObjectRegister(PackageTag, 'id', revision, transaction)
+        self.packages = vdmbase.VersionedDomainObjectRegister(Package, 'name', revision, transaction)
+        self.tags = vdmbase.VersionedDomainObjectRegister(Tag, 'name', revision, transaction)
+        self.package_tags = vdmbase.VersionedDomainObjectRegister(PackageTag, 'id', revision, transaction)
 
     @classmethod
     def initialise_repository(self):
@@ -96,5 +102,5 @@ class DomainModel(object):
         License(name='OSI Approved::Zope Public License')
         License(name='OSI Approved::zlib/libpng license')
 
-repo = vdm.base.Repository(DomainModel)
+repo = vdmbase.Repository(DomainModel)
 

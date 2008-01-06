@@ -42,5 +42,20 @@ class PurgeRevision(CommandBase):
         if self.leave_record:
             self.revision.log_message = 'PURGED'
         else:
+            # TODO
+            # need to do some work to upate dependent revisions
+            # because of reference in base_revision
+            # get next lowest revision 
+            referring_revisions = ckan.models.Revision.selectBy(base_revisionID=self.revision.id)
+            # get next lowest revision
+            all = ckan.models.Revision.select(ckan.models.Revision.q.id <
+                    self.revision.id, orderBy=-ckan.models.Revision.q.id)
+            first = None
+            for rev in all:
+                first = rev
+                break
+            print 'First below, current revision', first.id, self.revision.id
+            for rev in referring_revisions:
+                rev.base_revision = first
             self.revision.__class__.delete(self.revision.id)
 

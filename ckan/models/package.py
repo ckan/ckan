@@ -1,6 +1,13 @@
 import sqlobject
 
-import vdm.base
+try:
+    # vdm >= 0.2
+    import vdm.sqlobject.base as vdmbase
+    from vdm.sqlobject.base import State
+except:
+    # vdm == 0.1
+    import vdm.base as vdmbase
+    from vdm.base import State
 
 # American spelling ...
 class License(sqlobject.SQLObject):
@@ -16,7 +23,7 @@ class License(sqlobject.SQLObject):
             )
 
 
-class PackageRevision(vdm.base.ObjectRevisionSQLObject):
+class PackageRevision(vdmbase.ObjectRevisionSQLObject):
 
     base = sqlobject.ForeignKey('Package', cascade=True)
     title = sqlobject.UnicodeCol(default=None)
@@ -26,20 +33,20 @@ class PackageRevision(vdm.base.ObjectRevisionSQLObject):
     notes = sqlobject.UnicodeCol(default=None)
 
 
-class TagRevision(vdm.base.ObjectRevisionSQLObject):
+class TagRevision(vdmbase.ObjectRevisionSQLObject):
 
     base = sqlobject.ForeignKey('Tag', cascade=True)
 
 
-class PackageTagRevision(vdm.base.ObjectRevisionSQLObject):
+class PackageTagRevision(vdmbase.ObjectRevisionSQLObject):
 
     base = sqlobject.ForeignKey('PackageTag', cascade=True)
 
 
-class Package(vdm.base.VersionedDomainObject):
+class Package(vdmbase.VersionedDomainObject):
 
     sqlobj_version_class = PackageRevision
-    versioned_attributes = vdm.base.get_attribute_names(sqlobj_version_class)
+    versioned_attributes = vdmbase.get_attribute_names(sqlobj_version_class)
     
     name = sqlobject.UnicodeCol(alternateID=True)
 
@@ -54,12 +61,12 @@ class Package(vdm.base.VersionedDomainObject):
         self.tags.create(tag=tag)
 
 
-class Tag(vdm.base.VersionedDomainObject):
+class Tag(vdmbase.VersionedDomainObject):
 
     sqlobj_version_class = TagRevision
 
     name = sqlobject.UnicodeCol(alternateID=True)
-    versioned_attributes = vdm.base.get_attribute_names(sqlobj_version_class)
+    versioned_attributes = vdmbase.get_attribute_names(sqlobj_version_class)
 
     m2m = [ ('packages', 'ckan.models.package', 'Package', 'PackageTag') ]
 
@@ -71,10 +78,10 @@ class Tag(vdm.base.VersionedDomainObject):
         return self.select(query)
 
 
-class PackageTag(vdm.base.VersionedDomainObject):
+class PackageTag(vdmbase.VersionedDomainObject):
 
     sqlobj_version_class = PackageTagRevision
-    versioned_attributes = vdm.base.get_attribute_names(sqlobj_version_class)
+    versioned_attributes = vdmbase.get_attribute_names(sqlobj_version_class)
     m2m = []
 
     package = sqlobject.ForeignKey('Package', cascade=True)
