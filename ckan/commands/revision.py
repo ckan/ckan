@@ -54,7 +54,8 @@ class PurgeRevision(CommandBase):
             for rev in all:
                 first = rev
                 break
-            print 'First below, current revision', first.id, self.revision.id
+            # DEBUG
+            # print 'First below, current revision', first.id, self.revision.id
             for rev in referring_revisions:
                 rev.base_revision = first
             self.revision.__class__.delete(self.revision.id)
