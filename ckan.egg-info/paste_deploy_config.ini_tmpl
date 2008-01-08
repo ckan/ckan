@@ -1,5 +1,5 @@
 #
-# blah - Pylons configuration
+# ckan - Pylons configuration
 #
 # The %(here)s variable will be replaced with the parent directory of this file
 #
@@ -33,6 +33,16 @@ app_instance_uuid = ${app_instance_uuid}
 # execute malicious code after an exception is raised.
 set debug = false
 
+# AuthKit (v0.4) config for openid
+# for this to work you will also need to modify your middleware config
+# see the pylons book chapters on Authentication and Authorization for details
+#
+# authkit.setup.method = openid,cookie
+# authkit.openid.store.type = file
+# authkit.openid.store.config = /tmp/www.ckan.net_passurl_store
+# authkit.cookie.secret= mysecret_authkit_cookie_secret
+# authkit.cookie.signoutpath = /account/logout
+# authkit.openid.path.signedin = /account/login
 
 # Logging configuration
 [loggers]

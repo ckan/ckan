@@ -41,7 +41,7 @@ def make_app(global_conf, full_stack=True, **app_conf):
     if asbool(full_stack):
         # added authkit middleware to do authentication
         import authkit.authenticate
-        app = authkit.authenticate.middleware(app, config_paste=app_conf)
+        app = authkit.authenticate.middleware(app, app_conf)
     
         # Handle Python exceptions
         app = ErrorHandler(app, global_conf, error_template=error_template,

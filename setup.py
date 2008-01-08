@@ -21,7 +21,7 @@ CKAN is a web application to manage listings of knowledge packages.
         'vdm==0.1',
         'Pylons>=0.9.6.1',
         'SQLObject>=0.7',
-        'AuthKit>=0.3.0pre5',
+        'AuthKit==0.4.0',
         ],
     packages=find_packages(exclude=['ez_setup']),
     scripts = ['bin/ckan-admin'],
