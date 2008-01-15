@@ -6,6 +6,8 @@ class TestPackageController(TestController2):
         offset = url_for(controller='tag')
         res = self.app.get(offset)
         assert 'Tags - Index' in res
+        assert 'list of tags' in res
+        assert 'search for tags' in res
 
     def test_read(self):
         name = 'tolstoy'

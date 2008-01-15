@@ -6,8 +6,11 @@
   <div py:match="content">
 		<h2>Tags</h2>
 
+    <h3>Search Tags</h3>
+    <p>You can ${XML(h.link_to('search for tags', h.url_for(controller='tag', action='search', id=None)))}.</p>
+
     <h3>Browse Tags</h3>
-    <p>You can browse the ${XML(h.link_to('list of tags', h.url_for(controller='tag', action='list')))}.</p>
+    <p>Alternatively you can browse the ${XML(h.link_to('list of tags', h.url_for(controller='tag', action='list')))}.</p>
 	</div>
 
   <xi:include href="layout.html" />
