@@ -5,20 +5,22 @@ except ImportError:
     use_setuptools()
     from setuptools import setup, find_packages
 
+from ckan import __version__, __description__, __license__
+
 setup(
     name='ckan',
-    version='0.4dev',
+    version=__version__,
     author='Open Knowledge Foundation',
     author_email='info@okfn.org',
-    license='MIT',
+    license=__license__,
     url='http://www.okfn.org/ckan/',
-    description='Comprehensive Knowledge Archive Network Software',
+    description=__description__,
     long_description =\
 '''
 CKAN is a web application to manage listings of knowledge packages.
 ''',
     install_requires=[
-        'vdm==0.1',
+        'vdm>=0.1',
         'Pylons>=0.9.6.1',
         'SQLObject>=0.7',
         'AuthKit==0.4.0',
@@ -38,7 +40,7 @@ CKAN is a web application to manage listings of knowledge packages.
     [paste.app_install]
     main = pylons.util:PylonsInstaller
     """,
-    # setup.py test command needs a TestSuite so does not work with pyt.test
+    # setup.py test command needs a TestSuite so does not work with py.test
     # test_suite = 'nose.collector',
     # tests_require=[ 'py >= 0.8.0-alpha2' ]
 )
