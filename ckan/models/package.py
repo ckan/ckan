@@ -16,11 +16,7 @@ class License(sqlobject.SQLObject):
         _defaultOrder = 'name'
 
     name = sqlobject.UnicodeCol(alternateID=True)
-
-    packages = sqlobject.RelatedJoin('Package',
-            createRelatedTable=False,
-            intermediateTable='package_license'
-            )
+    packages = sqlobject.MultipleJoin('Package')
 
 
 class PackageRevision(vdmbase.ObjectRevisionSQLObject):
