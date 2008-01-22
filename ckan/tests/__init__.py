@@ -68,7 +68,8 @@ def create_test_data():
     pkg1 = model.packages.create(name='annakarenina')
     pkg1.title = 'A Novel By Tolstoy'
     pkg1.url = 'http://www.annakarenina.com'
-    pkg1.download_url = 'http://www.annakarenina.com/download/'
+    # put an & in the url string to test escaping
+    pkg1.download_url = 'http://www.annakarenina.com/download/x=1&y=2'
     pkg1.notes = '''Some test notes
 
 ### A 3rd level heading

@@ -4,12 +4,11 @@
     <h3>Metadata:</h3>
     <ul>
       <li><strong>Title:</strong> ${c.pkg_title}</li>
-      <li><strong>Url:</strong> ${XML(h.link_to(c.pkg_url, c.pkg_url))}</li>
-      <li><strong>Download Url:</strong> ${XML(h.link_to(c.pkg_download_url, c.pkg_download_url))}</li>
+      <li><strong>Url:</strong> <a href="${c.pkg_url}">${c.pkg_url}</a></li>
+      <li><strong>Download Url:</strong> <a href="${c.pkg_download_url}">${c.pkg_download_url}</a></li>
       <li><strong>Tags:</strong>
         <py:for each="tag_name in c.pkg_tags">
-        ${XML(h.link_to(tag_name,
-          h.url_for(controller='tag', action='read', id=tag_name)))}
+        <a href="${h.url_for(controller='tag', action='read', id=tag_name)}">${tag_name}</a>
         </py:for>
       </li>
       <li><strong>Licenses:</strong> ${c.pkg_license}</li>

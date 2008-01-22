@@ -59,20 +59,13 @@ class TestPackageSchemaFromPython:
         self.out = self.schema.from_python(self.pkg)
         active = ckan.models.State.byName('active')
         self.exp = {
-                'title'   : u'A Novel By Tolstoy',
-                'url'     : u'http://www.annakarenina.com',
-                'download_url'     : u'http://www.annakarenina.com/download/',
-                'notes'   : u'''Some test notes
-
-### A 3rd level heading
-
-**Some bolded text.**
-
-*Some italicized text.*
-''',
+                'title'   : self.pkg.title,
+                'url'     : self.pkg.url,
+                'download_url'     : self.pkg.download_url,
+                'notes'   : self.pkg.notes,
                 'state'   : active,
                 'id'      : 1,
-                'name'    : u'annakarenina',
+                'name'    : self.pkg.name,
                 'tags'    : u'russian tolstoy',
                 'licenses': [ 'OKD Compliant::Other' ] 
                 }

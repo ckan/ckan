@@ -1,6 +1,8 @@
 from ckan.tests import *
 import ckan.models
 
+import cgi
+
 class TestPackageController(TestController2):
 
     def setup_class(self):
@@ -41,7 +43,7 @@ class TestPackageController(TestController2):
         assert name in res
         assert 'Url:' in res
         assert self.anna.url in res
-        assert self.anna.download_url in res
+        assert cgi.escape(self.anna.download_url) in res
         assert 'Notes:' in res
         assert 'Some test notes' in res
         assert '<strong>Some bolded text.</strong>' in res
