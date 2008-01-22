@@ -96,4 +96,3 @@ To run the tests you should use py.test:
 
     $ py.test ckan/tests
 
-Note that the functional tests require twill: <http://twill.idyll.org/>
