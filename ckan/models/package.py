@@ -67,11 +67,11 @@ class Tag(vdmbase.VersionedDomainObject):
     m2m = [ ('packages', 'ckan.models.package', 'Package', 'PackageTag') ]
 
     @classmethod
-    def search_by_name(self, search_string):
-        # sqlobject specific
-        term = '%' + search_string + '%'
-        query = '''UPPER(tag.name) LIKE UPPER('%s')''' % term
-        return self.select(query)
+    def search_by_name(self, text_query):
+        text_query_str = str(text_query) # SQLObject chokes on unicode.
+        # Todo: Change to use SQLObject statement objects.
+        sql_query = "UPPER(tag.name) LIKE UPPER('%%%s%%')" % text_query_str
+        return self.select(sql_query)
 
 
 class PackageTag(vdmbase.VersionedDomainObject):
