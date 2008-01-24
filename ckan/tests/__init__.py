@@ -54,6 +54,57 @@ class TestController2(object):
     def __init__(self, *args, **kwargs):
         wsgiapp = loadapp('config:test.ini', relative_to=conf_dir)
         self.app = paste.fixture.TestApp(wsgiapp)
+        self.transaction = None
+
+    def transaction_begin(self):
+        import ckan.models
+        if self.transaction == None:
+            self.transaction = ckan.models.repo.begin_transaction()
+        else:
+            raise Exception, "Already in a transaction. Missing commit?"
+
+    def transaction_commit(self):
+        if self.transaction:
+            self.transaction.commit()
+            self.transaction = None
+        else:
+            raise Exception, "Not in a transaction. Missing begin?"
+
+    def get_model(self):
+        if not self.transaction:
+            self.transaction_begin()
+        return self.transaction.model
+
+    def create_100_packages(self):
+        listRegister = self.get_model().packages
+        for i in range(0,100):
+            name = "pagetestpackage%s" % i
+            listRegister.create(name=name)
+        self.transaction_commit()
+
+    def purge_100_packages(self):
+        listRegister = self.get_model().packages
+        for i in range(0,100):
+            name = "pagetestpackage%s" % i
+            listRegister.purge(name)
+        self.transaction_commit()
+
+    def create_100_tags(self):
+        listRegister = self.get_model().tags
+        for i in range(0,100):
+            name = "pagetesttag%s" % i
+            listRegister.create(name=name)
+            print "Created tag: %s" % name
+        self.transaction_commit()
+
+    def purge_100_tags(self):
+        listRegister = self.get_model().tags
+        for i in range(0,100):
+            name = "pagetesttag%s" % i
+            listRegister.purge(name)
+        self.transaction_commit()
+
+
 
 def create_test_data():
     import ckan.models
