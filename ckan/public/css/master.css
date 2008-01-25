@@ -4,6 +4,8 @@
 @import url(display.css);
 /* import navigation styling */
 @import url(navigation.css);
+/* import pagination styling */
+@import url(pagination.css);
 /* import form styling */
 @import url(forms.css);
 /* import print styling */
