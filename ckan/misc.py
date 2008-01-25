@@ -23,6 +23,7 @@ class Paginate(object):
         self.listIndex = 0
         self.list = None
         self.listLength = None
+        self.pageList = None
 
     def getList(self):
         if self.list == None:
@@ -63,11 +64,32 @@ class Paginate(object):
         else:
             adjustment = listIndex % self.pageLength
             self.listIndex = listIndex - adjustment
+        self.pageList = None
 
     def getPageList(self):
         fullList = self.getList()
-        start = self.listIndex
-        end = start + self.pageLength
-        pageList = fullList[start:end]
+        (start, stop) = self.getPageListIndexRange()
+        pageList = fullList[start:stop]
         return pageList
+
+    def getPageCount(self):
+        return self.getListLength() / self.pageLength + 1
+
+    def getPagesList(self):
+        pages = []
+        currentPageIndex = self.listIndex / self.pageLength + 1
+        for i in range(0,self.getPageCount()):
+            pageIndex = i+1
+            listIndex = i * self.pageLength
+            isCurrentPage = pageIndex == currentPageIndex
+            pages.append((pageIndex,listIndex,isCurrentPage))
+        return pages
+
+    def getPageListIndexRange(self):
+        start = self.listIndex
+        stop = self.listIndex + self.pageLength
+        listLength = self.getListLength()
+        if stop > listLength:
+            stop = listLength
+        return (start, stop)
 

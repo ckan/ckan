@@ -35,7 +35,7 @@ class TestTagController(TestController2):
         offset = url_for(controller='tag', action='page')
         res = self.app.get(offset)
         print str(res)
-        assert 'Tags - Page' in res
+        assert 'Tags - List' in res
         tagname = 'tolstoy'
         assert tagname in res
         assert '(2 packages)' in res
@@ -44,18 +44,16 @@ class TestTagController(TestController2):
         offset = url_for(controller='tag', action='page', id=0)
         res = self.app.get(offset)
         print str(res)
-        assert 'Tags - Page' in res
+        assert 'Tags - List' in res
         assert tagname in res
         assert '(2 packages)' in res
         assert 'There are 2 tags.' in res
-        assert not 'Page: - %s' % tagname in res
         offset = url_for(controller='tag', action='page', id=50)
         res = self.app.get(offset)
         print str(res)
-        assert 'Tags - Page' in res
+        assert 'Tags - List' in res
         assert tagname in res
         assert 'There are 2 tags.' in res
-        assert not 'Page: - %s' % tagname in res
         # Avoid interactions.
         offset = url_for(controller='tag', action='page', id=0)
     
@@ -68,33 +66,32 @@ class TestTagController(TestController2):
             print offset
             res = self.app.get(offset)
             print str(res)
-            assert 'Tags - Page' in res
-            assert 'There are 102 tags.' in res
+            assert 'Tags - List' in res
             assert 'tolstoy' in res
             assert 'pagetesttag31' in res
             assert not 'pagetesttag81' in res
             assert not 'pagetesttag99' in res
             assert 'Next' in res
             assert not 'Previous' in res
+            assert 'Displaying tags 1 - 50 of 102' in res
             # Page 1.
             offset = url_for(controller='tag', action='page', id=50)
             print offset
             print "Path offset: %s" % offset
             res = self.app.get(offset)
             print str(res)
-            assert 'Tags - Page' in res
-            assert 'There are 102 tags.' in res
+            assert 'Tags - List' in res
             assert not 'tolstoy' in res
             assert not 'pagetesttag31' in res
             assert 'pagetesttag81' in res
             assert 'Next' in res
             assert 'Previous' in res
+            assert 'Displaying tags 51 - 100 of 102' in res
             # Page 2.
             offset = url_for(controller='tag', action='page', id=100)
             res = self.app.get(offset)
             print str(res)
-            assert 'Tags - Page' in res
-            assert 'There are 102 tags.' in res
+            assert 'Tags - List' in res
             assert not 'tolstoy' in res
             assert not 'pagetesttag31' in res
             assert not 'pagetesttag81' in res
@@ -102,6 +99,7 @@ class TestTagController(TestController2):
             assert 'pagetesttag99' in res
             assert not 'Next' in res
             assert 'Previous' in res
+            assert 'Displaying tags 101 - 102 of 102' in res
         finally:
             self.purge_100_tags()
 

@@ -14,8 +14,10 @@ class TestPaginate(TestController2):
         assert not paginate.hasNext()
         assert paginate.getPrevious() == None
         assert paginate.getNext() == None
-        paginate.setListIndex(50)
+        paginate.setListIndex(50)  # Should have no effect.
         assert paginate.listIndex == 0
+        assert paginate.getPageCount() == 1
+        assert paginate.getPagesList() == [(1, 0, True)]
         pageList = paginate.getPageList()
         assert len(pageList) == 2
         assert pageList[1] == listRegister.list()[1]
@@ -39,6 +41,9 @@ class TestPaginate(TestController2):
         assert paginate.hasNext()
         assert paginate.getPrevious() == None
         assert paginate.getNext() == 50
+        assert paginate.getPageCount() == 3
+        assert paginate.getPagesList() == [(1,0,True),(2,50,False),(3,100,False)]
+        assert paginate.getPageListIndexRange() == (0,50)
         pageList = paginate.getPageList()
         assert len(pageList) == 50
         assert pageList[0] == listRegister.list()[0]
@@ -50,6 +55,8 @@ class TestPaginate(TestController2):
         assert paginate.hasNext()
         assert paginate.getPrevious() == 0
         assert paginate.getNext() == 100
+        assert paginate.getPagesList() == [(1,0,False),(2,50,True),(3,100,False)]
+        assert paginate.getPageListIndexRange() == (50,100)
         pageList = paginate.getPageList()
         assert len(pageList) == 50
         assert pageList[0] == listRegister.list()[50]
@@ -61,6 +68,8 @@ class TestPaginate(TestController2):
         assert not paginate.hasNext()
         assert paginate.getPrevious() == 50
         assert paginate.getNext() == None
+        assert paginate.getPagesList() == [(1,0,False),(2,50,False),(3,100,True)]
+        assert paginate.getPageListIndexRange() == (100,102)
         pageList = paginate.getPageList()
         assert len(pageList) == 2
         assert pageList[0] == listRegister.list()[100]

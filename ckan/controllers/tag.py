@@ -32,7 +32,9 @@ class TagController(CkanBaseController):
         c.previous_index = pager.getPrevious()
         c.has_next = pager.hasNext()
         c.next_index = pager.getNext()
+        c.pages_list = pager.getPagesList()
         c.page_list = pager.getPageList()
+        c.page_range = pager.getPageListIndexRange()
         return render('tag/page')
 
     def list(self):
