@@ -103,7 +103,7 @@ class TestTagController(TestController2):
             assert not 'Next' in res
             assert 'Previous' in res
         finally:
-            pass # self.purge_100_tags()
+            self.purge_100_tags()
 
     def test_search(self):
         offset = url_for(controller='tag', action='search')
