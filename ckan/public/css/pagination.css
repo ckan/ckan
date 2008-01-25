@@ -30,12 +30,12 @@ div.pagination {
   background-color: #CC2222;
 }
 
-a.pagination-current {
+.pagination-current a {
   text-decoration: underline;
   font-weight: bold;
 }
 
-a.pagination-current:hover, a.pagination-current:active {
+.pagination-current a:hover, .pagination-current a:active {
   text-decoration: underline;
   font-weight: bold;
   color: #CC2222;
