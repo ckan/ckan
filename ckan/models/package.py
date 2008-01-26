@@ -68,10 +68,8 @@ class Tag(vdmbase.VersionedDomainObject):
 
     @classmethod
     def search_by_name(self, text_query):
-        text_query_str = str(text_query) # SQLObject chokes on unicode.
-        # Todo: Change to use SQLObject statement objects.
-        sql_query = "UPPER(tag.name) LIKE UPPER('%%%s%%')" % text_query_str
-        return self.select(sql_query)
+        text_query = str(text_query) # SQLObject chokes on unicode.
+        return self.select(self.q.name.contains(text_query.lower()))
 
 
 class PackageTag(vdmbase.VersionedDomainObject):
