@@ -1,5 +1,15 @@
 # CKAN CHANGELOG
 
+v0.5 2008-01-22
+===============
+
+  * Purging of a Revision and associated changes from cli and wui (ticket:37)
+  * Make data available in machine-usable form via sql dump (ticket:38)
+  * Upgrade to Pylons 0.9.6.* and deploy (ticket:41)
+  * List and search tags (ticket:33)
+  * (bugfix) Manage reserved html characters in urls (ticket:40)
+  * New spam management utilities including (partial) blacklist support
+
 v0.4 2007-07-04
 ===============
 

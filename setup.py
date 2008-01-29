@@ -5,7 +5,7 @@ except ImportError:
     use_setuptools()
     from setuptools import setup, find_packages
 
-from ckan import __version__, __description__, __license__
+from ckan import __version__, __description__, __long_description__, __license__
 
 setup(
     name='ckan',
@@ -15,10 +15,7 @@ setup(
     license=__license__,
     url='http://www.okfn.org/ckan/',
     description=__description__,
-    long_description =\
-'''
-CKAN is a web application to manage listings of knowledge packages.
-''',
+    long_description =__long_description__,
     install_requires=[
         'vdm>=0.1',
         'Pylons>=0.9.6.1',

@@ -1,8 +1,8 @@
 ## Introduction
 
-The ckan software is used to run the CKAN/OpenRegistry site (CKAN stands for
-the Comprehensive knowledge Archive Network) which provides a listing of
-(mainly open) knowledge packages.
+Comprehensive Knowledge Archive Network (CKAN) Software.
+
+See ckan.__long_description__ for more information.
 
 
 ## Copying
@@ -32,16 +32,19 @@ THE SOFTWARE.
 
 ## Authors
 
-Rufus Pollock <rufus [at] rufuspollock [dot] org>
-Nick Stenning
-John Bywater (v0.1 only)
+  * Rufus Pollock <rufus [at] rufuspollock [dot] org>
+  * John Bywater
+  * Nick Stenning (css and js)
 
 
 ## Installation and Setup
 
-1. Get the code if you do not have it already (see Getting the Code below).
+1. Get the code and install it:
 
-2. Install it:
+       $ easy_install ckan
+       
+   Or checkout from the svn repo at <http://knowledgeforge.net/ckan/svn/trunk>
+   and then do
 
       $ sudo python setup.py
 
@@ -56,10 +59,6 @@ John Bywater (v0.1 only)
 3. Make a config file as follows:
 
       $ paster make-config ckan config.ini
-
-   Alternatively just copy an existing configuration (such as development.ini):
-
-      $ cp development.ini config.ini
 
 4. Tweak the config file as appropriate and then setup the application::
 
@@ -78,10 +77,6 @@ John Bywater (v0.1 only)
 
    http://pylonshq.com/project/pylonshq/wiki/FastCGI.
 
-
-## Getting the Code
-
-Download ckan or checkout the code from the subversion repository.
 
 
 ## Tests
