@@ -16,12 +16,16 @@ setup(
     url='http://www.okfn.org/ckan/',
     description=__description__,
     long_description =__long_description__,
+    # Also requires: markdown 1.5 (0.6a only on the PCS)
     install_requires=[
         'vdm>=0.1',
         'Pylons>=0.9.6.1',
         'SQLObject>=0.7',
         'AuthKit==0.4.0',
-        ],
+        'paginate==0.3.2',
+        'genshi==0.4.4'    # Not necessarily pulled in with Pylons.
+        #'markdown'         # 1.5 doesn't seem to be on the PCS.
+    ],
     packages=find_packages(exclude=['ez_setup']),
     scripts = ['bin/ckan-admin'],
     include_package_data=True,
