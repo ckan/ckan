@@ -30,6 +30,25 @@ class CkanBaseController(BaseController):
         c.register_name = registerName
         return render(templatePath)
 
+    def _paginate_list(self, register_name, id, template_path):
+        try:
+            current_page = int(id)
+        except:
+            current_page = 0
+        rev = self.repo.youngest_revision()
+        register = getattr(rev.model, register_name)
+        import paginate
+        collection = register.list()
+        item_count = len(collection)
+        c.page = paginate.Page(
+            collection=collection,
+            current_page=current_page,
+            items_per_page=50,
+            item_count=item_count,
+        )
+        c.register_name = register_name
+        return render(template_path)
+
 
 class PageContextSetter(object):
 

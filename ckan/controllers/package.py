@@ -41,7 +41,7 @@ class PackageController(CkanBaseController):
         return render('package/read')
 
     def list(self, id):
-        return self._list_page('packages', id, 'package/list')
+        return self._paginate_list('packages', id, 'package/list')
 
     def _update(self):
         error_msg = ''

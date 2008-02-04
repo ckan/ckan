@@ -6,18 +6,7 @@
   <div py:match="content">
     <h2>${c.register_name.capitalize()}</h2>
 
-    <xi:include href="../pagination.html" />
-
-    <ul>
-      <py:for each="item in c.page_list">
-      <li>
-      ${XML(h.link_to(item.name, h.url_for(action='read', id=item.name)))}
-      <!-- - (${len(item.packages.list())} packages) -->
-      </li>
-      </py:for>
-    </ul>
-
-    <xi:include href="../pagination.html" />
+    <xi:include href="../paginated_list.html" />
 
   </div>
 

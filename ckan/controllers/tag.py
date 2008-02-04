@@ -16,7 +16,7 @@ class TagController(CkanBaseController):
         return render('tag/read')
 
     def list(self, id):
-        return self._list_page('tags', id, 'tag/list')
+        return self._paginate_list('tags', id, 'tag/list')
 
     def search(self):
         c.search_terms = request.params.get('search_terms', '')

@@ -49,9 +49,9 @@ class TestTagController(TestController2):
     def test_list_long(self):
         self.create_100_tags()
         try:
-            # Page 0.
+            # Page 1.
             print
-            offset = url_for(controller='tag', action='list', id=0)
+            offset = url_for(controller='tag', action='list', id=1)
             print offset
             res = self.app.get(offset)
             print str(res)
@@ -63,8 +63,8 @@ class TestTagController(TestController2):
             assert 'Next' in res
             assert not 'Previous' in res
             assert 'Displaying tags 1 - 50 of 102' in res
-            # Page 1.
-            offset = url_for(controller='tag', action='list', id=50)
+            # Page 2.
+            offset = url_for(controller='tag', action='list', id=2)
             print offset
             print "Path offset: %s" % offset
             res = self.app.get(offset)
@@ -76,8 +76,8 @@ class TestTagController(TestController2):
             assert 'Next' in res
             assert 'Previous' in res
             assert 'Displaying tags 51 - 100 of 102' in res
-            # Page 2.
-            offset = url_for(controller='tag', action='list', id=100)
+            # Page 3.
+            offset = url_for(controller='tag', action='list', id=3)
             res = self.app.get(offset)
             print str(res)
             assert 'Tags - List' in res

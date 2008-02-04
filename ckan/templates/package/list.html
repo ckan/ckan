@@ -5,28 +5,9 @@
 
   <div py:match="content">
     <h2>Packages</h2>
+
+    <xi:include href="../paginated_list.html" />
     
-    <xi:include href="../pagination.html" />
-
-    <p>
-    <py:if test="c.is_single_page">
-    There are ${c.list_length} packages.
-    </py:if>
-    <py:if test="not c.is_single_page">
-    Displaying packages ${c.page_range[0] + 1} - ${c.page_range[1]} of ${c.list_length}.
-    </py:if>
-    </p>
-
-    <ul>
-      <py:for each="item in c.page_list">
-      <li>
-      ${XML(h.link_to(item.name, h.url_for(action='read', id=item.name)))}
-      </li>
-      </py:for>
-    </ul>
-
-    <xi:include href="../pagination.html" />
-
   </div>
 
   <xi:include href="layout.html" />
