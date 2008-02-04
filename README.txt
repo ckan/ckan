@@ -68,6 +68,10 @@ THE SOFTWARE.
 
       $ paster serve config.ini 
 
+5. Run the webserver for development:
+
+      $ paster serve --reload development.ini 
+
 6. Point your browswer at: localhost:5000 (if you set a different port in your
    config file then youl will need to change 5000 to whatever port value you
    chose).
