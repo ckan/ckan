@@ -1,3 +1,5 @@
+import paginate
+
 class TextFormat(object):
 
     def to_html(self, instr):
@@ -13,6 +15,7 @@ class MarkdownFormat(TextFormat):
         return markdown.markdown(instr)
 
 
+# Todo: Substitute the Pylons webhelper Pagination classes for this class.
 # Todo: Change this class to use underscore-separated names, ahem.
 
 class Paginate(object):

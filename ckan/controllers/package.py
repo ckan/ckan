@@ -40,12 +40,8 @@ class PackageController(CkanBaseController):
         c.content = genshi.HTML(self._render_package(defaults))
         return render('package/read')
 
-    def list(self):
-        rev = self.repo.youngest_revision()
-        packages = rev.model.packages.list()
-        c.package_count = len(packages)
-        c.packages = packages
-        return render('package/list')
+    def list(self, id):
+        return self._list_page('packages', id, 'package/list')
 
     def _update(self):
         error_msg = ''

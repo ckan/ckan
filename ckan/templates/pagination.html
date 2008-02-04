@@ -1,0 +1,48 @@
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:py="http://genshi.edgewall.org/"
+  py:strip=""
+>
+
+  <div class="pagination">
+    <py:if test="not c.is_single_page">
+      <ul>
+      <py:if test="c.has_previous">
+        <li>
+${XML(h.link_to('Previous', h.url_for(action='list', id=c.previous_index)))}
+        </li>
+      </py:if>
+      <py:for each="page in c.pages_list">
+        <li>
+        <py:choose test="page[2]">
+          <py:when test="True">
+            <span class="pagination-current">
+${XML(h.link_to(page[0], h.url_for(action='list', id=page[1])))}
+            </span>
+          </py:when>
+          <py:otherwise>
+${XML(h.link_to(page[0], h.url_for(action='list', id=page[1])))}
+          </py:otherwise>
+        </py:choose>
+        </li>
+      </py:for>
+      <py:if test="c.has_next">
+        <li>
+${XML(h.link_to('Next', h.url_for(action='list', id=c.next_index)))}
+        </li>
+      </py:if>
+      </ul>
+    </py:if>
+  </div>
+
+  <div>
+    
+  <py:if test="c.is_single_page">
+    <p>There are ${c.list_length} ${c.register_name}.</p>
+  </py:if>
+  <py:if test="not c.is_single_page">
+    <p>Displaying ${c.register_name} ${c.page_range[0] + 1} - ${c.page_range[1]} of ${c.list_length}.</p>
+    </py:if>
+  </div>
+
+</html>

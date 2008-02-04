@@ -19,9 +19,10 @@ div.pagination {
 }
 
 .pagination a {
+  /* font-size: 85%; */
   text-decoration: none;
+  padding: 0.3em 0.15em 0.4em;
   margin: 0em;
-  padding: 0.3em;
   border: 0pt;
 }
 

@@ -4,16 +4,21 @@
   <py:def function="page_title">Tags - List</py:def>
 
   <div py:match="content">
-    <h2>Tags</h2>
-    <p>There are ${c.tag_count} tags.</p>
+    <h2>${c.register_name.capitalize()}</h2>
+
+    <xi:include href="../pagination.html" />
+
     <ul>
-      <py:for each="tag in c.tags">
+      <py:for each="item in c.page_list">
       <li>
-      ${XML(h.link_to(tag.name, h.url_for(action='read', id=tag.name)))}
-      - (${len(tag.packages)} packages)
+      ${XML(h.link_to(item.name, h.url_for(action='read', id=item.name)))}
+      <!-- - (${len(item.packages.list())} packages) -->
       </li>
       </py:for>
     </ul>
+
+    <xi:include href="../pagination.html" />
+
   </div>
 
   <xi:include href="layout.html" />

@@ -78,21 +78,21 @@ class TestController2(object):
     def create_100_packages(self):
         listRegister = self.get_model().packages
         for i in range(0,100):
-            name = "pagetestpackage%s" % i
+            name = "testpackage%s" % i
             listRegister.create(name=name)
         self.transaction_commit()
 
     def purge_100_packages(self):
         listRegister = self.get_model().packages
         for i in range(0,100):
-            name = "pagetestpackage%s" % i
+            name = "testpackage%s" % i
             listRegister.purge(name)
         self.transaction_commit()
 
     def create_100_tags(self):
         listRegister = self.get_model().tags
         for i in range(0,100):
-            name = "pagetesttag%s" % i
+            name = "testtag%s" % i
             listRegister.create(name=name)
             print "Created tag: %s" % name
         self.transaction_commit()
@@ -100,7 +100,7 @@ class TestController2(object):
     def purge_100_tags(self):
         listRegister = self.get_model().tags
         for i in range(0,100):
-            name = "pagetesttag%s" % i
+            name = "testtag%s" % i
             listRegister.purge(name)
         self.transaction_commit()
 
