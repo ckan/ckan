@@ -1,0 +1,105 @@
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:py="http://genshi.edgewall.org/"
+  py:strip=""
+>
+
+  <div class="pagination">
+    <py:if test="c.page.page_count > 1">
+      <ul>
+      <py:if test="c.page.current_page > 1">
+        <li>
+            <a 
+              href="${h.url_for(action='list', id=c.page.current_page - 1)}"
+              onclick="YAHOO.util.Connect.asyncRequest(
+                  'GET',
+                  '${h.url_for(action='list',id=c.page.current_page - 1)+u'?paginatedlist=1'}',
+                  {
+                      success:function(o){
+                          YAHOO.util.Dom.get('paginatedlist').innerHTML=o.responseText;
+                      }
+                  },
+                  null
+              ); 
+              return false;
+
+            ">Previous</a>
+        </li>
+      </py:if>
+      <py:for each="number in range(1, c.page.page_count + 1)">
+        <li>
+        <py:choose test="number == c.page.current_page">
+          <py:when test="True">
+            <span class="pagination-current">
+              <a href="${h.url_for(action='list', id=number)}">${number}</a>
+            </span>
+          </py:when>
+          <py:otherwise>
+            <a 
+              href="${h.url_for(action='list', id=number)}"
+              onclick="YAHOO.util.Connect.asyncRequest(
+                  'GET',
+                  '${h.url_for(action='list',id=number)+u'?paginatedlist=1'}',
+                  {
+                      success:function(o){
+                          YAHOO.util.Dom.get('paginatedlist').innerHTML=o.responseText;
+                      }
+                  },
+                  null
+              ); 
+              return false;
+
+            ">${number}</a>
+          </py:otherwise>
+        </py:choose>
+        </li>
+      </py:for>
+      <py:if test="c.page.page_count > c.page.current_page">
+        <li>
+            <a 
+              href="${h.url_for(action='list', id=c.page.current_page + 1)}"
+              onclick="YAHOO.util.Connect.asyncRequest(
+                  'GET',
+                  '${h.url_for(action='list',id=c.page.current_page + 1)+u'?paginatedlist=1'}',
+                  {
+                      success:function(o){
+                          YAHOO.util.Dom.get('paginatedlist').innerHTML=o.responseText;
+                      }
+                  },
+                  null
+              ); 
+              return false;
+
+            ">Next</a>
+        </li>
+      </py:if>
+      </ul>
+    </py:if>
+  </div>
+
+    <p>
+    <py:if test="c.page.page_count == 1">
+      <py:if test="c.page.item_count == 0">
+    There are no ${c.register_name}.
+      </py:if>
+      <py:if test="c.page.item_count == 1">
+    There is one ${c.register_name}.
+      </py:if>
+      <py:if test="c.page.item_count > 1">
+    There are ${c.page.item_count} ${c.register_name}.
+      </py:if>
+    </py:if>
+    <py:if test="c.page.page_count > 1">
+    Displaying ${c.register_name} ${c.page.first_item + 1} - ${c.page.last_item + 1} of ${c.page.item_count}.
+    </py:if>
+    </p>
+
+    <ul>
+      <py:for each="item in c.page.items">
+      <li><a 
+        href="${h.url_for(action='read', id=item.name)}">${item.name}</a></li>
+      </py:for>
+    </ul>
+
+</html>
+

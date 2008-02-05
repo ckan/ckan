@@ -47,6 +47,8 @@ class CkanBaseController(BaseController):
             item_count=item_count,
         )
         c.register_name = register_name
+        if 'paginatedlist' in request.params:
+            template_path = 'paginated_list_contents'
         return render(template_path)
 
 
