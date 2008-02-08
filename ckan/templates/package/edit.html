@@ -8,6 +8,24 @@
       Edit Package ${c.pkg.name}
       <a href="#preview" py:if="c.preview">(skip to preview)</a>
     </h2>
+
+   <div id="myAutoComplete">
+     <input id="myInput" type="text"/>
+     <div id="myContainer"></div>
+   </div>
+   <script type="text/javascript">
+     var mySchema = ["ResultSet.Result", "Name"];
+     var myDataSource = new YAHOO.widget.DS_XHR("../../tag/autocomplete", mySchema);
+     myDataSource.scriptQueryParam = "incomplete"; 
+     var myAutoComp = new YAHOO.widget.AutoComplete("myInput","myContainer", myDataSource);
+     myAutoComp.typeAhead = true;
+     myAutoComp.delimChar = " ";
+     myAutoComp.maxResultsDisplayed = 7;
+     myAutoComp.alwaysShowContainer = true; 
+   </script>
+   <br/><br/>
+
+
     ${HTML(c.form)}
 
     <div id="preview" style="margin-left: 20px;" py:if="c.preview">

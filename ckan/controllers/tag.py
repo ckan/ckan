@@ -1,5 +1,6 @@
 from ckan.lib.base import *
 from ckan.controllers.base import CkanBaseController
+from simplejson import dumps
 
 class TagController(CkanBaseController):
     repo = model.repo
@@ -24,4 +25,23 @@ class TagController(CkanBaseController):
             c.tags = list(model.Tag.search_by_name(c.search_terms))
             c.tag_count = len(c.tags)
         return render('tag/search')
+
+    def autocomplete(self):
+        incomplete = request.params.get('incomplete', '')
+        if incomplete:
+            tags = list(model.Tag.search_by_name(incomplete))
+            tagNames = [t.name for t in tags]
+        else:
+            tagNames = []
+        resultSet = {
+            "ResultSet": {
+                "Result": []
+            }
+        }
+        for tagName in tagNames:
+            result = {
+                "Name": tagName
+            }
+            resultSet["ResultSet"]["Result"].append(result)
+        return dumps(resultSet)
 
