@@ -14,23 +14,11 @@ class CkanBaseController(BaseController):
             c.author = c.user
         else:
             c.author = c.remote_addr
-
-    def _list_page(self, registerName, id, templatePath):
-        # Todo: Change to use Pylons webhelper Pagination classes.
-        from ckan.misc import Paginate
-        try:
-            listIndex = int(id)
-        except:
-            listIndex = 0
-        rev = self.repo.youngest_revision()
-        register = getattr(rev.model, registerName)
-        pager = Paginate(register)
-        pager.setListIndex(listIndex)
-        PageContextSetter(c, pager)
-        c.register_name = registerName
-        return render(templatePath)
+        c.has_paginate = False
+        c.has_autocomplete = False
 
     def _paginate_list(self, register_name, id, template_path):
+        c.has_paginate = True
         try:
             current_page = int(id)
         except:
@@ -51,18 +39,4 @@ class CkanBaseController(BaseController):
             template_path = 'paginated_list_contents'
         return render(template_path)
 
-
-class PageContextSetter(object):
-
-    def __init__(self, c, pager):
-        c.is_single_page = pager.isSinglePage()
-        c.list_index = pager.listIndex
-        c.list_length = pager.getListLength()
-        c.has_previous = pager.hasPrevious()
-        c.previous_index = pager.getPrevious()
-        c.has_next = pager.hasNext()
-        c.next_index = pager.getNext()
-        c.pages_list = pager.getPagesList()
-        c.page_list = pager.getPageList()
-        c.page_range = pager.getPageListIndexRange()
 

@@ -37,7 +37,23 @@
         <li>Only use alphanumerics (a-z, 0-9) along with '-' and '_'</li>
         <li>Only use lowercase letters</li> 
       </ul>
-      ${XML(h.text_field('tags', size=60))} <br />
+
+      <div id="tagsAutocomp">
+        ${XML(h.text_field('tags', size=60))} <br />
+        <div id="tagsAutocompContainer"></div>
+      </div>
+      <script type="text/javascript">
+        var tagsSchema = ["ResultSet.Result", "Name"];
+        var tagsDataSource = new YAHOO.widget.DS_XHR(
+          "../../tag/autocomplete", tagsSchema
+        );
+        tagsDataSource.scriptQueryParam = "incomplete";
+        var tagsAutocomp = new YAHOO.widget.AutoComplete(
+          "tags","tagsAutocompContainer", tagsDataSource
+        );
+        tagsAutocomp.delimChar = " ";
+        tagsAutocomp.maxResultsDisplayed = 7;
+      </script>
 
       <label for="notes">Notes:</label>
       <p class="desc">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.</p>

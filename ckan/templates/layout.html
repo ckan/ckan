@@ -1,8 +1,11 @@
 <html
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:py="http://genshi.edgewall.org/" 
+  xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip=""
   >
+
+
 <head>
   <title>CKAN - Comprehensive Knowledge Archive Network - ${page_title}</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -11,22 +14,7 @@
   <script type="text/javascript" src="/scripts/prototype.js"></script>
   <script type="text/javascript" src="/scripts/behaviour.js"></script>
   <script type="text/javascript" src="/scripts/master.js"></script>
-
-<!--CSS file (default YUI Sam Skin) -->
-<link type="text/css" rel="stylesheet" href="http://yui.yahooapis.com/2.4.1/build/autocomplete/assets/skins/sam/autocomplete.css"></link>
-
-<!-- Dependencies -->
-<script type="text/javascript" src="http://yui.yahooapis.com/2.4.1/build/yahoo-dom-event/yahoo-dom-event.js"></script>
-
-<!-- OPTIONAL: Connection (required only if using XHR DataSource) -->
-<script type="text/javascript" src="http://yui.yahooapis.com/2.4.1/build/connection/connection-min.js"></script>
-
-<!-- OPTIONAL: JSON (enables JSON validation) -->
-<script type="text/javascript" src="http://yui.yahooapis.com/2.4.1/build/json/json-beta-min.js"></script>
-
-<!-- Source file -->
-<script type="text/javascript" src="http://yui.yahooapis.com/2.4.1/build/autocomplete/autocomplete-min.js"></script>
-
+  <xi:include href="./yuicodes.html" />
   ${page_specific_css}
 </head>
 

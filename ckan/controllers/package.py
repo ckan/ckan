@@ -68,6 +68,7 @@ class PackageController(CkanBaseController):
     # TODO: support validation again ...
     # @validate(schema=ckan.forms.PackageSchema(), form='edit')
     def edit(self, id):
+        c.has_autocomplete = True
         # if preview use the dictionary and render the two forms
         if request.params.has_key('preview'):
             indict = dict(request.params)
