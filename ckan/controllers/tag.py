@@ -38,7 +38,7 @@ class TagController(CkanBaseController):
                 "Result": []
             }
         }
-        for tagName in tagNames:
+        for tagName in tagNames[:10]:
             result = {
                 "Name": tagName
             }
