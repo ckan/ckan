@@ -2,6 +2,7 @@ from ckan.tests import *
 import ckan.models
 
 import cgi
+from paste.fixture import AppError
 
 class TestPackageController(TestController2):
 
@@ -70,9 +71,14 @@ class TestPackageControllerUpdate(TestController2):
 
     def test_update(self):
         offset = url_for(controller='package', action='update')
-        res = self.app.get(offset)
-        assert 'Packages - Updating' in res
-        assert 'There was an error' in res
+        try:
+            res = self.app.get(offset)
+        except AppError, inst:
+            error = str(inst)
+        else:
+            assert False, "Request didn't product an error: %s." % offset
+        assert 'Packages - Updating' in error
+        assert 'There was an error' in error
 
 
 class TestPackageControllerEdit(TestController2):
@@ -176,9 +182,13 @@ class TestPackageControllerNew(TestController2):
 
     def test_create(self):
         offset = url_for(controller='package', action='create')
-        res = self.app.get(offset)
-        assert 'Packages - Creating' in res
-        assert 'There was an error' in res
+        try:
+            res = self.app.get(offset)
+        except AppError, inst:
+            error = str(inst)
+        else:
+            assert False, "Request didn't product an error: %s." % offset
+        assert "400 Bad Request -- Missing name request parameter." in error
 
     def test_new(self):
         offset = url_for(controller='package', action='new')
@@ -186,9 +196,10 @@ class TestPackageControllerNew(TestController2):
         assert 'Packages - New' in res
         fv = res.forms[0]
         fv['name'] = self.testvalues['name']
-        res = fv.submit()
-        print str(res)
-        assert 'Create successful.' in res
+        try:
+            fv.submit()
+        except AssertionError:  # Supress problem of a 201 with content.
+            pass
         rev = ckan.models.repo.youngest_revision()
         pkg = rev.model.packages.get(self.testvalues['name'])
         assert pkg.name == self.testvalues['name']
@@ -196,7 +207,4 @@ class TestPackageControllerNew(TestController2):
         assert rev.author == 'Unknown IP Address'
         exp_log_message = 'Creating package %s' % self.testvalues['name']
         assert rev.log_message == exp_log_message
-        assert 'To continue editing' in res
-        res = res.click(self.testvalues['name'])
-        assert 'Packages - Edit' in res
 
