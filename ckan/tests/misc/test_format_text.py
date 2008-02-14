@@ -17,6 +17,7 @@ class TestFormatText:
 <p><em>Some italicized text.</em>
 </p>
 
+
 '''
         format = MarkdownFormat()
         out = format.to_html(instr)
