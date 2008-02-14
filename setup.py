@@ -19,10 +19,10 @@ setup(
     install_requires=[
         'vdm>=0.1',
         'Pylons>=0.9.6.1',
+        'genshi>=0.3',
         'SQLObject>=0.7',
         'AuthKit==0.4.0',
         'paginate==0.3.2',
-        #'genshi!=0.4.4'    # 0.4.4 doesn't work with CKAN, ATM.
         # markdown is provided as part of webhelpers which comes with pylons
         #'markdown'         # 1.5 doesn't seem to be on the PCS.
     ],

@@ -15,7 +15,7 @@
 			<li>must be in lower case</li>
 			<li>can only contain alphanumeric characters, dashes and underscores</li>
 		</ul>
-    <form action="${h.url(action='create')}" method="post"> 
+    <form action="${h.url_for(controller='package', action='create')}" method="post"> 
       <label for="name">Name:</label>
       ${XML(h.text_field('name', size=30))}
 			<br /><br />

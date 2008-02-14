@@ -136,7 +136,10 @@ class PackageController(CkanBaseController):
         indict = dict(request.params)
         # currently only returns one value because of problems with
         # genshi and multiple on select so need to wrap in an array
-        indict['licenses'] = [request.params['licenses']]
+        if request.params.has_key('licenses'):
+            indict['licenses'] = [request.params['licenses']]
+        else:
+            indict['licenses'] = []
         txn = self.repo.begin_transaction()
         txn.author = c.author
         txn.log_message = indict.get('log_message', '')

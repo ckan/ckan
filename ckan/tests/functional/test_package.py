@@ -196,10 +196,8 @@ class TestPackageControllerNew(TestController2):
         assert 'Packages - New' in res
         fv = res.forms[0]
         fv['name'] = self.testvalues['name']
-        try:
-            fv.submit()
-        except AssertionError:  # Supress problem of a 201 with content.
-            pass
+        res = fv.submit(status=[200,201])
+        assert 'Packages - Create' in res
         rev = ckan.models.repo.youngest_revision()
         pkg = rev.model.packages.get(self.testvalues['name'])
         assert pkg.name == self.testvalues['name']
