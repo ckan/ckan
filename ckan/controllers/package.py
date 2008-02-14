@@ -49,7 +49,7 @@ class PackageController(CkanBaseController):
         txn.author = c.author
         txn.log_message = 'Creating package %s' % c.name
         txn.commit()
-        # Todo: Figure out whether returning content with a 201 is acceptable.
+        # Todo: Only return 201 (with no content) for machine client requests.
         response.status_code = 201
         return render('package/create')
     
@@ -65,7 +65,7 @@ class PackageController(CkanBaseController):
         return render('package/read')
 
     def _render_package(self, indict):
-        # Todo: More specific error handling (don't catch-all and set 500).
+        # Todo: More specific error handling (don't catch-all and set 500)?
         try:
             c.pkg_name = indict['name']
             c.pkg_title = indict['title']
@@ -132,20 +132,21 @@ class PackageController(CkanBaseController):
 
     def _update(self):
         error_msg = ''
+        schema = ckan.forms.PackageSchema()
+        indict = dict(request.params)
+        # currently only returns one value because of problems with
+        # genshi and multiple on select so need to wrap in an array
+        indict['licenses'] = [request.params['licenses']]
+        txn = self.repo.begin_transaction()
+        txn.author = c.author
+        txn.log_message = indict.get('log_message', '')
         try:
-            c.pkg_name = request.params['name']
-            schema = ckan.forms.PackageSchema()
-            indict = dict(request.params)
-            # currently only returns one value because of problems with
-            # genshi and multiple on select so need to wrap in an array
-            indict['licenses'] = [request.params['licenses']]
-            txn = self.repo.begin_transaction()
-            txn.author = c.author
-            txn.log_message = indict.get('log_message', '')
             pkg = schema.to_python(indict, state=txn)
+        except Invalid, inst:
+            response.status_code = 400
+            error_msg = "Invalid request: " + str(inst)
+        else:
+            c.pkg_name = pkg.name
             txn.commit()
-        except Exception, inst:
-            response.status_code = 500
-            error_msg = '%s' % inst
         return error_msg
 
