@@ -197,7 +197,7 @@ class TestPackageControllerNew(TestController2):
         fv = res.forms[0]
         fv['name'] = self.testvalues['name']
         res = fv.submit(status=[200,201])
-        assert 'Packages - Create' in res
+        assert 'Package Create' in res
         rev = ckan.models.repo.youngest_revision()
         pkg = rev.model.packages.get(self.testvalues['name'])
         assert pkg.name == self.testvalues['name']

@@ -50,7 +50,8 @@ class PackageController(CkanBaseController):
         txn.log_message = 'Creating package %s' % c.name
         txn.commit()
         # Todo: Only return 201 (with no content) for machine client requests.
-        response.status_code = 201
+        #response.status_code = 201
+        response.status_code = 200
         return render('package/create')
     
     def read(self, id):
