@@ -4,6 +4,7 @@ from ckan.controllers.base import CkanBaseController
 import genshi
 from formencode.api import Invalid
 from sqlobject.main import SQLObjectNotFound
+import simplejson
 
 class PackageController(CkanBaseController):
 
@@ -14,7 +15,8 @@ class PackageController(CkanBaseController):
         c.package_count = len(rev.model.packages)
         return render('package/index')
 
-    def list(self, id):
+    def list(self, id, format='html'):
+        c.format = format
         return self._paginate_list('packages', id, 'package/list')
 
     @validate(schema=ckan.forms.PackageNameSchema(), form='new')
@@ -22,7 +24,7 @@ class PackageController(CkanBaseController):
     def new(self):
         return render('package/new')
 
-    def create(self):
+    def create(self, format='html'):
         c.error = ''
         c.name = ''
         schema = ckan.forms.PackageNameSchema()
@@ -49,21 +51,43 @@ class PackageController(CkanBaseController):
         txn.author = c.author
         txn.log_message = 'Creating package %s' % c.name
         txn.commit()
-        # Todo: Only return 201 (with no content) for machine client requests.
-        #response.status_code = 201
-        response.status_code = 200
-        return render('package/create')
+        if format == 'html':
+            return render('package/create')
+        elif format == 'json':
+            response.status_code = 201
+            del(response.headers['Content-Type'])
+            return ''
     
-    def read(self, id):
+    def read(self, id, format='html'):
         rev = self.repo.youngest_revision()
         try:
-            c.pkg = rev.model.packages.get(id)
+            pkg = rev.model.packages.get(id)
+            if not pkg:
+                raise Exception, "Package not found."
         except:
-            abort(404, '404 Not Found')
+            return self.abort404(format)
         schema = ckan.forms.PackageSchema()
-        defaults = schema.from_python(c.pkg)
-        c.content = genshi.HTML(self._render_package(defaults))
-        return render('package/read')
+        c.pkg = pkg
+        defaults = schema.from_python(pkg)
+        if format == 'html':
+            c.content = genshi.HTML(self._render_package(defaults))
+            return render('package/read')
+        elif format == 'json':
+            response.status_code = 200
+            response.headers['Content-Type'] = 'text/plain'
+            data = {
+                'name': id,
+                #'title': defaults.get('title', ''),
+                #'url': self.url,
+                #'downloadurl': self.downloadurl,
+                #'name': self.name,
+                #'license': self.license.name,
+                #'notes': self.notes,
+            }
+            return simplejson.dumps(data)
+
+    def abort404(self, format):
+        abort(404, '404 Not Found')
 
     def _render_package(self, indict):
         # Todo: More specific error handling (don't catch-all and set 500)?
@@ -87,7 +111,8 @@ class PackageController(CkanBaseController):
 
     # TODO: support validation again ...
     # @validate(schema=ckan.forms.PackageSchema(), form='edit')
-    def edit(self, id):
+    def edit(self, id, format='html'):
+        # Todo: Fix up REST format.
         c.has_autocomplete = True
         if request.params.has_key('preview'):
             # Show edit form with inserted package preview.
@@ -105,7 +130,7 @@ class PackageController(CkanBaseController):
             try:
                 c.pkg = rev.model.packages.get(id)
             except:
-                abort(404, '404 Not Found')
+                return self.abort404(format)
             schema = ckan.forms.PackageSchema()
             defaults = schema.from_python(c.pkg)
             c.form = self._render_edit_form(defaults)

@@ -1,4 +1,5 @@
 from ckan.lib.base import *
+import simplejson
 
 class CkanBaseController(BaseController):
 
@@ -25,18 +26,24 @@ class CkanBaseController(BaseController):
             current_page = 0
         rev = self.repo.youngest_revision()
         register = getattr(rev.model, register_name)
-        import paginate
         collection = register.list()
         item_count = len(collection)
-        c.page = paginate.Page(
-            collection=collection,
-            current_page=current_page,
-            items_per_page=50,
-            item_count=item_count,
-        )
-        c.register_name = register_name
-        if 'paginatedlist' in request.params:
-            template_path = 'paginated_list_contents'
-        return render(template_path)
+        if c.format == 'json':
+            response.headers['Content-Type'] = 'text/plain'
+            list_name = '%s-list' % register_name
+            list_value = [{'id': i.name} for i in collection]
+            return simplejson.dumps({list_name: list_value})
+        else:
+            import paginate
+            c.page = paginate.Page(
+                collection=collection,
+                current_page=current_page,
+                items_per_page=50,
+                item_count=item_count,
+            )
+            c.register_name = register_name
+            if 'paginatedlist' in request.params:
+                template_path = 'paginated_list_contents'
+            return render(template_path)
 
 

@@ -196,7 +196,7 @@ class TestPackageControllerNew(TestController2):
         assert 'Packages - New' in res
         fv = res.forms[0]
         fv['name'] = self.testvalues['name']
-        res = fv.submit(status=[200,201])
+        res = fv.submit(status=[200])
         assert 'Package Create' in res
         rev = ckan.models.repo.youngest_revision()
         pkg = rev.model.packages.get(self.testvalues['name'])
@@ -205,4 +205,29 @@ class TestPackageControllerNew(TestController2):
         assert rev.author == 'Unknown IP Address'
         exp_log_message = 'Creating package %s' % self.testvalues['name']
         assert rev.log_message == exp_log_message
+
+class TestApiRest(TestController2):
+
+    def setup_class(self):
+        self.testvalues = { 'name' : 'testpkg' }
+
+    def teardown_class(self):
+        rev = ckan.models.repo.youngest_revision()
+        try:
+            rev.model.packages.purge(self.testvalues['name'])
+        except:
+            pass
+
+    def test_api_rest(self):
+        offset = '/api/rest/package/read/annakarenina'
+        res = self.app.get(offset, status=[200])
+        assert 'annakarenina' in res
+        offset = '/package/read/22222'
+        res = self.app.get(offset, status=404)
+        offset = '/api/rest/package/read/22222'
+        res = self.app.get(offset, status=404)
+        offset = '/api/rest/package/create'
+        res = self.app.post(offset, params='name=testpkg', status=[201])
+        offset = '/api/rest/package/read/testpkg'
+        res = self.app.get(offset, status=[200])
 
