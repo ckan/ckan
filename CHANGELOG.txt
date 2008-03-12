@@ -1,5 +1,12 @@
 # CKAN CHANGELOG
 
+v0.6 2008-03-22
+===============
+
+  * Paginated lists for packages, tags, and revisions.
+  * RESTful machine API for package access, update, listing and creation.
+  * Update to vdm v0.2b which fixes ordering of lists.
+
 v0.5 2008-01-22
 ===============
 
