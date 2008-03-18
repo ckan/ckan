@@ -121,9 +121,12 @@ class PackageController(CkanBaseController):
             c.preview = genshi.HTML(self._render_package(indict))
             return render('package/edit')
         elif request.params.has_key('commit'):
-            # Save and redirect to package page.
-            self._update()
-            h.redirect_to(action='read', id=id)
+            error = self._update()
+            if error:
+                c.error = error
+                return render('package/update')
+            else:
+                h.redirect_to(action='read', id=id)
         else:
             # Just show the edit form.
             rev = self.repo.youngest_revision()
@@ -156,8 +159,22 @@ class PackageController(CkanBaseController):
         c.error = self._update()
         return render('package/update')
 
+    def _is_locked(self):
+        c.pkg_name = request.params['name']
+        if c.pkg_name == 'mis-uiowa':
+            msg = 'This package is temporarily locked and cannot be edited'
+            raise msg
+        return ''
+
+    def _is_spam(self, log_message):
+        if 'http:' in log_message:
+            return True
+        return False
+
     def _update(self):
-        error_msg = ''
+        error_msg = self._is_locked()
+        if error_msg:
+            return locked
         schema = ckan.forms.PackageSchema()
         indict = dict(request.params)
         # currently only returns one value because of problems with
@@ -168,7 +185,11 @@ class PackageController(CkanBaseController):
             indict['licenses'] = []
         txn = self.repo.begin_transaction()
         txn.author = c.author
-        txn.log_message = indict.get('log_message', '')
+        log_message = indict.get('log_message', '')
+        if self._is_spam(log_message):
+            error_msg = 'This commit looks like spam'
+            return error_msg
+        txn.log_message = log_message
         try:
             pkg = schema.to_python(indict, state=txn)
         except Invalid, inst:
