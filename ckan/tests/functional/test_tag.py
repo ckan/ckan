@@ -56,7 +56,8 @@ class TestTagController(TestController2):
             res = self.app.get(offset)
             print str(res)
             assert 'Tags - List' in res
-            assert 'tolstoy' in res
+            # tolstoy not in because now a 100 tags starting 'test'
+            assert 'tolstoy' not in res
             assert 'testtag31' in res
             assert not 'testtag81' in res
             assert not 'testtag99' in res
@@ -81,10 +82,9 @@ class TestTagController(TestController2):
             res = self.app.get(offset)
             print str(res)
             assert 'Tags - List' in res
-            assert not 'tolstoy' in res
             assert not 'testtag31' in res
             assert not 'testtag81' in res
-            assert 'testtag98' in res
+            assert 'tolstoy' in res
             assert 'testtag99' in res
             assert not 'Next' in res
             assert 'Previous' in res
