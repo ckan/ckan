@@ -8,7 +8,7 @@
 		<p>There are ${c.package_count} packages.</p>
 
     <h3>Find a package</h3>
-    <p>You can browse the ${XML(h.link_to('package list', h.url_for(controller='package', action='list')))}.</p>
+    <p>You can browse the ${XML(h.link_to('package list', h.url_for(controller='package', action='list')))}. Alternatively you might want to <a href="${h.url_for(controller='tag', action='list')}">browse</a> or <a href="${h.url_for(controller='tag', action='search')}">search</a> the package tags.</p>
 
 		<h3>Register a new package</h3>
     <p>Follow this link to register a ${XML(h.link_to('new package', h.url_for(controller='package', action='new')))}.</p>

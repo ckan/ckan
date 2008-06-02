@@ -11,7 +11,7 @@ class TestHomeController(TestController2):
     def test_packages_link(self):
         offset = url_for(controller='home')
         res = self.app.get(offset)
-        res.click('Packages')
+        res.click('Packages', index=0)
         
     def test_tags_link(self):
         offset = url_for(controller='home')

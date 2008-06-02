@@ -15,7 +15,9 @@
   <script type="text/javascript" src="/scripts/behaviour.js"></script>
   <script type="text/javascript" src="/scripts/master.js"></script>
   <xi:include href="./yuicodes.html" />
-  ${page_specific_css()}
+  <py:if test="page_specific_css">
+    ${page_specific_css()}
+  </py:if>
 </head>
 
 <body class="yui-skin-sam">
