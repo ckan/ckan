@@ -160,7 +160,9 @@ class PackageController(CkanBaseController):
         return render('package/update')
 
     def _is_locked(self):
-        c.pkg_name = request.params['name']
+        # allow non-existent name -- never happens but allows test of 'bad'
+        # update (test_update in test_package.py) to work normally :)
+        c.pkg_name = request.params.get('name', '')
         if c.pkg_name == 'mis-uiowa':
             msg = 'This package is temporarily locked and cannot be edited'
             raise msg
