@@ -61,8 +61,12 @@ class Tag(vdmbase.VersionedDomainObject):
 
     sqlobj_version_class = TagRevision
 
+    class sqlmeta:
+        defaultOrder = 'name'
+
     name = sqlobject.UnicodeCol(alternateID=True)
     versioned_attributes = vdmbase.get_attribute_names(sqlobj_version_class)
+
 
     m2m = [ ('packages', 'ckan.models.package', 'Package', 'PackageTag') ]
 
