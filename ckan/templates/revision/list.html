@@ -7,20 +7,21 @@
     <h2>Repository History</h2>
     <p>This page lists all changes to package database, with most recent
     changes first.</p>
-    <table>
+
+    <table py:match="paginatedlistitems">
       <tr>
         <th>Number</th><th>Timestamp</th><th>Author</th><th>Log Message</th>
       </tr>
-      <py:for each="rev in c.revisions">
+      <py:for each="item in c.page.items">
       <tr>
         <td>
           ${
             XML(
-            h.link_to(rev.id,
+            h.link_to(item.id,
               h.url_for(
                 controller='revision',
                 action='read',
-                id=rev.id)
+                id=item.id)
               )
             )
           }
@@ -31,19 +32,21 @@
               h.url_for(
                 controller='revision',
                 action='purge',
-                id=rev.id),
+                id=item.id),
               confirm='Are you sure?'
               )
             )
           }
           </py:if>
         </td>
-        <td>${rev.timestamp}</td>
-        <td>${rev.author}</td>
-        <td>${rev.log_message}</td>
+        <td>${item.timestamp}</td>
+        <td>${item.author}</td>
+        <td>${item.log_message}</td>
       </tr>
       </py:for>
     </table>
+
+    <xi:include href="../paginated_list.html" />
 
   </div>
 
