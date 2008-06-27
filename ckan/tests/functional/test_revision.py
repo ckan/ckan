@@ -39,6 +39,62 @@ class TestRevisionController(TestController2):
         print str(res)
         assert 'Revision 2' in res
 
+    def test_list_long(self):
+        self.create_100_revisions()
+        try:
+            # Revisions are most recent first, with first rev on last page.
+            # Todo: Look at the model to see which revision is last.
+            # Todo: Test for last revision on first page.
+            # Todo: Test for first revision on last page.
+            # Todo: Test for last revision minus 50 on second page.
+            # Page 1.   (Implied id=0)
+            offset = url_for(controller='revision', action='list')
+            res = self.app.get(offset)
+            self.assert_click(res, '2', 'Revision 2')
+            # Page 1.
+            offset = url_for(controller='revision', action='list', id=0)
+            res = self.app.get(offset)
+            self.assert_click(res, '4', 'Revision 4')
+            # Page 2.
+            offset = url_for(controller='revision', action='list', id=50)
+            res = self.app.get(offset)
+            self.assert_click(res, '52', 'Revision 52')
+            # Last page.
+        finally:
+            self.purge_100_revisions()
+
+    def assert_click(self, res, link_exp, res2_exp):
+        # NB: Must .click('^2$') and not just '2' as twill with otherwise
+        #     follow the second link found on the page.
+        try:
+            res2 = res.click('^%s$' % link_exp)
+        except:
+            print "\nThe first response (list):\n\n"
+            print str(res)
+            print "\nThe link that couldn't be followed:"
+            print str(link_exp)
+            raise
+        try:
+            assert res2_exp in res2
+        except:
+            print "\nThe first response (list):\n\n"
+            print str(res)
+            print "\nThe second response (item):\n\n"
+            print str(res2)
+            print "\nThe followed link:"
+            print str(link_exp)
+            print "\nThe expression that couldn't be found:"
+            print str(res2_exp)
+            raise
+
+
+    def create_100_revisions(self):
+        # Todo: Need to generate revisions, not sure how.....
+        self.create_100_tags()
+
+    def purge_100_revisions(self):
+        self.purge_100_tags()
+
     def test_read_redirect_at_base(self):
         # have to put None as o/w seems to still be at url set in previous test
         offset = url_for(controller='revision', action='read', id=None)
