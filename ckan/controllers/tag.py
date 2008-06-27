@@ -3,7 +3,6 @@ from ckan.controllers.base import CkanBaseController
 from simplejson import dumps
 
 class TagController(CkanBaseController):
-    repo = model.repo
 
     def index(self):
         return render('tag/index')

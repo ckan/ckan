@@ -1,7 +1,12 @@
 from ckan.lib.base import *
 import simplejson
+import logging
+import ckan.model as model
 
 class CkanBaseController(BaseController):
+
+    repo = model.repo
+    log = logging.getLogger(__name__)
 
     def __before__(self, action, **params):
         # what is different between session['user'] and environ['REMOTE_USER']
@@ -24,9 +29,13 @@ class CkanBaseController(BaseController):
             current_page = int(id)
         except:
             current_page = 0
-        rev = self.repo.youngest_revision()
-        register = getattr(rev.model, register_name)
-        collection = register.list()
+        if register_name == 'revisions':
+            select_results = self.repo.history()
+            collection = list(select_results)
+        else:
+            rev = self.repo.youngest_revision()
+            register = getattr(rev.model, register_name)
+            collection = register.list()
         item_count = len(collection)
         if c.format == 'json':
             response.headers['Content-Type'] = 'text/plain'
@@ -42,8 +51,8 @@ class CkanBaseController(BaseController):
                 item_count=item_count,
             )
             c.register_name = register_name
-            if 'paginatedlist' in request.params:
-                template_path = 'paginated_list_contents'
+            #if 'paginatedlist' in request.params:
+            #    template_path = 'paginated_list_contents'
             return render(template_path)
 
 

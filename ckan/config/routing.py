@@ -19,7 +19,20 @@ def make_map():
     # CUSTOM ROUTES HERE
 
     map.connect('', controller='home', action='index')
-    map.connect('/api/rest/:controller/:action/:id', format='json')
+
+    map.connect('api/rest/:register', controller='rest', action='index',
+        conditions=dict(method=['GET']))
+    map.connect('api/rest/:register', controller='rest', action='create',
+        conditions=dict(method=['POST']))
+    map.connect('api/rest/:register/:id', controller='rest', action='show',
+        conditions=dict(method=['GET']))
+    map.connect('api/rest/:register/:id', controller='rest', action='update',
+        conditions=dict(method=['PUT']))
+    map.connect('api/rest/:register/:id', controller='rest', action='update',
+        conditions=dict(method=['POST']))
+    map.connect('api/rest/:register/:id', controller='rest', action='delete',
+        conditions=dict(method=['DELETE']))
+
     map.connect(':controller/:action/:id')
     map.connect('*url', controller='template', action='view')
 

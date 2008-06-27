@@ -8,8 +8,6 @@ import simplejson
 
 class PackageController(CkanBaseController):
 
-    repo = model.repo
-
     def index(self):
         rev = self.repo.youngest_revision()
         c.package_count = len(rev.model.packages)
