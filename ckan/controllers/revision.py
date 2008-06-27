@@ -9,10 +9,9 @@ class RevisionController(CkanBaseController):
     def index(self):
         return self.list()
 
-    def list(self):
-        c.revisions = model.repo.history()
+    def list(self, id=0):
         c.show_purge_links = self._has_purge_permissions()
-        return render('revision/list')
+        return self._paginate_list('revisions', id, 'revision/list')
 
     def read(self, id=None):
         if id is None:
