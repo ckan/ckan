@@ -2,16 +2,8 @@ import logging
 
 import ckan.model as model
 import ckan.presentation as presentation
-
-# This module implements the following presentation modes:
-#
-# Resource     Method      Format      Status Codes
-# Register     GET     Register Format     200, 301
-# Register     POST    Entity Format  200, 400, 401
-# Entity     GET     Entity Format  200, 301, 400, 404
-# Entity     PUT     Entity Format  200, 301, 400, 404
-# Entity     DELETE  N/A     200, 204
-#
+from sqlobject.main import SQLObjectNotFound
+from sqlobject.dberrors import IntegrityError
 
 # Todo: Fold formencode objects into validator (below, naive).
 # Todo: Resolve fact that only Register POST mode can be unauthorized!
@@ -20,12 +12,9 @@ logger = logging.getLogger(__name__)
 
 class PresentationMode(object):
 
+    repo = model.repo
+
     moved_permanently = {}
-    # Todo: Generalise static 'register' lookup table.
-    registers = {
-        'package': model.repo.youngest_revision().model.packages,
-        'tag': model.repo.youngest_revision().model.tags,
-    }
     entity_presenter_classes = {
         'package': presentation.PackagePresenter,
         'tag': presentation.TagPresenter,
@@ -123,24 +112,33 @@ class PresentationMode(object):
         return query.all()
     
     def create_entity(self):
-        register = self.get_register()
         kwds = self.request_data
         kwds = self.convert_unicode_kwds(kwds)
-        entity = register(**kwds)
-        model.Session.flush()
+        txn = self.repo.begin_transaction()
+        register = self.get_register(txn.model)
+        entity = register.create(**kwds)
+        txn.commit()
         return entity
 
-    def get_entity(self):
-        register = self.get_register()
+    def get_entity(self, amodel=None):
+        register = self.get_register(amodel)
         id = self.get_entity_id()
-        entity = register.get(id)
+        try:
+            entity = register.get(id)
+        except SQLObjectNotFound:
+            entity = None
         return entity
     
     def update_entity(self):
-        self.request_data['id'] = self.get_entity_id()
-        Presenter = self.get_entity_presenter_class()
-        presenter = Presenter(self.request_data)
-        return presenter.as_entity()
+        txn = self.repo.begin_transaction()
+        entity = self.get_entity(txn.model)
+        if entity:
+            register = self.get_register(txn.model)
+            Presenter = self.get_entity_presenter_class()
+            presenter = Presenter(self.request_data, register=register)
+            entity = presenter.as_entity()
+            txn.commit()
+        return entity
 
     def delete_entity(self):
         entity = self.get_entity()
@@ -156,8 +154,16 @@ class PresentationMode(object):
         [copy.__setitem__(str(n),v) for (n,v) in data.items()]
         return copy
     
-    def get_register(self):
-        return self.registers[self.get_register_name()]
+    def get_register(self, amodel=None):
+        if amodel == None:
+            amodel = model.repo.youngest_revision().model
+        register_name = self.get_register_name()
+        register = None
+        if 'package' in register_name:
+            register = amodel.packages
+        elif 'tag' in register_name:
+            register = amodel.tags
+        return register
 
     def get_entity_presenter_class(self):
         return self.entity_presenter_classes[self.get_register_name()]
@@ -220,9 +226,21 @@ class RegisterPost(PresentationMode):
             self.response_code = 400
             self.response_data = None
         else:
-            self.entity = self.create_entity()
-            self.response_code = 200
-            self.response_data = self.get_entity_presenter()
+            try:
+                self.entity = self.create_entity()
+            # NB: Catching DB errors is problematic. We can't just do:
+            #     except IntegrityError:
+            #     ...
+            # http://osdir.com/ml/python.sqlobject/2005-08/msg00199.html
+            except Exception, inst:
+                if inst.__class__.__name__ == 'IntegrityError':
+                    self.response_code = 409
+                    self.response_data = None
+                else:
+                    raise
+            else:
+                self.response_code = 200
+                self.response_data = self.get_entity_presenter()
         return self
 
 

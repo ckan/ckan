@@ -1,5 +1,4 @@
 from ckan.tests import *
-# Todo: Move this file to tests/controller/test_tag.py?
 
 class TestTagController(TestController2):
 

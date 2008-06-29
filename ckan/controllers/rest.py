@@ -23,6 +23,7 @@ class RestController(CkanBaseController):
                 request.params.items(), str(inst)
             )
             raise Exception, msg
+        self.log.debug("Loading JSON string: %s" % (request_data))
         request_data = simplejson.loads(request_data)
         self.log.debug("Creating: %s with %s" % (registry_path, request_data))
         self.mode = RegisterPost(registry_path, request_data).execute()
@@ -78,10 +79,16 @@ class RestController(CkanBaseController):
         return simplejson.dumps(self.mode.response_data)
 
     def check_access(self):
+        isOk = False
         # Follow this way for API authentication, reuses existing passwords?
         # http://developer.yahoo.com/python/python-rest.html#auth
-        response.status_code = 401
-        return False
+        isOk = True  # Todo: Instead, call access control logic.
+        if isOk:
+            response.status_code = 200
+            return True
+        else:
+            response.status_code = 401
+            return False
 
     def _get_request_data(self):
         try:
