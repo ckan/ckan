@@ -9,43 +9,13 @@ class TestRevisionController(TestController2):
         res = res.click('Recent Changes')
         assert 'Repository History' in res
 
-    def test_index(self):
-        offset = url_for(controller='revision')
-        res = self.app.get(offset)
-        self._test_list(res)
-
-    def test_list(self):
-        offset = url_for(controller='revision', action='list')
-        res = self.app.get(offset)
-        self._test_list(res)
-
-    def _test_list(self, res):
-        # order that tests are run in is not guaranteed so we only know that
-        # there are at least 2 revisions in the system
-        print str(res)
-        assert 'Repository History' in res
-        assert '1' in res
-        assert 'Author' in res
-        assert 'tolstoy' in res
-        assert 'Log Message' in res
-        assert 'Creating test data.' in res
-
-    def test_list_2(self):
-        offset = url_for(controller='revision', action='list')
-        res = self.app.get(offset)
-        print str(res)
-        # must be ^2$ and not just 2 as twill with otherwise follow the second
-        # link found on the page
-        res = res.click('^2$')
-        print str(res)
-        assert 'Revision 2' in res
-
-    def test_list_long(self):
+    def test_paginated_list(self):
         self.create_100_revisions()
         revisions = list(ckan.model.repo.history())
         revision1 = revisions[0]
         revision2 = revisions[50]
         revision3 = revisions[100]
+        revision4 = revisions[-1]
         try:
             # Revisions are most recent first, with first rev on last page.
             # Todo: Look at the model to see which revision is last.
@@ -55,16 +25,37 @@ class TestRevisionController(TestController2):
             # Page 1.   (Implied id=1)
             offset = url_for(controller='revision', action='list')
             res = self.app.get(offset)
-            self.assert_click(res, revision1.id, 'Test Revision %s' % revision1.id)
+            self.assert_click(res, revision1.id, 'Revision: %s' % revision1.id)
+    
             # Page 1.
             offset = url_for(controller='revision', action='list', id=1)
             res = self.app.get(offset)
-            self.assert_click(res, revision2.id, 'Test Revision %s' % revision2.id)
-            # Page 2.
+            self.assert_click(res, revision1.id, 'Revision: %s' % revision1.id)
+            
+	    # Page 2.
             offset = url_for(controller='revision', action='list', id=2)
             res = self.app.get(offset)
-            self.assert_click(res, revision3.id, 'Test Revision %s' % revision3.id)
+            self.assert_click(res, revision2.id, 'Revision: %s' % revision2.id)
+            
+	    # Page 3.
+            offset = url_for(controller='revision', action='list', id=3)
+            res = self.app.get(offset)
+            self.assert_click(res, revision3.id, 'Revision: %s' % revision3.id)
+ 
             # Last page.
+	    last_id = 1 + len(revisions) / 50
+            offset = url_for(controller='revision', action='list', id=last_id)
+            res = self.app.get(offset)
+	    try:
+                assert 'Repository History' in res
+                assert '1' in res
+                assert 'Author' in res
+                assert 'tolstoy' in res
+                assert 'Log Message' in res
+                assert 'Creating test data.' in res
+            except:
+	        print str(res)
+		raise
         finally:
             self.purge_100_revisions()
 
@@ -96,7 +87,7 @@ class TestRevisionController(TestController2):
     def create_100_revisions(self):
         for i in range(0,100):
             self.transaction_begin()
-            self.transaction.author = "Test Revisions %s" % i
+            self.transaction.author = "Test Revision %s" % i
             self.transaction_commit()
 
     def purge_100_revisions(self):
