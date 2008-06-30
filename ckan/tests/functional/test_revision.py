@@ -1,4 +1,5 @@
 from ckan.tests import *
+import ckan.model
 
 class TestRevisionController(TestController2):
 
@@ -41,24 +42,28 @@ class TestRevisionController(TestController2):
 
     def test_list_long(self):
         self.create_100_revisions()
+        revisions = list(ckan.model.repo.history())
+        revision1 = revisions[0]
+        revision2 = revisions[50]
+        revision3 = revisions[100]
         try:
             # Revisions are most recent first, with first rev on last page.
             # Todo: Look at the model to see which revision is last.
             # Todo: Test for last revision on first page.
             # Todo: Test for first revision on last page.
             # Todo: Test for last revision minus 50 on second page.
-            # Page 1.   (Implied id=0)
+            # Page 1.   (Implied id=1)
             offset = url_for(controller='revision', action='list')
             res = self.app.get(offset)
-            self.assert_click(res, '2', 'Revision 2')
+            self.assert_click(res, revision1.id, 'Test Revision %s' % revision1.id)
             # Page 1.
-            offset = url_for(controller='revision', action='list', id=0)
+            offset = url_for(controller='revision', action='list', id=1)
             res = self.app.get(offset)
-            self.assert_click(res, '4', 'Revision 4')
+            self.assert_click(res, revision2.id, 'Test Revision %s' % revision2.id)
             # Page 2.
-            offset = url_for(controller='revision', action='list', id=50)
+            offset = url_for(controller='revision', action='list', id=2)
             res = self.app.get(offset)
-            self.assert_click(res, '52', 'Revision 52')
+            self.assert_click(res, revision3.id, 'Test Revision %s' % revision3.id)
             # Last page.
         finally:
             self.purge_100_revisions()
@@ -89,11 +94,13 @@ class TestRevisionController(TestController2):
 
 
     def create_100_revisions(self):
-        # Todo: Need to generate revisions, not sure how.....
-        self.create_100_tags()
+        for i in range(0,100):
+            self.transaction_begin()
+            self.transaction.author = "Test Revisions %s" % i
+            self.transaction_commit()
 
     def purge_100_revisions(self):
-        self.purge_100_tags()
+        pass
 
     def test_read_redirect_at_base(self):
         # have to put None as o/w seems to still be at url set in previous test

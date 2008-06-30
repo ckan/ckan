@@ -6,7 +6,10 @@ import ckan.model as model
 
 class RestController(CkanBaseController):
 
-    def index(self, register):
+    def index(self):
+        return render('rest/index')
+
+    def list(self, register):
         if not self.check_access(): return simplejson.dumps("Access denied")
         registry_path = '/%s' % register
         self.log.debug("Listing: %s" % registry_path)
@@ -71,12 +74,12 @@ class RestController(CkanBaseController):
         self.mode = RegisterSearch(registry_path, request_data).execute()
         return self.finish()
 
-    def fix_id(self, id):
-        return id
-
     def finish(self):
         response.status_code = self.mode.response_code
         return simplejson.dumps(self.mode.response_data)
+
+    def fix_id(self, id):
+        return id
 
     def check_access(self):
         isOk = False
