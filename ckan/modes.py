@@ -2,8 +2,10 @@ import logging
 
 import ckan.model as model
 import ckan.presentation as presentation
+from ckan.forms import PackageSchema
 from sqlobject.main import SQLObjectNotFound
 from sqlobject.dberrors import IntegrityError
+
 
 # Todo: Fold formencode objects into validator (below, naive).
 # Todo: Resolve fact that only Register POST mode can be unauthorized!
@@ -23,6 +25,9 @@ class PresentationMode(object):
         'package': presentation.PackageRegisterPresenter,
         'tag': presentation.TagRegisterPresenter,
     }
+    presentation_schemas = {
+        'package': PackageSchema,
+    }
 
     def __init__(self, registry_path, request_data=None,
             validator=None, moved_permanently=None):
@@ -40,6 +45,58 @@ class PresentationMode(object):
         entities = register.list()
         return entities
     
+    def create_entity(self):
+        kwds = self.request_data
+        kwds = self.convert_unicode_kwds(kwds)
+        txn = self.repo.begin_transaction()
+        register = self.get_register(txn.model)
+        Presenter = self.get_entity_presenter_class()
+        keyName = self.get_entity_presenter_class().keyName
+        kwds_create = {keyName: kwds[keyName]}
+        entity = register.create(**kwds_create)
+        if entity:
+            presenter = Presenter(self.request_data, register=register)
+            entity = presenter.as_entity()
+            txn.commit()
+        return entity
+
+    def get_entity(self, amodel=None):
+        register = self.get_register(amodel)
+        id = self.get_entity_id()
+        try:
+            entity = register.get(id)
+        except SQLObjectNotFound:
+            entity = None
+        return entity
+    
+    def update_entity(self):
+        txn = self.repo.begin_transaction()
+        #entity = self.get_entity(txn.model)
+        #if entity:
+        #    register = self.get_register(txn.model)
+        #    Presenter = self.get_entity_presenter_class()
+        #    presenter = Presenter(self.request_data, register=register)
+        #    entity = presenter.as_entity()
+        #    txn.commit()
+        #return entity
+        try:
+            request_data = dict(self.request_data)
+            schema = self.get_presentation_schema()
+            pkg = schema.to_python(request_data, state=txn)
+        except Invalid, inst:
+            response.status_code = 400
+            return False
+        else:
+            txn.commit()
+            return True
+
+    def delete_entity(self):
+        txn = self.repo.begin_transaction()
+        entity = self.get_entity(txn.model)
+        entity.delete()
+        entity.purge()  # Shouldn't be necessary, makes tests pass.
+        txn.commit()
+
     def search_entities(self):
         '''Search for entities matching specified criteria.
 
@@ -111,39 +168,6 @@ class PresentationMode(object):
         logger.debug(query)
         return query.all()
     
-    def create_entity(self):
-        kwds = self.request_data
-        kwds = self.convert_unicode_kwds(kwds)
-        txn = self.repo.begin_transaction()
-        register = self.get_register(txn.model)
-        Presenter = self.get_entity_presenter_class()
-        keyName = self.get_entity_presenter_class().keyName
-        kwds_create = {keyName: kwds[keyName]}
-        entity = register.create(**kwds_create)
-        if entity:
-            presenter = Presenter(self.request_data, register=register)
-            entity = presenter.as_entity()
-            txn.commit()
-        return entity
-
-    def update_entity(self):
-        txn = self.repo.begin_transaction()
-        entity = self.get_entity(txn.model)
-        if entity:
-            register = self.get_register(txn.model)
-            Presenter = self.get_entity_presenter_class()
-            presenter = Presenter(self.request_data, register=register)
-            entity = presenter.as_entity()
-            txn.commit()
-        return entity
-
-    def delete_entity(self):
-        txn = self.repo.begin_transaction()
-        entity = self.get_entity(txn.model)
-        entity.delete()
-        entity.purge()  # Shouldn't be necessary, makes tests pass.
-        txn.commit()
-
     def convert_unicode_kwds(self, data):
         # Need string keywords, not the unicode from the JSON parser.
         copy = {}
@@ -161,20 +185,14 @@ class PresentationMode(object):
             register = amodel.tags
         return register
 
-    def get_entity(self, amodel=None):
-        register = self.get_register(amodel)
-        id = self.get_entity_id()
-        try:
-            entity = register.get(id)
-        except SQLObjectNotFound:
-            entity = None
-        return entity
-    
     def get_entity_presenter_class(self):
         return self.entity_presenter_classes[self.get_register_name()]
 
     def get_register_presenter_class(self):
         return self.register_presenter_classes[self.get_register_name()]
+
+    def get_presentation_schema(self):
+        return self.presentation_schemas[self.get_register_name()]
 
     def get_register_name(self):
         return self.registry_path.split('/')[1]
@@ -294,13 +312,15 @@ class EntityPut(PresentationMode):
         elif self.is_moved_permanently():
             self.response_code = 301
             self.response_data = None
+        elif not self.get_entity():
+            self.response_code = 404
+            self.response_data = None
         else:
-            self.entity = self.update_entity()
-            if self.entity:
+            if self.update_entity():
                 self.response_code = 200
-                self.response_data = self.get_entity_presenter()
+                self.response_data = None
             else:
-                self.response_code = 404
+                self.response_code = 400
                 self.response_data = None
         return self
 
