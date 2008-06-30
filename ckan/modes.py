@@ -116,19 +116,16 @@ class PresentationMode(object):
         kwds = self.convert_unicode_kwds(kwds)
         txn = self.repo.begin_transaction()
         register = self.get_register(txn.model)
-        entity = register.create(**kwds)
-        txn.commit()
+        Presenter = self.get_entity_presenter_class()
+        keyName = self.get_entity_presenter_class().keyName
+        kwds_create = {keyName: kwds[keyName]}
+        entity = register.create(**kwds_create)
+        if entity:
+            presenter = Presenter(self.request_data, register=register)
+            entity = presenter.as_entity()
+            txn.commit()
         return entity
 
-    def get_entity(self, amodel=None):
-        register = self.get_register(amodel)
-        id = self.get_entity_id()
-        try:
-            entity = register.get(id)
-        except SQLObjectNotFound:
-            entity = None
-        return entity
-    
     def update_entity(self):
         txn = self.repo.begin_transaction()
         entity = self.get_entity(txn.model)
@@ -141,12 +138,11 @@ class PresentationMode(object):
         return entity
 
     def delete_entity(self):
-        entity = self.get_entity()
-        if entity:
-            model.Session.delete(entity)
-            model.Session.flush()
-            return True
-        return False
+        txn = self.repo.begin_transaction()
+        entity = self.get_entity(txn.model)
+        entity.delete()
+        entity.purge()  # Shouldn't be necessary, makes tests pass.
+        txn.commit()
 
     def convert_unicode_kwds(self, data):
         # Need string keywords, not the unicode from the JSON parser.
@@ -165,6 +161,15 @@ class PresentationMode(object):
             register = amodel.tags
         return register
 
+    def get_entity(self, amodel=None):
+        register = self.get_register(amodel)
+        id = self.get_entity_id()
+        try:
+            entity = register.get(id)
+        except SQLObjectNotFound:
+            entity = None
+        return entity
+    
     def get_entity_presenter_class(self):
         return self.entity_presenter_classes[self.get_register_name()]
 
@@ -306,11 +311,12 @@ class EntityPut(PresentationMode):
 class EntityDelete(PresentationMode):
 
     def execute(self):
-        if self.delete_entity():
-            self.response_code = 200
+        if not self.get_entity():
+            self.response_code = 404
             self.response_data = None
         else:
-            self.response_code = 204
+            self.delete_entity()
+            self.response_code = 200
             self.response_data = None
         return self
 

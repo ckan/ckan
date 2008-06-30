@@ -1,8 +1,7 @@
 import ckan.model as model
-import simplejson
-import dateutil.parser
-import datetime
 
+
+# Todo: Use ckan.forms here?
 
 class RegisterPresenter(list):
 

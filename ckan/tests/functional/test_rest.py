@@ -6,9 +6,10 @@ class TestRestController(TestController2):
 
     def setup_method(self, name):
         self.testvalues = {
+            # Todo: Add tags and licenses.
             'name' : 'testpkg',
-            #'url': 'http://blahblahblah.mydomain',
-            #'download_url': 'http://blahblahblah.mydomain',
+            'url': 'http://blahblahblah.mydomain',
+            'download_url': 'http://blahblahblah.mydomain',
         }
 
     def teardown_method(self, name):
@@ -55,9 +56,20 @@ class TestRestController(TestController2):
         res = self.app.post(offset, params=postparams, status=[404])
 
         # Test Packages Entity Put 200.
+        # Todo: Change title, url, tags, licenses. Check values get changed.
         offset = '/api/rest/package/%s' % self.testvalues['name']
         postparams = '%s=1' % simplejson.dumps(self.testvalues)
         res = self.app.post(offset, params=postparams, status=[200])
         
         # Test Packages Entity Delete 200.
+        offset = '/api/rest/package/%s' % self.testvalues['name']
+        res = self.app.delete(offset, status=[200])
+
+        # Test Package Entity Get 404.
+        offset = '/api/rest/package/%s' % self.testvalues['name']
+        res = self.app.get(offset, status=404)
+
+        # Test Packages Entity Delete 404.
+        offset = '/api/rest/package/%s' % self.testvalues['name']
+        res = self.app.delete(offset, status=[404])
 
