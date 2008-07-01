@@ -21,12 +21,10 @@ class AccountController(CkanBaseController):
         # logged in
         if c.user:
             try:
-                c.api_key = model.ApiKey.byName(c.user).key
+                apikey_object = model.ApiKey.byName(c.user)
             except sqlobject.SQLObjectNotFound:
-                import uuid
-                key = str(uuid.uuid4())
-                model.ApiKey(name=c.user, key=key)
-                c.api_key = key
+                apikey_object = model.ApiKey(name=c.user)
+            c.api_key = apikey_object.key
         else:
             c.error = 'You need to be logged in to access your API key.'
         return render('account/apikey')

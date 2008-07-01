@@ -1,11 +1,15 @@
 # CKAN CHANGELOG
 
-v0.6 2008-03-22
+v0.6 2008-07-04
 ===============
 
+  * Autocompletion (+ suggestion) of tags when adding tags to a package.
   * Paginated lists for packages, tags, and revisions.
   * RESTful machine API for package access, update, listing and creation.
-  * Update to vdm v0.2b which fixes ordering of lists.
+  * API Keys for users who wish to modify information via the REST API. 
+  * Update to vdm v0.2 which fixes ordering of lists.
+  * Immunity to SQL injection attacks.
+
 
 v0.5 2008-01-22
 ===============

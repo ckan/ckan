@@ -17,7 +17,8 @@ class RestController(CkanBaseController):
         return self.finish()
 
     def create(self, register):
-        if not self.check_access(): return simplejson.dumps("Access denied")
+        if not self.check_access():
+            return simplejson.dumps("Access denied")
         registry_path = '/%s' % register
         try:
             request_data = request.params.keys()[0]
@@ -33,7 +34,7 @@ class RestController(CkanBaseController):
         return self.finish()
 
     def show(self, register, id):
-        if not self.check_access(): return simplejson.dumps("Access denied")
+        # if not self.check_access(): return simplejson.dumps("Access denied")
         id = self.fix_id(id)
         registry_path = '/%s/%s' % (register, id)
         self.log.debug("Reading: %s" % registry_path)
@@ -83,9 +84,11 @@ class RestController(CkanBaseController):
 
     def check_access(self):
         isOk = False
+        key_str = request.environ.get('Authorization', None)
+        if model.ApiKey.select(model.ApiKey.q.key==key_str).count() > 0:
+            isOk = True
         # Follow this way for API authentication, reuses existing passwords?
         # http://developer.yahoo.com/python/python-rest.html#auth
-        isOk = True  # Todo: Instead, call access control logic.
         if isOk:
             response.status_code = 200
             return True
