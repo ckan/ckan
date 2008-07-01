@@ -13,6 +13,15 @@ CKAN provides a RESTful API.
 If you wish to create a software application that uses the CKAN service, then you will need to know which resources are available, what their locations are, what methods each resource supports, and what the responses might be. All this information is available on this page.
 </p>
 
+<h3>API Keys</h3>
+<p>For any action which makes a change to a resource (i.e. all non-GET methods)
+you will require an API key. To obtain your API key:</p>
+<ol>
+  <li><a href="${h.url_for(controller='account', action=None)}">Login as a normal user</a>.</li>
+  <li><a href="${h.url_for(controller='account', action='apikey')}">Visit the API Key page</a>.</li>
+</ol>
+
+
 <h3>Resources and Locations</h3>
 <table>
 <tbody><tr><th> <strong>Resourse Name</strong> </th><th> <strong>Location</strong> 

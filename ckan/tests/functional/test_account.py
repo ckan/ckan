@@ -1,4 +1,5 @@
 from ckan.tests import *
+import ckan.model as model
 
 class TestAccountController(TestController2):
 
@@ -91,3 +92,24 @@ class TestAccountController(TestController2):
      # a) a username at top of page
      # b) logout link
 
+    def test_apikey(self):
+        from sqlobject import SQLObjectNotFound
+        # not_logged_in
+        try:
+            key = model.ApiKey.byName('okfntest')
+            model.ApiKey.delete(key.id)
+        except SQLObjectNotFound:
+            pass
+
+        offset = url_for(controller='account', action='apikey')
+        res = self.app.get(offset)
+        assert 'You need to be logged in to access your API key.' in res, res
+
+        res = self.app.get(offset, extra_environ=dict(REMOTE_USER='okfntest'))
+        key = model.ApiKey.byName('okfntest')
+        assert 'Your API key is: %s' % key.key in res, res
+
+        # run again to check case where ApiKey already exists
+        res = self.app.get(offset, extra_environ=dict(REMOTE_USER='okfntest'))
+        key = model.ApiKey.byName('okfntest')
+        assert 'Your API key is: %s' % key.key in res, res

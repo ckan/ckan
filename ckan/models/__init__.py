@@ -4,6 +4,7 @@ hub = PackageHub('ckan')
 sqlobject.sqlhub.processConnection = hub.getConnection()
 
 from package import *
+from apikey import *
 try:
     # vdm >= 0.2
     import vdm.sqlobject.base as vdmbase
@@ -17,6 +18,7 @@ class DomainModel(object):
 
     # should be in order needed for creation
     classes = [
+            ApiKey,
             License,
             Package,
             PackageRevision,

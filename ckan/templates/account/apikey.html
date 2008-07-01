@@ -1,0 +1,18 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+  
+  <py:def function="page_title">Account - Login</py:def>
+
+  <div py:match="content">
+    <h2>API Key</h2>
+    <p py:if="not c.error">
+      Your API key is: ${c.api_key}
+    </p>
+    <p py:if="c.error">
+      ${c.error}
+    </p>
+  </div>
+
+  <xi:include href="layout.html" />
+</html>
+
