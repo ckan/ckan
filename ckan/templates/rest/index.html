@@ -1,0 +1,69 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+  
+  <py:def function="page_title">REST API - Index</py:def>
+
+  <div py:match="content">
+    <h2>REST API</h2>
+
+<h3>Introduction</h3>
+<p>
+CKAN provides a RESTful API.
+
+If you wish to create a software application that uses the CKAN service, then you will need to know which resources are available, what their locations are, what methods each resource supports, and what the responses might be. All this information is available on this page.
+</p>
+
+<h3>Resources and Locations</h3>
+<table>
+<tbody><tr><th> <strong>Resourse Name</strong> </th><th> <strong>Location</strong> 
+</th></tr><tr><td> Package Register </td><td> /api/rest/package 
+
+</td></tr><tr><td> Package Entity </td><td> /api/rest/package/PACKAGE-NAME 
+</td></tr><tr><td> Tags Regsiter </td><td> /api/rest/tag 
+</td></tr><tr><td> Tag Entity </td><td> /api/rest/tag/TAG-NAME 
+</td></tr></tbody></table>
+<h3>Methods, Data Formats, Status Codes</h3>
+
+<table>
+<tbody><tr><th> <strong>Resource Name</strong> </th><th> <strong>HTTP Method</strong> </th><th> <strong>Data Format</strong> </th><th> <strong>Status Codes</strong>  
+</th></tr><tr><td> Packages Register   </td><td> GET               </td><td> Package-List      </td><td>  200, 301, 401      
+
+</td></tr><tr><td> Packages Register   </td><td> POST              </td><td> Package           </td><td>  200, 301, 401, 409 
+</td></tr><tr><td> Package Entity      </td><td> GET               </td><td> Package           </td><td>  200, 301, 401, 404 
+</td></tr><tr><td> Package Entity      </td><td> POST/PUT          </td><td> Package           </td><td>  200, 301, 401, 404 
+
+</td></tr><tr><td> Package Entity      </td><td> DELETE            </td><td> None              </td><td>  200, 301, 401, 404 
+</td></tr><tr><td> Tags Register       </td><td> GET               </td><td> Tag-List          </td><td>  200, 301, 401      
+</td></tr><tr><td> Tags Register       </td><td> POST              </td><td> Tag               </td><td>  200, 301, 401, 409 
+
+</td></tr><tr><td> Tag Entity          </td><td> GET               </td><td> Tag               </td><td>  200, 301, 401, 404 
+</td></tr><tr><td> Tag Entity          </td><td> POST/PUT          </td><td> Tag               </td><td>  200, 301, 401, 404 
+</td></tr><tr><td> Tag Entity          </td><td> DELETE            </td><td> None              </td><td>  200, 301, 401, 404 
+
+</td></tr></tbody></table>
+<h3>Data Formats</h3>
+<table>
+<tbody><tr><th> <strong>Name</strong>   </th><th> <strong>Format</strong>                
+</th></tr><tr><td> Name-String  </td><td> An alphanumeric string. 
+</td></tr><tr><td> Package-List </td><td> [Name-String, Name-String, Name-String, ...] 
+</td></tr><tr><td> Package      </td><td> {name: Name-String, title: String, description: String, url: String, download_url: String, tags: Tag-List} 
+
+</td></tr><tr><td> Tag-List     </td><td> [Name-String, Name-String, Name-String, ... ] 
+</td></tr><tr><td> Tag          </td><td> {name: Name-String} 
+</td></tr></tbody></table>
+<h3>Status Codes</h3>
+<table>
+<tbody><tr><th> <strong>Code</strong> </th><th> <strong>Name</strong>         
+
+</th></tr><tr><td> 200        </td><td> OK                 
+</td></tr><tr><td> 301        </td><td> Moved Permanently  
+</td></tr><tr><td> 401        </td><td> Not Authorised     
+</td></tr><tr><td> 404        </td><td> Not Found          
+</td></tr><tr><td> 409        </td><td> Conflict           
+
+</td></tr></tbody></table>
+
+  </div>
+
+  <xi:include href="../layout.html" />
+</html>
