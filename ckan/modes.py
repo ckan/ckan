@@ -3,8 +3,7 @@ import logging
 import ckan.model as model
 import ckan.presentation as presentation
 from ckan.forms import PackageSchema
-from sqlobject.main import SQLObjectNotFound
-from sqlobject.dberrors import IntegrityError
+from sqlobject import SQLObjectNotFound
 
 
 # Todo: Fold formencode objects into validator (below, naive).
