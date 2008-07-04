@@ -23,6 +23,9 @@ you will require an API key. To obtain your API key:</p>
 
 
 <h3>Resources and Locations</h3>
+
+<p>A REST interface presents resources at published locations. Here are the names locations of the CKAN REST API resources.
+</p>
 <table>
 <tbody><tr><th> <strong>Resourse Name</strong> </th><th> <strong>Location</strong> 
 </th></tr><tr><td> Package Register </td><td> /api/rest/package 
@@ -33,6 +36,10 @@ you will require an API key. To obtain your API key:</p>
 </td></tr></tbody></table>
 <h3>Methods, Data Formats, Status Codes</h3>
 
+<p>Each resource location supports a number of methods, which may send or receive a piece of data. Status codes are used to signal the outcome of the operation that is performed in response to the requested method and data. 
+
+Here are the methods, data formats, and status codes for the CKAN REST API.
+</p>
 <table>
 <tbody><tr><th> <strong>Resource Name</strong> </th><th> <strong>HTTP Method</strong> </th><th> <strong>Data Format</strong> </th><th> <strong>Status Codes</strong>  
 </th></tr><tr><td> Packages Register   </td><td> GET               </td><td> Package-List      </td><td>  200, 301, 401      
@@ -72,7 +79,22 @@ you will require an API key. To obtain your API key:</p>
 
 </td></tr></tbody></table>
 
-  </div>
+<h3>Authenticated Requests</h3>
+<p>
+Any requests that are to result in a change to the CKAN register must
+be sent with the Authorization header set to your API key value.
+</p>
+<table>
+<tbody><tr><th> <strong>Header</strong> </th><th> <strong>Value</strong> 
+</th></tr><tr><td>HTTP_AUTHORIZATION</td><td> api-key                 
+</td></tr></tbody></table>
+
+<h3>Example Client Implementations</h3>
+<p>
+The Python package 'ckanclient' implements a CKAN REST client.
+</p>
+<a href="http://project.knowledgeforge.net/ckan/svn/ckanclient/trunk/">http://project.knowledgeforge.net/ckan/svn/ckanclient/trunk/</a>
+</div>
 
   <xi:include href="../layout.html" />
 </html>
