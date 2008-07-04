@@ -10,7 +10,7 @@ from ckan import __version__, __description__, __long_description__, __license__
 setup(
     name='ckan',
     version=__version__,
-    author='Open Knowledge Foundation',
+    author='Appropriate Software Foundation, Open Knowledge Foundation',
     author_email='info@okfn.org',
     license=__license__,
     url='http://www.okfn.org/ckan/',
