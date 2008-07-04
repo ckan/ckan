@@ -4,7 +4,7 @@ import ckan.model as model
 import ckan.presentation as presentation
 from ckan.forms import PackageSchema
 from sqlobject import SQLObjectNotFound
-
+from formencode import Invalid
 
 # Todo: Fold formencode objects into validator (below, naive).
 # Todo: Resolve fact that only Register POST mode can be unauthorized!

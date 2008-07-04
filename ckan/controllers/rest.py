@@ -10,7 +10,6 @@ class RestController(CkanBaseController):
         return render('rest/index')
 
     def list(self, register):
-        if not self.check_access(): return simplejson.dumps("Access denied")
         registry_path = '/%s' % register
         self.log.debug("Listing: %s" % registry_path)
         self.mode = RegisterGet(registry_path).execute()
@@ -34,7 +33,6 @@ class RestController(CkanBaseController):
         return self.finish()
 
     def show(self, register, id):
-        # if not self.check_access(): return simplejson.dumps("Access denied")
         id = self.fix_id(id)
         registry_path = '/%s/%s' % (register, id)
         self.log.debug("Reading: %s" % registry_path)
@@ -42,7 +40,8 @@ class RestController(CkanBaseController):
         return self.finish()
 
     def update(self, register, id):
-        if not self.check_access(): return simplejson.dumps("Access denied")
+        if not self.check_access():
+            return simplejson.dumps("Access denied")
         id = self.fix_id(id)
         registry_path = '/%s/%s' % (register, id)
         try:
@@ -60,7 +59,8 @@ class RestController(CkanBaseController):
         return self.finish()
 
     def delete(self, register, id):
-        if not self.check_access(): return simplejson.dumps("Access denied")
+        if not self.check_access():
+            return simplejson.dumps("Access denied")
         id = self.fix_id(id)
         registry_path = '/%s/%s' % (register, id)
         self.log.debug("Deleting: %s" % registry_path)
@@ -68,7 +68,6 @@ class RestController(CkanBaseController):
         return self.finish()
 
     def search(self, register):
-        if not self.check_access(): return simplejson.dumps("Access denied")
         registry_path = '/%s' % register
         request_data = self._get_request_data()
         self.log.debug("Searching: %s" % registry_path)
@@ -84,9 +83,12 @@ class RestController(CkanBaseController):
 
     def check_access(self):
         isOk = False
-        key_str = request.environ.get('Authorization', None)
-        if model.ApiKey.select(model.ApiKey.q.key==key_str).count() > 0:
+        keystr = request.environ.get('HTTP_AUTHORIZATION', None)
+        if keystr is None:
+            keystr = request.environ.get('Authorization', None)
+        if model.ApiKey.select(model.ApiKey.q.key==keystr).count() > 0:
             isOk = True
+        self.log.debug("Received API Key: %s" % keystr)
         # Follow this way for API authentication, reuses existing passwords?
         # http://developer.yahoo.com/python/python-rest.html#auth
         if isOk:
