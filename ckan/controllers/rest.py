@@ -92,9 +92,11 @@ class RestController(CkanBaseController):
         # Follow this way for API authentication, reuses existing passwords?
         # http://developer.yahoo.com/python/python-rest.html#auth
         if isOk:
+            self.log.debug("Access OK.")
             response.status_code = 200
             return True
         else:
+            self.log.debug("Access Denied.")
             response.status_code = 401
             return False
 

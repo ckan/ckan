@@ -132,7 +132,12 @@ class PackagePresenter(EntityPresenter):
         self['title'] = entity.title
         self['url'] = entity.url
         self['download_url'] = entity.download_url
-        self['tags'] = [f.tag.name for f in entity.tags]
+        tag_names = []
+        for tag in entity.tags:
+            if hasattr(tag, 'tag'):
+                tag = tag.tag  # Sometimes we get a list of associations??
+            tag_names.append(tag.name)
+        self['tags'] = tag_names
 
     def init_from_request_data(self, kwds):
         super(PackagePresenter, self).init_from_request_data(kwds)
@@ -174,6 +179,6 @@ class PackagePresenter(EntityPresenter):
             if 'download_url' in self:
                 self.entity.download_url = self['download_url']
             if 'tags' in self:
-                tags = [model.Tag.get(name) for name in self['tags']]
+                tags = [model.Tag.byName(name) for name in self['tags']]
                 self.entity.tags = tags
 
