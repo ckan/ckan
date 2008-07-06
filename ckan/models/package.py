@@ -50,6 +50,8 @@ class Package(vdmbase.VersionedDomainObject):
     m2m = [ ('tags', 'ckan.models.package', 'Tag', 'PackageTag') ]
 
     def add_tag_by_name(self, tagname):
+        if not tagname:
+            return
         try:
             tag = self.revision.model.tags.get(tagname)
         except: # TODO: make this specific

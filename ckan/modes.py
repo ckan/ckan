@@ -83,7 +83,6 @@ class PresentationMode(object):
             schema = self.get_presentation_schema()
             pkg = schema.to_python(request_data, state=txn)
         except Invalid, inst:
-            response.status_code = 400
             return False
         else:
             txn.commit()

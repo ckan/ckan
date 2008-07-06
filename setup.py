@@ -15,6 +15,7 @@ setup(
     license=__license__,
     url='http://www.okfn.org/ckan/',
     description=__description__,
+    keywords='data packaging component tool server',
     long_description =__long_description__,
     install_requires=[
         'vdm>=0.1',

@@ -134,6 +134,7 @@ class PackagePresenter(EntityPresenter):
         self['title'] = entity.title
         self['url'] = entity.url
         self['download_url'] = entity.download_url
+        self['notes'] = entity.notes
         tag_names = []
         for tag in entity.tags:
             if hasattr(tag, 'tag'):
@@ -151,6 +152,8 @@ class PackagePresenter(EntityPresenter):
             self['url'] = kwds['url']
         if 'download_url' in kwds:
             self['download_url'] = kwds['download_url']
+        if 'notes' in kwds:
+            self['notes'] = kwds['notes']
         if 'tags' in kwds:
             self['tags'] = kwds['tags'][:]  # Take a copy.
     
@@ -164,6 +167,8 @@ class PackagePresenter(EntityPresenter):
             kwds['url'] = self['url']
         if 'download_url' in kwds:
             kwds['download_url'] = self['download_url']
+        if 'notes' in kwds:
+            kwds['notes'] = self['notes']
         if 'tags' in kwds:
             tags = [model.Tag.byName(name) for name in self['tags']]
             kwds['tags'] = tags
@@ -181,6 +186,8 @@ class PackagePresenter(EntityPresenter):
                 self.entity.url = self['url']
             if 'download_url' in self:
                 self.entity.download_url = self['download_url']
+            if 'notes' in self:
+                self.entity.notes = self['notes']
             if 'tags' in self:
                 tags = [model.Tag.byName(name) for name in self['tags']]
                 self.entity.tags = tags
