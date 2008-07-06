@@ -1,0 +1,17 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <py:def function="page_title">Account - Login</py:def>
+
+  <div py:match="content">
+    <h2>Login</h2>
+    <div class="DOLARcss_class">DOLARmessage</div>
+    <form action="DOLARaction" method="post">
+      
+      <label for="openid">Your OpenID identity URL:</label>
+      <input type="text" id="openid" name="openid" value="DOLARvalue" size="50"/>
+      <br /><br /><input type="submit" name="authform" value="Log in &raquo;" />
+    </form>
+  </div>
+  <xi:include href="openid_layout.html" />
+</html>

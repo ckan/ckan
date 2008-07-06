@@ -1,0 +1,20 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <py:def function="page_title">Account - Login</py:def>
+
+  <div py:match="content">
+    <h2>Login</h2>
+    <p>Please login now.</p>
+    <form action="FORM_ACTION" method="post">
+      <dl>
+        <dt>Username:</dt>
+        <dd><input type="text" name="username" /></dd>
+        <dt>Password:</dt>
+        <dd><input type="password" name="password" /></dd>
+      </dl>
+      <input type="submit" name="authform" value="Log In &raquo;"/>
+    </form>
+  </div>
+  <xi:include href="layout.html" />
+</html>

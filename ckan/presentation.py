@@ -1,5 +1,6 @@
 import ckan.model as model
 
+import logging
 
 # Todo: Use ckan.forms here?
 
@@ -7,7 +8,8 @@ class RegisterPresenter(list):
 
     modelClass = None
     keyName = 'id'
-    
+    log = logging.getLogger(__name__)
+
     def __init__(self, entities):
         super(RegisterPresenter, self).__init__()
         self.entities = None
@@ -163,8 +165,9 @@ class PackagePresenter(EntityPresenter):
         if 'download_url' in kwds:
             kwds['download_url'] = self['download_url']
         if 'tags' in kwds:
-            tags = [model.Tag.get(name) for name in self['tags']]
+            tags = [model.Tag.byName(name) for name in self['tags']]
             kwds['tags'] = tags
+        self.log.debug("===========>>>>>> %s" % tags)
         return kwds
     
     def update_entity(self):

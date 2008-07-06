@@ -17,7 +17,8 @@ class ErrorController(BaseController):
 
     def document(self):
         """Render the error document"""
-        page = error_document_template % \
+        ckan_template = render("error_document_template")
+        page = ckan_template % \
             dict(prefix=request.environ.get('SCRIPT_NAME', ''),
                  code=request.params.get('code', ''),
                  message=request.params.get('message', ''))

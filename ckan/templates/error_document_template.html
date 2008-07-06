@@ -1,0 +1,38 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+  
+  <py:def function="page_title">Error %(code)s</py:def>
+
+  <style type="text/css" py:def="page_specific_css">
+      ul.big-buttons {
+        list-style-type: none;
+        margin-top: 3em;
+        margin-bottom: 3em;
+      }
+
+      ul.big-buttons li {
+        display: inline;
+        font-size: 1.2em;
+        margin-left: 10px;
+      }
+
+      ul.big-buttons li a {
+        border: 2px solid #aaa;
+        background-color: #eee;
+        padding: 0.5em;
+        text-decoration: none;
+        width: 200px;
+      }
+
+      ul.big-buttons li a:hover {
+        background-color: #F5E4DC;
+      }
+  </style>
+
+  <div py:match="content">
+
+    <h2>%(code)s %(message)s</h2>
+  </div>
+
+  <xi:include href="layout.html" />
+</html>

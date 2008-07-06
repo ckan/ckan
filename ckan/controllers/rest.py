@@ -86,6 +86,8 @@ class RestController(CkanBaseController):
         keystr = request.environ.get('HTTP_AUTHORIZATION', None)
         if keystr is None:
             keystr = request.environ.get('Authorization', None)
+        if keystr is None:
+            keystr = request.params.get('api-key', None)
         if model.ApiKey.select(model.ApiKey.q.key==keystr).count() > 0:
             isOk = True
         self.log.debug("Received API Key: %s" % keystr)
@@ -96,8 +98,8 @@ class RestController(CkanBaseController):
             response.status_code = 200
             return True
         else:
-            self.log.debug("Access Denied.")
-            response.status_code = 401
+            self.log.debug("API Key Not Authorized.")
+            response.status_code = 403
             return False
 
     def _get_request_data(self):
