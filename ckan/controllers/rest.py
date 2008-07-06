@@ -4,6 +4,10 @@ from ckan.modes import RegisterGet, RegisterPost, RegisterSearch
 from ckan.modes import EntityGet, EntityPut, EntityDelete
 import ckan.model as model
 
+# Todo: Only show active objects (so deletion works now purge call is removed).
+# Todo: Fix setting tags when package is created (not sure what to do here).
+# Todo: Log change inforation in transaction (pass values to modes).
+
 class RestController(CkanBaseController):
 
     def index(self):
@@ -20,14 +24,10 @@ class RestController(CkanBaseController):
             return simplejson.dumps("Access denied")
         registry_path = '/%s' % register
         try:
-            request_data = request.params.keys()[0]
-        except Exception, inst:
-            msg = "Can't find entity data in request params %s: %s" % (
-                request.params.items(), str(inst)
-            )
-            raise Exception, msg
-        self.log.debug("Loading JSON string: %s" % (request_data))
-        request_data = simplejson.loads(request_data)
+            request_data = self._get_request_data()
+        except ValueError, inst:
+            response.status_code = 400
+            return "JSON Error: %s" % str(inst)
         self.log.debug("Creating: %s with %s" % (registry_path, request_data))
         self.mode = RegisterPost(registry_path, request_data).execute()
         return self.finish()
@@ -45,13 +45,10 @@ class RestController(CkanBaseController):
         id = self.fix_id(id)
         registry_path = '/%s/%s' % (register, id)
         try:
-            request_data = request.params.keys()[0]
-        except Exception, inst:
-            msg = "Can't find entity data in request params %s: %s" % (
-                request.params.items(), str(inst)
-            )
-            raise Exception, msg
-        request_data = simplejson.loads(request_data)
+            request_data = self._get_request_data()
+        except ValueError, inst:
+            response.status_code = 400
+            return "JSON Error: %s" % str(inst)
         if 'id' in request_data:
             request_data.pop('id')
         self.log.debug("Updating: %s with %s" % (registry_path, request_data))
@@ -110,5 +107,7 @@ class RestController(CkanBaseController):
                 request.params.items(), str(inst)
             )
             raise Exception, msg
+        self.log.debug("Loading JSON string: %s" % (request_data))
         request_data = simplejson.loads(request_data)
+        self.log.debug("Loaded JSON data: %s" % (request_data))
         return request_data

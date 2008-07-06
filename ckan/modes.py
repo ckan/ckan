@@ -92,7 +92,6 @@ class PresentationMode(object):
         txn = self.repo.begin_transaction()
         entity = self.get_entity(txn.model)
         entity.delete()
-        entity.purge()  # Shouldn't be necessary, makes tests pass.
         txn.commit()
 
     def search_entities(self):
@@ -203,6 +202,11 @@ class PresentationMode(object):
             return True
         return False
 
+    def register_not_found(self):
+        if not self.get_register():
+            return True
+        return False
+
     def is_unauthorized(self):
         if self.moved_permanently.get(self.registry_path, False):
             return True
@@ -227,7 +231,10 @@ class PresentationMode(object):
 class RegisterGet(PresentationMode):
 
     def execute(self):
-        if self.is_moved_permanently():
+        if self.register_not_found():
+            self.response_code = 404
+            self.response_data = None
+        elif self.is_moved_permanently():
             self.response_code = 301
             self.response_data = None
         else:
@@ -240,7 +247,10 @@ class RegisterGet(PresentationMode):
 class RegisterPost(PresentationMode):
 
     def execute(self):
-        if self.is_unauthorized():
+        if self.register_not_found():
+            self.response_code = 404
+            self.response_data = None
+        elif self.is_unauthorized():
             self.response_code = 401
             self.response_data = None
         elif self.is_bad_request():
@@ -268,7 +278,10 @@ class RegisterPost(PresentationMode):
 class RegisterSearch(PresentationMode):
 
     def execute(self):
-        if self.is_moved_permanently():
+        if self.register_not_found():
+            self.response_code = 404
+            self.response_data = None
+        elif self.is_moved_permanently():
             self.response_code = 301
             self.response_data = None
         else:
@@ -281,7 +294,10 @@ class RegisterSearch(PresentationMode):
 class EntityGet(PresentationMode):
 
     def execute(self):
-        if self.is_bad_request():
+        if self.register_not_found():
+            self.response_code = 404
+            self.response_data = None
+        elif self.is_bad_request():
             self.response_code = 400
             self.response_data = None
         elif self.is_moved_permanently():
@@ -304,11 +320,14 @@ class EntityGet(PresentationMode):
 class EntityPut(PresentationMode):
 
     def execute(self):
-        if self.is_bad_request():
-            self.response_code = 400
+        if self.register_not_found():
+            self.response_code = 404
             self.response_data = None
         elif self.is_moved_permanently():
             self.response_code = 301
+            self.response_data = None
+        elif self.is_bad_request():
+            self.response_code = 400
             self.response_data = None
         elif not self.get_entity():
             self.response_code = 404
@@ -323,13 +342,18 @@ class EntityPut(PresentationMode):
         return self
 
     def is_bad_request(self):
+        if 'name' in self.request_data:
+            if self.get_entity_id() != self.request_data['name']:
+                return True
         return False
-
 
 class EntityDelete(PresentationMode):
 
     def execute(self):
-        if not self.get_entity():
+        if self.register_not_found():
+            self.response_code = 404
+            self.response_data = None
+        elif not self.get_entity():
             self.response_code = 404
             self.response_data = None
         else:
