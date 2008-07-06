@@ -43,7 +43,7 @@ Here are the methods, data formats, and status codes for the CKAN REST API.
 Please note 'PUT' operations may instead use the HTTP POST method.
 </p>
 <table>
-<tbody><tr><th> <strong>Resource Name</strong> </th><th> <strong>HTTP Method</strong> </th><th> <strong>Request Format</strong> </th><th> <strong>Response Format</strong> </th><th> <strong>Status Codes</strong>  
+<tbody><tr><th> <strong>Resource</strong> </th><th> <strong>Method</strong> </th><th> <strong>Request</strong> </th><th> <strong>Response</strong> </th><th> <strong>Statuses</strong>  
 </th></tr><tr><td> Package Register   </td><td> GET               </td><td></td><td> Package-List      </td><td>  200, 301, 500
 </td></tr><tr><td> Package Register   </td><td> POST              </td><td> Package           </td><td></td><td>  200, 301, 400, 403, 409, 500 
 </td></tr><tr><td> Package Entity      </td><td> GET               </td><td></td><td> Package           </td><td>  200, 301, 404, 500 
@@ -64,13 +64,18 @@ Please note 'PUT' operations may instead use the HTTP POST method.
 <h3>Data Formats</h3>
 <table>
 <tbody><tr><th> <strong>Name</strong>   </th><th> <strong>Format</strong>                
-</th></tr><tr><td> Name-String  </td><td> An alphanumeric string. 
-</td></tr><tr><td> Package-List </td><td> [Name-String, Name-String, Name-String, ...] 
-</td></tr><tr><td> Package      </td><td> {name: Name-String, title: String, description: String, url: String, download_url: String, tags: Tag-List} 
+</th></tr><tr><td> Package-List </td><td> [ Name-String, Name-String, Name-String, ... ] 
+</td></tr><tr><td> Package      </td><td> { name: Name-String, title: String, description: String, url: String, download_url: String, tags: Tag-List } 
 
-</td></tr><tr><td> Tag-List     </td><td> [Name-String, Name-String, Name-String, ... ] 
-</td></tr><tr><td> Tag          </td><td> {name: Name-String} 
+</td></tr><tr><td> Tag-List     </td><td> [ Name-String, Name-String, Name-String, ... ] 
+</td></tr><tr><td> Tag          </td><td> { name: Name-String } 
+</td></tr><tr><td> Name-String  </td><td> An alphanumeric string. 
 </td></tr></tbody></table>
+
+To send request data, create a simple data structure, then convert it to a JSON string, then percent-encode the JSON string, then send it as the request body.
+
+Response data will be in the response body.
+
 <h3>Status Codes</h3>
 <table>
 <tbody><tr><th> <strong>Code</strong> </th><th> <strong>Name</strong>         
