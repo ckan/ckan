@@ -5,7 +5,6 @@ from ckan.modes import EntityGet, EntityPut, EntityDelete
 import ckan.model as model
 
 # Todo: Only show active objects (so deletion works now purge call is removed).
-# Todo: Log change inforation in transaction (pass values to modes).
 
 class RestController(CkanBaseController):
 
