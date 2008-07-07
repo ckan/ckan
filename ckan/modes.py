@@ -5,6 +5,7 @@ import ckan.presentation as presentation
 from ckan.forms import PackageSchema
 from sqlobject import SQLObjectNotFound
 from formencode import Invalid
+from ckan.lib.base import c
 
 # Todo: Fold formencode objects into validator (below, naive).
 # Todo: Resolve fact that only Register POST mode can be unauthorized!
@@ -44,7 +45,7 @@ class PresentationMode(object):
         entities = register.list()
         return entities
     
-    def create_entity(self):
+    def create_entity(self, txn_author='', txn_log_message=''):
         kwds = self.request_data
         kwds = self.convert_unicode_kwds(kwds)
         txn = self.repo.begin_transaction()
@@ -56,6 +57,8 @@ class PresentationMode(object):
         if entity:
             presenter = Presenter(self.request_data, register=register)
             entity = presenter.as_entity()
+            txn.author = txn_author
+            txn.log_message = txn_log_message
             txn.commit()
         return entity
 
@@ -68,7 +71,7 @@ class PresentationMode(object):
             entity = None
         return entity
     
-    def update_entity(self):
+    def update_entity(self, txn_author='', txn_log_message=''):
         txn = self.repo.begin_transaction()
         #entity = self.get_entity(txn.model)
         #if entity:
@@ -85,15 +88,23 @@ class PresentationMode(object):
         except Invalid, inst:
             return False
         else:
+            txn.author = txn_author
+            txn.log_message = txn_log_message
             txn.commit()
             return True
 
-    def delete_entity(self):
+    def delete_entity(self, txn_author='', txn_log_message=''):
         txn = self.repo.begin_transaction()
-        entity = self.get_entity(txn.model)
-        entity.delete()
-        entity.purge()
-        txn.commit()
+        try:
+            entity = self.get_entity(txn.model)
+            entity.delete()
+            entity.purge()
+        except:
+            pass  # Again, not good. --jb
+        else:
+            txn.author = txn_author
+            txn.log_message = txn_log_message
+            txn.commit()
 
     def search_entities(self):
         '''Search for entities matching specified criteria.
@@ -259,7 +270,9 @@ class RegisterPost(PresentationMode):
             self.response_data = None
         else:
             try:
-                self.entity = self.create_entity()
+                author = c.rest_api_user
+                log_message = "REST API: POST %s" % self.registry_path
+                self.entity = self.create_entity(author, log_message)
             # NB: Catching DB errors is problematic. We can't just do:
             #     except IntegrityError:
             #     ...
@@ -334,7 +347,9 @@ class EntityPut(PresentationMode):
             self.response_code = 404
             self.response_data = None
         else:
-            if self.update_entity():
+            author = c.rest_api_user
+            log_message = "REST API: PUT %s" % self.registry_path
+            if self.update_entity(author, log_message):
                 self.response_code = 200
                 self.response_data = None
             else:
@@ -358,7 +373,9 @@ class EntityDelete(PresentationMode):
             self.response_code = 404
             self.response_data = None
         else:
-            self.delete_entity()
+            author = c.rest_api_user
+            log_message = "REST API: DELETE %s" % self.registry_path
+            self.delete_entity(author, log_message)
             self.response_code = 200
             self.response_data = None
         return self

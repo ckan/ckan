@@ -5,7 +5,6 @@ from ckan.modes import EntityGet, EntityPut, EntityDelete
 import ckan.model as model
 
 # Todo: Only show active objects (so deletion works now purge call is removed).
-# Todo: Fix setting tags when package is created (not sure what to do here).
 # Todo: Log change inforation in transaction (pass values to modes).
 
 class RestController(CkanBaseController):
@@ -79,13 +78,17 @@ class RestController(CkanBaseController):
         return id
 
     def check_access(self):
+        api_key = None
         isOk = False
         keystr = request.environ.get('HTTP_AUTHORIZATION', None)
         if keystr is None:
             keystr = request.environ.get('Authorization', None)
         if keystr is None:
             keystr = request.params.get('api-key', None)
-        if model.ApiKey.select(model.ApiKey.q.key==keystr).count() > 0:
+        api_key_selection = model.ApiKey.select(model.ApiKey.q.key==keystr)
+        if api_key_selection.count() > 0:
+            api_key = api_key_selection[0]
+            c.rest_api_user = api_key.name
             isOk = True
         self.log.debug("Received API Key: %s" % keystr)
         # Follow this way for API authentication, reuses existing passwords?
