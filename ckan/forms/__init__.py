@@ -86,7 +86,10 @@ class PackageSchema(formencode.sqlschema.SQLSchema):
         current_tags = [ pkg2tag.tag.name for pkg2tag in pkg.tags ]
         for name in taglist:
             if name not in current_tags:
-                pkg.add_tag_by_name(name)
+                try:
+                    pkg.add_tag_by_name(name)
+                except:
+                    pass  # Not good. --jb
         for pkg2tag in pkg.tags:
             if pkg2tag.tag.name not in taglist:
                 pkg2tag.delete()

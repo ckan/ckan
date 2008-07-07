@@ -1,6 +1,7 @@
 import ckan.model as model
 
 import logging
+from sqlobject import SQLObjectNotFound
 
 # Todo: Use ckan.forms here?
 
@@ -189,6 +190,12 @@ class PackagePresenter(EntityPresenter):
             if 'notes' in self:
                 self.entity.notes = self['notes']
             if 'tags' in self:
-                tags = [model.Tag.byName(name) for name in self['tags']]
-                self.entity.tags = tags
+                tags = []
+                for tag_name in self['tags']:
+                    # Todo: Check tag_name with proper tag schema.
+                    try:
+                        self.entity.add_tag_by_name(tag_name)
+                    except:
+                        pass  # Not good. --jb
+
 

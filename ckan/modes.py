@@ -92,6 +92,7 @@ class PresentationMode(object):
         txn = self.repo.begin_transaction()
         entity = self.get_entity(txn.model)
         entity.delete()
+        entity.purge()
         txn.commit()
 
     def search_entities(self):
