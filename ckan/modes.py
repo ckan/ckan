@@ -8,7 +8,6 @@ from formencode import Invalid
 from ckan.lib.base import c
 
 # Todo: Fold formencode objects into validator (below, naive).
-# Todo: Resolve fact that only Register POST mode can be unauthorized!
 
 logger = logging.getLogger(__name__)
 
@@ -69,6 +68,8 @@ class PresentationMode(object):
             entity = register.get(id)
         except SQLObjectNotFound:
             entity = None
+        if entity.state.name != 'active':
+            return None 
         return entity
     
     def update_entity(self, txn_author='', txn_log_message=''):
@@ -98,7 +99,7 @@ class PresentationMode(object):
         try:
             entity = self.get_entity(txn.model)
             entity.delete()
-            entity.purge()
+            #entity.purge()
         except:
             pass  # Again, not good. --jb
         else:

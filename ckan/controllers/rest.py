@@ -4,8 +4,6 @@ from ckan.modes import RegisterGet, RegisterPost, RegisterSearch
 from ckan.modes import EntityGet, EntityPut, EntityDelete
 import ckan.model as model
 
-# Todo: Only show active objects (so deletion works now purge call is removed).
-
 class RestController(CkanBaseController):
 
     def index(self):
