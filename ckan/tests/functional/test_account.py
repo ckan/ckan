@@ -13,7 +13,7 @@ class TestAccountController(TestController2):
     def test_account_login(self):
         offset = url_for(controller='account', action='login')
         res = self.app.get(offset, status=401)
-        assert 'Please Sign In' in res
+        assert 'Please login now' in res
         # cannot use with AuthKit 0.4.0 (see below)
         # res = self._login_form(res)
         # neither does this plus it is slow as it is external
@@ -102,8 +102,7 @@ class TestAccountController(TestController2):
             pass
 
         offset = url_for(controller='account', action='apikey')
-        res = self.app.get(offset)
-        assert 'You need to be logged in to access your API key.' in res, res
+        res = self.app.get(offset, status=[401]) 
 
         res = self.app.get(offset, extra_environ=dict(REMOTE_USER='okfntest'))
         key = model.ApiKey.byName('okfntest')

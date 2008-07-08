@@ -7,7 +7,7 @@ v0.6 2008-07-04
   * Paginated lists for packages, tags, and revisions.
   * RESTful machine API for package access, update, listing and creation.
   * API Keys for users who wish to modify information via the REST API. 
-  * Update to vdm v0.2 which fixes ordering of lists.
+  * Update to vdm v0.2 (SQLObject) which fixes ordering of lists.
   * Immunity to SQL injection attacks.
 
 

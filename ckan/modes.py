@@ -66,11 +66,12 @@ class PresentationMode(object):
         id = self.get_entity_id()
         try:
             entity = register.get(id)
+            if entity.state.name != 'active':
+                return None 
+            else:
+                return entity
         except SQLObjectNotFound:
-            entity = None
-        if entity.state.name != 'active':
-            return None 
-        return entity
+            return None
     
     def update_entity(self, txn_author='', txn_log_message=''):
         txn = self.repo.begin_transaction()
