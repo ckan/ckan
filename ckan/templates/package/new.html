@@ -5,21 +5,21 @@
 
   <div py:match="content">
     <h2>Register New Package</h2>
-		<p>Please choose a name for the package.</p>
-		<p>Once this is done you will be able to edit the other package attributes (title, url, notes etc).</p>
-		<p>The name has several restrictions because it is used as a universal identifier for the package:</p>
-		<ul>
-			<li>cannot match the name of any other package</li>
-
-			<li>must be at least 2 characters in length</li>
-			<li>must be in lower case</li>
-			<li>can only contain alphanumeric characters, dashes and underscores</li>
-		</ul>
+    <h3>Step 1: Choose a name for the package.</h3>
     <form action="${h.url_for(controller='package', action='create')}" method="post"> 
       <label for="name">Name:</label>
       ${XML(h.text_field('name', size=30))}
-			<br /><br />
-      ${XML(h.submit('Create Package and Proceed to Edit Package Details'))}
+      <p class="desc">The name is used as a <strong>universal identifier for the
+        package</strong>, as such there are a few restrictions:</p>
+      <ul class="desc">
+        <li>It cannot match the name of any other package</li>
+
+        <li>It must be at least 2 characters in length</li>
+        <li>It must be in lower case</li>
+        <li>It can only contain alphanumeric characters, dashes and underscores</li>
+      </ul>
+      <h3>Step 2: Register and proceed to edit package details</h3>
+      ${XML(h.submit('Proceed'))}
     </form>
   </div>
 

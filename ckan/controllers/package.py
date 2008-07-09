@@ -41,20 +41,24 @@ class PackageController(CkanBaseController):
             return render('package/create')
         try:
             c.name = schema.to_python(request.params)['name']
+            pkg = txn.model.packages.create(name=c.name)
+            txn.author = c.author
+            txn.log_message = 'Creating package %s' % c.name
+            txn.commit()
+            h.redirect_to(controller='package', action='edit', id=c.name)
         except Invalid, inst:
             response.status_code = 400
             c.error = "Invalid request: " + str(inst)
             return render('package/create')
-        pkg = txn.model.packages.create(name=c.name)
-        txn.author = c.author
-        txn.log_message = 'Creating package %s' % c.name
-        txn.commit()
-        if format == 'html':
-            return render('package/create')
-        elif format == 'json':
-            response.status_code = 201
-            del(response.headers['Content-Type'])
-            return ''
+        # TODO: 2008-07-09 remove once decided this is no longer needed as all
+        # now in rest api
+        # probably should do same for other json stuff in this file
+#         if format == 'html':
+#             return render('package/create')
+#         elif format == 'json':
+#             response.status_code = 201
+#             del(response.headers['Content-Type'])
+#             return ''
     
     def read(self, id, format='html'):
         rev = self.repo.youngest_revision()

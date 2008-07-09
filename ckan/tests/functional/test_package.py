@@ -191,13 +191,15 @@ class TestPackageControllerNew(TestController2):
         assert "400 Bad Request -- Missing name request parameter." in error
 
     def test_new(self):
+        # TODO: test creating a package with an existing name results in error
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         assert 'Packages - New' in res
         fv = res.forms[0]
         fv['name'] = self.testvalues['name']
-        res = fv.submit(status=[200])
-        assert 'Package Create' in res
+        res = fv.submit(status=[302])
+        res = res.follow()
+        assert 'Packages - Edit' in res
         rev = ckan.models.repo.youngest_revision()
         pkg = rev.model.packages.get(self.testvalues['name'])
         assert pkg.name == self.testvalues['name']
