@@ -1,15 +1,27 @@
 import logging
-
 import ckan.model as model
 import ckan.presentation as presentation
-from ckan.forms import PackageSchema
 from sqlobject import SQLObjectNotFound
 from formencode import Invalid
-from ckan.lib.base import c
 
 # Todo: Fold formencode objects into validator (below, naive).
 
 logger = logging.getLogger(__name__)
+
+class PresentationRequest(object):
+
+    def __init__(self, path=None, body=None, user=None):
+        self.path = path
+        self.body = body
+        self.user = user
+
+
+class PresentationResponse(object):
+    
+    def __init__(self, code=None, user=None, request=None):
+        self.code = path
+        self.body = body
+        self.request = request
 
 class PresentationMode(object):
 
@@ -24,20 +36,27 @@ class PresentationMode(object):
         'package': presentation.PackageRegisterPresenter,
         'tag': presentation.TagRegisterPresenter,
     }
-    presentation_schemas = {
-        'package': PackageSchema,
-    }
 
-    def __init__(self, registry_path, request_data=None,
-            validator=None, moved_permanently=None):
-        self.registry_path = registry_path
-        self.request_data = request_data
+    def __init__(self, registry_path=None, request_data=None,
+        validator=None, moved_permanently=None, user_name=None, request=None):
+        self.request = request
+        self.response = None
+        if self.request:
+            # Todo: Complete move to request objects...
+            self.registry_path = self.request.path
+            self.request_data = self.request.body
+            self.user_name = self.request.user
+        else:
+            # Todo: Remove this when request objects in use.
+            self.registry_path = registry_path
+            self.request_data = request_data
+            self.user_name = user_name
         self.validator = validator
         if moved_permanently != None:
             self.moved_permanently = moved_permanently
 
     def execute(self):
-        raise Exception, "No execute method for mode %s." % type(self)
+        sel.response = PresentationResponse()
 
     def get_entities(self):
         register = self.get_register()
@@ -45,20 +64,20 @@ class PresentationMode(object):
         return entities
     
     def create_entity(self, txn_author='', txn_log_message=''):
+        # Todo: Validate request_data.
         kwds = self.request_data
         kwds = self.convert_unicode_kwds(kwds)
         txn = self.repo.begin_transaction()
         register = self.get_register(txn.model)
         Presenter = self.get_entity_presenter_class()
-        keyName = self.get_entity_presenter_class().keyName
-        kwds_create = {keyName: kwds[keyName]}
-        entity = register.create(**kwds_create)
-        if entity:
-            presenter = Presenter(self.request_data, register=register)
+        try:
+            presenter = Presenter(self.request_data, register=register, uncreated=True)
             entity = presenter.as_entity()
             txn.author = txn_author
             txn.log_message = txn_log_message
             txn.commit()
+        except:
+            raise
         return entity
 
     def get_entity(self, amodel=None):
@@ -74,27 +93,19 @@ class PresentationMode(object):
             return None
     
     def update_entity(self, txn_author='', txn_log_message=''):
+        # Todo: Validate request_data.
         txn = self.repo.begin_transaction()
-        #entity = self.get_entity(txn.model)
-        #if entity:
-        #    register = self.get_register(txn.model)
-        #    Presenter = self.get_entity_presenter_class()
-        #    presenter = Presenter(self.request_data, register=register)
-        #    entity = presenter.as_entity()
-        #    txn.commit()
-        #return entity
-        try:
-            request_data = dict(self.request_data)
-            schema = self.get_presentation_schema()
-            pkg = schema.to_python(request_data, state=txn)
-        except Invalid, inst:
-            return False
-        else:
+        entity = self.get_entity(txn.model)
+        if entity:
+            register = self.get_register(txn.model)
+            Presenter = self.get_entity_presenter_class()
+            presenter = Presenter(self.request_data, register=register)
+            entity = presenter.as_entity()
             txn.author = txn_author
             txn.log_message = txn_log_message
             txn.commit()
-            return True
-
+        return entity
+        
     def delete_entity(self, txn_author='', txn_log_message=''):
         txn = self.repo.begin_transaction()
         try:
@@ -102,7 +113,7 @@ class PresentationMode(object):
             entity.delete()
             #entity.purge()
         except:
-            pass  # Again, not good. --jb
+            pass  # Not good. --jb
         else:
             txn.author = txn_author
             txn.log_message = txn_log_message
@@ -181,6 +192,7 @@ class PresentationMode(object):
     
     def convert_unicode_kwds(self, data):
         # Need string keywords, not the unicode from the JSON parser.
+        assert type(data) == dict
         copy = {}
         [copy.__setitem__(str(n),v) for (n,v) in data.items()]
         return copy
@@ -201,9 +213,6 @@ class PresentationMode(object):
 
     def get_register_presenter_class(self):
         return self.register_presenter_classes[self.get_register_name()]
-
-    def get_presentation_schema(self):
-        return self.presentation_schemas[self.get_register_name()]
 
     def get_register_name(self):
         return self.registry_path.split('/')[1]
@@ -272,7 +281,7 @@ class RegisterPost(PresentationMode):
             self.response_data = None
         else:
             try:
-                author = c.rest_api_user
+                author = self.user_name
                 log_message = "REST API: POST %s" % self.registry_path
                 self.entity = self.create_entity(author, log_message)
             # NB: Catching DB errors is problematic. We can't just do:
@@ -349,7 +358,7 @@ class EntityPut(PresentationMode):
             self.response_code = 404
             self.response_data = None
         else:
-            author = c.rest_api_user
+            author = self.user_name
             log_message = "REST API: PUT %s" % self.registry_path
             if self.update_entity(author, log_message):
                 self.response_code = 200
@@ -375,7 +384,7 @@ class EntityDelete(PresentationMode):
             self.response_code = 404
             self.response_data = None
         else:
-            author = c.rest_api_user
+            author = self.user_name
             log_message = "REST API: DELETE %s" % self.registry_path
             self.delete_entity(author, log_message)
             self.response_code = 200

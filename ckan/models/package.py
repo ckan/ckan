@@ -54,9 +54,13 @@ class Package(vdmbase.VersionedDomainObject):
             return
         try:
             tag = self.revision.model.tags.get(tagname)
-        except: # TODO: make this specific
+        except sqlobject.SQLObjectNotFound:
             tag = self.transaction.model.tags.create(name=tagname)
         self.tags.create(tag=tag)
+
+    def drop_tag_by_name(self, tagname):
+        tag = self.revision.model.tags.get(tagname)
+        self.tags.delete(tag=tag)
 
 
 class Tag(vdmbase.VersionedDomainObject):
