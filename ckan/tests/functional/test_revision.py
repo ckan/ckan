@@ -122,3 +122,32 @@ class TestRevisionController(TestController2):
         assert 'No revision id specified' in res
         # hmmm i have to be logged in to do proper testing 
         # TODO: come back once login is sorted out
+
+    def test_list_format_atom(self):
+        self.create_100_revisions()
+        revisions = list(ckan.model.repo.history())
+        revision1 = revisions[0]
+        try:
+            # Revisions are most recent first, with first rev on last page.
+            # Todo: Look at the model to see which revision is last.
+            # Todo: Test for last revision on first page.
+            # Todo: Test for first revision on last page.
+            # Todo: Test for last revision minus 50 on second page.
+            # Page 1.   (Implied id=1)
+            offset = url_for(controller='revision', action='list')
+            res = self.app.get(offset + '?format=atom')
+            print res
+            assert '<feed' in res
+            assert 'xmlns="http://www.w3.org/2005/Atom"' in res
+            assert '</feed>' in res
+            # Todo: Better test for 'days' request param.
+            #  - fake some older revisions and check they aren't included.
+            res = self.app.get(offset + '?format=atom&days=30')
+            print res
+            assert '<feed' in res
+            assert 'xmlns="http://www.w3.org/2005/Atom"' in res
+            assert '</feed>' in res
+        finally:
+            self.purge_100_revisions()
+
+

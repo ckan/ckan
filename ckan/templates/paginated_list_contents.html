@@ -57,11 +57,14 @@
             </span>
           </py:when>
           <py:otherwise>
-            <a 
+            <!-- a 
               href="${h.url_for(action='list', id=number)}"
               onclick="return updatePaginatedListHTML(
                 '${h.url_for(action='list',id=number)}')
-            ">${number}</a>
+            ">${number}</a -->
+            <a 
+              href="${h.url_for(action='list', id=number)}"
+            >${number}</a>
           </py:otherwise>
         </py:choose>
         </li>
