@@ -12,7 +12,10 @@ def setup_config(command, filename, section, vars):
     """Place any commands to setup ckan here"""
     conf = appconfig('config:' + filename)
     load_environment(conf.global_conf, conf.local_conf)
-    print '(Re)building the database'
-    import ckan.models
-    ckan.models.repo.rebuild()
+    from ckan import model
+    log.info('Creating tables')
+    model.metadata.create_all(bind=config['pylons.g'].sa_engine)
+    # ACTIVE, DELETED = model.vdm.sqlalchemy.make_states(model.Session())
+    log.info('Creating tables: SUCCESS')
+
 

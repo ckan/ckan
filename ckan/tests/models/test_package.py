@@ -3,28 +3,29 @@ import py.test
 # needed for config to be set and db access to work
 import ckan.tests
 import ckan.exceptions
-import ckan.models
+import ckan.model as model
 
 from datetime import datetime
 
+# need to set up the basic states for all Stateful stuff to work
 
 class TestLicense:
     name = 'testlicense'
 
-    def teardown_class(cls):
-        license = ckan.models.License.byName(cls.name)
-        ckan.models.License.delete(license.id)
-
     def test_license(self):
-        license = ckan.models.License(name=self.name)
-        exp = ckan.models.License.byName(self.name)
+        license = model.License(name=self.name)
+        assert license in model.Session
+        model.Session.flush()
+        exp = model.License.byName(self.name)
         assert exp.id == license.id
+        license.delete()
+        model.Session.commit()
 
 
 class TestPackage:
 
     def setup_class(self):
-        self.repo = ckan.models.repo
+        self.repo = model.repo
         self.name = 'geodata'
         self.notes = 'Written by Puccini'
         txn = self.repo.begin_transaction()
@@ -63,7 +64,7 @@ class TestPackageWithTags:
     """
 
     def setup_class(self):
-        self.repo = ckan.models.repo
+        self.repo = model.repo
 
         txn = self.repo.begin_transaction()
         self.tagname = 'testtagm2m'
@@ -129,9 +130,9 @@ class TestPackageWithTags:
 class TestPackageWithLicense:
 
     def setup_class(self):
-        self.repo = ckan.models.repo
-        self.license1 = ckan.models.License(name='test_license1')
-        self.license2 = ckan.models.License(name='test_license2')
+        self.repo = model.repo
+        self.license1 = model.License(name='test_license1')
+        self.license2 = model.License(name='test_license2')
         txn = self.repo.begin_transaction()
         self.pkgname = 'testpkgfk'
         pkg = txn.model.packages.create(name=self.pkgname)
@@ -148,8 +149,8 @@ class TestPackageWithLicense:
     def teardown_class(self):
         rev = self.repo.youngest_revision()
         rev.model.packages.purge(self.pkgname)
-        ckan.models.License.delete(self.license1.id)
-        ckan.models.License.delete(self.license2.id)
+        model.License.delete(self.license1.id)
+        model.License.delete(self.license2.id)
  
     def test_set1(self):
         rev = self.repo.get_revision(self.rev1id)
@@ -168,14 +169,14 @@ class TestPackageWithLicense:
 class TestTag:
 
     def test_search_1(self):
-        out = list(ckan.models.Tag.search_by_name('russian'))
+        out = list(model.Tag.search_by_name('russian'))
         assert len(out) == 1
         assert out[0].name == 'russian'
 
     def test_search_2(self):
-        out = list(ckan.models.Tag.search_by_name('us'))
+        out = list(model.Tag.search_by_name('us'))
         assert len(out) == 1
 
     def test_search_3(self):
-        out = list(ckan.models.Tag.search_by_name('s'))
+        out = list(model.Tag.search_by_name('s'))
         assert len(out) == 2

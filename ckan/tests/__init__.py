@@ -34,13 +34,13 @@ pkg_resources.require('PasteScript')
 test_file = os.path.join(conf_dir, 'test.ini')
 
 # do not run this for the time being as this rebuilds the database ...
-# cmd = paste.script.appinstall.SetupCommand('setup-app')
-# cmd.run([test_file])
+cmd = paste.script.appinstall.SetupCommand('setup-app')
+cmd.run([test_file])
 # so do it by hand ...
-from paste.deploy import appconfig
-from ckan.config.environment import load_environment
-conf = appconfig('config:' + test_file)
-load_environment(conf.global_conf, conf.local_conf)
+# from paste.deploy import appconfig
+# from ckan.config.environment import load_environment
+# conf = appconfig('config:' + test_file)
+# load_environment(conf.global_conf, conf.local_conf)
 
 class TestController(TestCase):
 
