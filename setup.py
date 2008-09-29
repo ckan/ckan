@@ -18,7 +18,7 @@ setup(
     keywords='data packaging component tool server',
     long_description =__long_description__,
     install_requires=[
-        'vdm>=0.1',
+        'vdm>=0.3a',
         'Pylons>=0.9.6.1',
         'genshi>=0.3',
         'SQLObject>=0.7',

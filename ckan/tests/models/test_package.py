@@ -7,54 +7,66 @@ import ckan.model as model
 
 from datetime import datetime
 
-# need to set up the basic states for all Stateful stuff to work
-
 class TestLicense:
-    name = 'testlicense'
+    name = u'testlicense'
+
+    @classmethod
+    def teardown_class(self):
+        lic = model.License.byName(self.name)
+        lic.purge()
+        model.Session.commit()
 
     def test_license(self):
         license = model.License(name=self.name)
         assert license in model.Session
         model.Session.flush()
+        model.Session.clear()
         exp = model.License.byName(self.name)
-        assert exp.id == license.id
-        license.delete()
-        model.Session.commit()
+        assert exp.name == self.name
 
 
 class TestPackage:
 
+    @classmethod
     def setup_class(self):
-        self.repo = model.repo
-        self.name = 'geodata'
-        self.notes = 'Written by Puccini'
-        txn = self.repo.begin_transaction()
-        self.pkg1 = txn.model.packages.create(name=self.name)
+        self.name = u'geodata'
+        self.notes = u'Written by Puccini'
+        pkgs = model.Package.query.filter_by(name=self.name).all()
+        for p in pkgs:
+            p.purge()
+        model.Session.commit()
+
+        rev = model.Revision()
+        model.vdm.sqlalchemy.set_revision(model.Session, rev)
+        self.pkg1 = model.Package(name=self.name)
         self.pkg1.notes = self.notes
-        txn.commit()
+        model.Session.commit()
 
     def teardown_class(self):
-        self.pkg1.purge()
+        pkg1 = model.Package.query.filter_by(name=self.name).one()
+        pkg1.purge()
+        model.Session.commit()
 
     def test_create_package(self):
-        rev = self.repo.youngest_revision()
-        out = rev.model.packages.get(self.name)
+        out = model.Package.byName(self.name)
         assert out.name == self.name
         assert out.notes == self.notes
 
     def test_update_package(self):
         newnotes = 'Written by Beethoven'
         author = 'jones'
-        txn = self.repo.begin_transaction()
-        pkg = txn.model.packages.get(self.name)
+
+        rev2 = model.Revision()
+        model.vdm.sqlalchemy.set_revision(model.Session, rev2)
+        pkg = model.Package.byName(self.name)
         pkg.notes = newnotes
-        txn.author = 'jones'
-        txn.commit()
-        newrev = self.repo.youngest_revision()
-        outpkg = newrev.model.packages.get(self.name)
+        rev2.author = 'jones'
+        model.Session.commit()
+        model.Session.clear()
+        outpkg = model.Package.byName(self.name)
         assert outpkg.notes == newnotes
-        assert len(outpkg.history) > 0
-        assert outpkg.history[-1].revision.author == author
+        assert len(outpkg.all_revisions) > 0
+        assert outpkg.all_revisions[-1].revision.author == author
 
 
 class TestPackageWithTags:
@@ -64,109 +76,131 @@ class TestPackageWithTags:
     """
 
     def setup_class(self):
-        self.repo = model.repo
-
-        txn = self.repo.begin_transaction()
-        self.tagname = 'testtagm2m'
-        self.tagname2 = 'testtagm2m2'
-        self.tagname3 = 'testtag3'
-        self.pkgname = 'testpkgm2m'
-        pkg = txn.model.packages.create(name=self.pkgname)
-        self.tag = txn.model.tags.create(name=self.tagname)
-        self.tag2 = txn.model.tags.create(name=self.tagname2)
-        pkg2tag = txn.model.package_tags.create(package=pkg, tag=self.tag)
+        # use this when things get fouled up ...
+        # model.rebuild_db()
+        rev1 = model.Revision()
+        model.vdm.sqlalchemy.set_revision(model.Session, rev1)
+        self.tagname = u'testtagm2m'
+        self.tagname2 = u'testtagm2m2'
+        self.tagname3 = u'testtag3'
+        self.pkgname = u'testpkgm2m'
+        pkg = model.Package(name=self.pkgname)
+        self.tag = model.Tag(name=self.tagname)
+        self.tag2 = model.Tag(name=self.tagname2)
+        pkg2tag = model.PackageTag(package=pkg, tag=self.tag)
+        pkg.tags.append(self.tag2)
+        model.Session.commit()
         self.pkg2tag_id = pkg2tag.id
-        pkg.tags.create(tag=self.tag2)
-        txn.commit()
-        self.rev = self.repo.youngest_revision()
+        self.rev = rev1
 
     def teardown_class(self):
-        rev = self.repo.youngest_revision()
-        rev.model.packages.purge(self.pkgname)
-        rev.model.tags.purge(self.tagname)
-        rev.model.tags.purge(self.tagname2)
-        rev.model.tags.purge(self.tagname3)
+        # should only be one but maybe things have gone wrong
+        # p = model.Package.byName(self.pkgname)
+        pkgs = model.Package.query.filter_by(name=self.pkgname)
+        for p in pkgs:
+            for pt in p.package_tags:
+                pt.purge()
+            p.purge()
+        t1 = model.Tag.byName(self.tagname)
+        t1.purge()
+        t2 = model.Tag.byName(self.tagname2)
+        t2.purge()
+        t3 = model.Tag.byName(self.tagname3)
+        t3.purge()
+        model.Session.commit()
 
     def test_1(self):
-        pkg = self.rev.model.packages.get(self.pkgname)
-        pkg2tag = self.rev.model.package_tags.get(self.pkg2tag_id)
-        assert pkg2tag.package.name == self.pkgname
+        pkg = model.Package.byName(self.pkgname)
+        assert len(pkg.tags) == 2
+        # pkg2tag = model.PackageTag.query.get(self.pkg2tag_id)
+        # assert pkg2tag.package.name == self.pkgname
 
-    def test_2(self):
-        pkg = self.rev.model.packages.get(self.pkgname)
-        pkg2tag = pkg.tags.get(self.tag2)
-        assert pkg2tag.package.name == self.pkgname
-        pkg2tag2 = pkg.tags.get(self.tag)
-        assert pkg2tag2.package.name == self.pkgname
-        assert pkg2tag2.tag.name == self.tagname
-
-    def test_list(self):
-        pkg = self.rev.model.packages.get(self.pkgname)
-
+    def test_tags(self):
+        pkg = model.Package.byName(self.pkgname)
+        # TODO: go back to this
         # 2 default packages each with 2 tags so we have 2 + 4
-        all = self.rev.model.package_tags.list() 
-        assert len(all) == 6
-        pkgtags = pkg.tags.list()
-        assert len(pkgtags) == 2
+        all = model.Tag.query.all() 
+        assert len(all) == 2
 
     def test_add_tag_by_name(self):
-        txn = self.repo.begin_transaction()
-        pkg = txn.model.packages.get(self.pkgname)
+        rev = model.Revision()
+        model.vdm.sqlalchemy.set_revision(model.Session, rev)
+        pkg = model.Package.byName(self.pkgname)
         pkg.add_tag_by_name(self.tagname3)
-        txn.commit()
-        newrev = self.repo.youngest_revision()
-        outpkg = newrev.model.packages.get(self.pkgname)
-        assert len(outpkg.tags.list()) == 3
-        # assert len(self.tag1.packages) == 1
+        model.Session.commit()
+        model.Session.clear()
+        outpkg = model.Package.byName(self.pkgname)
+        assert len(outpkg.tags) == 3
+        t1 = model.Tag.byName(self.tagname)
+        assert len(t1.package_tags) == 1
 
-#    def test_add_tag_by_name_existing(self):
-#        pkg = self.pkg1
-#        pkg.add_tag_by_name(self.tag1.name)
-#        pkg.save()
-#        outpkg = self.dm.packages.get(self.pkg1.name)
-#        assert len(outpkg.tags) == 1
+    def test_add_tag_by_name_existing(self):
+        model.Session.clear()
+        pkg = model.Package.byName(self.pkgname)
+        assert len(pkg.tags) == 3
+        pkg.add_tag_by_name(self.tagname)
+        assert len(pkg.tags) == 3
     
 
 class TestPackageWithLicense:
 
     def setup_class(self):
-        self.repo = model.repo
-        self.license1 = model.License(name='test_license1')
-        self.license2 = model.License(name='test_license2')
-        txn = self.repo.begin_transaction()
+        # use this when things get fouled up ...
+        # model.rebuild_db()
+        self.licname1 = 'test_license1'
+        self.licname2 = 'test_license2'
+        self.license1 = model.License(name=self.licname1)
+        self.license2 = model.License(name=self.licname2)
+        rev = model.Revision()
+        model.vdm.sqlalchemy.set_revision(model.Session, rev)
         self.pkgname = 'testpkgfk'
-        pkg = txn.model.packages.create(name=self.pkgname)
+        pkg = model.Package(name=self.pkgname)
         pkg.license = self.license1
-        txn.commit()
+        model.Session.commit()
+        self.rev1id = rev.id
+        model.Session.remove()
 
-        txn2 = self.repo.begin_transaction()
-        pkg = txn2.model.packages.get(self.pkgname)
+        rev = model.Revision()
+        model.vdm.sqlalchemy.set_revision(model.Session, rev)
+        pkg = model.Package.byName(self.pkgname)
         pkg.license = self.license2
-        txn2.commit()
-        self.rev1id = txn.id
-        self.rev2id = txn2.id
+        model.Session.commit()
+        self.rev2id = rev.id
+        model.Session.remove()
 
     def teardown_class(self):
-        rev = self.repo.youngest_revision()
-        rev.model.packages.purge(self.pkgname)
-        model.License.delete(self.license1.id)
-        model.License.delete(self.license2.id)
+        model.Session.clear()
+        pkg = model.Package.byName(self.pkgname)
+        pkg.purge()
+        lic1 = model.License.byName(self.licname1)
+        lic2 = model.License.byName(self.licname2)
+        lic1.purge()
+        lic2.purge()
+        model.Session.commit()
  
     def test_set1(self):
-        rev = self.repo.get_revision(self.rev1id)
-        pkg = rev.model.packages.get(self.pkgname)
-        out = pkg.license.name 
-        exp = self.license1.name
-        assert out == exp
+        rev = model.Revision.query.get(self.rev1id)
+        pkg = model.Package.byName(self.pkgname)
+        pkgrev = pkg.get_as_of(rev)
+        out = pkgrev.license.name 
+        assert out == self.licname1
 
     def test_set2(self):
-        rev = self.repo.get_revision(self.rev2id)
-        pkg = rev.model.packages.get(self.pkgname)
+        pkg = model.Package.byName(self.pkgname)
         out = pkg.license.name 
-        exp = self.license2.name
-        assert out == exp
+        assert out == self.licname2
 
 class TestTag:
+
+    def setup_class(self):
+        model.Session.clear()
+        model.Session.begin()
+        model.Tag(name='russian')
+        model.Tag(name='something')
+
+    def teardown_class(self):
+        model.Session.rollback()
+        model.Session.remove()
 
     def test_search_1(self):
         out = list(model.Tag.search_by_name('russian'))

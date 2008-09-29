@@ -2,6 +2,9 @@
 # need to finish off converting to this new module layout
 
 #from ckan.models import *   # Old sqlobject vdm code.
+from datetime import datetime
+import logging
+logger = logging.getLogger(__name__)
 
 from pylons import config
 from sqlalchemy import Column, MetaData, Table, types, ForeignKey
@@ -9,8 +12,7 @@ from sqlalchemy import orm
 from sqlalchemy import or_
 from sqlalchemy.types import *
 
-# Instantiate meta data manager.
-metadata = MetaData()
+metadata = MetaData(bind=config['pylons.g'].sa_engine)
 
 ## --------------------------------------------------------
 ## Mapper Stuff
@@ -28,10 +30,6 @@ Session = scoped_session(sessionmaker(
 
 mapper = Session.mapper
 
-from datetime import datetime
-import logging
-logger = logging.getLogger(__name__)
-
 import vdm.sqlalchemy
 
 ## VDM-specific tables
@@ -42,27 +40,28 @@ revision_table = vdm.sqlalchemy.make_revision_table(metadata)
 ## Demo tables
 
 license_table = Table('license', metadata,
-        Column('id', Integer, primary_key=True),
-        Column('name', String(100)),
-        Column('open', Boolean),
+        Column('id', types.Integer, primary_key=True),
+        Column('name', types.Unicode(100)),
         )
 
 package_table = Table('package', metadata,
-        Column('id', Integer, primary_key=True),
-        Column('name', String(100)),
-        Column('title', String(100)),
-        Column('license_id', Integer, ForeignKey('license.id')),
+        Column('id', types.Integer, primary_key=True),
+        Column('name', types.Unicode(100), unique=True),
+        Column('title', types.UnicodeText),
+        Column('download_url', types.UnicodeText),
+        Column('notes', types.UnicodeText),
+        Column('license_id', types.Integer, ForeignKey('license.id')),
 )
 
 tag_table = Table('tag', metadata,
-        Column('id', Integer, primary_key=True),
-        Column('name', String(100)),
+        Column('id', types.Integer, primary_key=True),
+        Column('name', types.Unicode(100), unique=True),
 )
 
 package_tag_table = Table('package_tag', metadata,
-        Column('id', Integer, primary_key=True),
-        Column('package_id', Integer, ForeignKey('package.id')),
-        Column('tag_id', Integer, ForeignKey('tag.id')),
+        Column('id', types.Integer, primary_key=True),
+        Column('package_id', types.Integer, ForeignKey('package.id')),
+        Column('tag_id', types.Integer, ForeignKey('tag.id')),
         )
 
 
@@ -71,7 +70,6 @@ vdm.sqlalchemy.make_table_stateful(package_table)
 vdm.sqlalchemy.make_table_stateful(tag_table)
 vdm.sqlalchemy.make_table_stateful(package_tag_table)
 package_revision_table = vdm.sqlalchemy.make_table_revisioned(package_table)
-tag_revision_table = vdm.sqlalchemy.make_table_revisioned(tag_table)
 # TODO: this has a composite primary key ...
 package_tag_revision_table = vdm.sqlalchemy.make_table_revisioned(package_tag_table)
 
@@ -83,41 +81,65 @@ class DomainObject(object):
     def __init__(self, **kwargs):
         for k,v in kwargs.items():
             setattr(self, k, v)
-
-    @classmethod
-    def delete(self):
-        # sess = orm.object_session(self)
-        # print self, sess
-        Session.delete(self)
-
+    
     @classmethod
     def byName(self, name):
         obj = self.query.filter_by(name=name).first()
         return obj
+
+    def purge(self):
+        sess = orm.object_session(self)
+        if hasattr(self, '__revisioned__'): # only for versioned objects ...
+            # this actually should auto occur due to cascade relationships but
+            # ...
+            for rev in self.all_revisions:
+                sess.delete(rev)
+        sess.delete(self)
+
         
 class License(DomainObject):
     pass
 
+
 class Package(vdm.sqlalchemy.RevisionedObjectMixin,
-        vdm.sqlalchemy.StatefulObjectMixin):
-    def __init__(self, **kwargs):
-        for k,v in kwargs.items():
-            setattr(self, k, v)
+        vdm.sqlalchemy.StatefulObjectMixin,
+        DomainObject):
+
+    def add_tag_by_name(self, tagname):
+        if not tagname:
+            return
+        tag = Tag.byName(tagname)
+        if not tag:
+            tag = Tag(name=tagname)
+        if not tag in self.tags:
+            self.tags.append(tag)
+
+    def drop_tag_by_name(self, tagname):
+        tag = Tag.byName(tagname)
+        # TODO:
+        # self.tags.delete(tag=tag)
+        pass
 
     def __repr__(self):
         return '<Package %s>' % self.name
 
-class Tag(object):
+
+class Tag(DomainObject):
     def __init__(self, name):
         self.name = name
+
+    @classmethod
+    def search_by_name(self, text_query):
+        text_query = text_query
+        return self.query.filter(self.name.contains(text_query.lower()))
 
     def __repr__(self):
         return '<Tag %s>' % self.name
 
 class PackageTag(vdm.sqlalchemy.RevisionedObjectMixin,
-        vdm.sqlalchemy.StatefulObjectMixin):
+        vdm.sqlalchemy.StatefulObjectMixin,
+        DomainObject):
     def __init__(self, package=None, tag=None, state=None, **kwargs):
-        logger.debug('PackageTag.__init__: %s, %s' % (package, tag))
         self.package = package
         self.tag = tag
         self.state = state
@@ -132,7 +154,8 @@ class PackageTag(vdm.sqlalchemy.RevisionedObjectMixin,
 State = vdm.sqlalchemy.make_State(mapper, state_table)
 Revision = vdm.sqlalchemy.make_Revision(mapper, revision_table)
 
-mapper(License, license_table)
+mapper(License, license_table,
+    order_by=license_table.c.id)
 
 mapper(Package, package_table, properties={
     'license':relation(License),
@@ -146,17 +169,21 @@ mapper(Package, package_table, properties={
     # 
     # do we want lazy=False here? used in:
     # <http://www.sqlalchemy.org/trac/browser/sqlalchemy/trunk/examples/association/proxied_association.py>
-    'package_tags':relation(PackageTag, cascade='all'), #, delete-orphan'),
+    'package_tags':relation(PackageTag, backref='package',
+        cascade='all, delete', #, delete-orphan',
+        lazy=False)
     },
+    order_by=package_table.c.id,
     extension = vdm.sqlalchemy.Revisioner(package_revision_table)
     )
 
-mapper(Tag, tag_table)
+mapper(Tag, tag_table,
+    order_by=tag_table.c.id)
 
 mapper(PackageTag, package_tag_table, properties={
-    'package':relation(Package),
-    'tag':relation(Tag),
+    'tag':relation(Tag, backref='package_tags'),
     },
+    order_by=package_tag_table.c.id,
     extension = vdm.sqlalchemy.Revisioner(package_tag_revision_table)
     )
 
@@ -172,3 +199,12 @@ vdm.sqlalchemy.add_stateful_versioned_m2m(Package, PackageTag, 'tags', 'tag',
         'package_tags')
 vdm.sqlalchemy.add_stateful_versioned_m2m_on_version(PackageRevision, 'tags')
 
+def create_db():
+    metadata.create_all()
+    # need to set up the basic states for all Stateful stuff to work
+    if len(State.query.all()) == 0:
+        ACTIVE, DELETED = vdm.sqlalchemy.make_states(Session())
+
+def rebuild_db():
+    metadata.drop_all()
+    create_db()

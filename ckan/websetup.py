@@ -14,8 +14,7 @@ def setup_config(command, filename, section, vars):
     load_environment(conf.global_conf, conf.local_conf)
     from ckan import model
     log.info('Creating tables')
-    model.metadata.create_all(bind=config['pylons.g'].sa_engine)
-    # ACTIVE, DELETED = model.vdm.sqlalchemy.make_states(model.Session())
+    model.create_db()
     log.info('Creating tables: SUCCESS')
 
 
