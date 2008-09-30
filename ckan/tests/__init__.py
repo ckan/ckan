@@ -21,7 +21,9 @@ from routes import url_for
 __all__ = ['url_for',
         # cannot include this as it breaks py.test ...
         # 'TestController',
-        'TestController2', 'create_test_data' ]
+        'TestController2',
+        'TestData',
+        'create_test_data' ]
 
 here_dir = os.path.dirname(os.path.abspath(__file__))
 conf_dir = os.path.dirname(os.path.dirname(here_dir))
@@ -99,38 +101,7 @@ class TestController2(object):
         self.transaction_commit()
 
 
-
+from ckan.lib.cli import TestData
 def create_test_data():
-    import ckan.models
-    txn = ckan.models.repo.begin_transaction()
-    txn.author = 'tolstoy'
-    txn.log_message = '''Creating test data.
- * Package: annakarenina
- * Package: warandpeace
- * Associated tags, etc etc
-'''
-    model = txn.model
-    pkg1 = model.packages.create(name='annakarenina')
-    pkg1.title = 'A Novel By Tolstoy'
-    pkg1.url = 'http://www.annakarenina.com'
-    # put an & in the url string to test escaping
-    pkg1.download_url = 'http://www.annakarenina.com/download/x=1&y=2'
-    pkg1.notes = '''Some test notes
-
-### A 3rd level heading
-
-**Some bolded text.**
-
-*Some italicized text.*
-'''
-    pkg2 = model.packages.create(name='warandpeace')
-    tag1 = model.tags.create(name='russian')
-    tag2 = model.tags.create(name='tolstoy')
-    license1 = ckan.models.License.byName('OKD Compliant::Other')
-    pkg1.tags.create(tag=tag1)
-    pkg1.tags.create(tag=tag2)
-    pkg1.license = license1
-    pkg2.tags.create(tag=tag1)
-    pkg2.tags.create(tag=tag2)
-    txn.commit()
+    TestData.create()
 

@@ -37,7 +37,7 @@ import vdm.sqlalchemy
 state_table = vdm.sqlalchemy.make_state_table(metadata)
 revision_table = vdm.sqlalchemy.make_revision_table(metadata)
 
-## Demo tables
+## Our Domain Object Tables
 
 license_table = Table('license', metadata,
         Column('id', types.Integer, primary_key=True),
@@ -82,8 +82,13 @@ class DomainObject(object):
         for k,v in kwargs.items():
             setattr(self, k, v)
     
+    # TODO: remove once refactoring is done 2008-09-29 
     @classmethod
     def byName(self, name):
+        return self.by_name(name)
+
+    @classmethod
+    def by_name(self, name):
         obj = self.query.filter_by(name=name).first()
         return obj
 
@@ -149,6 +154,25 @@ class PackageTag(vdm.sqlalchemy.RevisionedObjectMixin,
     def __repr__(self):
         return '<PackageTag %s %s>' % (self.package, self.tag)
 
+# API Key
+# import apikey # TODO: see apikey.py
+import uuid
+
+def make_uuid():
+    return str(uuid.uuid4())
+
+apikey_table = Table('apikey', metadata,
+        Column('id', types.Integer, primary_key=True),
+        Column('name', types.UnicodeText),
+        Column('key', types.Unicode(36), default=make_uuid)
+        )
+
+class ApiKey(DomainObject):
+    pass
+
+mapper(ApiKey, apikey_table,
+    order_by=apikey_table.c.id)
+
 
 # VDM-specific domain objects
 State = vdm.sqlalchemy.make_State(mapper, state_table)
@@ -204,7 +228,84 @@ def create_db():
     # need to set up the basic states for all Stateful stuff to work
     if len(State.query.all()) == 0:
         ACTIVE, DELETED = vdm.sqlalchemy.make_states(Session())
+    if License.query.count() == 0:
+        for name in license_names:
+            License(name=name)
+    Session.flush()
 
 def rebuild_db():
     metadata.drop_all()
     create_db()
+
+def new_revision():
+    '''Convenience method to create new revision and set it on session.'''
+    rev = Revision()
+    vdm.sqlalchemy.set_revision(Session, rev)
+    return rev
+
+license_names = [
+    u'OKD Compliant::Public Domain',
+    u'OKD Compliant::Creative Commons Attribution',
+    u'OKD Compliant::Creative Commons Attribution-ShareAlike',
+    u'OKD Compliant::GNU Free Documentation License (GFDL)',
+    u'OKD Compliant::Other',
+    u'Non-OKD Compliant::Other',
+    u'OSI Approved::Academic Free License',
+    u'OSI Approved::Adaptive Public License',
+    u'OSI Approved::Apache Software License',
+    u'OSI Approved::Apache License, 2.0',
+    u'OSI Approved::Apple Public Source License',
+    u'OSI Approved::Artistic license',
+    u'OSI Approved::Attribution Assurance Licenses',
+    u'OSI Approved::New BSD license',
+    u'OSI Approved::Computer Associates Trusted Open Source License 1.1',
+    u'OSI Approved::Common Development and Distribution License',
+    u'OSI Approved::Common Public License 1.0',
+    u'OSI Approved::CUA Office Public License Version 1.0',
+    u'OSI Approved::EU DataGrid Software License',
+    u'OSI Approved::Eclipse Public License',
+    u'OSI Approved::Educational Community License',
+    u'OSI Approved::Eiffel Forum License',
+    u'OSI Approved::Eiffel Forum License V2.0',
+    u'OSI Approved::Entessa Public License',
+    u'OSI Approved::Fair License',
+    u'OSI Approved::Frameworx License',
+    u'OSI Approved::GNU General Public License (GPL)',
+    u'OSI Approved::GNU Library or "Lesser" General Public License (LGPL)',
+    u'OSI Approved::IBM Public License',
+    u'OSI Approved::Intel Open Source License',
+    u'OSI Approved::Jabber Open Source License',
+    u'OSI Approved::Lucent Public License (Plan9)',
+    u'OSI Approved::Lucent Public License Version 1.02',
+    u'OSI Approved::MIT license',
+    u'OSI Approved::MITRE Collaborative Virtual Workspace License (CVW License)',
+    u'OSI Approved::Motosoto License',
+    u'OSI Approved::Mozilla Public License 1.0 (MPL)',
+    u'OSI Approved::Mozilla Public License 1.1 (MPL)',
+    u'OSI Approved::NASA Open Source Agreement 1.3',
+    u'OSI Approved::Naumen Public License',
+    u'OSI Approved::Nethack General Public License',
+    u'OSI Approved::Nokia Open Source License',
+    u'OSI Approved:: OCLC Research Public License 2.0',
+    u'OSI Approved::Open Group Test Suite License',
+    u'OSI Approved::Open Software License',
+    u'OSI Approved::PHP License',
+    u'OSI Approved::Python license (CNRI Python License)',
+    u'OSI Approved::Python Software Foundation License',
+    u'OSI Approved::Qt Public License (QPL)',
+    u'OSI Approved::RealNetworks Public Source License V1.0',
+    u'OSI Approved::Reciprocal Public License',
+    u'OSI Approved::Ricoh Source Code Public License',
+    u'OSI Approved::Sleepycat License',
+    u'OSI Approved::Sun Industry Standards Source License (SISSL)',
+    u'OSI Approved::Sun Public License',
+    u'OSI Approved::Sybase Open Watcom Public License 1.0',
+    u'OSI Approved::University of Illinois/NCSA Open Source License',
+    u'OSI Approved::Vovida Software License v. 1.0',
+    u'OSI Approved::W3C License',
+    u'OSI Approved::wxWindows Library License',
+    u'OSI Approved::X.Net License',
+    u'OSI Approved::Zope Public License',
+    u'OSI Approved::zlib/libpng license',
+    ]
+
