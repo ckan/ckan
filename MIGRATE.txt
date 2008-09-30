@@ -1,0 +1,22 @@
+## v0.6 to v0.7 of CKAN
+
+### Relevant Changes
+
+  * Package (table) now has all attributes on it
+  * State is going to be different (maybe)
+  * Tag is not versioned ...
+    * drop tag_revision table
+    * introduce date_created attribute on main object?
+  * Revision table:
+    * log_message -> message
+
+### Plan of Action
+
+  1. Get a dump of current db
+  2. Deploy new system code
+    * but not run setup on db
+  2. Run script that load old data and does tweaks
+  3. Init db with new system code
+  4. Check domain model
+    * pkg1 = Package.query.get(...)
+
