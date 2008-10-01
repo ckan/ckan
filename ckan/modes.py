@@ -1,7 +1,6 @@
 import logging
 import ckan.model as model
 import ckan.presentation as presentation
-from sqlobject import SQLObjectNotFound
 from formencode import Invalid
 
 # Todo: Fold formencode objects into validator (below, naive).
@@ -24,8 +23,6 @@ class PresentationResponse(object):
         self.request = request
 
 class PresentationMode(object):
-
-    repo = model.repo
 
     moved_permanently = {}
     entity_presenter_classes = {
@@ -60,22 +57,23 @@ class PresentationMode(object):
 
     def get_entities(self):
         register = self.get_register()
-        entities = register.list()
+        # entities = register.list()
+        entities = registery.query.all()
         return entities
     
     def create_entity(self, txn_author='', txn_log_message=''):
         # Todo: Validate request_data.
         kwds = self.request_data
         kwds = self.convert_unicode_kwds(kwds)
-        txn = self.repo.begin_transaction()
-        register = self.get_register(txn.model)
+        rev = model.new_revision()
+        register = self.get_register()
         Presenter = self.get_entity_presenter_class()
         try:
             presenter = Presenter(self.request_data, register=register, uncreated=True)
             entity = presenter.as_entity()
-            txn.author = txn_author
-            txn.log_message = txn_log_message
-            txn.commit()
+            rev.author = txn_author
+            rev.message = txn_log_message
+            model.Session.commit()
         except:
             raise
         return entity
@@ -197,15 +195,13 @@ class PresentationMode(object):
         [copy.__setitem__(str(n),v) for (n,v) in data.items()]
         return copy
     
-    def get_register(self, amodel=None):
-        if amodel == None:
-            amodel = model.repo.youngest_revision().model
+    def get_register(self):
         register_name = self.get_register_name()
         register = None
         if 'package' in register_name:
-            register = amodel.packages
+            register = model.Package
         elif 'tag' in register_name:
-            register = amodel.tags
+            register = model.Tag
         return register
 
     def get_entity_presenter_class(self):

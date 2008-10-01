@@ -2,6 +2,7 @@ import inspect
 from ckan.modes import PresentationRequest
 from ckan.modes import RegisterPost
 import ckan.model
+import ckan.model as model
 from sqlobject import SQLObjectNotFound
 
 class TestPresentationRequest(object):
@@ -59,57 +60,51 @@ class BaseTestPackagePresentation(BaseTestPresentationMode):
     
     @classmethod
     def setup_class(self):
-        self.purge_package()
+        try:
+            self.purge_package()
+        except:
+            model.Session.remove()
 
     @classmethod
     def teardown_class(self):
-        self.purge_package()
+        try:
+            self.purge_package()
+        except:
+            model.Session.remove()
 
     @classmethod
     def purge_package(self):
-        t = ckan.model.repo.begin_transaction()
-        pkg = self.get_package(self.request_body['name'], txn=t)
+        name = self.request_body['name']
+        pkg = model.Package.by_name(name)
         if pkg:
-            pkg.delete()
             pkg.purge()
-            t.commit()
+            model.Session.commit()
         
     @classmethod
     def purge_tag(self):
-        t = ckan.model.repo.begin_transaction()
-        tag = self.get_tag('notatag', txn=t)
+        name = 'notatag'
+        tag = model.Tag.by_name(name)
         if tag:
-            tag.delete()
             tag.purge()
-            t.commit()
+            model.Session.commit()
         
     @classmethod
     def create_package(self):
-        t = ckan.model.repo.begin_transaction()
+        ckan.model.repo.begin_transaction()
         try:
-            p = t.model.packages.create(name=self.request_body['name'])
+            p = model.Package(name=self.request_body['name'])
         except:
             raise
         else:
-            t.commit()
+            ckan.model.repo.commit()
 
     @classmethod
-    def get_package(self, pkg_name, txn=None):
-        if txn == None:
-            txn = ckan.model.repo.begin_transaction()
-        try:
-            return txn.model.packages.get(pkg_name)
-        except SQLObjectNotFound:
-            return None
+    def get_package(self, pkg_name):
+        return model.Package.by_name(pkg_name)
 
     @classmethod
-    def get_tag(self, tag_name, txn=None):
-        if txn == None:
-            txn = ckan.model.repo.begin_transaction()
-        try:
-            return txn.model.tags.get(tag_name)
-        except SQLObjectNotFound:
-            return None
+    def get_tag(self, tag_name):
+        return model.Tag.by_name(tag_name)
 
 
 class TestPostPackage200(BaseTestPackagePresentation):
@@ -140,7 +135,7 @@ class TestPostPackageWithTags200(BaseTestPackagePresentation):
         assert p.download_url == self.request_body['download_url']
         assert p.notes == self.request_body['notes']
 
-        tag_names = [t.tag.name for t in p.tags]
+        tag_names = [t.name for t in p.tags]
         assert 'a' in tag_names, tag_names
         assert 'b' in tag_names, tag_names
         assert 'c' in tag_names, tag_names

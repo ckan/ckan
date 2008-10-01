@@ -79,7 +79,7 @@ class EntityPresenter(dict):
     def construct_entity(self):
         kwds = self.as_constructor_kwds()
         try:
-            self.entity = self.register.create(**kwds)
+            self.entity = self.register(**kwds)
             self.post_entity_create()
         except TypeError, inst:
             msg = "Couldn't create with kwds %s: %s" % (

@@ -48,6 +48,7 @@ package_table = Table('package', metadata,
         Column('id', types.Integer, primary_key=True),
         Column('name', types.Unicode(100), unique=True),
         Column('title', types.UnicodeText),
+        Column('url', types.UnicodeText),
         Column('download_url', types.UnicodeText),
         Column('notes', types.UnicodeText),
         Column('license_id', types.Integer, ForeignKey('license.id')),
@@ -309,3 +310,22 @@ license_names = [
     u'OSI Approved::zlib/libpng license',
     ]
 
+# TODO: here for backwards compatability with v0.6 but should remove at some
+# point
+class Repository(object):
+    def begin_transaction(self):
+        Session.begin()
+        rev = new_revision()
+        self.revision = rev
+        return rev
+
+    def commit(self):
+        self.revision = None
+        try:
+            Session.commit()
+        except:
+            Session.rollback()
+            Session.remove()
+            raise
+
+repo = Repository()
