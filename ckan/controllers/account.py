@@ -1,6 +1,5 @@
 from ckan.lib.base import *
 from ckan.controllers.base import CkanBaseController
-import sqlobject 
 
 def login_form():
     return render('account/login_form').replace('FORM_ACTION', '%s')
@@ -55,10 +54,10 @@ class AccountController(CkanBaseController):
         if not c.user:
             abort(401)
         else:
-            try:
-                apikey_object = model.ApiKey.byName(c.user)
-            except sqlobject.SQLObjectNotFound:
+            apikey_object = model.ApiKey.byName(c.user)
+            if apikey_object is None:
                 apikey_object = model.ApiKey(name=c.user)
+                model.Session.flush()
             c.api_key = apikey_object.key
         return render('account/apikey')
 

@@ -8,15 +8,13 @@ class TagController(CkanBaseController):
         return render('tag/index')
 
     def read(self, id):
-        try:
-            rev = self.repo.youngest_revision()
-            c.tag = rev.model.tags.get(id)
-        except:
+        c.tag = model.Tag.by_name(id)
+        if c.tag is None:
             abort(404)
         return render('tag/read')
 
     def list(self, id):
-        return self._paginate_list('tags', id, 'tag/list')
+        return self._paginate_list('tag', id, 'tag/list')
 
     def search(self):
         c.search_terms = request.params.get('search_terms', '')

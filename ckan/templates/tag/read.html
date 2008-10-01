@@ -9,7 +9,7 @@
       <li>Created: ${c.tag.created}</li>
       <li>Packages:
         <ul>
-          <py:for each="pkg2tag in c.tag.packages">
+          <py:for each="pkg2tag in c.tag.package_tags">
           <li>
           ${XML(h.link_to(pkg2tag.package.name,
             h.url_for(controller='package', action='read',

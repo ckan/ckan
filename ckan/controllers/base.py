@@ -30,12 +30,10 @@ class CkanBaseController(BaseController):
         except:
             current_page = 0
         if register_name == 'revisions':
-            select_results = self.repo.history()
-            collection = list(select_results)
+            select_results = model.Revision.query.all()
         else:
-            rev = self.repo.youngest_revision()
-            register = getattr(rev.model, register_name)
-            collection = register.list()
+            register = getattr(model, register_name.capitalize())
+            collection = register.query.all()
         item_count = len(collection)
         if c.format == 'json':
             response.headers['Content-Type'] = 'text/plain'
@@ -50,7 +48,7 @@ class CkanBaseController(BaseController):
                 items_per_page=50,
                 item_count=item_count,
             )
-            c.register_name = register_name
+            c.register_name = register_name + 's'
             #if 'paginatedlist' in request.params:
             #    template_path = 'paginated_list_contents'
             return render(template_path)

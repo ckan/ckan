@@ -1,6 +1,6 @@
-import ckan.commands.revision
+# import ckan.commands.revision
 
-class TestRevisionPurge:
+class _TestRevisionPurge:
 
     def setup_method(self, name=''):
         import ckan.models

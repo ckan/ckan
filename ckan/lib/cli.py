@@ -60,7 +60,7 @@ class ManageDb(CkanCommand):
             print 'Cleaning DB: SUCCESS' 
 
 
-class TestData(CkanCommand):
+class CreateTestData(CkanCommand):
     '''Create test data in the DB.
     '''
     summary = __doc__.split('\n')[0]
@@ -110,15 +110,19 @@ class TestData(CkanCommand):
         pkg1.license = license1
         pkg2.tags = [ tag1, tag2 ]
         model.Session.commit()
+        model.Session.remove()
     
     @classmethod
     def delete(self):
         import ckan.model as model
         pkg = model.Package.by_name(self.pkgname1)
         pkg.purge()
-        tag1 = model.Tag.by_name('russian')
-        tag2 = model.Tag.by_name(name='tolstoy')
+        pkg2 = model.Package.by_name(self.pkgname2)
+        pkg2.purge()
+        tag1 = model.Tag.by_name(u'russian')
+        tag2 = model.Tag.by_name(u'tolstoy')
         tag1.purge()
         tag2.purge()
         model.Session.commit()
+        model.Session.remove()
 

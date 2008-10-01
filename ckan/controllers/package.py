@@ -9,8 +9,7 @@ import simplejson
 class PackageController(CkanBaseController):
 
     def index(self):
-        rev = self.repo.youngest_revision()
-        c.package_count = len(rev.model.packages)
+        c.package_count = model.Package.query.count()
         return render('package/index')
 
     def list(self, id, format='html'):
@@ -18,7 +17,6 @@ class PackageController(CkanBaseController):
         return self._paginate_list('packages', id, 'package/list')
 
     @validate(schema=ckan.forms.PackageNameSchema(), form='new')
-    
     def new(self):
         return render('package/new')
 
@@ -62,12 +60,10 @@ class PackageController(CkanBaseController):
     
     def read(self, id, format='html'):
         rev = self.repo.youngest_revision()
-        try:
-            pkg = rev.model.packages.get(id)
-            if not pkg:
-                raise Exception, "Package not found."
-        except:
+        pkg = model.Package.by_name(id)
+        if pkg is None:
             return self.abort404(format)
+
         schema = ckan.forms.PackageSchema()
         c.pkg = pkg
         defaults = schema.from_python(pkg)

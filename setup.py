@@ -45,7 +45,7 @@ setup(
 
     [paste.paster_command]
     db = ckan.lib.cli:ManageDb
-    test-data = ckan.lib.cli:TestData
+    test-data = ckan.lib.cli:CreateTestData
     """,
     # setup.py test command needs a TestSuite so does not work with py.test
     # test_suite = 'nose.collector',

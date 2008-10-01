@@ -198,12 +198,12 @@ mapper(Package, package_table, properties={
         cascade='all, delete', #, delete-orphan',
         lazy=False)
     },
-    order_by=package_table.c.id,
+    order_by=package_table.c.name,
     extension = vdm.sqlalchemy.Revisioner(package_revision_table)
     )
 
 mapper(Tag, tag_table,
-    order_by=tag_table.c.id)
+    order_by=tag_table.c.name)
 
 mapper(PackageTag, package_tag_table, properties={
     'tag':relation(Tag, backref='package_tags'),

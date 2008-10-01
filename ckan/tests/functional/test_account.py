@@ -93,13 +93,10 @@ class TestAccountController(TestController2):
      # b) logout link
 
     def test_apikey(self):
-        from sqlobject import SQLObjectNotFound
         # not_logged_in
-        try:
-            key = model.ApiKey.byName('okfntest')
-            model.ApiKey.delete(key.id)
-        except SQLObjectNotFound:
-            pass
+        key = model.ApiKey.by_name('okfntest')
+        if key:
+            key.purge()
 
         offset = url_for(controller='account', action='apikey')
         res = self.app.get(offset, status=[401]) 

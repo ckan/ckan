@@ -5,6 +5,5 @@ class HomeController(CkanBaseController):
     repo = model.repo
 
     def index(self):
-        rev = self.repo.youngest_revision()
-        c.package_count = len(rev.model.packages)
+        c.package_count = model.Package.query.count()
         return render('home')
