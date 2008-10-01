@@ -12,7 +12,7 @@ class TestLicense:
 
     @classmethod
     def teardown_class(self):
-        lic = model.License.byName(self.name)
+        lic = model.License.by_name(self.name)
         lic.purge()
         model.Session.commit()
 
@@ -21,7 +21,7 @@ class TestLicense:
         assert license in model.Session
         model.Session.flush()
         model.Session.clear()
-        exp = model.License.byName(self.name)
+        exp = model.License.by_name(self.name)
         assert exp.name == self.name
 
 
@@ -36,8 +36,7 @@ class TestPackage:
             p.purge()
         model.Session.commit()
 
-        rev = model.Revision()
-        model.vdm.sqlalchemy.set_revision(model.Session, rev)
+        rev = model.new_revision()
         self.pkg1 = model.Package(name=self.name)
         self.pkg1.notes = self.notes
         model.Session.commit()
@@ -48,7 +47,7 @@ class TestPackage:
         model.Session.commit()
 
     def test_create_package(self):
-        out = model.Package.byName(self.name)
+        out = model.Package.by_name(self.name)
         assert out.name == self.name
         assert out.notes == self.notes
 
@@ -56,14 +55,13 @@ class TestPackage:
         newnotes = 'Written by Beethoven'
         author = 'jones'
 
-        rev2 = model.Revision()
-        model.vdm.sqlalchemy.set_revision(model.Session, rev2)
-        pkg = model.Package.byName(self.name)
+        rev2 = model.new_revision()
+        pkg = model.Package.by_name(self.name)
         pkg.notes = newnotes
         rev2.author = 'jones'
         model.Session.commit()
         model.Session.clear()
-        outpkg = model.Package.byName(self.name)
+        outpkg = model.Package.by_name(self.name)
         assert outpkg.notes == newnotes
         assert len(outpkg.all_revisions) > 0
         assert outpkg.all_revisions[-1].revision.author == author
@@ -78,8 +76,7 @@ class TestPackageWithTags:
     def setup_class(self):
         # use this when things get fouled up ...
         # model.rebuild_db()
-        rev1 = model.Revision()
-        model.vdm.sqlalchemy.set_revision(model.Session, rev1)
+        rev1 = model.new_revision()
         self.tagname = u'testtagm2m'
         self.tagname2 = u'testtagm2m2'
         self.tagname3 = u'testtag3'
@@ -95,48 +92,47 @@ class TestPackageWithTags:
 
     def teardown_class(self):
         # should only be one but maybe things have gone wrong
-        # p = model.Package.byName(self.pkgname)
+        # p = model.Package.by_name(self.pkgname)
         pkgs = model.Package.query.filter_by(name=self.pkgname)
         for p in pkgs:
             for pt in p.package_tags:
                 pt.purge()
             p.purge()
-        t1 = model.Tag.byName(self.tagname)
+        t1 = model.Tag.by_name(self.tagname)
         t1.purge()
-        t2 = model.Tag.byName(self.tagname2)
+        t2 = model.Tag.by_name(self.tagname2)
         t2.purge()
-        t3 = model.Tag.byName(self.tagname3)
+        t3 = model.Tag.by_name(self.tagname3)
         t3.purge()
         model.Session.commit()
 
     def test_1(self):
-        pkg = model.Package.byName(self.pkgname)
+        pkg = model.Package.by_name(self.pkgname)
         assert len(pkg.tags) == 2
         # pkg2tag = model.PackageTag.query.get(self.pkg2tag_id)
         # assert pkg2tag.package.name == self.pkgname
 
     def test_tags(self):
-        pkg = model.Package.byName(self.pkgname)
+        pkg = model.Package.by_name(self.pkgname)
         # TODO: go back to this
         # 2 default packages each with 2 tags so we have 2 + 4
         all = model.Tag.query.all() 
         assert len(all) == 2
 
     def test_add_tag_by_name(self):
-        rev = model.Revision()
-        model.vdm.sqlalchemy.set_revision(model.Session, rev)
-        pkg = model.Package.byName(self.pkgname)
+        rev = model.new_revision()
+        pkg = model.Package.by_name(self.pkgname)
         pkg.add_tag_by_name(self.tagname3)
         model.Session.commit()
         model.Session.clear()
-        outpkg = model.Package.byName(self.pkgname)
+        outpkg = model.Package.by_name(self.pkgname)
         assert len(outpkg.tags) == 3
-        t1 = model.Tag.byName(self.tagname)
+        t1 = model.Tag.by_name(self.tagname)
         assert len(t1.package_tags) == 1
 
     def test_add_tag_by_name_existing(self):
         model.Session.clear()
-        pkg = model.Package.byName(self.pkgname)
+        pkg = model.Package.by_name(self.pkgname)
         assert len(pkg.tags) == 3
         pkg.add_tag_by_name(self.tagname)
         assert len(pkg.tags) == 3
@@ -151,8 +147,7 @@ class TestPackageWithLicense:
         self.licname2 = 'test_license2'
         self.license1 = model.License(name=self.licname1)
         self.license2 = model.License(name=self.licname2)
-        rev = model.Revision()
-        model.vdm.sqlalchemy.set_revision(model.Session, rev)
+        rev = model.new_revision()
         self.pkgname = 'testpkgfk'
         pkg = model.Package(name=self.pkgname)
         pkg.license = self.license1
@@ -160,9 +155,8 @@ class TestPackageWithLicense:
         self.rev1id = rev.id
         model.Session.remove()
 
-        rev = model.Revision()
-        model.vdm.sqlalchemy.set_revision(model.Session, rev)
-        pkg = model.Package.byName(self.pkgname)
+        rev = model.new_revision()
+        pkg = model.Package.by_name(self.pkgname)
         pkg.license = self.license2
         model.Session.commit()
         self.rev2id = rev.id
@@ -170,23 +164,23 @@ class TestPackageWithLicense:
 
     def teardown_class(self):
         model.Session.clear()
-        pkg = model.Package.byName(self.pkgname)
+        pkg = model.Package.by_name(self.pkgname)
         pkg.purge()
-        lic1 = model.License.byName(self.licname1)
-        lic2 = model.License.byName(self.licname2)
+        lic1 = model.License.by_name(self.licname1)
+        lic2 = model.License.by_name(self.licname2)
         lic1.purge()
         lic2.purge()
         model.Session.commit()
  
     def test_set1(self):
         rev = model.Revision.query.get(self.rev1id)
-        pkg = model.Package.byName(self.pkgname)
+        pkg = model.Package.by_name(self.pkgname)
         pkgrev = pkg.get_as_of(rev)
         out = pkgrev.license.name 
         assert out == self.licname1
 
     def test_set2(self):
-        pkg = model.Package.byName(self.pkgname)
+        pkg = model.Package.by_name(self.pkgname)
         out = pkg.license.name 
         assert out == self.licname2
 
