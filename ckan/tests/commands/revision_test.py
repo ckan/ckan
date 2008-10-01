@@ -1,32 +1,41 @@
-# import ckan.commands.revision
+from ckan.tests import *
+
+import ckan.commands.revision
+
+import ckan.model as model
 
 class _TestRevisionPurge:
+    
+    @classmethod
+    def setup_class(self):
+        model.Session.remove()
+        CreateTestData.create()
+
+    @classmethod
+    def teardown_class(self):
+        CreateTestData.delete()
 
     def setup_method(self, name=''):
-        import ckan.models
-        self.repo = ckan.models.repo
-
         self.pkgname = 'revision-purge-test'
 
-        txn = self.repo.begin_transaction()
-        self.pkg = txn.model.packages.create(name=self.pkgname)
+        model.repo.begin()
+        self.pkg = model.Package(name=self.pkgname)
         self.old_url = 'abc.com'
         self.pkg.url = self.old_url
-        tag1 = txn.model.tags.get('russian')
-        tag2 = txn.model.tags.get('tolstoy')
-        self.pkg.tags.create(tag=tag1)
-        self.pkg.tags.create(tag=tag2)
-        txn.commit()
+        tag1 = model.Tag.by_name('russian')
+        tag2 = model.Tag.by_name('tolstoy')
+        self.pkg.tags.append(tag1)
+        self.pkg.tags.append(tag2)
+        model.repo.commit()
 
-        txn2 = self.repo.begin_transaction()
-        pkg = txn2.model.packages.get(self.pkgname)
+        txn2 = model.repo.begin_transaction()
+        pkg = model.Package.by_name(self.pkgname)
         newurl = 'blah.com'
         pkg.url = newurl
-        for pkg2tag in pkg.tags:
-            pkg2tag.delete()
+        pkg.tags = []
         self.pkgname2 = 'revision-purge-test-2'
-        self.pkg_new = txn2.model.packages.create(name=self.pkgname2)
-        txn2.commit()
+        self.pkg_new = model.Package(name=self.pkgname2)
+        model.repo.commit()
 
     def teardown_method(self, name=''):
         try:

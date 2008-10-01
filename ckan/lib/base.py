@@ -20,7 +20,11 @@ class BaseController(WSGIController):
         # WSGIController.__call__ dispatches to the Controller method
         # the request is routed to. This routing information is
         # available in environ['pylons.routes_dict']
-        return WSGIController.__call__(self, environ, start_response)
+        try:
+            return WSGIController.__call__(self, environ, start_response)
+        except:
+            model.Session.remove()
+            raise
 
 # Include the '_' function in the public names
 __all__ = [__name for __name in locals().keys() if not __name.startswith('_') \

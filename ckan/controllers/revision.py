@@ -21,7 +21,7 @@ class RevisionController(CkanBaseController):
                 description=u'Recent changes to the CKAN repository.',
                 language=u'en',
             )
-            select_results = self.repo.history()
+            select_results = model.repo.history()
             for revision in select_results:
                 if not revision.id and revision.number:
                     continue
@@ -36,13 +36,13 @@ class RevisionController(CkanBaseController):
                 if dayAge >= dayHorizon:
                     break
                 item_title = 'r%s' % (revision.id)
-                if revision.log_message:
-                    item_title += ': %s' % (revision.log_message or '')
+                if revision.message:
+                    item_title += ': %s' % (revision.message or '')
 
                 item_link = h.url_for(action='read', id=revision.id)
                 # Todo: More interesting description (actual pkg/tag changes?).
                 item_description = '%s' % (revision.author or 'no author')
-                item_description += '%s' % (revision.log_message or '')
+                item_description += '%s' % (revision.message or '')
                 item_author_name = revision.author
                 item_pubdate = revision.timestamp
                 feed.add_item(
@@ -56,19 +56,17 @@ class RevisionController(CkanBaseController):
             return feed.writeString('utf-8')
         else:
             c.show_purge_links = self._has_purge_permissions()
-            return self._paginate_list('revisions', id, 'revision/list')
+            return self._paginate_list('revision', id, 'revision/list')
 
     def read(self, id=None):
         if id is None:
             h.redirect_to(controller='revision', action='list')
         id = int(id)
-        c.revision = model.repo.get_revision(id)
-        pkgs = model.PackageRevision.selectBy(revision=c.revision)
-        c.packages = [ pkg.base for pkg in pkgs ]
-        tags = model.TagRevision.selectBy(revision=c.revision)
-        c.tags = [ tag.base for tag in tags ]
-        pkgtags = model.PackageTagRevision.selectBy(revision=c.revision)
-        c.pkgtags = [ pkgtag.base for pkgtag in pkgtags ]
+        c.revision = model.Revision.query.get(id)
+        pkgs = model.PackageRevision.query.filter_by(revision=c.revision)
+        c.packages = [ pkg.continuity for pkg in pkgs ]
+        pkgtags = model.PackageTagRevision.query.filter_by(revision=c.revision)
+        c.pkgtags = [ pkgtag.continuity for pkgtag in pkgtags ]
         return render('revision/read')
 
     def _has_purge_permissions(self):
@@ -84,7 +82,7 @@ class RevisionController(CkanBaseController):
             c.error = 'You are not authorized to perform this action'
             return render('revision/purge')
         else:
-            revision = model.repo.get_revision(id)
+            revision = model.Revision.query.get(id)
             cmd = ckan.commands.revision.PurgeRevision(revision)
             try:
                 cmd.execute()

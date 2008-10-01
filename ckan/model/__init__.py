@@ -134,6 +134,10 @@ class Tag(DomainObject):
     def __init__(self, name):
         self.name = name
 
+    # not versioned so same as purge
+    def delete(self):
+        self.purge()
+
     @classmethod
     def search_by_name(self, text_query):
         text_query = text_query
@@ -165,7 +169,7 @@ def make_uuid():
 apikey_table = Table('apikey', metadata,
         Column('id', types.Integer, primary_key=True),
         Column('name', types.UnicodeText),
-        Column('key', types.Unicode(36), default=make_uuid)
+        Column('key', types.String(36), default=make_uuid)
         )
 
 class ApiKey(DomainObject):
@@ -320,6 +324,9 @@ class Repository(object):
         self.revision = rev
         return rev
 
+    def begin(self):
+        return self.begin_transaction()
+
     def commit(self):
         self.revision = None
         try:
@@ -328,5 +335,8 @@ class Repository(object):
             Session.rollback()
             Session.remove()
             raise
+
+    def history(self):
+        return Revision.query.all()
 
 repo = Repository()

@@ -97,13 +97,10 @@ class RestController(CkanBaseController):
         keystr = request.environ.get('HTTP_AUTHORIZATION', None)
         if keystr is None:
             keystr = request.environ.get('Authorization', None)
-        api_key_selection = model.ApiKey.select(model.ApiKey.q.key==keystr)
-        if api_key_selection.count() > 0:
-            api_key = api_key_selection[0]
-            self.rest_api_user = api_key.name
-            isOk = True
         self.log.debug("Received API Key: %s" % keystr)
-        if isOk:
+        api_key = model.ApiKey.query.filter_by(key=keystr).first()
+        if api_key is not None:
+            self.rest_api_user = api_key.name
             self.log.debug("Access OK.")
             response.status_code = 200
             return True

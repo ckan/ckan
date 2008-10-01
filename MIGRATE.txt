@@ -11,6 +11,9 @@
     * log_message -> message
   * Only one license per package ...
 
+  * base -> continuity on all revision objects
+  * revision has no number (just id)
+
 ### Plan of Action
 
   1. Get a dump of current db

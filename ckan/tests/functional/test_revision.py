@@ -1,7 +1,16 @@
 from ckan.tests import *
-import ckan.model
+import ckan.model as model
 
 class TestRevisionController(TestController2):
+
+    @classmethod
+    def setup_class(self):
+        model.Session.remove()
+        CreateTestData.create()
+
+    @classmethod
+    def teardown_class(self):
+        CreateTestData.delete()
 
     def test_link_major_navigation(self):
         offset = url_for(controller='home')
@@ -11,7 +20,7 @@ class TestRevisionController(TestController2):
 
     def test_paginated_list(self):
         self.create_100_revisions()
-        revisions = list(ckan.model.repo.history())
+        revisions = model.repo.history()
         revision1 = revisions[0]
         revision2 = revisions[50]
         revision3 = revisions[100]
@@ -86,9 +95,9 @@ class TestRevisionController(TestController2):
 
     def create_100_revisions(self):
         for i in range(0,100):
-            self.transaction_begin()
-            self.transaction.author = "Test Revision %s" % i
-            self.transaction_commit()
+            rev = model.repo.begin()
+            rev.author = "Test Revision %s" % i
+            model.repo.commit()
 
     def purge_100_revisions(self):
         pass
@@ -125,7 +134,7 @@ class TestRevisionController(TestController2):
 
     def test_list_format_atom(self):
         self.create_100_revisions()
-        revisions = list(ckan.model.repo.history())
+        revisions = model.repo.history()
         revision1 = revisions[0]
         try:
             # Revisions are most recent first, with first rev on last page.

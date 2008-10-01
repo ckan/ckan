@@ -1,5 +1,4 @@
 import logging
-from sqlobject import SQLObjectNotFound
 import ckan.model as model
 
 # Todo: Use ckan.forms here?
@@ -41,7 +40,9 @@ class EntityPresenter(dict):
     keyName = 'id'
 
     def __init__(self, entity, register=None, uncreated=False):
+        # TODO: remove use of register since already specified here ...
         self.register = register
+        self.register = self.modelClass
         self.uncreated = uncreated
         entity_type = type(entity)
         self.entity = None
@@ -93,10 +94,7 @@ class EntityPresenter(dict):
     def update_entity(self):
         entity_key = self[self.keyName]
         kwds = {self.keyName: entity_key}
-        if self.register != None:
-            self.entity = self.register.get(entity_key)
-        else:
-            self.entity = self.modelClass.selectBy(**kwds)
+        self.entity = self.register.query.filter_by(**kwds).first()
 
 
 class PackageRegisterPresenter(RegisterPresenter):

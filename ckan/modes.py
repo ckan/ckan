@@ -78,44 +78,42 @@ class PresentationMode(object):
             raise
         return entity
 
-    def get_entity(self, amodel=None):
-        register = self.get_register(amodel)
+    def get_entity(self):
+        register = self.get_register()
         id = self.get_entity_id()
-        try:
-            entity = register.get(id)
-            if entity.state.name != 'active':
-                return None 
-            else:
-                return entity
-        except SQLObjectNotFound:
-            return None
+        # both tags and packages are done by name
+        entity = register.by_name(id)
+        if entity is None or (hasattr(entity, 'state') and entity.state.name != 'active'):
+            return None 
+        else:
+            return entity
     
     def update_entity(self, txn_author='', txn_log_message=''):
         # Todo: Validate request_data.
-        txn = self.repo.begin_transaction()
-        entity = self.get_entity(txn.model)
+        rev = model.new_revision()
+        entity = self.get_entity()
         if entity:
-            register = self.get_register(txn.model)
+            register = self.get_register()
             Presenter = self.get_entity_presenter_class()
             presenter = Presenter(self.request_data, register=register)
             entity = presenter.as_entity()
-            txn.author = txn_author
-            txn.log_message = txn_log_message
-            txn.commit()
+            rev.author = txn_author
+            rev.message = txn_log_message
+            model.Session.commit()
         return entity
         
     def delete_entity(self, txn_author='', txn_log_message=''):
-        txn = self.repo.begin_transaction()
+        rev = model.repo.begin_transaction()
         try:
-            entity = self.get_entity(txn.model)
+            entity = self.get_entity()
             entity.delete()
             #entity.purge()
         except:
             pass  # Not good. --jb
         else:
-            txn.author = txn_author
-            txn.log_message = txn_log_message
-            txn.commit()
+            rev.author = txn_author
+            rev.message = txn_log_message
+            model.repo.commit()
 
     def search_entities(self):
         '''Search for entities matching specified criteria.

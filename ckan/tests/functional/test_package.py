@@ -8,10 +8,7 @@ class TestPackageController(TestController2):
 
     @classmethod
     def setup_class(self):
-        model.Session.remove()
         CreateTestData.create()
-        self.anna = model.Package.by_name('annakarenina')
-        assert self.anna.license is not None
 
     @classmethod
     def teardown_class(self):
@@ -43,9 +40,11 @@ class TestPackageController(TestController2):
         assert 'Packages - New' in res
 
     def test_read(self):
-        name = self.anna.name
+        name = 'annakarenina'
         offset = url_for(controller='package', action='read', id=name)
         res = self.app.get(offset)
+        # only retrieve after app has been called
+        self.anna = model.Package.by_name(name)
         print res
         assert 'Packages - %s' % name in res
         assert name in res
@@ -100,10 +99,15 @@ class TestPackageControllerEdit(TestController2):
         model.Session.remove()
         offset = url_for(controller='package', action='edit', id=self.editpkg.name)
         self.res = self.app.get(offset)
+        self.newtagname = 'russian'
 
     def teardown_method(self, method):
         pkg = model.Package.by_name(self.editpkg.name)
-        pkg.purge()
+        if pkg:
+            pkg.purge()
+        tag = model.Tag.by_name(self.newtagname)
+        if tag:
+            tag.purge()
         model.Session.commit()
         model.Session.remove()
 
@@ -136,7 +140,7 @@ class TestPackageControllerEdit(TestController2):
 
     def test_edit_2(self):
         # testing tag updating
-        newtags = ['russian']
+        newtags = [self.newtagname]
         tagvalues = ' '.join(newtags)
         fv = self.res.forms[0]
         fv['tags'] =  tagvalues
@@ -173,19 +177,22 @@ Hello world.
 
 
 class TestPackageControllerNew(TestController2):
-
-    def setup_class(self):
-        self.testvalues = { 'name' : 'testpkg' }
+    pkgname = u'testpkg'
 
     def teardown_class(self):
-        pkg = model.Package.by_name(self.testvalues['name'])
-        if pkg is not None:
+        # 2008-10-01 model.Sessionremove is crucial here
+        # without it pkg is not correctly torn down due to weird interference
+        # between test_create and test_new (running test_new alone everything
+        # is ok ...)
+        model.Session.remove()
+        pkg = model.Package.by_name(self.pkgname)
+        if pkg:
             pkg.purge()
         model.Session.commit()
         model.Session.remove()
 
     def test_create(self):
-        offset = url_for(controller='package', action='create')
+        offset = url_for(controller='package', action='create', id=None)
         try:
             res = self.app.get(offset)
         except AppError, inst:
@@ -200,15 +207,15 @@ class TestPackageControllerNew(TestController2):
         res = self.app.get(offset)
         assert 'Packages - New' in res
         fv = res.forms[0]
-        fv['name'] = self.testvalues['name']
+        fv['name'] = self.pkgname
         res = fv.submit(status=[302])
         res = res.follow()
         assert 'Packages - Edit' in res
         rev = model.Revision.youngest()
-        pkg = model.Package.by_name(self.testvalues['name'])
-        assert pkg.name == self.testvalues['name']
+        pkg = model.Package.by_name(self.pkgname)
+        assert pkg.name == self.pkgname
         # for some reason environ['REMOTE_ADDR'] is undefined when using twill
         assert rev.author == 'Unknown IP Address'
-        exp_log_message = 'Creating package %s' % self.testvalues['name']
+        exp_log_message = 'Creating package %s' % self.pkgname
         assert rev.message == exp_log_message
 

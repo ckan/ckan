@@ -82,6 +82,7 @@ class CreateTestData(CkanCommand):
     @classmethod
     def create(self):
         import ckan.model as model
+        model.Session.remove()
         rev = model.new_revision() 
         rev.author = u'tolstoy'
         rev.message = u'''Creating test data.
