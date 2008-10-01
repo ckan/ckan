@@ -3,7 +3,6 @@ import ckan.forms
 from ckan.controllers.base import CkanBaseController
 import genshi
 from formencode.api import Invalid
-from sqlobject.main import SQLObjectNotFound
 import simplejson
 
 class PackageController(CkanBaseController):
@@ -14,7 +13,7 @@ class PackageController(CkanBaseController):
 
     def list(self, id, format='html'):
         c.format = format
-        return self._paginate_list('packages', id, 'package/list')
+        return self._paginate_list('package', id, 'package/list')
 
     @validate(schema=ckan.forms.PackageNameSchema(), form='new')
     def new(self):
@@ -28,21 +27,19 @@ class PackageController(CkanBaseController):
         if not request.params.has_key('name'):
             abort(400, '400 Bad Request -- Missing name request parameter.')
         name = request.params['name']
-        try:
-            pkg = txn.model.packages.get(name)
-        except SQLObjectNotFound:
-            pass
-        else:
+        pkg = model.Package.by_name(name)
+        if pkg is not None:
             response.status_code = 409  # "409 Conflict"
             c.error = "Package name '%s' is already in use." % name
             # Todo: In-form error indication.
             return render('package/create')
         try:
             c.name = schema.to_python(request.params)['name']
-            pkg = txn.model.packages.create(name=c.name)
-            txn.author = c.author
-            txn.log_message = 'Creating package %s' % c.name
-            txn.commit()
+            rev = model.new_revision()
+            pkg = model.Package(name=c.name)
+            rev.author = c.author
+            rev.message = 'Creating package %s' % c.name
+            model.Session.commit()
             h.redirect_to(controller='package', action='edit', id=c.name)
         except Invalid, inst:
             response.status_code = 400
@@ -59,7 +56,6 @@ class PackageController(CkanBaseController):
 #             return ''
     
     def read(self, id, format='html'):
-        rev = self.repo.youngest_revision()
         pkg = model.Package.by_name(id)
         if pkg is None:
             return self.abort404(format)
@@ -126,11 +122,8 @@ class PackageController(CkanBaseController):
             else:
                 h.redirect_to(action='read', id=id)
         else:
-            # Just show the edit form.
-            rev = self.repo.youngest_revision()
-            try:
-                c.pkg = rev.model.packages.get(id)
-            except:
+            c.pkg = model.Package.by_name(id)
+            if c.pkg is None:
                 return self.abort404(format)
             schema = ckan.forms.PackageSchema()
             defaults = schema.from_python(c.pkg)
@@ -139,8 +132,7 @@ class PackageController(CkanBaseController):
     
     def _render_edit_form(self, value_dict):
         from formencode import htmlfill
-        rev = self.repo.youngest_revision()
-        all_licenses = list(model.License.select()) 
+        all_licenses = list(model.License.query.all()) 
         if value_dict.has_key('licenses'):
             selected = value_dict['licenses']
         else:
@@ -183,20 +175,21 @@ class PackageController(CkanBaseController):
             indict['licenses'] = [request.params['licenses']]
         else:
             indict['licenses'] = []
-        txn = self.repo.begin_transaction()
-        txn.author = c.author
+        rev = model.new_revision()
+        rev.author = c.author
         log_message = indict.get('log_message', '')
         if self._is_spam(log_message):
             error_msg = 'This commit looks like spam'
             return error_msg
-        txn.log_message = log_message
+        rev.message = log_message
         try:
-            pkg = schema.to_python(indict, state=txn)
-        except Invalid, inst:
+            pkg = schema.to_python(indict)
+        except Exception, inst:
+            model.Session.rollback()
             response.status_code = 400
             error_msg = "Invalid request: " + str(inst)
         else:
             c.pkg_name = pkg.name
-            txn.commit()
+            model.Session.commit()
         return error_msg
 

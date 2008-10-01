@@ -40,69 +40,69 @@ class PackageNameSchema(formencode.Schema):
     name = package_name_validator
     allow_extra_fields = True
 
-# class PackageSchema(formencode.sqlschema.SQLSchema):
-#     wrap = ckan.models.Package
-#     allow_extra_fields = True
-#     # setting filter_extra_fields seems to mean from_python no longer works
-#     # filter_extra_fields = True
-# 
-#     def _convert_tags(self, obj):
-#         tagnames = [ pkg2tag.tag.name for pkg2tag in obj.tags ]
-#         return ' '.join(tagnames)
-# 
-#     def get_current(self, obj, state):
-#         # single super is a mess, see:
-#         # http://groups.google.co.uk/group/comp.lang.python/browse_thread/thread/6d94ebc1016b7ddb/34684c138cf9f3%2334684c138cf9f3 
-#         # not sure why it is in the example code ...
-#         # value = super(PackageSchema).get_current(obj, state)
-#         value = formencode.sqlschema.SQLSchema.get_current(self, obj, state)
-#         for name in obj.versioned_attributes:
-#             value[name] = getattr(obj, name)
-#         tags_as_string = self._convert_tags(obj)
-#         value['tags'] = tags_as_string
-#         # convert licenses
-#         del value['license']
-#         licenses = []
-#         if obj.license is not None:
-#             licenses.append(obj.license.name)
-#         value['licenses'] = licenses
-#         return value
-# 
-#     def _update_tags(self, pkg, tags_as_string):
-#         # replace all commas with spaces
-#         if type(tags_as_string) == list:
-#             taglist = tags_as_string
-#         else:
-#             tags_as_string = tags_as_string.replace(',', ' ')
-#             taglist = tags_as_string.split()
-#         # validate and normalize
-#         taglist = [ std_object_name.to_python(name) for name in taglist ]
-#         current_tags = [ pkg2tag.tag.name for pkg2tag in pkg.tags ]
-#         for name in taglist:
-#             if name not in current_tags:
-#                 try:
-#                     pkg.add_tag_by_name(name)
-#                 except:
-#                     pass  # Not good. --jb
-#         for pkg2tag in pkg.tags:
-#             if pkg2tag.tag.name not in taglist:
-#                 pkg2tag.delete()
-#         return pkg
-# 
-#     def update_object(self, columns, extra, state):
-#         txn = state
-#         tags = extra.pop('tags', '')
-#         licenses = extra.pop('licenses', [])
-#         # TODO: create the object if it does not already exist
-#         outobj = txn.model.packages.get(columns['name'])
-#         columns.pop('name')
-#         if len(licenses) > 0:
-#             licenseobj = ckan.models.License.byName(licenses[0])
-#             columns['license'] = licenseobj
-#         for key in columns:
-#             setattr(outobj, key, columns[key])
-#         for key in extra:
-#             setattr(outobj, key, extra[key])
-#         outobj = self._update_tags(outobj, tags)
-#         return outobj
-# 
+from sqlalchemy.orm import class_mapper
+class PackageSchema(object):
+    allow_extra_fields = True
+    # setting filter_extra_fields seems to mean from_python no longer works
+    # filter_extra_fields = True
+
+    def from_python(self, pkg):
+        table = class_mapper(model.Package).mapped_table
+        value = {}
+        for col in table.c:
+            value[col.name] = getattr(pkg, col.name, None)
+        tags_as_string = self._convert_tags(pkg)
+        value['tags'] = tags_as_string
+        if pkg.license:
+            value['licenses'] = [pkg.license.name]
+        else:
+            value['licenses'] = []
+        return value
+
+    def _convert_tags(self, obj):
+        tagnames = [ tag.name for tag in obj.tags ]
+        return ' '.join(tagnames)
+    
+    def to_python(self, indict):
+        tags = indict.pop('tags', '')
+        licenses = indict.pop('licenses', [])
+
+        name = indict.get('name', '')
+        outobj = model.Package.by_name(name)
+        # TODO: ? create the object if it does not already exist
+        if outobj is None:
+            msg = 'Cannot update object named "%s" as does not exist' % outobj
+            raise Exception(msg)
+
+        if len(licenses) > 0:
+            licenseobj = model.License.byName(licenses[0])
+            outobj.license = licenseobj
+
+        table = class_mapper(model.Package).mapped_table
+        for attrname in table.c.keys():
+            if attrname in indict:
+                setattr(outobj, attrname, indict[attrname])
+        outobj = self._update_tags(outobj, tags)
+        return outobj
+
+    def _update_tags(self, pkg, tags_as_string):
+        # replace all commas with spaces
+        if type(tags_as_string) == list:
+            taglist = tags_as_string
+        else:
+            tags_as_string = tags_as_string.replace(',', ' ')
+            taglist = tags_as_string.split()
+        # validate and normalize
+        taglist = [ std_object_name.to_python(name) for name in taglist ]
+        current_tags = [ tag.name for tag in pkg.tags ]
+        for name in taglist:
+            if name not in current_tags:
+                try:
+                    pkg.add_tag_by_name(name)
+                except:
+                    pass  # Not good. --jb
+        for pkgtag in pkg.package_tags:
+            if pkgtag.tag.name not in taglist:
+                pkgtag.delete()
+        return pkg
+

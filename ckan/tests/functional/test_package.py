@@ -1,15 +1,21 @@
 from ckan.tests import *
-import ckan.models
+import ckan.model as model
 
 import cgi
 from paste.fixture import AppError
 
 class TestPackageController(TestController2):
 
+    @classmethod
     def setup_class(self):
-        repo = ckan.models.repo
-        rev = repo.youngest_revision()
-        self.anna = rev.model.packages.get('annakarenina')
+        model.Session.remove()
+        CreateTestData.create()
+        self.anna = model.Package.by_name('annakarenina')
+        assert self.anna.license is not None
+
+    @classmethod
+    def teardown_class(self):
+        CreateTestData.delete()
 
     def test_index(self):
         offset = url_for(controller='package')
@@ -40,6 +46,7 @@ class TestPackageController(TestController2):
         name = self.anna.name
         offset = url_for(controller='package', action='read', id=name)
         res = self.app.get(offset)
+        print res
         assert 'Packages - %s' % name in res
         assert name in res
         assert 'Url:' in res
@@ -84,22 +91,21 @@ class TestPackageControllerUpdate(TestController2):
 class TestPackageControllerEdit(TestController2):
 
     def setup_method(self, method):
-        # super(TestPackageControllerEdit, self).setup_method(method)
-        txn = ckan.models.repo.begin_transaction()
-        self.editpkg_name = 'editpkgtest'
-        self.editpkg = txn.model.packages.create(name=self.editpkg_name)
-        self.editpkg.url = 'editpkgurl.com'
-        self.editpkg.notes='this is editpkg'
-        txn.commit()
+        rev = model.new_revision()
+        self.editpkg_name = u'editpkgtest'
+        self.editpkg = model.Package(name=self.editpkg_name)
+        self.editpkg.url = u'editpkgurl.com'
+        self.editpkg.notes= u'this is editpkg'
+        model.Session.commit()
+        model.Session.remove()
         offset = url_for(controller='package', action='edit', id=self.editpkg.name)
         self.res = self.app.get(offset)
 
     def teardown_method(self, method):
-        # super(TestPackageControllerEdit, self).teardown_method(method)
-        rev = ckan.models.repo.youngest_revision()
-        rev.model.packages.purge(self.editpkg.name)
-        # if method == 'test_edit_2':
-            # self._teardown_test_edit2()
+        pkg = model.Package.by_name(self.editpkg.name)
+        pkg.purge()
+        model.Session.commit()
+        model.Session.remove()
 
     def test_setup_ok(self):
         assert 'Packages - Edit' in self.res
@@ -121,8 +127,7 @@ class TestPackageControllerEdit(TestController2):
         res = res.follow()
         print str(self.res)
         assert 'Packages - %s' % self.editpkg_name in res
-        rev = ckan.models.repo.youngest_revision()
-        pkg = rev.model.packages.get(self.editpkg.name)
+        pkg = model.Package.by_name(self.editpkg.name)
         assert pkg.title == new_title 
         assert pkg.url == newurl
         assert pkg.download_url == new_download_url
@@ -142,15 +147,14 @@ class TestPackageControllerEdit(TestController2):
         res = res.follow()
         print str(res)
         assert 'Packages - %s' % self.editpkg_name in res
-        rev = ckan.models.repo.youngest_revision()
-        pkg = rev.model.packages.get(self.editpkg.name)
-        assert len(pkg.tags.list()) == 1
-        outtags = [ pkg2tag.tag.name for pkg2tag in pkg.tags ]
+        pkg = model.Package.by_name(self.editpkg.name)
+        assert len(pkg.tags) == 1
+        outtags = [ tag.name for tag in pkg.tags ]
         for tag in newtags:
             assert tag in outtags 
-        # for some reason environ['REMOTE_ADDR'] is undefined when using twill
+        rev = model.Revision.youngest()
         assert rev.author == 'Unknown IP Address'
-        assert rev.log_message == exp_log_message
+        assert rev.message == exp_log_message
 
     def test_edit_preview(self):
         newurl = 'www.editpkgnewurl.com'
@@ -174,11 +178,11 @@ class TestPackageControllerNew(TestController2):
         self.testvalues = { 'name' : 'testpkg' }
 
     def teardown_class(self):
-        rev = ckan.models.repo.youngest_revision()
-        try:
-            rev.model.packages.purge(self.testvalues['name'])
-        except:
-            pass
+        pkg = model.Package.by_name(self.testvalues['name'])
+        if pkg is not None:
+            pkg.purge()
+        model.Session.commit()
+        model.Session.remove()
 
     def test_create(self):
         offset = url_for(controller='package', action='create')
@@ -200,11 +204,11 @@ class TestPackageControllerNew(TestController2):
         res = fv.submit(status=[302])
         res = res.follow()
         assert 'Packages - Edit' in res
-        rev = ckan.models.repo.youngest_revision()
-        pkg = rev.model.packages.get(self.testvalues['name'])
+        rev = model.Revision.youngest()
+        pkg = model.Package.by_name(self.testvalues['name'])
         assert pkg.name == self.testvalues['name']
         # for some reason environ['REMOTE_ADDR'] is undefined when using twill
         assert rev.author == 'Unknown IP Address'
         exp_log_message = 'Creating package %s' % self.testvalues['name']
-        assert rev.log_message == exp_log_message
+        assert rev.message == exp_log_message
 

@@ -39,17 +39,23 @@ class TestPackage:
         rev = model.new_revision()
         self.pkg1 = model.Package(name=self.name)
         self.pkg1.notes = self.notes
+        self.license_name = u'OKD Compliant::Other'
+        license = model.License.by_name(self.license_name)
+        self.pkg1.license = license
         model.Session.commit()
+        model.Session.remove()
 
     def teardown_class(self):
         pkg1 = model.Package.query.filter_by(name=self.name).one()
         pkg1.purge()
         model.Session.commit()
+        model.Session.remove()
 
     def test_create_package(self):
         out = model.Package.by_name(self.name)
         assert out.name == self.name
         assert out.notes == self.notes
+        assert out.license.name == self.license_name
 
     def test_update_package(self):
         newnotes = 'Written by Beethoven'

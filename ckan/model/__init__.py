@@ -121,7 +121,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             self.tags.append(tag)
 
     def drop_tag_by_name(self, tagname):
-        tag = Tag.byName(tagname)
+        tag = Tag.by_name(tagname)
         # TODO:
         # self.tags.delete(tag=tag)
         pass
@@ -232,7 +232,8 @@ def create_db():
     if License.query.count() == 0:
         for name in license_names:
             License(name=name)
-    Session.flush()
+    Session.commit()
+    Session.remove()
 
 def rebuild_db():
     metadata.drop_all()

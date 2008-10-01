@@ -9,6 +9,7 @@
     * introduce date_created attribute on main object?
   * Revision table:
     * log_message -> message
+  * Only one license per package ...
 
 ### Plan of Action
 
