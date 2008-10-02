@@ -102,6 +102,17 @@ class DomainObject(object):
                 sess.delete(rev)
         sess.delete(self)
 
+    def __str__(self):
+        repr = u'<%s' % self.__class__.__name__
+        table = orm.class_mapper(self.__class__).mapped_table
+        for col in table.c:
+            repr += u' %s=%s' % (col.name, getattr(self, col.name))
+        repr += '>'
+        return repr
+
+    def __repr__(self):
+        return self.__str__()
+
         
 class License(DomainObject):
     pass
@@ -125,9 +136,6 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         # TODO:
         # self.tags.delete(tag=tag)
         pass
-
-    def __repr__(self):
-        return '<Package %s>' % self.name
 
 
 class Tag(DomainObject):
@@ -228,6 +236,7 @@ vdm.sqlalchemy.add_stateful_versioned_m2m(Package, PackageTag, 'tags', 'tag',
         'package_tags')
 vdm.sqlalchemy.add_stateful_versioned_m2m_on_version(PackageRevision, 'tags')
 
+# TODO: move this onto the repo object
 def create_db():
     metadata.create_all()
     # need to set up the basic states for all Stateful stuff to work
@@ -236,6 +245,9 @@ def create_db():
     if License.query.count() == 0:
         for name in license_names:
             License(name=name)
+    rev = Revision()
+    rev.author = 'system'
+    rev.message = 'Initialising the Repository'
     Session.commit()
     Session.remove()
 
@@ -338,5 +350,8 @@ class Repository(object):
 
     def history(self):
         return Revision.query.all()
+
+    def youngest_revision(self):
+        return Revision.youngest()
 
 repo = Repository()

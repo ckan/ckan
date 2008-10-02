@@ -1,10 +1,20 @@
 from ckan.tests import *
 from ckan.misc import Paginate
 
-class TestPaginate(TestController2):
+# TODO: (?) remove as we do not use our own paginate system but 3rd party one
+# Disable for time being
+class _TestPaginate(TestController2):
+
+    def setup_method(self, method):
+        if method.__name__ == 'test_page_multi':
+            self.create_100_packages()
+
+    def teardown_method(self, method):
+        if method.__name__ == 'test_page_multi':
+            self.purge_100_packages()
 
     def test_page(self):
-        listRegister = self.get_model().packages
+        listRegister = model.Package
         paginate = Paginate(listRegister=listRegister, pageLength=50)
         assert paginate.pageLength == 50
         assert paginate.getListLength() == 2
@@ -22,16 +32,8 @@ class TestPaginate(TestController2):
         assert len(pageList) == 2
         assert pageList[1] == listRegister.list()[1]
  
-    def setup_method(self, method):
-        if method.__name__ == 'test_page_multi':
-            self.create_100_packages()
-
-    def teardown_method(self, method):
-        if method.__name__ == 'test_page_multi':
-            self.purge_100_packages()
-
     def test_page_multi(self):
-        listRegister = self.get_model().packages
+        listRegister = model.Package
         paginate = Paginate(listRegister=listRegister, pageLength=50)
         assert paginate.pageLength == 50
         assert paginate.getListLength() == 102

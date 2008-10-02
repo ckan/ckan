@@ -19,6 +19,8 @@ class MarkdownFormat(TextFormat):
 # Todo: Substitute the Pylons webhelper Pagination classes for this class.
 # Todo: Change this class to use underscore-separated names, ahem.
 
+# TODO: (?) remove as we do not use our own paginate system but 3rd party one
+# Disable for time being
 class Paginate(object):
 
     def __init__(self, listRegister, pageLength=50):
@@ -31,7 +33,7 @@ class Paginate(object):
 
     def getList(self):
         if self.list == None:
-            self.list = self.listRegister.list()
+            self.list = self.listRegister.query.all()
         return self.list
 
     def getListLength(self):

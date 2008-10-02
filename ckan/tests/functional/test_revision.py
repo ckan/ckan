@@ -1,11 +1,15 @@
 from ckan.tests import *
 import ckan.model as model
 
+# TODO: purge revisions after creating them
 class TestRevisionController(TestController2):
 
     @classmethod
     def setup_class(self):
         model.Session.remove()
+        # rebuild db before this test as it depends delicately on what
+        # revisions exist
+        model.rebuild_db()
         CreateTestData.create()
 
     @classmethod
@@ -19,13 +23,13 @@ class TestRevisionController(TestController2):
         assert 'Repository History' in res
 
     def test_paginated_list(self):
-        self.create_100_revisions()
-        revisions = model.repo.history()
-        revision1 = revisions[0]
-        revision2 = revisions[50]
-        revision3 = revisions[100]
-        revision4 = revisions[-1]
         try:
+            self.create_100_revisions()
+            revisions = model.repo.history()
+            revision1 = revisions[0]
+            revision2 = revisions[50]
+            revision3 = revisions[100]
+            revision4 = revisions[-1]
             # Revisions are most recent first, with first rev on last page.
             # Todo: Look at the model to see which revision is last.
             # Todo: Test for last revision on first page.
@@ -52,27 +56,26 @@ class TestRevisionController(TestController2):
             self.assert_click(res, revision3.id, 'Revision: %s' % revision3.id)
  
             # Last page.
-	    last_id = 1 + len(revisions) / 50
+            last_id = 1 + len(revisions) / 50
             offset = url_for(controller='revision', action='list', id=last_id)
             res = self.app.get(offset)
-	    try:
-                assert 'Repository History' in res
-                assert '1' in res
-                assert 'Author' in res
-                assert 'tolstoy' in res
-                assert 'Log Message' in res
-                assert 'Creating test data.' in res
-            except:
-	        print str(res)
-		raise
+
+            print str(res)
+            assert 'Repository History' in res
+            assert '1' in res
+            assert 'Author' in res
+            assert 'tolstoy' in res
+            assert 'Log Message' in res
+            assert 'Creating test data.' in res
+
         finally:
             self.purge_100_revisions()
 
     def assert_click(self, res, link_exp, res2_exp):
-        # NB: Must .click('^2$') and not just '2' as twill with otherwise
-        #     follow the second link found on the page.
         try:
-            res2 = res.click('^%s$' % link_exp)
+            # paginate links are also just numbers
+            # res2 = res.click('^%s$' % link_exp)
+            res2 = res.click(href='revision/read/%s$' % link_exp)
         except:
             print "\nThe first response (list):\n\n"
             print str(res)
