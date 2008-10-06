@@ -1,0 +1,86 @@
+#!/usr/bin/env python
+
+import os
+import ckan.tests
+import ckan.model
+import simplejson
+from ckan.model import Session
+from ckan.model import State, License, Revision, Package, Tag, PackageRevision, PackageTagRevision
+
+modelClasses = [
+    State, License, Revision, Package, Tag, PackageRevision, PackageTagRevision
+]
+
+if __name__ == '__main__':
+    
+    ckan.model.is_loading_dump = True
+    dumpPath = os.path.join(os.environ['HOME'], 'ckan-0.6.json')
+    dumpFile = open(dumpPath, 'r')
+    dumpContent = dumpFile.read()
+    dumpFile.close()
+    print 'Dump size:', len(dumpContent)
+    dumpStruct = simplejson.loads(dumpContent)
+
+    print 'Building table...'
+    # Protect against writing into created database.
+    ckan.model.metadata.create_all()
+    for modelClass in modelClasses:
+        if modelClass.query.count():
+            raise Exception, "Existing '%s' records in database" % modelClass
+
+    modelObjects = {}
+    for modelClass in  modelClasses:
+        collectionObjects = {}
+        modelClassName = modelClass.__name__
+        modelObjects[modelClassName] = collectionObjects
+        print modelClassName, '--------------------------------'
+        collectionStruct = dumpStruct[modelClassName]
+        print collectionStruct.keys()
+        modelObjectIds = collectionStruct.keys()
+        modelObjectIds.sort()
+        for modelObjectId in modelObjectIds:
+            print ''
+            modelObjectStruct = collectionStruct[modelObjectId]
+            constructorKwds = {}
+            if 'name' in modelObjectStruct.keys():
+                constructorKwds['name'] = modelObjectStruct['name']
+            try:
+                modelObject = modelClass(**constructorKwds)
+            except Exception, inst:
+                msg = "Couldn't create model object type '%s': %s" % (modelClassName, inst)
+                raise Exception, msg
+            Session.commit()
+            if modelObject.id != int(modelObjectId):
+                msg = "Created model object id differs from dumped id: %s != %s" % (modelObject.id, modelObjectId)
+                raise Exception, msg
+                
+            for modelAttrName in modelObjectStruct.keys():
+                modelAttrValue = modelObjectStruct[modelAttrName]
+                print '---', modelAttrName, modelAttrValue
+                if modelAttrName == 'name':
+                    continue
+                setattr(modelObject, modelAttrName, modelAttrValue)
+            collectionObjects[modelObject.id] = modelObject
+
+    # Fixup associations.
+
+    # Package - PackageRevision
+    packageRevisionsStruct = dumpStruct['PackageRevision']
+    packageRevisionIds = packageRevisionsStruct.keys()
+    packageRevisionIds.sort()
+    for packageRevisionId in packageRevisionIds:
+        print "<<<<<<<<<<<<<<<<<<<<<<<<<<"
+        print packageRevisionId
+        print packageRevisionsStruct.keys()
+        print modelObjects
+        print "<<<<<<<<<<<<<<<<<<<<<<<<<<"
+        packageRevisionStruct = packageRevisionsStruct[packageRevisionId]
+        print packageRevisionStruct
+        baseId = int(packageRevisionStruct['baseID'])
+        packageRevisionObject = modelObjects['PackageRevision'][int(packageRevisionId)]
+        packageObject = modelObjects['Package'][baseId]
+        packageRevisionObject.base = packageObject
+
+
+    print 'OK'
+
