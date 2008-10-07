@@ -22,10 +22,8 @@ class TestMigrateTo0Point7(object):
         dbpass = 'pass'
         dbuser = 'ckantest'
         dump_path = os.path.abspath('migrate/ckan.sql')
-        model.repo.rebuild()
-        cmd = 'psql -h localhost --quiet --file %s --user %s --password %s' % (dump_path, dbuser, dbname)
         # os.system(cmd)
-        status, output = commands.getstatusoutput(cmd)
+        # status, output = commands.getstatusoutput(cmd)
         # new_wsgiapp = loadapp('config:test.ini', relative_to=conf_dir)
         # old_wsgiapp = loadapp('config:old.ini', relative_to=conf_dir)
         # self.app = paste.fixture.TestApp(wsgiapp)
@@ -34,12 +32,26 @@ class TestMigrateTo0Point7(object):
     def test_rest_api(self):
         pass
 
-    def test_model_1(self):
-        # model.Package.
-        out = list(model.Package.select())
+    def test_packages(self):
+        out = model.Package.query.all()
         print len(out)
-        assert len(out) == 253
-        revs = list(model.Revision.select())
-        assert len(revs) == 0
+        assert len(out) == 254
+
+    def test_revisions(self):
+        revs = model.Revision.query.all()
+        assert len(revs) == 1583, len(revs)
+        revs = model.repo.history()
+        assert len(revs) == 693, len(revs)
+
+    def test_tags(self):
+        tags = model.Tag.query.all()
+        assert len(tags) == 560, len(tags)
+
+    def test_package_continuity(self):
+        name = u'geonames'
+        pkg = model.Package.query.filter_by(name=name).one()
+        assert pkg.name == name
+        assert pkg.url == u'http://www.geonames.org/export/', pkg
+        assert pkg.download_url == u'http://download.geonames.org/export/dump/allCountries.zip'
 
 

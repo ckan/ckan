@@ -29,11 +29,13 @@ class CkanBaseController(BaseController):
             current_page = int(id)
         except:
             current_page = 0
-        if register_name == 'revisions':
-            select_results = model.Revision.query.all()
-        else:
-            register = getattr(model, register_name.capitalize())
-            collection = register.query.all()
+
+        register = getattr(model, register_name.capitalize())
+        query = register.query
+        if hasattr(register.c, 'state_id'):
+            active = model.State.query.filter_by(name='active').one()
+            query = query.filter_by(state_id=active.id)
+        collection = query.all()
         item_count = len(collection)
         if c.format == 'json':
             response.headers['Content-Type'] = 'text/plain'

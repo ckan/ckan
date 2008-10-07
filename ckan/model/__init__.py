@@ -68,7 +68,6 @@ package_tag_table = Table('package_tag', metadata,
 
 vdm.sqlalchemy.make_table_stateful(license_table)
 vdm.sqlalchemy.make_table_stateful(package_table)
-vdm.sqlalchemy.make_table_stateful(tag_table)
 vdm.sqlalchemy.make_table_stateful(package_tag_table)
 package_revision_table = vdm.sqlalchemy.make_table_revisioned(package_table)
 # TODO: this has a composite primary key ...
@@ -349,7 +348,8 @@ class Repository(object):
             raise
 
     def history(self):
-        return Revision.query.all()
+        active = State.query.filter_by(name='active').one()
+        return Revision.query.filter_by(state=active).all()
 
     def youngest_revision(self):
         return Revision.youngest()

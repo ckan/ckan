@@ -31,6 +31,7 @@ class ManageDb(CkanCommand):
     '''Perform various tasks on the database.
     
     db create
+    db init
     db clean
     db drop  # same as db clean
     '''
@@ -49,7 +50,12 @@ class ManageDb(CkanCommand):
         elif cmd == 'dump':
             self.dump()
         elif cmd == 'load':
-            self.load()
+            if len(self.args) < 2:
+                print 'Need dump path'
+                return
+            dump_path = self.args[1]
+            import ckan.lib.converter
+            ckan.lib.converter.load_from_dump(dump_path)
         else:
             print 'Command %s not recognized' % cmd
 
