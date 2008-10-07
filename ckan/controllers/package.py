@@ -23,7 +23,6 @@ class PackageController(CkanBaseController):
         c.error = ''
         c.name = ''
         schema = ckan.forms.PackageNameSchema()
-        txn = self.repo.begin_transaction()
         if not request.params.has_key('name'):
             abort(400, '400 Bad Request -- Missing name request parameter.')
         name = request.params['name']
@@ -34,12 +33,12 @@ class PackageController(CkanBaseController):
             # Todo: In-form error indication.
             return render('package/create')
         try:
+            rev = self.repo.begin_transaction()
             c.name = schema.to_python(request.params)['name']
-            rev = model.new_revision()
             pkg = model.Package(name=c.name)
             rev.author = c.author
             rev.message = 'Creating package %s' % c.name
-            model.Session.commit()
+            model.repo.commit()
             h.redirect_to(controller='package', action='edit', id=c.name)
         except Invalid, inst:
             response.status_code = 400
