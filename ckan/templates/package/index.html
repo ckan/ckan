@@ -4,11 +4,18 @@
   <py:def function="page_title">Packages - Index</py:def>
 
   <div py:match="content">
-		<h2>Packages</h2>
-		<p>There are ${c.package_count} packages.</p>
+    <h2>Packages</h2>
+	<p>There are ${c.package_count} packages.</p>
 
-    <h3>Find a package</h3>
-    <p>You can ${XML(h.link_to('browse the packages', h.url_for(controller='package', action='list')))} . Alternatively <a href="${h.url_for(controller='tag', action='list')}">browse</a> or <a href="${h.url_for(controller='tag', action='search')}">search the tags</a>.</p>
+    <h3>Find packages</h3>
+    <p>You can browse the 
+    <a href="${h.url_for(controller='package', action='list')}">packages list</a>
+    or
+    <a href="${h.url_for(controller='package', action='search')}">search packages</a>.
+
+    </p><p> 
+    
+    Alternatively browse <a href="${h.url_for(controller='tag', action='list')}">tag list</a> or <a href="${h.url_for(controller='tag', action='search')}">search tags</a>.</p>
 
 		<h3>Register a new package</h3>
     <p>Follow this link to register a ${XML(h.link_to('new package', h.url_for(controller='package', action='new')))}.</p>

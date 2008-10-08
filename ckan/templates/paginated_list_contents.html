@@ -95,18 +95,21 @@
     <py:for each="attr_name in c.listed_attr_names">
       <th>${attr_name}</th>
     </py:for>
-      <th>actions</th>
     </tr>
   <py:for each="item in c.page.items">
     <tr>
     <py:for each="attr_name in c.listed_attr_names">
       <td>
+      <py:if test="attr_name == 'name'">  
+        <a href="${h.url_for(action='read', id=item.name)}">
         ${getattr(item, attr_name)}
+        </a>
+      </py:if>
+      <py:if test="attr_name != 'name'">  
+        ${getattr(item, attr_name)}
+      </py:if>
       </td>
     </py:for>
-      <td>
-        <a href="${h.url_for(action='read', id=item.name)}">read</a>
-      </td>
     </tr>
   </py:for>
   </table>
