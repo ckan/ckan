@@ -4,21 +4,26 @@
   <py:def function="page_title">Tags - ${c.tag.name}</py:def>
 
   <div py:match="content">
-    <h2>Tag: ${c.tag.name}</h2>
-    <ul>
-      <li>Created: ${c.tag.created}</li>
-      <li>Packages:
-        <ul>
-          <py:for each="pkg2tag in c.tag.package_tags">
-          <li>
-          ${XML(h.link_to(pkg2tag.package.name,
+    <h2>${c.tag.name}</h2>
+    <p>Packages tagged <strong>${c.tag.name}</strong>.</p>
+    <table>
+      <tr>
+        <th>name</th>
+        <th>title</th>
+        <th>actions</th>
+      </tr>
+    <py:for each="pkg2tag in c.tag.package_tags">
+      <tr>
+        <td>${pkg2tag.package.name}</td>
+        <td>${pkg2tag.package.title}</td>
+        <td>
+          ${XML(h.link_to('read',
             h.url_for(controller='package', action='read',
               id=pkg2tag.package.name)))}
-          </li>
-          </py:for>
-        </ul>
-      </li>
-    </ul>
+        </td>
+      </tr>
+    </py:for>
+    </table>
   </div>
 
   <xi:include href="layout.html" />

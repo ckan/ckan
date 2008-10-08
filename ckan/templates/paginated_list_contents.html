@@ -51,17 +51,10 @@
             <span class="pagination-current">
             <a 
               href="${h.url_for(action='list', id=number)}"
-              onclick="return updatePaginatedListHTML(
-                '${h.url_for(action='list',id=number)}')
-            ">${number}</a>
+            >${number}</a>
             </span>
           </py:when>
           <py:otherwise>
-            <!-- a 
-              href="${h.url_for(action='list', id=number)}"
-              onclick="return updatePaginatedListHTML(
-                '${h.url_for(action='list',id=number)}')
-            ">${number}</a -->
             <a 
               href="${h.url_for(action='list', id=number)}"
             >${number}</a>
@@ -73,9 +66,7 @@
         <li>
             <a 
               href="${h.url_for(action='list', id=c.page.current_page + 1)}"
-              onclick="return updatePaginatedListHTML(
-                '${h.url_for(action='list',id=c.page.current_page + 1)}')
-            ">Next</a>
+            >Next</a>
         </li>
       </py:if>
       </ul>
@@ -99,13 +90,26 @@
     </py:if>
     </p>
 
-  <ul py:match="paginatedlistitems">
-    <py:for each="item in c.page.items">
-      <li><a 
-        href="${h.url_for(action='read', id=item.name)}">${item.name}</a>
-      </li>
+  <table py:match="paginatedlistitems">
+    <tr>
+    <py:for each="attr_name in c.listed_attr_names">
+      <th>${attr_name}</th>
     </py:for>
-  </ul>
+      <th>actions</th>
+    </tr>
+  <py:for each="item in c.page.items">
+    <tr>
+    <py:for each="attr_name in c.listed_attr_names">
+      <td>
+        ${getattr(item, attr_name)}
+      </td>
+    </py:for>
+      <td>
+        <a href="${h.url_for(action='read', id=item.name)}">read</a>
+      </td>
+    </tr>
+  </py:for>
+  </table>
 
   <paginatedlistitems/>
 

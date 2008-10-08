@@ -13,7 +13,7 @@ class RestController(CkanBaseController):
         registry_path = '/%s' % register
         self.log.debug("Listing: %s" % registry_path)
         self.mode = RegisterGet(registry_path)
-        self.execute()
+        self.mode.execute()
         return self.finish()
 
     def create(self, register):

@@ -23,8 +23,9 @@ class CkanBaseController(BaseController):
         c.has_paginate = False
         c.has_autocomplete = False
 
-    def _paginate_list(self, register_name, id, template_path):
+    def _paginate_list(self, register_name, id, template_path, listed_attr_names=['name']):
         c.has_paginate = True
+        c.listed_attr_names = listed_attr_names
         try:
             current_page = int(id)
         except:

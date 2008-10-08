@@ -147,8 +147,8 @@ class Tag(DomainObject):
 
     @classmethod
     def search_by_name(self, text_query):
-        text_query = text_query
-        return self.query.filter(self.name.contains(text_query.lower()))
+        text_query = text_query.strip().lower()
+        return self.query.filter(self.name.contains(text_query))
 
     def __repr__(self):
         return '<Tag %s>' % self.name

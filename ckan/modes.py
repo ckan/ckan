@@ -57,8 +57,7 @@ class PresentationMode(object):
 
     def get_entities(self):
         register = self.get_register()
-        # entities = register.list()
-        entities = registery.query.all()
+        entities = register.query.all()
         return entities
     
     def create_entity(self, txn_author='', txn_log_message=''):

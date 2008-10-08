@@ -13,7 +13,8 @@ class PackageController(CkanBaseController):
 
     def list(self, id, format='html'):
         c.format = format
-        return self._paginate_list('package', id, 'package/list')
+        return self._paginate_list('package', id, 'package/list',
+            ['name', 'title'])
 
     @validate(schema=ckan.forms.PackageNameSchema(), form='new')
     def new(self):
