@@ -5,6 +5,13 @@
 
   <div py:match="content">
     <h2>Tags</h2>
+    <ul py:match="paginatedlistitems">
+      <py:for each="item in c.page.items">
+      <li>
+        <a href="${h.url_for(controller='tag', action='read', id=item.name)}">${item.name}</a>
+      </li>
+      </py:for>
+    </ul>
     <xi:include href="../paginated_list.html" />
   </div>
 

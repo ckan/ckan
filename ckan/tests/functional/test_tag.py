@@ -114,8 +114,9 @@ class TestTagController(TestController2):
         print fv.fields
         fv['search_terms'] =  str(search_term)
         res = fv.submit()
+        print res
         assert 'Tags - Search' in res
-        assert 'There are 2 results' in res
+        assert 'There are <strong>2</strong> results' in res
         assert 'russian' in res
         assert 'tolstoy' in res
 
