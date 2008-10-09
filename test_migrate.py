@@ -39,7 +39,7 @@ class TestMigrateTo0Point7(object):
 
     def test_revisions(self):
         revs = model.Revision.query.all()
-        assert len(revs) == 1583, len(revs)
+        assert len(revs) == 1586, len(revs)
         revs = model.repo.history()
         assert len(revs) == 693, len(revs)
 
@@ -49,9 +49,19 @@ class TestMigrateTo0Point7(object):
 
     def test_package_continuity(self):
         name = u'geonames'
-        pkg = model.Package.query.filter_by(name=name).one()
+        pkg = model.Package.by_name(name)
         assert pkg.name == name
         assert pkg.url == u'http://www.geonames.org/export/', pkg
         assert pkg.download_url == u'http://download.geonames.org/export/dump/allCountries.zip'
 
+    def test_package_revisions(self):
+        name = u'geonames'
+        pkg = model.Package.by_name(name)
+        pkgrevs = pkg.all_revisions
+        assert len(pkgrevs) == 4, len(pkgrevs)
+        assert pkgrevs[0].revision.timestamp.year == 2007
+        assert pkgrevs[-1].revision.timestamp.year == 2008
+        assert pkgrevs[0].name == name, pkgrevs[0]
+        assert pkgrevs[-1].name == name
+        assert pkgrevs[0].download_url == None
 

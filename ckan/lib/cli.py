@@ -55,7 +55,8 @@ class ManageDb(CkanCommand):
                 return
             dump_path = self.args[1]
             import ckan.lib.converter
-            ckan.lib.converter.load_from_dump(dump_path)
+            dumper = ckan.lib.converter.Dumper()
+            dumper.load(dump_path)
         else:
             print 'Command %s not recognized' % cmd
 
