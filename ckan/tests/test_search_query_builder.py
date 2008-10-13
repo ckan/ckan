@@ -1,8 +1,19 @@
 from ckan.model import Package
 from ckan.searchquerybuilder import SearchQueryBuilder
 from ckan.controllers.package import MockMode
+import ckan.model as model
+from ckan.tests import *
 
 class TestSearchQueryBuilder(object):
+
+    @classmethod
+    def setup_class(self):
+        model.Session.remove()
+        CreateTestData.create()
+
+    @classmethod
+    def teardown_class(self):
+        CreateTestData.delete()
 
     def test_execute1(self):
         search_query_builder = SearchQueryBuilder(
