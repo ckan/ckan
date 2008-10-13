@@ -1,3 +1,4 @@
+# blah
 try:
     from setuptools import setup, find_packages
 except ImportError:
@@ -29,7 +30,6 @@ setup(
         #'markdown'         # 1.5 doesn't seem to be on the PCS.
     ],
     packages=find_packages(exclude=['ez_setup']),
-    scripts = ['bin/ckan-admin'],
     include_package_data=True,
     package_data={'ckan': ['i18n/*/LC_MESSAGES/*.mo']},
     #message_extractors = {'ckan': [
