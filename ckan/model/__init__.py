@@ -259,15 +259,19 @@ vdm.sqlalchemy.add_stateful_versioned_m2m_on_version(PackageRevision, 'tags')
 # TODO: move this onto the repo object
 def create_db():
     metadata.create_all()
-    # need to set up the basic states for all Stateful stuff to work
+
+# create default data as well
+def init_db():
+    metadata.create_all()
     if len(State.query.all()) == 0:
         ACTIVE, DELETED = vdm.sqlalchemy.make_states(Session())
     if License.query.count() == 0:
         for name in license_names:
             License(name=name)
-    rev = Revision()
-    rev.author = 'system'
-    rev.message = 'Initialising the Repository'
+    if Revision.query.count() == 0:
+        rev = Revision()
+        rev.author = 'system'
+        rev.message = u'Initialising the Repository'
     Session.commit()
     Session.remove()
 

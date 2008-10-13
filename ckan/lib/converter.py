@@ -1,7 +1,10 @@
-import ckan.model
+import datetime
+
 import simplejson
-from ckan.model import Session
 from sqlalchemy import orm
+
+import ckan.model
+from ckan.model import Session
 
 model_classes = [
     ckan.model.State,
@@ -20,10 +23,44 @@ def get_table(model_class):
 
 class Dumper(object):
 
-    def load(self, dump_path):
-        dumpStruct = simplejson.load(open(dump_path))
+    def dump(self, dump_path, verbose=False):
+        dump_struct = { 'version' : ckan.__version__ }
 
-        print 'Building table...'
+        if verbose:
+            print "\n\nStarting...........................\n\n\n"
+
+        for model_class in  model_classes:
+            table = get_table(model_class)
+            model_class_name = model_class.__name__
+            dump_struct[model_class_name] = {}
+            if verbose:
+                print model_class_name, '--------------------------------'
+            q = table.select()
+            for record in q.execute():
+                if verbose:
+                    print '--- ', 'id', record.id
+                recorddict = self.cvt_record_to_dict(record, table)
+                dump_struct[model_class_name][record.id] = recorddict
+        if verbose:
+            print '---------------------------------'
+            print 'Dumping to %s' % dump_path
+        simplejson.dump(dump_struct, file(dump_path, 'w'), indent=4, sort_keys=True)
+
+    def cvt_record_to_dict(self, record, table):
+        out = {}
+        for key in table.c.keys():
+            val  = getattr(record, key)
+            if isinstance(val, datetime.date):
+                val = str(val)
+            out[key] = val
+            # print "--- ", modelAttrName, unicode(modelAttrValue).encode('ascii', 'ignore')
+        return out
+
+    def load(self, dump_path, verbose=False):
+        dump_struct = simplejson.load(open(dump_path))
+
+        if verbose:
+            print 'Building table...'
         # Protect against writing into created database.
         ckan.model.metadata.create_all()
         for model_class in model_classes:
@@ -33,32 +70,37 @@ class Dumper(object):
         records = {}
         for model_class in  model_classes:
             table = get_table(model_class)
-            collectionObjects = {}
-            model_className = model_class.__name__
-            records[model_className] = collectionObjects
-            print model_className, '--------------------------------'
-            collectionStruct = dumpStruct[model_className]
-            print collectionStruct.keys()
+            collection_objects = {}
+            model_class_name = model_class.__name__
+            records[model_class_name] = collection_objects
+            if verbose:
+                print model_class_name, '--------------------------------'
+            collectionStruct = dump_struct[model_class_name]
+            if verbose:
+                print collectionStruct.keys()
             recordIds = collectionStruct.keys()
             recordIds.sort()
             for recordId in recordIds:
-                recordStruct = collectionStruct[recordId]
-                recordStruct = self.switch_names(recordStruct)
-                print recordStruct
-                q = table.insert(values=recordStruct)
+                record_struct = collectionStruct[recordId]
+                record_struct = self.switch_names(record_struct)
+                if verbose:
+                    print record_struct
+                q = table.insert(values=record_struct)
                 result = q.execute()
-        self.fix_up_continuity()
         self.fix_sequences()
-        print 'OK'
+        if verbose:
+            print 'OK'
 
     def switch_names(self, record_struct):
         out = {}
         for k,v in record_struct.items():
+            # convert from v0.6 to v0.7
             k = k.replace('ID', '_id')
             if k == 'base_id':
                 k = 'continuity_id'
             if k == 'log_message':
                 k = 'message'
+            # generic
             if v == 'None':
                 v = None
             if '_id' in k and v is not None:
@@ -66,7 +108,20 @@ class Dumper(object):
             out[k] = v
         return out
 
-    def fix_up_continuity(self):
+    def fix_sequences(self):
+        for model_class in model_classes:
+            table = get_table(model_class)
+            seqname = '%s_id_seq' % table.name 
+            q = table.select()
+            maxid = q.order_by(table.c.id.desc()).execute().fetchone().id
+            print seqname, maxid+1
+            sql = "SELECT setval('%s', %s);" % (seqname, maxid+1)
+            engine = ckan.model.metadata.bind
+            engine.execute(sql)
+
+    def migrate_06_to_07(self):
+        '''Fix up continuity objects and put names in revision objects.'''
+        print 'Migrating 0.6 data to 0.7'
         pkg_table = get_table(ckan.model.Package)
         pkg_rev_table = get_table(ckan.model.PackageRevision)
         for record in pkg_table.select().execute():
@@ -90,16 +145,4 @@ class Dumper(object):
                 update = pkg_rev_table.update(pkg_rev_table.c.id==rev.id,
                         values={'name': record.name})
                 update.execute()
-
-    def fix_sequences(self):
-        for model_class in model_classes:
-            table = get_table(model_class)
-            seqname = '%s_id_seq' % table.name 
-            q = table.select()
-            maxid = q.order_by(table.c.id.desc()).execute().fetchone().id
-            print seqname, maxid+1
-            sql = "SELECT setval('%s', %s);" % (seqname, maxid+1)
-            engine = ckan.model.metadata.bind
-            engine.execute(sql)
-
 

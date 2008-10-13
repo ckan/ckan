@@ -16,5 +16,6 @@ def setup_config(command, filename, section, vars):
     from ckan import model
     log.info('Creating tables')
     model.create_db()
+    model.init_db()
     log.info('Creating tables: SUCCESS')
 

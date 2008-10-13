@@ -30,10 +30,11 @@ class CkanCommand(paste.script.command.Command):
 class ManageDb(CkanCommand):
     '''Perform various tasks on the database.
     
-    db create
-    db init
+    db create # create
+    db init # create and put in default data
     db clean
     db drop  # same as db clean
+    db migrate06
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
@@ -42,29 +43,39 @@ class ManageDb(CkanCommand):
 
     def command(self):
         self._load_config()
+        from ckan import model
+
         cmd = self.args[0]
         if cmd == 'create':
+            model.create_db()
+        elif cmd == 'init':
             self._setup_app()
         elif cmd == 'clean' or cmd == 'drop':
-            self.clean()
-        elif cmd == 'dump':
-            self.dump()
-        elif cmd == 'load':
-            if len(self.args) < 2:
-                print 'Need dump path'
-                return
-            dump_path = self.args[1]
+            model.metadata.drop_all()
+            if self.verbose:
+                print 'Cleaning DB: SUCCESS' 
+        elif cmd == 'dump' or cmd == 'load':
+            self.dump_or_load(cmd)
+        elif cmd == 'migrate06':
             import ckan.lib.converter
             dumper = ckan.lib.converter.Dumper()
-            dumper.load(dump_path)
+            dumper.migrate_06_to_07()
         else:
             print 'Command %s not recognized' % cmd
 
-    def clean(self):
-        from ckan import model
-        model.metadata.drop_all()
-        if self.verbose:
-            print 'Cleaning DB: SUCCESS' 
+    def dump_or_load(self, cmd):
+        if len(self.args) < 2:
+            print 'Need dump path'
+            return
+        dump_path = self.args[1]
+        import ckan.lib.converter
+        dumper = ckan.lib.converter.Dumper()
+        if cmd == 'load':
+            dumper.load(dump_path, verbose=self.verbose)
+        elif cmd == 'dump':
+            dumper.dump(dump_path, verbose=self.verbose)
+        else:
+            print 'Unknown command', cmd
 
 
 class CreateTestData(CkanCommand):
@@ -124,13 +135,20 @@ class CreateTestData(CkanCommand):
     def delete(self):
         import ckan.model as model
         pkg = model.Package.by_name(self.pkgname1)
-        pkg.purge()
+        if pkg:
+            pkg.purge()
         pkg2 = model.Package.by_name(self.pkgname2)
-        pkg2.purge()
+        if pkg2:
+            pkg2.purge()
         tag1 = model.Tag.by_name(u'russian')
         tag2 = model.Tag.by_name(u'tolstoy')
-        tag1.purge()
-        tag2.purge()
+        if tag1:
+            tag1.purge()
+        if tag2:
+            tag2.purge()
+        revs = model.Revision.query.filter_by(author=u'tolstoy')
+        for rev in revs:
+            model.Session.delete(rev)
         model.Session.commit()
         model.Session.remove()
 
