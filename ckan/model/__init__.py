@@ -78,6 +78,9 @@ package_tag_revision_table = vdm.sqlalchemy.make_table_revisioned(package_tag_ta
 ## Mapped classes
 
 class DomainObject(object):
+    
+    text_search_fields = []
+
     def __init__(self, **kwargs):
         for k,v in kwargs.items():
             setattr(self, k, v)
@@ -91,6 +94,16 @@ class DomainObject(object):
     def by_name(self, name):
         obj = self.query.filter_by(name=name).first()
         return obj
+
+    @classmethod
+    def text_search(self, query, term):
+        register = self
+        make_like = lambda x,y: x.ilike('%' + y + '%')
+        q = None
+        for field in self.text_search_fields:
+            attr = getattr(register, field)
+            q = or_(q, make_like(attr, term))
+        return query.filter(q)
 
     def purge(self):
         sess = orm.object_session(self)
@@ -120,6 +133,13 @@ class License(DomainObject):
 class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         vdm.sqlalchemy.StatefulObjectMixin,
         DomainObject):
+    
+    text_search_fields = ['name', 'title']
+
+    @classmethod
+    def search_by_name(self, text_query):
+        text_query = text_query
+        return self.query.filter(self.name.contains(text_query.lower()))
 
     def add_tag_by_name(self, tagname):
         if not tagname:
@@ -152,6 +172,7 @@ class Tag(DomainObject):
 
     def __repr__(self):
         return '<Tag %s>' % self.name
+
 
 class PackageTag(vdm.sqlalchemy.RevisionedObjectMixin,
         vdm.sqlalchemy.StatefulObjectMixin,

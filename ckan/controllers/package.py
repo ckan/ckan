@@ -4,6 +4,7 @@ from ckan.controllers.base import CkanBaseController
 import genshi
 from formencode.api import Invalid
 import simplejson
+from ckan.searchquerybuilder import SearchQueryBuilder
 
 class PackageController(CkanBaseController):
 
@@ -15,6 +16,23 @@ class PackageController(CkanBaseController):
         c.format = format
         return self._paginate_list('package', id, 'package/list',
             ['name', 'title'])
+
+    def search(self):
+        request_params = dict(request.params)
+        c.show_results = False
+        if request_params.has_key('search_terms'):
+            c.show_results = True
+            c.search_terms = request_params['search_terms']
+            request_params['q'] = request_params['search_terms']
+            mode = MockMode('package', model.Package, request_params)
+            builder = SearchQueryBuilder(mode)
+            query = builder.execute()
+            if query is None:
+                c.packages = []
+            else:
+                c.packages = query.all()
+            c.package_count = len(c.packages)
+        return render('package/search')
 
     @validate(schema=ckan.forms.PackageNameSchema(), form='new')
     def new(self):
@@ -192,4 +210,20 @@ class PackageController(CkanBaseController):
             c.pkg_name = pkg.name
             model.Session.commit()
         return error_msg
+
+
+class MockMode(object):
+
+    def __init__(self, register_name, register, request_data={'q': ''}):
+        self.register_name = register_name
+        self.register = register
+        self.request_data = request_data
+
+    def get_register_name(self):
+        return self.register_name
+
+    def get_register(self):
+        return self.register
+
+
 

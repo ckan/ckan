@@ -38,7 +38,7 @@ class TestTagController(TestController2):
         assert tagname in res
         #assert '(2 packages)' in res
         res = res.click(tagname)
-        assert 'Tag: %s' % tagname in res
+        assert tagname in res
         offset = url_for(controller='tag', action='list', id=0)
         res = self.app.get(offset)
         print str(res)
@@ -116,9 +116,9 @@ class TestTagController(TestController2):
         res = fv.submit()
         print res
         assert 'Tags - Search' in res
-        assert 'There are <strong>2</strong> results' in res
-        assert 'russian' in res
-        assert 'tolstoy' in res
+        assert 'There are <strong>2</strong> results' in res, res
+        assert 'russian' in res, res
+        assert 'tolstoy' in res, res
 
     def test_autocomplete(self):
         offset = url_for(controller='tag', action='autocomplete')

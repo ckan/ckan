@@ -1,0 +1,47 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+  
+  <py:def function="page_title">Packages - Search</py:def>
+
+  <div py:match="content">
+    <h2>Packages - Search</h2>
+    <form action="" method="GET">
+      <input type="text" id="search_terms" name="search_terms"
+      value="${c.search_terms}"
+          />
+      <input type="submit" name="search" value="Search &raquo;" />
+    </form>
+    <py:if test="c.show_results">
+    <p>There 
+      <py:if test="c.package_count == 1">
+    is ${c.package_count} result.
+      </py:if>
+      <py:if test="c.package_count != 1">
+    are ${c.package_count} results.
+      </py:if>
+    </p>
+      <py:if test="c.package_count > 0">
+    <table>
+      <tr>
+        <th>name</th>
+        <th>title</th>
+      </tr>
+        <py:for each="package in c.packages">
+      <tr>
+        <td>
+      ${XML(h.link_to(package.name, h.url_for(action='read', id=package.name)))}
+        </td>
+        <td>
+      ${package.title}
+        </td>
+      </tr>
+        </py:for>
+    </table>
+      </py:if>
+    </py:if>
+  </div>
+
+  <xi:include href="layout.html" />
+</html>
+
+

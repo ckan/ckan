@@ -15,6 +15,7 @@
   <py:match path="minornavigation">
     <li>${XML(h.link_to('Home', h.url_for(controller='package', action='index', id='None')))}</li>
     <li>${XML(h.link_to('List', h.url_for(controller='package', action='list', id='None')))}</li>
+    <li>${XML(h.link_to('Search', h.url_for(controller='package', action='search', id='None')))}</li>
     <li>${XML(h.link_to('New', h.url_for(controller='package', action='new', id='None')))}</li>
   </py:match>
 

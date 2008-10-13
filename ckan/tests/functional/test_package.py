@@ -73,6 +73,31 @@ class TestPackageController(TestController2):
         res = res.click(name)
         assert 'Packages - %s' % name in res
 
+    def test_search(self):
+        offset = url_for(controller='package', action='search')
+        res = self.app.get(offset)
+        assert 'Packages - Search' in res
+        self._check_search_results(res, 'anna', ['1 result', 'annakarenina'] )
+        self._check_search_results(res, 'war', ['1 result', 'warandpeace'] )
+        self._check_search_results(res, 'a', ['2 results', 'warandpeace', 'annakarenina'] )
+        self._check_search_results(res, 'n', ['2 results', 'warandpeace', 'annakarenina'] )
+        self._check_search_results(res, '', ['0 results'] )
+        self._check_search_results(res, 'z', ['0 results'] )
+        self._check_search_results(res, 'A Novel By Tolstoy', ['1 result'] )
+        self._check_search_results(res, 'title:Novel', ['1 result'] )
+        self._check_search_results(res, 'title:peace', ['0 results'] )
+        # Not working, not needed....?
+        #self._check_search_results(res, 'name:peace', ['1 result'] )
+
+    def _check_search_results(self, page, terms, requireds):
+        form = page.forms[0]
+        form['search_terms'] =  str(terms)
+        results_page = form.submit()
+        assert 'Packages - Search' in results_page, results_page
+        for required in requireds:
+            assert required in results_page, (required, results_page)
+
+
 class TestPackageControllerUpdate(TestController2):
 
     def test_update(self):
