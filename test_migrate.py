@@ -29,9 +29,6 @@ class TestMigrateTo0Point7(object):
         # self.app = paste.fixture.TestApp(wsgiapp)
         # run migrate ...
 
-    def test_rest_api(self):
-        pass
-
     def test_packages(self):
         out = model.Package.query.all()
         print len(out)
@@ -53,6 +50,7 @@ class TestMigrateTo0Point7(object):
         assert pkg.name == name
         assert pkg.url == u'http://www.geonames.org/export/', pkg
         assert pkg.download_url == u'http://download.geonames.org/export/dump/allCountries.zip'
+        assert len(pkg.tags) == 7, pkg.tags
 
     def test_package_revisions(self):
         name = u'geonames'
@@ -64,4 +62,13 @@ class TestMigrateTo0Point7(object):
         assert pkgrevs[0].name == name, pkgrevs[0]
         assert pkgrevs[-1].name == name
         assert pkgrevs[0].download_url == None
+
+    def test_api_key(self):
+        keys = model.ApiKey.query.all()
+        assert len(keys) == 3, len(keys)
+        assert 'johnbywater' in keys[0].name
+
+    def test_license(self):
+        lics = model.License.query.all()
+        assert len(lics) == 63, len(lics)
 

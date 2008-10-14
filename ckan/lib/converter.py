@@ -14,7 +14,8 @@ model_classes = [
     ckan.model.Tag,
     ckan.model.PackageTag,
     ckan.model.PackageRevision,
-    ckan.model.PackageTagRevision
+    ckan.model.PackageTagRevision,
+    ckan.model.ApiKey,
 ]
 
 def get_table(model_class):
