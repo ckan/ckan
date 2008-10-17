@@ -22,7 +22,7 @@ setup(
         'vdm>=0.3a',
         'Pylons>=0.9.6.1',
         'genshi>=0.3',
-        'SQLObject>=0.7',
+        'SQLAlchemy>=0.4,<=0.4.99',
         'AuthKit==0.4.0',
         'paginate==0.3.2',
         'uuid>=1.0', # in python 2.5 but not before
