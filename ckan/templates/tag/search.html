@@ -19,23 +19,17 @@
       <py:if test="c.tag_count != 1">
     are <strong>${c.tag_count}</strong> results
       </py:if>
-    for <strong>${c.search_terms.strip()}.</strong></p>
-    <table>
-      <tr>
-        <th>tag name</th>
-        <th>actions</th>
-      </tr>
-      <py:for each="tag in c.tags">
-      <tr>
-        <td>
-      ${tag.name}
-        </td>
-        <td>
-      ${XML(h.link_to('read', h.url_for(action='read', id=tag.name)))}
-        </td>
-      </tr>
-      </py:for>
-    </table>
+			for <strong>${c.search_terms.strip()}.</strong>
+		</p>
+
+		<ul>
+		<py:for each="tag in c.tags">
+			<li>
+			${XML(h.link_to(tag.name, h.url_for(action='read', id=tag.name)))} - (${len(tag.package_tags)})
+			</li>
+		</py:for>
+		</ul>
+
     </py:if>
   </div>
 
