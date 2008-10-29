@@ -93,6 +93,10 @@ class Dumper(object):
             print 'OK'
 
     def switch_names(self, record_struct):
+        '''Alter SQLObject and v0.6 names.
+
+        Can be run safely on data post 0.6.
+        '''
         out = {}
         for k,v in record_struct.items():
             # convert from v0.6 to v0.7
@@ -111,9 +115,12 @@ class Dumper(object):
 
     def fix_sequences(self):
         for model_class in model_classes:
+            if model_class == ckan.model.ApiKey: # ApiKey does not have idseq
+                continue
             table = get_table(model_class)
             seqname = '%s_id_seq' % table.name 
             q = table.select()
+            print model_class
             maxid = q.order_by(table.c.id.desc()).execute().fetchone().id
             print seqname, maxid+1
             sql = "SELECT setval('%s', %s);" % (seqname, maxid+1)

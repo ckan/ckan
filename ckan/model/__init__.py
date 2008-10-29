@@ -277,7 +277,7 @@ def init_db():
 
 def rebuild_db():
     metadata.drop_all()
-    create_db()
+    init_db()
 
 def new_revision():
     '''Convenience method to create new revision and set it on session.'''
@@ -355,7 +355,11 @@ license_names = [
 # point
 class Repository(object):
     def begin_transaction(self):
-        Session.begin()
+        # do *not* call begin again as we are automatically within a
+        # transaction at all times as session was set up as transactional
+        # (every commit is paired with a begin)
+        # <http://groups.google.com/group/sqlalchemy/browse_thread/thread/a54ce150b33517db/17587ca675ab3674>
+        # Session.begin()
         rev = new_revision()
         self.revision = rev
         return rev

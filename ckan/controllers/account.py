@@ -54,10 +54,11 @@ class AccountController(CkanBaseController):
         if not c.user:
             abort(401)
         else:
-            apikey_object = model.ApiKey.byName(c.user)
+            username = c.author
+            apikey_object = model.ApiKey.by_name(username)
             if apikey_object is None:
-                apikey_object = model.ApiKey(name=c.user)
-                model.Session.flush()
+                apikey_object = model.ApiKey(name=username)
+                model.Session.commit()
             c.api_key = apikey_object.key
         return render('account/apikey')
 

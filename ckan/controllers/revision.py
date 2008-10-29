@@ -63,6 +63,8 @@ class RevisionController(CkanBaseController):
             h.redirect_to(controller='revision', action='list')
         id = int(id)
         c.revision = model.Revision.query.get(id)
+        if c.revision is None:
+            abort(404)
         pkgs = model.PackageRevision.query.filter_by(revision=c.revision)
         c.packages = [ pkg.continuity for pkg in pkgs ]
         pkgtags = model.PackageTagRevision.query.filter_by(revision=c.revision)

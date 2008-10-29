@@ -20,6 +20,7 @@ class CkanBaseController(BaseController):
             c.author = c.user
         else:
             c.author = c.remote_addr
+        c.author = unicode(c.author)
         c.has_paginate = False
         c.has_autocomplete = False
 

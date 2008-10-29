@@ -97,12 +97,14 @@ class TestAccountController(TestController2):
         key = model.ApiKey.by_name('okfntest')
         if key:
             key.purge()
+            model.Session.commit()
+            model.Session.remove()
 
         offset = url_for(controller='account', action='apikey')
         res = self.app.get(offset, status=[401]) 
 
         res = self.app.get(offset, extra_environ=dict(REMOTE_USER='okfntest'))
-        key = model.ApiKey.byName('okfntest')
+        key = model.ApiKey.by_name(u'okfntest')
         assert 'Your API key is: %s' % key.key in res, res
 
         # run again to check case where ApiKey already exists
