@@ -13,8 +13,15 @@ class TestLicense:
     @classmethod
     def teardown_class(self):
         lic = model.License.by_name(self.name)
-        lic.purge()
+        if lic:
+            lic.purge()
         model.Session.commit()
+        model.Session.remove()
+
+    def test_license_names(self):
+        all = model.LicenseList.all_formatted
+        assert len(all) == 67, len(all)
+        assert 'Other::License Not Specified' in all
 
     def test_license(self):
         license = model.License(name=self.name)

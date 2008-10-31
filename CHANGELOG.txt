@@ -1,5 +1,10 @@
 # CKAN CHANGELOG
 
+v0.8 2008-?
+===============
+
+  * Package history support
+
 v0.7 2008-10-31
 ===============
 

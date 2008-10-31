@@ -150,15 +150,16 @@ class PackageController(CkanBaseController):
     
     def _render_edit_form(self, value_dict):
         from formencode import htmlfill
-        all_licenses = list(model.License.query.all()) 
+        all_licenses = model.LicenseList.all_formatted
         if value_dict.has_key('licenses'):
-            selected = value_dict['licenses']
+            selected = value_dict['licenses'] # already names not objects
         else:
             selected = []
-        c.license_options = h.options_for_select_from_objects(
-                all_licenses,
-                selected=selected,
-                name_attr='name')
+        c.license_options = h.options_for_select(
+                # insert empty option
+                [''] + all_licenses,
+                selected=selected
+                )
         content = render('package/edit_form')
         form = htmlfill.render(content, value_dict)
         return form

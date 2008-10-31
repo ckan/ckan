@@ -265,8 +265,8 @@ def init_db():
     metadata.create_all()
     if len(State.query.all()) == 0:
         ACTIVE, DELETED = vdm.sqlalchemy.make_states(Session())
-    if License.query.count() == 0:
-        for name in license_names:
+    for name in license_names:
+        if not License.by_name(name):
             License(name=name)
     if Revision.query.count() == 0:
         rev = Revision()
@@ -285,71 +285,8 @@ def new_revision():
     vdm.sqlalchemy.set_revision(Session, rev)
     return rev
 
-license_names = [
-    u'OKD Compliant::Public Domain',
-    u'OKD Compliant::Creative Commons Attribution',
-    u'OKD Compliant::Creative Commons Attribution-ShareAlike',
-    u'OKD Compliant::GNU Free Documentation License (GFDL)',
-    u'OKD Compliant::Other',
-    u'Non-OKD Compliant::Other',
-    u'OSI Approved::Academic Free License',
-    u'OSI Approved::Adaptive Public License',
-    u'OSI Approved::Apache Software License',
-    u'OSI Approved::Apache License, 2.0',
-    u'OSI Approved::Apple Public Source License',
-    u'OSI Approved::Artistic license',
-    u'OSI Approved::Attribution Assurance Licenses',
-    u'OSI Approved::New BSD license',
-    u'OSI Approved::Computer Associates Trusted Open Source License 1.1',
-    u'OSI Approved::Common Development and Distribution License',
-    u'OSI Approved::Common Public License 1.0',
-    u'OSI Approved::CUA Office Public License Version 1.0',
-    u'OSI Approved::EU DataGrid Software License',
-    u'OSI Approved::Eclipse Public License',
-    u'OSI Approved::Educational Community License',
-    u'OSI Approved::Eiffel Forum License',
-    u'OSI Approved::Eiffel Forum License V2.0',
-    u'OSI Approved::Entessa Public License',
-    u'OSI Approved::Fair License',
-    u'OSI Approved::Frameworx License',
-    u'OSI Approved::GNU General Public License (GPL)',
-    u'OSI Approved::GNU Library or "Lesser" General Public License (LGPL)',
-    u'OSI Approved::IBM Public License',
-    u'OSI Approved::Intel Open Source License',
-    u'OSI Approved::Jabber Open Source License',
-    u'OSI Approved::Lucent Public License (Plan9)',
-    u'OSI Approved::Lucent Public License Version 1.02',
-    u'OSI Approved::MIT license',
-    u'OSI Approved::MITRE Collaborative Virtual Workspace License (CVW License)',
-    u'OSI Approved::Motosoto License',
-    u'OSI Approved::Mozilla Public License 1.0 (MPL)',
-    u'OSI Approved::Mozilla Public License 1.1 (MPL)',
-    u'OSI Approved::NASA Open Source Agreement 1.3',
-    u'OSI Approved::Naumen Public License',
-    u'OSI Approved::Nethack General Public License',
-    u'OSI Approved::Nokia Open Source License',
-    u'OSI Approved:: OCLC Research Public License 2.0',
-    u'OSI Approved::Open Group Test Suite License',
-    u'OSI Approved::Open Software License',
-    u'OSI Approved::PHP License',
-    u'OSI Approved::Python license (CNRI Python License)',
-    u'OSI Approved::Python Software Foundation License',
-    u'OSI Approved::Qt Public License (QPL)',
-    u'OSI Approved::RealNetworks Public Source License V1.0',
-    u'OSI Approved::Reciprocal Public License',
-    u'OSI Approved::Ricoh Source Code Public License',
-    u'OSI Approved::Sleepycat License',
-    u'OSI Approved::Sun Industry Standards Source License (SISSL)',
-    u'OSI Approved::Sun Public License',
-    u'OSI Approved::Sybase Open Watcom Public License 1.0',
-    u'OSI Approved::University of Illinois/NCSA Open Source License',
-    u'OSI Approved::Vovida Software License v. 1.0',
-    u'OSI Approved::W3C License',
-    u'OSI Approved::wxWindows Library License',
-    u'OSI Approved::X.Net License',
-    u'OSI Approved::Zope Public License',
-    u'OSI Approved::zlib/libpng license',
-    ]
+from license import LicenseList
+license_names = LicenseList.all_formatted
 
 # TODO: here for backwards compatability with v0.6 but should remove at some
 # point
