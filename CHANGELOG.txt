@@ -1,5 +1,13 @@
 # CKAN CHANGELOG
 
+v0.7 2008-10-31
+===============
+
+  * Convert to use SQLAlchemy and vdm v0.3 (v. major)
+  * Atom/RSS feed for Recent Changes
+  * Package search via name and title
+  * Tag lists show number of associated packages
+
 v0.6 2008-07-08
 ===============
 
