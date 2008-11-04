@@ -127,7 +127,7 @@ class CreateTestData(CkanCommand):
         license1 = model.License.byName(u'OKD Compliant::Other')
         pkg1.tags = [tag1, tag2]
         pkg1.license = license1
-        pkg2.tags = [ tag1, tag2 ]
+        pkg2.tags = [ tag1 ]
         model.Session.commit()
         model.Session.remove()
     

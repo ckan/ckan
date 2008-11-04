@@ -53,3 +53,32 @@ class TestSearchQueryBuilder(object):
         search_results = search_query.all()
         assert len(search_results) == 0, search_results
 
+    def test_attribute_query_description(self):
+        search_query_builder = SearchQueryBuilder(
+            MockMode('package', Package, {'q': 'notes:test'})
+        )
+        search_query = search_query_builder.execute()
+        search_results = search_query.all()
+        assert len(search_results) == 1, search_results
+
+    def test_tags(self):
+        search_query_builder = SearchQueryBuilder(
+            MockMode('package', Package, {'q': 'tags: russian'})
+        )
+        search_query = search_query_builder.execute()
+        search_results = search_query.all()
+        assert len(search_results) == 2, search_results
+
+        search_query_builder = SearchQueryBuilder(
+            MockMode('package', Package, {'q': 'tags: tolstoy'})
+        )
+        search_query = search_query_builder.execute()
+        search_results = search_query.all()
+        assert len(search_results) == 1, search_results
+
+        search_query_builder = SearchQueryBuilder(
+            MockMode('package', Package, {'q': 'tags: russian tolstoy'})
+        )
+        search_query = search_query_builder.execute()
+        search_results = search_query.all()
+        assert len(search_results) == 1, search_results

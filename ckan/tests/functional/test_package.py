@@ -91,10 +91,11 @@ class TestPackageController(TestController2):
 
     def _check_search_results(self, page, terms, requireds):
         form = page.forms[0]
-        form['search_terms'] =  str(terms)
+        form['q'] =  str(terms)
         results_page = form.submit()
         assert 'Packages - Search' in results_page, results_page
         for required in requireds:
+            print results_page
             assert required in results_page, (required, results_page)
 
 

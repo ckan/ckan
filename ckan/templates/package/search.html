@@ -6,10 +6,16 @@
   <div py:match="content">
     <h2>Packages - Search</h2>
     <form action="" method="GET">
-      <input type="text" id="search_terms" name="search_terms"
-      value="${c.search_terms}"
-          />
-      <input type="submit" name="search" value="Search &raquo;" />
+      ${XML(h.text_field('q', size=40, value=c.q))}
+      ${XML(h.submit('Search &raquo;', name='search'))}
+      <ul class="desc">
+        <li>Simple text: will search package names and titles</li>
+        <li>By attribute: e.g. 'notes: abc' will search package notes for
+        'abc', 'title: abc' will search titles etc.
+        </li>
+        <li>By tags: 'tag: geodata us' will search for packages tagged with
+        'geodata' and 'us'</li>
+      </ul>
     </form>
     <py:if test="c.show_results">
     <p>There 
@@ -21,22 +27,12 @@
       </py:if>
     </p>
       <py:if test="c.package_count > 0">
-    <table>
-      <tr>
-        <th>name</th>
-        <th>title</th>
-      </tr>
-        <py:for each="package in c.packages">
-      <tr>
-        <td>
-      ${XML(h.link_to(package.name, h.url_for(action='read', id=package.name)))}
-        </td>
-        <td>
-      ${package.title}
-        </td>
-      </tr>
-        </py:for>
-    </table>
+      <ul>
+        <li py:for="package in c.packages">
+          ${XML(h.link_to(package.name, h.url_for(action='read',
+          id=package.name)))} - ${package.title}
+        </li>
+      </ul>
       </py:if>
     </py:if>
   </div>

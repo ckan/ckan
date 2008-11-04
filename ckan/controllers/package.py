@@ -20,10 +20,9 @@ class PackageController(CkanBaseController):
     def search(self):
         request_params = dict(request.params)
         c.show_results = False
-        if request_params.has_key('search_terms'):
+        if request_params.has_key('q'):
             c.show_results = True
-            c.search_terms = request_params['search_terms']
-            request_params['q'] = request_params['search_terms']
+            c.q = request_params['q']
             mode = MockMode('package', model.Package, request_params)
             builder = SearchQueryBuilder(mode)
             query = builder.execute()
