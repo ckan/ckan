@@ -3,7 +3,6 @@ from ckan.modes import PresentationRequest
 from ckan.modes import RegisterPost
 import ckan.model
 import ckan.model as model
-from sqlobject import SQLObjectNotFound
 
 class TestPresentationRequest(object):
 
