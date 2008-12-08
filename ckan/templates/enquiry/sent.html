@@ -1,0 +1,17 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+  
+  <py:def function="page_title">Home</py:def>
+
+  <div py:match="content">
+    <h2>Your Request Has Been Sent</h2>
+    <p>You can check on the status of your request at:</p>
+    <h3>
+      <a href="${h.url_for(action='view', id=c.enquiry.id)}">
+        ${h.url_for(action='view', id=c.enquiry.id)}</a>
+    </h3>
+
+	</div>
+
+  <xi:include href="layout.html" />
+</html>

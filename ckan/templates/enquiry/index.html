@@ -1,0 +1,36 @@
+<html
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+  
+  <py:def function="page_title">Home</py:def>
+
+  <div py:match="content">
+    <h2>Welcome to the Data Status Service</h2>
+    <p>It's here to make it easy for <strong>you</strong> to make enquiries to publishers (and
+    others)
+    about the openness (or not) of scientific data they hold &mdash; and
+    to record publicly the results of those efforts.
+    </p>
+
+    <ul class="big-buttons">
+      <li><a href="${h.url_for(controller='enquiry', action='choose')}">Make an
+        Enquiry</a></li>
+      <li>Or</li>
+      <li><a href="${h.url_for(controller='enquiry', action='list')}">Browse
+        Existing Ones</a></li>
+    </ul>
+    
+    <h2>Why is This Needed?</h2>
+    <p>As scholars we collate and produce data a vast amount of data in the course
+    of our research. Academic publications, quite rightly, require that data be
+    made available as part of the publication process in order to enable other
+    scholars to validate results by enabling reproducibility. In the Internet
+    age, this data has entirely new potential: as an input into new research --
+    for example, modern biomedical science makes universal use of digital data.
+    </p>
+
+	</div>
+
+  <xi:include href="layout.html" />
+</html>
