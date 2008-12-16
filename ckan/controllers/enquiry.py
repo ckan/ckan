@@ -15,7 +15,7 @@ class EnquiryController(CkanBaseController):
         if not ('preview' in request.params or 'commit' in request.params):
             return render('enquiry/create')
 
-        c.to = request.params['subject']
+        c.to = request.params['to']
         c.subject = request.params['subject']
         c.body = request.params['body']
         if 'preview' in request.params:
@@ -29,6 +29,10 @@ class EnquiryController(CkanBaseController):
             model.Session.commit()
             c.enquiry = enq
             return render('enquiry/sent')
+
+    def list(self):
+        c.enquiries = model.Enquiry.query.all()
+        return render('enquiry/list')
 
     def view(self, id=''):
         enq = model.Enquiry.query.get(id)
