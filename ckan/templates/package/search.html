@@ -18,22 +18,20 @@
       </ul>
     </form>
     <py:if test="c.show_results">
-    <p>There 
-      <py:if test="c.package_count == 1">
-    is ${c.package_count} result.
-      </py:if>
-      <py:if test="c.package_count != 1">
-    are ${c.package_count} results.
-      </py:if>
-    </p>
-      <py:if test="c.package_count > 0">
-      <ul>
-        <li py:for="package in c.packages">
-          ${XML(h.link_to(package.name, h.url_for(action='read',
-          id=package.name)))} - ${package.title}
-        </li>
-      </ul>
-      </py:if>
+		<p>There are <strong>${c.package_count} results</strong>.</p>
+		<py:if test="c.package_count==0">
+			<p>
+			Would you like to <a href="${h.url_for(action='new', id=None)}">create a new package?</a>
+			</p>
+		</py:if>
+		<py:if test="c.package_count > 0">
+			<ul>
+				<li py:for="package in c.packages">
+					${XML(h.link_to(package.name, h.url_for(action='read',
+					id=package.name)))} - ${package.title}
+				</li>
+			</ul>
+		</py:if>
     </py:if>
   </div>
 
