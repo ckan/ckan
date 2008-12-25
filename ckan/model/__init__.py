@@ -126,6 +126,12 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         # self.tags.delete(tag=tag)
         pass
 
+    def isopen(self):
+        if self.license and ('OKD Compliant' in self.license.name or
+                'OSI Approved' in self.license.name):
+            return True
+        return False
+
 
 class Tag(DomainObject):
     def __init__(self, name):

@@ -1,5 +1,7 @@
 <html xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <xi:include href="common.html" /> 
   
   <py:def function="page_title">Packages - Search</py:def>
 
@@ -27,8 +29,7 @@
 		<py:if test="c.package_count > 0">
 			<ul>
 				<li py:for="package in c.packages">
-					${XML(h.link_to(package.name, h.url_for(action='read',
-					id=package.name)))} - ${package.title}
+          ${package_summary(package)}
 				</li>
 			</ul>
 		</py:if>

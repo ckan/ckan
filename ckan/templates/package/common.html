@@ -1,0 +1,31 @@
+<div 
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip=""
+  >
+
+  <div py:def="package_summary(package)" py:strip="">
+    <py:choose test="package.isopen()">
+      <py:when>
+      <img src="/images/tick.png" title="This package is openly licensed" alt="This package is openly licensed" /> 
+      </py:when>
+      <py:otherwise>
+      <img src="/images/cross.png" title="This package is NOT openly licensed" alt="This package is NOT openly licensed" />
+      </py:otherwise>
+    </py:choose>
+    <py:choose test="package.download_url">
+      <py:when>
+      <img src="/images/tick.png" title="This package is downloadable" alt="This package is downloadable" /> 
+      </py:when>
+      <py:otherwise>
+      <img src="/images/cross.png" title="This package is NOT downloadable" alt="This package is NOT downloadable" />
+      </py:otherwise>
+    </py:choose>
+
+    ${XML(
+      h.link_to(package.name, h.url_for(action='read', id=package.name))
+      )}
+      &ndash; ${package.title}
+  </div>
+</div>

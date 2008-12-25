@@ -30,12 +30,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 
-## Authors
+## Contributors
 
   * Rufus Pollock <rufus [at] rufuspollock [dot] org>
   * John Bywater
   * Nick Stenning (css and js)
 
+Also especial thanks to the following projects without whom this would not have
+been possible:
+
+  * famfamfam.com for silk icons <http://www.famfamfam.com/lab/icons/silk/>
+  * Pylons: <http://pylonshq.com/>
+  * Python: <http://www.python.org>
 
 ## Installation and Setup
 
