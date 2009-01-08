@@ -24,7 +24,7 @@
     </py:choose>
 
     ${XML(
-      h.link_to(package.name, h.url_for(action='read', id=package.name))
+      h.link_to(package.name, h.url_for(controller='package', action='read', id=package.name))
       )}
       &ndash; ${package.title}
   </div>
