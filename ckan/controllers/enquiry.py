@@ -1,6 +1,8 @@
 from ckan.lib.base import *
 from ckan.controllers.base import CkanBaseController
 
+import ckan.lib.gmail
+
 class EnquiryController(CkanBaseController):
 
     def index(self):
@@ -27,6 +29,13 @@ class EnquiryController(CkanBaseController):
                     body=c.body
                     )
             model.Session.commit()
+            # need to get back the gmail id
+            gmail = ckan.lib.gmail.Gmail.default()
+            msg = ckan.lib.gmail.create_msg(c.body,
+                to=c.to,
+                subject=c.subject
+                )
+            gmail.send(msg)
             c.enquiry = enq
             return render('enquiry/sent')
 
