@@ -9,6 +9,9 @@ class EnquiryController(CkanBaseController):
         c.package_count = model.Package.query.count()
         return render('enquiry/index')
     
+    def guide(self):
+        return render('enquiry/guide')
+
     def choose(self):
         return render('enquiry/choose')
 
