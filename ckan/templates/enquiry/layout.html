@@ -87,7 +87,9 @@
      
     <h3 class="hidden">Sections:</h3>
     <ul id="navigation">
-      <li><a href="/">Home</a></li>
+			<li><a href="${h.url_for(action=None, id=None)}">Home</a></li>
+			<li><a href="${h.url_for(action='create', id=None)}">Create</a></li>
+			<li><a href="${h.url_for(action='list', id=None)}">Browse</a></li>
     </ul>
     <h3 class="hidden">In this section:</h3>
     <ul id="subnav">

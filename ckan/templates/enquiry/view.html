@@ -8,6 +8,8 @@
 
   <div py:match="content">
     <h2>View</h2>
+		<p><strong>To:</strong> ${c.enquiry.to}</p>
+		<p><strong>Subject:</strong> <em>${c.enquiry.subject}</em></p>
     <div>
       ${HTML(h.markdown(c.enquiry.body))}
     </div>
