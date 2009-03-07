@@ -13,7 +13,9 @@ class TestSearchQueryBuilder(object):
 
     @classmethod
     def teardown_class(self):
-        CreateTestData.delete()
+        # CreateTestData.delete()
+        model.repo.rebuild_db()
+        model.Session.remove()
 
     def test_execute1(self):
         search_query_builder = SearchQueryBuilder(

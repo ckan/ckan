@@ -127,8 +127,10 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         pass
 
     def isopen(self):
-        if self.license and ('OKD Compliant' in self.license.name or
-                'OSI Approved' in self.license.name):
+        if self.license and \
+            (self.license.name.startswith('OKD Compliant') in 
+                or
+                self.license.name.startswith('OSI Approved'):
             return True
         return False
 
@@ -232,41 +234,24 @@ vdm.sqlalchemy.add_stateful_versioned_m2m(Package, PackageTag, 'tags', 'tag',
         'package_tags')
 vdm.sqlalchemy.add_stateful_versioned_m2m_on_version(PackageRevision, 'tags')
 
-# TODO: move this onto the repo object
-def create_db():
-    metadata.create_all()
-
-# create default data as well
-def init_db():
-    metadata.create_all()
-    if len(State.query.all()) == 0:
-        ACTIVE, DELETED = vdm.sqlalchemy.make_states(Session())
-    for name in license_names:
-        if not License.by_name(name):
-            License(name=name)
-    if Revision.query.count() == 0:
-        rev = Revision()
-        rev.author = 'system'
-        rev.message = u'Initialising the Repository'
-    Session.commit()
-    Session.remove()
-
-def rebuild_db():
-    metadata.drop_all()
-    init_db()
-
-def new_revision():
-    '''Convenience method to create new revision and set it on session.'''
-    rev = Revision()
-    vdm.sqlalchemy.set_revision(Session, rev)
-    return rev
-
 from license import LicenseList
 license_names = LicenseList.all_formatted
 
 # TODO: here for backwards compatability with v0.6 but should remove at some
 # point
-class Repository(object):
+class Repository(vdm.sqlalchemy.Repository):
+
+    def init_db(self):
+        super(Repository, self).init_db()
+        for name in license_names:
+            if not License.by_name(name):
+                License(name=name)
+        if Revision.query.count() == 0:
+            rev = Revision()
+            rev.author = 'system'
+            rev.message = u'Initialising the Repository'
+        self.commit_and_remove()
+
     def begin_transaction(self):
         # do *not* call begin again as we are automatically within a
         # transaction at all times as session was set up as transactional
@@ -296,8 +281,20 @@ class Repository(object):
     def youngest_revision(self):
         return Revision.youngest()
 
-repo = Repository()
+repo = Repository(metadata, Session,
+        versioned_objects=[Package, PackageTag]
+        )
 
-## Enquiry Model
+# TODO: move this onto the repo object
+def create_db():
+    repo.create_db()
 
-from enquiry import *
+def init_db():
+    repo.init_db()
+
+def rebuild_db():
+    repo.rebuild_db()
+
+def new_revision():
+    return repo.new_revision()
+
