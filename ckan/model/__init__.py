@@ -128,9 +128,9 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
     def isopen(self):
         if self.license and \
-            (self.license.name.startswith('OKD Compliant') in 
+            (self.license.name.startswith('OKD Compliant')
                 or
-                self.license.name.startswith('OSI Approved'):
+                self.license.name.startswith('OSI Approved')):
             return True
         return False
 
@@ -237,8 +237,7 @@ vdm.sqlalchemy.add_stateful_versioned_m2m_on_version(PackageRevision, 'tags')
 from license import LicenseList
 license_names = LicenseList.all_formatted
 
-# TODO: here for backwards compatability with v0.6 but should remove at some
-# point
+
 class Repository(vdm.sqlalchemy.Repository):
 
     def init_db(self):
