@@ -1,6 +1,8 @@
-from ckan.lib.base import *
 import simplejson
 import logging
+
+import ckan
+from ckan.lib.base import *
 import ckan.model as model
 
 class CkanBaseController(BaseController):
@@ -10,6 +12,7 @@ class CkanBaseController(BaseController):
 
     def __before__(self, action, **params):
         # what is different between session['user'] and environ['REMOTE_USER']
+        c.__version__ = ckan.__version__
         c.user = request.environ.get('REMOTE_USER', None)
         c.remote_addr = request.environ.get('REMOTE_ADDR', 'Unknown IP Address')
         if c.remote_addr == 'localhost' or c.remote_addr == '127.0.0.1':
