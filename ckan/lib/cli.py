@@ -128,6 +128,8 @@ class CreateTestData(CkanCommand):
         pkg1.tags = [tag1, tag2]
         pkg1.license = license1
         pkg2.tags = [ tag1 ]
+        # api key
+        model.ApiKey(name=u'tester', key=u'tester')
         model.Session.commit()
         model.Session.remove()
     
@@ -149,6 +151,8 @@ class CreateTestData(CkanCommand):
         revs = model.Revision.query.filter_by(author=u'tolstoy')
         for rev in revs:
             model.Session.delete(rev)
+        for key in model.ApiKey.query.filter_by(name=u'tester').all():
+            key.purge()
         model.Session.commit()
         model.Session.remove()
 

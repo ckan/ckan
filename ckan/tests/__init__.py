@@ -39,6 +39,7 @@ cmd = paste.script.appinstall.SetupCommand('setup-app')
 cmd.run([test_file])
 
 import ckan.model as model
+model.repo.rebuild_db()
 
 class TestController2(object):
 
