@@ -20,3 +20,26 @@ class UuidType(types.TypeDecorator):
         return unicode(uuid.uuid4())
 
 
+import simplejson
+class JsonType(types.TypeDecorator):
+    '''Store data as JSON serializing on save and unserializing on use.
+    '''
+    impl = types.UnicodeText
+
+    def process_bind_param(self, value, engine):
+        # None or {}
+        if not value: # ensure we stores nulls in db not json "null"
+            return None
+        else:
+            # ensure_ascii=False => allow unicode but still need to convert
+            return unicode(simplejson.dumps(value, ensure_ascii=False))
+
+    def process_result_value(self, value, engine):
+        if value is None:
+            return None
+        else:
+            return simplejson.loads(value)
+
+    def copy(self):
+        return JsonType(self.impl.length)
+

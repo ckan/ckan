@@ -16,7 +16,7 @@ license_table = Table('license', metadata,
 
 package_table = Table('package', metadata,
         Column('id', types.Integer, primary_key=True),
-        Column('name', types.Unicode(100), unique=True),
+        Column('name', types.Unicode(100), unique=True, nullable=False),
         Column('title', types.UnicodeText),
         Column('url', types.UnicodeText),
         Column('download_url', types.UnicodeText),
@@ -26,7 +26,7 @@ package_table = Table('package', metadata,
 
 tag_table = Table('tag', metadata,
         Column('id', types.Integer, primary_key=True),
-        Column('name', types.Unicode(100), unique=True),
+        Column('name', types.Unicode(100), unique=True, nullable=False),
 )
 
 package_tag_table = Table('package_tag', metadata,
