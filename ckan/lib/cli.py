@@ -47,11 +47,11 @@ class ManageDb(CkanCommand):
 
         cmd = self.args[0]
         if cmd == 'create':
-            model.create_db()
+            model.repo.create_db()
         elif cmd == 'init':
-            self._setup_app()
+            model.repo.init_db()
         elif cmd == 'clean' or cmd == 'drop':
-            model.metadata.drop_all()
+            model.repo.clean_db()
             if self.verbose:
                 print 'Cleaning DB: SUCCESS' 
         elif cmd == 'dump' or cmd == 'load':
@@ -101,7 +101,7 @@ class CreateTestData(CkanCommand):
     def create(self):
         import ckan.model as model
         model.Session.remove()
-        rev = model.new_revision() 
+        rev = model.repo.new_revision() 
         rev.author = u'tolstoy'
         rev.message = u'''Creating test data.
  * Package: annakarenina

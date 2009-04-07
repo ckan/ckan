@@ -43,7 +43,7 @@ class TestPackage:
             p.purge()
         model.Session.commit()
 
-        rev = model.new_revision()
+        rev = model.repo.new_revision()
         self.pkg1 = model.Package(name=self.name)
         self.pkg1.notes = self.notes
         self.license_name = u'OKD Compliant::Other'
@@ -68,7 +68,7 @@ class TestPackage:
         newnotes = 'Written by Beethoven'
         author = 'jones'
 
-        rev2 = model.new_revision()
+        rev2 = model.repo.new_revision()
         pkg = model.Package.by_name(self.name)
         pkg.notes = newnotes
         rev2.author = 'jones'
@@ -87,9 +87,7 @@ class TestPackageWithTags:
     """
 
     def setup_class(self):
-        # use this when things get fouled up ...
-        # model.rebuild_db()
-        rev1 = model.new_revision()
+        rev1 = model.repo.new_revision()
         self.tagname = u'testtagm2m'
         self.tagname2 = u'testtagm2m2'
         self.tagname3 = u'testtag3'
@@ -133,7 +131,7 @@ class TestPackageWithTags:
         assert len(all) == 2
 
     def test_add_tag_by_name(self):
-        rev = model.new_revision()
+        rev = model.repo.new_revision()
         pkg = model.Package.by_name(self.pkgname)
         pkg.add_tag_by_name(self.tagname3)
         model.Session.commit()
@@ -154,13 +152,11 @@ class TestPackageWithTags:
 class TestPackageWithLicense:
 
     def setup_class(self):
-        # use this when things get fouled up ...
-        # model.rebuild_db()
         self.licname1 = 'test_license1'
         self.licname2 = 'test_license2'
         self.license1 = model.License(name=self.licname1)
         self.license2 = model.License(name=self.licname2)
-        rev = model.new_revision()
+        rev = model.repo.new_revision()
         self.pkgname = 'testpkgfk'
         pkg = model.Package(name=self.pkgname)
         pkg.license = self.license1
@@ -168,7 +164,7 @@ class TestPackageWithLicense:
         self.rev1id = rev.id
         model.Session.remove()
 
-        rev = model.new_revision()
+        rev = model.repo.new_revision()
         pkg = model.Package.by_name(self.pkgname)
         pkg.license = self.license2
         model.Session.commit()

@@ -33,8 +33,8 @@ class TestConverter(object):
         assert len(dumpeddata['Revision']) == 2, dumpeddata['Revision']
    
     def test_load(self):
-        model.metadata.drop_all()
-        model.create_db()
+        model.repo.clean_db()
+        model.repo.create_db()
         d = Dumper()
         d.load(self.outpath)
         assert len(model.Package.query.all()) == 2

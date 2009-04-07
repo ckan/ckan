@@ -19,49 +19,10 @@ class Repository(vdm.sqlalchemy.Repository):
             rev.message = u'Initialising the Repository'
         self.commit_and_remove()
 
-    def begin_transaction(self):
-        # do *not* call begin again as we are automatically within a
-        # transaction at all times as session was set up as transactional
-        # (every commit is paired with a begin)
-        # <http://groups.google.com/group/sqlalchemy/browse_thread/thread/a54ce150b33517db/17587ca675ab3674>
-        # Session.begin()
-        rev = new_revision()
-        self.revision = rev
-        return rev
-
-    def begin(self):
-        return self.begin_transaction()
-
-    def commit(self):
-        self.revision = None
-        try:
-            Session.commit()
-        except:
-            Session.rollback()
-            Session.remove()
-            raise
-
-    def history(self):
-        active = State.query.filter_by(name='active').one()
-        return Revision.query.filter_by(state=active).all()
-
     def youngest_revision(self):
         return Revision.youngest()
 
 repo = Repository(metadata, Session,
         versioned_objects=[Package, PackageTag]
         )
-
-# TODO: move this onto the repo object
-def create_db():
-    repo.create_db()
-
-def init_db():
-    repo.init_db()
-
-def rebuild_db():
-    repo.rebuild_db()
-
-def new_revision():
-    return repo.new_revision()
 

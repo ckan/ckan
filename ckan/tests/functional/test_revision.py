@@ -9,7 +9,7 @@ class TestRevisionController(TestController2):
         model.Session.remove()
         # rebuild db before this test as it depends delicately on what
         # revisions exist
-        model.rebuild_db()
+        model.repo.rebuild_db()
         CreateTestData.create()
 
     @classmethod
@@ -25,7 +25,7 @@ class TestRevisionController(TestController2):
     def test_paginated_list(self):
         try:
             self.create_100_revisions()
-            revisions = model.repo.history()
+            revisions = model.repo.history().all()
             revision1 = revisions[0]
             revision2 = revisions[50]
             revision3 = revisions[100]
@@ -98,7 +98,7 @@ class TestRevisionController(TestController2):
 
     def create_100_revisions(self):
         for i in range(0,100):
-            rev = model.repo.begin()
+            rev = model.repo.new_revision()
             rev.author = "Test Revision %s" % i
             model.repo.commit()
 
@@ -137,7 +137,7 @@ class TestRevisionController(TestController2):
 
     def test_list_format_atom(self):
         self.create_100_revisions()
-        revisions = model.repo.history()
+        revisions = model.repo.history().all()
         revision1 = revisions[0]
         try:
             # Revisions are most recent first, with first rev on last page.

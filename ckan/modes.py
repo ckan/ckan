@@ -64,7 +64,7 @@ class PresentationMode(object):
         # Todo: Validate request_data.
         kwds = self.request_data
         kwds = self.convert_unicode_kwds(kwds)
-        rev = model.new_revision()
+        rev = model.repo.new_revision()
         register = self.get_register()
         Presenter = self.get_entity_presenter_class()
         try:
@@ -89,7 +89,7 @@ class PresentationMode(object):
     
     def update_entity(self, txn_author='', txn_log_message=''):
         # Todo: Validate request_data.
-        rev = model.new_revision()
+        rev = model.repo.new_revision()
         entity = self.get_entity()
         if entity:
             register = self.get_register()
@@ -102,7 +102,7 @@ class PresentationMode(object):
         return entity
         
     def delete_entity(self, txn_author='', txn_log_message=''):
-        rev = model.repo.begin_transaction()
+        rev = model.repo.new_revision()
         try:
             entity = self.get_entity()
             entity.delete()

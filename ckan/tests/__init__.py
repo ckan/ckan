@@ -48,7 +48,7 @@ class TestController2(object):
         self.app = paste.fixture.TestApp(wsgiapp)
 
     def create_100_packages(self):
-        rev = model.new_revision()
+        rev = model.repo.new_revision()
         for i in range(0,100):
             name = u"testpackage%s" % i
             model.Package(name=name)

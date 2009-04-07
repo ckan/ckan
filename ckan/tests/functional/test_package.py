@@ -116,7 +116,7 @@ class TestPackageControllerUpdate(TestController2):
 class TestPackageControllerEdit(TestController2):
 
     def setup_method(self, method):
-        rev = model.new_revision()
+        rev = model.repo.new_revision()
         self.editpkg_name = u'editpkgtest'
         self.editpkg = model.Package(name=self.editpkg_name)
         self.editpkg.url = u'editpkgurl.com'

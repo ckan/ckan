@@ -51,7 +51,7 @@ class PackageController(CkanBaseController):
             # Todo: In-form error indication.
             return render('package/create')
         try:
-            rev = self.repo.begin_transaction()
+            rev = self.repo.new_revision()
             c.name = schema.to_python(request.params)['name']
             pkg = model.Package(name=c.name)
             rev.author = c.author
@@ -193,7 +193,7 @@ class PackageController(CkanBaseController):
             indict['licenses'] = [request.params['licenses']]
         else:
             indict['licenses'] = []
-        rev = model.new_revision()
+        rev = model.repo.new_revision()
         rev.author = c.author
         log_message = indict.get('log_message', '')
         if self._is_spam(log_message):

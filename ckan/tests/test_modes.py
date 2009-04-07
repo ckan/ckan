@@ -89,7 +89,7 @@ class BaseTestPackagePresentation(BaseTestPresentationMode):
         
     @classmethod
     def create_package(self):
-        ckan.model.repo.begin_transaction()
+        ckan.model.repo.new_revision()
         try:
             p = model.Package(name=self.request_body['name'])
         except:

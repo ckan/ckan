@@ -21,7 +21,7 @@ class RevisionController(CkanBaseController):
                 description=u'Recent changes to the CKAN repository.',
                 language=u'en',
             )
-            select_results = model.repo.history()
+            select_results = model.repo.history().all()
             for revision in select_results:
                 if not revision.id and revision.number:
                     continue
