@@ -211,6 +211,12 @@ class PackageController(CkanBaseController):
             model.Session.commit()
         return error_msg
 
+    def history(self, id):
+        c.pkg = model.Package.by_name(id)
+        if not c.pkg:
+            self.abort404()
+        c.revisions = c.pkg.all_revisions
+        return render('package/history')
 
 class MockMode(object):
 

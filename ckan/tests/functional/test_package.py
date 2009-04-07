@@ -97,6 +97,14 @@ class TestPackageController(TestController2):
         for required in requireds:
             print results_page
             assert required in results_page, (required, results_page)
+    
+    def test_history(self):
+        name = 'annakarenina'
+        offset = url_for(controller='package', action='history', id=name)
+        res = self.app.get(offset)
+        assert 'History' in res
+        assert 'Revisions' in res
+        assert name in res
 
 
 class TestPackageControllerUpdate(TestController2):

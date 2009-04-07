@@ -77,7 +77,7 @@ class TestPackage:
         outpkg = model.Package.by_name(self.name)
         assert outpkg.notes == newnotes
         assert len(outpkg.all_revisions) > 0
-        assert outpkg.all_revisions[-1].revision.author == author
+        assert outpkg.all_revisions[0].revision.author == author
 
 
 class TestPackageWithTags:

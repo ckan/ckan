@@ -1,0 +1,30 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+  
+  <py:def function="page_title">Package - ${c.pkg.name} - History</py:def>
+
+  <div py:match="content">
+    <h2>
+      <a href="${h.url_for(controller='package',action='read',id=c.pkg.name)}">${c.pkg.name}</a> - History
+    </h2>
+
+    <h3>Revisions</h3>
+    <table>
+      <tr>
+        <th>Revision</th><th>Timestamp</th><th>Author</th><th>Log Message</th>
+      </tr>
+      <py:for each="rev in [ pkgrev.revision for pkgrev in c.revisions ]">
+      <tr>
+        <td>
+          <a href="${h.url_for(controller='revision',action='read',id=rev.id)}">${rev.id}</a>
+        </td>
+        <td>${rev.timestamp}</td>
+        <td>${rev.author}</td>
+        <td>${rev.message}</td>
+      </tr> 
+      </py:for>
+    </table>
+	</div>
+
+  <xi:include href="layout.html" />
+</html>

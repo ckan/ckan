@@ -5,7 +5,8 @@
 
   <div py:match="content">
     <h2>Package: ${c.pkg.name}
-      ${ XML(h.link_to('[edit]', h.url_for(action='edit', id=c.pkg.name))) }
+      <a href="${h.url_for(controller='package',action='edit',id=c.pkg.name)}">[edit]</a>
+      <a href="${h.url_for(controller='package',action='history',id=c.pkg.name)}">[history]</a>
     </h2>
     ${c.content}
   </div>
