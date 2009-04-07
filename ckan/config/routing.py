@@ -18,7 +18,9 @@ def make_map():
 
     # CUSTOM ROUTES HERE
 
-    map.connect('', controller='home', action='index')
+    map.connect('home', '', controller='home', action='index')
+    map.connect('guide', 'guide', controller='home', action='guide')
+    map.connect('license', 'license', controller='home', action='license')
     map.connect('api/rest', controller='rest', action='index')
     map.connect('api/rest/:register', controller='rest', action='list',
         conditions=dict(method=['GET']))

@@ -3,18 +3,18 @@ from ckan.tests import *
 class TestHomeController(TestController2):
 
     def test_home_page(self):
-        offset = url_for(controller='home')
+        offset = url_for('home')
         res = self.app.get(offset)
         print str(res)
         assert 'Packages' in res
 
     def test_packages_link(self):
-        offset = url_for(controller='home')
+        offset = url_for('home')
         res = self.app.get(offset)
         res.click('Packages', index=0)
         
     def test_tags_link(self):
-        offset = url_for(controller='home')
+        offset = url_for('home')
         res = self.app.get(offset)
         res.click('Tags')
         
@@ -23,8 +23,13 @@ class TestHomeController(TestController2):
         res = self.app.get(offset, status=404)
 
     def test_license(self):
-        offset = url_for(controller='license')
+        offset = url_for('license')
         res = self.app.get(offset)
         print str(res)
         assert 'All content and data on CKAN is ' in res
 
+    def test_guide(self):
+        offset = url_for('guide')
+        res = self.app.get(offset)
+        print str(res)
+        assert 'CKAN Guide' in res

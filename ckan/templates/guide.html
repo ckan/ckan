@@ -1,0 +1,14 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+  
+  <py:def function="page_title">Guide</py:def>
+
+  <div py:match="content">
+    <h2>CKAN Guide</h2>
+
+    ${HTML(h.markdown(c.info))}
+
+	</div>
+
+  <xi:include href="layout.html" />
+</html>
