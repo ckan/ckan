@@ -1,13 +1,17 @@
 <html xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude">
   
-  <py:def function="page_title">Packages - Edit</py:def>
+  <py:def function="page_title">Packages - Edit - ${c.pkgname}</py:def>
 
   <div py:match="content">
     <h2>
-      Edit Package: ${c.pkg_name}
+      Edit Package: ${c.pkgname}
       <a href="#preview" py:if="c.preview">(skip to preview)</a>
     </h2>
+
+    <h3 py:if="c.error" class="form-errors">
+      Error: ${c.error}
+    </h3>
 
     ${HTML(c.form)}
 

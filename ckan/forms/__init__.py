@@ -1,5 +1,4 @@
 import formencode
-# import formencode.sqlschema
 
 import ckan.model as model
 
@@ -8,7 +7,7 @@ class UniquePackageName(formencode.FancyValidator):
         exists = model.Package.query.filter_by(name=value).count() > 0
         if exists:
             raise formencode.Invalid(
-                'That username already exists',
+                'That package name already exists',
                 value, state)
         else:
             return value
@@ -23,13 +22,13 @@ class LowerCase(formencode.FancyValidator):
          return value
 
 std_object_name = formencode.All(
-        formencode.validators.MinLength(2, strip=True),
+        formencode.validators.MinLength(2, strip=True, not_empty=True),
         formencode.validators.PlainText(strip=True),
         LowerCase(strip=True),
         )
 
 package_name_validator = formencode.All(
-        formencode.validators.MinLength(2),
+        formencode.validators.MinLength(2, not_empty=True),
         formencode.validators.PlainText(),
         LowerCase(),
         UniquePackageName(),
@@ -39,6 +38,7 @@ class PackageNameSchema(formencode.Schema):
 
     name = package_name_validator
     allow_extra_fields = True
+
 
 from sqlalchemy.orm import class_mapper
 class PackageSchema(object):
@@ -64,24 +64,35 @@ class PackageSchema(object):
         return ' '.join(tagnames)
     
     def to_python(self, indict):
-        tags = indict.pop('tags', '')
-        licenses = indict.pop('licenses', [])
-
+        id = indict.get('id', '')
         name = indict.get('name', '')
-        outobj = model.Package.by_name(name)
-        # TODO: ? create the object if it does not already exist
+        if not id: # new item
+            if 'id' in indict:
+                del indict['id'] # remove so not set in attributes below
+            PackageNameSchema.to_python(indict)
+            outobj = model.Package()
+        else:
+            # TODO: validate name
+            # name could have changed ...
+            # std_object_name.validate(name)
+            outobj = model.Package.query.get(int(id))
         if outobj is None:
-            msg = 'Cannot update object named "%s" as does not exist' % outobj
+            msg = 'Something very wrong: cannot find object to update'
             raise Exception(msg)
-
-        if len(licenses) > 0:
-            licenseobj = model.License.byName(licenses[0])
-            outobj.license = licenseobj
 
         table = class_mapper(model.Package).mapped_table
         for attrname in table.c.keys():
             if attrname in indict:
                 setattr(outobj, attrname, indict[attrname])
+
+        # Must do tags/licenses after basic attributes as may result in flush
+        # (and flush requires name to be set)
+        tags = indict.get('tags', '')
+        licenses = indict.get('licenses', [])
+        if len(licenses) > 0:
+            licenseobj = model.License.query.filter_by(name=licenses[0]).first()
+            outobj.license = licenseobj
+
         outobj = self._update_tags(outobj, tags)
         return outobj
 

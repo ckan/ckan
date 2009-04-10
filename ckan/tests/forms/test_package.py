@@ -10,7 +10,7 @@ class TestPackageName:
     unique = ckan.forms.UniquePackageName()
     lower = ckan.forms.LowerCase()
     schema = ckan.forms.PackageNameSchema()
-    bad_names = [ 'blAh', 'a', 'annakarenina' ]
+    bad_names = [ '', 'blAh', 'a', 'annakarenina' ]
     good_names = [ 'blah', 'ab', 'ab1', 'some-random-made-up-name' ]
     
     @classmethod
@@ -23,12 +23,13 @@ class TestPackageName:
         ckan.tests.CreateTestData.delete()
 
     def _check_raises(self, fn, name):
+        print name
         py.test.raises(formencode.Invalid, fn, name)
 
     def test_lower_case_raises(self):
         print 'In lower case raises'
         print model.Package.query.all()
-        self._check_raises(self.lower.to_python, self.bad_names[0])
+        self._check_raises(self.lower.to_python, self.bad_names[1])
 
     def test_lower_case_ok(self):
         self.lower.to_python(self.good_names[0])
@@ -58,141 +59,140 @@ class TestPackageName:
             self.schema.to_python(indict)
 
 
-# class TestPackageSchemaFromPython:
-# 
-#     def setup_class(self):
-#         self.schema = ckan.forms.PackageSchema()
-#         self.name = 'annakarenina'
-#         rev = ckan.models.repo.youngest_revision()
-#         self.pkg = rev.model.packages.get(self.name)
-#         self.out = self.schema.from_python(self.pkg)
-#         active = ckan.models.State.byName('active')
-#         self.exp = {
-#                 'title'   : self.pkg.title,
-#                 'url'     : self.pkg.url,
-#                 'download_url'     : self.pkg.download_url,
-#                 'notes'   : self.pkg.notes,
-#                 'state'   : active,
-#                 'id'      : 1,
-#                 'name'    : self.pkg.name,
-#                 'tags'    : u'russian tolstoy',
-#                 'licenses': [ 'OKD Compliant::Other' ] 
-#                 }
-# 
-#     def _check_from_python(self, key):
-#         assert self.out[key] == self.exp[key]
-# 
-#     def test_from_python(self):
-#         print 'out', self.out
-#         print 'exp', self.exp
-#         keys = self.exp.keys()
-#         assert len(keys) == len(self.out.keys())
-#         for key in keys:
-#             self._check_from_python(key) 
-# 
-# class TestPackageSchemaToPython:
-# 
-#     def setup_class(self):
-#         txn = ckan.models.repo.begin_transaction()
-#         self.schema = ckan.forms.PackageSchema()
-#         self.testname = u'schematestpkg'
-#         self.newtagname = u'schematesttag'
-#         self.indict = {
-#                 # do not need id as name should be enough
-#                 # 'id'   : testpkg.id,
-#                 'name' : self.testname,
-#                 'notes': u'some new notes',
-#                 'tags' : u'russian tolstoy, ' + self.newtagname,
-#                 'licenses': [ 'OKD Compliant::Other' ] 
-#                 }
-#         try: # wrap this so that teardown still gets called if there is an error
-#             self.testpkg = txn.model.packages.create(name=self.testname)
-#             self.schema.to_python(self.indict, state=txn)
-#             txn.commit()
-#         except Exception, inst:
-#             rev = ckan.models.repo.youngest_revision()
-#             try: rev.model.packages.purge(self.testname)
-#             except: pass
-#             raise
-#         rev = ckan.models.repo.youngest_revision()
-#         self.outpkg = rev.model.packages.get(self.testname)
-# 
-#     def teardown_class(self):
-#         rev = ckan.models.repo.youngest_revision()
-#         try: rev.model.packages.purge(self.testname)
-#         except: pass
-#         try:
-#             rev.model.tags.purge(self.newtagname)
-#         except: pass
-# 
-#     def test_to_python(self):
-#         self.outpkg.notes == self.indict['notes']
-# 
-#     def test_to_python_tags(self):
-#         taglist = []
-#         for xx in self.outpkg.tags:
-#             taglist.append(xx.tag.name)
-#         assert u'russian' in taglist
-#         assert u'tolstoy' in taglist
-#         assert self.newtagname in taglist
-# 
-#     def test_to_python_licenses(self):
-#         out = [ self.outpkg.license.name ]
-#         assert self.indict['licenses'] == out
-# 
-# class TestPackageSchemaToPython2:
-# 
-#     def setup_class(self):
-#         txn = ckan.models.repo.begin_transaction()
-#         self.schema = ckan.forms.PackageSchema()
-#         self.testname2 = u'schematestpkg2'
-#         try:
-#             testpkg2 = txn.model.packages.create(name=self.testname2)
-#             testpkg2.add_tag_by_name('russian')
-#             testpkg2.add_tag_by_name('tolstoy')
-#             indict2 = {
-#                     'name' : self.testname2,
-#                     'tags' : u'tolstoy',
-#                     }
-#             self.schema.to_python(indict2, state=txn)
-#             txn.commit()
-#         except:
-#             rev = ckan.models.repo.youngest_revision()
-#             try: rev.model.packages.purge(self.testname2)
-#             except: pass
-#             raise
-#         rev = ckan.models.repo.youngest_revision()
-#         self.outpkg = rev.model.packages.get(self.testname2)
-# 
-#     def teardown_class(self):
-#         rev = ckan.models.repo.youngest_revision()
-#         rev.model.packages.purge(self.testname2)
-# 
-#     def test_to_python_tags_delete_and_keep(self):
-#         taglist = []
-#         for xx in self.outpkg.tags:
-#             taglist.append(xx.tag.name)
-#         assert u'russian' not in taglist
-#         assert u'tolstoy' in taglist
-# 
-# class TestPackageSchemaToPythonBadTagName:
-# 
-#     def setup_class(self):
-#         self.schema = ckan.forms.PackageSchema()
-# 
-#     def test_bad_tag_name_does_not_work(self):
-#         try:
-#             ok = False
-#             txn = ckan.models.repo.begin_transaction()
-#             # ok to use annakarenina since change should fail due to bad tag
-#             indict2 = {
-#                     'name' : 'annakarenina',
-#                     'tags' : u'tolstoy%%',
-#                     }
-#             self.schema.to_python(indict2, state=txn)
-#             txn.commit()
-#         except formencode.Invalid, inst:
-#             ok = True
-#         if not ok:
-#             assert False, 'Failed to raise an exception given bad tag name'
-# 
+class TestPackageSchemaFromPython:
+
+    def setup_class(self):
+        ckan.tests.CreateTestData.create()
+        self.schema = ckan.forms.PackageSchema()
+        self.name = u'annakarenina'
+        self.pkg = model.Package.by_name(self.name)
+        self.out = self.schema.from_python(self.pkg)
+        active = model.State.query.filter_by(name='active').one()
+        self.exp = {
+                'id'      : self.pkg.id,
+                'title'   : self.pkg.title,
+                'url'     : self.pkg.url,
+                'download_url'     : self.pkg.download_url,
+                'notes'   : self.pkg.notes,
+                'state_id'   : active.id,
+                'name'    : self.pkg.name,
+                'tags'    : u'russian tolstoy',
+                'licenses': [ 'OKD Compliant::Other' ],
+                'license_id' : self.pkg.license_id,
+                'revision_id': self.pkg.revision_id
+                }
+
+    @classmethod
+    def teardown_class(self):
+        ckan.tests.CreateTestData.delete()
+        model.Session.remove()
+
+    def _check_from_python(self, key):
+        assert self.out[key] == self.exp[key]
+
+    def test_from_python(self):
+        print 'out', self.out
+        print 'exp', self.exp
+        keys = self.exp.keys()
+        assert len(keys) == len(self.out.keys())
+        for key in keys:
+            self._check_from_python(key) 
+
+
+class TestPackageSchemaToPythonNew:
+    schema = ckan.forms.PackageSchema()
+    testname = u'schematestpkg'
+    newtagname = u'schematesttag'
+
+    @classmethod
+    def setup_class(self):
+        txn = model.repo.new_revision()
+        self.indict = {
+                'name' : self.testname,
+                'notes': u'some new notes',
+                'tags' : u'russian tolstoy, ' + self.newtagname,
+                'licenses': [ 'OKD Compliant::Other' ] 
+                }
+        try: # wrap this so that teardown still gets called if there is an error
+            # self.testpkg = txn.model.packages.create(name=self.testname)
+            self.schema.to_python(self.indict)
+            model.repo.commit_and_remove()
+        except Exception, inst:
+            model.Session.remove()
+            model.repo.rebuild_db()
+            raise
+        rev = model.repo.youngest_revision()
+
+    @classmethod
+    def teardown_class(self):
+        model.Session.remove()
+        model.repo.rebuild_db()
+
+    def test_to_python(self):
+        outpkg = model.Package.by_name(self.testname)
+        outpkg.notes == self.indict['notes']
+
+    def test_to_python_tags(self):
+        outpkg = model.Package.by_name(self.testname)
+        taglist = [ tag.name for tag in outpkg.tags ]
+        assert u'russian' in taglist
+        assert u'tolstoy' in taglist
+        assert self.newtagname in taglist
+
+    def test_to_python_licenses(self):
+        outpkg = model.Package.by_name(self.testname)
+        out = [ outpkg.license.name ]
+        assert self.indict['licenses'] == out
+
+
+class TestPackageSchemaToPythonUpdate:
+    schema = ckan.forms.PackageSchema()
+    pkgname = u'annakarenina'
+
+    @classmethod
+    def setup_class(self):
+        ckan.tests.CreateTestData.create()
+        model.Session.remove()
+        anna = model.Package.by_name(self.pkgname)
+        # has 2 tags: russian and tolstoy
+        indict2 = {
+            'id'   : anna.id,
+            'name' : self.pkgname,
+            'tags' : u'tolstoy',
+        }
+        try:
+            model.repo.new_revision()
+            self.schema.to_python(indict2)
+            model.repo.commit_and_remove()
+        except:
+            model.Session.remove()
+            model.repo.rebuild_db()
+            raise
+
+    @classmethod
+    def teardown_class(self):
+        model.Session.remove()
+        ckan.tests.CreateTestData.delete()
+        model.Session.remove()
+
+    def test_to_python_tags_delete_and_keep(self):
+        outpkg = model.Package.by_name(self.pkgname)
+        taglist = [ tag.name for tag in outpkg.tags ]
+        assert u'russian' not in taglist
+        assert u'tolstoy' in taglist
+
+    def test_bad_tag_name_does_not_work(self):
+        outpkg = model.Package.by_name(self.pkgname)
+        ok = False
+        try:
+            indict2 = {
+                    'id'   : outpkg.id,
+                    'name' : 'annakarenina',
+                    'tags' : u'tolstoy%%',
+                    }
+            self.schema.to_python(indict2)
+        except formencode.Invalid, inst:
+            ok = True
+        if not ok:
+            assert False, 'Failed to raise an exception given bad tag name'
+

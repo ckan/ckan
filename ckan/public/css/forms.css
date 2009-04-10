@@ -189,3 +189,16 @@ ul.desc { list-style-type: circle; }
   width: 5em;
 }
 
+/* form encode default classes */
+.error,
+span.error-message
+{
+  background-color: #c00;
+  padding: 2px;
+}
+
+span.error-message
+{
+  font-weight: bold;
+}
+
