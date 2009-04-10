@@ -1,6 +1,6 @@
 from core import *
 from apikey import apikey_table, ApiKey
-from extras import Extra, extra_table
+# from extras import Extra, extra_table
 
 from license import LicenseList
 license_names = LicenseList.all_formatted

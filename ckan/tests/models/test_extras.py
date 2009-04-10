@@ -2,7 +2,7 @@
 from ckan.tests import *
 import ckan.model as model
 
-class TestExtras:
+class _TestExtras:
     @classmethod 
     def setup_class(self):
         CreateTestData.create()
