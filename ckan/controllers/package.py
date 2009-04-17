@@ -60,28 +60,25 @@ class PackageController(CkanBaseController):
     def new(self):
         c.has_autocomplete = True
         c.error = ''
-        if not 'commit' in request.params and not 'preview' in request.params:
-            defaults = {}
-            c.form = self._render_edit_form(defaults)
-            return render('package/new')
-        elif request.params.has_key('commit'):
+        if request.params.has_key('commit'):
             c.pkgname = request.params['name']
             try:
                 self._update()
+                h.redirect_to(action='read', id=c.pkgname)
             except formencode.Invalid, error:
                 c.error = error
-                indict = dict(request.params)
-                c.form = self._render_edit_form(indict, c.error)
-                return render('package/new')
+                # will now continue into usual processing
             # TODO: ?
             # except Exception, error:
             #   raise if in debug mode?
-            h.redirect_to(action='read', id=c.pkgname)
-        else: # Must be preview
-            indict = dict(request.params)
-            c.form = self._render_edit_form(indict)
+
+        # use request params even when starting to allow posting from "outside"
+        # (e.g. bookmarklet)
+        indict = dict(request.params)
+        c.form = self._render_edit_form(indict, c.error)
+        if 'preview' in request.params:
             c.preview = genshi.HTML(self._render_package(indict))
-            return render('package/new')
+        return render('package/new')
 
     # TODO: use this decorator again
     # @validate(schema=ckan.forms.PackageSchema(), form='edit')

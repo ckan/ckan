@@ -1,0 +1,29 @@
+<html>
+  <head>
+    <title>Testing Bookmarklet</title>
+    <meta name="description" content="Your descriptive sentence or two goes here." />
+    <script type="text/javascript" src="bookmarklet.js"></script>
+    <script type="text/javascript">
+// Tried this external script method from
+// http://betterexplained.com/articles/how-to-make-a-bookmarklet-for-your-web-application/
+// Unfortunately using this method popup gets blocked by Firefox ...
+// So went back to direct method
+// To compress: http://ted.mielczarek.org/code/mozilla/bookmarklet.html
+// (Take only inside function part)
+function bm() {
+    addtockan = document.createElement('script');
+    addtockan.type='text/javascript';
+    addtockan.src='http://ckan.net/scripts/bookmarklet.js';
+    document.getElementsByTagName('head')[0].appendChild(addtockan);
+}
+</script>
+
+  </head>
+  <body>
+    <p><strong>Test bookmarklet js (not a proper bookmarklet):</strong><a href="javascript:add_to_ckan()">Add to CKAN</a></p>
+
+    <p><strong>External script bookmarklet js:</strong> <a href="javascript:bm();add_to_ckan();">Add to CKAN</a></p>
+
+    <p><strong>Proper bookmarklet (compressed -- need to escape &amp;):</strong> <a href="javascript:(function(){f='http://ckan.net/package/new?url='+encodeURIComponent(window.location.href)+'&amp;title='+encodeURIComponent(document.title);if((n=document.getElementsByName('description')[0])&amp;&amp;(d=n.content)){f+='&amp;notes='+encodeURIComponent(d);}a=function(){if(!window.open(f)){location.href=f;}};if(/Firefox/.test(navigator.userAgent)){setTimeout(a,0)}else{a()}})()">Add to CKAN</a>
+  </body>
+</html>
