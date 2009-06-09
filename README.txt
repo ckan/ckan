@@ -9,7 +9,7 @@ See ckan.__long_description__ for more information.
 
 This material is open and licensed under the MIT license as follows:
 
-Copyright (c) 2006-2007 Open Knowledge Foundation.
+Copyright (c) 2006-2009 Open Knowledge Foundation.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
