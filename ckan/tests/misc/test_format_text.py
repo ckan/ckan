@@ -9,16 +9,11 @@ class TestFormatText:
 
 *Some italicized text.*
 '''
-        exp = '''
-
-<h1>Hello World</h1>
+        exp = '''<h1>Hello World</h1>
 <p><strong>Some bolded text.</strong>
 </p>
 <p><em>Some italicized text.</em>
-</p>
-
-
-'''
+</p>'''
         format = MarkdownFormat()
         out = format.to_html(instr)
         assert out == exp
