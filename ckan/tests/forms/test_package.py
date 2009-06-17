@@ -71,6 +71,7 @@ class TestPackageSchemaFromPython:
         self.exp = {
                 'id'      : self.pkg.id,
                 'title'   : self.pkg.title,
+                'version' : self.pkg.version,
                 'url'     : self.pkg.url,
                 'download_url'     : self.pkg.download_url,
                 'notes'   : self.pkg.notes,

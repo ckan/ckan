@@ -202,6 +202,7 @@ class PackageController(CkanBaseController):
         # Todo: More specific error handling (don't catch-all and set 500)?
         try:
             c.pkg_name = indict['name']
+            c.pkg_version = indict['version']
             c.pkg_title = indict['title']
             c.pkg_url = indict['url']
             c.pkg_download_url = indict['download_url']

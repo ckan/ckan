@@ -11,6 +11,7 @@ class CkanCommand(paste.script.command.Command):
         dest='file_path',
         help="File to dump results to (if needed)")
     default_verbosity = 1
+    group_name = 'ckan'
 
     def _load_config(self):
         from paste.deploy import appconfig
@@ -35,6 +36,7 @@ class ManageDb(CkanCommand):
     db clean
     db drop  # same as db clean
     db migrate06
+    db migrate09
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
@@ -60,6 +62,10 @@ class ManageDb(CkanCommand):
             import ckan.lib.converter
             dumper = ckan.lib.converter.Dumper()
             dumper.migrate_06_to_07()
+        elif cmd == 'migrate09':
+            import ckan.model as model
+            sql = '''ALTER TABLE package ADD version VARCHAR(100)'''
+            model.metadata.bind.execute(sql)
         else:
             print 'Command %s not recognized' % cmd
 
@@ -110,6 +116,7 @@ class CreateTestData(CkanCommand):
 '''
         pkg1 = model.Package(name=self.pkgname1)
         pkg1.title = u'A Novel By Tolstoy'
+        pkg1.version = u'0.7a'
         pkg1.url = u'http://www.annakarenina.com'
         # put an & in the url string to test escaping
         pkg1.download_url = u'http://www.annakarenina.com/download/x=1&y=2'

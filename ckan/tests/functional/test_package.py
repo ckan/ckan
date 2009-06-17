@@ -48,6 +48,7 @@ class TestPackageController(TestController2):
         print res
         assert 'Packages - %s' % name in res
         assert name in res
+        assert self.anna.version in res
         assert 'Url:' in res
         assert self.anna.url in res
         assert cgi.escape(self.anna.download_url) in res
@@ -108,8 +109,10 @@ class TestPackageController(TestController2):
 
 
 class TestPackageControllerEdit(TestController2):
-
     def setup_method(self, method):
+        self.setUp()
+
+    def setUp(self):
         rev = model.repo.new_revision()
         self.editpkg_name = u'editpkgtest'
         self.editpkg = model.Package(name=self.editpkg_name)
@@ -122,6 +125,9 @@ class TestPackageControllerEdit(TestController2):
         self.newtagname = 'russian'
 
     def teardown_method(self, method):
+        self.tearDown()
+
+    def tearDown(self):
         pkg = model.Package.by_name(self.editpkg.name)
         if pkg:
             pkg.purge()
@@ -141,11 +147,13 @@ class TestPackageControllerEdit(TestController2):
         newurl = 'http://www.editpkgnewurl.com'
         new_download_url = newurl + '/download/'
         newlicense = 'Non-OKD Compliant::Other'
+        newversion = '0.9b'
         fv = self.res.forms[0]
         fv['title'] =  new_title
         fv['url'] =  newurl
         fv['download_url'] =  new_download_url
         fv['licenses'] =  newlicense
+        fv['version'] = newversion
         res = fv.submit('commit')
         # get redirected ...
         res = res.follow()
@@ -155,6 +163,7 @@ class TestPackageControllerEdit(TestController2):
         assert pkg.title == new_title 
         assert pkg.url == newurl
         assert pkg.download_url == new_download_url
+        assert pkg.version == newversion
         licenses = [ pkg.license.name ]
         assert newlicense in licenses
 
@@ -200,6 +209,7 @@ class TestPackageControllerNew(TestController2):
     pkgname = u'testpkg'
     pkgtitle = u'mytesttitle'
 
+    @classmethod
     def teardown_class(self):
         model.Session.remove()
         pkg = model.Package.by_name(self.pkgname)

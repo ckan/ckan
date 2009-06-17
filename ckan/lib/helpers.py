@@ -4,7 +4,6 @@ Consists of functions to typically be used within templates, but also
 available to Controllers. This module is available to both as 'h'.
 """
 from webhelpers import *
-from routes import url_for
 from genshi.core import Markup
 
 def wrap_helpers(localdict):
@@ -24,6 +23,7 @@ def wrap_helpers(localdict):
 # for >= 0.3.2 versions of webhelpers
 try:
     from webhelpers.rails.wrapped import *
+    from routes import url_for
 except:
     wrap_helpers(locals())
 
