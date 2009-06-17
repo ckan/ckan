@@ -26,8 +26,10 @@ setup(
         'AuthKit==0.4.0',
         'paginate==0.3.2',
         'uuid>=1.0', # in python 2.5 but not before
-        # markdown is provided as part of webhelpers which comes with pylons
-        #'markdown'         # 1.5 doesn't seem to be on the PCS.
+        # latest version of Routes (1.10) depends on webob in middleware but
+        # does not declare the dependency!
+        # (not sure we need this except in tests but ...)
+        'WebOb',
     ],
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
