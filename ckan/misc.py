@@ -12,8 +12,8 @@ class MarkdownFormat(TextFormat):
         if instr is None:
             return ''
         # import markdown
-        import webhelpers
-        return webhelpers.markdown(instr)
+        import webhelpers.markdown
+        return webhelpers.markdown.markdown(instr)
 
 
 # Todo: Substitute the Pylons webhelper Pagination classes for this class.
