@@ -26,3 +26,12 @@ repo = Repository(metadata, Session,
         versioned_objects=[Package, PackageTag]
         )
 
+
+# Fix up Revision with a packages attribute
+def _get_packages(self):
+    changes = repo.list_changes(self)
+    pkgrevs = changes[Package]
+    return [ p.continuity for p in pkgrevs ]
+
+Revision.packages = property(_get_packages)
+

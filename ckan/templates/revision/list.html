@@ -11,7 +11,7 @@
 
     <table py:match="paginatedlistitems">
       <tr>
-        <th>Number</th><th>Timestamp</th><th>Author</th><th>Log Message</th>
+        <th>Number</th><th>Timestamp</th><th>Author</th><th>Packages</th><th>Log Message</th>
       </tr>
       <py:for each="item in c.page.items">
       <tr>
@@ -42,6 +42,11 @@
         </td>
         <td>${item.timestamp}</td>
         <td>${item.author}</td>
+        <td>
+          <py:for each="pkg in item.packages">
+          <a href="${h.url_for(controller='package', action='read', id=pkg.name)}">${pkg.name}</a>
+          </py:for>
+        </td>
         <td>${item.message}</td>
       </tr>
       </py:for>
