@@ -34,13 +34,13 @@ class RevisionController(CkanBaseController):
                     dayAge = 0
                 if dayAge >= dayHorizon:
                     break
-                item_title = 'r%s' % (revision.id)
+                pkgs = u'[%s]' % ' '.join([ p.name for p in revision.packages ])
+                item_title = u'r%s ' % (revision.id)
+                item_title += pkgs
                 if revision.message:
                     item_title += ': %s' % (revision.message or '')
-
                 item_link = h.url_for(action='read', id=revision.id)
-                # Todo: More interesting description (actual pkg/tag changes?).
-                item_description = '%s' % (revision.author or 'no author')
+                item_description = 'Packages affected: %s.\n' % pkgs
                 item_description += '%s' % (revision.message or '')
                 item_author_name = revision.author
                 item_pubdate = revision.timestamp
