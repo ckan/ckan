@@ -1,6 +1,11 @@
 # CKAN CHANGELOG
 
-v0.8 2008-04-10
+v0.9 2009-06-??
+===============
+
+  * (DM!) New version attribute for package
+
+v0.8 2009-04-10
 ===============
 
   * View information about package history (ticket:53)

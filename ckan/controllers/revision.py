@@ -2,7 +2,6 @@ from ckan.lib.base import *
 from ckan.controllers.base import CkanBaseController
 
 import ckan.authz
-import ckan.commands.revision
 from datetime import datetime
 
 class RevisionController(CkanBaseController):

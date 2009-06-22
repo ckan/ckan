@@ -1,7 +1,5 @@
 from ckan.tests import *
 
-import ckan.commands.revision
-
 import ckan.model as model
 
 class TestRevisionPurge:
