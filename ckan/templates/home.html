@@ -30,47 +30,29 @@
   </style>
 
   <div py:match="content">
-    <h2>Welcome to CKAN</h2>
+    <h2>Register and Find Open Knowledge 'Packages' and Projects</h2>
 
-    <p>CKAN is the Comprehensive Knowledge Archive Network, a registry of <a
-      href="http://opendefinition.org/">open knowledge</a> packages and projects
-    (and a few closed ones). CKAN is the place to search for open knowledge
-    resources as well as <a href="/package/new/">register</a> your own.</p>
-    
-    <p>There are currently <strong>${c.package_count} active packages</strong>
-    on the system. Would you like to:</p>
+    <p><strong>${c.package_count} active registered packages</strong> available.</p>
 
-    <ul class="big-buttons">
-      <li><a href="${h.url_for(controller='package', action='search')}">Search Existing Packages</a></li>
-      <li>Or</li>
-      <li><a href="${h.url_for(controller='package', action='new')}">Register A New One</a></li>
-    </ul>
-    
-    <p>Thanks to its underlying <a href="http://www.okfn.org/vdm/">versioned
-      domain model</a> CKAN has a wiki-like interface that lets anyone add and
-    correct packages. Examples of existing entries include a set of <a
-      href="http://www.ckan.net/package/read/shakespeare">Shakespeare's
-      works</a>, a <a href="http://www.ckan.net/package/read/gpw">global
+    <h3>Search for Packages</h3>
+    <p style="font-size: 0.8em;">Some examples:
+      <a href="${h.url_for(controller='package', action='read', id='shakespeare')}">Shakespeare's
+        works</a>,
+      a <a href="http://www.ckan.net/package/read/gpw">global
       population density database</a>, the <a
       href="http://www.ckan.net/package/read/publicwhip">voting records of UK
       MPs</a>, or <a href="http://www.ckan.net/package/read/patent-nber">30
       years of US patents</a>.</p>
 
 
-    <h2>Background</h2>
+    <xi:include href="package/search_form.html" />
 
-    <p>Those familiar with <a href="http://www.freshmeat.net/">freshmeat</a>,
-    <a href="http://www.cpan.org/">CPAN</a> or <a
-      href="http://pypi.python.org">PyPI</a> can think of CKAN as providing an
-    analogous service for <a href="http://opendefinition.org/">open
-      knowledge</a>.</p>
-
-    <p>CKAN is developed and maintained by the <a
-      href="http://www.okfn.org/">Open Knowledge Foundation</a>. Both the
-    CKAN code and data are open: <a href="/license/">free for anyone to use
-      and reuse</a>. To find out more check out the the <a
-      href="http://www.knowledgeforge.net/project/ckan/">CKAN project at
-      knowledgeforge.net</a></p>
+    <ul class="big-buttons">
+      <li>Or</li>
+      <li><a href="${h.url_for(controller='package', action='new')}">Register A New One</a></li>
+    </ul>
+    
+    <p>To find out <a href="${h.url_for('about')}">more about CKAN see here &raquo;</a>.</p>
 	</div>
 
   <xi:include href="layout.html" />

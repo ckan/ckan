@@ -14,7 +14,7 @@ body
 
 #top
 {
-  margin: 1.8em 0 0 0;
+  margin: 0.3em 0 0 0;
   min-width: 600px;
   width: 100%;
 }
@@ -30,7 +30,6 @@ body
   left: 3%;
   width: 68%;
   min-width: 320px;
-  margin-top: 1.4em;
 }
 
 body.plus-secondary #main
@@ -56,7 +55,7 @@ body.no-sidebars #main
   position: absolute;
   left: 72%;
   width: 24%;
-  margin: 2em 0 0 1%;
+  margin: 0.6em 0 0 1%;
 }
 
 body.plus-secondary #primary

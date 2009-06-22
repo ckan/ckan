@@ -1,4 +1,6 @@
-<html xmlns:py="http://genshi.edgewall.org/"
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude">
 
   <xi:include href="common.html" /> 
@@ -7,18 +9,7 @@
 
   <div py:match="content">
     <h2>Packages - Search</h2>
-    <form action="" method="GET">
-      ${XML(h.text_field('q', size=40, value=c.q))}
-      ${XML(h.submit('Search &raquo;', name='search'))}
-      <ul class="desc">
-        <li>Simple text: will search package names and titles</li>
-        <li>By attribute: e.g. 'notes: abc' will search package notes for
-        'abc', 'title: abc' will search titles etc.
-        </li>
-        <li>By tags: 'tags: geodata us' will search for packages tagged with
-        'geodata' and 'us'</li>
-      </ul>
-    </form>
+    <xi:include href="search_form.html" />
     <py:if test="c.show_results">
 		<p>There are <strong>${c.package_count} results</strong>.</p>
 		<py:if test="c.package_count==0">
