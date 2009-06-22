@@ -1,12 +1,7 @@
     <form action="${h.url_for(controller='package', action='search', id=None)}" method="GET">
       ${XML(h.text_field('q', size=40, value=c.q))}
-      ${XML(h.submit('Search &raquo;', name='search'))}
-      <ul class="desc">
-        <li>Simple text: will search package names and titles</li>
-        <li>By attribute: e.g. 'notes: abc' will search package notes for
-        'abc', 'title: abc' will search titles etc.
-        </li>
-        <li>By tags: 'tags: geodata us' will search for packages tagged with
-        'geodata' and 'us'</li>
-      </ul>
+      ${XML(h.submit('Search Packages &raquo;', name='search'))}
+      <p class="desc">
+        E.g. 'geo', 'shakespeare', 'science' 
+      </p>
     </form>

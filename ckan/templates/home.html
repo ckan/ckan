@@ -27,32 +27,35 @@
       ul.big-buttons li a:hover {
         background-color: #F5E4DC;
       }
+
+      form {
+        margin-top: 2em;
+      }
   </style>
 
   <div py:match="content">
-    <h2>Register and Find Open Knowledge 'Packages' and Projects</h2>
+    <h2>Welcome to CKAN</h2>
+
+    <p>CKAN is the Comprehensive Knowledge Archive Network, a registry of <a
+      href="http://opendefinition.org/">open knowledge</a> packages and
+    projects (and a few closed ones). CKAN is the place to search for open
+    knowledge resources as well as register your own. <a
+      href="${h.url_for('about')}">Find out more &raquo;</a>.</p>
+
+    <!--
+    <h3>Find Packages &ndash; or <a href="${h.url_for(controller='package', action='list')}">Browse</a></h3>
 
     <p><strong>${c.package_count} active registered packages</strong> available.</p>
-
-    <h3>Search for Packages (or <a href="${h.url_for(controller='package', action='list')}">Browse</a>)</h3>
-    <p style="font-size: 0.8em;">Some examples:
-      <a href="${h.url_for(controller='package', action='read', id='shakespeare')}">Shakespeare's
-        works</a>,
-      a <a href="http://www.ckan.net/package/read/gpw">global
-      population density database</a>, the <a
-      href="http://www.ckan.net/package/read/publicwhip">voting records of UK
-      MPs</a>, or <a href="http://www.ckan.net/package/read/patent-nber">30
-      years of US patents</a>.</p>
-
+    -->
 
     <xi:include href="package/search_form.html" />
 
-    <ul class="big-buttons">
-      <li>Or</li>
-      <li><a href="${h.url_for(controller='package', action='new')}">Register A New One</a></li>
-    </ul>
-    
-    <p>To find out <a href="${h.url_for('about')}">more about CKAN see here &raquo;</a>.</p>
+    <form action="${h.url_for(controller='package', action='new', id=None)}" method="GET">
+      ${XML(h.text_field('title', size=40, value=''))}
+      ${XML(h.submit('Register a New Package &raquo;', name=''))}
+      <p class="desc">Enter title or short description</p>
+    </form>
+
 	</div>
 
   <xi:include href="layout.html" />
