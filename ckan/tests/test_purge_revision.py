@@ -4,7 +4,7 @@ import ckan.commands.revision
 
 import ckan.model as model
 
-class _TestRevisionPurge:
+class TestRevisionPurge:
     
     @classmethod
     def setup_class(self):
@@ -18,7 +18,7 @@ class _TestRevisionPurge:
     def setup_method(self, name=''):
         self.pkgname = u'revision-purge-test'
 
-        model.repo.begin()
+        model.repo.new_revision()
         self.pkg = model.Package(name=self.pkgname)
         self.old_url = u'abc.com'
         self.pkg.url = self.old_url
@@ -26,17 +26,16 @@ class _TestRevisionPurge:
         tag2 = model.Tag.by_name(u'tolstoy')
         self.pkg.tags.append(tag1)
         self.pkg.tags.append(tag2)
-        model.repo.commit()
+        model.repo.commit_and_remove()
 
-        txn2 = model.repo.begin()
+        txn2 = model.repo.new_revision()
         pkg = model.Package.by_name(self.pkgname)
         newurl = u'blah.com'
         pkg.url = newurl
         pkg.tags = []
         self.pkgname2 = u'revision-purge-test-2'
         self.pkg_new = model.Package(name=self.pkgname2)
-        model.Session.commit()
-        model.Session.remove()
+        model.repo.commit_and_remove()
 
     def teardown_method(self, name=''):
         model.Session.remove()
@@ -50,13 +49,12 @@ class _TestRevisionPurge:
 
     def test_1(self):
         rev = model.repo.youngest_revision()
-        cmd = ckan.commands.revision.PurgeRevision(rev, leave_record=True)
-        cmd.execute()
+        model.repo.purge_revision(rev, leave_record=True)
 
         rev = model.repo.youngest_revision()
         pkg = model.Package.by_name(self.pkgname)
 
-        assert rev.message == 'PURGED'
+        assert rev.message.startswith('PURGED'), rev.message
         assert pkg.url == self.old_url
         pkg2 = model.Package.by_name(self.pkgname2)
         assert pkg2 is None, 'pkgname2 should no longer exist'
@@ -66,18 +64,18 @@ class _TestRevisionPurge:
     def test_2(self):
         rev = model.repo.youngest_revision()
         num = rev.id
-        cmd = ckan.commands.revision.PurgeRevision(rev, leave_record=False)
-        cmd.execute()
+        model.repo.purge_revision(rev, leave_record=True)
 
         rev = model.repo.youngest_revision()
-        assert rev.id < num
+        # TODO: should youngest_revision be made purge aware
+        # (requires state on revision)
+        assert rev.id == num
 
     def test_purge_first_revision(self):
         rev = model.repo.youngest_revision()
         num = rev.id
         rev2 = model.Revision.query.get(rev.id - 1)
-        cmd = ckan.commands.revision.PurgeRevision(rev2, leave_record=False)
-        cmd.execute()
+        model.repo.purge_revision(rev, leave_record=True)
 
         rev = model.repo.youngest_revision()
         assert rev.id == num

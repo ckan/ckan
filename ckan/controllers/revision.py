@@ -85,9 +85,8 @@ class RevisionController(CkanBaseController):
             return render('revision/purge')
         else:
             revision = model.Revision.query.get(id)
-            cmd = ckan.commands.revision.PurgeRevision(revision)
             try:
-                cmd.execute()
+                model.repo.purge_revision(revision, leave_record=True)
             except Exception, inst:
                 # is this a security risk?
                 # probably not because only admins get to here
