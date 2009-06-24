@@ -66,6 +66,10 @@ class ManageDb(CkanCommand):
             import ckan.model as model
             sql = '''ALTER TABLE package ADD version VARCHAR(100)'''
             model.metadata.bind.execute(sql)
+            sql = '''ALTER TABLE package_revision ADD version VARCHAR(100)'''
+            model.metadata.bind.execute(sql)
+            if self.verbose:
+                print 'Migrated successfully' 
         else:
             print 'Command %s not recognized' % cmd
 
