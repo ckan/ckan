@@ -23,7 +23,8 @@ setup(
         'Pylons>=0.9.6.1,<0.9.6.99',
         'Genshi>=0.4',
         'SQLAlchemy>=0.4.8,<=0.4.99',
-        'AuthKit==0.4.0',
+        'repoze.who>=1.0.0,<1.0.99',
+        'repoze.who.plugins.openid>=0.5,<0.5.99',
         'paginate==0.3.2',
         'uuid>=1.0', # in python 2.5 but not before
         # latest version of Routes (1.10) depends on webob in middleware but

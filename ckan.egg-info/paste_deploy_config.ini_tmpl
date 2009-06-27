@@ -37,18 +37,11 @@ set debug = false
 #sqlalchemy.dburi = sqlite:///%(here)s/somedb.db
 sqlalchemy.url = postgres://ckantest:pass@localhost/ckantest
 
-# AuthKit (v0.4) config for openid
-# for this to work you will also need to modify your middleware config
-# see the pylons book chapters on Authentication and Authorization for details
-#
-# authkit.setup.method = openid,cookie
-# authkit.openid.store.type = file
-# authkit.openid.store.config = /tmp/www.ckan.net_passurl_store
-# authkit.cookie.secret= mysecret_authkit_cookie_secret
-# authkit.cookie.signoutpath = /account/logout
-# authkit.openid.path.signedin = /account/login
-# authkit.form.template.obj = ckan.controllers.account:login_form
-# authkit.openid.template.obj = ckan.controllers.openid_template:make_template
+# repoze.who config
+who.config_file = %(here)s/who.ini
+who.log_level = warning
+who.log_file = %(cache_dir)s/who_log.ini
+
 
 # Logging configuration
 [loggers]

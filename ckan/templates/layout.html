@@ -50,7 +50,7 @@
         <py:when test="c.user">
         <p>
           Logged in as <strong>${c.user}</strong> 
-          | <a href="/account/logout/">Logout</a>
+          | <a href="${h.url_for('/logout_openid')}">Logout</a>
         </p>
         </py:when>
         <py:otherwise>

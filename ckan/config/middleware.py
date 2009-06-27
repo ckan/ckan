@@ -37,12 +37,12 @@ def make_app(global_conf, full_stack=True, **app_conf):
     app = PylonsApp()
 
     # CUSTOM MIDDLEWARE HERE (filtered by error handling middlewares)
+    from repoze.who.config import make_middleware_with_config
+    app = make_middleware_with_config(app, global_conf,
+            app_conf['who.config_file'], app_conf['who.log_file'],
+            app_conf['who.log_level'])
 
     if asbool(full_stack):
-        # added authkit middleware to do authentication
-        import authkit.authenticate
-        app = authkit.authenticate.middleware(app, app_conf)
-    
         # Handle Python exceptions
         app = ErrorHandler(app, global_conf, error_template=error_template,
                            **config['pylons.errorware'])
