@@ -34,7 +34,8 @@ class ManageDb(CkanCommand):
     db create # create
     db init # create and put in default data
     db clean
-    db drop  # same as db clean
+    db dump {file-path} # dump to a file
+    db load {file-path} # load from a file
     db migrate06
     db migrate09a
     '''
@@ -80,10 +81,11 @@ class ManageDb(CkanCommand):
         dump_path = self.args[1]
         import ckan.lib.converter
         dumper = ckan.lib.converter.Dumper()
+        verbose = (self.verbose >= 2)
         if cmd == 'load':
-            dumper.load(dump_path, verbose=self.verbose)
+            dumper.load(dump_path, verbose=verbose)
         elif cmd == 'dump':
-            dumper.dump(dump_path, verbose=self.verbose)
+            dumper.dump(dump_path, verbose=verbose)
         else:
             print 'Unknown command', cmd
 
