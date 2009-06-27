@@ -36,7 +36,7 @@ class ManageDb(CkanCommand):
     db clean
     db drop  # same as db clean
     db migrate06
-    db migrate09
+    db migrate09a
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
@@ -62,7 +62,7 @@ class ManageDb(CkanCommand):
             import ckan.lib.converter
             dumper = ckan.lib.converter.Dumper()
             dumper.migrate_06_to_07()
-        elif cmd == 'migrate09':
+        elif cmd == 'migrate09a':
             import ckan.model as model
             sql = '''ALTER TABLE package ADD version VARCHAR(100)'''
             model.metadata.bind.execute(sql)
