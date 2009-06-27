@@ -19,3 +19,6 @@ class HomeController(CkanBaseController):
             c.info = ''
         return render('guide')
 
+    def about(self):
+        return render('about')
+
