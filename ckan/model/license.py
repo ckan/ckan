@@ -1,1 +1,0 @@
-from licenses import LicenseList
