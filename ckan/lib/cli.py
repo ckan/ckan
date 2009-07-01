@@ -38,6 +38,7 @@ class ManageDb(CkanCommand):
     db load {file-path} # load from a file
     db migrate06
     db migrate09a
+    db migrate09b
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
@@ -71,6 +72,10 @@ class ManageDb(CkanCommand):
             model.metadata.bind.execute(sql)
             if self.verbose:
                 print 'Migrated successfully' 
+        elif cmd == 'migrate09b':
+            import ckan.model as model
+            print 'Re-initting DB to update license list'
+            model.repo.init_db()
         else:
             print 'Command %s not recognized' % cmd
 

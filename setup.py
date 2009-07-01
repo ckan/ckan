@@ -31,6 +31,8 @@ setup(
         # does not declare the dependency!
         # (not sure we need this except in tests but ...)
         'WebOb',
+        # for open licenses
+        'licenses',
     ],
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
