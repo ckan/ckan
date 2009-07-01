@@ -6,6 +6,7 @@ class HomeController(CkanBaseController):
 
     def index(self):
         c.package_count = model.Package.query.count()
+        c.revisions = model.Revision.query.limit(4).all()
         return render('home')
 
     def license(self):

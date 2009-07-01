@@ -4,34 +4,24 @@
   <py:def function="page_title">Home</py:def>
 
   <style type="text/css" py:def="page_specific_css">
-      ul.big-buttons {
-        list-style-type: none;
-        margin-top: 3em;
-        margin-bottom: 3em;
-      }
-
-      ul.big-buttons li {
-        display: inline;
-        font-size: 1.2em;
-        margin-left: 10px;
-      }
-
-      ul.big-buttons li a {
-        border: 2px solid #aaa;
-        background-color: #eee;
-        padding: 0.5em;
-        text-decoration: none;
-        width: 200px;
-      }
-
-      ul.big-buttons li a:hover {
-        background-color: #F5E4DC;
-      }
-
       form {
         margin-top: 2em;
       }
   </style>
+
+  <py:match path="primarysidebar">
+    <div class="box">
+      <h2>Recently Changed</h2>
+      <p py:for="rev in c.revisions">
+        <py:for each="pkg in rev.packages">
+        <a href="${h.url_for(controller='package', action='read', id=pkg.name)}">${pkg.name}</a>
+        </py:for>
+        <strong>@</strong> ${rev.timestamp.replace(microsecond=0)}
+        <strong>by</strong> ${rev.author}
+      </p>
+      <p><a href="${h.url_for(controller='revision', action='index', id=None)}">More ...</a></p>
+    </div>
+  </py:match>
 
   <div py:match="content">
     <h2>Welcome to CKAN</h2>
@@ -42,11 +32,7 @@
     knowledge resources as well as register your own. <a
       href="${h.url_for('about')}">Find out more &raquo;</a>.</p>
 
-    <!--
-    <h3>Find Packages &ndash; or <a href="${h.url_for(controller='package', action='list')}">Browse</a></h3>
-
-    <p><strong>${c.package_count} active registered packages</strong> available.</p>
-    -->
+    <p><strong>${c.package_count} registered packages</strong> available.</p>
 
     <xi:include href="package/search_form.html" />
 
