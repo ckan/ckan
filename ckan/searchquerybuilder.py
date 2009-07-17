@@ -1,5 +1,3 @@
-import dateutil.parser
-import datetime
 import sqlalchemy
 
 import ckan.model as model

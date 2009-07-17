@@ -1,4 +1,3 @@
-import py.test
 import formencode
 
 import ckan.model as model
@@ -23,8 +22,14 @@ class TestPackageName:
         ckan.tests.CreateTestData.delete()
 
     def _check_raises(self, fn, name):
+        ok = False
         print name
-        py.test.raises(formencode.Invalid, fn, name)
+        try:
+            fn(name)
+        except formencode.Invalid, inst:
+            ok = True
+        assert ok, "formencode.Invalid should have raised an exception"
+            
 
     def test_lower_case_raises(self):
         print 'In lower case raises'
@@ -61,6 +66,7 @@ class TestPackageName:
 
 class TestPackageSchemaFromPython:
 
+    @classmethod
     def setup_class(self):
         ckan.tests.CreateTestData.create()
         self.schema = ckan.forms.PackageSchema()
