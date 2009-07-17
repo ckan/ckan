@@ -139,7 +139,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
 
 class Tag(DomainObject):
-    def __init__(self, name):
+    def __init__(self, name=''):
         self.name = name
 
     # not versioned so same as purge
