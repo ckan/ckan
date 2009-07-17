@@ -7,7 +7,7 @@ from ckan.tests import *
 from ckan.lib.converter import Dumper
 import ckan.model as model
 
-class _TestConverter(object):
+class TestConverter(object):
 # TODO this doesn't work on sqlite - we should fix this
     
 
