@@ -47,16 +47,16 @@ been possible:
 
 1. Get the code and install it:
 
-       $ easy_install ckan
-       
-   Or checkout from the svn repo at <http://knowledgeforge.net/ckan/svn/trunk>
-   and then do
-
-      $ sudo python setup.py
-
-   If you want to work from a subversion copy and plan to make modifications do:
+   Get it from the mercurial repo:
    
-      $ sudo python setup.py develop
+      $ hg clone https://knowledgeforge.net/ckan/hg ckan
+
+   Install it:
+
+      $ cd ckan
+      $ python setup.py
+
+   (Alternatively you can install using pip. See pip-requirements.txt).
 
    This step should install most the library dependencies for CKAN. However
    some dependencies may not be able to be installed automatically. Please see
