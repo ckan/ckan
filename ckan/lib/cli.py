@@ -39,6 +39,7 @@ class ManageDb(CkanCommand):
     db migrate06
     db migrate09a
     db migrate09b
+    db migrate0
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
@@ -76,6 +77,10 @@ class ManageDb(CkanCommand):
             import ckan.model as model
             print 'Re-initting DB to update license list'
             model.repo.init_db()
+        elif cmd == 'migrate09c':
+            import ckan.model as model
+            print 'Creating new db tables (package_extra)'
+            model.repo.create_db()
         else:
             print 'Command %s not recognized' % cmd
 
