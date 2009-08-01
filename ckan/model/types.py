@@ -27,8 +27,7 @@ class JsonType(types.TypeDecorator):
     impl = types.UnicodeText
 
     def process_bind_param(self, value, engine):
-        # None or {}
-        if not value: # ensure we stores nulls in db not json "null"
+        if value is None or value == {}: # ensure we stores nulls in db not json "null"
             return None
         else:
             # ensure_ascii=False => allow unicode but still need to convert

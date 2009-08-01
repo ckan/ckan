@@ -1,5 +1,3 @@
-import py.test
-
 # needed for config to be set and db access to work
 import ckan.tests
 import ckan.exceptions
@@ -52,6 +50,7 @@ class TestPackage:
         model.Session.commit()
         model.Session.remove()
 
+    @classmethod
     def teardown_class(self):
         pkg1 = model.Package.query.filter_by(name=self.name).one()
         pkg1.purge()
@@ -86,6 +85,7 @@ class TestPackageWithTags:
     run in) as sqlite does not support ForeignKeys properly.
     """
 
+    @classmethod
     def setup_class(self):
         rev1 = model.repo.new_revision()
         self.tagname = u'testtagm2m'
@@ -101,6 +101,7 @@ class TestPackageWithTags:
         self.pkg2tag_id = pkg2tag.id
         self.rev = rev1
 
+    @classmethod
     def teardown_class(self):
         # should only be one but maybe things have gone wrong
         # p = model.Package.by_name(self.pkgname)
@@ -128,7 +129,7 @@ class TestPackageWithTags:
         # TODO: go back to this
         # 2 default packages each with 2 tags so we have 2 + 4
         all = model.Tag.query.all() 
-        assert len(all) == 2
+        assert len(all) == 3
 
     def test_add_tag_by_name(self):
         rev = model.repo.new_revision()
@@ -151,6 +152,7 @@ class TestPackageWithTags:
 
 class TestPackageWithLicense:
 
+    @classmethod
     def setup_class(self):
         self.licname1 = 'test_license1'
         self.licname2 = 'test_license2'
@@ -171,6 +173,7 @@ class TestPackageWithLicense:
         self.rev2id = rev.id
         model.Session.remove()
 
+    @classmethod
     def teardown_class(self):
         model.Session.clear()
         pkg = model.Package.by_name(self.pkgname)
@@ -195,12 +198,14 @@ class TestPackageWithLicense:
 
 class TestTag:
 
+    @classmethod
     def setup_class(self):
         model.Session.clear()
         model.Session.begin()
         model.Tag(name='russian')
         model.Tag(name='something')
 
+    @classmethod
     def teardown_class(self):
         model.Session.rollback()
         model.Session.remove()

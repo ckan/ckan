@@ -18,7 +18,7 @@ class TestRestController(TestController2):
         model.Session.remove()
         CreateTestData.delete()
 
-    def setup_method(self, name):
+    def setup(self):
         self.testvalues = {
             # Todo: Add tags and licenses.
             'name' : u'testpkg',
@@ -30,7 +30,7 @@ class TestRestController(TestController2):
         model.Session.commit()
         model.Session.remove()
 
-    def teardown_method(self, name):
+    def teardown(self):
         model.Session.remove()
         apikey = model.ApiKey.by_name(self.random_name)
         if apikey:

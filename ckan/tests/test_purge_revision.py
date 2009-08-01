@@ -13,7 +13,7 @@ class TestRevisionPurge:
     def teardown_class(self):
         CreateTestData.delete()
 
-    def setup_method(self, name=''):
+    def setup(self):
         self.pkgname = u'revision-purge-test'
 
         model.repo.new_revision()
@@ -35,7 +35,7 @@ class TestRevisionPurge:
         self.pkg_new = model.Package(name=self.pkgname2)
         model.repo.commit_and_remove()
 
-    def teardown_method(self, name=''):
+    def teardown(self):
         model.Session.remove()
         pkg_new = model.Package.by_name(self.pkgname2)
         if pkg_new:

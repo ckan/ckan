@@ -8,6 +8,8 @@ from ckan.lib.converter import Dumper
 import ckan.model as model
 
 class TestConverter(object):
+# TODO this doesn't work on sqlite - we should fix this
+    
 
     @classmethod
     def setup_class(self):
