@@ -39,7 +39,7 @@ class ManageDb(CkanCommand):
     db migrate06
     db migrate09a
     db migrate09b
-    db migrate0
+    db migrate09c
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
