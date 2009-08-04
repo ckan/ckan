@@ -19,7 +19,8 @@ setup(
     keywords='data packaging component tool server',
     long_description =__long_description__,
     install_requires=[
-        'vdm>=0.4a',
+        # probably best to get HEAD from repo - see pip-requirements.txt
+        'vdm>=0.5a',
         'Pylons>=0.9.6.1,<0.9.6.99',
         'Genshi>=0.4',
         'SQLAlchemy>=0.4.8,<=0.4.99',
@@ -27,12 +28,14 @@ setup(
         'repoze.who.plugins.openid>=0.5,<0.5.99',
         'paginate==0.3.2',
         'uuid>=1.0', # in python 2.5 but not before
+        # for open licenses
+        'licenses',
+        # last version to work with sql < 0.5 
+        'sqlalchemy-migrate==0.4.5',
         # latest version of Routes (1.10) depends on webob in middleware but
         # does not declare the dependency!
         # (not sure we need this except in tests but ...)
         'WebOb',
-        # for open licenses
-        'licenses',
     ],
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,

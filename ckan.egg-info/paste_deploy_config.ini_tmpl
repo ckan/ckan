@@ -34,7 +34,7 @@ app_instance_uuid = ${app_instance_uuid}
 set debug = false
 
 # Specify the database for SQLAlchemy to use via
-#sqlalchemy.dburi = sqlite:///%(here)s/somedb.db
+#sqlalchemy.url = sqlite:///%(here)s/somedb.db
 sqlalchemy.url = postgres://ckantest:pass@localhost/ckantest
 
 # repoze.who config
