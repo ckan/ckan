@@ -57,6 +57,10 @@ been possible:
       $ python setup.py
 
    (Alternatively you can install using pip. See pip-requirements.txt).
+   
+      $ mkvirtualenv --no-site-packages ckan 
+      $ cdvirtualenv 
+      $ pip -E . install --editable hg+https://knowledgeforge.net/ckan/hg#egg=ckan
 
    This step should install most the library dependencies for CKAN. However
    some dependencies may not be able to be installed automatically. Please see
