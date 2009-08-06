@@ -217,15 +217,3 @@ class TestValidation:
             out = fs.validate()
             assert not out, fs.errors
             
-
-"""
-Need to test:
-name doesn't exist
-look at old test_package.py.bak
-name is unique
-can't recreate anna YES
-try a validation when not an object
-custom package name validator - minlen 2, alphanumeric/dash/underscore, lowercase. no unicode just ascii.
-all tags are of >2 letters length, plaintext (alphanumeric/dash/underscore/dot) - our own regex, but unicode is ok.
-
-"""

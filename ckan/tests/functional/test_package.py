@@ -207,6 +207,16 @@ Hello world.
         assert 'Packages - Edit' in res
         assert 'Preview' in res
 
+    def test_edit_bad_name(self):
+        fv = self.res.forms[0]
+        prefix = 'Package-%s-' % self.pkgid
+        fv[prefix + 'name'] = u'a' # invalid name
+        res = fv.submit('commit', status=[302])
+        # get redirected ...
+        res = res.follow()
+        assert 'Error' in res, res
+        assert 'Package does not exist' in res, res
+
 
 class TestPackageControllerNew(TestController2):
     pkgname = u'testpkg'
@@ -265,10 +275,11 @@ class TestPackageControllerNew(TestController2):
         fv = res.forms[0]
         # should result in error as need >= 2 chars
         fv['Package--name'] = 'a'
-        res = fv.submit('commit')
+        res = fv.submit('commit', status=[302])
         assert 'Error' in res, res
         assert 'Package name must be at least 2 characters long' in res, res
         # Ensure there is an error at the top of the form and by the field
         assert 'class="form-errors"' in res, res
         assert 'class="field_error"' in res, res
+
 

@@ -71,7 +71,7 @@ class PackageController(CkanBaseController):
                 h.redirect_to(action='read', id=c.pkgname)
             except ValidationException, error:
                 c.error, fs = error.args
-                c.form = self._render_edit_form(fs, c.error)
+                c.form = self._render_edit_form(fs)
                 return render('package/edit')
 
         # use request params even when starting to allow posting from "outside"
@@ -80,7 +80,7 @@ class PackageController(CkanBaseController):
             fs = ckan.forms.package_fs.bind(data=request.POST)
         else:
             fs = ckan.forms.package_fs
-        c.form = self._render_edit_form(fs, c.error)
+        c.form = self._render_edit_form(fs)
         if 'preview' in request.params:
             c.preview = genshi.HTML(self._render_package(fs))
         return render('package/new')
@@ -113,8 +113,7 @@ class PackageController(CkanBaseController):
                 h.redirect_to(action='read', id=c.pkgname)
             except ValidationException, error:
                 c.error, fs = error.args
-                fs = ckan.forms.package_fs.bind(data=request.POST)
-                c.form = self._render_edit_form(fs, c.error)
+                c.form = self._render_edit_form(fs)
                 return render('package/edit')
             # TODO: ?
             # except Exception, error:
@@ -127,7 +126,7 @@ class PackageController(CkanBaseController):
             c.preview = genshi.HTML(self._render_package(fs))
             return render('package/edit')
     
-    def _render_edit_form(self, fs, errors=None):
+    def _render_edit_form(self, fs):
 #        from formencode import htmlfill
         all_licenses = model.LicenseList.all_formatted
 ##        if value_dict.has_key('licenses'):
@@ -141,8 +140,8 @@ class PackageController(CkanBaseController):
 ##                )
 
 #        errs = errors.unpack_errors() if errors else {}
-        if errors:
-            c.error = errors
+
+        # errors arrive in c.error and fs.errors
         c.form = fs.render()
         return render('package/edit_form')
         
@@ -198,7 +197,7 @@ class PackageController(CkanBaseController):
             for field, err_list in fs.errors.items():
                 errors.append("%s:%s" % (field.name, ";".join(err_list)))
             c.error = ', '.join(errors)
-            c.form = self._render_edit_form(fs, c.error)
+            c.form = self._render_edit_form(fs)
             raise ValidationException(c.error, fs)
 
         try:
