@@ -40,7 +40,7 @@ class TestPackageController(TestController2):
         assert 'Packages - New' in res
 
     def test_read(self):
-        name = 'annakarenina'
+        name = u'annakarenina'
         offset = url_for(controller='package', action='read', id=name)
         res = self.app.get(offset)
         # only retrieve after app has been called
@@ -119,6 +119,7 @@ class TestPackageControllerEdit(TestController2):
         self.editpkg.url = u'editpkgurl.com'
         self.editpkg.notes= u'this is editpkg'
         model.Session.commit()
+        self.pkgid = self.editpkg.id
         model.Session.remove()
         offset = url_for(controller='package', action='edit', id=self.editpkg.name)
         self.res = self.app.get(offset)
@@ -147,32 +148,33 @@ class TestPackageControllerEdit(TestController2):
         newurl = 'http://www.editpkgnewurl.com'
         new_download_url = newurl + '/download/'
         newlicense = 'Non-OKD Compliant::Other'
+        newlicenseid = model.License.by_name(newlicense).id
         newversion = '0.9b'
         fv = self.res.forms[0]
-        fv['title'] =  new_title
-        fv['url'] =  newurl
-        fv['download_url'] =  new_download_url
-        fv['licenses'] =  newlicense
-        fv['version'] = newversion
+        prefix = 'Package-%s-' % self.pkgid
+        fv[prefix + 'title'] =  new_title
+        fv[prefix + 'url'] =  newurl
+        fv[prefix + 'download_url'] =  new_download_url
+        fv[prefix + 'license_id'] =  newlicenseid
+        fv[prefix + 'version'] = newversion
         res = fv.submit('commit')
         # get redirected ...
         res = res.follow()
-        print str(self.res)
-        assert 'Packages - %s' % self.editpkg_name in res
+        assert 'Packages - %s' % self.editpkg_name in res, res
         pkg = model.Package.by_name(self.editpkg.name)
         assert pkg.title == new_title 
         assert pkg.url == newurl
         assert pkg.download_url == new_download_url
         assert pkg.version == newversion
-        licenses = [ pkg.license.name ]
-        assert newlicense in licenses
+        assert newlicense == pkg.license.name
 
     def test_edit_2(self):
         # testing tag updating
         newtags = [self.newtagname]
         tagvalues = ' '.join(newtags)
         fv = self.res.forms[0]
-        fv['tags'] =  tagvalues
+        prefix = 'Package-%s-' % self.pkgid
+        fv[prefix + 'tags'] =  tagvalues
         exp_log_message = 'test_edit_2: making some changes'
         fv['log_message'] =  exp_log_message
         res = fv.submit('commit')
@@ -197,8 +199,9 @@ class TestPackageControllerEdit(TestController2):
 Hello world.
 '''
         fv = self.res.forms[0]
-        fv['url'] =  newurl
-        fv['notes'] =  newnotes
+        prefix = 'Package-%s-' % self.pkgid
+        fv[prefix + 'url'] =  newurl
+        fv[prefix + 'notes'] =  newnotes
         res = fv.submit('preview')
         print str(res)
         assert 'Packages - Edit' in res
@@ -219,14 +222,26 @@ class TestPackageControllerNew(TestController2):
         model.Session.remove()
 
     def test_new(self):
+        assert not model.Package.by_name('annakarenina')
+        offset = url_for(controller='package', action='new')
+        res = self.app.get(offset)
+        assert 'Packages - New' in res
+        fv = res.forms[0]
+        # should result in error as need >= 2 chars
+        fv['Package--name'] = 'annakarenina'
+        res = fv.submit('commit')
+        assert not 'Error' in res, res
+
+    def test_new_existing_name(self):
         # TODO: test creating a package with an existing name results in error
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         assert 'Packages - New' in res
         print res
         fv = res.forms[0]
-        fv['name'] = self.pkgname
-        fv['title'] = self.pkgtitle
+        prefix = 'Package--'
+        fv[prefix+'name'] = self.pkgname
+        fv[prefix+'title'] = self.pkgtitle
         res = fv.submit('preview')
         assert 'Preview' in res
         fv = res.forms[0]
@@ -249,8 +264,8 @@ class TestPackageControllerNew(TestController2):
         assert 'Packages - New' in res
         fv = res.forms[0]
         # should result in error as need >= 2 chars
-        fv['name'] = 'a'
+        fv['Package--name'] = 'a'
         res = fv.submit('commit')
         assert 'Error' in res, res
-        assert 'Enter a value at least 2 characters long' in res, res
+        assert 'Package name must be at least 2 characters long' in res, res
 

@@ -10,6 +10,9 @@ import ckan.forms
 
 logger = logging.getLogger('ckan.controllers')
 
+class ValidationException(Exception):
+    pass
+
 class PackageController(CkanBaseController):
 
     def index(self):
@@ -38,14 +41,12 @@ class PackageController(CkanBaseController):
         return render('package/search')
 
     def read(self, id):
-        pkg = model.Package.by_name(id)
-        if pkg is None:
+        c.pkg = model.Package.by_name(id)
+        if c.pkg is None:
             abort(404, '404 Not Found')
 
-        schema = ckan.forms.PackageSchema()
-        c.pkg = pkg
-        defaults = schema.from_python(pkg)
-        c.content = genshi.HTML(self._render_package(defaults))
+        fs = ckan.forms.package_fs.bind(c.pkg)
+        c.content = genshi.HTML(self._render_package(fs))
         return render('package/read')
 
     def history(self, id):
@@ -60,12 +61,15 @@ class PackageController(CkanBaseController):
     def new(self):
         c.has_autocomplete = True
         c.error = ''
+
         if request.params.has_key('commit'):
-            c.pkgname = request.params['name']
+            record = model.Package
+            fs = ckan.forms.package_fs.bind(record, data=request.POST or None)
             try:
-                self._update()
+                self._update(fs, id, record.id)
+                c.pkgname = fs.name.value
                 h.redirect_to(action='read', id=c.pkgname)
-            except formencode.Invalid, error:
+            except ValidationException, error:
                 c.error = error
                 # will now continue into usual processing
             # TODO: ?
@@ -74,10 +78,13 @@ class PackageController(CkanBaseController):
 
         # use request params even when starting to allow posting from "outside"
         # (e.g. bookmarklet)
-        indict = dict(request.params)
-        c.form = self._render_edit_form(indict, c.error)
+        if request.POST:
+            fs = ckan.forms.package_fs.bind(data=request.POST)
+        else:
+            fs = ckan.forms.package_fs
+        c.form = self._render_edit_form(fs, c.error)
         if 'preview' in request.params:
-            c.preview = genshi.HTML(self._render_package(indict))
+            c.preview = genshi.HTML(self._render_package(fs))
         return render('package/new')
 
     # TODO: use this decorator again
@@ -87,94 +94,83 @@ class PackageController(CkanBaseController):
         c.has_autocomplete = True
         c.error = ''
         if not 'commit' in request.params and not 'preview' in request.params:
+            # edit
             c.pkg = model.Package.by_name(id)
             if c.pkg is None:
                 abort(404, '404 Not Found')
-            c.pkgname = id
-            schema = ckan.forms.PackageSchema()
-            defaults = schema.from_python(c.pkg)
-            c.form = self._render_edit_form(defaults)
+                
+            fs = ckan.forms.package_fs.bind(c.pkg)
+            c.form = self._render_edit_form(fs)
             return render('package/edit')
         elif request.params.has_key('commit'):
-            # do not use pkgname from id as may have changed
-            c.pkgname = request.params['name']
+            # id is the name (pre-edited state)
+            c.pkgname = id
+            record = model.Package.by_name(c.pkgname)
+            c.fs = ckan.forms.package_fs.bind(record, data=request.POST or None)
             try:
-                self._update()
+                self._update(c.fs, id, record.id)
+
+                # do not use pkgname from id as may have changed
+                c.pkgname = c.fs.name.value
                 h.redirect_to(action='read', id=c.pkgname)
-            except formencode.Invalid, error:
+            except ValidationException, error:
                 c.error = error
-                indict = dict(request.params)
-                c.form = self._render_edit_form(indict, c.error)
+                fs = ckan.forms.package_fs.bind(data=request.POST)
+                c.form = self._render_edit_form(fs, c.error)
                 return render('package/edit')
             # TODO: ?
             # except Exception, error:
             #   raise if in debug mode?
         else: # Must be preview
-            c.pkgname = request.params['name']
-            indict = dict(request.params)
-            c.form = self._render_edit_form(indict)
-            c.preview = genshi.HTML(self._render_package(indict))
-            return render('package/edit')
-
-        c.has_autocomplete = True
-        if request.params.has_key('preview'):
-            indict = dict(request.params)
-            c.form = self._render_edit_form(indict)
-            c.preview = genshi.HTML(self._render_package(indict))
-            return render('package/edit')
-        elif request.params.has_key('commit'):
-            error = self._update()
-            if error:
-                c.error = error
-                return render('package/edit')
-            else:
-                h.redirect_to(action='read', id=id)
-        else:
-            c.pkg = model.Package.by_name(id)
-            if c.pkg is None:
-                abort(404, '404 Not Found')
-            schema = ckan.forms.PackageSchema()
-            defaults = schema.from_python(c.pkg)
-            c.form = self._render_edit_form(defaults)
+            c.pkgname = id
+            record = model.Package.by_name(c.pkgname)
+            fs = ckan.forms.package_fs.bind(record, data=request.POST)
+            c.form = self._render_edit_form(fs)
+            c.preview = genshi.HTML(self._render_package(fs))
             return render('package/edit')
     
-    def _render_edit_form(self, value_dict, errors=None):
-        from formencode import htmlfill
+    def _render_edit_form(self, fs, errors=None):
+#        from formencode import htmlfill
         all_licenses = model.LicenseList.all_formatted
-        if value_dict.has_key('licenses'):
-            selected = value_dict['licenses'] # already names not objects
-        else:
-            selected = []
-        c.license_options = h.options_for_select(
-                # insert empty option
-                [''] + all_licenses,
-                selected=selected
-                )
-        content = render('package/edit_form')
-        errs = errors.unpack_errors() if errors else {}
-        form = htmlfill.render(content, value_dict, errs)
-        return form
+##        if value_dict.has_key('licenses'):
+##            selected = value_dict['licenses'] # already names not objects
+##        else:
+##            selected = []
+##        c.license_options = h.options_for_select(
+##                # insert empty option
+##                [''] + all_licenses,
+##                selected=selected
+##                )
 
-    def _is_locked(self):
+#        errs = errors.unpack_errors() if errors else {}
+        if errors:
+            c.error = errors
+        c.form = fs.render()
+        return render('package/edit_form')
+        
+    def _is_locked(pkgname, self):
         # allow non-existent name -- never happens but allows test of 'bad'
         # update (test_update in test_package.py) to work normally :)
-        c.pkg_name = request.params.get('name', '')
-        if c.pkg_name == 'mis-uiowa':
+        if pkgname == 'mis-uiowa':
             msg = 'This package is temporarily locked and cannot be edited'
             raise msg
         return ''
 
     def _is_spam(self, log_message):
-        if 'http:' in log_message:
+        if log_message and 'http:' in log_message:
             return True
         return False
 
-    def _update(self):
-        error_msg = self._is_locked()
+    def _update(self, fs, id, record_id):
+        '''
+        Writes the POST data to the database
+        @input c.error
+        '''
+        error_msg = self._is_locked(fs.name.value)
         if error_msg:
             raise Exception(error_msg)
-        indict = dict(request.params)
-        log_message = indict.get('log_message', '')
+
+        log_message = request.POST['log_message']
         if self._is_spam(log_message):
             error_msg = 'This commit looks like spam'
             # TODO: make this into a UserErrorMessage or the like
@@ -182,42 +178,68 @@ class PackageController(CkanBaseController):
 
         # currently only returns one value because of problems with
         # genshi and multiple on select so need to wrap in an array
-        if request.params.has_key('licenses'):
-            indict['licenses'] = [request.params['licenses']]
-        else:
-            indict['licenses'] = []
-        schema = ckan.forms.PackageSchema()
+##        if request.params.has_key('licenses'):
+##            indict['licenses'] = [request.params['licenses']]
+##        else:
+##            indict['licenses'] = []
+
+        # If not changing name, don't validate this field (it will think it
+        # is not unique because name already exists in db). So change it
+        # temporarily to something that will always validate ok.
+        temp_name = None
+        if fs.name.value == id:
+            temp_name = id
+            fs.data['Package-%s-name' % record_id] = 'something_unique'
+        validation = fs.validate()
+        if temp_name:
+            # restore it
+            fs.data['Package-%s-name' % record_id] = temp_name
+
+        if not validation:
+            errors = []            
+            for field, err_list in fs.errors.items():
+                errors.append("%s:%s" % (field.name, ";".join(err_list)))
+            c.error = ', '.join(errors)
+            c.form = self._render_edit_form(fs, c.error)
+            raise ValidationException(c.error)
+#            return render('package/edit')
+
         try:
             rev = model.repo.new_revision()
             rev.author = c.author
             rev.message = log_message
-            pkg = schema.to_python(indict)
+
+            fs.sync()
         except Exception, inst:
             model.Session.rollback()
             raise
         else:
             model.Session.commit()
 
-    def _render_package(self, indict):
+    def _render_package(self, fs):
         # Todo: More specific error handling (don't catch-all and set 500)?
-        try:
-            c.pkg_name = indict['name']
-            c.pkg_version = indict['version']
-            c.pkg_title = indict['title']
-            c.pkg_url = indict['url']
-            c.pkg_download_url = indict['download_url']
-            c.pkg_license = indict['licenses']
-            c.pkg_tags = indict['tags'].split()
+#        try:
+            c.pkg_name = fs.name.value
+            c.pkg_version = fs.version.value
+            c.pkg_title = fs.title.value
+            c.pkg_url = fs.url.value
+            c.pkg_download_url = fs.download_url.value
+            if fs.license.value:
+                c.pkg_license = model.License.query.get(fs.license.value).name
+            else:
+                c.pkg_license = None
+            c.pkg_tags = [tag.name for tag in fs.tags.model.tags]
+#            c.pkg_tags = []#fs.tags.value.split()
             import ckan.misc
             format = ckan.misc.MarkdownFormat()
-            notes_formatted = format.to_html(indict['notes'])
+            notes_formatted = format.to_html(fs.notes.value)
             notes_formatted = genshi.HTML(notes_formatted)
             c.pkg_notes_formatted = notes_formatted
             preview = render('package/read_content')
-        except Exception, inst:
-            self.status_code = 500
-            preview = 'There was an error rendering the package: %s' % inst
-        return preview
+#        except Exception, inst:
+#            self.status_code = 500
+#            preview = 'There was an error rendering the package: %s' % inst
+            return preview
 
 class MockMode(object):
 

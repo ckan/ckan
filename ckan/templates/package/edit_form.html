@@ -3,84 +3,14 @@
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:form="http://formencode.org/htmlfill/" 
       >
+      ${Markup(c.form)}
 
-      ${h.hidden_field('id')} <br />
-
-      <label for="name">Name (<strong>required</strong>):</label>
-      ${h.text_field('name', size=40)} <br />
-      <!--! (must ensure this is deleted from output as o/w tests break.
-      Issue with:
-      <form:error name="name" />
-      When used this is rendered to </form> and this breaks page ...
-    (genshi converts to <form:error ></form:error> + htmlfill then gives: </form>!!)
-      -->
-      <p class="desc"><strong>Unique identifier</strong> for package.<br />
-      3+ chars, lowercase, using only 'a-z0-9' and '-_'</p>
-
-      <label for="title">Title:</label>
-      ${h.text_field('title', size=40)} <br />
-
-      <label for="version">Version:</label>
-      ${h.text_field('version', size=40)} <br />
-
-      <label for="url">Url:</label>
-      ${h.text_field('url', size=40)} <br />
-
-      <label for="download_url">Download Url:</label>
-      ${h.text_field('download_url', size=40)} <br />
-			<p class="desc">Haven't already uploaded your package somewhere? We suggest using <a href="http://www.archive.org/create/">archive.org</a>.</p>
-
-      <label for="licenses">Licenses:</label>
-      <!-- REALLY WEIRD behaviour: genshi HTML and XML function strip away
-      multiple="multiple" attribute 
-
-      The issue goes deep in genshi as this still does not work even if you
-      hand define the select tag: <select multiple="multiple">
-
-      Go back to single license value for time being
-      ${h.select('licenses',
-        h.options_for_select_from_objects(c.licenses, selected=[s.id for s in c.pkg.licenses], name_attr='name'), multiple=True)
-      )}
-      -->
-      ${h.select('licenses',c.license_options, multiple=False)}
-
-      <label for="tags">Tags:</label>
-      <p class="desc">
-      A space separated list of tag names. Tag names should:
-      </p>
-      <ul class="desc">
-        <li>Only use alphanumerics (a-z, 0-9) along with '-' and '_'</li>
-        <li>Only use lowercase letters</li> 
-      </ul>
-
-      <div id="tagsAutocomp">
-        ${h.text_field('tags', size=60)} <br />
-        <div id="tagsAutocompContainer"></div>
-      </div>
-      <script type="text/javascript">
-        var tagsSchema = ["ResultSet.Result", "Name"];
-        var tagsDataSource = new YAHOO.widget.DS_XHR(
-          "../../tag/autocomplete", tagsSchema
-        );
-        tagsDataSource.scriptQueryParam = "incomplete";
-        var tagsAutocomp = new YAHOO.widget.AutoComplete(
-          "tags","tagsAutocompContainer", tagsDataSource
-        );
-        tagsAutocomp.delimChar = " ";
-        tagsAutocomp.maxResultsDisplayed = 10;
-      </script>
-
-      <br />
-
-      <label for="notes">Notes:</label>
-      <p class="desc">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.</p>
-      ${h.text_area('notes', size="60x15")} <br />
 
       <hr />
 
       <label for="log_message">Optional Log Message about this Change:</label>
       <p class="desc">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.</p>
-      ${h.text_area('log_message', size="60x3")} <br />
+      <textarea id="log_message" rows="3" name="log_message" cols="60"/>
 
       <label>Author: ${c.author}</label>
       <p class="desc">
@@ -100,5 +30,6 @@
         <li>If you are not happy for this to occur please refrain from editing
         this page.</li>
       </ul>
+
     </form>
 
