@@ -112,17 +112,13 @@ package_fs = formalchemy.FieldSet(model.Package)
 package_fs.add(TagField('tags').with_renderer(TagEditRenderer).validate(tag_name_validator))
 #package_fs.add(formalchemy.Field('log_message').textarea())
 package_fs.configure(options=[package_fs.name.label('Name (required)').validate(package_name_validator),
-#                              package_fs.revision.with_renderer(BlankRenderer),
-#                              package_fs.revision.hidden(),
-#                              package_fs.package_tags.with_renderer(BlankRenderer).hidden(),
-#                              package_fs.all_revisions.with_renderer(BlankRenderer).hidden(),
-#                              package_fs.state.hidden(),
                               package_fs.license.dropdown(options = license_options),
                               ],
                      exclude=[package_fs.package_tags,
                               package_fs.all_revisions,
                               package_fs.revision,
-                              package_fs.state])
+                              package_fs.state,
+                              package_fs._extras,])
 del package_fs._fields['all_revisions']
 #                              package_fs.name.validate(MaxLength(20).to_python),
 

@@ -15,6 +15,7 @@ class TestRevisionController(TestController2):
     @classmethod
     def teardown_class(self):
         CreateTestData.delete()
+        model.repo.rebuild_db()
 
     def test_link_major_navigation(self):
         offset = url_for(controller='home')
@@ -69,7 +70,9 @@ class TestRevisionController(TestController2):
             assert 'Creating test data.' in res
 
         finally:
-            self.purge_100_revisions()
+            # no longer needed as rebuild_db in teardown
+            # self.purge_100_revisions()
+            pass
 
     def assert_click(self, res, link_exp, res2_exp):
         try:
@@ -101,9 +104,6 @@ class TestRevisionController(TestController2):
             rev = model.repo.new_revision()
             rev.author = "Test Revision %s" % i
             model.repo.commit()
-
-    def purge_100_revisions(self):
-        pass
 
     def test_read_redirect_at_base(self):
         # have to put None as o/w seems to still be at url set in previous test
@@ -139,27 +139,24 @@ class TestRevisionController(TestController2):
         self.create_100_revisions()
         revisions = model.repo.history().all()
         revision1 = revisions[0]
-        try:
-            # Revisions are most recent first, with first rev on last page.
-            # Todo: Look at the model to see which revision is last.
-            # Todo: Test for last revision on first page.
-            # Todo: Test for first revision on last page.
-            # Todo: Test for last revision minus 50 on second page.
-            # Page 1.   (Implied id=1)
-            offset = url_for(controller='revision', action='list')
-            res = self.app.get(offset + '?format=atom')
-            print res
-            assert '<feed' in res
-            assert 'xmlns="http://www.w3.org/2005/Atom"' in res
-            assert '</feed>' in res
-            # Todo: Better test for 'days' request param.
-            #  - fake some older revisions and check they aren't included.
-            res = self.app.get(offset + '?format=atom&days=30')
-            print res
-            assert '<feed' in res
-            assert 'xmlns="http://www.w3.org/2005/Atom"' in res
-            assert '</feed>' in res
-        finally:
-            self.purge_100_revisions()
+        # Revisions are most recent first, with first rev on last page.
+        # Todo: Look at the model to see which revision is last.
+        # Todo: Test for last revision on first page.
+        # Todo: Test for first revision on last page.
+        # Todo: Test for last revision minus 50 on second page.
+        # Page 1.   (Implied id=1)
+        offset = url_for(controller='revision', action='list')
+        res = self.app.get(offset + '?format=atom')
+        print res
+        assert '<feed' in res
+        assert 'xmlns="http://www.w3.org/2005/Atom"' in res
+        assert '</feed>' in res
+        # Todo: Better test for 'days' request param.
+        #  - fake some older revisions and check they aren't included.
+        res = self.app.get(offset + '?format=atom&days=30')
+        print res
+        assert '<feed' in res
+        assert 'xmlns="http://www.w3.org/2005/Atom"' in res
+        assert '</feed>' in res
 
 

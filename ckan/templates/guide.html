@@ -7,11 +7,11 @@
     <h2>CKAN Guide</h2>
 
     <h3>Bookmarklet for Adding Packages</h3>
-    <p>Want to automate creating a package from the info in a webpage? Use the CKAN bookmarklet:</p>
+    <p>Want to automate creating a package from the info in a webpage? You can use the CKAN bookmarklet. This will automatically extract information such as url, title and a description and send it off to the new package form (where you can then edit further).</p>
+    <p>To install the bookmarklet just drag the following link to your bookmarks toolbar (in IE: right-click on it and select Add to Favourites). For more details on installing bookmarklets see <a href="http://delicious.com/help/bookmarklets">the del.icio.us help page on the topic</a>.
+    </p>
     <p> 
     <a href="javascript:(function(){f='http://ckan.net/package/new?url='+encodeURIComponent(window.location.href)+'&amp;title='+encodeURIComponent(document.title);if((n=document.getElementsByName('description')[0])&amp;&amp;(d=n.content)){f+='&amp;notes='+encodeURIComponent(d);}a=function(){if(!window.open(f)){location.href=f;}};if(/Firefox/.test(navigator.userAgent)){setTimeout(a,0)}else{a()}})()">Add to CKAN</a>
-    </p>
-    <p>To install this bookmarklet just drag it to your bookmarks toolbar or select Add to Bookmarks (in IE: Add to Favourites). For more details on installing bookmarketlets see <a href="http://delicious.com/help/bookmarklets">the del.icio.us help page on the topic</a>.
     </p>
 
     ${HTML(h.markdown(c.info))}
