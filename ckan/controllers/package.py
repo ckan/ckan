@@ -70,11 +70,9 @@ class PackageController(CkanBaseController):
                 c.pkgname = fs.name.value
                 h.redirect_to(action='read', id=c.pkgname)
             except ValidationException, error:
-                c.error = error
-                # will now continue into usual processing
-            # TODO: ?
-            # except Exception, error:
-            #   raise if in debug mode?
+                c.error, fs = error.args
+                c.form = self._render_edit_form(fs, c.error)
+                return render('package/edit')
 
         # use request params even when starting to allow posting from "outside"
         # (e.g. bookmarklet)
@@ -114,7 +112,7 @@ class PackageController(CkanBaseController):
                 c.pkgname = c.fs.name.value
                 h.redirect_to(action='read', id=c.pkgname)
             except ValidationException, error:
-                c.error = error
+                c.error, fs = error.args
                 fs = ckan.forms.package_fs.bind(data=request.POST)
                 c.form = self._render_edit_form(fs, c.error)
                 return render('package/edit')
@@ -201,8 +199,7 @@ class PackageController(CkanBaseController):
                 errors.append("%s:%s" % (field.name, ";".join(err_list)))
             c.error = ', '.join(errors)
             c.form = self._render_edit_form(fs, c.error)
-            raise ValidationException(c.error)
-#            return render('package/edit')
+            raise ValidationException(c.error, fs)
 
         try:
             rev = model.repo.new_revision()

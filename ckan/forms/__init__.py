@@ -83,7 +83,7 @@ class TagEditRenderer(formalchemy.fields.FieldRenderer):
     def render(self, **kwargs):
         tags = self.field.parent.model.tags
         tags_as_string = self._convert_tags(tags)
-        return self.tag_field_template % (h.text_field(self.name, content=tags_as_string, size=60, **kwargs), self.field.parent.model.id or '')
+        return self.tag_field_template % (h.text_field(self.name, value=tags_as_string, size=60, **kwargs), self.field.parent.model.id or '')
     # TODO test by eye
 
     def _convert_tags(self, tags_dict):

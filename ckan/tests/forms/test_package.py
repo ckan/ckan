@@ -53,7 +53,7 @@ class TestForms:
         print out
         assert out
         assert 'tags' in out
-        assert 'russian tolstoy' in out
+        assert 'value="russian tolstoy"' in out
 
     def test_2_fields(self):
         fs = ckan.forms.package_fs
