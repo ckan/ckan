@@ -23,7 +23,7 @@ class RestController(CkanBaseController):
         try:
             request_data = self._get_request_data()
         except ValueError, inst:
-            response.status_code = 400
+            response.status_int = 400
             return "JSON Error: %s" % str(inst)
         self.log.debug("Creating: %s with %s" % (registry_path, request_data))
         self.mode = RegisterPost(
@@ -50,7 +50,7 @@ class RestController(CkanBaseController):
         try:
             request_data = self._get_request_data()
         except ValueError, inst:
-            response.status_code = 400
+            response.status_int = 400
             return "JSON Error: %s" % str(inst)
         if 'id' in request_data:
             request_data.pop('id')
@@ -84,7 +84,7 @@ class RestController(CkanBaseController):
         return self.finish()
 
     def finish(self):
-        response.status_code = self.mode.response_code
+        response.status_int = self.mode.response_code
         response.headers['Content-Type'] = 'application/json' 
         return simplejson.dumps(self.mode.response_data)
 
@@ -102,11 +102,11 @@ class RestController(CkanBaseController):
         if api_key is not None:
             self.rest_api_user = api_key.name
             self.log.debug("Access OK.")
-            response.status_code = 200
+            response.status_int = 200
             return True
         else:
             self.log.debug("API Key Not Authorized: %s" % keystr)
-            response.status_code = 403
+            response.status_int = 403
             return False
 
     def _get_request_data(self):

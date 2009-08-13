@@ -10,6 +10,9 @@ from pylons.middleware import error_mapper, ErrorDocuments, ErrorHandler, \
     StaticJavascripts
 from pylons.wsgiapp import PylonsApp
 
+from beaker.middleware import CacheMiddleware, SessionMiddleware
+from routes.middleware import RoutesMiddleware
+
 from ckan.config.environment import load_environment
 
 def make_app(global_conf, full_stack=True, **app_conf):
@@ -37,6 +40,10 @@ def make_app(global_conf, full_stack=True, **app_conf):
     app = PylonsApp()
 
     # CUSTOM MIDDLEWARE HERE (filtered by error handling middlewares)
+    app = RoutesMiddleware(app, config['routes.map'])
+    app = SessionMiddleware(app, config)
+    app = CacheMiddleware(app, config)
+
     from repoze.who.config import make_middleware_with_config
     app = make_middleware_with_config(app, global_conf,
             app_conf['who.config_file'], app_conf['who.log_file'],
