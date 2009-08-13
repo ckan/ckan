@@ -1,7 +1,6 @@
 import logging
 import genshi
 import simplejson
-import formencode
 
 from ckan.lib.base import *
 from ckan.controllers.base import CkanBaseController
@@ -56,8 +55,6 @@ class PackageController(CkanBaseController):
         c.revisions = c.pkg.all_revisions
         return render('package/history')
 
-    # Try to use this again ...
-    # @validate(schema=ckan.forms.PackageNameSchema(), form='new')
     def new(self):
         c.has_autocomplete = True
         c.error = ''
@@ -85,8 +82,6 @@ class PackageController(CkanBaseController):
             c.preview = genshi.HTML(self._render_package(fs))
         return render('package/new')
 
-    # TODO: use this decorator again
-    # @validate(schema=ckan.forms.PackageSchema(), form='edit')
     def edit(self, id=None): # allow id=None to allow posting
         # TODO: refactor to avoid duplication between here and new
         c.has_autocomplete = True
@@ -115,9 +110,6 @@ class PackageController(CkanBaseController):
                 c.error, fs = error.args
                 c.form = self._render_edit_form(fs)
                 return render('package/edit')
-            # TODO: ?
-            # except Exception, error:
-            #   raise if in debug mode?
         else: # Must be preview
             c.pkgname = id
             record = model.Package.by_name(c.pkgname)
@@ -127,20 +119,6 @@ class PackageController(CkanBaseController):
             return render('package/edit')
     
     def _render_edit_form(self, fs):
-#        from formencode import htmlfill
-        all_licenses = model.LicenseList.all_formatted
-##        if value_dict.has_key('licenses'):
-##            selected = value_dict['licenses'] # already names not objects
-##        else:
-##            selected = []
-##        c.license_options = h.options_for_select(
-##                # insert empty option
-##                [''] + all_licenses,
-##                selected=selected
-##                )
-
-#        errs = errors.unpack_errors() if errors else {}
-
         # errors arrive in c.error and fs.errors
         c.form = fs.render()
         return render('package/edit_form')
@@ -224,8 +202,12 @@ class PackageController(CkanBaseController):
                 c.pkg_license = model.License.query.get(fs.license.value).name
             else:
                 c.pkg_license = None
-            c.pkg_tags = [tag.name for tag in fs.tags.model.tags]
-#            c.pkg_tags = []#fs.tags.value.split()
+            if fs.tags.value:
+                c.pkg_tags = [tag.name for tag in fs.tags.value]
+            elif fs.model.tags:
+                c.pkg_tags = [tag.name for tag in fs.model.tags]
+            else:
+                c.pkg_tags = []
             import ckan.misc
             format = ckan.misc.MarkdownFormat()
             notes_formatted = format.to_html(fs.notes.value)
