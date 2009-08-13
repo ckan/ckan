@@ -181,14 +181,14 @@ class TestValidation:
         good_names = [ 'blah', 'ab', 'ab1', 'some-random-made-up-name', 'has_underscore' ]
         bad_names = [ '', 'blAh', 'a', 'annakarenina', 'dot.in.name', u'unicode-\xe0', 'percent%' ]
 
-        for name in good_names:
-            print "Good name:", name
+        for i, name in enumerate(good_names):
+            print "Good name:", i
             indict[prefix + 'name'] = unicode(name)
             fs = ckan.forms.package_fs.bind(anna, data=indict)
             assert fs.validate()
 
-        for name in bad_names:
-            print "Bad name:", name
+        for i, name in enumerate(bad_names):
+            print "Bad name:", i
             indict[prefix + 'name'] = unicode(name)
             fs = ckan.forms.package_fs.bind(anna, data=indict)
             assert not fs.validate()
@@ -201,16 +201,16 @@ class TestValidation:
         good_names = [ 'blah', 'ab', 'ab1', 'some-random-made-up-name', 'has_underscore', u'unicode-\xe0', 'dot.in.name' ]
         bad_names = [ 'a', 'blAh', 'percent%' ]
 
-        for name in good_names:
-            print "Good tag name:", name
+        for i, name in enumerate(good_names):
+            print "Good tag name:", i
             indict[prefix + 'name'] = u'okname'
             indict[prefix + 'tags'] = unicode(name)
             fs = ckan.forms.package_fs.bind(anna, data=indict)
             out = fs.validate()
             assert out, fs.errors
 
-        for name in bad_names:
-            print "Bad tag name:", name
+        for i, name in enumerate(bad_names):
+            print "Bad tag name:", i
             indict[prefix + 'name'] = u'okname'
             indict[prefix + 'tags'] = unicode(name)
             fs = ckan.forms.package_fs.bind(anna, data=indict)
