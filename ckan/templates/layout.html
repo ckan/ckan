@@ -49,14 +49,14 @@
         <py:choose>
         <py:when test="c.user">
         <p>
-          Logged in as <strong>${c.user}</strong> 
+          Logged in as <strong>${c.user}</strong> |
+          <a href="/account/">My Account</a>
           | <a href="${h.url_for('/logout_openid')}">Logout</a>
         </p>
         </py:when>
         <py:otherwise>
           <p>
-          <a href="/account/">Register</a> or
-          <a href="/account/login/">Login</a>
+          <a href="/account/login/">Login via OpenID</a>
           </p>
         </py:otherwise>
         </py:choose>

@@ -7,8 +7,12 @@ def login_form():
 class AccountController(CkanBaseController):
 
     def index(self):
-        c.login_page = h.url_for(controller='account', action='login')
-        return render('account/index')
+        if not c.user:
+            h.redirect_to(controller='account', action='login', id=None)
+        else:
+            q = model.Revision.query.filter_by(author=c.user).limit(20)
+            c.activity = q.limit(20).all()            
+            return render('account/index')
 
 #     def login_form(self, return_url=''):
 #         return render('account/login_form')
@@ -18,7 +22,7 @@ class AccountController(CkanBaseController):
 # 
     def login(self):
         if c.user:
-             return render('account/logged_in')
+            h.redirect_to(controller='account', action=None, id=None)
         else:
             form = render('account/openid_form')
             # /login_openid page need not exist -- request gets intercepted by openid plugin

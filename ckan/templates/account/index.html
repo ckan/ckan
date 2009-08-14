@@ -1,32 +1,31 @@
 <html xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude">
   
+  <xi:include href="../revision/common.html" />
+
   <py:def function="page_title">Account - Home</py:def>
 
   <div py:match="content">
-    <h2>Accounts</h2>
-    <p>
-    CKAN uses <a href="http://openid.net/">OpenID</a> for user authentication.
-    You therefore do <strong>not</strong> need to register a new username and
-    password to use this site - instead you can reuse your existing openid
-    account.
-    </p>
 
-    <h3>Getting an OpenID</h3>
-    <p>
-    If you haven't already got an OpenID it is <a
-      href="http://openid.net/get/">easy to get one</a>. Probably the simplest
-    way is sign up with a free OpenID provider such as <a
-      href="https://www.myopenid.com/">https://www.myopenid.com/</a>.
-    </p>
+    <h2>My Account</h2>
+    <p>You are logged in as: <strong>${c.user}</strong></p>
 
-    <h3>Logging In</h3>
-    <p>
-    If you have already got an OpenID just visit the
-    ${XML(
-      h.link_to('login page', h.url_for(controller='account', action='login'))
-    )}
-    .</p>
+    <p>To logout <a href="${h.url_for('/logout_openid')}">
+      click here</a>.</p>
+
+    <p>To view your API key <a href="${h.url_for(controller='account', action='apikey')}">
+      click here</a>.</p>
+
+    <h3>Your Recent Activity</h3>
+    <table border="1">
+      <tr>
+        <th>Revision</th><th>Timestamp</th><th>Author</th><th>Packages</th><th>Log Message</th>
+      </tr>
+      <py:for each="revision in c.activity">
+      ${revision_row(revision)}
+      </py:for>
+    </table>
+
   </div>
 
   <xi:include href="layout.html" />

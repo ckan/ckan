@@ -5,6 +5,9 @@
 
   <div py:match="content">
     <h2>Login</h2>
+    <p>You don't need to sign up for yet another account to use CKAN. Instead you can just <strong>use your OpenID</strong>.
+    </p>
+
     <form action="FORM_ACTION" method="post">
       
       <label for="openid">Your OpenID identity URL:</label>
@@ -12,6 +15,14 @@
 
       <br /><br /><input type="submit" name="authform" value="Log in &raquo;" />
     </form>
+      
+    <h3>Don't have an OpenID?</h3>
+    <p>
+    If you haven't already got an OpenID it is <a
+      href="http://openid.net/get/">easy to get one</a>. Probably the simplest
+    way is sign up with a free OpenID provider such as <a
+      href="https://www.myopenid.com/">https://www.myopenid.com/</a>.
+    </p>
   </div>
   <xi:include href="layout.html" />
 </html>

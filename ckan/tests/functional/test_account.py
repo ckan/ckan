@@ -3,17 +3,28 @@ import ckan.model as model
 
 class TestAccountController(TestController2):
 
-    def test_account(self):
+    def test_account_not_logged_in(self):
         offset = url_for(controller='account')
-        res = self.app.get(offset)
-        assert 'Account - Home' in res
-        assert 'CKAN uses' in res
-        assert 'Getting an OpenID' in res
+        # not logged in, so should redirect to 
+        res = self.app.get(offset, status=302)
+        res = res.follow()
+        assert 'Login' in res, res
+
+    def test_account_logged_in(self):
+        offset = url_for(controller='account')
+        username = 'xyz.com'
+        res = self.app.get(offset, extra_environ={'REMOTE_USER': username})
+        assert 'My Account' in res, res
+        assert 'You are logged in as: <strong>%s</strong>' % username in res
+        assert 'To view your API key' in res
+        assert 'Your Recent Activity' in res
 
     def test_account_login(self):
         offset = url_for(controller='account', action='login')
         res = self.app.get(offset, status=200)
         assert 'Login' in res, res
+        assert 'use your OpenID' in res
+        assert 'haven\'t already got an OpenID' in res
 
     # TODO: 2009-06-27 delete/update these methods (now moving to repoze)
     def _login_form(self, res):
@@ -67,13 +78,6 @@ class TestAccountController(TestController2):
 
     # -----------
     # tests for top links present in every page
-
-    def test_home_register(self):
-        offset = url_for(controller='home')
-        res = self.app.get(offset)
-        res = res.click('Register', index=0)
-        print str(res)
-        assert 'Account - Home' in res
 
     def test_home_login(self):
         offset = url_for(controller='home')

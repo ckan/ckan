@@ -1,0 +1,44 @@
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip=""
+  >
+
+      <tr py:def="revision_row(item)">
+        <td>
+          ${
+            XML(
+            h.link_to(item.id,
+              h.url_for(
+                controller='revision',
+                action='read',
+                id=item.id)
+              )
+            )
+          }
+          <py:if test="c.show_purge_links">
+          ${
+            XML(
+            h.link_to('Purge',
+              h.url_for(
+                controller='revision',
+                action='purge',
+                id=item.id),
+              confirm='Are you sure?'
+              )
+            )
+          }
+          </py:if>
+        </td>
+        <td>${item.timestamp}</td>
+        <td>${item.author}</td>
+        <td>
+          <py:for each="pkg in item.packages">
+          <a href="${h.url_for(controller='package', action='read', id=pkg.name)}">${pkg.name}</a>
+          </py:for>
+        </td>
+        <td>${item.message}</td>
+      </tr>
+</html>
+
