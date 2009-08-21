@@ -7,6 +7,10 @@
       <li><strong>Version:</strong> ${c.pkg_version}</li>
       <li><strong>Url:</strong> <a href="${c.pkg_url}">${c.pkg_url}</a></li>
       <li><strong>Download Url:</strong> <a href="${c.pkg_download_url}">${c.pkg_download_url}</a></li>
+      <li><strong>Author:</strong> ${c.pkg_author}</li>
+      <li><strong>Author email:</strong> ${c.pkg_author_email}</li>
+      <li><strong>Maintainer:</strong> ${c.pkg_maintainer}</li>
+      <li><strong>Maintainer email:</strong> ${c.pkg_maintainer_email}</li>
       <li><strong>Tags:</strong>
         <py:for each="tag_name in c.pkg_tags">
         <a href="${h.url_for(controller='tag', action='read', id=tag_name)}">${tag_name}</a>

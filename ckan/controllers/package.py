@@ -158,18 +158,7 @@ class PackageController(CkanBaseController):
 ##        else:
 ##            indict['licenses'] = []
 
-        # If not changing name, don't validate this field (it will think it
-        # is not unique because name already exists in db). So change it
-        # temporarily to something that will always validate ok.
-        temp_name = None
-        if fs.name.value == id:
-            temp_name = id
-            fs.data['Package-%s-name' % record_id] = 'something_unique'
-        validation = fs.validate()
-        if temp_name:
-            # restore it
-            fs.data['Package-%s-name' % record_id] = temp_name
-
+        validation = fs.validate_on_edit(id, record_id)
         if not validation:
             errors = []            
             for field, err_list in fs.errors.items():
@@ -198,6 +187,10 @@ class PackageController(CkanBaseController):
             c.pkg_title = fs.title.value
             c.pkg_url = fs.url.value
             c.pkg_download_url = fs.download_url.value
+            c.pkg_author = fs.author.value
+            c.pkg_author_email = fs.author_email.value
+            c.pkg_maintainer = fs.maintainer.value
+            c.pkg_maintainer_email = fs.maintainer_email.value
             if fs.license.value:
                 c.pkg_license = model.License.query.get(fs.license.value).name
             else:
