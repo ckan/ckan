@@ -2,6 +2,8 @@ import ckan.model as model
 import ckan.forms
 from ckan.tests import *
 
+    
+
 def _get_basic_dict(pkg=None):
     indict = {}
     if pkg:
@@ -25,6 +27,26 @@ class TestForms:
     @classmethod
     def teardown_class(self):
         model.repo.rebuild_db()
+
+    def test_0_get_package_dict(self):
+        d = ckan.forms.get_package_dict()
+        assert 'Package--title' in d
+        assert not 'Package--all_revisions' in d
+
+        anna = model.Package.by_name(u'annakarenina')
+        prefix = 'Package-%s-' % anna.id
+        d = ckan.forms.get_package_dict(anna)
+        assert prefix+'title' in d
+        assert d[prefix+'title'] == anna.title
+        assert d[prefix+'version'] == anna.version
+        assert d[prefix+'url'] == anna.url
+
+        changes = {'title':'newtitle', 'url':'newurl'}
+        d2 = ckan.forms.edit_package_dict(d, changes, anna.id)
+        assert d2[prefix+'title'] == changes['title']
+        assert d2[prefix+'version'] == anna.version
+        assert d2[prefix+'url'] == changes['url']
+        assert d2[prefix+'name'] == anna.name
 
     def test_1_render(self):
         fs = ckan.forms.package_fs
