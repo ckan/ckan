@@ -4,7 +4,7 @@ import simplejson
 
 from ckan.lib.base import *
 from ckan.controllers.base import CkanBaseController
-from ckan.searchquerybuilder import SearchQueryBuilder
+from ckan.lib.search import Search
 import ckan.forms
 
 logger = logging.getLogger('ckan.controllers')
@@ -27,23 +27,20 @@ class PackageController(CkanBaseController):
         request_params = dict(request.params)
         c.show_results = False
         if request_params.has_key('q'):
+            options = (request_params.has_key('open_only'),
+                       request_params.has_key('downloadable_only'))
+            c.open_only, c.downloadable_only = options
             c.show_results = True
             c.q = request_params['q']
-            mode = MockMode('package', model.Package, request_params)
-            builder = SearchQueryBuilder(mode)
-            query = builder.execute()
-            if query is None:
-                c.packages = []
-            else:
-                c.packages = query.all()
+            c.packages, c.tags = Search().run(c.q, options)
             c.package_count = len(c.packages)
+            c.tags_count = len(c.tags)
         return render('package/search')
 
     def read(self, id):
         c.pkg = model.Package.by_name(id)
         if c.pkg is None:
             abort(404, '404 Not Found')
-
         fs = ckan.forms.package_fs.bind(c.pkg)
         c.content = genshi.HTML(self._render_package(fs))
         return render('package/read')

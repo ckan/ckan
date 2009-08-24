@@ -78,17 +78,16 @@ class TestPackageController(TestController2):
         offset = url_for(controller='package', action='search')
         res = self.app.get(offset)
         assert 'Packages - Search' in res
-        self._check_search_results(res, 'anna', ['1 result', 'annakarenina'] )
-        self._check_search_results(res, 'war', ['1 result', 'warandpeace'] )
-        self._check_search_results(res, 'a', ['2 results', 'warandpeace', 'annakarenina'] )
-        self._check_search_results(res, 'n', ['2 results', 'warandpeace', 'annakarenina'] )
-        self._check_search_results(res, '', ['0 results'] )
-        self._check_search_results(res, 'z', ['0 results'] )
-        self._check_search_results(res, 'A Novel By Tolstoy', ['1 result'] )
-        self._check_search_results(res, 'title:Novel', ['1 result'] )
-        self._check_search_results(res, 'title:peace', ['0 results'] )
-        # Not working, not needed....?
-        #self._check_search_results(res, 'name:peace', ['1 result'] )
+        self._check_search_results(res, 'anna', ['1 package found', 'annakarenina'] )
+        self._check_search_results(res, 'war', ['1 package found', 'warandpeace'] )
+        self._check_search_results(res, 'a', ['2 packages found', 'warandpeace', 'annakarenina'] )
+        self._check_search_results(res, 'n', ['2 packages found', 'warandpeace', 'annakarenina'] )
+        self._check_search_results(res, '', ['0 packages found'] )
+        self._check_search_results(res, 'z', ['0 packages found'] )
+        self._check_search_results(res, '"A Novel By Tolstoy"', ['1 package found'] )
+        self._check_search_results(res, 'title:Novel', ['1 package found'] )
+        self._check_search_results(res, 'title:peace', ['0 packages found'] )
+        self._check_search_results(res, 'name:peace', ['1 package found'] )
 
     def _check_search_results(self, page, terms, requireds):
         form = page.forms[0]

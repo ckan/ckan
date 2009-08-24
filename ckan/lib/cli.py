@@ -150,10 +150,11 @@ class CreateTestData(CkanCommand):
         pkg2 = model.Package(name=self.pkgname2)
         tag1 = model.Tag(name=u'russian')
         tag2 = model.Tag(name=u'tolstoy')
-        license1 = model.License.byName(u'OKD Compliant::Other')
         pkg1.tags = [tag1, tag2]
-        pkg1.license = license1
         pkg2.tags = [ tag1 ]
+        license1 = model.License.byName(u'OKD Compliant::Other')
+        pkg1.license = license1
+        pkg2.title = u'A Wonderful Story'
         # api key
         model.ApiKey(name=u'tester', key=u'tester')
         model.Session.commit()
