@@ -4,15 +4,24 @@
   xmlns:xi="http://www.w3.org/2001/XInclude">
 
   <xi:include href="common.html" /> 
-  
+
   <py:def function="page_title">Packages - Search</py:def>
 
   <div py:match="content">
     <h2>Packages - Search</h2>
     <xi:include href="search_form.html" />
     <py:if test="c.show_results">
-		<p>There are <strong>${c.package_count} results</strong>.</p>
-		<py:if test="c.package_count==0">
+                <py:if test="c.tags_count > 0">
+		<p><strong>${c.tags_count} tag<py:if test="c.tags_count > 1">s</py:if> found:</strong>
+				<py:for each="tag in c.tags">
+          <a href="${h.url_for(controller='tag', action='read', id=tag.name)}">${tag.name}</a>
+				</py:for>
+
+                </p>
+		</py:if>
+
+		<p><strong>${c.package_count} package<py:if test="c.package_count>1 or c.package_count==0">s</py:if> found<py:if test="c.package_count>0">:</py:if></strong></p>
+		<py:if test="c.package_count==0 and c.tags_count==0">
 			<p>
 			Would you like to <a href="${h.url_for(action='new', id=None)}">create a new package?</a>
 			</p>

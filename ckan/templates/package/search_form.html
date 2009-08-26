@@ -2,6 +2,8 @@
       ${XML(h.text_field('q', size=40, value=c.q))}
       ${XML(h.submit('Search Packages &raquo;', name='search'))}
       <p class="desc">
-        E.g. 'geo', 'shakespeare', 'science' 
+        E.g. 'geo', 'shakespeare', 'science'
       </p>
+      ${XML(h.check_box(name='open_only', checked=c.open_only))} only open packages<br/>
+      ${XML(h.check_box(name='downloadable_only', checked=c.downloadable_only))} only downloadable packages
     </form>

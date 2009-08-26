@@ -125,7 +125,7 @@ fieldset select
 
 ul.desc { list-style-type: circle; }
 
-.field-with-error
+.field_error
 {
   padding: 2px;
   background-color: #c00;
@@ -133,9 +133,10 @@ ul.desc { list-style-type: circle; }
   margin-left: 1em;
 }
 
-.field-with-error input,
-.field-with-error select,
-.field-with-error textarea
+.field_error span,
+.field_error input,
+.field_error select,
+.field_error textarea
 {
   margin: 0;
 }

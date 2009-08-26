@@ -32,7 +32,7 @@ class TestConverter(object):
         assert len(dumpeddata['Package']) == 2
         assert len(dumpeddata['Tag']) == 2
         assert len(dumpeddata['PackageRevision']) == 2
-        assert len(dumpeddata['Revision']) == 2, dumpeddata['Revision']
+
    
     def test_load(self):
         model.repo.clean_db()

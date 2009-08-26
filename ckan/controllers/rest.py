@@ -1,8 +1,11 @@
-from ckan.controllers.base import *
+import datetime
+
+import sqlalchemy.orm
 import simplejson
-from ckan.modes import RegisterGet, RegisterPost, RegisterSearch
-from ckan.modes import EntityGet, EntityPut, EntityDelete
+
+from ckan.controllers.base import *
 import ckan.model as model
+import ckan.forms
 
 class RestController(CkanBaseController):
 
@@ -10,86 +13,127 @@ class RestController(CkanBaseController):
         return render('rest/index')
 
     def list(self, register):
-        registry_path = '/%s' % register
-        self.log.debug("Listing: %s" % registry_path)
-        self.mode = RegisterGet(registry_path)
-        self.mode.execute()
-        return self.finish()
+        if register == u'package':
+            packages = model.Package.query.all() 
+            results = [package.name for package in packages]
+            return self._finish_ok(results)
+        elif register == u'tag':
+            tags = model.Tag.query.all() #TODO
+            results = [tag.name for tag in tags]
+            return self._finish_ok(results)
+        else:
+            response.status_int = 400
+            return ''
+
+    def show(self, register, id):
+        if register == u'package':
+            obj = model.Package.by_name(id)
+            if obj is None:
+                response.status_int = 404
+                return ''
+            _dict = self._convert_object_to_dict(obj)
+            _dict['tags'] = [tag.name for tag in obj.tags]
+            #TODO check it's not none
+            return self._finish_ok(_dict)
+        elif register == u'tag':
+            obj = model.Tag.by_name(id) #TODO tags
+            if obj is None:
+                response.status_int = 404
+                return ''            
+            _dict = [pkgtag.package.name for pkgtag in obj.package_tags]
+            return self._finish_ok(_dict)
+        else:
+            response.status_int = 400
+            return ''
 
     def create(self, register):
         if not self._check_access():
             return simplejson.dumps("Access denied")
-        registry_path = '/%s' % register
         try:
             request_data = self._get_request_data()
         except ValueError, inst:
             response.status_int = 400
             return "JSON Error: %s" % str(inst)
-        self.log.debug("Creating: %s with %s" % (registry_path, request_data))
-        self.mode = RegisterPost(
-            registry_path=registry_path, 
-            request_data=request_data,
-            user_name=self.rest_api_user,
-        )
-        self.mode.execute()
-        return self.finish()
+        try:
+            request_fa_dict = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(), request_data)
+            fs = ckan.forms.package_fs.bind(model.Package, data=request_fa_dict)
+            validation = fs.validate()
+            if not validation:
+                response.status_int = 409
+                return simplejson.dumps(repr(fs.errors))
+            rev = model.repo.new_revision()
+            rev.author = self.rest_api_user
+            rev.message = "REST API: Create object %s" % str(fs.name.value)
+            fs.sync()
 
-    def show(self, register, id):
-        id = self.fix_id(id)
-        registry_path = '/%s/%s' % (register, id)
-        self.log.debug("Reading: %s" % registry_path)
-        self.mode = EntityGet(registry_path)
-        self.mode.execute()
-        return self.finish()
-
+            model.repo.commit()        
+        except Exception, inst:
+            model.Session.rollback()
+            raise
+        obj = fs.model
+        return self._finish_ok(self._convert_object_to_dict(obj))
+            
     def update(self, register, id):
         if not self._check_access():
             return simplejson.dumps("Access denied")
-        id = self.fix_id(id)
-        registry_path = '/%s/%s' % (register, id)
         try:
             request_data = self._get_request_data()
         except ValueError, inst:
             response.status_int = 400
             return "JSON Error: %s" % str(inst)
-        if 'id' in request_data:
-            request_data.pop('id')
-        self.log.debug("Updating: %s with %s" % (registry_path, request_data))
-        self.mode = EntityPut(
-            registry_path=registry_path, 
-            request_data=request_data,
-            user_name=self.rest_api_user,
-        )
-        self.mode.execute()
-        return self.finish()
+
+        pkg = model.Package.by_name(id)
+        if not pkg:
+            response.status_int = 404
+            return ''
+
+        try:
+            orig_pkg_dict = ckan.forms.get_package_dict(pkg)
+            request_fa_dict = ckan.forms.edit_package_dict(orig_pkg_dict, request_data, id=pkg.id)
+            fs = ckan.forms.package_fs.bind(pkg, data=request_fa_dict)
+            validation = fs.validate_on_edit(pkg.name, pkg.id)
+            if not validation:
+                response.status_int = 409
+                return simplejson.dumps(repr(fs.errors))
+            rev = model.repo.new_revision()
+            rev.author = self.rest_api_user
+            rev.message = "REST API: Update object %s" % str(fs.name.value)
+            fs.sync()
+
+            model.repo.commit()        
+        except Exception, inst:
+            model.Session.rollback()
+            if inst.__class__.__name__ == 'IntegrityError':
+                response.status_int = 409
+                return ''
+            else:
+                raise
+        obj = fs.model
+        return self._finish_ok(self._convert_object_to_dict(obj))
 
     def delete(self, register, id):
         if not self._check_access():
             return simplejson.dumps("Access denied")
-        id = self.fix_id(id)
-        registry_path = '/%s/%s' % (register, id)
-        self.log.debug("Deleting: %s" % registry_path)
-        self.mode = EntityDelete(
-            registry_path=registry_path, 
-            user_name=self.rest_api_user,
-        )
-        self.mode.execute()
-        return self.finish()
+
+        pkg = model.Package.by_name(id)
+        if not pkg:
+            response.status_int = 404
+            return ''
+            
+        try:
+            pkg.delete()
+            model.repo.commit()        
+        except Exception, inst:
+            raise
+
+        return self._finish_ok()
 
     def search(self, register):
         registry_path = '/%s' % register
         request_data = self._get_request_data()
         self.log.debug("Searching: %s" % registry_path)
         self.mode = RegisterSearch(registry_path, request_data).execute()
-        return self.finish()
-
-    def finish(self):
-        response.status_int = self.mode.response_code
-        response.headers['Content-Type'] = 'application/json' 
-        return simplejson.dumps(self.mode.response_data)
-
-    def fix_id(self, id):
-        return id
+        return self._finish_ok()
 
     def _check_access(self):
         api_key = None
@@ -107,6 +151,7 @@ class RestController(CkanBaseController):
         else:
             self.log.debug("API Key Not Authorized: %s" % keystr)
             response.status_int = 403
+            response.headers['Content-Type'] = 'application/json'
             return False
 
     def _get_request_data(self):
@@ -117,7 +162,38 @@ class RestController(CkanBaseController):
                 request.params.items(), str(inst)
             )
             raise Exception, msg
-        self.log.debug("Loading JSON string: %s" % (request_data))
         request_data = simplejson.loads(request_data)
-        self.log.debug("Loaded JSON data: %s" % (request_data))
         return request_data
+
+    def _convert_object_to_dict(self, obj):
+        out = {}
+        table = sqlalchemy.orm.class_mapper(obj).mapped_table
+        for key in table.c.keys():
+            val  = getattr(obj, key)
+            if isinstance(val, datetime.date):
+                val = str(val)
+            out[key] = val
+        return out
+
+    def _convert_dict_to_object(self, _dict, _class=model.Package):
+        tmp_dict = {}
+        for key, value in _dict.items():
+            tmp_dict[str(key)] = value
+
+        if 'name' in tmp_dict:
+            obj = _class.by_name(tmp_dict['name'])
+        else:
+            obj = _class()
+        for key, value in tmp_dict.items():
+            setattr(obj, key, value)
+
+        return obj
+        
+    def _finish_ok(self, response_data=None):
+        response.status_int = 200
+        response.headers['Content-Type'] = 'application/json'
+        if response_data:
+            return simplejson.dumps(response_data)
+        else:
+            return ''
+

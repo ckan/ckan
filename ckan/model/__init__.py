@@ -64,6 +64,7 @@ class Repository(vdm.sqlalchemy.Repository):
                 version=version)
 
 
+
 repo = Repository(metadata, Session,
         versioned_objects=[Package, PackageTag]
         )
