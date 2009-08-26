@@ -34,6 +34,7 @@ class ManageDb(CkanCommand):
     db create # create
     db init # create and put in default data
     db clean
+    db upgrade
     db dump {file-path} # dump to a file
     db load {file-path} # load from a file
     db migrate06
@@ -58,7 +59,9 @@ class ManageDb(CkanCommand):
         elif cmd == 'clean' or cmd == 'drop':
             model.repo.clean_db()
             if self.verbose:
-                print 'Cleaning DB: SUCCESS' 
+                print 'Cleaning DB: SUCCESS'
+        elif cmd == 'upgrade':
+            model.repo.upgrade_db()
         elif cmd == 'dump' or cmd == 'load':
             self.dump_or_load(cmd)
         elif cmd == 'migrate06':
