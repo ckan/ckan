@@ -177,9 +177,11 @@ def get_package_dict(pkg=None):
 def edit_package_dict(_dict, changed_items, id=''):
     prefix = 'Package-%s-' % id
     for key, value in changed_items.items():
-        key = prefix + key
-        assert _dict.has_key(key), _dict
-        _dict[key] = value
+        if key:
+            if not key.startswith(prefix):
+                key = prefix + key
+            if _dict.has_key(key):
+                _dict[key] = value
     return _dict
 
 def validate_package_on_edit(fs, id):

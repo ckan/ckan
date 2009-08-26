@@ -33,3 +33,22 @@ class TestHomeController(TestController2):
         res = self.app.get(offset)
         print str(res)
         assert 'CKAN Guide' in res
+
+    def test_search_packages(self):
+        offset = url_for('home')
+        res = self.app.get(offset)
+        form = res.forms[0]
+        form['q'] =  'anna'
+        results_page = form.submit()
+        assert 'Packages - Search' in results_page, results_page
+        assert '0 packages found' in results_page, results_page
+
+    def test_register_new_package(self):
+        offset = url_for('home')
+        res = self.app.get(offset)
+        form = res.forms[1]
+        form['title'] =  'test title'
+        results_page = form.submit()
+        assert 'Register a New Package' in results_page, results_page
+        assert '<input id="Package--title" name="Package--title" size="40" type="text" value="test title">' in results_page, results_page
+        

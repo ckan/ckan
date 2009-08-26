@@ -71,7 +71,8 @@ class PackageController(CkanBaseController):
         # use request params even when starting to allow posting from "outside"
         # (e.g. bookmarklet)
         if request.POST:
-            fs = ckan.forms.package_fs.bind(data=request.POST)
+            data = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(), request.POST)
+            fs = ckan.forms.package_fs.bind(data=data)
         else:
             fs = ckan.forms.package_fs
         c.form = self._render_edit_form(fs)
