@@ -4,8 +4,13 @@ import formalchemy
 from formalchemy import helpers as h
 import ckan.model as model
 
+FIELD_TIP_TEMPLATE = '<p class="desc">%s</p>'
+FIELD_TIPS = {
+    'name':"<strong>Unique identifier</strong> for package.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'",
+    'download_url':'Haven\'t already uploaded your package somewhere? We suggest using <a href="http://www.archive.org/create/">archive.org</a>.',
+}
+
 package_match = re.compile('[a-z0-9_\-]*$')
-package_name_err = 'Package must be unique at least %s lowercase alphanumeric (ascii) characters and these symbols: -_'
 def package_name_validator(val):
     min_length = 2
     if len(val) < min_length:
@@ -47,6 +52,16 @@ class TagField(formalchemy.Field):
         for pkgtag in pkg.package_tags:
             if pkgtag.tag.name not in taglist:
                 pkgtag.delete()
+
+class CustomTextFieldRenderer(formalchemy.fields.TextFieldRenderer):
+    def render(self, **kwargs):
+        kwargs['size'] = '40'
+        field_tip = FIELD_TIPS.get(self.field.key)
+        if field_tip:
+            tip_html = FIELD_TIP_TEMPLATE % field_tip
+        else:
+            tip_html = ''        
+        return h.text_field(self.name, value=self._value, maxlength=self.length, **kwargs) + tip_html
 
 class LicenseRenderer(formalchemy.fields.FieldRenderer):
     def render(self, options, **kwargs):
@@ -122,9 +137,18 @@ class PackageFieldSet(formalchemy.FieldSet):
 
 
 package_fs = PackageFieldSet()
-package_fs.add(TagField('tags').with_renderer(TagEditRenderer).validate(tag_name_validator))
-package_fs.configure(options=[package_fs.name.label('Name (required)').validate(package_name_validator),
+package_fs.add(TagField('tags').with_renderer(TagEditRenderer).validate(tag_name_validator).label('Tags (space separated list)'))
+package_fs.configure(options=[package_fs.name.label('Name (required)').with_renderer(CustomTextFieldRenderer).validate(package_name_validator),
                               package_fs.license.with_renderer(LicenseRenderer),
+                              package_fs.title.with_renderer(CustomTextFieldRenderer),
+                              package_fs.version.with_renderer(CustomTextFieldRenderer),
+                              package_fs.url.with_renderer(CustomTextFieldRenderer),
+                              package_fs.download_url.with_renderer(CustomTextFieldRenderer),
+                              package_fs.author.with_renderer(CustomTextFieldRenderer),
+                              package_fs.author_email.with_renderer(CustomTextFieldRenderer),
+                              package_fs.maintainer.with_renderer(CustomTextFieldRenderer),
+                              package_fs.maintainer_email.with_renderer(CustomTextFieldRenderer),
+                              package_fs.notes.textarea(size=(60, 15)),
                               ],
                      exclude=[package_fs.package_tags,
                               package_fs.all_revisions,

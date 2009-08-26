@@ -241,12 +241,12 @@ Hello world.
         
         # Check form is correctly filled
         prefix = 'Package-%s-' % pkg.id
-        assert 'name="%sname" type="text" value="%s"' % (prefix, pkg.name) in res, res
-        assert 'name="%stitle" type="text" value="%s"' % (prefix, pkg.title) in res, res
-        assert 'name="%sversion" type="text" value="%s"' % (prefix, pkg.version) in res, res
-        assert 'name="%surl" type="text" value="%s"' % (prefix, pkg.url) in res, res
-        assert 'name="%sdownload_url" type="text" value="%s"' % (prefix, pkg.download_url) in res, res
-        assert 'name="%snotes" type="text" value="%s"' % (prefix, pkg.notes) in res, res
+        assert 'name="%sname" size="40" type="text" value="%s"' % (prefix, pkg.name) in res, res
+        assert 'name="%stitle" size="40" type="text" value="%s"' % (prefix, pkg.title) in res, res
+        assert 'name="%sversion" size="40" type="text" value="%s"' % (prefix, pkg.version) in res, res
+        assert 'name="%surl" size="40" type="text" value="%s"' % (prefix, pkg.url) in res, res
+        assert 'name="%sdownload_url" size="40" type="text" value="%s"' % (prefix, pkg.download_url) in res, res
+        assert '<textarea cols="60" id="%snotes" name="%snotes" rows="15">%s</textarea>' % (prefix, prefix, pkg.notes) in res, res
         license_html = '<option value="%s" selected>%s' % (pkg.license_id, pkg.license.name)
         assert license_html in res, str(res) + license_html
         tags_html = 'name="%stags" size="60" type="text" value="%s"' % (prefix, tags_txt)
@@ -291,11 +291,11 @@ Hello world.
         assert 'Tags:\n%s' % tags_html in res1, res1 + tags_html
 
         # Check form is correctly filled
-        assert 'name="%stitle" type="text" value="%s"' % (prefix, title) in res, res
-        assert 'name="%sversion" type="text" value="%s"' % (prefix, version) in res, res
-        assert 'name="%surl" type="text" value="%s"' % (prefix, url) in res, res
-        assert 'name="%sdownload_url" type="text" value="%s"' % (prefix, download_url) in res, res
-        assert 'name="%snotes" type="text" value="%s"' % (prefix, notes) in res, res
+        assert 'name="%stitle" size="40" type="text" value="%s"' % (prefix, title) in res, res
+        assert 'name="%sversion" size="40" type="text" value="%s"' % (prefix, version) in res, res
+        assert 'name="%surl" size="40" type="text" value="%s"' % (prefix, url) in res, res
+        assert 'name="%sdownload_url" size="40" type="text" value="%s"' % (prefix, download_url) in res, res
+        assert '<textarea cols="60" id="%snotes" name="%snotes" rows="15">%s</textarea>' % (prefix, prefix, notes) in res, res
         license_html = '<option value="%s" selected>%s' % (license_id, license)
         assert license_html in res, str(res) + license_html
         assert 'name="%stags" size="60" type="text" value="%s"' % (prefix, tags_txt) in res, res
@@ -398,11 +398,11 @@ class TestPackageControllerNew(TestController2):
         assert 'Tags:\n%s' % tags_html in res1, res1 + tags_html
 
         # Check form is correctly filled
-        assert 'name="Package--title" type="text" value="%s"' % title in res, res
-        assert 'name="Package--version" type="text" value="%s"' % version in res, res
-        assert 'name="Package--url" type="text" value="%s"' % url in res, res
-        assert 'name="Package--download_url" type="text" value="%s"' % download_url in res, res
-        assert 'name="Package--notes" type="text" value="%s"' % notes in res, res
+        assert 'name="Package--title" size="40" type="text" value="%s"' % title in res, res
+        assert 'name="Package--version" size="40" type="text" value="%s"' % version in res, res
+        assert 'name="Package--url" size="40" type="text" value="%s"' % url in res, res
+        assert 'name="Package--download_url" size="40" type="text" value="%s"' % download_url in res, res
+        assert '<textarea cols="60" id="Package--notes" name="Package--notes" rows="15">%s</textarea>' % notes in res, res
         license_html = '<option value="%s" selected>%s' % (license_id, license)
         assert license_html in res, str(res) + license_html
         assert 'name="Package--tags" size="60" type="text" value="%s"' % tags_txt in res, res
