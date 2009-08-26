@@ -102,7 +102,26 @@ class TagEditRenderer(formalchemy.fields.FieldRenderer):
         tags = [find_or_create_tag(x) for x in taglist]
         return tags        
 
-package_fs = formalchemy.FieldSet(model.Package)
+class PackageFieldSet(formalchemy.FieldSet):
+    def __init__(self):
+        formalchemy.FieldSet.__init__(self, model.Package)
+
+    def validate_on_edit(self, orig_pkg_name, record_id):
+        # If not changing name, don't validate this field (it will think it
+        # is not unique because name already exists in db). So change it
+        # temporarily to something that will always validate ok.
+        temp_name = None
+        if self.name.value == orig_pkg_name:
+            temp_name = orig_pkg_name
+            self.data['Package-%s-name' % record_id] = 'something_unique'
+        validation = self.validate()
+        if temp_name:
+            # restore it
+            self.data['Package-%s-name' % record_id] = temp_name
+        return validation
+
+
+package_fs = PackageFieldSet()
 package_fs.add(TagField('tags').with_renderer(TagEditRenderer).validate(tag_name_validator))
 package_fs.configure(options=[package_fs.name.label('Name (required)').validate(package_name_validator),
                               package_fs.license.with_renderer(LicenseRenderer),
@@ -114,3 +133,40 @@ package_fs.configure(options=[package_fs.name.label('Name (required)').validate(
                               package_fs._extras,])
 
 
+def get_package_dict(pkg=None):
+    indict = {}
+    if pkg:
+        fs = package_fs.bind(pkg)
+    else:
+        fs = package_fs
+
+    exclude = ('-id', '-package_tags', '-all_revisions')
+
+    for field in fs._fields.values():
+        if not filter(lambda x: field.renderer.name.endswith(x), exclude):
+             if field.renderer._value:
+                 indict[field.renderer.name] = field.renderer._value
+             else:
+                 indict[field.renderer.name] = u''
+    return indict
+
+def edit_package_dict(_dict, changed_items, id=''):
+    prefix = 'Package-%s-' % id
+    for key, value in changed_items.items():
+        key = prefix + key
+        assert _dict.has_key(key), _dict
+        _dict[key] = value
+    return _dict
+
+def validate_package_on_edit(fs, id):
+    # If not changing name, don't validate this field (it will think it
+    # is not unique because name already exists in db). So change it
+    # temporarily to something that will always validate ok.
+    temp_name = None
+    if fs.name.value == id:
+        temp_name = id
+        fs.data['Package-%s-name' % record_id] = 'something_unique'
+    validation = fs.validate()
+    if temp_name:
+        # restore it
+        fs.data['Package-%s-name' % record_id] = temp_name
