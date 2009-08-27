@@ -18,6 +18,7 @@ class ErrorController(BaseController):
     def document(self):
         """Render the error document"""
         ckan_template = render("error_document_template")
+        ckan_template = ckan_template.decode('utf8')
         page = ckan_template % \
             dict(prefix=request.environ.get('SCRIPT_NAME', ''),
                  code=request.params.get('code', ''),
