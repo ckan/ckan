@@ -58,7 +58,7 @@ class PackageController(CkanBaseController):
 
         if request.params.has_key('commit'):
             record = model.Package
-            fs = ckan.forms.package_fs.bind(record, data=request.POST or None)
+            fs = ckan.forms.package_fs.bind(record, data=request.params or None)
             try:
                 self._update(fs, id, record.id)
                 c.pkgname = fs.name.value
@@ -70,8 +70,8 @@ class PackageController(CkanBaseController):
 
         # use request params even when starting to allow posting from "outside"
         # (e.g. bookmarklet)
-        if request.POST:
-            data = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(), request.POST)
+        if request.params:
+            data = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(), request.params)
             fs = ckan.forms.package_fs.bind(data=data)
         else:
             fs = ckan.forms.package_fs
@@ -97,7 +97,9 @@ class PackageController(CkanBaseController):
             # id is the name (pre-edited state)
             c.pkgname = id
             record = model.Package.by_name(c.pkgname)
-            c.fs = ckan.forms.package_fs.bind(record, data=request.POST or None)
+            params = dict(request.params) # needed because request is nested
+                                          # multidict which is read only
+            c.fs = ckan.forms.package_fs.bind(record, data=params or None)
             try:
                 self._update(c.fs, id, record.id)
 
@@ -111,7 +113,7 @@ class PackageController(CkanBaseController):
         else: # Must be preview
             c.pkgname = id
             record = model.Package.by_name(c.pkgname)
-            fs = ckan.forms.package_fs.bind(record, data=request.POST)
+            fs = ckan.forms.package_fs.bind(record, data=request.params)
             c.form = self._render_edit_form(fs)
             c.preview = genshi.HTML(self._render_package(fs))
             return render('package/edit')
@@ -143,7 +145,7 @@ class PackageController(CkanBaseController):
         if error_msg:
             raise Exception(error_msg)
 
-        log_message = request.POST['log_message']
+        log_message = request.params['log_message']
         if self._is_spam(log_message):
             error_msg = 'This commit looks like spam'
             # TODO: make this into a UserErrorMessage or the like
@@ -210,18 +212,6 @@ class PackageController(CkanBaseController):
 #            preview = 'There was an error rendering the package: %s' % inst
             return preview
 
-class MockMode(object):
-
-    def __init__(self, register_name, register, request_data={'q': ''}):
-        self.register_name = register_name
-        self.register = register
-        self.request_data = request_data
-
-    def get_register_name(self):
-        return self.register_name
-
-    def get_register(self):
-        return self.register
 
 
 
