@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2"
+   sodipodi:version="0.32"
+   inkscape:version="0.46"
+   sodipodi:docname="ckan-features.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+  <defs
+     id="defs4">
+    <linearGradient
+       id="linearGradient3557">
+      <stop
+         style="stop-color:#f52971;stop-opacity:0.71794873;"
+         offset="1"
+         id="stop3559" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient3497">
+      <stop
+         style="stop-color:#f50b00;stop-opacity:0.54700857;"
+         offset="1"
+         id="stop3499" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient3435">
+      <stop
+         style="stop-color:#f56c00;stop-opacity:0.64957267;"
+         offset="0"
+         id="stop3543" />
+      <stop
+         id="stop3549"
+         offset="1"
+         style="stop-color:#f56c00;stop-opacity:0.58039216;" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient3155">
+      <stop
+         id="stop3457"
+         offset="0"
+         style="stop-color:#eff529;stop-opacity:0.67521369;" />
+      <stop
+         style="stop-color:#eff529;stop-opacity:0.65811968;"
+         offset="1"
+         id="stop3515" />
+      <stop
+         id="stop3455"
+         offset="1"
+         style="stop-color:#eff529;stop-opacity:1;" />
+    </linearGradient>
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 526.18109 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="744.09448 : 526.18109 : 1"
+       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
+       id="perspective10" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     gridtolerance="10000"
+     guidetolerance="10"
+     objecttolerance="10"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1"
+     inkscape:cx="380.55961"
+     inkscape:cy="767.44485"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:snap-global="false"
+     inkscape:window-width="1014"
+     inkscape:window-height="726"
+     inkscape:window-x="-5"
+     inkscape:window-y="25">
+    <inkscape:grid
+       type="xygrid"
+       id="grid3377" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       sodipodi:type="arc"
+       style="opacity:0.6;fill:#a3bcce;fill-opacity:1;stroke:none;stroke-width:4.65620232;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path2383"
+       sodipodi:cx="252.85715"
+       sodipodi:cy="389.50504"
+       sodipodi:rx="144.28572"
+       sodipodi:ry="137.14285"
+       d="M 397.14287,389.50504 A 144.28572,137.14285 0 1 1 108.57143,389.50504 A 144.28572,137.14285 0 1 1 397.14287,389.50504 z"
+       transform="matrix(0.5964695,0,0,0.5964695,105.76357,68.787717)"
+       inkscape:export-filename="/home/rgrp/hgroot/ckan/doc/ckan-features.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <text
+       xml:space="preserve"
+       style="font-size:14.81217575px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
+       x="234.04362"
+       y="312.77817"
+       id="text3367"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/rgrp/hgroot/ckan/doc/ckan-features.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         sodipodi:role="line"
+         x="236.40141"
+         y="312.77817"
+         id="tspan3371">Wiki / </tspan><tspan
+         sodipodi:role="line"
+         x="234.04362"
+         y="331.29337"
+         id="tspan3375">Versioned DB</tspan></text>
+    <path
+       sodipodi:type="arc"
+       style="opacity:0.6;fill:#a0cfa1;fill-opacity:1;stroke:none;stroke-width:4.65620232;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path3405"
+       sodipodi:cx="252.85715"
+       sodipodi:cy="389.50504"
+       sodipodi:rx="144.28572"
+       sodipodi:ry="137.14285"
+       d="M 397.14287,389.50504 A 144.28572,137.14285 0 1 1 108.57143,389.50504 A 144.28572,137.14285 0 1 1 397.14287,389.50504 z"
+       transform="matrix(0.5964695,0,0,0.5964695,170.8961,-0.1971008)"
+       inkscape:export-filename="/home/rgrp/hgroot/ckan/doc/ckan-features.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <text
+       xml:space="preserve"
+       style="font-size:14.81217575px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
+       x="323.72488"
+       y="187.99576"
+       id="text3407"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/rgrp/hgroot/ckan/doc/ckan-features.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         sodipodi:role="line"
+         x="323.72488"
+         y="187.99576"
+         id="tspan3461">Package Index</tspan><tspan
+         sodipodi:role="line"
+         x="323.72488"
+         y="206.51097"
+         id="tspan3511">(APT/PyPI/CPAN)</tspan></text>
+    <path
+       transform="matrix(0.5964695,0,0,0.5964695,240.3075,69.096304)"
+       d="M 397.14287,389.50504 A 144.28572,137.14285 0 1 1 108.57143,389.50504 A 144.28572,137.14285 0 1 1 397.14287,389.50504 z"
+       sodipodi:ry="137.14285"
+       sodipodi:rx="144.28572"
+       sodipodi:cy="389.50504"
+       sodipodi:cx="252.85715"
+       id="path3415"
+       style="opacity:0.6;fill:#c7d9a0;fill-opacity:1;stroke:none;stroke-width:4.65620232;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       sodipodi:type="arc"
+       inkscape:export-filename="/home/rgrp/hgroot/ckan/doc/ckan-features.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <text
+       sodipodi:linespacing="125%"
+       id="text3417"
+       y="311.95526"
+       x="423.10461"
+       style="font-size:14.81217575px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
+       xml:space="preserve"
+       inkscape:export-filename="/home/rgrp/hgroot/ckan/doc/ckan-features.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         y="311.95526"
+         x="423.10461"
+         sodipodi:role="line"
+         id="tspan3447">Listing</tspan><tspan
+         y="330.47049"
+         x="423.10461"
+         sodipodi:role="line"
+         id="tspan3179">(Freshmeat)</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:18.10377121px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
+       x="323.94531"
+       y="289.737"
+       id="text3183"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/rgrp/hgroot/ckan/doc/ckan-features.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         sodipodi:role="line"
+         x="323.94531"
+         y="289.737"
+         id="tspan3185">CKAN</tspan></text>
+    <path
+       transform="matrix(0.7248396,0,0,0.7248396,91.826254,471.23864)"
+       d="M 397.14287,389.50504 A 144.28572,137.14285 0 1 1 108.57143,389.50504 A 144.28572,137.14285 0 1 1 397.14287,389.50504 z"
+       sodipodi:ry="137.14285"
+       sodipodi:rx="144.28572"
+       sodipodi:cy="389.50504"
+       sodipodi:cx="252.85715"
+       id="path3178"
+       style="opacity:0.6;fill:#a3bcce;fill-opacity:1;stroke:none;stroke-width:4.65620232;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       sodipodi:type="arc" />
+    <text
+       sodipodi:linespacing="125%"
+       id="text3180"
+       y="732.73987"
+       x="224.71428"
+       style="font-size:15px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
+       xml:space="preserve"><tspan
+         id="tspan3182"
+         y="732.73987"
+         x="227.10197"
+         sodipodi:role="line">Wiki / </tspan><tspan
+         id="tspan3184"
+         y="751.48987"
+         x="224.71428"
+         sodipodi:role="line">Versioned DB</tspan></text>
+    <path
+       transform="matrix(0.7248396,0,0,0.7248396,170.97637,387.40715)"
+       d="M 397.14287,389.50504 A 144.28572,137.14285 0 1 1 108.57143,389.50504 A 144.28572,137.14285 0 1 1 397.14287,389.50504 z"
+       sodipodi:ry="137.14285"
+       sodipodi:rx="144.28572"
+       sodipodi:cy="389.50504"
+       sodipodi:cx="252.85715"
+       id="path3186"
+       style="opacity:0.6;fill:#a0cfa1;fill-opacity:1;stroke:none;stroke-width:4.65620232;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       sodipodi:type="arc" />
+    <text
+       sodipodi:linespacing="125%"
+       id="text3188"
+       y="608.10217"
+       x="356.69644"
+       style="font-size:15px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
+       xml:space="preserve"><tspan
+         id="tspan3190"
+         y="608.10217"
+         x="356.69644"
+         sodipodi:role="line">Package Index</tspan><tspan
+         id="tspan3192"
+         y="626.85217"
+         x="356.69644"
+         sodipodi:role="line">(APT/PyPI/CPAN)</tspan></text>
+    <path
+       sodipodi:type="arc"
+       style="opacity:0.6;fill:#c7d9a0;fill-opacity:1;stroke:none;stroke-width:4.65620232;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path3194"
+       sodipodi:cx="252.85715"
+       sodipodi:cy="389.50504"
+       sodipodi:rx="144.28572"
+       sodipodi:ry="137.14285"
+       d="M 397.14287,389.50504 A 144.28572,137.14285 0 1 1 108.57143,389.50504 A 144.28572,137.14285 0 1 1 397.14287,389.50504 z"
+       transform="matrix(0.7248396,0,0,0.7248396,255.32625,471.61364)" />
+    <text
+       xml:space="preserve"
+       style="font-size:15px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
+       x="494.46429"
+       y="732.73987"
+       id="text3196"
+       sodipodi:linespacing="125%"><tspan
+         id="tspan3198"
+         sodipodi:role="line"
+         x="494.46429"
+         y="732.73987">Listing</tspan><tspan
+         id="tspan3200"
+         sodipodi:role="line"
+         x="494.46429"
+         y="751.48987">(Freshmeat)</tspan></text>
+    <path
+       transform="matrix(0.7248396,0,0,0.7248396,170.97637,545.68123)"
+       d="M 397.14287,389.50504 A 144.28572,137.14285 0 1 1 108.57143,389.50504 A 144.28572,137.14285 0 1 1 397.14287,389.50504 z"
+       sodipodi:ry="137.14285"
+       sodipodi:rx="144.28572"
+       sodipodi:cy="389.50504"
+       sodipodi:cx="252.85715"
+       id="path3202"
+       style="opacity:0.6;fill:#b2a3c4;fill-opacity:1;stroke:none;stroke-width:4.65620232;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       sodipodi:type="arc" />
+    <text
+       xml:space="preserve"
+       style="font-size:15px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
+       x="354.71429"
+       y="886.48987"
+       id="text3204"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         x="354.71429"
+         y="886.48987"
+         id="tspan3206">Forum</tspan></text>
+    <text
+       sodipodi:linespacing="125%"
+       id="text3208"
+       y="753.73987"
+       x="356.96429"
+       style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
+       xml:space="preserve"><tspan
+         id="tspan3210"
+         y="753.73987"
+         x="356.96429"
+         sodipodi:role="line">CKAN</tspan></text>
+  </g>
+</svg>
