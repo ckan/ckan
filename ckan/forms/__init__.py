@@ -3,6 +3,7 @@ import re
 import formalchemy
 from formalchemy import helpers as h
 import ckan.model as model
+import ckan.lib.helpers
 
 FIELD_TIP_TEMPLATE = '<p class="desc">%s</p>'
 FIELD_TIPS = {
@@ -69,6 +70,11 @@ class LicenseRenderer(formalchemy.fields.FieldRenderer):
         options = [('', None)] + [(x, unicode(model.License.by_name(x).id)) for x in model.LicenseList.all_formatted]
         return h.select(self.name, h.options_for_select(options, selected=selected), **kwargs)
 
+class NotesRenderer(formalchemy.fields.TextAreaFieldRenderer):
+    def render(self, **kwargs):
+        kwargs['size'] = '60x15'
+        value = ckan.lib.helpers.util.html_escape(self._value)
+        return h.text_area(self.name, content=value, **kwargs)
 
 class TagEditRenderer(formalchemy.fields.FieldRenderer):
     tag_field_template = '''
@@ -148,7 +154,7 @@ package_fs.configure(options=[package_fs.name.label('Name (required)').with_rend
                               package_fs.author_email.with_renderer(CustomTextFieldRenderer),
                               package_fs.maintainer.with_renderer(CustomTextFieldRenderer),
                               package_fs.maintainer_email.with_renderer(CustomTextFieldRenderer),
-                              package_fs.notes.textarea(size=(60, 15)),
+                              package_fs.notes.with_renderer(NotesRenderer),
                               ],
                      exclude=[package_fs.package_tags,
                               package_fs.all_revisions,

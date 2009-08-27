@@ -146,6 +146,9 @@ class CreateTestData(CkanCommand):
 **Some bolded text.**
 
 *Some italicized text.*
+
+<http://ckan.net/>
+
 '''
         pkg2 = model.Package(name=self.pkgname2)
         tag1 = model.Tag(name=u'russian')

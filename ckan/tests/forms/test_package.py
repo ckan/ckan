@@ -60,6 +60,15 @@ class TestForms:
 #        assert 'all_revisions' not in out, out
         assert 'Package tags' not in out, out
 
+    def test_1_render_markdown(self):
+        fs = ckan.forms.package_fs
+        anna = model.Package.by_name(u'annakarenina')
+        fs = fs.bind(anna)
+        out = fs.notes.render()
+        print out
+        import genshi
+        genshi.HTML(out)
+
     def test_2_name(self):
         fs = ckan.forms.package_fs
         anna = model.Package.by_name(u'annakarenina')
@@ -89,7 +98,7 @@ class TestForms:
         assert 'version' in fs.version.render(), fs.version.render()
         assert anna.version in fs.version.render(), fs.version.render()
         assert 'notes' in fs.notes.render(), fs.notes.render()
-        assert anna.notes in fs.notes.render(), fs.notes.render()
+        assert anna.notes[:10] in fs.notes.render(), fs.notes.render()
         assert 'name' in fs.name.render(), fs.name.render()
         assert anna.name in fs.name.render(), fs.name.render()
         assert 'tags' in fs.tags.render(), fs.tags.render()
