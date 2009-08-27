@@ -5,12 +5,30 @@
 
   <style type="text/css" py:def="page_specific_css">
       form {
-        margin-top: 2em;
+        margin-top: 1em;
+      }
+
+      #main h2 {
+        margin-top: 1.2em;
       }
   </style>
 
   <py:match path="primarysidebar">
-    <div class="box">
+  </py:match>
+
+  <div py:match="content">
+    <p style="margin-top: 0.75em;"><strong>${c.package_count} registered packages</strong> available.</p>
+
+    <xi:include href="package/search_form.html" />
+
+    <h2>Register</h2>
+
+    <form action="${h.url_for(controller='package', action='new', id=None)}" method="POST">
+      ${XML(h.text_field('title', size=40, value=''))}
+      ${XML(h.submit('Register a New Package &raquo;', name=''))}
+      <p class="desc">Enter title or short description</p>
+    </form>
+
       <h2>Recently Changed</h2>
       <p py:for="rev in c.revisions">
         <py:for each="pkg in rev.packages">
@@ -20,27 +38,6 @@
         <strong>by</strong> ${rev.author}
       </p>
       <p><a href="${h.url_for(controller='revision', action='index', id=None)}">More ...</a></p>
-    </div>
-  </py:match>
-
-  <div py:match="content">
-    <h2>Welcome to CKAN</h2>
-
-    <p>CKAN is the Comprehensive Knowledge Archive Network, a registry of <a
-      href="http://opendefinition.org/">open knowledge</a> packages and
-    projects (and a few closed ones). CKAN is the place to search for open
-    knowledge resources as well as register your own. <a
-      href="${h.url_for('about')}">Find out more &raquo;</a>.</p>
-
-    <p><strong>${c.package_count} registered packages</strong> available.</p>
-
-    <xi:include href="package/search_form.html" />
-
-    <form action="${h.url_for(controller='package', action='new', id=None)}" method="POST">
-      ${XML(h.text_field('title', size=40, value=''))}
-      ${XML(h.submit('Register a New Package &raquo;', name=''))}
-      <p class="desc">Enter title or short description</p>
-    </form>
 
 	</div>
 
