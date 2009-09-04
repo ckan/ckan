@@ -186,3 +186,150 @@ class CreateTestData(CkanCommand):
         model.Session.commit()
         model.Session.remove()
 
+
+class CreateSearchTestData(CkanCommand):
+    '''Create searching test data in the DB.
+    '''
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    
+    items = [{'name':'gils',
+              'title':'Government Information Locator Service',
+              'url':'',
+              'tags':'registry  country-usa  government  federal  gov  workshop-20081101',
+              'license':'OKD Compliant::Other',
+              'notes':'''From <http://www.gpoaccess.gov/gils/about.html>
+              
+> The Government Information Locator Service (GILS) is an effort to identify, locate, and describe publicly available Federal
+> Because this collection is decentralized, the GPO''',
+              },
+             {'name':'us-gov-images',
+              'title':'U.S. Government Photos and Graphics',
+              'url':'http://www.usa.gov/Topics/Graphics.shtml',
+              'download_url':'http://www.usa.gov/Topics/Graphics.shtml',
+              'tags':'images  graphics  photographs  photos  pictures  us  usa  america  history  wildlife  nature  war  military  todo-split  gov',
+              'license':'OKD Compliant::Other',
+              'notes':'''## About
+
+Collection of links to different US image collections in the public domain.
+
+## Openness
+
+> Most of these images and graphics are available for use in the public domain, and''',
+              },
+             {'name':'usa-courts-gov',
+              'title':'Text of US Federal Cases',
+              'url':'http://bulk.resource.org/courts.gov/',
+              'download_url':'http://bulk.resource.org/courts.gov/',
+              'tags':'us  courts  case-law  us  courts  case-law  gov  legal  law  access-bulk',
+              'license':'OKD Compliant::Creative Commons CCZero',
+              'notes':'''### Description
+
+1.8 million pages of U.S. case law available with no restrictions. From the [README](http://bulk.resource.org/courts.gov/0_README.html):
+
+> This file is  http://bulk.resource.org/courts.gov/0_README.html and was last revised''',
+              },
+             {'name':'uk-government-expenditure',
+              'title':'UK Government Expenditure',
+              'tags':'workshop-20081101  uk  gov  expenditure  finance  public  funding',
+              'notes':'''Discussed at [Workshop on Public Information, 2008-11-02](http://okfn.org/wiki/PublicInformation).
+
+Overview is available in Red Book, or Financial Statement and Budget Report (FSBR), [published by the Treasury](http://www.hm-treasury.gov.uk/budget.htm).'''
+              },
+             {'name':'se-publications',
+              'title':'Sweden - Government Offices of Sweden - Publications',
+              'url':'http://www.sweden.gov.se/sb/d/574',
+              'tags':'country-sweden  format-pdf  access-www  documents  publications  government  eutransparency',
+              'license':'Other::License Not Specified',
+              'notes':'''### About
+
+Official documents including "government bills and reports, information material and other publications".
+
+### Reuse
+
+Not clear.''',
+              },
+             {'name':'se-opengov',
+              'title':'Opengov.se',
+              'url':'http://www.opengov.se/',
+              'download_url':'http://www.opengov.se/data/open/',
+              'tags':'country-sweden  government  data',
+              'licenses':'OKD Compliant::Creative Commons Attribution-ShareAlike',
+              'notes':'''### About
+
+From [website](http://www.opengov.se/sidor/english/):
+
+> Opengov.se is an initiative to highlight available public datasets in Sweden. It contains a commentable catalog of government datasets, their formats and usage restrictions.
+
+> The goal is to highlight the benefits of open access to government data and explain how this is done in practice.
+
+### Openness
+
+It appears that the website is under a CC-BY-SA license. Legal status of the data varies. Data that is fully open can be viewed at:
+
+ * <http://www.opengov.se/data/open/>'''
+              },
+             ]
+
+    def command(self):
+        self._load_config()
+        self._setup_app()
+        if self.verbose:
+            print 'Creating search test data'
+        self.create()
+        if self.verbose:
+            print 'Creating search test data: Complete!'
+
+    pkgname1 = u'annakarenina'
+    pkgname2 = u'warandpeace'
+
+    @classmethod
+    def create(self):
+        import ckan.model as model
+        model.Session.remove()
+        rev = model.repo.new_revision() 
+        rev.author = u'tolkein'
+        rev.message = u'Creating search test data.'
+        self.pkgs = {}
+        self.tags = {}
+        for item in self.items:
+            pkg = model.Package(name=unicode(item['name']))
+            for attr, val in item.items():
+                if isinstance(val, str):
+                    val = unicode(val)
+                if attr=='name':
+                    continue                
+                if attr in ['title', 'version', 'url', 'download_url']:
+                    setattr(pkg, attr, unicode(val))
+                elif attr == 'tags':
+                    for tag_name in val.split():
+                        tag = self.tags.get(tag_name)
+                        if not tag:
+                            tag = model.Tag(name=tag_name)
+                            self.tags[tag_name] = tag
+                        pkg.tags.append(tag)
+                elif attr == 'license':
+                    license = model.License.byName(val)
+                    pkg.license = license
+            self.pkgs[item['name']] = pkg
+
+        # api key
+        model.ApiKey(name=u'searchtester', key=u'searchtester')
+        model.Session.commit()
+        model.Session.remove()
+    
+    @classmethod
+    def delete(self):
+        import ckan.model as model
+        for pkg_name, pkg in self.pkgs.items():
+            pkg.purge()
+        for tag_name, tag in self.tags.items():
+            tag.purge()
+
+        revs = model.Revision.query.filter_by(author=u'tolkein')
+        for rev in revs:
+            model.Session.delete(rev)
+        for key in model.ApiKey.query.filter_by(name=u'searchtester').all():
+            key.purge()
+        model.Session.commit()
+        model.Session.remove()

@@ -18,11 +18,12 @@ import paste.script.appinstall
 from paste.deploy import loadapp
 from routes import url_for
 
-from ckan.lib.cli import CreateTestData
+from ckan.lib.cli import CreateTestData, CreateSearchTestData
 
 __all__ = ['url_for',
         'TestController2',
         'CreateTestData',
+        'CreateSearchTestData',
         ]
 
 here_dir = os.path.dirname(os.path.abspath(__file__))

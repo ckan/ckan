@@ -33,6 +33,8 @@ you will require an API key. To obtain your API key:</p>
 </td></tr><tr><td> Package Entity </td><td> /api/rest/package/PACKAGE-NAME 
 </td></tr><tr><td> Tag Register </td><td> <a href="/api/rest/tag">/api/rest/tag</a> 
 </td></tr><tr><td> Tag Entity </td><td> /api/rest/tag/TAG-NAME 
+</td></tr><tr><td> Search </td><td> /api/rest/search/PACKAGE-NAME
+</td></tr><tr><td> Search </td><td> /api/rest/search
 </td></tr></tbody></table>
 <h3>Methods, Data Formats, Status Codes</h3>
 
@@ -58,9 +60,12 @@ Please note 'PUT' operations may instead use the HTTP POST method.
 </td></tr><tr><td> Tag Entity          </td><td> PUT          </td><td> Tag               </td><td></td><td>  200, 301, 403, 404 
 </td></tr><tr><td> Tag Entity          </td><td> DELETE            </td><td>               </td><td></td><td>  200, 301, 400, 403, 404, 500 
 -->
+</td></tr><tr><td> Search      </td><td> GET          </td><td>      </td><td>Search-Response</td><td>  200, 301, 400, 403, 404, 500 
+</td></tr><tr><td> Search      </td><td> POST          </td><td> Query-String           </td><td>Search-Response</td><td>  200, 301, 400, 403, 404, 500 
 </td></tr></tbody></table>
-
-
+<p>
+Note: As can be seen, there are two ways to search. The simplest way is to put the query string into the URL and do a GET (e.g. /api/rest/search?q=geodata). The more advanced way is to POST the query to /api/rest/search.
+</p>
 <h3>Data Formats</h3>
 <table>
 <tbody><tr><th> <strong>Name</strong>   </th><th> <strong>Format</strong>                
@@ -70,6 +75,8 @@ Please note 'PUT' operations may instead use the HTTP POST method.
 </td></tr><tr><td> Tag-List     </td><td> [ Name-String, Name-String, Name-String, ... ] 
 </td></tr><tr><td> Tag          </td><td> { name: Name-String } 
 </td></tr><tr><td> Name-String  </td><td> An alphanumeric string. 
+</td></tr><tr><td> Query-String </td><td> [ q: String ]
+</td></tr><tr><td> Search-Response </td><td> [ [ Package-Name-String, Package-Name-String, ... ], [ Tag-Name-String, Tag-Name-String, ... ] ] 
 </td></tr></tbody></table>
 
 To send request data, create a simple data structure, then convert it to a JSON string, then percent-encode the JSON string, then send it as the request body.

@@ -1,6 +1,7 @@
 from ckan.tests import *
 import ckan.model as model
 import simplejson
+import webhelpers
 
 ACCESS_DENIED = [401,403]
 
@@ -219,20 +220,149 @@ class TestRestController(TestController2):
         res = self.app.delete(offset, status=[404],
                               extra_environ=self.extra_environ)
 
-    def _test_14_search_name(self):
-        # TODO: REST Search?
-        # create a package with testvalues
-        if not model.Package.by_name(self.testvalues['name']):
-            pkg = model.Package()
-            pkg.name = self.testvalues['name']
-            rev = model.repo.new_revision()
-            model.Session.commit()
+class TestSearch(TestController2):
+    @classmethod
+    def setup_class(self):
+        try:
+            CreateTestData.delete()
+        except:
+            pass
+        model.Session.remove()
+        CreateTestData.create()
+        self.base_url = '/api/search/package'
+
+    @classmethod
+    def teardown_class(self):
+        model.Session.remove()
+        CreateTestData.delete()
+
+    def setup(self):
+        self.testvalues = {
+            'name' : u'testpkg',
+            'title': 'Some Title',
+            'url': u'http://blahblahblah.mydomain',
+            'download_url': u'http://blahblahblah.mydomain',
+            'tags': 'russion novel',
+            'license_id': '4',
+        }
+        self.random_name = u'http://myrandom.openidservice.org/'
+        self.apikey = model.ApiKey(name=self.random_name)
+
+        self.pkg = model.Package()
+        self.pkg.name = self.testvalues['name']
+        rev = model.repo.new_revision()
+
+        model.Session.commit()
+        self.extra_environ={ 'Authorization' : str(self.apikey.key) }
+        model.Session.remove()
+
+
+    def teardown(self):
+        model.Session.remove()
+        apikey = model.ApiKey.by_name(self.random_name)
+        if apikey:
+            apikey.purge()
         pkg = model.Package.by_name(self.testvalues['name'])
-        assert pkg
+        if pkg:
+            pkg.purge()
+        model.Session.commit()
+        model.Session.remove()
 
-        # do search
-        offset = '/api/rest/search/%s' % self.testvalues['name']
+    def test_1_uri_q(self):
+        offset = self.base_url + '?q=%s' % self.testvalues['name']
         res = self.app.get(offset, status=200)
-        assert '"name": "testpkg"' in res, res
+        res_dict = simplejson.loads(res.body)
+        assert u'testpkg' in res_dict['results'], res_dict['results']
+        assert res_dict['count'] == 1, res_dict['count']
 
+    def test_2_post_q(self):
+        offset = self.base_url
+        query = {'q':'testpkg'}
+        res = self.app.post(offset, params=query, status=200)
+        res_dict = simplejson.loads(res.body)
+        assert u'testpkg' in res_dict['results'], res_dict['results']
+        assert res_dict['count'] == 1, res_dict['count']
+
+    def test_3_uri_qjson(self):
+        query = {'q': self.testvalues['name']}
+        json_query = simplejson.dumps(query)
+        offset = self.base_url + '?qjson=%s' % json_query
+        res = self.app.get(offset, status=200)
+        res_dict = simplejson.loads(res.body)
+        assert u'testpkg' in res_dict['results'], res_dict['results']
+        assert res_dict['count'] == 1, res_dict['count']
+
+    def test_4_post_qjson(self):
+        query = {'q': self.testvalues['name']}
+        json_query = simplejson.dumps(query)
+        offset = self.base_url
+        res = self.app.post(offset, params=json_query, status=200)
+        res_dict = simplejson.loads(res.body)
+        assert u'testpkg' in res_dict['results'], res_dict['results']
+        assert res_dict['count'] == 1, res_dict['count']
+
+    def test_5_uri_qjson_tags(self):
+        query = {'q': 'annakarenina tags:russian tags:tolstoy'}
+        json_query = simplejson.dumps(query)
+        offset = self.base_url + '?qjson=%s' % json_query
+        res = self.app.get(offset, status=200)
+        res_dict = simplejson.loads(res.body)
+        assert u'annakarenina' in res_dict['results'], res_dict['results']
+        assert res_dict['count'] == 1, res_dict
+        
+    def test_5_uri_qjson_tags_multiple(self):
+        query = {'q': 'tags:russian tags:tolstoy'}
+        json_query = simplejson.dumps(query)
+        offset = self.base_url + '?qjson=%s' % json_query
+        res = self.app.get(offset, status=200)
+        res_dict = simplejson.loads(res.body)
+        assert u'annakarenina' in res_dict['results'], res_dict['results']
+        assert res_dict['count'] == 1, res_dict
+
+    def test_6_uri_q_tags(self):
+        query = webhelpers.util.html_escape('annakarenina tags:russian tags:tolstoy')
+        offset = self.base_url + '?q=%s' % query
+        res = self.app.get(offset, status=200)
+        res_dict = simplejson.loads(res.body)
+        assert u'annakarenina' in res_dict['results'], res_dict['results']
+        assert res_dict['count'] == 1, res_dict['count']
+
+    def test_7_uri_qjson_tags(self):
+        query = {'q': '', 'tags':['tolstoy']}
+        json_query = simplejson.dumps(query)
+        offset = self.base_url + '?qjson=%s' % json_query
+        res = self.app.get(offset, status=200)
+        res_dict = simplejson.loads(res.body)
+        assert u'annakarenina' in res_dict['results'], res_dict['results']
+        assert res_dict['count'] == 1, res_dict
+
+    def test_7_uri_qjson_tags_multiple(self):
+        query = {'q': '', 'tags':['tolstoy', 'russian']}
+        json_query = simplejson.dumps(query)
+        offset = self.base_url + '?qjson=%s' % json_query
+        res = self.app.get(offset, status=200)
+        res_dict = simplejson.loads(res.body)
+        assert u'annakarenina' in res_dict['results'], res_dict['results']
+        assert res_dict['count'] == 1, res_dict
+
+    def test_7_uri_qjson_tags_reverse(self):
+        query = {'q': '', 'tags':['russian']}
+        json_query = simplejson.dumps(query)
+        offset = self.base_url + '?qjson=%s' % json_query
+        res = self.app.get(offset, status=200)
+        res_dict = simplejson.loads(res.body)
+        assert u'annakarenina' in res_dict['results'], res_dict['results']
+        assert res_dict['count'] == 2, res_dict
+
+    def test_8_all_fields(self):
+        query = {'q': 'russian', 'all_fields':1}
+        json_query = simplejson.dumps(query)
+        offset = self.base_url + '?qjson=%s' % json_query
+        res = self.app.get(offset, status=200)
+        res_dict = simplejson.loads(res.body)
+        assert res_dict['count'] == 2, res_dict
+        print res_dict['results']
+        assert res_dict['results'][0]['name'] == 'annakarenina', res_dict['results']
+        assert res_dict['results'][0]['title'] == 'A Novel By Tolstoy', res_dict['results']
+        assert res_dict['results'][0]['license'] == 'OKD Compliant::Other', res_dict['results'][0]['license']
         

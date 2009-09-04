@@ -36,7 +36,7 @@ class TestPackageController(TestController2):
     def test_minornavigation_2(self):
         offset = url_for(controller='package')
         res = self.app.get(offset)
-        res = res.click('New')
+        res = res.click('Register a New Package')
         assert 'Packages - New' in res
 
     def test_read(self):

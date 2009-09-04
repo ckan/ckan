@@ -1,5 +1,5 @@
 # needed for config to be set and db access to work
-import ckan.tests
+from ckan.tests import *
 import ckan.exceptions
 import ckan.model as model
 
@@ -222,3 +222,36 @@ class TestTag:
     def test_search_3(self):
         out = list(model.Tag.search_by_name('s'))
         assert len(out) == 2
+
+class TestTagSearch:
+    @classmethod 
+    def setup_class(self):
+        CreateTestData.create()
+
+    @classmethod 
+    def teardown_class(self):
+        CreateTestData.delete()
+
+    def test_1_basic(self):
+        q = model.Package.query
+        q = model.Package.tag_search(q, 'russian')
+        assert q.count() == 2
+
+        q = model.Package.query
+        q = model.Package.tag_search(q, 'tolstoy')
+        assert q.count() == 1
+
+        q = model.Package.query
+        q = model.Package.tag_search(q, 'russ')
+        assert q.count() == 2
+        
+    def test_2_multiple_tags(self):
+        q = model.Package.query
+        q = model.Package.tag_search(q, 'russian')
+        q = model.Package.tag_search(q, 'tolstoy')
+        assert q.count() == 1, q.all()
+
+        q = model.Package.query
+        q = model.Package.tag_search(q, 'russian')
+        q = model.Package.tag_search(q, 'random')
+        assert q.count() == 0, q.all()

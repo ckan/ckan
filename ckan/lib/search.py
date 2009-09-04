@@ -1,13 +1,74 @@
 import sqlalchemy
+import simplejson
 
 import ckan.model as model
+from licenses import LicenseList
 
-MAX_RESULTS = 20
+LIMIT_DEFAULT = 20
+DEFAULT_SEARCH_FIELDS = ['name', 'title', 'tags']
+
+class SearchOptions:
+    # about the search
+    q = None
+    entity = 'package'
+    limit = LIMIT_DEFAULT
+    offset = 0
+    filter_by_openness = False
+    filter_by_downloadable = False
+    search_notes = False
+
+    # about presenting the results
+    order_by = 'name'
+    all_fields = False
+    return_objects = False
+
+    def __init__(self, kw_dict):
+        assert kw_dict.has_key('q')
+        for k,v in kw_dict.items():
+            # Ensure boolean fields are boolean
+            if k in ['filter_by_downloadable', 'filter_by_openness', 'search_notes', 'all_fields']:
+                v = v == 1 or v
+            setattr(self, k, v)
+
+    def __str__(self):
+        return repr(self.__dict__)
 
 class Search:
-    tokens = [ 'name', 'title', 'notes', 'tags']
+    _tokens = [ 'name', 'title', 'notes', 'tags', 'author', 'maintainer'] 
+    _open_licenses = None
 
-    def run(self, query_str, options=None):
+    def search(self, query_string):
+        assert (isinstance(query_string, unicode))
+        options = SearchOptions({'q':query_string})
+        return self.run(options)
+
+    def run(self, options):
+        assert (isinstance(options, SearchOptions))
+        self._options = options
+        self._results = {}
+        general_terms, field_specific_terms = self._parse_query_string()
+
+        if not (general_terms or field_specific_terms):
+            self._results['results'] = []
+            self._results['count'] = 0
+            return self._results
+
+        if self._options.entity == 'package':
+            query = self._build_package_query(general_terms, field_specific_terms)
+        elif self._options.entity == 'tag':
+            query = self._build_tags_query(general_terms)
+        else:
+            # error
+            pass
+
+        self._run_query(query)
+
+        self._format_results()
+        
+        return self._results
+
+    def _parse_query_string(self):
+        query_str = self._options.q
         
         # split query into terms
         # format: * double quotes enclose a single term. e.g. "War and Peace"
@@ -27,128 +88,134 @@ class Search:
                 buf += ch
         if buf:
             terms.append(buf)
-                
-        # Search on every search term and award point for every match
-        scores = {} # package:score
-        tags_terms = []
+
+        # split off field-specific terms
+        field_specific_terms = {}
+        general_terms = []
         for term in terms:
-            query = model.Package.query
             
             # Look for 'token:'
             token = None
             colon_pos = term.find(':')
             if colon_pos != -1:
                 token = term[:colon_pos]
-                if token in self.tokens:
+                if token in self._tokens:
                     term = term[colon_pos+1:]
+                    if not field_specific_terms.has_key(token):
+                        field_specific_terms[token] = []
+                    field_specific_terms[token].append(term)
                 else:
-                    token = None
-
-            # Filter by token
-            if token == 'tags':
-                query = self._filter_by_tags(query, term.split())
-                tags_terms.append(term)
-            elif token:
-                model_attr = getattr(model.Package, token)
-                make_like = lambda x,y: x.ilike('%' + y + '%')
-                query = query.filter(make_like(model_attr, term))
+                    general_terms.append(term)
             else:
-                query = model.Package.text_search(query, term)
-                tags_terms.append(term)
+                general_terms.append(term)
 
-            # Run the query
-            query = query.limit(MAX_RESULTS)
-            results = query.all()
-            for result in results:
-                if not scores.has_key(result):
-                    scores[result] = 0
-                scores[result] += 1
+        # add field-specific terms that have come in via the options
+        for token in self._tokens:
+            if self._options.__dict__.has_key(token):
+                field_specific_terms[token] = getattr(self._options, token)
+            
+        return general_terms, field_specific_terms
 
-        # Look for tags in the terms (apart from ones with other tokens)
-        tags = []
-        for term in tags_terms:
-            tags_found = model.Tag.search_by_name(term).all()
-            if tags_found:
-                tags.extend(tags_found)
-
-        # Sort results by scores
-        results = [(score, pkg) for pkg, score in scores.items()]
-        results.sort()
-        results.reverse()
-        pkgs = [pkg for score, pkg in results]
-
-        # Filter results according to options
-        pkgs = self._filter_by_options(pkgs, options)
-        
-        return pkgs, tags
-
-    def get_query(self, query_str):
-        # Process query_str into value and spec
-        spec = {}
-        current_token = 'unqualified'
-        current_value = ''
-        word = ''
-        for ch in query_str:
-            if ch == ':' and word in self.tokens:
-                if current_value:
-                    spec[current_token] = current_value.strip()
-                # reset
-                current_token = word
-                current_value = ''
-                word = ''
-            elif ch in [ ' ', '\n' ]:
-                current_value += word + ch
-                word = ''
-            else:
-                word += ch
-        if current_value or word:
-            value = current_value + word
-            spec[current_token] = value.strip()
-
-        query_spec = spec
+    def _build_package_query(self, general_terms, field_specific_terms):
         query = model.Package.query
-        if len(query_spec) == 0:
-            return None 
-        for k, v in query_spec.items():
-            if k == 'unqualified':
-                query = model.Package.text_search(query, v)
-            elif k == 'tags':
-                query = self._filter_by_tags(query, v.split())
+
+        # Filter by general_terms
+        make_like = lambda x,y: x.ilike('%' + y + '%')
+        text_search_fields = DEFAULT_SEARCH_FIELDS
+        if self._options.search_notes:
+            text_search_fields.append('notes')
+        tag_general_terms = []
+
+        for term in general_terms:
+            q = None
+            for field in text_search_fields:
+                if field != 'tags':
+                    attr = getattr(model.Package, field)
+                    q = sqlalchemy.or_(q, make_like(attr, term))
+                else:
+                    query = query.outerjoin(['package_tags', 'tag'], aliased=True)
+                    q = sqlalchemy.or_(q, sqlalchemy.and_(
+                        make_like(model.Tag.name, term),
+                        model.PackageTag.state == model.State.query.filter_by(name='active').one()
+                        ))
+            query = query.filter(q)
+            
+        # Filter by field_specific_terms
+        for field, terms in field_specific_terms.items():
+            if field == 'tags':
+                query = self._filter_by_tags(query, terms)
             else:
-                model_attr = getattr(model.Package, k)
-                make_like = lambda x,y: x.ilike('%' + y + '%')
-                query = query.filter(make_like(model_attr,v))
-        query = query.limit(MAX_RESULTS)
+                for term in terms:
+                    model_attr = getattr(model.Package, field)
+                    query = query.filter(make_like(model_attr, term))
+
+        # Filter for options
+        if self._options.filter_by_downloadable:
+            query = query.filter(model.Package.download_url!='')
+        if self._options.filter_by_openness:
+            if self._open_licenses is None:
+                self._update_open_licenses()
+            query = query.filter(model.Package.license_id._in(self._open_licenses))
+        if self._options.order_by:
+            model_attr = getattr(model.Package, self._options.order_by)
+            query = query.order_by(model_attr)
+
+        query = query.distinct()
+        query = query.filter(model.Package.state == model.State.query.filter_by(name='active').one())
+
         return query
 
-    def _filter_by_options(self, packages, options):
-        if options:
-            open_only, downloadable_only = options
-            if open_only:
-                packages_filtered = []
-                for package in packages:
-                    if package.isopen():
-                        packages_filtered.append(package)
-                packages = packages_filtered
-            if downloadable_only:
-                packages_filtered = []
-                for package in packages:
-                    if package.download_url:
-                        packages_filtered.append(package)
-                packages = packages_filtered
-        return packages
+    def _build_tags_query(self, general_terms):
+        query = model.Tag.query
+        for term in general_terms:
+            query = query.filter(model.Tag.name.contains(term.lower()))
+        return query
+
+    def _run_query(self, query):
+        # Run the query
+        self._results['count'] = query.count()
+
+        query = query.offset(self._options.offset)
+        query = query.limit(self._options.limit)
+
+        self._results['results'] = query.all()
 
     def _filter_by_tags(self, query, taglist):
-        taglist = [ tagname.strip() for tagname in taglist ]
         for name in taglist:
-            tag = model.Tag.by_name(name)
+            tag = model.Tag.by_name(name.strip())
             if tag:
                 tag_id = tag.id
                 # need to keep joining for us 
                 # tag should be active hence state_id requirement
-                query = query.join('package_tags', aliased=True
-                    ).filter(sqlalchemy.and_(
-                        model.PackageTag.state_id==1,
-                        model.PackageTag.tag_id==tag_id))
+                query = query.join('package_tags', aliased=True).filter(sqlalchemy.and_(
+                    model.PackageTag.state_id==1,
+                    model.PackageTag.tag_id==tag_id))
+            else:
+                # unknown tag, so torpedo search
+                query = query.filter(model.PackageTag.tag_id==-1)
+                
         return query
+        
+    def _update_open_licenses(self):
+        self._open_licenses = []
+        for _license in LicenseList:            
+            if _license.isopen():                
+                self._open_licenses.append(_license.id)
+
+    def _format_results(self):
+        if not self._options.return_objects:
+            if self._options.all_fields:
+                results = []
+                for entity in self._results['results']:
+                    result = entity.as_dict()
+                    if entity.license_id > 0:
+                        result['license'] = entity.license.name
+                    else:
+                        result['license'] = ''
+                    results.append(result)
+                self._results['results'] = results
+            else:
+                self._results['results'] = [entity.name for entity in self._results['results']]
+        
+            
         

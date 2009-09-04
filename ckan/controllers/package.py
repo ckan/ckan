@@ -4,7 +4,7 @@ import simplejson
 
 from ckan.lib.base import *
 from ckan.controllers.base import CkanBaseController
-from ckan.lib.search import Search
+from ckan.lib.search import Search, SearchOptions
 import ckan.forms
 
 logger = logging.getLogger('ckan.controllers')
@@ -27,14 +27,24 @@ class PackageController(CkanBaseController):
         request_params = dict(request.params)
         c.show_results = False
         if request_params.has_key('q'):
-            options = (request_params.has_key('open_only'),
-                       request_params.has_key('downloadable_only'))
-            c.open_only, c.downloadable_only = options
-            c.show_results = True
             c.q = request_params['q']
-            c.packages, c.tags = Search().run(c.q, options)
-            c.package_count = len(c.packages)
-            c.tags_count = len(c.tags)
+            c.open_only = request_params.has_key('open_only')
+            c.downloadable_only = request_params.has_key('downloadable_only')
+            options = SearchOptions({'q':c.q,
+                                     'filter_by_openness':c.open_only,
+                                     'filter_by_downloadable':c.downloadable_only,
+                                     'return_objects':True,
+                                     })
+            results = Search().run(options)
+            c.packages = results['results']
+            c.package_count = results['count']
+
+            options.entity = 'tag'
+            results = Search().run(options)
+            c.tags = results['results']
+            c.tags_count = results['count']
+
+            c.show_results = True
         return render('package/search')
 
     def read(self, id):

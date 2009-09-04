@@ -90,6 +90,13 @@ class DomainObject(object):
                 sess.delete(rev)
         sess.delete(self)
 
+    def as_dict(self):
+        _dict = {}
+        table = orm.class_mapper(self.__class__).mapped_table
+        for col in table.c:
+            _dict[col.name] = getattr(self, col.name)
+        return _dict
+
     def __str__(self):
         repr = u'<%s' % self.__class__.__name__
         table = orm.class_mapper(self.__class__).mapped_table
@@ -116,6 +123,14 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     def search_by_name(self, text_query):
         text_query = text_query
         return self.query.filter(self.name.contains(text_query.lower()))
+
+    @classmethod
+    def tag_search(self, query, term):
+        register = self
+        make_like = lambda x,y: x.ilike('%' + y + '%')
+        new_query = query.join(['package_tags', 'tag'], aliased=True)
+        new_query = new_query.filter(make_like(Tag.name, term))
+        return new_query
 
     def add_tag_by_name(self, tagname):
         if not tagname:

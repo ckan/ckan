@@ -6,6 +6,7 @@ import simplejson
 from ckan.controllers.base import *
 import ckan.model as model
 import ckan.forms
+from ckan.lib.search import Search, SearchOptions
 
 class RestController(CkanBaseController):
 
@@ -128,12 +129,24 @@ class RestController(CkanBaseController):
 
         return self._finish_ok()
 
-    def search(self, register):
-        registry_path = '/%s' % register
-        request_data = self._get_request_data()
-        self.log.debug("Searching: %s" % registry_path)
-        self.mode = RegisterSearch(registry_path, request_data).execute()
-        return self._finish_ok()
+    def search(self):
+        if request.params.has_key('q'):
+            params = request.params
+        elif request.params.has_key('qjson'):
+            params = simplejson.loads(request.params['qjson'])
+            if not params.has_key('q'):
+                response.status_int = 400
+                return ''                
+        else:
+            params = self._get_request_data()
+            if not params.has_key('q'):
+                response.status_int = 400
+                return ''                
+        options = SearchOptions(params)
+        options.search_tags = False
+        options.return_objects = False
+        results = Search().run(options)
+        return self._finish_ok(results)
 
     def _check_access(self):
         api_key = None
