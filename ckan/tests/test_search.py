@@ -35,7 +35,7 @@ class TestSearch(object):
 
     def test_1_all_records(self):
         # all records
-        result = Search().search(u'')
+        result = Search().search(u'g')
         assert 'gils' in result['results'], result['results']
         assert result['count'] > 5, result['count']
 
@@ -125,12 +125,12 @@ class TestSearch(object):
 
     def test_pagination(self):
         # large search
-        all_results = Search().search(u'')
+        all_results = Search().search(u'g')
         all_pkgs = all_results['results']
         all_pkg_count = all_results['count']
 
         # limit
-        options = SearchOptions({'q':u''})
+        options = SearchOptions({'q':u'g'})
         options.limit = 2
         result = Search().run(options)
         pkgs = result['results']
@@ -140,7 +140,7 @@ class TestSearch(object):
         assert pkgs == all_pkgs[:2]
 
         # offset
-        options = SearchOptions({'q':u''})
+        options = SearchOptions({'q':u'g'})
         options.limit = 2
         options.offset = 2
         results = Search().run(options)
@@ -149,7 +149,7 @@ class TestSearch(object):
         assert pkgs == all_pkgs[2:4]
 
         # larger offset
-        options = SearchOptions({'q':u''})
+        options = SearchOptions({'q':u'g'})
         options.limit = 2
         options.offset = 4
         result = Search().run(options)
@@ -159,12 +159,12 @@ class TestSearch(object):
 
     def test_order_by(self):
         # large search
-        all_results = Search().search(u'')
+        all_results = Search().search(u'g')
         all_pkgs = all_results['results']
         all_pkg_count = all_results['count']
 
         # name
-        options = SearchOptions({'q':u''})
+        options = SearchOptions({'q':u'g'})
         options.order_by = 'name'
         result = Search().run(options)
         pkgs = result['results']
@@ -174,7 +174,7 @@ class TestSearch(object):
         assert pkgs == all_pkgs, pkgs #default ordering        
 
         # title
-        options = SearchOptions({'q':u''})
+        options = SearchOptions({'q':u'g'})
         options.order_by = 'title'
         result = Search().run(options)
         pkgs = result['results']
@@ -183,7 +183,7 @@ class TestSearch(object):
         assert fields == sorted_fields, repr(fields) + repr(sorted_fields)
 
         # notes
-        options = SearchOptions({'q':u''})
+        options = SearchOptions({'q':u'g'})
         options.order_by = 'notes'
         result = Search().run(options)
         pkgs = result['results']

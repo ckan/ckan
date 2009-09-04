@@ -64,6 +64,8 @@ Installation and Setup
 Also especial thanks to the following projects without whom this would not have
 been possible:
 
+  * CKAN logo: "angry hamster" http://www.maedelmaedel.com/ and
+    http://www.villainous.biz/
   * famfamfam.com for silk icons <http://www.famfamfam.com/lab/icons/silk/>
   * Pylons: <http://pylonshq.com/>
   * Python: <http://www.python.org>
