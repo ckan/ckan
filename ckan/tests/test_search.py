@@ -34,7 +34,7 @@ class TestSearch(object):
         return True
 
     def test_1_all_records(self):
-        # all records
+        # all records (g)
         result = Search().search(u'g')
         assert 'gils' in result['results'], result['results']
         assert result['count'] > 5, result['count']
