@@ -50,13 +50,13 @@
         <py:when test="c.user">
         <p>
           Logged in as <strong>${c.user}</strong> |
-          <a href="/account/">My Account</a>
+          <a href="${h.url_for(controller='user',action=None)}">My Account</a>
           | <a href="${h.url_for('/logout_openid')}">Logout</a>
         </p>
         </py:when>
         <py:otherwise>
           <p>
-          <a href="/account/login/">Login via OpenID</a>
+          <a href="${h.url_for(controller='user',action='login')}">Login via OpenID</a>
           </p>
         </py:otherwise>
         </py:choose>
@@ -78,21 +78,11 @@
       <li><a href="/revision/">Recent Changes</a></li>
       <li><a href="/api/rest/">API</a></li>
       <li><a href="/about/">About</a></li>
-      <li><a href="/account/">User Accounts</a></li>
     </ul>
     <h3 class="hidden">In this section:</h3>
     <ul id="subnav">
       <minornavigation>
       <li><a href="/">Home</a></li>
-      <py:choose>
-      <py:when test="c.user">
-      <li><a href="/account/logout/">Logout</a></li>
-      </py:when>
-      <py:otherwise>
-      <li><a href="/account/">Register</a></li>
-      <li><a href="/account/login/">Login</a></li>
-      </py:otherwise>
-      </py:choose>
       <li><a href="/package/new/">New Package</a></li>
       </minornavigation>
     </ul>

@@ -5,3 +5,5 @@ ckan.egg-info/*
 development.ini*
 sstore/*
 data/*
+pip-requirements-local.txt
+migrate/*

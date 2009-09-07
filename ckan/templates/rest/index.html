@@ -17,8 +17,8 @@ If you wish to create a software application that uses the CKAN service, then yo
 <p>For any action which makes a change to a resource (i.e. all non-GET methods)
 you will require an API key. To obtain your API key:</p>
 <ol>
-  <li><a href="${h.url_for(controller='account', action=None)}">Login as a normal user</a>.</li>
-  <li><a href="${h.url_for(controller='account', action='apikey')}">Visit the API Key page</a>.</li>
+  <li><a href="${h.url_for(controller='user', action=None)}">Login as a normal user</a>.</li>
+  <li><a href="${h.url_for(controller='user', action='apikey')}">Visit the API Key page</a>.</li>
 </ol>
 
 
@@ -121,11 +121,6 @@ The current requirment for a valid Authorization header is the value should be a
 If requests that are required to be authorized are not sent with a currently valid Authorization header, then the requested operation will not be carried out and the CKAN REST API will respond with status code 403.
 </p>
 
-<h3>Example Client Implementations</h3>
-<ul>
-  <li>Python package <a href="http://project.knowledgeforge.net/ckan/svn/ckanclient/trunk/">ckanclient</a> implements a CKAN REST client.
-  </li>
-</ul>
 </div>
 
   <xi:include href="../layout.html" />
