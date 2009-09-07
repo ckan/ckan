@@ -31,17 +31,17 @@ class TestRestController(TestController2):
             'license_id': '4',
         }
         self.random_name = u'http://myrandom.openidservice.org/'
-        self.apikey = model.ApiKey(name=self.random_name)
+        self.user = model.User(name=self.random_name)
         model.Session.commit()
-        self.extra_environ={ 'Authorization' : str(self.apikey.key) }
+        self.extra_environ={ 'Authorization' : str(self.user.apikey) }
         model.Session.remove()
 
 
     def teardown(self):
         model.Session.remove()
-        apikey = model.ApiKey.by_name(self.random_name)
-        if apikey:
-            apikey.purge()
+        user = model.User.by_name(self.random_name)
+        if user:
+            user.purge()
         pkg = model.Package.by_name(self.testvalues['name'])
         if pkg:
             pkg.purge()
@@ -245,23 +245,17 @@ class TestSearch(TestController2):
             'tags': 'russion novel',
             'license_id': '4',
         }
-        self.random_name = u'http://myrandom.openidservice.org/'
-        self.apikey = model.ApiKey(name=self.random_name)
 
         self.pkg = model.Package()
         self.pkg.name = self.testvalues['name']
         rev = model.repo.new_revision()
 
         model.Session.commit()
-        self.extra_environ={ 'Authorization' : str(self.apikey.key) }
         model.Session.remove()
 
 
     def teardown(self):
         model.Session.remove()
-        apikey = model.ApiKey.by_name(self.random_name)
-        if apikey:
-            apikey.purge()
         pkg = model.Package.by_name(self.testvalues['name'])
         if pkg:
             pkg.purge()

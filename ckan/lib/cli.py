@@ -159,7 +159,7 @@ class CreateTestData(CkanCommand):
         pkg1.license = license1
         pkg2.title = u'A Wonderful Story'
         # api key
-        model.ApiKey(name=u'tester', key=u'tester')
+        model.User(name=u'tester', apikey=u'tester')
         model.Session.commit()
         model.Session.remove()
     
@@ -181,7 +181,7 @@ class CreateTestData(CkanCommand):
         revs = model.Revision.query.filter_by(author=u'tolstoy')
         for rev in revs:
             model.Session.delete(rev)
-        for key in model.ApiKey.query.filter_by(name=u'tester').all():
+        for key in model.User.query.filter_by(name=u'tester').all():
             key.purge()
         model.Session.commit()
         model.Session.remove()
@@ -313,8 +313,6 @@ It appears that the website is under a CC-BY-SA license. Legal status of the dat
                     pkg.license = license
             self.pkgs[item['name']] = pkg
 
-        # api key
-        model.ApiKey(name=u'searchtester', key=u'searchtester')
         model.Session.commit()
         model.Session.remove()
     
@@ -329,7 +327,5 @@ It appears that the website is under a CC-BY-SA license. Legal status of the dat
         revs = model.Revision.query.filter_by(author=u'tolkein')
         for rev in revs:
             model.Session.delete(rev)
-        for key in model.ApiKey.query.filter_by(name=u'searchtester').all():
-            key.purge()
         model.Session.commit()
         model.Session.remove()

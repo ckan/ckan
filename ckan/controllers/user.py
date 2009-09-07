@@ -14,14 +14,12 @@ class UserController(CkanBaseController):
             c.activity = q.limit(20).all()            
             return render('user/index')
 
-#     def login_form(self, return_url=''):
-#         return render('user/login_form')
-# 
-#     def openid_form(self, return_url=''):
-#         return render('user/openid_form').replace('DOLAR', '$')
-# 
     def login(self):
         if c.user:
+            userobj = model.User.by_name(c.user)
+            if userobj is None:
+                userobj = model.User(name=c.user)
+                model.Session.commit()
             h.redirect_to(controller='user', action=None, id=None)
         else:
             form = render('user/openid_form')
@@ -38,11 +36,7 @@ class UserController(CkanBaseController):
         if not c.user:
             abort(401)
         else:
-            username = c.author
-            apikey_object = model.ApiKey.by_name(username)
-            if apikey_object is None:
-                apikey_object = model.ApiKey(name=username)
-                model.Session.commit()
-            c.api_key = apikey_object.key
+            user = model.User.by_name(c.user)
+            c.api_key = user.apikey
         return render('user/apikey')
 

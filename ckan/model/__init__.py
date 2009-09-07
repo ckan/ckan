@@ -1,5 +1,5 @@
 from core import *
-from apikey import apikey_table, ApiKey
+from user import user_table, User
 from extras import PackageExtra, package_extra_table
 
 from licenses import LicenseList

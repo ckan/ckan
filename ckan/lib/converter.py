@@ -15,7 +15,7 @@ model_classes = [
     ckan.model.PackageTag,
     ckan.model.PackageRevision,
     ckan.model.PackageTagRevision,
-    ckan.model.ApiKey,
+    ckan.model.User,
 ]
 
 def get_table(model_class):
@@ -115,7 +115,7 @@ class Dumper(object):
 
     def fix_sequences(self):
         for model_class in model_classes:
-            if model_class == ckan.model.ApiKey: # ApiKey does not have idseq
+            if model_class == ckan.model.User: # ApiKey does not have idseq
                 continue
             table = get_table(model_class)
             seqname = '%s_id_seq' % table.name 

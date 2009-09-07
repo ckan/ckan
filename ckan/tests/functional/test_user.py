@@ -26,6 +26,75 @@ class TestUserController(TestController2):
         assert 'use your OpenID' in res
         assert 'haven\'t already got an OpenID' in res
 
+    def test_logout(self):
+        offset = url_for(controller='user', action='logout')
+        res = self.app.get(offset)
+        assert 'You have logged out successfully.' in res
+
+    def test_user_created_on_login(self):
+        username = u'okfntest'
+        user = model.User.by_name(username)
+        if user:
+            user.purge()
+            model.Session.commit()
+            model.Session.remove()
+
+        offset = url_for(controller='user', action='login')
+        res = self.app.get(offset, extra_environ=dict(REMOTE_USER='okfntest'))
+        user = model.User.by_name('okfntest')
+        assert user
+        assert len(user.apikey) == 36
+
+
+    def test_apikey(self):
+        # not_logged_in
+        user = model.User.by_name('okfntest')
+        if user:
+            user.purge()
+            model.Session.commit()
+            model.Session.remove()
+
+        offset = url_for(controller='user', action='login')
+        res = self.app.get(offset, extra_environ=dict(REMOTE_USER='okfntest'))
+        res = self.app.get(offset, status=[302]) 
+
+    # -----------
+    # tests for top links present in every page
+     # TODO: test sign in results in:
+     # a) a username at top of page
+     # b) logout link
+
+    def test_home_login(self):
+        offset = url_for('home')
+        res = self.app.get(offset)
+        # cannot use click because it does not allow a 401 response ...
+        # could get round this by checking that url is correct and then doing a
+        # get but then we are back to test_user_login
+        res.click('Login via OpenID')
+        # assert 'Please Sign In' in res
+
+    def test_apikey(self):
+        username= u'okfntest'
+        user = model.User.by_name(u'okfntest')
+        if not user:
+            user = model.User(name=u'okfntest')
+            model.Session.commit()
+            model.Session.remove()
+
+        # not logged in
+        offset = url_for(controller='user', action='apikey')
+        res = self.app.get(offset, status=[302]) 
+
+        res = self.app.get(offset, extra_environ=dict(REMOTE_USER='okfntest'))
+        print user.apikey
+        assert 'Your API key is: %s' % user.apikey in res, res
+
+
+
+    ############
+    # Disabled
+    ############
+
     # TODO: 2009-06-27 delete/update these methods (now moving to repoze)
     def _login_form(self, res):
         # cannot use for time being due to 'bug' in AuthKit
@@ -71,43 +140,3 @@ class TestUserController(TestController2):
         # but for some reason this does not work ...
         return res
 
-    def test_logout(self):
-        offset = url_for(controller='user', action='logout')
-        res = self.app.get(offset)
-        assert 'You have logged out successfully.' in res
-
-    # -----------
-    # tests for top links present in every page
-
-    def test_home_login(self):
-        offset = url_for(controller='home')
-        res = self.app.get(offset)
-        # cannot use click because it does not allow a 401 response ...
-        # could get round this by checking that url is correct and then doing a
-        # get but then we are back to test_user_login
-        # res = res.click('Login', index=0)
-        # assert 'Please Sign In' in res
-
-     # TODO: test sign in results in:
-     # a) a username at top of page
-     # b) logout link
-
-    def test_apikey(self):
-        # not_logged_in
-        key = model.ApiKey.by_name('okfntest')
-        if key:
-            key.purge()
-            model.Session.commit()
-            model.Session.remove()
-
-        offset = url_for(controller='user', action='apikey')
-        res = self.app.get(offset, status=[302]) 
-
-        res = self.app.get(offset, extra_environ=dict(REMOTE_USER='okfntest'))
-        key = model.ApiKey.by_name(u'okfntest')
-        assert 'Your API key is: %s' % key.key in res, res
-
-        # run again to check case where ApiKey already exists
-        res = self.app.get(offset, extra_environ=dict(REMOTE_USER='okfntest'))
-        key = model.ApiKey.byName('okfntest')
-        assert 'Your API key is: %s' % key.key in res, res

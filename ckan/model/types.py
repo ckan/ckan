@@ -1,5 +1,8 @@
 from sqlalchemy import types
 
+def make_uuid():
+    return unicode(uuid.uuid4())
+
 import uuid
 class UuidType(types.TypeDecorator):
     impl = types.Unicode
