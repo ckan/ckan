@@ -123,7 +123,7 @@ class TestPackageControllerEdit(TestController2):
         model.Session.remove()
         offset = url_for(controller='package', action='edit', id=self.editpkg.name)
         self.res = self.app.get(offset)
-        self.newtagname = 'russian'
+        self.newtagname = u'russian'
 
     def teardown_method(self, method):
         self.tearDown()
@@ -144,12 +144,12 @@ class TestPackageControllerEdit(TestController2):
         assert self.editpkg.notes in self.res
 
     def test_edit(self):
-        new_title = 'A Short Description of this Package'
-        newurl = 'http://www.editpkgnewurl.com'
-        new_download_url = newurl + '/download/'
-        newlicense = 'Non-OKD Compliant::Other'
+        new_title = u'A Short Description of this Package'
+        newurl = u'http://www.editpkgnewurl.com'
+        new_download_url = newurl + u'/download/'
+        newlicense = u'Non-OKD Compliant::Other'
         newlicenseid = model.License.by_name(newlicense).id
-        newversion = '0.9b'
+        newversion = u'0.9b'
         fv = self.res.forms[0]
         prefix = 'Package-%s-' % self.pkgid
         fv[prefix + 'title'] =  new_title
@@ -227,7 +227,7 @@ Hello world.
         pkg.url = u'editpkgurl.com'
         pkg.download_url = u'editpkgurl2.com'
         pkg.notes= u'this is editpkg'
-        pkg.version = '2.2'
+        pkg.version = u'2.2'
         pkg.tags = [model.Tag(name=u'one'), model.Tag(name=u'two')]
         tags_txt = ' '.join([tag.name for tag in pkg.tags])
         pkg.license = model.License.byName(u'OKD Compliant::Other')
@@ -253,16 +253,16 @@ Hello world.
         assert tags_html in res, str(res) + tags_html
 
         # Amend form
-        name = 'test_name'
-        title = 'Test Title'
-        version = '1.1'
-        url = 'http://something.com/somewhere.zip'
-        download_url = 'http://something.com/somewhere-else.zip'
-        notes = 'Very important'
+        name = u'test_name'
+        title = u'Test Title'
+        version = u'1.1'
+        url = u'http://something.com/somewhere.zip'
+        download_url = u'http://something.com/somewhere-else.zip'
+        notes = u'Very important'
         license_id = 4
-        license = 'OKD Compliant::Creative Commons CCZero'
-        tags = ('tag1', 'tag2', 'tag3')
-        tags_txt = ' '.join(tags)
+        license = u'OKD Compliant::Creative Commons CCZero'
+        tags = (u'tag1', u'tag2', u'tag3')
+        tags_txt = u' '.join(tags)
         assert not model.Package.by_name(name)
         fv = res.forms[0]
         prefix = 'Package-%s-' % pkg.id
@@ -280,13 +280,13 @@ Hello world.
         # Check preview is correct
         res1 = str(res).replace('</strong>', '')
         assert 'Preview' in res
-        assert 'Title: %s' % title in res1, res
-        assert 'Version: %s' % version in res1, res
-        assert 'Url: <a href="%s">' % url in res1, res
-        assert 'Download Url: <a href="%s">' % download_url in res1, res
-        assert '<p>%s' % notes in res1, res
-        assert 'Licenses: %s' % license in res1, res
-        tags_html_list = ['        <a href="/tag/read/%s">%s</a>' % (tag, tag) for tag in tags]
+        assert 'Title: %s' % str(title) in res1, res
+        assert 'Version: %s' % str(version) in res1, res
+        assert 'Url: <a href="%s">' % str(url) in res1, res
+        assert 'Download Url: <a href="%s">' % str(download_url) in res1, res
+        assert '<p>%s' % str(notes) in res1, res
+        assert 'Licenses: %s' % str(license) in res1, res
+        tags_html_list = ['        <a href="/tag/read/%s">%s</a>' % (str(tag), str(tag)) for tag in tags]
         tags_html = '\n'.join(tags_html_list)
         assert 'Tags:\n%s' % tags_html in res1, res1 + tags_html
 
@@ -304,14 +304,14 @@ Hello world.
         assert not 'Error' in res, res
         res = res.follow()
         res1 = str(res).replace('</strong>', '')
-        assert 'Packages - %s' % name in res1, res1
-        assert 'Package: %s' % name in res1, res1
-        assert 'Title: %s' % title in res1, res1
-        assert 'Version: %s' % version in res1, res1
-        assert 'Url: <a href="%s">' % url in res1, res
-        assert 'Download Url: <a href="%s">' % download_url in res1, res
-        assert '<p>%s' % notes in res1, res1
-        assert 'Licenses: %s' % license in res1, res1
+        assert 'Packages - %s' % str(name) in res1, res1
+        assert 'Package: %s' % str(name) in res1, res1
+        assert 'Title: %s' % str(title) in res1, res1
+        assert 'Version: %s' % str(version) in res1, res1
+        assert 'Url: <a href="%s">' % str(url) in res1, res
+        assert 'Download Url: <a href="%s">' % str(download_url) in res1, res
+        assert '<p>%s' % str(notes) in res1, res1
+        assert 'Licenses: %s' % str(license) in res1, res1
         assert 'Tags:\n%s' % tags_html in res1, res1 + tags_html
         pkg = model.Package.by_name(name)
         assert pkg.name == name
@@ -328,7 +328,7 @@ Hello world.
         rev = model.Revision.youngest()
         assert rev.author == 'Unknown IP Address'
         # TODO: reinstate once fixed in code
-        exp_log_message = 'Creating package %s' % name
+        exp_log_message = u'Creating package %s' % name
         # assert rev.message == exp_log_message
 
 
@@ -346,7 +346,7 @@ class TestPackageControllerNew(TestController2):
         model.Session.remove()
 
     def test_new(self):
-        assert not model.Package.by_name('annakarenina')
+        assert not model.Package.by_name(u'annakarenina')
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         assert 'Packages - New' in res
@@ -357,16 +357,16 @@ class TestPackageControllerNew(TestController2):
         assert not 'Error' in res, res
 
     def test_new_all_fields(self):
-        name = 'test_name2'
-        title = 'Test Title'
-        version = '1.1'
-        url = 'http://something.com/somewhere.zip'
-        download_url = 'http://something.com/somewhere-else.zip'
-        notes = 'Very important'
+        name = u'test_name2'
+        title = u'Test Title'
+        version = u'1.1'
+        url = u'http://something.com/somewhere.zip'
+        download_url = u'http://something.com/somewhere-else.zip'
+        notes = u'Very important'
         license_id = 4
-        license = 'OKD Compliant::Creative Commons CCZero'
-        tags = ('tag1', 'tag2', 'tag3')
-        tags_txt = ' '.join(tags)
+        license = u'OKD Compliant::Creative Commons CCZero'
+        tags = (u'tag1', u'tag2', u'tag3')
+        tags_txt = u' '.join(tags)
         assert not model.Package.by_name(name)
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
@@ -387,13 +387,14 @@ class TestPackageControllerNew(TestController2):
         # Check preview is correct
         res1 = str(res).replace('</strong>', '')
         assert 'Preview' in res
-        assert 'Title: %s' % title in res1, res
-        assert 'Version: %s' % version in res1, res
-        assert 'Url: <a href="%s">' % url in res1, res
-        assert 'Download Url: <a href="%s">' % download_url in res1, res
-        assert '<p>%s' % notes in res1, res
-        assert 'Licenses: %s' % license in res1, res
-        tags_html_list = ['        <a href="/tag/read/%s">%s</a>' % (tag, tag) for tag in tags]
+#        import pdb; pdb.set_trace()
+        assert 'Title: %s' % str(title) in res1, res
+        assert 'Version: %s' % str(version) in res1, res
+        assert 'Url: <a href="%s">' % str(url) in res1, res
+        assert 'Download Url: <a href="%s">' % str(download_url) in res1, res
+        assert '<p>%s' % str(notes) in res1, res
+        assert 'Licenses: %s' % str(license) in res1, res
+        tags_html_list = ['        <a href="/tag/read/%s">%s</a>' % (str(tag), str(tag)) for tag in tags]
         tags_html = '\n'.join(tags_html_list)
         assert 'Tags:\n%s' % tags_html in res1, res1 + tags_html
 
@@ -411,15 +412,15 @@ class TestPackageControllerNew(TestController2):
         assert not 'Error' in res, res
         res = res.follow()
         res1 = str(res).replace('</strong>', '')
-        assert 'Packages - %s' % name in res1, res1
-        assert 'Package: %s' % name in res1, res1
-        assert 'Title: %s' % title in res1, res1
-        assert 'Version: %s' % version in res1, res1
-        assert 'Url: <a href="%s">' % url in res1, res
-        assert 'Download Url: <a href="%s">' % download_url in res1, res
-        assert '<p>%s' % notes in res1, res1
-        assert 'Licenses: %s' % license in res1, res1
-        assert 'Tags:\n%s' % tags_html in res1, res1 + tags_html
+        assert 'Packages - %s' % str(name) in res1, res1
+        assert 'Package: %s' % str(name) in res1, res1
+        assert 'Title: %s' % str(title) in res1, res1
+        assert 'Version: %s' % str(version) in res1, res1
+        assert 'Url: <a href="%s">' % str(url) in res1, res
+        assert 'Download Url: <a href="%s">' % str(download_url) in res1, res
+        assert '<p>%s' % str(notes) in res1, res1
+        assert 'Licenses: %s' % str(license) in res1, res1
+        assert 'Tags:\n%s' % str(tags_html) in res1, res1 + tags_html
         pkg = model.Package.by_name(name)
         assert pkg.name == name
         assert pkg.title == title
@@ -435,7 +436,7 @@ class TestPackageControllerNew(TestController2):
         rev = model.Revision.youngest()
         assert rev.author == 'Unknown IP Address'
         # TODO: reinstate once fixed in code
-        exp_log_message = 'Creating package %s' % name
+        exp_log_message = u'Creating package %s' % name
         # assert rev.message == exp_log_message
 
     def test_new_existing_name(self):

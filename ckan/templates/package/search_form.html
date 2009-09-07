@@ -1,9 +1,9 @@
     <form action="${h.url_for(controller='package', action='search', id=None)}" method="GET">
-      ${XML(h.text_field('q', size=40, value=c.q))}
-      ${XML(h.submit('Search Packages &raquo;', name='search'))}
+      ${XML(h.text('q', size=40, value=c.q))}
+      ${XML(h.submit('search', 'Search Packages &raquo;'))}
       <p class="desc">
         E.g. 'geo', 'shakespeare', 'science'
       </p>
-      ${h.check_box(name='open_only', checked=c.open_only)} only openly licensed packages
-      ${h.check_box(name='downloadable_only', checked=c.downloadable_only)} only downloadable packages
+      ${h.checkbox(name='open_only', checked=c.open_only)} only openly licensed packages
+      ${h.checkbox(name='downloadable_only', checked=c.downloadable_only)} only downloadable packages
     </form>

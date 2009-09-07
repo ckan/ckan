@@ -64,13 +64,13 @@ class TestPackage:
         assert out.license.name == self.license_name
 
     def test_update_package(self):
-        newnotes = 'Written by Beethoven'
-        author = 'jones'
+        newnotes = u'Written by Beethoven'
+        author = u'jones'
 
         rev2 = model.repo.new_revision()
         pkg = model.Package.by_name(self.name)
         pkg.notes = newnotes
-        rev2.author = 'jones'
+        rev2.author = u'jones'
         model.Session.commit()
         model.Session.clear()
         outpkg = model.Package.by_name(self.name)
@@ -154,12 +154,12 @@ class TestPackageWithLicense:
 
     @classmethod
     def setup_class(self):
-        self.licname1 = 'test_license1'
-        self.licname2 = 'test_license2'
+        self.licname1 = u'test_license1'
+        self.licname2 = u'test_license2'
         self.license1 = model.License(name=self.licname1)
         self.license2 = model.License(name=self.licname2)
         rev = model.repo.new_revision()
-        self.pkgname = 'testpkgfk'
+        self.pkgname = u'testpkgfk'
         pkg = model.Package(name=self.pkgname)
         pkg.license = self.license1
         model.Session.commit()
@@ -202,8 +202,8 @@ class TestTag:
     def setup_class(self):
         model.Session.clear()
         model.Session.begin()
-        model.Tag(name='russian')
-        model.Tag(name='something')
+        model.Tag(name=u'russian')
+        model.Tag(name=u'something')
 
     @classmethod
     def teardown_class(self):
@@ -211,16 +211,16 @@ class TestTag:
         model.Session.remove()
 
     def test_search_1(self):
-        out = list(model.Tag.search_by_name('russian'))
+        out = list(model.Tag.search_by_name(u'russian'))
         assert len(out) == 1
         assert out[0].name == 'russian'
 
     def test_search_2(self):
-        out = list(model.Tag.search_by_name('us'))
+        out = list(model.Tag.search_by_name(u'us'))
         assert len(out) == 1
 
     def test_search_3(self):
-        out = list(model.Tag.search_by_name('s'))
+        out = list(model.Tag.search_by_name(u's'))
         assert len(out) == 2
 
 class TestTagSearch:
@@ -234,24 +234,24 @@ class TestTagSearch:
 
     def test_1_basic(self):
         q = model.Package.query
-        q = model.Package.tag_search(q, 'russian')
+        q = model.Package.tag_search(q, u'russian')
         assert q.count() == 2
 
         q = model.Package.query
-        q = model.Package.tag_search(q, 'tolstoy')
+        q = model.Package.tag_search(q, u'tolstoy')
         assert q.count() == 1
 
         q = model.Package.query
-        q = model.Package.tag_search(q, 'russ')
+        q = model.Package.tag_search(q, u'russ')
         assert q.count() == 2
         
     def test_2_multiple_tags(self):
         q = model.Package.query
-        q = model.Package.tag_search(q, 'russian')
-        q = model.Package.tag_search(q, 'tolstoy')
+        q = model.Package.tag_search(q, u'russian')
+        q = model.Package.tag_search(q, u'tolstoy')
         assert q.count() == 1, q.all()
 
         q = model.Package.query
-        q = model.Package.tag_search(q, 'russian')
-        q = model.Package.tag_search(q, 'random')
+        q = model.Package.tag_search(q, u'russian')
+        q = model.Package.tag_search(q, u'random')
         assert q.count() == 0, q.all()

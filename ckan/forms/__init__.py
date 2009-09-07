@@ -73,7 +73,7 @@ class LicenseRenderer(formalchemy.fields.FieldRenderer):
 class NotesRenderer(formalchemy.fields.TextAreaFieldRenderer):
     def render(self, **kwargs):
         kwargs['size'] = '60x15'
-        value = ckan.lib.helpers.util.html_escape(self._value)
+        value = ckan.lib.helpers.escape(self._value)
         return h.text_area(self.name, content=value, **kwargs)
 
 class TagEditRenderer(formalchemy.fields.FieldRenderer):
@@ -134,7 +134,7 @@ class PackageFieldSet(formalchemy.FieldSet):
         temp_name = None
         if self.name.value == orig_pkg_name:
             temp_name = orig_pkg_name
-            self.data['Package-%s-name' % record_id] = 'something_unique'
+            self.data['Package-%s-name' % record_id] = u'something_unique'
         validation = self.validate()
         if temp_name:
             # restore it
@@ -197,7 +197,7 @@ def validate_package_on_edit(fs, id):
     temp_name = None
     if fs.name.value == id:
         temp_name = id
-        fs.data['Package-%s-name' % record_id] = 'something_unique'
+        fs.data['Package-%s-name' % record_id] = u'something_unique'
     validation = fs.validate()
     if temp_name:
         # restore it

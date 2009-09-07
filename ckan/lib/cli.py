@@ -329,3 +329,93 @@ It appears that the website is under a CC-BY-SA license. Legal status of the dat
             model.Session.delete(rev)
         model.Session.commit()
         model.Session.remove()
+
+class TestData(CkanCommand):
+    '''Perform simple consistency tests on the db and wui.
+
+    Usage:
+      test-data <wui url>
+    '''
+
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    max_args = 1
+    min_args = 1
+
+    def command(self):
+        self._load_config()
+        from ckan import model
+
+        print 'Database check'
+        print '**************'
+
+        num_pkg = model.Package.query().count()
+        print '* Number of packages: ', num_pkg
+        assert num_pkg > 0
+
+        num_tag = model.Tag.query().count()
+        print '* Number of tags: ', num_tag
+        assert num_tag > 0
+
+        pkg = model.Package.query().first()
+        print '* A package: ', repr(pkg)
+        expected_attributes = ('name', 'title', 'notes', 'url', 'download_url')
+        for ea in expected_attributes:
+            print '* Checking for attribute ', ea
+            assert ea in pkg.__dict__.keys()
+
+        tag = model.Tag.query().first()
+        print '* A tag: ', tag.name
+        expected_attributes = ['name']
+        for ea in expected_attributes:
+            print '* Checking for attribute ', ea
+            assert ea in tag.__dict__.keys()
+
+        print '\nWUI check'
+        print   '========='
+        import paste.fixture
+        wui_address = self.args[0]
+        assert wui_address.startswith('http://'), wui_address
+
+        import paste.proxy
+        wsgiapp = paste.proxy.make_proxy({}, wui_address)
+        self.app = paste.fixture.TestApp(wsgiapp)
+
+        def check_page(path, required_contents, status=200):
+            print "* Checking page '%s'" % path
+            res = self.app.get(path, status=status)
+            if type(required_contents) is type(()):
+                for required in required_contents:
+                    print '    ...checking for %r' % required
+                    assert required in res, res
+            else:
+                assert required_contents in res, res
+            return res
+
+
+        res = check_page('/', ('Search', 'New'))
+        form = res.forms[0]
+        form['q'] = pkg.name
+        res = form.submit()
+        print '* Checking search'
+        assert ('package found' in res) or ('packages found' in res), res
+
+        res = res.click(pkg.name)
+        print '* Checking package page %s' % res.request.url
+        assert pkg.title in res, res
+        for tag in pkg.tags:
+            assert tag.name in res, res
+        assert pkg.license.name in res, res
+
+        tag = pkg.tags[0]
+        res = res.click(tag.name)
+        print '* Checking tag %s' % res.request.url
+        assert 'Tag: %s' % str(tag.name) in res, res
+        assert str(pkg.name) in res, res
+        
+        res = check_page('/package/new', 'Register a New Package')
+        
+        res = check_page('/package/list', 'Packages')
+
+
+        

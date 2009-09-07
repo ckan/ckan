@@ -24,10 +24,10 @@ class TestRestController(TestController2):
     def setup(self):
         self.testvalues = {
             'name' : u'testpkg',
-            'title': 'Some Title',
+            'title': u'Some Title',
             'url': u'http://blahblahblah.mydomain',
             'download_url': u'http://blahblahblah.mydomain',
-            'tags': 'russion novel',
+            'tags': u'russion novel',
             'license_id': '4',
         }
         self.random_name = u'http://myrandom.openidservice.org/'
@@ -152,7 +152,7 @@ class TestRestController(TestController2):
         assert model.Package.by_name(self.testvalues['name'])
 
         # edit it
-        pkg_vals = {'name':'somethingnew', 'title':'newtesttitle'}
+        pkg_vals = {'name':u'somethingnew', 'title':u'newtesttitle'}
         offset = '/api/rest/package/%s' % self.testvalues['name']
         postparams = '%s=1' % simplejson.dumps(pkg_vals)
         res = self.app.post(offset, params=postparams, status=[200],
@@ -171,7 +171,7 @@ class TestRestController(TestController2):
         assert model.Package.by_name(self.testvalues['name'])
         
         # create a package with name 'dupname'
-        dupname = 'dupname'
+        dupname = u'dupname'
         if not model.Package.by_name(dupname):
             pkg = model.Package()
             pkg.name = dupname
