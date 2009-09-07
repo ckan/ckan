@@ -359,4 +359,11 @@ class TestSearch(TestController2):
         assert res_dict['results'][0]['name'] == 'annakarenina', res_dict['results']
         assert res_dict['results'][0]['title'] == 'A Novel By Tolstoy', res_dict['results']
         assert res_dict['results'][0]['license'] == 'OKD Compliant::Other', res_dict['results'][0]['license']
+        assert res_dict['results'][0]['tags'] == ['russian', 'tolstoy'], res_dict['results'][0]['tags']
+
+    def test_9_just_tags(self):
+        offset = self.base_url + '?tags=russian&all_fields=1'
+        res = self.app.get(offset, status=200)
+        res_dict = simplejson.loads(res.body)
+        assert res_dict['count'] == 2, res_dict
         

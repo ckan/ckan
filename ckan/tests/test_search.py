@@ -208,4 +208,4 @@ class TestSearch(object):
         assert len(pkgs) == 2, pkgs
         # TODO fix this
 
-
+        

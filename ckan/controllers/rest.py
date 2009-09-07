@@ -130,18 +130,12 @@ class RestController(CkanBaseController):
         return self._finish_ok()
 
     def search(self):
-        if request.params.has_key('q'):
-            params = request.params
-        elif request.params.has_key('qjson'):
+        if request.params.has_key('qjson'):
             params = simplejson.loads(request.params['qjson'])
-            if not params.has_key('q'):
-                response.status_int = 400
-                return ''                
+        elif request.params.values() and request.params.values() != [u'']:
+            params = request.params
         else:
             params = self._get_request_data()
-            if not params.has_key('q'):
-                response.status_int = 400
-                return ''                
         options = SearchOptions(params)
         options.search_tags = False
         options.return_objects = False

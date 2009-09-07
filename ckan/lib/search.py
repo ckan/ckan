@@ -23,7 +23,10 @@ class SearchOptions:
     return_objects = False
 
     def __init__(self, kw_dict):
-        assert kw_dict.has_key('q')
+        if not kw_dict.keys():
+            raise Exception('no options supplied')
+
+        assert kw_dict.keys()
         for k,v in kw_dict.items():
             # Ensure boolean fields are boolean
             if k in ['filter_by_downloadable', 'filter_by_openness', 'search_notes', 'all_fields']:
@@ -75,19 +78,20 @@ class Search:
         #         * field:term or field:"longer term" means search only in that
         #           particular field for that term.
         terms = []
-        inside_quote = False
-        buf = ''
-        for ch in query_str:
-            if ch == ' ' and not inside_quote:
-                if buf:
-                    terms.append(buf.strip())
-                buf = ''
-            elif ch == '"':
-                inside_quote = not inside_quote
-            else:
-                buf += ch
-        if buf:
-            terms.append(buf)
+        if query_str:
+            inside_quote = False
+            buf = ''
+            for ch in query_str:
+                if ch == ' ' and not inside_quote:
+                    if buf:
+                        terms.append(buf.strip())
+                    buf = ''
+                elif ch == '"':
+                    inside_quote = not inside_quote
+                else:
+                    buf += ch
+            if buf:
+                terms.append(buf)
 
         # split off field-specific terms
         field_specific_terms = {}
@@ -143,7 +147,10 @@ class Search:
         # Filter by field_specific_terms
         for field, terms in field_specific_terms.items():
             if field == 'tags':
-                query = self._filter_by_tags(query, terms)
+                if type(terms) in (type(''), type(u'')):
+                    query = self._filter_by_tags(query, [terms])
+                else:
+                    query = self._filter_by_tags(query, terms)
             else:
                 for term in terms:
                     model_attr = getattr(model.Package, field)
@@ -212,6 +219,7 @@ class Search:
                         result['license'] = entity.license.name
                     else:
                         result['license'] = ''
+                    result['tags'] = [tag.name for tag in entity.tags]
                     results.append(result)
                 self._results['results'] = results
             else:
