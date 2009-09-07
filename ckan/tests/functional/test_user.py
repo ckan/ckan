@@ -1,17 +1,17 @@
 from ckan.tests import *
 import ckan.model as model
 
-class TestAccountController(TestController2):
+class TestUserController(TestController2):
 
-    def test_account_not_logged_in(self):
-        offset = url_for(controller='account')
+    def test_user_not_logged_in(self):
+        offset = url_for(controller='user')
         # not logged in, so should redirect to 
         res = self.app.get(offset, status=302)
         res = res.follow()
         assert 'Login' in res, res
 
-    def test_account_logged_in(self):
-        offset = url_for(controller='account')
+    def test_user_logged_in(self):
+        offset = url_for(controller='user')
         username = 'xyz.com'
         res = self.app.get(offset, extra_environ={'REMOTE_USER': username})
         assert 'My Account' in res, res
@@ -19,8 +19,8 @@ class TestAccountController(TestController2):
         assert 'To view your API key' in res
         assert 'Your Recent Activity' in res
 
-    def test_account_login(self):
-        offset = url_for(controller='account', action='login')
+    def test_user_login(self):
+        offset = url_for(controller='user', action='login')
         res = self.app.get(offset, status=200)
         assert 'Login' in res, res
         assert 'use your OpenID' in res
@@ -72,7 +72,7 @@ class TestAccountController(TestController2):
         return res
 
     def test_logout(self):
-        offset = url_for(controller='account', action='logout')
+        offset = url_for(controller='user', action='logout')
         res = self.app.get(offset)
         assert 'You have logged out successfully.' in res
 
@@ -84,7 +84,7 @@ class TestAccountController(TestController2):
         res = self.app.get(offset)
         # cannot use click because it does not allow a 401 response ...
         # could get round this by checking that url is correct and then doing a
-        # get but then we are back to test_account_login
+        # get but then we are back to test_user_login
         # res = res.click('Login', index=0)
         # assert 'Please Sign In' in res
 
@@ -100,7 +100,7 @@ class TestAccountController(TestController2):
             model.Session.commit()
             model.Session.remove()
 
-        offset = url_for(controller='account', action='apikey')
+        offset = url_for(controller='user', action='apikey')
         res = self.app.get(offset, status=[302]) 
 
         res = self.app.get(offset, extra_environ=dict(REMOTE_USER='okfntest'))

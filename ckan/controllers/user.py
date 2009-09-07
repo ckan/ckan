@@ -2,36 +2,36 @@ from ckan.lib.base import *
 from ckan.controllers.base import CkanBaseController
 
 def login_form():
-    return render('account/login_form').replace('FORM_ACTION', '%s')
+    return render('user/login_form').replace('FORM_ACTION', '%s')
 
-class AccountController(CkanBaseController):
+class UserController(CkanBaseController):
 
     def index(self):
         if not c.user:
-            h.redirect_to(controller='account', action='login', id=None)
+            h.redirect_to(controller='user', action='login', id=None)
         else:
             q = model.Revision.query.filter_by(author=c.user).limit(20)
             c.activity = q.limit(20).all()            
-            return render('account/index')
+            return render('user/index')
 
 #     def login_form(self, return_url=''):
-#         return render('account/login_form')
+#         return render('user/login_form')
 # 
 #     def openid_form(self, return_url=''):
-#         return render('account/openid_form').replace('DOLAR', '$')
+#         return render('user/openid_form').replace('DOLAR', '$')
 # 
     def login(self):
         if c.user:
-            h.redirect_to(controller='account', action=None, id=None)
+            h.redirect_to(controller='user', action=None, id=None)
         else:
-            form = render('account/openid_form')
+            form = render('user/openid_form')
             # /login_openid page need not exist -- request gets intercepted by openid plugin
             form = form.replace('FORM_ACTION', '/login_openid')
             return form
 
     def logout(self):
         c.user = None
-        return render('account/logout')
+        return render('user/logout')
 
     def apikey(self):
         # logged in
@@ -44,5 +44,5 @@ class AccountController(CkanBaseController):
                 apikey_object = model.ApiKey(name=username)
                 model.Session.commit()
             c.api_key = apikey_object.key
-        return render('account/apikey')
+        return render('user/apikey')
 
