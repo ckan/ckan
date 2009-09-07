@@ -64,7 +64,7 @@ class RestController(CkanBaseController):
                 return simplejson.dumps(repr(fs.errors))
             rev = model.repo.new_revision()
             rev.author = self.rest_api_user
-            rev.message = "REST API: Create object %s" % str(fs.name.value)
+            rev.message = u'REST API: Create object %s' % str(fs.name.value)
             fs.sync()
 
             model.repo.commit()        
@@ -98,7 +98,7 @@ class RestController(CkanBaseController):
                 return simplejson.dumps(repr(fs.errors))
             rev = model.repo.new_revision()
             rev.author = self.rest_api_user
-            rev.message = "REST API: Update object %s" % str(fs.name.value)
+            rev.message = u'REST API: Update object %s' % str(fs.name.value)
             fs.sync()
 
             model.repo.commit()        

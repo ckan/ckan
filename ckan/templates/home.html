@@ -24,8 +24,8 @@
     <h2>Register</h2>
 
     <form action="${h.url_for(controller='package', action='new', id=None)}" method="POST">
-      ${XML(h.text_field('title', size=40, value=''))}
-      ${XML(h.submit('Register a New Package &raquo;', name=''))}
+      ${XML(h.text('title', size=40, value=''))}
+      ${XML(h.submit('', 'Register a New Package &raquo;'))}
       <p class="desc">Enter title or short description</p>
     </form>
 

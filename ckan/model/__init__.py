@@ -33,10 +33,10 @@ class Repository(vdm.sqlalchemy.Repository):
 
     def create_db(self):
         self.metadata.create_all(bind=self.metadata.bind)    
-        self.setup_migration_version_control(self.latest_migration_version())
         # creation this way worked fine for normal use but failed on test with
         # OperationalError: (OperationalError) no such table: xxx
-        # self.upgrade_db()
+#        self.upgrade_db()
+        self.setup_migration_version_control(self.latest_migration_version())
 
     def latest_migration_version(self):
         import migrate.versioning.api as mig

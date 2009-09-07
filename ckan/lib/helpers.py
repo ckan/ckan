@@ -1,29 +1,9 @@
 """Helper functions
 
 Consists of functions to typically be used within templates, but also
-available to Controllers. This module is available to both as 'h'.
+available to Controllers. This module is available to templates as 'h'.
 """
-from webhelpers import *
-from genshi.core import Markup
-
-def wrap_helpers(localdict):
-    def helper_wrapper(func):
-        def wrapped_helper(*args, **kw):
-            if not callable(func(*args, **kw)):
-                return Markup(func(*args, **kw))
-            else:
-                return Markup(func(*args, **kw)())
-        wrapped_helper.__name__ = func.__name__
-        return wrapped_helper
-    for name, func in localdict.iteritems():
-        if not callable(func) or not func.__module__.startswith('webhelpers.rails'):
-            continue
-        localdict[name] = helper_wrapper(func)
-
-# for >= 0.3.2 versions of webhelpers
-try:
-    from webhelpers.rails.wrapped import *
-    from routes import url_for
-except:
-    wrap_helpers(locals())
-
+from webhelpers.html import escape, HTML, literal, url_escape
+from webhelpers.html.tags import *
+from webhelpers.markdown import markdown
+from routes import url_for, redirect_to

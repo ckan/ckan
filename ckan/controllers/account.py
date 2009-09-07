@@ -1,5 +1,6 @@
 from ckan.lib.base import *
 from ckan.controllers.base import CkanBaseController
+import pylons.controllers.util as util
 
 def login_form():
     return render('account/login_form').replace('FORM_ACTION', '%s')
@@ -8,7 +9,7 @@ class AccountController(CkanBaseController):
 
     def index(self):
         if not c.user:
-            h.redirect_to(controller='account', action='login', id=None)
+            util.redirect_to(controller='account', action='login', id=None)
         else:
             q = model.Revision.query.filter_by(author=c.user).limit(20)
             c.activity = q.limit(20).all()            

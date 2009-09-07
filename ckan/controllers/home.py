@@ -13,7 +13,7 @@ class HomeController(CkanBaseController):
         return render('license')
     
     def guide(self):
-        ckan_pkg = model.Package.by_name('ckan')
+        ckan_pkg = model.Package.by_name(u'ckan')
         if ckan_pkg:
             c.info = ckan_pkg.notes
         else:

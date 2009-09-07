@@ -206,5 +206,6 @@ class TestSearch(object):
         pkgs = result['results']
         count = result['count']
         assert len(pkgs) == 2, pkgs
+        # TODO fix this
 
 

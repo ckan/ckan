@@ -42,8 +42,8 @@ class TestAccountController(TestController2):
         # extra_environ, see:
         # http://pythonpaste.org/webtest/#modifying-the-environment-simulating-authentication
         assert 'Please Sign In' in res
-        username = 'okfntest'
-        password = 'okfntest'
+        username = u'okfntest'
+        password = u'okfntest'
         fv = res.forms[0]
         fv['username'] = username
         fv['password'] = password
@@ -94,7 +94,7 @@ class TestAccountController(TestController2):
 
     def test_apikey(self):
         # not_logged_in
-        key = model.ApiKey.by_name('okfntest')
+        key = model.ApiKey.by_name(u'okfntest')
         if key:
             key.purge()
             model.Session.commit()
@@ -109,5 +109,5 @@ class TestAccountController(TestController2):
 
         # run again to check case where ApiKey already exists
         res = self.app.get(offset, extra_environ=dict(REMOTE_USER='okfntest'))
-        key = model.ApiKey.byName('okfntest')
+        key = model.ApiKey.byName(u'okfntest')
         assert 'Your API key is: %s' % key.key in res, res
