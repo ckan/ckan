@@ -4,7 +4,7 @@ from types import make_uuid
 
 package_group_table = Table('package_groups', metadata,
         Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
-        Column('package_id', types.UnicodeText, ForeignKey('package.id'), default=make_uuid),
+        Column('package_id', types.Integer, ForeignKey('package.id')),
         Column('group_id', types.UnicodeText, ForeignKey('group.id'), default=make_uuid),
         )
 
