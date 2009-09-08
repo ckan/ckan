@@ -374,15 +374,18 @@ class TestData(CkanCommand):
         print '\nWUI check'
         print   '========='
         import paste.fixture
-        wui_address = self.args[0]
-        assert wui_address.startswith('http://'), wui_address
+        self.wui_address = self.args[0]
+        if not self.wui_address.startswith('http://'):
+            self.wui_address = 'http://' + self.wui_address
+        if not self.wui_address.endswith('/'):
+            self.wui_address = self.wui_address + '/'
 
         import paste.proxy
-        wsgiapp = paste.proxy.make_proxy({}, wui_address)
+        wsgiapp = paste.proxy.make_proxy({}, self.wui_address)
         self.app = paste.fixture.TestApp(wsgiapp)
 
         def check_page(path, required_contents, status=200):
-            print "* Checking page '%s'" % path
+            print "* Checking page '%s%s'" % (self.wui_address, path)
             res = self.app.get(path, status=status)
             if type(required_contents) is type(()):
                 for required in required_contents:
@@ -416,6 +419,8 @@ class TestData(CkanCommand):
         res = check_page('/package/new', 'Register a New Package')
         
         res = check_page('/package/list', 'Packages')
+
+        res = check_page('/api/search/package?tags=gov+us+legal', '{"count": 1, "results": ["usa-courts-gov"]}')
 
 
         
