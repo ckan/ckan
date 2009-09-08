@@ -160,7 +160,9 @@ package_fs.configure(options=[package_fs.name.label('Name (required)').with_rend
                               package_fs.all_revisions,
                               package_fs.revision,
                               package_fs.state,
-                              package_fs._extras,])
+                              package_fs._extras,
+                              package_fs.groups,
+                              ])
 
 
 def get_package_dict(pkg=None):

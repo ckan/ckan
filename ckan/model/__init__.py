@@ -1,5 +1,6 @@
 from core import *
 from user import user_table, User
+from group import group_table, Group
 from extras import PackageExtra, package_extra_table
 
 from licenses import LicenseList

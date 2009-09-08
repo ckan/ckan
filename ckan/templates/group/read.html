@@ -1,0 +1,23 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+  
+  <xi:include href="../package/common.html" /> 
+
+  <py:def function="page_title">Groups - ${c.group.name}</py:def>
+
+  <div py:match="content">
+    <h2>Group: ${c.group.name}</h2>
+    <p>Packages in <strong>${c.group.name}</strong>:</p>
+    <ul>
+    <py:for each="pkg in c.group.packages">
+      <li>
+        ${package_summary(pkg)}
+      </li>
+    </py:for>
+    </ul>
+  </div>
+
+  <xi:include href="layout.html" />
+</html>
+
+

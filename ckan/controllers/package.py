@@ -211,6 +211,12 @@ class PackageController(CkanBaseController):
                 c.pkg_tags = [tag.name for tag in fs.model.tags]
             else:
                 c.pkg_tags = []
+##            if fs.groups.value:
+##                c.pkg_groups = [group.name for group in fs.groups.value]
+            if fs.model.groups:
+                c.pkg_groups = [group.name for group in fs.model.groups]
+            else:
+                c.pkg_groups = []
             import ckan.misc
             format = ckan.misc.MarkdownFormat()
             notes_formatted = format.to_html(fs.notes.value)

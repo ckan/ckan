@@ -160,6 +160,14 @@ class CreateTestData(CkanCommand):
         pkg2.title = u'A Wonderful Story'
         # api key
         model.User(name=u'tester', apikey=u'tester')
+        david = model.Group(name=u'david',
+                             title=u'Dave\'s books',
+                             description=u'These are books that David likes.')
+        roger = model.Group(name=u'roger',
+                             title=u'Roger\'s books',
+                             description=u'Roger likes these books.')
+        david.packages = [pkg1, pkg2]
+        roger.packages = [pkg1]
         model.Session.commit()
         model.Session.remove()
     
@@ -181,6 +189,10 @@ class CreateTestData(CkanCommand):
         revs = model.Revision.query.filter_by(author=u'tolstoy')
         for rev in revs:
             model.Session.delete(rev)
+        groups = (model.Group.by_name(u'david'), model.Group.by_name(u'roger'))
+        for group in groups:
+            if group:
+                model.Session.delete(group)
         for key in model.User.query.filter_by(name=u'tester').all():
             key.purge()
         model.Session.commit()
@@ -197,6 +209,7 @@ class CreateSearchTestData(CkanCommand):
               'title':'Government Information Locator Service',
               'url':'',
               'tags':'registry  country-usa  government  federal  gov  workshop-20081101',
+              'groups':'ukgov test1 test2',
               'license':'OKD Compliant::Other',
               'notes':'''From <http://www.gpoaccess.gov/gils/about.html>
               
@@ -208,6 +221,7 @@ class CreateSearchTestData(CkanCommand):
               'url':'http://www.usa.gov/Topics/Graphics.shtml',
               'download_url':'http://www.usa.gov/Topics/Graphics.shtml',
               'tags':'images  graphics  photographs  photos  pictures  us  usa  america  history  wildlife  nature  war  military  todo-split  gov',
+              'groups':'ukgov test1',
               'license':'OKD Compliant::Other',
               'notes':'''## About
 
@@ -222,6 +236,7 @@ Collection of links to different US image collections in the public domain.
               'url':'http://bulk.resource.org/courts.gov/',
               'download_url':'http://bulk.resource.org/courts.gov/',
               'tags':'us  courts  case-law  us  courts  case-law  gov  legal  law  access-bulk',
+              'groups':'ukgov test2',
               'license':'OKD Compliant::Creative Commons CCZero',
               'notes':'''### Description
 
@@ -232,6 +247,7 @@ Collection of links to different US image collections in the public domain.
              {'name':'uk-government-expenditure',
               'title':'UK Government Expenditure',
               'tags':'workshop-20081101  uk  gov  expenditure  finance  public  funding',
+              'groups':'ukgov',              
               'notes':'''Discussed at [Workshop on Public Information, 2008-11-02](http://okfn.org/wiki/PublicInformation).
 
 Overview is available in Red Book, or Financial Statement and Budget Report (FSBR), [published by the Treasury](http://www.hm-treasury.gov.uk/budget.htm).'''
@@ -292,6 +308,7 @@ It appears that the website is under a CC-BY-SA license. Legal status of the dat
         rev.message = u'Creating search test data.'
         self.pkgs = {}
         self.tags = {}
+        self.groups = {}
         for item in self.items:
             pkg = model.Package(name=unicode(item['name']))
             for attr, val in item.items():
@@ -308,6 +325,13 @@ It appears that the website is under a CC-BY-SA license. Legal status of the dat
                             tag = model.Tag(name=tag_name)
                             self.tags[tag_name] = tag
                         pkg.tags.append(tag)
+                elif attr == 'groups':
+                    for group_name in val.split():
+                        group = self.groups.get(group_name)
+                        if not group:
+                            group = model.Group(name=group_name)
+                            self.groups[group_name] = group
+                        pkg.groups.append(group)
                 elif attr == 'license':
                     license = model.License.byName(val)
                     pkg.license = license

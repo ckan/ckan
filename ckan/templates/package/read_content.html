@@ -16,6 +16,11 @@
         <a href="${h.url_for(controller='tag', action='read', id=tag_name)}">${tag_name}</a>
         </py:for>
       </li>
+      <li><strong>Groups:</strong>
+        <py:for each="group_name in c.pkg_groups">
+        <a href="${h.url_for(controller='group', action='read', id=group_name)}">${group_name}</a>
+        </py:for>
+      </li>
       <li><strong>Licenses:</strong> ${c.pkg_license}</li>
     </ul>
     <h3>Notes:</h3>

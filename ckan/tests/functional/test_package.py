@@ -59,6 +59,9 @@ class TestPackageController(TestController2):
         assert 'OKD Compliant::' in res
         assert 'Tags:' in res
         assert 'russian' in res
+        assert 'Groups:' in res
+        assert 'david' in res
+        assert 'roger' in res
 
     def test_read_nonexistentpackage(self):
         name = 'anonexistentpackage'
@@ -88,6 +91,9 @@ class TestPackageController(TestController2):
         self._check_search_results(res, 'title:Novel', ['1 package found'] )
         self._check_search_results(res, 'title:peace', ['0 packages found'] )
         self._check_search_results(res, 'name:peace', ['1 package found'] )
+        self._check_search_results(res, 'groups:david', ['2 packages found'] )
+        self._check_search_results(res, 'groups:roger', ['1 package found'] )
+        self._check_search_results(res, 'groups:lenny', ['0 packages found'] )
 
     def _check_search_results(self, page, terms, requireds):
         form = page.forms[0]
@@ -168,13 +174,22 @@ class TestPackageControllerEdit(TestController2):
         assert pkg.version == newversion
         assert newlicense == pkg.license.name
 
-    def test_edit_2(self):
+    def test_edit_2_not_groups(self):
+        # not allowed to edit groups for now
+        prefix = 'Package-%s-' % self.pkgid
+        fv = self.res.forms[0]
+        assert not fv.fields.has_key(prefix + 'groups')
+        
+    def test_edit_2_tags_and_groups(self):
         # testing tag updating
         newtags = [self.newtagname]
         tagvalues = ' '.join(newtags)
+##        newgroups = [u'lenny']
+##        groupvalues = ' '.join(newgroups)
         fv = self.res.forms[0]
         prefix = 'Package-%s-' % self.pkgid
         fv[prefix + 'tags'] =  tagvalues
+##        fv[prefix + 'groups'] =  groupvalues
         exp_log_message = 'test_edit_2: making some changes'
         fv['log_message'] =  exp_log_message
         res = fv.submit('commit')
@@ -184,9 +199,13 @@ class TestPackageControllerEdit(TestController2):
         assert 'Packages - %s' % self.editpkg_name in res
         pkg = model.Package.by_name(self.editpkg.name)
         assert len(pkg.tags) == 1
+##        assert len(pkg.groups) == 1
         outtags = [ tag.name for tag in pkg.tags ]
         for tag in newtags:
             assert tag in outtags 
+##        outgroups = [ group.name for group in pkg.groups ]
+##        for group in newgroups:
+##            assert group in outgroups 
         rev = model.Revision.youngest()
         assert rev.author == 'Unknown IP Address'
         assert rev.message == exp_log_message
@@ -230,6 +249,8 @@ Hello world.
         pkg.version = u'2.2'
         pkg.tags = [model.Tag(name=u'one'), model.Tag(name=u'two')]
         tags_txt = ' '.join([tag.name for tag in pkg.tags])
+##        pkg.groups = [model.Group(name=u'alpha'), model.Group(name=u'beta')]
+##        groups_txt = ' '.join([group.name for group in pkg.group])
         pkg.license = model.License.byName(u'OKD Compliant::Other')
         
         model.Session.commit()
@@ -251,6 +272,8 @@ Hello world.
         assert license_html in res, str(res) + license_html
         tags_html = 'name="%stags" size="60" type="text" value="%s"' % (prefix, tags_txt)
         assert tags_html in res, str(res) + tags_html
+##        groups_html = 'name="%sgroups" size="60" type="text" value="%s"' % (prefix, groups_txt)
+##        assert groups_html in res, str(res) + groups_html
 
         # Amend form
         name = u'test_name'
@@ -263,6 +286,8 @@ Hello world.
         license = u'OKD Compliant::Creative Commons CCZero'
         tags = (u'tag1', u'tag2', u'tag3')
         tags_txt = u' '.join(tags)
+##        groups = (u'group1', u'group2', u'group3')
+##        groups_txt = u' '.join(groups)
         assert not model.Package.by_name(name)
         fv = res.forms[0]
         prefix = 'Package-%s-' % pkg.id
@@ -274,6 +299,7 @@ Hello world.
         fv[prefix+'notes'] = notes
         fv[prefix+'license_id'] = license_id
         fv[prefix+'tags'] = tags_txt
+##        fv[prefix+'groups'] = groups_txt
         res = fv.submit('preview')
         assert not 'Error' in res, res
 
@@ -289,6 +315,10 @@ Hello world.
         tags_html_list = ['        <a href="/tag/read/%s">%s</a>' % (str(tag), str(tag)) for tag in tags]
         tags_html = '\n'.join(tags_html_list)
         assert 'Tags:\n%s' % tags_html in res1, res1 + tags_html
+##        groups_html_list = ['        <a href="/group/read/%s">%s</a>' % (str(group), str(group)) for group in groups]
+##        groups_html = '\n'.join(groups_html_list)
+        groups_html = ''
+        assert 'Groups:\n%s' % groups_html in res1, res1 + groups_html
 
         # Check form is correctly filled
         assert 'name="%stitle" size="40" type="text" value="%s"' % (prefix, title) in res, res
@@ -299,6 +329,7 @@ Hello world.
         license_html = '<option value="%s" selected>%s' % (license_id, license)
         assert license_html in res, str(res) + license_html
         assert 'name="%stags" size="60" type="text" value="%s"' % (prefix, tags_txt) in res, res
+##        assert 'name="%sgroups" size="60" type="text" value="%s"' % (prefix, groups_txt) in res, res
 
         res = fv.submit('commit')
         assert not 'Error' in res, res
@@ -313,6 +344,7 @@ Hello world.
         assert '<p>%s' % str(notes) in res1, res1
         assert 'Licenses: %s' % str(license) in res1, res1
         assert 'Tags:\n%s' % tags_html in res1, res1 + tags_html
+        assert 'Groups:\n%s' % groups_html in res1, res1 + groups_html
         pkg = model.Package.by_name(name)
         assert pkg.name == name
         assert pkg.title == title
@@ -323,6 +355,8 @@ Hello world.
         assert pkg.license_id == license_id
         saved_tagnames = [str(tag.name) for tag in pkg.tags]
         assert saved_tagnames == list(tags)
+##        saved_groupnames = [str(group.name) for group in pkg.groups]
+##        assert saved_groupnames == list(groups)
 
         # for some reason environ['REMOTE_ADDR'] is undefined
         rev = model.Revision.youngest()
@@ -367,6 +401,8 @@ class TestPackageControllerNew(TestController2):
         license = u'OKD Compliant::Creative Commons CCZero'
         tags = (u'tag1', u'tag2', u'tag3')
         tags_txt = u' '.join(tags)
+##        groups = (u'group1', u'group2', u'group3')
+##        groups_txt = u' '.join(groups)
         assert not model.Package.by_name(name)
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
@@ -381,13 +417,13 @@ class TestPackageControllerNew(TestController2):
         fv[prefix+'notes'] = notes
         fv[prefix+'license_id'] = license_id
         fv[prefix+'tags'] = tags_txt
+##        fv[prefix+'groups'] = groups_txt
         res = fv.submit('preview')
         assert not 'Error' in res, res
 
         # Check preview is correct
         res1 = str(res).replace('</strong>', '')
         assert 'Preview' in res
-#        import pdb; pdb.set_trace()
         assert 'Title: %s' % str(title) in res1, res
         assert 'Version: %s' % str(version) in res1, res
         assert 'Url: <a href="%s">' % str(url) in res1, res
@@ -397,6 +433,10 @@ class TestPackageControllerNew(TestController2):
         tags_html_list = ['        <a href="/tag/read/%s">%s</a>' % (str(tag), str(tag)) for tag in tags]
         tags_html = '\n'.join(tags_html_list)
         assert 'Tags:\n%s' % tags_html in res1, res1 + tags_html
+##        groups_html_list = ['        <a href="/group/read/%s">%s</a>' % (str(group), str(group)) for group in groups]
+##        groups_html = '\n'.join(groups_html_list)
+        groups_html = ''
+        assert 'Groups:\n%s' % groups_html in res1, res1 + groups_html
 
         # Check form is correctly filled
         assert 'name="Package--title" size="40" type="text" value="%s"' % title in res, res
@@ -407,6 +447,7 @@ class TestPackageControllerNew(TestController2):
         license_html = '<option value="%s" selected>%s' % (license_id, license)
         assert license_html in res, str(res) + license_html
         assert 'name="Package--tags" size="60" type="text" value="%s"' % tags_txt in res, res
+##        assert 'name="Package--groups" size="60" type="text" value="%s"' % groups_txt in res, res
 
         res = fv.submit('commit')
         assert not 'Error' in res, res
@@ -421,6 +462,7 @@ class TestPackageControllerNew(TestController2):
         assert '<p>%s' % str(notes) in res1, res1
         assert 'Licenses: %s' % str(license) in res1, res1
         assert 'Tags:\n%s' % str(tags_html) in res1, res1 + tags_html
+        assert 'Groups:\n%s' % str(groups_html) in res1, res1 + groups_html
         pkg = model.Package.by_name(name)
         assert pkg.name == name
         assert pkg.title == title
@@ -431,6 +473,8 @@ class TestPackageControllerNew(TestController2):
         assert pkg.license_id == license_id
         saved_tagnames = [str(tag.name) for tag in pkg.tags]
         assert saved_tagnames == list(tags)
+        saved_groupnames = [str(group.name) for group in pkg.groups]
+##        assert saved_groupnames == list(groups)
 
         # for some reason environ['REMOTE_ADDR'] is undefined
         rev = model.Revision.youngest()
@@ -478,6 +522,7 @@ class TestPackageControllerNew(TestController2):
         fv[prefix + 'name'] = 'a'
         fv[prefix + 'title'] = 'A Test Package'
         fv[prefix + 'tags'] = 'test tags'
+#        fv[prefix + 'groups'] = 'test groups'
         res = fv.submit('commit')
         assert 'Error' in res, res
         assert 'Package name must be at least 2 characters long' in res, res
@@ -487,4 +532,5 @@ class TestPackageControllerNew(TestController2):
         # Ensure fields are prefilled
         assert 'value="A Test Package"' in res, res
         assert 'value="test tags"' in res, res
+#        assert 'value="test groups"' in res, res
 

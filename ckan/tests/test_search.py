@@ -207,5 +207,13 @@ class TestSearch(object):
         count = result['count']
         assert len(pkgs) == 2, pkgs
         # TODO fix this
-
         
+    def test_groups(self):
+        result = Search().search(u'groups:random')
+        assert self._pkg_names(result) == '', self._pkg_names(result)
+
+        result = Search().search(u'groups:ukgov')
+        assert result['count'] == 4, self._pkg_names(result)
+
+        result = Search().search(u'groups:ukgov tags:us')
+        assert result['count'] == 2, self._pkg_names(result)

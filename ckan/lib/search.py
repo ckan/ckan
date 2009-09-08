@@ -35,7 +35,7 @@ class SearchOptions:
             if k in ['offset', 'limit']:
                 v = int(v)
             # Multiple tags params are added in list
-            if hasattr(self, k) and k=='tags':
+            if hasattr(self, k) and k in ['tags', 'groups']:
                 existing_val = getattr(self, k)
                 if type(existing_val) == type([]):
                     v = existing_val + [v]
@@ -47,7 +47,7 @@ class SearchOptions:
         return repr(self.__dict__)
 
 class Search:
-    _tokens = [ 'name', 'title', 'notes', 'tags', 'author', 'maintainer'] 
+    _tokens = [ 'name', 'title', 'notes', 'tags', 'groups', 'author', 'maintainer'] 
     _open_licenses = None
 
     def search(self, query_string):
@@ -70,6 +70,8 @@ class Search:
             query = self._build_package_query(general_terms, field_specific_terms)
         elif self._options.entity == 'tag':
             query = self._build_tags_query(general_terms)
+        elif self._options.entity == 'group':
+            query = self._build_groups_query(general_terms)
         else:
             # error
             pass
@@ -156,11 +158,11 @@ class Search:
             
         # Filter by field_specific_terms
         for field, terms in field_specific_terms.items():
-            if field == 'tags':
+            if field in ('tags', 'groups'):
                 if type(terms) in (type(''), type(u'')):
-                    query = self._filter_by_tags(query, terms.split())
+                    query = self._filter_by_tags_or_groups(field, query, terms.split())
                 else:
-                    query = self._filter_by_tags(query, terms)
+                    query = self._filter_by_tags_or_groups(field, query, terms)
             else:
                 for term in terms:
                     model_attr = getattr(model.Package, field)
@@ -188,6 +190,12 @@ class Search:
             query = query.filter(model.Tag.name.contains(term.lower()))
         return query
 
+    def _build_groups_query(self, general_terms):
+        query = model.Group.query
+        for term in general_terms:
+            query = query.filter(model.Group.name.contains(term.lower()))
+        return query
+
     def _run_query(self, query):
         # Run the query
         self._results['count'] = query.count()
@@ -197,19 +205,30 @@ class Search:
 
         self._results['results'] = query.all()
 
-    def _filter_by_tags(self, query, taglist):
-        for name in taglist:
-            tag = model.Tag.by_name(name.strip())
-            if tag:
-                tag_id = tag.id
-                # need to keep joining for us 
-                # tag should be active hence state_id requirement
-                query = query.join('package_tags', aliased=True).filter(sqlalchemy.and_(
-                    model.PackageTag.state_id==1,
-                    model.PackageTag.tag_id==tag_id))
-            else:
-                # unknown tag, so torpedo search
-                query = query.filter(model.PackageTag.tag_id==-1)
+    def _filter_by_tags_or_groups(self, field, query, value_list):
+        for name in value_list:
+            if field == 'tags':
+                tag = model.Tag.by_name(name.strip())
+                if tag:
+                    tag_id = tag.id
+                    # need to keep joining for each filter
+                    # tag should be active hence state_id requirement
+                    query = query.join('package_tags', aliased=True).filter(sqlalchemy.and_(
+                        model.PackageTag.state_id==1,
+                        model.PackageTag.tag_id==tag_id))
+                else:
+                    # unknown tag, so torpedo search
+                    query = query.filter(model.PackageTag.tag_id==-1)
+            elif field == 'groups':
+                group = model.Group.by_name(name.strip())
+                if group:
+                    group_id = group.id
+                    # need to keep joining for each filter
+                    query = query.join('groups', aliased=True).filter(
+                        model.Group.id==group_id)
+                else:
+                    # unknown group, so torpedo search
+                    query = query.filter(model.Group.id==u'-1')
                 
         return query
         
