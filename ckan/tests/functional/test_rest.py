@@ -366,4 +366,16 @@ class TestSearch(TestController2):
         res = self.app.get(offset, status=200)
         res_dict = simplejson.loads(res.body)
         assert res_dict['count'] == 2, res_dict
+
+    def test10_multiple_tags_with_plus(self):
+        offset = self.base_url + '?tags=tolstoy+russian&all_fields=1'
+        res = self.app.get(offset, status=200)
+        res_dict = simplejson.loads(res.body)
+        assert res_dict['count'] == 1, res_dict
+
+    def test10_multiple_tags_with_ampersand(self):
+        offset = self.base_url + '?tags=tolstoy&tags=russian&all_fields=1'
+        res = self.app.get(offset, status=200)
+        res_dict = simplejson.loads(res.body)
+        assert res_dict['count'] == 1, res_dict
         

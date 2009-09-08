@@ -31,6 +31,13 @@ class SearchOptions:
             # Ensure boolean fields are boolean
             if k in ['filter_by_downloadable', 'filter_by_openness', 'search_notes', 'all_fields']:
                 v = v == 1 or v
+            # Multiple tags params are added in list
+            if hasattr(self, k) and k=='tags':
+                existing_val = getattr(self, k)
+                if type(existing_val) == type([]):
+                    v = existing_val.append(v)
+                else:
+                    v = [existing_val, v]
             setattr(self, k, v)
 
     def __str__(self):
@@ -148,7 +155,7 @@ class Search:
         for field, terms in field_specific_terms.items():
             if field == 'tags':
                 if type(terms) in (type(''), type(u'')):
-                    query = self._filter_by_tags(query, [terms])
+                    query = self._filter_by_tags(query, terms.split())
                 else:
                     query = self._filter_by_tags(query, terms)
             else:
