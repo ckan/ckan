@@ -38,7 +38,7 @@ class SearchOptions:
             if hasattr(self, k) and k=='tags':
                 existing_val = getattr(self, k)
                 if type(existing_val) == type([]):
-                    v = existing_val.append(v)
+                    v = existing_val + [v]
                 else:
                     v = [existing_val, v]
             setattr(self, k, v)
