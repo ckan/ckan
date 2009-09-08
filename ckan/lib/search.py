@@ -31,6 +31,9 @@ class SearchOptions:
             # Ensure boolean fields are boolean
             if k in ['filter_by_downloadable', 'filter_by_openness', 'search_notes', 'all_fields']:
                 v = v == 1 or v
+            # Ensure integer fields are integer
+            if k in ['offset', 'limit']:
+                v = int(v)
             # Multiple tags params are added in list
             if hasattr(self, k) and k=='tags':
                 existing_val = getattr(self, k)

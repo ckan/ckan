@@ -378,4 +378,21 @@ class TestSearch(TestController2):
         res = self.app.get(offset, status=200)
         res_dict = simplejson.loads(res.body)
         assert res_dict['count'] == 1, res_dict
+
+    def test11_pagination_limit(self):
+        offset = self.base_url + '?all_fields=1&tags=russian&limit=1'
+        res = self.app.get(offset, status=200)
+        res_dict = simplejson.loads(res.body)
+        assert res_dict['count'] == 2, res_dict
+        assert len(res_dict['results']) == 1, res_dict
+        assert res_dict['results'][0]['name'] == 'annakarenina', res_dict['results'][0]['name']
+
+    def test11_pagination_offset_limit(self):
+        offset = self.base_url + '?all_fields=1&tags=russian&offset=1&limit=1'
+        res = self.app.get(offset, status=200)
+        res_dict = simplejson.loads(res.body)
+        assert res_dict['count'] == 2, res_dict
+        assert len(res_dict['results']) == 1, res_dict
+        assert res_dict['results'][0]['name'] == 'warandpeace', res_dict['results'][0]['name']
+
         
