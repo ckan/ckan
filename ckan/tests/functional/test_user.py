@@ -41,14 +41,14 @@ class TestUserController(TestController2):
 
         offset = url_for(controller='user', action='login')
         res = self.app.get(offset, extra_environ=dict(REMOTE_USER='okfntest'))
-        user = model.User.by_name('okfntest')
+        user = model.User.by_name(u'okfntest')
         assert user
         assert len(user.apikey) == 36
 
 
     def test_apikey(self):
         # not_logged_in
-        user = model.User.by_name('okfntest')
+        user = model.User.by_name(u'okfntest')
         if user:
             user.purge()
             model.Session.commit()
@@ -111,8 +111,8 @@ class TestUserController(TestController2):
         # extra_environ, see:
         # http://pythonpaste.org/webtest/#modifying-the-environment-simulating-authentication
         assert 'Please Sign In' in res
-        username = 'okfntest'
-        password = 'okfntest'
+        username = u'okfntest'
+        password = u'okfntest'
         fv = res.forms[0]
         fv['username'] = username
         fv['password'] = password
@@ -123,14 +123,14 @@ class TestUserController(TestController2):
         # this requires a valid account on some openid provider
         # (or for us to stub an open_id provider ...)
         assert 'Please Sign In' in res
-        username = 'http://okfntest.myopenid.com'
+        username = u'http://okfntest.myopenid.com'
         fv = res.forms[0]
         fv['passurl'] =  username
         web.submit()
         web.code(200)
         assert 'You must sign in to authenticate to' in res
         assert username in res
-        fv['password'] =  'okfntest'
+        fv['password'] =  u'okfntest'
         res = fv.submit()
         print str(res)
         assert 'Please carefully verify whether you wish to trust' in res

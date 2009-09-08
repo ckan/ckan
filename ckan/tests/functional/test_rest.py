@@ -28,7 +28,7 @@ class TestRestController(TestController2):
             'url': u'http://blahblahblah.mydomain',
             'download_url': u'http://blahblahblah.mydomain',
             'tags': u'russion novel',
-            'license_id': '4',
+            'license_id': u'4',
         }
         self.random_name = u'http://myrandom.openidservice.org/'
         self.user = model.User(name=self.random_name)
