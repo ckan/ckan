@@ -13,7 +13,7 @@ class TagController(CkanBaseController):
             abort(404)
         return render('tag/read')
 
-    def list(self, id):
+    def list(self, id=0):
         return self._paginate_list('tag', id, 'tag/list')
 
     def search(self):

@@ -39,6 +39,13 @@ def make_map():
     map.connect('api/rest/:register/:id', controller='rest', action='delete',
         conditions=dict(method=['DELETE']))
 
+    map.connect('package', controller='package', action='index')
+    map.connect('package/search', controller='package', action='search')
+    map.connect('package/list', controller='package', action='list')
+    map.connect('package/new', controller='package', action='new')
+    map.connect('package/:id', controller='package', action='read')
+    map.connect('group', controller='group', action='list')
+    map.connect('group/:id', controller='group', action='read')
     map.connect(':controller/:action/:id')
     map.connect('*url', controller='template', action='view')
 

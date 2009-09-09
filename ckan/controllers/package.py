@@ -18,7 +18,7 @@ class PackageController(CkanBaseController):
         c.package_count = model.Package.query.count()
         return render('package/index')
 
-    def list(self, id, format='html'):
+    def list(self, id=0, format='html'):
         c.format = format
         return self._paginate_list('package', id, 'package/list',
             ['name', 'title'])

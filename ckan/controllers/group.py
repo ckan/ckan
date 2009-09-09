@@ -7,7 +7,7 @@ class GroupController(CkanBaseController):
     def index(self):
         h.redirect_to(action='list')
 
-    def list(self, id):
+    def list(self, id=0):
         return self._paginate_list('group', id, 'group/list', ['name', 'title'])
 
     def read(self, id):
