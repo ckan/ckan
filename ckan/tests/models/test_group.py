@@ -24,24 +24,19 @@ class TestGroup(object):
         assert grp.packages == []
 
     def test_2_add_packages(self):
-        self.russian_group = model.Group(name='russian',
+        self.russian_group = model.Group(name=u'russian',
                                          title=u'Russian Group',
                              description=u'This is the russian group')
         anna = model.Package.by_name(u'annakarenina')
         war = model.Package.by_name(u'warandpeace')
-        assert anna
-        assert war
         self.russian_group.packages = [anna, war]
         
         model.repo.commit_and_remove()
         
         grp = model.Group.by_name(u'russian')
-        assert grp
         assert grp.title == u'Russian Group'
         anna = model.Package.by_name(u'annakarenina')
         war = model.Package.by_name(u'warandpeace')
-        assert anna
-        assert war
-        assert grp.packages == [anna, war], grp.packages
+        assert set(grp.packages) == set([anna, war]), grp.packages
         assert grp in anna.groups
 
