@@ -1,3 +1,5 @@
+import datetime
+
 from meta import *
 
 import vdm.sqlalchemy
@@ -94,7 +96,10 @@ class DomainObject(object):
         _dict = {}
         table = orm.class_mapper(self.__class__).mapped_table
         for col in table.c:
-            _dict[col.name] = getattr(self, col.name)
+            val = getattr(self, col.name)
+            if isinstance(val, datetime.date):
+                val = str(val)
+            _dict[col.name] = val
         return _dict
 
     def __str__(self):
@@ -155,6 +160,16 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             return True
         return False
 
+    def as_dict(self):
+        _dict = DomainObject.as_dict(self)
+        _dict['tags'] = [tag.name for tag in self.tags]
+        _dict['groups'] = [group.name for group in self.groups]
+        if self.license_id > 0:
+            _dict['license'] = self.license.name
+        else:
+            _dict['license'] = ''
+        return _dict
+        
 
 class Tag(DomainObject):
     def __init__(self, name=''):

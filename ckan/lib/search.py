@@ -244,11 +244,6 @@ class Search:
                 results = []
                 for entity in self._results['results']:
                     result = entity.as_dict()
-                    if entity.license_id > 0:
-                        result['license'] = entity.license.name
-                    else:
-                        result['license'] = ''
-                    result['tags'] = [tag.name for tag in entity.tags]
                     results.append(result)
                 self._results['results'] = results
             else:

@@ -4,6 +4,9 @@ import simplejson
 import webhelpers
 
 ACCESS_DENIED = [401,403]
+def get_license_name(id):
+    return model.Session.get(model.License, id).name
+
 
 class TestRestController(TestController2):
 
@@ -86,6 +89,11 @@ class TestRestController(TestController2):
         res = self.app.get(offset, status=[200])
         assert 'annakarenina' in res, res
         assert '"license_id": 9' in res, res
+        expected_license = '"license": "%s"' % get_license_name(9)
+        assert expected_license in res, repr(res) + repr(expected_license)
+        assert 'russian' in res, res
+        assert 'tolstoy' in res, res
+        
 
     def test_04_get_tag(self):
         # TODO document this one

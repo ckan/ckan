@@ -1,5 +1,3 @@
-import datetime
-
 import sqlalchemy.orm
 import simplejson
 
@@ -32,8 +30,7 @@ class RestController(CkanBaseController):
             if obj is None:
                 response.status_int = 404
                 return ''
-            _dict = self._convert_object_to_dict(obj)
-            _dict['tags'] = [tag.name for tag in obj.tags]
+            _dict = obj.as_dict()
             #TODO check it's not none
             return self._finish_ok(_dict)
         elif register == u'tag':
@@ -72,7 +69,7 @@ class RestController(CkanBaseController):
             model.Session.rollback()
             raise
         obj = fs.model
-        return self._finish_ok(self._convert_object_to_dict(obj))
+        return self._finish_ok(obj.as_dict())
             
     def update(self, register, id):
         if not self._check_access():
@@ -110,7 +107,7 @@ class RestController(CkanBaseController):
             else:
                 raise
         obj = fs.model
-        return self._finish_ok(self._convert_object_to_dict(obj))
+        return self._finish_ok(obj.as_dict())
 
     def delete(self, register, id):
         if not self._check_access():
@@ -171,30 +168,6 @@ class RestController(CkanBaseController):
             raise Exception, msg
         request_data = simplejson.loads(request_data)
         return request_data
-
-    def _convert_object_to_dict(self, obj):
-        out = {}
-        table = sqlalchemy.orm.class_mapper(obj).mapped_table
-        for key in table.c.keys():
-            val  = getattr(obj, key)
-            if isinstance(val, datetime.date):
-                val = str(val)
-            out[key] = val
-        return out
-
-    def _convert_dict_to_object(self, _dict, _class=model.Package):
-        tmp_dict = {}
-        for key, value in _dict.items():
-            tmp_dict[str(key)] = value
-
-        if 'name' in tmp_dict:
-            obj = _class.by_name(tmp_dict['name'])
-        else:
-            obj = _class()
-        for key, value in tmp_dict.items():
-            setattr(obj, key, value)
-
-        return obj
         
     def _finish_ok(self, response_data=None):
         response.status_int = 200
