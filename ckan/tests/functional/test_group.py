@@ -15,7 +15,6 @@ class TestGroup(TestController2):
     def test_index(self):
         offset = url_for(controller='group')
         res = self.app.get(offset)
-        res = res.follow()
         assert 'Groups - List' in res, res
         # rest is same as list
 

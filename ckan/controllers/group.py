@@ -5,7 +5,7 @@ from simplejson import dumps
 class GroupController(CkanBaseController):
 
     def index(self):
-        h.redirect_to(action='list')
+        return self.list()
 
     def list(self, id=0):
         return self._paginate_list('group', id, 'group/list', ['name', 'title'])
