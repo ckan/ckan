@@ -36,7 +36,9 @@ class Repository(vdm.sqlalchemy.Repository):
         self.metadata.create_all(bind=self.metadata.bind)    
         # creation this way worked fine for normal use but failed on test with
         # OperationalError: (OperationalError) no such table: xxx
-#        self.upgrade_db()
+        # 2009-09-11 interesting all the tests will work if you run them after
+        # doing paster db clean && paster db upgrade !
+        # self.upgrade_db()
         self.setup_migration_version_control(self.latest_migration_version())
 
     def latest_migration_version(self):
