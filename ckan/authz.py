@@ -1,13 +1,6 @@
-class Action(object):
-    
-    def __init__(self, name):
-        self.name = name
+import sqlalchemy as sa
 
-actions = {
-        'revision-purge' : Action('revision-purge'),
-        'package-update' : Action('package-update'),
-        'package-create' : Action('package-create'),
-        }
+import ckan.model as model
 
 class Blacklister(object):
     '''Blacklist by username.
@@ -15,7 +8,8 @@ class Blacklister(object):
     NB: username will be IP address if user not logged in.
     '''
 
-    def is_blacklisted(self, username):
+    @staticmethod
+    def is_blacklisted(username):
         from pylons import config
         blacklist_string = config.get('auth.blacklist', '')
         blacklisted = blacklist_string.split()
@@ -26,26 +20,90 @@ class Blacklister(object):
 
 
 class Authorizer(object):
-    '''A very basic access controller.
-
-    In future expand this to have roles, permissions etc.
+    '''An access controller.
     '''
-    blacklister = Blacklister()
+    blacklister = Blacklister
 
-    def is_authorized(self, username, action):
+    @classmethod
+    def is_authorized(cls, username, action, domain_object):
+        assert isinstance(username, unicode)
+        assert model.Action.is_valid(action), action
+        assert isinstance(domain_object, model.DomainObject)
+
         from pylons import config
-        # admins can do everything
-        admins_string = config.get('auth.admins', '')
+        # sysadmins can do everything
+        admins_string = config.get('auth.sysadmins', '')
         admins = admins_string.split()
         if username in admins:
             return True
 
-        if action.name in [ 'package-update', 'package-create']:
-            if self.blacklister.is_blacklisted(username):
+        if action is not model.Action.READ:
+            if cls.blacklister.is_blacklisted(username):
                 return False
-            else:
+
+        roles = cls.get_roles(username, domain_object)
+        if not roles:
+            print "No roles"
+            return False
+
+        print '%s has roles %s on object %s. Checking permission to %s' % (username, roles, domain_object.name, action)
+        if model.Role.ADMIN in roles:
+            print "Admin"
+            return True
+        for role in roles:
+            action_query = model.RoleAction.query.filter_by(role=role,
+                                                            action=action)
+            if action_query.count() > 0:
+                print "Action query", action_query.all()
                 return True
 
         return False
 
+    @classmethod
+    def get_package_roles(cls, domain_obj):
+        # returns the roles for all users on the specified domain object
+        assert isinstance(domain_obj, model.Package)
+        q = cls._get_package_roles_query(domain_obj)
+        prs = []
+        for pr in q.all():
+            user = model.Session.get(model.User, pr.user_id)
+            prs.append('%s : %s' % (user.name, pr.role))
+        return '%s roles:\n' % domain_obj.name + '\n'.join(prs)        
 
+    @classmethod
+    def get_roles(cls, username, domain_obj):
+        # returns the roles that the specified user has on the
+        # specified domain object
+        assert isinstance(username, unicode), repr(username)
+        assert isinstance(domain_obj, model.Package)
+
+        # get roles for this package
+        q = cls._get_package_roles_query(domain_obj)
+
+        # filter by user and pseudo-users
+        user = model.User.by_name(username)
+        visitor = model.User.by_name(model.PSEUDO_USER__VISITOR)
+        logged_in = model.User.by_name(model.PSEUDO_USER__LOGGED_IN)
+        if username == model.PSEUDO_USER__VISITOR or not user:
+            # visitor (not logged in)
+            q = q.filter(model.UserObjectRole.user_id==visitor.id)
+        else:
+            # logged in user
+            q = q.filter(sa.or_(
+                model.UserObjectRole.user_id==user.id,
+                model.UserObjectRole.user_id==logged_in.id,
+                model.UserObjectRole.user_id==visitor.id,
+                ))
+
+        prs = q.all()
+        return [pr.role for pr in prs]
+
+    @classmethod
+    def _get_package_roles_query(cls, domain_obj):
+        assert isinstance(domain_obj, model.Package)
+
+        if isinstance(domain_obj, model.Package):
+            q = model.PackageRole.query.filter_by(package_id=domain_obj.id)
+        else:
+            raise NotImplementedError()
+        return q        

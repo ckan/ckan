@@ -1,6 +1,7 @@
 from core import *
 from user import user_table, User
 from group import group_table, Group
+from authz import *
 from extras import PackageExtra, package_extra_table
 
 from licenses import LicenseList
@@ -23,6 +24,7 @@ class Repository(vdm.sqlalchemy.Repository):
         for name in license_names:
             if not License.by_name(name):
                 License(name=name)
+        setup_default_role_actions()
         if Revision.query.count() == 0:
             rev = Revision()
             rev.author = 'system'

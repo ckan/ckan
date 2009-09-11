@@ -160,6 +160,7 @@ class CreateTestData(CkanCommand):
         pkg2.title = u'A Wonderful Story'
         # api key
         model.User(name=u'tester', apikey=u'tester')
+        # group
         david = model.Group(name=u'david',
                              title=u'Dave\'s books',
                              description=u'These are books that David likes.')
@@ -168,6 +169,13 @@ class CreateTestData(CkanCommand):
                              description=u'Roger likes these books.')
         david.packages = [pkg1, pkg2]
         roger.packages = [pkg1]
+        # authz
+        joeadmin = model.User(name=u'joeadmin')
+        annafan = model.User(name=u'annafan')
+        russianfan = model.User(name=u'russianfan')
+        testsysadmin = model.User(name=u'testsysadmin')
+        
+        
         model.Session.commit()
         model.Session.remove()
     
