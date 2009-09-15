@@ -57,6 +57,7 @@ class TestCreation(object):
                                               action=action)
         assert len(ra.all()) == 1, ra.all()
 
+
 class TestDefaultRoles(object):
     @classmethod
     def setup_class(self):
@@ -142,13 +143,20 @@ class TestUsage(object):
 
     @classmethod
     def setup_class(self):
-        CreateTestData.create()
-        model.Session.remove()
         self.authorizer = authz.Authorizer()
 
         self.admin_role = model.Role.ADMIN
         self.editor_role = model.Role.EDITOR
         self.reader_role = model.Role.READER
+
+        model.repo.new_revision()
+        anna = model.Package(name=u'annakarenina')
+        war = model.Package(name=u'warandpeace')
+        mradmin = model.User(name=u'mradmin')
+        mreditor = model.User(name=u'mreditor')
+        mrreader = model.User(name=u'mrreader')
+        tester = model.User(name=u'tester')
+        model.repo.commit_and_remove()
 
         anna = model.Package.by_name(u'annakarenina')
         tester = model.User.by_name(u'tester')
@@ -167,10 +175,6 @@ class TestUsage(object):
                               context=self.context,
                               action=model.Action.READ,
                               )
-        anna = model.Package.by_name(u'annakarenina')
-        mradmin = model.User(name=u'mradmin')
-        mreditor = model.User(name=u'mreditor')
-        mrreader = model.User(name=u'mrreader')
         model.repo.commit_and_remove()
 
         mradmin = model.User.by_name(u'mradmin')

@@ -108,8 +108,8 @@ def add_user_to_role(user, role, domain_obj):
 
     if isinstance(domain_obj, Package):
         pr = PackageRole(role=role,
-                         package=domain_obj,
-                         user=user)
+                         package_id=domain_obj.id,
+                         user_id=user.id)
     else:
         raise NotImplementedError()
 
@@ -126,11 +126,12 @@ def setup_user_roles(domain_object, visitor_roles, logged_in_roles, admins=[]):
     for role in logged_in_roles:
         add_user_to_role(logged_in, role, domain_object)
     for admin in admins:
-        assert isinstance(admin, User), admin
-        if admin.name in (PSEUDO_USER__LOGGED_IN, PSEUDO_USER__VISITOR):
-            raise NotRealUserException('Invalid user for domain object admin %r' % admin.name)
-        for role in admin_roles:
-            add_user_to_role(admin, role, domain_object)
+        if admin is not None:
+            assert isinstance(admin, User), admin
+            if admin.name in (PSEUDO_USER__LOGGED_IN, PSEUDO_USER__VISITOR):
+                raise NotRealUserException('Invalid user for domain object admin %r' % admin.name)
+            for role in admin_roles:
+                add_user_to_role(admin, role, domain_object)
 
 def setup_default_user_roles(domain_object, admins=[]):
     # sets up visitor and logged-in user and admins if provided

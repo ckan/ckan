@@ -6,6 +6,7 @@ from ckan.lib.base import *
 from ckan.controllers.base import CkanBaseController
 from ckan.lib.search import Search, SearchOptions
 import ckan.forms
+import ckan.authz
 
 logger = logging.getLogger('ckan.controllers')
 
@@ -51,6 +52,11 @@ class PackageController(CkanBaseController):
         c.pkg = model.Package.by_name(id)
         if c.pkg is None:
             abort(404, '404 Not Found')
+
+        am_authz = ckan.authz.Authorizer().am_authorized(c, model.Action.READ, c.pkg)
+        if not am_authz:
+            abort(401, 'Unauthorized to read %s' % id)        
+            
         fs = ckan.forms.package_fs.bind(c.pkg)
         c.content = genshi.HTML(self._render_package(fs))
         return render('package/read')
@@ -70,8 +76,18 @@ class PackageController(CkanBaseController):
             record = model.Package
             fs = ckan.forms.package_fs.bind(record, data=request.params or None)
             try:
-                self._update(fs, id, record.id)
+                self._update(fs, id, record.id)                
                 c.pkgname = fs.name.value
+
+                # TODO replace default user roles when we have it in the wui
+                pkg = model.Package.by_name(c.pkgname)
+                admins = []
+                if c.user:
+                    user = model.User.by_name(c.user)
+                    if user:
+                        admins = [user]
+                model.setup_default_user_roles(pkg, admins)
+                
                 h.redirect_to(action='read', id=c.pkgname)
             except ValidationException, error:
                 c.error, fs = error.args
@@ -94,11 +110,17 @@ class PackageController(CkanBaseController):
         # TODO: refactor to avoid duplication between here and new
         c.has_autocomplete = True
         c.error = ''
+
+        pkg = model.Package.by_name(id)
+        if pkg is None:
+            abort(404, '404 Not Found')
+        am_authz = ckan.authz.Authorizer().am_authorized(c, model.Action.EDIT, pkg)
+        if not am_authz:
+            abort(401, 'User %r unauthorized to edit %s' % (c.user, id))
+
         if not 'commit' in request.params and not 'preview' in request.params:
             # edit
-            c.pkg = model.Package.by_name(id)
-            if c.pkg is None:
-                abort(404, '404 Not Found')
+            c.pkg = pkg
                 
             fs = ckan.forms.package_fs.bind(c.pkg)
             c.form = self._render_edit_form(fs)
@@ -106,12 +128,11 @@ class PackageController(CkanBaseController):
         elif request.params.has_key('commit'):
             # id is the name (pre-edited state)
             c.pkgname = id
-            record = model.Package.by_name(c.pkgname)
             params = dict(request.params) # needed because request is nested
                                           # multidict which is read only
-            c.fs = ckan.forms.package_fs.bind(record, data=params or None)
+            c.fs = ckan.forms.package_fs.bind(pkg, data=params or None)
             try:
-                self._update(c.fs, id, record.id)
+                self._update(c.fs, id, pkg.id)
 
                 # do not use pkgname from id as may have changed
                 c.pkgname = c.fs.name.value
@@ -122,8 +143,7 @@ class PackageController(CkanBaseController):
                 return render('package/edit')
         else: # Must be preview
             c.pkgname = id
-            record = model.Package.by_name(c.pkgname)
-            fs = ckan.forms.package_fs.bind(record, data=request.params)
+            fs = ckan.forms.package_fs.bind(pkg, data=request.params)
             c.form = self._render_edit_form(fs)
             c.preview = genshi.HTML(self._render_package(fs))
             return render('package/edit')

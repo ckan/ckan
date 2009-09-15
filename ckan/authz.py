@@ -25,8 +25,15 @@ class Authorizer(object):
     blacklister = Blacklister
 
     @classmethod
+    def am_authorized(cls, c, action, domain_object):
+        username = c.user or c.author
+        return cls.is_authorized(username, action, domain_object)
+
+    @classmethod
     def is_authorized(cls, username, action, domain_object):
-        assert isinstance(username, unicode)
+        if isinstance(username, str):
+            username = username.decode('utf8')
+        assert isinstance(username, unicode), type(username)
         assert model.Action.is_valid(action), action
         assert isinstance(domain_object, model.DomainObject)
 
@@ -43,18 +50,18 @@ class Authorizer(object):
 
         roles = cls.get_roles(username, domain_object)
         if not roles:
-            print "No roles"
+            # print "No roles"
             return False
 
-        print '%s has roles %s on object %s. Checking permission to %s' % (username, roles, domain_object.name, action)
+        # print '%r has roles %s on object %s. Checking permission to %s' % (username, roles, domain_object.name, action)
         if model.Role.ADMIN in roles:
-            print "Admin"
+            # print "Admin"
             return True
         for role in roles:
             action_query = model.RoleAction.query.filter_by(role=role,
                                                             action=action)
             if action_query.count() > 0:
-                print "Action query", action_query.all()
+                # print "Action query", action_query.all()
                 return True
 
         return False

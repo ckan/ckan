@@ -174,10 +174,14 @@ class CreateTestData(CkanCommand):
         annafan = model.User(name=u'annafan')
         russianfan = model.User(name=u'russianfan')
         testsysadmin = model.User(name=u'testsysadmin')
+        model.repo.commit_and_remove()
         
+        anna = model.Package.by_name(u'annakarenina')
+        war = model.Package.by_name(u'warandpeace')
+        model.setup_default_user_roles(anna)
+        model.setup_default_user_roles(war)
         
-        model.Session.commit()
-        model.Session.remove()
+        model.repo.commit_and_remove()
     
     @classmethod
     def delete(self):

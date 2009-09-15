@@ -20,6 +20,7 @@ class CkanBaseController(BaseController):
             c.remote_addr = request.environ.get('HTTP_X_FORWARDED_FOR',
                     '127.0.0.1')
         if c.user:
+            c.user = c.user.decode('utf8')
             c.author = c.user
         else:
             c.author = c.remote_addr

@@ -120,14 +120,15 @@ class TestPackageControllerEdit(TestController2):
     def setUp(self):
         rev = model.repo.new_revision()
         self.editpkg_name = u'editpkgtest'
-        self.editpkg = model.Package(name=self.editpkg_name)
-        self.editpkg.url = u'editpkgurl.com'
-        self.editpkg.notes = u'Some notes'
+        editpkg = model.Package(name=self.editpkg_name)
+        editpkg.url = u'editpkgurl.com'
+        editpkg.notes = u'Some notes'
+        model.repo.commit_and_remove()
 
-        model.Session.commit()
+        self.editpkg = model.Package.by_name(self.editpkg_name)
+        model.setup_default_user_roles(self.editpkg)
         self.pkgid = self.editpkg.id
-        model.Session.remove()
-        offset = url_for(controller='package', action='edit', id=self.editpkg.name)
+        offset = url_for(controller='package', action='edit', id=self.editpkg_name)
         self.res = self.app.get(offset)
         self.newtagname = u'russian'
 
@@ -252,13 +253,14 @@ Hello world.
 ##        pkg.groups = [model.Group(name=u'alpha'), model.Group(name=u'beta')]
 ##        groups_txt = ' '.join([group.name for group in pkg.group])
         pkg.license = model.License.byName(u'OKD Compliant::Other')
-        
-        model.Session.commit()
-#        model.Session.remove()
+        model.repo.commit_and_remove()
+
+        pkg = model.Package.by_name(pkg_name)
+        model.setup_default_user_roles(pkg)
 
         offset = url_for(controller='package', action='edit', id=pkg.name)
-        res = self.app.get(offset)
-        assert 'Packages - Edit' in res
+        res = self.app.get(offset, status=200)
+        assert 'Packages - Edit' in res, res
         
         # Check form is correctly filled
         prefix = 'Package-%s-' % pkg.id
