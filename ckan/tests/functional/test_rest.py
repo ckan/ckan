@@ -18,11 +18,16 @@ class TestRestController(TestController2):
             pass
         model.Session.remove()
         CreateTestData.create()
+        model.Package(name=u'--')
+        rev = model.repo.new_revision()
+        model.repo.commit_and_remove()
+
 
     @classmethod
     def teardown_class(self):
         model.Session.remove()
-        CreateTestData.delete()
+        model.repo.rebuild_db()
+        model.Session.remove()
 
     def setup(self):
         self.testvalues = {
@@ -59,15 +64,14 @@ class TestRestController(TestController2):
 
     def test_01_entity_put_noauth(self):
         # Test Packages Entity Put 401.
-        offset = '/api/rest/package/%s' % self.testvalues['name']
+        offset = '/api/rest/package/%s' % u'--'
         postparams = '%s=1' % simplejson.dumps(self.testvalues)
         res = self.app.post(offset, params=postparams, status=ACCESS_DENIED)
 
     def test_01_entity_delete_noauth(self):
         # Test Packages Entity Delete 401.
-        offset = '/api/rest/package/%s' % self.testvalues['name']
+        offset = '/api/rest/package/%s' % u'annakarenina'
         res = self.app.delete(offset, status=ACCESS_DENIED)
-        # Todo: Figure out authentication for REST API.
 
     def test_02_list_package(self):
         # Test Packages Register Get 200.
@@ -157,6 +161,11 @@ class TestRestController(TestController2):
             pkg.name = self.testvalues['name']
             rev = model.repo.new_revision()
             model.Session.commit()
+
+            pkg = model.Package.by_name(self.testvalues['name'])
+            model.setup_default_user_roles(pkg, [self.user])
+            rev = model.repo.new_revision()
+            model.repo.commit_and_remove()
         assert model.Package.by_name(self.testvalues['name'])
 
         # edit it
@@ -176,6 +185,11 @@ class TestRestController(TestController2):
             pkg.name = self.testvalues['name']
             rev = model.repo.new_revision()
             model.Session.commit()
+
+            pkg = model.Package.by_name(self.testvalues['name'])
+            model.setup_default_user_roles(pkg, [self.user])
+            rev = model.repo.new_revision()
+            model.repo.commit_and_remove()
         assert model.Package.by_name(self.testvalues['name'])
         
         # create a package with name 'dupname'
@@ -203,11 +217,17 @@ class TestRestController(TestController2):
             pkg = model.Package()
             pkg.name = self.testvalues['name']
             rev = model.repo.new_revision()
-            model.Session.commit()
+            model.repo.commit_and_remove()
+
+            pkg = model.Package.by_name(self.testvalues['name'])
+            model.setup_default_user_roles(pkg, [self.user])
+            rev = model.repo.new_revision()
+            model.repo.commit_and_remove()
         assert model.Package.by_name(self.testvalues['name'])
 
         # delete it
         offset = '/api/rest/package/%s' % self.testvalues['name']
+        rev = model.repo.new_revision()
         res = self.app.delete(offset, status=[200],
                 extra_environ=self.extra_environ)
         pkg = model.Package.by_name(self.testvalues['name'])
@@ -409,4 +429,3 @@ class TestSearch(TestController2):
         assert len(res_dict['results']) == 1, res_dict
         assert res_dict['results'][0]['name'] == 'warandpeace', res_dict['results'][0]['name']
 
-        

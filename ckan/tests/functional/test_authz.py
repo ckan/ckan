@@ -1,3 +1,5 @@
+import simplejson
+
 import ckan.model as model
 from ckan.tests import *
 from ckan.lib.base import *
@@ -57,20 +59,41 @@ class TestUsage(TestController2):
         model.repo.rebuild_db()
         model.Session.remove()
 
-    def _do_test(self, action, user, mode):
+    def _do_test_wui(self, action, user, mode):
+        # Test action on WUI
         offset = url_for(controller='package', action=action, id=unicode(mode))
         res = self.app.get(offset, extra_environ={'REMOTE_USER': user.name.encode('utf8')}, expect_errors=True)
+        return mode in res and u'error' not in res and res.status==200
+
+    def _do_test_rest(self, action, user, mode):
+        # Test action on REST
+        offset = '/api/rest/package/%s' % unicode(mode)
+        if action == model.Action.EDIT:
+            postparams = '%s=1' % simplejson.dumps({'title':u'newtitle'})
+            func = self.app.post
+        elif action == model.Action.READ:
+            postparams = None
+            func = self.app.get
+        else:
+            raise NotImplementedError
+        res = func(offset, params=postparams,
+                   extra_environ={'Authorization' : str(user.apikey)},
+                   expect_errors=True)
         return mode in res and u'error' not in res and res.status==200
         
     def _test_can(self, action, user, modes):
         for i, mode in enumerate(modes):
-            ok = self._do_test(action, user, mode)
-            assert ok, '(%i) Should be able to %r %r as user %r' % (i, action, mode, user.name)
+            ok_wui = self._do_test_wui(action, user, mode)
+            assert ok_wui, '(%i) Should be able to %r %r as user %r (WUI interface)' % (i, action, mode, user.name)
+            ok_rest = self._do_test_rest(action, user, mode)
+            assert ok_rest, '(%i) Should be able to %r %r as user %r (REST interface)' % (i, action, mode, user.name)
 
     def _test_cant(self, action, user, modes):
         for i, mode in enumerate(modes):
-            ok = self._do_test(action, user, mode)
-            assert not ok, '(%i) Should NOT be able to %r %r as user %r' % (i, action, mode, user.name)
+            ok_wui = self._do_test_wui(action, user, mode)
+            assert not ok_wui, '(%i) Should NOT be able to %r %r as user %r (WUI interface)' % (i, action, mode, user.name)
+            ok_rest = self._do_test_rest(action, user, mode)
+            assert not ok_rest, '(%i) Should NOT be able to %r %r as user %r (REST interface)' % (i, action, mode, user.name)
 
     # Tests numbered by the use case
 

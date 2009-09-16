@@ -5,6 +5,7 @@ from ckan.controllers.base import *
 import ckan.model as model
 import ckan.forms
 from ckan.lib.search import Search, SearchOptions
+import ckan.authz
 
 class RestController(CkanBaseController):
 
@@ -26,11 +27,15 @@ class RestController(CkanBaseController):
 
     def show(self, register, id):
         if register == u'package':
-            obj = model.Package.by_name(id)
-            if obj is None:
+            pkg = model.Package.by_name(id)
+            if pkg is None:
                 response.status_int = 404
                 return ''
-            _dict = obj.as_dict()
+
+            if not self._check_access(pkg, model.Action.READ):
+                return ''
+
+            _dict = pkg.as_dict()
             #TODO check it's not none
             return self._finish_ok(_dict)
         elif register == u'tag':
@@ -45,7 +50,7 @@ class RestController(CkanBaseController):
             return ''
 
     def create(self, register):
-        if not self._check_access():
+        if not self._check_access(None, None):
             return simplejson.dumps("Access denied")
         try:
             request_data = self._get_request_data()
@@ -64,6 +69,13 @@ class RestController(CkanBaseController):
             rev.message = u'REST API: Create object %s' % str(fs.name.value)
             fs.sync()
 
+            # set default permissions
+            if self.rest_api_user:
+                admins = [model.User.by_name(self.rest_api_user)]
+            else:
+                admins = []
+            model.setup_default_user_roles(fs.model, admins)
+
             model.repo.commit()        
         except Exception, inst:
             model.Session.rollback()
@@ -72,18 +84,20 @@ class RestController(CkanBaseController):
         return self._finish_ok(obj.as_dict())
             
     def update(self, register, id):
-        if not self._check_access():
+        pkg = model.Package.by_name(id)
+        if not pkg:
+            response.status_int = 404
+            return ''
+
+        if not self._check_access(pkg, model.Action.EDIT):
             return simplejson.dumps("Access denied")
+
         try:
             request_data = self._get_request_data()
         except ValueError, inst:
             response.status_int = 400
             return "JSON Error: %s" % str(inst)
 
-        pkg = model.Package.by_name(id)
-        if not pkg:
-            response.status_int = 404
-            return ''
 
         try:
             orig_pkg_dict = ckan.forms.get_package_dict(pkg)
@@ -110,13 +124,13 @@ class RestController(CkanBaseController):
         return self._finish_ok(obj.as_dict())
 
     def delete(self, register, id):
-        if not self._check_access():
-            return simplejson.dumps("Access denied")
-
         pkg = model.Package.by_name(id)
         if not pkg:
             response.status_int = 404
             return ''
+
+        if not self._check_access(pkg, model.Action.PURGE):
+            return simplejson.dumps("Access denied")
             
         try:
             pkg.delete()
@@ -139,7 +153,10 @@ class RestController(CkanBaseController):
         results = Search().run(options)
         return self._finish_ok(results)
 
-    def _check_access(self):
+    def _check_access(self, pkg, action):
+        # Checks apikey is okay and user is authorized to do the specified
+        # action on the specified package. If both args are None then just
+        # the apikey is checked.
         api_key = None
         isOk = False
         keystr = request.environ.get('HTTP_AUTHORIZATION', None)
@@ -149,14 +166,24 @@ class RestController(CkanBaseController):
         api_key = model.User.query.filter_by(apikey=keystr).first()
         if api_key is not None:
             self.rest_api_user = api_key.name
-            self.log.debug("Access OK.")
-            response.status_int = 200
-            return True
         else:
-            self.log.debug("API Key Not Authorized: %s" % keystr)
+            self.rest_api_user = ''
+
+        if action and pkg:
+            am_authz = ckan.authz.Authorizer().is_authorized(self.rest_api_user, action, pkg)
+            if not am_authz:
+                self.log.debug("User is not authorized to %s %s" % (action, pkg))
+                response.status_int = 403
+                response.headers['Content-Type'] = 'application/json'
+                return False
+        elif not self.rest_api_user:
+            self.log.debug("API key not authorized: %s" % keystr)
             response.status_int = 403
             response.headers['Content-Type'] = 'application/json'
             return False
+        self.log.debug("Access OK.")
+        response.status_int = 200
+        return True                
 
     def _get_request_data(self):
         try:
