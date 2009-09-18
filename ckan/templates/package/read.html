@@ -11,12 +11,13 @@
       <a href="${h.url_for(controller='package',action='edit',id=c.pkg.name)}">[edit]</a>
       <a href="${h.url_for(controller='package',action='history',id=c.pkg.name)}">[history]</a>
       <a href="${h.url_for(controller='package',action='authz',id=c.pkg.name)}">[authorization]</a>
-      <a href="http://isitopen.ckan.net/enquiry/create/?ckan-package=${c.pkg.name}">[enquire]</a>
     </h2>
 
     <h3>
       Openness:
       ${package_openness(c.pkg)}
+      &mdash;
+      <a href="http://isitopen.ckan.net/enquiry/create/?ckan_package=${c.pkg.name}">make an enquiry using Is It Open</a>
     </h3>
 
     ${c.content}
