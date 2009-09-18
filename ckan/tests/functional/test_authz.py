@@ -16,6 +16,7 @@ class TestUsage(TestController2):
         model.User(name=u'editor')
         model.User(name=u'reader')
         model.User(name=u'mrloggedin')
+        model.User(name=u'adminfriend')
         visitor_name = '123.12.12.123'
         rev = model.repo.new_revision()
         model.repo.commit_and_remove()
@@ -43,6 +44,7 @@ class TestUsage(TestController2):
 
         self.testsysadmin = model.User.by_name(u'testsysadmin')
         self.admin = model.User.by_name(u'admin')
+        self.adminfriend = model.User.by_name(u'adminfriend')
         self.editor = model.User.by_name(u'editor')
         self.reader = model.User.by_name(u'reader')
         self.mrloggedin = model.User.by_name(name=u'mrloggedin')
@@ -135,21 +137,114 @@ class TestUsage(TestController2):
         assert pkg
         roles = authz.Authorizer().get_roles(user.name, pkg)
         assert model.Role.ADMIN in roles, roles
+        roles = authz.Authorizer().get_roles(u'someoneelse', pkg)
+        assert not model.Role.ADMIN in roles, roles
 
-    ##TODO
+    def _get_authz_form(self, package_name, edit_user=None):
+        assert not model.Package.by_name(package_name)
+        pkg = model.Package(name=package_name)
+        rev = model.repo.new_revision()
+        model.repo.commit_and_remove()
+
+        # package has default user roles
+        pkg = model.Package.by_name(package_name)
+        user = model.User.by_name(u'admin')    
+        model.setup_default_user_roles(pkg, admins=[user])
+
+        if edit_user:
+            user = model.User.by_name(edit_user)
+
+        # edit roles in WUI
+        offset = url_for(controller='package', action='authz', id=pkg.name)
+        res = self.app.get(offset, extra_environ={'REMOTE_USER': user.name.encode('utf8')})
+        assert pkg.name in res
+        assert '''<tr> <td>Anyone</td> <td><select id="0-role" name="0-role">
+<option value="None"></option>
+<option value="admin">Admin</option>
+<option selected value="editor">Editor</option>
+<option value="reader">Reader</option>
+</select></td> </tr>''' in res, res
+        assert '''<tr> <td><input id="2-username" name="2-username" type="text" value="admin"></td> <td><select id="2-role" name="2-role">
+<option value="None"></option>
+<option selected value="admin">Admin</option>
+<option value="editor">Editor</option>
+<option value="reader">Reader</option>
+</select></td> </tr>''' in res, res
+        assert 'submit' in res, res
+        fv = res.forms[0]
+
+        return user, fv
+
+    def _edit_row(self, fv, pkg_name, user, row_index, old_name=None, old_role=None, new_name=None, new_role=None):
+        username_name = '%i-username' % row_index
+        dropdown_name = '%i-role' % row_index
+        if old_name is not None:
+            assert fv[username_name].value == old_name, fv[username_name].value
+        if old_role is not None:
+            assert fv[dropdown_name].value == old_role if old_role else 'None', fv[dropdown_name].value
+        if new_name is not None:
+            fv[username_name].value = new_name
+        if new_role is not None:
+            fv[dropdown_name].value = new_role if new_role else 'None'
+        res = fv.submit('commit', extra_environ={'REMOTE_USER': user.name.encode('utf8')})
+        assert 'Error' not in res, res
+
+        # sent to package page
+        res = res.follow()
+        assert 'Package: %s' % pkg_name in res, res
+
+        # go back to check values
+        offset = url_for(controller='package', action='authz', id=pkg_name)
+        res = self.app.get(offset)
+        assert pkg_name in res
+        if row_index == 0:
+            new_name = 'Anyone'
+        elif row_index == 1:
+            new_name = 'Anyone logged in'
+        row = '<tr> <td>%s</td> <td>%s</td> </tr>' % (new_name, new_role.capitalize())
+        if new_role or row_index < 2:
+            assert row in res, str(res) + repr(row)
+        else:
+            assert not row in res, str(res) + repr(row)
+        return res
+
+    def test_06_admin_authorizes_admin_for_package(self):
     ##6. An admin of a package adds a user as an admin
+        pkg_name = u'test6'
+        user, fv = self._get_authz_form(pkg_name)
+        self._edit_row(fv, pkg_name, user, 3, '', 'None', 'adminfriend', 'admin')
 
-    ##TODO
+    def test_07_admin_unauthorizes_package_admin(self):
     ##7. An admin of a package removes a user as an admin
+        pkg_name = u'test7'
+        user, fv = self._get_authz_form(pkg_name)
+        self._edit_row(fv, pkg_name, user, 3, '', 'None', 'adminfriend', 'admin')
+        self._edit_row(fv, pkg_name, user, 3, 'adminfriend', 'admin', 'adminfriend', '')
 
-    ##TODO
+    def test_08_admin_authorizes_editor_for_package(self):
     ##8. Ditto for admin re. editor
+        pkg_name = u'test8'
+        user, fv = self._get_authz_form(pkg_name)
+        self._edit_row(fv, pkg_name, user, 3, '', 'None', 'adminfriend', 'editor')
 
     ##TODO
+    def test_09_admin_authorizes_reader_for_package(self):
     ##9. Ditto for admin re. reader
+        pkg_name = u'test9'
+        user, fv = self._get_authz_form(pkg_name)
+        self._edit_row(fv, pkg_name, user, 3, '', 'None', 'adminfriend', 'reader')
 
-    ##TODO
+    def test_10_admin_makes_visitors_and_users_readers(self):
     ##10. We wish to be able assign roles to 2 specific entire groups in addition to specific users: 'visitor', 'users'. These will be termed pseudo-users as we do not have AC 'groups' as such.
+        pkg_name = u'test10'
+        user, fv = self._get_authz_form(pkg_name)
+        self._edit_row(fv, pkg_name, user, 0, None, 'editor', None, 'reader')
+        res = self._edit_row(fv, pkg_name, user, 1, None, 'editor', None, 'reader')
+        assert '<tr> <td>Anyone</td> <td>Reader</td> </tr>' in res, res
+        assert '<tr> <td>Anyone logged in</td> <td>Reader</td> </tr>' in res, res
 
-    ##TODO
+    def test_11_sysadmin_makes_authz_changes(self):
     ##11. The sysadmin alters the assignment of entities to roles for any package
+        pkg_name = u'test11'
+        user, fv = self._get_authz_form(pkg_name, edit_user=u'testsysadmin')
+        self._edit_row(fv, pkg_name, user, 0, None, 'editor', None, 'reader')

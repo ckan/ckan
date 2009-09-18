@@ -1,0 +1,16 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+  
+  <py:def function="page_title">Packages - Authorization - ${c.pkgname}</py:def>
+
+  <div py:match="content">
+    <h2>
+      Authorization for package: ${c.pkgname}
+    </h2>
+
+    ${HTML(c.form)}
+
+  </div>
+
+  <xi:include href="layout.html" />
+</html>

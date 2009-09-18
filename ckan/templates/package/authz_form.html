@@ -1,0 +1,15 @@
+    <form action="" method="post"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      >
+      ${Markup(c.form)}
+
+
+      <hr />
+
+      <py:if test="c.authz_editable">
+        ${h.submit('commit', 'Commit')}
+      </py:if>
+
+    </form>
+

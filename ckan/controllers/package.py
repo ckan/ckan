@@ -14,7 +14,8 @@ class ValidationException(Exception):
     pass
 
 class PackageController(CkanBaseController):
-
+    authorizer = ckan.authz.Authorizer()
+    
     def index(self):
         c.package_count = model.Package.query.count()
         return render('package/index')
@@ -53,7 +54,7 @@ class PackageController(CkanBaseController):
         if c.pkg is None:
             abort(404, '404 Not Found')
 
-        am_authz = ckan.authz.Authorizer().am_authorized(c, model.Action.READ, c.pkg)
+        am_authz = self.authorizer.am_authorized(c, model.Action.READ, c.pkg)
         if not am_authz:
             abort(401, 'Unauthorized to read %s' % id)        
             
@@ -114,7 +115,7 @@ class PackageController(CkanBaseController):
         pkg = model.Package.by_name(id)
         if pkg is None:
             abort(404, '404 Not Found')
-        am_authz = ckan.authz.Authorizer().am_authorized(c, model.Action.EDIT, pkg)
+        am_authz = self.authorizer.am_authorized(c, model.Action.EDIT, pkg)
         if not am_authz:
             abort(401, 'User %r unauthorized to edit %s' % (c.user, id))
 
@@ -147,11 +148,47 @@ class PackageController(CkanBaseController):
             c.form = self._render_edit_form(fs)
             c.preview = genshi.HTML(self._render_package(fs))
             return render('package/edit')
-    
+
+    def authz(self, id):
+        pkg = model.Package.by_name(id)
+        if pkg is None:
+            abort(404, '404 Not Found')
+            
+        c.authz_editable = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, pkg)
+
+        if not 'commit' in request.params:
+            # display form
+            c.pkgname = pkg.name
+            fs = ckan.forms.authz_fs(c, pkg)
+            c.form = self._render_authz_form(fs)
+            return render('package/authz')
+        else:
+            # commit form
+            if not c.authz_editable:
+                abort(401, '401 Access denied')                
+                
+            params = dict(request.params) # needed because request is nested
+                                          # multidict which is read only
+            c.fs = ckan.forms.authz_fs(c, pkg, data=params or None)
+
+            try:
+                self._update_authz(c.fs, id, pkg.id)
+                h.redirect_to(action='read', id=pkg.name)
+            except ValidationException, error:
+                c.error, fs = error.args
+                c.form = self._render_authz_form(fs)
+                return render('package/authz')
+
+            
     def _render_edit_form(self, fs):
         # errors arrive in c.error and fs.errors
         c.form = fs.render()
         return render('package/edit_form')
+
+    def _render_authz_form(self, fs):
+        # errors arrive in c.error and fs.errors
+        c.form = fs.render()
+        return render('package/authz_form')
         
     def _is_locked(pkgname, self):
         # allow non-existent name -- never happens but allows test of 'bad'
@@ -202,6 +239,23 @@ class PackageController(CkanBaseController):
             rev.author = c.author
             rev.message = log_message
 
+            fs.sync()
+        except Exception, inst:
+            model.Session.rollback()
+            raise
+        else:
+            model.Session.commit()
+
+    def _update_authz(self, fs, id, record_id):
+        validation = fs.validate()
+        if not validation:
+            errors = []            
+            for row, err in fs.errors.items():
+                errors.append(err)
+            c.error = ', '.join(errors)
+            c.form = self._render_edit_form(fs)
+            raise ValidationException(c.error, fs)
+        try:
             fs.sync()
         except Exception, inst:
             model.Session.rollback()

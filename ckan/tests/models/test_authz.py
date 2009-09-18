@@ -8,9 +8,12 @@ class TestCreation(object):
 
     @classmethod
     def setup_class(self):
-        CreateTestData.create()
+        model.Package(name=u'annakarenina')
+        model.Package(name=u'warandpeace')
+        mradmin = model.User(name=u'tester')
         self.authorizer = authz.Authorizer()
-        model.Session.remove()
+        model.repo.new_revision()
+        model.repo.commit_and_remove()
 
     @classmethod
     def teardown_class(self):
@@ -20,13 +23,15 @@ class TestCreation(object):
 
     def test_0_package_role(self):
         uor = model.UserObjectRole(role=model.Role.ADMIN)
-        anna = model.Package.by_name(u'annakarenina')
+        war = model.Package.by_name(u'warandpeace')
         pr = model.PackageRole(role=model.Role.ADMIN,
-                               package=anna)
+                               package=war)
         
         model.repo.commit_and_remove()
 
-        pr = model.PackageRole.query.filter_by(role=model.Role.ADMIN)
+        pr = model.PackageRole.query.filter_by(role=model.Role.ADMIN,
+                                               package=war)
+                                               
         assert len(pr.all()) == 1, pr.all()
 
     def test_1_user_role(self):
@@ -126,17 +131,15 @@ class TestDefaultPackageUserRoles(object):
 
     def test_admin(self):
         roles = self.authorizer.get_roles(self.joeadmin.name, self.pkg)
-        assert model.Role.ADMIN in roles, self.authorizer.get_package_roles(self.pkg)
+        assert model.Role.ADMIN in roles, self.authorizer.get_package_roles_printable(self.pkg)
 
     def test_logged_in(self):
         roles = self.authorizer.get_roles(self.logged_in.name, self.pkg)
         assert model.Role.EDITOR in roles, roles
-        assert model.Role.READER in roles, roles
 
     def test_visitor(self):
         roles = self.authorizer.get_roles(self.visitor.name, self.pkg)
         assert model.Role.EDITOR in roles, roles
-        assert model.Role.READER in roles, roles
 
 
 class TestUsage(object):

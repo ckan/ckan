@@ -9,7 +9,17 @@ PSEUDO_USER__VISITOR = u'visitor'
 class Enum(object):
     @classmethod
     def is_valid(self, val):
-        return val is not None and val in self.__dict__.values()
+        return val in self.get_all()
+
+    @classmethod
+    def get_all(self):
+        if not hasattr(self, '_all_items'):
+            vals = []
+            for key, val in self.__dict__.items():
+                if not key.startswith('_'):
+                    vals.append(val)
+            self._all_items = vals
+        return self._all_items
 
 class Action(Enum):
     EDIT = u'edit'
@@ -79,6 +89,14 @@ mapper(PackageRole, package_role_table, inherits=UserObjectRole,
 class NotRealUserException(Exception):
     pass
 
+default_role_actions = [
+    (Role.EDITOR, Action.EDIT),
+    (Role.EDITOR, Action.CREATE),
+    (Role.EDITOR, Action.READ),        
+    (Role.READER, Action.CREATE),
+    (Role.READER, Action.READ),
+    ]
+
 def setup_default_role_actions():
     visitor = User(name=PSEUDO_USER__VISITOR)
     logged_in = User(name=PSEUDO_USER__LOGGED_IN)
@@ -86,18 +104,25 @@ def setup_default_role_actions():
     # setup all role-actions (set context to None)
 
     # Note that Role.ADMIN can already do anything - hardcoded in.
-    default_role_actions = [
-        (Role.EDITOR, Action.EDIT),
-        (Role.EDITOR, Action.CREATE),
-        (Role.EDITOR, Action.READ),        
-        (Role.READER, Action.CREATE),
-        (Role.READER, Action.READ),
-        ]
     for role, action in default_role_actions:
         ra = RoleAction(role=role,
                         context='', # Blank until used
                         action=action,
                         )
+
+def user_has_role(user, role, domain_obj):
+    assert isinstance(user, User), user
+    assert user.id
+    assert Role.is_valid(role), role
+    assert isinstance(domain_obj, Package), domain_obj
+    assert domain_obj.id
+    
+    if isinstance(domain_obj, Package):
+        return PackageRole.query.filter_by(role=role,
+                                           package_id=domain_obj.id,
+                                           user_id=user.id).count() == 1
+    else:
+        raise NotImplementedError()
 
 def add_user_to_role(user, role, domain_obj):
     assert isinstance(user, User), user
@@ -110,6 +135,24 @@ def add_user_to_role(user, role, domain_obj):
         pr = PackageRole(role=role,
                          package_id=domain_obj.id,
                          user_id=user.id)
+    else:
+        raise NotImplementedError()
+
+    Session.commit()
+    Session.remove()
+
+def remove_user_from_role(user, role, domain_obj):
+    assert isinstance(user, User), user
+    assert user.id
+    assert Role.is_valid(role), role
+    assert isinstance(domain_obj, Package), domain_obj
+    assert domain_obj.id
+    
+    if isinstance(domain_obj, Package):
+        pr = PackageRole.query.filter_by(role=role,
+                                         package_id=domain_obj.id,
+                                         user_id=user.id).one()
+        Session.delete(pr)
     else:
         raise NotImplementedError()
 
@@ -137,8 +180,8 @@ def setup_default_user_roles(domain_object, admins=[]):
     # sets up visitor and logged-in user and admins if provided
     assert isinstance(domain_object, DomainObject)
     assert type(admins) == type([])
-    visitor_roles = [Role.EDITOR, Role.READER]
-    logged_in_roles = [Role.EDITOR, Role.READER]
+    visitor_roles = [Role.EDITOR]
+    logged_in_roles = [Role.EDITOR]
     setup_user_roles(domain_object, visitor_roles, logged_in_roles, admins)
 
 def clear_user_roles(domain_object):

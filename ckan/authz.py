@@ -67,6 +67,14 @@ class Authorizer(object):
         return False
 
     @classmethod
+    def get_package_roles_printable(cls, domain_obj):
+        prs = cls.get_package_roles(domain_obj)
+        printable_prs = []
+        for user, role in prs:
+            printable_prs.append('%s - \t%s' % (user.name, role))
+        return '%s roles:\n' % domain_obj.name + '\n'.join(printable_prs)        
+
+    @classmethod
     def get_package_roles(cls, domain_obj):
         # returns the roles for all users on the specified domain object
         assert isinstance(domain_obj, model.Package)
@@ -74,8 +82,8 @@ class Authorizer(object):
         prs = []
         for pr in q.all():
             user = model.Session.get(model.User, pr.user_id)
-            prs.append('%s : %s' % (user.name, pr.role))
-        return '%s roles:\n' % domain_obj.name + '\n'.join(prs)        
+            prs.append((user, pr.role))
+        return prs
 
     @classmethod
     def get_roles(cls, username, domain_obj):

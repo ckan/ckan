@@ -178,8 +178,8 @@ class CreateTestData(CkanCommand):
         
         anna = model.Package.by_name(u'annakarenina')
         war = model.Package.by_name(u'warandpeace')
-        model.setup_default_user_roles(anna)
-        model.setup_default_user_roles(war)
+        model.setup_default_user_roles(anna, [annafan])
+        model.setup_default_user_roles(war, [russianfan])
         
         model.repo.commit_and_remove()
     
