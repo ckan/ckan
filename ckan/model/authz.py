@@ -66,7 +66,13 @@ class UserObjectRole(DomainObject):
     pass
 
 class PackageRole(UserObjectRole):
-    pass
+    def __init__(self, package_name=None, **kwargs):
+        if package_name:
+            pkg = Package.by_name(package_name)
+            assert pkg
+            self.package_id = pkg.id
+        for k,v in kwargs.items():
+            setattr(self, k, v)
 
 class GroupRole(UserObjectRole):
     pass
@@ -90,6 +96,9 @@ mapper(PackageRole, package_role_table, inherits=UserObjectRole,
        polymorphic_identity=unicode(Package.__name__),
        properties={
             'package': orm.relation(Package,
+                 backref=orm.backref('roles',
+                 cascade='all, delete'
+                 ),
                                     )
     },
     order_by=[package_role_table.c.user_object_role_id],
@@ -99,6 +108,9 @@ mapper(GroupRole, group_role_table, inherits=UserObjectRole,
        polymorphic_identity=unicode(Group.__name__),
        properties={
             'group': orm.relation(Group,
+                 backref=orm.backref('roles',
+                 cascade='all, delete'
+                 ),
                                     )
     },
     order_by=[group_role_table.c.user_object_role_id],
