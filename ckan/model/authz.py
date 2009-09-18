@@ -219,7 +219,8 @@ def give_all_packages_default_user_roles():
         for rev in revs:
             if rev.revision.author:
                 user = User.by_name(rev.revision.author)
-                admins.append(user)
+                if user:
+                    admins.append(user)
         # gives default permissions
         setup_default_user_roles(pkg, admins)
 
