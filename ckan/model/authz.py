@@ -120,7 +120,6 @@ def setup_default_role_actions():
     logged_in = User(name=PSEUDO_USER__LOGGED_IN)
     
     # setup all role-actions (set context to None)
-
     # Note that Role.ADMIN can already do anything - hardcoded in.
     for role, action in default_role_actions:
         ra = RoleAction(role=role,
@@ -219,7 +218,8 @@ def give_all_packages_default_user_roles():
         revs = pkg.all_revisions
         for rev in revs:
             if rev.revision.author:
-                user = User.by_name(rev.revision.author)
+                # rev author is not Unicode!!
+                user = User.by_name(unicode(rev.revision.author))
                 if user:
                     admins.append(user)
         # gives default permissions

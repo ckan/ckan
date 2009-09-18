@@ -408,12 +408,10 @@ class TestUseCasePermissions:
 
     def test_11_sysadmin_change_permissions(self):
         sysadmin = u'testsysadmin' # from test.ini
-        admins = config.get('auth.admins', '').split()
-        assert sysadmin in admins
-
+        admins = config.get('auth.sysadmins', '').split()
+        assert sysadmin in admins, admins
         assert self.authorizer.is_authorized(username=sysadmin,
-                                             action=model.Action.EDIT_PERMISSIONS,
-                                             domain_object=self.anna)
+                action=model.Action.EDIT_PERMISSIONS, domain_object=self.anna)
 
     def test_12_visitor_changes_restricted_package(self):
         assert not self.authorizer.is_authorized(username=self.visitor.name,
