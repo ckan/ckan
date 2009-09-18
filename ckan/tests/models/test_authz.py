@@ -10,6 +10,7 @@ class TestCreation(object):
     def setup_class(self):
         model.Package(name=u'annakarenina')
         model.Package(name=u'warandpeace')
+        model.Package(name=u'test0')
         mradmin = model.User(name=u'tester')
         self.authorizer = authz.Authorizer()
         model.repo.new_revision()
@@ -23,16 +24,20 @@ class TestCreation(object):
 
     def test_0_package_role(self):
         uor = model.UserObjectRole(role=model.Role.ADMIN)
-        war = model.Package.by_name(u'warandpeace')
+        test0 = model.Package.by_name(u'test0')
         pr = model.PackageRole(role=model.Role.ADMIN,
-                               package=war)
+                               package=test0)
+
         
         model.repo.commit_and_remove()
 
+        test0 = model.Package.by_name(u'test0')        
         pr = model.PackageRole.query.filter_by(role=model.Role.ADMIN,
-                                               package=war)
-                                               
+                                               package=test0)
+
         assert len(pr.all()) == 1, pr.all()
+        assert pr.first().context == 'Package', pr.context
+
 
     def test_1_user_role(self):
         anna = model.Package.by_name(u'annakarenina')
@@ -50,7 +55,7 @@ class TestCreation(object):
     def test_2_role_action_basic(self):
         admin_role = model.Role.ADMIN
         action = model.Action.EDIT
-        context = model.Package.__class__.__name__
+        context = unicode(model.Package.__name__)
         ra = model.RoleAction(role=admin_role,
                               context=context,
                               action=action,
@@ -62,6 +67,18 @@ class TestCreation(object):
                                               action=action)
         assert len(ra.all()) == 1, ra.all()
 
+    def test_3_group_role(self):
+        uor = model.UserObjectRole(role=model.Role.ADMIN)
+        war = model.Group.by_name(u'warandpeace')
+        pr = model.GroupRole(role=model.Role.ADMIN,
+                               group=war)
+        
+        model.repo.commit_and_remove()
+
+        pr = model.GroupRole.query.filter_by(role=model.Role.ADMIN,
+                                               group=war)
+                                               
+        assert len(pr.all()) == 1, pr.all()
 
 class TestDefaultRoles(object):
     @classmethod
@@ -165,7 +182,7 @@ class TestUsage(object):
         tester = model.User.by_name(u'tester')
         model.add_user_to_role(tester, self.admin_role, anna)
 
-        self.context = model.Package.__class__.__name__
+        self.context = unicode(model.Package.__name__)
         ra = model.RoleAction(role=self.admin_role,
                               context=self.context,
                               action=model.Action.EDIT,
@@ -234,6 +251,47 @@ class TestUsage(object):
         assert self.authorizer.is_authorized(username=self.mrreader.name,
                                              action=model.Action.READ,
                                              domain_object=self.anna)
+
+class TestMigrate:
+    @classmethod
+    def teardown_class(self):
+        model.Session.remove()
+        model.repo.rebuild_db()
+        model.Session.remove()
+
+    def test_give_default_permissions(self):
+        model.repo.new_revision()
+        anna = model.Package(name=u'annakarenina')
+        war = model.Package(name=u'warandpeace')
+        warauthor1 = model.User(name=u'warauthor1')
+        warauthor2 = model.User(name=u'warauthor2')
+        model.repo.commit_and_remove()
+
+        # make changes
+        anna = model.Package.by_name(u'annakarenina')
+        rev = model.repo.new_revision() 
+        rev.author = u'warauthor1'
+        anna.title = u'title1'
+        model.repo.commit_and_remove()
+
+        anna = model.Package.by_name(u'annakarenina')
+        rev = model.repo.new_revision() 
+        rev.author = u'warauthor2'
+        anna.title = u'title2'
+        model.repo.commit_and_remove()
+
+        model.give_all_packages_default_user_roles()
+
+        anna = model.Package.by_name(u'annakarenina')
+        war = model.Package.by_name(u'warandpeace')
+        warauthor1 = model.User.by_name(u'warauthor1')
+        warauthor2 = model.User.by_name(u'warauthor2')
+        visitor = model.User.by_name(model.PSEUDO_USER__VISITOR)
+        assert model.user_has_role(visitor, model.Role.EDITOR, anna)
+        assert model.user_has_role(visitor, model.Role.EDITOR, war)
+        assert not model.user_has_role(warauthor1, model.Role.ADMIN, war)
+        assert model.user_has_role(warauthor1, model.Role.ADMIN, anna)
+        assert model.user_has_role(warauthor2, model.Role.ADMIN, anna)
 
 class TestUseCasePermissions:
     @classmethod
@@ -377,15 +435,5 @@ class TestUseCasePermissions:
                                                  action=model.Action.READ,
                                                  domain_object=self.vrestricted), self.authorizer._package_role_table(self.vrestricted)
 
-    def _test_in_a_perfect_world(self):
-        # this doesn't work because of many:many relationship problems
-        anna = model.Package.by_name('annakarenina')
-        mradmin = model.User(name='mradmin')
-        role = model.Role.ADMIN
-        anna.roles[role] = [mradmin]
-        model.repo.commit_and_remove()
-        anna = model.Package.by_name('annakarenina')
-        print model.PackageRole.query.all()
-        assert mradmin in anna.roles[role], anna.roles
         
 

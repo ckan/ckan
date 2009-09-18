@@ -1,6 +1,7 @@
 from sqlalchemy import *
 from migrate import *
 import uuid
+import ckan.model as model
 
 metadata = MetaData(migrate_engine)
 
@@ -9,6 +10,7 @@ def make_uuid():
 
 # you need to load these two for foreign keys to work 
 package_table = Table('package', metadata, autoload=True)
+group_table = Table('group', metadata, autoload=True)
 user_table = Table('user', metadata, autoload=True)
 
 # authorization tables
@@ -31,10 +33,17 @@ package_role_table = Table('package_role', metadata,
            Column('package_id', Integer, ForeignKey('package.id')),
            )
 
+group_role_table = Table('group_role', metadata,
+           Column('user_object_role_id', UnicodeText, ForeignKey('user_object_role.id'), primary_key=True),
+           Column('group_id', UnicodeText, ForeignKey('group.id')),
+           )
+
 def upgrade():
     role_action_table.create()
     user_object_role_table.create()
     package_role_table.create()
+    group_role_table.create()
+    model.give_all_packages_default_user_roles()
 
 def downgrade():
     raise NotImplementedError()
