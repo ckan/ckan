@@ -72,8 +72,9 @@ class RevisionController(CkanBaseController):
 
     def _has_purge_permissions(self):
         authorizer = ckan.authz.Authorizer()
-        action = ckan.authz.actions['revision-purge']
-        return ( c.user and authorizer.is_authorized(c.user, action) )
+        action = model.Action.PURGE
+        return ( c.user and authorizer.is_authorized(c.user, action,
+            model.Revision) )
 
     def purge(self, id=None):
         if id is None:

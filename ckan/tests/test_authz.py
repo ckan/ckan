@@ -63,3 +63,14 @@ class TestAuthorizer(object):
         bad_username = u'83.222.23.234'
         assert self.controller.is_authorized(self.admin.name, action, self.pkg)
         assert not self.controller.is_authorized(bad_username, action, self.pkg)
+
+    def test_revision_purge(self):
+        action = model.Action.PURGE
+        isa = self.controller.is_authorized(self.sysadmin.name, action,
+                model.Revision)
+        assert isa, isa
+        isnot = self.controller.is_authorized(self.notadmin.name, action,
+                model.Revision)
+        assert not isnot, isnot
+
+
