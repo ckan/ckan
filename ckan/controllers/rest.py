@@ -170,6 +170,12 @@ class RestController(CkanBaseController):
             self.rest_api_user = ''
 
         if action and pkg:
+            if action != model.Action.READ and self.rest_api_user == model.PSEUDO_USER__VISITOR:
+                self.log.debug("Valid API key needed to make changes")
+                response.status_int = 403
+                response.headers['Content-Type'] = 'application/json'
+                return False                
+            
             am_authz = ckan.authz.Authorizer().is_authorized(self.rest_api_user, action, pkg)
             if not am_authz:
                 self.log.debug("User is not authorized to %s %s" % (action, pkg))

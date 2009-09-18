@@ -83,19 +83,23 @@ class TestUsage(TestController2):
                    expect_errors=True)
         return mode in res and u'error' not in res and res.status==200
         
-    def _test_can(self, action, user, modes):
+    def _test_can(self, action, user, modes, test=['wui', 'rest']):
         for i, mode in enumerate(modes):
-            ok_wui = self._do_test_wui(action, user, mode)
-            assert ok_wui, '(%i) Should be able to %r %r as user %r (WUI interface)' % (i, action, mode, user.name)
-            ok_rest = self._do_test_rest(action, user, mode)
-            assert ok_rest, '(%i) Should be able to %r %r as user %r (REST interface)' % (i, action, mode, user.name)
+            if 'wui' in test:
+                ok_wui = self._do_test_wui(action, user, mode)
+                assert ok_wui, '(%i) Should be able to %r %r as user %r (WUI interface)' % (i, action, mode, user.name)
+            if 'rest' in test:
+                ok_rest = self._do_test_rest(action, user, mode)
+                assert ok_rest, '(%i) Should be able to %r %r as user %r (REST interface)' % (i, action, mode, user.name)
 
-    def _test_cant(self, action, user, modes):
+    def _test_cant(self, action, user, modes, test=['wui', 'rest']):
         for i, mode in enumerate(modes):
-            ok_wui = self._do_test_wui(action, user, mode)
-            assert not ok_wui, '(%i) Should NOT be able to %r %r as user %r (WUI interface)' % (i, action, mode, user.name)
-            ok_rest = self._do_test_rest(action, user, mode)
-            assert not ok_rest, '(%i) Should NOT be able to %r %r as user %r (REST interface)' % (i, action, mode, user.name)
+            if 'wui' in test:
+                ok_wui = self._do_test_wui(action, user, mode)
+                assert not ok_wui, '(%i) Should NOT be able to %r %r as user %r (WUI interface)' % (i, action, mode, user.name)
+            if 'rest' in test:
+                ok_rest = self._do_test_rest(action, user, mode)
+                assert not ok_rest, '(%i) Should NOT be able to %r %r as user %r (REST interface)' % (i, action, mode, user.name)
 
     # Tests numbered by the use case
 
@@ -105,9 +109,12 @@ class TestUsage(TestController2):
         self._test_can('read', self.visitor, ['rr', 'wr', 'ww'])
 
     def test_12_visitor_edits_stopped(self):
-        self._test_cant('edit', self.visitor, ['--', 'r-', 'w-', 'rr', 'wr'])
+        self._test_cant('edit', self.visitor, ['ww'], test=['rest'])
+        self._test_cant('edit', self.visitor, ['--', 'r-', 'w-', 'rr', 'wr'], test=['wui'])
+        self._test_cant('edit', self.visitor, ['--', 'r-', 'w-', 'rr', 'wr', 'ww'], test=['rest'])
     def test_02_visitor_edits(self):
-        self._test_can('edit', self.visitor, ['ww'])
+        self._test_can('edit', self.visitor, ['ww'], test=['wui'])
+        self._test_can('edit', self.visitor, [], test=['rest'])
 
     def test_15_user_reads_stopped(self):
         self._test_cant('read', self.mrloggedin, ['--'])

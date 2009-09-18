@@ -200,6 +200,7 @@ def setup_user_roles(domain_object, visitor_roles, logged_in_roles, admins=[]):
     for role in logged_in_roles:
         add_user_to_role(logged_in, role, domain_object)
     for admin in admins:
+        # not sure if admin would reasonably by None
         if admin is not None:
             assert isinstance(admin, User), admin
             if admin.name in (PSEUDO_USER__LOGGED_IN, PSEUDO_USER__VISITOR):
