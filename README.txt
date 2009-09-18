@@ -11,50 +11,38 @@ Installation and Setup
 
 1. Get the code and install it:
 
-   Get it from the mercurial repo::
+   We recommend installing using pip and virtualenv::
    
-      hg clone https://knowledgeforge.net/ckan/hg ckan
-
-   Install it::
-
-      cd ckan
-      python setup.py
-
-   Alternatively you can install using pip::
-   
+      # grab the install requirements from the ckan mercurial repo
+      wget http://knowledgeforge.net/ckan/hg/raw-file/tip/pip-requirements.txt
+      # create a virtualenv to install into
       virtualenv --no-site-packages pyenv-ckan
-      # or using http://www.doughellmann.com/projects/virtualenvwrapper/
-      # mkvirtualenv --no-site-packages pyenv-ckan
-      pip -E pyenv-ckan install --editable hg+https://knowledgeforge.net/ckan/hg#egg=ckan
-      # or using pip-requirements if you've grabbed it
-      # pip -E pyenv-ckan install -r pip-requirements.txt
-
-   This step should install most the library dependencies for CKAN. However
-   some dependencies may not be able to be installed automatically. Please see
-   install_requires option (and associated comments) in setup.py.
+      # install using pip-requirements
+      pip -E pyenv-ckan install -r pip-requirements.txt
 
 3. Make a config file as follows::
 
-      paster make-config ckan config.ini
+      # NB: you need to activate the repository
+      paster --plugin ckan make-config ckan config.ini
 
 4. Tweak the config file as appropriate and then setup the application::
 
-      paster setup-app config.ini
+      paster --plugin ckan setup-app config.ini
+
+NB: you'll need to setup a database -- see sqlalchemy.url config option. We
+support any database supported by sqlalchemy.
 
 5. Run the webserver::
 
       paster serve config.ini 
-
-5. Run the webserver for ::
-
-      paster serve --reload config.ini 
 
 6. Point your browswer at: localhost:5000 (if you set a different port in your
    config file then youl will need to change 5000 to whatever port value you
    chose).
 
 
-## Contributors
+Contributors
+============
 
   * Rufus Pollock <rufus [at] rufuspollock [dot] org>
   * David Read
@@ -71,7 +59,8 @@ been possible:
   * Python: <http://www.python.org>
 
 
-## Tests
+Test
+====
 
 Make sure you've created a config called development.ini, then:: 
 
