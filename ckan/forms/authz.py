@@ -1,41 +1,43 @@
-import formalchemy
+import formalchemy as fa
 
 import ckan.model as model
 import ckan.authz as authz
 import ckan.lib.helpers as h
+from formalchemy import helpers as fa_h
 
+import formalchemy.config
 
-class AuthzFieldSet(object):    
-    def __init__(self, c, package=None, data=None):
-        # Same as bind in formalchemy
-        assert package or data, 'Must supply at least one input'
-        assert package, 'Authz field set not designed to create new package'
+class AuthzFieldSet(fa.Grid):    
+##    def __init__(self, c, package=None, data=None):
+##        # Same as bind in formalchemy
+##        assert package or data, 'Must supply at least one input'
+##        assert package, 'Authz field set not designed to create new package'
         
-        self._c = c
-        self.package = None
-        self.data = None
-        self.errors = {}
-        self._authorizer = authz.Authorizer()
+##        self._c = c
+##        self.package = None
+##        self.data = None
+##        self.errors = {}
+##        self._authorizer = authz.Authorizer()
         
-        if package:
-            assert isinstance(package, model.Package)        
-            self.package = package
+##        if package:
+##            assert isinstance(package, model.Package)        
+##            self.package = package
 
-        if data:
-            assert isinstance(data, dict)
-            self._deserialize(data)
-        else:
-            self._get_data_fromdb()
+##        if data:
+##            assert isinstance(data, dict)
+##            self._deserialize(data)
+##        else:
+##            self._get_data_fromdb()
 
-        self._visitor = model.User.by_name(model.PSEUDO_USER__VISITOR)
-        self._logged_in = model.User.by_name(model.PSEUDO_USER__LOGGED_IN)
+##        self._visitor = model.User.by_name(model.PSEUDO_USER__VISITOR)
+##        self._logged_in = model.User.by_name(model.PSEUDO_USER__LOGGED_IN)
 
-
-    def render(self):
+    def __render(self):
         all_roles = model.Role.get_all()
         user_roles = self.data
 #        prs = self._authorizer.get_package_roles(self.package)
-        editable = self._authorizer.am_authorized(self._c, model.Action.EDIT_PERMISSIONS, self.package)
+#        editable = self._authorizer.am_authorized(self._c, model.Action.EDIT_PERMISSIONS, self.package)
+        editable = bool(self.data)
 
         rows = []
         current_user_has_role = False
@@ -93,7 +95,7 @@ class AuthzFieldSet(object):
         html += '</table></span>'
         return html
 
-    def validate(self):
+    def __validate(self):
         self.errors = {}
         user_names = self.data_user_names
         for index, username in user_names.items():
@@ -142,7 +144,7 @@ class AuthzFieldSet(object):
                 user_roles[username].append(role)
         self.data, self.data_user_names = user_roles, usernames
 
-    def sync(self):
+    def _sync(self):
         user_roles = self.data
         # For users given, ensure roles in db match form
         for user_name, roles in user_roles.items():
@@ -160,7 +162,30 @@ class AuthzFieldSet(object):
                 model.remove_user_from_role(user, role, self.package)
                 
 
+class UserRenderer(fa.FieldRenderer):
+    def render(self, options, **kwargs):
+        new_options = [('', '__null_value__')] + [(u.name, u.id) for u in model.User.query.all()]
         
+        selected_user_id = kwargs.get('selected', None) or self._value
+        selected_user = model.User.query.filter_by(id=selected_user_id).first()
+        if selected_user:
+            selected = selected_user.id
+        else:
+            selected = '__null_value__'
 
+        return fa_h.select(self.name, fa_h.options_for_select(new_options, selected=selected), **kwargs)
 
-authz_fs = AuthzFieldSet
+    def validate(self, val):
+        return val is not None
+
+authz_fs = fa.Grid(model.PackageRole)
+role_options = model.Role.get_all()
+authz_fs.configure(
+    options = [authz_fs.user.with_renderer(UserRenderer),
+               authz_fs.role.dropdown(options=role_options),
+               ],
+    include=[authz_fs.user,
+             authz_fs.role],
+    )
+
+    

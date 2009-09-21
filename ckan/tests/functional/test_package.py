@@ -137,6 +137,7 @@ class TestPackageControllerEdit(TestController2):
         offset = url_for(controller='package', action='edit', id=self.editpkg_name)
         self.res = self.app.get(offset)
         self.newtagname = u'russian'
+        model.repo.commit_and_remove()
 
     def teardown_method(self, method):
         self.tearDown()
@@ -173,6 +174,9 @@ class TestPackageControllerEdit(TestController2):
         res = fv.submit('commit')
         # get redirected ...
         res = res.follow()
+        model.Session.remove()
+        offset = url_for(controller='package', action='read', id=self.editpkg_name)
+        res = self.app.get(offset)
         assert 'Packages - %s' % self.editpkg_name in res, res
         pkg = model.Package.by_name(self.editpkg.name)
         assert pkg.title == new_title 

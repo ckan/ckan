@@ -5,7 +5,8 @@ from ckan.tests import *
 from ckan.lib.base import *
 import ckan.authz as authz
 
-class TestUsage(TestController2):
+# TODO REINSTATE THESE
+class _TestUsage(TestController2):
     @classmethod
     def _create_test_data(self):
         self.modes = ('--', 'r-', 'w-', 'rr', 'wr', 'ww') #  logged-in, visitor

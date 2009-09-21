@@ -2,13 +2,13 @@
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       >
+
+      <table>
       ${Markup(c.form)}
-
-
-      <hr />
+      </table>
 
       <py:if test="c.authz_editable">
-        ${h.submit('commit', 'Commit')}
+        ${h.submit('commit', 'Save')}
       </py:if>
 
     </form>

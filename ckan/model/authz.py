@@ -74,6 +74,12 @@ class PackageRole(UserObjectRole):
         for k,v in kwargs.items():
             setattr(self, k, v)
 
+##    @property
+##    def user(self):
+##        user = User.query.get(self.user_id)
+##        return user
+
+
 class GroupRole(UserObjectRole):
     pass
 

@@ -53,13 +53,14 @@ class PackageController(CkanBaseController):
         c.pkg = model.Package.by_name(id)
         if c.pkg is None:
             abort(404, '404 Not Found')
-
+        
         am_authz = self.authorizer.am_authorized(c, model.Action.READ, c.pkg)
         if not am_authz:
             abort(401, 'Unauthorized to read %s' % id)        
-            
+
         fs = ckan.forms.package_fs.bind(c.pkg)
         c.content = genshi.HTML(self._render_package(fs))
+
         return render('package/read')
 
     def history(self, id):
@@ -134,7 +135,6 @@ class PackageController(CkanBaseController):
             c.fs = ckan.forms.package_fs.bind(pkg, data=params or None)
             try:
                 self._update(c.fs, id, pkg.id)
-
                 # do not use pkgname from id as may have changed
                 c.pkgname = c.fs.name.value
                 h.redirect_to(action='read', id=c.pkgname)
@@ -159,18 +159,22 @@ class PackageController(CkanBaseController):
         if not 'commit' in request.params:
             # display form
             c.pkgname = pkg.name
-            fs = ckan.forms.authz_fs(c, pkg)
+            pkg = model.Package.by_name(c.pkgname)
+            fs = ckan.forms.authz_fs.bind(pkg.roles + [model.PackageRole]*3)
+            editable = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, pkg)
+            if not editable:
+                fs.configure(readonly=True)
             c.form = self._render_authz_form(fs)
             return render('package/authz')
         else:
             # commit form
             if not c.authz_editable:
                 abort(401, '401 Access denied')                
-                
+
+            print "COMMIT PARAMS", request.params
             params = dict(request.params) # needed because request is nested
                                           # multidict which is read only
-            c.fs = ckan.forms.authz_fs(c, pkg, data=params or None)
-
+            c.fs = ckan.forms.authz_fs.bind(pkg.roles, data=params or None)
             try:
                 self._update_authz(c.fs, id, pkg.id)
                 h.redirect_to(action='read', id=pkg.name)
@@ -205,7 +209,7 @@ class PackageController(CkanBaseController):
 
     def _update(self, fs, id, record_id):
         '''
-        Writes the POST data to the database
+        Writes the POST data (associated with a package edit) to the database
         @input c.error
         '''
         error_msg = self._is_locked(fs.name.value)
@@ -217,13 +221,6 @@ class PackageController(CkanBaseController):
             error_msg = 'This commit looks like spam'
             # TODO: make this into a UserErrorMessage or the like
             raise Exception(error_msg)
-
-        # currently only returns one value because of problems with
-        # genshi and multiple on select so need to wrap in an array
-##        if request.params.has_key('licenses'):
-##            indict['licenses'] = [request.params['licenses']]
-##        else:
-##            indict['licenses'] = []
 
         validation = fs.validate_on_edit(id, record_id)
         if not validation:
@@ -238,7 +235,6 @@ class PackageController(CkanBaseController):
             rev = model.repo.new_revision()
             rev.author = c.author
             rev.message = log_message
-
             fs.sync()
         except Exception, inst:
             model.Session.rollback()
