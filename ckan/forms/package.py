@@ -165,6 +165,7 @@ package_fs.configure(options=[package_fs.name.label('Name (required)').with_rend
                               package_fs.state,
                               package_fs._extras,
                               package_fs.groups,
+                              package_fs.roles,
                               ])
 
 
