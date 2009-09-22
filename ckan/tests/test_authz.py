@@ -22,17 +22,23 @@ class TestAuthorizer(object):
         model.User(name=u'testadmin')
         model.User(name=u'testsysadmin') # in test.ini
         model.User(name=u'notadmin')
+        model.Group(name=u'testgroup')
+        model.Group(name=u'testgroup2')
         model.repo.new_revision()
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(u'testpkg')
+        grp = model.Group.by_name(u'testgroup')
         admin = model.User.by_name(u'testadmin')
         model.add_user_to_role(admin, model.Role.ADMIN, pkg)
+        model.add_user_to_role(admin, model.Role.ADMIN, grp)
         model.repo.commit_and_remove()
 
         self.authorizer = ckan.authz.Authorizer()
         self.pkg = model.Package.by_name(u'testpkg')
         self.pkg2 = model.Package.by_name(u'testpkg2')
+        self.grp = model.Group.by_name(u'testgroup')
+        self.grp2 = model.Group.by_name(u'testgroup2')
         self.admin = model.User.by_name(u'testadmin')
         self.sysadmin = model.User.by_name(u'testsysadmin')
         self.notadmin = model.User.by_name(u'notadmin')
@@ -51,18 +57,37 @@ class TestAuthorizer(object):
         assert not self.controller.is_authorized(self.admin.name, action, self.pkg2)
         assert not self.controller.is_authorized(u'blah', action, self.pkg)
 
-    def test_sys_admin(self):
+    def test_grp_admin(self):
+        action = model.Action.PURGE
+        assert self.controller.is_authorized(self.admin.name, action, self.grp)
+        assert not self.controller.is_authorized(self.admin.name, action, self.grp2)
+        assert not self.controller.is_authorized(u'blah', action, self.grp)
+
+    def test_pkg_sys_admin(self):
         action = model.Action.PURGE
         assert self.controller.is_authorized(self.sysadmin.name, action, self.pkg)
         assert self.controller.is_authorized(self.sysadmin.name, action, self.pkg2)
         assert not self.controller.is_authorized(u'blah', action, self.pkg)
 
-    def test_blacklist_edit(self):
+    def test_grp_sys_admin(self):
+        action = model.Action.PURGE
+        assert self.controller.is_authorized(self.sysadmin.name, action, self.grp)
+        assert self.controller.is_authorized(self.sysadmin.name, action, self.grp2)
+        assert not self.controller.is_authorized(u'blah', action, self.grp)
+
+    def test_blacklist_edit_pkg(self):
         action = model.Action.EDIT
         username = u'testadmin'
         bad_username = u'83.222.23.234'
         assert self.controller.is_authorized(self.admin.name, action, self.pkg)
         assert not self.controller.is_authorized(bad_username, action, self.pkg)
+
+    def test_blacklist_edit_grp(self):
+        action = model.Action.EDIT
+        username = u'testadmin'
+        bad_username = u'83.222.23.234'
+        assert self.controller.is_authorized(self.admin.name, action, self.grp)
+        assert not self.controller.is_authorized(bad_username, action, self.grp)
 
     def test_revision_purge(self):
         action = model.Action.PURGE
