@@ -15,7 +15,9 @@ model_classes = [
     ckan.model.PackageTag,
     ckan.model.PackageRevision,
     ckan.model.PackageTagRevision,
-    ckan.model.User,
+    ckan.model.Group,
+    ckan.model.PackageGroup,
+    ckan.model.PackageExtra,
 ]
 
 def get_table(model_class):
@@ -24,7 +26,7 @@ def get_table(model_class):
 
 class Dumper(object):
 
-    def dump(self, dump_path, verbose=False):
+    def dump(self, dump_path, verbose=False, ):
         dump_struct = { 'version' : ckan.__version__ }
 
         if verbose:

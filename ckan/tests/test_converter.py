@@ -29,12 +29,19 @@ class TestConverter(object):
         assert os.path.exists(self.outpath) 
         dumpeddata = simplejson.load(open(self.outpath))
         assert dumpeddata['version'] == ckan.__version__
-        assert len(dumpeddata['Package']) == 2
-        assert len(dumpeddata['Tag']) == 2
-        assert len(dumpeddata['PackageRevision']) == 2
+        tables = dumpeddata.keys()
+        for key in ['Package', 'Tag', 'Group', 'PackageGroup', 'PackageExtra']:
+            assert key in tables, '%r not in %s' % (key, tables)
+        for key in ['User']:
+            assert key not in tables, '%s should not be in %s' % (key, tables)
+        assert len(dumpeddata['Package']) == 2, len(dumpeddata['Package'])
+        assert len(dumpeddata['Tag']) == 2, len(dumpeddata['Tag'])
+        assert len(dumpeddata['PackageRevision']) == 2, len(dumpeddata['PackageRevision'])
+        assert len(dumpeddata['Group']) == 2, len(dumpeddata['Group'])
 
-   
-    def test_load(self):
+
+    # Disabled 22/9/09 because not used anymore
+    def _test_load(self):
         model.repo.clean_db()
         model.repo.create_db()
         d = Dumper()

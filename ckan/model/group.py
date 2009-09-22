@@ -15,6 +15,9 @@ group_table = Table('group', metadata,
         Column('description', UnicodeText),
 )
 
+class PackageGroup(DomainObject):
+    pass
+
 class Group(DomainObject):
     def __init__(self, name=u'', title=u'', description=u''):
         self.name = name
@@ -33,7 +36,9 @@ class Group(DomainObject):
     def __repr__(self):
         return '<Group %s>' % self.name
 
-mapper(Group, group_table, properties = {
+mapper(Group, group_table, properties={
     'packages':relation(Package, secondary=package_group_table, backref='groups')
     })
 
+mapper(PackageGroup, package_group_table)
+    
