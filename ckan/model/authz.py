@@ -66,19 +66,7 @@ class UserObjectRole(DomainObject):
     pass
 
 class PackageRole(UserObjectRole):
-    def __init__(self, package_name=None, **kwargs):
-        if package_name:
-            pkg = Package.by_name(package_name)
-            assert pkg
-            self.package_id = pkg.id
-        for k,v in kwargs.items():
-            setattr(self, k, v)
-
-##    @property
-##    def user(self):
-##        user = User.query.get(self.user_id)
-##        return user
-
+    pass
 
 class GroupRole(UserObjectRole):
     pass
@@ -91,11 +79,11 @@ mapper(UserObjectRole, user_object_role_table,
        properties={
         'user': orm.relation(User,
                  backref=orm.backref('roles',
-                 cascade='all, delete'
+                 cascade='all, delete, delete-orphan'
                  ),
              )
     },
-       order_by=[user_object_role_table.c.id],
+    order_by=[user_object_role_table.c.id],
 )
 
 mapper(PackageRole, package_role_table, inherits=UserObjectRole,
@@ -103,9 +91,9 @@ mapper(PackageRole, package_role_table, inherits=UserObjectRole,
        properties={
             'package': orm.relation(Package,
                  backref=orm.backref('roles',
-                 cascade='all, delete'
+                 cascade='all, delete, delete-orphan'
                  ),
-                                    )
+            )
     },
     order_by=[package_role_table.c.user_object_role_id],
 )
@@ -115,9 +103,9 @@ mapper(GroupRole, group_role_table, inherits=UserObjectRole,
        properties={
             'group': orm.relation(Group,
                  backref=orm.backref('roles',
-                 cascade='all, delete'
+                 cascade='all, delete, delete-orphan'
                  ),
-                                    )
+            )
     },
     order_by=[group_role_table.c.user_object_role_id],
 )
@@ -154,52 +142,44 @@ def user_has_role(user, role, domain_obj):
     
     if isinstance(domain_obj, Package):
         return PackageRole.query.filter_by(role=role,
-                                           package_id=domain_obj.id,
-                                           user_id=user.id).count() == 1
+                                           package=domain_obj,
+                                           user=user).count() == 1
     elif isinstance(domain_obj, Grouop):
         return GroupRole.query.filter_by(role=role,
-                                           group_id=domain_obj.id,
-                                           user_id=user.id).count() == 1
+                                           group=domain_obj,
+                                           user=user).count() == 1
     else:
         raise NotImplementedError()
 
+
 def add_user_to_role(user, role, domain_obj):
-    assert isinstance(user, User), user
-    assert user.id
     assert Role.is_valid(role), role
-    assert isinstance(domain_obj, (Package, Group)), domain_obj
-    assert domain_obj.id
 
     if isinstance(domain_obj, Package):
         pr = PackageRole(role=role,
-                         package_id=domain_obj.id,
-                         user_id=user.id)
+                         package=domain_obj,
+                         user=user)
     elif isinstance(domain_obj, Group):
         pr = GroupRole(role=role,
-                         group_id=domain_obj.id,
-                         user_id=user.id)
+                         group=domain_obj,
+                         user=user)
     else:
         raise NotImplementedError()
-
     Session.commit()
     Session.remove()
 
 def remove_user_from_role(user, role, domain_obj):
-    assert isinstance(user, User), user
-    assert user.id
     assert Role.is_valid(role), role
-    assert isinstance(domain_obj, (Package, Group)), domain_obj
-    assert domain_obj.id
-    
+
     if isinstance(domain_obj, Package):
         pr = PackageRole.query.filter_by(role=role,
-                                         package_id=domain_obj.id,
-                                         user_id=user.id).one()
+                                         package=domain_obj,
+                                         user=user).one()
         Session.delete(pr)
     elif isinstance(domain_obj, Group):
         pr = GroupRole.query.filter_by(role=role,
-                                         group_id=domain_obj.id,
-                                         user_id=user.id).one()
+                                         group=domain_obj,
+                                         user=user).one()
         Session.delete(pr)
     else:
         raise NotImplementedError()
@@ -254,9 +234,9 @@ def setup_default_user_roles(domain_object, admins=[]):
 def clear_user_roles(domain_object):
     assert isinstance(domain_object, DomainObject)
     if isinstance(domain_object, Package):
-        q = PackageRole.query.filter_by(package_id=domain_object.id)
+        q = PackageRole.query.filter_by(package=domain_object)
     elif isinstance(domain_object, Group):
-        q = GroupRole.query.filter_by(group_id=domain_object.id)
+        q = GroupRole.query.filter_by(group=domain_object)
     else:
         raise NotImplementedError()
     user_roles = q.all()
