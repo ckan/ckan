@@ -109,7 +109,7 @@ class TestSync:
             usernames_done.append(name)
         for user, role in new_roles.items():
             if user not in usernames_done:
-                user = model.User.by_name(user)
+                user = model.User.by_name(unicode(user))
                 params.extend(self._make_param(u'', user.id, role))
         return params
 
