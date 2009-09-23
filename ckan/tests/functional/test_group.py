@@ -12,6 +12,11 @@ class TestGroup(TestController2):
     def teardown_class(self):
         CreateTestData.delete()
 
+    def test_mainmenu(self):
+        offset = url_for(controller='home', action='index')
+        res = self.app.get(offset)
+        assert 'Groups' in res, res        
+
     def test_index(self):
         offset = url_for(controller='group')
         res = self.app.get(offset)
