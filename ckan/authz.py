@@ -63,18 +63,21 @@ class Authorizer(object):
         return False
 
     @classmethod
-    def get_package_roles_printable(cls, domain_obj):
-        prs = cls.get_package_roles(domain_obj)
+    def get_domain_object_roles_printable(cls, domain_obj):
+        prs = cls.get_domain_object_roles(domain_obj)
         printable_prs = []
         for user, role in prs:
             printable_prs.append('%s - \t%s' % (user.name, role))
         return '%s roles:\n' % domain_obj.name + '\n'.join(printable_prs)        
 
     @classmethod
-    def get_package_roles(cls, domain_obj):
-        '''Get a list of tuples (user, role) for package `domain_obj`'''
-        assert isinstance(domain_obj, model.Package)
-        q = model.PackageRole.query.filter_by(package=domain_obj)
+    def get_domain_object_roles(cls, domain_obj):
+        '''Get a list of tuples (user, role) for domain_obj specified'''
+        assert isinstance(domain_obj, (model.Package, model.Group))
+        if isinstance(domain_obj, model.Package):
+            q = model.PackageRole.query.filter_by(package=domain_obj)
+        elif isinstance(domain_obj, model.Group):
+            q = model.GroupRole.query.filter_by(group=domain_obj)
         prs = [ (pr.user, pr.role) for pr in q.all() ]
         return prs
 

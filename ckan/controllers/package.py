@@ -3,15 +3,12 @@ import genshi
 import simplejson
 
 from ckan.lib.base import *
-from ckan.controllers.base import CkanBaseController
+from ckan.controllers.base import CkanBaseController, ValidationException
 from ckan.lib.search import Search, SearchOptions
 import ckan.forms
 import ckan.authz
 
 logger = logging.getLogger('ckan.controllers')
-
-class ValidationException(Exception):
-    pass
 
 class PackageController(CkanBaseController):
     authorizer = ckan.authz.Authorizer()
@@ -54,10 +51,13 @@ class PackageController(CkanBaseController):
         if c.pkg is None:
             abort(404, '404 Not Found')
         
-        am_authz = self.authorizer.am_authorized(c, model.Action.READ, c.pkg)
-        if not am_authz:
+        auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, c.pkg)
+        if not auth_for_read:
             print 'Unauthorized to read %s' % id
             abort(401, 'Unauthorized to read %s' % id)        
+
+        c.auth_for_authz = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, c.pkg)
+        c.auth_for_edit = self.authorizer.am_authorized(c, model.Action.EDIT, c.pkg)
 
         fs = ckan.forms.package_fs.bind(c.pkg)
         c.content = genshi.HTML(self._render_package(fs))

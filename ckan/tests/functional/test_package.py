@@ -243,7 +243,7 @@ Hello world.
         fv[prefix + 'name'] = u'a' # invalid name
         res = fv.submit('commit')
         assert 'Error' in res, res
-        assert 'Package name must be at least 2 characters long' in res, res
+        assert 'Name must be at least 2 characters long' in res, res
         # Ensure there is an error at the top of the form and by the field
         assert 'class="form-errors"' in res, res
         assert 'class="field_error"' in res, res
@@ -537,7 +537,7 @@ class TestPackageControllerNew(TestController2):
 #        fv[prefix + 'groups'] = 'test groups'
         res = fv.submit('commit')
         assert 'Error' in res, res
-        assert 'Package name must be at least 2 characters long' in res, res
+        assert 'Name must be at least 2 characters long' in res, res
         # Ensure there is an error at the top of the form and by the field
         assert 'class="form-errors"' in res, res
         assert 'class="field_error"' in res, res

@@ -1,0 +1,20 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+  
+  <py:def function="page_title">Groups - Edit - ${c.groupname}</py:def>
+
+  <div py:match="content">
+    <h2>
+      Edit Group: ${c.groupname}
+    </h2>
+
+    <h3 py:if="c.error" class="form-errors">
+      Error: ${c.error}
+    </h3>
+
+    ${HTML(c.form)}
+  </div>
+
+  <xi:include href="../layout.html" />
+</html>
+

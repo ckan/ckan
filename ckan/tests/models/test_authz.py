@@ -148,7 +148,7 @@ class TestDefaultPackageUserRoles(object):
 
     def test_admin(self):
         roles = self.authorizer.get_roles(self.joeadmin.name, self.pkg)
-        assert model.Role.ADMIN in roles, self.authorizer.get_package_roles_printable(self.pkg)
+        assert model.Role.ADMIN in roles, self.authorizer.get_domain_object_roles_printable(self.pkg)
 
     def test_logged_in(self):
         roles = self.authorizer.get_roles(self.logged_in.name, self.pkg)
@@ -416,22 +416,22 @@ class TestUseCasePermissions:
     def test_12_visitor_changes_restricted_package(self):
         assert not self.authorizer.is_authorized(username=self.visitor.name,
                                                  action=model.Action.EDIT,
-                                                 domain_object=self.restricted), self.authorizer._package_role_table(self.restricted)
+                                                 domain_object=self.restricted), self.authorizer.get_domain_object_roles_printable(self.restricted)
 
     def test_13_user_changes_vrestricted_package(self):
         assert not self.authorizer.is_authorized(username=self.john.name,
                                                  action=model.Action.EDIT,
-                                                 domain_object=self.vrestricted), self.authorizer._package_role_table(self.vrestricted)
+                                                 domain_object=self.vrestricted), self.authorizer.get_domain_object_roles_printable(self.vrestricted)
 
     def test_14_visitor_reads_restricted_package(self):
         assert not self.authorizer.is_authorized(username=self.visitor.name,
                                                  action=model.Action.READ,
-                                                 domain_object=self.restricted), self.authorizer._package_role_table(self.restricted)
+                                                 domain_object=self.restricted), self.authorizer.get_domain_object_roles_printable(self.restricted)
 
     def test_15_user_reads_vrestricted_package(self):
         assert not self.authorizer.is_authorized(username=self.john.name,
                                                  action=model.Action.READ,
-                                                 domain_object=self.vrestricted), self.authorizer._package_role_table(self.vrestricted)
+                                                 domain_object=self.vrestricted), self.authorizer.get_domain_object_roles_printable(self.vrestricted)
 
         
 

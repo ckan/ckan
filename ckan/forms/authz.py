@@ -105,7 +105,7 @@ class AuthzFieldSet(fa.Grid):
         return not self.errors
 
     def _get_data_fromdb(self):
-        prs = self._authorizer.get_package_roles(self.package)
+        prs = self._authorizer.get_domain_object_roles(self.package)
         user_roles = {}
         for user, role in prs:
             if not user_roles.has_key(user):

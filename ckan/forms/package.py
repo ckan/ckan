@@ -2,10 +2,10 @@ import re
 
 import formalchemy
 from formalchemy import helpers as h
+
+import common
 import ckan.model as model
 import ckan.lib.helpers
-
-import ckan.model as model
 
 FIELD_TIP_TEMPLATE = '<p class="desc">%s</p>'
 FIELD_TIPS = {
@@ -14,13 +14,8 @@ FIELD_TIPS = {
     'notes':'You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.'
 }
 
-package_match = re.compile('[a-z0-9_\-]*$')
 def package_name_validator(val):
-    min_length = 2
-    if len(val) < min_length:
-        raise formalchemy.ValidationError('Package name must be at least %s characters long' % min_length)
-    if not package_match.match(val):
-        raise formalchemy.ValidationError('Package must be purely lowercase alphanumeric (ascii) characters and these symbols: -_')
+    common.name_validator(val)
     if model.Package.by_name(val):
         raise formalchemy.ValidationError('Package name already exists in database')
         

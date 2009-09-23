@@ -6,8 +6,16 @@
   <py:def function="page_title">Groups - ${c.group.name}</py:def>
 
   <div py:match="content">
-    <h2>Group: ${c.group.name}</h2>
-    <p>Packages in <strong>${c.group.name}</strong>:</p>
+    <h2>
+      Group: ${c.group.name}
+      <py:if test="c.auth_for_edit">
+        <a href="${h.url_for(controller='group',action='edit',id=c.group.name)}">[edit]</a>
+      </py:if>
+    </h2>
+
+    ${c.content}
+
+    <p>Packages:</p>
     <ul>
     <py:for each="pkg in c.group.packages">
       <li>

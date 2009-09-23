@@ -8,9 +8,13 @@
   <div py:match="content">
     <h2>
       Package: ${c.pkg.name}
-      <a href="${h.url_for(controller='package',action='edit',id=c.pkg.name)}">[edit]</a>
+      <py:if test="c.auth_for_edit">
+        <a href="${h.url_for(controller='package',action='edit',id=c.pkg.name)}">[edit]</a>
+      </py:if>
       <a href="${h.url_for(controller='package',action='history',id=c.pkg.name)}">[history]</a>
-      <a href="${h.url_for(controller='package',action='authz',id=c.pkg.name)}">[authorization]</a>
+      <py:if test="c.auth_for_authz">
+        <a href="${h.url_for(controller='package',action='authz',id=c.pkg.name)}">[authorization]</a>
+      </py:if>
     </h2>
 
     <h3>

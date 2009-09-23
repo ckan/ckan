@@ -5,6 +5,9 @@ import ckan
 from ckan.lib.base import *
 import ckan.model as model
 
+class ValidationException(Exception):
+    pass
+
 class CkanBaseController(BaseController):
 
     repo = model.repo
