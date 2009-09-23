@@ -6,12 +6,8 @@ from paste.deploy.converters import asbool
 
 from pylons import config
 from pylons.error import error_template
-from pylons.middleware import error_mapper, ErrorDocuments, ErrorHandler, \
-    StaticJavascripts
+from pylons.middleware import ErrorHandler, StaticJavascripts, StatusCodeRedirect
 from pylons.wsgiapp import PylonsApp
-
-from beaker.middleware import CacheMiddleware, SessionMiddleware
-from routes.middleware import RoutesMiddleware
 
 from ckan.config.environment import load_environment
 
@@ -40,9 +36,15 @@ def make_app(global_conf, full_stack=True, **app_conf):
     app = PylonsApp()
 
     # CUSTOM MIDDLEWARE HERE (filtered by error handling middlewares)
-    app = RoutesMiddleware(app, config['routes.map'])
-    app = SessionMiddleware(app, config)
-    app = CacheMiddleware(app, config)
+
+    import pylons
+    if pylons.__version__ >= "0.9.7":
+        # Routing/Session/Cache Middleware
+        from beaker.middleware import CacheMiddleware, SessionMiddleware
+        from routes.middleware import RoutesMiddleware
+        app = RoutesMiddleware(app, config['routes.map'])
+        app = SessionMiddleware(app, config)
+        app = CacheMiddleware(app, config)
 
     from repoze.who.config import make_middleware_with_config
     app = make_middleware_with_config(app, global_conf,
@@ -51,12 +53,14 @@ def make_app(global_conf, full_stack=True, **app_conf):
 
     if asbool(full_stack):
         # Handle Python exceptions
-        app = ErrorHandler(app, global_conf, error_template=error_template,
-                           **config['pylons.errorware'])
+        app = ErrorHandler(app, global_conf,**config['pylons.errorware'])
 
         # Display error documents for 401, 403, 404 status codes (and
         # 500 when debug is disabled)
-        app = ErrorDocuments(app, global_conf, mapper=error_mapper, **app_conf)
+        if asbool(config['debug']):
+            app = StatusCodeRedirect(app)
+        else:
+            app = StatusCodeRedirect(app, [401, 403, 404, 500])
 
     # Establish the Registry for this application
     app = RegistryManager(app)
