@@ -115,6 +115,7 @@ class TestGroupEditAuthz(TestController2):
         res = self.app.get(offset, extra_environ={'REMOTE_USER':
             self.admin})
         assert 'Deleted role' in res, res
+        assert 'error' not in res, res
         group = model.Group.by_name(self.groupname)
         assert len(group.roles) == num_roles_start
         assert model.GroupRole.query.filter_by(id=pr_id).count() == 0

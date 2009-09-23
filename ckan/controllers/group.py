@@ -116,16 +116,19 @@ class GroupController(CkanBaseController):
                 # new_roles.sync()
                 model.Session.commit()
                 model.Session.remove()
+                c.message = u'Added role \'%s\' for user \'%s\'' % (
+                    newgrouprole.role,
+                    newgrouprole.user.name)
         elif 'role_to_delete' in request.params:
             grouprole_id = request.params['role_to_delete']
             grouprole = model.GroupRole.query.get(grouprole_id)
             if grouprole is None:
-                c.message = 'Error: No role found with that id'
+                c.error = u'Error: No role found with that id'
             else:
                 grouprole.purge()
                 model.Session.commit()
-                c.message = u'Deleted role %s for user %s' % (grouprole.role,
-                        grouprole.user)
+                c.message = u'Deleted role \'%s\' for user \'%s\'' % (grouprole.role,
+                        grouprole.user.name)
 
         # retrieve group again ...
         group = model.Group.by_name(id)

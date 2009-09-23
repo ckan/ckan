@@ -100,6 +100,7 @@ class TestPackageEditAuthz(TestController2):
         res = self.app.get(offset, extra_environ={'REMOTE_USER':
             self.admin})
         assert 'Deleted role' in res, res
+        assert 'error' not in res, res
         pkg = model.Package.by_name(self.pkgname)
         assert len(pkg.roles) == 2
         assert model.PackageRole.query.filter_by(id=pr_id).count() == 0

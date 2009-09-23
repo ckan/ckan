@@ -63,7 +63,6 @@ def get_user_options(fs):
 class UserOptionsHack(object):
     def __iter__(self):
         opts = get_user_options(None)
-        print "USERS", opts
         return opts.__iter__()
 
 def get_new_role_fieldset(role_class):
