@@ -2,9 +2,16 @@
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       >
-      ${Markup(c.form)}
+      ${Markup(c.fieldset.render())}
+
+    <div>
+      <label class="field_opt">Packages</label>
+      <py:for each="pkg in c.fieldset.model.packages">
+        <input checked="checked" id="Group-packages_${pkg.name}" name="Group-packages_${pkg.name}" type="checkbox" value="1" />
+        <label for="Group-packages_${pkg.name}" style="display: inline;">${pkg.name}</label>
+      </py:for>
+     </div>
 
       <br/>
-
-      ${h.submit('commit', 'Commit')}
+      ${h.submit('commit', 'Save')}
     </form>
