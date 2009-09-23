@@ -12,5 +12,5 @@ class User(DomainObject):
     pass
 
 mapper(User, user_table,
-    order_by=user_table.c.id)
+    order_by=user_table.c.name)
 

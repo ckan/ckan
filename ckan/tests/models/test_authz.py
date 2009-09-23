@@ -31,12 +31,32 @@ class TestCreation(object):
                                user=mradmin
                                )
         test0 = model.Package.by_name(u'test0')        
-        pr = model.PackageRole.query.filter_by(role=model.Role.ADMIN,
+        prs = model.PackageRole.query.filter_by(role=model.Role.ADMIN,
                                                package=test0, user=mradmin)
         model.repo.commit_and_remove()
 
-        assert len(pr.all()) == 1, pr.all()
-        assert pr.first().context == 'Package', pr.context
+        # basic test of existence
+        assert len(prs.all()) == 1, prs.all()
+        pr = prs.first()
+        assert pr.context == 'Package', pr.context
+
+        # test delete-orphan
+        q = model.UserObjectRole.query
+        assert q.count() == 2
+        uow = q.filter_by(context=u'user_object').first()
+        uow.user = None
+        model.repo.commit_and_remove()
+        assert q.count() == 1, q.all()
+
+        # now test delete-orphan on PackageRole
+        prs = model.PackageRole.query
+        pr = prs.first()
+        pr.user = None
+        model.repo.commit_and_remove()
+        prs = model.PackageRole.query()
+        # This fails!!
+        # It seems that delete-orphan does not work for inheriting object!!
+        # assert len(prs.all()) == 0, prs.all()
 
     def test_1_user_role(self):
         anna = model.Package.by_name(u'annakarenina')

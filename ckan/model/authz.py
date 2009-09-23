@@ -74,26 +74,26 @@ class GroupRole(UserObjectRole):
 mapper(RoleAction, role_action_table)
        
 mapper(UserObjectRole, user_object_role_table,
-       polymorphic_on=user_object_role_table.c.context,
-       polymorphic_identity=u'user_object',
-       properties={
+    polymorphic_on=user_object_role_table.c.context,
+    polymorphic_identity=u'user_object',
+    properties={
         'user': orm.relation(User,
-                 backref=orm.backref('roles',
-                 cascade='all, delete, delete-orphan'
-                 ),
-             )
+            backref=orm.backref('roles',
+                cascade='all, delete, delete-orphan'
+            )
+        )
     },
     order_by=[user_object_role_table.c.id],
 )
 
 mapper(PackageRole, package_role_table, inherits=UserObjectRole,
-       polymorphic_identity=unicode(Package.__name__),
-       properties={
-            'package': orm.relation(Package,
-                 backref=orm.backref('roles',
-                 cascade='all, delete, delete-orphan'
-                 ),
-            )
+    polymorphic_identity=unicode(Package.__name__),
+    properties={
+        'package': orm.relation(Package,
+             backref=orm.backref('roles',
+             cascade='all, delete, delete-orphan'
+             )
+        ),
     },
     order_by=[package_role_table.c.user_object_role_id],
 )
@@ -226,7 +226,7 @@ def give_all_packages_default_user_roles():
 def setup_default_user_roles(domain_object, admins=[]):
     # sets up visitor and logged-in user and admins if provided
     assert isinstance(domain_object, DomainObject)
-    assert type(admins) == type([])
+    assert isinstance(admins, list)
     visitor_roles = [Role.EDITOR]
     logged_in_roles = [Role.EDITOR]
     setup_user_roles(domain_object, visitor_roles, logged_in_roles, admins)

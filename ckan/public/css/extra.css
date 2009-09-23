@@ -1,0 +1,16 @@
+img.icon {
+  height: 25px;
+}
+
+a.icon {
+    display: block;
+    height: 0;
+    overflow: hidden;
+    padding-top: 20px;
+    width: 20px;
+}
+
+.icon-delete {
+    background: transparent url(http://m.okfn.org/kforge/images/icon-delete.png) repeat scroll 0 0;
+    float: left;
+}
