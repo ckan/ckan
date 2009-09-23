@@ -8,6 +8,7 @@ class TestCreation(object):
 
     @classmethod
     def setup_class(self):
+        model.repo.rebuild_db()
         model.Package(name=u'annakarenina')
         model.Package(name=u'warandpeace')
         model.Package(name=u'test0')

@@ -10,8 +10,17 @@
 
     <p py:if="c.message" class="error">${c.message}</p>
 
-    ${HTML(c.form)}
+    <form action="" method="post">
+      <h3>Update Existing Roles</h3>
+      <table>
+      ${HTML(c.form)}
+      </table>
 
+      <h3>Create New User Roles</h3>
+      ${HTML(c.new_roles_form)}
+
+      ${h.submit('commit', 'Save')}
+    </form>
   </div>
 
   <xi:include href="layout.html" />

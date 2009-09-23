@@ -187,12 +187,14 @@ class CreateTestData(CkanCommand):
         testsysadmin = model.User(name=u'testsysadmin')
         model.repo.commit_and_remove()
         
+        visitor = model.User.by_name(model.PSEUDO_USER__VISITOR)
         anna = model.Package.by_name(u'annakarenina')
         war = model.Package.by_name(u'warandpeace')
         model.setup_default_user_roles(anna, [annafan])
         model.setup_default_user_roles(war, [russianfan])
+        model.add_user_to_role(visitor, model.Role.ADMIN, war)
         model.setup_default_user_roles(david, [russianfan])
-        
+
         model.repo.commit_and_remove()
     
     @classmethod
