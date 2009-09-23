@@ -54,8 +54,6 @@ class TestGroup(TestController2):
         assert 'Groups - %s' % name in res, res
         assert '[edit]' in res
         assert name in res
-        res = res.click('\[edit\]')
-        assert 'Edit Group: %s' % name in res, res
 
 class TestEdit(TestController2):
     @classmethod

@@ -8,6 +8,8 @@
       Authorization for package: ${c.pkgname}
     </h2>
 
+    <p py:if="c.message" class="error">${c.message}</p>
+
     ${HTML(c.form)}
 
   </div>

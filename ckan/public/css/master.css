@@ -10,3 +10,5 @@
 @import url(forms.css);
 /* import print styling */
 @import url(print.css);
+/* stuff specific to ckan */
+@import url(extra.css);

@@ -112,13 +112,6 @@ class TestPackageController(TestController2):
         assert 'Revisions' in res
         assert name in res
 
-    def test_authz(self):
-        name = 'annakarenina'
-        offset = url_for(controller='package', action='authz', id=name)
-        res = self.app.get(offset)
-        assert 'Authorization' in res
-        assert name in res
-
 class TestPackageControllerEdit(TestController2):
     def setup_method(self, method):
         self.setUp()

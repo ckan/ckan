@@ -10,6 +10,9 @@ import ckan.authz
 
 logger = logging.getLogger('ckan.controllers')
 
+class ValidationException(Exception):
+    pass
+
 class PackageController(CkanBaseController):
     authorizer = ckan.authz.Authorizer()
     
@@ -53,7 +56,6 @@ class PackageController(CkanBaseController):
         
         auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, c.pkg)
         if not auth_for_read:
-            print 'Unauthorized to read %s' % id
             abort(401, 'Unauthorized to read %s' % id)        
 
         c.auth_for_authz = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, c.pkg)
@@ -154,27 +156,16 @@ class PackageController(CkanBaseController):
         pkg = model.Package.by_name(id)
         if pkg is None:
             abort(404, '404 Not Found')
-            
+        c.pkgname = pkg.name
+
         c.authz_editable = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, pkg)
+        if not c.authz_editable:
+            abort(401, '401 Access denied')                
 
-        if not 'commit' in request.params:
-            # display form
-            c.pkgname = pkg.name
-            pkg = model.Package.by_name(c.pkgname)
-            fs = ckan.forms.authz_fs.bind(pkg.roles + [model.PackageRole]*3)
-            editable = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, pkg)
-            if not editable:
-                fs.configure(readonly=True)
-            c.form = self._render_authz_form(fs)
-            return render('package/authz')
-        else:
-            # commit form
-            if not c.authz_editable:
-                abort(401, '401 Access denied')                
-
-            print "COMMIT PARAMS", request.params
-            params = dict(request.params) # needed because request is nested
-                                          # multidict which is read only
+        if 'commit' in request.params: # form posted
+            # needed because request is nested
+            # multidict which is read only
+            params = dict(request.params)
             c.fs = ckan.forms.authz_fs.bind(pkg.roles, data=params or None)
             try:
                 self._update_authz(c.fs, id, pkg.id)
@@ -183,8 +174,24 @@ class PackageController(CkanBaseController):
                 c.error, fs = error.args
                 c.form = self._render_authz_form(fs)
                 return render('package/authz')
+        elif 'role_to_delete' in request.params:
+            pkgrole_id = request.params['role_to_delete']
+            pkgrole = model.PackageRole.query.get(pkgrole_id)
+            if pkgrole is None:
+                c.message = 'Error: No role found with that id'
+            else:
+                pkgrole.purge()
+                model.Session.commit()
+                c.message = u'Deleted role %s for user %s' % (pkgrole.role,
+                        pkgrole.user)
+            # retrieve pkg again ...
+            # pkg = model.Package.by_name(id)
 
+        fs = ckan.forms.authz_fs.bind(pkg.roles)
+        c.form = self._render_authz_form(fs)
+        return render('package/authz')
             
+
     def _render_edit_form(self, fs):
         # errors arrive in c.error and fs.errors
         c.form = fs.render()
