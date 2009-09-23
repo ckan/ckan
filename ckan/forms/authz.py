@@ -37,3 +37,26 @@ authz_fs.configure(
              authz_fs.delete],
     )
 
+def get_user_options(fs):
+    return [ ('', '__null_value__') ] + [ (u.name, u.id) for u in
+            model.User.query.all() ]
+
+class UserOptionsHack(object):
+    def __iter__(self):
+        opts = get_user_options(None)
+        return opts.__iter__()
+
+new_roles_fs = fa.FieldSet(model.PackageRole)
+new_roles_fs.configure(
+    include=[
+        new_roles_fs.user,
+        new_roles_fs.role
+    ],
+    options = [
+        # this is supposed to work according to FA docs!
+        # new_roles_fs.user.dropdown(options=get_user_options),
+        new_roles_fs.user.dropdown(options=UserOptionsHack()),
+        new_roles_fs.role.dropdown(options=role_options)
+    ],
+)
+

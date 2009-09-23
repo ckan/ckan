@@ -165,12 +165,25 @@ class PackageController(CkanBaseController):
             params = dict(request.params)
             c.fs = ckan.forms.authz_fs.bind(pkg.roles, data=params or None)
             try:
-                self._update_authz(c.fs, id, pkg.id)
-                h.redirect_to(action='read', id=pkg.name)
+                self._update_authz(c.fs)
             except ValidationException, error:
-                c.error, fs = error.args
-                c.form = self._render_authz_form(fs)
-                return render('package/authz')
+                # TODO: sort this out 
+                # c.error, fs = error.args
+                # return render('package/authz')
+                raise
+            # now do new roles
+            newrole_user_id = request.params.get('PackageRole--user_id')
+            if newrole_user_id != '__null_value__':
+                user = model.User.query.get(newrole_user_id)
+                # TODO: chech user is not None (should go in validation ...)
+                role = request.params.get('PackageRole--role')
+                newpkgrole = model.PackageRole(user=user, package=pkg,
+                        role=role)
+                # With FA no way to get new PackageRole back to set package attribute
+                # new_roles = ckan.forms.new_roles_fs.bind(model.PackageRole, data=params or None)
+                # new_roles.sync()
+                model.Session.commit()
+                model.Session.remove()
         elif 'role_to_delete' in request.params:
             pkgrole_id = request.params['role_to_delete']
             pkgrole = model.PackageRole.query.get(pkgrole_id)
@@ -181,24 +194,19 @@ class PackageController(CkanBaseController):
                 model.Session.commit()
                 c.message = u'Deleted role %s for user %s' % (pkgrole.role,
                         pkgrole.user)
-            # retrieve pkg again ...
-            # pkg = model.Package.by_name(id)
 
+        # retrieve pkg again ...
+        pkg = model.Package.by_name(id)
         fs = ckan.forms.authz_fs.bind(pkg.roles)
-        c.form = self._render_authz_form(fs)
+        c.form = fs.render()
+        c.new_roles_form = ckan.forms.new_roles_fs.render()
         return render('package/authz')
-            
 
     def _render_edit_form(self, fs):
         # errors arrive in c.error and fs.errors
         c.form = fs.render()
         return render('package/edit_form')
 
-    def _render_authz_form(self, fs):
-        # errors arrive in c.error and fs.errors
-        c.form = fs.render()
-        return render('package/authz_form')
-        
     def _is_locked(pkgname, self):
         # allow non-existent name -- never happens but allows test of 'bad'
         # update (test_update in test_package.py) to work normally :)
@@ -247,7 +255,7 @@ class PackageController(CkanBaseController):
         else:
             model.Session.commit()
 
-    def _update_authz(self, fs, id, record_id):
+    def _update_authz(self, fs):
         validation = fs.validate()
         if not validation:
             errors = []            

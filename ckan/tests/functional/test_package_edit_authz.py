@@ -12,10 +12,11 @@ class TestPackageEditAuthz(TestController2):
         model.repo.new_revision()
         self.admin = 'madeup-administrator'
         user = model.User(name=unicode(self.admin))
+        self.another = u'madeup-another'
+        model.User(name=unicode(self.another))
         self.pkgname = u'test6'
         pkg = model.Package(name=self.pkgname)
         model.setup_default_user_roles(pkg, admins=[user])
-
         model.repo.commit_and_remove()
 
     @classmethod
@@ -47,7 +48,6 @@ class TestPackageEditAuthz(TestController2):
         assert 'Role' in res
         for uname in [ model.PSEUDO_USER__VISITOR, self.admin ]:
             assert '%s' % uname in res
-        assert '<option value="__null_value__">' not in res
         # crude but roughly correct
         pkg = model.Package.by_name(self.pkgname)
         for r in pkg.roles:
@@ -57,6 +57,10 @@ class TestPackageEditAuthz(TestController2):
         pr = pkg.roles[0]
         href = '%s' % pr.id
         assert href in res, res
+
+    def _prs(self, pkgname):
+        pkg = model.Package.by_name(pkgname)
+        return dict([ (getattr(r.user, 'name', 'USER NAME IS NONE'), r) for r in pkg.roles ])
 
     def test_3_admin_changes_role(self):
         offset = url_for(controller='package', action='authz', id=self.pkgname)
@@ -68,11 +72,8 @@ class TestPackageEditAuthz(TestController2):
             return 'PackageRole-%s-role' % r.id
         def _u(r):
             return 'PackageRole-%s-user_id' % r.id
-        def _prs(p):
-            return dict([ (getattr(r.user, 'name', 'USER NAME IS NONE'), r) for r in pkg.roles ])
 
-        pkg = model.Package.by_name(self.pkgname)
-        prs = _prs(pkg)
+        prs = self._prs(self.pkgname)
         assert prs['visitor'].role == model.Role.EDITOR
         assert prs['logged_in'].role == model.Role.EDITOR
         form = res.forms[0]
@@ -82,9 +83,8 @@ class TestPackageEditAuthz(TestController2):
         res = form.submit('commit', extra_environ={'REMOTE_USER': self.admin})
 
         model.Session.remove()
-        pkg = model.Package.by_name(self.pkgname)
-        prs = _prs(pkg)
-        assert len(pkg.roles) == 3, prs
+        prs = self._prs(self.pkgname)
+        assert len(prs) == 3, prs
         assert prs['visitor'].role == model.Role.READER
         assert prs['logged_in'].role == model.Role.ADMIN
     
@@ -103,4 +103,27 @@ class TestPackageEditAuthz(TestController2):
         pkg = model.Package.by_name(self.pkgname)
         assert len(pkg.roles) == 2
         assert model.PackageRole.query.filter_by(id=pr_id).count() == 0
+
+    def test_5_admin_adds_role(self):
+        offset = url_for(controller='package', action='authz', id=self.pkgname)
+        res = self.app.get(offset, extra_environ={'REMOTE_USER':
+            self.admin})
+        assert self.pkgname in res
+        prs = self._prs(self.pkgname) 
+        startlen = len(prs)
+        # could be 2 or 3 depending on whether we ran this test alone or not
+        # assert len(prs) == 2, prs
+
+        assert 'Create New User Roles' in res
+        assert '<select id=' in res, res
+        form = res.forms[0]
+        another = model.User.by_name(self.another)
+        form.select('PackageRole--user_id', another.id)
+        form.select('PackageRole--role', model.Role.ADMIN)
+        res = form.submit('commit', extra_environ={'REMOTE_USER': self.admin})
+        model.Session.remove()
+
+        prs = self._prs(self.pkgname)
+        assert len(prs) == startlen+1, prs
+        assert prs[self.another].role == model.Role.ADMIN
 
