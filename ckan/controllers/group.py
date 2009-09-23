@@ -29,25 +29,6 @@ class GroupController(CkanBaseController):
 
         return render('group/read')
 
-    def autocomplete(self):
-        incomplete = request.params.get('incomplete', '')
-        if incomplete:
-            groups = list(model.Group.search_by_name(incomplete))
-            groupNames = [t.name for t in groups]
-        else:
-            groupNames = []
-        resultSet = {
-            "ResultSet": {
-                "Result": []
-            }
-        }
-        for groupName in groupNames[:10]:
-            result = {
-                "Name": groupName
-            }
-            resultSet["ResultSet"]["Result"].append(result)
-        return dumps(resultSet)
-
     def edit(self, id=None): # allow id=None to allow posting
         c.error = ''
         group = model.Group.by_name(id)
@@ -57,8 +38,7 @@ class GroupController(CkanBaseController):
         if not am_authz:
             abort(401, 'User %r unauthorized to edit %r' % (c.user, id))
 
-        if not 'commit' in request.params in request.params:
-            # edit
+        if not 'commit' in request.params:
             c.group = group
             c.groupname = group.name
             
@@ -68,8 +48,9 @@ class GroupController(CkanBaseController):
         else:
             # id is the name (pre-edited state)
             c.groupname = id
-            params = dict(request.params) # needed because request is nested
-                                          # multidict which is read only
+            # needed because request is nested
+            # multidict which is read only
+            params = dict(request.params)
             c.fs = ckan.forms.group_fs.bind(group, data=params or None)
             try:
                 self._update(c.fs, id, group.id)
@@ -139,7 +120,7 @@ class GroupController(CkanBaseController):
 
     def _render_edit_form(self, fs):
         # errors arrive in c.error and fs.errors
-        c.form = fs.render()
+        c.fieldset = fs
         return render('group/edit_form')
 
     def _render_group(self, fs):

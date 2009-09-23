@@ -194,6 +194,8 @@ class CreateTestData(CkanCommand):
         model.setup_default_user_roles(war, [russianfan])
         model.add_user_to_role(visitor, model.Role.ADMIN, war)
         model.setup_default_user_roles(david, [russianfan])
+        model.setup_default_user_roles(roger, [russianfan])
+        model.add_user_to_role(visitor, model.Role.ADMIN, roger)
 
         model.repo.commit_and_remove()
     
