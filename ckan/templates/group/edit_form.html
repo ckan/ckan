@@ -4,13 +4,19 @@
       >
       ${Markup(c.fieldset.render())}
 
-    <div>
+     <div>
       <label class="field_opt">Packages</label>
       <py:for each="pkg in c.fieldset.model.packages">
-        <input checked="checked" id="Group-packages_${pkg.name}" name="Group-packages_${pkg.name}" type="checkbox" value="1" />
+        <input checked="checked" id="Group-packages-current" name="Group-packages-current" type="checkbox" value="${pkg.name}" />
         <label for="Group-packages_${pkg.name}" style="display: inline;">${pkg.name}</label>
       </py:for>
      </div>
+
+      <h3>
+        New Packages
+      </h3>
+
+      ${Markup(c.fieldset2.render())}
 
       <br/>
       ${h.submit('commit', 'Save')}

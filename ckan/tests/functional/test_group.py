@@ -63,6 +63,10 @@ class TestEdit(TestController2):
     def setup_class(self):
         model.Session.remove()
         CreateTestData.create()
+        self.packagename = u'testpkg'
+        model.repo.new_revision()
+        model.Package(name=self.packagename)
+        model.repo.commit_and_remove()
 
     @classmethod
     def teardown_class(self):
@@ -85,6 +89,7 @@ class TestEdit(TestController2):
     def test_2_edit(self):
         offset = url_for(controller='group', action='edit', id=self.groupname)
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
+        print res
         assert 'Edit Group: %s' % self.groupname in res, res
 
         form = res.forms[0]
@@ -99,15 +104,19 @@ Ho ho ho
 
         form[titlefn] = newtitle
         form[descfn] = newdesc
+        pkg = model.Package.by_name(self.packagename)
+        form.select('PackageGroup--package_id', pkg.id)
+
+        
         res = form.submit('commit', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
         # should be read page
         # assert 'Groups - %s' % self.groupname in res, res
-
+        
         model.Session.remove()
         group = model.Group.by_name(self.groupname)
         assert group.title == newtitle, group
         assert group.description == newdesc, group
 
         # now look at packages
-        # TODO
+        assert len(group.packages) == 3
 

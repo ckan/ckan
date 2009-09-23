@@ -43,9 +43,6 @@ class GetPackagesHack(object):
 
 group_fs = GroupFieldSet()
 from formalchemy import Field
-group_fs.add(Field('New Package 1').dropdown(
-    options=[ (p.name, p.name) for p in model.Package.query.all()]
-    ))
 
 group_fs.configure(
     options=[
@@ -59,3 +56,14 @@ group_fs.configure(
         group_fs.roles,
     ]
 )
+
+
+##group_fs.add(Field('New Package 1').dropdown(
+##    options=[ (p.name, p.name) for p in model.Package.query.all()]
+##    ))
+package_list = [('', '__null_value__')] + [(p.name, p.id) for p in model.Package.query.all()]
+new_package_group_fs = formalchemy.FieldSet(model.PackageGroup)
+new_package_group_fs.configure(
+    options=[new_package_group_fs.package_id.dropdown(options=package_list)],
+    include=[new_package_group_fs.package_id]
+    )

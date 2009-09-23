@@ -56,11 +56,18 @@ class GroupController(CkanBaseController):
                 self._update(c.fs, id, group.id)
                 # do not use groupname from id as may have changed
                 c.groupname = c.fs.name.value
-                h.redirect_to(action='read', id=c.groupname)
             except ValidationException, error:
                 c.error, fs = error.args
                 c.form = self._render_edit_form(fs)
                 return render('group/edit')
+            pkgs = [model.Package.by_name(name) for name in request.params.getall('Group-packages-current')]
+            group.packages = pkgs
+            pkgid = request.params.get('PackageGroup--package_id')
+            if pkgid != '__null_value__':
+                package = model.Package.query.get(pkgid)
+                group.packages.append(package)
+            model.repo.commit_and_remove()
+            h.redirect_to(action='read', id=c.groupname)
 
     def authz(self, id):
         group = model.Group.by_name(id)
@@ -121,6 +128,7 @@ class GroupController(CkanBaseController):
     def _render_edit_form(self, fs):
         # errors arrive in c.error and fs.errors
         c.fieldset = fs
+        c.fieldset2 = ckan.forms.new_package_group_fs
         return render('group/edit_form')
 
     def _render_group(self, fs):
