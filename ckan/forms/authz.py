@@ -9,7 +9,7 @@ import formalchemy.config
 
 from formalchemy import Field
 from sqlalchemy import types
-def get_linker(action):
+def get_package_linker(action):
     return lambda item: '<a href="%s" title="%s"><img src="http://m.okfn.org/kforge/images/icon-delete.png" alt="%s" class="icon" /></a>' % (
                         h.url_for(controller='package',
                             action='authz',
@@ -18,24 +18,43 @@ def get_linker(action):
                         action,
                         action)
 
-authz_fs = fa.Grid(model.PackageRole)
-role_options = model.Role.get_all()
+def get_group_linker(action):
+    return lambda item: '<a href="%s" title="%s"><img src="http://m.okfn.org/kforge/images/icon-delete.png" alt="%s" class="icon" /></a>' % (
+                        h.url_for(controller='group',
+                            action='authz',
+                            id=item.group.name,
+                            role_to_delete=item.id),
+                        action,
+                        action)
 
-authz_fs.add(
-    Field(u'delete', types.String, get_linker(u'delete')).readonly()
-    )
-authz_fs.add(
-    Field(u'username', types.String, lambda item: item.user.name).readonly()
-    )
+def get_authz_fieldset(role_class):
+    fs = fa.Grid(role_class)
+    role_options = model.Role.get_all()
 
-authz_fs.configure(
-    options = [
-        authz_fs.role.dropdown(options=role_options)
-        ],
-    include=[authz_fs.username,
-             authz_fs.role,
-             authz_fs.delete],
-    )
+    if role_class == model.PackageRole:
+        fs.add(
+            Field(u'delete', types.String, get_package_linker(u'delete')).readonly()
+            )
+    elif role_class == model.GroupRole:
+        fs.add(
+            Field(u'delete', types.String, get_group_linker(u'delete')).readonly()
+            )
+    fs.add(
+        Field(u'username', types.String, lambda item: item.user.name).readonly()
+        )
+
+    fs.configure(
+        options = [
+            fs.role.dropdown(options=role_options)
+            ],
+        include=[fs.username,
+                 fs.role,
+                 fs.delete],
+        )
+    return fs
+
+package_authz_fs = get_authz_fieldset(model.PackageRole)
+group_authz_fs = get_authz_fieldset(model.GroupRole)
 
 def get_user_options(fs):
     return [ ('', '__null_value__') ] + [ (u.name, u.id) for u in
@@ -44,19 +63,25 @@ def get_user_options(fs):
 class UserOptionsHack(object):
     def __iter__(self):
         opts = get_user_options(None)
+        print "USERS", opts
         return opts.__iter__()
 
-new_roles_fs = fa.FieldSet(model.PackageRole)
-new_roles_fs.configure(
-    include=[
-        new_roles_fs.user,
-        new_roles_fs.role
-    ],
-    options = [
-        # this is supposed to work according to FA docs!
-        # new_roles_fs.user.dropdown(options=get_user_options),
-        new_roles_fs.user.dropdown(options=UserOptionsHack()),
-        new_roles_fs.role.dropdown(options=role_options)
-    ],
-)
+def get_new_role_fieldset(role_class):
+    fs = fa.FieldSet(role_class)
+    role_options = model.Role.get_all()
+    fs.configure(
+        include=[
+            fs.user,
+            fs.role
+        ],
+        options = [
+            # this is supposed to work according to FA docs!
+            # fs.user.dropdown(options=get_user_options),
+            fs.user.dropdown(options=UserOptionsHack()),
+            fs.role.dropdown(options=role_options)
+        ],
+        )
+    return fs
 
+new_package_roles_fs = get_new_role_fieldset(model.PackageRole)
+new_group_roles_fs = get_new_role_fieldset(model.GroupRole)

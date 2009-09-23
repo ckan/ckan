@@ -21,7 +21,8 @@ class GroupController(CkanBaseController):
         c.group = model.Group.by_name(id)
         if c.group is None:
             abort(404)
-        c.auth_for_edit = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, c.group)
+        c.auth_for_edit = self.authorizer.am_authorized(c, model.Action.EDIT, c.group)
+        c.auth_for_authz = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, c.group)
         
         fs = ckan.forms.group_fs.bind(c.group)
         c.content = genshi.HTML(self._render_group(fs))
@@ -80,6 +81,59 @@ class GroupController(CkanBaseController):
                 c.form = self._render_edit_form(fs)
                 return render('group/edit')
 
+    def authz(self, id):
+        group = model.Group.by_name(id)
+        if group is None:
+            abort(404, '404 Not Found')
+        c.groupname = group.name
+
+        c.authz_editable = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, group)
+        if not c.authz_editable:
+            abort(401, '401 Access denied')                
+
+        if 'commit' in request.params: # form posted
+            # needed because request is nested
+            # multidict which is read only
+            params = dict(request.params)
+            c.fs = ckan.forms.group_authz_fs.bind(group.roles, data=params or None)
+            try:
+                self._update_authz(c.fs)
+            except ValidationException, error:
+                # TODO: sort this out 
+                # c.error, fs = error.args
+                # return render('group/authz')
+                raise
+            # now do new roles
+            newrole_user_id = request.params.get('GroupRole--user_id')
+            if newrole_user_id != '__null_value__':
+                user = model.User.query.get(newrole_user_id)
+                # TODO: chech user is not None (should go in validation ...)
+                role = request.params.get('GroupRole--role')
+                newgrouprole = model.GroupRole(user=user, group=group,
+                        role=role)
+                # With FA no way to get new GroupRole back to set group attribute
+                # new_roles = ckan.forms.new_roles_fs.bind(model.GroupRole, data=params or None)
+                # new_roles.sync()
+                model.Session.commit()
+                model.Session.remove()
+        elif 'role_to_delete' in request.params:
+            grouprole_id = request.params['role_to_delete']
+            grouprole = model.GroupRole.query.get(grouprole_id)
+            if grouprole is None:
+                c.message = 'Error: No role found with that id'
+            else:
+                grouprole.purge()
+                model.Session.commit()
+                c.message = u'Deleted role %s for user %s' % (grouprole.role,
+                        grouprole.user)
+
+        # retrieve group again ...
+        group = model.Group.by_name(id)
+        fs = ckan.forms.group_authz_fs.bind(group.roles)
+        c.form = fs.render()
+        c.new_roles_form = ckan.forms.new_group_roles_fs.render()
+        return render('group/authz')
+
     def _render_edit_form(self, fs):
         # errors arrive in c.error and fs.errors
         c.form = fs.render()
@@ -119,3 +173,19 @@ class GroupController(CkanBaseController):
         else:
             model.Session.commit()
 
+    def _update_authz(self, fs):
+        validation = fs.validate()
+        if not validation:
+            errors = []            
+            for row, err in fs.errors.items():
+                errors.append(err)
+            c.error = ', '.join(errors)
+            c.form = self._render_edit_form(fs)
+            raise ValidationException(c.error, fs)
+        try:
+            fs.sync()
+        except Exception, inst:
+            model.Session.rollback()
+            raise
+        else:
+            model.Session.commit()

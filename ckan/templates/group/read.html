@@ -10,6 +10,9 @@
       Group: ${c.group.name}
       <py:if test="c.auth_for_edit">
         <a href="${h.url_for(controller='group',action='edit',id=c.group.name)}">[edit]</a>
+      <py:if test="c.auth_for_authz">
+        <a href="${h.url_for(controller='group',action='authz',id=c.group.name)}">[authorization]</a>
+      </py:if>
       </py:if>
     </h2>
 
