@@ -56,6 +56,7 @@ class PackageController(CkanBaseController):
         
         am_authz = self.authorizer.am_authorized(c, model.Action.READ, c.pkg)
         if not am_authz:
+            print 'Unauthorized to read %s' % id
             abort(401, 'Unauthorized to read %s' % id)        
 
         fs = ckan.forms.package_fs.bind(c.pkg)

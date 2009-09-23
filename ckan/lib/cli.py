@@ -37,6 +37,7 @@ class ManageDb(CkanCommand):
     db upgrade
     db dump {file-path} # dump to a file
     db load {file-path} # load from a file
+    db load-data4nr {file-path.csv}
     db migrate06
     db migrate09a
     db migrate09b
@@ -64,6 +65,8 @@ class ManageDb(CkanCommand):
             model.repo.upgrade_db()
         elif cmd == 'dump' or cmd == 'load':
             self.dump_or_load(cmd)
+        elif cmd == 'load-data4nr':
+            self.load_data4nr(cmd)
         elif cmd == 'migrate06':
             import ckan.lib.converter
             dumper = ckan.lib.converter.Dumper()
@@ -102,6 +105,14 @@ class ManageDb(CkanCommand):
         else:
             print 'Unknown command', cmd
 
+    def load_data4nr(self, cmd):
+        if len(self.args) < 2:
+            print 'Need csv file path'
+            return
+        load_path = self.args[1]
+        import ckan.getdata.data4nr
+        data = ckan.getdata.data4nr.Data4Nr()
+        data.load_csv_into_db(load_path)
 
 class CreateTestData(CkanCommand):
     '''Create test data in the DB.
