@@ -12,7 +12,7 @@ class TestPackageController(TestController):
 
     @classmethod
     def teardown_class(self):
-        CreateTestData.delete()
+        model.repo.rebuild_db()
 
     def test_index(self):
         offset = url_for(controller='package')
@@ -539,3 +539,56 @@ class TestPackageControllerNew(TestController):
         assert 'value="test tags"' in res, res
 #        assert 'value="test groups"' in res, res
 
+class TestNonActivePackages(TestController):
+
+    @classmethod
+    def setup_class(self):
+        CreateTestData.create()
+        self.non_active_name = u'test_nonactive'
+        model.Package(name=self.non_active_name)
+        model.repo.new_revision()
+        model.repo.commit_and_remove()
+
+        pkg = model.Package.query.filter_by(name=self.non_active_name).one()
+        admin = model.User.by_name('joeadmin')
+        model.setup_default_user_roles(pkg, [admin])
+        
+        pkg = model.Package.query.filter_by(name=self.non_active_name).one()
+        pkg.delete() # becomes non active
+        model.repo.new_revision()
+        model.repo.commit_and_remove()
+        
+
+    @classmethod
+    def teardown_class(self):
+        model.repo.rebuild_db()
+
+    def test_list(self):
+        offset = url_for(controller='package', action='list')
+        res = self.app.get(offset)
+        assert 'Packages - List' in res
+        assert 'annakarenina' in res
+        assert self.non_active_name not in res
+
+    def test_read(self):
+        offset = url_for(controller='package', action='read', id=self.non_active_name)
+        res = self.app.get(offset, status=[302, 401])
+
+
+    def test_read_as_admin(self):
+        offset = url_for(controller='package', action='read', id=self.non_active_name)
+        res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':'joeadmin'})
+
+    def test_search(self):
+        offset = url_for(controller='package', action='search')
+        res = self.app.get(offset)
+        assert 'Packages - Search' in res
+        form = res.forms[0]
+        form['q'] =  str(self.non_active_name)
+        results_page = form.submit()
+        assert 'Packages - Search' in results_page, results_page
+        print results_page
+        assert '0 packages found' in results_page, (self.non_active_name, results_page)
+
+
+        

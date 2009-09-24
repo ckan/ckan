@@ -36,24 +36,34 @@ class Authorizer(object):
         assert isinstance(username, unicode), type(username)
         assert model.Action.is_valid(action), action
 
-        from pylons import config
         # sysadmins can do everything
+        from pylons import config
         admins_string = config.get('auth.sysadmins', '')
         admins = admins_string.split()
         if username in admins:
             return True
 
+        # check not blacklisted
         if action is not model.Action.READ:
             if cls.blacklister.is_blacklisted(username):
                 return False
 
+        # check this user's roles for this object
         roles = cls.get_roles(username, domain_object)
         if not roles:
             return False
-
         # print '%r has roles %s on object %s. Checking permission to %s' % (username, roles, domain_object.name, action)
+        
         if model.Role.ADMIN in roles:
             return True
+
+        # check it's active
+        if hasattr(domain_object, 'state'):
+            active = model.State.query.filter_by(name='active').one()
+            if domain_object.state != active:
+                return False
+
+        # check if any of the roles allows the action requested
         for role in roles:
             action_query = model.RoleAction.query.filter_by(role=role,
                                                             action=action)
