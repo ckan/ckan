@@ -2,7 +2,7 @@ from ckan.tests import *
 import ckan.model as model
 
 # TODO: purge revisions after creating them
-class TestRevisionController(TestController2):
+class TestRevisionController(TestController):
 
     @classmethod
     def setup_class(self):

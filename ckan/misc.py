@@ -1,4 +1,4 @@
-import paginate
+from ckan.lib.helpers import paginate
 
 class TextFormat(object):
 

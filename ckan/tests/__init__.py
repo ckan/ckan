@@ -21,7 +21,7 @@ from routes import url_for
 from ckan.lib.cli import CreateTestData, CreateSearchTestData
 
 __all__ = ['url_for',
-        'TestController2',
+        'TestController',
         'CreateTestData',
         'CreateSearchTestData',
         ]
@@ -42,7 +42,7 @@ cmd.run([test_file])
 import ckan.model as model
 model.repo.rebuild_db()
 
-class TestController2(object):
+class TestController(object):
 
     def __init__(self, *args, **kwargs):
         wsgiapp = loadapp('config:test.ini', relative_to=conf_dir)

@@ -3,7 +3,7 @@ from ckan.misc import Paginate
 
 # TODO: (?) remove as we do not use our own paginate system but 3rd party one
 # Disable for time being
-class _TestPaginate(TestController2):
+class _TestPaginate(TestController):
 
     def setup_method(self, method):
         if method.__name__ == 'test_page_multi':
