@@ -17,7 +17,7 @@ class TestRender(object):
         model.repo.rebuild_db()
 
     def test_render_authorized(self):
-        fs = ckan.forms.authz_fs
+        fs = ckan.forms.package_authz_fs
         anna = model.Package.by_name(u'annakarenina')
         assert len(anna.roles) == 3, [ (r.user, r.role) for r in anna.roles ]
         fs = fs.bind(anna.roles) # bind
@@ -28,9 +28,9 @@ class TestRender(object):
         for s in form_words:
             assert s in out, s
 
-    def test_get_linker(self):
+    def test_get_package_linker(self):
         anna = model.Package.by_name(u'annakarenina')
-        linker = ckan.forms.authz.get_linker('delete')
+        linker = ckan.forms.authz.get_package_linker('delete')
         pr = anna.roles[0]
         out = linker(pr)
         assert '<a href="/package/authz/%s' % pr.package.name in out, out
