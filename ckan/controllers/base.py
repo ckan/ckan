@@ -55,7 +55,7 @@ class CkanBaseController(BaseController):
             from ckan.lib.helpers import paginate
             c.page = paginate.Page(
                 collection=collection,
-                current_page=current_page,
+                page=current_page,
                 items_per_page=50,
                 item_count=item_count,
             )
