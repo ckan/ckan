@@ -1,0 +1,28 @@
+# activate relevant virtualenv
+. pyenv/bin/activate
+
+# update to HEAD on everything
+# pip -E pyenv install -r pip-requirements.txt
+
+# or just do ckan
+cd pyenv/src/ckan
+hg pull [-r yourrev]
+# may want to check log messages first
+# hg log -l 5
+hg up
+# only update to specific 
+# hg up -r {rev}
+
+# cd back to deployment directory
+cd ../../../
+# bring db up to date
+paster --plugin ckan db --config {config.ini} upgrade
+
+# NB: if you have updates to licenses you need to to
+# paster --plugin ckan db --config {config.ini} init
+
+## Restart apache (so modpython has latest code)
+sudo /etc/init.d/apache2 restart
+
+## Reload www.ckan.net and browse around!
+
