@@ -1,6 +1,6 @@
 from ckan.tests import *
 
-class TestHomeController(TestController2):
+class TestHomeController(TestController):
 
     def test_home_page(self):
         offset = url_for('home')

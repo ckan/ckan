@@ -5,7 +5,7 @@ from ckan.tests import *
 from ckan.lib.base import *
 import ckan.authz as authz
 
-class TestGroupEditAuthz(TestController2):
+class TestGroupEditAuthz(TestController):
     @classmethod
     def setup_class(self):
         model.repo.rebuild_db()

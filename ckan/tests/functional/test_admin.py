@@ -1,6 +1,6 @@
 from ckan.tests import *
 
-class TestAdminController(TestController2):
+class TestAdminController(TestController):
 
     def test_index(self):
         response = self.app.get(url_for(controller='admin'))

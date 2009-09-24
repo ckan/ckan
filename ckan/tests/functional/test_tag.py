@@ -1,7 +1,7 @@
 from ckan.tests import *
 import ckan.model as model
 
-class TestTagController(TestController2):
+class TestTagController(TestController):
 
     @classmethod
     def setup_class(self):

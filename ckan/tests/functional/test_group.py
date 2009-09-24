@@ -1,7 +1,7 @@
 from ckan.tests import *
 import ckan.model as model
 
-class TestGroup(TestController2):
+class TestGroup(TestController):
 
     @classmethod
     def setup_class(self):
@@ -56,7 +56,7 @@ class TestGroup(TestController2):
         assert name in res
 
 
-class TestEdit(TestController2):
+class TestEdit(TestController):
     groupname = u'david'
 
     @classmethod
