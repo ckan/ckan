@@ -7,6 +7,8 @@ import common
 import ckan.model as model
 import ckan.lib.helpers
 
+__all__ = ['package_fs', 'package_fs_admin', 'get_package_dict', 'edit_package_dict']
+
 FIELD_TIP_TEMPLATE = '<p class="desc">%s</p>'
 FIELD_TIPS = {
     'name':"<strong>Unique identifier</strong> for package.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'",
@@ -121,6 +123,12 @@ class TagEditRenderer(formalchemy.fields.FieldRenderer):
         tags = [find_or_create_tag(x) for x in taglist]
         return tags        
 
+class StateRenderer(formalchemy.fields.FieldRenderer):
+    def render(self, options, **kwargs):
+        selected = int(kwargs.get('selected', None) or self._value)
+        options = [(s.name, s.id) for s in model.State.query.all()]
+        return h.select(self.name, h.options_for_select(options, selected=selected), **kwargs)
+
 class PackageFieldSet(formalchemy.FieldSet):
     def __init__(self):
         formalchemy.FieldSet.__init__(self, model.Package)
@@ -141,28 +149,36 @@ class PackageFieldSet(formalchemy.FieldSet):
 
 
 package_fs = PackageFieldSet()
+package_fs_admin = PackageFieldSet()
+def get_package_fs_options(fs):
+    return [
+        fs.name.label('Name (required)').with_renderer(CustomTextFieldRenderer).validate(package_name_validator),
+        fs.license.with_renderer(LicenseRenderer),
+        fs.title.with_renderer(CustomTextFieldRenderer),
+        fs.version.with_renderer(CustomTextFieldRenderer),
+        fs.url.with_renderer(CustomTextFieldRenderer),
+        fs.download_url.with_renderer(CustomTextFieldRenderer),
+        fs.author.with_renderer(CustomTextFieldRenderer),
+        fs.author_email.with_renderer(CustomTextFieldRenderer),
+        fs.maintainer.with_renderer(CustomTextFieldRenderer),
+        fs.maintainer_email.with_renderer(CustomTextFieldRenderer),
+        fs.notes.with_renderer(NotesRenderer),
+        ]
+def get_package_fs_exclude(fs):
+    return [fs.package_tags,
+            fs.all_revisions,
+            fs.revision,
+            fs._extras,
+            fs.groups,
+            fs.roles,
+            ]
 package_fs.add(TagField('tags').with_renderer(TagEditRenderer).validate(tag_name_validator).label('Tags (space separated list)'))
-package_fs.configure(options=[package_fs.name.label('Name (required)').with_renderer(CustomTextFieldRenderer).validate(package_name_validator),
-                              package_fs.license.with_renderer(LicenseRenderer),
-                              package_fs.title.with_renderer(CustomTextFieldRenderer),
-                              package_fs.version.with_renderer(CustomTextFieldRenderer),
-                              package_fs.url.with_renderer(CustomTextFieldRenderer),
-                              package_fs.download_url.with_renderer(CustomTextFieldRenderer),
-                              package_fs.author.with_renderer(CustomTextFieldRenderer),
-                              package_fs.author_email.with_renderer(CustomTextFieldRenderer),
-                              package_fs.maintainer.with_renderer(CustomTextFieldRenderer),
-                              package_fs.maintainer_email.with_renderer(CustomTextFieldRenderer),
-                              package_fs.notes.with_renderer(NotesRenderer),
-                              ],
-                     exclude=[package_fs.package_tags,
-                              package_fs.all_revisions,
-                              package_fs.revision,
-                              package_fs.state,
-                              package_fs._extras,
-                              package_fs.groups,
-                              package_fs.roles,
-                              ])
-
+package_fs_admin.add(TagField('tags').with_renderer(TagEditRenderer).validate(tag_name_validator).label('Tags (space separated list)'))
+package_fs.configure(options=get_package_fs_options(package_fs),
+                     exclude=get_package_fs_exclude(package_fs) + [package_fs.state])
+package_fs_admin.configure(options=get_package_fs_options(package_fs_admin) + \
+                           [package_fs_admin.state.with_renderer(StateRenderer)],
+                           exclude=get_package_fs_exclude(package_fs_admin))
 
 def get_package_dict(pkg=None):
     indict = {}

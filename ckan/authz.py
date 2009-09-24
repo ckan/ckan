@@ -37,10 +37,7 @@ class Authorizer(object):
         assert model.Action.is_valid(action), action
 
         # sysadmins can do everything
-        from pylons import config
-        admins_string = config.get('auth.sysadmins', '')
-        admins = admins_string.split()
-        if username in admins:
+        if cls.is_sysadmin(username):
             return True
 
         # check not blacklisted
@@ -116,6 +113,13 @@ class Authorizer(object):
         return [pr.role for pr in prs]
 
     @classmethod
+    def is_sysadmin(cls, username):
+        from pylons import config
+        admins_string = config.get('auth.sysadmins', '')
+        admins = admins_string.split()
+        return username and username in admins
+
+    @classmethod
     def _get_roles_query(cls, domain_obj):
         q = model.UserObjectRole.query
         is_a_class = domain_obj.__class__ == type
@@ -130,8 +134,9 @@ class Authorizer(object):
                 q = q.with_polymorphic(model.GroupRole)
                 q = q.filter(model.GroupRole.group==domain_obj)
             else:
-                raise Exception('Do not support context object like: %s' %
+                raise Exception('Do not support context object like: %r' %
                         domain_obj)
 
         return q
 
+        

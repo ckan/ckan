@@ -137,9 +137,9 @@ class TestDefaultRoles(object):
         assert not self.is_allowed(model.Role.READER, model.Action.EDIT_PERMISSIONS)
         assert not self.is_allowed(model.Role.EDITOR, model.Action.EDIT_PERMISSIONS)
 
-    def test_delete(self):
-        assert not self.is_allowed(model.Role.READER, model.Action.DELETE)
-        assert not self.is_allowed(model.Role.EDITOR, model.Action.DELETE)
+    def test_change_state(self):
+        assert not self.is_allowed(model.Role.READER, model.Action.CHANGE_STATE)
+        assert not self.is_allowed(model.Role.EDITOR, model.Action.CHANGE_STATE)
 
     def test_purge(self):
         assert not self.is_allowed(model.Role.READER, model.Action.PURGE)
@@ -401,7 +401,7 @@ class TestUseCasePermissions:
 
     def test_05_user_creates_package(self):
         assert self.authorizer.is_authorized(username=self.annakarenina_creator.name,
-                                             action=model.Action.DELETE,
+                                             action=model.Action.CHANGE_STATE,
                                              domain_object=self.anna)
         creator_roles = self.authorizer.get_roles(self.annakarenina_creator.name, self.anna)
         assert model.Role.ADMIN in creator_roles, creator_roles
