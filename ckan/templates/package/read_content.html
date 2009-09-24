@@ -22,6 +22,9 @@
         </py:for>
       </li>
       <li><strong>Licenses:</strong> ${c.pkg_license}</li>
+      <py:if test="c.pkg_state">
+         <li><strong>State:</strong> ${c.pkg_state}</li>
+      </py:if>
     </ul>
     <h3>Notes:</h3>
     <div>

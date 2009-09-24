@@ -62,6 +62,13 @@ class TestPackageController(TestController):
         assert 'Groups:' in res
         assert 'david' in res
         assert 'roger' in res
+        assert 'State:' not in res        
+
+    def test_read_as_admin(self):
+        name = u'annakarenina'
+        offset = url_for(controller='package', action='read', id=name)
+        res = self.app.get(offset, extra_environ={'REMOTE_USER':'annafan'})
+        assert 'State:' in res, res
 
     def test_read_nonexistentpackage(self):
         name = 'anonexistentpackage'
@@ -122,15 +129,20 @@ class TestPackageControllerEdit(TestController):
         editpkg = model.Package(name=self.editpkg_name)
         editpkg.url = u'editpkgurl.com'
         editpkg.notes = u'Some notes'
+        model.User(name=u'testadmin')
         model.repo.commit_and_remove()
 
-        self.editpkg = model.Package.by_name(self.editpkg_name)
-        model.setup_default_user_roles(self.editpkg)
-        self.pkgid = self.editpkg.id
+        editpkg = model.Package.by_name(self.editpkg_name)
+        admin = model.User.by_name(u'testadmin')
+        model.setup_default_user_roles(editpkg, [admin])
+        self.pkgid = editpkg.id
         offset = url_for(controller='package', action='edit', id=self.editpkg_name)
         self.res = self.app.get(offset)
         self.newtagname = u'russian'
         model.repo.commit_and_remove()
+
+        self.editpkg = model.Package.by_name(self.editpkg_name)
+        self.admin = model.User.by_name(u'testadmin')
 
     def teardown_method(self, method):
         self.tearDown()
@@ -252,17 +264,16 @@ Hello world.
         pkg.notes= u'this is editpkg'
         pkg.version = u'2.2'
         pkg.tags = [model.Tag(name=u'one'), model.Tag(name=u'two')]
+        pkg.state = model.State.query.filter_by(name='deleted').one()
         tags_txt = ' '.join([tag.name for tag in pkg.tags])
-##        pkg.groups = [model.Group(name=u'alpha'), model.Group(name=u'beta')]
-##        groups_txt = ' '.join([group.name for group in pkg.group])
         pkg.license = model.License.byName(u'OKD Compliant::Other')
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(pkg_name)
-        model.setup_default_user_roles(pkg)
+        model.setup_default_user_roles(pkg, [self.admin])
 
         offset = url_for(controller='package', action='edit', id=pkg.name)
-        res = self.app.get(offset, status=200)
+        res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':'testadmin'})
         assert 'Packages - Edit' in res, res
         
         # Check form is correctly filled
@@ -277,8 +288,8 @@ Hello world.
         assert license_html in res, str(res) + license_html
         tags_html = 'name="%stags" size="60" type="text" value="%s"' % (prefix, tags_txt)
         assert tags_html in res, str(res) + tags_html
-##        groups_html = 'name="%sgroups" size="60" type="text" value="%s"' % (prefix, groups_txt)
-##        assert groups_html in res, str(res) + groups_html
+        state_html = '<option value="%s" selected>%s' % (pkg.state.id, pkg.state.name)
+        assert state_html in res, str(res) + state_html
 
         # Amend form
         name = u'test_name'
@@ -289,10 +300,9 @@ Hello world.
         notes = u'Very important'
         license_id = 4
         license = u'OKD Compliant::Creative Commons CCZero'
+        state = model.State.query.filter_by(name='active').one()
         tags = (u'tag1', u'tag2', u'tag3')
         tags_txt = u' '.join(tags)
-##        groups = (u'group1', u'group2', u'group3')
-##        groups_txt = u' '.join(groups)
         assert not model.Package.by_name(name)
         fv = res.forms[0]
         prefix = 'Package-%s-' % pkg.id
@@ -304,13 +314,13 @@ Hello world.
         fv[prefix+'notes'] = notes
         fv[prefix+'license_id'] = license_id
         fv[prefix+'tags'] = tags_txt
-##        fv[prefix+'groups'] = groups_txt
-        res = fv.submit('preview')
+        fv[prefix+'state_id'] = state.id
+        res = fv.submit('preview', extra_environ={'REMOTE_USER':'testadmin'})
         assert not 'Error' in res, res
 
         # Check preview is correct
         res1 = str(res).replace('</strong>', '')
-        assert 'Preview' in res
+        assert 'Preview' in res, res
         assert 'Title: %s' % str(title) in res1, res
         assert 'Version: %s' % str(version) in res1, res
         assert 'Url: <a href="%s">' % str(url) in res1, res
@@ -324,6 +334,7 @@ Hello world.
 ##        groups_html = '\n'.join(groups_html_list)
         groups_html = ''
         assert 'Groups:\n%s' % groups_html in res1, res1 + groups_html
+        assert 'State: %s' % str(state.name) in res1, res
 
         # Check form is correctly filled
         assert 'name="%stitle" size="40" type="text" value="%s"' % (prefix, title) in res, res
@@ -334,11 +345,12 @@ Hello world.
         license_html = '<option value="%s" selected>%s' % (license_id, license)
         assert license_html in res, str(res) + license_html
         assert 'name="%stags" size="60" type="text" value="%s"' % (prefix, tags_txt) in res, res
-##        assert 'name="%sgroups" size="60" type="text" value="%s"' % (prefix, groups_txt) in res, res
+        state_html = '<option value="%s" selected>%s' % (state.id, state.name)
+        assert state_html in res, str(res) + state_html
 
-        res = fv.submit('commit')
+        res = fv.submit('commit', extra_environ={'REMOTE_USER':'testadmin'})
         assert not 'Error' in res, res
-        res = res.follow()
+        res = res.follow(extra_environ={'REMOTE_USER':'testadmin'})
         res1 = str(res).replace('</strong>', '')
         assert 'Packages - %s' % str(name) in res1, res1
         assert 'Package: %s' % str(name) in res1, res1
@@ -350,6 +362,7 @@ Hello world.
         assert 'Licenses: %s' % str(license) in res1, res1
         assert 'Tags:\n%s' % tags_html in res1, res1 + tags_html
         assert 'Groups:\n%s' % groups_html in res1, res1 + groups_html
+        assert 'State: %s' % state.name in res1, res1
         pkg = model.Package.by_name(name)
         assert pkg.name == name
         assert pkg.title == title
@@ -360,15 +373,14 @@ Hello world.
         assert pkg.license_id == license_id
         saved_tagnames = [str(tag.name) for tag in pkg.tags]
         assert saved_tagnames == list(tags)
-##        saved_groupnames = [str(group.name) for group in pkg.groups]
-##        assert saved_groupnames == list(groups)
+        assert pkg.state_id == state.id
 
         # for some reason environ['REMOTE_ADDR'] is undefined
         rev = model.Revision.youngest()
-        assert rev.author == 'Unknown IP Address'
+        assert rev.author == 'testadmin', rev.author
         # TODO: reinstate once fixed in code
         exp_log_message = u'Creating package %s' % name
-        # assert rev.message == exp_log_message
+        #assert rev.message == exp_log_message
 
 
 class TestPackageControllerNew(TestController):
@@ -550,7 +562,7 @@ class TestNonActivePackages(TestController):
         model.repo.commit_and_remove()
 
         pkg = model.Package.query.filter_by(name=self.non_active_name).one()
-        admin = model.User.by_name('joeadmin')
+        admin = model.User.by_name(u'joeadmin')
         model.setup_default_user_roles(pkg, [admin])
         
         pkg = model.Package.query.filter_by(name=self.non_active_name).one()

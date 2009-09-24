@@ -60,8 +60,12 @@ class PackageController(CkanBaseController):
 
         c.auth_for_authz = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, c.pkg)
         c.auth_for_edit = self.authorizer.am_authorized(c, model.Action.EDIT, c.pkg)
-
-        fs = ckan.forms.package_fs.bind(c.pkg)
+        c.auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, c.pkg)
+        if c.auth_for_change_state:
+            fs = ckan.forms.package_fs_admin
+        else:
+            fs = ckan.forms.package_fs
+        fs = fs.bind(c.pkg)
         c.content = genshi.HTML(self._render_package(fs))
 
         return render('package/read')
@@ -77,9 +81,14 @@ class PackageController(CkanBaseController):
         c.has_autocomplete = True
         c.error = ''
 
+        if self.authorizer.is_sysadmin(c.user):
+            fs = ckan.forms.package_fs_admin
+        else:
+            fs = ckan.forms.package_fs
+
         if request.params.has_key('commit'):
             record = model.Package
-            fs = ckan.forms.package_fs.bind(record, data=request.params or None)
+            fs = fs.bind(record, data=request.params or None)
             try:
                 self._update(fs, id, record.id)                
                 c.pkgname = fs.name.value
@@ -103,9 +112,7 @@ class PackageController(CkanBaseController):
         # (e.g. bookmarklet)
         if request.params:
             data = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(), request.params)
-            fs = ckan.forms.package_fs.bind(data=data)
-        else:
-            fs = ckan.forms.package_fs
+            fs = fs.bind(data=data)
         c.form = self._render_edit_form(fs)
         if 'preview' in request.params:
             c.preview = genshi.HTML(self._render_package(fs))
@@ -123,11 +130,17 @@ class PackageController(CkanBaseController):
         if not am_authz:
             abort(401, 'User %r unauthorized to edit %s' % (c.user, id))
 
+        c.auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, pkg)
+        if c.auth_for_change_state:
+            fs = ckan.forms.package_fs_admin
+        else:
+            fs = ckan.forms.package_fs
+
         if not 'commit' in request.params and not 'preview' in request.params:
             # edit
             c.pkg = pkg
                 
-            fs = ckan.forms.package_fs.bind(c.pkg)
+            fs = fs.bind(c.pkg)
             c.form = self._render_edit_form(fs)
             return render('package/edit')
         elif request.params.has_key('commit'):
@@ -135,7 +148,7 @@ class PackageController(CkanBaseController):
             c.pkgname = id
             params = dict(request.params) # needed because request is nested
                                           # multidict which is read only
-            c.fs = ckan.forms.package_fs.bind(pkg, data=params or None)
+            c.fs = fs.bind(pkg, data=params or None)
             try:
                 self._update(c.fs, id, pkg.id)
                 # do not use pkgname from id as may have changed
@@ -147,7 +160,7 @@ class PackageController(CkanBaseController):
                 return render('package/edit')
         else: # Must be preview
             c.pkgname = id
-            fs = ckan.forms.package_fs.bind(pkg, data=request.params)
+            fs = fs.bind(pkg, data=request.params)
             c.form = self._render_edit_form(fs)
             c.preview = genshi.HTML(self._render_package(fs))
             return render('package/edit')
@@ -290,6 +303,8 @@ class PackageController(CkanBaseController):
             c.pkg_author_email = fs.author_email.value
             c.pkg_maintainer = fs.maintainer.value
             c.pkg_maintainer_email = fs.maintainer_email.value
+            if c.auth_for_change_state:
+                c.pkg_state = model.State.query.get(fs.state.value).name
             if fs.license.value:
                 c.pkg_license = model.License.query.get(fs.license.value).name
             else:

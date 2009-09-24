@@ -24,7 +24,7 @@ class Enum(object):
 
 class Action(Enum):
     EDIT = u'edit'
-    DELETE = u'delete'
+    CHANGE_STATE = u'change-state'
     READ = u'read'
     PURGE = u'purge'
     EDIT_PERMISSIONS = u'edit-permissions'
