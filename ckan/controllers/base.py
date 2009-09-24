@@ -37,7 +37,7 @@ class CkanBaseController(BaseController):
         try:
             current_page = int(id)
         except:
-            current_page = 0
+            current_page = 1
 
         register = getattr(model, register_name.capitalize())
         query = register.query
@@ -52,7 +52,7 @@ class CkanBaseController(BaseController):
             list_value = [{'id': i.name} for i in collection]
             return simplejson.dumps({list_name: list_value})
         else:
-            import paginate
+            from ckan.lib.helpers import paginate
             c.page = paginate.Page(
                 collection=collection,
                 current_page=current_page,
