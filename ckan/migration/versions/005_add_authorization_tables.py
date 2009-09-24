@@ -43,7 +43,10 @@ def upgrade():
     user_object_role_table.create()
     package_role_table.create()
     group_role_table.create()
-    model.give_all_packages_default_user_roles()
+    # Not Good to use model here. TODO: refactor this.
+    model.repo.init_db()
+    # call this explicitly elsewhere
+    # model.give_all_packages_default_user_roles()
 
 def downgrade():
     raise NotImplementedError()

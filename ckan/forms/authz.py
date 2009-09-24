@@ -40,7 +40,10 @@ def get_authz_fieldset(role_class):
             Field(u'delete', types.String, get_group_linker(u'delete')).readonly()
             )
     fs.add(
-        Field(u'username', types.String, lambda item: item.user.name).readonly()
+        # use getattr because thought we should always have a user name
+        # sometimes (due to error) we don't and want to avoid a 500 ...
+        Field(u'username', types.String,
+            lambda item: getattr(item.user, 'name', 'No User!')).readonly()
         )
 
     fs.configure(

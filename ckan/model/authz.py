@@ -121,18 +121,6 @@ default_role_actions = [
     (Role.READER, Action.READ),
     ]
 
-def setup_default_role_actions():
-    visitor = User(name=PSEUDO_USER__VISITOR)
-    logged_in = User(name=PSEUDO_USER__LOGGED_IN)
-    
-    # setup all role-actions (set context to None)
-    # Note that Role.ADMIN can already do anything - hardcoded in.
-    for role, action in default_role_actions:
-        ra = RoleAction(role=role,
-                        context='', # Blank until used
-                        action=action,
-                        )
-
 def user_has_role(user, role, domain_obj):
     assert isinstance(user, User), user
     assert user.id
@@ -221,6 +209,7 @@ def give_all_packages_default_user_roles():
                 if user:
                     admins.append(user)
         # gives default permissions
+        print 'Creating default user for for %s with admins %s' % (pkg, admins)
         setup_default_user_roles(pkg, admins)
 
 def setup_default_user_roles(domain_object, admins=[]):

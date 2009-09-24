@@ -24,7 +24,16 @@ class Repository(vdm.sqlalchemy.Repository):
         for name in license_names:
             if not License.by_name(name):
                 License(name=name)
-        setup_default_role_actions()
+        # assume if this exists everything else does too
+        if not User.by_name(PSEUDO_USER__VISITOR):
+            visitor = User(name=PSEUDO_USER__VISITOR)
+            logged_in = User(name=PSEUDO_USER__LOGGED_IN)
+            # setup all role-actions
+            # context is blank as not currently used
+            # Note that Role.ADMIN can already do anything - hardcoded in.
+            for role, action in default_role_actions:
+                ra = RoleAction(role=role, context='',
+                        action=action,)
         if Revision.query.count() == 0:
             rev = Revision()
             rev.author = 'system'
