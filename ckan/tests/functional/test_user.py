@@ -1,7 +1,7 @@
 from ckan.tests import *
 import ckan.model as model
 
-class TestUserController(TestController2):
+class TestUserController(TestController):
 
     def test_user_not_logged_in(self):
         offset = url_for(controller='user')

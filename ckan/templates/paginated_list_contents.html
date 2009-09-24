@@ -35,18 +35,18 @@
   <div class="pagination">
     <py:if test="c.page.page_count > 1">
       <ul>
-      <py:if test="c.page.current_page > 1">
+      <py:if test="c.page.page > 1">
         <li>
             <a 
-              href="${h.url_for(action='list', id=c.page.current_page - 1)}"
+              href="${h.url_for(action='list', id=c.page.page - 1)}"
               onclick="return updatePaginatedListHTML(
-                '${h.url_for(action='list',id=c.page.current_page - 1)}')
+                '${h.url_for(action='list',id=c.page.page - 1)}')
             ">Previous</a>
         </li>
       </py:if>
       <py:for each="number in range(1, c.page.page_count + 1)">
         <li>
-        <py:choose test="number == c.page.current_page">
+        <py:choose test="number == c.page.page">
           <py:when test="True">
             <span class="pagination-current">
             <a 
@@ -62,10 +62,10 @@
         </py:choose>
         </li>
       </py:for>
-      <py:if test="c.page.page_count > c.page.current_page">
+      <py:if test="c.page.page_count > c.page.page">
         <li>
             <a 
-              href="${h.url_for(action='list', id=c.page.current_page + 1)}"
+              href="${h.url_for(action='list', id=c.page.page + 1)}"
             >Next</a>
         </li>
       </py:if>
@@ -86,7 +86,7 @@
       </py:if>
     </py:if>
     <py:if test="c.page.page_count > 1">
-    Displaying ${c.register_name} ${c.page.first_item + 1} - ${c.page.last_item + 1} of ${c.page.item_count}.
+    Displaying ${c.register_name} ${c.page.first_item} - ${c.page.last_item} of ${c.page.item_count}.
     </py:if>
     </p>
 

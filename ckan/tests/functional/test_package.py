@@ -4,7 +4,7 @@ import ckan.model as model
 import cgi
 from paste.fixture import AppError
 
-class TestPackageController(TestController2):
+class TestPackageController(TestController):
 
     @classmethod
     def setup_class(self):
@@ -112,7 +112,7 @@ class TestPackageController(TestController2):
         assert 'Revisions' in res
         assert name in res
 
-class TestPackageControllerEdit(TestController2):
+class TestPackageControllerEdit(TestController):
     def setup_method(self, method):
         self.setUp()
 
@@ -371,7 +371,7 @@ Hello world.
         # assert rev.message == exp_log_message
 
 
-class TestPackageControllerNew(TestController2):
+class TestPackageControllerNew(TestController):
     pkgname = u'testpkg'
     pkgtitle = u'mytesttitle'
 

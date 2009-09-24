@@ -26,7 +26,6 @@ setup(
         'SQLAlchemy>=0.4.8,<=0.4.99',
         'repoze.who>=1.0.0,<1.0.99',
         'repoze.who.plugins.openid>=0.5,<0.5.99',
-        'paginate==0.3.2',
         'uuid>=1.0', # in python 2.5 but not before
         # for open licenses
         'licenses',

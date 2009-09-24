@@ -8,7 +8,7 @@ def get_license_name(id):
     return model.Session.get(model.License, id).name
 
 
-class TestRestController(TestController2):
+class TestRestController(TestController):
 
     @classmethod
     def setup_class(self):
@@ -248,7 +248,7 @@ class TestRestController(TestController2):
         res = self.app.delete(offset, status=[404],
                               extra_environ=self.extra_environ)
 
-class TestSearch(TestController2):
+class TestSearch(TestController):
     @classmethod
     def setup_class(self):
         try:
