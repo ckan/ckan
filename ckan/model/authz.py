@@ -199,6 +199,9 @@ def give_all_packages_default_user_roles():
     pkgs = Package.query.all()
 
     for pkg in pkgs:
+        if len(pkg.roles) > 0:
+            print 'Skipping (already has roles): %s' % pkg.name
+            continue
         # work out the authors and make them admins
         admins = []
         revs = pkg.all_revisions
@@ -208,8 +211,10 @@ def give_all_packages_default_user_roles():
                 user = User.by_name(unicode(rev.revision.author))
                 if user:
                     admins.append(user)
+        # remove duplicates
+        admins = list(set(admins))
         # gives default permissions
-        print 'Creating default user for for %s with admins %s' % (pkg, admins)
+        print 'Creating default user for for %s with admins %s' % (pkg.name, admins)
         setup_default_user_roles(pkg, admins)
 
 def setup_default_user_roles(domain_object, admins=[]):
