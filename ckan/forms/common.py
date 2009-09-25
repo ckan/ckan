@@ -1,6 +1,9 @@
 import re
 
+from formalchemy import helpers as h
 import formalchemy
+
+import ckan.lib.helpers
 
 FIELD_TIP_TEMPLATE = '<p class="desc">%s</p>'
 FIELD_TIPS = {
@@ -25,3 +28,9 @@ class CustomTextFieldRenderer(formalchemy.fields.TextFieldRenderer):
         else:
             tip_html = ''        
         return h.text_field(self.name, value=self._value, maxlength=self.length, **kwargs) + tip_html
+
+class TextAreaRenderer(formalchemy.fields.TextAreaFieldRenderer):
+    def render(self, **kwargs):
+        kwargs['size'] = '60x15'
+        value = ckan.lib.helpers.escape(self._value)
+        return h.text_area(self.name, content=value, **kwargs)

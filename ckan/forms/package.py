@@ -54,27 +54,11 @@ class TagField(formalchemy.Field):
             if pkgtag.tag.name not in taglist:
                 pkgtag.delete()
 
-class CustomTextFieldRenderer(formalchemy.fields.TextFieldRenderer):
-    def render(self, **kwargs):
-        kwargs['size'] = '40'
-        field_tip = FIELD_TIPS.get(self.field.key)
-        if field_tip:
-            tip_html = FIELD_TIP_TEMPLATE % field_tip
-        else:
-            tip_html = ''        
-        return h.text_field(self.name, value=self._value, maxlength=self.length, **kwargs) + tip_html
-
 class LicenseRenderer(formalchemy.fields.FieldRenderer):
     def render(self, options, **kwargs):
         selected = unicode(kwargs.get('selected', None) or self._value)
         options = [('', None)] + [(x, unicode(model.License.by_name(x).id)) for x in model.LicenseList.all_formatted]
         return h.select(self.name, h.options_for_select(options, selected=selected), **kwargs)
-
-class NotesRenderer(formalchemy.fields.TextAreaFieldRenderer):
-    def render(self, **kwargs):
-        kwargs['size'] = '60x15'
-        value = ckan.lib.helpers.escape(self._value)
-        return h.text_area(self.name, content=value, **kwargs)
 
 class TagEditRenderer(formalchemy.fields.FieldRenderer):
     tag_field_template = '''
@@ -152,33 +136,32 @@ package_fs = PackageFieldSet()
 package_fs_admin = PackageFieldSet()
 def get_package_fs_options(fs):
     return [
-        fs.name.label('Name (required)').with_renderer(CustomTextFieldRenderer).validate(package_name_validator),
+        fs.name.label('Name (required)').with_renderer(common.CustomTextFieldRenderer).validate(package_name_validator),
         fs.license.with_renderer(LicenseRenderer),
-        fs.title.with_renderer(CustomTextFieldRenderer),
-        fs.version.with_renderer(CustomTextFieldRenderer),
-        fs.url.with_renderer(CustomTextFieldRenderer),
-        fs.download_url.with_renderer(CustomTextFieldRenderer),
-        fs.author.with_renderer(CustomTextFieldRenderer),
-        fs.author_email.with_renderer(CustomTextFieldRenderer),
-        fs.maintainer.with_renderer(CustomTextFieldRenderer),
-        fs.maintainer_email.with_renderer(CustomTextFieldRenderer),
-        fs.notes.with_renderer(NotesRenderer),
+        fs.title.with_renderer(common.CustomTextFieldRenderer),
+        fs.version.with_renderer(common.CustomTextFieldRenderer),
+        fs.url.with_renderer(common.CustomTextFieldRenderer),
+        fs.download_url.with_renderer(common.CustomTextFieldRenderer),
+        fs.author.with_renderer(common.CustomTextFieldRenderer),
+        fs.author_email.with_renderer(common.CustomTextFieldRenderer),
+        fs.maintainer.with_renderer(common.CustomTextFieldRenderer),
+        fs.maintainer_email.with_renderer(common.CustomTextFieldRenderer),
+        fs.notes.with_renderer(common.TextAreaRenderer),
         ]
-def get_package_fs_exclude(fs):
-    return [fs.package_tags,
-            fs.all_revisions,
-            fs.revision,
-            fs._extras,
-            fs.groups,
-            fs.roles,
-            ]
+def get_package_fs_include(fs, is_admin=False):
+    pkgs = [fs.name, fs.title, fs.version, fs.url, fs.download_url,
+            fs.author, fs.author_email, fs.maintainer, fs.maintainer_email,
+            fs.license, fs.tags, fs.notes, ]
+    if is_admin:
+        pkgs.insert(len(pkgs)-1, fs.state)
+    return pkgs
 package_fs.add(TagField('tags').with_renderer(TagEditRenderer).validate(tag_name_validator).label('Tags (space separated list)'))
 package_fs_admin.add(TagField('tags').with_renderer(TagEditRenderer).validate(tag_name_validator).label('Tags (space separated list)'))
 package_fs.configure(options=get_package_fs_options(package_fs),
-                     exclude=get_package_fs_exclude(package_fs) + [package_fs.state])
+                     include=get_package_fs_include(package_fs))
 package_fs_admin.configure(options=get_package_fs_options(package_fs_admin) + \
                            [package_fs_admin.state.with_renderer(StateRenderer)],
-                           exclude=get_package_fs_exclude(package_fs_admin))
+                           include=get_package_fs_include(package_fs_admin, True))
 
 def get_package_dict(pkg=None):
     indict = {}

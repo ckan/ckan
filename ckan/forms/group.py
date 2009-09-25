@@ -46,7 +46,9 @@ from formalchemy import Field
 
 group_fs.configure(
     options=[
-        group_fs.name.label('Name (required)').validate(group_name_validator),
+        group_fs.name.label('Name (required)').with_renderer(common.CustomTextFieldRenderer).validate(group_name_validator),
+        group_fs.title.with_renderer(common.CustomTextFieldRenderer),
+        group_fs.description.with_renderer(common.TextAreaRenderer),
         # group_fs.packages.checkbox(options=_get_packages),
             # GetPackagesHack(group_fs.packages)),
     ],

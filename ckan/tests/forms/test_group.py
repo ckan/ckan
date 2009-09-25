@@ -17,6 +17,8 @@ class TestGroupFieldset:
         fs = ckan.forms.group_fs.bind(group)
         out = fs.render()
         print out
+        desc = fs.description.render()
+        assert 'textarea' in desc, desc
         # TODO: ...
         # assert 'checkbox' in out, out
         # assert 'select' in out, out
