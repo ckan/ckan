@@ -25,6 +25,12 @@ class GroupController(CkanBaseController):
         c.auth_for_authz = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, c.group)
         
         fs = ckan.forms.group_fs.bind(c.group)
+
+        c.group_active_packages = []
+        active_str = model.State.query.filter_by(name='active').one()
+        for pkg in c.group.packages:
+            if pkg.state == active_str:
+                c.group_active_packages.append(pkg)
         c.content = genshi.HTML(self._render_group(fs))
 
         return render('group/read')

@@ -20,7 +20,7 @@
 
     <p>Packages:</p>
     <ul>
-    <py:for each="pkg in c.group.packages">
+    <py:for each="pkg in c.group_active_packages">
       <li>
         ${package_summary(pkg)}
       </li>
