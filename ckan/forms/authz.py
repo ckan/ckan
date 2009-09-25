@@ -2,7 +2,7 @@ import formalchemy as fa
 
 import ckan.model as model
 import ckan.authz as authz
-import ckan.lib.helpers as h
+import ckan.lib.helpers as ckan_h
 from formalchemy import helpers as fa_h
 
 import formalchemy.config
@@ -11,7 +11,7 @@ from formalchemy import Field
 from sqlalchemy import types
 def get_package_linker(action):
     return lambda item: '<a href="%s" title="%s"><img src="http://m.okfn.org/kforge/images/icon-delete.png" alt="%s" class="icon" /></a>' % (
-                        h.url_for(controller='package',
+                        ckan_h.url_for(controller='package',
                             action='authz',
                             id=item.package.name,
                             role_to_delete=item.id),
@@ -20,12 +20,19 @@ def get_package_linker(action):
 
 def get_group_linker(action):
     return lambda item: '<a href="%s" title="%s"><img src="http://m.okfn.org/kforge/images/icon-delete.png" alt="%s" class="icon" /></a>' % (
-                        h.url_for(controller='group',
+                        ckan_h.url_for(controller='group',
                             action='authz',
                             id=item.group.name,
                             role_to_delete=item.id),
                         action,
                         action)
+
+class RolesRenderer(formalchemy.fields.FieldRenderer):
+    def render(self, **kwargs):
+        selected = kwargs.get('selected', None) or self._value
+        options = model.Role.get_all()
+        select = fa_h.select(self.name, fa_h.options_for_select(options), **kwargs)
+        return select
 
 def get_authz_fieldset(role_class):
     fs = fa.Grid(role_class)
@@ -48,7 +55,7 @@ def get_authz_fieldset(role_class):
 
     fs.configure(
         options = [
-            fs.role.dropdown(options=role_options)
+            fs.role.with_renderer(RolesRenderer),
             ],
         include=[fs.username,
                  fs.role,
@@ -59,14 +66,10 @@ def get_authz_fieldset(role_class):
 package_authz_fs = get_authz_fieldset(model.PackageRole)
 group_authz_fs = get_authz_fieldset(model.GroupRole)
 
-def get_user_options(fs):
-    return [ ('', '__null_value__') ] + [ (u.name, u.id) for u in
-            model.User.query.all() ]
-
-class UserOptionsHack(object):
-    def __iter__(self):
-        opts = get_user_options(None)
-        return opts.__iter__()
+class UsersRenderer(formalchemy.fields.FieldRenderer):
+    def render(self, options, **kwargs):
+        options = [('', '__null_value__')] + [(u.name, u.id) for u in model.User.query.all()]
+        return fa_h.select(self.name, fa_h.options_for_select(options), **kwargs)
 
 def get_new_role_fieldset(role_class):
     fs = fa.FieldSet(role_class)
@@ -77,9 +80,7 @@ def get_new_role_fieldset(role_class):
             fs.role
         ],
         options = [
-            # this is supposed to work according to FA docs!
-            # fs.user.dropdown(options=get_user_options),
-            fs.user.dropdown(options=UserOptionsHack()),
+            fs.user.with_renderer(UsersRenderer),
             fs.role.dropdown(options=role_options)
         ],
         )

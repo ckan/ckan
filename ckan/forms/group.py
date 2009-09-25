@@ -1,4 +1,6 @@
 import formalchemy
+from formalchemy import helpers as h
+
 import ckan.model as model
 import common
 
@@ -59,6 +61,11 @@ group_fs.configure(
     ]
 )
 
+class PackagesRenderer(formalchemy.fields.FieldRenderer):
+    def render(self, **kwargs):
+        selected = unicode(kwargs.get('selected', None) or self._value)
+        options = [('', '__null_value__')] + [(p.name, p.id) for p in model.Package.query.all()]
+        return h.select(self.name, h.options_for_select(options, selected=selected), **kwargs)
 
 ##group_fs.add(Field('New Package 1').dropdown(
 ##    options=[ (p.name, p.name) for p in model.Package.query.all()]
@@ -66,6 +73,6 @@ group_fs.configure(
 package_list = [('', '__null_value__')] + [(p.name, p.id) for p in model.Package.query.all()]
 new_package_group_fs = formalchemy.FieldSet(model.PackageGroup)
 new_package_group_fs.configure(
-    options=[new_package_group_fs.package_id.dropdown(options=package_list)],
+    options=[new_package_group_fs.package_id.with_renderer(PackagesRenderer)],
     include=[new_package_group_fs.package_id]
     )
