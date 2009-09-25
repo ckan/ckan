@@ -218,7 +218,8 @@ def give_all_packages_default_user_roles():
         setup_default_user_roles(pkg, admins)
 
 def setup_default_user_roles(domain_object, admins=[]):
-    # sets up visitor and logged-in user and admins if provided
+    # sets up roles for visitor, logged-in user and any admins provided
+    # admins is a list of User objects
     assert isinstance(domain_object, (Package, Group))
     assert isinstance(admins, list)
     if type(domain_object) == Package:

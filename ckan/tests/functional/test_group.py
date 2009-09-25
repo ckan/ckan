@@ -120,3 +120,23 @@ Ho ho ho
         # now look at packages
         assert len(group.packages) == 3
 
+    def test_3_edit_form_has_new_package(self):
+        offset = url_for(controller='group', action='edit', id=self.groupname)
+        res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
+        assert 'annakarenina' in res, res
+        assert not 'newone' in res, res
+
+        pkg = model.Package(name=u'newone')
+        model.repo.new_revision()
+        model.repo.commit_and_remove()
+
+        pkg = model.Package.by_name(u'newone')
+        user = model.User.by_name(u'russianfan')
+        model.setup_default_user_roles(pkg, [user])
+        model.repo.new_revision()
+        model.repo.commit_and_remove()
+        
+        offset = url_for(controller='group', action='edit', id=self.groupname)
+        res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
+        assert 'annakarenina' in res, res
+        assert 'newone' in res
