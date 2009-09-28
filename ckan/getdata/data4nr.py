@@ -4,10 +4,10 @@ import csv
 
 import ckan.model as model
 
-class Data4Nr(object):
-    comment = 'Load from data4nr database'    
-    
+class Data4Nr(object):        
     def load_csv_into_db(self, csv_filepath):
+        self._basic_setup()
+        rev = self._new_revision()
         assert os.path.exists(csv_filepath)
         f_obj = open(csv_filepath, "r")
         reader = csv.reader(f_obj)
@@ -21,13 +21,11 @@ class Data4Nr(object):
             if index % 100 == 0:
                 self._commit_and_report(index)
         self._commit_and_report(index)
+#        model.Session.remove()
 
     def _commit_and_report(self, index):
-        #print 'Loaded %s lines' % index
-        rev = model.repo.new_revision()
-        rev.comment = self.comment
+        print 'Loaded %s lines' % index
         model.repo.commit_and_remove()
-
 
     def _parse_line(self, row_list, line_index):
         values = row_list
@@ -44,9 +42,9 @@ class Data4Nr(object):
         return data4nr_dict
 
     def _load_line_into_db(self, _dict, line_index):
+        # Create package
+        rev = self._new_revision()
         name = self._create_name(_dict)
-
-        
         title = _dict['title']
         url = _dict['data4nr link']
         download_url = _dict['url 1']
@@ -75,14 +73,14 @@ class Data4Nr(object):
         pkg.download_url=download_url
         pkg.notes=notes
         
-        rev = model.repo.new_revision()
-        rev.comment = self.comment
-
         if not existing_pkg:
-            model.Session.commit()
-            model.setup_default_user_roles(pkg)
-            pkg = model.Package.by_name(name)
+            user = model.User.by_name(self._username)
 
+            # Setup authz
+            model.setup_default_user_roles(pkg, [user]) # does commit & remove
+            rev = self._new_revision()
+
+        # Create extras
         new_extra_keys = []
         for key, value in extras_dict.items():
             extra = model.PackageExtra.query.filter_by(package=pkg, key=unicode(key)).all()
@@ -93,19 +91,82 @@ class Data4Nr(object):
 
         for key in new_extra_keys:
             model.PackageExtra(package=pkg, key=unicode(key), value=unicode(extras_dict[key]))
+
+        # Update tags
+        taglist = self._get_tags(_dict)
+        current_tags = pkg.tags
+        for name in taglist:
+            if name not in current_tags:
+                pkg.add_tag_by_name(unicode(name))
+        for pkgtag in pkg.package_tags:
+            if pkgtag.tag.name not in taglist:
+                pkgtag.delete()
+
+        # Put package in the group
+        group = model.Group.by_name(self._groupname)
+        if pkg not in group.packages:
+            group.packages.append(pkg)
         
-        rev = model.repo.new_revision()
-        rev.comment = self.comment
         model.Session.commit()
 
-
     def _create_name(self, data4nr_dict):
-        name = u'%s-%s' % (data4nr_dict['title'], data4nr_dict['time coverage'])
+        name = u'%s_%s' % (data4nr_dict['title'], data4nr_dict['time coverage'])
+        return self._munge(name)
+
+    def _munge(self, name):
         # convert spaces to underscores
         name = re.sub(' ', '_', name).lower()        
         # convert symbols to dashes
-        name = re.sub('[:/,]', '-', name).lower()        
+        name = re.sub('[:]', '_-', name).lower()        
+        name = re.sub('[/]', '-', name).lower()        
         # take out not allowed characters
         name = re.sub('[^a-zA-Z0-9-_]', '', name).lower()
+        # remove double underscores
+        name = re.sub('__', '_', name).lower()                
         return name[:100]
+
+    def _basic_setup(self):
+        # ensure there is a user hmg
+        self._username = u'hmg'
+        user = model.User.by_name(self._username)
+        if not user:
+            user = model.User(name=self._username)
             
+        # ensure there is a group ukgov
+        self._groupname = u'ukgov'
+        group = model.Group.by_name(self._groupname)
+        if not group:
+            group = model.Group(name=self._groupname)
+
+    def _new_revision(self):
+        # Revision info
+        rev = model.repo.new_revision()
+        rev.author = u'auto-loader'
+        rev.log_message = u'Load from data4nr database'
+        return rev
+
+    def _get_tags(self, _dict):
+        tags = []
+        tags.append(self._munge(_dict['source']))
+        tags.append(self._munge(_dict['publisher']))
+        tags.append(self._munge(_dict['geographic coverage']))
+
+        title = _dict['title'].lower()
+        title_key_words = ['accident', 'road', 'traffic', 'health', 'illness', 'disease', 'population', 'school', 'accommodation', 'children', 'married', 'emissions', 'benefit', 'alcohol', 'deaths', 'mortality', 'disability', 'unemployment', 'employment', 'armed forces', 'asylum', 'cancer', 'births', 'burglary', 'child', 'tax credit', 'criminal damage', 'drug', 'earnings', 'education', 'economic', 'fire', 'fraud', 'forgery', 'fuel', 'green', 'homeless', 'hospital', 'waiting list', 'housing', 'care', 'income', 'census', 'mental health', 'disablement allowance', 'jobseekers allowance']
+        for keyword in title_key_words:
+            if keyword in title:
+                tags.append(self._munge(keyword))
+        return tags
+        
+##        sources = ['Department for Environment Food and Rural Affairs',
+##                   'Department of Health',
+##                   'Communities and Local Government',
+##                   'Office for National Statistics',
+##                   'Annual Population Survey',
+##                   'Annual Survey of Hours and Earnings',
+##                   'Communities and Local Government',
+##                   'Census',
+##                   'Office of the Deputy Prime Minister',
+##                   'Child Maintenance and Enforcement Commission',
+##                   'Communities and Local Government'
+##                   ]
