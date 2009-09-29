@@ -78,7 +78,7 @@ class Data4Nr(object):
         pkg.url=url
         pkg.download_url=download_url
         pkg.notes=notes
-        
+        pkg.license = model.License.by_name(u'Non-OKD Compliant::Crown Copyright')
         if not existing_pkg:
             user = model.User.by_name(self._username)
 

@@ -21,11 +21,11 @@ class TestBasic:
 
     def test_name_munge(self):
         def test_munge(title, expected_munge):
-            munge = self.data._create_name({'title':title, 'time coverage':'2005'})
-            munge = munge.strip('-2005')
+            munge = self.data._munge(title)
             assert munge == expected_munge, 'Got %s not %s' % (munge, expected_munge)
         test_munge('Adult participation in learning', 'adult_participation_in_learning')
-        test_munge('Alcohol Profile: Alcohol-specific hospital admission, males', 'alcohol_profile-_alcohol-specific_hospital_admission-_males')
+        test_munge('Alcohol Profile: Alcohol-specific hospital admission, males', 'alcohol_profile_-_alcohol-specific_hospital_admission_males')
+        test_munge('Age and limiting long-term illness by NS-SeC', 'age_and_limiting_long-term_illness_by_ns-sec')
 
 class TestData:
     @classmethod
@@ -39,7 +39,9 @@ class TestData:
         model.repo.rebuild_db()
 
     def test_fields(self):
-        pkg1 = model.Package.query.filter_by(name=u'age_and_limiting_long-term_illness_by_ns-sec-2001').one()
+        names = [pkg.name for pkg in model.Package.query.all()]
+        print names
+        pkg1 = model.Package.query.filter_by(name=u'age_and_limiting_long-term_illness_by_ns-sec_2001').one()
         assert pkg1
         assert pkg1.title == 'Age and limiting long-term illness by NS-SeC', pkg1.title
         assert pkg1.author == 'Nomis', pkg1.author
@@ -57,7 +59,13 @@ class TestData:
         assert extra.value == u'Census 2001', extra.value 
         extra = model.PackageExtra.query.filter_by(package=pkg1, key=u'update frequency').one()
         assert extra == extras[u'update frequency']
-        assert extra.value == u'Every 10 years', extra.value 
+        assert extra.value == u'Every 10 years', extra.value
+        tag_names = set()
+        [tag_names.add(tag.name) for tag in pkg.tags]
+        assert 'department_for_children_schools_and_families' in tag_names, tag_names
+        assert 'england' in tag_names, tag_names
+        assert len(tag_names) == 2
+        assert 'Crown Copyright' in pkg.license.name, pkg.license.name
 
 class TestDataTwice:
     @classmethod
@@ -67,15 +75,20 @@ class TestDataTwice:
         data.load_csv_into_db(test_data2)
 
     def test_packages(self):
-        q = model.Package.query.filter_by(name=u'age_and_limiting_long-term_illness_by_ns-sec-2001')
+        q = model.Package.query.filter_by(name=u'age_and_limiting_long-term_illness_by_ns-sec_2001')
         assert q.count() == 1, q.count()
-        pkg1 = q.one()
-        assert pkg1.title == 'Age and limiting long-term illness by NS-SeC', pkg1.title
-        assert pkg1.notes.startswith('CHANGED'), pkg1.notes
-        assert len(pkg1._extras) == 2, pkg1._extras
-        q = model.PackageExtra.query.filter_by(package=pkg1, key=u'source')
+        pkg = q.one()
+        assert pkg.title == 'Age and limiting long-term illness by NS-SeC', pkg.title
+        assert pkg.notes.startswith('CHANGED'), pkg.notes
+        assert len(pkg._extras) == 2, pkg._extras
+        q = model.PackageExtra.query.filter_by(package=pkg, key=u'source')
         assert q.count() == 1, q.all()
         extra = q.one()
-        assert extra == pkg1._extras[u'source']
+        assert extra == pkg._extras[u'source']
         assert extra.value == u'CHANGED Census 2001', extra.value 
-        
+        tag_names = set()
+        [tag_names.add(tag.name) for tag in pkg.tags]
+        assert 'changed_england_and_wales' in tag_names, tag_names
+        assert 'census' in tag_names, tag_names
+        assert 'illness' in tag_names, tag_names
+        assert len(tag_names) == 3
