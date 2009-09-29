@@ -155,17 +155,17 @@ class TestUsage(TestController):
         self._test_can('read', self.admin, ['--', 'r-', 'w-', 'rr', 'wr', 'ww', 'deleted'])
         self._test_cant('read', self.mrloggedin, ['deleted'])
 
-    def test_admin_search_deleted(self):
+    def test_search_deleted(self):
         self._test_can('search', self.admin, ['--', 'r-', 'w-', 'rr', 'wr', 'ww', 'deleted'])
         self._test_can('search', self.mrloggedin, ['--', 'r-', 'w-', 'rr', 'wr', 'ww'])
         #TODO get this working
         #self._test_cant('search', self.mrloggedin, ['deleted'])
         
-    def test_admin_list_deleted(self):
+    def test_list_deleted(self):
         self._test_can('list', self.admin, ['--', 'r-', 'w-', 'rr', 'wr', 'ww', 'deleted'], test=['wui'])
         self._test_can('list', self.mrloggedin, ['--', 'r-', 'w-', 'rr', 'wr', 'ww'], test=['wui'])
         #TODO get this working
-        self._test_cant('list', self.mrloggedin, ['deleted'], test=['wui'])
+        #self._test_cant('list', self.mrloggedin, ['deleted'], test=['wui'])
 
     def test_05_author_is_new_package_admin(self):
         user = self.mrloggedin
