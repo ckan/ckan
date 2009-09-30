@@ -212,7 +212,7 @@ class RestController(CkanBaseController):
             self.rest_api_user = ''
 
         if action and pkg:
-            if action != model.Action.READ and self.rest_api_user == model.PSEUDO_USER__VISITOR:
+            if action != model.Action.READ and self.rest_api_user in (model.PSEUDO_USER__VISITOR, ''):
                 self.log.debug("Valid API key needed to make changes")
                 response.status_int = 403
                 response.headers['Content-Type'] = 'application/json'

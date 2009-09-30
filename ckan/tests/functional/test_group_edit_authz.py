@@ -74,7 +74,7 @@ class TestGroupEditAuthz(TestController):
         assert self.groupname in res
 
         group = model.Group.by_name(self.groupname)
-        assert len(group.roles) == 2
+        assert len(group.roles) == 3, [(grouprole.user.name, grouprole.role) for grouprole in group.roles]
 
         def _r(r):
             return 'GroupRole-%s-role' % r.id
@@ -83,28 +83,28 @@ class TestGroupEditAuthz(TestController):
 
         prs = self._prs(self.groupname)
         assert prs.has_key('visitor')
-        assert not prs.has_key('logged_in')
+        assert prs.has_key('logged_in')
         assert prs.has_key(self.admin), prs
         form = res.forms[0]
+        
         # change role assignments
         form.select(_r(prs['visitor']), model.Role.EDITOR)
         res = form.submit('commit', extra_environ={'REMOTE_USER': self.admin})
 
         model.Session.remove()
         prs = self._prs(self.groupname)
-        assert len(prs) == 2, prs
+        assert len(prs) == 3, prs
         assert prs['visitor'].role == model.Role.EDITOR
     
     def test_4_admin_deletes_role(self):
         group = model.Group.by_name(self.groupname)
-        num_roles_start = len(group.roles)
         
         # create a role to be deleted
         model.add_user_to_role(model.User.by_name(u'logged_in'), model.Role.READER, group)
         model.repo.commit_and_remove()
         
         group = model.Group.by_name(self.groupname)
-        assert len(group.roles) == num_roles_start + 1
+        num_roles_start = len(group.roles)
 
         # make sure not admin
         pr_id = [ r for r in group.roles if r.user.name != self.admin ][0].id
@@ -117,7 +117,7 @@ class TestGroupEditAuthz(TestController):
         assert 'Deleted role' in res, res
         assert 'error' not in res, res
         group = model.Group.by_name(self.groupname)
-        assert len(group.roles) == num_roles_start
+        assert len(group.roles) == num_roles_start - 1
         assert model.GroupRole.query.filter_by(id=pr_id).count() == 0
 
     def test_5_admin_adds_role(self):

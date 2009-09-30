@@ -276,6 +276,10 @@ class TestUsage(object):
 
 class TestMigrate:
     @classmethod
+    def setup_class(self):
+        model.repo.commit_and_remove()
+
+    @classmethod
     def teardown_class(self):
         model.Session.remove()
         model.repo.rebuild_db()

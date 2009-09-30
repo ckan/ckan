@@ -144,6 +144,19 @@ def add_user_to_role(user, role, domain_obj):
     assert Role.is_valid(role), role
 
     if isinstance(domain_obj, Package):
+        existing_pr = PackageRole.query.filter_by(role=role,
+                                                  package=domain_obj,
+                                                  user=user).count()
+    elif isinstance(domain_obj, Group):        
+        existing_pr = GroupRole.query.filter_by(role=role,
+                                                group=domain_obj,
+                                                user=user).count()
+    else:
+        raise NotImplementedError()
+    if existing_pr:
+        return
+
+    if isinstance(domain_obj, Package):
         pr = PackageRole(role=role,
                          package=domain_obj,
                          user=user)
@@ -226,8 +239,8 @@ def setup_default_user_roles(domain_object, admins=[]):
         visitor_roles = [Role.EDITOR]
         logged_in_roles = [Role.EDITOR]
     elif type(domain_object) == Group:
-        visitor_roles = []
-        logged_in_roles = []
+        visitor_roles = [Role.READER]
+        logged_in_roles = [Role.READER]
     setup_user_roles(domain_object, visitor_roles, logged_in_roles, admins)
 
 def clear_user_roles(domain_object):
