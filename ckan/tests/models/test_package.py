@@ -18,7 +18,7 @@ class TestLicense:
 
     def test_license_names(self):
         all = model.LicenseList.all_formatted
-        assert len(all) == 71, len(all)
+        assert len(all) == 72, len(all)
         assert 'Other::License Not Specified' in all
 
     def test_license(self):
