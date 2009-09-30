@@ -33,6 +33,19 @@ class Group(DomainObject):
         text_query = text_query.strip().lower()
         return self.query.filter(self.name.contains(text_query))
 
+    def as_dict(self):
+        _dict = DomainObject.as_dict(self)
+        _dict['packages'] = [package.name for package in self.packages]
+        return _dict
+
+    def add_package_by_name(self, package_name):
+        if not package_name:
+            return
+        package = Package.byName(package_name)
+        assert package
+        if not package in self.packages:
+            self.packages.append(package)
+
     def __repr__(self):
         return '<Group %s>' % self.name
 

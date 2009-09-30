@@ -3,6 +3,7 @@ import re
 from formalchemy import helpers as h
 import formalchemy
 
+import ckan.model as model
 import ckan.lib.helpers
 
 FIELD_TIP_TEMPLATE = '<p class="desc">%s</p>'
@@ -18,6 +19,11 @@ def name_validator(val):
         raise formalchemy.ValidationError('Name must be at least %s characters long' % min_length)
     if not name_match.match(val):
         raise formalchemy.ValidationError('Name must be purely lowercase alphanumeric (ascii) characters and these symbols: -_')
+
+def package_names_validator(val):
+    for pkg_name in val:    
+        if not model.Package.by_name(pkg_name):
+            raise formalchemy.ValidationError('Package name %s does not exist in database' % pkg_name)
 
 class CustomTextFieldRenderer(formalchemy.fields.TextFieldRenderer):
     def render(self, **kwargs):

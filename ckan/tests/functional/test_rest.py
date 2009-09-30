@@ -1,5 +1,6 @@
 from ckan.tests import *
 import ckan.model as model
+import ckan.authz as authz
 import simplejson
 import webhelpers
 
@@ -30,7 +31,7 @@ class TestRestController(TestController):
         model.Session.remove()
 
     def setup(self):
-        self.testvalues = {
+        self.testpackagevalues = {
             'name' : u'testpkg',
             'title': u'Some Title',
             'url': u'http://blahblahblah.mydomain',
@@ -38,6 +39,12 @@ class TestRestController(TestController):
             'tags': u'russion novel',
             'license_id': u'4',
         }
+        self.testgroupvalues = {
+            'name' : u'testgroup',
+            'title' : u'Some Group Title',
+            'description' : 'Great group!',
+            'packages' : u'annakarenina warandpeace',
+            }
         self.random_name = u'http://myrandom.openidservice.org/'
         self.user = model.User(name=self.random_name)
         model.Session.commit()
@@ -50,7 +57,7 @@ class TestRestController(TestController):
         user = model.User.by_name(self.random_name)
         if user:
             user.purge()
-        pkg = model.Package.by_name(self.testvalues['name'])
+        pkg = model.Package.by_name(self.testpackagevalues['name'])
         if pkg:
             pkg.purge()
         model.Session.commit()
@@ -59,13 +66,13 @@ class TestRestController(TestController):
     def test_01_register_post_noauth(self):
         # Test Packages Register Post 401.
         offset = '/api/rest/package'
-        postparams = '%s=1' % simplejson.dumps(self.testvalues)
+        postparams = '%s=1' % simplejson.dumps(self.testpackagevalues)
         res = self.app.post(offset, params=postparams, status=ACCESS_DENIED)
 
     def test_01_entity_put_noauth(self):
         # Test Packages Entity Put 401.
         offset = '/api/rest/package/%s' % u'--'
-        postparams = '%s=1' % simplejson.dumps(self.testvalues)
+        postparams = '%s=1' % simplejson.dumps(self.testpackagevalues)
         res = self.app.post(offset, params=postparams, status=ACCESS_DENIED)
 
     def test_01_entity_delete_noauth(self):
@@ -87,6 +94,12 @@ class TestRestController(TestController):
         assert 'russian' in res, res
         assert 'tolstoy' in res, res
 
+    def test_02_list_groups(self):
+        offset = '/api/rest/group'
+        res = self.app.get(offset, status=[200])
+        assert 'david' in res, res
+        assert 'roger' in res, res
+
     def test_04_get_package(self):
         # Test Packages Register Get 200.
         offset = '/api/rest/package/annakarenina'
@@ -97,7 +110,6 @@ class TestRestController(TestController):
         assert expected_license in res, repr(res) + repr(expected_license)
         assert 'russian' in res, res
         assert 'tolstoy' in res, res
-        
 
     def test_04_get_tag(self):
         # TODO document this one
@@ -106,39 +118,89 @@ class TestRestController(TestController):
         assert 'annakarenina' in res, res
         assert not 'warandpeace' in res, res
 
-    def test_05_get_404(self):
+    def test_04_get_group(self):
+        # TODO document this one
+        offset = '/api/rest/group/roger'
+        res = self.app.get(offset, status=[200])
+        assert 'annakarenina' in res, res
+        assert not 'warandpeace' in res, res
+
+    def test_05_get_404_package(self):
         # Test Package Entity Get 404.
         offset = '/api/rest/package/22222'
         res = self.app.get(offset, status=404)
         model.Session.remove()
 
-    def test_06_create(self):
+    def test_05_get_404_group(self):
+        # Test Package Entity Get 404.
+        offset = '/api/rest/group/22222'
+        res = self.app.get(offset, status=404)
+        model.Session.remove()
+
+    def test_06_create_pkg(self):
         # Test Packages Register Post 200.
         offset = '/api/rest/package'
-        postparams = '%s=1' % simplejson.dumps(self.testvalues)
+        postparams = '%s=1' % simplejson.dumps(self.testpackagevalues)
         res = self.app.post(offset, params=postparams, status=[200],
                 extra_environ=self.extra_environ)
         model.Session.remove()
-        pkg = model.Package.by_name(self.testvalues['name'])
+        pkg = model.Package.by_name(self.testpackagevalues['name'])
         assert pkg
-        assert pkg.title == self.testvalues['title'], pkg
-        assert pkg.url == self.testvalues['url'], pkg
-        assert pkg.license_id == int(self.testvalues['license_id']), pkg
+        assert pkg.title == self.testpackagevalues['title'], pkg
+        assert pkg.url == self.testpackagevalues['url'], pkg
+        assert pkg.license_id == int(self.testpackagevalues['license_id']), pkg
         assert len(pkg.tags) == 2
 
         # Test Package Entity Get 200.
-        offset = '/api/rest/package/%s' % self.testvalues['name']
+        offset = '/api/rest/package/%s' % self.testpackagevalues['name']
         res = self.app.get(offset, status=[200])
-        assert self.testvalues['name'] in res, res
-        assert '"license_id": %s' % self.testvalues['license_id'] in res, res
-        assert self.testvalues['tags'][0] in res, res
-        assert self.testvalues['tags'][1] in res, res
+        assert self.testpackagevalues['name'] in res, res
+        assert '"license_id": %s' % self.testpackagevalues['license_id'] in res, res
+        assert self.testpackagevalues['tags'][0] in res, res
+        assert self.testpackagevalues['tags'][1] in res, res
         
         model.Session.remove()
         
         # Test Packages Register Post 409 (conflict - create duplicate package).
         offset = '/api/rest/package'
-        postparams = '%s=1' % simplejson.dumps(self.testvalues)
+        postparams = '%s=1' % simplejson.dumps(self.testpackagevalues)
+        res = self.app.post(offset, params=postparams, status=[409],
+                extra_environ=self.extra_environ)
+        model.Session.remove()
+
+    def test_06_create_group(self):
+        offset = '/api/rest/group'
+        postparams = '%s=1' % simplejson.dumps(self.testgroupvalues)
+        res = self.app.post(offset, params=postparams, status=200,
+                extra_environ=self.extra_environ)
+        model.Session.remove()
+        group = model.Group.by_name(self.testgroupvalues['name'])
+        assert group
+        model.setup_default_user_roles(group, [self.user])
+        rev = model.repo.new_revision()
+        model.repo.commit_and_remove()
+        group = model.Group.by_name(self.testgroupvalues['name'])
+        assert group
+        assert group.title == self.testgroupvalues['title'], group
+        assert group.description == self.testgroupvalues['description'], group
+        assert len(group.packages) == 2, len(group.packages)
+        anna = model.Package.by_name(u'annakarenina')
+        warandpeace = model.Package.by_name(u'warandpeace')
+        assert anna in group.packages
+        assert warandpeace in group.packages
+
+        # Test Package Entity Get 200.
+        offset = '/api/rest/group/%s' % self.testgroupvalues['name']
+        res = self.app.get(offset, status=[200])
+        assert self.testgroupvalues['name'] in res, res
+        assert self.testgroupvalues['packages'][0] in res, res
+        assert self.testgroupvalues['packages'][1] in res, res
+        
+        model.Session.remove()
+        
+        # Test Packages Register Post 409 (conflict - create duplicate package).
+        offset = '/api/rest/group'
+        postparams = '%s=1' % simplejson.dumps(self.testgroupvalues)
         res = self.app.post(offset, params=postparams, status=[409],
                 extra_environ=self.extra_environ)
         model.Session.remove()
@@ -147,30 +209,30 @@ class TestRestController(TestController):
         # TODO: get this working again. At present returns 400
         # Test Package Entity Put 404.
         offset = '/api/rest/package/22222'
-        postparams = '%s=1' % simplejson.dumps(self.testvalues)
+        postparams = '%s=1' % simplejson.dumps(self.testpackagevalues)
         # res = self.app.post(offset, params=postparams, status=[404],
         #        extra_environ=self.extra_environ)
         model.Session.remove()
 
-    def test_10_edit(self):
+    def test_10_edit_pkg(self):
         # Test Packages Entity Put 200.
 
-        # create a package with testvalues
-        if not model.Package.by_name(self.testvalues['name']):
+        # create a package with testpackagevalues
+        if not model.Package.by_name(self.testpackagevalues['name']):
             pkg = model.Package()
-            pkg.name = self.testvalues['name']
+            pkg.name = self.testpackagevalues['name']
             rev = model.repo.new_revision()
             model.Session.commit()
 
-            pkg = model.Package.by_name(self.testvalues['name'])
+            pkg = model.Package.by_name(self.testpackagevalues['name'])
             model.setup_default_user_roles(pkg, [self.user])
             rev = model.repo.new_revision()
             model.repo.commit_and_remove()
-        assert model.Package.by_name(self.testvalues['name'])
+        assert model.Package.by_name(self.testpackagevalues['name'])
 
         # edit it
         pkg_vals = {'name':u'somethingnew', 'title':u'newtesttitle'}
-        offset = '/api/rest/package/%s' % self.testvalues['name']
+        offset = '/api/rest/package/%s' % self.testpackagevalues['name']
         postparams = '%s=1' % simplejson.dumps(pkg_vals)
         res = self.app.post(offset, params=postparams, status=[200],
                             extra_environ=self.extra_environ)
@@ -178,19 +240,46 @@ class TestRestController(TestController):
         pkg = model.Package.query.filter_by(name=pkg_vals['name']).one()
         assert pkg.title == pkg_vals['title']
 
-    def test_10_edit_name_duplicate(self):
-        # create a package with testvalues
-        if not model.Package.by_name(self.testvalues['name']):
+    def test_10_edit_group(self):
+        # create a group with testgroupvalues
+        group = model.Group.by_name(self.testgroupvalues['name'])
+        if not group:
+            offset = '/api/rest/group'
+            postparams = '%s=1' % simplejson.dumps(self.testgroupvalues)
+            res = self.app.post(offset, params=postparams, status=[200],
+                    extra_environ=self.extra_environ)
+            model.Session.remove()
+            group = model.Group.by_name(self.testgroupvalues['name'])
+            rev = model.repo.new_revision()
+            model.repo.commit_and_remove()
+        assert group
+        user = model.User.by_name(self.random_name)
+        model.setup_default_user_roles(group, [user])
+
+        # edit it
+        group_vals = {'name':u'somethingnew', 'title':u'newtesttitle'}
+        offset = '/api/rest/group/%s' % self.testgroupvalues['name']
+        postparams = '%s=1' % simplejson.dumps(group_vals)
+        res = self.app.post(offset, params=postparams, status=[200],
+                            extra_environ=self.extra_environ)
+        model.Session.remove()
+        group = model.Group.query.filter_by(name=group_vals['name']).one()
+        assert group.title == group_vals['title']
+
+
+    def test_10_edit_pkg_name_duplicate(self):
+        # create a package with testpackagevalues
+        if not model.Package.by_name(self.testpackagevalues['name']):
             pkg = model.Package()
-            pkg.name = self.testvalues['name']
+            pkg.name = self.testpackagevalues['name']
             rev = model.repo.new_revision()
             model.Session.commit()
 
-            pkg = model.Package.by_name(self.testvalues['name'])
+            pkg = model.Package.by_name(self.testpackagevalues['name'])
             model.setup_default_user_roles(pkg, [self.user])
             rev = model.repo.new_revision()
             model.repo.commit_and_remove()
-        assert model.Package.by_name(self.testvalues['name'])
+        assert model.Package.by_name(self.testpackagevalues['name'])
         
         # create a package with name 'dupname'
         dupname = u'dupname'
@@ -203,48 +292,120 @@ class TestRestController(TestController):
 
         # edit first package to have dupname
         pkg_vals = {'name':dupname}
-        offset = '/api/rest/package/%s' % self.testvalues['name']
+        offset = '/api/rest/package/%s' % self.testpackagevalues['name']
         postparams = '%s=1' % simplejson.dumps(pkg_vals)
         res = self.app.post(offset, params=postparams, status=[409],
                             extra_environ=self.extra_environ)
         model.Session.remove()
+
+    def test_10_edit_group_name_duplicate(self):
+        # create a group with testgroupvalues
+        if not model.Group.by_name(self.testgroupvalues['name']):
+            group = model.Group()
+            group.name = self.testgroupvalues['name']
+            rev = model.repo.new_revision()
+            model.Session.commit()
+
+            group = model.Group.by_name(self.testgroupvalues['name'])
+            model.setup_default_user_roles(group, [self.user])
+            rev = model.repo.new_revision()
+            model.repo.commit_and_remove()
+        assert model.Group.by_name(self.testgroupvalues['name'])
         
-    def test_11_delete(self):
+        # create a group with name 'dupname'
+        dupname = u'dupname'
+        if not model.Group.by_name(dupname):
+            group = model.Group()
+            group.name = dupname
+            rev = model.repo.new_revision()
+            model.Session.commit()
+        assert model.Group.by_name(dupname)
+
+        # edit first group to have dupname
+        group_vals = {'name':dupname}
+        offset = '/api/rest/group/%s' % self.testgroupvalues['name']
+        postparams = '%s=1' % simplejson.dumps(group_vals)
+        res = self.app.post(offset, params=postparams, status=[409],
+                            extra_environ=self.extra_environ)
+        model.Session.remove()
+        
+    def test_11_delete_pkg(self):
         # Test Packages Entity Delete 200.
 
-        # create a package with testvalues
-        if not model.Package.by_name(self.testvalues['name']):
+        # create a package with testpackagevalues
+        if not model.Package.by_name(self.testpackagevalues['name']):
             pkg = model.Package()
-            pkg.name = self.testvalues['name']
+            pkg.name = self.testpackagevalues['name']
             rev = model.repo.new_revision()
             model.repo.commit_and_remove()
 
-            pkg = model.Package.by_name(self.testvalues['name'])
+            pkg = model.Package.by_name(self.testpackagevalues['name'])
             model.setup_default_user_roles(pkg, [self.user])
             rev = model.repo.new_revision()
             model.repo.commit_and_remove()
-        assert model.Package.by_name(self.testvalues['name'])
+        assert model.Package.by_name(self.testpackagevalues['name'])
 
         # delete it
-        offset = '/api/rest/package/%s' % self.testvalues['name']
+        offset = '/api/rest/package/%s' % self.testpackagevalues['name']
         rev = model.repo.new_revision()
         res = self.app.delete(offset, status=[200],
                 extra_environ=self.extra_environ)
-        pkg = model.Package.by_name(self.testvalues['name'])
+        pkg = model.Package.by_name(self.testpackagevalues['name'])
         assert pkg.state.name == 'deleted'
         model.Session.remove()
 
-    def test_12_get_404(self):
+    def test_11_delete_group(self):
+        # Test Groups Entity Delete 200.
+
+        # create a group with testpackagevalues
+        group = model.Group.by_name(self.testgroupvalues['name'])
+        if not group:
+            group = model.Group()
+            group.name = self.testgroupvalues['name']
+            rev = model.repo.new_revision()
+            model.repo.commit_and_remove()
+
+            group = model.Group.by_name(self.testgroupvalues['name'])
+            model.setup_default_user_roles(group, [self.user])
+            rev = model.repo.new_revision()
+            model.repo.commit_and_remove()
+        assert group
+        user = model.User.by_name(self.random_name)
+        model.setup_default_user_roles(group, [user])
+
+        # delete it
+        offset = '/api/rest/group/%s' % self.testgroupvalues['name']
+        rev = model.repo.new_revision()
+        res = self.app.delete(offset, status=[200],
+                extra_environ=self.extra_environ)
+        assert not model.Group.by_name(self.testgroupvalues['name'])
+        model.Session.remove()
+
+    def test_12_get_pkg_404(self):
         # Test Package Entity Get 404.
-        assert not model.Package.query.filter_by(name=self.testvalues['name']).count()
-        offset = '/api/rest/package/%s' % self.testvalues['name']
+        assert not model.Package.query.filter_by(name=self.testpackagevalues['name']).count()
+        offset = '/api/rest/package/%s' % self.testpackagevalues['name']
         res = self.app.get(offset, status=404)
         model.Session.remove()
 
-    def test_13_delete_404(self):
+    def test_12_get_group_404(self):
+        # Test Package Entity Get 404.
+        assert not model.Group.query.filter_by(name=self.testgroupvalues['name']).count()
+        offset = '/api/rest/group/%s' % self.testgroupvalues['name']
+        res = self.app.get(offset, status=404)
+        model.Session.remove()
+
+    def test_13_delete_pkg_404(self):
         # Test Packages Entity Delete 404.
-        assert not model.Package.query.filter_by(name=self.testvalues['name']).count()
-        offset = '/api/rest/package/%s' % self.testvalues['name']
+        assert not model.Package.query.filter_by(name=self.testpackagevalues['name']).count()
+        offset = '/api/rest/package/%s' % self.testpackagevalues['name']
+        res = self.app.delete(offset, status=[404],
+                              extra_environ=self.extra_environ)
+
+    def test_13_delete_group_404(self):
+        # Test Packages Entity Delete 404.
+        assert not model.Group.query.filter_by(name=self.testgroupvalues['name']).count()
+        offset = '/api/rest/group/%s' % self.testgroupvalues['name']
         res = self.app.delete(offset, status=[404],
                               extra_environ=self.extra_environ)
 
@@ -265,7 +426,7 @@ class TestSearch(TestController):
         CreateTestData.delete()
 
     def setup(self):
-        self.testvalues = {
+        self.testpackagevalues = {
             'name' : u'testpkg',
             'title': 'Some Title',
             'url': u'http://blahblahblah.mydomain',
@@ -275,7 +436,7 @@ class TestSearch(TestController):
         }
 
         self.pkg = model.Package()
-        self.pkg.name = self.testvalues['name']
+        self.pkg.name = self.testpackagevalues['name']
         rev = model.repo.new_revision()
 
         model.Session.commit()
@@ -284,14 +445,14 @@ class TestSearch(TestController):
 
     def teardown(self):
         model.Session.remove()
-        pkg = model.Package.by_name(self.testvalues['name'])
+        pkg = model.Package.by_name(self.testpackagevalues['name'])
         if pkg:
             pkg.purge()
         model.Session.commit()
         model.Session.remove()
 
     def test_1_uri_q(self):
-        offset = self.base_url + '?q=%s' % self.testvalues['name']
+        offset = self.base_url + '?q=%s' % self.testpackagevalues['name']
         res = self.app.get(offset, status=200)
         res_dict = simplejson.loads(res.body)
         assert u'testpkg' in res_dict['results'], res_dict['results']
@@ -306,7 +467,7 @@ class TestSearch(TestController):
         assert res_dict['count'] == 1, res_dict['count']
 
     def test_3_uri_qjson(self):
-        query = {'q': self.testvalues['name']}
+        query = {'q': self.testpackagevalues['name']}
         json_query = simplejson.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
@@ -315,7 +476,7 @@ class TestSearch(TestController):
         assert res_dict['count'] == 1, res_dict['count']
 
     def test_4_post_qjson(self):
-        query = {'q': self.testvalues['name']}
+        query = {'q': self.testpackagevalues['name']}
         json_query = simplejson.dumps(query)
         offset = self.base_url
         res = self.app.post(offset, params=json_query, status=200)

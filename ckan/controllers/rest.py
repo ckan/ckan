@@ -17,6 +17,10 @@ class RestController(CkanBaseController):
             packages = model.Package.query.all() 
             results = [package.name for package in packages]
             return self._finish_ok(results)
+        elif register == u'group':
+            groups = model.Group.query.all() 
+            results = [group.name for group in groups]
+            return self._finish_ok(results)
         elif register == u'tag':
             tags = model.Tag.query.all() #TODO
             results = [tag.name for tag in tags]
@@ -38,6 +42,18 @@ class RestController(CkanBaseController):
             _dict = pkg.as_dict()
             #TODO check it's not none
             return self._finish_ok(_dict)
+        elif register == u'group':
+            group = model.Group.by_name(id)
+            if group is None:
+                response.status_int = 404
+                return ''
+
+            if not self._check_access(group, model.Action.READ):
+                return ''
+
+            _dict = group.as_dict()
+            #TODO check it's not none
+            return self._finish_ok(_dict)
         elif register == u'tag':
             obj = model.Tag.by_name(id) #TODO tags
             if obj is None:
@@ -50,6 +66,7 @@ class RestController(CkanBaseController):
             return ''
 
     def create(self, register):
+        # Check an API key given
         if not self._check_access(None, None):
             return simplejson.dumps("Access denied")
         try:
@@ -58,8 +75,15 @@ class RestController(CkanBaseController):
             response.status_int = 400
             return "JSON Error: %s" % str(inst)
         try:
-            request_fa_dict = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(), request_data)
-            fs = ckan.forms.package_fs.bind(model.Package, data=request_fa_dict)
+            if register == 'package':
+                request_fa_dict = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(), request_data)
+                fs = ckan.forms.package_fs.bind(model.Package, data=request_fa_dict)
+            elif register == 'group':
+                request_fa_dict = ckan.forms.edit_group_dict(ckan.forms.get_group_dict(), request_data)
+                fs = ckan.forms.group_fs_combined.bind(model.Group, data=request_fa_dict)
+            else:
+                reponse.status_int = 400
+                return 'Cannot create new entity of this type: %s' % register
             validation = fs.validate()
             if not validation:
                 response.status_int = 409
@@ -84,12 +108,18 @@ class RestController(CkanBaseController):
         return self._finish_ok(obj.as_dict())
             
     def update(self, register, id):
-        pkg = model.Package.by_name(id)
-        if not pkg:
+        if register == 'package':
+            entity = model.Package.by_name(id)
+        elif register == 'group':
+            entity = model.Group.by_name(id)
+        else:
+            reponse.status_int = 400
+            return 'Cannot update entity of this type: %s' % register
+        if not entity:
             response.status_int = 404
             return ''
 
-        if not self._check_access(pkg, model.Action.EDIT):
+        if not self._check_access(entity, model.Action.EDIT):
             return simplejson.dumps("Access denied")
 
         try:
@@ -100,10 +130,16 @@ class RestController(CkanBaseController):
 
 
         try:
-            orig_pkg_dict = ckan.forms.get_package_dict(pkg)
-            request_fa_dict = ckan.forms.edit_package_dict(orig_pkg_dict, request_data, id=pkg.id)
-            fs = ckan.forms.package_fs.bind(pkg, data=request_fa_dict)
-            validation = fs.validate_on_edit(pkg.name, pkg.id)
+            if register == 'package':
+                orig_entity_dict = ckan.forms.get_package_dict(entity)
+                request_fa_dict = ckan.forms.edit_package_dict(orig_entity_dict, request_data, id=entity.id)
+                fs = ckan.forms.package_fs
+            elif register == 'group':
+                orig_entity_dict = ckan.forms.get_group_dict(entity)
+                request_fa_dict = ckan.forms.edit_group_dict(orig_entity_dict, request_data, id=entity.id)
+                fs = ckan.forms.group_fs
+            fs = fs.bind(entity, data=request_fa_dict)
+            validation = fs.validate_on_edit(entity.name, entity.id)
             if not validation:
                 response.status_int = 409
                 return simplejson.dumps(repr(fs.errors))
@@ -124,16 +160,22 @@ class RestController(CkanBaseController):
         return self._finish_ok(obj.as_dict())
 
     def delete(self, register, id):
-        pkg = model.Package.by_name(id)
-        if not pkg:
+        if register == 'package':
+            entity = model.Package.by_name(id)
+        elif register == 'group':
+            entity = model.Group.by_name(id)
+        else:
+            reponse.status_int = 400
+            return 'Cannot delete entity of this type: %s' % register
+        if not entity:
             response.status_int = 404
             return ''
 
-        if not self._check_access(pkg, model.Action.PURGE):
+        if not self._check_access(entity, model.Action.PURGE):
             return simplejson.dumps("Access denied")
             
         try:
-            pkg.delete()
+            entity.delete()
             model.repo.commit()        
         except Exception, inst:
             raise
