@@ -29,9 +29,9 @@ def get_group_linker(action):
 
 class RolesRenderer(formalchemy.fields.FieldRenderer):
     def render(self, **kwargs):
-        selected = kwargs.get('selected', None) or self._value
+        selected = kwargs.get('selected', None) or unicode(self._value)
         options = model.Role.get_all()
-        select = fa_h.select(self.name, fa_h.options_for_select(options), **kwargs)
+        select = fa_h.select(self.name, fa_h.options_for_select(options, selected=selected), **kwargs)
         return select
 
 def get_authz_fieldset(role_class):

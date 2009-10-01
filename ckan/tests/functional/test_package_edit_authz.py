@@ -63,6 +63,7 @@ class TestPackageEditAuthz(TestController):
         return dict([ (getattr(r.user, 'name', 'USER NAME IS NONE'), r) for r in pkg.roles ])
 
     def test_3_admin_changes_role(self):
+        # load authz page
         offset = url_for(controller='package', action='authz', id=self.pkgname)
         res = self.app.get(offset, extra_environ={'REMOTE_USER':
             self.admin})
@@ -77,16 +78,29 @@ class TestPackageEditAuthz(TestController):
         assert prs['visitor'].role == model.Role.EDITOR
         assert prs['logged_in'].role == model.Role.EDITOR
         form = res.forms[0]
+        
         # change role assignments
         form.select(_r(prs['visitor']), model.Role.READER)
         form.select(_r(prs['logged_in']), model.Role.ADMIN)
         res = form.submit('commit', extra_environ={'REMOTE_USER': self.admin})
+        model.repo.commit_and_remove()
 
-        model.Session.remove()
+        # ensure db was changed
         prs = self._prs(self.pkgname)
         assert len(prs) == 3, prs
         assert prs['visitor'].role == model.Role.READER
         assert prs['logged_in'].role == model.Role.ADMIN
+
+        # ensure rerender of form is changed
+        offset = url_for(controller='package', action='authz', id=self.pkgname)
+        res = self.app.get(offset, extra_environ={'REMOTE_USER':
+            self.admin})
+        assert self.pkgname in res
+        fv = res.forms[0]
+        visitor_options = fv[_r(prs['visitor'])].options
+        assert ('reader', True) in visitor_options, visitor_options
+        logged_in_options = fv[_r(prs['logged_in'])].options
+        assert ('admin', True) in logged_in_options, logged_in_options
     
     def test_4_admin_deletes_role(self):
         pkg = model.Package.by_name(self.pkgname)
