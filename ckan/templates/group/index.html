@@ -1,10 +1,17 @@
 <html xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude">
   
-  <py:def function="page_title">Groups - List</py:def>
+  <py:def function="page_title">Groups - Index</py:def>
 
   <div py:match="content">
     <h2>Groups</h2>
+
+    <py:if test="c.user">
+    <h3>
+      <a href="${h.url_for(controller='group',
+        action='new', id=None)}">Create a new group</a>
+    </h3>
+    </py:if>
 
     ${HTML(c.list)}
 
@@ -12,4 +19,3 @@
 
   <xi:include href="../layout.html" />
 </html>
-

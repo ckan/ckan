@@ -121,6 +121,7 @@ class TestGroupEditAuthz(TestController):
         assert model.GroupRole.query.filter_by(id=pr_id).count() == 0
 
     def test_5_admin_adds_role(self):
+        model.repo.commit_and_remove()
         offset = url_for(controller='group', action='authz', id=self.groupname)
         res = self.app.get(offset, extra_environ={'REMOTE_USER':
             self.admin})
@@ -131,7 +132,8 @@ class TestGroupEditAuthz(TestController):
         # assert len(prs) == 2, prs
 
         assert 'Create New User Roles' in res
-        assert '<select id=' in res, res
+        assert '<select id="GroupRole--user_id"' in res, res
+        assert '<td>madeup-administrator</td>' not in res, res
         form = res.forms[0]
         another = model.User.by_name(self.another)
         form.select('GroupRole--user_id', another.id)

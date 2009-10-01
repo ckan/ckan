@@ -12,10 +12,13 @@ class GroupController(CkanBaseController):
         self.authorizer = authz.Authorizer()
     
     def index(self):
-        return self.list()
+        c.group_count = model.Group.query.count()
+        c.list = self._paginate_list('group', id, 'group/list_content', ['name', 'title'])
+        return render('group/index')
 
     def list(self, id=0):
-        return self._paginate_list('group', id, 'group/list', ['name', 'title'])
+        c.list = self._paginate_list('group', id, 'group/list_content', ['name', 'title'])
+        return render('group/list')
 
     def read(self, id):
         c.group = model.Group.by_name(id)
@@ -38,6 +41,51 @@ class GroupController(CkanBaseController):
         c.content = genshi.HTML(self._render_group(fs))
 
         return render('group/read')
+
+    def new(self):
+        record = model.Group
+        c.error = ''
+        if not c.user:
+            abort(401, 'Must be logged in to create a new group.')
+
+        fs = ckan.forms.group_fs
+
+        if request.params.has_key('commit'):
+            # needed because request is nested
+            # multidict which is read only
+            params = dict(request.params)
+            c.fs = fs.bind(record, data=params or None)
+            try:
+                self._update(c.fs, id, record.id)
+                # do not use groupname from id as may have changed
+                c.groupname = c.fs.name.value
+
+                # TODO replace default user roles when we have it in the wui
+                group = model.Group.by_name(c.groupname)
+                admins = []
+                user = model.User.by_name(c.user)
+                admins = [user]
+                model.setup_default_user_roles(group, admins)
+            except ValidationException, error:
+                c.error, fs = error.args
+                c.form = self._render_edit_form(fs)
+                return render('group/edit')
+            pkgs = [model.Package.by_name(name) for name in request.params.getall('Group-packages-current')]
+            group.packages = pkgs
+            pkgid = request.params.get('PackageGroup--package_id')
+            if pkgid != '__null_value__':
+                package = model.Package.query.get(pkgid)
+                group.packages.append(package)
+            model.repo.commit_and_remove()
+            h.redirect_to(action='read', id=c.groupname)
+
+        if request.params:
+            data = ckan.forms.edit_group_dict(ckan.forms.get_group_dict(), request.params)
+            fs = fs.bind(data=data)
+        c.form = self._render_edit_form(fs)
+        if 'preview' in request.params:
+            c.preview = genshi.HTML(self._render_package(fs))
+        return render('group/new')
 
     def edit(self, id=None): # allow id=None to allow posting
         c.error = ''
