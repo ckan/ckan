@@ -83,7 +83,6 @@ class PackagesRenderer(formalchemy.fields.FieldRenderer):
         options = [('', '__null_value__')] + [(p.name, p.id) for p in model.Package.query.all()]
         return h.select(self.name, h.options_for_select(options, selected=selected), **kwargs)
 
-package_list = [('', '__null_value__')] + [(p.name, p.id) for p in model.Package.query.all()]
 new_package_group_fs = formalchemy.FieldSet(model.PackageGroup)
 new_package_group_fs.configure(
     options=[new_package_group_fs.package_id.with_renderer(PackagesRenderer)],
