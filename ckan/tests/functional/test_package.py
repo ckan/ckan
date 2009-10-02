@@ -62,7 +62,11 @@ class TestPackageController(TestController):
         assert 'Groups:' in res
         assert 'david' in res
         assert 'roger' in res
-        assert 'State:' not in res        
+        assert 'State:' not in res
+        assert 'Genre:' in res
+        assert 'romantic novel' in res
+        assert 'Original media:' in res
+        assert 'book' in res
 
     def test_read_as_admin(self):
         name = u'annakarenina'

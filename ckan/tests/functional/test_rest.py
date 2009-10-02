@@ -110,6 +110,9 @@ class TestRestController(TestController):
         assert expected_license in res, repr(res) + repr(expected_license)
         assert 'russian' in res, res
         assert 'tolstoy' in res, res
+        assert '"extras": {' in res, res
+        assert '"genre": "romantic novel"' in res, res
+        assert '"original media": "book"' in res, res
 
     def test_04_get_tag(self):
         # TODO document this one

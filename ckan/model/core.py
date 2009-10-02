@@ -168,6 +168,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             _dict['license'] = self.license.name
         else:
             _dict['license'] = ''
+        _dict['extras'] = dict([(extra.key, extra.value) for key, extra in self._extras.items()])
         return _dict
         
 

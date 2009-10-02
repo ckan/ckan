@@ -326,6 +326,10 @@ class PackageController(CkanBaseController):
             notes_formatted = format.to_html(fs.notes.value)
             notes_formatted = genshi.HTML(notes_formatted)
             c.pkg_notes_formatted = notes_formatted
+            c.pkg_extras = []
+            for key, extra in fs.model._extras.items():
+                c.pkg_extras.append((key.capitalize(), extra.value))
+            
             preview = render('package/read_content')
 #        except Exception, inst:
 #            self.status_code = 500

@@ -30,5 +30,12 @@
     <div>
       ${c.pkg_notes_formatted}
     </div>
+    <h3>Extras:</h3>
+    <ul>
+        <py:for each="key, value in c.pkg_extras">
+           <li><strong>${key}:</strong> ${value}</li>
+        </py:for>
+    </ul>
+
   </div>
 
