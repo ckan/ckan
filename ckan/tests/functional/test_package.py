@@ -366,7 +366,7 @@ Hello world.
         assert 'Licenses: %s' % str(license) in res1, res1
         assert 'Tags:\n%s' % tags_html in res1, res1 + tags_html
         assert 'Groups:\n%s' % groups_html in res1, res1 + groups_html
-        assert 'State: %s' % state.name in res1, res1
+        assert 'State: %s' % str(state.name) in res1, res1
         pkg = model.Package.by_name(name)
         assert pkg.name == name
         assert pkg.title == title
