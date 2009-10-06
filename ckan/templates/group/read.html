@@ -7,18 +7,25 @@
 
   <div py:match="content">
     <h2>
-      Group: ${c.group.name}
+      <py:if test="not c.group.title">
+        <em>No Title</em>
+      </py:if>
+
+      ${c.group.title}
+
+      <span class="object-action">
       <py:if test="c.auth_for_edit">
         <a href="${h.url_for(controller='group',action='edit',id=c.group.name)}">[edit]</a>
+      </py:if>
       <py:if test="c.auth_for_authz">
         <a href="${h.url_for(controller='group',action='authz',id=c.group.name)}">[authorization]</a>
       </py:if>
-      </py:if>
+      </span>
     </h2>
 
-    ${c.content}
+    ${c.group_description_formatted}
 
-    <p>Packages:</p>
+    <h3>Packages:</h3>
     <ul>
     <py:for each="pkg in c.group_active_packages">
       <li>
