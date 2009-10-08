@@ -24,6 +24,21 @@
       <a href="http://isitopen.ckan.net/enquiry/create/?ckan_package=${c.pkg.name}">make an enquiry using Is It Open</a>
     </h3>
 
+    <h3>
+      Rating: 
+
+      <ul class="rating default${'%i' % (c.current_rating or 0)}star">
+	<li class="one"><a href="${h.url_for(controller='package',action='rate',id=c.pkg.name)}?rating=1" title="1 Star">1</a></li>
+	<li class="two"><a href="${h.url_for(controller='package',action='rate',id=c.pkg.name)}?rating=2" title="2 Stars">2</a></li>
+	<li class="three"><a href="${h.url_for(controller='package',action='rate',id=c.pkg.name)}?rating=3" title="3 Stars">3</a></li>
+	<li class="four"><a href="${h.url_for(controller='package',action='rate',id=c.pkg.name)}?rating=4" title="4 Stars">4</a></li>
+	<li class="five"><a href="${h.url_for(controller='package',action='rate',id=c.pkg.name)}?rating=5" title="5 Stars">5</a></li>
+      </ul>
+            ${'%0.1f (%i rating%s)' % (c.current_rating, c.num_ratings, ('s' if c.num_ratings != 1 else '')) if c.num_ratings else 'no ratings yet'}
+    </h3>
+
+
+
     ${c.content}
   </div>
 

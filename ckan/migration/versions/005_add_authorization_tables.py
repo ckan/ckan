@@ -1,7 +1,6 @@
 from sqlalchemy import *
 from migrate import *
 import uuid
-import ckan.model as model
 
 metadata = MetaData(migrate_engine)
 
@@ -43,8 +42,10 @@ def upgrade():
     user_object_role_table.create()
     package_role_table.create()
     group_role_table.create()
+
     # Not Good to use model here. TODO: refactor this.
-    model.repo.init_db()
+    # import ckan.model as model
+    # model.repo.init_db()
     # call this explicitly elsewhere
     # model.give_all_packages_default_user_roles()
 

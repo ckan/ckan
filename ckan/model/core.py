@@ -160,6 +160,15 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             return True
         return False
 
+    def get_average_rating(self):
+        total = 0
+        for rating in self.ratings:
+            total += rating.rating
+        if total == 0:
+            return None
+        else:
+            return total / len(self.ratings)
+
     def as_dict(self):
         _dict = DomainObject.as_dict(self)
         _dict['tags'] = [tag.name for tag in self.tags]
@@ -169,6 +178,8 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         else:
             _dict['license'] = ''
         _dict['extras'] = dict([(extra.key, extra.value) for key, extra in self._extras.items()])
+        _dict['ratings_average'] = self.get_average_rating()
+        _dict['ratings_count'] = len(self.ratings)
         return _dict
         
 
