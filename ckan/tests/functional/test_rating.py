@@ -43,6 +43,7 @@ class TestUsage(TestController):
             offset = url_for(controller='package', action='read', id=pkg_name)
             res = self.app.get(offset)
             res = res.click(href='rating=%s' % rating)
+            res = res.follow()
             assert self._get_current_rating(res) == rating, rating
 
     def test_give_two_ratings(self):

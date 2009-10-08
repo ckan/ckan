@@ -227,17 +227,17 @@ class PackageController(CkanBaseController):
     def rate(self, id):
         package_name = id
         package = model.Package.by_name(package_name)
-        rating = request.params['rating']
-        ckan.rating.set_my_rating(c, package, rating)
-
-        # refresh
-        return self.read(id)
+        rating = request.params.get('rating', '')
+        if rating:
+            ckan.rating.set_my_rating(c, package, rating)
+        h.redirect_to(controller='package', action='read', id=package_name)
 
     def _render_edit_form(self, fs):
         # errors arrive in c.error and fs.errors
         c.form = fs.render()
         return render('package/edit_form')
 
+    # TODO 2009-10-08 this is an OLD hack re. spam - probably can be removed
     def _is_locked(pkgname, self):
         # allow non-existent name -- never happens but allows test of 'bad'
         # update (test_update in test_package.py) to work normally :)
