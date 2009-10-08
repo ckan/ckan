@@ -14,3 +14,9 @@ a.icon {
     background: transparent url(http://m.okfn.org/kforge/images/icon-delete.png) repeat scroll 0 0;
     float: left;
 }
+
+/* things like [edit] action in package title */
+.object-action {
+    font-size: 0.6em;
+}
+

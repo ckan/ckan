@@ -61,12 +61,12 @@ class TestGroup(TestController):
     def test_cant_new_not_logged_in(self):
         offset = url_for(controller='group')
         res = self.app.get(offset)
-        assert 'new group' not in res, res
+        assert 'Create a new group' not in res, res
 
     def test_new(self):
         offset = url_for(controller='group')
         res = self.app.get(offset, extra_environ={'REMOTE_USER': 'russianfan'})
-        assert 'new group' in res, res
+        assert 'Create a new group' in res, res
         
 
 class TestEdit(TestController):
@@ -205,7 +205,7 @@ class TestNew(TestController):
         fv.select('PackageGroup--package_id', pkg.id)        
         res = fv.submit('commit', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
         res = res.follow()
-        assert 'Group: %s' % group_name in res, res
+        assert '%s' % group_title in res, res
         
         model.Session.remove()
         group = model.Group.by_name(group_name)
@@ -228,7 +228,8 @@ class TestNew(TestController):
         fv[prefix+'name'] = group_name
         res = fv.submit('commit', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
         res = res.follow()
-        assert 'Group: %s' % group_name in res, res
+        assert group_name in res, res
+        assert 'No Title' in res, res
         model.Session.remove()
 
         # Create duplicate group
