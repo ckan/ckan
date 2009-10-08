@@ -14,3 +14,7 @@ a.icon {
     background: transparent url(http://m.okfn.org/kforge/images/icon-delete.png) repeat scroll 0 0;
     float: left;
 }
+
+table.no-margin { 
+  margin: 0 0 0 0;  
+}

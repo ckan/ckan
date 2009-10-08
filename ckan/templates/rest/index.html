@@ -4,14 +4,15 @@
   <py:def function="page_title">REST API - Index</py:def>
 
   <div py:match="content">
-    <h2>REST API</h2>
+<h2>API</h2>
 
 <h3>Introduction</h3>
-<p>
-CKAN provides a RESTful API.
 
-If you wish to create a software application that uses the CKAN service, then you will need to know which resources are available, what their locations are, what methods each resource supports, and what the responses might be. All this information is available on this page.
-</p>
+<p>In addition to use of this website, CKAN data can be viewed and changed by using an Application Programming Interface (API).</p>
+
+<p>The API takes the form of a RESTful (Representational State Transfer) style API for accessing CKAN database objects and a Search API.</p>
+
+<p>This document specifies the API so that anyone can create software applications to use the CKAN service. The specification describes the RESTful API in terms of which resources are available, what their locations are, what methods each resource supports, and what the responses might be. It also species the usage and responses to the search API.</p>
 
 <h3>API Keys</h3>
 <p>For any action which makes a change to a resource (i.e. all non-GET methods)
@@ -22,21 +23,24 @@ you will require an API key. To obtain your API key:</p>
 </ol>
 
 
-<h3>Resources and Locations</h3>
+<h3>REST Resources and Locations</h3>
 
-<p>A REST interface presents resources at published locations. Here are the names locations of the CKAN REST API resources.
+<p>A REST interface presents resources at published locations. Here are the names locations of the CKAN REST API resources. This is followed by a table of non-REST API locations.
 </p>
 <table>
-<tbody><tr><th> <strong>Resourse Name</strong> </th><th> <strong>Location</strong> 
-</th></tr><tr><td> Package Register </td><td> <a href="/api/rest/package">/api/rest/package</a> 
+<tbody><tr><th> <strong>Resource Name</strong> </th><th> <strong>Location</strong> 
+</th></tr><tr><td> Package Register </td><td> /api/rest/package
 
 </td></tr><tr><td> Package Entity </td><td> /api/rest/package/PACKAGE-NAME 
-</td></tr><tr><td> Group Register </td><td> <a href="/api/rest/package">/api/rest/package</a> 
+</td></tr><tr><td> Group Register </td><td> /api/rest/group
 
-</td></tr><tr><td> Group Entity </td><td> /api/rest/package/PACKAGE-NAME 
-</td></tr><tr><td> Tag Register </td><td> <a href="/api/rest/tag">/api/rest/tag</a> 
+</td></tr><tr><td> Group Entity </td><td> /api/rest/group/GROUP-NAME 
+</td></tr><tr><td> Tag Register </td><td> /api/rest/tag
 </td></tr><tr><td> Tag Entity </td><td> /api/rest/tag/TAG-NAME 
-</td></tr><tr><td> Package Search </td><td> /api/search/package
+</td></tr></tbody></table>
+<table>
+<tbody><tr><th> <strong>API function</strong> </th><th> <strong>Location</strong> 
+</th></tr><tr><td> Package Search </td><td> /api/search/package
 </td></tr></tbody></table>
 <h3>Methods and data formats</h3>
 
@@ -91,10 +95,10 @@ To send request data, create a simple data structure, then convert it to a JSON 
 Response data will be in the response body.
 
 <h3>Search parameters</h3>
-<table>
+<table class="no-margin">
 <tbody><tr><th> <strong>Key</strong> </th><th> <strong>Value</strong> </th><th> <strong>Example </strong> </th><th> <strong> Notes </strong>         
 
-</th></tr><tr><td> q </td><td> Search-String </td><td> q=geodata </td><td> Criteria to search the package name, title and tags fields for.
+</th></tr><tr><td> q </td><td> Search-String </td><td> q=geodata<br/> q=gov+sweden <br/> q=%22drug%20abuse%22 </td><td> Criteria to search the package name, title and tags fields for. URL encoded search text. (You can also contatenate words with a '+' symbol in a URL.) Search results must contain all the specified words. Use quotation marks to signify an exact phrase.
 </td></tr><tr><td> qjson </td><td> JSON encoded options </td><td> ['q':'geodata']</td><td> All search parameters can be json-encoded and supplied to this URL parameter as a more flexible alternative.
 </td></tr><tr><td> title, tags, notes, <br/>groups, author, maintainer </td><td> Search-String </td><td> title=uk%20stat&amp;tags&amp;health+census </td><td> search a particular a field
 </td></tr><tr><td> order_by </td><td> field-name (default=name)</td><td> order_by=notes </td><td> Specify the field to sort the results by
@@ -105,7 +109,6 @@ Response data will be in the response body.
 </td></tr><tr><td> filter_by_downloadable </td><td> 0 (default) or 1 </td><td> filter_by_downloadable=1 </td><td> Filters results by ones which have a download URL.
 <!--</td></tr><tr><td>  </td><td> </td><td> </td><td>-->
 </td></tr></tbody></table>
-Note: All search terms are ANDed.
 
 <h3>Status Codes</h3>
 <table>
@@ -147,5 +150,5 @@ If requests that are required to be authorized are not sent with a currently val
 
 </div>
 
-  <xi:include href="../layout.html" />
+<xi:include href="../layout.html" />
 </html>
