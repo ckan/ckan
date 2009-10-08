@@ -2,22 +2,43 @@ from ckan.tests import *
 import ckan.model as model
 
 class TestUserController(TestController):
+    @classmethod
+    def setup_class(self):
+        model.repo.rebuild_db()
+        CreateTestData.create()
 
-    def test_user_not_logged_in(self):
-        offset = url_for(controller='user')
-        # not logged in, so should redirect to 
-        res = self.app.get(offset, status=302)
-        res = res.follow()
-        assert 'Login' in res, res
+        # make 3 changes, authored by annafan
+        for i in range(3):
+            pkg = model.Package.by_name(u'annakarenina')
+            pkg.notes = u'Changed notes %i' % i
+            rev = model.repo.new_revision()
+            rev.author = u'annafan'
+            model.repo.commit_and_remove()
 
-    def test_user_logged_in(self):
+    @classmethod
+    def teardown_class(self):
+        model.repo.rebuild_db()
+
+    def test_user_index(self):
         offset = url_for(controller='user')
-        username = 'xyz.com'
-        res = self.app.get(offset, extra_environ={'REMOTE_USER': username})
-        assert 'My Account' in res, res
-        assert 'You are logged in as: <strong>%s</strong>' % username in res
-        assert 'To view your API key' in res
-        assert 'Your Recent Activity' in res
+        # TODO
+
+    def test_user_read(self):
+        user = model.User.by_name('annafan')
+        offset = url_for(controller='user', action='read', id=user.id)
+        res = self.app.get(offset, status=200)
+        assert 'User Account - annafan' in res, res
+        assert 'Number of edits:</strong> 3' in res, res
+        assert 'Number of packages administered:</strong> 1' in res, res
+        assert 'Recent changes' in res, res
+
+    def test_user_read_logged_in(self):
+        user = model.User.by_name('annafan')
+        offset = url_for(controller='user', action='read', id=user.id)
+        res = self.app.get(offset, extra_environ={'REMOTE_USER': str(user.name)})
+        assert 'User Account - annafan' in res, res
+        assert 'Logged in as <strong>%s</strong>' % user.name in res, res
+        assert 'View your API key' in res
 
     def test_user_login(self):
         offset = url_for(controller='user', action='login')

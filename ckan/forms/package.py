@@ -16,7 +16,7 @@ FIELD_TIPS = {
     'notes':'You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.'
 }
 
-def package_name_validator(val):
+def package_name_validator(val, field):
     common.name_validator(val)
     if model.Package.by_name(val):
         raise formalchemy.ValidationError('Package name already exists in database')

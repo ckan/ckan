@@ -48,6 +48,12 @@ def make_map():
     map.connect('group/list', controller='group', action='list')
     map.connect('group/new', controller='group', action='new')
     map.connect('group/:id', controller='group', action='read')
+    map.connect('user/all', controller='user', action='all')
+    map.connect('user/edit', controller='user', action='edit')
+    map.connect('user/login', controller='user', action='login')
+    map.connect('user/logout', controller='user', action='logout')
+    map.connect('user/apikey', controller='user', action='apikey')
+    map.connect('user/:id', controller='user', action='read')
     map.connect(':controller/:action/:id')
     map.connect('*url', controller='template', action='view')
 

@@ -1,0 +1,37 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+  
+  <xi:include href="../revision/common.html" />
+
+  <py:def function="page_title">User Account - ${c.read_user}</py:def>
+
+  <div py:match="content">
+
+    <h2>User Account - ${c.read_user}</h2>
+    <py:if test="c.is_myself">
+      <h3>My Account</h3>
+      <p>You are logged in. <a href="${h.url_for('/logout_openid')}">Log out</a></p>
+
+      <p><a href="${h.url_for(controller='user', action='apikey')}">View your API key</a></p>
+    </py:if>
+
+    <h3>Activity</h3>
+    <ul>
+      <li><strong>Number of edits:</strong> ${c.num_edits}</li>
+      <li><strong>Number of packages administered:</strong> ${c.num_pkg_admin}</li>
+    </ul>
+
+    <h3>Recent changes</h3>
+    <table border="1">
+      <tr>
+        <th>Revision</th><th>Timestamp</th><th>Author</th><th>Packages</th><th>Log Message</th>
+      </tr>
+      <py:for each="revision in c.activity">
+      ${revision_row(revision)}
+      </py:for>
+    </table>
+
+  </div>
+
+  <xi:include href="layout.html" />
+</html>

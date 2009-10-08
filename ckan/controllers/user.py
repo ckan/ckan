@@ -6,13 +6,25 @@ def login_form():
 
 class UserController(CkanBaseController):
 
-    def index(self):
-        if not c.user:
+    def index(self, id):
+        if not c.user or c.user != id:
             h.redirect_to(controller='user', action='login', id=None)
+        return self.read()
+
+    def read(self, id):
+        if id:            
+            user = model.User.query.get(id)
         else:
-            q = model.Revision.query.filter_by(author=c.user).limit(20)
-            c.activity = q.limit(20).all()            
-            return render('user/index')
+            user = model.User.by_name(c.user)
+        if not user:
+            h.redirect_to(controller='user', action='login', id=None)
+        c.read_user = user.name
+        c.is_myself = user.name == c.user
+        revisions_q = model.Revision.query.filter_by(author=user.name)
+        c.num_edits = revisions_q.count()
+        c.num_pkg_admin = model.PackageRole.query.filter_by(user=user, role=model.Role.ADMIN).count()
+        c.activity = revisions_q.limit(20).all()
+        return render('user/read')
 
     def login(self):
         if c.user:
