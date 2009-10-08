@@ -6,6 +6,7 @@ import ckan.model as model
 import ckan.forms
 from ckan.lib.search import Search, SearchOptions
 import ckan.authz
+import ckan.rating
 
 class RestController(CkanBaseController):
 
@@ -81,8 +82,10 @@ class RestController(CkanBaseController):
             elif register == 'group':
                 request_fa_dict = ckan.forms.edit_group_dict(ckan.forms.get_group_dict(), request_data)
                 fs = ckan.forms.group_fs_combined.bind(model.Group, data=request_fa_dict)
+            elif register == 'rating':
+                return self._create_rating(request_data)
             else:
-                reponse.status_int = 400
+                response.status_int = 400
                 return 'Cannot create new entity of this type: %s' % register
             validation = fs.validate()
             if not validation:
@@ -194,6 +197,43 @@ class RestController(CkanBaseController):
         options.return_objects = False
         results = Search().run(options)
         return self._finish_ok(results)
+
+    def _create_rating(self, params):
+        rating_opts = {'package':u'warandpeace',
+                       'rating':5}
+        # check options
+        package_name = params.get('package')
+        rating = params.get('rating')
+        user = self.rest_api_user
+        opts_err = None
+        if not package_name:
+            opts_err = 'You must supply a package name (parameter "package").'
+        elif not rating:
+            opts_err = 'You must supply a rating (parameter "rating").'
+        else:
+            try:
+                rating_int = int(rating)
+            except ValueError:
+                opts_err = 'Rating must be an integer value.'
+            else:
+                package = model.Package.by_name(package_name)
+                if rating < 1 or rating > 5:
+                    opts_err = 'Rating must be between 1 and 5.'
+                elif not package:
+                    opts_err = 'Package with name %r does not exist.' % package_name
+        if opts_err:
+            self.log.debug(opts_err)
+            response.status_int = 400
+            response.headers['Content-Type'] = 'application/json'
+            return opts_err
+
+        user = model.User.by_name(self.rest_api_user)
+        ckan.rating.set_rating(user, package, rating_int)
+
+        response.headers['Content-Type'] = 'application/json'
+        ret_dict = {'rating average':package.get_average_rating(),
+                    'rating count': len(package.ratings)}
+        return self._finish_ok(ret_dict)
 
     def _check_access(self, pkg, action):
         # Checks apikey is okay and user is authorized to do the specified

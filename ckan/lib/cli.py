@@ -189,7 +189,7 @@ class CreateTestData(CkanCommand):
         russianfan = model.User(name=u'russianfan')
         testsysadmin = model.User(name=u'testsysadmin')
         model.repo.commit_and_remove()
-        
+
         visitor = model.User.by_name(model.PSEUDO_USER__VISITOR)
         anna = model.Package.by_name(u'annakarenina')
         war = model.Package.by_name(u'warandpeace')

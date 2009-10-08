@@ -13,6 +13,14 @@
     </h3>
     </py:if>
 
+    <py:if test="not c.user">
+    <h3>
+      <em>Want to create a new group?
+      <a href="${h.url_for(controller='user', action='login', id=None)}">Just login ...</a> 
+      </em>
+    </h3>
+    </py:if>
+
     ${HTML(c.list)}
 
   </div>

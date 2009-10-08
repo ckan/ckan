@@ -8,6 +8,8 @@
   <div py:match="content">
     <h2>
       Package: ${c.pkg.name}
+
+      <span class="object-action">
       <py:if test="c.auth_for_edit">
         <a href="${h.url_for(controller='package',action='edit',id=c.pkg.name)}">[edit]</a>
       </py:if>
@@ -15,6 +17,7 @@
       <py:if test="c.auth_for_authz">
         <a href="${h.url_for(controller='package',action='authz',id=c.pkg.name)}">[authorization]</a>
       </py:if>
+      </span>
     </h2>
 
     <h3>
@@ -23,6 +26,34 @@
       &mdash;
       <a href="http://isitopen.ckan.net/enquiry/create/?ckan_package=${c.pkg.name}">make an enquiry using Is It Open</a>
     </h3>
+
+    <h3>
+      Rating: 
+
+      <div class="inline-rating">
+      <ul class="rating default${'%i' % (c.current_rating or 0)}star">
+        <py:for each="number,name in enumerate(['one', 'two', 'three', 'four', 'five'])">
+        <li class="${name}">
+        </li>
+        </py:for>
+      </ul>
+      </div>
+      ${'%0.1f (%i rating%s)' % (c.current_rating, c.num_ratings, ('s' if c.num_ratings != 1 else '')) if c.num_ratings else 'no ratings yet'}
+
+      &ndash;
+      rate it now 
+      <div class="inline-rating">
+      <ul class="rating default0star">
+        <py:for each="number,name in zip(range(1,6), ['one', 'two', 'three', 'four', 'five'])">
+        <li class="${name}">
+        <a href="${h.url_for(controller='package',action='rate',id=c.pkg.name,rating=number)}" title="${number} Star">${number}</a>
+        </li>
+        </py:for>
+      </ul>
+      </div>
+    </h3>
+
+
 
     ${c.content}
   </div>

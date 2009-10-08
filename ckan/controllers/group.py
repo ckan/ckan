@@ -31,14 +31,19 @@ class GroupController(CkanBaseController):
         c.auth_for_edit = self.authorizer.am_authorized(c, model.Action.EDIT, c.group)
         c.auth_for_authz = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, c.group)
         
-        fs = ckan.forms.group_fs.bind(c.group)
-
         c.group_active_packages = []
         active_str = model.State.query.filter_by(name='active').one()
+        # TODO: this isn't nice ... (either should have active_packages
+        # attribute or ...)
         for pkg in c.group.packages:
             if pkg.state == active_str:
                 c.group_active_packages.append(pkg)
-        c.content = genshi.HTML(self._render_group(fs))
+        import ckan.misc
+        format = ckan.misc.MarkdownFormat()
+        desc_formatted = format.to_html(c.group.description)
+        desc_formatted = genshi.HTML(desc_formatted)
+        c.group_description_formatted = desc_formatted
+
 
         return render('group/read')
 
@@ -188,18 +193,6 @@ class GroupController(CkanBaseController):
         c.fieldset = fs
         c.fieldset2 = ckan.forms.new_package_group_fs
         return render('group/edit_form')
-
-    def _render_group(self, fs):
-        # note: doesn't render package list
-        c.group_name = fs.name.value
-        c.group_title = fs.title.value
-        import ckan.misc
-        format = ckan.misc.MarkdownFormat()
-        desc_formatted = format.to_html(fs.description.value)
-        desc_formatted = genshi.HTML(desc_formatted)
-        c.group_description_formatted = desc_formatted
-        preview = render('group/read_content')
-        return preview
 
     def _update(self, fs, group_name, group_id):
         '''

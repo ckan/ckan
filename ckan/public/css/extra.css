@@ -15,6 +15,12 @@ a.icon {
     float: left;
 }
 
+/* things like [edit] action in package title */
+.object-action {
+    font-size: 0.6em;
+}
+
 table.no-margin { 
   margin: 0 0 0 0;  
 }
+

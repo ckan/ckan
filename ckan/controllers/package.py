@@ -7,6 +7,7 @@ from ckan.controllers.base import CkanBaseController, ValidationException
 from ckan.lib.search import Search, SearchOptions
 import ckan.forms
 import ckan.authz
+import ckan.rating
 
 logger = logging.getLogger('ckan.controllers')
 
@@ -68,6 +69,8 @@ class PackageController(CkanBaseController):
         fs = fs.bind(c.pkg)
         c.content = genshi.HTML(self._render_package(fs))
 
+        c.current_rating, c.num_ratings = ckan.rating.get_rating(c.pkg)
+        
         return render('package/read')
 
     def history(self, id):
@@ -221,11 +224,20 @@ class PackageController(CkanBaseController):
         c.new_roles_form = ckan.forms.new_package_roles_fs.render()
         return render('package/authz')
 
+    def rate(self, id):
+        package_name = id
+        package = model.Package.by_name(package_name)
+        rating = request.params.get('rating', '')
+        if rating:
+            ckan.rating.set_my_rating(c, package, rating)
+        h.redirect_to(controller='package', action='read', id=package_name)
+
     def _render_edit_form(self, fs):
         # errors arrive in c.error and fs.errors
         c.form = fs.render()
         return render('package/edit_form')
 
+    # TODO 2009-10-08 this is an OLD hack re. spam - probably can be removed
     def _is_locked(pkgname, self):
         # allow non-existent name -- never happens but allows test of 'bad'
         # update (test_update in test_package.py) to work normally :)

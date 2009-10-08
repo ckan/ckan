@@ -208,6 +208,41 @@ class TestRestController(TestController):
                 extra_environ=self.extra_environ)
         model.Session.remove()
 
+    def test_06_rate_package(self):
+        # Test Rating Register Post 200.
+        self.clear_all_tst_ratings()
+        offset = '/api/rest/rating'
+        rating_opts = {'package':u'warandpeace',
+                       'rating':5}
+        postparams = '%s=1' % simplejson.dumps(rating_opts)
+        res = self.app.post(offset, params=postparams, status=[200],
+                extra_environ=self.extra_environ)
+        model.Session.remove()
+        pkg = model.Package.by_name(rating_opts['package'])
+        assert pkg
+        assert len(pkg.ratings) == 1
+        assert pkg.ratings[0].rating == rating_opts['rating'], pkg.ratings
+
+        # Get package to see rating
+        offset = '/api/rest/package/%s' % rating_opts['package']
+        res = self.app.get(offset, status=[200])
+        assert rating_opts['package'] in res, res
+        assert '"ratings_average": %s.0' % rating_opts['rating'] in res, res
+        assert '"ratings_count": 1' in res, res
+        
+        model.Session.remove()
+        
+        # Rerate package
+        offset = '/api/rest/rating'
+        postparams = '%s=1' % simplejson.dumps(rating_opts)
+        res = self.app.post(offset, params=postparams, status=[200],
+                extra_environ=self.extra_environ)
+        model.Session.remove()
+        pkg = model.Package.by_name(rating_opts['package'])
+        assert pkg
+        assert len(pkg.ratings) == 1
+        assert pkg.ratings[0].rating == rating_opts['rating'], pkg.ratings
+
     def _test_09_entity_put_404(self):
         # TODO: get this working again. At present returns 400
         # Test Package Entity Put 404.
@@ -541,6 +576,11 @@ class TestSearch(TestController):
         assert res_dict['count'] == 2, res_dict
 
     def test_8_all_fields(self):
+        model.Rating(user_ip_address=u'123.1.2.3',
+                     package=model.Package.by_name('annakarenina'),
+                     rating=3.0)
+        model.repo.commit_and_remove()
+        
         query = {'q': 'russian', 'all_fields':1}
         json_query = simplejson.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
@@ -548,10 +588,13 @@ class TestSearch(TestController):
         res_dict = simplejson.loads(res.body)
         assert res_dict['count'] == 2, res_dict
         print res_dict['results']
-        assert res_dict['results'][0]['name'] == 'annakarenina', res_dict['results']
-        assert res_dict['results'][0]['title'] == 'A Novel By Tolstoy', res_dict['results']
-        assert res_dict['results'][0]['license'] == 'OKD Compliant::Other', res_dict['results'][0]['license']
-        assert res_dict['results'][0]['tags'] == ['russian', 'tolstoy'], res_dict['results'][0]['tags']
+        anna_rec = res_dict['results'][0]
+        assert anna_rec['name'] == 'annakarenina', res_dict['results']
+        assert anna_rec['title'] == 'A Novel By Tolstoy', res_dict['results']
+        assert anna_rec['license'] == 'OKD Compliant::Other', anna_rec['license']
+        assert anna_rec['tags'] == ['russian', 'tolstoy'], anna_rec['tags']
+        assert anna_rec['ratings_average'] == 3.0, anna_rec['ratings_average']
+        assert anna_rec['ratings_count'] == 1, anna_rec['ratings_count']
 
     def test_9_just_tags(self):
         offset = self.base_url + '?tags=russian&all_fields=1'

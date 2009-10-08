@@ -81,3 +81,9 @@ class TestController(object):
         model.Session.commit()
         model.Session.remove()
 
+    @classmethod
+    def clear_all_tst_ratings(self):
+        ratings = model.Rating.query.filter_by(package=model.Package.by_name(u'annakarenina')).all()
+        ratings += model.Rating.query.filter_by(package=model.Package.by_name(u'warandpeace')).all()
+        for rating in ratings[:]:
+            model.Session.delete(rating)
