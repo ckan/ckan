@@ -1,5 +1,5 @@
 from meta import *
-from core import Package, DomainObject
+from core import DomainObject, Package, System
 from group import Group
 from types import make_uuid
 from user import User
@@ -59,6 +59,10 @@ group_role_table = Table('group_role', metadata,
            Column('group_id', UnicodeText, ForeignKey('group.id')),
            )
 
+system_role_table = Table('system_role', metadata,
+           Column('user_object_role_id', UnicodeText, ForeignKey('user_object_role.id'), primary_key=True),
+           )
+
 class RoleAction(DomainObject):
     pass
 
@@ -69,6 +73,9 @@ class PackageRole(UserObjectRole):
     pass
 
 class GroupRole(UserObjectRole):
+    pass
+
+class SystemRole(UserObjectRole):
     pass
 
 mapper(RoleAction, role_action_table)
@@ -110,6 +117,11 @@ mapper(GroupRole, group_role_table, inherits=UserObjectRole,
     order_by=[group_role_table.c.user_object_role_id],
 )
 
+mapper(SystemRole, system_role_table, inherits=UserObjectRole,
+       polymorphic_identity=unicode(System.__name__),
+       order_by=[system_role_table.c.user_object_role_id],
+)
+
 class NotRealUserException(Exception):
     pass
 
@@ -125,17 +137,20 @@ def user_has_role(user, role, domain_obj):
     assert isinstance(user, User), user
     assert user.id
     assert Role.is_valid(role), role
-    assert isinstance(domain_obj, (Package, Group)), domain_obj
+    assert isinstance(domain_obj, (Package, Group, System)), domain_obj
     assert domain_obj.id
     
     if isinstance(domain_obj, Package):
         return PackageRole.query.filter_by(role=role,
                                            package=domain_obj,
                                            user=user).count() == 1
-    elif isinstance(domain_obj, Grouop):
+    elif isinstance(domain_obj, Group):
         return GroupRole.query.filter_by(role=role,
                                            group=domain_obj,
                                            user=user).count() == 1
+    elif isinstance(domain_obj, System):
+        return SystemRole.query.filter_by(role=role,
+                                          user=user).count() == 1
     else:
         raise NotImplementedError()
 
@@ -151,6 +166,9 @@ def add_user_to_role(user, role, domain_obj):
         existing_pr = GroupRole.query.filter_by(role=role,
                                                 group=domain_obj,
                                                 user=user).count()
+    elif isinstance(domain_obj, System):        
+        existing_pr = SystemRole.query.filter_by(role=role,
+                                                 user=user).count()
     else:
         raise NotImplementedError()
     if existing_pr:
@@ -164,6 +182,9 @@ def add_user_to_role(user, role, domain_obj):
         pr = GroupRole(role=role,
                          group=domain_obj,
                          user=user)
+    elif isinstance(domain_obj, System):
+        pr = SystemRole(role=role,
+                        user=user)
     else:
         raise NotImplementedError()
     Session.commit()
@@ -173,17 +194,20 @@ def remove_user_from_role(user, role, domain_obj):
     assert Role.is_valid(role), role
 
     if isinstance(domain_obj, Package):
-        pr = PackageRole.query.filter_by(role=role,
+        uo_role = PackageRole.query.filter_by(role=role,
                                          package=domain_obj,
                                          user=user).one()
-        Session.delete(pr)
     elif isinstance(domain_obj, Group):
-        pr = GroupRole.query.filter_by(role=role,
+        uo_role = GroupRole.query.filter_by(role=role,
                                          group=domain_obj,
                                          user=user).one()
-        Session.delete(pr)
+    elif isinstance(domain_obj, System):
+        uo_role = SystemRole.query.filter_by(role=role,
+                                         user=user).one()
     else:
         raise NotImplementedError()
+
+    Session.delete(ou_role)
 
     Session.commit()
     Session.remove()

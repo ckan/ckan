@@ -213,6 +213,11 @@ class PackageTag(vdm.sqlalchemy.RevisionedObjectMixin,
     def __repr__(self):
         return '<PackageTag %s %s>' % (self.package, self.tag)
 
+class System(DomainObject):
+    def __str__(self):
+        return 'System'
+    def purge(self):
+        pass
 
 # VDM-specific domain objects
 State = vdm.sqlalchemy.make_State(mapper, state_table)

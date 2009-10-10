@@ -35,7 +35,7 @@ setup(
         # does not declare the dependency!
         # (not sure we need this except in tests but ...)
         'WebOb',
-        'FormAlchemy',
+        'FormAlchemy>=1.2.3',
     ],
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
@@ -56,6 +56,7 @@ setup(
     create-test-data = ckan.lib.cli:CreateTestData
     create-search-test-data = ckan.lib.cli:CreateSearchTestData
     test-data = ckan.lib.cli:TestData
+    sysadmin = ckan.lib.cli:Sysadmin
     """,
     # setup.py test command needs a TestSuite so does not work with py.test
     # test_suite = 'nose.collector',

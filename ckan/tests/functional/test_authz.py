@@ -15,7 +15,7 @@ class TestUsage(TestController):
         for mode in self.modes:
             model.Package(name=unicode(mode))
             model.Group(name=unicode(mode))
-        model.User(name=u'testsysadmin') # in test.ini
+        model.User(name=u'testsysadmin')
         model.User(name=u'pkgadmin')
         model.User(name=u'pkgeditor')
         model.User(name=u'pkgreader')
@@ -62,6 +62,7 @@ class TestUsage(TestController):
                 if mode[1] == u'w':
                     model.add_user_to_role(visitor, model.Role.EDITOR, pkg)
                     model.add_user_to_role(visitor, model.Role.EDITOR, group)
+        model.add_user_to_role(testsysadmin, model.Role.ADMIN, model.System())
         model.repo.commit_and_remove()
 
         self.testsysadmin = model.User.by_name(u'testsysadmin')
@@ -218,3 +219,12 @@ class TestUsage(TestController):
         roles = authz.Authorizer().get_roles(u'someoneelse', pkg)
         assert not model.Role.ADMIN in roles, roles
 
+    def test_sysadmin_can_read_anything(self):
+        self._test_can('read', self.testsysadmin, ['--', 'r-', 'w-', 'rr', 'wr', 'ww', 'deleted'])
+    def test_sysadmin_can_edit_anything(self):
+        self._test_can('edit', self.testsysadmin, ['--', 'r-', 'w-', 'rr', 'wr', 'ww', 'deleted'])
+    def test_sysadmin_can_search_anything(self):
+        self._test_can('search', self.testsysadmin, ['--', 'r-', 'w-', 'rr', 'wr', 'ww', 'deleted'], entities=['package'])
+    def test_sysadmin_can_list_anything(self):
+        self._test_can('list', self.testsysadmin, ['--', 'r-', 'w-', 'rr', 'wr', 'ww', 'deleted'], interfaces=['wui'])
+        
