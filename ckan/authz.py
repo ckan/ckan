@@ -114,10 +114,10 @@ class Authorizer(object):
 
     @classmethod
     def is_sysadmin(cls, username):
-        from pylons import config
-        admins_string = config.get('auth.sysadmins', '')
-        admins = admins_string.split()
-        return username and username in admins
+        user = model.User.by_name(username)
+        if user:
+            q = model.SystemRole.query.filter_by(role=model.Role.ADMIN, user=user)
+            return q.count() > 0
 
     @classmethod
     def _get_roles_query(cls, domain_obj):

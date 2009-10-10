@@ -20,7 +20,7 @@ class TestAuthorizer(object):
         model.Package(name=u'testpkg')
         model.Package(name=u'testpkg2')
         model.User(name=u'testadmin')
-        model.User(name=u'testsysadmin') # in test.ini
+        model.User(name=u'testsysadmin')
         model.User(name=u'notadmin')
         model.Group(name=u'testgroup')
         model.Group(name=u'testgroup2')
@@ -30,8 +30,10 @@ class TestAuthorizer(object):
         pkg = model.Package.by_name(u'testpkg')
         grp = model.Group.by_name(u'testgroup')
         admin = model.User.by_name(u'testadmin')
+        sysadmin = model.User.by_name(u'testsysadmin')
         model.add_user_to_role(admin, model.Role.ADMIN, pkg)
         model.add_user_to_role(admin, model.Role.ADMIN, grp)
+        model.add_user_to_role(sysadmin, model.Role.ADMIN, model.System())
         model.repo.commit_and_remove()
 
         self.authorizer = ckan.authz.Authorizer()

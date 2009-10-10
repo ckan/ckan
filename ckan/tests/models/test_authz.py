@@ -348,6 +348,8 @@ class TestUseCasePermissions:
         vrestricted = model.Package(name=u'vrestricted')
         mreditor = model.User(name=u'mreditor')
         mrreader = model.User(name=u'mrreader')
+        self.mrsysadmin = u'mrsysadmin'
+        mrsysadmin = model.User(name=self.mrsysadmin)
         model.repo.new_revision()
         model.repo.commit_and_remove()
         visitor_roles = []
@@ -360,6 +362,9 @@ class TestUseCasePermissions:
         model.repo.commit_and_remove()
         mreditor = model.User.by_name(u'mreditor')
         model.add_user_to_role(mreditor, model.Role.EDITOR, restricted)
+
+        mrsysadmin = model.User.by_name(u'mrsysadmin')
+        model.add_user_to_role(mrsysadmin, model.Role.ADMIN, model.System())
 
         self.mreditor = model.User.by_name(u'mreditor')
         self.mrreader = model.User.by_name(u'mrreader')
@@ -438,10 +443,7 @@ class TestUseCasePermissions:
                 action=model.Action.EDIT, domain_object=self.war)
 
     def test_11_sysadmin_change_permissions(self):
-        sysadmin = u'testsysadmin' # from test.ini
-        admins = config.get('auth.sysadmins', '').split()
-        assert sysadmin in admins, admins
-        assert self.authorizer.is_authorized(username=sysadmin,
+        assert self.authorizer.is_authorized(username=self.mrsysadmin,
                 action=model.Action.EDIT_PERMISSIONS, domain_object=self.anna)
 
     def test_12_visitor_changes_restricted_package(self):

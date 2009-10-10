@@ -169,8 +169,8 @@ class CreateTestData(CkanCommand):
         license1 = model.License.byName(u'OKD Compliant::Other')
         pkg1.license = license1
         pkg2.title = u'A Wonderful Story'
-        pkg1._extras = {'genre':model.PackageExtra(key='genre', value='romantic novel'),
-                        'original media':model.PackageExtra(key='original media', value='book')
+        pkg1._extras = {'genre':model.PackageExtra(key=u'genre', value='romantic novel'),
+                        'original media':model.PackageExtra(key=u'original media', value='book')
                         }
         # api key
         model.User(name=u'tester', apikey=u'tester')
@@ -478,4 +478,66 @@ class TestData(CkanCommand):
         res = check_page('/api/search/package?tags=gov+us+legal', '{"count": 1, "results": ["usa-courts-gov"]}')
 
 
-        
+class Sysadmin(CkanCommand):
+    '''Gives sysadmin rights to a named 
+
+    Usage:
+      sysadmin list                 - lists sysadmins
+      sysadmin create <user-name>   - creates sysadmin user
+    '''
+
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    max_args = 2
+    min_args = 1
+
+    def command(self):
+        self._load_config()
+        from ckan import model
+
+        cmd = self.args[0]
+        if cmd == 'list':
+            self.list()
+        elif cmd == 'create':
+            self.create()
+        elif cmd == 'remove':
+            self.create()
+        else:
+            print 'Command %s not recognized' % cmd
+
+    def list(self):
+        from ckan import model
+        print 'Sysadmins:'
+        sysadmins = model.SystemRole.query.filter_by(role=model.Role.ADMIN).all()
+        for sysadmin in sysadmins:
+            print 'name=%s id=%s' % (sysadmin.user.name, sysadmin.user.id)
+
+    def create(self):
+        from ckan import model
+
+        if len(self.args) < 2:
+            print 'Need name of the user to be made sysadmin.'
+            return
+        username = self.args[1]
+
+        user = model.User.by_name(unicode(username))
+        if not user:
+            print 'User "%s" not found - creating' % username
+            user = model.User(name=username)
+        model.add_user_to_role(user, model.Role.ADMIN, model.System())
+        model.repo.commit_and_remove()
+
+    def remove(self):
+        from ckan import model
+
+        if len(self.args) < 2:
+            print 'Need name of the user to be made sysadmin.'
+            return
+        username = self.args[1]
+
+        user = model.User.by_name(unicode(username))
+        if not user:
+            print 'Error: user "%s" not found!' % username
+            return
+        model.remove_user_from_role(user, model.Role.ADMIN, model.System())
+        model.repo.commit_and_remove()

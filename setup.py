@@ -56,6 +56,7 @@ setup(
     create-test-data = ckan.lib.cli:CreateTestData
     create-search-test-data = ckan.lib.cli:CreateSearchTestData
     test-data = ckan.lib.cli:TestData
+    sysadmin = ckan.lib.cli:Sysadmin
     """,
     # setup.py test command needs a TestSuite so does not work with py.test
     # test_suite = 'nose.collector',
