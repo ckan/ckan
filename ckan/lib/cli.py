@@ -62,7 +62,10 @@ class ManageDb(CkanCommand):
             if self.verbose:
                 print 'Cleaning DB: SUCCESS'
         elif cmd == 'upgrade':
-            model.repo.upgrade_db()
+            if len(self.args) > 1:
+                model.repo.upgrade_db(self.args[1])
+            else:
+                model.repo.upgrade_db()
         elif cmd == 'dump' or cmd == 'load':
             self.dump_or_load(cmd)
         elif cmd == 'load-data4nr':
