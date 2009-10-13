@@ -120,6 +120,17 @@ class Authorizer(object):
             return q.count() > 0
 
     @classmethod
+    def get_admins(cls, domain_obj):
+        if isinstance(domain_obj, model.Package):
+            q = model.PackageRole.query.filter_by(package=domain_obj,
+                                                  role=model.Role.ADMIN)
+        elif isinstance(domain_obj, model.Group):
+            q = model.GroupRole.query.filter_by(group=domain_obj,
+                                                role=model.Role.ADMIN)
+        admins = [do_role.user for do_role in q.all()]
+        return admins
+
+    @classmethod
     def _get_roles_query(cls, domain_obj):
         q = model.UserObjectRole.query
         is_a_class = domain_obj.__class__ == type

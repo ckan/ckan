@@ -25,6 +25,13 @@
 
     ${c.group_description_formatted}
 
+    <py:if test="c.group_admins">
+      <strong>Administrators:</strong> 
+        <py:for each="admin in c.group_admins">
+          <a href="${h.url_for(controller='user',action='read',id=admin.id)}">${admin.name}</a>
+        </py:for>
+    </py:if>      
+
     <h3>Packages:</h3>
     <ul>
     <py:for each="pkg in c.group_active_packages">

@@ -43,7 +43,7 @@ class GroupController(CkanBaseController):
         desc_formatted = format.to_html(c.group.description)
         desc_formatted = genshi.HTML(desc_formatted)
         c.group_description_formatted = desc_formatted
-
+        c.group_admins = self.authorizer.get_admins(c.group)
 
         return render('group/read')
 

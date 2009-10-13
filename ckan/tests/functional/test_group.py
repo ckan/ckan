@@ -45,6 +45,8 @@ class TestGroup(TestController):
         res = self.app.get(offset)
         assert 'Groups - %s' % name in res
         assert '[edit]' not in res
+        assert 'Administrators:' in res, res
+        assert 'russianfan' in res, res
         assert name in res
         res = res.click(pkgname)
         assert 'Packages - %s' % pkgname in res
