@@ -38,6 +38,7 @@ class ManageDb(CkanCommand):
     db dump {file-path} # dump to a file
     db load {file-path} # load from a file
     db load-data4nr {file-path.csv}
+    db load-esw {file-path.txt}
     db migrate06
     db migrate09a
     db migrate09b
@@ -70,6 +71,8 @@ class ManageDb(CkanCommand):
             self.dump_or_load(cmd)
         elif cmd == 'load-data4nr':
             self.load_data4nr(cmd)
+        elif cmd == 'load-esw':
+            self.load_esw(cmd)
         elif cmd == 'migrate06':
             import ckan.lib.converter
             dumper = ckan.lib.converter.Dumper()
@@ -116,6 +119,15 @@ class ManageDb(CkanCommand):
         import ckan.getdata.data4nr
         data = ckan.getdata.data4nr.Data4Nr()
         data.load_csv_into_db(load_path)
+
+    def load_esw(self, cmd):
+        if len(self.args) < 2:
+            print 'Need ESW data file path'
+            return
+        load_path = self.args[1]
+        import ckan.getdata.esw
+        data = ckan.getdata.esw.Esw()
+        data.load_esw_txt_into_db(load_path)
 
 class CreateTestData(CkanCommand):
     '''Create test data in the DB.
