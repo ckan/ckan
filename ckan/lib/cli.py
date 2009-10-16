@@ -382,6 +382,10 @@ It appears that the website is under a CC-BY-SA license. Legal status of the dat
                     license = model.License.byName(val)
                     pkg.license = license
             self.pkgs[item['name']] = pkg
+            model.setup_default_user_roles(pkg)
+            rev = model.repo.new_revision() 
+            rev.author = u'tolkein'
+            rev.message = u'Creating search test data.'
 
         model.Session.commit()
         model.Session.remove()
