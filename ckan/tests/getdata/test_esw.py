@@ -7,6 +7,8 @@ test_data2='ckan/tests/getdata/samples/data4nr2.csv'
 class TestBasic:
     @classmethod
     def setup_class(self):
+        model.Session.remove()
+        model.repo.rebuild_db()
         self.data = esw.Esw()
 
     @classmethod
