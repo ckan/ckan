@@ -26,6 +26,7 @@ class TestForms:
 
     @classmethod
     def teardown_class(self):
+        model.Session.remove()
         model.repo.rebuild_db()
 
     def test_0_get_package_dict(self):
@@ -102,6 +103,11 @@ class TestForms:
         assert 'name' in fs.name.render(), fs.name.render()
         assert anna.name in fs.name.render(), fs.name.render()
         assert 'tags' in fs.tags.render(), fs.tags.render()
+        assert 'extras' in fs.extras.render(), fs.extras.render()
+        extra = anna._extras.values()[0]
+        assert extra.key in fs.extras.render(), fs.extras.render()
+        assert extra.value in fs.extras.render(), fs.extras.render()
+        assert 'Delete' in fs.extras.render(), fs.extras.render()
         
     def test_3_sync_new(self):
         newtagname = 'newtagname'
@@ -110,7 +116,8 @@ class TestForms:
         indict['Package--notes'] = u'some new notes'
         indict['Package--tags'] = u'russian tolstoy, ' + newtagname,
         indict['Package--license_id'] = '1'
-
+        indict['Package--extras-newfield0-key'] = u'testkey'
+        indict['Package--extras-newfield0-value'] = u'testvalue'
         fs = ckan.forms.package_fs.bind(model.Package, data=indict)
 
         model.repo.new_revision()
@@ -129,6 +136,11 @@ class TestForms:
         assert outpkg.license
         assert indict['Package--license_id'] == str(outpkg.license.id), outpkg.license.id
 
+        # test extra
+        assert outpkg._extras.keys() == [u'testkey'], outpkg._extras.keys()
+        assert outpkg._extras.values()[0].key == u'testkey', outpkg._extras.values()[0].key
+        assert outpkg._extras.values()[0].value == u'testvalue', outpkg._extras.values()[0].value
+
         model.repo.commit_and_remove()
 
     def test_4_sync_update(self):
@@ -140,6 +152,8 @@ class TestForms:
         indict[prefix + 'notes'] = u'new notes'
         indict[prefix + 'tags'] = u'russian ' + newtagname
         indict[prefix + 'license_id'] = '1'
+        indict[prefix + 'extras-newfield0-key'] = u'testkey'
+        indict[prefix + 'extras-newfield0-value'] = u'testvalue'
         
         fs = ckan.forms.package_fs.bind(anna, data=indict)
         model.repo.new_revision()
@@ -161,6 +175,10 @@ class TestForms:
         # test licenses
         assert outpkg.license
         assert indict[prefix+'license_id'] == str(outpkg.license.id), outpkg.license.id
+
+        # test extra
+        assert outpkg.extras.has_key(u'testkey'), outpkg._extras.keys()
+        assert outpkg.extras[u'testkey'] == u'testvalue', outpkg._extras.values()[0].value
 
         model.repo.commit_and_remove()
 
@@ -193,6 +211,36 @@ class TestFormErrors:
         model.repo.new_revision()
         assert fs.validate()
 
+    def test_2_extra_no_key(self):
+        indict = _get_basic_dict()
+        prefix = 'Package--'
+        indict[prefix + 'name'] = u'annakarenina123'
+        indict[prefix + 'title'] = u'Some title'
+        indict[prefix + 'extras-newfield0-value'] = u'testvalue'
+        fs = ckan.forms.package_fs.bind(model.Package, data=indict)
+        model.repo.new_revision()
+        assert not fs.validate()
+
+    def test_2_extra_no_value(self):
+        indict = _get_basic_dict()
+        prefix = 'Package--'
+        indict[prefix + 'name'] = u'annakarenina123'
+        indict[prefix + 'title'] = u'Some title'
+        indict[prefix + 'extras-newfield0-key'] = u'testkey'
+        fs = ckan.forms.package_fs.bind(model.Package, data=indict)
+        model.repo.new_revision()
+        assert not fs.validate()
+
+    def test_2_extra_key(self):
+        indict = _get_basic_dict()
+        prefix = 'Package--'
+        indict[prefix + 'name'] = u'annakarenina123'
+        indict[prefix + 'title'] = u'Some title'
+        indict[prefix + 'extras-newfield0-value'] = u'testvalue'
+        indict[prefix + 'extras-newfield0-key'] = u'testkey'
+        fs = ckan.forms.package_fs.bind(model.Package, data=indict)
+        model.repo.new_revision()
+        assert fs.validate()
 
 class TestValidation:
     @classmethod

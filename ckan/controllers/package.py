@@ -114,7 +114,7 @@ class PackageController(CkanBaseController):
         # use request params even when starting to allow posting from "outside"
         # (e.g. bookmarklet)
         if request.params:
-            data = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(), request.params)
+            data = ckan.forms.add_to_package_dict(ckan.forms.get_package_dict(), request.params)
             fs = fs.bind(data=data)
         c.form = self._render_edit_form(fs)
         if 'preview' in request.params:
@@ -339,8 +339,12 @@ class PackageController(CkanBaseController):
             notes_formatted = genshi.HTML(notes_formatted)
             c.pkg_notes_formatted = notes_formatted
             c.pkg_extras = []
-            for key, extra in fs.model._extras.items():
-                c.pkg_extras.append((key.capitalize(), extra.value))
+            if fs.extras.value:
+                for key, value in fs.extras.value:
+                    c.pkg_extras.append((key.capitalize(), value))
+            else:
+                for key, extra in fs.model._extras.items():
+                    c.pkg_extras.append((key.capitalize(), extra.value))
             
             preview = render('package/read_content')
 #        except Exception, inst:

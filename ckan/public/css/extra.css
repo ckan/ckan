@@ -24,3 +24,7 @@ table.no-margin {
   margin: 0 0 0 0;  
 }
 
+div.extras-new-field label {
+  display:inline;
+  line-height:2.6em;
+}

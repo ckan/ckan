@@ -7,7 +7,7 @@ import common
 import ckan.model as model
 import ckan.lib.helpers
 
-__all__ = ['package_fs', 'package_fs_admin', 'get_package_dict', 'edit_package_dict']
+__all__ = ['package_fs', 'package_fs_admin', 'get_package_dict', 'edit_package_dict', 'add_to_package_dict']
 
 FIELD_TIP_TEMPLATE = '<p class="desc">%s</p>'
 FIELD_TIPS = {
@@ -24,7 +24,7 @@ def package_name_validator(val, field):
 
 tagname_match = re.compile('[\w\-_.]*$', re.UNICODE)
 tagname_uppercase = re.compile('[A-Z]')
-def tag_name_validator(val):
+def tag_name_validator(val, field):
     for tag in val:
         min_length = 2
         if len(tag.name) < min_length:
@@ -34,6 +34,15 @@ def tag_name_validator(val):
         if tagname_uppercase.search(tag.name):
             raise formalchemy.ValidationError('Tag "%s" must not be uppercase' % (tag))            
         
+tagname_match = re.compile('[\w\-_.]*$', re.UNICODE)
+tagname_uppercase = re.compile('[A-Z]')
+def extras_validator(val, field):
+    val_dict = dict(val)
+    for key, value in val:
+        if value != val_dict[key]:
+            raise formalchemy.ValidationError('Duplicate key "%s"' % key)
+        if (value and not key) or (key and not value):
+            raise formalchemy.ValidationError('Both key and value need to be set')
 
 class TagField(formalchemy.Field):
     def sync(self):
@@ -54,6 +63,97 @@ class TagField(formalchemy.Field):
             if pkgtag.tag.name not in taglist:
                 pkgtag.delete()
 
+class ExtrasField(formalchemy.Field):
+    def sync(self):
+        if not self.is_readonly():
+            self._update_extras()
+
+    def _update_extras(self):
+        pkg = self.model
+        extra_list = self._deserialize()
+        current_extra_keys = pkg.extras.keys()
+        extra_keys = []
+        for key, value in extra_list:
+            extra_keys.append(key)
+            if key in current_extra_keys:
+                if pkg.extras[key] != value:
+                    # edit existing extra
+                    pkg.extras[key] = value
+            else:
+                # new extra
+                pkg.extras[key] = value
+        for key in current_extra_keys:
+            if key not in extra_keys:
+                del pkg.extras[key]
+                
+class ExtrasRenderer(formalchemy.fields.FieldRenderer):
+    extra_field_template = '''
+    <div>
+      <label class="field_opt" for="%(name)s">%(key)s</label>
+      <input id="%(name)s" name="%(name)s" size="20" type="text" value="%(value)s">
+      <input type=checkbox name="%(name)s-checkbox">Delete</input>
+    </div>
+    '''
+    blank_extra_field_template = '''
+    <div class="extras-new-field">
+      <label class="field_opt">New key</label>
+      <input id="%(name)s-key" name="%(name)s-key" size="20" type="text">
+      <label class="field_opt">Value</label>
+      <input id="%(name)s-value" name="%(name)s-value" size="20" type="text">
+    </div>
+    '''
+
+    def render(self, **kwargs):
+        extras = self.field.parent.extras.value
+        if extras is None:
+            extras = self.field.parent.model.extras.items() or []
+            
+        html = ''
+        for key, value in extras:
+            html += self.extra_field_template % {
+                'name':self.name + '-%s' % key,
+                'key':key.capitalize(),
+                'value':value,}
+        for i in range(3):
+            html += self.blank_extra_field_template % {
+                'name':'%s-newfield%s' % (self.name, i)}
+                                                   
+        return html
+
+    def deserialize(self):
+        # Example params:
+        # ('Package-1-extras-genre', u'romantic novel'), (Package-1-extras-1-checkbox', 'on')
+        # ('Package-1-extras-newfield0-key', u'aaa'), ('Package-1-extras-newfield0-value', u'bbb'), 
+        extra_fields = []
+        for key, value in self._params.items():
+            key_parts = key.split('-')
+            if len(key_parts) < 4 or key_parts[0] != 'Package' or key_parts[2] != 'extras':
+                continue
+            package_id = key_parts[1]
+            if len(key_parts) == 4:
+                # existing field
+                key = key_parts[3]
+                checkbox_key = 'Package-%s-extras-%s-checkbox' % (package_id, key)
+                delete = self._params.get(checkbox_key, '') == 'on'
+                if not delete:
+                    extra_fields.append((key, value))
+            elif len(key_parts) == 5 and key_parts[3].startswith('newfield'):
+                new_field_index = key_parts[3][len('newfield'):]
+                if key_parts[4] == u'key':
+                    new_key = value
+                    value_key = 'Package-%s-extras-newfield%s-value' % (package_id, new_field_index)
+                    new_value = self._params.get(value_key, '')
+                    if new_key or new_value:
+                        extra_fields.append((new_key, new_value))
+                elif key_parts[4] == u'value':
+                    # if it doesn't have a matching key, add it to extra_fields anyway for
+                    # validation to fail
+                    key_key = 'Package-%s-extras-newfield%s-key' % (package_id, new_field_index)
+                    if not self._params.has_key(key_key):
+                        extra_fields.append(('', value))                
+        
+        return extra_fields
+    
 class LicenseRenderer(formalchemy.fields.FieldRenderer):
     def render(self, options, **kwargs):
         selected = unicode(kwargs.get('selected', None) or self._value)
@@ -151,12 +251,14 @@ def get_package_fs_options(fs):
 def get_package_fs_include(fs, is_admin=False):
     pkgs = [fs.name, fs.title, fs.version, fs.url, fs.download_url,
             fs.author, fs.author_email, fs.maintainer, fs.maintainer_email,
-            fs.license, fs.tags, fs.notes, ]
+            fs.license, fs.tags, fs.notes, fs.extras, ]
     if is_admin:
         pkgs.insert(len(pkgs)-1, fs.state)
     return pkgs
-package_fs.add(TagField('tags').with_renderer(TagEditRenderer).validate(tag_name_validator).label('Tags (space separated list)'))
-package_fs_admin.add(TagField('tags').with_renderer(TagEditRenderer).validate(tag_name_validator).label('Tags (space separated list)'))
+for fs in (package_fs, package_fs_admin):
+    fs.add(TagField('tags').with_renderer(TagEditRenderer).validate(tag_name_validator).label('Tags (space separated list)'))
+    fs.add(ExtrasField('extras').with_renderer(ExtrasRenderer).validate(extras_validator))
+
 package_fs.configure(options=get_package_fs_options(package_fs),
                      include=get_package_fs_include(package_fs))
 package_fs_admin.configure(options=get_package_fs_options(package_fs_admin) + \
@@ -188,6 +290,15 @@ def edit_package_dict(_dict, changed_items, id=''):
                 key = prefix + key
             if _dict.has_key(key):
                 _dict[key] = value
+    return _dict
+
+def add_to_package_dict(_dict, changed_items, id=''):
+    prefix = 'Package-%s-' % id
+    for key, value in changed_items.items():
+        if key:
+            if not key.startswith(prefix):
+                key = prefix + key
+            _dict[key] = value
     return _dict
 
 def validate_package_on_edit(fs, id):

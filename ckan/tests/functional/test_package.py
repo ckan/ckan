@@ -4,6 +4,8 @@ import ckan.model as model
 import cgi
 from paste.fixture import AppError
 
+existing_extra_html = ('<label class="field_opt" for="Package-%(package_id)s-extras-%(key)s">%(capitalized_key)s</label>', '<input id="Package-%(package_id)s-extras-%(key)s" name="Package-%(package_id)s-extras-%(key)s" size="20" type="text" value="%(value)s">')
+
 class TestPackageController(TestController):
 
     @classmethod
@@ -271,6 +273,9 @@ Hello world.
         pkg.state = model.State.query.filter_by(name='deleted').one()
         tags_txt = ' '.join([tag.name for tag in pkg.tags])
         pkg.license = model.License.byName(u'OKD Compliant::Other')
+        extras = {'key1':'value1', 'key2':'value2', 'key3':'value3'}
+        for key, value in extras.items():
+            pkg.extras[unicode(key)] = unicode(value)
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(pkg_name)
@@ -294,6 +299,10 @@ Hello world.
         assert tags_html in res, str(res) + tags_html
         state_html = '<option value="%s" selected>%s' % (pkg.state.id, pkg.state.name)
         assert state_html in res, str(res) + state_html
+        for key, value in extras.items():
+            for html in existing_extra_html:
+                extras_html = html % {'package_id':pkg.id, 'key':key, 'capitalized_key':key.capitalize(), 'value':value}
+                assert extras_html in res, str(res) + extras_html
 
         # Amend form
         name = u'test_name'
@@ -307,6 +316,8 @@ Hello world.
         state = model.State.query.filter_by(name='active').one()
         tags = (u'tag1', u'tag2', u'tag3')
         tags_txt = u' '.join(tags)
+        extra_changed = 'key1', 'value1 CHANGED'
+        extra_new = 'newkey', 'newvalue'
         assert not model.Package.by_name(name)
         fv = res.forms[0]
         prefix = 'Package-%s-' % pkg.id
@@ -319,6 +330,10 @@ Hello world.
         fv[prefix+'license_id'] = license_id
         fv[prefix+'tags'] = tags_txt
         fv[prefix+'state_id'] = state.id
+        fv[prefix+'extras-%s' % extra_changed[0]] = extra_changed[1]
+        fv[prefix+'extras-newfield0-key'] = extra_new[0]
+        fv[prefix+'extras-newfield0-value'] = extra_new[1]
+        fv[prefix+'extras-key3-checkbox'] = True
         res = fv.submit('preview', extra_environ={'REMOTE_USER':'testadmin'})
         assert not 'Error' in res, res
 
@@ -339,6 +354,18 @@ Hello world.
         groups_html = ''
         assert 'Groups:\n%s' % groups_html in res1, res1 + groups_html
         assert 'State: %s' % str(state.name) in res1, res
+        assert 'Extras:' in res1, res
+        current_extras = (('key2', extras['key2']),
+                          extra_changed,
+                          extra_new)
+        deleted_extras = [('key3', extras['key3'])]
+        for key, value in current_extras:
+            extras_html = '%(key)s: %(value)s' % {'key':key.capitalize(), 'value':value}
+            assert extras_html in res1, str(res) + extras_html
+        for key, value in deleted_extras:
+            extras_html = '%(key)s: %(value)s' % {'key':key.capitalize(), 'value':value}
+            assert extras_html not in res1, str(res) + extras_html
+        assert '<li><strong>:</strong> </li>' not in res, res
 
         # Check form is correctly filled
         assert 'name="%stitle" size="40" type="text" value="%s"' % (prefix, title) in res, res
@@ -351,8 +378,19 @@ Hello world.
         assert 'name="%stags" size="60" type="text" value="%s"' % (prefix, tags_txt) in res, res
         state_html = '<option value="%s" selected>%s' % (state.id, state.name)
         assert state_html in res, str(res) + state_html
+        for key, value in current_extras:
+            for html in existing_extra_html:
+                extras_html = html % {'package_id':pkg.id, 'key':key, 'capitalized_key':key.capitalize(), 'value':value}
+                assert extras_html in res, str(res) + extras_html
+        for key, value in deleted_extras:
+            for html in existing_extra_html:
+                extras_html = html % {'package_id':pkg.id, 'key':key, 'capitalized_key':key.capitalize(), 'value':value}
+                assert extras_html not in res, str(res) + extras_html
 
+        # Submit
         res = fv.submit('commit', extra_environ={'REMOTE_USER':'testadmin'})
+
+        # Check package page
         assert not 'Error' in res, res
         res = res.follow(extra_environ={'REMOTE_USER':'testadmin'})
         res1 = str(res).replace('</strong>', '')
@@ -367,6 +405,11 @@ Hello world.
         assert 'Tags:\n%s' % tags_html in res1, res1 + tags_html
         assert 'Groups:\n%s' % groups_html in res1, res1 + groups_html
         assert 'State: %s' % str(state.name) in res1, res1
+        for key, value in current_extras:
+            extras_html = '%(key)s: %(value)s' % {'key':key.capitalize(), 'value':value}
+            assert extras_html in res1, str(res) + extras_html
+
+        # Check package object
         pkg = model.Package.by_name(name)
         assert pkg.name == name
         assert pkg.title == title
@@ -378,6 +421,9 @@ Hello world.
         saved_tagnames = [str(tag.name) for tag in pkg.tags]
         assert saved_tagnames == list(tags)
         assert pkg.state_id == state.id
+        assert len(pkg.extras) == len(current_extras)
+        for key, value in current_extras:
+            assert pkg.extras[key] == value
 
         # for some reason environ['REMOTE_ADDR'] is undefined
         rev = model.Revision.youngest()
@@ -424,6 +470,7 @@ class TestPackageControllerNew(TestController):
         tags_txt = u' '.join(tags)
 ##        groups = (u'group1', u'group2', u'group3')
 ##        groups_txt = u' '.join(groups)
+        extras = {'key1':'value1', 'key2':'value2', 'key3':'value3'}
         assert not model.Package.by_name(name)
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
@@ -439,6 +486,9 @@ class TestPackageControllerNew(TestController):
         fv[prefix+'license_id'] = license_id
         fv[prefix+'tags'] = tags_txt
 ##        fv[prefix+'groups'] = groups_txt
+        for i, extra in enumerate(extras.items()):
+            fv[prefix+'extras-newfield%s-key' % i] = extra[0]
+            fv[prefix+'extras-newfield%s-value' % i] = extra[1]
         res = fv.submit('preview')
         assert not 'Error' in res, res
 
@@ -458,6 +508,12 @@ class TestPackageControllerNew(TestController):
 ##        groups_html = '\n'.join(groups_html_list)
         groups_html = ''
         assert 'Groups:\n%s' % groups_html in res1, res1 + groups_html
+        assert 'Extras:' in res1, res
+        current_extras = extras.items()
+        for key, value in current_extras:
+            extras_html = '%(key)s: %(value)s' % {'key':key.capitalize(), 'value':value}
+            assert extras_html in res1, str(res) + extras_html
+        assert '<li><strong>:</strong> </li>' not in res, res
 
         # Check form is correctly filled
         assert 'name="Package--title" size="40" type="text" value="%s"' % title in res, res
@@ -469,8 +525,15 @@ class TestPackageControllerNew(TestController):
         assert license_html in res, str(res) + license_html
         assert 'name="Package--tags" size="60" type="text" value="%s"' % tags_txt in res, res
 ##        assert 'name="Package--groups" size="60" type="text" value="%s"' % groups_txt in res, res
+        for key, value in current_extras:
+            for html in existing_extra_html:
+                extras_html = html % {'package_id':'', 'key':key, 'capitalized_key':key.capitalize(), 'value':value}
+                assert extras_html in res, str(res) + extras_html
 
+        # Submit
         res = fv.submit('commit')
+
+        # Check package page
         assert not 'Error' in res, res
         res = res.follow()
         res1 = str(res).replace('</strong>', '')
@@ -484,6 +547,11 @@ class TestPackageControllerNew(TestController):
         assert 'Licenses: %s' % str(license) in res1, res1
         assert 'Tags:\n%s' % str(tags_html) in res1, res1 + tags_html
         assert 'Groups:\n%s' % str(groups_html) in res1, res1 + groups_html
+        for key, value in current_extras:
+            extras_html = '%(key)s: %(value)s' % {'key':key.capitalize(), 'value':value}
+            assert extras_html in res1, str(res) + extras_html
+
+        # Check package object
         pkg = model.Package.by_name(name)
         assert pkg.name == name
         assert pkg.title == title
@@ -495,7 +563,9 @@ class TestPackageControllerNew(TestController):
         saved_tagnames = [str(tag.name) for tag in pkg.tags]
         assert saved_tagnames == list(tags)
         saved_groupnames = [str(group.name) for group in pkg.groups]
-##        assert saved_groupnames == list(groups)
+        assert len(pkg.extras) == len(current_extras)
+        for key, value in current_extras:
+            assert pkg.extras[key] == value
 
         # for some reason environ['REMOTE_ADDR'] is undefined
         rev = model.Revision.youngest()
