@@ -13,14 +13,14 @@ FIELD_TIPS = {
 }
 
 name_match = re.compile('[a-z0-9_\-]*$')
-def name_validator(val):
+def name_validator(val, field=None):
     min_length = 2
     if len(val) < min_length:
         raise formalchemy.ValidationError('Name must be at least %s characters long' % min_length)
     if not name_match.match(val):
         raise formalchemy.ValidationError('Name must be purely lowercase alphanumeric (ascii) characters and these symbols: -_')
 
-def package_names_validator(val):
+def package_names_validator(val, field=None):
     for pkg_name in val:    
         if not model.Package.by_name(pkg_name):
             raise formalchemy.ValidationError('Package name %s does not exist in database' % pkg_name)

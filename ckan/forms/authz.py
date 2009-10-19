@@ -39,14 +39,14 @@ def get_authz_fieldset(role_class):
     role_options = model.Role.get_all()
 
     if role_class == model.PackageRole:
-        fs.add(
+        fs.append(
             Field(u'delete', types.String, get_package_linker(u'delete')).readonly()
             )
     elif role_class == model.GroupRole:
-        fs.add(
+        fs.append(
             Field(u'delete', types.String, get_group_linker(u'delete')).readonly()
             )
-    fs.add(
+    fs.append(
         # use getattr because thought we should always have a user name
         # sometimes (due to error) we don't and want to avoid a 500 ...
         Field(u'username', types.String,

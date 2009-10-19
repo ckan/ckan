@@ -85,7 +85,7 @@ class TestPackageController(TestController):
         offset = url_for(controller='package', action='list')
         res = self.app.get(offset)
         assert 'Packages - List' in res
-        name = 'annakarenina'
+        name = u'annakarenina'
         assert name in res
         res = res.click(name)
         assert 'Packages - %s' % name in res

@@ -577,7 +577,7 @@ class TestSearch(TestController):
 
     def test_8_all_fields(self):
         model.Rating(user_ip_address=u'123.1.2.3',
-                     package=model.Package.by_name('annakarenina'),
+                     package=model.Package.by_name(u'annakarenina'),
                      rating=3.0)
         model.repo.commit_and_remove()
         

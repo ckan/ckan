@@ -6,7 +6,7 @@ import common
 
 __all__ = ['group_fs', 'group_fs_combined', 'new_package_group_fs', 'get_group_dict', 'edit_group_dict']
 
-def group_name_validator(val):
+def group_name_validator(val, field):
     common.name_validator(val)
     if model.Group.by_name(val):
         raise formalchemy.ValidationError('Group name already exists in database')
@@ -52,7 +52,7 @@ class PackagesField(formalchemy.Field):
 group_fs = GroupFieldSet() # has no packages
 group_fs_combined = GroupFieldSet() # has packages
 
-group_fs_combined.add(PackagesField('packages').with_renderer(PackageEditRenderer)) #.validate(common.package_names_validator))
+group_fs_combined.append(PackagesField('packages').with_renderer(PackageEditRenderer)) #.validate(common.package_names_validator))
 
 group_fs.configure(
     options=[

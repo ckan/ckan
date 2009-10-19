@@ -208,7 +208,7 @@ class TestUsage(TestController):
         assert 'Packages - New' in res
         fv = res.forms[0]
         prefix = 'Package--'
-        fv[prefix + 'name'] = 'annakarenina'
+        fv[prefix + 'name'] = u'annakarenina'
         res = fv.submit('commit', extra_environ={'REMOTE_USER': user.name.encode('utf8')})
 
         # check user is admin

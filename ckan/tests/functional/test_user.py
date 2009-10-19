@@ -24,7 +24,7 @@ class TestUserController(TestController):
         # TODO
 
     def test_user_read(self):
-        user = model.User.by_name('annafan')
+        user = model.User.by_name(u'annafan')
         offset = url_for(controller='user', action='read', id=user.id)
         res = self.app.get(offset, status=200)
         assert 'User Account - annafan' in res, res
@@ -33,7 +33,7 @@ class TestUserController(TestController):
         assert 'Recent changes' in res, res
 
     def test_user_read_logged_in(self):
-        user = model.User.by_name('annafan')
+        user = model.User.by_name(u'annafan')
         offset = url_for(controller='user', action='read', id=user.id)
         res = self.app.get(offset, extra_environ={'REMOTE_USER': str(user.name)})
         assert 'User Account - annafan' in res, res

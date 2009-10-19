@@ -17,7 +17,7 @@ FIELD_TIPS = {
 }
 
 def package_name_validator(val, field):
-    common.name_validator(val)
+    common.name_validator(val, field)
     if model.Package.by_name(val):
         raise formalchemy.ValidationError('Package name already exists in database')
         
@@ -256,8 +256,8 @@ def get_package_fs_include(fs, is_admin=False):
         pkgs.insert(len(pkgs)-1, fs.state)
     return pkgs
 for fs in (package_fs, package_fs_admin):
-    fs.add(TagField('tags').with_renderer(TagEditRenderer).validate(tag_name_validator).label('Tags (space separated list)'))
-    fs.add(ExtrasField('extras').with_renderer(ExtrasRenderer).validate(extras_validator))
+    fs.append(TagField('tags').with_renderer(TagEditRenderer).validate(tag_name_validator).label('Tags (space separated list)'))
+    fs.append(ExtrasField('extras').with_renderer(ExtrasRenderer).validate(extras_validator))
 
 package_fs.configure(options=get_package_fs_options(package_fs),
                      include=get_package_fs_include(package_fs))
