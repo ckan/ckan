@@ -79,7 +79,7 @@ Note: To search, there are two ways to provide parameters - you can use either o
 <table>
 <tbody><tr><th> <strong>Name</strong>   </th><th> <strong>Format</strong>                
 </th></tr><tr><td> Package-List </td><td> [ Name-String, Name-String, Name-String, ... ] 
-</td></tr><tr><td> Package      </td><td> { name: Name-String, title: String, description: String, url: String, download_url: String, tags: Tag-List } 
+</td></tr><tr><td> Package      </td><td> { name: Name-String, title: String, description: String, url: String, download_url: String, tags: Tag-List, extras: { Name-String: Value-String, ... } } 
 </td></tr><tr><td> Group-List </td><td> [ Name-String, Name-String, Name-String, ... ] 
 </td></tr><tr><td> Group      </td><td> { name: Name-String, title: String, description: String, url: String, download_url: String, tags: Tag-List } 
 
@@ -90,9 +90,13 @@ Note: To search, there are two ways to provide parameters - you can use either o
 </td></tr><tr><td> Search-Response </td><td> { count: Count-int, results: [Package-Name-String, Package-Name-String, ... ] } or { count: Count-int, results: [{ name:Name-String, title: String ... }, { name:Name-String, title: String ... }, etc. ] }
 </td></tr></tbody></table>
 
-To send request data, create a simple data structure, then convert it to a JSON string, then percent-encode the JSON string, then send it as the request body.
+<p>To send request data, create a simple data structure, then convert it to a JSON string, then percent-encode the JSON string, then send it as the request body.</p>
 
-Response data will be in the response body.
+<p>Response data will be in the response body.</p>
+
+<p>Note that when you update an object, fields that you don't supply will remain as they were before.</p>
+
+<p>To delete an 'extra' key-value pair, supply the key with a None value.</p>
 
 <h3>Search parameters</h3>
 <table class="no-margin">

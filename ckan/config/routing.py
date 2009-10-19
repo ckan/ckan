@@ -25,7 +25,7 @@ def make_map():
     map.connect('about', 'about', controller='home', action='about')
     maps.admin_map(map, controller='admin', url='/admin')
     map.connect('api/search/:register', controller='rest', action='search')
-    map.connect('api/rest', controller='rest', action='index')
+    map.connect('api', controller='rest', action='index')
     map.connect('api/rest/:register', controller='rest', action='list',
         conditions=dict(method=['GET']))
     map.connect('api/rest/:register', controller='rest', action='create',

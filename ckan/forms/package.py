@@ -41,7 +41,8 @@ def extras_validator(val, field):
     for key, value in val:
         if value != val_dict[key]:
             raise formalchemy.ValidationError('Duplicate key "%s"' % key)
-        if (value and not key) or (key and not value):
+        if (value and not key) or (key and value == ''):
+            # Note value is allowed to by None - REST way of deleting fields.
             raise formalchemy.ValidationError('Both key and value need to be set')
 
 class TagField(formalchemy.Field):
@@ -127,10 +128,13 @@ class ExtrasRenderer(formalchemy.fields.FieldRenderer):
         extra_fields = []
         for key, value in self._params.items():
             key_parts = key.split('-')
-            if len(key_parts) < 4 or key_parts[0] != 'Package' or key_parts[2] != 'extras':
+            if len(key_parts) < 3 or key_parts[0] != 'Package' or key_parts[2] != 'extras':
                 continue
             package_id = key_parts[1]
-            if len(key_parts) == 4:
+            if len(key_parts) == 3 and isinstance(value, dict):
+                # simple dict passed into 'Package-1-extras' e.g. via REST i/f
+                extra_fields.extend(value.items())
+            elif len(key_parts) == 4:
                 # existing field
                 key = key_parts[3]
                 checkbox_key = 'Package-%s-extras-%s-checkbox' % (package_id, key)
@@ -151,7 +155,7 @@ class ExtrasRenderer(formalchemy.fields.FieldRenderer):
                     key_key = 'Package-%s-extras-newfield%s-key' % (package_id, new_field_index)
                     if not self._params.has_key(key_key):
                         extra_fields.append(('', value))                
-        
+
         return extra_fields
     
 class LicenseRenderer(formalchemy.fields.FieldRenderer):
@@ -272,34 +276,51 @@ def get_package_dict(pkg=None):
     else:
         fs = package_fs
 
-    exclude = ('-id', '-package_tags', '-all_revisions')
+    exclude = ('-id', '-package_tags', '-all_revisions', '-_extras')
 
     for field in fs._fields.values():
         if not filter(lambda x: field.renderer.name.endswith(x), exclude):
-             if field.renderer._value:
-                 indict[field.renderer.name] = field.renderer._value
-             else:
-                 indict[field.renderer.name] = u''
+            if field.renderer._value:
+                indict[field.renderer.name] = field.renderer._value
+            else:
+                indict[field.renderer.name] = u''
+
+            # extras field doesn't bind in this way, so do it manually
+            if field.renderer.name.endswith('-extras'):
+                indict[field.renderer.name] = dict(pkg.extras) if pkg else {}
+        
     return indict
 
-def edit_package_dict(_dict, changed_items, id=''):
+def edit_package_dict(dict_, changed_items, id=''):
     prefix = 'Package-%s-' % id
+    extras_key = prefix + 'extras'
     for key, value in changed_items.items():
         if key:
             if not key.startswith(prefix):
                 key = prefix + key
-            if _dict.has_key(key):
-                _dict[key] = value
-    return _dict
+            if dict_.has_key(key):
+                if key == extras_key and isinstance(value, dict):
+                    extras = dict_[extras_key]
+                    for e_key, e_value in value.items():
+                        if e_value == None:
+                            if extras.has_key(e_key):
+                                del extras[e_key]
+                            #else:
+                            #    print 'Ignoring deletion - incorrect key'
+                        else:
+                            extras[e_key] = e_value
+                else:
+                    dict_[key] = value
+    return dict_
 
-def add_to_package_dict(_dict, changed_items, id=''):
+def add_to_package_dict(dict_, changed_items, id=''):
     prefix = 'Package-%s-' % id
     for key, value in changed_items.items():
         if key:
             if not key.startswith(prefix):
                 key = prefix + key
-            _dict[key] = value
-    return _dict
+            dict_[key] = value
+    return dict_
 
 def validate_package_on_edit(fs, id):
     # If not changing name, don't validate this field (it will think it

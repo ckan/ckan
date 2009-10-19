@@ -38,7 +38,10 @@ class TestRestController(TestController):
             'download_url': u'http://blahblahblah.mydomain',
             'tags': u'russion novel',
             'license_id': u'4',
-        }
+            'extras': {'genre' : u'horror',
+                       'media' : u'dvd',
+                       }
+            }
         self.testgroupvalues = {
             'name' : u'testgroup',
             'title' : u'Some Group Title',
@@ -153,6 +156,9 @@ class TestRestController(TestController):
         assert pkg.url == self.testpackagevalues['url'], pkg
         assert pkg.license_id == int(self.testpackagevalues['license_id']), pkg
         assert len(pkg.tags) == 2
+        assert len(pkg.extras) == 2, len(pkg.extras)
+        for key, value in self.testpackagevalues['extras'].items():
+            assert pkg.extras[key] == value, pkg.extras
 
         # Test Package Entity Get 200.
         offset = '/api/rest/package/%s' % self.testpackagevalues['name']
@@ -161,6 +167,9 @@ class TestRestController(TestController):
         assert '"license_id": %s' % self.testpackagevalues['license_id'] in res, res
         assert self.testpackagevalues['tags'][0] in res, res
         assert self.testpackagevalues['tags'][1] in res, res
+        assert '"extras": {' in res, res
+        for key, value in self.testpackagevalues['extras'].items():
+            assert '"%s": "%s"' % (key, value) in res, res
         
         model.Session.remove()
         
@@ -259,6 +268,8 @@ class TestRestController(TestController):
         if not model.Package.by_name(self.testpackagevalues['name']):
             pkg = model.Package()
             pkg.name = self.testpackagevalues['name']
+            pkg.url = self.testpackagevalues['url']
+            pkg.extras = {u'key1':u'val1', u'key2':u'val2'}
             rev = model.repo.new_revision()
             model.Session.commit()
 
@@ -269,7 +280,10 @@ class TestRestController(TestController):
         assert model.Package.by_name(self.testpackagevalues['name'])
 
         # edit it
-        pkg_vals = {'name':u'somethingnew', 'title':u'newtesttitle'}
+        pkg_vals = {'name':u'somethingnew',
+                    'title':u'newtesttitle',
+                    'extras':{u'key3':u'val3', u'key2':None},
+                    }
         offset = '/api/rest/package/%s' % self.testpackagevalues['name']
         postparams = '%s=1' % simplejson.dumps(pkg_vals)
         res = self.app.post(offset, params=postparams, status=[200],
@@ -277,6 +291,12 @@ class TestRestController(TestController):
         model.Session.remove()
         pkg = model.Package.query.filter_by(name=pkg_vals['name']).one()
         assert pkg.title == pkg_vals['title']
+        # check that unsubmitted fields are unchanged
+        assert pkg.url == self.testpackagevalues['url'], pkg.url
+
+        assert len(pkg.extras) == 2, pkg.extras
+        for key, value in {u'key1':u'val1', u'key3':u'val3'}.items():
+            assert pkg.extras[key] == value, pkg.extras
 
     def test_10_edit_group(self):
         # create a group with testgroupvalues
