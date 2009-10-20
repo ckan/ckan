@@ -1,4 +1,6 @@
 import logging
+import urlparse
+
 import genshi
 import simplejson
 
@@ -114,6 +116,11 @@ class PackageController(CkanBaseController):
         # use request params even when starting to allow posting from "outside"
         # (e.g. bookmarklet)
         if request.params:
+            if 'name' not in request.params and 'url' in request.params:
+                url = request.params.get('url')
+                domain = urlparse.urlparse(url)[1]
+                if domain.startswith('www.'):
+                    domain = domain[4:]
             data = ckan.forms.add_to_package_dict(ckan.forms.get_package_dict(), request.params)
             fs = fs.bind(data=data)
         c.form = self._render_edit_form(fs)
