@@ -61,7 +61,8 @@ class Search:
         self._results = {}
         general_terms, field_specific_terms = self._parse_query_string()
 
-        if not (general_terms or field_specific_terms):
+        if not general_terms and \
+           (self._options.entity != 'package' or not field_specific_terms):
             self._results['results'] = []
             self._results['count'] = 0
             return self._results
@@ -117,9 +118,10 @@ class Search:
                 token = term[:colon_pos]
                 if token in self._tokens:
                     term = term[colon_pos+1:]
-                    if not field_specific_terms.has_key(token):
-                        field_specific_terms[token] = []
-                    field_specific_terms[token].append(term)
+                    if term:
+                        if not field_specific_terms.has_key(token):
+                            field_specific_terms[token] = []
+                        field_specific_terms[token].append(term)
                 else:
                     general_terms.append(term)
             else:
@@ -129,7 +131,13 @@ class Search:
         for token in self._tokens:
             if self._options.__dict__.has_key(token):
                 field_specific_terms[token] = getattr(self._options, token)
-            
+
+        # special case - 'tags:' becomes a general term when searching
+        # tag entities.
+        if self._options.entity == 'tag' and field_specific_terms.has_key(u'tags'):
+            general_terms.extend(field_specific_terms[u'tags'])
+        
+        
         return general_terms, field_specific_terms
 
     def _build_package_query(self, general_terms, field_specific_terms):
