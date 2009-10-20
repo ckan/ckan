@@ -240,7 +240,9 @@ package_fs = PackageFieldSet()
 package_fs_admin = PackageFieldSet()
 def get_package_fs_options(fs):
     return [
-        fs.name.label('Name (required)').with_renderer(common.CustomTextFieldRenderer).validate(package_name_validator),
+        fs.name.label('Short Unique Name (required)'
+            ).with_renderer(common.CustomTextFieldRenderer
+                ).validate(package_name_validator),
         fs.license.with_renderer(LicenseRenderer),
         fs.title.with_renderer(common.CustomTextFieldRenderer),
         fs.version.with_renderer(common.CustomTextFieldRenderer),

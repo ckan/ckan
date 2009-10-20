@@ -446,6 +446,21 @@ class TestPackageControllerNew(TestController):
         model.Session.commit()
         model.Session.remove()
 
+    def test_new_with_params_1(self):
+        offset = url_for(controller='package', action='new',
+                url='http://xxx.org')
+        res = self.app.get(offset)
+        form = res.forms[0]
+        form['Package--url'].value == 'http://xxx.org/'
+        form['Package--name'].value == 'xxx.org'
+
+    def test_new_with_params_2(self):
+        offset = url_for(controller='package', action='new',
+                url='http://www.xxx.org')
+        res = self.app.get(offset)
+        form = res.forms[0]
+        form['Package--name'].value == 'xxx.org'
+
     def test_new(self):
         assert not model.Package.by_name(u'annakarenina')
         offset = url_for(controller='package', action='new')
