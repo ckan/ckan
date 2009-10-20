@@ -36,6 +36,7 @@ class ManageDb(CkanCommand):
     db clean
     db upgrade
     db dump {file-path} # dump to a file
+    db dump-rdf {package-name} {file-path}
     db load {file-path} # load from a file
     db load-data4nr {file-path.csv}
     db load-esw {file-path.txt}
@@ -69,6 +70,8 @@ class ManageDb(CkanCommand):
                 model.repo.upgrade_db()
         elif cmd == 'dump' or cmd == 'load':
             self.dump_or_load(cmd)
+        elif cmd == 'dump-rdf':
+            self.dump_rdf(cmd)
         elif cmd == 'load-data4nr':
             self.load_data4nr(cmd)
         elif cmd == 'load-esw':
@@ -119,6 +122,23 @@ class ManageDb(CkanCommand):
         import ckan.getdata.data4nr
         data = ckan.getdata.data4nr.Data4Nr()
         data.load_csv_into_db(load_path)
+
+    def dump_rdf(self, cmd):
+        if len(self.args) < 3:
+            print 'Need package name and rdf file path'
+            return
+        package_name = self.args[1]
+        rdf_path = self.args[2]
+        import ckan.model as model
+        import ckan.lib.rdf as rdf
+        pkg = model.Package.by_name(unicode(package_name))
+        if not pkg:
+            print 'Package name "%s" does not exist' % package_name
+            return
+        rdf = rdf.RdfExporter().export_package(pkg)
+        f = open(rdf_path, 'w')
+        f.write(rdf)
+        f.close()
 
     def load_esw(self, cmd):
         if len(self.args) < 2:
