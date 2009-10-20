@@ -318,6 +318,7 @@ Hello world.
         tags_txt = u' '.join(tags)
         extra_changed = 'key1', 'value1 CHANGED'
         extra_new = 'newkey', 'newvalue'
+        log_message = 'This is a comment'
         assert not model.Package.by_name(name)
         fv = res.forms[0]
         prefix = 'Package-%s-' % pkg.id
@@ -334,6 +335,7 @@ Hello world.
         fv[prefix+'extras-newfield0-key'] = extra_new[0]
         fv[prefix+'extras-newfield0-value'] = extra_new[1]
         fv[prefix+'extras-key3-checkbox'] = True
+        fv['log_message'] = log_message
         res = fv.submit('preview', extra_environ={'REMOTE_USER':'testadmin'})
         assert not 'Error' in res, res
 
@@ -386,6 +388,7 @@ Hello world.
             for html in existing_extra_html:
                 extras_html = html % {'package_id':pkg.id, 'key':key, 'capitalized_key':key.capitalize(), 'value':value}
                 assert extras_html not in res, str(res) + extras_html
+        assert log_message in res
 
         # Submit
         res = fv.submit('commit', extra_environ={'REMOTE_USER':'testadmin'})
@@ -428,6 +431,7 @@ Hello world.
         # for some reason environ['REMOTE_ADDR'] is undefined
         rev = model.Revision.youngest()
         assert rev.author == 'testadmin', rev.author
+        assert rev.message == log_message
         # TODO: reinstate once fixed in code
         exp_log_message = u'Creating package %s' % name
         #assert rev.message == exp_log_message
@@ -486,6 +490,7 @@ class TestPackageControllerNew(TestController):
 ##        groups = (u'group1', u'group2', u'group3')
 ##        groups_txt = u' '.join(groups)
         extras = {'key1':'value1', 'key2':'value2', 'key3':'value3'}
+        log_message = 'This is a comment'
         assert not model.Package.by_name(name)
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
@@ -504,6 +509,7 @@ class TestPackageControllerNew(TestController):
         for i, extra in enumerate(extras.items()):
             fv[prefix+'extras-newfield%s-key' % i] = extra[0]
             fv[prefix+'extras-newfield%s-value' % i] = extra[1]
+        fv['log_message'] = log_message
         res = fv.submit('preview')
         assert not 'Error' in res, res
 
@@ -544,6 +550,7 @@ class TestPackageControllerNew(TestController):
             for html in existing_extra_html:
                 extras_html = html % {'package_id':'', 'key':key, 'capitalized_key':key.capitalize(), 'value':value}
                 assert extras_html in res, str(res) + extras_html
+        assert log_message in res
 
         # Submit
         res = fv.submit('commit')
@@ -585,6 +592,7 @@ class TestPackageControllerNew(TestController):
         # for some reason environ['REMOTE_ADDR'] is undefined
         rev = model.Revision.youngest()
         assert rev.author == 'Unknown IP Address'
+        assert rev.message == log_message
         # TODO: reinstate once fixed in code
         exp_log_message = u'Creating package %s' % name
         # assert rev.message == exp_log_message

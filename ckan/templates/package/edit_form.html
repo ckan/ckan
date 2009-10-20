@@ -9,7 +9,9 @@
 
       <label for="log_message">Optional Log Message about this Change:</label>
       <p class="desc">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.</p>
-      <textarea id="log_message" rows="3" name="log_message" cols="60"/>
+      <textarea id="log_message" rows="3" name="log_message" cols="60">
+      ${c.log_message}
+      </textarea>
 
       <label>Author: ${c.author}</label>
       <p class="desc">
