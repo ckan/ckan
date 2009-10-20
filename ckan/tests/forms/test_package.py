@@ -229,7 +229,7 @@ class TestFormErrors:
         indict[prefix + 'extras-newfield0-key'] = u'testkey'
         fs = ckan.forms.package_fs.bind(model.Package, data=indict)
         model.repo.new_revision()
-        assert not fs.validate()
+        assert fs.validate()
 
     def test_2_extra_key(self):
         indict = _get_basic_dict()

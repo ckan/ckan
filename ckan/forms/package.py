@@ -41,9 +41,9 @@ def extras_validator(val, field):
     for key, value in val:
         if value != val_dict[key]:
             raise formalchemy.ValidationError('Duplicate key "%s"' % key)
-        if (value and not key) or (key and value == ''):
+        if value and not key:
             # Note value is allowed to by None - REST way of deleting fields.
-            raise formalchemy.ValidationError('Both key and value need to be set')
+            raise formalchemy.ValidationError('Extra key-value pair: key is not set.')
 
 class TagField(formalchemy.Field):
     def sync(self):
