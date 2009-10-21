@@ -37,6 +37,7 @@ class ManageDb(CkanCommand):
     db upgrade
     db dump {file-path} # dump to a file
     db dump-rdf {package-name} {file-path}
+    db send-rdf {talis-store} {username} {password}
     db load {file-path} # load from a file
     db load-data4nr {file-path.csv}
     db load-esw {file-path.txt}
@@ -72,6 +73,8 @@ class ManageDb(CkanCommand):
             self.dump_or_load(cmd)
         elif cmd == 'dump-rdf':
             self.dump_rdf(cmd)
+        elif cmd == 'send-rdf':
+            self.send_rdf(cmd)
         elif cmd == 'load-data4nr':
             self.load_data4nr(cmd)
         elif cmd == 'load-esw':
@@ -139,6 +142,17 @@ class ManageDb(CkanCommand):
         f = open(rdf_path, 'w')
         f.write(rdf)
         f.close()
+
+    def send_rdf(self, cmd):
+        if len(self.args) < 4:
+            print 'Need all arguments: {talis-store} {username} {password}'
+            return
+        talis_store = self.args[1]
+        username = self.args[2]
+        password = self.args[3]
+        import ckan.lib.talis
+        talis = ckan.lib.talis.Talis()
+        return talis.send_rdf(talis_store, username, password)
 
     def load_esw(self, cmd):
         if len(self.args) < 2:
