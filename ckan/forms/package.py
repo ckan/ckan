@@ -9,13 +9,6 @@ import ckan.lib.helpers
 
 __all__ = ['package_fs', 'package_fs_admin', 'get_package_dict', 'edit_package_dict', 'add_to_package_dict']
 
-FIELD_TIP_TEMPLATE = '<p class="desc">%s</p>'
-FIELD_TIPS = {
-    'name':"<strong>Unique identifier</strong> for package.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'",
-    'download_url':'Haven\'t already uploaded your package somewhere? We suggest using <a href="http://www.archive.org/create/">archive.org</a>.',
-    'notes':'You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.'
-}
-
 def package_name_validator(val, field):
     common.name_validator(val, field)
     if model.Package.by_name(val):
