@@ -485,7 +485,7 @@ class TestPackageControllerNew(TestController):
         notes = u'Very important'
         license_id = 4
         license = u'OKD Compliant::Creative Commons CCZero'
-        tags = (u'tag1', u'tag2', u'tag3')
+        tags = (u'tag1', u'tag2', u'tag3', u'SomeCaps')
         tags_txt = u' '.join(tags)
 ##        groups = (u'group1', u'group2', u'group3')
 ##        groups_txt = u' '.join(groups)
@@ -522,7 +522,7 @@ class TestPackageControllerNew(TestController):
         assert 'Download Url: <a href="%s">' % str(download_url) in res1, res
         assert '<p>%s' % str(notes) in res1, res
         assert 'Licenses: %s' % str(license) in res1, res
-        tags_html_list = ['        <a href="/tag/read/%s">%s</a>' % (str(tag), str(tag)) for tag in tags]
+        tags_html_list = ['        <a href="/tag/read/%s">%s</a>' % (str(tag.lower()), str(tag.lower())) for tag in tags]
         tags_html = '\n'.join(tags_html_list)
         assert 'Tags:\n%s' % tags_html in res1, res1 + tags_html
 ##        groups_html_list = ['        <a href="/group/read/%s">%s</a>' % (str(group), str(group)) for group in groups]
@@ -544,7 +544,7 @@ class TestPackageControllerNew(TestController):
         assert '<textarea cols="60" id="Package--notes" name="Package--notes" rows="15">%s</textarea>' % notes in res, res
         license_html = '<option value="%s" selected>%s' % (license_id, license)
         assert license_html in res, str(res) + license_html
-        assert 'name="Package--tags" size="60" type="text" value="%s"' % tags_txt in res, res
+        assert 'name="Package--tags" size="60" type="text" value="%s"' % tags_txt.lower() in res, res
 ##        assert 'name="Package--groups" size="60" type="text" value="%s"' % groups_txt in res, res
         for key, value in current_extras:
             for html in existing_extra_html:
@@ -583,7 +583,7 @@ class TestPackageControllerNew(TestController):
         assert pkg.notes == notes
         assert pkg.license_id == license_id
         saved_tagnames = [str(tag.name) for tag in pkg.tags]
-        assert saved_tagnames == list(tags)
+        assert saved_tagnames == [tag.lower() for tag in list(tags)]
         saved_groupnames = [str(group.name) for group in pkg.groups]
         assert len(pkg.extras) == len(current_extras)
         for key, value in current_extras:

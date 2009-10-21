@@ -277,8 +277,8 @@ class TestValidation:
         prefix = 'Package-%s-' % anna.id
         indict = _get_basic_dict(anna)
 
-        good_names = [ 'blah', 'ab', 'ab1', 'some-random-made-up-name', 'has_underscore', u'unicode-\xe0', 'dot.in.name' ]
-        bad_names = [ 'a', 'blAh', 'percent%' ]
+        good_names = [ 'blah', 'ab', 'ab1', 'some-random-made-up-name', 'has_underscore', u'unicode-\xe0', 'dot.in.name', 'blAh' ] # nb: becomes automatically lowercase
+        bad_names = [ 'a', 'percent%' ]
 
         for i, name in enumerate(good_names):
             print "Good tag name:", i

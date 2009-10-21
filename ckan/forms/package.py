@@ -201,7 +201,7 @@ class TagEditRenderer(formalchemy.fields.FieldRenderer):
         package = self.field.parent.model
         #self._update_tags(package, tags_as_string)
 
-        tags_as_string = tags_as_string.replace(',', ' ')
+        tags_as_string = tags_as_string.replace(',', ' ').lower()
         taglist = tags_as_string.split()
         def find_or_create_tag(name):
             tag = model.Tag.by_name(name)
