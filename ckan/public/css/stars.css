@@ -5,6 +5,7 @@ div.inline-rating{
   display:-moz-inline-box;
   display:inline-block;
   /* vertical-align:middle; */
+	margin-bottom: -1px;
 }
 
 .rating{
