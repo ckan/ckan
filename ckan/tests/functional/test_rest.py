@@ -265,12 +265,15 @@ class TestRestController(TestController):
         # Test Packages Entity Put 200.
 
         # create a package with testpackagevalues
+        tag_names = [u'tag1', u'tag2', u'tag3']
         if not model.Package.by_name(self.testpackagevalues['name']):
+            rev = model.repo.new_revision()
             pkg = model.Package()
             pkg.name = self.testpackagevalues['name']
             pkg.url = self.testpackagevalues['url']
+            tags = [model.Tag(name=tag_name) for tag_name in tag_names]
+            pkg.tags = tags
             pkg.extras = {u'key1':u'val1', u'key2':u'val2'}
-            rev = model.repo.new_revision()
             model.Session.commit()
 
             pkg = model.Package.by_name(self.testpackagevalues['name'])
@@ -283,6 +286,7 @@ class TestRestController(TestController):
         pkg_vals = {'name':u'somethingnew',
                     'title':u'newtesttitle',
                     'extras':{u'key3':u'val3', u'key2':None},
+                    'tags':[u'tag1', u'tag2', u'tag4', u'tag5']
                     }
         offset = '/api/rest/package/%s' % self.testpackagevalues['name']
         postparams = '%s=1' % simplejson.dumps(pkg_vals)
@@ -291,9 +295,12 @@ class TestRestController(TestController):
         model.Session.remove()
         pkg = model.Package.query.filter_by(name=pkg_vals['name']).one()
         assert pkg.title == pkg_vals['title']
+        pkg_tagnames = [tag.name for tag in pkg.tags]
+        for tagname in pkg_vals['tags']:
+            assert tagname in pkg_tagnames, 'tag %r not in %r' % (tagname, pkg_tagnames)
         # check that unsubmitted fields are unchanged
         assert pkg.url == self.testpackagevalues['url'], pkg.url
-
+        
         assert len(pkg.extras) == 2, pkg.extras
         for key, value in {u'key1':u'val1', u'key3':u'val3'}.items():
             assert pkg.extras[key] == value, pkg.extras

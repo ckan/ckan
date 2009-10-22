@@ -144,7 +144,7 @@ class TestPackageControllerEdit(TestController):
         self.pkgid = editpkg.id
         offset = url_for(controller='package', action='edit', id=self.editpkg_name)
         self.res = self.app.get(offset)
-        self.newtagname = u'russian'
+        self.newtagnames = [u'russian', u'tolstoy', u'superb']
         model.repo.commit_and_remove()
 
         self.editpkg = model.Package.by_name(self.editpkg_name)
@@ -157,7 +157,8 @@ class TestPackageControllerEdit(TestController):
         pkg = model.Package.by_name(self.editpkg.name)
         if pkg:
             pkg.purge()
-        tag = model.Tag.by_name(self.newtagname)
+        for tagname in self.newtagnames:
+            tag = model.Tag.by_name(tagname)
         if tag:
             tag.purge()
         model.Session.commit()
@@ -204,14 +205,11 @@ class TestPackageControllerEdit(TestController):
         
     def test_edit_2_tags_and_groups(self):
         # testing tag updating
-        newtags = [self.newtagname]
+        newtags = self.newtagnames
         tagvalues = ' '.join(newtags)
-##        newgroups = [u'lenny']
-##        groupvalues = ' '.join(newgroups)
         fv = self.res.forms[0]
         prefix = 'Package-%s-' % self.pkgid
         fv[prefix + 'tags'] =  tagvalues
-##        fv[prefix + 'groups'] =  groupvalues
         exp_log_message = 'test_edit_2: making some changes'
         fv['log_message'] =  exp_log_message
         res = fv.submit('commit')
@@ -220,14 +218,10 @@ class TestPackageControllerEdit(TestController):
         print str(res)
         assert 'Packages - %s' % self.editpkg_name in res
         pkg = model.Package.by_name(self.editpkg.name)
-        assert len(pkg.tags) == 1
-##        assert len(pkg.groups) == 1
+        assert len(pkg.tags) == len(self.newtagnames)
         outtags = [ tag.name for tag in pkg.tags ]
         for tag in newtags:
             assert tag in outtags 
-##        outgroups = [ group.name for group in pkg.groups ]
-##        for group in newgroups:
-##            assert group in outgroups 
         rev = model.Revision.youngest()
         assert rev.author == 'Unknown IP Address'
         assert rev.message == exp_log_message
