@@ -123,6 +123,36 @@ class TestSearch(object):
         result = Search().search(u'tags:country-sweden tags:somethingrandom')
         assert self._pkg_names(result) == '', self._pkg_names(result)
 
+    def test_tags_token_blank(self):
+        options = SearchOptions({'q':u'tags: wildlife'})
+        result = Search().run(options)
+        assert self._pkg_names(result) == 'us-gov-images', self._pkg_names(result)
+
+    def test_tag_basic(self):
+        options = SearchOptions({'q':u'gov',
+                                 'entity':'tag'})
+        result = Search().run(options)
+        assert result['count'] == 2, result
+        assert self._check_pkg_names(result, ('gov', 'government')), self._pkg_names(result)
+
+    def test_tag_basic_2(self):
+        options = SearchOptions({'q':u'wildlife',
+                                 'entity':'tag'})
+        result = Search().run(options)
+        assert self._pkg_names(result) == 'wildlife', self._pkg_names(result)
+
+    def test_tag_with_tags_option(self):
+        options = SearchOptions({'q':u'tags:wildlife',
+                                 'entity':'tag'})
+        result = Search().run(options)
+        assert self._pkg_names(result) == 'wildlife', self._pkg_names(result)
+
+    def test_tag_with_blank_tags(self):
+        options = SearchOptions({'q':u'tags: wildlife',
+                                 'entity':'tag'})
+        result = Search().run(options)
+        assert self._pkg_names(result) == 'wildlife', self._pkg_names(result)
+
     def test_pagination(self):
         # large search
         all_results = Search().search(u'g')

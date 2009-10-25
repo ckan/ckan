@@ -13,5 +13,5 @@ class MarkdownFormat(TextFormat):
             return ''
         # import markdown
         import webhelpers.markdown
-        return webhelpers.markdown.markdown(instr)
+        return webhelpers.markdown.markdown(instr, safe_mode=True)
 

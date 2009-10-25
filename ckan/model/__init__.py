@@ -84,11 +84,38 @@ repo = Repository(metadata, Session,
         )
 
 
-# Fix up Revision with a packages attribute
+# Fix up Revision with project-specific attributes
 def _get_packages(self):
     changes = repo.list_changes(self)
     pkgrevs = changes[Package]
+    pkgtagrevs = changes[PackageTag]
     return [ p.continuity for p in pkgrevs ]
 
-Revision.packages = property(_get_packages)
+def _get_tags(self):
+    active = State.query.filter_by(name='active').one()
+    changes = repo.list_changes(self)
+    pkgtagrevs = changes[PackageTag]
+    tags = set()
+    for pt in pkgtagrevs:
+        if pt.state == active:
+            tag = pt.continuity.tag
+            if tag not in tags:
+                tags.add(tag)
+    return list(tags)
 
+def _get_package_tags(self):
+    active = State.query.filter_by(name='active').one()
+    changes = repo.list_changes(self)
+    pkgtagrevs = changes[PackageTag]
+    package_tags = {} # {package:[tag1, tag2, ...]
+    for pt in pkgtagrevs:
+        if pt.state == active:
+            tag = pt.continuity.tag
+            if not package_tags.has_key(pt.package):
+                package_tags[pt.package] = []
+            package_tags[pt.package].append(tag)                
+    return package_tags
+
+Revision.packages = property(_get_packages)
+Revision.package_tags = property(_get_package_tags)
+Revision.tags = property(_get_tags)

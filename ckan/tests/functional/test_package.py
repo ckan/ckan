@@ -144,7 +144,7 @@ class TestPackageControllerEdit(TestController):
         self.pkgid = editpkg.id
         offset = url_for(controller='package', action='edit', id=self.editpkg_name)
         self.res = self.app.get(offset)
-        self.newtagname = u'russian'
+        self.newtagnames = [u'russian', u'tolstoy', u'superb']
         model.repo.commit_and_remove()
 
         self.editpkg = model.Package.by_name(self.editpkg_name)
@@ -157,7 +157,8 @@ class TestPackageControllerEdit(TestController):
         pkg = model.Package.by_name(self.editpkg.name)
         if pkg:
             pkg.purge()
-        tag = model.Tag.by_name(self.newtagname)
+        for tagname in self.newtagnames:
+            tag = model.Tag.by_name(tagname)
         if tag:
             tag.purge()
         model.Session.commit()
@@ -204,14 +205,11 @@ class TestPackageControllerEdit(TestController):
         
     def test_edit_2_tags_and_groups(self):
         # testing tag updating
-        newtags = [self.newtagname]
+        newtags = self.newtagnames
         tagvalues = ' '.join(newtags)
-##        newgroups = [u'lenny']
-##        groupvalues = ' '.join(newgroups)
         fv = self.res.forms[0]
         prefix = 'Package-%s-' % self.pkgid
         fv[prefix + 'tags'] =  tagvalues
-##        fv[prefix + 'groups'] =  groupvalues
         exp_log_message = 'test_edit_2: making some changes'
         fv['log_message'] =  exp_log_message
         res = fv.submit('commit')
@@ -220,14 +218,10 @@ class TestPackageControllerEdit(TestController):
         print str(res)
         assert 'Packages - %s' % self.editpkg_name in res
         pkg = model.Package.by_name(self.editpkg.name)
-        assert len(pkg.tags) == 1
-##        assert len(pkg.groups) == 1
+        assert len(pkg.tags) == len(self.newtagnames)
         outtags = [ tag.name for tag in pkg.tags ]
         for tag in newtags:
             assert tag in outtags 
-##        outgroups = [ group.name for group in pkg.groups ]
-##        for group in newgroups:
-##            assert group in outgroups 
         rev = model.Revision.youngest()
         assert rev.author == 'Unknown IP Address'
         assert rev.message == exp_log_message
@@ -318,6 +312,7 @@ Hello world.
         tags_txt = u' '.join(tags)
         extra_changed = 'key1', 'value1 CHANGED'
         extra_new = 'newkey', 'newvalue'
+        log_message = 'This is a comment'
         assert not model.Package.by_name(name)
         fv = res.forms[0]
         prefix = 'Package-%s-' % pkg.id
@@ -334,6 +329,7 @@ Hello world.
         fv[prefix+'extras-newfield0-key'] = extra_new[0]
         fv[prefix+'extras-newfield0-value'] = extra_new[1]
         fv[prefix+'extras-key3-checkbox'] = True
+        fv['log_message'] = log_message
         res = fv.submit('preview', extra_environ={'REMOTE_USER':'testadmin'})
         assert not 'Error' in res, res
 
@@ -386,6 +382,7 @@ Hello world.
             for html in existing_extra_html:
                 extras_html = html % {'package_id':pkg.id, 'key':key, 'capitalized_key':key.capitalize(), 'value':value}
                 assert extras_html not in res, str(res) + extras_html
+        assert log_message in res
 
         # Submit
         res = fv.submit('commit', extra_environ={'REMOTE_USER':'testadmin'})
@@ -428,6 +425,7 @@ Hello world.
         # for some reason environ['REMOTE_ADDR'] is undefined
         rev = model.Revision.youngest()
         assert rev.author == 'testadmin', rev.author
+        assert rev.message == log_message
         # TODO: reinstate once fixed in code
         exp_log_message = u'Creating package %s' % name
         #assert rev.message == exp_log_message
@@ -481,11 +479,12 @@ class TestPackageControllerNew(TestController):
         notes = u'Very important'
         license_id = 4
         license = u'OKD Compliant::Creative Commons CCZero'
-        tags = (u'tag1', u'tag2', u'tag3')
+        tags = (u'tag1', u'tag2', u'tag3', u'SomeCaps')
         tags_txt = u' '.join(tags)
 ##        groups = (u'group1', u'group2', u'group3')
 ##        groups_txt = u' '.join(groups)
         extras = {'key1':'value1', 'key2':'value2', 'key3':'value3'}
+        log_message = 'This is a comment'
         assert not model.Package.by_name(name)
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
@@ -504,6 +503,7 @@ class TestPackageControllerNew(TestController):
         for i, extra in enumerate(extras.items()):
             fv[prefix+'extras-newfield%s-key' % i] = extra[0]
             fv[prefix+'extras-newfield%s-value' % i] = extra[1]
+        fv['log_message'] = log_message
         res = fv.submit('preview')
         assert not 'Error' in res, res
 
@@ -516,7 +516,7 @@ class TestPackageControllerNew(TestController):
         assert 'Download Url: <a href="%s">' % str(download_url) in res1, res
         assert '<p>%s' % str(notes) in res1, res
         assert 'Licenses: %s' % str(license) in res1, res
-        tags_html_list = ['        <a href="/tag/read/%s">%s</a>' % (str(tag), str(tag)) for tag in tags]
+        tags_html_list = ['        <a href="/tag/read/%s">%s</a>' % (str(tag.lower()), str(tag.lower())) for tag in tags]
         tags_html = '\n'.join(tags_html_list)
         assert 'Tags:\n%s' % tags_html in res1, res1 + tags_html
 ##        groups_html_list = ['        <a href="/group/read/%s">%s</a>' % (str(group), str(group)) for group in groups]
@@ -538,12 +538,13 @@ class TestPackageControllerNew(TestController):
         assert '<textarea cols="60" id="Package--notes" name="Package--notes" rows="15">%s</textarea>' % notes in res, res
         license_html = '<option value="%s" selected>%s' % (license_id, license)
         assert license_html in res, str(res) + license_html
-        assert 'name="Package--tags" size="60" type="text" value="%s"' % tags_txt in res, res
+        assert 'name="Package--tags" size="60" type="text" value="%s"' % tags_txt.lower() in res, res
 ##        assert 'name="Package--groups" size="60" type="text" value="%s"' % groups_txt in res, res
         for key, value in current_extras:
             for html in existing_extra_html:
                 extras_html = html % {'package_id':'', 'key':key, 'capitalized_key':key.capitalize(), 'value':value}
                 assert extras_html in res, str(res) + extras_html
+        assert log_message in res
 
         # Submit
         res = fv.submit('commit')
@@ -576,7 +577,7 @@ class TestPackageControllerNew(TestController):
         assert pkg.notes == notes
         assert pkg.license_id == license_id
         saved_tagnames = [str(tag.name) for tag in pkg.tags]
-        assert saved_tagnames == list(tags)
+        assert saved_tagnames == [tag.lower() for tag in list(tags)]
         saved_groupnames = [str(group.name) for group in pkg.groups]
         assert len(pkg.extras) == len(current_extras)
         for key, value in current_extras:
@@ -585,6 +586,7 @@ class TestPackageControllerNew(TestController):
         # for some reason environ['REMOTE_ADDR'] is undefined
         rev = model.Revision.youngest()
         assert rev.author == 'Unknown IP Address'
+        assert rev.message == log_message
         # TODO: reinstate once fixed in code
         exp_log_message = u'Creating package %s' % name
         # assert rev.message == exp_log_message

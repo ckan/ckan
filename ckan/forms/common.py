@@ -10,6 +10,7 @@ FIELD_TIP_TEMPLATE = '<p class="desc">%s</p>'
 FIELD_TIPS = {
     'name':"<strong>Unique identifier</strong> for package.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'",
     'download_url':'Haven\'t already uploaded your package somewhere? We suggest using <a href="http://www.archive.org/create/">archive.org</a>.',
+    'notes':'You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.',
 }
 
 name_match = re.compile('[a-z0-9_\-]*$')
@@ -39,4 +40,9 @@ class TextAreaRenderer(formalchemy.fields.TextAreaFieldRenderer):
     def render(self, **kwargs):
         kwargs['size'] = '60x15'
         value = ckan.lib.helpers.escape(self._value)
-        return h.text_area(self.name, content=value, **kwargs)
+        field_tip = FIELD_TIPS.get(self.field.key)
+        if field_tip:
+            tip_html = FIELD_TIP_TEMPLATE % field_tip
+        else:
+            tip_html = ''        
+        return h.text_area(self.name, content=value, **kwargs) + tip_html

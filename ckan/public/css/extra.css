@@ -28,3 +28,13 @@ div.extras-new-field label {
   display:inline;
   line-height:2.6em;
 }
+
+
+/**
+  * Ratings - rating stars css in stars.css
+	*/
+
+div.rating-group {
+	display: inline;
+	font-size: 0.85em;
+}

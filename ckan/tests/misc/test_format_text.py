@@ -24,3 +24,11 @@ class TestFormatText:
         out = format.to_html(instr)
         assert out == ''
 
+    def test_evil_markdown(self):
+        instr = 'Evil <script src="http://evilserver.net/evil.js";>'
+        exp = '''<p>Evil [HTML_REMOVED]
+</p>'''
+        format = MarkdownFormat()
+        out = format.to_html(instr)
+        assert out == exp, out
+        

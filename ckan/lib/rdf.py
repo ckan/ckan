@@ -5,13 +5,14 @@ import ckan.lib.helpers as h
 
 DOMAIN = 'http://ckan.net'
 CKAN_NAMESPACE = 'http://ckan.net/#'
+CKAN_SUBJECT_BASE = DOMAIN + '/package/rdf/'
 
 class RdfExporter(object):
     def __init__(self):
         surf.ns.register(ckan=CKAN_NAMESPACE)
         surf.ns.register(dc='http://purl.org/dc/elements/1.1/') # old, allows literals
         #surf.ns.register(dc='http://purl.org/dc/terms/') # new one
-    
+
     def export_package(self, pkg):
         assert isinstance(pkg, model.Package)
         
@@ -24,7 +25,7 @@ class RdfExporter(object):
         PackageRdf = self._web_resource(surf.ns.CKAN['Package'])
 
         assert pkg
-        pkg_rdf = PackageRdf(subject=DOMAIN + '/package/rdf/%s' % pkg.name)
+        pkg_rdf = PackageRdf(subject=CKAN_SUBJECT_BASE + pkg.name)
 
         pkg_rdf.foaf_isPrimaryTopicOf = self._web_resource(DOMAIN + h.url_for(controller='package', action='read', id=pkg.name))
 
@@ -65,3 +66,4 @@ class RdfExporter(object):
             return self._rdf_session.get_class(url)
         except ValueError, e:
             return url
+

@@ -110,7 +110,7 @@ class PackageController(CkanBaseController):
                 h.redirect_to(action='read', id=c.pkgname)
             except ValidationException, error:
                 c.error, fs = error.args
-                c.form = self._render_edit_form(fs)
+                c.form = self._render_edit_form(fs, request.params)
                 return render('package/edit')
 
         # use request params even when starting to allow posting from "outside"
@@ -123,7 +123,7 @@ class PackageController(CkanBaseController):
                     domain = domain[4:]
             data = ckan.forms.add_to_package_dict(ckan.forms.get_package_dict(), request.params)
             fs = fs.bind(data=data)
-        c.form = self._render_edit_form(fs)
+        c.form = self._render_edit_form(fs, request.params)
         if 'preview' in request.params:
             c.preview = genshi.HTML(self._render_package(fs))
         return render('package/new')
@@ -151,7 +151,7 @@ class PackageController(CkanBaseController):
             c.pkg = pkg
                 
             fs = fs.bind(c.pkg)
-            c.form = self._render_edit_form(fs)
+            c.form = self._render_edit_form(fs, request.params)
             return render('package/edit')
         elif request.params.has_key('commit'):
             # id is the name (pre-edited state)
@@ -166,12 +166,12 @@ class PackageController(CkanBaseController):
                 h.redirect_to(action='read', id=c.pkgname)
             except ValidationException, error:
                 c.error, fs = error.args
-                c.form = self._render_edit_form(fs)
+                c.form = self._render_edit_form(fs, request.params)
                 return render('package/edit')
         else: # Must be preview
             c.pkgname = id
             fs = fs.bind(pkg, data=request.params)
-            c.form = self._render_edit_form(fs)
+            c.form = self._render_edit_form(fs, request.params)
             c.preview = genshi.HTML(self._render_package(fs))
             return render('package/edit')
 
@@ -239,8 +239,9 @@ class PackageController(CkanBaseController):
             ckan.rating.set_my_rating(c, package, rating)
         h.redirect_to(controller='package', action='read', id=package_name)
 
-    def _render_edit_form(self, fs):
+    def _render_edit_form(self, fs, params={}):
         # errors arrive in c.error and fs.errors
+        c.log_message = params.get('log_message', '')
         c.form = fs.render()
         return render('package/edit_form')
 
@@ -279,7 +280,7 @@ class PackageController(CkanBaseController):
             for field, err_list in fs.errors.items():
                 errors.append("%s:%s" % (field.name, ";".join(err_list)))
             c.error = ', '.join(errors)
-            c.form = self._render_edit_form(fs)
+            c.form = self._render_edit_form(fs, request.params)
             raise ValidationException(c.error, fs)
 
         try:
@@ -300,7 +301,7 @@ class PackageController(CkanBaseController):
             for row, err in fs.errors.items():
                 errors.append(err)
             c.error = ', '.join(errors)
-            c.form = self._render_edit_form(fs)
+            c.form = self._render_edit_form(fs, request.params)
             raise ValidationException(c.error, fs)
         try:
             fs.sync()

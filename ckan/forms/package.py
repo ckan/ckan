@@ -9,13 +9,6 @@ import ckan.lib.helpers
 
 __all__ = ['package_fs', 'package_fs_admin', 'get_package_dict', 'edit_package_dict', 'add_to_package_dict']
 
-FIELD_TIP_TEMPLATE = '<p class="desc">%s</p>'
-FIELD_TIPS = {
-    'name':"<strong>Unique identifier</strong> for package.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'",
-    'download_url':'Haven\'t already uploaded your package somewhere? We suggest using <a href="http://www.archive.org/create/">archive.org</a>.',
-    'notes':'You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.'
-}
-
 def package_name_validator(val, field):
     common.name_validator(val, field)
     if model.Package.by_name(val):
@@ -197,11 +190,11 @@ class TagEditRenderer(formalchemy.fields.FieldRenderer):
         return ' '.join(tagnames)
 
     def deserialize(self):
-        tags_as_string = self._serialized_value()
+        tags_as_string = self._serialized_value() # space separated string
         package = self.field.parent.model
         #self._update_tags(package, tags_as_string)
 
-        tags_as_string = tags_as_string.replace(',', ' ')
+        tags_as_string = tags_as_string.replace(',', ' ').lower()
         taglist = tags_as_string.split()
         def find_or_create_tag(name):
             tag = model.Tag.by_name(name)
@@ -287,15 +280,18 @@ def get_package_dict(pkg=None):
             else:
                 indict[field.renderer.name] = u''
 
-            # extras field doesn't bind in this way, so do it manually
+            # some fields don't bind in this way, so do it manually
             if field.renderer.name.endswith('-extras'):
                 indict[field.renderer.name] = dict(pkg.extras) if pkg else {}
+            if field.renderer.name.endswith('-tags'):
+                indict[field.renderer.name] = ' '.join([tag.name for tag in pkg.tags]) if pkg else ''
         
     return indict
 
 def edit_package_dict(dict_, changed_items, id=''):
     prefix = 'Package-%s-' % id
     extras_key = prefix + 'extras'
+    tags_key = prefix + 'tags'
     for key, value in changed_items.items():
         if key:
             if not key.startswith(prefix):
@@ -311,6 +307,8 @@ def edit_package_dict(dict_, changed_items, id=''):
                             #    print 'Ignoring deletion - incorrect key'
                         else:
                             extras[e_key] = e_value
+                elif key == tags_key and isinstance(value, list):
+                    dict_[key] = ' '.join(value)
                 else:
                     dict_[key] = value
     return dict_
