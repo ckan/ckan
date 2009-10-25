@@ -1,3 +1,6 @@
+README
+++++++
+
 Introduction
 ============
 
@@ -23,18 +26,18 @@ Installation and Setup
 3. Make a config file as follows::
 
       # NB: you need to activate the repository
-      paster --plugin ckan make-config ckan config.ini
+      paster --plugin ckan make-config ckan {your-config.ini}
 
 4. Tweak the config file as appropriate and then setup the application::
 
-      paster --plugin ckan setup-app config.ini
+      paster --plugin ckan setup-app {your-config.ini}
 
-NB: you'll need to setup a database -- see sqlalchemy.url config option. We
-support any database supported by sqlalchemy.
+   NB: you'll need to setup a database -- see sqlalchemy.url config option. We
+   support any database supported by sqlalchemy.
 
 5. Run the webserver::
 
-      paster serve config.ini 
+      paster serve {your-config.ini} 
 
 6. Point your browswer at: localhost:5000 (if you set a different port in your
    config file then youl will need to change 5000 to whatever port value you
@@ -67,7 +70,8 @@ Make sure you've created a config called development.ini, then::
     nosetests ckan/tests
 
 
-## Copying
+Copying and License
+===================
 
 This material is open and licensed under the MIT license as follows:
 
@@ -90,5 +94,4 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-
 

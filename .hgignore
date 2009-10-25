@@ -7,3 +7,4 @@ sstore/*
 data/*
 pip-requirements-local.txt
 migrate/*
+build/*

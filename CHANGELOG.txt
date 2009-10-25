@@ -1,4 +1,5 @@
-# CKAN CHANGELOG
+CKAN CHANGELOG
+++++++++++++++
 
 v0.11 2009-12-??
 ================
