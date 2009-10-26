@@ -27,11 +27,12 @@
 			</p>
 		</py:if>
 		<py:if test="c.package_count > 0">
-			<ul>
-				<li py:for="package in c.packages">
-          ${package_summary(package)}
-				</li>
-			</ul>
+                  <ul py:match="paginatedlistitems">
+                    <py:for each="item in c.page.items">
+                      <li>${package_summary(item)}</li>
+                    </py:for>
+                  </ul>
+                  <xi:include href="../paginated_list.html" />
 		</py:if>
     </py:if>
   </div>
