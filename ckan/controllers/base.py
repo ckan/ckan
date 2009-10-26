@@ -5,6 +5,8 @@ import ckan
 from ckan.lib.base import *
 import ckan.model as model
 
+PAGINATE_ITEMS_PER_PAGE = 50
+
 class ValidationException(Exception):
     pass
 
@@ -34,6 +36,7 @@ class CkanBaseController(BaseController):
     def _paginate_list(self, register_name, id, template_path, listed_attr_names=['name']):
         c.has_paginate = True
         c.listed_attr_names = listed_attr_names
+        c.action = 'list'
         try:
             current_page = int(id)
         except:
@@ -56,7 +59,7 @@ class CkanBaseController(BaseController):
             c.page = paginate.Page(
                 collection=collection,
                 page=current_page,
-                items_per_page=50,
+                items_per_page=PAGINATE_ITEMS_PER_PAGE,
                 item_count=item_count,
             )
             c.register_name = register_name + 's'

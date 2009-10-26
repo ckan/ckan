@@ -31,16 +31,18 @@
         return false;
     }
 </script>
-
+  <?python
+    link_params = c.link_params if c.link_params else {}
+  ?>
   <div class="pagination">
     <py:if test="c.page.page_count > 1">
       <ul>
       <py:if test="c.page.page > 1">
         <li>
             <a 
-              href="${h.url_for(action='list', id=c.page.page - 1)}"
+              href="${h.url_for(action=c.action, id=c.page.page - 1, **link_params)}"
               onclick="return updatePaginatedListHTML(
-                '${h.url_for(action='list',id=c.page.page - 1)}')
+                '${h.url_for(action=c.action,id=c.page.page - 1, **link_params)}')
             ">Previous</a>
         </li>
       </py:if>
@@ -50,13 +52,13 @@
           <py:when test="True">
             <span class="pagination-current">
             <a 
-              href="${h.url_for(action='list', id=number)}"
+              href="${h.url_for(action=c.action, id=number, **link_params)}"
             >${number}</a>
             </span>
           </py:when>
           <py:otherwise>
             <a 
-              href="${h.url_for(action='list', id=number)}"
+              href="${h.url_for(action=c.action, id=number, **link_params)}"
             >${number}</a>
           </py:otherwise>
         </py:choose>
@@ -65,7 +67,7 @@
       <py:if test="c.page.page_count > c.page.page">
         <li>
             <a 
-              href="${h.url_for(action='list', id=c.page.page + 1)}"
+              href="${h.url_for(action=c.action, id=c.page.page + 1, **link_params)}"
             >Next</a>
         </li>
       </py:if>
@@ -74,6 +76,7 @@
   </div>
 
     <p>
+    <py:if test="not c.no_paginate_count">
     <py:if test="c.page.page_count == 1">
       <py:if test="c.page.item_count == 0">
     There are no ${c.register_name}.
@@ -87,6 +90,7 @@
     </py:if>
     <py:if test="c.page.page_count > 1">
     Displaying ${c.register_name} ${c.page.first_item} - ${c.page.last_item} of ${c.page.item_count}.
+    </py:if>
     </py:if>
     </p>
 
