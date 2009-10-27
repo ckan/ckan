@@ -107,10 +107,15 @@ class TestPackageController(TestController):
         self._check_search_results(res, 'groups:david', ['2 packages found'] )
         self._check_search_results(res, 'groups:roger', ['1 package found'] )
         self._check_search_results(res, 'groups:lenny', ['0 packages found'] )
+        self._check_search_results(res, 'a', ['1 package found', 'annakarenina'], True, False )
+        self._check_search_results(res, 'a', ['1 package found', 'annakarenina'], False, True )
+        self._check_search_results(res, 'a', ['1 package found', 'annakarenina'], True, True )
 
-    def _check_search_results(self, page, terms, requireds):
+    def _check_search_results(self, page, terms, requireds, only_open=False, only_downloadable=False):
         form = page.forms[0]
-        form['q'] =  str(terms)
+        form['q'] = str(terms)
+        form['open_only'] = only_open
+        form['downloadable_only'] = only_downloadable
         results_page = form.submit()
         assert 'Packages - Search' in results_page, results_page
         for required in requireds:

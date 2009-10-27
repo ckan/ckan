@@ -182,7 +182,7 @@ class Search:
         if self._options.filter_by_openness:
             if self._open_licenses is None:
                 self._update_open_licenses()
-            query = query.filter(model.Package.license_id._in(self._open_licenses))
+            query = query.filter(model.Package.license_id.in_(self._open_licenses))
         if self._options.order_by:
             model_attr = getattr(model.Package, self._options.order_by)
             query = query.order_by(model_attr)
@@ -242,8 +242,9 @@ class Search:
         
     def _update_open_licenses(self):
         self._open_licenses = []
-        for _license in LicenseList:            
-            if _license.isopen():                
+        for license_name in LicenseList.all_formatted:
+            _license = model.License.by_name(license_name)
+            if _license and _license.isopen():                
                 self._open_licenses.append(_license.id)
 
     def _format_results(self):
