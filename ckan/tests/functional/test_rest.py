@@ -318,18 +318,23 @@ class TestRestController(TestController):
             rev = model.repo.new_revision()
             model.repo.commit_and_remove()
         assert group
+        assert len(group.packages) == 2, group.packages
         user = model.User.by_name(self.random_name)
         model.setup_default_user_roles(group, [user])
 
         # edit it
-        group_vals = {'name':u'somethingnew', 'title':u'newtesttitle'}
+        group_vals = {'name':u'somethingnew', 'title':u'newtesttitle',
+                      'packages':[u'annakarenina']}
         offset = '/api/rest/group/%s' % self.testgroupvalues['name']
         postparams = '%s=1' % simplejson.dumps(group_vals)
         res = self.app.post(offset, params=postparams, status=[200],
                             extra_environ=self.extra_environ)
         model.Session.remove()
         group = model.Group.query.filter_by(name=group_vals['name']).one()
+        assert group.name == group_vals['name']
         assert group.title == group_vals['title']
+        assert len(group.packages) == 1, group.packages
+        assert group.packages[0].name == group_vals['packages'][0]
 
 
     def test_10_edit_pkg_name_duplicate(self):
