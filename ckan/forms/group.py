@@ -102,10 +102,15 @@ def get_group_dict(group=None):
 
     for field in fs._fields.values():
         if not filter(lambda x: field.renderer.name.endswith(x), exclude):
-             if field.renderer._value:
-                 indict[field.renderer.name] = field.renderer._value
-             else:
-                 indict[field.renderer.name] = u''
+            if field.renderer._value:
+                indict[field.renderer.name] = field.renderer._value
+            else:
+                indict[field.renderer.name] = u''
+
+            # some fields don't bind in this way, so do it manually
+            if field.renderer.name.endswith('-packages'):
+                indict[field.renderer.name] = [pkg.name for pkg in group.packages] if group else []
+
     return indict
 
 def edit_group_dict(_dict, changed_items, id=''):
