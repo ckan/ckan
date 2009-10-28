@@ -36,7 +36,7 @@ class TestRestController(TestController):
             'title': u'Some Title',
             'url': u'http://blahblahblah.mydomain',
             'download_url': u'http://blahblahblah.mydomain',
-            'tags': u'russion novel',
+            'tags': [u'russion', u'novel'],
             'license_id': u'4',
             'extras': {'genre' : u'horror',
                        'media' : u'dvd',
@@ -46,7 +46,7 @@ class TestRestController(TestController):
             'name' : u'testgroup',
             'title' : u'Some Group Title',
             'description' : 'Great group!',
-            'packages' : u'annakarenina warandpeace',
+            'packages' : [u'annakarenina', 'warandpeace'],
             }
         self.random_name = u'http://myrandom.openidservice.org/'
         self.user = model.User(name=self.random_name)
@@ -496,7 +496,7 @@ class TestSearch(TestController):
             'title': 'Some Title',
             'url': u'http://blahblahblah.mydomain',
             'download_url': u'http://blahblahblah.mydomain',
-            'tags': 'russion novel',
+            'tags': ['russion', 'novel'],
             'license_id': '4',
         }
 

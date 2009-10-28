@@ -31,11 +31,13 @@ class GroupFieldSet(formalchemy.FieldSet):
 
 class PackageEditRenderer(formalchemy.fields.FieldRenderer):
     def deserialize(self):
-        packages_as_string = unicode(self._serialized_value())
-        group = self.field.parent.model
-
-        packages_as_string = packages_as_string.replace(',', ' ')
-        pkg_list = packages_as_string.split()
+        value = self._params[self.name]
+        if isinstance(value, list): # from rest i/f
+            pkg_list = value
+        elif isinstance(value, str): # from form
+            packages_as_string = unicode(value)
+            packages_as_string = packages_as_string.replace(',', ' ')
+            pkg_list = packages_as_string.split()
         packages = [model.Package.by_name(pkg_name) for pkg_name in pkg_list]
         return packages        
 
