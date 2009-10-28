@@ -34,7 +34,7 @@ class PackageEditRenderer(formalchemy.fields.FieldRenderer):
         value = self._params[self.name]
         if isinstance(value, list): # from rest i/f
             pkg_list = value
-        elif isinstance(value, str): # from form
+        elif isinstance(value, (unicode, str)): # from form
             packages_as_string = unicode(value)
             packages_as_string = packages_as_string.replace(',', ' ')
             pkg_list = packages_as_string.split()
