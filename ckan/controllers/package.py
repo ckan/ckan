@@ -5,7 +5,7 @@ import genshi
 import simplejson
 
 from ckan.lib.base import *
-from ckan.controllers.base import CkanBaseController, ValidationException
+from ckan.controllers.base import CkanBaseController, ValidationException, PAGINATE_ITEMS_PER_PAGE
 from ckan.lib.search import Search, SearchOptions
 import ckan.forms
 import ckan.authz
@@ -28,7 +28,7 @@ class PackageController(CkanBaseController):
         return self._paginate_list('package', id, 'package/list',
             ['name', 'title'])
 
-    def search(self):
+    def search(self, id=1):
         request_params = dict(request.params)
         c.show_results = False
         if request_params.has_key('q'):
@@ -39,17 +39,35 @@ class PackageController(CkanBaseController):
                                      'filter_by_openness':c.open_only,
                                      'filter_by_downloadable':c.downloadable_only,
                                      'return_objects':True,
+                                     'limit':0
                                      })
-            results = Search().run(options)
-            c.packages = results['results']
-            c.package_count = results['count']
 
+            # package search
+            results = Search().run(options)
+            c.package_count = results['count']
+            page = id
+            from ckan.lib.helpers import paginate
+            c.page = paginate.Page(
+                collection=results['results'],
+                page=page,
+                items_per_page=PAGINATE_ITEMS_PER_PAGE,
+                item_count=results['count'],
+            )
+            c.link_params = request_params
+            if c.link_params.has_key('page'):
+                del c.link_params['page']
+            c.register_name = 'packages'
+            c.no_paginate_count = True
+            c.action = 'search'
+
+            # tag search
             options.entity = 'tag'
             results = Search().run(options)
             c.tags = results['results']
             c.tags_count = results['count']
 
             c.show_results = True
+
         return render('package/search')
 
     def read(self, id):

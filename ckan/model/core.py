@@ -115,8 +115,14 @@ class DomainObject(object):
 
         
 class License(DomainObject):
-    pass
-
+    def isopen(self):
+        if self.name and \
+           (self.name.startswith('OKD Compliant')
+            or
+            self.name.startswith('OSI Approved')
+            ):
+            return True
+        return False
 
 class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         vdm.sqlalchemy.StatefulObjectMixin,
@@ -153,10 +159,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         pass
 
     def isopen(self):
-        if self.license and \
-            (self.license.name.startswith('OKD Compliant')
-                or
-                self.license.name.startswith('OSI Approved')):
+        if self.license and self.license.isopen():
             return True
         return False
 

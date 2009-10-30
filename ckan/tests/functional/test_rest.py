@@ -36,7 +36,7 @@ class TestRestController(TestController):
             'title': u'Some Title',
             'url': u'http://blahblahblah.mydomain',
             'download_url': u'http://blahblahblah.mydomain',
-            'tags': u'russion novel',
+            'tags': [u'russion', u'novel'],
             'license_id': u'4',
             'extras': {'genre' : u'horror',
                        'media' : u'dvd',
@@ -46,7 +46,7 @@ class TestRestController(TestController):
             'name' : u'testgroup',
             'title' : u'Some Group Title',
             'description' : 'Great group!',
-            'packages' : u'annakarenina warandpeace',
+            'packages' : [u'annakarenina', 'warandpeace'],
             }
         self.random_name = u'http://myrandom.openidservice.org/'
         self.user = model.User(name=self.random_name)
@@ -318,18 +318,23 @@ class TestRestController(TestController):
             rev = model.repo.new_revision()
             model.repo.commit_and_remove()
         assert group
+        assert len(group.packages) == 2, group.packages
         user = model.User.by_name(self.random_name)
         model.setup_default_user_roles(group, [user])
 
         # edit it
-        group_vals = {'name':u'somethingnew', 'title':u'newtesttitle'}
+        group_vals = {'name':u'somethingnew', 'title':u'newtesttitle',
+                      'packages':[u'annakarenina']}
         offset = '/api/rest/group/%s' % self.testgroupvalues['name']
         postparams = '%s=1' % simplejson.dumps(group_vals)
         res = self.app.post(offset, params=postparams, status=[200],
                             extra_environ=self.extra_environ)
         model.Session.remove()
         group = model.Group.query.filter_by(name=group_vals['name']).one()
+        assert group.name == group_vals['name']
         assert group.title == group_vals['title']
+        assert len(group.packages) == 1, group.packages
+        assert group.packages[0].name == group_vals['packages'][0]
 
 
     def test_10_edit_pkg_name_duplicate(self):
@@ -496,7 +501,7 @@ class TestSearch(TestController):
             'title': 'Some Title',
             'url': u'http://blahblahblah.mydomain',
             'download_url': u'http://blahblahblah.mydomain',
-            'tags': 'russion novel',
+            'tags': ['russion', 'novel'],
             'license_id': '4',
         }
 

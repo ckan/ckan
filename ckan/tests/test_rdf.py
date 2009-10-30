@@ -1,10 +1,11 @@
 from pylons import config
 import ckan.lib.helpers as h
 
-import ckan.lib.rdf as rdf
-import ckan.lib.talis as talis
-from ckan.tests import *
-import ckan.model as model
+if 0: # DISABLED IMPORTS AND ALL TESTS
+    import ckan.lib.rdf as rdf
+    import ckan.lib.talis as talis
+    from ckan.tests import *
+    import ckan.model as model
 
 TALIS_STORE_NAME = 'ckan-dev1'
 

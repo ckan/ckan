@@ -31,11 +31,13 @@ class GroupFieldSet(formalchemy.FieldSet):
 
 class PackageEditRenderer(formalchemy.fields.FieldRenderer):
     def deserialize(self):
-        packages_as_string = unicode(self._serialized_value())
-        group = self.field.parent.model
-
-        packages_as_string = packages_as_string.replace(',', ' ')
-        pkg_list = packages_as_string.split()
+        value = self._params[self.name]
+        if isinstance(value, list): # from rest i/f
+            pkg_list = value
+        elif isinstance(value, (unicode, str)): # from form
+            packages_as_string = unicode(value)
+            packages_as_string = packages_as_string.replace(',', ' ')
+            pkg_list = packages_as_string.split()
         packages = [model.Package.by_name(pkg_name) for pkg_name in pkg_list]
         return packages        
 
@@ -100,10 +102,15 @@ def get_group_dict(group=None):
 
     for field in fs._fields.values():
         if not filter(lambda x: field.renderer.name.endswith(x), exclude):
-             if field.renderer._value:
-                 indict[field.renderer.name] = field.renderer._value
-             else:
-                 indict[field.renderer.name] = u''
+            if field.renderer._value:
+                indict[field.renderer.name] = field.renderer._value
+            else:
+                indict[field.renderer.name] = u''
+
+            # some fields don't bind in this way, so do it manually
+            if field.renderer.name.endswith('-packages'):
+                indict[field.renderer.name] = [pkg.name for pkg in group.packages] if group else []
+
     return indict
 
 def edit_group_dict(_dict, changed_items, id=''):

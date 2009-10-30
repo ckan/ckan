@@ -40,7 +40,7 @@ class ManageDb(CkanCommand):
     db send-rdf {talis-store} {username} {password}
     db load {file-path} # load from a file
     db load-data4nr {file-path.csv}
-    db load-esw {file-path.txt}
+    db load-esw {file-path.txt} [{host} {api-key}]
     db migrate06
     db migrate09a
     db migrate09b
@@ -159,9 +159,24 @@ class ManageDb(CkanCommand):
             print 'Need ESW data file path'
             return
         load_path = self.args[1]
+        if len(self.args) > 3:
+            server = self.args[2]
+            if server.startswith('http://'):
+                server = server.strip('http://').strip('/')
+            base_location = 'http://%s/api/rest' % server
+            api_key = self.args[3]
+        else:
+            server = api_key = None
+        print 'Loading ESW data\n  Filename: %s\n  Server hostname: %s\n  Api-key: %s' % \
+              (load_path, server, api_key)
         import ckan.getdata.esw
         data = ckan.getdata.esw.Esw()
-        data.load_esw_txt_into_db(load_path)
+        if server:
+            import ckanclient
+            ckanclient = ckanclient.CkanClient(base_location=base_location, api_key=api_key)
+            data.load_esw_txt_via_rest(load_path, ckanclient)
+        else:
+            data.load_esw_txt_into_db(load_path)
 
 class CreateTestData(CkanCommand):
     '''Create test data in the DB.
