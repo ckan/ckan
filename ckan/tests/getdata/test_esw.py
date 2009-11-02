@@ -73,6 +73,8 @@ class TestLoadIntoDb:
             pkg = model.Package.query.filter_by(name=unicode(pkg_name)).one()
             pkgs.append(pkg)
         def get_attrib(pkg, attrib):
+            if attrib == 'groups':
+                return [group.name for group in pkg.groups]
             return getattr(pkg, attrib)
         check_package_data(pkgs, get_attrib)
         
@@ -115,10 +117,12 @@ def check_package_data(pkgs, get_):
             license_name = model.License.query.get(pkg['license_id']).name
         return license_name
     assert get_license_name(pkgs[4]) == u'OKD Compliant::Other', get_license_name(pkgs[4])
-    assert get_(pkgs[2], 'groups') == ['semanticweb'], pkgs[2]
-    assert get_(pkgs[0], 'groups') == ['semanticweb'], pkgs[0]
+    assert get_(pkgs[2], 'groups') == ['semanticweb'], get_(pkgs[2], 'groups')
+    assert get_(pkgs[0], 'groups') == ['semanticweb'], get_(pkgs[0], 'groups')
 
-class TestLoadViaRest:
+# To run this test, supply a suitable test host and then
+# uncomment it.
+class _TestLoadViaRest:
     @classmethod
     def setup_class(self):
         base_location = 'http://%s/api/rest' % CKAN_HOST

@@ -140,9 +140,8 @@ class Esw(object):
         if title.startswith('GO annotations'):
             name = self._munge('GO annotations from NCBI and EBI')
         elif title.startswith('Wikipedia'):
-#            title = u'Wikipedia3'
-#            name = self._munge(title)
-            name = None # skip record
+            title = u'Wikipedia3'
+            name = self._munge(title)
         elif title == u'BBOP' and u'selected OBO ontologies' in esw_dict['Data Exposed']:
             name = u'bbop-selected'
         elif title == u'Jamendo':

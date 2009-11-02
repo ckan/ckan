@@ -65,7 +65,7 @@ class TestRevisionController(TestController):
             assert 'Repository History' in res
             assert '1' in res
             assert 'Author' in res
-            assert 'tolstoy' in res
+            assert 'tester' in res
             assert 'Log Message' in res
             assert 'Creating test data.' in res
 
@@ -120,7 +120,7 @@ class TestRevisionController(TestController):
         print str(res)
         assert 'Revision 2' in res
         assert 'Revision: 2' in res
-        assert 'Author:</strong> tolstoy' in res
+        assert 'Author:</strong> tester' in res
         assert 'Log Message:' in res
         assert 'Creating test data.' in res
         assert 'Package: annakarenina' in res

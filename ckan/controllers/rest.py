@@ -188,7 +188,7 @@ class RestController(CkanBaseController):
     def search(self):
         if request.params.has_key('qjson'):
             params = simplejson.loads(request.params['qjson'])
-        elif request.params.values() and request.params.values() != [u'']:
+        elif request.params.values() and request.params.values() != [u''] and request.params.values() != [u'1']:
             params = request.params
         else:
             params = self._get_request_data()
