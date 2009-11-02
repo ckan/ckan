@@ -12,6 +12,12 @@ class TalisLogin:
     password = None
 
     @staticmethod
+    def init(storename, username, password):
+        TalisLogin.storename = storename
+        TalisLogin.username = username
+        TalisLogin.password = password
+
+    @staticmethod
     def get_password():
         if TalisLogin.password is None:
             TalisLogin.password = os.environ['TALIS_PASSWORD']
@@ -70,8 +76,8 @@ class Talis:
             mapped_properties.append(mp)
         return fp_map_base % {'mapped_properties':'\n'.join(mapped_properties), 'store': store}
 
-    def post_pkg(self, pkg):
-        rdf_xml = self.rdf.export_package(pkg)
+    def post_pkg(self, pkg_dict):
+        rdf_xml = self.rdf.export_package(pkg_dict)
         service = '/meta'
         return self.post(service, rdf_xml, with_password=True)
     
@@ -113,7 +119,8 @@ class Talis:
 
         err = None
         for pkg in model.Package.query.all():
-            err = self.post_pkg(pkg)
+            pkg_dict = pkg.as_dict()
+            err = self.post_pkg(pkg_dict)
             if err:
                 print "error"
                 print err
