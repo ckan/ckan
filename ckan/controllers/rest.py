@@ -8,7 +8,7 @@ from ckan.lib.search import Search, SearchOptions
 import ckan.authz
 import ckan.rating
 
-class RestController(CkanBaseController):
+class RestController(BaseController):
 
     def index(self):
         return render('rest/index')

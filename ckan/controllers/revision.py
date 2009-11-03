@@ -1,10 +1,9 @@
 from ckan.lib.base import *
-from ckan.controllers.base import CkanBaseController
 
 import ckan.authz
 from datetime import datetime
 
-class RevisionController(CkanBaseController):
+class RevisionController(BaseController):
 
     def index(self):
         return self.list()

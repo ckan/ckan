@@ -1,14 +1,13 @@
 import genshi
 
 from ckan.lib.base import *
-from ckan.controllers.base import CkanBaseController, ValidationException
 from simplejson import dumps
 import ckan.authz as authz
 import ckan.forms
 
-class GroupController(CkanBaseController):
+class GroupController(BaseController):
     def __init__(self):
-        CkanBaseController.__init__(self)
+        BaseController.__init__(self)
         self.authorizer = authz.Authorizer()
     
     def index(self):

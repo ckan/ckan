@@ -1,10 +1,9 @@
 from ckan.lib.base import *
-from ckan.controllers.base import CkanBaseController
 
 def login_form():
     return render('user/login_form').replace('FORM_ACTION', '%s')
 
-class UserController(CkanBaseController):
+class UserController(BaseController):
 
     def index(self, id):
         if not c.user or c.user != id:

@@ -5,7 +5,6 @@ import genshi
 import simplejson
 
 from ckan.lib.base import *
-from ckan.controllers.base import CkanBaseController, ValidationException, PAGINATE_ITEMS_PER_PAGE
 from ckan.lib.search import Search, SearchOptions
 import ckan.forms
 import ckan.authz
@@ -16,7 +15,7 @@ logger = logging.getLogger('ckan.controllers')
 class ValidationException(Exception):
     pass
 
-class PackageController(CkanBaseController):
+class PackageController(BaseController):
     authorizer = ckan.authz.Authorizer()
     
     def index(self):

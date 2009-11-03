@@ -1,8 +1,7 @@
 from ckan.lib.base import *
-from ckan.controllers.base import CkanBaseController
 from simplejson import dumps
 
-class TagController(CkanBaseController):
+class TagController(BaseController):
 
     def index(self):
         return render('tag/index')
