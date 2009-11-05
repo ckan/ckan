@@ -2,9 +2,11 @@ import re
 
 from formalchemy import helpers as h
 import formalchemy
+import genshi
 
 import ckan.model as model
 import ckan.lib.helpers
+import ckan.misc
 
 FIELD_TIP_TEMPLATE = '<p class="desc">%s</p>'
 FIELD_TIPS = {
@@ -26,6 +28,11 @@ def package_names_validator(val, field=None):
         if not model.Package.by_name(pkg_name):
             raise formalchemy.ValidationError('Package name %s does not exist in database' % pkg_name)
 
+def field_readonly_renderer(key, value):
+    if value is None:
+        value = ''
+    return '<strong>%s:</strong> %s<br/>' % (key, value)
+
 class CustomTextFieldRenderer(formalchemy.fields.TextFieldRenderer):
     def render(self, **kwargs):
         kwargs['size'] = '40'
@@ -35,6 +42,9 @@ class CustomTextFieldRenderer(formalchemy.fields.TextFieldRenderer):
         else:
             tip_html = ''        
         return h.text_field(self.name, value=self._value, maxlength=self.length, **kwargs) + tip_html
+
+    def render_readonly(self, **kwargs):
+        return field_readonly_renderer(self.field.key, self._value)
 
 class TextAreaRenderer(formalchemy.fields.TextAreaFieldRenderer):
     def render(self, **kwargs):
@@ -46,3 +56,9 @@ class TextAreaRenderer(formalchemy.fields.TextAreaFieldRenderer):
         else:
             tip_html = ''        
         return h.text_area(self.name, content=value, **kwargs) + tip_html
+
+    def render_readonly(self, **kwargs):
+        format = ckan.misc.MarkdownFormat()
+        notes_formatted = format.to_html(self._value)
+        notes_formatted = genshi.HTML(notes_formatted)
+        return field_readonly_renderer(self.field.key, notes_formatted)

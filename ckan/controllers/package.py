@@ -115,7 +115,6 @@ class PackageController(BaseController):
                 self._update(fs, id, record.id)                
                 c.pkgname = fs.name.value
 
-                # TODO replace default user roles when we have it in the wui
                 pkg = model.Package.by_name(c.pkgname)
                 admins = []
                 if c.user:

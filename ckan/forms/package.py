@@ -97,11 +97,14 @@ class ExtrasRenderer(formalchemy.fields.FieldRenderer):
     </div>
     '''
 
-    def render(self, **kwargs):
+    def _get_value(self):
         extras = self.field.parent.extras.value
         if extras is None:
             extras = self.field.parent.model.extras.items() or []
-            
+        return extras
+
+    def render(self, **kwargs):
+        extras = self._get_value()
         html = ''
         for key, value in extras:
             html += self.extra_field_template % {
@@ -113,6 +116,13 @@ class ExtrasRenderer(formalchemy.fields.FieldRenderer):
                 'name':'%s-newfield%s' % (self.name, i)}
                                                    
         return html
+
+    def render_readonly(self, **kwargs):
+        html_items = []
+        extras = self._get_value()
+        for key, value in extras:
+            html_items.append(common.field_readonly_renderer(key, value))
+        return html_items
 
     def deserialize(self):
         # Example params:
@@ -157,6 +167,14 @@ class LicenseRenderer(formalchemy.fields.FieldRenderer):
         options = [('', None)] + [(x, unicode(model.License.by_name(x).id)) for x in model.LicenseList.all_formatted]
         return h.select(self.name, h.options_for_select(options, selected=selected), **kwargs)
 
+    def render_readonly(self, **kwargs):
+        if self._value:
+            license_name = model.License.query.get(int(self._value)).name
+        else:
+            license_name = ''
+        return common.field_readonly_renderer(self.field.key, license_name)
+
+
 class TagEditRenderer(formalchemy.fields.FieldRenderer):
     tag_field_template = '''
     <div id="tagsAutocomp">
@@ -188,6 +206,10 @@ class TagEditRenderer(formalchemy.fields.FieldRenderer):
         else:
             tagnames = []
         return ' '.join(tagnames)
+
+    def render_readonly(self, **kwargs):
+        tags_as_string = self._convert_tags(self.field.parent.tags.value)
+        return common.field_readonly_renderer(self.field.key, tags_as_string)
 
     def deserialize(self):
         tags_as_string = self._serialized_value() # space separated string
@@ -289,6 +311,12 @@ def get_package_dict(pkg=None):
     return indict
 
 def edit_package_dict(dict_, changed_items, id=''):
+    '''
+    @param dict_ Package dict to be edited
+    @param changed_items Package dict with the changes to be made
+           (keys do not need the "Package-<id>-" prefix)
+    @return Edited dict
+    '''
     prefix = 'Package-%s-' % id
     extras_key = prefix + 'extras'
     tags_key = prefix + 'tags'
