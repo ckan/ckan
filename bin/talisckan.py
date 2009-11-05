@@ -2,9 +2,9 @@ import sys
 from optparse import OptionParser
 
 import ckanclient
-import talis
+import ckan.lib.talis as talis
 
-class TalisLoader:
+class TalisCkan:
     def __init__(self, ckan_host, store, talisuser, talispassword):
         api_key = None
         
@@ -19,9 +19,9 @@ class TalisLoader:
         talis.TalisLogin.init(store, talisuser, talispassword)
         self._talis = talis.Talis()
         
-    def get_package_names(self):
+    def get_ckan_package_names(self):
         res = self.ckan.package_register_get()
-        assert self.ckan.last_status == 200, 'Error accessing \'%s\': %s' % (self.ckan.last_location, self.ckan.last_status)
+        assert self.ckan.last_status == 200, self.ckan.last_status
         packages = res
         return packages
 
@@ -39,36 +39,57 @@ class TalisLoader:
 ##        res = self._talis.get_pkg(pkg_name)
 ##        assert res, res
 ##        print 'Done!'
-        
 
+    def dump_talis(self, pkg_names):
+        if pkg_names:
+            for pkg_name in pkg_names:
+                print self._talis.get_pkg(pkg_name)
+        else:
+            # TODO
+            print self._talis.dump()
+
+        
 if __name__ == '__main__':
-    usage = 'usage: %prog [options] talis-password'
+    usage = '''usage: %prog [options] <command>
+    commands:
+        dump_talis - show contents of packages in talis
+        load_ckan_to_talis - 
+    '''
     parser = OptionParser(usage=usage)
 #    parser.add_option('-k', '--apikey', dest='apikey', help='API key')
     parser.add_option('-c', '--ckanhost', dest='ckanhost', help='CKAN host name', default='www.ckan.net')
     parser.add_option('-s', '--store', dest='store', help='Talis store name', default='ckan-dev1')
-    parser.add_option('-u', '--talisusername', dest='talisuser', help='Talis user name', default='ckan')
+    parser.add_option('-u', '--talislogin', dest='talislogin', help='Talis login details: "username:password"', default='ckan')
+#    parser.add_option('-u', '--talisusername', dest='talisuser', help='Talis user name', default='ckan')
+    parser.add_option('-p', '--packages', dest='packages', help='Quoted list of packages', default='')
     parser.add_option('', '--startfrompackage', dest='startpackage', help='Package to start from', default='')
-    parser.add_option('-p', '--packages', dest='packages', help='Quoted list of packages to upload', default='')
 
     (options, args) = parser.parse_args()
-    if len(args) != 1:
+    if len(args) < 1:
         parser.print_help()
         sys.exit(0)
+    command = args[0]
 
-    talispassword = args[0]
+    if ':' in options.talislogin:
+        talisuser, talispassword = options.talislogin.split(':')
+    else:
+        talisuser, talispassword = options.talislogin, ''
 
-    te = TalisLoader(options.ckanhost, options.store, options.talisuser, talispassword)
+    tc = TalisCkan(options.ckanhost, options.store, talisuser, talispassword)
 
-    pkg_names = te.get_package_names()
-    start_index = 0
+    pkg_names = None
     if options.startpackage:
         start_index = pkg_names.index(options.startpackage)
         assert start_index
         pkg_names = pkg_names[start_index:]
-    elif options.packages:
+    if options.packages:
         pkgs = options.packages.replace(',', ' ')
         pkg_names = pkgs.split() if ' ' in pkgs else [pkgs]
-    for pkg_name in pkg_names:
-        te.load_to_talis(pkg_name)
-                              
+            
+    if command == 'load_ckan_to_talis':
+        pkg_names = tc.get_ckan_package_names()
+        start_index = 0
+        for pkg_name in pkg_names:
+            tc.load_to_talis(pkg_name)
+    elif command == 'dump_talis':
+        tc.dump_talis(pkg_names)

@@ -102,6 +102,10 @@ class Talis:
         uri = TALIS_URI + TalisLogin.get_storename() + '/meta?about=%s&output=rdf' % (rdf.CKAN_SUBJECT_BASE + package_name)
         return self.get(uri)
         
+    def get_pkg_list(self):
+        uri = TALIS_URI + TalisLogin.get_storename() + '/meta?about=%s&output=rdf' % (rdf.CKAN_SUBJECT_BASE)
+        return self.get(uri)        
+
     def get(self, uri):
         headers = {"User-Agent":"ckan-rdf"}
         request = urllib2.Request(uri, None, headers)
@@ -126,3 +130,8 @@ class Talis:
                 print err
                 break
         return err
+
+        
+
+    def dump(self):
+        pass
