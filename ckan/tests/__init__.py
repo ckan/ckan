@@ -87,3 +87,8 @@ class TestController(object):
         ratings += model.Rating.query.filter_by(package=model.Package.by_name(u'warandpeace')).all()
         for rating in ratings[:]:
             model.Session.delete(rating)
+
+    def main_div(self, html):
+        'strips html to just the <div id=main> section'
+        the_html = str(html)
+        return the_html[the_html.find('<div id="main">'):the_html.find('<div id="footer">')]

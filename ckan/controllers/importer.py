@@ -25,6 +25,8 @@ def importer_to_fs_dict(pkg_dict):
     return fs_dict
 
 class ImporterController(BaseController):
+    authorizer = ckan.authz.Authorizer()
+
     def index(self):
         return render('importer/importer')
 
@@ -88,6 +90,7 @@ class ImporterController(BaseController):
         for fs in self._get_fs(importer):
             errors, warnings, existing_pkg = self._validate(fs)
             if errors:
+                print "Errors: ", errors
                 abort(400, 'Errors remain - see preview.')
 
             try:
@@ -110,9 +113,8 @@ class ImporterController(BaseController):
             count += 1
 
         model.Session.commit()
-
         c.message = 'Imported %s package%s.' % (count, 's' if count != 1 else '')
-        h.redirect_to(action='index', id=c.pkgname)
+        return render('importer/result')
 
     def doc(self):
         c.license_names = [license_ for license_ in LicenseList.all_formatted]
@@ -127,9 +129,10 @@ class ImporterController(BaseController):
             else:
                 existing_dict = ckan.forms.get_package_dict()
                 pkg_id = ''
+                pkg = model.Package
             fa_dict = ckan.forms.edit_package_dict(existing_dict, pkg_dict, id=pkg_id)
             fs = ckan.forms.package_fs
-            fs = fs.bind(model.Package, data=fa_dict)
+            fs = fs.bind(pkg, data=fa_dict)
             yield fs
         
 
@@ -172,6 +175,12 @@ class ImporterController(BaseController):
     def _validate(self, fs):
         errors = []
         warnings = []
+        if not c.user:
+            abort(302, 'User is not logged in')
+        else:
+            user = model.User.by_name(c.user)
+            if not user:
+                abort(302, 'Error with user account. Log out and log in again.')
         pkg = model.Package.by_name(fs.name.value)
         if pkg:
             warnings.append('Package %s already exists in database. Import will edit the fields.' % fs.name.value)
