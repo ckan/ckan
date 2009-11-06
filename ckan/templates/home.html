@@ -6,11 +6,21 @@
   <style type="text/css" py:def="page_specific_css">
       form {
         margin-top: 1em;
+				margin-left: 3em;
       }
 
-      #main h2 {
-        margin-top: 1.2em;
+      #main h3 {
+        margin-top: 2em;
       }
+
+			div.recent-changes {
+        font-size: 0.9em;
+			}
+
+			div.recent-changes p {
+        margin: 0;
+        padding: 0;
+			}
   </style>
 
   <py:match path="primarysidebar">
@@ -21,6 +31,7 @@
 
     <xi:include href="package/search_form.html" />
 
+		<!--
     <h2>Register</h2>
 
     <form action="${h.url_for(controller='package', action='new', id=None)}" method="POST">
@@ -28,8 +39,10 @@
       ${XML(h.submit('', 'Register a New Package &raquo;'))}
       <p class="desc">Enter title or short description</p>
     </form>
+		-->
 
-      <h2>Recently Changed</h2>
+			<h3>Recently Changed</h3>
+			<div class="recent-changes">
       <p py:for="rev in c.revisions">
         <py:for each="pkg in rev.packages">
         <a href="${h.url_for(controller='package', action='read', id=pkg.name)}">${pkg.name}</a>
@@ -38,7 +51,7 @@
         <strong>by</strong> ${rev.author}
       </p>
       <p><a href="${h.url_for(controller='revision', action='index', id=None)}">More ...</a></p>
-
+			</div>
 	</div>
 
   <xi:include href="layout.html" />
