@@ -1,3 +1,4 @@
+from datetime import datetime
 from meta import *
 from core import DomainObject, Package
 from types import make_uuid
@@ -13,6 +14,7 @@ group_table = Table('group', metadata,
         Column('name', UnicodeText, unique=True, nullable=False),
         Column('title', UnicodeText),
         Column('description', UnicodeText),
+        Column('created', DateTime, default=datetime.now),
 )
 
 class PackageGroup(DomainObject):
