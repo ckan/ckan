@@ -72,3 +72,41 @@ class TestMigrateTo0Point7(object):
         lics = model.License.query.all()
         assert len(lics) == 63, len(lics)
 
+
+class TestMigrate08(object):
+    @classmethod
+    def setup_class(self):
+        from ckan.lib.cli import CreateTestData
+        import migrate.versioning.api as mig
+
+        model.repo.rebuild_db()
+        CreateTestData.create()
+
+        vtable = model.version_table
+        update = vtable.update(values={'version': 7})
+        model.metadata.bind.execute(update)
+        dbversion = mig.db_version(model.metadata.bind.url,
+                model.repo.migrate_repository)
+        assert dbversion == 7, dbversion
+
+        model.repo.upgrade_db()
+        dbversion = mig.db_version(model.metadata.bind.url,
+                model.repo.migrate_repository)
+        assert dbversion == 8, dbversion
+        model.Session.remove()
+
+    @classmethod
+    def teardown_class(self):
+        pass
+
+    def test_1(self):
+        revs = model.Revision.query.all()
+        assert len(revs) == 2
+        rev = revs[-1]
+        assert len(rev.id) == 36, rev
+
+        pkgs = model.Package.query.all()
+        for pkg in pkgs:
+            assert pkg.revision_id == rev.id
+            assert pkg.revision == rev
+
