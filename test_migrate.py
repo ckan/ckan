@@ -89,7 +89,7 @@ class TestMigrate08(object):
                 model.repo.migrate_repository)
         assert dbversion == 7, dbversion
 
-        model.repo.upgrade_db()
+        model.repo.upgrade_db(8)
         dbversion = mig.db_version(model.metadata.bind.url,
                 model.repo.migrate_repository)
         assert dbversion == 8, dbversion
@@ -107,6 +107,6 @@ class TestMigrate08(object):
 
         pkgs = model.Package.query.all()
         for pkg in pkgs:
-            assert pkg.revision_id == rev.id
-            assert pkg.revision == rev
+            assert pkg.revision_id == revs[1].id or pkg.revision_id == revs[0].id, '%s!=%s' % (pkg.revision_id, revs[0].id)
+            assert pkg.revision == revs[0] or pkg.revision == revs[1]
 

@@ -293,7 +293,7 @@ def get_package_dict(pkg=None):
     else:
         fs = package_fs
 
-    exclude = ('-id', '-package_tags', '-all_revisions', '-_extras')
+    exclude = ('-id', '-package_tags', '-all_revisions', '-_extras', '-roles', '-ratings')
 
     for field in fs._fields.values():
         if not filter(lambda x: field.renderer.name.endswith(x), exclude):

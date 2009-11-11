@@ -66,6 +66,7 @@ group_fs.configure(
         group_fs.id,
         group_fs.packages,
         group_fs.roles,
+        group_fs.created,
     ]
 )
 
@@ -76,6 +77,7 @@ group_fs_combined.configure(
     exclude=[
         group_fs.id,
         group_fs.roles,
+        group_fs.created,
         ]
 )
 
@@ -98,7 +100,7 @@ def get_group_dict(group=None):
     else:
         fs = group_fs
 
-    exclude = ('-id', '-roles')
+    exclude = ('-id', '-roles', '-created')
 
     for field in fs._fields.values():
         if not filter(lambda x: field.renderer.name.endswith(x), exclude):

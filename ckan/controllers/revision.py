@@ -59,7 +59,6 @@ class RevisionController(BaseController):
     def read(self, id=None):
         if id is None:
             h.redirect_to(controller='revision', action='list')
-        id = int(id)
         c.revision = model.Revision.query.get(id)
         if c.revision is None:
             abort(404)

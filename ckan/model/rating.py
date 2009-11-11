@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from meta import *
 from core import DomainObject, Package
 from types import make_uuid
@@ -10,7 +12,8 @@ rating_table = Table('rating', metadata,
                      Column('user_id', UnicodeText, ForeignKey('user.id')),
                      Column('user_ip_address', UnicodeText), # alternative to user_id if not logged in
                      Column('package_id', Integer, ForeignKey('package.id')),
-                     Column('rating', Float)
+                     Column('rating', Float),
+                     Column('created', DateTime, default=datetime.now),
                      )
 
 class Rating(DomainObject):
