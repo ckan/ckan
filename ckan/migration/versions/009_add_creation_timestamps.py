@@ -18,7 +18,6 @@ def upgrade():
     now = datetime.now()
     for domain_obj_name in domain_obj_names[::-1]:
         table = Table(domain_obj_name, metadata, autoload=True)
-        rows = migrate_engine.execute(table.select())
         migrate_engine.execute(table.update(values={table.c.created:now}))
 
 def downgrade():
