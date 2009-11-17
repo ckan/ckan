@@ -110,3 +110,37 @@ class TestMigrate08(object):
             assert pkg.revision_id == revs[1].id or pkg.revision_id == revs[0].id, '%s!=%s' % (pkg.revision_id, revs[0].id)
             assert pkg.revision == revs[0] or pkg.revision == revs[1]
 
+def set_version(version):
+    vtable = model.version_table
+    update = vtable.update(values={'version': version})
+    model.metadata.bind.execute(update)
+    check_version(version)
+
+def check_version(version):
+    import migrate.versioning.api as migrate
+    dbversion = migrate.db_version(model.metadata.bind.url,
+            model.repo.migrate_repository)
+    assert dbversion == version, dbversion
+
+class TestMigrate09(object):
+    # NB Run this with model code still at v8
+    @classmethod
+    def setup_class(self):
+        from ckan.lib.cli import CreateTestData
+
+        model.repo.rebuild_db()
+        CreateTestData.create() # assumes model code at v8
+
+        set_version(8)
+        model.repo.upgrade_db(9)
+        check_version(9)
+
+    def test_1(self):
+        # Now run this with model code at v9
+        users = model.User.query.all()
+        assert users
+        for user in users:
+            assert user.created
+
+        model.Session.remove()
+    

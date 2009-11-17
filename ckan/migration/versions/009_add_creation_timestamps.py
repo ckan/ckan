@@ -9,18 +9,17 @@ metadata = MetaData(migrate_engine)
 domain_obj_names = ['rating', 'group', 'user']
 
 def upgrade():
-    # Add the column
-    import ckan.model as model
+    # Use sql instead of migrate.changeset because user and group are sql
+    # reserved words and migrate doesn't quote them.
     for domain_obj_name in domain_obj_names:
-        user_sql = 'ALTER TABLE "%s" ADD created TIMESTAMP WITHOUT TIME ZONE' % domain_obj_name
-        model.Session.execute(user_sql)
-    model.repo.commit_and_remove()
+        sql = 'ALTER TABLE "%s" ADD created TIMESTAMP WITHOUT TIME ZONE' % domain_obj_name
+        migrate_engine.execute(sql)
 
-    # Initialise existing
-    for domain_obj in [model.Rating, model.Group, model.User]:
-        for obj in domain_obj.query.all():
-            obj.created = datetime.now()
-    model.repo.commit_and_remove()
+    now = datetime.now()
+    for domain_obj_name in domain_obj_names[::-1]:
+        table = Table(domain_obj_name, metadata, autoload=True)
+        rows = migrate_engine.execute(table.select())
+        migrate_engine.execute(table.update(values={table.c.created:now}))
 
 def downgrade():
     raise NotImplementedError()
