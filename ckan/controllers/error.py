@@ -24,7 +24,7 @@ class ErrorController(BaseController):
         page = ckan_template % \
             dict(prefix=request.environ.get('SCRIPT_NAME', ''),
                  code=cgi.escape(request.GET.get('code', str(response.status_int))),
-                 message=h.literal(response.body) or cgi.escape(request.GET.get('message')))
+                 message=h.literal(response.body) or cgi.escape(request.GET.get('message', '')))
         return page
 
     def img(self, id):
