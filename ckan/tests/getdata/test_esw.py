@@ -1,7 +1,6 @@
 import ckan.model as model
 import ckan.getdata.esw as esw
 
-import ckanclient
 
 test_data='ckan/tests/getdata/samples/esw.txt'
 test_data2='ckan/tests/getdata/samples/data4nr2.csv'
@@ -120,11 +119,17 @@ def check_package_data(pkgs, get_):
     assert get_(pkgs[2], 'groups') == ['semanticweb'], get_(pkgs[2], 'groups')
     assert get_(pkgs[0], 'groups') == ['semanticweb'], get_(pkgs[0], 'groups')
 
+# This has extra external dependencies
+# Disable until we find a better way to selectively run tests
+__test__ = False
+
+
 # To run this test, supply a suitable test host and then
 # uncomment it.
 class _TestLoadViaRest:
     @classmethod
     def setup_class(self):
+        import ckanclient
         base_location = 'http://%s/api/rest' % CKAN_HOST
         self.ckan = ckanclient.CkanClient(base_location=base_location, api_key=API_KEY)
 
