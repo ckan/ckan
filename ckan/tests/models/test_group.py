@@ -37,6 +37,6 @@ class TestGroup(object):
         assert grp.title == u'Russian Group'
         anna = model.Package.by_name(u'annakarenina')
         war = model.Package.by_name(u'warandpeace')
-        assert set(grp.packages) == set([anna, war]), grp.packages
+        assert grp.packages == [anna, war], grp.packages
         assert grp in anna.groups
 
