@@ -14,7 +14,8 @@ EXTENSIONS = [CSV_EXTENSION, XL_EXTENSION]
 
 DEFAULT_USER = 'annafan'
 
-class TestImporter(TestController):
+# Only run this if xlrd is installed!
+class _TestImporter(TestController):
 
     @classmethod
     def setup_class(self):

@@ -42,8 +42,9 @@ class _Test0FilesCreation(TestController):
             for extension in EXTENSIONS:
                 filepath = TEST_FILES_DIR + filename + extension
                 assert os.path.exists(filepath), filepath
-    
-class Test1Import(TestController):
+
+# To run this test, import xlrd
+class _Test1Import(TestController):
     @classmethod
     def setup_class(self):
         model.Session.remove()

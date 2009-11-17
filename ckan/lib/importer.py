@@ -1,6 +1,5 @@
 import StringIO
 
-import xlrd
 import csv
 
 import ckan.model as model
@@ -51,6 +50,8 @@ class CsvData:
 
 class XlData:
     def __init__(self, logger, filepath=None, buf=None):
+        import xlrd
+
         assert filepath or buf
         assert not (filepath and buf)
         self._logger = logger
