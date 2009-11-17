@@ -1,0 +1,37 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+  
+  <py:def function="page_title">User - Edit - ${c.user}</py:def>
+
+  <div py:match="content">
+    <h2>
+      Edit User: ${c.user}
+      <a href="#preview" py:if="c.preview">(skip to preview)</a>
+    </h2>
+
+    <form action="" method="post"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      >
+
+      <label for="log_message">About user:</label>
+      <p class="desc">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.</p>
+      <textarea id="about" rows="5" name="about" cols="60">${c.user_about}</textarea>
+      <div>
+        <input name="preview" type="submit" value="Preview" />
+        ${h.submit('commit', 'Commit')}
+      </div>
+    </form>
+
+
+    <div id="preview" style="margin-left: 20px;" py:if="c.preview">
+      <hr />
+      <h2>Preview</h2>
+      <div style="border: 2px dashed red; padding: 5px;"> 
+        ${c.preview}
+      </div>
+    </div>
+  </div>
+
+  <xi:include href="layout.html" />
+</html>

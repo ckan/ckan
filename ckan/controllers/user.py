@@ -1,3 +1,6 @@
+import genshi
+
+import ckan.misc
 from ckan.lib.base import *
 
 def login_form():
@@ -19,6 +22,7 @@ class UserController(BaseController):
             h.redirect_to(controller='user', action='login', id=None)
         c.read_user = user.name
         c.is_myself = user.name == c.user
+        c.about_formatted = self._format_about(user.about)
         revisions_q = model.Revision.query.filter_by(author=user.name)
         c.num_edits = revisions_q.count()
         c.num_pkg_admin = model.PackageRole.query.filter_by(user=user, role=model.Role.ADMIN).count()
@@ -50,4 +54,35 @@ class UserController(BaseController):
             user = model.User.by_name(c.user)
             c.api_key = user.apikey
         return render('user/apikey')
+
+    def edit(self):
+        # logged in
+        if not c.user:
+            abort(401)
+        user = model.User.by_name(c.user)
+        if not 'commit' in request.params and not 'preview' in request.params:
+            c.user_about = user.about
+        elif 'preview' in request.params:
+            about = request.params.getone('about')
+            c.preview = self._format_about(about)
+            c.user_about = about
+        elif 'commit' in request.params:
+            about = request.params.getone('about')
+            try:
+                rev = model.repo.new_revision()
+                rev.author = c.author
+                rev.message = 'Changed user details'
+                user.about = about
+            except Exception, inst:
+                model.Session.rollback()
+                raise
+            else:
+                model.Session.commit()
+            h.redirect_to(controller='user', action='read', id=user.id)
+            
+        return render('user/edit')
+        
+    def _format_about(self, about):
+        about_formatted = ckan.misc.MarkdownFormat().to_html(about)
+        return genshi.HTML(about_formatted)        
 

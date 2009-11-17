@@ -15,6 +15,16 @@
       <p><a href="${h.url_for(controller='user', action='apikey')}">View your API key</a></p>
     </py:if>
 
+    <h3>About</h3>
+    <div>
+      ${c.about_formatted}
+    </div>
+    <div>
+      <py:if test="c.is_myself">
+        <p><a href="${h.url_for(controller='user', action='edit')}">Edit</a></p>
+      </py:if>
+    </div>
+
     <h3>Activity</h3>
     <ul>
       <li><strong>Number of edits:</strong> ${c.num_edits}</li>

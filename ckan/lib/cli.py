@@ -250,7 +250,7 @@ class CreateTestData(CkanCommand):
         roger.packages = [pkg1]
         # authz
         joeadmin = model.User(name=u'joeadmin')
-        annafan = model.User(name=u'annafan')
+        annafan = model.User(name=u'annafan', about=u'I love reading Annakarenina')
         russianfan = model.User(name=u'russianfan')
         testsysadmin = model.User(name=u'testsysadmin')
         model.repo.commit_and_remove()

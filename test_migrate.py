@@ -2,6 +2,8 @@
 import os
 import pylons
 
+from sqlalchemy import *
+
 def load_config(filename):
     print 'loading ...'
     from paste.deploy import appconfig
@@ -130,8 +132,8 @@ class TestMigrate09(object):
 
         model.repo.rebuild_db()
         CreateTestData.create() # assumes model code at v8
-
         set_version(8)
+        
         model.repo.upgrade_db(9)
         check_version(9)
 
@@ -144,3 +146,21 @@ class TestMigrate09(object):
 
         model.Session.remove()
     
+class TestMigrate10(object):
+    # NB Run this with model code still at v9
+    @classmethod
+    def setup_class(self):
+        from ckan.lib.cli import CreateTestData
+
+        model.repo.rebuild_db()
+        CreateTestData.create() # assumes model code at v9
+        set_version(9)
+        
+        model.repo.upgrade_db(10)
+        check_version(10)
+
+##    def test_1(self):
+##        user = Table('user', metadata, autoload=True)
+##        rows = migrate_engine.execute(user.select())
+##        for row in rows:
+##            assert 'about' in row.keys(), row
