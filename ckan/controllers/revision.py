@@ -72,20 +72,12 @@ class RevisionController(BaseController):
         if 'diff' not in request.params or 'oldid' not in request.params:
             abort(400)
         pkg = model.Package.by_name(id)
-        rev_ids=[request.params.getone('diff'),
-                 request.params.getone('oldid')]
-        prs = []
-        for package_revision in pkg.all_revisions[::-1]: # i.e. oldest first
-            if package_revision.revision_id == rev_ids[0]:
-                prs.append(package_revision)
-            if package_revision.revision_id == rev_ids[1]:
-                prs.append(package_revision)                
-
-        assert len(prs) == 2
-            
-        c.diff = model.repo.diff_object(pkg, prs[0], prs[1])
+        c.revision_from = model.Revision.query.get(
+            request.params.getone('oldid'))
+        c.revision_to = model.Revision.query.get(
+            request.params.getone('diff'))
+        c.diff = pkg.diff(c.revision_to, c.revision_from)
         c.pkg = pkg
-        c.prs = prs
         return render('revision/diff')
 
     def _has_purge_permissions(self):
