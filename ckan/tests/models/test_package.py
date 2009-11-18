@@ -197,9 +197,12 @@ class TestPackageTagSearch:
     @classmethod 
     def setup_class(self):
         CreateTestData.create()
+
         model.repo.new_revision()
+        self.orderedfirst = u'000-zzz'
+        # tag whose association will get deleted
         self.tagname = u'russian-tag-we-will-delete'
-        tag3 = model.Tag(self.tagname)
+        tag3 = model.Tag(name=self.tagname)
         pkg = model.Package.by_name(u'annakarenina')
         pkg.tags.append(tag3)
         model.repo.commit_and_remove()
@@ -209,6 +212,12 @@ class TestPackageTagSearch:
         # we aren't guaranteed it is last ...
         idx = [ t.name for t in pkg.tags].index(self.tagname)
         del pkg.tags[idx]
+        # now do a tag for ordering
+        tagordered = model.Tag(name=self.orderedfirst)
+        wap = model.Package.by_name(u'warandpeace')
+        # do them the wrong way round
+        tagordered.packages.append(wap)
+        tagordered.packages.append(pkg)
         model.repo.commit_and_remove()
 
     @classmethod 
@@ -219,7 +228,7 @@ class TestPackageTagSearch:
     def test_0_deleted_package_tags(self):
         pkg = model.Package.by_name(u'annakarenina')
         tag = model.Tag.by_name(self.tagname)
-        assert len(pkg.tags) == 2
+        assert len(pkg.tags) == 3
         assert len(tag.packages) == 0
 
     def test_1_tag_search_1(self):
@@ -234,6 +243,13 @@ class TestPackageTagSearch:
     def test_1_tag_search_3(self):
         out = list(model.Tag.search_by_name(u's'))
         assert len(out) == 3
+    
+    # this (correctly) fails (ticket:195)
+    def _test_alphabetical_ordering(self):
+        pkg = model.Package.by_name(u'annakarenina')
+        tag = pkg.tags[0]
+        assert tag.name == self.orderedfirst, pkg.tags
+        assert tag.packages[0].name == 'annakarenina', tag.packages
 
 
 class TestPackageRevisions:
