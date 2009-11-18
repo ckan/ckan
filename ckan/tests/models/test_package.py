@@ -255,3 +255,41 @@ class TestTagSearch:
         q = model.Package.tag_search(q, u'russian')
         q = model.Package.tag_search(q, u'random')
         assert q.count() == 0, q.all()
+
+class TestRevisions:
+    @classmethod
+    def setup_class(self):
+        model.Session.remove()
+        self.name = u'revisiontest'
+
+        # create pkg
+        self.notes = [u'Written by Puccini', u'Written by Rossini', u'Not written at all', u'Written again', u'Written off']
+        rev = model.repo.new_revision()
+        self.pkg1 = model.Package(name=self.name)
+        self.pkg1.notes = self.notes[0]
+        model.repo.commit_and_remove()
+
+        # edit pkg
+        for i in range(5)[1:]:
+            rev = model.repo.new_revision()
+            pkg1 = model.Package.by_name(self.name)
+            pkg1.notes = self.notes[i]
+            model.repo.commit_and_remove()
+
+        self.pkg1 = model.Package.by_name(self.name)        
+
+    @classmethod
+    def teardown_class(self):
+        rev = model.repo.new_revision()
+        pkg1 = model.Package.by_name(self.name)
+        pkg1.purge()
+        model.repo.commit_and_remove()
+
+    def test_1_all_revisions(self):
+        all_rev = self.pkg1.all_revisions
+        num_notes = len(self.notes)
+        assert len(all_rev) == num_notes, len(all_rev)
+        for i, rev in enumerate(all_rev):
+            assert rev.notes == self.notes[num_notes - i - 1], '%s != %s' % (rev.notes, self.notes[i])
+
+
