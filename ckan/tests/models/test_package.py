@@ -1,9 +1,6 @@
-# needed for config to be set and db access to work
 from ckan.tests import *
-import ckan.exceptions
 import ckan.model as model
 
-from datetime import datetime
 
 class TestLicense:
     name = u'testlicense'
@@ -13,8 +10,7 @@ class TestLicense:
         lic = model.License.by_name(self.name)
         if lic:
             lic.purge()
-        model.Session.commit()
-        model.Session.remove()
+        model.repo.commit_and_remove()
 
     def test_license_names(self):
         all = model.LicenseList.all_formatted
@@ -31,7 +27,6 @@ class TestLicense:
 
 
 class TestPackage:
-
     @classmethod
     def setup_class(self):
         self.name = u'geodata'
@@ -196,67 +191,52 @@ class TestPackageWithLicense:
         out = pkg.license.name 
         assert out == self.licname2
 
-class TestTag:
 
-    @classmethod
-    def setup_class(self):
-        model.Session.clear()
-        model.Session.begin()
-        model.Tag(name=u'russian')
-        model.Tag(name=u'something')
 
-    @classmethod
-    def teardown_class(self):
-        model.Session.rollback()
-        model.Session.remove()
-
-    def test_search_1(self):
-        out = list(model.Tag.search_by_name(u'russian'))
-        assert len(out) == 1
-        assert out[0].name == 'russian'
-
-    def test_search_2(self):
-        out = list(model.Tag.search_by_name(u'us'))
-        assert len(out) == 1
-
-    def test_search_3(self):
-        out = list(model.Tag.search_by_name(u's'))
-        assert len(out) == 2
-
-class TestTagSearch:
+class TestPackageTagSearch:
     @classmethod 
     def setup_class(self):
         CreateTestData.create()
+        model.repo.new_revision()
+        self.tagname = u'russian-tag-we-will-delete'
+        tag3 = model.Tag(self.tagname)
+        pkg = model.Package.by_name(u'annakarenina')
+        pkg.tags.append(tag3)
+        model.repo.commit_and_remove()
+
+        model.repo.new_revision()
+        pkg = model.Package.by_name(u'annakarenina')
+        # we aren't guaranteed it is last ...
+        idx = [ t.name for t in pkg.tags].index(self.tagname)
+        del pkg.tags[idx]
+        model.repo.commit_and_remove()
 
     @classmethod 
     def teardown_class(self):
-        CreateTestData.delete()
+        model.Session.remove()
+        model.repo.rebuild_db()
 
-    def test_1_basic(self):
-        q = model.Package.query
-        q = model.Package.tag_search(q, u'russian')
-        assert q.count() == 2
+    def test_0_deleted_package_tags(self):
+        pkg = model.Package.by_name(u'annakarenina')
+        tag = model.Tag.by_name(self.tagname)
+        assert len(pkg.tags) == 2
+        assert len(tag.packages) == 0
 
-        q = model.Package.query
-        q = model.Package.tag_search(q, u'tolstoy')
-        assert q.count() == 1
+    def test_1_tag_search_1(self):
+        out = list(model.Tag.search_by_name(u'russian'))
+        assert len(out) == 2
+        assert out[0].name == 'russian'
 
-        q = model.Package.query
-        q = model.Package.tag_search(q, u'russ')
-        assert q.count() == 2
-        
-    def test_2_multiple_tags(self):
-        q = model.Package.query
-        q = model.Package.tag_search(q, u'russian')
-        q = model.Package.tag_search(q, u'tolstoy')
-        assert q.count() == 1, q.all()
+    def test_1_tag_search_2(self):
+        out = list(model.Tag.search_by_name(u'us'))
+        assert len(out) == 2
 
-        q = model.Package.query
-        q = model.Package.tag_search(q, u'russian')
-        q = model.Package.tag_search(q, u'random')
-        assert q.count() == 0, q.all()
+    def test_1_tag_search_3(self):
+        out = list(model.Tag.search_by_name(u's'))
+        assert len(out) == 3
 
-class TestRevisions:
+
+class TestPackageRevisions:
     @classmethod
     def setup_class(self):
         model.Session.remove()

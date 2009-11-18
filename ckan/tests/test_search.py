@@ -11,6 +11,17 @@ class TestSearch(object):
     def setup_class(self):
         model.Session.remove()
         CreateSearchTestData.create()
+
+        # now remove a tag so we can test search with deleted tags
+        model.repo.new_revision()
+        gils = model.Package.by_name(u'gils')
+        # an existing tag used only by gils
+        self.tagname = u'registry'
+        # we aren't guaranteed it is last ...
+        idx = [ t.name for t in gils.tags].index(self.tagname)
+        del gils.tags[idx]
+        model.repo.commit_and_remove()
+
         self.gils = model.Package.by_name(u'gils')
         self.war = model.Package.by_name(u'warandpeace')
         self.russian = model.Tag.by_name(u'russian')
@@ -18,7 +29,6 @@ class TestSearch(object):
 
     @classmethod
     def teardown_class(self):
-        # CreateTestData.delete()
         model.Session.remove()
         model.repo.rebuild_db()
         model.Session.remove()
@@ -114,6 +124,11 @@ class TestSearch(object):
 
         result = Search().search(u'tags:wildlife')
         assert self._pkg_names(result) == 'us-gov-images', self._pkg_names(result)
+
+    def test_tags_token_simple_with_deleted_tag(self):
+        # registry has been deleted
+        result = Search().search(u'tags:registry')
+        assert self._pkg_names(result) == '', self._pkg_names(result)
 
     def test_tags_token_multiple(self):
         result = Search().search(u'tags:country-sweden tags:format-pdf')

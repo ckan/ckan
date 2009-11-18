@@ -135,14 +135,6 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         text_query = text_query
         return self.query.filter(self.name.contains(text_query.lower()))
 
-    @classmethod
-    def tag_search(self, query, term):
-        register = self
-        make_like = lambda x,y: x.ilike('%' + y + '%')
-        new_query = query.join(['package_tags', 'tag'], aliased=True)
-        new_query = new_query.filter(make_like(Tag.name, term))
-        return new_query
-
     def add_tag_by_name(self, tagname):
         if not tagname:
             return
@@ -238,22 +230,23 @@ mapper(Package, package_table, properties={
     # second commit happens in which the package_id is correctly set.
     # However after first commit PackageTag does not have Package and
     # delete-orphan kicks in to remove it!
-    # 
-    # do we want lazy=False here? used in:
-    # <http://www.sqlalchemy.org/trac/browser/sqlalchemy/trunk/examples/association/proxied_association.py>
     'package_tags':relation(PackageTag, backref='package',
         cascade='all, delete', #, delete-orphan',
-        lazy=False)
+        )
     },
     order_by=package_table.c.name,
     extension = vdm.sqlalchemy.Revisioner(package_revision_table)
     )
 
-mapper(Tag, tag_table,
-    order_by=tag_table.c.name)
+mapper(Tag, tag_table, properties={
+    'package_tags':relation(PackageTag, backref='tag',
+        cascade='all, delete, delete-orphan',
+        )
+    },
+    order_by=tag_table.c.name
+    )
 
 mapper(PackageTag, package_tag_table, properties={
-    'tag':relation(Tag, backref='package_tags'),
     },
     order_by=package_tag_table.c.id,
     extension = vdm.sqlalchemy.Revisioner(package_tag_revision_table)
@@ -270,4 +263,6 @@ from vdm.sqlalchemy.base import add_stateful_versioned_m2m
 vdm.sqlalchemy.add_stateful_versioned_m2m(Package, PackageTag, 'tags', 'tag',
         'package_tags')
 vdm.sqlalchemy.add_stateful_versioned_m2m_on_version(PackageRevision, 'tags')
+vdm.sqlalchemy.add_stateful_versioned_m2m(Tag, PackageTag, 'packages', 'package',
+        'package_tags')
 
