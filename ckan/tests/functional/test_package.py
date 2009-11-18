@@ -699,4 +699,57 @@ class TestNonActivePackages(TestController):
         assert '0 packages found' in results_page, (self.non_active_name, results_page)
 
 
-        
+class TestRevisions(TestController):
+    @classmethod
+    def setup_class(self):
+        model.Session.remove()
+        self.name = u'revisiontest1'
+
+        # create pkg
+        self.notes = [u'Written by Puccini', u'Written by Rossini', u'Not written at all', u'Written again', u'Written off']
+        rev = model.repo.new_revision()
+        self.pkg1 = model.Package(name=self.name)
+        self.pkg1.notes = self.notes[0]
+        model.setup_default_user_roles(self.pkg1)
+        model.repo.commit_and_remove()
+
+        # edit pkg
+        for i in range(5)[1:]:
+            rev = model.repo.new_revision()
+            pkg1 = model.Package.by_name(self.name)
+            pkg1.notes = self.notes[i]
+            model.repo.commit_and_remove()
+
+        self.pkg1 = model.Package.by_name(self.name)        
+
+    @classmethod
+    def _teardown_class(self):
+        rev = model.repo.new_revision()
+        pkg1 = model.Package.by_name(self.name)
+        pkg1.purge()
+        model.repo.commit_and_remove()
+    
+    def test_0_read_history(self):
+        offset = url_for(controller='package', action='history', id=self.pkg1.name)
+        res = self.app.get(offset)
+        main_res = self.main_div(res)
+        assert self.pkg1.name in main_res, main_res
+        assert 'radio' in main_res, main_res
+        latest_rev = self.pkg1.all_revisions[0]
+        oldest_rev = self.pkg1.all_revisions[-1]
+        first_radio_checked_html = '<input checked="checked" id="selected1_%s"' % latest_rev.revision_id
+        assert first_radio_checked_html in main_res, '%s %s' % (first_radio_checked_html, main_res)
+        last_radio_checked_html = '<input checked="checked" id="selected2_%s"' % oldest_rev.revision_id
+        assert last_radio_checked_html in main_res, '%s %s' % (last_radio_checked_html, main_res)
+
+    def test_1_do_diff(self):
+        offset = url_for(controller='package', action='history', id=self.pkg1.name)
+        res = self.app.get(offset)
+        form = res.forms[0]
+        res = form.submit()
+        res = res.follow()
+        main_res = self.main_div(res)
+        assert 'error' not in main_res.lower(), main_res
+        assert 'Revision Differences' in main_res, main_res
+        assert self.pkg1.name in main_res, main_res
+        assert '<tr><td>notes</td><td><pre>- Written by Puccini\n+ Written off</pre></td></tr>' in main_res, main_res
