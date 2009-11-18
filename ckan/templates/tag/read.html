@@ -9,7 +9,7 @@
     <h2>Tag: ${c.tag.name}</h2>
     <p>Packages tagged with <strong>${c.tag.name}</strong>:</p>
     <ul>
-    <py:for each="pkg in c.tag.packages">
+    <py:for each="pkg in c.tag.packages_ordered">
       <li>
         ${package_summary(pkg)}
       </li>

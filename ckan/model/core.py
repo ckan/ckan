@@ -150,6 +150,11 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         # self.tags.delete(tag=tag)
         pass
 
+    @property
+    def tags_ordered(self):
+        ourcmp = lambda tag1, tag2: cmp(tag1.name, tag2.name)
+        return sorted(self.tags, cmp=ourcmp)
+
     def isopen(self):
         if self.license and self.license.isopen():
             return True
@@ -190,6 +195,11 @@ class Tag(DomainObject):
     def search_by_name(self, text_query):
         text_query = text_query.strip().lower()
         return self.query.filter(self.name.contains(text_query))
+
+    @property
+    def packages_ordered(self):
+        ourcmp = lambda pkg1, pkg2: cmp(pkg1.name, pkg2.name)
+        return sorted(self.packages, cmp=ourcmp)
 
     def __repr__(self):
         return '<Tag %s>' % self.name

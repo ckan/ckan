@@ -244,12 +244,11 @@ class TestPackageTagSearch:
         out = list(model.Tag.search_by_name(u's'))
         assert len(out) == 3
     
-    # this (correctly) fails (ticket:195)
-    def _test_alphabetical_ordering(self):
+    def test_alphabetical_ordering(self):
         pkg = model.Package.by_name(u'annakarenina')
-        tag = pkg.tags[0]
+        tag = pkg.tags_ordered[0]
         assert tag.name == self.orderedfirst, pkg.tags
-        assert tag.packages[0].name == 'annakarenina', tag.packages
+        assert tag.packages_ordered[0].name == 'annakarenina', tag.packages
 
 
 class TestPackageRevisions:

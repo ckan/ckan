@@ -362,7 +362,7 @@ class PackageController(BaseController):
             if fs.tags.value:
                 c.pkg_tags = [tag.name for tag in fs.tags.value]
             elif fs.model.tags:
-                c.pkg_tags = [tag.name for tag in fs.model.tags]
+                c.pkg_tags = [tag.name for tag in fs.model.tags_ordered]
             else:
                 c.pkg_tags = []
 ##            if fs.groups.value:
