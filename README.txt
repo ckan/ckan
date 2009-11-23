@@ -108,7 +108,6 @@ previous step.
 
 7. Initialise Database
 
-$ paster db clean --config demo.ckan.net.ini
 $ paster db init --config demo.ckan.net.ini
 
 

@@ -5,6 +5,7 @@ import os
 import ckan.model as model
 from ckan.tests import *
 import ckan.lib.importer as importer
+import ckan.lib.dumper as dumper
 
 TEST_FILES_DIR = 'ckan/tests/misc/'
 TEST_FILE_FULL = 'test_importer_full'
@@ -30,12 +31,12 @@ class _Test0FilesCreation(TestController):
         model.repo.rebuild_db()
         CreateTestData.create()
         full_row_dicts = [pkg_to_xl_dict(pkg) for pkg in [model.Package.by_name(u'annakarenina'), model.Package.by_name(u'warandpeace')]]
-        creators = [ (importer.XlPackagesCreator, XL_EXTENSION),
-                     (importer.CsvPackagesCreator, CSV_EXTENSION),
+        creators = [ (dumper.PackagesXlWriter, XL_EXTENSION),
+                     (dumper.PackagesCsvWriter, CSV_EXTENSION),
                      ]
         for creator, extension in creators:
-            creator(full_row_dicts).save(TEST_FILES_DIR + TEST_FILE_FULL + extension)
-            creator(EXAMPLE_DICTS).save(TEST_FILES_DIR + TEST_FILE_EXAMPLE + extension)
+            creator(full_row_dicts).save(open(TEST_FILES_DIR + TEST_FILE_FULL + extension, 'wb'))
+            creator(EXAMPLE_DICTS).save(open(TEST_FILES_DIR + TEST_FILE_EXAMPLE + extension, 'wb'))
 
     def test_exist(self):
         for filename in (TEST_FILE_EXAMPLE, TEST_FILE_FULL):

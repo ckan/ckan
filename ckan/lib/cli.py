@@ -35,8 +35,10 @@ class ManageDb(CkanCommand):
     db init # create and put in default data
     db clean
     db upgrade
-    db dump {file-path} # dump to a file
+    db dump {file-path} # dump to a file (json)
     db dump-rdf {package-name} {file-path}
+    db simple-dump-csv {file-path}
+    db simple-dump-json {file-path}
     db send-rdf {talis-store} {username} {password}
     db load {file-path} # load from a file
     db load-data4nr {file-path.csv}
@@ -71,6 +73,10 @@ class ManageDb(CkanCommand):
                 model.repo.upgrade_db()
         elif cmd == 'dump' or cmd == 'load':
             self.dump_or_load(cmd)
+        elif cmd == 'simple-dump-csv':
+            self.simple_dump_csv(cmd)
+        elif cmd == 'simple-dump-json':
+            self.simple_dump_json(cmd)
         elif cmd == 'dump-rdf':
             self.dump_rdf(cmd)
         elif cmd == 'send-rdf':
@@ -107,13 +113,13 @@ class ManageDb(CkanCommand):
             print 'Need dump path'
             return
         dump_path = self.args[1]
-        import ckan.lib.converter
-        dumper = ckan.lib.converter.Dumper()
+        import ckan.lib.dumper
+        dumper = ckan.lib.dumper.Dumper()
         verbose = (self.verbose >= 2)
         if cmd == 'load':
-            dumper.load(dump_path, verbose=verbose)
+            dumper.load_json(dump_path, verbose=verbose)
         elif cmd == 'dump':
-            dumper.dump(dump_path, verbose=verbose)
+            dumper.dump_json(dump_path, verbose=verbose)
         else:
             print 'Unknown command', cmd
 
@@ -125,6 +131,24 @@ class ManageDb(CkanCommand):
         import ckan.getdata.data4nr
         data = ckan.getdata.data4nr.Data4Nr()
         data.load_csv_into_db(load_path)
+
+    def simple_dump_csv(self, cmd):
+        if len(self.args) < 2:
+            print 'Need csv file path'
+            return
+        dump_filepath = self.args[1]
+        import ckan.lib.dumper as dumper
+        dump_file = open(dump_filepath, 'w')
+        dumper.SimpleDumper().dump_csv(dump_file)
+
+    def simple_dump_json(self, cmd):
+        if len(self.args) < 2:
+            print 'Need json file path'
+            return
+        dump_filepath = self.args[1]
+        import ckan.lib.dumper as dumper
+        dump_file = open(dump_filepath, 'w')
+        dumper.SimpleDumper().dump_json(dump_file)
 
     def dump_rdf(self, cmd):
         if len(self.args) < 3:
