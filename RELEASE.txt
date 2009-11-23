@@ -1,0 +1,15 @@
+Upgrading ckan.net
+==================
+
+1. [Optional] Increase version number.
+
+See UPGRADE.txt
+
+Release
+=======
+
+1. Ensure version number is correct.
+
+2. Upgrade ckan.net and check it works.
+
+3. PyPI upload.
