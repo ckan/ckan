@@ -56,8 +56,10 @@ mapper(Group, group_table, properties={
     'packages':relation(Package, secondary=package_group_table,
         backref='groups',
         order_by=package_table.c.name
-    )
-})
+    )},
+# Not needed - triggers anyway       
+#    extension = full_search.SearchVectorTrigger(),
+)
 
 mapper(PackageGroup, package_group_table)
 

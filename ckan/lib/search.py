@@ -18,7 +18,7 @@ class SearchOptions:
     search_notes = False
 
     # about presenting the results
-    order_by = 'name'
+    order_by = 'rank'
     all_fields = False
     return_objects = False
 
@@ -141,28 +141,24 @@ class Search:
         return general_terms, field_specific_terms
 
     def _build_package_query(self, general_terms, field_specific_terms):
-        query = model.Package.query
-
-        # Filter by general_terms
         make_like = lambda x,y: x.ilike('%' + y + '%')
-        text_search_fields = DEFAULT_SEARCH_FIELDS
-        if self._options.search_notes:
-            text_search_fields.append('notes')
-        tag_general_terms = []
+        query = model.Package.query
+        query = query.filter(model.package_search_table.c.package_id==model.Package.id)
 
+        # Full search by general_terms (and field specific terms but not by field)
+        terms_set = set()
+        for term_list in field_specific_terms.values():
+            if isinstance(term_list, (list, tuple)):
+                for term in term_list:
+                    terms_set.add(term)
+            else:
+                terms_set.add(term_list)
         for term in general_terms:
-            q = None
-            for field in text_search_fields:
-                if field != 'tags':
-                    attr = getattr(model.Package, field)
-                    q = sqlalchemy.or_(q, make_like(attr, term))
-                else:
-                    query = query.outerjoin(['package_tags', 'tag'], aliased=True)
-                    q = sqlalchemy.or_(q, sqlalchemy.and_(
-                        make_like(model.Tag.name, term),
-                        model.PackageTag.state == model.State.query.filter_by(name='active').one()
-                        ))
-            query = query.filter(q)
+            terms_set.add(term)
+        all_terms = ' '.join(terms_set)
+        query = query.filter('package_search.search_vector '\
+                                       '@@ plainto_tsquery(:terms)')
+        query = query.params(terms=all_terms)
             
         # Filter by field_specific_terms
         for field, terms in field_specific_terms.items():
@@ -184,12 +180,16 @@ class Search:
                 self._update_open_licenses()
             query = query.filter(model.Package.license_id.in_(self._open_licenses))
         if self._options.order_by:
-            model_attr = getattr(model.Package, self._options.order_by)
-            query = query.order_by(model_attr)
+            if self._options.order_by == 'rank':
+                query = query.add_column(sqlalchemy.func.ts_rank_cd(sqlalchemy.text('package_search.search_vector'), sqlalchemy.func.plainto_tsquery(all_terms)))
+                query = query.order_by(sqlalchemy.text('ts_rank_cd_1 DESC'))
+                print query
+            else:
+                model_attr = getattr(model.Package, self._options.order_by)
+                query = query.order_by(model_attr)
 
         query = query.distinct()
         query = query.filter(model.Package.state == model.State.query.filter_by(name='active').one())
-
         return query
 
     def _build_tags_query(self, general_terms):
@@ -211,7 +211,16 @@ class Search:
         query = query.offset(self._options.offset)
         query = query.limit(self._options.limit)
 
-        self._results['results'] = query.all()
+        results = []
+        for result in query:
+            if isinstance(result, tuple) and isinstance(result[0], model.DomainObject):
+                # This is the case for order_by rank due to the add_column.
+                results.append(result[0])
+            else:
+                results.append(result)
+                
+        
+        self._results['results'] = results
 
     def _filter_by_tags_or_groups(self, field, query, value_list):
         for name in value_list:

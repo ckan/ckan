@@ -305,7 +305,7 @@ class CreateSearchTestData(CkanCommand):
               'title':'Government Information Locator Service',
               'url':'',
               'tags':'registry  country-usa  government  federal  gov  workshop-20081101',
-              'groups':'ukgov test1 test2',
+              'groups':'ukgov test1 test2 penguin',
               'license':'OKD Compliant::Other',
               'notes':'''From <http://www.gpoaccess.gov/gils/about.html>
               
@@ -317,7 +317,7 @@ class CreateSearchTestData(CkanCommand):
               'url':'http://www.usa.gov/Topics/Graphics.shtml',
               'download_url':'http://www.usa.gov/Topics/Graphics.shtml',
               'tags':'images  graphics  photographs  photos  pictures  us  usa  america  history  wildlife  nature  war  military  todo-split  gov',
-              'groups':'ukgov test1',
+              'groups':'ukgov test1 penguin',
               'license':'OKD Compliant::Other',
               'notes':'''## About
 
@@ -331,8 +331,8 @@ Collection of links to different US image collections in the public domain.
               'title':'Text of US Federal Cases',
               'url':'http://bulk.resource.org/courts.gov/',
               'download_url':'http://bulk.resource.org/courts.gov/',
-              'tags':'us  courts  case-law  us  courts  case-law  gov  legal  law  access-bulk',
-              'groups':'ukgov test2',
+              'tags':'us  courts  case-law  us  courts  case-law  gov  legal  law  access-bulk  penguins penguin',
+              'groups':'ukgov test2 penguin',
               'license':'OKD Compliant::Creative Commons CCZero',
               'notes':'''### Description
 
@@ -343,7 +343,7 @@ Collection of links to different US image collections in the public domain.
              {'name':'uk-government-expenditure',
               'title':'UK Government Expenditure',
               'tags':'workshop-20081101  uk  gov  expenditure  finance  public  funding',
-              'groups':'ukgov',              
+              'groups':'ukgov penguin',              
               'notes':'''Discussed at [Workshop on Public Information, 2008-11-02](http://okfn.org/wiki/PublicInformation).
 
 Overview is available in Red Book, or Financial Statement and Budget Report (FSBR), [published by the Treasury](http://www.hm-treasury.gov.uk/budget.htm).'''
@@ -351,6 +351,7 @@ Overview is available in Red Book, or Financial Statement and Budget Report (FSB
              {'name':'se-publications',
               'title':'Sweden - Government Offices of Sweden - Publications',
               'url':'http://www.sweden.gov.se/sb/d/574',
+              'groups':'penguin',              
               'tags':'country-sweden  format-pdf  access-www  documents  publications  government  eutransparency',
               'license':'Other::License Not Specified',
               'notes':'''### About
@@ -363,6 +364,7 @@ Not clear.''',
               },
              {'name':'se-opengov',
               'title':'Opengov.se',
+              'groups':'penguin',              
               'url':'http://www.opengov.se/',
               'download_url':'http://www.opengov.se/data/open/',
               'tags':'country-sweden  government  data',

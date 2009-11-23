@@ -104,13 +104,12 @@ Note: To search, there are two ways to provide parameters - you can use either o
 <table class="no-margin">
 <tbody><tr><th> <strong>Key</strong> </th><th> <strong>Value</strong> </th><th> <strong>Example </strong> </th><th> <strong> Notes </strong>         
 
-</th></tr><tr><td> q </td><td> Search-String </td><td> q=geodata<br/> q=gov+sweden <br/> q=%22drug%20abuse%22 </td><td> Criteria to search the package name, title and tags fields for. URL encoded search text. (You can also contatenate words with a '+' symbol in a URL.) Search results must contain all the specified words. Use quotation marks to signify an exact phrase.
+</th></tr><tr><td> q </td><td> Search-String </td><td> q=geodata<br/> q=government+sweden <br/> q=%22drug%20abuse%22 </td><td> Criteria to search the package fields for. URL-encoded search text. (You can also contatenate words with a '+' symbol in a URL.) Search results must contain all the specified words.
 </td></tr><tr><td> qjson </td><td> JSON encoded options </td><td> ['q':'geodata']</td><td> All search parameters can be json-encoded and supplied to this URL parameter as a more flexible alternative.
 </td></tr><tr><td> title, tags, notes, <br/>groups, author, maintainer </td><td> Search-String </td><td> title=uk%20stat&amp;tags&amp;health+census </td><td> search a particular a field
-</td></tr><tr><td> order_by </td><td> field-name (default=name)</td><td> order_by=notes </td><td> Specify the field to sort the results by
+</td></tr><tr><td> order_by </td><td> field-name (default=rank)</td><td> order_by=name </td><td> Specify either rank or the field to sort the results by
 </td></tr><tr><td> offset, limit </td><td> result-int (default offset=0, default limit=20)</td><td> offset=40&amp;limit=20</td><td> Pagination options. Offset is the number of the first result and limit is the number of results to return.
 </td></tr><tr><td> all_fields </td><td> 0 (default) or 1 </td><td> all_fields=1 </td><td> Each matching search result is given as either a package name (0) or the full package record (1).
-</td></tr><tr><td> search_notes </td><td> 0 (default) or 1 </td><td> search_notes=1 </td><td> Specifies search to include the notes field in addition to the default fields.
 </td></tr><tr><td> filter_by_openness </td><td> 0 (default) or 1 </td><td> filter_by_openness=1 </td><td> Filters results by ones which are open.
 </td></tr><tr><td> filter_by_downloadable </td><td> 0 (default) or 1 </td><td> filter_by_downloadable=1 </td><td> Filters results by ones which have a download URL.
 <!--</td></tr><tr><td>  </td><td> </td><td> </td><td>-->

@@ -1,6 +1,7 @@
 from core import *
 from user import user_table, User
 from group import group_table, Group, PackageGroup
+from full_search import package_search_table
 from authz import *
 from extras import PackageExtra, package_extra_table
 from rating import *

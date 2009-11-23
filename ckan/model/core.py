@@ -1,7 +1,7 @@
 import datetime
 
 from meta import *
-
+import full_search
 import vdm.sqlalchemy
 
 ## VDM-specific tables
@@ -242,10 +242,14 @@ mapper(Package, package_table, properties={
     # delete-orphan kicks in to remove it!
     'package_tags':relation(PackageTag, backref='package',
         cascade='all, delete', #, delete-orphan',
-        )
+        ),
+    'package_search':relation(full_search.PackageSearch,
+        cascade='all, delete', #, delete-orphan',
+        )    
     },
     order_by=package_table.c.name,
-    extension = vdm.sqlalchemy.Revisioner(package_revision_table)
+    extension = [vdm.sqlalchemy.Revisioner(package_revision_table),
+                 full_search.SearchVectorTrigger()]
     )
 
 mapper(Tag, tag_table, properties={
@@ -253,13 +257,14 @@ mapper(Tag, tag_table, properties={
         cascade='all, delete, delete-orphan',
         )
     },
-    order_by=tag_table.c.name
+    order_by=tag_table.c.name,
     )
 
 mapper(PackageTag, package_tag_table, properties={
     },
     order_by=package_tag_table.c.id,
-    extension = vdm.sqlalchemy.Revisioner(package_tag_revision_table)
+    extension = [vdm.sqlalchemy.Revisioner(package_tag_revision_table),
+                 full_search.SearchVectorTrigger()],
     )
 
 vdm.sqlalchemy.modify_base_object_mapper(Package, Revision, State)
@@ -275,4 +280,5 @@ vdm.sqlalchemy.add_stateful_versioned_m2m(Package, PackageTag, 'tags', 'tag',
 vdm.sqlalchemy.add_stateful_versioned_m2m_on_version(PackageRevision, 'tags')
 vdm.sqlalchemy.add_stateful_versioned_m2m(Tag, PackageTag, 'packages', 'package',
         'package_tags')
+
 
