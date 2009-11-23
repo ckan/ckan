@@ -183,7 +183,6 @@ class Search:
             if self._options.order_by == 'rank':
                 query = query.add_column(sqlalchemy.func.ts_rank_cd(sqlalchemy.text('package_search.search_vector'), sqlalchemy.func.plainto_tsquery(all_terms)))
                 query = query.order_by(sqlalchemy.text('ts_rank_cd_1 DESC'))
-                print query
             else:
                 model_attr = getattr(model.Package, self._options.order_by)
                 query = query.order_by(model_attr)
