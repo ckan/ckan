@@ -21,7 +21,7 @@ setup(
     install_requires=[
         # probably best to get HEAD from repo - see pip-requirements.txt
         'vdm>=0.5a',
-        'ckanclient>=0.1',
+        'ckanclient>=0.1,<0.2.99',
         'Pylons>=0.9.7.0,<0.9.7.99',
         'Genshi>=0.4',
         'SQLAlchemy>=0.4.8,<=0.4.99',
