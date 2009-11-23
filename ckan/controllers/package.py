@@ -96,7 +96,7 @@ class PackageController(BaseController):
         c.pkg = model.Package.by_name(id)
         if not c.pkg:
             abort(404, '404 Not Found')
-        c.revisions = c.pkg.all_revisions
+        c.pkg_revisions = c.pkg.all_revisions
         return render('package/history')
 
     def new(self):
