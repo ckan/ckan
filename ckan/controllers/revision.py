@@ -68,6 +68,18 @@ class RevisionController(BaseController):
         c.pkgtags = [ pkgtag.continuity for pkgtag in pkgtags ]
         return render('revision/read')
 
+    def diff(self, id=None):
+        if 'diff' not in request.params or 'oldid' not in request.params:
+            abort(400)
+        pkg = model.Package.by_name(id)
+        c.revision_from = model.Revision.query.get(
+            request.params.getone('oldid'))
+        c.revision_to = model.Revision.query.get(
+            request.params.getone('diff'))
+        c.diff = pkg.diff(c.revision_to, c.revision_from)
+        c.pkg = pkg
+        return render('revision/diff')
+
     def _has_purge_permissions(self):
         authorizer = ckan.authz.Authorizer()
         action = model.Action.PURGE

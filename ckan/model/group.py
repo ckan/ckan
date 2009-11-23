@@ -1,6 +1,6 @@
 from datetime import datetime
 from meta import *
-from core import DomainObject, Package
+from core import DomainObject, Package, package_table
 from types import make_uuid
 
 package_group_table = Table('package_group', metadata,
@@ -51,9 +51,13 @@ class Group(DomainObject):
     def __repr__(self):
         return '<Group %s>' % self.name
 
+
 mapper(Group, group_table, properties={
-    'packages':relation(Package, secondary=package_group_table, backref='groups')
-    })
+    'packages':relation(Package, secondary=package_group_table,
+        backref='groups',
+        order_by=package_table.c.name
+    )
+})
 
 mapper(PackageGroup, package_group_table)
-    
+

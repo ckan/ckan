@@ -5,26 +5,42 @@
 
   <div py:match="content">
     <h2>
-      <a href="${h.url_for(controller='package',action='read',id=c.pkg.name)}">${c.pkg.name}</a> - History
+      History - <a href="${h.url_for(controller='package',action='read',id=c.pkg.name)}">${c.pkg.name}</a>
     </h2>
 
     <h3>Revisions</h3>
-    <table>
-      <tr>
-        <th>Revision</th><th>Timestamp</th><th>Author</th><th>Log Message</th>
-      </tr>
-      <py:for each="rev in [ pkgrev.revision for pkgrev in c.revisions ]">
-      <tr>
-        <td>
-          <a href="${h.url_for(controller='revision',action='read',id=rev.id)}">${rev.id}</a>
-        </td>
-        <td>${rev.timestamp}</td>
-        <td>${rev.author}</td>
-        <td>${rev.message}</td>
-      </tr> 
-      </py:for>
-    </table>
-	</div>
+    <form action="diff" method="post"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      > 
+
+      <h3 py:if="c.error" class="form-errors">
+        Error: ${c.error}
+      </h3>
+
+      <input type="hidden" name="pkg_name" value="${c.pkg.name}"/>
+
+      <table>
+        <tr>
+          <th>${h.submit('diff', 'Compare')}</th><th>Revision</th><th>Timestamp</th><th>Author</th><th>Log Message</th>
+        </tr>
+        <py:for each="index, rev in enumerate([ pkg_rev.revision for pkg_rev in c.pkg_revisions ])">
+          <tr>
+            <td>
+              ${h.radio("selected1", rev.id, checked=(index == 0))}
+              ${h.radio("selected2", rev.id, checked=(index == len(c.pkg_revisions)-1))}
+            </td>
+            <td>
+              <a href="${h.url_for(controller='revision',action='read',id=rev.id)}">${rev.id}</a>
+            </td>
+            <td>${rev.timestamp}</td>
+            <td>${rev.author}</td>
+            <td>${rev.message}</td>
+          </tr> 
+        </py:for>
+      </table>
+    </form>
+  </div> <!-- content -->
 
   <xi:include href="layout.html" />
 </html>
