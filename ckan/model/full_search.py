@@ -33,7 +33,7 @@ class SearchVectorTrigger(sqlalchemy.orm.interfaces.MapperExtension):
         document_a = ' '.join((pkg_dict['name'] or '', pkg_dict['title'] or ''))
         document_b = ' '.join((pkg_dict['notes'] or '', pkg_dict['tags'] or '', pkg_dict['groups'] or ''))
         def make_document_safe(document):
-            return document.replace('\'', '').replace('"', '')
+            return document.replace('\'', '').replace('"', '').replace('%', '')
         document_a = make_document_safe(document_a)
         document_b = make_document_safe(document_b)
         # Create weighted vector
@@ -45,7 +45,7 @@ class SearchVectorTrigger(sqlalchemy.orm.interfaces.MapperExtension):
         if not pkgs:
             sql = 'INSERT INTO package_search VALUES (%i, %s)' % (pkg_dict['id'], vector)
         else:
-            sql = 'UPDATE package_search SET search_vector=%s WHERE package_id=%i' % (vector, pkg_dict['id'])
+            sql = 'UPDATE package_search SET search_vector=%s WHERE package_id=%i' % (vector, pkg_dict['id'])    
         res = engine.execute(sql)
         # uncomment this to print lexemes
         # sql = 'SELECT package_id, search_vector FROM package_search WHERE package_id = %i' % pkg_dict['id']
