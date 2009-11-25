@@ -562,11 +562,10 @@ class TestData(CkanCommand):
         assert pkg.license.name in res, res
 
         tag = pkg.tags[0]
-        res = res.click(tag.name)
-        print '* Checking tag %s' % res.request.url
-        assert 'Tag: %s' % str(tag.name) in res, res
-        assert str(pkg.name) in res, res
-        
+        res = check_page('/tag/read/%s' % tag.name, 
+                ('Tag: %s' % str(tag.name), str(pkg.name))
+            )
+
         res = check_page('/package/new', 'Register a New Package')
         
         res = check_page('/package/list', 'Packages')
