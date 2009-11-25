@@ -22,7 +22,7 @@ class SearchVectorTrigger(sqlalchemy.orm.interfaces.MapperExtension):
 
         for pkg in pkgs:
             pkg_dict = pkg.as_dict()
-            self._update_vector(pkg_dict, engine)
+            self.update_package_vector(pkg_dict, engine)
 
     def update_package_vector(self, pkg_dict, engine):
         if isinstance(pkg_dict['tags'], (list, tuple)):

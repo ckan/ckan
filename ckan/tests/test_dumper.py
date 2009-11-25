@@ -23,7 +23,7 @@ class TestSimpleDump(TestController):
 
     def test_simple_dump_csv(self):
         dump_file = tempfile.TemporaryFile()
-        simple_dumper.dump_csv(dump_file)
+        simple_dumper.dump(dump_file, 'csv')
         dump_file.seek(0)
         res = dump_file.read()
         assert 'annakarenina' in res, res
@@ -33,7 +33,7 @@ class TestSimpleDump(TestController):
 
     def test_simple_dump_json(self):
         dump_file = tempfile.TemporaryFile()
-        simple_dumper.dump_json(dump_file)
+        simple_dumper.dump(dump_file, 'json')
         dump_file.seek(0)
         res = dump_file.read()
         assert 'annakarenina' in res, res

@@ -8,9 +8,19 @@ import ckan.model
 
 class SimpleDumper(object):
     '''Dumps just package data but including tags, groups, license text etc'''
-    def dump_csv(self, dump_file_obj):
-        active = model.State.query.filter_by(name='active').one()
-        query = model.Package.query.filter_by(state=active)
+    def dump(self, dump_file_obj, format='json', query=None):
+        if query is None:
+            query = model.Package.query
+            active = model.State.query.filter_by(name='active').one()
+            query = query.filter_by(state=active)
+        if format == 'csv':
+            self.dump_csv(dump_file_obj, query)
+        elif format == 'json':
+            self.dump_json(dump_file_obj, query)
+        else:
+            raise Exception('Unknown format: %s' % format)
+
+    def dump_csv(self, dump_file_obj, query):
         row_dicts = []
         for pkg in query:
             pkg_dict = pkg.as_dict()
@@ -26,9 +36,7 @@ class SimpleDumper(object):
         writer = PackagesCsvWriter(row_dicts)
         writer.save(dump_file_obj)
 
-    def dump_json(self, dump_file_obj):
-        active = model.State.query.filter_by(name='active').one()
-        query = model.Package.query.filter_by(state=active)
+    def dump_json(self, dump_file_obj, query):
         pkgs = []
         for pkg in query:
             pkg_dict = pkg.as_dict()
