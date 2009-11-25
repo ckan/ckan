@@ -109,6 +109,8 @@ class ManageDb(CkanCommand):
             print 'Command %s not recognized' % cmd
 
     def dump_or_load(self, cmd):
+        print 'This functionality is mothballed for now.'
+        return
         if len(self.args) < 2:
             print 'Need dump path'
             return

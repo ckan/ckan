@@ -49,7 +49,9 @@ class Dumper(object):
         ckan.model.Group,
         ckan.model.PackageGroup,
         ckan.model.PackageExtra,
-]
+        ]
+    # TODO Bring this list of classes up to date. In the meantime,
+    # disabling this functionality in cli.
     
     def get_table(self, model_class):
         table = orm.class_mapper(model_class).mapped_table
