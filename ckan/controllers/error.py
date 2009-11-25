@@ -1,3 +1,4 @@
+import cgi
 import os.path
 
 import paste.fileapp
@@ -19,10 +20,11 @@ class ErrorController(BaseController):
         """Render the error document"""
         ckan_template = render("error_document_template")
         ckan_template = ckan_template.decode('utf8')
+        response = request.environ.get('pylons.original_response')
         page = ckan_template % \
             dict(prefix=request.environ.get('SCRIPT_NAME', ''),
-                 code=request.params.get('code', ''),
-                 message=request.params.get('message', ''))
+                 code=cgi.escape(request.GET.get('code', str(response.status_int))),
+                 message=h.literal(response.body) or cgi.escape(request.GET.get('message', '')))
         return page
 
     def img(self, id):

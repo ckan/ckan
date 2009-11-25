@@ -1,0 +1,23 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+  
+  <py:def function="page_title">Importer - Results</py:def>
+
+  <div py:match="content">
+    <h2>Import Results</h2>
+    <div>
+
+      <h3 py:if="c.error" class="form-errors">
+        Error: ${c.error}
+      </h3>
+
+      <h3 py:if="c.message">
+        ${c.message}
+      </h3>
+
+    </div>
+
+  </div>
+
+  <xi:include href="../layout.html" />
+</html>

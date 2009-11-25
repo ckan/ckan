@@ -2,6 +2,8 @@
 import os
 import pylons
 
+from sqlalchemy import *
+
 def load_config(filename):
     print 'loading ...'
     from paste.deploy import appconfig
@@ -72,3 +74,93 @@ class TestMigrateTo0Point7(object):
         lics = model.License.query.all()
         assert len(lics) == 63, len(lics)
 
+
+class TestMigrate08(object):
+    @classmethod
+    def setup_class(self):
+        from ckan.lib.cli import CreateTestData
+        import migrate.versioning.api as mig
+
+        model.repo.rebuild_db()
+        CreateTestData.create()
+
+        vtable = model.version_table
+        update = vtable.update(values={'version': 7})
+        model.metadata.bind.execute(update)
+        dbversion = mig.db_version(model.metadata.bind.url,
+                model.repo.migrate_repository)
+        assert dbversion == 7, dbversion
+
+        model.repo.upgrade_db(8)
+        dbversion = mig.db_version(model.metadata.bind.url,
+                model.repo.migrate_repository)
+        assert dbversion == 8, dbversion
+        model.Session.remove()
+
+    @classmethod
+    def teardown_class(self):
+        pass
+
+    def test_1(self):
+        revs = model.Revision.query.all()
+        assert len(revs) == 2
+        rev = revs[-1]
+        assert len(rev.id) == 36, rev
+
+        pkgs = model.Package.query.all()
+        for pkg in pkgs:
+            assert pkg.revision_id == revs[1].id or pkg.revision_id == revs[0].id, '%s!=%s' % (pkg.revision_id, revs[0].id)
+            assert pkg.revision == revs[0] or pkg.revision == revs[1]
+
+def set_version(version):
+    vtable = model.version_table
+    update = vtable.update(values={'version': version})
+    model.metadata.bind.execute(update)
+    check_version(version)
+
+def check_version(version):
+    import migrate.versioning.api as migrate
+    dbversion = migrate.db_version(model.metadata.bind.url,
+            model.repo.migrate_repository)
+    assert dbversion == version, dbversion
+
+class TestMigrate09(object):
+    # NB Run this with model code still at v8
+    @classmethod
+    def setup_class(self):
+        from ckan.lib.cli import CreateTestData
+
+        model.repo.rebuild_db()
+        CreateTestData.create() # assumes model code at v8
+        set_version(8)
+        
+        model.repo.upgrade_db(9)
+        check_version(9)
+
+    def test_1(self):
+        # Now run this with model code at v9
+        users = model.User.query.all()
+        assert users
+        for user in users:
+            assert user.created
+
+        model.Session.remove()
+    
+class TestMigrate10(object):
+    # NB Run this with model code still at v9
+    @classmethod
+    def setup_class(self):
+        from ckan.lib.cli import CreateTestData
+
+        model.repo.rebuild_db()
+        CreateTestData.create() # assumes model code at v9
+        set_version(9)
+        
+        model.repo.upgrade_db(10)
+        check_version(10)
+
+##    def test_1(self):
+##        user = Table('user', metadata, autoload=True)
+##        rows = migrate_engine.execute(user.select())
+##        for row in rows:
+##            assert 'about' in row.keys(), row

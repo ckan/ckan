@@ -1,6 +1,7 @@
 from core import *
 from user import user_table, User
 from group import group_table, Group, PackageGroup
+from full_search import package_search_table
 from authz import *
 from extras import PackageExtra, package_extra_table
 from rating import *
@@ -89,33 +90,18 @@ def _get_packages(self):
     changes = repo.list_changes(self)
     pkgrevs = changes[Package]
     pkgtagrevs = changes[PackageTag]
-    return [ p.continuity for p in pkgrevs ]
+    pkgs  = [ p.continuity for p in pkgrevs ]
+    pkgs += [ pkgtagrev.continuity.package for pkgtagrev in pkgtagrevs ]
+    # remove duplicates
+    pkgs = list(set(pkgs))
+    return pkgs
 
-def _get_tags(self):
-    active = State.query.filter_by(name='active').one()
-    changes = repo.list_changes(self)
-    pkgtagrevs = changes[PackageTag]
-    tags = set()
-    for pt in pkgtagrevs:
-        if pt.state == active:
-            tag = pt.continuity.tag
-            if tag not in tags:
-                tags.add(tag)
-    return list(tags)
-
-def _get_package_tags(self):
-    active = State.query.filter_by(name='active').one()
-    changes = repo.list_changes(self)
-    pkgtagrevs = changes[PackageTag]
-    package_tags = {} # {package:[tag1, tag2, ...]
-    for pt in pkgtagrevs:
-        if pt.state == active:
-            tag = pt.continuity.tag
-            if not package_tags.has_key(pt.package):
-                package_tags[pt.package] = []
-            package_tags[pt.package].append(tag)                
-    return package_tags
+# could set this up directly on the mapper?
+def _get_revision_user(self):
+    username = unicode(self.author)
+    user = User.query.filter_by(name=username).first()
+    return user
 
 Revision.packages = property(_get_packages)
-Revision.package_tags = property(_get_package_tags)
-Revision.tags = property(_get_tags)
+Revision.user = property(_get_revision_user)
+

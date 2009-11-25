@@ -72,7 +72,10 @@ class TestRevisionPurge:
     def test_purge_first_revision(self):
         rev = model.repo.youngest_revision()
         num = rev.id
-        rev2 = model.Revision.query.get(rev.id - 1)
+        q = model.repo.history()
+        q = q.order_by(model.Revision.timestamp.desc())
+        q = q.limit(2)
+        rev2 = q.all()[1]
         model.repo.purge_revision(rev, leave_record=True)
 
         rev = model.repo.youngest_revision()

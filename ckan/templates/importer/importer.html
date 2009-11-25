@@ -1,0 +1,39 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+  
+  <py:def function="page_title">Importer</py:def>
+
+  <div py:match="content">
+    <h2>Import Packages</h2>
+    <p>Here you can supply an Excel file with details of multiple packages and import these into CKAN.</p>
+    <p><a href="${h.url_for(controller='importer', action='doc')}">Import documentation</a></p>
+    <div>
+      <h3 py:if="c.error" class="form-errors">
+        Error: ${c.error}
+      </h3>
+
+      <h3 py:if="c.message">
+        ${c.message}
+      </h3>
+
+      ${h.form(h.url_for(controller='importer', action='preview'), multipart=True)}
+        <div>
+          <?python enable_preview = {'disabled':'disabled'} if not c.user else {} ?>
+          ${h.file(name='file', **enable_preview)}
+        </div>
+        <p>
+          ${h.submit('preview', 'Preview', **enable_preview)}
+        </p>
+
+        <py:if test="not c.user">
+          <p>Log in to use this tool</p>
+        </py:if>
+          
+      ${h.end_form()}
+
+    </div>
+
+  </div>
+
+  <xi:include href="../layout.html" />
+</html>

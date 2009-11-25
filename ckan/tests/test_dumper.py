@@ -1,16 +1,48 @@
-import os
-
+import tempfile
 import simplejson
+import os
 
 import ckan
 from ckan.tests import *
-from ckan.lib.converter import Dumper
 import ckan.model as model
+import ckan.lib.dumper as dumper
+from ckan.lib.dumper import Dumper
+simple_dumper = dumper.SimpleDumper()
 
-class TestConverter(object):
+class TestSimpleDump(TestController):
+
+    @classmethod
+    def setup_class(self):
+        model.repo.rebuild_db()
+        CreateTestData.create()
+
+    @classmethod
+    def teardown_class(self):
+        model.Session.remove()
+        model.repo.rebuild_db()
+
+    def test_simple_dump_csv(self):
+        dump_file = tempfile.TemporaryFile()
+        simple_dumper.dump_csv(dump_file)
+        dump_file.seek(0)
+        res = dump_file.read()
+        assert 'annakarenina' in res, res
+        assert 'russian tolstoy' in res, res
+        assert 'genre' in res, res
+        assert 'romantic novel' in res, res
+
+    def test_simple_dump_json(self):
+        dump_file = tempfile.TemporaryFile()
+        simple_dumper.dump_json(dump_file)
+        dump_file.seek(0)
+        res = dump_file.read()
+        assert 'annakarenina' in res, res
+        assert '"russian"' in res, res
+        assert 'genre' in res, res
+        assert 'romantic novel' in res, res
+
+class TestDumper(object):
 # TODO this doesn't work on sqlite - we should fix this
-    
-
     @classmethod
     def setup_class(self):
         model.Session.remove()
@@ -19,7 +51,7 @@ class TestConverter(object):
         self.outpath = '/tmp/mytestdump.js'
         if os.path.exists(self.outpath):
             os.remove(self.outpath)
-        d.dump(self.outpath)
+        d.dump_json(self.outpath)
 
     @classmethod
     def teardown_class(self):
@@ -39,12 +71,11 @@ class TestConverter(object):
         assert len(dumpeddata['PackageRevision']) == 2, len(dumpeddata['PackageRevision'])
         assert len(dumpeddata['Group']) == 2, len(dumpeddata['Group'])
 
-
     # Disabled 22/9/09 because not used anymore
     def _test_load(self):
         model.repo.clean_db()
         model.repo.create_db()
         d = Dumper()
-        d.load(self.outpath)
+        d.load_json(self.outpath)
         assert len(model.Package.query.all()) == 2
 

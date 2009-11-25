@@ -1,7 +1,7 @@
 import datetime
 
 from meta import *
-
+import full_search
 import vdm.sqlalchemy
 
 ## VDM-specific tables
@@ -135,14 +135,6 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         text_query = text_query
         return self.query.filter(self.name.contains(text_query.lower()))
 
-    @classmethod
-    def tag_search(self, query, term):
-        register = self
-        make_like = lambda x,y: x.ilike('%' + y + '%')
-        new_query = query.join(['package_tags', 'tag'], aliased=True)
-        new_query = new_query.filter(make_like(Tag.name, term))
-        return new_query
-
     def add_tag_by_name(self, tagname):
         if not tagname:
             return
@@ -157,6 +149,11 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         # TODO:
         # self.tags.delete(tag=tag)
         pass
+
+    @property
+    def tags_ordered(self):
+        ourcmp = lambda tag1, tag2: cmp(tag1.name, tag2.name)
+        return sorted(self.tags, cmp=ourcmp)
 
     def isopen(self):
         if self.license and self.license.isopen():
@@ -199,6 +196,11 @@ class Tag(DomainObject):
         text_query = text_query.strip().lower()
         return self.query.filter(self.name.contains(text_query))
 
+    @property
+    def packages_ordered(self):
+        ourcmp = lambda pkg1, pkg2: cmp(pkg1.name, pkg2.name)
+        return sorted(self.packages, cmp=ourcmp)
+
     def __repr__(self):
         return '<Tag %s>' % self.name
 
@@ -238,25 +240,31 @@ mapper(Package, package_table, properties={
     # second commit happens in which the package_id is correctly set.
     # However after first commit PackageTag does not have Package and
     # delete-orphan kicks in to remove it!
-    # 
-    # do we want lazy=False here? used in:
-    # <http://www.sqlalchemy.org/trac/browser/sqlalchemy/trunk/examples/association/proxied_association.py>
     'package_tags':relation(PackageTag, backref='package',
         cascade='all, delete', #, delete-orphan',
-        lazy=False)
+        ),
+    'package_search':relation(full_search.PackageSearch,
+        cascade='all, delete', #, delete-orphan',
+        )    
     },
     order_by=package_table.c.name,
-    extension = vdm.sqlalchemy.Revisioner(package_revision_table)
+    extension = [vdm.sqlalchemy.Revisioner(package_revision_table),
+                 full_search.SearchVectorTrigger()]
     )
 
-mapper(Tag, tag_table,
-    order_by=tag_table.c.name)
+mapper(Tag, tag_table, properties={
+    'package_tags':relation(PackageTag, backref='tag',
+        cascade='all, delete, delete-orphan',
+        )
+    },
+    order_by=tag_table.c.name,
+    )
 
 mapper(PackageTag, package_tag_table, properties={
-    'tag':relation(Tag, backref='package_tags'),
     },
     order_by=package_tag_table.c.id,
-    extension = vdm.sqlalchemy.Revisioner(package_tag_revision_table)
+    extension = [vdm.sqlalchemy.Revisioner(package_tag_revision_table),
+                 full_search.SearchVectorTrigger()],
     )
 
 vdm.sqlalchemy.modify_base_object_mapper(Package, Revision, State)
@@ -270,4 +278,7 @@ from vdm.sqlalchemy.base import add_stateful_versioned_m2m
 vdm.sqlalchemy.add_stateful_versioned_m2m(Package, PackageTag, 'tags', 'tag',
         'package_tags')
 vdm.sqlalchemy.add_stateful_versioned_m2m_on_version(PackageRevision, 'tags')
+vdm.sqlalchemy.add_stateful_versioned_m2m(Tag, PackageTag, 'packages', 'package',
+        'package_tags')
+
 

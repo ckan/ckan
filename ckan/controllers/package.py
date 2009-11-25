@@ -5,7 +5,6 @@ import genshi
 import simplejson
 
 from ckan.lib.base import *
-from ckan.controllers.base import CkanBaseController, ValidationException, PAGINATE_ITEMS_PER_PAGE
 from ckan.lib.search import Search, SearchOptions
 import ckan.forms
 import ckan.authz
@@ -16,7 +15,7 @@ logger = logging.getLogger('ckan.controllers')
 class ValidationException(Exception):
     pass
 
-class PackageController(CkanBaseController):
+class PackageController(BaseController):
     authorizer = ckan.authz.Authorizer()
     
     def index(self):
@@ -94,10 +93,24 @@ class PackageController(CkanBaseController):
         return render('package/read')
 
     def history(self, id):
+        if 'diff' in request.params or 'selected1' in request.params:
+            try:
+                params = {'id':request.params.getone('pkg_name'),
+                          'diff':request.params.getone('selected1'),
+                          'oldid':request.params.getone('selected2'),
+                          }
+            except KeyError, e:
+                if dict(request.params).has_key('pkg_name'):
+                    id = request.params.getone('pkg_name')
+                c.error = 'Select two revisions before doing the comparison.'
+            else:
+                h.redirect_to(controller='revision', action='diff', **params)
+
         c.pkg = model.Package.by_name(id)
         if not c.pkg:
             abort(404, '404 Not Found')
-        c.revisions = c.pkg.all_revisions
+        c.pkg_revisions = c.pkg.all_revisions
+        c.youngest_rev_id = c.pkg_revisions[0].revision_id
         return render('package/history')
 
     def new(self):
@@ -116,7 +129,6 @@ class PackageController(CkanBaseController):
                 self._update(fs, id, record.id)                
                 c.pkgname = fs.name.value
 
-                # TODO replace default user roles when we have it in the wui
                 pkg = model.Package.by_name(c.pkgname)
                 admins = []
                 if c.user:
@@ -350,7 +362,7 @@ class PackageController(CkanBaseController):
             if fs.tags.value:
                 c.pkg_tags = [tag.name for tag in fs.tags.value]
             elif fs.model.tags:
-                c.pkg_tags = [tag.name for tag in fs.model.tags]
+                c.pkg_tags = [tag.name for tag in fs.model.tags_ordered]
             else:
                 c.pkg_tags = []
 ##            if fs.groups.value:

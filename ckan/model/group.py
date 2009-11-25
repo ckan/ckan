@@ -1,5 +1,6 @@
+from datetime import datetime
 from meta import *
-from core import DomainObject, Package
+from core import DomainObject, Package, package_table
 from types import make_uuid
 
 package_group_table = Table('package_group', metadata,
@@ -13,6 +14,7 @@ group_table = Table('group', metadata,
         Column('name', UnicodeText, unique=True, nullable=False),
         Column('title', UnicodeText),
         Column('description', UnicodeText),
+        Column('created', DateTime, default=datetime.now),
 )
 
 class PackageGroup(DomainObject):
@@ -49,9 +51,15 @@ class Group(DomainObject):
     def __repr__(self):
         return '<Group %s>' % self.name
 
+
 mapper(Group, group_table, properties={
-    'packages':relation(Package, secondary=package_group_table, backref='groups')
-    })
+    'packages':relation(Package, secondary=package_group_table,
+        backref='groups',
+        order_by=package_table.c.name
+    )},
+# Not needed - triggers anyway       
+#    extension = full_search.SearchVectorTrigger(),
+)
 
 mapper(PackageGroup, package_group_table)
-    
+

@@ -1,0 +1,41 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+  
+  <py:def function="page_title">Importer - preview</py:def>
+
+  <div py:match="content">
+    <h2>Import Preview</h2>
+    <div>
+      <h3 py:if="c.error" class="form-errors">
+        Error: ${c.error}
+      </h3>
+
+      ${h.form(h.url_for(controller='importer', action='do_import'), multipart=True)}
+          <p>${c.num_pkgs} package${'s' if c.num_pkgs != 1 else ''} read from ${c.import_filename}:</p>
+
+          <py:for each="pkg in c.import_previews">
+            <div>
+              ${pkg}
+            </div>
+          </py:for>
+
+          <py:if test="c.pkgs_suppressed">
+            <p>Further package previews not shown.</p>
+          </py:if>
+
+          <label for="log_message">Optional log message about this change:</label>
+          <p class="desc">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.</p>
+          <textarea id="log_message" rows="3" name="log_message" cols="60">${c.log_message}</textarea>
+          <div>          
+            <?python enable_import = {'disabled':'disabled'} if not (c.user and c.import_previews) and not c.errors else {} ?>
+            ${h.submit('import', 'Import', **enable_import)}
+          </div>
+
+        ${h.end_form()}
+
+    </div>
+
+  </div>
+
+  <xi:include href="../layout.html" />
+</html>

@@ -1,10 +1,9 @@
 from ckan.lib.base import *
-from ckan.controllers.base import CkanBaseController
 
 import ckan.authz
 from datetime import datetime
 
-class RevisionController(CkanBaseController):
+class RevisionController(BaseController):
 
     def index(self):
         return self.list()
@@ -60,7 +59,6 @@ class RevisionController(CkanBaseController):
     def read(self, id=None):
         if id is None:
             h.redirect_to(controller='revision', action='list')
-        id = int(id)
         c.revision = model.Revision.query.get(id)
         if c.revision is None:
             abort(404)
@@ -69,6 +67,18 @@ class RevisionController(CkanBaseController):
         pkgtags = model.PackageTagRevision.query.filter_by(revision=c.revision)
         c.pkgtags = [ pkgtag.continuity for pkgtag in pkgtags ]
         return render('revision/read')
+
+    def diff(self, id=None):
+        if 'diff' not in request.params or 'oldid' not in request.params:
+            abort(400)
+        pkg = model.Package.by_name(id)
+        c.revision_from = model.Revision.query.get(
+            request.params.getone('oldid'))
+        c.revision_to = model.Revision.query.get(
+            request.params.getone('diff'))
+        c.diff = pkg.diff(c.revision_to, c.revision_from)
+        c.pkg = pkg
+        return render('revision/diff')
 
     def _has_purge_permissions(self):
         authorizer = ckan.authz.Authorizer()

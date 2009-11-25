@@ -65,7 +65,7 @@ class TestRevisionController(TestController):
             assert 'Repository History' in res
             assert '1' in res
             assert 'Author' in res
-            assert 'tolstoy' in res
+            assert 'tester' in res
             assert 'Log Message' in res
             assert 'Creating test data.' in res
 
@@ -115,12 +115,14 @@ class TestRevisionController(TestController):
         assert 'Repository History' in res
 
     def test_read(self):
-        offset = url_for(controller='revision', action='read', id='2')
+        anna = model.Package.by_name(u'annakarenina')
+        rev_id = anna.revision.id
+        offset = url_for(controller='revision', action='read', id='%s' % rev_id)
         res = self.app.get(offset)
         print str(res)
-        assert 'Revision 2' in res
-        assert 'Revision: 2' in res
-        assert 'Author:</strong> tolstoy' in res
+        assert 'Revision %s' % rev_id in res
+        assert 'Revision: %s' % rev_id in res
+        assert 'Author:</strong> tester' in res
         assert 'Log Message:' in res
         assert 'Creating test data.' in res
         assert 'Package: annakarenina' in res

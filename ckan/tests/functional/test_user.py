@@ -27,7 +27,12 @@ class TestUserController(TestController):
         user = model.User.by_name(u'annafan')
         offset = url_for(controller='user', action='read', id=user.id)
         res = self.app.get(offset, status=200)
+        main_res = self.main_div(res)
         assert 'User Account - annafan' in res, res
+        assert 'Logged in' not in main_res, main_res
+        assert 'About' in main_res, main_res
+        assert 'I love reading Annakarenina' in res, main_res
+        assert 'Edit' not in main_res, main_res
         assert 'Number of edits:</strong> 3' in res, res
         assert 'Number of packages administered:</strong> 1' in res, res
         assert 'Recent changes' in res, res
@@ -36,9 +41,11 @@ class TestUserController(TestController):
         user = model.User.by_name(u'annafan')
         offset = url_for(controller='user', action='read', id=user.id)
         res = self.app.get(offset, extra_environ={'REMOTE_USER': str(user.name)})
+        main_res = self.main_div(res)
         assert 'User Account - annafan' in res, res
         assert 'Logged in as <strong>%s</strong>' % user.name in res, res
         assert 'View your API key' in res
+        assert 'Edit' in main_res, main_res
 
     def test_user_login(self):
         offset = url_for(controller='user', action='login')
@@ -110,6 +117,47 @@ class TestUserController(TestController):
         print user.apikey
         assert 'Your API key is: %s' % user.apikey in res, res
 
+    def test_user_edit(self):
+        # create user
+        username = 'testedit'
+        about = u'Test About'
+        user = model.User.by_name(unicode(username))
+        if not user:
+            model.User(name=unicode(username), about=about)
+            model.repo.commit_and_remove()
+            user = model.User.by_name(unicode(username))
+
+        # edit
+        new_about = u'Changed about'
+        offset = url_for(controller='user', action='edit', id=user.id)
+        res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':username})
+        main_res = self.main_div(res)
+        assert 'Edit User: ' in main_res, main_res
+        assert about in main_res, main_res
+        fv = res.forms[0]
+        fv['about'] = new_about
+        res = fv.submit('preview', extra_environ={'REMOTE_USER':username})
+        
+        # preview
+        main_res = self.main_div(res)
+        assert 'Edit User: testedit' in main_res, main_res
+        before_preview = main_res[:main_res.find('Preview')]
+        assert new_about in before_preview, before_preview
+        in_preview = main_res[main_res.find('Preview'):]
+        assert new_about in in_preview, in_preview
+        res = fv.submit('commit', extra_environ={'REMOTE_USER':username})
+
+        # commit
+        res = res.follow()
+        main_res = self.main_div(res)
+        assert 'User Account - testedit' in main_res, main_res
+        assert new_about in main_res, main_res
+
+        # read, not logged in
+        offset = url_for(controller='user', action='read', id=user.id)
+        res = self.app.get(offset, status=200)
+        main_res = self.main_div(res)
+        assert new_about in main_res, main_res
 
 
     ############

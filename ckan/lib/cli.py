@@ -35,12 +35,14 @@ class ManageDb(CkanCommand):
     db init # create and put in default data
     db clean
     db upgrade
-    db dump {file-path} # dump to a file
+    db dump {file-path} # dump to a file (json)
     db dump-rdf {package-name} {file-path}
+    db simple-dump-csv {file-path}
+    db simple-dump-json {file-path}
     db send-rdf {talis-store} {username} {password}
     db load {file-path} # load from a file
     db load-data4nr {file-path.csv}
-    db load-esw {file-path.txt}
+    db load-esw {file-path.txt} [{host} {api-key}]
     db migrate06
     db migrate09a
     db migrate09b
@@ -71,6 +73,10 @@ class ManageDb(CkanCommand):
                 model.repo.upgrade_db()
         elif cmd == 'dump' or cmd == 'load':
             self.dump_or_load(cmd)
+        elif cmd == 'simple-dump-csv':
+            self.simple_dump_csv(cmd)
+        elif cmd == 'simple-dump-json':
+            self.simple_dump_json(cmd)
         elif cmd == 'dump-rdf':
             self.dump_rdf(cmd)
         elif cmd == 'send-rdf':
@@ -107,13 +113,13 @@ class ManageDb(CkanCommand):
             print 'Need dump path'
             return
         dump_path = self.args[1]
-        import ckan.lib.converter
-        dumper = ckan.lib.converter.Dumper()
+        import ckan.lib.dumper
+        dumper = ckan.lib.dumper.Dumper()
         verbose = (self.verbose >= 2)
         if cmd == 'load':
-            dumper.load(dump_path, verbose=verbose)
+            dumper.load_json(dump_path, verbose=verbose)
         elif cmd == 'dump':
-            dumper.dump(dump_path, verbose=verbose)
+            dumper.dump_json(dump_path, verbose=verbose)
         else:
             print 'Unknown command', cmd
 
@@ -125,6 +131,24 @@ class ManageDb(CkanCommand):
         import ckan.getdata.data4nr
         data = ckan.getdata.data4nr.Data4Nr()
         data.load_csv_into_db(load_path)
+
+    def simple_dump_csv(self, cmd):
+        if len(self.args) < 2:
+            print 'Need csv file path'
+            return
+        dump_filepath = self.args[1]
+        import ckan.lib.dumper as dumper
+        dump_file = open(dump_filepath, 'w')
+        dumper.SimpleDumper().dump_csv(dump_file)
+
+    def simple_dump_json(self, cmd):
+        if len(self.args) < 2:
+            print 'Need json file path'
+            return
+        dump_filepath = self.args[1]
+        import ckan.lib.dumper as dumper
+        dump_file = open(dump_filepath, 'w')
+        dumper.SimpleDumper().dump_json(dump_file)
 
     def dump_rdf(self, cmd):
         if len(self.args) < 3:
@@ -159,9 +183,24 @@ class ManageDb(CkanCommand):
             print 'Need ESW data file path'
             return
         load_path = self.args[1]
+        if len(self.args) > 3:
+            server = self.args[2]
+            if server.startswith('http://'):
+                server = server.strip('http://').strip('/')
+            base_location = 'http://%s/api/rest' % server
+            api_key = self.args[3]
+        else:
+            server = api_key = None
+        print 'Loading ESW data\n  Filename: %s\n  Server hostname: %s\n  Api-key: %s' % \
+              (load_path, server, api_key)
         import ckan.getdata.esw
         data = ckan.getdata.esw.Esw()
-        data.load_esw_txt_into_db(load_path)
+        if server:
+            import ckanclient
+            ckanclient = ckanclient.CkanClient(base_location=base_location, api_key=api_key)
+            data.load_esw_txt_via_rest(load_path, ckanclient)
+        else:
+            data.load_esw_txt_into_db(load_path)
 
 class CreateTestData(CkanCommand):
     '''Create test data in the DB.
@@ -187,7 +226,8 @@ class CreateTestData(CkanCommand):
         import ckan.model as model
         model.Session.remove()
         rev = model.repo.new_revision() 
-        rev.author = u'tolstoy'
+        # same name as user we create below
+        rev.author = u'tester'
         rev.message = u'''Creating test data.
  * Package: annakarenina
  * Package: warandpeace
@@ -234,7 +274,7 @@ class CreateTestData(CkanCommand):
         roger.packages = [pkg1]
         # authz
         joeadmin = model.User(name=u'joeadmin')
-        annafan = model.User(name=u'annafan')
+        annafan = model.User(name=u'annafan', about=u'I love reading Annakarenina')
         russianfan = model.User(name=u'russianfan')
         testsysadmin = model.User(name=u'testsysadmin')
         model.repo.commit_and_remove()
@@ -289,7 +329,7 @@ class CreateSearchTestData(CkanCommand):
               'title':'Government Information Locator Service',
               'url':'',
               'tags':'registry  country-usa  government  federal  gov  workshop-20081101',
-              'groups':'ukgov test1 test2',
+              'groups':'ukgov test1 test2 penguin',
               'license':'OKD Compliant::Other',
               'notes':'''From <http://www.gpoaccess.gov/gils/about.html>
               
@@ -301,7 +341,7 @@ class CreateSearchTestData(CkanCommand):
               'url':'http://www.usa.gov/Topics/Graphics.shtml',
               'download_url':'http://www.usa.gov/Topics/Graphics.shtml',
               'tags':'images  graphics  photographs  photos  pictures  us  usa  america  history  wildlife  nature  war  military  todo-split  gov',
-              'groups':'ukgov test1',
+              'groups':'ukgov test1 penguin',
               'license':'OKD Compliant::Other',
               'notes':'''## About
 
@@ -315,8 +355,8 @@ Collection of links to different US image collections in the public domain.
               'title':'Text of US Federal Cases',
               'url':'http://bulk.resource.org/courts.gov/',
               'download_url':'http://bulk.resource.org/courts.gov/',
-              'tags':'us  courts  case-law  us  courts  case-law  gov  legal  law  access-bulk',
-              'groups':'ukgov test2',
+              'tags':'us  courts  case-law  us  courts  case-law  gov  legal  law  access-bulk  penguins penguin',
+              'groups':'ukgov test2 penguin',
               'license':'OKD Compliant::Creative Commons CCZero',
               'notes':'''### Description
 
@@ -327,7 +367,7 @@ Collection of links to different US image collections in the public domain.
              {'name':'uk-government-expenditure',
               'title':'UK Government Expenditure',
               'tags':'workshop-20081101  uk  gov  expenditure  finance  public  funding',
-              'groups':'ukgov',              
+              'groups':'ukgov penguin',              
               'notes':'''Discussed at [Workshop on Public Information, 2008-11-02](http://okfn.org/wiki/PublicInformation).
 
 Overview is available in Red Book, or Financial Statement and Budget Report (FSBR), [published by the Treasury](http://www.hm-treasury.gov.uk/budget.htm).'''
@@ -335,6 +375,7 @@ Overview is available in Red Book, or Financial Statement and Budget Report (FSB
              {'name':'se-publications',
               'title':'Sweden - Government Offices of Sweden - Publications',
               'url':'http://www.sweden.gov.se/sb/d/574',
+              'groups':'penguin',              
               'tags':'country-sweden  format-pdf  access-www  documents  publications  government  eutransparency',
               'license':'Other::License Not Specified',
               'notes':'''### About
@@ -347,6 +388,7 @@ Not clear.''',
               },
              {'name':'se-opengov',
               'title':'Opengov.se',
+              'groups':'penguin',              
               'url':'http://www.opengov.se/',
               'download_url':'http://www.opengov.se/data/open/',
               'tags':'country-sweden  government  data',

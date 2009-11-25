@@ -11,7 +11,7 @@ class TestUsage(TestController):
     
     @classmethod
     def _create_test_data(self):
-        self.modes = ('--', 'r-', 'w-', 'rr', 'wr', 'ww', 'deleted') #  logged-in, visitor
+        self.modes = ('XX', 'rX', 'wX', 'rr', 'wr', 'ww', 'deleted') #  logged-in, visitor
         for mode in self.modes:
             model.Package(name=unicode(mode))
             model.Group(name=unicode(mode))
@@ -154,49 +154,49 @@ class TestUsage(TestController):
     # Tests numbered by the use case
 
     def test_14_visitor_reads_stopped(self): 
-        self._test_cant('read', self.visitor, ['--', 'r-', 'w-'])
+        self._test_cant('read', self.visitor, ['XX', 'rX', 'wX'])
     def test_01_visitor_reads(self): 
         self._test_can('read', self.visitor, ['rr', 'wr', 'ww'])
 
     def test_12_visitor_edits_stopped(self):
         self._test_cant('edit', self.visitor, ['ww'], interfaces=['rest'])
-        self._test_cant('edit', self.visitor, ['--', 'r-', 'w-', 'rr', 'wr'], interfaces=['wui'])
-        self._test_cant('edit', self.visitor, ['--', 'r-', 'w-', 'rr', 'wr', 'ww'], interfaces=['rest'])
+        self._test_cant('edit', self.visitor, ['XX', 'rX', 'wX', 'rr', 'wr'], interfaces=['wui'])
+        self._test_cant('edit', self.visitor, ['XX', 'rX', 'wX', 'rr', 'wr', 'ww'], interfaces=['rest'])
     def test_02_visitor_edits(self):
         self._test_can('edit', self.visitor, ['ww'], interfaces=['wui'])
         self._test_can('edit', self.visitor, [], interfaces=['rest'])
 
     def test_15_user_reads_stopped(self):
-        self._test_cant('read', self.mrloggedin, ['--'])
+        self._test_cant('read', self.mrloggedin, ['XX'])
     def test_03_user_reads(self):
-        self._test_can('read', self.mrloggedin, ['r-', 'w-', 'rr', 'wr', 'ww'])
+        self._test_can('read', self.mrloggedin, ['rX', 'wX', 'rr', 'wr', 'ww'])
 
     def test_13_user_edits_stopped(self):
-        self._test_cant('edit', self.mrloggedin, ['--', 'r-', 'rr'])
+        self._test_cant('edit', self.mrloggedin, ['XX', 'rX', 'rr'])
     def test_04_user_edits(self):
-        self._test_can('edit', self.mrloggedin, ['w-', 'wr', 'ww'])
+        self._test_can('edit', self.mrloggedin, ['wX', 'wr', 'ww'])
 
     def test_admin_edit_deleted(self):
-        self._test_can('edit', self.pkgadmin, ['--', 'r-', 'w-', 'rr', 'wr', 'ww', 'deleted'], entities=['package'])
-        self._test_can('edit', self.groupadmin, ['--', 'r-', 'w-', 'rr', 'wr', 'ww', 'deleted'], entities=['group'])
+        self._test_can('edit', self.pkgadmin, ['XX', 'rX', 'wX', 'rr', 'wr', 'ww', 'deleted'], entities=['package'])
+        self._test_can('edit', self.groupadmin, ['XX', 'rX', 'wX', 'rr', 'wr', 'ww', 'deleted'], entities=['group'])
         self._test_cant('edit', self.mrloggedin, ['deleted'])
 
     def test_admin_read_deleted(self):
-        self._test_can('read', self.pkgadmin, ['--', 'r-', 'w-', 'rr', 'wr', 'ww', 'deleted'], entities=['package'])
-        self._test_can('read', self.groupadmin, ['--', 'r-', 'w-', 'rr', 'wr', 'ww', 'deleted'], entities=['group'])
+        self._test_can('read', self.pkgadmin, ['XX', 'rX', 'wX', 'rr', 'wr', 'ww', 'deleted'], entities=['package'])
+        self._test_can('read', self.groupadmin, ['XX', 'rX', 'wX', 'rr', 'wr', 'ww', 'deleted'], entities=['group'])
         self._test_cant('read', self.mrloggedin, ['deleted'])
 
     def test_search_deleted(self):
-        self._test_can('search', self.pkgadmin, ['--', 'r-', 'w-', 'rr', 'wr', 'ww', 'deleted'], entities=['package'])
-        self._test_can('search', self.mrloggedin, ['r-', 'w-', 'rr', 'wr', 'ww'], entities=['package'])
+        self._test_can('search', self.pkgadmin, ['XX', 'rX', 'wX', 'rr', 'wr', 'ww', 'deleted'], entities=['package'])
+        self._test_can('search', self.mrloggedin, ['rX', 'wX', 'rr', 'wr', 'ww'], entities=['package'])
         #TODO get this working
-        #self._test_cant('search', self.mrloggedin, ['--', 'deleted'], entities=['package'])
+        #self._test_cant('search', self.mrloggedin, ['XX', 'deleted'], entities=['package'])
         
     def test_list_deleted(self):
-        self._test_can('list', self.pkgadmin, ['--', 'r-', 'w-', 'rr', 'wr', 'ww', 'deleted'], interfaces=['wui'], entities=['package'])
-        self._test_can('list', self.mrloggedin, ['r-', 'w-', 'rr', 'wr', 'ww'], interfaces=['wui'])
+        self._test_can('list', self.pkgadmin, ['XX', 'rX', 'wX', 'rr', 'wr', 'ww', 'deleted'], interfaces=['wui'], entities=['package'])
+        self._test_can('list', self.mrloggedin, ['rX', 'wX', 'rr', 'wr', 'ww'], interfaces=['wui'])
         #TODO get this working
-        #self._test_cant('list', self.mrloggedin, ['--', 'deleted'], interfaces=['wui'])
+        #self._test_cant('list', self.mrloggedin, ['XX', 'deleted'], interfaces=['wui'])
 
     def test_05_author_is_new_package_admin(self):
         user = self.mrloggedin
@@ -220,11 +220,11 @@ class TestUsage(TestController):
         assert not model.Role.ADMIN in roles, roles
 
     def test_sysadmin_can_read_anything(self):
-        self._test_can('read', self.testsysadmin, ['--', 'r-', 'w-', 'rr', 'wr', 'ww', 'deleted'])
+        self._test_can('read', self.testsysadmin, ['XX', 'rX', 'wX', 'rr', 'wr', 'ww', 'deleted'])
     def test_sysadmin_can_edit_anything(self):
-        self._test_can('edit', self.testsysadmin, ['--', 'r-', 'w-', 'rr', 'wr', 'ww', 'deleted'])
+        self._test_can('edit', self.testsysadmin, ['XX', 'rX', 'wX', 'rr', 'wr', 'ww', 'deleted'])
     def test_sysadmin_can_search_anything(self):
-        self._test_can('search', self.testsysadmin, ['--', 'r-', 'w-', 'rr', 'wr', 'ww', 'deleted'], entities=['package'])
+        self._test_can('search', self.testsysadmin, ['XX', 'rX', 'wX', 'rr', 'wr', 'ww', 'deleted'], entities=['package'])
     def test_sysadmin_can_list_anything(self):
-        self._test_can('list', self.testsysadmin, ['--', 'r-', 'w-', 'rr', 'wr', 'ww', 'deleted'], interfaces=['wui'])
+        self._test_can('list', self.testsysadmin, ['XX', 'rX', 'wX', 'rr', 'wr', 'ww', 'deleted'], interfaces=['wui'])
         

@@ -1,0 +1,65 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+  
+  <py:def function="page_title">Package Importer - Documentation</py:def>
+
+  <div py:match="content">
+
+<h2>Package Importer</h2>
+
+<h3>Introduction</h3>
+
+<p>This importer provides an easy way to bulk import packages into CKAN via a spreadsheet. It fills the gap between entry via a <a href="${h.url_for(controller='package', action='new')}">simple form</a> and the powerful programmatic <a href="${h.url_for(controller='rest', action='index')}">RESTful API</a>.</p>
+
+<h3>Details</h3>
+
+<p>Importing a package with the same name as one that exists in the CKAN database results in the new package overwriting the existing one. There is a warning for this.</p>
+
+<p>To perform an import, the user must be logged in. To add a package to a group, the user must have priviledges to edit the particular group.</p>
+
+<h3>Format</h3>
+
+<p>The details of the packages should be stored in an Excel spreadsheet. It should be the first (or only) sheet of a workbook.</p>
+<p>The importer looks for a header row (which must contain 'name' or 'title') and below that all the rows are the package details. The header row can contain any or all of the field names, but must include 'name' or 'title'. If the 'name' is not specified then a unique name will be generated from the title.</p>
+
+<h3>Example</h3>
+<table>
+<tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th></tr>
+<tr><th>1</th><td>Packages</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><th>2</th><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><th>3</th><td>name</td><td>title</td><td>download_url</td><td>tags</td><td></td><td></td></tr>
+<tr><th>4</th><td>wikipedia</td><td>Wikipedia</td><td>http://download.wikimedia.org/</td><td>encyclopedia reference</td><td></td><td></td></tr>
+<tr><th>5</th><td>tviv</td><td>TV IV</td><td>http://tviv.org/Category:Grids</td><td>tv  encyclopaedia</td><td></td><td></td></tr>
+<tr><th>6</th><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+</table>
+
+<h3>Fields</h3>
+<p>Each package has many fields.</p>
+<table>
+<tr><th>Name</th><th>Example value</th><th>Notes</th></tr>
+<tr><td>name</td><td>wikipedia-blind</td><td></td></tr>
+<tr><td>title</td><td>Wikipedia for the Blind</td><td></td></tr>
+<tr><td>notes</td><td>Maintained until 2008</td><td></td></tr>
+<tr><td>url</td><td>http://blind.wikipedia.org/</td><td></td></tr>
+<tr><td>download_url</td><td>http://blind.wikipedia.org/dump.csv</td><td></td></tr>
+<tr><td>tags</td><td>encyclopedia blind format-csv</td><td>Space separated list</td></tr>
+<tr><td>author</td><td>John Doe</td><td></td></tr>
+<tr><td>author_url</td><td>john@doe.com</td><td></td></tr>
+<tr><td>maintainer</td><td>John Doe</td><td></td></tr>
+<tr><td>maintainer_url</td><td>john@doe.com</td><td></td></tr>
+<tr><td>license</td><td>OKD Compliant::UK Click Use PSI</td><td>License name (see options below).</td></tr>
+<tr><td>[arbitrary]</td><td></td><td>Any field name and a string value.</td></tr>
+<tr><td>groups</td><td>blind-picks</td><td>Space separated list of group names to add package to.</td></tr>
+</table>
+
+<h4>License names</h4>
+<ul>
+  <py:for each="license_name in c.license_names">
+    <li>${license_name}</li>
+  </py:for>
+</ul>
+
+  </div> <!-- content -->
+
+<xi:include href="../layout.html" />
+</html>
