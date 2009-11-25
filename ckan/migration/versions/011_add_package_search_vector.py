@@ -14,5 +14,7 @@ def upgrade():
     sql = 'ALTER TABLE package_search ADD COLUMN search_vector tsvector'
     migrate_engine.execute(sql)
 
+    print 'IMPORTANT! Now run:\n  paster create-search-index'
+
 def downgrade():
     raise NotImplementedError()

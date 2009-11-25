@@ -21,33 +21,37 @@ class SearchVectorTrigger(sqlalchemy.orm.interfaces.MapperExtension):
             pkgs = instance.packages
 
         for pkg in pkgs:
-            tags = pkg.tags
-            groups = pkg.groups        
-            tag_names = ' '.join([tag.name for tag in tags])
-            group_names = ' '.join([group.name for group in groups])
-            document_a = ' '.join((pkg.name or '', pkg.title or ''))
-            document_b = ' '.join((pkg.notes or '', tag_names or '', group_names or ''))
-            def make_document_safe(document):
-                return document.replace('\'', '').replace('"', '')
-            document_a = make_document_safe(document_a)
-            document_b = make_document_safe(document_b)
-            # Create weighted vector
-            vector = 'setweight(to_tsvector(\'%s\'), \'A\') || setweight(to_tsvector(\'%s\'), \'D\')' % (document_a, document_b)
-            # See if record for this pkg exists, otherwise create it
-            sql = 'SELECT package_id FROM package_search WHERE package_id = %i' % pkg.id
-            res = engine.execute(sql)
-            pkgs = res.fetchall()
-            if not pkgs:
-                sql = 'INSERT INTO package_search VALUES (%i, %s)' % (pkg.id, vector)
-            else:
-                sql = 'UPDATE package_search SET search_vector=%s WHERE package_id=%i' % (vector, pkg.id)
-            res = engine.execute(sql)
-            # uncomment this to print lexemes
-##            sql = 'SELECT package_id, search_vector FROM package_search WHERE package_id = %i' % pkg.id
-##            res = engine.execute(sql)
-##            print res.fetchall()
+            pkg_dict = pkg.as_dict()
+            self._update_vector(pkg_dict, engine)
 
-    
+    def update_package_vector(self, pkg_dict, engine):
+        if isinstance(pkg_dict['tags'], (list, tuple)):
+            pkg_dict['tags'] = ' '.join(pkg_dict['tags'])
+        if isinstance(pkg_dict['groups'], (list, tuple)):
+            pkg_dict['groups'] = ' '.join(pkg_dict['groups'])
+            
+        document_a = ' '.join((pkg_dict['name'] or '', pkg_dict['title'] or ''))
+        document_b = ' '.join((pkg_dict['notes'] or '', pkg_dict['tags'] or '', pkg_dict['groups'] or ''))
+        def make_document_safe(document):
+            return document.replace('\'', '').replace('"', '')
+        document_a = make_document_safe(document_a)
+        document_b = make_document_safe(document_b)
+        # Create weighted vector
+        vector = 'setweight(to_tsvector(\'%s\'), \'A\') || setweight(to_tsvector(\'%s\'), \'D\')' % (document_a, document_b)
+        # See if record for this pkg exists, otherwise create it
+        sql = 'SELECT package_id FROM package_search WHERE package_id = %i' % pkg_dict['id']
+        res = engine.execute(sql)
+        pkgs = res.fetchall()
+        if not pkgs:
+            sql = 'INSERT INTO package_search VALUES (%i, %s)' % (pkg_dict['id'], vector)
+        else:
+            sql = 'UPDATE package_search SET search_vector=%s WHERE package_id=%i' % (vector, pkg_dict['id'])
+        res = engine.execute(sql)
+        # uncomment this to print lexemes
+        # sql = 'SELECT package_id, search_vector FROM package_search WHERE package_id = %i' % pkg_dict['id']
+        # res = engine.execute(sql)
+        # print res.fetchall()
+
 
 def setup_db(event, schema_item, engine):
     sql = 'ALTER TABLE package_search ADD COLUMN search_vector tsvector'
