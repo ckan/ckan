@@ -164,3 +164,43 @@ class TestMigrate10(object):
 ##        rows = migrate_engine.execute(user.select())
 ##        for row in rows:
 ##            assert 'about' in row.keys(), row
+
+
+"""Here's how to run TestMigrate11 tests:
+cd ckan/model
+hg up dbd159e52a7b
+cd ../..
+paster db clean && paster db init
+nosetests test_migrate.py:TestMigrate11A
+cd ckan/model
+hg up
+cd ../..
+nosetests test_migrate.py:TestMigrate11B
+"""
+class TestMigrate11A(object):
+    # NB Run this part with model code still at v10
+    @classmethod
+    def setup_class(self):
+        from ckan.lib.cli import CreateTestData
+
+        model.repo.rebuild_db()
+        CreateTestData.create() # assumes model code at v10
+
+        set_version(10)
+        model.repo.upgrade_db(11)
+        check_version(11)
+
+class TestMigrate11B(object):
+    # NB Run this part with model code at v11
+    def test_0_basic(self):
+        from ckan.lib.search import Search, SearchOptions
+        result = Search().search(u'annakarenina')
+        assert result['count'] == 1, result
+        assert 'annakarenina' in result['results'], result['results']
+
+    def test_1_notes(self):
+        from ckan.lib.search import Search, SearchOptions
+        result = Search().search(u'italicized')
+        assert result['count'] == 1, result
+        assert 'annakarenina' in result['results'], result['results']
+        
