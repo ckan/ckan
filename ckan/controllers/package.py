@@ -348,7 +348,10 @@ class PackageController(BaseController):
             c.pkg_version = fs.version.value
             c.pkg_title = fs.title.value
             c.pkg_url = fs.url.value
-            c.pkg_download_url = fs.download_url.value
+            if fs.resources.value and isinstance(fs.resources.value, model.PackageResource):
+                c.pkg_resources = [(res.url, res.format, res.description) for res in fs.resources.value]
+            else:
+                c.pkg_resources = fs.resources.value
             c.pkg_author = fs.author.value
             c.pkg_author_email = fs.author_email.value
             c.pkg_maintainer = fs.maintainer.value

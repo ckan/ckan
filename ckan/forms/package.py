@@ -38,6 +38,17 @@ def extras_validator(val, field):
             # Note value is allowed to by None - REST way of deleting fields.
             raise formalchemy.ValidationError('Extra key-value pair: key is not set.')
 
+class ResourcesField(formalchemy.Field):
+    def sync(self):
+        if not self.is_readonly():
+            pkg = self.model
+            resources = self._deserialize() or []
+            pkg.resources = []
+            for url, format, description in resources:
+                pkg.add_resource(url=url,
+                                 format=format,
+                                 description=description)
+
 class TagField(formalchemy.Field):
     def sync(self):
         if not self.is_readonly():
@@ -232,6 +243,67 @@ class StateRenderer(formalchemy.fields.FieldRenderer):
         options = [(s.name, s.id) for s in model.State.query.all()]
         return h.select(self.name, h.options_for_select(options, selected=selected), **kwargs)
 
+class ResourcesRenderer(formalchemy.fields.FieldRenderer):
+    table_template = '''
+      <table>
+        <tr> <th>URL</th><th>Format</th><th>Description</th> </tr>
+%s
+      </table>
+      '''
+    row_template = '''
+        <tr>
+          <td><input name="%(id)s-%(res_index)s-url" size="40" id="%(id)s-%(res_index)s-url" type="text" value="%(url)s" /></td>
+          <td><input name="%(id)s-%(res_index)s-format" size="5" id="%(id)s-%(res_index)s-format" type="text" value="%(format)s" /></td>
+          <td><input name="%(id)s-%(res_index)s-description" size="25" id="%(id)s-%(res_index)s-description" type="text" value="%(description)s" /></td>
+        </tr>
+    '''
+    row_template_readonly = '''
+        <tr> <td><a href="%(url)s">%(url)s</a></td><td>%(format)s</td><td>%(description)s</td> </tr>
+    '''
+
+    def render(self, **kwargs):
+        return self._render(self.row_template)
+
+    def render_readonly(self, **kwargs):
+        return self._render(self.row_template_readonly)
+
+    def _render(self, row_template):
+        resources = self.field.parent.resources.value or \
+                    self.field.parent.model.resources or []
+        rows = []
+        for index, res in enumerate(resources):
+            if isinstance(res, model.PackageResource):
+                url = res.url
+                format = res.format
+                description = res.description
+            elif isinstance(res, tuple):
+                url, format, description = res
+            rows.append(self.row_template % {'url':url,
+                                             'format':format,
+                                             'description':description,
+                                             'id':self.name,
+                                             'res_index':index,
+                                             })
+        html = self.table_template % ''.join(rows)
+        return html
+
+    def deserialize(self):
+        # e.g. Package-1-resources-0-url': u'http://ww...'
+        package = self.field.parent.model
+        params = dict(self._params)
+        new_resources = []
+        row = 0
+        while True:
+            if not params.has_key('%s-%i-url' % (self.name, row)):
+                break
+            url = params.get('%s-%i-url' % (self.name, row), u'')
+            format = params.get('%s-%i-format' % (self.name, row), u'')
+            description = params.get('%s-%i-description' % (self.name, row), u'')
+            resource = (url, format, description)
+            new_resources.append(resource)
+            row += 1
+        return new_resources
+
 class PackageFieldSet(formalchemy.FieldSet):
     def __init__(self):
         formalchemy.FieldSet.__init__(self, model.Package)
@@ -262,7 +334,6 @@ def get_package_fs_options(fs):
         fs.title.with_renderer(common.CustomTextFieldRenderer),
         fs.version.with_renderer(common.CustomTextFieldRenderer),
         fs.url.with_renderer(common.CustomTextFieldRenderer),
-        fs.download_url.with_renderer(common.CustomTextFieldRenderer),
         fs.author.with_renderer(common.CustomTextFieldRenderer),
         fs.author_email.with_renderer(common.CustomTextFieldRenderer),
         fs.maintainer.with_renderer(common.CustomTextFieldRenderer),
@@ -270,13 +341,14 @@ def get_package_fs_options(fs):
         fs.notes.with_renderer(common.TextAreaRenderer),
         ]
 def get_package_fs_include(fs, is_admin=False):
-    pkgs = [fs.name, fs.title, fs.version, fs.url, fs.download_url,
+    pkgs = [fs.name, fs.title, fs.version, fs.url, fs.resources,
             fs.author, fs.author_email, fs.maintainer, fs.maintainer_email,
             fs.license, fs.tags, fs.notes, fs.extras, ]
     if is_admin:
         pkgs.insert(len(pkgs)-1, fs.state)
     return pkgs
 for fs in (package_fs, package_fs_admin):
+    fs.append(ResourcesField('resources').with_renderer(ResourcesRenderer))
     fs.append(TagField('tags').with_renderer(TagEditRenderer).validate(tag_name_validator).label('Tags (space separated list)'))
     fs.append(ExtrasField('extras').with_renderer(ExtrasRenderer).validate(extras_validator))
 

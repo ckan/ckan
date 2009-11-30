@@ -4,6 +4,7 @@ from group import group_table, Group, PackageGroup
 from full_search import package_search_table
 from authz import *
 from extras import PackageExtra, package_extra_table
+from resource import PackageResource, package_resource_table
 from rating import *
 from licenses import LicenseList
 license_names = LicenseList.all_formatted

@@ -1,8 +1,9 @@
 import datetime
 
 from meta import *
-import full_search
 import vdm.sqlalchemy
+
+import full_search
 
 ## VDM-specific tables
 
@@ -22,7 +23,6 @@ package_table = Table('package', metadata,
         Column('title', types.UnicodeText),
         Column('version', types.Unicode(100)),
         Column('url', types.UnicodeText),
-        Column('download_url', types.UnicodeText),
         Column('author', types.UnicodeText),
         Column('author_email', types.UnicodeText),
         Column('maintainer', types.UnicodeText),
@@ -135,6 +135,14 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         text_query = text_query
         return self.query.filter(self.name.contains(text_query.lower()))
 
+    def add_resource(self, url, format=u'', description=u''):
+        import resource
+        self.resources.append(resource.PackageResource(
+            package_id=self.id,
+            url=url,
+            format=format,
+            description=description))
+        
     def add_tag_by_name(self, tagname):
         if not tagname:
             return
@@ -245,7 +253,7 @@ mapper(Package, package_table, properties={
         ),
     'package_search':relation(full_search.PackageSearch,
         cascade='all, delete', #, delete-orphan',
-        )    
+        ),
     },
     order_by=package_table.c.name,
     extension = [vdm.sqlalchemy.Revisioner(package_revision_table),

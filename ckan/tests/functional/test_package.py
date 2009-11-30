@@ -53,7 +53,7 @@ class TestPackageController(TestController):
         assert self.anna.version in res
         assert 'Url:' in res
         assert self.anna.url in res
-        assert cgi.escape(self.anna.download_url) in res
+        assert cgi.escape(self.anna.resources[0].url) in res
         assert 'Notes:' in res
         assert 'Some test notes' in res
         assert '<strong>Some bolded text.</strong>' in res
@@ -186,7 +186,7 @@ class TestPackageControllerEdit(TestController):
         prefix = 'Package-%s-' % self.pkgid
         fv[prefix + 'title'] =  new_title
         fv[prefix + 'url'] =  newurl
-        fv[prefix + 'download_url'] =  new_download_url
+        fv[prefix + 'resources'] =  [[new_download_url]]
         fv[prefix + 'license_id'] =  newlicenseid
         fv[prefix + 'version'] = newversion
         res = fv.submit('commit')
@@ -199,7 +199,7 @@ class TestPackageControllerEdit(TestController):
         pkg = model.Package.by_name(self.editpkg.name)
         assert pkg.title == new_title 
         assert pkg.url == newurl
-        assert pkg.download_url == new_download_url
+        assert pkg.resources[0].url == new_download_url
         assert pkg.version == newversion
         assert newlicense == pkg.license.name
 

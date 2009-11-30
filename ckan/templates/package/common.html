@@ -13,13 +13,13 @@
       <py:if test="package.isopen()">
         <img src="/images/tick.png" title="This package is openly licensed" alt="This package is openly licensed" />
       </py:if>
-      <py:if test="not package.download_url">
+      <py:if test="not package.resources">
         <img src="/images/cross.png" title="This package is NOT downloadable" alt="This package is NOT downloadable" />
       </py:if>
-      <py:if test="package.download_url">
+      <py:if test="package.resources">
         <img src="/images/tick.png" title="This package is downloadable" alt="This package is downloadable" />
       </py:if>
-      <py:if test="package.isopen() and package.download_url">
+      <py:if test="package.isopen() and package.resources">
         <img src="http://m.okfn.org/images/ok_buttons/ok_80x15_blue.png" alt="This package is open" title="This package is open" />
       </py:if>
     </div>

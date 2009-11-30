@@ -87,6 +87,16 @@ class TestForms:
         assert 'tags' in out
         assert 'value="russian tolstoy"' in out
 
+    def test_2_resources(self):
+        fs = ckan.forms.package_fs
+        anna = model.Package.by_name(u'annakarenina')
+        fs = fs.bind(anna)
+        out = fs.resources.render()
+        for res in anna.resources:
+            assert res.url in out, out
+            assert res.format in out, out
+            assert res.description in out, out        
+
     def test_2_fields(self):
         fs = ckan.forms.package_fs
         anna = model.Package.by_name(u'annakarenina')
@@ -118,6 +128,9 @@ class TestForms:
         indict['Package--license_id'] = '1'
         indict['Package--extras-newfield0-key'] = u'testkey'
         indict['Package--extras-newfield0-value'] = u'testvalue'
+        indict['Package--resources-0-url'] = u'http:/1'
+        indict['Package--resources-0-format'] = u'xml'
+        indict['Package--resources-0-description'] = u'test desc'
         fs = ckan.forms.package_fs.bind(model.Package, data=indict)
 
         model.repo.new_revision()
@@ -141,6 +154,13 @@ class TestForms:
         assert outpkg._extras.values()[0].key == u'testkey', outpkg._extras.values()[0].key
         assert outpkg._extras.values()[0].value == u'testvalue', outpkg._extras.values()[0].value
 
+        # test resources
+        assert len(outpkg.resources) == 1, outpkg.resources
+        res = outpkg.resources[0]
+        assert res.url == u'http:/1', res.url
+        assert res.description == u'test desc', res.description
+        assert res.format == u'xml', res.format
+        
         model.repo.commit_and_remove()
 
     def test_4_sync_update(self):
@@ -154,6 +174,9 @@ class TestForms:
         indict[prefix + 'license_id'] = '1'
         indict[prefix + 'extras-newfield0-key'] = u'testkey'
         indict[prefix + 'extras-newfield0-value'] = u'testvalue'
+        indict[prefix + 'resources-0-url'] = u'http:/1'
+        indict[prefix + 'resources-0-format'] = u'xml'
+        indict[prefix + 'resources-0-description'] = u'test desc'
         
         fs = ckan.forms.package_fs.bind(anna, data=indict)
         model.repo.new_revision()
@@ -179,6 +202,13 @@ class TestForms:
         # test extra
         assert outpkg.extras.has_key(u'testkey'), outpkg._extras.keys()
         assert outpkg.extras[u'testkey'] == u'testvalue', outpkg._extras.values()[0].value
+
+        # test resources
+        assert len(outpkg.resources) == 1, outpkg.resources
+        res = outpkg.resources[0]
+        assert res.url == u'http:/1', res.url
+        assert res.description == u'test desc', res.description
+        assert res.format == u'xml', res.format
 
         model.repo.commit_and_remove()
 

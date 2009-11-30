@@ -6,7 +6,19 @@
       <li><strong>Title:</strong> ${c.pkg_title}</li>
       <li><strong>Version:</strong> ${c.pkg_version}</li>
       <li><strong>Url:</strong> <a href="${c.pkg_url}">${c.pkg_url}</a></li>
-      <li><strong>Download Url:</strong> <a href="${c.pkg_download_url}">${c.pkg_download_url}</a></li>
+      <li><strong>Resources:</strong> 
+      <py:if test="c.pkg_resources">
+        <table>
+          <tr> <th>URL</th><th>Format</th><th>Description</th> </tr>
+
+        <py:for each="url, format, description in c.pkg_resources">
+          <tr> <td><a href="${url}">${url}</a></td><td>${format}</td><td>${description}</td> </tr>
+
+        </py:for>
+
+        </table>
+      </py:if>
+      </li>
       <li><strong>Author:</strong> ${c.pkg_author}</li>
       <li><strong>Author email:</strong> ${c.pkg_author_email}</li>
       <li><strong>Maintainer:</strong> ${c.pkg_maintainer}</li>

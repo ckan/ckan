@@ -240,7 +240,20 @@ class CreateTestData(CkanCommand):
         pkg1.version = u'0.7a'
         pkg1.url = u'http://www.annakarenina.com'
         # put an & in the url string to test escaping
-        pkg1.download_url = u'http://www.annakarenina.com/download/x=1&y=2'
+        pkg1.resources.append(
+            model.PackageResource(
+              url=u'http://www.annakarenina.com/download/x=1&y=2',
+              format=u'plain text',
+              description='Full text',
+              )
+            )
+        pkg1.resources.append(
+            model.PackageResource(
+              url=u'http://www.annakarenina.com/index.json',
+              format=u'json',
+              description='Index of the novel',
+              )
+            )
         pkg1.notes = u'''Some test notes
 
 ### A 3rd level heading
