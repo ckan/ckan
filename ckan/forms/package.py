@@ -21,11 +21,11 @@ def tag_name_validator(val, field):
     for tag in val:
         min_length = 2
         if len(tag.name) < min_length:
-            raise formalchemy.ValidationError('Tag "%s" length is less than minimum %s' % (tag, min_length))
+            raise formalchemy.ValidationError('Tag "%s" length is less than minimum %s' % (tag.name, min_length))
         if not tagname_match.match(tag.name):
-            raise formalchemy.ValidationError('Tag "%s" must be alphanumeric characters or symbols: -_.' % (tag))
+            raise formalchemy.ValidationError('Tag "%s" must be alphanumeric characters or symbols: -_.' % (tag.name))
         if tagname_uppercase.search(tag.name):
-            raise formalchemy.ValidationError('Tag "%s" must not be uppercase' % (tag))            
+            raise formalchemy.ValidationError('Tag "%s" must not be uppercase' % (tag.name))            
         
 tagname_match = re.compile('[\w\-_.]*$', re.UNICODE)
 tagname_uppercase = re.compile('[A-Z]')

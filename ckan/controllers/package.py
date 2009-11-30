@@ -309,7 +309,7 @@ class PackageController(BaseController):
         if not validation:
             errors = []            
             for field, err_list in fs.errors.items():
-                errors.append("%s:%s" % (field.name, ";".join(err_list)))
+                errors.append("%s: %s" % (field.name, ";".join(err_list)))
             c.error = ', '.join(errors)
             c.form = self._render_edit_form(fs, request.params)
             raise ValidationException(c.error, fs)
