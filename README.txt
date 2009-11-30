@@ -155,7 +155,7 @@ Create file /etc/apache2/sites-enabled/demo.ckan.net as follows:
 $ mkdir data
 $ chmod g+w -R data
 $ sudo chgrp -R www-data data
-$ cp pyenv/src/ckan/who.ini ./
+$ ln -s pyenv/src/ckan/who.ini
 
 
 11. Run Apache
