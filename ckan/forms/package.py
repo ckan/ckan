@@ -196,19 +196,27 @@ class TagEditRenderer(formalchemy.fields.FieldRenderer):
       <br/>
       '''
     def render(self, **kwargs):
-        tags = self.field.parent.tags.value or self.field.parent.model.tags or []
-        tags_as_string = self._convert_tags(tags)
+        tags_as_string = self._tags_string()
         return self.tag_field_template % (h.text_field(self.name, value=tags_as_string, size=60, **kwargs), self.field.parent.model.id or '')
 
-    def _convert_tags(self, tags_dict):
-        if tags_dict:
-            tagnames = [ tag.name for tag in tags_dict ]
+    def _tags_string(self):
+        tags = self.field.parent.tags.value or self.field.parent.model.tags or []
+        if tags:
+            tagnames = [ tag.name for tag in tags ]
         else:
             tagnames = []
         return ' '.join(tagnames)
 
+    def _tag_links(self):
+        tags = self.field.parent.tags.value or self.field.parent.model.tags or []
+        if tags:
+            tagnames = [ tag.name for tag in tags ]
+        else:
+            tagnames = []
+        return ' '.join(['<a href="/tag/read/%s">%s</a>' % (str(tag), str(tag)) for tag in tagnames])
+
     def render_readonly(self, **kwargs):
-        tags_as_string = self._convert_tags(self.field.parent.tags.value)
+        tags_as_string = self._tag_links()
         return common.field_readonly_renderer(self.field.key, tags_as_string)
 
     def deserialize(self):
@@ -231,6 +239,10 @@ class StateRenderer(formalchemy.fields.FieldRenderer):
         selected = int(kwargs.get('selected', None) or self._value)
         options = [(s.name, s.id) for s in model.State.query.all()]
         return h.select(self.name, h.options_for_select(options, selected=selected), **kwargs)
+
+    def render_readonly(self, **kwargs):
+        value_str = model.State.query.get(int(self._value)).name
+        return common.field_readonly_renderer(self.field.key, value_str)
 
 class PackageFieldSet(formalchemy.FieldSet):
     def __init__(self):

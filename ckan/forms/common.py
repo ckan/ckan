@@ -31,6 +31,11 @@ def package_names_validator(val, field=None):
 def field_readonly_renderer(key, value):
     if value is None:
         value = ''
+    key = key.capitalize().replace('_', ' ')
+    if key in ('Url', 'Download url'):
+        key = key.replace(u'Url', u'URL')
+        key = key.replace(u'url', u'URL')
+        value = '<a href="%s">%s</a>' % (value, value)        
     return '<strong>%s:</strong> %s<br/>' % (key, value)
 
 class CustomTextFieldRenderer(formalchemy.fields.TextFieldRenderer):

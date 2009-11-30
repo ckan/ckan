@@ -7,6 +7,7 @@ from pylons.controllers.util import abort, redirect_to
 import genshi
 
 from ckan.lib.base import *
+from ckan.lib.package_render import package_render
 import ckan.forms
 from licenses import LicenseList
 
@@ -66,7 +67,7 @@ class ImporterController(BaseController):
             if errors:
                 all_errors.append(errors)
             if count < 5 or errors or warnings:
-                c.import_previews.append(genshi.HTML(self._render_package(fs, errors, warnings)))
+                c.import_previews.append(genshi.HTML(self.package_render(fs, errors, warnings)))
             else:
                 c.pkgs_suppressed
             c.fs_list.append(fs)
@@ -156,21 +157,6 @@ class ImporterController(BaseController):
         buf = f_obj.read()
         f_obj.close() 
         return buf
-
-    def _render_package(self, fs, errors, warnings):
-        fields_html = ''
-        item_template = '<li>%s</li>\n'
-        for key, field in fs.render_fields.items():
-            rendering = field.render_readonly()
-            if isinstance(rendering, list):
-                for rendering_item in rendering:
-                    fields_html += item_template % rendering_item
-            else:
-                fields_html += item_template % rendering
-        fields_html += item_template % ('Errors: %s' % errors)
-        fields_html += item_template % ('Warnings: %s' % warnings)
-        html = '<ul>\n%s\n</ul>\n' % fields_html
-        return html
 
     def _validate(self, fs):
         errors = []

@@ -21,7 +21,8 @@ class SearchVectorTrigger(sqlalchemy.orm.interfaces.MapperExtension):
             pkgs = instance.packages
 
         for pkg in pkgs:
-            pkg_dict = pkg.as_dict()
+            pkg_dict = pkg.as_dict() # note: license and extras aren't
+                                     # updated here yet for new items?
             self.update_package_vector(pkg_dict, engine)
 
     def update_package_vector(self, pkg_dict, engine):

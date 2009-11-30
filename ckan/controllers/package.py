@@ -6,6 +6,7 @@ import simplejson
 
 from ckan.lib.base import *
 from ckan.lib.search import Search, SearchOptions
+from ckan.lib.package_render import package_render
 import ckan.forms
 import ckan.authz
 import ckan.rating
@@ -86,7 +87,7 @@ class PackageController(BaseController):
         else:
             fs = ckan.forms.package_fs
         fs = fs.bind(c.pkg)
-        c.content = genshi.HTML(self._render_package(fs))
+        c.content = genshi.HTML(self._render_package_with_template(fs))
 
         c.current_rating, c.num_ratings = ckan.rating.get_rating(c.pkg)
         
@@ -342,54 +343,47 @@ class PackageController(BaseController):
             model.Session.commit()
 
     def _render_package(self, fs):
+        return package_render(fs)
+
+    def _render_package_with_template(self, fs):
         # Todo: More specific error handling (don't catch-all and set 500)?
-#        try:
-            c.pkg_name = fs.name.value
-            c.pkg_version = fs.version.value
-            c.pkg_title = fs.title.value
-            c.pkg_url = fs.url.value
-            c.pkg_download_url = fs.download_url.value
-            c.pkg_author = fs.author.value
-            c.pkg_author_email = fs.author_email.value
-            c.pkg_maintainer = fs.maintainer.value
-            c.pkg_maintainer_email = fs.maintainer_email.value
-            if c.auth_for_change_state:
-                c.pkg_state = model.State.query.get(fs.state.value).name
-            if fs.license.value:
-                c.pkg_license = model.License.query.get(fs.license.value).name
-            else:
-                c.pkg_license = None
-            if fs.tags.value:
-                c.pkg_tags = [tag.name for tag in fs.tags.value]
-            elif fs.model.tags:
-                c.pkg_tags = [tag.name for tag in fs.model.tags_ordered]
-            else:
-                c.pkg_tags = []
-##            if fs.groups.value:
-##                c.pkg_groups = [group.name for group in fs.groups.value]
-            if fs.model.groups:
-                c.pkg_groups = [group.name for group in fs.model.groups]
-            else:
-                c.pkg_groups = []
-            import ckan.misc
-            format = ckan.misc.MarkdownFormat()
-            notes_formatted = format.to_html(fs.notes.value)
-            notes_formatted = genshi.HTML(notes_formatted)
-            c.pkg_notes_formatted = notes_formatted
-            c.pkg_extras = []
-            if fs.extras.value:
-                for key, value in fs.extras.value:
-                    c.pkg_extras.append((key.capitalize(), value))
-            else:
-                for key, extra in fs.model._extras.items():
-                    c.pkg_extras.append((key.capitalize(), extra.value))
-            
-            preview = render('package/read_content')
-#        except Exception, inst:
-#            self.status_code = 500
-#            preview = 'There was an error rendering the package: %s' % inst
-            return preview
+        c.pkg_name = fs.name.value
+        c.pkg_version = fs.version.value
+        c.pkg_title = fs.title.value
+        c.pkg_url = fs.url.value
+        c.pkg_download_url = fs.download_url.value
+        c.pkg_author = fs.author.value
+        c.pkg_author_email = fs.author_email.value
+        c.pkg_maintainer = fs.maintainer.value
+        c.pkg_maintainer_email = fs.maintainer_email.value
+        if c.auth_for_change_state:
+            c.pkg_state = model.State.query.get(fs.state.value).name
+        if fs.license.value:
+            c.pkg_license = model.License.query.get(fs.license.value).name
+        else:
+            c.pkg_license = None
+        if fs.tags.value:
+            c.pkg_tags = [tag.name for tag in fs.tags.value]
+        elif fs.model.tags:
+            c.pkg_tags = [tag.name for tag in fs.model.tags_ordered]
+        else:
+            c.pkg_tags = []
+        if fs.model.groups:
+            c.pkg_groups = [group.name for group in fs.model.groups]
+        else:
+            c.pkg_groups = []
+        import ckan.misc
+        format = ckan.misc.MarkdownFormat()
+        notes_formatted = format.to_html(fs.notes.value)
+        notes_formatted = genshi.HTML(notes_formatted)
+        c.pkg_notes_formatted = notes_formatted
+        c.pkg_extras = []
+        if fs.extras.value:
+            for key, value in fs.extras.value:
+                c.pkg_extras.append((key.capitalize(), value))
+        else:
+            for key, extra in fs.model._extras.items():
+                c.pkg_extras.append((key.capitalize(), extra.value))
 
-
-
-
+        preview = render('package/read_content')
+        return preview

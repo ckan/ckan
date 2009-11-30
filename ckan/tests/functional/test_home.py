@@ -43,7 +43,8 @@ class TestHomeController(TestController):
         assert 'Packages - Search' in results_page, results_page
         assert '0 packages found' in results_page, results_page
 
-    def test_register_new_package(self):
+    # DISABLED because this is not on home page anymore
+    def _test_register_new_package(self):
         offset = url_for('home')
         res = self.app.get(offset)
         form = res.forms[1]

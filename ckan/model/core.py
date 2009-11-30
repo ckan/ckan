@@ -173,7 +173,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         _dict = DomainObject.as_dict(self)
         _dict['tags'] = [tag.name for tag in self.tags]
         _dict['groups'] = [group.name for group in self.groups]
-        if self.license_id > 0:
+        if self.license:
             _dict['license'] = self.license.name
         else:
             _dict['license'] = ''

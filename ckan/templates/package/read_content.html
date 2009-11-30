@@ -5,8 +5,8 @@
     <ul>
       <li><strong>Title:</strong> ${c.pkg_title}</li>
       <li><strong>Version:</strong> ${c.pkg_version}</li>
-      <li><strong>Url:</strong> <a href="${c.pkg_url}">${c.pkg_url}</a></li>
-      <li><strong>Download Url:</strong> <a href="${c.pkg_download_url}">${c.pkg_download_url}</a></li>
+      <li><strong>URL:</strong> <a href="${c.pkg_url}">${c.pkg_url}</a></li>
+      <li><strong>Download URL:</strong> <a href="${c.pkg_download_url}">${c.pkg_download_url}</a></li>
       <li><strong>Author:</strong> ${c.pkg_author}</li>
       <li><strong>Author email:</strong> ${c.pkg_author_email}</li>
       <li><strong>Maintainer:</strong> ${c.pkg_maintainer}</li>
@@ -21,7 +21,7 @@
         <a href="${h.url_for(controller='group', action='read', id=group_name)}">${group_name}</a>
         </py:for>
       </li>
-      <li><strong>Licenses:</strong> ${c.pkg_license}</li>
+      <li><strong>License:</strong> ${c.pkg_license}</li>
       <py:if test="c.pkg_state">
          <li><strong>State:</strong> ${c.pkg_state}</li>
       </py:if>

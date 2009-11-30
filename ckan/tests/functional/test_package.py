@@ -47,17 +47,17 @@ class TestPackageController(TestController):
         res = self.app.get(offset)
         # only retrieve after app has been called
         self.anna = model.Package.by_name(name)
-        print res
+        print self.main_div(res)
         assert 'Packages - %s' % name in res
         assert name in res
         assert self.anna.version in res
-        assert 'Url:' in res
+        assert 'url:' in str(res).lower()
         assert self.anna.url in res
-        assert cgi.escape(self.anna.download_url) in res
+        assert cgi.escape(self.anna.download_url) in res, cgi.escape(self.anna.download_url)
         assert 'Notes:' in res
         assert 'Some test notes' in res
         assert '<strong>Some bolded text.</strong>' in res
-        assert 'Licenses:' in res
+        assert 'License:' in res
         assert 'OKD Compliant::' in res
         assert 'Tags:' in res
         assert 'russian' in res
@@ -277,7 +277,6 @@ Hello world.
         for key, value in extras.items():
             pkg.extras[unicode(key)] = unicode(value)
         model.repo.commit_and_remove()
-
         pkg = model.Package.by_name(pkg_name)
         model.setup_default_user_roles(pkg, [self.admin])
 
@@ -341,33 +340,32 @@ Hello world.
 
         # Check preview is correct
         res1 = str(res).replace('</strong>', '')
-        assert 'Preview' in res, res
-        assert 'Title: %s' % str(title) in res1, res
-        assert 'Version: %s' % str(version) in res1, res
-        assert 'Url: <a href="%s">' % str(url) in res1, res
-        assert 'Download Url: <a href="%s">' % str(download_url) in res1, res
-        assert '<p>%s' % str(notes) in res1, res
-        assert 'Licenses: %s' % str(license) in res1, res
-        tags_html_list = ['        <a href="/tag/read/%s">%s</a>' % (str(tag), str(tag)) for tag in tags]
-        tags_html = '\n'.join(tags_html_list)
-        assert 'Tags:\n%s' % tags_html in res1, res1 + tags_html
-##        groups_html_list = ['        <a href="/group/read/%s">%s</a>' % (str(group), str(group)) for group in groups]
-##        groups_html = '\n'.join(groups_html_list)
+        preview =  res1[res1.find('<div id="preview"'):res1.find('<div id="footer">')]
+        assert 'Preview' in preview, preview
+        assert 'Title: %s' % str(title) in preview, preview
+        assert 'Version: %s' % str(version) in preview, preview
+        assert 'URL: <a href="%s">' % str(url) in preview, preview
+        assert 'Download URL: <a href="%s">' % str(download_url) in preview, preview
+        assert '<p>%s' % str(notes) in preview, preview
+        assert 'License: %s' % str(license) in preview, preview
+        tags_html_list = ['<a href="/tag/read/%s">%s</a>' % (str(tag), str(tag)) for tag in tags]
+        tags_html_preview = ' '.join(tags_html_list)
+        assert 'Tags: %s' % tags_html_preview in preview, preview + tags_html_preview
         groups_html = ''
-        assert 'Groups:\n%s' % groups_html in res1, res1 + groups_html
-        assert 'State: %s' % str(state.name) in res1, res
-        assert 'Extras:' in res1, res
+#        assert 'Groups:\n%s' % groups_html in preview, preview + groups_html
+        assert 'State: %s' % str(state.name) in preview, preview
+#        assert 'Extras:' in preview, preview
         current_extras = (('key2', extras['key2']),
                           extra_changed,
                           extra_new)
         deleted_extras = [('key3', extras['key3'])]
         for key, value in current_extras:
             extras_html = '%(key)s: %(value)s' % {'key':key.capitalize(), 'value':value}
-            assert extras_html in res1, str(res) + extras_html
+            assert extras_html in preview, str(preview) + extras_html
         for key, value in deleted_extras:
             extras_html = '%(key)s: %(value)s' % {'key':key.capitalize(), 'value':value}
-            assert extras_html not in res1, str(res) + extras_html
-        assert '<li><strong>:</strong> </li>' not in res, res
+            assert extras_html not in preview, str(preview) + extras_html
+        assert '<li><strong>:</strong> </li>' not in preview, preview
 
         # Check form is correctly filled
         assert 'name="%stitle" size="40" type="text" value="%s"' % (prefix, title) in res, res
@@ -396,16 +394,18 @@ Hello world.
         # Check package page
         assert not 'Error' in res, res
         res = res.follow(extra_environ={'REMOTE_USER':'testadmin'})
-        res1 = str(res).replace('</strong>', '')
-        assert 'Packages - %s' % str(name) in res1, res1
+        res1 = self.main_div(res).replace('</strong>', '')
+        assert 'Packages - %s' % str(name) in res, res
         assert 'Package: %s' % str(name) in res1, res1
         assert 'Title: %s' % str(title) in res1, res1
         assert 'Version: %s' % str(version) in res1, res1
-        assert 'Url: <a href="%s">' % str(url) in res1, res
-        assert 'Download Url: <a href="%s">' % str(download_url) in res1, res
+        assert 'url: <a href="%s">' % str(url).lower() in res1.lower(), res1
+        assert 'download url: <a href="%s">' % str(download_url).lower() in res1.lower(), res1
         assert '<p>%s' % str(notes) in res1, res1
-        assert 'Licenses: %s' % str(license) in res1, res1
-        assert 'Tags:\n%s' % tags_html in res1, res1 + tags_html
+        assert 'License: %s' % str(license) in res1, res1
+        assert 'Tags:' in res1, res1
+        for tag_html in tags_html_list:
+            assert tag_html in res1, tag_html + res1
         assert 'Groups:\n%s' % groups_html in res1, res1 + groups_html
         assert 'State: %s' % str(state.name) in res1, res1
         for key, value in current_extras:
@@ -515,22 +515,21 @@ class TestPackageControllerNew(TestController):
 
         # Check preview is correct
         res1 = str(res).replace('</strong>', '')
+        preview =  res1[res1.find('<div id="preview"'):res1.find('<div id="footer">')]
         assert 'Preview' in res
-        assert 'Title: %s' % str(title) in res1, res
-        assert 'Version: %s' % str(version) in res1, res
-        assert 'Url: <a href="%s">' % str(url) in res1, res
-        assert 'Download Url: <a href="%s">' % str(download_url) in res1, res
-        assert '<p>%s' % str(notes) in res1, res
-        assert 'Licenses: %s' % str(license) in res1, res
+        assert 'Title: %s' % str(title) in preview, preview
+        assert 'Version: %s' % str(version) in preview, preview
+        assert 'URL: <a href="%s">' % str(url) in preview, preview
+        assert 'Download URL: <a href="%s">' % str(download_url) in preview, preview
+        assert '<p>%s' % str(notes) in preview, preview
+        assert 'License: %s' % str(license) in preview, preview
         for tag in tags:
-            assert '%s</a>' % tag.lower() in res
-        assert 'Groups:\n' in res1, res1
-        assert 'Extras:' in res1, res
+            assert '%s</a>' % tag.lower() in preview
         current_extras = extras.items()
         for key, value in current_extras:
             extras_html = '%(key)s: %(value)s' % {'key':key.capitalize(), 'value':value}
-            assert extras_html in res1, str(res) + extras_html
-        assert '<li><strong>:</strong> </li>' not in res, res
+            assert extras_html in preview, str(preview) + extras_html
+        assert '<li><strong>:</strong> </li>' not in preview, preview
 
         # Check form is correctly filled
         assert 'name="Package--title" size="40" type="text" value="%s"' % title in res, res
@@ -554,15 +553,15 @@ class TestPackageControllerNew(TestController):
         # Check package page
         assert not 'Error' in res, res
         res = res.follow()
-        res1 = str(res).replace('</strong>', '')
-        assert 'Packages - %s' % str(name) in res1, res1
+        res1 = self.main_div(res).replace('</strong>', '')
+        assert 'Packages - %s' % str(name) in res, res
         assert 'Package: %s' % str(name) in res1, res1
         assert 'Title: %s' % str(title) in res1, res1
         assert 'Version: %s' % str(version) in res1, res1
-        assert 'Url: <a href="%s">' % str(url) in res1, res
-        assert 'Download Url: <a href="%s">' % str(download_url) in res1, res
+        assert 'url: <a href="%s">' % str(url).lower() in res1.lower(), res1
+        assert 'download url: <a href="%s">' % str(download_url).lower() in res1.lower(), res1
         assert '<p>%s' % str(notes) in res1, res1
-        assert 'Licenses: %s' % str(license) in res1, res1
+        assert 'License: %s' % str(license) in res1, res1
         assert 'Tags:' in res1, res1
         for tag in tags:
             assert '%s</a>' % tag.lower() in res

@@ -122,8 +122,9 @@ class TestForms:
 
         model.repo.new_revision()
         fs.sync()
-        outpkg = fs.model
+        model.repo.commit_and_remove()
 
+        outpkg = model.Package.by_name(u'testname')
         assert outpkg.notes == indict['Package--notes']
 
         # test tags
@@ -141,7 +142,6 @@ class TestForms:
         assert outpkg._extras.values()[0].key == u'testkey', outpkg._extras.values()[0].key
         assert outpkg._extras.values()[0].value == u'testvalue', outpkg._extras.values()[0].value
 
-        model.repo.commit_and_remove()
 
     def test_4_sync_update(self):
         newtagname = 'newtagname'
