@@ -30,7 +30,10 @@ class TestSimpleDump(TestController):
         assert 'russian tolstoy' in res, res
         assert 'genre' in res, res
         assert 'romantic novel' in res, res
-
+        assert 'romantic novel' in res, res
+        assert 'annakarenina.com/download' in res, res
+        assert 'Index of the novel' in res, res
+        
     def test_simple_dump_json(self):
         dump_file = tempfile.TemporaryFile()
         simple_dumper.dump(dump_file, 'json')

@@ -46,7 +46,7 @@ class TestData:
         assert pkg1.title == 'Age and limiting long-term illness by NS-SeC', pkg1.title
         assert pkg1.author == 'Nomis', pkg1.author
         assert pkg1.url == 'http://www.data4nr.net/resources/719/', pkg1.url
-        assert pkg1.download_url == 'https://www.nomisweb.co.uk/query/construct/summary.asp?mode=construct&version=0&dataset=62', pkg1.download_url
+        assert pkg1.resources[0].url == 'https://www.nomisweb.co.uk/query/construct/summary.asp?mode=construct&version=0&dataset=62', pkg1.resources
         assert 'Age and limiting long-term illness by NS-SeC. Census Area Statistics Table CAS024' in pkg1.notes, pkg1.notes
         assert 'Source: Census 2001' in pkg1.notes, pkg1.notes
         assert 'Geographic coverage: England and Wales' in pkg1.notes, pkg1.notes

@@ -245,14 +245,14 @@ class CreateTestData(CkanCommand):
             model.PackageResource(
               url=u'http://www.annakarenina.com/download/x=1&y=2',
               format=u'plain text',
-              description='Full text',
+              description=u'Full text',
               )
             )
         pkg1.resources.append(
             model.PackageResource(
               url=u'http://www.annakarenina.com/index.json',
               format=u'json',
-              description='Index of the novel',
+              description=u'Index of the novel',
               )
             )
         pkg1.notes = u'''Some test notes

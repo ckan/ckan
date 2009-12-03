@@ -174,7 +174,10 @@ class Search:
 
         # Filter for options
         if self._options.filter_by_downloadable:
-            query = query.filter(model.Package.download_url!='')
+            query = query.join('resources', aliased=True).\
+                    filter(sqlalchemy.and_(
+                model.PackageResource.state_id==1,
+                model.PackageResource.package_id==model.Package.id))
         if self._options.filter_by_openness:
             if self._open_licenses is None:
                 self._update_open_licenses()

@@ -86,6 +86,8 @@ class PackageController(BaseController):
             fs = ckan.forms.package_fs_admin
         else:
             fs = ckan.forms.package_fs
+        # this line needed or the resources relation doesn't bind:
+        resources = c.pkg.resources
         fs = fs.bind(c.pkg)
         c.content = genshi.HTML(self._render_package_with_template(fs))
 
@@ -351,7 +353,7 @@ class PackageController(BaseController):
         c.pkg_version = fs.version.value
         c.pkg_title = fs.title.value
         c.pkg_url = fs.url.value
-        if fs.resources.value and isinstance(fs.resources.value, model.PackageResource):
+        if fs.resources.value and isinstance(fs.resources.value[0], model.PackageResource):
             c.pkg_resources = [(res.url, res.format, res.description) for res in fs.resources.value]
         else:
             c.pkg_resources = fs.resources.value

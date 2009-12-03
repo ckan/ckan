@@ -28,7 +28,7 @@ def package_names_validator(val, field=None):
         if not model.Package.by_name(pkg_name):
             raise formalchemy.ValidationError('Package name %s does not exist in database' % pkg_name)
 
-def field_readonly_renderer(key, value):
+def field_readonly_renderer(key, value, newline_reqd=True):
     if value is None:
         value = ''
     key = key.capitalize().replace('_', ' ')
@@ -36,7 +36,10 @@ def field_readonly_renderer(key, value):
         key = key.replace(u'Url', u'URL')
         key = key.replace(u'url', u'URL')
         value = '<a href="%s">%s</a>' % (value, value)        
-    return '<strong>%s:</strong> %s<br/>' % (key, value)
+    html = '<strong>%s:</strong> %s' % (key, value)
+    if newline_reqd:
+        html += '<br/>'
+    return html
 
 class CustomTextFieldRenderer(formalchemy.fields.TextFieldRenderer):
     def render(self, **kwargs):

@@ -53,7 +53,9 @@ class TestPackageController(TestController):
         assert self.anna.version in res
         assert 'url:' in str(res).lower()
         assert self.anna.url in res
+        assert 'Resources:' in res
         assert cgi.escape(self.anna.resources[0].url) in res
+        assert self.anna.resources[0].description in res
         assert 'Notes:' in res
         assert 'Some test notes' in res
         assert '<strong>Some bolded text.</strong>' in res
@@ -96,10 +98,7 @@ class TestPackageController(TestController):
         assert 'Packages - Search' in res
         self._check_search_results(res, 'annakarenina', ['1 package found', 'annakarenina'] )
         self._check_search_results(res, 'warandpeace', ['1 package found', 'warandpeace'] )
-#        self._check_search_results(res, 'a', ['2 packages found', 'warandpeace', 'annakarenina'] )
-#        self._check_search_results(res, 'n', ['2 packages found', 'warandpeace', 'annakarenina'] )
         self._check_search_results(res, '', ['0 packages found'] )
-#        self._check_search_results(res, 'z', ['0 packages found'] )
         self._check_search_results(res, 'A Novel By Tolstoy', ['1 package found'] )
         self._check_search_results(res, 'title:Novel', ['1 package found'] )
         self._check_search_results(res, 'title:peace', ['0 packages found'] )
@@ -120,8 +119,8 @@ class TestPackageController(TestController):
         results_page = self.main_div(results_page)
         assert 'Packages - Search' in results_page, results_page
         for required in requireds:
-            print results_page
-            assert required in results_page, required
+            results_page = self.main_div(results_page)
+            assert required in results_page, "%s : %s" % (results_page, required)
     
     def test_history(self):
         name = 'annakarenina'
@@ -186,7 +185,7 @@ class TestPackageControllerEdit(TestController):
         prefix = 'Package-%s-' % self.pkgid
         fv[prefix + 'title'] =  new_title
         fv[prefix + 'url'] =  newurl
-        fv[prefix + 'resources'] =  [[new_download_url]]
+        fv[prefix + 'resources-0-url'] =  new_download_url
         fv[prefix + 'license_id'] =  newlicenseid
         fv[prefix + 'version'] = newversion
         res = fv.submit('commit')
@@ -266,7 +265,10 @@ Hello world.
         pkg = model.Package(name=pkg_name)
         pkg.title = u'This is a Test Title'
         pkg.url = u'editpkgurl.com'
-        pkg.download_url = u'editpkgurl2.com'
+        pkg.resources.append(model.PackageResource(url=u'editpkgurl1',
+              format=u'plain text', description=u'Full text'))
+        pkg.resources.append(model.PackageResource(url=u'editpkgurl2',
+              format=u'plain text2', description=u'Full text2'))
         pkg.notes= u'this is editpkg'
         pkg.version = u'2.2'
         pkg.tags = [model.Tag(name=u'one'), model.Tag(name=u'two')]
@@ -280,6 +282,7 @@ Hello world.
         pkg = model.Package.by_name(pkg_name)
         model.setup_default_user_roles(pkg, [self.admin])
 
+        # Edit it
         offset = url_for(controller='package', action='edit', id=pkg.name)
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':'testadmin'})
         assert 'Packages - Edit' in res, res
@@ -290,7 +293,12 @@ Hello world.
         assert 'name="%stitle" size="40" type="text" value="%s"' % (prefix, pkg.title) in res, res
         assert 'name="%sversion" size="40" type="text" value="%s"' % (prefix, pkg.version) in res, res
         assert 'name="%surl" size="40" type="text" value="%s"' % (prefix, pkg.url) in res, res
-        assert 'name="%sdownload_url" size="40" type="text" value="%s"' % (prefix, pkg.download_url) in res, res
+        res_html = 'id="%sresources-0-url" type="text" value="%s"' % (prefix, pkg.resources[0].url)
+        assert res_html in res, self.main_div(res) + res_html
+        for res_index, resource in enumerate(pkg.resources):
+            for res_field in ('url', 'format', 'description'):
+                expected_value = getattr(resource, res_field)
+                assert 'id="%sresources-%s-%s" type="text" value="%s"' % (prefix, res_index, res_field, expected_value) in res, res
         assert '<textarea cols="60" id="%snotes" name="%snotes" rows="15">%s</textarea>' % (prefix, prefix, pkg.notes) in res, res
         license_html = '<option value="%s" selected>%s' % (pkg.license_id, pkg.license.name)
         assert license_html in res, str(res) + license_html
@@ -308,7 +316,10 @@ Hello world.
         title = u'Test Title'
         version = u'1.1'
         url = u'http://something.com/somewhere.zip'
-        download_url = u'http://something.com/somewhere-else.zip'
+        resources = ((u'http://something.com/somewhere-else.xml', u'xml', u'Best'),
+                     (u'http://something.com/somewhere-else2.xml', u'xml2', u'Best2'),
+#                     (u'http://something.com/somewhere-else3.xml', u'xml3', u'Best3'),
+                     )
         notes = u'Very important'
         license_id = 4
         license = u'OKD Compliant::Creative Commons CCZero'
@@ -325,7 +336,9 @@ Hello world.
         fv[prefix+'title'] = title
         fv[prefix+'version'] = version
         fv[prefix+'url'] = url
-        fv[prefix+'download_url'] = download_url
+        for res_index, resource in enumerate(resources):
+            for field_index, res_field in enumerate(('url', 'format', 'description')):
+                fv[prefix+'resources-%s-%s' % (res_index, res_field)] = resource[field_index]
         fv[prefix+'notes'] = notes
         fv[prefix+'license_id'] = license_id
         fv[prefix+'tags'] = tags_txt
@@ -345,7 +358,9 @@ Hello world.
         assert 'Title: %s' % str(title) in preview, preview
         assert 'Version: %s' % str(version) in preview, preview
         assert 'URL: <a href="%s">' % str(url) in preview, preview
-        assert 'Download URL: <a href="%s">' % str(download_url) in preview, preview
+        for res_index, resource in enumerate(resources):
+            res_html = '<tr> <td><a href="%s">%s</a></td><td>%s</td><td>%s</td>' % (resource[0], resource[0], resource[1], resource[2]) 
+            assert res_html in preview, preview + res_html
         assert '<p>%s' % str(notes) in preview, preview
         assert 'License: %s' % str(license) in preview, preview
         tags_html_list = ['<a href="/tag/read/%s">%s</a>' % (str(tag), str(tag)) for tag in tags]
@@ -371,7 +386,12 @@ Hello world.
         assert 'name="%stitle" size="40" type="text" value="%s"' % (prefix, title) in res, res
         assert 'name="%sversion" size="40" type="text" value="%s"' % (prefix, version) in res, res
         assert 'name="%surl" size="40" type="text" value="%s"' % (prefix, url) in res, res
-        assert 'name="%sdownload_url" size="40" type="text" value="%s"' % (prefix, download_url) in res, res
+        res_html = 'id="%sresources-0-url" type="text" value="%s"' % (prefix, resources[0][0])
+        assert res_html in res, self.main_div(res) + res_html
+        for res_index, resource in enumerate(resources):
+            for field_index, res_field in enumerate(('url', 'format', 'description')):
+                expected_value = resource[field_index]
+                assert 'id="%sresources-%s-%s" type="text" value="%s"' % (prefix, res_index, res_field, expected_value) in res, res
         assert '<textarea cols="60" id="%snotes" name="%snotes" rows="15">%s</textarea>' % (prefix, prefix, notes) in res, res
         license_html = '<option value="%s" selected>%s' % (license_id, license)
         assert license_html in res, str(res) + license_html
@@ -400,7 +420,9 @@ Hello world.
         assert 'Title: %s' % str(title) in res1, res1
         assert 'Version: %s' % str(version) in res1, res1
         assert 'url: <a href="%s">' % str(url).lower() in res1.lower(), res1
-        assert 'download url: <a href="%s">' % str(download_url).lower() in res1.lower(), res1
+        for res_index, resource in enumerate(resources):
+            res_html = '<tr> <td><a href="%s">%s</a></td><td>%s</td><td>%s</td>' % (resource[0], resource[0], resource[1], resource[2]) 
+            assert res_html in preview, preview + res_html
         assert '<p>%s' % str(notes) in res1, res1
         assert 'License: %s' % str(license) in res1, res1
         assert 'Tags:' in res1, res1
@@ -418,7 +440,9 @@ Hello world.
         assert pkg.title == title
         assert pkg.version == version
         assert pkg.url == url
-        assert pkg.download_url == download_url
+        for res_index, resource in enumerate(resources):
+            for field_index, res_field in enumerate(('url', 'format', 'description')):
+                assert getattr(pkg.resources[res_index], res_field) == resource[field_index]
         assert pkg.notes == notes
         assert pkg.license_id == license_id
         saved_tagnames = [str(tag.name) for tag in pkg.tags]
@@ -465,6 +489,38 @@ class TestPackageControllerNew(TestController):
         form = res.forms[0]
         form['Package--name'].value == 'xxx.org'
 
+    def test_new_without_resource(self):
+        # new package
+        prefix = 'Package--'
+        name = 'test_no_res'
+        offset = url_for(controller='package', action='new')
+        res = self.app.get(offset)
+        fv = res.forms[0]
+        fv[prefix+'name'] = name
+        res = fv.submit('preview')
+        assert not 'Error' in res, res
+
+        # check preview has no resources
+        res1 = self.main_div(res).replace('</strong>', '')
+        assert '<td><a href="">' not in res1, res1
+
+        # submit
+        fv = res.forms[0]
+        res = fv.submit('commit')
+
+        # check package page
+        assert not 'Error' in res, res
+        res = res.follow()
+        res1 = self.main_div(res).replace('</strong>', '')
+        assert '<td><a href="">' not in res1, res1
+
+        # check object created
+        pkg = model.Package.by_name(name)
+        assert pkg
+        assert pkg.name == name
+        assert pkg.resources == [], pkg.resources
+
+
     def test_new(self):
         assert not model.Package.by_name(u'annakarenina')
         offset = url_for(controller='package', action='new')
@@ -501,7 +557,7 @@ class TestPackageControllerNew(TestController):
         fv[prefix+'title'] = title
         fv[prefix+'version'] = version
         fv[prefix+'url'] = url
-        fv[prefix+'download_url'] = download_url
+        fv[prefix+'resources-0-url'] = download_url
         fv[prefix+'notes'] = notes
         fv[prefix+'license_id'] = license_id
         fv[prefix+'tags'] = tags_txt
@@ -520,7 +576,8 @@ class TestPackageControllerNew(TestController):
         assert 'Title: %s' % str(title) in preview, preview
         assert 'Version: %s' % str(version) in preview, preview
         assert 'URL: <a href="%s">' % str(url) in preview, preview
-        assert 'Download URL: <a href="%s">' % str(download_url) in preview, preview
+        res_html = '<tr> <td><a href="%s">%s</a></td><td>%s</td><td>%s</td>' % (str(download_url), str(download_url), '', '') 
+        assert res_html in preview, preview + res_html
         assert '<p>%s' % str(notes) in preview, preview
         assert 'License: %s' % str(license) in preview, preview
         for tag in tags:
@@ -532,20 +589,21 @@ class TestPackageControllerNew(TestController):
         assert '<li><strong>:</strong> </li>' not in preview, preview
 
         # Check form is correctly filled
-        assert 'name="Package--title" size="40" type="text" value="%s"' % title in res, res
-        assert 'name="Package--version" size="40" type="text" value="%s"' % version in res, res
-        assert 'name="Package--url" size="40" type="text" value="%s"' % url in res, res
-        assert 'name="Package--download_url" size="40" type="text" value="%s"' % download_url in res, res
-        assert '<textarea cols="60" id="Package--notes" name="Package--notes" rows="15">%s</textarea>' % notes in res, res
+        res1 = self.main_div(res)
+        assert 'name="Package--title" size="40" type="text" value="%s"' % title in res1, res1
+        assert 'name="Package--version" size="40" type="text" value="%s"' % version in res1, res1
+        assert 'name="Package--url" size="40" type="text" value="%s"' % url in res1, res1
+        assert 'id="Package--resources-0-url" type="text" value="%s"' % download_url in res1, res1
+        assert '<textarea cols="60" id="Package--notes" name="Package--notes" rows="15">%s</textarea>' % notes in res1, res1
         license_html = '<option value="%s" selected>%s' % (license_id, license)
-        assert license_html in res, str(res) + license_html
-        assert 'name="Package--tags" size="60" type="text" value="%s"' % tags_txt.lower() in res, res
-##        assert 'name="Package--groups" size="60" type="text" value="%s"' % groups_txt in res, res
+        assert license_html in res1, str(res1) + license_html
+        assert 'name="Package--tags" size="60" type="text" value="%s"' % tags_txt.lower() in res1, res1
+##        assert 'name="Package--groups" size="60" type="text" value="%s"' % groups_txt in res1, res1
         for key, value in current_extras:
             for html in existing_extra_html:
                 extras_html = html % {'package_id':'', 'key':key, 'capitalized_key':key.capitalize(), 'value':value}
-                assert extras_html in res, str(res) + extras_html
-        assert log_message in res
+                assert extras_html in res1, str(res1) + extras_html
+        assert log_message in res1
 
         # Submit
         res = fv.submit('commit')
@@ -559,7 +617,7 @@ class TestPackageControllerNew(TestController):
         assert 'Title: %s' % str(title) in res1, res1
         assert 'Version: %s' % str(version) in res1, res1
         assert 'url: <a href="%s">' % str(url).lower() in res1.lower(), res1
-        assert 'download url: <a href="%s">' % str(download_url).lower() in res1.lower(), res1
+        assert '<td><a href="%s">' % str(download_url) in res1, res1
         assert '<p>%s' % str(notes) in res1, res1
         assert 'License: %s' % str(license) in res1, res1
         assert 'Tags:' in res1, res1
@@ -576,7 +634,7 @@ class TestPackageControllerNew(TestController):
         assert pkg.title == title
         assert pkg.version == version
         assert pkg.url == url
-        assert pkg.download_url == download_url
+        assert pkg.resources[0].url == download_url
         assert pkg.notes == notes
         assert pkg.license_id == license_id
         saved_tagnames = [str(tag.name) for tag in pkg.tags]

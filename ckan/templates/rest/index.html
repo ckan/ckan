@@ -81,13 +81,14 @@ Note: To search, there are two ways to provide parameters - you can use either o
 <table>
 <tbody><tr><th> <strong>Name</strong>   </th><th> <strong>Format</strong>                
 </th></tr><tr><td> Package-List </td><td> [ Name-String, Name-String, Name-String, ... ] 
-</td></tr><tr><td> Package      </td><td> { name: Name-String, title: String, description: String, url: String, download_url: String, tags: Tag-List, extras: { Name-String: Value-String, ... } } 
+</td></tr><tr><td> Package      </td><td> { name: Name-String, title: String, version: String, url: String, resources: [ Resource-Dict, Resource-Dict, ... ], author: String, author_email: String, maintainer: String, maintainer_email: String, license: String, tags: Tag-List, notes: String, extras: { Name-String: Value-String, ... } } 
 </td></tr><tr><td> Group-List </td><td> [ Name-String, Name-String, Name-String, ... ] 
 </td></tr><tr><td> Group      </td><td> { name: Name-String, title: String, description: String, packages: Group-List } 
 
 </td></tr><tr><td> Tag-List     </td><td> [ Name-String, Name-String, Name-String, ... ] 
 </td></tr><tr><td> Tag          </td><td> { name: Name-String } 
 </td></tr><tr><td> Name-String  </td><td> An alphanumeric string. 
+</td></tr><tr><td> Resource-Dict      </td><td> { url: String, format: String, description: String } 
 </td></tr><tr><td> Query-String </td><td> [ q: String ]
 </td></tr><tr><td> Search-Response </td><td> { count: Count-int, results: [Package-Name-String, Package-Name-String, ... ] } or { count: Count-int, results: [{ name:Name-String, title: String ... }, { name:Name-String, title: String ... }, etc. ] }
 </td></tr></tbody></table>

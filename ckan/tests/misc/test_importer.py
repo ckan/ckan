@@ -16,11 +16,13 @@ EXTENSIONS = [XL_EXTENSION, CSV_EXTENSION]
 
 EXAMPLE_DICTS = [{'name':'wikipedia',
                   'title':'Wikipedia',
-                  'download_url':'http://download.wikimedia.org/',
+                  'resource-0-url':'http://static.wikipedia.org/downloads/2008-06/en/wikipedia-en-html.tar.7z',
+                  'resource-0-format':'html',
+                  'resource-0-description':'In English',
                   'tags':'encyclopedia reference'},
                  {'name':'tviv',
                   'title':'TV IV',
-                  'download_url':'http://tviv.org/Category:Grids',
+                  'resource-0-url':'http://tviv.org/Category:Grids',
                   'tags':'tv encyclopedia'},
                  ]
 
@@ -158,12 +160,20 @@ class _Test1Import(TestController):
 def pkg_to_xl_dict(pkg):
     '''Convert a Package object to a dictionary suitable for XL format'''
     dict_ = pkg.as_dict()
+    del dict_['download_url'] # deprecated - only in there for compatibility
     for key, value in dict_.items():
         if key.endswith('_id') or key.startswith('rating') or key == 'id':
             del dict_[key]
-        if isinstance(value, (list, tuple)):
+        if key=='resources':
+            for i, res in enumerate(value):
+                prefix = 'resource-%i' % i
+                dict_[prefix + '-url'] = res['url']
+                dict_[prefix + '-format'] = res['format']
+                dict_[prefix + '-description'] = res['description']
+            del dict_[key]
+        elif isinstance(value, (list, tuple)):
             dict_[key] = ' '.join(value)
-        if key=='extras':
+        elif key=='extras':
             for key_, value_ in value.items():
                 dict_[key_] = value_
             del dict_[key]
@@ -172,12 +182,20 @@ def pkg_to_xl_dict(pkg):
 def pkg_to_fs_dict(pkg):
     '''Convert a Package object to a dictionary suitable for fieldset data'''
     dict_ = pkg.as_dict()
+    del dict_['download_url'] # deprecated - only in there for compatibility
     for key, value in dict_.items():
         if (key.endswith('_id') and key != 'license_id') or key.startswith('rating') or key == 'id':
             del dict_[key]
-        if isinstance(value, (list, tuple)):
+        if key=='resources':
+            for i, res in enumerate(value):
+                prefix = 'resource-%i' % i
+                dict_[prefix + '-url'] = res['url']
+                dict_[prefix + '-format'] = res['format']
+                dict_[prefix + '-description'] = res['description']
+            del dict_[key]
+        elif isinstance(value, (list, tuple)):
             dict_[key] = ' '.join(value)
-        if key == 'license':
+        elif key == 'license':
             license = model.License.by_name(unicode(value))
             if license:
                 dict_['license_id'] = license.id

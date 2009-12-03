@@ -27,7 +27,15 @@ class SimpleDumper(object):
             # flatten dict
             for name, value in pkg_dict.items()[:]:
                 if isinstance(value, (list, tuple)):
-                    pkg_dict[name] = ' '.join(value)
+                    if value and isinstance(value[0], dict) and name == 'resources':
+                        for i, res in enumerate(value):
+                            prefix = 'resource-%i' % i
+                            pkg_dict[prefix + '-url'] = res['url']
+                            pkg_dict[prefix + '-format'] = res['format']
+                            pkg_dict[prefix + '-description'] = res['description']
+                    else:
+                        print name=='resources', repr(value)
+                        pkg_dict[name] = ' '.join(value)
                 if isinstance(value, dict):
                     for name_, value_ in value.items():
                         pkg_dict[name_] = value_
