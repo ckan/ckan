@@ -13,4 +13,4 @@ database, the voting records of MPs, or 30 years of US patents.
 Those familiar with freshmeat or CPAN can think of CKAN as providing an
 analogous service for open knowledge. 
 '''
-__license__ = 'MIT'
+__license__ = 'AGPL'
