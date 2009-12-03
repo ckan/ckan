@@ -454,8 +454,10 @@ It appears that the website is under a CC-BY-SA license. Legal status of the dat
                     val = unicode(val)
                 if attr=='name':
                     continue                
-                if attr in ['title', 'version', 'url', 'download_url']:
+                if attr in ['title', 'version', 'url']:
                     setattr(pkg, attr, unicode(val))
+                elif attr == 'download_url':
+                    pkg.add_resource(unicode(val))
                 elif attr == 'tags':
                     for tag_name in val.split():
                         tag = self.tags.get(tag_name)
