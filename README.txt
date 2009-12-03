@@ -44,6 +44,7 @@ Developer Installation
    chose).
 
 
+$ ln -s pyenv/src/ckan/who.ini
 Contributors
 ============
 

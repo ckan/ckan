@@ -27,7 +27,15 @@ class SimpleDumper(object):
             # flatten dict
             for name, value in pkg_dict.items()[:]:
                 if isinstance(value, (list, tuple)):
-                    pkg_dict[name] = ' '.join(value)
+                    if value and isinstance(value[0], dict) and name == 'resources':
+                        for i, res in enumerate(value):
+                            prefix = 'resource-%i' % i
+                            pkg_dict[prefix + '-url'] = res['url']
+                            pkg_dict[prefix + '-format'] = res['format']
+                            pkg_dict[prefix + '-description'] = res['description']
+                    else:
+                        print name=='resources', repr(value)
+                        pkg_dict[name] = ' '.join(value)
                 if isinstance(value, dict):
                     for name_, value_ in value.items():
                         pkg_dict[name_] = value_
@@ -57,7 +65,9 @@ class Dumper(object):
         ckan.model.Group,
         ckan.model.PackageGroup,
         ckan.model.PackageExtra,
-]
+        ]
+    # TODO Bring this list of classes up to date. In the meantime,
+    # disabling this functionality in cli.
     
     def get_table(self, model_class):
         table = orm.class_mapper(model_class).mapped_table

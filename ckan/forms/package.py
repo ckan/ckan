@@ -38,6 +38,17 @@ def extras_validator(val, field):
             # Note value is allowed to by None - REST way of deleting fields.
             raise formalchemy.ValidationError('Extra key-value pair: key is not set.')
 
+class ResourcesField(formalchemy.Field):
+    def sync(self):
+        if not self.is_readonly():
+            pkg = self.model
+            resources = self._deserialize() or []
+            pkg.resources = []
+            for url, format, description in resources:
+                pkg.add_resource(url=url,
+                                 format=format,
+                                 description=description)
+
 class TagField(formalchemy.Field):
     def sync(self):
         if not self.is_readonly():
@@ -244,6 +255,104 @@ class StateRenderer(formalchemy.fields.FieldRenderer):
         value_str = model.State.query.get(int(self._value)).name
         return common.field_readonly_renderer(self.field.key, value_str)
 
+class ResourcesRenderer(formalchemy.fields.FieldRenderer):
+    table_template = '''
+      <table id="flexitable" prefix="%(id)s" class="no-margin">
+        <tr> <th>URL</th><th>Format</th><th>Description</th> </tr>
+%(rows)s
+      </table>
+      <a href="javascript:addRowToTable()" id="add_resource"><img src="/images/icon-add.png"></a>
+      '''
+    table_template_readonly = '''
+      <table id="flexitable" prefix="%(id)s">
+        <tr> <th>URL</th><th>Format</th><th>Description</th> </tr>
+%(rows)s
+      </table>
+      '''
+    # NB row_template needs to be kept in-step with flexitable's row creation.
+    row_template = '''
+        <tr>
+          <td><input name="%(id)s-%(res_index)s-url" size="40" id="%(id)s-%(res_index)s-url" type="text" value="%(url)s" /></td>
+          <td><input name="%(id)s-%(res_index)s-format" size="5" id="%(id)s-%(res_index)s-format" type="text" value="%(format)s" /></td>
+          <td><input name="%(id)s-%(res_index)s-description" size="25" id="%(id)s-%(res_index)s-description" type="text" value="%(description)s" /></td>
+          <td>
+            <a href="javascript:moveRowUp(%(res_index)s)"><img src="/images/arrow_up.png"></a>
+            <a href="javascript:moveRowDown(%(res_index)s)"><img src="/images/arrow_down.png"></a>
+            <a href="javascript:removeRowFromTable(%(res_index)s);"><img src="/images/icon-delete.png" class="icon"></a>
+          </td>
+        </tr>
+    '''
+    row_template_readonly = '''
+        <tr> <td><a href="%(url)s">%(url)s</a></td><td>%(format)s</td><td>%(description)s</td> </tr>
+    '''
+
+    def render(self, **kwargs):
+        return self._render(readonly=False)
+
+    def render_readonly(self, **kwargs):
+        value_str = self._render(readonly=True)
+        return common.field_readonly_renderer(self.field.key, value_str, newline_reqd=False)
+#        return self._render(readonly=True)
+
+    def _render(self, readonly=False):
+        row_template = self.row_template_readonly if readonly else self.row_template
+        table_template = self.table_template_readonly if readonly else self.table_template
+        resources = self.field.parent.resources.value or \
+                    self.field.parent.model.resources or []
+        # Start an edit with empty resources
+        if not readonly:
+            # copy so we don't change original
+            resources = resources[:]
+            resources.extend([None, None, None])
+        rows = []
+        for index, res in enumerate(resources):
+            if isinstance(res, model.PackageResource):
+                url = res.url
+                format = res.format
+                description = res.description
+            elif isinstance(res, tuple):
+                url, format, description = res
+            elif res == None:
+                url = format = description = u''
+            rows.append(row_template % {'url':url,
+                                        'format':format,
+                                        'description':description,
+                                        'id':self.name,
+                                        'res_index':index,
+                                        })
+        if rows:
+            html = table_template % {'id':self.name,
+                                     'rows':''.join(rows)}
+        else:
+            html = ''
+        return html
+
+    def deserialize(self):
+        package = self.field.parent.model
+        params = dict(self._params)
+        new_resources = []
+        rest_key = self.name
+
+        # REST param format
+        # e.g. 'Package-1-resources': [{u'url':u'http://ww...
+        if params.has_key(rest_key) and isinstance(params[rest_key], (list, tuple)):
+            new_resources = params[rest_key]
+
+        # formalchemy form param format
+        # e.g. 'Package-1-resources-0-url': u'http://ww...'
+        row = 0
+        while True:
+            if not params.has_key('%s-%i-url' % (self.name, row)):
+                break
+            url = params.get('%s-%i-url' % (self.name, row), u'')
+            format = params.get('%s-%i-format' % (self.name, row), u'')
+            description = params.get('%s-%i-description' % (self.name, row), u'')
+            if url or format or description:
+                resource = (url, format, description)
+                new_resources.append(resource)
+            row += 1
+        return new_resources
+
 class PackageFieldSet(formalchemy.FieldSet):
     def __init__(self):
         formalchemy.FieldSet.__init__(self, model.Package)
@@ -274,7 +383,6 @@ def get_package_fs_options(fs):
         fs.title.with_renderer(common.CustomTextFieldRenderer),
         fs.version.with_renderer(common.CustomTextFieldRenderer),
         fs.url.with_renderer(common.CustomTextFieldRenderer),
-        fs.download_url.with_renderer(common.CustomTextFieldRenderer),
         fs.author.with_renderer(common.CustomTextFieldRenderer),
         fs.author_email.with_renderer(common.CustomTextFieldRenderer),
         fs.maintainer.with_renderer(common.CustomTextFieldRenderer),
@@ -282,13 +390,14 @@ def get_package_fs_options(fs):
         fs.notes.with_renderer(common.TextAreaRenderer),
         ]
 def get_package_fs_include(fs, is_admin=False):
-    pkgs = [fs.name, fs.title, fs.version, fs.url, fs.download_url,
+    pkgs = [fs.name, fs.title, fs.version, fs.url, fs.resources,
             fs.author, fs.author_email, fs.maintainer, fs.maintainer_email,
             fs.license, fs.tags, fs.notes, fs.extras, ]
     if is_admin:
         pkgs.insert(len(pkgs)-1, fs.state)
     return pkgs
 for fs in (package_fs, package_fs_admin):
+    fs.append(ResourcesField('resources').with_renderer(ResourcesRenderer))
     fs.append(TagField('tags').with_renderer(TagEditRenderer).validate(tag_name_validator).label('Tags (space separated list)'))
     fs.append(ExtrasField('extras').with_renderer(ExtrasRenderer).validate(extras_validator))
 
@@ -299,6 +408,13 @@ package_fs_admin.configure(options=get_package_fs_options(package_fs_admin) + \
                            include=get_package_fs_include(package_fs_admin, True))
 
 def get_package_dict(pkg=None):
+    '''
+    Creates a package dictionary suitable for use with edit_package_dict and
+    deserialization. Keys have a formalchemy prefix. Where formalchemy param
+    dicts have "package--extras-0-key":extra-key etc, this package dict
+    uses iterators in the values, so you get something like:
+    "package--extras":{extra-key:extra-value} instead.
+    '''
     indict = {}
     if pkg:
         fs = package_fs.bind(pkg)
@@ -319,11 +435,16 @@ def get_package_dict(pkg=None):
                 indict[field.renderer.name] = dict(pkg.extras) if pkg else {}
             if field.renderer.name.endswith('-tags'):
                 indict[field.renderer.name] = ' '.join([tag.name for tag in pkg.tags]) if pkg else ''
+            if field.renderer.name.endswith('-resources'):
+                indict[field.renderer.name] = [{'url':res.url, 'format':res.format, 'description':res.description} for res in pkg.resources] if pkg else []
         
     return indict
 
 def edit_package_dict(dict_, changed_items, id=''):
     '''
+    Edits package dictionary obtained by "get_package_dict" ready for
+    deserializing.
+    
     @param dict_ Package dict to be edited
     @param changed_items Package dict with the changes to be made
            (keys do not need the "Package-<id>-" prefix)
@@ -332,6 +453,8 @@ def edit_package_dict(dict_, changed_items, id=''):
     prefix = 'Package-%s-' % id
     extras_key = prefix + 'extras'
     tags_key = prefix + 'tags'
+    resources_key = prefix + 'resources'
+    download_url_key = prefix + 'download_url'
     for key, value in changed_items.items():
         if key:
             if not key.startswith(prefix):
@@ -347,13 +470,25 @@ def edit_package_dict(dict_, changed_items, id=''):
                             #    print 'Ignoring deletion - incorrect key'
                         else:
                             extras[e_key] = e_value
+                elif key == resources_key and isinstance(value, list):
+                    # REST edit
+                    resources = []
+                    for res in value:
+                        resources.append((res['url'], res['format'], res['description']))
+                    dict_[resources_key] = resources
                 elif key == tags_key and isinstance(value, list):
                     dict_[key] = ' '.join(value)
                 else:
                     dict_[key] = value
+            elif key == download_url_key:
+                dict_[resources_key].insert(0, (value, '', ''))
     return dict_
 
 def add_to_package_dict(dict_, changed_items, id=''):
+    '''
+    Takes a package dictionary (usually with all fields, but blank content)
+    and adds the changed_items dictionary.
+    '''
     prefix = 'Package-%s-' % id
     for key, value in changed_items.items():
         if key:

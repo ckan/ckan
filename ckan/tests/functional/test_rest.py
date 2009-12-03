@@ -35,7 +35,12 @@ class TestRestController(TestController):
             'name' : u'testpkg',
             'title': u'Some Title',
             'url': u'http://blahblahblah.mydomain',
-            'download_url': u'http://blahblahblah.mydomain',
+            'resources': [{u'url':u'http://blah.com/file.xml',
+                           u'format':u'xml',
+                           u'description':u'Main file'},
+                          {u'url':u'http://blah.com/file2.xml',
+                           u'format':u'xml',
+                           u'description':u'Second file'},],
             'tags': [u'russion', u'novel'],
             'license_id': u'4',
             'extras': {'genre' : u'horror',
@@ -116,16 +121,19 @@ class TestRestController(TestController):
         assert '"extras": {' in res, res
         assert '"genre": "romantic novel"' in res, res
         assert '"original media": "book"' in res, res
+        assert 'annakarenina.com/download' in res, res
+        assert '"plain text"' in res, res
+        assert '"Index of the novel"' in res, res
+        # 2/12/09 download_url is now deprecated - to be removed in the future
+        assert '"download_url": "http://www.annakarenina.com/download/x=1&y=2"' in res, res
 
     def test_04_get_tag(self):
-        # TODO document this one
         offset = '/api/rest/tag/tolstoy'
         res = self.app.get(offset, status=[200])
         assert 'annakarenina' in res, res
         assert not 'warandpeace' in res, res
 
     def test_04_get_group(self):
-        # TODO document this one
         offset = '/api/rest/group/roger'
         res = self.app.get(offset, status=[200])
         assert 'annakarenina' in res, res
@@ -159,6 +167,12 @@ class TestRestController(TestController):
         assert len(pkg.extras) == 2, len(pkg.extras)
         for key, value in self.testpackagevalues['extras'].items():
             assert pkg.extras[key] == value, pkg.extras
+        assert len(pkg.resources) == len(self.testpackagevalues['resources']), pkg.resources
+        for res_index, resource in enumerate(self.testpackagevalues['resources']):
+            comp_resource = pkg.resources[res_index]
+            for key in resource.keys():
+                comp_value = getattr(comp_resource, key)
+                assert comp_value == resource[key], '%s != %s' % (comp_value, resource[key])
 
         # Test Package Entity Get 200.
         offset = '/api/rest/package/%s' % self.testpackagevalues['name']
@@ -179,6 +193,23 @@ class TestRestController(TestController):
         res = self.app.post(offset, params=postparams, status=[409],
                 extra_environ=self.extra_environ)
         model.Session.remove()
+
+    def test_06_create_pkg_using_download_url(self):
+        # 2/12/09 download_url is deprecated - remove in future
+        test_params = {
+            'name':'testpkg06',
+            'download_url':'testurl',
+            }
+        offset = '/api/rest/package'
+        postparams = '%s=1' % simplejson.dumps(test_params)
+        res = self.app.post(offset, params=postparams, status=[200],
+                extra_environ=self.extra_environ)
+        model.Session.remove()
+        pkg = model.Package.by_name(test_params['name'])
+        assert pkg
+        assert pkg.name == test_params['name'], pkg
+        assert len(pkg.resources) == 1, pkg.resources
+        assert pkg.resources[0].url == test_params['download_url'], pkg.resources[0]
 
     def test_06_create_group(self):
         offset = '/api/rest/group'
@@ -304,6 +335,35 @@ class TestRestController(TestController):
         assert len(pkg.extras) == 2, pkg.extras
         for key, value in {u'key1':u'val1', u'key3':u'val3'}.items():
             assert pkg.extras[key] == value, pkg.extras
+
+    def test_10_edit_pkg_with_download_url(self):
+        # 2/12/09 download_url is deprecated - remove in future
+        test_params = {
+            'name':'testpkg10',
+            'download_url':'testurl',
+            }
+        rev = model.repo.new_revision()
+        pkg = model.Package()
+        pkg.name = test_params['name']
+        pkg.download_url = test_params['download_url']
+        model.Session.commit()
+
+        pkg = model.Package.by_name(test_params['name'])
+        model.setup_default_user_roles(pkg, [self.user])
+        rev = model.repo.new_revision()
+        model.repo.commit_and_remove()
+        assert model.Package.by_name(test_params['name'])
+
+        # edit it
+        pkg_vals = {'download_url':u'newurl'}
+        offset = '/api/rest/package/%s' % test_params['name']
+        postparams = '%s=1' % simplejson.dumps(pkg_vals)
+        res = self.app.post(offset, params=postparams, status=[200],
+                            extra_environ=self.extra_environ)
+        model.Session.remove()
+        pkg = model.Package.query.filter_by(name=test_params['name']).one()
+        assert len(pkg.resources) == 1, pkg.resources
+        assert pkg.resources[0].url == pkg_vals['download_url']
 
     def test_10_edit_group(self):
         # create a group with testgroupvalues
@@ -500,13 +560,14 @@ class TestSearch(TestController):
             'name' : u'testpkg',
             'title': 'Some Title',
             'url': u'http://blahblahblah.mydomain',
-            'download_url': u'http://blahblahblah.mydomain',
+            'resources': [{u'url':u'http://blahblahblah.mydomain'}],
             'tags': ['russion', 'novel'],
             'license_id': '4',
         }
 
         self.pkg = model.Package()
         self.pkg.name = self.testpackagevalues['name']
+        self.pkg.add_resource(self.testpackagevalues['resources'][0]['url'])
         rev = model.repo.new_revision()
 
         model.Session.commit()
@@ -521,14 +582,14 @@ class TestSearch(TestController):
         model.Session.commit()
         model.Session.remove()
 
-    def test_1_uri_q(self):
+    def test_01_uri_q(self):
         offset = self.base_url + '?q=%s' % self.testpackagevalues['name']
         res = self.app.get(offset, status=200)
         res_dict = simplejson.loads(res.body)
         assert u'testpkg' in res_dict['results'], res_dict['results']
         assert res_dict['count'] == 1, res_dict['count']
 
-    def test_2_post_q(self):
+    def test_02_post_q(self):
         offset = self.base_url
         query = {'q':'testpkg'}
         res = self.app.post(offset, params=query, status=200)
@@ -536,7 +597,7 @@ class TestSearch(TestController):
         assert u'testpkg' in res_dict['results'], res_dict['results']
         assert res_dict['count'] == 1, res_dict['count']
 
-    def test_3_uri_qjson(self):
+    def test_03_uri_qjson(self):
         query = {'q': self.testpackagevalues['name']}
         json_query = simplejson.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
@@ -545,7 +606,7 @@ class TestSearch(TestController):
         assert u'testpkg' in res_dict['results'], res_dict['results']
         assert res_dict['count'] == 1, res_dict['count']
 
-    def test_4_post_qjson(self):
+    def test_04_post_qjson(self):
         query = {'q': self.testpackagevalues['name']}
         json_query = simplejson.dumps(query)
         offset = self.base_url
@@ -554,7 +615,7 @@ class TestSearch(TestController):
         assert u'testpkg' in res_dict['results'], res_dict['results']
         assert res_dict['count'] == 1, res_dict['count']
 
-    def test_5_uri_qjson_tags(self):
+    def test_05_uri_qjson_tags(self):
         query = {'q': 'annakarenina tags:russian tags:tolstoy'}
         json_query = simplejson.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
@@ -563,7 +624,7 @@ class TestSearch(TestController):
         assert u'annakarenina' in res_dict['results'], res_dict['results']
         assert res_dict['count'] == 1, res_dict
         
-    def test_5_uri_qjson_tags_multiple(self):
+    def test_05_uri_qjson_tags_multiple(self):
         query = {'q': 'tags:russian tags:tolstoy'}
         json_query = simplejson.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
@@ -572,7 +633,7 @@ class TestSearch(TestController):
         assert u'annakarenina' in res_dict['results'], res_dict['results']
         assert res_dict['count'] == 1, res_dict
 
-    def test_6_uri_q_tags(self):
+    def test_06_uri_q_tags(self):
         query = webhelpers.util.html_escape('annakarenina tags:russian tags:tolstoy')
         offset = self.base_url + '?q=%s' % query
         res = self.app.get(offset, status=200)
@@ -580,7 +641,7 @@ class TestSearch(TestController):
         assert u'annakarenina' in res_dict['results'], res_dict['results']
         assert res_dict['count'] == 1, res_dict['count']
 
-    def test_7_uri_qjson_tags(self):
+    def test_07_uri_qjson_tags(self):
         query = {'q': '', 'tags':['tolstoy']}
         json_query = simplejson.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
@@ -589,7 +650,7 @@ class TestSearch(TestController):
         assert u'annakarenina' in res_dict['results'], res_dict['results']
         assert res_dict['count'] == 1, res_dict
 
-    def test_7_uri_qjson_tags_multiple(self):
+    def test_07_uri_qjson_tags_multiple(self):
         query = {'q': '', 'tags':['tolstoy', 'russian']}
         json_query = simplejson.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
@@ -598,7 +659,7 @@ class TestSearch(TestController):
         assert u'annakarenina' in res_dict['results'], res_dict['results']
         assert res_dict['count'] == 1, res_dict
 
-    def test_7_uri_qjson_tags_reverse(self):
+    def test_07_uri_qjson_tags_reverse(self):
         query = {'q': '', 'tags':['russian']}
         json_query = simplejson.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
@@ -607,7 +668,7 @@ class TestSearch(TestController):
         assert u'annakarenina' in res_dict['results'], res_dict['results']
         assert res_dict['count'] == 2, res_dict
 
-    def test_8_all_fields(self):
+    def test_08_all_fields(self):
         model.Rating(user_ip_address=u'123.1.2.3',
                      package=model.Package.by_name(u'annakarenina'),
                      rating=3.0)
@@ -628,31 +689,31 @@ class TestSearch(TestController):
         assert anna_rec['ratings_average'] == 3.0, anna_rec['ratings_average']
         assert anna_rec['ratings_count'] == 1, anna_rec['ratings_count']
 
-    def test_9_just_tags(self):
+    def test_09_just_tags(self):
         offset = self.base_url + '?tags=russian&all_fields=1'
         res = self.app.get(offset, status=200)
         res_dict = simplejson.loads(res.body)
         assert res_dict['count'] == 2, res_dict
 
-    def test10_multiple_tags_with_plus(self):
+    def test_10_multiple_tags_with_plus(self):
         offset = self.base_url + '?tags=tolstoy+russian&all_fields=1'
         res = self.app.get(offset, status=200)
         res_dict = simplejson.loads(res.body)
         assert res_dict['count'] == 1, res_dict
 
-    def test10_multiple_tags_with_ampersand(self):
+    def test_10_multiple_tags_with_ampersand(self):
         offset = self.base_url + '?tags=tolstoy&tags=russian&all_fields=1'
         res = self.app.get(offset, status=200)
         res_dict = simplejson.loads(res.body)
         assert res_dict['count'] == 1, res_dict
 
-    def test10_many_tags_with_ampersand(self):
+    def test_10_many_tags_with_ampersand(self):
         offset = self.base_url + '?tags=tolstoy&tags=russian&tags=tolstoy'
         res = self.app.get(offset, status=200)
         res_dict = simplejson.loads(res.body)
         assert res_dict['count'] == 1, res_dict
 
-    def test11_pagination_limit(self):
+    def test_11_pagination_limit(self):
         offset = self.base_url + '?all_fields=1&tags=russian&limit=1'
         res = self.app.get(offset, status=200)
         res_dict = simplejson.loads(res.body)
@@ -660,7 +721,7 @@ class TestSearch(TestController):
         assert len(res_dict['results']) == 1, res_dict
         assert res_dict['results'][0]['name'] == 'annakarenina', res_dict['results'][0]['name']
 
-    def test11_pagination_offset_limit(self):
+    def test_11_pagination_offset_limit(self):
         offset = self.base_url + '?all_fields=1&tags=russian&offset=1&limit=1'
         res = self.app.get(offset, status=200)
         res_dict = simplejson.loads(res.body)

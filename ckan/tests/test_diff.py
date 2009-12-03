@@ -14,7 +14,7 @@ class _TestDiffPackage(TestController):
         pkg = model.Package(name=u'difftest')
         pkg.title = u'Test title'
         pkg.url = u'editpkgurl.com'
-        pkg.download_url = u'editpkgurl2.com'
+        pkg.add_resource(u'editpkgurl2.com')
         pkg.notes= u'this\nis\neditpkg'
         pkg.version = u'2.2'
         pkg.maintainer = u'Bob'
@@ -45,8 +45,9 @@ class _TestDiffPackage(TestController):
         pkg = model.Package.by_name(u'difftest')
         pkg.title = u'Test CHANGED title'
         pkg.url = u'editpkgurl.com CHANGED'
-        pkg.download_url = u'editpkgurl2.com CHANGED'
-        pkg.notes= u'this\nis\neditpkg CHANGED'
+        pkg.resources = []
+        pkg.add_resource(u'editpkgurl2.com CHANGED')
+        pkg.notes = u'this\nis\neditpkg CHANGED'
         pkg.version = u'2.2 CHANGED'
         pkg.maintainer = u'Bob2'
         pkg.maintainer_email = u'bob2@bob.net'
@@ -79,14 +80,14 @@ class _TestDiffPackage(TestController):
         assert len(self.pkg_revs) == 2, self.revs
         out = self.differ(self.pkg, obj_rev1=self.old_pkg_rev, obj_rev2=self.new_pkg_rev)
         assert out
-        reqd_keys = ['maintainer', 'license', 'author', 'url', 'notes', 'title', 'download_url', 'maintainer_email', 'author_email', 'state', 'version']
+        reqd_keys = ['maintainer', 'license', 'author', 'url', 'notes', 'title', 'resources', 'maintainer_email', 'author_email', 'state', 'version']
         out_keys = out.keys()
         print out
         for reqd_key in reqd_keys:
             assert reqd_key in out_keys, '%s %s' % (out_keys, reqd_key)
         assert out['title'] == u'- Test title\n+ Test CHANGED title', out['title']
         assert out['url'].startswith(u'- editpkgurl.com\n+ editpkgurl.com CHANGED'), out['url']
-        assert out['download_url'].startswith(u'- editpkgurl2.com\n+ editpkgurl2.com CHANGED'), out['download_url']
+        assert out['resources'].startswith(u'- editpkgurl2.com\n+ editpkgurl2.com CHANGED'), out['resources']
         assert out['notes'] == u'  this\n  is\n- editpkg\n+ editpkg CHANGED', out['notes']
         assert out['version'] == u'- 2.2\n+ 2.2 CHANGED', out['version']
         assert not out.has_key('tags')

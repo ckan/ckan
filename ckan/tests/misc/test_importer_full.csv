@@ -1,5 +1,5 @@
-"maintainer","name","license","title","author_email","original media","tags","download_url","maintainer_email","url","version","author","groups","genre","notes"
-"","annakarenina","OKD Compliant::Other","A Novel By Tolstoy","","book","russian tolstoy","http://www.annakarenina.com/download/x=1&y=2","","http://www.annakarenina.com","0.7a","","david roger","romantic novel","Some test notes
+"name","title","version","resource-1-url","resource-0-url","resource-1-format","maintainer","license","author","author_email","resource-1-description","notes","original media","resource-0-description","maintainer_email","url","groups","genre","tags","resource-0-format"
+"annakarenina","A Novel By Tolstoy","0.7a","http://www.annakarenina.com/index.json","http://www.annakarenina.com/download/x=1&y=2","json","","OKD Compliant::Other","","","Index of the novel","Some test notes
 
 ### A 3rd level heading
 
@@ -9,5 +9,5 @@
 
 <http://ckan.net/>
 
-"
-"","warandpeace","","A Wonderful Story","","","russian","","","","","","david","",""
+","book","Full text","","http://www.annakarenina.com","roger david","romantic novel","russian tolstoy","plain text"
+"warandpeace","A Wonderful Story","","","","","","","","","","","","","","","david","","russian",""

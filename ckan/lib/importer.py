@@ -121,6 +121,11 @@ class PackageImporter:
                                     pkg_dict['license_id'] = '%s' % license.id
                                 else:
                                     self._log.append('Warning: No license name matches \'%s\'. Ignoring license.' % cell)
+                            elif title.startswith('resource-'):
+                                pkg_dict[title] = cell
+                            elif title == 'download_url':
+                                # deprecated - only in there for compatibility
+                                pass
                             else:
                                 if not pkg_dict.has_key('extras'):
                                     pkg_dict['extras'] = {}
