@@ -21,7 +21,8 @@ resource_revision_table = vdm.sqlalchemy.make_table_revisioned(package_resource_
 
 def upgrade():
     package_resource_table.create()
-
+    resource_revision_table.create()
+    
     # move download_urls across to resources
     engine = migrate_engine
     select_sql = select([package_table])
@@ -30,6 +31,8 @@ def upgrade():
         if download_url:
             res_values = {'package_id':pkg.id,
                           'url':download_url,
+                          'format':'',
+                          'description':'',
                           'position':0,
                           'state_id':1,                      
                           }
