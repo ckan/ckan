@@ -24,13 +24,14 @@ def upgrade():
     select_sql = select([package_table])
     for pkg in engine.execute(select_sql):
         download_url = pkg['download_url']
-        res_values = {'package_id':pkg.id,
-                      'url':download_url,
-                      'position':0,
-                      'state_id':1,                      
-                      }
-        insert_sql = package_resource_table.insert(values=res_values)
-        engine.execute(insert_sql)
+        if download_url:
+            res_values = {'package_id':pkg.id,
+                          'url':download_url,
+                          'position':0,
+                          'state_id':1,                      
+                          }
+            insert_sql = package_resource_table.insert(values=res_values)
+            engine.execute(insert_sql)
 
 def downgrade():
     raise NotImplementedError()
