@@ -28,7 +28,7 @@ class SearchVectorTrigger(sqlalchemy.orm.interfaces.MapperExtension):
             document_a = ' '.join((pkg.name or '', pkg.title or ''))
             document_b = ' '.join((pkg.notes or '', tag_names or '', group_names or ''))
             def make_document_safe(document):
-                return document.replace('\'', '').replace('"', '')
+                return document.replace('\'', '').replace('"', '').replace('%', '')
             document_a = make_document_safe(document_a)
             document_b = make_document_safe(document_b)
             # Create weighted vector
