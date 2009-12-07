@@ -42,6 +42,7 @@ class ManageDb(CkanCommand):
     db send-rdf {talis-store} {username} {password}
     db load {file-path} # load from a file
     db load-data4nr {file-path.csv}
+    db load-cospread {file-path.csv}
     db load-esw {file-path.txt} [{host} {api-key}]
     db migrate06
     db migrate09a
@@ -82,7 +83,11 @@ class ManageDb(CkanCommand):
         elif cmd == 'send-rdf':
             self.send_rdf(cmd)
         elif cmd == 'load-data4nr':
-            self.load_data4nr(cmd)
+            import ckan.getdata.data4nr as data_getter
+            self.load_data(cmd, data_getter.Data4Nr)
+        elif cmd == 'load-cospread':
+            import ckan.getdata.cospread as data_getter
+            self.load_data(cmd, data_getter.Data)
         elif cmd == 'load-esw':
             self.load_esw(cmd)
         elif cmd == 'migrate06':
@@ -125,13 +130,12 @@ class ManageDb(CkanCommand):
         else:
             print 'Unknown command', cmd
 
-    def load_data4nr(self, cmd):
+    def load_data(self, cmd, data_getter):
         if len(self.args) < 2:
             print 'Need csv file path'
             return
         load_path = self.args[1]
-        import ckan.getdata.data4nr
-        data = ckan.getdata.data4nr.Data4Nr()
+        data = data_getter()
         data.load_csv_into_db(load_path)
 
     def simple_dump_csv(self, cmd):
