@@ -208,7 +208,12 @@ class PackagesCsvWriter:
         row = []
         for title in self._col_titles:
             if row_dict.has_key(title):
-                row.append(row_dict[title])
+                if isinstance(row_dict[title], int):
+                    row.append(row_dict[title])
+                elif isinstance(row_dict[title], unicode):
+                    row.append(row_dict[title].encode('utf8'))
+                else:
+                    row.append(row_dict[title])
             else:
                 row.append(None)
         self._rows.append(row)
