@@ -72,7 +72,7 @@ class TestResourceUse:
         pkg = model.Package(name=self.pkgname)
         for index, url in enumerate(self.urls):
             pkg.resources.append(
-                model.PackageResource(url=url,
+                model.PackageResource(url=unicode(url),
                                       format=self.formats[index],
                                       description=self.description
                                       )

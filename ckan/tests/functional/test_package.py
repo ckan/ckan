@@ -492,7 +492,7 @@ class TestPackageControllerNew(TestController):
     def test_new_without_resource(self):
         # new package
         prefix = 'Package--'
-        name = 'test_no_res'
+        name = u'test_no_res'
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         fv = res.forms[0]

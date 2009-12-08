@@ -1,5 +1,6 @@
 import datetime
 
+from pylons import config
 from meta import *
 import vdm.sqlalchemy
 
@@ -190,6 +191,9 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         _dict['ratings_count'] = len(self.ratings)
         _dict['resources'] = [{'url':res.url, 'format':res.format, 'description':res.description} for res in self.resources]
         _dict['download_url'] = self.resources[0].url if self.resources else ''
+        ckan_host = config.get('ckan_host', None)
+        if ckan_host:
+            _dict['ckan_url'] = 'http://%s/package/%s' % (ckan_host, self.name)
         return _dict
         
 
