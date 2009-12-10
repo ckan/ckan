@@ -62,6 +62,7 @@ setup(
     test-data = ckan.lib.cli:TestData
     sysadmin = ckan.lib.cli:Sysadmin
     create-search-index = ckan.lib.cli:CreateSearchIndex
+    ratings = ckan.lib.cli:Ratings
     """,
     # setup.py test command needs a TestSuite so does not work with py.test
     # test_suite = 'nose.collector',
