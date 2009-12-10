@@ -198,6 +198,14 @@ class RestController(BaseController):
         results = Search().run(options)
         return self._finish_ok(results)
 
+    def tag_counts(self):
+        tags = model.Tag.query.all()
+        results = []
+        for tag in tags:
+            tag_count = len(tag.package_tags)
+            results.append((tag.name, tag_count))
+        return self._finish_ok(results)
+
     def _create_rating(self, params):
         rating_opts = {'package':u'warandpeace',
                        'rating':5}

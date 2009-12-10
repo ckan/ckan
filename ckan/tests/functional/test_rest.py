@@ -740,3 +740,26 @@ class TestSearch(TestController):
         assert len(res_dict['results']) == 1, res_dict
         assert res_dict['results'][0]['name'] == 'warandpeace', res_dict['results'][0]['name']
 
+
+class TestApiMisc(TestController):
+    @classmethod
+    def setup_class(self):
+        try:
+            CreateTestData.delete()
+        except:
+            pass
+        model.Session.remove()
+        CreateTestData.create()
+        self.base_url = '/api'
+
+    @classmethod
+    def teardown_class(self):
+        model.Session.remove()
+        CreateTestData.delete()
+
+    def test_0_tag_counts(self):
+        offset = self.base_url + '/tag_counts'
+        res = self.app.get(offset, status=200)
+        assert '["russian", 2]' in res, res
+        assert '["tolstoy", 1]' in res, res
+        

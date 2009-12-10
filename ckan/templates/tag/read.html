@@ -7,7 +7,7 @@
 
   <div py:match="content">
     <h2>Tag: ${c.tag.name}</h2>
-    <p>Packages tagged with <strong>${c.tag.name}</strong>:</p>
+    <p>There ${'is' if len(c.tag.packages_ordered) == 1 else 'are'} ${len(c.tag.packages_ordered)} package${'' if len(c.tag.packages_ordered) == 1 else 's'} tagged with <strong>${c.tag.name}</strong>:</p>
     <ul>
     <py:for each="pkg in c.tag.packages_ordered">
       <li>

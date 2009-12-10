@@ -23,7 +23,7 @@ you will require an API key. To obtain your API key:</p>
 </ol>
 
 
-<h3>REST Resources and Locations</h3>
+<h3>API Locations</h3>
 
 <p>A REST interface presents resources at published locations. Here are the names locations of the CKAN REST API resources. This is followed by a table of non-REST API locations.
 </p>
@@ -39,8 +39,9 @@ you will require an API key. To obtain your API key:</p>
 </td></tr><tr><td> Tag Entity </td><td> /api/rest/tag/TAG-NAME 
 </td></tr></tbody></table>
 <table>
-<tbody><tr><th> <strong>API function</strong> </th><th> <strong>Location</strong> 
+<tbody><tr><th> <strong>API functions</strong> </th><th> <strong>Location</strong> 
 </th></tr><tr><td> Package Search </td><td> /api/search/package
+</td></tr><tr><td> Tag Counts </td><td> /api/tag_counts
 </td></tr></tbody></table>
 <h3>Methods and data formats</h3>
 
@@ -70,6 +71,7 @@ you will require an API key. To obtain your API key:</p>
 -->
 </td></tr><tr><td> Search      </td><td> GET          </td><td>      </td><td>Search-Response</td><td> 
 </td></tr><tr><td> Search      </td><td> POST          </td><td> Query-String           </td><td>Search-Response</td><td>
+</td></tr><tr><td> Tag Counts      </td><td> GET          </td><td>         </td><td>Tag-Count-List</td><td>
 </td></tr></tbody></table>
 <p>
 Note: 'PUT' operations may instead use the HTTP POST method.
@@ -91,6 +93,7 @@ Note: To search, there are two ways to provide parameters - you can use either o
 </td></tr><tr><td> Resource-Dict      </td><td> { url: String, format: String, description: String } 
 </td></tr><tr><td> Query-String </td><td> [ q: String ]
 </td></tr><tr><td> Search-Response </td><td> { count: Count-int, results: [Package-Name-String, Package-Name-String, ... ] } or { count: Count-int, results: [{ name:Name-String, title: String ... }, { name:Name-String, title: String ... }, etc. ] }
+</td></tr><tr><td> Tag-Count-List </td><td> [ [tag-name, tag-count], [tag-name, tag-count], ... ]
 </td></tr></tbody></table>
 
 <p>To send request data, create a simple data structure, then convert it to a JSON string, then percent-encode the JSON string, then send it as the request body.</p>
