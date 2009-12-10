@@ -29,12 +29,13 @@ class TestGroup(TestController):
     def test_list(self):
         offset = url_for(controller='group', action='list')
         res = self.app.get(offset)
-        print str(res)
+        print self.main_div(res)
         assert 'Groups - List' in res
         group_count = model.Group.query().count()
         assert 'There are %s groups.' % group_count in res
         groupname = 'david'
         assert groupname in res
+        assert '- (2)' in res
         res = res.click(groupname)
         assert groupname in res
         
@@ -43,11 +44,13 @@ class TestGroup(TestController):
         pkgname = u'warandpeace'
         offset = url_for(controller='group', action='read', id=name)
         res = self.app.get(offset)
-        assert 'Groups - %s' % name in res
-        assert '[edit]' not in res
-        assert 'Administrators:' in res, res
-        assert 'russianfan' in res, res
-        assert name in res
+        main_res = self.main_div(res)
+        assert 'Groups - %s' % name in res, res
+        assert '[edit]' not in main_res, main_res
+        assert 'Administrators:' in main_res, main_res
+        assert 'russianfan' in main_res, main_res
+        assert name in res, res
+        assert 'There are 2 packages in this group' in main_res, main_res
         res = res.click(pkgname)
         assert 'Packages - %s' % pkgname in res
 
