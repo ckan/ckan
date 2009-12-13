@@ -1,10 +1,16 @@
 syntax: glob
-
+# generic
 *.pyc
 ckan.egg-info/*
+
+# pylons
 development.ini*
 sstore/*
 data/*
+pylons_data/*
+
+# other
 pip-requirements-local.txt
 migrate/*
 build/*
+tmp/*
