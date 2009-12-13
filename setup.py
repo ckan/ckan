@@ -44,10 +44,10 @@ setup(
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
     package_data={'ckan': ['i18n/*/LC_MESSAGES/*.mo']},
-    #message_extractors = {'ckan': [
-    #        ('**.py', 'python', None),
-    #        ('templates/**.mako', 'mako', None),
-    #        ('public/**', 'ignore', None)]},
+    message_extractors = {'ckan': [
+            ('**.py', 'python', None),
+            ('templates/**.html', 'genshi', None),
+            ('public/**', 'ignore', None)]},
     entry_points="""
     [paste.app_factory]
     main = ckan.config.middleware:make_app

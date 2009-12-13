@@ -8,6 +8,9 @@ import ckan.lib.app_globals as app_globals
 import ckan.lib.helpers
 from ckan.config.routing import make_map
 
+from genshi.filters.i18n import Translator
+from pylons.i18n.translation import ugettext
+
 def load_environment(global_conf, app_conf):
     """Configure the Pylons environment via the ``pylons.config``
     object
@@ -29,6 +32,11 @@ def load_environment(global_conf, app_conf):
 
     # Customize templating options via this variable
     tmpl_options = config['buffet.template_options']
+    # Translator (i18n)
+    translator = Translator(ugettext)
+    def template_loaded(template):
+        template.filters.insert(0, translator)
+    tmpl_options["genshi.loader_callback"] = template_loaded
 
     # CONFIGURATION OPTIONS HERE (note: all config options will override
     # any Pylons config options)
