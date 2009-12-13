@@ -1,3 +1,79 @@
+/**
+  * Fixes to kforge css
+  */
+
+#top h1 a:hover {
+  background: transparent;
+}
+
+/* mess with standard ckan theme to remove second submenu for time being */
+#subnav { background: transparent; height: 1px; }
+#subnav * { display: none; }
+
+/* override structure.css */
+
+#top {
+  margin: 0.3em 0 0 0;
+}
+
+#main {
+  margin-top: 0em;
+}
+
+body.plus-secondary #main {
+  margin: 0.6em 0 0 1%;
+}
+
+#primary {
+  margin: 0.6em 0 0 1%;
+}
+
+/**
+  * Changes/additions to kforge forms.css
+  */
+
+.field_error {
+  padding: 2px;
+  background-color: #c00;
+  display: table;
+  margin-left: 1em;
+}
+
+.field_error span,
+.field_error input,
+.field_error select,
+.field_error textarea
+{
+  margin: 0;
+}
+
+/**
+  * form encode default classes
+  * TODO: rgrp: 2009-12-13 are these still needed?
+  */
+.error, span.error-message {
+  background-color: #c00;
+  padding: 2px;
+}
+
+span.error-message {
+  font-weight: bold;
+}
+
+
+/**
+  * Various iconography
+  */
+
+/* for openness icons */
+div.image-info {
+  display: inline;
+}
+
+div.image-info img {
+  margin-bottom: -2px;
+}
+
 img.icon {
   height: 25px;
 }
