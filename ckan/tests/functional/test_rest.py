@@ -197,8 +197,8 @@ class TestRestController(TestController):
     def test_06_create_pkg_using_download_url(self):
         # 2/12/09 download_url is deprecated - remove in future
         test_params = {
-            'name':'testpkg06',
-            'download_url':'testurl',
+            'name':u'testpkg06',
+            'download_url':u'testurl',
             }
         offset = '/api/rest/package'
         postparams = '%s=1' % simplejson.dumps(test_params)
@@ -339,8 +339,8 @@ class TestRestController(TestController):
     def test_10_edit_pkg_with_download_url(self):
         # 2/12/09 download_url is deprecated - remove in future
         test_params = {
-            'name':'testpkg10',
-            'download_url':'testurl',
+            'name':u'testpkg10',
+            'download_url':u'testurl',
             }
         rev = model.repo.new_revision()
         pkg = model.Package()

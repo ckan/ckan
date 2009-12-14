@@ -5,7 +5,7 @@ class TestResourceLifecycle:
     @classmethod
     def setup_class(self):
         self.pkgname = u'geodata'
-        self.urls = ['http://somewhere.com/', 'http://elsewhere.com/']
+        self.urls = [u'http://somewhere.com/', u'http://elsewhere.com/']
         self.format = u'csv'
         self.description = u'Important part.'
         rev = model.repo.new_revision()
@@ -72,7 +72,7 @@ class TestResourceUse:
         pkg = model.Package(name=self.pkgname)
         for index, url in enumerate(self.urls):
             pkg.resources.append(
-                model.PackageResource(url=url,
+                model.PackageResource(url=unicode(url),
                                       format=self.formats[index],
                                       description=self.description
                                       )
