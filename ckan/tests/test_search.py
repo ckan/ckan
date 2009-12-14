@@ -12,7 +12,7 @@ class TestSearch(object):
     @classmethod
     def setup_class(self):
         model.Session.remove()
-        CreateSearchTestData.create()
+        CreateTestData.create_search_test_data()
 
         # now remove a tag so we can test search with deleted tags
         model.repo.new_revision()
@@ -249,23 +249,12 @@ class TestSearch(object):
         sorted_fields = fields; sorted_fields.sort()
         assert fields == sorted_fields, repr(fields) + repr(sorted_fields)
 
-    def test_search_notes_off(self):
+    def test_search_notes_on(self):
         options = SearchOptions({'q':u'restrictions'})
-        options.search_notes = False
-        result = Search().run(options)
-        pkgs = result['results']
-        count = result['count']
-        assert len(pkgs) == 0, pkgs
-
-    # TODO: 2009-09-23 re-enable this and get this functionality working
-    def _test_search_notes_on(self):
-        options = SearchOptions({'q':u'restrictions'})
-        options.search_notes = True
         result = Search().run(options)
         pkgs = result['results']
         count = result['count']
         assert len(pkgs) == 2, pkgs
-        # TODO fix this
         
     def test_groups(self):
         result = Search().search(u'groups:random')
@@ -342,7 +331,7 @@ class TestPostgresSearch(object):
     @classmethod
     def setup_class(self):
         model.Session.remove()
-        CreateSearchTestData.create()
+        CreateTestData.create_search_test_data()
         self.gils = model.Package.by_name(u'gils')
         self.war = model.Package.by_name(u'warandpeace')
         self.russian = model.Tag.by_name(u'russian')

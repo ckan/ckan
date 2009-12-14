@@ -1,5 +1,6 @@
 import re
 
+from pylons import config
 import formalchemy
 from formalchemy import helpers as h
 
@@ -7,7 +8,9 @@ import common
 import ckan.model as model
 import ckan.lib.helpers
 
-__all__ = ['package_fs', 'package_fs_admin', 'get_package_dict', 'edit_package_dict', 'add_to_package_dict']
+__all__ = ['package_fs', 'package_fs_admin', 'get_package_dict', 'edit_package_dict', 'add_to_package_dict', 'get_additional_package_fields', 'get_package_fs_options', 'PackageFieldSet', 'StateRenderer', 'get_fieldset']
+
+PACKAGE_FORM_KEY = 'package_form_schema'
 
 def package_name_validator(val, field):
     common.name_validator(val, field)
@@ -389,54 +392,74 @@ def get_package_fs_options(fs):
         fs.maintainer_email.with_renderer(common.CustomTextFieldRenderer),
         fs.notes.with_renderer(common.TextAreaRenderer),
         ]
-def get_package_fs_include(fs, is_admin=False):
+def get_package_fs_include(fs, extras=True, is_admin=False):
     pkgs = [fs.name, fs.title, fs.version, fs.url, fs.resources,
             fs.author, fs.author_email, fs.maintainer, fs.maintainer_email,
-            fs.license, fs.tags, fs.notes, fs.extras, ]
+            fs.license, fs.tags, fs.notes, ]
     if is_admin:
-        pkgs.insert(len(pkgs)-1, fs.state)
+        pkgs.append(fs.state)
+    if extras:
+        pkgs.append(fs.extras)
     return pkgs
+
+def get_additional_package_fields():
+    return [ResourcesField('resources').with_renderer(ResourcesRenderer),
+            TagField('tags').with_renderer(TagEditRenderer).validate(tag_name_validator).label('Tags (space separated list)'),
+            ExtrasField('extras').with_renderer(ExtrasRenderer).validate(extras_validator),
+            ]
+
 for fs in (package_fs, package_fs_admin):
-    fs.append(ResourcesField('resources').with_renderer(ResourcesRenderer))
-    fs.append(TagField('tags').with_renderer(TagEditRenderer).validate(tag_name_validator).label('Tags (space separated list)'))
-    fs.append(ExtrasField('extras').with_renderer(ExtrasRenderer).validate(extras_validator))
+    for field in get_additional_package_fields():
+        fs.append(field)
 
 package_fs.configure(options=get_package_fs_options(package_fs),
                      include=get_package_fs_include(package_fs))
 package_fs_admin.configure(options=get_package_fs_options(package_fs_admin) + \
                            [package_fs_admin.state.with_renderer(StateRenderer)],
-                           include=get_package_fs_include(package_fs_admin, True))
+                           include=get_package_fs_include(package_fs_admin, is_admin=True))
 
-def get_package_dict(pkg=None):
+def get_package_dict(pkg=None, blank=False, fs=None):
     '''
     Creates a package dictionary suitable for use with edit_package_dict and
-    deserialization. Keys have a formalchemy prefix. Where formalchemy param
-    dicts have "package--extras-0-key":extra-key etc, this package dict
-    uses iterators in the values, so you get something like:
+    deserialization.
+    @param pkg  Package this dict relates to. id is extracted to go into the
+                key prefixes and the package data is used. If None, the dict
+                is for a new package.
+    @param blank  Whether or not you supply a package, this ensures that the
+                  values of the resulting dict are blank.
+    @param fs  Fieldset to use - sets the fields.
+    Resulting dict has keys with a formalchemy prefix, and it should work
+    binding it to a fs and syncing. But whereas formalchemy forms produce a
+    param dicts with "package--extras-0-key":extra-key etc, this method creates
+    a param dict with iterators in thIn contrast toe values, so you get something like:
     "package--extras":{extra-key:extra-value} instead.
     '''
     indict = {}
+    if fs is None:
+        fs = get_fieldset(is_admin=False, basic=False)
+
     if pkg:
-        fs = package_fs.bind(pkg)
-    else:
-        fs = package_fs
+        fs = fs.bind(pkg)
 
     exclude = ('-id', '-package_tags', '-all_revisions', '-_extras', '-roles', '-ratings')
 
     for field in fs._fields.values():
         if not filter(lambda x: field.renderer.name.endswith(x), exclude):
-            if field.renderer._value:
-                indict[field.renderer.name] = field.renderer._value
-            else:
+            if blank:
                 indict[field.renderer.name] = u''
+            else:
+                if field.renderer._value:
+                    indict[field.renderer.name] = field.renderer._value
+                else:
+                    indict[field.renderer.name] = u''
 
-            # some fields don't bind in this way, so do it manually
-            if field.renderer.name.endswith('-extras'):
-                indict[field.renderer.name] = dict(pkg.extras) if pkg else {}
-            if field.renderer.name.endswith('-tags'):
-                indict[field.renderer.name] = ' '.join([tag.name for tag in pkg.tags]) if pkg else ''
-            if field.renderer.name.endswith('-resources'):
-                indict[field.renderer.name] = [{'url':res.url, 'format':res.format, 'description':res.description} for res in pkg.resources] if pkg else []
+                # some fields don't bind in this way, so do it manually
+                if field.renderer.name.endswith('-extras'):
+                    indict[field.renderer.name] = dict(pkg.extras) if pkg else {}
+                if field.renderer.name.endswith('-tags'):
+                    indict[field.renderer.name] = ' '.join([tag.name for tag in pkg.tags]) if pkg else ''
+                if field.renderer.name.endswith('-resources'):
+                    indict[field.renderer.name] = [{'url':res.url, 'format':res.format, 'description':res.description} for res in pkg.resources] if pkg else []
         
     return indict
 
@@ -509,3 +532,28 @@ def validate_package_on_edit(fs, id):
     if temp_name:
         # restore it
         fs.data['Package-%s-name' % record_id] = temp_name
+
+def get_fieldset(is_admin=False, basic=False, package_form=None):
+    ''' Returns the appropriate fieldset (maybe depending on permissions for
+    the package supplied).
+    @param basic: demand the "basic" fieldset, ignoring config specifying
+                  a particular package_form.
+    @param package_form: specify a particular package_form. Otherwise it
+                  is taken from the config file.
+    '''
+    fs = None
+    if not basic:
+        if package_form is None:
+            package_form = config.get(PACKAGE_FORM_KEY)
+        if package_form == 'gov':
+            if is_admin:
+                fs = ckan.forms.package_gov_fs_admin
+            else:
+                fs = ckan.forms.package_gov_fs
+    if not fs:
+        if is_admin:
+            fs = ckan.forms.package_fs_admin
+        else:
+            fs = ckan.forms.package_fs
+#    print "FS admin=%s package_form=%s basic=%s" % (is_admin, package_form, basic)
+    return fs

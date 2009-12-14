@@ -82,10 +82,7 @@ class PackageController(BaseController):
         c.auth_for_authz = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, c.pkg)
         c.auth_for_edit = self.authorizer.am_authorized(c, model.Action.EDIT, c.pkg)
         c.auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, c.pkg)
-        if c.auth_for_change_state:
-            fs = ckan.forms.package_fs_admin
-        else:
-            fs = ckan.forms.package_fs
+        fs = ckan.forms.get_fieldset(is_admin=c.auth_for_change_state, basic=True)
         # this line needed or the resources relation doesn't bind:
         resources = c.pkg.resources
         fs = fs.bind(c.pkg)
@@ -120,10 +117,8 @@ class PackageController(BaseController):
         c.has_autocomplete = True
         c.error = ''
 
-        if self.authorizer.is_sysadmin(c.user):
-            fs = ckan.forms.package_fs_admin
-        else:
-            fs = ckan.forms.package_fs
+        is_admin = self.authorizer.is_sysadmin(c.user)
+        fs = ckan.forms.get_fieldset(is_admin=is_admin, basic=False, package_form=request.params.get('package_form'))
 
         if request.params.has_key('commit'):
             record = model.Package
@@ -154,7 +149,7 @@ class PackageController(BaseController):
                 domain = urlparse.urlparse(url)[1]
                 if domain.startswith('www.'):
                     domain = domain[4:]
-            data = ckan.forms.add_to_package_dict(ckan.forms.get_package_dict(), request.params)
+            data = ckan.forms.add_to_package_dict(ckan.forms.get_package_dict(fs=fs), request.params)
             fs = fs.bind(data=data)
         c.form = self._render_edit_form(fs, request.params)
         if 'preview' in request.params:
@@ -174,10 +169,7 @@ class PackageController(BaseController):
             abort(401, 'User %r unauthorized to edit %s' % (c.user, id))
 
         c.auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, pkg)
-        if c.auth_for_change_state:
-            fs = ckan.forms.package_fs_admin
-        else:
-            fs = ckan.forms.package_fs
+        fs = ckan.forms.get_fieldset(is_admin=c.auth_for_change_state, basic=False, package_form=request.params.get('package_form'))
 
         if not 'commit' in request.params and not 'preview' in request.params:
             # edit
@@ -350,6 +342,7 @@ class PackageController(BaseController):
     def _render_package_with_template(self, fs):
         # Todo: More specific error handling (don't catch-all and set 500)?
         c.pkg_name = fs.name.value
+#        if hasattr(fs, 'version'):
         c.pkg_version = fs.version.value
         c.pkg_title = fs.title.value
         c.pkg_url = fs.url.value
@@ -382,6 +375,7 @@ class PackageController(BaseController):
         notes_formatted = format.to_html(fs.notes.value)
         notes_formatted = genshi.HTML(notes_formatted)
         c.pkg_notes_formatted = notes_formatted
+#        if hasattr(fs, 'extras'):
         c.pkg_extras = []
         if fs.extras.value:
             for key, value in fs.extras.value:
@@ -392,3 +386,5 @@ class PackageController(BaseController):
 
         preview = render('package/read_content')
         return preview
+
+

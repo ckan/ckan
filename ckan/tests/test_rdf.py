@@ -12,7 +12,7 @@ TALIS_STORE_NAME = 'ckan-dev1'
 class _TestRdf:
     @classmethod
     def setup_class(self):
-        CreateSearchTestData.create()
+        CreateTestData.create_search_test_data()
         self.rdf = rdf.RdfExporter()
         self.talis = talis.Talis()
         self.pkg_name = u'usa-courts-gov'

@@ -18,12 +18,11 @@ import paste.script.appinstall
 from paste.deploy import loadapp
 from routes import url_for
 
-from ckan.lib.cli import CreateTestData, CreateSearchTestData
+from ckan.lib.create_test_data import CreateTestData
 
 __all__ = ['url_for',
         'TestController',
         'CreateTestData',
-        'CreateSearchTestData',
         ]
 
 here_dir = os.path.dirname(os.path.abspath(__file__))
@@ -92,3 +91,4 @@ class TestController(object):
         'strips html to just the <div id=main> section'
         the_html = str(html)
         return the_html[the_html.find('<div id="main">'):the_html.find('<div id="footer">')]
+

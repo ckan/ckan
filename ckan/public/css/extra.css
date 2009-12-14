@@ -29,6 +29,9 @@ div.extras-new-field label {
   line-height:2.6em;
 }
 
+span.margin { 
+  margin: 0 0 0 1em;
+}
 
 /**
   * Ratings - rating stars css in stars.css

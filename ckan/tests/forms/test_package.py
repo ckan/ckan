@@ -2,21 +2,9 @@ import ckan.model as model
 import ckan.forms
 from ckan.tests import *
 
-    
 
-def _get_basic_dict(pkg=None):
-    indict = {}
-    if pkg:
-        fs = ckan.forms.package_fs.bind(pkg)
-    else:
-        fs = ckan.forms.package_fs
-
-    exclude = ('-id', '-package_tags', '-all_revisions')
-
-    for field in fs._fields.values():
-        if not filter(lambda x: field.renderer.name.endswith(x), exclude):
-            indict[field.renderer.name] = u'' #field.renderer.stringify_value(field.renderer._value)
-    return indict
+def _get_blank_param_dict(pkg=None):
+    return ckan.forms.get_package_dict(pkg=pkg, blank=True)
 
 class TestForms:
     @classmethod
@@ -121,7 +109,7 @@ class TestForms:
         
     def test_3_sync_new(self):
         newtagname = 'newtagname'
-        indict = _get_basic_dict()
+        indict = _get_blank_param_dict()
         indict['Package--name'] = u'testname'
         indict['Package--notes'] = u'some new notes'
         indict['Package--tags'] = u'russian tolstoy, ' + newtagname,
@@ -167,7 +155,7 @@ class TestForms:
         newtagname = 'newtagname'
         anna = model.Package.by_name(u'annakarenina')
         prefix = 'Package-%s-' % anna.id
-        indict = _get_basic_dict(anna)
+        indict = _get_blank_param_dict(anna)
         indict[prefix + 'name'] = u'annakaren'
         indict[prefix + 'notes'] = u'new notes'
         indict[prefix + 'tags'] = u'russian ' + newtagname
@@ -224,7 +212,7 @@ class TestFormErrors:
 
     def test_1_dup_name(self):
         assert model.Package.by_name(u'annakarenina')
-        indict = _get_basic_dict()
+        indict = _get_blank_param_dict()
         prefix = 'Package--'
         indict[prefix + 'name'] = u'annakarenina'
         indict[prefix + 'title'] = u'Some title'
@@ -233,7 +221,7 @@ class TestFormErrors:
         assert not fs.validate()
 
     def test_1_new_name(self):
-        indict = _get_basic_dict()
+        indict = _get_blank_param_dict()
         prefix = 'Package--'
         indict[prefix + 'name'] = u'annakarenina123'
         indict[prefix + 'title'] = u'Some title'
@@ -242,7 +230,7 @@ class TestFormErrors:
         assert fs.validate()
 
     def test_2_extra_no_key(self):
-        indict = _get_basic_dict()
+        indict = _get_blank_param_dict()
         prefix = 'Package--'
         indict[prefix + 'name'] = u'annakarenina123'
         indict[prefix + 'title'] = u'Some title'
@@ -252,7 +240,7 @@ class TestFormErrors:
         assert not fs.validate()
 
     def test_2_extra_no_value(self):
-        indict = _get_basic_dict()
+        indict = _get_blank_param_dict()
         prefix = 'Package--'
         indict[prefix + 'name'] = u'annakarenina123'
         indict[prefix + 'title'] = u'Some title'
@@ -262,7 +250,7 @@ class TestFormErrors:
         assert fs.validate()
 
     def test_2_extra_key(self):
-        indict = _get_basic_dict()
+        indict = _get_blank_param_dict()
         prefix = 'Package--'
         indict[prefix + 'name'] = u'annakarenina123'
         indict[prefix + 'title'] = u'Some title'
@@ -285,7 +273,7 @@ class TestValidation:
     def test_1_package_name(self):
         anna = model.Package.by_name(u'annakarenina')
         prefix = 'Package-%s-' % anna.id
-        indict = _get_basic_dict(anna)
+        indict = _get_blank_param_dict(anna)
 
         good_names = [ 'blah', 'ab', 'ab1', 'some-random-made-up-name', 'has_underscore' ]
         bad_names = [ '', 'blAh', 'a', 'annakarenina', 'dot.in.name', u'unicode-\xe0', 'percent%' ]
@@ -305,7 +293,7 @@ class TestValidation:
     def test_1_tag_name(self):
         anna = model.Package.by_name(u'annakarenina')
         prefix = 'Package-%s-' % anna.id
-        indict = _get_basic_dict(anna)
+        indict = _get_blank_param_dict(anna)
 
         good_names = [ 'blah', 'ab', 'ab1', 'some-random-made-up-name', 'has_underscore', u'unicode-\xe0', 'dot.in.name', 'blAh' ] # nb: becomes automatically lowercase
         bad_names = [ 'a', 'percent%' ]
