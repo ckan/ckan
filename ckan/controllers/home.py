@@ -1,7 +1,6 @@
 from ckan.lib.base import *
-from ckan.controllers.base import CkanBaseController
 
-class HomeController(CkanBaseController):
+class HomeController(BaseController):
     repo = model.repo
 
     def index(self):
