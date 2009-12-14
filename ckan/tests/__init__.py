@@ -65,16 +65,16 @@ class TestController(object):
         model.Session.commit()
         model.Session.remove()
 
-    def create_100_tags(self):
-        for i in range(0,100):
+    def create_200_tags(self):
+        for i in range(0,200):
             name = u"testtag%s" % i
             model.Tag(name=name)
             print "Created tag: %s" % name
         model.Session.commit()
         model.Session.remove()
 
-    def purge_100_tags(self):
-        for i in range(0,100):
+    def purge_200_tags(self):
+        for i in range(0,200):
             name = u"testtag%s" % i
             tag = model.Tag.by_name(name)
             tag.purge()

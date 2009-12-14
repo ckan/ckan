@@ -4,6 +4,21 @@ from simplejson import dumps
 class TagController(BaseController):
 
     def index(self):
+        from ckan.lib.helpers import Page
+        
+        c.search_terms = request.params.get('search_terms', '')
+        
+        if c.search_terms:
+            query = model.Tag.search_by_name(c.search_terms)
+        else:
+            query = model.Tag.query()
+           
+        c.page = Page(
+            collection=query,
+            page=request.params.get('page', 1),
+            items_per_page=100
+        )
+           
         return render('tag/index')
 
     def read(self, id):
@@ -11,16 +26,6 @@ class TagController(BaseController):
         if c.tag is None:
             abort(404)
         return render('tag/read')
-
-    def list(self, id=0):
-        return self._paginate_list('tag', id, 'tag/list')
-
-    def search(self):
-        c.search_terms = request.params.get('search_terms', '')
-        if c.search_terms:
-            c.tags = list(model.Tag.search_by_name(c.search_terms))
-            c.tag_count = len(c.tags)
-        return render('tag/search')
 
     def autocomplete(self):
         incomplete = request.params.get('incomplete', '')

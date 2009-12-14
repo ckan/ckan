@@ -15,9 +15,8 @@ class TestTagController(TestController):
     def test_index(self):
         offset = url_for(controller='tag')
         res = self.app.get(offset)
-        assert 'Tags - Index' in res
-        assert 'list of tags' in res
-        assert 'search for tags' in res
+        assert 'Tags' in res
+        assert 'There are' in res
 
     def test_read(self):
         name = 'tolstoy'
@@ -30,92 +29,70 @@ class TestTagController(TestController):
         # assert 'Packages - %s' % pkgname in res
 
     def test_list_short(self):
-        offset = url_for(controller='tag', action='list')
+        offset = url_for(controller='tag', action='index')
         res = self.app.get(offset)
         print str(res)
-        assert 'Tags - List' in res
         tagname = 'tolstoy'
         assert tagname in res
         #assert '(2 packages)' in res
         res = res.click(tagname)
         assert tagname in res
-        offset = url_for(controller='tag', action='list', id=0)
+        offset = url_for(controller='tag', action='index')
         res = self.app.get(offset)
         print str(res)
-        assert 'Tags - List' in res
         assert tagname in res
         #assert '(2 packages)' in res
         tag_count = model.Tag.query().count()
-        assert 'There are %s tags.' % tag_count in res
-        offset = url_for(controller='tag', action='list', id=50)
+        assert 'There are <strong>%s</strong> tags.' % tag_count in res
+        offset = url_for(controller='tag', action='index')
         res = self.app.get(offset)
         print str(res)
-        assert 'Tags - List' in res
         assert tagname in res
         tag_count = model.Tag.query().count()
-        assert 'There are %s tags.' % tag_count in res
+        assert 'There are <strong>%s</strong> tags.' % tag_count in res
         # Avoid interactions.
-        offset = url_for(controller='tag', action='list', id=0)
+        offset = url_for(controller='tag', action='index')
     
     def test_list_long(self):
         try:
-            self.create_100_tags()
+            self.create_200_tags()
             tag_count = model.Tag.query.count()
             # Page 1.
             print
-            offset = url_for(controller='tag', action='list', id=1)
+            offset = url_for(controller='tag', action='index')
             print offset
             res = self.app.get(offset)
             print str(res)
-            assert 'Tags - List' in res
             # tolstoy not in because now a 100 tags starting 'test'
             assert 'tolstoy' not in res
-            assert 'testtag31' in res
+            assert 'testtag105' in res
             assert not 'testtag81' in res
-            assert not 'testtag99' in res
             assert 'Next' in res
-            assert not 'Previous' in res
-            assert 'Displaying tags 1 - 50 of %s' % tag_count in res
+            assert not 'Prev' in res
             # Page 2.
-            offset = url_for(controller='tag', action='list', id=2)
+            offset = url_for(controller='tag', action='index')
             print offset
             print "Path offset: %s" % offset
-            res = self.app.get(offset)
+            res = self.app.get(offset, params={'page':2})
             print str(res)
-            assert 'Tags - List' in res
             assert not 'tolstoy' in res
-            assert not 'testtag31' in res
-            assert 'testtag81' in res
+            assert not 'testtag105' in res
+            assert 'testtag8' in res
             assert 'Next' in res
-            assert 'Previous' in res
-            assert 'Displaying tags 51 - 100 of %s' % tag_count in res
-            # Page 3.
-            offset = url_for(controller='tag', action='list', id=3)
-            res = self.app.get(offset)
-            print str(res)
-            assert 'Tags - List' in res
-            assert not 'testtag31' in res
-            assert not 'testtag81' in res
-            assert 'tolstoy' in res
-            assert 'testtag99' in res
-            assert not 'Next' in res
-            assert 'Previous' in res
-            assert 'Displaying tags 101 - %s of %s' % (tag_count, tag_count) in res
+            assert 'Prev' in res
         finally:
             model.Session.remove()
-            self.purge_100_tags()
+            self.purge_200_tags()
 
     def test_search(self):
-        offset = url_for(controller='tag', action='search')
+        offset = url_for(controller='tag', action='index')
         res = self.app.get(offset)
-        assert 'Tags - Search' in res
         search_term = 's'
         fv = res.forms[0]
         print fv.fields
         fv['search_terms'] =  str(search_term)
         res = fv.submit()
         print res
-        assert 'Tags - Search' in res
         assert 'There are <strong>2</strong> results' in res, res
         assert 'russian' in res, res
         assert 'tolstoy' in res, res

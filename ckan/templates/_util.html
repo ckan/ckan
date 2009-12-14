@@ -1,0 +1,22 @@
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip=""
+  >
+
+  <!--! Herein can be found generic helper methods for a whole bunch of common
+        templating issues -->
+        
+  <py:def function="plural(num, x, y)" py:choose="num">
+    <py:when test="1">${x}</py:when>
+    <py:otherwise>${y}</py:otherwise>
+  </py:def>
+  
+  <ul py:def="tag_list(tags)" class="tags clearfix">    
+    <li py:for="tag in tags" data="{'count':${len(tag.package_tags)}}">
+      ${h.link_to(tag.name, h.url_for(action='read', id=tag.name))}
+    </li>
+  </ul>
+  
+</html>

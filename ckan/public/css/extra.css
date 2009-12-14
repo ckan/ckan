@@ -111,6 +111,44 @@ div.extras-new-field label {
 	*/
 
 div.rating-group {
-	display: inline;
-	font-size: 0.85em;
+  display: inline;
+  font-size: 0.85em;
+}
+
+/* Added by NS 2009-12-14 */
+
+.clearfix:after {
+  content: ".";
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
+
+.clearfix { display: inline-block; } /* for IE/Mac */
+
+ul.tags {
+  list-style: none;
+  padding: 0;
+  line-height: 2em;
+}
+
+ul.tags li {
+  float: left;
+}
+
+ul.tags li a {
+  background: #AFC6E9;
+  color: #400F16;
+  text-decoration: none;
+  padding: 0.2em;
+  margin: 0 0.2em;
+}
+
+ul.tags li a:hover {
+  background: #2B69C6;
+  color: #fff;
+  text-decoration: none;
+  padding: 0.2em;
+  margin: 0 0.2em;
 }

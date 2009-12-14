@@ -5,6 +5,7 @@
   py:strip=""
   >
 
+<xi:include href="_util.html" />
 
 <head>
   <title>CKAN - Comprehensive Knowledge Archive Network - ${page_title()}</title>
@@ -13,33 +14,19 @@
   <link rel="alternate" type="application/atom+xml" title="CKAN Recent Changes" href="/revision/list?format=atom&amp;days=1" />
 
   <link rel="stylesheet" href="http://m.okfn.org/kforge/css/master.css" type="text/css" media="screen, print" title="Master stylesheet" charset="utf-8" />
-  <link rel="stylesheet" href="/css/pagination.css" type="text/css" media="screen, print" title="Master stylesheet" charset="utf-8" />
-  <link rel="stylesheet" href="/css/autocomplete.css" type="text/css" media="screen, print" title="Master stylesheet" charset="utf-8" />
-  <link rel="stylesheet" href="/css/stars.css" type="text/css" media="screen, print" title="Master stylesheet" charset="utf-8" />
-  <link rel="stylesheet" href="/css/extra.css" type="text/css" media="screen, print" title="Master stylesheet" charset="utf-8" />
+  <link rel="stylesheet" href="/css/pagination.css" type="text/css" media="screen, print" />
+  <link rel="stylesheet" href="/css/autocomplete.css" type="text/css" media="screen, print" />
+  <link rel="stylesheet" href="/css/stars.css" type="text/css" media="screen, print" />
+  <link rel="stylesheet" href="/css/extra.css" type="text/css" media="screen, print" />
+
+  <!--[if IE]>
+  <link rel="stylesheet" href="/css/ie.css" type="text/css" media="screen, print" />
+  <![endif]-->
 
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.min.js"></script>
   <script type="text/javascript" src="http://m.okfn.org/kforge/scripts/kforge.js"></script>
   <xi:include href="./yuicodes.html" />
 
-  <style type="text/css">
-		#top h1 a:hover {
-			background: transparent;
-		}
-
-    /* mess with standard ckan theme to remove second submenu for time being */
-    #subnav { background: transparent; height: 1px; }
-    #subnav * { display: none; }
-
-    /* for openness icons */
-    div.image-info {
-      display: inline;
-    }
-
-    div.image-info img {
-      margin-bottom: -2px;
-    }
-  </style>
   <py:if test="defined('page_specific_css')">
     ${page_specific_css()}
   </py:if>
