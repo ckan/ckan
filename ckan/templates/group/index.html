@@ -15,9 +15,8 @@
 
     <py:if test="not c.user">
     <h3>
-      <em>Want to create a new group?
-      <a href="${h.url_for(controller='user', action='login', id=None)}">Just login ...</a> 
-      </em>
+      To create a new group, <a href="${h.url_for(controller='user', action='login', id=None)}">login</a>.
+      
     </h3>
     </py:if>
 
@@ -25,5 +24,5 @@
 
   </div>
 
-  <xi:include href="../layout.html" />
+  <xi:include href="layout.html" />
 </html>

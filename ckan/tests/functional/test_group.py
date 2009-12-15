@@ -35,8 +35,9 @@ class TestGroup(TestController):
         assert 'There are %s groups.' % group_count in res
         groupname = 'david'
         assert groupname in res
-        assert '- (2)' in res
-        res = res.click(groupname)
+        assert '<td>2</td>' in res
+        group_title = model.Group.by_name(unicode(groupname)).title
+        res = res.click(group_title)
         assert groupname in res
         
     def test_read(self):

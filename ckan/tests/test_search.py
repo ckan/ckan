@@ -277,6 +277,45 @@ class TestSearch(object):
         result = Search().search(u'groups:ukgov tags:us')
         assert result['count'] == 2, self._pkg_names(result)
 
+class TestSearchOverall(object):
+    @classmethod
+    def setup_class(self):
+        model.Session.remove()
+        CreateTestData.create()
+
+    @classmethod
+    def teardown_class(self):
+        model.Session.remove()
+        model.repo.rebuild_db()
+        model.Session.remove()
+
+    def _check_search_results(self, terms, expected_count, expected_packages=[], only_open=False, only_downloadable=False):
+        options = SearchOptions({'q':unicode(terms)})
+        options.filter_by_openness = only_open
+        options.filter_by_downloadable = only_downloadable
+        result = Search().run(options)
+        pkgs = result['results']
+        count = result['count']
+        assert count == expected_count, count
+        for expected_pkg in expected_packages:
+            assert expected_pkg in pkgs, '%s : %s' % (expected_pkg, result)
+
+    def test_overall(self):
+        self._check_search_results('annakarenina', 1, ['annakarenina'] )
+        self._check_search_results('warandpeace', 1, ['warandpeace'] )
+        self._check_search_results('', 0 )
+        self._check_search_results('A Novel By Tolstoy', 1, ['annakarenina'] )
+        self._check_search_results('title:Novel', 1, ['annakarenina'] )
+        self._check_search_results('title:peace', 0 )
+        self._check_search_results('name:warandpeace', 1 )
+        self._check_search_results('groups:david', 2 )
+        self._check_search_results('groups:roger', 1 )
+        self._check_search_results('groups:lenny', 0 )
+        self._check_search_results('annakarenina', 1, ['annakarenina'], True, False )
+        self._check_search_results('annakarenina', 1, ['annakarenina'], False, True )
+        self._check_search_results('annakarenina', 1, ['annakarenina'], True, True )
+        
+
 class TestRank(object):
     @classmethod
     def setup_class(self):

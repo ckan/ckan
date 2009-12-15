@@ -9,6 +9,7 @@ from webhelpers.html import escape, HTML, literal, url_escape
 from webhelpers.html.tags import *
 from webhelpers.markdown import markdown
 from webhelpers import paginate
+from webhelpers.text import truncate
 from routes import url_for, redirect_to
 
 class Page(paginate.Page):

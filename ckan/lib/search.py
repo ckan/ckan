@@ -15,7 +15,6 @@ class SearchOptions:
     offset = 0
     filter_by_openness = False
     filter_by_downloadable = False
-    search_notes = False
 
     # about presenting the results
     order_by = 'rank'
@@ -29,7 +28,7 @@ class SearchOptions:
         assert kw_dict.keys()
         for k,v in kw_dict.items():
             # Ensure boolean fields are boolean
-            if k in ['filter_by_downloadable', 'filter_by_openness', 'search_notes', 'all_fields']:
+            if k in ['filter_by_downloadable', 'filter_by_openness', 'all_fields']:
                 v = v == 1 or v
             # Ensure integer fields are integer
             if k in ['offset', 'limit']:
