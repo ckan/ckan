@@ -4,6 +4,6 @@
       <p class="desc">
         E.g. 'geo', 'shakespeare', 'science'
       </p>
-      ${h.checkbox(name='open_only', checked=c.open_only)} only openly licensed packages
-      ${h.checkbox(name='downloadable_only', checked=c.downloadable_only)} only downloadable packages
+      <div>Filters: <label for="open_only" class="inline">${h.checkbox(name='open_only', checked=c.open_only)} open license</label>
+      <label for="downloadable_only" class="inline">${h.checkbox(name='downloadable_only', checked=c.downloadable_only)} downloadable</label></div>
     </form>

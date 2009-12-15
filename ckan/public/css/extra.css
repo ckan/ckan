@@ -105,6 +105,10 @@ div.extras-new-field label {
   line-height:2.6em;
 }
 
+label.inline {
+  display:inline;
+}
+
 
 /**
   * Ratings - rating stars css in stars.css
