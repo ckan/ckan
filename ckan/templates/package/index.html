@@ -9,9 +9,14 @@
     <h3><a href="${h.url_for(controller='package',
         action='list')}">Browse Packages</a>
     </h3>
-    <h3><a href="${h.url_for(controller='package',
-        action='search')}">Search Packages</a>
+
+    <br/>
+
+    <h3>Search Packages
     </h3>
+    <xi:include href="search_form.html" />
+
+    <br/>
 
     <h3>
       <a href="${h.url_for(controller='package',
