@@ -65,15 +65,6 @@ span.error-message {
   * Various iconography
   */
 
-/* for openness icons */
-div.image-info {
-  display: inline;
-}
-
-div.image-info img {
-  margin-bottom: -2px;
-}
-
 img.icon {
   height: 25px;
 }
@@ -131,6 +122,8 @@ div.rating-group {
 
 .clearfix { display: inline-block; } /* for IE/Mac */
 
+/* * * Tag listing * * */
+
 ul.tags {
   list-style: none;
   padding: 0;
@@ -141,7 +134,7 @@ ul.tags li {
   float: left;
 }
 
-ul.tags li a {
+.tags a {
   background: #AFC6E9;
   color: #400F16;
   text-decoration: none;
@@ -149,10 +142,98 @@ ul.tags li a {
   margin: 0 0.2em;
 }
 
-ul.tags li a:hover {
+.tags a:hover {
   background: #2B69C6;
   color: #fff;
   text-decoration: none;
   padding: 0.2em;
   margin: 0 0.2em;
+}
+
+/* * * Package listing * * */
+
+ul.packages {
+  padding-left: 0;
+}
+
+.packages li {
+  list-style: none;
+  padding: 0.4em 0 0.4em 0.5em;
+  border-left: 0.5em solid #fff;
+  border-bottom: 1px solid #ececec;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.packages li a {
+  text-decoration: none;
+}
+
+.packages li img {
+  margin-bottom: -2px;
+}
+
+.openness {
+  display: inline;
+  vertical-align: bottom;
+}
+
+.packages li.fullyopen {
+  border-left: 0.5em solid #AFC6E9;
+}
+
+.packages li .tags {
+  margin: 0 0 0 0.5em;
+  font-size: 80%;
+  opacity: 0.3;
+}
+
+.packages li:hover .tags {
+  opacity: 1;
+}
+
+/* * * Extra RHS styles * * */
+
+.sidebar dl {
+  margin: 0 1em 0.8em 1em;
+  padding: 0;
+}
+
+.sidebar dl.iconskey dt {
+  float: left;
+  clear: both;
+  margin: 0.4em 0 0 0;
+  height: 16px;
+  width: 16px;
+}
+
+.sidebar dl.iconskey dd {
+  float: left;
+  margin: 0.4em 0 0 10px;
+}
+
+.sidebar dl.iconskey dd.tiny {
+  font-size: 75%;
+  color: #888;
+  line-height: 1.2em;
+  margin: 0 0 0 26px;
+}
+
+.sidebar hr {
+  width: 90%;
+  color: #EBDBA7;
+  background-color: #EBDBA7;
+  border: none;
+  height: 1px;
+}
+
+.okdstripe {
+  /* Amusingly, this has to be a slightly different color to look the same
+     as the stripe on a white background */
+  border-left: 0.5em solid #8FB0DE;
+  padding-left: 0.4em ! important;
+}
+
+.centered {
+  text-align: center;
 }

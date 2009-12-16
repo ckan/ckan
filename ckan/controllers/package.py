@@ -23,10 +23,16 @@ class PackageController(BaseController):
         c.package_count = model.Package.query.count()
         return render('package/index')
 
-    def list(self, id=0, format='html'):
-        c.format = format
-        return self._paginate_list('package', id, 'package/list',
-            ['name', 'title'])
+    def list(self):
+        from ckan.lib.helpers import Page
+        
+        c.page = Page(
+            collection=model.Package.active(),
+            page=request.params.get('page', 1),
+            items_per_page=50
+        )
+        
+        return render('package/list')
 
     def search(self, id=1):
         request_params = dict(request.params)

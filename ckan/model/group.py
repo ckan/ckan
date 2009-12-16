@@ -43,7 +43,7 @@ class Group(DomainObject):
     def add_package_by_name(self, package_name):
         if not package_name:
             return
-        package = Package.byName(package_name)
+        package = Package.by_name(package_name)
         assert package
         if not package in self.packages:
             self.packages.append(package)

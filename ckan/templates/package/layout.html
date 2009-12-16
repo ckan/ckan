@@ -5,20 +5,12 @@
   py:strip=""
   >
 
-  <py:match path="primarysidebar">
-    <div class="box">
-      <h2>Packages section</h2>
-      <p>You're currently in the <strong>packages</strong> section. From here you can find registered packages, or register a new package.</p>
-    </div>
-  </py:match>
-
   <py:match path="minornavigation">
     <li>${XML(h.link_to('Home', h.url_for(controller='package', action='index', id='None')))}</li>
     <li>${XML(h.link_to('List', h.url_for(controller='package', action='list', id='None')))}</li>
     <li>${XML(h.link_to('Search', h.url_for(controller='package', action='search', id='None')))}</li>
     <li>${XML(h.link_to('New', h.url_for(controller='package', action='new', id='None')))}</li>
   </py:match>
-
   
   <xi:include href="../layout.html" />
 </html>

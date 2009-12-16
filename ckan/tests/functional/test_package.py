@@ -263,7 +263,7 @@ Hello world.
         pkg.tags = [model.Tag(name=u'one'), model.Tag(name=u'two')]
         pkg.state = model.State.query.filter_by(name='deleted').one()
         tags_txt = ' '.join([tag.name for tag in pkg.tags])
-        pkg.license = model.License.byName(u'OKD Compliant::Other')
+        pkg.license = model.License.by_name(u'OKD Compliant::Other')
         extras = {'key1':'value1', 'key2':'value2', 'key3':'value3'}
         for key, value in extras.items():
             pkg.extras[unicode(key)] = unicode(value)
@@ -481,7 +481,7 @@ class TestPackageControllerNew(TestController):
     def test_new_without_resource(self):
         # new package
         prefix = 'Package--'
-        name = u'test_no_res'
+        name = 'test_no_res'
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         fv = res.forms[0]

@@ -261,7 +261,7 @@ class ResourcesRenderer(formalchemy.fields.FieldRenderer):
         <tr> <th>URL</th><th>Format</th><th>Description</th> </tr>
 %(rows)s
       </table>
-      <a href="javascript:addRowToTable()" id="add_resource"><img src="/images/icon-add.png"></a>
+      <a href="javascript:addRowToTable()" id="add_resource"><img src="/images/icons/add.png"></a>
       '''
     table_template_readonly = '''
       <table id="flexitable" prefix="%(id)s">
@@ -276,8 +276,8 @@ class ResourcesRenderer(formalchemy.fields.FieldRenderer):
           <td><input name="%(id)s-%(res_index)s-format" size="5" id="%(id)s-%(res_index)s-format" type="text" value="%(format)s" /></td>
           <td><input name="%(id)s-%(res_index)s-description" size="25" id="%(id)s-%(res_index)s-description" type="text" value="%(description)s" /></td>
           <td>
-            <a href="javascript:moveRowUp(%(res_index)s)"><img src="/images/arrow_up.png"></a>
-            <a href="javascript:moveRowDown(%(res_index)s)"><img src="/images/arrow_down.png"></a>
+            <a href="javascript:moveRowUp(%(res_index)s)"><img src="/images/icons/arrow_up.png"></a>
+            <a href="javascript:moveRowDown(%(res_index)s)"><img src="/images/icons/arrow_down.png"></a>
             <a href="javascript:removeRowFromTable(%(res_index)s);"><img src="/images/icon-delete.png" class="icon"></a>
           </td>
         </tr>

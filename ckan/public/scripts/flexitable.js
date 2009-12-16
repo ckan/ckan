@@ -38,13 +38,13 @@ function addRowToTable()
     var anchor = document.createElement('a');
     anchor.href = 'javascript:moveRowUp(' + iteration + ')';
     var image = document.createElement('img');
-    image.src = '/images/arrow_up.png';
+    image.src = '/images/icons/arrow_up.png';
     anchor.appendChild(image);
     cell.appendChild(anchor);
     var anchor = document.createElement('a');
     anchor.href = 'javascript:moveRowDown(' + iteration + ')';
     var image = document.createElement('img');
-    image.src = '/images/arrow_down.png';
+    image.src = '/images/icons/arrow_down.png';
     anchor.appendChild(image);
     cell.appendChild(anchor);
     var anchor = document.createElement('a');

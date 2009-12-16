@@ -29,7 +29,7 @@ class _TestDiffPackage(TestController):
         pkg.tags = [get_tag(u'one'), get_tag(u'two')]
         pkg.state = model.State.query.filter_by(name='deleted').one()
         tags_txt = ' '.join([tag.name for tag in pkg.tags])
-        pkg.license = model.License.byName(u'OKD Compliant::Other')
+        pkg.license = model.License.by_name(u'OKD Compliant::Other')
         extras = {'key1':'value1', 'key2':'value2', 'key3':'value3'}
         for key, value in extras.items():
             pkg.extras[unicode(key)] = unicode(value)
@@ -58,7 +58,7 @@ class _TestDiffPackage(TestController):
             if package_tag.tag.name ==u'two':
                 package_tag.delete()
         pkg.state = model.State.query.filter_by(name='active').one()
-        pkg.license = model.License.byName(u'OKD Compliant::UK Click Use PSI')
+        pkg.license = model.License.by_name(u'OKD Compliant::UK Click Use PSI')
         extras = {'key1':'value1', 'key2':'value2-changed', 'key3':None, 'key4':'all-new'}
         for key, value in extras.items():
             pkg.extras[unicode(key)] = unicode(value)

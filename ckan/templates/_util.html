@@ -7,16 +7,49 @@
 
   <!--! Herein can be found generic helper methods for a whole bunch of common
         templating issues -->
-        
-  <py:def function="plural(num, x, y)" py:choose="num">
-    <py:when test="1">${x}</py:when>
-    <py:otherwise>${y}</py:otherwise>
+  
+  <!--! plural(n, s, p): takes a number, a singular form and a plural form, 
+        returning the appropriate form on the basis of the number specified -->      
+  <py:def function="plural(num, s, p)" py:choose="num">
+    <py:when test="1">${s}</py:when>
+    <py:otherwise>${p}</py:otherwise>
   </py:def>
   
+  <!--! List of tags: pass in a collection of tags and this renders the standard
+        tag listing -->
   <ul py:def="tag_list(tags)" class="tags clearfix">    
     <li py:for="tag in tags" data="{'count':${len(tag.package_tags)}}">
       ${h.link_to(tag.name, h.url_for(action='read', id=tag.name))}
     </li>
   </ul>
   
+  <!--! List of packages: pass in a collection of tags and this renders the 
+        standard package listing -->  
+  <ul py:def="package_list(packages)" class="packages">
+    <li py:for="package in packages" 
+        class="${'fullyopen' if (package.isopen() and package.resources) else None}">
+        ${package_openness(package)}
+        ${h.link_to(package.title, h.url_for(controller='package', action='read', id=package.name))}
+        <span py:if="package.tags" class="tags">
+          <py:for each="tag in package.tags">${h.link_to(tag.name, h.url_for(controller='tag', action='read', id=tag.name))}</py:for>
+        </span>
+    </li>
+  </ul>
+  
+  <div py:def="package_openness(package)" class="openness">
+    <img 
+      src="/images/icons/door_${'open' if package.isopen() else 'grey'}.png" 
+      title="License: ${package.license.name if hasattr(package.license, 'name') else '?'}" 
+      alt="${'OPEN' if package.isopen() else 'CLOSED'}" />
+
+    <py:choose test="">
+      <a py:when="package.resources" 
+         href="${h.url_for(controller='package', action='read', id=package.name, anchor='resources')}">
+        <img src="/images/icons/arrow_down.png" title="View package resources" alt="DOWNLOAD" />
+      </a>
+        
+      <img py:otherwise="" src="/images/icons/arrow_down_grey.png" title="No downloadable resources." alt="" />
+    </py:choose>
+  </div>
+
 </html>

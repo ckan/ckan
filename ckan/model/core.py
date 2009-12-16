@@ -84,6 +84,14 @@ class DomainObject(object):
             q = or_(q, make_like(attr, term))
         return query.filter(q)
 
+    @classmethod
+    def active(self):
+        # Memoize the id of the 'active' row in the State table.
+        if not hasattr(self, 'active_id'):
+            self.active_id = State.query.filter_by(name='active').one().id
+
+        return self.query.filter_by(state_id=self.active_id)
+
     def purge(self):
         sess = orm.object_session(self)
         if hasattr(self, '__revisioned__'): # only for versioned objects ...

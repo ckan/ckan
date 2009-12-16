@@ -42,7 +42,6 @@ class ManageDb(CkanCommand):
     db send-rdf {talis-store} {username} {password}
     db load {file-path} # load from a file
     db load-data4nr {file-path.csv}
-    db load-cospread {file-path.csv}
     db load-esw {file-path.txt} [{host} {api-key}]
     db migrate06
     db migrate09a
@@ -83,11 +82,7 @@ class ManageDb(CkanCommand):
         elif cmd == 'send-rdf':
             self.send_rdf(cmd)
         elif cmd == 'load-data4nr':
-            import ckan.getdata.data4nr as data_getter
-            self.load_data(cmd, data_getter.Data4Nr)
-        elif cmd == 'load-cospread':
-            import ckan.getdata.cospread as data_getter
-            self.load_data(cmd, data_getter.Data)
+            self.load_data4nr(cmd)
         elif cmd == 'load-esw':
             self.load_esw(cmd)
         elif cmd == 'migrate06':
@@ -130,12 +125,13 @@ class ManageDb(CkanCommand):
         else:
             print 'Unknown command', cmd
 
-    def load_data(self, cmd, data_getter):
+    def load_data4nr(self, cmd):
         if len(self.args) < 2:
             print 'Need csv file path'
             return
         load_path = self.args[1]
-        data = data_getter()
+        import ckan.getdata.data4nr
+        data = ckan.getdata.data4nr.Data4Nr()
         data.load_csv_into_db(load_path)
 
     def simple_dump_csv(self, cmd):
@@ -275,7 +271,7 @@ class CreateTestData(CkanCommand):
         tag2 = model.Tag(name=u'tolstoy')
         pkg1.tags = [tag1, tag2]
         pkg2.tags = [ tag1 ]
-        license1 = model.License.byName(u'OKD Compliant::Other')
+        license1 = model.License.by_name(u'OKD Compliant::Other')
         pkg1.license = license1
         pkg2.title = u'A Wonderful Story'
         pkg1._extras = {'genre':model.PackageExtra(key=u'genre', value='romantic novel'),
@@ -477,7 +473,7 @@ It appears that the website is under a CC-BY-SA license. Legal status of the dat
                             self.groups[group_name] = group
                         pkg.groups.append(group)
                 elif attr == 'license':
-                    license = model.License.byName(val)
+                    license = model.License.by_name(val)
                     pkg.license = license
             self.pkgs[item['name']] = pkg
             model.setup_default_user_roles(pkg)
@@ -678,50 +674,3 @@ class CreateSearchIndex(CkanCommand):
         for pkg in model.Package.query.all():
             pkg_dict = pkg.as_dict()
             SearchVectorTrigger().update_package_vector(pkg_dict, engine)
-
-class Ratings(CkanCommand):
-    '''Manage the ratings stored in the db
-
-    Usage:
-      ratings count                 - counts ratings
-      ratings clean                 - remove all ratings
-      ratings clean-anonymous       - remove only anonymous ratings
-    '''
-
-    summary = __doc__.split('\n')[0]
-    usage = __doc__
-    max_args = 1
-    min_args = 1
-
-    def command(self):
-        self._load_config()
-        from ckan import model
-
-        cmd = self.args[0]
-        if cmd == 'count':
-            self.count()
-        elif cmd == 'clean':
-            self.clean()
-        elif cmd == 'clean-anonymous':
-            self.clean(user_ratings=False)
-        else:
-            print 'Command %s not recognized' % cmd
-
-    def count(self):
-        from ckan import model
-        q = model.Rating.query
-        print "%i ratings" % q.count()
-        q = q.filter(model.Rating.user_id == None)
-        print "of which %i are anonymous ratings" % q.count()        
-
-    def clean(self, user_ratings=True):
-        from ckan import model
-        q = model.Rating.query
-        print "%i ratings" % q.count()
-        if not user_ratings:
-            q = q.filter(model.Rating.user_id == None)
-            print "of which %i are anonymous ratings" % q.count()
-        ratings = q.all()
-        for rating in ratings:
-            rating.purge()
-        model.repo.commit_and_remove()
