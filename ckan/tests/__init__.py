@@ -13,6 +13,7 @@ import sys
 import re
 from unittest import TestCase
 
+import sgmllib
 import pkg_resources
 import paste.fixture
 import paste.script.appinstall
@@ -41,6 +42,20 @@ cmd.run([test_file])
 
 import ckan.model as model
 model.repo.rebuild_db()
+
+# A simple helper class to cleanly strip HTML from a response.
+class Stripper(sgmllib.SGMLParser):
+    def __init__(self):
+        sgmllib.SGMLParser.__init__(self)
+
+    def strip(self, html):
+        self.str = ""
+        self.feed(html)
+        self.close()
+        return ' '.join(self.str.split())
+
+    def handle_data(self, data):
+        self.str += data
 
 class TestController(object):
 
@@ -98,6 +113,10 @@ class TestController(object):
         the_html = str(html)
         return the_html[the_html.find('<div id="primary"'):the_html.find('<div id="main">')]
 
+    def strip_tags(self, res):
+        '''Call strip_tags on a TestResponse object to strip any and all HTML and normalise whitespace.'''
+        return Stripper().strip(str(res))
+
     def check_named_element(self, html, tag_name, *html_to_find):
         '''Searches in the html and returns True if it can find a particular
         tag and all its subtags & data which contains all the of the
@@ -138,6 +157,3 @@ class TestController(object):
                 return # found it
         # didn't find it
         assert 0, "Couldn't find %s in html. Closest matches were:\n%s" % (', '.join(["'%s'" % html for html in html_to_find]), '\n'.join(partly_matching_tags))
-
-                                               
-

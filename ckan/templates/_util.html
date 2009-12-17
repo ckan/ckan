@@ -48,6 +48,19 @@
     </li>
   </ul>
   
+  <!--! List of groups: pass in a collection of groups and this renders the 
+        standard group listing -->
+  <table py:def="group_list(groups)" class="groups">
+    <tr><th>Title</th><th>Number of packages</th><th>Description</th></tr>
+    <py:for each="group in groups">
+    <tr>
+      <td><a href="${h.url_for(controller='group', action='read', id=group.name)}">${group.title}</a></td>
+      <td>${len(group.packages)}</td>
+      <td>${h.truncate(group.description, length=80, whole_word=True)}</td>
+    </tr>
+    </py:for>
+  </table>
+  
   <!--! Package openness icons -->
   <img py:def="package_license_icon(package)"
     src="/images/icons/door_${'open' if package.isopen() else 'grey'}.png" 

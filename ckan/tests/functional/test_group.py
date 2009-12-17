@@ -18,21 +18,14 @@ class TestGroup(TestController):
         assert 'Groups' in res, res
         assert 'Groups</a></li>' in res, res
         res = res.click('Groups')
-        assert '<h2>Groups</h2>' in res, res        
+        assert '<h2>Groups</h2>' in res, res
 
     def test_index(self):
         offset = url_for(controller='group')
         res = self.app.get(offset)
-        assert '<h2>Groups</h2>' in res, res        
-
-
-    def test_list(self):
-        offset = url_for(controller='group', action='list')
-        res = self.app.get(offset)
-        print self.main_div(res)
-        assert 'Groups - List' in res
+        assert '<h2>Groups</h2>' in res, res
         group_count = model.Group.query().count()
-        assert 'There are %s groups.' % group_count in res
+        assert 'There are %s groups.' % group_count in self.strip_tags(res)
         groupname = 'david'
         assert groupname in res
         assert '<td>2</td>' in res
@@ -51,7 +44,7 @@ class TestGroup(TestController):
         assert 'Administrators:' in main_res, main_res
         assert 'russianfan' in main_res, main_res
         assert name in res, res
-        assert 'There are 2 packages in this group' in main_res, main_res
+        assert 'There are 2 packages in this group' in self.strip_tags(main_res), main_res
         res = res.click(model.Package.by_name(pkgname).title)
         assert 'Packages - %s' % pkgname in res
 

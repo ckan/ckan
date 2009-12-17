@@ -60,7 +60,7 @@ class RevisionController(BaseController):
             c.page = Page(
                 collection=model.Revision.query(),
                 page=request.params.get('page', 1),
-                items_per_page=20
+                items_per_page=50
             )
             
             return render('revision/list')
