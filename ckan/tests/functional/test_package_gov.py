@@ -90,7 +90,7 @@ class TestEdit(TestController):
         pkg.tags = [model.Tag(name=u'one'), model.Tag(name=u'two')]
         pkg.state = model.State.query.filter_by(name='deleted').one()
         tags_txt = ' '.join([tag.name for tag in pkg.tags])
-        pkg.license = model.License.byName(u'OKD Compliant::Other')
+        pkg.license = model.License.by_name(u'OKD Compliant::Other')
         external_reference = 'ref-test'
         date_released = '2009-07-30'
         date_updated = '1998-12-25'
