@@ -52,4 +52,12 @@
     </py:choose>
   </div>
 
+  <!-- TODO remove this function when it's written properly -->
+  <py:def function="package_summary(pkg)">
+      <a href="${h.url_for(controller='package', action='read', id=pkg.name)}">
+         ${pkg.name} - ${pkg.title}
+      </a>
+  </py:def>
+
+
 </html>

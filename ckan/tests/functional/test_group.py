@@ -52,7 +52,7 @@ class TestGroup(TestController):
         assert 'russianfan' in main_res, main_res
         assert name in res, res
         assert 'There are 2 packages in this group' in main_res, main_res
-        res = res.click(pkgname)
+        res = res.click(model.Package.by_name(pkgname).title)
         assert 'Packages - %s' % pkgname in res
 
     def test_read_and_authorized_to_edit(self):

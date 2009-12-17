@@ -1,10 +1,13 @@
+import cgi
+
+from paste.fixture import AppError
+
 from ckan.tests import *
 import ckan.model as model
 
-import cgi
-from paste.fixture import AppError
-
 existing_extra_html = ('<label class="field_opt" for="Package-%(package_id)s-extras-%(key)s">%(capitalized_key)s</label>', '<input id="Package-%(package_id)s-extras-%(key)s" name="Package-%(package_id)s-extras-%(key)s" size="20" type="text" value="%(value)s">')
+
+package_form=''
 
 class TestPackageController(TestController):
 
@@ -20,12 +23,6 @@ class TestPackageController(TestController):
         offset = url_for(controller='package')
         res = self.app.get(offset)
         assert 'Packages - Index' in res
-
-    def test_sidebar(self):
-        offset = url_for(controller='package')
-        res = self.app.get(offset)
-        # sidebar
-        assert 'Packages section' in res
 
     def test_minornavigation(self):
         offset = url_for(controller='package')
@@ -89,7 +86,8 @@ class TestPackageController(TestController):
         assert 'Packages - List' in res
         name = u'annakarenina'
         assert name in res
-        res = res.click(name)
+        print res
+        res = res.click(model.Package.by_name(name).title)
         assert 'Packages - %s' % name in res
 
     def test_search(self):
@@ -136,7 +134,7 @@ class TestPackageControllerEdit(TestController):
         admin = model.User.by_name(u'testadmin')
         model.setup_default_user_roles(editpkg, [admin])
         self.pkgid = editpkg.id
-        offset = url_for(controller='package', action='edit', id=self.editpkg_name)
+        offset = url_for(controller='package', action='edit', id=self.editpkg_name, package_form=package_form)
         self.res = self.app.get(offset)
         self.newtagnames = [u'russian', u'tolstoy', u'superb']
         model.repo.commit_and_remove()
@@ -272,7 +270,7 @@ Hello world.
         model.setup_default_user_roles(pkg, [self.admin])
 
         # Edit it
-        offset = url_for(controller='package', action='edit', id=pkg.name)
+        offset = url_for(controller='package', action='edit', id=pkg.name, package_form=package_form)
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':'testadmin'})
         assert 'Packages - Edit' in res, res
         
@@ -465,7 +463,7 @@ class TestPackageControllerNew(TestController):
 
     def test_new_with_params_1(self):
         offset = url_for(controller='package', action='new',
-                url='http://xxx.org')
+                url='http://xxx.org', package_form=package_form)
         res = self.app.get(offset)
         form = res.forms[0]
         form['Package--url'].value == 'http://xxx.org/'
@@ -473,7 +471,7 @@ class TestPackageControllerNew(TestController):
 
     def test_new_with_params_2(self):
         offset = url_for(controller='package', action='new',
-                url='http://www.xxx.org')
+                url='http://www.xxx.org', package_form=package_form)
         res = self.app.get(offset)
         form = res.forms[0]
         form['Package--name'].value == 'xxx.org'
@@ -481,8 +479,8 @@ class TestPackageControllerNew(TestController):
     def test_new_without_resource(self):
         # new package
         prefix = 'Package--'
-        name = 'test_no_res'
-        offset = url_for(controller='package', action='new')
+        name = u'test_no_res'
+        offset = url_for(controller='package', action='new', package_form=package_form)
         res = self.app.get(offset)
         fv = res.forms[0]
         fv[prefix+'name'] = name
@@ -512,7 +510,7 @@ class TestPackageControllerNew(TestController):
 
     def test_new(self):
         assert not model.Package.by_name(u'annakarenina')
-        offset = url_for(controller='package', action='new')
+        offset = url_for(controller='package', action='new', package_form=package_form)
         res = self.app.get(offset)
         assert 'Packages - New' in res
         fv = res.forms[0]
@@ -537,7 +535,7 @@ class TestPackageControllerNew(TestController):
         extras = {'key1':'value1', 'key2':'value2', 'key3':'value3'}
         log_message = 'This is a comment'
         assert not model.Package.by_name(name)
-        offset = url_for(controller='package', action='new')
+        offset = url_for(controller='package', action='new', package_form=package_form)
         res = self.app.get(offset)
         assert 'Packages - New' in res
         fv = res.forms[0]
@@ -645,7 +643,7 @@ class TestPackageControllerNew(TestController):
         # test creating a package with an existing name results in error'
         # create initial package
         assert not model.Package.by_name(self.pkgname)
-        offset = url_for(controller='package', action='new')
+        offset = url_for(controller='package', action='new', package_form=package_form)
         res = self.app.get(offset)
         assert 'Packages - New' in res
         fv = res.forms[0]
@@ -671,7 +669,7 @@ class TestPackageControllerNew(TestController):
         assert 'class="field_error"' in res, res
         
     def test_new_bad_name(self):
-        offset = url_for(controller='package', action='new')
+        offset = url_for(controller='package', action='new', package_form=package_form)
         res = self.app.get(offset)
         assert 'Packages - New' in res
         fv = res.forms[0]
