@@ -40,7 +40,7 @@ class TestHomeController(TestController):
         form = res.forms[0]
         form['q'] =  'anna'
         results_page = form.submit()
-        assert 'Packages - Search' in results_page, results_page
+        assert 'Search packages' in results_page, results_page
         assert '0 packages found' in results_page, results_page
 
     # DISABLED because this is not on home page anymore

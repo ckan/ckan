@@ -1,0 +1,123 @@
+/* @override http://localhost:5000/style/buttons.css */
+
+.buttons {
+	display: inline-block;
+}
+
+.buttons:after {
+	content: ".";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
+}
+
+* html .buttons {
+	height: 1px;
+}
+
+.buttons img {
+	vertical-align: baseline;
+	float: none;
+}
+
+.buttons a, button {
+	display: block;
+	float: left;
+	margin: 0 7px 0 0;
+	background-color: #f0f0f0;
+	border: 1px solid #dedede;
+	border-top: 1px solid #eee;
+	border-left: 1px solid #eee;
+	-moz-border-radius: 0.5em;
+	-webkit-border-radius: 0.5em;
+	font-size: 100%;
+	line-height: 1.4;
+	text-decoration: none;
+	font-weight: bold;
+	color: #565656;
+	cursor: pointer;
+	padding: 5px 10px 6px 7px;
+	background-image: url(/images/button-shadow.png);
+	background-repeat: no-repeat;
+	background-position: left top;
+}
+
+button {
+	width: auto;
+	overflow: visible;
+	padding: 4px 10px 3px 7px;
+}
+
+button[type] {
+	padding: 5px 10px 5px 7px;
+	line-height: 17px;
+}
+
+*:first-child+html button[type] {
+	padding: 4px 10px 3px 7px;
+}
+
+.buttons a.secondary, button.secondary {
+	float: right;
+}
+
+button img, .buttons a img {
+	margin: 0 3px -3px 0 !important;
+	padding: 0;
+	border: none;
+	width: 16px;
+	height: 16px;
+}
+
+button:hover, .buttons a:hover {
+	border: 1px solid #ccc;
+	color: #333;
+	background-color: #f0f0f0;
+}
+
+button:active, .buttons a:active {
+	background-image: none;
+	background-color: #888;
+	border: 1px solid #444;
+	/* override position indicator */
+	color: #fff ! important; 
+}
+
+button.positive, .buttons a.positive {
+	color: #529214;
+}
+
+.buttons a.positive:hover, button.positive:hover {
+	background-image: none;
+	background-color: #e6efc2;
+	border: 1px solid #c6d880;
+	color: #529214;
+}
+
+.buttons a.positive:active {
+	background-image: none;
+	background-color: #529214;
+	border: 1px solid #529214;
+	color: #fff;
+}
+
+/* negative (cancel, delete) */
+
+.buttons a.negative, button.negative {
+	color: #d12f19;
+}
+
+.buttons a.negative:hover, button.negative:hover {
+	background-image: none;
+	background: #fbe3e4;
+	border: 1px solid #fbc2c4;
+	color: #d12f19;
+}
+
+.buttons a.negative:active {
+	background-image: none;
+	background-color: #d12f19;
+	border: 1px solid #d12f19;
+	color: #fff;
+}

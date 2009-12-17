@@ -34,45 +34,35 @@ class PackageController(BaseController):
         
         return render('package/list')
 
-    def search(self, id=1):
-        request_params = dict(request.params)
-        c.show_results = False
-        if request_params.has_key('q'):
-            c.q = request_params['q']
-            c.open_only = request_params.has_key('open_only')
-            c.downloadable_only = request_params.has_key('downloadable_only')
-            options = SearchOptions({'q':c.q,
-                                     'filter_by_openness':c.open_only,
-                                     'filter_by_downloadable':c.downloadable_only,
-                                     'return_objects':True,
-                                     'limit':0
+    def search(self):        
+        c.q = request.params.get('q')
+        c.open_only = request.params.get('open_only')
+        c.downloadable_only = request.params.get('downloadable_only')
+        
+        if c.q:
+            options = SearchOptions({'q': c.q,
+                                     'filter_by_openness': c.open_only,
+                                     'filter_by_downloadable': c.downloadable_only,
+                                     'return_objects': True,
+                                     'limit': 0
                                      })
 
             # package search
             results = Search().run(options)
-            c.package_count = results['count']
-            page = id
-            from ckan.lib.helpers import paginate
-            c.page = paginate.Page(
+
+            from ckan.lib.helpers import Page
+            
+            c.page = Page(
                 collection=results['results'],
-                page=page,
-                items_per_page=PAGINATE_ITEMS_PER_PAGE,
-                item_count=results['count'],
+                page=request.params.get('page', 1),
+                items_per_page=50
             )
-            c.link_params = request_params
-            if c.link_params.has_key('page'):
-                del c.link_params['page']
-            c.register_name = 'packages'
-            c.no_paginate_count = True
-            c.action = 'search'
 
             # tag search
             options.entity = 'tag'
             results = Search().run(options)
             c.tags = results['results']
             c.tags_count = results['count']
-
-            c.show_results = True
 
         return render('package/search')
 
@@ -95,7 +85,9 @@ class PackageController(BaseController):
         # this line needed or the resources relation doesn't bind:
         resources = c.pkg.resources
         fs = fs.bind(c.pkg)
-        c.content = genshi.HTML(self._render_package_with_template(fs))
+        
+        # setup c object.
+        self._render_package_with_template(fs)
 
         c.current_rating, c.num_ratings = ckan.rating.get_rating(c.pkg)
         
@@ -359,14 +351,23 @@ class PackageController(BaseController):
         c.pkg_version = fs.version.value
         c.pkg_title = fs.title.value
         c.pkg_url = fs.url.value
+        
+        c.pkg_url_link = h.link_to('WWW', c.pkg_url) if c.pkg_url else "No external link"
+    
         if fs.resources.value and isinstance(fs.resources.value[0], model.PackageResource):
             c.pkg_resources = [(res.url, res.format, res.description) for res in fs.resources.value]
         else:
             c.pkg_resources = fs.resources.value
         c.pkg_author = fs.author.value
         c.pkg_author_email = fs.author_email.value
+        
+        c.pkg_author_link = self._person_email_link(c.pkg_author, c.pkg_author_email, "Author")
+                
         c.pkg_maintainer = fs.maintainer.value
         c.pkg_maintainer_email = fs.maintainer_email.value
+        
+        c.pkg_maintainer_link = self._person_email_link(c.pkg_maintainer, c.pkg_maintainer_email, "Maintainer")
+                
         if c.auth_for_change_state:
             c.pkg_state = model.State.query.get(fs.state.value).name
         if fs.license.value:
@@ -374,9 +375,9 @@ class PackageController(BaseController):
         else:
             c.pkg_license = None
         if fs.tags.value:
-            c.pkg_tags = [tag.name for tag in fs.tags.value]
+            c.pkg_tags = [tag for tag in fs.tags.value]
         elif fs.model.tags:
-            c.pkg_tags = [tag.name for tag in fs.model.tags_ordered]
+            c.pkg_tags = [tag for tag in fs.model.tags_ordered]
         else:
             c.pkg_tags = []
         if fs.model.groups:
@@ -395,6 +396,15 @@ class PackageController(BaseController):
         else:
             for key, extra in fs.model._extras.items():
                 c.pkg_extras.append((key.capitalize(), extra.value))
-
-        preview = render('package/read_content')
-        return preview
+                
+    def _person_email_link(self, name, email, reference):
+        if email:
+            if name:
+                return h.link_to(name, 'mailto:' + email)
+            else:
+                return h.link_to(email, 'mailto:' + email)
+        else:
+            if name:
+                return name
+            else:
+                return reference + " unknown"

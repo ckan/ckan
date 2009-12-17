@@ -90,7 +90,7 @@ class TestTagController(TestController):
         search_term = 's'
         fv = res.forms[0]
         print fv.fields
-        fv['search_terms'] =  str(search_term)
+        fv['q'] =  str(search_term)
         res = fv.submit()
         print res
         assert 'There are <strong>2</strong> results' in res, res

@@ -1,3 +1,8 @@
+@import url(pagination.css);
+@import url(autocomplete.css);
+@import url(stars.css);
+@import url(buttons.css);
+
 /**
   * Fixes to kforge css
   */
@@ -28,6 +33,13 @@ body.plus-secondary #main {
   margin: 0.6em 0 0 1%;
 }
 
+#main hr {
+  color: #ddd;
+  background-color: #ddd;
+  border: none;
+  height: 3px;
+}
+
 /**
   * Changes/additions to kforge forms.css
   */
@@ -47,19 +59,9 @@ body.plus-secondary #main {
   margin: 0;
 }
 
-/**
-  * form encode default classes
-  * TODO: rgrp: 2009-12-13 are these still needed?
-  */
-.error, span.error-message {
-  background-color: #c00;
-  padding: 2px;
+.centered {
+  text-align: center;
 }
-
-span.error-message {
-  font-weight: bold;
-}
-
 
 /**
   * Various iconography
@@ -80,11 +82,6 @@ a.icon {
 .icon-delete {
     background: transparent url(http://m.okfn.org/kforge/images/icon-delete.png) repeat scroll 0 0;
     float: left;
-}
-
-/* things like [edit] action in package title */
-.object-action {
-    font-size: 0.6em;
 }
 
 table.no-margin { 
@@ -135,6 +132,9 @@ ul.tags li {
 }
 
 .tags a {
+  -webkit-border-radius: 0.3em;
+  -moz-border-radius: 0.3em;
+  border-radius: 0.3em;
   background: #AFC6E9;
   color: #400F16;
   text-decoration: none;
@@ -199,7 +199,7 @@ ul.packages {
   padding: 0;
 }
 
-.sidebar dl.iconskey dt {
+.sidebar dl.icons dt {
   float: left;
   clear: both;
   margin: 0.4em 0 0 0;
@@ -207,12 +207,12 @@ ul.packages {
   width: 16px;
 }
 
-.sidebar dl.iconskey dd {
+.sidebar dl.icons dd {
   float: left;
   margin: 0.4em 0 0 10px;
 }
 
-.sidebar dl.iconskey dd.tiny {
+.sidebar dl.icons dd.tiny {
   font-size: 75%;
   color: #888;
   line-height: 1.2em;
@@ -227,6 +227,14 @@ ul.packages {
   height: 1px;
 }
 
+.sidebar .buttons {
+  margin-top: 0;
+}
+
+.sidebar .buttons a, .sidebar .buttons button {
+  margin-bottom: 0.3em;
+}
+
 .okdstripe {
   /* Amusingly, this has to be a slightly different color to look the same
      as the stripe on a white background */
@@ -234,6 +242,46 @@ ul.packages {
   padding-left: 0.4em ! important;
 }
 
-.centered {
-  text-align: center;
+/* * * Package read page * * */
+
+.package .head {
+  margin-bottom: 0;
 }
+
+.package .subhead {
+  margin-bottom: 1.5em;
+  font-family: monospace;
+}
+
+.package .name {
+  color: #555;
+}
+
+.package .okd {
+  margin: 0 0 0 0.5em;
+}
+
+.package .resources table {
+  margin-left: 0;
+}
+
+.package .taglist {
+  width: 50%;
+  border-right: 3px solid #ddd;  
+}
+
+.package .grouplist {
+  float: right;
+  width: 47%;
+  padding-left: 3%;
+}
+
+.package .notes {
+  background: #eee;
+  padding: 0.2em 0;
+}
+
+.package img {
+  vertical-align: middle;
+}
+

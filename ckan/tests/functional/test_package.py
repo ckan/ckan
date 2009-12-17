@@ -21,12 +21,6 @@ class TestPackageController(TestController):
         res = self.app.get(offset)
         assert 'Packages - Index' in res
 
-    def test_sidebar(self):
-        offset = url_for(controller='package')
-        res = self.app.get(offset)
-        # sidebar
-        assert 'Packages section' in res
-
     def test_minornavigation(self):
         offset = url_for(controller='package')
         res = self.app.get(offset)
@@ -86,18 +80,17 @@ class TestPackageController(TestController):
     def test_list(self):
         offset = url_for(controller='package', action='list')
         res = self.app.get(offset)
-        assert 'Packages - List' in res
-        name = u'annakarenina'
+        assert 'Packages' in res
+        name = u'A Novel By Tolstoy'
         assert name in res
         res = res.click(name)
-        assert 'Packages - %s' % name in res
+        assert '<strong>Title:</strong> %s' % name in res
 
     def test_search(self):
         offset = url_for(controller='package', action='search')
         res = self.app.get(offset)
-        assert 'Packages - Search' in res
-        self._check_search_results(res, 'annakarenina', ['1 package found', 'A Novel By Tolstoy'] )
-        self._check_search_results(res, '', ['0 packages found'] )
+        assert 'Search packages' in res
+        self._check_search_results(res, 'annakarenina', ['<strong>1</strong> package found', 'A Novel By Tolstoy'] )
 
     def _check_search_results(self, page, terms, requireds, only_open=False, only_downloadable=False):
         form = page.forms[0]
@@ -105,7 +98,7 @@ class TestPackageController(TestController):
         form['open_only'] = only_open
         form['downloadable_only'] = only_downloadable
         results_page = form.submit()
-        assert 'Packages - Search' in results_page, results_page
+        assert 'Search packages' in results_page, results_page
         results_page = self.main_div(results_page)
         for required in requireds:
             results_page = self.main_div(results_page)
@@ -735,13 +728,13 @@ class TestNonActivePackages(TestController):
     def test_search(self):
         offset = url_for(controller='package', action='search')
         res = self.app.get(offset)
-        assert 'Packages - Search' in res
+        assert 'Search packages' in res
         form = res.forms[0]
         form['q'] =  str(self.non_active_name)
         results_page = form.submit()
-        assert 'Packages - Search' in results_page, results_page
+        assert 'Search packages' in results_page, results_page
         print results_page
-        assert '0 packages found' in results_page, (self.non_active_name, results_page)
+        assert '<strong>0</strong> packages found' in results_page, (self.non_active_name, results_page)
 
 
 class TestRevisions(TestController):
