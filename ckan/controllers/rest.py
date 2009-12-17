@@ -77,8 +77,9 @@ class RestController(BaseController):
             return "JSON Error: %s" % str(inst)
         try:
             if register == 'package':
-                request_fa_dict = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(), request_data)
-                fs = ckan.forms.package_fs.bind(model.Package, data=request_fa_dict)
+                fs = ckan.forms.package_fs
+                request_fa_dict = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(fs=fs), request_data)
+                fs = fs.bind(model.Package, data=request_fa_dict)
             elif register == 'group':
                 request_fa_dict = ckan.forms.edit_group_dict(ckan.forms.get_group_dict(), request_data)
                 fs = ckan.forms.group_fs_combined.bind(model.Group, data=request_fa_dict)
@@ -134,9 +135,9 @@ class RestController(BaseController):
 
         try:
             if register == 'package':
-                orig_entity_dict = ckan.forms.get_package_dict(entity)
-                request_fa_dict = ckan.forms.edit_package_dict(orig_entity_dict, request_data, id=entity.id)
                 fs = ckan.forms.package_fs
+                orig_entity_dict = ckan.forms.get_package_dict(pkg=entity, fs=fs)
+                request_fa_dict = ckan.forms.edit_package_dict(orig_entity_dict, request_data, id=entity.id)
             elif register == 'group':
                 orig_entity_dict = ckan.forms.get_group_dict(entity)
                 request_fa_dict = ckan.forms.edit_group_dict(orig_entity_dict, request_data, id=entity.id)

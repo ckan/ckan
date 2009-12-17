@@ -47,7 +47,7 @@ class TestRestController(TestController):
             'license_id': u'4',
             'extras': {'genre' : u'horror',
                        'media' : u'dvd',
-                       }
+                       },
             }
         self.testgroupvalues = {
             'name' : u'testgroup',
