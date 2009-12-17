@@ -8,7 +8,7 @@ class RevisionController(BaseController):
     def index(self):
         return self.list()
 
-    def list(self, id=0):
+    def list(self):
         format = request.params.get('format', '')
         if format == 'atom':
             # Generate and return Atom 1.0 document.
@@ -54,7 +54,16 @@ class RevisionController(BaseController):
             return feed.writeString('utf-8')
         else:
             c.show_purge_links = self._has_purge_permissions()
-            return self._paginate_list('revision', id, 'revision/list')
+                        
+            from ckan.lib.helpers import Page
+
+            c.page = Page(
+                collection=model.Revision.query(),
+                page=request.params.get('page', 1),
+                items_per_page=20
+            )
+            
+            return render('revision/list')
 
     def read(self, id=None):
         if id is None:
