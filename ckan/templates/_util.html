@@ -30,7 +30,7 @@
         tag listing -->
   <ul py:def="tag_list(tags)" class="tags clearfix">    
     <li py:for="tag in tags" data="{'count':${len(tag.package_tags)}}">
-      ${h.link_to(tag.name, h.url_for(action='read', id=tag.name))}
+      ${h.link_to(tag.name, h.url_for(controller='tag', action='read', id=tag.name))}
     </li>
   </ul>
   
@@ -62,5 +62,13 @@
     
     <img py:otherwise="" src="${icon_url('arrow_down_grey')}" title="No downloadable resources." alt="" />
   </py:def>
+
+  <!-- TODO remove this function when it's written properly -->
+  <py:def function="package_summary(pkg)">
+      <a href="${h.url_for(controller='package', action='read', id=pkg.name)}">
+         ${pkg.name} - ${pkg.title}
+      </a>
+  </py:def>
+
 
 </html>
