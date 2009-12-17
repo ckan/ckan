@@ -94,30 +94,33 @@ class TestEdit(TestController):
         external_reference = 'ref-test'
         date_released = '2009-07-30'
         date_updated = '1998-12-25'
-        update_frequency = 'Annually'
-        geographic_granularity = 'Local Authority'
-        geographic_coverage = 'England' #TBD
+        update_frequency = 'annually'
+        geographic_granularity = 'local authority'
+        geographic_coverage = '111000: England, Scotland, Wales'
         department = 'Department for Children, Schools and Families'
-        temporal_granularity = 'Years'
+        temporal_granularity = 'years'
+        temporal_coverage = ('2007-12', '2009-03')
         categories = 'Health, well-being and Care; '
-        national_statistic = 'No'
+        national_statistic = 'Yes'
         precision = 'Nearest 1000'
         taxonomy_url = 'http://some.com/taxonomy'
         agency = 'FOGB'
         current_extras = {
             'external_reference':external_reference,
             'date_released':date_released,
-##            'date_updated':date_updated,
-##            'update_frequency':update_frequency,
-##            'geographic_granularity':geographic_granularity,
-##            'geographic_coverage':geographic_coverage,
+            'date_updated':date_updated,
+            'update_frequency':update_frequency,
+            'geographic_granularity':geographic_granularity,
+            'geographic_coverage':geographic_coverage,
             'department':department,
-##            'temporal_granularity':temporal_granularity,
-##            'categories':categories,
-##            'national_statistic':national_statistic,
-##            'precision':precision,
-##            'taxonomy_url':taxonomy_url,
-##            'agency':agency,
+            'temporal_granularity':temporal_granularity,
+            'temporal_coverage-from':temporal_coverage[0],
+            'temporal_coverage-to':temporal_coverage[1],
+            'categories':categories,
+            'national_statistic':national_statistic,
+            'precision':precision,
+            'taxonomy_url':taxonomy_url,
+            'agency':agency,
             }
         for key, value in current_extras.items():
             pkg.extras[unicode(key)] = unicode(value)
@@ -134,37 +137,71 @@ class TestEdit(TestController):
         # Check form is correctly filled
         prefix = 'Package-%s-' % pkg.id
         main_res = self.main_div(res)
-        assert 'name="%sname" size="40" type="text" value="%s"' % (prefix, pkg.name) in res, res
-        assert 'name="%stitle" size="40" type="text" value="%s"' % (prefix, pkg.title) in res, res
-#        assert 'name="%sversion" size="40" type="text" value="%s"' % (prefix, pkg.version) in res, res
-        assert 'name="%surl" size="40" type="text" value="%s"' % (prefix, pkg.url) in res, res
-        res_html = 'id="%sresources-0-url" type="text" value="%s"' % (prefix, pkg.resources[0].url)
-        assert res_html in res, self.main_div(res) + res_html
-        for res_index, resource in enumerate(pkg.resources):
-            for res_field in ('url', 'format', 'description'):
-                expected_value = getattr(resource, res_field)
-                assert 'id="%sresources-%s-%s" type="text" value="%s"' % (prefix, res_index, res_field, expected_value) in res, res
-        assert '<textarea cols="60" id="%snotes" name="%snotes" rows="15">%s</textarea>' % (prefix, prefix, pkg.notes) in res, res
-        license_html = '<option value="%s" selected>%s' % (pkg.license_id, pkg.license.name)
-        assert license_html in res, str(res) + license_html
-        tags_html = 'name="%stags" size="60" type="text" value="%s"' % (prefix, tags_txt)
-        assert tags_html in res, str(res) + tags_html
-        state_html = '<option value="%s" selected>%s' % (pkg.state.id, pkg.state.name)
-        assert state_html in res, str(res) + state_html
-        assert prefix + 'external_reference" size="40" type="text" value="%s"' % external_reference in main_res, main_res
-        assert prefix + 'date_released" size="40" type="text" value="%s"' % '30/7/2009' in main_res, main_res
-##        assert prefix + 'date_updated" size="40" type="text" value="%s"' % '25/12/1998' in main_res, main_res
-##        assert prefix + 'update_frequency" size="40" type="text" value="%s"' % update_frequency in main_res, main_res
-##        assert prefix + 'geographic_granularity" size="40" type="text" value="%s"' % geographic_granularity in main_res, main_res
-##        assert prefix + 'geographic coverage" size="40" type="text" value="%s"' % geographic_coverage in main_res, main_res
-        assert 'option value="%s" selected' % department in main_res, main_res
-        assert prefix + 'department-other" type="text" value=""' in main_res, main_res
-##        assert prefix + 'temporal_granularity" size="40" type="text" value="%s"' % temporal_granularity in main_res, main_res
-##        assert prefix + 'categories" size="40" type="text" value="%s"' % categories in main_res, main_res
-##        assert prefix + 'national_statistic" size="40" type="text" value="%s"' % national_statistic in main_res, main_res
-##        assert prefix + 'precision" size="40" type="text" value="%s"' % precision in main_res, main_res
-##        assert prefix + 'taxonomy_url" size="40" type="text" value="%s"' % taxonomy_url in main_res, main_res
-##        assert prefix + 'agency" size="40" type="text" value="%s"' % agency in main_res, main_res
+        self.check_tag(main_res, prefix + 'name', 'value="%s"' % pkg.name)
+        self.check_tag(main_res, prefix + 'title', 'value="%s"' % pkg.title)
+#        self.check_tag(main_res, prefix + 'version', 'value="%s"' % pkg.version)
+        self.check_tag(main_res, prefix + 'url', 'value="%s"' % pkg.url)
+        for i, resource in enumerate(pkg.resources):
+            self.check_tag(main_res, prefix + 'resources-%i-url' % i, 'value="%s"' % resource.url)
+            self.check_tag(main_res, prefix + 'resources-%i-format' % i, 'value="%s"' % resource.format)
+            self.check_tag(main_res, prefix + 'resources-%i-description' % i, 'value="%s"' % resource.description)
+        self.check_tag_and_data(main_res, '<textarea', 'id="%snotes"' % prefix,  '%s' % pkg.notes)
+        self.check_named_element(main_res, 'select', prefix+'license', pkg.license.name)
+        self.check_tag(main_res, prefix + 'tags', 'value="%s"' % tags_txt.lower())
+        self.check_tag(main_res, prefix + 'external_reference', 'value="%s"' % external_reference)
+        self.check_tag(main_res, prefix + 'date_released', 'value="%s"' % '30/7/2009')
+        self.check_tag(main_res, prefix + 'date_updated', 'value="%s"' % '25/12/1998')
+        self.check_tag(main_res, prefix + 'update_frequency', 'value="%s"' % update_frequency)
+        self.check_named_element(main_res, 'select', prefix + 'geographic_granularity', 'value="%s"' % geographic_granularity)
+        self.check_tag(main_res, prefix + 'geographic_coverage-england', 'checked')
+        self.check_tag(main_res, prefix + 'geographic_coverage-scotland', 'checked')
+        self.check_tag(main_res, prefix + 'geographic_coverage-wales', 'checked')
+        self.check_tag(main_res, prefix + 'geographic_coverage-northern_ireland', '!checked')
+        self.check_tag(main_res, prefix + 'geographic_coverage-overseas', '!checked')
+        self.check_tag(main_res, prefix + 'geographic_coverage-global', '!checked')
+        self.check_tag(main_res, 'option value="%s" selected' % department)
+        self.check_tag(main_res, prefix + 'department-other', 'value=""')
+        self.check_tag(main_res, prefix + 'temporal_granularity', 'value="%s"' % temporal_granularity)
+        self.check_tag(main_res, prefix + 'temporal_coverage-from', 'value="%s"' % '12/2007')
+        self.check_tag(main_res, prefix + 'temporal_coverage-to', 'value="%s"' % '3/2009')
+        self.check_tag(main_res, prefix + 'categories', 'value="%s"' % categories)
+        self.check_tag(main_res, prefix + 'national_statistic', 'checked' if national_statistic=='Yes' else '!checked')
+        self.check_tag(main_res, prefix + 'precision', 'value="%s"' % precision)
+        self.check_tag(main_res, prefix + 'taxonomy_url', 'value="%s"' % taxonomy_url)
+        self.check_tag(main_res, prefix + 'agency', 'value="%s"' % agency)
+##        assert 'name="%sname" size="40" type="text" value="%s"' % (prefix, pkg.name) in res, res
+##        assert 'name="%stitle" size="40" type="text" value="%s"' % (prefix, pkg.title) in res, res
+###        assert 'name="%sversion" size="40" type="text" value="%s"' % (prefix, pkg.version) in res, res
+##        assert 'name="%surl" size="40" type="text" value="%s"' % (prefix, pkg.url) in res, res
+##        res_html = 'id="%sresources-0-url" type="text" value="%s"' % (prefix, pkg.resources[0].url)
+##        assert res_html in res, self.main_div(res) + res_html
+##        for res_index, resource in enumerate(pkg.resources):
+##            for res_field in ('url', 'format', 'description'):
+##                expected_value = getattr(resource, res_field)
+##                assert 'id="%sresources-%s-%s" type="text" value="%s"' % (prefix, res_index, res_field, expected_value) in res, res
+##        assert '<textarea cols="60" id="%snotes" name="%snotes" rows="15">%s</textarea>' % (prefix, prefix, pkg.notes) in res, res
+##        license_html = '<option value="%s" selected>%s' % (pkg.license_id, pkg.license.name)
+##        assert license_html in res, str(res) + license_html
+##        tags_html = 'name="%stags" size="60" type="text" value="%s"' % (prefix, tags_txt)
+##        assert tags_html in res, str(res) + tags_html
+##        state_html = '<option value="%s" selected>%s' % (pkg.state.id, pkg.state.name)
+##        assert state_html in res, str(res) + state_html
+##        assert prefix + 'external_reference" size="40" type="text" value="%s"' % external_reference in main_res, main_res
+##        assert prefix + 'date_released" size="40" type="text" value="%s"' % '30/7/2009' in main_res, main_res
+####        assert prefix + 'date_updated" size="40" type="text" value="%s"' % '25/12/1998' in main_res, main_res
+####        assert prefix + 'update_frequency" size="40" type="text" value="%s"' % update_frequency in main_res, main_res
+####        assert prefix + 'geographic_granularity" size="40" type="text" value="%s"' % geographic_granularity in main_res, main_res
+####        assert prefix + 'geographic coverage" size="40" type="text" value="%s"' % geographic_coverage in main_res, main_res
+##        assert 'option value="%s" selected' % department in main_res, main_res
+##        assert prefix + 'department-other" type="text" value=""' in main_res, main_res
+####        assert prefix + 'temporal_granularity" size="40" type="text" value="%s"' % temporal_granularity in main_res, main_res
+####        assert prefix + 'temporal_coverage-from" size="40" type="text" value="%s"' % temporal_coverage[0] in main_res, main_res
+####        assert prefix + 'temporal_coverage-to" size="40" type="text" value="%s"' % temporal_coverage[1] in main_res, main_res
+####        assert prefix + 'categories" size="40" type="text" value="%s"' % categories in main_res, main_res
+####        assert prefix + 'national_statistic" size="40" type="text" value="%s"' % national_statistic in main_res, main_res
+####        assert prefix + 'precision" size="40" type="text" value="%s"' % precision in main_res, main_res
+####        assert prefix + 'taxonomy_url" size="40" type="text" value="%s"' % taxonomy_url in main_res, main_res
+####        assert prefix + 'agency" size="40" type="text" value="%s"' % agency in main_res, main_res
 
         # Amend form
         name = u'test_name'
@@ -189,10 +226,11 @@ class TestEdit(TestController):
         date_updated = '1998-12-26'
         update_frequency = 'Monthly'
         geographic_granularity = 'Country'
-        geographic_coverage = 'Wales' #TBD
+        geographic_coverage = '001000: Wales'
         department = 'Crown Estate'
         temporal_granularity = 'Months'
-        categories = 'Economy; Government'
+        temporal_coverage = ('2004-12', '2005-03')
+        categories = 'Economy' #; Government'
         national_statistic = 'Yes'
         precision = 'Nearest 10'
         taxonomy_url = 'http://some.com/taxonomy/CHANGED'
@@ -200,17 +238,19 @@ class TestEdit(TestController):
         current_extras = {
             'external_reference':external_reference,
             'date_released':date_released,
-##            'date_updated':date_updated,
-##            'update_frequency':update_frequency,
-##            'geographic_granularity':geographic_granularity,
-##            'geographic_coverage':geographic_coverage,
+            'date_updated':date_updated,
+            'update_frequency':update_frequency,
+            'geographic_granularity':geographic_granularity,
+            'geographic_coverage':geographic_coverage,
             'department':department,
-##            'temporal_granularity':temporal_granularity,
-##            'categories':categories,
-##            'national_statistic':national_statistic,
-##            'precision':precision,
-##            'taxonomy_url':taxonomy_url,
-##            'agency':agency,
+            'temporal_granularity':temporal_granularity,
+            'temporal_coverage-from':temporal_coverage[0],
+            'temporal_coverage-to':temporal_coverage[1],
+            'categories':categories,
+            'national_statistic':national_statistic,
+            'precision':precision,
+            'taxonomy_url':taxonomy_url,
+            'agency':agency,
             }
         assert not model.Package.by_name(name)
         fv = res.forms[0]
@@ -227,17 +267,22 @@ class TestEdit(TestController):
         fv[prefix+'tags'] = tags_txt
         fv[prefix+'external_reference'] = external_reference
         fv[prefix+'date_released'] = '31/7/2009'
-##        fv[prefix+'date_updated'] = '26/12/1998'
-##        fv[prefix+'update_frequency'] = update_frequency
-##        fv[prefix+'geographic_granularity'] = geographic_granularity
-##        fv[prefix+'geographic_coverage'] = geographic_coverage
+        fv[prefix+'date_updated'] = '26/12/1998'
+        fv[prefix+'update_frequency'] = update_frequency
+        fv[prefix+'geographic_granularity'] = 'other'
+        fv[prefix+'geographic_granularity-other'] = geographic_granularity
+        fv[prefix+'geographic_coverage-england'] = False
+        fv[prefix+'geographic_coverage-scotland'] = False
+        fv[prefix+'geographic_coverage-wales'] = True
         fv[prefix+'department'] = department
-##        fv[prefix+'temporal_granularity'] = temporal_granularity
-##        fv[prefix+'categories'] = categories
-##        fv[prefix+'national_statistic'] = False
-##        fv[prefix+'precision'] = precision
-##        fv[prefix+'taxonomy_url'] = taxonomy_url
-##        fv[prefix+'agency'] = agency
+        fv[prefix+'temporal_granularity'] = temporal_granularity
+        fv[prefix+'temporal_coverage-from'] = '12/2004'
+        fv[prefix+'temporal_coverage-to'] = '3/2005'
+        fv[prefix+'categories'] = categories
+        fv[prefix+'national_statistic'] = True if national_statistic == 'Yes' else False
+        fv[prefix+'precision'] = precision
+        fv[prefix+'taxonomy_url'] = taxonomy_url
+        fv[prefix+'agency'] = agency
         fv[prefix+'state_id'] = state.id
         fv['log_message'] = log_message
         res = fv.submit('preview', extra_environ={'REMOTE_USER':'testadmin'})
@@ -257,17 +302,17 @@ class TestEdit(TestController):
         assert 'License: %s' % str(license) in preview, preview
         assert 'External reference: %s' % str(external_reference) in preview, preview
         assert 'Date released: 31/7/2009' in preview, preview
-##        assert 'Date updated: 26/12/1998' in preview, preview
-##        assert 'Update freqency: %s' % update_frequency in preview, preview
-##        assert 'Geographic granularity: %s' % geographic_granularity in preview, preview
-##        assert 'Geographic coverage: %s' % geographic_coverage in preview, preview
+        assert 'Date updated: 26/12/1998' in preview, preview
+        assert 'Update frequency: %s' % update_frequency in preview, preview
+        assert 'Geographic granularity: %s' % geographic_granularity in preview, preview
+        assert 'Geographic coverage: %s' % 'Wales' in preview, preview
         assert 'Department: %s' % department in preview, preview
-##        assert 'Temporal granularity: %s' temporal_granularity %  in preview, preview
-##        assert 'Categories: %s' % categories in preview, preview
-##        assert 'National statistic: %s' % national_statistic in preview, preview
-##        assert 'Precision: %s' % precision in preview, preview
-##        assert 'Taxonomy URL: %s' % taxonomy_url in preview, preview
-##        assert 'Agency: %s' % agency in preview, preview
+        assert 'Temporal granularity: %s' % temporal_granularity in preview, preview
+        assert 'Categories: %s' % categories in preview, preview
+        assert 'National statistic: %s' % national_statistic in preview, preview
+        assert 'Precision: %s' % precision in preview, preview
+        assert 'Taxonomy URL: <a href="%s">%s</a>' % (taxonomy_url, taxonomy_url) in preview, preview
+        assert 'Agency: %s' % agency in preview, preview
         tags_html_list = ['<a href="/tag/read/%s">%s</a>' % (str(tag), str(tag)) for tag in tags]
         tags_html_preview = ' '.join(tags_html_list)
         assert 'Tags: %s' % tags_html_preview in preview, preview + tags_html_preview
@@ -278,35 +323,39 @@ class TestEdit(TestController):
 
         # Check form is correctly filled
         main_res = self.main_div(res)
-        assert 'name="%stitle" size="40" type="text" value="%s"' % (prefix, title) in main_res, main_res
-#        assert 'name="%sversion" size="40" type="text" value="%s"' % (prefix, version) in main_res, main_res
-        assert 'name="%surl" size="40" type="text" value="%s"' % (prefix, url) in main_res, main_res
-        res_html = 'id="%sresources-0-url" type="text" value="%s"' % (prefix, resources[0][0])
-        assert res_html in res, self.main_div(res) + res_html
-        for res_index, resource in enumerate(resources):
-            for field_index, res_field in enumerate(('url', 'format', 'description')):
-                expected_value = resource[field_index]
-                assert 'id="%sresources-%s-%s" type="text" value="%s"' % (prefix, res_index, res_field, expected_value) in main_res, main_res
-        assert '<textarea cols="60" id="%snotes" name="%snotes" rows="15">%s</textarea>' % (prefix, prefix, notes) in main_res, main_res
-        license_html = '<option value="%s" selected>%s' % (license_id, license)
-        assert license_html in res, str(res) + license_html
-        assert 'name="%stags" size="60" type="text" value="%s"' % (prefix, tags_txt) in main_res, main_res
-        state_html = '<option value="%s" selected>%s' % (state.id, state.name)
-        assert state_html in res, str(res) + state_html
-        assert prefix + 'external_reference" size="40" type="text" value="%s"' % external_reference in main_res, main_res
-        assert prefix + 'date_released" size="40" type="text" value="%s"' % '31/7/2009' in main_res, main_res
-##        assert prefix + 'date_updated" size="40" type="text" value="%s"' % '26/12/1998' in main_res, main_res
-##        assert prefix + 'update_frequency" size="40" type="text" value="%s"' % update_frequency in main_res, main_res
-##        assert prefix + 'geographic_granularity" size="40" type="text" value="%s"' % geographic_granularity in main_res, main_res
-##        assert prefix + 'geographic coverage" size="40" type="text" value="%s"' % geographic_coverage in main_res, main_res
-        assert 'option value="%s" selected' % department in main_res, main_res
-        assert prefix + 'department-other" type="text" value=""' in main_res, main_res
-##        assert prefix + 'temporal_granularity" size="40" type="text" value="%s"' % temporal_granularity in main_res, main_res
-##        assert prefix + 'categories" size="40" type="text" value="%s"' % categories in main_res, main_res
-##        assert prefix + 'national_statistic" size="40" type="text" value="%s"' % national_statistic in main_res, main_res
-##        assert prefix + 'precision" size="40" type="text" value="%s"' % precision in main_res, main_res
-##        assert prefix + 'taxonomy_url" size="40" type="text" value="%s"' % taxonomy_url in main_res, main_res
-##        assert prefix + 'agency" size="40" type="text" value="%s"' % agency in main_res, main_res
+        self.check_tag(main_res, prefix + 'name', 'value="%s"' % name)
+        self.check_tag(main_res, prefix + 'title', 'value="%s"' % title)
+#        self.check_tag(main_res, prefix + 'version', 'value="%s"' % version)
+        self.check_tag(main_res, prefix + 'url', 'value="%s"' % url)
+        for i, resource in enumerate(resources):
+            self.check_tag(main_res, prefix + 'resources-%i-url' % i, 'value="%s"' % resource[0])
+            self.check_tag(main_res, prefix + 'resources-%i-format' % i, 'value="%s"' % resource[1])
+            self.check_tag(main_res, prefix + 'resources-%i-description' % i, 'value="%s"' % resource[2])
+        self.check_tag_and_data(main_res, '<textarea', 'id="%snotes"' % prefix,  '%s' % notes)
+        self.check_named_element(main_res, 'select', prefix+'license', license)
+        self.check_tag(main_res, prefix + 'tags', 'value="%s"' % tags_txt.lower())
+        self.check_tag(main_res, prefix + 'external_reference', 'value="%s"' % external_reference)
+        self.check_tag(main_res, prefix + 'date_released', 'value="%s"' % '31/7/2009')
+        self.check_tag(main_res, prefix + 'date_updated', 'value="%s"' % '26/12/1998')
+        self.check_tag(main_res, prefix + 'update_frequency', 'value="%s"' % update_frequency)
+        self.check_tag(main_res, prefix + 'geographic_granularity-other', 'value="%s"' % geographic_granularity)
+        self.check_tag(main_res, prefix + 'geographic_coverage-england', '!checked')
+        self.check_tag(main_res, prefix + 'geographic_coverage-scotland', '!checked')
+        self.check_tag(main_res, prefix + 'geographic_coverage-wales', 'checked')
+        self.check_tag(main_res, prefix + 'geographic_coverage-northern_ireland', '!checked')
+        self.check_tag(main_res, prefix + 'geographic_coverage-overseas', '!checked')
+        self.check_tag(main_res, prefix + 'geographic_coverage-global', '!checked')
+        self.check_tag(main_res, 'option value="%s" selected' % department)
+        self.check_named_element(main_res, 'select', prefix + 'department', 'value="%s"' % department)
+        self.check_tag(main_res, prefix + 'department-other', '')
+        self.check_tag(main_res, prefix + 'temporal_granularity', 'value="%s"' % temporal_granularity)
+        self.check_tag(main_res, prefix + 'temporal_coverage-from', 'value="%s"' % '12/2004')
+        self.check_tag(main_res, prefix + 'temporal_coverage-to', 'value="%s"' % '3/2005')
+        self.check_named_element(main_res, 'select', prefix + 'categories', 'value="%s"' % categories, 'select')
+        self.check_tag(main_res, prefix + 'national_statistic', 'checked' if national_statistic=='Yes' else '!checked')
+        self.check_tag(main_res, prefix + 'precision', 'value="%s"' % precision)
+        self.check_tag(main_res, prefix + 'taxonomy_url', 'value="%s"' % taxonomy_url)
+        self.check_tag(main_res, prefix + 'agency', 'value="%s"' % agency)
         assert log_message in res
 
         # Submit
@@ -332,8 +381,7 @@ class TestEdit(TestController):
         assert 'Groups:\n%s' % groups_html in res1, res1 + groups_html
         assert 'State: %s' % str(state.name) in res1, res1
         for key, value in current_extras.items():
-            extras_html = '%(key)s: %(value)s' % {'key':key.capitalize(), 'value':value}
-            assert extras_html in res1, str(res) + extras_html
+            self.check_named_element(res1, 'li', '%s:' % key.capitalize(), value)
 
         # Check package object
         pkg = model.Package.by_name(name)
@@ -349,7 +397,7 @@ class TestEdit(TestController):
         saved_tagnames = [str(tag.name) for tag in pkg.tags]
         assert saved_tagnames == list(tags)
         assert pkg.state_id == state.id
-        assert len(pkg.extras) == len(current_extras)
+        assert len(pkg.extras) == len(current_extras), '%i!=%i\n%s' % (len(pkg.extras), len(current_extras), pkg.extras)
         for key, value in current_extras.items():
             assert pkg.extras[key] == value
 
@@ -409,11 +457,12 @@ class TestNew(TestController):
         external_reference = 'ref-test'
         date_released = '2009-07-30'
         date_updated = '1998-12-25'
-        update_frequency = 'Annually'
-        geographic_granularity = 'Local Authority'
-        geographic_coverage = 'England' #TBD
+        update_frequency = 'annually'
+        geographic_granularity = 'local authority'
+        geographic_coverage = '100000: England'
         department = 'Department for Children, Schools and Families'
-        temporal_granularity = 'Years'
+        temporal_granularity = 'years'
+        temporal_coverage = ('2007-12', '2009-03')
         categories = 'Health, well-being and Care; '
         national_statistic = 'No'
         precision = 'Nearest 1000'
@@ -441,11 +490,13 @@ class TestNew(TestController):
         fv[prefix+'date_updated'] = '25/12/1998'
         fv[prefix+'update_frequency'] = update_frequency
         fv[prefix+'geographic_granularity'] = geographic_granularity
-        fv[prefix+'geographic_coverage'] = geographic_coverage
+        fv[prefix+'geographic_coverage-england'] = True
         fv[prefix+'department'] = department
         fv[prefix+'temporal_granularity'] = temporal_granularity
-        fv[prefix+'categories'] = categories
-        fv[prefix+'national_statistic'] = True
+        fv[prefix+'temporal_coverage-from'] = '12/2007'
+        fv[prefix+'temporal_coverage-to'] = '3/2009'
+        fv[prefix+'categories-other'] = categories
+        fv[prefix+'national_statistic'] = True if national_statistic == 'Yes' else False
         fv[prefix+'precision'] = precision
         fv[prefix+'taxonomy_url'] = taxonomy_url
         fv[prefix+'agency'] = agency
@@ -467,15 +518,16 @@ class TestNew(TestController):
         assert 'External reference: %s' % str(external_reference) in preview, preview
         assert 'Date released: 30/7/2009' in preview, preview
         assert 'Date updated: 25/12/1998' in preview, preview
-        assert 'Update freqency: %s' % update_frequency in preview, preview
+        assert 'Update frequency: %s' % update_frequency in preview, preview
         assert 'Geographic granularity: %s' % geographic_granularity in preview, preview
-        assert 'Geographic coverage: %s' % geographic_coverage in preview, preview
+        assert 'Geographic coverage: %s' % 'England' in preview, preview
         assert 'Department: %s' % department in preview, preview
         assert 'Temporal granularity: %s' % temporal_granularity in preview, preview
+        assert 'Temporal coverage: 12/2007 - 3/2009' in preview, preview
         assert 'Categories: %s' % categories in preview, preview
         assert 'National statistic: %s' % national_statistic in preview, preview
         assert 'Precision: %s' % precision in preview, preview
-        assert 'Taxonomy URL: %s' % taxonomy_url in preview, preview
+        assert 'Taxonomy URL: <a href="%s">%s</a>' % (taxonomy_url, taxonomy_url) in preview, preview
         assert 'Agency: %s' % agency in preview, preview
         for tag in tags:
             assert '%s</a>' % tag.lower() in preview
@@ -485,29 +537,36 @@ class TestNew(TestController):
         # Check form is correctly filled
         main_res = self.main_div(res)
         prefix = 'Package--'
-        assert prefix + 'title" size="40" type="text" value="%s"' % title in main_res, main_res
-#        assert prefix + 'version" size="40" type="text" value="%s"' % version in main_res, main_res
-        assert prefix + 'url" size="40" type="text" value="%s"' % url in main_res, main_res
-        assert prefix + 'resources-0-url" type="text" value="%s"' % download_url in main_res, main_res
-        assert prefix + 'resources-0-format" type="text" value="%s"' % download_format in main_res, main_res
-        assert '<textarea cols="60" id="Package--notes" name="Package--notes" rows="15">%s</textarea>' % notes in main_res, main_res
-        license_html = '<option value="%s" selected>%s' % (license_id, license)
-        assert license_html in main_res, str(main_res) + license_html
-        assert prefix + 'tags" size="60" type="text" value="%s"' % tags_txt.lower() in main_res, main_res
-        assert prefix + 'external_reference" size="40" type="text" value="%s"' % external_reference in main_res, main_res
-        assert prefix + 'date_released" size="40" type="text" value="%s"' % '30/7/2009' in main_res, main_res
-        assert prefix + 'date_updated" size="40" type="text" value="%s"' % '25/12/1998' in main_res, main_res
-        assert prefix + 'update_frequency" size="40" type="text" value="%s"' % update_frequency in main_res, main_res
-        assert prefix + 'geographic_granularity" size="40" type="text" value="%s"' % geographic_granularity in main_res, main_res
-        assert prefix + 'geographic coverage" size="40" type="text" value="%s"' % geographic_coverage in main_res, main_res
-        assert 'option value="%s" selected' % department in main_res, main_res
-        assert prefix + 'department-other" type="text" value=""' in main_res, main_res
-        assert prefix + 'temporal_granularity" size="40" type="text" value="%s"' % temporal_granularity in main_res, main_res
-        assert prefix + 'categories" size="40" type="text" value="%s"' % categories in main_res, main_res
-        assert prefix + 'national_statistic" size="40" type="text" value="%s"' % national_statistic in main_res, main_res
-        assert prefix + 'precision" size="40" type="text" value="%s"' % precision in main_res, main_res
-        assert prefix + 'taxonomy_url" size="40" type="text" value="%s"' % taxonomy_url in main_res, main_res
-        assert prefix + 'agency" size="40" type="text" value="%s"' % agency in main_res, main_res
+        self.check_tag(main_res, prefix + 'title', 'value="%s"' % title)
+        self.check_tag(main_res, prefix + 'title', 'value="%s"' % title)
+#        self.check_tag(main_res, prefix + 'version', 'value="%s"' % version)
+        self.check_tag(main_res, prefix + 'url', 'value="%s"' % url)
+        self.check_tag(main_res, prefix + 'resources-0-url', 'value="%s"' % download_url)
+        self.check_tag(main_res, prefix + 'resources-0-format', 'value="%s"' % download_format)
+        self.check_tag_and_data(main_res, '<textarea', 'id="%snotes"' % prefix,  '%s' % notes)
+        self.check_named_element(main_res, 'select', prefix+'license', str(license_id))
+        self.check_tag(main_res, prefix + 'tags', 'value="%s"' % tags_txt.lower())
+        self.check_tag(main_res, prefix + 'external_reference', 'value="%s"' % external_reference)
+        self.check_tag(main_res, prefix + 'date_released', 'value="%s"' % '30/7/2009')
+        self.check_tag(main_res, prefix + 'date_updated', 'value="%s"' % '25/12/1998')
+        self.check_tag(main_res, prefix + 'update_frequency', 'value="%s"' % update_frequency)
+        self.check_named_element(main_res, 'select', prefix + 'geographic_granularity', 'value="%s"' % geographic_granularity)
+        self.check_tag(main_res, prefix + 'geographic_coverage-england', 'checked')
+        self.check_tag(main_res, prefix + 'geographic_coverage-scotland', '!checked')
+        self.check_tag(main_res, prefix + 'geographic_coverage-wales', '!checked')
+        self.check_tag(main_res, prefix + 'geographic_coverage-northern_ireland', '!checked')
+        self.check_tag(main_res, prefix + 'geographic_coverage-overseas', '!checked')
+        self.check_tag(main_res, prefix + 'geographic_coverage-global', '!checked')
+        self.check_tag(main_res, 'option value="%s" selected' % department)
+        self.check_tag(main_res, prefix + 'department-other', 'value=""')
+        self.check_tag(main_res, prefix + 'temporal_granularity', 'value="%s"' % temporal_granularity)
+        self.check_tag(main_res, prefix + 'temporal_coverage-from', 'value="%s"' % '12/2007')
+        self.check_tag(main_res, prefix + 'temporal_coverage-to', 'value="%s"' % '3/2009')
+        self.check_tag(main_res, prefix + 'categories', 'value="%s"' % categories)
+        self.check_tag(main_res, prefix + 'national_statistic', 'checked' if national_statistic=='Yes' else '!checked')
+        self.check_tag(main_res, prefix + 'precision', 'value="%s"' % precision)
+        self.check_tag(main_res, prefix + 'taxonomy_url', 'value="%s"' % taxonomy_url)
+        self.check_tag(main_res, prefix + 'agency', 'value="%s"' % agency)
 
         assert log_message in main_res
 
@@ -540,6 +599,8 @@ class TestNew(TestController):
             'geographic_coverage':geographic_coverage,
             'department':department,
             'temporal_granularity':temporal_granularity,
+            'temporal_coverage-from':temporal_coverage[0],
+            'temporal_coverage-to':temporal_coverage[1],
             'categories':categories,
             'national_statistic':national_statistic,
             'precision':precision,
@@ -547,8 +608,7 @@ class TestNew(TestController):
             'agency':agency,
             }
         for key, value in current_extras.items():
-            extras_html = '%(key)s: %(value)s' % {'key':key.capitalize(), 'value':value}
-            assert extras_html in res1, str(res) + extras_html
+            self.check_named_element(res1, 'li', '%s:' % key.capitalize(), value)
 
         # Check package object
         pkg = model.Package.by_name(name)

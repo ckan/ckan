@@ -7,7 +7,7 @@ from pylons import config
 def _get_blank_param_dict(pkg=None, fs=None):
     return ckan.forms.get_package_dict(pkg, blank=True, fs=fs)
 
-class TestForm:
+class TestForm(TestController):
     @classmethod
     def setup_class(self):
         model.Session.remove()
@@ -36,12 +36,66 @@ class TestForm:
         fs = fs.bind(pkg)
         out = fs.render()
         assert out
-        assert 'Private Fostering' in fs.title.render(), fs.title.render()
-        assert 'Private Fostering' in fs.title.render_readonly(), fs.title.render_readonly()
-        assert 'DCSF-DCSF-0024' in fs.external_reference.render(), fs.external_reference.render()
-        assert 'DCSF-DCSF-0024' in fs.external_reference.render_readonly(), fs.external_reference.render_readonly()
-        assert '30/7/2009' in fs.date_released.render(), fs.date_released.render()
-        assert '30/7/2009' in fs.date_released.render_readonly(), fs.date_released.render_readonly()
+        expected_values = [
+            (fs.title, 'Private Fostering'),
+            (fs.external_reference, 'DCSF-DCSF-0024'),
+            (fs.date_released, '30/7/2009'),
+            (fs.date_updated, '30/7/2009'),
+            (fs.update_frequency, 'annually'),
+            (fs.geographic_granularity, 'regional'),
+            (fs.geographic_coverage, None, 'England'),
+            (fs.temporal_granularity, 'years'),
+            (fs.temporal_coverage, None, '6/2008 - 6/2009'),
+            (fs.categories, 'other=Health, well-being and Care'),
+            (fs.national_statistic, 'True', 'Yes'),
+            (fs.precision, 'Numbers to nearest 10, percentage to nearest whole number'),
+            (fs.url, 'http://www.dcsf.gov.uk/rsgateway/DB/SFR/s000859/index.shtml'),
+            (fs.taxonomy_url, '', ''),
+            (fs.department, 'Department for Children, Schools and Families'),
+            (fs.agency, '', ''),
+            (fs.author, 'DCSF Data Services Group'),
+            (fs.author_email, 'statistics@dcsf.gsi.gov.uk'),
+            (fs.maintainer, '', ''),
+            (fs.maintainer_email, '', ''),
+            (fs.license, 'Crown Copyright'),
+            ]
+        for vals in expected_values:
+            if len(vals) == 2:
+                field, expected_render_str = vals
+                expected_render_readonly_str = vals[1]
+            else:
+                field, expected_render_str, expected_render_readonly_str = vals
+            if expected_render_readonly_str == '':
+                expected_render_readonly_str = '> <'
+            if isinstance(field.renderer, ckan.forms.SelectRenderer):
+                if expected_render_str.startswith('other='):
+                    expected_render_str = 'other" type="text" value="' + expected_render_str.strip('other=')
+                    expected_render_readonly_str = expected_render_readonly_str.strip('other=')
+                else:
+                    # multiple choice must have the particular one selected
+                    expected_render_str += '" selected'
+            render = field.render()
+            render_readonly = field.render_readonly()
+            if expected_render_str == '':
+                assert 'value=""' in render or 'value' not in render, \
+                   'Expected a blank value in render of field %s but got \'%s\'' % \
+                   (field.name, render)
+            elif expected_render_str:
+                assert expected_render_str in render, \
+                       'Expected \'%s\' in render of field %s but got \'%s\'' % \
+                       (expected_render_str, field.name, render)
+            assert expected_render_readonly_str in render_readonly, \
+                   'Expected \'%s\' in render_readonly of field %s but got \'%s\'' % \
+                   (expected_render_readonly_str, field.name, render_readonly)
+        self.check_tag(fs.geographic_coverage.render(), 'geographic_coverage-england', 'value="True"')
+        self.check_tag(fs.temporal_coverage.render(), 'temporal_coverage-from', 'value="6/2008"')
+        self.check_tag(fs.temporal_coverage.render(), 'temporal_coverage-to', 'value="6/2009"')
+
+    def test_2_field_department_selected(self):
+        fs = ckan.forms.package_gov_fs
+        pkg = model.Package.by_name(u'private-fostering-england-2009')
+        fs = fs.bind(pkg)
+
         dept = fs.department.render()
         assert '<select' in dept, dept
         assert 'option value="Department for Children, Schools and Families" selected=' in dept, dept
@@ -94,16 +148,30 @@ class TestForm:
     def test_3_sync_new(self):
         newtagname = 'newtagname'
         indict = _get_blank_param_dict(fs=ckan.forms.package_gov_fs)
-        indict['Package--name'] = u'testname'
-        indict['Package--notes'] = u'some new notes'
-        indict['Package--tags'] = u'russian tolstoy, ' + newtagname,
-        indict['Package--license_id'] = '1'
-        indict['Package--external_reference'] = u'123'
-        indict['Package--deparment'] = u'testdept'
-        indict['Package--date_released'] = u'27/11/2008'
-        indict['Package--resources-0-url'] = u'http:/1'
-        indict['Package--resources-0-format'] = u'xml'
-        indict['Package--resources-0-description'] = u'test desc'
+        prefix = 'Package--'
+        indict[prefix + 'name'] = u'testname'
+        indict[prefix + 'title'] = u'testtitle'
+        indict[prefix + 'notes'] = u'some new notes'
+        indict[prefix + 'tags'] = u'russian tolstoy, ' + newtagname,
+        indict[prefix + 'license_id'] = '1'
+        indict[prefix + 'external_reference'] = u'123'
+        indict[prefix + 'date_released'] = u'27/11/2008'
+        indict[prefix + 'date_updated'] = u'1/4/2008'
+        indict[prefix + 'geographic_granularity'] = u'regional'
+        indict[prefix + 'geographic_coverage-england'] = u'True'
+        indict[prefix + 'geographic_coverage-wales'] = u'True'
+        indict[prefix + 'temporal_granularity'] = u'years'
+        indict[prefix + 'temporal_coverage-from'] = u'6/2008'
+        indict[prefix + 'temporal_coverage-to'] = u'6/2009'
+        indict[prefix + 'categories'] = u'Labour Market'
+        indict[prefix + 'national_statistic'] = u'True'
+        indict[prefix + 'precision'] = u'Nearest 1000'
+        indict[prefix + 'taxonomy_url'] = u'http:/somewhere/about.html'
+        indict[prefix + 'department'] = u'testdept'
+        indict[prefix + 'agency'] = u'Quango 1'
+        indict[prefix + 'resources-0-url'] = u'http:/1'
+        indict[prefix + 'resources-0-format'] = u'xml'
+        indict[prefix + 'resources-0-description'] = u'test desc'
         fs = ckan.forms.package_gov_fs.bind(model.Package, data=indict)
 
         model.repo.new_revision()
@@ -111,7 +179,8 @@ class TestForm:
         model.repo.commit_and_remove()
 
         outpkg = model.Package.by_name(u'testname')
-        assert outpkg.notes == indict['Package--notes']
+        assert outpkg.title == indict[prefix + 'title']
+        assert outpkg.notes == indict[prefix + 'notes']
 
         # test tags
         taglist = [ tag.name for tag in outpkg.tags ]
@@ -121,7 +190,7 @@ class TestForm:
 
         # test licenses
         assert outpkg.license
-        assert indict['Package--license_id'] == str(outpkg.license.id), outpkg.license.id
+        assert indict[prefix + 'license_id'] == str(outpkg.license.id), outpkg.license.id
 
         # test resources
         assert len(outpkg.resources) == 1, outpkg.resources
@@ -132,14 +201,26 @@ class TestForm:
 
         # test gov fields
         extra_keys = outpkg.extras.keys()
-        reqd_extras = {'external_reference':indict['Package--external_reference'],
-                       'department':indict['Package--department'],
-                       'date_released':'2008-11-27',
-                       }
+        reqd_extras = {
+            'external_reference':indict[prefix + 'external_reference'],
+            'date_released':'2008-11-27',
+            'date_updated':'2008-04-01',
+            'geographic_granularity':indict[prefix + 'geographic_granularity'],
+            'geographic_coverage':'101000: England, Wales',
+            'temporal_granularity':indict[prefix + 'temporal_granularity'],
+            'temporal_coverage-from':'2008-06',
+            'temporal_coverage-to':'2009-06',
+            'categories':indict[prefix + 'categories'],
+            'national_statistic':'Yes',
+            'precision':indict[prefix + 'precision'],
+            'taxonomy_url':indict[prefix + 'taxonomy_url'],
+            'department':indict[prefix + 'department'],
+            'agency':indict[prefix + 'agency'],
+            }
         for reqd_extra_key, reqd_extra_value in reqd_extras.items():
             assert reqd_extra_key in extra_keys, 'Key "%s" not found in extras %r' % (reqd_extra_key, extra_keys)
             assert outpkg.extras[reqd_extra_key] == reqd_extra_value, \
-                 'Extra %s should equal %s but equals %s' % \
+                 'Extra \'%s\' should equal \'%s\' but equals \'%s\'' % \
                  (reqd_extra_key, reqd_extra_value,
                   outpkg.extras[reqd_extra_key])
 
@@ -150,8 +231,19 @@ class TestForm:
             'title':'test_title',
             'extras':{
               'external_reference':'ref123',
-              'department':'dosac',
               'date_released':'2008-11-28',
+              'date_updated':'2008-04-01',
+              'geographic_granularity':'testgran',
+              'geographic_coverage':'111000: England, Scotland, Wales',
+              'temporal_granularity':'testtempgran',
+              'temporal_coverage-from':'2007-01-08',
+              'temporal_coverage-to':'2007-01-09',
+              'categories':'testcat',
+              'national_statistic':'Yes',
+              'precision':'testprec',
+              'taxonomy_url':'testtaxurl',
+              'department':'dosac',
+              'agency':'testagency',
               },
             }]
         CreateTestData.create_arbitrary(init_data)
@@ -160,24 +252,37 @@ class TestForm:
 
         # edit it with form parameters
         indict = _get_blank_param_dict(fs=ckan.forms.package_gov_fs)
-        indict['Package--name'] = u'testname2'
-        indict['Package--notes'] = u'some new notes'
-        indict['Package--tags'] = u'russian, tolstoy',
-        indict['Package--license_id'] = '1'
-        indict['Package--external_reference'] = u'123'
-        indict['Package--deparment'] = u'testdept'
-        indict['Package--date_released'] = u'27/11/2008'
-        indict['Package--resources-0-url'] = u'http:/1'
-        indict['Package--resources-0-format'] = u'xml'
-        indict['Package--resources-0-description'] = u'test desc'
+        prefix = 'Package--'
+        indict[prefix + 'name'] = u'testname2'
+        indict[prefix + 'notes'] = u'some new notes'
+        indict[prefix + 'tags'] = u'russian, tolstoy',
+        indict[prefix + 'license_id'] = '1'
+        indict[prefix + 'external_reference'] = u'123'
+        indict[prefix + 'date_released'] = u'27/11/2008'
+        indict[prefix + 'date_updated'] = u'1/4/2008'
+        indict[prefix + 'geographic_granularity'] = u'regional'
+        indict[prefix + 'geographic_coverage-england'] = u'True'
+        indict[prefix + 'geographic_coverage-wales'] = u'True'
+        indict[prefix + 'temporal_granularity'] = u'years'
+        indict[prefix + 'temporal_coverage-from'] = u'6/2008'
+        indict[prefix + 'temporal_coverage-to'] = u'6/2009'
+        indict[prefix + 'categories'] = u'Labour Market'
+        indict[prefix + 'national_statistic'] = u'True'
+        indict[prefix + 'precision'] = u'Nearest 1000'
+        indict[prefix + 'taxonomy_url'] = u'http:/somewhere/about.html'
+        indict[prefix + 'department'] = u'testdept'
+        indict[prefix + 'agency'] = u'Quango 1'
+        indict[prefix + 'resources-0-url'] = u'http:/1'
+        indict[prefix + 'resources-0-format'] = u'xml'
+        indict[prefix + 'resources-0-description'] = u'test desc'
         fs = ckan.forms.package_gov_fs.bind(model.Package, data=indict)
 
         model.repo.new_revision()
         fs.sync()
         model.repo.commit_and_remove()
 
-        outpkg = model.Package.by_name(u'testname')
-        assert outpkg.notes == indict['Package--notes']
+        outpkg = model.Package.by_name(u'testname2')
+        assert outpkg.notes == indict[prefix + 'notes']
 
         # test tags
         taglist = [ tag.name for tag in outpkg.tags ]
@@ -186,7 +291,7 @@ class TestForm:
 
         # test licenses
         assert outpkg.license
-        assert indict['Package--license_id'] == str(outpkg.license.id), outpkg.license.id
+        assert indict[prefix + 'license_id'] == str(outpkg.license.id), outpkg.license.id
 
         # test resources
         assert len(outpkg.resources) == 1, outpkg.resources
@@ -197,10 +302,22 @@ class TestForm:
 
         # test gov fields
         extra_keys = outpkg.extras.keys()
-        reqd_extras = {'external_reference':indict['Package--external_reference'],
-                       'department':indict['Package--department'],
-                       'date_released':'2008-11-27',
-                       }
+        reqd_extras = {
+            'external_reference':indict[prefix + 'external_reference'],
+            'date_released':'2008-11-27',
+            'date_updated':'2008-04-01',
+            'geographic_granularity':indict[prefix + 'geographic_granularity'],
+            'geographic_coverage':'101000: England, Wales',
+            'temporal_granularity':indict[prefix + 'temporal_granularity'],
+            'temporal_coverage-from':'2008-06',
+            'temporal_coverage-to':'2009-06',
+            'categories':indict[prefix + 'categories'],
+            'national_statistic':'Yes',
+            'precision':indict[prefix + 'precision'],
+            'taxonomy_url':indict[prefix + 'taxonomy_url'],
+            'department':indict[prefix + 'department'],
+            'agency':indict[prefix + 'agency'],            
+            }
         for reqd_extra_key, reqd_extra_value in reqd_extras.items():
             assert reqd_extra_key in extra_keys, 'Key "%s" not found in extras %r' % (reqd_extra_key, extra_keys)
             assert outpkg.extras[reqd_extra_key] == reqd_extra_value, \

@@ -543,7 +543,7 @@ def get_fieldset(is_admin=False, basic=False, package_form=None):
     '''
     fs = None
     if not basic:
-        if package_form is None:
+        if not package_form:
             package_form = config.get(PACKAGE_FORM_KEY)
         if package_form == 'gov':
             if is_admin:

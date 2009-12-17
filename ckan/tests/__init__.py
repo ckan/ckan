@@ -10,6 +10,7 @@ setup-app) with the project's test.ini configuration file.
 """
 import os
 import sys
+import re
 from unittest import TestCase
 
 import pkg_resources
@@ -91,4 +92,47 @@ class TestController(object):
         'strips html to just the <div id=main> section'
         the_html = str(html)
         return the_html[the_html.find('<div id="main">'):the_html.find('<div id="footer">')]
+
+    def check_named_element(self, html, tag_name, *html_to_find):
+        '''Searches in the html and returns True if it can find a particular
+        tag and all its subtags & data which contains all the of the
+        html_to_find'''
+        named_element_re = re.compile('(<(%(tag)s\w*).*?>.*?</%(tag)s>)' % {'tag':tag_name}) 
+        self._check_html(named_element_re, html.replace('\n', ''), html_to_find)
+
+    def check_tag_and_data(self, html, *html_to_find):
+        '''Searches in the html and returns True if it can find a tag and its
+        PC Data immediately following it which contains all the of the
+        html_to_find'''
+        if not hasattr(self, 'tag_and_data_re'):
+            self.tag_and_data_re = re.compile('(<(?P<tagname>\w*)[^>]*>[^<]*?</(?P=tagname)>)')
+            # matches "<tag stuff> stuff </tag>"
+        self._check_html(self.tag_and_data_re, html, html_to_find)
+
+    def check_tag(self, html, *html_to_find):
+        '''Searches in the html and returns True if it can find a tag which
+        contains all the of the html_to_find'''
+        if not hasattr(self, 'tag_re'):
+            self.tag_re = re.compile('(<[^>]*>)')
+        self._check_html(self.tag_re, html, html_to_find)
+
+    def _check_html(self, re, html, html_to_find):
+        partly_matching_tags = []
+        for tag in re.finditer(html):
+            found_all=True
+            for i, html_bit_to_find in enumerate(html_to_find):
+                assert isinstance(html_bit_to_find, (str, unicode)), html_bit_to_find
+                find_inverse = html_bit_to_find.startswith('!')
+                if (find_inverse and html_bit_to_find[1:] in tag.group()) or \
+                   (not find_inverse and html_bit_to_find not in tag.group()):
+                    found_all = False
+                    if i>0:
+                        partly_matching_tags.append(tag.group())
+                    break
+            if found_all:
+                return # found it
+        # didn't find it
+        assert 0, "Couldn't find %s in html. Closest matches were:\n%s" % (', '.join(["'%s'" % html for html in html_to_find]), '\n'.join(partly_matching_tags))
+
+                                               
 
