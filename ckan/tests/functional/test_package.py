@@ -1,10 +1,13 @@
+import cgi
+
+from paste.fixture import AppError
+
 from ckan.tests import *
 import ckan.model as model
 
-import cgi
-from paste.fixture import AppError
-
 existing_extra_html = ('<label class="field_opt" for="Package-%(package_id)s-extras-%(key)s">%(capitalized_key)s</label>', '<input id="Package-%(package_id)s-extras-%(key)s" name="Package-%(package_id)s-extras-%(key)s" size="20" type="text" value="%(value)s">')
+
+package_form=''
 
 class TestPackageController(TestController):
 
@@ -20,12 +23,6 @@ class TestPackageController(TestController):
         offset = url_for(controller='package')
         res = self.app.get(offset)
         assert 'Packages - Index' in res
-
-    def test_sidebar(self):
-        offset = url_for(controller='package')
-        res = self.app.get(offset)
-        # sidebar
-        assert 'Packages section' in res
 
     def test_minornavigation(self):
         offset = url_for(controller='package')
@@ -47,23 +44,17 @@ class TestPackageController(TestController):
         res = self.app.get(offset)
         # only retrieve after app has been called
         self.anna = model.Package.by_name(name)
-        print self.main_div(res)
         assert 'Packages - %s' % name in res
         assert name in res
         assert self.anna.version in res
-        assert 'url:' in str(res).lower()
         assert self.anna.url in res
-        assert 'Resources:' in res
         assert cgi.escape(self.anna.resources[0].url) in res
         assert self.anna.resources[0].description in res
-        assert 'Notes:' in res
         assert 'Some test notes' in res
         assert '<strong>Some bolded text.</strong>' in res
         assert 'License:' in res
         assert 'OKD Compliant::' in res
-        assert 'Tags:' in res
         assert 'russian' in res
-        assert 'Groups:' in res
         assert 'david' in res
         assert 'roger' in res
         assert 'State:' not in res
@@ -86,18 +77,22 @@ class TestPackageController(TestController):
     def test_list(self):
         offset = url_for(controller='package', action='list')
         res = self.app.get(offset)
-        assert 'Packages - List' in res
+        assert 'Packages' in res
         name = u'annakarenina'
-        assert name in res
-        res = res.click(name)
-        assert 'Packages - %s' % name in res
+        title = u'A Novel By Tolstoy'
+        assert title in res
+        res = res.click(title)
+        assert 'Packages - %s' % name in res, res
+        assert title in res, res
 
     def test_search(self):
         offset = url_for(controller='package', action='search')
         res = self.app.get(offset)
-        assert 'Packages - Search' in res
-        self._check_search_results(res, 'annakarenina', ['1 package found', 'A Novel By Tolstoy'] )
-        self._check_search_results(res, '', ['0 packages found'] )
+        assert 'Search packages' in res
+        self._check_search_results(res, 'annakarenina', ['<strong>1</strong>', 'A Novel By Tolstoy'] )
+        self._check_search_results(res, 'warandpeace', ['<strong>0</strong>'], only_downloadable=True )
+        self._check_search_results(res, 'warandpeace', ['<strong>0</strong>'], only_open=True )
+        self._check_search_results(res, 'annakarenina', ['<strong>1</strong>'], only_open=True, only_downloadable=True )
 
     def _check_search_results(self, page, terms, requireds, only_open=False, only_downloadable=False):
         form = page.forms[0]
@@ -105,7 +100,7 @@ class TestPackageController(TestController):
         form['open_only'] = only_open
         form['downloadable_only'] = only_downloadable
         results_page = form.submit()
-        assert 'Packages - Search' in results_page, results_page
+        assert 'Search packages' in results_page, results_page
         results_page = self.main_div(results_page)
         for required in requireds:
             results_page = self.main_div(results_page)
@@ -136,7 +131,7 @@ class TestPackageControllerEdit(TestController):
         admin = model.User.by_name(u'testadmin')
         model.setup_default_user_roles(editpkg, [admin])
         self.pkgid = editpkg.id
-        offset = url_for(controller='package', action='edit', id=self.editpkg_name)
+        offset = url_for(controller='package', action='edit', id=self.editpkg_name, package_form=package_form)
         self.res = self.app.get(offset)
         self.newtagnames = [u'russian', u'tolstoy', u'superb']
         model.repo.commit_and_remove()
@@ -272,7 +267,7 @@ Hello world.
         model.setup_default_user_roles(pkg, [self.admin])
 
         # Edit it
-        offset = url_for(controller='package', action='edit', id=pkg.name)
+        offset = url_for(controller='package', action='edit', id=pkg.name, package_form=package_form)
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':'testadmin'})
         assert 'Packages - Edit' in res, res
         
@@ -403,21 +398,22 @@ Hello world.
         # Check package page
         assert not 'Error' in res, res
         res = res.follow(extra_environ={'REMOTE_USER':'testadmin'})
-        res1 = self.main_div(res).replace('</strong>', '')
+        main_res = self.main_div(res).replace('</strong>', '')
+        sidebar = self.sidebar(res)
+        res1 = (main_res + sidebar).decode('ascii', 'ignore')
         assert 'Packages - %s' % str(name) in res, res
-        assert 'Package: %s' % str(name) in res1, res1
-        assert 'Title: %s' % str(title) in res1, res1
-        assert 'Version: %s' % str(version) in res1, res1
-        assert 'url: <a href="%s">' % str(url).lower() in res1.lower(), res1
+        assert str(name) in res1, res1
+        assert str(title) in res1, res1
+        assert str(version) in res1, res1
+        assert '<a href="%s">' % str(url).lower() in res1.lower(), res1
         for res_index, resource in enumerate(resources):
-            res_html = '<tr> <td><a href="%s">%s</a></td><td>%s</td><td>%s</td>' % (resource[0], resource[0], resource[1], resource[2]) 
-            assert res_html in preview, preview + res_html
-        assert '<p>%s' % str(notes) in res1, res1
-        assert 'License: %s' % str(license) in res1, res1
-        assert 'Tags:' in res1, res1
+            res_html = '<tr><td><a href="%s">%s</a></td><td>%s</td><td>%s</td>' % (resource[0], resource[0], resource[1], resource[2])
+            assert res_html in res1, '%s : %s' % (res1, res_html)
+        assert str(notes) in res1, res1
+        assert str(license) in res1, res1
         for tag_html in tags_html_list:
-            assert tag_html in res1, tag_html + res1
-        assert 'Groups:\n%s' % groups_html in res1, res1 + groups_html
+            assert tag_html in res1, res1
+        assert groups_html in res1, res1 + groups_html
         assert 'State: %s' % str(state.name) in res1, res1
         for key, value in current_extras:
             extras_html = '%(key)s: %(value)s' % {'key':key.capitalize(), 'value':value}
@@ -465,7 +461,7 @@ class TestPackageControllerNew(TestController):
 
     def test_new_with_params_1(self):
         offset = url_for(controller='package', action='new',
-                url='http://xxx.org')
+                url='http://xxx.org', package_form=package_form)
         res = self.app.get(offset)
         form = res.forms[0]
         form['Package--url'].value == 'http://xxx.org/'
@@ -473,7 +469,7 @@ class TestPackageControllerNew(TestController):
 
     def test_new_with_params_2(self):
         offset = url_for(controller='package', action='new',
-                url='http://www.xxx.org')
+                url='http://www.xxx.org', package_form=package_form)
         res = self.app.get(offset)
         form = res.forms[0]
         form['Package--name'].value == 'xxx.org'
@@ -481,8 +477,8 @@ class TestPackageControllerNew(TestController):
     def test_new_without_resource(self):
         # new package
         prefix = 'Package--'
-        name = 'test_no_res'
-        offset = url_for(controller='package', action='new')
+        name = u'test_no_res'
+        offset = url_for(controller='package', action='new', package_form=package_form)
         res = self.app.get(offset)
         fv = res.forms[0]
         fv[prefix+'name'] = name
@@ -512,7 +508,7 @@ class TestPackageControllerNew(TestController):
 
     def test_new(self):
         assert not model.Package.by_name(u'annakarenina')
-        offset = url_for(controller='package', action='new')
+        offset = url_for(controller='package', action='new', package_form=package_form)
         res = self.app.get(offset)
         assert 'Packages - New' in res
         fv = res.forms[0]
@@ -537,7 +533,7 @@ class TestPackageControllerNew(TestController):
         extras = {'key1':'value1', 'key2':'value2', 'key3':'value3'}
         log_message = 'This is a comment'
         assert not model.Package.by_name(name)
-        offset = url_for(controller='package', action='new')
+        offset = url_for(controller='package', action='new', package_form=package_form)
         res = self.app.get(offset)
         assert 'Packages - New' in res
         fv = res.forms[0]
@@ -600,19 +596,19 @@ class TestPackageControllerNew(TestController):
         # Check package page
         assert not 'Error' in res, res
         res = res.follow()
-        res1 = self.main_div(res).replace('</strong>', '')
+        main_res = self.main_div(res).replace('</strong>', '')
+        sidebar = self.sidebar(res)
+        res1 = (main_res + sidebar).decode('ascii', 'ignore')
         assert 'Packages - %s' % str(name) in res, res
-        assert 'Package: %s' % str(name) in res1, res1
-        assert 'Title: %s' % str(title) in res1, res1
-        assert 'Version: %s' % str(version) in res1, res1
-        assert 'url: <a href="%s">' % str(url).lower() in res1.lower(), res1
+        assert str(name) in res1, res1
+        assert str(title) in res1, res1
+        assert str(version) in res1, res1
+        assert '<a href="%s">' % str(url).lower() in res1.lower(), res1
         assert '<td><a href="%s">' % str(download_url) in res1, res1
         assert '<p>%s' % str(notes) in res1, res1
         assert 'License: %s' % str(license) in res1, res1
-        assert 'Tags:' in res1, res1
         for tag in tags:
             assert '%s</a>' % tag.lower() in res
-        assert 'Groups:' in res1, res1
         for key, value in current_extras:
             extras_html = '%(key)s: %(value)s' % {'key':key.capitalize(), 'value':value}
             assert extras_html in res1, str(res) + extras_html
@@ -645,7 +641,7 @@ class TestPackageControllerNew(TestController):
         # test creating a package with an existing name results in error'
         # create initial package
         assert not model.Package.by_name(self.pkgname)
-        offset = url_for(controller='package', action='new')
+        offset = url_for(controller='package', action='new', package_form=package_form)
         res = self.app.get(offset)
         assert 'Packages - New' in res
         fv = res.forms[0]
@@ -671,7 +667,7 @@ class TestPackageControllerNew(TestController):
         assert 'class="field_error"' in res, res
         
     def test_new_bad_name(self):
-        offset = url_for(controller='package', action='new')
+        offset = url_for(controller='package', action='new', package_form=package_form)
         res = self.app.get(offset)
         assert 'Packages - New' in res
         fv = res.forms[0]
@@ -735,13 +731,13 @@ class TestNonActivePackages(TestController):
     def test_search(self):
         offset = url_for(controller='package', action='search')
         res = self.app.get(offset)
-        assert 'Packages - Search' in res
+        assert 'Search packages' in res
         form = res.forms[0]
         form['q'] =  str(self.non_active_name)
         results_page = form.submit()
-        assert 'Packages - Search' in results_page, results_page
+        assert 'Search packages' in results_page, results_page
         print results_page
-        assert '0 packages found' in results_page, (self.non_active_name, results_page)
+        assert '<strong>0</strong> packages found' in results_page, (self.non_active_name, results_page)
 
 
 class TestRevisions(TestController):

@@ -8,8 +8,10 @@
     <p>This page lists all changes to package database, with most recent
     changes first. It is also available as an <a href="?format=atom">Atom
       Feed</a>.</p>
+      
+    ${c.page.pager()}
 
-    <table py:match="paginatedlistitems">
+    <table>
       <tr>
         <th>Number</th><th>Timestamp</th><th>Author</th><th>Packages</th><th>Log Message</th>
       </tr>
@@ -17,9 +19,8 @@
         ${revision_row(item)}
       </py:for>
     </table>
-
-    <xi:include href="../paginated_list.html" />
-
+    
+    ${c.page.pager()}
   </div>
 
   <xi:include href="layout.html" />

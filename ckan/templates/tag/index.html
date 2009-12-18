@@ -7,7 +7,7 @@
     <h2>Tags</h2>
 
     <form action="" method="GET">
-      <input type="text" id="search_terms" name="search_terms" value="${c.search_terms}" />
+      <input type="text" id="q" name="q" value="${c.q}" />
       <input type="submit" name="search" value="Search &raquo;" />
     </form>
     
@@ -16,8 +16,8 @@
     <p>
       There ${plural(c.page.item_count, 'is', 'are')} <strong>${c.page.item_count}</strong>
       <py:choose test="">
-        <py:when test="c.search_terms">
-          ${plural(c.page.item_count, 'result', 'results')} for &lsquo;<strong>${c.search_terms.strip()}</strong>&rsquo;.
+        <py:when test="c.q">
+          ${plural(c.page.item_count, 'result', 'results')} for &lsquo;<strong>${c.q.strip()}</strong>&rsquo;.
         </py:when>
         <py:otherwise>
           ${plural(c.page.item_count, 'tag.', 'tags.')}
@@ -29,7 +29,7 @@
     ${tag_list(c.page.items)}
     ${c.page.pager()}
     
-    <p py:if="c.search_terms">
+    <p py:if="c.q">
       ${h.link_to('Clear search', h.url_for(controller='tag', action='index', id=None))} and see all tags.
     </p>
     

@@ -3,34 +3,101 @@
     
   <py:def function="page_title">Packages - ${c.pkg.name}</py:def>
 
-  <div py:match="content">
-    <h2>
-      Package: ${c.pkg.name}
+  <py:match path="primarysidebar">
+    <div class="box">
+      <h2>Package info</h2>
+      <dl class="icons clearfix">
+        <dt>${icon('user')}</dt>
+        <dd>${c.pkg_author_link}</dd>
+        <dt>${icon('user_grey')}</dt>
+        <dd>${c.pkg_maintainer_link}</dd>
+        <dt>${icon('world_go')}</dt>
+        <dd>${c.pkg_url_link}</dd>
+        <dt>${package_license_icon(c.pkg)}</dt>
+        <dd>${nonempty(c.pkg_license, "License unknown")}</dd>
+        <dt>${package_resources_icon(c.pkg)}</dt>
+        <dd>${"Resources available for download" if c.pkg.resources else "No known resources"}</dd>
+      </dl>
+      <py:if test="not c.pkg.isopen() or not c.pkg.resources">
+        <hr />
+        <p>
+          You can
+          <a href="http://isitopen.ckan.net/enquiry/create/?ckan_package=${c.pkg.name}">make an enquiry</a> 
+          about the openness of this package using 
+          <a href="http://isitopen.ckan.net/">Is It Open</a>.
+        </p>
+      </py:if>
+    </div>
+    
+    <div class="box">
+      <h2>Actions</h2>
+      <p class="buttons">
+        <a href="${h.url_for(controller='package',action='history',id=c.pkg.name)}">${icon('page_white_stack')} View history</a>
+        <a py:if="c.auth_for_edit" 
+          href="${h.url_for(controller='package',action='edit',id=c.pkg.name)}">
+          ${icon('package')} Edit package
+        </a>
+        <a py:if="c.auth_for_authz" 
+          href="${h.url_for(controller='package',action='authz',id=c.pkg.name)}">
+          ${icon('key')} Amend authorisations
+        </a>
+      </p>
+    </div>
+  </py:match>
 
-      <span class="object-action">
-      <py:if test="c.auth_for_edit">
-        <a href="${h.url_for(controller='package',action='edit',id=c.pkg.name)}">[edit]</a>
-      </py:if>
-      <a href="${h.url_for(controller='package',action='history',id=c.pkg.name)}">[history]</a>
-      <py:if test="c.auth_for_authz">
-        <a href="${h.url_for(controller='package',action='authz',id=c.pkg.name)}">[authorization]</a>
-      </py:if>
+  <div py:match="content" class="package">
+    <h2 class="head">
+      ${c.pkg_title} 
+      <span class="okd" py:if="c.pkg.isopen() and c.pkg.resources">
+        <a 
+          href="http://www.opendefinition.org/1.0/"
+          title="This package satisfies the OKFN's Open Knowledge Definition.">
+          <img src="http://m.okfn.org/images/ok_buttons/ok_90x15_blue.png" alt="[Open Knowledge]" />
+        </a>
       </span>
     </h2>
-
-    <h3>
-      Openness:
-      ${package_openness(c.pkg)}
-      &mdash;
-      <a href="http://isitopen.ckan.net/enquiry/create/?ckan_package=${c.pkg.name}">make an enquiry using Is It Open</a>
+    <h3 class="subhead">
+      <span class="name">${c.pkg.name}</span>
+      <span class="version">${nonempty(c.pkg_version, '(no version specified)')}</span>
     </h3>
+        
+    <py:choose test="">
+      <div class="resources" py:when="c.pkg_resources">
+        <h4><a name="resources"></a>${icon('drive_web')} Resources</h4>
+        <table>
+          <tr><th>URL</th><th>Format</th><th>Description</th></tr>
+          <py:for each="url, format, description in c.pkg_resources">
+            <tr><td><a href="${url}">${url}</a></td><td>${format}</td><td>${description}</td></tr>
+          </py:for>
+        </table>
+      </div>
+      <p py:otherwise="">No resources listed for this package.</p>
+    </py:choose>
 
-    <h3>
-      Rating: 
+    <div class="grouplist">
+      <h4>${icon('group')} Groups</h4>
+      <py:for each="group_name in c.pkg_groups">
+      <a href="${h.url_for(controller='group', action='read', id=group_name)}">${group_name}</a>
+      </py:for>
+    </div>
+    
+    <div class="taglist">
+      <h4>${icon('tag_blue')} Tags</h4>
+      ${tag_list(c.pkg_tags)}
+    </div>
+    
+    <h4>${icon('note')} Notes</h4>
+    <blockquote class="notes" py:choose="">
+      <py:when test="str(c.pkg_notes_formatted).strip()">${c.pkg_notes_formatted}</py:when>
+      <p py:otherwise=""><em>No notes entered.</em></p>
+    </blockquote>
 
-			<div class="rating-group">
+    <h4>
+      Rating
 
-			<py:if test="c.num_ratings">
+      <div class="rating-group">
+
+      <py:if test="c.num_ratings">
       <div class="inline-rating">
       <ul class="rating default${'%i' % (c.current_rating or 0)}star">
         <py:for each="number,name in enumerate(['one', 'two', 'three', 'four', 'five'])">
@@ -39,12 +106,12 @@
         </py:for>
       </ul>
       </div>
-				${'%0.1f (%i rating%s)' % (c.current_rating, c.num_ratings, ('s' if c.num_ratings != 1 else ''))}
-			</py:if>
+        ${'%0.1f (%i rating%s)' % (c.current_rating, c.num_ratings, ('s' if c.num_ratings != 1 else ''))}
+      </py:if>
 
-			<py:if test="not c.num_ratings">
-			no ratings yet
-			</py:if>
+      <py:if test="not c.num_ratings">
+      no ratings yet
+      </py:if>
 
       &ndash;
       rate it now 
@@ -57,14 +124,24 @@
         </li>
         </py:for>
       </ul>
-			</div>
+      </div>
 
-			</div><!-- /rating-group -->
-    </h3>
+      </div><!-- /rating-group -->
+    </h4>
 
+    <ul>
+      <py:if test="c.pkg_state">
+         <li><strong>State:</strong> ${c.pkg_state}</li>
+      </py:if>
+    </ul>
+    
 
-
-    ${c.content}
+    <py:if test="c.pkg_extras">
+      <h4>Extras</h4>
+      <ul>
+        <li py:for="key, value in c.pkg_extras"><strong>${key}:</strong> ${value}</li>
+      </ul>
+    </py:if>
   </div>
 
   <xi:include href="layout.html" />

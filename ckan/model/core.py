@@ -47,9 +47,9 @@ package_tag_table = Table('package_tag', metadata,
 vdm.sqlalchemy.make_table_stateful(license_table)
 vdm.sqlalchemy.make_table_stateful(package_table)
 vdm.sqlalchemy.make_table_stateful(package_tag_table)
-package_revision_table = vdm.sqlalchemy.make_table_revisioned(package_table)
+package_revision_table = vdm.sqlalchemy.make_revisioned_table(package_table)
 # TODO: this has a composite primary key ...
-package_tag_revision_table = vdm.sqlalchemy.make_table_revisioned(package_tag_table)
+package_tag_revision_table = vdm.sqlalchemy.make_revisioned_table(package_tag_table)
 
 
 ## -------------------
@@ -63,11 +63,6 @@ class DomainObject(object):
     def __init__(self, **kwargs):
         for k,v in kwargs.items():
             setattr(self, k, v)
-    
-    # TODO: remove once refactoring is done 2008-09-29 
-    @classmethod
-    def byName(self, name):
-        return self.by_name(name)
 
     @classmethod
     def by_name(self, name):
@@ -155,7 +150,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     def add_tag_by_name(self, tagname):
         if not tagname:
             return
-        tag = Tag.byName(tagname)
+        tag = Tag.by_name(tagname)
         if not tag:
             tag = Tag(name=tagname)
         if not tag in self.tags:

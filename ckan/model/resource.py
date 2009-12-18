@@ -16,7 +16,7 @@ package_resource_table = Table(
     )
 
 vdm.sqlalchemy.make_table_stateful(package_resource_table)
-resource_revision_table = vdm.sqlalchemy.make_table_revisioned(package_resource_table)
+resource_revision_table = vdm.sqlalchemy.make_revisioned_table(package_resource_table)
 
 class PackageResource(vdm.sqlalchemy.RevisionedObjectMixin,
                       vdm.sqlalchemy.StatefulObjectMixin,

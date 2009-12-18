@@ -34,45 +34,35 @@ class PackageController(BaseController):
         
         return render('package/list')
 
-    def search(self, id=1):
-        request_params = dict(request.params)
-        c.show_results = False
-        if request_params.has_key('q'):
-            c.q = request_params['q']
-            c.open_only = request_params.has_key('open_only')
-            c.downloadable_only = request_params.has_key('downloadable_only')
-            options = SearchOptions({'q':c.q,
-                                     'filter_by_openness':c.open_only,
-                                     'filter_by_downloadable':c.downloadable_only,
-                                     'return_objects':True,
-                                     'limit':0
+    def search(self):        
+        c.q = request.params.get('q')
+        c.open_only = request.params.get('open_only')
+        c.downloadable_only = request.params.get('downloadable_only')
+        
+        if c.q:
+            options = SearchOptions({'q': c.q,
+                                     'filter_by_openness': c.open_only,
+                                     'filter_by_downloadable': c.downloadable_only,
+                                     'return_objects': True,
+                                     'limit': 0
                                      })
 
             # package search
             results = Search().run(options)
-            c.package_count = results['count']
-            page = id
-            from ckan.lib.helpers import paginate
-            c.page = paginate.Page(
+
+            from ckan.lib.helpers import Page
+            
+            c.page = Page(
                 collection=results['results'],
-                page=page,
-                items_per_page=PAGINATE_ITEMS_PER_PAGE,
-                item_count=results['count'],
+                page=request.params.get('page', 1),
+                items_per_page=50
             )
-            c.link_params = request_params
-            if c.link_params.has_key('page'):
-                del c.link_params['page']
-            c.register_name = 'packages'
-            c.no_paginate_count = True
-            c.action = 'search'
 
             # tag search
             options.entity = 'tag'
             results = Search().run(options)
             c.tags = results['results']
             c.tags_count = results['count']
-
-            c.show_results = True
 
         return render('package/search')
 
@@ -88,14 +78,13 @@ class PackageController(BaseController):
         c.auth_for_authz = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, c.pkg)
         c.auth_for_edit = self.authorizer.am_authorized(c, model.Action.EDIT, c.pkg)
         c.auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, c.pkg)
-        if c.auth_for_change_state:
-            fs = ckan.forms.package_fs_admin
-        else:
-            fs = ckan.forms.package_fs
+        fs = ckan.forms.get_fieldset(is_admin=c.auth_for_change_state, basic=True)
         # this line needed or the resources relation doesn't bind:
         resources = c.pkg.resources
         fs = fs.bind(c.pkg)
-        c.content = genshi.HTML(self._render_package_with_template(fs))
+        
+        # setup c object.
+        self._render_package_with_template(fs)
 
         c.current_rating, c.num_ratings = ckan.rating.get_rating(c.pkg)
         
@@ -126,10 +115,8 @@ class PackageController(BaseController):
         c.has_autocomplete = True
         c.error = ''
 
-        if self.authorizer.is_sysadmin(c.user):
-            fs = ckan.forms.package_fs_admin
-        else:
-            fs = ckan.forms.package_fs
+        is_admin = self.authorizer.is_sysadmin(c.user)
+        fs = ckan.forms.get_fieldset(is_admin=is_admin, basic=False, package_form=request.params.get('package_form'))
 
         if request.params.has_key('commit'):
             record = model.Package
@@ -160,7 +147,7 @@ class PackageController(BaseController):
                 domain = urlparse.urlparse(url)[1]
                 if domain.startswith('www.'):
                     domain = domain[4:]
-            data = ckan.forms.add_to_package_dict(ckan.forms.get_package_dict(), request.params)
+            data = ckan.forms.add_to_package_dict(ckan.forms.get_package_dict(fs=fs), request.params)
             fs = fs.bind(data=data)
         c.form = self._render_edit_form(fs, request.params)
         if 'preview' in request.params:
@@ -180,10 +167,7 @@ class PackageController(BaseController):
             abort(401, 'User %r unauthorized to edit %s' % (c.user, id))
 
         c.auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, pkg)
-        if c.auth_for_change_state:
-            fs = ckan.forms.package_fs_admin
-        else:
-            fs = ckan.forms.package_fs
+        fs = ckan.forms.get_fieldset(is_admin=c.auth_for_change_state, basic=False, package_form=request.params.get('package_form'))
 
         if not 'commit' in request.params and not 'preview' in request.params:
             # edit
@@ -273,10 +257,11 @@ class PackageController(BaseController):
     def rate(self, id):
         package_name = id
         package = model.Package.by_name(package_name)
-        rating = request.params.get('rating', '')
-        if rating:
-            ckan.rating.set_my_rating(c, package, rating)
-        h.redirect_to(controller='package', action='read', id=package_name)
+        if package:
+            rating = request.params.get('rating', '')
+            if rating:
+                ckan.rating.set_my_rating(c, package, rating)
+            h.redirect_to(controller='package', action='read', id=package_name)
 
     def _render_edit_form(self, fs, params={}):
         # errors arrive in c.error and fs.errors
@@ -356,17 +341,27 @@ class PackageController(BaseController):
     def _render_package_with_template(self, fs):
         # Todo: More specific error handling (don't catch-all and set 500)?
         c.pkg_name = fs.name.value
+#        if hasattr(fs, 'version'):
         c.pkg_version = fs.version.value
         c.pkg_title = fs.title.value
         c.pkg_url = fs.url.value
+        
+        c.pkg_url_link = h.link_to('WWW', c.pkg_url) if c.pkg_url else "No external link"
+    
         if fs.resources.value and isinstance(fs.resources.value[0], model.PackageResource):
             c.pkg_resources = [(res.url, res.format, res.description) for res in fs.resources.value]
         else:
             c.pkg_resources = fs.resources.value
         c.pkg_author = fs.author.value
         c.pkg_author_email = fs.author_email.value
+        
+        c.pkg_author_link = self._person_email_link(c.pkg_author, c.pkg_author_email, "Author")
+                
         c.pkg_maintainer = fs.maintainer.value
         c.pkg_maintainer_email = fs.maintainer_email.value
+        
+        c.pkg_maintainer_link = self._person_email_link(c.pkg_maintainer, c.pkg_maintainer_email, "Maintainer")
+                
         if c.auth_for_change_state:
             c.pkg_state = model.State.query.get(fs.state.value).name
         if fs.license.value:
@@ -374,9 +369,9 @@ class PackageController(BaseController):
         else:
             c.pkg_license = None
         if fs.tags.value:
-            c.pkg_tags = [tag.name for tag in fs.tags.value]
+            c.pkg_tags = [tag for tag in fs.tags.value]
         elif fs.model.tags:
-            c.pkg_tags = [tag.name for tag in fs.model.tags_ordered]
+            c.pkg_tags = [tag for tag in fs.model.tags_ordered]
         else:
             c.pkg_tags = []
         if fs.model.groups:
@@ -388,6 +383,7 @@ class PackageController(BaseController):
         notes_formatted = format.to_html(fs.notes.value)
         notes_formatted = genshi.HTML(notes_formatted)
         c.pkg_notes_formatted = notes_formatted
+#        if hasattr(fs, 'extras'):
         c.pkg_extras = []
         if fs.extras.value:
             for key, value in fs.extras.value:
@@ -395,6 +391,15 @@ class PackageController(BaseController):
         else:
             for key, extra in fs.model._extras.items():
                 c.pkg_extras.append((key.capitalize(), extra.value))
-
-        preview = render('package/read_content')
-        return preview
+                
+    def _person_email_link(self, name, email, reference):
+        if email:
+            if name:
+                return h.link_to(name, 'mailto:' + email)
+            else:
+                return h.link_to(email, 'mailto:' + email)
+        else:
+            if name:
+                return name
+            else:
+                return reference + " unknown"

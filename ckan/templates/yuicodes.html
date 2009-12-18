@@ -5,27 +5,25 @@
   >
 
 <py:if test="c.has_autocomplete">
-<!-- YUI Sam Skin CSS -->
-<link type="text/css" rel="stylesheet" href="http://yui.yahooapis.com/2.4.1/build/autocomplete/assets/skins/sam/autocomplete.css"></link>
+  <!--! TODO: REMOVE YUI dependency for autocompleter -->
 
-<!-- CKAN Autocomplete Styles -->
-<link rel="stylesheet" href="/css/autocomplete.css" type="text/css" media="screen" charset="utf-8" />
-</py:if>
+  <!-- YUI Sam Skin CSS -->
+  <link type="text/css" rel="stylesheet" href="http://yui.yahooapis.com/2.4.1/build/autocomplete/assets/skins/sam/autocomplete.css"></link>
 
-<py:if test="c.has_paginate or c.has_autocomplete">
-<!-- YUI DOM Event JS -->
-<script type="text/javascript" src="http://yui.yahooapis.com/2.4.1/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+  <!-- CKAN Autocomplete Styles -->
+  <link rel="stylesheet" href="/css/autocomplete.css" type="text/css" media="screen" charset="utf-8" />
 
-<!-- YUI Connection (for XHR DataSource) JS -->
-<script type="text/javascript" src="http://yui.yahooapis.com/2.4.1/build/connection/connection-min.js"></script>
-</py:if>
+  <!-- YUI DOM Event JS -->
+  <script type="text/javascript" src="http://yui.yahooapis.com/2.4.1/build/yahoo-dom-event/yahoo-dom-event.js"></script>
 
-<py:if test="c.has_autocomplete">
-<!-- YUI JSON JS -->
-<script type="text/javascript" src="http://yui.yahooapis.com/2.4.1/build/json/json-beta-min.js"></script>
+  <!-- YUI Connection (for XHR DataSource) JS -->
+  <script type="text/javascript" src="http://yui.yahooapis.com/2.4.1/build/connection/connection-min.js"></script>
 
-<!-- YUI Autocomplete JS -->
-<script type="text/javascript" src="http://yui.yahooapis.com/2.4.1/build/autocomplete/autocomplete-min.js"></script>
+  <!-- YUI JSON JS -->
+  <script type="text/javascript" src="http://yui.yahooapis.com/2.4.1/build/json/json-beta-min.js"></script>
+
+  <!-- YUI Autocomplete JS -->
+  <script type="text/javascript" src="http://yui.yahooapis.com/2.4.1/build/autocomplete/autocomplete-min.js"></script>
 </py:if>
 
 </html>

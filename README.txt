@@ -33,7 +33,7 @@ Developer Installation
       paster --plugin ckan setup-app {your-config.ini}
 
    NB: you'll need to setup a database -- see sqlalchemy.url config option. We
-   support any database supported by sqlalchemy.
+   support only PostgreSQL at this time.
 
 5. Run the webserver::
 

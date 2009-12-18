@@ -1,8 +1,12 @@
+import os
+
+from pylons import config
+
 import ckan.model as model
 import ckan.getdata.cospread as data_getter
 
-test_data='ckan/tests/getdata/samples/cospread.csv'
-test_data2='ckan/tests/getdata/samples/cospread2.csv' # same but with notes changed
+test_data=os.path.join(config['here'], 'ckan/tests/getdata/samples/cospread.csv')
+test_data2=os.path.join(config['here'], 'ckan/tests/getdata/samples/cospread2.csv')
 
 class TestBasic:
     @classmethod

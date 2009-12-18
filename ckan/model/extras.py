@@ -14,7 +14,7 @@ package_extra_table = Table('package_extra', metadata,
 )
 
 vdm.sqlalchemy.make_table_stateful(package_extra_table)
-extra_revision_table= vdm.sqlalchemy.make_table_revisioned(package_extra_table)
+extra_revision_table= vdm.sqlalchemy.make_revisioned_table(package_extra_table)
 
 class PackageExtra(vdm.sqlalchemy.RevisionedObjectMixin,
         vdm.sqlalchemy.StatefulObjectMixin,

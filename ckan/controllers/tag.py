@@ -6,10 +6,10 @@ class TagController(BaseController):
     def index(self):
         from ckan.lib.helpers import Page
         
-        c.search_terms = request.params.get('search_terms', '')
+        c.q = request.params.get('q', '')
         
-        if c.search_terms:
-            query = model.Tag.search_by_name(c.search_terms)
+        if c.q:
+            query = model.Tag.search_by_name(c.q)
         else:
             query = model.Tag.query()
            

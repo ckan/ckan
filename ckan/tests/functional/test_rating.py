@@ -1,3 +1,5 @@
+import re
+
 import ckan.model as model
 import ckan.rating as rating
 from ckan.tests import *
@@ -20,21 +22,23 @@ class TestUsage(TestController):
 
     def _get_current_rating(self, res):
         res = str(res)
-        rating_pos = res.find('<ul class="rating default')
-        digit = res[rating_pos + 25]
-        if digit == 's':
+        if not hasattr(self, 'rating_re'):
+            # Hunt for something like:   3.5 (4 ratings)
+            self.rating_re = re.compile('(\d.\d) \(\d ratings?\)')
+        match = self.rating_re.search(res)
+        if not match:
             return None
         else:
-            return int(digit)
+            return float(match.groups()[0])
         
-    def test_read_package(self):
+    def test_0_read_package(self):
         offset = url_for(controller='package', action='read', id=u'warandpeace')
         res = self.app.get(offset)
-        assert 'Rating:' in res, res
+        assert 'Rating' in res, res
         assert '<ul class="rating default0star">' in res, res
-        assert self._get_current_rating(res) == 0
+        assert self._get_current_rating(res) == None
 
-    def test_give_all_ratings(self):
+    def test_1_give_all_ratings(self):
         pkg_name = u'annakarenina'
 
         for rating in range(1, 6):
@@ -44,25 +48,25 @@ class TestUsage(TestController):
             res = self.app.get(offset)
             res = res.click(href='rating=%s' % rating)
             res = res.follow()
-            assert self._get_current_rating(res) == rating, rating
+            assert self._get_current_rating(res) == float(rating), rating
 
-    def test_give_two_ratings(self):
+    def test_2_give_two_ratings(self):
         pkg_name = u'annakarenina'
         pkg = model.Package.by_name(pkg_name)
         offset = url_for(controller='package', action='read', id=pkg_name)
         res = self.app.get(offset)
-        assert self._get_current_rating(res) == 0
+        assert self._get_current_rating(res) == None
 
         res = res.click(href='rating=4')
 
         offset = url_for(controller='package', action='read', id=pkg_name)
         res = self.app.get(offset)
-        assert self._get_current_rating(res) == 4
+        assert self._get_current_rating(res) == 4.0
 
         res = res.click(href='rating=2')
 
         offset = url_for(controller='package', action='read', id=pkg_name)
         res = self.app.get(offset)
-        assert self._get_current_rating(res) == 2
+        assert self._get_current_rating(res) == 2.0
         
         

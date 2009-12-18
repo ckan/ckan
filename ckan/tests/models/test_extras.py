@@ -13,7 +13,7 @@ class TestExtras:
 
     def test_1(self):
         startrev = model.repo.youngest_revision().id
-        pkg = model.Package.by_name(CreateTestData.pkgname2)
+        pkg = model.Package.by_name(u'warandpeace')
         assert pkg is not None
 
         rev = model.repo.new_revision()
@@ -26,7 +26,7 @@ class TestExtras:
         # now test it is saved
         rev1 = model.repo.youngest_revision().id
 #        assert rev1 == startrev + 1
-        samepkg = model.Package.by_name(CreateTestData.pkgname2)
+        samepkg = model.Package.by_name(u'warandpeace')
         assert len(samepkg._extras) == 3, samepkg._extras
         assert samepkg.extras_active[u'country'].value == 'us', samepkg.extras_active
         assert samepkg.extras[u'country'] == 'us'
@@ -34,12 +34,12 @@ class TestExtras:
         model.Session.remove()
 
         # now delete and extras
-        samepkg = model.Package.by_name(CreateTestData.pkgname2)
+        samepkg = model.Package.by_name(u'warandpeace')
         model.repo.new_revision()
         del samepkg.extras[u'country']
         model.repo.commit_and_remove()
 
-        samepkg = model.Package.by_name(CreateTestData.pkgname2)
+        samepkg = model.Package.by_name(u'warandpeace')
         assert len(samepkg._extras) == 3
         assert len(samepkg.extras) == 2
         extra = model.PackageExtra.query.filter_by(key=u'country').first()
@@ -51,11 +51,11 @@ class TestExtras:
 
         # now restore it ...
         model.repo.new_revision()
-        samepkg = model.Package.by_name(CreateTestData.pkgname2)
+        samepkg = model.Package.by_name(u'warandpeace')
         samepkg.extras[u'country'] = 'uk'
         model.repo.commit_and_remove()
 
-        samepkg = model.Package.by_name(CreateTestData.pkgname2)
+        samepkg = model.Package.by_name(u'warandpeace')
         assert len(samepkg.extras) == 3
         assert len(samepkg._extras) == 3
         assert samepkg.extras[u'country'] == 'uk'

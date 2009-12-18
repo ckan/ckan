@@ -20,7 +20,7 @@ class TestRevisionExtraAttributes:
 
     def test_revision_user(self):
         rev = model.repo.youngest_revision()
-        assert rev.user is not None
+        assert rev.user is not None, rev
         assert rev.user.name == rev.author
 
 

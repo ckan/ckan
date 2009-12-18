@@ -6,18 +6,13 @@
   <div py:match="content">
     <h2>Packages</h2>
     <p>There are ${c.package_count} packages.</p>
+    
+    <xi:include href="search_form.html" />
+    
     <h3><a href="${h.url_for(controller='package',
         action='list')}">Browse Packages</a>
     </h3>
-
-    <br/>
-
-    <h3>Search Packages
-    </h3>
-    <xi:include href="search_form.html" />
-
-    <br/>
-
+    
     <h3>
       <a href="${h.url_for(controller='package',
         action='new', id=None)}">Register a New Package</a>

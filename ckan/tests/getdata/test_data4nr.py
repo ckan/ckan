@@ -1,8 +1,12 @@
+import os
+
+from pylons import config
+
 import ckan.model as model
 import ckan.getdata.data4nr as data4nr
 
-test_data='ckan/tests/getdata/samples/data4nr.csv'
-test_data2='ckan/tests/getdata/samples/data4nr2.csv'
+test_data=os.path.join(config['here'], 'ckan/tests/getdata/samples/data4nr.csv')
+test_data2=os.path.join(config['here'], 'ckan/tests/getdata/samples/data4nr2.csv')
 
 class TestBasic:
     @classmethod

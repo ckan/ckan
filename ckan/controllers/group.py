@@ -11,13 +11,15 @@ class GroupController(BaseController):
         self.authorizer = authz.Authorizer()
     
     def index(self):
-        c.group_count = model.Group.query.count()
-        c.list = self._paginate_list('group', id, 'group/list_content', ['name', 'title'])
-        return render('group/index')
+        from ckan.lib.helpers import Page
 
-    def list(self, id=0):
-        c.list = self._paginate_list('group', id, 'group/list_content', ['name', 'title'])
-        return render('group/list')
+        c.page = Page(
+            collection=model.Group.query(),
+            page=request.params.get('page', 1),
+            items_per_page=20
+        )
+        
+        return render('group/index')
 
     def read(self, id):
         c.group = model.Group.by_name(id)

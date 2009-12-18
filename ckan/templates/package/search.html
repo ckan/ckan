@@ -7,31 +7,24 @@
 
   <div py:match="content">
     <h2>Search packages</h2>
+    
     <xi:include href="search_form.html" />
-    <py:if test="c.show_results">
-                <py:if test="c.tags_count > 0">
-		<p><strong>${c.tags_count} tag<py:if test="c.tags_count > 1">s</py:if> found:</strong>
-				<py:for each="tag in c.tags">
-          <a href="${h.url_for(controller='tag', action='read', id=tag.name)}">${tag.name}</a>
-				</py:for>
+    
+    <py:if test="c.q">
+      <hr />
+    
+      <py:if test="c.tags_count > 0">
+        <p><strong>${c.tags_count}</strong> ${plural(c.tags_count, 'tag', 'tags')} found.</p>
+        ${tag_list(c.tags)}
+      </py:if>
 
-                </p>
-		</py:if>
-
-		<p><strong>${c.package_count} package<py:if test="c.package_count>1 or c.package_count==0">s</py:if> found<py:if test="c.package_count>0">:</py:if></strong></p>
-		<py:if test="c.package_count==0 and c.tags_count==0">
-			<p>
-			Would you like to <a href="${h.url_for(action='new', id=None)}">create a new package?</a>
-			</p>
-		</py:if>
-		<py:if test="c.package_count > 0">
-                  <ul py:match="paginatedlistitems">
-                    <py:for each="item in c.page.items">
-                      <li>${package_summary(item)}</li>
-                    </py:for>
-                  </ul>
-                  <xi:include href="../paginated_list.html" />
-		</py:if>
+      <p><strong>${c.page.item_count}</strong> ${plural(c.page.item_count, 'package', 'packages')} found.</p>
+      <py:if test="c.page.item_count == 0">
+        <p>Would you like to <a href="${h.url_for(action='new', id=None)}">create a new package?</a></p>
+      </py:if>
+      ${c.page.pager()}  
+      ${package_list(c.page.items)}
+      ${c.page.pager()}
     </py:if>
   </div>
 

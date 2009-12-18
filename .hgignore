@@ -1,6 +1,7 @@
 syntax: glob
 # generic
 *.pyc
+.DS_Store
 ckan.egg-info/*
 
 # pylons
