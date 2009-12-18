@@ -47,7 +47,7 @@ class TestForm(TestController):
             (fs.temporal_granularity, 'years'),
             (fs.temporal_coverage, None, '6/2008 - 6/2009'),
             (fs.categories, 'other=Health, well-being and Care'),
-            (fs.national_statistic, 'True', 'Yes'),
+            (fs.national_statistic, 'True', 'yes'),
             (fs.precision, 'Numbers to nearest 10, percentage to nearest whole number'),
             (fs.url, 'http://www.dcsf.gov.uk/rsgateway/DB/SFR/s000859/index.shtml'),
             (fs.taxonomy_url, '', ''),

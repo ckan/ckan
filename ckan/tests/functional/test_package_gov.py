@@ -101,7 +101,7 @@ class TestEdit(TestController):
         temporal_granularity = 'years'
         temporal_coverage = ('2007-12', '2009-03')
         categories = 'Health, well-being and Care; '
-        national_statistic = 'Yes'
+        national_statistic = 'yes'
         precision = 'Nearest 1000'
         taxonomy_url = 'http://some.com/taxonomy'
         agency = 'FOGB'
@@ -161,11 +161,11 @@ class TestEdit(TestController):
         self.check_tag(main_res, prefix + 'geographic_coverage-global', '!checked')
         self.check_tag(main_res, 'option value="%s" selected' % department)
         self.check_tag(main_res, prefix + 'department-other', 'value=""')
-        self.check_tag(main_res, prefix + 'temporal_granularity', 'value="%s"' % temporal_granularity)
+        self.check_named_element(main_res, 'select', prefix + 'temporal_granularity', 'value="%s"' % temporal_granularity)
         self.check_tag(main_res, prefix + 'temporal_coverage-from', 'value="%s"' % '12/2007')
         self.check_tag(main_res, prefix + 'temporal_coverage-to', 'value="%s"' % '3/2009')
         self.check_tag(main_res, prefix + 'categories', 'value="%s"' % categories)
-        self.check_tag(main_res, prefix + 'national_statistic', 'checked' if national_statistic=='Yes' else '!checked')
+        self.check_tag(main_res, prefix + 'national_statistic', 'checked' if national_statistic=='yes' else '!checked')
         self.check_tag(main_res, prefix + 'precision', 'value="%s"' % precision)
         self.check_tag(main_res, prefix + 'taxonomy_url', 'value="%s"' % taxonomy_url)
         self.check_tag(main_res, prefix + 'agency', 'value="%s"' % agency)
@@ -195,10 +195,10 @@ class TestEdit(TestController):
         geographic_granularity = 'Country'
         geographic_coverage = '001000: Wales'
         department = 'Crown Estate'
-        temporal_granularity = 'Months'
+        temporal_granularity = 'months'
         temporal_coverage = ('2004-12', '2005-03')
         categories = 'Economy' #; Government'
-        national_statistic = 'Yes'
+        national_statistic = 'yes'
         precision = 'Nearest 10'
         taxonomy_url = 'http://some.com/taxonomy/CHANGED'
         agency = 'EOGB'
@@ -246,7 +246,7 @@ class TestEdit(TestController):
         fv[prefix+'temporal_coverage-from'] = '12/2004'
         fv[prefix+'temporal_coverage-to'] = '3/2005'
         fv[prefix+'categories'] = categories
-        fv[prefix+'national_statistic'] = True if national_statistic == 'Yes' else False
+        fv[prefix+'national_statistic'] = True if national_statistic == 'yes' else False
         fv[prefix+'precision'] = precision
         fv[prefix+'taxonomy_url'] = taxonomy_url
         fv[prefix+'agency'] = agency
@@ -315,11 +315,11 @@ class TestEdit(TestController):
         self.check_tag(main_res, 'option value="%s" selected' % department)
         self.check_named_element(main_res, 'select', prefix + 'department', 'value="%s"' % department)
         self.check_tag(main_res, prefix + 'department-other', '')
-        self.check_tag(main_res, prefix + 'temporal_granularity', 'value="%s"' % temporal_granularity)
+        self.check_named_element(main_res, 'select', prefix + 'temporal_granularity', 'value="%s"' % temporal_granularity)
         self.check_tag(main_res, prefix + 'temporal_coverage-from', 'value="%s"' % '12/2004')
         self.check_tag(main_res, prefix + 'temporal_coverage-to', 'value="%s"' % '3/2005')
         self.check_named_element(main_res, 'select', prefix + 'categories', 'value="%s"' % categories, 'select')
-        self.check_tag(main_res, prefix + 'national_statistic', 'checked' if national_statistic=='Yes' else '!checked')
+        self.check_tag(main_res, prefix + 'national_statistic', 'checked' if national_statistic=='yes' else '!checked')
         self.check_tag(main_res, prefix + 'precision', 'value="%s"' % precision)
         self.check_tag(main_res, prefix + 'taxonomy_url', 'value="%s"' % taxonomy_url)
         self.check_tag(main_res, prefix + 'agency', 'value="%s"' % agency)
@@ -432,7 +432,7 @@ class TestNew(TestController):
         temporal_granularity = 'years'
         temporal_coverage = ('2007-12', '2009-03')
         categories = 'Health, well-being and Care; '
-        national_statistic = 'No'
+        national_statistic = 'no'
         precision = 'Nearest 1000'
         taxonomy_url = 'http://some.com/taxonomy'
         agency = 'FOGB'
@@ -464,7 +464,7 @@ class TestNew(TestController):
         fv[prefix+'temporal_coverage-from'] = '12/2007'
         fv[prefix+'temporal_coverage-to'] = '3/2009'
         fv[prefix+'categories-other'] = categories
-        fv[prefix+'national_statistic'] = True if national_statistic == 'Yes' else False
+        fv[prefix+'national_statistic'] = True if national_statistic == 'yes' else False
         fv[prefix+'precision'] = precision
         fv[prefix+'taxonomy_url'] = taxonomy_url
         fv[prefix+'agency'] = agency
@@ -527,11 +527,11 @@ class TestNew(TestController):
         self.check_tag(main_res, prefix + 'geographic_coverage-global', '!checked')
         self.check_tag(main_res, 'option value="%s" selected' % department)
         self.check_tag(main_res, prefix + 'department-other', 'value=""')
-        self.check_tag(main_res, prefix + 'temporal_granularity', 'value="%s"' % temporal_granularity)
+        self.check_named_element(main_res, 'select', prefix + 'temporal_granularity', 'value="%s"' % temporal_granularity)
         self.check_tag(main_res, prefix + 'temporal_coverage-from', 'value="%s"' % '12/2007')
         self.check_tag(main_res, prefix + 'temporal_coverage-to', 'value="%s"' % '3/2009')
         self.check_tag(main_res, prefix + 'categories', 'value="%s"' % categories)
-        self.check_tag(main_res, prefix + 'national_statistic', 'checked' if national_statistic=='Yes' else '!checked')
+        self.check_tag(main_res, prefix + 'national_statistic', 'checked' if national_statistic=='yes' else '!checked')
         self.check_tag(main_res, prefix + 'precision', 'value="%s"' % precision)
         self.check_tag(main_res, prefix + 'taxonomy_url', 'value="%s"' % taxonomy_url)
         self.check_tag(main_res, prefix + 'agency', 'value="%s"' % agency)

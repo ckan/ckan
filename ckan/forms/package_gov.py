@@ -168,12 +168,12 @@ class GeoCoverageType(object):
             for grouping_str, regions_str in self.groupings.items():
                 all_regions_in = True
                 for region_str in regions_str:
-                    if GeoCoverageType.munge(region_str) not in incl_regions:
+                    if region_str not in incl_regions:
                         all_regions_in = False
                         break
                 if all_regions_in:
                     for region_str in regions_str:
-                        incl_regions.remove(GeoCoverageType.munge(region_str))
+                        incl_regions.remove(region_str)
                     incl_regions.append('%s (%s)' % (grouping_str, ', '.join(regions_str)))
             return ', '.join(incl_regions)
 
@@ -221,6 +221,52 @@ class ExtraField(formalchemy.Field):
             val = self._deserialize() or u''
             pkg.extras[self.name] = val
 
+class TagSuggester(object):
+    @staticmethod
+    def get_instance():
+        if not hasattr(TagSuggester, 'instance'):
+            TagSuggester.instance = TagSuggester.Singleton()
+        return TagSuggester.instance
+
+    class Singleton(object):
+        def __init__(self):
+            self.tags = ['accident', 'road', 'traffic', 'health', 'illness', 'disease', 'population', 'school', 'accommodation', 'children', 'married', 'emissions', 'benefit', 'alcohol', 'deaths', 'mortality', 'disability', 'unemployment', 'employment', 'armed forces', 'asylum', 'cancer', 'births', 'burglary', 'child', 'tax credit', 'criminal damage', 'drug', 'earnings', 'education', 'economic', 'fire', 'fraud', 'forgery', 'fuel', 'green', 'greenhouse gas', 'homeless', 'hospital', 'waiting list', 'housing', 'care', 'income', 'census', 'mental health', 'disablement allowance', 'jobseekers allowance', 'national curriculum', 'older people', 'living environment', 'higher education', 'living environment', 'school absence', 'local authority', 'carbon dioxide', 'energy', 'teachers', 'fostering', 'tide', 'gas', 'electricity', 'transport', 'veterinary', 'fishing', 'export', 'fisheries', 'pest', 'recycling', 'waste', 'crime', 'anti-social behaviour', 'police', 'refugee', 'identity card', 'immigration', 'planning', 'communities', 'lettings', 'finance', 'ethnicity', 'trading standards', 'trade', 'business', 'child protection']
+            self.search_fields = ['name', 'title', 'notes', 'categories', 'agency']
+
+        def _tag_munge(self, name):
+            return self._munge(name).replace('_', '-').replace('--', '-')
+
+        def _munge(self, name):
+            # convert spaces to underscores
+            name = re.sub(' ', '_', name).lower()        
+            # convert symbols to dashes
+            name = re.sub('[:]', '_-', name).lower()        
+            name = re.sub('[/]', '-', name).lower()        
+            # take out not-allowed characters
+            name = re.sub('[^a-zA-Z0-9-_]', '', name).lower()
+            # remove double underscores
+            name = re.sub('__', '_', name).lower()                
+            return name[:100]
+
+        def suggest_tags(self, fs):
+            assert isinstance(fs, formalchemy.forms.FieldSet)
+            tags = set()
+            for field_name in self.search_fields:
+                field = fs.render_fields[field_name]
+                text = field.renderer._value
+                if text and isinstance(text, (str, unicode)):
+                    for keyword in self.tags:
+                        if keyword in text:
+                            tags.add(self._tag_munge(keyword))
+            return list(tags)
+
+
+class SuggestTagRenderer(package.TagEditRenderer):
+    def render(self, **kwargs):
+        tag_suggestions = TagSuggester.get_instance().suggest_tags(self.field.parent)
+        html = "<div>Suggestions (preview refreshes): %s</div>" % ' '.join(tag_suggestions)
+        html += package.TagEditRenderer.render(self, **kwargs)
+        return html
 
 class ExtraTextRenderer(formalchemy.fields.TextFieldRenderer):
     def _get_value(self):
@@ -239,10 +285,8 @@ class ExtraTextRenderer(formalchemy.fields.TextFieldRenderer):
 
 class ExtraCheckboxRenderer(formalchemy.fields.CheckBoxFieldRenderer):
     def _get_value(self):
-#        extras = self.field.parent._extras.value
-#        if extras is None:
         extras = self.field.parent.model.extras
-        return bool(self._value or extras.get(self.field.name))
+        return bool(self._value or extras.get(self.field.name) == u'yes')
 
     def render(self, **kwargs):
         value = self._get_value()
@@ -251,7 +295,7 @@ class ExtraCheckboxRenderer(formalchemy.fields.CheckBoxFieldRenderer):
         return h.text_field(self.name, value=value, maxlength=self.length, **kwargs)
 
     def render_readonly(self, **kwargs):
-        value = u'Yes' if self._get_value() else u'No'
+        value = u'yes' if self._get_value() else u'no'
         return common.field_readonly_renderer(self.field.key, value)
 
     def _serialized_value(self):
@@ -262,7 +306,7 @@ class ExtraCheckboxRenderer(formalchemy.fields.CheckBoxFieldRenderer):
         return val
 
     def deserialize(self):
-        return u'Yes' if self._serialized_value() else u'No'
+        return u'yes' if self._serialized_value() else u'no'
 
 
 class GeoCoverageRenderer(formalchemy.fields.FieldRenderer):
@@ -372,7 +416,8 @@ class SelectRenderer(formalchemy.fields.FieldRenderer):
             select_field_selected = u''
             text_field_value = u''            
         html = h.select(self.name, h.options_for_select(options, selected=select_field_selected, **kwargs))
-        html += '<span class="margin">Other: %s</span>' % h.text_field(self.name+'-other', value=text_field_value, **kwargs)
+        other_name = self.name+'-other'
+        html += '<label class="inline" for="%s">Other: %s</label>' % (other_name, h.text_field(other_name, value=text_field_value, **kwargs))
         return html
 
     def render_readonly(self, **kwargs):
@@ -423,17 +468,18 @@ for fs in [package_gov_fs, package_gov_fs_admin]:
     fs.append(ExtraField('update_frequency').with_renderer(ExtraTextRenderer))
     fs.append(ExtraField('geographic_granularity').with_renderer(GeoGranularityRenderer))
     fs.append(GeoCoverageField('geographic_coverage').with_renderer(GeoCoverageRenderer))
-    fs.append(ExtraField('temporal_granularity').with_renderer(ExtraTextRenderer))
+    fs.append(ExtraField('temporal_granularity').with_renderer(TemporalGranularityRenderer))
     fs.append(TemporalCoverageField('temporal_coverage').with_renderer(TemporalCoverageRenderer))
     fs.append(ExtraField('categories').with_renderer(CategoriesRenderer))
     fs.append(ExtraField('national_statistic').with_renderer(ExtraCheckboxRenderer))
     fs.append(ExtraField('precision').with_renderer(ExtraTextRenderer))
     fs.append(ExtraField('taxonomy_url').with_renderer(ExtraTextRenderer))
+    fs.append(ExtraField('department').with_renderer(DepartmentRenderer))
     fs.append(ExtraField('agency').with_renderer(ExtraTextRenderer))
 
-    fs.append(ExtraField('department').with_renderer(DepartmentRenderer))
     options = package.get_package_fs_options(fs)
     include = [fs.name, fs.title, fs.external_reference, fs.notes, fs.date_released, fs.date_updated, fs.update_frequency, fs.geographic_granularity, fs.geographic_coverage, fs.temporal_granularity, fs.temporal_coverage, fs.categories, fs.national_statistic, fs.precision, fs.url, fs.resources, fs.taxonomy_url, fs.department, fs.agency, fs.author, fs.author_email, fs.maintainer, fs.maintainer_email, fs.license, fs.tags,  ]
+    options += [fs.tags.with_renderer(SuggestTagRenderer)]
     if fs != package_gov_fs:
         include.append(fs.state)
         options += [fs.state.with_renderer(package.StateRenderer)]
