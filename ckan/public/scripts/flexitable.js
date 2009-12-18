@@ -50,7 +50,7 @@ function addRowToTable()
     var anchor = document.createElement('a');
     anchor.href = 'javascript:removeRowFromTable(' + iteration + ')';
     var image = document.createElement('img');
-    image.src = '/images/icon-delete.png';
+    image.src = 'http://m.okfn.org/kforge/images/icon-delete.png';
     image.className = 'icon';
     anchor.appendChild(image);
     cell.appendChild(anchor);
