@@ -281,7 +281,7 @@ class ResourcesRenderer(formalchemy.fields.FieldRenderer):
           <td>
             <a href="javascript:moveRowUp(%(res_index)s)"><img src="/images/icons/arrow_up.png"></a>
             <a href="javascript:moveRowDown(%(res_index)s)"><img src="/images/icons/arrow_down.png"></a>
-            <a href="javascript:removeRowFromTable(%(res_index)s);"><img src="/images/icon-delete.png" class="icon"></a>
+            <a href="javascript:removeRowFromTable(%(res_index)s);"><img src="http://m.okfn.org/kforge/images/icon-delete.png" class="icon"></a>
           </td>
         </tr>
     '''
@@ -543,7 +543,7 @@ def get_fieldset(is_admin=False, basic=False, package_form=None):
     '''
     fs = None
     if not basic:
-        if not package_form:
+        if package_form is None:
             package_form = config.get(PACKAGE_FORM_KEY)
         if package_form == 'gov':
             if is_admin:
