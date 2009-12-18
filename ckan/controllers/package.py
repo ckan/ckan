@@ -257,10 +257,11 @@ class PackageController(BaseController):
     def rate(self, id):
         package_name = id
         package = model.Package.by_name(package_name)
-        rating = request.params.get('rating', '')
-        if rating:
-            ckan.rating.set_my_rating(c, package, rating)
-        h.redirect_to(controller='package', action='read', id=package_name)
+        if package:
+            rating = request.params.get('rating', '')
+            if rating:
+                ckan.rating.set_my_rating(c, package, rating)
+            h.redirect_to(controller='package', action='read', id=package_name)
 
     def _render_edit_form(self, fs, params={}):
         # errors arrive in c.error and fs.errors
