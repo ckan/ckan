@@ -341,7 +341,6 @@ class PackageController(BaseController):
     def _render_package_with_template(self, fs):
         # Todo: More specific error handling (don't catch-all and set 500)?
         c.pkg_name = fs.name.value
-#        if hasattr(fs, 'version'):
         c.pkg_version = fs.version.value
         c.pkg_title = fs.title.value
         c.pkg_url = fs.url.value
@@ -383,7 +382,6 @@ class PackageController(BaseController):
         notes_formatted = format.to_html(fs.notes.value)
         notes_formatted = genshi.HTML(notes_formatted)
         c.pkg_notes_formatted = notes_formatted
-#        if hasattr(fs, 'extras'):
         c.pkg_extras = []
         if fs.extras.value:
             for key, value in fs.extras.value:
@@ -394,10 +392,9 @@ class PackageController(BaseController):
                 
     def _person_email_link(self, name, email, reference):
         if email:
-            if name:
-                return h.link_to(name, 'mailto:' + email)
-            else:
-                return h.link_to(email, 'mailto:' + email)
+            if not name:
+                name = email
+            return h.mail_to(email_address=email, name=name, encode='javascript')
         else:
             if name:
                 return name
