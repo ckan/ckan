@@ -8,7 +8,7 @@ import common
 import ckan.model as model
 import ckan.lib.helpers
 
-__all__ = ['package_fs', 'package_fs_admin', 'get_package_dict', 'edit_package_dict', 'add_to_package_dict', 'get_additional_package_fields', 'get_package_fs_options', 'PackageFieldSet', 'StateRenderer', 'get_fieldset']
+__all__ = ['package_fs', 'package_fs_admin', 'get_package_dict', 'edit_package_dict', 'add_to_package_dict', 'get_additional_package_fields', 'get_package_fs_options', 'PackageFieldSet', 'StateRenderer', 'TagEditRenderer', 'get_fieldset']
 
 PACKAGE_FORM_KEY = 'package_form_schema'
 
