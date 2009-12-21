@@ -1,4 +1,5 @@
-from ckan.lib.helpers import paginate
+import re
+import webhelpers.markdown
 
 class TextFormat(object):
 
@@ -7,11 +8,19 @@ class TextFormat(object):
 
 
 class MarkdownFormat(TextFormat):
-
+    internal_link = re.compile('(package|tag|group):([a-z0-9\-_]+)')
+    normal_link = re.compile('<(http:[^>]+)>')
+    
     def to_html(self, instr):
         if instr is None:
             return ''
-        # import markdown
-        import webhelpers.markdown
+        
+        # Convert internal links
+        instr = self.internal_link.sub(r'[\1:\2] (/\1/read/\2)', instr)
+
+        # Convert <link> to markdown format
+        instr = self.normal_link.sub(r'[\1] (\1)', instr)
+
+        # Markdown to HTML
         return webhelpers.markdown.markdown(instr, safe_mode=True)
 

@@ -4,6 +4,7 @@ from paste.fixture import AppError
 
 from ckan.tests import *
 import ckan.model as model
+from ckan.lib.create_test_data import CreateTestData
 
 existing_extra_html = ('<label class="field_opt" for="Package-%(package_id)s-extras-%(key)s">%(capitalized_key)s</label>', '<input id="Package-%(package_id)s-extras-%(key)s" name="Package-%(package_id)s-extras-%(key)s" size="20" type="text" value="%(value)s">')
 
@@ -73,6 +74,25 @@ class TestPackageController(TestController):
         name = 'anonexistentpackage'
         offset = url_for(controller='package', action='read', id=name)
         res = self.app.get(offset, status=404)
+
+    def test_read_internal_links(self):
+        pkg_name = u'link-test',
+        CreateTestData.create_arbitrary([
+            {'name':pkg_name,
+             'notes':'Decoy link here: decoy:decoy, real links here: package:pkg-1, ' \
+                   'tag:tag_1 group:test-group-1.',
+             }
+            ])
+        offset = url_for(controller='package', action='read', id=pkg_name)
+        res = self.app.get(offset)
+        def check_link(res, controller, id):
+            link = '<a href="/%s/read/%s">%s:%s</a>' % (controller, id, controller, id)
+            assert link in res, self.main_div(res) + link
+        check_link(res, 'package', 'pkg-1')
+        check_link(res, 'tag', 'tag_1')
+        check_link(res, 'group', 'test-group-1')
+        assert 'decoy</a>' not in res, res
+        assert 'decoy"' not in res, res
 
     def test_list(self):
         offset = url_for(controller='package', action='list')
