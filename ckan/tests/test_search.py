@@ -5,6 +5,7 @@ from ckan.model import Package
 from ckan.lib.search import Search, SearchOptions
 import ckan.model as model
 from ckan.tests import *
+from ckan.lib.create_test_data import CreateTestData
 
 class TestSearch(object):
     q_all = u'penguin'
@@ -249,6 +250,16 @@ class TestSearch(object):
         sorted_fields = fields; sorted_fields.sort()
         assert fields == sorted_fields, repr(fields) + repr(sorted_fields)
 
+        # extra field
+## TODO: Get this working
+##        options = SearchOptions({'q':self.q_all})
+##        options.order_by = 'date_released'
+##        result = Search().run(options)
+##        pkgs = result['results']
+##        fields = [model.Package.by_name(pkg_name).extras.get('date_released') for pkg_name in pkgs]
+##        sorted_fields = fields; sorted_fields.sort()
+##        assert fields == sorted_fields, repr(fields) + repr(sorted_fields)
+
     def test_search_notes_on(self):
         options = SearchOptions({'q':u'restrictions'})
         result = Search().run(options)
@@ -304,6 +315,87 @@ class TestSearchOverall(object):
         self._check_search_results('annakarenina', 1, ['annakarenina'], False, True )
         self._check_search_results('annakarenina', 1, ['annakarenina'], True, True )
         
+
+class TestGeographicCoverage(object):
+    @classmethod
+    def setup_class(self):
+        init_data = [
+            {'name':'eng',
+             'extras':{'geographic_coverage':'100000: England'},},
+            {'name':'eng_ni',
+             'extras':{'geographic_coverage':'100100: England, Northern Ireland'},},
+            {'name':'uk',
+             'extras':{'geographic_coverage':'111100: United Kingdom (England, Scotland, Wales, Northern Ireland'},},
+            {'name':'gb',
+             'extras':{'geographic_coverage':'111000: Great Britain (England, Scotland, Wales)'},},
+            {'name':'none',
+             'extras':{'geographic_coverage':'000000:'},},
+            ]
+        CreateTestData.create_arbitrary(init_data)
+
+    @classmethod
+    def teardown_class(self):
+        model.Session.remove()
+        model.repo.rebuild_db()
+        model.Session.remove()
+    
+    def _do_search(self, q, expected_pkgs, count=None):
+        options = SearchOptions({'q':q})
+        options.order_by = 'rank'
+        result = Search().run(options)
+        pkgs = result['results']
+        fields = [model.Package.by_name(pkg_name).name for pkg_name in pkgs]
+        if not (count is None):
+            assert result['count'] == count, result['count']
+        for expected_pkg in expected_pkgs:
+            assert expected_pkg in fields, expected_pkg
+
+    def test_0_basic(self):
+        self._do_search(u'england', ['eng', 'eng_ni', 'uk', 'gb'], 4)
+        self._do_search(u'northern ireland', ['eng_ni', 'uk'], 2)
+        self._do_search(u'united kingdom', ['uk'], 1)
+        self._do_search(u'great britain', ['gb'], 1)
+
+class TestExtraFields(object):
+    @classmethod
+    def setup_class(self):
+        init_data = [
+            {'name':'a',
+             'extras':{'department':'abc',
+                       'agency':'ag-a'},},
+            {'name':'b',
+             'extras':{'department':'bcd',
+                       'agency':'ag-b'},},
+            {'name':'c',
+             'extras':{'department':'cde abc'},},
+            {'name':'none',
+             'extras':{'department':''},},
+            ]
+        CreateTestData.create_arbitrary(init_data)
+
+    @classmethod
+    def teardown_class(self):
+        model.Session.remove()
+        model.repo.rebuild_db()
+        model.Session.remove()
+    
+    def _do_search(self, department, expected_pkgs, count=None):
+        options = SearchOptions({'q':''})
+        options.department = department
+        result = Search().run(options)
+        pkgs = result['results']
+        fields = [model.Package.by_name(pkg_name).name for pkg_name in pkgs]
+        if not (count is None):
+            assert result['count'] == count, result['count']
+        for expected_pkg in expected_pkgs:
+            assert expected_pkg in fields, expected_pkg
+
+    def test_0_basic(self):
+        self._do_search(u'bcd', 'b', 1)
+        self._do_search(u'abc', ['a', 'c'], 2)
+        self._do_search(u'cde', 'c', 1)
+        self._do_search(u'ag-a', 'a', 1)
+        self._do_search(u'ag-b', 'b', 1)
 
 class TestRank(object):
     @classmethod

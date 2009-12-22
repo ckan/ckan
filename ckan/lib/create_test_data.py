@@ -246,6 +246,7 @@ search_items = [{'name':'gils',
               
 > The Government Information Locator Service (GILS) is an effort to identify, locate, and describe publicly available Federal
 > Because this collection is decentralized, the GPO''',
+              'extras':{'date_released':'2008'},
               },
              {'name':'us-gov-images',
               'title':'U.S. Government Photos and Graphics',
@@ -261,6 +262,7 @@ Collection of links to different US image collections in the public domain.
 ## Openness
 
 > Most of these images and graphics are available for use in the public domain, and''',
+              'extras':{'date_released':'2009'},
               },
              {'name':'usa-courts-gov',
               'title':'Text of US Federal Cases',
@@ -274,6 +276,7 @@ Collection of links to different US image collections in the public domain.
 1.8 million pages of U.S. case law available with no restrictions. From the [README](http://bulk.resource.org/courts.gov/0_README.html):
 
 > This file is  http://bulk.resource.org/courts.gov/0_README.html and was last revised''',
+              'extras':{'date_released':'2007-06'},
               },
              {'name':'uk-government-expenditure',
               'title':'UK Government Expenditure',
@@ -281,7 +284,8 @@ Collection of links to different US image collections in the public domain.
               'groups':'ukgov penguin',              
               'notes':'''Discussed at [Workshop on Public Information, 2008-11-02](http://okfn.org/wiki/PublicInformation).
 
-Overview is available in Red Book, or Financial Statement and Budget Report (FSBR), [published by the Treasury](http://www.hm-treasury.gov.uk/budget.htm).'''
+Overview is available in Red Book, or Financial Statement and Budget Report (FSBR), [published by the Treasury](http://www.hm-treasury.gov.uk/budget.htm).''',
+              'extras':{'date_released':'2007-10'},
               },
              {'name':'se-publications',
               'title':'Sweden - Government Offices of Sweden - Publications',
@@ -296,6 +300,7 @@ Official documents including "government bills and reports, information material
 ### Reuse
 
 Not clear.''',
+              'extras':{'date_released':'2009-10-27'},
               },
              {'name':'se-opengov',
               'title':'Opengov.se',
@@ -342,13 +347,36 @@ gov_items = [
         'geographic_coverage':'100000: England',
         'department':'Department for Children, Schools and Families',
         'temporal_granularity':'years',
-        'temporal_coverage-from':'6/2008',
-        'temporal_coverage-to':'6/2009',
+        'temporal_coverage-from':'2008-6',
+        'temporal_coverage-to':'2009-6',
         'categories':'Health, well-being and Care',
         'national_statistic':'yes',
         'precision':'Numbers to nearest 10, percentage to nearest whole number',
         'taxonomy_url':'',
         'agency':'',
+        }
+     },
+    {'name':'weekly-fuel-prices',
+     'title':'Weekly fuel prices',
+     'notes':'Latest price as at start of week of unleaded petrol and diesel.',
+     'resources':[{'url':'', 'format':'XLS', 'description':''}],
+     'url':'http://www.decc.gov.uk/en/content/cms/statistics/source/prices/prices.aspx',
+     'author':'DECC Energy Statistics Team',
+     'author_email':'energy.stats@decc.gsi.gov.uk',
+     'license':'Non-OKD Compliant::Crown Copyright',
+     'tags':'fuel prices',
+     'extras':{
+        'external_reference':'DECC-DECC-0001',
+        'date_released':'2009-11-24',
+        'date_updated':'2009-11-24',
+        'update_frequency':'weekly',
+        'geographic_granularity':'national',
+        'geographic_coverage':'111100: United Kingdom (England, Scotland, Wales, Northern Ireland)',
+        'department':'Department of Energy and Climate Change',
+        'temporal_granularity':'weeks',
+        'temporal_coverage-from':'2008-11-24',
+        'temporal_coverage-to':'2009-11-24',
+        'national_statistic':'yes',
         }
      }
     ]

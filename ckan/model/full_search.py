@@ -1,8 +1,13 @@
-from meta import *
+import re
 
 import sqlalchemy
 
+from meta import *
+
+
 class SearchVectorTrigger(sqlalchemy.orm.interfaces.MapperExtension):
+    match_bad_chars = re.compile('[%"\'\\\r\n#><]')
+    
     def after_insert(self, mapper, connection, instance):
         self.update_vector(instance, connection)
 
@@ -30,11 +35,25 @@ class SearchVectorTrigger(sqlalchemy.orm.interfaces.MapperExtension):
             pkg_dict['tags'] = ' '.join(pkg_dict['tags'])
         if isinstance(pkg_dict['groups'], (list, tuple)):
             pkg_dict['groups'] = ' '.join(pkg_dict['groups'])
-            
+
         document_a = ' '.join((pkg_dict['name'] or '', pkg_dict['title'] or ''))
-        document_b = ' '.join((pkg_dict['notes'] or '', pkg_dict['tags'] or '', pkg_dict['groups'] or ''))
+        document_b_items = []
+        for field_name in ['notes', 'tags', 'groups', 'author', 'maintainer']:
+            val = pkg_dict.get(field_name)
+            if val:
+                document_b_items.append(val)
+        extras = pkg_dict['extras']
+        for extra_field_name in ['update_frequency', 'geographic_granularity', 'geographic_coverage', 'temporal_granularity', 'temporal_coverage', 'categories', 'precision', 'department', 'agency']:
+            val = extras.get(extra_field_name)
+            if val:
+                document_b_items.append(val)
+        document_b = ' '.join(document_b_items)
+
         def make_document_safe(document):
-            return document.replace('\'', '').replace('"', '').replace('%', '')
+            doc = self.match_bad_chars.sub(' ', document)
+            doc = doc.encode('ascii', 'ignore')
+            doc = doc.replace('\\', '')
+            return doc
         document_a = make_document_safe(document_a)
         document_b = make_document_safe(document_b)
         # Create weighted vector

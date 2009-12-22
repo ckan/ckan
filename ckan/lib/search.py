@@ -5,7 +5,6 @@ import ckan.model as model
 from licenses import LicenseList
 
 LIMIT_DEFAULT = 20
-DEFAULT_SEARCH_FIELDS = ['name', 'title', 'tags']
 
 class SearchOptions:
     # about the search
@@ -46,7 +45,7 @@ class SearchOptions:
         return repr(self.__dict__)
 
 class Search:
-    _tokens = [ 'name', 'title', 'notes', 'tags', 'groups', 'author', 'maintainer'] 
+    _tokens = [ 'name', 'title', 'notes', 'tags', 'groups', 'author', 'maintainer', 'update_frequency', 'geographic_granularity', 'geographic_coverage', 'temporal_granularity', 'temporal_coverage', 'categories', 'precision', 'department', 'agency'] 
     _open_licenses = None
 
     def search(self, query_string):
@@ -161,15 +160,16 @@ class Search:
             
         # Filter by field_specific_terms
         for field, terms in field_specific_terms.items():
+            if type(terms) in (type(''), type(u'')):
+                terms = terms.split()
             if field in ('tags', 'groups'):
-                if type(terms) in (type(''), type(u'')):
-                    query = self._filter_by_tags_or_groups(field, query, terms.split())
-                else:
-                    query = self._filter_by_tags_or_groups(field, query, terms)
-            else:
+                query = self._filter_by_tags_or_groups(field, query, terms)
+            elif hasattr(model.Package, field):
                 for term in terms:
                     model_attr = getattr(model.Package, field)
                     query = query.filter(make_like(model_attr, term))
+            else:
+                query = self._filter_by_extra(field, query, terms)
 
         # Filter for options
         if self._options.filter_by_downloadable:
@@ -185,9 +185,12 @@ class Search:
             if self._options.order_by == 'rank':
                 query = query.add_column(sqlalchemy.func.ts_rank_cd(sqlalchemy.text('package_search.search_vector'), sqlalchemy.func.plainto_tsquery(all_terms)))
                 query = query.order_by(sqlalchemy.text('ts_rank_cd_1 DESC'))
-            else:
+            elif hasattr(model.Package, self._options.order_by):
                 model_attr = getattr(model.Package, self._options.order_by)
                 query = query.order_by(model_attr)
+            else:
+                # TODO extras
+                raise NotImplemented
 
         query = query.distinct()
         query = query.filter(model.Package.state == model.State.query.filter_by(name='active').one())
@@ -247,7 +250,15 @@ class Search:
                 else:
                     # unknown group, so torpedo search
                     query = query.filter(model.Group.id==u'-1')
-                
+                    
+        return query
+
+    
+    def _filter_by_extra(self, field, query, value_list):
+        for name in value_list:
+            query = query.join('_extras', aliased=True).filter(sqlalchemy.and_(
+                model.PackageExtra.state_id==1,
+                model.PackageExtra.key==field))
         return query
         
     def _update_open_licenses(self):
