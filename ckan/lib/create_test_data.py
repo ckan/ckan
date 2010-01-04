@@ -161,6 +161,12 @@ class CreateTestData(cli.CkanCommand):
 
 *Some italicized text.*
 
+Foreign characters:
+u with umlaut \xc3\xbc
+
+Needs escaping:
+left arrow <
+
 <http://ckan.net/>
 
 '''

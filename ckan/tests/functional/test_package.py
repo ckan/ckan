@@ -53,6 +53,8 @@ class TestPackageController(TestController):
         assert self.anna.resources[0].description in res
         assert 'Some test notes' in res
         assert '<strong>Some bolded text.</strong>' in res
+        self.check_tag_and_data(res, 'left arrow', '&lt;')
+        self.check_tag_and_data(res, 'umlaut', '\xc3\x83\xc2\xbc')
         assert 'License:' in res
         assert 'OKD Compliant::' in res
         assert 'russian' in res
@@ -241,6 +243,11 @@ class TestPackageControllerEdit(TestController):
 ### A title
 
 Hello world.
+
+Arrow <
+
+u with umlaut \xc3\xbc
+
 '''
         fv = self.res.forms[0]
         prefix = 'Package-%s-' % self.pkgid
@@ -250,6 +257,9 @@ Hello world.
         print str(res)
         assert 'Packages - Edit' in res
         assert 'Preview' in res
+        assert 'Hello world' in res
+        self.check_tag_and_data(res, 'umlaut', '\xc3\xbc')
+        self.check_tag_and_data(res, 'Arrow', '&lt;')
 
     def test_edit_bad_name(self):
         fv = self.res.forms[0]

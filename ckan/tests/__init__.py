@@ -142,7 +142,7 @@ class TestController(object):
 
     def _check_html(self, re, html, html_to_find):
         partly_matching_tags = []
-        for tag in re.finditer(html):
+        for tag in re.finditer(str(html)):
             found_all=True
             for i, html_bit_to_find in enumerate(html_to_find):
                 assert isinstance(html_bit_to_find, (str, unicode)), html_bit_to_find
