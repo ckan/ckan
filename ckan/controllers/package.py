@@ -257,11 +257,15 @@ class PackageController(BaseController):
     def rate(self, id):
         package_name = id
         package = model.Package.by_name(package_name)
-        if package:
-            rating = request.params.get('rating', '')
-            if rating:
+        if package is None:
+            abort(404, '404 Package Not Found')
+        rating = request.params.get('rating', '')
+        if rating:
+            try:
                 ckan.rating.set_my_rating(c, package, rating)
-            h.redirect_to(controller='package', action='read', id=package_name)
+            except ckan.rating.RatingValueException, e:
+                abort(400, 'Rating value invalid')
+        h.redirect_to(controller='package', action='read', id=package_name)
 
     def _render_edit_form(self, fs, params={}):
         # errors arrive in c.error and fs.errors

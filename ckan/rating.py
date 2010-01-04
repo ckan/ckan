@@ -1,5 +1,11 @@
 import ckan.model as model
 
+MIN_RATING = 1.0
+MAX_RATING = 5.0
+
+class RatingValueException(Exception):
+    pass
+
 def get_rating(package):
     return package.get_average_rating(), len(package.ratings)
 
@@ -21,7 +27,13 @@ def set_rating(user_or_ip, package, rating):
     else:
         ip = user_or_ip
         rating_query = model.Rating.query.filter_by(package=package, user_ip_address=ip)
-    rating = float(rating)
+
+    try:
+        rating = float(rating)
+    except TypeError:
+        raise RatingValueException
+    if rating > MAX_RATING or rating < MIN_RATING:
+        raise RatingValueException
     
     if rating_query.count():
         rating_obj = rating_query.one()

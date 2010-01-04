@@ -69,4 +69,16 @@ class TestUsage(TestController):
         res = self.app.get(offset)
         assert self._get_current_rating(res) == 2.0
         
-        
+    def test_3_rating_out_of_range(self):
+        print "THE ONE"
+        pkg_name = u'annakarenina'
+        pkg = model.Package.by_name(pkg_name)
+        offset = url_for(controller='package', action='read', id=pkg_name)
+        res = self.app.get(offset)
+        assert self._get_current_rating(res) == None
+
+        offset = url_for(controller='package', action='rate', id=pkg_name)
+        offset += '?rating=6'
+        res = self.app.get(offset, status=400)
+
+        assert self._get_current_rating(res) == None, res

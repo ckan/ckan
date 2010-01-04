@@ -294,6 +294,19 @@ class TestRestController(TestController):
         assert len(pkg.ratings) == 1
         assert pkg.ratings[0].rating == rating_opts['rating'], pkg.ratings
 
+    def test_06_rate_package_out_of_range(self):
+        self.clear_all_tst_ratings()
+        offset = '/api/rest/rating'
+        rating_opts = {'package':u'warandpeace',
+                       'rating':0}
+        postparams = '%s=1' % simplejson.dumps(rating_opts)
+        res = self.app.post(offset, params=postparams, status=[400],
+                extra_environ=self.extra_environ)
+        model.Session.remove()
+        pkg = model.Package.by_name(rating_opts['package'])
+        assert pkg
+        assert len(pkg.ratings) == 0
+
     def _test_09_entity_put_404(self):
         # TODO: get this working again. At present returns 400
         # Test Package Entity Put 404.
