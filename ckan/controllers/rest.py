@@ -208,8 +208,10 @@ class RestController(BaseController):
         return self._finish_ok(results)
 
     def _create_rating(self, params):
-        rating_opts = {'package':u'warandpeace',
-                       'rating':5}
+        """ Example data:
+               rating_opts = {'package':u'warandpeace',
+                              'rating':5}
+        """
         # check options
         package_name = params.get('package')
         rating = params.get('rating')
@@ -226,8 +228,8 @@ class RestController(BaseController):
                 opts_err = 'Rating must be an integer value.'
             else:
                 package = model.Package.by_name(package_name)
-                if rating < 1 or rating > 5:
-                    opts_err = 'Rating must be between 1 and 5.'
+                if rating < ckan.rating.MIN_RATING or rating > ckan.rating.MAX_RATING:
+                    opts_err = 'Rating must be between %i and %i.' % (ckan.rating.MIN_RATING, ckan.rating.MAX_RATING)
                 elif not package:
                     opts_err = 'Package with name %r does not exist.' % package_name
         if opts_err:
