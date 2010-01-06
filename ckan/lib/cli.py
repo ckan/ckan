@@ -237,8 +237,8 @@ class TestData(CkanCommand):
         assert num_tag > 0
 
         pkg = model.Package.query().first()
-        print '* A package: ', repr(pkg)
-        expected_attributes = ('name', 'title', 'notes', 'url', 'download_url')
+        print u'* A package: %s' % pkg
+        expected_attributes = ('name', 'title', 'notes', 'url')
         for ea in expected_attributes:
             print '* Checking for attribute ', ea
             assert ea in pkg.__dict__.keys()
@@ -279,10 +279,10 @@ class TestData(CkanCommand):
         form = res.forms[0]
         form['q'] = pkg.name
         res = form.submit()
-        print '* Checking search'
+        print '* Checking search using %r' % pkg.name
         assert ('package found' in res) or ('packages found' in res), res
 
-        res = res.click(pkg.name)
+        res = res.click(pkg.title)
         print '* Checking package page %s' % res.request.url
         assert pkg.title in res, res
         for tag in pkg.tags:
@@ -298,7 +298,6 @@ class TestData(CkanCommand):
         
         res = check_page('/package/list', 'Packages')
 
-        res = check_page('/api/search/package?tags=gov+us+legal', '{"count": 1, "results": ["usa-courts-gov"]}')
 
 
 class Sysadmin(CkanCommand):

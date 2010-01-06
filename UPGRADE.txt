@@ -15,13 +15,16 @@ hg up
 cd ../../../
 
 # bring db up to date
-paster --plugin ckan db --config {config.ini} upgrade
+paster --plugin ckan db upgrade --config {config.ini}
 
 # NB: if you have updates to licenses you need to to
-# paster --plugin ckan db --config {config.ini} init
+# paster --plugin ckan db init --config {config.ini}
 
-## Restart apache (so modpython has latest code)
+# Restart apache (so modpython has latest code)
 sudo /etc/init.d/apache2 restart
 
-## Reload www.ckan.net and browse around!
+# Basic checks of the db and the site:
+paster --plugin ckan test-data localhost --config {config.ini}
+
+# Browse around manually!
 
