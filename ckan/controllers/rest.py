@@ -132,7 +132,6 @@ class RestController(BaseController):
             response.status_int = 400
             return "JSON Error: %s" % str(inst)
 
-
         try:
             if register == 'package':
                 fs = ckan.forms.package_fs

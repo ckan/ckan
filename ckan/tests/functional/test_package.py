@@ -51,6 +51,7 @@ class TestPackageController(TestController):
         assert self.anna.url in res
         assert cgi.escape(self.anna.resources[0].url) in res
         assert self.anna.resources[0].description in res
+        assert self.anna.resources[0].hash in res
         assert 'Some test notes' in res
         assert '<strong>Some bolded text.</strong>' in res
         self.check_tag_and_data(res, 'left arrow', '&lt;')
@@ -280,9 +281,11 @@ u with umlaut \xc3\xbc
         pkg.title = u'This is a Test Title'
         pkg.url = u'editpkgurl.com'
         pkg.resources.append(model.PackageResource(url=u'editpkgurl1',
-              format=u'plain text', description=u'Full text'))
+              format=u'plain text', description=u'Full text',
+              hash=u'123abc',))
         pkg.resources.append(model.PackageResource(url=u'editpkgurl2',
-              format=u'plain text2', description=u'Full text2'))
+              format=u'plain text2', description=u'Full text2',
+              hash=u'456abc',))
         pkg.notes= u'this is editpkg'
         pkg.version = u'2.2'
         pkg.tags = [model.Tag(name=u'one'), model.Tag(name=u'two')]
@@ -303,36 +306,34 @@ u with umlaut \xc3\xbc
         
         # Check form is correctly filled
         prefix = 'Package-%s-' % pkg.id
-        assert 'name="%sname" size="40" type="text" value="%s"' % (prefix, pkg.name) in res, res
-        assert 'name="%stitle" size="40" type="text" value="%s"' % (prefix, pkg.title) in res, res
-        assert 'name="%sversion" size="40" type="text" value="%s"' % (prefix, pkg.version) in res, res
-        assert 'name="%surl" size="40" type="text" value="%s"' % (prefix, pkg.url) in res, res
-        res_html = 'id="%sresources-0-url" type="text" value="%s"' % (prefix, pkg.resources[0].url)
-        assert res_html in res, self.main_div(res) + res_html
+        self.check_tag(res, prefix+'name', pkg.name)
+        self.check_tag(res, prefix+'title', pkg.title)
+        self.check_tag(res, prefix+'version', pkg.version)
+        self.check_tag(res, prefix+'url', pkg.url)
+        self.check_tag(res, prefix+'resources-0-url', pkg.resources[0].url)
         for res_index, resource in enumerate(pkg.resources):
-            for res_field in ('url', 'format', 'description'):
+            for res_field in ('url', 'format', 'description', 'hash'):
                 expected_value = getattr(resource, res_field)
-                assert 'id="%sresources-%s-%s" type="text" value="%s"' % (prefix, res_index, res_field, expected_value) in res, res
-        assert '<textarea cols="60" id="%snotes" name="%snotes" rows="15">%s</textarea>' % (prefix, prefix, pkg.notes) in res, res
-        license_html = '<option value="%s" selected>%s' % (pkg.license_id, pkg.license.name)
-        assert license_html in res, str(res) + license_html
-        tags_html = 'name="%stags" size="60" type="text" value="%s"' % (prefix, tags_txt)
-        assert tags_html in res, str(res) + tags_html
-        state_html = '<option value="%s" selected>%s' % (pkg.state.id, pkg.state.name)
-        assert state_html in res, str(res) + state_html
+                self.check_tag(res, '%sresources-%s-%s' % (prefix, res_index, res_field), expected_value)
+        self.check_tag_and_data(res, prefix+'notes', pkg.notes)
+        self.check_tag_and_data(res, 'selected', str(pkg.license_id), pkg.license.name)
+        self.check_tag(res, prefix+'tags', tags_txt)
+        self.check_tag_and_data(res, 'selected', str(pkg.state.id), pkg.state.name)
         for key, value in extras.items():
-            for html in existing_extra_html:
-                extras_html = html % {'package_id':pkg.id, 'key':key, 'capitalized_key':key.capitalize(), 'value':value}
-                assert extras_html in res, str(res) + extras_html
+            self.check_tag_and_data(res, 'Package-%s-extras-%s' % (pkg.id, key), key.capitalize())
+            self.check_tag(res, 'Package-%s-extras-%s' % (pkg.id, key), value)
+##            for html in existing_extra_html:
+##                extras_html = html % {'package_id':pkg.id, 'key':key, 'capitalized_key':key.capitalize(), 'value':value}
+##                assert extras_html in res, str(res) + extras_html
 
         # Amend form
         name = u'test_name'
         title = u'Test Title'
         version = u'1.1'
         url = u'http://something.com/somewhere.zip'
-        resources = ((u'http://something.com/somewhere-else.xml', u'xml', u'Best'),
-                     (u'http://something.com/somewhere-else2.xml', u'xml2', u'Best2'),
-#                     (u'http://something.com/somewhere-else3.xml', u'xml3', u'Best3'),
+        resources = ((u'http://something.com/somewhere-else.xml', u'xml', u'Best', u'hash1'),
+                     (u'http://something.com/somewhere-else2.xml', u'xml2', u'Best2', u'hash2'),
+#                     (u'http://something.com/somewhere-else3.xml', u'xml3', u'Best3', u'hash3'),
                      )
         notes = u'Very important'
         license_id = 4
@@ -351,7 +352,7 @@ u with umlaut \xc3\xbc
         fv[prefix+'version'] = version
         fv[prefix+'url'] = url
         for res_index, resource in enumerate(resources):
-            for field_index, res_field in enumerate(('url', 'format', 'description')):
+            for field_index, res_field in enumerate(('url', 'format', 'description', 'hash')):
                 fv[prefix+'resources-%s-%s' % (res_index, res_field)] = resource[field_index]
         fv[prefix+'notes'] = notes
         fv[prefix+'license_id'] = license_id
@@ -373,8 +374,7 @@ u with umlaut \xc3\xbc
         assert 'Version: %s' % str(version) in preview, preview
         assert 'URL: <a href="%s">' % str(url) in preview, preview
         for res_index, resource in enumerate(resources):
-            res_html = '<tr> <td><a href="%s">%s</a></td><td>%s</td><td>%s</td>' % (resource[0], resource[0], resource[1], resource[2]) 
-            assert res_html in preview, preview + res_html
+            self.check_named_element(preview, 'tr', resource[0], resource[1], resource[2], resource[3])
         assert '<p>%s' % str(notes) in preview, preview
         assert 'License: %s' % str(license) in preview, preview
         tags_html_list = ['<a href="/tag/read/%s">%s</a>' % (str(tag), str(tag)) for tag in tags]
@@ -397,29 +397,25 @@ u with umlaut \xc3\xbc
         assert '<li><strong>:</strong> </li>' not in preview, preview
 
         # Check form is correctly filled
-        assert 'name="%stitle" size="40" type="text" value="%s"' % (prefix, title) in res, res
-        assert 'name="%sversion" size="40" type="text" value="%s"' % (prefix, version) in res, res
-        assert 'name="%surl" size="40" type="text" value="%s"' % (prefix, url) in res, res
-        res_html = 'id="%sresources-0-url" type="text" value="%s"' % (prefix, resources[0][0])
-        assert res_html in res, self.main_div(res) + res_html
+        self.check_tag(res, prefix+'title', title)
+        self.check_tag(res, prefix+'version', version)
+        self.check_tag(res, prefix+'url', url)
+        self.check_tag(res, prefix+'resources-0-url', resources[0][0])
         for res_index, resource in enumerate(resources):
-            for field_index, res_field in enumerate(('url', 'format', 'description')):
+            for field_index, res_field in enumerate(('url', 'format', 'description', 'hash')):
                 expected_value = resource[field_index]
-                assert 'id="%sresources-%s-%s" type="text" value="%s"' % (prefix, res_index, res_field, expected_value) in res, res
-        assert '<textarea cols="60" id="%snotes" name="%snotes" rows="15">%s</textarea>' % (prefix, prefix, notes) in res, res
-        license_html = '<option value="%s" selected>%s' % (license_id, license)
-        assert license_html in res, str(res) + license_html
-        assert 'name="%stags" size="60" type="text" value="%s"' % (prefix, tags_txt) in res, res
-        state_html = '<option value="%s" selected>%s' % (state.id, state.name)
-        assert state_html in res, str(res) + state_html
+                self.check_tag(res, '%sresources-%s-%s' % (prefix, res_index, res_field), expected_value)
+        self.check_tag_and_data(res, prefix+'notes', notes)
+        self.check_tag_and_data(res, 'selected', str(license_id), license)
+        self.check_tag(res, prefix+'tags', tags_txt)
+        self.check_tag_and_data(res, 'selected', str(state.id), state.name)
         for key, value in current_extras:
-            for html in existing_extra_html:
-                extras_html = html % {'package_id':pkg.id, 'key':key, 'capitalized_key':key.capitalize(), 'value':value}
-                assert extras_html in res, str(res) + extras_html
+            self.check_tag_and_data(res, 'Package-%s-extras-%s' % (pkg.id, key), key.capitalize())
+            self.check_tag(res, 'Package-%s-extras-%s' % (pkg.id, key), value)
         for key, value in deleted_extras:
-            for html in existing_extra_html:
-                extras_html = html % {'package_id':pkg.id, 'key':key, 'capitalized_key':key.capitalize(), 'value':value}
-                assert extras_html not in res, str(res) + extras_html
+            self.check_tag_and_data(res, '!Package-%s-extras-%s' % (pkg.id, key))
+            self.check_tag_and_data(res, '!'+key.capitalize())
+            self.check_tag(res, '!'+value)
         assert log_message in res
 
         # Submit
@@ -437,8 +433,7 @@ u with umlaut \xc3\xbc
         assert str(version) in res1, res1
         assert '<a href="%s">' % str(url).lower() in res1.lower(), res1
         for res_index, resource in enumerate(resources):
-            res_html = '<tr><td><a href="%s">%s</a></td><td>%s</td><td>%s</td>' % (resource[0], resource[0], resource[1], resource[2])
-            assert res_html in res1, '%s : %s' % (res1, res_html)
+            self.check_named_element(res1, 'tr', resource[0], resource[1], resource[2], resource[3])
         assert str(notes) in res1, res1
         assert str(license) in res1, res1
         for tag_html in tags_html_list:
@@ -456,7 +451,7 @@ u with umlaut \xc3\xbc
         assert pkg.version == version
         assert pkg.url == url
         for res_index, resource in enumerate(resources):
-            for field_index, res_field in enumerate(('url', 'format', 'description')):
+            for field_index, res_field in enumerate(('url', 'format', 'description', 'hash')):
                 assert getattr(pkg.resources[res_index], res_field) == resource[field_index]
         assert pkg.notes == notes
         assert pkg.license_id == license_id
@@ -605,19 +600,16 @@ class TestPackageControllerNew(TestController):
 
         # Check form is correctly filled
         res1 = self.main_div(res)
-        assert 'name="Package--title" size="40" type="text" value="%s"' % title in res1, res1
-        assert 'name="Package--version" size="40" type="text" value="%s"' % version in res1, res1
-        assert 'name="Package--url" size="40" type="text" value="%s"' % url in res1, res1
-        assert 'id="Package--resources-0-url" type="text" value="%s"' % download_url in res1, res1
-        assert '<textarea cols="60" id="Package--notes" name="Package--notes" rows="15">%s</textarea>' % notes in res1, res1
-        license_html = '<option value="%s" selected>%s' % (license_id, license)
-        assert license_html in res1, str(res1) + license_html
-        assert 'name="Package--tags" size="60" type="text" value="%s"' % tags_txt.lower() in res1, res1
-##        assert 'name="Package--groups" size="60" type="text" value="%s"' % groups_txt in res1, res1
+        self.check_tag(res, prefix+'title', title)
+        self.check_tag(res, prefix+'version', version)
+        self.check_tag(res, prefix+'url', url)
+        self.check_tag(res, prefix+'resources-0-url', download_url)
+        self.check_tag_and_data(res, prefix+'notes', notes)
+        self.check_tag_and_data(res, 'selected', str(license_id), license)
+        self.check_tag(res, prefix+'tags', tags_txt.lower())
         for key, value in current_extras:
-            for html in existing_extra_html:
-                extras_html = html % {'package_id':'', 'key':key, 'capitalized_key':key.capitalize(), 'value':value}
-                assert extras_html in res1, str(res1) + extras_html
+            self.check_tag_and_data(res, '%sextras-%s' % (prefix, key), key.capitalize())
+            self.check_tag(res, '%sextras-%s' % (prefix, key), value)
         assert log_message in res1
 
         # Submit

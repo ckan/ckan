@@ -8,6 +8,7 @@ class TestResourceLifecycle:
         self.urls = [u'http://somewhere.com/', u'http://elsewhere.com/']
         self.format = u'csv'
         self.description = u'Important part.'
+        self.hash = u'abc123'
         rev = model.repo.new_revision()
         self.pkg = model.Package(name=self.pkgname)
         model.repo.commit_and_remove()
@@ -24,7 +25,8 @@ class TestResourceLifecycle:
             pkg.resources.append(
                 model.PackageResource(url=url,
                                       format=self.format,
-                                      description=self.description
+                                      description=self.description,
+                                      hash=self.hash,
                                       )
                 )
         model.repo.commit_and_remove()
@@ -32,6 +34,8 @@ class TestResourceLifecycle:
         pkg = model.Package.by_name(self.pkgname)
         assert len(pkg.resources) == len(self.urls), pkg.resources
         assert pkg.resources[0].url == self.urls[0], pkg.resources[0]
+        assert pkg.resources[0].description == self.description, pkg.resources[0]
+        assert pkg.resources[0].hash == self.hash, pkg.resources[0]
         assert pkg.resources[0].position == 0, pkg.resources[0].position
         resources = pkg.resources
         assert resources[0].package == pkg, resources[0].package
@@ -68,13 +72,15 @@ class TestResourceUse:
         self.urls = ['http://urlC.1/', 'http://urlB.2/', 'http://urlA.3/']
         self.formats = [u'csv', u'json', u'xml']
         self.description = u'Important part.'
+        self.hash = u'abc123'
         rev = model.repo.new_revision()
         pkg = model.Package(name=self.pkgname)
         for index, url in enumerate(self.urls):
             pkg.resources.append(
                 model.PackageResource(url=unicode(url),
                                       format=self.formats[index],
-                                      description=self.description
+                                      description=self.description,
+                                      hash=self.hash,
                                       )
                 )
         model.repo.commit_and_remove()

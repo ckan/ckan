@@ -40,10 +40,12 @@ class TestRestController(TestController):
             'url': u'http://blahblahblah.mydomain',
             'resources': [{u'url':u'http://blah.com/file.xml',
                            u'format':u'xml',
-                           u'description':u'Main file'},
+                           u'description':u'Main file',
+                           u'hash':u'abc123'},
                           {u'url':u'http://blah.com/file2.xml',
                            u'format':u'xml',
-                           u'description':u'Second file'},],
+                           u'description':u'Second file',
+                           u'hash':u'def123'},],
             'tags': [u'russion', u'novel'],
             'license_id': u'4',
             'extras': {'genre' : u'horror',
@@ -595,10 +597,6 @@ class TestSearch(TestController):
         }
 
         CreateTestData.create_arbitrary(self.testpackagevalues)
-##        self.pkg = model.Package()
-##        self.pkg.name = self.testpackagevalues['name']
-##        self.pkg.add_resource(self.testpackagevalues['resources'][0]['url'])
-##        rev = model.repo.new_revision()
 
         model.Session.commit()
         model.Session.remove()

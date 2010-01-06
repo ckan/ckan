@@ -76,9 +76,12 @@ class CreateTestData(cli.CkanCommand):
                     pkg.add_resource(unicode(val))
                 elif attr == 'resources':
                     for res_dict in val:
-                        pkg.add_resource(url=unicode(res_dict['url']),
-                                         format=unicode(res_dict['format']),
-                                         description=unicode(res_dict['description']))
+                        pkg.add_resource(
+                            url=unicode(res_dict['url']),
+                            format=unicode(res_dict.get('format')),
+                            description=unicode(res_dict.get('description')),
+                            hash=unicode(res_dict.get('hash')),
+                            )
                 elif attr == 'tags':
                     if isinstance(val, (str, unicode)):
                         tags = val.split()
@@ -156,6 +159,7 @@ class CreateTestData(cli.CkanCommand):
               url=u'http://www.annakarenina.com/download/x=1&y=2',
               format=u'plain text',
               description=u'Full text',
+              hash=u'abc123',
               )
             )
         pkg1.resources.append(
@@ -163,6 +167,7 @@ class CreateTestData(cli.CkanCommand):
               url=u'http://www.annakarenina.com/index.json',
               format=u'json',
               description=u'Index of the novel',
+              hash=u'def456',
               )
             )
         pkg1.notes = u'''Some test notes
