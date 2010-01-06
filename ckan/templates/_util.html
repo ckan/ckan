@@ -76,7 +76,7 @@
     <img py:otherwise="" src="${icon_url('arrow_down_grey')}" title="No downloadable resources." alt="" />
   </py:def>
 
-  <!-- TODO remove this function when it's written properly -->
+  <!--! Used by group listing -->
   <py:def function="package_summary(pkg)">
       <a href="${h.url_for(controller='package', action='read', id=pkg.name)}">
          ${pkg.name} - ${pkg.title}
