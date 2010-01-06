@@ -2,19 +2,18 @@
 . pyenv/bin/activate
 
 # update to HEAD on everything
-# pip -E pyenv install -r pip-requirements.txt
+pip -E pyenv install -r pip-requirements.txt
 
-# or just do ckan
+# or just update ckan
 cd pyenv/src/ckan
 hg pull [-r yourrev]
 # may want to check log messages first
 # hg log -l 5
 hg up
-# only update to specific 
+# only update to specific revision
 # hg up -r {rev}
-
-# cd back to deployment directory
 cd ../../../
+
 # bring db up to date
 paster --plugin ckan db --config {config.ini} upgrade
 

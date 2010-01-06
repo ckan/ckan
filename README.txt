@@ -43,8 +43,8 @@ Developer Installation
    config file then youl will need to change 5000 to whatever port value you
    chose).
 
-
 $ ln -s pyenv/src/ckan/who.ini
+
 Contributors
 ============
 
