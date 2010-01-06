@@ -43,7 +43,7 @@ class SearchVectorTrigger(sqlalchemy.orm.interfaces.MapperExtension):
             if val:
                 document_b_items.append(val)
         extras = pkg_dict['extras']
-        for extra_field_name in ['update_frequency', 'geographic_granularity', 'geographic_coverage', 'temporal_granularity', 'temporal_coverage', 'categories', 'precision', 'department', 'agency']:
+        for extra_field_name in ['update_frequency', 'geographic_granularity', 'geographic_coverage', 'temporal_granularity', 'temporal_coverage', 'national_statistic', 'categories', 'precision', 'department', 'agency', 'external_reference']:
             val = extras.get(extra_field_name)
             if val:
                 document_b_items.append(val)

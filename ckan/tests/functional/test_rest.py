@@ -5,6 +5,7 @@ import ckan.model as model
 import ckan.authz as authz
 import simplejson
 import webhelpers
+from ckan.lib.create_test_data import CreateTestData
 
 ACCESS_DENIED = [401,403]
 def get_license_name(id):
@@ -577,22 +578,27 @@ class TestSearch(TestController):
     @classmethod
     def teardown_class(self):
         model.Session.remove()
-        CreateTestData.delete()
+        model.repo.rebuild_db()
+        model.Session.remove()
 
     def setup(self):
         self.testpackagevalues = {
             'name' : u'testpkg',
             'title': 'Some Title',
             'url': u'http://blahblahblah.mydomain',
-            'resources': [{u'url':u'http://blahblahblah.mydomain'}],
+            'resources': [{u'url':u'http://blahblahblah.mydomain',
+                           'format':'', 'description':''}],
             'tags': ['russion', 'novel'],
             'license_id': '4',
+            'extras': {'national_statistic':'yes',
+                       'geographic_coverage':'England, Wales'},
         }
 
-        self.pkg = model.Package()
-        self.pkg.name = self.testpackagevalues['name']
-        self.pkg.add_resource(self.testpackagevalues['resources'][0]['url'])
-        rev = model.repo.new_revision()
+        CreateTestData.create_arbitrary(self.testpackagevalues)
+##        self.pkg = model.Package()
+##        self.pkg.name = self.testpackagevalues['name']
+##        self.pkg.add_resource(self.testpackagevalues['resources'][0]['url'])
+##        rev = model.repo.new_revision()
 
         model.Session.commit()
         model.Session.remove()
@@ -692,6 +698,23 @@ class TestSearch(TestController):
         assert u'annakarenina' in res_dict['results'], res_dict['results']
         assert res_dict['count'] == 2, res_dict
 
+    def test_07_uri_qjson_extras(self):
+        query = {"geographic_coverage":"England"}
+        json_query = simplejson.dumps(query)
+        offset = self.base_url + '?qjson=%s' % json_query
+        res = self.app.get(offset, status=200)
+        res_dict = simplejson.loads(res.body)
+        assert res_dict['count'] == 1, res_dict
+
+    def test_07_uri_qjson_extras_2(self):
+        query = {"national_statistic":"yes"}
+        json_query = simplejson.dumps(query)
+        offset = self.base_url + '?qjson=%s' % json_query
+        res = self.app.get(offset, status=200)
+        res_dict = simplejson.loads(res.body)
+        assert res_dict['count'] == 1, res_dict
+        
+        
     def test_08_all_fields(self):
         model.Rating(user_ip_address=u'123.1.2.3',
                      package=model.Package.by_name(u'annakarenina'),

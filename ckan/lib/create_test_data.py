@@ -58,6 +58,8 @@ class CreateTestData(cli.CkanCommand):
         self.group_names = []
         self.user_names = extra_user_names
         admins_list = [] # list of (package_name, admin_names)
+        if isinstance(package_dicts, dict):
+            package_dicts = [package_dicts]
         for item in package_dicts:
             pkg = model.Package(name=unicode(item['name']))
             for attr, val in item.items():
@@ -78,7 +80,14 @@ class CreateTestData(cli.CkanCommand):
                                          format=unicode(res_dict['format']),
                                          description=unicode(res_dict['description']))
                 elif attr == 'tags':
-                    for tag_name in val.split():
+                    if isinstance(val, (str, unicode)):
+                        tags = val.split()
+                    elif isinstance(val, list):
+                        tags = val
+                    else:
+                        raise NotImplementedError
+                    for tag_name in tags:
+                        tag_name = unicode(tag_name)
                         tag = model.Tag.by_name(tag_name)
                         if not tag:
                             tag = model.Tag(name=tag_name)
@@ -93,6 +102,9 @@ class CreateTestData(cli.CkanCommand):
                         pkg.groups.append(group)
                 elif attr == 'license':
                     license = model.License.by_name(val)
+                    pkg.license = license
+                elif attr == 'license_id':
+                    license = model.License.query.get(val)
                     pkg.license = license
                 elif attr == 'extras':
                     pkg.extras = val

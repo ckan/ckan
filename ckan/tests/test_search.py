@@ -350,11 +350,25 @@ class TestGeographicCoverage(object):
         for expected_pkg in expected_pkgs:
             assert expected_pkg in fields, expected_pkg
 
+    def _filtered_search(self, value, expected_pkgs, count=None):
+        options = SearchOptions({'q':'', 'geographic_coverage':value})
+        options.order_by = 'rank'
+        result = Search().run(options)
+        pkgs = result['results']
+        fields = [model.Package.by_name(pkg_name).name for pkg_name in pkgs]
+        if not (count is None):
+            assert result['count'] == count, result['count']
+        for expected_pkg in expected_pkgs:
+            assert expected_pkg in fields, expected_pkg
+
     def test_0_basic(self):
         self._do_search(u'england', ['eng', 'eng_ni', 'uk', 'gb'], 4)
         self._do_search(u'northern ireland', ['eng_ni', 'uk'], 2)
         self._do_search(u'united kingdom', ['uk'], 1)
         self._do_search(u'great britain', ['gb'], 1)
+
+    def test_1_filtered(self):
+        self._filtered_search(u'england', ['eng', 'eng_ni', 'uk', 'gb'], 4)
 
 class TestExtraFields(object):
     @classmethod
