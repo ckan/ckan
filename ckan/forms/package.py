@@ -323,7 +323,7 @@ class ResourcesRenderer(formalchemy.fields.FieldRenderer):
             rows.append(row_template % {'url':url,
                                         'format':format,
                                         'description':description,
-                                        'hash':hash_,
+                                        'hash':hash_ or u'',
                                         'id':self.name,
                                         'res_index':index,
                                         })

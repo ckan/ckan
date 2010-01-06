@@ -65,7 +65,7 @@
       <div class="resources" py:when="c.pkg_resources">
         <h4><a name="resources"></a>${icon('drive_web')} Resources</h4>
         <table>
-          <tr><th>URL</th><th>Format</th><th>Description</th></tr>
+          <tr><th>URL</th><th>Format</th><th>Description</th><th>Hash</th></tr>
           <py:for each="url, format, description, hash in c.pkg_resources">
             <tr><td><a href="${url}">${url}</a></td><td>${format}</td><td>${description}</td><td>${hash}</td></tr>
           </py:for>
