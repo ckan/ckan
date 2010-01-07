@@ -11,3 +11,4 @@ def upgrade():
 
 def downgrade():
     raise NotImplementedError()
+
