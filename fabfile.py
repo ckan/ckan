@@ -35,32 +35,36 @@ def test_ckan_net():
     env.hosts = [env.ckan_instance_name]
     env.base_dir = '/home/%s/var/srvc' % env.user
 
-def live():
-    # config.fab_user = 'live_user_name'
-    # config.fab_hosts = ['www1.yourserver.com', 'www2.yourserver.com', 'www3.yourserver.com']
-    pass
-
 def deploy():
     '''Deploy app on server. Config files already there will not be overwritten.'''
     assert env.ckan_instance_name
     assert env.base_dir
     instance_path = os.path.join(env.base_dir, env.ckan_instance_name)
-    run('mkdir -p %s' % instance_path) 
+    if not exists(instance_path):
+        run('mkdir -p %s' % instance_path)
+    else:
+        print 'Instance path already exists: %s' % instance_path
     pip_req = 'http://knowledgeforge.net/ckan/hg/raw-file/tip/pip-requirements.txt'
     pyenv_dir = os.path.join(instance_path, 'pyenv')
     with cd(instance_path):
         # no-clobber ensures we overwrite existing files (as we want)
         run('wget --no-clobber --quiet %s' % pip_req)
-        run('virtualenv %s' % pyenv_dir)
+        if not exists(pyenv_dir):
+            run('virtualenv %s' % pyenv_dir)
+        else:
+            print 'Virtualenv already exists: %s' % pyenv_dir
         run('pip -E %s install -r pip-requirements.txt' % pyenv_dir)
 
         config_ini_filename = '%s.ini' % env.ckan_instance_name
         if not exists(config_ini_filename):
             # paster make-config doesn't overwrite if ini already exists
-            virtualenv('paster make-config --no-interactive ckan %s' % config_ini_filename) 
+            virtualenv('paster make-config --no-interactive ckan %s' % config_ini_filename)
+        else:
+            print 'Config file already exists: %s/%s' % (instance_path, config_ini_filename)
 
         wsgi_script_filepath = os.path.join(env.base_dir, 'bin', '%s.py' % env.ckan_instance_name)
         if not exists(wsgi_script_filepath):
+            print 'Creating WSGI script: %s' % wsgi_script_filepath
             context = {'pyenv_dir':instance_path,
                        'config_file':config_ini_filename,
                        } #e.g. pyenv_dir='/home/ckan1/hmg.ckan.net'
@@ -71,11 +75,16 @@ def deploy():
         whoini = os.path.join(pyenv_dir, 'src', 'ckan', 'who.ini')
         if not exists(whoini):
             run('ln -f -s %s ./' % whoini)
+        else:
+            print 'Link to who.ini already exists'
 
         if not exists('data'):
+            print 'Setting up data (pylons cache) directory'
             run('mkdir -p data')
             run('chmod g+wx -R data')
             sudo('chgrp -R www-data data')
+        else:
+            print 'Data (pylons cache) directory already exists'
 
     print 'For details of remaining setup, see deployment.rst.'
 
