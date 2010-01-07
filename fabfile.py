@@ -8,7 +8,6 @@ import os
 from fabric.api import *
 from fabric.contrib.files import *
 
-# default to local machine's current dir
 env.ckan_instance_name = 'test' # e.g. test.ckan.net
 env.base_dir = os.getcwd() # e.g. /home/jsmith/var/srvc
 
@@ -51,15 +50,15 @@ def deploy():
         # no-clobber ensures we overwrite existing files (as we want)
         run('wget --no-clobber --quiet %s' % pip_req)
         if not exists(env.pyenv_dir):
-            run_in_cmd_pyenv('virtualenv %s' % env.pyenv_dir)
+            _run_in_cmd_pyenv('virtualenv %s' % env.pyenv_dir)
         else:
             print 'Virtualenv already exists: %s' % env.pyenv_dir
-        run_in_cmd_pyenv('pip -E %s install -r pip-requirements.txt' % env.pyenv_dir)
+        _run_in_cmd_pyenv('pip -E %s install -r pip-requirements.txt' % env.pyenv_dir)
 
         config_ini_filename = '%s.ini' % env.ckan_instance_name
         if not exists(config_ini_filename):
             # paster make-config doesn't overwrite if ini already exists
-            run_in_pyenv('paster make-config --no-interactive ckan %s' % config_ini_filename)
+            _run_in_pyenv('paster make-config --no-interactive ckan %s' % config_ini_filename)
         else:
             print 'Config file already exists: %s/%s' % (instance_path, config_ini_filename)
 
@@ -70,7 +69,7 @@ def deploy():
                        'config_file':config_ini_filename,
                        } #e.g. pyenv_dir='/home/ckan1/hmg.ckan.net'
                          #     config_file = 'hmg.ckan.net.ini'
-            create_file_by_template(wsgi_script_filepath, wsgi_script, context)
+            _create_file_by_template(wsgi_script_filepath, wsgi_script, context)
             run('chmod +r %s' % wsgi_script_filepath)
         else:
             print 'WSGI script already exists: %s' % wsgi_script_filepath
@@ -95,13 +94,16 @@ def deploy():
 
     print 'For details of remaining setup, see deployment.rst.'
 
-def run_in_pyenv(command):
+def restart_apache():
+    sudo('/etc/init.d/apache2 restart')
+
+def _run_in_pyenv(command):
     '''For running commands that are installed the instance\'s python
     environment'''
     activate_path = os.path.join(env.pyenv_dir, 'bin', 'activate')
     run('source %s&&%s' % (activate_path, command))
 
-def run_in_cmd_pyenv(command):
+def _run_in_cmd_pyenv(command):
     '''For running commands that are installed in a specific python
     environment specified by env.cmd_pyenv'''
     if hasattr(env, 'cmd_pyenv'):
@@ -109,11 +111,11 @@ def run_in_cmd_pyenv(command):
         command = 'source %s&&%s' % (activate_path, command)
     run(command)
 
-def create_file_by_template(destination_filepath, template, template_context):
+def _create_file_by_template(destination_filepath, template, template_context):
     run('mkdir -p %s' % os.path.dirname(destination_filepath))
-    upload_template_buffer(template, destination_filepath, template_context)
+    _upload_template_buffer(template, destination_filepath, template_context)
 
-def upload_template_buffer(template, destination, context=None, use_sudo=False):
+def _upload_template_buffer(template, destination, context=None, use_sudo=False):
     basename = os.path.basename(destination)
     temp_destination = '/tmp/' + basename
 
