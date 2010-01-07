@@ -17,10 +17,22 @@ def local(base_dir, ckan_instance_name):
     env.ckan_instance_name = ckan_instance_name # e.g. 'test.ckan.net'
     env.base_dir = os.path.expanduser(base_dir)    # e.g. ~/var/srvc
 
+def test_hmg_ckan_net():
+    env.user = 'ckan1'
+    env.ckan_instance_name = 'test.hmg.ckan.net'
+    env.hosts = [env.ckan_instance_name]
+    env.base_dir = '/home/%s' % env.user
+
+def staging_hmg_ckan_net():
+    env.user = 'ckan1'
+    env.ckan_instance_name = 'staging.hmg.ckan.net'
+    env.hosts = [env.ckan_instance_name]
+    env.base_dir = '/home/%s' % env.user
+
 def test_ckan_net():
     env.user = 'okfn'
-    env.hosts = ['test.ckan.net']
     env.ckan_instance_name = 'test.ckan.net'
+    env.hosts = [env.ckan_instance_name]
     env.base_dir = '/home/%s/var/srvc' % env.user
 
 def live():
@@ -29,7 +41,9 @@ def live():
     pass
 
 def deploy():
-    '''Deploy app on server'''
+    '''Deploy app on server. Config files already there will not be overwritten.'''
+    assert env.ckan_instance_name
+    assert env.base_dir
     instance_path = os.path.join(env.base_dir, env.ckan_instance_name)
     run('mkdir -p %s' % instance_path) 
     pip_req = 'http://knowledgeforge.net/ckan/hg/raw-file/tip/pip-requirements.txt'
@@ -37,26 +51,31 @@ def deploy():
     with cd(instance_path):
         # no-clobber ensures we overwrite existing files (as we want)
         run('wget --no-clobber --quiet %s' % pip_req)
-        run('virtualenv pyenv')
+        run('virtualenv %s' % pyenv_dir)
         run('pip -E %s install -r pip-requirements.txt' % pyenv_dir)
 
-        ini_filename = '%s.ini' % env.ckan_instance_name
-        # paster make-config doesn't overwrite if ini already exists
-        virtualenv('paster make-config --no-interactive ckan %s' % ini_filename) 
+        config_ini_filename = '%s.ini' % env.ckan_instance_name
+        if not exists(config_ini_filename):
+            # paster make-config doesn't overwrite if ini already exists
+            virtualenv('paster make-config --no-interactive ckan %s' % config_ini_filename) 
 
         wsgi_script_filepath = os.path.join(env.base_dir, 'bin', '%s.py' % env.ckan_instance_name)
-        context = {'pyenv_dir':instance_path,
-                   'config_file':ini_filename,
-                   } #e.g. pyenv_dir='/home/ckan1/hmg.ckan.net'
-                     #     config_file = 'hmg.ckan.net.ini'
-        create_file_by_template(wsgi_script_filepath, wsgi_script, context)
-        run('chmod +r %s' % wsgi_script_filepath)
+        if not exists(wsgi_script_filepath):
+            context = {'pyenv_dir':instance_path,
+                       'config_file':config_ini_filename,
+                       } #e.g. pyenv_dir='/home/ckan1/hmg.ckan.net'
+                         #     config_file = 'hmg.ckan.net.ini'
+            create_file_by_template(wsgi_script_filepath, wsgi_script, context)
+            run('chmod +r %s' % wsgi_script_filepath)
         
         whoini = os.path.join(pyenv_dir, 'src', 'ckan', 'who.ini')
-        run('ln -f -s %s ./' % whoini)
-        run('mkdir -p data')
-        run('chmod g+wx -R data')
-        sudo('chgrp -R www-data data')
+        if not exists(whoini):
+            run('ln -f -s %s ./' % whoini)
+
+        if not exists('data'):
+            run('mkdir -p data')
+            run('chmod g+wx -R data')
+            sudo('chgrp -R www-data data')
 
     print 'For details of remaining setup, see deployment.rst.'
 

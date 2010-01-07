@@ -66,7 +66,7 @@ information using values from previous step.
     $ paster db init --config demo.ckan.net.ini
 
 
-9. Create the Pylons WSGI script
+8. Create the Pylons WSGI script
 
 Create a file ~/demo.ckan.net/pyenv/bin/pylonsapp_modwsgi.py as follows::
 
@@ -78,7 +78,7 @@ Create a file ~/demo.ckan.net/pyenv/bin/pylonsapp_modwsgi.py as follows::
     application = loadapp('config:/home/USER/demo.ckan.net/demo.ckan.net.ini')
 
 
-10. Setup Apache with Ckan
+9. Setup Apache with Ckan
 
 Create file /etc/apache2/sites-enabled/demo.ckan.net as follows::
 
@@ -110,5 +110,5 @@ Still in ~/demo.ckan.net directory::
     $ ln -s pyenv/src/ckan/who.ini ./
 
 
-11. Restart Apache and browse website at http://demo.ckan.net/
+10. Restart Apache and browse website at http://demo.ckan.net/
 
