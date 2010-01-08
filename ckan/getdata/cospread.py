@@ -3,19 +3,12 @@ import os.path
 import csv
 
 import ckan.model as model
+from ckan.lib import schema_gov
 
 class Data(object):
-    def __init__(self):
-        self._download_urls = {} # name:[url, url]
-        self._titles_complete = False
-        self._title_line_1 = None
-        self._title_line_2 = None
-        self._gvt_depts = []
-        for raw_dept in gvt_depts_raw + agencies_raw:
-            self._gvt_depts.append(self._normalise(raw_dept))
-    
     def load_csv_into_db(self, csv_filepath):
         self._basic_setup()
+        self._new_file_reset()
         rev = self._new_revision()
         assert os.path.exists(csv_filepath)
         f_obj = open(csv_filepath, "r")
@@ -30,6 +23,16 @@ class Data(object):
             if index % 100 == 0:
                 self._commit_and_report(index)
         self._commit_and_report(index)
+
+    def _new_file_reset(self):
+        self._titles_complete = False
+        self._title_line_1 = None
+        self._title_line_2 = None
+        # Some packages with multiple URLs have multiple rows in the spreadsheet.
+        # self._download_urls stores all URLs in this spreadsheet so that if a
+        # duplicate package_name is found then previous URLs are added to the
+        # record.
+        self._download_urls = {} # name:[url, url]
 
     def _commit_and_report(self, index):
         print 'Loaded %s lines' % index
@@ -92,28 +95,28 @@ class Data(object):
         # Create package
         rev = self._new_revision()
         name = self._munge(_dict['name'].replace(' ', '').replace('.', '_').replace('&', 'and'))
-        print "NAME", name
+        title = _dict['title']
+        url = _dict['url']
+        notes = _dict['notes']
+
         if self._download_urls.has_key(name):
             download_urls = self._download_urls[name]
         else:
             download_urls = []
-        title = _dict['title']
-        url = _dict['url']
-        notes = _dict['notes']
+        multiple_urls = False
         for split_char in '\n, ':
             if split_char in _dict['download url']:
-                download_urls = [url_.strip() for url_ in _dict['download url'].split(split_char)]
+                for url_ in _dict['download url'].split(split_char):
+                    if url_.strip():
+                        download_urls.append(url_)
+                multiple_urls = True
                 break
-        if download_urls:
+        if not multiple_urls:
             download_urls.append(_dict['download url'])
-            notes += '\n\nDownload URLs:'
-            for download_url in download_urls:
-                notes += '\n * %s' % download_url
-            download_url = None
+        if download_urls:
             self._download_urls[name] = download_urls
-        else:
-            download_url = _dict['download url']
-            self._download_urls[name] = [download_url]
+        format = _dict['file format']
+            
         author = _dict['contact - name']
         author_email = _dict['contact - email']
         maintainer = _dict['maintainer - name']
@@ -124,25 +127,56 @@ class Data(object):
                            _dict['%s - standard' % field] == 'Other (specify)' else \
                            _dict['%s - standard' % field]
 
+        # extras
+        extras_dict = {}
         geo_cover = []
-        for region in geographic_regions:
+        geo_coverage_type = schema_gov.GeoCoverageType.get_instance()
+        spreadsheet_regions = ('england', 'n. ireland', 'scotland', 'wales', 'overseas', 'global')
+        for region in spreadsheet_regions:
+            munged_region = region.replace('n. ', 'northern_')
             field = 'geographic coverage - %s' % region
-            region_str = region.capitalize().replace('ireland', 'Ireland')
-            geo_cover.append('%s %s' % (region_str, _dict[field]))
-        _dict['geographic coverage'] = ', '.join(geo_cover)
-            
-        for column in ['date released', 'date updated', 'update frequency',
-                       'geographical granularity', 'geographic coverage',
-                       'temporal granularity', 'file format', 'categories',
-                       'national statistic', 'precision', 'taxonomy url',
-                       'department', 'agency responsible']:
-            if _dict[column]:
-                notes += '\n\n%s: %s' % (column.capitalize(), _dict[column])
+            if _dict[field] == u'Yes':
+                geo_cover.append(munged_region)
+        extras_dict['geographic_coverage'] = geo_coverage_type.form_to_db(geo_cover)
+        
+        for column in ['date released', 'date updated']:
+            val = schema_gov.DateType.form_to_db(_dict[column])
+            extras_dict[column.replace(' ', '_')] = val
 
-        extras_dict = {
-            'co_id': _dict['co identifier'],
-            'update frequency': _dict['update frequency'],
-            }
+        field_map = [
+            ['co identifier'],
+            ['update frequency'],
+            ['temporal granularity', schema_gov.temporal_granularity_options],
+            ['geographical granularity', schema_gov.geographic_granularity_options],
+            ['categories', schema_gov.category_options],
+            ['taxonomy url'],
+            ['agency responsible'],
+            ['precision'],
+            ['department', schema_gov.government_depts],
+            ]
+        for field_mapping in field_map:
+            column = field_mapping[0]
+            extras_key = column.replace(' ', '_')
+            if column == 'agency responsible':
+                extras_key = 'agency'
+            elif column == 'co identifier':
+                extras_key = 'external_reference'
+            val = _dict[column]
+            if len(field_mapping) > 1:
+                suggestions = field_mapping[1]
+                if val and val not in suggestions:
+                    if val.lower() in suggestions:
+                        val = val.lower()
+                    elif schema_gov.expand_abbreviations(val) in suggestions:
+                        val = schema_gov.expand_abbreviations(val)
+                if val and val not in suggestions:
+                    print "WARNING: Value for column '%s' of '%s' is not in suggestions '%s'" % (column, val, suggestions)
+            extras_dict[extras_key] = val
+        
+        extras_dict['national_statistic'] = _dict['national statistic'].lower()
+
+        for field in ['temporal_coverage_from', 'temporal_coverage_to']:
+            extras_dict[field] = u''
 
         # TODO search by co_id
         existing_pkg = model.Package.by_name(name)
@@ -157,8 +191,8 @@ class Data(object):
         pkg.maintainer_email = maintainer_email
         pkg.url=url
         pkg.resources = []
-        if download_url:
-            pkg.add_resource(download_url)
+        for download_url in download_urls:
+            pkg.add_resource(download_url, format=format)
         pkg.notes=notes
         pkg.license = model.License.by_name(u'Non-OKD Compliant::Crown Copyright')
         if not existing_pkg:
@@ -169,19 +203,12 @@ class Data(object):
             rev = self._new_revision()
 
         # Create extras
-        new_extra_keys = []
-        for key, value in extras_dict.items():
-            extra = model.PackageExtra.query.filter_by(package=pkg, key=unicode(key)).all()
-            if extra:
-                extra[0].value = value
-            else:
-                new_extra_keys.append(key)
-
-        for key in new_extra_keys:
-            model.PackageExtra(package=pkg, key=unicode(key), value=unicode(extras_dict[key]))
+        pkg.extras = extras_dict
 
         # Update tags
-        taglist = self._get_tags(_dict)
+        pkg_dict = {'name':pkg.name, 'title':pkg.title, 'notes':pkg.notes, 'categories':pkg.extras['categories'],
+                    'agency':pkg.extras['agency']}
+        taglist = schema_gov.TagSuggester.suggest_tags(pkg_dict)
         current_tags = pkg.tags
         for name in taglist:
             if name not in current_tags:
@@ -232,37 +259,5 @@ class Data(object):
         rev.log_message = u'Load from cospread database'
         return rev
 
-    def _get_tags(self, _dict):
-        tags = []
-
-        for field in ('department', 'agency responsible', 'tags', 'categories'):
-            value = _dict[field]
-            norm_value = self._normalise(value)
-            for gvt_dept in self._gvt_depts:
-                if gvt_dept in norm_value:
-                    tags.append(self._tag_munge(gvt_dept))
-            for abbreviation in abbreviations.keys():
-                if abbreviation in value:
-                    tags.append(self._tag_munge(abbreviations[abbreviation]))
-
-        for region in geographic_regions:
-            field = 'geographic coverage - %s' % region
-            if 'yes' in _dict[field].lower():
-                tagname = region.replace('n. ', 'northern ')
-                tags.append(self._tag_munge(tagname))
-
-        title = _dict['title'].lower()
-        for keyword in title_tag_words:
-            if keyword in title:
-                tags.append(self._tag_munge(keyword))
-        return tags
-
-    def _normalise(self, txt):
-        return txt.lower().replace(',', '')
-
-title_tag_words = ['accident', 'road', 'traffic', 'health', 'illness', 'disease', 'population', 'school', 'accommodation', 'children', 'married', 'emissions', 'benefit', 'alcohol', 'deaths', 'mortality', 'disability', 'unemployment', 'employment', 'armed forces', 'asylum', 'cancer', 'births', 'burglary', 'child', 'tax credit', 'criminal damage', 'drug', 'earnings', 'education', 'economic', 'fire', 'fraud', 'forgery', 'fuel', 'green', 'homeless', 'hospital', 'waiting list', 'housing', 'care', 'income', 'census', 'mental health', 'disablement allowance', 'jobseekers allowance', 'national curriculum', 'older people', 'living environment', 'higher education', 'living environment', 'school absence', 'local authority', 'carbon dioxide', 'energy', 'teachers', 'fostering', 'tide', 'sunrise', 'sunset', 'gas', 'electricity', 'transport', 'veterinary', 'fishing', 'export', 'fisheries', 'pest', 'recycling', 'waste', 'crime', 'anti-social behaviour', 'police', 'refugee', 'identity card', 'immigration', 'planning', 'communities', 'lettings', 'finance', 'ethnicity', 'trading standards', 'trade', 'business', 'child protection']
-
-gvt_depts_raw = ['Ministry of Justice', 'Department for Culture, Media and Sport', 'Home Office', 'Department of Health', 'Foreign and Commonwealth Office', 'Department for Transport', 'Department for Children, Schools and Families', 'Department for Innovation and Skills', 'Department for Business, Enterprise and Regulatory Reform', 'Department for Environment, Food and Rural Affairs', 'HM Treasury', 'Northern Ireland Office', 'Privy Council', 'Wales Office', 'Scotland Office', 'Department for Work and Pensions', 'Department for International Development', 'Ministry of Defence', 'Communities and Local Government', 'Cabinet Office', 'Office of the Leader of the House of Commons', 'Department for Energy and Climate Change']
-agencies_raw = ['Health Protection Agency', 'Office for National Statistics', 'Census', 'Performance Assessment Framework', 'Annual Population Survey', 'Annual Survey of Hours and Earnings', 'Business Registers Unit', 'UK Hydrographic Office', 'Defence Analytical Services and Advice', 'Housing and Communities Agency', 'Tenants Service Authority', 'Higher Education Statistics Agency']
-abbreviations = {'DCSF':'Department for Children, Schools and Families', 'VLA':'Vetinary Laboratories Agency', 'MFA':'Marine and Fisheries Agency', 'CEFAS':'Centre of Environment, Fisheries and Aquaculture Science', 'FERA':'Food and Environment Research Agency', 'DEFRA':'Department for Environment, Food and Rural Affairs', 'CRB':'Criminal Records Bureau', 'UKBA':'UK Border Agency', 'IPS':'Identity and Passport Service', 'NPIA':'National Policing Improvement Agency', 'CIB':'Company Investigation Branch', 'IPO':'Intellectual Property Office'}
+#agencies_raw = ['Health Protection Agency', 'Office for National Statistics', 'Census', 'Performance Assessment Framework', 'Annual Population Survey', 'Annual Survey of Hours and Earnings', 'Business Registers Unit', 'UK Hydrographic Office', 'Defence Analytical Services and Advice', 'Housing and Communities Agency', 'Tenants Service Authority', 'Higher Education Statistics Agency']
 geographic_regions = ['england', 'n. ireland', 'scotland', 'wales', 'overseas', 'global']

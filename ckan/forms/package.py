@@ -330,7 +330,7 @@ class ResourcesRenderer(formalchemy.fields.FieldRenderer):
             html = ''
         return html
 
-    def deserialize(self):
+    def _serialized_value(self):
         package = self.field.parent.model
         params = dict(self._params)
         new_resources = []

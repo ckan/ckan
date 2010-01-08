@@ -324,38 +324,3 @@ class TestForm(TestController):
                  'Extra %s should equal %s but equals %s' % \
                  (reqd_extra_key, reqd_extra_value,
                   outpkg.extras[reqd_extra_key])
-        
-
-
-class TestDate:
-    def test_0_form_to_db(self):
-        out = ckan.forms.DateType().form_to_db('27/2/2008')
-        assert out == '2008-02-27', out
-        out = ckan.forms.DateType().form_to_db('2/2008')
-        assert out == '2008-02', out
-        out = ckan.forms.DateType().form_to_db('2008')
-        assert out == '2008', out
-
-    def test_1_form_validator(self):
-        assert ckan.forms.DateType().form_validator('25/2/2009') is None
-        assert ckan.forms.DateType().form_validator('humpty')
-        assert ckan.forms.DateType().form_validator('2135')
-        assert ckan.forms.DateType().form_validator('345')
-        assert ckan.forms.DateType().form_validator('2000BC')
-        assert ckan.forms.DateType().form_validator('45/2009')
-        assert ckan.forms.DateType().form_validator('-2/2009')
-        assert ckan.forms.DateType().form_validator('35/3/2009')
-        assert ckan.forms.DateType().form_validator('') is None
-        
-    def test_2_db_to_form(self):
-        out = ckan.forms.DateType().db_to_form('2008-02-27')
-        assert out == '27/2/2008', out
-        out = ckan.forms.DateType().db_to_form('2008-02')
-        assert out == '2/2008', out
-        out = ckan.forms.DateType().db_to_form('2008')
-        assert out == '2008', out
-        out = ckan.forms.DateType().db_to_form('humpty')
-        assert out == 'humpty', out
-        out = ckan.forms.DateType().db_to_form('27/2/2008')
-        assert out == '27/2/2008', out
-        
