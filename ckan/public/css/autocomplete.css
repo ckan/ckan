@@ -1,20 +1,19 @@
 .yui-ac-content ul{
-  list-style-type: none;
-  border: 0;
+	list-style-type: none;
+	border: 0;
 }
 .yui-skin-sam .yui-ac-content li{
-  list-style-type: none;
-  display: block;
-  float: left;
-  margin: 0em 0.5em 0em 0em;
+	list-style-type: none;
+	display: block;
+	float: left;
+	margin: 0em 0.5em 0em 0em;
 }
 .yui-skin-sam .yui-ac-content {
-  margin: 1em 0em 0em 0em;
-  border: 0px solid #fff;
+	margin: 1em 0em 0em 0em;
+	border: 0px solid #fff;
 }
 .yui-skin-sam .yui-ac {
-  font-family: "Lucida Grande",Lucidagrande,"Lucida Sans",Lucidasans,"Lucida Sans Unicode",Lucidasansunicode,Lucida,"Bitstream Vera Sans",Helvetica,sans-serif;
-  font-size: 0.85em;
-  color: #444444;
-
+	font-family: "Lucida Grande",Lucidagrande,"Lucida Sans",Lucidasans,"Lucida Sans Unicode",Lucidasansunicode,Lucida,"Bitstream Vera Sans",Helvetica,sans-serif;
+	font-size: 0.85em;
+	color: #444444;
 }

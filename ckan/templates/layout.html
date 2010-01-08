@@ -1,6 +1,6 @@
 <html
   xmlns="http://www.w3.org/1999/xhtml"
-  xmlns:py="http://genshi.edgewall.org/" 
+  xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip=""
   >
@@ -20,8 +20,9 @@
   <link rel="stylesheet" href="/css/ie.css" type="text/css" media="screen, print" />
   <![endif]-->
 
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.min.js"></script>
-  <script type="text/javascript" src="http://m.okfn.org/kforge/scripts/kforge.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.min.js"></script>
+  <script type="text/javascript" src="/scripts/application.js"></script>
+
   <xi:include href="./yuicodes.html" />
 
   <py:if test="defined('page_specific_css')">
@@ -38,31 +39,26 @@
     <div id="top-inner">
       <div id="top-bar">
         <topbar>
-        
-        <py:choose>
-        <py:when test="c.user">
-        <p>
-          Logged in as <strong>${c.user}</strong> |
-          <a href="${h.url_for(controller='user',action=None)}">My Account</a>
-          | <a href="${h.url_for('/logout_openid')}">Logout</a>
-        </p>
-        </py:when>
-        <py:otherwise>
-          <p>
-          <a href="${h.url_for(controller='user',action='login', id=None)}">Login via OpenID</a>
-          </p>
-        </py:otherwise>
-        </py:choose>
+          <py:choose>
+            <p py:when="c.user">
+              Logged in as <strong>${c.user}</strong> |
+              <a href="${h.url_for(controller='user',action=None)}">My Account</a>
+              | <a href="${h.url_for('/logout_openid')}">Logout</a>
+            </p>
+            <p py:otherwise="">
+              <a href="${h.url_for(controller='user',action='login', id=None)}">Login via OpenID</a>
+            </p>
+          </py:choose>
         </topbar>
       </div><!-- /top-bar -->
-      
+
       <h1>
         <a href="${h.url_for('home')}"><img style="padding: 0; margin-top: -10px; margin-bottom: -10px;" src="/images/ckan_logo_fullname_long.png" alt="CKAN Logo" /></a>
         <!-- <a href="/" title="CKAN Home">Comprehensive Knowledge Archive Network</a> -->
       </h1>
-    
+
     </div><!-- /top-inner -->
-     
+
     <h3 class="hidden">Sections:</h3>
     <ul id="navigation">
       <li><a href="/">Home</a></li>
@@ -80,31 +76,30 @@
       <li><a href="/package/new/">New Package</a></li>
       </minornavigation>
     </ul>
-       
+
     <!--[if IE]>
     <hr class="holder" />
     <![endif]-->
-    
+
   </div><!-- /top -->
-  
-  <p class="hidden"><a href="#main" title="Skip to page content">[ Skip to main content ]</a></p> 
-  
+
+  <p class="hidden"><a href="#main" title="Skip to page content">[ Skip to main content ]</a></p>
+
   <div id="primary" class="sidebar">
     <primarysidebar>
     <!-- Primary Side Bar Goes Here -->
     </primarysidebar>
-    
+
     <!--[if IE]>
     <hr class="primary" />
     <![endif]-->
-    
   </div><!-- /primary -->
 
   <div id="main">
     <content>
       <p>Master content template placeholder &hellip; please replace me.</p>
     </content>
-    
+
     <div id="footer">
       <p>
         <a href="http://validator.w3.org/check/referer" title="Valid XHTML 1.1">XHTML</a>
@@ -126,11 +121,11 @@
             alt="This Content and Data is Open" /></a>
       </p>
     </div><!-- /footer -->
-    
+
     <!--[if IE]>
     <hr class="main" />
     <![endif]-->
-    
+
   </div><!-- /main -->
 
 </div><!-- /airlock -->

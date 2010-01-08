@@ -1,54 +1,109 @@
-@import url(pagination.css);
+@import url(buttons.css);
 @import url(autocomplete.css);
 @import url(stars.css);
-@import url(buttons.css);
 
-/**
-  * Fixes to kforge css
-  */
+/* ============= */
+/* = Utilities = */
+/* ============= */
 
-#top h1 a:hover {
-  background: transparent;
+.clearfix:after {
+	content: ".";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
 }
 
-/* mess with standard ckan theme to remove second submenu for time being */
-#subnav { background: transparent; height: 1px; }
+.clearfix { display: inline-block; } /* for IE/Mac */
+
+.cleared { clear: both; }
+hr.cleared {
+	height: 0 ! important;
+	visibility: hidden;
+}
+
+hr.nomargin { margin: 0; }
+
+/* ======================= */
+/* = Fixes to KForge CSS = */
+/* ======================= */
+
+#top h1 a:hover {
+	background: transparent;
+}
+
+/* remove second submenu for time being */
+#subnav {
+	background: transparent;
+	height: 0;
+}
 #subnav * { display: none; }
 
-/* override structure.css */
-
 #top {
-  margin: 0.3em 0 0 0;
+	margin: 0.3em 0 0 0;
 }
 
 #main {
-  margin-top: 0em;
-}
-
-body.plus-secondary #main {
-  margin: 0.6em 0 0 1%;
+	margin-top: 0em;
 }
 
 #primary {
-  margin: 0.6em 0 0 1%;
+	margin-top: 13px;
 }
 
 #main hr {
-  color: #ddd;
-  background-color: #ddd;
-  border: none;
-  height: 3px;
+	color: #ddd;
+	background-color: #ddd;
+	border: none;
+	height: 3px;
 }
 
-/**
-  * Changes/additions to kforge forms.css
-  */
+table {
+	border-collapse: collapse;
+	border: none;
+	border-radius: 1em;
+	margin: 0 0 1.2em 0;
+}
+
+table th, table td {
+	border: 1px solid #ccc;
+	border-top-color: #eee;
+	border-left-color: #eee;
+	padding: 0.3em;
+}
+
+table td {
+	background: #f0f0f0;
+}
+
+table th {
+	background: #fff;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-family: 'Lucida Grande', 'Lucida Sans Unicode', Lucida, Arial, Helvetica, sans-serif;
+	letter-spacing: -0.02em;
+}
+
+.box {
+	padding-top: 0.2em;
+	border: 1px solid #ebd897;
+	border-left: none;
+	border-top: none;
+	border-radius: 0.5em;
+	-moz-border-radius: 0.5em;
+	-webkit-border-radius: 0.5em;
+}
+
+/* ========================================= */
+/* = Changes/additions to kforge forms.css = */
+/* ========================================= */
 
 .field_error {
-  padding: 2px;
-  background-color: #c00;
-  display: table;
-  margin-left: 1em;
+	padding: 2px;
+	background-color: #c00;
+	display: table;
+	margin-left: 1em;
 }
 
 .field_error span,
@@ -56,232 +111,284 @@ body.plus-secondary #main {
 .field_error select,
 .field_error textarea
 {
-  margin: 0;
+	margin: 0;
 }
 
 .centered {
-  text-align: center;
+	text-align: center;
 }
 
-/**
-  * Various iconography
-  */
+/* ============== */
+/* = Pagination = */
+/* ============== */
+
+.pager {
+	width: 100%;
+	text-align: center;
+	margin: 0 0 1.2em 0;
+	clear: both;
+}
+
+.pager span, .pager a {
+	text-decoration: none;
+	margin: 0em;
+	border: none;
+	padding: 0.3em 0.1em;
+}
+
+.pager a:hover, .pager a:active {
+	color: #fff;
+	background-color: #c22;
+}
+
+.pager span.pager_dotdot {
+	color: #aaa;
+}
+
+.pager span.pager_curpage {
+	font-weight: bold;
+	border: 1px solid #ddd;
+}
+
+/* ======================= */
+/* = Various iconography = */
+/* ======================= */
 
 img.icon {
-  height: 25px;
+	height: 25px;
 }
 
 a.icon {
-    display: block;
-    height: 0;
-    overflow: hidden;
-    padding-top: 20px;
-    width: 20px;
+	display: block;
+	height: 0;
+	overflow: hidden;
+	padding-top: 20px;
+	width: 20px;
 }
 
-.icon-delete {
-    background: transparent url(http://m.okfn.org/kforge/images/icon-delete.png) repeat scroll 0 0;
-    float: left;
-}
-
-table.no-margin { 
-  margin: 0 0 0 0;  
-}
+table.no-margin { margin: 0; }
 
 div.extras-new-field label {
-  display:inline;
-  line-height:2.6em;
+	display: inline;
+	line-height: 2.6em;
 }
 
 label.inline {
-  display:inline;
-  margin: 1em 0 0 1em;
+	display:inline;
+	margin: 1em 0 0 1em;
 }
 
-
-/**
-  * Ratings - rating stars css in stars.css
-	*/
-
-div.rating-group {
-  display: inline;
-  font-size: 0.85em;
+dl.icons dt {
+	float: left;
+	clear: both;
+	margin: 0.4em 0 0 0;
+	height: 16px;
+	width: 16px;
 }
 
-/* Added by NS 2009-12-14 */
-
-.clearfix:after {
-  content: ".";
-  display: block;
-  height: 0;
-  clear: both;
-  visibility: hidden;
+dl.icons dt img {
+	vertical-align: middle;
 }
 
-.clearfix { display: inline-block; } /* for IE/Mac */
+dl.icons dd {
+	float: left;
+	margin: 0.4em 0 0 10px;
+}
 
-/* * * Tag listing * * */
+dl.icons dd.tiny {
+	font-size: 75%;
+	color: #888;
+	line-height: 1.2em;
+	margin: 0 0 0 26px;
+}
+
+/* =============== */
+/* = Tag listing = */
+/* =============== */
 
 ul.tags {
-  list-style: none;
-  padding: 0;
-  line-height: 2em;
+	list-style: none;
+	padding: 0;
+	line-height: 2em;
 }
 
 ul.tags li {
-  float: left;
+	float: left;
 }
 
 .tags a {
-  -webkit-border-radius: 0.3em;
-  -moz-border-radius: 0.3em;
-  border-radius: 0.3em;
-  background: #AFC6E9;
-  color: #400F16;
-  text-decoration: none;
-  padding: 0.2em;
-  margin: 0 0.2em;
+	-webkit-border-radius: 0.3em;
+	-moz-border-radius: 0.3em;
+	border-radius: 0.3em;
+	background: #AFC6E9;
+	color: #400F16;
+	text-decoration: none;
+	padding: 0.2em;
+	margin: 0 0.2em;
 }
 
 .tags a:hover {
-  background: #2B69C6;
-  color: #fff;
-  text-decoration: none;
-  padding: 0.2em;
-  margin: 0 0.2em;
+	background: #2B69C6;
+	color: #fff;
+	text-decoration: none;
+	padding: 0.2em;
+	margin: 0 0.2em;
 }
 
-/* * * Package listing * * */
+/* =================== */
+/* = Package listing = */
+/* =================== */
 
 ul.packages {
-  padding-left: 0;
+	padding-left: 0;
 }
 
 .packages li {
-  list-style: none;
-  padding: 0.4em 0 0.4em 0.5em;
-  border-left: 0.5em solid #fff;
-  border-bottom: 1px solid #ececec;
-  overflow: hidden;
-  white-space: nowrap;
+	list-style: none;
+	padding: 0.4em 0 0.4em 0.5em;
+	border-left: 0.5em solid #fff;
+	border-bottom: 1px solid #ececec;
+	overflow: hidden;
+	white-space: nowrap;
 }
 
 .packages li a {
-  text-decoration: none;
+	text-decoration: none;
 }
 
 .packages li img {
-  margin-bottom: -2px;
+	margin-bottom: -2px;
 }
 
 .openness {
-  display: inline;
-  vertical-align: bottom;
+	display: inline;
+	vertical-align: bottom;
 }
 
 .packages li.fullyopen {
-  border-left: 0.5em solid #AFC6E9;
+	border-left: 0.5em solid #AFC6E9;
 }
 
 .packages li .tags {
-  margin: 0 0 0 0.5em;
-  font-size: 80%;
-  opacity: 0.3;
+	margin: 0 0 0 0.5em;
+	font-size: 80%;
+	opacity: 0.3;
 }
 
 .packages li:hover .tags {
-  opacity: 1;
+	opacity: 1;
 }
 
-/* * * Extra RHS styles * * */
+/* ==================== */
+/* = Extra RHS styles = */
+/* ==================== */
 
 .sidebar dl {
-  margin: 0 1em 0.8em 1em;
-  padding: 0;
-}
-
-.sidebar dl.icons dt {
-  float: left;
-  clear: both;
-  margin: 0.4em 0 0 0;
-  height: 16px;
-  width: 16px;
-}
-
-.sidebar dl.icons dd {
-  float: left;
-  margin: 0.4em 0 0 10px;
-}
-
-.sidebar dl.icons dd.tiny {
-  font-size: 75%;
-  color: #888;
-  line-height: 1.2em;
-  margin: 0 0 0 26px;
+	margin: 0 1em 0.8em 1em;
+	padding: 0;
 }
 
 .sidebar hr {
-  width: 90%;
-  color: #EBDBA7;
-  background-color: #EBDBA7;
-  border: none;
-  height: 1px;
+	width: 90%;
+	color: #EBDBA7;
+	background-color: #EBDBA7;
+	border: none;
+	height: 1px;
 }
 
 .sidebar .buttons {
-  margin-top: 0;
+	margin-top: 0;
 }
 
 .sidebar .buttons a, .sidebar .buttons button {
-  margin-bottom: 0.3em;
+	margin-bottom: 0.3em;
 }
 
 .okdstripe {
-  /* Amusingly, this has to be a slightly different color to look the same
-     as the stripe on a white background */
-  border-left: 0.5em solid #8FB0DE;
-  padding-left: 0.4em ! important;
+	/* Amusingly, this has to be a slightly different color to look the same
+	   as the stripe on a white background */
+	border-left: 0.5em solid #8FB0DE;
+	padding-left: 0.4em ! important;
 }
 
-/* * * Package read page * * */
+/* ===================== */
+/* = Package read view = */
+/* ===================== */
+
+.package h4 {
+	font-weight: bold;
+	margin: 1em 0 0.6em 0;
+}
+
+.package .information {
+	font-size: 85%;
+	background: #efefef;
+	width: 31%;
+	float: right;
+	border: 1px solid #ccc;
+	border-top: none;
+	border-left: none;
+	border-radius: 0.5em;
+	-moz-border-radius: 0.5em;
+	-webkit-border-radius: 0.5em;
+}
+
+.package .information dl.icons {
+	margin: 0em 0.4em 0.4em 0.4em;
+}
 
 .package .head {
-  margin-bottom: 0;
-}
-
-.package .subhead {
-  margin-bottom: 1.5em;
-  font-family: monospace;
+	margin-bottom: 0;
 }
 
 .package .name {
-  color: #555;
+	color: #888;
+	font-family: monospace;
 }
 
-.package .okd {
-  margin: 0 0 0 0.5em;
-}
-
-.package .resources table {
-  margin-left: 0;
-}
-
-.package .taglist {
-  width: 50%;
-  border-right: 3px solid #ddd;  
-}
-
-.package .grouplist {
-  float: right;
-  width: 47%;
-  padding-left: 3%;
+.package .url a {
+	text-decoration: none;
 }
 
 .package .notes {
-  background: #eee;
-  padding: 0.2em 0;
+	width: 65%;
+	padding: 0.2em 0 0.2em 1%;
+	margin: 0 3% 0.5 0 ! important;
+	border-left: 1px solid #ccc;
 }
 
-.package img {
-  vertical-align: middle;
+.package .notes span.nonegiven {
+	opacity: 0.5;
+}
+.package .notes span.nonegiven:hover {
+	opacity: 1;
+}
+
+.twocol {
+	margin: 1em 0 0 0;
+}
+
+.twocol > div {
+	width: 49%;
+	min-height: 10em;
+	display: -moz-inline-stack;
+	display: inline-block;
+	vertical-align: top;
+	margin: 0;
+	zoom: 1;
+	*display: inline;
+}
+
+.twocol h4 {
+	margin-top: 0;
+	padding-top: 0.5em;
+}
+
+.twocol hr {
+	height: 1px ! important;
+}
+
+.package .grouplist, .package .rating {
+	border-left: 1px solid #ddd;
+	padding-left: 0.5em;
 }

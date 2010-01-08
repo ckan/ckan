@@ -7,37 +7,37 @@
 
   <!--! Herein can be found generic helper methods for a whole bunch of common
         templating issues -->
-  
+
   <!--! Famfamfam icon helpers -->
   <py:def function="icon_url(name)">/images/icons/${name}.png</py:def>
   <img py:def="icon(name, alt=None)" src="${icon_url(name)}" height="16px" width="16px" alt="${alt}" />
-  
-  <!--! plural(n, s, p): takes a number, a singular form and a plural form, 
-        returning the appropriate form on the basis of the number specified -->      
+
+  <!--! plural(n, s, p): takes a number, a singular form and a plural form,
+        returning the appropriate form on the basis of the number specified -->
   <py:def function="plural(num, s, p)" py:choose="num">
     <py:when test="1">${s}</py:when>
     <py:otherwise>${p}</py:otherwise>
   </py:def>
-  
-  <!--! nonempty(val, default): takes a variable string, and returns it or a 
-        fallback 'default' string if it's blank -->      
+
+  <!--! nonempty(val, default): takes a variable string, and returns it or a
+        fallback 'default' string if it's blank -->
   <py:def function="nonempty(val, default)" py:choose="val">
     <py:when test="str(val).strip()">${val}</py:when>
     <py:otherwise>${default}</py:otherwise>
   </py:def>
-  
+
   <!--! List of tags: pass in a collection of tags and this renders the standard
         tag listing -->
-  <ul py:def="tag_list(tags)" class="tags clearfix">    
+  <ul py:def="tag_list(tags)" class="tags clearfix">
     <li py:for="tag in tags" data="{'count':${len(tag.package_tags)}}">
       ${h.link_to(tag.name, h.url_for(controller='tag', action='read', id=tag.name))}
     </li>
   </ul>
-  
-  <!--! List of packages: pass in a collection of tags and this renders the 
-        standard package listing -->  
+
+  <!--! List of packages: pass in a collection of tags and this renders the
+        standard package listing -->
   <ul py:def="package_list(packages)" class="packages">
-    <li py:for="package in packages" 
+    <li py:for="package in packages"
         class="${'fullyopen' if (package.isopen() and package.resources) else None}">
         ${package_license_icon(package)}
         ${package_resources_icon(package)}
@@ -47,8 +47,8 @@
         </span>
     </li>
   </ul>
-  
-  <!--! List of groups: pass in a collection of groups and this renders the 
+
+  <!--! List of groups: pass in a collection of groups and this renders the
         standard group listing -->
   <table py:def="group_list(groups)" class="groups">
     <tr><th>Title</th><th>Number of packages</th><th>Description</th></tr>
@@ -60,19 +60,19 @@
     </tr>
     </py:for>
   </table>
-  
+
   <!--! Package openness icons -->
   <img py:def="package_license_icon(package)"
-    src="/images/icons/door_${'open' if package.isopen() else 'grey'}.png" 
-    title="License: ${package.license.name if hasattr(package.license, 'name') else '?'}" 
+    src="/images/icons/door_${'open' if package.isopen() else 'grey'}.png"
+    title="License: ${package.license.name if hasattr(package.license, 'name') else '?'}"
     alt="${'OPEN' if package.isopen() else 'CLOSED'}" />
-  
+
   <py:def function="package_resources_icon(package)" py:choose="">
-    <a py:when="package.resources" 
+    <a py:when="package.resources"
        href="${h.url_for(controller='package', action='read', id=package.name, anchor='resources')}">
       <img src="${icon_url('arrow_down')}" title="View package resources" alt="DOWNLOAD" />
     </a>
-    
+
     <img py:otherwise="" src="${icon_url('arrow_down_grey')}" title="No downloadable resources." alt="" />
   </py:def>
 
@@ -83,5 +83,29 @@
       </a>
   </py:def>
 
+  <div py:def="package_rating(pkg)" class="rating-group">
+    <py:choose test="">
+      <div py:when="c.num_ratings" class="inline-rating">
+        <ul class="stars default${'%i' % (c.current_rating or 0)}star">
+          <li class="${name}" py:for="number,name in enumerate(['one', 'two', 'three', 'four', 'five'])"></li>
+        </ul>
+        ${'%0.1f (%i rating%s)' % (c.current_rating, c.num_ratings, ('s' if c.num_ratings != 1 else ''))}
+      </div>
+      <py:otherwise>no ratings yet</py:otherwise>
+    </py:choose>
+
+    &ndash;
+    rate it now
+
+    <div class="inline-rating">
+    <ul class="stars default0star">
+      <py:for each="number,name in zip(range(1,6), ['one', 'two', 'three', 'four', 'five'])">
+      <li class="${name}">
+      <a href="${h.url_for(controller='package',action='rate',id=c.pkg.name,rating=number)}" title="${number} Star">${number}</a>
+      </li>
+      </py:for>
+    </ul>
+    </div>
+  </div><!-- /rating-group -->
 
 </html>

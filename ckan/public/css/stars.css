@@ -1,22 +1,22 @@
 /* based on http://www.pmob.co.uk/temp/star-rating.htm */
 
 div.inline-rating{
-  display:-moz-inline-block;
-  display:-moz-inline-box;
-  display:inline-block;
-  /* vertical-align:middle; */
+	display:-moz-inline-block;
+	display:-moz-inline-box;
+	display:inline-block;
+	/* vertical-align:middle; */
 	margin-bottom: -1px;
 }
 
-.rating{
-  width:80px;
-  height:16px;
-  margin: 0;
-  padding:0;
-  list-style:none;
-  clear:both;
-  position:relative;
-  background: url(/images/stars.png) no-repeat 0 0;
+.stars{
+	width:80px;
+	height:16px;
+	margin: 0;
+	padding:0;
+	list-style:none;
+	clear:both;
+	position:relative;
+	background: url(/images/stars.png) no-repeat 0 0;
 }
 
 .default0star {background-position:0 0}
@@ -26,39 +26,39 @@ div.inline-rating{
 .default4star {background-position:0 -64px}
 .default5star {background-position:0 -80px}
 
-ul.rating li {
-  cursor: pointer;
-  float:left;
-  text-indent:-999em;
+ul.stars li {
+	cursor: pointer;
+	float:left;
+	text-indent:-999em;
 }
 
-ul.rating li a {
-  position:absolute;
-  left:0;
-  top:0;
-  width:16px;
-  height:16px;
-  text-decoration:none;
-  z-index: 200;
+ul.stars li a {
+	position:absolute;
+	left:0;
+	top:0;
+	width:16px;
+	height:16px;
+	text-decoration:none;
+	z-index: 200;
 }
 
-ul.rating li.one a {left:0}
-ul.rating li.two a {left:16px;}
-ul.rating li.three a {left:32px;}
-ul.rating li.four a {left:48px;}
-ul.rating li.five a {left:64px;}
+ul.stars li.one a {left:0}
+ul.stars li.two a {left:16px;}
+ul.stars li.three a {left:32px;}
+ul.stars li.four a {left:48px;}
+ul.stars li.five a {left:64px;}
 
-ul.rating li a:hover {
-  z-index:2;
-  width:80px;
-  height:16px;
-  overflow:hidden;
-  left:0;  
-  background: url(/images/stars.png) no-repeat 0 0
+ul.stars li a:hover {
+	z-index:2;
+	width:80px;
+	height:16px;
+	overflow:hidden;
+	left:0;  
+	background: url(/images/stars.png) no-repeat 0 0
 }
 
-ul.rating li.one a:hover {background-position:0 -96px;}
-ul.rating li.two a:hover {background-position:0 -112px;}
-ul.rating li.three a:hover {background-position:0 -128px}
-ul.rating li.four a:hover {background-position:0 -144px}
-ul.rating li.five a:hover {background-position:0 -160px}
+ul.stars li.one a:hover {background-position:0 -96px;}
+ul.stars li.two a:hover {background-position:0 -112px;}
+ul.stars li.three a:hover {background-position:0 -128px}
+ul.stars li.four a:hover {background-position:0 -144px}
+ul.stars li.five a:hover {background-position:0 -160px}
