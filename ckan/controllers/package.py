@@ -18,27 +18,27 @@ class ValidationException(Exception):
 
 class PackageController(BaseController):
     authorizer = ckan.authz.Authorizer()
-    
+
     def index(self):
         c.package_count = model.Package.query.count()
         return render('package/index')
 
     def list(self):
         from ckan.lib.helpers import Page
-        
+
         c.page = Page(
             collection=model.Package.active(),
             page=request.params.get('page', 1),
             items_per_page=50
         )
-        
+
         return render('package/list')
 
     def search(self):        
         c.q = request.params.get('q')
         c.open_only = request.params.get('open_only')
         c.downloadable_only = request.params.get('downloadable_only')
-        
+
         if c.q:
             options = SearchOptions({'q': c.q,
                                      'filter_by_openness': c.open_only,
@@ -51,7 +51,7 @@ class PackageController(BaseController):
             results = Search().run(options)
 
             from ckan.lib.helpers import Page
-            
+
             c.page = Page(
                 collection=results['results'],
                 page=request.params.get('page', 1),
@@ -70,7 +70,7 @@ class PackageController(BaseController):
         c.pkg = model.Package.by_name(id)
         if c.pkg is None:
             abort(404, '404 Not Found')
-        
+
         auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, c.pkg)
         if not auth_for_read:
             abort(401, 'Unauthorized to read %s' % id)        
@@ -78,16 +78,15 @@ class PackageController(BaseController):
         c.auth_for_authz = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, c.pkg)
         c.auth_for_edit = self.authorizer.am_authorized(c, model.Action.EDIT, c.pkg)
         c.auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, c.pkg)
+
         fs = ckan.forms.get_fieldset(is_admin=c.auth_for_change_state, basic=True)
         # this line needed or the resources relation doesn't bind:
         resources = c.pkg.resources
         fs = fs.bind(c.pkg)
-        
+
         # setup c object.
         self._render_package_with_template(fs)
 
-        c.current_rating, c.num_ratings = ckan.rating.get_rating(c.pkg)
-        
         return render('package/read')
 
     def history(self, id):
@@ -132,7 +131,7 @@ class PackageController(BaseController):
                     if user:
                         admins = [user]
                 model.setup_default_user_roles(pkg, admins)
-                
+
                 h.redirect_to(action='read', id=c.pkgname)
             except ValidationException, error:
                 c.error, fs = error.args
@@ -172,7 +171,7 @@ class PackageController(BaseController):
         if not 'commit' in request.params and not 'preview' in request.params:
             # edit
             c.pkg = pkg
-                
+
             fs = fs.bind(c.pkg)
             c.form = self._render_edit_form(fs, request.params)
             return render('package/edit')
@@ -348,39 +347,42 @@ class PackageController(BaseController):
         c.pkg_version = fs.version.value
         c.pkg_title = fs.title.value
         c.pkg_url = fs.url.value
-        
-        c.pkg_url_link = h.link_to('WWW', c.pkg_url) if c.pkg_url else "No external link"
-    
+
+        c.pkg_url_link = h.link_to(c.pkg_url, c.pkg_url) if c.pkg_url else "No external link"
+
         if fs.resources.value and isinstance(fs.resources.value[0], model.PackageResource):
             c.pkg_resources = [(res.url, res.format, res.description, res.hash) for res in fs.resources.value]
         else:
             c.pkg_resources = fs.resources.value
         c.pkg_author = fs.author.value
         c.pkg_author_email = fs.author_email.value
-        
+
         c.pkg_author_link = self._person_email_link(c.pkg_author, c.pkg_author_email, "Author")
-                
+
         c.pkg_maintainer = fs.maintainer.value
         c.pkg_maintainer_email = fs.maintainer_email.value
-        
+
         c.pkg_maintainer_link = self._person_email_link(c.pkg_maintainer, c.pkg_maintainer_email, "Maintainer")
-                
+
         if c.auth_for_change_state:
             c.pkg_state = model.State.query.get(fs.state.value).name
         if fs.license.value:
             c.pkg_license = model.License.query.get(fs.license.value).name
         else:
             c.pkg_license = None
+
         if fs.tags.value:
             c.pkg_tags = [tag for tag in fs.tags.value]
         elif fs.model.tags:
             c.pkg_tags = [tag for tag in fs.model.tags_ordered]
         else:
             c.pkg_tags = []
+
         if fs.model.groups:
             c.pkg_groups = [group.name for group in fs.model.groups]
         else:
             c.pkg_groups = []
+
         import ckan.misc
         format = ckan.misc.MarkdownFormat()
         notes_formatted = format.to_html(fs.notes.value)
@@ -393,7 +395,7 @@ class PackageController(BaseController):
         else:
             for key, extra in fs.model._extras.items():
                 c.pkg_extras.append((key.capitalize(), extra.value))
-                
+
     def _person_email_link(self, name, email, reference):
         if email:
             if not name:
