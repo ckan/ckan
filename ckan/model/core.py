@@ -139,13 +139,14 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         text_query = text_query
         return self.query.filter(self.name.contains(text_query.lower()))
 
-    def add_resource(self, url, format=u'', description=u''):
+    def add_resource(self, url, format=u'', description=u'', hash=u''):
         import resource
         self.resources.append(resource.PackageResource(
             package_id=self.id,
             url=url,
             format=format,
-            description=description))
+            description=description,
+            hash=hash))
         
     def add_tag_by_name(self, tagname):
         if not tagname:

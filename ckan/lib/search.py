@@ -45,7 +45,8 @@ class SearchOptions:
         return repr(self.__dict__)
 
 class Search:
-    _tokens = [ 'name', 'title', 'notes', 'tags', 'groups', 'author', 'maintainer', 'update_frequency', 'geographic_granularity', 'geographic_coverage', 'temporal_granularity', 'temporal_coverage', 'categories', 'precision', 'department', 'agency'] 
+    _tokens = [ 'name', 'title', 'notes', 'tags', 'groups', 'author', 'maintainer', 'update_frequency', 'geographic_granularity', 'geographic_coverage', 'temporal_granularity', 'temporal_coverage', 'national_statistic', 'categories', 'precision', 'department', 'agency', 'external_reference']
+    # Note: all tokens must be in the search vector (see model/full_search.py)
     _open_licenses = None
 
     def search(self, query_string):
@@ -160,7 +161,7 @@ class Search:
             
         # Filter by field_specific_terms
         for field, terms in field_specific_terms.items():
-            if type(terms) in (type(''), type(u'')):
+            if isinstance(terms, (str, unicode)):
                 terms = terms.split()
             if field in ('tags', 'groups'):
                 query = self._filter_by_tags_or_groups(field, query, terms)
@@ -258,7 +259,7 @@ class Search:
         for name in value_list:
             query = query.join('_extras', aliased=True).filter(sqlalchemy.and_(
                 model.PackageExtra.state_id==1,
-                model.PackageExtra.key==field))
+                model.PackageExtra.key==unicode(field)))
         return query
         
     def _update_open_licenses(self):

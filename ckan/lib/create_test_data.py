@@ -58,6 +58,8 @@ class CreateTestData(cli.CkanCommand):
         self.group_names = []
         self.user_names = extra_user_names
         admins_list = [] # list of (package_name, admin_names)
+        if isinstance(package_dicts, dict):
+            package_dicts = [package_dicts]
         for item in package_dicts:
             pkg = model.Package(name=unicode(item['name']))
             for attr, val in item.items():
@@ -74,11 +76,21 @@ class CreateTestData(cli.CkanCommand):
                     pkg.add_resource(unicode(val))
                 elif attr == 'resources':
                     for res_dict in val:
-                        pkg.add_resource(url=unicode(res_dict['url']),
-                                         format=unicode(res_dict['format']),
-                                         description=unicode(res_dict['description']))
+                        pkg.add_resource(
+                            url=unicode(res_dict['url']),
+                            format=unicode(res_dict.get('format')),
+                            description=unicode(res_dict.get('description')),
+                            hash=unicode(res_dict.get('hash')),
+                            )
                 elif attr == 'tags':
-                    for tag_name in val.split():
+                    if isinstance(val, (str, unicode)):
+                        tags = val.split()
+                    elif isinstance(val, list):
+                        tags = val
+                    else:
+                        raise NotImplementedError
+                    for tag_name in tags:
+                        tag_name = unicode(tag_name)
                         tag = model.Tag.by_name(tag_name)
                         if not tag:
                             tag = model.Tag(name=tag_name)
@@ -93,6 +105,9 @@ class CreateTestData(cli.CkanCommand):
                         pkg.groups.append(group)
                 elif attr == 'license':
                     license = model.License.by_name(val)
+                    pkg.license = license
+                elif attr == 'license_id':
+                    license = model.License.query.get(val)
                     pkg.license = license
                 elif attr == 'extras':
                     pkg.extras = val
@@ -144,6 +159,7 @@ class CreateTestData(cli.CkanCommand):
               url=u'http://www.annakarenina.com/download/x=1&y=2',
               format=u'plain text',
               description=u'Full text',
+              hash=u'abc123',
               )
             )
         pkg1.resources.append(
@@ -151,6 +167,7 @@ class CreateTestData(cli.CkanCommand):
               url=u'http://www.annakarenina.com/index.json',
               format=u'json',
               description=u'Index of the novel',
+              hash=u'def456',
               )
             )
         pkg1.notes = u'''Some test notes
@@ -160,6 +177,12 @@ class CreateTestData(cli.CkanCommand):
 **Some bolded text.**
 
 *Some italicized text.*
+
+Foreign characters:
+u with umlaut \xc3\xbc
+
+Needs escaping:
+left arrow <
 
 <http://ckan.net/>
 

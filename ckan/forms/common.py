@@ -1,11 +1,11 @@
 import re
 
-from formalchemy import helpers as h
+from formalchemy import helpers as fa_h
 import formalchemy
 import genshi
 
 import ckan.model as model
-import ckan.lib.helpers
+import ckan.lib.helpers as h
 import ckan.misc
 
 FIELD_TIP_TEMPLATE = '<p class="desc">%s</p>'
@@ -35,8 +35,9 @@ def field_readonly_renderer(key, value, newline_reqd=True):
     if key in ('Url', 'Download url', 'Taxonomy url'):
         key = key.replace(u'Url', u'URL')
         key = key.replace(u'url', u'URL')
-        value = '<a href="%s">%s</a>' % (value, value)        
-    html = '<strong>%s:</strong> %s' % (key, value)
+        value = '<a href="%s">%s</a>' % (h.escape(value), h.escape(value))
+#        value = '<a href="%s">%s</a>' % (value, value)
+    html = '<strong>%s:</strong> %s' % (h.escape(key), value)
     if newline_reqd:
         html += '<br/>'
     return html
@@ -49,7 +50,7 @@ class CustomTextFieldRenderer(formalchemy.fields.TextFieldRenderer):
             tip_html = FIELD_TIP_TEMPLATE % field_tip
         else:
             tip_html = ''        
-        return h.text_field(self.name, value=self._value, maxlength=self.length, **kwargs) + tip_html
+        return fa_h.text_field(self.name, value=self._value, maxlength=self.length, **kwargs) + tip_html
 
     def render_readonly(self, **kwargs):
         return field_readonly_renderer(self.field.key, self._value)
@@ -57,13 +58,13 @@ class CustomTextFieldRenderer(formalchemy.fields.TextFieldRenderer):
 class TextAreaRenderer(formalchemy.fields.TextAreaFieldRenderer):
     def render(self, **kwargs):
         kwargs['size'] = '60x15'
-        value = ckan.lib.helpers.escape(self._value)
+        value = h.escape(self._value)
         field_tip = FIELD_TIPS.get(self.field.key)
         if field_tip:
             tip_html = FIELD_TIP_TEMPLATE % field_tip
         else:
             tip_html = ''        
-        return h.text_area(self.name, content=value, **kwargs) + tip_html
+        return fa_h.text_area(self.name, content=value, **kwargs) + tip_html
 
     def render_readonly(self, **kwargs):
         format = ckan.misc.MarkdownFormat()

@@ -82,7 +82,7 @@ class Repository(vdm.sqlalchemy.Repository):
 
 
 repo = Repository(metadata, Session,
-        versioned_objects=[Package, PackageTag]
+        versioned_objects=[Package, PackageTag, PackageResource]
         )
 
 
@@ -91,8 +91,11 @@ def _get_packages(self):
     changes = repo.list_changes(self)
     pkgrevs = changes[Package]
     pkgtagrevs = changes[PackageTag]
+    pkgresourcerevs = changes[PackageResource]
     pkgs  = [ p.continuity for p in pkgrevs ]
     pkgs += [ pkgtagrev.continuity.package for pkgtagrev in pkgtagrevs ]
+    pkgs += [ pkgresourcerev.continuity.package for pkgresourcerev in
+            pkgresourcerevs]
     # remove duplicates
     pkgs = list(set(pkgs))
     return pkgs

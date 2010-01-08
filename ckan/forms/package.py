@@ -47,10 +47,11 @@ class ResourcesField(formalchemy.Field):
             pkg = self.model
             resources = self._deserialize() or []
             pkg.resources = []
-            for url, format, description in resources:
+            for url, format, description, hash_ in resources:
                 pkg.add_resource(url=url,
                                  format=format,
-                                 description=description)
+                                 description=description,
+                                 hash=hash_)
 
 class TagField(formalchemy.Field):
     def sync(self):
@@ -261,14 +262,14 @@ class StateRenderer(formalchemy.fields.FieldRenderer):
 class ResourcesRenderer(formalchemy.fields.FieldRenderer):
     table_template = '''
       <table id="flexitable" prefix="%(id)s" class="no-margin">
-        <tr> <th>URL</th><th>Format</th><th>Description</th> </tr>
+        <tr> <th>URL</th><th>Format</th><th>Description</th><th>Hash</th> </tr>
 %(rows)s
       </table>
       <a href="javascript:addRowToTable()" id="add_resource"><img src="/images/icons/add.png"></a>
       '''
     table_template_readonly = '''
       <table id="flexitable" prefix="%(id)s">
-        <tr> <th>URL</th><th>Format</th><th>Description</th> </tr>
+        <tr> <th>URL</th><th>Format</th><th>Description</th><th>Hash</th> </tr>
 %(rows)s
       </table>
       '''
@@ -278,6 +279,7 @@ class ResourcesRenderer(formalchemy.fields.FieldRenderer):
           <td><input name="%(id)s-%(res_index)s-url" size="40" id="%(id)s-%(res_index)s-url" type="text" value="%(url)s" /></td>
           <td><input name="%(id)s-%(res_index)s-format" size="5" id="%(id)s-%(res_index)s-format" type="text" value="%(format)s" /></td>
           <td><input name="%(id)s-%(res_index)s-description" size="25" id="%(id)s-%(res_index)s-description" type="text" value="%(description)s" /></td>
+          <td><input name="%(id)s-%(res_index)s-hash" size="10" id="%(id)s-%(res_index)s-hash" type="text" value="%(hash)s" /></td>
           <td>
             <a href="javascript:moveRowUp(%(res_index)s)"><img src="/images/icons/arrow_up.png"></a>
             <a href="javascript:moveRowDown(%(res_index)s)"><img src="/images/icons/arrow_down.png"></a>
@@ -286,7 +288,7 @@ class ResourcesRenderer(formalchemy.fields.FieldRenderer):
         </tr>
     '''
     row_template_readonly = '''
-        <tr> <td><a href="%(url)s">%(url)s</a></td><td>%(format)s</td><td>%(description)s</td> </tr>
+        <tr> <td><a href="%(url)s">%(url)s</a></td><td>%(format)s</td><td>%(description)s</td><td>%(description)s</td><td>%(hash)s</td> </tr>
     '''
 
     def render(self, **kwargs):
@@ -313,13 +315,15 @@ class ResourcesRenderer(formalchemy.fields.FieldRenderer):
                 url = res.url
                 format = res.format
                 description = res.description
+                hash_ = res.hash
             elif isinstance(res, tuple):
-                url, format, description = res
+                url, format, description, hash_ = res
             elif res == None:
-                url = format = description = u''
+                url = format = description = hash_ = u''
             rows.append(row_template % {'url':url,
                                         'format':format,
                                         'description':description,
+                                        'hash':hash_ or u'',
                                         'id':self.name,
                                         'res_index':index,
                                         })
@@ -350,8 +354,9 @@ class ResourcesRenderer(formalchemy.fields.FieldRenderer):
             url = params.get('%s-%i-url' % (self.name, row), u'')
             format = params.get('%s-%i-format' % (self.name, row), u'')
             description = params.get('%s-%i-description' % (self.name, row), u'')
-            if url or format or description:
-                resource = (url, format, description)
+            hash_ = params.get('%s-%i-hash' % (self.name, row), u'')
+            if url or format or description or hash_:
+                resource = (url, format, description, hash_)
                 new_resources.append(resource)
             row += 1
         return new_resources
@@ -459,7 +464,7 @@ def get_package_dict(pkg=None, blank=False, fs=None):
                 if field.renderer.name.endswith('-tags'):
                     indict[field.renderer.name] = ' '.join([tag.name for tag in pkg.tags]) if pkg else ''
                 if field.renderer.name.endswith('-resources'):
-                    indict[field.renderer.name] = [{'url':res.url, 'format':res.format, 'description':res.description} for res in pkg.resources] if pkg else []
+                    indict[field.renderer.name] = [{'url':res.url, 'format':res.format, 'description':res.description, 'hash':res.hash} for res in pkg.resources] if pkg else []
         
     return indict
 
@@ -497,14 +502,15 @@ def edit_package_dict(dict_, changed_items, id=''):
                     # REST edit
                     resources = []
                     for res in value:
-                        resources.append((res['url'], res['format'], res['description']))
+                        resources.append((res['url'], res['format'], res['description'], res['hash']))
                     dict_[resources_key] = resources
                 elif key == tags_key and isinstance(value, list):
                     dict_[key] = ' '.join(value)
                 else:
                     dict_[key] = value
             elif key == download_url_key:
-                dict_[resources_key].insert(0, (value, '', ''))
+                dict_[resources_key].insert(0, (value, '', '', ''))
+                # blank format, description and hash
     return dict_
 
 def add_to_package_dict(dict_, changed_items, id=''):

@@ -352,7 +352,7 @@ class PackageController(BaseController):
         c.pkg_url_link = h.link_to('WWW', c.pkg_url) if c.pkg_url else "No external link"
     
         if fs.resources.value and isinstance(fs.resources.value[0], model.PackageResource):
-            c.pkg_resources = [(res.url, res.format, res.description) for res in fs.resources.value]
+            c.pkg_resources = [(res.url, res.format, res.description, res.hash) for res in fs.resources.value]
         else:
             c.pkg_resources = fs.resources.value
         c.pkg_author = fs.author.value

@@ -84,6 +84,7 @@ class TestForms:
             assert res.url in out, out
             assert res.format in out, out
             assert res.description in out, out        
+            assert res.hash in out, out        
 
     def test_2_fields(self):
         fs = ckan.forms.package_fs

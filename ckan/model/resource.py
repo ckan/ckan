@@ -12,6 +12,7 @@ package_resource_table = Table(
     Column('url', types.UnicodeText, nullable=False),
     Column('format', types.UnicodeText),
     Column('description', types.UnicodeText),
+    Column('hash', types.UnicodeText),
     Column('position', types.Integer),
     )
 
@@ -21,12 +22,13 @@ resource_revision_table = vdm.sqlalchemy.make_revisioned_table(package_resource_
 class PackageResource(vdm.sqlalchemy.RevisionedObjectMixin,
                       vdm.sqlalchemy.StatefulObjectMixin,
                       DomainObject):
-    def __init__(self, package_id=None, url=u'', format=u'', description=u''):
+    def __init__(self, package_id=None, url=u'', format=u'', description=u'', hash=u''):
         if package_id:
             self.package_id = package_id
         self.url = url
         self.format = format
         self.description = description
+        self.hash = hash
         
     def __repr__(self):
         return '<PackageResource id=%s package_id=%s url=%s>' % (self.id, self.package_id, self.url)

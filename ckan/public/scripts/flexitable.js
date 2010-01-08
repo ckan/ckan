@@ -35,6 +35,14 @@ function addRowToTable()
     cell.appendChild(el);
     
     var cell = row.insertCell(3);
+    var el = document.createElement('input');
+    el.type = 'text';
+    el.id = row_prefix + '-hash';
+    el.name = row_prefix + '-hash';
+    el.size = 10;
+    cell.appendChild(el);
+
+    var cell = row.insertCell(4);
     var anchor = document.createElement('a');
     anchor.href = 'javascript:moveRowUp(' + iteration + ')';
     var image = document.createElement('img');
@@ -109,7 +117,9 @@ function moveRowDown(row_index)
 }
 function swapRows(row_i, row_j, table)
 {
-  for (var col=0; col<3; col++){
+  var tbl = document.getElementById('flexitable');
+  var lastRow = tbl.rows.length;
+  for (var col=0; col<lastRow; col++){
     cell1 = table.rows[row_i].cells[col];
     cell2 = table.rows[row_j].cells[col];
     swapCells(cell1, cell2);

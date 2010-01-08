@@ -4,12 +4,11 @@ def package_render(fs, errors='', warnings=''):
     fields_html = ''
     for key, field in fs.render_fields.items():
         rendering = field.render_readonly()
-        if isinstance(rendering, list):
-            # Extra fields
-            for rendering_item in rendering:
-                fields_html += item_template % rendering_item
-        else:
-            fields_html += item_template % rendering
+        # Extra fields render_readonly as a list, so make others a list too.
+        if not isinstance(rendering, list):
+            rendering = [rendering]
+        for rendering_item in rendering:
+            fields_html += item_template % rendering_item
     if errors:
         fields_html += item_template % ('Errors: %s' % errors)
     if warnings:

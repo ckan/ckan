@@ -132,7 +132,6 @@ class RestController(BaseController):
             response.status_int = 400
             return "JSON Error: %s" % str(inst)
 
-
         try:
             if register == 'package':
                 fs = ckan.forms.package_fs
@@ -188,6 +187,9 @@ class RestController(BaseController):
 
     def search(self):
         if request.params.has_key('qjson'):
+            if not request.params['qjson']:
+                response.status_int = 400
+                return '400 Blank qjson parameter'
             params = simplejson.loads(request.params['qjson'])
         elif request.params.values() and request.params.values() != [u''] and request.params.values() != [u'1']:
             params = request.params
