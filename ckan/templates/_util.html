@@ -8,10 +8,6 @@
   <!--! Herein can be found generic helper methods for a whole bunch of common
         templating issues -->
 
-  <!--! Famfamfam icon helpers -->
-  <py:def function="icon_url(name)">/images/icons/${name}.png</py:def>
-  <img py:def="icon(name, alt=None)" src="${icon_url(name)}" height="16px" width="16px" alt="${alt}" />
-
   <!--! plural(n, s, p): takes a number, a singular form and a plural form,
         returning the appropriate form on the basis of the number specified -->
   <py:def function="plural(num, s, p)" py:choose="num">
@@ -70,10 +66,10 @@
   <py:def function="package_resources_icon(package)" py:choose="">
     <a py:when="package.resources"
        href="${h.url_for(controller='package', action='read', id=package.name, anchor='resources')}">
-      <img src="${icon_url('arrow_down')}" title="View package resources" alt="DOWNLOAD" />
+      <img src="${h.icon_url('arrow_down')}" title="View package resources" alt="DOWNLOAD" />
     </a>
 
-    <img py:otherwise="" src="${icon_url('arrow_down_grey')}" title="No downloadable resources." alt="" />
+    <img py:otherwise="" src="${h.icon_url('arrow_down_grey')}" title="No downloadable resources." alt="" />
   </py:def>
 
   <!--! Used by group listing -->

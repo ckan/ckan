@@ -5,11 +5,18 @@
   py:strip=""
   >
 
-  <py:match path="minornavigation">
-    <li>${XML(h.link_to('Home', h.url_for(controller='package', action='index', id='None')))}</li>
-    <li>${XML(h.link_to('List', h.url_for(controller='package', action='list', id='None')))}</li>
-    <li>${XML(h.link_to('Search', h.url_for(controller='package', action='search', id='None')))}</li>
-    <li>${XML(h.link_to('New', h.url_for(controller='package', action='new', id='None')))}</li>
+  <py:match path="minornavigation" py:choose="">
+    <py:when test="c.pkg">
+      <li class="intro">This package:</li>
+      <li>${h.subnav_link(c, h.icon('package') + 'View', controller='package', action='read', id=c.pkg.name)}</li>
+      <li>${h.subnav_link(c, h.icon('package_edit') + 'Edit', controller='package', action='edit', id=c.pkg.name)}</li>
+      <li>${h.subnav_link(c, h.icon('page_white_stack') + 'History', controller='package', action='history', id=c.pkg.name)}</li>
+    </py:when>
+    <py:otherwise>
+    <li>${h.subnav_link(c, 'Home', controller='package', action='index', id=None)}</li>
+    <li>${h.subnav_link(c, 'Browse', controller='package', action='list', id=None)}</li>
+    <li>${h.subnav_link(c, 'Register new package', controller='package', action='new', id=None)}</li>
+    </py:otherwise>
   </py:match>
   
   <xi:include href="../layout.html" />

@@ -38,17 +38,15 @@
   <div id="top">
     <div id="top-inner">
       <div id="top-bar">
-        <topbar>
-          <py:choose>
-            <p py:when="c.user">
-              Logged in as <strong>${c.user}</strong> |
-              <a href="${h.url_for(controller='user',action=None)}">My Account</a>
-              | <a href="${h.url_for('/logout_openid')}">Logout</a>
-            </p>
-            <p py:otherwise="">
-              <a href="${h.url_for(controller='user',action='login', id=None)}">Login via OpenID</a>
-            </p>
-          </py:choose>
+        <topbar py:choose="">
+          <p py:when="c.user">
+            Logged in as <strong>${h.icon('openid')} ${c.user}</strong>
+            &middot; <a href="${h.url_for(controller='user',action=None)}">My account</a>
+            &middot; <a href="${h.url_for('/logout_openid')}">Logout</a>
+          </p>
+          <p py:otherwise="">
+            <a href="${h.url_for(controller='user',action='login', id=None)}">Login with ${h.icon('openid')} OpenID</a>
+          </p>
         </topbar>
       </div><!-- /top-bar -->
 
@@ -61,21 +59,17 @@
 
     <h3 class="hidden">Sections:</h3>
     <ul id="navigation">
-      <li><a href="/">Home</a></li>
-      <li><a href="/package/">Packages</a></li>
-      <li><a href="/tag/">Tags</a></li>
-      <li><a href="/group/">Groups</a></li>
-      <li><a href="/revision/">Recent Changes</a></li>
-      <li><a href="/api/">API</a></li>
-      <li><a href="/about/">About</a></li>
+      <li>${h.nav_link(c, 'Home', controller='home', id=None)}</li>
+      <li>${h.nav_link(c, 'Packages', controller='package', id=None)}</li>
+      <li>${h.nav_link(c, 'Tags', controller='tag', id=None)}</li>
+      <li>${h.nav_link(c, 'Groups', controller='group', id=None)}</li>
+      <li>${h.nav_link(c, 'Recent changes', controller='revision', id=None)}</li>
+      <li>${h.nav_link(c, 'API', controller='rest', id=None)}</li>
     </ul>
     <h3 class="hidden">In this section:</h3>
-    <ul id="subnav">
-      <minornavigation>
-      <li><a href="/">Home</a></li>
-      <li><a href="/package/new/">New Package</a></li>
-      </minornavigation>
-    </ul>
+    <!--! This is a default (blank) subnav. -->
+    <py:match path="minornavigation"></py:match>
+    <ul id="subnav"><minornavigation></minornavigation></ul>
 
     <!--[if IE]>
     <hr class="holder" />

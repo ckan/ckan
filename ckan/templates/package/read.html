@@ -30,14 +30,14 @@
 
     <div class="information">
       <dl class="icons clearfix">
-        <dt>${icon('user')}</dt>
+        <dt>${h.icon('user')}</dt>
         <dd>${c.pkg_author_link}</dd>
         <py:if test="c.pkg_maintainer">
-          <dt>${icon('user_grey')}</dt>
+          <dt>${h.icon('user_grey')}</dt>
           <dd>${c.pkg_maintainer_link}</dd>
         </py:if>
         <py:if test="c.pkg_version">
-          <dt>${icon('package')}</dt>
+          <dt>${h.icon('package')}</dt>
           <dd>Version <strong>${c.pkg_version}</strong></dd>
         </py:if>
         <dt>${package_license_icon(c.pkg)}</dt>

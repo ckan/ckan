@@ -32,23 +32,33 @@ hr.nomargin { margin: 0; }
 	background: transparent;
 }
 
-/* remove second submenu for time being */
-#subnav {
-	background: transparent;
-	height: 0;
-}
-#subnav * { display: none; }
-
 #top {
 	margin: 0.3em 0 0 0;
 }
 
-#main {
-	margin-top: 0em;
+#top-bar img {
+	margin: -5px 0 0 0;
+	vertical-align: middle;
+}
+
+#subnav img {
+	margin: -2px 0 0 0;
+	padding: 0 3px 0 1px;
+	vertical-align: middle;
+}
+
+#subnav li.intro {
+	color: #777;
+	padding-right: 5px;
+}
+
+#subnav:empty {
+	background: transparent;
+	height: 0;
 }
 
 #primary {
-	margin-top: 13px;
+	margin-top: 32px;
 }
 
 #main hr {
@@ -114,8 +124,14 @@ h1, h2, h3, h4, h5, h6 {
 	margin: 0;
 }
 
-.centered {
-	text-align: center;
+input.openid {
+	background: transparent url(../images/icons/openid.png) 2px 2px no-repeat;
+	padding-left: 22px;
+}
+
+input.openid:focus {
+	background-position: 1px 1px;
+	padding-left: 21px;
 }
 
 /* ============== */

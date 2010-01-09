@@ -13,6 +13,28 @@ from webhelpers import paginate
 from webhelpers.text import truncate
 from routes import url_for, redirect_to
 
+# FIXME: shouldn't have to pass the c object in to this.
+def nav_link(c, text, controller, **kwargs):
+    return link_to(
+        text, 
+        url_for(controller=controller, **kwargs),
+        class_=('active' if c.controller == controller else '')
+    )
+
+# FIXME: shouldn't have to pass the c object in to this.
+def subnav_link(c, text, action, **kwargs):
+    return link_to(
+        text, 
+        url_for(action=action, **kwargs),
+        class_=('active' if c.action == action else '')
+    )
+
+def icon_url(name):
+    return '/images/icons/{0}.png'.format(name)
+
+def icon(name, alt=None):
+    return literal('<img src="{0}" height="16px" width="16px" alt="{1}" />'.format(icon_url(name), alt))
+
 class Page(paginate.Page):
     
     # Curry the pager method of the webhelpers.paginate.Page class, so we have

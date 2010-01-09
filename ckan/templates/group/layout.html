@@ -11,6 +11,11 @@
       <p>Whilst tags are great at collecting packages together, there are occasions when you want to restrict users from editing a collection. A <strong>group</strong> can be set-up to specify which users have permission to add or remove packages from it.</p>
     </div>
   </py:match>
+  
+  <py:match path="minornavigation">
+    <li>${h.subnav_link(c, 'Home', controller='group', action='index', id=None)}</li>
+    <li>${h.subnav_link(c, 'Create a new group', controller='group', action='new', id=None)}</li>
+  </py:match>
 
   
   <xi:include href="../layout.html" />

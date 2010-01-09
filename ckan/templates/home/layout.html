@@ -1,0 +1,14 @@
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip=""
+  >
+  
+  <py:match path="minornavigation">
+    <li>${h.subnav_link(c, 'About', controller='home', action='about', id=None)}</li>
+    <li>${h.subnav_link(c, 'FAQ and Guide', controller='home', action='guide', id=None)}</li>
+  </py:match>
+  
+  <xi:include href="../layout.html" />
+</html>

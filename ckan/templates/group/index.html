@@ -3,26 +3,6 @@
   
   <py:def function="page_title">Groups - Index</py:def>
   
-  <py:match path="primarysidebar">
-    ${select('.box')} <!--! Don't override groups overview aside -->
-    
-    <div class="box">
-      <h2>Actions</h2>
-      <py:choose test="">
-        <p py:when="c.user" class="buttons">
-          <a href="${h.url_for(controller='group', action='new', id=None)}">
-            ${icon('group_add')}
-            Create a new group
-          </a>
-        </p>
-        <p py:otherwise="">
-          If you <a href="${h.url_for(controller='user', action='login', id=None)}">log in</a>,
-          you'll be able to create your own groups.
-        </p>
-      </py:choose>
-    </div>
-  </py:match>
-  
   <div py:match="content">
     <h2>Groups</h2>
     

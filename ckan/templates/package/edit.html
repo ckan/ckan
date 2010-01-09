@@ -3,9 +3,9 @@
   
   <py:def function="page_title">Packages - Edit - ${c.pkgname}</py:def>
 
-  <div py:match="content">
+  <div py:match="content" class="package">
     <h2>
-      Edit Package: ${c.pkgname}
+      Edit package: ${c.pkg.name}
       <a href="#preview" py:if="c.preview">(skip to preview)</a>
     </h2>
 

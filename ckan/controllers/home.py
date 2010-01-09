@@ -6,10 +6,10 @@ class HomeController(BaseController):
     def index(self):
         c.package_count = model.Package.query.count()
         c.revisions = model.Revision.query.limit(10).all()
-        return render('home')
+        return render('home/index')
 
     def license(self):
-        return render('license')
+        return render('home/license')
     
     def guide(self):
         ckan_pkg = model.Package.by_name(u'ckan')
@@ -17,8 +17,8 @@ class HomeController(BaseController):
             c.info = ckan_pkg.notes
         else:
             c.info = ''
-        return render('guide')
+        return render('home/guide')
 
     def about(self):
-        return render('about')
+        return render('home/about')
 

@@ -3,12 +3,13 @@
   
   <py:def function="page_title">Package - ${c.pkg.name} - History</py:def>
 
-  <div py:match="content">
-    <h2>
-      History - <a href="${h.url_for(controller='package',action='read',id=c.pkg.name)}">${c.pkg.name}</a>
+  <div py:match="content" class="package">
+    <h2 class="head">
+      ${c.pkg.title}
+      <span class="name">(${c.pkg.name})</span>
     </h2>
 
-    <h3>Revisions</h3>
+    <h4>Revisions</h4>
     <form action="diff" method="post"
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -22,11 +23,11 @@
 
       <table>
         <tr>
-          <th>${h.submit('diff', 'Compare')}</th><th>Revision</th><th>Timestamp</th><th>Author</th><th>Log Message</th>
+          <th></th><th>Revision</th><th>Timestamp</th><th>Author</th><th>Log Message</th>
         </tr>
         <py:for each="index, rev in enumerate([ pkg_rev.revision for pkg_rev in c.pkg_revisions ])">
           <tr>
-            <td>
+            <td nowrap="nowrap">
               ${h.radio("selected1", rev.id, checked=(index == 0))}
               ${h.radio("selected2", rev.id, checked=(index == len(c.pkg_revisions)-1))}
             </td>
@@ -39,6 +40,7 @@
           </tr> 
         </py:for>
       </table>
+      ${h.submit('diff', 'Compare &raquo;')}
     </form>
   </div> <!-- content -->
 
