@@ -32,18 +32,18 @@ class TestMigrateTo0Point7(object):
         # run migrate ...
 
     def test_packages(self):
-        out = model.Package.query.all()
+        out = model.Session.query(model.Package).all()
         print len(out)
         assert len(out) == 254
 
     def test_revisions(self):
-        revs = model.Revision.query.all()
+        revs = model.Session.query(model.Revision).all()
         assert len(revs) == 1586, len(revs)
         revs = model.repo.history()
         assert len(revs) == 693, len(revs)
 
     def test_tags(self):
-        tags = model.Tag.query.all()
+        tags = model.Session.query(model.Tag).all()
         assert len(tags) == 560, len(tags)
 
     def test_package_continuity(self):
@@ -66,12 +66,12 @@ class TestMigrateTo0Point7(object):
         assert pkgrevs[0].download_url == None
 
     def test_api_key(self):
-        keys = model.ApiKey.query.all()
+        keys = model.Session.query(model.ApiKey).all()
         assert len(keys) == 3, len(keys)
         assert 'johnbywater' in keys[0].name
 
     def test_license(self):
-        lics = model.License.query.all()
+        lics = model.Session.query(model.License).all()
         assert len(lics) == 63, len(lics)
 
 
@@ -102,12 +102,12 @@ class TestMigrate08(object):
         pass
 
     def test_1(self):
-        revs = model.Revision.query.all()
+        revs = model.Session.query(model.Revision).all()
         assert len(revs) == 2
         rev = revs[-1]
         assert len(rev.id) == 36, rev
 
-        pkgs = model.Package.query.all()
+        pkgs = model.Session.query(model.Package).all()
         for pkg in pkgs:
             assert pkg.revision_id == revs[1].id or pkg.revision_id == revs[0].id, '%s!=%s' % (pkg.revision_id, revs[0].id)
             assert pkg.revision == revs[0] or pkg.revision == revs[1]
@@ -139,7 +139,7 @@ class TestMigrate09(object):
 
     def test_1(self):
         # Now run this with model code at v9
-        users = model.User.query.all()
+        users = model.Session.query(model.User).all()
         assert users
         for user in users:
             assert user.created

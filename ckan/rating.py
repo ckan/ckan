@@ -13,20 +13,20 @@ def set_my_rating(c, package, rating):
     if c.user:
         username = c.user
         user_or_ip = model.User.by_name(username)
-        q = model.Rating.query.filter_by(package=package, user=user_or_ip)
+        q = model.Session.query(model.Rating).filter_by(package=package, user=user_or_ip)
     else:
         user_or_ip = c.author
-        q = model.Rating.query.filter_by(package=package, user_ip_address=user_or_ip)
+        q = model.Session.query(model.Rating).filter_by(package=package, user_ip_address=user_or_ip)
     set_rating(user_or_ip, package, rating)
 
 def set_rating(user_or_ip, package, rating):
     user = None
     if isinstance(user_or_ip, model.User):
         user = user_or_ip
-        rating_query = model.Rating.query.filter_by(package=package, user=user)
+        rating_query = model.Session.query(model.Rating).filter_by(package=package, user=user)
     else:
         ip = user_or_ip
-        rating_query = model.Rating.query.filter_by(package=package, user_ip_address=ip)
+        rating_query = model.Session.query(model.Rating).filter_by(package=package, user_ip_address=ip)
 
     try:
         rating = float(rating)

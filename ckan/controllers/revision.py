@@ -58,7 +58,7 @@ class RevisionController(BaseController):
             from ckan.lib.helpers import Page
 
             c.page = Page(
-                collection=model.Revision.query(),
+                collection=model.Session.query(model.Revision),
                 page=request.params.get('page', 1),
                 items_per_page=50
             )
@@ -68,12 +68,12 @@ class RevisionController(BaseController):
     def read(self, id=None):
         if id is None:
             h.redirect_to(controller='revision', action='list')
-        c.revision = model.Revision.query.get(id)
+        c.revision = model.Session.query(model.Revision).get(id)
         if c.revision is None:
             abort(404)
-        pkgs = model.PackageRevision.query.filter_by(revision=c.revision)
+        pkgs = model.Session.query(model.PackageRevision).filter_by(revision=c.revision)
         c.packages = [ pkg.continuity for pkg in pkgs ]
-        pkgtags = model.PackageTagRevision.query.filter_by(revision=c.revision)
+        pkgtags = model.Session.query(model.PackageTagRevision).filter_by(revision=c.revision)
         c.pkgtags = [ pkgtag.continuity for pkgtag in pkgtags ]
         return render('revision/read')
 
@@ -81,9 +81,9 @@ class RevisionController(BaseController):
         if 'diff' not in request.params or 'oldid' not in request.params:
             abort(400)
         pkg = model.Package.by_name(id)
-        c.revision_from = model.Revision.query.get(
+        c.revision_from = model.Session.query(model.Revision).get(
             request.params.getone('oldid'))
-        c.revision_to = model.Revision.query.get(
+        c.revision_to = model.Session.query(model.Revision).get(
             request.params.getone('diff'))
         c.diff = pkg.diff(c.revision_to, c.revision_from)
         c.pkg = pkg
@@ -103,7 +103,7 @@ class RevisionController(BaseController):
             c.error = 'You are not authorized to perform this action'
             return render('revision/purge')
         else:
-            revision = model.Revision.query.get(id)
+            revision = model.Session.query(model.Revision).get(id)
             try:
                 model.repo.purge_revision(revision, leave_record=True)
             except Exception, inst:

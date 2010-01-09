@@ -58,9 +58,9 @@ class _TestSync:
         after_roles  = { 'visitor': 'editor',
                          'logged_in': 'editor',
                          user.name: 'admin' }
-        num_prs_before = model.PackageRole.query.filter_by(user_id=user.id).count()
+        num_prs_before = model.Session.query(model.PackageRole).filter_by(user_id=user.id).count()
         self._test_change(before_roles, after_roles, pkg_name)
-        num_prs_after = model.PackageRole.query.filter_by(user_id=user.id).count()
+        num_prs_after = model.Session.query(model.PackageRole).filter_by(user_id=user.id).count()
         assert num_prs_before == num_prs_after, '%i %i' % (num_prs_before, num_prs_after)
 
     def test_1_add_role(self):

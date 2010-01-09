@@ -20,7 +20,7 @@ class PackageController(BaseController):
     authorizer = ckan.authz.Authorizer()
     
     def index(self):
-        c.package_count = model.Package.query.count()
+        c.package_count = model.Session.query(model.Package).count()
         return render('package/index')
 
     def list(self):
@@ -120,7 +120,7 @@ class PackageController(BaseController):
 
         if request.params.has_key('commit'):
             record = model.Package
-            fs = fs.bind(record, data=request.params or None)
+            fs = fs.bind(record, data=request.params or None, session=model.Session)
             try:
                 self._update(fs, id, record.id)                
                 c.pkgname = fs.name.value
@@ -148,7 +148,7 @@ class PackageController(BaseController):
                 if domain.startswith('www.'):
                     domain = domain[4:]
             data = ckan.forms.add_to_package_dict(ckan.forms.get_package_dict(fs=fs), request.params)
-            fs = fs.bind(data=data)
+            fs = fs.bind(data=data, session=model.Session)
         c.form = self._render_edit_form(fs, request.params)
         if 'preview' in request.params:
             c.preview = genshi.HTML(self._render_package(fs))
@@ -223,7 +223,7 @@ class PackageController(BaseController):
             # now do new roles
             newrole_user_id = request.params.get('PackageRole--user_id')
             if newrole_user_id != '__null_value__':
-                user = model.User.query.get(newrole_user_id)
+                user = model.Session.query(model.User).get(newrole_user_id)
                 # TODO: chech user is not None (should go in validation ...)
                 role = request.params.get('PackageRole--role')
                 newpkgrole = model.PackageRole(user=user, package=pkg,
@@ -238,7 +238,7 @@ class PackageController(BaseController):
                     newpkgrole.user.name)
         elif 'role_to_delete' in request.params:
             pkgrole_id = request.params['role_to_delete']
-            pkgrole = model.PackageRole.query.get(pkgrole_id)
+            pkgrole = model.Session.query(model.PackageRole).get(pkgrole_id)
             if pkgrole is None:
                 c.error = u'Error: No role found with that id'
             else:
@@ -366,9 +366,9 @@ class PackageController(BaseController):
         c.pkg_maintainer_link = self._person_email_link(c.pkg_maintainer, c.pkg_maintainer_email, "Maintainer")
                 
         if c.auth_for_change_state:
-            c.pkg_state = model.State.query.get(fs.state.value).name
+            c.pkg_state = model.Session.query(model.State).get(fs.state.value).name
         if fs.license.value:
-            c.pkg_license = model.License.query.get(fs.license.value).name
+            c.pkg_license = model.Session.query(model.License).get(fs.license.value).name
         else:
             c.pkg_license = None
         if fs.tags.value:

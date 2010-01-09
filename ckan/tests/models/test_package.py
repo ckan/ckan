@@ -19,6 +19,7 @@ class TestLicense:
 
     def test_license(self):
         license = model.License(name=self.name)
+        model.Session.save(license)
         assert license in model.Session
         model.Session.flush()
         model.Session.clear()
@@ -31,13 +32,14 @@ class TestPackage:
     def setup_class(self):
         self.name = u'geodata'
         self.notes = u'Written by Puccini'
-        pkgs = model.Package.query.filter_by(name=self.name).all()
+        pkgs = model.Session.query(model.Package).filter_by(name=self.name).all()
         for p in pkgs:
             p.purge()
         model.Session.commit()
 
         rev = model.repo.new_revision()
         self.pkg1 = model.Package(name=self.name)
+        model.Session.save(self.pkg1)
         self.pkg1.notes = self.notes
         self.license_name = u'OKD Compliant::Other'
         license = model.License.by_name(self.license_name)
@@ -47,7 +49,7 @@ class TestPackage:
 
     @classmethod
     def teardown_class(self):
-        pkg1 = model.Package.query.filter_by(name=self.name).one()
+        pkg1 = model.Session.query(model.Package).filter_by(name=self.name).one()
         pkg1.purge()
         model.Session.commit()
         model.Session.remove()
@@ -100,7 +102,7 @@ class TestPackageWithTags:
     def teardown_class(self):
         # should only be one but maybe things have gone wrong
         # p = model.Package.by_name(self.pkgname)
-        pkgs = model.Package.query.filter_by(name=self.pkgname)
+        pkgs = model.Session.query(model.Package).filter_by(name=self.pkgname)
         for p in pkgs:
             for pt in p.package_tags:
                 pt.purge()
@@ -116,14 +118,14 @@ class TestPackageWithTags:
     def test_1(self):
         pkg = model.Package.by_name(self.pkgname)
         assert len(pkg.tags) == 2
-        # pkg2tag = model.PackageTag.query.get(self.pkg2tag_id)
+        # pkg2tag = model.Session.query(model.PackageTag).get(self.pkg2tag_id)
         # assert pkg2tag.package.name == self.pkgname
 
     def test_tags(self):
         pkg = model.Package.by_name(self.pkgname)
         # TODO: go back to this
         # 2 default packages each with 2 tags so we have 2 + 4
-        all = model.Tag.query.all() 
+        all = model.Session.query(model.Tag).all() 
         assert len(all) == 3
 
     def test_add_tag_by_name(self):
@@ -152,10 +154,13 @@ class TestPackageWithLicense:
         self.licname1 = u'test_license1'
         self.licname2 = u'test_license2'
         self.license1 = model.License(name=self.licname1)
+        model.Session.save(self.license1)
         self.license2 = model.License(name=self.licname2)
+        model.Session.save(self.license2)
         rev = model.repo.new_revision()
         self.pkgname = u'testpkgfk'
         pkg = model.Package(name=self.pkgname)
+        model.Session.save(pkg)
         pkg.license = self.license1
         model.Session.commit()
         self.rev1id = rev.id
@@ -180,7 +185,7 @@ class TestPackageWithLicense:
         model.Session.commit()
  
     def test_set1(self):
-        rev = model.Revision.query.get(self.rev1id)
+        rev = model.Session.query(model.Revision).get(self.rev1id)
         pkg = model.Package.by_name(self.pkgname)
         pkgrev = pkg.get_as_of(rev)
         out = pkgrev.license.name 
@@ -261,6 +266,7 @@ class TestPackageRevisions:
         self.notes = [u'Written by Puccini', u'Written by Rossini', u'Not written at all', u'Written again', u'Written off']
         rev = model.repo.new_revision()
         self.pkg1 = model.Package(name=self.name)
+        model.Session.save(self.pkg1)
         self.pkg1.notes = self.notes[0]
         model.repo.commit_and_remove()
 

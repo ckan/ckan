@@ -351,7 +351,7 @@ class TestRestController(TestController):
         res = self.app.post(offset, params=postparams, status=[200],
                             extra_environ=self.extra_environ)
         model.Session.remove()
-        pkg = model.Package.query.filter_by(name=pkg_vals['name']).one()
+        pkg = model.Session.query(model.Package).filter_by(name=pkg_vals['name']).one()
         assert pkg.title == pkg_vals['title']
         pkg_tagnames = [tag.name for tag in pkg.tags]
         for tagname in pkg_vals['tags']:
@@ -388,7 +388,7 @@ class TestRestController(TestController):
         res = self.app.post(offset, params=postparams, status=[200],
                             extra_environ=self.extra_environ)
         model.Session.remove()
-        pkg = model.Package.query.filter_by(name=test_params['name']).one()
+        pkg = model.Session.query(model.Package).filter_by(name=test_params['name']).one()
         assert len(pkg.resources) == 1, pkg.resources
         assert pkg.resources[0].url == pkg_vals['download_url']
 
@@ -417,7 +417,7 @@ class TestRestController(TestController):
         res = self.app.post(offset, params=postparams, status=[200],
                             extra_environ=self.extra_environ)
         model.Session.remove()
-        group = model.Group.query.filter_by(name=group_vals['name']).one()
+        group = model.Session.query(model.Group).filter_by(name=group_vals['name']).one()
         assert group.name == group_vals['name']
         assert group.title == group_vals['title']
         assert len(group.packages) == 1, group.packages
@@ -540,28 +540,28 @@ class TestRestController(TestController):
 
     def test_12_get_pkg_404(self):
         # Test Package Entity Get 404.
-        assert not model.Package.query.filter_by(name=self.testpackagevalues['name']).count()
+        assert not model.Session.query(model.Package).filter_by(name=self.testpackagevalues['name']).count()
         offset = '/api/rest/package/%s' % self.testpackagevalues['name']
         res = self.app.get(offset, status=404)
         model.Session.remove()
 
     def test_12_get_group_404(self):
         # Test Package Entity Get 404.
-        assert not model.Group.query.filter_by(name=self.testgroupvalues['name']).count()
+        assert not model.Session.query(model.Group).filter_by(name=self.testgroupvalues['name']).count()
         offset = '/api/rest/group/%s' % self.testgroupvalues['name']
         res = self.app.get(offset, status=404)
         model.Session.remove()
 
     def test_13_delete_pkg_404(self):
         # Test Packages Entity Delete 404.
-        assert not model.Package.query.filter_by(name=self.testpackagevalues['name']).count()
+        assert not model.Session.query(model.Package).filter_by(name=self.testpackagevalues['name']).count()
         offset = '/api/rest/package/%s' % self.testpackagevalues['name']
         res = self.app.delete(offset, status=[404],
                               extra_environ=self.extra_environ)
 
     def test_13_delete_group_404(self):
         # Test Packages Entity Delete 404.
-        assert not model.Group.query.filter_by(name=self.testgroupvalues['name']).count()
+        assert not model.Session.query(model.Group).filter_by(name=self.testgroupvalues['name']).count()
         offset = '/api/rest/group/%s' % self.testgroupvalues['name']
         res = self.app.delete(offset, status=[404],
                               extra_environ=self.extra_environ)

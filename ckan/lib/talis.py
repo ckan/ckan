@@ -122,7 +122,7 @@ class Talis:
         TalisLogin.password = password
 
         err = None
-        for pkg in model.Package.query.all():
+        for pkg in model.Session.query(model.Package).all():
             pkg_dict = pkg.as_dict()
             err = self.post_pkg(pkg_dict)
             if err:

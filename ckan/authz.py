@@ -56,14 +56,14 @@ class Authorizer(object):
 
         # check it's active
         if hasattr(domain_object, 'state'):
-            active = model.State.query.filter_by(name='active').one()
+            active = model.Session.query(model.State).filter_by(name='active').one()
             if domain_object.state != active:
                 return False
 
         # check if any of the roles allows the action requested
         for role in roles:
-            action_query = model.RoleAction.query.filter_by(role=role,
-                                                            action=action)
+            action_query = model.Session.query(model.RoleAction).filter_by(
+                role=role, action=action)
             if action_query.count() > 0:
                 return True
 
@@ -82,9 +82,9 @@ class Authorizer(object):
         '''Get a list of tuples (user, role) for domain_obj specified'''
         assert isinstance(domain_obj, (model.Package, model.Group))
         if isinstance(domain_obj, model.Package):
-            q = model.PackageRole.query.filter_by(package=domain_obj)
+            q = model.Session.query(model.PackageRole).filter_by(package=domain_obj)
         elif isinstance(domain_obj, model.Group):
-            q = model.GroupRole.query.filter_by(group=domain_obj)
+            q = model.Session.query(model.GroupRole).filter_by(group=domain_obj)
         prs = [ (pr.user, pr.role) for pr in q.all() ]
         return prs
 
@@ -116,23 +116,23 @@ class Authorizer(object):
     def is_sysadmin(cls, username):
         user = model.User.by_name(username)
         if user:
-            q = model.SystemRole.query.filter_by(role=model.Role.ADMIN, user=user)
+            q = model.Session.query(model.SystemRole).filter_by(role=model.Role.ADMIN, user=user)
             return q.count() > 0
 
     @classmethod
     def get_admins(cls, domain_obj):
         if isinstance(domain_obj, model.Package):
-            q = model.PackageRole.query.filter_by(package=domain_obj,
+            q = model.Session.query(model.PackageRole).filter_by(package=domain_obj,
                                                   role=model.Role.ADMIN)
         elif isinstance(domain_obj, model.Group):
-            q = model.GroupRole.query.filter_by(group=domain_obj,
+            q = model.Session.query(model.GroupRole).filter_by(group=domain_obj,
                                                 role=model.Role.ADMIN)
         admins = [do_role.user for do_role in q.all()]
         return admins
 
     @classmethod
     def _get_roles_query(cls, domain_obj):
-        q = model.UserObjectRole.query
+        q = model.Session.query(model.UserObjectRole)
         is_a_class = domain_obj.__class__ == type
         context = domain_obj.__name__ if is_a_class else domain_obj.__class__.__name__
         q = q.filter_by(context=unicode(context))

@@ -421,7 +421,8 @@ class TestRank(object):
         self.pkgs = []
         model.repo.new_revision()
         for name, notes in self.data:
-            model.Package(name=name, notes=notes)
+            pkg = model.Package(name=name, notes=notes)
+            model.Session.save(pkg)
             self.pkgs.append(name)
         model.repo.commit_and_remove()
 
@@ -465,7 +466,7 @@ class PostgresSearch(object):
         
     def search(self, terms):
         import ckan.model as model
-        q = self.filter_by(model.Package.query, terms)
+        q = self.filter_by(model.Session.query(model.Package), terms)
         q = self.order_by(q)
         q = q.distinct()
         results = [pkg_tuple[0].name for pkg_tuple in q.all()]
@@ -493,7 +494,7 @@ class TestPostgresSearch(object):
         searches = model.metadata.bind.execute('SELECT package_id, search_vector FROM package_search').fetchall()
         print searches
         assert searches[0][1], searches
-        q = model.Package.query.filter(model.package_search_table.c.package_id==model.Package.id)
+        q = model.Session.query(model.Package).filter(model.package_search_table.c.package_id==model.Package.id)
         assert q.count() == 6, q.count()
         
     def test_1_basic(self):

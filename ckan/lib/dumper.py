@@ -10,8 +10,8 @@ class SimpleDumper(object):
     '''Dumps just package data but including tags, groups, license text etc'''
     def dump(self, dump_file_obj, format='json', query=None):
         if query is None:
-            query = model.Package.query
-            active = model.State.query.filter_by(name='active').one()
+            query = model.Session.query(model.Package)
+            active = model.Session.query(model.State).filter_by(name='active').one()
             query = query.filter_by(state=active)
         if format == 'csv':
             self.dump_csv(dump_file_obj, query)
@@ -114,7 +114,7 @@ class Dumper(object):
         # Protect against writing into created database.
         ckan.model.metadata.create_all()
         for model_class in self.model_classes:
-            if model_class.query.count():
+            if model.Session.query(model_class).count():
                 raise Exception, "Existing '%s' records in database" % model_class
 
         records = {}

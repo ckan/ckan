@@ -4,8 +4,8 @@ class HomeController(BaseController):
     repo = model.repo
 
     def index(self):
-        c.package_count = model.Package.query.count()
-        c.revisions = model.Revision.query.limit(10).all()
+        c.package_count = model.Session.query(model.Package).count()
+        c.revisions = model.Session.query(model.Revision).limit(10).all()
         return render('home')
 
     def license(self):

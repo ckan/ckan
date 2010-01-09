@@ -6,8 +6,8 @@ from ckan.lib.base import *
 import ckan.authz as authz
 
 class TestUsage(TestController):
-    deleted = model.State.query.filter_by(name='deleted').one()
-    active = model.State.query.filter_by(name='active').one()
+    deleted = model.Session.query(model.State).filter_by(name='deleted').one()
+    active = model.Session.query(model.State).filter_by(name='active').one()
     
     @classmethod
     def _create_test_data(self):
@@ -40,7 +40,7 @@ class TestUsage(TestController):
         for mode in self.modes:
             pkg = model.Package.by_name(unicode(mode))
             group = model.Group.by_name(unicode(mode))
-            group.packages = [pkg1 for pkg1 in model.Package.query.all()]
+            group.packages = [pkg1 for pkg1 in model.Session.query(model.Package).all()]
             model.add_user_to_role(pkgadmin, model.Role.ADMIN, pkg)
             model.add_user_to_role(pkgeditor, model.Role.EDITOR, pkg)
             model.add_user_to_role(pkgreader, model.Role.READER, pkg)
@@ -48,7 +48,7 @@ class TestUsage(TestController):
             model.add_user_to_role(groupeditor, model.Role.EDITOR, group)
             model.add_user_to_role(groupreader, model.Role.READER, group)
             if mode == u'deleted':
-                pkg.state = model.State.query.filter_by(name='deleted').one()
+                pkg.state = model.Session.query(model.State).filter_by(name='deleted').one()
             else:
                 if mode[0] == u'r':
                     model.add_user_to_role(mrloggedin, model.Role.READER, pkg)

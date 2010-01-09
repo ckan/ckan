@@ -175,7 +175,7 @@ class TestPackageEditAuthz(TestController):
         assert 'error' not in res, res
         pkg = model.Package.by_name(self.pkgname)
         assert len(pkg.roles) == 2
-        assert model.PackageRole.query.filter_by(id=pr_id).count() == 0
+        assert model.Session.query(model.PackageRole).filter_by(id=pr_id).count() == 0
 
     def test_4_sysadmin_deletes_role(self):
         pkg = model.Package.by_name(self.pkgname2)
@@ -192,7 +192,7 @@ class TestPackageEditAuthz(TestController):
         assert 'error' not in res, res
         pkg = model.Package.by_name(self.pkgname2)
         assert len(pkg.roles) == 2
-        assert model.PackageRole.query.filter_by(id=pr_id).count() == 0
+        assert model.Session.query(model.PackageRole).filter_by(id=pr_id).count() == 0
 
     def test_5_admin_adds_role(self):
         offset = url_for(controller='package', action='authz', id=self.pkgname)

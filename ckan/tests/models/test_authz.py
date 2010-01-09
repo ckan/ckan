@@ -10,10 +10,12 @@ class TestCreation(object):
     def setup_class(self):
         model.Session.remove()
         model.repo.rebuild_db()
-        model.Package(name=u'annakarenina')
-        model.Package(name=u'warandpeace')
-        model.Package(name=u'test0')
+        p1 = model.Package(name=u'annakarenina')
+        p2 = model.Package(name=u'warandpeace')
+        p3 = model.Package(name=u'test0')
         mradmin = model.User(name=u'tester')
+        for obj in (p1, p2, p3, mradmin):
+            model.Session.save(obj)
         self.authorizer = authz.Authorizer()
         model.repo.new_revision()
         model.repo.commit_and_remove()
@@ -28,13 +30,16 @@ class TestCreation(object):
         test0 = model.Package.by_name(u'test0')
         mradmin = model.User.by_name(u'tester')
         uor = model.UserObjectRole(role=model.Role.ADMIN, user=mradmin)
+        model.Session.save(uor)
         pr = model.PackageRole(role=model.Role.ADMIN,
                                package=test0,
                                user=mradmin
                                )
+        model.Session.save(pr)
         test0 = model.Package.by_name(u'test0')        
-        prs = model.PackageRole.query.filter_by(role=model.Role.ADMIN,
-                                               package=test0, user=mradmin)
+        prs = model.Session.query(model.PackageRole).filter_by(
+            role=model.Role.ADMIN,
+            package=test0, user=mradmin)
         model.repo.commit_and_remove()
 
         # basic test of existence
@@ -43,7 +48,7 @@ class TestCreation(object):
         assert pr.context == 'Package', pr.context
 
         # test delete-orphan
-        q = model.UserObjectRole.query
+        q = model.Session.query(model.UserObjectRole)
         assert q.count() == 2, q.all()
         uow = q.filter_by(context=u'user_object').first()
         uow.user = None
@@ -51,11 +56,11 @@ class TestCreation(object):
         assert q.count() == 1, q.all()
 
         # now test delete-orphan on PackageRole
-        prs = model.PackageRole.query
+        prs = model.Session.query(model.PackageRole)
         pr = prs.first()
         pr.user = None
         model.repo.commit_and_remove()
-        prs = model.PackageRole.query()
+        prs = model.Session.query(model.PackageRole)
         # This fails!!
         # It seems that delete-orphan does not work for inheriting object!!
         # assert len(prs.all()) == 0, prs.all()
@@ -70,7 +75,7 @@ class TestCreation(object):
         anna = model.Package.by_name(u'annakarenina')
         mradmin = model.User.by_name(u'tester')
         roles = self.authorizer.get_roles(mradmin.name, anna)
-        print model.PackageRole.query.filter_by(user=mradmin).all()
+        print model.Session.query(model.PackageRole).filter_by(user=mradmin).all()
         assert role in roles, roles
 
     def test_2_role_action_basic(self):
@@ -81,9 +86,10 @@ class TestCreation(object):
                               context=context,
                               action=action,
                               )
+        model.Session.save(ra)
         model.repo.commit_and_remove()
 
-        ra = model.RoleAction.query.filter_by(role=admin_role,
+        ra = model.Session.query(model.RoleAction).filter_by(role=admin_role,
                                               context=context,
                                               action=action)
         assert len(ra.all()) == 1, ra.all()
@@ -94,10 +100,10 @@ class TestCreation(object):
         pr = model.GroupRole(role=model.Role.ADMIN,
                                group=war,
                                user=mradmin)
-        
+        model.Session.save(pr)
         model.repo.commit_and_remove()
 
-        pr = model.GroupRole.query.filter_by(role=model.Role.ADMIN,
+        pr = model.Session.query(model.GroupRole).filter_by(role=model.Role.ADMIN,
                                                group=war)
                                                
         assert len(pr.all()) == 1, pr.all()
@@ -118,7 +124,7 @@ class TestDefaultRoles(object):
         model.Session.remove()
 
     def is_allowed(self, role, action):
-        action_query = model.RoleAction.query.filter_by(role=role,
+        action_query = model.Session.query(model.RoleAction).filter_by(role=role,
                                                         action=action)
         return action_query.count() > 0
         
@@ -199,6 +205,8 @@ class TestUsage(object):
         mreditor = model.User(name=u'mreditor')
         mrreader = model.User(name=u'mrreader')
         tester = model.User(name=u'tester')
+        for obj in [anna, war, mradmin, mreditor, mrreader, tester]:
+            model.Session.save(obj)
         model.repo.commit_and_remove()
 
         anna = model.Package.by_name(u'annakarenina')
@@ -206,18 +214,20 @@ class TestUsage(object):
         model.add_user_to_role(tester, self.admin_role, anna)
 
         self.context = unicode(model.Package.__name__)
-        ra = model.RoleAction(role=self.admin_role,
+        ra1 = model.RoleAction(role=self.admin_role,
                               context=self.context,
                               action=model.Action.EDIT,
                               )
-        ra = model.RoleAction(role=self.editor_role,
+        ra2 = model.RoleAction(role=self.editor_role,
                               context=self.context,
                               action=model.Action.EDIT,
                               )
-        ra = model.RoleAction(role=self.reader_role,
+        ra3 = model.RoleAction(role=self.reader_role,
                               context=self.context,
                               action=model.Action.READ,
                               )
+        for obj in [ra1, ra2, ra3]:
+            model.Session.save(obj)
         model.repo.commit_and_remove()
 
         mradmin = model.User.by_name(u'mradmin')
@@ -245,11 +255,11 @@ class TestUsage(object):
         anna = model.Package.by_name(u'annakarenina')
         tester = model.User.by_name(u'tester')
         roles = self.authorizer.get_roles(tester.name, anna)
-        print model.PackageRole.query.filter_by(user=tester).all()
+        print model.Session.query(model.PackageRole).filter_by(user=tester).all()
         assert self.admin_role in roles, roles
 
     def test_2_is_auth_admin(self):
-        ra = model.RoleAction.query.filter_by(role=self.admin_role,
+        ra = model.Session.query(model.RoleAction).filter_by(role=self.admin_role,
                                               context=self.context,
                                               action=model.Action.EDIT)
         assert len(ra.all()) == 1, ra.all()
@@ -292,6 +302,8 @@ class TestMigrate:
         war = model.Package(name=u'warandpeace')
         warauthor1 = model.User(name=u'warauthor1')
         warauthor2 = model.User(name=u'warauthor2')
+        for obj in [anna, war, warauthor1, warauthor2]:
+            model.Session.save(obj)
         model.repo.commit_and_remove()
 
         # make changes

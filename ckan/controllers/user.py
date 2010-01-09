@@ -15,7 +15,7 @@ class UserController(BaseController):
 
     def read(self, id):
         if id:            
-            user = model.User.query.get(id)
+            user = model.Session.query(model.User).get(id)
         else:
             user = model.User.by_name(c.user)
         if not user:
@@ -23,9 +23,9 @@ class UserController(BaseController):
         c.read_user = user.name
         c.is_myself = user.name == c.user
         c.about_formatted = self._format_about(user.about)
-        revisions_q = model.Revision.query.filter_by(author=user.name)
+        revisions_q = model.Session.query(model.Revision).filter_by(author=user.name)
         c.num_edits = revisions_q.count()
-        c.num_pkg_admin = model.PackageRole.query.filter_by(user=user, role=model.Role.ADMIN).count()
+        c.num_pkg_admin = model.Session.query(model.PackageRole).filter_by(user=user, role=model.Role.ADMIN).count()
         c.activity = revisions_q.limit(20).all()
         return render('user/read')
 

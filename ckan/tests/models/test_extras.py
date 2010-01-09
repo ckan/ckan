@@ -42,10 +42,10 @@ class TestExtras:
         samepkg = model.Package.by_name(u'warandpeace')
         assert len(samepkg._extras) == 3
         assert len(samepkg.extras) == 2
-        extra = model.PackageExtra.query.filter_by(key=u'country').first()
+        extra = model.Session.query(model.PackageExtra).filter_by(key=u'country').first()
         assert extra and extra.state.name == 'deleted', extra
         
-        samepkg.get_as_of(model.Revision.query.get(rev1))
+        samepkg.get_as_of(model.Session.query(model.Revision).get(rev1))
         assert len(samepkg.extras) == 3
         model.Session.remove()
 

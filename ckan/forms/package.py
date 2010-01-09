@@ -184,7 +184,7 @@ class LicenseRenderer(formalchemy.fields.FieldRenderer):
 
     def render_readonly(self, **kwargs):
         if self._value:
-            license_name = model.License.query.get(int(self._value)).name
+            license_name = model.Session.query(model.License).get(int(self._value)).name
         else:
             license_name = ''
         return common.field_readonly_renderer(self.field.key, license_name)
@@ -252,11 +252,11 @@ class TagEditRenderer(formalchemy.fields.FieldRenderer):
 class StateRenderer(formalchemy.fields.FieldRenderer):
     def render(self, options, **kwargs):
         selected = int(kwargs.get('selected', None) or self._value)
-        options = [(s.name, s.id) for s in model.State.query.all()]
+        options = [(s.name, s.id) for s in model.Session.query(model.State).all()]
         return h.select(self.name, h.options_for_select(options, selected=selected), **kwargs)
 
     def render_readonly(self, **kwargs):
-        value_str = model.State.query.get(int(self._value)).name
+        value_str = model.Session.query(model.State).get(int(self._value)).name
         return common.field_readonly_renderer(self.field.key, value_str)
 
 class ResourcesRenderer(formalchemy.fields.FieldRenderer):

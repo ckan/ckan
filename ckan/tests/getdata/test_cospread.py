@@ -19,9 +19,9 @@ class TestBasic:
         model.repo.rebuild_db()
 
     def test_load_data(self):
-        assert model.Package.query.count() == 0
+        assert model.Session.query(model.Package).count() == 0
         self.data.load_csv_into_db(test_data)
-        assert model.Package.query.count() == 3, model.Package.query.count()
+        assert model.Session.query(model.Package).count() == 3, model.Session.query(model.Package).count()
 
     def test_name_munge(self):
         def test_munge(title, expected_munge):
@@ -43,10 +43,10 @@ class TestData:
         model.repo.rebuild_db()
 
     def test_fields(self):
-        names = [pkg.name for pkg in model.Package.query.all()]
-        pkg1 = model.Package.query.filter_by(name=u'child-protection-plan-england-2009').one()
-        pkg2 = model.Package.query.filter_by(name=u'provision-children-under-5-england-2009').one()
-        pkg3 = model.Package.query.filter_by(name=u'laboratory-tests-and-prices').one()
+        names = [pkg.name for pkg in model.Session.query(model.Package).all()]
+        pkg1 = model.Session.query(model.Package).filter_by(name=u'child-protection-plan-england-2009').one()
+        pkg2 = model.Session.query(model.Package).filter_by(name=u'provision-children-under-5-england-2009').one()
+        pkg3 = model.Session.query(model.Package).filter_by(name=u'laboratory-tests-and-prices').one()
         assert pkg1
         assert pkg1.title == 'Child Protection Plan', pkg1.title
         assert pkg1.extras['external_reference'] == u'DCSF-DCSF-0017', pkg1.extras
@@ -108,7 +108,7 @@ class TestDataTwice:
         data.load_csv_into_db(test_data2) # same packages, slightly different
 
     def test_packages(self):
-        q = model.Package.query.filter_by(name=u'child-protection-plan-england-2009')
+        q = model.Session.query(model.Package).filter_by(name=u'child-protection-plan-england-2009')
         pkg = q.one()
         assert pkg.title == 'Child Protection Plan', pkg.title
         assert pkg.notes.startswith('CHANGED'), pkg.notes
@@ -118,6 +118,6 @@ class TestDataTwice:
         assert '000100: Northern Ireland' in pkg.extras['geographic_coverage'], pkg.extras
         assert 'child-protection' in tag_names, tag_names
 
-        q = model.Package.query.filter_by(name=u'provision-children-under-5-england-2009')
+        q = model.Session.query(model.Package).filter_by(name=u'provision-children-under-5-england-2009')
         pkg = q.one()
         assert len(pkg.resources) == 1, pkg.resources

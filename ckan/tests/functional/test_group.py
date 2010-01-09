@@ -24,7 +24,7 @@ class TestGroup(TestController):
         offset = url_for(controller='group')
         res = self.app.get(offset)
         assert '<h2>Groups</h2>' in res, res
-        group_count = model.Group.query().count()
+        group_count = model.Session.query(model.Group).count()
         assert 'There are %s groups.' % group_count in self.strip_tags(res)
         groupname = 'david'
         assert groupname in res

@@ -62,6 +62,7 @@ class CreateTestData(cli.CkanCommand):
             package_dicts = [package_dicts]
         for item in package_dicts:
             pkg = model.Package(name=unicode(item['name']))
+            model.Session.save(pkg)
             for attr, val in item.items():
                 if isinstance(val, str):
                     val = unicode(val)
@@ -95,6 +96,7 @@ class CreateTestData(cli.CkanCommand):
                         if not tag:
                             tag = model.Tag(name=tag_name)
                             self.tag_names.append(tag_name)
+                            model.Session.save(tag)    
                         pkg.tags.append(tag)
                 elif attr == 'groups':
                     for group_name in val.split():
@@ -102,12 +104,13 @@ class CreateTestData(cli.CkanCommand):
                         if not group:
                             group = model.Group(name=group_name)
                             self.group_names.append(group_name)
+                            model.Session.save(group)
                         pkg.groups.append(group)
                 elif attr == 'license':
                     license = model.License.by_name(val)
                     pkg.license = license
                 elif attr == 'license_id':
-                    license = model.License.query.get(val)
+                    license = model.Session.query(model.License).get(val)
                     pkg.license = license
                 elif attr == 'extras':
                     pkg.extras = val
@@ -125,7 +128,8 @@ class CreateTestData(cli.CkanCommand):
             rev.author = self.author
             rev.message = u'Creating search test data.'
         for user_name in self.user_names:
-            model.User(name=unicode(user_name))
+            user = model.User(name=unicode(user_name))
+            model.Session.save(user)
         model.repo.commit_and_remove()
 
         if admins_list:
@@ -150,26 +154,27 @@ class CreateTestData(cli.CkanCommand):
 '''
         self.pkg_names = [u'annakarenina', u'warandpeace']
         pkg1 = model.Package(name=self.pkg_names[0])
+        model.Session.save(pkg1)
         pkg1.title = u'A Novel By Tolstoy'
         pkg1.version = u'0.7a'
         pkg1.url = u'http://www.annakarenina.com'
         # put an & in the url string to test escaping
-        pkg1.resources.append(
-            model.PackageResource(
-              url=u'http://www.annakarenina.com/download/x=1&y=2',
-              format=u'plain text',
-              description=u'Full text',
-              hash=u'abc123',
-              )
+        pr1 = model.PackageResource(
+            url=u'http://www.annakarenina.com/download/x=1&y=2',
+            format=u'plain text',
+            description=u'Full text',
+            hash=u'abc123',
             )
-        pkg1.resources.append(
-            model.PackageResource(
-              url=u'http://www.annakarenina.com/index.json',
-              format=u'json',
-              description=u'Index of the novel',
-              hash=u'def456',
-              )
+        pr2 = model.PackageResource(
+            url=u'http://www.annakarenina.com/index.json',
+            format=u'json',
+            description=u'Index of the novel',
+            hash=u'def456',
             )
+        model.Session.save(pr1)
+        model.Session.save(pr2)
+        pkg1.resources.append(pr1)
+        pkg1.resources.append(pr2)
         pkg1.notes = u'''Some test notes
 
 ### A 3rd level heading
@@ -190,17 +195,24 @@ left arrow <
         pkg2 = model.Package(name=self.pkg_names[1])
         tag1 = model.Tag(name=u'russian')
         tag2 = model.Tag(name=u'tolstoy')
+        for obj in [pkg2, tag1, tag2]:
+            model.Session.save(obj)
         pkg1.tags = [tag1, tag2]
         pkg2.tags = [ tag1 ]
         self.tag_names = [u'russian', u'tolstoy']
         license1 = model.License.by_name(u'OKD Compliant::Other')
         pkg1.license = license1
         pkg2.title = u'A Wonderful Story'
-        pkg1._extras = {'genre':model.PackageExtra(key=u'genre', value='romantic novel'),
-                        'original media':model.PackageExtra(key=u'original media', value='book')
+        genre_extra = model.PackageExtra(key=u'genre', value='romantic novel')
+        media_extra = model.PackageExtra(key=u'original media', value='book')
+        pkg1._extras = {'genre':genre_extra,
+                        'original media':media_extra
                         }
+        model.Session.save(genre_extra)
+        model.Session.save(media_extra)
         # api key
-        model.User(name=u'tester', apikey=u'tester')
+        tester = model.User(name=u'tester', apikey=u'tester')
+        model.Session.save(tester)
         self.user_names = [u'tester']
         # group
         david = model.Group(name=u'david',
@@ -209,6 +221,8 @@ left arrow <
         roger = model.Group(name=u'roger',
                              title=u'Roger\'s books',
                              description=u'Roger likes these books.')
+        for obj in [david, roger]:
+            model.Session.save(obj)
         self.group_names = (u'david', u'roger')
         david.packages = [pkg1, pkg2]
         roger.packages = [pkg1]
@@ -217,6 +231,8 @@ left arrow <
         annafan = model.User(name=u'annafan', about=u'I love reading Annakarenina')
         russianfan = model.User(name=u'russianfan')
         testsysadmin = model.User(name=u'testsysadmin')
+        for obj in [joeadmin, annafan, russianfan, testsysadmin]:
+            model.Session.save(obj)
         self.user_names.extend([u'joeadmin', u'annafan', u'russianfan', u'testsysadmin'])
         model.repo.commit_and_remove()
 
@@ -244,7 +260,7 @@ left arrow <
             tag = model.Tag.by_name(unicode(tag_name))
             if tag:
                 tag.purge()
-        revs = model.Revision.query.filter_by(author=self.author)
+        revs = model.Session.query(model.Revision).filter_by(author=self.author)
         for rev in revs:
             model.Session.delete(rev)
         for group_name in self.group_names:

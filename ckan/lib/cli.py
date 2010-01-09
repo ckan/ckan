@@ -228,22 +228,22 @@ class TestData(CkanCommand):
         print 'Database check'
         print '**************'
 
-        num_pkg = model.Package.query().count()
+        num_pkg = model.Session.query(model.Package).count()
         print '* Number of packages: ', num_pkg
         assert num_pkg > 0
 
-        num_tag = model.Tag.query().count()
+        num_tag = model.Session.query(model.Tag).count()
         print '* Number of tags: ', num_tag
         assert num_tag > 0
 
-        pkg = model.Package.query().first()
+        pkg = model.Session.query(model.Package).first()
         print u'* A package: %s' % pkg
         expected_attributes = ('name', 'title', 'notes', 'url')
         for ea in expected_attributes:
             print '* Checking for attribute ', ea
             assert ea in pkg.__dict__.keys()
 
-        tag = model.Tag.query().first()
+        tag = model.Session.query(model.Tag).first()
         print '* A tag: ', tag.name
         expected_attributes = ['name']
         for ea in expected_attributes:
@@ -330,7 +330,7 @@ class Sysadmin(CkanCommand):
     def list(self):
         from ckan import model
         print 'Sysadmins:'
-        sysadmins = model.SystemRole.query.filter_by(role=model.Role.ADMIN).all()
+        sysadmins = model.Session.query(model.SystemRole).filter_by(role=model.Role.ADMIN).all()
         for sysadmin in sysadmins:
             print 'name=%s id=%s' % (sysadmin.user.name, sysadmin.user.id)
 
@@ -381,7 +381,7 @@ class CreateSearchIndex(CkanCommand):
         from ckan import model
         from ckan.model.full_search import SearchVectorTrigger
         engine = model.metadata.bind
-        for pkg in model.Package.query.all():
+        for pkg in model.Session.query(model.Package).all():
             pkg_dict = pkg.as_dict()
             SearchVectorTrigger().update_package_vector(pkg_dict, engine)
 
@@ -415,14 +415,14 @@ class Ratings(CkanCommand):
 
     def count(self):
         from ckan import model
-        q = model.Rating.query
+        q = model.Session.query(model.Rating)
         print "%i ratings" % q.count()
         q = q.filter(model.Rating.user_id == None)
         print "of which %i are anonymous ratings" % q.count()        
 
     def clean(self, user_ratings=True):
         from ckan import model
-        q = model.Rating.query
+        q = model.Session.query(model.Rating)
         print "%i ratings" % q.count()
         if not user_ratings:
             q = q.filter(model.Rating.user_id == None)

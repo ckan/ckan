@@ -19,10 +19,10 @@ class Differ(object):
         # Make specific fields more readable
         if 'state_id' in keys:
             for dict_ in dicts:
-                dict_['state'] = model.State.query.get(dict_['state_id']).name
+                dict_['state'] = model.Session.query(model.State).get(dict_['state_id']).name
         if 'license_id' in keys:
             for dict_ in dicts:
-                dict_['license'] = model.License.query.get(dict_['license_id']).name if \
+                dict_['license'] = model.Session.query(model.License).get(dict_['license_id']).name if \
                                    dict_['license_id'] else None
 
         # Diff each field

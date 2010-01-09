@@ -84,7 +84,7 @@ group_fs_combined.configure(
 class PackagesRenderer(formalchemy.fields.FieldRenderer):
     def render(self, **kwargs):
         selected = unicode(kwargs.get('selected', None) or self._value)
-        options = [('', '__null_value__')] + [(p.name, p.id) for p in model.Package.query.all()]
+        options = [('', '__null_value__')] + [(p.name, p.id) for p in model.Session.query(model.Package).all()]
         return h.select(self.name, h.options_for_select(options, selected=selected), **kwargs)
 
 new_package_group_fs = formalchemy.FieldSet(model.PackageGroup)

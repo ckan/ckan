@@ -181,3 +181,5 @@ class ImporterController(BaseController):
         warnings = ', '.join(errors)
         return errors, warnings, pkg
 
+    def package_render(self, fs, errors, warnings):
+        

@@ -3,9 +3,9 @@
 import ckan.model as model
 from ckan.lib.dumper import SimpleDumper
 
-query = model.Package.query
+query = model.Session.query(model.Package)
 
-active = model.State.query.filter_by(name='active').one()
+active = model.Session.query(model.State).filter_by(name='active').one()
 query = query.filter_by(state=active)
 
 query = query.join('groups').filter(model.Group.name==u'ukgov')
