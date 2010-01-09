@@ -41,13 +41,16 @@ def make_map():
     map.connect('api/rest/:register/:id', controller='rest', action='delete',
         conditions=dict(method=['DELETE']))
 
+    map.redirect("/tags", "/tag")
     map.redirect("/tags/{url:.*}", "/tag/{url}")
+    map.redirect("/packages", "/package")
     map.redirect("/packages/{url:.*}", "/package/{url}")
     map.connect('package', controller='package', action='index')
     map.connect('package/search', controller='package', action='search')
     map.connect('package/list', controller='package', action='list')
     map.connect('package/new', controller='package', action='new')
     map.connect('package/:id', controller='package', action='read')
+    map.redirect("/groups", "/group")
     map.redirect("/groups/{url:.*}", "/group/{url}")
     map.connect('group', controller='group', action='index')
     map.connect('group/list', controller='group', action='list')
