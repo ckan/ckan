@@ -436,7 +436,7 @@ def get_package_dict(pkg=None, blank=False, fs=None):
     Resulting dict has keys with a formalchemy prefix, and it should work
     binding it to a fs and syncing. But whereas formalchemy forms produce a
     param dicts with "package--extras-0-key":extra-key etc, this method creates
-    a param dict with iterators in thIn contrast toe values, so you get something like:
+    a param dict with iterators in the values, so you get something like:
     "package--extras":{extra-key:extra-value} instead.
     '''
     indict = {}

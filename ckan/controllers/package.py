@@ -1,15 +1,16 @@
 import logging
 import urlparse
 
-import genshi
 import simplejson
 
 from ckan.lib.base import *
 from ckan.lib.search import Search, SearchOptions
 from ckan.lib.package_render import package_render
+from ckan.lib.package_saver import PackageSaver
 import ckan.forms
 import ckan.authz
 import ckan.rating
+import ckan.misc
 
 logger = logging.getLogger('ckan.controllers')
 
@@ -67,25 +68,21 @@ class PackageController(BaseController):
         return render('package/search')
 
     def read(self, id):
-        c.pkg = model.Package.by_name(id)
-        if c.pkg is None:
+        pkg = model.Package.by_name(id)
+        if pkg is None:
             abort(404, '404 Not Found')
 
-        auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, c.pkg)
+        auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, pkg)
         if not auth_for_read:
             abort(401, str('Unauthorized to read %s' % id))
 
-        c.auth_for_authz = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, c.pkg)
-        c.auth_for_edit = self.authorizer.am_authorized(c, model.Action.EDIT, c.pkg)
-        c.auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, c.pkg)
+        c.auth_for_authz = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, pkg)
+        c.auth_for_edit = self.authorizer.am_authorized(c, model.Action.EDIT, pkg)
+        c.auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, pkg)
 
-        fs = ckan.forms.get_fieldset(is_admin=c.auth_for_change_state, basic=True)
-        # this line needed or the resources relation doesn't bind:
-        resources = c.pkg.resources
-        fs = fs.bind(c.pkg)
 
         # setup c object.
-        self._render_package_with_template(fs)
+        return PackageSaver().render_package(pkg)
 
         return render('package/read')
 
@@ -118,14 +115,15 @@ class PackageController(BaseController):
 
         fs = ckan.forms.get_fieldset(is_admin=is_admin, basic=False, package_form=request.params.get('package_form'))
 
+        record = model.Package
         if request.params.has_key('commit'):
-            record = model.Package
-            fs = fs.bind(record, data=request.params or None, session=model.Session)
+            fs = fs.bind(record, data=request.params or None)
             try:
-                self._update(fs, id, record.id)                
-                c.pkgname = fs.name.value
+                log_message = request.params['log_message']
+                PackageSaver().commit_pkg(fs, id, record.id, log_message, c.author)
+                pkgname = fs.name.value
 
-                pkg = model.Package.by_name(c.pkgname)
+                pkg = model.Package.by_name(pkgname)
                 admins = []
                 if c.user:
                     user = model.User.by_name(c.user)
@@ -133,7 +131,7 @@ class PackageController(BaseController):
                         admins = [user]
                 model.setup_default_user_roles(pkg, admins)
 
-                h.redirect_to(action='read', id=c.pkgname)
+                h.redirect_to(action='read', id=pkgname)
             except ValidationException, error:
                 c.error, fs = error.args
                 c.form = self._render_edit_form(fs, request.params)
@@ -141,17 +139,18 @@ class PackageController(BaseController):
 
         # use request params even when starting to allow posting from "outside"
         # (e.g. bookmarklet)
-        if request.params:
+        if 'preview' in request.params or 'name' in request.params or 'url' in request.params:
             if 'name' not in request.params and 'url' in request.params:
                 url = request.params.get('url')
                 domain = urlparse.urlparse(url)[1]
                 if domain.startswith('www.'):
                     domain = domain[4:]
+            # ensure all fields specified in params (formalchemy needs this on bind)
             data = ckan.forms.add_to_package_dict(ckan.forms.get_package_dict(fs=fs), request.params)
-            fs = fs.bind(model.Package, data=data, session=model.Session)
+            fs = fs.bind(model.Package, data=data)
         c.form = self._render_edit_form(fs, request.params)
         if 'preview' in request.params:
-            c.preview = genshi.HTML(self._render_package(fs))
+            c.preview = PackageSaver().render_preview(fs, id, record.id)
         return render('package/new')
 
     def edit(self, id=None): # allow id=None to allow posting
@@ -171,31 +170,30 @@ class PackageController(BaseController):
 
         if not 'commit' in request.params and not 'preview' in request.params:
             # edit
-            c.pkg = pkg
-
-            fs = fs.bind(c.pkg)
+            fs = fs.bind(pkg)
             c.form = self._render_edit_form(fs, request.params)
             return render('package/edit')
         elif request.params.has_key('commit'):
             # id is the name (pre-edited state)
-            c.pkgname = id
+            pkgname = id
             params = dict(request.params) # needed because request is nested
                                           # multidict which is read only
-            c.fs = fs.bind(pkg, data=params or None)
+            fs = fs.bind(pkg, data=params or None)
             try:
-                self._update(c.fs, id, pkg.id)
+                log_message = request.params['log_message']
+                PackageSaver().commit_pkg(fs, id, pkg.id, log_message, c.author)
                 # do not use pkgname from id as may have changed
-                c.pkgname = c.fs.name.value
-                h.redirect_to(action='read', id=c.pkgname)
+                pkgname = fs.name.value
+                h.redirect_to(action='read', id=pkgname)
             except ValidationException, error:
                 c.error, fs = error.args
                 c.form = self._render_edit_form(fs, request.params)
                 return render('package/edit')
         else: # Must be preview
-            c.pkgname = id
+            pkgname = id
             fs = fs.bind(pkg, data=request.params)
             c.form = self._render_edit_form(fs, request.params)
-            c.preview = genshi.HTML(self._render_package(fs))
+            c.preview = PackageSaver().render_preview(fs, id, pkg.id)
             return render('package/edit')
 
     def authz(self, id):
@@ -273,55 +271,6 @@ class PackageController(BaseController):
         c.form = fs.render()
         return render('package/edit_form')
 
-    # TODO 2009-10-08 this is an OLD hack re. spam - probably can be removed
-    def _is_locked(pkgname, self):
-        # allow non-existent name -- never happens but allows test of 'bad'
-        # update (test_update in test_package.py) to work normally :)
-        if pkgname == 'mis-uiowa':
-            msg = 'This package is temporarily locked and cannot be edited'
-            raise msg
-        return ''
-
-    def _is_spam(self, log_message):
-        if log_message and 'http:' in log_message:
-            return True
-        return False
-
-    def _update(self, fs, id, record_id):
-        '''
-        Writes the POST data (associated with a package edit) to the database
-        @input c.error
-        '''
-        error_msg = self._is_locked(fs.name.value)
-        if error_msg:
-            raise Exception(error_msg)
-
-        log_message = request.params['log_message']
-        if self._is_spam(log_message):
-            error_msg = 'This commit looks like spam'
-            # TODO: make this into a UserErrorMessage or the like
-            raise Exception(error_msg)
-
-        validation = fs.validate_on_edit(id, record_id)
-        if not validation:
-            errors = []            
-            for field, err_list in fs.errors.items():
-                errors.append("%s: %s" % (field.name, ";".join(err_list)))
-            c.error = ', '.join(errors)
-            c.form = self._render_edit_form(fs, request.params)
-            raise ValidationException(c.error, fs)
-
-        try:
-            rev = model.repo.new_revision()
-            rev.author = c.author
-            rev.message = log_message
-            fs.sync()
-        except Exception, inst:
-            model.Session.rollback()
-            raise
-        else:
-            model.Session.commit()
-
     def _update_authz(self, fs):
         validation = fs.validate()
         if not validation:
@@ -339,63 +288,9 @@ class PackageController(BaseController):
         else:
             model.Session.commit()
 
-    def _render_package(self, fs):
-        return package_render(fs)
 
-    def _render_package_with_template(self, fs):
-        # Todo: More specific error handling (don't catch-all and set 500)?
-        c.pkg_name = fs.name.value
-        c.pkg_version = fs.version.value
-        c.pkg_title = fs.title.value
-        c.pkg_url = fs.url.value
 
-        c.pkg_url_link = h.link_to(c.pkg_url, c.pkg_url) if c.pkg_url else "No external link"
 
-        if fs.resources.value and isinstance(fs.resources.value[0], model.PackageResource):
-            c.pkg_resources = [(res.url, res.format, res.description, res.hash) for res in fs.resources.value]
-        else:
-            c.pkg_resources = fs.resources.value
-        c.pkg_author = fs.author.value
-        c.pkg_author_email = fs.author_email.value
-
-        c.pkg_author_link = self._person_email_link(c.pkg_author, c.pkg_author_email, "Author")
-
-        c.pkg_maintainer = fs.maintainer.value
-        c.pkg_maintainer_email = fs.maintainer_email.value
-
-        c.pkg_maintainer_link = self._person_email_link(c.pkg_maintainer, c.pkg_maintainer_email, "Maintainer")
-
-        if c.auth_for_change_state:
-            c.pkg_state = fs.state.value
-        if fs.license.value:
-            c.pkg_license = model.Session.query(model.License).get(fs.license.value).name
-        else:
-            c.pkg_license = None
-
-        if fs.tags.value:
-            c.pkg_tags = [tag for tag in fs.tags.value]
-        elif fs.model.tags:
-            c.pkg_tags = [tag for tag in fs.model.tags_ordered]
-        else:
-            c.pkg_tags = []
-
-        if fs.model.groups:
-            c.pkg_groups = [group.name for group in fs.model.groups]
-        else:
-            c.pkg_groups = []
-
-        import ckan.misc
-        format = ckan.misc.MarkdownFormat()
-        notes_formatted = format.to_html(fs.notes.value)
-        notes_formatted = genshi.HTML(notes_formatted)
-        c.pkg_notes_formatted = notes_formatted
-        c.pkg_extras = []
-        if fs.extras.value:
-            for key, value in fs.extras.value:
-                c.pkg_extras.append((key.capitalize(), value))
-        else:
-            for key, extra in fs.model._extras.items():
-                c.pkg_extras.append((key.capitalize(), extra.value))
 
     def _person_email_link(self, name, email, reference):
         if email:

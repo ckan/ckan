@@ -142,7 +142,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             format=format,
             description=description,
             hash=hash))
-        
+
     def add_tag_by_name(self, tagname):
         if not tagname:
             return
