@@ -14,7 +14,7 @@ class GroupController(BaseController):
         from ckan.lib.helpers import Page
 
         c.page = Page(
-            collection=model.Group.query(),
+            collection=model.Session.query(model.Group),
             page=request.params.get('page', 1),
             items_per_page=20
         )
@@ -33,7 +33,7 @@ class GroupController(BaseController):
         c.auth_for_authz = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, c.group)
         
         c.group_active_packages = []
-        active_str = model.State.query.filter_by(name='active').one()
+        active_str = model.Session.query(model.State).filter_by(name='active').one()
         # TODO: this isn't nice ... (either should have active_packages
         # attribute or ...)
         for pkg in c.group.packages:
@@ -80,7 +80,7 @@ class GroupController(BaseController):
             group.packages = pkgs
             pkgid = request.params.get('PackageGroup--package_id')
             if pkgid != '__null_value__':
-                package = model.Package.query.get(pkgid)
+                package = model.Session.query(model.Package).get(pkgid)
                 group.packages.append(package)
             model.repo.commit_and_remove()
             h.redirect_to(action='read', id=c.groupname)
@@ -128,7 +128,7 @@ class GroupController(BaseController):
             group.packages = pkgs
             pkgid = request.params.get('PackageGroup--package_id')
             if pkgid != '__null_value__':
-                package = model.Package.query.get(pkgid)
+                package = model.Session.query(model.Package).get(pkgid)
                 group.packages.append(package)
             model.repo.commit_and_remove()
             h.redirect_to(action='read', id=c.groupname)
@@ -158,7 +158,7 @@ class GroupController(BaseController):
             # now do new roles
             newrole_user_id = request.params.get('GroupRole--user_id')
             if newrole_user_id != '__null_value__':
-                user = model.User.query.get(newrole_user_id)
+                user = model.Session.query(model.User).get(newrole_user_id)
                 # TODO: chech user is not None (should go in validation ...)
                 role = request.params.get('GroupRole--role')
                 newgrouprole = model.GroupRole(user=user, group=group,
@@ -173,7 +173,7 @@ class GroupController(BaseController):
                     newgrouprole.user.name)
         elif 'role_to_delete' in request.params:
             grouprole_id = request.params['role_to_delete']
-            grouprole = model.GroupRole.query.get(grouprole_id)
+            grouprole = model.Session.query(model.GroupRole).get(grouprole_id)
             if grouprole is None:
                 c.error = u'Error: No role found with that id'
             else:

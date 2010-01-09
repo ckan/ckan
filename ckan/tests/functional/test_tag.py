@@ -42,13 +42,13 @@ class TestTagController(TestController):
         print str(res)
         assert tagname in res
         #assert '(2 packages)' in res
-        tag_count = model.Tag.query().count()
+        tag_count = model.Session.query(model.Tag).count()
         assert 'There are <strong>%s</strong> tags.' % tag_count in res
         offset = url_for(controller='tag', action='index')
         res = self.app.get(offset)
         print str(res)
         assert tagname in res
-        tag_count = model.Tag.query().count()
+        tag_count = model.Session.query(model.Tag).count()
         assert 'There are <strong>%s</strong> tags.' % tag_count in res
         # Avoid interactions.
         offset = url_for(controller='tag', action='index')
@@ -56,7 +56,7 @@ class TestTagController(TestController):
     def test_list_long(self):
         try:
             self.create_200_tags()
-            tag_count = model.Tag.query.count()
+            tag_count = model.Session.query(model.Tag).count()
             # Page 1.
             print
             offset = url_for(controller='tag', action='index')

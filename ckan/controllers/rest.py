@@ -15,15 +15,15 @@ class RestController(BaseController):
 
     def list(self, register):
         if register == u'package':
-            packages = model.Package.query.all() 
+            packages = model.Session.query(model.Package).all() 
             results = [package.name for package in packages]
             return self._finish_ok(results)
         elif register == u'group':
-            groups = model.Group.query.all() 
+            groups = model.Session.query(model.Group).all() 
             results = [group.name for group in groups]
             return self._finish_ok(results)
         elif register == u'tag':
-            tags = model.Tag.query.all() #TODO
+            tags = model.Session.query(model.Tag).all() #TODO
             results = [tag.name for tag in tags]
             return self._finish_ok(results)
         else:
@@ -202,7 +202,7 @@ class RestController(BaseController):
         return self._finish_ok(results)
 
     def tag_counts(self):
-        tags = model.Tag.query.all()
+        tags = model.Session.query(model.Tag).all()
         results = []
         for tag in tags:
             tag_count = len(tag.package_tags)
@@ -258,7 +258,7 @@ class RestController(BaseController):
         if keystr is None:
             keystr = request.environ.get('Authorization', None)
         self.log.debug("Received API Key: %s" % keystr)
-        api_key = model.User.query.filter_by(apikey=keystr).first()
+        api_key = model.Session.query(model.User).filter_by(apikey=keystr).first()
         if api_key is not None:
             self.rest_api_user = api_key.name
         else:

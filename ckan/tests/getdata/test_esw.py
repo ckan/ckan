@@ -27,9 +27,9 @@ class TestBasic:
         model.repo.rebuild_db()
 
     def test_load_data(self):
-        assert model.Package.query.count() == 0
+        assert model.Session.query(model.Package).count() == 0
         self.data.load_esw_txt_into_db(test_data)
-        assert model.Package.query.count() >= 4, model.Package.query.count()
+        assert model.Session.query(model.Package).count() >= 4, model.Session.query(model.Package).count()
 
     def test_name_munge(self):
         def test_munge(title_field, expected_title, expected_name):
@@ -65,11 +65,11 @@ class TestLoadIntoDb:
         model.repo.rebuild_db()
 
     def test_fields(self):
-        names = [pkg.name for pkg in model.Package.query.all()]
+        names = [pkg.name for pkg in model.Session.query(model.Package).all()]
         print names
         pkgs = []
         for pkg_name in TEST_PKG_NAMES:
-            pkg = model.Package.query.filter_by(name=unicode(pkg_name)).one()
+            pkg = model.Session.query(model.Package).filter_by(name=unicode(pkg_name)).one()
             pkgs.append(pkg)
         def get_attrib(pkg, attrib):
             if attrib == 'groups':
@@ -113,7 +113,7 @@ def check_package_data(pkgs, get_):
         if hasattr(pkg, 'license'):
             license_name = pkg.license.name
         else:
-            license_name = model.License.query.get(pkg['license_id']).name
+            license_name = model.Session.query(model.License).get(pkg['license_id']).name
         return license_name
     assert get_license_name(pkgs[4]) == u'OKD Compliant::Other', get_license_name(pkgs[4])
     assert get_(pkgs[2], 'groups') == ['semanticweb'], get_(pkgs[2], 'groups')

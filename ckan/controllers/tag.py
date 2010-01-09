@@ -11,7 +11,7 @@ class TagController(BaseController):
         if c.q:
             query = model.Tag.search_by_name(c.q)
         else:
-            query = model.Tag.query()
+            query = model.Session.query(model.Tag)
            
         c.page = Page(
             collection=query,

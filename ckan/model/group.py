@@ -33,7 +33,7 @@ class Group(DomainObject):
     @classmethod
     def search_by_name(self, text_query):
         text_query = text_query.strip().lower()
-        return self.query.filter(self.name.contains(text_query))
+        return Session.query(self).filter(self.name.contains(text_query))
 
     def as_dict(self):
         _dict = DomainObject.as_dict(self)

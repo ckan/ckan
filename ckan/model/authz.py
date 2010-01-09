@@ -141,15 +141,15 @@ def user_has_role(user, role, domain_obj):
     assert domain_obj.id
     
     if isinstance(domain_obj, Package):
-        return PackageRole.query.filter_by(role=role,
+        return Session.query(PackageRole).filter_by(role=role,
                                            package=domain_obj,
                                            user=user).count() == 1
     elif isinstance(domain_obj, Group):
-        return GroupRole.query.filter_by(role=role,
+        return Session.query(GroupRole).filter_by(role=role,
                                            group=domain_obj,
                                            user=user).count() == 1
     elif isinstance(domain_obj, System):
-        return SystemRole.query.filter_by(role=role,
+        return Session.query(SystemRole).filter_by(role=role,
                                           user=user).count() == 1
     else:
         raise NotImplementedError()
@@ -159,15 +159,15 @@ def add_user_to_role(user, role, domain_obj):
     assert Role.is_valid(role), role
 
     if isinstance(domain_obj, Package):
-        existing_pr = PackageRole.query.filter_by(role=role,
+        existing_pr = Session.query(PackageRole).filter_by(role=role,
                                                   package=domain_obj,
                                                   user=user).count()
     elif isinstance(domain_obj, Group):        
-        existing_pr = GroupRole.query.filter_by(role=role,
+        existing_pr = Session.query(GroupRole).filter_by(role=role,
                                                 group=domain_obj,
                                                 user=user).count()
     elif isinstance(domain_obj, System):        
-        existing_pr = SystemRole.query.filter_by(role=role,
+        existing_pr = Session.query(SystemRole).filter_by(role=role,
                                                  user=user).count()
     else:
         raise NotImplementedError()
@@ -187,6 +187,7 @@ def add_user_to_role(user, role, domain_obj):
                         user=user)
     else:
         raise NotImplementedError()
+    Session.save(pr)
     Session.commit()
     Session.remove()
 
@@ -194,15 +195,15 @@ def remove_user_from_role(user, role, domain_obj):
     assert Role.is_valid(role), role
 
     if isinstance(domain_obj, Package):
-        uo_role = PackageRole.query.filter_by(role=role,
+        uo_role = Session.query(PackageRole).filter_by(role=role,
                                          package=domain_obj,
                                          user=user).one()
     elif isinstance(domain_obj, Group):
-        uo_role = GroupRole.query.filter_by(role=role,
+        uo_role = Session.query(GroupRole).filter_by(role=role,
                                          group=domain_obj,
                                          user=user).one()
     elif isinstance(domain_obj, System):
-        uo_role = SystemRole.query.filter_by(role=role,
+        uo_role = Session.query(SystemRole).filter_by(role=role,
                                          user=user).one()
     else:
         raise NotImplementedError()
@@ -233,9 +234,10 @@ def setup_user_roles(domain_object, visitor_roles, logged_in_roles, admins=[]):
 def give_all_packages_default_user_roles():
     # if this command gives an exception, you probably
     # forgot to do 'paster db init'
-    pkgs = Package.query.all()
+    pkgs = Session.query(Package).all()
 
     for pkg in pkgs:
+        print pkg
         if len(pkg.roles) > 0:
             print 'Skipping (already has roles): %s' % pkg.name
             continue
@@ -270,9 +272,9 @@ def setup_default_user_roles(domain_object, admins=[]):
 def clear_user_roles(domain_object):
     assert isinstance(domain_object, DomainObject)
     if isinstance(domain_object, Package):
-        q = PackageRole.query.filter_by(package=domain_object)
+        q = Session.query(PackageRole).filter_by(package=domain_object)
     elif isinstance(domain_object, Group):
-        q = GroupRole.query.filter_by(group=domain_object)
+        q = Session.query(GroupRole).filter_by(group=domain_object)
     else:
         raise NotImplementedError()
     user_roles = q.all()

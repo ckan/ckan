@@ -141,7 +141,7 @@ class Search:
 
     def _build_package_query(self, general_terms, field_specific_terms):
         make_like = lambda x,y: x.ilike('%' + y + '%')
-        query = model.Package.query
+        query = model.Session.query(model.Package)
         query = query.filter(model.package_search_table.c.package_id==model.Package.id)
 
         # Full search by general_terms (and field specific terms but not by field)
@@ -194,17 +194,17 @@ class Search:
                 raise NotImplemented
 
         query = query.distinct()
-        query = query.filter(model.Package.state == model.State.query.filter_by(name='active').one())
+        query = query.filter(model.Package.state == model.Session.query(model.State).filter_by(name='active').one())
         return query
 
     def _build_tags_query(self, general_terms):
-        query = model.Tag.query
+        query = model.Session.query(model.Tag)
         for term in general_terms:
             query = query.filter(model.Tag.name.contains(term.lower()))
         return query
 
     def _build_groups_query(self, general_terms):
-        query = model.Group.query
+        query = model.Session.query(model.Group)
         for term in general_terms:
             query = query.filter(model.Group.name.contains(term.lower()))
         return query

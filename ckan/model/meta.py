@@ -23,5 +23,6 @@ Session = scoped_session(sessionmaker(
     bind=config['pylons.g'].sa_engine
     ))
 
-mapper = Session.mapper
+#mapper = Session.mapper
+mapper = orm.mapper
 

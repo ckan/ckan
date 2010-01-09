@@ -6,19 +6,21 @@ class TestUser:
         user = model.User()
         openid = u'http://xyz.com'
         user.name = openid
+        model.Session.save(user)
         model.repo.commit_and_remove()
 
         out = model.User.by_name(openid)
         assert len(out.apikey) == 36
 
     def test_0_timestamp_any_existing(self):
-        user = model.User.query.first()
+        user = model.Session.query(model.User).first()
         assert len(str(user.created)) > 5, out.created
 
     def test_1_timestamp_new(self):
         user = model.User()
         openid = u'http://xyz.com'
         user.name = openid
+        model.Session.save(user)
         model.repo.commit_and_remove()
 
         out = model.User.by_name(openid)

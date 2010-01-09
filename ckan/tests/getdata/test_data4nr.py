@@ -21,9 +21,9 @@ class TestBasic:
         model.repo.rebuild_db()
 
     def test_load_data(self):
-        assert model.Package.query.count() == 0
+        assert model.Session.query(model.Package).count() == 0
         self.data.load_csv_into_db(test_data)
-        assert model.Package.query.count() == 3, model.Package.query.all()
+        assert model.Session.query(model.Package).count() == 3, model.Session.query(model.Package).all()
 
     def test_name_munge(self):
         def test_munge(title, expected_munge):
@@ -45,9 +45,9 @@ class TestData:
         model.repo.rebuild_db()
 
     def test_fields(self):
-        names = [pkg.name for pkg in model.Package.query.all()]
+        names = [pkg.name for pkg in model.Session.query(model.Package).all()]
         print names
-        pkg1 = model.Package.query.filter_by(name=u'age_and_limiting_long-term_illness_by_ns-sec_2001').one()
+        pkg1 = model.Session.query(model.Package).filter_by(name=u'age_and_limiting_long-term_illness_by_ns-sec_2001').one()
         assert pkg1
         assert pkg1.title == 'Age and limiting long-term illness by NS-SeC', pkg1.title
         assert pkg1.author == 'Nomis', pkg1.author
@@ -60,10 +60,10 @@ class TestData:
         assert 'Time coverage: 2001' in pkg1.notes, pkg1.notes
         extras = pkg1._extras
         assert len(extras) == 2, extras
-        extra = model.PackageExtra.query.filter_by(package=pkg1, key=u'source').one()
+        extra = model.Session.query(model.PackageExtra).filter_by(package=pkg1, key=u'source').one()
         assert extra == extras[u'source']
         assert extra.value == u'Census 2001', extra.value 
-        extra = model.PackageExtra.query.filter_by(package=pkg1, key=u'update frequency').one()
+        extra = model.Session.query(model.PackageExtra).filter_by(package=pkg1, key=u'update frequency').one()
         assert extra == extras[u'update frequency']
         assert extra.value == u'Every 10 years', extra.value
         tag_names = set()
@@ -81,13 +81,13 @@ class TestDataTwice:
         data.load_csv_into_db(test_data2)
 
     def test_packages(self):
-        q = model.Package.query.filter_by(name=u'age_and_limiting_long-term_illness_by_ns-sec_2001')
+        q = model.Session.query(model.Package).filter_by(name=u'age_and_limiting_long-term_illness_by_ns-sec_2001')
         assert q.count() == 1, q.count()
         pkg = q.one()
         assert pkg.title == 'Age and limiting long-term illness by NS-SeC', pkg.title
         assert pkg.notes.startswith('CHANGED'), pkg.notes
         assert len(pkg._extras) == 2, pkg._extras
-        q = model.PackageExtra.query.filter_by(package=pkg, key=u'source')
+        q = model.Session.query(model.PackageExtra).filter_by(package=pkg, key=u'source')
         assert q.count() == 1, q.all()
         extra = q.one()
         assert extra == pkg._extras[u'source']

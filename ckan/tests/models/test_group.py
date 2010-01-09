@@ -17,6 +17,7 @@ class TestGroup(object):
     def test_1_basic(self):
         group1 = model.Group(name=u'group1', title=u'Test Group',
                              description=u'This is a test group')
+        model.Session.save(group1)
         model.repo.commit_and_remove()
         grp = model.Group.by_name(u'group1')
         assert grp.title == u'Test Group'
@@ -27,10 +28,10 @@ class TestGroup(object):
         self.russian_group = model.Group(name=u'russian',
                                          title=u'Russian Group',
                              description=u'This is the russian group')
+        model.Session.save(self.russian_group)
         anna = model.Package.by_name(u'annakarenina')
         war = model.Package.by_name(u'warandpeace')
         self.russian_group.packages = [anna, war]
-        
         model.repo.commit_and_remove()
         
         grp = model.Group.by_name(u'russian')

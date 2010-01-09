@@ -89,7 +89,7 @@ class Data4Nr(object):
         # Create extras
         new_extra_keys = []
         for key, value in extras_dict.items():
-            extra = model.PackageExtra.query.filter_by(package=pkg, key=unicode(key)).all()
+            extra = model.Session.query(model.PackageExtra).filter_by(package=pkg, key=unicode(key)).all()
             if extra:
                 extra[0].value = value
             else:

@@ -88,7 +88,7 @@ class TestEdit(TestController):
         pkg.notes= u'this is editpkg'
         pkg.version = u'2.2'
         pkg.tags = [model.Tag(name=u'one'), model.Tag(name=u'two')]
-        pkg.state = model.State.query.filter_by(name='deleted').one()
+        pkg.state = model.Session.query(model.State).filter_by(name='deleted').one()
         tags_txt = ' '.join([tag.name for tag in pkg.tags])
         pkg.license = model.License.by_name(u'OKD Compliant::Other')
         external_reference = 'ref-test'
@@ -182,7 +182,7 @@ class TestEdit(TestController):
         notes = u'Very important'
         license_id = 4
         license = u'OKD Compliant::Creative Commons CCZero'
-        state = model.State.query.filter_by(name='active').one()
+        state = model.Session.query(model.State).filter_by(name='active').one()
         tags = (u'tag1', u'tag2', u'tag3')
         tags_txt = u' '.join(tags)
         extra_changed = 'key1', 'value1 CHANGED'

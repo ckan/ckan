@@ -147,7 +147,9 @@ class TestPackageControllerEdit(TestController):
         editpkg = model.Package(name=self.editpkg_name)
         editpkg.url = u'editpkgurl.com'
         editpkg.notes = u'Some notes'
-        model.User(name=u'testadmin')
+        model.Session.save(editpkg)
+        u = model.User(name=u'testadmin')
+        model.Session.save(u)
         model.repo.commit_and_remove()
 
         editpkg = model.Package.by_name(self.editpkg_name)
@@ -280,21 +282,27 @@ u with umlaut \xc3\xbc
         pkg = model.Package(name=pkg_name)
         pkg.title = u'This is a Test Title'
         pkg.url = u'editpkgurl.com'
-        pkg.resources.append(model.PackageResource(url=u'editpkgurl1',
+        pr1 = model.PackageResource(url=u'editpkgurl1',
               format=u'plain text', description=u'Full text',
-              hash=u'123abc',))
-        pkg.resources.append(model.PackageResource(url=u'editpkgurl2',
+              hash=u'123abc',)
+        pr2 = model.PackageResource(url=u'editpkgurl2',
               format=u'plain text2', description=u'Full text2',
-              hash=u'456abc',))
+              hash=u'456abc',)
+        pkg.resources.append(pr1)
+        pkg.resources.append(pr2)
         pkg.notes= u'this is editpkg'
         pkg.version = u'2.2'
-        pkg.tags = [model.Tag(name=u'one'), model.Tag(name=u'two')]
-        pkg.state = model.State.query.filter_by(name='deleted').one()
+        t1 = model.Tag(name=u'one')
+        t2 = model.Tag(name=u'two')
+        pkg.tags = [t1, t2]
+        pkg.state = model.Session.query(model.State).filter_by(name='deleted').one()
         tags_txt = ' '.join([tag.name for tag in pkg.tags])
         pkg.license = model.License.by_name(u'OKD Compliant::Other')
         extras = {'key1':'value1', 'key2':'value2', 'key3':'value3'}
         for key, value in extras.items():
             pkg.extras[unicode(key)] = unicode(value)
+        for obj in [pkg, t1, t2, pr1, pr2]:            
+            model.Session.save(obj)
         model.repo.commit_and_remove()
         pkg = model.Package.by_name(pkg_name)
         model.setup_default_user_roles(pkg, [self.admin])
@@ -338,7 +346,7 @@ u with umlaut \xc3\xbc
         notes = u'Very important'
         license_id = 4
         license = u'OKD Compliant::Creative Commons CCZero'
-        state = model.State.query.filter_by(name='active').one()
+        state = model.Session.query(model.State).filter_by(name='active').one()
         tags = (u'tag1', u'tag2', u'tag3')
         tags_txt = u' '.join(tags)
         extra_changed = 'key1', 'value1 CHANGED'
@@ -716,15 +724,16 @@ class TestNonActivePackages(TestController):
     def setup_class(self):
         CreateTestData.create()
         self.non_active_name = u'test_nonactive'
-        model.Package(name=self.non_active_name)
+        pkg = model.Package(name=self.non_active_name)
         model.repo.new_revision()
+        model.Session.save(pkg)
         model.repo.commit_and_remove()
 
-        pkg = model.Package.query.filter_by(name=self.non_active_name).one()
+        pkg = model.Session.query(model.Package).filter_by(name=self.non_active_name).one()
         admin = model.User.by_name(u'joeadmin')
         model.setup_default_user_roles(pkg, [admin])
         
-        pkg = model.Package.query.filter_by(name=self.non_active_name).one()
+        pkg = model.Session.query(model.Package).filter_by(name=self.non_active_name).one()
         pkg.delete() # becomes non active
         model.repo.new_revision()
         model.repo.commit_and_remove()
@@ -773,6 +782,7 @@ class TestRevisions(TestController):
         rev = model.repo.new_revision()
         self.pkg1 = model.Package(name=self.name)
         self.pkg1.notes = self.notes[0]
+        model.Session.save(self.pkg1)
         model.setup_default_user_roles(self.pkg1)
         model.repo.commit_and_remove()
 

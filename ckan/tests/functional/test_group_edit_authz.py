@@ -118,7 +118,7 @@ class TestGroupEditAuthz(TestController):
         assert 'error' not in res, res
         group = model.Group.by_name(self.groupname)
         assert len(group.roles) == num_roles_start - 1
-        assert model.GroupRole.query.filter_by(id=pr_id).count() == 0
+        assert model.Session.query(model.GroupRole).filter_by(id=pr_id).count() == 0
 
     def test_5_admin_adds_role(self):
         model.repo.commit_and_remove()

@@ -25,21 +25,26 @@ class Repository(vdm.sqlalchemy.Repository):
         super(Repository, self).init_db()
         for name in license_names:
             if not License.by_name(name):
-                License(name=name)
+                l = License(name=name)
+                Session.save(l)
         # assume if this exists everything else does too
         if not User.by_name(PSEUDO_USER__VISITOR):
             visitor = User(name=PSEUDO_USER__VISITOR)
             logged_in = User(name=PSEUDO_USER__LOGGED_IN)
+            Session.save(visitor)
+            Session.save(logged_in)
             # setup all role-actions
             # context is blank as not currently used
             # Note that Role.ADMIN can already do anything - hardcoded in.
             for role, action in default_role_actions:
                 ra = RoleAction(role=role, context='',
                         action=action,)
-        if Revision.query.count() == 0:
+                Session.save(ra)
+        if Session.query(Revision).count() == 0:
             rev = Revision()
             rev.author = 'system'
             rev.message = u'Initialising the Repository'
+            Session.save(rev)
         self.commit_and_remove()   
 
     def youngest_revision(self):
@@ -103,7 +108,7 @@ def _get_packages(self):
 # could set this up directly on the mapper?
 def _get_revision_user(self):
     username = unicode(self.author)
-    user = User.query.filter_by(name=username).first()
+    user = Session.query(User).filter_by(name=username).first()
     return user
 
 Revision.packages = property(_get_packages)

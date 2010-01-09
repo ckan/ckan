@@ -66,7 +66,7 @@ class DomainObject(object):
 
     @classmethod
     def by_name(self, name):
-        obj = self.query.filter_by(name=name).first()
+        obj = Session.query(self).filter_by(name=name).first()
         return obj
 
     @classmethod
@@ -81,11 +81,11 @@ class DomainObject(object):
 
     @classmethod
     def active(self):
-        # Memoize the id of the 'active' row in the State table.
+        # Cache the id of the 'active' row in the State table.
         if not hasattr(self, 'active_id'):
-            self.active_id = State.query.filter_by(name='active').one().id
+            self.active_id = Session.query(State).filter_by(name='active').one().id
 
-        return self.query.filter_by(state_id=self.active_id)
+        return Session.query(self).filter_by(state_id=self.active_id)
 
     def purge(self):
         sess = orm.object_session(self)
@@ -137,7 +137,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     @classmethod
     def search_by_name(self, text_query):
         text_query = text_query
-        return self.query.filter(self.name.contains(text_query.lower()))
+        return Session.query(self).filter(self.name.contains(text_query.lower()))
 
     def add_resource(self, url, format=u'', description=u'', hash=u''):
         import resource
@@ -212,7 +212,7 @@ class Tag(DomainObject):
     @classmethod
     def search_by_name(self, text_query):
         text_query = text_query.strip().lower()
-        return self.query.filter(self.name.contains(text_query))
+        return Session.query(self).filter(self.name.contains(text_query))
 
     @property
     def packages_ordered(self):

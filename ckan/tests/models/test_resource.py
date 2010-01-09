@@ -11,6 +11,7 @@ class TestResourceLifecycle:
         self.hash = u'abc123'
         rev = model.repo.new_revision()
         self.pkg = model.Package(name=self.pkgname)
+        model.Session.save(self.pkg)
         model.repo.commit_and_remove()
 
     @classmethod
@@ -22,13 +23,13 @@ class TestResourceLifecycle:
         pkg = model.Package.by_name(self.pkgname)
         rev = model.repo.new_revision()
         for url in self.urls:
-            pkg.resources.append(
-                model.PackageResource(url=url,
-                                      format=self.format,
-                                      description=self.description,
-                                      hash=self.hash,
-                                      )
-                )
+            pr = model.PackageResource(url=url,
+                                       format=self.format,
+                                       description=self.description,
+                                       hash=self.hash,
+                                       )
+            model.Session.save(pr)
+            pkg.resources.append(pr)
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(self.pkgname)
@@ -53,15 +54,15 @@ class TestResourceLifecycle:
 
     def test_2_delete_package(self):
         pkg = model.Package.by_name(self.pkgname)
-        all_resources = model.PackageResource.query.all()
+        all_resources = model.Session.query(model.PackageResource).all()
         assert len(all_resources) == 2, pkg.resources
         rev = model.repo.new_revision()
         pkg.purge()
         model.repo.commit_and_remove()
 
-        active_id = model.State.query.filter_by(name='active').one().id
+        active_id = model.Session.query(model.State).filter_by(name='active').one().id
         pkg = model.Package.by_name(self.pkgname)
-        all_resources = model.PackageResource.query.\
+        all_resources = model.Session.query(model.PackageResource).\
                         filter_by(state_id=active_id).all()
         assert len(all_resources) == 0, pkg.resources
 
@@ -76,13 +77,13 @@ class TestResourceUse:
         rev = model.repo.new_revision()
         pkg = model.Package(name=self.pkgname)
         for index, url in enumerate(self.urls):
-            pkg.resources.append(
-                model.PackageResource(url=unicode(url),
-                                      format=self.formats[index],
-                                      description=self.description,
-                                      hash=self.hash,
-                                      )
-                )
+            pr = model.PackageResource(url=unicode(url),
+                                       format=self.formats[index],
+                                       description=self.description,
+                                       hash=self.hash,
+                                       )
+            model.Session.save(pr)
+            pkg.resources.append(pr)
         model.repo.commit_and_remove()
 
         self.pkg = model.Package.by_name(self.pkgname)
@@ -101,7 +102,9 @@ class TestResourceUse:
     def test_1_reorder(self):
         resources = self.pkg.resources
         rev = model.repo.new_revision()
-        self.pkg.resources.insert(1, model.PackageResource(url=u'new.url'))
+        pr = model.PackageResource(url=u'new.url')
+        model.Session.save(pr)
+        self.pkg.resources.insert(1, pr)
         model.repo.commit_and_remove()
 
         self.pkg = model.Package.by_name(self.pkgname)

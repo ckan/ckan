@@ -68,7 +68,7 @@ group_authz_fs = get_authz_fieldset(model.GroupRole)
 
 class UsersRenderer(formalchemy.fields.FieldRenderer):
     def render(self, options, **kwargs):
-        options = [('', '__null_value__')] + [(u.name, u.id) for u in model.User.query.all()]
+        options = [('', '__null_value__')] + [(u.name, u.id) for u in model.Session.query(model.User).all()]
         return fa_h.select(self.name, fa_h.options_for_select(options), **kwargs)
 
 def get_new_role_fieldset(role_class):
