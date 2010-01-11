@@ -108,7 +108,10 @@ class PackageImporter:
                 pkg_dict = {}
                 for col_index, cell in enumerate(row):
                     if cell:
-                        cell = unicode(cell)
+##                        if 'umlaut' in cell:
+##                            import pdb; pdb.set_trace()
+#                        cell = unicode(cell)
+
                         title = self._titles[col_index]
                         if not title:
                             self._log.append('Warning: No title for column %i. Titles: %s' % (col_index, ', '.join(self._titles)))

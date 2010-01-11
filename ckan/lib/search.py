@@ -176,7 +176,7 @@ class Search:
         if self._options.filter_by_downloadable:
             query = query.join('resources', aliased=True).\
                     filter(sqlalchemy.and_(
-                model.PackageResource.state_id==1,
+                model.PackageResource.state==model.State.ACTIVE,
                 model.PackageResource.package_id==model.Package.id))
         if self._options.filter_by_openness:
             if self._open_licenses is None:
@@ -194,7 +194,7 @@ class Search:
                 raise NotImplemented
 
         query = query.distinct()
-        query = query.filter(model.Package.state == model.Session.query(model.State).filter_by(name='active').one())
+        query = query.filter(model.Package.state == model.State.ACTIVE)
         return query
 
     def _build_tags_query(self, general_terms):
@@ -236,7 +236,7 @@ class Search:
                     # need to keep joining for each filter
                     # tag should be active hence state_id requirement
                     query = query.join('package_tags', aliased=True).filter(sqlalchemy.and_(
-                        model.PackageTag.state_id==1,
+                        model.PackageTag.state==model.State.ACTIVE,
                         model.PackageTag.tag_id==tag_id))
                 else:
                     # unknown tag, so torpedo search
@@ -258,7 +258,7 @@ class Search:
     def _filter_by_extra(self, field, query, value_list):
         for name in value_list:
             query = query.join('_extras', aliased=True).filter(sqlalchemy.and_(
-                model.PackageExtra.state_id==1,
+                model.PackageExtra.state==model.State.ACTIVE,
                 model.PackageExtra.key==unicode(field)))
         return query
         

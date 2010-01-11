@@ -6,24 +6,24 @@ from ckan.lib.base import *
 import ckan.authz as authz
 
 class TestUsage(TestController):
-    deleted = model.Session.query(model.State).filter_by(name='deleted').one()
-    active = model.Session.query(model.State).filter_by(name='active').one()
+    deleted = model.State.DELETED
+    active = model.State.ACTIVE
     
     @classmethod
     def _create_test_data(self):
         self.modes = ('XX', 'rX', 'wX', 'rr', 'wr', 'ww', 'deleted') #  logged-in, visitor
         for mode in self.modes:
-            model.Package(name=unicode(mode))
-            model.Group(name=unicode(mode))
-        model.User(name=u'testsysadmin')
-        model.User(name=u'pkgadmin')
-        model.User(name=u'pkgeditor')
-        model.User(name=u'pkgreader')
-        model.User(name=u'mrloggedin')
-        model.User(name=u'pkgadminfriend')
-        model.User(name=u'groupadmin')
-        model.User(name=u'groupeditor')
-        model.User(name=u'groupreader')
+            model.Session.save(model.Package(name=unicode(mode)))
+            model.Session.save(model.Group(name=unicode(mode)))
+        model.Session.save(model.User(name=u'testsysadmin'))
+        model.Session.save(model.User(name=u'pkgadmin'))
+        model.Session.save(model.User(name=u'pkgeditor'))
+        model.Session.save(model.User(name=u'pkgreader'))
+        model.Session.save(model.User(name=u'mrloggedin'))
+        model.Session.save(model.User(name=u'pkgadminfriend'))
+        model.Session.save(model.User(name=u'groupadmin'))
+        model.Session.save(model.User(name=u'groupeditor'))
+        model.Session.save(model.User(name=u'groupreader'))
         visitor_name = '123.12.12.123'
         rev = model.repo.new_revision()
         model.repo.commit_and_remove()
@@ -48,7 +48,7 @@ class TestUsage(TestController):
             model.add_user_to_role(groupeditor, model.Role.EDITOR, group)
             model.add_user_to_role(groupreader, model.Role.READER, group)
             if mode == u'deleted':
-                pkg.state = model.Session.query(model.State).filter_by(name='deleted').one()
+                pkg.state = model.State.DELETED
             else:
                 if mode[0] == u'r':
                     model.add_user_to_role(mrloggedin, model.Role.READER, pkg)

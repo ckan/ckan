@@ -34,6 +34,7 @@ class UserController(BaseController):
             userobj = model.User.by_name(c.user)
             if userobj is None:
                 userobj = model.User(name=c.user)
+                model.Session.save(userobj)
                 model.Session.commit()
             h.redirect_to(controller='user', action=None, id=None)
         else:

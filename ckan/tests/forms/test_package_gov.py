@@ -108,6 +108,7 @@ class TestForm(TestController):
         # Create package
         model.repo.new_revision()
         pkg = model.Package(name=u'test3')
+        model.Session.save(pkg)
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(u'test3')
@@ -127,6 +128,7 @@ class TestForm(TestController):
         # Create package
         model.repo.new_revision()
         pkg = model.Package(name=u'test2')
+        model.Session.save(pkg)
         pkg.extras = {u'department':u'Not on the list'}
         model.repo.commit_and_remove()
 
@@ -172,7 +174,7 @@ class TestForm(TestController):
         indict[prefix + 'resources-0-url'] = u'http:/1'
         indict[prefix + 'resources-0-format'] = u'xml'
         indict[prefix + 'resources-0-description'] = u'test desc'
-        fs = ckan.forms.package_gov_fs.bind(model.Package, data=indict)
+        fs = ckan.forms.package_gov_fs.bind(model.Package, data=indict, session=model.Session)
 
         model.repo.new_revision()
         fs.sync()
@@ -251,8 +253,8 @@ class TestForm(TestController):
         assert pkg
 
         # edit it with form parameters
-        indict = _get_blank_param_dict(fs=ckan.forms.package_gov_fs)
-        prefix = 'Package--'
+        indict = _get_blank_param_dict(pkg=pkg, fs=ckan.forms.package_gov_fs)
+        prefix = 'Package-%i-' % pkg.id
         indict[prefix + 'name'] = u'testname2'
         indict[prefix + 'notes'] = u'some new notes'
         indict[prefix + 'tags'] = u'russian, tolstoy',
@@ -275,7 +277,7 @@ class TestForm(TestController):
         indict[prefix + 'resources-0-url'] = u'http:/1'
         indict[prefix + 'resources-0-format'] = u'xml'
         indict[prefix + 'resources-0-description'] = u'test desc'
-        fs = ckan.forms.package_gov_fs.bind(model.Package, data=indict)
+        fs = ckan.forms.package_gov_fs.bind(pkg, data=indict)
 
         model.repo.new_revision()
         fs.sync()

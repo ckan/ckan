@@ -84,6 +84,7 @@ def get_new_role_fieldset(role_class):
             fs.role.dropdown(options=role_options)
         ],
         )
+    fs = fs.bind(session=model.Session)
     return fs
 
 new_package_roles_fs = get_new_role_fieldset(model.PackageRole)
