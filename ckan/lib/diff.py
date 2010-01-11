@@ -17,9 +17,6 @@ class Differ(object):
         diffs = {}
 
         # Make specific fields more readable
-        if 'state_id' in keys:
-            for dict_ in dicts:
-                dict_['state'] = model.Session.query(model.State).get(dict_['state_id']).name
         if 'license_id' in keys:
             for dict_ in dicts:
                 dict_['license'] = model.Session.query(model.License).get(dict_['license_id']).name if \

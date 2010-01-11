@@ -1,4 +1,4 @@
-"name","title","version","resource-1-url","resource-0-url","resource-1-format","maintainer","license","author","author_email","resource-1-description","notes","original media","resource-0-description","maintainer_email","url","groups","genre","tags","resource-0-format"
+"name","title","version","resource-1-url","resource-0-url","resource-1-format","maintainer","license","author","author_email","resource-1-description","notes","original media","resource-0-description","maintainer_email","url","state","groups","genre","tags","resource-0-format"
 "annakarenina","A Novel By Tolstoy","0.7a","http://www.annakarenina.com/index.json","http://www.annakarenina.com/download/x=1&y=2","json","","OKD Compliant::Other","","","Index of the novel","Some test notes
 
 ### A 3rd level heading
@@ -7,7 +7,13 @@
 
 *Some italicized text.*
 
+Foreign characters:
+u with umlaut Ã¼
+
+Needs escaping:
+left arrow <
+
 <http://ckan.net/>
 
-","book","Full text","","http://www.annakarenina.com","roger david","romantic novel","russian tolstoy","plain text"
-"warandpeace","A Wonderful Story","","","","","","","","","","","","","","","david","","russian",""
+","book","Full text","","http://www.annakarenina.com","active","roger david","romantic novel","russian tolstoy","plain text"
+"warandpeace","A Wonderful Story","","","","","","","","","","","","","","","active","david","","russian",""

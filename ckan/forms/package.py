@@ -250,13 +250,13 @@ class TagEditRenderer(formalchemy.fields.FieldRenderer):
         return tags        
 
 class StateRenderer(formalchemy.fields.FieldRenderer):
-    def render(self, options, **kwargs):
-        selected = int(kwargs.get('selected', None) or self._value)
-        options = [(s.name, s.id) for s in model.Session.query(model.State).all()]
+    def render(self, **kwargs):
+        selected = kwargs.get('selected', None) or self._value
+        options = model.State.all
         return h.select(self.name, h.options_for_select(options, selected=selected), **kwargs)
 
     def render_readonly(self, **kwargs):
-        value_str = model.Session.query(model.State).get(int(self._value)).name
+        value_str = self._value
         return common.field_readonly_renderer(self.field.key, value_str)
 
 class ResourcesRenderer(formalchemy.fields.FieldRenderer):
@@ -562,4 +562,5 @@ def get_fieldset(is_admin=False, basic=False, package_form=None):
         else:
             fs = ckan.forms.package_fs
 #    print "FS admin=%s package_form=%s basic=%s" % (is_admin, package_form, basic)
+    fs = fs.bind(session=model.Session)
     return fs

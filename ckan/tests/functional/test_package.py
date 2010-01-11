@@ -29,14 +29,14 @@ class TestPackageController(TestController):
         offset = url_for(controller='package')
         res = self.app.get(offset)
         # TODO: make this a bit more rigorous!
-        assert 'List' in res
-        res = res.click('List')
+        assert 'Browse' in res, res
+        res = res.click('Browse packages')
         assert 'Packages - List' in res
     
     def test_minornavigation_2(self):
         offset = url_for(controller='package')
         res = self.app.get(offset)
-        res = res.click('Register a New Package')
+        res = res.click('Register a new package')
         assert 'Packages - New' in res
 
     def test_read(self):
@@ -62,10 +62,10 @@ class TestPackageController(TestController):
         assert 'david' in res
         assert 'roger' in res
         assert 'State:' not in res
-        assert 'Genre:' in res
-        assert 'romantic novel' in res
-        assert 'Original media:' in res
-        assert 'book' in res
+        assert 'Genre' in res, res
+        assert 'romantic novel' in res, res
+        assert 'Original media' in res, res
+        assert 'book' in res, res
 
     def test_read_as_admin(self):
         name = u'annakarenina'
@@ -126,7 +126,6 @@ class TestPackageController(TestController):
         assert 'Search packages' in results_page, results_page
         results_page = self.main_div(results_page)
         for required in requireds:
-            results_page = self.main_div(results_page)
             assert required in results_page, "%s : %s" % (results_page, required)
     
     def test_history(self):
@@ -236,7 +235,7 @@ class TestPackageControllerEdit(TestController):
         outtags = [ tag.name for tag in pkg.tags ]
         for tag in newtags:
             assert tag in outtags 
-        rev = model.Revision.youngest()
+        rev = model.Revision.youngest(model.Session)
         assert rev.author == 'Unknown IP Address'
         assert rev.message == exp_log_message
 
@@ -295,7 +294,7 @@ u with umlaut \xc3\xbc
         t1 = model.Tag(name=u'one')
         t2 = model.Tag(name=u'two')
         pkg.tags = [t1, t2]
-        pkg.state = model.Session.query(model.State).filter_by(name='deleted').one()
+        pkg.state = model.State.DELETED
         tags_txt = ' '.join([tag.name for tag in pkg.tags])
         pkg.license = model.License.by_name(u'OKD Compliant::Other')
         extras = {'key1':'value1', 'key2':'value2', 'key3':'value3'}
@@ -326,7 +325,7 @@ u with umlaut \xc3\xbc
         self.check_tag_and_data(res, prefix+'notes', pkg.notes)
         self.check_tag_and_data(res, 'selected', str(pkg.license_id), pkg.license.name)
         self.check_tag(res, prefix+'tags', tags_txt)
-        self.check_tag_and_data(res, 'selected', str(pkg.state.id), pkg.state.name)
+        self.check_tag_and_data(res, 'selected', str(pkg.state))
         for key, value in extras.items():
             self.check_tag_and_data(res, 'Package-%s-extras-%s' % (pkg.id, key), key.capitalize())
             self.check_tag(res, 'Package-%s-extras-%s' % (pkg.id, key), value)
@@ -346,7 +345,7 @@ u with umlaut \xc3\xbc
         notes = u'Very important'
         license_id = 4
         license = u'OKD Compliant::Creative Commons CCZero'
-        state = model.Session.query(model.State).filter_by(name='active').one()
+        state = model.State.ACTIVE
         tags = (u'tag1', u'tag2', u'tag3')
         tags_txt = u' '.join(tags)
         extra_changed = 'key1', 'value1 CHANGED'
@@ -365,7 +364,7 @@ u with umlaut \xc3\xbc
         fv[prefix+'notes'] = notes
         fv[prefix+'license_id'] = license_id
         fv[prefix+'tags'] = tags_txt
-        fv[prefix+'state_id'] = state.id
+        fv[prefix+'state'] = state
         fv[prefix+'extras-%s' % extra_changed[0]] = extra_changed[1]
         fv[prefix+'extras-newfield0-key'] = extra_new[0]
         fv[prefix+'extras-newfield0-value'] = extra_new[1]
@@ -390,7 +389,7 @@ u with umlaut \xc3\xbc
         assert 'Tags: %s' % tags_html_preview in preview, preview + tags_html_preview
         groups_html = ''
 #        assert 'Groups:\n%s' % groups_html in preview, preview + groups_html
-        assert 'State: %s' % str(state.name) in preview, preview
+        assert 'State: %s' % str(state) in preview, preview
 #        assert 'Extras:' in preview, preview
         current_extras = (('key2', extras['key2']),
                           extra_changed,
@@ -416,7 +415,7 @@ u with umlaut \xc3\xbc
         self.check_tag_and_data(res, prefix+'notes', notes)
         self.check_tag_and_data(res, 'selected', str(license_id), license)
         self.check_tag(res, prefix+'tags', tags_txt)
-        self.check_tag_and_data(res, 'selected', str(state.id), state.name)
+        self.check_tag_and_data(res, 'selected', state)
         for key, value in current_extras:
             self.check_tag_and_data(res, 'Package-%s-extras-%s' % (pkg.id, key), key.capitalize())
             self.check_tag(res, 'Package-%s-extras-%s' % (pkg.id, key), value)
@@ -447,7 +446,7 @@ u with umlaut \xc3\xbc
         for tag_html in tags_html_list:
             assert tag_html in res1, res1
         assert groups_html in res1, res1 + groups_html
-        assert 'State: %s' % str(state.name) in res1, res1
+        assert 'State: %s' % str(state) in res1, res1
         for key, value in current_extras:
             extras_html = '%(key)s: %(value)s' % {'key':key.capitalize(), 'value':value}
             assert extras_html in res1, str(res) + extras_html
@@ -465,7 +464,7 @@ u with umlaut \xc3\xbc
         assert pkg.license_id == license_id
         saved_tagnames = [str(tag.name) for tag in pkg.tags]
         assert saved_tagnames == list(tags)
-        assert pkg.state_id == state.id
+        assert pkg.state == state
         assert len(pkg.extras) == len(current_extras)
         for key, value in current_extras:
             assert pkg.extras[key] == value

@@ -33,7 +33,7 @@ class GroupController(BaseController):
         c.auth_for_authz = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, c.group)
         
         c.group_active_packages = []
-        active_str = model.Session.query(model.State).filter_by(name='active').one()
+        active_str = model.State.ACTIVE
         # TODO: this isn't nice ... (either should have active_packages
         # attribute or ...)
         for pkg in c.group.packages:

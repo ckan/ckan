@@ -110,19 +110,6 @@ class TestCreation(object):
 
 
 class TestDefaultRoles(object):
-    @classmethod
-    def setup_class(self):
-        model.repo.commit_and_remove()
-        #Now done in db init
-        #model.setup_default_role_actions()
-
-    
-    @classmethod
-    def teardown_class(self):
-        model.Session.remove()
-        model.repo.rebuild_db()
-        model.Session.remove()
-
     def is_allowed(self, role, action):
         action_query = model.Session.query(model.RoleAction).filter_by(role=role,
                                                         action=action)

@@ -20,7 +20,7 @@ class TestRevisionController(TestController):
     def test_link_major_navigation(self):
         offset = url_for(controller='home')
         res = self.app.get(offset)
-        res = res.click('Recent Changes')
+        res = res.click('Recent changes')
         assert 'Repository History' in res
 
     def test_paginated_list(self):

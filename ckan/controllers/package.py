@@ -73,7 +73,7 @@ class PackageController(BaseController):
 
         auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, c.pkg)
         if not auth_for_read:
-            abort(401, 'Unauthorized to read %s' % id)        
+            abort(401, str('Unauthorized to read %s' % id))
 
         c.auth_for_authz = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, c.pkg)
         c.auth_for_edit = self.authorizer.am_authorized(c, model.Action.EDIT, c.pkg)
@@ -115,6 +115,7 @@ class PackageController(BaseController):
         c.error = ''
 
         is_admin = self.authorizer.is_sysadmin(c.user)
+
         fs = ckan.forms.get_fieldset(is_admin=is_admin, basic=False, package_form=request.params.get('package_form'))
 
         if request.params.has_key('commit'):
@@ -147,7 +148,7 @@ class PackageController(BaseController):
                 if domain.startswith('www.'):
                     domain = domain[4:]
             data = ckan.forms.add_to_package_dict(ckan.forms.get_package_dict(fs=fs), request.params)
-            fs = fs.bind(data=data, session=model.Session)
+            fs = fs.bind(model.Package, data=data, session=model.Session)
         c.form = self._render_edit_form(fs, request.params)
         if 'preview' in request.params:
             c.preview = genshi.HTML(self._render_package(fs))
@@ -163,7 +164,7 @@ class PackageController(BaseController):
             abort(404, '404 Not Found')
         am_authz = self.authorizer.am_authorized(c, model.Action.EDIT, pkg)
         if not am_authz:
-            abort(401, 'User %r unauthorized to edit %s' % (c.user, id))
+            abort(401, str('User %r unauthorized to edit %s' % (c.user, id)))
 
         c.auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, pkg)
         fs = ckan.forms.get_fieldset(is_admin=c.auth_for_change_state, basic=False, package_form=request.params.get('package_form'))
@@ -241,10 +242,10 @@ class PackageController(BaseController):
             if pkgrole is None:
                 c.error = u'Error: No role found with that id'
             else:
-                pkgrole.purge()
-                model.Session.commit()
                 c.message = u'Deleted role \'%s\' for user \'%s\'' % (pkgrole.role,
                         pkgrole.user.name)
+                pkgrole.purge()
+                model.Session.commit()
 
         # retrieve pkg again ...
         pkg = model.Package.by_name(id)
@@ -365,7 +366,7 @@ class PackageController(BaseController):
         c.pkg_maintainer_link = self._person_email_link(c.pkg_maintainer, c.pkg_maintainer_email, "Maintainer")
 
         if c.auth_for_change_state:
-            c.pkg_state = model.Session.query(model.State).get(fs.state.value).name
+            c.pkg_state = fs.state.value
         if fs.license.value:
             c.pkg_license = model.Session.query(model.License).get(fs.license.value).name
         else:

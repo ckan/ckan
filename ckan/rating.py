@@ -38,12 +38,15 @@ def set_rating(user_or_ip, package, rating):
     if rating_query.count():
         rating_obj = rating_query.one()
         rating_obj.rating = rating
+        return
     elif user:
-        model.Rating(package=package,
-                     user=user,
-                     rating=rating)
+        rating = model.Rating(package=package,
+                              user=user,
+                              rating=rating)
+        model.Session.save(rating)
     else:
-        model.Rating(package=package,
-                     user_ip_address=ip,
-                     rating=rating)
+        rating = model.Rating(package=package,
+                              user_ip_address=ip,
+                              rating=rating)
+        model.Session.save(rating)
     model.repo.commit_and_remove()

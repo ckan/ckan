@@ -11,7 +11,7 @@ class SimpleDumper(object):
     def dump(self, dump_file_obj, format='json', query=None):
         if query is None:
             query = model.Session.query(model.Package)
-            active = model.Session.query(model.State).filter_by(name='active').one()
+            active = model.State.ACTIVE
             query = query.filter_by(state=active)
         if format == 'csv':
             self.dump_csv(dump_file_obj, query)
@@ -54,7 +54,7 @@ class SimpleDumper(object):
 class Dumper(object):
     '''Dumps the database in same structure as it appears in the database'''
     model_classes = [
-        ckan.model.State,
+#        ckan.model.State,
         ckan.model.License,
         ckan.model.Revision,
         ckan.model.Package,
