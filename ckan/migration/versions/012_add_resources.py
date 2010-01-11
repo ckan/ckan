@@ -6,22 +6,32 @@ import vdm.sqlalchemy
 metadata = MetaData(migrate_engine)
 
 package_table = Table('package', metadata, autoload=True)
-package_resource_table = Table(
-    'package_resource', metadata,
+package_resource_table = Table('package_resource', metadata,
     Column('id', Integer, primary_key=True),
     Column('package_id', Integer, ForeignKey('package.id')),
     Column('url', UnicodeText, nullable=False),
     Column('format', UnicodeText),
     Column('description', UnicodeText),
     Column('position', Integer),
+    Column('state_id', Integer),
+    Column('revision_id', UnicodeText, ForeignKey('revision.id'))
     )
 
-vdm.sqlalchemy.make_table_stateful(package_resource_table)
-resource_revision_table = vdm.sqlalchemy.make_revisioned_table(package_resource_table)
+package_resource_revision_table = Table('package_resource_revision', metadata,
+    Column('id', Integer, primary_key=True),
+    Column('package_id', Integer, ForeignKey('package.id')),
+    Column('url', UnicodeText, nullable=False),
+    Column('format', UnicodeText),
+    Column('description', UnicodeText),
+    Column('position', Integer),
+    Column('state_id', Integer),
+    Column('revision_id', UnicodeText, ForeignKey('revision.id')),
+    Column('continuity_id', Integer, ForeignKey('package_resource.id'))
+    )
 
 def upgrade():
     package_resource_table.create()
-    resource_revision_table.create()
+    package_resource_revision_table.create()
     
     # move download_urls across to resources
     engine = migrate_engine
