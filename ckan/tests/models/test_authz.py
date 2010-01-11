@@ -344,11 +344,13 @@ class TestUseCasePermissions:
         self.reader_role = model.Role.READER
 
         john = model.User(name=u'john')
+        model.Session.add(john)
         
         # setup annakarenina with default roles
         anna = model.Package.by_name(u'annakarenina')
         model.clear_user_roles(anna)
         annakarenina_creator = model.User(name=u'annakarenina_creator')
+        model.Session.add(annakarenina_creator)
         model.setup_default_user_roles(anna, [annakarenina_creator])
 
         # setup warandpeace with no roles
@@ -363,6 +365,8 @@ class TestUseCasePermissions:
         self.mrsysadmin = u'mrsysadmin'
         mrsysadmin = model.User(name=self.mrsysadmin)
         model.repo.new_revision()
+        model.Session.add_all([restricted,
+            vrestricted,mreditor,mrreader,mrsysadmin])
         model.repo.commit_and_remove()
         visitor_roles = []
         logged_in_roles = [model.Role.EDITOR, model.Role.READER]

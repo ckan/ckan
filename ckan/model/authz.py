@@ -170,7 +170,8 @@ def add_user_to_role(user, role, domain_obj):
         existing_pr = Session.query(SystemRole).filter_by(role=role,
                                                  user=user).count()
     else:
-        raise NotImplementedError()
+        msg = '%s is not an object for which there are roles' % domain_obj
+        raise NotImplementedError(msg)
     if existing_pr:
         return
 
@@ -238,6 +239,8 @@ def give_all_packages_default_user_roles():
 
     for pkg in pkgs:
         print pkg
+        # weird - should already be in session but complains w/o this
+        Session.add(pkg)
         if len(pkg.roles) > 0:
             print 'Skipping (already has roles): %s' % pkg.name
             continue

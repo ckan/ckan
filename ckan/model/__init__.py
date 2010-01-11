@@ -47,9 +47,6 @@ class Repository(vdm.sqlalchemy.Repository):
             Session.save(rev)
         self.commit_and_remove()   
 
-    def youngest_revision(self):
-        return Revision.youngest()
-
     def create_db(self):
         self.metadata.create_all(bind=self.metadata.bind)    
         # creation this way worked fine for normal use but failed on test with

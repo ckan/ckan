@@ -8,7 +8,6 @@ import full_search
 
 ## VDM-specific tables
 
-state_table = vdm.sqlalchemy.make_state_table(metadata)
 revision_table = vdm.sqlalchemy.make_revision_table(metadata)
 
 ## Our Domain Object Tables
@@ -81,11 +80,7 @@ class DomainObject(object):
 
     @classmethod
     def active(self):
-        # Cache the id of the 'active' row in the State table.
-        if not hasattr(self, 'active_id'):
-            self.active_id = Session.query(State).filter_by(name='active').one().id
-
-        return Session.query(self).filter_by(state_id=self.active_id)
+        return Session.query(self).filter_by(state=State.ACTIVE)
 
     def purge(self):
         sess = orm.object_session(self)
@@ -243,7 +238,7 @@ class System(DomainObject):
         pass
 
 # VDM-specific domain objects
-State = vdm.sqlalchemy.make_State(mapper, state_table)
+State = vdm.sqlalchemy.State
 Revision = vdm.sqlalchemy.make_Revision(mapper, revision_table)
 
 mapper(License, license_table,
