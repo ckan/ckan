@@ -244,6 +244,7 @@ class RestController(BaseController):
         ckan.rating.set_rating(user, package, rating_int)
 
         response.headers['Content-Type'] = 'application/json'
+        package = model.Package.by_name(package_name)
         ret_dict = {'rating average':package.get_average_rating(),
                     'rating count': len(package.ratings)}
         return self._finish_ok(ret_dict)

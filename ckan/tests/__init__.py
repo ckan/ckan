@@ -102,11 +102,12 @@ class TestController(object):
         ratings += model.Session.query(model.Rating).filter_by(package=model.Package.by_name(u'warandpeace')).all()
         for rating in ratings[:]:
             model.Session.delete(rating)
+        model.repo.commit_and_remove()
 
     def main_div(self, html):
         'strips html to just the <div id="main"> section'
         the_html = html.body.decode('utf8')
-        return the_html[the_html.find(u'<div id="main">'):the_html.find(u'<div id="footer">')]
+        return the_html[the_html.find(u'<div id="main">'):the_html.find(u'<!-- /main -->')]
 
     def sidebar(self, html):
         'strips html to just the <div id="primary"> section'

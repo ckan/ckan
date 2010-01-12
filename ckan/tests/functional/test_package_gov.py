@@ -624,6 +624,7 @@ class TestNew(TestController):
         res = fv.submit('commit')
         assert not 'Error' in res, res
         assert model.Package.by_name(self.pkgname)
+
         # create duplicate package
         res = self.app.get(offset)
         assert 'Packages - New' in res
@@ -631,6 +632,8 @@ class TestNew(TestController):
         fv[prefix+'name'] = self.pkgname
         res = fv.submit('preview')
         assert 'Preview' in res
+        assert 'Error' in res, res
+        assert 'Package name already exists in database' in res, res
         fv = res.forms[0]
         res = fv.submit('commit')
         assert 'Error' in res, res

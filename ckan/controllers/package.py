@@ -6,16 +6,13 @@ import simplejson
 from ckan.lib.base import *
 from ckan.lib.search import Search, SearchOptions
 from ckan.lib.package_render import package_render
-from ckan.lib.package_saver import PackageSaver
+from ckan.lib.package_saver import PackageSaver, ValidationException
 import ckan.forms
 import ckan.authz
 import ckan.rating
 import ckan.misc
 
 logger = logging.getLogger('ckan.controllers')
-
-class ValidationException(Exception):
-    pass
 
 class PackageController(BaseController):
     authorizer = ckan.authz.Authorizer()
@@ -80,11 +77,7 @@ class PackageController(BaseController):
         c.auth_for_edit = self.authorizer.am_authorized(c, model.Action.EDIT, pkg)
         c.auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, pkg)
 
-
-        # setup c object.
         return PackageSaver().render_package(pkg)
-
-        return render('package/read')
 
     def history(self, id):
         if 'diff' in request.params or 'selected1' in request.params:
@@ -120,7 +113,7 @@ class PackageController(BaseController):
             fs = fs.bind(record, data=request.params or None, session=model.Session)
             try:
                 log_message = request.params['log_message']
-                PackageSaver().commit_pkg(fs, id, record.id, log_message, c.author)
+                PackageSaver().commit_pkg(fs, None, None, log_message, c.author)
                 pkgname = fs.name.value
 
                 pkg = model.Package.by_name(pkgname)
@@ -148,9 +141,15 @@ class PackageController(BaseController):
             # ensure all fields specified in params (formalchemy needs this on bind)
             data = ckan.forms.add_to_package_dict(ckan.forms.get_package_dict(fs=fs), request.params)
             fs = fs.bind(model.Package, data=data)
-        c.form = self._render_edit_form(fs, request.params)
         if 'preview' in request.params:
-            c.preview = PackageSaver().render_preview(fs, id, record.id)
+            try:
+                c.preview = PackageSaver().render_preview(fs, id, record.id)
+            except ValidationException, error:
+                c.error, fs = error.args
+##                c.form = self._render_edit_form(fs, request.params)
+##                return render('package/edit')
+        fs = fs.bind(session=model.Session)
+        c.form = self._render_edit_form(fs, request.params)
         return render('package/new')
 
     def edit(self, id=None): # allow id=None to allow posting
@@ -191,7 +190,7 @@ class PackageController(BaseController):
                 return render('package/edit')
         else: # Must be preview
             pkgname = id
-            stripped_data = ckan.forms.strip_ids_from_package_dict(request.params)
+            stripped_data = ckan.forms.strip_ids_from_package_dict(request.params, id)
             fs = fs.bind(model.Package, data=stripped_data)
             c.preview = PackageSaver().render_preview(fs, id, pkg.id)
             fs = fs.bind(pkg, data=request.params)

@@ -138,9 +138,9 @@ class TestReadOnly(TestPackageForm):
         assert 'david' in res
         assert 'roger' in res
         assert 'State:' not in res
-        assert 'Genre' in res, res
+        assert 'genre' in res, res
         assert 'romantic novel' in res, res
-        assert 'Original media' in res, res
+        assert 'original media' in res, res
         assert 'book' in res, res
 
     def test_read_as_admin(self):
@@ -182,7 +182,8 @@ class TestReadOnly(TestPackageForm):
         assert title in res
         res = res.click(title)
         assert 'Packages - %s' % name in res, res
-        assert title in res, res
+        main_div = self.main_div(res)
+        assert title in main_div, main_div.encode('utf8')
 
     def test_search(self):
         offset = url_for(controller='package', action='search')

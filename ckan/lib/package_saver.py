@@ -1,6 +1,11 @@
 import genshi
 
+import ckan.lib.helpers as h
 from ckan.lib.base import *
+import ckan.rating
+
+class ValidationException(Exception):
+    pass
 
 class PackageSaver(object):
     '''Use this to validate, preview and save packages to the db.'''
@@ -18,6 +23,11 @@ class PackageSaver(object):
         c.pkg = pkg
         notes_formatted = ckan.misc.MarkdownFormat().to_html(pkg.notes)
         c.pkg_notes_formatted = genshi.HTML(notes_formatted)
+        c.current_rating, c.num_ratings = ckan.rating.get_rating(pkg)
+        c.pkg_url_link = h.link_to(c.pkg.url, c.pkg.url) if c.pkg.url else "No web page given"
+        c.pkg_author_link = cls._person_email_link(c.pkg.author, c.pkg.author_email, "Author")
+        c.pkg_maintainer_link = cls._person_email_link(c.pkg.maintainer, c.pkg.maintainer_email, "Maintainer")
+        # c.auth_for_change_state and c.auth_for_edit may also used
         return render('package/read')
 
     @classmethod
@@ -31,8 +41,6 @@ class PackageSaver(object):
         @return package object
         '''
         assert not fs.session # otherwise the sync will save to the session
-        if fs.model:
-            print fs.model.resources
         out = cls._update(fs, original_name, pkg_id, None, None, commit=False)
         # remove everything from session so nothing can get saved accidentally
         model.Session.clear()
@@ -87,3 +95,10 @@ class PackageSaver(object):
         if log_message and 'http:' in log_message:
             return True
         return False
+
+    @classmethod
+    def _person_email_link(cls, name, email, reference):
+        if email:
+            return h.mail_to(email_address=email, name=name or email, encode='javascript')
+        else:
+            return name or reference + " not given"

@@ -38,7 +38,6 @@ def set_rating(user_or_ip, package, rating):
     if rating_query.count():
         rating_obj = rating_query.one()
         rating_obj.rating = rating
-        return
     elif user:
         rating = model.Rating(package=package,
                               user=user,
