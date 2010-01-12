@@ -65,7 +65,10 @@ class DomainObject(object):
 
     @classmethod
     def by_name(self, name):
-        obj = Session.query(self).filter_by(name=name).first()
+        # we disable autoflush here since this routine is regularly called when
+        # constructing objects (e.g. when searching for tags to add to a
+        # package)
+        obj = Session.query(self).autoflush(False).filter_by(name=name).first()
         return obj
 
     @classmethod

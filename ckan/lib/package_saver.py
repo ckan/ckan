@@ -9,6 +9,7 @@ class PackageSaver(object):
         'Renders a package on the basis of a fieldset - perfect for preview'
         # sync the fs without committing
         pkg = cls._preview_pkg(fs, original_name, record_id)
+        # now expunge all to avoid any flush issues
         return genshi.HTML(cls.render_package(pkg))
 
     @classmethod
@@ -32,7 +33,10 @@ class PackageSaver(object):
         assert not fs.session # otherwise the sync will save to the session
         if fs.model:
             print fs.model.resources
-        return cls._update(fs, original_name, pkg_id, None, None, commit=False)
+        out = cls._update(fs, original_name, pkg_id, None, None, commit=False)
+        # remove everything from session so nothing can get saved accidentally
+        model.Session.clear()
+        return out
 
     @classmethod
     def commit_pkg(cls, fs, original_name, pkg_id, log_message, author):
@@ -75,7 +79,7 @@ class PackageSaver(object):
                 raise ValidationException(validation_errors, fs)
             else:
                 pkg = fs.model
-                assert not model.Session.new
+                # assert not model.Session.new, model.Session.new
                 return pkg
 
     @classmethod
