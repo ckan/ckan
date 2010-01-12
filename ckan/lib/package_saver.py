@@ -29,6 +29,9 @@ class PackageSaver(object):
         @input pkg_id Package id
         @return package object
         '''
+        assert not fs.session # otherwise the sync will save to the session
+        if fs.model:
+            print fs.model.resources
         return cls._update(fs, original_name, pkg_id, None, None, commit=False)
 
     @classmethod
@@ -50,7 +53,6 @@ class PackageSaver(object):
             raise Exception(error_msg)
 
         validation = fs.validate_on_edit(original_name, pkg_id)
-#        model.Session.clear()
         validation_errors = None
         if not validation:
             errors = []            
@@ -58,10 +60,10 @@ class PackageSaver(object):
                 errors.append("%s: %s" % (field.name, ";".join(err_list)))
             validation_errors = ', '.join(errors)
         try:
-            rev = model.repo.new_revision()
-            rev.author = author
-            rev.message = log_message
-
+            if commit:
+                rev = model.repo.new_revision()
+                rev.author = author
+                rev.message = log_message
             fs.sync()
         except Exception, inst:
             model.Session.rollback()
@@ -73,9 +75,7 @@ class PackageSaver(object):
                 raise ValidationException(validation_errors, fs)
             else:
                 pkg = fs.model
-                # detach the pkg (and revision, tags etc) from the session so
-                # it's not saved to the db
-#                model.Session.clear()
+                assert not model.Session.new
                 return pkg
 
     @classmethod

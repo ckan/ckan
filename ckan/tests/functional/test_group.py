@@ -57,11 +57,6 @@ class TestGroup(TestController):
         assert '[edit]' in res
         assert name in res
 
-    def test_cant_new_not_logged_in(self):
-        offset = url_for(controller='group')
-        res = self.app.get(offset)
-        assert 'Create a new group' not in res, res
-
     def test_new(self):
         offset = url_for(controller='group')
         res = self.app.get(offset, extra_environ={'REMOTE_USER': 'russianfan'})
@@ -77,7 +72,7 @@ class TestEdit(TestController):
         CreateTestData.create()
         self.packagename = u'testpkg'
         model.repo.new_revision()
-        model.Package(name=self.packagename)
+        model.Session.save(model.Package(name=self.packagename))
         model.repo.commit_and_remove()
 
     @classmethod
@@ -139,6 +134,7 @@ Ho ho ho
         assert not 'newone' in res, res
 
         pkg = model.Package(name=u'newone')
+        model.Session.save(pkg)
         model.repo.new_revision()
         model.repo.commit_and_remove()
 
@@ -163,7 +159,7 @@ class TestNew(TestController):
         
         self.packagename = u'testpkg'
         model.repo.new_revision()
-        model.Package(name=self.packagename)
+        model.Session.save(model.Package(name=self.packagename))
         model.repo.commit_and_remove()
 
     @classmethod
@@ -184,7 +180,6 @@ class TestNew(TestController):
         group_name = u'testgroup'
         group_title = u'Test Title'
         group_description = u'A Description'
-
 
         # Open 'new group' page
         offset = url_for(controller='group', action='new')

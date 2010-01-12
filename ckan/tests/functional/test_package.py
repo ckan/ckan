@@ -259,6 +259,7 @@ class TestEdit(TestPackageForm):
         assert self.editpkg.notes in self.res
 
     def test_edit(self):
+        new_name = u'new-name'
         new_title = u'A Short Description of this Package'
         newurl = u'http://www.editpkgnewurl.com'
         new_download_url = newurl + u'/download/'
@@ -267,6 +268,7 @@ class TestEdit(TestPackageForm):
         newversion = u'0.9b'
         fv = self.res.forms[0]
         prefix = 'Package-%s-' % self.pkgid
+        fv[prefix + 'name'] = new_name
         fv[prefix + 'title'] =  new_title
         fv[prefix + 'url'] =  newurl
         fv[prefix + 'resources-0-url'] =  new_download_url
@@ -276,10 +278,10 @@ class TestEdit(TestPackageForm):
         # get redirected ...
         res = res.follow()
         model.Session.remove()
-        offset = url_for(controller='package', action='read', id=self.editpkg_name)
+        offset = url_for(controller='package', action='read', id=new_name)
         res = self.app.get(offset)
-        assert 'Packages - %s' % self.editpkg_name in res, res
-        pkg = model.Package.by_name(self.editpkg.name)
+        assert 'Packages - %s' % new_name in res, res
+        pkg = model.Package.by_name(new_name)
         assert pkg.title == new_title 
         assert pkg.url == newurl
         assert pkg.resources[0].url == new_download_url

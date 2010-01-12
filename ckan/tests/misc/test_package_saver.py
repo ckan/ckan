@@ -16,14 +16,14 @@ class TestPreview(TestController):
         params = {u'name':u'testname',
                   u'title':u'testtitle',
             u'url':u'testurl',
-##            u'resources':[[u'dlu1c', u'tf1c', u'', u''],
-##                          [u'dlu2c', u'tf2c', u'', u''],
-##                          ],
+            u'resources':[[u'dlu1c', u'tf1c', u'', u''],
+                          [u'dlu2c', u'tf2c', u'', u''],
+                          ],
             u'notes':u'testnotes',
             u'version':u'testversion',
             u'tags':u'one three',
-##            u'license':u'OKD Compliant::Other',
-##            u'extras':{u'key1':u'value1', u'key3':u'value3'},
+            u'license_id':u'4',
+            u'extras':{u'key1':u'value1', u'key3':u'value3'},
                   }
         fs = ckan.forms.get_fieldset(is_admin=False, basic=False, package_form=package_form)
         data = ckan.forms.add_to_package_dict(ckan.forms.get_package_dict(fs=fs), params)
@@ -38,12 +38,12 @@ class TestPreview(TestController):
             {u'name':u'name_before',
              u'title':u'title_before',
              u'url':u'testurl',
-##             u'resources':[{'url':'dlu1', 'format':'tf1'},
-##                           {'url':'dlu2', 'format':'tf2'},
-##                           ],
+             u'resources':[{'url':'dlu1', 'format':'tf1'},
+                           {'url':'dlu2', 'format':'tf2'},
+                           ],
              u'notes':u'testnotes',
              u'version':u'testversion',
-##             u'tags':['one', 'two'],
+             u'tags':['one', 'two'],
              u'license':'OKD Compliant::Other',
              u'extras':{'key1':'value1', 'key2':'value2'},
              }
@@ -54,18 +54,19 @@ class TestPreview(TestController):
             u'name':u'name_after',
             u'title':u'title_after',
             u'url':u'testurl',
-##            u'resources':[[u'dlu1c', u'tf1c', u'', u''],
-##                          [u'dlu2c', u'tf2c', u'', u''],
-##                          ],
+            u'resources':[[u'dlu1c', u'tf1c', u'', u''],
+                          [u'dlu2c', u'tf2c', u'', u''],
+                          ],
             u'notes':u'testnotes',
             u'version':u'testversion',
-##            u'tags':u'one three',
-            u'license':u'OKD Compliant::Other',
-##            u'extras':{u'key1':u'value1', u'key3':u'value3'},
+            u'tags':u'one three',
+            u'license_id':u'4',
+            u'extras':{u'key1':u'value1', u'key3':u'value3'},
             }
         fs = ckan.forms.get_fieldset(is_admin=False, basic=False, package_form=package_form)
-        data = ckan.forms.add_to_package_dict(ckan.forms.get_package_dict(pkg=pkg, fs=fs), params, pkg.id)
-        fs = fs.bind(pkg, data=data)
+        data = ckan.forms.strip_ids_from_package_dict(ckan.forms.add_to_package_dict(ckan.forms.get_package_dict(pkg=pkg, fs=fs), params, pkg.id), pkg.id)
+        fs = fs.bind(model.Package, data=data)
+#        fs.session = None # explicitly forget about the pkg's session before
         pkg2 = PackageSaver()._preview_pkg(fs, u'name_before', pkg.id)
         self._check_preview_pkg(pkg2, params)
 
@@ -75,11 +76,15 @@ class TestPreview(TestController):
 
     def _check_preview_pkg(self, pkg, params):
         for key, value in params.items():
-            if key == u'license':
-                value = model.License.by_name(value)
-            if key == u'tags':
-                value = [model.Tag.by_name(tagname) for tagname in value.split()]
-            if key == u'resources':
+            if key == u'license_id':
+                assert pkg.license_id == int(value)
+#                assert pkg.license.name == model.Session.query(model.License).get(int(value))
+            elif key == u'tags':
+                reqd_tags = value.split()
+                assert len(pkg.tags) == len(reqd_tags)
+                for tag in pkg.tags:
+                    assert tag.name in reqd_tags
+            elif key == u'resources':
                 assert pkg.resources[0].url == value[0][0]
                 assert pkg.resources[0].format == value[0][1]
                 assert pkg.resources[1].url == value[1][0]

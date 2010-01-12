@@ -60,22 +60,22 @@ class GroupController(BaseController):
             # needed because request is nested
             # multidict which is read only
             params = dict(request.params)
-            c.fs = fs.bind(record, data=params or None)
+            c.fs = fs.bind(record, data=params or None, session=model.Session)
             try:
                 self._update(c.fs, id, record.id)
-                # do not use groupname from id as may have changed
-                c.groupname = c.fs.name.value
-
-                # TODO replace default user roles when we have it in the wui
-                group = model.Group.by_name(c.groupname)
-                admins = []
-                user = model.User.by_name(c.user)
-                admins = [user]
-                model.setup_default_user_roles(group, admins)
             except ValidationException, error:
                 c.error, fs = error.args
                 c.form = self._render_edit_form(fs)
                 return render('group/edit')
+            # do not use groupname from id as may have changed
+            c.groupname = c.fs.name.value
+            group = model.Group.by_name(c.groupname)
+            assert group
+            admins = []
+            user = model.User.by_name(c.user)
+            admins = [user]
+            model.setup_default_user_roles(group, admins)
+            group = model.Group.by_name(c.groupname)
             pkgs = [model.Package.by_name(name) for name in request.params.getall('Group-packages-current')]
             group.packages = pkgs
             pkgid = request.params.get('PackageGroup--package_id')
@@ -178,9 +178,9 @@ class GroupController(BaseController):
                 c.error = u'Error: No role found with that id'
             else:
                 grouprole.purge()
+                c.message = u'Deleted role \'%s\' for user \'%s\'' % \
+                            (grouprole.role, grouprole.user.name)
                 model.Session.commit()
-                c.message = u'Deleted role \'%s\' for user \'%s\'' % (grouprole.role,
-                        grouprole.user.name)
 
         # retrieve group again ...
         group = model.Group.by_name(id)

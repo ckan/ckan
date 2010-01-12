@@ -117,7 +117,7 @@ class PackageController(BaseController):
 
         record = model.Package
         if request.params.has_key('commit'):
-            fs = fs.bind(record, data=request.params or None)
+            fs = fs.bind(record, data=request.params or None, session=model.Session)
             try:
                 log_message = request.params['log_message']
                 PackageSaver().commit_pkg(fs, id, record.id, log_message, c.author)
@@ -191,9 +191,11 @@ class PackageController(BaseController):
                 return render('package/edit')
         else: # Must be preview
             pkgname = id
+            stripped_data = ckan.forms.strip_ids_from_package_dict(request.params)
+            fs = fs.bind(model.Package, data=stripped_data)
+            c.preview = PackageSaver().render_preview(fs, id, pkg.id)
             fs = fs.bind(pkg, data=request.params)
             c.form = self._render_edit_form(fs, request.params)
-            c.preview = PackageSaver().render_preview(fs, id, pkg.id)
             return render('package/edit')
 
     def authz(self, id):

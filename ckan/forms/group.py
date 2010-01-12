@@ -80,6 +80,8 @@ group_fs_combined.configure(
         group_fs.created,
         ]
 )
+group_fs = group_fs.bind(session=model.Session)
+group_fs_combined = group_fs_combined.bind(session=model.Session)
 
 class PackagesRenderer(formalchemy.fields.FieldRenderer):
     def render(self, **kwargs):

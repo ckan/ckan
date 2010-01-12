@@ -12,8 +12,9 @@ class TestGroupEditAuthz(TestController):
         model.repo.new_revision()
         self.admin = 'madeup-administrator'
         user = model.User(name=unicode(self.admin))
+        model.Session.save(user)
         self.another = u'madeup-another'
-        model.User(name=unicode(self.another))
+        model.Session.save(model.User(name=unicode(self.another)))
         self.groupname = u'test6'
         group = model.Group(name=self.groupname)
         model.setup_default_user_roles(group, admins=[user])

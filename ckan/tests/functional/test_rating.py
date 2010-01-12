@@ -21,12 +21,13 @@ class TestUsage(TestController):
         model.repo.rebuild_db()
 
     def _get_current_rating(self, res):
-        res = str(res)
+        res_str = res.body.decode('utf8')
         if not hasattr(self, 'rating_re'):
             # Hunt for something like:   3.5 (4 ratings)
             self.rating_re = re.compile('(\d.\d) \(\d ratings?\)')
-        match = self.rating_re.search(res)
+        match = self.rating_re.search(res_str)
         if not match:
+            assert res_str.find(u'no ratings yet')
             return None
         else:
             return float(match.groups()[0])
@@ -35,7 +36,7 @@ class TestUsage(TestController):
         offset = url_for(controller='package', action='read', id=u'warandpeace')
         res = self.app.get(offset)
         assert 'Rating' in res, res
-        assert '<ul class="rating default0star">' in res, res
+        assert '<ul class="stars default0star">' in res, res
         assert self._get_current_rating(res) == None
 
     def test_1_give_all_ratings(self):

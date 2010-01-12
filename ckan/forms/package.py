@@ -8,7 +8,7 @@ import common
 import ckan.model as model
 import ckan.lib.helpers
 
-__all__ = ['package_fs', 'package_fs_admin', 'get_package_dict', 'edit_package_dict', 'add_to_package_dict', 'get_additional_package_fields', 'get_package_fs_options', 'PackageFieldSet', 'StateRenderer', 'TagEditRenderer', 'get_fieldset']
+__all__ = ['package_fs', 'package_fs_admin', 'get_package_dict', 'edit_package_dict', 'add_to_package_dict', 'get_additional_package_fields', 'get_package_fs_options', 'strip_ids_from_package_dict', 'PackageFieldSet', 'StateRenderer', 'TagEditRenderer', 'get_fieldset']
 
 PACKAGE_FORM_KEY = 'package_form_schema'
 
@@ -526,6 +526,19 @@ def add_to_package_dict(dict_, changed_items, id=''):
             dict_[key] = value
     return dict_
 
+def strip_ids_from_package_dict(dict_, id):
+    '''
+    Takes a package dictionary with field prefix Package-<id>-
+    and makes it Package--
+    '''
+    new_dict = {}
+    prefix = 'Package-%s-' % id
+    for key, value in dict_.items():
+        new_key = key.replace(prefix, 'Package--')
+        new_dict[new_key] = value
+    return new_dict
+    
+
 def validate_package_on_edit(fs, id):
     # If not changing name, don't validate this field (it will think it
     # is not unique because name already exists in db). So change it
@@ -562,5 +575,4 @@ def get_fieldset(is_admin=False, basic=False, package_form=None):
         else:
             fs = ckan.forms.package_fs
 #    print "FS admin=%s package_form=%s basic=%s" % (is_admin, package_form, basic)
-    fs = fs.bind(session=model.Session)
     return fs
