@@ -140,7 +140,11 @@ class Data(object):
         extras_dict['geographic_coverage'] = geo_coverage_type.form_to_db(geo_cover)
         
         for column in ['date released', 'date updated']:
-            val = schema_gov.DateType.form_to_db(_dict[column])
+            try:
+                val = schema_gov.DateType.form_to_db(_dict[column])
+            except TypeError, e:
+                print "WARNING: Value for column '%s' of '%s' is not understood as a date format." % (column, _dict[column])
+                val = _dict[column]
             extras_dict[column.replace(' ', '_')] = val
 
         field_map = [
@@ -169,6 +173,8 @@ class Data(object):
                         val = val.lower()
                     elif schema_gov.expand_abbreviations(val) in suggestions:
                         val = schema_gov.expand_abbreviations(val)
+                    elif val.lower() + 's' in suggestions:
+                        val = val.lower() + 's'
                 if val and val not in suggestions:
                     print "WARNING: Value for column '%s' of '%s' is not in suggestions '%s'" % (column, val, suggestions)
             extras_dict[extras_key] = val
@@ -251,6 +257,7 @@ class Data(object):
         group = model.Group.by_name(self._groupname)
         if not group:
             group = model.Group(name=self._groupname)
+            model.Session.add(group)
 
     def _new_revision(self):
         # Revision info

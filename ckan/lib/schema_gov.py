@@ -73,6 +73,8 @@ tag_pool = ['accident', 'road', 'traffic', 'health', 'illness', 'disease', 'popu
 
 tag_search_fields = ['name', 'title', 'notes', 'categories', 'agency']
 
+months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+
 class TagSuggester(object):
     @classmethod
     def _tag_munge(cls, name):
@@ -107,13 +109,21 @@ suggest_tags = TagSuggester.suggest_tags
 class DateType(object):
     '''Handles conversions between form and database as well as
     validation.'''
-    date_match = re.compile('(\d+)([/\-.]\d+)?([/\-.]\d+)?')
+    date_match = re.compile('(\w+)([/\-.]\w+)?([/\-.]\w+)?')
     default_db_separator = '-'
     default_form_separator = '/'
+    word_match = re.compile('[A-Za-z]+')
+    months_chopped = [month[:3] for month in months]
 
     @classmethod
     def form_to_db(self, form_str):
-        '27/2/2005 -> 2005-02-27'
+        '''
+        27/2/2005 -> 2005-02-27
+        27/Feb/2005 -> 2005-02-27
+        2/2005 -> 2005-02
+        Feb/2005 -> 2005-02
+        2005 -> 2005
+        '''
         if not form_str:
             # Allow blank
             return u''
@@ -127,7 +137,21 @@ class DateType(object):
         standard_date_fields = [] # integers, year first
         for match_group in match.groups()[::-1]:
             if match_group is not None:
-                standard_date_fields.append(int(match_group.strip('/-.')))
+                val = match_group.strip('/-.')
+                word_in_val = self.word_match.match(val)
+                if word_in_val:
+                    word_in_val_c = word_in_val.group().capitalize()
+                    month_i = None
+                    if word_in_val_c in months:
+                        month_i = months.index(word_in_val_c)
+                    elif word_in_val_c in self.months_chopped:
+                        month_i = self.months_chopped.index(word_in_val_c)
+                    if month_i is not None:
+                        val = val.replace(word_in_val.group(), str(month_i+1))
+                try:
+                    standard_date_fields.append(int(val))
+                except ValueError:
+                    raise TypeError('%s Date provided: "%s"' % (err_str, form_str))
         # Deal with 2 digit dates
         if standard_date_fields[0] > 0 and standard_date_fields[0] < 60:
             standard_date_fields[0] += 2000
@@ -169,7 +193,10 @@ class DateType(object):
         standard_date_fields = [] # integers, year first
         for match_group in match.groups():
             if match_group is not None:
-                standard_date_fields.append(int(match_group.strip('/-.')))
+                try:
+                    standard_date_fields.append(int(match_group.strip('/-.')))
+                except ValueError:
+                    return db_str
         if standard_date_fields[0] < 1000 or standard_date_fields[0] > 2100:
             return db_str
         if len(standard_date_fields) > 1 and (standard_date_fields[1] > 12 or standard_date_fields[1] < 1):

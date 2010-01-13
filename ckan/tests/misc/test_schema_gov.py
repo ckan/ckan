@@ -9,8 +9,12 @@ class TestDate:
         assert out == '2008-02-27', out
         out = ckan.lib.schema_gov.DateType.form_to_db('27/2/98')
         assert out == '1998-02-27', out
+        out = ckan.lib.schema_gov.DateType.form_to_db('27-Feb-2008')
+        assert out == '2008-02-27', out
         out = ckan.lib.schema_gov.DateType.form_to_db('2/2008')
         assert out == '2008-02', out
+        out = ckan.lib.schema_gov.DateType.form_to_db('Jun-2008')
+        assert out == '2008-06', out
         out = ckan.lib.schema_gov.DateType.form_to_db('2008')
         assert out == '2008', out
 
@@ -23,6 +27,8 @@ class TestDate:
         assert ckan.lib.schema_gov.DateType.form_validator('45/2009')
         assert ckan.lib.schema_gov.DateType.form_validator('-2/2009')
         assert ckan.lib.schema_gov.DateType.form_validator('35/3/2009')
+        assert ckan.lib.schema_gov.DateType.form_validator('25/Feb/2009') is None
+        assert ckan.lib.schema_gov.DateType.form_validator('35/ABC/2009')
         assert ckan.lib.schema_gov.DateType.form_validator('') is None
         
     def test_2_db_to_form(self):

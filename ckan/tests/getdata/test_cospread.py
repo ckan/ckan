@@ -117,6 +117,7 @@ class TestDataTwice:
         [tag_names.add(tag.name) for tag in pkg.tags]
         assert '000100: Northern Ireland' in pkg.extras['geographic_coverage'], pkg.extras
         assert 'child-protection' in tag_names, tag_names
+        assert len(pkg.resources) == 2, pkg.resources
 
         q = model.Session.query(model.Package).filter_by(name=u'provision-children-under-5-england-2009')
         pkg = q.one()
