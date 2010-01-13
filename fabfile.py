@@ -177,11 +177,12 @@ def backup():
         get(backup_filepath, local_backup_dir)
 
 def restore_from_local(pg_dump_filepath):
+    pg_dump_filepath = os.path.expanduser(pg_dump_filepath)
     assert os.path.exists(pg_dump_filepath)
-    pg_dump_filename = os.path.basename(pg_dump_filename)
+    pg_dump_filename = os.path.basename(pg_dump_filepath)
     remote_filepath = os.path.join('/tmp', pg_dump_filename)
     put(pg_dump_filepath, remote_filepath)
-    restore_from_local(remote_filepath)
+    restore(remote_filepath)
 
 def restore(pg_dump_filepath):
     _setup()
@@ -199,7 +200,29 @@ def restore(pg_dump_filepath):
         _run_in_pyenv('paster --plugin ckan db upgrade --config %s' % env.config_ini_filename)
         _run_in_pyenv('paster --plugin ckan db init --config %s' % env.config_ini_filename)
 
+def load_from_local(format, csv_filepath):
+    csv_filepath = os.path.expanduser(csv_filepath)
+    assert os.path.exists(csv_filepath)
+    csv_filename = os.path.basename(csv_filepath)
+    remote_filepath = os.path.join('/tmp', csv_filename)
+    put(csv_filepath, remote_filepath)
+    load(format, remote_filepath)
 
+def load(format, csv_filepath):
+    assert format in ('cospread', 'data4nr')
+    _setup()
+    csv_filepath = os.path.expanduser(csv_filepath)
+    assert exists(csv_filepath), 'Cannot find file: %s' % csv_filepath
+    db_details = _get_db_config()
+    with cd(env.instance_path):
+        _run_in_pyenv('paster --plugin ckan db load-%s %s --config %s' % (format, csv_filepath, env.config_ini_filename))
+    
+def paster(cmd):
+    _setup()
+    with cd(env.instance_path):
+        _run_in_pyenv('paster --plugin ckan %s --config %s' % (cmd, env.config_ini_filename))
+
+                    
 def test():
     _setup()
     with cd(env.instance_path):
