@@ -13,8 +13,9 @@ class PackageSaver(object):
     def render_preview(cls, fs, original_name, record_id):
         'Renders a package on the basis of a fieldset - perfect for preview'
         pkg = cls._preview_pkg(fs, original_name, record_id)
-        return genshi.HTML(cls.render_package(pkg))
+        cls.render_package(pkg)
 
+    # TODO: rename to something more correct like prepare_for_render
     @classmethod
     def render_package(cls, pkg):
         'Renders a package'
@@ -26,7 +27,7 @@ class PackageSaver(object):
         c.pkg_author_link = cls._person_email_link(c.pkg.author, c.pkg.author_email, "Author")
         c.pkg_maintainer_link = cls._person_email_link(c.pkg.maintainer, c.pkg.maintainer_email, "Maintainer")
         # c.auth_for_change_state and c.auth_for_edit may also used
-        return render('package/read')
+        # return render('package/read')
 
     @classmethod
     def _preview_pkg(cls, fs, original_name, pkg_id):

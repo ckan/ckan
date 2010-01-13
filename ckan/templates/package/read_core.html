@@ -1,0 +1,109 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip=""
+  >
+  <xi:include href="../_util.html" />
+
+  <div class="package">
+    <div class="information">
+      <dl class="icons clearfix">
+        <dt>${h.icon('user')}</dt>
+        <dd>${c.pkg_author_link}</dd>
+        <py:if test="c.pkg.maintainer or c.pkg.maintainer_email">
+          <dt>${h.icon('user_grey')}</dt>
+          <dd>${c.pkg_maintainer_link}</dd>
+        </py:if>
+        <py:if test="c.pkg.version">
+          <dt>${h.icon('package')}</dt>
+          <dd>Version <strong>${c.pkg.version}</strong></dd>
+        </py:if>
+        <dt>${package_license_icon(c.pkg)}</dt>
+        <dd>${nonempty(c.pkg.license, "License not given")}</dd>
+        <dt>${package_resources_icon(c.pkg)}</dt>
+        <dd>${"Resources available for download" if c.pkg.resources else "No resources given"}</dd>
+      </dl>
+    </div>
+
+    <h2 class="head">
+      ${c.pkg.title}
+      <span class="name">(${c.pkg.name})</span>
+    </h2>
+    <h3 class="url" py:if="c.pkg.url">${c.pkg_url_link}</h3>
+
+    <div class="notes" py:if="str(c.pkg_notes_formatted).strip()">
+      ${c.pkg_notes_formatted}
+    </div>
+
+    <div py:choose="" class="resources ${'cleared' if str(c.pkg_notes_formatted).strip() else ''}" >
+      <h4><a name="resources"></a>Resources</h4>
+      <table py:when="c.pkg.resources">
+        <tr><th>URL</th><th>Format</th><th>Description</th><th>Hash</th></tr>
+        <py:for each="res in c.pkg.resources">
+          <tr><td><a href="${res.url}">${res.url}</a></td><td>${res.format}</td><td>${res.description}</td><td>${res.hash}</td></tr>
+        </py:for>
+      </table>
+      <table py:otherwise=""><tr><th>Resources</th><td>None given for this package.</td></tr></table>
+    </div>
+
+    <hr class="cleared" />
+
+    <py:if test="c.pkg.extras">
+      <h4>Extras</h4>
+      <table>
+        <tr py:for="key, value in c.pkg.extras.items()"><th>${key}</th><td>${value}</td></tr>
+      </table>
+    </py:if>
+
+    <div class="twocol">
+
+      <div class="openness">
+        <h4>Openness</h4>
+        <py:choose test="">
+          <p py:when="c.pkg.license">
+            This package is licensed
+            <strong>${c.pkg.license.name}</strong>.
+          </p>
+          <p py:otherwise="">
+            License not given
+          </p>
+        </py:choose>
+        <p py:if="c.pkg.isopen() and c.pkg.resources" class="okd">
+          <a
+            href="http://www.opendefinition.org/1.0/"
+            title="This package satisfies the OKFN's Open Knowledge Definition.">
+            <img src="http://m.okfn.org/images/ok_buttons/ok_90x15_blue.png" alt="[Open Knowledge]" />
+          </a>
+        </p>
+      </div>
+
+      <div class="rating">
+        <h4>Rating</h4>
+        ${package_rating(c.pkg)}
+      </div>
+
+      <hr class="nomargin" />
+
+      <div class="taglist">
+        <h4>Tags</h4>
+        ${tag_list(c.pkg.tags)}
+      </div>
+
+      <div class="grouplist">
+        <h4>Groups</h4>
+        <py:for each="group in c.pkg.groups">
+        <a href="${h.url_for(controller='group', action='read', id=group.name)}">${group.name}</a>
+        </py:for>
+      </div>
+
+    </div>
+
+    <ul>
+      <py:if test="c.auth_for_change_state">
+         <li><strong>State:</strong> ${c.pkg.state}</li>
+      </py:if>
+    </ul>
+
+    <hr class="cleared" />
+  </div>
+
+</html>
