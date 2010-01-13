@@ -129,7 +129,8 @@ class PackageController(BaseController):
                 h.redirect_to(action='read', id=pkgname)
             except ValidationException, error:
                 c.error, fs = error.args
-                c.form = self._render_edit_form(fs, request.params)
+                c.form = self._render_edit_form(fs, request.params,
+                        clear_session=True)
                 return render('package/edit')
 
         # use request params even when starting to allow posting from "outside"
@@ -145,16 +146,16 @@ class PackageController(BaseController):
             fs = fs.bind(model.Package, data=data, session=model.Session)
         else:
             fs = fs.bind(session=model.Session)
-        c.form = self._render_edit_form(fs, request.params)
+        c.form = self._render_edit_form(fs, request.params, clear_session=True)
         if 'preview' in request.params:
             try:
                 PackageSaver().render_preview(fs, id, record.id)
                 c.preview = genshi.HTML(render('package/read_core'))
             except ValidationException, error:
                 c.error, fs = error.args
-##                c.form = self._render_edit_form(fs, request.params)
-##                return render('package/edit')
-#        fs = fs.bind(session=model.Session)
+                c.form = self._render_edit_form(fs, request.params,
+                        clear_session=True)
+                return render('package/edit')
         return render('package/new')
 
     def edit(self, id=None): # allow id=None to allow posting
@@ -191,7 +192,8 @@ class PackageController(BaseController):
                 h.redirect_to(action='read', id=pkgname)
             except ValidationException, error:
                 c.error, fs = error.args
-                c.form = self._render_edit_form(fs, request.params)
+                c.form = self._render_edit_form(fs, request.params,
+                        clear_session=True)
                 return render('package/edit')
         else: # Must be preview
             pkgname = id
@@ -270,9 +272,13 @@ class PackageController(BaseController):
                 abort(400, 'Rating value invalid')
         h.redirect_to(controller='package', action='read', id=package_name)
 
-    def _render_edit_form(self, fs, params={}):
+    def _render_edit_form(self, fs, params={}, clear_session=False):
         # errors arrive in c.error and fs.errors
         c.log_message = params.get('log_message', '')
+        # expunge everything from session so we don't have any problematic
+        # saves (this gets called on validation exceptions a lot)
+        if clear_session:
+            model.Session.clear()
         c.form = fs.render()
         return render('package/edit_form')
 
@@ -292,10 +298,6 @@ class PackageController(BaseController):
             raise
         else:
             model.Session.commit()
-
-
-
-
 
     def _person_email_link(self, name, email, reference):
         if email:

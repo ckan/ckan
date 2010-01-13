@@ -263,6 +263,7 @@ class TestEdit(TestPackageForm):
         self.setUp()
 
     def setUp(self):
+        model.Session.remove()
         rev = model.repo.new_revision()
         self.editpkg_name = u'editpkgtest'
         editpkg = model.Package(name=self.editpkg_name)
@@ -289,15 +290,19 @@ class TestEdit(TestPackageForm):
         self.tearDown()
 
     def tearDown(self):
-        pkg = model.Package.by_name(self.editpkg.name)
-        if pkg:
-            pkg.purge()
-        for tagname in self.newtagnames:
-            tag = model.Tag.by_name(tagname)
-        if tag:
-            tag.purge()
-        model.Session.commit()
-        model.Session.remove()
+        model.repo.rebuild_db()
+        # do not know why but this is keeps leading to errors w/ duplicate key
+        # in the db
+#        pkg = model.Package.by_name(self.editpkg.name)
+#        if pkg:
+#            pkg.purge()
+#            model.Session.commit()
+#        for tagname in self.newtagnames:
+#            tag = model.Tag.by_name(tagname)
+#        if tag:
+#            tag.purge()
+#        model.Session.commit()
+#        model.Session.remove()
 
     def test_setup_ok(self):
         assert 'Packages - Edit' in self.res
