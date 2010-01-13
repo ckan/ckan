@@ -53,12 +53,10 @@ class TestPreview(TestController):
         pkg = model.Package.by_name(u'name_before')
         fs = ckan.forms.get_fieldset(is_admin=False, basic=False,
                 package_form='')
-        data = ckan.forms.strip_ids_from_package_dict(
-            ckan.forms.add_to_package_dict(
+        data =  ckan.forms.add_to_package_dict(
                 ckan.forms.get_package_dict(pkg=pkg, fs=fs), self.params,
-                    pkg.id),
-                pkg.id)
-        fs = fs.bind(model.Package, data=data)
+                    pkg.id)
+        fs = fs.bind(pkg, data=data)
         pkg2 = PackageSaver()._preview_pkg(fs, u'name_before', pkg.id)
         self._check_preview_pkg(pkg2, self.params)
 

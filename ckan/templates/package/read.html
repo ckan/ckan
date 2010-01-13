@@ -41,9 +41,9 @@
           <dd>Version <strong>${c.pkg.version}</strong></dd>
         </py:if>
         <dt>${package_license_icon(c.pkg)}</dt>
-        <dd>${nonempty(c.pkg_license, "License unknown")}</dd>
+        <dd>${nonempty(c.pkg.license, "License not given")}</dd>
         <dt>${package_resources_icon(c.pkg)}</dt>
-        <dd>${"Resources available for download" if c.pkg.resources else "No known resources"}</dd>
+        <dd>${"Resources available for download" if c.pkg.resources else "No resources given"}</dd>
       </dl>
     </div>
 
@@ -122,7 +122,7 @@
 
     <ul>
       <py:if test="c.auth_for_change_state">
-         <li><strong>State:</strong> ${c.pkg_state}</li>
+         <li><strong>State:</strong> ${c.pkg.state}</li>
       </py:if>
     </ul>
 

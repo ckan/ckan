@@ -110,7 +110,7 @@ class PackageController(BaseController):
 
         record = model.Package
         if request.params.has_key('commit'):
-            fs = fs.bind(record, data=request.params or None, session=model.Session)
+            fs = fs.bind(record, data=dict(request.params) or None, session=model.Session)
             try:
                 log_message = request.params['log_message']
                 PackageSaver().commit_pkg(fs, None, None, log_message, c.author)
@@ -140,7 +140,10 @@ class PackageController(BaseController):
                     domain = domain[4:]
             # ensure all fields specified in params (formalchemy needs this on bind)
             data = ckan.forms.add_to_package_dict(ckan.forms.get_package_dict(fs=fs), request.params)
-            fs = fs.bind(model.Package, data=data)
+            fs = fs.bind(model.Package, data=data, session=model.Session)
+        else:
+            fs = fs.bind(session=model.Session)
+        c.form = self._render_edit_form(fs, request.params)
         if 'preview' in request.params:
             try:
                 c.preview = PackageSaver().render_preview(fs, id, record.id)
@@ -148,8 +151,7 @@ class PackageController(BaseController):
                 c.error, fs = error.args
 ##                c.form = self._render_edit_form(fs, request.params)
 ##                return render('package/edit')
-        fs = fs.bind(session=model.Session)
-        c.form = self._render_edit_form(fs, request.params)
+#        fs = fs.bind(session=model.Session)
         return render('package/new')
 
     def edit(self, id=None): # allow id=None to allow posting
@@ -190,10 +192,8 @@ class PackageController(BaseController):
                 return render('package/edit')
         else: # Must be preview
             pkgname = id
-            stripped_data = ckan.forms.strip_ids_from_package_dict(request.params, id)
-            fs = fs.bind(model.Package, data=stripped_data)
+            fs = fs.bind(pkg, data=dict(request.params))
             c.preview = PackageSaver().render_preview(fs, id, pkg.id)
-            fs = fs.bind(pkg, data=request.params)
             c.form = self._render_edit_form(fs, request.params)
             return render('package/edit')
 

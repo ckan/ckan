@@ -1,5 +1,5 @@
 import genshi
-
+from sqlalchemy import orm
 import ckan.lib.helpers as h
 from ckan.lib.base import *
 import ckan.rating
@@ -12,9 +12,7 @@ class PackageSaver(object):
     @classmethod
     def render_preview(cls, fs, original_name, record_id):
         'Renders a package on the basis of a fieldset - perfect for preview'
-        # sync the fs without committing
         pkg = cls._preview_pkg(fs, original_name, record_id)
-        # now expunge all to avoid any flush issues
         return genshi.HTML(cls.render_package(pkg))
 
     @classmethod
@@ -40,8 +38,17 @@ class PackageSaver(object):
         @input pkg_id Package id
         @return package object
         '''
-        assert not fs.session # otherwise the sync will save to the session
-        out = cls._update(fs, original_name, pkg_id, None, None, commit=False)
+        try:
+            out = cls._update(fs, original_name, pkg_id, None, None, commit=False)
+            # While pkg is still in the session, touch the relations so they
+            # lazy load, for use later.
+            fs.model.license
+            fs.model.groups
+            fs.model.ratings
+        except ValidationException, e:
+            # remove everything from session so nothing can get saved accidentally
+            model.Session.clear()
+            raise ValidationException(*e)
         # remove everything from session so nothing can get saved accidentally
         model.Session.clear()
         return out

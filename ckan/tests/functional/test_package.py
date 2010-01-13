@@ -11,6 +11,36 @@ existing_extra_html = ('<label class="field_opt" for="Package-%(package_id)s-ext
 package_form=''
 
 class TestPackageForm(TestController):
+    '''Inherit this in tests for these form testing methods'''
+    def _check_package_read(self, res, **params):
+        assert not 'Error' in res, res
+        assert u'Packages - %s' % params['name'] in res, res
+        main_res = self.main_div(res)
+        main_div = main_res
+        main_div_str = main_div.encode('utf8')
+        assert params['name'] in main_div, main_div_str
+        assert params['title'] in main_div, main_div_str
+        assert params['version'] in main_div, main_div_str
+        assert '<a href="%s">' % params['url'] in main_div, main_div_str
+        prefix = 'Package-%s-' % params.get('id', '')
+        for res_index, values in self._get_resource_values(params['resources'], by_resource=True):
+            self.check_named_element(main_div, 'tr', *values)
+        assert params['notes'] in main_div, main_div_str
+        assert params['license'] in main_div, main_div_str
+        for tag in params['tags']:
+            assert tag.lower() in main_div, '%r %s' % (main_div_str, tag)
+        if params.has_key('state'):
+            assert 'State: %s' % params['state'] in main_div.replace('</strong>', ''), main_div_str
+        if isinstance(params['extras'], dict):
+            extras = params['extras'].items()
+        elif isinstance(params['extras'], (list, tuple)):
+            extras = params['extras']
+        else:
+            raise NotImplementedError
+        for key, value in extras:
+            self.check_named_element(main_div, 'tr', key, value)
+
+        
     def _check_preview(self, res, **params):
         preview =  str(res)[str(res).find('<div id="preview"'):str(res).find('<div id="footer">')]
         # TODO - remove this hack until preview works
@@ -41,6 +71,30 @@ class TestPackageForm(TestController):
                 self.check_named_element('td', '!' + key)
                 self.check_named_element('td', '!' + value)
 
+    def _get_resource_values(self, resources, by_resource=False):
+        assert isinstance(resources, (list, tuple))
+        for res_index, resource in enumerate(resources):
+            if by_resource:
+                values = []
+            for i, res_field in enumerate(model.PackageResource.get_columns()):
+                if isinstance(resource, (str, unicode)):
+                    expected_value = resource if res_field == 'url' else ''
+                elif hasattr(resource, res_field):
+                    expected_value = getattr(resource, res_field)
+                elif isinstance(resource, (list, tuple)):
+                    expected_value = resource[i]
+                elif isinstance(resource, dict):
+                    expected_value = resource.get(res_field, u'')
+                else:
+                    raise NotImplemented
+                if not by_resource:
+                    yield (res_index, res_field, expected_value)
+                else:
+                    values.append(expected_value)
+            if by_resource:
+                yield(res_index, values)
+
+
     def check_form_filled_correctly(self, res, **params):
         if params.has_key('pkg'):
             for key, value in params['pkg'].as_dict().items():
@@ -51,17 +105,8 @@ class TestPackageForm(TestController):
         self.check_tag(main_res, prefix+'title', params['title'])
         self.check_tag(main_res, prefix+'version', params['version'])
         self.check_tag(main_res, prefix+'url', params['url'])
-        for res_index, resource in enumerate(params['resources']):
-            for i, res_field in enumerate(model.PackageResource.get_columns()):
-                if hasattr(resource, res_field):
-                    expected_value = getattr(resource, res_field)
-                elif isinstance(resource, (list, tuple)):
-                    expected_value = resource[i]
-                elif isinstance(resource, dict):
-                    expected_value = resource.get(res_field, u'')
-                else:
-                    raise NotImplemented
-                self.check_tag(main_res, '%sresources-%i-%s' % (prefix, res_index, res_field), expected_value)
+        for res_index, res_field, expected_value in self._get_resource_values(params['resources']):
+            self.check_tag(main_res, '%sresources-%i-%s' % (prefix, res_index, res_field), expected_value)
         self.check_tag_and_data(main_res, prefix+'notes', params['notes'])
         if isinstance(params['license'], model.License):
             license_ = params['license'].name
@@ -463,25 +508,29 @@ u with umlaut \xc3\xbc
         # Check package page
         assert not 'Error' in res, res
         res = res.follow(extra_environ={'REMOTE_USER':'testadmin'})
-        main_res = self.main_div(res).replace('</strong>', '')
-        sidebar = self.sidebar(res)
-        res1 = (main_res + sidebar).decode('ascii', 'ignore')
-        assert 'Packages - %s' % str(name) in res, res
-        assert str(name) in res1, res1
-        assert str(title) in res1, res1
-        assert str(version) in res1, res1
-        assert '<a href="%s">' % str(url).lower() in res1.lower(), res1
-        for res_index, resource in enumerate(resources):
-            self.check_named_element(res1, 'tr', resource[0], resource[1], resource[2], resource[3])
-        assert str(notes) in res1, res1
-        assert str(license) in res1, res1
-        for tag_html in tags_html_list:
-            assert tag_html in res1, res1
-        assert groups_html in res1, res1 + groups_html
-        assert 'State: %s' % str(state) in res1, res1
-        for key, value in current_extras:
-            extras_html = '%(key)s: %(value)s' % {'key':key.capitalize(), 'value':value}
-            assert extras_html in res1, str(res) + extras_html
+        self._check_package_read(res, name=name, title=title,
+                                 version=version, url=url,
+                                 resources=resources, notes=notes,
+                                 license=license, tags=tags,
+                                 extras=extras,
+                                 state=state,
+                                 )
+##        main_res = self.main_div(res)
+##        res1 = main_res
+##        assert 'Packages - %s' % str(name) in res, res
+##        assert str(name) in res1, res1
+##        assert str(title) in res1, res1
+##        assert str(version) in res1, res1
+##        assert '<a href="%s">' % str(url).lower() in res1.lower(), res1
+##        for res_index, resource in enumerate(resources):
+##            self.check_named_element(res1, 'tr', resource[0], resource[1], resource[2], resource[3])
+##        assert str(notes) in res1, res1
+##        assert str(license) in res1, res1
+##        for tag in tags:
+##            assert str(tag) in res1, res1
+##        assert 'State: %s' % state in res1.replace('</strong>', ''), res1.encode('utf8')
+##        for key, value in current_extras:
+##            self.check_named_element(res1, 'tr', key, value)
 
         # Check package object
         pkg = model.Package.by_name(name)
@@ -502,7 +551,7 @@ u with umlaut \xc3\xbc
             assert pkg.extras[key] == value
 
         # for some reason environ['REMOTE_ADDR'] is undefined
-        rev = model.Revision.youngest()
+        rev = model.Revision.youngest(model.Session)
         assert rev.author == 'testadmin', rev.author
         assert rev.message == log_message
         # TODO: reinstate once fixed in code
@@ -615,19 +664,21 @@ class TestNew(TestPackageForm):
         assert not 'Error' in res, res
 
         # Check preview is correct
-        self._check_preview(res, title=title, version=version, url=url,
+        self._check_preview(res, name=name, title=title, version=version,
+                            url=url,
                             resources=[download_url], notes=notes,
                             license=license,
-                            tags=tags, extras=current_extras.items(),
+                            tags=tags, extras=extras.items(),
 #                            state=state,
                             )
 
         # Check form is correctly filled
         self.check_form_filled_correctly(res, id='', name=name,
                                          title=title, version=version,
-                                         url=url, resources=resources,
+                                         url=url, resources=[download_url],
                                          notes=notes, license=license,
-                                         tags=tags, extras=current_extras,
+                                         tags=[tag.lower() for tag in tags],
+                                         extras=extras,
 #                                         deleted_extras=deleted_extras,
                                          log_message=log_message,
 #                                         state=state
@@ -640,22 +691,13 @@ class TestNew(TestPackageForm):
         # Check package page
         assert not 'Error' in res, res
         res = res.follow()
-        main_res = self.main_div(res).replace('</strong>', '')
-        sidebar = self.sidebar(res)
-        res1 = (main_res + sidebar).decode('ascii', 'ignore')
-        assert 'Packages - %s' % str(name) in res, res
-        assert str(name) in res1, res1
-        assert str(title) in res1, res1
-        assert str(version) in res1, res1
-        assert '<a href="%s">' % str(url).lower() in res1.lower(), res1
-        assert '<td><a href="%s">' % str(download_url) in res1, res1
-        assert '<p>%s' % str(notes) in res1, res1
-        assert 'License: %s' % str(license) in res1, res1
-        for tag in tags:
-            assert '%s</a>' % tag.lower() in res
-        for key, value in current_extras:
-            extras_html = '%(key)s: %(value)s' % {'key':key.capitalize(), 'value':value}
-            assert extras_html in res1, str(res) + extras_html
+        self._check_package_read(res, name=name, title=title,
+                                 version=version, url=url,
+                                 resources=[download_url], notes=notes,
+                                 license=license, tags=tags,
+                                 extras=extras,
+#                                 state=state,
+                                 )
 
         # Check package object
         pkg = model.Package.by_name(name)
@@ -669,12 +711,12 @@ class TestNew(TestPackageForm):
         saved_tagnames = [str(tag.name) for tag in pkg.tags]
         assert saved_tagnames == [tag.lower() for tag in list(tags)]
         saved_groupnames = [str(group.name) for group in pkg.groups]
-        assert len(pkg.extras) == len(current_extras)
-        for key, value in current_extras:
+        assert len(pkg.extras) == len(extras)
+        for key, value in extras.items():
             assert pkg.extras[key] == value
 
         # for some reason environ['REMOTE_ADDR'] is undefined
-        rev = model.Revision.youngest()
+        rev = model.Revision.youngest(model.Session)
         assert rev.author == 'Unknown IP Address'
         assert rev.message == log_message
         # TODO: reinstate once fixed in code
@@ -746,7 +788,7 @@ class TestNewPreview(TestController):
         model.Session.remove()
 
     def test_preview(self):
-        assert model.Package.query.count() == 0, model.Package.query.all()
+        assert model.Session.query(model.Package).count() == 0, model.Session.query(model.Package).all()
         
         offset = url_for(controller='package', action='new', package_form=package_form)
         res = self.app.get(offset)
@@ -763,7 +805,7 @@ class TestNewPreview(TestController):
         assert str(self.pkgtitle) in res, res
 
         # Check no object is yet created
-        assert model.Package.query.count() == 0, model.Package.query.all()
+        assert model.Session.query(model.Package).count() == 0, model.Session.query(model.Package).all()
         
 
 class TestNonActivePackages(TestController):
