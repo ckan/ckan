@@ -64,11 +64,8 @@ class DomainObject(object):
             setattr(self, k, v)
 
     @classmethod
-    def by_name(self, name):
-        # we disable autoflush here since this routine is regularly called when
-        # constructing objects (e.g. when searching for tags to add to a
-        # package)
-        obj = Session.query(self).autoflush(False).filter_by(name=name).first()
+    def by_name(self, name, autoflush=True):
+        obj = Session.query(self).autoflush(autoflush).filter_by(name=name).first()
         return obj
 
     @classmethod
@@ -146,20 +143,14 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             description=description,
             hash=hash))
 
-    def add_tag_by_name(self, tagname):
+    def add_tag_by_name(self, tagname, autoflush=True):
         if not tagname:
             return
-        tag = Tag.by_name(tagname)
+        tag = Tag.by_name(tagname, autoflush=autoflush)
         if not tag:
             tag = Tag(name=tagname)
         if not tag in self.tags:
             self.tags.append(tag)
-
-    def drop_tag_by_name(self, tagname):
-        tag = Tag.by_name(tagname)
-        # TODO:
-        # self.tags.delete(tag=tag)
-        pass
 
     @property
     def tags_ordered(self):
@@ -242,6 +233,7 @@ class System(DomainObject):
 
 # VDM-specific domain objects
 State = vdm.sqlalchemy.State
+State.all = [ State.ACTIVE, State.DELETED ]
 Revision = vdm.sqlalchemy.make_Revision(mapper, revision_table)
 
 mapper(License, license_table,

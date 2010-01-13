@@ -14,7 +14,8 @@ PACKAGE_FORM_KEY = 'package_form_schema'
 
 def package_name_validator(val, field):
     common.name_validator(val, field)
-    if model.Package.by_name(val):
+    # we disable autoflush here since may get used in package preview
+    if model.Package.by_name(val, autoflush=False):
         raise formalchemy.ValidationError('Package name already exists in database')
         
 
@@ -63,11 +64,12 @@ class TagField(formalchemy.Field):
     def _update_tags(self):
         pkg = self.model
         tags = self._deserialize()
-        taglist = [tag.name for tag in tags]
+        # discard duplicates
+        taglist = list(set([tag.name for tag in tags]))
         current_tags = [ tag.name for tag in pkg.tags ]
         for name in taglist:
             if name not in current_tags:
-                pkg.add_tag_by_name(name)
+                pkg.add_tag_by_name(name, autoflush=False)
         for pkgtag in pkg.package_tags:
             if pkgtag.tag.name not in taglist:
                 pkgtag.delete()
@@ -234,6 +236,7 @@ class TagEditRenderer(formalchemy.fields.FieldRenderer):
         tags_as_string = self._tag_links()
         return common.field_readonly_renderer(self.field.key, tags_as_string)
 
+    # Looks remarkably similar to _update_tags above
     def deserialize(self):
         tags_as_string = self._serialized_value() # space separated string
         package = self.field.parent.model
@@ -242,7 +245,7 @@ class TagEditRenderer(formalchemy.fields.FieldRenderer):
         tags_as_string = tags_as_string.replace(',', ' ').lower()
         taglist = tags_as_string.split()
         def find_or_create_tag(name):
-            tag = model.Tag.by_name(name)
+            tag = model.Tag.by_name(name, autoflush=False)
             if not tag:
                 tag = model.Tag(name=name)
             return tag
