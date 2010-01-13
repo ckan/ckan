@@ -2,6 +2,7 @@ import logging
 import urlparse
 
 import simplejson
+import genshi
 
 from ckan.lib.base import *
 from ckan.lib.search import Search, SearchOptions
@@ -77,7 +78,8 @@ class PackageController(BaseController):
         c.auth_for_edit = self.authorizer.am_authorized(c, model.Action.EDIT, pkg)
         c.auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, pkg)
 
-        return PackageSaver().render_package(pkg)
+        PackageSaver().render_package(pkg)
+        return render('package/read') 
 
     def history(self, id):
         if 'diff' in request.params or 'selected1' in request.params:
@@ -146,7 +148,8 @@ class PackageController(BaseController):
         c.form = self._render_edit_form(fs, request.params)
         if 'preview' in request.params:
             try:
-                c.preview = PackageSaver().render_preview(fs, id, record.id)
+                PackageSaver().render_preview(fs, id, record.id)
+                c.preview = genshi.HTML(render('package/read_core'))
             except ValidationException, error:
                 c.error, fs = error.args
 ##                c.form = self._render_edit_form(fs, request.params)
@@ -193,7 +196,8 @@ class PackageController(BaseController):
         else: # Must be preview
             pkgname = id
             fs = fs.bind(pkg, data=dict(request.params))
-            c.preview = PackageSaver().render_preview(fs, id, pkg.id)
+            PackageSaver().render_preview(fs, id, pkg.id)
+            c.preview = genshi.HTML(render('package/read_core'))
             c.form = self._render_edit_form(fs, request.params)
             return render('package/edit')
 
