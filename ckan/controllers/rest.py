@@ -79,10 +79,10 @@ class RestController(BaseController):
             if register == 'package':
                 fs = ckan.forms.package_fs
                 request_fa_dict = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(fs=fs), request_data)
-                fs = fs.bind(model.Package, data=request_fa_dict)
+                fs = fs.bind(model.Package, data=request_fa_dict, session=model.Session)
             elif register == 'group':
                 request_fa_dict = ckan.forms.edit_group_dict(ckan.forms.get_group_dict(), request_data)
-                fs = ckan.forms.group_fs_combined.bind(model.Group, data=request_fa_dict)
+                fs = ckan.forms.group_fs_combined.bind(model.Group, data=request_fa_dict, session=model.Session)
             elif register == 'rating':
                 return self._create_rating(request_data)
             else:
@@ -244,6 +244,7 @@ class RestController(BaseController):
         ckan.rating.set_rating(user, package, rating_int)
 
         response.headers['Content-Type'] = 'application/json'
+        package = model.Package.by_name(package_name)
         ret_dict = {'rating average':package.get_average_rating(),
                     'rating count': len(package.ratings)}
         return self._finish_ok(ret_dict)
@@ -258,7 +259,7 @@ class RestController(BaseController):
         if keystr is None:
             keystr = request.environ.get('Authorization', None)
         self.log.debug("Received API Key: %s" % keystr)
-        api_key = model.Session.query(model.User).filter_by(apikey=keystr).first()
+        api_key = model.Session.query(model.User).filter_by(apikey=unicode(keystr)).first()
         if api_key is not None:
             self.rest_api_user = api_key.name
         else:

@@ -1,7 +1,6 @@
 from sqlalchemy import *
 from migrate import *
 import uuid
-import ckan.model as model
 
 metadata = MetaData(migrate_engine)
 

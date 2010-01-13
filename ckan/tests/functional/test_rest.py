@@ -22,7 +22,7 @@ class TestRestController(TestController):
             pass
         model.Session.remove()
         CreateTestData.create()
-        model.Package(name=u'--')
+        model.Session.save(model.Package(name=u'--'))
         rev = model.repo.new_revision()
         model.repo.commit_and_remove()
 
@@ -60,10 +60,10 @@ class TestRestController(TestController):
             }
         self.random_name = u'http://myrandom.openidservice.org/'
         self.user = model.User(name=self.random_name)
+        model.Session.add(self.user)
         model.Session.commit()
-        self.extra_environ={ 'Authorization' : str(self.user.apikey) }
         model.Session.remove()
-
+        self.extra_environ={ 'Authorization' : str(self.user.apikey) }
 
     def teardown(self):
         model.Session.remove()
@@ -327,9 +327,12 @@ class TestRestController(TestController):
         if not model.Package.by_name(self.testpackagevalues['name']):
             rev = model.repo.new_revision()
             pkg = model.Package()
+            model.Session.save(pkg)
             pkg.name = self.testpackagevalues['name']
             pkg.url = self.testpackagevalues['url']
             tags = [model.Tag(name=tag_name) for tag_name in tag_names]
+            for tag in tags:
+                model.Session.save(tag)
             pkg.tags = tags
             pkg.extras = {u'key1':u'val1', u'key2':u'val2'}
             model.Session.commit()
@@ -371,6 +374,7 @@ class TestRestController(TestController):
             }
         rev = model.repo.new_revision()
         pkg = model.Package()
+        model.Session.save(pkg)
         pkg.name = test_params['name']
         pkg.download_url = test_params['download_url']
         model.Session.commit()
@@ -428,6 +432,7 @@ class TestRestController(TestController):
         # create a package with testpackagevalues
         if not model.Package.by_name(self.testpackagevalues['name']):
             pkg = model.Package()
+            model.Session.save(pkg)
             pkg.name = self.testpackagevalues['name']
             rev = model.repo.new_revision()
             model.Session.commit()
@@ -442,6 +447,7 @@ class TestRestController(TestController):
         dupname = u'dupname'
         if not model.Package.by_name(dupname):
             pkg = model.Package()
+            model.Session.save(pkg)
             pkg.name = dupname
             rev = model.repo.new_revision()
             model.Session.commit()
@@ -459,6 +465,7 @@ class TestRestController(TestController):
         # create a group with testgroupvalues
         if not model.Group.by_name(self.testgroupvalues['name']):
             group = model.Group()
+            model.Session.save(group)
             group.name = self.testgroupvalues['name']
             rev = model.repo.new_revision()
             model.Session.commit()
@@ -473,6 +480,7 @@ class TestRestController(TestController):
         dupname = u'dupname'
         if not model.Group.by_name(dupname):
             group = model.Group()
+            model.Session.save(group)
             group.name = dupname
             rev = model.repo.new_revision()
             model.Session.commit()
@@ -492,6 +500,7 @@ class TestRestController(TestController):
         # create a package with testpackagevalues
         if not model.Package.by_name(self.testpackagevalues['name']):
             pkg = model.Package()
+            model.Session.save(pkg)
             pkg.name = self.testpackagevalues['name']
             rev = model.repo.new_revision()
             model.repo.commit_and_remove()
@@ -508,7 +517,7 @@ class TestRestController(TestController):
         res = self.app.delete(offset, status=[200],
                 extra_environ=self.extra_environ)
         pkg = model.Package.by_name(self.testpackagevalues['name'])
-        assert pkg.state.name == 'deleted'
+        assert pkg.state == 'deleted'
         model.Session.remove()
 
     def test_11_delete_group(self):
@@ -518,6 +527,7 @@ class TestRestController(TestController):
         group = model.Group.by_name(self.testgroupvalues['name'])
         if not group:
             group = model.Group()
+            model.Session.save(group)
             group.name = self.testgroupvalues['name']
             rev = model.repo.new_revision()
             model.repo.commit_and_remove()
@@ -714,9 +724,10 @@ class TestSearch(TestController):
         
         
     def test_08_all_fields(self):
-        model.Rating(user_ip_address=u'123.1.2.3',
-                     package=model.Package.by_name(u'annakarenina'),
-                     rating=3.0)
+        rating = model.Rating(user_ip_address=u'123.1.2.3',
+                              package=model.Package.by_name(u'annakarenina'),
+                              rating=3.0)
+        model.Session.save(rating)
         model.repo.commit_and_remove()
         
         query = {'q': 'russian', 'all_fields':1}

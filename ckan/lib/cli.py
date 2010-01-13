@@ -237,7 +237,7 @@ class TestData(CkanCommand):
         assert num_tag > 0
 
         pkg = model.Session.query(model.Package).first()
-        print u'* A package: %s' % pkg
+        print u'* A package: %s' % pkg.as_dict()
         expected_attributes = ('name', 'title', 'notes', 'url')
         for ea in expected_attributes:
             print '* Checking for attribute ', ea
@@ -275,7 +275,7 @@ class TestData(CkanCommand):
             return res
 
 
-        res = check_page('/', ('Search', 'New'))
+        res = check_page('/', ('Search'))
         form = res.forms[0]
         form['q'] = pkg.name
         res = form.submit()

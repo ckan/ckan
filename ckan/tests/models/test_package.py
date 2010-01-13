@@ -94,6 +94,7 @@ class TestPackageWithTags:
         self.tag2 = model.Tag(name=self.tagname2)
         pkg2tag = model.PackageTag(package=pkg, tag=self.tag)
         pkg.tags.append(self.tag2)
+        model.Session.add_all([pkg,self.tag,self.tag2,pkg2tag])
         model.Session.commit()
         self.pkg2tag_id = pkg2tag.id
         self.rev = rev1

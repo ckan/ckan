@@ -56,8 +56,7 @@ class Authorizer(object):
 
         # check it's active
         if hasattr(domain_object, 'state'):
-            active = model.Session.query(model.State).filter_by(name='active').one()
-            if domain_object.state != active:
+            if domain_object.state != model.State.ACTIVE:
                 return False
 
         # check if any of the roles allows the action requested

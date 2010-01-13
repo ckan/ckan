@@ -33,6 +33,10 @@ class PackageResource(vdm.sqlalchemy.RevisionedObjectMixin,
     def __repr__(self):
         return '<PackageResource id=%s package_id=%s url=%s>' % (self.id, self.package_id, self.url)
 
+    @staticmethod
+    def get_columns():
+        return ('url', 'format', 'description', 'hash')
+
 mapper(PackageResource, package_resource_table, properties={
     'package':orm.relation(Package,
         backref=orm.backref('resources',

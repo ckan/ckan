@@ -41,10 +41,11 @@ class TestUserController(TestController):
         user = model.User.by_name(u'annafan')
         offset = url_for(controller='user', action='read', id=user.id)
         res = self.app.get(offset, extra_environ={'REMOTE_USER': str(user.name)})
-        main_res = self.main_div(res)
         assert 'User Account - annafan' in res, res
-        assert 'Logged in as <strong>%s</strong>' % user.name in res, res
+        print res
+        self.check_named_element(res, 'p', 'Logged in as', user.name)
         assert 'View your API key' in res
+        main_res = self.main_div(res)
         assert 'Edit' in main_res, main_res
 
     def test_user_login(self):
@@ -98,7 +99,7 @@ class TestUserController(TestController):
         # cannot use click because it does not allow a 401 response ...
         # could get round this by checking that url is correct and then doing a
         # get but then we are back to test_user_login
-        res.click('Login via OpenID')
+        res.click('Login with')
         # assert 'Please Sign In' in res
 
     def test_apikey(self):
@@ -106,6 +107,7 @@ class TestUserController(TestController):
         user = model.User.by_name(u'okfntest')
         if not user:
             user = model.User(name=u'okfntest')
+            model.Session.save(user)
             model.Session.commit()
             model.Session.remove()
 
@@ -123,7 +125,7 @@ class TestUserController(TestController):
         about = u'Test About'
         user = model.User.by_name(unicode(username))
         if not user:
-            model.User(name=unicode(username), about=about)
+            model.Session.save(model.User(name=unicode(username), about=about))            
             model.repo.commit_and_remove()
             user = model.User.by_name(unicode(username))
 

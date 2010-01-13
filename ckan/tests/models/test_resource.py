@@ -60,10 +60,9 @@ class TestResourceLifecycle:
         pkg.purge()
         model.repo.commit_and_remove()
 
-        active_id = model.Session.query(model.State).filter_by(name='active').one().id
         pkg = model.Package.by_name(self.pkgname)
         all_resources = model.Session.query(model.PackageResource).\
-                        filter_by(state_id=active_id).all()
+                        filter_by(state=model.State.ACTIVE).all()
         assert len(all_resources) == 0, pkg.resources
 
 class TestResourceUse:

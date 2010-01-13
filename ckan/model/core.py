@@ -8,7 +8,6 @@ import full_search
 
 ## VDM-specific tables
 
-state_table = vdm.sqlalchemy.make_state_table(metadata)
 revision_table = vdm.sqlalchemy.make_revision_table(metadata)
 
 ## Our Domain Object Tables
@@ -65,8 +64,8 @@ class DomainObject(object):
             setattr(self, k, v)
 
     @classmethod
-    def by_name(self, name):
-        obj = Session.query(self).filter_by(name=name).first()
+    def by_name(self, name, autoflush=True):
+        obj = Session.query(self).autoflush(autoflush).filter_by(name=name).first()
         return obj
 
     @classmethod
@@ -81,11 +80,7 @@ class DomainObject(object):
 
     @classmethod
     def active(self):
-        # Cache the id of the 'active' row in the State table.
-        if not hasattr(self, 'active_id'):
-            self.active_id = Session.query(State).filter_by(name='active').one().id
-
-        return Session.query(self).filter_by(state_id=self.active_id)
+        return Session.query(self).filter_by(state=State.ACTIVE)
 
     def purge(self):
         sess = orm.object_session(self)
@@ -147,21 +142,15 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             format=format,
             description=description,
             hash=hash))
-        
-    def add_tag_by_name(self, tagname):
+
+    def add_tag_by_name(self, tagname, autoflush=True):
         if not tagname:
             return
-        tag = Tag.by_name(tagname)
+        tag = Tag.by_name(tagname, autoflush=autoflush)
         if not tag:
             tag = Tag(name=tagname)
         if not tag in self.tags:
             self.tags.append(tag)
-
-    def drop_tag_by_name(self, tagname):
-        tag = Tag.by_name(tagname)
-        # TODO:
-        # self.tags.delete(tag=tag)
-        pass
 
     @property
     def tags_ordered(self):
@@ -243,7 +232,8 @@ class System(DomainObject):
         pass
 
 # VDM-specific domain objects
-State = vdm.sqlalchemy.make_State(mapper, state_table)
+State = vdm.sqlalchemy.State
+State.all = [ State.ACTIVE, State.DELETED ]
 Revision = vdm.sqlalchemy.make_Revision(mapper, revision_table)
 
 mapper(License, license_table,

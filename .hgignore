@@ -3,6 +3,7 @@ syntax: glob
 *.pyc
 .DS_Store
 ckan.egg-info/*
+sandbox/*
 
 # pylons
 development.ini*

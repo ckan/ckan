@@ -67,7 +67,7 @@ class TestController(object):
         rev = model.repo.new_revision()
         for i in range(0,100):
             name = u"testpackage%s" % i
-            model.Package(name=name)
+            model.Session.save(model.Package(name=name))
         model.Session.commit()
         model.Session.remove()
 
@@ -83,7 +83,7 @@ class TestController(object):
     def create_200_tags(self):
         for i in range(0,200):
             name = u"testtag%s" % i
-            model.Tag(name=name)
+            model.Session.save(model.Tag(name=name))
             print "Created tag: %s" % name
         model.Session.commit()
         model.Session.remove()
@@ -102,11 +102,12 @@ class TestController(object):
         ratings += model.Session.query(model.Rating).filter_by(package=model.Package.by_name(u'warandpeace')).all()
         for rating in ratings[:]:
             model.Session.delete(rating)
+        model.repo.commit_and_remove()
 
     def main_div(self, html):
         'strips html to just the <div id="main"> section'
-        the_html = str(html)
-        return the_html[the_html.find('<div id="main">'):the_html.find('<div id="footer">')]
+        the_html = html.body.decode('utf8')
+        return the_html[the_html.find(u'<div id="main">'):the_html.find(u'<!-- /main -->')]
 
     def sidebar(self, html):
         'strips html to just the <div id="primary"> section'
@@ -122,7 +123,8 @@ class TestController(object):
         tag and all its subtags & data which contains all the of the
         html_to_find'''
         named_element_re = re.compile('(<(%(tag)s\w*).*?>.*?</%(tag)s>)' % {'tag':tag_name}) 
-        self._check_html(named_element_re, html.replace('\n', ''), html_to_find)
+        html_str = self._get_html_from_res(html)
+        self._check_html(named_element_re, html_str.replace('\n', ''), html_to_find)
 
     def check_tag_and_data(self, html, *html_to_find):
         '''Searches in the html and returns True if it can find a tag and its
@@ -140,12 +142,26 @@ class TestController(object):
             self.tag_re = re.compile('(<[^>]*>)')
         self._check_html(self.tag_re, html, html_to_find)
 
-    def _check_html(self, re, html, html_to_find):
+    def _get_html_from_res(self, html):
+        if isinstance(html, paste.fixture.TestResponse):
+            html_str = html.body
+        elif isinstance(html, (str, unicode)):
+            html_str = html
+        else:
+            raise TypeError
+        return html_str
+
+    def _check_html(self, regex_compiled, html, html_to_find):
         partly_matching_tags = []
-        for tag in re.finditer(str(html)):
+        html_str = self._get_html_from_res(html)
+        for tag in regex_compiled.finditer(html_str):
             found_all=True
             for i, html_bit_to_find in enumerate(html_to_find):
                 assert isinstance(html_bit_to_find, (str, unicode)), html_bit_to_find
+                if isinstance(html, unicode):
+                    html_bit_to_find = unicode(html_bit_to_find)
+                else:
+                    html_bit_to_find = str(html_bit_to_find)
                 find_inverse = html_bit_to_find.startswith('!')
                 if (find_inverse and html_bit_to_find[1:] in tag.group()) or \
                    (not find_inverse and html_bit_to_find not in tag.group()):

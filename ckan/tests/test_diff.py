@@ -27,7 +27,7 @@ class _TestDiffPackage(TestController):
                 tag = model.Tag(name=name)
             return tag
         pkg.tags = [get_tag(u'one'), get_tag(u'two')]
-        pkg.state = model.Session.query(model.State).filter_by(name='deleted').one()
+        pkg.state = model.State.DELETED
         tags_txt = ' '.join([tag.name for tag in pkg.tags])
         pkg.license = model.License.by_name(u'OKD Compliant::Other')
         extras = {'key1':'value1', 'key2':'value2', 'key3':'value3'}
@@ -57,7 +57,7 @@ class _TestDiffPackage(TestController):
         for package_tag in pkg.package_tags:
             if package_tag.tag.name ==u'two':
                 package_tag.delete()
-        pkg.state = model.Session.query(model.State).filter_by(name='active').one()
+        pkg.state = model.State.ACTIVE
         pkg.license = model.License.by_name(u'OKD Compliant::UK Click Use PSI')
         extras = {'key1':'value1', 'key2':'value2-changed', 'key3':None, 'key4':'all-new'}
         for key, value in extras.items():

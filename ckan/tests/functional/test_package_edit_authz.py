@@ -16,7 +16,9 @@ class TestPackageEditAuthz(TestController):
         self.admin = 'madeup-administrator'
         admin_user = model.User(name=unicode(self.admin))
         self.another = u'madeup-another'
-        model.User(name=unicode(self.another))
+        another_user = model.User(name=unicode(self.another))
+        for obj in sysadmin_user, admin_user, another_user:
+            model.Session.add(obj)
 
         model.add_user_to_role(sysadmin_user, model.Role.ADMIN, model.System())
         model.repo.new_revision()
@@ -25,6 +27,8 @@ class TestPackageEditAuthz(TestController):
         self.pkgname2 = u'test6a'
         pkg = model.Package(name=self.pkgname)
         pkg2 = model.Package(name=self.pkgname2)
+        model.Session.add(pkg)
+        model.Session.add(pkg2)
         admin_user = model.User.by_name(unicode(self.admin))
         assert admin_user
         model.setup_default_user_roles(pkg, admins=[admin_user])

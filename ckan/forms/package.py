@@ -8,13 +8,14 @@ import common
 import ckan.model as model
 import ckan.lib.helpers
 
-__all__ = ['package_fs', 'package_fs_admin', 'get_package_dict', 'edit_package_dict', 'add_to_package_dict', 'get_additional_package_fields', 'get_package_fs_options', 'PackageFieldSet', 'StateRenderer', 'TagEditRenderer', 'get_fieldset']
+__all__ = ['package_fs', 'package_fs_admin', 'get_package_dict', 'edit_package_dict', 'add_to_package_dict', 'get_additional_package_fields', 'get_package_fs_options', 'strip_ids_from_package_dict', 'PackageFieldSet', 'StateRenderer', 'TagEditRenderer', 'get_fieldset']
 
 PACKAGE_FORM_KEY = 'package_form_schema'
 
 def package_name_validator(val, field):
     common.name_validator(val, field)
-    if model.Package.by_name(val):
+    # we disable autoflush here since may get used in package preview
+    if model.Package.by_name(val, autoflush=False):
         raise formalchemy.ValidationError('Package name already exists in database')
         
 
@@ -63,11 +64,12 @@ class TagField(formalchemy.Field):
     def _update_tags(self):
         pkg = self.model
         tags = self._deserialize()
-        taglist = [tag.name for tag in tags]
+        # discard duplicates
+        taglist = list(set([tag.name for tag in tags]))
         current_tags = [ tag.name for tag in pkg.tags ]
         for name in taglist:
             if name not in current_tags:
-                pkg.add_tag_by_name(name)
+                pkg.add_tag_by_name(name, autoflush=False)
         for pkgtag in pkg.package_tags:
             if pkgtag.tag.name not in taglist:
                 pkgtag.delete()
@@ -234,6 +236,7 @@ class TagEditRenderer(formalchemy.fields.FieldRenderer):
         tags_as_string = self._tag_links()
         return common.field_readonly_renderer(self.field.key, tags_as_string)
 
+    # Looks remarkably similar to _update_tags above
     def deserialize(self):
         tags_as_string = self._serialized_value() # space separated string
         package = self.field.parent.model
@@ -242,7 +245,7 @@ class TagEditRenderer(formalchemy.fields.FieldRenderer):
         tags_as_string = tags_as_string.replace(',', ' ').lower()
         taglist = tags_as_string.split()
         def find_or_create_tag(name):
-            tag = model.Tag.by_name(name)
+            tag = model.Tag.by_name(name, autoflush=False)
             if not tag:
                 tag = model.Tag(name=name)
             return tag
@@ -250,13 +253,13 @@ class TagEditRenderer(formalchemy.fields.FieldRenderer):
         return tags        
 
 class StateRenderer(formalchemy.fields.FieldRenderer):
-    def render(self, options, **kwargs):
-        selected = int(kwargs.get('selected', None) or self._value)
-        options = [(s.name, s.id) for s in model.Session.query(model.State).all()]
+    def render(self, **kwargs):
+        selected = kwargs.get('selected', None) or self._value
+        options = model.State.all
         return h.select(self.name, h.options_for_select(options, selected=selected), **kwargs)
 
     def render_readonly(self, **kwargs):
-        value_str = model.Session.query(model.State).get(int(self._value)).name
+        value_str = self._value
         return common.field_readonly_renderer(self.field.key, value_str)
 
 class ResourcesRenderer(formalchemy.fields.FieldRenderer):
@@ -436,7 +439,7 @@ def get_package_dict(pkg=None, blank=False, fs=None):
     Resulting dict has keys with a formalchemy prefix, and it should work
     binding it to a fs and syncing. But whereas formalchemy forms produce a
     param dicts with "package--extras-0-key":extra-key etc, this method creates
-    a param dict with iterators in thIn contrast toe values, so you get something like:
+    a param dict with iterators in the values, so you get something like:
     "package--extras":{extra-key:extra-value} instead.
     '''
     indict = {}
@@ -525,6 +528,19 @@ def add_to_package_dict(dict_, changed_items, id=''):
                 key = prefix + key
             dict_[key] = value
     return dict_
+
+def strip_ids_from_package_dict(dict_, id):
+    '''
+    Takes a package dictionary with field prefix Package-<id>-
+    and makes it Package--
+    '''
+    new_dict = {}
+    prefix = 'Package-%s-' % id
+    for key, value in dict_.items():
+        new_key = key.replace(prefix, 'Package--')
+        new_dict[new_key] = value
+    return new_dict
+    
 
 def validate_package_on_edit(fs, id):
     # If not changing name, don't validate this field (it will think it
