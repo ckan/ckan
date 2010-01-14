@@ -18,7 +18,13 @@
           <dd>Version <strong>${c.pkg.version}</strong></dd>
         </py:if>
         <dt>${package_license_icon(c.pkg)}</dt>
-        <dd>${nonempty(c.pkg.license, "License not given")}</dd>
+        <py:choose test="">
+          <dd py:when="c.pkg.license">${c.pkg.license.name}
+          </dd>
+          <dd py:otherwise="">
+            License not given
+          </dd>
+        </py:choose>
         <dt>${package_resources_icon(c.pkg)}</dt>
         <dd>${"Resources available for download" if c.pkg.resources else "No resources given"}</dd>
       </dl>
