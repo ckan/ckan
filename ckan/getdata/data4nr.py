@@ -115,15 +115,9 @@ class Data4Nr(object):
 
         # Create extras
         new_extra_keys = []
+        pkg.extras = {}
         for key, value in extras_dict.items():
-            extra = model.Session.query(model.PackageExtra).filter_by(package=pkg, key=unicode(key)).all()
-            if extra:
-                extra[0].value = value
-            else:
-                new_extra_keys.append(key)
-
-        for key in new_extra_keys:
-            model.Session.add(model.PackageExtra(package=pkg, key=unicode(key), value=unicode(extras_dict[key])))
+            pkg.extras[key] = value
 
         # Update tags
         pkg_dict = {'name':pkg.name, 'title':pkg.title, 'notes':pkg.notes,
