@@ -72,7 +72,7 @@ class UsersRenderer(formalchemy.fields.FieldRenderer):
         return fa_h.select(self.name, fa_h.options_for_select(options), **kwargs)
 
 def get_new_role_fieldset(role_class):
-    fs = fa.FieldSet(role_class)
+    fs = fa.FieldSet(role_class, session=model.Session)
     role_options = model.Role.get_all()
     fs.configure(
         include=[
