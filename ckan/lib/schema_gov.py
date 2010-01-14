@@ -85,12 +85,12 @@ class TagSuggester(object):
         # convert spaces to underscores
         name = re.sub(' ', '_', name).lower()        
         # convert symbols to dashes
-        name = re.sub('[:]', '_-', name).lower()        
-        name = re.sub('[/]', '-', name).lower()        
+        name = re.sub('[:]', '_-', name)
+        name = re.sub('[/]', '-', name)
         # take out not-allowed characters
-        name = re.sub('[^a-zA-Z0-9-_]', '', name).lower()
+        name = re.sub('[^a-zA-Z0-9-_]', '', name)
         # remove double underscores
-        name = re.sub('__', '_', name).lower()                
+        name = re.sub('__', '_', name)
         return name[:100]
 
     @classmethod
@@ -153,10 +153,8 @@ class DateType(object):
                 except ValueError:
                     raise TypeError('%s Date provided: "%s"' % (err_str, form_str))
         # Deal with 2 digit dates
-        if standard_date_fields[0] > 0 and standard_date_fields[0] < 60:
-            standard_date_fields[0] += 2000
-        if standard_date_fields[0] >= 60 and standard_date_fields[0] < 100:
-            standard_date_fields[0] += 1900
+        if standard_date_fields[0] < 100:
+            standard_date_fields[0] = self.add_centurys_to_two_digit_year(standard_date_fields[0])
         # Check range of dates
         if standard_date_fields[0] < 1000 or standard_date_fields[0] > 2100:
             raise TypeError('%s Year of "%s" is outside range.' % (err_str, standard_date_fields[0]))
@@ -206,6 +204,18 @@ class DateType(object):
         str_date_fields = [str(field) for field in standard_date_fields]
         form_date = unicode(self.default_form_separator.join(str_date_fields[::-1]))
         return form_date
+
+    @classmethod
+    def add_centurys_to_two_digit_year(self, year, near_year=2010):
+        assert isinstance(year, int)
+        assert isinstance(near_year, int)
+        assert year < 1000, repr(year)
+        assert near_year > 1000 and near_year < 2200, repr(near_year)
+        year += 1000
+        while abs(year - near_year) > 50:
+            year += 100
+        return year
+    
 
 class GeoCoverageType(object):
     @staticmethod
