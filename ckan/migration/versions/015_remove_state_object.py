@@ -21,8 +21,7 @@ def upgrade():
         column = Column('state', UnicodeText)
         column.create(table)
         for (name,id) in [ ('active',1), ('deleted',2), ('pending',3) ]:
-            sqlcmd = '''UPDATE %s SET state = 'active' WHERE state_id =
-            1''' % table.name
+            sqlcmd = '''UPDATE %s SET state = '%s' WHERE state_id = %s''' % (table.name, name, id)
             migrate_engine.execute(sqlcmd)
         stateid = table.c['state_id']
         stateid.drop()
