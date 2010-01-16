@@ -31,7 +31,7 @@ class PackageResource(vdm.sqlalchemy.RevisionedObjectMixin,
         self.hash = hash
         
     def __repr__(self):
-        return '<PackageResource id=%s package_id=%s url=%s>' % (self.id, self.package_id, self.url)
+        return '<PackageResource id=%s package_id=%s url=%s description=%s>' % (self.id, self.package_id, self.url, self.description)
 
     @staticmethod
     def get_columns():

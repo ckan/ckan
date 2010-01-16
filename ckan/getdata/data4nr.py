@@ -58,8 +58,7 @@ class Data4Nr(object):
         author = _dict['publisher']
         for column in ['source', 'publisher', 'geographies',
                        'geographic coverage', 'time coverage',
-                       'time coverage (most recent)',
-                       'type of data', 'reliability', 'notes', 'guidelines',
+                       'type of data', 'notes', 'guidelines',
                        ]:
             if _dict[column]:
                 notes += '\n\n%s: %s' % (column.capitalize(), _dict[column])

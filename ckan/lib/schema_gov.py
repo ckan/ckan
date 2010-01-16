@@ -1,6 +1,8 @@
 import re
+import time
+import datetime
 
-__all__ = ['government_depts', 'geographic_granularity_options', 'temporal_granularity_options', 'category_options', 'region_options', 'region_groupings', 'tag_pool', 'suggest_tags', 'DateType', 'GeoCoverageType', 'expand_abbreviations']
+__all__ = ['government_depts', 'geographic_granularity_options', 'temporal_granularity_options', 'category_options', 'region_options', 'region_groupings', 'update_frequency_suggestions', 'tag_pool', 'suggest_tags', 'DateType', 'GeoCoverageType', 'expand_abbreviations', 'name_munge']
 
 government_depts_raw = """
 Attorney General's Office
@@ -55,9 +57,9 @@ Water Services Regulation Authority
 government_depts = []
 for line in government_depts_raw.split('\n'):
     if line:
-        government_depts.append(line.strip())
+        government_depts.append(unicode(line.strip()))
 
-department_agency_abbreviations = {'DCSF':'Department for Children, Schools and Families', 'VLA':'Vetinary Laboratories Agency', 'MFA':'Marine and Fisheries Agency', 'CEFAS':'Centre of Environment, Fisheries and Aquaculture Science', 'FERA':'Food and Environment Research Agency', 'DEFRA':'Department for Environment, Food and Rural Affairs', 'CRB':'Criminal Records Bureau', 'UKBA':'UK Border Agency', 'IPS':'Identity and Passport Service', 'NPIA':'National Policing Improvement Agency', 'CIB':'Company Investigation Branch', 'IPO':'Intellectual Property Office'}
+department_agency_abbreviations = {'DCSF':'Department for Children, Schools and Families', 'VLA':'Vetinary Laboratories Agency', 'MFA':'Marine and Fisheries Agency', 'CEFAS':'Centre of Environment, Fisheries and Aquaculture Science', 'FERA':'Food and Environment Research Agency', 'DEFRA':'Department for Environment, Food and Rural Affairs', 'CRB':'Criminal Records Bureau', 'UKBA':'UK Border Agency', 'IPS':'Identity and Passport Service', 'NPIA':'National Policing Improvement Agency', 'CIB':'Company Investigation Branch', 'IPO':'Intellectual Property Office', 'SFO':'Serious Fraud Office', 'HM Revenue and Customs':"Her Majesty's Revenue and Customs", 'HM Treasury':"Her Majesty's Treasury"}
 
 geographic_granularity_options = ['national', 'regional', 'local authority', 'ward', 'point']
 
@@ -69,30 +71,33 @@ region_options = ('England', 'Scotland', 'Wales', 'Northern Ireland', 'Overseas'
 
 region_groupings = {'United Kingdom':['England', 'Scotland', 'Wales', 'Northern Ireland'], 'Great Britain':['England', 'Scotland', 'Wales']}
 
+region_abbreviations = {'UK':'United Kingdom', 'N. Ireland':'Northern Ireland', 'GB':'Great Britain'}
+
+update_frequency_suggestions = ('annually', 'quarterly', 'monthly', 'never')
+
 tag_pool = ['accident', 'road', 'traffic', 'health', 'illness', 'disease', 'population', 'school', 'accommodation', 'children', 'married', 'emissions', 'benefit', 'alcohol', 'deaths', 'mortality', 'disability', 'unemployment', 'employment', 'armed forces', 'asylum', 'cancer', 'births', 'burglary', 'child', 'tax credit', 'criminal damage', 'drug', 'earnings', 'education', 'economic', 'fire', 'fraud', 'forgery', 'fuel', 'green', 'greenhouse gas', 'homeless', 'hospital', 'waiting list', 'housing', 'care', 'income', 'census', 'mental health', 'disablement allowance', 'jobseekers allowance', 'national curriculum', 'older people', 'living environment', 'higher education', 'living environment', 'school absence', 'local authority', 'carbon dioxide', 'energy', 'teachers', 'fostering', 'tide', 'gas', 'electricity', 'transport', 'veterinary', 'fishing', 'export', 'fisheries', 'pest', 'recycling', 'waste', 'crime', 'anti-social behaviour', 'police', 'refugee', 'identity card', 'immigration', 'planning', 'communities', 'lettings', 'finance', 'ethnicity', 'trading standards', 'trade', 'business', 'child protection']
 
 tag_search_fields = ['name', 'title', 'notes', 'categories', 'agency']
 
 months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
+def name_munge(name):
+    # convert spaces to underscores
+    name = re.sub(' ', '_', name).lower()        
+    # convert symbols to dashes
+    name = re.sub('[:]', '_-', name)
+    name = re.sub('[/]', '-', name)
+    # take out not-allowed characters
+    name = re.sub('[^a-zA-Z0-9-_]', '', name)
+    # remove double underscores
+    name = re.sub('__', '_', name)
+    return name[:100]
+
+def tag_munge(name):
+    '''munges a name to be suitable for a tag'''
+    return name_munge(name).replace('_', '-').replace('--', '-')
+
 class TagSuggester(object):
-    @classmethod
-    def _tag_munge(cls, name):
-        return cls._munge(name).replace('_', '-').replace('--', '-')
-
-    @classmethod
-    def _munge(cls, name):
-        # convert spaces to underscores
-        name = re.sub(' ', '_', name).lower()        
-        # convert symbols to dashes
-        name = re.sub('[:]', '_-', name)
-        name = re.sub('[/]', '-', name)
-        # take out not-allowed characters
-        name = re.sub('[^a-zA-Z0-9-_]', '', name)
-        # remove double underscores
-        name = re.sub('__', '_', name)
-        return name[:100]
-
     @classmethod
     def suggest_tags(cls, pkg_dict):
         tags = set()
@@ -101,7 +106,7 @@ class TagSuggester(object):
             if text and isinstance(text, (str, unicode)):
                 for keyword in tag_pool:
                     if keyword in text:
-                        tags.add(cls._tag_munge(keyword))
+                        tags.add(tag_munge(keyword))
         return list(tags)
 
 suggest_tags = TagSuggester.suggest_tags
@@ -114,6 +119,19 @@ class DateType(object):
     default_form_separator = '/'
     word_match = re.compile('[A-Za-z]+')
     months_chopped = [month[:3] for month in months]
+
+    @classmethod
+    def iso_to_db(self, iso_date, format):
+        # e.g. 'Wed, 06 Jan 2010 09:30:00 GMT'
+        #      '%a, %d %b %Y %H:%M:%S %Z'
+        assert isinstance(iso_date, (unicode, str))
+        try:
+            date_tuple = time.strptime(iso_date, format)
+        except ValueError, e:
+            raise TypeError('Could not read date as ISO format "%s". Date provided: "%s"' % (format, iso_date))
+        date_obj = datetime.datetime(*date_tuple[:4])
+        date_str = date_obj.strftime('%Y-%m-%d')
+        return date_str
 
     @classmethod
     def form_to_db(self, form_str):
@@ -247,6 +265,17 @@ class GeoCoverageType(object):
                         incl_regions.remove(region_str)
                     incl_regions.append('%s (%s)' % (grouping_str, ', '.join(regions_str)))
             return ', '.join(incl_regions)
+
+        def str_to_db(self, regions_str):
+            for abbrev, region in region_abbreviations.items():
+                regions_str = regions_str.replace(abbrev, region)
+            for grouping, regions in region_groupings.items():
+                regions_str = regions_str.replace(grouping, ' '.join(regions))
+            regions_munged = []
+            for region, region_munged in self.regions:
+                if region in regions_str:
+                    regions_munged.append(region_munged)
+            return self.form_to_db(regions_munged)
 
         def form_to_db(self, form_regions):
             assert isinstance(form_regions, list)

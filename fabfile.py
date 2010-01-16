@@ -5,6 +5,7 @@
 #               local_dev:[base_dir],[instance_name]
 #               test_ckan_net
 #               staging_hmg_ckan_net
+#               test_hmg_ckan_net
 #   operations: deploy
 #               restart_apache
 #               backup
@@ -44,7 +45,7 @@ def staging_hmg_ckan_net():
     env.user = 'ckan1'
     env.base_dir = '/home/%s' % env.user
     env.cmd_pyenv = os.path.join(env.base_dir, 'ourenv')
-    env.no_sudo = None
+#    env.no_sudo = None
     env.ckan_instance_name = 'staging.hmg.ckan.net'
     env.hosts = [env.ckan_instance_name]
 
@@ -113,7 +114,7 @@ def deploy():
         else:
             print 'Config file already exists: %s/%s' % (env.instance_path, env.config_ini_filename)
             _run_in_pyenv('paster --plugin ckan db upgrade --config %s' % env.config_ini_filename)
-        _run_in_pyenv('paster --plugin ckan db init --config %s' % env.config_ini_filename)
+            _run_in_pyenv('paster --plugin ckan db init --config %s' % env.config_ini_filename)
 
         assert env.host_string != 'hmg.ckan.net', "TODO: cope with wsgi file on hmg.ckan.net"
         wsgi_script_filepath = os.path.join(env.base_dir, 'bin', '%s.py' % env.ckan_instance_name)
