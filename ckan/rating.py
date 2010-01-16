@@ -30,7 +30,7 @@ def set_rating(user_or_ip, package, rating):
 
     try:
         rating = float(rating)
-    except TypeError:
+    except TypeError, ValueError:
         raise RatingValueException
     if rating > MAX_RATING or rating < MIN_RATING:
         raise RatingValueException
