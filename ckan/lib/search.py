@@ -9,7 +9,6 @@ from licenses import LicenseList
 ENABLE_CACHING = bool(config.get('enable_caching', ''))
 LIMIT_DEFAULT = 20
 
-print('ENABLE_CACHING', ENABLE_CACHING)
 if ENABLE_CACHING:
     from pylons import cache
     our_cache = cache.get_cache('search_results', type='dbm')

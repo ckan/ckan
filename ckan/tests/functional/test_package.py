@@ -269,6 +269,7 @@ class TestEdit(TestPackageForm):
         editpkg = model.Package(name=self.editpkg_name)
         editpkg.url = u'editpkgurl.com'
         editpkg.notes = u'Some notes'
+        editpkg.add_tag_by_name('mytesttag')
         model.Session.save(editpkg)
         u = model.User(name=u'testadmin')
         model.Session.save(u)
@@ -304,12 +305,11 @@ class TestEdit(TestPackageForm):
 #        model.Session.commit()
 #        model.Session.remove()
 
-    def test_setup_ok(self):
+    def test_edit(self):
+        # the absolute basics
         assert 'Packages - Edit' in self.res
-        # really want to check it is in the form ...
         assert self.editpkg.notes in self.res
 
-    def test_edit(self):
         new_name = u'new-name'
         new_title = u'A Short Description of this Package'
         newurl = u'http://www.editpkgnewurl.com'
@@ -403,9 +403,7 @@ u with umlaut \xc3\xbc
         assert 'class="form-errors"' in res, res
         assert 'class="field_error"' in res, res
 
-    # TODO: reinstate
-    # Disable temporarily (rather fragile)
-    def _test_edit_all_fields(self):
+    def test_edit_all_fields(self):
         # Create new item
         rev = model.repo.new_revision()
         pkg_name = u'new_editpkgtest'
