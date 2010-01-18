@@ -12,7 +12,7 @@ def get_license_name(id):
     return model.Session.get(model.License, id).name
 
 
-class TestRestController(TestController):
+class TestRest(TestController):
 
     @classmethod
     def setup_class(self):
@@ -160,8 +160,14 @@ class TestRestController(TestController):
         model.Session.remove()
 
     def test_05_get_404_group(self):
-        # Test Package Entity Get 404.
+        # Test Group Entity Get 404.
         offset = '/api/rest/group/22222'
+        res = self.app.get(offset, status=404)
+        model.Session.remove()
+
+    def test_05_get_404_tag(self):
+        # Test Tag Entity Get 404.
+        offset = '/api/rest/tag/doesntexist'
         res = self.app.get(offset, status=404)
         model.Session.remove()
 

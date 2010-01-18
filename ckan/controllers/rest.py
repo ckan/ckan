@@ -194,7 +194,12 @@ class RestController(BaseController):
         elif request.params.values() and request.params.values() != [u''] and request.params.values() != [u'1']:
             params = request.params
         else:
-            params = self._get_request_data()
+            try:
+                params = self._get_request_data()
+            except ValueError, inst:
+                response.status_int = 400
+                return "Search params: %s" % str(inst)
+                
         options = SearchOptions(params)
         options.search_tags = False
         options.return_objects = False
@@ -294,7 +299,7 @@ class RestController(BaseController):
             msg = "Can't find entity data in request params %s: %s" % (
                 request.params.items(), str(inst)
             )
-            raise Exception, msg
+            raise ValueError, msg
         request_data = simplejson.loads(request_data)
         return request_data
         
