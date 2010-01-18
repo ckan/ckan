@@ -103,7 +103,7 @@ class Data4Nr(object):
             pkg = model.Package(name=new_name)
             model.Session.add(pkg)
             self._new_pkgs.append(new_name)
-            print 'New package: %s (old name=%s)' % (name, old_name)
+            print 'New package: %s (old name=%s)' % (new_name, old_name)
         pkg.name = new_name
         pkg.title = title
         pkg.author = author
