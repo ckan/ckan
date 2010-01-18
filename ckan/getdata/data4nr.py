@@ -24,7 +24,7 @@ class Data4Nr(object):
         self._commit_and_report(index)
 
     def _commit_and_report(self, index):
-        print 'Loaded %s lines' % index
+        print 'Loaded %s lines (%s new, %s existing packages)' % (index, len(self._new_pkgs), len(self._existing_pkgs))
         model.repo.commit_and_remove()
 
     def _parse_line(self, row_list, line_index):
@@ -92,12 +92,19 @@ class Data4Nr(object):
 
         # Edit package object
         existing_pkg = model.Package.by_name(old_name) or model.Package.by_name(new_name)
+        if not existing_pkg:
+            q = model.Session.query(model.Package).filter_by(url=url)
+            if q.count() == 1 and q.one().name.startswith(new_name):
+                existing_pkg = q.one()                
         if existing_pkg:
             pkg = existing_pkg
-            name = existing_pkg.name
+            self._existing_pkgs.append(existing_pkg.name)
         else:
             pkg = model.Package(name=new_name)
             model.Session.add(pkg)
+            self._new_pkgs.append(new_name)
+            print 'New package: %s (old name=%s)' % (name, old_name)
+        pkg.name = new_name
         pkg.title = title
         pkg.author = author
         pkg.url=url
@@ -169,6 +176,9 @@ class Data4Nr(object):
         if not group:
             group = model.Group(name=self._groupname)
             model.Session.add(group)
+
+        self._existing_pkgs = []
+        self._new_pkgs = []
 
     def _new_revision(self):
         # Revision info
