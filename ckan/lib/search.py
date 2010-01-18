@@ -1,10 +1,18 @@
 import sqlalchemy
 import simplejson
 
+from pylons import config
+
 import ckan.model as model
 from licenses import LicenseList
 
+ENABLE_CACHING = bool(config.get('enable_caching', ''))
 LIMIT_DEFAULT = 20
+
+print('ENABLE_CACHING', ENABLE_CACHING)
+if ENABLE_CACHING:
+    from pylons import cache
+    our_cache = cache.get_cache('search_results', type='dbm')
 
 class SearchOptions:
     # about the search
@@ -24,7 +32,6 @@ class SearchOptions:
         if not kw_dict.keys():
             raise Exception('no options supplied')
 
-        assert kw_dict.keys()
         for k,v in kw_dict.items():
             # Ensure boolean fields are boolean
             if k in ['filter_by_downloadable', 'filter_by_openness', 'all_fields']:
@@ -50,12 +57,10 @@ class Search:
     _open_licenses = None
 
     def search(self, query_string):
-        assert (isinstance(query_string, unicode))
         options = SearchOptions({'q':query_string})
         return self.run(options)
 
     def run(self, options):
-        assert (isinstance(options, SearchOptions))
         self._options = options
         self._results = {}
         general_terms, field_specific_terms = self._parse_query_string()
@@ -77,9 +82,7 @@ class Search:
             pass
 
         self._run_query(query)
-
         self._format_results()
-        
         return self._results
 
     def _parse_query_string(self):
@@ -230,7 +233,7 @@ class Search:
     def _filter_by_tags_or_groups(self, field, query, value_list):
         for name in value_list:
             if field == 'tags':
-                tag = model.Tag.by_name(name.strip())
+                tag = model.Tag.by_name(name.strip(), autoflush=False)
                 if tag:
                     tag_id = tag.id
                     # need to keep joining for each filter
@@ -242,7 +245,7 @@ class Search:
                     # unknown tag, so torpedo search
                     query = query.filter(model.PackageTag.tag_id==-1)
             elif field == 'groups':
-                group = model.Group.by_name(name.strip())
+                group = model.Group.by_name(name.strip(), autoflush=False)
                 if group:
                     group_id = group.id
                     # need to keep joining for each filter
@@ -253,7 +256,6 @@ class Search:
                     query = query.filter(model.Group.id==u'-1')
                     
         return query
-
     
     def _filter_by_extra(self, field, query, value_list):
         for name in value_list:
@@ -265,7 +267,7 @@ class Search:
     def _update_open_licenses(self):
         self._open_licenses = []
         for license_name in LicenseList.all_formatted:
-            _license = model.License.by_name(license_name)
+            _license = model.License.by_name(license_name, autoflush=False)
             if _license and _license.isopen():                
                 self._open_licenses.append(_license.id)
 
@@ -274,11 +276,14 @@ class Search:
             if self._options.all_fields:
                 results = []
                 for entity in self._results['results']:
-                    result = entity.as_dict()
+                    if ENABLE_CACHING:
+                        cachekey = u'%s-%s' % (type(entity), entity.id)
+                        result = our_cache.get_value(key=cachekey,
+                                createfunc=lambda: entity.as_dict(), expiretime=3600)
+                    else:
+                        result = entity.as_dict()
                     results.append(result)
                 self._results['results'] = results
             else:
                 self._results['results'] = [entity.name for entity in self._results['results']]
-        
-            
-        
+ 

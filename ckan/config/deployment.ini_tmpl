@@ -28,6 +28,10 @@ app_instance_uuid = ${app_instance_uuid}
 #beaker.cache.data_dir = %(here)s/data/cache
 #beaker.session.data_dir = %(here)s/data/sessions
 
+# enable caching for performance 
+# any non-empty value means True
+enable_caching = 1
+
 # WARNING: *THE LINE BELOW MUST BE UNCOMMENTED ON A PRODUCTION ENVIRONMENT*
 # Debug mode will enable the interactive debugging tool, allowing ANYONE to
 # execute malicious code after an exception is raised.
@@ -42,6 +46,9 @@ who.config_file = %(here)s/who.ini
 who.log_level = warning
 who.log_file = %(cache_dir)s/who_log.ini
 
+# CKAN auth configuration (TODO: rename to ckan.auth or similar ...)
+# space separated list ...
+auth.admins = 
 
 # Logging configuration
 [loggers]
