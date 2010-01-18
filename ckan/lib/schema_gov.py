@@ -53,6 +53,11 @@ UK Statistics Authority
 UK Trade & Investment
 Wales Office
 Water Services Regulation Authority
+
+Scottish Government
+Welsh Assembly Government
+Northern Ireland Departments
+
 """
 government_depts = []
 for line in government_depts_raw.split('\n'):

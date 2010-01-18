@@ -91,20 +91,28 @@ class Data4Nr(object):
         extras_dict['precision'] = _dict['reliability'] or u''
 
         # Edit package object
-        existing_pkg = model.Package.by_name(old_name) or model.Package.by_name(new_name)
-        if not existing_pkg:
-            q = model.Session.query(model.Package).filter_by(url=url)
-            if q.count() == 1 and q.one().name.startswith(new_name):
-                existing_pkg = q.one()                
-        if existing_pkg:
-            pkg = existing_pkg
-            self._existing_pkgs.append(existing_pkg.name)
+        if not url:
+            print "Error: No url for package '%s' - cannot insert in db" % title
+            return
+        q = model.Session.query(model.Package).filter_by(url=url)
+        if q.count() == 1:
+            pkg = q.one()
+            self._existing_pkgs.append(pkg.name)
+            existing_pkg = True
+        elif q.count() > 1:
+            print "Error: Duplicate url discovered '%s', not updating record." % url
+            return
         else:
+            pkg_same_name = model.Package.by_name(new_name)
+            if pkg_same_name:
+                while model.Package.by_name(new_name):
+                    new_name += '_'
+                print "Warning: New data4nr ID '%s' but name already taken. Reverting to %s" % (new_name, unique_name)            
             pkg = model.Package(name=new_name)
             model.Session.add(pkg)
-            self._new_pkgs.append(new_name)
+            self._new_pkgs.append(pkg.name)
             print 'New package: %s (old name=%s)' % (new_name, old_name)
-        pkg.name = new_name
+            existing_pkg = False
         pkg.title = title
         pkg.author = author
         pkg.url=url
