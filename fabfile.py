@@ -17,6 +17,7 @@
 from __future__ import with_statement
 import os
 import datetime
+import urllib2
 
 from fabric.api import *
 from fabric.contrib.console import *
@@ -61,6 +62,8 @@ def hmg_ckan_net_1():
     env.no_sudo = None
     env.ckan_instance_name = 'hmg.ckan.net'
     env.hosts = ['hmg.ckan.net']
+    env.wsgi_script_filepath = None # os.path.join(env.base_dir, 'hmg.ckan.net/pyenv/bin/pylonsapp_modwsgi.py')
+    env.pylons_cache_dir = os.path.join(env.base_dir, 'env.ckan_instance_name', 'pylonsdata')
 
 def hmg_ckan_net_2():
     hmg_ckan_net_1()
@@ -91,6 +94,11 @@ def _setup():
         env.pyenv_dir = os.path.join(env.instance_path, 'pyenv')
     if not hasattr(env, 'serve_url'):
         env.serve_url = env.ckan_instance_name
+    if not hasattr(env, 'wsgi_script_filepath'):
+        env.wsgi_script_filepath = os.path.join(env.base_dir, 'bin', '%s.py' % env.ckan_instance_name)
+    if not hasattr(env, 'pylons_cache_dir'):
+        env.pylons_cache_dir = os.path.join(env.pyenv_dir, 'data')
+
 
 def deploy():
     '''Deploy app on server. Keeps existing config files.'''
@@ -100,14 +108,24 @@ def deploy():
     _mkdir(env.instance_path)
     pip_req = 'http://knowledgeforge.net/ckan/hg/raw-file/tip/pip-requirements.txt'
     with cd(env.instance_path):
-        # no-clobber ensures we overwrite existing files (as we want)
-        run('wget --no-clobber --quiet %s' % pip_req)
+
+        # get latest pip-requirements.txt
+        latest_pip_file = urllib2.urlopen(pip_req)
+        local_pip_file = open('/tmp/pip-requirements.txt', 'w')
+        local_pip_file.write(latest_pip_file.read())
+        local_pip_file.close()
+        remote_pip_filepath = os.path.join(env.instance_path, 'pip-requirements.txt')
+        put('/tmp/pip-requirements.txt', remote_pip_filepath)
+        assert exists(remote_pip_filepath)
+
+        # create python environment
         if not exists(env.pyenv_dir):
             _run_in_cmd_pyenv('virtualenv %s' % env.pyenv_dir)
         else:
             print 'Virtualenv already exists: %s' % env.pyenv_dir
         _run_in_cmd_pyenv('pip -E %s install -r pip-requirements.txt' % env.pyenv_dir)
 
+        # create config ini file
         if not exists(env.config_ini_filename):
             # paster make-config doesn't overwrite if ini already exists
             _run_in_pyenv('paster make-config --no-interactive ckan %s' % env.config_ini_filename)
@@ -116,36 +134,40 @@ def deploy():
             _run_in_pyenv('paster --plugin ckan db upgrade --config %s' % env.config_ini_filename)
             _run_in_pyenv('paster --plugin ckan db init --config %s' % env.config_ini_filename)
 
-        assert env.host_string != 'hmg.ckan.net', "TODO: cope with wsgi file on hmg.ckan.net"
-        wsgi_script_filepath = os.path.join(env.base_dir, 'bin', '%s.py' % env.ckan_instance_name)
-        if not exists(wsgi_script_filepath):
-            print 'Creating WSGI script: %s' % wsgi_script_filepath
-            context = {'instance_dir':env.instance_path,
-                       'config_file':env.config_ini_filename,
-                       } #e.g. pyenv_dir='/home/ckan1/hmg.ckan.net'
-                         #     config_file = 'hmg.ckan.net.ini'
-            _create_file_by_template(wsgi_script_filepath, wsgi_script, context)
-            run('chmod +r %s' % wsgi_script_filepath)
+        # create wsgi script
+        if env.wsgi_script_filepath:
+            if not exists(env.wsgi_script_filepath):
+                print 'Creating WSGI script: %s' % env.wsgi_script_filepath
+                context = {'instance_dir':env.instance_path,
+                           'config_file':env.config_ini_filename,
+                           } #e.g. pyenv_dir='/home/ckan1/hmg.ckan.net'
+                             #     config_file = 'hmg.ckan.net.ini'
+                _create_file_by_template(env.wsgi_script_filepath, wsgi_script, context)
+                run('chmod +r %s' % env.wsgi_script_filepath)
+            else:
+                print 'WSGI script already exists: %s' % env.wsgi_script_filepath
         else:
-            print 'WSGI script already exists: %s' % wsgi_script_filepath
-        
+            print 'Leaving WSGI script alone'
+
+        # create link to who.ini
         whoini = os.path.join(env.pyenv_dir, 'src', 'ckan', 'who.ini')
         if not exists(whoini):
             run('ln -f -s %s ./' % whoini)
         else:
             print 'Link to who.ini already exists'
 
-        if not exists('data'):
-            print 'Setting up data (pylons cache) directory'
-            run('mkdir -p data')
+        # create pylons cache directory
+        if not exists(env.pylons_cache_dir):
+            print 'Setting up Pylons cache directory: %s' % env.pylons_cache_dir
+            run('mkdir -p %s' % env.pylons_cache_dir)
             if hasattr(env, 'no_sudo'):
                 # Doesn't need sudo
-                run('chmod gu+wx -R data')
+                run('chmod gu+wx -R %s' % env.pylons_cache_dir)
             else:
-                run('chmod g+wx -R data')
-                sudo('chgrp -R www-data data')
+                run('chmod g+wx -R %s' % env.pylons_cache_dir)
+                sudo('chgrp -R www-data %s' % env.pylons_cache_dir)
         else:
-            print 'Data (pylons cache) directory already exists'
+            print 'Pylons cache directory already exists: %s' % env.pylons_cache_dir
 
     print 'For details of remaining setup, see deployment.rst.'
 
