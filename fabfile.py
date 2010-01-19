@@ -48,12 +48,12 @@ def staging_hmg_ckan_net():
     env.cmd_pyenv = os.path.join(env.base_dir, 'ourenv')
 #    env.no_sudo = None
     env.ckan_instance_name = 'staging.hmg.ckan.net'
-    env.hosts = [env.ckan_instance_name]
+    env.hosts = ['ssh.' + env.ckan_instance_name]
 
 def test_hmg_ckan_net():
     staging_hmg_ckan_net()
     env.ckan_instance_name = 'test.hmg.ckan.net'
-    env.hosts = [env.ckan_instance_name]
+    env.hosts = ['ssh.' + env.ckan_instance_name]
 
 def hmg_ckan_net_1():
     env.user = 'ckan1'
@@ -123,7 +123,7 @@ def deploy():
             _run_in_cmd_pyenv('virtualenv %s' % env.pyenv_dir)
         else:
             print 'Virtualenv already exists: %s' % env.pyenv_dir
-        _run_in_cmd_pyenv('pip -E %s install -r pip-requirements.txt' % env.pyenv_dir)
+        run('pip -E %s install -r pip-requirements.txt' % env.pyenv_dir)
 
         # create config ini file
         if not exists(env.config_ini_filename):

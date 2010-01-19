@@ -75,7 +75,9 @@ class Data(object):
                     title = t1
                 if title in ('geographical granularity', 'geographic coverage', 'temporal granularity'):
                     title += ' - %s' % t2
-                elif title in ('contact', 'maintainer'):
+                elif title in ('contact', 'maintainer', 'author'):
+                    if title == 'contact':
+                        title = 'author'
                     if 'e-mail' in t2:
                         title += ' - email'
                     else:
@@ -117,8 +119,8 @@ class Data(object):
             self._download_urls[name] = download_urls
         format = _dict['file format']
             
-        author = _dict['contact - name']
-        author_email = _dict['contact - email']
+        author = _dict['author - name']
+        author_email = _dict['author - email']
         maintainer = _dict['maintainer - name']
         maintainer_email = _dict['maintainer - email']
 
@@ -163,7 +165,9 @@ class Data(object):
             extras_key = column.replace(' ', '_')
             if column == 'agency responsible':
                 extras_key = 'agency'
-            elif column == 'co identifier':
+            elif column in ('co identifier', 'co reference'):
+                if _dict.has_key('co reference'):
+                    column = 'co reference'
                 extras_key = 'external_reference'
             val = _dict[column]
             if len(field_mapping) > 1:

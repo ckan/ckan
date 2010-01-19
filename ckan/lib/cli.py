@@ -44,6 +44,7 @@ class ManageDb(CkanCommand):
     db load-data4nr {file-path.csv}
     db load-cospread {file-path.csv}
     db load-esw {file-path.txt} [{host} {api-key}]
+    db load-onshub {file-path.csv}
     db migrate06
     db migrate09a
     db migrate09b
@@ -90,6 +91,9 @@ class ManageDb(CkanCommand):
             self.load_data(cmd, data_getter.Data)
         elif cmd == 'load-esw':
             self.load_esw(cmd)
+        elif cmd == 'load-onshub':
+            import ckan.getdata.ons_hub as data_getter
+            self.load_data(cmd, data_getter.Data, 'xml')
         elif cmd == 'migrate06':
             import ckan.lib.converter
             dumper = ckan.lib.converter.Dumper()
@@ -130,13 +134,14 @@ class ManageDb(CkanCommand):
         else:
             print 'Unknown command', cmd
 
-    def load_data(self, cmd, data_getter):
+    def load_data(self, cmd, data_getter, extension='csv'):
         if len(self.args) < 2:
-            print 'Need csv file path'
+            print 'Need %s file path' % extension
             return
         load_path = self.args[1]
         data = data_getter()
-        data.load_csv_into_db(load_path)
+        load_func = getattr(data, 'load_%s_into_db' % extension)
+        load_func(load_path)
 
     def simple_dump_csv(self, cmd):
         if len(self.args) < 2:

@@ -284,3 +284,26 @@ class PackagesXlWriter:
         col_index = len(self._col_titles)
         self._sheet.write(0, col_index, title)
         self._col_titles[title] = col_index
+
+    @staticmethod
+    def pkg_to_xl_dict(pkg):
+        '''Convert a Package object to a dictionary suitable for XL format'''
+        dict_ = pkg.as_dict()
+        del dict_['download_url'] # deprecated - only in there for compatibility
+        for key, value in dict_.items():
+            if key.endswith('_id') or key.startswith('rating') or key == 'id':
+                del dict_[key]
+            if key=='resources':
+                for i, res in enumerate(value):
+                    prefix = 'resource-%i' % i
+                    dict_[prefix + '-url'] = res['url']
+                    dict_[prefix + '-format'] = res['format']
+                    dict_[prefix + '-description'] = res['description']
+                del dict_[key]
+            elif isinstance(value, (list, tuple)):
+                dict_[key] = ' '.join(value)
+            elif key=='extras':
+                for key_, value_ in value.items():
+                    dict_[key_] = value_
+                del dict_[key]
+        return dict_
