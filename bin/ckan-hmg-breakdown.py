@@ -25,7 +25,11 @@ if print_those_not_in_group:
 
 pkgs_by_source = {}
 for pkg in q_packages:
-    if pkg.extras.has_key('co_id'):
+    if pkg.extras.has_key('import_source'):
+        source = pkg.extras['import_source']
+        if '-' in source:
+            source = source[:source.find('-')]
+    elif pkg.extras.has_key('co_id'):
         source = 'CO Spreadsheet Dec 2009'
     elif pkg.extras.has_key('update frequency'):
         source = 'DATA4NR Dec 2009'
