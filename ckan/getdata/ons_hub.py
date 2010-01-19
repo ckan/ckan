@@ -128,7 +128,7 @@ class Data(object):
         dept_given = schema_gov.expand_abbreviations(source)
         department = None
         if '(Northern Ireland)' in dept_given:
-            department = u'Northern Ireland Departments'
+            department = u'Northern Ireland Executive'
         for dept in schema_gov.government_depts:
             if dept_given in dept or dept_given.replace('Service', 'Services') in dept or dept_given.replace('Dept', 'Department') in dept:
                 department = unicode(dept)

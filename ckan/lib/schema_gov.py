@@ -56,7 +56,7 @@ Water Services Regulation Authority
 
 Scottish Government
 Welsh Assembly Government
-Northern Ireland Departments
+Northern Ireland Executive
 
 """
 government_depts = []
