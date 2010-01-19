@@ -123,7 +123,7 @@ def deploy():
             _run_in_cmd_pyenv('virtualenv %s' % env.pyenv_dir)
         else:
             print 'Virtualenv already exists: %s' % env.pyenv_dir
-        run('pip -E %s install -r pip-requirements.txt' % env.pyenv_dir)
+        _run_in_cmd_pyenv('pip -E %s install -r pip-requirements.txt' % env.pyenv_dir)
 
         # create config ini file
         if not exists(env.config_ini_filename):
