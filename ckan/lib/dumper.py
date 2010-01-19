@@ -245,7 +245,7 @@ class PackagesCsvWriter:
 class PackagesXlWriter:
     def __init__(self, package_dict_list=None):
         import xlwt
-        self._workbook = xlwt.Workbook()
+        self._workbook = xlwt.Workbook(encoding='utf8')
         self._sheet = self._workbook.add_sheet('test')
         self._col_titles = {} # title:col_index
         self._row = 1

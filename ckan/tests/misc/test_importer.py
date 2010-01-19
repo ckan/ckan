@@ -136,10 +136,10 @@ class _Test1Import(TestController):
         index = 0
         for pkg_dict in reader.pkg_dict():
             for key, comp_val in expected_dicts[index].items():
-                err_msg = 'Package \'%s\', Key %s should be %s' % (pkg_dict['name'], repr(key), repr(comp_val))
+                err_msg = 'Package \'%s\', Key %s should be: \n%s' % (pkg_dict['name'], repr(key), repr(comp_val))
                 if comp_val:
                     assert pkg_dict.has_key(key), err_msg
-                    err_msg += ', but is \'%s\'' % (pkg_dict[key])
+                    err_msg += ', but is: \n%s' % (repr(pkg_dict[key]))
                     if key in ('groups', 'tags'):
                         #order doesn't matter
                         a = set(); b = set()

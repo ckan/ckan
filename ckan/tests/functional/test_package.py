@@ -176,7 +176,7 @@ class TestReadOnly(TestPackageForm):
         assert 'Some test notes' in res
         assert '<strong>Some bolded text.</strong>' in res
         self.check_tag_and_data(res, 'left arrow', '&lt;')
-        self.check_tag_and_data(res, 'umlaut', '\xc3\x83\xc2\xbc')
+        self.check_tag_and_data(res, 'umlaut', u'\xfc')
         assert 'License:' in res
         assert 'OKD Compliant::' in res
         assert 'russian' in res
@@ -269,7 +269,7 @@ class TestEdit(TestPackageForm):
         editpkg = model.Package(name=self.editpkg_name)
         editpkg.url = u'editpkgurl.com'
         editpkg.notes = u'Some notes'
-        editpkg.add_tag_by_name('mytesttag')
+        editpkg.add_tag_by_name(u'mytesttag')
         model.Session.save(editpkg)
         u = model.User(name=u'testadmin')
         model.Session.save(u)
@@ -389,7 +389,7 @@ u with umlaut \xc3\xbc
         assert 'Packages - Edit' in res
         assert 'Preview' in res
         assert 'Hello world' in res
-        self.check_tag_and_data(res, 'umlaut', '\xc3\xbc')
+        self.check_tag_and_data(res, 'umlaut', u'\xfc')
         self.check_tag_and_data(res, 'Arrow', '&lt;')
 
     def test_edit_bad_name(self):
@@ -454,7 +454,7 @@ u with umlaut \xc3\xbc
         assert len(resources[0]) == len(model.PackageResource.get_columns())
         notes = u'Very important'
         license_id = 4
-        license = u'OKD Compliant::Creative Commons CCZero'
+        license = model.Session.query(model.License).get(license_id)
         state = model.State.ACTIVE
         tags = (u'tag1', u'tag2', u'tag3')
         tags_txt = u' '.join(tags)

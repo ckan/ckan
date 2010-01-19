@@ -43,7 +43,8 @@ class CsvData:
             raise ImportException('Not enough rows')
             
     def get_row(self, row_index):
-        return self._rows[row_index]
+        row = self._rows[row_index]
+        return [cell.decode('utf8') for cell in row]
 
     def get_num_rows(self):
         return self._num_rows
