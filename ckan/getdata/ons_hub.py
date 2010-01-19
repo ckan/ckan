@@ -1,21 +1,30 @@
 import xml.sax
 import re
 import os
+import glob
 
 import ckan.model as model
 from ckan.lib import schema_gov
 
-#xsd_filepath = os.path.join(config['here'], 'ckan/getdata/ons_hub.xsd')
-
 class Data(object):
-    def load_xml_into_db(self, xml_filepath):
+    def load_xml_into_db(self, xml_filepaths):
         self._basic_setup()
         rev = self._new_revision()
-        assert os.path.exists(xml_filepath), xml_filepath
-#        assert os.path.exists(xsd_filepath)
+        if isinstance(xml_filepaths, (str, unicode)):
+            if '?' in xml_filepaths or '*' in xml_filepaths:
+                xml_filepaths = glob.glob(xml_filepaths)
+            else:
+                assert os.path.exists(xml_filepaths), xml_filepaths
+                xml_filepaths = [xml_filepaths]
+        else:
+            xml_filepaths = xml_filepaths
         handler = OnsXmlHandler(self.load_item)
-        parser = xml.sax.parse(xml_filepath, handler)
-        self._commit_and_report()
+        print 'Loading %i ONS files' % len(xml_filepaths)
+        for xml_filepath in xml_filepaths:
+            print 'Loading ONS file: %s' % xml_filepath
+            self._current_filename = os.path.basename(xml_filepath)
+            parser = xml.sax.parse(xml_filepath, handler)
+            self._commit_and_report()
 
     def load_item(self, item):
         assert isinstance(item, dict)
@@ -100,6 +109,7 @@ class Data(object):
             elif update_frequency_suggestion.endswith('ly'):
                 if update_frequency_suggestion.rstrip('ly') in item_info:
                     extras['update_frequency'] = update_frequency_suggestion
+        extras['import_source'] = 'ONS-%s' % self._current_filename 
         for key, value in extras.items():
             pkg.extras[key] = value
 
@@ -122,6 +132,10 @@ class Data(object):
         if extras['department']:
             pkg.author = extras['department']
 
+        group = model.Group.by_name(self._groupname)
+        if pkg not in group.packages:
+            group.packages.append(pkg)
+
         model.Session.flush()
 
     def _source_to_department(self, source):
@@ -139,7 +153,7 @@ class Data(object):
         else:
             if dept_given and dept_given not in ['Office for National Statistics', 'Health Protection Agency', 'Information Centre for Health and Social Care', 'General Register Office for Scotland', 'Northern Ireland Statistics and Research Agency', 'National Health Service in Scotland', 'National Treatment Agency', 'Police Service of Northern Ireland (PSNI)', 'Child Maintenance and Enforcement Commission', 'Health and Safety Executive']:
                 print 'Warning: Double check this is not a gvt department source: %s' % dept_given
-            return dept_given
+            return None
         
 
 

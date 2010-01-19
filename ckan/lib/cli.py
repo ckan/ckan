@@ -138,7 +138,7 @@ class ManageDb(CkanCommand):
         if len(self.args) < 2:
             print 'Need %s file path' % extension
             return
-        load_path = self.args[1]
+        load_path = self.args[1] if len(self.args) == 2 else self.args[1:]
         data = data_getter()
         load_func = getattr(data, 'load_%s_into_db' % extension)
         load_func(load_path)

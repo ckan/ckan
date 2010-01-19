@@ -109,6 +109,9 @@ class TestData:
         assert 'Crown Copyright' in pkg1.license.name, pkg1.license.name
         assert pkg1.extras['external_reference'] == 'DATA4NR-719', pkg1.extras['external_reference']
 
+        assert model.Group.by_name(u'ukgov') in pkg1.groups
+        assert pkg1.extras['import_source'].startswith('DATA4NR'), pkg1.extras['import_source']
+
 class TestDataTwice:
     @classmethod
     def setup_class(self):

@@ -12,6 +12,7 @@ class Data(object):
         rev = self._new_revision()
         assert os.path.exists(csv_filepath)
         f_obj = open(csv_filepath, "r")
+        self._current_filename = os.path.basename(csv_filepath)
         reader = csv.reader(f_obj)
         index = 0
         reader.next()
@@ -184,6 +185,8 @@ class Data(object):
             extras_dict[extras_key] = val
         
         extras_dict['national_statistic'] = _dict['national statistic'].lower()
+        extras_dict['import_source'] = 'COSPREAD-%s' % self._current_filename
+
 
         for field in ['temporal_coverage_from', 'temporal_coverage_to']:
             extras_dict[field] = u''
