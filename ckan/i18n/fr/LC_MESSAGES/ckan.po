@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: ckan 0.11a\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2009-12-30 13:31+0000\n"
-"PO-Revision-Date: 2010-01-19 09:50+0100\n"
+"PO-Revision-Date: 2010-01-19 10:08+0100\n"
 "Last-Translator: Benoit Boissinot <benoit.boissinot@ens-lyon.org>\n"
 "Language-Team: fr <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
@@ -519,7 +519,7 @@ msgstr ""
 
 #: ckan/templates/home/index.html:22
 msgid "Welcome to CKAN"
-msgstr ""
+msgstr "Bienvenue dans CKAN"
 
 #: ckan/templates/home/index.html:23
 msgid "CKAN is a registry of"
@@ -564,7 +564,7 @@ msgstr ""
 #: ckan/templates/revision/list.html:16
 #: ckan/templates/user/read.html:37
 msgid "Author"
-msgstr ""
+msgstr "Auteur"
 
 #: ckan/templates/home/index.html:41
 msgid "Time"
@@ -572,19 +572,19 @@ msgstr ""
 
 #: ckan/templates/home/index.html:54
 msgid "View older changes »"
-msgstr ""
+msgstr "Voir les modifications antérieures »"
 
 #: ckan/templates/home/license.html:4
 msgid "License"
-msgstr ""
+msgstr "Licence"
 
 #: ckan/templates/home/license.html:7
 msgid "CKAN License"
-msgstr ""
+msgstr "Licence CKAN"
 
 #: ckan/templates/home/license.html:9
 msgid "Code"
-msgstr ""
+msgstr "Code"
 
 #: ckan/templates/home/license.html:10
 msgid "The code that runs CKAN is open-source and licensed under the"
@@ -658,19 +658,19 @@ msgstr ""
 
 #: ckan/templates/package/authz.html:4
 msgid "Packages - Authorization -"
-msgstr ""
+msgstr "Paquets - Autorisation -"
 
 #: ckan/templates/package/authz.html:7
 msgid "Authorization for package:"
-msgstr ""
+msgstr "Autorisation pour le paquet :"
 
 #: ckan/templates/package/edit.html:4
 msgid "Packages - Edit -"
-msgstr ""
+msgstr "Paquets - Éditer -"
 
 #: ckan/templates/package/edit.html:7
 msgid "Edit package:"
-msgstr ""
+msgstr "Éditer le paquet :"
 
 #: ckan/templates/package/edit.html:9
 #: ckan/templates/package/new.html:8
@@ -682,7 +682,7 @@ msgstr ""
 #: ckan/templates/package/new.html:19
 #: ckan/templates/user/edit.html:29
 msgid "Preview"
-msgstr ""
+msgstr "Aperçu"
 
 #: ckan/templates/package/edit_form.html:12
 msgid "Optional Log Message about this Change:"
@@ -691,22 +691,22 @@ msgstr ""
 #: ckan/templates/package/edit_form.html:13
 #: ckan/templates/user/edit.html:18
 msgid "You can use"
-msgstr ""
+msgstr "Vous pouvez utiliser le"
 
 #: ckan/templates/package/edit_form.html:13
 #: ckan/templates/user/edit.html:18
 msgid "Markdown formatting"
-msgstr ""
+msgstr "formatage Markdown"
 
 #: ckan/templates/package/edit_form.html:13
 #: ckan/templates/user/edit.html:18
 msgid "here."
-msgstr ""
+msgstr "ici."
 
 #: ckan/templates/package/edit_form.html:16
 #: ckan/templates/revision/read.html:11
 msgid "Author:"
-msgstr ""
+msgstr "Auteur :"
 
 #: ckan/templates/package/edit_form.html:17
 msgid "If you have not signed in this will just be your IP address."
@@ -745,21 +745,21 @@ msgstr ""
 #: ckan/templates/package/history.html:4
 #: ckan/templates/revision/read.html:32
 msgid "Package -"
-msgstr ""
+msgstr "Paquet -"
 
 #: ckan/templates/package/history.html:4
 msgid "- History"
-msgstr ""
+msgstr "- Historique"
 
 #: ckan/templates/package/history.html:12
 msgid "Revisions"
-msgstr ""
+msgstr "Révisions"
 
 #: ckan/templates/package/history.html:26
 #: ckan/templates/revision/read.html:4
 #: ckan/templates/user/read.html:37
 msgid "Revision"
-msgstr ""
+msgstr "Révision"
 
 #: ckan/templates/package/history.html:26
 #: ckan/templates/revision/list.html:16
@@ -775,7 +775,7 @@ msgstr ""
 
 #: ckan/templates/package/index.html:4
 msgid "Packages - Index"
-msgstr ""
+msgstr "Paquets - Index"
 
 #: ckan/templates/package/index.html:13
 #: ckan/templates/tag/index.html:16
@@ -785,15 +785,15 @@ msgstr ""
 
 #: ckan/templates/package/index.html:13
 msgid "packages."
-msgstr ""
+msgstr "paquets."
 
 #: ckan/templates/package/layout.html:10
 msgid "This package:"
-msgstr ""
+msgstr "Ce paquet :"
 
 #: ckan/templates/package/list.html:4
 msgid "Packages - List"
-msgstr ""
+msgstr "Paquets - Liste"
 
 #: ckan/templates/package/list.html:8
 msgid "Package listing key"
@@ -801,43 +801,43 @@ msgstr ""
 
 #: ckan/templates/package/list.html:11
 msgid "Openly licensed"
-msgstr ""
+msgstr "Sous licence libre"
 
 #: ckan/templates/package/list.html:13
 msgid "Closed/unknown licensing"
-msgstr ""
+msgstr "Sous licence fermée/inconnue"
 
 #: ckan/templates/package/list.html:15
 msgid "Resources available"
-msgstr ""
+msgstr "Ressources disponibles"
 
 #: ckan/templates/package/list.html:16
 msgid "Click on the arrow to show the package resources."
-msgstr ""
+msgstr "Cliquez sur la flêche pour afficher les ressources associées à ce paquet."
 
 #: ckan/templates/package/list.html:18
 msgid "No resources listed"
-msgstr ""
+msgstr "Aucune ressource listée"
 
 #: ckan/templates/package/list.html:21
 msgid "Packages with a blue stripe satisfy the OKFN's"
-msgstr ""
+msgstr "Les paquets avec une bande bleue satisfont"
 
 #: ckan/templates/package/list.html:23
 msgid "Open Knowledge Definition."
-msgstr ""
+msgstr "la définition de Connaissance Ouverte de l'OKFN."
 
 #: ckan/templates/package/new.html:4
 msgid "Packages - New"
-msgstr ""
+msgstr "Paquets - Nouveau"
 
 #: ckan/templates/package/new.html:7
 msgid "Register a New Package"
-msgstr ""
+msgstr "Enregistrer un nouveau paquet"
 
 #: ckan/templates/package/read.html:4
 msgid "Packages -"
-msgstr ""
+msgstr "Paquets"
 
 #: ckan/templates/package/read.html:9
 msgid ""
@@ -845,44 +845,48 @@ msgid ""
 "          Can you help us keep this page up to date?\n"
 "          If so, why not"
 msgstr ""
+"Travaillez-vous dans le projet produisant ces données ?\n"
+"Pouvez-vous nous aider à garder cette page à jour ?\n"
+"Si oui, pourquoi ne pas"
 
 #: ckan/templates/package/read.html:13
 msgid "update the package information"
-msgstr ""
+msgstr "mettre à jour les informations du paquet"
 
 #: ckan/templates/package/read.html:19
 msgid "You can"
-msgstr ""
+msgstr "Vous pouvez"
 
 #: ckan/templates/package/read.html:21
 msgid "make an enquiry"
-msgstr ""
+msgstr "effectuer une requête"
 
 #: ckan/templates/package/read.html:21
+#, fuzzy
 msgid "about the openness of this package using"
-msgstr ""
+msgstr "pour connaître l'ouverture de ce paquet en utilisant"
 
 #: ckan/templates/package/read.html:23
 msgid "Is It Open"
-msgstr ""
+msgstr "Is It Open"
 
 #: ckan/templates/package/read_core.html:18
 msgid "Version"
-msgstr ""
+msgstr "Version"
 
 #: ckan/templates/package/read_core.html:24
 #: ckan/templates/package/read_core.html:72
 msgid "License not given"
-msgstr ""
+msgstr "Licence non fournie"
 
 #: ckan/templates/package/read_core.html:44
 #: ckan/templates/package/read_core.html:51
 msgid "Resources"
-msgstr ""
+msgstr "Ressources"
 
 #: ckan/templates/package/read_core.html:46
 msgid "URL"
-msgstr ""
+msgstr "URL"
 
 #: ckan/templates/package/read_core.html:46
 msgid "Format"
@@ -890,11 +894,11 @@ msgstr ""
 
 #: ckan/templates/package/read_core.html:46
 msgid "Description"
-msgstr ""
+msgstr "Description"
 
 #: ckan/templates/package/read_core.html:46
 msgid "Hash"
-msgstr ""
+msgstr "Hash"
 
 #: ckan/templates/package/read_core.html:51
 msgid "None given for this package."
@@ -910,7 +914,7 @@ msgstr ""
 
 #: ckan/templates/package/read_core.html:68
 msgid "This package is licensed"
-msgstr ""
+msgstr "Ce paquet est sous licence"
 
 #: ckan/templates/package/read_core.html:77
 msgid "This package satisfies the OKFN's Open Knowledge Definition."
@@ -927,11 +931,11 @@ msgstr ""
 #: ckan/templates/package/read_core.html:93
 #: ckan/templates/tag/index.html:7
 msgid "Tags"
-msgstr ""
+msgstr "Tags"
 
 #: ckan/templates/package/read_core.html:108
 msgid "State:"
-msgstr ""
+msgstr "État"
 
 #: ckan/templates/package/resources.html:2
 msgid "Someresources"
@@ -939,36 +943,36 @@ msgstr ""
 
 #: ckan/templates/package/search.html:6
 msgid "Packages - Search"
-msgstr ""
+msgstr "Paquets - Rechercher"
 
 #: ckan/templates/package/search.html:9
 msgid "Search packages"
-msgstr ""
+msgstr "Rechercher parmi les paquets"
 
 #: ckan/templates/package/search.html:17
 #: ckan/templates/package/search.html:21
 msgid "found."
-msgstr ""
+msgstr "trouvés."
 
 #: ckan/templates/package/search.html:23
 msgid "Would you like to"
-msgstr ""
+msgstr "Désirez vous"
 
 #: ckan/templates/package/search.html:23
 msgid "create a new package?"
-msgstr ""
+msgstr "créer un nouveau paquet ?"
 
 #: ckan/templates/package/search_form.html:4
 msgid "E.g. 'geo', 'shakespeare', 'science'"
-msgstr ""
+msgstr "E.g. 'geo', 'shakespeare', 'science'"
 
 #: ckan/templates/package/search_form.html:7
 msgid "Filters:"
-msgstr ""
+msgstr "Filtres :"
 
 #: ckan/templates/package/search_form.html:8
 msgid "downloadable"
-msgstr ""
+msgstr "téléchargeable"
 
 #: ckan/templates/revision/diff.html:4
 msgid "Diff"
