@@ -99,6 +99,8 @@ class TestData:
         for tag in ['child-protection']:
             assert tag in tag_names, '%s not in %s' % (tag, tag_names)
 
+        assert model.Group.by_name(u'ukgov') in pkg1.groups
+        assert pkg1.extras['import_source'].startswith('COSPREAD'), pkg1.extras['import_source']
 
 class TestDataTwice:
     @classmethod

@@ -11,6 +11,7 @@ class Data4Nr(object):
         rev = self._new_revision()
         assert os.path.exists(csv_filepath)
         f_obj = open(csv_filepath, "r")
+        self._current_filename = os.path.basename(csv_filepath)
         reader = csv.reader(f_obj)
         index = 0
         reader.next()
@@ -89,6 +90,7 @@ class Data4Nr(object):
         extras_dict['temporal_coverage_from'], extras_dict['temporal_coverage_to'] = self._parse_temporal_coverage(_dict['time coverage'])
         extras_dict['external_reference'] = 'DATA4NR-%s' % _dict['id'] if _dict['id'] else u''
         extras_dict['precision'] = _dict['reliability'] or u''
+        extras_dict['import_source'] = 'DATA4NR-%s' % self._current_filename
 
         # Edit package object
         if not url:

@@ -27,9 +27,13 @@ class TestGroup(TestController):
         group_count = model.Session.query(model.Group).count()
         assert 'There are %s groups.' % group_count in self.strip_tags(res)
         groupname = 'david'
+        group = model.Group.by_name(unicode(groupname))
         assert groupname in res
         assert '<td>2</td>' in res
-        group_title = model.Group.by_name(unicode(groupname)).title
+        group_title = group.title
+        group_packages_count = len(group.packages)
+        group_description = group.description
+        self.check_named_element('tr', res, group_title, group_packages_count, group_description)
         res = res.click(group_title)
         assert groupname in res
         

@@ -96,6 +96,9 @@ class TestData:
         assert cereals.author == u'Department for Environment, Food and Rural Affairs', cereals.author
         assert custody.author == u'Ministry of Justice', custody.author
 
+        assert model.Group.by_name(u'ukgov') in pkg1.groups
+        assert pkg1.extras['import_source'].startswith('ONS'), pkg1.extras['import_source']
+
 
 class TestDataTwice:
     @classmethod
