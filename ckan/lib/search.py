@@ -257,13 +257,13 @@ class Search:
         return query
     
     def _filter_by_extra(self, field, query, terms):
-        value = ' '.join(terms)
-        query = query.join('_extras', aliased=True).filter(
-            sqlalchemy.and_(
-              model.PackageExtra.state==model.State.ACTIVE,
-              model.PackageExtra.key==unicode(field),
-              model.PackageExtra.value==unicode(value),
-            ))
+        make_like = lambda x,y: x.ilike('%' + y + '%')
+        for term in terms:
+            query = query.join('_extras', aliased=True).filter(
+                sqlalchemy.and_(
+                  model.PackageExtra.state==model.State.ACTIVE,
+                  model.PackageExtra.key==unicode(field),
+                )).filter(make_like(model.PackageExtra.value, term))
         return query
         
     def _update_open_licenses(self):
