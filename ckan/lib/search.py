@@ -256,11 +256,14 @@ class Search:
                     
         return query
     
-    def _filter_by_extra(self, field, query, value_list):
-        for name in value_list:
-            query = query.join('_extras', aliased=True).filter(sqlalchemy.and_(
-                model.PackageExtra.state==model.State.ACTIVE,
-                model.PackageExtra.key==unicode(field)))
+    def _filter_by_extra(self, field, query, terms):
+        value = ' '.join(terms)
+        query = query.join('_extras', aliased=True).filter(
+            sqlalchemy.and_(
+              model.PackageExtra.state==model.State.ACTIVE,
+              model.PackageExtra.key==unicode(field),
+              model.PackageExtra.value==unicode(value),
+            ))
         return query
         
     def _update_open_licenses(self):
