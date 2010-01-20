@@ -408,10 +408,8 @@ class TestExtraFields(object):
         self._do_search(u'bcd', 'b', 1)
         self._do_search(u'abc', ['a', 'c'], 2)
         self._do_search(u'cde', 'c', 1)
-        self._do_search(u'abc cde', 'c', 1)
+        self._do_search(u'abc cde', [], 0)
         self._do_search(u'cde abc', 'c', 1)
-        self._do_search(u'ag-a', [], 0)
-        self._do_search(u'ag-b', [], 0)
 
 class TestRank(object):
     @classmethod
