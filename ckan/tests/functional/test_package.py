@@ -43,9 +43,6 @@ class TestPackageForm(TestController):
         
     def _check_preview(self, res, **params):
         preview =  str(res)[str(res).find('<div id="preview"'):str(res).find('<div id="footer">')]
-        # TODO - remove this hack until preview works
-        if '<head>' in preview:
-            return
         assert 'Preview' in preview, preview
         assert str(params['name']) in preview, preview
         assert str(params['title']) in preview, preview
@@ -176,7 +173,7 @@ class TestReadOnly(TestPackageForm):
         assert 'Some test notes' in res
         assert '<strong>Some bolded text.</strong>' in res
         self.check_tag_and_data(res, 'left arrow', '&lt;')
-        self.check_tag_and_data(res, 'umlaut', '\xc3\x83\xc2\xbc')
+        self.check_tag_and_data(res, 'umlaut', u'\xfc')
         assert 'License:' in res
         assert 'OKD Compliant::' in res
         assert 'russian' in res
@@ -269,7 +266,7 @@ class TestEdit(TestPackageForm):
         editpkg = model.Package(name=self.editpkg_name)
         editpkg.url = u'editpkgurl.com'
         editpkg.notes = u'Some notes'
-        editpkg.add_tag_by_name('mytesttag')
+        editpkg.add_tag_by_name(u'mytesttag')
         model.Session.save(editpkg)
         u = model.User(name=u'testadmin')
         model.Session.save(u)
@@ -292,18 +289,7 @@ class TestEdit(TestPackageForm):
 
     def tearDown(self):
         model.repo.rebuild_db()
-        # do not know why but this is keeps leading to errors w/ duplicate key
-        # in the db
-#        pkg = model.Package.by_name(self.editpkg.name)
-#        if pkg:
-#            pkg.purge()
-#            model.Session.commit()
-#        for tagname in self.newtagnames:
-#            tag = model.Tag.by_name(tagname)
-#        if tag:
-#            tag.purge()
-#        model.Session.commit()
-#        model.Session.remove()
+        model.Session.remove()
 
     def test_edit(self):
         # the absolute basics
@@ -389,7 +375,7 @@ u with umlaut \xc3\xbc
         assert 'Packages - Edit' in res
         assert 'Preview' in res
         assert 'Hello world' in res
-        self.check_tag_and_data(res, 'umlaut', '\xc3\xbc')
+        self.check_tag_and_data(res, 'umlaut', u'\xfc')
         self.check_tag_and_data(res, 'Arrow', '&lt;')
 
     def test_edit_bad_name(self):
@@ -449,12 +435,11 @@ u with umlaut \xc3\xbc
         url = u'http://something.com/somewhere.zip'
         resources = ((u'http://something.com/somewhere-else.xml', u'xml', u'Best', u'hash1'),
                      (u'http://something.com/somewhere-else2.xml', u'xml2', u'Best2', u'hash2'),
-#                     (u'http://something.com/somewhere-else3.xml', u'xml3', u'Best3', u'hash3'),
                      )
         assert len(resources[0]) == len(model.PackageResource.get_columns())
         notes = u'Very important'
         license_id = 4
-        license = u'OKD Compliant::Creative Commons CCZero'
+        license = model.Session.query(model.License).get(license_id)
         state = model.State.ACTIVE
         tags = (u'tag1', u'tag2', u'tag3')
         tags_txt = u' '.join(tags)
@@ -520,22 +505,6 @@ u with umlaut \xc3\xbc
                                  extras=extras,
                                  state=state,
                                  )
-##        main_res = self.main_div(res)
-##        res1 = main_res
-##        assert 'Packages - %s' % str(name) in res, res
-##        assert str(name) in res1, res1
-##        assert str(title) in res1, res1
-##        assert str(version) in res1, res1
-##        assert '<a href="%s">' % str(url).lower() in res1.lower(), res1
-##        for res_index, resource in enumerate(resources):
-##            self.check_named_element(res1, 'tr', resource[0], resource[1], resource[2], resource[3])
-##        assert str(notes) in res1, res1
-##        assert str(license) in res1, res1
-##        for tag in tags:
-##            assert str(tag) in res1, res1
-##        assert 'State: %s' % state in res1.replace('</strong>', ''), res1.encode('utf8')
-##        for key, value in current_extras:
-##            self.check_named_element(res1, 'tr', key, value)
 
         # Check package object
         pkg = model.Package.by_name(name)
@@ -631,7 +600,7 @@ class TestNew(TestPackageForm):
         res = fv.submit('commit')
         assert not 'Error' in res, res
 
-    def _test_new_all_fields(self):
+    def test_new_all_fields(self):
         name = u'test_name2'
         title = u'Test Title'
         version = u'1.1'
@@ -642,8 +611,6 @@ class TestNew(TestPackageForm):
         license = u'OKD Compliant::Creative Commons CCZero'
         tags = (u'tag1', u'tag2', u'tag3', u'SomeCaps')
         tags_txt = u' '.join(tags)
-##        groups = (u'group1', u'group2', u'group3')
-##        groups_txt = u' '.join(groups)
         extras = {'key1':'value1', 'key2':'value2', 'key3':'value3'}
         log_message = 'This is a comment'
         assert not model.Package.by_name(name)
@@ -668,15 +635,14 @@ class TestNew(TestPackageForm):
         res = fv.submit('preview')
         assert not 'Error' in res, res
 
-        # TODO: reinstate
-        # Disable temporarily (rather fragile)
         # Check preview is correct
-#        self._check_preview(res, name=name, title=title, version=version,
-#                            url=url,
-#                            resources=[download_url], notes=notes,
-#                            license=license,
-#                            tags=tags, extras=extras.items(),
-#                            )
+        resources = [[download_url, u'', u'', u'']]
+        self._check_preview(res, name=name, title=title, version=version,
+                            url=url,
+                            resources=resources, notes=notes,
+                            license=license,
+                            tags=tags, extras=extras.items(),
+                            )
 
         # Check form is correctly filled
         self.check_form_filled_correctly(res, id='', name=name,

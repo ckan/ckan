@@ -17,13 +17,13 @@ class TestAuthorizer(object):
 
     @classmethod
     def setup_class(self):
-        model.Package(name=u'testpkg')
-        model.Package(name=u'testpkg2')
-        model.User(name=u'testadmin')
-        model.User(name=u'testsysadmin')
-        model.User(name=u'notadmin')
-        model.Group(name=u'testgroup')
-        model.Group(name=u'testgroup2')
+        model.Session.add(model.Package(name=u'testpkg'))
+        model.Session.add(model.Package(name=u'testpkg2'))
+        model.Session.add(model.User(name=u'testadmin'))
+        model.Session.add(model.User(name=u'testsysadmin'))
+        model.Session.add(model.User(name=u'notadmin'))
+        model.Session.add(model.Group(name=u'testgroup'))
+        model.Session.add(model.Group(name=u'testgroup2'))
         model.repo.new_revision()
         model.repo.commit_and_remove()
 

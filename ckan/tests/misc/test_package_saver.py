@@ -71,6 +71,7 @@ class TestPreview(TestController):
         for key, value in params.items():
             if key == u'license_id':
                 assert pkg.license_id == int(value)
+                assert pkg.license == model.Session.query(model.License).get(int(value))
             elif key == u'tags':
                 reqd_tags = value.split()
                 assert len(pkg.tags) == len(reqd_tags)

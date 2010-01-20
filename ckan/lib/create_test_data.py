@@ -184,7 +184,7 @@ class CreateTestData(cli.CkanCommand):
 *Some italicized text.*
 
 Foreign characters:
-u with umlaut \xc3\xbc
+u with umlaut \xfc
 
 Needs escaping:
 left arrow <
