@@ -4,6 +4,7 @@ from pylons import config
 
 import ckan.model as model
 import ckan.getdata.ons_import as data_getter
+from ckan.lib.create_test_data import CreateTestData
 
 test_data=os.path.join(config['here'], 'ckan/tests/getdata/samples/ons_hub_sample.xml')
 test_data2=os.path.join(config['here'], 'ckan/tests/getdata/samples/ons_hub_sample2.xml')
@@ -100,7 +101,9 @@ class TestData:
         assert custody.author == u'Ministry of Justice', custody.author
 
         assert model.Group.by_name(u'ukgov') in pkg1.groups
-        assert pkg1.extras['import_source'].startswith('ONS'), pkg1.extras['import_source']
+        for pkg in (pkg1, cereals, custody):
+            assert pkg.extras['import_source'].startswith('ONS'), '%s %s' % (pkg.name, pkg.extras['import_source'])
+
 
 
 class TestDataTwice:
@@ -123,8 +126,8 @@ class TestDataTwice:
         assert 'CHANGED' in pkg.resources[0].description, pkg.resources
 
 class TestClashTitle:
-    # two packages with the same title, but from different departments,
-    # so must be different packages
+    # two packages with the same title, both from ONS,
+    # but from different departments, so must be different packages
     @classmethod
     def setup_class(self):
         data = data_getter.Data()
@@ -150,3 +153,33 @@ class TestClashTitle:
         assert pkg.extras['department'] == 'Welsh Assembly Government', pkg.extras['department']
         assert len(pkg.resources) == 1, pkg.resources
         assert '2008 Results' in pkg.resources[0].description, pkg.resources
+
+class TestClashSource:
+    # two packages with the same title, and department, but one not from ONS,
+    # so must be different packages
+    @classmethod
+    def setup_class(self):
+        self.clash_name = u'cereals_and_oilseeds_production_harvest'
+        CreateTestData.create_arbitrary([
+            {'name':self.clash_name,
+             'title':'Test clash',
+             'extras':{
+                 'department':'Department for Environment, Food and Rural Affairs',
+                 'import_source':'DECC-Jan-09',
+                 },
+             }
+            ])
+        data = data_getter.Data()
+        data.load_xml_into_db(test_data)
+
+    @classmethod
+    def teardown_class(self):
+        model.Session.remove()
+        model.repo.rebuild_db()
+
+    def test_names(self):
+        pkg1 = model.Package.by_name(self.clash_name)
+        assert pkg1.title == u'Test clash', pkg1.title
+
+        pkg2 = model.Package.by_name(self.clash_name + u'_')
+        assert pkg2.title == u'Cereals and Oilseeds Production Harvest', pkg2.title

@@ -222,3 +222,4 @@ class TestData4:
         assert pkg1.title == u'DFID Project Information', pkg1.title
         assert pkg1.notes == u'Information about aid projects funded by the Department for International Development. The dataset contains project descriptions, dates, purposes, locations, sectors, summary financial data and whether or not conditions are attached.', pkg1.notes
         assert pkg.license_id == u'ukcrown-withrights', pkg.license_id
+

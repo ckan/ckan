@@ -41,9 +41,14 @@ class Data(object):
         munged_title = schema_gov.name_munge(title)
         pkg = model.Package.by_name(munged_title)
         department = self._source_to_department(item['hub:source-agency'])
-        if pkg and pkg.extras['department'] != department:
+        if pkg and pkg.extras.get('department') != department:
             munged_title = schema_gov.name_munge('%s - %s' % (title, department))
             pkg = model.Package.by_name(munged_title)
+        while pkg and not pkg.extras.get('import_source', u'').startswith('ONS'):
+            print 'Avoiding clash with non-ONS (%s) item of similar name: %s' % (pkg.extras.get('import_source'), munged_title)
+            munged_title += '_'
+            pkg = model.Package.by_name(munged_title)
+
 
         # Resources
         guid = item['guid'] or None
@@ -77,6 +82,7 @@ class Data(object):
                        ]:
             if item[column]:
                 notes_list.append('%s: %s' % (name, item[column]))
+        notes = '\n\n'.join(notes_list)
 #        rev = self._new_revision()
 
         extras = {'geographic_coverage':u'', 'external_reference':u'', 'temporal_granularity':u'', 'date_updated':u'', 'agency':u'', 'precision':u'', 'geographical_granularity':u'', 'temporal_coverage_from':u'', 'temporal_coverage_to':u'', 'national_statistic':u'', 'department':u'', 'update_frequency':u'', 'date_released':u'', 'categories':u''}
@@ -105,9 +111,14 @@ class Data(object):
         extras['import_source'] = 'ONS-%s' % self._current_filename 
 
         tags = set()
+        pkg_dict = {'name':munged_title, 'title':title, 'notes':notes,
+                    'categories':extras['categories'],
+                    'agency':extras['agency']}
+        suggested_tags = schema_gov.TagSuggester.suggest_tags(pkg_dict)
         for keyword in item['hub:ipsv'].split(';') + \
                 item['hub:keywords'].split(';') + \
-                item['hub:nscl'].split(';'):
+                item['hub:nscl'].split(';') + \
+                list(suggested_tags):
             tags.add(schema_gov.tag_munge(keyword))
 
 
@@ -127,7 +138,7 @@ class Data(object):
             
 
         pkg.title = title
-        pkg.notes = '\n\n'.join(notes_list)
+        pkg.notes = notes
         pkg.license_id = self._crown_license_id
         pkg.extras = extras
         if extras['department']:
