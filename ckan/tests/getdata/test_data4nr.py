@@ -19,6 +19,7 @@ class TestBasic:
     def teardown_class(self):
         model.Session.remove()
         model.repo.rebuild_db()
+        model.Session.remove()
 
     def test_load_data(self):
         assert model.Session.query(model.Package).count() == 0
@@ -67,6 +68,7 @@ class TestData:
     def teardown_class(self):
         model.Session.remove()
         model.repo.rebuild_db()
+        model.Session.remove()
 
     def test_fields(self):
         names = [pkg.name for pkg in model.Session.query(model.Package).all()]
@@ -118,6 +120,12 @@ class TestDataTwice:
         data = data4nr.Data4Nr()
         data.load_csv_into_db(test_data)
         data.load_csv_into_db(test_data2)
+
+    @classmethod
+    def teardown_class(self):
+        model.Session.remove()
+        model.repo.rebuild_db()
+        model.Session.remove()
 
     def test_packages(self):
         q = model.Session.query(model.Package).filter_by(name=u'age_and_limiting_long-term_illness_by_ns-sec')

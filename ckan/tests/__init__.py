@@ -144,16 +144,19 @@ class TestController(object):
 
     def _get_html_from_res(self, html):
         if isinstance(html, paste.fixture.TestResponse):
-            html_str = html.body
-        elif isinstance(html, (str, unicode)):
+            html_str = html.body.decode('utf8')
+        elif isinstance(html, unicode):
             html_str = html
+        elif isinstance(html, str):
+            html_str = html.decode('utf8')
         else:
             raise TypeError
-        return html_str
+        return html_str # always unicode
 
     def _check_html(self, regex_compiled, html, html_to_find):
+        html_to_find = [unicode(html_bit) for html_bit in html_to_find]
         partly_matching_tags = []
-        html_str = self._get_html_from_res(html).decode('utf8')
+        html_str = self._get_html_from_res(html)
         for tag in regex_compiled.finditer(html_str):
             found_all=True
             for i, html_bit_to_find in enumerate(html_to_find):
