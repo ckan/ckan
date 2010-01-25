@@ -6,6 +6,7 @@
 #               test_ckan_net
 #               staging_hmg_ckan_net
 #               test_hmg_ckan_net
+#               backup_hmg_ckan_net
 #   operations: deploy
 #               restart_apache
 #               backup
@@ -83,6 +84,13 @@ def ckan_net():
     env.hosts = [env.ckan_instance_name]
     env.base_dir = '/home/%s/var/srvc' % env.user
     env.config_ini_filename = 'www.ckan.net.ini'
+
+def backup_hmg_ckan_net():
+    env.user = 'okfn'
+    env.ckan_instance_name = 'backup.hmg.ckan.net'
+    env.hosts = [env.ckan_instance_name]
+    env.base_dir = '/home/%s/var/srvc' % env.user
+    env.config_ini_filename = 'backup.hmg.ckan.net.ini'
 
 def _setup():
     if not hasattr(env, 'config_ini_filename'):
