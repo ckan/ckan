@@ -2,13 +2,15 @@ import xml.sax
 import re
 import os
 import glob
+import logging
 
 import ckan.model as model
 from ckan.lib import schema_gov
 
 class Data(object):
-    def load_xml_into_db(self, xml_filepaths):
+    def load_xml_into_db(self, xml_filepaths, log=False):
         self._basic_setup()
+        self._logging = log
         rev = self._new_revision()
         if isinstance(xml_filepaths, (str, unicode)):
             if '?' in xml_filepaths or '*' in xml_filepaths:
@@ -19,9 +21,9 @@ class Data(object):
         else:
             xml_filepaths = xml_filepaths
         handler = OnsXmlHandler(self.load_item)
-        print 'Loading %i ONS files' % len(xml_filepaths)
+        self._log(logging.info, 'Loading %i ONS files' % len(xml_filepaths))
         for xml_filepath in xml_filepaths:
-            print 'Loading ONS file: %s' % xml_filepath
+            self._log(logging.info, 'Loading ONS file: %s' % xml_filepath)
             self._current_filename = os.path.basename(xml_filepath)
             parser = xml.sax.parse(xml_filepath, handler)
             self._commit_and_report()
@@ -92,7 +94,7 @@ class Data(object):
             try:
                 date_released = schema_gov.DateType.iso_to_db(item['pubDate'], '%a, %d %b %Y %H:%M:%S %Z')
             except TypeError, e:
-                print 'Warning: Could not read format of publication (release) date: %r' % e.args
+                self._log(logging.warning, 'Warning: Could not read format of publication (release) date: %r' % e.args)
         extras['date_released'] = date_released
         extras['department'] = self._source_to_department(item['hub:source-agency'])
         extras['agency'] = item['hub:source-agency'] if not extras['department'] else u''
@@ -152,7 +154,7 @@ class Data(object):
             return department
         else:
             if dept_given and dept_given not in ['Office for National Statistics', 'Health Protection Agency', 'Information Centre for Health and Social Care', 'General Register Office for Scotland', 'Northern Ireland Statistics and Research Agency', 'National Health Service in Scotland', 'National Treatment Agency', 'Police Service of Northern Ireland (PSNI)', 'Child Maintenance and Enforcement Commission', 'Health and Safety Executive']:
-                print 'Warning: Double check this is not a gvt department source: %s' % dept_given
+                self._log(logging.warning, 'Warning: Double check this is not a gvt department source: %s' % dept_given)
             return None
         
 
@@ -167,7 +169,7 @@ class Data(object):
         return match.groups()
 
     def _commit_and_report(self):
-        print 'Loaded %i lines with %i new packages' % (self._item_count, self._new_package_count)
+        self._log(logging.info, 'Loaded %i lines with %i new packages' % (self._item_count, self._new_package_count))
         model.repo.commit_and_remove()
     
     def _basic_setup(self):
@@ -194,6 +196,12 @@ class Data(object):
         rev.author = u'auto-loader'
         rev.log_message = u'Load from ONS Hub feed'
         return rev
+
+    def _log(self, log_func, msg):
+        if self._logging:
+            log_func(msg)
+        else:
+            print '%s: %s' % (log_func.func_name, msg)
 
 class OnsXmlHandler(xml.sax.handler.ContentHandler):
     def __init__(self, load_item_func):

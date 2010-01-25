@@ -44,7 +44,7 @@ class ManageDb(CkanCommand):
     db load-data4nr {file-path.csv}
     db load-cospread {file-path.csv}
     db load-esw {file-path.txt} [{host} {api-key}]
-    db load-onshub {file-path.csv}
+    db load-onshub [{file-path.csv}|recent|all]
     db migrate06
     db migrate09a
     db migrate09b
@@ -85,15 +85,14 @@ class ManageDb(CkanCommand):
             self.send_rdf(cmd)
         elif cmd == 'load-data4nr':
             import ckan.getdata.data4nr as data_getter
-            self.load_data(cmd, data_getter.Data4Nr)
+            self.load_data(data_getter.Data4Nr)
         elif cmd == 'load-cospread':
             import ckan.getdata.cospread as data_getter
-            self.load_data(cmd, data_getter.Data)
+            self.load_data(data_getter.Data)
         elif cmd == 'load-esw':
             self.load_esw(cmd)
-        elif cmd == 'load-onshub':
-            import ckan.getdata.ons_hub as data_getter
-            self.load_data(cmd, data_getter.Data, 'xml')
+        elif cmd == 'load-ons':
+            self.load_ons()
         elif cmd == 'migrate06':
             import ckan.lib.converter
             dumper = ckan.lib.converter.Dumper()
@@ -134,7 +133,7 @@ class ManageDb(CkanCommand):
         else:
             print 'Unknown command', cmd
 
-    def load_data(self, cmd, data_getter, extension='csv'):
+    def load_data(self, data_getter, extension='csv'):
         if len(self.args) < 2:
             print 'Need %s file path' % extension
             return
@@ -144,22 +143,26 @@ class ManageDb(CkanCommand):
         load_func(load_path)
 
     def simple_dump_csv(self, cmd):
+        from ckan import model
         if len(self.args) < 2:
             print 'Need csv file path'
             return
         dump_filepath = self.args[1]
         import ckan.lib.dumper as dumper
         dump_file = open(dump_filepath, 'w')
-        dumper.SimpleDumper().dump_csv(dump_file)
+        query = model.Session.query(model.Package)
+        dumper.SimpleDumper().dump_csv(dump_file, query)
 
     def simple_dump_json(self, cmd):
+        from ckan import model
         if len(self.args) < 2:
             print 'Need json file path'
             return
         dump_filepath = self.args[1]
         import ckan.lib.dumper as dumper
         dump_file = open(dump_filepath, 'w')
-        dumper.SimpleDumper().dump_json(dump_file)
+        query = model.Session.query(model.Package)
+        dumper.SimpleDumper().dump_json(dump_file, query)
 
     def dump_rdf(self, cmd):
         if len(self.args) < 3:
@@ -212,6 +215,32 @@ class ManageDb(CkanCommand):
             data.load_esw_txt_via_rest(load_path, ckanclient)
         else:
             data.load_esw_txt_into_db(load_path)
+
+    def load_ons(self):
+        if len(self.args) < 2:
+            print 'Need xml file path or "all" or "recent".'
+            return
+        arg = self.args[1]
+        if arg == 'recent' or arg == 'all':
+            import ckan.lib.ons_data
+            if len(self.args) < 3:
+                ons_cache_dir = '~/ons_data'
+                print 'Defaulting ONS cache dir: %s' % ons_cache_dir
+            else:
+                ons_cache_dir = self.args[2]
+                print 'ONS cache dir: %s' % ons_cache_dir
+        ons_cache_dir = os.path.expanduser(ons_cache_dir)
+        if not os.path.exists(ons_cache_dir):
+            print 'Creating dir: %s' % ons_cache_dir
+            os.makedirs(ons_cache_dir)
+        if arg == 'recent':
+            new_packages, num_packages_after = ckan.lib.ons_data.import_recent(ons_cache_dir)
+        elif arg == 'all':
+            new_packages, num_packages_after = ckan.lib.ons_data.import_all(ons_cache_dir)
+        else:
+            # filename given
+            import ckan.getdata.ons_hub as data_getter
+            self.load_data(data_getter.Data, 'xml')
 
 
 class TestData(CkanCommand):
