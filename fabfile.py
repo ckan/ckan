@@ -70,7 +70,7 @@ def hmg_ckan_net_2():
     hmg_ckan_net_1()
     env.ckan_instance_name = 'hmg.ckan.net.2'
     env.hosts = ['hmg.ckan.net']
-    env.config_ini_filename = 'hmg.ckan.net.ini.2'
+    env.config_ini_filename = 'hmg.ckan.net.ini'
 
 def test_ckan_net():
     env.user = 'okfn'
