@@ -37,7 +37,7 @@ class Repository(vdm.sqlalchemy.Repository):
             # context is blank as not currently used
             # Note that Role.ADMIN can already do anything - hardcoded in.
             for role, action in default_role_actions:
-                ra = RoleAction(role=role, context='',
+                ra = RoleAction(role=role, context=u'',
                         action=action,)
                 Session.save(ra)
         if Session.query(Revision).count() == 0:
