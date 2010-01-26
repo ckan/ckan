@@ -300,9 +300,30 @@ class RestController(BaseController):
                 request.params.items(), str(inst)
             )
             raise ValueError, msg
-        request_data = simplejson.loads(request_data)
+        request_data = simplejson.loads(request_data, encoding='utf8')
+        # ensure unicode values
+        for key, val in request_data.items():
+            # if val is str then assume it is ascii, since simplejson converts
+            # utf8 encoded JSON to unicode
+            request_data[key] = self._make_unicode(val)
         return request_data
         
+    def _make_unicode(self, entity):
+        if isinstance(entity, str):
+            return unicode(entity)
+        elif isinstance(entity, list):
+            new_items = []
+            for item in entity:
+                new_items.append(self._make_unicode(item))
+            return new_items
+        elif isinstance(entity, dict):
+            new_dict = {}
+            for key, val in entity.items():
+                new_dict[key] = self._make_unicode(val)
+            return new_dict
+        else:
+            return entity
+
     def _finish_ok(self, response_data=None):
         response.status_int = 200
         response.headers['Content-Type'] = 'application/json'
