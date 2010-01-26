@@ -382,6 +382,13 @@ u with umlaut \xc3\xbc
         fv = self.res.forms[0]
         prefix = 'Package-%s-' % self.pkgid
         fv[prefix + 'name'] = u'a' # invalid name
+        res = fv.submit('preview')
+        assert 'Error' in res, res
+        assert 'Name must be at least 2 characters long' in res, res
+        # Ensure there is an error at the top of the form and by the field
+        assert 'class="form-errors"' in res, res
+        assert 'class="field_error"' in res, res
+
         res = fv.submit('commit')
         assert 'Error' in res, res
         assert 'Name must be at least 2 characters long' in res, res
@@ -600,6 +607,27 @@ class TestNew(TestPackageForm):
         res = fv.submit('commit')
         assert not 'Error' in res, res
 
+    def test_new_bad_name(self):
+        offset = url_for(controller='package', action='new', package_form=package_form)
+        res = self.app.get(offset)
+        assert 'Packages - New' in res
+        fv = res.forms[0]
+        prefix = 'Package--'
+        fv[prefix + 'name'] = u'a' # invalid name
+        res = fv.submit('preview')
+        assert 'Error' in res, res
+        assert 'Name must be at least 2 characters long' in res, res
+        # Ensure there is an error at the top of the form and by the field
+        assert 'class="form-errors"' in res, res
+        assert 'class="field_error"' in res, res
+
+        res = fv.submit('commit')
+        assert 'Error' in res, res
+        assert 'Name must be at least 2 characters long' in res, res
+        # Ensure there is an error at the top of the form and by the field
+        assert 'class="form-errors"' in res, res
+        assert 'class="field_error"' in res, res
+
     def test_new_all_fields(self):
         name = u'test_name2'
         title = u'Test Title'
@@ -724,27 +752,6 @@ class TestNew(TestPackageForm):
         assert 'class="form-errors"' in res, res
         assert 'class="field_error"' in res, res
         
-    def test_new_bad_name(self):
-        offset = url_for(controller='package', action='new', package_form=package_form)
-        res = self.app.get(offset)
-        assert 'Packages - New' in res
-        fv = res.forms[0]
-        prefix = 'Package--'
-        # should result in error as need >= 2 chars
-        fv[prefix + 'name'] = 'a'
-        fv[prefix + 'title'] = 'A Test Package'
-        fv[prefix + 'tags'] = 'test tags'
-#        fv[prefix + 'groups'] = 'test groups'
-        res = fv.submit('commit')
-        assert 'Error' in res, res
-        assert 'Name must be at least 2 characters long' in res, res
-        # Ensure there is an error at the top of the form and by the field
-        assert 'class="form-errors"' in res, res
-        assert 'class="field_error"' in res, res
-        # Ensure fields are prefilled
-        assert 'value="A Test Package"' in res, res
-        assert 'value="test tags"' in res, res
-#        assert 'value="test groups"' in res, res
 
 class TestNewPreview(TestController):
     pkgname = u'testpkg'

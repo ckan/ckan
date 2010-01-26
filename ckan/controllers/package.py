@@ -131,7 +131,7 @@ class PackageController(BaseController):
                 c.error, fs = error.args
                 c.form = self._render_edit_form(fs, request.params,
                         clear_session=True)
-                return render('package/edit')
+                return render('package/new')
 
         # use request params even when starting to allow posting from "outside"
         # (e.g. bookmarklet)
@@ -155,7 +155,7 @@ class PackageController(BaseController):
                 c.error, fs = error.args
                 c.form = self._render_edit_form(fs, request.params,
                         clear_session=True)
-                return render('package/edit')
+                return render('package/new')
         return render('package/new')
 
     def edit(self, id=None): # allow id=None to allow posting
@@ -198,9 +198,15 @@ class PackageController(BaseController):
         else: # Must be preview
             pkgname = id
             fs = fs.bind(pkg, data=dict(request.params))
-            PackageSaver().render_preview(fs, id, pkg.id)
-            c.preview = genshi.HTML(render('package/read_core'))
-            c.form = self._render_edit_form(fs, request.params)
+            try:
+                PackageSaver().render_preview(fs, id, pkg.id)
+                c.preview = genshi.HTML(render('package/read_core'))
+                c.form = self._render_edit_form(fs, request.params)
+            except ValidationException, error:
+                c.error, fs = error.args
+                c.form = self._render_edit_form(fs, request.params,
+                        clear_session=True)
+                return render('package/edit')
             return render('package/edit')
 
     def authz(self, id):
