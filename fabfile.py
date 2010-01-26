@@ -6,7 +6,9 @@
 #               test_ckan_net
 #               staging_hmg_ckan_net
 #               test_hmg_ckan_net
+#               de_ckan_net
 #               backup_hmg_ckan_net
+#               fr_ckan_net
 #   operations: deploy
 #               restart_apache
 #               backup
@@ -84,6 +86,20 @@ def ckan_net():
     env.hosts = [env.ckan_instance_name]
     env.base_dir = '/home/%s/var/srvc' % env.user
     env.config_ini_filename = 'www.ckan.net.ini'
+
+def de_ckan_net():
+    env.user = 'okfn'
+    env.ckan_instance_name = 'de.ckan.net'
+    env.hosts = ['us1.okfn.org']
+    env.base_dir = '/home/okfn/var/srvc'
+    env.config_ini_filename = 'de.ckan.net.ini'
+
+def fr_ckan_net():
+    env.user = 'okfn'
+    env.ckan_instance_name = 'fr.ckan.net'
+    env.hosts = ['us1.okfn.org']
+    env.base_dir = '/home/okfn/var/srvc'
+    env.config_ini_filename = 'fr.ckan.net.ini'
 
 def backup_hmg_ckan_net():
     env.user = 'okfn'
