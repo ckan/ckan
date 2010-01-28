@@ -16,25 +16,56 @@ To run a test:
 '''
 import os
 import sys
+import subprocess
 
 from pylons import config
+
+if not config.has_key('here'):
+    err = '''ERROR: You need to run nosetests with option:
+                       --with-pylons=testmigrate.ini'''
+    assert 0, err
 
 CONFIG_FILE = 'testmigrate.ini'
 DB_NAME = 'ckantestmigrate'
 DB_USER = 'tester'
+TEST_DUMPS_PATH = os.path.join(config['here'], 'ckan/migration/tests/test_dumps')
+RESTORE_FILEPATH = config['test_migration_db_dump']
 
 class TestMigrationBase(object):
     psqlbase = 'export PGPASSWORD=pass && psql -q -h localhost --user %s %s' % (DB_USER, DB_NAME)
 
     @classmethod
-    def setup_db(self):
-        restore_filepath = config['test_migration_db_dump']
-        self.run('sudo -u postgres dropdb %s' % DB_NAME, ok_to_fail=True)
-        self.run('sudo -u postgres createdb --owner %s %s' % (DB_USER, DB_NAME))
-        self.run(self.psqlbase + ' -o /tmp/psql.tmp < %s' % restore_filepath)
+    def setup_db(self, pg_dump_file=None):
+        if not pg_dump_file:
+            pg_dump_file = RESTORE_FILEPATH
+        assert pg_dump_file
+        self.run(self.psqlbase + ' -o /tmp/psql.tmp < %s' % pg_dump_file)
 
     @classmethod
     def run(self, cmd, ok_to_fail=False):
-        err = os.system(cmd)
-        if not ok_to_fail:
-            assert not err, 'Error %i running: %s' % (err, cmd)
+        try:
+            proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            output = proc.communicate()
+            if len(output)==2:
+                output = '\n'.join(output)
+            else:
+                output = repr(output)
+            retcode = proc.wait()
+            print output
+            if not ok_to_fail:
+                assert retcode == 0, 'Error %i running "%s": %s' % (retcode, cmd, output)
+        except OSError, e:
+            print 'Error running "%s":' % cmd, e
+            print output
+            if not ok_to_fail:
+                assert retcode == 0, 'Error %i running "%s": %s' % (retcode, cmd, output)
+
+    @classmethod
+    def paster(self, paster_cmd):
+        self.run('paster %s --config=%s' % (paster_cmd, CONFIG_FILE))
+
+# Recreate database before all tests.
+# Note this complains of current users of the database if you run it
+# having created a session, so only do it once.
+TestMigrationBase().run('sudo -u postgres dropdb %s' % DB_NAME, ok_to_fail=True)
+TestMigrationBase().run('sudo -u postgres createdb --owner %s %s' % (DB_USER, DB_NAME))

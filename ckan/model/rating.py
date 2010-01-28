@@ -11,7 +11,7 @@ rating_table = Table('rating', metadata,
                      Column('id', UnicodeText, primary_key=True, default=make_uuid),
                      Column('user_id', UnicodeText, ForeignKey('user.id')),
                      Column('user_ip_address', UnicodeText), # alternative to user_id if not logged in
-                     Column('package_id', Integer, ForeignKey('package.id')),
+                     Column('package_id', UnicodeText, ForeignKey('package.id')),
                      Column('rating', Float),
                      Column('created', DateTime, default=datetime.now),
                      )

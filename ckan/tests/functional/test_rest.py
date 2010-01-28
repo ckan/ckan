@@ -743,11 +743,16 @@ class TestSearch(TestController):
         res_dict = simplejson.loads(res.body)
         assert res_dict['count'] == 2, res_dict
         print res_dict['results']
-        anna_rec = res_dict['results'][0]
+        for rec in res_dict['results']:
+            if rec['name'] == 'annakarenina':
+                anna_rec = rec
+                break
         assert anna_rec['name'] == 'annakarenina', res_dict['results']
-        assert anna_rec['title'] == 'A Novel By Tolstoy', res_dict['results']
+        assert anna_rec['title'] == 'A Novel By Tolstoy', anna_rec['title']
         assert anna_rec['license'] == 'OKD Compliant::Other', anna_rec['license']
-        assert anna_rec['tags'] == ['russian', 'tolstoy'], anna_rec['tags']
+        assert len(anna_rec['tags']) == 2, anna_rec['tags']
+        for expected_tag in ['russian', 'tolstoy']:
+            assert expected_tag in anna_rec['tags']
         assert anna_rec['ratings_average'] == 3.0, anna_rec['ratings_average']
         assert anna_rec['ratings_count'] == 1, anna_rec['ratings_count']
 
@@ -776,7 +781,7 @@ class TestSearch(TestController):
         assert res_dict['count'] == 1, res_dict
 
     def test_11_pagination_limit(self):
-        offset = self.base_url + '?all_fields=1&tags=russian&limit=1'
+        offset = self.base_url + '?all_fields=1&tags=russian&limit=1&order_by=name'
         res = self.app.get(offset, status=200)
         res_dict = simplejson.loads(res.body)
         assert res_dict['count'] == 2, res_dict
@@ -784,7 +789,7 @@ class TestSearch(TestController):
         assert res_dict['results'][0]['name'] == 'annakarenina', res_dict['results'][0]['name']
 
     def test_11_pagination_offset_limit(self):
-        offset = self.base_url + '?all_fields=1&tags=russian&offset=1&limit=1'
+        offset = self.base_url + '?all_fields=1&tags=russian&offset=1&limit=1&order_by=name'
         res = self.app.get(offset, status=200)
         res_dict = simplejson.loads(res.body)
         assert res_dict['count'] == 2, res_dict

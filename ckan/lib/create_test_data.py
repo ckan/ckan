@@ -144,7 +144,7 @@ class CreateTestData(cli.CkanCommand):
     def create(self):
         import ckan.model as model
         model.Session.remove()
-        rev = model.repo.new_revision() 
+        rev = model.repo.new_revision()
         # same name as user we create below
         rev.author = self.author
         rev.message = u'''Creating test data.

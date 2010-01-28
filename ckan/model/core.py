@@ -4,6 +4,7 @@ from pylons import config
 from meta import *
 import vdm.sqlalchemy
 
+from types import make_uuid
 import full_search
 
 ## VDM-specific tables
@@ -18,7 +19,7 @@ license_table = Table('license', metadata,
         )
 
 package_table = Table('package', metadata,
-        Column('id', types.Integer, primary_key=True),
+        Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
         Column('name', types.Unicode(100), unique=True, nullable=False),
         Column('title', types.UnicodeText),
         Column('version', types.Unicode(100)),
@@ -32,14 +33,14 @@ package_table = Table('package', metadata,
 )
 
 tag_table = Table('tag', metadata,
-        Column('id', types.Integer, primary_key=True),
+        Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
         Column('name', types.Unicode(100), unique=True, nullable=False),
 )
 
 package_tag_table = Table('package_tag', metadata,
-        Column('id', types.Integer, primary_key=True),
-        Column('package_id', types.Integer, ForeignKey('package.id')),
-        Column('tag_id', types.Integer, ForeignKey('tag.id')),
+        Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
+        Column('package_id', types.UnicodeText, ForeignKey('package.id')),
+        Column('tag_id', types.UnicodeText, ForeignKey('tag.id')),
         )
 
 
@@ -102,6 +103,9 @@ class DomainObject(object):
         return _dict
 
     def __str__(self):
+        return self.__unicode__().encode('ascii', 'ignore')
+
+    def __unicode__(self):
         repr = u'<%s' % self.__class__.__name__
         table = orm.class_mapper(self.__class__).mapped_table
         for col in table.c:
@@ -110,7 +114,7 @@ class DomainObject(object):
         return repr
 
     def __repr__(self):
-        return self.__str__()
+        return self.__unicode__()
 
         
 class License(DomainObject):

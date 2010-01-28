@@ -7,8 +7,8 @@ from core import DomainObject, Package, package_table, Revision, State
 
 package_resource_table = Table(
     'package_resource', metadata,
-    Column('id', Integer, primary_key=True),
-    Column('package_id', types.Integer, ForeignKey('package.id')),
+    Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
+    Column('package_id', types.UnicodeText, ForeignKey('package.id')),
     Column('url', types.UnicodeText, nullable=False),
     Column('format', types.UnicodeText),
     Column('description', types.UnicodeText),

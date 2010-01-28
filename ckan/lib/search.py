@@ -242,7 +242,7 @@ class Search:
                         model.PackageTag.tag_id==tag_id))
                 else:
                     # unknown tag, so torpedo search
-                    query = query.filter(model.PackageTag.tag_id==-1)
+                    query = query.filter(model.PackageTag.tag_id==u'\x130')
             elif field == 'groups':
                 group = model.Group.by_name(name.strip(), autoflush=False)
                 if group:

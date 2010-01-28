@@ -59,16 +59,16 @@ class SearchVectorTrigger(sqlalchemy.orm.interfaces.MapperExtension):
         # Create weighted vector
         vector = 'setweight(to_tsvector(\'%s\'), \'A\') || setweight(to_tsvector(\'%s\'), \'D\')' % (document_a, document_b)
         # See if record for this pkg exists, otherwise create it
-        sql = 'SELECT package_id FROM package_search WHERE package_id = %i' % pkg_dict['id']
+        sql = "SELECT package_id FROM package_search WHERE package_id = '%s'" % pkg_dict['id']
         res = engine.execute(sql)
         pkgs = res.fetchall()
         if not pkgs:
-            sql = 'INSERT INTO package_search VALUES (%i, %s)' % (pkg_dict['id'], vector)
+            sql = "INSERT INTO package_search VALUES ('%s', %s)" % (pkg_dict['id'], vector)
         else:
-            sql = 'UPDATE package_search SET search_vector=%s WHERE package_id=%i' % (vector, pkg_dict['id'])    
+            sql = "UPDATE package_search SET search_vector=%s WHERE package_id='%s'" % (vector, pkg_dict['id'])
         res = engine.execute(sql)
         # uncomment this to print lexemes
-        # sql = 'SELECT package_id, search_vector FROM package_search WHERE package_id = %i' % pkg_dict['id']
+        # sql = "SELECT package_id, search_vector FROM package_search WHERE package_id = '%s" % pkg_dict['id']
         # res = engine.execute(sql)
         # print res.fetchall()
 
@@ -78,7 +78,7 @@ def setup_db(event, schema_item, engine):
     engine.execute(sql)
 
 package_search_table = Table('package_search', metadata,
-        Column('package_id', types.Integer, ForeignKey('package.id'), primary_key=True),
+        Column('package_id', UnicodeText, ForeignKey('package.id'), primary_key=True),
         )
 
 class PackageSearch(object):

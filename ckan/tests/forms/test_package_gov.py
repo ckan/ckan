@@ -254,7 +254,7 @@ class TestForm(TestController):
 
         # edit it with form parameters
         indict = _get_blank_param_dict(pkg=pkg, fs=ckan.forms.package_gov_fs)
-        prefix = 'Package-%i-' % pkg.id
+        prefix = 'Package-%s-' % pkg.id
         indict[prefix + 'name'] = u'testname2'
         indict[prefix + 'notes'] = u'some new notes'
         indict[prefix + 'tags'] = u'russian, tolstoy',
