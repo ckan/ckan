@@ -1,4 +1,5 @@
 import os
+import sys
 
 import paste.script
 
@@ -115,6 +116,7 @@ class ManageDb(CkanCommand):
             model.repo.create_db()
         else:
             print 'Command %s not recognized' % cmd
+            sys.exit(1)
 
     def dump_or_load(self, cmd):
         print 'This functionality is mothballed for now.'

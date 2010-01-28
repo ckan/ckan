@@ -6,7 +6,7 @@ from ckan.tests import *
 def _get_blank_param_dict(pkg=None):
     return ckan.forms.get_package_dict(pkg=pkg, blank=True)
 
-class TestForms:
+class TestForms(TestController):
     @classmethod
     def setup_class(self):
         model.Session.remove()
@@ -73,7 +73,7 @@ class TestForms:
         print out
         assert out
         assert 'tags' in out
-        assert 'value="russian tolstoy"' in out
+        self.check_tag(out, 'russian', 'tolstoy')
 
     def test_2_resources(self):
         fs = ckan.forms.package_fs

@@ -5,8 +5,8 @@ from types import make_uuid
 
 package_group_table = Table('package_group', metadata,
         Column('id', UnicodeText, primary_key=True, default=make_uuid),
-        Column('package_id', Integer, ForeignKey('package.id')),
-        Column('group_id', UnicodeText, ForeignKey('group.id'), default=make_uuid),
+        Column('package_id', UnicodeText, ForeignKey('package.id')),
+        Column('group_id', UnicodeText, ForeignKey('group.id')),
         )
 
 group_table = Table('group', metadata,

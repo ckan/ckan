@@ -143,33 +143,38 @@ class ExtrasRenderer(formalchemy.fields.FieldRenderer):
 
     def deserialize(self):
         # Example params:
+        # ('Package-1-extras', {...}) (via REST i/f)
         # ('Package-1-extras-genre', u'romantic novel'), (Package-1-extras-1-checkbox', 'on')
-        # ('Package-1-extras-newfield0-key', u'aaa'), ('Package-1-extras-newfield0-value', u'bbb'), 
+        # ('Package-1-extras-newfield0-key', u'aaa'), ('Package-1-extras-newfield0-value', u'bbb'),
+        if not hasattr(self, 'extras_re'):
+            self.extras_re = re.compile('Package-([a-f0-9-]*)-extras(?:-(\w+))?(?:-(\w+))?$')
         extra_fields = []
         for key, value in self._params.items():
-            key_parts = key.split('-')
-            if len(key_parts) < 3 or key_parts[0] != 'Package' or key_parts[2] != 'extras':
+            extras_match = self.extras_re.match(key)
+            if not extras_match:
                 continue
-            package_id = key_parts[1]
-            if len(key_parts) == 3 and isinstance(value, dict):
-                # simple dict passed into 'Package-1-extras' e.g. via REST i/f
-                extra_fields.extend(value.items())
-            elif len(key_parts) == 4:
+            key_parts = extras_match.groups()
+            package_id = key_parts[0]
+            if key_parts[1] is None:
+                if isinstance(value, dict):
+                    # simple dict passed into 'Package-1-extras' e.g. via REST i/f
+                    extra_fields.extend(value.items())
+            elif key_parts[2] is None:
                 # existing field
-                key = key_parts[3]
+                key = key_parts[1]
                 checkbox_key = 'Package-%s-extras-%s-checkbox' % (package_id, key)
                 delete = self._params.get(checkbox_key, '') == 'on'
                 if not delete:
                     extra_fields.append((key, value))
-            elif len(key_parts) == 5 and key_parts[3].startswith('newfield'):
-                new_field_index = key_parts[3][len('newfield'):]
-                if key_parts[4] == u'key':
+            elif key_parts[1].startswith('newfield'):
+                new_field_index = key_parts[1][len('newfield'):]
+                if key_parts[2] == u'key':
                     new_key = value
                     value_key = 'Package-%s-extras-newfield%s-value' % (package_id, new_field_index)
                     new_value = self._params.get(value_key, '')
                     if new_key or new_value:
                         extra_fields.append((new_key, new_value))
-                elif key_parts[4] == u'value':
+                elif key_parts[2] == u'value':
                     # if it doesn't have a matching key, add it to extra_fields anyway for
                     # validation to fail
                     key_key = 'Package-%s-extras-newfield%s-key' % (package_id, new_field_index)

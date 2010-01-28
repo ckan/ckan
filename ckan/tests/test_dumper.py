@@ -27,12 +27,13 @@ class TestSimpleDump(TestController):
         dump_file.seek(0)
         res = dump_file.read()
         assert 'annakarenina' in res, res
-        assert 'russian tolstoy' in res, res
+        assert 'tolstoy' in res, res
+        assert 'russian' in res, res
         assert 'genre' in res, res
-        assert 'romantic novel' in res, res
         assert 'romantic novel' in res, res
         assert 'annakarenina.com/download' in res, res
         assert 'Index of the novel' in res, res
+        assert 'joeadmin' not in res, res
         
     def test_simple_dump_json(self):
         dump_file = tempfile.TemporaryFile()
@@ -43,6 +44,7 @@ class TestSimpleDump(TestController):
         assert '"russian"' in res, res
         assert 'genre' in res, res
         assert 'romantic novel' in res, res
+        assert 'joeadmin' not in res, res
 
 class TestDumper(object):
 # TODO this doesn't work on sqlite - we should fix this
