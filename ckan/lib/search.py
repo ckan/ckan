@@ -56,18 +56,18 @@ class Search:
     _open_licenses = None
 
     def search(self, query_string):
+        '''For the given basic query string, returns query results.'''
         options = SearchOptions({'q':query_string})
         return self.run(options)
 
     def query(self, options):
+        '''For the given search options, returns a query object.'''
         self._options = options
         general_terms, field_specific_terms = self._parse_query_string()
 
         if not general_terms and \
            (self._options.entity != 'package' or not field_specific_terms):
-            self._results['results'] = []
-            self._results['count'] = 0
-            return self._results
+            return None
 
         if self._options.entity == 'package':
             query = self._build_package_query(general_terms, field_specific_terms)
@@ -81,25 +81,14 @@ class Search:
         return query
 
     def run(self, options):
-        self._options = options
-        self._results = {}
-        general_terms, field_specific_terms = self._parse_query_string()
+        '''For the given search options, returns query results.'''
+        query = self.query(options)
 
-        if not general_terms and \
-           (self._options.entity != 'package' or not field_specific_terms):
+        self._results = {}
+        if not query:
             self._results['results'] = []
             self._results['count'] = 0
             return self._results
-
-        if self._options.entity == 'package':
-            query = self._build_package_query(general_terms, field_specific_terms)
-        elif self._options.entity == 'tag':
-            query = self._build_tags_query(general_terms)
-        elif self._options.entity == 'group':
-            query = self._build_groups_query(general_terms)
-        else:
-            # error
-            pass
 
         self._run_query(query)
         self._format_results()

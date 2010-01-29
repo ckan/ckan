@@ -42,20 +42,24 @@ class PackageController(BaseController):
             options = SearchOptions({'q': c.q,
                                      'filter_by_openness': c.open_only,
                                      'filter_by_downloadable': c.downloadable_only,
-                                     'return_objects': True,
-                                     'limit': 0
+#                                     'return_objects': True,
+#                                     'limit': 0
                                      })
 
             # package search
-            results = Search().run(options)
+            query = Search().query(options)
 
             from ckan.lib.helpers import Page
 
             c.page = Page(
-                collection=results['results'],
+                collection=query,
                 page=request.params.get('page', 1),
                 items_per_page=50
             )
+
+            # filter out ranks from the query result
+            pkg_list = [pkg for pkg, rank in c.page]
+            c.page.items = pkg_list
 
             # tag search
             options.entity = 'tag'
