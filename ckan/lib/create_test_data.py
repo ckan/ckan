@@ -162,7 +162,7 @@ class CreateTestData(cli.CkanCommand):
         pr1 = model.PackageResource(
             url=u'http://www.annakarenina.com/download/x=1&y=2',
             format=u'plain text',
-            description=u'Full text',
+            description=u'Full text. Needs escaping: " Umlaut: \xfc',
             hash=u'abc123',
             )
         pr2 = model.PackageResource(

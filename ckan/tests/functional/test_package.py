@@ -267,6 +267,8 @@ class TestEdit(TestPackageForm):
         editpkg.url = u'editpkgurl.com'
         editpkg.notes = u'Some notes'
         editpkg.add_tag_by_name(u'mytesttag')
+        editpkg.add_resource(u'url escape: & umlaut: \xfc quote: "',
+                             description=u'description escape: & umlaut: \xfc quote "')
         model.Session.save(editpkg)
         u = model.User(name=u'testadmin')
         model.Session.save(u)
@@ -652,10 +654,10 @@ class TestNew(TestPackageForm):
         fv[prefix+'version'] = version
         fv[prefix+'url'] = url
         fv[prefix+'resources-0-url'] = download_url
+        fv[prefix+'resources-0-description'] = u'description escape: & umlaut: \xfc quote "'.encode('utf8')
         fv[prefix+'notes'] = notes
         fv[prefix+'license_id'] = license_id
         fv[prefix+'tags'] = tags_txt
-##        fv[prefix+'groups'] = groups_txt
         for i, extra in enumerate(extras.items()):
             fv[prefix+'extras-newfield%s-key' % i] = extra[0]
             fv[prefix+'extras-newfield%s-value' % i] = extra[1]
@@ -664,10 +666,11 @@ class TestNew(TestPackageForm):
         assert not 'Error' in res, res
 
         # Check preview is correct
-        resources = [[download_url, u'', u'', u'']]
+        resources = [[download_url, u'', u'description escape: & umlaut: \xfc quote "', u'']]
+        resources_escaped = [[download_url, u'', u'description escape: &amp; umlaut: \xfc quote "', u'']]
         self._check_preview(res, name=name, title=title, version=version,
                             url=url,
-                            resources=resources, notes=notes,
+                            resources=resources_escaped, notes=notes,
                             license=license,
                             tags=tags, extras=extras.items(),
                             )

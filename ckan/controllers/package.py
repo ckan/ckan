@@ -150,7 +150,7 @@ class PackageController(BaseController):
         if 'preview' in request.params:
             try:
                 PackageSaver().render_preview(fs, id, record.id)
-                c.preview = genshi.HTML(render('package/read_core'))
+                c.preview = h.literal(render('package/read_core'))
             except ValidationException, error:
                 c.error, fs = error.args
                 c.form = self._render_edit_form(fs, request.params,
@@ -200,14 +200,15 @@ class PackageController(BaseController):
             fs = fs.bind(pkg, data=dict(request.params))
             try:
                 PackageSaver().render_preview(fs, id, pkg.id)
-                c.preview = genshi.HTML(render('package/read_core'))
+                read_core_html = render('package/read_core') #utf8 format
+                c.preview = h.literal(read_core_html)
                 c.form = self._render_edit_form(fs, request.params)
             except ValidationException, error:
                 c.error, fs = error.args
                 c.form = self._render_edit_form(fs, request.params,
                         clear_session=True)
                 return render('package/edit')
-            return render('package/edit')
+            return render('package/edit') # uses c.form and c.preview
 
     def authz(self, id):
         pkg = model.Package.by_name(id)
@@ -285,8 +286,9 @@ class PackageController(BaseController):
         # saves (this gets called on validation exceptions a lot)
         if clear_session:
             model.Session.clear()
-        c.form = fs.render()
-        return render('package/edit_form')
+        edit_form_html = fs.render()
+        c.form = h.literal(edit_form_html)
+        return h.literal(render('package/edit_form'))
 
     def _update_authz(self, fs):
         validation = fs.validate()
