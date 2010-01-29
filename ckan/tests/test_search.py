@@ -277,6 +277,14 @@ class TestSearch(object):
         result = Search().search(u'groups:ukgov tags:us')
         assert result['count'] == 2, self._pkg_names(result)
 
+    def test_query(self):
+        options = SearchOptions({'q':u'tags: wildlife'})
+        run_result = Search().run(options)
+        query = Search().query(options)
+        assert query.count() == run_result['count']
+        assert query.first()[0].name == run_result['results'][0], '%s\n%s' % (query.first()[0].name, run_result['results'][0])
+        
+
 class TestSearchOverall(object):
     @classmethod
     def setup_class(self):
