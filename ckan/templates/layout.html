@@ -1,6 +1,7 @@
 <html
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip=""
   >
@@ -105,10 +106,10 @@
       <p>
         <img style="margin-bottom: -5px;" src="http://m.okfn.org/images/logo/okf_logo_white_and_green_tiny.png" /> An <a href="http://www.okfn.org/">Open Knowledge Foundation</a> Project
       </p>
-      <p>
+      <p i18n:msg="">
         v${c.__version__}
         | (c) Open Knowledge Foundation
-        | All material available under an <a href="${h.url_for('license')}">open license</a>
+	| All material available under an <a href="${h.url_for('license')}">open license</a>
         | <a href="http://www.opendefinition.org/1.0/"><img
             style="border: none; margin-bottom: -4px;"
             src="http://m.okfn.org/images/ok_buttons/ok_90x15_blue.png"

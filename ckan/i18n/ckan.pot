@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckan 0.11a\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2010-01-30 16:28+0100\n"
+"POT-Creation-Date: 2010-01-30 16:39+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,114 +27,109 @@ msgstr ""
 msgid "%(message)s"
 msgstr ""
 
-#: ckan/templates/layout.html:11
+#: ckan/templates/layout.html:12
 msgid "CKAN - Comprehensive Knowledge Archive Network -"
 msgstr ""
 
-#: ckan/templates/layout.html:14
+#: ckan/templates/layout.html:15
 msgid "CKAN Recent Changes"
 msgstr ""
 
-#: ckan/templates/layout.html:16
+#: ckan/templates/layout.html:17
 msgid "Master stylesheet"
 msgstr ""
 
-#: ckan/templates/layout.html:42
+#: ckan/templates/layout.html:43
 msgid "Logged in as"
 msgstr ""
 
-#: ckan/templates/layout.html:44
+#: ckan/templates/layout.html:45
 msgid "My account"
 msgstr ""
 
-#: ckan/templates/layout.html:45 ckan/templates/user/logout.html:7
+#: ckan/templates/layout.html:46 ckan/templates/user/logout.html:7
 msgid "Logout"
 msgstr ""
 
-#: ckan/templates/layout.html:48
+#: ckan/templates/layout.html:49
 msgid "Login with"
 msgstr ""
 
-#: ckan/templates/layout.html:48
+#: ckan/templates/layout.html:49
 msgid "OpenID"
 msgstr ""
 
-#: ckan/templates/layout.html:54
+#: ckan/templates/layout.html:55
 msgid "CKAN Logo"
 msgstr ""
 
-#: ckan/templates/layout.html:60
+#: ckan/templates/layout.html:61
 msgid "Sections:"
 msgstr ""
 
-#: ckan/templates/layout.html:69
+#: ckan/templates/layout.html:70
 msgid "In this section:"
 msgstr ""
 
-#: ckan/templates/layout.html:80
+#: ckan/templates/layout.html:81
 msgid "Skip to page content"
 msgstr ""
 
-#: ckan/templates/layout.html:80
+#: ckan/templates/layout.html:81
 msgid "[ Skip to main content ]"
 msgstr ""
 
-#: ckan/templates/layout.html:94
+#: ckan/templates/layout.html:95
 msgid "Master content template placeholder … please replace me."
 msgstr ""
 
-#: ckan/templates/layout.html:99
+#: ckan/templates/layout.html:100
 msgid "Valid XHTML 1.1"
 msgstr ""
 
-#: ckan/templates/layout.html:99
+#: ckan/templates/layout.html:100
 msgid "XHTML"
 msgstr ""
 
-#: ckan/templates/layout.html:100
+#: ckan/templates/layout.html:101
 msgid "CSS"
 msgstr ""
 
-#: ckan/templates/layout.html:101
+#: ckan/templates/layout.html:102
 msgid "Project Home Page"
 msgstr ""
 
-#: ckan/templates/layout.html:102
+#: ckan/templates/layout.html:103
 msgid "Contact Us"
 msgstr ""
 
-#: ckan/templates/layout.html:103
+#: ckan/templates/layout.html:104
 msgid "Privacy Policy"
 msgstr ""
 
-#: ckan/templates/layout.html:106
+#: ckan/templates/layout.html:107
 msgid "An"
 msgstr ""
 
-#: ckan/templates/layout.html:106 ckan/templates/home/about.html:46
+#: ckan/templates/layout.html:107 ckan/templates/home/about.html:46
 msgid "Open Knowledge Foundation"
 msgstr ""
 
-#: ckan/templates/layout.html:106
+#: ckan/templates/layout.html:107
 msgid "Project"
 msgstr ""
 
-#: ckan/templates/layout.html:108
-msgid "v"
+#: ckan/templates/layout.html:113
+msgid "This Content and Data is Open"
 msgstr ""
 
 #: ckan/templates/layout.html:109
+#, python-format
 msgid ""
-"| (c) Open Knowledge Foundation\n"
-"        | All material available under an"
-msgstr ""
-
-#: ckan/templates/layout.html:111 ckan/templates/package/search_form.html:7
-msgid "open license"
-msgstr ""
-
-#: ckan/templates/layout.html:112
-msgid "This Content and Data is Open"
+"v%()s\n"
+"        | (c) Open Knowledge Foundation\n"
+"\t| All material available under an [1:open license]\n"
+"        | [2:[3:]]"
 msgstr ""
 
 #: ckan/templates/group/authz.html:4
@@ -976,6 +971,10 @@ msgstr ""
 
 #: ckan/templates/package/search_form.html:7
 msgid "Filters:"
+msgstr ""
+
+#: ckan/templates/package/search_form.html:7
+msgid "open license"
 msgstr ""
 
 #: ckan/templates/package/search_form.html:8

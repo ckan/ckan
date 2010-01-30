@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: ckan 0.11a\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2009-12-30 13:31+0000\n"
-"PO-Revision-Date: 2010-01-30 16:28+0100\n"
+"PO-Revision-Date: 2010-01-30 16:39+0100\n"
 "Last-Translator: Benoit Boissinot <benoit.boissinot@ens-lyon.org>\n"
 "Language-Team: fr <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
@@ -27,119 +27,112 @@ msgstr "Erreur %(code)s"
 msgid "%(message)s"
 msgstr "%(message)s"
 
-#: ckan/templates/layout.html:11
+#: ckan/templates/layout.html:12
 #, fuzzy
 msgid "CKAN - Comprehensive Knowledge Archive Network -"
 msgstr "CKAN - Comprehensive Knowledge Archive Network -"
 
-#: ckan/templates/layout.html:14
+#: ckan/templates/layout.html:15
 msgid "CKAN Recent Changes"
 msgstr "Modifications récentes CKAN"
 
-#: ckan/templates/layout.html:16
+#: ckan/templates/layout.html:17
 msgid "Master stylesheet"
 msgstr ""
 
-#: ckan/templates/layout.html:42
+#: ckan/templates/layout.html:43
 msgid "Logged in as"
 msgstr ""
 
-#: ckan/templates/layout.html:44
+#: ckan/templates/layout.html:45
 msgid "My account"
 msgstr "Mon compte"
 
-#: ckan/templates/layout.html:45 ckan/templates/user/logout.html:7
+#: ckan/templates/layout.html:46 ckan/templates/user/logout.html:7
 msgid "Logout"
 msgstr "Déconnexion"
 
-#: ckan/templates/layout.html:48
+#: ckan/templates/layout.html:49
 msgid "Login with"
 msgstr "Se connecter avec"
 
-#: ckan/templates/layout.html:48
+#: ckan/templates/layout.html:49
 msgid "OpenID"
 msgstr "OpenID"
 
-#: ckan/templates/layout.html:54
+#: ckan/templates/layout.html:55
 msgid "CKAN Logo"
 msgstr "Logo CKAN"
 
-#: ckan/templates/layout.html:60
+#: ckan/templates/layout.html:61
 msgid "Sections:"
 msgstr "Sections :"
 
-#: ckan/templates/layout.html:69
+#: ckan/templates/layout.html:70
 msgid "In this section:"
 msgstr "Dans cette section :"
 
-#: ckan/templates/layout.html:80
+#: ckan/templates/layout.html:81
 msgid "Skip to page content"
 msgstr "Aller vers le contenu de la page"
 
-#: ckan/templates/layout.html:80
+#: ckan/templates/layout.html:81
 msgid "[ Skip to main content ]"
 msgstr "[ Aller vers le contenu principal ]"
 
-#: ckan/templates/layout.html:94
+#: ckan/templates/layout.html:95
 msgid "Master content template placeholder … please replace me."
 msgstr "Master content template placeholder … please replace me."
 
-#: ckan/templates/layout.html:99
+#: ckan/templates/layout.html:100
 msgid "Valid XHTML 1.1"
 msgstr "XHTML 1.1 valide"
 
-#: ckan/templates/layout.html:99
+#: ckan/templates/layout.html:100
 msgid "XHTML"
 msgstr "XHTML"
 
-#: ckan/templates/layout.html:100
+#: ckan/templates/layout.html:101
 msgid "CSS"
 msgstr "CSS"
 
-#: ckan/templates/layout.html:101
+#: ckan/templates/layout.html:102
 msgid "Project Home Page"
 msgstr "Page d'accueil du projet"
 
-#: ckan/templates/layout.html:102
+#: ckan/templates/layout.html:103
 msgid "Contact Us"
 msgstr "Nous contacter"
 
-#: ckan/templates/layout.html:103
+#: ckan/templates/layout.html:104
 msgid "Privacy Policy"
 msgstr "Politique de confidentialité"
 
-#: ckan/templates/layout.html:106
+#: ckan/templates/layout.html:107
 msgid "An"
 msgstr "Un projet"
 
-#: ckan/templates/layout.html:106 ckan/templates/home/about.html:46
+#: ckan/templates/layout.html:107 ckan/templates/home/about.html:46
 msgid "Open Knowledge Foundation"
 msgstr "de la fondation Open Knowledge"
 
-#: ckan/templates/layout.html:106
+#: ckan/templates/layout.html:107
 #, fuzzy
 msgid "Project"
 msgstr " "
 
-#: ckan/templates/layout.html:108
-msgid "v"
-msgstr "v"
-
-#: ckan/templates/layout.html:109
-msgid ""
-"| (c) Open Knowledge Foundation\n"
-"        | All material available under an"
-msgstr ""
-"| (c) Open Knowledge Foundation\n"
-"        | Tout le contenu disponible sous une"
-
-#: ckan/templates/layout.html:111 ckan/templates/package/search_form.html:7
-msgid "open license"
-msgstr "licence libre"
-
-#: ckan/templates/layout.html:112
+#: ckan/templates/layout.html:113
 msgid "This Content and Data is Open"
 msgstr "Ce contenu et ces données sont ouvertes"
+
+#: ckan/templates/layout.html:109
+#, python-format
+msgid ""
+"v%()s\n"
+"        | (c) Open Knowledge Foundation\n"
+"\t| All material available under an [1:open license]\n"
+"        | [2:[3:]]"
+msgstr ""
 
 #: ckan/templates/group/authz.html:4
 msgid "Groups - Authorization -"
@@ -229,9 +222,8 @@ msgstr "Accueil"
 
 #: ckan/templates/group/layout.html:17
 #, fuzzy
-#| msgid "create a new package?"
 msgid "Create a new group"
-msgstr "créer un nouveau paquet ?"
+msgstr "Créer un nouveau groupe"
 
 #: ckan/templates/group/new.html:7
 msgid "New Group"
@@ -827,9 +819,8 @@ msgstr "Ce paquet :"
 
 #: ckan/templates/package/layout.html:11
 #, fuzzy
-#| msgid "Preview"
 msgid "View"
-msgstr "Aperçu"
+msgstr "Afficher"
 
 #: ckan/templates/package/layout.html:12 ckan/templates/user/read.html:24
 msgid "Edit"
@@ -837,9 +828,8 @@ msgstr "Éditer"
 
 #: ckan/templates/package/layout.html:13
 #, fuzzy
-#| msgid "- History"
 msgid "History"
-msgstr "- Historique"
+msgstr "Historique"
 
 #: ckan/templates/package/layout.html:17
 msgid "Browse"
@@ -847,9 +837,8 @@ msgstr ""
 
 #: ckan/templates/package/layout.html:18
 #, fuzzy
-#| msgid "registered packages"
 msgid "Register new package"
-msgstr "paquets enregistrés"
+msgstr "Enregistrer un nouveau paquet"
 
 #: ckan/templates/package/list.html:4
 msgid "Packages - List"
@@ -1027,6 +1016,10 @@ msgstr "E.g. 'geo', 'shakespeare', 'science'"
 #: ckan/templates/package/search_form.html:7
 msgid "Filters:"
 msgstr "Filtres :"
+
+#: ckan/templates/package/search_form.html:7
+msgid "open license"
+msgstr "licence libre"
 
 #: ckan/templates/package/search_form.html:8
 msgid "downloadable"
