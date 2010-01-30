@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: ckan 0.10\n"
 "Report-Msgid-Bugs-To: DANIEL@OPENDATA-NETWORK.ORG\n"
 "POT-Creation-Date: 2009-12-05 23:18+0000\n"
-"PO-Revision-Date: 2010-01-26 12:38+0000\n"
+"PO-Revision-Date: 2010-01-30 16:28+0100\n"
 "Last-Translator: DANIEL DIETRICH <DANIEL.DIETRICH@OKFN.ORG>\n"
 "Language-Team: de <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -226,6 +226,17 @@ msgstr ""
 "kann angelegt werden um festzulegen welche Benutzer Rechte habenin ihr "
 "Pakete anzulegen, zu bearbeiten oder zu entfernen."
 
+#: ckan/templates/group/layout.html:16 ckan/templates/home/about.html:4
+#: ckan/templates/home/index.html:4 ckan/templates/package/layout.html:16
+msgid "Home"
+msgstr "Start"
+
+#: ckan/templates/group/layout.html:17
+#, fuzzy
+#| msgid "create a new package?"
+msgid "Create a new group"
+msgstr "ein neues Paket anlegen?"
+
 #: ckan/templates/group/new.html:7
 msgid "New Group"
 msgstr "Neue Gruppe"
@@ -261,10 +272,6 @@ msgstr "Paket"
 #: ckan/templates/group/read.html:41
 msgid "in this group."
 msgstr "in dieser Gruppe."
-
-#: ckan/templates/home/about.html:4 ckan/templates/home/index.html:4
-msgid "Home"
-msgstr "Start"
 
 #: ckan/templates/home/about.html:7 ckan/templates/home/index.html:8
 msgid "About CKAN"
@@ -630,6 +637,14 @@ msgstr "Zeit"
 msgid "View older changes »"
 msgstr "Ältere Änderungen ansehen"
 
+#: ckan/templates/home/layout.html:9 ckan/templates/user/read.html:18
+msgid "About"
+msgstr "Über"
+
+#: ckan/templates/home/layout.html:10
+msgid "FAQ and Guide"
+msgstr ""
+
 #: ckan/templates/home/license.html:4
 msgid "License"
 msgstr "Lizenz"
@@ -865,6 +880,33 @@ msgstr "Pakete."
 #, fuzzy
 msgid "This package:"
 msgstr "Paket"
+
+#: ckan/templates/package/layout.html:11
+#, fuzzy
+#| msgid "Preview"
+msgid "View"
+msgstr "Vorschau"
+
+#: ckan/templates/package/layout.html:12 ckan/templates/user/read.html:24
+#, fuzzy
+msgid "Edit"
+msgstr "[Bearbeiten]"
+
+#: ckan/templates/package/layout.html:13
+#, fuzzy
+#| msgid "- History"
+msgid "History"
+msgstr "- Geschichte"
+
+#: ckan/templates/package/layout.html:17
+msgid "Browse"
+msgstr ""
+
+#: ckan/templates/package/layout.html:18
+#, fuzzy
+#| msgid "registered packages"
+msgid "Register new package"
+msgstr "registriere Pakete"
 
 #: ckan/templates/package/list.html:4
 msgid "Packages - List"
@@ -1304,15 +1346,6 @@ msgstr "Abmelden"
 #: ckan/templates/user/read.html:15
 msgid "View your API key"
 msgstr "Ihren API key ansehen"
-
-#: ckan/templates/user/read.html:18
-msgid "About"
-msgstr "Über"
-
-#: ckan/templates/user/read.html:24
-#, fuzzy
-msgid "Edit"
-msgstr "[Bearbeiten]"
 
 #: ckan/templates/user/read.html:28
 msgid "Activity"
