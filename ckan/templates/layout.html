@@ -60,12 +60,12 @@
 
     <h3 class="hidden">Sections:</h3>
     <ul id="navigation">
-      <li>${h.nav_link(c, 'Home', controller='home', id=None)}</li>
-      <li>${h.nav_link(c, 'Packages', controller='package', id=None)}</li>
-      <li>${h.nav_link(c, 'Tags', controller='tag', id=None)}</li>
-      <li>${h.nav_link(c, 'Groups', controller='group', id=None)}</li>
-      <li>${h.nav_link(c, 'Recent changes', controller='revision', id=None)}</li>
-      <li>${h.nav_link(c, 'API', controller='rest', id=None)}</li>
+      <li>${h.nav_link(c, _('Home'), controller='home', id=None)}</li>
+      <li>${h.nav_link(c, _('Packages'), controller='package', id=None)}</li>
+      <li>${h.nav_link(c, _('Tags'), controller='tag', id=None)}</li>
+      <li>${h.nav_link(c, _('Groups'), controller='group', id=None)}</li>
+      <li>${h.nav_link(c, _('Recent changes'), controller='revision', id=None)}</li>
+      <li>${h.nav_link(c, _('API'), controller='rest', id=None)}</li>
     </ul>
     <h3 class="hidden">In this section:</h3>
     <!--! This is a default (blank) subnav. -->
@@ -78,7 +78,7 @@
 
   </div><!-- /top -->
 
-  <p class="hidden"><a href="#main" title="Skip to page content">[ Skip to main content ]</a></p>
+  <p class="hidden"><a href="#main" title="Skip to page content">[ Skip to main content) ]</a></p>
 
   <div id="primary" class="sidebar">
     <primarysidebar>
@@ -103,7 +103,7 @@
         | <a href="http://www.okfn.org/contact/">Contact Us</a>
         | <a href="http://www.okfn.org/privacy-policy/">Privacy Policy</a>
       </p>
-      <p>
+      <p i18n:msg="">
         <img style="margin-bottom: -5px;" src="http://m.okfn.org/images/logo/okf_logo_white_and_green_tiny.png" /> An <a href="http://www.okfn.org/">Open Knowledge Foundation</a> Project
       </p>
       <p i18n:msg="h, c">
