@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: ckan 0.11a\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2009-12-30 13:31+0000\n"
-"PO-Revision-Date: 2010-01-19 10:08+0100\n"
+"PO-Revision-Date: 2010-01-28 22:07+0100\n"
 "Last-Translator: Benoit Boissinot <benoit.boissinot@ens-lyon.org>\n"
 "Language-Team: fr <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
@@ -523,29 +523,29 @@ msgstr "Bienvenue dans CKAN"
 
 #: ckan/templates/home/index.html:23
 msgid "CKAN is a registry of"
-msgstr ""
+msgstr "CKAN est un registre de paquets de"
 
 #: ckan/templates/home/index.html:24
 msgid ""
 "open data \n"
 "      and content"
-msgstr ""
+msgstr "données et contenus libres."
 
 #: ckan/templates/home/index.html:25
 msgid "packages. CKAN makes it easy to"
-msgstr ""
+msgstr "CKAN facilite "
 
 #: ckan/templates/home/index.html:25
 msgid ""
 "find, share and reuse \n"
 "      open content and data"
-msgstr ""
+msgstr "la recherche, le partage et la réutilisation de contenu et de données ouvertes"
 
 #: ckan/templates/home/index.html:26
 msgid ""
 ", especially in ways that are machine \n"
 "      automatable."
-msgstr ""
+msgstr ", particulièrement de façon automatisable par des outils."
 
 #: ckan/templates/home/index.html:30
 msgid "registered packages"
@@ -557,7 +557,7 @@ msgstr "disponibles."
 
 #: ckan/templates/home/index.html:36
 msgid "Recently changed"
-msgstr ""
+msgstr "Modifications récentes"
 
 #: ckan/templates/home/index.html:40
 #: ckan/templates/package/history.html:26
@@ -614,7 +614,7 @@ msgstr ""
 
 #: ckan/templates/home/license.html:19
 msgid "Content and Data"
-msgstr ""
+msgstr "Contenu et données"
 
 #: ckan/templates/home/license.html:20
 msgid "All material on this site is"
@@ -654,7 +654,7 @@ msgstr ""
 
 #: ckan/templates/home/license.html:29
 msgid "http://www.ckan.net/dump/"
-msgstr ""
+msgstr "http://www.ckan.net/dump/"
 
 #: ckan/templates/package/authz.html:4
 msgid "Packages - Authorization -"
