@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: ckan 0.10\n"
 "Report-Msgid-Bugs-To: DANIEL@OPENDATA-NETWORK.ORG\n"
 "POT-Creation-Date: 2009-12-05 23:18+0000\n"
-"PO-Revision-Date: 2010-01-30 16:39+0100\n"
+"PO-Revision-Date: 2010-01-30 18:40+0100\n"
 "Last-Translator: DANIEL DIETRICH <DANIEL.DIETRICH@OKFN.ORG>\n"
 "Language-Team: de <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -126,14 +126,14 @@ msgid "This Content and Data is Open"
 msgstr "Inhalt und Daten sind offen"
 
 #: ckan/templates/layout.html:109
-#, python-format
+#, fuzzy, python-format
 msgid ""
-"v%()s\n"
+"v%(h)s\n"
 "        | (c) Open Knowledge Foundation\n"
 "\t| All material available under an [1:open license]\n"
 "        | [2:[3:]]"
 msgstr ""
-"v%()s\n"
+"v%(h)s\n"
 "        | (c) Open Knowledge Foundation\n"
 "\t| Alle Inhalte stehen unter einer [1:offenen Lizenz]\n"
 "        | [2:[3:]]"
@@ -1359,14 +1359,4 @@ msgstr "Anzahl der administrierten Pakete:"
 #: ckan/templates/user/read.html:34
 msgid "Recent changes"
 msgstr "Letzte Änderungen"
-
-#~ msgid "v"
-#~ msgstr "v"
-
-#~ msgid ""
-#~ "| (c) Open Knowledge Foundation\n"
-#~ "        | All material available under an"
-#~ msgstr ""
-#~ "| (c) Open Knowledge Foundation\n"
-#~ "\t\t| Alle Inhalte stehen unter einer"
 

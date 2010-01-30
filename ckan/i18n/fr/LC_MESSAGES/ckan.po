@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: ckan 0.11a\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2009-12-30 13:31+0000\n"
-"PO-Revision-Date: 2010-01-30 16:39+0100\n"
+"PO-Revision-Date: 2010-01-30 18:40+0100\n"
 "Last-Translator: Benoit Boissinot <benoit.boissinot@ens-lyon.org>\n"
 "Language-Team: fr <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
@@ -128,11 +128,15 @@ msgstr "Ce contenu et ces données sont ouvertes"
 #: ckan/templates/layout.html:109
 #, python-format
 msgid ""
-"v%()s\n"
+"v%(h)s\n"
 "        | (c) Open Knowledge Foundation\n"
 "\t| All material available under an [1:open license]\n"
 "        | [2:[3:]]"
 msgstr ""
+"v%(h)s\n"
+"        | (c) Open Knowledge Foundation\n"
+"\t| Code et contenus disponibles sous une [1:licence libre]\n"
+"        | [2:[3:]]"
 
 #: ckan/templates/group/authz.html:4
 msgid "Groups - Authorization -"
@@ -1270,4 +1274,11 @@ msgstr "Nombre de paquets administrés :"
 #: ckan/templates/user/read.html:34
 msgid "Recent changes"
 msgstr "Modifications récentes"
+
+#~ msgid ""
+#~ "v%()s\n"
+#~ "        | (c) Open Knowledge Foundation\n"
+#~ "\t| All material available under an [1:open license]\n"
+#~ "        | [2:[3:]]"
+#~ msgstr ""
 
