@@ -4,15 +4,16 @@ from formalchemy import helpers as fa_h
 import formalchemy
 import genshi
 
+from ckan.lib.helpers import literal
 import ckan.model as model
 import ckan.lib.helpers as h
 import ckan.misc
 
-FIELD_TIP_TEMPLATE = '<p class="desc">%s</p>'
+FIELD_TIP_TEMPLATE = literal('<p class="desc">%s</p>')
 FIELD_TIPS = {
-    'name':"<strong>Unique identifier</strong> for package.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'",
-    'download_url':'Haven\'t already uploaded your package somewhere? We suggest using <a href="http://www.archive.org/create/">archive.org</a>.',
-    'notes':'You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.',
+    'name':literal("<strong>Unique identifier</strong> for package.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'"),
+    'download_url':literal('Haven\'t already uploaded your package somewhere? We suggest using <a href="http://www.archive.org/create/">archive.org</a>.'),
+    'notes':literal('You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.'),
 }
 
 name_match = re.compile('[a-z0-9_\-]*$')
@@ -35,11 +36,11 @@ def field_readonly_renderer(key, value, newline_reqd=True):
     if key in ('Url', 'Download url', 'Taxonomy url'):
         key = key.replace(u'Url', u'URL')
         key = key.replace(u'url', u'URL')
-        value = '<a href="%s">%s</a>' % (h.escape(value), h.escape(value))
+        value = literal('<a href="%s">%s</a>') % (value, value)
 #        value = '<a href="%s">%s</a>' % (value, value)
-    html = '<strong>%s:</strong> %s' % (h.escape(key), value)
+    html = literal('<strong>%s:</strong> %s') % (key, value)
     if newline_reqd:
-        html += '<br/>'
+        html += literal('<br/>')
     return html
 
 class CustomTextFieldRenderer(formalchemy.fields.TextFieldRenderer):
@@ -50,7 +51,7 @@ class CustomTextFieldRenderer(formalchemy.fields.TextFieldRenderer):
             tip_html = FIELD_TIP_TEMPLATE % field_tip
         else:
             tip_html = ''        
-        return fa_h.text_field(self.name, value=self._value, maxlength=self.length, **kwargs) + tip_html
+        return literal(fa_h.text_field(self.name, value=self._value, maxlength=self.length, **kwargs)) + tip_html
 
     def render_readonly(self, **kwargs):
         return field_readonly_renderer(self.field.key, self._value)
@@ -64,7 +65,7 @@ class TextAreaRenderer(formalchemy.fields.TextAreaFieldRenderer):
             tip_html = FIELD_TIP_TEMPLATE % field_tip
         else:
             tip_html = ''        
-        return fa_h.text_area(self.name, content=value, **kwargs) + tip_html
+        return literal(fa_h.text_area(self.name, content=value, **kwargs)) + tip_html
 
     def render_readonly(self, **kwargs):
         format = ckan.misc.MarkdownFormat()

@@ -1,7 +1,7 @@
 import ckan.model as model
 import ckan.forms
 from ckan.tests import *
-
+from ckan.lib.helpers import escape
 
 def _get_blank_param_dict(pkg=None):
     return ckan.forms.get_package_dict(pkg=pkg, blank=True)
@@ -80,11 +80,12 @@ class TestForms(TestController):
         anna = model.Package.by_name(u'annakarenina')
         fs = fs.bind(anna)
         out = fs.resources.render()
+        out_printable = out.encode('utf8')
         for res in anna.resources:
-            assert res.url in out, out
-            assert res.format in out, out
-            assert res.description in out, out        
-            assert res.hash in out, out        
+            assert escape(res.url) in out, out_printable
+            assert res.format in out, out_printable
+            assert escape(res.description) in out, out_printable        
+            assert res.hash in out, out_printable        
 
     def test_2_fields(self):
         fs = ckan.forms.package_fs

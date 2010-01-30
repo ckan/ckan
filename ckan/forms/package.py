@@ -7,6 +7,7 @@ from formalchemy import helpers as h
 import common
 import ckan.model as model
 import ckan.lib.helpers
+from ckan.lib.helpers import literal
 
 __all__ = ['package_fs', 'package_fs_admin', 'get_package_dict', 'edit_package_dict', 'add_to_package_dict', 'get_additional_package_fields', 'get_package_fs_options', 'strip_ids_from_package_dict', 'PackageFieldSet', 'StateRenderer', 'TagEditRenderer', 'get_fieldset']
 
@@ -98,21 +99,21 @@ class ExtrasField(formalchemy.Field):
                 del pkg.extras[key]
                 
 class ExtrasRenderer(formalchemy.fields.FieldRenderer):
-    extra_field_template = '''
+    extra_field_template = literal('''
     <div>
       <label class="field_opt" for="%(name)s">%(key)s</label>
       <input id="%(name)s" name="%(name)s" size="20" type="text" value="%(value)s">
       <input type=checkbox name="%(name)s-checkbox">Delete</input>
     </div>
-    '''
-    blank_extra_field_template = '''
+    ''')
+    blank_extra_field_template = literal('''
     <div class="extras-new-field">
       <label class="field_opt">New key</label>
       <input id="%(name)s-key" name="%(name)s-key" size="20" type="text">
       <label class="field_opt">Value</label>
       <input id="%(name)s-value" name="%(name)s-value" size="20" type="text">
     </div>
-    '''
+    ''')
 
     def _get_value(self):
         extras = self.field.parent.extras.value
@@ -187,7 +188,7 @@ class LicenseRenderer(formalchemy.fields.FieldRenderer):
     def render(self, options, **kwargs):
         selected = unicode(kwargs.get('selected', None) or self._value)
         options = [('', None)] + [(x, unicode(model.License.by_name(x).id)) for x in model.LicenseList.all_formatted]
-        return h.select(self.name, h.options_for_select(options, selected=selected), **kwargs)
+        return literal(h.select(self.name, h.options_for_select(options, selected=selected), **kwargs))
 
     def render_readonly(self, **kwargs):
         if self._value:
@@ -198,7 +199,7 @@ class LicenseRenderer(formalchemy.fields.FieldRenderer):
 
 
 class TagEditRenderer(formalchemy.fields.FieldRenderer):
-    tag_field_template = '''
+    tag_field_template = literal('''
     <div id="tagsAutocomp">
         %s <br />
         <div id="tagsAutocompContainer"></div>
@@ -216,10 +217,10 @@ class TagEditRenderer(formalchemy.fields.FieldRenderer):
         tagsAutocomp.maxResultsDisplayed = 10;
       </script>
       <br/>
-      '''
+      ''')
     def render(self, **kwargs):
         tags_as_string = self._tags_string()
-        return self.tag_field_template % (h.text_field(self.name, value=tags_as_string, size=60, **kwargs), self.field.parent.model.id or '')
+        return self.tag_field_template % (literal(h.text_field(self.name, value=tags_as_string, size=60, **kwargs)), self.field.parent.model.id or '')
 
     def _tags_string(self):
         tags = self.field.parent.tags.value or self.field.parent.model.tags or []
@@ -235,7 +236,7 @@ class TagEditRenderer(formalchemy.fields.FieldRenderer):
             tagnames = [ tag.name for tag in tags ]
         else:
             tagnames = []
-        return ' '.join(['<a href="/tag/read/%s">%s</a>' % (str(tag), str(tag)) for tag in tagnames])
+        return literal(' '.join([literal('<a href="/tag/read/%s">%s</a>' % (str(tag), str(tag))) for tag in tagnames]))
 
     def render_readonly(self, **kwargs):
         tags_as_string = self._tag_links()
@@ -261,28 +262,28 @@ class StateRenderer(formalchemy.fields.FieldRenderer):
     def render(self, **kwargs):
         selected = kwargs.get('selected', None) or self._value
         options = model.State.all
-        return h.select(self.name, h.options_for_select(options, selected=selected), **kwargs)
+        return literal(h.select(self.name, h.options_for_select(options, selected=selected), **kwargs))
 
     def render_readonly(self, **kwargs):
         value_str = self._value
         return common.field_readonly_renderer(self.field.key, value_str)
 
 class ResourcesRenderer(formalchemy.fields.FieldRenderer):
-    table_template = '''
+    table_template = literal('''
       <table id="flexitable" prefix="%(id)s" class="no-margin">
         <tr> <th>URL</th><th>Format</th><th>Description</th><th>Hash</th> </tr>
 %(rows)s
       </table>
       <a href="javascript:addRowToTable()" id="add_resource"><img src="/images/icons/add.png"></a>
-      '''
-    table_template_readonly = '''
+      ''')
+    table_template_readonly = literal('''
       <table id="flexitable" prefix="%(id)s">
         <tr> <th>URL</th><th>Format</th><th>Description</th><th>Hash</th> </tr>
 %(rows)s
       </table>
-      '''
+      ''')
     # NB row_template needs to be kept in-step with flexitable's row creation.
-    row_template = '''
+    row_template = literal('''
         <tr>
           <td><input name="%(id)s-%(res_index)s-url" size="40" id="%(id)s-%(res_index)s-url" type="text" value="%(url)s" /></td>
           <td><input name="%(id)s-%(res_index)s-format" size="5" id="%(id)s-%(res_index)s-format" type="text" value="%(format)s" /></td>
@@ -294,10 +295,10 @@ class ResourcesRenderer(formalchemy.fields.FieldRenderer):
             <a href="javascript:removeRowFromTable(%(res_index)s);"><img src="http://m.okfn.org/kforge/images/icon-delete.png" class="icon"></a>
           </td>
         </tr>
-    '''
-    row_template_readonly = '''
+    ''')
+    row_template_readonly = literal('''
         <tr> <td><a href="%(url)s">%(url)s</a></td><td>%(format)s</td><td>%(description)s</td><td>%(description)s</td><td>%(hash)s</td> </tr>
-    '''
+    ''')
 
     def render(self, **kwargs):
         return self._render(readonly=False)
@@ -337,10 +338,10 @@ class ResourcesRenderer(formalchemy.fields.FieldRenderer):
                                         })
         if rows:
             html = table_template % {'id':self.name,
-                                     'rows':''.join(rows)}
+                                     'rows':literal(''.join(rows))}
         else:
             html = ''
-        return html
+        return unicode(html)
 
     def _serialized_value(self):
         package = self.field.parent.model
