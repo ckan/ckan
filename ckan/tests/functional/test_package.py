@@ -398,6 +398,18 @@ u with umlaut \xc3\xbc
         assert 'class="form-errors"' in res, res
         assert 'class="field_error"' in res, res
 
+    def test_missing_fields(self):
+        # User edits and a field is left out in the commit parameters.
+        # (Spammers can cause this)
+        fv = self.res.forms[0]
+        del fv.fields['log_message']
+        res = fv.submit('commit', status=400)
+
+        fv = self.res.forms[0]
+        prefix = 'Package-%s-' % self.pkgid
+        del fv.fields[prefix + 'license_id']
+        res = fv.submit('commit', status=400)     
+
     def test_edit_all_fields(self):
         # Create new item
         rev = model.repo.new_revision()
@@ -755,6 +767,23 @@ class TestNew(TestPackageForm):
         assert 'class="form-errors"' in res, res
         assert 'class="field_error"' in res, res
         
+    def test_missing_fields(self):
+        # A field is left out in the commit parameters.
+        # (Spammers can cause this)
+        offset = url_for(controller='package', action='new', package_form=package_form)
+        res = self.app.get(offset)
+        assert 'Packages - New' in res
+        fv = res.forms[0]
+        del fv.fields['log_message']
+        res = fv.submit('commit', status=400)
+
+        offset = url_for(controller='package', action='new', package_form=package_form)
+        res = self.app.get(offset)
+        assert 'Packages - New' in res
+        fv = res.forms[0]
+        prefix = 'Package--'
+        del fv.fields[prefix + 'license_id']
+        res = fv.submit('commit', status=400)     
 
 class TestNewPreview(TestController):
     pkgname = u'testpkg'

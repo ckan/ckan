@@ -136,6 +136,8 @@ class PackageController(BaseController):
                 c.form = self._render_edit_form(fs, request.params,
                         clear_session=True)
                 return render('package/new')
+            except KeyError, error:
+                abort(400, ('Missing parameter: %s' % error.args).encode('utf8'))
 
         # use request params even when starting to allow posting from "outside"
         # (e.g. bookmarklet)
@@ -199,6 +201,8 @@ class PackageController(BaseController):
                 c.form = self._render_edit_form(fs, request.params,
                         clear_session=True)
                 return render('package/edit')
+            except KeyError, error:
+                abort(400, 'Missing parameter: %s' % error.args)
         else: # Must be preview
             pkgname = id
             fs = fs.bind(pkg, data=dict(request.params))
