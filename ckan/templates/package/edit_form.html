@@ -1,5 +1,6 @@
     <form action="" method="post"
       xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       >
       <script type="text/javascript" src="/scripts/flexitable.js"></script>
@@ -10,20 +11,20 @@
       <hr />
 
       <label for="log_message">Optional Log Message about this Change:</label>
-      <p class="desc">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.</p>
+      <p class="desc" i18n:msg="">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.</p>
       <textarea id="log_message" rows="3" name="log_message" cols="60">${c.log_message}</textarea>
 
       <label>Author: ${c.author}</label>
-      <p class="desc">
+      <p class="desc" i18n:msg="h">
       If you have not signed in this will just be your IP address.<br />
       <a href="${h.url_for(controller='user',action='login',id=None)}" target="_blank">Click here to sign in</a> before submitting (opens in new window).
       </p>
 
       <input name="preview" type="submit" value="Preview" />
-      ${h.submit('commit', 'Commit')}
+      ${h.submit('commit', _('Commit'))}
 
       <label>Please Note:</label>
-      <ul class="desc">
+      <ul class="desc" i18n:msg="h">
         <li>By submitting content, you agree to release your contributions
         under the open license specified on the ${h.link_to('license page',
         h.url_for(str('/license')))} (essentially Creative Commons

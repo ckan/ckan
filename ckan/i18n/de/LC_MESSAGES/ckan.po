@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: ckan 0.10\n"
 "Report-Msgid-Bugs-To: DANIEL@OPENDATA-NETWORK.ORG\n"
 "POT-Creation-Date: 2009-12-05 23:18+0000\n"
-"PO-Revision-Date: 2010-01-26 12:38+0000\n"
+"PO-Revision-Date: 2010-01-30 18:40+0100\n"
 "Last-Translator: DANIEL DIETRICH <DANIEL.DIETRICH@OKFN.ORG>\n"
 "Language-Team: de <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -27,119 +27,116 @@ msgstr "Error %(code)s"
 msgid "%(message)s"
 msgstr "%(code)s %(message)s"
 
-#: ckan/templates/layout.html:11
+#: ckan/templates/layout.html:12
 msgid "CKAN - Comprehensive Knowledge Archive Network -"
 msgstr "CKAN - Comprehensive Knowledge Archive Network -"
 
-#: ckan/templates/layout.html:14
+#: ckan/templates/layout.html:15
 msgid "CKAN Recent Changes"
 msgstr "CKAN Letzte Änderungen"
 
-#: ckan/templates/layout.html:16
+#: ckan/templates/layout.html:17
 msgid "Master stylesheet"
 msgstr "Hauptstylesheet"
 
-#: ckan/templates/layout.html:42
+#: ckan/templates/layout.html:43
 msgid "Logged in as"
 msgstr "Angemeldet als"
 
-#: ckan/templates/layout.html:44
+#: ckan/templates/layout.html:45
 #, fuzzy
 msgid "My account"
 msgstr "Mein Benutzerkonto"
 
-#: ckan/templates/layout.html:45 ckan/templates/user/logout.html:7
+#: ckan/templates/layout.html:46 ckan/templates/user/logout.html:7
 msgid "Logout"
 msgstr "Abmelden"
 
-#: ckan/templates/layout.html:48
+#: ckan/templates/layout.html:49
 msgid "Login with"
 msgstr "Anmelden mit"
 
-#: ckan/templates/layout.html:48
+#: ckan/templates/layout.html:49
 #, fuzzy
 msgid "OpenID"
 msgstr "OpenID"
 
-#: ckan/templates/layout.html:54
+#: ckan/templates/layout.html:55
 msgid "CKAN Logo"
 msgstr "CKAN Logo"
 
-#: ckan/templates/layout.html:60
+#: ckan/templates/layout.html:61
 msgid "Sections:"
 msgstr "Sektionen:"
 
-#: ckan/templates/layout.html:69
+#: ckan/templates/layout.html:70
 msgid "In this section:"
 msgstr "In dieser Sektion:"
 
-#: ckan/templates/layout.html:80
+#: ckan/templates/layout.html:81
 msgid "Skip to page content"
 msgstr "Zum Seiteninhalt springen"
 
-#: ckan/templates/layout.html:80
+#: ckan/templates/layout.html:81
 msgid "[ Skip to main content ]"
 msgstr "[ Zum Hauptinhalt springen ]"
 
-#: ckan/templates/layout.html:94
+#: ckan/templates/layout.html:95
 msgid "Master content template placeholder … please replace me."
 msgstr "Platzhalter Template für Inhalte ... bitte ersetzen."
 
-#: ckan/templates/layout.html:99
+#: ckan/templates/layout.html:100
 msgid "Valid XHTML 1.1"
 msgstr "Valid XHTML 1.1"
 
-#: ckan/templates/layout.html:99
+#: ckan/templates/layout.html:100
 msgid "XHTML"
 msgstr "XHTML"
 
-#: ckan/templates/layout.html:100
+#: ckan/templates/layout.html:101
 msgid "CSS"
 msgstr "CSS"
 
-#: ckan/templates/layout.html:101
+#: ckan/templates/layout.html:102
 msgid "Project Home Page"
 msgstr "Projekt Startseite"
 
-#: ckan/templates/layout.html:102
+#: ckan/templates/layout.html:103
 msgid "Contact Us"
 msgstr "Kontakt"
 
-#: ckan/templates/layout.html:103
+#: ckan/templates/layout.html:104
 msgid "Privacy Policy"
 msgstr "Datenschutz"
 
-#: ckan/templates/layout.html:106
+#: ckan/templates/layout.html:107
 msgid "An"
 msgstr "Ein"
 
-#: ckan/templates/layout.html:106 ckan/templates/home/about.html:46
+#: ckan/templates/layout.html:107 ckan/templates/home/about.html:46
 msgid "Open Knowledge Foundation"
 msgstr "Open Knowledge Foundation"
 
-#: ckan/templates/layout.html:106
+#: ckan/templates/layout.html:107
 msgid "Project"
 msgstr "Projekt"
 
-#: ckan/templates/layout.html:108
-msgid "v"
-msgstr "v"
-
-#: ckan/templates/layout.html:109
-msgid ""
-"| (c) Open Knowledge Foundation\n"
-"        | All material available under an"
-msgstr ""
-"| (c) Open Knowledge Foundation\n"
-"\t\t| Alle Inhalte stehen unter einer"
-
-#: ckan/templates/layout.html:111 ckan/templates/package/search_form.html:7
-msgid "open license"
-msgstr "offenen Lizenz"
-
-#: ckan/templates/layout.html:112
+#: ckan/templates/layout.html:113
 msgid "This Content and Data is Open"
 msgstr "Inhalt und Daten sind offen"
+
+#: ckan/templates/layout.html:109
+#, fuzzy, python-format
+msgid ""
+"v%(h)s\n"
+"        | (c) Open Knowledge Foundation\n"
+"\t| All material available under an [1:open license]\n"
+"        | [2:[3:]]"
+msgstr ""
+"v%(h)s\n"
+"        | (c) Open Knowledge Foundation\n"
+"\t| Alle Inhalte stehen unter einer [1:offenen Lizenz]\n"
+"        | [2:[3:]]"
 
 #: ckan/templates/group/authz.html:4
 msgid "Groups - Authorization -"
@@ -226,6 +223,16 @@ msgstr ""
 "kann angelegt werden um festzulegen welche Benutzer Rechte habenin ihr "
 "Pakete anzulegen, zu bearbeiten oder zu entfernen."
 
+#: ckan/templates/group/layout.html:16 ckan/templates/home/about.html:4
+#: ckan/templates/home/index.html:4 ckan/templates/package/layout.html:16
+msgid "Home"
+msgstr "Start"
+
+#: ckan/templates/group/layout.html:17
+#, fuzzy
+msgid "Create a new group"
+msgstr "eine neue Gruppe anlegen?"
+
 #: ckan/templates/group/new.html:7
 msgid "New Group"
 msgstr "Neue Gruppe"
@@ -261,10 +268,6 @@ msgstr "Paket"
 #: ckan/templates/group/read.html:41
 msgid "in this group."
 msgstr "in dieser Gruppe."
-
-#: ckan/templates/home/about.html:4 ckan/templates/home/index.html:4
-msgid "Home"
-msgstr "Start"
 
 #: ckan/templates/home/about.html:7 ckan/templates/home/index.html:8
 msgid "About CKAN"
@@ -630,6 +633,14 @@ msgstr "Zeit"
 msgid "View older changes »"
 msgstr "Ältere Änderungen ansehen"
 
+#: ckan/templates/home/layout.html:9 ckan/templates/user/read.html:18
+msgid "About"
+msgstr "Über"
+
+#: ckan/templates/home/layout.html:10
+msgid "FAQ and Guide"
+msgstr ""
+
 #: ckan/templates/home/license.html:4
 msgid "License"
 msgstr "Lizenz"
@@ -866,6 +877,30 @@ msgstr "Pakete."
 msgid "This package:"
 msgstr "Paket"
 
+#: ckan/templates/package/layout.html:11
+#, fuzzy
+msgid "View"
+msgstr "Vorschau"
+
+#: ckan/templates/package/layout.html:12 ckan/templates/user/read.html:24
+#, fuzzy
+msgid "Edit"
+msgstr "[Bearbeiten]"
+
+#: ckan/templates/package/layout.html:13
+#, fuzzy
+msgid "History"
+msgstr "Geschichte"
+
+#: ckan/templates/package/layout.html:17
+msgid "Browse"
+msgstr ""
+
+#: ckan/templates/package/layout.html:18
+#, fuzzy
+msgid "Register new package"
+msgstr "registriere Pakete"
+
 #: ckan/templates/package/list.html:4
 msgid "Packages - List"
 msgstr "Pakete - Liste"
@@ -1060,6 +1095,10 @@ msgstr "Z.B. 'Geo', 'Shakespeare', 'Wissenschaft'"
 #: ckan/templates/package/search_form.html:7
 msgid "Filters:"
 msgstr "Filter:"
+
+#: ckan/templates/package/search_form.html:7
+msgid "open license"
+msgstr "offenen Lizenz"
 
 #: ckan/templates/package/search_form.html:8
 #, fuzzy
@@ -1304,15 +1343,6 @@ msgstr "Abmelden"
 #: ckan/templates/user/read.html:15
 msgid "View your API key"
 msgstr "Ihren API key ansehen"
-
-#: ckan/templates/user/read.html:18
-msgid "About"
-msgstr "Über"
-
-#: ckan/templates/user/read.html:24
-#, fuzzy
-msgid "Edit"
-msgstr "[Bearbeiten]"
 
 #: ckan/templates/user/read.html:28
 msgid "Activity"

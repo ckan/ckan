@@ -1,6 +1,6 @@
 <form action="${h.url_for(controller='package', action='search', id=None)}" method="GET">
   ${h.text('q', size=40, value=c.q)}
-  ${h.submit('search', 'Search Packages &raquo;')}
+  ${h.submit('search', _('Search Packages &raquo;'))}
   <p class="desc">
     E.g. 'geo', 'shakespeare', 'science'
   </p>
