@@ -14,11 +14,11 @@
       <hr />
     
       <py:if test="c.tags_count > 0">
-        <p><strong>${c.tags_count}</strong> ${plural(c.tags_count, 'tag', 'tags')} found.</p>
+        <p><strong>${c.tags_count}</strong> tags found.</p>
         ${tag_list(c.tags)}
       </py:if>
 
-      <p><strong>${c.page.item_count}</strong> ${plural(c.page.item_count, 'package', 'packages')} found.</p>
+      <p><strong>${c.page.item_count}</strong> packages found.</p>
       <py:if test="c.page.item_count == 0">
         <p>Would you like to <a href="${h.url_for(action='new', id=None)}">create a new package?</a></p>
       </py:if>

@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: ckan 0.10\n"
 "Report-Msgid-Bugs-To: DANIEL@OPENDATA-NETWORK.ORG\n"
 "POT-Creation-Date: 2009-12-05 23:18+0000\n"
-"PO-Revision-Date: 2010-02-03 15:00+0100\n"
+"PO-Revision-Date: 2010-02-03 15:14+0100\n"
 "Last-Translator: Benoit Boissinot <benoit.boissinot@ens-lyon.org>\n"
 "Language-Team: de <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -47,8 +47,7 @@ msgstr "Angemeldet als"
 msgid "My account"
 msgstr "Mein Benutzerkonto"
 
-#: ckan/templates/layout.html:45
-#: ckan/templates/user/logout.html:7
+#: ckan/templates/layout.html:45 ckan/templates/user/logout.html:7
 msgid "Logout"
 msgstr "Abmelden"
 
@@ -68,39 +67,30 @@ msgstr "CKAN Logo"
 msgid "Sections:"
 msgstr "Sektionen:"
 
-#: ckan/templates/layout.html:62
-#: ckan/templates/group/layout.html:16
-#: ckan/templates/home/about.html:4
-#: ckan/templates/home/index.html:4
+#: ckan/templates/layout.html:62 ckan/templates/group/layout.html:16
+#: ckan/templates/home/about.html:4 ckan/templates/home/index.html:4
 #: ckan/templates/package/layout.html:16
 msgid "Home"
 msgstr "Start"
 
-#: ckan/templates/layout.html:63
-#: ckan/templates/group/edit_form.html:8
-#: ckan/templates/home/index.html:39
-#: ckan/templates/package/index.html:7
-#: ckan/templates/package/list.html:32
-#: ckan/templates/revision/list.html:16
-#: ckan/templates/revision/read.html:20
-#: ckan/templates/user/read.html:37
+#: ckan/templates/layout.html:63 ckan/templates/group/edit_form.html:8
+#: ckan/templates/home/index.html:39 ckan/templates/package/index.html:7
+#: ckan/templates/package/list.html:32 ckan/templates/revision/list.html:16
+#: ckan/templates/revision/read.html:20 ckan/templates/user/read.html:37
 msgid "Packages"
 msgstr "Pakete"
 
-#: ckan/templates/layout.html:64
-#: ckan/templates/package/read_core.html:93
+#: ckan/templates/layout.html:64 ckan/templates/package/read_core.html:93
 #: ckan/templates/tag/index.html:7
 msgid "Tags"
 msgstr "Tags"
 
-#: ckan/templates/layout.html:65
-#: ckan/templates/group/index.html:7
+#: ckan/templates/layout.html:65 ckan/templates/group/index.html:7
 #: ckan/templates/package/read_core.html:98
 msgid "Groups"
 msgstr "Gruppen"
 
-#: ckan/templates/layout.html:66
-#: ckan/templates/user/read.html:34
+#: ckan/templates/layout.html:66 ckan/templates/user/read.html:34
 msgid "Recent changes"
 msgstr "Letzte Änderungen"
 
@@ -152,8 +142,7 @@ msgstr "Datenschutz"
 msgid "An"
 msgstr "Ein"
 
-#: ckan/templates/layout.html:106
-#: ckan/templates/home/about.html:46
+#: ckan/templates/layout.html:106 ckan/templates/home/about.html:46
 msgid "Open Knowledge Foundation"
 msgstr "Open Knowledge Foundation"
 
@@ -173,8 +162,7 @@ msgstr ""
 "| (c) Open Knowledge Foundation\n"
 "\t| Alle Inhalte stehen unter einer"
 
-#: ckan/templates/layout.html:111
-#: ckan/templates/package/search_form.html:7
+#: ckan/templates/layout.html:111 ckan/templates/package/search_form.html:7
 msgid "open license"
 msgstr "offenen Lizenz"
 
@@ -190,24 +178,20 @@ msgstr "Gruppen - Autorisierung -"
 msgid "Authorization for group:"
 msgstr "Autorisierung für Gruppe:"
 
-#: ckan/templates/group/authz.html:14
-#: ckan/templates/package/authz.html:14
+#: ckan/templates/group/authz.html:14 ckan/templates/package/authz.html:14
 msgid "Update Existing Roles"
 msgstr "Existierende Benutzerrechte aktualisieren"
 
-#: ckan/templates/group/authz.html:19
-#: ckan/templates/package/authz.html:19
+#: ckan/templates/group/authz.html:19 ckan/templates/package/authz.html:19
 msgid "Create New User Roles"
 msgstr "Anlegen neuer Benutzerrechte"
 
-#: ckan/templates/group/authz.html:24
-#: ckan/templates/group/edit_form.html:22
+#: ckan/templates/group/authz.html:24 ckan/templates/group/edit_form.html:22
 #: ckan/templates/package/authz.html:24
 msgid "Save"
 msgstr ""
 
-#: ckan/templates/group/edit.html:4
-#: ckan/templates/group/new.html:4
+#: ckan/templates/group/edit.html:4 ckan/templates/group/new.html:4
 msgid "Groups - Edit -"
 msgstr "Gruppen - bearbeiten -"
 
@@ -215,10 +199,8 @@ msgstr "Gruppen - bearbeiten -"
 msgid "Edit Group:"
 msgstr "Bearbeiten der Gruppe:"
 
-#: ckan/templates/group/edit.html:11
-#: ckan/templates/group/new.html:11
-#: ckan/templates/package/edit.html:12
-#: ckan/templates/package/history.html:18
+#: ckan/templates/group/edit.html:11 ckan/templates/group/new.html:11
+#: ckan/templates/package/edit.html:12 ckan/templates/package/history.html:18
 #: ckan/templates/package/new.html:11
 msgid "Error:"
 msgstr "Fehler:"
@@ -231,8 +213,9 @@ msgstr "Neue Pakete"
 msgid "Groups - Index"
 msgstr "Gruppen - Index"
 
-#: ckan/templates/group/index.html:9
-#: ckan/templates/group/read.html:40
+#: ckan/templates/group/index.html:9 ckan/templates/group/read.html:40
+#: ckan/templates/package/index.html:13 ckan/templates/tag/index.html:18
+#: ckan/templates/tag/index.html:21 ckan/templates/tag/read.html:8
 msgid "There are"
 msgstr "Es gibt"
 
@@ -245,16 +228,25 @@ msgid "Groups section"
 msgstr "Gruppen Sektion"
 
 #: ckan/templates/group/layout.html:11
-msgid "Whilst tags are great at collecting packages together, there are occasions when you want to restrict users from editing a collection. A"
-msgstr "Tags eignen sich hervorragend um Pakete gemeinsam auszuzeichnen. Es gibt allerdings Fälle in denen es sinnvoll ist die Schreibrechte von Benutzern für bestimmte Pakete einzuschränken. Eine"
+msgid ""
+"Whilst tags are great at collecting packages together, there are "
+"occasions when you want to restrict users from editing a collection. A"
+msgstr ""
+"Tags eignen sich hervorragend um Pakete gemeinsam auszuzeichnen. Es gibt "
+"allerdings Fälle in denen es sinnvoll ist die Schreibrechte von Benutzern"
+" für bestimmte Pakete einzuschränken. Eine"
 
 #: ckan/templates/group/layout.html:11
 msgid "group"
 msgstr "Gruppe"
 
 #: ckan/templates/group/layout.html:11
-msgid "can be set-up to specify which users have permission to add or remove packages from it."
-msgstr "kann angelegt werden um festzulegen welche Benutzer Rechte habenin ihr Pakete anzulegen, zu bearbeiten oder zu entfernen."
+msgid ""
+"can be set-up to specify which users have permission to add or remove "
+"packages from it."
+msgstr ""
+"kann angelegt werden um festzulegen welche Benutzer Rechte habenin ihr "
+"Pakete anzulegen, zu bearbeiten oder zu entfernen."
 
 #: ckan/templates/group/layout.html:17
 msgid "Create a new group"
@@ -289,16 +281,12 @@ msgid "Packages:"
 msgstr "Pakete:"
 
 #: ckan/templates/group/read.html:41
-#: ckan/templates/tag/read.html:8
-msgid "package"
-msgstr "Paket"
-
-#: ckan/templates/group/read.html:41
-msgid "in this group."
+#, fuzzy
+#| msgid "in this group."
+msgid "packages in this group."
 msgstr "in dieser Gruppe."
 
-#: ckan/templates/home/about.html:7
-#: ckan/templates/home/index.html:8
+#: ckan/templates/home/about.html:7 ckan/templates/home/index.html:8
 msgid "About CKAN"
 msgstr "Über CKAN"
 
@@ -357,7 +345,8 @@ msgid ""
 "As the diagram shows, CKAN combines the features of a listing/registry,\n"
 "\t\ta package index and a wiki. As a registry it acts like"
 msgstr ""
-"Wie am Diagramm zu sehen, kombiniert CKAN die Features von Liste / Register,\n"
+"Wie am Diagramm zu sehen, kombiniert CKAN die Features von Liste / "
+"Register,\n"
 "\t\tPakete-Index und Wiki. Als Register funktioniert es wie"
 
 #: ckan/templates/home/about.html:24
@@ -370,7 +359,8 @@ msgid ""
 "\t\tcontent resources. However it adds to a simple registry in key ways."
 msgstr ""
 "nur eben für offene Daten und\n"
-"\t\tandere offene Inhalte. Gegenüber einem einfachen Register hat CKAN folgende Vorteile"
+"\t\tandere offene Inhalte. Gegenüber einem einfachen Register hat CKAN "
+"folgende Vorteile"
 
 #: ckan/templates/home/about.html:27
 msgid "First, thanks to its underlying"
@@ -383,16 +373,22 @@ msgstr "versionierte Domain Modell"
 #: ckan/templates/home/about.html:28
 msgid ""
 "CKAN has a\n"
-"\t\twiki-like interface that lets anyone add and material held in it. Second,\n"
-"\t\tand unlike a wiki, CKAN can store 'structured' information, which allows it\n"
-"\t\tto provide 'index'-like features such as automated registration, discovery\n"
+"\t\twiki-like interface that lets anyone add and material held in it. "
+"Second,\n"
+"\t\tand unlike a wiki, CKAN can store 'structured' information, which "
+"allows it\n"
+"\t\tto provide 'index'-like features such as automated registration, "
+"discovery\n"
 "\t\tand installation of material. In this respect it behaves like"
 msgstr ""
 "CKAN hat eine\n"
-"\t\tWiki-ähnliche Benutzeroberfläche, die das einfache Hinzufügen und Verwalten von Einträgen ermöglicht. Zweitens,\n"
-"\t\tkann CKAN, im Gegensatz zu einem Wiki, 'strukturierte' Daten speichern, und bietet dadurch\n"
+"\t\tWiki-ähnliche Benutzeroberfläche, die das einfache Hinzufügen und "
+"Verwalten von Einträgen ermöglicht. Zweitens,\n"
+"\t\tkann CKAN, im Gegensatz zu einem Wiki, 'strukturierte' Daten "
+"speichern, und bietet dadurch\n"
 "\t\tIndex Features, wie das automatische Registrieren\n"
-"\t\tund Installieren von Datenmaterial. In dieser Hinsicht verhält es sich wie"
+"\t\tund Installieren von Datenmaterial. In dieser Hinsicht verhält es "
+"sich wie"
 
 #: ckan/templates/home/about.html:33
 msgid "CPAN"
@@ -483,8 +479,12 @@ msgid "Contributors"
 msgstr "Kontributoren"
 
 #: ckan/templates/home/about.html:54
-msgid "Various people and projects have contributed to the development of CKAN including:"
-msgstr "verschiedene Personen und Projekte haben an der Entwicklung von CKAN beigetragen darunter:"
+msgid ""
+"Various people and projects have contributed to the development of CKAN "
+"including:"
+msgstr ""
+"verschiedene Personen und Projekte haben an der Entwicklung von CKAN "
+"beigetragen darunter:"
 
 #: ckan/templates/home/about.html:56
 msgid "Rufus Pollock"
@@ -543,12 +543,29 @@ msgid "Bookmarklet for Adding Packages"
 msgstr "Bookmarklet um Packete hinzuzufügen"
 
 #: ckan/templates/home/guide.html:10
-msgid "Want to automate creating a package from the info in a webpage? You can use the CKAN bookmarklet. This will automatically extract information such as url, title and a description and send it off to the new package form (where you can then edit further)."
-msgstr "Möchten Sie automatisch aus der Information einer Seite ein CKAN Packet erzeugen? Dazu können Sie einfach das CKAN Bookmarklet benutzen. Dies wird automatisch bestimmte Informationen einer Seite extrahieren, wie etwa URL, Titel und Beschreibung, und diese dann als neues Packet an CKANschicken (wo es später weiter bearbeitet werden kann)."
+msgid ""
+"Want to automate creating a package from the info in a webpage? You can "
+"use the CKAN bookmarklet. This will automatically extract information "
+"such as url, title and a description and send it off to the new package "
+"form (where you can then edit further)."
+msgstr ""
+"Möchten Sie automatisch aus der Information einer Seite ein CKAN Packet "
+"erzeugen? Dazu können Sie einfach das CKAN Bookmarklet benutzen. Dies "
+"wird automatisch bestimmte Informationen einer Seite extrahieren, wie "
+"etwa URL, Titel und Beschreibung, und diese dann als neues Packet an "
+"CKANschicken (wo es später weiter bearbeitet werden kann)."
 
 #: ckan/templates/home/guide.html:11
-msgid "To install the bookmarklet just drag the following link to your bookmarks toolbar (in IE: right-click on it and select Add to Favourites). For more details on installing bookmarklets see"
-msgstr "Um das Bookmarklet zu installieren einfach den folgenden Link in die Bookmark-Toolbar ihres Browsers ziehen (Für den Internet Explorer: Rechts-Klick auf den Link und dann \"Zu Favoriten hinzufügen\" auswählen). Für weitere Informationen zum Installieren des Bookmarklets siehe"
+msgid ""
+"To install the bookmarklet just drag the following link to your bookmarks"
+" toolbar (in IE: right-click on it and select Add to Favourites). For "
+"more details on installing bookmarklets see"
+msgstr ""
+"Um das Bookmarklet zu installieren einfach den folgenden Link in die "
+"Bookmark-Toolbar ihres Browsers ziehen (Für den Internet Explorer: "
+"Rechts-Klick auf den Link und dann \"Zu Favoriten hinzufügen\" "
+"auswählen). Für weitere Informationen zum Installieren des Bookmarklets "
+"siehe"
 
 #: ckan/templates/home/guide.html:11
 msgid "the del.icio.us help page on the topic"
@@ -563,7 +580,8 @@ msgid ""
 "Find out more about CKAN by reading our about pages or consulting the \n"
 "        CKAN guide."
 msgstr ""
-"Um mehr über CKAN zu erfahren besuchen Sie bitte die Seite \"Über CKAN\" und lesen die \n"
+"Um mehr über CKAN zu erfahren besuchen Sie bitte die Seite \"Über CKAN\" "
+"und lesen die \n"
 "CKAN Anleitung."
 
 #: ckan/templates/home/index.html:22
@@ -612,10 +630,8 @@ msgstr "vorhanden."
 msgid "Recently changed"
 msgstr "Letzte Änderungen"
 
-#: ckan/templates/home/index.html:40
-#: ckan/templates/package/history.html:26
-#: ckan/templates/revision/list.html:16
-#: ckan/templates/user/read.html:37
+#: ckan/templates/home/index.html:40 ckan/templates/package/history.html:26
+#: ckan/templates/revision/list.html:16 ckan/templates/user/read.html:37
 msgid "Author"
 msgstr "Autor"
 
@@ -627,8 +643,7 @@ msgstr "Zeit"
 msgid "View older changes »"
 msgstr "Ältere Änderungen ansehen"
 
-#: ckan/templates/home/layout.html:9
-#: ckan/templates/user/read.html:18
+#: ckan/templates/home/layout.html:9 ckan/templates/user/read.html:18
 msgid "About"
 msgstr "Über"
 
@@ -694,7 +709,8 @@ msgid ""
 "    and redistributed. Formally, the data/database is licensed under the"
 msgstr ""
 "und können frei genutzt und weiterverarbeitet werden\n"
-"\t\tund weiterverbreitet werden. Formell, ist die Datenbank lizensiert unter der"
+"\t\tund weiterverbreitet werden. Formell, ist die Datenbank lizensiert "
+"unter der"
 
 #: ckan/templates/home/license.html:23
 msgid ""
@@ -710,7 +726,8 @@ msgid ""
 "    database plus any additional content on this site licensed under a"
 msgstr ""
 ", während alle urheberrechtsgeschützten Inhalten in der\n"
-"\t\tDatenbank sowie alle weiteren Inhalte auf der Seite lizensiert ist unter einer"
+"\t\tDatenbank sowie alle weiteren Inhalte auf der Seite lizensiert ist "
+"unter einer"
 
 #: ckan/templates/home/license.html:26
 msgid ""
@@ -721,8 +738,17 @@ msgstr ""
 "      Attribution Share-Alike v3.0 license"
 
 #: ckan/templates/home/license.html:28
-msgid "For convenience, all material - including all package, tag and revision information - is available in bulk, in the form of a full dump of the CKAN database. This (gzipped) dump file is updated daily and can be downloaded from"
-msgstr "Um es einfach zu machen, sind alle Inhalte - inclusive allen Informationen zu allen Pakete, Tags und Revisionen - als Ganzes zu haben,in Form einer Kopie der gesamten CKAN Datenbank. Dieses (mit zip komprimierte) Datenbank-Dump wird täglich aktualisiert und kann hier heruntergeladen werden:"
+msgid ""
+"For convenience, all material - including all package, tag and revision "
+"information - is available in bulk, in the form of a full dump of the "
+"CKAN database. This (gzipped) dump file is updated daily and can be "
+"downloaded from"
+msgstr ""
+"Um es einfach zu machen, sind alle Inhalte - inclusive allen "
+"Informationen zu allen Pakete, Tags und Revisionen - als Ganzes zu "
+"haben,in Form einer Kopie der gesamten CKAN Datenbank. Dieses (mit zip "
+"komprimierte) Datenbank-Dump wird täglich aktualisiert und kann hier "
+"heruntergeladen werden:"
 
 #: ckan/templates/home/license.html:29
 msgid "http://www.ckan.net/dump/"
@@ -745,14 +771,12 @@ msgstr "Pakete - Bearbeiten -"
 msgid "Edit package:"
 msgstr "Bearbeiten Paket:"
 
-#: ckan/templates/package/edit.html:9
-#: ckan/templates/package/new.html:8
+#: ckan/templates/package/edit.html:9 ckan/templates/package/new.html:8
 #: ckan/templates/user/edit.html:9
 msgid "(skip to preview)"
 msgstr "(zurück springen)"
 
-#: ckan/templates/package/edit.html:20
-#: ckan/templates/package/new.html:19
+#: ckan/templates/package/edit.html:20 ckan/templates/package/new.html:19
 #: ckan/templates/user/edit.html:29
 msgid "Preview"
 msgstr "Vorschau"
@@ -761,18 +785,15 @@ msgstr "Vorschau"
 msgid "Optional Log Message about this Change:"
 msgstr "Optionaler Logeintrag zu dieser Änderung"
 
-#: ckan/templates/package/edit_form.html:13
-#: ckan/templates/user/edit.html:18
+#: ckan/templates/package/edit_form.html:13 ckan/templates/user/edit.html:18
 msgid "You can use"
 msgstr "Verwenden von"
 
-#: ckan/templates/package/edit_form.html:13
-#: ckan/templates/user/edit.html:18
+#: ckan/templates/package/edit_form.html:13 ckan/templates/user/edit.html:18
 msgid "Markdown formatting"
 msgstr "Markdown Formatierung"
 
-#: ckan/templates/package/edit_form.html:13
-#: ckan/templates/user/edit.html:18
+#: ckan/templates/package/edit_form.html:13 ckan/templates/user/edit.html:18
 msgid "here."
 msgstr "hier."
 
@@ -793,8 +814,7 @@ msgstr "Hier anmelden"
 msgid "before submitting (opens in new window)."
 msgstr "vor dem Speichern (öffnet ein neues Fenster)"
 
-#: ckan/templates/package/edit_form.html:23
-#: ckan/templates/user/edit.html:22
+#: ckan/templates/package/edit_form.html:23 ckan/templates/user/edit.html:22
 msgid "Commit"
 msgstr ""
 
@@ -822,10 +842,11 @@ msgstr ""
 msgid ""
 "If you are not happy for this to occur please refrain from editing\n"
 "        this page."
-msgstr "Falls Sie damit nicht einverstanden sind sehen sie bitte vom Bearbeiten\t\tdieser Seite ab."
+msgstr ""
+"Falls Sie damit nicht einverstanden sind sehen sie bitte vom Bearbeiten"
+"\t\tdieser Seite ab."
 
-#: ckan/templates/package/history.html:4
-#: ckan/templates/revision/read.html:32
+#: ckan/templates/package/history.html:4 ckan/templates/revision/read.html:32
 msgid "Package -"
 msgstr "Packet -"
 
@@ -837,20 +858,17 @@ msgstr "- Geschichte"
 msgid "Revisions"
 msgstr "Revisionen"
 
-#: ckan/templates/package/history.html:26
-#: ckan/templates/revision/read.html:4
+#: ckan/templates/package/history.html:26 ckan/templates/revision/read.html:4
 #: ckan/templates/user/read.html:37
 msgid "Revision"
 msgstr "Revision"
 
-#: ckan/templates/package/history.html:26
-#: ckan/templates/revision/list.html:16
+#: ckan/templates/package/history.html:26 ckan/templates/revision/list.html:16
 #: ckan/templates/user/read.html:37
 msgid "Timestamp"
 msgstr "Zeitstempel"
 
-#: ckan/templates/package/history.html:26
-#: ckan/templates/revision/list.html:16
+#: ckan/templates/package/history.html:26 ckan/templates/revision/list.html:16
 #: ckan/templates/user/read.html:37
 msgid "Log Message"
 msgstr "Logeintrag"
@@ -862,12 +880,6 @@ msgstr ""
 #: ckan/templates/package/index.html:4
 msgid "Packages - Index"
 msgstr "Pakete - Index"
-
-#: ckan/templates/package/index.html:13
-#: ckan/templates/tag/index.html:16
-#: ckan/templates/tag/read.html:8
-msgid "There"
-msgstr "Es"
 
 #: ckan/templates/package/index.html:13
 msgid "packages."
@@ -883,8 +895,7 @@ msgstr "Paket"
 msgid "View"
 msgstr "Vorschau"
 
-#: ckan/templates/package/layout.html:12
-#: ckan/templates/user/read.html:24
+#: ckan/templates/package/layout.html:12 ckan/templates/user/read.html:24
 #, fuzzy
 msgid "Edit"
 msgstr "[Bearbeiten]"
@@ -1037,7 +1048,9 @@ msgstr "Dieses Paket ist offen lizensiert"
 
 #: ckan/templates/package/read_core.html:77
 msgid "This package satisfies the OKFN's Open Knowledge Definition."
-msgstr "Dieses Paket erfüllt die Anforderungen der 'Definition offenes Wissen' der OKFN."
+msgstr ""
+"Dieses Paket erfüllt die Anforderungen der 'Definition offenes Wissen' "
+"der OKFN."
 
 #: ckan/templates/package/read_core.html:80
 #, fuzzy
@@ -1068,10 +1081,16 @@ msgid "Search packages"
 msgstr "Nach Paketen suchen"
 
 #: ckan/templates/package/search.html:17
+#, fuzzy
+#| msgid "found."
+msgid "tags found."
+msgstr "gefunden."
+
 #: ckan/templates/package/search.html:21
 #, fuzzy
-msgid "found."
-msgstr "gefunden."
+#| msgid "packages."
+msgid "packages found."
+msgstr "Pakete."
 
 #: ckan/templates/package/search.html:23
 msgid "Would you like to"
@@ -1083,7 +1102,6 @@ msgstr "ein neues Paket anlegen?"
 
 #: ckan/templates/package/search_form.html:3
 #, fuzzy
-#| msgid "Search packages"
 msgid "Search Packages »"
 msgstr "Nach Paketen suchen »"
 
@@ -1132,8 +1150,7 @@ msgstr "Keine Differenzen"
 msgid "CKAN Atom Feed"
 msgstr "CKAN Atom Feed"
 
-#: ckan/templates/revision/list.html:4
-#: ckan/templates/revision/list.html:7
+#: ckan/templates/revision/list.html:4 ckan/templates/revision/list.html:7
 msgid "Repository History"
 msgstr "Repository History"
 
@@ -1142,7 +1159,8 @@ msgid ""
 "This page lists all changes to package database, with most recent\n"
 "    changes first. It is also available as an"
 msgstr ""
-"Diese Seite listet alle Änderungen an der Pakete-Datenbank, mit den letzten\n"
+"Diese Seite listet alle Änderungen an der Pakete-Datenbank, mit den "
+"letzten\n"
 "\t\tÄnderungen zuerst. Sie ist auch erreichbar als"
 
 #: ckan/templates/revision/list.html:9
@@ -1205,11 +1223,15 @@ msgstr ""
 msgid "Tags - Index"
 msgstr "Tags - Index"
 
-#: ckan/templates/tag/index.html:20
-msgid "for ‘"
-msgstr "für"
+#: ckan/templates/tag/index.html:19
+msgid "results for ‘"
+msgstr ""
 
-#: ckan/templates/tag/index.html:33
+#: ckan/templates/tag/index.html:22
+msgid "results for tags."
+msgstr ""
+
+#: ckan/templates/tag/index.html:32
 msgid "and see all tags."
 msgstr "alle Tags ansehen."
 
@@ -1222,11 +1244,12 @@ msgid "Tag:"
 msgstr "Tag:"
 
 #: ckan/templates/tag/read.html:8
-msgid "tagged with"
+#, fuzzy
+#| msgid "tagged with"
+msgid "packages tagged with"
 msgstr "Verschlagwortet mit"
 
-#: ckan/templates/user/apikey.html:4
-#: ckan/templates/user/login_form.html:4
+#: ckan/templates/user/apikey.html:4 ckan/templates/user/login_form.html:4
 #: ckan/templates/user/openid_form.html:4
 msgid "Account - Login"
 msgstr "Benutzerkonto - Anmeldung"
@@ -1251,8 +1274,7 @@ msgstr "Benutzer bearbeiten:"
 msgid "About user:"
 msgstr "Über Benutzer:"
 
-#: ckan/templates/user/login_form.html:7
-#: ckan/templates/user/openid_form.html:7
+#: ckan/templates/user/login_form.html:7 ckan/templates/user/openid_form.html:7
 msgid "Login"
 msgstr "Anmeldung"
 
@@ -1277,8 +1299,12 @@ msgid "You have logged out successfully."
 msgstr "Sie haben sich erfolgreich abgemeldet."
 
 #: ckan/templates/user/openid_form.html:8
-msgid "You don't need to sign up for yet another account to use CKAN. Instead you can just"
-msgstr "Sie müssen kein weiteres Benutzerkonto eröffnen um CKAN zu nutzen, stattdessen können Sie"
+msgid ""
+"You don't need to sign up for yet another account to use CKAN. Instead "
+"you can just"
+msgstr ""
+"Sie müssen kein weiteres Benutzerkonto eröffnen um CKAN zu nutzen, "
+"stattdessen können Sie"
 
 #: ckan/templates/user/openid_form.html:8
 msgid "use your OpenID"
@@ -1312,8 +1338,7 @@ msgstr ""
 msgid "https://www.myopenid.com/"
 msgstr "https://www.myopenid.com/"
 
-#: ckan/templates/user/read.html:6
-#: ckan/templates/user/read.html:10
+#: ckan/templates/user/read.html:6 ckan/templates/user/read.html:10
 msgid "User Account -"
 msgstr "Benutzerkonto -"
 
@@ -1344,4 +1369,13 @@ msgstr "Anzahl der Bearbeitungen:"
 #: ckan/templates/user/read.html:31
 msgid "Number of packages administered:"
 msgstr "Anzahl der administrierten Pakete:"
+
+#~ msgid "package"
+#~ msgstr "Paket"
+
+#~ msgid "There"
+#~ msgstr "Es"
+
+#~ msgid "for ‘"
+#~ msgstr "für"
 

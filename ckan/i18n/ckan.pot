@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckan 0.11a\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2010-02-03 14:54+0100\n"
+"POT-Creation-Date: 2010-02-03 15:14+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -212,6 +212,8 @@ msgid "Groups - Index"
 msgstr ""
 
 #: ckan/templates/group/index.html:9 ckan/templates/group/read.html:40
+#: ckan/templates/package/index.html:13 ckan/templates/tag/index.html:18
+#: ckan/templates/tag/index.html:21 ckan/templates/tag/read.html:8
 msgid "There are"
 msgstr ""
 
@@ -271,12 +273,8 @@ msgstr ""
 msgid "Packages:"
 msgstr ""
 
-#: ckan/templates/group/read.html:41 ckan/templates/tag/read.html:8
-msgid "package"
-msgstr ""
-
 #: ckan/templates/group/read.html:41
-msgid "in this group."
+msgid "packages in this group."
 msgstr ""
 
 #: ckan/templates/home/about.html:7 ckan/templates/home/index.html:8
@@ -800,11 +798,6 @@ msgstr ""
 msgid "Packages - Index"
 msgstr ""
 
-#: ckan/templates/package/index.html:13 ckan/templates/tag/index.html:16
-#: ckan/templates/tag/read.html:8
-msgid "There"
-msgstr ""
-
 #: ckan/templates/package/index.html:13
 msgid "packages."
 msgstr ""
@@ -982,8 +975,12 @@ msgstr ""
 msgid "Search packages"
 msgstr ""
 
-#: ckan/templates/package/search.html:17 ckan/templates/package/search.html:21
-msgid "found."
+#: ckan/templates/package/search.html:17
+msgid "tags found."
+msgstr ""
+
+#: ckan/templates/package/search.html:21
+msgid "packages found."
 msgstr ""
 
 #: ckan/templates/package/search.html:23
@@ -1108,11 +1105,15 @@ msgstr ""
 msgid "Tags - Index"
 msgstr ""
 
-#: ckan/templates/tag/index.html:20
-msgid "for ‘"
+#: ckan/templates/tag/index.html:19
+msgid "results for ‘"
 msgstr ""
 
-#: ckan/templates/tag/index.html:33
+#: ckan/templates/tag/index.html:22
+msgid "results for tags."
+msgstr ""
+
+#: ckan/templates/tag/index.html:32
 msgid "and see all tags."
 msgstr ""
 
@@ -1125,7 +1126,7 @@ msgid "Tag:"
 msgstr ""
 
 #: ckan/templates/tag/read.html:8
-msgid "tagged with"
+msgid "packages tagged with"
 msgstr ""
 
 #: ckan/templates/user/apikey.html:4 ckan/templates/user/login_form.html:4
