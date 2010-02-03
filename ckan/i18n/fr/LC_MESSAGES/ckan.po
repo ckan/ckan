@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: ckan 0.11a\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2009-12-30 13:31+0000\n"
-"PO-Revision-Date: 2010-01-30 18:40+0100\n"
+"PO-Revision-Date: 2010-02-03 14:56+0100\n"
 "Last-Translator: Benoit Boissinot <benoit.boissinot@ens-lyon.org>\n"
 "Language-Team: fr <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
@@ -27,116 +27,155 @@ msgstr "Erreur %(code)s"
 msgid "%(message)s"
 msgstr "%(message)s"
 
-#: ckan/templates/layout.html:12
+#: ckan/templates/layout.html:11
 #, fuzzy
 msgid "CKAN - Comprehensive Knowledge Archive Network -"
 msgstr "CKAN - Comprehensive Knowledge Archive Network -"
 
-#: ckan/templates/layout.html:15
+#: ckan/templates/layout.html:14
 msgid "CKAN Recent Changes"
 msgstr "Modifications récentes CKAN"
 
-#: ckan/templates/layout.html:17
+#: ckan/templates/layout.html:16
 msgid "Master stylesheet"
 msgstr ""
 
-#: ckan/templates/layout.html:43
+#: ckan/templates/layout.html:42
 msgid "Logged in as"
 msgstr ""
 
-#: ckan/templates/layout.html:45
+#: ckan/templates/layout.html:44
 msgid "My account"
 msgstr "Mon compte"
 
-#: ckan/templates/layout.html:46 ckan/templates/user/logout.html:7
+#: ckan/templates/layout.html:45 ckan/templates/user/logout.html:7
 msgid "Logout"
 msgstr "Déconnexion"
 
-#: ckan/templates/layout.html:49
+#: ckan/templates/layout.html:48
 msgid "Login with"
 msgstr "Se connecter avec"
 
-#: ckan/templates/layout.html:49
+#: ckan/templates/layout.html:48
 msgid "OpenID"
 msgstr "OpenID"
 
-#: ckan/templates/layout.html:55
+#: ckan/templates/layout.html:54
 msgid "CKAN Logo"
 msgstr "Logo CKAN"
 
-#: ckan/templates/layout.html:61
+#: ckan/templates/layout.html:60
 msgid "Sections:"
 msgstr "Sections :"
 
-#: ckan/templates/layout.html:70
+#: ckan/templates/layout.html:62 ckan/templates/group/layout.html:16
+#: ckan/templates/home/about.html:4 ckan/templates/home/index.html:4
+#: ckan/templates/package/layout.html:16
+msgid "Home"
+msgstr "Accueil"
+
+#: ckan/templates/layout.html:63 ckan/templates/group/edit_form.html:8
+#: ckan/templates/home/index.html:39 ckan/templates/package/index.html:7
+#: ckan/templates/package/list.html:32 ckan/templates/revision/list.html:16
+#: ckan/templates/revision/read.html:20 ckan/templates/user/read.html:37
+msgid "Packages"
+msgstr "Paquets"
+
+#: ckan/templates/layout.html:64 ckan/templates/package/read_core.html:93
+#: ckan/templates/tag/index.html:7
+msgid "Tags"
+msgstr "Tags"
+
+#: ckan/templates/layout.html:65 ckan/templates/group/index.html:7
+#: ckan/templates/package/read_core.html:98
+msgid "Groups"
+msgstr "Groupes"
+
+#: ckan/templates/layout.html:66 ckan/templates/user/read.html:34
+msgid "Recent changes"
+msgstr "Modifications récentes"
+
+#: ckan/templates/layout.html:67
+msgid "API"
+msgstr ""
+
+#: ckan/templates/layout.html:69
 msgid "In this section:"
 msgstr "Dans cette section :"
 
-#: ckan/templates/layout.html:81
+#: ckan/templates/layout.html:80
 msgid "Skip to page content"
 msgstr "Aller vers le contenu de la page"
 
-#: ckan/templates/layout.html:81
+#: ckan/templates/layout.html:80
 msgid "[ Skip to main content ]"
 msgstr "[ Aller vers le contenu principal ]"
 
-#: ckan/templates/layout.html:95
+#: ckan/templates/layout.html:94
 msgid "Master content template placeholder … please replace me."
 msgstr "Master content template placeholder … please replace me."
 
-#: ckan/templates/layout.html:100
+#: ckan/templates/layout.html:99
 msgid "Valid XHTML 1.1"
 msgstr "XHTML 1.1 valide"
 
-#: ckan/templates/layout.html:100
+#: ckan/templates/layout.html:99
 msgid "XHTML"
 msgstr "XHTML"
 
-#: ckan/templates/layout.html:101
+#: ckan/templates/layout.html:100
 msgid "CSS"
 msgstr "CSS"
 
-#: ckan/templates/layout.html:102
+#: ckan/templates/layout.html:101
 msgid "Project Home Page"
 msgstr "Page d'accueil du projet"
 
-#: ckan/templates/layout.html:103
+#: ckan/templates/layout.html:102
 msgid "Contact Us"
 msgstr "Nous contacter"
 
-#: ckan/templates/layout.html:104
+#: ckan/templates/layout.html:103
 msgid "Privacy Policy"
 msgstr "Politique de confidentialité"
 
-#: ckan/templates/layout.html:107
+#: ckan/templates/layout.html:106
 msgid "An"
 msgstr "Un projet"
 
-#: ckan/templates/layout.html:107 ckan/templates/home/about.html:46
+#: ckan/templates/layout.html:106 ckan/templates/home/about.html:46
 msgid "Open Knowledge Foundation"
 msgstr "de la fondation Open Knowledge"
 
-#: ckan/templates/layout.html:107
+#: ckan/templates/layout.html:106
 #, fuzzy
 msgid "Project"
 msgstr " "
 
-#: ckan/templates/layout.html:113
-msgid "This Content and Data is Open"
-msgstr "Ce contenu et ces données sont ouvertes"
+#: ckan/templates/layout.html:108
+msgid "v"
+msgstr ""
 
 #: ckan/templates/layout.html:109
-#, python-format
+#, fuzzy, python-format
+#| msgid "" "v%(h)s\n" "        | (c) Open Knowledge Foundation\n" "\t| All
+#| material available under an [1:open license]\n" "        | [2:[3:]]"
 msgid ""
-"v%(h)s\n"
-"        | (c) Open Knowledge Foundation\n"
-"\t| All material available under an [1:open license]\n"
-"        | [2:[3:]]"
+"| (c) Open Knowledge Foundation\n"
+"\t| All material available under an"
 msgstr ""
 "v%(h)s\n"
 "        | (c) Open Knowledge Foundation\n"
 "\t| Code et contenus disponibles sous une [1:licence libre]\n"
 "        | [2:[3:]]"
+
+#: ckan/templates/layout.html:111 ckan/templates/package/search_form.html:7
+msgid "open license"
+msgstr "licence libre"
+
+#: ckan/templates/layout.html:112
+msgid "This Content and Data is Open"
+msgstr "Ce contenu et ces données sont ouvertes"
 
 #: ckan/templates/group/authz.html:4
 msgid "Groups - Authorization -"
@@ -154,6 +193,11 @@ msgstr "Mettre à jour un rôle existant"
 msgid "Create New User Roles"
 msgstr "Créer de nouveaux rôles utilisateur"
 
+#: ckan/templates/group/authz.html:24 ckan/templates/group/edit_form.html:22
+#: ckan/templates/package/authz.html:24
+msgid "Save"
+msgstr ""
+
 #: ckan/templates/group/edit.html:4 ckan/templates/group/new.html:4
 msgid "Groups - Edit -"
 msgstr "Groupes - Éditer -"
@@ -168,13 +212,6 @@ msgstr "Éditer le groupe :"
 msgid "Error:"
 msgstr "Erreur :"
 
-#: ckan/templates/group/edit_form.html:8 ckan/templates/home/index.html:39
-#: ckan/templates/package/index.html:7 ckan/templates/package/list.html:32
-#: ckan/templates/revision/list.html:16 ckan/templates/revision/read.html:20
-#: ckan/templates/user/read.html:37
-msgid "Packages"
-msgstr "Paquets"
-
 #: ckan/templates/group/edit_form.html:15
 msgid "New Packages"
 msgstr "Nouveaux paquets"
@@ -182,10 +219,6 @@ msgstr "Nouveaux paquets"
 #: ckan/templates/group/index.html:4
 msgid "Groups - Index"
 msgstr "Groupes - Index"
-
-#: ckan/templates/group/index.html:7 ckan/templates/package/read_core.html:98
-msgid "Groups"
-msgstr "Groupes"
 
 #: ckan/templates/group/index.html:9 ckan/templates/group/read.html:40
 msgid "There are"
@@ -218,11 +251,6 @@ msgid ""
 msgstr ""
 "peut être mis en place pour spécifier quels utilisateurs ont la "
 "permission d'ajouter ou d'enlever des paquets de celle-ci."
-
-#: ckan/templates/group/layout.html:16 ckan/templates/home/about.html:4
-#: ckan/templates/home/index.html:4 ckan/templates/package/layout.html:16
-msgid "Home"
-msgstr "Accueil"
 
 #: ckan/templates/group/layout.html:17
 #, fuzzy
@@ -755,6 +783,10 @@ msgstr ""
 msgid "before submitting (opens in new window)."
 msgstr ""
 
+#: ckan/templates/package/edit_form.html:23 ckan/templates/user/edit.html:22
+msgid "Commit"
+msgstr ""
+
 #: ckan/templates/package/edit_form.html:25
 msgid "Please Note:"
 msgstr ""
@@ -802,6 +834,10 @@ msgstr ""
 #: ckan/templates/package/history.html:26 ckan/templates/revision/list.html:16
 #: ckan/templates/user/read.html:37
 msgid "Log Message"
+msgstr ""
+
+#: ckan/templates/package/history.html:43
+msgid "Compare »"
 msgstr ""
 
 #: ckan/templates/package/index.html:4
@@ -981,10 +1017,6 @@ msgstr ""
 msgid "Rating"
 msgstr ""
 
-#: ckan/templates/package/read_core.html:93 ckan/templates/tag/index.html:7
-msgid "Tags"
-msgstr "Tags"
-
 #: ckan/templates/package/read_core.html:108
 msgid "State:"
 msgstr "État"
@@ -1013,6 +1045,12 @@ msgstr "Désirez vous"
 msgid "create a new package?"
 msgstr "créer un nouveau paquet ?"
 
+#: ckan/templates/package/search_form.html:3
+#, fuzzy
+#| msgid "Search packages"
+msgid "Search Packages »"
+msgstr "Rechercher parmi les paquets"
+
 #: ckan/templates/package/search_form.html:4
 msgid "E.g. 'geo', 'shakespeare', 'science'"
 msgstr "E.g. 'geo', 'shakespeare', 'science'"
@@ -1020,10 +1058,6 @@ msgstr "E.g. 'geo', 'shakespeare', 'science'"
 #: ckan/templates/package/search_form.html:7
 msgid "Filters:"
 msgstr "Filtres :"
-
-#: ckan/templates/package/search_form.html:7
-msgid "open license"
-msgstr "licence libre"
 
 #: ckan/templates/package/search_form.html:8
 msgid "downloadable"
@@ -1270,15 +1304,4 @@ msgstr "Nombre d'éditions :"
 #: ckan/templates/user/read.html:31
 msgid "Number of packages administered:"
 msgstr "Nombre de paquets administrés :"
-
-#: ckan/templates/user/read.html:34
-msgid "Recent changes"
-msgstr "Modifications récentes"
-
-#~ msgid ""
-#~ "v%()s\n"
-#~ "        | (c) Open Knowledge Foundation\n"
-#~ "\t| All material available under an [1:open license]\n"
-#~ "        | [2:[3:]]"
-#~ msgstr ""
 
