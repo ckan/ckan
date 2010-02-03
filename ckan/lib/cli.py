@@ -45,7 +45,7 @@ class ManageDb(CkanCommand):
     db load-data4nr {file-path.csv}
     db load-cospread {file-path.csv}
     db load-esw {file-path.txt} [{host} {api-key}]
-    db load-onshub [{file-path.csv}|recent|all]
+    db load-ons [{file-path.csv}|recent|all]
     db migrate06
     db migrate09a
     db migrate09b
