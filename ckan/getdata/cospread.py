@@ -30,10 +30,10 @@ class Data(object):
         self._title_line_1 = None
         self._title_line_2 = None
         # Some packages with multiple URLs have multiple rows in the spreadsheet.
-        # self._download_urls stores all URLs in this spreadsheet so that if a
+        # self._resources stores all URLs in this spreadsheet so that if a
         # duplicate package_name is found then previous URLs are added to the
         # record.
-        self._download_urls = {} # name:[url, url]
+        self._resources = {} # name:[url, {'url':, 'description':}]
 
     def _commit_and_report(self, index):
         print 'Loaded %s lines' % index
@@ -102,22 +102,23 @@ class Data(object):
         url = _dict['url']
         notes = _dict['notes']
 
-        if self._download_urls.has_key(name):
-            download_urls = self._download_urls[name]
+        if self._resources.has_key(name):
+            resources = self._resources[name]
         else:
-            download_urls = []
+            resources = []
         multiple_urls = False
+        description = _dict.get('download description', u'').strip()
         for split_char in '\n, ':
             if split_char in _dict['download url']:
                 for url_ in _dict['download url'].split(split_char):
                     if url_.strip():
-                        download_urls.append(url_)
+                        resources.append({'url':url_, 'description':description})
                 multiple_urls = True
                 break
-        if not multiple_urls:
-            download_urls.append(_dict['download url'])
-        if download_urls:
-            self._download_urls[name] = download_urls
+        if not multiple_urls and _dict['download url']:
+            resources.append({'url':_dict['download url'], 'description':description})
+        if resources:
+            self._resources[name] = resources
         format = _dict['file format']
             
         author = _dict['author - name']
@@ -204,8 +205,8 @@ class Data(object):
         pkg.maintainer_email = maintainer_email
         pkg.url=url
         pkg.resources = []
-        for download_url in download_urls:
-            pkg.add_resource(download_url, format=format)
+        for resource in resources:
+            pkg.add_resource(resource['url'], format=format, description=resource['description'])
         pkg.notes=notes
         pkg.license = model.License.by_name(u'Non-OKD Compliant::Crown Copyright')
         if not existing_pkg:
