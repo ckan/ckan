@@ -51,7 +51,7 @@ user_object_role_table = Table('user_object_role', metadata,
 
 package_role_table = Table('package_role', metadata,
            Column('user_object_role_id', UnicodeText, ForeignKey('user_object_role.id'), primary_key=True),
-           Column('package_id', Integer, ForeignKey('package.id')),
+           Column('package_id', UnicodeText, ForeignKey('package.id')),
            )
 
 group_role_table = Table('group_role', metadata,

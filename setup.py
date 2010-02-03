@@ -20,7 +20,7 @@ setup(
     long_description =__long_description__,
     install_requires=[
         # probably best to get HEAD from repo - see pip-requirements.txt
-        'vdm>=0.5a',
+        'vdm>=0.6b',
         'ckanclient>=0.1,<0.2.99',
         'Pylons>=0.9.7.0,<0.9.7.99',
         'Genshi>=0.4',

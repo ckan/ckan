@@ -107,6 +107,11 @@ class TestDataTwice:
         data.load_xml_into_db(test_data)
         data.load_xml_into_db(test_data2) # same packages, slightly different
 
+    @classmethod
+    def teardown_class(self):
+        model.Session.remove()
+        model.repo.rebuild_db()
+
     def test_packages(self):
         pkg = model.Package.by_name(u'uk_official_holdings_of_international_reserves')
         assert pkg.title == 'UK Official Holdings of International Reserves', pkg.title

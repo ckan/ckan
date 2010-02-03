@@ -6,7 +6,9 @@
 #               test_ckan_net
 #               staging_hmg_ckan_net
 #               test_hmg_ckan_net
+#               de_ckan_net
 #               backup_hmg_ckan_net
+#               fr_ckan_net
 #   operations: deploy
 #               restart_apache
 #               backup
@@ -85,6 +87,24 @@ def ckan_net():
     env.base_dir = '/home/%s/var/srvc' % env.user
     env.config_ini_filename = 'www.ckan.net.ini'
 
+def de_ckan_net():
+    env.user = 'okfn'
+    env.ckan_instance_name = 'de.ckan.net'
+    env.hosts = ['us1.okfn.org']
+    env.base_dir = '/home/okfn/var/srvc'
+
+def fr_ckan_net():
+    env.user = 'okfn'
+    env.ckan_instance_name = 'fr.ckan.net'
+    env.hosts = ['us1.okfn.org']
+    env.base_dir = '/home/okfn/var/srvc'
+
+def ca_ckan_net():
+    env.user = 'okfn'
+    env.ckan_instance_name = 'ca.ckan.net'
+    env.hosts = ['us1.okfn.org']
+    env.base_dir = '/home/okfn/var/srvc'
+
 def backup_hmg_ckan_net():
     env.user = 'okfn'
     env.ckan_instance_name = 'backup.hmg.ckan.net'
@@ -95,7 +115,8 @@ def backup_hmg_ckan_net():
 def _setup():
     if not hasattr(env, 'config_ini_filename'):
         env.config_ini_filename = '%s.ini' % env.ckan_instance_name
-    env.instance_path = os.path.join(env.base_dir, env.ckan_instance_name)
+    if not hasattr(env, 'instance_path'):
+        env.instance_path = os.path.join(env.base_dir, env.ckan_instance_name)
     if hasattr(env, 'local_backup_dir'):
         env.local_backup_dir = os.path.expanduser(env.local_backup_dir)
     if not hasattr(env, 'pyenv_dir'):
@@ -103,10 +124,9 @@ def _setup():
     if not hasattr(env, 'serve_url'):
         env.serve_url = env.ckan_instance_name
     if not hasattr(env, 'wsgi_script_filepath'):
-        env.wsgi_script_filepath = os.path.join(env.base_dir, 'bin', '%s.py' % env.ckan_instance_name)
+        env.wsgi_script_filepath = os.path.join(env.pyenv_dir, 'bin', '%s.py' % env.ckan_instance_name)
     if not hasattr(env, 'pylons_cache_dir'):
-        env.pylons_cache_dir = os.path.join(env.pyenv_dir, 'data')
-
+        env.pylons_cache_dir = os.path.join(env.instance_path, 'pylons_data')
 
 def deploy():
     '''Deploy app on server. Keeps existing config files.'''
@@ -159,8 +179,9 @@ def deploy():
 
         # create link to who.ini
         whoini = os.path.join(env.pyenv_dir, 'src', 'ckan', 'who.ini')
-        if not exists(whoini):
-            run('ln -f -s %s ./' % whoini)
+        whoini_dest = os.path.join(env.instance_path, 'who.ini')
+        if not exists(whoini_dest):
+            run('ln -f -s %s %s' % (whoini, whoini_dest)
         else:
             print 'Link to who.ini already exists'
 

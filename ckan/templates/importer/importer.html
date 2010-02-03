@@ -22,7 +22,7 @@
           ${h.file(name='file', **enable_preview)}
         </div>
         <p>
-          ${h.submit('preview', 'Preview', **enable_preview)}
+          ${h.submit('preview', _('Preview'), **enable_preview)}
         </p>
 
         <py:if test="not c.user">
