@@ -30,6 +30,8 @@ from fabric.contrib.files import *
 env.ckan_instance_name = 'test' # e.g. test.ckan.net
 env.base_dir = os.getcwd() # e.g. /home/jsmith/var/srvc
 env.local_backup_dir = '~/db_backup'
+env.ckan_repo = 'http://knowledgeforge.net/ckan/hg/raw-file/tip/'
+env.pip_requirements = 'pip-requirements-stable.txt'
 
 def local(base_dir, ckan_instance_name):
     '''Run on localhost. e.g. local:~/test,myhost.com
@@ -49,14 +51,14 @@ def staging_hmg_ckan_net():
     env.user = 'ckan1'
     env.base_dir = '/home/%s' % env.user
     env.cmd_pyenv = os.path.join(env.base_dir, 'ourenv')
-#    env.no_sudo = None
     env.ckan_instance_name = 'staging.hmg.ckan.net'
-    env.hosts = ['ssh.' + env.ckan_instance_name]
+    env.pip_requirements = 'pip-requirements-stable.txt'
 
 def test_hmg_ckan_net():
     staging_hmg_ckan_net()
     env.ckan_instance_name = 'test.hmg.ckan.net'
     env.hosts = ['ssh.' + env.ckan_instance_name]
+    env.pip_requirements = 'pip-requirements-stable.txt'
 
 def hmg_ckan_net_1():
     env.user = 'ckan1'
@@ -66,7 +68,7 @@ def hmg_ckan_net_1():
     env.ckan_instance_name = 'hmg.ckan.net'
     env.hosts = ['hmg.ckan.net']
     env.wsgi_script_filepath = None # os.path.join(env.base_dir, 'hmg.ckan.net/pyenv/bin/pylonsapp_modwsgi.py')
-    env.pylons_cache_dir = os.path.join(env.base_dir, 'env.ckan_instance_name', 'pylonsdata')
+    env.pip_requirements = 'pip-requirements-stable.txt'
 
 def hmg_ckan_net_2():
     hmg_ckan_net_1()
@@ -86,24 +88,28 @@ def ckan_net():
     env.hosts = [env.ckan_instance_name]
     env.base_dir = '/home/%s/var/srvc' % env.user
     env.config_ini_filename = 'www.ckan.net.ini'
+    env.pip_requirements = 'pip-requirements-stable.txt'
 
 def de_ckan_net():
     env.user = 'okfn'
     env.ckan_instance_name = 'de.ckan.net'
     env.hosts = ['us1.okfn.org']
     env.base_dir = '/home/okfn/var/srvc'
+    env.pip_requirements = 'pip-requirements-stable.txt'
 
 def fr_ckan_net():
     env.user = 'okfn'
     env.ckan_instance_name = 'fr.ckan.net'
     env.hosts = ['us1.okfn.org']
     env.base_dir = '/home/okfn/var/srvc'
+    env.pip_requirements = 'pip-requirements-stable.txt'
 
 def ca_ckan_net():
     env.user = 'okfn'
     env.ckan_instance_name = 'ca.ckan.net'
     env.hosts = ['us1.okfn.org']
     env.base_dir = '/home/okfn/var/srvc'
+    env.pip_requirements = 'pip-requirements-stable.txt'
 
 def backup_hmg_ckan_net():
     env.user = 'okfn'
@@ -111,7 +117,15 @@ def backup_hmg_ckan_net():
     env.hosts = [env.ckan_instance_name]
     env.base_dir = '/home/%s/var/srvc' % env.user
     env.config_ini_filename = 'backup.hmg.ckan.net.ini'
+    env.pip_requirements = 'pip-requirements-stable.txt'
 
+def test3_hmg_ckan_net():
+    env.user = 'okfn'
+    env.ckan_instance_name = 'test3.hmg.ckan.net'
+    env.hosts = [env.ckan_instance_name]
+    env.base_dir = '/home/%s/var/srvc' % env.user
+    env.config_ini_filename = 'test3.hmg.ckan.net.ini'
+    
 def _setup():
     if not hasattr(env, 'config_ini_filename'):
         env.config_ini_filename = '%s.ini' % env.ckan_instance_name
@@ -125,8 +139,6 @@ def _setup():
         env.serve_url = env.ckan_instance_name
     if not hasattr(env, 'wsgi_script_filepath'):
         env.wsgi_script_filepath = os.path.join(env.pyenv_dir, 'bin', '%s.py' % env.ckan_instance_name)
-    if not hasattr(env, 'pylons_cache_dir'):
-        env.pylons_cache_dir = os.path.join(env.instance_path, 'pylons_data')
 
 def deploy():
     '''Deploy app on server. Keeps existing config files.'''
@@ -134,16 +146,17 @@ def deploy():
     assert env.base_dir
     _setup()
     _mkdir(env.instance_path)
-    pip_req = 'http://knowledgeforge.net/ckan/hg/raw-file/tip/pip-requirements.txt'
+    pip_req = env.ckan_repo + env.pip_requirements
     with cd(env.instance_path):
 
         # get latest pip-requirements.txt
         latest_pip_file = urllib2.urlopen(pip_req)
-        local_pip_file = open('/tmp/pip-requirements.txt', 'w')
+        tmp_pip_requirements_filepath = os.path.join('/tmp', env.pip_requirements)
+        local_pip_file = open(tmp_pip_requirements_filepath, 'w')
         local_pip_file.write(latest_pip_file.read())
         local_pip_file.close()
-        remote_pip_filepath = os.path.join(env.instance_path, 'pip-requirements.txt')
-        put('/tmp/pip-requirements.txt', remote_pip_filepath)
+        remote_pip_filepath = os.path.join(env.instance_path, env.pip_requirements)
+        put(tmp_pip_requirements_filepath, remote_pip_filepath)
         assert exists(remote_pip_filepath)
 
         # create python environment
@@ -151,7 +164,7 @@ def deploy():
             _run_in_cmd_pyenv('virtualenv %s' % env.pyenv_dir)
         else:
             print 'Virtualenv already exists: %s' % env.pyenv_dir
-        _run_in_cmd_pyenv('pip -E %s install -r pip-requirements.txt' % env.pyenv_dir)
+        _run_in_cmd_pyenv('pip -E %s install -r %s' % (env.pyenv_dir, env.pip_requirements)
 
         # create config ini file
         if not exists(env.config_ini_filename):
@@ -181,22 +194,23 @@ def deploy():
         whoini = os.path.join(env.pyenv_dir, 'src', 'ckan', 'who.ini')
         whoini_dest = os.path.join(env.instance_path, 'who.ini')
         if not exists(whoini_dest):
-            run('ln -f -s %s %s' % (whoini, whoini_dest)
+            run('ln -f -s %s %s' % (whoini, whoini_dest))
         else:
             print 'Link to who.ini already exists'
 
         # create pylons cache directory
-        if not exists(env.pylons_cache_dir):
-            print 'Setting up Pylons cache directory: %s' % env.pylons_cache_dir
-            run('mkdir -p %s' % env.pylons_cache_dir)
+        pylons_cache_dir = self._get_pylons_cache_dir()
+        if not exists(pylons_cache_dir):
+            print 'Setting up Pylons cache directory: %s' % pylons_cache_dir
+            run('mkdir -p %s' % pylons_cache_dir)
             if hasattr(env, 'no_sudo'):
                 # Doesn't need sudo
-                run('chmod gu+wx -R %s' % env.pylons_cache_dir)
+                run('chmod gu+wx -R %s' % pylons_cache_dir)
             else:
-                run('chmod g+wx -R %s' % env.pylons_cache_dir)
-                sudo('chgrp -R www-data %s' % env.pylons_cache_dir)
+                run('chmod g+wx -R %s' % pylons_cache_dir)
+                sudo('chgrp -R www-data %s' % pylons_cache_dir)
         else:
-            print 'Pylons cache directory already exists: %s' % env.pylons_cache_dir
+            print 'Pylons cache directory already exists: %s' % pylons_cache_dir
 
     print 'For details of remaining setup, see deployment.rst.'
 
@@ -310,6 +324,18 @@ def _get_db_config():
     # line e.g. 'sqlalchemy.url = postgres://tester:pass@localhost/ckantest3'
     db_details = re.match('^sqlalchemy.url[^=]=\s*(?P<db_type>\w*)://(?P<db_user>\w*):(?P<db_pass>[^@]*)@(?P<db_host>\w*)/(?P<db_name>\w*)', line).groupdict()
     return db_details
+
+def _get_pylons_cache_dir():
+    config_ini_filepath = os.path.join(env.instance_path, env.config_ini_filename)
+    assert exists(config_ini_filepath)
+    output = run('grep -E "^cache_dir" %s' % config_ini_filepath)
+    lines = output.split('\n')
+    assert len(lines) == 1, 'Difficulty finding cache_dir in config %s:\n%s' % (config_ini_filepath, output)
+    line = lines[0]
+    # line e.g. 'cache_dir = %(here)s/data'
+    cache_dir_with_vars = re.match('^cache_dir[^=]=\s*(.*)', line).groups()[0]
+    cache_dir = path_with_vars % {'here':env.instance_path}
+    return cache_dir
 
 def _run_in_pyenv(command):
     '''For running commands that are installed the instance\'s python
