@@ -181,7 +181,7 @@ def deploy():
         whoini = os.path.join(env.pyenv_dir, 'src', 'ckan', 'who.ini')
         whoini_dest = os.path.join(env.instance_path, 'who.ini')
         if not exists(whoini_dest):
-            run('ln -f -s %s %s' % (whoini, whoini_dest)
+            run('ln -f -s %s %s' % (whoini, whoini_dest))
         else:
             print 'Link to who.ini already exists'
 
