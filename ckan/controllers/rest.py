@@ -1,7 +1,7 @@
 import sqlalchemy.orm
 import simplejson
 
-from ckan.controllers.base import *
+from ckan.lib.base import *
 import ckan.model as model
 import ckan.forms
 from ckan.lib.search import Search, SearchOptions
