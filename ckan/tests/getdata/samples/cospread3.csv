@@ -1,0 +1,41 @@
+"UK Public Data Project – meta-data pro-forma",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+"UNCLASSIFIED - FOR PUBLICATION",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+"Package name","Title","CO Reference","Notes","Date released","Date updated","Update frequency","Geographical Granularity",,"Geographic coverage",,,,,,"Temporal  Granularity",,"File format","Categories","National Statistic","Precision","URL","Download URL","Download description","Taxonomy URL","Department","Agency responsible","Author",,"Maintainer",,"Licence","Tags"
+"Unique identifier for this dataset.Lower-case alphanumeric and dashes only.","Display title (not a description).
+Do not end with a full stop.","For ease of reference.","Description about the dataset. First sentence should be a succinct brief description, followed by more if needed.","When the data was initially released to the public.","When the data was most recently updated.","How often this data will be updated.","Standard","Other","England","N. Ireland","Scotland","Wales","Overseas","Global","Standard","Other","If the dataset is supplied in multiple formats, give each format a separate entry.","The ONS categories under which this dataset falls","Indicate whether this is a National Statistic or not.","The data's given precision (e.g. ""to the nearest per cent"")","Internet link to a page about this data.","Internet link directly to the dataset.","Brief description to clarify when there are multiple downloads.","Internet link to a page about the taxonomies used, if available.","The Department under which this data is collected or published.","The Agency or Arms Length Body that is responsible for the dataset, if appropriate.","Permanent contact point for members of the public; not an individual.","E-mail address.","Blank unless not the author.","E-mail address, if needed.","The licence that the data is under. Should generally be core UK Crown Copyright.","Quick labels to describe the dataset.
+Lowercase alphanumeric and dashes, each tag seperated by a space."
+"judicial-and-court-statistics-england-and-wales","Judicial and Court Statistics",,"HMCS case management systems; statistical returns from other courts, agencies and organisations. Data from a range of agencies and other bodies, most notably HM Courts Service.","2006 (in its current form)","Latest publication Sep 2009","Annually","National","England and Wales","Yes","No","No","Yes","No","No","Years",,"XLS","Crime and Justice","No","Unrounded whole numbers / %ages generally to nearest %","http://www.justice.gov.uk/publications/judicialandcourtstatistics.htm",,,,"Ministry of Justice",,"Justice Statistics Analytical Services division of MOJ","statistics.enquiries@justice.gsi.gov.uk",,,"UK Crown Copyright","england-and-wales justice courts"
+"england-nhs-connecting-for-health-organisation-data-service-data-files-of-nhs organisations","Details of NHS organisations in England from Organisation Data Service, Connecting for Health, NHS England.",,"Organisation Data Service (ODS) codes provide unique identification codes for organisational entities of interest to the NHS, for example NHS Trusts or PCTs, organisation sites such as hospitals, or GP Practices. The codes are distributed to the wider NHS and uploaded on to IT systems, thus providing a set of organisational data and organisation types, names, addresses etc that are consistent across the board.
+
+These are the ODS data files for NHS Organisations: 
+(1) Regional directorates   
+(2) Strategic health authorities    
+(3) NHS Trusts 
+(4) NHS Trust sites 
+(5) Primary Care trusts 
+(6) Primary care trust sites  
+(7) Care trusts 
+(8) Care trust sites ",,12/01/2010,"Weekly",,,"Yes","No","No","No","No","No",,,"CSV","NHS Geographies","No","As specified in legislation","http://www.connectingforhealth.nhs.uk/systemsandservices/data/ods/data-files","http://www.connectingforhealth.nhs.uk/systemsandservices/data/ods/data-files/ro.csv","Regional directorates   ","http://www.datadictionary.nhs.uk/web_site_content/supporting_information/administrative_codes_and_classifications.asp?shownav=1","Department of Health","NHS Connecting for Health","Organisation Data Service                NHS Connecting for Health              Hexagon House                                 Pynes Hill                                          Rydon Lane                                        Exeter                                                  Devon EX2 5SE                                  01392 251289","exeter.helpdesk@nhs.net",,,"UK Crown Copyright","nhs-connecting-for-health-organisation-data-service-nhs-organisations"
+"england-nhs-connecting-for-health-organisation-data-service-data-files-of-nhs organisations","Details of NHS organisations in England from Organisation Data Service, Connecting for Health, NHS England.",,"Organisation Data Service (ODS) codes provide unique identification codes for organisational entities of interest to the NHS, for example NHS Trusts or PCTs, organisation sites such as hospitals, or GP Practices. The codes are distributed to the wider NHS and uploaded on to IT systems, thus providing a set of organisational data and organisation types, names, addresses etc that are consistent across the board.
+
+These are the ODS data files for NHS Organisations: 
+(1) Regional directorates   
+(2) Strategic health authorities    
+(3) NHS Trusts 
+(4) NHS Trust sites 
+(5) Primary Care trusts 
+(6) Primary care trust sites  
+(7) Care trusts 
+(8) Care trust sites ",,12/01/2010,"Weekly",,,"Yes","No","No","No","No","No",,,"CSV","NHS Geographies","No","As specified in legislation","http://www.connectingforhealth.nhs.uk/systemsandservices/data/ods/data-files","http://www.connectingforhealth.nhs.uk/systemsandservices/data/ods/data-files/ha.csv","Strategic health authorities   ","http://www.datadictionary.nhs.uk/web_site_content/supporting_information/administrative_codes_and_classifications.asp?shownav=1","Department of Health","NHS Connecting for Health","Organisation Data Service                NHS Connecting for Health              Hexagon House                                 Pynes Hill                                          Rydon Lane                                        Exeter                                                  Devon EX2 5SE                                  01392 251289","exeter.helpdesk@nhs.net",,,"UK Crown Copyright","nhs-connecting-for-health-organisation-data-service-nhs-organisations"
+"england-nhs-connecting-for-health-organisation-data-service-data-files-of-nhs organisations","Details of NHS organisations in England from Organisation Data Service, Connecting for Health, NHS England.",,"Organisation Data Service (ODS) codes provide unique identification codes for organisational entities of interest to the NHS, for example NHS Trusts or PCTs, organisation sites such as hospitals, or GP Practices. The codes are distributed to the wider NHS and uploaded on to IT systems, thus providing a set of organisational data and organisation types, names, addresses etc that are consistent across the board.
+
+These are the ODS data files for NHS Organisations: 
+(1) Regional directorates   
+(2) Strategic health authorities    
+(3) NHS Trusts 
+(4) NHS Trust sites 
+(5) Primary Care trusts 
+(6) Primary care trust sites  
+(7) Care trusts 
+(8) Care trust sites ",,12/01/2010,"Weekly",,,"Yes","No","No","No","No","No",,,"CSV","NHS Geographies","No","As specified in legislation","http://www.connectingforhealth.nhs.uk/systemsandservices/data/ods/data-files","http://www.connectingforhealth.nhs.uk/systemsandservices/data/ods/data-files/tr.csv","NHS Trusts ","http://www.datadictionary.nhs.uk/web_site_content/supporting_information/administrative_codes_and_classifications.asp?shownav=1","Department of Health","NHS Connecting for Health","Organisation Data Service                NHS Connecting for Health              Hexagon House                                 Pynes Hill                                          Rydon Lane                                        Exeter                                                  Devon EX2 5SE                                  01392 251289","exeter.helpdesk@nhs.net",,,"UK Crown Copyright","nhs-connecting-for-health-organisation-data-service-nhs-organisations"
