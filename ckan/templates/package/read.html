@@ -30,6 +30,12 @@
     <xi:include href="read_core.html" />
   </div>
 
+  <py:if test="config.get('rdf_packages')">
+    <py:def function="optional_head">
+      <link rel="alternate" type="application/rdf+xml" title="RDF Version" href="${config['rdf_packages']}${c.pkg.name}" />
+    </py:def>
+  </py:if>
+
   <xi:include href="layout.html" />
 </html>
 

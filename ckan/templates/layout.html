@@ -26,8 +26,8 @@
 
   <xi:include href="./yuicodes.html" />
 
-  <py:if test="defined('page_specific_css')">
-    ${page_specific_css()}
+  <py:if test="defined('optional_head')">
+    ${optional_head()}
   </py:if>
 </head>
 
