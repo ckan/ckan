@@ -1,12 +1,12 @@
 Production Deployment
 =====================
 
-Here's an example for deploying ckan to http://demo.ckan.net/ via Apache.
+Here's an example for deploying CKAN to http://demo.ckan.net/ via Apache.
 
 1. Ideally setup the server with Ubuntu.
 
 
-2. Ensure these packages are installed:
+2. Ensure these packages are installed::
    (e.g. sudo apt-get install <package-name>)
   * mercurial             Source control
   * python                Python interpreter
@@ -19,12 +19,18 @@ Here's an example for deploying ckan to http://demo.ckan.net/ via Apache.
   * python-virtualenv     Python virtual environment sandboxing
   * pip                   Python installer (use easy_install for this)
 
-3. Setup a PostgreSQL database::
+3. Setup a PostgreSQL database
 
-  $ sudo -u postgres createuser -S -D -R -P USER
-  Replace USER with the unix username whose home directory has the ckan install.
+  List existing databases:
+  $ psql -l
+
+  Create a user if one doesn't already exist
+  $ sudo -u postgres createuser -S -D -R -P <user>
+  Replace <user> with the unix username whose home directory has the ckan install.
   It should prompt you for a new password for the CKAN data in the database.
-  $ sudo -u postgres createdb -O USER ckandemo
+
+  Now create the database
+  $ sudo -u postgres createdb -O <user> ckandemo
 
 
 NB Instead of using these manual instruction, steps 4 to 7 can be achieved

@@ -31,7 +31,7 @@ env.ckan_instance_name = 'test' # e.g. test.ckan.net
 env.base_dir = os.getcwd() # e.g. /home/jsmith/var/srvc
 env.local_backup_dir = '~/db_backup'
 env.ckan_repo = 'http://knowledgeforge.net/ckan/hg/raw-file/tip/'
-env.pip_requirements = 'pip-requirements-stable.txt'
+env.pip_requirements = 'pip-requirements.txt'
 
 def local(base_dir, ckan_instance_name):
     '''Run on localhost. e.g. local:~/test,myhost.com
@@ -81,6 +81,13 @@ def test_ckan_net():
     env.ckan_instance_name = 'test.ckan.net'
     env.hosts = [env.ckan_instance_name]
     env.base_dir = '/home/%s/var/srvc' % env.user
+
+def stable_ckan_net():
+    env.user = 'okfn'
+    env.ckan_instance_name = 'stable.ckan.net'
+    env.hosts = ['eu1.okfn.org'] # TODO make this env.ckan_instance_name
+    env.base_dir = '/home/%s/var/srvc' % env.user
+    env.pip_requirements = 'pip-requirements-stable.txt'
 
 def ckan_net():
     env.user = 'okfn'
@@ -139,6 +146,8 @@ def _setup():
         env.serve_url = env.ckan_instance_name
     if not hasattr(env, 'wsgi_script_filepath'):
         env.wsgi_script_filepath = os.path.join(env.pyenv_dir, 'bin', '%s.py' % env.ckan_instance_name)
+    if not hasattr(env, 'who_ini_filepath'):
+        env.who_ini_filepath = os.path.join(env.pyenv_dir, 'src', 'ckan', 'who.ini')
 
 def deploy():
     '''Deploy app on server. Keeps existing config files.'''
@@ -164,7 +173,7 @@ def deploy():
             _run_in_cmd_pyenv('virtualenv %s' % env.pyenv_dir)
         else:
             print 'Virtualenv already exists: %s' % env.pyenv_dir
-        _run_in_cmd_pyenv('pip -E %s install -r %s' % (env.pyenv_dir, env.pip_requirements)
+        _run_in_cmd_pyenv('pip -E %s install -r %s' % (env.pyenv_dir, env.pip_requirements))
 
         # create config ini file
         if not exists(env.config_ini_filename):
@@ -191,26 +200,16 @@ def deploy():
             print 'Leaving WSGI script alone'
 
         # create link to who.ini
-        whoini = os.path.join(env.pyenv_dir, 'src', 'ckan', 'who.ini')
+        assert exists(env.who_ini_filepath)
         whoini_dest = os.path.join(env.instance_path, 'who.ini')
         if not exists(whoini_dest):
-            run('ln -f -s %s %s' % (whoini, whoini_dest))
+            run('ln -f -s %s %s' % (env.whoini, whoini_dest))
         else:
             print 'Link to who.ini already exists'
 
         # create pylons cache directory
-        pylons_cache_dir = self._get_pylons_cache_dir()
-        if not exists(pylons_cache_dir):
-            print 'Setting up Pylons cache directory: %s' % pylons_cache_dir
-            run('mkdir -p %s' % pylons_cache_dir)
-            if hasattr(env, 'no_sudo'):
-                # Doesn't need sudo
-                run('chmod gu+wx -R %s' % pylons_cache_dir)
-            else:
-                run('chmod g+wx -R %s' % pylons_cache_dir)
-                sudo('chgrp -R www-data %s' % pylons_cache_dir)
-        else:
-            print 'Pylons cache directory already exists: %s' % pylons_cache_dir
+        _create_live_data_dir('Pylons cache', _get_pylons_cache_dir())
+        _create_live_data_dir('OpenID store', _get_open_id_store_dir())
 
     print 'For details of remaining setup, see deployment.rst.'
 
@@ -314,29 +313,47 @@ def _get_unique_filepath(dir, exists_func, extension):
         assert count < 100, 'Unique filename (%s) overflow in dir: %s' % (extension, dir)
     return filepath
 
-def _get_db_config():
-    config_ini_filepath = os.path.join(env.instance_path, env.config_ini_filename)
-    assert exists(config_ini_filepath)
-    output = run('grep -E "^sqlalchemy.url" %s' % config_ini_filepath)
+def get_ini_value(key, ini_filepath=None):
+    if not ini_filepath:
+        # default to config ini
+        ini_filepath = os.path.join(env.instance_path, env.config_ini_filename)
+    assert exists(ini_filepath)
+    output = run('grep -E "^%s" %s' % (key, ini_filepath))
     lines = output.split('\n')
-    assert len(lines) == 1, 'Difficulty finding sqlalchemy.url in config %s:\n%s' % (config_ini_filepath, output)
-    line = lines[0]
-    # line e.g. 'sqlalchemy.url = postgres://tester:pass@localhost/ckantest3'
-    db_details = re.match('^sqlalchemy.url[^=]=\s*(?P<db_type>\w*)://(?P<db_user>\w*):(?P<db_pass>[^@]*)@(?P<db_host>\w*)/(?P<db_name>\w*)', line).groupdict()
+    assert len(lines) == 1, 'Difficulty finding key %s in config %s:\n%s' % (key, ini_filepath, output)
+    value = re.match('^%s[^=]=\s*(.*)' % key, lines[0]).groups()[0]
+    return value
+
+def _get_db_config():
+    url = get_ini_value('sqlalchemy.url')
+    # e.g. 'postgres://tester:pass@localhost/ckantest3'
+    db_details = re.match('^\s*(?P<db_type>\w*)://(?P<db_user>\w*):(?P<db_pass>[^@]*)@(?P<db_host>\w*)/(?P<db_name>\w*)', url).groupdict()
     return db_details
 
 def _get_pylons_cache_dir():
-    config_ini_filepath = os.path.join(env.instance_path, env.config_ini_filename)
-    assert exists(config_ini_filepath)
-    output = run('grep -E "^cache_dir" %s' % config_ini_filepath)
-    lines = output.split('\n')
-    assert len(lines) == 1, 'Difficulty finding cache_dir in config %s:\n%s' % (config_ini_filepath, output)
-    line = lines[0]
-    # line e.g. 'cache_dir = %(here)s/data'
-    cache_dir_with_vars = re.match('^cache_dir[^=]=\s*(.*)', line).groups()[0]
-    cache_dir = path_with_vars % {'here':env.instance_path}
-    return cache_dir
+    cache_dir = get_ini_value('cache_dir')
+    # e.g. '%(here)s/data'
+    return cache_dir % {'here':env.instance_path}
 
+def _get_open_id_store_dir():
+    store_file_path = get_ini_value('store_file_path', env.who_ini_filepath)
+    # e.g. '%(here)s/sstore'
+    return store_file_path % {'here':env.instance_path}
+    
+
+def _create_live_data_dir(readable_name, dir):
+    if not exists(dir):
+        print 'Setting up %s directory: %s' % (readable_name, dir)
+        run('mkdir -p %s' % dir)
+        if hasattr(env, 'no_sudo'):
+            # Doesn't need sudo
+            run('chmod gu+wx -R %s' % dir)
+        else:
+            run('chmod g+wx -R %s' % dir)
+            sudo('chgrp -R www-data %s' % dir)
+    else:
+        print '%s directory already exists: %s' % (readable_name, dir)
+        
 def _run_in_pyenv(command):
     '''For running commands that are installed the instance\'s python
     environment'''
