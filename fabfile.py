@@ -58,7 +58,6 @@ def test_hmg_ckan_net():
     staging_hmg_ckan_net()
     env.ckan_instance_name = 'test.hmg.ckan.net'
     env.hosts = ['ssh.' + env.ckan_instance_name]
-    env.pip_requirements = 'pip-requirements-stable.txt'
 
 def hmg_ckan_net_1():
     env.user = 'ckan1'
@@ -95,28 +94,24 @@ def ckan_net():
     env.hosts = [env.ckan_instance_name]
     env.base_dir = '/home/%s/var/srvc' % env.user
     env.config_ini_filename = 'www.ckan.net.ini'
-    env.pip_requirements = 'pip-requirements-stable.txt'
 
 def de_ckan_net():
     env.user = 'okfn'
     env.ckan_instance_name = 'de.ckan.net'
     env.hosts = ['us1.okfn.org']
     env.base_dir = '/home/okfn/var/srvc'
-    env.pip_requirements = 'pip-requirements-stable.txt'
 
 def fr_ckan_net():
     env.user = 'okfn'
     env.ckan_instance_name = 'fr.ckan.net'
     env.hosts = ['us1.okfn.org']
     env.base_dir = '/home/okfn/var/srvc'
-    env.pip_requirements = 'pip-requirements-stable.txt'
 
 def ca_ckan_net():
     env.user = 'okfn'
     env.ckan_instance_name = 'ca.ckan.net'
     env.hosts = ['us1.okfn.org']
     env.base_dir = '/home/okfn/var/srvc'
-    env.pip_requirements = 'pip-requirements-stable.txt'
 
 def backup_hmg_ckan_net():
     env.user = 'okfn'
