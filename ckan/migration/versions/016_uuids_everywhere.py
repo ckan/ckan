@@ -76,8 +76,13 @@ def convert_to_uuids(primary_table_name, foreign_tables, revision_table_name=Non
           of its related revision table, so that it can be updated at the same
           time.
           '''
+    print('** Processing %s' % primary_table_name)
+    print('*** Dropping fk constraints')
     dropped_fk_constraints = drop_constraints_and_alter_types(primary_table_name, foreign_tables, revision_table_name)
-    upgrade2(dropped_fk_constraints, primary_table_name, revision_table_name)
+    print('*** Adding fk constraints (with cascade)')
+    add_fk_constraints(dropped_fk_constraints, primary_table_name)
+    print('*** Creating UUIDs')
+    create_uuids(primary_table_name, revision_table_name)
 
 def drop_constraints_and_alter_types(primary_table_name, foreign_tables, revision_table_name):
     # 1 drop all foreign key constraints
@@ -111,9 +116,7 @@ def drop_constraints_and_alter_types(primary_table_name, foreign_tables, revisio
 
     return dropped_fk_constraints
 
-def upgrade2(dropped_fk_constraints, primary_table_name, revision_table_name):
-    metadata = MetaData(migrate_engine)
-
+def add_fk_constraints(dropped_fk_constraints, primary_table_name):
     # 3 create foreign key constraints
     for fk_constraint in dropped_fk_constraints:
         # cascade doesn't work
@@ -134,21 +137,26 @@ def upgrade2(dropped_fk_constraints, primary_table_name, revision_table_name):
                    'primary_table_name':primary_table_name}
         migrate_engine.execute(oursql)
 
+def create_uuids(primary_table_name, revision_table_name):
+    # have changed type of cols so recreate metadata
+    metadata = MetaData(migrate_engine)
+
     # 4 create uuids for primary entities and in related tables
     primary_table = Table(primary_table_name, metadata, autoload=True)
     if revision_table_name:
         revision_table = Table(revision_table_name, metadata, autoload=True)
-    for row in migrate_engine.execute(select([primary_table])):
-        uuid = make_uuid()
-        update = primary_table.update().where(primary_table.c.id==row.id).values(id=uuid)
+    # fetchall wouldn't be optimal with really large sets of data but here <20k
+    ids = [ res[0] for res in
+            migrate_engine.execute(select([primary_table.c.id])).fetchall() ]
+    for count,id in enumerate(ids):
+        # if count % 100 == 0: print(count, id)
+        myuuid = make_uuid()
+        update = primary_table.update().where(primary_table.c.id==id).values(id=myuuid)
         migrate_engine.execute(update)
     if revision_table_name:
         # ensure each id in revision table match its continuity id.
-        for row in migrate_engine.execute(select([revision_table])):
-            update = revision_table.update().values(id=revision_table.c.continuity_id)
-            migrate_engine.execute(update)
+        q = revision_table.update().values(id=revision_table.c.continuity_id)
+        migrate_engine.execute(q)
             
-
-         
 def downgrade():
     raise NotImplementedError()

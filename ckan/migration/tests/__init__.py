@@ -11,8 +11,6 @@ To setup for tests:
 
 To run a test:
     $ nosetests ckan/migration/tests/test_15.py --with-pylons=testmigrate.ini
-
-
 '''
 import os
 import sys
@@ -20,10 +18,7 @@ import subprocess
 
 from pylons import config
 
-if not config.has_key('here'):
-    err = '''ERROR: You need to run nosetests with option:
-                       --with-pylons=testmigrate.ini'''
-    assert 0, err
+assert config.has_key('here'), 'ERROR: You need to run nosetests with option: --with-pylons=testmigrate.ini'
 
 CONFIG_FILE = 'testmigrate.ini'
 DB_NAME = 'ckantestmigrate'
@@ -64,8 +59,13 @@ class TestMigrationBase(object):
     def paster(self, paster_cmd):
         self.run('paster %s --config=%s' % (paster_cmd, CONFIG_FILE))
 
+    @classmethod
+    def rebuild_db(self):
+        self.run('sudo -u postgres dropdb %s' % DB_NAME, ok_to_fail=True)
+        self.run('sudo -u postgres createdb --owner %s %s' % (DB_USER, DB_NAME))
+
 # Recreate database before all tests.
 # Note this complains of current users of the database if you run it
 # having created a session, so only do it once.
-TestMigrationBase().run('sudo -u postgres dropdb %s' % DB_NAME, ok_to_fail=True)
-TestMigrationBase().run('sudo -u postgres createdb --owner %s %s' % (DB_USER, DB_NAME))
+TestMigrationBase.rebuild_db()
+

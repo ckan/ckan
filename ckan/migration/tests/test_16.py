@@ -15,6 +15,7 @@ def _test_anna():
     assert pkg_rev
     assert pkg_rev.name == anna.name
 
+
 class Test_0_Empty(TestMigrationBase):
     @classmethod
     def setup_class(self):
@@ -36,6 +37,7 @@ class Test_0_Empty(TestMigrationBase):
 
     def test_package_details(self):
         _test_anna()
+
 
 class Test_1_BasicData(TestMigrationBase):
     @classmethod
@@ -79,10 +81,10 @@ class Test_1_BasicData(TestMigrationBase):
 class Test_2_RealData(TestMigrationBase):
     @classmethod
     def setup_class(self):
-        pass
         self.paster('db clean')
         self.setup_db()
         self.paster('db upgrade')
+        # pass
 
     def test_ckan_net(self):
         from ckan import model
@@ -98,13 +100,20 @@ class Test_2_RealData(TestMigrationBase):
         pkg_rev = model.Session.query(model.PackageRevision).get((pkg.id, pkg.revision.id))
         assert pkg_rev
         assert pkg_rev.name == pkg.name
+        assert len(pkg.all_revisions) > 1
+        for pkgrev in pkg.all_revisions:
+            assert pkgrev.id == pkg.id
 
+    def test_ckan_net_2(self):
+        from ckan import model
         id_differences = False
-        for pr in model.Session.query(model.PackageRevision):
-            pkg = pr.continuity
-#            print pr.id, pkg.id
-            if pr.id != pkg.id:
-                id_differences = True
-                print pr, pkg
-        assert not id_differences
+        obj = model.PackageRevision
+        out = model.Session.query(obj).filter(obj.id!=obj.continuity_id).all()
+        assert len(out) == 0, out
+        
+        from sqlalchemy import sql
+        out = model.Session.query(obj).filter(sql.func.length(obj.id)!=36).count()
+        assert out == 0, out
+        out = model.Session.query(obj).filter(sql.func.length(obj.continuity_id)!=36).count()
+        assert out == 0, out
 
