@@ -69,12 +69,12 @@ class RestController(BaseController):
     def create(self, register):
         # Check an API key given
         if not self._check_access(None, None):
-            return simplejson.dumps("Access denied")
+            return simplejson.dumps(_('Access denied'))
         try:
             request_data = self._get_request_data()
         except ValueError, inst:
             response.status_int = 400
-            return "JSON Error: %s" % str(inst)
+            return gettext('JSON Error: %s') % str(inst)
         try:
             if register == 'package':
                 fs = ckan.forms.package_fs
@@ -87,14 +87,14 @@ class RestController(BaseController):
                 return self._create_rating(request_data)
             else:
                 response.status_int = 400
-                return 'Cannot create new entity of this type: %s' % register
+                return gettext('Cannot create new entity of this type: %s') % register
             validation = fs.validate()
             if not validation:
                 response.status_int = 409
                 return simplejson.dumps(repr(fs.errors))
             rev = model.repo.new_revision()
             rev.author = self.rest_api_user
-            rev.message = u'REST API: Create object %s' % str(fs.name.value)
+            rev.message = _(u'REST API: Create object %s') % str(fs.name.value)
             fs.sync()
 
             # set default permissions
@@ -118,19 +118,19 @@ class RestController(BaseController):
             entity = model.Group.by_name(id)
         else:
             reponse.status_int = 400
-            return 'Cannot update entity of this type: %s' % register
+            return gettext('Cannot update entity of this type: %s') % register
         if not entity:
             response.status_int = 404
             return ''
 
         if not self._check_access(entity, model.Action.EDIT):
-            return simplejson.dumps("Access denied")
+            return simplejson.dumps(_('Access denied'))
 
         try:
             request_data = self._get_request_data()
         except ValueError, inst:
             response.status_int = 400
-            return "JSON Error: %s" % str(inst)
+            return gettext('JSON Error: %s') % str(inst)
 
         try:
             if register == 'package':
@@ -148,7 +148,7 @@ class RestController(BaseController):
                 return simplejson.dumps(repr(fs.errors))
             rev = model.repo.new_revision()
             rev.author = self.rest_api_user
-            rev.message = u'REST API: Update object %s' % str(fs.name.value)
+            rev.message = _(u'REST API: Update object %s') % str(fs.name.value)
             fs.sync()
 
             model.repo.commit()        
@@ -169,13 +169,13 @@ class RestController(BaseController):
             entity = model.Group.by_name(id)
         else:
             reponse.status_int = 400
-            return 'Cannot delete entity of this type: %s' % register
+            return gettext('Cannot delete entity of this type: %s') % register
         if not entity:
             response.status_int = 404
             return ''
 
         if not self._check_access(entity, model.Action.PURGE):
-            return simplejson.dumps("Access denied")
+            return simplejson.dumps(_('Access denied'))
             
         try:
             entity.delete()
@@ -189,7 +189,7 @@ class RestController(BaseController):
         if request.params.has_key('qjson'):
             if not request.params['qjson']:
                 response.status_int = 400
-                return '400 Blank qjson parameter'
+                return gettext('Blank qjson parameter')
             params = simplejson.loads(request.params['qjson'])
         elif request.params.values() and request.params.values() != [u''] and request.params.values() != [u'1']:
             params = request.params
@@ -198,7 +198,7 @@ class RestController(BaseController):
                 params = self._get_request_data()
             except ValueError, inst:
                 response.status_int = 400
-                return "Search params: %s" % str(inst)
+                return gettext('Search params: %s') % str(inst)
                 
         options = SearchOptions(params)
         options.search_tags = False
@@ -225,20 +225,20 @@ class RestController(BaseController):
         user = self.rest_api_user
         opts_err = None
         if not package_name:
-            opts_err = 'You must supply a package name (parameter "package").'
+            opts_err = gettext('You must supply a package name (parameter "package").')
         elif not rating:
-            opts_err = 'You must supply a rating (parameter "rating").'
+            opts_err = gettext('You must supply a rating (parameter "rating").')
         else:
             try:
                 rating_int = int(rating)
             except ValueError:
-                opts_err = 'Rating must be an integer value.'
+                opts_err = gettext('Rating must be an integer value.')
             else:
                 package = model.Package.by_name(package_name)
                 if rating < ckan.rating.MIN_RATING or rating > ckan.rating.MAX_RATING:
-                    opts_err = 'Rating must be between %i and %i.' % (ckan.rating.MIN_RATING, ckan.rating.MAX_RATING)
+                    opts_err = gettext('Rating must be between %i and %i.') % (ckan.rating.MIN_RATING, ckan.rating.MAX_RATING)
                 elif not package:
-                    opts_err = 'Package with name %r does not exist.' % package_name
+                    opts_err = gettext('Package with name %r does not exist.') % package_name
         if opts_err:
             self.log.debug(opts_err)
             response.status_int = 400
@@ -296,7 +296,7 @@ class RestController(BaseController):
         try:
             request_data = request.params.keys()[0]
         except Exception, inst:
-            msg = "Can't find entity data in request params %s: %s" % (
+            msg = _("Can't find entity data in request params %s: %s") % (
                 request.params.items(), str(inst)
             )
             raise ValueError, msg
