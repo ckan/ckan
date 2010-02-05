@@ -3,6 +3,7 @@ import urlparse
 
 import simplejson
 import genshi
+from pylons import config
 
 from ckan.lib.base import *
 from ckan.lib.search import Search, SearchOptions
@@ -73,6 +74,13 @@ class PackageController(BaseController):
         pkg = model.Package.by_name(id)
         if pkg is None:
             abort(404, '404 Not Found')
+
+        if config.get('rdf_packages'):
+            accept_headers = request.headers.get('Accept', '')
+            if 'application/rdf+xml' in accept_headers and \
+                   not 'text/html' in accept_headers:
+                rdf_url = '%s%s' % (config['rdf_packages'], pkg.name)
+                redirect(rdf_url, code=303)
 
         auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, pkg)
         if not auth_for_read:
