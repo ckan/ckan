@@ -2,7 +2,7 @@ import surf
 
 DOMAIN = 'http://ckan.net'
 CKAN_NAMESPACE = 'http://ckan.net/#'
-CKAN_SUBJECT_BASE = DOMAIN + '/package/rdf/'
+CKAN_SUBJECT_BASE = DOMAIN + '/package/'
 
 class RdfExporter(object):
     def __init__(self):
