@@ -10,7 +10,7 @@ import datetime
 
 LOG_FILENAME = os.path.expanduser('~/gov-daily.log')
 ONS_CACHE_DIR = os.path.expanduser('~/ons_data')
-DUMP_FILE_BASE = os.path.expanduser('~/data.gov.uk-daily_dump')
+DUMP_FILE_BASE = os.path.expanduser('~/data.gov.uk-daily')
 USAGE = '''Daily script for government
 Usage: python %s [config.ini]
 ''' % sys.argv[0]
