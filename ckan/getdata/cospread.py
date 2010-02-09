@@ -2,6 +2,8 @@ import re
 import os.path
 import csv
 
+import sqlalchemy
+
 import ckan.model as model
 from ckan.lib import schema_gov
 
@@ -202,8 +204,22 @@ class Data(object):
         for field in ['temporal_coverage_from', 'temporal_coverage_to']:
             extras_dict[field] = u''
 
-        # TODO search by co_id
-        existing_pkg = model.Package.by_name(name)
+        # Create/Update the package object
+        existing_pkg = None
+        if extras_dict.get('external_reference', None):
+            external_ref_query = \
+               model.Session.query(model.Package).\
+               join('_extras', aliased=True).\
+               filter(sqlalchemy.and_(\
+                  model.PackageExtra.state==model.State.ACTIVE,\
+                  model.PackageExtra.key==unicode('external_reference'))).\
+               filter(model.PackageExtra.value == extras_dict['external_reference'])
+            if external_ref_query.count() == 1:
+                existing_pkg = external_ref_query.one()
+            elif external_ref_query.count() > 1:
+                print "Warning: More than one package has external reference '%s'." % (extras_dict['external_reference'])
+        if not existing_pkg:
+            existing_pkg = model.Package.by_name(name)
         if existing_pkg:
             pkg = existing_pkg
             if not line_is_just_adding_multiple_resources:
