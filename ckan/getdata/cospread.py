@@ -181,6 +181,8 @@ class Data(object):
                         val = schema_gov.expand_abbreviations(val)
                     elif val.lower() + 's' in suggestions:
                         val = val.lower() + 's'
+                    elif val.replace('&', 'and').strip() in suggestions:
+                        val = val.replace('&', 'and').strip()
                 if val and val not in suggestions:
                     print "WARNING: Value for column '%s' of '%s' is not in suggestions '%s'" % (column, val, suggestions)
             extras_dict[extras_key] = val
