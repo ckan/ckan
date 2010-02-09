@@ -23,7 +23,7 @@ class Data(object):
             index += 1
             if index % 100 == 0:
                 self._commit_and_report(index)
-        self._commit_and_report(index)
+        self._commit_and_report(index, full=True)
 
     def _new_file_reset(self):
         self._titles_complete = False
@@ -34,9 +34,14 @@ class Data(object):
         # duplicate package_name is found then previous URLs are added to the
         # record.
         self._resources = {} # name:[url, {'url':, 'description':}]
-
-    def _commit_and_report(self, index):
+        self._packages_created = []
+        self._packages_updated = []
+        
+    def _commit_and_report(self, index, full=False):
         print 'Loaded %s lines' % index
+        if full:
+            print 'Packages created (%i): %s' % (len(self._packages_created), ' '.join(self._packages_created))
+            print 'Packages updated (%i): %s' % (len(self._packages_updated), ' '.join(self._packages_updated))
         model.repo.commit_and_remove()
 
     def _parse_line(self, row_values, line_index):
@@ -104,8 +109,10 @@ class Data(object):
 
         if self._resources.has_key(name):
             resources = self._resources[name]
+            line_is_just_adding_multiple_resources = True
         else:
             resources = []
+            line_is_just_adding_multiple_resources = False
         multiple_urls = False
         description = _dict.get('download description', u'').strip()
         for split_char in '\n, ':
@@ -175,8 +182,9 @@ class Data(object):
             if len(field_mapping) > 1:
                 suggestions = field_mapping[1]
                 if val and val not in suggestions:
-                    if val.lower() in suggestions:
-                        val = val.lower()
+                    suggestions_lower = [sugg.lower() for sugg in suggestions]
+                    if val.lower() in suggestions_lower:
+                        val = suggestions[suggestions_lower.index(val.lower())]
                     elif schema_gov.expand_abbreviations(val) in suggestions:
                         val = schema_gov.expand_abbreviations(val)
                     elif val.lower() + 's' in suggestions:
@@ -198,8 +206,11 @@ class Data(object):
         existing_pkg = model.Package.by_name(name)
         if existing_pkg:
             pkg = existing_pkg
+            if not line_is_just_adding_multiple_resources:
+                self._packages_updated.append(name)
         else:
             pkg = model.Package(name=name)
+            self._packages_created.append(name)
         pkg.title = title
         pkg.author = author
         pkg.author_email = author_email
