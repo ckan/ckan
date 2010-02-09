@@ -7,7 +7,6 @@ from pylons import config
 
 from ckan.lib.base import *
 from ckan.lib.search import Search, SearchOptions
-from ckan.lib.package_render import package_render
 from ckan.lib.package_saver import PackageSaver, ValidationException
 import ckan.forms
 import ckan.authz
