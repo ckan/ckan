@@ -17,7 +17,6 @@ for pkg in model.Session.query(model.Package):
         print pkg.name
         xl_dict = pkg_to_xl_dict(pkg)
         xl_dicts.append(xl_dict)
-full_row_dicts = [pkg_to_xl_dict(pkg) for pkg in [model.Package.by_name(u'annakarenina'), model.Package.by_name(u'warandpeace')]]
-dumper.PackagesXlWriter(full_row_dicts).save(open('23pkgs.xl', 'wb'))
+dumper.PackagesXlWriter(xl_dicts).save(open('28pkgs.xls', 'wb'))
         
 print 'Found %i matching packages' % count
