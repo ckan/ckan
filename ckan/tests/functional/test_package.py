@@ -235,6 +235,8 @@ class TestReadOnly(TestPackageForm):
         self._check_search_results(res, 'warandpeace', ['<strong>0</strong>'], only_downloadable=True )
         self._check_search_results(res, 'warandpeace', ['<strong>0</strong>'], only_open=True )
         self._check_search_results(res, 'annakarenina', ['<strong>1</strong>'], only_open=True, only_downloadable=True )
+        # check for something that also finds tags ...
+        self._check_search_results(res, 'russian', ['<strong>2</strong>'])
 
     def _check_search_results(self, page, terms, requireds, only_open=False, only_downloadable=False):
         form = page.forms[0]
