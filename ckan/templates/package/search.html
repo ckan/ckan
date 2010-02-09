@@ -14,7 +14,7 @@
       <hr />
     
       <py:if test="c.tags_count > 0">
-        <p><strong>${c.tags_count}</strong> ${plural(c.tags_count, 'tag', 'tags')} found.</p>
+        <p><strong>${c.tags_count}</strong> ${plural(c.tags_count, 'tag', 'tags')} found (max ${c.tag_limit} shown).</p>
         ${tag_list(c.tags)}
       </py:if>
 
