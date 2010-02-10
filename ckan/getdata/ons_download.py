@@ -30,13 +30,13 @@ class OnsData(object):
         
     def import_(self, url_tuples):
         from pylons import config
-        import ckan.getdata.ons_hub as ons_hub
+        import ckan.getdata.ons_import as ons_import
         import ckan.model as model
 
         num_packages_before = model.Session.query(model.Package).count()
 
         ons_cache_dir = os.path.join(config.get('here'), 'ons_data')
-        getter = ons_hub.Data()
+        getter = ons_import.Data()
         for url_tuple in url_tuples:
             url, url_name = url_tuple
             ons_filepath = self.download(url, url_name)

@@ -3,7 +3,7 @@ import os
 from pylons import config
 
 import ckan.model as model
-import ckan.getdata.ons_hub as data_getter
+import ckan.getdata.ons_import as data_getter
 
 test_data=os.path.join(config['here'], 'ckan/tests/getdata/samples/ons_hub_sample.xml')
 test_data2=os.path.join(config['here'], 'ckan/tests/getdata/samples/ons_hub_sample2.xml')

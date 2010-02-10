@@ -32,7 +32,7 @@ import loadconfig
 loadconfig.load_config(path)
 
 import ckan.model as model
-import ckan.lib.ons_data
+import ckan.getdata.ons_download as ons_download
 import ckan.lib.dumper as dumper
 
 # Check database looks right
@@ -48,7 +48,7 @@ if not os.path.exists(ONS_CACHE_DIR):
     os.makedirs(ONS_CACHE_DIR)
 try:
     logging.info('Importing recent ONS packages')
-    new_packages, num_packages_after = ckan.lib.ons_data.import_recent(ONS_CACHE_DIR, log=True)
+    new_packages, num_packages_after = ons_download.import_recent(ONS_CACHE_DIR, log=True)
 except Exception, e:
     logging.error('Exception %s importing recent ONS packages: %s', str(type(e)), traceback.format_exc())
 else:
