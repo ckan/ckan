@@ -1,5 +1,6 @@
-from ckan.lib.base import *
+from pylons.i18n import get_lang
 
+from ckan.lib.base import *
 import ckan.authz
 from datetime import datetime
 
@@ -14,10 +15,10 @@ class RevisionController(BaseController):
             # Generate and return Atom 1.0 document.
             from webhelpers.feedgenerator import Atom1Feed
             feed = Atom1Feed(
-                title=u'CKAN Package Revision History',
+                title=_(u'CKAN Package Revision History'),
                 link=h.url_for(controller='revision', action='list', id=''),
-                description=u'Recent changes to the CKAN repository.',
-                language=u'en',
+                description=_(u'Recent changes to the CKAN repository.'),
+                language=unicode(get_lang()),
             )
             select_results = model.repo.history().all()
             for revision in select_results:
@@ -39,7 +40,7 @@ class RevisionController(BaseController):
                 if revision.message:
                     item_title += ': %s' % (revision.message or '')
                 item_link = h.url_for(action='read', id=revision.id)
-                item_description = 'Packages affected: %s.\n' % pkgs
+                item_description = _('Packages affected: %s.\n') % pkgs
                 item_description += '%s' % (revision.message or '')
                 item_author_name = revision.author
                 item_pubdate = revision.timestamp
@@ -97,10 +98,10 @@ class RevisionController(BaseController):
 
     def purge(self, id=None):
         if id is None:
-            c.error = 'No revision id specified'
+            c.error = _('No revision id specified')
             return render('revision/purge')
         if not self._has_purge_permissions():
-            c.error = 'You are not authorized to perform this action'
+            c.error = _('You are not authorized to perform this action')
             return render('revision/purge')
         else:
             revision = model.Session.query(model.Revision).get(id)
@@ -109,6 +110,6 @@ class RevisionController(BaseController):
             except Exception, inst:
                 # is this a security risk?
                 # probably not because only admins get to here
-                c.error = 'Purge of revision failed: %s' % inst
+                c.error = _('Purge of revision failed: %s') % inst
             return render('revision/purge')
 

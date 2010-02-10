@@ -107,9 +107,10 @@ class Data4Nr(object):
         else:
             pkg_same_name = model.Package.by_name(new_name)
             if pkg_same_name:
+                prev_name = new_name
                 while model.Package.by_name(new_name):
                     new_name += '_'
-                print "Warning: New data4nr ID '%s' but name already taken. Reverting to %s" % (new_name, unique_name)            
+                print "Warning: New data4nr ID '%s' but name already taken. Reverting to %s" % (prev_name, new_name)
             pkg = model.Package(name=new_name)
             model.Session.add(pkg)
             self._new_pkgs.append(pkg.name)

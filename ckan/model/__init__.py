@@ -3,7 +3,7 @@ from user import user_table, User
 from group import group_table, Group, PackageGroup
 from full_search import package_search_table
 from authz import *
-from extras import PackageExtra, package_extra_table
+from extras import PackageExtra, package_extra_table, PackageExtraRevision
 from resource import PackageResource, package_resource_table
 from rating import *
 from licenses import LicenseList
@@ -37,7 +37,7 @@ class Repository(vdm.sqlalchemy.Repository):
             # context is blank as not currently used
             # Note that Role.ADMIN can already do anything - hardcoded in.
             for role, action in default_role_actions:
-                ra = RoleAction(role=role, context='',
+                ra = RoleAction(role=role, context=u'',
                         action=action,)
                 Session.save(ra)
         if Session.query(Revision).count() == 0:

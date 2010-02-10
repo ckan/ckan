@@ -26,7 +26,7 @@ class GroupController(BaseController):
             abort(404)
         auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, c.group)
         if not auth_for_read:
-            abort(401, 'Unauthorized to read %s' % id.encode('utf8'))
+            abort(401, gettext('Not authorized to read %s') % id.encode('utf8'))
 
         c.auth_for_edit = self.authorizer.am_authorized(c, model.Action.EDIT, c.group)
         c.auth_for_authz = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, c.group)
@@ -51,7 +51,7 @@ class GroupController(BaseController):
         record = model.Group
         c.error = ''
         if not c.user:
-            abort(401, 'Must be logged in to create a new group.')
+            abort(401, gettext('Must be logged in to create a new group.'))
 
         fs = ckan.forms.group_fs
 
@@ -99,7 +99,7 @@ class GroupController(BaseController):
             abort(404, '404 Not Found')
         am_authz = self.authorizer.am_authorized(c, model.Action.EDIT, group)
         if not am_authz:
-            abort(401, 'User %r unauthorized to edit %r' % (c.user, id))
+            abort(401, gettext('User %r not authorized to edit %r') % (c.user, id))
 
         if not 'commit' in request.params:
             c.group = group
@@ -135,12 +135,12 @@ class GroupController(BaseController):
     def authz(self, id):
         group = model.Group.by_name(id)
         if group is None:
-            abort(404, '404 Not Found')
+            abort(404, gettext('Group not found'))
         c.groupname = group.name
 
         c.authz_editable = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, group)
         if not c.authz_editable:
-            abort(401, '401 Access denied')                
+            abort(401, gettext('Not authorized to edit authization for group'))
 
         if 'commit' in request.params: # form posted
             # needed because request is nested
@@ -167,17 +167,17 @@ class GroupController(BaseController):
                 # new_roles.sync()
                 model.Session.commit()
                 model.Session.remove()
-                c.message = u'Added role \'%s\' for user \'%s\'' % (
+                c.message = _(u'Added role \'%s\' for user \'%s\'') % (
                     newgrouprole.role,
                     newgrouprole.user.name)
         elif 'role_to_delete' in request.params:
             grouprole_id = request.params['role_to_delete']
             grouprole = model.Session.query(model.GroupRole).get(grouprole_id)
             if grouprole is None:
-                c.error = u'Error: No role found with that id'
+                c.error = _(u'Error: No role found with that id')
             else:
                 grouprole.purge()
-                c.message = u'Deleted role \'%s\' for user \'%s\'' % \
+                c.message = _(u'Deleted role \'%s\' for user \'%s\'') % \
                             (grouprole.role, grouprole.user.name)
                 model.Session.commit()
 

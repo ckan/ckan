@@ -1,4 +1,5 @@
 import os
+import sys
 
 import paste.script
 
@@ -44,7 +45,7 @@ class ManageDb(CkanCommand):
     db load-data4nr {file-path.csv}
     db load-cospread {file-path.csv}
     db load-esw {file-path.txt} [{host} {api-key}]
-    db load-onshub [{file-path.csv}|recent|all]
+    db load-ons [{file-path.csv}|recent|all]
     db migrate06
     db migrate09a
     db migrate09b
@@ -115,6 +116,7 @@ class ManageDb(CkanCommand):
             model.repo.create_db()
         else:
             print 'Command %s not recognized' % cmd
+            sys.exit(1)
 
     def dump_or_load(self, cmd):
         print 'This functionality is mothballed for now.'

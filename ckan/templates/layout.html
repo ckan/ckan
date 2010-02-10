@@ -1,6 +1,7 @@
 <html
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip=""
   >
@@ -25,8 +26,8 @@
 
   <xi:include href="./yuicodes.html" />
 
-  <py:if test="defined('page_specific_css')">
-    ${page_specific_css()}
+  <py:if test="defined('optional_head')">
+    ${optional_head()}
   </py:if>
 </head>
 
@@ -59,12 +60,12 @@
 
     <h3 class="hidden">Sections:</h3>
     <ul id="navigation">
-      <li>${h.nav_link(c, 'Home', controller='home', id=None)}</li>
-      <li>${h.nav_link(c, 'Packages', controller='package', id=None)}</li>
-      <li>${h.nav_link(c, 'Tags', controller='tag', id=None)}</li>
-      <li>${h.nav_link(c, 'Groups', controller='group', id=None)}</li>
-      <li>${h.nav_link(c, 'Recent changes', controller='revision', id=None)}</li>
-      <li>${h.nav_link(c, 'API', controller='rest', id=None)}</li>
+      <li>${h.nav_link(c, _('Home'), controller='home', id=None)}</li>
+      <li>${h.nav_link(c, _('Packages'), controller='package', id=None)}</li>
+      <li>${h.nav_link(c, _('Tags'), controller='tag', id=None)}</li>
+      <li>${h.nav_link(c, _('Groups'), controller='group', id=None)}</li>
+      <li>${h.nav_link(c, _('Recent changes'), controller='revision', id=None)}</li>
+      <li>${h.nav_link(c, _('API'), controller='rest', id=None)}</li>
     </ul>
     <h3 class="hidden">In this section:</h3>
     <!--! This is a default (blank) subnav. -->
@@ -77,7 +78,7 @@
 
   </div><!-- /top -->
 
-  <p class="hidden"><a href="#main" title="Skip to page content">[ Skip to main content ]</a></p>
+  <p class="hidden"><a href="#main" title="Skip to page content">[ Skip to main content) ]</a></p>
 
   <div id="primary" class="sidebar">
     <primarysidebar>
@@ -102,13 +103,13 @@
         | <a href="http://www.okfn.org/contact/">Contact Us</a>
         | <a href="http://www.okfn.org/privacy-policy/">Privacy Policy</a>
       </p>
-      <p>
+      <p i18n:msg="">
         <img style="margin-bottom: -5px;" src="http://m.okfn.org/images/logo/okf_logo_white_and_green_tiny.png" /> An <a href="http://www.okfn.org/">Open Knowledge Foundation</a> Project
       </p>
-      <p>
+      <p i18n:msg="h, c">
         v${c.__version__}
         | (c) Open Knowledge Foundation
-        | All material available under an <a href="${h.url_for('license')}">open license</a>
+	| All material available under an <a href="${h.url_for('license')}">open license</a>
         | <a href="http://www.opendefinition.org/1.0/"><img
             style="border: none; margin-bottom: -4px;"
             src="http://m.okfn.org/images/ok_buttons/ok_90x15_blue.png"

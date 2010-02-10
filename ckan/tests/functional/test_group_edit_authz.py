@@ -34,10 +34,17 @@ class TestGroupEditAuthz(TestController):
         # assert not '<form' in res, res
     
     def test_1_admin_has_access(self):
-        offset = url_for(controller='group', action='authz', id=self.groupname)
-        res = self.app.get(offset, extra_environ={'REMOTE_USER':
+        offset_authz = url_for(controller='group', action='authz', id=self.groupname)
+        res = self.app.get(offset_authz, extra_environ={'REMOTE_USER':
+            self.admin}, status=200)
+
+        # check link is there too
+        offset_read = url_for(controller='group', action='read', id=self.groupname)
+        res = self.app.get(offset_read, extra_environ={'REMOTE_USER':
             self.admin})
-    
+        assert offset_authz in res
+        
+
     def test_2_read_ok(self):
         offset = url_for(controller='group', action='authz', id=self.groupname)
         res = self.app.get(offset, extra_environ={'REMOTE_USER':

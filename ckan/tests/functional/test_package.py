@@ -235,6 +235,8 @@ class TestReadOnly(TestPackageForm):
         self._check_search_results(res, 'warandpeace', ['<strong>0</strong>'], only_downloadable=True )
         self._check_search_results(res, 'warandpeace', ['<strong>0</strong>'], only_open=True )
         self._check_search_results(res, 'annakarenina', ['<strong>1</strong>'], only_open=True, only_downloadable=True )
+        # check for something that also finds tags ...
+        self._check_search_results(res, 'russian', ['<strong>2</strong>'])
 
     def _check_search_results(self, page, terms, requireds, only_open=False, only_downloadable=False):
         form = page.forms[0]
@@ -267,6 +269,8 @@ class TestEdit(TestPackageForm):
         editpkg.url = u'editpkgurl.com'
         editpkg.notes = u'Some notes'
         editpkg.add_tag_by_name(u'mytesttag')
+        editpkg.add_resource(u'url escape: & umlaut: \xfc quote: "',
+                             description=u'description escape: & umlaut: \xfc quote "')
         model.Session.save(editpkg)
         u = model.User(name=u'testadmin')
         model.Session.save(u)
@@ -382,12 +386,31 @@ u with umlaut \xc3\xbc
         fv = self.res.forms[0]
         prefix = 'Package-%s-' % self.pkgid
         fv[prefix + 'name'] = u'a' # invalid name
+        res = fv.submit('preview')
+        assert 'Error' in res, res
+        assert 'Name must be at least 2 characters long' in res, res
+        # Ensure there is an error at the top of the form and by the field
+        assert 'class="form-errors"' in res, res
+        assert 'class="field_error"' in res, res
+
         res = fv.submit('commit')
         assert 'Error' in res, res
         assert 'Name must be at least 2 characters long' in res, res
         # Ensure there is an error at the top of the form and by the field
         assert 'class="form-errors"' in res, res
         assert 'class="field_error"' in res, res
+
+    def test_missing_fields(self):
+        # User edits and a field is left out in the commit parameters.
+        # (Spammers can cause this)
+        fv = self.res.forms[0]
+        del fv.fields['log_message']
+        res = fv.submit('commit', status=400)
+
+        fv = self.res.forms[0]
+        prefix = 'Package-%s-' % self.pkgid
+        del fv.fields[prefix + 'license_id']
+        res = fv.submit('commit', status=400)     
 
     def test_edit_all_fields(self):
         # Create new item
@@ -600,6 +623,27 @@ class TestNew(TestPackageForm):
         res = fv.submit('commit')
         assert not 'Error' in res, res
 
+    def test_new_bad_name(self):
+        offset = url_for(controller='package', action='new', package_form=package_form)
+        res = self.app.get(offset)
+        assert 'Packages - New' in res
+        fv = res.forms[0]
+        prefix = 'Package--'
+        fv[prefix + 'name'] = u'a' # invalid name
+        res = fv.submit('preview')
+        assert 'Error' in res, res
+        assert 'Name must be at least 2 characters long' in res, res
+        # Ensure there is an error at the top of the form and by the field
+        assert 'class="form-errors"' in res, res
+        assert 'class="field_error"' in res, res
+
+        res = fv.submit('commit')
+        assert 'Error' in res, res
+        assert 'Name must be at least 2 characters long' in res, res
+        # Ensure there is an error at the top of the form and by the field
+        assert 'class="form-errors"' in res, res
+        assert 'class="field_error"' in res, res
+
     def test_new_all_fields(self):
         name = u'test_name2'
         title = u'Test Title'
@@ -624,10 +668,10 @@ class TestNew(TestPackageForm):
         fv[prefix+'version'] = version
         fv[prefix+'url'] = url
         fv[prefix+'resources-0-url'] = download_url
+        fv[prefix+'resources-0-description'] = u'description escape: & umlaut: \xfc quote "'.encode('utf8')
         fv[prefix+'notes'] = notes
         fv[prefix+'license_id'] = license_id
         fv[prefix+'tags'] = tags_txt
-##        fv[prefix+'groups'] = groups_txt
         for i, extra in enumerate(extras.items()):
             fv[prefix+'extras-newfield%s-key' % i] = extra[0]
             fv[prefix+'extras-newfield%s-value' % i] = extra[1]
@@ -636,10 +680,11 @@ class TestNew(TestPackageForm):
         assert not 'Error' in res, res
 
         # Check preview is correct
-        resources = [[download_url, u'', u'', u'']]
+        resources = [[download_url, u'', u'description escape: & umlaut: \xfc quote "', u'']]
+        resources_escaped = [[download_url, u'', u'description escape: &amp; umlaut: \xfc quote "', u'']]
         self._check_preview(res, name=name, title=title, version=version,
                             url=url,
-                            resources=resources, notes=notes,
+                            resources=resources_escaped, notes=notes,
                             license=license,
                             tags=tags, extras=extras.items(),
                             )
@@ -724,27 +769,23 @@ class TestNew(TestPackageForm):
         assert 'class="form-errors"' in res, res
         assert 'class="field_error"' in res, res
         
-    def test_new_bad_name(self):
+    def test_missing_fields(self):
+        # A field is left out in the commit parameters.
+        # (Spammers can cause this)
+        offset = url_for(controller='package', action='new', package_form=package_form)
+        res = self.app.get(offset)
+        assert 'Packages - New' in res
+        fv = res.forms[0]
+        del fv.fields['log_message']
+        res = fv.submit('commit', status=400)
+
         offset = url_for(controller='package', action='new', package_form=package_form)
         res = self.app.get(offset)
         assert 'Packages - New' in res
         fv = res.forms[0]
         prefix = 'Package--'
-        # should result in error as need >= 2 chars
-        fv[prefix + 'name'] = 'a'
-        fv[prefix + 'title'] = 'A Test Package'
-        fv[prefix + 'tags'] = 'test tags'
-#        fv[prefix + 'groups'] = 'test groups'
-        res = fv.submit('commit')
-        assert 'Error' in res, res
-        assert 'Name must be at least 2 characters long' in res, res
-        # Ensure there is an error at the top of the form and by the field
-        assert 'class="form-errors"' in res, res
-        assert 'class="field_error"' in res, res
-        # Ensure fields are prefilled
-        assert 'value="A Test Package"' in res, res
-        assert 'value="test tags"' in res, res
-#        assert 'value="test groups"' in res, res
+        del fv.fields[prefix + 'license_id']
+        res = fv.submit('commit', status=400)     
 
 class TestNewPreview(TestController):
     pkgname = u'testpkg'

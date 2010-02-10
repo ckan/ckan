@@ -1,14 +1,14 @@
 from meta import *
-
+from types import make_uuid
 import vdm.sqlalchemy
 
 from core import DomainObject, Package, Revision, State
 from types import JsonType
 
 package_extra_table = Table('package_extra', metadata,
-    Column('id', Integer, primary_key=True),
+    Column('id', UnicodeText, primary_key=True, default=make_uuid),
     # NB: only (package, key) pair is unique
-    Column('package_id', Integer, ForeignKey('package.id')),
+    Column('package_id', UnicodeText, ForeignKey('package.id')),
     Column('key', UnicodeText),
     Column('value', JsonType),
 )

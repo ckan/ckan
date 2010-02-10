@@ -15,6 +15,7 @@ def import_all(ons_cache_dir, log=False):
         for month in range(12):
             url_tuples.append(ons.get_url_month(month+1, year))
     url_tuples.append(ons.get_url_month(1, 2010))
+    url_tuples.append(ons.get_url_month(2, 2010)) # TODO auto update
 
     url, url_name = ons.get_url_recent()
     return ons.import_(url_tuples)

@@ -72,7 +72,7 @@ class UserController(BaseController):
             try:
                 rev = model.repo.new_revision()
                 rev.author = c.author
-                rev.message = u'Changed user details'
+                rev.message = _(u'Changed user details')
                 user.about = about
             except Exception, inst:
                 model.Session.rollback()

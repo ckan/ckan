@@ -48,7 +48,7 @@ class _Test0FilesCreation(TestController):
                 filepath = TEST_FILES_DIR + filename + extension
                 assert os.path.exists(filepath), filepath
 
-# To run this test, import xlrd
+# To run this test, install python module xlrd
 class _Test1Import(TestController):
     @classmethod
     def setup_class(self):
@@ -167,12 +167,7 @@ def pkg_to_fs_dict(pkg):
         if (key.endswith('_id') and key != 'license_id') or key.startswith('rating') or key == 'id':
             del dict_[key]
         if key=='resources':
-            for i, res in enumerate(value):
-                prefix = 'resource-%i' % i
-                dict_[prefix + '-url'] = res['url']
-                dict_[prefix + '-format'] = res['format']
-                dict_[prefix + '-description'] = res['description']
-            del dict_[key]
+            pass
         elif isinstance(value, (list, tuple)):
             dict_[key] = ' '.join(value)
         elif key == 'license':

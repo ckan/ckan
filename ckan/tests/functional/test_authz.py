@@ -108,7 +108,7 @@ class TestUsage(TestController):
         # Test action on REST
         if action == model.Action.EDIT:
             offset = '/api/rest/%s/%s' % (entity, mode)
-            postparams = '%s=1' % simplejson.dumps({'title':u'newtitle'})
+            postparams = '%s=1' % simplejson.dumps({'title':u'newtitle'}, encoding='utf8')
             func = self.app.post
         elif action == model.Action.READ:
             offset = '/api/rest/%s/%s' % (entity, mode)

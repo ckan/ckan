@@ -39,7 +39,7 @@ class TestSearch(object):
     def _pkg_names(self, result):
         return ' '.join(result['results'])
 
-    def _check_pkg_names(self, result, names_in_result):
+    def _check_entity_names(self, result, names_in_result):
         names = result['results']
         for name in names_in_result:
             if name not in names:
@@ -68,7 +68,7 @@ class TestSearch(object):
 
     def test_1_name_multiple_results(self):
         result = Search().search(u'gov')
-        assert self._check_pkg_names(result, ('us-gov-images', 'usa-courts-gov')), self._pkg_names(result)
+        assert self._check_entity_names(result, ('us-gov-images', 'usa-courts-gov')), self._pkg_names(result)
         assert result['count'] == 4, self._pkg_names(result)
 
     def test_1_name_token(self):
@@ -76,7 +76,7 @@ class TestSearch(object):
         assert self._pkg_names(result) == 'gils', self._pkg_names(result)
 
         result = Search().search(u'title:gils')
-        assert not self._check_pkg_names(result, ('gils')), self._pkg_names(result)
+        assert not self._check_entity_names(result, ('gils')), self._pkg_names(result)
 
     def test_2_title(self):
         # exact title, one word
@@ -122,11 +122,11 @@ class TestSearch(object):
 
     def test_tags_field(self):
         result = Search().search(u'country-sweden')
-        assert self._check_pkg_names(result, ['se-publications', 'se-opengov']), self._pkg_names(result)
+        assert self._check_entity_names(result, ['se-publications', 'se-opengov']), self._pkg_names(result)
 
     def test_tags_token_simple(self):
         result = Search().search(u'tags:country-sweden')
-        assert self._check_pkg_names(result, ['se-publications', 'se-opengov']), self._pkg_names(result)
+        assert self._check_entity_names(result, ['se-publications', 'se-opengov']), self._pkg_names(result)
 
         result = Search().search(u'tags:wildlife')
         assert self._pkg_names(result) == 'us-gov-images', self._pkg_names(result)
@@ -154,7 +154,7 @@ class TestSearch(object):
                                  'entity':'tag'})
         result = Search().run(options)
         assert result['count'] == 2, result
-        assert self._check_pkg_names(result, ('gov', 'government')), self._pkg_names(result)
+        assert self._check_entity_names(result, ('gov', 'government')), self._pkg_names(result)
 
     def test_tag_basic_2(self):
         options = SearchOptions({'q':u'wildlife',
@@ -276,6 +276,14 @@ class TestSearch(object):
 
         result = Search().search(u'groups:ukgov tags:us')
         assert result['count'] == 2, self._pkg_names(result)
+
+    def test_query(self):
+        options = SearchOptions({'q':u'tags: wildlife'})
+        run_result = Search().run(options)
+        query = Search().query(options)
+        assert query.count() == run_result['count']
+        assert query.first()[0].name == run_result['results'][0], '%s\n%s' % (query.first()[0].name, run_result['results'][0])
+        
 
 class TestSearchOverall(object):
     @classmethod

@@ -1,5 +1,6 @@
 from ckan.tests import *
 import ckan.model as model
+from ckan.lib.create_test_data import CreateTestData
 
 # TODO: reenable these tests when we've worked out why it makes a few
 # subsequent tests fail (in test_group and test_package).
@@ -10,7 +11,7 @@ class _TestAdminController(TestController):
         model.Session.remove()
 
         # setup a sysadmin        
-        model.User(name=u'testsysadmin')
+        model.Session.add(model.User(name=u'testsysadmin'))        
         rev = model.repo.new_revision()
         model.repo.commit_and_remove()
 
@@ -19,6 +20,8 @@ class _TestAdminController(TestController):
         model.repo.commit_and_remove()
 
         self.testsysadmin = model.User.by_name(u'testsysadmin')
+
+        CreateTestData.create()
 
     @classmethod
     def teardown_class(self):
@@ -31,6 +34,14 @@ class _TestAdminController(TestController):
         response = self.app.get(url_for(controller='admin'), extra_environ={'REMOTE_USER': user_name.encode('utf8')})
         # Test response...
         assert 'Models' in response, response
+
+    def test_package(self):
+        user_name = self.testsysadmin.name
+        url = url_for(controller='admin', action='Package')
+        response = self.app.get(url, extra_environ={'REMOTE_USER': user_name.encode('utf8')}, status=200)
+        # Test response...
+        assert 'Package' in response, response
+        assert 'Error' not in response
 
     def test_authz_ok(self):
         offset = url_for(controller='admin')

@@ -7,9 +7,9 @@ import logging
 
 from pylons import c, cache, config, g, request, response, session
 from pylons.controllers import WSGIController
-from pylons.controllers.util import abort, etag_cache, redirect_to
+from pylons.controllers.util import abort, etag_cache, redirect_to, redirect
 from pylons.decorators import jsonify, validate
-from pylons.i18n import _, ungettext, N_
+from pylons.i18n import _, ungettext, N_, gettext
 from pylons.templating import render
 
 import ckan

@@ -6,10 +6,11 @@ import logging
 import sys
 import gzip
 import traceback
+import datetime
 
 LOG_FILENAME = os.path.expanduser('~/gov-daily.log')
 ONS_CACHE_DIR = os.path.expanduser('~/ons_data')
-DUMP_FILE_BASE = os.path.expanduser('~/data.gov.uk-daily_dump')
+DUMP_FILE_BASE = os.path.expanduser('~/data.gov.uk-daily')
 USAGE = '''Daily script for government
 Usage: python %s [config.ini]
 ''' % sys.argv[0]
@@ -17,6 +18,8 @@ Usage: python %s [config.ini]
 logging.basicConfig(filename=LOG_FILENAME, level=logging.INFO)
 logging.info('----------------------------')
 logging.info('Starting daily script')
+start_time = datetime.datetime.today()
+logging.info(start_time.strftime('%H:%M %d-%m-%Y'))
 
 if len(sys.argv) < 2 or sys.argv[1] in ('--help', '-h'):
     err = 'Error: Please specify config file.'
@@ -51,6 +54,9 @@ except Exception, e:
 else:
     logging.info('Number of packages now: %i' % num_packages_after)
 
+time_taken = (datetime.datetime.today() - start_time).seconds
+logging.info('Time taken (so far): %i seconds' % time_taken)
+
 # Dump
 logging.info('Creating database dump')
 dump_filepath_base = DUMP_FILE_BASE
@@ -69,4 +75,6 @@ json_file.close()
 #TODO
 
 # Log footer
+time_taken = (datetime.datetime.today() - start_time).seconds
+logging.info('Time taken (total): %i seconds' % time_taken)
 logging.info('----------------------------')

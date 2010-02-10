@@ -4,10 +4,10 @@ import uuid
 
 from pylons import request, response, session, config, tmpl_context as c
 from pylons.controllers.util import abort, redirect_to
+from ckan.lib.package_saver import PackageSaver, ValidationException
 import genshi
 
 from ckan.lib.base import *
-from ckan.lib.package_render import package_render
 import ckan.forms
 from licenses import LicenseList
 
@@ -33,26 +33,26 @@ class ImporterController(BaseController):
 
     def preview(self):
         if not c.user:
-            abort(401, 'Need to login before importing.')
+            abort(401, gettext('Need to login before importing.'))
         c.import_previews = []
         import ckan.lib.importer as importer
         params = dict(request.params)
         if not params.has_key('file'):
-            c.error = 'Need to specify a filename.'
+            c.error = _('Need to specify a filename.')
             return render('importer/importer')                
         if not hasattr(params['file'], 'value'):
-            c.error = 'Did not receive file successfully.'
+            c.error = _('Did not receive file successfully.')
             return render('importer/importer')
         file_buf = params['file'].value
         # save as temp file for when you do import
         self._save_tempfile(file_buf)
         if not file_buf:
-            c.error = 'File \'%s\' not found.' % params['file'].filename
+            c.error = _('File \'%s\' not found.') % params['file'].filename
             return render('importer/importer')
         try:
             importer = importer.PackageImporter(buf=file_buf)
         except importer.ImportException, e:
-            c.error = 'Error importing file \'%s\' as Excel or CSV format: %s' % (params['file'].filename, e)
+            c.error = _('Error importing file \'%s\' as Excel or CSV format: %s') % (params['file'].filename, e)
             return render('importer/importer')
         c.import_filename = params['file'].filename.lstrip(os.sep)
         if params.has_key('log_message'):
@@ -67,7 +67,7 @@ class ImporterController(BaseController):
             if errors:
                 all_errors.append(errors)
             if count < 5 or errors or warnings:
-                c.import_previews.append(genshi.HTML(self.package_render(fs, errors, warnings)))
+                c.import_previews.append(self.package_render(fs, errors, warnings))
             else:
                 c.pkgs_suppressed
             c.fs_list.append(fs)
@@ -81,7 +81,7 @@ class ImporterController(BaseController):
         try:
             importer = importer.PackageImporter(buf=file_buf)
         except importer.ImportException, e:
-            c.error = 'Error importing file \'%s\' as Excel or CSV format: %s' % (params['file'].filename, e)
+            c.error = _('Error importing file \'%s\' as Excel or CSV format: %s') % (params['file'].filename, e)
             return render('importer/importer')
         if 'log_message' in request.params:
             log_message = request.params.getone('log_message')
@@ -92,8 +92,7 @@ class ImporterController(BaseController):
             errors, warnings, existing_pkg = self._validate(fs)
             if errors:
                 print "Errors: ", errors
-                abort(400, 'Errors remain - see preview.')
-
+                abort(400, gettext('Errors remain - see preview.'))
             try:
                 rev = model.repo.new_revision()
                 rev.author = c.user
@@ -104,17 +103,17 @@ class ImporterController(BaseController):
                 raise
             
             if not existing_pkg:
-                new_pkg = model.Package.by_name(fs.name.value)
+                new_pkg = fs.model
                 user = model.User.by_name(c.user)
                 if not user:
-                    abort(401, 'Problem with user account.')
+                    abort(401, gettext('Problem with user account.'))
                 admins = [user]
                 model.setup_default_user_roles(new_pkg, admins)
 
             count += 1
 
         model.Session.commit()
-        c.message = 'Imported %s package%s.' % (count, 's' if count != 1 else '')
+        c.message = ungettext('Imported %i package.', 'Imported %i packages.', count) % count
         return render('importer/result')
 
     def doc(self):
@@ -150,7 +149,7 @@ class ImporterController(BaseController):
     def _load_tempfile(self):
         tmp_filename = session['import_filename']
         if not tmp_filename:
-            raise ImportException('Could not access import file any more.')
+            raise ImportException(_('Could not access import file any more.'))
         tmp_dir = importer_dir
         tmp_filepath = os.path.join(tmp_dir, tmp_filename)
         f_obj = open(tmp_filepath, 'rb')
@@ -162,17 +161,17 @@ class ImporterController(BaseController):
         errors = []
         warnings = []
         if not c.user:
-            abort(302, 'User is not logged in')
+            abort(302, gettext('User is not logged in'))
         else:
             user = model.User.by_name(c.user)
             if not user:
-                abort(302, 'Error with user account. Log out and log in again.')
+                abort(302, gettext('Error with user account. Log out and log in again.'))
         pkg = model.Package.by_name(fs.name.value)
         if pkg:
-            warnings.append('Package %s already exists in database. Import will edit the fields.' % fs.name.value)
+            warnings.append(_('Package %s already exists in database. Import will edit the fields.') % fs.name.value)
             am_authz = self.authorizer.am_authorized(c, model.Action.EDIT, pkg)
             if not am_authz:
-                 errors.append('User %r unauthorized to edit existing package %s' % (c.user, fs.name.value))
+                 errors.append(_('User %r unauthorized to edit existing package %s') % (c.user, fs.name.value))
         validation = fs.validate()
         if not validation:
             for field, err_list in fs.errors.items():
@@ -182,4 +181,11 @@ class ImporterController(BaseController):
         return errors, warnings, pkg
 
     def package_render(self, fs, errors, warnings):
-        
+        try:
+            PackageSaver().render_preview(fs, None, None) # create a new package for now
+            preview = h.literal(render('package/read_core'))
+        except ValidationException, error:
+            c.error, fs = error.args
+            preview = h.literal('<li>Errors: %s</li>\n') % c.error
+        return preview
+

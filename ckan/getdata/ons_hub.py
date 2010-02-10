@@ -11,7 +11,7 @@ class Data(object):
     def load_xml_into_db(self, xml_filepaths, log=False):
         self._basic_setup()
         self._logging = log
-        rev = self._new_revision()
+#        rev = self._new_revision()
         if isinstance(xml_filepaths, (str, unicode)):
             if '?' in xml_filepaths or '*' in xml_filepaths:
                 xml_filepaths = glob.glob(xml_filepaths)
@@ -33,28 +33,16 @@ class Data(object):
         self._item_count += 1
         if self._item_count % 100 == 0:
             self._commit_and_report()
-            
+
+        # process item
         title, release = self._split_title(item['title'])
         munged_title = schema_gov.name_munge(title)
         pkg = model.Package.by_name(munged_title)
-        if not pkg:
-            pkg = model.Package(name=munged_title)
-            model.Session.add(pkg)
-            self._new_package_count += 1
-            rev = self._new_revision()
-            model.Session.flush()
 
-            # Setup authz
-            user = model.User.by_name(self._username)
-            model.setup_default_user_roles(pkg, [user]) # does commit & remove
-            rev = self._new_revision()
-            pkg = model.Package.by_name(munged_title)
-
-        pkg.title = title
         # Resources
         guid = item['guid']
         existing_resource = None
-        if guid:
+        if guid and pkg:
             for res in pkg.resources:
                 if res.description:
                     for desc_bit in res.description.split('|'):
@@ -68,12 +56,7 @@ class Data(object):
         if item.get('guid', None):
             descriptors.append(item['guid'])
         description = ' | '.join(descriptors)
-        if existing_resource:
-            res = existing_resource
-            res.download_url = url
-            res.description = description
-        else:
-            pkg.add_resource(url, description=description)
+
         notes_list = []
         if item['description']:
             notes_list.append(item['description'])
@@ -84,9 +67,7 @@ class Data(object):
                        ]:
             if item[column]:
                 notes_list.append('%s: %s' % (name, item[column]))
-        pkg.notes = '\n\n'.join(notes_list)
-        rev = self._new_revision()
-        pkg.license = model.License.by_name(u'Non-OKD Compliant::Crown Copyright')
+#        rev = self._new_revision()
 
         extras = {'geographic_coverage':u'', 'external_reference':u'', 'temporal_granularity':u'', 'date_updated':u'', 'agency':u'', 'precision':u'', 'geographical_granularity':u'', 'temporal_coverage_from':u'', 'temporal_coverage_to':u'', 'national_statistic':u'', 'department':u'', 'update_frequency':u'', 'date_released':u'', 'categories':u''}
         date_released = u''
@@ -112,33 +93,66 @@ class Data(object):
                 if update_frequency_suggestion.rstrip('ly') in item_info:
                     extras['update_frequency'] = update_frequency_suggestion
         extras['import_source'] = 'ONS-%s' % self._current_filename 
-        for key, value in extras.items():
-            pkg.extras[key] = value
 
         tags = set()
         for keyword in item['hub:ipsv'].split(';') + \
                 item['hub:keywords'].split(';') + \
                 item['hub:nscl'].split(';'):
             tags.add(schema_gov.tag_munge(keyword))
+
+
+        # update package
+        if not pkg:
+            pkg = model.Package(name=munged_title)
+            model.Session.add(pkg)
+            self._new_package_count += 1
+            is_new_package = True
+            rev = self._new_revision('New package %s' % munged_title)
+##            rev = self._new_revision()
+##            model.Session.flush()
+
+        else:
+            rev = self._new_revision('Edit package %s' % munged_title)
+            is_new_package = False
+            
+
+        pkg.title = title
+        pkg.notes = '\n\n'.join(notes_list)
+        pkg.license = model.Session.query(model.License).get(self._crown_license_id)
+        pkg.extras = extras
+        if extras['department']:
+            pkg.author = extras['department']
+
+        if existing_resource:
+            res = existing_resource
+            res.download_url = url
+            res.description = description
+        else:
+            pkg.add_resource(url, description=description)
+        
         existing_tags = pkg.tags
         for pkgtag in pkg.package_tags:
             if pkgtag.tag.name not in tags:
                 pkgtag.delete()
             elif pkgtag.tag.name in existing_tags:
                 tags.remove(pkgtag.tag.name)
-        if tags:
-            rev = self._new_revision()
+##        if tags:
+##            rev = self._new_revision()
         for tag in tags:
-            pkg.add_tag_by_name(unicode(tag))
+            pkg.add_tag_by_name(unicode(tag), autoflush=False)
 
-        if extras['department']:
-            pkg.author = extras['department']
-
-        group = model.Group.by_name(self._groupname)
+        group = model.Session.query(model.Group).get(self._group_id)
         if pkg not in group.packages:
             group.packages.append(pkg)
 
-        model.Session.flush()
+        if is_new_package:
+            # Setup authz
+            user = model.Session.query(model.User).get(self._user_id)
+            pkg = model.Package.by_name(munged_title)
+            model.setup_default_user_roles(pkg, [user]) # does commit & remove
+
+        model.repo.commit_and_remove()
+#        model.Session.flush()
 
     def _source_to_department(self, source):
         dept_given = schema_gov.expand_abbreviations(source)
@@ -175,26 +189,37 @@ class Data(object):
     def _basic_setup(self):
         self._item_count = 0
         self._new_package_count = 0
+        self._crown_license_id = model.License.by_name(u'Non-OKD Compliant::Crown Copyright').id
+
 
         # ensure there is a user hmg
-        self._username = u'hmg'
-        user = model.User.by_name(self._username)
+        username = u'hmg'
+        user = model.User.by_name(username)
         if not user:
-            user = model.User(name=self._username)
+            self._new_revision('Adding user')
+            user = model.User(name=username)
             model.Session.add(user)
             
         # ensure there is a group ukgov
-        self._groupname = u'ukgov'
-        group = model.Group.by_name(self._groupname)
+        groupname = u'ukgov'
+        group = model.Group.by_name(groupname)
         if not group:
-            group = model.Group(name=self._groupname)
+            self._new_revision('Adding group')
+            group = model.Group(name=groupname)
             model.Session.add(group)
 
-    def _new_revision(self):
+        if model.Session.new:
+            model.repo.commit_and_remove()
+        self._user_id = model.User.by_name(username).id
+        self._group_id = model.Group.by_name(groupname).id
+
+    def _new_revision(self, msg=None):
         # Revision info
         rev = model.repo.new_revision()
         rev.author = u'auto-loader'
-        rev.log_message = u'Load from ONS Hub feed'
+        rev.message = u'Load from ONS feed'
+        if msg:
+            rev.message += u' - %s' % msg
         return rev
 
     def _log(self, log_func, msg):

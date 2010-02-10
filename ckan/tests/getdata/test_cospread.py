@@ -7,6 +7,7 @@ import ckan.getdata.cospread as data_getter
 
 test_data=os.path.join(config['here'], 'ckan/tests/getdata/samples/cospread.csv')
 test_data2=os.path.join(config['here'], 'ckan/tests/getdata/samples/cospread2.csv')
+test_data3=os.path.join(config['here'], 'ckan/tests/getdata/samples/cospread3.csv') # slightly altered format 29-1-2010
 
 class TestBasic:
     @classmethod
@@ -124,3 +125,61 @@ class TestDataTwice:
         q = model.Session.query(model.Package).filter_by(name=u'provision-children-under-5-england-2009')
         pkg = q.one()
         assert len(pkg.resources) == 1, pkg.resources
+
+class TestData3:
+    @classmethod
+    def setup_class(self):
+        data = data_getter.Data()
+        data.load_csv_into_db(test_data3)
+
+    @classmethod
+    def teardown_class(self):
+        model.Session.remove()
+        model.repo.rebuild_db()
+
+    def test_fields(self):
+        names = [pkg.name for pkg in model.Session.query(model.Package).all()]
+        pkg1 = model.Package.by_name(u'judicial-and-court-statistics-england-and-wales')
+        pkg2 = model.Package.by_name(u'england-nhs-connecting-for-health-organisation-data-service-data-files-of-nhsorganisations')
+        assert pkg1
+        assert pkg2
+        assert pkg1.title == 'Judicial and Court Statistics', pkg1.title
+        assert pkg1.extras['external_reference'] == u'', pkg1.extras
+        assert pkg1.notes.startswith('HMCS case management systems'), pkg1.notes
+        assert pkg1.extras['date_released'] == u'2006 (in its current form)', pkg1.extras
+        assert pkg1.extras['date_updated'] == u'Latest publication Sep 2009', pkg1.extras
+        assert pkg1.extras['update_frequency'] == u'Annually', pkg1.extras
+        assert pkg1.extras['geographical_granularity'] == u'national', pkg1.extras
+        assert pkg1.extras['geographic_coverage'] == '101000: England, Wales', pkg.extras['geographic_coverage']
+        assert pkg1.extras['temporal_granularity'] == u'years', pkg1.extras
+        assert pkg1.extras['categories'] == u'Crime and Justice', pkg1.extras
+        assert pkg1.extras['national_statistic'] == u'no', pkg1.extras
+        assert pkg1.extras['precision'] == r'Unrounded whole numbers / %ages generally to nearest %', pkg1.extras
+        assert pkg1.url == 'http://www.justice.gov.uk/publications/judicialandcourtstatistics.htm', pkg1.url
+        assert len(pkg1.resources) == 0, pkg1.resources
+        assert len(pkg2.resources) == 3, pkg2.resources
+        assert pkg2.resources[0].url == u'http://www.connectingforhealth.nhs.uk/systemsandservices/data/ods/data-files/ro.csv', pkg1.resources[0]
+        assert pkg2.resources[0].format == u'CSV', pkg2.resources[0]
+        assert pkg2.resources[0].description == u'Regional directorates', pkg2.resources[0]
+        assert pkg2.resources[1].url == u'http://www.connectingforhealth.nhs.uk/systemsandservices/data/ods/data-files/ha.csv', pkg2.resources[1]
+        assert pkg2.resources[1].format == u'CSV', pkg2.resources[1]
+        assert pkg2.resources[1].description == u'Strategic health authorities', pkg2.resources[1]
+        assert pkg2.resources[2].url == u'http://www.connectingforhealth.nhs.uk/systemsandservices/data/ods/data-files/tr.csv', pkg2.resources[2]
+        assert pkg2.resources[2].format == u'CSV', pkg2.resources[2]
+        assert pkg2.resources[2].description == u'NHS Trusts', pkg2.resources[2]
+        assert pkg1.extras.get('taxonomy_url') == '', pkg1.extras
+        assert pkg1.extras['department'] == 'Ministry of Justice', pkg1.extras['department']
+        assert pkg1.extras['agency'] == '', pkg1.extras['agency']
+        assert pkg1.author == 'Justice Statistics Analytical Services division of MOJ', pkg1.author
+        assert pkg1.author_email == 'statistics.enquiries@justice.gsi.gov.uk', pkg1.author_email
+        assert not pkg1.maintainer, pkg1.maintainer
+        assert not pkg1.maintainer_email, pkg1.maintainer_email
+        assert 'Crown Copyright' in pkg.license.name, pkg.license.name
+        tag_names = set()
+        [tag_names.add(tag.name) for tag in pkg1.tags]
+        for tag in []:
+            assert tag in tag_names, '%s not in %s' % (tag, tag_names)
+
+        assert model.Group.by_name(u'ukgov') in pkg1.groups
+        assert pkg1.extras['import_source'].startswith('COSPREAD'), pkg1.extras['import_source']
+        
