@@ -21,6 +21,7 @@ from __future__ import with_statement
 import os
 import datetime
 import urllib2
+import subprocess
 
 from fabric.api import *
 from fabric.contrib.console import *
@@ -65,14 +66,14 @@ def hmg_ckan_net_1():
     env.cmd_pyenv = os.path.join(env.base_dir, 'ourenv')
     env.no_sudo = None
     env.ckan_instance_name = 'hmg.ckan.net'
-    env.hosts = ['hmg.ckan.net']
+    env.hosts = ['ssh.hmg.ckan.net']
     env.wsgi_script_filepath = None # os.path.join(env.base_dir, 'hmg.ckan.net/pyenv/bin/pylonsapp_modwsgi.py')
     env.pip_requirements = 'pip-requirements-stable.txt'
 
 def hmg_ckan_net_2():
     hmg_ckan_net_1()
     env.ckan_instance_name = 'hmg.ckan.net.2'
-    env.hosts = ['hmg.ckan.net']
+    env.hosts = ['ssh.hmg.ckan.net']
     env.config_ini_filename = 'hmg.ckan.net.ini'
 
 def test_ckan_net():
@@ -84,7 +85,7 @@ def test_ckan_net():
 def stable_ckan_net():
     env.user = 'okfn'
     env.ckan_instance_name = 'stable.ckan.net'
-    env.hosts = ['eu1.okfn.org'] # TODO make this env.ckan_instance_name
+    env.hosts = [env.ckan_instance_name]
     env.base_dir = '/home/%s/var/srvc' % env.user
     env.pip_requirements = 'pip-requirements-stable.txt'
 
@@ -240,8 +241,14 @@ def restore_from_local(pg_dump_filepath):
     pg_dump_filepath = os.path.expanduser(pg_dump_filepath)
     assert os.path.exists(pg_dump_filepath)
     pg_dump_filename = os.path.basename(pg_dump_filepath)
+    if not pg_dump_filename.endswith('.gz'):
+        new_pg_dump_filepath = os.path.join('/tmp', pg_dump_filename)
+        subprocess.check_call('gzip -c %s > %s' % (pg_dump_filepath, new_pg_dump_filepath), shell=True)
+        pg_dump_filepath = new_pg_dump_filepath
     remote_filepath = os.path.join('/tmp', pg_dump_filename)
     put(pg_dump_filepath, remote_filepath)
+    run('gunzip %s' % remote_filepath)
+    remote_filepath.strip('.gz')
     restore(remote_filepath)
 
 def restore(pg_dump_filepath):
