@@ -76,9 +76,10 @@
       </tr>
       <tr py:for="rev in c.revisions">
         <td>
-        <py:for each="pkg in rev.packages">
+        <py:for each="pkg in rev.packages[:10]">
         <a href="${h.url_for(controller='package', action='read', id=pkg.name)}">${pkg.name}</a>
         </py:for>
+        ${'...' if len(rev.packages) > 10 else ''}
         </td>
         <td>${rev.author}</td>
         <td class="greyed">${rev.timestamp.replace(microsecond=0)}</td>

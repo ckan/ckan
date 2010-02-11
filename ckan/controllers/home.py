@@ -18,7 +18,8 @@ class HomeController(BaseController):
             tags = model.Session.query(model.Tag).all()
             tag_counts = [ (len(tag.packages), tag) for tag in tags ]
             tag_counts.sort()
-            tag_counts = tag_counts[-1:-101:-1]
+            num_tags = 50
+            tag_counts = tag_counts[-1:-1-num_tags:-1]
             random.shuffle(tag_counts)
             return tag_counts
         mycache = cache.get_cache('tag_counts', type="memory")
