@@ -22,7 +22,7 @@ class HomeController(BaseController):
             tag_counts = tag_counts[-1:-1-num_tags:-1]
             random.shuffle(tag_counts)
             return tag_counts
-        mycache = cache.get_cache('tag_counts', type="memory")
+        mycache = cache.get_cache('tag_counts')
         c.tag_counts = mycache.get_value(key=None, createfunc=tag_counts,
               expiretime=86400) # 3600=hourly, 86400=daily
         return render('home/index')
