@@ -99,7 +99,7 @@ class RestController(BaseController):
 
             # set default permissions
             if self.rest_api_user:
-                admins = [model.User.by_name(self.rest_api_user)]
+                admins = [model.User.by_name(self.rest_api_user.decode('utf8'))]
             else:
                 admins = []
             model.setup_default_user_roles(fs.model, admins)

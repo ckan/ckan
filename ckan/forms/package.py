@@ -518,7 +518,7 @@ def edit_package_dict(dict_, changed_items, id=''):
                 else:
                     dict_[key] = value
             elif key == download_url_key:
-                dict_[resources_key].insert(0, (value, '', '', ''))
+                dict_[resources_key].insert(0, (value, u'', u'', u''))
                 # blank format, description and hash
     return dict_
 
