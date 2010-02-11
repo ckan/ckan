@@ -24,7 +24,7 @@ class HomeController(BaseController):
             return tag_counts
         mycache = cache.get_cache('tag_counts', type="memory")
         c.tag_counts = mycache.get_value(key=None, createfunc=tag_counts,
-                                         expiretime=3600) # 3600 = every hour
+              expiretime=86400) # 3600=hourly, 86400=daily
         return render('home/index')
 
     def license(self):
