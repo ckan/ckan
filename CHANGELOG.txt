@@ -1,8 +1,37 @@
 CKAN CHANGELOG
 ++++++++++++++
 
-v0.11 2009-12-??
+v0.11 2010-01-25
 ================
+
+Our biggest release so far (55 tickets) with lots of new features and improvements. This release also saw a major new production deployment with the CKAN software powering http://data.gov.uk/ which had its public launch on Jan 21st!
+
+For a full listing of tickets see: <http://knowledgeforge.net/ckan/trac/milestone/v0.11>. Main highlights:
+
+  * Package Resource object (multiple download urls per package): each package
+    can have multiple 'resources' (urls) with each resource having additional
+    metadata such as format, description and hash (#88, #89, #229)
+  * "Full-text" searching of packages (#187)
+  * Semantic web integration: RDFization of all data plus integration with an
+    online RDF store (e.g. for http://www.ckan.net/ at
+    http://semantic.ckan.net/ or Talis store) (#90 #163)
+  * Package ratings (#77 #194)
+  * i18n: we now have translations into German and French with deployments at
+    http://de.ckan.net/ and http://fr.ckan.net/ (#202)
+  * Package diffs available in package history (#173)
+  * Minor:
+
+    * Package undelete (#21, #126)
+    * Automated CKAN deployment via Fabric (#213)
+    * Listings are sorted alphabetically (#195)
+    * Add extras to rest api and to ckanclient (#158 #166)
+
+  * Infrastructural:
+
+    * Change to UUIDs for revisions and all domain objects
+    * Improved search performance and better pagination
+    * Significantly improved performance in API and WUI via judicious caching 
+
 
 v0.10 2009-09-30
 ================
@@ -16,15 +45,19 @@ v0.10 2009-09-30
   * Full role-based access control for Packages and Groups (#93, #116, #114, #115, #117, #122, #120)
   * New CKAN logo (#72)
   * Infrastructural:
+
     * Upgrade to Pylons 0.9.7 (#71)
     * Convert to use formalchemy for all forms (#76)
     * Use paginate in webhelpers (#118)
+
   * Minor: 
+
     * Add author and maintainer attributes to package (#91)
     * Change package state in the WUI (delete and undelete) (#126)
     * Ensure non-active packages don't show up (#119)
     * Change tags to contain any character (other than space) (#62)
     * Add Is It Open links to package pages (#74)
+
 
 v0.9 2009-07-31
 ===============
