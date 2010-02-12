@@ -2,6 +2,8 @@ import re
 import os.path
 import csv
 
+import sqlalchemy
+
 import ckan.model as model
 from ckan.lib import schema_gov
 
@@ -23,7 +25,7 @@ class Data(object):
             index += 1
             if index % 100 == 0:
                 self._commit_and_report(index)
-        self._commit_and_report(index)
+        self._commit_and_report(index, full=True)
 
     def _new_file_reset(self):
         self._titles_complete = False
@@ -34,9 +36,14 @@ class Data(object):
         # duplicate package_name is found then previous URLs are added to the
         # record.
         self._resources = {} # name:[url, {'url':, 'description':}]
-
-    def _commit_and_report(self, index):
+        self._packages_created = []
+        self._packages_updated = []
+        
+    def _commit_and_report(self, index, full=False):
         print 'Loaded %s lines' % index
+        if full:
+            print 'Packages created (%i): %s' % (len(self._packages_created), ' '.join(self._packages_created))
+            print 'Packages updated (%i): %s' % (len(self._packages_updated), ' '.join(self._packages_updated))
         model.repo.commit_and_remove()
 
     def _parse_line(self, row_values, line_index):
@@ -104,8 +111,10 @@ class Data(object):
 
         if self._resources.has_key(name):
             resources = self._resources[name]
+            line_is_just_adding_multiple_resources = True
         else:
             resources = []
+            line_is_just_adding_multiple_resources = False
         multiple_urls = False
         description = _dict.get('download description', u'').strip()
         for split_char in '\n, ':
@@ -175,12 +184,15 @@ class Data(object):
             if len(field_mapping) > 1:
                 suggestions = field_mapping[1]
                 if val and val not in suggestions:
-                    if val.lower() in suggestions:
-                        val = val.lower()
+                    suggestions_lower = [sugg.lower() for sugg in suggestions]
+                    if val.lower() in suggestions_lower:
+                        val = suggestions[suggestions_lower.index(val.lower())]
                     elif schema_gov.expand_abbreviations(val) in suggestions:
                         val = schema_gov.expand_abbreviations(val)
                     elif val.lower() + 's' in suggestions:
                         val = val.lower() + 's'
+                    elif val.replace('&', 'and').strip() in suggestions:
+                        val = val.replace('&', 'and').strip()
                 if val and val not in suggestions:
                     print "WARNING: Value for column '%s' of '%s' is not in suggestions '%s'" % (column, val, suggestions)
             extras_dict[extras_key] = val
@@ -192,12 +204,29 @@ class Data(object):
         for field in ['temporal_coverage_from', 'temporal_coverage_to']:
             extras_dict[field] = u''
 
-        # TODO search by co_id
-        existing_pkg = model.Package.by_name(name)
+        # Create/Update the package object
+        existing_pkg = None
+        if extras_dict.get('external_reference', None):
+            external_ref_query = \
+               model.Session.query(model.Package).\
+               join('_extras', aliased=True).\
+               filter(sqlalchemy.and_(\
+                  model.PackageExtra.state==model.State.ACTIVE,\
+                  model.PackageExtra.key==unicode('external_reference'))).\
+               filter(model.PackageExtra.value == extras_dict['external_reference'])
+            if external_ref_query.count() == 1:
+                existing_pkg = external_ref_query.one()
+            elif external_ref_query.count() > 1:
+                print "Warning: More than one package has external reference '%s'." % (extras_dict['external_reference'])
+        if not existing_pkg:
+            existing_pkg = model.Package.by_name(name)
         if existing_pkg:
             pkg = existing_pkg
+            if not line_is_just_adding_multiple_resources:
+                self._packages_updated.append(name)
         else:
             pkg = model.Package(name=name)
+            self._packages_created.append(name)
         pkg.title = title
         pkg.author = author
         pkg.author_email = author_email

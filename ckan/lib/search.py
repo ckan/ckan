@@ -224,7 +224,6 @@ class Search:
     def _run_query(self, query):
         # Run the query
         self._results['count'] = query.count()
-
         query = query.offset(self._options.offset)
         query = query.limit(self._options.limit)
 
@@ -235,8 +234,6 @@ class Search:
                 results.append(result[0])
             else:
                 results.append(result)
-                
-        
         self._results['results'] = results
 
     def _filter_by_tags_or_groups(self, field, query, value_list):

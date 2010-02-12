@@ -4,10 +4,10 @@ import uuid
 
 from pylons import request, response, session, config, tmpl_context as c
 from pylons.controllers.util import abort, redirect_to
+from ckan.lib.package_saver import PackageSaver, ValidationException
 import genshi
 
 from ckan.lib.base import *
-from ckan.lib.package_render import package_render
 import ckan.forms
 from licenses import LicenseList
 
@@ -67,7 +67,7 @@ class ImporterController(BaseController):
             if errors:
                 all_errors.append(errors)
             if count < 5 or errors or warnings:
-                c.import_previews.append(genshi.HTML(self.package_render(fs, errors, warnings)))
+                c.import_previews.append(self.package_render(fs, errors, warnings))
             else:
                 c.pkgs_suppressed
             c.fs_list.append(fs)
@@ -93,7 +93,6 @@ class ImporterController(BaseController):
             if errors:
                 print "Errors: ", errors
                 abort(400, gettext('Errors remain - see preview.'))
-
             try:
                 rev = model.repo.new_revision()
                 rev.author = c.user
@@ -104,7 +103,7 @@ class ImporterController(BaseController):
                 raise
             
             if not existing_pkg:
-                new_pkg = model.Package.by_name(fs.name.value)
+                new_pkg = fs.model
                 user = model.User.by_name(c.user)
                 if not user:
                     abort(401, gettext('Problem with user account.'))
@@ -182,4 +181,11 @@ class ImporterController(BaseController):
         return errors, warnings, pkg
 
     def package_render(self, fs, errors, warnings):
-        
+        try:
+            PackageSaver().render_preview(fs, None, None) # create a new package for now
+            preview = h.literal(render('package/read_core'))
+        except ValidationException, error:
+            c.error, fs = error.args
+            preview = h.literal('<li>Errors: %s</li>\n') % c.error
+        return preview
+

@@ -1,6 +1,7 @@
 import StringIO
 
 import csv
+import re
 
 import ckan.model as model
 
@@ -27,6 +28,7 @@ class CsvData:
 
             try:
                 dialect = csv.Sniffer().sniff(csv_snippet)
+                dialect.doublequote = True # sniff doesn't seem to pick this up
             except csv.Error, inst:
                 dialect = None
             if filepath:
@@ -122,7 +124,23 @@ class PackageImporter:
                                 else:
                                     self._log.append('Warning: No license name matches \'%s\'. Ignoring license.' % cell)
                             elif title.startswith('resource-'):
-                                pkg_dict[title] = cell
+                                match = re.match('resource-(\d+)-(\w+)', title)
+                                if match:
+                                    res_index, field = match.groups()
+                                    res_index = int(res_index)
+                                    field = str(field)
+                                    if not pkg_dict.has_key('resources'):
+                                        pkg_dict['resources'] = []
+                                    resources = pkg_dict['resources']
+                                    num_new_resources = 1 + res_index - len(resources)
+                                    for i in range(num_new_resources):
+                                        blank_dict = {}
+                                        for blank_field in model.PackageResource.get_columns():
+                                            blank_dict[blank_field] = u''
+                                        pkg_dict['resources'].append(blank_dict)
+                                    pkg_dict['resources'][res_index][field] = cell
+                                else:
+                                    self._log.append('Warning: Could not understand resource title \'%s\'. Ignoring value: %s' % (title, cell))
                             elif title == 'download_url':
                                 # deprecated - only in there for compatibility
                                 pass

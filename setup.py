@@ -14,13 +14,12 @@ setup(
     author='Open Knowledge Foundation',
     author_email='info@okfn.org',
     license=__license__,
-    url='http://www.okfn.org/ckan/',
+    url='http://knowledgeforge.net/ckan/',
     description=__description__,
     keywords='data packaging component tool server',
     long_description =__long_description__,
     install_requires=[
-        # probably best to get HEAD from repo - see pip-requirements.txt
-        'vdm>=0.6b',
+        'vdm>=0.6,<0.6.99',
         'ckanclient>=0.1,<0.2.99',
         'Pylons>=0.9.7.0,<0.9.7.99',
         'Genshi>=0.4',

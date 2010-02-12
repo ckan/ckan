@@ -3,6 +3,33 @@
 
   <py:def function="page_title">Home</py:def>
 
+  <py:def function="optional_head">
+  <script src="/scripts/jquery.tagcloud.js"></script>
+  <script type="text/javascript" charset="utf-8">
+    $(document).ready(function(){
+      $.fn.tagcloud.defaults = {
+        size: {start: 10, end: 32, unit: "pt"}, 
+        color: {start: '#af8', end: '#f52'}
+      };
+      $("#tagcloud a").tagcloud();
+    })
+  </script>
+  <style type="text/css">
+    #tagcloud a {
+      text-decoration: none;
+    }
+
+    #tagcloud a:hover {
+      text-decoration: underline;
+    }
+
+    #tagcloud {
+      margin: 25px auto;
+      text-align: center;
+    }
+  </style>
+  </py:def>
+
   <py:match path="primarysidebar">
     <div class="box">
       <h2>About CKAN</h2>
@@ -31,6 +58,13 @@
 
     <xi:include href="../package/search_form.html" />
 
+    <h4>Top Tags</h4>
+    <div id="tagcloud">
+    <py:for each="count, tag in c.tag_counts">
+      <a rel="${count}" title="${count}" href="${h.url_for(controller='tag', action='read', id=tag.name)}">${tag.name}</a>
+    </py:for>
+    </div>
+
     <hr />
 
     <h4>Recently changed</h4>
@@ -42,9 +76,10 @@
       </tr>
       <tr py:for="rev in c.revisions">
         <td>
-        <py:for each="pkg in rev.packages">
+        <py:for each="pkg in rev.packages[:10]">
         <a href="${h.url_for(controller='package', action='read', id=pkg.name)}">${pkg.name}</a>
         </py:for>
+        ${'...' if len(rev.packages) > 10 else ''}
         </td>
         <td>${rev.author}</td>
         <td class="greyed">${rev.timestamp.replace(microsecond=0)}</td>
