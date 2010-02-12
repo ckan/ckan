@@ -185,6 +185,7 @@ class CreateTestData(cli.CkanCommand):
 
 Foreign characters:
 u with umlaut \xfc
+66-style quote \u201c
 
 Needs escaping:
 left arrow <

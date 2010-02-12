@@ -36,7 +36,7 @@ class SearchVectorTrigger(sqlalchemy.orm.interfaces.MapperExtension):
         if isinstance(pkg_dict['groups'], (list, tuple)):
             pkg_dict['groups'] = ' '.join(pkg_dict['groups'])
 
-        document_a = ' '.join((pkg_dict['name'] or '', pkg_dict['title'] or ''))
+        document_a = u' '.join((pkg_dict['name'] or u'', pkg_dict['title'] or u''))
         document_b_items = []
         for field_name in ['notes', 'tags', 'groups', 'author', 'maintainer']:
             val = pkg_dict.get(field_name)
@@ -47,11 +47,11 @@ class SearchVectorTrigger(sqlalchemy.orm.interfaces.MapperExtension):
             val = extras.get(extra_field_name)
             if val:
                 document_b_items.append(val)
-        document_b = ' '.join(document_b_items)
+        document_b = u' '.join(document_b_items)
 
         # Create weighted vector
         vector_sql = 'setweight(to_tsvector(%s), \'A\') || setweight(to_tsvector(%s), \'D\')'
-        params = [document_a, document_b]
+        params = [document_a.encode('utf8'), document_b.encode('utf8')]
         # See if record for this pkg exists, otherwise create it
         sql = "SELECT package_id FROM package_search WHERE package_id = %s"
         res = engine.execute(sql, pkg_dict['id'])
