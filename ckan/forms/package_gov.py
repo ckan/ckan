@@ -1,9 +1,9 @@
 import formalchemy
 from formalchemy import helpers as h
 
+from ckan.lib.helpers import literal
 import common
 import ckan.model as model
-import ckan.lib.helpers
 import package as package
 from ckan.lib import schema_gov
 
@@ -50,7 +50,7 @@ class SuggestTagRenderer(package.TagEditRenderer):
         for field_name, field in fs.render_fields.items():
             pkg_dict[field_name] = field.renderer._value
         tag_suggestions = schema_gov.suggest_tags(pkg_dict)
-        html = "<div>Suggestions (preview refreshes): %s</div>" % ' '.join(tag_suggestions)
+        html = literal("<div>Suggestions (preview refreshes): %s</div>") % ' '.join(tag_suggestions)
         html += package.TagEditRenderer.render(self, **kwargs)
         return html
 
@@ -112,8 +112,8 @@ class GeoCoverageRenderer(formalchemy.fields.FieldRenderer):
             region_str, region_munged = region
             id = '%s-%s' % (self.name, region_munged)
             checked = region_munged in value
-            cb = h.check_box(id, True, checked=checked, **kwargs)
-            html += '<label for="%s">%s %s</label>' % (id, cb, region_str)
+            cb = literal(h.check_box(id, True, checked=checked, **kwargs))
+            html += literal('<label for="%s">%s %s</label>') % (id, cb, region_str)
         return html
 
     def render_readonly(self, **kwargs):
@@ -201,9 +201,9 @@ class SelectRenderer(formalchemy.fields.FieldRenderer):
         else:
             select_field_selected = u''
             text_field_value = u''            
-        html = h.select(self.name, h.options_for_select(options, selected=select_field_selected, **kwargs))
+        html = literal(h.select(self.name, h.options_for_select(options, selected=select_field_selected, **kwargs)))
         other_name = self.name+'-other'
-        html += '<label class="inline" for="%s">Other: %s</label>' % (other_name, h.text_field(other_name, value=text_field_value, **kwargs))
+        html += literal('<label class="inline" for="%s">Other: %s</label>') % (other_name, literal(h.text_field(other_name, value=text_field_value, **kwargs)))
         return html
 
     def render_readonly(self, **kwargs):
