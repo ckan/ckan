@@ -329,7 +329,7 @@ def get_ini_value(key, ini_filepath=None):
 def _get_db_config():
     url = get_ini_value('sqlalchemy.url')
     # e.g. 'postgres://tester:pass@localhost/ckantest3'
-    db_details = re.match('^\s*(?P<db_type>\w*)://(?P<db_user>\w*):(?P<db_pass>[^@]*)@(?P<db_host>\w*)/(?P<db_name>\w*)', url).groupdict()
+    db_details = re.match('^\s*(?P<db_type>\w*)://(?P<db_user>\w*):(?P<db_pass>[^@]*)@(?P<db_host>\w*)/(?P<db_name>[\w.-]*)', url).groupdict()
     return db_details
 
 def _get_pylons_cache_dir():
