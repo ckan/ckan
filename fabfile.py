@@ -248,7 +248,7 @@ def restore_from_local(pg_dump_filepath):
     remote_filepath = os.path.join('/tmp', pg_dump_filename)
     put(pg_dump_filepath, remote_filepath)
     run('gunzip %s' % remote_filepath)
-    remote_filepath.strip('.gz')
+    remote_filepath = remote_filepath.rstrip('.gz')
     restore(remote_filepath)
 
 def restore(pg_dump_filepath):
