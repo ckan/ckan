@@ -1,0 +1,32 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <py:def function="page_title">Stats</py:def>
+
+  <div py:match="content">
+    <h1>Statistics</h1>
+
+    <h2>Top Rated Packages</h2>
+    <table>
+      <tr py:for="pkg, rating in c.top_rated_packages">
+        <td>${pkg.name}</td><td>${rating}</td>
+      </tr>
+    </table>
+
+    <h2>Most Edited Packages</h2>
+    <table>
+      <tr py:for="pkg, edits in c.most_edited_packages">
+        <td>${pkg.name}</td><td>${edits}</td>
+      </tr>
+    </table>
+
+    <h2>Largest Groups</h2>
+    <table>
+      <tr py:for="group, num_packages in c.largest_groups">
+        <td>${group.name}</td><td>${num_packages}</td>
+      </tr>
+    </table>
+  </div>
+
+  <xi:include href="layout.html" />
+</html>

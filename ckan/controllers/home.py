@@ -3,6 +3,7 @@ import random
 from pylons import cache
 
 from ckan.lib.base import *
+import ckan.lib.stats
 
 class HomeController(BaseController):
     repo = model.repo
@@ -47,3 +48,9 @@ class HomeController(BaseController):
     def about(self):
         return render('home/about')
 
+    def stats(self):
+        stats = ckan.lib.stats.Stats()
+        c.top_rated_packages = stats.top_rated_packages()
+        c.most_edited_packages = stats.most_edited_packages()
+        c.largest_groups = stats.largest_groups()
+        return render('home/stats')

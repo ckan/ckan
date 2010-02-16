@@ -23,6 +23,7 @@ def make_map():
     map.connect('guide', 'guide', controller='home', action='guide')
     map.connect('license', 'license', controller='home', action='license')
     map.connect('about', 'about', controller='home', action='about')
+    map.connect('stats', 'stats', controller='home', action='stats')
     maps.admin_map(map, controller='admin', url='/admin')
     map.connect('api/search/:register', controller='rest', action='search')
     map.connect('api/tag_counts', controller='rest', action='tag_counts')
