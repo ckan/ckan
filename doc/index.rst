@@ -1,10 +1,11 @@
-================================
-Welcome to CKAN's documentation!
-================================
+==========================================
+Welcome to CKAN's developer documentation!
+==========================================
 
-CKAN is the Comprehensive Knowledge Archive Network, a registry of open knowledge packages and projects (and a few closed ones).
+This Developer Documentation provides more advanced help for CKAN.
 
-CKAN makes it easy to find, share and reuse open content and data, especially in ways that are machine automatable. 
+The main documentation is found at `CKAN on KnowledgeForge <https://knowledgeforge.net/ckan/trac>`_.
+
 
 Contents:
 
@@ -12,7 +13,12 @@ Contents:
    :maxdepth: 2
 
    README
+   deployment
    design
+   importer
+   api
+   load_testing
+
 
 Other material
 ==============

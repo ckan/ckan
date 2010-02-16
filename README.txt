@@ -6,7 +6,7 @@ Introduction
 
 Comprehensive Knowledge Archive Network (CKAN) Software.
 
-See ckan.__long_description__ for more information.
+See :mod:`ckan.__long_description__` for more information.
 
 
 Developer Installation
