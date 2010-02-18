@@ -5,27 +5,60 @@
 
   <div py:match="content">
     <h1>Statistics</h1>
-
-    <h2>Top Rated Packages</h2>
+        
+    <h3>Top Rated Packages</h3>
     <table>
       <tr py:for="pkg, rating in c.top_rated_packages">
         <td>${pkg.name}</td><td>${rating}</td>
       </tr>
     </table>
 
-    <h2>Most Edited Packages</h2>
+    <h3>Most Edited Packages</h3>
     <table>
       <tr py:for="pkg, edits in c.most_edited_packages">
         <td>${pkg.name}</td><td>${edits}</td>
       </tr>
     </table>
 
-    <h2>Largest Groups</h2>
+    <h3>Largest Groups</h3>
     <table>
       <tr py:for="group, num_packages in c.largest_groups">
         <td>${group.name}</td><td>${num_packages}</td>
       </tr>
     </table>
+
+    <h3>Top Tags</h3>
+    <table>
+      <tr py:for="tag, num_packages in c.top_tags">
+        <td>${tag.name}</td><td>${num_packages}</td>
+      </tr>
+    </table>
+  
+    <h3>Users owning most packages</h3>
+    <table>
+      <tr py:for="user, num_packages in c.top_package_owners">
+        <td>${user.name}</td><td>${num_packages}</td>
+      </tr>
+    </table>
+  
+    <h3>Rate of new packages</h3>
+    <table>
+      <th>Week commencing</th><th>Number of new packages</th>
+      <tr py:for="week_commencing, pkg_ids in c.new_packages_by_week">
+        <td>${week_commencing}</td><td>${len(pkg_ids)}</td>
+      </tr>
+    </table>
+
+<!--
+    <h3>Rate of package revisions</h3>
+    <table>
+      <th>Week commencing</th><th>Number of package revisons</th>
+      <tr py:for="week_commencing, num_packages in c.package_revisions_by_week">
+        <td>${week_commencing}</td><td>${num_packages}</td>
+      </tr>
+    </table>
+-->
+
   </div>
 
   <xi:include href="layout.html" />

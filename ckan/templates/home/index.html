@@ -61,7 +61,7 @@
 
     <h4>Top Tags</h4>
     <div id="tagcloud">
-    <py:for each="count, tag_name in c.tag_counts">
+    <py:for each="tag_name, count in c.tag_counts">
       <a rel="${count}" title="${count}" href="${h.url_for(controller='tag',
         action='read', id=tag_name)}">${tag_name}</a>
     </py:for>

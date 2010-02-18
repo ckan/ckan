@@ -22,10 +22,9 @@ class HomeController(BaseController):
             tags = model.Session.query(model.Tag).all()
             # we take the name as dbm cache does not like Tag objects - get:
             # Error: can't pickle function objects
-            tag_counts = [ (len(tag.packages), tag.name) for tag in tags ]
-            tag_counts.sort()
-            num_tags = 50
-            tag_counts = tag_counts[-1:-1-num_tags:-1]
+            tag_counts = ckan.lib.stats.Stats().top_tags(limit=50,
+                                            returned_tag_info='name')
+            tag_counts = [ tuple(row) for row in tag_counts ]
             random.shuffle(tag_counts)
             return tag_counts
         mycache = cache.get_cache('tag_counts', type='dbm')
@@ -50,7 +49,12 @@ class HomeController(BaseController):
 
     def stats(self):
         stats = ckan.lib.stats.Stats()
+        rev_stats = ckan.lib.stats.RevisionStats()
         c.top_rated_packages = stats.top_rated_packages()
         c.most_edited_packages = stats.most_edited_packages()
         c.largest_groups = stats.largest_groups()
+        c.top_tags = stats.top_tags()
+        c.top_package_owners = stats.top_package_owners()
+        c.new_packages_by_week = rev_stats.get_new_packages_by_week()
+        c.packages_revisions_by_week = []#rev_stats.get_new_packages_by_week()
         return render('home/stats')
