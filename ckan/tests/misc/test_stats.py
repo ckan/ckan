@@ -1,11 +1,15 @@
 import datetime
 import re
 
+from pylons import config
+
 import ckan.model as model
 from ckan.tests import *
 from ckan.lib.stats import Stats, RevisionStats
+from ckan.lib import stats
 from ckan.rating import set_rating
 from ckan.model.authz import add_user_to_role
+
 
 class TestStats(TestController):
     
@@ -188,17 +192,20 @@ class TestRateStatsSimple(TimedRevision):
         assert len(new_pkgs) == 1, new_pkgs
         pkg = model.Package.by_name(self.pkg_name)
         assert pkg, self.pkg_name
-        date_ = self.datetime_last_week_started
-        assert new_pkgs[0] == (pkg.id, date_), new_pkgs[0]
+        date_ = self.date_last_week_started
+        assert new_pkgs[0][0] == pkg.id, new_pkgs[0]
+        assert datetime.date.fromordinal(new_pkgs[0][1]) == date_, new_pkgs[0]
+        assert new_pkgs[0] == (pkg.id, date_.toordinal()), new_pkgs[0]
                                
     def test_get_new_packages_by_week(self):
         pkgs_by_week = RevisionStats().get_new_packages_by_week()
         assert len(pkgs_by_week) == 2, pkgs_by_week
         pkg = model.Package.by_name(self.pkg_name)
         assert pkgs_by_week[0] == (self.date_last_week_started.strftime('%Y-%m-%d'),
-                                   [pkg.id]), pkgs_by_week[0]
+                                   [pkg.id],
+                                   1, 1), pkgs_by_week[0]
         assert pkgs_by_week[1] == (self.date_this_week_started.strftime('%Y-%m-%d'),
-                                   []), pkgs_by_week[1]
+                                   [], 0, 1), pkgs_by_week[1]
 
     def test_package_addition_rate(self):
         res = RevisionStats().package_addition_rate(weeks_ago=1)

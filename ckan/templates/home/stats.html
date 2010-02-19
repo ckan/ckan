@@ -3,6 +3,11 @@
 
   <py:def function="page_title">Stats</py:def>
 
+  <py:def function="optional_head">
+    <!--[if IE]><script language="javascript" type="text/javascript" src="/scripts/flot-0.5/excanvas.pack.js"></script><![endif]-->
+    <script type="text/javascript" src="http://m.okfn.org/ext/flot-0.6/jquery.flot.js">//pointless jscript comment</script>
+  </py:def>
+
   <div py:match="content">
     <h1>Statistics</h1>
         
@@ -41,13 +46,34 @@
       </tr>
     </table>
   
-    <h3>Rate of new packages</h3>
+    <h3>Number of packages</h3>
+    <div id="new_packages_graph" style="width:600px;height:300px"></div>
+    <script type="text/javascript">
+      var options = {
+          xaxis: {
+          mode: "time",
+          timeformat: "%y-%m-%d"
+          }
+      };
+      var data = [
+        [ 
+        <py:for each="pkg_date, pkgs, num_packages, cumulative_num_packages in c.new_packages_by_week">
+          [ new Date(${pkg_date.replace('-', ',')}), ${cumulative_num_packages} ],
+        </py:for>
+        ]
+      ];
+      $.plot($("#new_packages_graph"), data, options);
+    </script>
+    
+<!--
+    <h4>Rate of new packages added</h4>
     <table>
-      <th>Week commencing</th><th>Number of new packages</th>
-      <tr py:for="week_commencing, pkg_ids in c.new_packages_by_week">
-        <td>${week_commencing}</td><td>${len(pkg_ids)}</td>
+      <tr><th>Week commencing</th><th>Number of new packages</th></tr>
+      <tr py:for="week_commencing, pkg_ids, num_pkgs, cumulative in c.new_packages_by_week">
+        <td>${week_commencing}</td><td>${num_pkgs}</td>
       </tr>
     </table>
+-->
 
 <!--
     <h3>Rate of package revisions</h3>

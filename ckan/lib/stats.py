@@ -152,16 +152,23 @@ class RevisionStats(object):
 
     @classmethod
     def get_new_packages(self):
+        '''
+        @return: Returns list of new pkgs and date when they were created, in
+                 format: [(id, date_ordinal), ...]
+        '''
         def new_packages():
             # Can't filter by time in select because 'min' function has to
             # be 'for all time' else you get first revision in the time period.
             package_revision = table('package_revision')
             revision = table('revision')
             s = select([package_revision.c.id, func.min(revision.c.timestamp)], from_obj=[package_revision.join(revision)]).group_by(package_revision.c.id).order_by(func.min(revision.c.timestamp))
-            return model.Session.execute(s).fetchall()
-        # 3600=hourly, 86400=daily, 604800=weekly
+            res = model.Session.execute(s).fetchall() # [(id, datetime), ...]
+            res_pickleable = []
+            for pkg_id, created_datetime in res:
+                res_pickleable.append((pkg_id, created_datetime.toordinal()))
+            return res_pickleable
         if ENABLE_CACHING:
-            week_commences = get_date_week_started(datetime.date.today())
+            week_commences = self.get_date_week_started(datetime.date.today())
             key = 'all_new_packages_%s' + week_commences.strftime(DATE_FORMAT)
             new_packages = our_cache.get_value(key=key,
                                                createfunc=new_packages)
@@ -173,29 +180,35 @@ class RevisionStats(object):
     def get_new_packages_by_week(self):
         def new_packages_by_week():
             new_packages = self.get_new_packages()
-            first_date = new_packages[0][1] if new_packages else datetime.date.today()
+            first_date = datetime.date.fromordinal(new_packages[0][1]) if new_packages else datetime.date.today()
             week_commences = self.get_date_week_started(first_date)
             week_ends = week_commences + datetime.timedelta(days=7)
             week_index = 0
             weekly_pkg_ids = [] # [(week_commences, [pkg_id1, pkg_id2, ...])]
             pkg_id_stack = []
+            self._cumulative_num_pkgs = 0
+            def build_weekly_stats(week_commences, pkg_ids):
+                num_pkgs = len(pkg_ids)
+                self._cumulative_num_pkgs += num_pkgs
+                return (week_commences.strftime(DATE_FORMAT),
+                        pkg_ids, num_pkgs, self._cumulative_num_pkgs)
             for pkg_id, datetime_ in new_packages:
-                date_ = datetime2date(datetime_)
+                date_ = datetime.date.fromordinal(datetime_)
                 if date_ >= week_ends:
-                    weekly_pkg_ids.append((week_commences.strftime(DATE_FORMAT), pkg_id_stack))
+                    weekly_pkg_ids.append(build_weekly_stats(week_commences, pkg_id_stack))
                     pkg_id_stack = []
                     week_commences = week_ends
                     week_ends = week_commences + datetime.timedelta(days=7)
                 pkg_id_stack.append(pkg_id)
-            weekly_pkg_ids.append((week_commences.strftime(DATE_FORMAT), pkg_id_stack))
+            weekly_pkg_ids.append(build_weekly_stats(week_commences, pkg_id_stack))
             today = datetime.date.today()
             while week_ends < today:
                 week_commences = week_ends
                 week_ends = week_commences + datetime.timedelta(days=7)
-                weekly_pkg_ids.append((week_commences.strftime(DATE_FORMAT), []))
+                weekly_pkg_ids.append(build_weekly_stats(week_commences, []))
             return weekly_pkg_ids
         if ENABLE_CACHING:
-            week_commences = get_date_week_started(datetime.date.today())
+            week_commences = self.get_date_week_started(datetime.date.today())
             key = 'new_packages_by_week_%s' + week_commences.strftime(DATE_FORMAT)
             new_packages_by_week_ = our_cache.get_value(key=key,
                                                        createfunc=new_packages_by_week)
