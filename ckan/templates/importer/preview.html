@@ -1,5 +1,4 @@
 <html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:i18n="http://genshi.edgewall.org/i18n"
   xmlns:xi="http://www.w3.org/2001/XInclude">
   
   <py:def function="page_title">Importer - preview</py:def>
@@ -25,7 +24,7 @@
           </py:if>
 
           <label for="log_message">Optional log message about this change:</label>
-          <p class="desc" i18n:msg="">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.</p>
+          <p class="desc">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.</p>
           <textarea id="log_message" rows="3" name="log_message" cols="60">${c.log_message}</textarea>
           <div>          
             <?python enable_import = {'disabled':'disabled'} if not (c.user and c.import_previews) and not c.errors else {} ?>

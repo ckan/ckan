@@ -1,7 +1,6 @@
 <html
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:py="http://genshi.edgewall.org/"
-  xmlns:i18n="http://genshi.edgewall.org/i18n"
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip=""
   >
@@ -77,7 +76,7 @@
 
   </div><!-- /top -->
 
-  <p class="hidden"><a href="#main" title="Skip to page content">[ Skip to main content) ]</a></p>
+  <p class="hidden"><a href="#main" title="Skip to page content">[ Skip to main content ]</a></p>
 
   <div id="primary" class="sidebar">
     <primarysidebar>
@@ -102,10 +101,10 @@
         | <a href="http://www.okfn.org/contact/">Contact Us</a>
         | <a href="http://www.okfn.org/privacy-policy/">Privacy Policy</a>
       </p>
-      <p i18n:msg="">
+      <p>
         <img style="margin-bottom: -5px;" src="http://m.okfn.org/images/logo/okf_logo_white_and_green_tiny.png" /> An <a href="http://www.okfn.org/">Open Knowledge Foundation</a> Project
       </p>
-      <p i18n:msg="h, c">
+      <p>
         v${c.__version__}
         | (c) Open Knowledge Foundation
 	| All material available under an <a href="${h.url_for('license')}">open license</a>
