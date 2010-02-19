@@ -58,3 +58,12 @@ class HomeController(BaseController):
         c.new_packages_by_week = rev_stats.get_new_packages_by_week()
         c.packages_revisions_by_week = []#rev_stats.get_new_packages_by_week()
         return render('home/stats')
+
+    def cache(self, id):
+        '''Manual way to clear the caches'''
+        if id == 'clear':
+            wui_caches = ['tag_counts', 'search_results', 'stats']
+            for cache_name in wui_caches:
+                cache_ = cache.get_cache(cache_name, type='dbm')
+                cache_.clear()
+            return 'Cleared caches: %s' % ', '.join(wui_caches)
