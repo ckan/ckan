@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: ckan 0.11a\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2009-12-30 13:31+0000\n"
-"PO-Revision-Date: 2010-02-19 10:57+0100\n"
+"PO-Revision-Date: 2010-02-20 14:10+0100\n"
 "Last-Translator: Benoit Boissinot <benoit.boissinot@ens-lyon.org>\n"
 "Language-Team: fr <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
@@ -37,7 +37,6 @@ msgstr ""
 
 #: ckan/controllers/group.py:143
 #, fuzzy
-#| msgid "Authorization for group:"
 msgid "Not authorized to edit authization for group"
 msgstr "Autorisation pour le groupe :"
 
@@ -65,7 +64,6 @@ msgstr ""
 
 #: ckan/controllers/importer.py:44
 #, fuzzy
-#| msgid "You have logged out successfully."
 msgid "Did not receive file successfully."
 msgstr "Déconnexion réussie."
 
@@ -89,7 +87,6 @@ msgstr ""
 
 #: ckan/controllers/importer.py:116
 #, fuzzy, python-format
-#| msgid "registered packages"
 msgid "Imported %i package."
 msgid_plural "Imported %i packages."
 msgstr[0] "paquets enregistrés"
@@ -120,9 +117,8 @@ msgstr ""
 #: ckan/controllers/package.py:73 ckan/controllers/package.py:109
 #: ckan/controllers/package.py:229
 #, fuzzy
-#| msgid "packages found."
 msgid "Package not found"
-msgstr "paquets."
+msgstr "Paquets - Index"
 
 #: ckan/controllers/package.py:84
 #, python-format
@@ -144,10 +140,8 @@ msgid "User %r not authorized to edit %s authorizations"
 msgstr ""
 
 #: ckan/controllers/package.py:286
-#, fuzzy
-#| msgid "packages found."
 msgid "404 Package Not Found"
-msgstr "paquets."
+msgstr ""
 
 #: ckan/controllers/package.py:292
 msgid "Rating value invalid"
@@ -194,7 +188,6 @@ msgstr ""
 
 #: ckan/controllers/rest.py:201
 #, fuzzy, python-format
-#| msgid "Search packages"
 msgid "Search params: %s"
 msgstr "Rechercher parmi les paquets"
 
@@ -234,10 +227,9 @@ msgid "Recent changes to the CKAN repository."
 msgstr ""
 
 #: ckan/controllers/revision.py:43
-#, fuzzy, python-format
-#| msgid "packages found."
+#, python-format
 msgid "Packages affected: %s.\n"
-msgstr "paquets."
+msgstr ""
 
 #: ckan/controllers/revision.py:101
 msgid "No revision id specified"
@@ -343,6 +335,8 @@ msgid "Skip to page content"
 msgstr "Aller vers le contenu de la page"
 
 #: ckan/templates/layout.html:79
+#, fuzzy
+#| msgid "[ Skip to main content) ]"
 msgid "[ Skip to main content ]"
 msgstr "[ Aller vers le contenu principal ]"
 
@@ -376,23 +370,24 @@ msgstr "Politique de confidentialité"
 
 #: ckan/templates/layout.html:105
 msgid "An"
-msgstr "Un projet"
+msgstr ""
 
 #: ckan/templates/layout.html:105 ckan/templates/home/about.html:46
 msgid "Open Knowledge Foundation"
 msgstr "de la fondation Open Knowledge"
 
 #: ckan/templates/layout.html:105
-#, fuzzy
 msgid "Project"
-msgstr " "
+msgstr ""
 
 #: ckan/templates/layout.html:107
 msgid "v"
 msgstr ""
 
 #: ckan/templates/layout.html:108
-#, fuzzy
+#, fuzzy, python-format
+#| msgid "" "v%(h)s\n" "        | (c) Open Knowledge Foundation\n" "\t| All
+#| material available under an [1:open license]\n" "        | [2:[3:]]"
 msgid ""
 "| (c) Open Knowledge Foundation\n"
 "\t| All material available under an"
@@ -460,14 +455,21 @@ msgid "There are"
 msgstr "Il y a"
 
 #: ckan/templates/group/index.html:9
+#, fuzzy
+#| msgid "Groups"
 msgid "groups."
-msgstr "groupes."
+msgstr "Groupes"
 
 #: ckan/templates/group/layout.html:10
 msgid "Groups section"
 msgstr "Section groupes"
 
 #: ckan/templates/group/layout.html:11
+#, fuzzy
+#| msgid "" "Whilst tags are great at collecting packages together, there are "
+#| "occasions when you want to restrict users from editing a collection. A "
+#| "[1:group] can be set-up to specify which users have permission to add or "
+#| "remove packages from it."
 msgid ""
 "Whilst tags are great at collecting packages together, there are "
 "occasions when you want to restrict users from editing a collection. A"
@@ -476,16 +478,16 @@ msgstr ""
 "cas où l'on désire empêcher les utilisateurs d'éditer une collection. Un"
 
 #: ckan/templates/group/layout.html:11
+#, fuzzy
+#| msgid "Groups"
 msgid "group"
-msgstr "groupe"
+msgstr "Groupes"
 
 #: ckan/templates/group/layout.html:11
 msgid ""
 "can be set-up to specify which users have permission to add or remove "
 "packages from it."
 msgstr ""
-"peut être mis en place pour spécifier quels utilisateurs ont la "
-"permission d'ajouter ou d'enlever des paquets de celle-ci."
 
 #: ckan/templates/group/layout.html:17
 #, fuzzy
@@ -899,8 +901,10 @@ msgid ". It is hosted on"
 msgstr ""
 
 #: ckan/templates/home/license.html:14
+#, fuzzy
+#| msgid "open knowledge"
 msgid "KnowledgeForge"
-msgstr ""
+msgstr "connaissance ouverte"
 
 #: ckan/templates/home/license.html:14
 msgid ""
@@ -921,8 +925,10 @@ msgid "All material on this site is"
 msgstr ""
 
 #: ckan/templates/home/license.html:21
+#, fuzzy
+#| msgid "OpenID"
 msgid "open"
-msgstr ""
+msgstr "OpenID"
 
 #: ckan/templates/home/license.html:21
 msgid ""
@@ -958,7 +964,7 @@ msgstr ""
 
 #: ckan/templates/home/license.html:29
 msgid "http://www.ckan.net/dump/"
-msgstr "http://www.ckan.net/dump/"
+msgstr ""
 
 #: ckan/templates/home/stats.html:4
 msgid "Stats"
@@ -1035,14 +1041,20 @@ msgid "Optional Log Message about this Change:"
 msgstr ""
 
 #: ckan/templates/package/edit_form.html:13 ckan/templates/user/edit.html:18
+#, fuzzy
+#| msgid "You can"
 msgid "You can use"
-msgstr "Vous pouvez utiliser le"
+msgstr "Vous pouvez"
 
 #: ckan/templates/package/edit_form.html:13 ckan/templates/user/edit.html:18
+#, fuzzy
+#| msgid "You can use [1:Markdown formatting] here."
 msgid "Markdown formatting"
 msgstr "formatage Markdown"
 
 #: ckan/templates/package/edit_form.html:13 ckan/templates/user/edit.html:18
+#, fuzzy
+#| msgid "There is"
 msgid "here."
 msgstr "ici."
 
@@ -1236,7 +1248,6 @@ msgstr "Is It Open"
 
 #: ckan/templates/package/read.html:35
 #, fuzzy
-#| msgid "Version"
 msgid "RDF Version"
 msgstr "Version"
 
@@ -1315,10 +1326,8 @@ msgid "Search packages"
 msgstr "Rechercher parmi les paquets"
 
 #: ckan/templates/package/search.html:17
-#, fuzzy
-#| msgid "tags found."
 msgid "tags found (max"
-msgstr "trouvés."
+msgstr ""
 
 #: ckan/templates/package/search.html:17
 msgid "shown)."
@@ -1326,6 +1335,7 @@ msgstr ""
 
 #: ckan/templates/package/search.html:21
 #, fuzzy
+#| msgid "packages."
 msgid "packages found."
 msgstr "paquets."
 
@@ -1477,6 +1487,7 @@ msgstr ""
 
 #: ckan/templates/tag/read.html:8
 #, fuzzy
+#| msgid "Packages - List"
 msgid "packages tagged with"
 msgstr "Paquets - Liste"
 
@@ -1601,9 +1612,91 @@ msgstr "Nombre d'éditions :"
 msgid "Number of packages administered:"
 msgstr "Nombre de paquets administrés :"
 
+#~ msgid "delete"
+#~ msgstr ""
+
+#~ msgid "username"
+#~ msgstr "Nom d'utilisateur :"
+
+#~ msgid "No user found"
+#~ msgstr ""
+
 #~ msgid "API"
 #~ msgstr ""
 
+#~ msgid "[1:] An [2:Open Knowledge Foundation] Project"
+#~ msgstr "de la fondation Open Knowledge"
+
+#~ msgid "There are [1:%(c)s] groups."
+#~ msgstr ""
+
+#~ msgid "package in this group."
+#~ msgstr "dans ce groupe."
+
 #~ msgid "FAQ and Guide"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "The code that runs CKAN is "
+#~ "open-source and licensed under the "
+#~ "[1:GNU Affero GPL\n"
+#~ "      ]. It is hosted on [2:KnowledgeForge], and the project\n"
+#~ "    home page is here:[3:http://knowledgeforge.net/project/ckan/]."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "All material on this site is [1:open] and can be freely used, reused\n"
+#~ "    and redistributed. Formally, the "
+#~ "data/database is licensed under the "
+#~ "[2:Open Data Commons Open\n"
+#~ "      Database License v1.0], with all copyrightable content in that\n"
+#~ "    database plus any additional content"
+#~ " on this site licensed under a "
+#~ "[3:Creative Commons\n"
+#~ "      Attribution Share-Alike v3.0 license]."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "For convenience, all material - "
+#~ "including all package, tag and revision"
+#~ " information - is available in bulk,"
+#~ " in the form of a full dump "
+#~ "of the CKAN database. This (gzipped) "
+#~ "dump file is updated daily and can"
+#~ " be downloaded from "
+#~ "[1:http://www.ckan.net/dump/]."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "If you have not signed in this will just be your IP address.[1:]\n"
+#~ "      [2:Click here to sign in] "
+#~ "before submitting (opens in new window)."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "[1:By submitting content, you agree to release your contributions\n"
+#~ "        under the open license specified"
+#~ " on the %(h)s (essentially Creative "
+#~ "Commons\n"
+#~ "        Attribution-Share Alike v3.0).]\n"
+#~ "        [2:If you are not happy "
+#~ "for this to occur please refrain "
+#~ "from editing\n"
+#~ "        this page.]"
+#~ msgstr ""
+
+#~ msgid "There"
+#~ msgstr ""
+
+#~ msgid "found."
+#~ msgstr "trouvés."
+
+#~ msgid "for ‘"
+#~ msgstr ""
+
+#~ msgid "package"
+#~ msgstr "paquet"
+
+#~ msgid "tagged with"
 #~ msgstr ""
 
