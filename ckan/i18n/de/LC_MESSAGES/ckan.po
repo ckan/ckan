@@ -191,7 +191,7 @@ msgstr "Leerer qjson Parameter"
 #: ckan/controllers/rest.py:201
 #, fuzzy, python-format
 msgid "Search params: %s"
-msgstr ""
+msgstr "Suchen nach Parameter: %s"
 
 #: ckan/controllers/rest.py:228
 msgid "You must supply a package name (parameter \"package\")."

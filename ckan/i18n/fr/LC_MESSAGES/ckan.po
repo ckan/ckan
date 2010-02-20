@@ -8,7 +8,11 @@ msgstr ""
 "Project-Id-Version: ckan 0.11a\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2009-12-30 13:31+0000\n"
+<<<<<<< local
+"PO-Revision-Date: 2010-02-20 13:52+0100\n"
+=======
 "PO-Revision-Date: 2010-02-20 14:10+0100\n"
+>>>>>>> other
 "Last-Translator: Benoit Boissinot <benoit.boissinot@ens-lyon.org>\n"
 "Language-Team: fr <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
