@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: ckan 0.10\n"
 "Report-Msgid-Bugs-To: DANIEL@OPENDATA-NETWORK.ORG\n"
 "POT-Creation-Date: 2009-12-05 23:18+0000\n"
-"PO-Revision-Date: 2010-02-20 14:10+0100\n"
+"PO-Revision-Date: 2010-02-20 20:06+0100\n"
 "Last-Translator: DANIEL DIETRICH <DANIEL.DIETRICH@OKFN.ORG>\n"
 "Language-Team: de <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -372,7 +372,7 @@ msgstr "Datenschutz"
 
 #: ckan/templates/layout.html:105
 msgid "An"
-msgstr ""
+msgstr "Ein"
 
 #: ckan/templates/layout.html:105 ckan/templates/home/about.html:46
 msgid "Open Knowledge Foundation"
@@ -380,14 +380,14 @@ msgstr "Open Knowledge Foundation"
 
 #: ckan/templates/layout.html:105
 msgid "Project"
-msgstr ""
+msgstr "Projekt"
 
 #: ckan/templates/layout.html:107
 msgid "v"
 msgstr "v"
 
 #: ckan/templates/layout.html:108
-#, fuzzy, python-format
+#, fuzzy
 msgid ""
 "| (c) Open Knowledge Foundation\n"
 "\t| All material available under an"
@@ -454,7 +454,6 @@ msgstr "Es gibt"
 
 #: ckan/templates/group/index.html:9
 #, fuzzy
-#| msgid "Groups"
 msgid "groups."
 msgstr "Gruppen"
 
@@ -483,6 +482,8 @@ msgid ""
 "can be set-up to specify which users have permission to add or remove "
 "packages from it."
 msgstr ""
+"kann angelegt werden um zu spezifizieren welche Benutzer Pakete hinzufügen "
+"oder bearbeiten können."
 
 #: ckan/templates/group/layout.html:17
 #, fuzzy
@@ -560,7 +561,7 @@ msgid ""
 "      content and data"
 msgstr ""
 "Suchen, Weiterverbreiten und Weiterverarbeiten\n"
-"\t\tvon Daten und Datensätzen"
+"   von Daten und Datensätzen"
 
 #: ckan/templates/home/about.html:14
 #, fuzzy
@@ -912,15 +913,15 @@ msgstr "Programmcode"
 
 #: ckan/templates/home/license.html:10
 msgid "The code that runs CKAN is open-source and licensed under the"
-msgstr ""
+msgstr "Der CKAn Programmcode ist open-scource und lizenziert unter der"
 
 #: ckan/templates/home/license.html:12
 msgid "GNU Affero GPL"
-msgstr ""
+msgstr "GNU Affero GPL"
 
 #: ckan/templates/home/license.html:13
 msgid ". It is hosted on"
-msgstr ""
+msgstr ". CKAN wird bereitgestellt auf"
 
 #: ckan/templates/home/license.html:14
 #, fuzzy
@@ -935,7 +936,7 @@ msgstr ""
 
 #: ckan/templates/home/license.html:16
 msgid "http://knowledgeforge.net/project/ckan/"
-msgstr ""
+msgstr "http://knowledgeforge.net/project/ckan/"
 
 #: ckan/templates/home/license.html:19
 msgid "Content and Data"
@@ -943,13 +944,12 @@ msgstr "Inhalte und Daten"
 
 #: ckan/templates/home/license.html:20
 msgid "All material on this site is"
-msgstr ""
+msgstr "Alle Inhalte dieser Seite sind"
 
 #: ckan/templates/home/license.html:21
 #, fuzzy
-#| msgid "OpenID"
 msgid "open"
-msgstr "OpenID"
+msgstr "offen"
 
 #: ckan/templates/home/license.html:21
 msgid ""
@@ -962,6 +962,8 @@ msgid ""
 "Open Data Commons Open\n"
 "      Database License v1.0"
 msgstr ""
+"Open Data Commons Open\n"
+"      Database License v1.0"
 
 #: ckan/templates/home/license.html:24
 msgid ""
@@ -974,13 +976,11 @@ msgid ""
 "Creative Commons\n"
 "      Attribution Share-Alike v3.0 license"
 msgstr ""
+"Creative Commons\n"
+"      Attribution Share-Alike v3.0 license"
 
 #: ckan/templates/home/license.html:28
 #, fuzzy
-#| msgid "" "For convenience, all material - including all package, tag and
-#| revision " "information - is available in bulk, in the form of a full dump
-#| of the " "CKAN database. This (gzipped) dump file is updated daily and can
-#| be " "downloaded from [1:http://www.ckan.net/dump/]."
 msgid ""
 "For convenience, all material - including all package, tag and revision "
 "information - is available in bulk, in the form of a full dump of the "
@@ -995,49 +995,45 @@ msgstr ""
 
 #: ckan/templates/home/license.html:29
 msgid "http://www.ckan.net/dump/"
-msgstr ""
+msgstr "http://www.ckan.net/dump/"
 
 #: ckan/templates/home/stats.html:4
 msgid "Stats"
-msgstr ""
+msgstr "Status"
 
 #: ckan/templates/home/stats.html:7
 msgid "Statistics"
-msgstr ""
+msgstr "Statistik"
 
 #: ckan/templates/home/stats.html:9
 #, fuzzy
-#| msgid "registered packages"
 msgid "Top Rated Packages"
 msgstr "registriere Pakete"
 
 #: ckan/templates/home/stats.html:16
 #, fuzzy
-#| msgid "registered packages"
 msgid "Most Edited Packages"
 msgstr "registriere Pakete"
 
 #: ckan/templates/home/stats.html:23
 msgid "Largest Groups"
-msgstr ""
+msgstr "Größte Gruppen"
 
 #: ckan/templates/home/stats.html:37
 msgid "Users owning most packages"
-msgstr ""
+msgstr "Benutzer mit den meisten Paketen"
 
 #: ckan/templates/home/stats.html:44
 #, fuzzy
-#| msgid "create a new package?"
 msgid "Rate of new packages"
 msgstr "ein neues Paket anlegen?"
 
 #: ckan/templates/home/stats.html:46
 msgid "Week commencing"
-msgstr ""
+msgstr "Wochen beginn"
 
 #: ckan/templates/home/stats.html:46
 #, fuzzy
-#| msgid "Register new package"
 msgid "Number of new packages"
 msgstr "registriere Pakete"
 
@@ -1074,7 +1070,6 @@ msgstr "Optionaler Logeintrag zu dieser Änderung"
 
 #: ckan/templates/package/edit_form.html:13 ckan/templates/user/edit.html:18
 #, fuzzy
-#| msgid "You can"
 msgid "You can use"
 msgstr "Sie können"
 
@@ -1095,15 +1090,15 @@ msgstr "Autor:"
 
 #: ckan/templates/package/edit_form.html:17
 msgid "If you have not signed in this will just be your IP address."
-msgstr ""
+msgstr "Wenn Sie nicht angemeldet sind ist das Ihre IP-Adresse"
 
 #: ckan/templates/package/edit_form.html:19
 msgid "Click here to sign in"
-msgstr ""
+msgstr "Hier Anmelden"
 
 #: ckan/templates/package/edit_form.html:19
 msgid "before submitting (opens in new window)."
-msgstr ""
+msgstr "vor dem Hinzufügen (offnet neues Fenster)"
 
 #: ckan/templates/package/edit_form.html:23 ckan/templates/user/edit.html:22
 msgid "Commit"
@@ -1117,19 +1112,22 @@ msgstr "Bitte beachten Sie:"
 msgid ""
 "By submitting content, you agree to release your contributions\n"
 "        under the open license specified on the"
-msgstr ""
+msgstr "Beim hinzufügen naknaknaknaknak"
 
 #: ckan/templates/package/edit_form.html:29
 msgid ""
 "(essentially Creative Commons\n"
 "        Attribution-Share Alike v3.0)."
 msgstr ""
+"(essentially Creative Commons\n"
+"        Attribution-Share Alike v3.0)."
 
 #: ckan/templates/package/edit_form.html:31
 msgid ""
 "If you are not happy for this to occur please refrain from editing\n"
 "        this page."
 msgstr ""
+
 
 #: ckan/templates/package/history.html:4 ckan/templates/revision/read.html:32
 msgid "Package -"
@@ -1374,17 +1372,16 @@ msgstr "Nach Paketen suchen"
 
 #: ckan/templates/package/search.html:17
 msgid "tags found (max"
-msgstr ""
+msgstr "tags gefunden (max"
 
 #: ckan/templates/package/search.html:17
 msgid "shown)."
-msgstr ""
+msgstr "angezeigt)."
 
 #: ckan/templates/package/search.html:21
 #, fuzzy
-#| msgid "packages."
 msgid "packages found."
-msgstr "Pakete."
+msgstr "Pakete gefunden."
 
 #: ckan/templates/package/search.html:23
 msgid "Would you like to"
@@ -1541,7 +1538,6 @@ msgstr "Tag:"
 
 #: ckan/templates/tag/read.html:8
 #, fuzzy
-#| msgid "tagged with"
 msgid "packages tagged with"
 msgstr "Verschlagwortet mit"
 
@@ -1666,91 +1662,4 @@ msgstr "Anzahl der Bearbeitungen:"
 #: ckan/templates/user/read.html:31
 msgid "Number of packages administered:"
 msgstr "Anzahl der administrierten Pakete:"
-
-#~ msgid "delete"
-#~ msgstr "entfernen"
-
-#~ msgid "username"
-#~ msgstr "Benutzername:"
-
-#~ msgid "No user found"
-#~ msgstr "Benutzer nicht gefunden"
-
-#~ msgid "API"
-#~ msgstr "API"
-
-#~ msgid "[1:] An [2:Open Knowledge Foundation] Project"
-#~ msgstr "Open Knowledge Foundation"
-
-#~ msgid "There are [1:%(c)s] groups."
-#~ msgstr "Es gibt [1:%(c)s] gruppen."
-
-#~ msgid "There is"
-#~ msgstr "Es gibt"
-
-#~ msgid "package in this group."
-#~ msgstr "Pakete in dieser Gruppe."
-
-#~ msgid "FAQ and Guide"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "The code that runs CKAN is "
-#~ "open-source and licensed under the "
-#~ "[1:GNU Affero GPL\n"
-#~ "      ]. It is hosted on [2:KnowledgeForge], and the project\n"
-#~ "    home page is here:[3:http://knowledgeforge.net/project/ckan/]."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "All material on this site is [1:open] and can be freely used, reused\n"
-#~ "    and redistributed. Formally, the "
-#~ "data/database is licensed under the "
-#~ "[2:Open Data Commons Open\n"
-#~ "      Database License v1.0], with all copyrightable content in that\n"
-#~ "    database plus any additional content"
-#~ " on this site licensed under a "
-#~ "[3:Creative Commons\n"
-#~ "      Attribution Share-Alike v3.0 license]."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "If you have not signed in this will just be your IP address.[1:]\n"
-#~ "      [2:Click here to sign in] "
-#~ "before submitting (opens in new window)."
-#~ msgstr ""
-#~ "Wenn Sie sich nicht angemeldet haben "
-#~ "wird das Ihre IP Adresse sein.[1:]\n"
-#~ ""
-#~ "     [2:Hier anmelden] vor dem Hinzufügen (öffnet ein neues Fenster)"
-
-#~ msgid ""
-#~ "[1:By submitting content, you agree to release your contributions\n"
-#~ "        under the open license specified"
-#~ " on the %(h)s (essentially Creative "
-#~ "Commons\n"
-#~ "        Attribution-Share Alike v3.0).]\n"
-#~ "        [2:If you are not happy "
-#~ "for this to occur please refrain "
-#~ "from editing\n"
-#~ "        this page.]"
-#~ msgstr ""
-#~ "[1:Durch das Hinzufügen erklären Sie sich einverstanden Ihren Beitrag\n"
-#~ "        unter der offenen Lizenz "
-#~ "spezifiziert in %(h)s (besonders Creative "
-#~ "Commons\n"
-#~ "        Attribution-Share Alike v3.0).]\n"
-#~ "        [2:Falls Sie damit nicht "
-#~ "eiunverstanden sind sehen Sie bitte vom"
-#~ " bearbeiten\n"
-#~ "        dieser Seite ab.]"
-
-#~ msgid "found."
-#~ msgstr "gefunden."
-
-#~ msgid "for ‘"
-#~ msgstr "für"
-
-#~ msgid "package"
-#~ msgstr "Paket"
 
