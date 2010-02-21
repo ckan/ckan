@@ -463,7 +463,6 @@ msgid "Groups section"
 msgstr "Gruppen Sektion"
 
 #: ckan/templates/group/layout.html:11
-#, fuzzy
 msgid ""
 "Whilst tags are great at collecting packages together, there are "
 "occasions when you want to restrict users from editing a collection. A"
@@ -544,7 +543,6 @@ msgid "open knowledge"
 msgstr "offenes Wissen"
 
 #: ckan/templates/home/about.html:10
-#, fuzzy
 msgid ""
 "packages and projects\n"
 "    (and a few closed ones)."
@@ -555,7 +553,6 @@ msgid "CKAN makes it easy to"
 msgstr "CKAN ermöglicht das einfache"
 
 #: ckan/templates/home/about.html:13
-#, fuzzy
 msgid ""
 "find, share and reuse open\n"
 "      content and data"
@@ -564,7 +561,6 @@ msgstr ""
 "   von Daten und Datensätzen"
 
 #: ckan/templates/home/about.html:14
-#, fuzzy
 msgid ""
 ", especially in ways that are machine\n"
 "      automatable."
@@ -831,12 +827,10 @@ msgid "Welcome to CKAN"
 msgstr "Willkommen bei CKAN"
 
 #: ckan/templates/home/index.html:51
-#, fuzzy
 msgid "CKAN is a registry of"
 msgstr "CKAN ist ein Register für"
 
 #: ckan/templates/home/index.html:52
-#, fuzzy
 msgid ""
 "open data \n"
 "      and content"
@@ -845,12 +839,10 @@ msgstr ""
 "und offene Inhalte"
 
 #: ckan/templates/home/index.html:53
-#, fuzzy
 msgid "packages. CKAN makes it easy to"
 msgstr "CKAN ermöglicht das einfache"
 
 #: ckan/templates/home/index.html:53
-#, fuzzy
 msgid ""
 "find, share and reuse \n"
 "      open content and data"
@@ -859,7 +851,6 @@ msgstr ""
 "\t\tvon Daten und Datensätzen"
 
 #: ckan/templates/home/index.html:54
-#, fuzzy
 msgid ""
 ", especially in ways that are machine \n"
 "      automatable."
@@ -1193,9 +1184,8 @@ msgid "Browse"
 msgstr "Durchsuchen"
 
 #: ckan/templates/package/layout.html:18
-#, fuzzy
 msgid "Register new package"
-msgstr "registriere Pakete"
+msgstr "Registriere Pakete"
 
 #: ckan/templates/package/list.html:4
 msgid "Packages - List"
