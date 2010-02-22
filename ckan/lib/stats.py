@@ -23,19 +23,14 @@ class Stats(object):
     def top_rated_packages(self, limit=10):
         # NB Not using sqlalchemy as sqla 0.4 doesn't work using both group_by
         # and apply_avg
-        #         SELECT package.id AS package_id, AVG(rating.rating) FROM package
-        #         JOIN rating ON package.id = rating.package_id
-        #         GROUP BY package.id
-        #         ORDER BY AVG(rating.rating) DESC
-        #         LIMIT 10
         package = table('package')
         rating = table('rating')
-        sql = select([package.c.id, func.avg(rating.c.rating)], from_obj=[package.join(rating)]).\
+        sql = select([package.c.id, func.avg(rating.c.rating), func.count(rating.c.rating)], from_obj=[package.join(rating)]).\
               group_by(package.c.id).\
               order_by(func.avg(rating.c.rating).desc()).\
               limit(limit)
         res_ids = model.Session.execute(sql).fetchall()
-        res_pkgs = [(model.Session.query(model.Package).get(unicode(pkg_id)), avg) for pkg_id, avg in res_ids]
+        res_pkgs = [(model.Session.query(model.Package).get(unicode(pkg_id)), avg, num) for pkg_id, avg, num in res_ids]
         return res_pkgs
             
     @classmethod
@@ -101,13 +96,14 @@ class RevisionStats(object):
     @classmethod
     def package_addition_rate(self, weeks_ago=0):
         week_commenced = self.get_date_weeks_ago(weeks_ago)
-        return self.get_new_packages_by_time(week_commenced,
-                                             type='new_package_rate')
+        return self.get_objects_in_a_week(week_commenced,
+                                          type_='package_addition_rate')
 
     @classmethod
     def package_revision_rate(self, weeks_ago=0):
-        dates = self.get_week_dates(weeks_ago)
-        return self.get_revision_rate(dates)
+        week_commenced = self.get_date_weeks_ago(weeks_ago)
+        return self.get_objects_in_a_week(week_commenced,
+                                          type_='package_revision_rate')
 
     @classmethod
     def get_date_weeks_ago(self, weeks_ago):
@@ -141,15 +137,18 @@ class RevisionStats(object):
             date_ = datetime2date(date_)
         return date_ - datetime.timedelta(days=datetime.date.weekday(date_))
 
-
     @classmethod
-    def get_revision_rate(self, dates):
+    def get_package_revisions(self):
+        '''
+        @return: Returns list of revisions and date of them, in
+                 format: [(id, date), ...]
+        '''
         package_revision = table('package_revision')
         revision = table('revision')
-        date_from, date_to = dates
-        q = model.Session.query(model.PackageRevision).select_from(package_revision.join(revision)).filter(revision.c.timestamp < date_to).filter(revision.c.timestamp > date_from)
-        return q.count()
-
+        s = select([package_revision.c.id, revision.c.timestamp], from_obj=[package_revision.join(revision)]).order_by(revision.c.timestamp)
+        res = model.Session.execute(s).fetchall() # [(id, datetime), ...]
+        return res
+    
     @classmethod
     def get_new_packages(self):
         '''
@@ -177,10 +176,20 @@ class RevisionStats(object):
         return new_packages
 
     @classmethod
-    def get_new_packages_by_week(self):
-        def new_packages_by_week():
-            new_packages = self.get_new_packages()
-            first_date = datetime.date.fromordinal(new_packages[0][1]) if new_packages else datetime.date.today()
+    def get_by_week(self, object_type):
+        self._object_type = object_type
+        def objects_by_week():
+            if self._object_type == 'new_packages':
+                objects = self.get_new_packages()
+                def get_date(object_date):
+                    return datetime.date.fromordinal(object_date)
+            elif self._object_type == 'package_revisions':
+                objects = self.get_package_revisions()
+                def get_date(object_date):
+                    return datetime2date(object_date)
+            else:
+                raise NotImplementedError()
+            first_date = get_date(objects[0][1]) if objects else datetime.date.today()
             week_commences = self.get_date_week_started(first_date)
             week_ends = week_commences + datetime.timedelta(days=7)
             week_index = 0
@@ -192,8 +201,8 @@ class RevisionStats(object):
                 self._cumulative_num_pkgs += num_pkgs
                 return (week_commences.strftime(DATE_FORMAT),
                         pkg_ids, num_pkgs, self._cumulative_num_pkgs)
-            for pkg_id, datetime_ in new_packages:
-                date_ = datetime.date.fromordinal(datetime_)
+            for pkg_id, date_field in objects:
+                date_ = get_date(date_field)
                 if date_ >= week_ends:
                     weekly_pkg_ids.append(build_weekly_stats(week_commences, pkg_id_stack))
                     pkg_id_stack = []
@@ -202,39 +211,51 @@ class RevisionStats(object):
                 pkg_id_stack.append(pkg_id)
             weekly_pkg_ids.append(build_weekly_stats(week_commences, pkg_id_stack))
             today = datetime.date.today()
-            while week_ends < today:
+            while week_ends <= today:
                 week_commences = week_ends
                 week_ends = week_commences + datetime.timedelta(days=7)
                 weekly_pkg_ids.append(build_weekly_stats(week_commences, []))
             return weekly_pkg_ids
         if ENABLE_CACHING:
             week_commences = self.get_date_week_started(datetime.date.today())
-            key = 'new_packages_by_week_%s' + week_commences.strftime(DATE_FORMAT)
-            new_packages_by_week_ = our_cache.get_value(key=key,
-                                                       createfunc=new_packages_by_week)
+            key = '%s_by_week_%s' % (self._object_type, week_commences.strftime(DATE_FORMAT))
+            objects_by_week_ = our_cache.get_value(key=key,
+                                    createfunc=objects_by_week)
         else:
-            new_packages_by_week_ = new_packages_by_week()
-        return new_packages_by_week_
+            objects_by_week_ = objects_by_week()
+        return objects_by_week_
         
     @classmethod
-    def get_new_packages_by_time(self, date_week_commences,
-                                 type='new-package-rate'):
+    def get_objects_in_a_week(self, date_week_commences,
+                                 type_='new-package-rate'):
         '''
-        @param type: "new_package_rate" returns number of new packages during
-                     the date range. "new_packages" returns a list of the
-                     packages created in the date range in a tuple with the
-                     date.
+        @param type: Specifies what to return about the specified week:
+                     "package_addition_rate" number of new packages
+                     "package_revision_rate" number of package revisions
+                     "new_packages" a list of the packages created
+                     in a tuple with the date.
         @param dates: date range of interest - a tuple:
                      (start_date, end_date)
         '''
         assert isinstance(date_week_commences, datetime.date)
-        new_pkgs_by_week = self.get_new_packages_by_week()
-        date_wc_str = date_week_commences.strftime(DATE_FORMAT)
-        pkg_ids = dict(new_pkgs_by_week)[date_wc_str]
-        if type == 'new_package_rate':
-            return len(pkg_ids)
-        elif type == 'revisions':
-            return [ model.Session.query(model.Package).get(pkg_id) \
-                     for pkg_id in pkg_ids ]
+        if type_ in ('package_addition_rate', 'new_packages'):
+            object_type = 'new_packages'
+        elif type_ == 'package_revision_rate':
+            object_type = 'package_revisions'
         else:
             raise NotImplementedError()
+        objects_by_week = self.get_by_week(object_type)
+        date_wc_str = date_week_commences.strftime(DATE_FORMAT)
+        object_ids = None
+        for objects_in_a_week in objects_by_week:
+            if objects_in_a_week[0] == date_wc_str:
+                object_ids = objects_in_a_week[1]
+                break
+        if object_ids is None:
+            raise TypeError('Week specified is outside range')
+        assert isinstance(object_ids, list)
+        if type_ in ('package_revision_rate', 'package_addition_rate'):
+            return len(object_ids)
+        elif type_ == 'new_packages':
+            return [ model.Session.query(model.Package).get(pkg_id) \
+                     for pkg_id in object_ids ]

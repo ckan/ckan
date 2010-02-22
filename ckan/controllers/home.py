@@ -48,16 +48,26 @@ class HomeController(BaseController):
         return render('home/about')
 
     def stats(self):
-        stats = ckan.lib.stats.Stats()
-        rev_stats = ckan.lib.stats.RevisionStats()
-        c.top_rated_packages = stats.top_rated_packages()
-        c.most_edited_packages = stats.most_edited_packages()
-        c.largest_groups = stats.largest_groups()
-        c.top_tags = stats.top_tags()
-        c.top_package_owners = stats.top_package_owners()
-        c.new_packages_by_week = rev_stats.get_new_packages_by_week()
-        c.packages_revisions_by_week = []#rev_stats.get_new_packages_by_week()
-        return render('home/stats')
+        def stats_html():
+            stats = ckan.lib.stats.Stats()
+            rev_stats = ckan.lib.stats.RevisionStats()
+            c.top_rated_packages = stats.top_rated_packages()
+            c.most_edited_packages = stats.most_edited_packages()
+            c.largest_groups = stats.largest_groups()
+            c.top_tags = stats.top_tags()
+            c.top_package_owners = stats.top_package_owners()
+            c.new_packages_by_week = rev_stats.get_by_week('new_packages')
+            c.package_revisions_by_week = rev_stats.get_by_week('package_revisions')
+            return render('home/stats')
+        if not c.user:
+            mycache = cache.get_cache('stats', type='dbm')
+            # 3600=hourly, 86400=daily
+            stats_html = mycache.get_value(key='stats_html',
+                createfunc=stats_html, expiretime=86400)
+        else:
+            stats_html = stats_html()
+        return stats_html
+            
 
     def cache(self, id):
         '''Manual way to clear the caches'''

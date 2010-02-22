@@ -13,29 +13,32 @@
         
     <h3>Top Rated Packages</h3>
     <table>
-      <tr py:for="pkg, rating in c.top_rated_packages">
-        <td>${pkg.name}</td><td>${rating}</td>
+      <tr><th>Package</th><th>Average rating</th><th>Number of ratings</th></tr>
+      <tr py:for="package, rating, num_ratings in c.top_rated_packages">
+        <td>${h.link_to(package.title or package.name, h.url_for(controller='package', action='read', id=package.name))}</td><td>${rating}</td><td>${num_ratings}</td>
       </tr>
     </table>
 
     <h3>Most Edited Packages</h3>
     <table>
-      <tr py:for="pkg, edits in c.most_edited_packages">
-        <td>${pkg.name}</td><td>${edits}</td>
+      <tr><th>Package</th><th>Number of edits</th></tr>
+      <tr py:for="package, edits in c.most_edited_packages">
+        <td>${h.link_to(package.title or package.name, h.url_for(controller='package', action='read', id=package.name))}</td><td>${edits}</td>
       </tr>
     </table>
 
     <h3>Largest Groups</h3>
     <table>
+      <tr><th>Group</th><th>Number of packages</th></tr>
       <tr py:for="group, num_packages in c.largest_groups">
-        <td>${group.name}</td><td>${num_packages}</td>
+        <td>${h.link_to(group.title or group.name, h.url_for(controller='group', action='read', id=group.name))}</td><td>${num_packages}</td>
       </tr>
     </table>
 
     <h3>Top Tags</h3>
     <table>
       <tr py:for="tag, num_packages in c.top_tags">
-        <td>${tag.name}</td><td>${num_packages}</td>
+        <td>${h.link_to(tag.name, h.url_for(controller='tag', action='read', id=tag.name))}</td><td>${num_packages}</td>
       </tr>
     </table>
   
@@ -46,45 +49,68 @@
       </tr>
     </table>
   
-    <h3>Number of packages</h3>
-    <div id="new_packages_graph" style="width:600px;height:300px"></div>
+    <h3>Total number of packages</h3>
+    <div id="new_packages_graph" style="width:800px;height:300px"></div>
     <script type="text/javascript">
       var options = {
           xaxis: {
           mode: "time",
-          timeformat: "%y-%m-%d"
+          timeformat: "%y-%b"
           }
       };
       var data = [
         [ 
-        <py:for each="pkg_date, pkgs, num_packages, cumulative_num_packages in c.new_packages_by_week">
-          [ new Date(${pkg_date.replace('-', ',')}), ${cumulative_num_packages} ],
+        <py:for each="week_date, pkgs, num_packages, cumulative_num_packages in c.new_packages_by_week">
+          [ new Date(${week_date.replace('-', ',')}), ${cumulative_num_packages} ],
         </py:for>
         ]
       ];
       $.plot($("#new_packages_graph"), data, options);
     </script>
     
-<!--
-    <h4>Rate of new packages added</h4>
-    <table>
-      <tr><th>Week commencing</th><th>Number of new packages</th></tr>
-      <tr py:for="week_commencing, pkg_ids, num_pkgs, cumulative in c.new_packages_by_week">
-        <td>${week_commencing}</td><td>${num_pkgs}</td>
-      </tr>
-    </table>
--->
+    <h3>Revisions to packages per week</h3>
+    <div id="package_revisions_graph" style="width:800px;height:300px"></div>
+    <script type="text/javascript">
+      var options = {
+          xaxis: {
+          mode: "time",
+          timeformat: "%y-%b"
+          },
+          legend: {
+          position: "nw",
+          },
+          colors: ["#ffcc33", "#ff8844"]
+      };
+      var data = [
+        {label: "All package revisions",
+          lines: {
+            fill: 1,
+            },
+        data: [ 
+        <py:for each="week_date, revs, num_revisions, cumulative_num_revisions in c.package_revisions_by_week">
+          [ new Date(${week_date.replace('-', ',')}), ${num_revisions} ],
+        </py:for>
+        ]},
+        {label: "New packages",
+          lines: {
+            fill: 1,
+            },
+        data: [ 
+        <py:for each="week_date, pkgs, num_packages, cumulative_num_packages in c.new_packages_by_week">
+          [ new Date(${week_date.replace('-', ',')}), ${num_packages} ],
+        </py:for>
+        ]},
+      ];
+      $.plot($("#package_revisions_graph"), data, options);
+    </script>
 
-<!--
-    <h3>Rate of package revisions</h3>
-    <table>
-      <th>Week commencing</th><th>Number of package revisons</th>
-      <tr py:for="week_commencing, num_packages in c.package_revisions_by_week">
-        <td>${week_commencing}</td><td>${num_packages}</td>
-      </tr>
-    </table>
--->
-
+    <p>
+      Page last updated:
+       <?python 
+          import datetime
+       ?>
+      ${datetime.datetime.now().strftime('%H:%m, %d %h %Y')}
+    </p>
   </div>
 
   <xi:include href="layout.html" />
