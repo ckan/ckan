@@ -1,11 +1,15 @@
 import datetime
 import re
 
+from pylons import config
+
 import ckan.model as model
 from ckan.tests import *
 from ckan.lib.stats import Stats, RevisionStats
+from ckan.lib import stats
 from ckan.rating import set_rating
 from ckan.model.authz import add_user_to_role
+
 
 class TestStats(TestController):
     
@@ -27,9 +31,9 @@ class TestStats(TestController):
 
         res = Stats().top_rated_packages()
         assert len(res) == 3, res
-        assert res[0] == (model.Package.by_name(u'usa-courts-gov'), 5.0), res[0]
-        assert res[1] == (model.Package.by_name(u'us-gov-images'), 2.0), res[1]
-        assert res[2] == (model.Package.by_name(u'gils'), 1.5), res[2]
+        assert res[0] == (model.Package.by_name(u'usa-courts-gov'), 5.0, 1), res[0]
+        assert res[1] == (model.Package.by_name(u'us-gov-images'), 2.0, 1), res[1]
+        assert res[2] == (model.Package.by_name(u'gils'), 1.5, 3), res[2]
 
     def test_most_edited(self):
         # Edit some packages
@@ -188,17 +192,31 @@ class TestRateStatsSimple(TimedRevision):
         assert len(new_pkgs) == 1, new_pkgs
         pkg = model.Package.by_name(self.pkg_name)
         assert pkg, self.pkg_name
-        date_ = self.datetime_last_week_started
-        assert new_pkgs[0] == (pkg.id, date_), new_pkgs[0]
+        date_ = self.date_last_week_started
+        assert new_pkgs[0][0] == pkg.id, new_pkgs[0]
+        assert datetime.date.fromordinal(new_pkgs[0][1]) == date_, new_pkgs[0]
+        assert new_pkgs[0] == (pkg.id, date_.toordinal()), new_pkgs[0]
                                
     def test_get_new_packages_by_week(self):
-        pkgs_by_week = RevisionStats().get_new_packages_by_week()
+        pkgs_by_week = RevisionStats().get_by_week('new_packages')
         assert len(pkgs_by_week) == 2, pkgs_by_week
         pkg = model.Package.by_name(self.pkg_name)
         assert pkgs_by_week[0] == (self.date_last_week_started.strftime('%Y-%m-%d'),
-                                   [pkg.id]), pkgs_by_week[0]
+                                   [pkg.id],
+                                   1, 1), pkgs_by_week[0]
         assert pkgs_by_week[1] == (self.date_this_week_started.strftime('%Y-%m-%d'),
-                                   []), pkgs_by_week[1]
+                                   [], 0, 1), pkgs_by_week[1]
+
+    def test_get_package_revisions_by_week(self):
+        package_revisions_by_week = RevisionStats().get_by_week('package_revisions')
+        assert len(package_revisions_by_week) == 2, package_revisions_by_week
+        assert model.Session.query(model.PackageRevision).count() == 2, model.Session.query(model.PackageRevision).all()
+        change_rev, create_rev = model.Session.query(model.PackageRevision).all()
+        assert package_revisions_by_week[0] == (self.date_last_week_started.strftime('%Y-%m-%d'),
+                                   [create_rev.id],
+                                   1, 1), package_revisions_by_week[0]
+        assert package_revisions_by_week[1] == (self.date_this_week_started.strftime('%Y-%m-%d'),
+                                   [change_rev.id], 1, 2), package_revisions_by_week[1]
 
     def test_package_addition_rate(self):
         res = RevisionStats().package_addition_rate(weeks_ago=1)
@@ -211,8 +229,6 @@ class TestRateStatsSimple(TimedRevision):
         assert res == 1, res
         res = RevisionStats().package_revision_rate(weeks_ago=1)
         assert res == 1, res
-        res = RevisionStats().package_revision_rate(weeks_ago=2)
-        assert res == 0, res
 
 
 class TestRateStats(TimedRevision):
@@ -238,15 +254,31 @@ class TestRateStats(TimedRevision):
         model.repo.rebuild_db()
 
     def test_get_new_packages_by_week(self):
-        pkgs_by_week = RevisionStats().get_new_packages_by_week()
+        pkgs_by_week = RevisionStats().get_by_week('new_packages')
         assert len(pkgs_by_week) == 3, pkgs_by_week
         assert pkgs_by_week[0][0] == self.date_two_weeks_ago_started.strftime('%Y-%m-%d'), pkgs_by_week[0]
         assert len(pkgs_by_week[0][1]) == 12, pkgs_by_week[0]
+        assert pkgs_by_week[0][2:4] == (12, 12), pkgs_by_week[0][2:4]
         assert pkgs_by_week[1][0] == self.date_last_week_started.strftime('%Y-%m-%d'), pkgs_by_week[1]
-        assert len(pkgs_by_week[1][1]) == 5, pkgs_by_week[0]
+        assert len(pkgs_by_week[1][1]) == 5, pkgs_by_week[1]
+        assert pkgs_by_week[1][2:4] == (5, 17), pkgs_by_week[1]
         assert pkgs_by_week[2][0] == self.date_this_week_started.strftime('%Y-%m-%d'), pkgs_by_week[1]
-        assert len(pkgs_by_week[2][1]) == 0, pkgs_by_week[0]
-    
+        assert len(pkgs_by_week[2][1]) == 0, pkgs_by_week[2]
+        assert pkgs_by_week[2][2:4] == (0, 17), pkgs_by_week[2]
+
+    def test_get_package_revisions_by_week(self):
+        revs_by_week = RevisionStats().get_by_week('package_revisions')
+        assert len(revs_by_week) == 3, revs_by_week
+        assert revs_by_week[0][0] == self.date_two_weeks_ago_started.strftime('%Y-%m-%d'), revs_by_week[0]
+        assert len(revs_by_week[0][1]) == 13, revs_by_week[0]
+        assert revs_by_week[0][2:4] == (13, 13), revs_by_week[0][2:4]
+        assert revs_by_week[1][0] == self.date_last_week_started.strftime('%Y-%m-%d'), revs_by_week[1]
+        assert len(revs_by_week[1][1]) == 6, revs_by_week[1]
+        assert revs_by_week[1][2:4] == (6, 19), revs_by_week[1]
+        assert revs_by_week[2][0] == self.date_this_week_started.strftime('%Y-%m-%d'), revs_by_week[1]
+        assert len(revs_by_week[2][1]) == 1, revs_by_week[2]
+        assert revs_by_week[2][2:4] == (1, 20), revs_by_week[2]
+
     def test_package_addition_rate(self):
         res = RevisionStats().package_addition_rate(weeks_ago=0)
         assert res == 0, res
@@ -260,8 +292,6 @@ class TestRateStats(TimedRevision):
         assert res == 6, res
         res = RevisionStats().package_revision_rate(weeks_ago=2)
         assert res == 13, res
-        res = RevisionStats().package_revision_rate(weeks_ago=3)
-        assert res == 0, res
         res = RevisionStats().package_revision_rate(weeks_ago=0)
         assert res == 1, res
 
