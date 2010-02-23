@@ -20,7 +20,7 @@ class TestLicense:
 
     def test_license(self):
         license = model.License(name=self.name)
-        model.Session.save(license)
+        model.Session.add(license)
         assert license in model.Session
         model.Session.flush()
         model.Session.clear()
@@ -40,7 +40,7 @@ class TestPackage:
 
         rev = model.repo.new_revision()
         self.pkg1 = model.Package(name=self.name)
-        model.Session.save(self.pkg1)
+        model.Session.add(self.pkg1)
         self.pkg1.notes = self.notes
         self.license_name = u'OKD Compliant::Other'
         license = model.License.by_name(self.license_name)
@@ -156,13 +156,13 @@ class TestPackageWithLicense:
         self.licname1 = u'test_license1'
         self.licname2 = u'test_license2'
         self.license1 = model.License(name=self.licname1)
-        model.Session.save(self.license1)
+        model.Session.add(self.license1)
         self.license2 = model.License(name=self.licname2)
-        model.Session.save(self.license2)
+        model.Session.add(self.license2)
         rev = model.repo.new_revision()
         self.pkgname = u'testpkgfk'
         pkg = model.Package(name=self.pkgname)
-        model.Session.save(pkg)
+        model.Session.add(pkg)
         pkg.license = self.license1
         model.Session.commit()
         self.rev1id = rev.id
@@ -268,7 +268,7 @@ class TestPackageRevisions:
         self.notes = [u'Written by Puccini', u'Written by Rossini', u'Not written at all', u'Written again', u'Written off']
         rev = model.repo.new_revision()
         self.pkg1 = model.Package(name=self.name)
-        model.Session.save(self.pkg1)
+        model.Session.add(self.pkg1)
         self.pkg1.notes = self.notes[0]
         model.repo.commit_and_remove()
 

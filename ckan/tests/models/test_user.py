@@ -6,7 +6,7 @@ class TestUser:
         user = model.User()
         openid = u'http://xyz.com'
         user.name = openid
-        model.Session.save(user)
+        model.Session.add(user)
         model.repo.commit_and_remove()
 
         out = model.User.by_name(openid)
@@ -20,7 +20,7 @@ class TestUser:
         user = model.User()
         openid = u'http://xyz.com'
         user.name = openid
-        model.Session.save(user)
+        model.Session.add(user)
         model.repo.commit_and_remove()
 
         out = model.User.by_name(openid)

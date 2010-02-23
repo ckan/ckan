@@ -22,7 +22,7 @@ class TestRest(TestController):
             pass
         model.Session.remove()
         CreateTestData.create()
-        model.Session.save(model.Package(name=u'--'))
+        model.Session.add(model.Package(name=u'--'))
         rev = model.repo.new_revision()
         model.repo.commit_and_remove()
 
@@ -333,12 +333,12 @@ class TestRest(TestController):
         if not model.Package.by_name(self.testpackagevalues['name']):
             rev = model.repo.new_revision()
             pkg = model.Package()
-            model.Session.save(pkg)
+            model.Session.add(pkg)
             pkg.name = self.testpackagevalues['name']
             pkg.url = self.testpackagevalues['url']
             tags = [model.Tag(name=tag_name) for tag_name in tag_names]
             for tag in tags:
-                model.Session.save(tag)
+                model.Session.add(tag)
             pkg.tags = tags
             pkg.extras = {u'key1':u'val1', u'key2':u'val2'}
             model.Session.commit()
@@ -380,7 +380,7 @@ class TestRest(TestController):
             }
         rev = model.repo.new_revision()
         pkg = model.Package()
-        model.Session.save(pkg)
+        model.Session.add(pkg)
         pkg.name = test_params['name']
         pkg.download_url = test_params['download_url']
         model.Session.commit()
@@ -438,7 +438,7 @@ class TestRest(TestController):
         # create a package with testpackagevalues
         if not model.Package.by_name(self.testpackagevalues['name']):
             pkg = model.Package()
-            model.Session.save(pkg)
+            model.Session.add(pkg)
             pkg.name = self.testpackagevalues['name']
             rev = model.repo.new_revision()
             model.Session.commit()
@@ -453,7 +453,7 @@ class TestRest(TestController):
         dupname = u'dupname'
         if not model.Package.by_name(dupname):
             pkg = model.Package()
-            model.Session.save(pkg)
+            model.Session.add(pkg)
             pkg.name = dupname
             rev = model.repo.new_revision()
             model.Session.commit()
@@ -471,7 +471,7 @@ class TestRest(TestController):
         # create a group with testgroupvalues
         if not model.Group.by_name(self.testgroupvalues['name']):
             group = model.Group()
-            model.Session.save(group)
+            model.Session.add(group)
             group.name = self.testgroupvalues['name']
             rev = model.repo.new_revision()
             model.Session.commit()
@@ -486,7 +486,7 @@ class TestRest(TestController):
         dupname = u'dupname'
         if not model.Group.by_name(dupname):
             group = model.Group()
-            model.Session.save(group)
+            model.Session.add(group)
             group.name = dupname
             rev = model.repo.new_revision()
             model.Session.commit()
@@ -506,7 +506,7 @@ class TestRest(TestController):
         # create a package with testpackagevalues
         if not model.Package.by_name(self.testpackagevalues['name']):
             pkg = model.Package()
-            model.Session.save(pkg)
+            model.Session.add(pkg)
             pkg.name = self.testpackagevalues['name']
             rev = model.repo.new_revision()
             model.repo.commit_and_remove()
@@ -533,7 +533,7 @@ class TestRest(TestController):
         group = model.Group.by_name(self.testgroupvalues['name'])
         if not group:
             group = model.Group()
-            model.Session.save(group)
+            model.Session.add(group)
             group.name = self.testgroupvalues['name']
             rev = model.repo.new_revision()
             model.repo.commit_and_remove()
@@ -733,7 +733,7 @@ class TestSearch(TestController):
         rating = model.Rating(user_ip_address=u'123.1.2.3',
                               package=model.Package.by_name(u'annakarenina'),
                               rating=3.0)
-        model.Session.save(rating)
+        model.Session.add(rating)
         model.repo.commit_and_remove()
         
         query = {'q': 'russian', 'all_fields':1}

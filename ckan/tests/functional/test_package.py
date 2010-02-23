@@ -271,9 +271,9 @@ class TestEdit(TestPackageForm):
         editpkg.add_tag_by_name(u'mytesttag')
         editpkg.add_resource(u'url escape: & umlaut: \xfc quote: "',
                              description=u'description escape: & umlaut: \xfc quote "')
-        model.Session.save(editpkg)
+        model.Session.add(editpkg)
         u = model.User(name=u'testadmin')
-        model.Session.save(u)
+        model.Session.add(u)
         model.repo.commit_and_remove()
 
         editpkg = model.Package.by_name(self.editpkg_name)
@@ -438,7 +438,7 @@ u with umlaut \xc3\xbc
         for key, value in extras.items():
             pkg.extras[unicode(key)] = unicode(value)
         for obj in [pkg, t1, t2, pr1, pr2]:            
-            model.Session.save(obj)
+            model.Session.add(obj)
         model.repo.commit_and_remove()
         pkg = model.Package.by_name(pkg_name)
         model.setup_default_user_roles(pkg, [self.admin])
@@ -829,7 +829,7 @@ class TestNonActivePackages(TestController):
         self.non_active_name = u'test_nonactive'
         pkg = model.Package(name=self.non_active_name)
         model.repo.new_revision()
-        model.Session.save(pkg)
+        model.Session.add(pkg)
         model.repo.commit_and_remove()
 
         pkg = model.Session.query(model.Package).filter_by(name=self.non_active_name).one()
@@ -885,7 +885,7 @@ class TestRevisions(TestController):
         rev = model.repo.new_revision()
         self.pkg1 = model.Package(name=self.name)
         self.pkg1.notes = self.notes[0]
-        model.Session.save(self.pkg1)
+        model.Session.add(self.pkg1)
         model.setup_default_user_roles(self.pkg1)
         model.repo.commit_and_remove()
 

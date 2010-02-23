@@ -26,25 +26,25 @@ class Repository(vdm.sqlalchemy.Repository):
         for name in license_names:
             if not License.by_name(name):
                 l = License(name=name)
-                Session.save(l)
+                Session.add(l)
         # assume if this exists everything else does too
         if not User.by_name(PSEUDO_USER__VISITOR):
             visitor = User(name=PSEUDO_USER__VISITOR)
             logged_in = User(name=PSEUDO_USER__LOGGED_IN)
-            Session.save(visitor)
-            Session.save(logged_in)
+            Session.add(visitor)
+            Session.add(logged_in)
             # setup all role-actions
             # context is blank as not currently used
             # Note that Role.ADMIN can already do anything - hardcoded in.
             for role, action in default_role_actions:
                 ra = RoleAction(role=role, context=u'',
                         action=action,)
-                Session.save(ra)
+                Session.add(ra)
         if Session.query(Revision).count() == 0:
             rev = Revision()
             rev.author = 'system'
             rev.message = u'Initialising the Repository'
-            Session.save(rev)
+            Session.add(rev)
         self.commit_and_remove()   
 
     def create_db(self):
