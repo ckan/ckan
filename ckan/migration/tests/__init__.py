@@ -61,6 +61,7 @@ class TestMigrationBase(object):
 
     @classmethod
     def rebuild_db(self):
+        print "Need sudo to rebuild the database"
         self.run('sudo -u postgres dropdb %s' % DB_NAME, ok_to_fail=True)
         self.run('sudo -u postgres createdb --owner %s %s' % (DB_USER, DB_NAME))
 
