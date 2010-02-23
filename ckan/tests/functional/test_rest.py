@@ -585,14 +585,10 @@ class TestRest(TestController):
 
     def test_14_get_revision(self):
         rev = model.Revision.youngest(model.Session)
-        l = model.Session.query(model.Revision).all()
-        print [i.id for i in l]
-        rev = l[0]
-        assert rev, "No 'youngest' revision."
-        revision_id = rev.id
-        offset = '/api/rest/revision/%s' % revision_id
+        offset = '/api/rest/revision/%s' % rev.id
         res = self.app.get(offset, status=[200])
-        assert revision_id in res, res
+        assert rev.id in res, res
+        assert str(rev.timestamp) in res, res
 
     def test_14_get_revision_404(self):
         revision_id = "xxxxxxxxxxxxxxxxxxxxxxxxxx"
