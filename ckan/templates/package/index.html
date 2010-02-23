@@ -10,7 +10,7 @@
 
     <hr />
 
-    <p>There ${plural(c.package_count, 'is', 'are')} <strong>${c.package_count}</strong> packages.</p>
+    <p>There are <strong>${c.package_count}</strong> packages.</p>
 
     <h3>
       ${h.link_to('Browse packages', h.url_for(controller='package', action='list'))}

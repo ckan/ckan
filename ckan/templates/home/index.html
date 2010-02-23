@@ -40,7 +40,10 @@
       <p>
         ${h.link_to('About &raquo;', h.url_for('about'))}
         &nbsp;&nbsp;
-        ${h.link_to('FAQ and Guide &raquo;', h.url_for('guide'))}
+<!--        ${h.link_to('FAQ and Guide &raquo;', h.url_for('guide'))} -->
+        ${h.link_to('Statistics', h.url_for('stats'))}
+        &nbsp;&nbsp;
+        <a href="https://knowledgeforge.net/ckan/trac">Help</a>
       </p>
     </div>
   </py:match>
@@ -60,8 +63,9 @@
 
     <h4>Top Tags</h4>
     <div id="tagcloud">
-    <py:for each="count, tag in c.tag_counts">
-      <a rel="${count}" title="${count}" href="${h.url_for(controller='tag', action='read', id=tag.name)}">${tag.name}</a>
+    <py:for each="tag_name, count in c.tag_counts">
+      <a rel="${count}" title="${count}" href="${h.url_for(controller='tag',
+        action='read', id=tag_name)}">${tag_name}</a>
     </py:for>
     </div>
 

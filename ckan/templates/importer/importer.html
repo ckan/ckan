@@ -6,7 +6,6 @@
   <div py:match="content">
     <h2>Import Packages</h2>
     <p>Here you can supply an Excel file with details of multiple packages and import these into CKAN.</p>
-    <p><a href="${h.url_for(controller='importer', action='doc')}">Import documentation</a></p>
     <div>
       <h3 py:if="c.error" class="form-errors">
         Error: ${c.error}
@@ -26,7 +25,7 @@
         </p>
 
         <py:if test="not c.user">
-          <p>Log in to use this tool</p>
+          <p><strong>Log in to use this tool</strong></p>
         </py:if>
           
       ${h.end_form()}

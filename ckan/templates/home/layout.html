@@ -7,7 +7,9 @@
   
   <py:match path="minornavigation">
     <li>${h.subnav_link(c, _('About'), controller='home', action='about', id=None)}</li>
-    <li>${h.subnav_link(c, _('FAQ and Guide'), controller='home', action='guide', id=None)}</li>
+<!--    <li>${h.subnav_link(c, _('FAQ and Guide'), controller='home', action='guide', id=None)}</li> -->
+    <li>${h.link_to('Statistics', h.url_for('stats'))}</li>
+    <li><a href="https://knowledgeforge.net/ckan/trac">Help</a></li>
   </py:match>
   
   <xi:include href="../layout.html" />
