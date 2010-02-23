@@ -49,6 +49,8 @@ class TestData:
         pkg2 = model.Session.query(model.Package).filter_by(name=u'provision-children-under-5-england-2009').one()
         pkg3 = model.Session.query(model.Package).filter_by(name=u'laboratory-tests-and-prices').one()
         assert pkg1
+        assert pkg2
+        assert pkg3
         assert pkg1.title == 'Child Protection Plan', pkg1.title
         assert pkg1.extras['external_reference'] == u'DCSF-DCSF-0017', pkg1.extras
         assert pkg1.notes.startswith(u'Referrals, assessment and children and young people who are the subjects of child protection plans (on the child protection register) for year ending March 2009'), pkg1.notes
@@ -96,7 +98,8 @@ class TestData:
         assert pkg1.author_email == 'statistics@dcsf.gsi.gov.uk', pkg1.author_email
         assert not pkg1.maintainer, pkg1.maintainer
         assert not pkg1.maintainer_email, pkg1.maintainer_email
-        assert 'Crown Copyright' in pkg.license.name, pkg.license.name
+        assert 'UK Crown Copyright with data.gov.uk rights' in pkg1.license.name, pkg1.license.name
+        assert 'Higher Education Statistics Agency Copyright with data.gov.uk rights' in pkg3.license.name, pkg1.license.name
         for tag in ['child-protection']:
             assert tag in tag_names, '%s not in %s' % (tag, tag_names)
 

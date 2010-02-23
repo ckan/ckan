@@ -108,7 +108,7 @@ class TestData:
         assert 'england' not in tag_names, tag_names
         assert 'england_and_wales' not in tag_names, tag_names
         assert len(tag_names) > 1, tag_names
-        assert 'Crown Copyright' in pkg1.license.name, pkg1.license.name
+        assert 'UK Crown Copyright with data.gov.uk rights' in pkg1.license.name, pkg1.license.name
         assert pkg1.extras['external_reference'] == 'DATA4NR-719', pkg1.extras['external_reference']
 
         assert model.Group.by_name(u'ukgov') in pkg1.groups
