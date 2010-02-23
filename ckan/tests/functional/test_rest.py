@@ -115,6 +115,7 @@ class TestRest(TestController):
 
     def test_04_get_package(self):
         # Test Packages Register Get 200.
+        #   ..or is that "entity get"? "register get" == "list" --jb
         offset = '/api/rest/package/annakarenina'
         res = self.app.get(offset, status=[200])
         assert 'annakarenina' in res, res
@@ -581,6 +582,24 @@ class TestRest(TestController):
         offset = '/api/rest/group/%s' % self.testgroupvalues['name']
         res = self.app.delete(offset, status=[404],
                               extra_environ=self.extra_environ)
+
+    def test_14_get_revision(self):
+        rev = model.Revision.youngest(model.Session)
+        l = model.Session.query(model.Revision).all()
+        print [i.id for i in l]
+        rev = l[0]
+        assert rev, "No 'youngest' revision."
+        revision_id = rev.id
+        offset = '/api/rest/revision/%s' % revision_id
+        res = self.app.get(offset, status=[200])
+        assert revision_id in res, res
+
+    def test_14_get_revision_404(self):
+        revision_id = "xxxxxxxxxxxxxxxxxxxxxxxxxx"
+        offset = '/api/rest/revision/%s' % revision_id
+        res = self.app.get(offset, status=404)
+        model.Session.remove()
+
 
 class TestSearch(TestController):
     @classmethod

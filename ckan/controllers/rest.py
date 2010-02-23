@@ -31,7 +31,19 @@ class RestController(BaseController):
             return ''
 
     def show(self, register, id):
-        if register == u'package':
+        if register == u'revision':
+            rev = model.Session.query(model.Revision).get(id)
+            if rev is None:
+                response.status_int = 404
+                return ''
+            # Todo: Implement access control for revisions.
+            #if not self._check_access(rev, model.Action.READ):
+            #    return ''
+
+            _dict = rev.as_dict()
+            #TODO check it's not none
+            return self._finish_ok(_dict)
+        elif register == u'package':
             pkg = model.Package.by_name(id)
             if pkg is None:
                 response.status_int = 404
