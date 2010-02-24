@@ -836,16 +836,24 @@ class TestSearch(TestController):
         offset = '/api/search/revision'
         revs = model.Session.query(model.Revision).all()
         rev_first = revs[-1]
-        params = "?since_time=%s" % str(rev_first.timestamp)
+        params = "?since_time=%s" % model.strftimestamp(rev_first.timestamp)
         res = self.app.get(offset+params, status=200)
         res_list = simplejson.loads(res.body)
-        return
-        # Todo: Decide time format. Can't easily parse millisecond, but
-        # without such precision we can't distinguish revision fixtures.
         assert rev_first.id not in res_list
         for rev in revs[:-1]:
             assert rev.id in res_list, (rev.id, res_list)
-        raise Exception, "\n".join(res_list) + "\n\n" + "\n".join([r.id for r in revs])
+
+    def test_strftimestamp(self):
+        import datetime
+        t = datetime.datetime(2012, 3, 4, 5, 6, 7, 890123)
+        s = model.strftimestamp(t)
+        assert s == "2012-03-04T05:06:07.890123", s
+
+    def test_strptimestamp(self):
+        import datetime
+        s = "2012-03-04T05:06:07.890123"
+        t = model.strptimestamp(s)
+        assert t == datetime.datetime(2012, 3, 4, 5, 6, 7, 890123), t
 
 
 class TestApiMisc(TestController):

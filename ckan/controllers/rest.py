@@ -32,17 +32,18 @@ class RestController(BaseController):
 
     def show(self, register, id):
         if register == u'revision':
+            # Todo: Implement access control for revisions.
             rev = model.Session.query(model.Revision).get(id)
             if rev is None:
                 response.status_int = 404
                 return ''
-            # Todo: Implement access control for revisions.
-            #if not self._check_access(rev, model.Action.READ):
-            #    return ''
-
-            _dict = rev.as_dict()
-            #TODO check it's not none
-            return self._finish_ok(_dict)
+            response_data = {
+                'id': rev.id,
+                'timestamp': model.strftimestamp(rev.timestamp),
+                'author': rev.author,
+                'message': rev.message,
+            }
+            return self._finish_ok(response_data)
         elif register == u'package':
             pkg = model.Package.by_name(id)
             if pkg is None:
@@ -200,10 +201,9 @@ class RestController(BaseController):
     def search(self, register=None):
         if register == 'revision':
             if request.params.has_key('since_time'):
-                since_time = request.params['since_time']
-                # Todo: Decide whether second-precision is okay.
-                # Todo: Decide on timestamp format, document carefully.
-                revs = model.Session.query(model.Revision).all()
+                since_time_str = request.params['since_time']
+                since_time = model.strptimestamp(since_time_str)
+                revs = model.Session.query(model.Revision).filter(model.Revision.timestamp>since_time)
             elif request.params.has_key('since_rev'):
                 since_id = request.params['since_rev']
                 revs = []

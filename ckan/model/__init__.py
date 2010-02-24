@@ -111,3 +111,10 @@ def _get_revision_user(self):
 Revision.packages = property(_get_packages)
 Revision.user = property(_get_revision_user)
 
+def strptimestamp(s):
+    import datetime, re
+    return datetime.datetime(*map(int, re.split('[^\d]', s)))
+
+def strftimestamp(t):
+    return t.isoformat()
+
