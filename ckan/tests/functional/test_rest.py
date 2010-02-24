@@ -587,8 +587,9 @@ class TestRest(TestController):
         rev = model.Revision.youngest(model.Session)
         offset = '/api/rest/revision/%s' % rev.id
         res = self.app.get(offset, status=[200])
-        assert rev.id in res, res
-        assert str(rev.timestamp) in res, res
+        res_dict = simplejson.loads(res.body)
+        assert rev.id == res_dict['id']
+        assert str(rev.timestamp) == res_dict['timestamp']
 
     def test_14_get_revision_404(self):
         revision_id = "xxxxxxxxxxxxxxxxxxxxxxxxxx"
@@ -810,6 +811,41 @@ class TestSearch(TestController):
         assert res_dict['count'] == 2, res_dict
         assert len(res_dict['results']) == 1, res_dict
         assert res_dict['results'][0]['name'] == 'warandpeace', res_dict['results'][0]['name']
+
+    def test_12_search_revision(self):
+        offset = '/api/search/revision'
+        res = self.app.get(offset, status=200)
+        revs = model.Session.query(model.Revision).all()
+        res_dict = simplejson.loads(res.body)
+        for rev in revs:
+            print rev
+            assert rev.id in res_dict, (rev.id, res_dict)
+
+    def test_12_search_revision_since_rev(self):
+        offset = '/api/search/revision'
+        revs = model.Session.query(model.Revision).all()
+        rev_first = revs[-1]
+        params = "?since_rev=%s" % str(rev_first.id)
+        res = self.app.get(offset+params, status=200)
+        res_list = simplejson.loads(res.body)
+        assert rev_first.id not in res_list
+        for rev in revs[:-1]:
+            assert rev.id in res_list, (rev.id, res_list)
+
+    def test_12_search_revision_since_time(self):
+        offset = '/api/search/revision'
+        revs = model.Session.query(model.Revision).all()
+        rev_first = revs[-1]
+        params = "?since_time=%s" % str(rev_first.timestamp)
+        res = self.app.get(offset+params, status=200)
+        res_list = simplejson.loads(res.body)
+        return
+        # Todo: Decide time format. Can't easily parse millisecond, but
+        # without such precision we can't distinguish revision fixtures.
+        assert rev_first.id not in res_list
+        for rev in revs[:-1]:
+            assert rev.id in res_list, (rev.id, res_list)
+        raise Exception, "\n".join(res_list) + "\n\n" + "\n".join([r.id for r in revs])
 
 
 class TestApiMisc(TestController):
