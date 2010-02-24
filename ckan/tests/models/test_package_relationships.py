@@ -15,7 +15,7 @@ class TestCreation:
         theparent = model.Package.by_name(u'the-parent')
         thechild = model.Package.by_name(u'the-child')
         rev = model.repo.new_revision()
-        thechild.add_relationship('child_of', theparent, u'Some comment')
+        thechild.add_relationship(u'child_of', theparent, u'Some comment')
         model.repo.commit_and_remove()
 
         theparent = model.Package.by_name(u'the-parent')
@@ -27,7 +27,7 @@ class TestCreation:
         assert not thechild.relationships_as_object, thechild.relationships_as_object
         assert not theparent.relationships_as_subject, theparent.relationships_as_subject
         assert theparent.relationships_as_object == [pr], theparent.relationships_as_object
-        assert pr.type == 'child_of', pr.type
+        assert pr.type == u'child_of', pr.type
         assert pr.comment == u'Some comment', pr.comment
         assert pr.subject == thechild
         assert pr.object == theparent
@@ -47,7 +47,7 @@ class TestCreation:
         thechild = model.Package.by_name(u'the-child')
         assert len(thechild.relationships) == 1, thechild.relationships
         pr = thechild.relationships[0]
-        assert pr.type == 'child_of', pr.type
+        assert pr.type == u'child_of', pr.type
         assert pr.comment == u'Some comment', pr.comment
         assert pr.subject == thechild
         assert pr.object == theparent
