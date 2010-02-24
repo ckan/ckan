@@ -43,13 +43,13 @@ class TestTagController(TestController):
         assert tagname in res
         #assert '(2 packages)' in res
         tag_count = model.Session.query(model.Tag).count()
-        assert 'There are <strong>%s</strong> tags.' % tag_count in res
+        assert 'There are <strong>%s</strong> results for tags.' % tag_count in res
         offset = url_for(controller='tag', action='index')
         res = self.app.get(offset)
         print str(res)
         assert tagname in res
         tag_count = model.Session.query(model.Tag).count()
-        assert 'There are <strong>%s</strong> tags.' % tag_count in res
+        assert 'There are <strong>%s</strong> results for tags.' % tag_count in res
         # Avoid interactions.
         offset = url_for(controller='tag', action='index')
     

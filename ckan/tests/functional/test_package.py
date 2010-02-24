@@ -555,6 +555,19 @@ u with umlaut \xc3\xbc
         exp_log_message = u'Creating package %s' % name
         #assert rev.message == exp_log_message
 
+    def test_edit_bad_log_message(self):
+        fv = self.res.forms[0]
+        prefix = 'Package-%s-' % self.pkgid
+        fv['log_message'] = u'Free enlargements: http://drugs.com/' # spam
+        res = fv.submit('preview')
+        assert 'Error' in res, res
+        assert 'No links are allowed' in res, res
+        assert 'class="form-errors"' in res, res
+
+        res = fv.submit('commit')
+        assert 'Error' in res, res
+        assert 'No links are allowed' in res, res
+        assert 'class="form-errors"' in res, res
 
 class TestNew(TestPackageForm):
     pkgname = u'testpkg'
