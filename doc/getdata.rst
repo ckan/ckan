@@ -6,7 +6,7 @@
 Introduction
 ============
 
-'Getdata' is a collection of custom scripts for importing batches of records from a spreadsheet into a CKAN database. You customize one for reading/downloading data in the form of CSV or XML and it adds or updates CKAN database records accordingly. Because each one is a custom importer, they can be written to be very flexible and powerful.
+'Getdata' is a collection of custom scripts for importing batches of records from a spreadsheet into a CKAN database. You customize one for reading/downloading data in the form of CSV or XML (for example) and it adds or updates CKAN database records accordingly. Because each one is a custom importer, they can be written to be very flexible and powerful.
 
 Overview
 ========
