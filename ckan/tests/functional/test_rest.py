@@ -120,8 +120,10 @@ class TestRest(TestController):
         #   ..or is that "entity get"? "register get" == "list" --jb
         offset = '/api/rest/package/annakarenina'
         res = self.app.get(offset, status=[200])
+        anna = model.Package.by_name(u'annakarenina')
         assert 'annakarenina' in res, res
 #        assert '"license_id": 9' in res, res
+        assert 'license_id' not in res, res
         expected_license = '"license": "%s"' % get_license_name(9)
         assert expected_license in res, repr(res) + repr(expected_license)
         assert 'russian' in res, res
@@ -134,6 +136,7 @@ class TestRest(TestController):
         assert '"Index of the novel"' in res, res
         # 2/12/09 download_url is now deprecated - to be removed in the future
         assert '"download_url": "http://www.annakarenina.com/download/x=1&y=2"' in res, res
+        assert '"id": "%s"' % anna.id in res, res
 
 
     def _test_04_ckan_url(self):
