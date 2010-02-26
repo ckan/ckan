@@ -34,6 +34,8 @@ class TestRest(TestController):
         model.Session.remove()
 
     def setup(self):
+        self.testpackage_license_id = 4
+        license_name = get_license_name(self.testpackage_license_id)
         self.testpackagevalues = {
             'name' : u'testpkg',
             'title': u'Some Title',
@@ -47,7 +49,7 @@ class TestRest(TestController):
                            u'description':u'Second file',
                            u'hash':u'def123'},],
             'tags': [u'russion', u'novel'],
-            'license_id': u'4',
+            'license': license_name,
             'extras': {'genre' : u'horror',
                        'media' : u'dvd',
                        },
@@ -119,7 +121,7 @@ class TestRest(TestController):
         offset = '/api/rest/package/annakarenina'
         res = self.app.get(offset, status=[200])
         assert 'annakarenina' in res, res
-        assert '"license_id": 9' in res, res
+#        assert '"license_id": 9' in res, res
         expected_license = '"license": "%s"' % get_license_name(9)
         assert expected_license in res, repr(res) + repr(expected_license)
         assert 'russian' in res, res
@@ -183,7 +185,8 @@ class TestRest(TestController):
         assert pkg
         assert pkg.title == self.testpackagevalues['title'], pkg
         assert pkg.url == self.testpackagevalues['url'], pkg
-        assert pkg.license_id == int(self.testpackagevalues['license_id']), pkg
+        assert pkg.license_id == self.testpackage_license_id, pkg
+        assert pkg.license.name == self.testpackagevalues['license'], pkg.license
         assert len(pkg.tags) == 2
         assert len(pkg.extras) == 2, len(pkg.extras)
         for key, value in self.testpackagevalues['extras'].items():
@@ -199,7 +202,8 @@ class TestRest(TestController):
         offset = '/api/rest/package/%s' % self.testpackagevalues['name']
         res = self.app.get(offset, status=[200])
         assert self.testpackagevalues['name'] in res, res
-        assert '"license_id": %s' % self.testpackagevalues['license_id'] in res, res
+#        assert '"license_id": %s' % self.testpackagevalues['license_id'] in res, res
+        assert '"license": "%s"' % self.testpackagevalues['license'] in res, res
         assert self.testpackagevalues['tags'][0] in res, res
         assert self.testpackagevalues['tags'][1] in res, res
         assert '"extras": {' in res, res

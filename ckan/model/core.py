@@ -183,6 +183,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             _dict['license'] = self.license.name
         else:
             _dict['license'] = ''
+        del _dict['license_id']
         _dict['extras'] = dict([(extra.key, extra.value) for key, extra in self._extras.items()])
         _dict['ratings_average'] = self.get_average_rating()
         _dict['ratings_count'] = len(self.ratings)
