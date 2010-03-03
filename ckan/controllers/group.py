@@ -87,8 +87,6 @@ class GroupController(BaseController):
             data = ckan.forms.edit_group_dict(ckan.forms.get_group_dict(), request.params)
             fs = fs.bind(data=data)
         c.form = self._render_edit_form(fs)
-        if 'preview' in request.params:
-            c.preview = genshi.HTML(self._render_package(fs))
         return render('group/new')
 
     def edit(self, id=None): # allow id=None to allow posting
