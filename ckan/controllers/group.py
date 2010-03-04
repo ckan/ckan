@@ -4,6 +4,7 @@ from ckan.lib.base import *
 from simplejson import dumps
 import ckan.authz as authz
 import ckan.forms
+from ckan.lib.helpers import Page
 
 class GroupController(BaseController):
     def __init__(self):
@@ -31,13 +32,6 @@ class GroupController(BaseController):
         c.auth_for_edit = self.authorizer.am_authorized(c, model.Action.EDIT, c.group)
         c.auth_for_authz = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, c.group)
         
-        c.group_active_packages = []
-        active_str = model.State.ACTIVE
-        # TODO: this isn't nice ... (either should have active_packages
-        # attribute or ...)
-        for pkg in c.group.packages:
-            if pkg.state == active_str:
-                c.group_active_packages.append(pkg)
         import ckan.misc
         format = ckan.misc.MarkdownFormat()
         desc_formatted = format.to_html(c.group.description)
@@ -45,6 +39,11 @@ class GroupController(BaseController):
         c.group_description_formatted = desc_formatted
         c.group_admins = self.authorizer.get_admins(c.group)
 
+        c.page = Page(
+            collection=c.group.active_packages(),
+            page=request.params.get('page', 1),
+            items_per_page=50
+        )
         return render('group/read')
 
     def new(self):

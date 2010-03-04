@@ -26,9 +26,13 @@ class TestPackageForm(TestController):
         for res_index, values in self._get_resource_values(params['resources'], by_resource=True):
             self.check_named_element(main_div, 'tr', *values)
         assert params['notes'] in main_div, main_div_str
-        assert params['license'] in main_div, main_div_str
-        for tag in params['tags']:
-            assert tag.lower() in main_div, '%r %s' % (main_div_str, tag)
+        if isinstance(params['license'], model.License):
+            license_str = str(params['license'].name)
+        elif isinstance(params['license'], (str, unicode)):
+            license_str = str(params['license'])
+        assert license_str in main_div, main_div_str
+        tag_names = [tag.lower() for tag in params['tags']]
+        self.check_named_element(main_div, 'ul', *tag_names)
         if params.has_key('state'):
             assert 'State: %s' % params['state'] in main_div.replace('</strong>', ''), main_div_str
         if isinstance(params['extras'], dict):
@@ -39,6 +43,16 @@ class TestPackageForm(TestController):
             raise NotImplementedError
         for key, value in extras:
             self.check_named_element(main_div, 'tr', key, value)
+        if params.has_key('deleted_extras'):
+            if isinstance(params['deleted_extras'], dict):
+                deleted_extras = params['deleted_extras'].items()
+            elif isinstance(params['deleted_extras'], (list, tuple)):
+                deleted_extras = params['deleted_extras']
+            else:
+                raise NotImplementedError
+            for key, value in params['deleted_extras']:
+                self.check_named_element(main_div, 'tr', '!' + key)
+                self.check_named_element(main_div, 'tr', '!' + value)
 
         
     def _check_preview(self, res, **params):
@@ -53,20 +67,23 @@ class TestPackageForm(TestController):
                 resource = [resource]
             self.check_named_element(preview, 'tr', resource[0], resource[1], resource[2], resource[3])
         assert str(params['notes']) in preview, preview
-        assert str(params['license']) in preview, preview
-        tags_html_list = ['<a href="/tag/read/%s">%s</a>' % (str(tag), str(tag)) for tag in params['tags']]
-        tags_html_preview = ' '.join(tags_html_list)
-        assert tags_html_preview in preview, preview + tags_html_preview
+        if isinstance(params['license'], model.License):
+            license_str = str(params['license'].name)
+        elif isinstance(params['license'], (str, unicode)):
+            license_str = str(params['license'])
+        assert license_str in preview, preview
+        tag_names = [str(tag.lower()) for tag in params['tags']]
+        self.check_named_element(preview, 'ul', *tag_names)
         if params.has_key('state'):
             assert str(params['state']) in preview, preview
         else:
             assert 'state' not in preview
         for key, value in params['extras']:
-            self.check_named_element('td', key, value)
+            self.check_named_element(preview, 'tr', key, value)
         if params.has_key('deleted_extras'):
             for key, value in params['deleted_extras']:
-                self.check_named_element('td', '!' + key)
-                self.check_named_element('td', '!' + value)
+                self.check_named_element(preview, 'tr', '!' + key)
+                self.check_named_element(preview, 'tr', '!' + value)
 
     def _get_resource_values(self, resources, by_resource=False):
         assert isinstance(resources, (list, tuple))
@@ -525,7 +542,8 @@ u with umlaut \xc3\xbc
                                  version=version, url=url,
                                  resources=resources, notes=notes,
                                  license=license, tags=tags,
-                                 extras=extras,
+                                 extras=current_extras,
+                                 deleted_extras=deleted_extras,
                                  state=state,
                                  )
 
@@ -541,7 +559,10 @@ u with umlaut \xc3\xbc
         assert pkg.notes == notes
         assert pkg.license_id == license_id
         saved_tagnames = [str(tag.name) for tag in pkg.tags]
-        assert saved_tagnames == list(tags)
+        saved_tagnames.sort()
+        expected_tagnames = list(tags)
+        expected_tagnames.sort()
+        assert saved_tagnames == expected_tagnames
         assert pkg.state == state
         assert len(pkg.extras) == len(current_extras)
         for key, value in current_extras:
@@ -739,7 +760,10 @@ class TestNew(TestPackageForm):
         assert pkg.notes == notes
         assert pkg.license_id == license_id
         saved_tagnames = [str(tag.name) for tag in pkg.tags]
-        assert saved_tagnames == [tag.lower() for tag in list(tags)]
+        saved_tagnames.sort()
+        expected_tagnames = [tag.lower() for tag in tags]
+        expected_tagnames.sort()
+        assert saved_tagnames == expected_tagnames, '%r != %r' % (saved_tagnames, expected_tagnames)
         saved_groupnames = [str(group.name) for group in pkg.groups]
         assert len(pkg.extras) == len(extras)
         for key, value in extras.items():
