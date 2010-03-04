@@ -65,21 +65,25 @@ API Locations
 A REST interface presents resources at published locations. Here are the names
 locations of the CKAN REST API resources:
 
-+-------------------+--------------------------------+
-| Resource Name     | Location                       |
-+===================+================================+
-| Package Register  | /api/rest/package              |
-+-------------------+--------------------------------+
-| Package Entity    | /api/rest/package/PACKAGE-NAME |
-+-------------------+--------------------------------+
-| Group Register    | /api/rest/group                |
-+-------------------+--------------------------------+
-| Group Entity      | /api/rest/group/GROUP-NAME     |
-+-------------------+--------------------------------+
-| Tag Register      | /api/rest/tag                  |
-+-------------------+--------------------------------+
-| Tag Entity        | /api/rest/tag/TAG-NAME         |
-+-------------------+--------------------------------+
++------------------------+--------------------------------+
+| Resource Name          | Location                       |
++========================+================================+
+| Package Register       | /api/rest/package              |
++------------------------+--------------------------------+
+| Package Entity         | /api/rest/package/PACKAGE-NAME |
++------------------------+--------------------------------+
+| Group Register         | /api/rest/group                |
++------------------------+--------------------------------+
+| Group Entity           | /api/rest/group/GROUP-NAME     |
++------------------------+--------------------------------+
+| Tag Register           | /api/rest/tag                  |
++------------------------+--------------------------------+
+| Tag Entity             | /api/rest/tag/TAG-NAME         |
++------------------------+--------------------------------+
+| Rating Registry        | /api/rest/rating               |
++------------------------+--------------------------------+
+| Rating Entity          | /api/rest/rating/PACKAGE-NAME  |
++------------------------+--------------------------------+
 
 Here are the non-REST API locations:
 
@@ -121,6 +125,10 @@ the operation.
 | Tag Register     | GET    |              | Tag-List        |  
 +------------------+--------+--------------+-----------------+
 | Tag Entity       | GET    | Tag          | Package-List    | 
++------------------+--------+--------------+-----------------+
+| Rating Entity    | GET    |              | Ratings         | 
++------------------+--------+--------------+-----------------+
+| Rating Register  | POST   | Rating       |                 | 
 +------------------+--------+--------------+-----------------+
 | Search           | GET    |              | Search-Response | 
 +------------------+--------+--------------+-----------------+
@@ -167,6 +175,10 @@ Data Formats
 | Name-String     | An alphanumeric string.                                    |
 +-----------------+------------------------------------------------------------+
 | Resource-Dict   | { url: String, format: String, description: String }       |
++-----------------+------------------------------------------------------------+
+| Rating          | { package: Name-String, rating: int }                      |
++-----------------+------------------------------------------------------------+
+| Ratings         | { ratings_average: float, ratings_count: int }             |
 +-----------------+------------------------------------------------------------+
 | Query-String    | [ q: String ]                                              |
 +-----------------+------------------------------------------------------------+
