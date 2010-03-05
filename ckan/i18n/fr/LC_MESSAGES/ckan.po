@@ -1310,8 +1310,9 @@ msgid "downloadable"
 msgstr "téléchargeable"
 
 #: ckan/templates/revision/diff.html:4
+#, fuzzy
 msgid "Diff"
-msgstr ""
+msgstr "Diff"
 
 #: ckan/templates/revision/diff.html:7
 msgid "Revision Differences -"
@@ -1362,8 +1363,9 @@ msgid "Number"
 msgstr "Nombre"
 
 #: ckan/templates/revision/purge.html:4
+#, fuzzy
 msgid "Revisions - Purge"
-msgstr ""
+msgstr "Révisions - Supprimer"
 
 #: ckan/templates/revision/purge.html:7
 msgid "Revision Purge"
@@ -1425,7 +1427,7 @@ msgstr ""
 
 #: ckan/templates/tag/read.html:7
 msgid "Tag:"
-msgstr ""
+msgstr "Tag :"
 
 #: ckan/templates/tag/read.html:8
 msgid "packages tagged with"
@@ -1434,7 +1436,7 @@ msgstr "paquets avec le tag "
 #: ckan/templates/user/apikey.html:4 ckan/templates/user/login_form.html:4
 #: ckan/templates/user/openid_form.html:4
 msgid "Account - Login"
-msgstr ""
+msgstr "Compte utilisateur - Se connecter"
 
 #: ckan/templates/user/apikey.html:7
 msgid "API Key"
