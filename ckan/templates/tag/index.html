@@ -14,13 +14,12 @@
     <hr />
     
     <p>
-      There ${plural(c.page.item_count, 'is', 'are')} <strong>${c.page.item_count}</strong>
       <py:choose test="">
         <py:when test="c.q">
-          ${plural(c.page.item_count, 'result', 'results')} for &lsquo;<strong>${c.q.strip()}</strong>&rsquo;.
+          There are <strong>${c.page.item_count}</strong> results for &lsquo;<strong>${c.q.strip()}</strong>&rsquo;.
         </py:when>
         <py:otherwise>
-          ${plural(c.page.item_count, 'tag.', 'tags.')}
+          There are <strong>${c.page.item_count}</strong> results for tags.
         </py:otherwise>
       </py:choose>
     </p>

@@ -62,7 +62,7 @@ class CreateTestData(cli.CkanCommand):
             package_dicts = [package_dicts]
         for item in package_dicts:
             pkg = model.Package(name=unicode(item['name']))
-            model.Session.save(pkg)
+            model.Session.add(pkg)
             for attr, val in item.items():
                 if isinstance(val, str):
                     val = unicode(val)
@@ -96,7 +96,7 @@ class CreateTestData(cli.CkanCommand):
                         if not tag:
                             tag = model.Tag(name=tag_name)
                             self.tag_names.append(tag_name)
-                            model.Session.save(tag)    
+                            model.Session.add(tag)    
                         pkg.tags.append(tag)
                 elif attr == 'groups':
                     for group_name in val.split():
@@ -104,7 +104,7 @@ class CreateTestData(cli.CkanCommand):
                         if not group:
                             group = model.Group(name=group_name)
                             self.group_names.append(group_name)
-                            model.Session.save(group)
+                            model.Session.add(group)
                         pkg.groups.append(group)
                 elif attr == 'license':
                     license = model.License.by_name(val)
@@ -129,7 +129,7 @@ class CreateTestData(cli.CkanCommand):
             rev.message = u'Creating search test data.'
         for user_name in self.user_names:
             user = model.User(name=unicode(user_name))
-            model.Session.save(user)
+            model.Session.add(user)
         model.repo.commit_and_remove()
 
         if admins_list:
@@ -154,7 +154,7 @@ class CreateTestData(cli.CkanCommand):
 '''
         self.pkg_names = [u'annakarenina', u'warandpeace']
         pkg1 = model.Package(name=self.pkg_names[0])
-        model.Session.save(pkg1)
+        model.Session.add(pkg1)
         pkg1.title = u'A Novel By Tolstoy'
         pkg1.version = u'0.7a'
         pkg1.url = u'http://www.annakarenina.com'
@@ -171,8 +171,8 @@ class CreateTestData(cli.CkanCommand):
             description=u'Index of the novel',
             hash=u'def456',
             )
-        model.Session.save(pr1)
-        model.Session.save(pr2)
+        model.Session.add(pr1)
+        model.Session.add(pr2)
         pkg1.resources.append(pr1)
         pkg1.resources.append(pr2)
         pkg1.notes = u'''Some test notes
@@ -197,7 +197,7 @@ left arrow <
         tag1 = model.Tag(name=u'russian')
         tag2 = model.Tag(name=u'tolstoy')
         for obj in [pkg2, tag1, tag2]:
-            model.Session.save(obj)
+            model.Session.add(obj)
         pkg1.tags = [tag1, tag2]
         pkg2.tags = [ tag1 ]
         self.tag_names = [u'russian', u'tolstoy']
@@ -209,11 +209,11 @@ left arrow <
         pkg1._extras = {'genre':genre_extra,
                         'original media':media_extra
                         }
-        model.Session.save(genre_extra)
-        model.Session.save(media_extra)
+        model.Session.add(genre_extra)
+        model.Session.add(media_extra)
         # api key
         tester = model.User(name=u'tester', apikey=u'tester')
-        model.Session.save(tester)
+        model.Session.add(tester)
         self.user_names = [u'tester']
         # group
         david = model.Group(name=u'david',
@@ -223,7 +223,7 @@ left arrow <
                              title=u'Roger\'s books',
                              description=u'Roger likes these books.')
         for obj in [david, roger]:
-            model.Session.save(obj)
+            model.Session.add(obj)
         self.group_names = (u'david', u'roger')
         david.packages = [pkg1, pkg2]
         roger.packages = [pkg1]
@@ -233,7 +233,7 @@ left arrow <
         russianfan = model.User(name=u'russianfan')
         testsysadmin = model.User(name=u'testsysadmin')
         for obj in [joeadmin, annafan, russianfan, testsysadmin]:
-            model.Session.save(obj)
+            model.Session.add(obj)
         self.user_names.extend([u'joeadmin', u'annafan', u'russianfan', u'testsysadmin'])
         model.repo.commit_and_remove()
 

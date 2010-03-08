@@ -286,7 +286,7 @@ class Search:
                 results = []
                 for entity in self._results['results']:
                     if ENABLE_CACHING:
-                        cachekey = u'%s-%s' % (type(entity), entity.id)
+                        cachekey = u'%s-%s' % (unicode(str(type(entity))), entity.id)
                         result = our_cache.get_value(key=cachekey,
                                 createfunc=lambda: entity.as_dict(), expiretime=3600)
                     else:

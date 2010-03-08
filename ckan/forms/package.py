@@ -492,6 +492,8 @@ def edit_package_dict(dict_, changed_items, id=''):
     tags_key = prefix + 'tags'
     resources_key = prefix + 'resources'
     download_url_key = prefix + 'download_url'
+    license_key = prefix + 'license'
+    license_id_key = prefix + 'license_id'
     for key, value in changed_items.items():
         if key:
             if not key.startswith(prefix):
@@ -520,6 +522,10 @@ def edit_package_dict(dict_, changed_items, id=''):
             elif key == download_url_key:
                 dict_[resources_key].insert(0, (value, u'', u'', u''))
                 # blank format, description and hash
+            elif key == license_key:
+                license_ = model.License.by_name(value)
+                assert license_, 'License name unknown: %r' % value
+                dict_[license_id_key] = unicode(license_.id)
     return dict_
 
 def add_to_package_dict(dict_, changed_items, id=''):

@@ -74,7 +74,7 @@ class TestEdit(TestController):
         CreateTestData.create()
         self.packagename = u'testpkg'
         model.repo.new_revision()
-        model.Session.save(model.Package(name=self.packagename))
+        model.Session.add(model.Package(name=self.packagename))
         model.repo.commit_and_remove()
 
     @classmethod
@@ -136,7 +136,7 @@ Ho ho ho
         assert not 'newone' in res, res
 
         pkg = model.Package(name=u'newone')
-        model.Session.save(pkg)
+        model.Session.add(pkg)
         model.repo.new_revision()
         model.repo.commit_and_remove()
 
@@ -161,7 +161,7 @@ class TestNew(TestController):
         
         self.packagename = u'testpkg'
         model.repo.new_revision()
-        model.Session.save(model.Package(name=self.packagename))
+        model.Session.add(model.Package(name=self.packagename))
         model.repo.commit_and_remove()
 
     @classmethod

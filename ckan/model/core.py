@@ -183,6 +183,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             _dict['license'] = self.license.name
         else:
             _dict['license'] = ''
+        del _dict['license_id']
         _dict['extras'] = dict([(extra.key, extra.value) for key, extra in self._extras.items()])
         _dict['ratings_average'] = self.get_average_rating()
         _dict['ratings_count'] = len(self.ratings)
@@ -192,7 +193,31 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         if ckan_host:
             _dict['ckan_url'] = 'http://%s/package/%s' % (ckan_host, self.name)
         return _dict
-        
+
+    def add_relationship(self, type_, related_package, comment=u''):
+        import package_relationship
+        if type_ in package_relationship.PackageRelationship.get_forward_types():
+            subject = self
+            object_ = related_package
+        elif type_ in package_relationship.PackageRelationship.get_reverse_types():
+            type_ = package_relationship.PackageRelationship.reverse_to_forward_type(type_)
+            assert type_
+            subject = related_package
+            object_ = self
+        else:
+            raise NotImplementedError, 'Package relationship type: %r' % type_
+            
+            
+        rel = package_relationship.PackageRelationship(
+            subject=subject,
+            object=object_,
+            type=type_,
+            comment=comment)
+        Session.add(rel)
+
+    @property
+    def relationships(self):
+        return self.relationships_as_subject + self.relationships_as_object
 
 class Tag(DomainObject):
     def __init__(self, name=''):
