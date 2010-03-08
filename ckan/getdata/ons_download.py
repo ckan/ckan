@@ -3,9 +3,9 @@ import urllib
 import datetime
 import logging
 
-def import_recent(ons_cache_dir, log=False):
+def import_recent(ons_cache_dir, log=False, days=7):
     ons = OnsData(ons_cache_dir, log)
-    url, url_name = ons.get_url_recent()
+    url, url_name = ons.get_url_recent(days=days)
     return ons.import_([(url, url_name)])
 
 def import_all(ons_cache_dir, log=False):

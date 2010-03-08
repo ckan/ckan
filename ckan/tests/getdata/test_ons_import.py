@@ -89,7 +89,7 @@ class TestData:
         assert 'Alternative title: UK Reserves' in pkg1.notes, pkg1.notes
         
         assert pkg1.extras['external_reference'] == u'ONSHUB', pkg1.extras['external_reference']
-        assert 'Crown Copyright' in pkg.license.name, pkg.license.name
+        assert 'UK Crown Copyright with data.gov.uk rights' in pkg.license.name, pkg.license.name
         assert pkg1.extras['update_frequency'] == u'monthly', pkg1.extras['update_frequency']
         assert custody.extras['update_frequency'] == u'monthly', custody.extras['update_frequency']
         assert pkg1.author == u"Her Majesty's Treasury", pkg1.author

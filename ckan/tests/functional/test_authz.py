@@ -13,17 +13,17 @@ class TestUsage(TestController):
     def _create_test_data(self):
         self.modes = ('XX', 'rX', 'wX', 'rr', 'wr', 'ww', 'deleted') #  logged-in, visitor
         for mode in self.modes:
-            model.Session.save(model.Package(name=unicode(mode)))
-            model.Session.save(model.Group(name=unicode(mode)))
-        model.Session.save(model.User(name=u'testsysadmin'))
-        model.Session.save(model.User(name=u'pkgadmin'))
-        model.Session.save(model.User(name=u'pkgeditor'))
-        model.Session.save(model.User(name=u'pkgreader'))
-        model.Session.save(model.User(name=u'mrloggedin'))
-        model.Session.save(model.User(name=u'pkgadminfriend'))
-        model.Session.save(model.User(name=u'groupadmin'))
-        model.Session.save(model.User(name=u'groupeditor'))
-        model.Session.save(model.User(name=u'groupreader'))
+            model.Session.add(model.Package(name=unicode(mode)))
+            model.Session.add(model.Group(name=unicode(mode)))
+        model.Session.add(model.User(name=u'testsysadmin'))
+        model.Session.add(model.User(name=u'pkgadmin'))
+        model.Session.add(model.User(name=u'pkgeditor'))
+        model.Session.add(model.User(name=u'pkgreader'))
+        model.Session.add(model.User(name=u'mrloggedin'))
+        model.Session.add(model.User(name=u'pkgadminfriend'))
+        model.Session.add(model.User(name=u'groupadmin'))
+        model.Session.add(model.User(name=u'groupeditor'))
+        model.Session.add(model.User(name=u'groupreader'))
         visitor_name = '123.12.12.123'
         rev = model.repo.new_revision()
         model.repo.commit_and_remove()

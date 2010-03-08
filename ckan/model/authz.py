@@ -188,7 +188,7 @@ def add_user_to_role(user, role, domain_obj):
                         user=user)
     else:
         raise NotImplementedError()
-    Session.save(pr)
+    Session.add(pr)
     Session.commit()
     Session.remove()
 

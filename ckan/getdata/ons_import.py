@@ -189,7 +189,8 @@ class Data(object):
     def _basic_setup(self):
         self._item_count = 0
         self._new_package_count = 0
-        self._crown_license_id = model.License.by_name(u'Non-OKD Compliant::Crown Copyright').id
+        license_str = u'OKD Compliant::UK Crown Copyright with data.gov.uk rights'
+        self._crown_license_id = model.License.by_name(license_str).id
 
 
         # ensure there is a user hmg
