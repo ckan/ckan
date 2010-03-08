@@ -236,9 +236,9 @@ class ManageDb(CkanCommand):
             print 'Creating dir: %s' % ons_cache_dir
             os.makedirs(ons_cache_dir)
         if arg == 'recent':
-            new_packages, num_packages_after = ckan.lib.ons_data.import_recent(ons_cache_dir)
+            new_packages, num_packages_after = ckan.lib.ons_download.import_recent(ons_cache_dir)
         elif arg == 'all':
-            new_packages, num_packages_after = ckan.lib.ons_data.import_all(ons_cache_dir)
+            new_packages, num_packages_after = ckan.lib.ons_download.import_all(ons_cache_dir)
         else:
             # filename given
             import ckan.getdata.ons_hub as data_getter
