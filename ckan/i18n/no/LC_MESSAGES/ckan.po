@@ -376,90 +376,92 @@ msgstr "Open Knowledge Foundation"
 
 #: ckan/templates/layout.html:105
 msgid "Project"
-msgstr ""
+msgstr "Prosjekt"
 
 #: ckan/templates/layout.html:107
 msgid "v"
-msgstr ""
+msgstr "v"
 
 #: ckan/templates/layout.html:108
 msgid ""
 "| (c) Open Knowledge Foundation\n"
 "\t| All material available under an"
 msgstr ""
+"| (c) Open Knowledge Foundation\n"
+"\t| Alt materiale tilgjengelig under en"
 
 #: ckan/templates/layout.html:110 ckan/templates/package/search_form.html:7
 msgid "open license"
-msgstr ""
+msgstr "åpen lisens"
 
 #: ckan/templates/layout.html:111
 msgid "This Content and Data is Open"
-msgstr ""
+msgstr "Innhold og data er åpne"
 
 #: ckan/templates/group/authz.html:4
 msgid "Groups - Authorization -"
-msgstr ""
+msgstr "Grupper - autorisering - "
 
 #: ckan/templates/group/authz.html:7
 msgid "Authorization for group:"
-msgstr ""
+msgstr "Autorisering for gruppe:"
 
 #: ckan/templates/group/authz.html:14 ckan/templates/package/authz.html:14
 msgid "Update Existing Roles"
-msgstr ""
+msgstr "Oppdater eksisterende roller"
 
 #: ckan/templates/group/authz.html:19 ckan/templates/package/authz.html:19
 msgid "Create New User Roles"
-msgstr ""
+msgstr "Opprett nye brukerroller"
 
 #: ckan/templates/group/authz.html:24 ckan/templates/group/edit_form.html:22
 #: ckan/templates/package/authz.html:24
 msgid "Save"
-msgstr ""
+msgstr "Lagre"
 
 #: ckan/templates/group/edit.html:4 ckan/templates/group/new.html:4
 msgid "Groups - Edit -"
-msgstr ""
+msgstr "Grupper - rediger -"
 
 #: ckan/templates/group/edit.html:7
 msgid "Edit Group:"
-msgstr ""
+msgstr "Rediger gruppe:"
 
 #: ckan/templates/group/edit.html:11 ckan/templates/group/new.html:11
 #: ckan/templates/package/edit.html:12 ckan/templates/package/history.html:18
 #: ckan/templates/package/new.html:11
 msgid "Error:"
-msgstr ""
+msgstr "Feil:"
 
 #: ckan/templates/group/edit_form.html:15
 msgid "New Packages"
-msgstr ""
+msgstr "Nye pakker"
 
 #: ckan/templates/group/index.html:4
 msgid "Groups - Index"
-msgstr ""
+msgstr "Grupper - indeks"
 
 #: ckan/templates/group/index.html:9 ckan/templates/group/read.html:40
 #: ckan/templates/package/index.html:13 ckan/templates/tag/index.html:18
 #: ckan/templates/tag/index.html:21 ckan/templates/tag/read.html:8
 msgid "There are"
-msgstr ""
+msgstr "Det er"
 
 #: ckan/templates/group/index.html:9
 msgid "groups."
-msgstr ""
+msgstr "grupper"
 
 #: ckan/templates/group/layout.html:10
 msgid "Groups section"
-msgstr ""
+msgstr "Gruppeseksjon"
 
 #: ckan/templates/group/layout.html:11
 msgid "Whilst tags are great at collecting packages together, there are occasions when you want to restrict users from editing a collection. A"
-msgstr ""
+msgstr "Selv om stikkord egner seg glimrende til å samle pakker, kan det også hende at du ønsker å begrense brukernes adgang til å redigere en samling. En"
 
 #: ckan/templates/group/layout.html:11
 msgid "group"
-msgstr ""
+msgstr "gruppe"
 
 #: ckan/templates/group/layout.html:11
 msgid "can be set-up to specify which users have permission to add or remove packages from it."
