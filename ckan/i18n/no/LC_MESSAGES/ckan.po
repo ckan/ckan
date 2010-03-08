@@ -289,90 +289,90 @@ msgstr "Logg inn med"
 
 #: ckan/templates/layout.html:48
 msgid "OpenID"
-msgstr ""
+msgstr "OpenID"
 
 #: ckan/templates/layout.html:54
 msgid "CKAN Logo"
-msgstr ""
+msgstr "CKANs logo"
 
 #: ckan/templates/layout.html:60
 msgid "Sections:"
-msgstr ""
+msgstr "Seksjoner:"
 
 #: ckan/templates/layout.html:62 ckan/templates/group/layout.html:18
 #: ckan/templates/home/about.html:4 ckan/templates/home/index.html:4
 #: ckan/templates/package/layout.html:16
 msgid "Home"
-msgstr ""
+msgstr "Hjem"
 
 #: ckan/templates/layout.html:63 ckan/templates/group/edit_form.html:8
 #: ckan/templates/home/index.html:77 ckan/templates/package/index.html:7
 #: ckan/templates/package/list.html:32 ckan/templates/revision/list.html:16
 #: ckan/templates/revision/read.html:20 ckan/templates/user/read.html:37
 msgid "Packages"
-msgstr ""
+msgstr "Pakker"
 
 #: ckan/templates/layout.html:64 ckan/templates/package/read_core.html:93
 #: ckan/templates/tag/index.html:7
 msgid "Tags"
-msgstr ""
+msgstr "Stikkord (tags)"
 
 #: ckan/templates/layout.html:65 ckan/templates/group/index.html:7
 #: ckan/templates/package/read_core.html:98
 msgid "Groups"
-msgstr ""
+msgstr "Grupper"
 
 #: ckan/templates/layout.html:66 ckan/templates/user/read.html:34
 msgid "Recent changes"
-msgstr ""
+msgstr "Siste endringer"
 
 #: ckan/templates/layout.html:68
 msgid "In this section:"
-msgstr ""
+msgstr "I denne seksjonen:"
 
 #: ckan/templates/layout.html:79
 msgid "Skip to page content"
-msgstr ""
+msgstr "Hopp til sidens innhold"
 
 #: ckan/templates/layout.html:79
 msgid "[ Skip to main content ]"
-msgstr ""
+msgstr "[ Hopp til hovedinnhold ]"
 
 #: ckan/templates/layout.html:93
 msgid "Master content template placeholder … please replace me."
-msgstr ""
+msgstr "Plassholder hovedmal for innhold - vennligst erstatt"
 
 #: ckan/templates/layout.html:98
 msgid "Valid XHTML 1.1"
-msgstr ""
+msgstr "Gyldig XHTML 1.1"
 
 #: ckan/templates/layout.html:98
 msgid "XHTML"
-msgstr ""
+msgstr "XHTML"
 
 #: ckan/templates/layout.html:99
 msgid "CSS"
-msgstr ""
+msgstr "CSS"
 
 #: ckan/templates/layout.html:100
 msgid "Project Home Page"
-msgstr ""
+msgstr "Prosjektets startside"
 
 #: ckan/templates/layout.html:101
 msgid "Contact Us"
-msgstr ""
+msgstr "Kontakt oss"
 
 #: ckan/templates/layout.html:102
 msgid "Privacy Policy"
-msgstr ""
+msgstr "Retningslinjer for personvern"
 
 #: ckan/templates/layout.html:105
 msgid "An"
-msgstr ""
+msgstr "En"
 
 #: ckan/templates/layout.html:105 ckan/templates/home/about.html:46
 msgid "Open Knowledge Foundation"
-msgstr ""
+msgstr "Open Knowledge Foundation"
 
 #: ckan/templates/layout.html:105
 msgid "Project"
