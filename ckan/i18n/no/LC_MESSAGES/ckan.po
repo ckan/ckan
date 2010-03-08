@@ -110,95 +110,95 @@ msgstr "Pakken %s finnes allerede i databasen. Ny import vil endre feltene."
 #: ckan/controllers/importer.py:170
 #, python-format
 msgid "User %r unauthorized to edit existing package %s"
-msgstr ""
+msgstr "Bruker %r ikke autorisert til å redigere den eksisterende pakken %s"
 
 #: ckan/controllers/package.py:73 ckan/controllers/package.py:109
 #: ckan/controllers/package.py:240
 msgid "Package not found"
-msgstr ""
+msgstr "Fant ikke pakken"
 
 #: ckan/controllers/package.py:84
 #, python-format
 msgid "Unauthorized to read package %s"
-msgstr ""
+msgstr "Har ikke rettigheten til å lese pakken %s"
 
 #: ckan/controllers/package.py:103
 msgid "Select two revisions before doing the comparison."
-msgstr ""
+msgstr "Velg to endringer før du gjør sammenligningen"
 
 #: ckan/controllers/package.py:187
 #, python-format
 msgid "User %r not authorized to edit %s"
-msgstr ""
+msgstr "Bruker %r ikke autorisert til å redigere %s"
 
 #: ckan/controllers/package.py:245
 #, python-format
 msgid "User %r not authorized to edit %s authorizations"
-msgstr ""
+msgstr "Bruker %r ikke autorisert til å redigere rettighetene til %s"
 
 #: ckan/controllers/package.py:297
 msgid "404 Package Not Found"
-msgstr ""
+msgstr "404 pakken ikke funnet"
 
 #: ckan/controllers/package.py:303
 msgid "Rating value invalid"
-msgstr ""
+msgstr "Ugyldig rangering"
 
 #: ckan/controllers/rest.py:85 ckan/controllers/rest.py:140
 #: ckan/controllers/rest.py:191
 msgid "Access denied"
-msgstr ""
+msgstr "Ingen tilgang"
 
 #: ckan/controllers/rest.py:90 ckan/controllers/rest.py:146
 #, python-format
 msgid "JSON Error: %s"
-msgstr ""
+msgstr "JSON-feil: %s"
 
 #: ckan/controllers/rest.py:103
 #, python-format
 msgid "Cannot create new entity of this type: %s"
-msgstr ""
+msgstr "Kan ikke opprette ny enhet av denne typen: %s"
 
 #: ckan/controllers/rest.py:110
 #, python-format
 msgid "REST API: Create object %s"
-msgstr ""
+msgstr "REST API: Opprett objekt %s"
 
 #: ckan/controllers/rest.py:134
 #, python-format
 msgid "Cannot update entity of this type: %s"
-msgstr ""
+msgstr "Kan ikke oppdatere enhet av denne typen: %s"
 
 #: ckan/controllers/rest.py:164
 #, python-format
 msgid "REST API: Update object %s"
-msgstr ""
+msgstr "REST API: Oppdater objekt %s"
 
 #: ckan/controllers/rest.py:185
 #, python-format
 msgid "Cannot delete entity of this type: %s"
-msgstr ""
+msgstr "Kan ikke slette enhet av denne typen: %s"
 
 #: ckan/controllers/rest.py:221
 msgid "Blank qjson parameter"
-msgstr ""
+msgstr "Tomt parameter for qjson"
 
 #: ckan/controllers/rest.py:230
 #, python-format
 msgid "Search params: %s"
-msgstr ""
+msgstr "Søk etter parameter: %s"
 
 #: ckan/controllers/rest.py:257
 msgid "You must supply a package name (parameter \"package\")."
-msgstr ""
+msgstr "Du må angi et navn for pakken (parameter \"package\")"
 
 #: ckan/controllers/rest.py:259
 msgid "You must supply a rating (parameter \"rating\")."
-msgstr ""
+msgstr "Du må angi en rangering (parameter \"rating\")"
 
 #: ckan/controllers/rest.py:264
 msgid "Rating must be an integer value."
-msgstr ""
+msgstr "Rangeringen må være en integer verdi"
 
 #: ckan/controllers/rest.py:268
 #, python-format
