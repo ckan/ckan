@@ -186,7 +186,7 @@ msgstr "Tomt parameter for qjson"
 #: ckan/controllers/rest.py:230
 #, python-format
 msgid "Search params: %s"
-msgstr "Søk etter parameter: %s"
+msgstr "Søk etter parametre: %s"
 
 #: ckan/controllers/rest.py:257
 msgid "You must supply a package name (parameter \"package\")."
