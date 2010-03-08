@@ -203,89 +203,89 @@ msgstr "Rangeringen må være en integer verdi"
 #: ckan/controllers/rest.py:268
 #, python-format
 msgid "Rating must be between %i and %i."
-msgstr ""
+msgstr "Rangeringen må være mellom %i og %i"
 
 #: ckan/controllers/rest.py:270
 #, python-format
 msgid "Package with name %r does not exist."
-msgstr ""
+msgstr "Det finnes ingen pakke med navnet %r"
 
 #: ckan/controllers/rest.py:328
 #, python-format
 msgid "Can't find entity data in request params %s: %s"
-msgstr ""
+msgstr "Kan ikke finne dataenhet i parameterne %s: %s"
 
 #: ckan/controllers/revision.py:18
 msgid "CKAN Package Revision History"
-msgstr ""
+msgstr "Revisjonshistorikk for CKAN-pakke"
 
 #: ckan/controllers/revision.py:20
 msgid "Recent changes to the CKAN repository."
-msgstr ""
+msgstr "Siste endringer i CKAN-arkivet"
 
 #: ckan/controllers/revision.py:43
 #, python-format
 msgid "Packages affected: %s.\n"
-msgstr ""
+msgstr "Berørte pakker: %s.\n"
 
 #: ckan/controllers/revision.py:101
 msgid "No revision id specified"
-msgstr ""
+msgstr "Ingen revisjons-id angitt"
 
 #: ckan/controllers/revision.py:104
 msgid "You are not authorized to perform this action"
-msgstr ""
+msgstr "Du er ikke autorisert til å utføre denne handlingen"
 
 #: ckan/controllers/revision.py:113
 #, python-format
 msgid "Purge of revision failed: %s"
-msgstr ""
+msgstr "Fjerning av revisjon mislyktes: %s"
 
 #: ckan/controllers/user.py:75
 msgid "Changed user details"
-msgstr ""
+msgstr "Brukerdetaljer endret"
 
 #: ckan/lib/package_saver.py:119
 msgid "No links are allowed in the log_message."
-msgstr ""
+msgstr "Ingen lenker er tillatt i log_message"
 
 #: ckan/templates/error_document_template.html:4
 #, python-format
 msgid "Error %(code)s"
-msgstr ""
+msgstr "Feil %(code)s"
 
 #: ckan/templates/error_document_template.html:6
 #, python-format
 msgid "%(message)s"
-msgstr ""
+msgstr "%(message)s"
 
 #: ckan/templates/layout.html:11
 msgid "CKAN - Comprehensive Knowledge Archive Network -"
-msgstr ""
+msgstr "CKAN - Comprehensive Knowledge Archive Network - "
 
 #: ckan/templates/layout.html:14
 msgid "CKAN Recent Changes"
-msgstr ""
+msgstr "CKAN: Siste endringer"
 
 #: ckan/templates/layout.html:16
 msgid "Master stylesheet"
-msgstr ""
+msgstr "Hovedstylesheet"
 
 #: ckan/templates/layout.html:42
 msgid "Logged in as"
-msgstr ""
+msgstr "Logget inn som"
 
 #: ckan/templates/layout.html:44
 msgid "My account"
-msgstr ""
+msgstr "Min brukerkonto"
 
 #: ckan/templates/layout.html:45 ckan/templates/user/logout.html:7
 msgid "Logout"
-msgstr ""
+msgstr "Logg ut"
 
 #: ckan/templates/layout.html:48
 msgid "Login with"
-msgstr ""
+msgstr "Logg inn med"
 
 #: ckan/templates/layout.html:48
 msgid "OpenID"
