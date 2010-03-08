@@ -2,7 +2,7 @@
 # Copyright (C) 2010 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
-#
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: ckan 1.0a\n"
@@ -11,16 +11,16 @@ msgstr ""
 "PO-Revision-Date: 2010-03-08 15:26+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: no <LL@li.org>\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "Generated-By: Babel 0.9.4\n"
 
 #: ckan/controllers/group.py:30
 #, python-format
 msgid "Not authorized to read %s"
-msgstr ""
+msgstr "Ikke autorisert til å lese %s"
 
 #: ckan/controllers/group.py:53
 msgid "Must be logged in to create a new group."
@@ -454,9 +454,7 @@ msgid "Groups section"
 msgstr ""
 
 #: ckan/templates/group/layout.html:11
-msgid ""
-"Whilst tags are great at collecting packages together, there are "
-"occasions when you want to restrict users from editing a collection. A"
+msgid "Whilst tags are great at collecting packages together, there are occasions when you want to restrict users from editing a collection. A"
 msgstr ""
 
 #: ckan/templates/group/layout.html:11
@@ -464,9 +462,7 @@ msgid "group"
 msgstr ""
 
 #: ckan/templates/group/layout.html:11
-msgid ""
-"can be set-up to specify which users have permission to add or remove "
-"packages from it."
+msgid "can be set-up to specify which users have permission to add or remove packages from it."
 msgstr ""
 
 #: ckan/templates/group/layout.html:12
@@ -590,12 +586,9 @@ msgstr ""
 #: ckan/templates/home/about.html:28
 msgid ""
 "CKAN has a\n"
-"\t\twiki-like interface that lets anyone add and material held in it. "
-"Second,\n"
-"\t\tand unlike a wiki, CKAN can store 'structured' information, which "
-"allows it\n"
-"\t\tto provide 'index'-like features such as automated registration, "
-"discovery\n"
+"\t\twiki-like interface that lets anyone add and material held in it. Second,\n"
+"\t\tand unlike a wiki, CKAN can store 'structured' information, which allows it\n"
+"\t\tto provide 'index'-like features such as automated registration, discovery\n"
 "\t\tand installation of material. In this respect it behaves like"
 msgstr ""
 
@@ -676,9 +669,7 @@ msgid "Contributors"
 msgstr ""
 
 #: ckan/templates/home/about.html:54
-msgid ""
-"Various people and projects have contributed to the development of CKAN "
-"including:"
+msgid "Various people and projects have contributed to the development of CKAN including:"
 msgstr ""
 
 #: ckan/templates/home/about.html:56
@@ -738,18 +729,11 @@ msgid "Bookmarklet for Adding Packages"
 msgstr ""
 
 #: ckan/templates/home/guide.html:10
-msgid ""
-"Want to automate creating a package from the info in a webpage? You can "
-"use the CKAN bookmarklet. This will automatically extract information "
-"such as url, title and a description and send it off to the new package "
-"form (where you can then edit further)."
+msgid "Want to automate creating a package from the info in a webpage? You can use the CKAN bookmarklet. This will automatically extract information such as url, title and a description and send it off to the new package form (where you can then edit further)."
 msgstr ""
 
 #: ckan/templates/home/guide.html:11
-msgid ""
-"To install the bookmarklet just drag the following link to your bookmarks"
-" toolbar (in IE: right-click on it and select Add to Favourites). For "
-"more details on installing bookmarklets see"
+msgid "To install the bookmarklet just drag the following link to your bookmarks toolbar (in IE: right-click on it and select Add to Favourites). For more details on installing bookmarklets see"
 msgstr ""
 
 #: ckan/templates/home/guide.html:11
@@ -908,11 +892,7 @@ msgid ""
 msgstr ""
 
 #: ckan/templates/home/license.html:28
-msgid ""
-"For convenience, all material - including all package, tag and revision "
-"information - is available in bulk, in the form of a full dump of the "
-"CKAN database. This (gzipped) dump file is updated daily and can be "
-"downloaded from"
+msgid "For convenience, all material - including all package, tag and revision information - is available in bulk, in the form of a full dump of the CKAN database. This (gzipped) dump file is updated daily and can be downloaded from"
 msgstr ""
 
 #: ckan/templates/home/license.html:29
@@ -1463,7 +1443,8 @@ msgstr ""
 msgid "About user:"
 msgstr ""
 
-#: ckan/templates/user/login_form.html:7 ckan/templates/user/openid_form.html:7
+#: ckan/templates/user/login_form.html:7
+#: ckan/templates/user/openid_form.html:7
 msgid "Login"
 msgstr ""
 
@@ -1488,9 +1469,7 @@ msgid "You have logged out successfully."
 msgstr ""
 
 #: ckan/templates/user/openid_form.html:8
-msgid ""
-"You don't need to sign up for yet another account to use CKAN. Instead "
-"you can just"
+msgid "You don't need to sign up for yet another account to use CKAN. Instead you can just"
 msgstr ""
 
 #: ckan/templates/user/openid_form.html:8
@@ -1554,4 +1533,3 @@ msgstr ""
 #: ckan/templates/user/read.html:31
 msgid "Number of packages administered:"
 msgstr ""
-
