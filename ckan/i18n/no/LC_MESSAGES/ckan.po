@@ -24,88 +24,88 @@ msgstr "Ikke autorisert til å lese %s"
 
 #: ckan/controllers/group.py:53
 msgid "Must be logged in to create a new group."
-msgstr ""
+msgstr "Må være logget inn for opprette en ny gruppe"
 
 #: ckan/controllers/group.py:101
 #, python-format
 msgid "User %r not authorized to edit %r"
-msgstr ""
+msgstr "Bruker %r ikke autorisert til å redigere %r"
 
 #: ckan/controllers/group.py:137
 msgid "Group not found"
-msgstr ""
+msgstr "Fant ikke gruppen"
 
 #: ckan/controllers/group.py:142
 msgid "Not authorized to edit authization for group"
-msgstr ""
+msgstr "Ikke autorisert til å redigere gruppen"
 
 #: ckan/controllers/group.py:169 ckan/controllers/package.py:272
 #, python-format
 msgid "Added role '%s' for user '%s'"
-msgstr ""
+msgstr "La til rolle '%s' for bruker '%s'"
 
 #: ckan/controllers/group.py:176 ckan/controllers/package.py:279
 msgid "Error: No role found with that id"
-msgstr ""
+msgstr "Feil: Fant ingen rolle med den id-en"
 
 #: ckan/controllers/group.py:179 ckan/controllers/package.py:281
 #, python-format
 msgid "Deleted role '%s' for user '%s'"
-msgstr ""
+msgstr "Slettet rollen '%s' for bruker '%s'"
 
 #: ckan/controllers/importer.py:36
 msgid "Need to login before importing."
-msgstr ""
+msgstr "Du må være logget inn for å kunne importere"
 
 #: ckan/controllers/importer.py:41
 msgid "Need to specify a filename."
-msgstr ""
+msgstr "Du må oppgi et filnavn"
 
 #: ckan/controllers/importer.py:44
 msgid "Did not receive file successfully."
-msgstr ""
+msgstr "Filen ikke mottatt på korrekt måte"
 
 #: ckan/controllers/importer.py:50
 #, python-format
 msgid "File '%s' not found."
-msgstr ""
+msgstr "Fant ikke filen '%s'"
 
 #: ckan/controllers/importer.py:55 ckan/controllers/importer.py:84
 #, python-format
 msgid "Error importing file '%s' as Excel or CSV format: %s"
-msgstr ""
+msgstr "Feil ved import av filen '%s' i Excel- eller CSV-format: %s"
 
 #: ckan/controllers/importer.py:95
 msgid "Errors remain - see preview."
-msgstr ""
+msgstr "Feil ikke rettet - se forhåndsvisning"
 
 #: ckan/controllers/importer.py:109
 msgid "Problem with user account."
-msgstr ""
+msgstr "Problem med brukerkonto"
 
 #: ckan/controllers/importer.py:116
 #, python-format
 msgid "Imported %i package."
 msgid_plural "Imported %i packages."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Importerte pakken %i"
+msgstr[1] "Importerte pakkene %i"
 
 #: ckan/controllers/importer.py:148
 msgid "Could not access import file any more."
-msgstr ""
+msgstr "Har ikke lenger tilgang til importfilen"
 
 #: ckan/controllers/importer.py:160
 msgid "User is not logged in"
-msgstr ""
+msgstr "Brukeren er ikke logget inn"
 
 #: ckan/controllers/importer.py:164
 msgid "Error with user account. Log out and log in again."
-msgstr ""
+msgstr "Feil med brukerkonto. Logg ut og logg så inn igjen"
 
 #: ckan/controllers/importer.py:167
 #, python-format
 msgid "Package %s already exists in database. Import will edit the fields."
-msgstr ""
+msgstr "Pakken %s finnes allerede i databasen. Ny import vil endre feltene."
 
 #: ckan/controllers/importer.py:170
 #, python-format
