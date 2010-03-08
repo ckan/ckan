@@ -55,7 +55,7 @@ class CreateTestData(cli.CkanCommand):
         rev.message = u'Creating search test data.'
         self.pkg_names = []
         self.tag_names = []
-        self.group_names = []
+        self.group_names = set()
         self.user_names = extra_user_names
         admins_list = [] # list of (package_name, admin_names)
         if isinstance(package_dicts, dict):
@@ -103,7 +103,7 @@ class CreateTestData(cli.CkanCommand):
                         group = model.Group.by_name(group_name)
                         if not group:
                             group = model.Group(name=group_name)
-                            self.group_names.append(group_name)
+                            self.group_names.add(group_name)
                             model.Session.add(group)
                         pkg.groups.append(group)
                 elif attr == 'license':
@@ -130,6 +130,8 @@ class CreateTestData(cli.CkanCommand):
         for user_name in self.user_names:
             user = model.User(name=unicode(user_name))
             model.Session.add(user)
+        for group_name in self.group_names:
+            model.setup_default_user_roles(group)
         model.repo.commit_and_remove()
 
         if admins_list:
