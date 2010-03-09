@@ -746,92 +746,100 @@ msgstr "Snarvei for å legge til pakker"
 
 #: ckan/templates/home/guide.html:10
 msgid "Want to automate creating a package from the info in a webpage? You can use the CKAN bookmarklet. This will automatically extract information such as url, title and a description and send it off to the new package form (where you can then edit further)."
-msgstr ""
+msgstr "Ønsker du å automatisere prosessen med å opprette pakker basert på innhold på en webside? Da kan du bruke CKANs bookmarklet. Den vil automatisk hente ut informasjon som URL, tittel og beskrivelse og sende den til skjemaet for den nye pakken (hvor du kan fortsette å redigere)."
 
 #: ckan/templates/home/guide.html:11
 msgid "To install the bookmarklet just drag the following link to your bookmarks toolbar (in IE: right-click on it and select Add to Favourites). For more details on installing bookmarklets see"
-msgstr ""
+msgstr "For å installere bookmarklet er det bare å dra denne lenken til verktøylinjen for dine bokmerker (i Internet Explorer: høyreklikk på lenken og velg Legg til i Favoritter). Flere detaljer om å installere bookmarklets finner du på"
 
 #: ckan/templates/home/guide.html:11
 msgid "the del.icio.us help page on the topic"
-msgstr ""
+msgstr "hjelp-siden for temaet hos del.icio.us"
 
 #: ckan/templates/home/guide.html:14
 msgid "Add to CKAN"
-msgstr ""
+msgstr "Legg til i CKAN"
 
 #: ckan/templates/home/index.html:36
 msgid ""
 "Find out more about CKAN by reading our about pages or consulting the \n"
 "        CKAN guide."
 msgstr ""
+"Finn ut mer om CKAN på våre om-sider eller i \n"
+" CKAN-guiden."
 
 #: ckan/templates/home/index.html:46 ckan/templates/home/layout.html:12
 msgid "Help"
-msgstr ""
+msgstr "Hjelp"
 
 #: ckan/templates/home/index.html:52
 msgid "Welcome to CKAN"
-msgstr ""
+msgstr "Velkommen til CKAN"
 
 #: ckan/templates/home/index.html:53
 msgid "CKAN is a registry of"
-msgstr ""
+msgstr "CKAN er et register over"
 
 #: ckan/templates/home/index.html:54
 msgid ""
 "open data \n"
 "      and content"
 msgstr ""
+"åpne data \n"
+" og innholdspakker."
 
 #: ckan/templates/home/index.html:55
 msgid "packages. CKAN makes it easy to"
-msgstr ""
+msgstr "CKAN gjør det lett å"
 
 #: ckan/templates/home/index.html:55
 msgid ""
 "find, share and reuse \n"
 "      open content and data"
 msgstr ""
+"finne, dele og gjenbruke \n"
+" åpne data og innhold"
 
 #: ckan/templates/home/index.html:56
 msgid ""
 ", especially in ways that are machine \n"
 "      automatable."
 msgstr ""
+", særlig på måter som er maskinlesbare og \n"
+" automatiserbare."
 
 #: ckan/templates/home/index.html:60
 msgid "registered packages"
-msgstr ""
+msgstr "registrerte pakker"
 
 #: ckan/templates/home/index.html:60
 msgid "available."
-msgstr ""
+msgstr "tilgjengelig."
 
 #: ckan/templates/home/index.html:64 ckan/templates/home/stats.html:38
 msgid "Top Tags"
-msgstr ""
+msgstr "Mest brukte stikkord"
 
 #: ckan/templates/home/index.html:74
 msgid "Recently changed"
-msgstr ""
+msgstr "Sist endret"
 
 #: ckan/templates/home/index.html:78 ckan/templates/package/history.html:26
 #: ckan/templates/revision/list.html:16 ckan/templates/user/read.html:37
 msgid "Author"
-msgstr ""
+msgstr "Forfatter"
 
 #: ckan/templates/home/index.html:79
 msgid "Time"
-msgstr ""
+msgstr "Tid"
 
 #: ckan/templates/home/index.html:93
 msgid "View older changes »"
-msgstr ""
+msgstr "Se eldre endringer »"
 
 #: ckan/templates/home/layout.html:9 ckan/templates/user/read.html:18
 msgid "About"
-msgstr ""
+msgstr "Om"
 
 #: ckan/templates/home/license.html:4
 msgid "License"
