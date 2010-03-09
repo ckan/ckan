@@ -943,85 +943,85 @@ msgstr "Statistikk"
 
 #: ckan/templates/home/stats.html:14
 msgid "Top Rated Packages"
-msgstr ""
+msgstr "Høyest rangerte pakker"
 
 #: ckan/templates/home/stats.html:16 ckan/templates/home/stats.html:24
 msgid "Package"
-msgstr ""
+msgstr "Pakke"
 
 #: ckan/templates/home/stats.html:16
 msgid "Average rating"
-msgstr ""
+msgstr "Gjennomsnittlig rangering"
 
 #: ckan/templates/home/stats.html:16
 msgid "Number of ratings"
-msgstr ""
+msgstr "Antall rangeringer"
 
 #: ckan/templates/home/stats.html:22
 msgid "Most Edited Packages"
-msgstr ""
+msgstr "Mest redigerte pakker"
 
 #: ckan/templates/home/stats.html:24
 msgid "Number of edits"
-msgstr ""
+msgstr "Antall redigeringer"
 
 #: ckan/templates/home/stats.html:30
 msgid "Largest Groups"
-msgstr ""
+msgstr "Største grupper"
 
 #: ckan/templates/home/stats.html:32
 msgid "Group"
-msgstr ""
+msgstr "Gruppe"
 
 #: ckan/templates/home/stats.html:32
 msgid "Number of packages"
-msgstr ""
+msgstr "Antall pakker"
 
 #: ckan/templates/home/stats.html:45
 msgid "Users owning most packages"
-msgstr ""
+msgstr "Brukere som eier flest pakker"
 
 #: ckan/templates/home/stats.html:52
 msgid "Total number of packages"
-msgstr ""
+msgstr "Totalt antall pakker"
 
 #: ckan/templates/home/stats.html:71
 msgid "Revisions to packages per week"
-msgstr ""
+msgstr "Revisjoner av pakker per uke"
 
 #: ckan/templates/home/stats.html:107
 msgid "Page last updated:"
-msgstr ""
+msgstr "Side sist oppdatert:"
 
 #: ckan/templates/package/authz.html:4
 msgid "Packages - Authorization -"
-msgstr ""
+msgstr "Pakker - autorisering -"
 
 #: ckan/templates/package/authz.html:7
 msgid "Authorization for package:"
-msgstr ""
+msgstr "Autorisering for pakke:"
 
 #: ckan/templates/package/edit.html:4
 msgid "Packages - Edit -"
-msgstr ""
+msgstr "Pakker - rediger - "
 
 #: ckan/templates/package/edit.html:7
 msgid "Edit package:"
-msgstr ""
+msgstr "Rediger pakke:"
 
 #: ckan/templates/package/edit.html:9 ckan/templates/package/new.html:8
 #: ckan/templates/user/edit.html:9
 msgid "(skip to preview)"
-msgstr ""
+msgstr "(hopp til forhåndsvisning)"
 
 #: ckan/templates/package/edit.html:20 ckan/templates/package/new.html:19
 #: ckan/templates/user/edit.html:29
 msgid "Preview"
-msgstr ""
+msgstr "Forhåndsvisning"
 
 #: ckan/templates/package/edit_form.html:12
 msgid "Optional Log Message about this Change:"
-msgstr ""
+msgstr "Valgfri loggmelding om denne endringen:"
 
 #: ckan/templates/package/edit_form.html:13 ckan/templates/user/edit.html:18
 msgid "You can use"
