@@ -465,87 +465,87 @@ msgstr "gruppe"
 
 #: ckan/templates/group/layout.html:11
 msgid "can be set-up to specify which users have permission to add or remove packages from it."
-msgstr ""
+msgstr "kan bli satt opp til å spesifisere hvilke brukere som har tillatelse til å legge til eller fjerne pakker fra den."
 
 #: ckan/templates/group/layout.html:12
 msgid "To create a new group, please first"
-msgstr ""
+msgstr "For å opprette en ny gruppe, vennligst"
 
 #: ckan/templates/group/layout.html:12
 msgid "login"
-msgstr ""
+msgstr "logg inn"
 
 #: ckan/templates/group/layout.html:13 ckan/templates/group/layout.html:19
 msgid "Create a new group"
-msgstr ""
+msgstr "Opprett en ny gruppe"
 
 #: ckan/templates/group/new.html:7
 msgid "New Group"
-msgstr ""
+msgstr "Ny gruppe"
 
 #: ckan/templates/group/read.html:4
 msgid "Groups -"
-msgstr ""
+msgstr "Grupper - "
 
 #: ckan/templates/group/read.html:10
 msgid "No Title"
-msgstr ""
+msgstr "Ingen tittel"
 
 #: ckan/templates/group/read.html:18
 msgid "[edit]"
-msgstr ""
+msgstr "[rediger]"
 
 #: ckan/templates/group/read.html:21
 msgid "[authorization]"
-msgstr ""
+msgstr "[autorisering]"
 
 #: ckan/templates/group/read.html:31
 msgid "Administrators:"
-msgstr ""
+msgstr "Administratorer:"
 
 #: ckan/templates/group/read.html:37
 msgid "Packages:"
-msgstr ""
+msgstr "Pakker:"
 
 #: ckan/templates/group/read.html:41
 msgid "packages in this group."
-msgstr ""
+msgstr "pakker i denne gruppen."
 
 #: ckan/templates/home/about.html:7 ckan/templates/home/index.html:35
 msgid "About CKAN"
-msgstr ""
+msgstr "Om CKAN"
 
 #: ckan/templates/home/about.html:9
 msgid "CKAN is the Comprehensive Knowledge Archive Network, a"
-msgstr ""
+msgstr "CKAN står for Comprehensive Knowledge Archive Network, et"
 
 #: ckan/templates/home/about.html:9
 msgid "registry"
-msgstr ""
+msgstr "register"
 
 #: ckan/templates/home/about.html:9
 msgid "of"
-msgstr ""
+msgstr "over"
 
 #: ckan/templates/home/about.html:10
 msgid "open knowledge"
-msgstr ""
+msgstr "åpen kunnskap"
 
 #: ckan/templates/home/about.html:10
 msgid ""
 "packages and projects\n"
 "    (and a few closed ones)."
-msgstr ""
+msgstr "i form av pakker og prosjekter."
 
 #: ckan/templates/home/about.html:13
 msgid "CKAN makes it easy to"
-msgstr ""
+msgstr "CKAN gjør det lett å"
 
 #: ckan/templates/home/about.html:13
 msgid ""
 "find, share and reuse open\n"
 "      content and data"
-msgstr ""
+msgstr "finne, dele og gjenbruke åpent innhold og data"
 
 #: ckan/templates/home/about.html:14
 msgid ""
