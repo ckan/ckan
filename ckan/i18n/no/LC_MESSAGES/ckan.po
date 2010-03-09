@@ -843,93 +843,103 @@ msgstr "Om"
 
 #: ckan/templates/home/license.html:4
 msgid "License"
-msgstr ""
+msgstr "Lisens"
 
 #: ckan/templates/home/license.html:7
 msgid "CKAN License"
-msgstr ""
+msgstr "CKAN-lisens"
 
 #: ckan/templates/home/license.html:9
 msgid "Code"
-msgstr ""
+msgstr "Kildekode"
 
 #: ckan/templates/home/license.html:10
 msgid "The code that runs CKAN is open-source and licensed under the"
-msgstr ""
+msgstr "Kildekoden CKAN kjører på er åpen og lisensiert under"
 
 #: ckan/templates/home/license.html:12
 msgid "GNU Affero GPL"
-msgstr ""
+msgstr "GNU Affero GPL"
 
 #: ckan/templates/home/license.html:13
 msgid ". It is hosted on"
-msgstr ""
+msgstr ". Den er lagret på"
 
 #: ckan/templates/home/license.html:14
 msgid "KnowledgeForge"
-msgstr ""
+msgstr "KnowledgeForge"
 
 #: ckan/templates/home/license.html:14
 msgid ""
 ", and the project\n"
 "    home page is here:"
 msgstr ""
+", og her er prosjektets\n"
+" hjemmeside:"
 
 #: ckan/templates/home/license.html:16
 msgid "http://knowledgeforge.net/project/ckan/"
-msgstr ""
+msgstr "http://knowledgeforge.net/project/ckan/"
 
 #: ckan/templates/home/license.html:19
 msgid "Content and Data"
-msgstr ""
+msgstr "Innhold og data"
 
 #: ckan/templates/home/license.html:20
 msgid "All material on this site is"
-msgstr ""
+msgstr "Alt materialet på dette nettstedet er"
 
 #: ckan/templates/home/license.html:21
 msgid "open"
-msgstr ""
+msgstr "åpent"
 
 #: ckan/templates/home/license.html:21
 msgid ""
 "and can be freely used, reused\n"
 "    and redistributed. Formally, the data/database is licensed under the"
 msgstr ""
+"og kan fritt brukes, gjenbrukes\n"
+" og distribueres. Dataene/databasen er formelt lisensiert under"
 
 #: ckan/templates/home/license.html:23
 msgid ""
 "Open Data Commons Open\n"
 "      Database License v1.0"
 msgstr ""
+"Open Data Commons Open\n"
+" Database License v1.0"
 
 #: ckan/templates/home/license.html:24
 msgid ""
 ", with all copyrightable content in that\n"
 "    database plus any additional content on this site licensed under a"
 msgstr ""
+", og alt innhold som kan være gjenstand for opphavsrett i denne\n"
+" databasen samt alt øvrig innhold på dette nettstedet er lisensiert under"
 
 #: ckan/templates/home/license.html:26
 msgid ""
 "Creative Commons\n"
 "      Attribution Share-Alike v3.0 license"
 msgstr ""
+"Creative Commons\n"
+" Attribution Share-Alike v3.0 license"
 
 #: ckan/templates/home/license.html:28
 msgid "For convenience, all material - including all package, tag and revision information - is available in bulk, in the form of a full dump of the CKAN database. This (gzipped) dump file is updated daily and can be downloaded from"
-msgstr ""
+msgstr "Av praktiske hensyn er alt materiale - inkludert all informasjon om pakker, stikkord og revisjoner - tilgjengelig som helhet i form av en kopi av hele CKAN-databasen. Denne databasedump-filen (komprimert med gzip) oppdateres daglig og kan lastes ned fra"
 
 #: ckan/templates/home/license.html:29
 msgid "http://www.ckan.net/dump/"
-msgstr ""
+msgstr "http://www.ckan.net/dump/"
 
 #: ckan/templates/home/stats.html:4
 msgid "Stats"
-msgstr ""
+msgstr "Status"
 
 #: ckan/templates/home/stats.html:12
 msgid "Statistics"
-msgstr ""
+msgstr "Statistikk"
 
 #: ckan/templates/home/stats.html:14
 msgid "Top Rated Packages"
