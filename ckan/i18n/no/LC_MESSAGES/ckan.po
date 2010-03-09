@@ -449,7 +449,7 @@ msgstr "Det er"
 
 #: ckan/templates/group/index.html:9
 msgid "groups."
-msgstr "grupper"
+msgstr "grupper."
 
 #: ckan/templates/group/layout.html:10
 msgid "Groups section"
