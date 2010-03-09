@@ -1102,7 +1102,7 @@ msgstr "Revisjon"
 #: ckan/templates/package/history.html:26 ckan/templates/revision/list.html:16
 #: ckan/templates/user/read.html:37
 msgid "Timestamp"
-msgstr "Klokkeslett"
+msgstr "Tidsstempel"
 
 #: ckan/templates/package/history.html:26 ckan/templates/revision/list.html:16
 #: ckan/templates/user/read.html:37
