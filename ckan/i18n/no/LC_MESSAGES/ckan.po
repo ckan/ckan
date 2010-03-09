@@ -1287,83 +1287,84 @@ msgstr "Rangering"
 
 #: ckan/templates/package/read_core.html:108
 msgid "State:"
-msgstr ""
+msgstr "Status"
 
 #: ckan/templates/package/resources.html:2
 msgid "Someresources"
-msgstr ""
+msgstr "Ressurser"
 
 #: ckan/templates/package/search.html:6
 msgid "Packages - Search"
-msgstr ""
+msgstr "Pakker - søk"
 
 #: ckan/templates/package/search.html:9
 msgid "Search packages"
-msgstr ""
+msgstr "Søk i pakker"
 
 #: ckan/templates/package/search.html:17
 msgid "tags found (max"
-msgstr ""
+msgstr "stikkord funnet (maksimalt antall"
 
 #: ckan/templates/package/search.html:17
 msgid "shown)."
-msgstr ""
+msgstr "vist)."
 
 #: ckan/templates/package/search.html:21
 msgid "packages found."
-msgstr ""
+msgstr "pakker funnet."
 
 #: ckan/templates/package/search.html:23
 msgid "Would you like to"
-msgstr ""
+msgstr "Ønsker du å"
 
 #: ckan/templates/package/search.html:23
 msgid "create a new package?"
-msgstr ""
+msgstr "opprette en ny pakke?"
 
 #: ckan/templates/package/search_form.html:3
 msgid "Search Packages »"
-msgstr ""
+msgstr "Søk i pakker »"
 
 #: ckan/templates/package/search_form.html:4
 msgid "E.g. 'geo', 'shakespeare', 'science'"
-msgstr ""
+msgstr "F.eks. 'geo', 'shakespeare', 'science'"
 
 #: ckan/templates/package/search_form.html:7
 msgid "Filters:"
-msgstr ""
+msgstr "Filtre:"
 
 #: ckan/templates/package/search_form.html:8
 msgid "downloadable"
-msgstr ""
+msgstr "nedlastbar"
 
 #: ckan/templates/revision/diff.html:4
+#, fuzzy
 msgid "Diff"
-msgstr ""
+msgstr "Diff"
 
 #: ckan/templates/revision/diff.html:7
 msgid "Revision Differences -"
-msgstr ""
+msgstr "Forskjeller mellom versjoner"
 
 #: ckan/templates/revision/diff.html:9
 msgid "From:"
-msgstr ""
+msgstr "Fra:"
 
 #: ckan/templates/revision/diff.html:13
 msgid "To:"
-msgstr ""
+msgstr "Til:"
 
 #: ckan/templates/revision/diff.html:20
 msgid "Field"
-msgstr ""
+msgstr "Felt"
 
 #: ckan/templates/revision/diff.html:20
 msgid "Difference"
-msgstr ""
+msgstr "Forskjell"
 
 #: ckan/templates/revision/diff.html:28
 msgid "No differences"
-msgstr ""
+msgstr "Ingen forskjeller"
 
 #: ckan/templates/revision/layout.html:8
 msgid "CKAN Atom Feed"
