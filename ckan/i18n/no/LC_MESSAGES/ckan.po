@@ -1460,85 +1460,85 @@ msgstr "Stikkord - "
 
 #: ckan/templates/tag/read.html:7
 msgid "Tag:"
-msgstr ""
+msgstr "Stikkord"
 
 #: ckan/templates/tag/read.html:8
 msgid "packages tagged with"
-msgstr ""
+msgstr "pakker med stikkord"
 
 #: ckan/templates/user/apikey.html:4 ckan/templates/user/login_form.html:4
 #: ckan/templates/user/openid_form.html:4
 msgid "Account - Login"
-msgstr ""
+msgstr "Konto - innlogging"
 
 #: ckan/templates/user/apikey.html:7
 msgid "API Key"
-msgstr ""
+msgstr "API-nøkkel"
 
 #: ckan/templates/user/apikey.html:8
 msgid "Your API key is:"
-msgstr ""
+msgstr "Din API-nøkkel er:"
 
 #: ckan/templates/user/edit.html:4
 msgid "User - Edit -"
-msgstr ""
+msgstr "Bruker - rediger - "
 
 #: ckan/templates/user/edit.html:7
 msgid "Edit User:"
-msgstr ""
+msgstr "Rediger bruker:"
 
 #: ckan/templates/user/edit.html:17
 msgid "About user:"
-msgstr ""
+msgstr "Om bruker:"
 
 #: ckan/templates/user/login_form.html:7
 #: ckan/templates/user/openid_form.html:7
 msgid "Login"
-msgstr ""
+msgstr "Innlogging"
 
 #: ckan/templates/user/login_form.html:8
 msgid "Please login now."
-msgstr ""
+msgstr "Vennligst logg inn nå."
 
 #: ckan/templates/user/login_form.html:11
 msgid "Username:"
-msgstr ""
+msgstr "Brukernavn:"
 
 #: ckan/templates/user/login_form.html:13
 msgid "Password:"
-msgstr ""
+msgstr "Passord:"
 
 #: ckan/templates/user/logout.html:4
 msgid "Account - Logout"
-msgstr ""
+msgstr "Konto - logg ut"
 
 #: ckan/templates/user/logout.html:8
 msgid "You have logged out successfully."
-msgstr ""
+msgstr "Du har logget ut på korrekt måte."
 
 #: ckan/templates/user/openid_form.html:8
 msgid "You don't need to sign up for yet another account to use CKAN. Instead you can just"
-msgstr ""
+msgstr "Du trenger ikke å registrere enda en ny konto for å bruke CKAN. Istedenfor kan du bare"
 
 #: ckan/templates/user/openid_form.html:8
 msgid "use your OpenID"
-msgstr ""
+msgstr "bruke OpenID"
 
 #: ckan/templates/user/openid_form.html:13
 msgid "Your OpenID identity URL:"
-msgstr ""
+msgstr "URL for din OpenID:"
 
 #: ckan/templates/user/openid_form.html:19
 msgid "Don't have an OpenID?"
-msgstr ""
+msgstr "Har du ikke OpenID?"
 
 #: ckan/templates/user/openid_form.html:20
 msgid "If you haven't already got an OpenID it is"
-msgstr ""
+msgstr "Hvis du ikke allerede har OpenID, er det"
 
 #: ckan/templates/user/openid_form.html:22
 msgid "easy to get one"
-msgstr ""
+msgstr "lett å skaffe seg"
 
 #: ckan/templates/user/openid_form.html:22
 msgid ""
