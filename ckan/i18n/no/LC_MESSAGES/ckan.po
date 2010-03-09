@@ -124,7 +124,7 @@ msgstr "Har ikke rettigheten til å lese pakken %s"
 
 #: ckan/controllers/package.py:103
 msgid "Select two revisions before doing the comparison."
-msgstr "Velg to endringer før du gjør sammenligningen"
+msgstr "Velg to endringer før du gjør sammenligningen."
 
 #: ckan/controllers/package.py:187
 #, python-format
@@ -190,15 +190,15 @@ msgstr "Søk etter parametre: %s"
 
 #: ckan/controllers/rest.py:257
 msgid "You must supply a package name (parameter \"package\")."
-msgstr "Du må angi et navn for pakken (parameter \"package\")"
+msgstr "Du må angi et navn for pakken (parameter \"package\")."
 
 #: ckan/controllers/rest.py:259
 msgid "You must supply a rating (parameter \"rating\")."
-msgstr "Du må angi en rangering (parameter \"rating\")"
+msgstr "Du må angi en rangering (parameter \"rating\")."
 
 #: ckan/controllers/rest.py:264
 msgid "Rating must be an integer value."
-msgstr "Rangeringen må være en integer verdi"
+msgstr "Rangeringen må være en integer verdi."
 
 #: ckan/controllers/rest.py:268
 #, python-format
