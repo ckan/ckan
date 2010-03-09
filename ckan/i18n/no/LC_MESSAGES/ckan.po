@@ -203,12 +203,12 @@ msgstr "Rangeringen må være en integer verdi."
 #: ckan/controllers/rest.py:268
 #, python-format
 msgid "Rating must be between %i and %i."
-msgstr "Rangeringen må være mellom %i og %i"
+msgstr "Rangeringen må være mellom %i og %i."
 
 #: ckan/controllers/rest.py:270
 #, python-format
 msgid "Package with name %r does not exist."
-msgstr "Det finnes ingen pakke med navnet %r"
+msgstr "Det finnes ingen pakke med navnet %r."
 
 #: ckan/controllers/rest.py:328
 #, python-format
@@ -221,7 +221,7 @@ msgstr "Revisjonshistorikk for CKAN-pakke"
 
 #: ckan/controllers/revision.py:20
 msgid "Recent changes to the CKAN repository."
-msgstr "Siste endringer i CKAN-arkivet"
+msgstr "Siste endringer i CKAN-arkivet."
 
 #: ckan/controllers/revision.py:43
 #, python-format
@@ -247,7 +247,7 @@ msgstr "Brukerdetaljer endret"
 
 #: ckan/lib/package_saver.py:119
 msgid "No links are allowed in the log_message."
-msgstr "Ingen lenker er tillatt i log_message"
+msgstr "Ingen lenker er tillatt i log_message."
 
 #: ckan/templates/error_document_template.html:4
 #, python-format
