@@ -661,84 +661,88 @@ msgid ""
 "free for anyone to use\n"
 "      and reuse"
 msgstr ""
+"og kan brukes\n"
+" og gjenbrukes av alle"
 
 #: ckan/templates/home/about.html:48
 msgid ". To find out more check out the the"
-msgstr ""
+msgstr ". Mer informasjon er tilgjengelig på"
 
 #: ckan/templates/home/about.html:49
 msgid "CKAN project page"
-msgstr ""
+msgstr "CKANs prosjektside"
 
 #: ckan/templates/home/about.html:49
 msgid ""
 "on the Open\n"
 "    Knowledge Foundation site."
 msgstr ""
+"på Open\n"
+" Knowledge Foundations nettsted."
 
 #: ckan/templates/home/about.html:52
 msgid "Contributors"
-msgstr ""
+msgstr "Bidragsytere"
 
 #: ckan/templates/home/about.html:54
 msgid "Various people and projects have contributed to the development of CKAN including:"
-msgstr ""
+msgstr "Mange personer og prosjekter har bidratt til utviklingen av CKAN:"
 
 #: ckan/templates/home/about.html:56
 msgid "Rufus Pollock"
-msgstr ""
+msgstr "Rufus Pollock"
 
 #: ckan/templates/home/about.html:57
 msgid "David Read"
-msgstr ""
+msgstr "David Read"
 
 #: ckan/templates/home/about.html:58
 msgid "Nick Stenning"
-msgstr ""
+msgstr "Nick Stenning"
 
 #: ckan/templates/home/about.html:58
 msgid "(css and js)"
-msgstr ""
+msgstr "(css og js)"
 
 #: ckan/templates/home/about.html:59
 msgid "John Bywater"
-msgstr ""
+msgstr "John Bywater"
 
 #: ckan/templates/home/about.html:60
 msgid "CKAN logo: \""
-msgstr ""
+msgstr "CKANs logo: \""
 
 #: ckan/templates/home/about.html:60
 msgid "angry"
-msgstr ""
+msgstr "sinna"
 
 #: ckan/templates/home/about.html:60
 msgid "hamster"
-msgstr ""
+msgstr "hamster"
 
 #: ckan/templates/home/about.html:61
 msgid "famfamfam.com for silk icons"
-msgstr ""
+msgstr "famfamfam.com har laget Silk-ikonene"
 
 #: ckan/templates/home/about.html:62
 msgid "Pylons"
-msgstr ""
+msgstr "Pylons"
 
 #: ckan/templates/home/about.html:63
 msgid "Genshi"
-msgstr ""
+msgstr "Genshi"
 
 #: ckan/templates/home/guide.html:4
 msgid "Guide"
-msgstr ""
+msgstr "Guide"
 
 #: ckan/templates/home/guide.html:7
 msgid "CKAN Guide"
-msgstr ""
+msgstr "Guide til CKAN"
 
 #: ckan/templates/home/guide.html:9
 msgid "Bookmarklet for Adding Packages"
-msgstr ""
+msgstr "Snarvei for å legge til pakker"
 
 #: ckan/templates/home/guide.html:10
 msgid "Want to automate creating a package from the info in a webpage? You can use the CKAN bookmarklet. This will automatically extract information such as url, title and a description and send it off to the new package form (where you can then edit further)."
