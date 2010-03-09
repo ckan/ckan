@@ -1205,85 +1205,85 @@ msgstr ""
 
 #: ckan/templates/package/read.html:13
 msgid "update the package information"
-msgstr ""
+msgstr "oppdatere informasjonen om denne datapakken?"
 
 #: ckan/templates/package/read.html:19
 msgid "You can"
-msgstr ""
+msgstr "Du kan"
 
 #: ckan/templates/package/read.html:21
 msgid "make an enquiry"
-msgstr ""
+msgstr "undersøke om"
 
 #: ckan/templates/package/read.html:21
 msgid "about the openness of this package using"
-msgstr ""
+msgstr "denne datapakken er åpen ved å bruke"
 
 #: ckan/templates/package/read.html:23
 msgid "Is It Open Data"
-msgstr ""
+msgstr "Is It Open Data"
 
 #: ckan/templates/package/read.html:35
 msgid "RDF Version"
-msgstr ""
+msgstr "RDF-versjon"
 
 #: ckan/templates/package/read_core.html:18
 msgid "Version"
-msgstr ""
+msgstr "Versjon"
 
 #: ckan/templates/package/read_core.html:24
 #: ckan/templates/package/read_core.html:72
 msgid "License not given"
-msgstr ""
+msgstr "Ingen lisens spesifisert"
 
 #: ckan/templates/package/read_core.html:44
 #: ckan/templates/package/read_core.html:51
 msgid "Resources"
-msgstr ""
+msgstr "Ressurser"
 
 #: ckan/templates/package/read_core.html:46
 msgid "URL"
-msgstr ""
+msgstr "URL"
 
 #: ckan/templates/package/read_core.html:46
 msgid "Format"
-msgstr ""
+msgstr "Format"
 
 #: ckan/templates/package/read_core.html:46
 msgid "Description"
-msgstr ""
+msgstr "Beskrivelse"
 
 #: ckan/templates/package/read_core.html:46
 msgid "Hash"
-msgstr ""
+msgstr "Nummertegn"
 
 #: ckan/templates/package/read_core.html:51
 msgid "None given for this package."
-msgstr ""
+msgstr "Ingen spesifisert for denne pakken."
 
 #: ckan/templates/package/read_core.html:57
 msgid "Extras"
-msgstr ""
+msgstr "Extras"
 
 #: ckan/templates/package/read_core.html:66
 msgid "Openness"
-msgstr ""
+msgstr "Åpenhet"
 
 #: ckan/templates/package/read_core.html:68
 msgid "This package is licensed"
-msgstr ""
+msgstr "Denne pakken er lisensiert"
 
 #: ckan/templates/package/read_core.html:77
 msgid "This package satisfies the OKFN's Open Knowledge Definition."
-msgstr ""
+msgstr "Denne pakken tilfredsstiller OKFNs definisjon av åpen kunnskap."
 
 #: ckan/templates/package/read_core.html:80
 msgid "[Open Knowledge]"
-msgstr ""
+msgstr "[Åpen kunnskap]"
 
 #: ckan/templates/package/read_core.html:86
 msgid "Rating"
-msgstr ""
+msgstr "Rangering"
 
 #: ckan/templates/package/read_core.html:108
 msgid "State:"
