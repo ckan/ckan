@@ -237,10 +237,10 @@ def restore_from_local(pg_dump_filepath):
     assert os.path.exists(pg_dump_filepath)
     pg_dump_filename = os.path.basename(pg_dump_filepath)
     if not pg_dump_filename.endswith('.gz'):
-        new_pg_dump_filepath = os.path.join('/tmp', pg_dump_filename)
+        new_pg_dump_filepath = os.path.join('/tmp', pg_dump_filename) + '.gz'
         subprocess.check_call('gzip -c %s > %s' % (pg_dump_filepath, new_pg_dump_filepath), shell=True)
         pg_dump_filepath = new_pg_dump_filepath
-    remote_filepath = os.path.join('/tmp', pg_dump_filename)
+    remote_filepath = os.path.join('/tmp', pg_dump_filename) + '.gz'
     put(pg_dump_filepath, remote_filepath)
     run('gunzip %s' % remote_filepath)
     remote_filepath = remote_filepath.rstrip('.gz')

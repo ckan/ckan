@@ -208,6 +208,8 @@ class Data(object):
             self._new_revision('Adding group')
             group = model.Group(name=groupname)
             model.Session.add(group)
+            user = model.User.by_name(username)
+            model.setup_default_user_roles(group, [user])
 
         if model.Session.new:
             model.repo.commit_and_remove()

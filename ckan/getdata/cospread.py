@@ -298,6 +298,8 @@ class Data(object):
         if not group:
             group = model.Group(name=self._groupname)
             model.Session.add(group)
+            user = model.User.by_name(self._username)
+            model.setup_default_user_roles(group, [user])
 
     def _new_revision(self):
         # Revision info
