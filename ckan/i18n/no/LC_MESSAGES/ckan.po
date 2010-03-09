@@ -1544,40 +1544,41 @@ msgstr "lett å skaffe seg"
 msgid ""
 ". Probably the simplest\n"
 "    way is sign up with a free OpenID provider such as"
-msgstr ""
+msgstr ". Antakelig er den enkleste måten å registrere seg hos en gratis OpenID-leverandør som"
 
 #: ckan/templates/user/openid_form.html:24
+#, fuzzy
 msgid "https://www.myopenid.com/"
-msgstr ""
+msgstr "https://www.myopenid.com/"
 
 #: ckan/templates/user/read.html:6 ckan/templates/user/read.html:10
 msgid "User Account -"
-msgstr ""
+msgstr "Brukerkonto -"
 
 #: ckan/templates/user/read.html:12
 msgid "My Account"
-msgstr ""
+msgstr "Min konto"
 
 #: ckan/templates/user/read.html:13
 msgid "You are logged in."
-msgstr ""
+msgstr "Du er logget inn"
 
 #: ckan/templates/user/read.html:13
 msgid "Log out"
-msgstr ""
+msgstr "Logg ut"
 
 #: ckan/templates/user/read.html:15
 msgid "View your API key"
-msgstr ""
+msgstr "Se din API-nøkkel"
 
 #: ckan/templates/user/read.html:28
 msgid "Activity"
-msgstr ""
+msgstr "Aktivitet"
 
 #: ckan/templates/user/read.html:30
 msgid "Number of edits:"
-msgstr ""
+msgstr "Antall redigeringer:"
 
 #: ckan/templates/user/read.html:31
 msgid "Number of packages administered:"
-msgstr ""
+msgstr "Antall pakker administrert"
