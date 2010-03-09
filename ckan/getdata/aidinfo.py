@@ -199,9 +199,9 @@ class AidProjectsLoader(CkanLoader):
             if entity['Database type']:
                 notes += "\n\n## Database type\n"
                 notes += entity['Database type']
-            if entity['Standard compliance']:
-                notes += "\n\n## Standard compliance\n"
-                notes += entity['Standard compliance']
+            #if entity['Is the data model standard?']:
+            #    notes += "\n\n## Is the Data Model Standard?\n"
+            #    notes += entity['Is the data model standard?']
             if entity['Donor Type']:
                 notes += "\n\n## Donor Type\n"
                 notes += entity['Donor Type']
@@ -230,6 +230,8 @@ class AidProjectsLoader(CkanLoader):
                 notes += "\n\n## Data broken down by sector?\n"
                 notes += entity['Data broken down by sector?']
             package['notes'] = notes 
+            package['tags'] = ["aidinfo"]
+            package['extras'] = {'pipeline': '1', 'okd_compliance': '0'}
         print "  %s data packages with titles were extracted from the Spreadsheet." % len(self.packages)
 
     def put_packages_on_ckan(self):
@@ -246,8 +248,8 @@ class AidProjectsLoader(CkanLoader):
                 print ""
                 pprint.pprint(spreadsheet_package)
                 print ""
-                answer = raw_input("Do you want to register this package with CKAN now? [Y/n] ")
-                if not answer or answer.lower()[0] != 'n':
+                answer = raw_input("Do you want to register this package with CKAN now? [y/N] ")
+                if not answer or answer.lower()[0] != 'y':
                     print "Skipping '%s' package..." % spreadsheet_package['name']
                     print ""
                     sleep(1)
