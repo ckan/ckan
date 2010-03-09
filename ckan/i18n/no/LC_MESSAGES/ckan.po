@@ -24,7 +24,7 @@ msgstr "Ikke autorisert til å lese %s"
 
 #: ckan/controllers/group.py:53
 msgid "Must be logged in to create a new group."
-msgstr "Må være logget inn for opprette en ny gruppe"
+msgstr "Må være logget inn for opprette en ny gruppe."
 
 #: ckan/controllers/group.py:101
 #, python-format
@@ -59,16 +59,16 @@ msgstr "Du må være logget inn for å kunne importere"
 
 #: ckan/controllers/importer.py:41
 msgid "Need to specify a filename."
-msgstr "Du må oppgi et filnavn"
+msgstr "Du må oppgi et filnavn."
 
 #: ckan/controllers/importer.py:44
 msgid "Did not receive file successfully."
-msgstr "Filen ikke mottatt på korrekt måte"
+msgstr "Filen ikke mottatt på korrekt måte."
 
 #: ckan/controllers/importer.py:50
 #, python-format
 msgid "File '%s' not found."
-msgstr "Fant ikke filen '%s'"
+msgstr "Fant ikke filen '%s'."
 
 #: ckan/controllers/importer.py:55 ckan/controllers/importer.py:84
 #, python-format
@@ -77,22 +77,22 @@ msgstr "Feil ved import av filen '%s' i Excel- eller CSV-format: %s"
 
 #: ckan/controllers/importer.py:95
 msgid "Errors remain - see preview."
-msgstr "Feil ikke rettet - se forhåndsvisning"
+msgstr "Feil ikke rettet - se forhåndsvisning."
 
 #: ckan/controllers/importer.py:109
 msgid "Problem with user account."
-msgstr "Problem med brukerkonto"
+msgstr "Problem med brukerkonto."
 
 #: ckan/controllers/importer.py:116
 #, python-format
 msgid "Imported %i package."
 msgid_plural "Imported %i packages."
-msgstr[0] "Importerte pakken %i"
-msgstr[1] "Importerte pakkene %i"
+msgstr[0] "Importerte pakken %i."
+msgstr[1] "Importerte pakkene %i."
 
 #: ckan/controllers/importer.py:148
 msgid "Could not access import file any more."
-msgstr "Har ikke lenger tilgang til importfilen"
+msgstr "Har ikke lenger tilgang til importfilen."
 
 #: ckan/controllers/importer.py:160
 msgid "User is not logged in"
@@ -100,7 +100,7 @@ msgstr "Brukeren er ikke logget inn"
 
 #: ckan/controllers/importer.py:164
 msgid "Error with user account. Log out and log in again."
-msgstr "Feil med brukerkonto. Logg ut og logg så inn igjen"
+msgstr "Feil med brukerkonto. Logg ut og logg så inn igjen."
 
 #: ckan/controllers/importer.py:167
 #, python-format
