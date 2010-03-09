@@ -1119,79 +1119,79 @@ msgstr "Pakker - indeks"
 
 #: ckan/templates/package/index.html:13
 msgid "packages."
-msgstr ""
+msgstr "pakker."
 
 #: ckan/templates/package/layout.html:10
 msgid "This package:"
-msgstr ""
+msgstr "Denne pakken:"
 
 #: ckan/templates/package/layout.html:11
 msgid "View"
-msgstr ""
+msgstr "Se"
 
 #: ckan/templates/package/layout.html:12 ckan/templates/user/read.html:24
 msgid "Edit"
-msgstr ""
+msgstr "Rediger"
 
 #: ckan/templates/package/layout.html:13
 msgid "History"
-msgstr ""
+msgstr "Historie"
 
 #: ckan/templates/package/layout.html:17
 msgid "Browse"
-msgstr ""
+msgstr "Bla gjennom"
 
 #: ckan/templates/package/layout.html:18
 msgid "Register new package"
-msgstr ""
+msgstr "Registrer ny pakke"
 
 #: ckan/templates/package/list.html:4
 msgid "Packages - List"
-msgstr ""
+msgstr "Pakker - liste"
 
 #: ckan/templates/package/list.html:8
 msgid "Package listing key"
-msgstr ""
+msgstr "Pakkeutlistingsnøkkel"
 
 #: ckan/templates/package/list.html:11
 msgid "Openly licensed"
-msgstr ""
+msgstr "Med åpen lisens"
 
 #: ckan/templates/package/list.html:13
 msgid "Closed/unknown licensing"
-msgstr ""
+msgstr "Lukket/ukjent lisens"
 
 #: ckan/templates/package/list.html:15
 msgid "Resources available"
-msgstr ""
+msgstr "Ressurser tilgjengelig"
 
 #: ckan/templates/package/list.html:16
 msgid "Click on the arrow to show the package resources."
-msgstr ""
+msgstr "Klikk på pilen for å vise pakkeressursene."
 
 #: ckan/templates/package/list.html:18
 msgid "No resources listed"
-msgstr ""
+msgstr "Ingen ressurser oppført"
 
 #: ckan/templates/package/list.html:21
 msgid "Packages with a blue stripe satisfy the OKFN's"
-msgstr ""
+msgstr "Pakker med en blå stripe oppfyller OKFNs"
 
 #: ckan/templates/package/list.html:23
 msgid "Open Knowledge Definition."
-msgstr ""
+msgstr "definisjon av åpen kunnskap."
 
 #: ckan/templates/package/new.html:4
 msgid "Packages - New"
-msgstr ""
+msgstr "Pakker - nye"
 
 #: ckan/templates/package/new.html:7
 msgid "Register a New Package"
-msgstr ""
+msgstr "Registrer en ny pakke"
 
 #: ckan/templates/package/read.html:4
 msgid "Packages -"
-msgstr ""
+msgstr "Pakker - "
 
 #: ckan/templates/package/read.html:9
 msgid ""
@@ -1199,6 +1199,9 @@ msgid ""
 "          Can you help us keep this page up to date?\n"
 "          If so, why not"
 msgstr ""
+"Arbeider du på et prosjekt som produserer disse dataene?\n"
+" Kan du hjelpe oss med å holde denne siden oppdatert?\n"
+" Hvis du kan det, hvorfor ikke"
 
 #: ckan/templates/package/read.html:13
 msgid "update the package information"
