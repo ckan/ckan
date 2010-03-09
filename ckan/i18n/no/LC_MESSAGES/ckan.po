@@ -551,39 +551,43 @@ msgstr "finne, dele og gjenbruke åpent innhold og data"
 msgid ""
 ", especially in ways that are machine\n"
 "      automatable."
-msgstr ""
+msgstr ", særlig i automatisert, maskinlesbar form."
 
 #: ckan/templates/home/about.html:18
 msgid "As a system CKAN functions as a synthesis of several different services:"
-msgstr ""
+msgstr "Som system fungerer CKAN som en syntese av flere ulike tjenester:"
 
 #: ckan/templates/home/about.html:20
 msgid "CKAN Features Overview"
-msgstr ""
+msgstr "Oversikt over CKANs funksjoner"
 
 #: ckan/templates/home/about.html:22
 msgid ""
 "As the diagram shows, CKAN combines the features of a listing/registry,\n"
 "\t\ta package index and a wiki. As a registry it acts like"
 msgstr ""
+"Som diagrammet viser, kombinerer CKAN funksjonene i et register eller en liste,\n"
+"\t\ta en pakkeindeks og en wiki. Som register fungerer det som"
 
 #: ckan/templates/home/about.html:24
 msgid "freshmeat"
-msgstr ""
+msgstr "freshmeat"
 
 #: ckan/templates/home/about.html:24
 msgid ""
 "but for open data and\n"
 "\t\tcontent resources. However it adds to a simple registry in key ways."
 msgstr ""
+", men tar for seg åpne data og\n"
+"\t\tinnholdsressurser. I forhold til et vanlig register har CKAN avgjørende fordeler."
 
 #: ckan/templates/home/about.html:27
 msgid "First, thanks to its underlying"
-msgstr ""
+msgstr "For det første, takket være at den er basert på en"
 
 #: ckan/templates/home/about.html:28
 msgid "versioned domain model"
-msgstr ""
+msgstr "versjonert domenemodell"
 
 #: ckan/templates/home/about.html:28
 msgid ""
@@ -593,58 +597,64 @@ msgid ""
 "\t\tto provide 'index'-like features such as automated registration, discovery\n"
 "\t\tand installation of material. In this respect it behaves like"
 msgstr ""
+"har CKAN et a\n"
+"\t\twiki-lignende grensesnitt som lar alle legge til og redigere det lagrede innholdet. For det andre: \n"
+"\t\ttil forskjell fra en wiki, kan CKAN lagre 'strukturert' informasjon, som gjør det mulig\n"
+"\t\tå tilby 'indeks'-aktige funksjoner som automatisert registrering og installering av materiale. På denne måten oppfører det seg som"
 
 #: ckan/templates/home/about.html:33
 msgid "CPAN"
-msgstr ""
+msgstr "CPAN"
 
 #: ckan/templates/home/about.html:33
 msgid "or"
-msgstr ""
+msgstr "eller"
 
 #: ckan/templates/home/about.html:34
 msgid "PyPI"
-msgstr ""
+msgstr "PyPI"
 
 #: ckan/templates/home/about.html:34
 msgid ""
 "in the software world -- though\n"
 "\t\tagain for"
-msgstr ""
+msgstr "i programvareverdenen - men n\t\t\tigjen tilpasset"
 
 #: ckan/templates/home/about.html:35
 msgid "open data and content"
-msgstr ""
+msgstr "åpne data og innhold,"
 
 #: ckan/templates/home/about.html:35
 msgid "not code."
-msgstr ""
+msgstr "ikke kode."
 
 #: ckan/templates/home/about.html:38
 msgid ""
 "More about CKAN, and the background to its creation can\n"
 "    be found in"
-msgstr ""
+msgstr "Mer om CKAN og om bakgrunnen for at det ble startet finnes i "
 
 #: ckan/templates/home/about.html:40
 msgid ""
 "these\n"
 "      slides"
-msgstr ""
+msgstr "disse lysarkene."
 
 #: ckan/templates/home/about.html:43
 msgid "Who's Behind CKAN?"
-msgstr ""
+msgstr "Hvem står bak CKAN?"
 
 #: ckan/templates/home/about.html:45
 msgid "The CKAN software and site is developed and maintained by the"
-msgstr ""
+msgstr "CKANs programvare og nettstedet er utviklet og drives av "
 
 #: ckan/templates/home/about.html:46
 msgid ""
 ". Both the\n"
 "    CKAN code and data are open:"
 msgstr ""
+"Både \n"
+" CKANs kode og data er åpne:"
 
 #: ckan/templates/home/about.html:47
 msgid ""
