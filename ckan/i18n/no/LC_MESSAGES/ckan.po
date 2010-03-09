@@ -1025,93 +1025,97 @@ msgstr "Valgfri loggmelding om denne endringen:"
 
 #: ckan/templates/package/edit_form.html:13 ckan/templates/user/edit.html:18
 msgid "You can use"
-msgstr ""
+msgstr "Du kan bruke"
 
 #: ckan/templates/package/edit_form.html:13 ckan/templates/user/edit.html:18
 msgid "Markdown formatting"
-msgstr ""
+msgstr "Markdown-formatering"
 
 #: ckan/templates/package/edit_form.html:13 ckan/templates/user/edit.html:18
 msgid "here."
-msgstr ""
+msgstr "her."
 
 #: ckan/templates/package/edit_form.html:16
 #: ckan/templates/revision/read.html:11
 msgid "Author:"
-msgstr ""
+msgstr "Forfatter:"
 
 #: ckan/templates/package/edit_form.html:17
 msgid "If you have not signed in this will just be your IP address."
-msgstr ""
+msgstr "Hvis du ikke har logget inn, vil dette bare bli din IP-adresse."
 
 #: ckan/templates/package/edit_form.html:19
 msgid "Click here to sign in"
-msgstr ""
+msgstr "Klikk her for å logge inn"
 
 #: ckan/templates/package/edit_form.html:19
 msgid "before submitting (opens in new window)."
-msgstr ""
+msgstr "før du sender inn (åpnes i nytt vindu)."
 
 #: ckan/templates/package/edit_form.html:23 ckan/templates/user/edit.html:22
 msgid "Commit"
-msgstr ""
+msgstr "Lagre"
 
 #: ckan/templates/package/edit_form.html:25
 msgid "Please Note:"
-msgstr ""
+msgstr "Vennligst merk:"
 
 #: ckan/templates/package/edit_form.html:27
 msgid ""
 "By submitting content, you agree to release your contributions\n"
 "        under the open license specified on the"
-msgstr ""
+msgstr "Ved å legge til innhold samtykker du til å publisere dine bidrag under den åpne lisensen spesifisert på"
 
 #: ckan/templates/package/edit_form.html:29
 msgid ""
 "(essentially Creative Commons\n"
 "        Attribution-Share Alike v3.0)."
 msgstr ""
+"(tilsvarende Creative Commons\n"
+" Attribution-Share Alike v3.0)."
 
 #: ckan/templates/package/edit_form.html:31
 msgid ""
 "If you are not happy for this to occur please refrain from editing\n"
 "        this page."
 msgstr ""
+"Hvis du ikke er innforstått med dette, vennligst avstå fra å redigere\n"
+" denne siden."
 
 #: ckan/templates/package/history.html:4 ckan/templates/revision/read.html:32
 msgid "Package -"
-msgstr ""
+msgstr "Pakken - "
 
 #: ckan/templates/package/history.html:4
 msgid "- History"
-msgstr ""
+msgstr "- historie"
 
 #: ckan/templates/package/history.html:12
 msgid "Revisions"
-msgstr ""
+msgstr "Revisjoner"
 
 #: ckan/templates/package/history.html:26 ckan/templates/revision/read.html:4
 #: ckan/templates/user/read.html:37
 msgid "Revision"
-msgstr ""
+msgstr "Revisjon"
 
 #: ckan/templates/package/history.html:26 ckan/templates/revision/list.html:16
 #: ckan/templates/user/read.html:37
 msgid "Timestamp"
-msgstr ""
+msgstr "Klokkeslett"
 
 #: ckan/templates/package/history.html:26 ckan/templates/revision/list.html:16
 #: ckan/templates/user/read.html:37
 msgid "Log Message"
-msgstr ""
+msgstr "Loggmelding"
 
 #: ckan/templates/package/history.html:43
 msgid "Compare »"
-msgstr ""
+msgstr "Sammenlign »"
 
 #: ckan/templates/package/index.html:4
 msgid "Packages - Index"
-msgstr ""
+msgstr "Pakker - indeks"
 
 #: ckan/templates/package/index.html:13
 msgid "packages."
