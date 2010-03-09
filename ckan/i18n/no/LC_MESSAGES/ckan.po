@@ -1368,89 +1368,95 @@ msgstr "Ingen forskjeller"
 
 #: ckan/templates/revision/layout.html:8
 msgid "CKAN Atom Feed"
-msgstr ""
+msgstr "CKAN Atom Feed"
 
 #: ckan/templates/revision/list.html:4 ckan/templates/revision/list.html:7
 msgid "Repository History"
-msgstr ""
+msgstr "Arkivhistorikk"
 
 #: ckan/templates/revision/list.html:8
 msgid ""
 "This page lists all changes to package database, with most recent\n"
 "    changes first. It is also available as an"
 msgstr ""
+"Denne siden lister alle endringer i pakkedatabasen, med de siste endringene\n"
+" først. Den er også tilgjengelig som en"
 
 #: ckan/templates/revision/list.html:9
 msgid ""
 "Atom\n"
 "      Feed"
 msgstr ""
+"Atom\n"
+" Feed"
 
 #: ckan/templates/revision/list.html:16
 msgid "Number"
-msgstr ""
+msgstr "Nummer"
 
 #: ckan/templates/revision/purge.html:4
 msgid "Revisions - Purge"
-msgstr ""
+msgstr "Revisjoner - fjern"
 
 #: ckan/templates/revision/purge.html:7
 msgid "Revision Purge"
-msgstr ""
+msgstr "Revisjonsfjerning"
 
 #: ckan/templates/revision/purge.html:8
 msgid "There was an error:"
-msgstr ""
+msgstr "Det har oppstått en feil:"
 
 #: ckan/templates/revision/purge.html:9
 msgid "Purge successful."
-msgstr ""
+msgstr "Fjerning vellykket."
 
 #: ckan/templates/revision/read.html:7
 msgid "Revision:"
-msgstr ""
+msgstr "Revisjon:"
 
 #: ckan/templates/revision/read.html:14
 msgid "Timestamp:"
-msgstr ""
+msgstr "Tidsstempel:"
 
 #: ckan/templates/revision/read.html:16
 msgid "Log Message:"
-msgstr ""
+msgstr "Loggmelding:"
 
 #: ckan/templates/revision/read.html:19
 msgid "Changes"
-msgstr ""
+msgstr "Endringer"
 
 #: ckan/templates/revision/read.html:29
 msgid "Packages' Tags"
-msgstr ""
+msgstr "Stikkord for pakker"
 
 #: ckan/templates/revision/read.html:33
 msgid ""
 ",\n"
 "      Tag -"
 msgstr ""
+",\n"
+" stikkord - "
 
 #: ckan/templates/tag/index.html:4
 msgid "Tags - Index"
-msgstr ""
+msgstr "Stikkord - indeks"
 
 #: ckan/templates/tag/index.html:19
 msgid "results for ‘"
-msgstr ""
+msgstr "resultater for "
 
 #: ckan/templates/tag/index.html:22
 msgid "results for tags."
-msgstr ""
+msgstr "resultater for stikkord."
 
 #: ckan/templates/tag/index.html:32
 msgid "and see all tags."
-msgstr ""
+msgstr "og se alle stikkord."
 
 #: ckan/templates/tag/read.html:4
 msgid "Tags -"
-msgstr ""
+msgstr "Stikkord - "
 
 #: ckan/templates/tag/read.html:7
 msgid "Tag:"
