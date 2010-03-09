@@ -284,8 +284,8 @@ class PackageController(BaseController):
                 model.Session.commit()
 
         # retrieve pkg again ...
-        pkg = model.Package.by_name(id)
-        fs = ckan.forms.package_authz_fs.bind(pkg.roles)
+        c.pkg = model.Package.by_name(id)
+        fs = ckan.forms.package_authz_fs.bind(c.pkg.roles)
         c.form = fs.render()
         c.new_roles_form = ckan.forms.new_package_roles_fs.render()
         return render('package/authz')
