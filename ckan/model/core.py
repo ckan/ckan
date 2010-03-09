@@ -206,8 +206,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             object_ = self
         else:
             raise NotImplementedError, 'Package relationship type: %r' % type_
-            
-            
+
         rel = package_relationship.PackageRelationship(
             subject=subject,
             object=object_,
@@ -218,6 +217,40 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     @property
     def relationships(self):
         return self.relationships_as_subject + self.relationships_as_object
+
+    def relationships_printable(self):
+        '''Returns a list of tuples describing related packages, including
+        non-direct relationships (such as siblings).
+        @return: e.g. [(annakarenina, u"is a parent"), ...]
+        '''
+        from package_relationship import PackageRelationship
+        rel_list = []
+        # forward types
+        for rel_as_subject in self.relationships_as_subject:
+            type_printable = PackageRelationship.make_type_printable(rel_as_subject.type)
+            rel_list.append((rel_as_subject.object, type_printable))
+        # reverse types
+        for rel_as_object in self.relationships_as_object:
+            type_printable = PackageRelationship.make_type_printable(\
+                PackageRelationship.forward_to_reverse_type(
+                    rel_as_object.type)
+                )
+            rel_list.append((rel_as_object.subject, type_printable))
+        # sibling types
+        # e.g. 'gary' is a child of 'mum', looking for 'bert' is a child of 'mum'
+        # i.e. for each 'child_of' type relationship ...
+        for rel_as_subject in self.relationships_as_subject:
+            # ... parent is the object
+            parent_pkg = rel_as_subject.object
+            # Now look for the parent's other relationships as object ...
+            for parent_rel_as_object in parent_pkg.relationships_as_object:
+                # and check children
+                child_pkg = parent_rel_as_object.subject
+                if child_pkg != self and \
+                       parent_rel_as_object.type == rel_as_subject.type:
+                    type_printable = PackageRelationship.inferred_types_printable['sibling']
+                    rel_list.append((child_pkg, type_printable))
+        return rel_list
 
 class Tag(DomainObject):
     def __init__(self, name=''):

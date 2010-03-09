@@ -16,7 +16,10 @@ class PackageSaver(object):
     def render_preview(cls, fs, original_name, record_id,
                        log_message=None,
                        author=None):
-        'Renders a package on the basis of a fieldset - perfect for preview'
+        '''Renders a package on the basis of a fieldset - perfect for
+        preview of form data.
+        Note that the actual calling of render('package/read') is left
+        to the caller.'''
         pkg = cls._preview_pkg(fs, original_name, record_id,
                                log_message, author)
         cls.render_package(pkg)
@@ -24,7 +27,11 @@ class PackageSaver(object):
     # TODO: rename to something more correct like prepare_for_render
     @classmethod
     def render_package(cls, pkg):
-        'Renders a package'
+        '''Prepares for rendering a package. Takes a Package object and
+        formats it for the various context variables required to call
+        render. 
+        Note that the actual calling of render('package/read') is left
+        to the caller.'''
         c.pkg = pkg
         notes_formatted = ckan.misc.MarkdownFormat().to_html(pkg.notes)
         c.pkg_notes_formatted = genshi.HTML(notes_formatted)
@@ -32,6 +39,7 @@ class PackageSaver(object):
         c.pkg_url_link = h.link_to(c.pkg.url, c.pkg.url) if c.pkg.url else "No web page given"
         c.pkg_author_link = cls._person_email_link(c.pkg.author, c.pkg.author_email, "Author")
         c.pkg_maintainer_link = cls._person_email_link(c.pkg.maintainer, c.pkg.maintainer_email, "Maintainer")
+        c.package_relationships = pkg.relationships_printable()
         # c.auth_for_change_state and c.auth_for_edit may also used
         # return render('package/read')
 
@@ -56,6 +64,8 @@ class PackageSaver(object):
             fs.model.license
             fs.model.groups
             fs.model.ratings
+            fs.model.relationships_as_subject
+            fs.model.relationships_as_object
         except ValidationException, e:
             # remove everything from session so nothing can get saved accidentally
             model.Session.clear()
