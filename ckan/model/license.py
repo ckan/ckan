@@ -26,7 +26,7 @@ class LicenseRegister(object):
 
     def __getitem__(self, key, default=Exception):
         for license in self.licenses:
-            if key == license['id']:
+            if key == license.id:
                 return license
         if default != Exception:
             return default
@@ -34,13 +34,13 @@ class LicenseRegister(object):
             raise Exception, "License not found: %s" % key
 
     def keys(self):
-        return [license['id'] for license in self.licenses]
+        return [license.id for license in self.licenses]
 
     def values(self):
         return self.licenses
 
     def items(self):
-        return [(license['id'], license) for license in self.licenses]
+        return [(license.id, license) for license in self.licenses]
         
     def __iter__(self):
         return iter(self.keys())
