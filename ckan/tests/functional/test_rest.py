@@ -118,7 +118,6 @@ class TestRest(TestController):
         res = self.app.get(offset, status=[200])
         anna = model.Package.by_name(u'annakarenina')
         assert 'annakarenina' in res, res
-#        assert '"license_id": 9' in res, res
         assert 'license_id' not in res, res
         assert '"license": "other-open"' in res, str(res)
         assert 'russian' in res, res
@@ -183,7 +182,7 @@ class TestRest(TestController):
         assert pkg
         assert pkg.title == self.testpackagevalues['title'], pkg
         assert pkg.url == self.testpackagevalues['url'], pkg
-        assert pkg.license_id == self.testpackage_license_id, pkg
+        assert pkg.license.id == self.testpackage_license_id, pkg
         assert len(pkg.tags) == 2
         assert len(pkg.extras) == 2, len(pkg.extras)
         for key, value in self.testpackagevalues['extras'].items():
@@ -199,8 +198,8 @@ class TestRest(TestController):
         offset = '/api/rest/package/%s' % self.testpackagevalues['name']
         res = self.app.get(offset, status=[200])
         assert self.testpackagevalues['name'] in res, res
-#        assert '"license_id": %s' % self.testpackagevalues['license_id'] in res, res
-        #assert '"license": "%s"' % self.testpackagevalues['license'] in res, res
+        assert 'license_id' not in res, res
+        assert '"license": "%s"' % self.testpackagevalues['license'] in res, res
         assert self.testpackagevalues['tags'][0] in res, res
         assert self.testpackagevalues['tags'][1] in res, res
         assert '"extras": {' in res, res
