@@ -6,17 +6,13 @@ import vdm.sqlalchemy
 
 from types import make_uuid
 import full_search
+from license import License, LicenseRegister
 
 ## VDM-specific tables
 
 revision_table = vdm.sqlalchemy.make_revision_table(metadata)
 
 ## Our Domain Object Tables
-
-license_table = Table('license', metadata,
-        Column('id', types.Integer, primary_key=True),
-        Column('name', types.Unicode(100)),
-        )
 
 package_table = Table('package', metadata,
         Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
@@ -29,7 +25,7 @@ package_table = Table('package', metadata,
         Column('maintainer', types.UnicodeText),
         Column('maintainer_email', types.UnicodeText),                      
         Column('notes', types.UnicodeText),
-        Column('license_id', types.Integer, ForeignKey('license.id')),
+        Column('license_id', types.UnicodeText),
 )
 
 tag_table = Table('tag', metadata,
@@ -44,7 +40,6 @@ package_tag_table = Table('package_tag', metadata,
         )
 
 
-vdm.sqlalchemy.make_table_stateful(license_table)
 vdm.sqlalchemy.make_table_stateful(package_table)
 vdm.sqlalchemy.make_table_stateful(package_tag_table)
 package_revision_table = vdm.sqlalchemy.make_revisioned_table(package_table)
@@ -116,16 +111,6 @@ class DomainObject(object):
     def __repr__(self):
         return self.__unicode__()
 
-        
-class License(DomainObject):
-    def isopen(self):
-        if self.name and \
-           (self.name.startswith('OKD Compliant')
-            or
-            self.name.startswith('OSI Approved')
-            ):
-            return True
-        return False
 
 class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         vdm.sqlalchemy.StatefulObjectMixin,
@@ -180,7 +165,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         _dict['tags'] = [tag.name for tag in self.tags]
         _dict['groups'] = [group.name for group in self.groups]
         if self.license:
-            _dict['license'] = self.license.name
+            _dict['license'] = self.license.id
         else:
             _dict['license'] = ''
         del _dict['license_id']
@@ -218,6 +203,38 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     @property
     def relationships(self):
         return self.relationships_as_subject + self.relationships_as_object
+
+    #
+    ## Licenses are currently integrated into the domain model here.   
+ 
+    @classmethod
+    def get_license_register(self):
+        if not hasattr(self, '_license_register'):
+            self._license_register = LicenseRegister()
+        return self._license_register
+
+    @classmethod
+    def get_license_options(self):
+        register = self.get_license_register()
+        return [(l.title, l.id) for l in register.values()]
+
+    def get_license(self):
+        license = None
+        if self.license_id:
+            license = self.get_license_register()[self.license_id]
+        return license
+
+    def set_license(self, license):
+        if type(license) == License:
+            self.license_id = license.id
+        elif type(license) == dict:
+            self.license_id = license['id']
+        else:
+            msg = "Value not a license object or entity: %s" % repr(license)
+            raise Exception, msg
+
+    license = property(get_license, set_license)
+
 
 class Tag(DomainObject):
     def __init__(self, name=''):
@@ -265,11 +282,7 @@ State = vdm.sqlalchemy.State
 State.all = [ State.ACTIVE, State.DELETED ]
 Revision = vdm.sqlalchemy.make_Revision(mapper, revision_table)
 
-mapper(License, license_table,
-    order_by=license_table.c.id)
-
 mapper(Package, package_table, properties={
-    'license':relation(License),
     # delete-orphan on cascade does NOT work!
     # Why? Answer: because of way SQLAlchemy/our code works there are points
     # where PackageTag object is created *and* flushed but does not yet have

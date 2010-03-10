@@ -107,11 +107,9 @@ class CreateTestData(cli.CkanCommand):
                             model.Session.add(group)
                         pkg.groups.append(group)
                 elif attr == 'license':
-                    license = model.License.by_name(val)
-                    pkg.license = license
+                    pkg.license_id = val
                 elif attr == 'license_id':
-                    license = model.Session.query(model.License).get(val)
-                    pkg.license = license
+                    pkg.license_id = val
                 elif attr == 'extras':
                     pkg.extras = val
                 elif attr == 'admins':
@@ -201,8 +199,7 @@ left arrow <
         pkg1.tags = [tag1, tag2]
         pkg2.tags = [ tag1 ]
         self.tag_names = [u'russian', u'tolstoy']
-        license1 = model.License.by_name(u'OKD Compliant::Other')
-        pkg1.license = license1
+        pkg1.license_id = u'agpl-v3'
         pkg2.title = u'A Wonderful Story'
         genre_extra = model.PackageExtra(key=u'genre', value='romantic novel')
         media_extra = model.PackageExtra(key=u'original media', value='book')
@@ -281,7 +278,7 @@ search_items = [{'name':'gils',
               'url':'',
               'tags':'registry  country-usa  government  federal  gov  workshop-20081101',
               'groups':'ukgov test1 test2 penguin',
-              'license':'OKD Compliant::Other',
+              'license':'agpl-v3',
               'notes':'''From <http://www.gpoaccess.gov/gils/about.html>
               
 > The Government Information Locator Service (GILS) is an effort to identify, locate, and describe publicly available Federal
@@ -294,7 +291,7 @@ search_items = [{'name':'gils',
               'download_url':'http://www.usa.gov/Topics/Graphics.shtml',
               'tags':'images  graphics  photographs  photos  pictures  us  usa  america  history  wildlife  nature  war  military  todo-split  gov',
               'groups':'ukgov test1 penguin',
-              'license':'OKD Compliant::Other',
+              'license':'agpl-v3',
               'notes':'''## About
 
 Collection of links to different US image collections in the public domain.
@@ -310,7 +307,7 @@ Collection of links to different US image collections in the public domain.
               'download_url':'http://bulk.resource.org/courts.gov/',
               'tags':'us  courts  case-law  us  courts  case-law  gov  legal  law  access-bulk  penguins penguin',
               'groups':'ukgov test2 penguin',
-              'license':'OKD Compliant::Creative Commons CCZero',
+              'license':'cc-zero',
               'notes':'''### Description
 
 1.8 million pages of U.S. case law available with no restrictions. From the [README](http://bulk.resource.org/courts.gov/0_README.html):
@@ -332,7 +329,7 @@ Overview is available in Red Book, or Financial Statement and Budget Report (FSB
               'url':'http://www.sweden.gov.se/sb/d/574',
               'groups':'penguin',              
               'tags':'country-sweden  format-pdf  access-www  documents  publications  government  eutransparency',
-              'license':'Other::License Not Specified',
+              'license':'',
               'notes':'''### About
 
 Official documents including "government bills and reports, information material and other publications".
@@ -348,7 +345,7 @@ Not clear.''',
               'url':'http://www.opengov.se/',
               'download_url':'http://www.opengov.se/data/open/',
               'tags':'country-sweden  government  data',
-              'license':'OKD Compliant::Creative Commons Attribution-ShareAlike',
+              'license':'cc-by-sa',
               'notes':'''### About
 
 From [website](http://www.opengov.se/sidor/english/):
@@ -376,7 +373,7 @@ gov_items = [
      'url':'http://www.dcsf.gov.uk/rsgateway/DB/SFR/s000859/index.shtml',
      'author':'DCSF Data Services Group',
      'author_email':'statistics@dcsf.gsi.gov.uk',
-     'license':'Non-OKD Compliant::Crown Copyright',
+     'license':'dsl',
      'tags':'children fostering',
      'extras':{
         'external_reference':'DCSF-DCSF-0024',
@@ -403,7 +400,7 @@ gov_items = [
      'url':'http://www.decc.gov.uk/en/content/cms/statistics/source/prices/prices.aspx',
      'author':'DECC Energy Statistics Team',
      'author_email':'energy.stats@decc.gsi.gov.uk',
-     'license':'Non-OKD Compliant::Crown Copyright',
+     'license':'dsl',
      'tags':'fuel prices',
      'extras':{
         'external_reference':'DECC-DECC-0001',

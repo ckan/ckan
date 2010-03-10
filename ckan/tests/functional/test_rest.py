@@ -8,9 +8,6 @@ import webhelpers
 from ckan.lib.create_test_data import CreateTestData
 
 ACCESS_DENIED = [401,403]
-def get_license_name(id):
-    return model.Session.get(model.License, id).name
-
 
 class TestRest(TestController):
 
@@ -34,8 +31,7 @@ class TestRest(TestController):
         model.Session.remove()
 
     def setup(self):
-        self.testpackage_license_id = 4
-        license_name = get_license_name(self.testpackage_license_id)
+        self.testpackage_license_id = u'agpl-v3'
         self.testpackagevalues = {
             'name' : u'testpkg',
             'title': u'Some Title',
@@ -49,7 +45,7 @@ class TestRest(TestController):
                            u'description':u'Second file',
                            u'hash':u'def123'},],
             'tags': [u'russion', u'novel'],
-            'license': license_name,
+            'license': self.testpackage_license_id,
             'extras': {'genre' : u'horror',
                        'media' : u'dvd',
                        },
@@ -124,7 +120,7 @@ class TestRest(TestController):
         assert 'annakarenina' in res, res
 #        assert '"license_id": 9' in res, res
         assert 'license_id' not in res, res
-        expected_license = '"license": "%s"' % get_license_name(9)
+        expected_license = '"license": "%s"' % 'agpl-v3'
         assert expected_license in res, repr(res) + repr(expected_license)
         assert 'russian' in res, res
         assert 'tolstoy' in res, res
@@ -189,7 +185,6 @@ class TestRest(TestController):
         assert pkg.title == self.testpackagevalues['title'], pkg
         assert pkg.url == self.testpackagevalues['url'], pkg
         assert pkg.license_id == self.testpackage_license_id, pkg
-        assert pkg.license.name == self.testpackagevalues['license'], pkg.license
         assert len(pkg.tags) == 2
         assert len(pkg.extras) == 2, len(pkg.extras)
         for key, value in self.testpackagevalues['extras'].items():
@@ -206,7 +201,7 @@ class TestRest(TestController):
         res = self.app.get(offset, status=[200])
         assert self.testpackagevalues['name'] in res, res
 #        assert '"license_id": %s' % self.testpackagevalues['license_id'] in res, res
-        assert '"license": "%s"' % self.testpackagevalues['license'] in res, res
+        #assert '"license": "%s"' % self.testpackagevalues['license'] in res, res
         assert self.testpackagevalues['tags'][0] in res, res
         assert self.testpackagevalues['tags'][1] in res, res
         assert '"extras": {' in res, res
@@ -596,7 +591,7 @@ class TestRest(TestController):
         res = self.app.get(offset, status=[200])
         res_dict = simplejson.loads(res.body)
         assert rev.id == res_dict['id']
-        assert str(rev.timestamp) == res_dict['timestamp']
+        assert rev.timestamp.isoformat() == res_dict['timestamp'], (rev.timestamp.isoformat(), res_dict['timestamp'])
 
     def test_14_get_revision_404(self):
         revision_id = "xxxxxxxxxxxxxxxxxxxxxxxxxx"
@@ -630,7 +625,7 @@ class TestSearch(TestController):
             'resources': [{u'url':u'http://blahblahblah.mydomain',
                            'format':'', 'description':''}],
             'tags': ['russion', 'novel'],
-            'license_id': '4',
+            'license': u'agpl-v3',
             'extras': {'national_statistic':'yes',
                        'geographic_coverage':'England, Wales'},
         }
@@ -772,7 +767,7 @@ class TestSearch(TestController):
                 break
         assert anna_rec['name'] == 'annakarenina', res_dict['results']
         assert anna_rec['title'] == 'A Novel By Tolstoy', anna_rec['title']
-        assert anna_rec['license'] == 'OKD Compliant::Other', anna_rec['license']
+        assert anna_rec['license'] == u'agpl-v3', anna_rec['license']
         assert len(anna_rec['tags']) == 2, anna_rec['tags']
         for expected_tag in ['russian', 'tolstoy']:
             assert expected_tag in anna_rec['tags']

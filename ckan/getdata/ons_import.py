@@ -118,7 +118,7 @@ class Data(object):
 
         pkg.title = title
         pkg.notes = '\n\n'.join(notes_list)
-        pkg.license = model.Session.query(model.License).get(self._crown_license_id)
+        pkg.license_id = self._crown_license_id
         pkg.extras = extras
         if extras['department']:
             pkg.author = extras['department']
@@ -189,8 +189,7 @@ class Data(object):
     def _basic_setup(self):
         self._item_count = 0
         self._new_package_count = 0
-        license_str = u'OKD Compliant::UK Crown Copyright with data.gov.uk rights'
-        self._crown_license_id = model.License.by_name(license_str).id
+        self._crown_license_id = u'dsl' # Todo: Fix this.
 
 
         # ensure there is a user hmg

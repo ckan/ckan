@@ -4,7 +4,6 @@ import simplejson
 from pylons import config
 
 import ckan.model as model
-from licenses import LicenseList
 
 ENABLE_CACHING = bool(config.get('enable_caching', ''))
 LIMIT_DEFAULT = 20
@@ -273,12 +272,11 @@ class Search:
             )).filter(make_like(model.PackageExtra.value, value))
         return query
         
-    def _update_open_licenses(self):
+    def _update_open_licenses(self):  # Update, or init?
         self._open_licenses = []
-        for license_name in LicenseList.all_formatted:
-            _license = model.License.by_name(license_name, autoflush=False)
-            if _license and _license.isopen():                
-                self._open_licenses.append(_license.id)
+        for license in model.Package.get_license_register().values():
+            if license and license.isopen():
+                self._open_licenses.append(license.id)
 
     def _format_results(self):
         if not self._options.return_objects:

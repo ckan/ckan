@@ -19,8 +19,7 @@
         </py:if>
         <dt>${package_license_icon(c.pkg)}</dt>
         <py:choose test="">
-          <dd py:when="c.pkg.license">${c.pkg.license.name}
-          </dd>
+          <dd py:when="c.pkg.license">${c.pkg.license.title}</dd>
           <dd py:otherwise="">
             License not given
           </dd>
@@ -67,7 +66,7 @@
         <py:choose test="">
           <p py:when="c.pkg.license">
             This package is licensed
-            <strong>${c.pkg.license.name}</strong>.
+            <strong>${c.pkg.license.title}</strong>.
           </p>
           <p py:otherwise="">
             License not given

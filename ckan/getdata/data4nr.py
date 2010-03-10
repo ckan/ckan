@@ -122,8 +122,7 @@ class Data4Nr(object):
         pkg.resources = []
         pkg.add_resource(res_url, description=res_description)
         pkg.notes=notes
-        license_str = u'OKD Compliant::UK Crown Copyright with data.gov.uk rights'
-        pkg.license = model.License.by_name(license_str)
+        pkg.license_id = u'dsl' # Todo: Fix this.
         if not existing_pkg:
             user = model.User.by_name(self._username)
 

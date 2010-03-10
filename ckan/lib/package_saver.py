@@ -62,9 +62,6 @@ class PackageSaver(object):
             raise ValidationException(*e)
         # remove everything from session so nothing can get saved accidentally
         model.Session.clear()
-        # license field's _id only updated, not object.id, so cludge that:
-        if fs.model.license_id:
-            fs.model.license = model.Session.query(model.License).get(fs.model.license_id)
         return out
 
     @classmethod

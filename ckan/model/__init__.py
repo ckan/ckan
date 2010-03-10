@@ -8,29 +8,6 @@ from resource import PackageResource, package_resource_table
 from rating import *
 from package_relationship import PackageRelationship
 
-from pylons import config
-import urllib2
-import simplejson
-class LicensesService(object):
-
-    default_url = 'http://licenses.opendefinition.org/1.0/all_formatted'
-
-    def get_names(self):
-        url = config.get('licenses_service_url', self.default_url)
-        print "Loading licenses from licenses service: %s" % url
-        try:
-            response = urllib2.urlopen(url)
-            response_body = response.read()
-        except Exception, inst:
-            msg = "Couldn't connect to licenses service: %s" % inst
-            raise Exception, msg
-        try:
-            license_names = simplejson.loads(response_body)
-        except Exception, inst:
-            msg = "Couldn't read response from licenses service: %s" % inst
-            raise Exception, inst
-        return [unicode(l) for l in license_names]
-
 import ckan.migration
 
 # sqlalchemy migrate version table
@@ -45,24 +22,6 @@ class Repository(vdm.sqlalchemy.Repository):
 
     def init_db(self):
         super(Repository, self).init_db()
-        try:
-            licenses_service = LicensesService()
-            license_names = licenses_service.get_names()
-        except Exception, inst:
-            msg = "Licenses service error: %s" % inst
-            print msg
-            print "Trying to import local licenses package..."
-            try:
-                from licenses import LicenseList
-                license_names = LicenseList.all_formatted
-            except Exception, inst:
-                msg = "Couldn't load licenses package: %s" % inst
-                raise Exception, msg
-        print "Loaded %s licenses OK." % len(license_names)
-        for name in license_names:
-            if not License.by_name(name):
-                l = License(name=name)
-                Session.add(l)
         # assume if this exists everything else does too
         if not User.by_name(PSEUDO_USER__VISITOR):
             visitor = User(name=PSEUDO_USER__VISITOR)

@@ -185,17 +185,14 @@ class ExtrasRenderer(formalchemy.fields.FieldRenderer):
         return extra_fields
     
 class LicenseRenderer(formalchemy.fields.FieldRenderer):
-    def render(self, options, **kwargs):
+
+    def render(self, **kwargs):
         selected = unicode(kwargs.get('selected', None) or self._value)
-        options = [('', None)] + [(x, unicode(model.License.by_name(x).id)) for x in model.LicenseList.all_formatted]
+        options = [('', None)] + model.Package.get_license_options()
         return literal(h.select(self.name, h.options_for_select(options, selected=selected), **kwargs))
 
     def render_readonly(self, **kwargs):
-        if self._value:
-            license_name = model.Session.query(model.License).get(int(self._value)).name
-        else:
-            license_name = ''
-        return common.field_readonly_renderer(self.field.key, license_name)
+        return common.field_readonly_renderer(self.field.key, self._value)
 
 
 class TagEditRenderer(formalchemy.fields.FieldRenderer):
@@ -396,7 +393,7 @@ def get_package_fs_options(fs):
         fs.name.label('Short Unique Name (required)'
             ).with_renderer(common.CustomTextFieldRenderer
                 ).validate(package_name_validator),
-        fs.license.with_renderer(LicenseRenderer),
+        fs.license_id.with_renderer(LicenseRenderer),
         fs.title.with_renderer(common.CustomTextFieldRenderer),
         fs.version.with_renderer(common.CustomTextFieldRenderer),
         fs.url.with_renderer(common.CustomTextFieldRenderer),
@@ -409,7 +406,7 @@ def get_package_fs_options(fs):
 def get_package_fs_include(fs, extras=True, is_admin=False):
     pkgs = [fs.name, fs.title, fs.version, fs.url, fs.resources,
             fs.author, fs.author_email, fs.maintainer, fs.maintainer_email,
-            fs.license, fs.tags, fs.notes, ]
+            fs.license_id, fs.tags, fs.notes, ]
     if is_admin:
         pkgs.append(fs.state)
     if extras:
@@ -522,10 +519,10 @@ def edit_package_dict(dict_, changed_items, id=''):
             elif key == download_url_key:
                 dict_[resources_key].insert(0, (value, u'', u'', u''))
                 # blank format, description and hash
+            elif key == license_id_key:
+                dict_[license_id_key] = unicode(value)
             elif key == license_key:
-                license_ = model.License.by_name(value)
-                assert license_, 'License name unknown: %r' % value
-                dict_[license_id_key] = unicode(license_.id)
+                dict_[license_id_key] = unicode(value)
     return dict_
 
 def add_to_package_dict(dict_, changed_items, id=''):
