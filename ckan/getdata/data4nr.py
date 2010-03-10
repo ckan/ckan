@@ -122,7 +122,7 @@ class Data4Nr(object):
         pkg.resources = []
         pkg.add_resource(res_url, description=res_description)
         pkg.notes=notes
-        pkg.license_id = u'dsl' # Todo: Fix this.
+        pkg.license_id = u'ukcrown-withrights'
         if not existing_pkg:
             user = model.User.by_name(self._username)
 

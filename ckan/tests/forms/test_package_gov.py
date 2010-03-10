@@ -57,7 +57,7 @@ class TestForm(TestController):
             (fs.author_email, 'statistics@dcsf.gsi.gov.uk'),
             (fs.maintainer, '', ''),
             (fs.maintainer_email, '', ''),
-            (fs.license_id, u'dsl'), # Todo: Fix this.
+            (fs.license_id, u'ukcrown'),
             ]
         for vals in expected_values:
             if len(vals) == 2:

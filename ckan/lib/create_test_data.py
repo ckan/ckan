@@ -201,7 +201,7 @@ left arrow <
         pkg1.tags = [tag1, tag2]
         pkg2.tags = [ tag1 ]
         self.tag_names = [u'russian', u'tolstoy']
-        pkg1.license_id = u'agpl-v3'
+        pkg1.license_id = u'other-open'
         pkg2.title = u'A Wonderful Story'
         genre_extra = model.PackageExtra(key=u'genre', value='romantic novel')
         media_extra = model.PackageExtra(key=u'original media', value='book')
@@ -293,7 +293,7 @@ search_items = [{'name':'gils',
               'download_url':'http://www.usa.gov/Topics/Graphics.shtml',
               'tags':'images  graphics  photographs  photos  pictures  us  usa  america  history  wildlife  nature  war  military  todo-split  gov',
               'groups':'ukgov test1 penguin',
-              'license':'agpl-v3',
+              'license':'other-open',
               'notes':'''## About
 
 Collection of links to different US image collections in the public domain.
@@ -375,7 +375,7 @@ gov_items = [
      'url':'http://www.dcsf.gov.uk/rsgateway/DB/SFR/s000859/index.shtml',
      'author':'DCSF Data Services Group',
      'author_email':'statistics@dcsf.gsi.gov.uk',
-     'license':'dsl',
+     'license':'ukcrown',
      'tags':'children fostering',
      'extras':{
         'external_reference':'DCSF-DCSF-0024',
@@ -402,7 +402,7 @@ gov_items = [
      'url':'http://www.decc.gov.uk/en/content/cms/statistics/source/prices/prices.aspx',
      'author':'DECC Energy Statistics Team',
      'author_email':'energy.stats@decc.gsi.gov.uk',
-     'license':'dsl',
+     'license':'ukcrown',
      'tags':'fuel prices',
      'extras':{
         'external_reference':'DECC-DECC-0001',

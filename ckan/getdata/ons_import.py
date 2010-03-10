@@ -189,7 +189,7 @@ class Data(object):
     def _basic_setup(self):
         self._item_count = 0
         self._new_package_count = 0
-        self._crown_license_id = u'dsl' # Todo: Fix this.
+        self._crown_license_id = u'ukcrown-withrights'
 
 
         # ensure there is a user hmg

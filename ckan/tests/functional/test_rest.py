@@ -120,8 +120,7 @@ class TestRest(TestController):
         assert 'annakarenina' in res, res
 #        assert '"license_id": 9' in res, res
         assert 'license_id' not in res, res
-        expected_license = '"license": "%s"' % 'agpl-v3'
-        assert expected_license in res, repr(res) + repr(expected_license)
+        assert '"license": "other-open"' in res, str(res)
         assert 'russian' in res, res
         assert 'tolstoy' in res, res
         assert '"extras": {' in res, res
@@ -767,7 +766,7 @@ class TestSearch(TestController):
                 break
         assert anna_rec['name'] == 'annakarenina', res_dict['results']
         assert anna_rec['title'] == 'A Novel By Tolstoy', anna_rec['title']
-        assert anna_rec['license'] == u'agpl-v3', anna_rec['license']
+        assert anna_rec['license'] == u'other-open', anna_rec['license']
         assert len(anna_rec['tags']) == 2, anna_rec['tags']
         for expected_tag in ['russian', 'tolstoy']:
             assert expected_tag in anna_rec['tags']
