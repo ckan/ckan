@@ -304,7 +304,7 @@ class TestSearchOverall(object):
         result = Search().run(options)
         pkgs = result['results']
         count = result['count']
-        assert count == expected_count, count
+        assert count == expected_count, (count, expected_count)
         for expected_pkg in expected_packages:
             assert expected_pkg in pkgs, '%s : %s' % (expected_pkg, result)
 
