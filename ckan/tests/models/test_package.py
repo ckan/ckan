@@ -1,33 +1,6 @@
 from ckan.tests import *
 import ckan.model as model
 
-
-class TestLicense:
-    name = u'testlicense'
-
-    @classmethod
-    def teardown_class(self):
-        lic = model.License.by_name(self.name)
-        if lic:
-            lic.purge()
-        model.repo.commit_and_remove()
-
-    def test_license_names(self):
-        all = model.LicenseList.all_formatted
-        # make test lenient so do not break every time a license gets added
-        assert len(all) >= 72, len(all)
-        assert 'Other::License Not Specified' in all
-
-    def test_license(self):
-        license = model.License(name=self.name)
-        model.Session.add(license)
-        assert license in model.Session
-        model.Session.flush()
-        model.Session.clear()
-        exp = model.License.by_name(self.name)
-        assert exp.name == self.name
-
-
 class TestPackage:
     @classmethod
     def setup_class(self):
@@ -42,9 +15,7 @@ class TestPackage:
         self.pkg1 = model.Package(name=self.name)
         model.Session.add(self.pkg1)
         self.pkg1.notes = self.notes
-        self.license_name = u'OKD Compliant::Other'
-        license = model.License.by_name(self.license_name)
-        self.pkg1.license = license
+        self.pkg1.license_id = u'agpl-v3'
         model.Session.commit()
         model.Session.remove()
 
@@ -59,7 +30,8 @@ class TestPackage:
         out = model.Package.by_name(self.name)
         assert out.name == self.name
         assert out.notes == self.notes
-        assert out.license.name == self.license_name
+        assert out.license.id == u'agpl-v3'
+        assert out.license.title == u'Affero GNU Public License'
 
     def test_update_package(self):
         newnotes = u'Written by Beethoven'
@@ -128,7 +100,7 @@ class TestPackageWithTags:
         # TODO: go back to this
         # 2 default packages each with 2 tags so we have 2 + 4
         all = model.Session.query(model.Tag).all() 
-        assert len(all) == 3
+        assert len(all) == 3, all
 
     def test_add_tag_by_name(self):
         rev = model.repo.new_revision()
@@ -147,57 +119,6 @@ class TestPackageWithTags:
         assert len(pkg.tags) == 3
         pkg.add_tag_by_name(self.tagname)
         assert len(pkg.tags) == 3
-    
-
-class TestPackageWithLicense:
-
-    @classmethod
-    def setup_class(self):
-        self.licname1 = u'test_license1'
-        self.licname2 = u'test_license2'
-        self.license1 = model.License(name=self.licname1)
-        model.Session.add(self.license1)
-        self.license2 = model.License(name=self.licname2)
-        model.Session.add(self.license2)
-        rev = model.repo.new_revision()
-        self.pkgname = u'testpkgfk'
-        pkg = model.Package(name=self.pkgname)
-        model.Session.add(pkg)
-        pkg.license = self.license1
-        model.Session.commit()
-        self.rev1id = rev.id
-        model.Session.remove()
-
-        rev = model.repo.new_revision()
-        pkg = model.Package.by_name(self.pkgname)
-        pkg.license = self.license2
-        model.Session.commit()
-        self.rev2id = rev.id
-        model.Session.remove()
-
-    @classmethod
-    def teardown_class(self):
-        model.Session.clear()
-        pkg = model.Package.by_name(self.pkgname)
-        pkg.purge()
-        lic1 = model.License.by_name(self.licname1)
-        lic2 = model.License.by_name(self.licname2)
-        lic1.purge()
-        lic2.purge()
-        model.Session.commit()
- 
-    def test_set1(self):
-        rev = model.Session.query(model.Revision).get(self.rev1id)
-        pkg = model.Package.by_name(self.pkgname)
-        pkgrev = pkg.get_as_of(rev)
-        out = pkgrev.license.name 
-        assert out == self.licname1
-
-    def test_set2(self):
-        pkg = model.Package.by_name(self.pkgname)
-        out = pkg.license.name 
-        assert out == self.licname2
-
 
 
 class TestPackageTagSearch:

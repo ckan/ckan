@@ -139,10 +139,10 @@ class Data(object):
             _dict[field] = _dict['%s - other' % field] if \
                            _dict['%s - standard' % field] == 'Other (specify)' else \
                            _dict['%s - standard' % field]
-        if 'HESA' in _dict['licence']:
-            license_str = u'OKD Compliant::Higher Education Statistics Agency Copyright with data.gov.uk rights'
-        else:
-            license_str = u'OKD Compliant::UK Crown Copyright with data.gov.uk rights'
+        #if 'HESA' in _dict['licence']:
+        #    license_title = u'OKD Compliant::Higher Education Statistics Agency Copyright with data.gov.uk rights'
+        #else:
+        #    license_title = u'OKD Compliant::UK Crown Copyright with data.gov.uk rights'
 
         # extras
         extras_dict = {}
@@ -239,7 +239,7 @@ class Data(object):
         for resource in resources:
             pkg.add_resource(resource['url'], format=format, description=resource['description'])
         pkg.notes=notes
-        pkg.license = model.License.by_name(license_str)
+        pkg.license_id = u'dsl' # Todo: Fix this. model.License.by_name(license_str)
         assert pkg.license
         if not existing_pkg:
             user = model.User.by_name(self._username)

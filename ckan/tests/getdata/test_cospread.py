@@ -98,8 +98,8 @@ class TestData:
         assert pkg1.author_email == 'statistics@dcsf.gsi.gov.uk', pkg1.author_email
         assert not pkg1.maintainer, pkg1.maintainer
         assert not pkg1.maintainer_email, pkg1.maintainer_email
-        assert 'UK Crown Copyright with data.gov.uk rights' in pkg1.license.name, pkg1.license.name
-        assert 'Higher Education Statistics Agency Copyright with data.gov.uk rights' in pkg3.license.name, pkg1.license.name
+        assert 'UK Crown Copyright with data.gov.uk rights' in pkg1.license.title, pkg1.license.title
+        assert 'Higher Education Statistics Agency Copyright with data.gov.uk rights' in pkg3.license.title, pkg1.license.title
         for tag in ['child-protection']:
             assert tag in tag_names, '%s not in %s' % (tag, tag_names)
 
@@ -177,8 +177,8 @@ class TestData3:
         assert pkg1.author_email == 'statistics.enquiries@justice.gsi.gov.uk', pkg1.author_email
         assert not pkg1.maintainer, pkg1.maintainer
         assert not pkg1.maintainer_email, pkg1.maintainer_email
-        assert 'Crown Copyright' in pkg.license.name, pkg.license.name
-        tag_names = set()
+        assert 'Crown Copyright' in pkg.license.title, pkg.license.title
+        tag_titles = set()
         [tag_names.add(tag.name) for tag in pkg1.tags]
         for tag in []:
             assert tag in tag_names, '%s not in %s' % (tag, tag_names)

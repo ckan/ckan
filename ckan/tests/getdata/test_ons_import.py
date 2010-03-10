@@ -20,9 +20,11 @@ class TestBasic:
 
     def test_load_data(self):
         q = model.Session.query(model.Package)
-        assert q.count() == 0
+        q_count = q.count()
+        assert q_count == 0, q_count
         self.data.load_xml_into_db(test_data)
-        assert q.count() == 6, q.count()
+        q_count = q.count()
+        assert q_count == 6, q_count
 
     def test_title(self):
         def test(xml_title, expected_title, expected_release):
@@ -89,7 +91,7 @@ class TestData:
         assert 'Alternative title: UK Reserves' in pkg1.notes, pkg1.notes
         
         assert pkg1.extras['external_reference'] == u'ONSHUB', pkg1.extras['external_reference']
-        assert 'UK Crown Copyright with data.gov.uk rights' in pkg.license.name, pkg.license.name
+        assert 'UK Crown Copyright with data.gov.uk rights' in pkg.license.title, pkg.license.title
         assert pkg1.extras['update_frequency'] == u'monthly', pkg1.extras['update_frequency']
         assert custody.extras['update_frequency'] == u'monthly', custody.extras['update_frequency']
         assert pkg1.author == u"Her Majesty's Treasury", pkg1.author

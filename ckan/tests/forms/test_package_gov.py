@@ -57,7 +57,7 @@ class TestForm(TestController):
             (fs.author_email, 'statistics@dcsf.gsi.gov.uk'),
             (fs.maintainer, '', ''),
             (fs.maintainer_email, '', ''),
-            (fs.license, 'Crown Copyright'),
+            (fs.license_id, u'dsl'), # Todo: Fix this.
             ]
         for vals in expected_values:
             if len(vals) == 2:
@@ -155,7 +155,7 @@ class TestForm(TestController):
         indict[prefix + 'title'] = u'testtitle'
         indict[prefix + 'notes'] = u'some new notes'
         indict[prefix + 'tags'] = u'russian tolstoy, ' + newtagname,
-        indict[prefix + 'license_id'] = '1'
+        indict[prefix + 'license_id'] = u'agpl-v3'
         indict[prefix + 'external_reference'] = u'123'
         indict[prefix + 'date_released'] = u'27/11/2008'
         indict[prefix + 'date_updated'] = u'1/4/2008'
@@ -192,7 +192,7 @@ class TestForm(TestController):
 
         # test licenses
         assert outpkg.license
-        assert indict[prefix + 'license_id'] == str(outpkg.license.id), outpkg.license.id
+        assert indict[prefix + 'license_id'] == outpkg.license.id, outpkg.license.id
 
         # test resources
         assert len(outpkg.resources) == 1, outpkg.resources
@@ -258,7 +258,7 @@ class TestForm(TestController):
         indict[prefix + 'name'] = u'testname2'
         indict[prefix + 'notes'] = u'some new notes'
         indict[prefix + 'tags'] = u'russian, tolstoy',
-        indict[prefix + 'license_id'] = '1'
+        indict[prefix + 'license_id'] = u'agpl-v3'
         indict[prefix + 'external_reference'] = u'123'
         indict[prefix + 'date_released'] = u'27/11/2008'
         indict[prefix + 'date_updated'] = u'1/4/2008'
@@ -293,7 +293,7 @@ class TestForm(TestController):
 
         # test licenses
         assert outpkg.license
-        assert indict[prefix + 'license_id'] == str(outpkg.license.id), outpkg.license.id
+        assert indict[prefix + 'license_id'] == outpkg.license.id, outpkg.license.id
 
         # test resources
         assert len(outpkg.resources) == 1, outpkg.resources

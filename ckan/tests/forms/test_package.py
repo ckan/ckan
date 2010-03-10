@@ -115,7 +115,7 @@ class TestForms(TestController):
         indict['Package--name'] = u'testname'
         indict['Package--notes'] = u'some new notes'
         indict['Package--tags'] = u'russian tolstoy, ' + newtagname,
-        indict['Package--license_id'] = '1'
+        indict['Package--license_id'] = u'agpl-v3'
         indict['Package--extras-newfield0-key'] = u'testkey'
         indict['Package--extras-newfield0-value'] = u'testvalue'
         indict['Package--resources-0-url'] = u'http:/1'
@@ -137,8 +137,9 @@ class TestForms(TestController):
         assert newtagname in taglist
 
         # test licenses
-        assert outpkg.license
-        assert indict['Package--license_id'] == str(outpkg.license.id), outpkg.license.id
+        assert indict['Package--license_id'] == outpkg.license_id, outpkg.license_id
+        #assert outpkg.license
+        #assert indict['Package--license_id'] == outpkg.license.id, outpkg.license
 
         # test extra
         assert outpkg._extras.keys() == [u'testkey'], outpkg._extras.keys()
@@ -161,7 +162,7 @@ class TestForms(TestController):
         indict[prefix + 'name'] = u'annakaren'
         indict[prefix + 'notes'] = u'new notes'
         indict[prefix + 'tags'] = u'russian ' + newtagname
-        indict[prefix + 'license_id'] = '1'
+        indict[prefix + 'license_id'] = u'agpl-v3'
         indict[prefix + 'extras-newfield0-key'] = u'testkey'
         indict[prefix + 'extras-newfield0-value'] = u'testvalue'
         indict[prefix + 'resources-0-url'] = u'http:/1'
@@ -187,7 +188,7 @@ class TestForms(TestController):
 
         # test licenses
         assert outpkg.license
-        assert indict[prefix+'license_id'] == str(outpkg.license.id), outpkg.license.id
+        assert indict[prefix+'license_id'] == outpkg.license.id, outpkg.license
 
         # test extra
         assert outpkg.extras.has_key(u'testkey'), outpkg._extras.keys()
