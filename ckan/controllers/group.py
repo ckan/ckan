@@ -14,8 +14,9 @@ class GroupController(BaseController):
     def index(self):
         from ckan.lib.helpers import Page
 
+        query = ckan.authz.Authorizer().authorized_query(c.user, model.Group)
         c.page = Page(
-            collection=model.Session.query(model.Group),
+            collection=query,
             page=request.params.get('page', 1),
             items_per_page=20
         )

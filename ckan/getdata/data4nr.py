@@ -188,6 +188,8 @@ class Data4Nr(object):
         if not group:
             group = model.Group(name=self._groupname)
             model.Session.add(group)
+            user = model.User.by_name(self._username)
+            model.setup_default_user_roles(group, [user])
 
         self._existing_pkgs = []
         self._new_pkgs = []

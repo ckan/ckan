@@ -88,6 +88,7 @@ to fabfile.py and then run something like::
 
 
 7. Create paster database config file
+
   ::
 
   $ paster make-config ckan demo.ckan.net.ini
@@ -98,6 +99,7 @@ to fabfile.py and then run something like::
 
 
 9. Initialise database
+
   ::
 
   $ . pyenv/bin/activate

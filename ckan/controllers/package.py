@@ -20,12 +20,14 @@ class PackageController(BaseController):
     authorizer = ckan.authz.Authorizer()
 
     def index(self):
-        c.package_count = model.Session.query(model.Package).count()
+        query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
+        c.package_count = query.count()
         return render('package/index')
 
     def list(self):
+        query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
         c.page = Page(
-            collection=model.Package.active(),
+            collection=query,
             page=request.params.get('page', 1),
             items_per_page=50
         )
@@ -42,7 +44,7 @@ class PackageController(BaseController):
                 'filter_by_downloadable': c.downloadable_only,
                 })
             # package search
-            query = Search().query(options)
+            query = Search().query(options, username=c.user)
             c.page = Page(
                 collection=query,
                 page=request.params.get('page', 1),
