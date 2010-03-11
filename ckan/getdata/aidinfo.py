@@ -1,5 +1,5 @@
 from optparse import OptionParser
-from swiss.tabular.gdocs import GDocsReaderSpreadsheet
+from gdata.spreadsheet.service import SpreadsheetsService as GoogleSpreadsheetsService
 from ckanclient import CkanClient
 from time import sleep
 import string
@@ -52,50 +52,36 @@ class AidProjectsLoader(CkanLoader):
 
     def __init__(self):
         super(AidProjectsLoader, self).__init__()
-        self.init_google_docs_spreadsheet()
+        self.spreadsheet = GoogleSpreadsheetReader(self.options)
 
     def add_options(self, parser):
         super(AidProjectsLoader, self).add_options(parser)
         parser.add_option(
-            '--spreadsheet-key',
-            dest='spreadsheet_key',
+            '--google-spreadsheet-key',
+            dest='google_spreadsheet_key',
             help="""The projects databases metadata (a Google docs Spreadsheet key).""")
         parser.add_option(
-            '--guser',
-            dest='guser',
-            help="""A Google account username.""")
+            '--google-email',
+            dest='google_email',
+            help="""A Google account email address.""")
         parser.add_option(
-            '--gpass',
-            dest='gpass',
-            help="""A Google account password.""")
-
-    def init_google_docs_spreadsheet(self):
-        if not self.options.spreadsheet_key:
-            print "Warning: Spreadsheet key not provided."
-        if not self.options.guser:
-            print "Warning: Google account username not provided."
-        if not self.options.gpass:
-            print "Warning: Google account password not provided."
-        self.spreadsheet = GDocsSpreadsheet(
-            spreadsheet_id = self.options.spreadsheet_key,
-            username=self.options.guser,
-            password=self.options.gpass,
-        )
+            '--google-password',
+            dest='google_password',
+            help="""A Google account password for the email address.""")
 
     def load_data(self):
         print "Reading Google docs Spreadsheet. Please wait..."
         self.read_spreadsheet_data()
         print "Converting Google docs Spreadsheet data to CKAN package data."
         self.convert_spreadsheet_data_to_packages()
-        print "Putting CKAN package data on CKAN."
+        print "Putting %s packages on CKAN running at %s" % (len(self.packages), self.options.ckan_api_location)
         self.put_packages_on_ckan()
         self.assert_spreadsheet_data_is_available_on_ckan()
 
     def read_spreadsheet_data(self):
-        self.spreadsheet_data = self.spreadsheet.read()
+        self.spreadsheet_data = self.spreadsheet.read_sheet()
 
     def convert_spreadsheet_data_to_packages(self):
-        # Note well, headings are in first column (columns are entities).
         cells = {}
         # - discover working area.
         max_row_id = 1
@@ -123,24 +109,28 @@ class AidProjectsLoader(CkanLoader):
         col_ids = [i[1] for i in coords]
         top_left_coord = (min(row_ids), min(col_ids))
         bottom_right_coord = (max(row_ids), max(col_ids))
-        row_range = range(top_left_coord[0], bottom_right_coord[1]+1)
-        col_range = range(top_left_coord[1], bottom_right_coord[0]+1)
+        print "Working area of spreadsheet: top-left %s; bottom-right %s." % (top_left_coord, bottom_right_coord)
+        row_range = range(top_left_coord[0], bottom_right_coord[0]+1)
+        col_range = range(top_left_coord[1], bottom_right_coord[1]+1)
         self.raw_entities = []
         self.headings = []
         #  - gather headings.
-        for row_id in row_range:
-            coord = (row_id, col_range[0])
+        HEADING_ROW_POSN = 1
+        for col_id in col_range:
+            row_id = row_range[HEADING_ROW_POSN]
+            coord = (row_id, col_id)
             if coord in cells:
                 heading = cells[coord]
             else:
                 heading = ""
             self.headings.append(heading)
-        print "Headings: %s" % ", ".join(self.headings)
+        print "There are %s headings: %s" % (len(self.headings), ", ".join(self.headings))
         #  - gather entity attributes.
-        for col_id in col_range[1:]:
+        FIRST_ENTITY_ROW_POSN = 4
+        for row_id in row_range[FIRST_ENTITY_ROW_POSN:]:
             raw_entity = []
             self.raw_entities.append(raw_entity)
-            for row_id in row_range:
+            for col_id in col_range:
                 coord = (row_id, col_id)
                 if coord in cells:
                     attribute = cells[coord]
@@ -153,96 +143,74 @@ class AidProjectsLoader(CkanLoader):
             entity = {}
             self.entities.append(entity)
             for j, value in enumerate(raw_entity):
-                spreadsheet_name = self.headings[j]
-                entity[spreadsheet_name] = value.strip()
-        print "  %s lines of data were found in the Spreadsheet." % len(self.entities)
+                key = self.headings[j]
+                entity[key] = value.strip()
+        print "There are %s entities: %s" % (len(self.entities), ", ".join([e['unique_id'] for e in self.entities]))
         self.packages = []
         #  - construct packages.
         for entity in self.entities:
-            if entity['Title'].strip() == "":
+            if entity['unique_id'].strip() == "":
                 continue
             package = {}
             self.packages.append(package)
-            package_name = entity['Title'].lower()
-            package_name = self.substitute_ascii_equivalents(package_name.decode('utf8'))
-            package_name = "".join([c for c in package_name if c in string.letters+' '])
-            package_name = "-".join([s for s in package_name.split(' ') if s])
-            package['name'] = package_name
-            package['title'] = entity['Title']
-            package['url'] = entity['Website']
-            package['maintainer'] = entity['Owner']
-            package['maintainer_email'] = entity['Email']
-            package['author'] = entity['Owner']
-            package['author_email'] = entity['Email']
-            notes = entity['Overview']
-            if entity['Details']:
+            package_name = entity['unique_id']
+            package['name'] = entity['unique_id']
+            package['title'] = entity['title']
+            package['url'] = entity['website_1']
+            package['maintainer'] = 'OKFN'
+            package['maintainer_email'] = 'info@okfn.org'
+            package['author'] = 'OKFN'
+            package['author_email'] = 'info@okfn.org'
+            notes = entity['overview']
+            if entity['details']:
                 notes += "\n\n## Details\n"
-                notes += entity['Details']
-            if entity['Contact']:
-                notes += "\n\n## Contact\n"
-                notes += entity['Contact']
-            if entity['Owner']:
-                notes += "\n\n## Owner\n"
-                notes += entity['Owner']
-            if entity['Operator']:
-                notes += "\n\n## Operator\n"
-                notes += entity['Operator']
-            if entity['Funding']:
-                notes += "\n\n## Funding\n"
-                notes += entity['Funding']
-            if entity['People']:
-                notes += "\n\n## People\n"
-                notes += entity['People']
-            if entity['Data Overview']:
-                notes += "\n\n## Data Overview\n"
-                notes += entity['Data Overview']
-            if entity['Database type']:
-                notes += "\n\n## Database type\n"
-                notes += entity['Database type']
-            #if entity['Is the data model standard?']:
-            #    notes += "\n\n## Is the Data Model Standard?\n"
-            #    notes += entity['Is the data model standard?']
-            if entity['Donor Type']:
-                notes += "\n\n## Donor Type\n"
-                notes += entity['Donor Type']
-            if entity['Donor Details']:
-                notes += "\n\n## Donor Details\n"
-                notes += entity['Donor Details']
-            if entity['Recipient Details']:
-                notes += "\n\n## Recipient Details\n"
-                notes += entity['Recipient Details']
-            if entity['Humanitarian Aid']:
-                notes += "\n\n## Humanitarian Aid\n"
-                notes += entity['Humanitarian Aid']
-            if entity['Development Aid']:
-                notes += "\n\n## Development Aid\n"
-                notes += entity['Development Aid']
-            if entity['Contents']:
-                notes += "\n\n## Contents\n"
-                notes += entity['Contents']
-            if entity['Data level']:
-                notes += "\n\n## Data level\n"
-                notes += entity['Data level']
-            if entity['Are there projects in the pipeline?']:
-                notes += "\n\n## Are there projects in the pipeline?\n"
-                notes += entity['Are there projects in the pipeline?']
-            if entity['Data broken down by sector?']:
-                notes += "\n\n## Data broken down by sector?\n"
-                notes += entity['Data broken down by sector?']
+                notes += entity['details']
             package['notes'] = notes 
             package['tags'] = ["aidinfo"]
-            package['extras'] = {'pipeline': '1', 'okd_compliance': '0'}
-        print "  %s data packages with titles were extracted from the Spreadsheet." % len(self.packages)
+            package['extras'] = entity
+            #package['license_id'] = 'other-open'
+        print "There are %s metadata packages with titles extracted from the spreadsheet." % len(self.packages)
 
     def put_packages_on_ckan(self):
-        print "  putting %s packages on CKAN running at %s" % (len(self.packages), self.options.ckan_api_location)
         print ""
         sleep(1)
         for spreadsheet_package in self.packages:
             registered_package = self.ckanclient.package_entity_get(spreadsheet_package['name'])
             if self.ckanclient.last_status == 200:
                 print "Package '%s' is already registered" % spreadsheet_package['name']
-                sleep(0.25)
+                print ""
+                pprint.pprint(spreadsheet_package)
+                print ""
+                answer = raw_input("Do you want to update this package with CKAN now? [y/N] ")
+                if not answer or answer.lower()[0] != 'y':
+                    print "Skipping '%s' package..." % spreadsheet_package['name']
+                    print ""
+                    sleep(1)
+                    continue
+                print "Updating package..."
+                self.ckanclient.package_entity_put(spreadsheet_package)
+                if self.ckanclient.last_status == 200:
+                    print "Updated package '%s' OK." % spreadsheet_package['name']
+                    sleep(1)
+                elif self.ckanclient.last_status == 403 or '403' in str(self.ckanclient.last_url_error):
+                    print "Error: Not authorised. Check your API key."
+                    sleep(1)
+                    sleep(1)
+                    sleep(1)
+                    sleep(1)
+                elif self.ckanclient.last_http_error:
+                    print "Error: CKAN returned status code %s: %s" % (
+                        self.ckanclient.last_status, self.ckanclient.last_http_error)
+                    sleep(1)
+                    sleep(1)
+                    sleep(1)
+                elif self.ckanclient.last_url_error:
+                    print "Error: URL problems: %s" % self.ckanclient.last_url_error
+                    sleep(1)
+                    sleep(1)
+                    sleep(1)
+                else:
+                    raise Exception, "Error: CKAN request didn't work at all."
             elif self.ckanclient.last_status == 404 or '404' in str(self.ckanclient.last_url_error):
                 print "Package '%s' not currently registered" % spreadsheet_package['name']
                 print ""
@@ -368,15 +336,21 @@ class AidProjectsLoader(CkanLoader):
 #        Data broken down by sector?
 #        """
 
-class GDocsSpreadsheet(GDocsReaderSpreadsheet):
+class GoogleSpreadsheetReader(object):
 
-    def read(self, sheet_index=0):
-        self.gd_client.source = self.source  # the spreadsheet key...
-        self.gd_client.ProgrammaticLogin()
-        spreadsheets_feed = self.gd_client.GetSpreadsheetsFeed()
-        worksheets_feed = self.gd_client.GetWorksheetsFeed(self.source)
+    def __init__(self, options):
+        self.options = options
+
+    def read_sheet(self, sheet_index=0):
+        self.service = GoogleSpreadsheetsService()
+        self.service.email = self.options.google_email
+        self.service.password = self.options.google_password
+        self.service.source = self.options.google_spreadsheet_key
+        self.service.ProgrammaticLogin()
+        spreadsheets_feed = self.service.GetSpreadsheetsFeed()
+        worksheets_feed = self.service.GetWorksheetsFeed(self.options.google_spreadsheet_key)
         worksheet_id = worksheets_feed.entry[sheet_index].id.text.split('/')[-1]
-        return self.gd_client.GetCellsFeed(self.source, worksheet_id)
+        return self.service.GetCellsFeed(self.options.google_spreadsheet_key, worksheet_id)
 
 
 if __name__ == '__main__':
