@@ -1,10 +1,22 @@
 from licenses.service import LicensesService2
 from pylons import config 
+import datetime
+import re
 
 class License(object):
+    """Domain object for a license."""
 
     def __init__(self, data):
         self._data = data
+        for (key, value) in self._data.items():
+            if key == 'date_created':
+                # Parse ISO formatted datetime.
+                value = datetime.datetime(*map(int, re.split('[^\d]', value)))
+                self._data[key] = value
+            elif isinstance(value, str):
+                # Convert str to unicode (keeps Pylons and SQLAlchemy happy).
+                value = value.decode('utf8')
+                self._data[key] = value
 
     def __getattr__(self, name):
         return self._data[name]
@@ -14,6 +26,7 @@ class License(object):
 
     def isopen(self):
         return self.is_okd_compliant or self.is_osi_compliant
+
 
 class LicenseRegister(object):
     """Dictionary-like interface to a group of licenses."""

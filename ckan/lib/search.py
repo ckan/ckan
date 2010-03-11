@@ -280,7 +280,7 @@ class Search:
         self._open_licenses = []
         for license in model.Package.get_license_register().values():
             if license and license.isopen():
-                self._open_licenses.append(unicode(license.id))
+                self._open_licenses.append(license.id)
 
     def _format_results(self):
         if not self._options.return_objects:

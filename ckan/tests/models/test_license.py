@@ -1,6 +1,16 @@
 from ckan.model.license import LicenseRegister
+import datetime
 
-class TestLicense:
+class TestCase(object):
+
+    def assert_unicode(self, val):
+        assert isinstance(val, unicode), "Value is not a unicode value: %s" % repr(val)
+
+    def assert_datetime(self, val):
+        assert isinstance(val, datetime.datetime), "Value is not a datetime value: %s" % repr(val)
+
+
+class TestLicense(TestCase):
 
     def setup(self):
         self.licenses = LicenseRegister()
@@ -10,18 +20,21 @@ class TestLicense:
 
     def test_keys(self):
         for license_id in self.licenses.keys():
-            assert type(license_id) == str
+            self.assert_unicode(license_id)
     
     def test_values(self):
         for license in self.licenses.values():
-            assert type(license['id']) == str
+            self.assert_unicode(license.id)
     
     def test_iter(self):
         for license_id in self.licenses:
-            print "License ID: %s" % license_id
-            assert type(license_id) == str, license_id
+            self.assert_unicode(license_id)
     
     def test_getitem(self):
         for license_id in self.licenses.keys():
-            assert type(self.licenses[license_id]['title']) == str
+            license = self.licenses[license_id]
+            self.assert_unicode(license.id)
+            self.assert_unicode(license.title)
+            self.assert_datetime(license.date_created)
+            self.assert_unicode(license.url)
 
