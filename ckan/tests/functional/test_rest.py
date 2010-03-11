@@ -13,24 +13,12 @@ class TestRest(TestController):
 
     @classmethod
     def setup_class(self):
-        try:
-            CreateTestData.delete()
-        except:
-            pass
         model.Session.remove()
         CreateTestData.create()
         model.Session.add(model.Package(name=u'--'))
         rev = model.repo.new_revision()
         model.repo.commit_and_remove()
 
-
-    @classmethod
-    def teardown_class(self):
-        model.Session.remove()
-        model.repo.rebuild_db()
-        model.Session.remove()
-
-    def setup(self):
         self.testpackage_license_id = u'agpl-v3'
         self.testpackagevalues = {
             'name' : u'testpkg',
@@ -53,7 +41,7 @@ class TestRest(TestController):
         self.testgroupvalues = {
             'name' : u'testgroup',
             'title' : u'Some Group Title',
-            'description' : 'Great group!',
+            'description' : u'Great group!',
             'packages' : [u'annakarenina', 'warandpeace'],
             }
         self.random_name = u'http://myrandom.openidservice.org/'
@@ -63,15 +51,10 @@ class TestRest(TestController):
         model.Session.remove()
         self.extra_environ={ 'Authorization' : str(self.user.apikey) }
 
-    def teardown(self):
+    @classmethod
+    def teardown_class(self):
         model.Session.remove()
-        user = model.User.by_name(self.random_name)
-        if user:
-            user.purge()
-        pkg = model.Package.by_name(self.testpackagevalues['name'])
-        if pkg:
-            pkg.purge()
-        model.Session.commit()
+        model.repo.rebuild_db()
         model.Session.remove()
 
     def test_01_register_post_noauth(self):
@@ -173,6 +156,7 @@ class TestRest(TestController):
 
     def test_06_create_pkg(self):
         # Test Packages Register Post 200.
+        assert not model.Package.by_name(self.testpackagevalues['name'])
         offset = '/api/rest/package'
         postparams = '%s=1' % simplejson.dumps(self.testpackagevalues)
         res = self.app.post(offset, params=postparams, status=[200],
@@ -331,24 +315,24 @@ class TestRest(TestController):
 
         # create a package with testpackagevalues
         tag_names = [u'tag1', u'tag2', u'tag3']
-        if not model.Package.by_name(self.testpackagevalues['name']):
-            rev = model.repo.new_revision()
+        pkg = model.Package.by_name(self.testpackagevalues['name'])
+        if not pkg:
             pkg = model.Package()
             model.Session.add(pkg)
-            pkg.name = self.testpackagevalues['name']
-            pkg.url = self.testpackagevalues['url']
-            tags = [model.Tag(name=tag_name) for tag_name in tag_names]
-            for tag in tags:
-                model.Session.add(tag)
-            pkg.tags = tags
-            pkg.extras = {u'key1':u'val1', u'key2':u'val2'}
-            model.Session.commit()
+        rev = model.repo.new_revision()
+        pkg.name = self.testpackagevalues['name']
+        pkg.url = self.testpackagevalues['url']
+        tags = [model.Tag(name=tag_name) for tag_name in tag_names]
+        for tag in tags:
+            model.Session.add(tag)
+        pkg.tags = tags
+        pkg.extras = {u'key1':u'val1', u'key2':u'val2'}
+        model.Session.commit()
 
-            pkg = model.Package.by_name(self.testpackagevalues['name'])
-            model.setup_default_user_roles(pkg, [self.user])
-            rev = model.repo.new_revision()
-            model.repo.commit_and_remove()
-        assert model.Package.by_name(self.testpackagevalues['name'])
+        pkg = model.Package.by_name(self.testpackagevalues['name'])
+        model.setup_default_user_roles(pkg, [self.user])
+        rev = model.repo.new_revision()
+        model.repo.commit_and_remove()
 
         # edit it
         pkg_vals = {'name':u'somethingnew',
@@ -557,8 +541,9 @@ class TestRest(TestController):
 
     def test_12_get_pkg_404(self):
         # Test Package Entity Get 404.
-        assert not model.Session.query(model.Package).filter_by(name=self.testpackagevalues['name']).count()
-        offset = '/api/rest/package/%s' % self.testpackagevalues['name']
+        pkg_name = u'random_one'
+        assert not model.Session.query(model.Package).filter_by(name=pkg_name).count()
+        offset = '/api/rest/package/%s' % pkg_name
         res = self.app.get(offset, status=404)
         model.Session.remove()
 
@@ -571,8 +556,9 @@ class TestRest(TestController):
 
     def test_13_delete_pkg_404(self):
         # Test Packages Entity Delete 404.
-        assert not model.Session.query(model.Package).filter_by(name=self.testpackagevalues['name']).count()
-        offset = '/api/rest/package/%s' % self.testpackagevalues['name']
+        pkg_name = u'random_one'
+        assert not model.Session.query(model.Package).filter_by(name=pkg_name).count()
+        offset = '/api/rest/package/%s' % pkg_name
         res = self.app.delete(offset, status=[404],
                               extra_environ=self.extra_environ)
 
@@ -621,7 +607,7 @@ class TestSearch(TestController):
             'title': 'Some Title',
             'url': u'http://blahblahblah.mydomain',
             'resources': [{u'url':u'http://blahblahblah.mydomain',
-                           'format':'', 'description':''}],
+                           u'format':u'', u'description':''}],
             'tags': ['russion', 'novel'],
             'license': u'agpl-v3',
             'extras': {'national_statistic':'yes',
