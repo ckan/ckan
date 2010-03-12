@@ -81,7 +81,7 @@ msgstr "Feil ikke rettet - se forhåndsvisning."
 
 #: ckan/controllers/importer.py:109
 msgid "Problem with user account."
-msgstr "Problem med brukerkonto."
+msgstr "Problem med brukerkonto. "
 
 #: ckan/controllers/importer.py:116
 #, python-format
