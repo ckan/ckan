@@ -37,12 +37,12 @@ msgstr "Fant ikke gruppen"
 
 #: ckan/controllers/group.py:142
 msgid "Not authorized to edit authization for group"
-msgstr "Ikke autorisert til å redigere gruppen"
+msgstr "Ikke autorisert til å redigere rettighetene for gruppen"
 
 #: ckan/controllers/group.py:169 ckan/controllers/package.py:272
 #, python-format
 msgid "Added role '%s' for user '%s'"
-msgstr "La til rolle '%s' for bruker '%s'"
+msgstr "La rolle '%s' til bruker '%s'"
 
 #: ckan/controllers/group.py:176 ckan/controllers/package.py:279
 msgid "Error: No role found with that id"
@@ -55,7 +55,7 @@ msgstr "Slettet rollen '%s' for bruker '%s'"
 
 #: ckan/controllers/importer.py:36
 msgid "Need to login before importing."
-msgstr "Du må være logget inn for å kunne importere"
+msgstr "Du må være logget inn for å kunne importere."
 
 #: ckan/controllers/importer.py:41
 msgid "Need to specify a filename."
@@ -63,7 +63,7 @@ msgstr "Du må oppgi et filnavn."
 
 #: ckan/controllers/importer.py:44
 msgid "Did not receive file successfully."
-msgstr "Filen ikke mottatt på korrekt måte."
+msgstr "Filen ikke mottatt på vellykket måte."
 
 #: ckan/controllers/importer.py:50
 #, python-format
@@ -77,7 +77,7 @@ msgstr "Feil ved import av filen '%s' i Excel- eller CSV-format: %s"
 
 #: ckan/controllers/importer.py:95
 msgid "Errors remain - see preview."
-msgstr "Feil ikke rettet - se forhåndsvisning."
+msgstr "Feil gjenstår - se forhåndsvisning."
 
 #: ckan/controllers/importer.py:109
 msgid "Problem with user account."
@@ -269,7 +269,7 @@ msgstr "CKAN: Siste endringer"
 
 #: ckan/templates/layout.html:16
 msgid "Master stylesheet"
-msgstr "Hovedstylesheet"
+msgstr "Hovedstilark"
 
 #: ckan/templates/layout.html:42
 msgid "Logged in as"
@@ -332,15 +332,15 @@ msgstr "I denne seksjonen:"
 
 #: ckan/templates/layout.html:79
 msgid "Skip to page content"
-msgstr "Hopp til sidens innhold"
+msgstr "Gå til sideinnhold"
 
 #: ckan/templates/layout.html:79
 msgid "[ Skip to main content ]"
-msgstr "[ Hopp til hovedinnhold ]"
+msgstr "[ Gå til hovedinnhold ]"
 
 #: ckan/templates/layout.html:93
 msgid "Master content template placeholder … please replace me."
-msgstr "Plassholder hovedmal for innhold - vennligst erstatt"
+msgstr "Plassholder for hovedmal for innhold - vennligst erstatt"
 
 #: ckan/templates/layout.html:98
 msgid "Valid XHTML 1.1"
@@ -457,7 +457,7 @@ msgstr "Gruppeseksjon"
 
 #: ckan/templates/group/layout.html:11
 msgid "Whilst tags are great at collecting packages together, there are occasions when you want to restrict users from editing a collection. A"
-msgstr "Selv om stikkord egner seg glimrende til å samle pakker, kan det også hende at du ønsker å begrense brukernes adgang til å redigere en samling. En"
+msgstr "Selv om stikkord (tags) egner seg glimrende til å samle pakker, kan det også hende at du ønsker å begrense brukernes adgang til å redigere en samling. En"
 
 #: ckan/templates/group/layout.html:11
 msgid "group"
@@ -469,7 +469,7 @@ msgstr "kan bli satt opp til å spesifisere hvilke brukere som har tillatelse ti
 
 #: ckan/templates/group/layout.html:12
 msgid "To create a new group, please first"
-msgstr "For å opprette en ny gruppe, vennligst"
+msgstr "For å opprette en ny gruppe, vennligst først"
 
 #: ckan/templates/group/layout.html:12
 msgid "login"
@@ -535,7 +535,9 @@ msgstr "åpen kunnskap"
 msgid ""
 "packages and projects\n"
 "    (and a few closed ones)."
-msgstr "i form av pakker og prosjekter."
+msgstr ""
+"pakker og prosjekter\n"
+" (og noen lukkede)."
 
 #: ckan/templates/home/about.html:13
 msgid "CKAN makes it easy to"
@@ -545,13 +547,17 @@ msgstr "CKAN gjør det lett å"
 msgid ""
 "find, share and reuse open\n"
 "      content and data"
-msgstr "finne, dele og gjenbruke åpent innhold og data"
+msgstr ""
+"finne, dele og gjenbruke åpent\n"
+" innhold og data"
 
 #: ckan/templates/home/about.html:14
 msgid ""
 ", especially in ways that are machine\n"
 "      automatable."
-msgstr ", særlig i automatisert, maskinlesbar form."
+msgstr ""
+", særlig i maskinlesbar,\n"
+" automatisert form."
 
 #: ckan/templates/home/about.html:18
 msgid "As a system CKAN functions as a synthesis of several different services:"
@@ -566,8 +572,8 @@ msgid ""
 "As the diagram shows, CKAN combines the features of a listing/registry,\n"
 "\t\ta package index and a wiki. As a registry it acts like"
 msgstr ""
-"Som diagrammet viser, kombinerer CKAN funksjonene i et register eller en liste,\n"
-"\t\ta en pakkeindeks og en wiki. Som register fungerer det som"
+"Som diagrammet viser, kombinerer CKAN funksjonene i et register, en liste,\n"
+"\t\t en pakkeindeks og en wiki. Som register fungerer det som"
 
 #: ckan/templates/home/about.html:24
 msgid "freshmeat"
@@ -597,10 +603,11 @@ msgid ""
 "\t\tto provide 'index'-like features such as automated registration, discovery\n"
 "\t\tand installation of material. In this respect it behaves like"
 msgstr ""
-"har CKAN et a\n"
+"CKAN har et a\n"
 "\t\twiki-lignende grensesnitt som lar alle legge til og redigere det lagrede innholdet. For det andre: \n"
 "\t\ttil forskjell fra en wiki, kan CKAN lagre 'strukturert' informasjon, som gjør det mulig\n"
-"\t\tå tilby 'indeks'-aktige funksjoner som automatisert registrering og installering av materiale. På denne måten oppfører det seg som"
+"\t\tå tilby 'indeks'-aktige funksjoner som automatisert registrering, oppdagelse\n"
+"\t\t og installasjon av materiale. På denne måten oppfører det seg som"
 
 #: ckan/templates/home/about.html:33
 msgid "CPAN"
@@ -622,7 +629,7 @@ msgstr "i programvareverdenen - men n\t\t\tigjen tilpasset"
 
 #: ckan/templates/home/about.html:35
 msgid "open data and content"
-msgstr "åpne data og innhold,"
+msgstr "åpne data og innhold"
 
 #: ckan/templates/home/about.html:35
 msgid "not code."
@@ -638,7 +645,9 @@ msgstr "Mer om CKAN og om bakgrunnen for at det ble startet finnes i "
 msgid ""
 "these\n"
 "      slides"
-msgstr "disse lysarkene."
+msgstr ""
+"disse\n"
+" lysarkene"
 
 #: ckan/templates/home/about.html:43
 msgid "Who's Behind CKAN?"
@@ -646,14 +655,14 @@ msgstr "Hvem står bak CKAN?"
 
 #: ckan/templates/home/about.html:45
 msgid "The CKAN software and site is developed and maintained by the"
-msgstr "CKANs programvare og nettstedet er utviklet og drives av "
+msgstr "CKANs programvare og nettsted er utviklet og drives av "
 
 #: ckan/templates/home/about.html:46
 msgid ""
 ". Both the\n"
 "    CKAN code and data are open:"
 msgstr ""
-"Både \n"
+". Både \n"
 " CKANs kode og data er åpne:"
 
 #: ckan/templates/home/about.html:47
@@ -661,7 +670,7 @@ msgid ""
 "free for anyone to use\n"
 "      and reuse"
 msgstr ""
-"og kan brukes\n"
+"og kan fritt brukes\n"
 " og gjenbrukes av alle"
 
 #: ckan/templates/home/about.html:48
