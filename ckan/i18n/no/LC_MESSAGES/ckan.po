@@ -759,11 +759,11 @@ msgstr "Ønsker du å automatisere prosessen med å opprette pakker basert på i
 
 #: ckan/templates/home/guide.html:11
 msgid "To install the bookmarklet just drag the following link to your bookmarks toolbar (in IE: right-click on it and select Add to Favourites). For more details on installing bookmarklets see"
-msgstr "For å installere bookmarklet er det bare å dra denne lenken til verktøylinjen for dine bokmerker (i Internet Explorer: høyreklikk på lenken og velg Legg til i Favoritter). Flere detaljer om å installere bookmarklets finner du på"
+msgstr "For å installere bookmarklet-en er det bare å dra denne lenken til verktøylinjen for dine bokmerker (i Internet Explorer: høyreklikk på lenken og velg Legg til i Favoritter). Flere detaljer om å installere bookmarklets finner du på"
 
 #: ckan/templates/home/guide.html:11
 msgid "the del.icio.us help page on the topic"
-msgstr "hjelp-siden for temaet hos del.icio.us"
+msgstr "hjelpesiden for emnet hos del.icio.us"
 
 #: ckan/templates/home/guide.html:14
 msgid "Add to CKAN"
@@ -774,7 +774,7 @@ msgid ""
 "Find out more about CKAN by reading our about pages or consulting the \n"
 "        CKAN guide."
 msgstr ""
-"Finn ut mer om CKAN på våre om-sider eller i \n"
+"Finn ut mer om CKAN på våre Om-sider eller i \n"
 " CKAN-guiden."
 
 #: ckan/templates/home/index.html:46 ckan/templates/home/layout.html:12
@@ -864,7 +864,7 @@ msgstr "Kildekode"
 
 #: ckan/templates/home/license.html:10
 msgid "The code that runs CKAN is open-source and licensed under the"
-msgstr "Kildekoden CKAN kjører på er åpen og lisensiert under"
+msgstr "Kildekoden til CKAN er åpen og lisensiert under"
 
 #: ckan/templates/home/license.html:12
 msgid "GNU Affero GPL"
@@ -908,7 +908,7 @@ msgid ""
 "    and redistributed. Formally, the data/database is licensed under the"
 msgstr ""
 "og kan fritt brukes, gjenbrukes\n"
-" og distribueres. Dataene/databasen er formelt lisensiert under"
+" og distribueres videre. Dataene/databasen er formelt lisensiert under"
 
 #: ckan/templates/home/license.html:23
 msgid ""
@@ -936,7 +936,7 @@ msgstr ""
 
 #: ckan/templates/home/license.html:28
 msgid "For convenience, all material - including all package, tag and revision information - is available in bulk, in the form of a full dump of the CKAN database. This (gzipped) dump file is updated daily and can be downloaded from"
-msgstr "Av praktiske hensyn er alt materiale - inkludert all informasjon om pakker, stikkord og revisjoner - tilgjengelig som helhet i form av en kopi av hele CKAN-databasen. Denne databasedump-filen (komprimert med gzip) oppdateres daglig og kan lastes ned fra"
+msgstr "Av praktiske hensyn er alt materiale - inkludert all informasjon om pakker, stikkord (tags) og revisjoner - tilgjengelig i sin helhet, som en kopi av hele CKAN-databasen. Denne databasedump-filen (komprimert med gzip) blir oppdatert daglig og kan lastes ned fra"
 
 #: ckan/templates/home/license.html:29
 msgid "http://www.ckan.net/dump/"
@@ -1000,7 +1000,7 @@ msgstr "Revisjoner av pakker per uke"
 
 #: ckan/templates/home/stats.html:107
 msgid "Page last updated:"
-msgstr "Side sist oppdatert:"
+msgstr "Siden sist oppdatert:"
 
 #: ckan/templates/package/authz.html:4
 msgid "Packages - Authorization -"
@@ -1021,7 +1021,7 @@ msgstr "Rediger pakke:"
 #: ckan/templates/package/edit.html:9 ckan/templates/package/new.html:8
 #: ckan/templates/user/edit.html:9
 msgid "(skip to preview)"
-msgstr "(hopp til forhåndsvisning)"
+msgstr "(gå til forhåndsvisning)"
 
 #: ckan/templates/package/edit.html:20 ckan/templates/package/new.html:19
 #: ckan/templates/user/edit.html:29
@@ -1073,7 +1073,9 @@ msgstr "Vennligst merk:"
 msgid ""
 "By submitting content, you agree to release your contributions\n"
 "        under the open license specified on the"
-msgstr "Ved å legge til innhold samtykker du til å publisere dine bidrag under den åpne lisensen spesifisert på"
+msgstr ""
+"Ved å legge til innhold samtykker du til å publisere dine bidrag\n"
+" under den åpne lisensen spesifisert på"
 
 #: ckan/templates/package/edit_form.html:29
 msgid ""
@@ -1172,7 +1174,7 @@ msgstr "Lukket/ukjent lisens"
 
 #: ckan/templates/package/list.html:15
 msgid "Resources available"
-msgstr "Ressurser tilgjengelig"
+msgstr "Tilgjengelige ressurser"
 
 #: ckan/templates/package/list.html:16
 msgid "Click on the arrow to show the package resources."
@@ -1296,11 +1298,11 @@ msgstr "Rangering"
 
 #: ckan/templates/package/read_core.html:108
 msgid "State:"
-msgstr "Status"
+msgstr "Status:"
 
 #: ckan/templates/package/resources.html:2
 msgid "Someresources"
-msgstr "Ressurser"
+msgstr "Ressurser:"
 
 #: ckan/templates/package/search.html:6
 msgid "Packages - Search"
@@ -1353,7 +1355,7 @@ msgstr "Diff"
 
 #: ckan/templates/revision/diff.html:7
 msgid "Revision Differences -"
-msgstr "Forskjeller mellom versjoner"
+msgstr "Forskjeller mellom versjoner -"
 
 #: ckan/templates/revision/diff.html:9
 msgid "From:"
@@ -1437,7 +1439,7 @@ msgstr "Endringer"
 
 #: ckan/templates/revision/read.html:29
 msgid "Packages' Tags"
-msgstr "Stikkord for pakker"
+msgstr "Stikkord (tags) for pakker"
 
 #: ckan/templates/revision/read.html:33
 msgid ""
@@ -1457,7 +1459,7 @@ msgstr "resultater for "
 
 #: ckan/templates/tag/index.html:22
 msgid "results for tags."
-msgstr "resultater for stikkord."
+msgstr "resultater for stikkord (tags)."
 
 #: ckan/templates/tag/index.html:32
 msgid "and see all tags."
@@ -1465,11 +1467,11 @@ msgstr "og se alle stikkord."
 
 #: ckan/templates/tag/read.html:4
 msgid "Tags -"
-msgstr "Stikkord - "
+msgstr "Stikkord (tags) - "
 
 #: ckan/templates/tag/read.html:7
 msgid "Tag:"
-msgstr "Stikkord"
+msgstr "Stikkord:"
 
 #: ckan/templates/tag/read.html:8
 msgid "packages tagged with"
@@ -1531,7 +1533,7 @@ msgstr "Du trenger ikke å registrere enda en ny konto for å bruke CKAN. Istede
 
 #: ckan/templates/user/openid_form.html:8
 msgid "use your OpenID"
-msgstr "bruke OpenID"
+msgstr "bruke din OpenID"
 
 #: ckan/templates/user/openid_form.html:13
 msgid "Your OpenID identity URL:"
@@ -1553,12 +1555,14 @@ msgstr "lett å skaffe seg"
 msgid ""
 ". Probably the simplest\n"
 "    way is sign up with a free OpenID provider such as"
-msgstr ". Antakelig er den enkleste måten å registrere seg hos en gratis OpenID-leverandør som"
+msgstr ""
+". Antakelig er den enkleste\n"
+" måten å registrere seg hos en gratis OpenID-leverandør som"
 
 #: ckan/templates/user/openid_form.html:24
 #, fuzzy
 msgid "https://www.myopenid.com/"
-msgstr "https://www.myopenid.com/"
+msgstr "http://www.minopenid.no/"
 
 #: ckan/templates/user/read.html:6 ckan/templates/user/read.html:10
 msgid "User Account -"
@@ -1570,7 +1574,7 @@ msgstr "Min konto"
 
 #: ckan/templates/user/read.html:13
 msgid "You are logged in."
-msgstr "Du er logget inn"
+msgstr "Du er logget inn."
 
 #: ckan/templates/user/read.html:13
 msgid "Log out"
@@ -1590,4 +1594,4 @@ msgstr "Antall redigeringer:"
 
 #: ckan/templates/user/read.html:31
 msgid "Number of packages administered:"
-msgstr "Antall pakker administrert"
+msgstr "Antall pakker administrert:"
