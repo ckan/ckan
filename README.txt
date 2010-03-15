@@ -64,7 +64,7 @@ Documentation
 
 The home page for the CKAN project is: http://knowledgeforge.net/ckan
 
-This file is part of the developer docs. The complete developer docs are built from the ckan repository using Sphinx and uploaded by an admin to KnowledgeForge. To build the developer docs::
+This file is part of the developer docs. The complete developer docs are built from the ckan repository using `Sphinx <http://sphinx.pocoo.org/>`_ and uploaded by an admin to KnowledgeForge. To build the developer docs::
 
       python setup.py build_sphinx
  
