@@ -22,7 +22,7 @@ assert config.has_key('here'), 'ERROR: You need to run nosetests with option: --
 
 CONFIG_FILE = 'testmigrate.ini'
 DB_NAME = 'ckantestmigrate'
-DB_USER = 'tester'
+DB_USER = 'foundation-developer'
 TEST_DUMPS_PATH = os.path.join(config['here'], 'ckan/migration/tests/test_dumps')
 RESTORE_FILEPATH = config['test_migration_db_dump']
 
