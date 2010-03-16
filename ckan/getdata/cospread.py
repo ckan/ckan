@@ -17,8 +17,9 @@ class Data(object):
         self._current_filename = os.path.basename(csv_filepath)
         reader = csv.reader(f_obj)
         index = 0
-        reader.next()
         for row_list in reader:
+            if 'UK Public Data Project' in row_list[0]:
+                reader.next()
             cospread_dict = self._parse_line(row_list, index)
             if cospread_dict:
                 self._load_line_into_db(cospread_dict, index)
@@ -35,7 +36,7 @@ class Data(object):
         # self._resources stores all URLs in this spreadsheet so that if a
         # duplicate package_name is found then previous URLs are added to the
         # record.
-        self._resources = {} # name:[url, {'url':, 'description':}]
+        self._resources = {} # name:[url, {'url':, 'description':, 'format':}]
         self._packages_created = []
         self._packages_updated = []
         
@@ -117,18 +118,18 @@ class Data(object):
             line_is_just_adding_multiple_resources = False
         multiple_urls = False
         description = _dict.get('download description', u'').strip()
+        format = _dict.get('file format', u'')
         for split_char in '\n, ':
             if split_char in _dict['download url']:
                 for url_ in _dict['download url'].split(split_char):
                     if url_.strip():
-                        resources.append({'url':url_, 'description':description})
+                        resources.append({'url':url_, 'description':description, 'format':format})
                 multiple_urls = True
                 break
         if not multiple_urls and _dict['download url']:
-            resources.append({'url':_dict['download url'], 'description':description})
+            resources.append({'url':_dict['download url'], 'description':description, 'format':format})
         if resources:
             self._resources[name] = resources
-        format = _dict['file format']
             
         author = _dict['author - name']
         author_email = _dict['author - email']
@@ -139,6 +140,10 @@ class Data(object):
             _dict[field] = _dict['%s - other' % field] if \
                            _dict['%s - standard' % field] == 'Other (specify)' else \
                            _dict['%s - standard' % field]
+        license_name = license_map.get(_dict['licence'], '')
+        if not license_name:
+            print 'Warning: license not recognised: %s. Defaulting to Crown Copyright.' % _dict['licence']
+            license_name = u'Non-OKD Compliant::Crown Copyright'
 
         # extras
         extras_dict = {}
@@ -235,9 +240,10 @@ class Data(object):
         pkg.url=url
         pkg.resources = []
         for resource in resources:
-            pkg.add_resource(resource['url'], format=format, description=resource['description'])
+            pkg.add_resource(resource['url'], format=resource['format'], description=resource['description'])
         pkg.notes=notes
-        pkg.license = model.License.by_name(u'Non-OKD Compliant::Crown Copyright')
+        pkg.license = model.License.by_name(license_name)
+        assert pkg.license
         if not existing_pkg:
             user = model.User.by_name(self._username)
 
@@ -303,5 +309,10 @@ class Data(object):
         rev.log_message = u'Load from cospread database'
         return rev
 
+license_map = {
+    u'UK Crown Copyright with data.gov.uk rights':u'OKD Compliant::UK Crown Copyright with data.gov.uk rights',
+    u'\xa9 HESA. Not core Crown Copyright.':u'OKD Compliant::Higher Education Statistics Agency Copyright with data.gov.uk rights',
+    u'UK Crown Copyright':u'Non-OKD Compliant::Crown Copyright',
+    u'Crown Copyright':u'Non-OKD Compliant::Crown Copyright', }
 #agencies_raw = ['Health Protection Agency', 'Office for National Statistics', 'Census', 'Performance Assessment Framework', 'Annual Population Survey', 'Annual Survey of Hours and Earnings', 'Business Registers Unit', 'UK Hydrographic Office', 'Defence Analytical Services and Advice', 'Housing and Communities Agency', 'Tenants Service Authority', 'Higher Education Statistics Agency']
 geographic_regions = ['england', 'n. ireland', 'scotland', 'wales', 'overseas', 'global']
