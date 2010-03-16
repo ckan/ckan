@@ -8,7 +8,7 @@ def _test_anna():
     assert len(anna.resources) == 2, anna.resources
     assert anna.resources[0].url == u'http://www.annakarenina.com/download/x=1&y=2', anna.resources[0].url
     assert 'russian' in str(anna.tags), anna.tags
-    assert 'OKD Compliant::Other' in str(anna.license), anna.license
+    assert 'Other (Open)' in anna.license.title, anna.license.title
     assert anna.extras['genre'] == 'romantic novel', anna.extras
     assert anna in anna.tags[0].packages, anna.tags[0].packages
     pkg_rev = model.Session.query(model.PackageRevision).get((anna.id, anna.revision.id))
@@ -96,7 +96,7 @@ class Test_2_RealData(TestMigrationBase):
         assert len(pkg.resources) == 1, pkg.resources
         assert pkg.resources[0].url == u'http://wiki.openstreetmap.org/index.php/Planet.osm', pkg.resources[0].url
         assert 'navigation' in str(pkg.tags), pkg.tags
-        assert 'OKD Compliant::Creative Commons Attribution-ShareAlike' in str(pkg.license), pkg.license
+        assert 'Creative Commons Share-Alike' in pkg.license.title, pkg.license.title
         assert pkg.extras == {}, pkg.extras
         assert pkg in pkg.tags[0].packages, pkg.tags[0].packages
         pkg_rev = model.Session.query(model.PackageRevision).get((pkg.id, pkg.revision.id))
