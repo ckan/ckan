@@ -35,12 +35,14 @@ def upgrade():
 #    package_license_col.drop()
 #    package_license_col = Column('license_id', String(100), nullable=True)
 #    package_license_col.create(package_table)
-    drop_fk_constraint = "ALTER TABLE package DROP CONSTRAINT package_license_id_fkey;"
+    drop_fk_constraint_on_package_table = "ALTER TABLE package DROP CONSTRAINT package_license_id_fkey;"
+    drop_fk_constraint_on_package_revision_table = "ALTER TABLE package_revision DROP CONSTRAINT package_license_id_fkey;"
     change_license_id_type_on_package_table = "ALTER TABLE package ALTER COLUMN license_id TYPE character varying(100);"
-    change_license_id_type_on_package_revision_table = "ALTER TABLE package ALTER COLUMN license_id TYPE character varying(100);"
+    change_license_id_type_on_package_revision_table = "ALTER TABLE package_revision ALTER COLUMN license_id TYPE character varying(100);"
     drop_licenses_table = "DROP TABLE license CASCADE;"
     
-    migrate_engine.execute(drop_fk_constraint)
+    migrate_engine.execute(drop_fk_constraint_on_package_table)
+    migrate_engine.execute(drop_fk_constraint_on_package_revision_table)
     migrate_engine.execute(change_license_id_type_on_package_table)
     migrate_engine.execute(change_license_id_type_on_package_revision_table)
     migrate_engine.execute(drop_licenses_table)
