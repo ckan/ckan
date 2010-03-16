@@ -394,6 +394,7 @@ gov_items = [
         'precision':'Numbers to nearest 10, percentage to nearest whole number',
         'taxonomy_url':'',
         'agency':'',
+        'import_source':'ONS-Jan-09',
         }
      },
     {'name':'weekly-fuel-prices',
@@ -417,6 +418,7 @@ gov_items = [
         'temporal_coverage-from':'2008-11-24',
         'temporal_coverage-to':'2009-11-24',
         'national_statistic':'yes',
+        'import_source':'DECC-Jan-09',
         }
      }
     ]
