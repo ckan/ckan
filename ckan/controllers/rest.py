@@ -15,7 +15,8 @@ class RestController(BaseController):
 
     def list(self, register):
         if register == u'package':
-            packages = model.Session.query(model.Package).all() 
+            query = ckan.authz.Authorizer().authorized_query(self._get_username(), model.Package)
+            packages = query.all() 
             results = [package.name for package in packages]
             return self._finish_ok(results)
         elif register == u'group':
@@ -31,7 +32,20 @@ class RestController(BaseController):
             return ''
 
     def show(self, register, id):
-        if register == u'package':
+        if register == u'revision':
+            # Todo: Implement access control for revisions.
+            rev = model.Session.query(model.Revision).get(id)
+            if rev is None:
+                response.status_int = 404
+                return ''
+            response_data = {
+                'id': rev.id,
+                'timestamp': model.strftimestamp(rev.timestamp),
+                'author': rev.author,
+                'message': rev.message,
+            }
+            return self._finish_ok(response_data)
+        elif register == u'package':
             pkg = model.Package.by_name(id)
             if pkg is None:
                 response.status_int = 404
@@ -185,26 +199,43 @@ class RestController(BaseController):
 
         return self._finish_ok()
 
-    def search(self):
-        if request.params.has_key('qjson'):
-            if not request.params['qjson']:
-                response.status_int = 400
-                return gettext('Blank qjson parameter')
-            params = simplejson.loads(request.params['qjson'])
-        elif request.params.values() and request.params.values() != [u''] and request.params.values() != [u'1']:
-            params = request.params
-        else:
-            try:
-                params = self._get_request_data()
-            except ValueError, inst:
-                response.status_int = 400
-                return gettext('Search params: %s') % str(inst)
-                
-        options = SearchOptions(params)
-        options.search_tags = False
-        options.return_objects = False
-        results = Search().run(options)
-        return self._finish_ok(results)
+    def search(self, register=None):
+        if register == 'revision':
+            if request.params.has_key('since_time'):
+                since_time_str = request.params['since_time']
+                since_time = model.strptimestamp(since_time_str)
+                revs = model.Session.query(model.Revision).filter(model.Revision.timestamp>since_time)
+            elif request.params.has_key('since_rev'):
+                since_id = request.params['since_rev']
+                revs = []
+                for rev in model.Session.query(model.Revision).all():
+                    if since_id == rev.id:
+                        break
+                    revs.append(rev)
+            else:
+                revs = model.Session.query(model.Revision).all()
+            return self._finish_ok([rev.id for rev in revs])
+        elif register == 'package':
+            if request.params.has_key('qjson'):
+                if not request.params['qjson']:
+                    response.status_int = 400
+                    return gettext('Blank qjson parameter')
+                params = simplejson.loads(request.params['qjson'])
+            elif request.params.values() and request.params.values() != [u''] and request.params.values() != [u'1']:
+                params = request.params
+            else:
+                try:
+                    params = self._get_request_data()
+                except ValueError, inst:
+                    response.status_int = 400
+                    return gettext('Search params: %s') % str(inst)
+                    
+            options = SearchOptions(params)
+            options.search_tags = False
+            options.return_objects = False
+            username = self._get_username()
+            results = Search().run(options, username)
+            return self._finish_ok(results)
 
     def tag_counts(self):
         tags = model.Session.query(model.Tag).all()
@@ -254,22 +285,26 @@ class RestController(BaseController):
                     'rating count': len(package.ratings)}
         return self._finish_ok(ret_dict)
 
-    def _check_access(self, pkg, action):
-        # Checks apikey is okay and user is authorized to do the specified
-        # action on the specified package. If both args are None then just
-        # the apikey is checked.
-        api_key = None
-        isOk = False
+    def _get_username(self):
         keystr = request.environ.get('HTTP_AUTHORIZATION', None)
         if keystr is None:
             keystr = request.environ.get('Authorization', None)
         self.log.debug("Received API Key: %s" % keystr)
         api_key = model.Session.query(model.User).filter_by(apikey=unicode(keystr)).first()
         if api_key is not None:
-            self.rest_api_user = api_key.name
+            return api_key.name
         else:
-            self.rest_api_user = ''
+            return u''
+    
+    def _check_access(self, pkg, action):
+        # Checks apikey is okay and user is authorized to do the specified
+        # action on the specified package. If both args are None then just
+        # the apikey is checked.
+        api_key = None
+        isOk = False
 
+        self.rest_api_user = self._get_username()
+        
         if action and pkg:
             if action != model.Action.READ and self.rest_api_user in (model.PSEUDO_USER__VISITOR, ''):
                 self.log.debug("Valid API key needed to make changes")
@@ -284,7 +319,7 @@ class RestController(BaseController):
                 response.headers['Content-Type'] = 'application/json'
                 return False
         elif not self.rest_api_user:
-            self.log.debug("API key not authorized: %s" % keystr)
+            self.log.debug("No valid API key provided.")
             response.status_int = 403
             response.headers['Content-Type'] = 'application/json'
             return False

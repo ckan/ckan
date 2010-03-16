@@ -1,163 +1,18 @@
 <html xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude">
   
-  <py:def function="page_title">REST API - Index</py:def>
+  <py:def function="page_title">API - Index</py:def>
 
   <div py:match="content">
-<h2>API</h2>
+    <h2>API</h2>
 
-<h3>Introduction</h3>
+    <p>In addition to use of this website, CKAN data can be viewed and changed by using an Application Programming Interface (API).</p>
 
-<p>In addition to use of this website, CKAN data can be viewed and changed by using an Application Programming Interface (API).</p>
+    <p>The API takes the form of a RESTful (Representational State Transfer) style API for accessing CKAN database objects and a Search API.</p>
+   
+    <p>For full details of accessing the API, see the documentation at: <a href="http://knowledgeforge.net/ckan/doc/ckan/api.html">http://knowledgeforge.net/ckan/doc/ckan/api.html</a></p>
 
-<p>The API takes the form of a RESTful (Representational State Transfer) style API for accessing CKAN database objects and a Search API.</p>
-
-<p>This document specifies the API so that anyone can create software applications to use the CKAN service. The specification describes the RESTful API in terms of which resources are available, what their locations are, what methods each resource supports, and what the responses might be. It also species the usage and responses to the search API.</p>
-
-<h3>API Keys</h3>
-<p>For any action which makes a change to a resource (i.e. all non-GET methods)
-you will require an API key. To obtain your API key:</p>
-<ol>
-  <li><a href="${h.url_for(controller='user', action=None)}">Login as a normal user</a>.</li>
-  <li><a href="${h.url_for(controller='user', action='apikey')}">Visit the API Key page</a>.</li>
-</ol>
-
-
-<h3>API Locations</h3>
-
-<p>A REST interface presents resources at published locations. Here are the names locations of the CKAN REST API resources. This is followed by a table of non-REST API locations.
-</p>
-<table>
-<tbody><tr><th> <strong>Resource Name</strong> </th><th> <strong>Location</strong> 
-</th></tr><tr><td> Package Register </td><td> /api/rest/package
-
-</td></tr><tr><td> Package Entity </td><td> /api/rest/package/PACKAGE-NAME 
-</td></tr><tr><td> Group Register </td><td> /api/rest/group
-
-</td></tr><tr><td> Group Entity </td><td> /api/rest/group/GROUP-NAME 
-</td></tr><tr><td> Tag Register </td><td> /api/rest/tag
-</td></tr><tr><td> Tag Entity </td><td> /api/rest/tag/TAG-NAME 
-</td></tr></tbody></table>
-<table>
-<tbody><tr><th> <strong>API functions</strong> </th><th> <strong>Location</strong> 
-</th></tr><tr><td> Package Search </td><td> /api/search/package
-</td></tr><tr><td> Tag Counts </td><td> /api/tag_counts
-</td></tr></tbody></table>
-<h3>Methods and data formats</h3>
-
-<p>Each resource location supports a number of methods, which may send or receive a piece of data. Standard http status codes are used to signal the outcome of the operation.
-</p>
-<table>
-<tbody><tr><th> <strong>Resource</strong> </th><th> <strong>Method</strong> </th><th> <strong>Request</strong> </th><th> <strong>Response</strong>
-</th></tr><tr><td> Package Register   </td><td> GET               </td><td></td><td> Package-List      </td><td> 
-</td></tr><tr><td> Package Register   </td><td> POST              </td><td> Package           </td><td></td><td>
-</td></tr><tr><td> Package Entity      </td><td> GET               </td><td></td><td> Package           </td><td>
-</td></tr><tr><td> Package Entity      </td><td> PUT          </td><td> Package           </td><td></td><td>
-</td></tr><tr><td> Group Register   </td><td> GET               </td><td></td><td> Group-List      </td><td> 
-</td></tr><tr><td> Group Register   </td><td> POST              </td><td> Group           </td><td></td><td>
-</td></tr><tr><td> Group Entity      </td><td> GET               </td><td></td><td> Group           </td><td>
-</td></tr><tr><td> Group Entity      </td><td> PUT          </td><td> Group           </td><td></td><td>
-<!--
-</td></tr><tr><td> Package Entity      </td><td> DELETE            </td><td>               </td><td></td><td> 
--->
-</td></tr><tr><td> Tag Register       </td><td> GET               </td><td></td><td> Tag-List          </td><td>  
-<!--
-</td></tr><tr><td> Tag Register       </td><td> POST              </td><td> Tag               </td><td></td><td>  
--->
-</td></tr><tr><td> Tag Entity          </td><td> GET               </td><td> Tag </td><td> Package-List               </td><td> 
-<!--
-</td></tr><tr><td> Tag Entity          </td><td> PUT          </td><td> Tag               </td><td></td><td>  
-</td></tr><tr><td> Tag Entity          </td><td> DELETE            </td><td>               </td><td></td><td> 
--->
-</td></tr><tr><td> Search      </td><td> GET          </td><td>      </td><td>Search-Response</td><td> 
-</td></tr><tr><td> Search      </td><td> POST          </td><td> Query-String           </td><td>Search-Response</td><td>
-</td></tr><tr><td> Tag Counts      </td><td> GET          </td><td>         </td><td>Tag-Count-List</td><td>
-</td></tr></tbody></table>
-<p>
-Note: 'PUT' operations may instead use the HTTP POST method.
-</p>
-<p>
-Note: To search, there are two ways to provide parameters - you can use either or both ways in each search request. The first method is to provide them as parameters in the URL, (e.g. /api/rest/search?q=geodata&amp;allfields=1 ) The second way is to encode the parameters as a JSON dictionary and supply them in the POST request.
-</p>
-<h3>Data Formats</h3>
-<table>
-<tbody><tr><th> <strong>Name</strong>   </th><th> <strong>Format</strong>                
-</th></tr><tr><td> Package-List </td><td> [ Name-String, Name-String, Name-String, ... ] 
-</td></tr><tr><td> Package      </td><td> { name: Name-String, title: String, version: String, url: String, resources: [ Resource-Dict, Resource-Dict, ... ], author: String, author_email: String, maintainer: String, maintainer_email: String, license: String, tags: Tag-List, notes: String, extras: { Name-String: Value-String, ... } } 
-</td></tr><tr><td> Group-List </td><td> [ Name-String, Name-String, Name-String, ... ] 
-</td></tr><tr><td> Group      </td><td> { name: Name-String, title: String, description: String, packages: Group-List } 
-
-</td></tr><tr><td> Tag-List     </td><td> [ Name-String, Name-String, Name-String, ... ] 
-</td></tr><tr><td> Tag          </td><td> { name: Name-String } 
-</td></tr><tr><td> Name-String  </td><td> An alphanumeric string. 
-</td></tr><tr><td> Resource-Dict      </td><td> { url: String, format: String, description: String } 
-</td></tr><tr><td> Query-String </td><td> [ q: String ]
-</td></tr><tr><td> Search-Response </td><td> { count: Count-int, results: [Package-Name-String, Package-Name-String, ... ] } or { count: Count-int, results: [{ name:Name-String, title: String ... }, { name:Name-String, title: String ... }, etc. ] }
-</td></tr><tr><td> Tag-Count-List </td><td> [ [tag-name, tag-count], [tag-name, tag-count], ... ]
-</td></tr></tbody></table>
-
-<p>To send request data, create a simple data structure, then convert it to a JSON string, then percent-encode the JSON string, then send it as the request body.</p>
-
-<p>Response data will be in the response body.</p>
-
-<p>Note that when you update an object, fields that you don't supply will remain as they were before.</p>
-
-<p>To delete an 'extra' key-value pair, supply the key with a None value.</p>
-
-<h3>Search parameters</h3>
-<table class="no-margin">
-<tbody><tr><th> <strong>Key</strong> </th><th> <strong>Value</strong> </th><th> <strong>Example </strong> </th><th> <strong> Notes </strong>         
-
-</th></tr><tr><td> q </td><td> Search-String </td><td> q=geodata<br/> q=government+sweden <br/> q=%22drug%20abuse%22 </td><td> Criteria to search the package fields for. URL-encoded search text. (You can also contatenate words with a '+' symbol in a URL.) Search results must contain all the specified words.
-</td></tr><tr><td> qjson </td><td> JSON encoded options </td><td> ['q':'geodata']</td><td> All search parameters can be json-encoded and supplied to this URL parameter as a more flexible alternative.
-</td></tr><tr><td> title, tags, notes, <br/>groups, author, maintainer, update_frequency, geographic_granularity, geographic_coverage, temporal_granularity, temporal_coverage, national_statistic, categories, precision, department, agency, external_reference </td><td> Search-String </td><td> title=uk%20stat&amp;tags=health+census </td><td> Search a particular a field. Note that the latter fields mentioned here are in the 'extra' fields.
-</td></tr><tr><td> order_by </td><td> field-name (default=rank)</td><td> order_by=name </td><td> Specify either rank or the field to sort the results by
-</td></tr><tr><td> offset, limit </td><td> result-int (default offset=0, default limit=20)</td><td> offset=40&amp;limit=20</td><td> Pagination options. Offset is the number of the first result and limit is the number of results to return.
-</td></tr><tr><td> all_fields </td><td> 0 (default) or 1 </td><td> all_fields=1 </td><td> Each matching search result is given as either a package name (0) or the full package record (1).
-</td></tr><tr><td> filter_by_openness </td><td> 0 (default) or 1 </td><td> filter_by_openness=1 </td><td> Filters results by ones which are open.
-</td></tr><tr><td> filter_by_downloadable </td><td> 0 (default) or 1 </td><td> filter_by_downloadable=1 </td><td> Filters results by ones which have a download URL.
-<!--</td></tr><tr><td>  </td><td> </td><td> </td><td>-->
-</td></tr></tbody></table>
-
-<h3>Status Codes</h3>
-<table>
-<tbody><tr><th> <strong>Code</strong> </th><th> <strong>Name</strong>         
-
-</th></tr><tr><td> 200        </td><td> OK                 
-</td></tr><tr><td> 301        </td><td> Moved Permanently  
-</td></tr><tr><td> 400        </td><td> Bad Request     
-</td></tr><tr><td> 403        </td><td> Not Authorized     
-</td></tr><tr><td> 404        </td><td> Not Found          
-</td></tr><tr><td> 409        </td><td> Conflict (e.g. name already exists)
-</td></tr><tr><td> 500        </td><td> Service Error           
-
-</td></tr></tbody></table>
-
-<h3>Authorized Requests</h3>
-<p>
-All requests that are to result in a change to the CKAN register must
-be sent with a valid Authorization header. In addition, the user must have the authorization to perform the request.
-</p>
-
-<table>
-<tbody><tr><th> <strong>Header</strong> </th><th> <strong>Value</strong> 
-</th></tr><tr><td>HTTP_AUTHORIZATION</td><td> A valid CKAN REST API authorization token.                 
-</td></tr></tbody></table>
-
-<p>
-The value passed with this header must satisfy the currently operating requirements of CKAN.
-The current requirment for a valid Authorization header is the value should be a valid API key.
-</p>
-
-<table>
-<tbody><tr><th> <strong>Header</strong> </th><th> <strong>Example Value</strong> 
-</th></tr><tr><td>HTTP_AUTHORIZATION</td><td> fde34a3c-b716-4c39-8dc4-881ba115c6d4                 
-</td></tr></tbody></table>
-<p>
-If requests that are required to be authorized are not sent with a currently valid Authorization header, or the user associated with the key is not authorized for the operation, then the requested operation will not be carried out and the CKAN REST API will respond with status code 403.
-</p>
-
-</div>
+  </div>
 
 <xi:include href="../layout.html" />
 </html>

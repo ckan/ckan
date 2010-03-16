@@ -1,5 +1,4 @@
 <html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:i18n="http://genshi.edgewall.org/i18n"
   xmlns:xi="http://www.w3.org/2001/XInclude">
   
   <py:def function="page_title">User - Edit - ${c.user}</py:def>
@@ -16,7 +15,7 @@
       >
 
       <label for="log_message">About user:</label>
-      <p class="desc" i18n:msg="">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.</p>
+      <p class="desc">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.</p>
       <textarea id="about" rows="5" name="about" cols="60">${c.user_about}</textarea>
       <div>
         <input name="preview" type="submit" value="Preview" />

@@ -11,7 +11,7 @@ class TestResourceLifecycle:
         self.hash = u'abc123'
         rev = model.repo.new_revision()
         self.pkg = model.Package(name=self.pkgname)
-        model.Session.save(self.pkg)
+        model.Session.add(self.pkg)
         model.repo.commit_and_remove()
 
     @classmethod
@@ -28,7 +28,7 @@ class TestResourceLifecycle:
                                        description=self.description,
                                        hash=self.hash,
                                        )
-            model.Session.save(pr)
+            model.Session.add(pr)
             pkg.resources.append(pr)
         model.repo.commit_and_remove()
 
@@ -81,7 +81,7 @@ class TestResourceUse:
                                        description=self.description,
                                        hash=self.hash,
                                        )
-            model.Session.save(pr)
+            model.Session.add(pr)
             pkg.resources.append(pr)
         model.repo.commit_and_remove()
 
@@ -102,7 +102,7 @@ class TestResourceUse:
         resources = self.pkg.resources
         rev = model.repo.new_revision()
         pr = model.PackageResource(url=u'new.url')
-        model.Session.save(pr)
+        model.Session.add(pr)
         self.pkg.resources.insert(1, pr)
         model.repo.commit_and_remove()
 

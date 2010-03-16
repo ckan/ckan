@@ -261,7 +261,7 @@ for fs in [package_gov_fs, package_gov_fs_admin]:
     fs.append(ExtraField('agency').with_renderer(ExtraTextRenderer))
 
     options = package.get_package_fs_options(fs)
-    include = [fs.name, fs.title, fs.external_reference, fs.notes, fs.date_released, fs.date_updated, fs.update_frequency, fs.geographic_granularity, fs.geographic_coverage, fs.temporal_granularity, fs.temporal_coverage, fs.categories, fs.national_statistic, fs.precision, fs.url, fs.resources, fs.taxonomy_url, fs.department, fs.agency, fs.author, fs.author_email, fs.maintainer, fs.maintainer_email, fs.license, fs.tags,  ]
+    include = [fs.name, fs.title, fs.external_reference, fs.notes, fs.date_released, fs.date_updated, fs.update_frequency, fs.geographic_granularity, fs.geographic_coverage, fs.temporal_granularity, fs.temporal_coverage, fs.categories, fs.national_statistic, fs.precision, fs.url, fs.resources, fs.taxonomy_url, fs.department, fs.agency, fs.author, fs.author_email, fs.maintainer, fs.maintainer_email, fs.license_id, fs.tags,  ]
     options += [fs.tags.with_renderer(SuggestTagRenderer)]
     if fs != package_gov_fs:
         include.append(fs.state)
