@@ -9,6 +9,24 @@ Aim
 
 Facilitate collaboration and information sharing via the use of data versioning and the transmission of associated changesets between multiple peer nodes. It is the P2P nature of this model (as opposed to classic server-client approach) that leads to it being termed: "Distributed Version Control".
 
+We are particularly interested in transmitting "structured" data (i.e. not BLOBs) especially data coming from a specified domain model.
+
+
+Existing Work
+=============
+
+Distributed Revision/Version Control Systems (DVCS) such as Mercurial_ and Git_ perform a very similar function in versioning of files and filesytem trees to what we seek to do with data.
+
+Given this similarity, the protocol and format specified here directly reuse many of the concepts and approach of these existing solutions.
+
+More on the analogies can be found on the wiki page which details the specific application of this protocol to CKAN: http://knowledgeforge.net/ckan/trac/wiki/DistributingChanges 
+
+Further details of the distributed revision control systems for code can be found in the appendix below.
+
+.. _Mercurial: http://mercurial.selenic.com/
+.. _Git: http://git-scm.com/
+
+
 Use cases
 =========
 
@@ -127,4 +145,20 @@ Protocol
 The most complex part of this specification is the definition of the protocl especiall the patch application protocol and the merge process.
 
 TODO
+
+
+Appendix: Distributed Revision Control for Source Code
+======================================================
+
+Mercurial
+---------
+
+Basic overview of the Mercurial model: http://mercurial.selenic.com/wiki/UnderstandingMercurial
+
+Git
+---
+
+Glossary: http://www.kernel.org/pub/software/scm/git/docs/gitglossary.html
+
+Technical Docs: http://repo.or.cz/w/git.git?a=tree;f=Documentation/technical;hb=HEAD
 
