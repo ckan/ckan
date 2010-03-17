@@ -42,7 +42,8 @@ class Test_0_Empty(TestMigrationBase):
 class Test_1_BasicData(TestMigrationBase):
     @classmethod
     def setup_class(self):
-        self.setup_db(os.path.join(TEST_DUMPS_PATH, 'test_data_17.pg_dump'))
+        self.paster('db clean')
+        self.setup_db(os.path.join(TEST_DUMPS_PATH, 'test_data_15.pg_dump'))
         self.paster('db upgrade')
 
     @classmethod
