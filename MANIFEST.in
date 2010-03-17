@@ -1,4 +1,3 @@
 recursive-include ckan/public *
 recursive-include ckan/templates *
 include CHANGELOG.txt
-
