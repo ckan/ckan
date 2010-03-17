@@ -7,6 +7,8 @@ import logging
 import ckan.model as model
 from ckan.lib import schema_gov
 
+guid_prefix = 'http://www.statistics.gov.uk/'
+
 class Data(object):
     def load_xml_into_db(self, xml_filepaths, log=False):
         self._basic_setup()
@@ -40,7 +42,11 @@ class Data(object):
         pkg = model.Package.by_name(munged_title)
 
         # Resources
-        guid = item['guid']
+        guid = item['guid'] or None
+        if guid:
+            assert guid.startswith(guid_prefix)
+            guid = guid[len(guid_prefix):]
+            assert 'http' not in guid, guid
         existing_resource = None
         if guid and pkg:
             for res in pkg.resources:
@@ -53,8 +59,8 @@ class Data(object):
         descriptors = []
         if release:
             descriptors.append(release)
-        if item.get('guid', None):
-            descriptors.append(item['guid'])
+        if guid:
+            descriptors.append(guid)
         description = ' | '.join(descriptors)
 
         notes_list = []
