@@ -114,15 +114,12 @@ def ca_ckan_net():
     env.hosts = ['us1.okfn.org']
     env.base_dir = '/home/okfn/var/srvc'
 
-def std_config(name, hosts=None, stable=True):
+def std_config(name, hosts=None, requirements='pip-requirements-stable.txt'):
     env.user = 'okfn'
     env.ckan_instance_name = name
     env.base_dir = '/home/%s/var/srvc' % env.user
     env.config_ini_filename = '%s.ini' % name
-    if stable:
-        env.pip_requirements = 'pip-requirements-stable.txt'
-    else:
-        env.pip_requirements = 'pip-requirements.txt'
+    env.pip_requirements = requirements
     
 def _setup():
     if not hasattr(env, 'config_ini_filename'):
