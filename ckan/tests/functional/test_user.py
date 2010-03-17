@@ -107,7 +107,7 @@ class TestUserController(TestController):
         user = model.User.by_name(u'okfntest')
         if not user:
             user = model.User(name=u'okfntest')
-            model.Session.save(user)
+            model.Session.add(user)
             model.Session.commit()
             model.Session.remove()
 
@@ -125,7 +125,7 @@ class TestUserController(TestController):
         about = u'Test About'
         user = model.User.by_name(unicode(username))
         if not user:
-            model.Session.save(model.User(name=unicode(username), about=about))            
+            model.Session.add(model.User(name=unicode(username), about=about))            
             model.repo.commit_and_remove()
             user = model.User.by_name(unicode(username))
 

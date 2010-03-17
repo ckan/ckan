@@ -6,17 +6,13 @@ import vdm.sqlalchemy
 
 from types import make_uuid
 import full_search
+from license import License, LicenseRegister
 
 ## VDM-specific tables
 
 revision_table = vdm.sqlalchemy.make_revision_table(metadata)
 
 ## Our Domain Object Tables
-
-license_table = Table('license', metadata,
-        Column('id', types.Integer, primary_key=True),
-        Column('name', types.Unicode(100)),
-        )
 
 package_table = Table('package', metadata,
         Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
@@ -29,7 +25,7 @@ package_table = Table('package', metadata,
         Column('maintainer', types.UnicodeText),
         Column('maintainer_email', types.UnicodeText),                      
         Column('notes', types.UnicodeText),
-        Column('license_id', types.Integer, ForeignKey('license.id')),
+        Column('license_id', types.UnicodeText),
 )
 
 tag_table = Table('tag', metadata,
@@ -44,7 +40,6 @@ package_tag_table = Table('package_tag', metadata,
         )
 
 
-vdm.sqlalchemy.make_table_stateful(license_table)
 vdm.sqlalchemy.make_table_stateful(package_table)
 vdm.sqlalchemy.make_table_stateful(package_tag_table)
 package_revision_table = vdm.sqlalchemy.make_revisioned_table(package_table)
@@ -116,16 +111,6 @@ class DomainObject(object):
     def __repr__(self):
         return self.__unicode__()
 
-        
-class License(DomainObject):
-    def isopen(self):
-        if self.name and \
-           (self.name.startswith('OKD Compliant')
-            or
-            self.name.startswith('OSI Approved')
-            ):
-            return True
-        return False
 
 class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         vdm.sqlalchemy.StatefulObjectMixin,
@@ -180,9 +165,10 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         _dict['tags'] = [tag.name for tag in self.tags]
         _dict['groups'] = [group.name for group in self.groups]
         if self.license:
-            _dict['license'] = self.license.name
+            _dict['license'] = self.license.id
         else:
             _dict['license'] = ''
+        del _dict['license_id']
         _dict['extras'] = dict([(extra.key, extra.value) for key, extra in self._extras.items()])
         _dict['ratings_average'] = self.get_average_rating()
         _dict['ratings_count'] = len(self.ratings)
@@ -192,7 +178,96 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         if ckan_host:
             _dict['ckan_url'] = 'http://%s/package/%s' % (ckan_host, self.name)
         return _dict
-        
+
+    def add_relationship(self, type_, related_package, comment=u''):
+        import package_relationship
+        if type_ in package_relationship.PackageRelationship.get_forward_types():
+            subject = self
+            object_ = related_package
+        elif type_ in package_relationship.PackageRelationship.get_reverse_types():
+            type_ = package_relationship.PackageRelationship.reverse_to_forward_type(type_)
+            assert type_
+            subject = related_package
+            object_ = self
+        else:
+            raise NotImplementedError, 'Package relationship type: %r' % type_
+            
+            
+        rel = package_relationship.PackageRelationship(
+            subject=subject,
+            object=object_,
+            type=type_,
+            comment=comment)
+        Session.add(rel)
+
+    @property
+    def relationships(self):
+        return self.relationships_as_subject + self.relationships_as_object
+
+    def relationships_printable(self):
+        '''Returns a list of tuples describing related packages, including
+        non-direct relationships (such as siblings).
+        @return: e.g. [(annakarenina, u"is a parent"), ...]
+        '''
+        from package_relationship import PackageRelationship
+        rel_list = []
+        # forward types
+        for rel_as_subject in self.relationships_as_subject:
+            type_printable = PackageRelationship.make_type_printable(rel_as_subject.type)
+            rel_list.append((rel_as_subject.object, type_printable))
+        # reverse types
+        for rel_as_object in self.relationships_as_object:
+            type_printable = PackageRelationship.make_type_printable(\
+                PackageRelationship.forward_to_reverse_type(
+                    rel_as_object.type)
+                )
+            rel_list.append((rel_as_object.subject, type_printable))
+        # sibling types
+        # e.g. 'gary' is a child of 'mum', looking for 'bert' is a child of 'mum'
+        # i.e. for each 'child_of' type relationship ...
+        for rel_as_subject in self.relationships_as_subject:
+            # ... parent is the object
+            parent_pkg = rel_as_subject.object
+            # Now look for the parent's other relationships as object ...
+            for parent_rel_as_object in parent_pkg.relationships_as_object:
+                # and check children
+                child_pkg = parent_rel_as_object.subject
+                if child_pkg != self and \
+                       parent_rel_as_object.type == rel_as_subject.type:
+                    type_printable = PackageRelationship.inferred_types_printable['sibling']
+                    rel_list.append((child_pkg, type_printable))
+        return rel_list
+    #
+    ## Licenses are currently integrated into the domain model here.   
+ 
+    @classmethod
+    def get_license_register(self):
+        if not hasattr(self, '_license_register'):
+            self._license_register = LicenseRegister()
+        return self._license_register
+
+    @classmethod
+    def get_license_options(self):
+        register = self.get_license_register()
+        return [(l.title, l.id) for l in register.values()]
+
+    def get_license(self):
+        license = None
+        if self.license_id:
+            license = self.get_license_register()[self.license_id]
+        return license
+
+    def set_license(self, license):
+        if type(license) == License:
+            self.license_id = license.id
+        elif type(license) == dict:
+            self.license_id = license['id']
+        else:
+            msg = "Value not a license object or entity: %s" % repr(license)
+            raise Exception, msg
+
+    license = property(get_license, set_license)
+
 
 class Tag(DomainObject):
     def __init__(self, name=''):
@@ -240,11 +315,7 @@ State = vdm.sqlalchemy.State
 State.all = [ State.ACTIVE, State.DELETED ]
 Revision = vdm.sqlalchemy.make_Revision(mapper, revision_table)
 
-mapper(License, license_table,
-    order_by=license_table.c.id)
-
 mapper(Package, package_table, properties={
-    'license':relation(License),
     # delete-orphan on cascade does NOT work!
     # Why? Answer: because of way SQLAlchemy/our code works there are points
     # where PackageTag object is created *and* flushed but does not yet have

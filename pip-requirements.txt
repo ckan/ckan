@@ -1,7 +1,7 @@
 # To use this requirements file: (assumes virtualenv at ./pyenv)
 # pip -E pyenv install -r pip-requirements.txt
 
--e hg+https://knowledgeforge.net/okfn/vdm#egg=vdm
+-e hg+https://knowledgeforge.net/okfn/vdm@vdm-0.6#egg=vdm
 -e hg+https://knowledgeforge.net/okfn/licenses#egg=licenses
 -e hg+https://knowledgeforge.net/ckan/ckanclient/hg#egg=ckanclient
 -e hg+https://knowledgeforge.net/ckan/hg#egg=ckan

@@ -6,8 +6,7 @@ from authz import *
 from extras import PackageExtra, package_extra_table, PackageExtraRevision
 from resource import PackageResource, package_resource_table
 from rating import *
-from licenses import LicenseList
-license_names = LicenseList.all_formatted
+from package_relationship import PackageRelationship
 
 import ckan.migration
 
@@ -23,28 +22,24 @@ class Repository(vdm.sqlalchemy.Repository):
 
     def init_db(self):
         super(Repository, self).init_db()
-        for name in license_names:
-            if not License.by_name(name):
-                l = License(name=name)
-                Session.save(l)
         # assume if this exists everything else does too
         if not User.by_name(PSEUDO_USER__VISITOR):
             visitor = User(name=PSEUDO_USER__VISITOR)
             logged_in = User(name=PSEUDO_USER__LOGGED_IN)
-            Session.save(visitor)
-            Session.save(logged_in)
+            Session.add(visitor)
+            Session.add(logged_in)
             # setup all role-actions
             # context is blank as not currently used
             # Note that Role.ADMIN can already do anything - hardcoded in.
             for role, action in default_role_actions:
                 ra = RoleAction(role=role, context=u'',
                         action=action,)
-                Session.save(ra)
+                Session.add(ra)
         if Session.query(Revision).count() == 0:
             rev = Revision()
             rev.author = 'system'
             rev.message = u'Initialising the Repository'
-            Session.save(rev)
+            Session.add(rev)
         self.commit_and_remove()   
 
     def create_db(self):
@@ -110,4 +105,11 @@ def _get_revision_user(self):
 
 Revision.packages = property(_get_packages)
 Revision.user = property(_get_revision_user)
+
+def strptimestamp(s):
+    import datetime, re
+    return datetime.datetime(*map(int, re.split('[^\d]', s)))
+
+def strftimestamp(t):
+    return t.isoformat()
 

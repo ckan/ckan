@@ -54,6 +54,10 @@ enable_caching =
 # e.g. rdf_packages = http://semantic.ckan.net/data/
 rdf_packages =
 
+# License server URL (defaults to the knowledgeforge one)
+#licenses_group_url = file://%(here)s/ckan/tests/sample_licenses/2.0/all
+
+
 # Logging configuration
 [loggers]
 keys = root

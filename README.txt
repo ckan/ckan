@@ -6,7 +6,7 @@ Introduction
 
 Comprehensive Knowledge Archive Network (CKAN) Software.
 
-See ckan.__long_description__ for more information.
+See :mod:`ckan.__long_description__` for more information.
 
 
 Developer Installation
@@ -17,23 +17,28 @@ Developer Installation
    We recommend installing using pip and virtualenv::
    
       # grab the install requirements from the ckan mercurial repo
+      # Or checkout the mercurial repo directly!
       wget http://knowledgeforge.net/ckan/hg/raw-file/tip/pip-requirements.txt
       # create a virtualenv to install into
-      virtualenv --no-site-packages pyenv-ckan
+      virtualenv pyenv-ckan
       # install using pip-requirements
       pip -E pyenv-ckan install -r pip-requirements.txt
 
 3. Make a config file as follows::
 
-      # NB: you need to activate the repository
+      # NB: you need to activate the virtualenv
       paster --plugin ckan make-config ckan {your-config.ini}
 
 4. Tweak the config file as appropriate and then setup the application::
 
       paster --plugin ckan setup-app {your-config.ini}
 
-   NB: you'll need to setup a database -- see sqlalchemy.url config option. We
-   support only PostgreSQL at this time.
+   NB: you'll need to setup a database -- see sqlalchemy.url config option.
+   We support only PostgreSQL at this time. You'll need to install the relevant
+   python library (eg. On debiani/ubuntu: python-psycopg2)
+
+   NB: You may also need to create the Pylon's cache directory specified by
+   cache_dir in the config file.
 
 5. Run the webserver::
 
@@ -44,6 +49,25 @@ Developer Installation
    chose).
 
 $ ln -s pyenv/src/ckan/who.ini
+
+
+Test
+====
+
+Make sure you've created a config called development.ini, then:: 
+
+    nosetests ckan/tests
+
+
+Documentation
+=============
+
+The home page for the CKAN project is: http://knowledgeforge.net/ckan
+
+This file is part of the developer docs. The complete developer docs are built from the ckan repository using Sphinx and uploaded by an admin to KnowledgeForge. To build the developer docs::
+
+      python setup.py build_sphinx
+ 
 
 Contributors
 ============
@@ -61,14 +85,6 @@ been possible:
   * famfamfam.com for silk icons <http://www.famfamfam.com/lab/icons/silk/>
   * Pylons: <http://pylonshq.com/>
   * Python: <http://www.python.org>
-
-
-Test
-====
-
-Make sure you've created a config called development.ini, then:: 
-
-    nosetests ckan/tests
 
 
 Copying and License

@@ -20,7 +20,7 @@ class TestPreview(TestController):
         u'notes':u'testnotes',
         u'version':u'testversion',
         u'tags':u'one three',
-        u'license_id':u'4',
+        u'license_id':u'agpl-v3',
         u'extras':{u'key1':u'value1', u'key3':u'value3'},
         }
 
@@ -45,7 +45,7 @@ class TestPreview(TestController):
              u'notes':u'testnotes',
              u'version':u'testversion',
              u'tags':['one', 'two'],
-             u'license':'OKD Compliant::Other',
+             u'license':'agpl-v3',
              u'extras':{'key1':'value1', 'key2':'value2'},
              }
             )
@@ -69,9 +69,12 @@ class TestPreview(TestController):
 
     def _check_preview_pkg(self, pkg, params):
         for key, value in params.items():
-            if key == u'license_id':
-                assert pkg.license_id == int(value)
-                assert pkg.license == model.Session.query(model.License).get(int(value))
+            if key == u'license':
+                assert pkg.license_id == value
+                assert pkg.license.id == value
+            elif key == u'license_id':
+                assert pkg.license_id == value
+                assert pkg.license.id == value
             elif key == u'tags':
                 reqd_tags = value.split()
                 assert len(pkg.tags) == len(reqd_tags)

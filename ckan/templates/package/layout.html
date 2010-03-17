@@ -11,11 +11,14 @@
       <li>${h.subnav_link(c, h.icon('package') + _('View'), controller='package', action='read', id=c.pkg.name)}</li>
       <li>${h.subnav_link(c, h.icon('package_edit') + _('Edit'), controller='package', action='edit', id=c.pkg.name)}</li>
       <li>${h.subnav_link(c, h.icon('page_white_stack') + _('History'), controller='package', action='history', id=c.pkg.name)}</li>
+      <py:if test="c.auth_for_authz">
+        <li>${h.subnav_link(c, h.icon('lock') + _('Authorization'), controller='package', action='authz', id=c.pkg.name)}</li>
+      </py:if>
     </py:when>
     <py:otherwise>
-    <li>${h.subnav_link(c, _('Home'), controller='package', action='index', id=None)}</li>
-    <li>${h.subnav_link(c, _('Browse'), controller='package', action='list', id=None)}</li>
-    <li>${h.subnav_link(c, _('Register new package'), controller='package', action='new', id=None)}</li>
+      <li>${h.subnav_link(c, _('Home'), controller='package', action='index', id=None)}</li>
+      <li>${h.subnav_link(c, _('Browse'), controller='package', action='list', id=None)}</li>
+      <li>${h.subnav_link(c, _('Register new package'), controller='package', action='new', id=None)}</li>
     </py:otherwise>
   </py:match>
   

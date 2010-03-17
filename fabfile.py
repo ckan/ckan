@@ -114,20 +114,15 @@ def ca_ckan_net():
     env.hosts = ['us1.okfn.org']
     env.base_dir = '/home/okfn/var/srvc'
 
-def backup_hmg_ckan_net():
+def std_config(name, hosts=None, stable=True):
     env.user = 'okfn'
-    env.ckan_instance_name = 'backup.hmg.ckan.net'
-    env.hosts = [env.ckan_instance_name]
+    env.ckan_instance_name = name
     env.base_dir = '/home/%s/var/srvc' % env.user
-    env.config_ini_filename = 'backup.hmg.ckan.net.ini'
-    env.pip_requirements = 'pip-requirements-stable.txt'
-
-def test3_hmg_ckan_net():
-    env.user = 'okfn'
-    env.ckan_instance_name = 'test3.hmg.ckan.net'
-    env.hosts = [env.ckan_instance_name]
-    env.base_dir = '/home/%s/var/srvc' % env.user
-    env.config_ini_filename = 'test3.hmg.ckan.net.ini'
+    env.config_ini_filename = '%s.ini' % name
+    if stable:
+        env.pip_requirements = 'pip-requirements-stable.txt'
+    else:
+        env.pip_requirements = 'pip-requirements.txt'
     
 def _setup():
     if not hasattr(env, 'config_ini_filename'):
@@ -199,7 +194,7 @@ def deploy():
         assert exists(env.who_ini_filepath)
         whoini_dest = os.path.join(env.instance_path, 'who.ini')
         if not exists(whoini_dest):
-            run('ln -f -s %s %s' % (env.whoini, whoini_dest))
+            run('ln -f -s %s %s' % (env.who_ini_filepath, whoini_dest))
         else:
             print 'Link to who.ini already exists'
 
@@ -242,10 +237,10 @@ def restore_from_local(pg_dump_filepath):
     assert os.path.exists(pg_dump_filepath)
     pg_dump_filename = os.path.basename(pg_dump_filepath)
     if not pg_dump_filename.endswith('.gz'):
-        new_pg_dump_filepath = os.path.join('/tmp', pg_dump_filename)
+        new_pg_dump_filepath = os.path.join('/tmp', pg_dump_filename) + '.gz'
         subprocess.check_call('gzip -c %s > %s' % (pg_dump_filepath, new_pg_dump_filepath), shell=True)
         pg_dump_filepath = new_pg_dump_filepath
-    remote_filepath = os.path.join('/tmp', pg_dump_filename)
+    remote_filepath = os.path.join('/tmp', pg_dump_filename) + '.gz'
     put(pg_dump_filepath, remote_filepath)
     run('gunzip %s' % remote_filepath)
     remote_filepath = remote_filepath.rstrip('.gz')
@@ -329,7 +324,7 @@ def get_ini_value(key, ini_filepath=None):
 def _get_db_config():
     url = get_ini_value('sqlalchemy.url')
     # e.g. 'postgres://tester:pass@localhost/ckantest3'
-    db_details = re.match('^\s*(?P<db_type>\w*)://(?P<db_user>\w*):(?P<db_pass>[^@]*)@(?P<db_host>\w*)/(?P<db_name>\w*)', url).groupdict()
+    db_details = re.match('^\s*(?P<db_type>\w*)://(?P<db_user>\w*):(?P<db_pass>[^@]*)@(?P<db_host>\w*)/(?P<db_name>[\w.-]*)', url).groupdict()
     return db_details
 
 def _get_pylons_cache_dir():
