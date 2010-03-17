@@ -60,12 +60,12 @@ class TestData:
         assert pkg1.notes.startswith("Monthly breakdown for government's net reserves, detailing gross reserves and gross liabilities."), pkg1.notes
         assert len(pkg1.resources) == 1, pkg1.resources
         assert pkg1.resources[0].url == 'http://www.hm-treasury.gov.uk/national_statistics.htm', pkg1.resources[0]
-        assert pkg1.resources[0].description == 'December 2009 | http://www.statistics.gov.uk/hub/id/119-36345'
+        assert pkg1.resources[0].description == 'December 2009 | hub/id/119-36345', pkg1.resources[0].description
         assert len(custody.resources) == 2, custody.resources
         assert custody.resources[0].url == 'http://www.justice.gov.uk/publications/endofcustodylicence.htm', custody.resources[0]
-        assert custody.resources[0].description == 'November 2009 | http://www.statistics.gov.uk/hub/id/119-36836', custody.resources[0].description
+        assert custody.resources[0].description == 'November 2009 | hub/id/119-36836', custody.resources[0].description
         assert custody.resources[1].url == 'http://www.justice.gov.uk/publications/endofcustodylicence.htm', custody.resources[0]
-        assert custody.resources[1].description == 'December 2009 | http://www.statistics.gov.uk/hub/id/119-36838', custody.resources[1].description
+        assert custody.resources[1].description == 'December 2009 | hub/id/119-36838', custody.resources[1].description
         assert pkg1.extras['date_released'] == u'2010-01-06', pkg1.extras['date_released']
         assert pkg1.extras['department'] == u"Her Majesty's Treasury", pkg1.extras['department']
         assert cereals.extras['department'] == u"Department for Environment, Food and Rural Affairs", cereals.extras['department']
