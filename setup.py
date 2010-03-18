@@ -19,6 +19,7 @@ setup(
     keywords='data packaging component tool server',
     long_description =__long_description__,
     install_requires=[
+        'routes==1.10.3', # probably too narrow
         'vdm>=0.6,<0.7.99',
         'ckanclient>=0.1,<0.3.99',
         'Pylons>=0.9.7.0,<0.9.7.99',
