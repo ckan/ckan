@@ -22,7 +22,7 @@ env.local_backup_dir = '~/db_backup'
 env.ckan_repo = 'http://knowledgeforge.net/ckan/hg/raw-file/tip/'
 env.pip_requirements = 'pip-requirements.txt'
 
-def local(base_dir, ckan_instance_name):
+def config_local(base_dir, ckan_instance_name):
     '''Run on localhost. e.g. local:~/test,myhost.com
                             puts it at ~/test/myhost.com
                             '''
@@ -30,25 +30,25 @@ def local(base_dir, ckan_instance_name):
     env.ckan_instance_name = ckan_instance_name # e.g. 'test.ckan.net'
     env.base_dir = os.path.expanduser(base_dir)    # e.g. ~/var/srvc
 
-def local_dev(base_dir, ckan_instance_name):
+def config_local_dev(base_dir, ckan_instance_name):
     local(base_dir, ckan_instance_name)
     env.config_ini_filename = 'development.ini'
     env.pyenv_dir = os.path.join(base_dir, 'pyenv-%s' % ckan_instance_name)
     env.serve_url = 'localhost:5000'
 
-def staging_hmg_ckan_net():
+def config_staging_hmg_ckan_net():
     env.user = 'ckan1'
     env.base_dir = '/home/%s' % env.user
     env.cmd_pyenv = os.path.join(env.base_dir, 'ourenv')
     env.ckan_instance_name = 'staging.hmg.ckan.net'
     env.pip_requirements = 'pip-requirements-stable.txt'
 
-def test_hmg_ckan_net():
+def config_test_hmg_ckan_net():
     staging_hmg_ckan_net()
     env.ckan_instance_name = 'test.hmg.ckan.net'
     env.hosts = ['ssh.' + env.ckan_instance_name]
 
-def hmg_ckan_net_1():
+def config_hmg_ckan_net_1():
     env.user = 'ckan1'
     env.base_dir = '/home/%s' % env.user
     env.cmd_pyenv = os.path.join(env.base_dir, 'ourenv')
@@ -58,14 +58,23 @@ def hmg_ckan_net_1():
     env.wsgi_script_filepath = None # os.path.join(env.base_dir, 'hmg.ckan.net/pyenv/bin/pylonsapp_modwsgi.py')
     env.pip_requirements = 'pip-requirements-stable.txt'
 
-def hmg_ckan_net_2():
+def config_hmg_ckan_net_2():
     hmg_ckan_net_1()
     env.ckan_instance_name = 'hmg.ckan.net.2'
     env.hosts = ['ssh.hmg.ckan.net']
     env.config_ini_filename = 'hmg.ckan.net.ini'
 
-def std_config(name, hosts_str='', requirements='pip-requirements-stable.txt',
+def config_0(name, hosts_str='', requirements='pip-requirements-stable.txt',
         db_pass=None):
+    '''Configurable configuration: fab -d gives full info.
+    
+    @param name: name of instance (e.g. xx.ckan.net)
+    @param hosts_str: hosts to run on (--host does not work correctly).
+        Defaults to name if not supplied.
+    @param requirements: pip requirements to use (defaults to
+        pip-requirements-stable.txt)
+    @param db_pass: password to use when setting up db user (if needed)
+    '''
     env.user = 'okfn'
     if hosts_str:
         env.hosts = hosts_str.split()
@@ -222,6 +231,7 @@ def backup():
         get(backup_filepath, local_backup_dir)
 
 def restore_from_local(pg_dump_filepath):
+    '''Like restore but from a local pg dump'''
     pg_dump_filepath = os.path.expanduser(pg_dump_filepath)
     assert os.path.exists(pg_dump_filepath)
     pg_dump_filename = os.path.basename(pg_dump_filepath)
@@ -236,6 +246,7 @@ def restore_from_local(pg_dump_filepath):
     restore(remote_filepath)
 
 def restore(pg_dump_filepath):
+    '''Restore ckan from an existing dump'''
     _setup()
     pg_dump_filepath = os.path.expanduser(pg_dump_filepath)
     assert exists(pg_dump_filepath), 'Cannot find file: %s' % pg_dump_filepath
@@ -252,6 +263,7 @@ def restore(pg_dump_filepath):
         _run_in_pyenv('paster --plugin ckan db init --config %s' % env.config_ini_filename)
 
 def load_from_local(format, csv_filepath):
+    '''Like load but with a local file'''
     csv_filepath = os.path.expanduser(csv_filepath)
     assert os.path.exists(csv_filepath)
     csv_filename = os.path.basename(csv_filepath)
@@ -260,6 +272,7 @@ def load_from_local(format, csv_filepath):
     load(format, remote_filepath)
 
 def load(format, csv_filepath):
+    '''Run paster db load with supplied material'''
     assert format in ('cospread', 'data4nr')
     _setup()
     csv_filepath = os.path.expanduser(csv_filepath)
@@ -268,12 +281,8 @@ def load(format, csv_filepath):
     with cd(env.instance_path):
         _run_in_pyenv('paster --plugin ckan db load-%s %s --config %s' % (format, csv_filepath, env.config_ini_filename))
     
-def paster(cmd):
-    _setup()
-    with cd(env.instance_path):
-        _run_in_pyenv('paster --plugin ckan %s --config %s' % (cmd, env.config_ini_filename))
-
 def test():
+    '''Run paster test-data'''
     _setup()
     with cd(env.instance_path):
         _run_in_pyenv('paster --plugin ckan test-data %s --config %s' % (env.serve_url, env.config_ini_filename))
@@ -308,7 +317,7 @@ def _get_unique_filepath(dir, exists_func, extension):
         assert count < 100, 'Unique filename (%s) overflow in dir: %s' % (extension, dir)
     return filepath
 
-def get_ini_value(key, ini_filepath=None):
+def _get_ini_value(key, ini_filepath=None):
     if not ini_filepath:
         # default to config ini
         ini_filepath = os.path.join(env.instance_path, env.config_ini_filename)
@@ -320,18 +329,18 @@ def get_ini_value(key, ini_filepath=None):
     return value
 
 def _get_db_config():
-    url = get_ini_value('sqlalchemy.url')
+    url = _get_ini_value('sqlalchemy.url')
     # e.g. 'postgres://tester:pass@localhost/ckantest3'
     db_details = re.match('^\s*(?P<db_type>\w*)://(?P<db_user>\w*):(?P<db_pass>[^@]*)@(?P<db_host>\w*)/(?P<db_name>[\w.-]*)', url).groupdict()
     return db_details
 
 def _get_pylons_cache_dir():
-    cache_dir = get_ini_value('cache_dir')
+    cache_dir = _get_ini_value('cache_dir')
     # e.g. '%(here)s/data'
     return cache_dir % {'here':env.instance_path}
 
 def _get_open_id_store_dir():
-    store_file_path = get_ini_value('store_file_path', env.who_ini_filepath)
+    store_file_path = _get_ini_value('store_file_path', env.who_ini_filepath)
     # e.g. '%(here)s/sstore'
     return store_file_path % {'here':env.instance_path}
     
