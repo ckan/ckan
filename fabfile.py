@@ -22,13 +22,15 @@ env.local_backup_dir = '~/db_backup'
 env.ckan_repo = 'http://knowledgeforge.net/ckan/hg/raw-file/tip/'
 env.pip_requirements = 'pip-requirements.txt'
 
-def config_local(base_dir, ckan_instance_name):
+def config_local(base_dir, ckan_instance_name, db_pass=None):
     '''Run on localhost. e.g. local:~/test,myhost.com
                             puts it at ~/test/myhost.com
                             '''
     env.hosts = ['localhost']
     env.ckan_instance_name = ckan_instance_name # e.g. 'test.ckan.net'
     env.base_dir = os.path.expanduser(base_dir)    # e.g. ~/var/srvc
+    if db_pass:
+        env.db_pass = db_pass
 
 def config_local_dev(base_dir, ckan_instance_name):
     local(base_dir, ckan_instance_name)
