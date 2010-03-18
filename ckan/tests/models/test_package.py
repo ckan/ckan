@@ -16,7 +16,7 @@ class TestPackage:
         self.pkg1 = model.Package(name=self.name)
         model.Session.add(self.pkg1)
         self.pkg1.notes = self.notes
-        self.pkg1.license_id = u'agpl-v3'
+        self.pkg1.license_id = u'gpl-3.0'
         model.Session.commit()
         model.Session.remove()
 
@@ -31,7 +31,7 @@ class TestPackage:
         package = model.Package.by_name(self.name)
         assert package.name == self.name
         assert package.notes == self.notes
-        assert package.license.id == u'agpl-v3'
+        assert package.license.id == u'gpl-3.0'
         assert package.license.title == u'Affero GNU Public License'
         # Check unregistered license_id causes license to be 'None'.
         package.license_id = u'zzzzzzz'

@@ -155,7 +155,7 @@ class TestForm(TestController):
         indict[prefix + 'title'] = u'testtitle'
         indict[prefix + 'notes'] = u'some new notes'
         indict[prefix + 'tags'] = u'russian tolstoy, ' + newtagname,
-        indict[prefix + 'license_id'] = u'agpl-v3'
+        indict[prefix + 'license_id'] = u'gpl-3.0'
         indict[prefix + 'external_reference'] = u'123'
         indict[prefix + 'date_released'] = u'27/11/2008'
         indict[prefix + 'date_updated'] = u'1/4/2008'
@@ -258,7 +258,7 @@ class TestForm(TestController):
         indict[prefix + 'name'] = u'testname2'
         indict[prefix + 'notes'] = u'some new notes'
         indict[prefix + 'tags'] = u'russian, tolstoy',
-        indict[prefix + 'license_id'] = u'agpl-v3'
+        indict[prefix + 'license_id'] = u'gpl-3.0'
         indict[prefix + 'external_reference'] = u'123'
         indict[prefix + 'date_released'] = u'27/11/2008'
         indict[prefix + 'date_updated'] = u'1/4/2008'
