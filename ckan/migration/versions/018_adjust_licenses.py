@@ -66,6 +66,7 @@ map = {
     u'OSI Approved::Educational Community License': 'ecl2', 
     u'OSI Approved::Sun Industry Standards Source License (SISSL)': 'sun-issl', 
     u'OKD Compliant::Other (Public Domain)': 'other-pd', 
+    u'OKD Compliant::Public Domain': 'other-pd', 
     u'OKD Compliant::Creative Commons Attribution': 'cc-by', 
     u'OSI Approved::OCLC Research Public License 2.0': 'oclc2', 
     u'OSI Approved::Artistic license': 'artistic-license-2.0', 
