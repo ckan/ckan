@@ -1,22 +1,10 @@
-# usage:
-#   fab [host] [operation] 
-# where:
-#   hosts:      local:[base_dir],[instance_name]
-#               local_dev:[base_dir],[instance_name]
-#               test_ckan_net
-#               staging_hmg_ckan_net
-#               test_hmg_ckan_net
-#               de_ckan_net
-#               backup_hmg_ckan_net
-#               fr_ckan_net
-#   operations: deploy
-#               restart_apache
-#               backup
-#               restore
-#               restore_from_local
+# std usage:
+#   fab std_config:{name} [operation] 
+#
+#   for details of operations do fab -l
+#
 # Examples:
 #   deploy to a local directory: fab local:~/test,test deploy
-#   deploy on test machine: fab test_ckan_net deploy
 from __future__ import with_statement
 import os
 import datetime
@@ -76,66 +64,33 @@ def hmg_ckan_net_2():
     env.hosts = ['ssh.hmg.ckan.net']
     env.config_ini_filename = 'hmg.ckan.net.ini'
 
-def test_ckan_net():
+def std_config(name, hosts=None, requirements='pip-requirements-stable.txt',
+        db_pass=None):
     env.user = 'okfn'
-    env.ckan_instance_name = 'test.ckan.net'
-    env.hosts = [env.ckan_instance_name]
-    env.base_dir = '/home/%s/var/srvc' % env.user
-
-def stable_ckan_net():
-    env.user = 'okfn'
-    env.ckan_instance_name = 'stable.ckan.net'
-    env.hosts = [env.ckan_instance_name]
-    env.base_dir = '/home/%s/var/srvc' % env.user
-    env.pip_requirements = 'pip-requirements-stable.txt'
-
-def ckan_net():
-    env.user = 'okfn'
-    env.ckan_instance_name = 'ckan.net'
-    env.hosts = [env.ckan_instance_name]
-    env.base_dir = '/home/%s/var/srvc' % env.user
-    env.config_ini_filename = 'www.ckan.net.ini'
-
-def de_ckan_net():
-    env.user = 'okfn'
-    env.ckan_instance_name = 'de.ckan.net'
-    env.hosts = ['us1.okfn.org']
-    env.base_dir = '/home/okfn/var/srvc'
-
-def fr_ckan_net():
-    env.user = 'okfn'
-    env.ckan_instance_name = 'fr.ckan.net'
-    env.hosts = ['us1.okfn.org']
-    env.base_dir = '/home/okfn/var/srvc'
-
-def ca_ckan_net():
-    env.user = 'okfn'
-    env.ckan_instance_name = 'ca.ckan.net'
-    env.hosts = ['us1.okfn.org']
-    env.base_dir = '/home/okfn/var/srvc'
-
-def std_config(name, hosts=None, requirements='pip-requirements-stable.txt'):
-    env.user = 'okfn'
+    if not hosts and not env.hosts:
+        env.hosts = [name]
     env.ckan_instance_name = name
     env.base_dir = '/home/%s/var/srvc' % env.user
     env.config_ini_filename = '%s.ini' % name
     env.pip_requirements = requirements
+    env.db_pass = db_pass
     
 def _setup():
-    if not hasattr(env, 'config_ini_filename'):
-        env.config_ini_filename = '%s.ini' % env.ckan_instance_name
-    if not hasattr(env, 'instance_path'):
-        env.instance_path = os.path.join(env.base_dir, env.ckan_instance_name)
-    if hasattr(env, 'local_backup_dir'):
-        env.local_backup_dir = os.path.expanduser(env.local_backup_dir)
-    if not hasattr(env, 'pyenv_dir'):
-        env.pyenv_dir = os.path.join(env.instance_path, 'pyenv')
-    if not hasattr(env, 'serve_url'):
-        env.serve_url = env.ckan_instance_name
-    if not hasattr(env, 'wsgi_script_filepath'):
-        env.wsgi_script_filepath = os.path.join(env.pyenv_dir, 'bin', '%s.py' % env.ckan_instance_name)
-    if not hasattr(env, 'who_ini_filepath'):
-        env.who_ini_filepath = os.path.join(env.pyenv_dir, 'src', 'ckan', 'who.ini')
+    def _default(key, value):
+        if not hasattr(env, key):
+            setattr(env, key, value)
+    _default('config_ini_filename', '%s.ini' % env.ckan_instance_name)
+    _default('instance_path', os.path.join(env.base_dir,
+        env.ckan_instance_name))
+    _default('local_backup_dir', os.path.expanduser(env.local_backup_dir))
+    _default('pyenv_dir', os.path.join(env.instance_path, 'pyenv'))
+    _default('serve_url', env.ckan_instance_name)
+    _default('wsgi_script_filepath', os.path.join(env.pyenv_dir, 'bin', '%s.py'
+        % env.ckan_instance_name))
+    _default('who_ini_filepath', os.path.join(env.pyenv_dir, 'src', 'ckan',
+        'who.ini'))
+    _default('db_user', env.user)
+    _default('db_name', env.ckan_instance_name)
 
 def deploy():
     '''Deploy app on server. Keeps existing config files.'''
@@ -167,6 +122,16 @@ def deploy():
         if not exists(env.config_ini_filename):
             # paster make-config doesn't overwrite if ini already exists
             _run_in_pyenv('paster make-config --no-interactive ckan %s' % env.config_ini_filename)
+            dburi = '^sqlalchemy.url.*'
+            # e.g. 'postgres://tester:pass@localhost/ckantest3'
+            newdburi = 'sqlalchemy.url = postgres://%s:%s@localhost/%s' % (
+                    env.db_user, env.db_pass, env.db_name)
+            # sed does not find the path if not absolute (!)
+            config_path = os.path.join(env.instance_path, env.config_ini_filename)
+            sed(config_path, dburi, newdburi, backup='')
+            setup_db()
+            _run_in_pyenv('paster --plugin ckan db create --config %s' % env.config_ini_filename)
+            _run_in_pyenv('paster --plugin ckan db init --config %s' % env.config_ini_filename)
         else:
             print 'Config file already exists: %s/%s' % (env.instance_path, env.config_ini_filename)
             _run_in_pyenv('paster --plugin ckan db upgrade --config %s' % env.config_ini_filename)
@@ -200,6 +165,31 @@ def deploy():
         _create_live_data_dir('OpenID store', _get_open_id_store_dir())
 
     print 'For details of remaining setup, see deployment.rst.'
+
+def setup_db(db_details=None):
+    '''Create a DB (if one does not already exist).
+
+        * Requires sudo access.
+        * Also creates db user if relevant user does not exist.
+
+    @param db_details: dictionary with values like db_user, db_name. If not
+        provided load if from ckan config using _get_db_config()
+    '''
+    if not db_details:
+        db_details = _get_db_config()
+    dbname = db_details['db_name']
+    output = sudo('psql -l', user='postgres')
+    if dbname in output:
+        print 'DB already exists with name: %s' % dbname
+        return 0
+    users = sudo('psql -c "\du"', user='postgres')
+    dbuser = db_details['db_user']
+    if not dbuser in users:
+        createuser = '''psql -c "CREATE USER %s WITH PASSWORD '%s';"''' % (dbuser, db_details['db_pass'])
+        sudo(createuser, user='postgres')
+    else:
+        print('User %s already exists' % dbuser)
+    sudo('createdb --owner %s %s' % (dbuser, dbname), user='postgres')
 
 def restart_apache():
     'Restart apache'
@@ -281,11 +271,20 @@ def paster(cmd):
     with cd(env.instance_path):
         _run_in_pyenv('paster --plugin ckan %s --config %s' % (cmd, env.config_ini_filename))
 
-                    
 def test():
     _setup()
     with cd(env.instance_path):
         _run_in_pyenv('paster --plugin ckan test-data %s --config %s' % (env.serve_url, env.config_ini_filename))
+
+def upload_i18n(lang):
+    _setup()
+    localpath = 'ckan/i18n/%s/LC_MESSAGES/ckan.mo' % lang
+    remotepath = os.path.join(env.pyenv_dir, 'src', 'ckan', localpath)
+    put(localpath, remotepath)
+
+
+## ===================================
+#  Helper Methods
 
 def _mkdir(dir):
     if not exists(dir):
