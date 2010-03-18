@@ -64,10 +64,12 @@ def hmg_ckan_net_2():
     env.hosts = ['ssh.hmg.ckan.net']
     env.config_ini_filename = 'hmg.ckan.net.ini'
 
-def std_config(name, hosts=None, requirements='pip-requirements-stable.txt',
+def std_config(name, hosts_str='', requirements='pip-requirements-stable.txt',
         db_pass=None):
     env.user = 'okfn'
-    if not hosts and not env.hosts:
+    if hosts_str:
+        env.hosts = hosts_str.split()
+    if not hosts_str and not env.hosts:
         env.hosts = [name]
     env.ckan_instance_name = name
     env.base_dir = '/home/%s/var/srvc' % env.user
