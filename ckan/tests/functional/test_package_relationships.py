@@ -6,22 +6,7 @@ class TestRelationships(TestController):
     @classmethod
     def setup_class(self):
         create = CreateTestData
-        create.create_arbitrary([{'name':u'abraham', 'title':u'Abraham'},
-                                 {'name':u'homer', 'title':u'Homer'},
-                                 {'name':u'homer_derived', 'title':u'Homer Derived'},
-                                 {'name':u'beer', 'title':u'Beer'},
-                                 {'name':u'bart', 'title':u'Bart'},
-                                 {'name':u'lisa', 'title':u'Lisa'},
-                                 ])
-        def pkg(pkg_name):
-            return model.Package.by_name(unicode(pkg_name))
-        model.repo.new_revision()
-        pkg('abraham').add_relationship(u'parent_of', pkg('homer'))
-        pkg('homer').add_relationship(u'parent_of', pkg('bart'))
-        pkg('homer').add_relationship(u'parent_of', pkg('lisa'))
-        pkg('homer_derived').add_relationship(u'derives_from', pkg('homer'))
-        pkg('homer').add_relationship(u'depends_on', pkg('beer'))
-        model.repo.commit_and_remove()
+        create.create_family_test_data()
 
     @classmethod
     def teardown_class(self):

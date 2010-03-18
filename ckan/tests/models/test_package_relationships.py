@@ -93,7 +93,7 @@ class TestCreation:
         assert rel4.subject == pkgb, rel4.subject
         assert rel4.object == pkga, rel4.type
 
-class TestUsage:
+class TestSimple:
     @classmethod
     def setup_class(self):
         create = CreateTestData
@@ -126,4 +126,35 @@ class TestUsage:
         assert pkgb_object_query.count() == 2
         for rel in pkgb_object_query:
             assert rel.object == self.pkgb
+        
+class TestComplicated:
+    @classmethod
+    def setup_class(self):
+        create = CreateTestData
+        create.create_family_test_data()
+
+    @classmethod
+    def teardown_class(self):
+        model.repo.rebuild_db()
+
+    def test_rels(self):
+        rels = model.Package.by_name(u'homer').relationships
+        assert len(rels) == 4, len(rels)
+        def check(rels, subject, rel, object):
+            for rel in rels:
+                if rel.subject == subject and rel.type == rel and rel.object == object:
+                    return
+            assert 0, 'Could not find relationship in: %r' % rels
+        check(rels, 'homer', 'is a child of', 'abraham')
+        check(rels, 'homer', 'is a parent of', 'bart')
+        check(rels, 'homer', 'is a parent of', 'lisa')
+        check(rels, 'homer', 'has derivation', 'homer_derived')
+        check(rels, 'homer', 'depends on', 'beer')
+        
+        rels = model.Package.by_name(u'bart').relationships
+        check(rels, 'bart', 'has sibling', 'lisa')
+        check(rels, 'bart', 'is a child of', 'homer')
+
+        rels = model.Package.by_name(u'lisa').relationships
+        check(rels, 'lisa', 'has sibling', 'bart')
         
