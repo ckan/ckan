@@ -40,6 +40,10 @@ class Data(object):
         title, release = self._split_title(item['title'])
         munged_title = schema_gov.name_munge(title)
         pkg = model.Package.by_name(munged_title)
+        department = self._source_to_department(item['hub:source-agency'])
+        if pkg and pkg.extras['department'] != department:
+            munged_title = schema_gov.name_munge('%s - %s' % (title, department))
+            pkg = model.Package.by_name(munged_title)
 
         # Resources
         guid = item['guid'] or None
