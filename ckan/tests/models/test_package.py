@@ -32,7 +32,7 @@ class TestPackage:
         assert package.name == self.name
         assert package.notes == self.notes
         assert package.license.id == u'gpl-3.0'
-        assert package.license.title == u'Affero GNU Public License'
+        assert package.license.title == u'GNU General Public License version 3.0 (GPLv3)'
         # Check unregistered license_id causes license to be 'None'.
         package.license_id = u'zzzzzzz'
         assert package.license == None
