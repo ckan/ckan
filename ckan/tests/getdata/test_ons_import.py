@@ -7,6 +7,7 @@ import ckan.getdata.ons_import as data_getter
 
 test_data=os.path.join(config['here'], 'ckan/tests/getdata/samples/ons_hub_sample.xml')
 test_data2=os.path.join(config['here'], 'ckan/tests/getdata/samples/ons_hub_sample2.xml')
+test_data3=os.path.join(config['here'], 'ckan/tests/getdata/samples/ons_hub_sample3.xml')
 
 class TestBasic:
     @classmethod
@@ -120,3 +121,32 @@ class TestDataTwice:
         assert pkg.notes.startswith('CHANGED'), pkg.notes
         assert len(pkg.resources) == 1, pkg.resources
         assert 'CHANGED' in pkg.resources[0].description, pkg.resources
+
+class TestClashTitle:
+    # two packages with the same title, but from different departments,
+    # so must be different packages
+    @classmethod
+    def setup_class(self):
+        data = data_getter.Data()
+        data.load_xml_into_db(test_data3)
+
+    @classmethod
+    def teardown_class(self):
+        model.Session.remove()
+        model.repo.rebuild_db()
+
+    def test_ons_package(self):
+        pkg = model.Package.by_name(u'annual_survey_of_hours_and_earnings')
+        assert pkg
+        assert not pkg.extras['department'], pkg.extras['department']
+        assert 'Office for National Statistics' in pkg.notes, pkg.notes
+        assert len(pkg.resources) == 2, pkg.resources
+        assert '2007 Results Phase 3 Tables' in pkg.resources[0].description, pkg.resources
+        assert '2007 Pensions Results' in pkg.resources[1].description, pkg.resources
+
+    def test_welsh_package(self):
+        pkg = model.Package.by_name(u'annual_survey_of_hours_and_earnings_-_welsh_assembly_government')
+        assert pkg
+        assert pkg.extras['department'] == 'Welsh Assembly Government', pkg.extras['department']
+        assert len(pkg.resources) == 1, pkg.resources
+        assert '2008 Results' in pkg.resources[0].description, pkg.resources
