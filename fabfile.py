@@ -33,7 +33,7 @@ def config_local(base_dir, ckan_instance_name, db_pass=None):
         env.db_pass = db_pass
 
 def config_local_dev(base_dir, ckan_instance_name):
-    local(base_dir, ckan_instance_name)
+    config_local(base_dir, ckan_instance_name)
     env.config_ini_filename = 'development.ini'
     env.pyenv_dir = os.path.join(base_dir, 'pyenv-%s' % ckan_instance_name)
     env.serve_url = 'localhost:5000'
