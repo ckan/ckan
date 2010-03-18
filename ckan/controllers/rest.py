@@ -13,12 +13,20 @@ class RestController(BaseController):
     def index(self):
         return render('rest/index')
 
-    def list(self, register):
-        if register == u'package':
+    def list(self, register, subregister=None, id=None):
+        if register == u'package' and not subregister:
             query = ckan.authz.Authorizer().authorized_query(self._get_username(), model.Package)
             packages = query.all() 
             results = [package.name for package in packages]
             return self._finish_ok(results)
+        elif register == u'package' and subregister == 'relationships':
+            #TODO authz stuff for this and related packages
+            pkg = model.Package.by_name(id)
+            if not pkg:
+                response.status_int = 404
+                return 'First package named in request was not found.'
+            relationships = pkg.relationships
+            return self._finish_ok([rel.as_dict(pkg) for rel in relationships])
         elif register == u'group':
             groups = model.Session.query(model.Group).all() 
             results = [group.name for group in groups]
@@ -31,7 +39,7 @@ class RestController(BaseController):
             response.status_int = 400
             return ''
 
-    def show(self, register, id):
+    def show(self, register, id, subregister=None, id2=None):
         if register == u'revision':
             # Todo: Implement access control for revisions.
             rev = model.Session.query(model.Revision).get(id)
@@ -45,7 +53,7 @@ class RestController(BaseController):
                 'message': rev.message,
             }
             return self._finish_ok(response_data)
-        elif register == u'package':
+        elif register == u'package' and not subregister:
             pkg = model.Package.by_name(id)
             if pkg is None:
                 response.status_int = 404
@@ -53,10 +61,20 @@ class RestController(BaseController):
 
             if not self._check_access(pkg, model.Action.READ):
                 return ''
-
             _dict = pkg.as_dict()
             #TODO check it's not none
             return self._finish_ok(_dict)
+        elif register == u'package' and subregister == 'relationships':
+            pkg1 = model.Package.by_name(id)
+            pkg2 = model.Package.by_name(id2)
+            if not pkg1:
+                response.status_int = 404
+                return 'First package named in address was not found.'
+            if not pkg2:
+                response.status_int = 404
+                return 'Second package named in address was not found.'
+            relationships = pkg1.relationships_with(pkg2)
+            return self._finish_ok([rel.as_dict(pkg1) for rel in relationships])
         elif register == u'group':
             group = model.Group.by_name(id)
             if group is None:
@@ -80,7 +98,7 @@ class RestController(BaseController):
             response.status_int = 400
             return ''
 
-    def create(self, register):
+    def create(self, register, id=None, subregister=None, id2=None):
         # Check an API key given
         if not self._check_access(None, None):
             return simplejson.dumps(_('Access denied'))
@@ -90,18 +108,38 @@ class RestController(BaseController):
             response.status_int = 400
             return gettext('JSON Error: %s') % str(inst)
         try:
-            if register == 'package':
+            if register == 'package' and not subregister:
                 fs = ckan.forms.package_fs
                 request_fa_dict = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(fs=fs), request_data)
                 fs = fs.bind(model.Package, data=request_fa_dict, session=model.Session)
-            elif register == 'group':
+            elif register == 'package' and subregister in model.PackageRelationship.get_all_types():
+                pkg1 = model.Package.by_name(id)
+                pkg2 = model.Package.by_name(id2)
+                if not pkg1:
+                    response.status_int = 404
+                    return 'First package named in address was not found.'
+                if not pkg2:
+                    response.status_int = 404
+                    return 'Second package named in address was not found.'
+                comment = request_data.get('comment', u'')
+                existing_rels = pkg1.relationships_with(pkg2, subregister)
+                if existing_rels:
+                    return self._update_package_relationship(existing_rels[0],
+                                                             comment)
+                rev = model.repo.new_revision()
+                rev.author = self.rest_api_user
+                rev.message = _(u'REST API: Create package relationship: %s %s %s') % (pkg1, subregister, pkg2)
+                rel = pkg1.add_relationship(subregister, pkg2, comment=comment)
+                model.repo.commit_and_remove()
+                return self._finish_ok(rel.as_dict())
+            elif register == 'group' and not subregister:
                 request_fa_dict = ckan.forms.edit_group_dict(ckan.forms.get_group_dict(), request_data)
                 fs = ckan.forms.group_fs_combined.bind(model.Group, data=request_fa_dict, session=model.Session)
-            elif register == 'rating':
+            elif register == 'rating' and not subregister:
                 return self._create_rating(request_data)
             else:
                 response.status_int = 400
-                return gettext('Cannot create new entity of this type: %s') % register
+                return gettext('Cannot create new entity of this type: %s %s') % (register, subregister)
             validation = fs.validate()
             if not validation:
                 response.status_int = 409
@@ -125,10 +163,26 @@ class RestController(BaseController):
         obj = fs.model
         return self._finish_ok(obj.as_dict())
             
-    def update(self, register, id):
-        if register == 'package':
+    def update(self, register, id, subregister=None, id2=None):
+        if register == 'package' and not subregister:
             entity = model.Package.by_name(id)
-        elif register == 'group':
+        elif register == 'package' and subregister in model.PackageRelationship.get_all_types():
+            pkg1 = model.Package.by_name(id)
+            pkg2 = model.Package.by_name(id2)
+            if not pkg1:
+                response.status_int = 404
+                return 'First package named in address was not found.'
+            if not pkg2:
+                response.status_int = 404
+                return 'Second package named in address was not found.'
+            comment = request_data.get('comment', u'')
+            existing_rels = pkg1.relationships_with(pkg2, subregister)
+            if not existing_rels:
+                response.status_int = 404
+                return 'This relationship between the packages was not found.'
+            return self._update_package_relationship(existing_rels[0],
+                                                     comment)
+        elif register == 'group' and not subregister:
             entity = model.Group.by_name(id)
         else:
             reponse.status_int = 400
@@ -176,14 +230,28 @@ class RestController(BaseController):
         obj = fs.model
         return self._finish_ok(obj.as_dict())
 
-    def delete(self, register, id):
-        if register == 'package':
+    def delete(self, register, id, subregister=None, id2=None):
+        if register == 'package' and not subregister:
             entity = model.Package.by_name(id)
-        elif register == 'group':
+        elif register == 'package' and subregister in model.PackageRelationship.get_all_types():
+            pkg1 = model.Package.by_name(id)
+            pkg2 = model.Package.by_name(id2)
+            if not pkg1:
+                response.status_int = 404
+                return 'First package named in address was not found.'
+            if not pkg2:
+                response.status_int = 404
+                return 'Second package named in address was not found.'
+            existing_rels = pkg1.relationships_with(pkg2, subregister)
+            if not existing_rels:
+                response.status_int = 404
+                return ''
+            entity = existing_rels[0]
+        elif register == 'group' and not subregister:
             entity = model.Group.by_name(id)
         else:
             reponse.status_int = 400
-            return gettext('Cannot delete entity of this type: %s') % register
+            return gettext('Cannot delete entity of this type: %s %s') % (register, subregister or '')
         if not entity:
             response.status_int = 404
             return ''
@@ -296,25 +364,26 @@ class RestController(BaseController):
         else:
             return u''
     
-    def _check_access(self, pkg, action):
+    def _check_access(self, entity, action):
         # Checks apikey is okay and user is authorized to do the specified
-        # action on the specified package. If both args are None then just
-        # the apikey is checked.
+        # action on the specified package (or other entity).
+        # If both args are None then just check the apikey corresponds
+        # to a user.
         api_key = None
         isOk = False
 
         self.rest_api_user = self._get_username()
         
-        if action and pkg:
+        if action and entity and not isinstance(entity, model.PackageRelationship):
             if action != model.Action.READ and self.rest_api_user in (model.PSEUDO_USER__VISITOR, ''):
                 self.log.debug("Valid API key needed to make changes")
                 response.status_int = 403
                 response.headers['Content-Type'] = 'application/json'
                 return False                
             
-            am_authz = ckan.authz.Authorizer().is_authorized(self.rest_api_user, action, pkg)
+            am_authz = ckan.authz.Authorizer().is_authorized(self.rest_api_user, action, entity)
             if not am_authz:
-                self.log.debug("User is not authorized to %s %s" % (action, pkg))
+                self.log.debug("User is not authorized to %s %s" % (action, entity))
                 response.status_int = 403
                 response.headers['Content-Type'] = 'application/json'
                 return False
@@ -336,6 +405,8 @@ class RestController(BaseController):
             )
             raise ValueError, msg
         request_data = simplejson.loads(request_data, encoding='utf8')
+        if not isinstance(request_data, dict):
+            raise ValueError, _("Request params must be in form of a json encoded dictionary.")
         # ensure unicode values
         for key, val in request_data.items():
             # if val is str then assume it is ascii, since simplejson converts
@@ -358,6 +429,16 @@ class RestController(BaseController):
             return new_dict
         else:
             return entity
+
+    def _update_package_relationship(self, relationship, comment):
+        is_changed = relationship.comment != comment
+        if is_changed:
+            rev = model.repo.new_revision()
+            rev.author = self.rest_api_user
+            rev.message = _(u'REST API: Update package relationship: %s %s %s') % (relationship.subject, relationship.type, relationship.object)
+            relationship.comment = comment
+            model.repo.commit_and_remove()
+        return self._finish_ok(relationship.as_dict())
 
     def _finish_ok(self, response_data=None):
         response.status_int = 200

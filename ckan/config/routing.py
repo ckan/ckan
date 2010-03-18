@@ -40,6 +40,21 @@ def make_map():
         conditions=dict(method=['POST']))
     map.connect('/api/rest/:register/:id', controller='rest', action='delete',
         conditions=dict(method=['DELETE']))
+    map.connect('/api/rest/:register/:id/:subregister',
+        controller='rest', action='list',
+        conditions=dict(method=['GET']))
+    map.connect('/api/rest/:register/:id/:subregister/:id2',
+        controller='rest', action='create',
+        conditions=dict(method=['POST']))
+    map.connect('/api/rest/:register/:id/:subregister/:id2',
+        controller='rest', action='show',
+        conditions=dict(method=['GET']))
+    map.connect('/api/rest/:register/:id/:subregister/:id2',
+        controller='rest', action='update',
+        conditions=dict(method=['PUT']))
+    map.connect('/api/rest/:register/:id/:subregister/:id2',
+        controller='rest', action='delete',
+        conditions=dict(method=['DELETE']))
 
     map.redirect("/tags", "/tag")
     map.redirect("/tags/{url:.*}", "/tag/{url}")

@@ -6,6 +6,7 @@ class CreateTestData(cli.CkanCommand):
     create-test-data         - annakarenina and warandpeace
     create-test-data search  - realistic data to test search
     create-test-data gov     - government style data
+    create-test-data family  - package relationships data
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
@@ -27,7 +28,9 @@ class CreateTestData(cli.CkanCommand):
         elif cmd == 'search':
             self.create_search_test_data()
         elif cmd == 'gov':
-            self.create_gov_test_data(gov_items)
+            self.create_gov_test_data()
+        elif cmd == 'family':
+            self.create_family_test_data()
         else:
             print 'Command %s not recognized' % cmd
             raise NotImplementedError
@@ -47,7 +50,14 @@ class CreateTestData(cli.CkanCommand):
         self.create_arbitrary(gov_items, extra_user_names=extra_users)
 
     @classmethod
-    def create_arbitrary(self, package_dicts, extra_user_names=[]):
+    def create_family_test_data(self, extra_users=[]):
+        self.create_arbitrary(family_items,
+                              relationships=family_relationships,
+                              extra_user_names=extra_users)
+
+    @classmethod
+    def create_arbitrary(self, package_dicts, relationships=[],
+                         extra_user_names=[]):
         import ckan.model as model
         model.Session.remove()
         rev = model.repo.new_revision() 
@@ -139,6 +149,17 @@ class CreateTestData(cli.CkanCommand):
                 model.setup_default_user_roles(pkg, admins)
             model.repo.commit_and_remove()
 
+        if relationships:
+            def pkg(pkg_name):
+                return model.Package.by_name(unicode(pkg_name))
+            for subject_name, relationship, object_name in relationships:
+                pkg(subject_name).add_relationship(
+                    unicode(relationship), pkg(object_name))
+                rev = model.repo.new_revision() 
+                rev.author = self.author
+                rev.message = u'Creating test data relationships.'
+                model.Session.commit()
+            model.Session.remove()
     
     @classmethod
     def create(self):
@@ -364,6 +385,19 @@ It appears that the website is under a CC-BY-SA license. Legal status of the dat
               },
              ]
 
+family_items = [{'name':u'abraham', 'title':u'Abraham'},
+                {'name':u'homer', 'title':u'Homer'},
+                {'name':u'homer_derived', 'title':u'Homer Derived'},
+                {'name':u'beer', 'title':u'Beer'},
+                {'name':u'bart', 'title':u'Bart'},
+                {'name':u'lisa', 'title':u'Lisa'},
+                ]
+family_relationships = [('abraham', 'parent_of', 'homer'),
+                        ('homer', 'parent_of', 'bart'),
+                        ('homer', 'parent_of', 'lisa'),
+                        ('homer_derived', 'derives_from', 'homer'),
+                        ('homer', 'depends_on', 'beer'),
+                        ]
 
 gov_items = [
     {'name':'private-fostering-england-2009',

@@ -164,10 +164,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         _dict = DomainObject.as_dict(self)
         _dict['tags'] = [tag.name for tag in self.tags]
         _dict['groups'] = [group.name for group in self.groups]
-        if self.license:
-            _dict['license'] = self.license.id
-        else:
-            _dict['license'] = ''
+        _dict['license'] = self.license.id if self.license else ''
         del _dict['license_id']
         _dict['extras'] = dict([(extra.key, extra.value) for key, extra in self._extras.items()])
         _dict['ratings_average'] = self.get_average_rating()
@@ -177,9 +174,12 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         ckan_host = config.get('ckan_host', None)
         if ckan_host:
             _dict['ckan_url'] = 'http://%s/package/%s' % (ckan_host, self.name)
+        _dict['relationships'] = [rel.as_dict(self) for rel in self.relationships]
         return _dict
 
     def add_relationship(self, type_, related_package, comment=u''):
+        '''Adds a relationship to this package (but leaves the caller to
+        commit the change.'''
         import package_relationship
         if type_ in package_relationship.PackageRelationship.get_forward_types():
             subject = self
@@ -192,17 +192,39 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         else:
             raise NotImplementedError, 'Package relationship type: %r' % type_
             
-            
         rel = package_relationship.PackageRelationship(
             subject=subject,
             object=object_,
             type=type_,
             comment=comment)
         Session.add(rel)
+        return rel
 
     @property
     def relationships(self):
         return self.relationships_as_subject + self.relationships_as_object
+
+    def relationships_with(self, other_package, filter_by_type=None):
+        from package_relationship import PackageRelationship
+        forward_filters = [PackageRelationship.subject==self,
+                           PackageRelationship.object==other_package]
+        if filter_by_type:
+            forward_filters.append(PackageRelationship.type==filter_by_type)
+        reverse_filters = [PackageRelationship.subject==other_package,
+                           PackageRelationship.object==self]
+        if filter_by_type:
+            reverse_type = PackageRelationship.reverse_type(filter_by_type)
+            reverse_filters.append(PackageRelationship.type==reverse_type)
+        return Session.query(PackageRelationship).filter(or_(
+            and_(*forward_filters),
+            and_(*reverse_filters),
+            )).all()
+        return Session.query(PackageRelationship).filter(or_(
+            and_(PackageRelationship.subject==self,
+                 PackageRelationship.object==other_package),
+            and_(PackageRelationship.subject==other_package,
+                 PackageRelationship.object==self),
+            )).all()
 
     def relationships_printable(self):
         '''Returns a list of tuples describing related packages, including
@@ -273,7 +295,7 @@ class Tag(DomainObject):
     def __init__(self, name=''):
         self.name = name
 
-    # not versioned so same as purge
+    # not stateful so same as purge
     def delete(self):
         self.purge()
 

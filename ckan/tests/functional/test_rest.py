@@ -583,6 +583,176 @@ class TestRest(TestController):
         res = self.app.get(offset, status=404)
         model.Session.remove()
 
+class TestRelationships(TestController):
+    @classmethod
+    def setup_class(self):
+        CreateTestData.create()
+        username = u'barry'
+        self.user = model.User(name=username)
+        model.Session.add(self.user)
+        model.Session.commit()
+        model.Session.remove()
+        self.extra_environ={ 'Authorization' : str(self.user.apikey) }
+        self.comment = u'Comment umlaut: \xfc.'
+
+
+    @classmethod
+    def teardown_class(self):
+        model.Session.remove()
+        model.repo.rebuild_db()
+        model.Session.remove()
+
+    def _get_relationships(self, package1_name='annakarenina', package2_name=None):
+        if not package2_name:
+            offset = '/api/rest/package/%s/relationships' % str(package1_name)
+        else:
+            offset = '/api/rest/package/%s/relationships/%s/' % (
+                str(package1_name), str(package2_name))
+        res = self.app.get(offset, status=200)
+        res_dict = simplejson.loads(res.body) if res.body else []
+        return res_dict
+
+    def _get_relationships_via_package(self, package1_name):
+        offset = '/api/rest/package/%s' % (str(package1_name))
+        res = self.app.get(offset, status=200)
+        res_dict = simplejson.loads(res.body) if res.body else []
+        return res_dict['relationships']
+
+    @property
+    def war(self):
+        return model.Package.by_name(u'warandpeace')
+    @property
+    def anna(self):
+        return model.Package.by_name(u'annakarenina')
+    @property
+    def anna_offset(self):
+        return '/api/rest/package/annakarenina'
+
+    def _check_relationships_rest(self, pkg1_name, pkg2_name=None,
+                                 expected_relationships=[]):
+        rels = self._get_relationships(package1_name=pkg1_name,
+                                      package2_name=pkg2_name)
+        assert len(rels) == len(expected_relationships), \
+               'Found %i relationships, but expected %i.\nFound: %r' % \
+               (len(rels), len(expected_relationships),
+                ['%s %s %s' % (rel['subject'], rel['type'], rel['object']) \
+                 for rel in rels])
+        for rel in rels:
+            the_expected_rel = None
+            for expected_rel in expected_relationships:
+                if expected_rel['type'] == rel['type'] and \
+                   (pkg2_name or expected_rel['object'] == pkg2_name):
+                    the_expected_rel = expected_rel
+                    break
+            if not the_expected_rel:
+                raise Exception('Unexpected relationship: %s %s %s' %
+                                (rel['subject'], rel['type'], rel['object']))
+            for field in ('subject', 'object', 'type', 'comment'):
+                if the_expected_rel.has_key(field):
+                    assert rel[field] == the_expected_rel[field], rel
+
+    def _check_relationship_dict(self, rel_dict, subject, type, object, comment):
+        assert rel_dict['subject'] == subject, rel_dict
+        assert rel_dict['object'] == object, rel_dict
+        assert rel_dict['type'] == type, rel_dict
+        assert rel_dict['comment'] == comment, rel_dict
+
+
+    def test_01_add_relationship(self):
+        # check anna has no exisiting relationships
+        assert not self.anna.relationships
+        assert self._get_relationships(package1_name='annakarenina') == []
+        assert self._get_relationships(package1_name='annakarenina',
+                                      package2_name='warandpeace') == []
+        assert self._get_relationships_via_package('annakarenina') == []
+
+        # make annakarenina parent of warandpeace
+        offset='/api/rest/package/annakarenina/parent_of/warandpeace'
+        postparams = '%s=1' % simplejson.dumps({'comment':self.comment})
+        res = self.app.post(offset, params=postparams, status=[200],
+                            extra_environ=self.extra_environ)
+
+    def test_02_read_relationship(self):
+        'check relationship is made (in test 01)'
+
+        # check model is right        
+        assert len(self.anna.relationships) == 1
+        assert self.anna.relationships[0].type == 'child_of'
+        assert self.anna.relationships[0].subject.name == 'warandpeace'
+        assert self.anna.relationships[0].object.name == 'annakarenina'
+
+        # check '/api/rest/package/annakarenina/relationships'
+        rels = self._get_relationships(package1_name='annakarenina')
+        assert len(rels) == 1
+        self._check_relationship_dict(rels[0],
+               'annakarenina', 'parent_of', 'warandpeace', self.comment)
+
+        # check '/api/rest/package/annakarenina/relationships/warandpeace'
+        rels = self._get_relationships(package1_name='annakarenina',
+                                      package2_name='warandpeace')
+        assert len(rels) == 1
+        self._check_relationship_dict(rels[0],
+               'annakarenina', 'parent_of', 'warandpeace', self.comment)
+
+        # same checks in reverse direction
+        rels = self._get_relationships(package1_name='warandpeace')
+        assert len(rels) == 1
+        self._check_relationship_dict(rels[0],
+               'warandpeace', 'child_of', 'annakarenina', self.comment)
+
+        rels = self._get_relationships(package1_name='warandpeace',
+                                      package2_name='annakarenina')
+        assert len(rels) == 1
+        self._check_relationship_dict(rels[0],
+               'warandpeace', 'child_of', 'annakarenina', self.comment)
+
+        # check '/api/rest/package/annakarenina'
+        rels = self._get_relationships_via_package('annakarenina')
+        assert len(rels) == 1
+        self._check_relationship_dict(rels[0],
+               'annakarenina', 'parent_of', 'warandpeace', self.comment)
+        
+
+    def test_03_update_relationship(self):
+        self._check_relationships_rest('warandpeace', 'annakarenina',
+                                      [{'type': 'child_of',
+                                        'comment': self.comment}])
+
+        offset='/api/rest/package/annakarenina/parent_of/warandpeace'
+        comment = u'New comment.'
+        postparams = '%s=1' % simplejson.dumps({'comment':comment})
+        res = self.app.post(offset, params=postparams, status=[200],
+                            extra_environ=self.extra_environ)
+
+        self._check_relationships_rest('warandpeace', 'annakarenina',
+                                      [{'type': 'child_of',
+                                        'comment': u'New comment.'}])
+
+    def test_04_update_relationship_no_change(self):
+        offset='/api/rest/package/annakarenina/parent_of/warandpeace'
+
+        comment = u'New comment.' # same as previous test
+        postparams = '%s=1' % simplejson.dumps({'comment':comment})
+        res = self.app.post(offset, params=postparams, status=[200],
+                            extra_environ=self.extra_environ)
+
+        self._check_relationships_rest('warandpeace', 'annakarenina',
+                                      [{'type': 'child_of',
+                                        'comment': u'New comment.'}])
+
+        
+    def test_05_delete_relationship(self):
+        self._check_relationships_rest('warandpeace', 'annakarenina',
+                                      [{'type': 'child_of',
+                                        'comment': u'New comment.'}])
+
+        offset='/api/rest/package/annakarenina/parent_of/warandpeace'
+        res = self.app.delete(offset, status=[200],
+                              extra_environ=self.extra_environ)
+
+        self._check_relationships_rest('warandpeace', 'annakarenina',
+                                      [])
+
 
 class TestSearch(TestController):
     @classmethod

@@ -65,25 +65,31 @@ API Locations
 A REST interface presents resources at published locations. Here are the names
 locations of the CKAN REST API resources:
 
-+------------------------+--------------------------------+
-| Resource Name          | Location                       |
-+========================+================================+
-| Package Register       | /api/rest/package              |
-+------------------------+--------------------------------+
-| Package Entity         | /api/rest/package/PACKAGE-NAME |
-+------------------------+--------------------------------+
-| Group Register         | /api/rest/group                |
-+------------------------+--------------------------------+
-| Group Entity           | /api/rest/group/GROUP-NAME     |
-+------------------------+--------------------------------+
-| Tag Register           | /api/rest/tag                  |
-+------------------------+--------------------------------+
-| Tag Entity             | /api/rest/tag/TAG-NAME         |
-+------------------------+--------------------------------+
-| Rating Registry        | /api/rest/rating               |
-+------------------------+--------------------------------+
-| Rating Entity          | /api/rest/rating/PACKAGE-NAME  |
-+------------------------+--------------------------------+
++--------------------------------+---------------------------------------------------------------+
+| Resource Name                  | Location                                                      |
++================================+===============================================================+
+| Package Register               | /api/rest/package                                             |
++--------------------------------+---------------------------------------------------------------+
+| Package Entity                 | /api/rest/package/PACKAGE-NAME                                |
++--------------------------------+---------------------------------------------------------------+
+| Group Register                 | /api/rest/group                                               |
++--------------------------------+---------------------------------------------------------------+
+| Group Entity                   | /api/rest/group/GROUP-NAME                                    |
++--------------------------------+---------------------------------------------------------------+
+| Tag Register                   | /api/rest/tag                                                 |
++--------------------------------+---------------------------------------------------------------+
+| Tag Entity                     | /api/rest/tag/TAG-NAME                                        |
++--------------------------------+---------------------------------------------------------------+
+| Rating Registry                | /api/rest/rating                                              |
++--------------------------------+---------------------------------------------------------------+
+| Rating Entity                  | /api/rest/rating/PACKAGE-NAME                                 |
++--------------------------------+---------------------------------------------------------------+
+| Package Relationships Register | /api/rest/package/PACKAGE-NAME/relationships                  |
++--------------------------------+---------------------------------------------------------------+
+| Package Relationships Register | /api/rest/package/PACKAGE-NAME/relationships/PACKAGE-NAME     |
++--------------------------------+---------------------------------------------------------------+
+| Package Relationship Entity    | /api/rest/package/PACKAGE-NAME/RELATIONSHIP-NAME/PACKAGE-NAME |
++--------------------------------+---------------------------------------------------------------+
 
 Here are the non-REST API locations:
 
@@ -103,39 +109,47 @@ Each resource location supports a number of methods, which may send or receive
 a piece of data. Standard http status codes are used to signal the outcome of
 the operation.
 
-+------------------+--------+--------------+-----------------+
-| Resource         | Method | Request      | Response        |
-+==================+========+==============+=================+ 
-| Package Register | GET    |              | Package-List    | 
-+------------------+--------+--------------+-----------------+
-| Package Register | POST   | Package      |                 | 
-+------------------+--------+--------------+-----------------+
-| Package Entity   | GET    |              | Package         | 
-+------------------+--------+--------------+-----------------+
-| Package Entity   | PUT    | Package      |                 | 
-+------------------+--------+--------------+-----------------+
-| Group Register   | GET    |              | Group-List      | 
-+------------------+--------+--------------+-----------------+
-| Group Register   | POST   | Group        |                 | 
-+------------------+--------+--------------+-----------------+
-| Group Entity     | GET    |              | Group           | 
-+------------------+--------+--------------+-----------------+
-| Group Entity     | PUT    | Group        |                 | 
-+------------------+--------+--------------+-----------------+
-| Tag Register     | GET    |              | Tag-List        |  
-+------------------+--------+--------------+-----------------+
-| Tag Entity       | GET    | Tag          | Package-List    | 
-+------------------+--------+--------------+-----------------+
-| Rating Entity    | GET    |              | Ratings         | 
-+------------------+--------+--------------+-----------------+
-| Rating Register  | POST   | Rating       |                 | 
-+------------------+--------+--------------+-----------------+
-| Search           | GET    |              | Search-Response | 
-+------------------+--------+--------------+-----------------+
-| Search           | POST   | Query-String | Search-Response | 
-+------------------+--------+--------------+-----------------+
-| Tag Counts       | GET    |              | Tag-Count-List  | 
-+------------------+--------+--------------+-----------------+
++-------------------------------+--------+------------------+-------------------+
+| Resource                      | Method | Request          | Response          |
++===============================+========+==================+===================+ 
+| Package Register              | GET    |                  | Package-List      | 
++-------------------------------+--------+------------------+-------------------+
+| Package Register              | POST   | Package          |                   | 
++-------------------------------+--------+------------------+-------------------+
+| Package Entity                | GET    |                  | Package           | 
++-------------------------------+--------+------------------+-------------------+
+| Package Entity                | PUT    | Package          |                   | 
++-------------------------------+--------+------------------+-------------------+
+| Group Register                | GET    |                  | Group-List        | 
++-------------------------------+--------+------------------+-------------------+
+| Group Register                | POST   | Group            |                   | 
++-------------------------------+--------+------------------+-------------------+
+| Group Entity                  | GET    |                  | Group             | 
++-------------------------------+--------+------------------+-------------------+
+| Group Entity                  | PUT    | Group            |                   | 
++-------------------------------+--------+------------------+-------------------+
+| Tag Register                  | GET    |                  | Tag-List          |  
++-------------------------------+--------+------------------+-------------------+
+| Tag Entity                    | GET    | Tag              | Package-List      | 
++-------------------------------+--------+------------------+-------------------+
+| Rating Entity                 | GET    |                  | Ratings           | 
++-------------------------------+--------+------------------+-------------------+
+| Rating Register               | POST   | Rating           |                   | 
++-------------------------------+--------+------------------+-------------------+
+| Package Relationship Entity   | GET    |                  | Pkg-Relationship  |
++-------------------------------+--------+------------------+-------------------+
+| Package Relationship Entity   | POST   | Pkg-Relationship |                   | 
++-------------------------------+--------+------------------+-------------------+
+| Package Relationship Entity   | PUT    | Pkg-Relationship |                   | 
++-------------------------------+--------+------------------+-------------------+
+| Package Relationship Register | GET    | Rating           | Pkg-Relationships | 
++-------------------------------+--------+------------------+-------------------+
+| Search                        | GET    |                  | Search-Response   | 
++-------------------------------+--------+------------------+-------------------+
+| Search                        | POST   | Query-String     | Search-Response   | 
++-------------------------------+--------+------------------+-------------------+
+| Tag Counts                    | GET    |                  | Tag-Count-List    | 
++-------------------------------+--------+------------------+-------------------+
 
 Notes:
 
@@ -191,6 +205,11 @@ Data Formats
 +-----------------+------------------------------------------------------------+
 | Tag-Count-List  | [ [tag-name, tag-count], [tag-name, tag-count], ... ]      |
 +-----------------+------------------------------------------------------------+
+| Pkg-Relationship| {'comment':String}                                         |
++-----------------+------------------------------------------------------------+
+|RELATIONSHIP-NAME| One of: 'child_of', 'parent_of', 'depends_on',             |
+|                 | 'dependency_of', 'derives_from', 'has_derivation'          |
++-----------------+------------------------------------------------------------+
 
 To send request data, create a simple data structure, then convert it to a JSON string, then percent-encode the JSON string, then send it as the request body.
 
@@ -201,6 +220,8 @@ Notes:
  * When you update an object, fields that you don't supply will remain as they were before.
 
  * To delete an 'extra' key-value pair, supply the key with a None value.
+
+ * When you read a package then some additional information is supplied that cannot be edited in the REST style. This includes info on Package Relationship. This is a convenience.
 
 
 API Keys

@@ -93,24 +93,29 @@ class TestCreation:
         assert rel4.subject == pkgb, rel4.subject
         assert rel4.object == pkga, rel4.type
 
-class TestUsage:
+class TestSimple:
     @classmethod
     def setup_class(self):
         create = CreateTestData
-        create.create_arbitrary([{'name':u'pkga', 'title':u'The Parent'},
-                                 {'name':u'pkgb', 'title':u'The Child'},
-                                 ])
+        create.create_arbitrary([
+            {'name':u'pkga', 'title':u'The Parent'},
+            {'name':u'pkgb', 'title':u'The Child'},
+            {'name':u'pkgc', 'title':u'The Child\s Child'},
+            ])
         pkga = model.Package.by_name(u'pkga')
         pkgb = model.Package.by_name(u'pkgb')
+        pkgc = model.Package.by_name(u'pkgc')
         rev = model.repo.new_revision()
         pkgb.add_relationship(u'parent_of', pkga)
         pkgb.add_relationship(u'has_derivation', pkga)
         pkgb.add_relationship(u'child_of', pkga)
         pkgb.add_relationship(u'depends_on', pkga)
+        pkgc.add_relationship(u'child_of', pkgb)
         model.repo.commit_and_remove()
 
         self.pkga = model.Package.by_name(u'pkga')
         self.pkgb = model.Package.by_name(u'pkgb')
+        self.pkgc = model.Package.by_name(u'pkgc')
 
     @classmethod
     def teardown_class(self):
@@ -123,7 +128,63 @@ class TestUsage:
             assert rel.subject == self.pkga
             
         pkgb_object_query = model.PackageRelationship.by_object(self.pkgb)
-        assert pkgb_object_query.count() == 2
+        assert pkgb_object_query.count() == 3, pkgb_object_query.count()
         for rel in pkgb_object_query:
             assert rel.object == self.pkgb
+
+        pkgc_subject_query = model.PackageRelationship.by_subject(self.pkgc)
+        assert pkgc_subject_query.count() == 1, pkgc_subject_query.count()
+        for rel in pkgc_subject_query:
+            assert rel.subject == self.pkgc
+
+    def test_relationships_with(self):
+        rels = self.pkgb.relationships_with(self.pkgc)
+        assert len(rels) == 1, rels
+        assert rels[0].type == 'child_of'
+
+        rels = self.pkgb.relationships_with(self.pkga)
+        assert len(rels) == 4, rels
+
+        rels = self.pkgb.relationships_with(self.pkgc, u'parent_of')
+        assert len(rels) == 1, rels
+
+        rels = self.pkgb.relationships_with(self.pkgc, u'child_of')
+        assert len(rels) == 0, rels
+
+        rels = self.pkgc.relationships_with(self.pkgb, u'child_of')
+        assert len(rels) == 1, rels
+
+    def test_types(self):
+        all_types = model.PackageRelationship.get_all_types()
+        assert len(all_types) >= 6
+        assert all_types[0] == u'depends_on', all_types
+
+class TestComplicated:
+    @classmethod
+    def setup_class(self):
+        create = CreateTestData
+        create.create_family_test_data()
+
+    @classmethod
+    def teardown_class(self):
+        model.repo.rebuild_db()
+
+    def test_rels(self):
+        rels = model.Package.by_name(u'homer').relationships
+        assert len(rels) == 5, len(rels)
+        def check(rels, subject, type, object):
+            for rel in rels:
+                if rel.subject.name == subject and rel.type == type and rel.object.name == object:
+                    return
+            assert 0, 'Could not find relationship in: %r' % rels
+        check(rels, 'homer', 'child_of', 'abraham')
+        check(rels, 'bart', 'child_of', 'homer')
+        check(rels, 'lisa', 'child_of', 'homer')
+        check(rels, 'homer_derived', 'derives_from', 'homer')
+        check(rels, 'homer', 'depends_on', 'beer')
+        
+        rels = model.Package.by_name(u'bart').relationships
+        assert len(rels) == 1, len(rels)
+        check(rels, 'bart', 'child_of', 'homer')
+
         
