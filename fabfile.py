@@ -21,8 +21,9 @@ env.base_dir = os.getcwd() # e.g. /home/jsmith/var/srvc
 env.local_backup_dir = '~/db_backup'
 env.ckan_repo = 'http://knowledgeforge.net/ckan/hg/raw-file/tip/'
 env.pip_requirements = 'pip-requirements.txt'
+env.skip_setup_db = False
 
-def config_local(base_dir, ckan_instance_name, db_pass=None):
+def config_local(base_dir, ckan_instance_name, db_pass=None, skip_setup_db=None, no_sudo=None):
     '''Run on localhost. e.g. local:~/test,myhost.com
                             puts it at ~/test/myhost.com
                             '''
@@ -31,6 +32,10 @@ def config_local(base_dir, ckan_instance_name, db_pass=None):
     env.base_dir = os.path.expanduser(base_dir)    # e.g. ~/var/srvc
     if db_pass:
         env.db_pass = db_pass
+    if skip_setup_db != None:
+        env.skip_setup_db = skip_setup_db    
+    if no_sudo != None:
+        env.no_sudo = no_sudo    
 
 def config_local_dev(base_dir, ckan_instance_name):
     config_local(base_dir, ckan_instance_name)
@@ -142,7 +147,8 @@ def deploy():
             # sed does not find the path if not absolute (!)
             config_path = os.path.join(env.instance_path, env.config_ini_filename)
             sed(config_path, dburi, newdburi, backup='')
-            setup_db()
+            if not env.skip_setup_db:
+                setup_db()
             _run_in_pyenv('paster --plugin ckan db create --config %s' % env.config_ini_filename)
             _run_in_pyenv('paster --plugin ckan db init --config %s' % env.config_ini_filename)
         else:
