@@ -102,10 +102,18 @@ class Data(object):
 
 # ['name', 'title', 'co identifier', 'notes', 'date released', 'date updated', 'update frequency', 'geographical granularity - standard', 'geographical granularity - other', 'geographic coverage - england', 'geographic coverage - n. ireland', 'geographic coverage - scotland', 'geographic coverage - wales', 'geographic coverage - overseas', 'geographic coverage - global', 'temporal granularity - standard', 'temporal granularity - other', 'file format', 'categories', 'national statistic', 'precision', 'url', 'download url', 'taxonomy url', 'department', 'agency responsible', 'contact - name', 'contact - email', 'maintainer - name', 'maintainer - email', 'licence', 'tags']
 
+    def _name_munge(self, input_name):
+        '''Munges the name field in case it is not to spec.'''
+        return self._munge(input_name.replace(' ', '').replace('.', '_').replace('&', 'and'))
+
+    def _parse_tags(self, tags_str):
+        tag_list = re.split(',\s?|\s', tags_str)
+        return [schema_gov.tag_munge(tag_name) for tag_name in tag_list]
+
     def _load_line_into_db(self, _dict, line_index):
         # Create package
         rev = self._new_revision()
-        name = self._munge(_dict['name'].replace(' ', '').replace('.', '_').replace('&', 'and'))
+        name = self._name_munge(_dict['name'])
         title = _dict['title']
         url = _dict['url']
         notes = _dict['notes']
@@ -140,7 +148,7 @@ class Data(object):
             _dict[field] = _dict['%s - other' % field] if \
                            _dict['%s - standard' % field] == 'Other (specify)' else \
                            _dict['%s - standard' % field]
-        license_name = license_map.get(_dict['licence'], '')
+        license_name = license_map.get(_dict['licence'].strip(), '')
         if not license_name:
             print 'Warning: license not recognised: %s. Defaulting to Crown Copyright.' % _dict['licence']
             license_name = u'Non-OKD Compliant::Crown Copyright'
@@ -165,6 +173,8 @@ class Data(object):
                 val = _dict[column]
             extras_dict[column.replace(' ', '_')] = val
 
+        given_tags = self._parse_tags(_dict['tags'])
+            
         field_map = [
             ['co identifier'],
             ['update frequency'],
@@ -202,7 +212,7 @@ class Data(object):
                     print "WARNING: Value for column '%s' of '%s' is not in suggestions '%s'" % (column, val, suggestions)
             extras_dict[extras_key] = val
         
-        extras_dict['national_statistic'] = _dict['national statistic'].lower()
+        extras_dict['national_statistic'] = u'' # Ignored: _dict['national statistic'].lower()
         extras_dict['import_source'] = 'COSPREAD-%s' % self._current_filename
 
 
@@ -257,13 +267,15 @@ class Data(object):
         # Update tags
         pkg_dict = {'name':pkg.name, 'title':pkg.title, 'notes':pkg.notes, 'categories':pkg.extras['categories'],
                     'agency':pkg.extras['agency']}
-        taglist = schema_gov.TagSuggester.suggest_tags(pkg_dict)
+        tag_set = schema_gov.TagSuggester.suggest_tags(pkg_dict)
+        for tag in given_tags:
+            tag_set.add(tag)
         current_tags = pkg.tags
-        for name in taglist:
+        for name in tag_set:
             if name not in current_tags:
                 pkg.add_tag_by_name(unicode(name))
         for pkgtag in pkg.package_tags:
-            if pkgtag.tag.name not in taglist:
+            if pkgtag.tag.name not in tag_set:
                 pkgtag.delete()
 
         # Put package in the group
@@ -273,10 +285,8 @@ class Data(object):
         
         model.Session.commit()
 
-    def _tag_munge(self, name):
-        return self._munge(name).replace('_', '-').replace('--', '-')
-
     def _munge(self, name):
+        '''Munge a title into a name'''
         # convert spaces to underscores
         name = re.sub(' ', '_', name).lower()        
         # convert symbols to dashes
