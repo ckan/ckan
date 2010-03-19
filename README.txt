@@ -48,7 +48,24 @@ Developer Installation
    config file then youl will need to change 5000 to whatever port value you
    chose).
 
-$ ln -s pyenv/src/ckan/who.ini
+
+Test
+====
+
+Make sure you've created a config called development.ini, then:: 
+
+    nosetests ckan/tests
+
+
+Documentation
+=============
+
+The home page for the CKAN project is: http://knowledgeforge.net/ckan
+
+This file is part of the developer docs. The complete developer docs are built from the ckan repository using Sphinx and uploaded by an admin to KnowledgeForge. To build the developer docs::
+
+      python setup.py build_sphinx
+ 
 
 Contributors
 ============
@@ -66,14 +83,6 @@ been possible:
   * famfamfam.com for silk icons <http://www.famfamfam.com/lab/icons/silk/>
   * Pylons: <http://pylonshq.com/>
   * Python: <http://www.python.org>
-
-
-Test
-====
-
-Make sure you've created a config called development.ini, then:: 
-
-    nosetests ckan/tests
 
 
 Copying and License

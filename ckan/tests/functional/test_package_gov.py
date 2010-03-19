@@ -45,7 +45,7 @@ class TestRead(TestController):
 class TestEdit(TestController):
     @classmethod
     def setup_class(self):
-        model.Session.save(model.User(name=u'testadmin'))
+        model.Session.add(model.User(name=u'testadmin'))
         model.repo.commit_and_remove()
 
     @classmethod
@@ -85,22 +85,22 @@ class TestEdit(TestController):
         rev = model.repo.new_revision()
         pkg_name = u'new_editpkgtest'
         pkg = model.Package(name=pkg_name)
-        model.Session.save(pkg)
+        model.Session.add(pkg)
         pkg.title = u'This is a Test Title'
         pkg.url = u'editpkgurl.com'
         pr1 = model.PackageResource(url=u'editpkgurl1',
               format=u'plain text', description=u'Full text')
         pr2 = model.PackageResource(url=u'editpkgurl2',
               format=u'plain text2', description=u'Full text2')
-        model.Session.save(pr1)
-        model.Session.save(pr2)        
+        model.Session.add(pr1)
+        model.Session.add(pr2)        
         pkg.resources.append(pr1)
         pkg.resources.append(pr2)
         pkg.notes= u'this is editpkg'
         pkg.version = u'2.2'
         pkg.tags = [model.Tag(name=u'one'), model.Tag(name=u'two')]
         for tag in pkg.tags:
-            model.Session.save(tag)
+            model.Session.add(tag)
         pkg.state = model.State.DELETED
         tags_txt = ' '.join([tag.name for tag in pkg.tags])
         pkg.license = model.License.by_name(u'OKD Compliant::Other')

@@ -4,12 +4,14 @@
   <py:def function="page_title">Groups - ${c.group.name}</py:def>
 
   <div py:match="content">
-    <h2>
+   <div class="group">
+    <h2 class="head">
       <py:if test="not c.group.title">
         <em>No Title</em>
       </py:if>
 
       ${c.group.title}
+      <span class="name">(${c.group.name})</span>
 
       <span class="object-action">
       <py:if test="c.auth_for_edit">
@@ -21,7 +23,9 @@
       </span>
     </h2>
 
-    ${c.group_description_formatted}
+    <div class="description">
+      ${c.group_description_formatted}
+    </div>
 
     <py:if test="c.group_admins">
       <strong>Administrators:</strong> 
@@ -31,14 +35,11 @@
     </py:if>      
 
     <h3>Packages:</h3>
-    <ul>
-    <py:for each="pkg in c.group_active_packages">
-      <li>
-        ${package_summary(pkg)}
-      </li>
-    </py:for>
-    </ul>
-    There are ${len(c.group_active_packages)} packages in this group.
+    ${c.page.pager()}
+    ${package_list(c.page.items)}
+    ${c.page.pager()}
+    There are ${c.page.item_count} packages in this group.
+   </div>
   </div>
 
   <xi:include href="layout.html" />

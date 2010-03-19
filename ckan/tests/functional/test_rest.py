@@ -8,9 +8,6 @@ import webhelpers
 from ckan.lib.create_test_data import CreateTestData
 
 ACCESS_DENIED = [401,403]
-def get_license_name(id):
-    return model.Session.get(model.License, id).name
-
 
 class TestRest(TestController):
 
@@ -22,7 +19,7 @@ class TestRest(TestController):
             pass
         model.Session.remove()
         CreateTestData.create()
-        model.Session.save(model.Package(name=u'--'))
+        model.Session.add(model.Package(name=u'--'))
         rev = model.repo.new_revision()
         model.repo.commit_and_remove()
 
@@ -34,6 +31,7 @@ class TestRest(TestController):
         model.Session.remove()
 
     def setup(self):
+        self.testpackage_license_id = u'gpl-3.0'
         self.testpackagevalues = {
             'name' : u'testpkg',
             'title': u'Some Title',
@@ -47,7 +45,7 @@ class TestRest(TestController):
                            u'description':u'Second file',
                            u'hash':u'def123'},],
             'tags': [u'russion', u'novel'],
-            'license_id': u'4',
+            'license': self.testpackage_license_id,
             'extras': {'genre' : u'horror',
                        'media' : u'dvd',
                        },
@@ -115,12 +113,13 @@ class TestRest(TestController):
 
     def test_04_get_package(self):
         # Test Packages Register Get 200.
+        #   ..or is that "entity get"? "register get" == "list" --jb
         offset = '/api/rest/package/annakarenina'
         res = self.app.get(offset, status=[200])
+        anna = model.Package.by_name(u'annakarenina')
         assert 'annakarenina' in res, res
-        assert '"license_id": 9' in res, res
-        expected_license = '"license": "%s"' % get_license_name(9)
-        assert expected_license in res, repr(res) + repr(expected_license)
+        assert 'license_id' not in res, res
+        assert '"license": "other-open"' in res, str(res)
         assert 'russian' in res, res
         assert 'tolstoy' in res, res
         assert '"extras": {' in res, res
@@ -131,6 +130,7 @@ class TestRest(TestController):
         assert '"Index of the novel"' in res, res
         # 2/12/09 download_url is now deprecated - to be removed in the future
         assert '"download_url": "http://www.annakarenina.com/download/x=1&y=2"' in res, res
+        assert '"id": "%s"' % anna.id in res, res
 
 
     def _test_04_ckan_url(self):
@@ -182,7 +182,7 @@ class TestRest(TestController):
         assert pkg
         assert pkg.title == self.testpackagevalues['title'], pkg
         assert pkg.url == self.testpackagevalues['url'], pkg
-        assert pkg.license_id == int(self.testpackagevalues['license_id']), pkg
+        assert pkg.license.id == self.testpackage_license_id, pkg
         assert len(pkg.tags) == 2
         assert len(pkg.extras) == 2, len(pkg.extras)
         for key, value in self.testpackagevalues['extras'].items():
@@ -198,7 +198,8 @@ class TestRest(TestController):
         offset = '/api/rest/package/%s' % self.testpackagevalues['name']
         res = self.app.get(offset, status=[200])
         assert self.testpackagevalues['name'] in res, res
-        assert '"license_id": %s' % self.testpackagevalues['license_id'] in res, res
+        assert 'license_id' not in res, res
+        assert '"license": "%s"' % self.testpackagevalues['license'] in res, res
         assert self.testpackagevalues['tags'][0] in res, res
         assert self.testpackagevalues['tags'][1] in res, res
         assert '"extras": {' in res, res
@@ -333,12 +334,12 @@ class TestRest(TestController):
         if not model.Package.by_name(self.testpackagevalues['name']):
             rev = model.repo.new_revision()
             pkg = model.Package()
-            model.Session.save(pkg)
+            model.Session.add(pkg)
             pkg.name = self.testpackagevalues['name']
             pkg.url = self.testpackagevalues['url']
             tags = [model.Tag(name=tag_name) for tag_name in tag_names]
             for tag in tags:
-                model.Session.save(tag)
+                model.Session.add(tag)
             pkg.tags = tags
             pkg.extras = {u'key1':u'val1', u'key2':u'val2'}
             model.Session.commit()
@@ -380,7 +381,7 @@ class TestRest(TestController):
             }
         rev = model.repo.new_revision()
         pkg = model.Package()
-        model.Session.save(pkg)
+        model.Session.add(pkg)
         pkg.name = test_params['name']
         pkg.download_url = test_params['download_url']
         model.Session.commit()
@@ -438,7 +439,7 @@ class TestRest(TestController):
         # create a package with testpackagevalues
         if not model.Package.by_name(self.testpackagevalues['name']):
             pkg = model.Package()
-            model.Session.save(pkg)
+            model.Session.add(pkg)
             pkg.name = self.testpackagevalues['name']
             rev = model.repo.new_revision()
             model.Session.commit()
@@ -453,7 +454,7 @@ class TestRest(TestController):
         dupname = u'dupname'
         if not model.Package.by_name(dupname):
             pkg = model.Package()
-            model.Session.save(pkg)
+            model.Session.add(pkg)
             pkg.name = dupname
             rev = model.repo.new_revision()
             model.Session.commit()
@@ -471,7 +472,7 @@ class TestRest(TestController):
         # create a group with testgroupvalues
         if not model.Group.by_name(self.testgroupvalues['name']):
             group = model.Group()
-            model.Session.save(group)
+            model.Session.add(group)
             group.name = self.testgroupvalues['name']
             rev = model.repo.new_revision()
             model.Session.commit()
@@ -486,7 +487,7 @@ class TestRest(TestController):
         dupname = u'dupname'
         if not model.Group.by_name(dupname):
             group = model.Group()
-            model.Session.save(group)
+            model.Session.add(group)
             group.name = dupname
             rev = model.repo.new_revision()
             model.Session.commit()
@@ -506,7 +507,7 @@ class TestRest(TestController):
         # create a package with testpackagevalues
         if not model.Package.by_name(self.testpackagevalues['name']):
             pkg = model.Package()
-            model.Session.save(pkg)
+            model.Session.add(pkg)
             pkg.name = self.testpackagevalues['name']
             rev = model.repo.new_revision()
             model.repo.commit_and_remove()
@@ -533,7 +534,7 @@ class TestRest(TestController):
         group = model.Group.by_name(self.testgroupvalues['name'])
         if not group:
             group = model.Group()
-            model.Session.save(group)
+            model.Session.add(group)
             group.name = self.testgroupvalues['name']
             rev = model.repo.new_revision()
             model.repo.commit_and_remove()
@@ -582,6 +583,21 @@ class TestRest(TestController):
         res = self.app.delete(offset, status=[404],
                               extra_environ=self.extra_environ)
 
+    def test_14_get_revision(self):
+        rev = model.Revision.youngest(model.Session)
+        offset = '/api/rest/revision/%s' % rev.id
+        res = self.app.get(offset, status=[200])
+        res_dict = simplejson.loads(res.body)
+        assert rev.id == res_dict['id']
+        assert rev.timestamp.isoformat() == res_dict['timestamp'], (rev.timestamp.isoformat(), res_dict['timestamp'])
+
+    def test_14_get_revision_404(self):
+        revision_id = "xxxxxxxxxxxxxxxxxxxxxxxxxx"
+        offset = '/api/rest/revision/%s' % revision_id
+        res = self.app.get(offset, status=404)
+        model.Session.remove()
+
+
 class TestSearch(TestController):
     @classmethod
     def setup_class(self):
@@ -607,7 +623,7 @@ class TestSearch(TestController):
             'resources': [{u'url':u'http://blahblahblah.mydomain',
                            'format':'', 'description':''}],
             'tags': ['russion', 'novel'],
-            'license_id': '4',
+            'license': u'gpl-3.0',
             'extras': {'national_statistic':'yes',
                        'geographic_coverage':'England, Wales'},
         }
@@ -733,7 +749,7 @@ class TestSearch(TestController):
         rating = model.Rating(user_ip_address=u'123.1.2.3',
                               package=model.Package.by_name(u'annakarenina'),
                               rating=3.0)
-        model.Session.save(rating)
+        model.Session.add(rating)
         model.repo.commit_and_remove()
         
         query = {'q': 'russian', 'all_fields':1}
@@ -749,7 +765,7 @@ class TestSearch(TestController):
                 break
         assert anna_rec['name'] == 'annakarenina', res_dict['results']
         assert anna_rec['title'] == 'A Novel By Tolstoy', anna_rec['title']
-        assert anna_rec['license'] == 'OKD Compliant::Other', anna_rec['license']
+        assert anna_rec['license'] == u'other-open', anna_rec['license']
         assert len(anna_rec['tags']) == 2, anna_rec['tags']
         for expected_tag in ['russian', 'tolstoy']:
             assert expected_tag in anna_rec['tags']
@@ -795,6 +811,49 @@ class TestSearch(TestController):
         assert res_dict['count'] == 2, res_dict
         assert len(res_dict['results']) == 1, res_dict
         assert res_dict['results'][0]['name'] == 'warandpeace', res_dict['results'][0]['name']
+
+    def test_12_search_revision(self):
+        offset = '/api/search/revision'
+        res = self.app.get(offset, status=200)
+        revs = model.Session.query(model.Revision).all()
+        res_dict = simplejson.loads(res.body)
+        for rev in revs:
+            print rev
+            assert rev.id in res_dict, (rev.id, res_dict)
+
+    def test_12_search_revision_since_rev(self):
+        offset = '/api/search/revision'
+        revs = model.Session.query(model.Revision).all()
+        rev_first = revs[-1]
+        params = "?since_rev=%s" % str(rev_first.id)
+        res = self.app.get(offset+params, status=200)
+        res_list = simplejson.loads(res.body)
+        assert rev_first.id not in res_list
+        for rev in revs[:-1]:
+            assert rev.id in res_list, (rev.id, res_list)
+
+    def test_12_search_revision_since_time(self):
+        offset = '/api/search/revision'
+        revs = model.Session.query(model.Revision).all()
+        rev_first = revs[-1]
+        params = "?since_time=%s" % model.strftimestamp(rev_first.timestamp)
+        res = self.app.get(offset+params, status=200)
+        res_list = simplejson.loads(res.body)
+        assert rev_first.id not in res_list
+        for rev in revs[:-1]:
+            assert rev.id in res_list, (rev.id, res_list)
+
+    def test_strftimestamp(self):
+        import datetime
+        t = datetime.datetime(2012, 3, 4, 5, 6, 7, 890123)
+        s = model.strftimestamp(t)
+        assert s == "2012-03-04T05:06:07.890123", s
+
+    def test_strptimestamp(self):
+        import datetime
+        s = "2012-03-04T05:06:07.890123"
+        t = model.strptimestamp(s)
+        assert t == datetime.datetime(2012, 3, 4, 5, 6, 7, 890123), t
 
 
 class TestApiMisc(TestController):
