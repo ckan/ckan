@@ -1,10 +1,19 @@
-# std usage:
-#   fab std_config:{name} [operation] 
-#
-#   for details of operations do fab -l
-#
-# Examples:
-#   deploy to a local directory: fab local:~/test,test deploy
+'''Automate CKAN deployment, backup etc.
+
+For details of operations do fab -l.
+
+Examples:
+=========
+
+Deploy a new CKAN instance called new.ckan.net on new.ckan.net::
+
+    # see fab -d config_0 for more info
+    fab config_0:{name},db_pass={your-db-pass} deploy
+
+Deploy to a local directory::
+
+    fab local:~/test,test deploy
+'''
 from __future__ import with_statement
 import os
 import datetime
@@ -71,15 +80,15 @@ def config_hmg_ckan_net_2():
     env.hosts = ['ssh.hmg.ckan.net']
     env.config_ini_filename = 'hmg.ckan.net.ini'
 
-def config_0(name, hosts_str='', requirements='pip-requirements-stable.txt',
+def config_0(name, hosts_str='', requirements='pip-requirements-metastable.txt',
         db_pass=None):
     '''Configurable configuration: fab -d gives full info.
     
     @param name: name of instance (e.g. xx.ckan.net)
     @param hosts_str: hosts to run on (--host does not work correctly).
         Defaults to name if not supplied.
-    @param requirements: pip requirements to use (defaults to
-        pip-requirements-stable.txt)
+    @param requirements: pip requirements filename to use (defaults to
+        pip-requirements-metastable.txt)
     @param db_pass: password to use when setting up db user (if needed)
     '''
     env.user = 'okfn'
