@@ -1,0 +1,1274 @@
+--
+-- PostgreSQL database dump
+--
+
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = off;
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET escape_string_warning = off;
+
+SET search_path = public, pg_catalog;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: enquiry; Type: TABLE; Schema: public; Owner: tester; Tablespace: 
+--
+
+CREATE TABLE enquiry (
+    id character varying(36) NOT NULL,
+    "to" text,
+    subject text,
+    body text
+);
+
+
+ALTER TABLE public.enquiry OWNER TO tester;
+
+--
+-- Name: group; Type: TABLE; Schema: public; Owner: tester; Tablespace: 
+--
+
+CREATE TABLE "group" (
+    id text NOT NULL,
+    name text NOT NULL,
+    title text,
+    description text,
+    created timestamp without time zone
+);
+
+
+ALTER TABLE public."group" OWNER TO tester;
+
+--
+-- Name: group_role; Type: TABLE; Schema: public; Owner: tester; Tablespace: 
+--
+
+CREATE TABLE group_role (
+    user_object_role_id text NOT NULL,
+    group_id text
+);
+
+
+ALTER TABLE public.group_role OWNER TO tester;
+
+--
+-- Name: migrate_version; Type: TABLE; Schema: public; Owner: tester; Tablespace: 
+--
+
+CREATE TABLE migrate_version (
+    repository_id character varying(255) NOT NULL,
+    repository_path text,
+    version integer
+);
+
+
+ALTER TABLE public.migrate_version OWNER TO tester;
+
+--
+-- Name: package; Type: TABLE; Schema: public; Owner: tester; Tablespace: 
+--
+
+CREATE TABLE package (
+    id text NOT NULL,
+    name character varying(100) NOT NULL,
+    title text,
+    version character varying(100),
+    url text,
+    author text,
+    author_email text,
+    maintainer text,
+    maintainer_email text,
+    notes text,
+    license_id text,
+    state text,
+    revision_id text
+);
+
+
+ALTER TABLE public.package OWNER TO tester;
+
+--
+-- Name: package_extra; Type: TABLE; Schema: public; Owner: tester; Tablespace: 
+--
+
+CREATE TABLE package_extra (
+    id text NOT NULL,
+    package_id text,
+    key text,
+    value text,
+    state text,
+    revision_id text
+);
+
+
+ALTER TABLE public.package_extra OWNER TO tester;
+
+--
+-- Name: package_extra_revision; Type: TABLE; Schema: public; Owner: tester; Tablespace: 
+--
+
+CREATE TABLE package_extra_revision (
+    id text NOT NULL,
+    package_id text,
+    key text,
+    value text,
+    state text,
+    revision_id text NOT NULL,
+    continuity_id text
+);
+
+
+ALTER TABLE public.package_extra_revision OWNER TO tester;
+
+--
+-- Name: package_group; Type: TABLE; Schema: public; Owner: tester; Tablespace: 
+--
+
+CREATE TABLE package_group (
+    id text NOT NULL,
+    package_id text,
+    group_id text
+);
+
+
+ALTER TABLE public.package_group OWNER TO tester;
+
+--
+-- Name: package_relationship; Type: TABLE; Schema: public; Owner: tester; Tablespace: 
+--
+
+CREATE TABLE package_relationship (
+    id text NOT NULL,
+    subject_package_id text,
+    object_package_id text,
+    type text,
+    comment text,
+    revision_id text
+);
+
+
+ALTER TABLE public.package_relationship OWNER TO tester;
+
+--
+-- Name: package_relationship_revision; Type: TABLE; Schema: public; Owner: tester; Tablespace: 
+--
+
+CREATE TABLE package_relationship_revision (
+    id text NOT NULL,
+    subject_package_id text,
+    object_package_id text,
+    type text,
+    comment text,
+    revision_id text NOT NULL,
+    continuity_id text
+);
+
+
+ALTER TABLE public.package_relationship_revision OWNER TO tester;
+
+--
+-- Name: package_resource; Type: TABLE; Schema: public; Owner: tester; Tablespace: 
+--
+
+CREATE TABLE package_resource (
+    id text NOT NULL,
+    package_id text,
+    url text NOT NULL,
+    format text,
+    description text,
+    hash text,
+    "position" integer,
+    state text,
+    revision_id text
+);
+
+
+ALTER TABLE public.package_resource OWNER TO tester;
+
+--
+-- Name: package_resource_revision; Type: TABLE; Schema: public; Owner: tester; Tablespace: 
+--
+
+CREATE TABLE package_resource_revision (
+    id text NOT NULL,
+    package_id text,
+    url text NOT NULL,
+    format text,
+    description text,
+    hash text,
+    "position" integer,
+    state text,
+    revision_id text NOT NULL,
+    continuity_id text
+);
+
+
+ALTER TABLE public.package_resource_revision OWNER TO tester;
+
+--
+-- Name: package_revision; Type: TABLE; Schema: public; Owner: tester; Tablespace: 
+--
+
+CREATE TABLE package_revision (
+    id text NOT NULL,
+    name character varying(100) NOT NULL,
+    title text,
+    version character varying(100),
+    url text,
+    author text,
+    author_email text,
+    maintainer text,
+    maintainer_email text,
+    notes text,
+    license_id text,
+    state text,
+    revision_id text NOT NULL,
+    continuity_id text
+);
+
+
+ALTER TABLE public.package_revision OWNER TO tester;
+
+--
+-- Name: package_role; Type: TABLE; Schema: public; Owner: tester; Tablespace: 
+--
+
+CREATE TABLE package_role (
+    user_object_role_id text NOT NULL,
+    package_id text
+);
+
+
+ALTER TABLE public.package_role OWNER TO tester;
+
+--
+-- Name: package_search; Type: TABLE; Schema: public; Owner: tester; Tablespace: 
+--
+
+CREATE TABLE package_search (
+    package_id text NOT NULL,
+    search_vector tsvector
+);
+
+
+ALTER TABLE public.package_search OWNER TO tester;
+
+--
+-- Name: package_tag; Type: TABLE; Schema: public; Owner: tester; Tablespace: 
+--
+
+CREATE TABLE package_tag (
+    id text NOT NULL,
+    package_id text,
+    tag_id text,
+    state text,
+    revision_id text
+);
+
+
+ALTER TABLE public.package_tag OWNER TO tester;
+
+--
+-- Name: package_tag_revision; Type: TABLE; Schema: public; Owner: tester; Tablespace: 
+--
+
+CREATE TABLE package_tag_revision (
+    id text NOT NULL,
+    package_id text,
+    tag_id text,
+    state text,
+    revision_id text NOT NULL,
+    continuity_id text
+);
+
+
+ALTER TABLE public.package_tag_revision OWNER TO tester;
+
+--
+-- Name: rating; Type: TABLE; Schema: public; Owner: tester; Tablespace: 
+--
+
+CREATE TABLE rating (
+    id text NOT NULL,
+    user_id text,
+    user_ip_address text,
+    package_id text,
+    rating real,
+    created timestamp without time zone
+);
+
+
+ALTER TABLE public.rating OWNER TO tester;
+
+--
+-- Name: revision; Type: TABLE; Schema: public; Owner: tester; Tablespace: 
+--
+
+CREATE TABLE revision (
+    id text NOT NULL,
+    "timestamp" timestamp without time zone,
+    author character varying(200),
+    message text,
+    state text
+);
+
+
+ALTER TABLE public.revision OWNER TO tester;
+
+--
+-- Name: role_action; Type: TABLE; Schema: public; Owner: tester; Tablespace: 
+--
+
+CREATE TABLE role_action (
+    id text NOT NULL,
+    role text,
+    context text NOT NULL,
+    action text
+);
+
+
+ALTER TABLE public.role_action OWNER TO tester;
+
+--
+-- Name: system_role; Type: TABLE; Schema: public; Owner: tester; Tablespace: 
+--
+
+CREATE TABLE system_role (
+    user_object_role_id text NOT NULL
+);
+
+
+ALTER TABLE public.system_role OWNER TO tester;
+
+--
+-- Name: tag; Type: TABLE; Schema: public; Owner: tester; Tablespace: 
+--
+
+CREATE TABLE tag (
+    id text NOT NULL,
+    name character varying(100) NOT NULL
+);
+
+
+ALTER TABLE public.tag OWNER TO tester;
+
+--
+-- Name: user; Type: TABLE; Schema: public; Owner: tester; Tablespace: 
+--
+
+CREATE TABLE "user" (
+    id text NOT NULL,
+    name text,
+    apikey text,
+    created timestamp without time zone,
+    about text
+);
+
+
+ALTER TABLE public."user" OWNER TO tester;
+
+--
+-- Name: user_object_role; Type: TABLE; Schema: public; Owner: tester; Tablespace: 
+--
+
+CREATE TABLE user_object_role (
+    id text NOT NULL,
+    user_id text,
+    context text NOT NULL,
+    role text
+);
+
+
+ALTER TABLE public.user_object_role OWNER TO tester;
+
+--
+-- Data for Name: enquiry; Type: TABLE DATA; Schema: public; Owner: tester
+--
+
+INSERT INTO enquiry (id, "to", subject, body) VALUES ('0465b891-494b-4042-9746-6ec08d795572', 'Testing', 'Testing', 'Dear Editor,
+
+I am a [[INSERT INFORMATION INCLUDING DISCIPLINE]].
+
+I am writing on behalf of the Open Scientific Data Working Group of the Open Knowledge Foundation. We are seeking clarification of the ''openness'' of the scientific data associated with your publications.
+
+We weren''t able to find an explicit statement of this fact such as a reference to an open knowledge license[3] so we''re writing to find out what the exact situation is, specifically to ask you whether the material can be made available under an open license of some kind[3].
+
+Regards,
+
+[[INSERT NAME HERE]]
+
+[1]: [[INSERT LINK HERE]]
+[2]: http://www.opendefinition.org/1.0/
+[3]: http://www.opendefinition.org/licenses/
+');
+INSERT INTO enquiry (id, "to", subject, body) VALUES ('d71f0c16-9438-49b8-b570-e49712099af2', 'Testing 2', 'Testing 2', 'Dear Editor,
+
+I am a [[INSERT INFORMATION INCLUDING DISCIPLINE]].
+
+I am writing on behalf of the Open Scientific Data Working Group of the Open Knowledge Foundation. We are seeking clarification of the ''openness'' of the scientific data associated with your publications.
+
+We weren''t able to find an explicit statement of this fact such as a reference to an open knowledge license[3] so we''re writing to find out what the exact situation is, specifically to ask you whether the material can be made available under an open license of some kind[3].
+
+Regards,
+
+[[INSERT NAME HERE]]
+
+[1]: [[INSERT LINK HERE]]
+[2]: http://www.opendefinition.org/1.0/
+[3]: http://www.opendefinition.org/licenses/
+');
+INSERT INTO enquiry (id, "to", subject, body) VALUES ('74866165-ce5f-4670-bec4-bcdbfca468fb', 'xyz@xyz.com', '(Tomorrow) Workshop on Open Scientific Data', 'Dear Editor,
+
+I am a [[INSERT INFORMATION INCLUDING DISCIPLINE]].
+
+I am writing on behalf of the Open Scientific Data Working Group of the Open Knowledge Foundation. We are seeking clarification of the ''openness'' of the scientific data associated with your publications.
+
+We weren''t able to find an explicit statement of this fact such as a reference to an open knowledge license[3] so we''re writing to find out what the exact situation is, specifically to ask you whether the material can be made available under an open license of some kind[3].
+
+Regards,
+
+[[INSERT NAME HERE]]
+
+[1]: [[INSERT LINK HERE]]
+[2]: http://www.opendefinition.org/1.0/
+[3]: http://www.opendefinition.org/licenses/
+');
+INSERT INTO enquiry (id, "to", subject, body) VALUES ('0465b891-494b-4042-9746-6ec08d795572', 'Testing', 'Testing', 'Dear Editor,
+
+I am a [[INSERT INFORMATION INCLUDING DISCIPLINE]].
+
+I am writing on behalf of the Open Scientific Data Working Group of the Open Knowledge Foundation. We are seeking clarification of the ''openness'' of the scientific data associated with your publications.
+
+We weren''t able to find an explicit statement of this fact such as a reference to an open knowledge license[3] so we''re writing to find out what the exact situation is, specifically to ask you whether the material can be made available under an open license of some kind[3].
+
+Regards,
+
+[[INSERT NAME HERE]]
+
+[1]: [[INSERT LINK HERE]]
+[2]: http://www.opendefinition.org/1.0/
+[3]: http://www.opendefinition.org/licenses/
+');
+INSERT INTO enquiry (id, "to", subject, body) VALUES ('d71f0c16-9438-49b8-b570-e49712099af2', 'Testing 2', 'Testing 2', 'Dear Editor,
+
+I am a [[INSERT INFORMATION INCLUDING DISCIPLINE]].
+
+I am writing on behalf of the Open Scientific Data Working Group of the Open Knowledge Foundation. We are seeking clarification of the ''openness'' of the scientific data associated with your publications.
+
+We weren''t able to find an explicit statement of this fact such as a reference to an open knowledge license[3] so we''re writing to find out what the exact situation is, specifically to ask you whether the material can be made available under an open license of some kind[3].
+
+Regards,
+
+[[INSERT NAME HERE]]
+
+[1]: [[INSERT LINK HERE]]
+[2]: http://www.opendefinition.org/1.0/
+[3]: http://www.opendefinition.org/licenses/
+');
+INSERT INTO enquiry (id, "to", subject, body) VALUES ('74866165-ce5f-4670-bec4-bcdbfca468fb', 'xyz@xyz.com', '(Tomorrow) Workshop on Open Scientific Data', 'Dear Editor,
+
+I am a [[INSERT INFORMATION INCLUDING DISCIPLINE]].
+
+I am writing on behalf of the Open Scientific Data Working Group of the Open Knowledge Foundation. We are seeking clarification of the ''openness'' of the scientific data associated with your publications.
+
+We weren''t able to find an explicit statement of this fact such as a reference to an open knowledge license[3] so we''re writing to find out what the exact situation is, specifically to ask you whether the material can be made available under an open license of some kind[3].
+
+Regards,
+
+[[INSERT NAME HERE]]
+
+[1]: [[INSERT LINK HERE]]
+[2]: http://www.opendefinition.org/1.0/
+[3]: http://www.opendefinition.org/licenses/
+');
+INSERT INTO enquiry (id, "to", subject, body) VALUES ('0465b891-494b-4042-9746-6ec08d795572', 'Testing', 'Testing', 'Dear Editor,
+
+I am a [[INSERT INFORMATION INCLUDING DISCIPLINE]].
+
+I am writing on behalf of the Open Scientific Data Working Group of the Open Knowledge Foundation. We are seeking clarification of the ''openness'' of the scientific data associated with your publications.
+
+We weren''t able to find an explicit statement of this fact such as a reference to an open knowledge license[3] so we''re writing to find out what the exact situation is, specifically to ask you whether the material can be made available under an open license of some kind[3].
+
+Regards,
+
+[[INSERT NAME HERE]]
+
+[1]: [[INSERT LINK HERE]]
+[2]: http://www.opendefinition.org/1.0/
+[3]: http://www.opendefinition.org/licenses/
+');
+INSERT INTO enquiry (id, "to", subject, body) VALUES ('d71f0c16-9438-49b8-b570-e49712099af2', 'Testing 2', 'Testing 2', 'Dear Editor,
+
+I am a [[INSERT INFORMATION INCLUDING DISCIPLINE]].
+
+I am writing on behalf of the Open Scientific Data Working Group of the Open Knowledge Foundation. We are seeking clarification of the ''openness'' of the scientific data associated with your publications.
+
+We weren''t able to find an explicit statement of this fact such as a reference to an open knowledge license[3] so we''re writing to find out what the exact situation is, specifically to ask you whether the material can be made available under an open license of some kind[3].
+
+Regards,
+
+[[INSERT NAME HERE]]
+
+[1]: [[INSERT LINK HERE]]
+[2]: http://www.opendefinition.org/1.0/
+[3]: http://www.opendefinition.org/licenses/
+');
+INSERT INTO enquiry (id, "to", subject, body) VALUES ('74866165-ce5f-4670-bec4-bcdbfca468fb', 'xyz@xyz.com', '(Tomorrow) Workshop on Open Scientific Data', 'Dear Editor,
+
+I am a [[INSERT INFORMATION INCLUDING DISCIPLINE]].
+
+I am writing on behalf of the Open Scientific Data Working Group of the Open Knowledge Foundation. We are seeking clarification of the ''openness'' of the scientific data associated with your publications.
+
+We weren''t able to find an explicit statement of this fact such as a reference to an open knowledge license[3] so we''re writing to find out what the exact situation is, specifically to ask you whether the material can be made available under an open license of some kind[3].
+
+Regards,
+
+[[INSERT NAME HERE]]
+
+[1]: [[INSERT LINK HERE]]
+[2]: http://www.opendefinition.org/1.0/
+[3]: http://www.opendefinition.org/licenses/
+');
+
+
+--
+-- Data for Name: group; Type: TABLE DATA; Schema: public; Owner: tester
+--
+
+
+
+--
+-- Data for Name: group_role; Type: TABLE DATA; Schema: public; Owner: tester
+--
+
+
+
+--
+-- Data for Name: migrate_version; Type: TABLE DATA; Schema: public; Owner: tester
+--
+
+INSERT INTO migrate_version (repository_id, repository_path, version) VALUES ('Ckan', '/home/dread/hgroot/ckan4/ckan/migration', 18);
+
+
+--
+-- Data for Name: package; Type: TABLE DATA; Schema: public; Owner: tester
+--
+
+INSERT INTO package (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id) VALUES ('1a72e0f7-2e1f-4219-bc45-d43894d3d2f9', 'abraham', 'Abraham', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', '1a345084-c3e8-434e-862b-7580b81c7445');
+INSERT INTO package (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id) VALUES ('b58c4743-6ce1-4e62-99c9-0715bcbbe97e', 'homer', 'Homer', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', 'efe4ca58-5367-4c74-bb25-76de526737fc');
+INSERT INTO package (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id) VALUES ('a0fbab60-fbce-44a8-9a86-9d6073cfd08f', 'homer_derived', 'Homer Derived', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', 'ba5403c4-a964-4418-a999-f3bcaf40f75b');
+INSERT INTO package (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id) VALUES ('bb2e1ce6-084a-4187-8c1f-798695ec1faf', 'beer', 'Beer', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', '9e78fde5-d36c-4adf-93ee-aeddf05a110c');
+INSERT INTO package (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id) VALUES ('4bd60d22-e8b6-4e36-b10a-304e3e87bff8', 'bart', 'Bart', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', 'c92643cb-374f-4a0c-8905-608f690c5738');
+INSERT INTO package (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id) VALUES ('b34ae383-061d-4ae9-be6e-619d94515d1a', 'lisa', 'Lisa', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', '48154477-f715-4315-8dfc-eae92ef4f999');
+
+
+--
+-- Data for Name: package_extra; Type: TABLE DATA; Schema: public; Owner: tester
+--
+
+
+
+--
+-- Data for Name: package_extra_revision; Type: TABLE DATA; Schema: public; Owner: tester
+--
+
+
+
+--
+-- Data for Name: package_group; Type: TABLE DATA; Schema: public; Owner: tester
+--
+
+
+
+--
+-- Data for Name: package_relationship; Type: TABLE DATA; Schema: public; Owner: tester
+--
+
+INSERT INTO package_relationship (id, subject_package_id, object_package_id, type, comment, revision_id) VALUES ('a39cc218-97ce-4d65-819f-5f2ad10e9e2c', 'b58c4743-6ce1-4e62-99c9-0715bcbbe97e', '1a72e0f7-2e1f-4219-bc45-d43894d3d2f9', 'child_of', '', '1fa2021d-4962-4129-9da8-516ee8f8bc60');
+INSERT INTO package_relationship (id, subject_package_id, object_package_id, type, comment, revision_id) VALUES ('6f10f5ed-4993-4702-b0bd-963c6775eecb', '4bd60d22-e8b6-4e36-b10a-304e3e87bff8', 'b58c4743-6ce1-4e62-99c9-0715bcbbe97e', 'child_of', '', '8b490fd0-8cce-41fb-a6bc-850eccde1358');
+INSERT INTO package_relationship (id, subject_package_id, object_package_id, type, comment, revision_id) VALUES ('3bae0d69-24b7-4c74-a646-63e7562e05de', 'b34ae383-061d-4ae9-be6e-619d94515d1a', 'b58c4743-6ce1-4e62-99c9-0715bcbbe97e', 'child_of', '', '088cb682-2a8c-4b7f-8af7-6b48e95fab12');
+INSERT INTO package_relationship (id, subject_package_id, object_package_id, type, comment, revision_id) VALUES ('93494b61-9a07-4527-8b1a-1082e244fb2b', 'a0fbab60-fbce-44a8-9a86-9d6073cfd08f', 'b58c4743-6ce1-4e62-99c9-0715bcbbe97e', 'derives_from', '', 'f2185f09-a438-495b-b439-142d23113fb0');
+INSERT INTO package_relationship (id, subject_package_id, object_package_id, type, comment, revision_id) VALUES ('62bfafbd-3376-4763-a50c-56dfccbc57c2', 'b58c4743-6ce1-4e62-99c9-0715bcbbe97e', 'bb2e1ce6-084a-4187-8c1f-798695ec1faf', 'depends_on', '', 'd8de97b4-97fe-40cd-a78f-4b465c207652');
+
+
+--
+-- Data for Name: package_relationship_revision; Type: TABLE DATA; Schema: public; Owner: tester
+--
+
+INSERT INTO package_relationship_revision (id, subject_package_id, object_package_id, type, comment, revision_id, continuity_id) VALUES ('a39cc218-97ce-4d65-819f-5f2ad10e9e2c', 'b58c4743-6ce1-4e62-99c9-0715bcbbe97e', '1a72e0f7-2e1f-4219-bc45-d43894d3d2f9', 'child_of', '', '1fa2021d-4962-4129-9da8-516ee8f8bc60', 'a39cc218-97ce-4d65-819f-5f2ad10e9e2c');
+INSERT INTO package_relationship_revision (id, subject_package_id, object_package_id, type, comment, revision_id, continuity_id) VALUES ('6f10f5ed-4993-4702-b0bd-963c6775eecb', '4bd60d22-e8b6-4e36-b10a-304e3e87bff8', 'b58c4743-6ce1-4e62-99c9-0715bcbbe97e', 'child_of', '', '8b490fd0-8cce-41fb-a6bc-850eccde1358', '6f10f5ed-4993-4702-b0bd-963c6775eecb');
+INSERT INTO package_relationship_revision (id, subject_package_id, object_package_id, type, comment, revision_id, continuity_id) VALUES ('3bae0d69-24b7-4c74-a646-63e7562e05de', 'b34ae383-061d-4ae9-be6e-619d94515d1a', 'b58c4743-6ce1-4e62-99c9-0715bcbbe97e', 'child_of', '', '088cb682-2a8c-4b7f-8af7-6b48e95fab12', '3bae0d69-24b7-4c74-a646-63e7562e05de');
+INSERT INTO package_relationship_revision (id, subject_package_id, object_package_id, type, comment, revision_id, continuity_id) VALUES ('93494b61-9a07-4527-8b1a-1082e244fb2b', 'a0fbab60-fbce-44a8-9a86-9d6073cfd08f', 'b58c4743-6ce1-4e62-99c9-0715bcbbe97e', 'derives_from', '', 'f2185f09-a438-495b-b439-142d23113fb0', '93494b61-9a07-4527-8b1a-1082e244fb2b');
+INSERT INTO package_relationship_revision (id, subject_package_id, object_package_id, type, comment, revision_id, continuity_id) VALUES ('62bfafbd-3376-4763-a50c-56dfccbc57c2', 'b58c4743-6ce1-4e62-99c9-0715bcbbe97e', 'bb2e1ce6-084a-4187-8c1f-798695ec1faf', 'depends_on', '', 'd8de97b4-97fe-40cd-a78f-4b465c207652', '62bfafbd-3376-4763-a50c-56dfccbc57c2');
+
+
+--
+-- Data for Name: package_resource; Type: TABLE DATA; Schema: public; Owner: tester
+--
+
+
+
+--
+-- Data for Name: package_resource_revision; Type: TABLE DATA; Schema: public; Owner: tester
+--
+
+
+
+--
+-- Data for Name: package_revision; Type: TABLE DATA; Schema: public; Owner: tester
+--
+
+INSERT INTO package_revision (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id, continuity_id) VALUES ('1a72e0f7-2e1f-4219-bc45-d43894d3d2f9', 'abraham', 'Abraham', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', '1a345084-c3e8-434e-862b-7580b81c7445', '1a72e0f7-2e1f-4219-bc45-d43894d3d2f9');
+INSERT INTO package_revision (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id, continuity_id) VALUES ('b58c4743-6ce1-4e62-99c9-0715bcbbe97e', 'homer', 'Homer', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', 'efe4ca58-5367-4c74-bb25-76de526737fc', 'b58c4743-6ce1-4e62-99c9-0715bcbbe97e');
+INSERT INTO package_revision (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id, continuity_id) VALUES ('a0fbab60-fbce-44a8-9a86-9d6073cfd08f', 'homer_derived', 'Homer Derived', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', 'ba5403c4-a964-4418-a999-f3bcaf40f75b', 'a0fbab60-fbce-44a8-9a86-9d6073cfd08f');
+INSERT INTO package_revision (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id, continuity_id) VALUES ('bb2e1ce6-084a-4187-8c1f-798695ec1faf', 'beer', 'Beer', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', '9e78fde5-d36c-4adf-93ee-aeddf05a110c', 'bb2e1ce6-084a-4187-8c1f-798695ec1faf');
+INSERT INTO package_revision (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id, continuity_id) VALUES ('4bd60d22-e8b6-4e36-b10a-304e3e87bff8', 'bart', 'Bart', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', 'c92643cb-374f-4a0c-8905-608f690c5738', '4bd60d22-e8b6-4e36-b10a-304e3e87bff8');
+INSERT INTO package_revision (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id, continuity_id) VALUES ('b34ae383-061d-4ae9-be6e-619d94515d1a', 'lisa', 'Lisa', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', '48154477-f715-4315-8dfc-eae92ef4f999', 'b34ae383-061d-4ae9-be6e-619d94515d1a');
+
+
+--
+-- Data for Name: package_role; Type: TABLE DATA; Schema: public; Owner: tester
+--
+
+INSERT INTO package_role (user_object_role_id, package_id) VALUES ('ed6303db-3b0b-4c2d-93a4-14a3be5f2142', '1a72e0f7-2e1f-4219-bc45-d43894d3d2f9');
+INSERT INTO package_role (user_object_role_id, package_id) VALUES ('fc4e1dfa-c886-4aa3-ac48-f5912cc0aa92', '1a72e0f7-2e1f-4219-bc45-d43894d3d2f9');
+INSERT INTO package_role (user_object_role_id, package_id) VALUES ('b97389dc-3b00-4543-b855-60d0e3084a7e', 'b58c4743-6ce1-4e62-99c9-0715bcbbe97e');
+INSERT INTO package_role (user_object_role_id, package_id) VALUES ('f08a2f4f-0e04-4a6b-a3a7-7428bf7b6bd1', 'b58c4743-6ce1-4e62-99c9-0715bcbbe97e');
+INSERT INTO package_role (user_object_role_id, package_id) VALUES ('1edeebdc-fe0a-4644-9c21-6ed90effec45', 'a0fbab60-fbce-44a8-9a86-9d6073cfd08f');
+INSERT INTO package_role (user_object_role_id, package_id) VALUES ('f9f3108b-cc74-4312-aabb-c39aed4ac028', 'a0fbab60-fbce-44a8-9a86-9d6073cfd08f');
+INSERT INTO package_role (user_object_role_id, package_id) VALUES ('39e815d0-aad4-4e22-b430-8c423019f7ba', 'bb2e1ce6-084a-4187-8c1f-798695ec1faf');
+INSERT INTO package_role (user_object_role_id, package_id) VALUES ('a0de70f2-62a5-4b44-b96c-c549bc035ce1', 'bb2e1ce6-084a-4187-8c1f-798695ec1faf');
+INSERT INTO package_role (user_object_role_id, package_id) VALUES ('e00609c9-43f5-440b-b908-7e45135595e5', '4bd60d22-e8b6-4e36-b10a-304e3e87bff8');
+INSERT INTO package_role (user_object_role_id, package_id) VALUES ('05a782fd-1197-40a7-8334-e8492db65b5a', '4bd60d22-e8b6-4e36-b10a-304e3e87bff8');
+INSERT INTO package_role (user_object_role_id, package_id) VALUES ('79e9f972-7788-4de2-aa7e-60726d9bcf20', 'b34ae383-061d-4ae9-be6e-619d94515d1a');
+INSERT INTO package_role (user_object_role_id, package_id) VALUES ('5f16852e-778a-4d7d-8059-e2e97899ac5d', 'b34ae383-061d-4ae9-be6e-619d94515d1a');
+
+
+--
+-- Data for Name: package_search; Type: TABLE DATA; Schema: public; Owner: tester
+--
+
+INSERT INTO package_search (package_id, search_vector) VALUES ('1a72e0f7-2e1f-4219-bc45-d43894d3d2f9', '''abraham'':1A,2A');
+INSERT INTO package_search (package_id, search_vector) VALUES ('4bd60d22-e8b6-4e36-b10a-304e3e87bff8', '''bart'':1A,2A');
+INSERT INTO package_search (package_id, search_vector) VALUES ('b34ae383-061d-4ae9-be6e-619d94515d1a', '''lisa'':1A,2A');
+INSERT INTO package_search (package_id, search_vector) VALUES ('a0fbab60-fbce-44a8-9a86-9d6073cfd08f', '''deriv'':2A,4A ''homer'':1A,3A');
+INSERT INTO package_search (package_id, search_vector) VALUES ('bb2e1ce6-084a-4187-8c1f-798695ec1faf', '''beer'':1A,2A');
+INSERT INTO package_search (package_id, search_vector) VALUES ('b58c4743-6ce1-4e62-99c9-0715bcbbe97e', '''homer'':1A,2A');
+
+
+--
+-- Data for Name: package_tag; Type: TABLE DATA; Schema: public; Owner: tester
+--
+
+
+
+--
+-- Data for Name: package_tag_revision; Type: TABLE DATA; Schema: public; Owner: tester
+--
+
+
+
+--
+-- Data for Name: rating; Type: TABLE DATA; Schema: public; Owner: tester
+--
+
+
+
+--
+-- Data for Name: revision; Type: TABLE DATA; Schema: public; Owner: tester
+--
+
+INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('2d2a927f-253a-414e-a6f9-7be8133aafca', '2010-03-22 15:54:41.095109', 'system', 'Initialising the Repository', 'active');
+INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('1a345084-c3e8-434e-862b-7580b81c7445', '2010-03-22 15:54:42.099613', 'tester', 'Creating search test data.', 'active');
+INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('efe4ca58-5367-4c74-bb25-76de526737fc', '2010-03-22 15:54:42.246099', 'tester', 'Creating test data.', 'active');
+INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('ba5403c4-a964-4418-a999-f3bcaf40f75b', '2010-03-22 15:54:42.310918', 'tester', 'Creating test data.', 'active');
+INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('9e78fde5-d36c-4adf-93ee-aeddf05a110c', '2010-03-22 15:54:42.374408', 'tester', 'Creating test data.', 'active');
+INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('c92643cb-374f-4a0c-8905-608f690c5738', '2010-03-22 15:54:42.437732', 'tester', 'Creating test data.', 'active');
+INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('48154477-f715-4315-8dfc-eae92ef4f999', '2010-03-22 15:54:42.501377', 'tester', 'Creating test data.', 'active');
+INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('45127065-96a4-4901-ae62-e82acce78c42', '2010-03-22 15:54:42.560357', 'tester', 'Creating test data.', 'active');
+INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('1fa2021d-4962-4129-9da8-516ee8f8bc60', '2010-03-22 15:54:42.580393', 'tester', 'Creating test data relationships.', 'active');
+INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('8b490fd0-8cce-41fb-a6bc-850eccde1358', '2010-03-22 15:54:42.627262', 'tester', 'Creating test data relationships.', 'active');
+INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('088cb682-2a8c-4b7f-8af7-6b48e95fab12', '2010-03-22 15:54:42.661892', 'tester', 'Creating test data relationships.', 'active');
+INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('f2185f09-a438-495b-b439-142d23113fb0', '2010-03-22 15:54:42.696832', 'tester', 'Creating test data relationships.', 'active');
+INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('d8de97b4-97fe-40cd-a78f-4b465c207652', '2010-03-22 15:54:42.731531', 'tester', 'Creating test data relationships.', 'active');
+
+
+--
+-- Data for Name: role_action; Type: TABLE DATA; Schema: public; Owner: tester
+--
+
+INSERT INTO role_action (id, role, context, action) VALUES ('1393a4db-4800-4d1a-98d4-7aba969c2e48', 'editor', '', 'edit');
+INSERT INTO role_action (id, role, context, action) VALUES ('8ed689b6-37e6-452c-bbed-7c749369aa6b', 'editor', '', 'create');
+INSERT INTO role_action (id, role, context, action) VALUES ('7a96967e-5494-4fb4-8865-52bad7c08566', 'editor', '', 'read');
+INSERT INTO role_action (id, role, context, action) VALUES ('4cd1d782-603e-4584-9c9f-bdb48aaa4123', 'reader', '', 'create');
+INSERT INTO role_action (id, role, context, action) VALUES ('8d5159b5-6cd8-4485-9ee0-fc5006a5418c', 'reader', '', 'read');
+
+
+--
+-- Data for Name: system_role; Type: TABLE DATA; Schema: public; Owner: tester
+--
+
+
+
+--
+-- Data for Name: tag; Type: TABLE DATA; Schema: public; Owner: tester
+--
+
+
+
+--
+-- Data for Name: user; Type: TABLE DATA; Schema: public; Owner: tester
+--
+
+INSERT INTO "user" (id, name, apikey, created, about) VALUES ('3f096a50-b49e-4d35-8ecd-ca44a70a3ee5', 'visitor', '8a1286f8-f89b-4dab-a975-46178c62aba0', '2010-03-22 15:54:41.083058', NULL);
+INSERT INTO "user" (id, name, apikey, created, about) VALUES ('af7469b3-238d-4c39-8cb7-0bc9747660f2', 'logged_in', '583a5828-2c58-48ef-a22f-889690a820d3', '2010-03-22 15:54:41.084054', NULL);
+
+
+--
+-- Data for Name: user_object_role; Type: TABLE DATA; Schema: public; Owner: tester
+--
+
+INSERT INTO user_object_role (id, user_id, context, role) VALUES ('ed6303db-3b0b-4c2d-93a4-14a3be5f2142', '3f096a50-b49e-4d35-8ecd-ca44a70a3ee5', 'Package', 'editor');
+INSERT INTO user_object_role (id, user_id, context, role) VALUES ('fc4e1dfa-c886-4aa3-ac48-f5912cc0aa92', 'af7469b3-238d-4c39-8cb7-0bc9747660f2', 'Package', 'editor');
+INSERT INTO user_object_role (id, user_id, context, role) VALUES ('b97389dc-3b00-4543-b855-60d0e3084a7e', '3f096a50-b49e-4d35-8ecd-ca44a70a3ee5', 'Package', 'editor');
+INSERT INTO user_object_role (id, user_id, context, role) VALUES ('f08a2f4f-0e04-4a6b-a3a7-7428bf7b6bd1', 'af7469b3-238d-4c39-8cb7-0bc9747660f2', 'Package', 'editor');
+INSERT INTO user_object_role (id, user_id, context, role) VALUES ('1edeebdc-fe0a-4644-9c21-6ed90effec45', '3f096a50-b49e-4d35-8ecd-ca44a70a3ee5', 'Package', 'editor');
+INSERT INTO user_object_role (id, user_id, context, role) VALUES ('f9f3108b-cc74-4312-aabb-c39aed4ac028', 'af7469b3-238d-4c39-8cb7-0bc9747660f2', 'Package', 'editor');
+INSERT INTO user_object_role (id, user_id, context, role) VALUES ('39e815d0-aad4-4e22-b430-8c423019f7ba', '3f096a50-b49e-4d35-8ecd-ca44a70a3ee5', 'Package', 'editor');
+INSERT INTO user_object_role (id, user_id, context, role) VALUES ('a0de70f2-62a5-4b44-b96c-c549bc035ce1', 'af7469b3-238d-4c39-8cb7-0bc9747660f2', 'Package', 'editor');
+INSERT INTO user_object_role (id, user_id, context, role) VALUES ('e00609c9-43f5-440b-b908-7e45135595e5', '3f096a50-b49e-4d35-8ecd-ca44a70a3ee5', 'Package', 'editor');
+INSERT INTO user_object_role (id, user_id, context, role) VALUES ('05a782fd-1197-40a7-8334-e8492db65b5a', 'af7469b3-238d-4c39-8cb7-0bc9747660f2', 'Package', 'editor');
+INSERT INTO user_object_role (id, user_id, context, role) VALUES ('79e9f972-7788-4de2-aa7e-60726d9bcf20', '3f096a50-b49e-4d35-8ecd-ca44a70a3ee5', 'Package', 'editor');
+INSERT INTO user_object_role (id, user_id, context, role) VALUES ('5f16852e-778a-4d7d-8059-e2e97899ac5d', 'af7469b3-238d-4c39-8cb7-0bc9747660f2', 'Package', 'editor');
+
+
+--
+-- Name: group_name_key; Type: CONSTRAINT; Schema: public; Owner: tester; Tablespace: 
+--
+
+ALTER TABLE ONLY "group"
+    ADD CONSTRAINT group_name_key UNIQUE (name);
+
+
+--
+-- Name: group_pkey; Type: CONSTRAINT; Schema: public; Owner: tester; Tablespace: 
+--
+
+ALTER TABLE ONLY "group"
+    ADD CONSTRAINT group_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: group_role_pkey; Type: CONSTRAINT; Schema: public; Owner: tester; Tablespace: 
+--
+
+ALTER TABLE ONLY group_role
+    ADD CONSTRAINT group_role_pkey PRIMARY KEY (user_object_role_id);
+
+
+--
+-- Name: migrate_version_pkey; Type: CONSTRAINT; Schema: public; Owner: tester; Tablespace: 
+--
+
+ALTER TABLE ONLY migrate_version
+    ADD CONSTRAINT migrate_version_pkey PRIMARY KEY (repository_id);
+
+
+--
+-- Name: package_extra_pkey; Type: CONSTRAINT; Schema: public; Owner: tester; Tablespace: 
+--
+
+ALTER TABLE ONLY package_extra
+    ADD CONSTRAINT package_extra_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: package_extra_revision_pkey; Type: CONSTRAINT; Schema: public; Owner: tester; Tablespace: 
+--
+
+ALTER TABLE ONLY package_extra_revision
+    ADD CONSTRAINT package_extra_revision_pkey PRIMARY KEY (id, revision_id);
+
+
+--
+-- Name: package_group_pkey; Type: CONSTRAINT; Schema: public; Owner: tester; Tablespace: 
+--
+
+ALTER TABLE ONLY package_group
+    ADD CONSTRAINT package_group_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: package_name_key; Type: CONSTRAINT; Schema: public; Owner: tester; Tablespace: 
+--
+
+ALTER TABLE ONLY package
+    ADD CONSTRAINT package_name_key UNIQUE (name);
+
+
+--
+-- Name: package_pkey; Type: CONSTRAINT; Schema: public; Owner: tester; Tablespace: 
+--
+
+ALTER TABLE ONLY package
+    ADD CONSTRAINT package_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: package_relationship_pkey; Type: CONSTRAINT; Schema: public; Owner: tester; Tablespace: 
+--
+
+ALTER TABLE ONLY package_relationship
+    ADD CONSTRAINT package_relationship_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: package_relationship_revision_pkey; Type: CONSTRAINT; Schema: public; Owner: tester; Tablespace: 
+--
+
+ALTER TABLE ONLY package_relationship_revision
+    ADD CONSTRAINT package_relationship_revision_pkey PRIMARY KEY (id, revision_id);
+
+
+--
+-- Name: package_resource_pkey; Type: CONSTRAINT; Schema: public; Owner: tester; Tablespace: 
+--
+
+ALTER TABLE ONLY package_resource
+    ADD CONSTRAINT package_resource_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: package_resource_revision_pkey; Type: CONSTRAINT; Schema: public; Owner: tester; Tablespace: 
+--
+
+ALTER TABLE ONLY package_resource_revision
+    ADD CONSTRAINT package_resource_revision_pkey PRIMARY KEY (id, revision_id);
+
+
+--
+-- Name: package_revision_pkey; Type: CONSTRAINT; Schema: public; Owner: tester; Tablespace: 
+--
+
+ALTER TABLE ONLY package_revision
+    ADD CONSTRAINT package_revision_pkey PRIMARY KEY (id, revision_id);
+
+
+--
+-- Name: package_role_pkey; Type: CONSTRAINT; Schema: public; Owner: tester; Tablespace: 
+--
+
+ALTER TABLE ONLY package_role
+    ADD CONSTRAINT package_role_pkey PRIMARY KEY (user_object_role_id);
+
+
+--
+-- Name: package_search_pkey; Type: CONSTRAINT; Schema: public; Owner: tester; Tablespace: 
+--
+
+ALTER TABLE ONLY package_search
+    ADD CONSTRAINT package_search_pkey PRIMARY KEY (package_id);
+
+
+--
+-- Name: package_tag_pkey; Type: CONSTRAINT; Schema: public; Owner: tester; Tablespace: 
+--
+
+ALTER TABLE ONLY package_tag
+    ADD CONSTRAINT package_tag_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: package_tag_revision_pkey; Type: CONSTRAINT; Schema: public; Owner: tester; Tablespace: 
+--
+
+ALTER TABLE ONLY package_tag_revision
+    ADD CONSTRAINT package_tag_revision_pkey PRIMARY KEY (id, revision_id);
+
+
+--
+-- Name: rating_pkey; Type: CONSTRAINT; Schema: public; Owner: tester; Tablespace: 
+--
+
+ALTER TABLE ONLY rating
+    ADD CONSTRAINT rating_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: revision_pkey; Type: CONSTRAINT; Schema: public; Owner: tester; Tablespace: 
+--
+
+ALTER TABLE ONLY revision
+    ADD CONSTRAINT revision_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: role_action_pkey; Type: CONSTRAINT; Schema: public; Owner: tester; Tablespace: 
+--
+
+ALTER TABLE ONLY role_action
+    ADD CONSTRAINT role_action_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: system_role_pkey; Type: CONSTRAINT; Schema: public; Owner: tester; Tablespace: 
+--
+
+ALTER TABLE ONLY system_role
+    ADD CONSTRAINT system_role_pkey PRIMARY KEY (user_object_role_id);
+
+
+--
+-- Name: tag_name_key; Type: CONSTRAINT; Schema: public; Owner: tester; Tablespace: 
+--
+
+ALTER TABLE ONLY tag
+    ADD CONSTRAINT tag_name_key UNIQUE (name);
+
+
+--
+-- Name: tag_pkey; Type: CONSTRAINT; Schema: public; Owner: tester; Tablespace: 
+--
+
+ALTER TABLE ONLY tag
+    ADD CONSTRAINT tag_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: user_object_role_pkey; Type: CONSTRAINT; Schema: public; Owner: tester; Tablespace: 
+--
+
+ALTER TABLE ONLY user_object_role
+    ADD CONSTRAINT user_object_role_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: user_pkey; Type: CONSTRAINT; Schema: public; Owner: tester; Tablespace: 
+--
+
+ALTER TABLE ONLY "user"
+    ADD CONSTRAINT user_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: group_role_group_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY group_role
+    ADD CONSTRAINT group_role_group_id_fkey FOREIGN KEY (group_id) REFERENCES "group"(id);
+
+
+--
+-- Name: group_role_user_object_role_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY group_role
+    ADD CONSTRAINT group_role_user_object_role_id_fkey FOREIGN KEY (user_object_role_id) REFERENCES user_object_role(id);
+
+
+--
+-- Name: package_extra_package_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package_extra
+    ADD CONSTRAINT package_extra_package_id_fkey FOREIGN KEY (package_id) REFERENCES package(id);
+
+
+--
+-- Name: package_extra_revision_continuity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package_extra_revision
+    ADD CONSTRAINT package_extra_revision_continuity_id_fkey FOREIGN KEY (continuity_id) REFERENCES package_extra(id);
+
+
+--
+-- Name: package_extra_revision_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package_extra
+    ADD CONSTRAINT package_extra_revision_id_fkey FOREIGN KEY (revision_id) REFERENCES revision(id);
+
+
+--
+-- Name: package_extra_revision_package_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package_extra_revision
+    ADD CONSTRAINT package_extra_revision_package_id_fkey FOREIGN KEY (package_id) REFERENCES package(id);
+
+
+--
+-- Name: package_extra_revision_revision_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package_extra_revision
+    ADD CONSTRAINT package_extra_revision_revision_id_fkey FOREIGN KEY (revision_id) REFERENCES revision(id);
+
+
+--
+-- Name: package_group_group_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package_group
+    ADD CONSTRAINT package_group_group_id_fkey FOREIGN KEY (group_id) REFERENCES "group"(id);
+
+
+--
+-- Name: package_group_package_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package_group
+    ADD CONSTRAINT package_group_package_id_fkey FOREIGN KEY (package_id) REFERENCES package(id);
+
+
+--
+-- Name: package_relationship_object_package_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package_relationship
+    ADD CONSTRAINT package_relationship_object_package_id_fkey FOREIGN KEY (object_package_id) REFERENCES package(id);
+
+
+--
+-- Name: package_relationship_revision_continuity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package_relationship_revision
+    ADD CONSTRAINT package_relationship_revision_continuity_id_fkey FOREIGN KEY (continuity_id) REFERENCES package_relationship(id);
+
+
+--
+-- Name: package_relationship_revision_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package_relationship
+    ADD CONSTRAINT package_relationship_revision_id_fkey FOREIGN KEY (revision_id) REFERENCES revision(id);
+
+
+--
+-- Name: package_relationship_revision_object_package_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package_relationship_revision
+    ADD CONSTRAINT package_relationship_revision_object_package_id_fkey FOREIGN KEY (object_package_id) REFERENCES package(id);
+
+
+--
+-- Name: package_relationship_revision_revision_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package_relationship_revision
+    ADD CONSTRAINT package_relationship_revision_revision_id_fkey FOREIGN KEY (revision_id) REFERENCES revision(id);
+
+
+--
+-- Name: package_relationship_revision_subject_package_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package_relationship_revision
+    ADD CONSTRAINT package_relationship_revision_subject_package_id_fkey FOREIGN KEY (subject_package_id) REFERENCES package(id);
+
+
+--
+-- Name: package_relationship_subject_package_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package_relationship
+    ADD CONSTRAINT package_relationship_subject_package_id_fkey FOREIGN KEY (subject_package_id) REFERENCES package(id);
+
+
+--
+-- Name: package_resource_package_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package_resource
+    ADD CONSTRAINT package_resource_package_id_fkey FOREIGN KEY (package_id) REFERENCES package(id);
+
+
+--
+-- Name: package_resource_revision_continuity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package_resource_revision
+    ADD CONSTRAINT package_resource_revision_continuity_id_fkey FOREIGN KEY (continuity_id) REFERENCES package_resource(id);
+
+
+--
+-- Name: package_resource_revision_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package_resource
+    ADD CONSTRAINT package_resource_revision_id_fkey FOREIGN KEY (revision_id) REFERENCES revision(id);
+
+
+--
+-- Name: package_resource_revision_package_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package_resource_revision
+    ADD CONSTRAINT package_resource_revision_package_id_fkey FOREIGN KEY (package_id) REFERENCES package(id);
+
+
+--
+-- Name: package_resource_revision_revision_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package_resource_revision
+    ADD CONSTRAINT package_resource_revision_revision_id_fkey FOREIGN KEY (revision_id) REFERENCES revision(id);
+
+
+--
+-- Name: package_revision_continuity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package_revision
+    ADD CONSTRAINT package_revision_continuity_id_fkey FOREIGN KEY (continuity_id) REFERENCES package(id);
+
+
+--
+-- Name: package_revision_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package
+    ADD CONSTRAINT package_revision_id_fkey FOREIGN KEY (revision_id) REFERENCES revision(id);
+
+
+--
+-- Name: package_revision_revision_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package_revision
+    ADD CONSTRAINT package_revision_revision_id_fkey FOREIGN KEY (revision_id) REFERENCES revision(id);
+
+
+--
+-- Name: package_role_package_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package_role
+    ADD CONSTRAINT package_role_package_id_fkey FOREIGN KEY (package_id) REFERENCES package(id);
+
+
+--
+-- Name: package_role_user_object_role_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package_role
+    ADD CONSTRAINT package_role_user_object_role_id_fkey FOREIGN KEY (user_object_role_id) REFERENCES user_object_role(id);
+
+
+--
+-- Name: package_search_package_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package_search
+    ADD CONSTRAINT package_search_package_id_fkey FOREIGN KEY (package_id) REFERENCES package(id);
+
+
+--
+-- Name: package_tag_package_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package_tag
+    ADD CONSTRAINT package_tag_package_id_fkey FOREIGN KEY (package_id) REFERENCES package(id);
+
+
+--
+-- Name: package_tag_revision_continuity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package_tag_revision
+    ADD CONSTRAINT package_tag_revision_continuity_id_fkey FOREIGN KEY (continuity_id) REFERENCES package_tag(id);
+
+
+--
+-- Name: package_tag_revision_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package_tag
+    ADD CONSTRAINT package_tag_revision_id_fkey FOREIGN KEY (revision_id) REFERENCES revision(id);
+
+
+--
+-- Name: package_tag_revision_package_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package_tag_revision
+    ADD CONSTRAINT package_tag_revision_package_id_fkey FOREIGN KEY (package_id) REFERENCES package(id);
+
+
+--
+-- Name: package_tag_revision_revision_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package_tag_revision
+    ADD CONSTRAINT package_tag_revision_revision_id_fkey FOREIGN KEY (revision_id) REFERENCES revision(id);
+
+
+--
+-- Name: package_tag_revision_tag_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package_tag_revision
+    ADD CONSTRAINT package_tag_revision_tag_id_fkey FOREIGN KEY (tag_id) REFERENCES tag(id);
+
+
+--
+-- Name: package_tag_tag_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY package_tag
+    ADD CONSTRAINT package_tag_tag_id_fkey FOREIGN KEY (tag_id) REFERENCES tag(id);
+
+
+--
+-- Name: rating_package_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY rating
+    ADD CONSTRAINT rating_package_id_fkey FOREIGN KEY (package_id) REFERENCES package(id);
+
+
+--
+-- Name: rating_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY rating
+    ADD CONSTRAINT rating_user_id_fkey FOREIGN KEY (user_id) REFERENCES "user"(id);
+
+
+--
+-- Name: system_role_user_object_role_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY system_role
+    ADD CONSTRAINT system_role_user_object_role_id_fkey FOREIGN KEY (user_object_role_id) REFERENCES user_object_role(id);
+
+
+--
+-- Name: user_object_role_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tester
+--
+
+ALTER TABLE ONLY user_object_role
+    ADD CONSTRAINT user_object_role_user_id_fkey FOREIGN KEY (user_id) REFERENCES "user"(id);
+
+
+--
+-- Name: public; Type: ACL; Schema: -; Owner: postgres
+--
+
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM postgres;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO PUBLIC;
+
+
+--
+-- PostgreSQL database dump complete
+--
+

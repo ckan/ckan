@@ -4,7 +4,7 @@ logger = logging.getLogger(__name__)
 from pylons import config
 from sqlalchemy import Column, MetaData, Table, types, ForeignKey
 from sqlalchemy import orm
-from sqlalchemy import or_
+from sqlalchemy import or_, and_
 from sqlalchemy.types import *
 
 metadata = MetaData(bind=config['pylons.g'].sa_engine)

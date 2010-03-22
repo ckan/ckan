@@ -18,6 +18,7 @@ Contents:
    importer
    api
    getdata
+   model
    load_testing
 
 

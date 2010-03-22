@@ -33,9 +33,6 @@ class TestPackage:
         assert package.notes == self.notes
         assert package.license.id == u'gpl-3.0'
         assert package.license.title == u'OSI Approved::GNU General Public License version 3.0 (GPLv3)', package.license.title
-        # Check unregistered license_id causes license to be 'None'.
-        package.license_id = u'zzzzzzz'
-        assert package.license == None
 
     def test_update_package(self):
         newnotes = u'Written by Beethoven'
@@ -51,6 +48,13 @@ class TestPackage:
         assert outpkg.notes == newnotes
         assert len(outpkg.all_revisions) > 0
         assert outpkg.all_revisions[0].revision.author == author
+
+    def test_package_license(self):
+        # Check unregistered license_id causes license to be 'None'.
+        package = model.Package.by_name(self.name)
+        package.license_id = u'zzzzzzz'
+        assert package.license == None
+        model.Session.remove() # forget change
 
 
 class TestPackageWithTags:

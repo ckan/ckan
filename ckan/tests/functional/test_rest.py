@@ -23,14 +23,6 @@ class TestRest(TestController):
         rev = model.repo.new_revision()
         model.repo.commit_and_remove()
 
-
-    @classmethod
-    def teardown_class(self):
-        model.Session.remove()
-        model.repo.rebuild_db()
-        model.Session.remove()
-
-    def setup(self):
         self.testpackage_license_id = u'gpl-3.0'
         self.testpackagevalues = {
             'name' : u'testpkg',
@@ -53,7 +45,7 @@ class TestRest(TestController):
         self.testgroupvalues = {
             'name' : u'testgroup',
             'title' : u'Some Group Title',
-            'description' : 'Great group!',
+            'description' : u'Great group!',
             'packages' : [u'annakarenina', 'warandpeace'],
             }
         self.random_name = u'http://myrandom.openidservice.org/'
@@ -63,15 +55,10 @@ class TestRest(TestController):
         model.Session.remove()
         self.extra_environ={ 'Authorization' : str(self.user.apikey) }
 
-    def teardown(self):
+    @classmethod
+    def teardown_class(self):
         model.Session.remove()
-        user = model.User.by_name(self.random_name)
-        if user:
-            user.purge()
-        pkg = model.Package.by_name(self.testpackagevalues['name'])
-        if pkg:
-            pkg.purge()
-        model.Session.commit()
+        model.repo.rebuild_db()
         model.Session.remove()
 
     def test_01_register_post_noauth(self):
@@ -173,6 +160,7 @@ class TestRest(TestController):
 
     def test_06_create_pkg(self):
         # Test Packages Register Post 200.
+        assert not model.Package.by_name(self.testpackagevalues['name'])
         offset = '/api/rest/package'
         postparams = '%s=1' % simplejson.dumps(self.testpackagevalues)
         res = self.app.post(offset, params=postparams, status=[200],
@@ -182,7 +170,7 @@ class TestRest(TestController):
         assert pkg
         assert pkg.title == self.testpackagevalues['title'], pkg
         assert pkg.url == self.testpackagevalues['url'], pkg
-        assert pkg.license.id == self.testpackage_license_id, pkg
+        assert pkg.license_id == self.testpackage_license_id, pkg
         assert len(pkg.tags) == 2
         assert len(pkg.extras) == 2, len(pkg.extras)
         for key, value in self.testpackagevalues['extras'].items():
@@ -331,24 +319,24 @@ class TestRest(TestController):
 
         # create a package with testpackagevalues
         tag_names = [u'tag1', u'tag2', u'tag3']
-        if not model.Package.by_name(self.testpackagevalues['name']):
-            rev = model.repo.new_revision()
+        pkg = model.Package.by_name(self.testpackagevalues['name'])
+        if not pkg:
             pkg = model.Package()
             model.Session.add(pkg)
-            pkg.name = self.testpackagevalues['name']
-            pkg.url = self.testpackagevalues['url']
-            tags = [model.Tag(name=tag_name) for tag_name in tag_names]
-            for tag in tags:
-                model.Session.add(tag)
-            pkg.tags = tags
-            pkg.extras = {u'key1':u'val1', u'key2':u'val2'}
-            model.Session.commit()
+        rev = model.repo.new_revision()
+        pkg.name = self.testpackagevalues['name']
+        pkg.url = self.testpackagevalues['url']
+        tags = [model.Tag(name=tag_name) for tag_name in tag_names]
+        for tag in tags:
+            model.Session.add(tag)
+        pkg.tags = tags
+        pkg.extras = {u'key1':u'val1', u'key2':u'val2'}
+        model.Session.commit()
 
-            pkg = model.Package.by_name(self.testpackagevalues['name'])
-            model.setup_default_user_roles(pkg, [self.user])
-            rev = model.repo.new_revision()
-            model.repo.commit_and_remove()
-        assert model.Package.by_name(self.testpackagevalues['name'])
+        pkg = model.Package.by_name(self.testpackagevalues['name'])
+        model.setup_default_user_roles(pkg, [self.user])
+        rev = model.repo.new_revision()
+        model.repo.commit_and_remove()
 
         # edit it
         pkg_vals = {'name':u'somethingnew',
@@ -520,7 +508,6 @@ class TestRest(TestController):
 
         # delete it
         offset = '/api/rest/package/%s' % self.testpackagevalues['name']
-        rev = model.repo.new_revision()
         res = self.app.delete(offset, status=[200],
                 extra_environ=self.extra_environ)
         pkg = model.Package.by_name(self.testpackagevalues['name'])
@@ -549,7 +536,6 @@ class TestRest(TestController):
 
         # delete it
         offset = '/api/rest/group/%s' % self.testgroupvalues['name']
-        rev = model.repo.new_revision()
         res = self.app.delete(offset, status=[200],
                 extra_environ=self.extra_environ)
         assert not model.Group.by_name(self.testgroupvalues['name'])
@@ -557,8 +543,9 @@ class TestRest(TestController):
 
     def test_12_get_pkg_404(self):
         # Test Package Entity Get 404.
-        assert not model.Session.query(model.Package).filter_by(name=self.testpackagevalues['name']).count()
-        offset = '/api/rest/package/%s' % self.testpackagevalues['name']
+        pkg_name = u'random_one'
+        assert not model.Session.query(model.Package).filter_by(name=pkg_name).count()
+        offset = '/api/rest/package/%s' % pkg_name
         res = self.app.get(offset, status=404)
         model.Session.remove()
 
@@ -571,8 +558,9 @@ class TestRest(TestController):
 
     def test_13_delete_pkg_404(self):
         # Test Packages Entity Delete 404.
-        assert not model.Session.query(model.Package).filter_by(name=self.testpackagevalues['name']).count()
-        offset = '/api/rest/package/%s' % self.testpackagevalues['name']
+        pkg_name = u'random_one'
+        assert not model.Session.query(model.Package).filter_by(name=pkg_name).count()
+        offset = '/api/rest/package/%s' % pkg_name
         res = self.app.delete(offset, status=[404],
                               extra_environ=self.extra_environ)
 
@@ -596,6 +584,177 @@ class TestRest(TestController):
         offset = '/api/rest/revision/%s' % revision_id
         res = self.app.get(offset, status=404)
         model.Session.remove()
+
+class TestRelationships(TestController):
+    @classmethod
+    def setup_class(self):
+        CreateTestData.create()
+        username = u'barry'
+        self.user = model.User(name=username)
+        model.Session.add(self.user)
+        model.Session.commit()
+        model.Session.remove()
+        self.extra_environ={ 'Authorization' : str(self.user.apikey) }
+        self.comment = u'Comment umlaut: \xfc.'
+
+
+    @classmethod
+    def teardown_class(self):
+        model.Session.remove()
+        model.repo.rebuild_db()
+        model.Session.remove()
+
+    def _get_relationships(self, package1_name='annakarenina', package2_name=None):
+        if not package2_name:
+            offset = '/api/rest/package/%s/relationships' % str(package1_name)
+        else:
+            offset = '/api/rest/package/%s/relationships/%s/' % (
+                str(package1_name), str(package2_name))
+        res = self.app.get(offset, status=200)
+        res_dict = simplejson.loads(res.body) if res.body else []
+        return res_dict
+
+    def _get_relationships_via_package(self, package1_name):
+        offset = '/api/rest/package/%s' % (str(package1_name))
+        res = self.app.get(offset, status=200)
+        res_dict = simplejson.loads(res.body) if res.body else []
+        return res_dict['relationships']
+
+    @property
+    def war(self):
+        return model.Package.by_name(u'warandpeace')
+    @property
+    def anna(self):
+        return model.Package.by_name(u'annakarenina')
+    @property
+    def anna_offset(self):
+        return '/api/rest/package/annakarenina'
+
+    def _check_relationships_rest(self, pkg1_name, pkg2_name=None,
+                                 expected_relationships=[]):
+        rels = self._get_relationships(package1_name=pkg1_name,
+                                      package2_name=pkg2_name)
+        assert len(rels) == len(expected_relationships), \
+               'Found %i relationships, but expected %i.\nFound: %r' % \
+               (len(rels), len(expected_relationships),
+                ['%s %s %s' % (rel['subject'], rel['type'], rel['object']) \
+                 for rel in rels])
+        for rel in rels:
+            the_expected_rel = None
+            for expected_rel in expected_relationships:
+                if expected_rel['type'] == rel['type'] and \
+                   (pkg2_name or expected_rel['object'] == pkg2_name):
+                    the_expected_rel = expected_rel
+                    break
+            if not the_expected_rel:
+                raise Exception('Unexpected relationship: %s %s %s' %
+                                (rel['subject'], rel['type'], rel['object']))
+            for field in ('subject', 'object', 'type', 'comment'):
+                if the_expected_rel.has_key(field):
+                    assert rel[field] == the_expected_rel[field], rel
+
+    def _check_relationship_dict(self, rel_dict, subject, type, object, comment):
+        assert rel_dict['subject'] == subject, rel_dict
+        assert rel_dict['object'] == object, rel_dict
+        assert rel_dict['type'] == type, rel_dict
+        assert rel_dict['comment'] == comment, rel_dict
+
+
+    def test_01_add_relationship(self):
+        # check anna has no exisiting relationships
+        assert not self.anna.get_relationships()
+        assert self._get_relationships(package1_name='annakarenina') == []
+        assert self._get_relationships(package1_name='annakarenina',
+                                      package2_name='warandpeace') == []
+        assert self._get_relationships_via_package('annakarenina') == []
+
+        # make annakarenina parent of warandpeace
+        offset='/api/rest/package/annakarenina/parent_of/warandpeace'
+        postparams = '%s=1' % simplejson.dumps({'comment':self.comment})
+        res = self.app.post(offset, params=postparams, status=[200],
+                            extra_environ=self.extra_environ)
+
+    def test_02_read_relationship(self):
+        'check relationship is made (in test 01)'
+
+        # check model is right
+        rels = self.anna.get_relationships()
+        assert len(rels) == 1
+        assert rels[0].type == 'child_of'
+        assert rels[0].subject.name == 'warandpeace'
+        assert rels[0].object.name == 'annakarenina'
+
+        # check '/api/rest/package/annakarenina/relationships'
+        rels = self._get_relationships(package1_name='annakarenina')
+        assert len(rels) == 1
+        self._check_relationship_dict(rels[0],
+               'annakarenina', 'parent_of', 'warandpeace', self.comment)
+
+        # check '/api/rest/package/annakarenina/relationships/warandpeace'
+        rels = self._get_relationships(package1_name='annakarenina',
+                                      package2_name='warandpeace')
+        assert len(rels) == 1
+        self._check_relationship_dict(rels[0],
+               'annakarenina', 'parent_of', 'warandpeace', self.comment)
+
+        # same checks in reverse direction
+        rels = self._get_relationships(package1_name='warandpeace')
+        assert len(rels) == 1
+        self._check_relationship_dict(rels[0],
+               'warandpeace', 'child_of', 'annakarenina', self.comment)
+
+        rels = self._get_relationships(package1_name='warandpeace',
+                                      package2_name='annakarenina')
+        assert len(rels) == 1
+        self._check_relationship_dict(rels[0],
+               'warandpeace', 'child_of', 'annakarenina', self.comment)
+
+        # check '/api/rest/package/annakarenina'
+        rels = self._get_relationships_via_package('annakarenina')
+        assert len(rels) == 1
+        self._check_relationship_dict(rels[0],
+               'annakarenina', 'parent_of', 'warandpeace', self.comment)
+        
+
+    def test_03_update_relationship(self):
+        self._check_relationships_rest('warandpeace', 'annakarenina',
+                                      [{'type': 'child_of',
+                                        'comment': self.comment}])
+
+        offset='/api/rest/package/annakarenina/parent_of/warandpeace'
+        comment = u'New comment.'
+        postparams = '%s=1' % simplejson.dumps({'comment':comment})
+        res = self.app.post(offset, params=postparams, status=[200],
+                            extra_environ=self.extra_environ)
+
+        self._check_relationships_rest('warandpeace', 'annakarenina',
+                                      [{'type': 'child_of',
+                                        'comment': u'New comment.'}])
+
+    def test_04_update_relationship_no_change(self):
+        offset='/api/rest/package/annakarenina/parent_of/warandpeace'
+
+        comment = u'New comment.' # same as previous test
+        postparams = '%s=1' % simplejson.dumps({'comment':comment})
+        res = self.app.post(offset, params=postparams, status=[200],
+                            extra_environ=self.extra_environ)
+
+        self._check_relationships_rest('warandpeace', 'annakarenina',
+                                      [{'type': 'child_of',
+                                        'comment': u'New comment.'}])
+
+        
+    def test_05_delete_relationship(self):
+        self._check_relationships_rest('warandpeace', 'annakarenina',
+                                      [{'type': 'child_of',
+                                        'comment': u'New comment.'}])
+
+        offset='/api/rest/package/annakarenina/parent_of/warandpeace'
+        res = self.app.delete(offset, status=[200],
+                              extra_environ=self.extra_environ)
+
+        self._check_relationships_rest('warandpeace', 'annakarenina',
+                                      [])
 
 
 class TestSearch(TestController):
@@ -621,7 +780,7 @@ class TestSearch(TestController):
             'title': 'Some Title',
             'url': u'http://blahblahblah.mydomain',
             'resources': [{u'url':u'http://blahblahblah.mydomain',
-                           'format':'', 'description':''}],
+                           u'format':u'', u'description':''}],
             'tags': ['russion', 'novel'],
             'license': u'gpl-3.0',
             'extras': {'national_statistic':'yes',

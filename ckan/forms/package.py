@@ -470,7 +470,7 @@ def get_package_dict(pkg=None, blank=False, fs=None):
                 if field.renderer.name.endswith('-tags'):
                     indict[field.renderer.name] = ' '.join([tag.name for tag in pkg.tags]) if pkg else ''
                 if field.renderer.name.endswith('-resources'):
-                    indict[field.renderer.name] = [{'url':res.url, 'format':res.format, 'description':res.description, 'hash':res.hash} for res in pkg.resources] if pkg else []
+                    indict[field.renderer.name] = [{u'url':res.url, u'format':res.format, u'description':res.description, u'hash':res.hash} for res in pkg.resources] if pkg else []
         
     return indict
 

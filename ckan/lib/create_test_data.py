@@ -161,7 +161,6 @@ class CreateTestData(cli.CkanCommand):
                 model.Session.commit()
             model.Session.remove()
     
-    
     @classmethod
     def create(self):
         import ckan.model as model
