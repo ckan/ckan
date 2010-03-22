@@ -78,7 +78,7 @@ class Data4Nr(object):
             }
         for extra_key in ['categories', 'geographic_granularity', 'temporal_granularity', 'date_updated', 'agency', 'taxonomy_url', 'date_released']:
             extras_dict[extra_key] = u''
-        extras_dict['national_statistic'] = u'no'
+        extras_dict['national_statistic'] = u'' #u'no'
         geo_cover = []
         geo_coverage_type = schema_gov.GeoCoverageType.get_instance()
         geo_val = _dict['geographic coverage']

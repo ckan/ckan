@@ -147,7 +147,7 @@ class CreateTestData(cli.CkanCommand):
                 pkg = model.Package.by_name(unicode(pkg_name))
                 admins = [model.User.by_name(unicode(user_name)) for user_name in self.user_names]
                 model.setup_default_user_roles(pkg, admins)
-            model.repo.commit_and_remove()
+                # (setup_default_user_roles does commit and remove)
 
         if relationships:
             def pkg(pkg_name):
@@ -155,10 +155,11 @@ class CreateTestData(cli.CkanCommand):
             for subject_name, relationship, object_name in relationships:
                 pkg(subject_name).add_relationship(
                     unicode(relationship), pkg(object_name))
-            rev = model.repo.new_revision() 
-            rev.author = self.author
-            rev.message = u'Creating test data relationships.'
-            model.repo.commit_and_remove()
+                rev = model.repo.new_revision() 
+                rev.author = self.author
+                rev.message = u'Creating test data relationships.'
+                model.Session.commit()
+            model.Session.remove()
     
     
     @classmethod
@@ -301,7 +302,7 @@ search_items = [{'name':'gils',
               'url':'',
               'tags':'registry  country-usa  government  federal  gov  workshop-20081101',
               'groups':'ukgov test1 test2 penguin',
-              'license':'agpl-v3',
+              'license':'gpl-3.0',
               'notes':'''From <http://www.gpoaccess.gov/gils/about.html>
               
 > The Government Information Locator Service (GILS) is an effort to identify, locate, and describe publicly available Federal

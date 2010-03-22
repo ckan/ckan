@@ -97,6 +97,7 @@ class TestData:
         assert pkg2.extras['temporal_coverage_from'] == '2001', pkg2.extras['temporal_coverage_from']
         assert pkg3.extras['temporal_coverage_from'] == '1996', pkg3.extras['temporal_coverage_from']        
         assert pkg3.extras['temporal_coverage_to'] == '2007', pkg3.extras['temporal_coverage_to']
+        assert not pkg1.extras['national_statistic'], pkg1.extras['national_statistic']
         assert 'Time coverage: 2001' in pkg1.notes, pkg1.notes
         assert 'Time coverage: 2001/02' in pkg2.notes, pkg2.notes
         assert 'Time coverage: 1996-1998 to 2005-2007 (3 year rolling averages)' in pkg3.notes, pkg3.notes

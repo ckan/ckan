@@ -28,16 +28,33 @@ def ons_prefix():
     model.Session.remove()
     print 'Removed ONS prefix from %i packages out of %i' % (len(pkgs_changed), model.Session.query(model.Package).count())
             
+def dump_data4nr_names(csv_filepath):
+    '''Dumps a list of the old and new names for packages in data4nr csv data'''
+    from ckan.getdata.data4nr import Data4Nr
+    import csv
+
+    data4nr = Data4Nr()
+    assert os.path.exists(csv_filepath)
+    f_obj = open(csv_filepath, "r")
+    reader = csv.reader(f_obj)
+    index = 0
+    reader.next()
+    for row_list in reader:
+        data4nr_dict = data4nr._parse_line(row_list, index)
+        if data4nr_dict:
+            old_name, new_name = data4nr._create_name(data4nr_dict)
+            print '%s %s' % (old_name, new_name)
+        index += 1
 
 if __name__ == '__main__':
     usage = '''usage: %prog [options] <command>
-    options:
-        -c <config.ini> - pylons config ini filepath (default=development.ini)
     commands:
         ons-prefix - Remove ONS prefix in resources
-    '''
+        dump_data4nr_names - Dump list of old/new package names for Data4Nr csv file
+    ''' # NB Options are automatically listed
     parser = OptionParser(usage=usage)
     parser.add_option('-c', '--config', dest='config', help='Config filepath', default='development.ini')
+    parser.add_option('-f', '--file', dest='filepath', help='Input filepath')
 
     (options, args) = parser.parse_args()
     if len(args) < 1:
@@ -52,3 +69,5 @@ if __name__ == '__main__':
             
     if command == 'ons-prefix':
         ons_prefix()
+    elif command == 'dump_data4nr_names':
+        dump_data4nr_names(options.filepath)

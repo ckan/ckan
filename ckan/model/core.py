@@ -180,6 +180,8 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         return _dict
 
     def add_relationship(self, type_, related_package, comment=u''):
+        '''Creates a new relationship between this package and a
+        related_package. It leaves the caller to commit the change.'''
         import package_relationship
         if type_ in package_relationship.PackageRelationship.get_forward_types():
             subject = self

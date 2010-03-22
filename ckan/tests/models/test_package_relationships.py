@@ -139,22 +139,18 @@ class TestComplicated:
 
     def test_rels(self):
         rels = model.Package.by_name(u'homer').relationships
-        assert len(rels) == 4, len(rels)
-        def check(rels, subject, rel, object):
+        assert len(rels) == 5, '%i: %s' % (len(rels), [str(rel) for rel in rels])
+        def check(rels, subject, type, object):
             for rel in rels:
-                if rel.subject == subject and rel.type == rel and rel.object == object:
+                if rel.subject.name == subject and rel.type == type and rel.object.name == object:
                     return
             assert 0, 'Could not find relationship in: %r' % rels
-        check(rels, 'homer', 'is a child of', 'abraham')
-        check(rels, 'homer', 'is a parent of', 'bart')
-        check(rels, 'homer', 'is a parent of', 'lisa')
-        check(rels, 'homer', 'has derivation', 'homer_derived')
-        check(rels, 'homer', 'depends on', 'beer')
-        
+        check(rels, 'homer', 'child_of', 'abraham')
+        check(rels, 'bart', 'child_of', 'homer')
+        check(rels, 'lisa', 'child_of', 'homer')
+        check(rels, 'homer_derived', 'derives_from', 'homer')
+        check(rels, 'homer', 'depends_on', 'beer')
         rels = model.Package.by_name(u'bart').relationships
-        check(rels, 'bart', 'has sibling', 'lisa')
-        check(rels, 'bart', 'is a child of', 'homer')
-
-        rels = model.Package.by_name(u'lisa').relationships
-        check(rels, 'lisa', 'has sibling', 'bart')
+        assert len(rels) == 1, len(rels)
+        check(rels, 'bart', 'child_of', 'homer')
         

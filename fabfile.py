@@ -1,10 +1,20 @@
-# std usage:
-#   fab std_config:{name} [operation] 
-#
-#   for details of operations do fab -l
-#
-# Examples:
-#   deploy to a local directory: fab local:~/test,test deploy
+'''Automate CKAN deployment, backup etc.
+
+For details of operations do fab -l.
+
+Examples:
+=========
+
+Deploy a new CKAN instance called new.ckan.net on new.ckan.net::
+
+    # see fab -d config_0 for more info
+    fab config_0:new.ckan.net,db_pass={your-db-pass} deploy
+
+Deploy to a local directory::
+
+    fab local:~/test,test deploy
+
+'''
 from __future__ import with_statement
 import os
 import datetime
@@ -21,8 +31,9 @@ env.base_dir = os.getcwd() # e.g. /home/jsmith/var/srvc
 env.local_backup_dir = '~/db_backup'
 env.ckan_repo = 'http://knowledgeforge.net/ckan/hg/raw-file/tip/'
 env.pip_requirements = 'pip-requirements.txt'
+env.skip_setup_db = False
 
-def config_local(base_dir, ckan_instance_name, db_pass=None):
+def config_local(base_dir, ckan_instance_name, db_pass=None, skip_setup_db=None, no_sudo=None):
     '''Run on localhost. e.g. local:~/test,myhost.com
                             puts it at ~/test/myhost.com
                             '''
@@ -31,6 +42,10 @@ def config_local(base_dir, ckan_instance_name, db_pass=None):
     env.base_dir = os.path.expanduser(base_dir)    # e.g. ~/var/srvc
     if db_pass:
         env.db_pass = db_pass
+    if skip_setup_db != None:
+        env.skip_setup_db = skip_setup_db    
+    if no_sudo != None:
+        env.no_sudo = no_sudo    
 
 def config_local_dev(base_dir, ckan_instance_name):
     config_local(base_dir, ckan_instance_name)
@@ -66,15 +81,18 @@ def config_hmg_ckan_net_2():
     env.hosts = ['ssh.hmg.ckan.net']
     env.config_ini_filename = 'hmg.ckan.net.ini'
 
-def config_0(name, hosts_str='', requirements='pip-requirements-stable.txt',
+def config_test_ckan_net():
+    config_0('test.ckan.net', requirements='pip-requirements.txt')
+
+def config_0(name, hosts_str='', requirements='pip-requirements-metastable.txt',
         db_pass=None):
     '''Configurable configuration: fab -d gives full info.
     
     @param name: name of instance (e.g. xx.ckan.net)
     @param hosts_str: hosts to run on (--host does not work correctly).
         Defaults to name if not supplied.
-    @param requirements: pip requirements to use (defaults to
-        pip-requirements-stable.txt)
+    @param requirements: pip requirements filename to use (defaults to
+        pip-requirements-metastable.txt)
     @param db_pass: password to use when setting up db user (if needed)
     '''
     env.user = 'okfn'
@@ -142,7 +160,8 @@ def deploy():
             # sed does not find the path if not absolute (!)
             config_path = os.path.join(env.instance_path, env.config_ini_filename)
             sed(config_path, dburi, newdburi, backup='')
-            setup_db()
+            if not env.skip_setup_db:
+                setup_db()
             _run_in_pyenv('paster --plugin ckan db create --config %s' % env.config_ini_filename)
             _run_in_pyenv('paster --plugin ckan db init --config %s' % env.config_ini_filename)
         else:
@@ -216,21 +235,31 @@ def backup():
     else:
         backup_dir = os.path.join(env.base_dir, 'backup')
     _mkdir(backup_dir)
-    backup_filepath = _get_unique_filepath(backup_dir, exists, 'pg_dump')
+    pg_dump_filepath = _get_unique_filepath(backup_dir, exists, 'pg_dump')
 
     with cd(env.instance_path):
         assert exists(env.config_ini_filename), "Can't find config file: %s/%s" % (env.instance_path, env.config_ini_filename)
     db_details = _get_db_config()
     assert db_details['db_type'] == 'postgres'
-    run('export PGPASSWORD=%s&&pg_dump -U %s -D %s -h %s> %s' % (db_details['db_pass'], db_details['db_user'], db_details['db_name'], db_details['db_host'], backup_filepath), shell=False)
-    assert exists(backup_filepath)
-    run('ls -l %s' % backup_filepath)
+    run('export PGPASSWORD=%s&&pg_dump -U %s -D %s -h %s> %s' % (db_details['db_pass'], db_details['db_user'], db_details['db_name'], db_details['db_host'], pg_dump_filepath), shell=False)
+    assert exists(pg_dump_filepath)
+    run('ls -l %s' % pg_dump_filepath)
     # copy backup locally
     if env.host_string != 'localhost':
+        # zip it up
+        pg_dump_filename = os.path.basename(pg_dump_filepath)
+        zipped_pg_dump_filepath = os.path.join('/tmp', pg_dump_filename) + '.gz'
+        run('gzip -c %s > %s' % (pg_dump_filepath, zipped_pg_dump_filepath))
+        # do the copy
         local_backup_dir = os.path.join(env.local_backup_dir, env.host_string)
         if not os.path.exists(local_backup_dir):
             os.makedirs(local_backup_dir)
-        get(backup_filepath, local_backup_dir)
+        get(zipped_pg_dump_filepath, local_backup_dir)
+        # unzip it
+        local_zip_filepath = os.path.join(local_backup_dir, pg_dump_filename) + '.gz'
+        subprocess.check_call('gunzip %s' % local_zip_filepath, shell=True)
+        local_filepath = os.path.join(local_backup_dir, pg_dump_filename)
+        print 'Backup saved locally: %s' % local_filepath
 
 def restore_from_local(pg_dump_filepath):
     '''Like restore but from a local pg dump'''
