@@ -8,11 +8,12 @@ Examples:
 Deploy a new CKAN instance called new.ckan.net on new.ckan.net::
 
     # see fab -d config_0 for more info
-    fab config_0:{name},db_pass={your-db-pass} deploy
+    fab config_0:new.ckan.net,db_pass={your-db-pass} deploy
 
 Deploy to a local directory::
 
     fab local:~/test,test deploy
+
 '''
 from __future__ import with_statement
 import os
@@ -79,6 +80,9 @@ def config_hmg_ckan_net_2():
     env.ckan_instance_name = 'hmg.ckan.net.2'
     env.hosts = ['ssh.hmg.ckan.net']
     env.config_ini_filename = 'hmg.ckan.net.ini'
+
+def config_test_ckan_net():
+    config_0('test.ckan.net', requirements='pip-requirements.txt')
 
 def config_0(name, hosts_str='', requirements='pip-requirements-metastable.txt',
         db_pass=None):
@@ -231,21 +235,31 @@ def backup():
     else:
         backup_dir = os.path.join(env.base_dir, 'backup')
     _mkdir(backup_dir)
-    backup_filepath = _get_unique_filepath(backup_dir, exists, 'pg_dump')
+    pg_dump_filepath = _get_unique_filepath(backup_dir, exists, 'pg_dump')
 
     with cd(env.instance_path):
         assert exists(env.config_ini_filename), "Can't find config file: %s/%s" % (env.instance_path, env.config_ini_filename)
     db_details = _get_db_config()
     assert db_details['db_type'] == 'postgres'
-    run('export PGPASSWORD=%s&&pg_dump -U %s -D %s -h %s> %s' % (db_details['db_pass'], db_details['db_user'], db_details['db_name'], db_details['db_host'], backup_filepath), shell=False)
-    assert exists(backup_filepath)
-    run('ls -l %s' % backup_filepath)
+    run('export PGPASSWORD=%s&&pg_dump -U %s -D %s -h %s> %s' % (db_details['db_pass'], db_details['db_user'], db_details['db_name'], db_details['db_host'], pg_dump_filepath), shell=False)
+    assert exists(pg_dump_filepath)
+    run('ls -l %s' % pg_dump_filepath)
     # copy backup locally
     if env.host_string != 'localhost':
+        # zip it up
+        pg_dump_filename = os.path.basename(pg_dump_filepath)
+        zipped_pg_dump_filepath = os.path.join('/tmp', pg_dump_filename) + '.gz'
+        run('gzip -c %s > %s' % (pg_dump_filepath, zipped_pg_dump_filepath))
+        # do the copy
         local_backup_dir = os.path.join(env.local_backup_dir, env.host_string)
         if not os.path.exists(local_backup_dir):
             os.makedirs(local_backup_dir)
-        get(backup_filepath, local_backup_dir)
+        get(zipped_pg_dump_filepath, local_backup_dir)
+        # unzip it
+        local_zip_filepath = os.path.join(local_backup_dir, pg_dump_filename) + '.gz'
+        subprocess.check_call('gunzip %s' % local_zip_filepath, shell=True)
+        local_filepath = os.path.join(local_backup_dir, pg_dump_filename)
+        print 'Backup saved locally: %s' % local_filepath
 
 def restore_from_local(pg_dump_filepath):
     '''Like restore but from a local pg dump'''
