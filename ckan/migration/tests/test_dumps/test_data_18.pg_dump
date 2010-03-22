@@ -551,19 +551,19 @@ Regards,
 -- Data for Name: migrate_version; Type: TABLE DATA; Schema: public; Owner: tester
 --
 
-INSERT INTO migrate_version (repository_id, repository_path, version) VALUES ('Ckan', '/home/dread/hgroot/ckan4/ckan/migration', 19);
+INSERT INTO migrate_version (repository_id, repository_path, version) VALUES ('Ckan', '/home/dread/hgroot/ckan4/ckan/migration', 18);
 
 
 --
 -- Data for Name: package; Type: TABLE DATA; Schema: public; Owner: tester
 --
 
-INSERT INTO package (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id) VALUES ('65b0ca1e-e1bc-46ac-b2c0-020faefc03b6', 'abraham', 'Abraham', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', 'c29d1a4f-c7a0-4758-88bd-e3b82e86b3d5');
-INSERT INTO package (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id) VALUES ('b436a1e5-d665-4eaf-aba9-853e01dbac96', 'homer', 'Homer', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', '67a549d0-f7e0-408a-bcdb-8116261928f0');
-INSERT INTO package (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id) VALUES ('cfb3c1ef-2cbc-4611-b506-5c63eb22146a', 'homer_derived', 'Homer Derived', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', 'fa1e7503-b49c-405d-b889-1577adab214a');
-INSERT INTO package (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id) VALUES ('edbad763-34fd-470d-af99-a073d68be7e2', 'beer', 'Beer', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', '507d755d-32de-4295-b025-b7a81e0055c9');
-INSERT INTO package (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id) VALUES ('9b7b090e-1421-4a20-a659-f14e4a03eecb', 'bart', 'Bart', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', 'b9ebe2ed-7967-4887-a0d3-1459eef252fb');
-INSERT INTO package (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id) VALUES ('fcb1a147-cd4d-4442-89ef-fa1068b7661e', 'lisa', 'Lisa', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', '8ac63dff-dc8e-4de3-b350-475f86ccabd3');
+INSERT INTO package (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id) VALUES ('1a72e0f7-2e1f-4219-bc45-d43894d3d2f9', 'abraham', 'Abraham', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', '1a345084-c3e8-434e-862b-7580b81c7445');
+INSERT INTO package (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id) VALUES ('b58c4743-6ce1-4e62-99c9-0715bcbbe97e', 'homer', 'Homer', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', 'efe4ca58-5367-4c74-bb25-76de526737fc');
+INSERT INTO package (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id) VALUES ('a0fbab60-fbce-44a8-9a86-9d6073cfd08f', 'homer_derived', 'Homer Derived', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', 'ba5403c4-a964-4418-a999-f3bcaf40f75b');
+INSERT INTO package (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id) VALUES ('bb2e1ce6-084a-4187-8c1f-798695ec1faf', 'beer', 'Beer', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', '9e78fde5-d36c-4adf-93ee-aeddf05a110c');
+INSERT INTO package (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id) VALUES ('4bd60d22-e8b6-4e36-b10a-304e3e87bff8', 'bart', 'Bart', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', 'c92643cb-374f-4a0c-8905-608f690c5738');
+INSERT INTO package (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id) VALUES ('b34ae383-061d-4ae9-be6e-619d94515d1a', 'lisa', 'Lisa', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', '48154477-f715-4315-8dfc-eae92ef4f999');
 
 
 --
@@ -588,22 +588,22 @@ INSERT INTO package (id, name, title, version, url, author, author_email, mainta
 -- Data for Name: package_relationship; Type: TABLE DATA; Schema: public; Owner: tester
 --
 
-INSERT INTO package_relationship (id, subject_package_id, object_package_id, type, comment, revision_id) VALUES ('b45e662b-8850-473a-af09-dffc66142a38', 'b436a1e5-d665-4eaf-aba9-853e01dbac96', '65b0ca1e-e1bc-46ac-b2c0-020faefc03b6', 'child_of', '', 'ff7f53ef-a30a-463b-8102-9c4e25c6952d');
-INSERT INTO package_relationship (id, subject_package_id, object_package_id, type, comment, revision_id) VALUES ('5410070b-c365-4c31-b7ad-ff16cf887810', '9b7b090e-1421-4a20-a659-f14e4a03eecb', 'b436a1e5-d665-4eaf-aba9-853e01dbac96', 'child_of', '', '3e68cb9f-95d5-4720-8f9e-50f290e455bd');
-INSERT INTO package_relationship (id, subject_package_id, object_package_id, type, comment, revision_id) VALUES ('9e61c8cd-b50c-444d-89cd-1c1cc03cc591', 'fcb1a147-cd4d-4442-89ef-fa1068b7661e', 'b436a1e5-d665-4eaf-aba9-853e01dbac96', 'child_of', '', 'f9b6ced1-b046-4a4a-9881-07503cad8154');
-INSERT INTO package_relationship (id, subject_package_id, object_package_id, type, comment, revision_id) VALUES ('ab1ccf5f-aa60-4cd8-8f68-a78e05310d2c', 'cfb3c1ef-2cbc-4611-b506-5c63eb22146a', 'b436a1e5-d665-4eaf-aba9-853e01dbac96', 'derives_from', '', '449ca0c3-ffa2-4ad6-9701-370bf63798aa');
-INSERT INTO package_relationship (id, subject_package_id, object_package_id, type, comment, revision_id) VALUES ('7c6d2e6e-41cb-43a1-beb9-2618dc47faa7', 'b436a1e5-d665-4eaf-aba9-853e01dbac96', 'edbad763-34fd-470d-af99-a073d68be7e2', 'depends_on', '', '7c70848b-28c2-421c-83b7-fc100d8eebd0');
+INSERT INTO package_relationship (id, subject_package_id, object_package_id, type, comment, revision_id) VALUES ('a39cc218-97ce-4d65-819f-5f2ad10e9e2c', 'b58c4743-6ce1-4e62-99c9-0715bcbbe97e', '1a72e0f7-2e1f-4219-bc45-d43894d3d2f9', 'child_of', '', '1fa2021d-4962-4129-9da8-516ee8f8bc60');
+INSERT INTO package_relationship (id, subject_package_id, object_package_id, type, comment, revision_id) VALUES ('6f10f5ed-4993-4702-b0bd-963c6775eecb', '4bd60d22-e8b6-4e36-b10a-304e3e87bff8', 'b58c4743-6ce1-4e62-99c9-0715bcbbe97e', 'child_of', '', '8b490fd0-8cce-41fb-a6bc-850eccde1358');
+INSERT INTO package_relationship (id, subject_package_id, object_package_id, type, comment, revision_id) VALUES ('3bae0d69-24b7-4c74-a646-63e7562e05de', 'b34ae383-061d-4ae9-be6e-619d94515d1a', 'b58c4743-6ce1-4e62-99c9-0715bcbbe97e', 'child_of', '', '088cb682-2a8c-4b7f-8af7-6b48e95fab12');
+INSERT INTO package_relationship (id, subject_package_id, object_package_id, type, comment, revision_id) VALUES ('93494b61-9a07-4527-8b1a-1082e244fb2b', 'a0fbab60-fbce-44a8-9a86-9d6073cfd08f', 'b58c4743-6ce1-4e62-99c9-0715bcbbe97e', 'derives_from', '', 'f2185f09-a438-495b-b439-142d23113fb0');
+INSERT INTO package_relationship (id, subject_package_id, object_package_id, type, comment, revision_id) VALUES ('62bfafbd-3376-4763-a50c-56dfccbc57c2', 'b58c4743-6ce1-4e62-99c9-0715bcbbe97e', 'bb2e1ce6-084a-4187-8c1f-798695ec1faf', 'depends_on', '', 'd8de97b4-97fe-40cd-a78f-4b465c207652');
 
 
 --
 -- Data for Name: package_relationship_revision; Type: TABLE DATA; Schema: public; Owner: tester
 --
 
-INSERT INTO package_relationship_revision (id, subject_package_id, object_package_id, type, comment, revision_id, continuity_id) VALUES ('b45e662b-8850-473a-af09-dffc66142a38', 'b436a1e5-d665-4eaf-aba9-853e01dbac96', '65b0ca1e-e1bc-46ac-b2c0-020faefc03b6', 'child_of', '', 'ff7f53ef-a30a-463b-8102-9c4e25c6952d', 'b45e662b-8850-473a-af09-dffc66142a38');
-INSERT INTO package_relationship_revision (id, subject_package_id, object_package_id, type, comment, revision_id, continuity_id) VALUES ('5410070b-c365-4c31-b7ad-ff16cf887810', '9b7b090e-1421-4a20-a659-f14e4a03eecb', 'b436a1e5-d665-4eaf-aba9-853e01dbac96', 'child_of', '', '3e68cb9f-95d5-4720-8f9e-50f290e455bd', '5410070b-c365-4c31-b7ad-ff16cf887810');
-INSERT INTO package_relationship_revision (id, subject_package_id, object_package_id, type, comment, revision_id, continuity_id) VALUES ('9e61c8cd-b50c-444d-89cd-1c1cc03cc591', 'fcb1a147-cd4d-4442-89ef-fa1068b7661e', 'b436a1e5-d665-4eaf-aba9-853e01dbac96', 'child_of', '', 'f9b6ced1-b046-4a4a-9881-07503cad8154', '9e61c8cd-b50c-444d-89cd-1c1cc03cc591');
-INSERT INTO package_relationship_revision (id, subject_package_id, object_package_id, type, comment, revision_id, continuity_id) VALUES ('ab1ccf5f-aa60-4cd8-8f68-a78e05310d2c', 'cfb3c1ef-2cbc-4611-b506-5c63eb22146a', 'b436a1e5-d665-4eaf-aba9-853e01dbac96', 'derives_from', '', '449ca0c3-ffa2-4ad6-9701-370bf63798aa', 'ab1ccf5f-aa60-4cd8-8f68-a78e05310d2c');
-INSERT INTO package_relationship_revision (id, subject_package_id, object_package_id, type, comment, revision_id, continuity_id) VALUES ('7c6d2e6e-41cb-43a1-beb9-2618dc47faa7', 'b436a1e5-d665-4eaf-aba9-853e01dbac96', 'edbad763-34fd-470d-af99-a073d68be7e2', 'depends_on', '', '7c70848b-28c2-421c-83b7-fc100d8eebd0', '7c6d2e6e-41cb-43a1-beb9-2618dc47faa7');
+INSERT INTO package_relationship_revision (id, subject_package_id, object_package_id, type, comment, revision_id, continuity_id) VALUES ('a39cc218-97ce-4d65-819f-5f2ad10e9e2c', 'b58c4743-6ce1-4e62-99c9-0715bcbbe97e', '1a72e0f7-2e1f-4219-bc45-d43894d3d2f9', 'child_of', '', '1fa2021d-4962-4129-9da8-516ee8f8bc60', 'a39cc218-97ce-4d65-819f-5f2ad10e9e2c');
+INSERT INTO package_relationship_revision (id, subject_package_id, object_package_id, type, comment, revision_id, continuity_id) VALUES ('6f10f5ed-4993-4702-b0bd-963c6775eecb', '4bd60d22-e8b6-4e36-b10a-304e3e87bff8', 'b58c4743-6ce1-4e62-99c9-0715bcbbe97e', 'child_of', '', '8b490fd0-8cce-41fb-a6bc-850eccde1358', '6f10f5ed-4993-4702-b0bd-963c6775eecb');
+INSERT INTO package_relationship_revision (id, subject_package_id, object_package_id, type, comment, revision_id, continuity_id) VALUES ('3bae0d69-24b7-4c74-a646-63e7562e05de', 'b34ae383-061d-4ae9-be6e-619d94515d1a', 'b58c4743-6ce1-4e62-99c9-0715bcbbe97e', 'child_of', '', '088cb682-2a8c-4b7f-8af7-6b48e95fab12', '3bae0d69-24b7-4c74-a646-63e7562e05de');
+INSERT INTO package_relationship_revision (id, subject_package_id, object_package_id, type, comment, revision_id, continuity_id) VALUES ('93494b61-9a07-4527-8b1a-1082e244fb2b', 'a0fbab60-fbce-44a8-9a86-9d6073cfd08f', 'b58c4743-6ce1-4e62-99c9-0715bcbbe97e', 'derives_from', '', 'f2185f09-a438-495b-b439-142d23113fb0', '93494b61-9a07-4527-8b1a-1082e244fb2b');
+INSERT INTO package_relationship_revision (id, subject_package_id, object_package_id, type, comment, revision_id, continuity_id) VALUES ('62bfafbd-3376-4763-a50c-56dfccbc57c2', 'b58c4743-6ce1-4e62-99c9-0715bcbbe97e', 'bb2e1ce6-084a-4187-8c1f-798695ec1faf', 'depends_on', '', 'd8de97b4-97fe-40cd-a78f-4b465c207652', '62bfafbd-3376-4763-a50c-56dfccbc57c2');
 
 
 --
@@ -622,42 +622,42 @@ INSERT INTO package_relationship_revision (id, subject_package_id, object_packag
 -- Data for Name: package_revision; Type: TABLE DATA; Schema: public; Owner: tester
 --
 
-INSERT INTO package_revision (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id, continuity_id) VALUES ('65b0ca1e-e1bc-46ac-b2c0-020faefc03b6', 'abraham', 'Abraham', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', 'c29d1a4f-c7a0-4758-88bd-e3b82e86b3d5', '65b0ca1e-e1bc-46ac-b2c0-020faefc03b6');
-INSERT INTO package_revision (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id, continuity_id) VALUES ('b436a1e5-d665-4eaf-aba9-853e01dbac96', 'homer', 'Homer', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', '67a549d0-f7e0-408a-bcdb-8116261928f0', 'b436a1e5-d665-4eaf-aba9-853e01dbac96');
-INSERT INTO package_revision (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id, continuity_id) VALUES ('cfb3c1ef-2cbc-4611-b506-5c63eb22146a', 'homer_derived', 'Homer Derived', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', 'fa1e7503-b49c-405d-b889-1577adab214a', 'cfb3c1ef-2cbc-4611-b506-5c63eb22146a');
-INSERT INTO package_revision (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id, continuity_id) VALUES ('edbad763-34fd-470d-af99-a073d68be7e2', 'beer', 'Beer', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', '507d755d-32de-4295-b025-b7a81e0055c9', 'edbad763-34fd-470d-af99-a073d68be7e2');
-INSERT INTO package_revision (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id, continuity_id) VALUES ('9b7b090e-1421-4a20-a659-f14e4a03eecb', 'bart', 'Bart', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', 'b9ebe2ed-7967-4887-a0d3-1459eef252fb', '9b7b090e-1421-4a20-a659-f14e4a03eecb');
-INSERT INTO package_revision (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id, continuity_id) VALUES ('fcb1a147-cd4d-4442-89ef-fa1068b7661e', 'lisa', 'Lisa', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', '8ac63dff-dc8e-4de3-b350-475f86ccabd3', 'fcb1a147-cd4d-4442-89ef-fa1068b7661e');
+INSERT INTO package_revision (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id, continuity_id) VALUES ('1a72e0f7-2e1f-4219-bc45-d43894d3d2f9', 'abraham', 'Abraham', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', '1a345084-c3e8-434e-862b-7580b81c7445', '1a72e0f7-2e1f-4219-bc45-d43894d3d2f9');
+INSERT INTO package_revision (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id, continuity_id) VALUES ('b58c4743-6ce1-4e62-99c9-0715bcbbe97e', 'homer', 'Homer', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', 'efe4ca58-5367-4c74-bb25-76de526737fc', 'b58c4743-6ce1-4e62-99c9-0715bcbbe97e');
+INSERT INTO package_revision (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id, continuity_id) VALUES ('a0fbab60-fbce-44a8-9a86-9d6073cfd08f', 'homer_derived', 'Homer Derived', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', 'ba5403c4-a964-4418-a999-f3bcaf40f75b', 'a0fbab60-fbce-44a8-9a86-9d6073cfd08f');
+INSERT INTO package_revision (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id, continuity_id) VALUES ('bb2e1ce6-084a-4187-8c1f-798695ec1faf', 'beer', 'Beer', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', '9e78fde5-d36c-4adf-93ee-aeddf05a110c', 'bb2e1ce6-084a-4187-8c1f-798695ec1faf');
+INSERT INTO package_revision (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id, continuity_id) VALUES ('4bd60d22-e8b6-4e36-b10a-304e3e87bff8', 'bart', 'Bart', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', 'c92643cb-374f-4a0c-8905-608f690c5738', '4bd60d22-e8b6-4e36-b10a-304e3e87bff8');
+INSERT INTO package_revision (id, name, title, version, url, author, author_email, maintainer, maintainer_email, notes, license_id, state, revision_id, continuity_id) VALUES ('b34ae383-061d-4ae9-be6e-619d94515d1a', 'lisa', 'Lisa', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'active', '48154477-f715-4315-8dfc-eae92ef4f999', 'b34ae383-061d-4ae9-be6e-619d94515d1a');
 
 
 --
 -- Data for Name: package_role; Type: TABLE DATA; Schema: public; Owner: tester
 --
 
-INSERT INTO package_role (user_object_role_id, package_id) VALUES ('e4c774e2-dc81-40f0-a5b1-e3aa2e1babb9', '65b0ca1e-e1bc-46ac-b2c0-020faefc03b6');
-INSERT INTO package_role (user_object_role_id, package_id) VALUES ('766f9fc0-6202-4fe7-b92b-219aa612ddea', '65b0ca1e-e1bc-46ac-b2c0-020faefc03b6');
-INSERT INTO package_role (user_object_role_id, package_id) VALUES ('ccd93ef6-7f0c-43b4-8f61-2c1f611391ef', 'b436a1e5-d665-4eaf-aba9-853e01dbac96');
-INSERT INTO package_role (user_object_role_id, package_id) VALUES ('226a6653-fda8-4c7c-9273-5d5cd12c1a0f', 'b436a1e5-d665-4eaf-aba9-853e01dbac96');
-INSERT INTO package_role (user_object_role_id, package_id) VALUES ('3b2b9d06-ec73-4b8a-9d6a-e0f389f1122d', 'cfb3c1ef-2cbc-4611-b506-5c63eb22146a');
-INSERT INTO package_role (user_object_role_id, package_id) VALUES ('c80a5f57-f995-423a-ba8c-fba89c854dee', 'cfb3c1ef-2cbc-4611-b506-5c63eb22146a');
-INSERT INTO package_role (user_object_role_id, package_id) VALUES ('b9f62dbe-09d2-433c-9ba9-a625e94d0564', 'edbad763-34fd-470d-af99-a073d68be7e2');
-INSERT INTO package_role (user_object_role_id, package_id) VALUES ('a14290da-7bf3-4d13-8fac-77e8d752d5ea', 'edbad763-34fd-470d-af99-a073d68be7e2');
-INSERT INTO package_role (user_object_role_id, package_id) VALUES ('3005c6c8-caef-4ab2-bee1-86992e2671a5', '9b7b090e-1421-4a20-a659-f14e4a03eecb');
-INSERT INTO package_role (user_object_role_id, package_id) VALUES ('9d528001-7149-4705-bf04-a2e1e92b7735', '9b7b090e-1421-4a20-a659-f14e4a03eecb');
-INSERT INTO package_role (user_object_role_id, package_id) VALUES ('3723f0db-8589-468b-af64-66e165096596', 'fcb1a147-cd4d-4442-89ef-fa1068b7661e');
-INSERT INTO package_role (user_object_role_id, package_id) VALUES ('e5c8753e-10d7-4ddd-83a7-3bac11c46210', 'fcb1a147-cd4d-4442-89ef-fa1068b7661e');
+INSERT INTO package_role (user_object_role_id, package_id) VALUES ('ed6303db-3b0b-4c2d-93a4-14a3be5f2142', '1a72e0f7-2e1f-4219-bc45-d43894d3d2f9');
+INSERT INTO package_role (user_object_role_id, package_id) VALUES ('fc4e1dfa-c886-4aa3-ac48-f5912cc0aa92', '1a72e0f7-2e1f-4219-bc45-d43894d3d2f9');
+INSERT INTO package_role (user_object_role_id, package_id) VALUES ('b97389dc-3b00-4543-b855-60d0e3084a7e', 'b58c4743-6ce1-4e62-99c9-0715bcbbe97e');
+INSERT INTO package_role (user_object_role_id, package_id) VALUES ('f08a2f4f-0e04-4a6b-a3a7-7428bf7b6bd1', 'b58c4743-6ce1-4e62-99c9-0715bcbbe97e');
+INSERT INTO package_role (user_object_role_id, package_id) VALUES ('1edeebdc-fe0a-4644-9c21-6ed90effec45', 'a0fbab60-fbce-44a8-9a86-9d6073cfd08f');
+INSERT INTO package_role (user_object_role_id, package_id) VALUES ('f9f3108b-cc74-4312-aabb-c39aed4ac028', 'a0fbab60-fbce-44a8-9a86-9d6073cfd08f');
+INSERT INTO package_role (user_object_role_id, package_id) VALUES ('39e815d0-aad4-4e22-b430-8c423019f7ba', 'bb2e1ce6-084a-4187-8c1f-798695ec1faf');
+INSERT INTO package_role (user_object_role_id, package_id) VALUES ('a0de70f2-62a5-4b44-b96c-c549bc035ce1', 'bb2e1ce6-084a-4187-8c1f-798695ec1faf');
+INSERT INTO package_role (user_object_role_id, package_id) VALUES ('e00609c9-43f5-440b-b908-7e45135595e5', '4bd60d22-e8b6-4e36-b10a-304e3e87bff8');
+INSERT INTO package_role (user_object_role_id, package_id) VALUES ('05a782fd-1197-40a7-8334-e8492db65b5a', '4bd60d22-e8b6-4e36-b10a-304e3e87bff8');
+INSERT INTO package_role (user_object_role_id, package_id) VALUES ('79e9f972-7788-4de2-aa7e-60726d9bcf20', 'b34ae383-061d-4ae9-be6e-619d94515d1a');
+INSERT INTO package_role (user_object_role_id, package_id) VALUES ('5f16852e-778a-4d7d-8059-e2e97899ac5d', 'b34ae383-061d-4ae9-be6e-619d94515d1a');
 
 
 --
 -- Data for Name: package_search; Type: TABLE DATA; Schema: public; Owner: tester
 --
 
-INSERT INTO package_search (package_id, search_vector) VALUES ('65b0ca1e-e1bc-46ac-b2c0-020faefc03b6', '''abraham'':1A,2A');
-INSERT INTO package_search (package_id, search_vector) VALUES ('9b7b090e-1421-4a20-a659-f14e4a03eecb', '''bart'':1A,2A');
-INSERT INTO package_search (package_id, search_vector) VALUES ('fcb1a147-cd4d-4442-89ef-fa1068b7661e', '''lisa'':1A,2A');
-INSERT INTO package_search (package_id, search_vector) VALUES ('cfb3c1ef-2cbc-4611-b506-5c63eb22146a', '''deriv'':2A,4A ''homer'':1A,3A');
-INSERT INTO package_search (package_id, search_vector) VALUES ('edbad763-34fd-470d-af99-a073d68be7e2', '''beer'':1A,2A');
-INSERT INTO package_search (package_id, search_vector) VALUES ('b436a1e5-d665-4eaf-aba9-853e01dbac96', '''homer'':1A,2A');
+INSERT INTO package_search (package_id, search_vector) VALUES ('1a72e0f7-2e1f-4219-bc45-d43894d3d2f9', '''abraham'':1A,2A');
+INSERT INTO package_search (package_id, search_vector) VALUES ('4bd60d22-e8b6-4e36-b10a-304e3e87bff8', '''bart'':1A,2A');
+INSERT INTO package_search (package_id, search_vector) VALUES ('b34ae383-061d-4ae9-be6e-619d94515d1a', '''lisa'':1A,2A');
+INSERT INTO package_search (package_id, search_vector) VALUES ('a0fbab60-fbce-44a8-9a86-9d6073cfd08f', '''deriv'':2A,4A ''homer'':1A,3A');
+INSERT INTO package_search (package_id, search_vector) VALUES ('bb2e1ce6-084a-4187-8c1f-798695ec1faf', '''beer'':1A,2A');
+INSERT INTO package_search (package_id, search_vector) VALUES ('b58c4743-6ce1-4e62-99c9-0715bcbbe97e', '''homer'':1A,2A');
 
 
 --
@@ -682,30 +682,30 @@ INSERT INTO package_search (package_id, search_vector) VALUES ('b436a1e5-d665-4e
 -- Data for Name: revision; Type: TABLE DATA; Schema: public; Owner: tester
 --
 
-INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('489ff0cc-b411-4600-a0a0-eb6bdbc1535e', '2010-03-18 16:01:16.687853', 'system', 'Initialising the Repository', 'active');
-INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('c29d1a4f-c7a0-4758-88bd-e3b82e86b3d5', '2010-03-18 16:01:17.707061', 'tester', 'Creating search test data.', 'active');
-INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('67a549d0-f7e0-408a-bcdb-8116261928f0', '2010-03-18 16:01:17.808507', 'tester', 'Creating test data.', 'active');
-INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('fa1e7503-b49c-405d-b889-1577adab214a', '2010-03-18 16:01:17.872032', 'tester', 'Creating test data.', 'active');
-INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('507d755d-32de-4295-b025-b7a81e0055c9', '2010-03-18 16:01:17.935004', 'tester', 'Creating test data.', 'active');
-INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('b9ebe2ed-7967-4887-a0d3-1459eef252fb', '2010-03-18 16:01:17.998521', 'tester', 'Creating test data.', 'active');
-INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('8ac63dff-dc8e-4de3-b350-475f86ccabd3', '2010-03-18 16:01:18.063572', 'tester', 'Creating test data.', 'active');
-INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('7ecd54e2-49c5-4655-8b30-49ac467416a8', '2010-03-18 16:01:18.125216', 'tester', 'Creating test data.', 'active');
-INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('ff7f53ef-a30a-463b-8102-9c4e25c6952d', '2010-03-18 16:01:18.145896', 'tester', 'Creating test data relationships.', 'active');
-INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('3e68cb9f-95d5-4720-8f9e-50f290e455bd', '2010-03-18 16:01:18.195877', 'tester', 'Creating test data relationships.', 'active');
-INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('f9b6ced1-b046-4a4a-9881-07503cad8154', '2010-03-18 16:01:18.232161', 'tester', 'Creating test data relationships.', 'active');
-INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('449ca0c3-ffa2-4ad6-9701-370bf63798aa', '2010-03-18 16:01:18.282899', 'tester', 'Creating test data relationships.', 'active');
-INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('7c70848b-28c2-421c-83b7-fc100d8eebd0', '2010-03-18 16:01:18.319681', 'tester', 'Creating test data relationships.', 'active');
+INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('2d2a927f-253a-414e-a6f9-7be8133aafca', '2010-03-22 15:54:41.095109', 'system', 'Initialising the Repository', 'active');
+INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('1a345084-c3e8-434e-862b-7580b81c7445', '2010-03-22 15:54:42.099613', 'tester', 'Creating search test data.', 'active');
+INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('efe4ca58-5367-4c74-bb25-76de526737fc', '2010-03-22 15:54:42.246099', 'tester', 'Creating test data.', 'active');
+INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('ba5403c4-a964-4418-a999-f3bcaf40f75b', '2010-03-22 15:54:42.310918', 'tester', 'Creating test data.', 'active');
+INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('9e78fde5-d36c-4adf-93ee-aeddf05a110c', '2010-03-22 15:54:42.374408', 'tester', 'Creating test data.', 'active');
+INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('c92643cb-374f-4a0c-8905-608f690c5738', '2010-03-22 15:54:42.437732', 'tester', 'Creating test data.', 'active');
+INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('48154477-f715-4315-8dfc-eae92ef4f999', '2010-03-22 15:54:42.501377', 'tester', 'Creating test data.', 'active');
+INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('45127065-96a4-4901-ae62-e82acce78c42', '2010-03-22 15:54:42.560357', 'tester', 'Creating test data.', 'active');
+INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('1fa2021d-4962-4129-9da8-516ee8f8bc60', '2010-03-22 15:54:42.580393', 'tester', 'Creating test data relationships.', 'active');
+INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('8b490fd0-8cce-41fb-a6bc-850eccde1358', '2010-03-22 15:54:42.627262', 'tester', 'Creating test data relationships.', 'active');
+INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('088cb682-2a8c-4b7f-8af7-6b48e95fab12', '2010-03-22 15:54:42.661892', 'tester', 'Creating test data relationships.', 'active');
+INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('f2185f09-a438-495b-b439-142d23113fb0', '2010-03-22 15:54:42.696832', 'tester', 'Creating test data relationships.', 'active');
+INSERT INTO revision (id, "timestamp", author, message, state) VALUES ('d8de97b4-97fe-40cd-a78f-4b465c207652', '2010-03-22 15:54:42.731531', 'tester', 'Creating test data relationships.', 'active');
 
 
 --
 -- Data for Name: role_action; Type: TABLE DATA; Schema: public; Owner: tester
 --
 
-INSERT INTO role_action (id, role, context, action) VALUES ('2e3aa41d-bac7-418d-89a1-09dc7872e25f', 'editor', '', 'edit');
-INSERT INTO role_action (id, role, context, action) VALUES ('6a9b0d5f-c44a-4d08-b6c5-e5b25974cc7b', 'editor', '', 'create');
-INSERT INTO role_action (id, role, context, action) VALUES ('b3458135-e41a-496e-8c7d-103bbef44b55', 'editor', '', 'read');
-INSERT INTO role_action (id, role, context, action) VALUES ('f29a7a25-4fed-42ca-bc7d-eae1773c6b9d', 'reader', '', 'create');
-INSERT INTO role_action (id, role, context, action) VALUES ('772d6358-ec6b-4afc-bf8b-acbd79cd945e', 'reader', '', 'read');
+INSERT INTO role_action (id, role, context, action) VALUES ('1393a4db-4800-4d1a-98d4-7aba969c2e48', 'editor', '', 'edit');
+INSERT INTO role_action (id, role, context, action) VALUES ('8ed689b6-37e6-452c-bbed-7c749369aa6b', 'editor', '', 'create');
+INSERT INTO role_action (id, role, context, action) VALUES ('7a96967e-5494-4fb4-8865-52bad7c08566', 'editor', '', 'read');
+INSERT INTO role_action (id, role, context, action) VALUES ('4cd1d782-603e-4584-9c9f-bdb48aaa4123', 'reader', '', 'create');
+INSERT INTO role_action (id, role, context, action) VALUES ('8d5159b5-6cd8-4485-9ee0-fc5006a5418c', 'reader', '', 'read');
 
 
 --
@@ -724,26 +724,26 @@ INSERT INTO role_action (id, role, context, action) VALUES ('772d6358-ec6b-4afc-
 -- Data for Name: user; Type: TABLE DATA; Schema: public; Owner: tester
 --
 
-INSERT INTO "user" (id, name, apikey, created, about) VALUES ('abda804e-5e9b-4f26-b335-723d0e1ed65f', 'visitor', '7570f2a2-53a7-49d2-a45a-73fac715f29c', '2010-03-18 16:01:16.668965', NULL);
-INSERT INTO "user" (id, name, apikey, created, about) VALUES ('955a1edf-f647-4865-b103-11b330374e7e', 'logged_in', '12730252-d3f3-4eb6-b6d8-62641405a56a', '2010-03-18 16:01:16.670581', NULL);
+INSERT INTO "user" (id, name, apikey, created, about) VALUES ('3f096a50-b49e-4d35-8ecd-ca44a70a3ee5', 'visitor', '8a1286f8-f89b-4dab-a975-46178c62aba0', '2010-03-22 15:54:41.083058', NULL);
+INSERT INTO "user" (id, name, apikey, created, about) VALUES ('af7469b3-238d-4c39-8cb7-0bc9747660f2', 'logged_in', '583a5828-2c58-48ef-a22f-889690a820d3', '2010-03-22 15:54:41.084054', NULL);
 
 
 --
 -- Data for Name: user_object_role; Type: TABLE DATA; Schema: public; Owner: tester
 --
 
-INSERT INTO user_object_role (id, user_id, context, role) VALUES ('e4c774e2-dc81-40f0-a5b1-e3aa2e1babb9', 'abda804e-5e9b-4f26-b335-723d0e1ed65f', 'Package', 'editor');
-INSERT INTO user_object_role (id, user_id, context, role) VALUES ('766f9fc0-6202-4fe7-b92b-219aa612ddea', '955a1edf-f647-4865-b103-11b330374e7e', 'Package', 'editor');
-INSERT INTO user_object_role (id, user_id, context, role) VALUES ('ccd93ef6-7f0c-43b4-8f61-2c1f611391ef', 'abda804e-5e9b-4f26-b335-723d0e1ed65f', 'Package', 'editor');
-INSERT INTO user_object_role (id, user_id, context, role) VALUES ('226a6653-fda8-4c7c-9273-5d5cd12c1a0f', '955a1edf-f647-4865-b103-11b330374e7e', 'Package', 'editor');
-INSERT INTO user_object_role (id, user_id, context, role) VALUES ('3b2b9d06-ec73-4b8a-9d6a-e0f389f1122d', 'abda804e-5e9b-4f26-b335-723d0e1ed65f', 'Package', 'editor');
-INSERT INTO user_object_role (id, user_id, context, role) VALUES ('c80a5f57-f995-423a-ba8c-fba89c854dee', '955a1edf-f647-4865-b103-11b330374e7e', 'Package', 'editor');
-INSERT INTO user_object_role (id, user_id, context, role) VALUES ('b9f62dbe-09d2-433c-9ba9-a625e94d0564', 'abda804e-5e9b-4f26-b335-723d0e1ed65f', 'Package', 'editor');
-INSERT INTO user_object_role (id, user_id, context, role) VALUES ('a14290da-7bf3-4d13-8fac-77e8d752d5ea', '955a1edf-f647-4865-b103-11b330374e7e', 'Package', 'editor');
-INSERT INTO user_object_role (id, user_id, context, role) VALUES ('3005c6c8-caef-4ab2-bee1-86992e2671a5', 'abda804e-5e9b-4f26-b335-723d0e1ed65f', 'Package', 'editor');
-INSERT INTO user_object_role (id, user_id, context, role) VALUES ('9d528001-7149-4705-bf04-a2e1e92b7735', '955a1edf-f647-4865-b103-11b330374e7e', 'Package', 'editor');
-INSERT INTO user_object_role (id, user_id, context, role) VALUES ('3723f0db-8589-468b-af64-66e165096596', 'abda804e-5e9b-4f26-b335-723d0e1ed65f', 'Package', 'editor');
-INSERT INTO user_object_role (id, user_id, context, role) VALUES ('e5c8753e-10d7-4ddd-83a7-3bac11c46210', '955a1edf-f647-4865-b103-11b330374e7e', 'Package', 'editor');
+INSERT INTO user_object_role (id, user_id, context, role) VALUES ('ed6303db-3b0b-4c2d-93a4-14a3be5f2142', '3f096a50-b49e-4d35-8ecd-ca44a70a3ee5', 'Package', 'editor');
+INSERT INTO user_object_role (id, user_id, context, role) VALUES ('fc4e1dfa-c886-4aa3-ac48-f5912cc0aa92', 'af7469b3-238d-4c39-8cb7-0bc9747660f2', 'Package', 'editor');
+INSERT INTO user_object_role (id, user_id, context, role) VALUES ('b97389dc-3b00-4543-b855-60d0e3084a7e', '3f096a50-b49e-4d35-8ecd-ca44a70a3ee5', 'Package', 'editor');
+INSERT INTO user_object_role (id, user_id, context, role) VALUES ('f08a2f4f-0e04-4a6b-a3a7-7428bf7b6bd1', 'af7469b3-238d-4c39-8cb7-0bc9747660f2', 'Package', 'editor');
+INSERT INTO user_object_role (id, user_id, context, role) VALUES ('1edeebdc-fe0a-4644-9c21-6ed90effec45', '3f096a50-b49e-4d35-8ecd-ca44a70a3ee5', 'Package', 'editor');
+INSERT INTO user_object_role (id, user_id, context, role) VALUES ('f9f3108b-cc74-4312-aabb-c39aed4ac028', 'af7469b3-238d-4c39-8cb7-0bc9747660f2', 'Package', 'editor');
+INSERT INTO user_object_role (id, user_id, context, role) VALUES ('39e815d0-aad4-4e22-b430-8c423019f7ba', '3f096a50-b49e-4d35-8ecd-ca44a70a3ee5', 'Package', 'editor');
+INSERT INTO user_object_role (id, user_id, context, role) VALUES ('a0de70f2-62a5-4b44-b96c-c549bc035ce1', 'af7469b3-238d-4c39-8cb7-0bc9747660f2', 'Package', 'editor');
+INSERT INTO user_object_role (id, user_id, context, role) VALUES ('e00609c9-43f5-440b-b908-7e45135595e5', '3f096a50-b49e-4d35-8ecd-ca44a70a3ee5', 'Package', 'editor');
+INSERT INTO user_object_role (id, user_id, context, role) VALUES ('05a782fd-1197-40a7-8334-e8492db65b5a', 'af7469b3-238d-4c39-8cb7-0bc9747660f2', 'Package', 'editor');
+INSERT INTO user_object_role (id, user_id, context, role) VALUES ('79e9f972-7788-4de2-aa7e-60726d9bcf20', '3f096a50-b49e-4d35-8ecd-ca44a70a3ee5', 'Package', 'editor');
+INSERT INTO user_object_role (id, user_id, context, role) VALUES ('5f16852e-778a-4d7d-8059-e2e97899ac5d', 'af7469b3-238d-4c39-8cb7-0bc9747660f2', 'Package', 'editor');
 
 
 --

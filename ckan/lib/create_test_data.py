@@ -405,7 +405,10 @@ gov_items = [
      'notes':'Figures on children cared for and accommodated in private fostering arrangements, England, Year ending 31 March 2009',
      'resources':[{'url':'http://www.dcsf.gov.uk/rsgateway/DB/SFR/s000859/SFR17_2009_tables.xls',
                   'format':'XLS',
-                  'description':''}],
+                  'description':'December 2009 | http://www.statistics.gov.uk/hub/id/119-36345'},
+                  {'url':'http://www.dcsf.gov.uk/rsgateway/DB/SFR/s000860/SFR17_2009_key.doc',
+                  'format':'DOC',
+                  'description':'http://www.statistics.gov.uk/hub/id/119-34565'}],
      'url':'http://www.dcsf.gov.uk/rsgateway/DB/SFR/s000859/index.shtml',
      'author':'DCSF Data Services Group',
      'author_email':'statistics@dcsf.gsi.gov.uk',
@@ -427,6 +430,7 @@ gov_items = [
         'precision':'Numbers to nearest 10, percentage to nearest whole number',
         'taxonomy_url':'',
         'agency':'',
+        'import_source':'ONS-Jan-09',
         }
      },
     {'name':'weekly-fuel-prices',
@@ -450,6 +454,7 @@ gov_items = [
         'temporal_coverage-from':'2008-11-24',
         'temporal_coverage-to':'2009-11-24',
         'national_statistic':'yes',
+        'import_source':'DECC-Jan-09',
         }
      }
     ]

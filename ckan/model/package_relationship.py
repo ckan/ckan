@@ -22,9 +22,11 @@ package_relationship_table = Table('package_relationship', metadata,
      Column('comment', UnicodeText),
      )
 
+vdm.sqlalchemy.make_table_stateful(package_relationship_table)
 package_relationship_revision_table = vdm.sqlalchemy.make_revisioned_table(package_relationship_table)
 
 class PackageRelationship(vdm.sqlalchemy.RevisionedObjectMixin,
+                          vdm.sqlalchemy.StatefulObjectMixin,
                           DomainObject):
     '''The rule with PackageRelationships is that they are stored in the model
     always as the "forward" relationship - i.e. "child_of" but never
@@ -53,10 +55,6 @@ class PackageRelationship(vdm.sqlalchemy.RevisionedObjectMixin,
 
     def __repr__(self):
         return str(self)
-
-    # not stateful so same as purge
-    def delete(self):
-        self.purge()
 
     def as_dict(self, package=None):
         """Returns full relationship info as a dict from the point of view

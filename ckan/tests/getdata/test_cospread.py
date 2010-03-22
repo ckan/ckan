@@ -8,6 +8,7 @@ import ckan.getdata.cospread as data_getter
 test_data=os.path.join(config['here'], 'ckan/tests/getdata/samples/cospread.csv')
 test_data2=os.path.join(config['here'], 'ckan/tests/getdata/samples/cospread2.csv')
 test_data3=os.path.join(config['here'], 'ckan/tests/getdata/samples/cospread3.csv') # slightly altered format 29-1-2010
+test_data4=os.path.join(config['here'], 'ckan/tests/getdata/samples/cospread4.csv') # slightly altered csv format 15-3-2010
 
 class TestBasic:
     @classmethod
@@ -98,8 +99,8 @@ class TestData:
         assert pkg1.author_email == 'statistics@dcsf.gsi.gov.uk', pkg1.author_email
         assert not pkg1.maintainer, pkg1.maintainer
         assert not pkg1.maintainer_email, pkg1.maintainer_email
-        assert 'UK Crown Copyright with data.gov.uk rights' in pkg1.license.title, pkg1.license.title
-        assert 'Higher Education Statistics Agency Copyright with data.gov.uk rights' in pkg3.license.title, pkg1.license.title
+        assert pkg1.license_id == u'ukcrown', pkg1.license_id
+        assert pkg3.license_id == u'ukcrown-withrights', pkg3.license_id
         for tag in ['child-protection']:
             assert tag in tag_names, '%s not in %s' % (tag, tag_names)
 
@@ -144,6 +145,7 @@ class TestData3:
         names = [pkg.name for pkg in model.Session.query(model.Package).all()]
         pkg1 = model.Package.by_name(u'judicial-and-court-statistics-england-and-wales')
         pkg2 = model.Package.by_name(u'england-nhs-connecting-for-health-organisation-data-service-data-files-of-nhsorganisations')
+        pkg3 = model.Session.query(model.Package).filter_by(name=u'uk-he-enrolments-by-subject-200708').one()
         assert pkg1
         assert pkg2
         assert pkg1.title == 'Judicial and Court Statistics', pkg1.title
@@ -177,8 +179,8 @@ class TestData3:
         assert pkg1.author_email == 'statistics.enquiries@justice.gsi.gov.uk', pkg1.author_email
         assert not pkg1.maintainer, pkg1.maintainer
         assert not pkg1.maintainer_email, pkg1.maintainer_email
-        assert 'Crown Copyright' in pkg.license.title, pkg.license.title
-        tag_titles = set()
+        assert pkg1.license_id == u'ukcrown', pkg1.license_id
+        assert pkg3.license_id == u'hesa-withrights', pkg3.license_id
         [tag_names.add(tag.name) for tag in pkg1.tags]
         for tag in []:
             assert tag in tag_names, '%s not in %s' % (tag, tag_names)
@@ -186,3 +188,21 @@ class TestData3:
         assert model.Group.by_name(u'ukgov') in pkg1.groups
         assert pkg1.extras['import_source'].startswith('COSPREAD'), pkg1.extras['import_source']
         
+class TestData4:
+    @classmethod
+    def setup_class(self):
+        data = data_getter.Data()
+        data.load_csv_into_db(test_data4)
+
+    @classmethod
+    def teardown_class(self):
+        model.Session.remove()
+        model.repo.rebuild_db()
+
+    def test_fields(self):
+        names = [pkg.name for pkg in model.Session.query(model.Package).all()]
+        assert names == ['dfid-projects']
+        pkg1 = model.Package.by_name(u'dfid-projects')
+        assert pkg1.title == u'DFID Project Information', pkg1.title
+        assert pkg1.notes == u'Information about aid projects funded by the Department for International Development. The dataset contains project descriptions, dates, purposes, locations, sectors, summary financial data and whether or not conditions are attached.', pkg1.notes
+        assert pkg.license_id == u'ukcrown-withrights', pkg.license_id

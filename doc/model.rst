@@ -64,6 +64,8 @@ Or add a column to an existing table like this::
  column = Column('author', UnicodeText)
  column.create(package)
 
+(Note: To add 'create' and other useful migration methods to the SqlAlchemy objects you will have to also import migrate.changeset)
+
 If you are creating a revisioned object (vdm feature) then you need to remember to add the revision_id column and related revision table too. See 017_add_pkg_relationships.py for an example.
 
 More complicated migrations require dropping the foreign key constraints. See 016_uuids_everywhere.py for an example of changing primary keys.

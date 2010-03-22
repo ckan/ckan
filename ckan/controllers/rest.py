@@ -25,7 +25,7 @@ class RestController(BaseController):
             if not pkg:
                 response.status_int = 404
                 return 'First package named in request was not found.'
-            relationships = pkg.relationships
+            relationships = pkg.get_relationships()
             return self._finish_ok([rel.as_dict(pkg) for rel in relationships])
         elif register == u'group':
             groups = model.Session.query(model.Group).all() 
@@ -73,7 +73,7 @@ class RestController(BaseController):
             if not pkg2:
                 response.status_int = 404
                 return 'Second package named in address was not found.'
-            relationships = pkg1.relationships_with(pkg2)
+            relationships = pkg1.get_relationships_with(pkg2)
             return self._finish_ok([rel.as_dict(pkg1) for rel in relationships])
         elif register == u'group':
             group = model.Group.by_name(id)
@@ -122,7 +122,7 @@ class RestController(BaseController):
                     response.status_int = 404
                     return 'Second package named in address was not found.'
                 comment = request_data.get('comment', u'')
-                existing_rels = pkg1.relationships_with(pkg2, subregister)
+                existing_rels = pkg1.get_relationships_with(pkg2, subregister)
                 if existing_rels:
                     return self._update_package_relationship(existing_rels[0],
                                                              comment)
@@ -176,7 +176,7 @@ class RestController(BaseController):
                 response.status_int = 404
                 return 'Second package named in address was not found.'
             comment = request_data.get('comment', u'')
-            existing_rels = pkg1.relationships_with(pkg2, subregister)
+            existing_rels = pkg1.get_relationships_with(pkg2, subregister)
             if not existing_rels:
                 response.status_int = 404
                 return 'This relationship between the packages was not found.'
@@ -233,6 +233,10 @@ class RestController(BaseController):
     def delete(self, register, id, subregister=None, id2=None):
         if register == 'package' and not subregister:
             entity = model.Package.by_name(id)
+            if not entity:
+                response.status_int = 404
+                return 'Package was not found.'
+            revisioned_details = 'Package: %s' % entity.name
         elif register == 'package' and subregister in model.PackageRelationship.get_all_types():
             pkg1 = model.Package.by_name(id)
             pkg2 = model.Package.by_name(id2)
@@ -242,13 +246,15 @@ class RestController(BaseController):
             if not pkg2:
                 response.status_int = 404
                 return 'Second package named in address was not found.'
-            existing_rels = pkg1.relationships_with(pkg2, subregister)
+            existing_rels = pkg1.get_relationships_with(pkg2, subregister)
             if not existing_rels:
                 response.status_int = 404
                 return ''
             entity = existing_rels[0]
+            revisioned_details = 'Package Relationship: %s %s %s' % (id, subregister, id2)
         elif register == 'group' and not subregister:
             entity = model.Group.by_name(id)
+            revisioned_details = None
         else:
             reponse.status_int = 400
             return gettext('Cannot delete entity of this type: %s %s') % (register, subregister or '')
@@ -258,6 +264,11 @@ class RestController(BaseController):
 
         if not self._check_access(entity, model.Action.PURGE):
             return simplejson.dumps(_('Access denied'))
+
+        if revisioned_details:
+            rev = model.repo.new_revision()
+            rev.author = self.rest_api_user
+            rev.message = _(u'REST API: Delete %s') % revisioned_details
             
         try:
             entity.delete()

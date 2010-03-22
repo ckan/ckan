@@ -20,11 +20,13 @@ class TestCreation:
 
         theparent = model.Package.by_name(u'the-parent')
         thechild = model.Package.by_name(u'the-child')
-        assert len(thechild.relationships) == 1, thechild.relationships
-        pr = thechild.relationships[0]
-        assert theparent.relationships == [pr], theparent.relationships
+        assert len(thechild.get_relationships()) == 1, thechild.get_relationships()
+        pr = thechild.get_relationships()[0]
+        assert theparent.get_relationships() == [pr], theparent.relationships
         assert thechild.relationships_as_subject == [pr], thechild.relationships_as_subject
+        assert thechild.get_relationships(direction='forward') == [pr], thechild.get_relationships(direction='forward')
         assert not thechild.relationships_as_object, thechild.relationships_as_object
+        assert not thechild.get_relationships(direction='reverse'), thechild.get_relationships(direction='reverse')
         assert not theparent.relationships_as_subject, theparent.relationships_as_subject
         assert theparent.relationships_as_object == [pr], theparent.relationships_as_object
         assert pr.type == u'child_of', pr.type
@@ -45,8 +47,8 @@ class TestCreation:
 
         theparent = model.Package.by_name(u'the-parent')
         thechild = model.Package.by_name(u'the-child')
-        assert len(thechild.relationships) == 1, thechild.relationships
-        pr = thechild.relationships[0]
+        assert len(thechild.get_relationships()) == 1, thechild.get_relationships()
+        pr = thechild.get_relationships()[0]
         assert pr.type == u'child_of', pr.type
         assert pr.comment == u'Some comment', pr.comment
         assert pr.subject == thechild
@@ -76,8 +78,8 @@ class TestCreation:
         assert len(pkgb.relationships_as_subject) == 2, pkga.relationships_as_subject
         assert len(pkga.relationships_as_object) == 2, pkga.relationships_as_object
         assert len(pkgb.relationships_as_object) == 2, pkga.relationships_as_object
-        assert len(pkga.relationships) == 4, pkga.relationships
-        assert len(pkgb.relationships) == 4, pkgb.relationships
+        assert len(pkga.get_relationships()) == 4, pkga.get_relationships()
+        assert len(pkgb.get_relationships()) == 4, pkgb.get_relationships()
         rel1, rel2 = pkga.relationships_as_subject if pkga.relationships_as_subject[0].type == u'child_of' else pkga.relationships_as_subject[::-1]
         assert rel1.type == u'child_of', rel1.type
         assert rel1.subject == pkga, rel1.subject
@@ -138,20 +140,20 @@ class TestSimple:
             assert rel.subject == self.pkgc
 
     def test_relationships_with(self):
-        rels = self.pkgb.relationships_with(self.pkgc)
+        rels = self.pkgb.get_relationships_with(self.pkgc)
         assert len(rels) == 1, rels
         assert rels[0].type == 'child_of'
 
-        rels = self.pkgb.relationships_with(self.pkga)
+        rels = self.pkgb.get_relationships_with(self.pkga)
         assert len(rels) == 4, rels
 
-        rels = self.pkgb.relationships_with(self.pkgc, u'parent_of')
+        rels = self.pkgb.get_relationships_with(self.pkgc, type=u'parent_of')
         assert len(rels) == 1, rels
 
-        rels = self.pkgb.relationships_with(self.pkgc, u'child_of')
+        rels = self.pkgb.get_relationships_with(self.pkgc, type=u'child_of')
         assert len(rels) == 0, rels
 
-        rels = self.pkgc.relationships_with(self.pkgb, u'child_of')
+        rels = self.pkgc.get_relationships_with(self.pkgb, type=u'child_of')
         assert len(rels) == 1, rels
 
     def test_types(self):
@@ -169,9 +171,9 @@ class TestComplicated:
     def teardown_class(self):
         model.repo.rebuild_db()
 
-    def test_rels(self):
-        rels = model.Package.by_name(u'homer').relationships
-        assert len(rels) == 5, len(rels)
+    def test_01_rels(self):
+        rels = model.Package.by_name(u'homer').get_relationships()
+        assert len(rels) == 5, '%i: %s' % (len(rels), [str(rel) for rel in rels])
         def check(rels, subject, type, object):
             for rel in rels:
                 if rel.subject.name == subject and rel.type == type and rel.object.name == object:
@@ -182,9 +184,25 @@ class TestComplicated:
         check(rels, 'lisa', 'child_of', 'homer')
         check(rels, 'homer_derived', 'derives_from', 'homer')
         check(rels, 'homer', 'depends_on', 'beer')
-        
-        rels = model.Package.by_name(u'bart').relationships
+        rels = model.Package.by_name(u'bart').get_relationships()
         assert len(rels) == 1, len(rels)
         check(rels, 'bart', 'child_of', 'homer')
 
+    def test_02_deletion(self):
+        rels = model.Package.by_name(u'bart').get_relationships()
+        assert len(rels) == 1
+        assert rels[0].state == model.State.ACTIVE
+
+        rels[0].delete()
+        model.repo.new_revision()
+        model.repo.commit_and_remove()
         
+        rels = model.Package.by_name(u'bart').get_relationships()
+        assert len(rels) == 0
+
+        bart = model.Package.by_name(u'bart')
+        q = model.Session.query(model.PackageRelationship).filter_by(subject=bart)
+        assert q.count() == 1
+        assert q.first().state == model.State.DELETED
+        q = q.filter_by(state=model.State.ACTIVE)
+        assert q.count() == 0

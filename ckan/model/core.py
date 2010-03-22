@@ -174,7 +174,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         ckan_host = config.get('ckan_host', None)
         if ckan_host:
             _dict['ckan_url'] = 'http://%s/package/%s' % (ckan_host, self.name)
-        _dict['relationships'] = [rel.as_dict(self) for rel in self.relationships]
+        _dict['relationships'] = [rel.as_dict(self) for rel in self.get_relationships()]
         return _dict
 
     def add_relationship(self, type_, related_package, comment=u''):
@@ -200,58 +200,68 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         Session.add(rel)
         return rel
 
-    @property
-    def relationships(self):
-        return self.relationships_as_subject + self.relationships_as_object
-
-    def relationships_with(self, other_package, filter_by_type=None):
+    def get_relationships(self, with_package=None, type=None, active=True,
+                          direction='both'):
+        '''Returns relationships this package has.
+        Keeps stored type/ordering (not from pov of self).'''
+        assert direction in ('both', 'forward', 'reverse')
+        if with_package:
+            assert isinstance(with_package, Package)
         from package_relationship import PackageRelationship
-        forward_filters = [PackageRelationship.subject==self,
-                           PackageRelationship.object==other_package]
-        if filter_by_type:
-            forward_filters.append(PackageRelationship.type==filter_by_type)
-        reverse_filters = [PackageRelationship.subject==other_package,
-                           PackageRelationship.object==self]
-        if filter_by_type:
-            reverse_type = PackageRelationship.reverse_type(filter_by_type)
+        forward_filters = [PackageRelationship.subject==self]
+        reverse_filters = [PackageRelationship.object==self]
+        if with_package:
+            forward_filters.append(PackageRelationship.object==with_package)
+            reverse_filters.append(PackageRelationship.subject==with_package)
+        if active:
+            forward_filters.append(PackageRelationship.state==State.ACTIVE)
+            reverse_filters.append(PackageRelationship.state==State.ACTIVE)
+        if type:
+            forward_filters.append(PackageRelationship.type==type)
+            reverse_type = PackageRelationship.reverse_type(type)
             reverse_filters.append(PackageRelationship.type==reverse_type)
-        return Session.query(PackageRelationship).filter(or_(
+        q = Session.query(PackageRelationship)
+        if direction == 'both':
+            q = q.filter(or_(
             and_(*forward_filters),
             and_(*reverse_filters),
-            )).all()
-        return Session.query(PackageRelationship).filter(or_(
-            and_(PackageRelationship.subject==self,
-                 PackageRelationship.object==other_package),
-            and_(PackageRelationship.subject==other_package,
-                 PackageRelationship.object==self),
-            )).all()
+            ))
+        elif direction == 'forward':
+            q = q.filter(and_(*forward_filters))
+        elif direction == 'reverse':
+            q = q.filter(and_(*reverse_filters))
+        return q.all()
 
-    def relationships_printable(self):
+    def get_relationships_with(self, other_package, type=None, active=True):
+        return self.get_relationships(with_package=other_package,
+                                      type=type,
+                                      active=active)
+
+    def get_relationships_printable(self):
         '''Returns a list of tuples describing related packages, including
         non-direct relationships (such as siblings).
         @return: e.g. [(annakarenina, u"is a parent"), ...]
         '''
         from package_relationship import PackageRelationship
         rel_list = []
-        # forward types
-        for rel_as_subject in self.relationships_as_subject:
-            type_printable = PackageRelationship.make_type_printable(rel_as_subject.type)
-            rel_list.append((rel_as_subject.object, type_printable))
-        # reverse types
-        for rel_as_object in self.relationships_as_object:
-            type_printable = PackageRelationship.make_type_printable(\
-                PackageRelationship.forward_to_reverse_type(
-                    rel_as_object.type)
-                )
-            rel_list.append((rel_as_object.subject, type_printable))
+        for rel in self.get_relationships():
+            if rel.subject == self:
+                type_printable = PackageRelationship.make_type_printable(rel.type)
+                rel_list.append((rel.object, type_printable))
+            else:
+                type_printable = PackageRelationship.make_type_printable(\
+                    PackageRelationship.forward_to_reverse_type(
+                        rel.type)
+                    )
+                rel_list.append((rel.subject, type_printable))
         # sibling types
         # e.g. 'gary' is a child of 'mum', looking for 'bert' is a child of 'mum'
         # i.e. for each 'child_of' type relationship ...
-        for rel_as_subject in self.relationships_as_subject:
+        for rel_as_subject in self.get_relationships(direction='forward'):
             # ... parent is the object
             parent_pkg = rel_as_subject.object
             # Now look for the parent's other relationships as object ...
-            for parent_rel_as_object in parent_pkg.relationships_as_object:
+            for parent_rel_as_object in parent_pkg.get_relationships(direction='reverse'):
                 # and check children
                 child_pkg = parent_rel_as_object.subject
                 if child_pkg != self and \
@@ -276,7 +286,11 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     def get_license(self):
         license = None
         if self.license_id:
-            license = self.get_license_register()[self.license_id]
+            try:
+                license = self.get_license_register()[self.license_id]
+            except Exception, inst:
+                # Todo: Log a warning.
+                pass
         return license
 
     def set_license(self, license):

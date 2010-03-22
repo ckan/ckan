@@ -39,7 +39,7 @@ class PackageSaver(object):
         c.pkg_url_link = h.link_to(c.pkg.url, c.pkg.url) if c.pkg.url else "No web page given"
         c.pkg_author_link = cls._person_email_link(c.pkg.author, c.pkg.author_email, "Author")
         c.pkg_maintainer_link = cls._person_email_link(c.pkg.maintainer, c.pkg.maintainer_email, "Maintainer")
-        c.package_relationships = pkg.relationships_printable()
+        c.package_relationships = pkg.get_relationships_printable()
         # c.auth_for_change_state and c.auth_for_edit may also used
         # return render('package/read')
 
@@ -64,8 +64,6 @@ class PackageSaver(object):
             fs.model.license
             fs.model.groups
             fs.model.ratings
-            fs.model.relationships_as_subject
-            fs.model.relationships_as_object
         except ValidationException, e:
             # remove everything from session so nothing can get saved accidentally
             model.Session.clear()

@@ -166,7 +166,7 @@ class TestRest(TestController):
         assert pkg
         assert pkg.title == self.testpackagevalues['title'], pkg
         assert pkg.url == self.testpackagevalues['url'], pkg
-        assert pkg.license.id == self.testpackage_license_id, pkg
+        assert pkg.license_id == self.testpackage_license_id, pkg
         assert len(pkg.tags) == 2
         assert len(pkg.extras) == 2, len(pkg.extras)
         for key, value in self.testpackagevalues['extras'].items():
@@ -504,7 +504,6 @@ class TestRest(TestController):
 
         # delete it
         offset = '/api/rest/package/%s' % self.testpackagevalues['name']
-        rev = model.repo.new_revision()
         res = self.app.delete(offset, status=[200],
                 extra_environ=self.extra_environ)
         pkg = model.Package.by_name(self.testpackagevalues['name'])
@@ -533,7 +532,6 @@ class TestRest(TestController):
 
         # delete it
         offset = '/api/rest/group/%s' % self.testgroupvalues['name']
-        rev = model.repo.new_revision()
         res = self.app.delete(offset, status=[200],
                 extra_environ=self.extra_environ)
         assert not model.Group.by_name(self.testgroupvalues['name'])
@@ -660,7 +658,7 @@ class TestRelationships(TestController):
 
     def test_01_add_relationship(self):
         # check anna has no exisiting relationships
-        assert not self.anna.relationships
+        assert not self.anna.get_relationships()
         assert self._get_relationships(package1_name='annakarenina') == []
         assert self._get_relationships(package1_name='annakarenina',
                                       package2_name='warandpeace') == []
@@ -675,11 +673,12 @@ class TestRelationships(TestController):
     def test_02_read_relationship(self):
         'check relationship is made (in test 01)'
 
-        # check model is right        
-        assert len(self.anna.relationships) == 1
-        assert self.anna.relationships[0].type == 'child_of'
-        assert self.anna.relationships[0].subject.name == 'warandpeace'
-        assert self.anna.relationships[0].object.name == 'annakarenina'
+        # check model is right
+        rels = self.anna.get_relationships()
+        assert len(rels) == 1
+        assert rels[0].type == 'child_of'
+        assert rels[0].subject.name == 'warandpeace'
+        assert rels[0].object.name == 'annakarenina'
 
         # check '/api/rest/package/annakarenina/relationships'
         rels = self._get_relationships(package1_name='annakarenina')

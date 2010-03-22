@@ -1,6 +1,8 @@
 from ckan.tests import *
 import ckan.model as model
 
+# Todo: More domain logic tests e.g. for isopen() and other domain logic.
+
 class TestPackage:
     @classmethod
     def setup_class(self):
@@ -10,7 +12,6 @@ class TestPackage:
         for p in pkgs:
             p.purge()
         model.Session.commit()
-
         rev = model.repo.new_revision()
         self.pkg1 = model.Package(name=self.name)
         model.Session.add(self.pkg1)
@@ -27,11 +28,15 @@ class TestPackage:
         model.Session.remove()
 
     def test_create_package(self):
-        out = model.Package.by_name(self.name)
-        assert out.name == self.name
-        assert out.notes == self.notes
-        assert out.license.id == u'agpl-v3'
-        assert out.license.title == u'Affero GNU Public License'
+        package = model.Package.by_name(self.name)
+        assert package.name == self.name
+        assert package.notes == self.notes
+        assert package.license_id == u'agpl-v3'
+        assert package.license.id == u'agpl-v3'
+        assert package.license.title == u'Affero GNU Public License', package.license
+        # Check unregistered license_id causes license to be 'None'.
+        package.license_id = u'zzzzzzz'
+        assert package.license == None
 
     def test_update_package(self):
         newnotes = u'Written by Beethoven'
@@ -54,6 +59,7 @@ class TestPackageWithTags:
     WARNING: with sqlite these tests may fail (depending on the order they are
     run in) as sqlite does not support ForeignKeys properly.
     """
+    # Todo: Remove comment, since it pertains to sqlite, which CKAN doesn't support?
 
     @classmethod
     def setup_class(self):

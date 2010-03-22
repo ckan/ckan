@@ -7,6 +7,7 @@ import ckan.getdata.ons_import as data_getter
 
 test_data=os.path.join(config['here'], 'ckan/tests/getdata/samples/ons_hub_sample.xml')
 test_data2=os.path.join(config['here'], 'ckan/tests/getdata/samples/ons_hub_sample2.xml')
+test_data3=os.path.join(config['here'], 'ckan/tests/getdata/samples/ons_hub_sample3.xml')
 
 class TestBasic:
     @classmethod
@@ -62,12 +63,12 @@ class TestData:
         assert pkg1.notes.startswith("Monthly breakdown for government's net reserves, detailing gross reserves and gross liabilities."), pkg1.notes
         assert len(pkg1.resources) == 1, pkg1.resources
         assert pkg1.resources[0].url == 'http://www.hm-treasury.gov.uk/national_statistics.htm', pkg1.resources[0]
-        assert pkg1.resources[0].description == 'December 2009 | http://www.statistics.gov.uk/hub/id/119-36345'
+        assert pkg1.resources[0].description == 'December 2009 | hub/id/119-36345', pkg1.resources[0].description
         assert len(custody.resources) == 2, custody.resources
         assert custody.resources[0].url == 'http://www.justice.gov.uk/publications/endofcustodylicence.htm', custody.resources[0]
-        assert custody.resources[0].description == 'November 2009 | http://www.statistics.gov.uk/hub/id/119-36836', custody.resources[0].description
+        assert custody.resources[0].description == 'November 2009 | hub/id/119-36836', custody.resources[0].description
         assert custody.resources[1].url == 'http://www.justice.gov.uk/publications/endofcustodylicence.htm', custody.resources[0]
-        assert custody.resources[1].description == 'December 2009 | http://www.statistics.gov.uk/hub/id/119-36838', custody.resources[1].description
+        assert custody.resources[1].description == 'December 2009 | hub/id/119-36838', custody.resources[1].description
         assert pkg1.extras['date_released'] == u'2010-01-06', pkg1.extras['date_released']
         assert pkg1.extras['department'] == u"Her Majesty's Treasury", pkg1.extras['department']
         assert cereals.extras['department'] == u"Department for Environment, Food and Rural Affairs", cereals.extras['department']
@@ -120,3 +121,32 @@ class TestDataTwice:
         assert pkg.notes.startswith('CHANGED'), pkg.notes
         assert len(pkg.resources) == 1, pkg.resources
         assert 'CHANGED' in pkg.resources[0].description, pkg.resources
+
+class TestClashTitle:
+    # two packages with the same title, but from different departments,
+    # so must be different packages
+    @classmethod
+    def setup_class(self):
+        data = data_getter.Data()
+        data.load_xml_into_db(test_data3)
+
+    @classmethod
+    def teardown_class(self):
+        model.Session.remove()
+        model.repo.rebuild_db()
+
+    def test_ons_package(self):
+        pkg = model.Package.by_name(u'annual_survey_of_hours_and_earnings')
+        assert pkg
+        assert not pkg.extras['department'], pkg.extras['department']
+        assert 'Office for National Statistics' in pkg.notes, pkg.notes
+        assert len(pkg.resources) == 2, pkg.resources
+        assert '2007 Results Phase 3 Tables' in pkg.resources[0].description, pkg.resources
+        assert '2007 Pensions Results' in pkg.resources[1].description, pkg.resources
+
+    def test_welsh_package(self):
+        pkg = model.Package.by_name(u'annual_survey_of_hours_and_earnings_-_welsh_assembly_government')
+        assert pkg
+        assert pkg.extras['department'] == 'Welsh Assembly Government', pkg.extras['department']
+        assert len(pkg.resources) == 1, pkg.resources
+        assert '2008 Results' in pkg.resources[0].description, pkg.resources
