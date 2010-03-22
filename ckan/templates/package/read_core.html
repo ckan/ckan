@@ -19,7 +19,9 @@
         </py:if>
         <dt>${package_license_icon(c.pkg)}</dt>
         <py:choose test="">
+          <dd py:when="c.pkg.license and c.pkg.license.url"><a href="${c.pkg.license.url}">${c.pkg.license.title}</a></dd>
           <dd py:when="c.pkg.license">${c.pkg.license.title}</dd>
+          <dd py:when="c.pkg.license_id">${c.pkg.license_id}</dd>
           <dd py:otherwise="">
             License not given
           </dd>
@@ -72,9 +74,13 @@
       <div class="openness">
         <h4>Openness</h4>
         <py:choose test="">
-          <p py:when="c.pkg.license">
-            This package is licensed
-            <strong>${c.pkg.license.title}</strong>.
+          <p py:when="c.pkg.license_id">
+            This package is licensed with
+            <py:choose test="">
+              <strong py:when="c.pkg.license and c.pkg.license.url"><br /><a href="${c.pkg.license.url}">${c.pkg.license.title}</a></strong>
+              <strong py:when="c.pkg.license"><br />${c.pkg.license.title}</strong>
+              <strong py:when="c.pkg.license_id"><br />${c.pkg.license_id}</strong>
+            </py:choose>
           </p>
           <p py:otherwise="">
             License not given

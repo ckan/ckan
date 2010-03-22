@@ -20,7 +20,7 @@ class TestPreview(TestController):
         u'notes':u'testnotes',
         u'version':u'testversion',
         u'tags':u'one three',
-        u'license_id':u'agpl-v3',
+        u'license_id':u'gpl-3.0',
         u'extras':{u'key1':u'value1', u'key3':u'value3'},
         }
 
@@ -45,7 +45,7 @@ class TestPreview(TestController):
              u'notes':u'testnotes',
              u'version':u'testversion',
              u'tags':['one', 'two'],
-             u'license':'agpl-v3',
+             u'license':'gpl-3.0',
              u'extras':{'key1':'value1', 'key2':'value2'},
              }
             )

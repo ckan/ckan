@@ -115,7 +115,7 @@ class TestData:
         assert not pkg1.maintainer, pkg1.maintainer
         assert not pkg1.maintainer_email, pkg1.maintainer_email
         assert pkg1.license_id == u'ukcrown', pkg1.license_id
-        assert pkg1.license.id == u'ukcrown', pkg1.license.id
+        assert pkg3.license_id == u'ukcrown-withrights', pkg3.license_id
         assert 'UK Crown' in pkg1.license['title'], pkg1.license['title']
         assert pkg3.license_id == u'ukcrown-withrights', pkg3.license_id
 

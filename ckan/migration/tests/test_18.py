@@ -8,7 +8,7 @@ def _test_anna():
     assert len(anna.resources) == 2, anna.resources
     assert anna.resources[0].url == u'http://www.annakarenina.com/download/x=1&y=2', anna.resources[0].url
     assert 'russian' in str(anna.tags), anna.tags
-    assert 'Other (Open)' in anna.license.title, anna.license.title
+    assert anna.license_id == u'other-open', anna.license_id
     assert anna.extras['genre'] == 'romantic novel', anna.extras
     assert anna in anna.tags[0].packages, anna.tags[0].packages
     pkg_rev = model.Session.query(model.PackageRevision).get((anna.id, anna.revision.id))
@@ -19,6 +19,12 @@ def _test_anna():
 class Test_0_Empty(TestMigrationBase):
     @classmethod
     def setup_class(self):
+        # Note: db clean only deletes tables in the model, and that may not
+        # include the license table. This may cause problems for migration 15.
+        # To manually delete this table do:
+        # from ckan import model
+        # model.Session.execute("DROP TABLE license CASCADE;")
+        # model.repo.commit_and_remove()
         self.paster('db clean')
         self.paster('db upgrade')
         self.paster('db init')
@@ -42,7 +48,8 @@ class Test_0_Empty(TestMigrationBase):
 class Test_1_BasicData(TestMigrationBase):
     @classmethod
     def setup_class(self):
-        self.setup_db(os.path.join(TEST_DUMPS_PATH, 'test_data_17.pg_dump'))
+        self.paster('db clean')
+        self.setup_db(os.path.join(TEST_DUMPS_PATH, 'test_data_15.pg_dump'))
         self.paster('db upgrade')
 
     @classmethod
@@ -96,7 +103,7 @@ class Test_2_RealData(TestMigrationBase):
         assert len(pkg.resources) == 1, pkg.resources
         assert pkg.resources[0].url == u'http://wiki.openstreetmap.org/index.php/Planet.osm', pkg.resources[0].url
         assert 'navigation' in str(pkg.tags), pkg.tags
-        assert 'Creative Commons Share-Alike' in pkg.license.title, pkg.license.title
+        assert pkg.license_id == 'cc-by-sa', pkg.license_id
         assert pkg.extras == {}, pkg.extras
         assert pkg in pkg.tags[0].packages, pkg.tags[0].packages
         pkg_rev = model.Session.query(model.PackageRevision).get((pkg.id, pkg.revision.id))

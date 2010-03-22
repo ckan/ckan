@@ -254,7 +254,11 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     def get_license(self):
         license = None
         if self.license_id:
-            license = self.get_license_register()[self.license_id]
+            try:
+                license = self.get_license_register()[self.license_id]
+            except Exception, inst:
+                # Todo: Log a warning.
+                pass
         return license
 
     def set_license(self, license):

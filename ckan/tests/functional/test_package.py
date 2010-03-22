@@ -468,7 +468,7 @@ u with umlaut \xc3\xbc
                      )
         assert len(resources[0]) == len(model.PackageResource.get_columns())
         notes = u'Very important'
-        license_id = u'agpl-v3'
+        license_id = u'gpl-3.0'
         state = model.State.ACTIVE
         tags = (u'tag1', u'tag2', u'tag3')
         tags_txt = u' '.join(tags)
@@ -675,7 +675,7 @@ class TestNew(TestPackageForm):
         url = u'http://something.com/somewhere.zip'
         download_url = u'http://something.com/somewhere-else.zip'
         notes = u'Very important'
-        license_id = u'agpl-v3'
+        license_id = u'gpl-3.0'
         tags = (u'tag1', u'tag2', u'tag3', u'SomeCaps')
         tags_txt = u' '.join(tags)
         extras = {'key1':'value1', 'key2':'value2', 'key3':'value3'}

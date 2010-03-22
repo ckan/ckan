@@ -54,8 +54,8 @@ enable_caching =
 # e.g. rdf_packages = http://semantic.ckan.net/data/
 rdf_packages =
 
-# License server URL (defaults to the knowledgeforge one)
-#licenses_group_url = file://%(here)s/ckan/tests/sample_licenses/2.0/all
+# Location of licenses group (defaults to local Python licenses package)
+#licenses_group_url = http://licenses.opendefinition.org/2.0/ckan_original
 
 
 # Logging configuration

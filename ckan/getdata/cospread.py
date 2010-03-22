@@ -148,10 +148,10 @@ class Data(object):
             _dict[field] = _dict['%s - other' % field] if \
                            _dict['%s - standard' % field] == 'Other (specify)' else \
                            _dict['%s - standard' % field]
-        license_id = license_map.get(_dict['licence'].strip(), '')
+        license_id = license_map.get(_dict['licence'], '')
         if not license_id:
-            print 'Warning: license not recognised: %s. Defaulting to Crown Copyright.' % _dict['licence']
-            license_id = u'Non-OKD Compliant::Crown Copyright'
+            print 'Warning: license not recognised: %s. Defaulting to UK Crown Copyright.' % _dict['licence']
+            license_name = u'ukcrown'
 
         # extras
         extras_dict = {}

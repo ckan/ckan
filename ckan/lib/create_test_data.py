@@ -280,7 +280,7 @@ search_items = [{'name':'gils',
               'url':'',
               'tags':'registry  country-usa  government  federal  gov  workshop-20081101',
               'groups':'ukgov test1 test2 penguin',
-              'license':'agpl-v3',
+              'license':'gpl-3.0',
               'notes':'''From <http://www.gpoaccess.gov/gils/about.html>
               
 > The Government Information Locator Service (GILS) is an effort to identify, locate, and describe publicly available Federal

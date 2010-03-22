@@ -1,4 +1,3 @@
-from licenses.service import LicensesService2
 from pylons import config 
 import datetime
 import re
@@ -31,10 +30,15 @@ class License(object):
 class LicenseRegister(object):
     """Dictionary-like interface to a group of licenses."""
 
-    def __init__(self, group_url=''):
-        group_url = config.get('licenses_group_url', group_url) 
-        self.service = LicensesService2(group_url)
-        entity_list = self.service.get_licenses()
+    def __init__(self):
+        group_url = config.get('licenses_group_url', None)
+        if group_url:
+            from licenses.service import LicensesService2
+            self.service = LicensesService2(group_url)
+            entity_list = self.service.get_licenses()
+        else:
+            from licenses import Licenses
+            entity_list = Licenses().get_group_licenses('ckan_original')
         self.licenses = [License(entity) for entity in entity_list]
 
     def __getitem__(self, key, default=Exception):
