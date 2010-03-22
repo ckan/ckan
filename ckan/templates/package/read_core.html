@@ -19,8 +19,7 @@
         </py:if>
         <dt>${package_license_icon(c.pkg)}</dt>
         <py:choose test="">
-          <dd py:when="c.pkg.license">${c.pkg.license.name}
-          </dd>
+          <dd py:when="c.pkg.license">${c.pkg.license.title}</dd>
           <dd py:otherwise="">
             License not given
           </dd>
@@ -28,6 +27,14 @@
         <dt>${package_resources_icon(c.pkg)}</dt>
         <dd>${"Resources available for download" if c.pkg.resources else "No resources given"}</dd>
       </dl>
+        <py:if test="c.package_relationships">
+          <h3>Related packages</h3>
+          <ul>
+            <py:for each="pkg, relationship_str in c.package_relationships">
+              <li>${h.literal(relationship_str % (h.link_to(pkg.name, h.url_for(controller="package", action="read", id=pkg.name))))}</li>
+            </py:for>
+          </ul>
+        </py:if>
     </div>
 
     <h2 class="head">
@@ -67,7 +74,7 @@
         <py:choose test="">
           <p py:when="c.pkg.license">
             This package is licensed
-            <strong>${c.pkg.license.name}</strong>.
+            <strong>${c.pkg.license.title}</strong>.
           </p>
           <p py:otherwise="">
             License not given

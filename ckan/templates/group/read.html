@@ -1,16 +1,17 @@
 <html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:i18n="http://genshi.edgewall.org/i18n"
   xmlns:xi="http://www.w3.org/2001/XInclude">
   
   <py:def function="page_title">Groups - ${c.group.name}</py:def>
 
   <div py:match="content">
-    <h2>
+   <div class="group">
+    <h2 class="head">
       <py:if test="not c.group.title">
         <em>No Title</em>
       </py:if>
 
       ${c.group.title}
+      <span class="name">(${c.group.name})</span>
 
       <span class="object-action">
       <py:if test="c.auth_for_edit">
@@ -22,7 +23,9 @@
       </span>
     </h2>
 
-    ${c.group_description_formatted}
+    <div class="description">
+      ${c.group_description_formatted}
+    </div>
 
     <py:if test="c.group_admins">
       <strong>Administrators:</strong> 
@@ -32,17 +35,11 @@
     </py:if>      
 
     <h3>Packages:</h3>
-    <ul>
-    <py:for each="pkg in c.group_active_packages">
-      <li>
-        ${package_summary(pkg)}
-      </li>
-    </py:for>
-    </ul>
-    <i18n:choose numeral="len(c.group_active_packages)">
-      <p i18n:singular="">There is ${len(c.group_active_packages)} package in this group.</p>
-      <p i18n:plural="">There are ${len(c.group_active_packages)} packages in this group.</p>
-    </i18n:choose>
+    ${c.page.pager()}
+    ${package_list(c.page.items)}
+    ${c.page.pager()}
+    There are ${c.page.item_count} packages in this group.
+   </div>
   </div>
 
   <xi:include href="layout.html" />

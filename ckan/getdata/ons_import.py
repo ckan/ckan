@@ -128,7 +128,7 @@ class Data(object):
 
         pkg.title = title
         pkg.notes = '\n\n'.join(notes_list)
-        pkg.license = model.Session.query(model.License).get(self._crown_license_id)
+        pkg.license_id = self._crown_license_id
         pkg.extras = extras
         if extras['department']:
             pkg.author = extras['department']
@@ -199,7 +199,7 @@ class Data(object):
     def _basic_setup(self):
         self._item_count = 0
         self._new_package_count = 0
-        self._crown_license_id = model.License.by_name(u'Non-OKD Compliant::Crown Copyright').id
+        self._crown_license_id = u'ukcrown-withrights'
 
 
         # ensure there is a user hmg
@@ -217,6 +217,8 @@ class Data(object):
             self._new_revision('Adding group')
             group = model.Group(name=groupname)
             model.Session.add(group)
+            user = model.User.by_name(username)
+            model.setup_default_user_roles(group, [user])
 
         if model.Session.new:
             model.repo.commit_and_remove()

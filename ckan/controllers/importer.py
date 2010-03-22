@@ -116,10 +116,6 @@ class ImporterController(BaseController):
         c.message = ungettext('Imported %i package.', 'Imported %i packages.', count) % count
         return render('importer/result')
 
-    def doc(self):
-        c.license_names = [license_ for license_ in LicenseList.all_formatted]
-        return render('importer/doc')
-
     def _get_fs(self, importer):
         for index, pkg_dict in enumerate(importer.pkg_dict()):
             pkg = model.Package.by_name(pkg_dict['name'])

@@ -62,6 +62,8 @@ class TestData:
         pkg2 = model.Session.query(model.Package).filter_by(name=u'provision-children-under-5-england-2009').one()
         pkg3 = model.Session.query(model.Package).filter_by(name=u'laboratory-tests-and-prices').one()
         assert pkg1
+        assert pkg2
+        assert pkg3
         assert pkg1.title == 'Child Protection Plan', pkg1.title
         assert pkg1.extras['external_reference'] == u'DCSF-DCSF-0017', pkg1.extras
         assert pkg1.notes.startswith(u'Referrals, assessment and children and young people who are the subjects of child protection plans (on the child protection register) for year ending March 2009'), pkg1.notes
@@ -112,8 +114,10 @@ class TestData:
         assert pkg1.author_email == 'statistics@dcsf.gsi.gov.uk', pkg1.author_email
         assert not pkg1.maintainer, pkg1.maintainer
         assert not pkg1.maintainer_email, pkg1.maintainer_email
-        assert pkg1.license.name == u'Non-OKD Compliant::Crown Copyright', pkg1.license.name
-        assert pkg3.license.name == u'OKD Compliant::UK Crown Copyright with data.gov.uk rights', pkg3.license.name
+        assert pkg1.license_id == u'ukcrown', pkg1.license_id
+        assert pkg1.license.id == u'ukcrown', pkg1.license.id
+        assert 'UK Crown' in pkg1.license['title'], pkg1.license['title']
+        assert pkg3.license_id == u'ukcrown-withrights', pkg3.license_id
 
         assert model.Group.by_name(u'ukgov') in pkg1.groups
         assert pkg1.extras['import_source'].startswith('COSPREAD'), pkg1.extras['import_source']
@@ -190,8 +194,8 @@ class TestData3:
         assert pkg1.author_email == 'statistics.enquiries@justice.gsi.gov.uk', pkg1.author_email
         assert not pkg1.maintainer, pkg1.maintainer
         assert not pkg1.maintainer_email, pkg1.maintainer_email
-        assert pkg1.license.name == u'Non-OKD Compliant::Crown Copyright', pkg1.license.name
-        assert pkg3.license.name == u'OKD Compliant::Higher Education Statistics Agency Copyright with data.gov.uk rights', pkg3.license.name
+        assert pkg1.license_id == u'ukcrown', pkg1.license_id
+        assert pkg3.license_id == u'hesa-withrights', pkg3.license_id
         tag_names = set()
         [tag_names.add(tag.name) for tag in pkg1.tags]
         for tag in []:
@@ -217,4 +221,4 @@ class TestData4:
         pkg1 = model.Package.by_name(u'dfid-projects')
         assert pkg1.title == u'DFID Project Information', pkg1.title
         assert pkg1.notes == u'Information about aid projects funded by the Department for International Development. The dataset contains project descriptions, dates, purposes, locations, sectors, summary financial data and whether or not conditions are attached.', pkg1.notes
-        assert 'Crown Copyright with data.gov.uk rights' in pkg.license.name, pkg.license.name
+        assert pkg.license_id == u'ukcrown-withrights', pkg.license_id

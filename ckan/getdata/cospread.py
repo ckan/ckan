@@ -148,10 +148,10 @@ class Data(object):
             _dict[field] = _dict['%s - other' % field] if \
                            _dict['%s - standard' % field] == 'Other (specify)' else \
                            _dict['%s - standard' % field]
-        license_name = license_map.get(_dict['licence'].strip(), '')
-        if not license_name:
+        license_id = license_map.get(_dict['licence'].strip(), '')
+        if not license_id:
             print 'Warning: license not recognised: %s. Defaulting to Crown Copyright.' % _dict['licence']
-            license_name = u'Non-OKD Compliant::Crown Copyright'
+            license_id = u'Non-OKD Compliant::Crown Copyright'
 
         # extras
         extras_dict = {}
@@ -214,8 +214,6 @@ class Data(object):
         
         extras_dict['national_statistic'] = u'' # Ignored: _dict['national statistic'].lower()
         extras_dict['import_source'] = 'COSPREAD-%s' % self._current_filename
-
-
         for field in ['temporal_coverage_from', 'temporal_coverage_to']:
             extras_dict[field] = u''
 
@@ -252,7 +250,7 @@ class Data(object):
         for resource in resources:
             pkg.add_resource(resource['url'], format=resource['format'], description=resource['description'])
         pkg.notes=notes
-        pkg.license = model.License.by_name(license_name)
+        pkg.license_id = license_id
         assert pkg.license
         if not existing_pkg:
             user = model.User.by_name(self._username)
@@ -311,6 +309,8 @@ class Data(object):
         if not group:
             group = model.Group(name=self._groupname)
             model.Session.add(group)
+            user = model.User.by_name(self._username)
+            model.setup_default_user_roles(group, [user])
 
     def _new_revision(self):
         # Revision info
@@ -320,9 +320,9 @@ class Data(object):
         return rev
 
 license_map = {
-    u'UK Crown Copyright with data.gov.uk rights':u'OKD Compliant::UK Crown Copyright with data.gov.uk rights',
-    u'\xa9 HESA. Not core Crown Copyright.':u'OKD Compliant::Higher Education Statistics Agency Copyright with data.gov.uk rights',
-    u'UK Crown Copyright':u'Non-OKD Compliant::Crown Copyright',
-    u'Crown Copyright':u'Non-OKD Compliant::Crown Copyright', }
+    u'UK Crown Copyright with data.gov.uk rights':u'ukcrown-withrights',
+    u'\xa9 HESA. Not core Crown Copyright.':u'hesa-withrights',
+    u'UK Crown Copyright':u'ukcrown',
+    u'Crown Copyright':u'ukcrown', }
 #agencies_raw = ['Health Protection Agency', 'Office for National Statistics', 'Census', 'Performance Assessment Framework', 'Annual Population Survey', 'Annual Survey of Hours and Earnings', 'Business Registers Unit', 'UK Hydrographic Office', 'Defence Analytical Services and Advice', 'Housing and Communities Agency', 'Tenants Service Authority', 'Higher Education Statistics Agency']
 geographic_regions = ['england', 'n. ireland', 'scotland', 'wales', 'overseas', 'global']

@@ -29,7 +29,7 @@ setup(
         # uuid in python >= 2.5
         # 'uuid>=1.0',
         # for open licenses
-        'licenses',
+        'licenses==0.4',
         # last version to work with sql < 0.5 
         'sqlalchemy-migrate==0.4.5',
         # latest version of Routes (1.10) depends on webob in middleware but
