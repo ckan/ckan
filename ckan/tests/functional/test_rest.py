@@ -604,15 +604,21 @@ class TestRelationships(TestController):
         model.repo.rebuild_db()
         model.Session.remove()
 
-    def _get_relationships(self, package1_name='annakarenina', package2_name=None):
+    def _get_relationships(self, package1_name='annakarenina', type='relationships', package2_name=None):
         if not package2_name:
-            offset = '/api/rest/package/%s/relationships' % str(package1_name)
+            offset = '/api/rest/package/%s/%s' % (str(package1_name), type)
         else:
-            offset = '/api/rest/package/%s/relationships/%s/' % (
-                str(package1_name), str(package2_name))
-        res = self.app.get(offset, status=200)
-        res_dict = simplejson.loads(res.body) if res.body else []
-        return res_dict
+            offset = '/api/rest/package/%s/%s/%s/' % (
+                str(package1_name), type, str(package2_name))
+        allowable_statuses = [200]
+        if type:
+            allowable_statuses.append(404)
+        res = self.app.get(offset, status=allowable_statuses)
+        if res.status == 200:
+            res_dict = simplejson.loads(res.body) if res.body else []
+            return res_dict
+        else:
+            return 404
 
     def _get_relationships_via_package(self, package1_name):
         offset = '/api/rest/package/%s' % (str(package1_name))
@@ -661,11 +667,14 @@ class TestRelationships(TestController):
 
 
     def test_01_add_relationship(self):
-        # check anna has no exisiting relationships
+        # check anna has no existing relationships
         assert not self.anna.get_relationships()
         assert self._get_relationships(package1_name='annakarenina') == []
         assert self._get_relationships(package1_name='annakarenina',
-                                      package2_name='warandpeace') == []
+                                       package2_name='warandpeace') == []
+        assert self._get_relationships(package1_name='annakarenina',
+                                       type='child_of',
+                                       package2_name='warandpeace') == 404
         assert self._get_relationships_via_package('annakarenina') == []
 
         # make annakarenina parent of warandpeace
@@ -679,7 +688,7 @@ class TestRelationships(TestController):
 
         # check model is right
         rels = self.anna.get_relationships()
-        assert len(rels) == 1
+        assert len(rels) == 1, rels
         assert rels[0].type == 'child_of'
         assert rels[0].subject.name == 'warandpeace'
         assert rels[0].object.name == 'annakarenina'
@@ -697,6 +706,14 @@ class TestRelationships(TestController):
         self._check_relationship_dict(rels[0],
                'annakarenina', 'parent_of', 'warandpeace', self.comment)
 
+        # check '/api/rest/package/annakarenina/parent_of/warandpeace'
+        rels = self._get_relationships(package1_name='annakarenina',
+                                       type='parent_of',
+                                      package2_name='warandpeace')
+        assert len(rels) == 1
+        self._check_relationship_dict(rels[0],
+               'annakarenina', 'parent_of', 'warandpeace', self.comment)
+
         # same checks in reverse direction
         rels = self._get_relationships(package1_name='warandpeace')
         assert len(rels) == 1
@@ -704,6 +721,13 @@ class TestRelationships(TestController):
                'warandpeace', 'child_of', 'annakarenina', self.comment)
 
         rels = self._get_relationships(package1_name='warandpeace',
+                                      package2_name='annakarenina')
+        assert len(rels) == 1
+        self._check_relationship_dict(rels[0],
+               'warandpeace', 'child_of', 'annakarenina', self.comment)
+
+        rels = self._get_relationships(package1_name='warandpeace',
+                                       type='child_of',
                                       package2_name='annakarenina')
         assert len(rels) == 1
         self._check_relationship_dict(rels[0],

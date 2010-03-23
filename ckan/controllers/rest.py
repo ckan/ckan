@@ -64,7 +64,7 @@ class RestController(BaseController):
             _dict = pkg.as_dict()
             #TODO check it's not none
             return self._finish_ok(_dict)
-        elif register == u'package' and subregister == 'relationships':
+        elif register == u'package' and (subregister == 'relationships' or subregister in model.PackageRelationship.get_all_types()):
             pkg1 = model.Package.by_name(id)
             pkg2 = model.Package.by_name(id2)
             if not pkg1:
@@ -73,7 +73,15 @@ class RestController(BaseController):
             if not pkg2:
                 response.status_int = 404
                 return 'Second package named in address was not found.'
-            relationships = pkg1.get_relationships_with(pkg2)
+            if subregister == 'relationships':
+                relationships = pkg1.get_relationships_with(pkg2)
+            else:
+                relationships = pkg1.get_relationships_with(pkg2,
+                                                            type=subregister)
+                if not relationships:
+                    response.status_int = 404
+                    return 'Relationship "%s %s %s" not found.' % \
+                           (id, subregister, id2)
             return self._finish_ok([rel.as_dict(pkg1) for rel in relationships])
         elif register == u'group':
             group = model.Group.by_name(id)
@@ -175,13 +183,11 @@ class RestController(BaseController):
             if not pkg2:
                 response.status_int = 404
                 return 'Second package named in address was not found.'
-            comment = request_data.get('comment', u'')
             existing_rels = pkg1.get_relationships_with(pkg2, subregister)
             if not existing_rels:
                 response.status_int = 404
                 return 'This relationship between the packages was not found.'
-            return self._update_package_relationship(existing_rels[0],
-                                                     comment)
+            entity = existing_rels[0]
         elif register == 'group' and not subregister:
             entity = model.Group.by_name(id)
         else:
@@ -191,7 +197,9 @@ class RestController(BaseController):
             response.status_int = 404
             return ''
 
-        if not self._check_access(entity, model.Action.EDIT):
+        if (not subregister and \
+            not self._check_access(entity, model.Action.EDIT)) \
+            or not self._check_access(None, None):
             return simplejson.dumps(_('Access denied'))
 
         try:
@@ -200,7 +208,7 @@ class RestController(BaseController):
             response.status_int = 400
             return gettext('JSON Error: %s') % str(inst)
 
-        try:
+        if not subregister:
             if register == 'package':
                 fs = ckan.forms.package_fs
                 orig_entity_dict = ckan.forms.get_package_dict(pkg=entity, fs=fs)
@@ -214,21 +222,26 @@ class RestController(BaseController):
             if not validation:
                 response.status_int = 409
                 return simplejson.dumps(repr(fs.errors))
-            rev = model.repo.new_revision()
-            rev.author = self.rest_api_user
-            rev.message = _(u'REST API: Update object %s') % str(fs.name.value)
-            fs.sync()
+            try:
+                rev = model.repo.new_revision()
+                rev.author = self.rest_api_user
+                rev.message = _(u'REST API: Update object %s') % str(fs.name.value)
+                fs.sync()
 
-            model.repo.commit()        
-        except Exception, inst:
-            model.Session.rollback()
-            if inst.__class__.__name__ == 'IntegrityError':
-                response.status_int = 409
-                return ''
-            else:
-                raise
-        obj = fs.model
-        return self._finish_ok(obj.as_dict())
+                model.repo.commit()        
+            except Exception, inst:
+                model.Session.rollback()
+                if inst.__class__.__name__ == 'IntegrityError':
+                    response.status_int = 409
+                    return ''
+                else:
+                    raise
+            obj = fs.model
+            return self._finish_ok(obj.as_dict())
+        else:
+            if register == 'package':
+                comment = request_data.get('comment', u'')
+                return self._update_package_relationship(entity, comment)
 
     def delete(self, register, id, subregister=None, id2=None):
         if register == 'package' and not subregister:
