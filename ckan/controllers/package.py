@@ -20,12 +20,14 @@ class PackageController(BaseController):
     authorizer = ckan.authz.Authorizer()
 
     def index(self):
-        c.package_count = model.Session.query(model.Package).count()
+        query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
+        c.package_count = query.count()
         return render('package/index')
 
     def list(self):
+        query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
         c.page = Page(
-            collection=model.Package.active(),
+            collection=query,
             page=request.params.get('page', 1),
             items_per_page=50
         )
@@ -42,7 +44,7 @@ class PackageController(BaseController):
                 'filter_by_downloadable': c.downloadable_only,
                 })
             # package search
-            query = Search().query(options)
+            query = Search().query(options, username=c.user)
             c.page = Page(
                 collection=query,
                 page=request.params.get('page', 1),
@@ -118,12 +120,15 @@ class PackageController(BaseController):
         is_admin = self.authorizer.is_sysadmin(c.user)
 
         fs = ckan.forms.get_fieldset(is_admin=is_admin, basic=False, package_form=request.params.get('package_form'))
+        if 'commit' in request.params or 'preview' in request.params:
+            if not request.params.has_key('log_message'):
+                abort(400, ('Missing parameter: log_message'))
+            log_message = request.params['log_message']
 
         record = model.Package
         if request.params.has_key('commit'):
             fs = fs.bind(record, data=dict(request.params) or None, session=model.Session)
             try:
-                log_message = request.params['log_message']
                 PackageSaver().commit_pkg(fs, None, None, log_message, c.author)
                 pkgname = fs.name.value
 
@@ -160,7 +165,9 @@ class PackageController(BaseController):
         c.form = self._render_edit_form(fs, request.params, clear_session=True)
         if 'preview' in request.params:
             try:
-                PackageSaver().render_preview(fs, id, record.id)
+                PackageSaver().render_preview(fs, id, record.id,
+                                              log_message=log_message,
+                                              author=c.author)
                 c.preview = h.literal(render('package/read_core'))
             except ValidationException, error:
                 c.error, fs = error.args
@@ -184,6 +191,11 @@ class PackageController(BaseController):
         c.auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, pkg)
         fs = ckan.forms.get_fieldset(is_admin=c.auth_for_change_state, basic=False, package_form=request.params.get('package_form'))
 
+        if 'commit' in request.params or 'preview' in request.params:
+            if not request.params.has_key('log_message'):
+                abort(400, ('Missing parameter: log_message'))
+            log_message = request.params['log_message']
+
         if not 'commit' in request.params and not 'preview' in request.params:
             # edit
             fs = fs.bind(pkg)
@@ -196,7 +208,6 @@ class PackageController(BaseController):
                                           # multidict which is read only
             fs = fs.bind(pkg, data=params or None)
             try:
-                log_message = request.params['log_message']
                 PackageSaver().commit_pkg(fs, id, pkg.id, log_message, c.author)
                 # do not use pkgname from id as may have changed
                 pkgname = fs.name.value
@@ -212,7 +223,9 @@ class PackageController(BaseController):
             pkgname = id
             fs = fs.bind(pkg, data=dict(request.params))
             try:
-                PackageSaver().render_preview(fs, id, pkg.id)
+                PackageSaver().render_preview(fs, id, pkg.id,
+                                              log_message=log_message,
+                                              author=c.author)
                 read_core_html = render('package/read_core') #utf8 format
                 c.preview = h.literal(read_core_html)
                 c.form = self._render_edit_form(fs, request.params)
@@ -273,8 +286,8 @@ class PackageController(BaseController):
                 model.Session.commit()
 
         # retrieve pkg again ...
-        pkg = model.Package.by_name(id)
-        fs = ckan.forms.package_authz_fs.bind(pkg.roles)
+        c.pkg = model.Package.by_name(id)
+        fs = ckan.forms.package_authz_fs.bind(c.pkg.roles)
         c.form = fs.render()
         c.new_roles_form = ckan.forms.new_package_roles_fs.render()
         return render('package/authz')

@@ -4,6 +4,7 @@ from ckan.lib.base import *
 from simplejson import dumps
 import ckan.authz as authz
 import ckan.forms
+from ckan.lib.helpers import Page
 
 class GroupController(BaseController):
     def __init__(self):
@@ -13,8 +14,9 @@ class GroupController(BaseController):
     def index(self):
         from ckan.lib.helpers import Page
 
+        query = ckan.authz.Authorizer().authorized_query(c.user, model.Group)
         c.page = Page(
-            collection=model.Session.query(model.Group),
+            collection=query,
             page=request.params.get('page', 1),
             items_per_page=20
         )
@@ -31,13 +33,6 @@ class GroupController(BaseController):
         c.auth_for_edit = self.authorizer.am_authorized(c, model.Action.EDIT, c.group)
         c.auth_for_authz = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, c.group)
         
-        c.group_active_packages = []
-        active_str = model.State.ACTIVE
-        # TODO: this isn't nice ... (either should have active_packages
-        # attribute or ...)
-        for pkg in c.group.packages:
-            if pkg.state == active_str:
-                c.group_active_packages.append(pkg)
         import ckan.misc
         format = ckan.misc.MarkdownFormat()
         desc_formatted = format.to_html(c.group.description)
@@ -45,6 +40,11 @@ class GroupController(BaseController):
         c.group_description_formatted = desc_formatted
         c.group_admins = self.authorizer.get_admins(c.group)
 
+        c.page = Page(
+            collection=c.group.active_packages(),
+            page=request.params.get('page', 1),
+            items_per_page=50
+        )
         return render('group/read')
 
     def new(self):
@@ -88,8 +88,6 @@ class GroupController(BaseController):
             data = ckan.forms.edit_group_dict(ckan.forms.get_group_dict(), request.params)
             fs = fs.bind(data=data)
         c.form = self._render_edit_form(fs)
-        if 'preview' in request.params:
-            c.preview = genshi.HTML(self._render_package(fs))
         return render('group/new')
 
     def edit(self, id=None): # allow id=None to allow posting

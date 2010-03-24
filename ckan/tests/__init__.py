@@ -67,7 +67,7 @@ class TestController(object):
         rev = model.repo.new_revision()
         for i in range(0,100):
             name = u"testpackage%s" % i
-            model.Session.save(model.Package(name=name))
+            model.Session.add(model.Package(name=name))
         model.Session.commit()
         model.Session.remove()
 
@@ -83,7 +83,7 @@ class TestController(object):
     def create_200_tags(self):
         for i in range(0,200):
             name = u"testtag%s" % i
-            model.Session.save(model.Tag(name=name))
+            model.Session.add(model.Tag(name=name))
             print "Created tag: %s" % name
         model.Session.commit()
         model.Session.remove()

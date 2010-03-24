@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<rss version="2.0">
+			
+			
+					
+							<channel xmlns:hub="http://www.statistics.gov.uk/xsd/hub" xmlns:atom="http://www.w3.org/2005/Atom">
+<title>Release Calendar</title>
+<link>http://www.statistics.gov.uk/</link>
+<description>Release Calendar description</description>
+<language>en-gb</language>
+<pubDate>Mon, 18 Jan 2010 18:54:02 GMT</pubDate>
+<atom:link href="http://www.statistics.gov.uk/hub/release-calendar/rss.xml" rel="self" type="application/rss+xml"/>
+
+<item>
+<title>Annual Survey of Hours and Earnings - 2007 Results Phase 3 Tables</title>
+<link>http://www.statistics.gov.uk/statbase/prep/13101.asp</link>
+<description>The Annual Survey of Hours and Earnings (ASHE) provides information about the levels, distribution and make-up of earnings and hours paid for employees within industries, occupations and regions. The tables contain UK data on earnings for employees by sex and full-time/part-time workers.</description>
+<pubDate>Fri, 18 Jan 2008 00:00:00 GMT</pubDate>
+<guid>http://www.statistics.gov.uk/hub/id/77-24183</guid>
+<hub:source-agency>Office for National Statistics</hub:source-agency>
+<hub:theme>Labour Market</hub:theme>
+<hub:coverage>UK</hub:coverage>
+<hub:designation>National Statistics</hub:designation>
+<hub:geographic-breakdown>Parliamentary Constituency</hub:geographic-breakdown>
+<hub:language>English</hub:language>
+<hub:ipsv>Employment, jobs and careers</hub:ipsv>
+<hub:keywords>hours;earnings;hours;earnings</hub:keywords>
+<hub:altTitle>ASHE</hub:altTitle>
+<hub:nscl>Labour Market;People in Work;Earnings;Pensions;Labour Market;People in Work;Earnings;Pensions</hub:nscl>
+</item>
+
+
+<item>
+<title>Annual Survey of Hours and Earnings - 2007 Pensions Results</title>
+<link>http://www.statistics.gov.uk/statbase/prep/13101.asp</link>
+<description>The Annual Survey of Hours and Earnings (ASHE) provides information about the levels, distribution and make-up of earnings and hours paid for employees within industries, occupations and regions. The tables contain UK data on earnings for employees by sex and full-time/part-time workers.</description>
+<pubDate>Fri, 28 Mar 2008 00:00:00 GMT</pubDate>
+<guid>http://www.statistics.gov.uk/hub/id/77-24181</guid>
+<hub:source-agency>Office for National Statistics</hub:source-agency>
+<hub:theme>Labour Market</hub:theme>
+<hub:coverage>UK</hub:coverage>
+<hub:designation>National Statistics</hub:designation>
+<hub:geographic-breakdown>Parliamentary Constituency</hub:geographic-breakdown>
+<hub:language>English</hub:language>
+<hub:ipsv>Employment, jobs and careers</hub:ipsv>
+<hub:keywords>hours;earnings;hours;earnings</hub:keywords>
+<hub:altTitle>ASHE</hub:altTitle>
+<hub:nscl>Labour Market;People in Work;Earnings;Pensions;Labour Market;People in Work;Earnings;Pensions</hub:nscl>
+</item>
+
+<item>
+<title>Annual Survey of Hours and Earnings - 2008 Results</title>
+<link>http://wales.gov.uk/topics/statistics/headlines/econ2008/hdw200811141/?lang=en</link>
+<description>Comparing data for Wales with the rest of the country.</description>
+<pubDate>Thu, 04 Dec 2008 00:00:00 GMT</pubDate>
+<guid>http://www.statistics.gov.uk/hub/id/119-33039</guid>
+<hub:source-agency>Welsh Assembly Government</hub:source-agency>
+<hub:theme>Labour Market</hub:theme>
+<hub:coverage>Wales</hub:coverage>
+<hub:designation>National Statistics</hub:designation>
+<hub:geographic-breakdown>Local Authority and County</hub:geographic-breakdown>
+<hub:language>English</hub:language>
+<hub:ipsv>Economics and finance;UK economy;Living standards and income levels;Economics and finance;UK economy;Living standards and income levels</hub:ipsv>
+<hub:keywords>Labour;Market;Earnings;Labour;Market;Earnings</hub:keywords>
+<hub:altTitle>Annual Survey of Hours and Earnings</hub:altTitle>
+<hub:nscl>Labour Market;People in work;Earnings;Labour Market;People in work;Earnings</hub:nscl>
+</item>
+
+
+
+</channel></rss>

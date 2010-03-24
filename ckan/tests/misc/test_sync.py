@@ -14,8 +14,9 @@ instance_dir = config['here']
 
 class Options:
     pid_file = 'paster.pid'
-    
-class TestSync(TestController):
+
+# TODO: Reenable this when sync functionality is in place
+class _TestSync(TestController):
     @classmethod
     def setup_class(self):
         # setup Server A (sub process)
@@ -76,12 +77,12 @@ class TestSync(TestController):
         assert last_sync_rev_id == None # no syncs yet
 
         # get revision ids since then
-        remote_rev_ids = self.sub_app_get_json('%s/api/search/revision?since=%s' % (server, last_sync_rev_id))
+        remote_rev_ids = self.sub_app_get_deserialized('%s/api/search/revision?since=%s' % (server, last_sync_rev_id))
         assert len(remote_rev_ids) == 3
         remote_latest_rev_id = remote_rev_ids[-1]
 
         # get revision diffs
-        diffs = self.sub_app_get_json('%s/api/diff/revision?diff=%s&oldid=%s' % (server, remote_latest_rev_id, last_sync_rev_id))
+        diffs = self.sub_app_get_deserialized('%s/api/diff/revision?diff=%s&oldid=%s' % (server, remote_latest_rev_id, last_sync_rev_id))
         assert len(diffs) == 3
                                       
         # apply diffs

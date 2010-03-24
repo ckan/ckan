@@ -20,8 +20,8 @@ setup(
     long_description =__long_description__,
     install_requires=[
         'routes>=1.9,<=1.11.99',
-        'vdm>=0.6,<0.6.99',
-        'ckanclient>=0.1,<0.2.99',
+        'vdm>=0.6,<0.7.99',
+        'ckanclient>=0.1,<0.3.99',
         'Pylons>=0.9.7.0,<0.9.7.99',
         'Genshi>=0.4',
         'SQLAlchemy>=0.4.8,<=0.4.99',
@@ -30,14 +30,13 @@ setup(
         # uuid in python >= 2.5
         # 'uuid>=1.0',
         # for open licenses
-        'licenses',
+        'licenses==0.4',
         # last version to work with sql < 0.5 
         'sqlalchemy-migrate==0.4.5',
         # latest version of Routes (1.10) depends on webob in middleware but
         # does not declare the dependency!
         # (not sure we need this except in tests but ...)
         'WebOb',
-        # 1.3.2 changes signature of formalchemy.helpers.select in a way that breaks out code
         'FormAlchemy>=1.2.3,<=1.3.1',
         # Excel libaries are only for importer tool
         # 'xlrd>=0.7.1',

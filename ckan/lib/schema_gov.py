@@ -2,7 +2,7 @@ import re
 import time
 import datetime
 
-__all__ = ['government_depts', 'geographic_granularity_options', 'temporal_granularity_options', 'category_options', 'region_options', 'region_groupings', 'update_frequency_suggestions', 'tag_pool', 'suggest_tags', 'DateType', 'GeoCoverageType', 'expand_abbreviations', 'name_munge']
+__all__ = ['government_depts', 'geographic_granularity_options', 'temporal_granularity_options', 'category_options', 'region_options', 'region_groupings', 'update_frequency_suggestions', 'tag_pool', 'suggest_tags', 'DateType', 'GeoCoverageType', 'expand_abbreviations', 'name_munge', 'tag_munge']
 
 government_depts_raw = """
 Attorney General's Office
@@ -64,7 +64,7 @@ for line in government_depts_raw.split('\n'):
     if line:
         government_depts.append(unicode(line.strip()))
 
-department_agency_abbreviations = {'DCSF':'Department for Children, Schools and Families', 'VLA':'Vetinary Laboratories Agency', 'MFA':'Marine and Fisheries Agency', 'CEFAS':'Centre of Environment, Fisheries and Aquaculture Science', 'FERA':'Food and Environment Research Agency', 'DEFRA':'Department for Environment, Food and Rural Affairs', 'CRB':'Criminal Records Bureau', 'UKBA':'UK Border Agency', 'IPS':'Identity and Passport Service', 'NPIA':'National Policing Improvement Agency', 'CIB':'Company Investigation Branch', 'IPO':'Intellectual Property Office', 'SFO':'Serious Fraud Office', 'HM Revenue and Customs':"Her Majesty's Revenue and Customs", 'HM Treasury':"Her Majesty's Treasury"}
+department_agency_abbreviations = {'DCSF':'Department for Children, Schools and Families', 'VLA':'Vetinary Laboratories Agency', 'MFA':'Marine and Fisheries Agency', 'CEFAS':'Centre of Environment, Fisheries and Aquaculture Science', 'FERA':'Food and Environment Research Agency', 'DEFRA':'Department for Environment, Food and Rural Affairs', 'Department for the Environment, Food and Rural Affairs':'Department for Environment, Food and Rural Affairs', 'CRB':'Criminal Records Bureau', 'UKBA':'UK Border Agency', 'IPS':'Identity and Passport Service', 'NPIA':'National Policing Improvement Agency', 'CIB':'Company Investigation Branch', 'IPO':'Intellectual Property Office', 'SFO':'Serious Fraud Office', 'HM Revenue and Customs':"Her Majesty's Revenue and Customs", 'HM Treasury':"Her Majesty's Treasury", 'DfT':'Department for Transport', }
 
 geographic_granularity_options = ['national', 'regional', 'local authority', 'ward', 'point']
 
@@ -112,7 +112,7 @@ class TagSuggester(object):
                 for keyword in tag_pool:
                     if keyword in text:
                         tags.add(tag_munge(keyword))
-        return list(tags)
+        return tags
 
 suggest_tags = TagSuggester.suggest_tags
 

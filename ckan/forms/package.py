@@ -185,17 +185,14 @@ class ExtrasRenderer(formalchemy.fields.FieldRenderer):
         return extra_fields
     
 class LicenseRenderer(formalchemy.fields.FieldRenderer):
-    def render(self, options, **kwargs):
+
+    def render(self, **kwargs):
         selected = unicode(kwargs.get('selected', None) or self._value)
-        options = [('', None)] + [(x, unicode(model.License.by_name(x).id)) for x in model.LicenseList.all_formatted]
+        options = [('', None)] + model.Package.get_license_options()
         return literal(h.select(self.name, h.options_for_select(options, selected=selected), **kwargs))
 
     def render_readonly(self, **kwargs):
-        if self._value:
-            license_name = model.Session.query(model.License).get(int(self._value)).name
-        else:
-            license_name = ''
-        return common.field_readonly_renderer(self.field.key, license_name)
+        return common.field_readonly_renderer(self.field.key, self._value)
 
 
 class TagEditRenderer(formalchemy.fields.FieldRenderer):
@@ -396,7 +393,7 @@ def get_package_fs_options(fs):
         fs.name.label('Short Unique Name (required)'
             ).with_renderer(common.CustomTextFieldRenderer
                 ).validate(package_name_validator),
-        fs.license.with_renderer(LicenseRenderer),
+        fs.license_id.with_renderer(LicenseRenderer),
         fs.title.with_renderer(common.CustomTextFieldRenderer),
         fs.version.with_renderer(common.CustomTextFieldRenderer),
         fs.url.with_renderer(common.CustomTextFieldRenderer),
@@ -409,7 +406,7 @@ def get_package_fs_options(fs):
 def get_package_fs_include(fs, extras=True, is_admin=False):
     pkgs = [fs.name, fs.title, fs.version, fs.url, fs.resources,
             fs.author, fs.author_email, fs.maintainer, fs.maintainer_email,
-            fs.license, fs.tags, fs.notes, ]
+            fs.license_id, fs.tags, fs.notes, ]
     if is_admin:
         pkgs.append(fs.state)
     if extras:
@@ -473,7 +470,7 @@ def get_package_dict(pkg=None, blank=False, fs=None):
                 if field.renderer.name.endswith('-tags'):
                     indict[field.renderer.name] = ' '.join([tag.name for tag in pkg.tags]) if pkg else ''
                 if field.renderer.name.endswith('-resources'):
-                    indict[field.renderer.name] = [{'url':res.url, 'format':res.format, 'description':res.description, 'hash':res.hash} for res in pkg.resources] if pkg else []
+                    indict[field.renderer.name] = [{u'url':res.url, u'format':res.format, u'description':res.description, u'hash':res.hash} for res in pkg.resources] if pkg else []
         
     return indict
 
@@ -492,6 +489,8 @@ def edit_package_dict(dict_, changed_items, id=''):
     tags_key = prefix + 'tags'
     resources_key = prefix + 'resources'
     download_url_key = prefix + 'download_url'
+    license_key = prefix + 'license'
+    license_id_key = prefix + 'license_id'
     for key, value in changed_items.items():
         if key:
             if not key.startswith(prefix):
@@ -520,6 +519,10 @@ def edit_package_dict(dict_, changed_items, id=''):
             elif key == download_url_key:
                 dict_[resources_key].insert(0, (value, u'', u'', u''))
                 # blank format, description and hash
+            elif key == license_id_key:
+                dict_[license_id_key] = unicode(value)
+            elif key == license_key:
+                dict_[license_id_key] = unicode(value)
     return dict_
 
 def add_to_package_dict(dict_, changed_items, id=''):
