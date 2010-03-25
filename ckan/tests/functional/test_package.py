@@ -926,7 +926,7 @@ class TestRevisions(TestController):
         self.pkg1 = model.Package.by_name(self.name)        
 
     @classmethod
-    def _teardown_class(self):
+    def teardown_class(self):
         rev = model.repo.new_revision()
         pkg1 = model.Package.by_name(self.name)
         pkg1.purge()
