@@ -55,8 +55,6 @@ class TestForms(TestController):
         fs = fs.bind(anna)
         out = fs.notes.render()
         print out
-        import genshi
-        genshi.HTML(out)
 
     def test_2_name(self):
         fs = ckan.forms.package_fs
@@ -278,8 +276,8 @@ class TestValidation:
         prefix = 'Package-%s-' % anna.id
         indict = _get_blank_param_dict(anna)
 
-        good_names = [ 'blah', 'ab', 'ab1', 'some-random-made-up-name', 'has_underscore' ]
-        bad_names = [ '', 'blAh', 'a', 'annakarenina', 'dot.in.name', u'unicode-\xe0', 'percent%' ]
+        good_names = [ 'blah', 'ab', 'ab1', 'some-random-made-up-name', 'has_underscore', 'annakarenina' ]
+        bad_names = [ '', 'blAh', 'a', 'dot.in.name', u'unicode-\xe0', 'percent%' ]
 
         for i, name in enumerate(good_names):
             print "Good name:", i

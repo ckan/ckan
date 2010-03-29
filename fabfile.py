@@ -28,7 +28,7 @@ from fabric.contrib.files import *
 # defaults
 env.ckan_instance_name = 'test' # e.g. test.ckan.net
 env.base_dir = os.getcwd() # e.g. /home/jsmith/var/srvc
-env.local_backup_dir = '~/db_backup'
+env.local_backup_dir = os.path.expanduser('~/db_backup')
 env.ckan_repo = 'http://knowledgeforge.net/ckan/hg/raw-file/tip/'
 env.pip_requirements = 'pip-requirements.txt'
 env.skip_setup_db = False
@@ -113,7 +113,8 @@ def _setup():
     _default('config_ini_filename', '%s.ini' % env.ckan_instance_name)
     _default('instance_path', os.path.join(env.base_dir,
         env.ckan_instance_name))
-    _default('local_backup_dir', os.path.expanduser(env.local_backup_dir))
+    if hasattr(env, 'local_backup_dir'):
+        env.local_backup_dir = os.path.expanduser(env.local_backup_dir)
     _default('pyenv_dir', os.path.join(env.instance_path, 'pyenv'))
     _default('serve_url', env.ckan_instance_name)
     _default('wsgi_script_filepath', os.path.join(env.pyenv_dir, 'bin', '%s.py'
@@ -254,9 +255,9 @@ def backup():
         local_backup_dir = os.path.join(env.local_backup_dir, env.host_string)
         if not os.path.exists(local_backup_dir):
             os.makedirs(local_backup_dir)
-        get(zipped_pg_dump_filepath, local_backup_dir)
-        # unzip it
         local_zip_filepath = os.path.join(local_backup_dir, pg_dump_filename) + '.gz'
+        get(zipped_pg_dump_filepath, local_zip_filepath)
+        # unzip it
         subprocess.check_call('gunzip %s' % local_zip_filepath, shell=True)
         local_filepath = os.path.join(local_backup_dir, pg_dump_filename)
         print 'Backup saved locally: %s' % local_filepath

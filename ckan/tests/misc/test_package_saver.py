@@ -25,8 +25,7 @@ class TestPreview(TestController):
         }
 
     def test_new(self):
-        fs = ckan.forms.get_fieldset(is_admin=False, basic=False,
-                package_form='')
+        fs = ckan.forms.get_standard_fieldset(is_admin=False)
         data = ckan.forms.add_to_package_dict(
             ckan.forms.get_package_dict(fs=fs), self.params)
         fs = fs.bind(model.Package, data=data)
@@ -51,8 +50,7 @@ class TestPreview(TestController):
             )
 
         pkg = model.Package.by_name(u'name_before')
-        fs = ckan.forms.get_fieldset(is_admin=False, basic=False,
-                package_form='')
+        fs = ckan.forms.get_standard_fieldset(is_admin=False)
         data =  ckan.forms.add_to_package_dict(
                 ckan.forms.get_package_dict(pkg=pkg, fs=fs), self.params,
                     pkg.id)
