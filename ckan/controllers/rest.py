@@ -218,7 +218,7 @@ class RestController(BaseController):
                 request_fa_dict = ckan.forms.edit_group_dict(orig_entity_dict, request_data, id=entity.id)
                 fs = ckan.forms.group_fs_combined
             fs = fs.bind(entity, data=request_fa_dict)
-            validation = fs.validate_on_edit(entity.name, entity.id)
+            validation = fs.validate()
             if not validation:
                 response.status_int = 409
                 return simplejson.dumps(repr(fs.errors))

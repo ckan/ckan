@@ -9,6 +9,9 @@ import formalchemy.config
 
 from formalchemy import Field
 from sqlalchemy import types
+
+__all__ = ['package_authz_fs', 'group_authz_fs', 'new_package_roles_fs', 'new_group_roles_fs']
+
 def get_package_linker(action):
     return lambda item: '<a href="%s" title="%s"><img src="http://m.okfn.org/kforge/images/icon-delete.png" alt="%s" class="icon" /></a>' % (
                         ckan_h.url_for(controller='package',

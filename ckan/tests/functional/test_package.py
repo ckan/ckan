@@ -802,7 +802,9 @@ class TestNew(TestPackageForm):
         offset = url_for(controller='package', action='new', package_form=package_form)
         res = self.app.get(offset)
         assert 'Packages - New' in res
+        prefix = 'Package--'
         fv = res.forms[0]
+        fv[prefix + 'name'] = 'anything'
         del fv.fields['log_message']
         res = fv.submit('commit', status=400)
 
@@ -810,8 +812,12 @@ class TestNew(TestPackageForm):
         res = self.app.get(offset)
         assert 'Packages - New' in res
         fv = res.forms[0]
+        fv[prefix + 'name'] = 'anything'
         prefix = 'Package--'
-        del fv.fields[prefix + 'license_id']
+        del fv.fields[prefix + 'notes']
+        # NOTE Missing dropdowns fields don't cause KeyError in
+        # _serialized_value so don't register as an error here like
+        # text field tested here.
         res = fv.submit('commit', status=400)     
 
 class TestNewPreview(TestController):

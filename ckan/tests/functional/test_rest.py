@@ -401,8 +401,6 @@ class TestRest(TestController):
                     extra_environ=self.extra_environ)
             model.Session.remove()
             group = model.Group.by_name(self.testgroupvalues['name'])
-            rev = model.repo.new_revision()
-            model.repo.commit_and_remove()
         assert group
         assert len(group.packages) == 2, group.packages
         user = model.User.by_name(self.random_name)

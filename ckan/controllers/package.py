@@ -119,7 +119,8 @@ class PackageController(BaseController):
 
         is_admin = self.authorizer.is_sysadmin(c.user)
 
-        fs = ckan.forms.get_fieldset(is_admin=is_admin, basic=False, package_form=request.params.get('package_form'))
+        fs = ckan.forms.registry.get_fieldset(is_admin=is_admin,
+                         package_form=request.params.get('package_form'))
         if 'commit' in request.params or 'preview' in request.params:
             if not request.params.has_key('log_message'):
                 abort(400, ('Missing parameter: log_message'))
@@ -189,7 +190,8 @@ class PackageController(BaseController):
             abort(401, str(gettext('User %r not authorized to edit %s') % (c.user, id)))
 
         c.auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, pkg)
-        fs = ckan.forms.get_fieldset(is_admin=c.auth_for_change_state, basic=False, package_form=request.params.get('package_form'))
+        fs = ckan.forms.registry.get_fieldset(is_admin=c.auth_for_change_state,
+                       package_form=request.params.get('package_form'))
 
         if 'commit' in request.params or 'preview' in request.params:
             if not request.params.has_key('log_message'):

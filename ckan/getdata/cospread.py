@@ -6,6 +6,7 @@ import sqlalchemy
 
 import ckan.model as model
 from ckan.lib import schema_gov
+from ckan.lib import field_types
 
 class Data(object):
     def load_csv_into_db(self, csv_filepath):
@@ -167,7 +168,7 @@ class Data(object):
         
         for column in ['date released', 'date updated']:
             try:
-                val = schema_gov.DateType.form_to_db(_dict[column])
+                val = field_types.DateType.form_to_db(_dict[column])
             except TypeError, e:
                 print "WARNING: Value for column '%s' of '%s' is not understood as a date format." % (column, _dict[column])
                 val = _dict[column]

@@ -86,7 +86,7 @@ class GroupController(BaseController):
 
         if request.params:
             data = ckan.forms.edit_group_dict(ckan.forms.get_group_dict(), request.params)
-            fs = fs.bind(data=data)
+            fs = fs.bind(data=data, session=model.Session)
         c.form = self._render_edit_form(fs)
         return render('group/new')
 
@@ -197,7 +197,7 @@ class GroupController(BaseController):
         Writes the POST data (associated with a group edit) to the database
         @input c.error
         '''
-        validation = fs.validate_on_edit(group_name, group_id)
+        validation = fs.validate()
         if not validation:
             errors = []            
             for field, err_list in fs.errors.items():

@@ -67,6 +67,11 @@ setup(
     sysadmin = ckan.lib.cli:Sysadmin
     create-search-index = ckan.lib.cli:CreateSearchIndex
     ratings = ckan.lib.cli:Ratings
+
+    [ckan.forms]
+    standard = ckan.forms.package:get_standard_fieldset
+    gov = ckan.forms.package_gov:get_gov_fieldset
+    test = ckan.forms.test:get_fieldset
     """,
     # setup.py test command needs a TestSuite so does not work with py.test
     # test_suite = 'nose.collector',

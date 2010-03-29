@@ -57,7 +57,7 @@ class TestForm(TestController):
             (fs.author_email, 'statistics@dcsf.gsi.gov.uk'),
             (fs.maintainer, '', ''),
             (fs.maintainer_email, '', ''),
-            (fs.license_id, u'ukcrown'),
+            (fs.license_id, u'Non-OKD Compliant::UK Crown Copyright'),
             ]
         for vals in expected_values:
             if len(vals) == 2:
@@ -65,9 +65,7 @@ class TestForm(TestController):
                 expected_render_readonly_str = vals[1]
             else:
                 field, expected_render_str, expected_render_readonly_str = vals
-            if expected_render_readonly_str == '':
-                expected_render_readonly_str = '> <'
-            if isinstance(field.renderer, ckan.forms.SelectRenderer):
+            if isinstance(field.renderer, ckan.forms.common.SuggestedTextExtraField.SelectRenderer):
                 if expected_render_str.startswith('other='):
                     expected_render_str = 'other" type="text" value="' + expected_render_str.strip('other=')
                     expected_render_readonly_str = expected_render_readonly_str.strip('other=')

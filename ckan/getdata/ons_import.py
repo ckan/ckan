@@ -6,6 +6,7 @@ import logging
 
 import ckan.model as model
 from ckan.lib import schema_gov
+from ckan.lib import field_types
 
 guid_prefix = 'http://www.statistics.gov.uk/'
 
@@ -89,7 +90,7 @@ class Data(object):
         date_released = u''
         if item['pubDate']:
             try:
-                date_released = schema_gov.DateType.iso_to_db(item['pubDate'], '%a, %d %b %Y %H:%M:%S %Z')
+                date_released = field_types.DateType.iso_to_db(item['pubDate'], '%a, %d %b %Y %H:%M:%S %Z')
             except TypeError, e:
                 self._log(logging.warning, 'Warning: Could not read format of publication (release) date: %r' % e.args)
         extras['date_released'] = date_released

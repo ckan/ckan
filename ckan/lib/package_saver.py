@@ -90,7 +90,7 @@ class PackageSaver(object):
         revision_errors = cls._revision_validation(log_message)
         if revision_errors:
             validation_errors.extend(revision_errors)
-        fs_validation = fs.validate_on_edit(original_name, pkg_id)
+        fs_validation = fs.validate()
         if not fs_validation:
             for field, err_list in fs.errors.items():
                 validation_errors.append("%s: %s" % (field.name, ";".join(err_list)))
