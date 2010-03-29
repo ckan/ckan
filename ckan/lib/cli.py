@@ -1,5 +1,6 @@
 import os
 import sys
+import logging
 
 import paste.script
 
@@ -57,14 +58,21 @@ class ManageDb(CkanCommand):
     min_args = 1
 
     def command(self):
+        # Avoids vdm logging warning
+        logging.basicConfig(level=logging.ERROR)
+        
         self._load_config()
         from ckan import model
 
         cmd = self.args[0]
         if cmd == 'create':
             model.repo.create_db()
+            if self.verbose:
+                print 'Creating DB: SUCCESS'
         elif cmd == 'init':
             model.repo.init_db()
+            if self.verbose:
+                print 'Initialising DB: SUCCESS'
         elif cmd == 'clean' or cmd == 'drop':
             model.repo.clean_db()
             if self.verbose:
