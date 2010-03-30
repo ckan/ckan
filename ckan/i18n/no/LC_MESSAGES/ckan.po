@@ -882,7 +882,7 @@ msgid ""
 "    home page is here:"
 msgstr ""
 ", og her er prosjektets\n"
-" hjemmeside:"
+" hjemmeside: "
 
 #: ckan/templates/home/license.html:16
 msgid "http://knowledgeforge.net/project/ckan/"
