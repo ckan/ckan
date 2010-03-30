@@ -92,8 +92,11 @@ class Changeset(ChangesetDomainObject):
         changes_data = [c.as_dict() for c in self.changes]
         changeset_data = {
             'id': self.id,
+            'follows_id': self.follows_id,
+            'closes_id': self.closes_id,
             'meta': meta_data,
             'changes': changes_data,
+            'timestamp': self.timestamp.isoformat(),
         }
         return changeset_data
 
