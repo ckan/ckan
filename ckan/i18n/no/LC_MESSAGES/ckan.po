@@ -2,19 +2,19 @@
 # Copyright (C) 2010 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: ckan 1.0a\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2010-02-27 14:18+0100\n"
-"PO-Revision-Date: 2010-03-08 15:26+0000\n"
+"PO-Revision-Date: 2010-03-30 15:11+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: no <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "Generated-By: Babel 0.9.4\n"
 
 #: ckan/controllers/group.py:30
@@ -326,63 +326,67 @@ msgstr "Grupper"
 msgid "Recent changes"
 msgstr "Siste endringer"
 
-#: ckan/templates/layout.html:68
+#: ckan/templates/layout.html:67
+msgid "API"
+msgstr ""
+
+#: ckan/templates/layout.html:69
 msgid "In this section:"
 msgstr "I denne seksjonen:"
 
-#: ckan/templates/layout.html:79
+#: ckan/templates/layout.html:80
 msgid "Skip to page content"
 msgstr "Gå til sideinnhold"
 
-#: ckan/templates/layout.html:79
+#: ckan/templates/layout.html:80
 msgid "[ Skip to main content ]"
 msgstr "[ Gå til hovedinnhold ]"
 
-#: ckan/templates/layout.html:93
+#: ckan/templates/layout.html:94
 msgid "Master content template placeholder … please replace me."
 msgstr "Plassholder for hovedmal for innhold - vennligst erstatt"
 
-#: ckan/templates/layout.html:98
+#: ckan/templates/layout.html:99
 msgid "Valid XHTML 1.1"
 msgstr "Gyldig XHTML 1.1"
 
-#: ckan/templates/layout.html:98
+#: ckan/templates/layout.html:99
 msgid "XHTML"
 msgstr "XHTML"
 
-#: ckan/templates/layout.html:99
+#: ckan/templates/layout.html:100
 msgid "CSS"
 msgstr "CSS"
 
-#: ckan/templates/layout.html:100
+#: ckan/templates/layout.html:101
 msgid "Project Home Page"
 msgstr "Prosjektets startside"
 
-#: ckan/templates/layout.html:101
+#: ckan/templates/layout.html:102
 msgid "Contact Us"
 msgstr "Kontakt oss"
 
-#: ckan/templates/layout.html:102
+#: ckan/templates/layout.html:103
 msgid "Privacy Policy"
 msgstr "Retningslinjer for personvern"
 
-#: ckan/templates/layout.html:105
+#: ckan/templates/layout.html:106
 msgid "An"
 msgstr "Et prosjekt fra"
 
-#: ckan/templates/layout.html:105 ckan/templates/home/about.html:46
+#: ckan/templates/layout.html:106 ckan/templates/home/about.html:46
 msgid "Open Knowledge Foundation"
 msgstr "Open Knowledge Foundation"
 
-#: ckan/templates/layout.html:105
+#: ckan/templates/layout.html:106
 msgid "Project"
 msgstr " "
 
-#: ckan/templates/layout.html:107
+#: ckan/templates/layout.html:108
 msgid "v"
 msgstr "v"
 
-#: ckan/templates/layout.html:108
+#: ckan/templates/layout.html:109
 msgid ""
 "| (c) Open Knowledge Foundation\n"
 "\t| All material available under an"
@@ -390,11 +394,11 @@ msgstr ""
 "| (c) Open Knowledge Foundation\n"
 "\t| Alt materiale tilgjengelig under en"
 
-#: ckan/templates/layout.html:110 ckan/templates/package/search_form.html:7
+#: ckan/templates/layout.html:111 ckan/templates/package/search_form.html:7
 msgid "open license"
 msgstr "åpen lisens"
 
-#: ckan/templates/layout.html:111
+#: ckan/templates/layout.html:112 ckan/templates/layout.html:116
 msgid "This Content and Data is Open"
 msgstr "Innhold og data er åpne"
 
@@ -456,16 +460,25 @@ msgid "Groups section"
 msgstr "Gruppeseksjon"
 
 #: ckan/templates/group/layout.html:11
-msgid "Whilst tags are great at collecting packages together, there are occasions when you want to restrict users from editing a collection. A"
-msgstr "Selv om stikkord (tags) egner seg glimrende til å samle pakker, kan det også hende at du ønsker å begrense brukernes adgang til å redigere en samling. En"
+msgid ""
+"Whilst tags are great at collecting packages together, there are "
+"occasions when you want to restrict users from editing a collection. A"
+msgstr ""
+"Selv om stikkord (tags) egner seg glimrende til å samle pakker, kan det "
+"også hende at du ønsker å begrense brukernes adgang til å redigere en "
+"samling. En"
 
 #: ckan/templates/group/layout.html:11
 msgid "group"
 msgstr "gruppe"
 
 #: ckan/templates/group/layout.html:11
-msgid "can be set-up to specify which users have permission to add or remove packages from it."
-msgstr "kan bli satt opp til å spesifisere hvilke brukere som har tillatelse til å legge til eller fjerne pakker fra den."
+msgid ""
+"can be set-up to specify which users have permission to add or remove "
+"packages from it."
+msgstr ""
+"kan bli satt opp til å spesifisere hvilke brukere som har tillatelse til "
+"å legge til eller fjerne pakker fra den."
 
 #: ckan/templates/group/layout.html:12
 msgid "To create a new group, please first"
@@ -570,7 +583,8 @@ msgid ""
 "As the diagram shows, CKAN combines the features of a listing/registry,\n"
 "\t\ta package index and a wiki. As a registry it acts like"
 msgstr ""
-"Som diagrammet viser, kombinerer CKAN funksjonene i et register, en liste,\n"
+"Som diagrammet viser, kombinerer CKAN funksjonene i et register, en "
+"liste,\n"
 "\t\t en pakkeindeks og en wiki. Som register fungerer det som"
 
 #: ckan/templates/home/about.html:24
@@ -583,7 +597,8 @@ msgid ""
 "\t\tcontent resources. However it adds to a simple registry in key ways."
 msgstr ""
 ", men tar for seg åpne data og\n"
-"\t\tinnholdsressurser. I forhold til et vanlig register har CKAN avgjørende fordeler."
+"\t\tinnholdsressurser. I forhold til et vanlig register har CKAN "
+"avgjørende fordeler."
 
 #: ckan/templates/home/about.html:27
 msgid "First, thanks to its underlying"
@@ -596,15 +611,21 @@ msgstr "versjonert domenemodell"
 #: ckan/templates/home/about.html:28
 msgid ""
 "CKAN has a\n"
-"\t\twiki-like interface that lets anyone add and material held in it. Second,\n"
-"\t\tand unlike a wiki, CKAN can store 'structured' information, which allows it\n"
-"\t\tto provide 'index'-like features such as automated registration, discovery\n"
+"\t\twiki-like interface that lets anyone add and material held in it. "
+"Second,\n"
+"\t\tand unlike a wiki, CKAN can store 'structured' information, which "
+"allows it\n"
+"\t\tto provide 'index'-like features such as automated registration, "
+"discovery\n"
 "\t\tand installation of material. In this respect it behaves like"
 msgstr ""
 "har CKAN et \n"
-"\t\twiki-lignende grensesnitt som lar alle legge til og redigere det lagrede innholdet. For det andre: \n"
-"\t\ttil forskjell fra en wiki, kan CKAN lagre 'strukturert' informasjon, som gjør det mulig\n"
-"\t\tå tilby 'indeks'-aktige funksjoner som automatisert registrering, oppdagelse\n"
+"\t\twiki-lignende grensesnitt som lar alle legge til og redigere det "
+"lagrede innholdet. For det andre: \n"
+"\t\ttil forskjell fra en wiki, kan CKAN lagre 'strukturert' informasjon, "
+"som gjør det mulig\n"
+"\t\tå tilby 'indeks'-aktige funksjoner som automatisert registrering, "
+"oppdagelse\n"
 "\t\t og installasjon av materiale. På denne måten oppfører det seg som"
 
 #: ckan/templates/home/about.html:33
@@ -692,7 +713,9 @@ msgid "Contributors"
 msgstr "Bidragsytere"
 
 #: ckan/templates/home/about.html:54
-msgid "Various people and projects have contributed to the development of CKAN including:"
+msgid ""
+"Various people and projects have contributed to the development of CKAN "
+"including:"
 msgstr "Mange personer og prosjekter har bidratt til utviklingen av CKAN:"
 
 #: ckan/templates/home/about.html:56
@@ -752,12 +775,27 @@ msgid "Bookmarklet for Adding Packages"
 msgstr "Snarvei for å legge til pakker"
 
 #: ckan/templates/home/guide.html:10
-msgid "Want to automate creating a package from the info in a webpage? You can use the CKAN bookmarklet. This will automatically extract information such as url, title and a description and send it off to the new package form (where you can then edit further)."
-msgstr "Ønsker du å automatisere prosessen med å opprette pakker basert på innhold på en webside? Da kan du bruke CKANs bookmarklet. Den vil automatisk hente ut informasjon som URL, tittel og beskrivelse og sende den til skjemaet for den nye pakken (hvor du kan fortsette å redigere)."
+msgid ""
+"Want to automate creating a package from the info in a webpage? You can "
+"use the CKAN bookmarklet. This will automatically extract information "
+"such as url, title and a description and send it off to the new package "
+"form (where you can then edit further)."
+msgstr ""
+"Ønsker du å automatisere prosessen med å opprette pakker basert på "
+"innhold på en webside? Da kan du bruke CKANs bookmarklet. Den vil "
+"automatisk hente ut informasjon som URL, tittel og beskrivelse og sende "
+"den til skjemaet for den nye pakken (hvor du kan fortsette å redigere)."
 
 #: ckan/templates/home/guide.html:11
-msgid "To install the bookmarklet just drag the following link to your bookmarks toolbar (in IE: right-click on it and select Add to Favourites). For more details on installing bookmarklets see"
-msgstr "For å installere bookmarklet-en er det bare å dra denne lenken til verktøylinjen for dine bokmerker (i Internet Explorer: høyreklikk på lenken og velg Legg til i Favoritter). Flere detaljer om å installere bookmarklets finner du på"
+msgid ""
+"To install the bookmarklet just drag the following link to your bookmarks"
+" toolbar (in IE: right-click on it and select Add to Favourites). For "
+"more details on installing bookmarklets see"
+msgstr ""
+"For å installere bookmarklet-en er det bare å dra denne lenken til "
+"verktøylinjen for dine bokmerker (i Internet Explorer: høyreklikk på "
+"lenken og velg Legg til i Favoritter). Flere detaljer om å installere "
+"bookmarklets finner du på"
 
 #: ckan/templates/home/guide.html:11
 msgid "the del.icio.us help page on the topic"
@@ -775,9 +813,9 @@ msgstr ""
 "Finn ut mer om CKAN på våre Om-sider eller i \n"
 " CKAN-guiden."
 
-#: ckan/templates/home/index.html:46 ckan/templates/home/layout.html:12
-msgid "Help"
-msgstr "Hjelp"
+#: ckan/templates/home/index.html:46
+msgid "Development »"
+msgstr ""
 
 #: ckan/templates/home/index.html:52
 msgid "Welcome to CKAN"
@@ -933,8 +971,16 @@ msgstr ""
 " Attribution Share-Alike v3.0 license"
 
 #: ckan/templates/home/license.html:28
-msgid "For convenience, all material - including all package, tag and revision information - is available in bulk, in the form of a full dump of the CKAN database. This (gzipped) dump file is updated daily and can be downloaded from"
-msgstr "Av praktiske hensyn er alt materiale - inkludert all informasjon om pakker, stikkord (tags) og revisjoner - tilgjengelig i sin helhet, som en kopi av hele CKAN-databasen. Denne databasedump-filen (komprimert med gzip) blir oppdatert daglig og kan lastes ned fra"
+msgid ""
+"For convenience, all material - including all package, tag and revision "
+"information - is available in bulk, in the form of a full dump of the "
+"CKAN database. This (gzipped) dump file is updated daily and can be "
+"downloaded from"
+msgstr ""
+"Av praktiske hensyn er alt materiale - inkludert all informasjon om "
+"pakker, stikkord (tags) og revisjoner - tilgjengelig i sin helhet, som en"
+" kopi av hele CKAN-databasen. Denne databasedump-filen (komprimert med "
+"gzip) blir oppdatert daglig og kan lastes ned fra"
 
 #: ckan/templates/home/license.html:29
 msgid "http://www.ckan.net/dump/"
@@ -1388,7 +1434,8 @@ msgid ""
 "This page lists all changes to package database, with most recent\n"
 "    changes first. It is also available as an"
 msgstr ""
-"Denne siden lister alle endringer i pakkedatabasen, med de siste endringene\n"
+"Denne siden lister alle endringer i pakkedatabasen, med de siste "
+"endringene\n"
 " først. Den er også tilgjengelig som en"
 
 #: ckan/templates/revision/list.html:9
@@ -1500,8 +1547,7 @@ msgstr "Rediger bruker:"
 msgid "About user:"
 msgstr "Om bruker:"
 
-#: ckan/templates/user/login_form.html:7
-#: ckan/templates/user/openid_form.html:7
+#: ckan/templates/user/login_form.html:7 ckan/templates/user/openid_form.html:7
 msgid "Login"
 msgstr "Innlogging"
 
@@ -1526,8 +1572,12 @@ msgid "You have logged out successfully."
 msgstr "Du har logget ut på korrekt måte."
 
 #: ckan/templates/user/openid_form.html:8
-msgid "You don't need to sign up for yet another account to use CKAN. Instead you can just"
-msgstr "Du trenger ikke å registrere enda en ny konto for å bruke CKAN. Istedenfor kan du bare"
+msgid ""
+"You don't need to sign up for yet another account to use CKAN. Instead "
+"you can just"
+msgstr ""
+"Du trenger ikke å registrere enda en ny konto for å bruke CKAN. "
+"Istedenfor kan du bare"
 
 #: ckan/templates/user/openid_form.html:8
 msgid "use your OpenID"
@@ -1593,3 +1643,7 @@ msgstr "Antall redigeringer:"
 #: ckan/templates/user/read.html:31
 msgid "Number of packages administered:"
 msgstr "Antall pakker administrert:"
+
+#~ msgid "Help"
+#~ msgstr "Hjelp"
+

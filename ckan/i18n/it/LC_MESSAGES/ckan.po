@@ -1,21 +1,20 @@
-# Translations template for ckan.
+# Italian translations for ckan.
 # Copyright (C) 2010 Open Knowledge Foundation
 # This file is distributed under the same license as the ckan project.
 # Stefano Costa <steko@iosa.it>, 2010.
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: ckan 1.0a\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2010-02-27 14:18+0100\n"
-"PO-Revision-Date: 2010-03-30 12:34+0100\n"
+"PO-Revision-Date: 2010-03-30 15:11+0100\n"
 "Last-Translator: Stefano Costa <steko@iosa.it>\n"
 "Language-Team: Italian\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Poedit-Language: Italian\n"
 "Generated-By: Babel 0.9.4\n"
 
 #: ckan/controllers/group.py:30
@@ -106,7 +105,9 @@ msgstr "Errore con l'account utente. Esci ed entra di nuovo."
 #: ckan/controllers/importer.py:167
 #, python-format
 msgid "Package %s already exists in database. Import will edit the fields."
-msgstr "Il pacchetto %s esiste già nel database. L'importazione modificherà i campi."
+msgstr ""
+"Il pacchetto %s esiste già nel database. L'importazione modificherà i "
+"campi."
 
 #: ckan/controllers/importer.py:170
 #, python-format
@@ -327,73 +328,77 @@ msgstr ""
 msgid "Recent changes"
 msgstr ""
 
-#: ckan/templates/layout.html:68
+#: ckan/templates/layout.html:67
+msgid "API"
+msgstr ""
+
+#: ckan/templates/layout.html:69
 msgid "In this section:"
 msgstr ""
 
-#: ckan/templates/layout.html:79
+#: ckan/templates/layout.html:80
 msgid "Skip to page content"
 msgstr ""
 
-#: ckan/templates/layout.html:79
+#: ckan/templates/layout.html:80
 msgid "[ Skip to main content ]"
 msgstr ""
 
-#: ckan/templates/layout.html:93
+#: ckan/templates/layout.html:94
 msgid "Master content template placeholder … please replace me."
 msgstr ""
 
-#: ckan/templates/layout.html:98
+#: ckan/templates/layout.html:99
 msgid "Valid XHTML 1.1"
 msgstr ""
 
-#: ckan/templates/layout.html:98
+#: ckan/templates/layout.html:99
 msgid "XHTML"
 msgstr ""
 
-#: ckan/templates/layout.html:99
+#: ckan/templates/layout.html:100
 msgid "CSS"
 msgstr ""
 
-#: ckan/templates/layout.html:100
+#: ckan/templates/layout.html:101
 msgid "Project Home Page"
 msgstr ""
 
-#: ckan/templates/layout.html:101
+#: ckan/templates/layout.html:102
 msgid "Contact Us"
 msgstr ""
 
-#: ckan/templates/layout.html:102
+#: ckan/templates/layout.html:103
 msgid "Privacy Policy"
 msgstr ""
 
-#: ckan/templates/layout.html:105
+#: ckan/templates/layout.html:106
 msgid "An"
 msgstr ""
 
-#: ckan/templates/layout.html:105 ckan/templates/home/about.html:46
+#: ckan/templates/layout.html:106 ckan/templates/home/about.html:46
 msgid "Open Knowledge Foundation"
 msgstr ""
 
-#: ckan/templates/layout.html:105
+#: ckan/templates/layout.html:106
 msgid "Project"
 msgstr ""
 
-#: ckan/templates/layout.html:107
+#: ckan/templates/layout.html:108
 msgid "v"
 msgstr ""
 
-#: ckan/templates/layout.html:108
+#: ckan/templates/layout.html:109
 msgid ""
 "| (c) Open Knowledge Foundation\n"
 "\t| All material available under an"
 msgstr ""
 
-#: ckan/templates/layout.html:110 ckan/templates/package/search_form.html:7
+#: ckan/templates/layout.html:111 ckan/templates/package/search_form.html:7
 msgid "open license"
 msgstr ""
 
-#: ckan/templates/layout.html:111
+#: ckan/templates/layout.html:112 ckan/templates/layout.html:116
 msgid "This Content and Data is Open"
 msgstr ""
 
@@ -455,7 +460,9 @@ msgid "Groups section"
 msgstr ""
 
 #: ckan/templates/group/layout.html:11
-msgid "Whilst tags are great at collecting packages together, there are occasions when you want to restrict users from editing a collection. A"
+msgid ""
+"Whilst tags are great at collecting packages together, there are "
+"occasions when you want to restrict users from editing a collection. A"
 msgstr ""
 
 #: ckan/templates/group/layout.html:11
@@ -463,7 +470,9 @@ msgid "group"
 msgstr ""
 
 #: ckan/templates/group/layout.html:11
-msgid "can be set-up to specify which users have permission to add or remove packages from it."
+msgid ""
+"can be set-up to specify which users have permission to add or remove "
+"packages from it."
 msgstr ""
 
 #: ckan/templates/group/layout.html:12
@@ -587,9 +596,12 @@ msgstr ""
 #: ckan/templates/home/about.html:28
 msgid ""
 "CKAN has a\n"
-"\t\twiki-like interface that lets anyone add and material held in it. Second,\n"
-"\t\tand unlike a wiki, CKAN can store 'structured' information, which allows it\n"
-"\t\tto provide 'index'-like features such as automated registration, discovery\n"
+"\t\twiki-like interface that lets anyone add and material held in it. "
+"Second,\n"
+"\t\tand unlike a wiki, CKAN can store 'structured' information, which "
+"allows it\n"
+"\t\tto provide 'index'-like features such as automated registration, "
+"discovery\n"
 "\t\tand installation of material. In this respect it behaves like"
 msgstr ""
 
@@ -670,7 +682,9 @@ msgid "Contributors"
 msgstr ""
 
 #: ckan/templates/home/about.html:54
-msgid "Various people and projects have contributed to the development of CKAN including:"
+msgid ""
+"Various people and projects have contributed to the development of CKAN "
+"including:"
 msgstr ""
 
 #: ckan/templates/home/about.html:56
@@ -730,11 +744,18 @@ msgid "Bookmarklet for Adding Packages"
 msgstr ""
 
 #: ckan/templates/home/guide.html:10
-msgid "Want to automate creating a package from the info in a webpage? You can use the CKAN bookmarklet. This will automatically extract information such as url, title and a description and send it off to the new package form (where you can then edit further)."
+msgid ""
+"Want to automate creating a package from the info in a webpage? You can "
+"use the CKAN bookmarklet. This will automatically extract information "
+"such as url, title and a description and send it off to the new package "
+"form (where you can then edit further)."
 msgstr ""
 
 #: ckan/templates/home/guide.html:11
-msgid "To install the bookmarklet just drag the following link to your bookmarks toolbar (in IE: right-click on it and select Add to Favourites). For more details on installing bookmarklets see"
+msgid ""
+"To install the bookmarklet just drag the following link to your bookmarks"
+" toolbar (in IE: right-click on it and select Add to Favourites). For "
+"more details on installing bookmarklets see"
 msgstr ""
 
 #: ckan/templates/home/guide.html:11
@@ -751,8 +772,8 @@ msgid ""
 "        CKAN guide."
 msgstr ""
 
-#: ckan/templates/home/index.html:46 ckan/templates/home/layout.html:12
-msgid "Help"
+#: ckan/templates/home/index.html:46
+msgid "Development »"
 msgstr ""
 
 #: ckan/templates/home/index.html:52
@@ -893,7 +914,11 @@ msgid ""
 msgstr ""
 
 #: ckan/templates/home/license.html:28
-msgid "For convenience, all material - including all package, tag and revision information - is available in bulk, in the form of a full dump of the CKAN database. This (gzipped) dump file is updated daily and can be downloaded from"
+msgid ""
+"For convenience, all material - including all package, tag and revision "
+"information - is available in bulk, in the form of a full dump of the "
+"CKAN database. This (gzipped) dump file is updated daily and can be "
+"downloaded from"
 msgstr ""
 
 #: ckan/templates/home/license.html:29
@@ -1444,8 +1469,7 @@ msgstr ""
 msgid "About user:"
 msgstr ""
 
-#: ckan/templates/user/login_form.html:7
-#: ckan/templates/user/openid_form.html:7
+#: ckan/templates/user/login_form.html:7 ckan/templates/user/openid_form.html:7
 msgid "Login"
 msgstr ""
 
@@ -1470,7 +1494,9 @@ msgid "You have logged out successfully."
 msgstr ""
 
 #: ckan/templates/user/openid_form.html:8
-msgid "You don't need to sign up for yet another account to use CKAN. Instead you can just"
+msgid ""
+"You don't need to sign up for yet another account to use CKAN. Instead "
+"you can just"
 msgstr ""
 
 #: ckan/templates/user/openid_form.html:8
@@ -1534,3 +1560,7 @@ msgstr "Numero di modifiche"
 #: ckan/templates/user/read.html:31
 msgid "Number of packages administered:"
 msgstr "Numero di pacchetti gestiti:"
+
+#~ msgid "Help"
+#~ msgstr ""
+
