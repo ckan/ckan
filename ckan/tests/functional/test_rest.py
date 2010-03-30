@@ -22,7 +22,9 @@ class TestRest(TestController):
         model.Session.add(model.Package(name=u'--'))
         rev = model.repo.new_revision()
         model.repo.commit_and_remove()
-
+        from ckan.model.changeset import ChangesetRegister
+        changesets = ChangesetRegister()
+        changesets.construct(rev)
 
     @classmethod
     def teardown_class(self):
@@ -45,7 +47,7 @@ class TestRest(TestController):
                            u'description':u'Second file',
                            u'hash':u'def123'},],
             'tags': [u'russion', u'novel'],
-            'license': self.testpackage_license_id,
+            'license_id': self.testpackage_license_id,
             'extras': {'genre' : u'horror',
                        'media' : u'dvd',
                        },
@@ -118,8 +120,7 @@ class TestRest(TestController):
         res = self.app.get(offset, status=[200])
         anna = model.Package.by_name(u'annakarenina')
         assert 'annakarenina' in res, res
-        assert 'license_id' not in res, res
-        assert '"license": "other-open"' in res, str(res)
+        assert '"license_id": "other-open"' in res, str(res)
         assert 'russian' in res, res
         assert 'tolstoy' in res, res
         assert '"extras": {' in res, res
@@ -182,7 +183,7 @@ class TestRest(TestController):
         assert pkg
         assert pkg.title == self.testpackagevalues['title'], pkg
         assert pkg.url == self.testpackagevalues['url'], pkg
-        assert pkg.license.id == self.testpackage_license_id, pkg
+        assert pkg.license_id == self.testpackage_license_id, pkg
         assert len(pkg.tags) == 2
         assert len(pkg.extras) == 2, len(pkg.extras)
         for key, value in self.testpackagevalues['extras'].items():
@@ -198,8 +199,7 @@ class TestRest(TestController):
         offset = '/api/rest/package/%s' % self.testpackagevalues['name']
         res = self.app.get(offset, status=[200])
         assert self.testpackagevalues['name'] in res, res
-        assert 'license_id' not in res, res
-        assert '"license": "%s"' % self.testpackagevalues['license'] in res, res
+        assert '"license_id": "%s"' % self.testpackagevalues['license_id'] in res, res
         assert self.testpackagevalues['tags'][0] in res, res
         assert self.testpackagevalues['tags'][1] in res, res
         assert '"extras": {' in res, res
@@ -597,6 +597,33 @@ class TestRest(TestController):
         res = self.app.get(offset, status=404)
         model.Session.remove()
 
+    def test_15_list_changesets(self):
+        offset = '/api/rest/changeset'
+        res = self.app.get(offset, status=[200])
+        from ckan.model.changeset import ChangesetRegister
+        changesets = ChangesetRegister()
+        assert len(changesets), "No changesets found in model."
+        for id in changesets:
+            assert id in res, "Didn't find changeset id '%s' in: %s" % (id, res)
+
+    def test_15_get_changeset(self):
+        from ckan.model.changeset import ChangesetRegister
+        changesets = ChangesetRegister()
+        assert len(changesets), "No changesets found in model."
+        for id in changesets:
+            offset = '/api/rest/changeset/%s' % id
+            res = self.app.get(offset, status=[200])
+            changeset_data = simplejson.loads(res.body)
+            assert 'id' in changeset_data, "No 'id' in changeset data: %s" % changeset_data
+            assert 'meta' in changeset_data, "No 'meta' in changeset data: %s" % changeset_data
+            assert 'changes' in changeset_data, "No 'changes' in changeset data: %s" % changeset_data
+
+    def test_15_get_changeset_404(self):
+        changeset_id = "xxxxxxxxxxxxxxxxxxxxxxxxxx"
+        offset = '/api/rest/changeset/%s' % changeset_id
+        res = self.app.get(offset, status=404)
+        model.Session.remove()
+
 
 class TestSearch(TestController):
     @classmethod
@@ -623,7 +650,7 @@ class TestSearch(TestController):
             'resources': [{u'url':u'http://blahblahblah.mydomain',
                            'format':'', 'description':''}],
             'tags': ['russion', 'novel'],
-            'license': u'gpl-3.0',
+            'license_id': u'gpl-3.0',
             'extras': {'national_statistic':'yes',
                        'geographic_coverage':'England, Wales'},
         }
@@ -765,7 +792,7 @@ class TestSearch(TestController):
                 break
         assert anna_rec['name'] == 'annakarenina', res_dict['results']
         assert anna_rec['title'] == 'A Novel By Tolstoy', anna_rec['title']
-        assert anna_rec['license'] == u'other-open', anna_rec['license']
+        assert anna_rec['license_id'] == u'other-open', anna_rec['license_id']
         assert len(anna_rec['tags']) == 2, anna_rec['tags']
         for expected_tag in ['russian', 'tolstoy']:
             assert expected_tag in anna_rec['tags']

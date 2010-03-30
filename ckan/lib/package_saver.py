@@ -87,6 +87,7 @@ class PackageSaver(object):
 
     @classmethod
     def _update(cls, fs, original_name, pkg_id, log_message, author, commit=True):
+        rev = None
         # validation
         validation_errors = []
         revision_errors = cls._revision_validation(log_message)
@@ -118,6 +119,9 @@ class PackageSaver(object):
                 # i.e. preview
                 pkg = fs.model
                 return pkg
+        if rev:
+            from ckan.model.changeset import ChangesetRegister
+            changeset = ChangesetRegister().construct(rev)
 
     @classmethod
     def _revision_validation(cls, log_message):

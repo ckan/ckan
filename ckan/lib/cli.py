@@ -470,3 +470,125 @@ class Ratings(CkanCommand):
         for rating in ratings:
             rating.purge()
         model.repo.commit_and_remove()
+
+class Changes(CkanCommand):
+    '''Distribute changes
+
+    Usage:
+      changes pull                  - pulls new changesets from changeset sources
+      changes incoming              - prints status of queued changesets
+      changes update                - updates repository for queued changes
+      changes merge                 - constructs mergeset from branch changes
+      changes show                  - prints details of a single changeset
+    '''
+
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    max_args = 2
+    min_args = 1
+
+    def command(self):
+        self._load_config()
+        from ckan import model
+        cmd = self.args[0]
+        if cmd == 'pull':
+            self.pull_sources()
+        elif cmd == 'incoming':
+            self.print_status()
+        elif cmd == 'update':
+            self.apply_queue()
+        elif cmd == 'show':
+            self.print_details(unicode(self.args[1]))
+        else:
+            print 'Command %s not recognized' % cmd
+
+    def pull_sources(self):
+        from pylons import config
+        sources = config.get('changes_source', '').strip()
+        if not sources:
+            print "No changes sources are configured here (try "
+            print "setting 'changes_source' in your config file)."
+            return
+        sources = [source.strip() for source in sources.split(',')]
+        for source in sources:
+            print "Pulling changes from: %s" % source
+            self.pull_source(source)
+            
+    def pull_source(self, source):
+        # Get foreign register of changes.
+        api_location = source.split('/api')[0] + '/api'
+        from ckanclient import CkanClient
+        ckan_service = CkanClient(base_location=api_location)
+        foreign_ids = ckan_service.changeset_register_get()
+        if foreign_ids == None:
+            msg = "Error pulling changes from: %s (CKAN service error: %s: %s)" % (source, ckan_service.last_url_error or "%s: %s" % (ckan_service.last_status, ckan_service.last_http_error), ckan_service.last_location)
+            raise Exception, msg
+        # Get local register of changes.
+        from ckan.model.changeset import ChangesetRegister
+        changeset_register = ChangesetRegister()
+        local_ids = changeset_register.keys()
+        # Get list of unseen changes.
+        unseen_ids = []
+        for changeset_id in foreign_ids:
+            if changeset_id not in local_ids:
+                unseen_ids.append(changeset_id)
+        print "There are %d new changesets." % len(unseen_ids)
+        # Pull unseen changes from foreign register.
+        unseen_changesets = []
+        for unseen_id in unseen_ids:
+            print "Pulling changeset %s..." % unseen_id
+            unseen_data = ckan_service.changeset_entity_get(unseen_id)
+            print "unseen changeset data: %s" % changeset_register.dumps(unseen_data)
+            changeset_id = changeset_register.queue_incoming(unseen_data)
+            if not changeset_id:
+                msg = "Error: Couldn't add changeset %s to the queue." % changeset_id
+                raise Exception, msg
+            if unseen_id != changeset_id:
+                msg = "Error: Queued changeset id mismatch (%s, %s)." % (unseen_id, changeset_id)
+                raise Exception, msg
+
+    def print_status(self):
+        from ckan.model.changeset import ChangesetRegister
+        changeset_register = ChangesetRegister()
+        for changeset in self.get_queue():
+            status_flag = ' '
+            if changeset.status:
+                status_flag = changeset.status[0].upper()
+            if status_flag == 'Q' and not changeset.is_conflicting():
+                status_flag = 'R'
+            if status_flag == 'A' and not changeset.revision_id:
+                status_flag = 'E'
+            changes_flag = ''
+            for change in changeset.changes:
+                diff = change.get_diff()
+                if diff.new:
+                    changes_flag = '+'*len(diff.new) + changes_flag
+                if diff.old:
+                    changes_flag = changes_flag + "-"*len(diff.old)
+            print '%s  %s  %s' % (status_flag, changeset.id, changes_flag)
+
+    def print_details(self, changeset_id):
+        from ckan.model.changeset import ChangesetRegister
+        changeset_register = ChangesetRegister()
+        changeset = changeset_register[changeset_id]
+        print changeset_register.dumps(changeset.as_dict())
+
+    def apply_queue(self):
+        from ckan.model.changeset import ChangesetRegister
+        changeset_register = ChangesetRegister()
+        queue = self.get_queue()
+        if not queue:
+            return
+        print "Applying queued changesets..."
+        for changeset in queue:
+            if not changeset.is_conflicting():
+                changeset.apply()
+                print "applied changeset '%s' OK" % changeset.id
+            else:
+                print "held back (conflicting) '%s'" % changeset.id
+
+    def get_queue(self):
+        from ckan.model.changeset import ChangesetRegister
+        register = ChangesetRegister()
+        return [c for c in register.values() if not c.revision_id]
+                
