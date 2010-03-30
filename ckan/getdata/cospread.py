@@ -139,6 +139,10 @@ class Data(object):
             _dict[field] = _dict['%s - other' % field] if \
                            _dict['%s - standard' % field] == 'Other (specify)' else \
                            _dict['%s - standard' % field]
+        if 'HESA' in _dict['licence']:
+            license_str = u'OKD Compliant::Higher Education Statistics Agency Copyright with data.gov.uk rights'
+        else:
+            license_str = u'OKD Compliant::UK Crown Copyright with data.gov.uk rights'
 
         # extras
         extras_dict = {}
@@ -199,8 +203,6 @@ class Data(object):
         
         extras_dict['national_statistic'] = _dict['national statistic'].lower()
         extras_dict['import_source'] = 'COSPREAD-%s' % self._current_filename
-
-
         for field in ['temporal_coverage_from', 'temporal_coverage_to']:
             extras_dict[field] = u''
 
@@ -237,7 +239,8 @@ class Data(object):
         for resource in resources:
             pkg.add_resource(resource['url'], format=format, description=resource['description'])
         pkg.notes=notes
-        pkg.license = model.License.by_name(u'Non-OKD Compliant::Crown Copyright')
+        pkg.license = model.License.by_name(license_str)
+        assert pkg.license
         if not existing_pkg:
             user = model.User.by_name(self._username)
 

@@ -430,7 +430,7 @@ class TestRank(object):
         model.repo.new_revision()
         for name, notes in self.data:
             pkg = model.Package(name=name, notes=notes)
-            model.Session.save(pkg)
+            model.Session.add(pkg)
             self.pkgs.append(name)
         model.repo.commit_and_remove()
 

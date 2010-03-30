@@ -31,7 +31,20 @@ class RestController(BaseController):
             return ''
 
     def show(self, register, id):
-        if register == u'package':
+        if register == u'revision':
+            # Todo: Implement access control for revisions.
+            rev = model.Session.query(model.Revision).get(id)
+            if rev is None:
+                response.status_int = 404
+                return ''
+            response_data = {
+                'id': rev.id,
+                'timestamp': model.strftimestamp(rev.timestamp),
+                'author': rev.author,
+                'message': rev.message,
+            }
+            return self._finish_ok(response_data)
+        elif register == u'package':
             pkg = model.Package.by_name(id)
             if pkg is None:
                 response.status_int = 404
@@ -185,26 +198,42 @@ class RestController(BaseController):
 
         return self._finish_ok()
 
-    def search(self):
-        if request.params.has_key('qjson'):
-            if not request.params['qjson']:
-                response.status_int = 400
-                return gettext('Blank qjson parameter')
-            params = simplejson.loads(request.params['qjson'])
-        elif request.params.values() and request.params.values() != [u''] and request.params.values() != [u'1']:
-            params = request.params
-        else:
-            try:
-                params = self._get_request_data()
-            except ValueError, inst:
-                response.status_int = 400
-                return gettext('Search params: %s') % str(inst)
-                
-        options = SearchOptions(params)
-        options.search_tags = False
-        options.return_objects = False
-        results = Search().run(options)
-        return self._finish_ok(results)
+    def search(self, register=None):
+        if register == 'revision':
+            if request.params.has_key('since_time'):
+                since_time_str = request.params['since_time']
+                since_time = model.strptimestamp(since_time_str)
+                revs = model.Session.query(model.Revision).filter(model.Revision.timestamp>since_time)
+            elif request.params.has_key('since_rev'):
+                since_id = request.params['since_rev']
+                revs = []
+                for rev in model.Session.query(model.Revision).all():
+                    if since_id == rev.id:
+                        break
+                    revs.append(rev)
+            else:
+                revs = model.Session.query(model.Revision).all()
+            return self._finish_ok([rev.id for rev in revs])
+        elif register == 'package':
+            if request.params.has_key('qjson'):
+                if not request.params['qjson']:
+                    response.status_int = 400
+                    return gettext('Blank qjson parameter')
+                params = simplejson.loads(request.params['qjson'])
+            elif request.params.values() and request.params.values() != [u''] and request.params.values() != [u'1']:
+                params = request.params
+            else:
+                try:
+                    params = self._get_request_data()
+                except ValueError, inst:
+                    response.status_int = 400
+                    return gettext('Search params: %s') % str(inst)
+                    
+            options = SearchOptions(params)
+            options.search_tags = False
+            options.return_objects = False
+            results = Search().run(options)
+            return self._finish_ok(results)
 
     def tag_counts(self):
         tags = model.Session.query(model.Tag).all()

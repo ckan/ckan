@@ -23,4 +23,3 @@ class TestRevisionExtraAttributes:
         assert rev.user is not None, rev
         assert rev.user.name == rev.author
 
-

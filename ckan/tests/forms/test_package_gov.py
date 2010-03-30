@@ -108,7 +108,7 @@ class TestForm(TestController):
         # Create package
         model.repo.new_revision()
         pkg = model.Package(name=u'test3')
-        model.Session.save(pkg)
+        model.Session.add(pkg)
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(u'test3')
@@ -128,7 +128,7 @@ class TestForm(TestController):
         # Create package
         model.repo.new_revision()
         pkg = model.Package(name=u'test2')
-        model.Session.save(pkg)
+        model.Session.add(pkg)
         pkg.extras = {u'department':u'Not on the list'}
         model.repo.commit_and_remove()
 

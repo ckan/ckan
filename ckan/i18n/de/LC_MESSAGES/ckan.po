@@ -673,7 +673,7 @@ msgid ""
 "    CKAN code and data are open:"
 msgstr ""
 ". Sowohl der\n"
-"\t\tCKAN Programmcode als auch die Daten sind offen:\n"
+"\t\tCKAN Programmcode als auch die Daten sind offen:"
 
 #: ckan/templates/home/about.html:47
 msgid ""

@@ -1,1178 +1,1206 @@
-# Translations template for ckan.
+# Norwegian translations for ckan.
 # Copyright (C) 2010 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
-#
-#, fuzzy
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: ckan 1.0a\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2010-02-27 14:18+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2010-03-08 15:26+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language-Team: no <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "Generated-By: Babel 0.9.4\n"
 
 #: ckan/controllers/group.py:30
 #, python-format
 msgid "Not authorized to read %s"
-msgstr ""
+msgstr "Ikke autorisert til å lese %s"
 
 #: ckan/controllers/group.py:53
 msgid "Must be logged in to create a new group."
-msgstr ""
+msgstr "Må være logget inn for opprette en ny gruppe."
 
 #: ckan/controllers/group.py:101
 #, python-format
 msgid "User %r not authorized to edit %r"
-msgstr ""
+msgstr "Bruker %r ikke autorisert til å redigere %r"
 
 #: ckan/controllers/group.py:137
 msgid "Group not found"
-msgstr ""
+msgstr "Fant ikke gruppen"
 
 #: ckan/controllers/group.py:142
 msgid "Not authorized to edit authization for group"
-msgstr ""
+msgstr "Ikke autorisert til å redigere rettighetene for gruppen"
 
 #: ckan/controllers/group.py:169 ckan/controllers/package.py:272
 #, python-format
 msgid "Added role '%s' for user '%s'"
-msgstr ""
+msgstr "La rolle '%s' til bruker '%s'"
 
 #: ckan/controllers/group.py:176 ckan/controllers/package.py:279
 msgid "Error: No role found with that id"
-msgstr ""
+msgstr "Feil: Fant ingen rolle med den id-en"
 
 #: ckan/controllers/group.py:179 ckan/controllers/package.py:281
 #, python-format
 msgid "Deleted role '%s' for user '%s'"
-msgstr ""
+msgstr "Slettet rollen '%s' for bruker '%s'"
 
 #: ckan/controllers/importer.py:36
 msgid "Need to login before importing."
-msgstr ""
+msgstr "Du må være logget inn for å kunne importere."
 
 #: ckan/controllers/importer.py:41
 msgid "Need to specify a filename."
-msgstr ""
+msgstr "Du må oppgi et filnavn."
 
 #: ckan/controllers/importer.py:44
 msgid "Did not receive file successfully."
-msgstr ""
+msgstr "Filen ikke mottatt på vellykket måte."
 
 #: ckan/controllers/importer.py:50
 #, python-format
 msgid "File '%s' not found."
-msgstr ""
+msgstr "Fant ikke filen '%s'."
 
 #: ckan/controllers/importer.py:55 ckan/controllers/importer.py:84
 #, python-format
 msgid "Error importing file '%s' as Excel or CSV format: %s"
-msgstr ""
+msgstr "Feil ved import av filen '%s' i Excel- eller CSV-format: %s"
 
 #: ckan/controllers/importer.py:95
 msgid "Errors remain - see preview."
-msgstr ""
+msgstr "Feil gjenstår - se forhåndsvisning."
 
 #: ckan/controllers/importer.py:109
 msgid "Problem with user account."
-msgstr ""
+msgstr "Problem med brukerkonto. "
 
 #: ckan/controllers/importer.py:116
 #, python-format
 msgid "Imported %i package."
 msgid_plural "Imported %i packages."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Importerte pakken %i."
+msgstr[1] "Importerte pakkene %i."
 
 #: ckan/controllers/importer.py:148
 msgid "Could not access import file any more."
-msgstr ""
+msgstr "Har ikke lenger tilgang til importfilen."
 
 #: ckan/controllers/importer.py:160
 msgid "User is not logged in"
-msgstr ""
+msgstr "Brukeren er ikke logget inn"
 
 #: ckan/controllers/importer.py:164
 msgid "Error with user account. Log out and log in again."
-msgstr ""
+msgstr "Feil med brukerkonto. Logg ut og logg så inn igjen."
 
 #: ckan/controllers/importer.py:167
 #, python-format
 msgid "Package %s already exists in database. Import will edit the fields."
-msgstr ""
+msgstr "Pakken %s finnes allerede i databasen. Ny import vil endre feltene."
 
 #: ckan/controllers/importer.py:170
 #, python-format
 msgid "User %r unauthorized to edit existing package %s"
-msgstr ""
+msgstr "Bruker %r ikke autorisert til å redigere den eksisterende pakken %s"
 
 #: ckan/controllers/package.py:73 ckan/controllers/package.py:109
 #: ckan/controllers/package.py:240
 msgid "Package not found"
-msgstr ""
+msgstr "Fant ikke pakken"
 
 #: ckan/controllers/package.py:84
 #, python-format
 msgid "Unauthorized to read package %s"
-msgstr ""
+msgstr "Har ikke rettigheten til å lese pakken %s"
 
 #: ckan/controllers/package.py:103
 msgid "Select two revisions before doing the comparison."
-msgstr ""
+msgstr "Velg to endringer før du gjør sammenligningen."
 
 #: ckan/controllers/package.py:187
 #, python-format
 msgid "User %r not authorized to edit %s"
-msgstr ""
+msgstr "Bruker %r ikke autorisert til å redigere %s"
 
 #: ckan/controllers/package.py:245
 #, python-format
 msgid "User %r not authorized to edit %s authorizations"
-msgstr ""
+msgstr "Bruker %r ikke autorisert til å redigere rettighetene til %s"
 
 #: ckan/controllers/package.py:297
 msgid "404 Package Not Found"
-msgstr ""
+msgstr "404 pakken ikke funnet"
 
 #: ckan/controllers/package.py:303
 msgid "Rating value invalid"
-msgstr ""
+msgstr "Ugyldig rangering"
 
 #: ckan/controllers/rest.py:85 ckan/controllers/rest.py:140
 #: ckan/controllers/rest.py:191
 msgid "Access denied"
-msgstr ""
+msgstr "Ingen tilgang"
 
 #: ckan/controllers/rest.py:90 ckan/controllers/rest.py:146
 #, python-format
 msgid "JSON Error: %s"
-msgstr ""
+msgstr "JSON-feil: %s"
 
 #: ckan/controllers/rest.py:103
 #, python-format
 msgid "Cannot create new entity of this type: %s"
-msgstr ""
+msgstr "Kan ikke opprette ny enhet av denne typen: %s"
 
 #: ckan/controllers/rest.py:110
 #, python-format
 msgid "REST API: Create object %s"
-msgstr ""
+msgstr "REST API: Opprett objekt %s"
 
 #: ckan/controllers/rest.py:134
 #, python-format
 msgid "Cannot update entity of this type: %s"
-msgstr ""
+msgstr "Kan ikke oppdatere enhet av denne typen: %s"
 
 #: ckan/controllers/rest.py:164
 #, python-format
 msgid "REST API: Update object %s"
-msgstr ""
+msgstr "REST API: Oppdater objekt %s"
 
 #: ckan/controllers/rest.py:185
 #, python-format
 msgid "Cannot delete entity of this type: %s"
-msgstr ""
+msgstr "Kan ikke slette enhet av denne typen: %s"
 
 #: ckan/controllers/rest.py:221
 msgid "Blank qjson parameter"
-msgstr ""
+msgstr "Tomt parameter for qjson"
 
 #: ckan/controllers/rest.py:230
 #, python-format
 msgid "Search params: %s"
-msgstr ""
+msgstr "Søk etter parametre: %s"
 
 #: ckan/controllers/rest.py:257
 msgid "You must supply a package name (parameter \"package\")."
-msgstr ""
+msgstr "Du må angi et navn for pakken (parameter \"package\")."
 
 #: ckan/controllers/rest.py:259
 msgid "You must supply a rating (parameter \"rating\")."
-msgstr ""
+msgstr "Du må angi en rangering (parameter \"rating\")."
 
 #: ckan/controllers/rest.py:264
 msgid "Rating must be an integer value."
-msgstr ""
+msgstr "Rangeringen må være en integer verdi."
 
 #: ckan/controllers/rest.py:268
 #, python-format
 msgid "Rating must be between %i and %i."
-msgstr ""
+msgstr "Rangeringen må være mellom %i og %i."
 
 #: ckan/controllers/rest.py:270
 #, python-format
 msgid "Package with name %r does not exist."
-msgstr ""
+msgstr "Det finnes ingen pakke med navnet %r."
 
 #: ckan/controllers/rest.py:328
 #, python-format
 msgid "Can't find entity data in request params %s: %s"
-msgstr ""
+msgstr "Kan ikke finne dataenhet i parameterne %s: %s"
 
 #: ckan/controllers/revision.py:18
 msgid "CKAN Package Revision History"
-msgstr ""
+msgstr "Revisjonshistorikk for CKAN-pakke"
 
 #: ckan/controllers/revision.py:20
 msgid "Recent changes to the CKAN repository."
-msgstr ""
+msgstr "Siste endringer i CKAN-arkivet."
 
 #: ckan/controllers/revision.py:43
 #, python-format
 msgid "Packages affected: %s.\n"
-msgstr ""
+msgstr "Berørte pakker: %s.\n"
 
 #: ckan/controllers/revision.py:101
 msgid "No revision id specified"
-msgstr ""
+msgstr "Ingen revisjons-id angitt"
 
 #: ckan/controllers/revision.py:104
 msgid "You are not authorized to perform this action"
-msgstr ""
+msgstr "Du er ikke autorisert til å utføre denne handlingen"
 
 #: ckan/controllers/revision.py:113
 #, python-format
 msgid "Purge of revision failed: %s"
-msgstr ""
+msgstr "Fjerning av revisjon mislyktes: %s"
 
 #: ckan/controllers/user.py:75
 msgid "Changed user details"
-msgstr ""
+msgstr "Brukerdetaljer endret"
 
 #: ckan/lib/package_saver.py:119
 msgid "No links are allowed in the log_message."
-msgstr ""
+msgstr "Ingen lenker er tillatt i log_message."
 
 #: ckan/templates/error_document_template.html:4
 #, python-format
 msgid "Error %(code)s"
-msgstr ""
+msgstr "Feil %(code)s"
 
 #: ckan/templates/error_document_template.html:6
 #, python-format
 msgid "%(message)s"
-msgstr ""
+msgstr "%(message)s"
 
 #: ckan/templates/layout.html:11
 msgid "CKAN - Comprehensive Knowledge Archive Network -"
-msgstr ""
+msgstr "CKAN - Comprehensive Knowledge Archive Network - "
 
 #: ckan/templates/layout.html:14
 msgid "CKAN Recent Changes"
-msgstr ""
+msgstr "CKAN: Siste endringer"
 
 #: ckan/templates/layout.html:16
 msgid "Master stylesheet"
-msgstr ""
+msgstr "Hovedstilark"
 
 #: ckan/templates/layout.html:42
 msgid "Logged in as"
-msgstr ""
+msgstr "Logget inn som"
 
 #: ckan/templates/layout.html:44
 msgid "My account"
-msgstr ""
+msgstr "Min brukerkonto"
 
 #: ckan/templates/layout.html:45 ckan/templates/user/logout.html:7
 msgid "Logout"
-msgstr ""
+msgstr "Logg ut"
 
 #: ckan/templates/layout.html:48
 msgid "Login with"
-msgstr ""
+msgstr "Logg inn med"
 
 #: ckan/templates/layout.html:48
 msgid "OpenID"
-msgstr ""
+msgstr "OpenID"
 
 #: ckan/templates/layout.html:54
 msgid "CKAN Logo"
-msgstr ""
+msgstr "CKANs logo"
 
 #: ckan/templates/layout.html:60
 msgid "Sections:"
-msgstr ""
+msgstr "Seksjoner:"
 
 #: ckan/templates/layout.html:62 ckan/templates/group/layout.html:18
 #: ckan/templates/home/about.html:4 ckan/templates/home/index.html:4
 #: ckan/templates/package/layout.html:16
 msgid "Home"
-msgstr ""
+msgstr "Hjem"
 
 #: ckan/templates/layout.html:63 ckan/templates/group/edit_form.html:8
 #: ckan/templates/home/index.html:77 ckan/templates/package/index.html:7
 #: ckan/templates/package/list.html:32 ckan/templates/revision/list.html:16
 #: ckan/templates/revision/read.html:20 ckan/templates/user/read.html:37
 msgid "Packages"
-msgstr ""
+msgstr "Pakker"
 
 #: ckan/templates/layout.html:64 ckan/templates/package/read_core.html:93
 #: ckan/templates/tag/index.html:7
 msgid "Tags"
-msgstr ""
+msgstr "Stikkord (tags)"
 
 #: ckan/templates/layout.html:65 ckan/templates/group/index.html:7
 #: ckan/templates/package/read_core.html:98
 msgid "Groups"
-msgstr ""
+msgstr "Grupper"
 
 #: ckan/templates/layout.html:66 ckan/templates/user/read.html:34
 msgid "Recent changes"
-msgstr ""
+msgstr "Siste endringer"
 
 #: ckan/templates/layout.html:68
 msgid "In this section:"
-msgstr ""
+msgstr "I denne seksjonen:"
 
 #: ckan/templates/layout.html:79
 msgid "Skip to page content"
-msgstr ""
+msgstr "Gå til sideinnhold"
 
 #: ckan/templates/layout.html:79
 msgid "[ Skip to main content ]"
-msgstr ""
+msgstr "[ Gå til hovedinnhold ]"
 
 #: ckan/templates/layout.html:93
 msgid "Master content template placeholder … please replace me."
-msgstr ""
+msgstr "Plassholder for hovedmal for innhold - vennligst erstatt"
 
 #: ckan/templates/layout.html:98
 msgid "Valid XHTML 1.1"
-msgstr ""
+msgstr "Gyldig XHTML 1.1"
 
 #: ckan/templates/layout.html:98
 msgid "XHTML"
-msgstr ""
+msgstr "XHTML"
 
 #: ckan/templates/layout.html:99
 msgid "CSS"
-msgstr ""
+msgstr "CSS"
 
 #: ckan/templates/layout.html:100
 msgid "Project Home Page"
-msgstr ""
+msgstr "Prosjektets startside"
 
 #: ckan/templates/layout.html:101
 msgid "Contact Us"
-msgstr ""
+msgstr "Kontakt oss"
 
 #: ckan/templates/layout.html:102
 msgid "Privacy Policy"
-msgstr ""
+msgstr "Retningslinjer for personvern"
 
 #: ckan/templates/layout.html:105
 msgid "An"
-msgstr ""
+msgstr "Et prosjekt fra"
 
 #: ckan/templates/layout.html:105 ckan/templates/home/about.html:46
 msgid "Open Knowledge Foundation"
-msgstr ""
+msgstr "Open Knowledge Foundation"
 
 #: ckan/templates/layout.html:105
 msgid "Project"
-msgstr ""
+msgstr " "
 
 #: ckan/templates/layout.html:107
 msgid "v"
-msgstr ""
+msgstr "v"
 
 #: ckan/templates/layout.html:108
 msgid ""
 "| (c) Open Knowledge Foundation\n"
 "\t| All material available under an"
 msgstr ""
+"| (c) Open Knowledge Foundation\n"
+"\t| Alt materiale tilgjengelig under en"
 
 #: ckan/templates/layout.html:110 ckan/templates/package/search_form.html:7
 msgid "open license"
-msgstr ""
+msgstr "åpen lisens"
 
 #: ckan/templates/layout.html:111
 msgid "This Content and Data is Open"
-msgstr ""
+msgstr "Innhold og data er åpne"
 
 #: ckan/templates/group/authz.html:4
 msgid "Groups - Authorization -"
-msgstr ""
+msgstr "Grupper - autorisering - "
 
 #: ckan/templates/group/authz.html:7
 msgid "Authorization for group:"
-msgstr ""
+msgstr "Autorisering for gruppe:"
 
 #: ckan/templates/group/authz.html:14 ckan/templates/package/authz.html:14
 msgid "Update Existing Roles"
-msgstr ""
+msgstr "Oppdater eksisterende roller"
 
 #: ckan/templates/group/authz.html:19 ckan/templates/package/authz.html:19
 msgid "Create New User Roles"
-msgstr ""
+msgstr "Opprett nye brukerroller"
 
 #: ckan/templates/group/authz.html:24 ckan/templates/group/edit_form.html:22
 #: ckan/templates/package/authz.html:24
 msgid "Save"
-msgstr ""
+msgstr "Lagre"
 
 #: ckan/templates/group/edit.html:4 ckan/templates/group/new.html:4
 msgid "Groups - Edit -"
-msgstr ""
+msgstr "Grupper - rediger -"
 
 #: ckan/templates/group/edit.html:7
 msgid "Edit Group:"
-msgstr ""
+msgstr "Rediger gruppe:"
 
 #: ckan/templates/group/edit.html:11 ckan/templates/group/new.html:11
 #: ckan/templates/package/edit.html:12 ckan/templates/package/history.html:18
 #: ckan/templates/package/new.html:11
 msgid "Error:"
-msgstr ""
+msgstr "Feil:"
 
 #: ckan/templates/group/edit_form.html:15
 msgid "New Packages"
-msgstr ""
+msgstr "Nye pakker"
 
 #: ckan/templates/group/index.html:4
 msgid "Groups - Index"
-msgstr ""
+msgstr "Grupper - indeks"
 
 #: ckan/templates/group/index.html:9 ckan/templates/group/read.html:40
 #: ckan/templates/package/index.html:13 ckan/templates/tag/index.html:18
 #: ckan/templates/tag/index.html:21 ckan/templates/tag/read.html:8
 msgid "There are"
-msgstr ""
+msgstr "Det er"
 
 #: ckan/templates/group/index.html:9
 msgid "groups."
-msgstr ""
+msgstr "grupper."
 
 #: ckan/templates/group/layout.html:10
 msgid "Groups section"
-msgstr ""
+msgstr "Gruppeseksjon"
 
 #: ckan/templates/group/layout.html:11
-msgid ""
-"Whilst tags are great at collecting packages together, there are occasions "
-"when you want to restrict users from editing a collection. A"
-msgstr ""
+msgid "Whilst tags are great at collecting packages together, there are occasions when you want to restrict users from editing a collection. A"
+msgstr "Selv om stikkord (tags) egner seg glimrende til å samle pakker, kan det også hende at du ønsker å begrense brukernes adgang til å redigere en samling. En"
 
 #: ckan/templates/group/layout.html:11
 msgid "group"
-msgstr ""
+msgstr "gruppe"
 
 #: ckan/templates/group/layout.html:11
-msgid ""
-"can be set-up to specify which users have permission to add or remove "
-"packages from it."
-msgstr ""
+msgid "can be set-up to specify which users have permission to add or remove packages from it."
+msgstr "kan bli satt opp til å spesifisere hvilke brukere som har tillatelse til å legge til eller fjerne pakker fra den."
 
 #: ckan/templates/group/layout.html:12
 msgid "To create a new group, please first"
-msgstr ""
+msgstr "For å opprette en ny gruppe, vennligst først"
 
 #: ckan/templates/group/layout.html:12
 msgid "login"
-msgstr ""
+msgstr "logg inn"
 
 #: ckan/templates/group/layout.html:13 ckan/templates/group/layout.html:19
 msgid "Create a new group"
-msgstr ""
+msgstr "Opprett en ny gruppe"
 
 #: ckan/templates/group/new.html:7
 msgid "New Group"
-msgstr ""
+msgstr "Ny gruppe"
 
 #: ckan/templates/group/read.html:4
 msgid "Groups -"
-msgstr ""
+msgstr "Grupper - "
 
 #: ckan/templates/group/read.html:10
 msgid "No Title"
-msgstr ""
+msgstr "Ingen tittel"
 
 #: ckan/templates/group/read.html:18
 msgid "[edit]"
-msgstr ""
+msgstr "[rediger]"
 
 #: ckan/templates/group/read.html:21
 msgid "[authorization]"
-msgstr ""
+msgstr "[autorisering]"
 
 #: ckan/templates/group/read.html:31
 msgid "Administrators:"
-msgstr ""
+msgstr "Administratorer:"
 
 #: ckan/templates/group/read.html:37
 msgid "Packages:"
-msgstr ""
+msgstr "Pakker:"
 
 #: ckan/templates/group/read.html:41
 msgid "packages in this group."
-msgstr ""
+msgstr "pakker i denne gruppen."
 
 #: ckan/templates/home/about.html:7 ckan/templates/home/index.html:35
 msgid "About CKAN"
-msgstr ""
+msgstr "Om CKAN"
 
 #: ckan/templates/home/about.html:9
 msgid "CKAN is the Comprehensive Knowledge Archive Network, a"
-msgstr ""
+msgstr "CKAN står for Comprehensive Knowledge Archive Network, et"
 
 #: ckan/templates/home/about.html:9
 msgid "registry"
-msgstr ""
+msgstr "register"
 
 #: ckan/templates/home/about.html:9
 msgid "of"
-msgstr ""
+msgstr "over"
 
 #: ckan/templates/home/about.html:10
 msgid "open knowledge"
-msgstr ""
+msgstr "åpen kunnskap"
 
 #: ckan/templates/home/about.html:10
 msgid ""
 "packages and projects\n"
 "    (and a few closed ones)."
-msgstr ""
+msgstr "i form av data og innholdsressurser."
 
 #: ckan/templates/home/about.html:13
 msgid "CKAN makes it easy to"
-msgstr ""
+msgstr "CKAN gjør det lett å"
 
 #: ckan/templates/home/about.html:13
 msgid ""
 "find, share and reuse open\n"
 "      content and data"
 msgstr ""
+"finne, dele og gjenbruke åpent\n"
+" innhold og data"
 
 #: ckan/templates/home/about.html:14
 msgid ""
 ", especially in ways that are machine\n"
 "      automatable."
 msgstr ""
+", særlig i maskinlesbar,\n"
+" automatisert form."
 
 #: ckan/templates/home/about.html:18
 msgid "As a system CKAN functions as a synthesis of several different services:"
-msgstr ""
+msgstr "Som system fungerer CKAN som en syntese av flere ulike tjenester:"
 
 #: ckan/templates/home/about.html:20
 msgid "CKAN Features Overview"
-msgstr ""
+msgstr "Oversikt over CKANs funksjoner"
 
 #: ckan/templates/home/about.html:22
 msgid ""
 "As the diagram shows, CKAN combines the features of a listing/registry,\n"
 "\t\ta package index and a wiki. As a registry it acts like"
 msgstr ""
+"Som diagrammet viser, kombinerer CKAN funksjonene i et register, en liste,\n"
+"\t\t en pakkeindeks og en wiki. Som register fungerer det som"
 
 #: ckan/templates/home/about.html:24
 msgid "freshmeat"
-msgstr ""
+msgstr "freshmeat"
 
 #: ckan/templates/home/about.html:24
 msgid ""
 "but for open data and\n"
 "\t\tcontent resources. However it adds to a simple registry in key ways."
 msgstr ""
+", men tar for seg åpne data og\n"
+"\t\tinnholdsressurser. I forhold til et vanlig register har CKAN avgjørende fordeler."
 
 #: ckan/templates/home/about.html:27
 msgid "First, thanks to its underlying"
-msgstr ""
+msgstr "For det første, takket være at den er basert på en"
 
 #: ckan/templates/home/about.html:28
 msgid "versioned domain model"
-msgstr ""
+msgstr "versjonert domenemodell"
 
 #: ckan/templates/home/about.html:28
 msgid ""
 "CKAN has a\n"
-"\t\twiki-like interface that lets anyone add and material held in it. Second,"
-"\n"
-"\t\tand unlike a wiki, CKAN can store 'structured' information, which allows "
-"it\n"
-"\t\tto provide 'index'-like features such as automated registration, "
-"discovery\n"
+"\t\twiki-like interface that lets anyone add and material held in it. Second,\n"
+"\t\tand unlike a wiki, CKAN can store 'structured' information, which allows it\n"
+"\t\tto provide 'index'-like features such as automated registration, discovery\n"
 "\t\tand installation of material. In this respect it behaves like"
 msgstr ""
+"har CKAN et \n"
+"\t\twiki-lignende grensesnitt som lar alle legge til og redigere det lagrede innholdet. For det andre: \n"
+"\t\ttil forskjell fra en wiki, kan CKAN lagre 'strukturert' informasjon, som gjør det mulig\n"
+"\t\tå tilby 'indeks'-aktige funksjoner som automatisert registrering, oppdagelse\n"
+"\t\t og installasjon av materiale. På denne måten oppfører det seg som"
 
 #: ckan/templates/home/about.html:33
 msgid "CPAN"
-msgstr ""
+msgstr "CPAN"
 
 #: ckan/templates/home/about.html:33
 msgid "or"
-msgstr ""
+msgstr "eller"
 
 #: ckan/templates/home/about.html:34
 msgid "PyPI"
-msgstr ""
+msgstr "PyPI"
 
 #: ckan/templates/home/about.html:34
 msgid ""
 "in the software world -- though\n"
 "\t\tagain for"
-msgstr ""
+msgstr "i programvareverdenen - men \t\t\tigjen tilpasset"
 
 #: ckan/templates/home/about.html:35
 msgid "open data and content"
-msgstr ""
+msgstr "åpne data og innhold, "
 
 #: ckan/templates/home/about.html:35
 msgid "not code."
-msgstr ""
+msgstr "ikke kode."
 
 #: ckan/templates/home/about.html:38
 msgid ""
 "More about CKAN, and the background to its creation can\n"
 "    be found in"
-msgstr ""
+msgstr "Mer om CKAN og om bakgrunnen for at det ble startet finnes i "
 
 #: ckan/templates/home/about.html:40
 msgid ""
 "these\n"
 "      slides"
 msgstr ""
+"disse\n"
+" lysarkene"
 
 #: ckan/templates/home/about.html:43
 msgid "Who's Behind CKAN?"
-msgstr ""
+msgstr "Hvem står bak CKAN?"
 
 #: ckan/templates/home/about.html:45
 msgid "The CKAN software and site is developed and maintained by the"
-msgstr ""
+msgstr "CKANs programvare og nettsted er utviklet og drives av "
 
 #: ckan/templates/home/about.html:46
 msgid ""
 ". Both the\n"
 "    CKAN code and data are open:"
 msgstr ""
+". Både \n"
+" CKANs kode og data er åpne"
 
 #: ckan/templates/home/about.html:47
 msgid ""
 "free for anyone to use\n"
 "      and reuse"
 msgstr ""
+"og kan fritt brukes\n"
+" og gjenbrukes av alle"
 
 #: ckan/templates/home/about.html:48
 msgid ". To find out more check out the the"
-msgstr ""
+msgstr ". Mer informasjon er tilgjengelig på"
 
 #: ckan/templates/home/about.html:49
 msgid "CKAN project page"
-msgstr ""
+msgstr "CKANs prosjektside"
 
 #: ckan/templates/home/about.html:49
 msgid ""
 "on the Open\n"
 "    Knowledge Foundation site."
 msgstr ""
+"på Open\n"
+" Knowledge Foundations nettsted."
 
 #: ckan/templates/home/about.html:52
 msgid "Contributors"
-msgstr ""
+msgstr "Bidragsytere"
 
 #: ckan/templates/home/about.html:54
-msgid ""
-"Various people and projects have contributed to the development of CKAN "
-"including:"
-msgstr ""
+msgid "Various people and projects have contributed to the development of CKAN including:"
+msgstr "Mange personer og prosjekter har bidratt til utviklingen av CKAN:"
 
 #: ckan/templates/home/about.html:56
 msgid "Rufus Pollock"
-msgstr ""
+msgstr "Rufus Pollock"
 
 #: ckan/templates/home/about.html:57
 msgid "David Read"
-msgstr ""
+msgstr "David Read"
 
 #: ckan/templates/home/about.html:58
 msgid "Nick Stenning"
-msgstr ""
+msgstr "Nick Stenning"
 
 #: ckan/templates/home/about.html:58
 msgid "(css and js)"
-msgstr ""
+msgstr "(css og js)"
 
 #: ckan/templates/home/about.html:59
 msgid "John Bywater"
-msgstr ""
+msgstr "John Bywater"
 
 #: ckan/templates/home/about.html:60
 msgid "CKAN logo: \""
-msgstr ""
+msgstr "CKANs logo: \""
 
 #: ckan/templates/home/about.html:60
 msgid "angry"
-msgstr ""
+msgstr "sinna"
 
 #: ckan/templates/home/about.html:60
 msgid "hamster"
-msgstr ""
+msgstr "hamster"
 
 #: ckan/templates/home/about.html:61
 msgid "famfamfam.com for silk icons"
-msgstr ""
+msgstr "famfamfam.com har laget Silk-ikonene"
 
 #: ckan/templates/home/about.html:62
 msgid "Pylons"
-msgstr ""
+msgstr "Pylons"
 
 #: ckan/templates/home/about.html:63
 msgid "Genshi"
-msgstr ""
+msgstr "Genshi"
 
 #: ckan/templates/home/guide.html:4
 msgid "Guide"
-msgstr ""
+msgstr "Guide"
 
 #: ckan/templates/home/guide.html:7
 msgid "CKAN Guide"
-msgstr ""
+msgstr "Guide til CKAN"
 
 #: ckan/templates/home/guide.html:9
 msgid "Bookmarklet for Adding Packages"
-msgstr ""
+msgstr "Snarvei for å legge til pakker"
 
 #: ckan/templates/home/guide.html:10
-msgid ""
-"Want to automate creating a package from the info in a webpage? You can use "
-"the CKAN bookmarklet. This will automatically extract information such as "
-"url, title and a description and send it off to the new package form (where "
-"you can then edit further)."
-msgstr ""
+msgid "Want to automate creating a package from the info in a webpage? You can use the CKAN bookmarklet. This will automatically extract information such as url, title and a description and send it off to the new package form (where you can then edit further)."
+msgstr "Ønsker du å automatisere prosessen med å opprette pakker basert på innhold på en webside? Da kan du bruke CKANs bookmarklet. Den vil automatisk hente ut informasjon som URL, tittel og beskrivelse og sende den til skjemaet for den nye pakken (hvor du kan fortsette å redigere)."
 
 #: ckan/templates/home/guide.html:11
-msgid ""
-"To install the bookmarklet just drag the following link to your bookmarks "
-"toolbar (in IE: right-click on it and select Add to Favourites). For more "
-"details on installing bookmarklets see"
-msgstr ""
+msgid "To install the bookmarklet just drag the following link to your bookmarks toolbar (in IE: right-click on it and select Add to Favourites). For more details on installing bookmarklets see"
+msgstr "For å installere bookmarklet-en er det bare å dra denne lenken til verktøylinjen for dine bokmerker (i Internet Explorer: høyreklikk på lenken og velg Legg til i Favoritter). Flere detaljer om å installere bookmarklets finner du på"
 
 #: ckan/templates/home/guide.html:11
 msgid "the del.icio.us help page on the topic"
-msgstr ""
+msgstr "hjelpesiden for emnet hos del.icio.us"
 
 #: ckan/templates/home/guide.html:14
 msgid "Add to CKAN"
-msgstr ""
+msgstr "Legg til i CKAN"
 
 #: ckan/templates/home/index.html:36
 msgid ""
 "Find out more about CKAN by reading our about pages or consulting the \n"
 "        CKAN guide."
 msgstr ""
+"Finn ut mer om CKAN på våre Om-sider eller i \n"
+" CKAN-guiden."
 
 #: ckan/templates/home/index.html:46 ckan/templates/home/layout.html:12
 msgid "Help"
-msgstr ""
+msgstr "Hjelp"
 
 #: ckan/templates/home/index.html:52
 msgid "Welcome to CKAN"
-msgstr ""
+msgstr "Velkommen til CKAN"
 
 #: ckan/templates/home/index.html:53
 msgid "CKAN is a registry of"
-msgstr ""
+msgstr "CKAN er et register over"
 
 #: ckan/templates/home/index.html:54
 msgid ""
 "open data \n"
 "      and content"
 msgstr ""
+"åpne data \n"
+" og innholdspakker."
 
 #: ckan/templates/home/index.html:55
 msgid "packages. CKAN makes it easy to"
-msgstr ""
+msgstr "CKAN gjør det lett å"
 
 #: ckan/templates/home/index.html:55
 msgid ""
 "find, share and reuse \n"
 "      open content and data"
 msgstr ""
+"finne, dele og gjenbruke \n"
+" åpne data og innhold"
 
 #: ckan/templates/home/index.html:56
 msgid ""
 ", especially in ways that are machine \n"
 "      automatable."
 msgstr ""
+", særlig på måter som er maskinlesbare og \n"
+" automatiserbare."
 
 #: ckan/templates/home/index.html:60
 msgid "registered packages"
-msgstr ""
+msgstr "registrerte pakker"
 
 #: ckan/templates/home/index.html:60
 msgid "available."
-msgstr ""
+msgstr "tilgjengelig."
 
 #: ckan/templates/home/index.html:64 ckan/templates/home/stats.html:38
 msgid "Top Tags"
-msgstr ""
+msgstr "Mest brukte stikkord"
 
 #: ckan/templates/home/index.html:74
 msgid "Recently changed"
-msgstr ""
+msgstr "Sist endret"
 
 #: ckan/templates/home/index.html:78 ckan/templates/package/history.html:26
 #: ckan/templates/revision/list.html:16 ckan/templates/user/read.html:37
 msgid "Author"
-msgstr ""
+msgstr "Forfatter"
 
 #: ckan/templates/home/index.html:79
 msgid "Time"
-msgstr ""
+msgstr "Tid"
 
 #: ckan/templates/home/index.html:93
 msgid "View older changes »"
-msgstr ""
+msgstr "Se eldre endringer »"
 
 #: ckan/templates/home/layout.html:9 ckan/templates/user/read.html:18
 msgid "About"
-msgstr ""
+msgstr "Om"
 
 #: ckan/templates/home/license.html:4
 msgid "License"
-msgstr ""
+msgstr "Lisens"
 
 #: ckan/templates/home/license.html:7
 msgid "CKAN License"
-msgstr ""
+msgstr "CKAN-lisens"
 
 #: ckan/templates/home/license.html:9
 msgid "Code"
-msgstr ""
+msgstr "Kildekode"
 
 #: ckan/templates/home/license.html:10
 msgid "The code that runs CKAN is open-source and licensed under the"
-msgstr ""
+msgstr "Kildekoden til CKAN er åpen og lisensiert under"
 
 #: ckan/templates/home/license.html:12
 msgid "GNU Affero GPL"
-msgstr ""
+msgstr "GNU Affero GPL"
 
 #: ckan/templates/home/license.html:13
 msgid ". It is hosted on"
-msgstr ""
+msgstr ". Den er lagret på"
 
 #: ckan/templates/home/license.html:14
 msgid "KnowledgeForge"
-msgstr ""
+msgstr "KnowledgeForge"
 
 #: ckan/templates/home/license.html:14
 msgid ""
 ", and the project\n"
 "    home page is here:"
 msgstr ""
+", og her er prosjektets\n"
+" hjemmeside: "
 
 #: ckan/templates/home/license.html:16
 msgid "http://knowledgeforge.net/project/ckan/"
-msgstr ""
+msgstr "http://knowledgeforge.net/project/ckan/"
 
 #: ckan/templates/home/license.html:19
 msgid "Content and Data"
-msgstr ""
+msgstr "Innhold og data"
 
 #: ckan/templates/home/license.html:20
 msgid "All material on this site is"
-msgstr ""
+msgstr "Alt materialet på dette nettstedet er"
 
 #: ckan/templates/home/license.html:21
 msgid "open"
-msgstr ""
+msgstr "åpent"
 
 #: ckan/templates/home/license.html:21
 msgid ""
 "and can be freely used, reused\n"
 "    and redistributed. Formally, the data/database is licensed under the"
 msgstr ""
+"og kan fritt brukes, gjenbrukes\n"
+" og distribueres videre. Dataene/databasen er formelt lisensiert under"
 
 #: ckan/templates/home/license.html:23
 msgid ""
 "Open Data Commons Open\n"
 "      Database License v1.0"
 msgstr ""
+"Open Data Commons Open\n"
+" Database License v1.0"
 
 #: ckan/templates/home/license.html:24
 msgid ""
 ", with all copyrightable content in that\n"
 "    database plus any additional content on this site licensed under a"
 msgstr ""
+", og alt innhold som kan være gjenstand for opphavsrett i denne\n"
+" databasen samt alt øvrig innhold på dette nettstedet er lisensiert under"
 
 #: ckan/templates/home/license.html:26
 msgid ""
 "Creative Commons\n"
 "      Attribution Share-Alike v3.0 license"
 msgstr ""
+"Creative Commons\n"
+" Attribution Share-Alike v3.0 license"
 
 #: ckan/templates/home/license.html:28
-msgid ""
-"For convenience, all material - including all package, tag and revision "
-"information - is available in bulk, in the form of a full dump of the CKAN "
-"database. This (gzipped) dump file is updated daily and can be downloaded "
-"from"
-msgstr ""
+msgid "For convenience, all material - including all package, tag and revision information - is available in bulk, in the form of a full dump of the CKAN database. This (gzipped) dump file is updated daily and can be downloaded from"
+msgstr "Av praktiske hensyn er alt materiale - inkludert all informasjon om pakker, stikkord (tags) og revisjoner - tilgjengelig i sin helhet, som en kopi av hele CKAN-databasen. Denne databasedump-filen (komprimert med gzip) blir oppdatert daglig og kan lastes ned fra"
 
 #: ckan/templates/home/license.html:29
 msgid "http://www.ckan.net/dump/"
-msgstr ""
+msgstr "http://www.ckan.net/dump/"
 
 #: ckan/templates/home/stats.html:4
 msgid "Stats"
-msgstr ""
+msgstr "Status"
 
 #: ckan/templates/home/stats.html:12
 msgid "Statistics"
-msgstr ""
+msgstr "Statistikk"
 
 #: ckan/templates/home/stats.html:14
 msgid "Top Rated Packages"
-msgstr ""
+msgstr "Høyest rangerte pakker"
 
 #: ckan/templates/home/stats.html:16 ckan/templates/home/stats.html:24
 msgid "Package"
-msgstr ""
+msgstr "Pakke"
 
 #: ckan/templates/home/stats.html:16
 msgid "Average rating"
-msgstr ""
+msgstr "Gjennomsnittlig rangering"
 
 #: ckan/templates/home/stats.html:16
 msgid "Number of ratings"
-msgstr ""
+msgstr "Antall rangeringer"
 
 #: ckan/templates/home/stats.html:22
 msgid "Most Edited Packages"
-msgstr ""
+msgstr "Mest redigerte pakker"
 
 #: ckan/templates/home/stats.html:24
 msgid "Number of edits"
-msgstr ""
+msgstr "Antall redigeringer"
 
 #: ckan/templates/home/stats.html:30
 msgid "Largest Groups"
-msgstr ""
+msgstr "Største grupper"
 
 #: ckan/templates/home/stats.html:32
 msgid "Group"
-msgstr ""
+msgstr "Gruppe"
 
 #: ckan/templates/home/stats.html:32
 msgid "Number of packages"
-msgstr ""
+msgstr "Antall pakker"
 
 #: ckan/templates/home/stats.html:45
 msgid "Users owning most packages"
-msgstr ""
+msgstr "Brukere som eier flest pakker"
 
 #: ckan/templates/home/stats.html:52
 msgid "Total number of packages"
-msgstr ""
+msgstr "Totalt antall pakker"
 
 #: ckan/templates/home/stats.html:71
 msgid "Revisions to packages per week"
-msgstr ""
+msgstr "Revisjoner av pakker per uke"
 
 #: ckan/templates/home/stats.html:107
 msgid "Page last updated:"
-msgstr ""
+msgstr "Siden sist oppdatert:"
 
 #: ckan/templates/package/authz.html:4
 msgid "Packages - Authorization -"
-msgstr ""
+msgstr "Pakker - autorisering -"
 
 #: ckan/templates/package/authz.html:7
 msgid "Authorization for package:"
-msgstr ""
+msgstr "Autorisering for pakke:"
 
 #: ckan/templates/package/edit.html:4
 msgid "Packages - Edit -"
-msgstr ""
+msgstr "Pakker - rediger - "
 
 #: ckan/templates/package/edit.html:7
 msgid "Edit package:"
-msgstr ""
+msgstr "Rediger pakke:"
 
 #: ckan/templates/package/edit.html:9 ckan/templates/package/new.html:8
 #: ckan/templates/user/edit.html:9
 msgid "(skip to preview)"
-msgstr ""
+msgstr "(gå til forhåndsvisning)"
 
 #: ckan/templates/package/edit.html:20 ckan/templates/package/new.html:19
 #: ckan/templates/user/edit.html:29
 msgid "Preview"
-msgstr ""
+msgstr "Forhåndsvisning"
 
 #: ckan/templates/package/edit_form.html:12
 msgid "Optional Log Message about this Change:"
-msgstr ""
+msgstr "Valgfri loggmelding om denne endringen:"
 
 #: ckan/templates/package/edit_form.html:13 ckan/templates/user/edit.html:18
 msgid "You can use"
-msgstr ""
+msgstr "Du kan bruke"
 
 #: ckan/templates/package/edit_form.html:13 ckan/templates/user/edit.html:18
 msgid "Markdown formatting"
-msgstr ""
+msgstr "Markdown-formatering"
 
 #: ckan/templates/package/edit_form.html:13 ckan/templates/user/edit.html:18
 msgid "here."
-msgstr ""
+msgstr "her."
 
-#: ckan/templates/package/edit_form.html:16 ckan/templates/revision/read.html:11
+#: ckan/templates/package/edit_form.html:16
+#: ckan/templates/revision/read.html:11
 msgid "Author:"
-msgstr ""
+msgstr "Forfatter:"
 
 #: ckan/templates/package/edit_form.html:17
 msgid "If you have not signed in this will just be your IP address."
-msgstr ""
+msgstr "Hvis du ikke har logget inn, vil din IP-adresse vises her."
 
 #: ckan/templates/package/edit_form.html:19
 msgid "Click here to sign in"
-msgstr ""
+msgstr "Klikk her for å logge inn"
 
 #: ckan/templates/package/edit_form.html:19
 msgid "before submitting (opens in new window)."
-msgstr ""
+msgstr "før du sender inn (åpnes i nytt vindu)."
 
 #: ckan/templates/package/edit_form.html:23 ckan/templates/user/edit.html:22
 msgid "Commit"
-msgstr ""
+msgstr "Lagre"
 
 #: ckan/templates/package/edit_form.html:25
 msgid "Please Note:"
-msgstr ""
+msgstr "Vennligst merk:"
 
 #: ckan/templates/package/edit_form.html:27
 msgid ""
 "By submitting content, you agree to release your contributions\n"
 "        under the open license specified on the"
 msgstr ""
+"Ved å legge til innhold samtykker du til å publisere dine bidrag\n"
+" under den åpne lisensen spesifisert på"
 
 #: ckan/templates/package/edit_form.html:29
 msgid ""
 "(essentially Creative Commons\n"
 "        Attribution-Share Alike v3.0)."
 msgstr ""
+"(tilsvarende Creative Commons\n"
+" Attribution-Share Alike v3.0)."
 
 #: ckan/templates/package/edit_form.html:31
 msgid ""
 "If you are not happy for this to occur please refrain from editing\n"
 "        this page."
 msgstr ""
+"Hvis du ikke er innforstått med dette, vennligst avstå fra å redigere\n"
+" denne siden."
 
 #: ckan/templates/package/history.html:4 ckan/templates/revision/read.html:32
 msgid "Package -"
-msgstr ""
+msgstr "Pakken - "
 
 #: ckan/templates/package/history.html:4
 msgid "- History"
-msgstr ""
+msgstr "- historie"
 
 #: ckan/templates/package/history.html:12
 msgid "Revisions"
-msgstr ""
+msgstr "Revisjoner"
 
 #: ckan/templates/package/history.html:26 ckan/templates/revision/read.html:4
 #: ckan/templates/user/read.html:37
 msgid "Revision"
-msgstr ""
+msgstr "Revisjon"
 
 #: ckan/templates/package/history.html:26 ckan/templates/revision/list.html:16
 #: ckan/templates/user/read.html:37
 msgid "Timestamp"
-msgstr ""
+msgstr "Tidsstempel"
 
 #: ckan/templates/package/history.html:26 ckan/templates/revision/list.html:16
 #: ckan/templates/user/read.html:37
 msgid "Log Message"
-msgstr ""
+msgstr "Loggmelding"
 
 #: ckan/templates/package/history.html:43
 msgid "Compare »"
-msgstr ""
+msgstr "Sammenlign »"
 
 #: ckan/templates/package/index.html:4
 msgid "Packages - Index"
-msgstr ""
+msgstr "Pakker - indeks"
 
 #: ckan/templates/package/index.html:13
 msgid "packages."
-msgstr ""
+msgstr "pakker."
 
 #: ckan/templates/package/layout.html:10
 msgid "This package:"
-msgstr ""
+msgstr "Denne pakken:"
 
 #: ckan/templates/package/layout.html:11
 msgid "View"
-msgstr ""
+msgstr "Se"
 
 #: ckan/templates/package/layout.html:12 ckan/templates/user/read.html:24
 msgid "Edit"
-msgstr ""
+msgstr "Rediger"
 
 #: ckan/templates/package/layout.html:13
 msgid "History"
-msgstr ""
+msgstr "Historie"
 
 #: ckan/templates/package/layout.html:17
 msgid "Browse"
-msgstr ""
+msgstr "Bla gjennom"
 
 #: ckan/templates/package/layout.html:18
 msgid "Register new package"
-msgstr ""
+msgstr "Registrer ny pakke"
 
 #: ckan/templates/package/list.html:4
 msgid "Packages - List"
-msgstr ""
+msgstr "Pakker - liste"
 
 #: ckan/templates/package/list.html:8
 msgid "Package listing key"
-msgstr ""
+msgstr "Pakkeutlistingsnøkkel"
 
 #: ckan/templates/package/list.html:11
 msgid "Openly licensed"
-msgstr ""
+msgstr "Med åpen lisens"
 
 #: ckan/templates/package/list.html:13
 msgid "Closed/unknown licensing"
-msgstr ""
+msgstr "Lukket/ukjent lisens"
 
 #: ckan/templates/package/list.html:15
 msgid "Resources available"
-msgstr ""
+msgstr "Tilgjengelige ressurser"
 
 #: ckan/templates/package/list.html:16
 msgid "Click on the arrow to show the package resources."
-msgstr ""
+msgstr "Klikk på pilen for å vise pakkeressursene."
 
 #: ckan/templates/package/list.html:18
 msgid "No resources listed"
-msgstr ""
+msgstr "Ingen ressurser oppført"
 
 #: ckan/templates/package/list.html:21
 msgid "Packages with a blue stripe satisfy the OKFN's"
-msgstr ""
+msgstr "Pakker med en blå stripe oppfyller OKFNs"
 
 #: ckan/templates/package/list.html:23
 msgid "Open Knowledge Definition."
-msgstr ""
+msgstr "definisjon av åpen kunnskap."
 
 #: ckan/templates/package/new.html:4
 msgid "Packages - New"
-msgstr ""
+msgstr "Pakker - nye"
 
 #: ckan/templates/package/new.html:7
 msgid "Register a New Package"
-msgstr ""
+msgstr "Registrer en ny pakke"
 
 #: ckan/templates/package/read.html:4
 msgid "Packages -"
-msgstr ""
+msgstr "Pakker - "
 
 #: ckan/templates/package/read.html:9
 msgid ""
@@ -1180,377 +1208,388 @@ msgid ""
 "          Can you help us keep this page up to date?\n"
 "          If so, why not"
 msgstr ""
+"Arbeider du på et prosjekt som produserer disse dataene?\n"
+" Kan du hjelpe oss med å holde denne siden oppdatert?\n"
+" Hvis du kan det, hvorfor ikke"
 
 #: ckan/templates/package/read.html:13
 msgid "update the package information"
-msgstr ""
+msgstr "oppdatere informasjonen om denne datapakken?"
 
 #: ckan/templates/package/read.html:19
 msgid "You can"
-msgstr ""
+msgstr "Du kan"
 
 #: ckan/templates/package/read.html:21
 msgid "make an enquiry"
-msgstr ""
+msgstr "undersøke om"
 
 #: ckan/templates/package/read.html:21
 msgid "about the openness of this package using"
-msgstr ""
+msgstr "denne datapakken er åpen ved å bruke"
 
 #: ckan/templates/package/read.html:23
 msgid "Is It Open Data"
-msgstr ""
+msgstr "Is It Open Data"
 
 #: ckan/templates/package/read.html:35
 msgid "RDF Version"
-msgstr ""
+msgstr "RDF-versjon"
 
 #: ckan/templates/package/read_core.html:18
 msgid "Version"
-msgstr ""
+msgstr "Versjon"
 
 #: ckan/templates/package/read_core.html:24
 #: ckan/templates/package/read_core.html:72
 msgid "License not given"
-msgstr ""
+msgstr "Ingen lisens spesifisert"
 
 #: ckan/templates/package/read_core.html:44
 #: ckan/templates/package/read_core.html:51
 msgid "Resources"
-msgstr ""
+msgstr "Ressurser"
 
 #: ckan/templates/package/read_core.html:46
 msgid "URL"
-msgstr ""
+msgstr "URL"
 
 #: ckan/templates/package/read_core.html:46
 msgid "Format"
-msgstr ""
+msgstr "Format"
 
 #: ckan/templates/package/read_core.html:46
 msgid "Description"
-msgstr ""
+msgstr "Beskrivelse"
 
 #: ckan/templates/package/read_core.html:46
 msgid "Hash"
-msgstr ""
+msgstr "Nummertegn"
 
 #: ckan/templates/package/read_core.html:51
 msgid "None given for this package."
-msgstr ""
+msgstr "Ingen spesifisert for denne pakken."
 
 #: ckan/templates/package/read_core.html:57
 msgid "Extras"
-msgstr ""
+msgstr "Extras"
 
 #: ckan/templates/package/read_core.html:66
 msgid "Openness"
-msgstr ""
+msgstr "Åpenhet"
 
 #: ckan/templates/package/read_core.html:68
 msgid "This package is licensed"
-msgstr ""
+msgstr "Denne pakken er lisensiert"
 
 #: ckan/templates/package/read_core.html:77
 msgid "This package satisfies the OKFN's Open Knowledge Definition."
-msgstr ""
+msgstr "Denne pakken tilfredsstiller OKFNs definisjon av åpen kunnskap."
 
 #: ckan/templates/package/read_core.html:80
 msgid "[Open Knowledge]"
-msgstr ""
+msgstr "[Åpen kunnskap]"
 
 #: ckan/templates/package/read_core.html:86
 msgid "Rating"
-msgstr ""
+msgstr "Rangering"
 
 #: ckan/templates/package/read_core.html:108
 msgid "State:"
-msgstr ""
+msgstr "Status:"
 
 #: ckan/templates/package/resources.html:2
 msgid "Someresources"
-msgstr ""
+msgstr "Ressurser:"
 
 #: ckan/templates/package/search.html:6
 msgid "Packages - Search"
-msgstr ""
+msgstr "Pakker - søk"
 
 #: ckan/templates/package/search.html:9
 msgid "Search packages"
-msgstr ""
+msgstr "Søk i pakker"
 
 #: ckan/templates/package/search.html:17
 msgid "tags found (max"
-msgstr ""
+msgstr "stikkord funnet (maksimalt antall"
 
 #: ckan/templates/package/search.html:17
 msgid "shown)."
-msgstr ""
+msgstr "vist)."
 
 #: ckan/templates/package/search.html:21
 msgid "packages found."
-msgstr ""
+msgstr "pakker funnet."
 
 #: ckan/templates/package/search.html:23
 msgid "Would you like to"
-msgstr ""
+msgstr "Ønsker du å"
 
 #: ckan/templates/package/search.html:23
 msgid "create a new package?"
-msgstr ""
+msgstr "opprette en ny pakke?"
 
 #: ckan/templates/package/search_form.html:3
 msgid "Search Packages »"
-msgstr ""
+msgstr "Søk i pakker »"
 
 #: ckan/templates/package/search_form.html:4
 msgid "E.g. 'geo', 'shakespeare', 'science'"
-msgstr ""
+msgstr "F.eks. 'geo', 'shakespeare', 'science'"
 
 #: ckan/templates/package/search_form.html:7
 msgid "Filters:"
-msgstr ""
+msgstr "Filtre:"
 
 #: ckan/templates/package/search_form.html:8
 msgid "downloadable"
-msgstr ""
+msgstr "nedlastbar"
 
 #: ckan/templates/revision/diff.html:4
+#, fuzzy
 msgid "Diff"
-msgstr ""
+msgstr "Diff"
 
 #: ckan/templates/revision/diff.html:7
 msgid "Revision Differences -"
-msgstr ""
+msgstr "Forskjeller mellom versjoner -"
 
 #: ckan/templates/revision/diff.html:9
 msgid "From:"
-msgstr ""
+msgstr "Fra:"
 
 #: ckan/templates/revision/diff.html:13
 msgid "To:"
-msgstr ""
+msgstr "Til:"
 
 #: ckan/templates/revision/diff.html:20
 msgid "Field"
-msgstr ""
+msgstr "Felt"
 
 #: ckan/templates/revision/diff.html:20
 msgid "Difference"
-msgstr ""
+msgstr "Forskjell"
 
 #: ckan/templates/revision/diff.html:28
 msgid "No differences"
-msgstr ""
+msgstr "Ingen forskjeller"
 
 #: ckan/templates/revision/layout.html:8
 msgid "CKAN Atom Feed"
-msgstr ""
+msgstr "CKAN Atom Feed"
 
 #: ckan/templates/revision/list.html:4 ckan/templates/revision/list.html:7
 msgid "Repository History"
-msgstr ""
+msgstr "Arkivhistorikk"
 
 #: ckan/templates/revision/list.html:8
 msgid ""
 "This page lists all changes to package database, with most recent\n"
 "    changes first. It is also available as an"
 msgstr ""
+"Denne siden lister alle endringer i pakkedatabasen, med de siste endringene\n"
+" først. Den er også tilgjengelig som en"
 
 #: ckan/templates/revision/list.html:9
 msgid ""
 "Atom\n"
 "      Feed"
 msgstr ""
+"Atom\n"
+" Feed"
 
 #: ckan/templates/revision/list.html:16
 msgid "Number"
-msgstr ""
+msgstr "Nummer"
 
 #: ckan/templates/revision/purge.html:4
 msgid "Revisions - Purge"
-msgstr ""
+msgstr "Revisjoner - fjern"
 
 #: ckan/templates/revision/purge.html:7
 msgid "Revision Purge"
-msgstr ""
+msgstr "Revisjonsfjerning"
 
 #: ckan/templates/revision/purge.html:8
 msgid "There was an error:"
-msgstr ""
+msgstr "Det har oppstått en feil:"
 
 #: ckan/templates/revision/purge.html:9
 msgid "Purge successful."
-msgstr ""
+msgstr "Fjerning vellykket."
 
 #: ckan/templates/revision/read.html:7
 msgid "Revision:"
-msgstr ""
+msgstr "Revisjon:"
 
 #: ckan/templates/revision/read.html:14
 msgid "Timestamp:"
-msgstr ""
+msgstr "Tidsstempel:"
 
 #: ckan/templates/revision/read.html:16
 msgid "Log Message:"
-msgstr ""
+msgstr "Loggmelding:"
 
 #: ckan/templates/revision/read.html:19
 msgid "Changes"
-msgstr ""
+msgstr "Endringer"
 
 #: ckan/templates/revision/read.html:29
 msgid "Packages' Tags"
-msgstr ""
+msgstr "Stikkord (tags) for pakker"
 
 #: ckan/templates/revision/read.html:33
 msgid ""
 ",\n"
 "      Tag -"
 msgstr ""
+",\n"
+" stikkord - "
 
 #: ckan/templates/tag/index.html:4
 msgid "Tags - Index"
-msgstr ""
+msgstr "Stikkord - indeks"
 
 #: ckan/templates/tag/index.html:19
 msgid "results for ‘"
-msgstr ""
+msgstr "resultater for "
 
 #: ckan/templates/tag/index.html:22
 msgid "results for tags."
-msgstr ""
+msgstr "resultater for stikkord (tags)."
 
 #: ckan/templates/tag/index.html:32
 msgid "and see all tags."
-msgstr ""
+msgstr "og se alle stikkord."
 
 #: ckan/templates/tag/read.html:4
 msgid "Tags -"
-msgstr ""
+msgstr "Stikkord (tags) - "
 
 #: ckan/templates/tag/read.html:7
 msgid "Tag:"
-msgstr ""
+msgstr "Stikkord:"
 
 #: ckan/templates/tag/read.html:8
 msgid "packages tagged with"
-msgstr ""
+msgstr "pakker med stikkord"
 
 #: ckan/templates/user/apikey.html:4 ckan/templates/user/login_form.html:4
 #: ckan/templates/user/openid_form.html:4
 msgid "Account - Login"
-msgstr ""
+msgstr "Konto - innlogging"
 
 #: ckan/templates/user/apikey.html:7
 msgid "API Key"
-msgstr ""
+msgstr "API-nøkkel"
 
 #: ckan/templates/user/apikey.html:8
 msgid "Your API key is:"
-msgstr ""
+msgstr "Din API-nøkkel er:"
 
 #: ckan/templates/user/edit.html:4
 msgid "User - Edit -"
-msgstr ""
+msgstr "Bruker - rediger - "
 
 #: ckan/templates/user/edit.html:7
 msgid "Edit User:"
-msgstr ""
+msgstr "Rediger bruker:"
 
 #: ckan/templates/user/edit.html:17
 msgid "About user:"
-msgstr ""
+msgstr "Om bruker:"
 
-#: ckan/templates/user/login_form.html:7 ckan/templates/user/openid_form.html:7
+#: ckan/templates/user/login_form.html:7
+#: ckan/templates/user/openid_form.html:7
 msgid "Login"
-msgstr ""
+msgstr "Innlogging"
 
 #: ckan/templates/user/login_form.html:8
 msgid "Please login now."
-msgstr ""
+msgstr "Vennligst logg inn nå."
 
 #: ckan/templates/user/login_form.html:11
 msgid "Username:"
-msgstr ""
+msgstr "Brukernavn:"
 
 #: ckan/templates/user/login_form.html:13
 msgid "Password:"
-msgstr ""
+msgstr "Passord:"
 
 #: ckan/templates/user/logout.html:4
 msgid "Account - Logout"
-msgstr ""
+msgstr "Konto - logg ut"
 
 #: ckan/templates/user/logout.html:8
 msgid "You have logged out successfully."
-msgstr ""
+msgstr "Du har logget ut på korrekt måte."
 
 #: ckan/templates/user/openid_form.html:8
-msgid ""
-"You don't need to sign up for yet another account to use CKAN. Instead you "
-"can just"
-msgstr ""
+msgid "You don't need to sign up for yet another account to use CKAN. Instead you can just"
+msgstr "Du trenger ikke å registrere enda en ny konto for å bruke CKAN. Istedenfor kan du bare"
 
 #: ckan/templates/user/openid_form.html:8
 msgid "use your OpenID"
-msgstr ""
+msgstr "bruke din OpenID"
 
 #: ckan/templates/user/openid_form.html:13
 msgid "Your OpenID identity URL:"
-msgstr ""
+msgstr "URL for din OpenID:"
 
 #: ckan/templates/user/openid_form.html:19
 msgid "Don't have an OpenID?"
-msgstr ""
+msgstr "Har du ikke OpenID?"
 
 #: ckan/templates/user/openid_form.html:20
 msgid "If you haven't already got an OpenID it is"
-msgstr ""
+msgstr "Hvis du ikke allerede har OpenID, er det"
 
 #: ckan/templates/user/openid_form.html:22
 msgid "easy to get one"
-msgstr ""
+msgstr "lett å skaffe seg"
 
 #: ckan/templates/user/openid_form.html:22
 msgid ""
 ". Probably the simplest\n"
 "    way is sign up with a free OpenID provider such as"
 msgstr ""
+". Antakelig er den enkleste\n"
+" måten å registrere seg hos en gratis OpenID-leverandør som"
 
 #: ckan/templates/user/openid_form.html:24
+#, fuzzy
 msgid "https://www.myopenid.com/"
-msgstr ""
+msgstr "http://www.minopenid.no/"
 
 #: ckan/templates/user/read.html:6 ckan/templates/user/read.html:10
 msgid "User Account -"
-msgstr ""
+msgstr "Brukerkonto -"
 
 #: ckan/templates/user/read.html:12
 msgid "My Account"
-msgstr ""
+msgstr "Min konto"
 
 #: ckan/templates/user/read.html:13
 msgid "You are logged in."
-msgstr ""
+msgstr "Du er logget inn."
 
 #: ckan/templates/user/read.html:13
 msgid "Log out"
-msgstr ""
+msgstr "Logg ut"
 
 #: ckan/templates/user/read.html:15
 msgid "View your API key"
-msgstr ""
+msgstr "Se din API-nøkkel"
 
 #: ckan/templates/user/read.html:28
 msgid "Activity"
-msgstr ""
+msgstr "Aktivitet"
 
 #: ckan/templates/user/read.html:30
 msgid "Number of edits:"
-msgstr ""
+msgstr "Antall redigeringer:"
 
 #: ckan/templates/user/read.html:31
 msgid "Number of packages administered:"
-msgstr ""
-
+msgstr "Antall pakker administrert:"
