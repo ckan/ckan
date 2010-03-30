@@ -376,7 +376,7 @@ msgstr "Open Knowledge Foundation"
 
 #: ckan/templates/layout.html:105
 msgid "Project"
-msgstr "-prosjekt"
+msgstr " "
 
 #: ckan/templates/layout.html:107
 msgid "v"
