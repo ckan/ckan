@@ -529,15 +529,13 @@ msgstr "over"
 
 #: ckan/templates/home/about.html:10
 msgid "open knowledge"
-msgstr "åpen kunnskap"
+msgstr "åpen kunnskap."
 
 #: ckan/templates/home/about.html:10
 msgid ""
 "packages and projects\n"
 "    (and a few closed ones)."
-msgstr ""
-"pakker og prosjekter\n"
-" (og noen lukkede)."
+msgstr " "
 
 #: ckan/templates/home/about.html:13
 msgid "CKAN makes it easy to"
