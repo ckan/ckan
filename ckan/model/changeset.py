@@ -92,11 +92,11 @@ class Changeset(ChangesetDomainObject):
         changes_data = [c.as_dict() for c in self.changes]
         changeset_data = {
             'id': self.id,
-            'follows_id': self.follows_id,
             'closes_id': self.closes_id,
+            'follows_id': self.follows_id,
             'meta': meta_data,
-            'changes': changes_data,
             'timestamp': self.timestamp.isoformat(),
+            'changes': changes_data,
         }
         return changeset_data
 
@@ -311,10 +311,10 @@ class Heads(object):  # Rework as a list.
         changesets = register.values()
         for changeset in changesets:
             changeset_ids.append(changeset.id)
-            if changeset.follows_id:
-                followed_ids[changeset.follows_id] = changeset.id
             if changeset.closes_id:
                 closed_ids[changeset.closes_id] = changeset.id
+            if changeset.follows_id:
+                followed_ids[changeset.follows_id] = changeset.id
         for id in changeset_ids:
             if id not in followed_ids:
                 head_ids.append(id)
@@ -363,9 +363,9 @@ class Sum(ChangeArithmetic):
         
 class Merge(object):
 
-    def __init__(self, head1, head2):
-        self.head1 = head1
-        self.head2 = head2
+    def __init__(self, changeset_continuing, changeset_closing):
+        self.head1 = changeset_continuing
+        self.head2 = changeset_closing
         self.range_sum = None
         self.range1 = None
         self.range2 = None
@@ -388,8 +388,8 @@ class Merge(object):
         register = ChangesetRegister()
         closed_branch_changes = self.range2.calc_changes()
         mergeset = register.create_entity(
-            follows_id=self.head1.id,
             closes_id=self.head2.id,
+            follows_id=self.head1.id,
             changes = closed_branch_changes
         )
         return mergeset
@@ -557,7 +557,7 @@ class ObjectRegister(ChangesetLayerBase):
             if col.name in vector.new:
                 value = vector.new[col.name]
                 type_name = col.type.__class__.__name__
-                #value = self.convert_to_domain_value(value, type_name)
+                value = self.convert_to_domain_value(value, type_name)
                 setattr(entity, col.name, value)
 
     def get_columns(self):
@@ -568,6 +568,9 @@ class ObjectRegister(ChangesetLayerBase):
     def convert_to_domain_value(self, value, type_name):
         if type_name in ['Unicode', 'UnicodeText']:
             value = unicode(value)
+        elif type_name in ['DateTime']:
+            import datetime, re
+            value = datetime.datetime(*map(int, re.split('[^\d]', value)))
         else:
             raise Exception, "Unsupported type: %s" % type_name
         return value
@@ -594,12 +597,12 @@ class AbstractChangesetRegister(ObjectRegister):
 
     def create_changeset_id(self, **kwds):
         id_profile = []
-        follows_id = kwds.get('follows_id', None)
-        id_profile.append({'follows_id':'follows_id'}) # Separator.
-        id_profile.append(follows_id)
         closes_id = kwds.get('closes_id', None)
         id_profile.append({'closes_id':'closes_id'}) # Separator.
         id_profile.append(closes_id)
+        follows_id = kwds.get('follows_id', None)
+        id_profile.append({'follows_id':'follows_id'}) # Separator.
+        id_profile.append(follows_id)
         changes = kwds.get('changes', [])
         index = {}
         for change in changes:
@@ -646,6 +649,10 @@ class AbstractChangesetRegister(ObjectRegister):
         changeset_id = unicode(changeset_data['id'])
         if changeset_id in self:
             raise Exception, "Already have changeset with id '%s'." % changeset_id
+        closes_id = changeset_data['closes_id']
+        follows_id = changeset_data['follows_id']
+        meta = changeset_data['meta']
+        timestamp = self.convert_to_domain_value(change_data['timestamp'], 'DateTime')
         changes = []
         changes_data = changeset_data['changes']
         change_register = ChangeRegister()
@@ -655,10 +662,15 @@ class AbstractChangesetRegister(ObjectRegister):
             diff = unicode(self.dumps(diff_data))
             change = change_register.create_entity(ref=ref, diff=diff)
             changes.append(change)
-        meta = changeset_data['meta']
-        status = self.object_type.STATUS_QUEUED
-        changeset = self.create_entity(id=changeset_id,
-            meta=meta, status=status, changes=changes)
+        changeset = self.create_entity(
+            id=changeset_id,
+            closes_id=closes_id,
+            follows_id=follows_id,
+            meta=meta, 
+            timestamp=timestamp,
+            changes=changes,
+            status=self.object_type.STATUS_QUEUED,
+        )
         Session.commit()
         Session.remove()
         return changeset.id
@@ -677,14 +689,16 @@ class ChangeRegister(ObjectRegister):
 #
 
 changeset_table = Table('changeset', metadata,
+        # These are the "public" changeset attributes.
         Column('id', types.UnicodeText, primary_key=True),
-        Column('follows_id', types.UnicodeText, nullable=True),
         Column('closes_id', types.UnicodeText, nullable=True),
-        Column('status', types.UnicodeText, nullable=True),
+        Column('follows_id', types.UnicodeText, nullable=True),
         Column('meta', types.UnicodeText, nullable=True),
-        Column('revision_id', types.UnicodeText, ForeignKey('revision.id'), nullable=True),
         Column('timestamp', DateTime, default=datetime.datetime.now),
+        # These are the "private" changeset attributes.
         Column('is_tip', types.Boolean, default=False),
+        Column('revision_id', types.UnicodeText, ForeignKey('revision.id'), nullable=True),
+        Column('status', types.UnicodeText, nullable=True),
 )
 
 change_table = Table('change', metadata,
@@ -769,11 +783,11 @@ class ChangesetRegister(AbstractChangesetRegister):
         else:
             follows_id = None
         changeset = self.create_entity(
-            revision_id=revision.id,
-            meta=meta,
-            status=self.object_type.STATUS_CONSTRUCTED,
-            changes=changes,
             follows_id=follows_id,
+            meta=meta,
+            changes=changes,
+            status=self.object_type.STATUS_CONSTRUCTED,
+            revision_id=revision.id,
         )
         Session.commit()
         Session.remove()
