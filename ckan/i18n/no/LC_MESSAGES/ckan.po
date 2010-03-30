@@ -601,7 +601,7 @@ msgid ""
 "\t\tto provide 'index'-like features such as automated registration, discovery\n"
 "\t\tand installation of material. In this respect it behaves like"
 msgstr ""
-"CKAN har et a\n"
+"har CKAN et \n"
 "\t\twiki-lignende grensesnitt som lar alle legge til og redigere det lagrede innholdet. For det andre: \n"
 "\t\ttil forskjell fra en wiki, kan CKAN lagre 'strukturert' informasjon, som gjør det mulig\n"
 "\t\tå tilby 'indeks'-aktige funksjoner som automatisert registrering, oppdagelse\n"
@@ -623,11 +623,11 @@ msgstr "PyPI"
 msgid ""
 "in the software world -- though\n"
 "\t\tagain for"
-msgstr "i programvareverdenen - men n\t\t\tigjen tilpasset"
+msgstr "i programvareverdenen - men \t\t\tigjen tilpasset"
 
 #: ckan/templates/home/about.html:35
 msgid "open data and content"
-msgstr "åpne data og innhold"
+msgstr "åpne data og innhold, "
 
 #: ckan/templates/home/about.html:35
 msgid "not code."
@@ -661,7 +661,7 @@ msgid ""
 "    CKAN code and data are open:"
 msgstr ""
 ". Både \n"
-" CKANs kode og data er åpne:"
+" CKANs kode og data er åpne"
 
 #: ckan/templates/home/about.html:47
 msgid ""
