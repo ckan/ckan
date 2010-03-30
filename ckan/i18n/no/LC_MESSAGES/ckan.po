@@ -368,7 +368,7 @@ msgstr "Retningslinjer for personvern"
 
 #: ckan/templates/layout.html:105
 msgid "An"
-msgstr "Et"
+msgstr "Et prosjekt fra"
 
 #: ckan/templates/layout.html:105 ckan/templates/home/about.html:46
 msgid "Open Knowledge Foundation"
