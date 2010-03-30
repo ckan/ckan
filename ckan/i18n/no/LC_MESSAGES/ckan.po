@@ -1049,7 +1049,7 @@ msgstr "Forfatter:"
 
 #: ckan/templates/package/edit_form.html:17
 msgid "If you have not signed in this will just be your IP address."
-msgstr "Hvis du ikke har logget inn, vil dette bare bli din IP-adresse."
+msgstr "Hvis du ikke har logget inn, vil din IP-adresse vises her."
 
 #: ckan/templates/package/edit_form.html:19
 msgid "Click here to sign in"
