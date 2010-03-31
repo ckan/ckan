@@ -106,16 +106,22 @@ class Data(object):
         '''Munges the name field in case it is not to spec.'''
         return self._munge(input_name.replace(' ', '').replace('.', '_').replace('&', 'and'))
 
-    def _parse_tags(self, tags_str):
-        tag_list = re.split(',\s?|\s', tags_str)
-        return [schema_gov.tag_munge(tag_name) for tag_name in tag_list]
-
+    def _tidy_url(self, url):
+        if url and not url.startswith('http') and not url.startswith('webcal:'):
+            if url.startswith('www.'):
+                url = url.replace('www.', 'http://www.')
+            else:
+                print "Warning: URL doesn't start with http: %s" % url
+        return url
+                
     def _load_line_into_db(self, _dict, line_index):
         # Create package
-        rev = self._new_revision()
         name = self._name_munge(_dict['name'])
         title = _dict['title']
-        url = _dict['url']
+        if not (name and title):
+            return
+        rev = self._new_revision()
+        url = self._tidy_url(_dict['url'])
         notes = _dict['notes']
 
         if self._resources.has_key(name):
@@ -131,11 +137,13 @@ class Data(object):
             if split_char in _dict['download url']:
                 for url_ in _dict['download url'].split(split_char):
                     if url_.strip():
+                        url_ = self._tidy_url(url_)
                         resources.append({'url':url_, 'description':description, 'format':format})
                 multiple_urls = True
                 break
         if not multiple_urls and _dict['download url']:
-            resources.append({'url':_dict['download url'], 'description':description, 'format':format})
+            url_ = self._tidy_url(_dict['download url'])
+            resources.append({'url':url_, 'description':description, 'format':format})
         if resources:
             self._resources[name] = resources
             
@@ -148,10 +156,18 @@ class Data(object):
             _dict[field] = _dict['%s - other' % field] if \
                            _dict['%s - standard' % field] == 'Other (specify)' else \
                            _dict['%s - standard' % field]
+
         license_name = license_map.get(_dict['licence'].strip(), '')
+        if not license_name and ';' in _dict['licence']:
+            license_parts = _dict['licence'].split(';')
+            for i, license_part in enumerate(license_parts):
+                license_name = license_map.get(license_part.strip(), '')
+                if license_name:
+                    notes += '\n\nLicence detail: %s' % _dict['licence']
+                    break
         if not license_name:
-            print 'Warning: license not recognised: %s. Defaulting to Crown Copyright.' % _dict['licence']
-            license_name = u'Non-OKD Compliant::Crown Copyright'
+            license_name = license_map[u'UK Crown Copyright with data.gov.uk rights']
+            print 'Warning: license not recognised: "%s". Defaulting to: %s.' % (_dict['licence'], license_name)
 
         # extras
         extras_dict = {}
@@ -173,7 +189,7 @@ class Data(object):
                 val = _dict[column]
             extras_dict[column.replace(' ', '_')] = val
 
-        given_tags = self._parse_tags(_dict['tags'])
+        given_tags = schema_gov.tags_parse(_dict['tags'])
             
         field_map = [
             ['co identifier'],
@@ -253,7 +269,7 @@ class Data(object):
             pkg.add_resource(resource['url'], format=resource['format'], description=resource['description'])
         pkg.notes=notes
         pkg.license = model.License.by_name(license_name)
-        assert pkg.license
+        assert pkg.license, license_name
         if not existing_pkg:
             user = model.User.by_name(self._username)
 
@@ -322,7 +338,8 @@ class Data(object):
 license_map = {
     u'UK Crown Copyright with data.gov.uk rights':u'OKD Compliant::UK Crown Copyright with data.gov.uk rights',
     u'\xa9 HESA. Not core Crown Copyright.':u'OKD Compliant::Higher Education Statistics Agency Copyright with data.gov.uk rights',
+    u'Local Authority copyright with data.gov.uk rights':u'OKD Compliant::Local Authority Copyright with data.gov.uk rights',
     u'UK Crown Copyright':u'Non-OKD Compliant::Crown Copyright',
-    u'Crown Copyright':u'Non-OKD Compliant::Crown Copyright', }
+    u'Crown Copyright':u'Non-OKD Compliant::Crown Copyright',}
 #agencies_raw = ['Health Protection Agency', 'Office for National Statistics', 'Census', 'Performance Assessment Framework', 'Annual Population Survey', 'Annual Survey of Hours and Earnings', 'Business Registers Unit', 'UK Hydrographic Office', 'Defence Analytical Services and Advice', 'Housing and Communities Agency', 'Tenants Service Authority', 'Higher Education Statistics Agency']
 geographic_regions = ['england', 'n. ireland', 'scotland', 'wales', 'overseas', 'global']

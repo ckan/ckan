@@ -2,7 +2,7 @@ import re
 import time
 import datetime
 
-__all__ = ['government_depts', 'geographic_granularity_options', 'temporal_granularity_options', 'category_options', 'region_options', 'region_groupings', 'update_frequency_suggestions', 'tag_pool', 'suggest_tags', 'DateType', 'GeoCoverageType', 'expand_abbreviations', 'name_munge', 'tag_munge']
+__all__ = ['government_depts', 'geographic_granularity_options', 'temporal_granularity_options', 'category_options', 'region_options', 'region_groupings', 'update_frequency_suggestions', 'tag_pool', 'tag_words_to_join', 'suggest_tags', 'tags_parse', 'DateType', 'GeoCoverageType', 'expand_abbreviations', 'name_munge', 'tag_munge']
 
 government_depts_raw = """
 Attorney General's Office
@@ -58,13 +58,16 @@ Scottish Government
 Welsh Assembly Government
 Northern Ireland Executive
 
+Ordnance Survey
+Lichfield District Council
+Society of Information Technology Management
 """
 government_depts = []
 for line in government_depts_raw.split('\n'):
     if line:
         government_depts.append(unicode(line.strip()))
 
-department_agency_abbreviations = {'DCSF':'Department for Children, Schools and Families', 'VLA':'Vetinary Laboratories Agency', 'MFA':'Marine and Fisheries Agency', 'CEFAS':'Centre of Environment, Fisheries and Aquaculture Science', 'FERA':'Food and Environment Research Agency', 'DEFRA':'Department for Environment, Food and Rural Affairs', 'Department for the Environment, Food and Rural Affairs':'Department for Environment, Food and Rural Affairs', 'CRB':'Criminal Records Bureau', 'UKBA':'UK Border Agency', 'IPS':'Identity and Passport Service', 'NPIA':'National Policing Improvement Agency', 'CIB':'Company Investigation Branch', 'IPO':'Intellectual Property Office', 'SFO':'Serious Fraud Office', 'HM Revenue and Customs':"Her Majesty's Revenue and Customs", 'HM Treasury':"Her Majesty's Treasury", 'DfT':'Department for Transport', }
+department_agency_abbreviations = {'DCSF':'Department for Children, Schools and Families', 'VLA':'Vetinary Laboratories Agency', 'MFA':'Marine and Fisheries Agency', 'CEFAS':'Centre of Environment, Fisheries and Aquaculture Science', 'FERA':'Food and Environment Research Agency', 'DEFRA':'Department for Environment, Food and Rural Affairs', 'Department for the Environment, Food and Rural Affairs':'Department for Environment, Food and Rural Affairs', 'CRB':'Criminal Records Bureau', 'UKBA':'UK Border Agency', 'IPS':'Identity and Passport Service', 'NPIA':'National Policing Improvement Agency', 'CIB':'Company Investigation Branch', 'IPO':'Intellectual Property Office', 'SFO':'Serious Fraud Office', 'HM Revenue and Customs':"Her Majesty's Revenue and Customs", 'HM Treasury':"Her Majesty's Treasury", 'DfT':'Department for Transport', 'socitm':'Society of Information Technology Management'}
 
 geographic_granularity_options = ['national', 'regional', 'local authority', 'ward', 'point']
 
@@ -83,6 +86,8 @@ update_frequency_suggestions = ('annually', 'quarterly', 'monthly', 'never')
 tag_pool = ['accident', 'road', 'traffic', 'health', 'illness', 'disease', 'population', 'school', 'accommodation', 'children', 'married', 'emissions', 'benefit', 'alcohol', 'deaths', 'mortality', 'disability', 'unemployment', 'employment', 'armed forces', 'asylum', 'cancer', 'births', 'burglary', 'child', 'tax credit', 'criminal damage', 'drug', 'earnings', 'education', 'economic', 'fire', 'fraud', 'forgery', 'fuel', 'green', 'greenhouse gas', 'homeless', 'hospital', 'waiting list', 'housing', 'care', 'income', 'census', 'mental health', 'disablement allowance', 'jobseekers allowance', 'national curriculum', 'older people', 'living environment', 'higher education', 'living environment', 'school absence', 'local authority', 'carbon dioxide', 'energy', 'teachers', 'fostering', 'tide', 'gas', 'electricity', 'transport', 'veterinary', 'fishing', 'export', 'fisheries', 'pest', 'recycling', 'waste', 'crime', 'anti-social behaviour', 'police', 'refugee', 'identity card', 'immigration', 'planning', 'communities', 'lettings', 'finance', 'ethnicity', 'trading standards', 'trade', 'business', 'child protection']
 
 tag_search_fields = ['name', 'title', 'notes', 'categories', 'agency']
+
+tag_words_to_join = ['ordnance survey', 'environmental protection', 'water conservation', 'water resources', 'water quality', 'climate and weather', 'nature conservation', 'waste management', 'waste policies and regulation', 'air quality', 'tariff codes', 'life stages']
 
 months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
@@ -115,6 +120,16 @@ class TagSuggester(object):
         return tags
 
 suggest_tags = TagSuggester.suggest_tags
+
+def tags_parse(tags_str):
+    '''Takes a string containing tags and returns a list of tag names.
+    Takes into account tag_words_to_join. Ensures tags are munged.'''
+    tags_str = tags_str.lower()
+    for phrase in tag_words_to_join:
+        if phrase in tags_str:
+            tags_str = tags_str.replace(phrase, tag_munge(phrase))
+    tag_list = re.split(',\s*|\s+', tags_str.strip())
+    return [tag_munge(tag_name) for tag_name in tag_list]
 
 class DateType(object):
     '''Handles conversions between form and database as well as
