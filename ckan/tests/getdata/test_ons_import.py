@@ -54,9 +54,11 @@ class TestData:
         pkg1 = model.Package.by_name(u'uk_official_holdings_of_international_reserves')
         cereals = model.Package.by_name(u'cereals_and_oilseeds_production_harvest')
         custody = model.Package.by_name(u'end_of_custody_licence_release_and_recalls')
+        probation = model.Package.by_name(u'probation_statistics_brief')
         assert pkg1, names
         assert cereals, names
         assert custody, names
+        assert probation, names
         assert pkg1.title == 'UK Official Holdings of International Reserves', pkg1.title
         assert pkg1.notes.startswith("Monthly breakdown for government's net reserves, detailing gross reserves and gross liabilities."), pkg1.notes
         assert len(pkg1.resources) == 1, pkg1.resources
@@ -68,6 +70,7 @@ class TestData:
         assert custody.resources[1].url == 'http://www.justice.gov.uk/publications/endofcustodylicence.htm', custody.resources[0]
         assert custody.resources[1].description == 'December 2009 | hub/id/119-36838', custody.resources[1].description
         assert pkg1.extras['date_released'] == u'2010-01-06', pkg1.extras['date_released']
+        assert probation.extras['date_released'] == u'2010-01-04', probation.extras['date_released']
         assert pkg1.extras['department'] == u"Her Majesty's Treasury", pkg1.extras['department']
         assert cereals.extras['department'] == u"Department for Environment, Food and Rural Affairs", cereals.extras['department']
         assert custody.extras['department'] == u"Ministry of Justice", custody.extras['department']

@@ -144,6 +144,8 @@ class DateType(object):
     def iso_to_db(self, iso_date, format):
         # e.g. 'Wed, 06 Jan 2010 09:30:00 GMT'
         #      '%a, %d %b %Y %H:%M:%S %Z'
+        if iso_date.endswith('+0100'):
+            iso_date = iso_date.replace('+0100', 'BST')
         assert isinstance(iso_date, (unicode, str))
         try:
             date_tuple = time.strptime(iso_date, format)
