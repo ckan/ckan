@@ -1,9 +1,11 @@
 from ckan.tests import *
 from ckan.model.changeset import ChangesetRegister, Changeset
 from ckan.model.changeset import ChangeRegister, Change
-from ckan.model.changeset import RevisionRegister, PackageRegister
-from ckan.model.changeset import ConflictException
 from ckan.model.changeset import Range, CommonAncestor, Heads, Sum, Merge
+from ckan.model.changeset import ConflictException
+from ckan.model.changeset import UncommittedChangesException
+from ckan.model.changeset import TipAtHeadException
+from ckan.model.changeset import RevisionRegister, PackageRegister
 import ckan.model as model
 
 class TestCase(object):
@@ -68,10 +70,10 @@ class TestChangesetRegister(TestCase):
         self.assert_true(changeset1.is_tip)
         self.assert_equal(changeset0.id, changeset1.follows_id)
         
-    def test_construct(self):
+    def test_construct_revision_changeset(self):
         revision_id = self.build_creating_revision()
         revision = self.revisions[revision_id]
-        changeset = self.changesets.construct(revision)
+        changeset = self.changesets.construct_revision_changeset(revision)
         self.assert_isinstance(changeset, Changeset)
         self.assert_true(changeset.revision_id)
         self.assert_true(changeset.changes)
@@ -79,21 +81,21 @@ class TestChangesetRegister(TestCase):
         
         revision_id = self.build_creating_revision('1')
         revision = self.revisions[revision_id]
-        changeset = self.changesets.construct(revision)
+        changeset = self.changesets.construct_revision_changeset(revision)
         self.assert_isinstance(changeset, Changeset)
         self.assert_true(changeset.revision_id)
         self.assert_true(changeset.changes)
 
         revision_id = self.build_updating_revision('', 'and also')
         revision = self.revisions[revision_id]
-        changeset = self.changesets.construct(revision)
+        changeset = self.changesets.construct_revision_changeset(revision)
         self.assert_isinstance(changeset, Changeset)
         self.assert_true(changeset.revision_id)
         self.assert_true(changeset.changes)
 
         revision_id = self.build_updating_revision('1', 'and now')
         revision = self.revisions[revision_id]
-        changeset = self.changesets.construct(revision)
+        changeset = self.changesets.construct_revision_changeset(revision)
         self.assert_isinstance(changeset, Changeset)
         self.assert_true(changeset.revision_id)
         self.assert_true(changeset.changes)
@@ -185,10 +187,22 @@ class TestChangesetRegister(TestCase):
         self.assert_equal(package.license_id, "closed-corr")
 
     def test_update(self):
-        self.assert_equal(len(self.packages), 0)
+        self.assert_false(self.changesets.get_tip())
         changeset_id = self.build_creating_changeset()
-        self.changesets.update()
+        self.assert_raises(UncommittedChangesException, self.changesets.update)
+        new_changesets = self.changesets.commit()
+        self.assert_equal(len(new_changesets), 1)
+        self.assert_raises(TipAtHeadException, self.changesets.update)
+        self.assert_true(self.changesets.get_tip())
+        self.assert_equal(self.changesets.get_tip().id, new_changesets[0].id)
+        changeset_id = self.build_creating_changeset('1', follows_id=self.changesets.get_tip().id)
+        self.assert_equal(len(self.packages), 0)
+        changed_entities = self.changesets.update()
         # Check changesets have been applied.
+        self.assert_equal(len(changed_entities), 1)
+        self.assert_equal(len(self.packages), 1)
+        self.assert_equal(self.changesets.get_tip().id, changeset_id)
+        self.assert_raises(TipAtHeadException, self.changesets.update)
 
     def test_apply(self):
         self.assert_equal(len(self.packages), 0)
@@ -325,7 +339,7 @@ class TestChangesetRegister(TestCase):
         model.Session.remove()
         return revision.id
 
-    def build_creating_changeset(self, mark=''):
+    def build_creating_changeset(self, mark='', follows_id=None):
         id = u"5872c628-435e-4896-ad04-514aab3d0d10"
         if mark:
             assert len(mark) == 1
@@ -344,12 +358,15 @@ class TestChangesetRegister(TestCase):
         ref = u"/package/%s" % id
         change = self.changes.create_entity(diff=diff, ref=ref)
         changes = [change]
-        changeset = self.changesets.create_entity(changes=[change])
+        changeset = self.changesets.create_entity(
+            follows_id=follows_id,
+            changes=[change], 
+        )
         model.Session.commit()
         model.Session.remove()
         return changeset.id
 
-    def build_updating_changeset(self, mark='', vary_old='', vary_new=''):
+    def build_updating_changeset(self, mark='', vary_old='', vary_new='', follows_id=None):
         id = u"5872c628-435e-4896-ad04-514aab3d0d10"
         if mark:
             assert len(mark) == 1
@@ -368,12 +385,15 @@ class TestChangesetRegister(TestCase):
         }""" % (vary_old, vary_old, vary_new, vary_new)
         ref = u"/package/%s" % id
         change = self.changes.create_entity(diff=diff, ref=ref)
-        changeset = self.changesets.create_entity(changes=[change])
+        changeset = self.changesets.create_entity(
+            follows_id=follows_id,
+            changes=[change],
+        )
         model.Session.commit()
         model.Session.remove()
         return changeset.id
 
-    def build_conflicting_changeset(self, mark='', vary_old='', vary_new=''):
+    def build_conflicting_changeset(self, mark='', vary_old='', vary_new='', follows_id=None):
         id = u"5872c628-435e-4896-ad04-514aab3d0d10"
         if mark:
             assert len(mark) == 1
@@ -392,12 +412,15 @@ class TestChangesetRegister(TestCase):
         }""" % (vary_old, vary_old, vary_new, vary_new)
         ref = u"/package/%s" % id
         change = self.changes.create_entity(diff=diff, ref=ref)
-        changeset = self.changesets.create_entity(changes=[change])
+        changeset = self.changesets.create_entity(
+            follows_id=follows_id,
+            changes=[change],
+        )
         model.Session.commit()
         model.Session.remove()
         return changeset.id
 
-    def test_queue_incoming(self):
+    def test_add_unseen(self):
         changeset_data = {
             "id": "8772c628-435e-4896-ad04-514aab3d0d10",
             "meta": {},
@@ -416,7 +439,7 @@ class TestChangesetRegister(TestCase):
                 }
             ]
         }
-        changeset_id = self.changesets.queue_incoming(changeset_data)
+        changeset_id = self.changesets.add_unseen(changeset_data)
         changeset = ChangesetRegister()[changeset_id]
         self.assert_equal(changeset.status, changeset.STATUS_QUEUED)
 
@@ -466,22 +489,28 @@ class TestArithmetic(TestCase):
         self.title2 = 'Title Two'
         self.title3 = 'Title Three'
         self.change0 = self.creating_package_change(id='z', name=self.name0, title=self.title0)
-        self.change1 = self.creating_package_change(id='a', name=self.name1, title=self.title1)
-        self.change2 = self.updating_title_change(id='a', old=self.title1, new=self.title2)
-        self.change3 = self.updating_title_change(id='a', old=self.title2, new=self.title3)
-        self.change4 = self.updating_name_change(id='a', old=self.name1, new=self.name2)
-        self.change5 = self.updating_name_change(id='a', old=self.name2, new=self.name3)
         self.cs0 = self.create_cs(changes=[self.change0])
-        print "Changeset0 : %s" % self.cs0.id
+        model.Session.commit()
+        self.change1 = self.creating_package_change(id='a', name=self.name1, title=self.title1)
         self.cs1 = self.create_cs(follows_id=self.cs0.id, changes=[self.change1])
-        print "Changeset1 : %s" % self.cs1.id
+        model.Session.commit()
+        self.change2 = self.updating_title_change(id='a', old=self.title1, new=self.title2)
         self.cs2 = self.create_cs(follows_id=self.cs1.id, changes=[self.change2])
-        print "Changeset2 : %s" % self.cs2.id
+        model.Session.commit()
+        self.change3 = self.updating_title_change(id='a', old=self.title2, new=self.title3)
         self.cs3 = self.create_cs(follows_id=self.cs2.id, changes=[self.change3])
-        print "Changeset3 : %s" % self.cs3.id
+        model.Session.commit()
+        self.change4 = self.updating_name_change(id='a', old=self.name1, new=self.name2)
         self.cs4 = self.create_cs(follows_id=self.cs1.id, changes=[self.change4])
-        print "Changeset4 : %s" % self.cs4.id
+        model.Session.commit()
+        self.change5 = self.updating_name_change(id='a', old=self.name2, new=self.name3)
         self.cs5 = self.create_cs(follows_id=self.cs4.id, changes=[self.change5])
+        model.Session.commit()
+        print "Changeset0 : %s" % self.cs0.id
+        print "Changeset1 : %s" % self.cs1.id
+        print "Changeset2 : %s" % self.cs2.id
+        print "Changeset3 : %s" % self.cs3.id
+        print "Changeset4 : %s" % self.cs4.id
         print "Changeset5 : %s" % self.cs5.id
 
     def teardown(self):
@@ -673,7 +702,6 @@ class TestArithmetic(TestCase):
         }""" % (id, name, title)
         change = Change(ref=u'/package/%s711c90b-6406-498b-8ddc-2d9e33dc25b9' % id, diff=diff)
         model.Session.add(change)
-        model.Session.commit()
         return change
 
     def updating_title_change(self, id='a', old='My Title', new='My New Title'):
@@ -687,7 +715,6 @@ class TestArithmetic(TestCase):
         }""" % (old, new)
         change = Change(ref=u'/package/%s711c90b-6406-498b-8ddc-2d9e33dc25b9' % id, diff=diff)
         model.Session.add(change)
-        model.Session.commit()
         return change
 
     def updating_name_change(self, id='a', old='annie', new='any'):
@@ -701,6 +728,5 @@ class TestArithmetic(TestCase):
         }""" % (old, new)
         change = Change(ref=u'/package/%s711c90b-6406-498b-8ddc-2d9e33dc25b9' % id, diff=diff)
         model.Session.add(change)
-        model.Session.commit()
         return change
 

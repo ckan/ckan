@@ -471,15 +471,18 @@ class Ratings(CkanCommand):
             rating.purge()
         model.repo.commit_and_remove()
 
+class ChangesSourceException(Exception): pass
+
 class Changes(CkanCommand):
     '''Distribute changes
 
     Usage:
-      changes pull                  - pulls new changesets from changeset sources
-      changes incoming              - prints status of queued changesets
-      changes update                - updates repository for queued changes
-      changes merge                 - constructs mergeset from branch changes
-      changes show                  - prints details of a single changeset
+      changes pull [source]          - pulls unseen changesets from changeset sources
+      changes update [target]        - updates repository entities to target changeset (defaults to tip's line's head)
+      changes commit                 - creates changesets for all outstanding changes (revisions)
+      changes merge [follow]         - creates mergeset to follow changeset and close tip
+      changes log [changeset]        - display changeset summary
+      changes tip                    - display tip changeset
     '''
 
     summary = __doc__.split('\n')[0]
@@ -492,17 +495,21 @@ class Changes(CkanCommand):
         from ckan import model
         cmd = self.args[0]
         if cmd == 'pull':
-            self.pull_sources()
-        elif cmd == 'incoming':
-            self.print_status()
+            self.pull()
         elif cmd == 'update':
-            self.apply_queue()
-        elif cmd == 'show':
-            self.print_details(unicode(self.args[1]))
+            self.update()
+        elif cmd == 'commit':
+            self.commit()
+        elif cmd == 'merge':
+            self.merge()
+        elif cmd == 'tip':
+            self.tip()
+        elif cmd == 'log':
+            self.log()
         else:
             print 'Command %s not recognized' % cmd
 
-    def pull_sources(self):
+    def pull(self):
         from pylons import config
         sources = config.get('changes_source', '').strip()
         if not sources:
@@ -512,7 +519,11 @@ class Changes(CkanCommand):
         sources = [source.strip() for source in sources.split(',')]
         for source in sources:
             print "Pulling changes from: %s" % source
-            self.pull_source(source)
+            try:
+                self.pull_source(source)
+            except ChangesSourceException, inst:
+                print inst
+                sys.exit(1)
             
     def pull_source(self, source):
         # Get foreign register of changes.
@@ -522,7 +533,7 @@ class Changes(CkanCommand):
         foreign_ids = ckan_service.changeset_register_get()
         if foreign_ids == None:
             msg = "Error pulling changes from: %s (CKAN service error: %s: %s)" % (source, ckan_service.last_url_error or "%s: %s" % (ckan_service.last_status, ckan_service.last_http_error), ckan_service.last_location)
-            raise Exception, msg
+            raise ChangesSourceException, msg
         # Get local register of changes.
         from ckan.model.changeset import ChangesetRegister
         changeset_register = ChangesetRegister()
@@ -547,31 +558,101 @@ class Changes(CkanCommand):
                 msg = "Error: Queued changeset id mismatch (%s, %s)." % (unseen_id, changeset_id)
                 raise Exception, msg
 
-    def print_status(self):
+    def update(self):
+        if len(self.args) > 1:
+            changeset_id = unicode(self.args[1])
+        else:
+            changeset_id = None
         from ckan.model.changeset import ChangesetRegister
+        from ckan.model.changeset import EmptyChangesetRegisterException
+        from ckan.model.changeset import TipAtHeadException
         changeset_register = ChangesetRegister()
-        for changeset in self.get_queue():
-            status_flag = ' '
-            if changeset.status:
-                status_flag = changeset.status[0].upper()
-            if status_flag == 'Q' and not changeset.is_conflicting():
-                status_flag = 'R'
-            if status_flag == 'A' and not changeset.revision_id:
-                status_flag = 'E'
-            changes_flag = ''
-            for change in changeset.changes:
-                diff = change.get_diff()
-                if diff.new:
-                    changes_flag = '+'*len(diff.new) + changes_flag
-                if diff.old:
-                    changes_flag = changes_flag + "-"*len(diff.old)
-            print '%s  %s  %s' % (status_flag, changeset.id, changes_flag)
+        updated_entities = []
+        try:
+            updated_entities = changeset_register.update(changeset_id)
+        except EmptyChangesetRegisterException, inst:
+            print "There are zero changesets in the changeset register."
+            sys.exit(1)
+        except TipAtHeadException, inst:
+            print "The tip changeset is already at the head of its line."
+            sys.exit(1)
+        if updated_entities:
+            print "The following entities were updated:"
+        for entity in updated_entities:
+            # Assume all are CKAN packages.
+            print "package:    %s" % entity.name
+            # Todo: Better update report.
 
-    def print_details(self, changeset_id):
+    def commit(self):
         from ckan.model.changeset import ChangesetRegister
         changeset_register = ChangesetRegister()
-        changeset = changeset_register[changeset_id]
-        print changeset_register.dumps(changeset.as_dict())
+        changesets = changeset_register.commit()
+        for changeset in changesets:
+            self.log_changeset(changeset)
+            print ""
+
+    def merge(self):
+        if len(self.args) > 1:
+            changeset_id = unicode(self.args[1])
+        else:
+            print "Need a target changeset to merge with tip."
+            sys.exit(1)
+        from ckan.model.changeset import ChangesetRegister
+        from ckan.model.changeset import ConflictException
+        from ckan.model.changeset import Heads
+        changeset_register = ChangesetRegister()
+        if not len(changeset_register):
+            print "There are zero changesets in the changeset register."
+            sys.exit(1)
+        try:
+            mergeset = changeset_register.merge(changeset_id)
+        except ConflictException, inst:
+            print inst
+            sys.exit(1)
+        print mergeset
+        # Todo: Better merge report.
+
+    def tip(self):
+        from ckan.model.changeset import ChangesetRegister
+        changeset_register = ChangesetRegister()
+        changeset = changeset_register.get_tip()
+        self.log_changeset(changeset)
+
+    def log(self):
+        if len(self.args) > 1:
+            changeset_id = unicode(self.args[1])
+        else:
+            changeset_id = None
+        from ckan.model.changeset import ChangesetRegister
+        changeset_register = ChangesetRegister()
+        if changeset_id:
+            changeset = changeset_register[changeset_id]
+            self.log_changeset(changeset)
+            for change in changeset.changes:
+                print change.ref
+                print change.dumps(change.load_diff())
+        else:
+            changesets = changeset_register.values()
+            changesets.reverse()  # Ordered by timestamp.
+            for changeset in changesets:
+                self.log_changeset(changeset)
+                print ""
+
+    def log_changeset(self, changeset):
+        print "changeset:      %s" % changeset.id
+        if changeset.is_tip:
+            print "tag:            %s" % 'tip'
+        if changeset.follows_id:
+            print "follows:        %s" % changeset.follows_id
+        if changeset.closes_id:
+            print "closes:         %s" % changeset.closes_id
+        user = str(changeset.get_meta().get('author', ''))
+        if user:
+            print "user:           %s" % user
+        print "date:           %s" % changeset.timestamp.strftime('%c')
+        summary = str(changeset.get_meta().get('log_message', ''))
+        if summary:
+            print "summary:        %s" % summary
 
     def apply_queue(self):
         from ckan.model.changeset import ChangesetRegister
@@ -591,4 +672,25 @@ class Changes(CkanCommand):
         from ckan.model.changeset import ChangesetRegister
         register = ChangesetRegister()
         return [c for c in register.values() if not c.revision_id]
+
+#    def print_status(self):
+#        from ckan.model.changeset import ChangesetRegister
+#        changeset_register = ChangesetRegister()
+#        for changeset in self.get_queue():
+#            status_flag = ' '
+#            if changeset.status:
+#                status_flag = changeset.status[0].upper()
+#            if status_flag == 'Q' and not changeset.is_conflicting():
+#                status_flag = 'R'
+#            if status_flag == 'A' and not changeset.revision_id:
+#                status_flag = 'E'
+#            changes_flag = ''
+#            for change in changeset.changes:
+#                diff = change.get_diff()
+#                if diff.new:
+#                    changes_flag = '+'*len(diff.new) + changes_flag
+#                if diff.old:
+#                    changes_flag = changes_flag + "-"*len(diff.old)
+#            print '%s  %s  %s' % (status_flag, changeset.id, changes_flag)
+#
                 

@@ -3,7 +3,6 @@ Sub-domain model for distributed data version control.
 """
 from meta import *
 import vdm.sqlalchemy
-from types import make_uuid
 from ckan.model.core import DomainObject
 from ckan.model import Session, Revision, Package, Tag, Group
 from simplejson import dumps, loads
@@ -11,6 +10,14 @@ import datetime
 import uuid
 
 class ConflictException(Exception): pass
+
+class SequenceException(Exception): pass
+
+class UncommittedChangesException(Exception): pass
+
+class TipAtHeadException(Exception): pass
+
+class EmptyChangesetRegisterException(Exception): pass
 
 class ChangesetLayerBase(object):
 
@@ -53,14 +60,13 @@ class Changeset(ChangesetDomainObject):
         self.meta = unicode(self.dumps(meta_data))
 
     def apply(self, is_forced=False):
-        self.__changed_entities = []  # Just keeps things in scope until commit.
         revision_register_class = Change.registers['revision'] 
         revision_register = revision_register_class()
         revision = revision_register.create_entity()
-        self.__changed_entities.append(revision)
+        changed_entities = []  # Just keeps things in scope until commit.
         for change in self.changes:
             entity = change.apply(is_forced=is_forced)
-            self.__changed_entities.append(entity)
+            changed_entities.append(entity)
         changeset_meta = self.get_meta()
         # Todo: Double dispatch onto the ChangesetRegister.
         # Assumes CKAN revision object attributes.
@@ -99,9 +105,6 @@ class Changeset(ChangesetDomainObject):
             'changes': changes_data,
         }
         return changeset_data
-
-    #def get_revision(self):
-    #    return self.revision_register.get(self.revision_id, None)
 
 
 class Change(ChangesetDomainObject):
@@ -239,7 +242,7 @@ class Range(ChangeArithmetic):
                 changeset = register.get(changeset.follows_id, None)
                 if changeset == None:
                     msg = "Changeset %s does not follow changeset %s." % (self.stop.id, self.start.id)
-                    raise Exception, msg
+                    raise SequenceException, msg
                 self.sequence.append(changeset.changes)
             self.sequence.reverse()
         return self.sequence
@@ -567,10 +570,16 @@ class ObjectRegister(ChangesetLayerBase):
 
     def convert_to_domain_value(self, value, type_name):
         if type_name in ['Unicode', 'UnicodeText']:
-            value = unicode(value)
+            if value == None:
+                value = ''
+            else:
+                value = unicode(value)
         elif type_name in ['DateTime']:
-            import datetime, re
-            value = datetime.datetime(*map(int, re.split('[^\d]', value)))
+            if value == None:
+                pass
+            else:
+                import datetime, re
+                value = datetime.datetime(*map(int, re.split('[^\d]', value)))
         else:
             raise Exception, "Unsupported type: %s" % type_name
         return value
@@ -587,7 +596,7 @@ class AbstractChangesetRegister(ObjectRegister):
         if 'id' not in kwds:
             kwds['id'] = self.create_changeset_id(**kwds)
         if self.get(kwds['id'], None):
-            msg = "Changeset id already in use: %s" % changeset_id
+            msg = "Changeset id already in use: %s" % (kwds)
             raise Exception, msg
         if 'meta' in kwds:
             meta = kwds['meta']
@@ -629,10 +638,8 @@ class AbstractChangesetRegister(ObjectRegister):
                     id_profile.append(key)
                     id_profile.append(value)
         id_profile = self.dumps(id_profile)
-        print id_profile
         id_uuid = uuid.uuid5(self.NAMESPACE_CHANGESET, id_profile)
         changeset_id = unicode(id_uuid)
-        print "New changeset id: %s" % changeset_id
         return changeset_id
             
     def update(self):
@@ -644,15 +651,15 @@ class AbstractChangesetRegister(ObjectRegister):
     def construct(self, revision):
         raise Exception, "Method not implemented."
 
-    def queue_incoming(self, changeset_data):
+    def add_unseen(self, changeset_data):
         # Todo: Validate the data (dict with id str, meta dict, and changes list).
         changeset_id = unicode(changeset_data['id'])
         if changeset_id in self:
             raise Exception, "Already have changeset with id '%s'." % changeset_id
-        closes_id = changeset_data['closes_id']
-        follows_id = changeset_data['follows_id']
+        closes_id = changeset_data.get('closes_id', None)
+        follows_id = changeset_data.get('follows_id', None)
         meta = changeset_data['meta']
-        timestamp = self.convert_to_domain_value(change_data['timestamp'], 'DateTime')
+        timestamp = self.convert_to_domain_value(changeset_data.get('timestamp', None), 'DateTime')
         changes = []
         changes_data = changeset_data['changes']
         change_register = ChangeRegister()
@@ -694,7 +701,7 @@ changeset_table = Table('changeset', metadata,
         Column('closes_id', types.UnicodeText, nullable=True),
         Column('follows_id', types.UnicodeText, nullable=True),
         Column('meta', types.UnicodeText, nullable=True),
-        Column('timestamp', DateTime, default=datetime.datetime.now),
+        Column('timestamp', DateTime, default=datetime.datetime.utcnow),
         # These are the "private" changeset attributes.
         Column('is_tip', types.Boolean, default=False),
         Column('revision_id', types.UnicodeText, ForeignKey('revision.id'), nullable=True),
@@ -702,7 +709,6 @@ changeset_table = Table('changeset', metadata,
 )
 
 change_table = Table('change', metadata,
-        Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
         Column('ref', types.UnicodeText, nullable=True),
         Column('diff', types.UnicodeText, nullable=True),
         Column('changeset_id', types.UnicodeText, ForeignKey('changeset.id')),
@@ -713,12 +719,12 @@ mapper(Changeset, changeset_table, properties={
         cascade='all, delete', #, delete-orphan',
         ),
     },
-    order_by=changeset_table.c.id,
+    order_by=changeset_table.c.timestamp,
 )
 
 mapper(Change, change_table, properties={
     },
-    order_by=change_table.c.id,
+    primary_key=[change_table.c.changeset_id, change_table.c.ref] 
 )
 
 
@@ -731,14 +737,86 @@ class ChangesetRegister(AbstractChangesetRegister):
 
     NAMESPACE_CHANGESET = uuid.uuid5(uuid.NAMESPACE_OID, 'opendata')
 
-    def update(self):
+    def update(self, target_id=None):
+        if not len(self):
+            raise EmptyChangesetRegisterException, "There are no changesets in the changeset register."
+        uncommitted, tip_revision = self.get_revisions_uncommitted_and_tip()
         # Check there are no uncommited revisions.
-        # Get route from tip to update changeset (complicated by merges).
+        if len(uncommitted) > 0:
+            raise UncommittedChangesException, "Revisions are outstanding: %s" % " ".join([r.id for r in uncommitted])
+        # Get route from tip to target (complicated by merges).
+        tip = self.get_tip()
+        if not tip:
+            raise Exception, "None of the changesets is marked as 'tip'."
+        head_ids = Heads().ids()
+        if tip.id in head_ids:
+            raise TipAtHeadException, "Nothing to update (tip is already a head)."
+        if not target_id:
+            # Find the head for this id.
+            for head_id in head_ids:
+                range = Range(tip, self.get(head_id))
+                try:
+                    range.get_sequence()
+                    target_id = head_id
+                    break
+                except SequenceException, inst:
+                    pass
+        if not target_id:
+            raise Exception, "No target for update."
         # Calc changes to update repo.
+        range.pop_first()
+        update_changes = range.calc_changes()
         # Apply changes.
-        raise Exception, "Method not implemented."
+        changed_entities = []  # Just keeps things in scope until commit.
+        for change in update_changes:
+            entity = change.apply()
+            changed_entities.append(entity)
+        revision_register_class = Change.registers['revision'] 
+        revision_register = revision_register_class()
+        revision = revision_register.create_entity()
+        revision.message = u'Jumped to changeset %s' % target_id
+        revision.author = ''
+        Session.commit()
+        target = self.get(target_id)
+        target.revision_id = revision.id
+        if tip:
+            tip.is_tip = False
+            Session.add(tip)
+        target.is_tip = True
+        Session.commit()
+        return changed_entities
 
     def commit(self):
+        uncommitted, tip_revision = self.get_revisions_uncommitted_and_tip()
+        tip = self.get(True, None, 'is_tip')
+        if tip and tip_revision and tip.revision_id != tip_revision.id:
+            msg = "Tip changeset revision '%s' mismatches tip changeset '%s'." % (tip.revision_id, tip_revision.id)
+            raise Exception, msg
+        uncommitted.reverse()
+        changesets = []
+        for revision in uncommitted:
+            changeset = self.construct_revision_changeset(revision, tip)
+            changesets.append(changeset)
+            if tip:
+                tip.is_tip = False
+                Session.add(tip)
+            changeset.is_tip = True
+            Session.add(changeset)
+            Session.commit()
+            tip = changeset
+        return changesets
+
+    def merge(self, continuing_id):
+        continuing = self.get(continuing_id)
+        closing = self.get_tip()
+        merge = Merge(continuing, closing)
+        if merge.is_conflicting():
+            raise ConflictException, "Merge conflict when closing '%s' into changeset '%s'." % (closing.id, continuing.id)
+        mergeset = merge.create_mergeset()
+        Session.commit()
+        return mergeset
+
+    def get_revisions_uncommitted_and_tip(self):
         import ckan.model
         revisions =  ckan.model.repo.history()  # NB Youngest first.
         uncommitted = []
@@ -750,25 +828,12 @@ class ChangesetRegister(AbstractChangesetRegister):
             else:
                 tip_revision = revision
                 break # Assume contiguity of uncommitted revisions.
-        tip = self.get(True, None, 'is_tip')
-        if tip and tip_revision and tip.revision_id != tip_revision.id:
-            msg = "Tip changeset revision '%s' mismatches tip changeset '%s'." % (tip.revision_id, tip_revision.id)
-            raise Exception, msg
-        uncommitted.reverse()
-        changesets = []
-        for revision in uncommitted:
-            changeset = self.construct(revision, tip)
-            changesets.append(changeset)
-            if tip:
-                tip.is_tip = False
-                Session.add(tip)
-            changeset.is_tip = True
-            Session.add(changeset)
-            Session.commit()
-            tip = changeset
-        return changesets
+        return uncommitted, tip_revision
 
-    def construct(self, revision, follow_changeset=None):
+    def get_tip(self):
+        return self.get(True, None, 'is_tip')
+
+    def construct_revision_changeset(self, revision, follow_changeset=None):
         # Assumes CKAN Revisions (and Packages).
         meta = unicode(self.dumps({
             'log_message': revision.message,

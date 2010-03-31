@@ -121,7 +121,7 @@ class PackageSaver(object):
                 return pkg
         if rev:
             from ckan.model.changeset import ChangesetRegister
-            changeset = ChangesetRegister().construct(rev)
+            ChangesetRegister().commit()
 
     @classmethod
     def _revision_validation(cls, log_message):
