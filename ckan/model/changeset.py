@@ -10,14 +10,12 @@ import datetime
 import uuid
 
 class ConflictException(Exception): pass
-
 class SequenceException(Exception): pass
-
-class UncommittedChangesException(Exception): pass
-
 class TipAtHeadException(Exception): pass
-
+class ChangesSourceException(Exception): pass
+class UncommittedChangesException(Exception): pass
 class EmptyChangesetRegisterException(Exception): pass
+
 
 class ChangesetLayerBase(object):
 
@@ -447,6 +445,7 @@ class ObjectRegister(ChangesetLayerBase):
             attr = self.key_attr
         kwds = {attr: key}
         q = Session.query(self.object_type).autoflush(False)
+        #q = Session.query(self.object_type).autoflush(True)
         o = q.filter_by(**kwds).first()
         if o:
             return o
@@ -648,16 +647,17 @@ class AbstractChangesetRegister(ObjectRegister):
     def commit(self):
         raise Exception, "Method not implemented."
 
-    def construct(self, revision):
-        raise Exception, "Method not implemented."
-
     def add_unseen(self, changeset_data):
         # Todo: Validate the data (dict with id str, meta dict, and changes list).
         changeset_id = unicode(changeset_data['id'])
         if changeset_id in self:
             raise Exception, "Already have changeset with id '%s'." % changeset_id
         closes_id = changeset_data.get('closes_id', None)
+        if closes_id:
+            closes_id = unicode(closes_id)
         follows_id = changeset_data.get('follows_id', None)
+        if follows_id:
+            follows_id = unicode(follows_id)
         meta = changeset_data['meta']
         timestamp = self.convert_to_domain_value(changeset_data.get('timestamp', None), 'DateTime')
         changes = []
@@ -706,6 +706,7 @@ changeset_table = Table('changeset', metadata,
         Column('is_tip', types.Boolean, default=False),
         Column('revision_id', types.UnicodeText, ForeignKey('revision.id'), nullable=True),
         Column('status', types.UnicodeText, nullable=True),
+        Column('added_here', DateTime, default=datetime.datetime.utcnow),
 )
 
 change_table = Table('change', metadata,
@@ -719,7 +720,7 @@ mapper(Changeset, changeset_table, properties={
         cascade='all, delete', #, delete-orphan',
         ),
     },
-    order_by=changeset_table.c.timestamp,
+    order_by=changeset_table.c.added_here,
 )
 
 mapper(Change, change_table, properties={
@@ -768,14 +769,14 @@ class ChangesetRegister(AbstractChangesetRegister):
         update_changes = range.calc_changes()
         # Apply changes.
         changed_entities = []  # Just keeps things in scope until commit.
-        for change in update_changes:
-            entity = change.apply()
-            changed_entities.append(entity)
         revision_register_class = Change.registers['revision'] 
         revision_register = revision_register_class()
         revision = revision_register.create_entity()
         revision.message = u'Jumped to changeset %s' % target_id
-        revision.author = ''
+        revision.author = u''
+        for change in update_changes:
+            entity = change.apply()
+            changed_entities.append(entity)
         Session.commit()
         target = self.get(target_id)
         target.revision_id = revision.id
@@ -795,7 +796,7 @@ class ChangesetRegister(AbstractChangesetRegister):
         uncommitted.reverse()
         changesets = []
         for revision in uncommitted:
-            changeset = self.construct_revision_changeset(revision, tip)
+            changeset = self.construct_from_revision(revision, tip)
             changesets.append(changeset)
             if tip:
                 tip.is_tip = False
@@ -833,7 +834,7 @@ class ChangesetRegister(AbstractChangesetRegister):
     def get_tip(self):
         return self.get(True, None, 'is_tip')
 
-    def construct_revision_changeset(self, revision, follow_changeset=None):
+    def construct_from_revision(self, revision, follow_changeset=None):
         # Assumes CKAN Revisions (and Packages).
         meta = unicode(self.dumps({
             'log_message': revision.message,
@@ -865,6 +866,35 @@ class ChangesetRegister(AbstractChangesetRegister):
         vector = packages.diff(package)
         diff = vector.as_diff()
         return ChangeRegister().create_entity(ref=ref, diff=diff)
+
+    def pull_source(self, source):
+        # Get foreign register of changes.
+        api_location = source.split('/api')[0].strip('/') + '/api'
+        from ckanclient import CkanClient
+        ckan_service = CkanClient(base_location=api_location)
+        foreign_ids = ckan_service.changeset_register_get()
+        if foreign_ids == None:
+            msg = "Error pulling changes from: %s (CKAN service error: %s: %s)" % (source, ckan_service.last_url_error or "%s: %s" % (ckan_service.last_status, ckan_service.last_http_error), ckan_service.last_location)
+            raise ChangesSourceException, msg
+        # Get local register of changes.
+        local_ids = self.keys()
+        # Get list of unseen changes.
+        unseen_ids = []
+        for changeset_id in foreign_ids:
+            if changeset_id not in local_ids:
+                unseen_ids.append(changeset_id)
+        # Pull unseen changes from foreign register.
+        unseen_changesets = []
+        for unseen_id in unseen_ids:
+            unseen_data = ckan_service.changeset_entity_get(unseen_id)
+            changeset_id = self.add_unseen(unseen_data)
+            if not changeset_id:
+                msg = "Error: Couldn't add incoming changeset: %s" % unseen_id
+                raise Exception, msg
+            if unseen_id != changeset_id:
+                msg = "Error: Changeset id mismatch: pulled '%s' but recorded '%s'." % (unseen_id, changeset_id)
+                raise Exception, msg
+        return unseen_ids
 
 
 class PackageRegister(ObjectRegister):

@@ -74,28 +74,28 @@ class TestControllerWithForeign(TestController):
 
 class TestDistributingChanges(TestControllerWithForeign):
 
-    def pull_changes(self):
+    def pull(self):
         cmd = 'paster changes pull --config=test_sync.ini'
         self.system(cmd)
 
-    def apply_changes(self):
-        cmd = 'paster changes apply --config=test_sync.ini'
+    def update(self):
+        cmd = 'paster changes update --config=test_sync.ini'
         self.system(cmd)
 
-    def test_pullchanges(self):
+    def test_pull(self):
         self.sub_app_get('/')
         self.app.get('/')
-        self.pull_changes()
-        self.apply_changes()
+        self.pull()
+        self.update()
         self.make_changeset1()
-        self.pull_changes()
-        self.apply_changes()
+        self.update()
+        self.apply()
         self.make_changeset2()
-        self.pull_changes()
-        self.apply_changes()
+        self.update)
+        self.apply()
         self.make_changeset3()
-        self.pull_changes()
-        self.apply_changes()
+        self.update)
+        self.apply()
         # Todo: Read the entities on the sub app...
 
     def make_changeset1(self):

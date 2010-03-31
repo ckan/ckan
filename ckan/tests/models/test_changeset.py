@@ -70,10 +70,10 @@ class TestChangesetRegister(TestCase):
         self.assert_true(changeset1.is_tip)
         self.assert_equal(changeset0.id, changeset1.follows_id)
         
-    def test_construct_revision_changeset(self):
+    def test_construct_from_revision(self):
         revision_id = self.build_creating_revision()
         revision = self.revisions[revision_id]
-        changeset = self.changesets.construct_revision_changeset(revision)
+        changeset = self.changesets.construct_from_revision(revision)
         self.assert_isinstance(changeset, Changeset)
         self.assert_true(changeset.revision_id)
         self.assert_true(changeset.changes)
@@ -81,21 +81,21 @@ class TestChangesetRegister(TestCase):
         
         revision_id = self.build_creating_revision('1')
         revision = self.revisions[revision_id]
-        changeset = self.changesets.construct_revision_changeset(revision)
+        changeset = self.changesets.construct_from_revision(revision)
         self.assert_isinstance(changeset, Changeset)
         self.assert_true(changeset.revision_id)
         self.assert_true(changeset.changes)
 
         revision_id = self.build_updating_revision('', 'and also')
         revision = self.revisions[revision_id]
-        changeset = self.changesets.construct_revision_changeset(revision)
+        changeset = self.changesets.construct_from_revision(revision)
         self.assert_isinstance(changeset, Changeset)
         self.assert_true(changeset.revision_id)
         self.assert_true(changeset.changes)
 
         revision_id = self.build_updating_revision('1', 'and now')
         revision = self.revisions[revision_id]
-        changeset = self.changesets.construct_revision_changeset(revision)
+        changeset = self.changesets.construct_from_revision(revision)
         self.assert_isinstance(changeset, Changeset)
         self.assert_true(changeset.revision_id)
         self.assert_true(changeset.changes)

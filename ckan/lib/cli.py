@@ -471,7 +471,6 @@ class Ratings(CkanCommand):
             rating.purge()
         model.repo.commit_and_remove()
 
-class ChangesSourceException(Exception): pass
 
 class Changes(CkanCommand):
     '''Distribute changes
@@ -510,53 +509,25 @@ class Changes(CkanCommand):
             print 'Command %s not recognized' % cmd
 
     def pull(self):
-        from pylons import config
-        sources = config.get('changes_source', '').strip()
+        if len(self.args) > 1:
+            sources = [unicode(self.args[1])]
+        else:
+            from pylons import config
+            sources = config.get('changes_source', '').strip().split(',')
+        sources = [s.strip() for s in sources if s.strip()]
         if not sources:
-            print "No changes sources are configured here (try "
-            print "setting 'changes_source' in your config file)."
+            print "No changes source to pull (set 'changes_source' in config)."
             return
-        sources = [source.strip() for source in sources.split(',')]
+        from ckan.model.changeset import ChangesetRegister
+        from ckan.model.changeset import ChangesSourceException
+        changeset_register = ChangesetRegister()
         for source in sources:
-            print "Pulling changes from: %s" % source
             try:
-                self.pull_source(source)
+                changesets = changeset_register.pull_source(source)
             except ChangesSourceException, inst:
                 print inst
                 sys.exit(1)
-            
-    def pull_source(self, source):
-        # Get foreign register of changes.
-        api_location = source.split('/api')[0] + '/api'
-        from ckanclient import CkanClient
-        ckan_service = CkanClient(base_location=api_location)
-        foreign_ids = ckan_service.changeset_register_get()
-        if foreign_ids == None:
-            msg = "Error pulling changes from: %s (CKAN service error: %s: %s)" % (source, ckan_service.last_url_error or "%s: %s" % (ckan_service.last_status, ckan_service.last_http_error), ckan_service.last_location)
-            raise ChangesSourceException, msg
-        # Get local register of changes.
-        from ckan.model.changeset import ChangesetRegister
-        changeset_register = ChangesetRegister()
-        local_ids = changeset_register.keys()
-        # Get list of unseen changes.
-        unseen_ids = []
-        for changeset_id in foreign_ids:
-            if changeset_id not in local_ids:
-                unseen_ids.append(changeset_id)
-        print "There are %d new changesets." % len(unseen_ids)
-        # Pull unseen changes from foreign register.
-        unseen_changesets = []
-        for unseen_id in unseen_ids:
-            print "Pulling changeset %s..." % unseen_id
-            unseen_data = ckan_service.changeset_entity_get(unseen_id)
-            print "unseen changeset data: %s" % changeset_register.dumps(unseen_data)
-            changeset_id = changeset_register.queue_incoming(unseen_data)
-            if not changeset_id:
-                msg = "Error: Couldn't add changeset %s to the queue." % changeset_id
-                raise Exception, msg
-            if unseen_id != changeset_id:
-                msg = "Error: Queued changeset id mismatch (%s, %s)." % (unseen_id, changeset_id)
-                raise Exception, msg
+            print "Pulled %s changesets from '%s'." % (len(changesets), source)
 
     def update(self):
         if len(self.args) > 1:
@@ -579,9 +550,7 @@ class Changes(CkanCommand):
         if updated_entities:
             print "The following entities were updated:"
         for entity in updated_entities:
-            # Assume all are CKAN packages.
             print "package:    %s" % entity.name
-            # Todo: Better update report.
 
     def commit(self):
         from ckan.model.changeset import ChangesetRegister
@@ -639,7 +608,7 @@ class Changes(CkanCommand):
                 print ""
 
     def log_changeset(self, changeset):
-        print "changeset:      %s" % changeset.id
+        print "Changeset:      %s" % changeset.id
         if changeset.is_tip:
             print "tag:            %s" % 'tip'
         if changeset.follows_id:
@@ -652,45 +621,5 @@ class Changes(CkanCommand):
         print "date:           %s" % changeset.timestamp.strftime('%c')
         summary = str(changeset.get_meta().get('log_message', ''))
         if summary:
-            print "summary:        %s" % summary
+            print "summary:        %s" % summary.strip()
 
-    def apply_queue(self):
-        from ckan.model.changeset import ChangesetRegister
-        changeset_register = ChangesetRegister()
-        queue = self.get_queue()
-        if not queue:
-            return
-        print "Applying queued changesets..."
-        for changeset in queue:
-            if not changeset.is_conflicting():
-                changeset.apply()
-                print "applied changeset '%s' OK" % changeset.id
-            else:
-                print "held back (conflicting) '%s'" % changeset.id
-
-    def get_queue(self):
-        from ckan.model.changeset import ChangesetRegister
-        register = ChangesetRegister()
-        return [c for c in register.values() if not c.revision_id]
-
-#    def print_status(self):
-#        from ckan.model.changeset import ChangesetRegister
-#        changeset_register = ChangesetRegister()
-#        for changeset in self.get_queue():
-#            status_flag = ' '
-#            if changeset.status:
-#                status_flag = changeset.status[0].upper()
-#            if status_flag == 'Q' and not changeset.is_conflicting():
-#                status_flag = 'R'
-#            if status_flag == 'A' and not changeset.revision_id:
-#                status_flag = 'E'
-#            changes_flag = ''
-#            for change in changeset.changes:
-#                diff = change.get_diff()
-#                if diff.new:
-#                    changes_flag = '+'*len(diff.new) + changes_flag
-#                if diff.old:
-#                    changes_flag = changes_flag + "-"*len(diff.old)
-#            print '%s  %s  %s' % (status_flag, changeset.id, changes_flag)
-#
-                

@@ -24,7 +24,7 @@ class TestRest(TestController):
         model.repo.commit_and_remove()
         from ckan.model.changeset import ChangesetRegister
         changesets = ChangesetRegister()
-        changesets.construct(rev)
+        changesets.construct_from_revision(rev)
 
     @classmethod
     def teardown_class(self):
