@@ -5,6 +5,7 @@ from meta import *
 import vdm.sqlalchemy
 from ckan.model.core import DomainObject
 from ckan.model import Session, Revision, Package, Tag, Group
+from ckan.model import setup_default_user_roles
 from simplejson import dumps, loads
 import datetime
 import uuid
@@ -57,27 +58,18 @@ class Changeset(ChangesetDomainObject):
     def set_meta(self, meta_data):
         self.meta = unicode(self.dumps(meta_data))
 
-    def apply(self, is_forced=False):
-        revision_register_class = Change.registers['revision'] 
-        revision_register = revision_register_class()
-        revision = revision_register.create_entity()
-        changed_entities = []  # Just keeps things in scope until commit.
-        for change in self.changes:
-            entity = change.apply(is_forced=is_forced)
-            changed_entities.append(entity)
-        changeset_meta = self.get_meta()
-        # Todo: Double dispatch onto the ChangesetRegister.
-        # Assumes CKAN revision object attributes.
-        if 'log_message' in changeset_meta:
-            revision.message = changeset_meta['log_message']
-        if 'author' in changeset_meta:
-            revision.author = changeset_meta['author']
-        Session.commit()
-        self.revision_id = revision.id
+    def apply(self, is_forced=False, report={}):
+        meta = self.get_meta()
+        register = ChangesetRegister()
+        Session.add(self) # Otherwise self.changes db lazy-load doesn't work.
+        revision_id = register.apply_changes(self.changes, 
+            meta=meta, report=report, is_forced=is_forced)
+        self.revision_id = revision_id
         self.status = self.STATUS_APPLIED
-        Session.commit()
-        return self.revision_id
         # Todo: Session rollback on error.
+        Session.commit()
+        register.move_tip(self.id)
+        return self.revision_id
 
     def is_conflicting(self):
         try:
@@ -229,20 +221,36 @@ class Range(ChangeArithmetic):
     def __init__(self, start, stop):
         self.start = start   # Changeset instance.
         self.stop = stop     # Changeset instance.
-        self.sequence = None
+        self.sequence = None # List of Change instances.
+        self.changesets = None # List of Changeset instances
 
-    def get_sequence(self):
-        if self.sequence == None:
+    def is_broken(self):
+        try:
+            self.get_changesets()
+        except SequenceException:
+            return True
+        else:
+            return False
+
+    def get_changesets(self):
+        if self.changesets == None:
+            parentage = Parentage(self.stop)
+            self.changesets = [self.stop]
             changeset = self.stop
-            self.sequence = [changeset.changes]
-            register = AbstractChangesetRegister()
             while(changeset.id != self.start.id):
-                changeset = register.get(changeset.follows_id, None)
+                changeset = parentage.next()
                 if changeset == None:
                     msg = "Changeset %s does not follow changeset %s." % (self.stop.id, self.start.id)
                     raise SequenceException, msg
+                self.changesets.append(changeset)
+            self.changesets.reverse()
+        return self.changesets
+
+    def get_sequence(self):
+        if self.sequence == None:
+            self.sequence = []
+            for changeset in self.get_changesets():
                 self.sequence.append(changeset.changes)
-            self.sequence.reverse()
         return self.sequence
 
     def pop_first(self):  # Todo: Rework as 'exclude_start' parameter.
@@ -261,10 +269,10 @@ class CommonAncestor(ChangeArithmetic):
         # one line of changes looking for last item in other line of changes.
         parentage1 = Parentage(self.child1)
         parentage2 = Parentage(self.child2)
-        pointer1 = parentage1.next()
-        pointer2 = parentage2.next()
-        line1 = [pointer1]
-        line2 = [pointer2]
+        pointer1 = self.child1
+        pointer2 = self.child2
+        line1 = [self.child1]
+        line2 = [self.child2]
         while(pointer1 or pointer2):
             if pointer1:
                 for item2 in line2:
@@ -287,18 +295,16 @@ class Parentage(ChangeArithmetic):
 
     def __init__(self, changeset):
         self.changeset = changeset
+        self.register = AbstractChangesetRegister()
 
     def next(self):
-        changeset = self.changeset
-        if changeset:
-            self.changeset = self.get_parent(changeset)
-        return changeset
+        self.changeset = self.get_parent(self.changeset)
+        return self.changeset
 
     def get_parent(self, changeset):
         if not changeset.follows_id:
             return None
-        register = AbstractChangesetRegister()
-        return register.get(changeset.follows_id)
+        return self.register.get(changeset.follows_id)
 
 
 class Heads(object):  # Rework as a list.
@@ -502,9 +508,9 @@ class ObjectRegister(ChangesetLayerBase):
             entity_value = entity_data[name]
             old_value = vector.old[name]
             if entity_value != old_value:
-                msg = "Diverged '%s' pre-change values: '%s' (local) and '%s' (foreign)." % (
-                        name, entity_value, old_value)
-                raise ConflictException, msg
+                msg = u"Current entity '%s' conflicts with old value of the change." % name
+                msg += "\n<<<\n%s\n<<<\n--\n>>>\n%s\n>>>" % (entity_value, old_value)
+                raise ConflictException, msg.encode('utf8')
 
     def detect_distinct_value_conflict(self, vector):
         "Checks for unique value conflicts with existing entities."
@@ -535,7 +541,7 @@ class ObjectRegister(ChangesetLayerBase):
         history = entity.all_revisions
         age = len(history)
         if age == 0:
-            raise Exception, "Object has no revisions: %s" % repr(package)
+            raise Exception, "Object has no revisions: %s" % repr(entity)
         elif age == 1:
             previous = None
         elif age >= 2:
@@ -570,7 +576,7 @@ class ObjectRegister(ChangesetLayerBase):
     def convert_to_domain_value(self, value, type_name):
         if type_name in ['Unicode', 'UnicodeText']:
             if value == None:
-                value = ''
+                pass
             else:
                 value = unicode(value)
         elif type_name in ['DateTime']:
@@ -594,9 +600,11 @@ class AbstractChangesetRegister(ObjectRegister):
     def create_entity(self, *args, **kwds):
         if 'id' not in kwds:
             kwds['id'] = self.create_changeset_id(**kwds)
-        if self.get(kwds['id'], None):
-            msg = "Changeset id already in use: %s" % (kwds)
-            raise Exception, msg
+        preexisting = self.get(kwds['id'], None)
+        if preexisting != None:
+            if 'revision_id' in kwds:
+                preexisting.revision_id = kwds['revision_id']
+            return preexisting
         if 'meta' in kwds:
             meta = kwds['meta']
             if isinstance(meta, dict):
@@ -738,74 +746,110 @@ class ChangesetRegister(AbstractChangesetRegister):
 
     NAMESPACE_CHANGESET = uuid.uuid5(uuid.NAMESPACE_OID, 'opendata')
 
-    def update(self, target_id=None):
+    def update(self, target_id=None, report={}):
         if not len(self):
             raise EmptyChangesetRegisterException, "There are no changesets in the changeset register."
-        uncommitted, tip_revision = self.get_revisions_uncommitted_and_tip()
+        uncommitted, head_revision = self.get_revisions_uncommitted_and_head()
         # Check there are no uncommited revisions.
         if len(uncommitted) > 0:
             raise UncommittedChangesException, "Revisions are outstanding: %s" % " ".join([r.id for r in uncommitted])
-        # Get route from tip to target (complicated by merges).
+        # Get route from tip to target.
         tip = self.get_tip()
         if not tip:
             raise Exception, "None of the changesets is marked as 'tip'."
         head_ids = Heads().ids()
         if tip.id in head_ids:
-            raise TipAtHeadException, "Nothing to update (tip is already a head)."
-        if not target_id:
+            raise TipAtHeadException, "Nothing to update (tip is head of its line)."
+        range = None
+        if target_id:
+            range = Range(tip, self.get(target_id))
+            if range.is_broken():
+                raise Exception, "Target is not on tip's branch."
+                # Todo: Make a jump.
+        else:
             # Find the head for this id.
             for head_id in head_ids:
                 range = Range(tip, self.get(head_id))
-                try:
-                    range.get_sequence()
+                if not range.is_broken():
                     target_id = head_id
                     break
-                except SequenceException, inst:
-                    pass
-        if not target_id:
-            raise Exception, "No target for update."
-        # Calc changes to update repo.
-        range.pop_first()
-        update_changes = range.calc_changes()
-        # Apply changes.
-        changed_entities = []  # Just keeps things in scope until commit.
+            if not target_id:
+                raise Exception, "Can't work out which changeset to make tip."
+        if range:
+            # It's on the range so we can move forward through the revisions.
+            for changeset in range.get_changesets()[1:]:
+                 changeset.apply(report=report)
+                 print "Applied changeset  %s" % changeset.id
+            print ", ".join(["%s %s packages" % (key, len(val)) for (key, val) in report.items()])
+            # Todo: Make a better report.
+        # else: apply a 'jump'
+
+#    def apply_jump_changes(self, jump):
+#        # Jump to the target in one revision.
+#        range.pop_first()
+#        changes = range.calc_changes()
+#        # Apply changes.
+#        message = u'Jumped to changeset %s' % target_id
+#        author = u'system'
+#        revision_id, updated, created, deleted = self.apply_changes(changes, message, author)
+#        target = self.get(target_id)
+#        target.revision_id = revision_id
+#        Session.commit()
+#        # Move tip.
+#        self.move_tip(target_id)
+#        # Setup access control for created entities.
+#        for entity in created_entities:
+#            setup_default_user_roles(entity, [])
+#        # Todo: Teardown access control for deleted entities?
+#        return (updated, created, deleted)
+
+    def apply_changes(self, changes, meta={}, report={}, is_forced=False):
+        need_access_control = []
+        if not 'created' in report:
+            report['created'] = []
+        if not 'updated' in report:
+            report['updated'] = []
+        if not 'deleted' in report:
+            report['deleted'] = []
         revision_register_class = Change.registers['revision'] 
         revision_register = revision_register_class()
         revision = revision_register.create_entity()
-        revision.message = u'Jumped to changeset %s' % target_id
-        revision.author = u''
-        for change in update_changes:
-            entity = change.apply()
-            changed_entities.append(entity)
+        revision.message = unicode(meta.get('log_message', ''))
+        revision.author = unicode(meta.get('author', ''))
+        for change in changes:
+            entity = change.apply(is_forced=is_forced)
+            if not change.old and change.new:
+                need_access_control.append(entity)
+                report['created'].append(entity)
+            elif change.old and change.new:
+                report['updated'].append(entity)
+            if change.old and not change.new:
+                report['deleted'].append(entity)
         Session.commit()
-        target = self.get(target_id)
-        target.revision_id = revision.id
-        if tip:
-            tip.is_tip = False
-            Session.add(tip)
-        target.is_tip = True
-        Session.commit()
-        return changed_entities
+        revision_id = revision.id
+        # Setup access control for created entities.
+        for entity in need_access_control:
+            setup_default_user_roles(entity, [])
+        return revision_id
 
     def commit(self):
-        uncommitted, tip_revision = self.get_revisions_uncommitted_and_tip()
-        tip = self.get(True, None, 'is_tip')
-        if tip and tip_revision and tip.revision_id != tip_revision.id:
-            msg = "Tip changeset revision '%s' mismatches tip changeset '%s'." % (tip.revision_id, tip_revision.id)
+        uncommitted, head_revision = self.get_revisions_uncommitted_and_head()
+        tip = self.get_tip()
+        if tip and not tip.revision_id:
+            msg = "Tip changeset has no revision id." % tip.id
+            raise Exception, msg
+        if tip and head_revision and tip.revision_id != head_revision.id:
+            msg = "Tip changeset points to revision '%s' (not head revision '%s')." % (tip.revision_id, head_revision.id)
             raise Exception, msg
         uncommitted.reverse()
-        changesets = []
+        changeset_ids = []
+        follows_id = tip and tip.id or None
         for revision in uncommitted:
-            changeset = self.construct_from_revision(revision, tip)
-            changesets.append(changeset)
-            if tip:
-                tip.is_tip = False
-                Session.add(tip)
-            changeset.is_tip = True
-            Session.add(changeset)
-            Session.commit()
-            tip = changeset
-        return changesets
+            changeset_id = self.construct_from_revision(revision, follows_id=follows_id)
+            changeset_ids.append(changeset_id)
+            self.move_tip(changeset_id)
+            follows_id = changeset_id
+        return changeset_ids
 
     def merge(self, continuing_id):
         continuing = self.get(continuing_id)
@@ -817,25 +861,35 @@ class ChangesetRegister(AbstractChangesetRegister):
         Session.commit()
         return mergeset
 
-    def get_revisions_uncommitted_and_tip(self):
+    def get_revisions_uncommitted_and_head(self):
         import ckan.model
         revisions =  ckan.model.repo.history()  # NB Youngest first.
         uncommitted = []
-        tip_revision = None
+        head_revision = None
         for revision in revisions:
             changeset = self.get(revision.id, None, 'revision_id')
             if changeset == None:
                 uncommitted.append(revision)
             else:
-                tip_revision = revision
+                head_revision = revision
                 break # Assume contiguity of uncommitted revisions.
-        return uncommitted, tip_revision
+        return uncommitted, head_revision
 
     def get_tip(self):
         return self.get(True, None, 'is_tip')
 
-    def construct_from_revision(self, revision, follow_changeset=None):
-        # Assumes CKAN Revisions (and Packages).
+    def move_tip(self, target_id):
+        target = self.get(target_id)
+        tip = self.get_tip()
+        if tip:
+            tip.is_tip = False
+        target.is_tip = True
+        Session.commit()
+
+    def construct_from_revision(self, revision, follows_id=None):
+        if follows_id:
+            # Todo: Detect if the new changes conflict with the line (it's a system error).
+            pass
         meta = unicode(self.dumps({
             'log_message': revision.message,
             'author': revision.author,
@@ -844,10 +898,6 @@ class ChangesetRegister(AbstractChangesetRegister):
         for package in revision.packages:
             change = self.construct_package_change(package)
             changes.append(change)
-        if follow_changeset:
-            follows_id = follow_changeset.id
-        else:
-            follows_id = None
         changeset = self.create_entity(
             follows_id=follows_id,
             meta=meta,
@@ -857,10 +907,9 @@ class ChangesetRegister(AbstractChangesetRegister):
         )
         Session.commit()
         Session.remove()
-        return changeset
+        return changeset.id
 
     def construct_package_change(self, package):
-        # Assumes a CKAN Package instance.
         packages = PackageRegister()
         ref = packages.ref(package)
         vector = packages.diff(package)
@@ -868,7 +917,6 @@ class ChangesetRegister(AbstractChangesetRegister):
         return ChangeRegister().create_entity(ref=ref, diff=diff)
 
     def pull_source(self, source):
-        # Get foreign register of changes.
         api_location = source.split('/api')[0].strip('/') + '/api'
         from ckanclient import CkanClient
         ckan_service = CkanClient(base_location=api_location)
@@ -876,14 +924,11 @@ class ChangesetRegister(AbstractChangesetRegister):
         if foreign_ids == None:
             msg = "Error pulling changes from: %s (CKAN service error: %s: %s)" % (source, ckan_service.last_url_error or "%s: %s" % (ckan_service.last_status, ckan_service.last_http_error), ckan_service.last_location)
             raise ChangesSourceException, msg
-        # Get local register of changes.
         local_ids = self.keys()
-        # Get list of unseen changes.
         unseen_ids = []
         for changeset_id in foreign_ids:
             if changeset_id not in local_ids:
                 unseen_ids.append(changeset_id)
-        # Pull unseen changes from foreign register.
         unseen_changesets = []
         for unseen_id in unseen_ids:
             unseen_data = ckan_service.changeset_entity_get(unseen_id)
@@ -900,7 +945,6 @@ class ChangesetRegister(AbstractChangesetRegister):
 class PackageRegister(ObjectRegister):
     """Dictionary-like interface to package objects."""
 
-    # Assume CKAN Package class.
     object_type = Package
     key_attr = 'id'
     distinct_attrs = ['name']

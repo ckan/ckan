@@ -81,9 +81,9 @@ class PackageController(BaseController):
                 rdf_url = '%s%s' % (config['rdf_packages'], pkg.name)
                 redirect(rdf_url, code=303)
 
-        #auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, pkg)
-        #if not auth_for_read:
-        #    abort(401, str(gettext('Unauthorized to read package %s') % id))
+        auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, pkg)
+        if not auth_for_read:
+            abort(401, str(gettext('Unauthorized to read package %s') % id))
 
         c.auth_for_authz = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, pkg)
         c.auth_for_edit = self.authorizer.am_authorized(c, model.Action.EDIT, pkg)
@@ -185,8 +185,8 @@ class PackageController(BaseController):
         if pkg is None:
             abort(404, '404 Not Found')
         am_authz = self.authorizer.am_authorized(c, model.Action.EDIT, pkg)
-        #if not am_authz:
-        #    abort(401, str(gettext('User %r not authorized to edit %s') % (c.user, id)))
+        if not am_authz:
+            abort(401, str(gettext('User %r not authorized to edit %s') % (c.user, id)))
 
         c.auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, pkg)
         fs = ckan.forms.get_fieldset(is_admin=c.auth_for_change_state, basic=False, package_form=request.params.get('package_form'))

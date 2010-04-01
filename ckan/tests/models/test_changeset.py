@@ -62,18 +62,23 @@ class TestChangesetRegister(TestCase):
     def test_commit(self):
         revision_id = self.build_creating_revision()
         revision = self.revisions[revision_id]
-        changesets = self.changesets.commit()
-        self.assert_equal(len(changesets), 2)
-        changeset0 = changesets[0]
+        changeset_ids = self.changesets.commit()
+        print changeset_ids
+        tip = self.changesets.get_tip()
+        self.assert_true(tip)
+        print tip.id
+        self.assert_equal(len(changeset_ids), 2)
+        changeset0 = self.changesets.get(changeset_ids[0])
         self.assert_false(changeset0.is_tip)
-        changeset1 = changesets[1]
+        changeset1 = self.changesets.get(changeset_ids[1])
         self.assert_true(changeset1.is_tip)
         self.assert_equal(changeset0.id, changeset1.follows_id)
         
     def test_construct_from_revision(self):
         revision_id = self.build_creating_revision()
         revision = self.revisions[revision_id]
-        changeset = self.changesets.construct_from_revision(revision)
+        changeset_id = self.changesets.construct_from_revision(revision)
+        changeset = self.changesets.get(changeset_id)
         self.assert_isinstance(changeset, Changeset)
         self.assert_true(changeset.revision_id)
         self.assert_true(changeset.changes)
@@ -81,21 +86,24 @@ class TestChangesetRegister(TestCase):
         
         revision_id = self.build_creating_revision('1')
         revision = self.revisions[revision_id]
-        changeset = self.changesets.construct_from_revision(revision)
+        changeset_id = self.changesets.construct_from_revision(revision)
+        changeset = self.changesets.get(changeset_id)
         self.assert_isinstance(changeset, Changeset)
         self.assert_true(changeset.revision_id)
         self.assert_true(changeset.changes)
 
         revision_id = self.build_updating_revision('', 'and also')
         revision = self.revisions[revision_id]
-        changeset = self.changesets.construct_from_revision(revision)
+        changeset_id = self.changesets.construct_from_revision(revision)
+        changeset = self.changesets.get(changeset_id)
         self.assert_isinstance(changeset, Changeset)
         self.assert_true(changeset.revision_id)
         self.assert_true(changeset.changes)
 
         revision_id = self.build_updating_revision('1', 'and now')
         revision = self.revisions[revision_id]
-        changeset = self.changesets.construct_from_revision(revision)
+        changeset_id = self.changesets.construct_from_revision(revision)
+        changeset = self.changesets.get(changeset_id)
         self.assert_isinstance(changeset, Changeset)
         self.assert_true(changeset.revision_id)
         self.assert_true(changeset.changes)
@@ -190,19 +198,20 @@ class TestChangesetRegister(TestCase):
         self.assert_false(self.changesets.get_tip())
         changeset_id = self.build_creating_changeset()
         self.assert_raises(UncommittedChangesException, self.changesets.update)
-        new_changesets = self.changesets.commit()
-        self.assert_equal(len(new_changesets), 1)
+        new_changeset_ids = self.changesets.commit()
+        self.assert_equal(len(new_changeset_ids), 1)
         self.assert_raises(TipAtHeadException, self.changesets.update)
         self.assert_true(self.changesets.get_tip())
-        self.assert_equal(self.changesets.get_tip().id, new_changesets[0].id)
+        self.assert_equal(self.changesets.get_tip().id, new_changeset_ids[0])
         changeset_id = self.build_creating_changeset('1', follows_id=self.changesets.get_tip().id)
         self.assert_equal(len(self.packages), 0)
-        changed_entities = self.changesets.update()
+        report = {}
+        self.changesets.update(report=report)
         # Check changesets have been applied.
-        self.assert_equal(len(changed_entities), 1)
+        self.assert_equal(len(report['created']), 1)
         self.assert_equal(len(self.packages), 1)
         self.assert_equal(self.changesets.get_tip().id, changeset_id)
-        self.assert_raises(TipAtHeadException, self.changesets.update)
+        #self.assert_raises(TipAtHeadException, self.changesets.update)
 
     def test_apply(self):
         self.assert_equal(len(self.packages), 0)

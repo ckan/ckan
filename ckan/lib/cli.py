@@ -525,7 +525,7 @@ class Changes(CkanCommand):
             try:
                 changesets = changeset_register.pull_source(source)
             except ChangesSourceException, inst:
-                print inst
+                print repr(inst)
                 sys.exit(1)
             print "Pulled %s changesets from '%s'." % (len(changesets), source)
 
@@ -536,27 +536,48 @@ class Changes(CkanCommand):
             changeset_id = None
         from ckan.model.changeset import ChangesetRegister
         from ckan.model.changeset import EmptyChangesetRegisterException
+        from ckan.model.changeset import UncommittedChangesException
         from ckan.model.changeset import TipAtHeadException
+        from ckan.model.changeset import ConflictException
         changeset_register = ChangesetRegister()
-        updated_entities = []
+        changed_entities = {
+            'created': [],
+            'updated': [],
+            'deleted': [],
+        }
         try:
-            updated_entities = changeset_register.update(changeset_id)
+            changeset_register.update(changeset_id, changed_entities)
+        except ConflictException, inst:
+            print inst
+            sys.exit(1)
         except EmptyChangesetRegisterException, inst:
-            print "There are zero changesets in the changeset register."
-            sys.exit(1)
+            print "Nothing to update (changeset register is empty)."
+            sys.exit(0)
         except TipAtHeadException, inst:
-            print "The tip changeset is already at the head of its line."
+            print "Nothing to update (tip is head of its line)."
+            sys.exit(0)
+        except UncommittedChangesException, inst:
+            print "There are uncommitted revisions (run 'changes commit')."
             sys.exit(1)
-        if updated_entities:
-            print "The following entities were updated:"
-        for entity in updated_entities:
-            print "package:    %s" % entity.name
+        if changed_entities['created']:
+            print "The following packages were created:"
+            for entity in changed_entities['created']:
+                print "package:    %s" % entity.name
+        if changed_entities['updated']:
+            print "The following packages were updated:"
+            for entity in changed_entities['updated']:
+                print "package:    %s" % entity.name
+        if changed_entities['deleted']:
+            print "The following packages were deleted:"
+            for entity in changed_entities['deleted']:
+                print "package:    %s" % entity.name
 
     def commit(self):
         from ckan.model.changeset import ChangesetRegister
         changeset_register = ChangesetRegister()
-        changesets = changeset_register.commit()
-        for changeset in changesets:
+        changeset_ids = changeset_register.commit()
+        for changeset_id in changeset_ids:
+            changeset = changeset_register[changeset_id]
             self.log_changeset(changeset)
             print ""
 
@@ -609,8 +630,10 @@ class Changes(CkanCommand):
 
     def log_changeset(self, changeset):
         print "Changeset:      %s" % changeset.id
+        if changeset.revision_id:
+            print "revision:       %s" % changeset.revision_id
         if changeset.is_tip:
-            print "tag:            %s" % 'tip'
+            print "tip:            %s" % 'yes'
         if changeset.follows_id:
             print "follows:        %s" % changeset.follows_id
         if changeset.closes_id:
