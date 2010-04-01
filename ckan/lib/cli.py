@@ -477,11 +477,11 @@ class Changes(CkanCommand):
 
     Usage:
       changes pull [source]          - pulls unseen changesets from changeset sources
-      changes update [target]        - updates repository entities to target changeset (defaults to tip's line's head)
+      changes update [target]        - updates repository entities to target changeset (defaults to working line's head)
       changes commit                 - creates changesets for all outstanding changes (revisions)
-      changes merge [follow]         - creates mergeset to follow changeset and close tip
+      changes merge [follow]         - creates mergeset to follow changeset and close working line
       changes log [changeset]        - display changeset summary
-      changes tip                    - display tip changeset
+      changes working                - display working changeset
     '''
 
     summary = __doc__.split('\n')[0]
@@ -501,8 +501,8 @@ class Changes(CkanCommand):
             self.commit()
         elif cmd == 'merge':
             self.merge()
-        elif cmd == 'tip':
-            self.tip()
+        elif cmd == 'working':
+            self.working()
         elif cmd == 'log':
             self.log()
         else:
@@ -537,7 +537,7 @@ class Changes(CkanCommand):
         from ckan.model.changeset import ChangesetRegister
         from ckan.model.changeset import EmptyChangesetRegisterException
         from ckan.model.changeset import UncommittedChangesException
-        from ckan.model.changeset import TipAtHeadException
+        from ckan.model.changeset import WorkingAtHeadException
         from ckan.model.changeset import ConflictException
         changeset_register = ChangesetRegister()
         changed_entities = {
@@ -553,8 +553,8 @@ class Changes(CkanCommand):
         except EmptyChangesetRegisterException, inst:
             print "Nothing to update (changeset register is empty)."
             sys.exit(0)
-        except TipAtHeadException, inst:
-            print "Nothing to update (tip is head of its line)."
+        except WorkingAtHeadException, inst:
+            print "Nothing to update (working is head of its line)."
             sys.exit(0)
         except UncommittedChangesException, inst:
             print "There are uncommitted revisions (run 'changes commit')."
@@ -585,7 +585,7 @@ class Changes(CkanCommand):
         if len(self.args) > 1:
             changeset_id = unicode(self.args[1])
         else:
-            print "Need a target changeset to merge with tip."
+            print "Need a target changeset to merge with working."
             sys.exit(1)
         from ckan.model.changeset import ChangesetRegister
         from ckan.model.changeset import ConflictException
@@ -602,10 +602,10 @@ class Changes(CkanCommand):
         print mergeset
         # Todo: Better merge report.
 
-    def tip(self):
+    def working(self):
         from ckan.model.changeset import ChangesetRegister
         changeset_register = ChangesetRegister()
-        changeset = changeset_register.get_tip()
+        changeset = changeset_register.get_working()
         self.log_changeset(changeset)
 
     def log(self):
@@ -629,11 +629,7 @@ class Changes(CkanCommand):
                 print ""
 
     def log_changeset(self, changeset):
-        print "Changeset:      %s" % changeset.id
-        if changeset.revision_id:
-            print "revision:       %s" % changeset.revision_id
-        if changeset.is_tip:
-            print "tip:            %s" % 'yes'
+        print "Changeset:    %s %s" % (changeset.is_working and "@" or " ", changeset.id)
         if changeset.follows_id:
             print "follows:        %s" % changeset.follows_id
         if changeset.closes_id:
@@ -642,6 +638,8 @@ class Changes(CkanCommand):
         if user:
             print "user:           %s" % user
         print "date:           %s" % changeset.timestamp.strftime('%c')
+        if changeset.revision_id:
+            print "revision:       %s" % changeset.revision_id
         summary = str(changeset.get_meta().get('log_message', ''))
         if summary:
             print "summary:        %s" % summary.strip()

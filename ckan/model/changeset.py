@@ -12,7 +12,7 @@ import uuid
 
 class ConflictException(Exception): pass
 class SequenceException(Exception): pass
-class TipAtHeadException(Exception): pass
+class WorkingAtHeadException(Exception): pass
 class ChangesSourceException(Exception): pass
 class UncommittedChangesException(Exception): pass
 class EmptyChangesetRegisterException(Exception): pass
@@ -64,12 +64,12 @@ class Changeset(ChangesetDomainObject):
         Session.add(self) # Otherwise self.changes db lazy-load doesn't work.
         revision_id = register.apply_changes(self.changes, 
             meta=meta, report=report, is_forced=is_forced)
+        Session.add(self) # Otherwise revision_id isn't persisted.
         self.revision_id = revision_id
         self.status = self.STATUS_APPLIED
-        # Todo: Session rollback on error.
         Session.commit()
-        register.move_tip(self.id)
-        return self.revision_id
+        register.move_working(self.id)
+        return revision_id
 
     def is_conflicting(self):
         try:
@@ -711,7 +711,7 @@ changeset_table = Table('changeset', metadata,
         Column('meta', types.UnicodeText, nullable=True),
         Column('timestamp', DateTime, default=datetime.datetime.utcnow),
         # These are the "private" changeset attributes.
-        Column('is_tip', types.Boolean, default=False),
+        Column('is_working', types.Boolean, default=False),
         Column('revision_id', types.UnicodeText, ForeignKey('revision.id'), nullable=True),
         Column('status', types.UnicodeText, nullable=True),
         Column('added_here', DateTime, default=datetime.datetime.utcnow),
@@ -753,28 +753,28 @@ class ChangesetRegister(AbstractChangesetRegister):
         # Check there are no uncommited revisions.
         if len(uncommitted) > 0:
             raise UncommittedChangesException, "Revisions are outstanding: %s" % " ".join([r.id for r in uncommitted])
-        # Get route from tip to target.
-        tip = self.get_tip()
-        if not tip:
-            raise Exception, "None of the changesets is marked as 'tip'."
+        # Get route from working to target.
+        working = self.get_working()
+        if not working:
+            raise Exception, "None of the changesets is marked as 'working'."
         head_ids = Heads().ids()
-        if tip.id in head_ids:
-            raise TipAtHeadException, "Nothing to update (tip is head of its line)."
+        if working.id in head_ids:
+            raise WorkingAtHeadException, "Nothing to update (working changeset is head of its line)."
         range = None
         if target_id:
-            range = Range(tip, self.get(target_id))
+            range = Range(working, self.get(target_id))
             if range.is_broken():
-                raise Exception, "Target is not on tip's branch."
+                raise Exception, "Target is not further down the working line."
                 # Todo: Make a jump.
         else:
             # Find the head for this id.
             for head_id in head_ids:
-                range = Range(tip, self.get(head_id))
+                range = Range(working, self.get(head_id))
                 if not range.is_broken():
                     target_id = head_id
                     break
             if not target_id:
-                raise Exception, "Can't work out which changeset to make tip."
+                raise Exception, "Can't work out which changeset to make working."
         if range:
             # It's on the range so we can move forward through the revisions.
             for changeset in range.get_changesets()[1:]:
@@ -795,8 +795,8 @@ class ChangesetRegister(AbstractChangesetRegister):
 #        target = self.get(target_id)
 #        target.revision_id = revision_id
 #        Session.commit()
-#        # Move tip.
-#        self.move_tip(target_id)
+#        # Move working.
+#        self.move_working(target_id)
 #        # Setup access control for created entities.
 #        for entity in created_entities:
 #            setup_default_user_roles(entity, [])
@@ -825,6 +825,7 @@ class ChangesetRegister(AbstractChangesetRegister):
                 report['updated'].append(entity)
             if change.old and not change.new:
                 report['deleted'].append(entity)
+        # Todo: On error, rollback and reraise.
         Session.commit()
         revision_id = revision.id
         # Setup access control for created entities.
@@ -834,26 +835,26 @@ class ChangesetRegister(AbstractChangesetRegister):
 
     def commit(self):
         uncommitted, head_revision = self.get_revisions_uncommitted_and_head()
-        tip = self.get_tip()
-        if tip and not tip.revision_id:
-            msg = "Tip changeset has no revision id." % tip.id
+        working = self.get_working()
+        if working and not working.revision_id:
+            msg = "Working changeset '%s' has no revision id." % working.id
             raise Exception, msg
-        if tip and head_revision and tip.revision_id != head_revision.id:
-            msg = "Tip changeset points to revision '%s' (not head revision '%s')." % (tip.revision_id, head_revision.id)
+        if working and head_revision and working.revision_id != head_revision.id:
+            msg = "Working changeset points to revision '%s' (not head revision '%s')." % (working.revision_id, head_revision.id)
             raise Exception, msg
         uncommitted.reverse()
         changeset_ids = []
-        follows_id = tip and tip.id or None
+        follows_id = working and working.id or None
         for revision in uncommitted:
             changeset_id = self.construct_from_revision(revision, follows_id=follows_id)
             changeset_ids.append(changeset_id)
-            self.move_tip(changeset_id)
+            self.move_working(changeset_id)
             follows_id = changeset_id
         return changeset_ids
 
     def merge(self, continuing_id):
         continuing = self.get(continuing_id)
-        closing = self.get_tip()
+        closing = self.get_working()
         merge = Merge(continuing, closing)
         if merge.is_conflicting():
             raise ConflictException, "Merge conflict when closing '%s' into changeset '%s'." % (closing.id, continuing.id)
@@ -875,15 +876,15 @@ class ChangesetRegister(AbstractChangesetRegister):
                 break # Assume contiguity of uncommitted revisions.
         return uncommitted, head_revision
 
-    def get_tip(self):
-        return self.get(True, None, 'is_tip')
+    def get_working(self):
+        return self.get(True, None, 'is_working')
 
-    def move_tip(self, target_id):
+    def move_working(self, target_id):
         target = self.get(target_id)
-        tip = self.get_tip()
-        if tip:
-            tip.is_tip = False
-        target.is_tip = True
+        working = self.get_working()
+        if working:
+            working.is_working = False
+        target.is_working = True
         Session.commit()
 
     def construct_from_revision(self, revision, follows_id=None):

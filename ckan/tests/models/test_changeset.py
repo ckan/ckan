@@ -4,7 +4,7 @@ from ckan.model.changeset import ChangeRegister, Change
 from ckan.model.changeset import Range, CommonAncestor, Heads, Sum, Merge
 from ckan.model.changeset import ConflictException
 from ckan.model.changeset import UncommittedChangesException
-from ckan.model.changeset import TipAtHeadException
+from ckan.model.changeset import WorkingAtHeadException
 from ckan.model.changeset import RevisionRegister, PackageRegister
 import ckan.model as model
 
@@ -64,16 +64,35 @@ class TestChangesetRegister(TestCase):
         revision = self.revisions[revision_id]
         changeset_ids = self.changesets.commit()
         print changeset_ids
-        tip = self.changesets.get_tip()
-        self.assert_true(tip)
-        print tip.id
+        working = self.changesets.get_working()
+        self.assert_true(working)
+        print working.id
         self.assert_equal(len(changeset_ids), 2)
         changeset0 = self.changesets.get(changeset_ids[0])
-        self.assert_false(changeset0.is_tip)
+        self.assert_false(changeset0.is_working)
         changeset1 = self.changesets.get(changeset_ids[1])
-        self.assert_true(changeset1.is_tip)
+        self.assert_true(changeset1.is_working)
         self.assert_equal(changeset0.id, changeset1.follows_id)
         
+    def test_update(self):
+        self.assert_false(self.changesets.get_working())
+        changeset_id = self.build_creating_changeset()
+        self.assert_raises(UncommittedChangesException, self.changesets.update)
+        new_changeset_ids = self.changesets.commit()
+        self.assert_equal(len(new_changeset_ids), 1)
+        self.assert_raises(WorkingAtHeadException, self.changesets.update)
+        self.assert_true(self.changesets.get_working())
+        self.assert_equal(self.changesets.get_working().id, new_changeset_ids[0])
+        changeset_id = self.build_creating_changeset('1', follows_id=self.changesets.get_working().id)
+        self.assert_equal(len(self.packages), 0)
+        report = {}
+        self.changesets.update(report=report)
+        # Check changesets have been applied.
+        self.assert_equal(len(report['created']), 1)
+        self.assert_equal(len(self.packages), 1)
+        self.assert_equal(self.changesets.get_working().id, changeset_id)
+        self.assert_raises(WorkingAtHeadException, self.changesets.update)
+
     def test_construct_from_revision(self):
         revision_id = self.build_creating_revision()
         revision = self.revisions[revision_id]
@@ -193,25 +212,6 @@ class TestChangesetRegister(TestCase):
         self.assert_equal(package.name, "annie1")
         self.assert_equal(package.title, "Annie Get Your Coat (corr)")
         self.assert_equal(package.license_id, "closed-corr")
-
-    def test_update(self):
-        self.assert_false(self.changesets.get_tip())
-        changeset_id = self.build_creating_changeset()
-        self.assert_raises(UncommittedChangesException, self.changesets.update)
-        new_changeset_ids = self.changesets.commit()
-        self.assert_equal(len(new_changeset_ids), 1)
-        self.assert_raises(TipAtHeadException, self.changesets.update)
-        self.assert_true(self.changesets.get_tip())
-        self.assert_equal(self.changesets.get_tip().id, new_changeset_ids[0])
-        changeset_id = self.build_creating_changeset('1', follows_id=self.changesets.get_tip().id)
-        self.assert_equal(len(self.packages), 0)
-        report = {}
-        self.changesets.update(report=report)
-        # Check changesets have been applied.
-        self.assert_equal(len(report['created']), 1)
-        self.assert_equal(len(self.packages), 1)
-        self.assert_equal(self.changesets.get_tip().id, changeset_id)
-        #self.assert_raises(TipAtHeadException, self.changesets.update)
 
     def test_apply(self):
         self.assert_equal(len(self.packages), 0)
