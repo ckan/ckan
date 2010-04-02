@@ -12,6 +12,10 @@ from webhelpers.markdown import markdown
 from webhelpers import paginate
 from webhelpers.text import truncate
 from routes import url_for, redirect_to
+try:
+    import json
+except Exception:
+    import simplejson as json
 
 # FIXME: shouldn't have to pass the c object in to this.
 def nav_link(c, text, controller, **kwargs):

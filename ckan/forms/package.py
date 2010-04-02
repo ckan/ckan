@@ -10,14 +10,8 @@ import ckan.model as model
 import ckan.lib.helpers
 from ckan.lib.helpers import literal
 
-__all__ = ['build_package_form', 'package_fs', 'package_fs_admin', 'get_standard_fieldset']
+__all__ = ['prettify', 'build_package_form', 'package_fs', 'package_fs_admin', 'get_standard_fieldset']
 
-    
-
-def my_render(**kwargs):
-    kwargs['fieldset']
-    from pylons.templating import render
-    render('package/form')
 
 def prettify(field_name):
     field_name = re.sub('(?<!\w)[Uu]rl(?!\w)', 'URL', field_name.replace('_', ' ').capitalize())

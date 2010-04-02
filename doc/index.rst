@@ -18,6 +18,7 @@ Contents:
    importer
    api
    getdata
+   package_forms
    model
    load_testing
 

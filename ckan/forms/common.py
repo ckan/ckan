@@ -3,6 +3,8 @@ import re
 from formalchemy import helpers as fa_h
 import formalchemy
 import genshi
+from pylons.templating import render
+from pylons import c
 
 from ckan.lib.helpers import literal
 import ckan.model as model
@@ -76,8 +78,56 @@ class ConfiguredField(object):
     * a get_configured method which returns the Field configured to use
       the Renderer (and validator if it is used)
     '''
-    def __init__(self, name):
+    def __init__(self, name, **kwargs):
         self.name = name
+        self.kwargs = kwargs
+
+class RegExValidatingField(ConfiguredField):
+    '''Inherit from this for fields that need a regex validator.
+    @param validate_re - ("regex", "equivalen format but human readable")
+    '''
+    def __init__(self, name, validate_re=None, **kwargs):
+        ConfiguredField.__init__(self, name, **kwargs)
+        self._validate_re = validate_re
+        if validate_re:
+            assert isinstance(validate_re, tuple)
+            assert isinstance(validate_re[0], str) # reg ex
+            assert isinstance(validate_re[1], (str, unicode)) # user readable format    
+
+    def get_configured(self, field):
+        if self._validate_re:
+            field = field.validate(self.validate_re)
+        return field
+
+    def validate_re(self, value, field=None):
+        match = re.match(self._validate_re[0], value)
+        if not match:
+            raise formalchemy.ValidationError('Value does not match required format: %s' % self._validate_re[1])
+
+class RegExRangeValidatingField(RegExValidatingField):
+    '''Validates a range field (each value is validated on the same regex)'''
+    def validate_re(self, values, field=None):
+        for value in values:
+            match = re.match(self._validate_re[0], value)
+            if not match:
+                raise formalchemy.ValidationError('Value "%s" does not match required format: %s' % (value, self._validate_re[1]))
+
+
+class TextExtraField(RegExValidatingField):
+    '''A form field for basic text in an "extras" field.'''
+    def get_configured(self):
+        field = self.TextExtraField(self.name).with_renderer(self.TextExtraRenderer, **self.kwargs)
+        return RegExValidatingField.get_configured(self, field)
+
+    class TextExtraField(formalchemy.Field):
+        def sync(self):
+            if not self.is_readonly():
+                pkg = self.model
+                val = self._deserialize() or u''
+                pkg.extras[self.name] = val
+
+    class TextExtraRenderer(TextExtraRenderer):
+        pass
 
 class DateExtraField(ConfiguredField):
     '''A form field for DateType data stored in an 'extra' field.'''
@@ -131,8 +181,8 @@ class DateRangeExtraField(ConfiguredField):
 
         def render(self, **kwargs):
             from_, to = self._get_value()
-            from_html = fa_h.text_field(self.name + '-from', value=from_, **kwargs)
-            to_html = fa_h.text_field(self.name + '-to', value=to, **kwargs)
+            from_html = fa_h.text_field(self.name + '-from', value=from_, class_="medium-width", **kwargs)
+            to_html = fa_h.text_field(self.name + '-to', value=to, class_="medium-width", **kwargs)
             html = '%s - %s' % (from_html, to_html)
             return html
 
@@ -157,10 +207,70 @@ class DateRangeExtraField(ConfiguredField):
         def deserialize(self):
             return self._serialized_value()
 
+class TextRangeExtraField(RegExRangeValidatingField):
+    '''A form field for two TextType fields, representing a range,
+    stored in 'extra' fields.'''
+    def get_configured(self):
+        field = self.TextRangeField(self.name).with_renderer(self.TextRangeRenderer)
+        return RegExRangeValidatingField.get_configured(self, field)
+
+    class TextRangeField(formalchemy.Field):
+        def sync(self):
+            if not self.is_readonly():
+                pkg = self.model
+                vals = self._deserialize() or u''
+                pkg.extras[self.name + '-from'] = vals[0]
+                pkg.extras[self.name + '-to'] = vals[1]
+
+    class TextRangeRenderer(formalchemy.fields.FieldRenderer):
+        def _get_value(self):
+            extras = self.field.parent.model.extras
+            if self._value:
+                from_form, to_form = self._value
+            else:
+                from_ = extras.get(self.field.name + '-from') or u''
+                to = extras.get(self.field.name + '-to') or u''
+                from_form = from_
+                to_form = to
+            return (from_form, to_form)
+
+        def render(self, **kwargs):
+            from_, to = self._get_value()
+            from_html = fa_h.text_field(self.name + '-from', value=from_, class_="medium-width", **kwargs)
+            to_html = fa_h.text_field(self.name + '-to', value=to, class_="medium-width", **kwargs)
+            html = '%s - %s' % (from_html, to_html)
+            return html
+
+        def render_readonly(self, **kwargs):
+            val = self._get_value()
+            if not val:
+                val = u'', u''
+            from_, to = val
+            if to:
+                val_str = '%s - %s' % (from_, to)
+            else:            
+                val_str = '%s' % from_
+            return field_readonly_renderer(self.field.key, val_str)
+
+        def _serialized_value(self):
+            param_val_from = self._params.get(self.name + '-from', u'')
+            param_val_to = self._params.get(self.name + '-to', u'')
+            return param_val_from, param_val_to
+
+        def deserialize(self):
+            return self._serialized_value()
+
 class ResourcesField(ConfiguredField):
     '''A form field for multiple package resources.'''
+    def __init__(self, name, hidden_label=False):
+        ConfiguredField.__init__(self, name)
+        self._hidden_label = hidden_label
+
     def get_configured(self):
-        return self.ResourcesField(self.name).with_renderer(self.ResourcesRenderer)
+        field = self.ResourcesField(self.name).with_renderer(self.ResourcesRenderer)
+        field._hidden_label = self._hidden_label
+        field.set(multiple=True)
+        return field
 
     class ResourcesField(formalchemy.Field):
         def sync(self):
@@ -168,86 +278,37 @@ class ResourcesField(ConfiguredField):
                 pkg = self.model
                 resources = self._deserialize() or []
                 pkg.resources = []
-                for url, format, description, hash_ in resources:
-                    pkg.add_resource(url=url,
-                                     format=format,
-                                     description=description,
-                                     hash=hash_)
+                for res_dict in resources:
+                    pkg.add_resource(**res_dict)
+
+        def requires_label(self):
+            return not self._hidden_label
+        requires_label = property(requires_label)
+
+        @property
+        def raw_value(self):
+            # need this because it is a property
+            return getattr(self.model, self.name)
+
 
     class ResourcesRenderer(formalchemy.fields.FieldRenderer):
-        table_template = literal('''
-          <table id="flexitable" prefix="%(id)s" class="no-margin">
-            <tr> <th>URL</th><th>Format</th><th>Description</th><th>Hash</th> </tr>
-    %(rows)s
-          </table>
-          <a href="javascript:addRowToTable()" id="add_resource"><img src="/images/icons/add.png"></a>
-          ''')
-        table_template_readonly = literal('''
-          <table id="flexitable" prefix="%(id)s">
-            <tr> <th>URL</th><th>Format</th><th>Description</th><th>Hash</th> </tr>
-    %(rows)s
-          </table>
-          ''')
-        # NB row_template needs to be kept in-step with flexitable's row creation.
-        row_template = literal('''
-            <tr>
-              <td><input name="%(id)s-%(res_index)s-url" size="40" id="%(id)s-%(res_index)s-url" type="text" value="%(url)s" /></td>
-              <td><input name="%(id)s-%(res_index)s-format" size="5" id="%(id)s-%(res_index)s-format" type="text" value="%(format)s" /></td>
-              <td><input name="%(id)s-%(res_index)s-description" size="25" id="%(id)s-%(res_index)s-description" type="text" value="%(description)s" /></td>
-              <td><input name="%(id)s-%(res_index)s-hash" size="10" id="%(id)s-%(res_index)s-hash" type="text" value="%(hash)s" /></td>
-              <td>
-                <a href="javascript:moveRowUp(%(res_index)s)"><img src="/images/icons/arrow_up.png"></a>
-                <a href="javascript:moveRowDown(%(res_index)s)"><img src="/images/icons/arrow_down.png"></a>
-                <a href="javascript:removeRowFromTable(%(res_index)s);"><img src="http://m.okfn.org/kforge/images/icon-delete.png" class="icon"></a>
-              </td>
-            </tr>
-        ''')
-        row_template_readonly = literal('''
-            <tr> <td><a href="%(url)s">%(url)s</a></td><td>%(format)s</td><td>%(description)s</td><td>%(description)s</td><td>%(hash)s</td> </tr>
-        ''')
-
         def render(self, **kwargs):
-            return self._render(readonly=False)
+            c.resources = self._value or []
+            # [:] does a copy, so we don't change original
+            c.resources = c.resources[:]
+            c.resources.extend([None, None, None])
+            c.id = self.name
+            return render('package/form_resources')            
 
-        def render_readonly(self, **kwargs):
-            value_str = self._render(readonly=True)
-            return field_readonly_renderer(self.field.key, value_str, newline_reqd=False)
-    #        return self._render(readonly=True)
-
-        def _render(self, readonly=False):
-            row_template = self.row_template_readonly if readonly else self.row_template
-            table_template = self.table_template_readonly if readonly else self.table_template
-            resources = self.field.parent.resources.value or \
-                        self.field.parent.model.resources or []
-            # Start an edit with empty resources
-            if not readonly:
-                # copy so we don't change original
-                resources = resources[:]
-                resources.extend([None, None, None])
-            rows = []
-            for index, res in enumerate(resources):
-                if isinstance(res, model.PackageResource):
-                    url = res.url
-                    format = res.format
-                    description = res.description
-                    hash_ = res.hash
-                elif isinstance(res, tuple):
-                    url, format, description, hash_ = res
-                elif res == None:
-                    url = format = description = hash_ = u''
-                rows.append(row_template % {'url':url,
-                                            'format':format,
-                                            'description':description,
-                                            'hash':hash_ or u'',
-                                            'id':self.name,
-                                            'res_index':index,
-                                            })
-            if rows:
-                html = table_template % {'id':self.name,
-                                         'rows':literal(''.join(rows))}
-            else:
-                html = ''
-            return unicode(html)
+        def stringify_value(self, v):
+            # actually returns dict here for _value
+            # multiple=True means v is a PackageResource
+            res_dict = {}
+            if v:
+                assert isinstance(v, model.PackageResource)
+                for col in model.PackageResource.get_columns():
+                    res_dict[col] = getattr(v, col)
+            return res_dict
 
         def _serialized_value(self):
             package = self.field.parent.model
@@ -266,13 +327,15 @@ class ResourcesField(ConfiguredField):
             while True:
                 if not params.has_key('%s-%i-url' % (self.name, row)):
                     break
-                url = params.get('%s-%i-url' % (self.name, row), u'')
-                format = params.get('%s-%i-format' % (self.name, row), u'')
-                description = params.get('%s-%i-description' % (self.name, row), u'')
-                hash_ = params.get('%s-%i-hash' % (self.name, row), u'')
-                if url or format or description or hash_:
-                    resource = (url, format, description, hash_)
-                    new_resources.append(resource)
+                new_resource = {}
+                blank_row = True
+                for col in model.PackageResource.get_columns():
+                    value = params.get('%s-%i-%s' % (self.name, row, col), u'')
+                    new_resource[col] = value
+                    if value:
+                        blank_row = False
+                if not blank_row:
+                    new_resources.append(new_resource)
                 row += 1
             return new_resources
 
@@ -302,29 +365,16 @@ class TagField(ConfiguredField):
                     pkgtag.delete()
 
     class TagEditRenderer(formalchemy.fields.FieldRenderer):
-        tag_field_template = literal('''
-        <div id="tagsAutocomp">
-            %s <br />
-            <div id="tagsAutocompContainer"></div>
-          </div>
-          <script type="text/javascript">
-            var tagsSchema = ["ResultSet.Result", "Name"];
-            var tagsDataSource = new YAHOO.widget.DS_XHR(
-              "../../tag/autocomplete", tagsSchema
-            );
-            tagsDataSource.scriptQueryParam = "incomplete";
-            var tagsAutocomp = new YAHOO.widget.AutoComplete(
-              "Package-%s-tags","tagsAutocompContainer", tagsDataSource
-            );
-            tagsAutocomp.delimChar = " ";
-            tagsAutocomp.maxResultsDisplayed = 10;
-          </script>
-          <br/>
-          ''')
         def render(self, **kwargs):
-            tags_as_string = self._tags_string()
-            return self.tag_field_template % (literal(fa_h.text_field(self.name, value=tags_as_string, size=60, **kwargs)), self.field.parent.model.id or '')
-
+            pkg_id = self.field.parent.model.id or ''
+            kwargs['value'] = self._tags_string()
+            kwargs['size'] = 60
+            kwargs['data-tagcomplete-url'] = h.url_for(controller='tag', action='autocomplete', id=None)
+            kwargs['data-tagcomplete-queryparam'] = 'incomplete'
+            kwargs['class'] = 'long tagComplete'
+            html = literal(fa_h.text_field(self.name, **kwargs))
+            return html
+                           
         def _tags_string(self):
             tags = self.field.parent.tags.value or self.field.parent.model.tags or []
             if tags:
@@ -497,21 +547,6 @@ class ExtrasField(ConfiguredField):
 
             return extra_fields
 
-class TextExtraField(ConfiguredField):
-    '''A form field for basic text in an "extras" field.'''
-    def get_configured(self):
-        return self.TextExtraField(self.name).with_renderer(self.TextExtraRenderer)
-
-    class TextExtraField(formalchemy.Field):
-        def sync(self):
-            if not self.is_readonly():
-                pkg = self.model
-                val = self._deserialize() or u''
-                pkg.extras[self.name] = val
-
-    class TextExtraRenderer(TextExtraRenderer):
-        pass
-
 class SuggestedTextExtraField(TextExtraField):
     '''A form field for text suggested from from a list of options, that is
     stored in an "extras" field.'''
@@ -539,9 +574,9 @@ class SuggestedTextExtraField(TextExtraField):
             else:
                 select_field_selected = u''
                 text_field_value = u''            
-            html = literal(fa_h.select(self.name, fa_h.options_for_select(options, selected=select_field_selected, **kwargs)))
+            html = literal(fa_h.select(self.name, fa_h.options_for_select(options, selected=select_field_selected), class_="short", **kwargs))
             other_name = self.name+'-other'
-            html += literal('<label class="inline" for="%s">Other: %s</label>') % (other_name, literal(fa_h.text_field(other_name, value=text_field_value, **kwargs)))
+            html += literal('<label class="inline" for="%s">Other: %s</label>') % (other_name, literal(fa_h.text_field(other_name, value=text_field_value, class_="medium-width", **kwargs)))
             return html
 
         def render_readonly(self, **kwargs):
