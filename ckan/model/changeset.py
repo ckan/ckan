@@ -4,6 +4,7 @@ Sub-domain model for distributed data version control.
 from meta import *
 import vdm.sqlalchemy
 from ckan.model.core import DomainObject
+from ckan.model import Session, Revision, Package, PackageResource, Tag, Group
 from ckan.model import Session, Revision, Package, Tag, Group
 from ckan.model import setup_default_user_roles
 from simplejson import dumps, loads
@@ -649,12 +650,6 @@ class AbstractChangesetRegister(ObjectRegister):
         changeset_id = unicode(id_uuid)
         return changeset_id
             
-    def update(self):
-        raise Exception, "Method not implemented."
-
-    def commit(self):
-        raise Exception, "Method not implemented."
-
     def add_unseen(self, changeset_data):
         # Todo: Validate the data (dict with id str, meta dict, and changes list).
         changeset_id = unicode(changeset_data['id'])
@@ -978,8 +973,16 @@ class PackageRegister(ObjectRegister):
         if 'extras' in vector.new:
             entity.extras = vector.new['extras']
         # Todo: Build PackageResource objects, appending to entity.resource.
-        #if 'resources' in vector.new:
-        #    entity.resources = vector.new['resources']
+        if 'resources' in vector.new:
+            for resource_data in vector.new['resources']:
+                package_resource = PackageResource(
+                    url=resource_data.get('url', u''),
+                    format=resource_data.get('format', u''),
+                    description=resource_data.get('description', u''),
+                    hash=resource_data.get('hash', u''),
+                )
+                Session.add(package_resource)
+                entity.resources.append(package_resource) 
 
  
 class RevisionRegister(ObjectRegister):
