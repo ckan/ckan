@@ -510,7 +510,12 @@ def edit_package_dict(dict_, changed_items, id=''):
                     # REST edit
                     resources = []
                     for res in value:
-                        resources.append((res['url'], res['format'], res['description'], res['hash']))
+                        resources.append((
+                            res.get('url', u''), 
+                            res.get('format', u''), 
+                            res.get('description', u''), 
+                            res.get('hash', u''),
+                        ))
                     dict_[resources_key] = resources
                 elif key == tags_key and isinstance(value, list):
                     dict_[key] = ' '.join(value)
