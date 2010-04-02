@@ -576,10 +576,7 @@ class Changes(CkanCommand):
         from ckan.model.changeset import ChangesetRegister
         changeset_register = ChangesetRegister()
         changeset_ids = changeset_register.commit()
-        for changeset_id in changeset_ids:
-            changeset = changeset_register[changeset_id]
-            self.log_changeset(changeset)
-            print ""
+        print "Committed %s revision%s." % (len(changeset_ids), (len(changeset_ids) != 1) and "s" or "")
 
     def merge(self):
         if len(self.args) > 1:
@@ -605,8 +602,11 @@ class Changes(CkanCommand):
     def working(self):
         from ckan.model.changeset import ChangesetRegister
         changeset_register = ChangesetRegister()
-        changeset = changeset_register.get_working()
-        self.log_changeset(changeset)
+        working_changeset = changeset_register.get_working()
+        if working_changeset:
+            self.log_changeset(working_changeset)
+        else:
+            print "There is no working changeset."
 
     def log(self):
         if len(self.args) > 1:
