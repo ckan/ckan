@@ -582,7 +582,7 @@ class Changes(CkanCommand):
         if len(self.args) > 1:
             changeset_id = unicode(self.args[1])
         else:
-            print "Need a target changeset to merge with working."
+            print "Need a target changeset to merge working into."
             sys.exit(1)
         from ckan.model.changeset import ChangesetRegister
         from ckan.model.changeset import ConflictException
