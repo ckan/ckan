@@ -1,3 +1,5 @@
+'''Discovery of CKAN form plug-ins.
+'''
 import pkg_resources
 from pylons import config
 

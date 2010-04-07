@@ -114,7 +114,6 @@ class PackageController(BaseController):
         return render('package/history')
 
     def new(self):
-        c.has_autocomplete = True
         c.error = ''
 
         is_admin = self.authorizer.is_sysadmin(c.user)
@@ -179,7 +178,6 @@ class PackageController(BaseController):
 
     def edit(self, id=None): # allow id=None to allow posting
         # TODO: refactor to avoid duplication between here and new
-        c.has_autocomplete = True
         c.error = ''
 
         pkg = model.Package.by_name(id)

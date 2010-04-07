@@ -17,11 +17,14 @@ In the CKAN code, the majority of forms code is in ckan/forms.
  * ckan/forms/common.py - A common place for fields used by standard forms
  * ckan/forms/builder.py - The FormBuilder class, which provides an easy way to define a form. It creates a FormAlchemy fieldset used in the CKAN controller code.
  * ckan/forms/package.py - This contains the 'standard' form, which is a good example and is useful to derive custom forms from.
- * ckan/forms/package_gov.py - Contains the an example government form, which serves as an example of using lots of extra fields for dates, geographical coverage, etc.
+ * ckan/forms/package_gov.py - Contains the a government form, which serves as an example of using lots of extra fields for dates, geographical coverage, etc.
 
 
 Building a package form
 -----------------------
+
+Basics
+^^^^^^
 
 The FormBuilder object must be initialised with the Package object (because the form is for editing packages):: 
 
@@ -31,16 +34,11 @@ All the basic package fields are added to the form automatically - this currentl
 
 To provide editing of other fields beyond the basic ones, you need to use add_field and select either an existing ConfiguredField in common.py, or define your own. For example, the complicated grid of package resources is defined as a common field and it is added to the standard form like this::
 
- builder.add_field(common.ResourcesField('resources'))
+ builder.add_field(common.TagField('tags'))
 
 The basic fields (name, title, etc) and a few more (license, tags, resources) are defined for all packages. Additional information can be stored on each package in the 'extra' fields. Often we want to provide a nicer interface to these 'extra' fields to help keep consistency in format between the packages. For example, in the government form (package_gov.py) we have added a field for the release date. This is stored as a Package 'extra' with key 'date_released' and by using the DateExtraField, in the form the user is asked for a date.::
 
  builder.add_field(common.DateExtraField('date_released'))
-
-Instead of starting with just the basic fields, many people will want to edit the standard form, which already contains the resources, extra fields and customise that further. To achieve that you import the builder object like this::
-
- import ckan.forms.package as package
- builder = package.build_package_form()
 
 You can configure existing fields using the usual `FormAlchemy Field options <http://docs.formalchemy.org/fields.html#fields>`_. For example, here we add a validator to a standard field::
 
@@ -49,6 +47,56 @@ You can configure existing fields using the usual `FormAlchemy Field options <ht
 Options are given keyword parameters by passing a dictionary. For example, this is how we set the notes field's size::
 
  builder.set_field_option('notes', 'textarea', {'size':'60x15'})
+
+Here is how you can set which fields are displayed and their order::
+
+ builder.set_displayed_fields(['name', 'notes', 'resources'])
+
+To complete the form design you need to return the fieldset object. Ensure this is executed once - when your python form file is imported:: 
+
+ my_fieldset = builder.get_fieldset()
+
+
+Field labels
+^^^^^^^^^^^^
+
+The field labels are derived from the model key using a 'prettify' function. The default munge capitalises the first letter and changes underscores to spaces. You can write a more advanced function depending on your needs. Here is the template for a prettify function::
+
+ def prettify(field_name):
+     return field_name.replace('_', ' ').capitalize())
+
+If you write a new one, you tell the builder about it like this::
+
+ builder.set_label_prettifier(prettify)
+
+
+Field groups
+^^^^^^^^^^^^
+
+By default, fields are displayed in one long list. CKAN provides a special package edit form template which *groups* fields together. To setup the groups, instead of calling set_displayed_fields, you call set_displayed_fields_in_groups like this::
+
+ from sqlalchemy.util import OrderedDict
+ builder.set_displayed_fields_in_groups(OrderedDict([
+        ('Basic information', ['name', 'title', 'version', 'url']),
+        ('Resources', ['resources']),
+        ('Detail', ['author', 'author_email'])]))
+
+And to specify the template which displays the groups correctly::
+
+ builder.set_form_template('package/form')
+
+
+Hidden labels
+^^^^^^^^^^^^^
+
+A couple of common fields (ResourceField and ExtrasField currently) are designed to go in their own field group (see below) and without the usual field label. To hide the label, add these fields like this::
+
+ builder.add_field(common.ResourcesField('resources', hidden_label=True))
+
+Instead of starting with just the basic fields, many people will want to edit the standard form, which already contains the resources, extra fields and customise that further. To achieve that you import the builder object like this::
+
+ import ckan.forms.package as package
+ builder = package.build_package_form()
 
 
 Defining custom fields
@@ -93,6 +141,8 @@ To register your new form with CKAN you need to do three things.
 
   def get_fieldset(is_admin=False):
       return my_fieldset
+  
+ (The *is_admin* parameter can be considered if you wish to return a different fieldset for administrator users.)
 
 2. You need to provide an 'entry point' into your code package so that CKAN can access your new form. 
 

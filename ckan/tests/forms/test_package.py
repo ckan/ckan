@@ -1,12 +1,13 @@
 import ckan.model as model
 import ckan.forms
 from ckan.tests import *
+from ckan.tests.pylons_controller import PylonsTestCase
 from ckan.lib.helpers import escape
 
 def _get_blank_param_dict(pkg=None):
     return ckan.forms.get_package_dict(pkg=pkg, blank=True)
 
-class TestForms(TestController):
+class TestForms(PylonsTestCase):
     @classmethod
     def setup_class(self):
         model.Session.remove()
@@ -78,11 +79,13 @@ class TestForms(TestController):
         anna = model.Package.by_name(u'annakarenina')
         fs = fs.bind(anna)
         out = fs.resources.render()
-        out_printable = out.encode('utf8')
+        # out is str, but it contains unicode characters
+        out = unicode(out, 'utf8') # now it's unicode type
+        out_printable = out.encode('utf8') # encoded utf8
         for res in anna.resources:
             assert escape(res.url) in out, out_printable
             assert res.format in out, out_printable
-            assert escape(res.description) in out, out_printable        
+            assert u'Full text. Needs escaping: &#34; Umlaut: \xfc"' in out, out_printable        
             assert res.hash in out, out_printable        
 
     def test_2_fields(self):

@@ -1,5 +1,6 @@
 import formalchemy
 from formalchemy import helpers as h
+from sqlalchemy.util import OrderedDict
 
 from ckan.lib.helpers import literal
 import common
@@ -92,19 +93,22 @@ def build_package_gov_form(is_admin=False):
     builder.add_field(common.TextExtraField('agency'))
     builder.add_field(common.TextExtraField('taxonomy_url'))
     builder.set_field_option('tags', 'with_renderer', SuggestTagRenderer)
-    displayed_fields = ['name', 'title', 'external_reference', 'notes',
-                        'date_released', 'date_updated', 'update_frequency',
-                        'geographic_granularity', 'geographic_coverage',
-                        'temporal_granularity', 'temporal_coverage',
-                        'categories', 'national_statistic', 'precision', 'url',
-                        'resources', 'taxonomy_url', 'department', 'agency',
-                        'author', 'author_email',
-                        'maintainer', 'maintainer_email',
-                        'license_id', 'tags', 'notes', 
-                        ]
+    
+    field_groups = OrderedDict([
+        ('Basic information', ['name', 'title', 'external_reference', 'notes']),
+        ('Details', ['date_released', 'date_updated', 'update_frequency',
+                     'geographic_granularity', 'geographic_coverage',
+                     'temporal_granularity', 'temporal_coverage',
+                     'categories', 'national_statistic', 'precision', 'url',]),
+        ('Resources', ['resources']),
+        ('More details', ['taxonomy_url', 'department', 'agency',
+                          'author', 'author_email',
+                          'maintainer', 'maintainer_email',
+                          'license_id', 'tags' ]),
+        ])
     if is_admin:
-        displayed_fields.append('state')
-    builder.set_displayed_fields(displayed_fields)
+        field_groups['More details'].append('state')
+    builder.set_displayed_fields_in_groups(field_groups)
     return builder
 package_gov_fs = build_package_gov_form().get_fieldset()
 package_gov_fs_admin = build_package_gov_form(is_admin=True).get_fieldset()

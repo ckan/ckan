@@ -7,13 +7,15 @@ import common
 
 class CkanFieldset(formalchemy.FieldSet):
     def render(self, **kwargs):
+        '''Override FormAlchemy rendering to use a Ckan template'''
         if hasattr(self, 'form_template') and self.form_template is not None:
             c.fieldset = self
             return render(self.form_template)
         else:
-            return formalchemy.FieldSet(self, **kwargs)
+            return formalchemy.FieldSet.render(self, **kwargs)
 
     def get_field_groups(self):
+        '''Used by the template to group fields'''
         groups = []
         for field in self.render_fields.values():
             group = field.metadata.get('field_group', '')
@@ -53,15 +55,24 @@ class FormBuilder(object):
         if hints:
             self.set_field_option(field_name, 'with_metadata', {'hints':hints})
 
-##    def set_label_hidden(self, field_name):
-##        self.set_field_option(field_name, 'with_metadata', {'hidden_label':True})
-
     def set_displayed_fields(self, field_name_list):
         assert isinstance(field_name_list, (list, tuple))
         self.includes = field_name_list
         self.focus = self.fs._fields[field_name_list[0]]
 
     def set_displayed_fields_in_groups(self, groups_dict):
+        '''Similar to FA method 'set_displayed_fields' but takes
+        a dict of packages by group.
+
+        Each 'group' is displayed in an html <fieldset> but we
+        call it a group here so that it is not confused with
+        FormAlchemy 'fieldsets'.
+        
+        @param groups_dict Dictionary of the lists of field names
+                           keyed by the group name. e.g.:
+          groups_dict = {'Basic information':['name', 'title'],
+                         'Resources':['resources']}
+        '''
         assert isinstance(groups_dict, dict)
         all_field_names = []
         for group_name, field_names in groups_dict.items():

@@ -25,7 +25,7 @@
               </dt>
             </py:if>
             <dd>
-              ${Markup(field.render())}
+              ${h.literal(field.render())}
             </dd>
             <py:if test="field.metadata.has_key('instructions')">
               <dd class="instructions">${field.metadata['instructions']}</dd>
@@ -49,7 +49,7 @@ document.getElementById("${field.renderer.name}").focus();
       </dl>
       <py:otherwise test="">
         <py:for each="field in fields">
-          ${Markup(field.render())}
+          ${h.literal(field.render())}
         </py:for>
             <py:if test="field.metadata.has_key('instructions')">
               <div class="instructions">${field.metadata['instructions']}</div>

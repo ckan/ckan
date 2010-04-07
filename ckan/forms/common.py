@@ -87,7 +87,7 @@ class RegExValidatingField(ConfiguredField):
     @param validate_re - ("regex", "equivalen format but human readable")
     '''
     def __init__(self, name, validate_re=None, **kwargs):
-        ConfiguredField.__init__(self, name, **kwargs)
+        super(RegExValidatingField, self).__init__(name, **kwargs)
         self._validate_re = validate_re
         if validate_re:
             assert isinstance(validate_re, tuple)
@@ -100,9 +100,10 @@ class RegExValidatingField(ConfiguredField):
         return field
 
     def validate_re(self, value, field=None):
-        match = re.match(self._validate_re[0], value)
-        if not match:
-            raise formalchemy.ValidationError('Value does not match required format: %s' % self._validate_re[1])
+        if value:
+            match = re.match(self._validate_re[0], value)
+            if not match:
+                raise formalchemy.ValidationError('Value does not match required format: %s' % self._validate_re[1])
 
 class RegExRangeValidatingField(RegExValidatingField):
     '''Validates a range field (each value is validated on the same regex)'''
@@ -144,7 +145,7 @@ class DateExtraField(ConfiguredField):
 
     class DateExtraRenderer(TextExtraRenderer):
         def __init__(self, field):
-            TextExtraRenderer.__init__(self, field)
+            super(DateExtraField.DateExtraRenderer, self).__init__(field)
 
         def _get_value(self):
             form_date = TextExtraRenderer._get_value(self)
@@ -263,7 +264,7 @@ class TextRangeExtraField(RegExRangeValidatingField):
 class ResourcesField(ConfiguredField):
     '''A form field for multiple package resources.'''
     def __init__(self, name, hidden_label=False):
-        ConfiguredField.__init__(self, name)
+        super(ResourcesField, self).__init__(name)
         self._hidden_label = hidden_label
 
     def get_configured(self):
@@ -296,7 +297,7 @@ class ResourcesField(ConfiguredField):
             c.resources = self._value or []
             # [:] does a copy, so we don't change original
             c.resources = c.resources[:]
-            c.resources.extend([None, None, None])
+            c.resources.extend([None])
             c.id = self.name
             return render('package/form_resources')            
 
@@ -425,8 +426,14 @@ class TagField(ConfiguredField):
 
 class ExtrasField(ConfiguredField):
     '''A form field for arbitrary "extras" package data.'''
+    def __init__(self, name, hidden_label=False):
+        super(ExtrasField, self).__init__(name)
+        self._hidden_label = hidden_label
+
     def get_configured(self):
-        return self.ExtrasField(self.name).with_renderer(self.ExtrasRenderer).validate(self.extras_validator)
+        field = self.ExtrasField(self.name).with_renderer(self.ExtrasRenderer).validate(self.extras_validator)
+        field._hidden_label = self._hidden_label
+        return field
 
     def extras_validator(self, val, field=None):
         val_dict = dict(val)
@@ -434,7 +441,7 @@ class ExtrasField(ConfiguredField):
             if value != val_dict[key]:
                 raise formalchemy.ValidationError('Duplicate key "%s"' % key)
             if value and not key:
-                # Note value is allowed to by None - REST way of deleting fields.
+                # Note value is allowed to be None - REST way of deleting fields.
                 raise formalchemy.ValidationError('Extra key-value pair: key is not set.')
 
     class ExtrasField(formalchemy.Field):
@@ -460,24 +467,12 @@ class ExtrasField(ConfiguredField):
                 if key not in extra_keys:
                     del pkg.extras[key]
 
+        def requires_label(self):
+            return not self._hidden_label
+        requires_label = property(requires_label)
+
 
     class ExtrasRenderer(formalchemy.fields.FieldRenderer):
-        extra_field_template = literal('''
-        <div>
-          <label class="field_opt" for="%(name)s">%(key)s</label>
-          <input id="%(name)s" name="%(name)s" size="20" type="text" value="%(value)s">
-          <input type=checkbox name="%(name)s-checkbox">Delete</input>
-        </div>
-        ''')
-        blank_extra_field_template = literal('''
-        <div class="extras-new-field">
-          <label class="field_opt">New key</label>
-          <input id="%(name)s-key" name="%(name)s-key" size="20" type="text">
-          <label class="field_opt">Value</label>
-          <input id="%(name)s-value" name="%(name)s-value" size="20" type="text">
-        </div>
-        ''')
-
         def _get_value(self):
             extras = self.field.parent.extras.value
             if extras is None:
@@ -487,16 +482,17 @@ class ExtrasField(ConfiguredField):
         def render(self, **kwargs):
             extras = self._get_value()
             html = ''
+            field_values = []
             for key, value in extras:
-                html += self.extra_field_template % {
-                    'name':self.name + '-%s' % key,
+                field_values.append({
+                    'name':'%s-%s' % (self.name, key),
                     'key':key.capitalize(),
-                    'value':value,}
+                    'value':value,})
             for i in range(3):
-                html += self.blank_extra_field_template % {
-                    'name':'%s-newfield%s' % (self.name, i)}
-
-            return html
+                field_values.append({
+                    'name':'%s-newfield%s' % (self.name, i)})
+            c.fields = field_values
+            return render('package/form_extra_fields')
 
         def render_readonly(self, **kwargs):
             html_items = []
@@ -552,7 +548,7 @@ class SuggestedTextExtraField(TextExtraField):
     stored in an "extras" field.'''
     def __init__(self, name, options):
         self.options = options
-        TextExtraField.__init__(self, name)
+        super(SuggestedTextExtraField, self).__init__(name)
 
     def get_configured(self):
         return self.TextExtraField(self.name, options=self.options).with_renderer(self.SelectRenderer)

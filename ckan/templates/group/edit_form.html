@@ -2,7 +2,7 @@
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       >
-      ${Markup(c.fieldset.render())}
+      ${h.literal(c.fieldset.render())}
 
      <div>
       <label class="field_opt">Packages</label>
@@ -16,7 +16,7 @@
         New Packages
       </h3>
 
-      ${Markup(c.fieldset2.render())}
+      ${h.literal(c.fieldset2.render())}
 
       <br/>
       ${h.submit('commit', _('Save'))}
