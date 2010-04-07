@@ -477,6 +477,7 @@ class Changes(CkanCommand):
 
     Usage:
       changes pull [source]          - pulls unseen changesets from changeset sources
+      changes heads                  - list changesets at the end of active lines
       changes update [target]        - updates repository entities to target changeset (defaults to working line's head)
       changes commit                 - creates changesets for all outstanding changes (revisions)
       changes merge [follow]         - creates mergeset to follow changeset and close working line
@@ -495,6 +496,8 @@ class Changes(CkanCommand):
         cmd = self.args[0]
         if cmd == 'pull':
             self.pull()
+        elif cmd == 'heads':
+            self.heads()
         elif cmd == 'update':
             self.update()
         elif cmd == 'commit':
@@ -529,6 +532,11 @@ class Changes(CkanCommand):
                 sys.exit(1)
             print "Pulled %s changesets from '%s'." % (len(changesets), source)
 
+    def heads(self):
+        from ckan.model.changeset import Heads
+        head_ids = Heads().ids()
+        print "\n".join(head_ids)
+
     def update(self):
         if len(self.args) > 1:
             changeset_id = unicode(self.args[1])
@@ -561,16 +569,28 @@ class Changes(CkanCommand):
             sys.exit(1)
         if changed_entities['created']:
             print "The following packages were created:"
+            names = []
             for entity in changed_entities['created']:
+                if entity.name in names:
+                    continue
                 print "package:    %s" % entity.name
+                names.append(entity.name)
         if changed_entities['updated']:
+            names = []
             print "The following packages were updated:"
             for entity in changed_entities['updated']:
+                if entity.name in names:
+                    continue
                 print "package:    %s" % entity.name
+                names.append(entity.name)
         if changed_entities['deleted']:
+            names = []
             print "The following packages were deleted:"
             for entity in changed_entities['deleted']:
+                if entity.name in names:
+                    continue
                 print "package:    %s" % entity.name
+                names.append(entity.name)
 
     def commit(self):
         from ckan.model.changeset import ChangesetRegister

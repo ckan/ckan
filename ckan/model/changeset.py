@@ -4,8 +4,8 @@ Sub-domain model for distributed data version control.
 from meta import *
 import vdm.sqlalchemy
 from ckan.model.core import DomainObject
-from ckan.model import Session, Revision, Package, PackageResource, Tag, Group
-from ckan.model import Session, Revision, Package, Tag, Group
+from ckan.model import Session, Revision, Package
+from ckan.model import PackageResource, Tag, Group
 from ckan.model import setup_default_user_roles
 from simplejson import dumps, loads
 import datetime
@@ -124,9 +124,7 @@ class Change(ChangesetDomainObject):
             if entity == None:
                 msg = "Can't apply deleting change, since entity not found for ref: %s" % self.ref
                 raise Exception, msg
-            raise Exception, "Sorry, appling a deleting changeset isn't supported yet."
-            # Todo: Delete method on register class.
-            #entity = register.delete(key)
+            entity.delete()
         else:
             # Update.
             if entity == None:
@@ -259,6 +257,22 @@ class Range(ChangeArithmetic):
         return sequence.pop(0)
 
 
+class Reverse(object):
+
+    def __init__(self, changes):
+        self.changes = changes
+
+    def calc_changes(self):
+        changes = []
+        for change in self.changes:
+            vector = change.as_vector()
+            reverse = Vector(old=vector.new, new=vector.old)
+            diff = reverse.as_diff()
+            ref = change.ref
+            changes.append(Change(ref=ref, diff=diff))
+        return changes
+
+
 class CommonAncestor(ChangeArithmetic):
 
     def __init__(self, child1, child2):
@@ -371,9 +385,9 @@ class Sum(ChangeArithmetic):
         
 class Merge(object):
 
-    def __init__(self, changeset_continuing, changeset_closing):
-        self.head1 = changeset_continuing
-        self.head2 = changeset_closing
+    def __init__(self, continuing, closing):
+        self.continuing = continuing
+        self.closing = closing
         self.range_sum = None
         self.range1 = None
         self.range2 = None
@@ -383,22 +397,34 @@ class Merge(object):
         sum = self.get_range_sum()
         return sum.is_conflicting()
 
-    def create_mergeset(self):
+    def create_mergeset(self, resolve_class=None):
         head_ids = Heads().ids()
-        if self.head1.id not in head_ids:
-            msg = "Changeset '%s' is not a head." % self.head1.id
+        if self.continuing.id not in head_ids:
+            msg = "Changeset '%s' is not a head." % self.continuing.id
             raise Exception, msg
-        if self.head2.id not in head_ids:
-            msg = "Changeset '%s' is not a head." % self.head2.id
+        if self.closing.id not in head_ids:
+            msg = "Changeset '%s' is not a head." % self.closing.id
             raise Exception, msg
         sum = self.get_range_sum()
-        sum.detect_conflict()
-        register = ChangesetRegister()
-        closed_branch_changes = self.range2.calc_changes()
-        mergeset = register.create_entity(
-            closes_id=self.head2.id,
-            follows_id=self.head1.id,
-            changes = closed_branch_changes
+        if resolve_class == None:
+            resolve_class = Resolve
+        resolve = resolve_class(sum.changes1, sum.changes2)
+        resolution = resolve.calc_changes()
+        overwrite = Overwrite(sum.changes2, resolution)
+        merge_changes = overwrite.calc_changes()
+        changeset_register = ChangesetRegister()
+        # Todo: Use values from the user doing the merge.
+        log_message = 'Merged branch %s' % self.closing.id
+        author = 'System'
+        meta = {
+            'log_message': log_message,
+            'author': author,
+        }
+        mergeset = changeset_register.create_entity(
+            meta=meta,
+            closes_id=self.closing.id,
+            follows_id=self.continuing.id,
+            changes=merge_changes
         )
         return mergeset
  
@@ -413,24 +439,130 @@ class Merge(object):
 
     def get_range1(self):
         if self.range1 == None:
-            self.range1 = self.create_merge_range(self.head1)
+            self.range1 = self.create_merge_range(self.continuing)
         return self.range1
 
     def get_range2(self):
         if self.range2 == None:
-            self.range2 = self.create_merge_range(self.head2)
+            self.range2 = self.create_merge_range(self.closing)
         return self.range2
 
-    def create_merge_range(self, head):
-        range = Range(self.get_common_ancestor(), head)
-        range.pop_first()  # Don't include common ancestor.
+    def create_merge_range(self, stop):
+        start = self.get_common_ancestor()
+        range = Range(start, stop)
+        # Drop the common ancestor.
+        range.pop_first()  
         return range
 
     def get_common_ancestor(self):
         if self.common_ancestor == None:
-            changeset = CommonAncestor(self.head1, self.head2).find()
+            changeset = CommonAncestor(self.continuing, self.closing).find()
             self.common_ancestor = changeset
         return self.common_ancestor
+
+
+class Resolve(object):
+
+    def __init__(self, changes1, changes2):
+        self.changes1 = changes1
+        self.changes2 = changes2
+
+    def calc_changes(self):
+        changes3 = []  # A list of Change instances.
+        for change1 in self.changes1:
+            ref = change1.ref
+            vector3 = None
+            for change2 in self.changes2:
+                if ref == change2.ref:
+                    old1 = change1.old
+                    new1 = change1.new
+                    old2 = change2.old
+                    new2 = change2.new
+                    if old1 == None or old2 == None or new1 == None or new2 == None:
+                        if old1 != None or old2 != None or new1 != None or new2 != None:
+                            print "Changes conflict about object lifetime on ref: %s %s" % (change1, change2)
+
+                            new = self.decide_value(new1, new2)
+                            print "Using values: %s" % new
+                            vector3 = Vector(new1, new)
+                    elif new1 and new2:
+                        old3 = None
+                        new3 = None
+                        for name, value1 in new1.items():
+                            if name not in new2:
+                                break
+                            value2 = new2[name]
+                            if value1 != value2:
+                                print "Changes conflict about new values of '%s' on %s: %s or %s" % (
+                                    name, ref, value1, value2
+                                )
+                                if old3 == None and new3 == None:
+                                    old3 = {}
+                                    new3 = {}
+                                value = self.decide_value(value1, value2)
+                                print "Using value: %s" % value
+                                old3[name] = value1
+                                new3[name] = value
+                        if old3 != None and new3 != None:
+                            vector3 = Vector(old3, new3)
+                    break    
+            if vector3:
+                diff = vector3.as_diff()
+                change3 = Change(ref=ref, diff=diff)
+                changes3.append(change3)
+        return changes3
+
+    def decide_value(self, value1, value2):
+        return value2
+
+class CliResolve(Resolve):
+
+    def decide_value(self, value1, value2):
+        print "Conflicting values:"
+        print "1:  %s" % value1
+        print "2:  %s" % value2
+        input = raw_input("Which value is best? [2]: ")
+        if input == "1":
+            value = value1
+        else:
+            value = value2
+        return value
+
+
+class Overwrite(object):
+
+    def __init__(self, changes1, changes2):
+        self.changes1 = changes1
+        self.changes2 = changes2
+        
+    def calc_changes(self):
+        changes = []
+        # Copy 1.
+        for change1 in self.changes1:
+            ref = change1.ref
+            vector = change1.as_vector()
+            diff = vector.as_diff()
+            change = Change(ref=ref, diff=diff)
+            changes.append(change)
+        # Update copy from 2.
+        for change2 in self.changes2:
+            is_overwrite = False
+            for change in changes:
+                if change2.ref == change.ref:
+                    vector = change.as_vector()
+                    vector2 = change2.as_vector()
+                    vector.old.update(vector2.old)
+                    vector.new.update(vector2.new)
+                    change.diff = vector.as_diff()
+                    is_overwrite = True
+                    break
+            if not is_overwrite:
+                ref = change2.ref
+                vector = change2.as_vector()
+                diff = vector.as_diff()
+                change = Change(ref=ref, diff=diff)
+                changes.append(change)
+        return changes
 
 
 class ObjectRegister(ChangesetLayerBase):
@@ -508,17 +640,32 @@ class ObjectRegister(ChangesetLayerBase):
         for name in vector.old.keys():
             entity_value = entity_data[name]
             old_value = vector.old[name]
-            if entity_value != old_value:
-                msg = u"Current entity '%s' conflicts with old value of the change." % name
-                msg += "\n<<<\n%s\n<<<\n--\n>>>\n%s\n>>>" % (entity_value, old_value)
+            if not self.is_equal(entity_value, old_value):
+                msg = u"Current '%s' value conflicts with old value of the change.\n" % name
+                msg += "current: %s\n" % entity_value
+                msg += "change old: %s\n" % old_value
                 raise ConflictException, msg.encode('utf8')
+
+    def is_equal(self, value1, value2):
+        # Todo: Should list order differences be conflicts?
+        #         - why would the order change?
+        if isinstance(value1, list):
+            value1.sort()
+        if isinstance(value2, list):
+            value2.sort()
+        return value1 == value2
 
     def detect_distinct_value_conflict(self, vector):
         "Checks for unique value conflicts with existing entities."
         for name in self.distinct_attrs:
-            if not name in vector.new:
+            if vector.new == None:
+                # There aren't any new values.
+                continue
+            elif name not in vector.new:
+                # The new values don't include this attribute.
                 continue
             elif not self.get(vector.new[name], None, attr=name):
+                # The new values aren't already in use.
                 continue
             else:
                 msg = "Conflicting unique '%s' values: '%s'." % (
@@ -753,50 +900,76 @@ class ChangesetRegister(AbstractChangesetRegister):
         if not working:
             raise Exception, "None of the changesets is marked as 'working'."
         head_ids = Heads().ids()
-        if working.id in head_ids:
-            raise WorkingAtHeadException, "Nothing to update (working changeset is head of its line)."
-        range = None
-        if target_id:
-            range = Range(working, self.get(target_id))
-            if range.is_broken():
-                raise Exception, "Target is not further down the working line."
-                # Todo: Make a jump.
+        if not target_id:
+            # Infer a target from the list of heads.
+            if working.id in head_ids:
+                raise WorkingAtHeadException, "Nothing to update (working changeset is head of its line)."
+            else:
+                for head_id in head_ids:
+                    range = Range(working, self.get(head_id))
+                    if not range.is_broken():
+                        target_id = head_id
+                        break
+                if not target_id:
+                    raise Exception, "Can't find head changeset for the working line."
+        target = self.get(target_id)
+        range_forward = None
+        range_back = None
+        # Infer a path from the target.
+        common = CommonAncestor(working, target)
+        ancestor = common.find()
+        if ancestor.id == working.id:
+            # Just go forward towards head.
+            range_forward = Range(working, target)
+        elif ancestor.id == target.id:
+            # Just go back towards root.
+            range_back = Range(target, working)
         else:
-            # Find the head for this id.
-            for head_id in head_ids:
-                range = Range(working, self.get(head_id))
-                if not range.is_broken():
-                    target_id = head_id
-                    break
-            if not target_id:
-                raise Exception, "Can't work out which changeset to make working."
-        if range:
+            # Go back and then go forward.
+            range_forward = Range(ancestor, target)
+            range_back = Range(ancestor, working)
+        if range_forward and range_back == None:
             # It's on the range so we can move forward through the revisions.
-            for changeset in range.get_changesets()[1:]:
+            print "Applying changesets individually..."
+            range_forward.pop_first()
+            for changeset in range_forward.get_changesets()[1:]:
+                 print "%s" % changeset.id
                  changeset.apply(report=report)
-                 print "Applied changeset  %s" % changeset.id
-            print ", ".join(["%s %s packages" % (key, len(val)) for (key, val) in report.items()])
+        elif range_back and range_forward == None:
+            print "Updating to a previous point on the line..."
+            range_back.pop_first()
+            changes = range_back.calc_changes()
+            reverse = Reverse(changes)
+            changes = reverse.calc_changes()
+            self.apply_jump_changes(changes, target_id, report=report)
             # Todo: Make a better report.
-        # else: apply a 'jump'
+        elif range_back and range_forward:
+            print "Crossing branches..."
+            range_forward.pop_first()
+            changes_forward = range_forward.calc_changes()
+            range_back.pop_first()
+            changes = range_back.calc_changes()
+            reverse = Reverse(changes)
+            changes_back = reverse.calc_changes()
+            sum = Sum(changes_back, changes_forward)
+            changes = sum.calc_changes()
+            self.apply_jump_changes(changes, target_id, report=report)
+        print ", ".join(["%s %s packages" % (key, len(val)) for (key, val) in report.items()])
 
-#    def apply_jump_changes(self, jump):
-#        # Jump to the target in one revision.
-#        range.pop_first()
-#        changes = range.calc_changes()
-#        # Apply changes.
-#        message = u'Jumped to changeset %s' % target_id
-#        author = u'system'
-#        revision_id, updated, created, deleted = self.apply_changes(changes, message, author)
-#        target = self.get(target_id)
-#        target.revision_id = revision_id
-#        Session.commit()
-#        # Move working.
-#        self.move_working(target_id)
-#        # Setup access control for created entities.
-#        for entity in created_entities:
-#            setup_default_user_roles(entity, [])
-#        # Todo: Teardown access control for deleted entities?
-#        return (updated, created, deleted)
+    def apply_jump_changes(self, changes, target_id, report={}):
+        """Jump to the target in one revision."""
+        # Apply changes.
+        log_message = u'Jumped to changeset %s' % target_id
+        author = u'system'
+        meta = {
+            'log_message': log_message,
+            'author': author,
+        }
+        revision_id = self.apply_changes(changes, meta=meta, report=report)
+        target = self.get(target_id)
+        target.revision_id = revision_id
+        Session.commit()
+        self.move_working(target_id)
 
     def apply_changes(self, changes, meta={}, report={}, is_forced=False):
         need_access_control = []
@@ -826,6 +999,7 @@ class ChangesetRegister(AbstractChangesetRegister):
         # Setup access control for created entities.
         for entity in need_access_control:
             setup_default_user_roles(entity, [])
+        # Todo: Teardown access control for deleted entities?
         return revision_id
 
     def commit(self):
@@ -847,13 +1021,13 @@ class ChangesetRegister(AbstractChangesetRegister):
             follows_id = changeset_id
         return changeset_ids
 
-    def merge(self, continuing_id):
+    def merge(self, continuing_id, resolve_class=None):
         continuing = self.get(continuing_id)
         closing = self.get_working()
         merge = Merge(continuing, closing)
-        if merge.is_conflicting():
-            raise ConflictException, "Merge conflict when closing '%s' into changeset '%s'." % (closing.id, continuing.id)
-        mergeset = merge.create_mergeset()
+        #if merge.is_conflicting():
+        #    raise ConflictException, "Merge conflict when closing '%s' into changeset '%s'." % (closing.id, continuing.id)
+        mergeset = merge.create_mergeset(resolve_class=resolve_class)
         Session.commit()
         return mergeset
 

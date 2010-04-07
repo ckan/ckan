@@ -2,6 +2,7 @@ from ckan.tests import *
 from ckan.model.changeset import ChangesetRegister, Changeset
 from ckan.model.changeset import ChangeRegister, Change
 from ckan.model.changeset import Range, CommonAncestor, Heads, Sum, Merge
+from ckan.model.changeset import Resolve, Overwrite
 from ckan.model.changeset import ConflictException
 from ckan.model.changeset import UncommittedChangesException
 from ckan.model.changeset import WorkingAtHeadException
@@ -493,27 +494,43 @@ class TestArithmetic(TestCase):
         self.name1 = 'nameone'
         self.name2 = 'nametwo'
         self.name3 = 'namethree'
+        self.name4 = 'namefour'
         self.title0 = 'Title Zero'
         self.title1 = 'Title One'
         self.title2 = 'Title Two'
         self.title3 = 'Title Three'
+        self.title4 = 'Title Four'
+        # 0. Create package 'z'.
         self.change0 = self.creating_package_change(id='z', name=self.name0, title=self.title0)
         self.cs0 = self.create_cs(changes=[self.change0])
         model.Session.commit()
+        # 1. Create package 'a'.
         self.change1 = self.creating_package_change(id='a', name=self.name1, title=self.title1)
         self.cs1 = self.create_cs(follows_id=self.cs0.id, changes=[self.change1])
         model.Session.commit()
+        # 2. Update package 'a' title.
         self.change2 = self.updating_title_change(id='a', old=self.title1, new=self.title2)
         self.cs2 = self.create_cs(follows_id=self.cs1.id, changes=[self.change2])
         model.Session.commit()
+        # 3. Update package 'a' title again.
         self.change3 = self.updating_title_change(id='a', old=self.title2, new=self.title3)
         self.cs3 = self.create_cs(follows_id=self.cs2.id, changes=[self.change3])
         model.Session.commit()
+        # 4. Update package 'a' name.
         self.change4 = self.updating_name_change(id='a', old=self.name1, new=self.name2)
         self.cs4 = self.create_cs(follows_id=self.cs1.id, changes=[self.change4])
         model.Session.commit()
+        # 5. Update package 'a' name again.
         self.change5 = self.updating_name_change(id='a', old=self.name2, new=self.name3)
         self.cs5 = self.create_cs(follows_id=self.cs4.id, changes=[self.change5])
+        model.Session.commit()
+        # 6. Branch title changes from cs2.
+        self.change6 = self.updating_title_change(id='a', old=self.title2, new=self.title4)
+        self.cs6 = self.create_cs(follows_id=self.cs2.id, changes=[self.change6])
+        model.Session.commit()
+        # 7. Branch name changes from cs4.
+        self.change7 = self.updating_name_change(id='a', old=self.name2, new=self.name4)
+        self.cs7 = self.create_cs(follows_id=self.cs4.id, changes=[self.change7])
         model.Session.commit()
         print "Changeset0 : %s" % self.cs0.id
         print "Changeset1 : %s" % self.cs1.id
@@ -521,6 +538,8 @@ class TestArithmetic(TestCase):
         print "Changeset3 : %s" % self.cs3.id
         print "Changeset4 : %s" % self.cs4.id
         print "Changeset5 : %s" % self.cs5.id
+        print "Changeset6 : %s" % self.cs6.id
+        print "Changeset7 : %s" % self.cs7.id
 
     def teardown(self):
         model.repo.clean_db()
@@ -621,9 +640,11 @@ class TestArithmetic(TestCase):
     def test_heads(self):
         ids = Heads().ids()
         print "Heads: %s" % ids
-        self.assert_equal(len(ids), 2)
+        self.assert_equal(len(ids), 4)
         self.assert_true(self.cs3.id in ids)
         self.assert_true(self.cs5.id in ids)
+        self.assert_true(self.cs6.id in ids)
+        self.assert_true(self.cs7.id in ids)
         self.assert_false(self.cs0.id in ids)
         self.assert_false(self.cs1.id in ids)
         self.assert_false(self.cs2.id in ids)
@@ -654,7 +675,36 @@ class TestArithmetic(TestCase):
         self.assert_equal(changes[0].new['name'], 'namethree')
         self.assert_equal(changes[0].new['title'], 'Title Three')
     
-    def test_merge1(self):
+    def test_resolve(self):
+        resolve = self.create_resolve(self.cs3, self.cs5)
+        changes = resolve.calc_changes()
+        self.assert_equal(len(changes), 0)
+
+        resolve = self.create_resolve(self.cs3, self.cs6)
+        changes = resolve.calc_changes()
+        self.assert_equal(len(changes), 1)
+        change = changes[0]
+        self.assert_equal(change.old['title'], self.title3)
+        self.assert_equal(change.new['title'], self.title4)
+
+        resolve = self.create_resolve(self.cs5, self.cs7)
+        changes = resolve.calc_changes()
+        self.assert_equal(len(changes), 1)
+        change = changes[0]
+        self.assert_equal(change.old['name'], self.name3)
+        self.assert_equal(change.new['name'], self.name4)
+
+    def test_overwrite(self):
+        changes1 = self.cs6.changes
+        changes2 = self.cs3.changes
+        overwrite = Overwrite(changes1, changes2)
+        changes = overwrite.calc_changes()
+        self.assert_equal(len(changes), 1)
+        change = changes[0]
+        self.assert_equal(change.old['title'], self.title2)
+        self.assert_equal(change.new['title'], self.title3)
+    
+    def test_merge_non_conflicting(self):
         merge = Merge(self.cs3, self.cs5)
         self.assert_false(merge.is_conflicting())
         mergeset = merge.create_mergeset()
@@ -666,6 +716,8 @@ class TestArithmetic(TestCase):
         self.assert_equal(mergeset.changes[0].old['name'], 'nameone')
         self.assert_equal(mergeset.changes[0].new['name'], 'namethree')
         self.assert_false('title' in mergeset.changes[0].new)
+        self.assert_true(mergeset.get_meta().get('log_message'))
+        self.assert_true(mergeset.get_meta().get('author'))
         # More tests to calculate Range from cs0 to mergeset.
         model.Session.commit()
         range = Range(self.cs0, mergeset)
@@ -688,6 +740,30 @@ class TestArithmetic(TestCase):
             self.assert_equal(changes1.new['title'], self.title0)
         elif changes1.new['name'] == self.name3:
             self.assert_equal(changes1.new['title'], self.title3)
+
+    def test_merge_conflicting(self):
+        merge = Merge(self.cs3, self.cs6)
+        self.assert_true(merge.is_conflicting())
+        mergeset = merge.create_mergeset()
+        self.assert_true(mergeset.id)
+        self.assert_equal(mergeset.follows_id, self.cs3.id)
+        self.assert_equal(mergeset.closes_id, self.cs6.id)
+        changes = mergeset.changes
+        self.assert_equal(len(mergeset.changes), 1)
+        self.assert_true(mergeset.get_meta().get('log_message'))
+        self.assert_true(mergeset.get_meta().get('author'))
+
+
+    def create_resolve(self, changeset1, changeset2):
+        common = self.create_common(changeset1, changeset2)
+        ancestor = common.find()
+        range1 = self.create_range(ancestor, changeset1)
+        range2 = self.create_range(ancestor, changeset2)
+        range1.pop_first()
+        range2.pop_first()
+        changes1 = range1.calc_changes()
+        changes2 = range2.calc_changes()
+        return Resolve(changes1, changes2)
 
     def create_range(self, start, stop):
         return Range(start, stop)
