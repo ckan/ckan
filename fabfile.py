@@ -325,6 +325,19 @@ def upload_i18n(lang):
     remotepath = os.path.join(env.pyenv_dir, 'src', 'ckan', localpath)
     put(localpath, remotepath)
 
+def sysadmin_list():
+    '''Lists sysadmins'''
+    _setup()
+    with cd(env.instance_path):
+        _run_in_pyenv('paster --plugin ckan sysadmin list --config %s' % env.config_ini_filename)
+
+def sysadmin_create(open_id):
+    '''Creates sysadmins with the given OpenID'''
+    assert open_id.startswith('http'), open_id
+    _setup()
+    with cd(env.instance_path):
+        _run_in_pyenv('paster --plugin ckan sysadmin create %s --config %s' % (open_id, env.config_ini_filename))
+
 
 ## ===================================
 #  Helper Methods
