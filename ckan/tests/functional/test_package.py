@@ -310,7 +310,7 @@ class TestEdit(TestPackageForm):
 
     def test_edit(self):
         # the absolute basics
-        assert 'Packages - Edit' in self.res
+        assert 'Packages - Edit' in self.res, self.res
         assert self.editpkg.notes in self.res
 
         new_name = u'new-name'

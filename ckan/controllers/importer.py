@@ -127,7 +127,7 @@ class ImporterController(BaseController):
                 pkg_id = ''
                 pkg = model.Package
             fa_dict = ckan.forms.edit_package_dict(existing_dict, pkg_dict, id=pkg_id)
-            fs = ckan.forms.package_fs
+            fs = ckan.forms.get_standard_fieldset()
             fs = fs.bind(pkg, data=fa_dict)
             yield fs
         

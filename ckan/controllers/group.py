@@ -53,7 +53,7 @@ class GroupController(BaseController):
         if not c.user:
             abort(401, gettext('Must be logged in to create a new group.'))
 
-        fs = ckan.forms.group_fs
+        fs = ckan.forms.get_group_fieldset('group_fs')
 
         if request.params.has_key('commit'):
             # needed because request is nested
@@ -103,7 +103,7 @@ class GroupController(BaseController):
             c.group = group
             c.groupname = group.name
             
-            fs = ckan.forms.group_fs.bind(c.group)
+            fs = ckan.forms.get_group_fieldset('group_fs').bind(c.group)
             c.form = self._render_edit_form(fs)
             return render('group/edit')
         else:
@@ -112,7 +112,7 @@ class GroupController(BaseController):
             # needed because request is nested
             # multidict which is read only
             params = dict(request.params)
-            c.fs = ckan.forms.group_fs.bind(group, data=params or None)
+            c.fs = ckan.forms.get_group_fieldset('group_fs').bind(group, data=params or None)
             try:
                 self._update(c.fs, id, group.id)
                 # do not use groupname from id as may have changed
@@ -144,7 +144,7 @@ class GroupController(BaseController):
             # needed because request is nested
             # multidict which is read only
             params = dict(request.params)
-            c.fs = ckan.forms.group_authz_fs.bind(group.roles, data=params or None)
+            c.fs = ckan.forms.get_authz_fieldset('group_authz_fs').bind(group.roles, data=params or None)
             try:
                 self._update_authz(c.fs)
             except ValidationException, error:
@@ -181,15 +181,15 @@ class GroupController(BaseController):
 
         # retrieve group again ...
         group = model.Group.by_name(id)
-        fs = ckan.forms.group_authz_fs.bind(group.roles)
+        fs = ckan.forms.get_authz_fieldset('group_authz_fs').bind(group.roles)
         c.form = fs.render()
-        c.new_roles_form = ckan.forms.new_group_roles_fs.render()
+        c.new_roles_form = ckan.forms.get_authz_fieldset('new_group_roles_fs').render()
         return render('group/authz')
 
     def _render_edit_form(self, fs):
         # errors arrive in c.error and fs.errors
         c.fieldset = fs
-        c.fieldset2 = ckan.forms.new_package_group_fs
+        c.fieldset2 = ckan.forms.get_group_fieldset('new_package_group_fs')
         return render('group/edit_form')
 
     def _update(self, fs, group_name, group_id):

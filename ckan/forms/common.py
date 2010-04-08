@@ -5,6 +5,7 @@ import formalchemy
 import genshi
 from pylons.templating import render
 from pylons import c
+from pylons.i18n import _, ungettext, N_, gettext
 
 from ckan.lib.helpers import literal
 import ckan.model as model
@@ -17,9 +18,9 @@ def name_validator(val, field=None):
     # check basic textual rules
     min_length = 2
     if len(val) < min_length:
-        raise formalchemy.ValidationError('Name must be at least %s characters long' % min_length)
+        raise formalchemy.ValidationError(_('Name must be at least %s characters long') % min_length)
     if not name_match.match(val):
-        raise formalchemy.ValidationError('Name must be purely lowercase alphanumeric (ascii) characters and these symbols: -_')
+        raise formalchemy.ValidationError(_('Name must be purely lowercase alphanumeric (ascii) characters and these symbols: -_'))
         
 def package_name_validator(val, field=None):
     name_validator(val, field)
@@ -27,7 +28,7 @@ def package_name_validator(val, field=None):
     pkgs = model.Session.query(model.Package).autoflush(False).filter_by(name=val)
     for pkg in pkgs:
         if pkg != field.parent.model:
-            raise formalchemy.ValidationError('Package name already exists in database')
+            raise formalchemy.ValidationError(_('Package name already exists in database'))
 
 def group_name_validator(val, field=None):
     name_validator(val, field)
@@ -35,7 +36,7 @@ def group_name_validator(val, field=None):
     groups = model.Session.query(model.Group).autoflush(False).filter_by(name=val)
     for group in groups:
         if group != field.parent.model:
-            raise formalchemy.ValidationError('Group name already exists in database')
+            raise formalchemy.ValidationError(_('Group name already exists in database'))
 
 def field_readonly_renderer(key, value, newline_reqd=True):
     if value is None:
@@ -84,7 +85,7 @@ class ConfiguredField(object):
 
 class RegExValidatingField(ConfiguredField):
     '''Inherit from this for fields that need a regex validator.
-    @param validate_re - ("regex", "equivalen format but human readable")
+    @param validate_re - ("regex", "equivalent format but human readable")
     '''
     def __init__(self, name, validate_re=None, **kwargs):
         super(RegExValidatingField, self).__init__(name, **kwargs)
@@ -103,7 +104,7 @@ class RegExValidatingField(ConfiguredField):
         if value:
             match = re.match(self._validate_re[0], value)
             if not match:
-                raise formalchemy.ValidationError('Value does not match required format: %s' % self._validate_re[1])
+                raise formalchemy.ValidationError(_('Value does not match required format: %s') % self._validate_re[1])
 
 class RegExRangeValidatingField(RegExValidatingField):
     '''Validates a range field (each value is validated on the same regex)'''
@@ -111,7 +112,7 @@ class RegExRangeValidatingField(RegExValidatingField):
         for value in values:
             match = re.match(self._validate_re[0], value)
             if not match:
-                raise formalchemy.ValidationError('Value "%s" does not match required format: %s' % (value, self._validate_re[1]))
+                raise formalchemy.ValidationError(_('Value "%s" does not match required format: %s') % (value, self._validate_re[1]))
 
 
 class TextExtraField(RegExValidatingField):
@@ -418,11 +419,11 @@ class TagField(ConfiguredField):
         for tag in val:
             min_length = 2
             if len(tag.name) < min_length:
-                raise formalchemy.ValidationError('Tag "%s" length is less than minimum %s' % (tag.name, min_length))
+                raise formalchemy.ValidationError(_('Tag "%s" length is less than minimum %s') % (tag.name, min_length))
             if not self.tagname_match.match(tag.name):
-                raise formalchemy.ValidationError('Tag "%s" must be alphanumeric characters or symbols: -_.' % (tag.name))
+                raise formalchemy.ValidationError(_('Tag "%s" must be alphanumeric characters or symbols: -_.') % (tag.name))
             if self.tagname_uppercase.search(tag.name):
-                raise formalchemy.ValidationError('Tag "%s" must not be uppercase' % (tag.name))            
+                raise formalchemy.ValidationError(_('Tag "%s" must not be uppercase' % (tag.name)))
 
 class ExtrasField(ConfiguredField):
     '''A form field for arbitrary "extras" package data.'''
@@ -439,10 +440,10 @@ class ExtrasField(ConfiguredField):
         val_dict = dict(val)
         for key, value in val:
             if value != val_dict[key]:
-                raise formalchemy.ValidationError('Duplicate key "%s"' % key)
+                raise formalchemy.ValidationError(_('Duplicate key "%s"') % key)
             if value and not key:
                 # Note value is allowed to be None - REST way of deleting fields.
-                raise formalchemy.ValidationError('Extra key-value pair: key is not set.')
+                raise formalchemy.ValidationError(_('Extra key-value pair: key is not set.'))
 
     class ExtrasField(formalchemy.Field):
         def sync(self):
@@ -564,7 +565,7 @@ class SuggestedTextExtraField(TextExtraField):
 
         def render(self, options, **kwargs):
             selected = self._get_value()
-            options = [('', None)] + options + [('other - please specify', 'other')]
+            options = [('', None)] + options + [(_('other - please specify'), 'other')]
             option_keys = [key for value, key in options]
             if selected in option_keys:
                 select_field_selected = selected
@@ -580,7 +581,7 @@ class SuggestedTextExtraField(TextExtraField):
             html = literal(fa_h.select(self.name, select_field_selected, options, class_="short", **kwargs))
                 
             other_name = self.name+'-other'
-            html += literal('<label class="inline" for="%s">Other: %s</label>') % (other_name, literal(fa_h.text_field(other_name, value=text_field_value, class_="medium-width", **kwargs)))
+            html += literal('<label class="inline" for="%s">%s: %s</label>') % (other_name, _('Other'), literal(fa_h.text_field(other_name, value=text_field_value, class_="medium-width", **kwargs)))
             return html
 
         def render_readonly(self, **kwargs):
@@ -624,7 +625,8 @@ class CheckboxExtraField(TextExtraField):
 
 def prettify(field_name):
     '''Generates a field label based on the field name.
-    Used by the FormBuilder in method set_label_prettifier.'''
+    Used by the FormBuilder in method set_label_prettifier.
+    Also does i18n.'''
     field_name = field_name.capitalize()
     field_name = field_name.replace('_', ' ')
-    return field_name
+    return _(field_name)

@@ -6,7 +6,7 @@ import ckan.model as model
 import common
 from ckan.lib.helpers import literal
 
-__all__ = ['group_fs', 'new_package_group_fs', 'group_fs_combined', 'get_group_dict', 'edit_group_dict']
+__all__ = ['get_group_fieldset', 'get_group_dict', 'edit_group_dict']
 
 # for group_fs_combined (REST)
 class PackagesField(common.ConfiguredField):
@@ -55,24 +55,29 @@ def build_group_form(with_packages=False):
     builder.set_label_prettifier(common.prettify)
     return builder
 
-# group_fs has no packages - first half of the WUI form
-group_fs = build_group_form().get_fieldset()
+fieldsets = {}
+def get_group_fieldset(name):
+    if not fieldsets:
+        # group_fs has no packages - first half of the WUI form
+        fieldsets['group_fs'] = build_group_form().get_fieldset()
+        
+        # group_fs_combined has packages - used for REST interface
+        fieldsets['group_fs_combined'] = build_group_form(with_packages=True).get_fieldset()
 
-# group_fs_combined has packages - used for REST interface
-group_fs_combined = build_group_form(with_packages=True).get_fieldset()
+        # new_package_group_fs is the packages for the WUI form
+        builder = FormBuilder(model.PackageGroup)
+        builder.set_field_option('package_id', 'with_renderer', PackagesRenderer)
+        builder.set_displayed_fields({'Details':['package_id']})
+        fieldsets['new_package_group_fs'] = builder.get_fieldset()
+    return fieldsets[name]
 
-# new_package_group_fs is the packages for the WUI form
-builder = FormBuilder(model.PackageGroup)
-builder.set_field_option('package_id', 'with_renderer', PackagesRenderer)
-builder.set_displayed_fields({'Details':['package_id']})
-new_package_group_fs = builder.get_fieldset()
-
+    
 def get_group_dict(group=None):
     indict = {}
     if group:
-        fs = group_fs.bind(group)
+        fs = get_group_fieldset('group_fs').bind(group)
     else:
-        fs = group_fs
+        fs = get_group_fieldset('group_fs')
 
     exclude = ('-id', '-roles', '-created')
 

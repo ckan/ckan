@@ -10,7 +10,7 @@ import formalchemy.config
 from formalchemy import Field
 from sqlalchemy import types
 
-__all__ = ['package_authz_fs', 'group_authz_fs', 'new_package_roles_fs', 'new_group_roles_fs']
+__all__ = ['get_authz_fieldset']
 
 def get_package_linker(action):
     return lambda item: '<a href="%s" title="%s"><img src="http://m.okfn.org/kforge/images/icon-delete.png" alt="%s" class="icon" /></a>' % (
@@ -37,7 +37,7 @@ class RolesRenderer(formalchemy.fields.FieldRenderer):
         select = fa_h.select(self.name, selected, options, **kwargs)
         return select
 
-def get_authz_fieldset(role_class):
+def authz_fieldset_builder(role_class):
     fs = fa.Grid(role_class)
     role_options = model.Role.get_all()
 
@@ -66,9 +66,6 @@ def get_authz_fieldset(role_class):
         )
     return fs
 
-package_authz_fs = get_authz_fieldset(model.PackageRole)
-group_authz_fs = get_authz_fieldset(model.GroupRole)
-
 class UsersRenderer(formalchemy.fields.FieldRenderer):
     def render(self, options, **kwargs):
         options = [('', '__null_value__')] + [(u.name, u.id) for u in model.Session.query(model.User).all()]
@@ -90,5 +87,11 @@ def get_new_role_fieldset(role_class):
         )
     return fs
 
-new_package_roles_fs = get_new_role_fieldset(model.PackageRole)
-new_group_roles_fs = get_new_role_fieldset(model.GroupRole)
+fieldsets = {}
+def get_authz_fieldset(name):
+    if not fieldsets: 
+        fieldsets['package_authz_fs'] = authz_fieldset_builder(model.PackageRole)
+        fieldsets['group_authz_fs'] = authz_fieldset_builder(model.GroupRole)
+        fieldsets['new_package_roles_fs'] = get_new_role_fieldset(model.PackageRole)
+        fieldsets['new_group_roles_fs'] = get_new_role_fieldset(model.GroupRole)
+    return fieldsets[name]

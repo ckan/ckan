@@ -1,6 +1,7 @@
 import formalchemy
 from formalchemy import helpers as h
 from sqlalchemy.util import OrderedDict
+from pylons.i18n import _, ungettext, N_, gettext
 
 from ckan.lib.helpers import literal
 import common
@@ -9,7 +10,7 @@ import package as package
 from ckan.lib import schema_gov
 from ckan.lib import field_types
 
-__all__ = ['package_gov_fs', 'package_gov_fs_admin', 'get_gov_fieldset']
+__all__ = ['get_gov_fieldset']
 
 
 class GeoCoverageExtraField(common.ConfiguredField):
@@ -78,6 +79,8 @@ class SuggestTagRenderer(common.TagField.TagEditRenderer):
 # Setup the fieldset
 def build_package_gov_form(is_admin=False):
     builder = package.build_package_form()
+
+    # Extra fields
     builder.add_field(common.TextExtraField('external_reference'))
     builder.add_field(common.DateExtraField('date_released'))
     builder.add_field(common.DateExtraField('date_updated'))
@@ -92,32 +95,52 @@ def build_package_gov_form(is_admin=False):
     builder.add_field(common.SuggestedTextExtraField('department', options=schema_gov.government_depts))
     builder.add_field(common.TextExtraField('agency'))
     builder.add_field(common.TextExtraField('taxonomy_url'))
+
+    # Labels and instructions
+    builder.set_field_text('national_statistic', _('National Statistic'))
+
+    # Options/settings
     builder.set_field_option('tags', 'with_renderer', SuggestTagRenderer)
     
+    # Layout
     field_groups = OrderedDict([
-        ('Basic information', ['name', 'title', 'external_reference', 'notes']),
-        ('Details', ['date_released', 'date_updated', 'update_frequency',
-                     'geographic_granularity', 'geographic_coverage',
-                     'temporal_granularity', 'temporal_coverage',
-                     'categories', 'national_statistic', 'precision', 'url',]),
-        ('Resources', ['resources']),
-        ('More details', ['taxonomy_url', 'department', 'agency',
-                          'author', 'author_email',
-                          'maintainer', 'maintainer_email',
-                          'license_id', 'tags' ]),
+        (_('Basic information'), ['name', 'title', 'external_reference',
+                                  'notes']),
+        (_('Details'), ['date_released', 'date_updated', 'update_frequency',
+                        'geographic_granularity', 'geographic_coverage',
+                        'temporal_granularity', 'temporal_coverage',
+                        'categories', 'national_statistic', 'precision',
+                        'url',]),
+        (_('Resources'), ['resources']),
+        (_('More details'), ['taxonomy_url', 'department', 'agency',
+                             'author', 'author_email',
+                             'maintainer', 'maintainer_email',
+                             'license_id', 'tags' ]),
         ])
     if is_admin:
         field_groups['More details'].append('state')
     builder.set_displayed_fields(field_groups)
     return builder
-package_gov_fs = build_package_gov_form().get_fieldset()
-package_gov_fs_admin = build_package_gov_form(is_admin=True).get_fieldset()
+    # Strings for i18n:
+    [_('External reference'),  _('Date released'), _('Date updated'),
+     _('Update frequency'), _('Geographic granularity'),
+     _('Geographic coverage'), _('Temporal granularity'),
+     _('Temporal coverage'), _('Categories'), _('National Statistic'),
+     _('Precision'), _('Taxonomy URL'), _('Department'), _('Agency'), 
+     ]
+
+fieldsets = {} # fieldset cache
 
 def get_gov_fieldset(is_admin=False):
     '''Returns the standard fieldset
     '''
+    if not fieldsets:
+        # fill cache
+        fieldsets['package_gov_fs'] = build_package_gov_form().get_fieldset()
+        fieldsets['package_gov_fs_admin'] = build_package_gov_form(is_admin=True).get_fieldset()
+
     if is_admin:
-        fs = package_gov_fs_admin
+        fs = fieldsets['package_gov_fs_admin']
     else:
-        fs = package_gov_fs
+        fs = fieldsets['package_gov_fs']
     return fs

@@ -117,7 +117,7 @@ class RestController(BaseController):
             return gettext('JSON Error: %s') % str(inst)
         try:
             if register == 'package' and not subregister:
-                fs = ckan.forms.package_fs
+                fs = ckan.forms.get_standard_fieldset()
                 request_fa_dict = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(fs=fs), request_data)
                 fs = fs.bind(model.Package, data=request_fa_dict, session=model.Session)
             elif register == 'package' and subregister in model.PackageRelationship.get_all_types():
@@ -142,7 +142,7 @@ class RestController(BaseController):
                 return self._finish_ok(rel.as_dict())
             elif register == 'group' and not subregister:
                 request_fa_dict = ckan.forms.edit_group_dict(ckan.forms.get_group_dict(), request_data)
-                fs = ckan.forms.group_fs_combined.bind(model.Group, data=request_fa_dict, session=model.Session)
+                fs = ckan.forms.get_group_fieldset('group_fs_combined').bind(model.Group, data=request_fa_dict, session=model.Session)
             elif register == 'rating' and not subregister:
                 return self._create_rating(request_data)
             else:
@@ -210,13 +210,13 @@ class RestController(BaseController):
 
         if not subregister:
             if register == 'package':
-                fs = ckan.forms.package_fs
+                fs = ckan.forms.get_standard_fieldset()
                 orig_entity_dict = ckan.forms.get_package_dict(pkg=entity, fs=fs)
                 request_fa_dict = ckan.forms.edit_package_dict(orig_entity_dict, request_data, id=entity.id)
             elif register == 'group':
                 orig_entity_dict = ckan.forms.get_group_dict(entity)
                 request_fa_dict = ckan.forms.edit_group_dict(orig_entity_dict, request_data, id=entity.id)
-                fs = ckan.forms.group_fs_combined
+                fs = ckan.forms.get_group_fieldset('group_fs_combined')
             fs = fs.bind(entity, data=request_fa_dict)
             validation = fs.validate()
             if not validation:
