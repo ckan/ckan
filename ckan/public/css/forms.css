@@ -110,17 +110,17 @@ label.has-errors, label.fieldWithErrors {
   font-weight: bold;
   color: #d12f19; }
  
-form .error-msg, form .error-explanation {
+form .field_error, form .error-explanation {
   display: none; }
-form.has-errors .error-msg, form.has-errors .error-explanation {
+form.has-errors .field_error, form.has-errors .error-explanation {
   display: block; }
  
-.error-msg {
+.field_error {
   color: #d12f19;
   left: 20px;
   padding-left: 20px;
   position: relative;
-  background: transparent url(img/icons/error.png) left 3px no-repeat; }
+  background: transparent url(../images/icons/error.png) left 3px no-repeat; }
  
 .error-explanation,
 #errorExplanation {

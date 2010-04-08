@@ -25,7 +25,8 @@ class PylonsTestCase(TestController):
         self.registry.prepare() 
 
         self.context_obj=ContextObj() 
-        self.registry.register(pylons.c, self.context_obj) 
+        self.registry.register(pylons.c, self.context_obj)
+        pylons.c.errors = None
 
         self.request_obj=Request(dict(HTTP_HOST="nohost")) 
         self.registry.register(pylons.request, self.request_obj) 

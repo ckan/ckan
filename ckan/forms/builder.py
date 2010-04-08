@@ -25,12 +25,13 @@ class CkanFieldset(formalchemy.FieldSet):
 
 
 class FormBuilder(object):
-    '''Builds form fieldsets'''
+    '''Factory for form fieldsets'''
     def __init__(self, base_object):
         self.fs = CkanFieldset(base_object)
         self.added_fields = []
         self.options = self.fs._fields # {field_name:fs.field}
         self.includes = None
+        self.set_form_template('package/form')
 
     def add_field(self, field):
         if isinstance(field, common.ConfiguredField):
@@ -55,16 +56,11 @@ class FormBuilder(object):
         if hints:
             self.set_field_option(field_name, 'with_metadata', {'hints':hints})
 
-    def set_displayed_fields(self, field_name_list):
-        assert isinstance(field_name_list, (list, tuple))
-        self.includes = field_name_list
-        self.focus = self.fs._fields[field_name_list[0]]
+    def set_displayed_fields(self, groups_dict):
+        '''Sets fields to be displayed, what groupings they are in and
+        what order groups and fields appear in.
 
-    def set_displayed_fields_in_groups(self, groups_dict):
-        '''Similar to FA method 'set_displayed_fields' but takes
-        a dict of packages by group.
-
-        Each 'group' is displayed in an html <fieldset> but we
+        Each 'field group' is displayed in an html <fieldset> but we
         call it a group here so that it is not confused with
         FormAlchemy 'fieldsets'.
         
@@ -72,8 +68,10 @@ class FormBuilder(object):
                            keyed by the group name. e.g.:
           groups_dict = {'Basic information':['name', 'title'],
                          'Resources':['resources']}
+
+        (Or use an sqlalchemy.util.OrderedDict to ensure order of groups)
         '''
-        assert isinstance(groups_dict, dict)
+        assert isinstance(groups_dict, dict), dict
         all_field_names = []
         for group_name, field_names in groups_dict.items():
             assert isinstance(group_name, (str, unicode))
@@ -82,7 +80,8 @@ class FormBuilder(object):
                 assert isinstance(field_name, str)
                 self.set_field_option(field_name, 'with_metadata', {'field_group':group_name})
             all_field_names += field_names
-        self.set_displayed_fields(all_field_names)
+        self.includes = all_field_names
+        self.focus = self.fs._fields[all_field_names[0]]
 
     def set_label_prettifier(self, prettify):
         '''@prettify function that munges field labels'''

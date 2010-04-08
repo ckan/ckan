@@ -63,7 +63,7 @@ class GroupController(BaseController):
             try:
                 self._update(c.fs, id, record.id)
             except ValidationException, error:
-                c.error, fs = error.args
+                fs = error.args[0]
                 c.form = self._render_edit_form(fs)
                 return render('group/edit')
             # do not use groupname from id as may have changed
@@ -118,7 +118,7 @@ class GroupController(BaseController):
                 # do not use groupname from id as may have changed
                 c.groupname = c.fs.name.value
             except ValidationException, error:
-                c.error, fs = error.args
+                fs = error.args[0]
                 c.form = self._render_edit_form(fs)
                 return render('group/edit')
             pkgs = [model.Package.by_name(name) for name in request.params.getall('Group-packages-current')]
@@ -149,7 +149,7 @@ class GroupController(BaseController):
                 self._update_authz(c.fs)
             except ValidationException, error:
                 # TODO: sort this out 
-                # c.error, fs = error.args
+                # fs = error.args[0]
                 # return render('group/authz')
                 raise
             # now do new roles
@@ -199,12 +199,8 @@ class GroupController(BaseController):
         '''
         validation = fs.validate()
         if not validation:
-            errors = []            
-            for field, err_list in fs.errors.items():
-                errors.append("%s:%s" % (field.name, ";".join(err_list)))
-            c.error = ', '.join(errors)
             c.form = self._render_edit_form(fs)
-            raise ValidationException(c.error, fs)
+            raise ValidationException(fs)
 
         try:
             fs.sync()
@@ -217,12 +213,8 @@ class GroupController(BaseController):
     def _update_authz(self, fs):
         validation = fs.validate()
         if not validation:
-            errors = []            
-            for row, err in fs.errors.items():
-                errors.append(err)
-            c.error = ', '.join(errors)
             c.form = self._render_edit_form(fs)
-            raise ValidationException(c.error, fs)
+            raise ValidationException(fs)
         try:
             fs.sync()
         except Exception, inst:

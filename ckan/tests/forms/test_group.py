@@ -1,8 +1,9 @@
 from ckan.tests import *
 import ckan.model as model
 import ckan.forms
+from ckan.tests.pylons_controller import PylonsTestCase
 
-class TestGroupFieldset:
+class TestGroupFieldset(PylonsTestCase):
     @classmethod
     def setup_class(self):
         model.Session.remove()

@@ -4,6 +4,7 @@ from formalchemy import helpers as h
 from builder import FormBuilder
 import ckan.model as model
 import common
+from ckan.lib.helpers import literal
 
 __all__ = ['group_fs', 'new_package_group_fs', 'group_fs_combined', 'get_group_dict', 'edit_group_dict']
 
@@ -43,14 +44,14 @@ class PackagesRenderer(formalchemy.fields.FieldRenderer):
 
 def build_group_form(with_packages=False):
     builder = FormBuilder(model.Group)
-    builder.set_field_text('name', 'Unique Name (required)', "<br/><strong>Unique identifier</strong> for group.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'")
+    builder.set_field_text('name', 'Unique Name (required)', literal("<br/><strong>Unique identifier</strong> for group.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'"))
     builder.set_field_option('name', 'validate', common.group_name_validator)
     builder.set_field_option('description', 'textarea', {'size':'60x15'})
     displayed_fields = ['name', 'title', 'description']
     if with_packages:
         builder.add_field(PackagesField('packages'))
         displayed_fields.append('packages')
-    builder.set_displayed_fields(displayed_fields)
+    builder.set_displayed_fields({'Details':displayed_fields})
     builder.set_label_prettifier(common.prettify)
     return builder
 
@@ -63,7 +64,7 @@ group_fs_combined = build_group_form(with_packages=True).get_fieldset()
 # new_package_group_fs is the packages for the WUI form
 builder = FormBuilder(model.PackageGroup)
 builder.set_field_option('package_id', 'with_renderer', PackagesRenderer)
-builder.set_displayed_fields(['package_id'])
+builder.set_displayed_fields({'Details':['package_id']})
 new_package_group_fs = builder.get_fieldset()
 
 def get_group_dict(group=None):

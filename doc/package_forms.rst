@@ -26,13 +26,13 @@ Building a package form
 Basics
 ^^^^^^
 
-The FormBuilder object must be initialised with the Package object (because the form is for editing packages):: 
+The *PackageFormBuilder* class initialises with the basic package form which we can then configure:: 
 
- builder = FormBuilder(model.Package)
+ builder = PackageFormBuilder()
 
 All the basic package fields are added to the form automatically - this currently includes: name, title, version, url, author, author_email, maintainer, maintainer_email, notes and license_id. In case this changes in future, consult the fields for table 'Package' in ckan/model/core.py.
 
-To provide editing of other fields beyond the basic ones, you need to use add_field and select either an existing ConfiguredField in common.py, or define your own. For example, the complicated grid of package resources is defined as a common field and it is added to the standard form like this::
+To provide editing of other fields beyond the basic ones, you need to use *add_field* and select either an existing *ConfiguredField* in common.py, or define your own. For example, the autocompleting tag entry field is defined as a field in common.py and it is added to the standard form like this::
 
  builder.add_field(common.TagField('tags'))
 
@@ -48,9 +48,13 @@ Options are given keyword parameters by passing a dictionary. For example, this 
 
  builder.set_field_option('notes', 'textarea', {'size':'60x15'})
 
-Here is how you can set which fields are displayed and their order::
+Fields in package forms are grouped together. You should specify which fields are displayed in which groups and in which order like this::
 
- builder.set_displayed_fields(['name', 'notes', 'resources'])
+ from sqlalchemy.util import OrderedDict
+ builder.set_displayed_fields_in_groups(OrderedDict([
+        ('Basic information', ['name', 'title', 'version', 'url']),
+        ('Resources', ['resources']),
+        ('Detail', ['author', 'author_email'])]))
 
 To complete the form design you need to return the fieldset object. Ensure this is executed once - when your python form file is imported:: 
 
@@ -70,20 +74,12 @@ If you write a new one, you tell the builder about it like this::
  builder.set_label_prettifier(prettify)
 
 
-Field groups
-^^^^^^^^^^^^
+Templates
+^^^^^^^^^
 
-By default, fields are displayed in one long list. CKAN provides a special package edit form template which *groups* fields together. To setup the groups, instead of calling set_displayed_fields, you call set_displayed_fields_in_groups like this::
+Package forms by default use the Genshi template *ckan/package/form.html*. If you want to use a modified one then specify it for example like this::
 
- from sqlalchemy.util import OrderedDict
- builder.set_displayed_fields_in_groups(OrderedDict([
-        ('Basic information', ['name', 'title', 'version', 'url']),
-        ('Resources', ['resources']),
-        ('Detail', ['author', 'author_email'])]))
-
-And to specify the template which displays the groups correctly::
-
- builder.set_form_template('package/form')
+ builder.set_form_template('package/my_form')
 
 
 Hidden labels

@@ -1,13 +1,18 @@
 <py:if test="True" xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude">
 
-  <py:if test="c.fieldset.errors">
+  <py:if test="c.fieldset.errors or c.errors">
     <div class="error-explanation">
         <h2>Errors in form</h2> 
         <p>The form contains invalid entries:</p> 
         <ul> 
-          <li py:for="error in c.fieldset.errors" class="c.fieldset_error">
-          ${_(error)}
+          <py:for each="field, errors in c.fieldset.errors.items()">
+            <li py:for="error in errors">
+              ${field.name}: ${_(error)}
+            </li>
+          </py:for>
+          <li py:for="error in c.errors">
+              ${_(error)}
           </li>
         </ul> 
     </div>

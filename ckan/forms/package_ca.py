@@ -72,9 +72,8 @@ def build_package_form(is_admin=False):
                     }
     if is_admin:
         field_groups['Detail'].append('state')
-    builder.set_displayed_fields_in_groups(field_groups)
+    builder.set_displayed_fields(field_groups)
     builder.set_label_prettifier(package.prettify)
-    builder.set_form_template('package/form')
     return builder
 
 package_fs = build_package_form().get_fieldset()

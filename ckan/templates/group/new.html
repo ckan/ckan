@@ -1,16 +1,16 @@
 <html xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude">
   
-  <py:def function="page_title">Groups - Edit - ${c.groupname}</py:def>
+  <py:def function="page_title">Groups - New</py:def>
+
+  <py:def function="optional_head">
+    <link rel="stylesheet" href="/css/forms.css" type="text/css" media="screen, print" />
+  </py:def>
 
   <div py:match="content">
     <h2>
       New Group
     </h2>
-
-    <h3 py:if="c.error" class="form-errors">
-      Error: ${c.error}
-    </h3>
 
     ${Markup(c.form)}
   </div>

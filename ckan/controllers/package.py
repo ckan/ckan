@@ -142,7 +142,7 @@ class PackageController(BaseController):
 
                 h.redirect_to(action='read', id=pkgname)
             except ValidationException, error:
-                c.error, fs = error.args
+                fs = error.args[0]
                 c.form = self._render_edit_form(fs, request.params,
                         clear_session=True)
                 return render('package/new')
@@ -170,7 +170,7 @@ class PackageController(BaseController):
                                               author=c.author)
                 c.preview = h.literal(render('package/read_core'))
             except ValidationException, error:
-                c.error, fs = error.args
+                fs = error.args[0]
                 c.form = self._render_edit_form(fs, request.params,
                         clear_session=True)
                 return render('package/new')
@@ -213,7 +213,7 @@ class PackageController(BaseController):
                 pkgname = fs.name.value
                 h.redirect_to(action='read', id=pkgname)
             except ValidationException, error:
-                c.error, fs = error.args
+                fs = error.args[0]
                 c.form = self._render_edit_form(fs, request.params,
                         clear_session=True)
                 return render('package/edit')
@@ -230,7 +230,7 @@ class PackageController(BaseController):
                 c.preview = h.literal(read_core_html)
                 c.form = self._render_edit_form(fs, request.params)
             except ValidationException, error:
-                c.error, fs = error.args
+                fs = error.args[0]
                 c.form = self._render_edit_form(fs, request.params,
                         clear_session=True)
                 return render('package/edit')
@@ -255,7 +255,7 @@ class PackageController(BaseController):
                 self._update_authz(c.fs)
             except ValidationException, error:
                 # TODO: sort this out 
-                # c.error, fs = error.args
+                # fs = error.args
                 # return render('package/authz')
                 raise
             # now do new roles
@@ -319,12 +319,8 @@ class PackageController(BaseController):
     def _update_authz(self, fs):
         validation = fs.validate()
         if not validation:
-            errors = []            
-            for row, err in fs.errors.items():
-                errors.append(err)
-            c.error = ', '.join(errors)
             c.form = self._render_edit_form(fs, request.params)
-            raise ValidationException(c.error, fs)
+            raise ValidationException(fs)
         try:
             fs.sync()
         except Exception, inst:

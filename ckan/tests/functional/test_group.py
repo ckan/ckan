@@ -238,5 +238,5 @@ class TestNew(TestController):
         fv[prefix+'name'] = group_name
         res = fv.submit('commit', status=200, extra_environ={'REMOTE_USER': 'russianfan'})
         assert 'Group name already exists' in res, res
-        assert 'class="form-errors"' in res, res
+        self.check_tag(res, '<form', 'class="has-errors"')
         assert 'class="field_error"' in res, res

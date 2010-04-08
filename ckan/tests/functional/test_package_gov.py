@@ -8,7 +8,12 @@ from ckan.lib.create_test_data import CreateTestData
 
 package_form = 'gov'
 
-class TestRead(TestController):
+class TestPackageBase(TestController):
+    def _assert_form_errors(self, res):
+        self.check_tag(res, '<form', 'class="has-errors"')
+        assert 'class="field_error"' in res, res
+
+class TestRead(TestPackageBase):
     # TODO: reinstate
     # disable for time being
     __test__ = False
@@ -42,7 +47,7 @@ class TestRead(TestController):
         main_res = self.main_div(res)
         assert 'State:' in main_res
 
-class TestEdit(TestController):
+class TestEdit(TestPackageBase):
     @classmethod
     def setup_class(self):
         model.Session.add(model.User(name=u'testadmin'))
@@ -71,10 +76,8 @@ class TestEdit(TestController):
         res = fv.submit('commit')
         assert 'Error' in res, res
         assert 'Name must be at least 2 characters long' in res, res
-        # Ensure there is an error at the top of the form and by the field
-        assert 'class="form-errors"' in res, res
-        assert 'class="field_error"' in res, res
-
+        self._assert_form_errors(res)
+        
     # Disable temporarily
     # These look to be rather too verbose and fragile
     # It is usually sufficient to test a couple of items
@@ -392,7 +395,7 @@ class TestEdit(TestController):
         #assert rev.message == exp_log_message
 
 
-class TestNew(TestController):
+class TestNew(TestPackageBase):
     pkgname = u'testpkg'
 
     @classmethod
@@ -645,9 +648,7 @@ class TestNew(TestController):
         res = fv.submit('commit')
         assert 'Error' in res, res
         assert 'Package name already exists in database' in res, res
-        # Ensure there is an error at the top of the form and by the field
-        assert 'class="form-errors"' in res, res
-        assert 'class="field_error"' in res, res
+        self._assert_form_errors(res)
         
     def test_new_bad_name(self):
         offset = url_for(controller='package', action='new', package_form=package_form)
@@ -663,9 +664,7 @@ class TestNew(TestController):
         res = fv.submit('commit')
         assert 'Error' in res, res
         assert 'Name must be at least 2 characters long' in res, res
-        # Ensure there is an error at the top of the form and by the field
-        assert 'class="form-errors"' in res, res
-        assert 'class="field_error"' in res, res
+        self._assert_form_errors(res)
         # Ensure fields are prefilled
         assert 'value="A Test Package"' in res, res
         assert 'value="test tags"' in res, res

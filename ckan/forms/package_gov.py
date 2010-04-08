@@ -108,7 +108,7 @@ def build_package_gov_form(is_admin=False):
         ])
     if is_admin:
         field_groups['More details'].append('state')
-    builder.set_displayed_fields_in_groups(field_groups)
+    builder.set_displayed_fields(field_groups)
     return builder
 package_gov_fs = build_package_gov_form().get_fieldset()
 package_gov_fs_admin = build_package_gov_form(is_admin=True).get_fieldset()

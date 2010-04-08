@@ -21,10 +21,6 @@
       <a href="#preview" py:if="c.preview">(skip to preview)</a>
     </h2>
 
-    <h3 py:if="c.error" class="form-errors">
-      Error: ${c.error}
-    </h3>
-
     ${c.form}
 
     <div id="preview" style="margin-left: 20px;" py:if="c.preview">

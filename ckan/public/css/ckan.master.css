@@ -109,21 +109,6 @@ h1, h2, h3, h4, h5, h6 {
 /* = Changes/additions to kforge forms.css = */
 /* ========================================= */
 
-.field_error {
-	padding: 2px;
-	background-color: #c00;
-	display: table;
-	margin-left: 1em;
-}
-
-.field_error span,
-.field_error input,
-.field_error select,
-.field_error textarea
-{
-	margin: 0;
-}
-
 input.openid {
 	background: transparent url(../images/icons/openid.png) 2px 2px no-repeat;
 	padding-left: 22px;

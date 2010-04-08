@@ -46,8 +46,7 @@ class PackageSaver(object):
     @classmethod
     def _preview_pkg(cls, fs, original_name, pkg_id,
                      log_message=None, author=None):
-        '''Previews the POST data (associated with a package edit) to the
-        database
+        '''Previews the POST data (associated with a package edit)
         @input c.error
         @input fs      FieldSet with the param data bound to it
         @input original_name Name of the package before this edit
@@ -86,15 +85,9 @@ class PackageSaver(object):
     @classmethod
     def _update(cls, fs, original_name, pkg_id, log_message, author, commit=True):
         # validation
-        validation_errors = []
-        revision_errors = cls._revision_validation(log_message)
-        if revision_errors:
-            validation_errors.extend(revision_errors)
-        fs_validation = fs.validate()
-        if not fs_validation:
-            for field, err_list in fs.errors.items():
-                validation_errors.append("%s: %s" % (field.name, ";".join(err_list)))
-        validation_errors_str = ', '.join(validation_errors)
+        c.errors = cls._revision_validation(log_message)
+        fs_validation = fs.validate() #errors stored in fs.errors
+        validates = not (c.errors or fs.errors)
 
         # sync
         try:
@@ -108,10 +101,10 @@ class PackageSaver(object):
             raise
         else:
             # only commit if desired and it validates ok
-            if commit and not validation_errors:
+            if commit and validates:
                 model.Session.commit()
-            elif validation_errors:
-                raise ValidationException(validation_errors, fs)
+            elif not validates:
+                raise ValidationException(fs)
             else:
                 # i.e. preview
                 pkg = fs.model
