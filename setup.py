@@ -37,7 +37,7 @@ setup(
         # does not declare the dependency!
         # (not sure we need this except in tests but ...)
         'WebOb',
-        'FormAlchemy>=1.2.3,<=1.3.1',
+        'FormAlchemy>=1.3.3',
         # Excel libaries are only for importer tool
         # 'xlrd>=0.7.1',
         # 'xlwt>=0.7.2',

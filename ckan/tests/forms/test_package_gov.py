@@ -2,12 +2,13 @@ import ckan.model as model
 import ckan.forms
 from ckan.tests import *
 from ckan.lib.create_test_data import CreateTestData
+from ckan.tests.pylons_controller import PylonsTestCase
 from pylons import config
 
 def _get_blank_param_dict(pkg=None, fs=None):
     return ckan.forms.get_package_dict(pkg, blank=True, fs=fs)
 
-class TestForm(TestController):
+class TestForm(PylonsTestCase):
     @classmethod
     def setup_class(self):
         model.Session.remove()
@@ -71,7 +72,7 @@ class TestForm(TestController):
                     expected_render_readonly_str = expected_render_readonly_str.strip('other=')
                 else:
                     # multiple choice must have the particular one selected
-                    expected_render_str += '" selected'
+                    expected_render_str = 'selected" value="' + expected_render_str
             render = field.render()
             render_readonly = field.render_readonly()
             if expected_render_str == '':
@@ -96,7 +97,7 @@ class TestForm(TestController):
 
         dept = fs.department.render()
         assert '<select' in dept, dept
-        assert 'option value="Department for Children, Schools and Families" selected=' in dept, dept
+        self.check_tag(dept, 'option', 'value="Department for Children, Schools and Families"', 'selected')
         assert 'option value="other">' in dept, dept
         assert 'Other:' in dept, dept
         assert 'value=""' in dept, dept
@@ -138,8 +139,8 @@ class TestForm(TestController):
         dept = fs.department.render()
         dept_readonly = fs.department.render_readonly()
         assert '<select' in dept, dept
-        assert 'option value="Department for Children, Schools and Families">' in dept, dept # i.e. not selected
-        assert 'option value="other" selected="' in dept, dept # selected
+        self.check_tag(dept, 'option', 'value="Department for Children, Schools and Families"', '!selected')
+        self.check_tag(dept, 'option', 'value="other"', 'selected')
         assert 'Other:' in dept, dept
         assert 'value="Not on the list"' in dept, dept
         assert 'Department:</strong> Not on the list' in dept_readonly, dept_readonly

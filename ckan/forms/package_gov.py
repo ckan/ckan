@@ -56,7 +56,7 @@ class GeoCoverageExtraField(common.ConfiguredField):
             # return list of covered regions
             covered_regions = []
             for region in schema_gov.GeoCoverageType.get_instance().regions_munged:
-                if self._params.get(self.name + '-' + region, u'') == u'True':
+                if self.params.get(self.name + '-' + region, u'') == u'True':
                     covered_regions.append(region)
             return covered_regions
 

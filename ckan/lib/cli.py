@@ -392,7 +392,7 @@ class Sysadmin(CkanCommand):
         user = model.User.by_name(unicode(username))
         if not user:
             print 'User "%s" not found - creating' % username
-            user = model.User(name=username)
+            user = model.User(name=unicode(username))
         model.add_user_to_role(user, model.Role.ADMIN, model.System())
         model.repo.commit_and_remove()
 

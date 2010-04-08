@@ -201,8 +201,8 @@ class DateRangeExtraField(ConfiguredField):
         def _serialized_value(self):
             # interpret params like this:
             # 'Package--temporal_coverage-from', u'4/12/2009'
-            param_val_from = self._params.get(self.name + '-from', u'')
-            param_val_to = self._params.get(self.name + '-to', u'')
+            param_val_from = self.params.get(self.name + '-from', u'')
+            param_val_to = self.params.get(self.name + '-to', u'')
             return param_val_from, param_val_to
 
         def deserialize(self):
@@ -254,8 +254,8 @@ class TextRangeExtraField(RegExRangeValidatingField):
             return field_readonly_renderer(self.field.key, val_str)
 
         def _serialized_value(self):
-            param_val_from = self._params.get(self.name + '-from', u'')
-            param_val_to = self._params.get(self.name + '-to', u'')
+            param_val_from = self.params.get(self.name + '-from', u'')
+            param_val_to = self.params.get(self.name + '-to', u'')
             return param_val_from, param_val_to
 
         def deserialize(self):
@@ -313,7 +313,7 @@ class ResourcesField(ConfiguredField):
 
         def _serialized_value(self):
             package = self.field.parent.model
-            params = dict(self._params)
+            params = dict(self.params)
             new_resources = []
             rest_key = self.name
 
@@ -509,7 +509,7 @@ class ExtrasField(ConfiguredField):
             if not hasattr(self, 'extras_re'):
                 self.extras_re = re.compile('Package-([a-f0-9-]*)-extras(?:-(\w+))?(?:-(\w+))?$')
             extra_fields = []
-            for key, value in self._params.items():
+            for key, value in self.params.items():
                 extras_match = self.extras_re.match(key)
                 if not extras_match:
                     continue
@@ -523,7 +523,7 @@ class ExtrasField(ConfiguredField):
                     # existing field
                     key = key_parts[1]
                     checkbox_key = 'Package-%s-extras-%s-checkbox' % (package_id, key)
-                    delete = self._params.get(checkbox_key, '') == 'on'
+                    delete = self.params.get(checkbox_key, '') == 'on'
                     if not delete:
                         extra_fields.append((key, value))
                 elif key_parts[1].startswith('newfield'):
@@ -531,14 +531,14 @@ class ExtrasField(ConfiguredField):
                     if key_parts[2] == u'key':
                         new_key = value
                         value_key = 'Package-%s-extras-newfield%s-value' % (package_id, new_field_index)
-                        new_value = self._params.get(value_key, '')
+                        new_value = self.params.get(value_key, '')
                         if new_key or new_value:
                             extra_fields.append((new_key, new_value))
                     elif key_parts[2] == u'value':
                         # if it doesn't have a matching key, add it to extra_fields anyway for
                         # validation to fail
                         key_key = 'Package-%s-extras-newfield%s-key' % (package_id, new_field_index)
-                        if not self._params.has_key(key_key):
+                        if not self.params.has_key(key_key):
                             extra_fields.append(('', value))                
 
             return extra_fields
@@ -547,7 +547,11 @@ class SuggestedTextExtraField(TextExtraField):
     '''A form field for text suggested from from a list of options, that is
     stored in an "extras" field.'''
     def __init__(self, name, options):
-        self.options = options
+        self.options = options[:]
+        # ensure options have key and value, not just a value
+        for i, option in enumerate(self.options):
+            if not isinstance(option, (tuple, list)):
+                self.options[i] = (option, option)
         super(SuggestedTextExtraField, self).__init__(name)
 
     def get_configured(self):
@@ -561,7 +565,8 @@ class SuggestedTextExtraField(TextExtraField):
         def render(self, options, **kwargs):
             selected = self._get_value()
             options = [('', None)] + options + [('other - please specify', 'other')]
-            if selected in options:
+            option_keys = [key for value, key in options]
+            if selected in option_keys:
                 select_field_selected = selected
                 text_field_value = u''
             elif selected:
@@ -569,8 +574,11 @@ class SuggestedTextExtraField(TextExtraField):
                 text_field_value = selected or u''
             else:
                 select_field_selected = u''
-                text_field_value = u''            
-            html = literal(fa_h.select(self.name, fa_h.options_for_select(options, selected=select_field_selected), class_="short", **kwargs))
+                text_field_value = u''
+            fa_version_nums = formalchemy.__version__.split('.')
+            # Requires FA 1.3.2 onwards for this select i/f
+            html = literal(fa_h.select(self.name, select_field_selected, options, class_="short", **kwargs))
+                
             other_name = self.name+'-other'
             html += literal('<label class="inline" for="%s">Other: %s</label>') % (other_name, literal(fa_h.text_field(other_name, value=text_field_value, class_="medium-width", **kwargs)))
             return html
@@ -579,8 +587,8 @@ class SuggestedTextExtraField(TextExtraField):
             return field_readonly_renderer(self.field.key, self._get_value())
 
         def _serialized_value(self):
-            main_value = self._params.get(self.name, u'')
-            other_value = self._params.get(self.name + '-other', u'')
+            main_value = self.params.get(self.name, u'')
+            other_value = self.params.get(self.name + '-other', u'')
             return other_value if main_value in ('', 'other') else main_value
 
 class CheckboxExtraField(TextExtraField):
@@ -607,7 +615,7 @@ class CheckboxExtraField(TextExtraField):
         def _serialized_value(self):
             # interpret params like this:
             # 'Package--some_field', u'True'
-            param_val = self._params.get(self.name, u'')
+            param_val = self.params.get(self.name, u'')
             val = param_val == 'True'
             return val
 

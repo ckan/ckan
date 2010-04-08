@@ -25,7 +25,7 @@ class PackagesField(common.ConfiguredField):
 
     class PackageEditRenderer(formalchemy.fields.FieldRenderer):
         def deserialize(self):
-            value = self._params[self.name]
+            value = self.params[self.name]
             if isinstance(value, list): # from rest i/f
                 pkg_list = value
             elif isinstance(value, (unicode, str)): # from form
@@ -40,7 +40,7 @@ class PackagesRenderer(formalchemy.fields.FieldRenderer):
     def render(self, **kwargs):
         selected = unicode(kwargs.get('selected', None) or self._value)
         options = [('', '__null_value__')] + [(p.name, p.id) for p in model.Session.query(model.Package).all()]
-        return h.select(self.name, h.options_for_select(options, selected=selected), **kwargs)
+        return h.select(self.name, selected, options, **kwargs)
 
 def build_group_form(with_packages=False):
     builder = FormBuilder(model.Group)
