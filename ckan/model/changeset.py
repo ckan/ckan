@@ -1,5 +1,52 @@
-"""
-Sub-domain model for distributed data version control.
+"""Subdomain model for distributed data version control.
+
+Changeset Use Cases
+===================
+
+   Commit working model
+       - generate changesets from working model.
+
+   Update working model
+       - adjust working model from registered changesets.
+
+   Add unseen changesets
+       - register changesets committed from a foreign working model.
+
+   Merge lines of development
+       - combine diverged lines of development into a new changeset.
+
+   Interrogate changeset model
+       - working
+       - heads
+       - diff
+       - log
+
+Highlighted Core
+================
+
+    Changeset domain object
+        - has an id uniquely determined by the content of the changeset
+        - may follow other changesets in lines of development
+        - may close one line of development whilst following another
+        - aggregates a set of changes to the working model
+    
+    Change domain object
+        - has a reference to an entity in the working model
+        - has a difference vector describing a change to such an entity
+
+    Arithmetic function objects
+        - vector (the difference of entity before and after a change)
+        - range (one part of a line of development)
+        - sum (the union of two non-conflicted sets of changes)
+        - reverse (the negation of a set of changes)
+
+    Other function objects
+        - parentage (the chain of preceding changesets)
+        - common ancestor (intersection of two lines of development)
+        - resolve (sets final values of conflicted values)
+        - overwrite (the union of two overlapping sets of changes)
+        - merge (conflation of two diverging lines of development)
+
 """
 from meta import *
 import vdm.sqlalchemy
@@ -11,179 +58,32 @@ from simplejson import dumps, loads
 import datetime
 import uuid
 
+
+#############################################################################
+#
+## Changeset exception classes.
+#
+
 class ConflictException(Exception): pass
+
 class SequenceException(Exception): pass
+
 class WorkingAtHeadException(Exception): pass
+
 class ChangesSourceException(Exception): pass
+
 class UncommittedChangesException(Exception): pass
+
 class EmptyChangesetRegisterException(Exception): pass
 
 
-class ChangesetLayerBase(object):
+#############################################################################
+#
+## Changeset arithmetic classes.
+#
 
-    def dumps(self, data):
-        try:
-            json = dumps(data, indent=2)
-        except Exception, inst:
-            msg = "Couldn't convert to JSON: %s" % data
-            raise Exception, "%s: %s" % (msg, inst)
-        return json
-
-    dumps = classmethod(dumps)
-
-    def loads(self, json):
-        try:
-            data = loads(json)
-        except Exception, inst:
-            msg = "Couldn't parse JSON: %s" % json
-            raise Exception, "%s: %s" % (msg, inst)
-        return data
-
-    loads = classmethod(loads)
-
-
-class ChangesetDomainObject(DomainObject, ChangesetLayerBase): pass
-
-
-class Changeset(ChangesetDomainObject):
-   
-    STATUS_CONSTRUCTED = u'constructed'
-    STATUS_QUEUED = u'queued'
-    STATUS_APPLIED = u'applied'
-    STATUS_IGNORED = u'ignored'
-    STATUS_BROKEN = u'broken'
-
-    def get_meta(self):
-        return self.loads(self.meta or "{}")
-
-    def set_meta(self, meta_data):
-        self.meta = unicode(self.dumps(meta_data))
-
-    def apply(self, is_forced=False, report={}):
-        meta = self.get_meta()
-        register = ChangesetRegister()
-        Session.add(self) # Otherwise self.changes db lazy-load doesn't work.
-        revision_id = register.apply_changes(self.changes, 
-            meta=meta, report=report, is_forced=is_forced)
-        Session.add(self) # Otherwise revision_id isn't persisted.
-        self.revision_id = revision_id
-        self.status = self.STATUS_APPLIED
-        Session.commit()
-        register.move_working(self.id)
-        return revision_id
-
-    def is_conflicting(self):
-        try:
-            self.detect_conflict()
-        except ConflictException:
-            return True
-        else:
-            return False
-
-    def detect_conflict(self):
-        for change in self.changes:
-            change.detect_conflict()
-
-    def as_dict(self):
-        meta_data = self.get_meta()
-        changes_data = [c.as_dict() for c in self.changes]
-        changeset_data = {
-            'id': self.id,
-            'closes_id': self.closes_id,
-            'follows_id': self.follows_id,
-            'meta': meta_data,
-            'timestamp': self.timestamp.isoformat(),
-            'changes': changes_data,
-        }
-        return changeset_data
-
-
-class Change(ChangesetDomainObject):
-
-    registers = {}
-
-    def detect_conflict(self):
-        register, key = self.deref()
-        register.detect_conflict(key, self.as_vector())
-
-    def apply(self, is_forced=False):
-        if not is_forced:
-            self.detect_conflict()
-        register, key = self.deref()
-        vector = self.as_vector()
-        entity = register.get(key, None)
-        if vector.old == None:
-            # Create.
-            if entity != None:
-                msg = "Can't apply creating change, since entity already exists for ref: %s" % self.ref
-                raise Exception, msg
-            entity = register.create_entity(key)
-            register.patch(entity, vector)
-        elif vector.new == None:
-            # Delete.
-            if entity == None:
-                msg = "Can't apply deleting change, since entity not found for ref: %s" % self.ref
-                raise Exception, msg
-            entity.delete()
-        else:
-            # Update.
-            if entity == None:
-                msg = "Can't apply updating change, since entity not found for ref: %s" % self.ref
-                raise Exception, msg
-            entity = register.get(key)
-            register.patch(entity, vector)
-        return entity # keep in scope?
-
-    def as_vector(self):
-        data = self.load_diff()
-        return Vector(data['old'], data['new'])
-
-    def load_diff(self):
-        return self.loads(self.diff)
-
-    def deref(self):
-        parts = self.ref.split('/')
-        register_type = parts[1]
-        register_key = parts[2]
-        if register_type in self.registers:
-            register_class = self.registers[register_type]
-            register = register_class()
-            return (register, register_key)
-        else:
-            raise Exception, "Can't deref '%s' with register map: %s" % (self.ref, self.registers)
-
-    def as_dict(self):
-        change_data = {}
-        change_data['ref'] = self.ref
-        change_data['diff'] = self.load_diff()
-        return change_data
-
-    def get_old(self):
-        return self.as_vector().old
-
-    old = property(get_old)
-
-    def get_new(self):
-        return self.as_vector().new
-
-    new = property(get_new)
-
-
-class Vector(object):
-
-    def __init__(self, old, new):
-        self.old = old
-        self.new = new
-
-    def as_diff(self):
-        data = {
-            'old': self.old,
-            'new': self.new,
-        } 
-        return unicode(ChangesetLayerBase().dumps(data))
-
-
-class ChangeArithmetic(object):
+class Sequence(object):
+    """Calculates changes effected by a sequence of changes."""
 
     def calc_changes(self):
         sequence = self.get_sequence()
@@ -212,10 +112,50 @@ class ChangeArithmetic(object):
         return changes
 
     def get_sequence(self):
-        raise Exception, "Method not implemented."
+        return []
 
 
-class Range(ChangeArithmetic):
+class Json(object):
+    """Dumps and loads JSON strings into Python objects."""
+
+    def dumps(self, data):
+        try:
+            json = dumps(data, indent=2)
+        except Exception, inst:
+            msg = "Couldn't convert to JSON: %s" % data
+            raise Exception, "%s: %s" % (msg, inst)
+        return json
+
+    dumps = classmethod(dumps)
+
+    def loads(self, json):
+        try:
+            data = loads(json)
+        except Exception, inst:
+            msg = "Couldn't parse JSON: %s" % json
+            raise Exception, "%s: %s" % (msg, inst)
+        return data
+
+    loads = classmethod(loads)
+
+
+class Vector(Json):
+    """Distance in "difference space"."""
+
+    def __init__(self, old, new):
+        self.old = old
+        self.new = new
+
+    def as_diff(self):
+        data = {
+            'old': self.old,
+            'new': self.new,
+        } 
+        return unicode(self.dumps(data))
+
+
+class Range(Sequence):
+    """Continguous changesets along one line of development."""
 
     def __init__(self, start, stop):
         self.start = start   # Changeset instance.
@@ -257,93 +197,8 @@ class Range(ChangeArithmetic):
         return sequence.pop(0)
 
 
-class Reverse(object):
-
-    def __init__(self, changes):
-        self.changes = changes
-
-    def calc_changes(self):
-        changes = []
-        for change in self.changes:
-            vector = change.as_vector()
-            reverse = Vector(old=vector.new, new=vector.old)
-            diff = reverse.as_diff()
-            ref = change.ref
-            changes.append(Change(ref=ref, diff=diff))
-        return changes
-
-
-class CommonAncestor(ChangeArithmetic):
-
-    def __init__(self, child1, child2):
-        self.child1 = child1
-        self.child2 = child2
-
-    def find(self):
-        # Optimised for performance. Alternates between steping back through
-        # one line of changes looking for last item in other line of changes.
-        parentage1 = Parentage(self.child1)
-        parentage2 = Parentage(self.child2)
-        pointer1 = self.child1
-        pointer2 = self.child2
-        line1 = [self.child1]
-        line2 = [self.child2]
-        while(pointer1 or pointer2):
-            if pointer1:
-                for item2 in line2:
-                    if pointer1.id == item2.id:
-                        return pointer1
-                pointer1 = parentage1.next()
-                if pointer1:
-                    line1.append(pointer1)
-            if pointer2:
-                for item1 in line1:
-                    if pointer2.id == item1.id:
-                        return pointer2
-                pointer2 = parentage2.next()
-                if pointer2:
-                    line2.append(pointer2)
-        return None
-
-
-class Parentage(ChangeArithmetic):
-
-    def __init__(self, changeset):
-        self.changeset = changeset
-        self.register = AbstractChangesetRegister()
-
-    def next(self):
-        self.changeset = self.get_parent(self.changeset)
-        return self.changeset
-
-    def get_parent(self, changeset):
-        if not changeset.follows_id:
-            return None
-        return self.register.get(changeset.follows_id)
-
-
-class Heads(object):  # Rework as a list.
-
-    def ids(self):
-        head_ids = []
-        followed_ids = {}
-        closed_ids = {}
-        changeset_ids = []
-        register = ChangesetRegister()
-        changesets = register.values()
-        for changeset in changesets:
-            changeset_ids.append(changeset.id)
-            if changeset.closes_id:
-                closed_ids[changeset.closes_id] = changeset.id
-            if changeset.follows_id:
-                followed_ids[changeset.follows_id] = changeset.id
-        for id in changeset_ids:
-            if id not in followed_ids:
-                head_ids.append(id)
-        return head_ids
-
- 
-class Sum(ChangeArithmetic):
+class Sum(Sequence):
+    """Adds together two sets of non-conflicting changes."""
 
     def __init__(self, changes1, changes2):
         self.changes1 = changes1  # List of Change instances.
@@ -383,7 +238,76 @@ class Sum(ChangeArithmetic):
         return [self.changes1, self.changes2]
 
         
+class Reverse(object):
+    """Simple negation of a list of changes."""
+
+    def __init__(self, changes):
+        self.changes = changes
+
+    def calc_changes(self):
+        changes = []
+        for change in self.changes:
+            vector = change.as_vector()
+            reverse = Vector(old=vector.new, new=vector.old)
+            diff = reverse.as_diff()
+            ref = change.ref
+            changes.append(Change(ref=ref, diff=diff))
+        return changes
+
+
+class CommonAncestor(object):
+    """Intersection of two lines of development."""
+
+    def __init__(self, child1, child2):
+        self.child1 = child1
+        self.child2 = child2
+
+    def find(self):
+        # Optimised for performance. Alternates between stepping back through
+        # one line of changes looking for last item in other line of changes.
+        parentage1 = Parentage(self.child1)
+        parentage2 = Parentage(self.child2)
+        pointer1 = self.child1
+        pointer2 = self.child2
+        line1 = [self.child1]
+        line2 = [self.child2]
+        while(pointer1 or pointer2):
+            if pointer1:
+                for item2 in line2:
+                    if pointer1.id == item2.id:
+                        return pointer1
+                pointer1 = parentage1.next()
+                if pointer1:
+                    line1.append(pointer1)
+            if pointer2:
+                for item1 in line1:
+                    if pointer2.id == item1.id:
+                        return pointer2
+                pointer2 = parentage2.next()
+                if pointer2:
+                    line2.append(pointer2)
+        return None
+
+
+class Parentage(object):
+    """Follows the chain of ancestors."""
+
+    def __init__(self, changeset):
+        self.changeset = changeset
+        self.register = register_classes['changeset']()
+
+    def next(self):
+        self.changeset = self.get_parent(self.changeset)
+        return self.changeset
+
+    def get_parent(self, changeset):
+        if not changeset.follows_id:
+            return None
+        return self.register.get(changeset.follows_id)
+
+
 class Merge(object):
+    """Creates changeset which closes the working line of development."""
 
     def __init__(self, continuing, closing):
         self.continuing = continuing
@@ -411,8 +335,8 @@ class Merge(object):
         resolve = resolve_class(sum.changes1, sum.changes2)
         resolution = resolve.calc_changes()
         overwrite = Overwrite(sum.changes2, resolution)
-        merge_changes = overwrite.calc_changes()
-        changeset_register = ChangesetRegister()
+        changes = overwrite.calc_changes()
+        register = register_classes['changeset']()
         # Todo: Use values from the user doing the merge.
         log_message = 'Merged branch %s' % self.closing.id
         author = 'System'
@@ -420,11 +344,11 @@ class Merge(object):
             'log_message': log_message,
             'author': author,
         }
-        mergeset = changeset_register.create_entity(
+        mergeset = register.create_entity(
             meta=meta,
             closes_id=self.closing.id,
             follows_id=self.continuing.id,
-            changes=merge_changes
+            changes=changes
         )
         return mergeset
  
@@ -462,6 +386,7 @@ class Merge(object):
 
 
 class Resolve(object):
+    """Decides between conflicting values."""
 
     def __init__(self, changes1, changes2):
         self.changes1 = changes1
@@ -515,7 +440,9 @@ class Resolve(object):
     def decide_value(self, value1, value2):
         return value2
 
+
 class CliResolve(Resolve):
+    """Decides between conflicting values using command line intervention."""
 
     def decide_value(self, value1, value2):
         print "Conflicting values:"
@@ -530,6 +457,7 @@ class CliResolve(Resolve):
 
 
 class Overwrite(object):
+    """Imposes one set of changes on another."""
 
     def __init__(self, changes1, changes2):
         self.changes1 = changes1
@@ -565,12 +493,147 @@ class Overwrite(object):
         return changes
 
 
-class ObjectRegister(ChangesetLayerBase):
-    """Abstract dictionary-like interface to changeset objects."""
+#############################################################################
+#
+## Changeset subdomain model objects and registers.
+#
+
+register_classes = {}
+
+class ChangesetSubdomainObject(DomainObject, Json):
+
+    pass
+
+
+class Changeset(ChangesetSubdomainObject):
+    """Models a set of changes made to a working model."""
+   
+    STATUS_CONSTRUCTED = u'constructed'
+    STATUS_QUEUED = u'queued'
+    STATUS_APPLIED = u'applied'
+    STATUS_IGNORED = u'ignored'
+    STATUS_BROKEN = u'broken'
+
+    def get_meta(self):
+        return self.loads(self.meta or "{}")
+
+    def set_meta(self, meta_data):
+        self.meta = unicode(self.dumps(meta_data))
+
+    def apply(self, is_forced=False, report={}):
+        meta = self.get_meta()
+        register = register_classes['changeset']()
+        Session.add(self) # Otherwise self.changes db lazy-load doesn't work.
+        revision_id = register.apply_changes(self.changes, 
+            meta=meta, report=report, is_forced=is_forced)
+        Session.add(self) # Otherwise revision_id isn't persisted.
+        self.revision_id = revision_id
+        self.status = self.STATUS_APPLIED
+        Session.commit()
+        register.move_working(self.id)
+        return revision_id
+
+    def is_conflicting(self):
+        try:
+            self.detect_conflict()
+        except ConflictException:
+            return True
+        else:
+            return False
+
+    def detect_conflict(self):
+        for change in self.changes:
+            change.detect_conflict()
+
+    def as_dict(self):
+        meta_data = self.get_meta()
+        changes_data = [c.as_dict() for c in self.changes]
+        changeset_data = {
+            'id': self.id,
+            'closes_id': self.closes_id,
+            'follows_id': self.follows_id,
+            'meta': meta_data,
+            'timestamp': self.timestamp.isoformat(),
+            'changes': changes_data,
+        }
+        return changeset_data
+
+
+class Change(ChangesetSubdomainObject):
+    """Models a changes made to an entity in the working model."""
+
+    def detect_conflict(self):
+        register, key = self.deref()
+        register.detect_conflict(key, self.as_vector())
+
+    def apply(self, is_forced=False):
+        if not is_forced:
+            self.detect_conflict()
+        register, key = self.deref()
+        vector = self.as_vector()
+        entity = register.get(key, None)
+        if vector.old == None:
+            # Create.
+            if entity != None:
+                msg = "Can't apply creating change, since entity already exists for ref: %s" % self.ref
+                raise Exception, msg
+            entity = register.create_entity(key)
+            register.patch(entity, vector)
+        elif vector.new == None:
+            # Delete.
+            if entity == None:
+                msg = "Can't apply deleting change, since entity not found for ref: %s" % self.ref
+                raise Exception, msg
+            entity.delete()
+        else:
+            # Update.
+            if entity == None:
+                msg = "Can't apply updating change, since entity not found for ref: %s" % self.ref
+                raise Exception, msg
+            entity = register.get(key)
+            register.patch(entity, vector)
+        return entity # keep in scope?
+
+    def as_vector(self):
+        data = self.load_diff()
+        return Vector(data['old'], data['new'])
+
+    def load_diff(self):
+        return self.loads(self.diff)
+
+    def deref(self):
+        parts = self.ref.split('/')
+        register_type = parts[1]
+        register_key = parts[2]
+        if register_type in register_classes:
+            register_class = register_classes[register_type]
+            register = register_class()
+            return (register, register_key)
+        else:
+            raise Exception, "Can't deref '%s' with register map: %s" % (self.ref, register_classes)
+
+    def as_dict(self):
+        change_data = {}
+        change_data['ref'] = self.ref
+        change_data['diff'] = self.load_diff()
+        return change_data
+
+    def get_old(self):
+        return self.as_vector().old
+
+    old = property(get_old)
+
+    def get_new(self):
+        return self.as_vector().new
+
+    new = property(get_new)
+
+
+class ObjectRegister(object):
+    """Dictionary-like domain object register base class."""
 
     object_type = None
     key_attr = ''
-    distinct_attrs = []
 
     def __init__(self):
         assert self.object_type, "Missing domain object type on %s" % self
@@ -593,6 +656,9 @@ class ObjectRegister(ChangesetLayerBase):
         else:
             raise Exception, "%s not found: %s" % (self.object_type.__name__, key)
 
+    def _all(self):
+        return Session.query(self.object_type).all()
+
     def __len__(self):
         return len(self._all())
 
@@ -602,14 +668,11 @@ class ObjectRegister(ChangesetLayerBase):
     def __contains__(self, key):
         return key in self.keys()
 
-    def _all(self):
-        return Session.query(self.object_type).all()
+    def keys(self):
+        return [getattr(o, self.key_attr) for o in self._all()]
 
     def items(self):
         return [(getattr(o, self.key_attr), o) for o in self._all()]
-
-    def keys(self):
-        return [getattr(o, self.key_attr) for o in self._all()]
 
     def values(self):
         return self._all()
@@ -621,7 +684,14 @@ class ObjectRegister(ChangesetLayerBase):
         Session.add(entity)
         return entity
 
+
+class TrackedObjectRegister(ObjectRegister):
+    """Abstract dictionary-like interface to changeset objects."""
+
+    distinct_attrs = []
+
     def detect_conflict(self, key, vector):
+        """Checks whether the vector conflicts with the working model."""
         entity = self.get(key, None)
         if entity:
             self.detect_prechange_divergence(entity, vector)
@@ -633,7 +703,7 @@ class ObjectRegister(ChangesetLayerBase):
         self.detect_distinct_value_conflict(vector)
 
     def detect_prechange_divergence(self, entity, vector):
-        "Checks for diverged pre-change values."
+        """Checks vector old values against the current working model."""
         if not vector.old:
             return
         entity_data = entity.as_dict()
@@ -647,8 +717,9 @@ class ObjectRegister(ChangesetLayerBase):
                 raise ConflictException, msg.encode('utf8')
 
     def is_equal(self, value1, value2):
+        """Compares domain values for equality."""
         # Todo: Should list order differences be conflicts?
-        #         - why would the order change?
+        #   - why would the order (e.g. tags of a package) change?
         if isinstance(value1, list):
             value1.sort()
         if isinstance(value2, list):
@@ -656,7 +727,7 @@ class ObjectRegister(ChangesetLayerBase):
         return value1 == value2
 
     def detect_distinct_value_conflict(self, vector):
-        "Checks for unique value conflicts with existing entities."
+        """Checks for unique value conflicts with existing entities."""
         for name in self.distinct_attrs:
             if vector.new == None:
                 # There aren't any new values.
@@ -673,6 +744,7 @@ class ObjectRegister(ChangesetLayerBase):
                 raise ConflictException, msg
 
     def detect_missing_values(self, vector):
+        """Checks for required values such as distinct values."""
         for name in self.distinct_attrs:
             if name in vector.new and vector.new[name]:
                 continue
@@ -680,35 +752,19 @@ class ObjectRegister(ChangesetLayerBase):
             raise ConflictException, msg
 
     def ref(self, entity):
+        """Returns path-like string that can reference given entity."""
         return u'/%s/%s' % (
             self.object_type.__name__.lower(),
             getattr(entity, self.key_attr)
         )
 
     def diff(self, entity):
-        history = entity.all_revisions
-        age = len(history)
-        if age == 0:
-            raise Exception, "Object has no revisions: %s" % repr(entity)
-        elif age == 1:
-            previous = None
-        elif age >= 2:
-            previous = history[1]
-        old_data = None  # Signifies object creation.
-        new_data = entity.as_dict()
-        del(new_data['revision_id'])
-        if previous:
-            old_data = {}
-            for name in entity.revisioned_fields:
-                old_value = getattr(previous, name)
-                new_value = new_data[name]
-                if old_value == new_value:
-                    del(new_data[name])
-                else:
-                   old_data[name] = old_value
-        return Vector(old_data, new_data)
+        """Instantiates and returns a vector for the difference
+        between the current and previous versions of given entity."""
+        raise Exception, "Abstract method not implemented."
 
     def patch(self, entity, vector):
+        """Updates given entity according to the given vector of change."""
         for col in self.get_columns():
             if col.name in vector.new:
                 value = vector.new[col.name]
@@ -717,11 +773,13 @@ class ObjectRegister(ChangesetLayerBase):
                 setattr(entity, col.name, value)
 
     def get_columns(self):
+        """Returns the model of the entity attributes."""
         from ckan.model.core import orm
         table = orm.class_mapper(self.object_type).mapped_table
         return table.c
 
     def convert_to_domain_value(self, value, type_name):
+        """Returns a domain value for the given serialised value and type."""
         if type_name in ['Unicode', 'UnicodeText']:
             if value == None:
                 pass
@@ -738,167 +796,51 @@ class ObjectRegister(ChangesetLayerBase):
         return value
 
 
-class AbstractChangesetRegister(ObjectRegister):
+class AbstractChangesetRegister(TrackedObjectRegister, Json):
     """Dictionary-like interface to changeset objects."""
 
     object_type = Changeset
     key_attr = 'id'
     NAMESPACE_CHANGESET = None
 
-    def create_entity(self, *args, **kwds):
-        if 'id' not in kwds:
-            kwds['id'] = self.create_changeset_id(**kwds)
-        preexisting = self.get(kwds['id'], None)
-        if preexisting != None:
-            if 'revision_id' in kwds:
-                preexisting.revision_id = kwds['revision_id']
-            return preexisting
-        if 'meta' in kwds:
-            meta = kwds['meta']
-            if isinstance(meta, dict):
-                kwds['meta'] = unicode(self.dumps(meta))
-        return super(AbstractChangesetRegister, self).create_entity(*args, **kwds)
-
-    def create_changeset_id(self, **kwds):
-        id_profile = []
-        closes_id = kwds.get('closes_id', None)
-        id_profile.append({'closes_id':'closes_id'}) # Separator.
-        id_profile.append(closes_id)
-        follows_id = kwds.get('follows_id', None)
-        id_profile.append({'follows_id':'follows_id'}) # Separator.
-        id_profile.append(follows_id)
-        changes = kwds.get('changes', [])
-        index = {}
-        for change in changes:
-            index[change.ref] = change
-        refs = index.keys()
-        refs.sort()
-        for ref in refs:
-            id_profile.append({'ref':ref}) # Separator.
-            change = index[ref]
-            id_profile.append({'old':'old'}) # Separator.
-            if change.old:
-                old_keys = change.old.keys()
-                old_keys.sort()
-                for key in old_keys:
-                    value = change.old[key]
-                    id_profile.append(key)
-                    id_profile.append(value)
-            id_profile.append({'new':'new'}) # Separator.
-            if change.new:
-                new_keys = change.new.keys()
-                new_keys.sort()
-                for key in new_keys:
-                    value = change.new[key]
-                    id_profile.append(key)
-                    id_profile.append(value)
-        id_profile = self.dumps(id_profile)
-        id_uuid = uuid.uuid5(self.NAMESPACE_CHANGESET, id_profile)
-        changeset_id = unicode(id_uuid)
-        return changeset_id
-            
-    def add_unseen(self, changeset_data):
-        # Todo: Validate the data (dict with id str, meta dict, and changes list).
-        changeset_id = unicode(changeset_data['id'])
-        if changeset_id in self:
-            raise Exception, "Already have changeset with id '%s'." % changeset_id
-        closes_id = changeset_data.get('closes_id', None)
-        if closes_id:
-            closes_id = unicode(closes_id)
-        follows_id = changeset_data.get('follows_id', None)
-        if follows_id:
-            follows_id = unicode(follows_id)
-        meta = changeset_data['meta']
-        timestamp = self.convert_to_domain_value(changeset_data.get('timestamp', None), 'DateTime')
-        changes = []
-        changes_data = changeset_data['changes']
-        change_register = ChangeRegister()
-        for change_data in changes_data:
-            ref = unicode(change_data['ref'])
-            diff_data = change_data['diff']
-            diff = unicode(self.dumps(diff_data))
-            change = change_register.create_entity(ref=ref, diff=diff)
-            changes.append(change)
-        changeset = self.create_entity(
-            id=changeset_id,
-            closes_id=closes_id,
-            follows_id=follows_id,
-            meta=meta, 
-            timestamp=timestamp,
-            changes=changes,
-            status=self.object_type.STATUS_QUEUED,
-        )
-        Session.commit()
-        Session.remove()
-        return changeset.id
-
-
-class ChangeRegister(ObjectRegister):
-    """Dictionary-like interface to change objects."""
-
-    object_type = Change
-    key_attr = 'ref'
-
-
-#############################################################################
-#
-## Persistence model.
-#
-
-changeset_table = Table('changeset', metadata,
-        # These are the "public" changeset attributes.
-        Column('id', types.UnicodeText, primary_key=True),
-        Column('closes_id', types.UnicodeText, nullable=True),
-        Column('follows_id', types.UnicodeText, nullable=True),
-        Column('meta', types.UnicodeText, nullable=True),
-        Column('timestamp', DateTime, default=datetime.datetime.utcnow),
-        # These are the "private" changeset attributes.
-        Column('is_working', types.Boolean, default=False),
-        Column('revision_id', types.UnicodeText, ForeignKey('revision.id'), nullable=True),
-        Column('status', types.UnicodeText, nullable=True),
-        Column('added_here', DateTime, default=datetime.datetime.utcnow),
-)
-
-change_table = Table('change', metadata,
-        Column('ref', types.UnicodeText, nullable=True),
-        Column('diff', types.UnicodeText, nullable=True),
-        Column('changeset_id', types.UnicodeText, ForeignKey('changeset.id')),
-)
-
-mapper(Changeset, changeset_table, properties={
-    'changes':relation(Change, backref='changeset',
-        cascade='all, delete', #, delete-orphan',
-        ),
-    },
-    order_by=changeset_table.c.added_here,
-)
-
-mapper(Change, change_table, properties={
-    },
-    primary_key=[change_table.c.changeset_id, change_table.c.ref] 
-)
-
-
-#############################################################################
-#
-## Statements specific to the CKAN system.
-#
-
-class ChangesetRegister(AbstractChangesetRegister):
-
-    NAMESPACE_CHANGESET = uuid.uuid5(uuid.NAMESPACE_OID, 'opendata')
+    def pull(self, source):
+        """Detects and retrieves unseen changesets from given source."""
+        api_location = source.split('/api')[0].strip('/') + '/api'
+        from ckanclient import CkanClient
+        ckan_service = CkanClient(base_location=api_location)
+        foreign_ids = ckan_service.changeset_register_get()
+        if foreign_ids == None:
+            msg = "Error pulling changes from: %s (CKAN service error: %s: %s)" % (source, ckan_service.last_url_error or "%s: %s" % (ckan_service.last_status, ckan_service.last_http_error), ckan_service.last_location)
+            raise ChangesSourceException, msg
+        local_ids = self.keys()
+        unseen_ids = []
+        for changeset_id in foreign_ids:
+            if changeset_id not in local_ids:
+                unseen_ids.append(changeset_id)
+        unseen_changesets = []
+        for unseen_id in unseen_ids:
+            unseen_data = ckan_service.changeset_entity_get(unseen_id)
+            changeset_id = self.add_unseen(unseen_data)
+            if not changeset_id:
+                msg = "Error: Couldn't add incoming changeset: %s" % unseen_id
+                raise Exception, msg
+            if unseen_id != changeset_id:
+                msg = "Error: Changeset id mismatch: pulled '%s' but recorded '%s'." % (unseen_id, changeset_id)
+                raise Exception, msg
+        return unseen_ids
 
     def update(self, target_id=None, report={}):
+        """Adjusts the working model to correspond with the target 
+        changeset, which defaults to the head of the working line."""
         if not len(self):
             raise EmptyChangesetRegisterException, "There are no changesets in the changeset register."
-        uncommitted, head_revision = self.get_revisions_uncommitted_and_head()
-        # Check there are no uncommited revisions.
-        if len(uncommitted) > 0:
-            raise UncommittedChangesException, "Revisions are outstanding: %s" % " ".join([r.id for r in uncommitted])
+        # Check there are no outstanding changes.
+        if self.is_outstanding_changes():
+            raise UncommittedChangesException, "There are outstanding changes in the working data."
         # Get route from working to target.
         working = self.get_working()
         if not working:
-            raise Exception, "None of the changesets is marked as 'working'."
+            raise Exception, "There is no working changeset."
         head_ids = Heads().ids()
         if not target_id:
             # Infer a target from the list of heads.
@@ -956,9 +898,219 @@ class ChangesetRegister(AbstractChangesetRegister):
             self.apply_jump_changes(changes, target_id, report=report)
         print ", ".join(["%s %s packages" % (key, len(val)) for (key, val) in report.items()])
 
+    def merge(self, continuing_id, resolve_class=None):
+        """Creates a new changeset combining diverged lines of development."""
+        continuing = self.get(continuing_id)
+        closing = self.get_working()
+        merge = Merge(continuing, closing)
+        mergeset = merge.create_mergeset(resolve_class=resolve_class)
+        Session.commit()
+        return mergeset
+
+    def commit(self):
+        """Creates a new changeset from changes made to the working model."""
+        raise Exception, "Abstract method not implemented."
+
+    def get_working(self):
+        """Returns the changeset last used to update the working model."""
+        return self.get(True, None, 'is_working')
+
+    def move_working(self, target_id):
+        """Switches the working changeset to the given target."""
+        target = self.get(target_id)
+        working = self.get_working()
+        if working:
+            working.is_working = False
+        target.is_working = True
+        Session.commit()
+
+    def create_entity(self, *args, **kwds):
+        """Instantiates a new Changeset object."""
+        if 'id' not in kwds:
+            kwds['id'] = self.determine_changeset_id(**kwds)
+        preexisting = self.get(kwds['id'], None)
+        if preexisting != None:
+            if 'revision_id' in kwds:
+                preexisting.revision_id = kwds['revision_id']
+            return preexisting
+        if 'meta' in kwds:
+            meta = kwds['meta']
+            if isinstance(meta, dict):
+                kwds['meta'] = unicode(self.dumps(meta))
+        return super(AbstractChangesetRegister, self).create_entity(*args, **kwds)
+
+    def determine_changeset_id(self, **kwds):
+        """Generates and returns a UUID from the changeset content."""
+        id_profile = []
+        closes_id = kwds.get('closes_id', None)
+        id_profile.append({'closes_id':'closes_id'}) # Separator.
+        id_profile.append(closes_id)
+        follows_id = kwds.get('follows_id', None)
+        id_profile.append({'follows_id':'follows_id'}) # Separator.
+        id_profile.append(follows_id)
+        changes = kwds.get('changes', [])
+        index = {}
+        for change in changes:
+            index[change.ref] = change
+        refs = index.keys()
+        refs.sort()
+        for ref in refs:
+            id_profile.append({'ref':ref}) # Separator.
+            change = index[ref]
+            id_profile.append({'old':'old'}) # Separator.
+            if change.old:
+                old_keys = change.old.keys()
+                old_keys.sort()
+                for key in old_keys:
+                    value = change.old[key]
+                    id_profile.append(key)
+                    id_profile.append(value)
+            id_profile.append({'new':'new'}) # Separator.
+            if change.new:
+                new_keys = change.new.keys()
+                new_keys.sort()
+                for key in new_keys:
+                    value = change.new[key]
+                    id_profile.append(key)
+                    id_profile.append(value)
+        id_profile = self.dumps(id_profile)
+        id_uuid = uuid.uuid5(self.NAMESPACE_CHANGESET, id_profile)
+        changeset_id = unicode(id_uuid)
+        return changeset_id
+            
+    def add_unseen(self, changeset_data):
+        """Puts foreign changesets into the register."""
+        # Todo: Validate the data (dict with id str, meta dict, and changes list).
+        changeset_id = unicode(changeset_data['id'])
+        if changeset_id in self:
+            raise Exception, "Already have changeset with id '%s'." % changeset_id
+        closes_id = changeset_data.get('closes_id', None)
+        if closes_id:
+            closes_id = unicode(closes_id)
+        follows_id = changeset_data.get('follows_id', None)
+        if follows_id:
+            follows_id = unicode(follows_id)
+        meta = changeset_data['meta']
+        timestamp = self.convert_to_domain_value(changeset_data.get('timestamp', None), 'DateTime')
+        changes = []
+        changes_data = changeset_data['changes']
+        change_register = ChangeRegister()
+        for change_data in changes_data:
+            ref = unicode(change_data['ref'])
+            diff_data = change_data['diff']
+            diff = unicode(self.dumps(diff_data))
+            change = change_register.create_entity(ref=ref, diff=diff)
+            changes.append(change)
+        changeset = self.create_entity(
+            id=changeset_id,
+            closes_id=closes_id,
+            follows_id=follows_id,
+            meta=meta, 
+            timestamp=timestamp,
+            changes=changes,
+            status=self.object_type.STATUS_QUEUED,
+        )
+        Session.commit()
+        Session.remove()
+        return changeset.id
+
+
+register_classes['changeset'] = AbstractChangesetRegister
+
+
+class Heads(object):  # Rework as a list.
+    """Lists changesets which have no followers."""
+
+    def ids(self):
+        head_ids = []
+        followed_ids = {}
+        closed_ids = {}
+        changeset_ids = []
+        register = register_classes['changeset']()
+        changesets = register.values()
+        for changeset in changesets:
+            changeset_ids.append(changeset.id)
+            if changeset.closes_id:
+                closed_ids[changeset.closes_id] = changeset.id
+            if changeset.follows_id:
+                followed_ids[changeset.follows_id] = changeset.id
+        for id in changeset_ids:
+            if id not in followed_ids:
+                head_ids.append(id)
+        return head_ids
+
+ 
+class ChangeRegister(TrackedObjectRegister):
+    """Dictionary-like interface to change objects."""
+
+    object_type = Change
+    key_attr = 'ref'
+
+
+#############################################################################
+#
+## Persistence model.
+#
+
+changeset_table = Table('changeset', metadata,
+        ## These are the "public" changeset attributes.
+        # 'id' - deterministic function of its content
+        Column('id', types.UnicodeText, primary_key=True),
+        # 'closes_id' - used by a mergesets to refer to its closed line
+        Column('closes_id', types.UnicodeText, nullable=True),
+        # 'follows_id' - refers to immediate ancestor of the changeset
+        Column('follows_id', types.UnicodeText, nullable=True),
+        # 'meta' - a JSON dict, optionally with author, log_message, etc.
+        Column('meta', types.UnicodeText, nullable=True),
+        # 'branch' - explicit name for a working line
+        Column('branch', types.UnicodeText, nullable=True),
+        # 'timestamp' - UTC time when changeset was constructed
+        Column('timestamp', DateTime, default=datetime.datetime.utcnow),
+        ## These are the "private" changeset attributes.
+        # 'is_working' - true if used for last update of working data
+        Column('is_working', types.Boolean, default=False),
+        # 'revision_id' - refers to constructing or applied revision
+        Column('revision_id', types.UnicodeText, ForeignKey('revision.id'), nullable=True),
+        # 'status' - tracks local usage of changeset
+        Column('status', types.UnicodeText, nullable=True),
+        # 'added_here' - UTC time when chaneset was added to local register
+        Column('added_here', DateTime, default=datetime.datetime.utcnow),
+)
+
+change_table = Table('change', metadata,
+        # 'ref' - type and unique identifier for tracked domain entity
+        Column('ref', types.UnicodeText, nullable=True),
+        # 'diff' - a JSON dict containing the change vector
+        Column('diff', types.UnicodeText, nullable=True),
+        # 'changeset_id' - changes are aggregated by changesets
+        Column('changeset_id', types.UnicodeText, ForeignKey('changeset.id')),
+)
+
+mapper(Changeset, changeset_table, properties={
+    'changes':relation(Change, backref='changeset',
+        cascade='all, delete', #, delete-orphan',
+        ),
+    },
+    order_by=changeset_table.c.added_here,
+)
+
+mapper(Change, change_table, properties={
+    },
+    primary_key=[change_table.c.changeset_id, change_table.c.ref] 
+)
+
+
+#############################################################################
+#
+## Statements specific to the CKAN system.
+#
+
+class ChangesetRegister(AbstractChangesetRegister):
+
+    NAMESPACE_CHANGESET = uuid.uuid5(uuid.NAMESPACE_OID, 'opendata')
+
     def apply_jump_changes(self, changes, target_id, report={}):
-        """Jump to the target in one revision."""
-        # Apply changes.
+        """Applies changes to CKAN repository as a 'system jump' revision."""
         log_message = u'Jumped to changeset %s' % target_id
         author = u'system'
         meta = {
@@ -972,6 +1124,7 @@ class ChangesetRegister(AbstractChangesetRegister):
         self.move_working(target_id)
 
     def apply_changes(self, changes, meta={}, report={}, is_forced=False):
+        """Applies changes to CKAN repository as a single revision."""
         need_access_control = []
         if not 'created' in report:
             report['created'] = []
@@ -979,7 +1132,7 @@ class ChangesetRegister(AbstractChangesetRegister):
             report['updated'] = []
         if not 'deleted' in report:
             report['deleted'] = []
-        revision_register_class = Change.registers['revision'] 
+        revision_register_class = register_classes['revision'] 
         revision_register = revision_register_class()
         revision = revision_register.create_entity()
         revision.message = unicode(meta.get('log_message', ''))
@@ -1003,6 +1156,7 @@ class ChangesetRegister(AbstractChangesetRegister):
         return revision_id
 
     def commit(self):
+        """Constructs changesets from uncommitted CKAN repository revisions."""
         uncommitted, head_revision = self.get_revisions_uncommitted_and_head()
         working = self.get_working()
         if working and not working.revision_id:
@@ -1021,42 +1175,8 @@ class ChangesetRegister(AbstractChangesetRegister):
             follows_id = changeset_id
         return changeset_ids
 
-    def merge(self, continuing_id, resolve_class=None):
-        continuing = self.get(continuing_id)
-        closing = self.get_working()
-        merge = Merge(continuing, closing)
-        #if merge.is_conflicting():
-        #    raise ConflictException, "Merge conflict when closing '%s' into changeset '%s'." % (closing.id, continuing.id)
-        mergeset = merge.create_mergeset(resolve_class=resolve_class)
-        Session.commit()
-        return mergeset
-
-    def get_revisions_uncommitted_and_head(self):
-        import ckan.model
-        revisions =  ckan.model.repo.history()  # NB Youngest first.
-        uncommitted = []
-        head_revision = None
-        for revision in revisions:
-            changeset = self.get(revision.id, None, 'revision_id')
-            if changeset == None:
-                uncommitted.append(revision)
-            else:
-                head_revision = revision
-                break # Assume contiguity of uncommitted revisions.
-        return uncommitted, head_revision
-
-    def get_working(self):
-        return self.get(True, None, 'is_working')
-
-    def move_working(self, target_id):
-        target = self.get(target_id)
-        working = self.get_working()
-        if working:
-            working.is_working = False
-        target.is_working = True
-        Session.commit()
-
     def construct_from_revision(self, revision, follows_id=None):
+        """Finds uncommitted CKAN repository revisions."""
         if follows_id:
             # Todo: Detect if the new changes conflict with the line (it's a system error).
             pass
@@ -1080,46 +1200,69 @@ class ChangesetRegister(AbstractChangesetRegister):
         return changeset.id
 
     def construct_package_change(self, package):
+        """Makes a changeset Change object from a CKAN package instance."""
         packages = PackageRegister()
         ref = packages.ref(package)
         vector = packages.diff(package)
         diff = vector.as_diff()
         return ChangeRegister().create_entity(ref=ref, diff=diff)
 
-    def pull_source(self, source):
-        api_location = source.split('/api')[0].strip('/') + '/api'
-        from ckanclient import CkanClient
-        ckan_service = CkanClient(base_location=api_location)
-        foreign_ids = ckan_service.changeset_register_get()
-        if foreign_ids == None:
-            msg = "Error pulling changes from: %s (CKAN service error: %s: %s)" % (source, ckan_service.last_url_error or "%s: %s" % (ckan_service.last_status, ckan_service.last_http_error), ckan_service.last_location)
-            raise ChangesSourceException, msg
-        local_ids = self.keys()
-        unseen_ids = []
-        for changeset_id in foreign_ids:
-            if changeset_id not in local_ids:
-                unseen_ids.append(changeset_id)
-        unseen_changesets = []
-        for unseen_id in unseen_ids:
-            unseen_data = ckan_service.changeset_entity_get(unseen_id)
-            changeset_id = self.add_unseen(unseen_data)
-            if not changeset_id:
-                msg = "Error: Couldn't add incoming changeset: %s" % unseen_id
-                raise Exception, msg
-            if unseen_id != changeset_id:
-                msg = "Error: Changeset id mismatch: pulled '%s' but recorded '%s'." % (unseen_id, changeset_id)
-                raise Exception, msg
-        return unseen_ids
+    def is_outstanding_changes(self):
+        """Checks for uncommitted revisions in CKAN repository."""
+        uncommitted, head_revision = self.get_revisions_uncommitted_and_head()
+        return len(uncommitted) > 0
+
+    def get_revisions_uncommitted_and_head(self):
+        """Finds uncommitted revisions in CKAN repository."""
+        import ckan.model
+        revisions =  ckan.model.repo.history()  # NB Youngest first.
+        uncommitted = []
+        head_revision = None
+        for revision in revisions:
+            changeset = self.get(revision.id, None, 'revision_id')
+            if changeset == None:
+                uncommitted.append(revision)
+            else:
+                head_revision = revision
+                # Assume contiguity of uncommitted revisions.
+                break 
+        return uncommitted, head_revision
 
 
-class PackageRegister(ObjectRegister):
+class PackageRegister(TrackedObjectRegister):
     """Dictionary-like interface to package objects."""
 
     object_type = Package
     key_attr = 'id'
     distinct_attrs = ['name']
 
+    def diff(self, entity):
+        """Instantiates and returns a Vector for the difference
+        between the current and previous Package version."""
+        history = entity.all_revisions
+        age = len(history)
+        if age == 0:
+            raise Exception, "Object has no revisions: %s" % repr(entity)
+        elif age == 1:
+            previous = None
+        elif age >= 2:
+            previous = history[1]
+        old_data = None  # Signifies object creation.
+        new_data = entity.as_dict()
+        del(new_data['revision_id'])
+        if previous:
+            old_data = {}
+            for name in entity.revisioned_fields:
+                old_value = getattr(previous, name)
+                new_value = new_data[name]
+                if old_value == new_value:
+                    del(new_data[name])
+                else:
+                   old_data[name] = old_value
+        return Vector(old_data, new_data)
+
     def patch(self, entity, vector):
+        """Updates Package according to the vector of change."""
         super(PackageRegister, self).patch(entity, vector)
         if 'tags' in vector.new:
             register = TagRegister()
@@ -1167,6 +1310,7 @@ class RevisionRegister(ObjectRegister):
     key_attr = 'id'
 
     def create_entity(self, *args, **kwds):
+        """Creates new Revision instance with author and message."""
         from ckan.model import repo
         revision = repo.new_revision()
         if 'author' in kwds:
@@ -1192,9 +1336,7 @@ class GroupRegister(ObjectRegister):
     key_attr = 'name'
 
 
-Change.registers = {
-    'package': PackageRegister,
-    'revision': RevisionRegister,
-}
-
+register_classes['changeset'] = ChangesetRegister
+register_classes['revision'] = RevisionRegister
+register_classes['package'] = PackageRegister
 
