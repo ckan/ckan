@@ -13,24 +13,28 @@
   <link rel="shortcut icon" href="http://m.okfn.org/gfx/logo/favicon.ico" type="image/x-icon" />
   <link rel="alternate" type="application/atom+xml" title="CKAN Recent Changes" href="/revision/list?format=atom&amp;days=1" />
 
-  <link rel="stylesheet" href="http://m.okfn.org/kforge/css/master.css" type="text/css" media="screen, print" title="Master stylesheet" charset="utf-8" />
+  <style type="text/css"> 
+    @import url(http://m.okfn.org/kforge/css/structure.css);
+    @import url(http://m.okfn.org/kforge/css/display.css);
+    @import url(http://m.okfn.org/kforge/css/navigation.css);
+    @import url(http://m.okfn.org/kforge/css/print.css);
+  </style> 
+
   <link rel="stylesheet" href="/css/ckan.master.css" type="text/css" media="screen, print" />
 
   <!--[if IE]>
   <link rel="stylesheet" href="/css/ie.css" type="text/css" media="screen, print" />
   <![endif]-->
 
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
   <script type="text/javascript" src="/scripts/application.js"></script>
-
-  <xi:include href="./yuicodes.html" />
 
   <py:if test="defined('optional_head')">
     ${optional_head()}
   </py:if>
 </head>
 
-<body class="yui-skin-sam">
+<body>
 <div id="airlock">
   <!--[if IE]>
     <hr class="holder" />

@@ -1,3 +1,4 @@
+from ckan import model
 import package
 
 __all__ = ['get_package_dict', 'edit_package_dict', 'add_to_package_dict', 'strip_ids_from_package_dict']
@@ -43,7 +44,7 @@ def get_package_dict(pkg=None, blank=False, fs=None):
                 if field.renderer.name.endswith('-tags'):
                     indict[field.renderer.name] = ' '.join([tag.name for tag in pkg.tags]) if pkg else ''
                 if field.renderer.name.endswith('-resources'):
-                    indict[field.renderer.name] = [{u'url':res.url, u'format':res.format, u'description':res.description, u'hash':res.hash} for res in pkg.resources] if pkg else []
+                    indict[field.renderer.name] = [dict([(key, getattr(res, key)) for key in model.PackageResource.get_columns()]) for res in pkg.resources] if pkg else []
         
     return indict
 
@@ -82,15 +83,18 @@ def edit_package_dict(dict_, changed_items, id=''):
                 elif key == resources_key and isinstance(value, list):
                     # REST edit
                     resources = []
-                    for res in value:
-                        resources.append((res['url'], res['format'], res['description'], res['hash']))
+                    for res_dict in value:
+                        res_dict_str = {}
+                        for key, value in res_dict.items():
+                            res_dict_str[str(key)] = value
+                        resources.append(res_dict_str)
                     dict_[resources_key] = resources
                 elif key == tags_key and isinstance(value, list):
                     dict_[key] = ' '.join(value)
                 else:
                     dict_[key] = value
             elif key == download_url_key:
-                dict_[resources_key].insert(0, (value, u'', u'', u''))
+                dict_[resources_key].insert(0, {'url':value})
                 # blank format, description and hash
             elif key == license_id_key:
                 dict_[license_id_key] = unicode(value)

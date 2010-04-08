@@ -10,7 +10,12 @@ existing_extra_html = ('<label class="field_opt" for="Package-%(package_id)s-ext
 
 package_form=''
 
-class TestPackageForm(TestController):
+class TestPackageBase(TestController):
+    def _assert_form_errors(self, res):
+        self.check_tag(res, '<form', 'class="has-errors"')
+        assert 'class="field_error"' in res, res
+
+class TestPackageForm(TestPackageBase):
     '''Inherit this in tests for these form testing methods'''
     def _check_package_read(self, res, **params):
         assert not 'Error' in res, res
@@ -305,7 +310,7 @@ class TestEdit(TestPackageForm):
 
     def test_edit(self):
         # the absolute basics
-        assert 'Packages - Edit' in self.res
+        assert 'Packages - Edit' in self.res, self.res
         assert self.editpkg.notes in self.res
 
         new_name = u'new-name'
@@ -397,15 +402,13 @@ u with umlaut \xc3\xbc
         assert 'Error' in res, res
         assert 'Name must be at least 2 characters long' in res, res
         # Ensure there is an error at the top of the form and by the field
-        assert 'class="form-errors"' in res, res
-        assert 'class="field_error"' in res, res
+        self._assert_form_errors(res)
 
         res = fv.submit('commit')
         assert 'Error' in res, res
         assert 'Name must be at least 2 characters long' in res, res
         # Ensure there is an error at the top of the form and by the field
-        assert 'class="form-errors"' in res, res
-        assert 'class="field_error"' in res, res
+        self._assert_form_errors(res)
 
     def test_missing_fields(self):
         # User edits and a field is left out in the commit parameters.
@@ -573,12 +576,13 @@ u with umlaut \xc3\xbc
         res = fv.submit('preview')
         assert 'Error' in res, res
         assert 'No links are allowed' in res, res
-        assert 'class="form-errors"' in res, res
+        self.check_tag(res, '<form', 'class="has-errors"')
+        assert 'No links are allowed' in res, res
 
         res = fv.submit('commit')
         assert 'Error' in res, res
+        self.check_tag(res, '<form', 'class="has-errors"')
         assert 'No links are allowed' in res, res
-        assert 'class="form-errors"' in res, res
 
 class TestNew(TestPackageForm):
     pkgname = u'testpkg'
@@ -657,16 +661,12 @@ class TestNew(TestPackageForm):
         res = fv.submit('preview')
         assert 'Error' in res, res
         assert 'Name must be at least 2 characters long' in res, res
-        # Ensure there is an error at the top of the form and by the field
-        assert 'class="form-errors"' in res, res
-        assert 'class="field_error"' in res, res
+        self._assert_form_errors(res)
 
         res = fv.submit('commit')
         assert 'Error' in res, res
         assert 'Name must be at least 2 characters long' in res, res
-        # Ensure there is an error at the top of the form and by the field
-        assert 'class="form-errors"' in res, res
-        assert 'class="field_error"' in res, res
+        self._assert_form_errors(res)
 
     def test_new_all_fields(self):
         name = u'test_name2'
@@ -792,9 +792,7 @@ class TestNew(TestPackageForm):
         res = fv.submit('commit')
         assert 'Error' in res, res
         assert 'Package name already exists in database' in res, res
-        # Ensure there is an error at the top of the form and by the field
-        assert 'class="form-errors"' in res, res
-        assert 'class="field_error"' in res, res
+        self._assert_form_errors(res)
         
     def test_missing_fields(self):
         # A field is left out in the commit parameters.
@@ -820,7 +818,7 @@ class TestNew(TestPackageForm):
         # text field tested here.
         res = fv.submit('commit', status=400)     
 
-class TestNewPreview(TestController):
+class TestNewPreview(TestPackageBase):
     pkgname = u'testpkg'
     pkgtitle = u'mytesttitle'
 
@@ -854,7 +852,7 @@ class TestNewPreview(TestController):
         assert model.Session.query(model.Package).count() == 0, model.Session.query(model.Package).all()
         
 
-class TestNonActivePackages(TestController):
+class TestNonActivePackages(TestPackageBase):
 
     @classmethod
     def setup_class(self):
@@ -907,7 +905,7 @@ class TestNonActivePackages(TestController):
         assert '<strong>0</strong> packages found' in results_page, (self.non_active_name, results_page)
 
 
-class TestRevisions(TestController):
+class TestRevisions(TestPackageBase):
     @classmethod
     def setup_class(self):
         model.Session.remove()

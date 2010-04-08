@@ -14,8 +14,8 @@ class TestPreview(TestController):
         u'name':u'name_after',
         u'title':u'title_after',
         u'url':u'testurl',
-        u'resources':[[u'dlu1c', u'tf1c', u'', u''],
-                      [u'dlu2c', u'tf2c', u'', u''],
+        u'resources':[{'url':u'dlu1c', 'format':u'tf1c'},
+                      {'url':u'dlu2c', 'format':u'tf2c'},
                       ],
         u'notes':u'testnotes',
         u'version':u'testversion',
@@ -79,10 +79,10 @@ class TestPreview(TestController):
                 for tag in pkg.tags:
                     assert tag.name in reqd_tags
             elif key == u'resources':
-                assert pkg.resources[0].url == value[0][0]
-                assert pkg.resources[0].format == value[0][1]
-                assert pkg.resources[1].url == value[1][0]
-                assert pkg.resources[1].format == value[1][1]
+                assert pkg.resources[0].url == value[0]['url']
+                assert pkg.resources[0].format == value[0]['format']
+                assert pkg.resources[1].url == value[1]['url']
+                assert pkg.resources[1].format == value[1]['format']
             else:
                 assert getattr(pkg, key) == value, \
                        'Package has "%s"="%s" when it should be %s' % \

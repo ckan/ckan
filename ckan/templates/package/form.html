@@ -1,0 +1,29 @@
+<py:if test="True" xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <py:if test="c.fieldset.errors or c.errors">
+    <div class="error-explanation">
+        <h2>Errors in form</h2> 
+        <p>The form contains invalid entries:</p> 
+        <ul> 
+          <py:for each="field, errors in c.fieldset.errors.items()">
+            <li py:for="error in errors">
+              ${c.fieldset.prettify(field.name)}: ${_(error)}
+            </li>
+          </py:for>
+          <li py:for="error in c.errors">
+              ${_(error)}
+          </li>
+        </ul> 
+    </div>
+  </py:if>
+
+  <xi:include href="form_fields.html" />
+
+  <fieldset py:for="field_group in c.fieldset.get_field_groups()">
+    <legend>
+      ${field_group}
+    </legend>
+    ${form_fields(field_group)}
+  </fieldset>
+</py:if>

@@ -3,15 +3,23 @@
   
   <py:def function="page_title">Packages - Edit - ${c.pkgname}</py:def>
 
+  <py:def function="optional_head">
+    <link rel="stylesheet" href="/css/forms.css" type="text/css" media="screen, print" />
+
+    <!-- Flexitable --> 
+    <script type="text/javascript" src="/scripts/flexitable.js"></script> 
+    <link rel="stylesheet" href="/css/flexitable.css" /> 
+ 
+    <!-- Tagcomplete --> 
+    <script type="text/javascript" src="/scripts/tagcomplete.js"></script> 
+    <link rel="stylesheet" href="/css/tagcomplete.css" /> 
+  </py:def>
+
   <div py:match="content" class="package">
     <h2>
       Edit package: ${c.pkgname}
       <a href="#preview" py:if="c.preview">(skip to preview)</a>
     </h2>
-
-    <h3 py:if="c.error" class="form-errors">
-      Error: ${c.error}
-    </h3>
 
     ${c.form}
 

@@ -1,12 +1,13 @@
 import ckan.model as model
 import ckan.forms
 from ckan.tests import *
+from ckan.tests.pylons_controller import PylonsTestCase
 from ckan.lib.helpers import escape
 
 def _get_blank_param_dict(pkg=None):
     return ckan.forms.get_package_dict(pkg=pkg, blank=True)
 
-class TestForms(TestController):
+class TestForms(PylonsTestCase):
     @classmethod
     def setup_class(self):
         model.Session.remove()
@@ -38,7 +39,7 @@ class TestForms(TestController):
         assert d2[prefix+'name'] == anna.name
 
     def test_1_render(self):
-        fs = ckan.forms.package_fs
+        fs = ckan.forms.get_standard_fieldset()
         anna = model.Package.by_name(u'annakarenina')
         fs = fs.bind(anna)
         out = fs.render()
@@ -50,21 +51,21 @@ class TestForms(TestController):
         assert 'Package tags' not in out, out
 
     def test_1_render_markdown(self):
-        fs = ckan.forms.package_fs
+        fs = ckan.forms.get_standard_fieldset()
         anna = model.Package.by_name(u'annakarenina')
         fs = fs.bind(anna)
         out = fs.notes.render()
         print out
 
     def test_2_name(self):
-        fs = ckan.forms.package_fs
+        fs = ckan.forms.get_standard_fieldset()
         anna = model.Package.by_name(u'annakarenina')
         fs = fs.bind(anna)
         out = fs.render()
         assert 'Name (required)' in out, out
 
     def test_2_tags(self):
-        fs = ckan.forms.package_fs
+        fs = ckan.forms.get_standard_fieldset()
         anna = model.Package.by_name(u'annakarenina')
         fs = fs.bind(anna)
         out = fs.tags.render()
@@ -74,19 +75,21 @@ class TestForms(TestController):
         self.check_tag(out, 'russian', 'tolstoy')
 
     def test_2_resources(self):
-        fs = ckan.forms.package_fs
+        fs = ckan.forms.get_standard_fieldset()
         anna = model.Package.by_name(u'annakarenina')
         fs = fs.bind(anna)
         out = fs.resources.render()
-        out_printable = out.encode('utf8')
+        # out is str, but it contains unicode characters
+        out = unicode(out, 'utf8') # now it's unicode type
+        out_printable = out.encode('utf8') # encoded utf8
         for res in anna.resources:
             assert escape(res.url) in out, out_printable
             assert res.format in out, out_printable
-            assert escape(res.description) in out, out_printable        
+            assert u'Full text. Needs escaping: &#34; Umlaut: \xfc"' in out, out_printable        
             assert res.hash in out, out_printable        
 
     def test_2_fields(self):
-        fs = ckan.forms.package_fs
+        fs = ckan.forms.get_standard_fieldset()
         anna = model.Package.by_name(u'annakarenina')
         fs = fs.bind(anna)
         out = fs.render()
@@ -119,7 +122,7 @@ class TestForms(TestController):
         indict['Package--resources-0-url'] = u'http:/1'
         indict['Package--resources-0-format'] = u'xml'
         indict['Package--resources-0-description'] = u'test desc'
-        fs = ckan.forms.package_fs.bind(model.Package, data=indict)
+        fs = ckan.forms.get_standard_fieldset().bind(model.Package, data=indict)
 
         model.repo.new_revision()
         fs.sync()
@@ -167,7 +170,7 @@ class TestForms(TestController):
         indict[prefix + 'resources-0-format'] = u'xml'
         indict[prefix + 'resources-0-description'] = u'test desc'
         
-        fs = ckan.forms.package_fs.bind(anna, data=indict)
+        fs = ckan.forms.get_standard_fieldset().bind(anna, data=indict)
         model.repo.new_revision()
         fs.sync()
         model.repo.commit_and_remove()
@@ -201,7 +204,7 @@ class TestForms(TestController):
 
         model.repo.commit_and_remove()
 
-class TestFormErrors:
+class TestFormErrors(PylonsTestCase):
     @classmethod
     def setup_class(self):
         model.Session.remove()
@@ -217,7 +220,7 @@ class TestFormErrors:
         prefix = 'Package--'
         indict[prefix + 'name'] = u'annakarenina'
         indict[prefix + 'title'] = u'Some title'
-        fs = ckan.forms.package_fs.bind(model.Package, data=indict)
+        fs = ckan.forms.get_standard_fieldset().bind(model.Package, data=indict)
         model.repo.new_revision()
         assert not fs.validate()
 
@@ -226,7 +229,7 @@ class TestFormErrors:
         prefix = 'Package--'
         indict[prefix + 'name'] = u'annakarenina123'
         indict[prefix + 'title'] = u'Some title'
-        fs = ckan.forms.package_fs.bind(model.Package, data=indict)
+        fs = ckan.forms.get_standard_fieldset().bind(model.Package, data=indict)
         model.repo.new_revision()
         assert fs.validate()
 
@@ -236,7 +239,7 @@ class TestFormErrors:
         indict[prefix + 'name'] = u'annakarenina123'
         indict[prefix + 'title'] = u'Some title'
         indict[prefix + 'extras-newfield0-value'] = u'testvalue'
-        fs = ckan.forms.package_fs.bind(model.Package, data=indict)
+        fs = ckan.forms.get_standard_fieldset().bind(model.Package, data=indict)
         model.repo.new_revision()
         assert not fs.validate()
 
@@ -246,7 +249,7 @@ class TestFormErrors:
         indict[prefix + 'name'] = u'annakarenina123'
         indict[prefix + 'title'] = u'Some title'
         indict[prefix + 'extras-newfield0-key'] = u'testkey'
-        fs = ckan.forms.package_fs.bind(model.Package, data=indict)
+        fs = ckan.forms.get_standard_fieldset().bind(model.Package, data=indict)
         model.repo.new_revision()
         assert fs.validate()
 
@@ -257,7 +260,7 @@ class TestFormErrors:
         indict[prefix + 'title'] = u'Some title'
         indict[prefix + 'extras-newfield0-value'] = u'testvalue'
         indict[prefix + 'extras-newfield0-key'] = u'testkey'
-        fs = ckan.forms.package_fs.bind(model.Package, data=indict)
+        fs = ckan.forms.get_standard_fieldset().bind(model.Package, data=indict)
         model.repo.new_revision()
         assert fs.validate()
 
@@ -282,13 +285,13 @@ class TestValidation:
         for i, name in enumerate(good_names):
             print "Good name:", i
             indict[prefix + 'name'] = unicode(name)
-            fs = ckan.forms.package_fs.bind(anna, data=indict)
+            fs = ckan.forms.get_standard_fieldset().bind(anna, data=indict)
             assert fs.validate()
 
         for i, name in enumerate(bad_names):
             print "Bad name:", i
             indict[prefix + 'name'] = unicode(name)
-            fs = ckan.forms.package_fs.bind(anna, data=indict)
+            fs = ckan.forms.get_standard_fieldset().bind(anna, data=indict)
             assert not fs.validate()
 
     def test_1_tag_name(self):
@@ -303,7 +306,7 @@ class TestValidation:
             print "Good tag name:", i
             indict[prefix + 'name'] = u'okname'
             indict[prefix + 'tags'] = unicode(name)
-            fs = ckan.forms.package_fs.bind(anna, data=indict)
+            fs = ckan.forms.get_standard_fieldset().bind(anna, data=indict)
             out = fs.validate()
             assert out, fs.errors
 
@@ -311,7 +314,7 @@ class TestValidation:
             print "Bad tag name:", i
             indict[prefix + 'name'] = u'okname'
             indict[prefix + 'tags'] = unicode(name)
-            fs = ckan.forms.package_fs.bind(anna, data=indict)
+            fs = ckan.forms.get_standard_fieldset().bind(anna, data=indict)
             out = fs.validate()
             assert not out, fs.errors
             

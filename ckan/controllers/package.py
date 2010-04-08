@@ -114,7 +114,6 @@ class PackageController(BaseController):
         return render('package/history')
 
     def new(self):
-        c.has_autocomplete = True
         c.error = ''
 
         is_admin = self.authorizer.is_sysadmin(c.user)
@@ -143,7 +142,7 @@ class PackageController(BaseController):
 
                 h.redirect_to(action='read', id=pkgname)
             except ValidationException, error:
-                c.error, fs = error.args
+                fs = error.args[0]
                 c.form = self._render_edit_form(fs, request.params,
                         clear_session=True)
                 return render('package/new')
@@ -171,7 +170,7 @@ class PackageController(BaseController):
                                               author=c.author)
                 c.preview = h.literal(render('package/read_core'))
             except ValidationException, error:
-                c.error, fs = error.args
+                fs = error.args[0]
                 c.form = self._render_edit_form(fs, request.params,
                         clear_session=True)
                 return render('package/new')
@@ -179,7 +178,6 @@ class PackageController(BaseController):
 
     def edit(self, id=None): # allow id=None to allow posting
         # TODO: refactor to avoid duplication between here and new
-        c.has_autocomplete = True
         c.error = ''
 
         pkg = model.Package.by_name(id)
@@ -215,7 +213,7 @@ class PackageController(BaseController):
                 pkgname = fs.name.value
                 h.redirect_to(action='read', id=pkgname)
             except ValidationException, error:
-                c.error, fs = error.args
+                fs = error.args[0]
                 c.form = self._render_edit_form(fs, request.params,
                         clear_session=True)
                 return render('package/edit')
@@ -232,7 +230,7 @@ class PackageController(BaseController):
                 c.preview = h.literal(read_core_html)
                 c.form = self._render_edit_form(fs, request.params)
             except ValidationException, error:
-                c.error, fs = error.args
+                fs = error.args[0]
                 c.form = self._render_edit_form(fs, request.params,
                         clear_session=True)
                 return render('package/edit')
@@ -252,12 +250,12 @@ class PackageController(BaseController):
             # needed because request is nested
             # multidict which is read only
             params = dict(request.params)
-            c.fs = ckan.forms.package_authz_fs.bind(pkg.roles, data=params or None)
+            c.fs = ckan.forms.get_authz_fieldset('package_authz_fs').bind(pkg.roles, data=params or None)
             try:
                 self._update_authz(c.fs)
             except ValidationException, error:
                 # TODO: sort this out 
-                # c.error, fs = error.args
+                # fs = error.args
                 # return render('package/authz')
                 raise
             # now do new roles
@@ -289,9 +287,9 @@ class PackageController(BaseController):
 
         # retrieve pkg again ...
         c.pkg = model.Package.by_name(id)
-        fs = ckan.forms.package_authz_fs.bind(c.pkg.roles)
+        fs = ckan.forms.get_authz_fieldset('package_authz_fs').bind(c.pkg.roles)
         c.form = fs.render()
-        c.new_roles_form = ckan.forms.new_package_roles_fs.render()
+        c.new_roles_form = ckan.forms.get_authz_fieldset('new_package_roles_fs').render()
         return render('package/authz')
 
     def rate(self, id):
@@ -321,12 +319,8 @@ class PackageController(BaseController):
     def _update_authz(self, fs):
         validation = fs.validate()
         if not validation:
-            errors = []            
-            for row, err in fs.errors.items():
-                errors.append(err)
-            c.error = ', '.join(errors)
             c.form = self._render_edit_form(fs, request.params)
-            raise ValidationException(c.error, fs)
+            raise ValidationException(fs)
         try:
             fs.sync()
         except Exception, inst:

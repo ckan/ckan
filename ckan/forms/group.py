@@ -4,8 +4,9 @@ from formalchemy import helpers as h
 from builder import FormBuilder
 import ckan.model as model
 import common
+from ckan.lib.helpers import literal
 
-__all__ = ['group_fs', 'new_package_group_fs', 'group_fs_combined', 'get_group_dict', 'edit_group_dict']
+__all__ = ['get_group_fieldset', 'get_group_dict', 'edit_group_dict']
 
 # for group_fs_combined (REST)
 class PackagesField(common.ConfiguredField):
@@ -24,7 +25,7 @@ class PackagesField(common.ConfiguredField):
 
     class PackageEditRenderer(formalchemy.fields.FieldRenderer):
         def deserialize(self):
-            value = self._params[self.name]
+            value = self.params[self.name]
             if isinstance(value, list): # from rest i/f
                 pkg_list = value
             elif isinstance(value, (unicode, str)): # from form
@@ -39,39 +40,44 @@ class PackagesRenderer(formalchemy.fields.FieldRenderer):
     def render(self, **kwargs):
         selected = unicode(kwargs.get('selected', None) or self._value)
         options = [('', '__null_value__')] + [(p.name, p.id) for p in model.Session.query(model.Package).all()]
-        return h.select(self.name, h.options_for_select(options, selected=selected), **kwargs)
+        return h.select(self.name, selected, options, **kwargs)
 
 def build_group_form(with_packages=False):
     builder = FormBuilder(model.Group)
-    builder.set_field_text('name', 'Unique Name (required)', "<br/><strong>Unique identifier</strong> for group.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'")
+    builder.set_field_text('name', 'Unique Name (required)', literal("<br/><strong>Unique identifier</strong> for group.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'"))
     builder.set_field_option('name', 'validate', common.group_name_validator)
     builder.set_field_option('description', 'textarea', {'size':'60x15'})
     displayed_fields = ['name', 'title', 'description']
     if with_packages:
         builder.add_field(PackagesField('packages'))
         displayed_fields.append('packages')
-    builder.set_displayed_fields(displayed_fields)
+    builder.set_displayed_fields({'Details':displayed_fields})
     builder.set_label_prettifier(common.prettify)
     return builder
 
-# group_fs has no packages - first half of the WUI form
-group_fs = build_group_form().get_fieldset()
+fieldsets = {}
+def get_group_fieldset(name):
+    if not fieldsets:
+        # group_fs has no packages - first half of the WUI form
+        fieldsets['group_fs'] = build_group_form().get_fieldset()
+        
+        # group_fs_combined has packages - used for REST interface
+        fieldsets['group_fs_combined'] = build_group_form(with_packages=True).get_fieldset()
 
-# group_fs_combined has packages - used for REST interface
-group_fs_combined = build_group_form(with_packages=True).get_fieldset()
+        # new_package_group_fs is the packages for the WUI form
+        builder = FormBuilder(model.PackageGroup)
+        builder.set_field_option('package_id', 'with_renderer', PackagesRenderer)
+        builder.set_displayed_fields({'Details':['package_id']})
+        fieldsets['new_package_group_fs'] = builder.get_fieldset()
+    return fieldsets[name]
 
-# new_package_group_fs is the packages for the WUI form
-builder = FormBuilder(model.PackageGroup)
-builder.set_field_option('package_id', 'with_renderer', PackagesRenderer)
-builder.set_displayed_fields(['package_id'])
-new_package_group_fs = builder.get_fieldset()
-
+    
 def get_group_dict(group=None):
     indict = {}
     if group:
-        fs = group_fs.bind(group)
+        fs = get_group_fieldset('group_fs').bind(group)
     else:
-        fs = group_fs
+        fs = get_group_fieldset('group_fs')
 
     exclude = ('-id', '-roles', '-created')
 
