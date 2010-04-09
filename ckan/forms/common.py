@@ -110,10 +110,8 @@ class RegExRangeValidatingField(RegExValidatingField):
     '''Validates a range field (each value is validated on the same regex)'''
     def validate_re(self, values, field=None):
         for value in values:
-            match = re.match(self._validate_re[0], value)
-            if not match:
-                raise formalchemy.ValidationError(_('Value "%s" does not match required format: %s') % (value, self._validate_re[1]))
-
+            RegExValidatingField.validate_re(self, value, field=field)
+            
 
 class TextExtraField(RegExValidatingField):
     '''A form field for basic text in an "extras" field.'''
