@@ -57,6 +57,9 @@ rdf_packages =
 # Location of licenses group (defaults to local Python licenses package)
 #licenses_group_url = http://licenses.opendefinition.org/2.0/ckan_original
 
+# Changeset configuration
+#changeset.auto_commit = true
+#changeset.sources = http://www.ckan.net/,
 
 # Logging configuration
 [loggers]
