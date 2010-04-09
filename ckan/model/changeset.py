@@ -44,13 +44,13 @@ Highlighted Core
         - parentage (the chain of preceding changesets)
         - common ancestor (intersection of two lines of development)
         - resolve (sets final values of conflicted values)
-        - overwrite (the union of two overlapping sets of changes)
+        - impose (the union of two overlapping sets of changes)
         - merge (conflation of two diverging lines of development)
 
 """
 from meta import *
-import vdm.sqlalchemy
-from ckan.model.core import DomainObject
+from vdm.sqlalchemy import StatefulObjectMixin
+from ckan.model.core import DomainObject, State
 from ckan.model import Session, Revision, Package
 from ckan.model import PackageResource, Tag, Group
 from ckan.model import setup_default_user_roles
@@ -64,17 +64,21 @@ import uuid
 ## Changeset exception classes.
 #
 
-class ConflictException(Exception): pass
+class ChangesetException(Exception): pass
 
-class SequenceException(Exception): pass
+class ConflictException(ChangesetException): pass
 
-class WorkingAtHeadException(Exception): pass
+class SequenceException(ChangesetException): pass
 
-class ChangesSourceException(Exception): pass
+class WorkingAtHeadException(ChangesetException): pass
 
-class UncommittedChangesException(Exception): pass
+class ChangesSourceException(ChangesetException): pass
 
-class EmptyChangesetRegisterException(Exception): pass
+class UncommittedChangesException(ChangesetException): pass
+
+class EmptyChangesetRegisterException(ChangesetException): pass
+
+class NoCommonAncestorException(ChangesetException): pass
 
 
 #############################################################################
@@ -94,7 +98,7 @@ class Sequence(object):
                     cache[change.ref] = Vector(change.old, change.new)
                 vector = cache[change.ref]
                 # Oldest old value...
-                if vector.old != None:
+                if vector.old != None and change.old != None:
                     for name, value in change.old.items():
                         if name not in vector.old:
                             vector.old[name] = value
@@ -143,15 +147,33 @@ class Vector(Json):
     """Distance in "difference space"."""
 
     def __init__(self, old, new):
+        """Initialises instance with old and new dicts of attribute values."""
         self.old = old
         self.new = new
 
     def as_diff(self):
+        """Converts vector data to JSON string."""
         data = {
             'old': self.old,
             'new': self.new,
         } 
         return unicode(self.dumps(data))
+
+    def is_equal(self, value1, value2):
+        """Compares vector values for equality."""
+        # Todo: Should list order differences be conflicts?
+        #   - why would the order (e.g. tags of a package) change?
+        if isinstance(value1, list):
+            value1.sort()
+        if isinstance(value2, list):
+            value2.sort()
+        if isinstance(value1, dict):
+            value1 = value1.items()
+            value1.sort()
+        if isinstance(value2, dict):
+            value2 = value2.items()
+            value2.sort()
+        return value1 == value2
 
 
 class Range(Sequence):
@@ -325,7 +347,7 @@ class Merge(object):
         head_ids = Heads().ids()
         if self.continuing.id not in head_ids:
             msg = "Changeset '%s' is not a head." % self.continuing.id
-            raise Exception, msg
+            raise NotHeadException, msg
         if self.closing.id not in head_ids:
             msg = "Changeset '%s' is not a head." % self.closing.id
             raise Exception, msg
@@ -334,12 +356,12 @@ class Merge(object):
             resolve_class = Resolve
         resolve = resolve_class(sum.changes1, sum.changes2)
         resolution = resolve.calc_changes()
-        overwrite = Overwrite(sum.changes2, resolution)
-        changes = overwrite.calc_changes()
+        impose = Impose(sum.changes2, resolution)
+        changes = impose.calc_changes()
         register = register_classes['changeset']()
         # Todo: Use values from the user doing the merge.
         log_message = 'Merged branch %s' % self.closing.id
-        author = 'System'
+        author = 'system'
         meta = {
             'log_message': log_message,
             'author': author,
@@ -393,6 +415,15 @@ class Resolve(object):
         self.changes2 = changes2
 
     def calc_changes(self):
+        # Todo: Detect when changes will violate unique value constraints,
+        # either with each other or with the working model as it would be.
+        #  - e.g. all new names of packages are unique
+        #  - e.g. any new packages must not be used in the model
+        #
+        # Todo: Calculation of current model state:
+        #        - all values for a single attribute
+        #        - all values for a single entity
+        #        - all active entity refs
         changes3 = []  # A list of Change instances.
         for change1 in self.changes1:
             ref = change1.ref
@@ -456,41 +487,68 @@ class CliResolve(Resolve):
         return value
 
 
-class Overwrite(object):
-    """Imposes one set of changes on another."""
+class Impose(object):
+    """Overlays one set of changes with another."""
 
     def __init__(self, changes1, changes2):
         self.changes1 = changes1
         self.changes2 = changes2
         
     def calc_changes(self):
-        changes = []
-        # Copy 1.
+        # Todo: Switch around, to copy 2 then add anything missing from 1?
+        imposed = []
+        # Copy changes1.
         for change1 in self.changes1:
             ref = change1.ref
             vector = change1.as_vector()
             diff = vector.as_diff()
             change = Change(ref=ref, diff=diff)
-            changes.append(change)
-        # Update copy from 2.
+            imposed.append(change)
+        # Update copy of changes1 from changes2.
         for change2 in self.changes2:
-            is_overwrite = False
-            for change in changes:
+            is_needs_appending = True
+            for change in imposed:
                 if change2.ref == change.ref:
+                    is_needs_appending = False
                     vector = change.as_vector()
                     vector2 = change2.as_vector()
-                    vector.old.update(vector2.old)
-                    vector.new.update(vector2.new)
+                    if vector2.old == None:
+                        vector.old = vector2.old
+                    elif vector.old == None:
+                        vector.old = vector2.old
+                    else:
+                        vector.old.update(vector2.old)
+                    if vector2.new == None:
+                        vector.new = vector2.new
+                    elif vector.new == None:
+                        vector.new = vector2.new
+                    else:
+                        vector.new.update(vector2.new)
                     change.diff = vector.as_diff()
-                    is_overwrite = True
                     break
-            if not is_overwrite:
+            if is_needs_appending:
                 ref = change2.ref
                 vector = change2.as_vector()
                 diff = vector.as_diff()
                 change = Change(ref=ref, diff=diff)
-                changes.append(change)
-        return changes
+                imposed.append(change)
+        # Reduce these changes by eliminating invariant values.
+        reduced = []
+        for change in imposed:
+            vector = change.as_vector()
+            for attr_name,value_old in vector.old.items():
+                if attr_name in vector.new:
+                    value_new = vector.new[attr_name]
+                    if vector.is_equal(value_old, value_new):
+                        del vector.old[attr_name]
+                        del vector.new[attr_name]
+            if vector.old == None and vector.new == None:
+                continue
+            if vector.old == {} and vector.new == {}:
+                continue
+            change.diff = vector.as_diff()
+            reduced.append(change)
+        return reduced
 
 
 #############################################################################
@@ -562,10 +620,6 @@ class Changeset(ChangesetSubdomainObject):
 class Change(ChangesetSubdomainObject):
     """Models a changes made to an entity in the working model."""
 
-    def detect_conflict(self):
-        register, key = self.deref()
-        register.detect_conflict(key, self.as_vector())
-
     def apply(self, is_forced=False):
         if not is_forced:
             self.detect_conflict()
@@ -584,7 +638,11 @@ class Change(ChangesetSubdomainObject):
             if entity == None:
                 msg = "Can't apply deleting change, since entity not found for ref: %s" % self.ref
                 raise Exception, msg
+            # Mangle distinct values.
+            # Todo: Move this to the package register?
+            entity.name += str(uuid.uuid4())
             entity.delete()
+            #entity.purge()
         else:
             # Update.
             if entity == None:
@@ -594,12 +652,9 @@ class Change(ChangesetSubdomainObject):
             register.patch(entity, vector)
         return entity # keep in scope?
 
-    def as_vector(self):
-        data = self.load_diff()
-        return Vector(data['old'], data['new'])
-
-    def load_diff(self):
-        return self.loads(self.diff)
+    def detect_conflict(self):
+        register, key = self.deref()
+        register.detect_conflict(key, self.as_vector())
 
     def deref(self):
         parts = self.ref.split('/')
@@ -611,6 +666,15 @@ class Change(ChangesetSubdomainObject):
             return (register, register_key)
         else:
             raise Exception, "Can't deref '%s' with register map: %s" % (self.ref, register_classes)
+
+    def as_vector(self):
+        if not hasattr(self, 'vector'):
+            data = self.load_diff()
+            self.vector = Vector(data['old'], data['new'])
+        return self.vector
+
+    def load_diff(self):
+        return self.loads(self.diff)
 
     def as_dict(self):
         change_data = {}
@@ -642,12 +706,17 @@ class ObjectRegister(object):
     def __getitem__(self, key, default=Exception):
         return self.get(key, default=default)
 
-    def get(self, key, default=Exception, attr=None):
+    def get(self, key, default=Exception, attr=None, state=State.ACTIVE):
         if attr == None:
             attr = self.key_attr
         kwds = {attr: key}
+        if issubclass(self.object_type, StatefulObjectMixin):
+            if attr == 'state':
+                msg = "Can't use 'state' attribute to key"
+                msg += " a stateful object register."
+                raise Exception, msg
+            kwds['state'] = state
         q = Session.query(self.object_type).autoflush(False)
-        #q = Session.query(self.object_type).autoflush(True)
         o = q.filter_by(**kwds).first()
         if o:
             return o
@@ -680,6 +749,14 @@ class ObjectRegister(object):
     def create_entity(self, *args, **kwds):
         if args:
             kwds[self.key_attr] = args[0]
+        if 'id' in kwds:
+            deleted_entity = self.get(kwds['id'], None,
+                attr='id', state=State.DELETED
+            )
+            if deleted_entity:
+                deleted_entity.state = State.ACTIVE
+                Session.add(deleted_entity)
+                return deleted_entity
         entity = self.object_type(**kwds)
         Session.add(entity)
         return entity
@@ -710,38 +787,29 @@ class TrackedObjectRegister(ObjectRegister):
         for name in vector.old.keys():
             entity_value = entity_data[name]
             old_value = vector.old[name]
-            if not self.is_equal(entity_value, old_value):
+            if not vector.is_equal(entity_value, old_value):
                 msg = u"Current '%s' value conflicts with old value of the change.\n" % name
                 msg += "current: %s\n" % entity_value
                 msg += "change old: %s\n" % old_value
                 raise ConflictException, msg.encode('utf8')
 
-    def is_equal(self, value1, value2):
-        """Compares domain values for equality."""
-        # Todo: Should list order differences be conflicts?
-        #   - why would the order (e.g. tags of a package) change?
-        if isinstance(value1, list):
-            value1.sort()
-        if isinstance(value2, list):
-            value2.sort()
-        return value1 == value2
-
     def detect_distinct_value_conflict(self, vector):
         """Checks for unique value conflicts with existing entities."""
+        if vector.new == None:
+            # There aren't any new values.
+            return
         for name in self.distinct_attrs:
-            if vector.new == None:
-                # There aren't any new values.
+            if name not in vector.new:
+                # Not mentioned.
                 continue
-            elif name not in vector.new:
-                # The new values don't include this attribute.
+            existing_entity = self.get(vector.new[name], None, attr=name)
+            if existing_entity == None:
+                # Not already in use.
                 continue
-            elif not self.get(vector.new[name], None, attr=name):
-                # The new values aren't already in use.
-                continue
-            else:
-                msg = "Conflicting unique '%s' values: '%s'." % (
-                    name, vector.new[name])
-                raise ConflictException, msg
+            msg = "Model already has an entity with '%s' equal to '%s': %s" % (
+                name, vector.new[name], existing_entity
+            )
+            raise ConflictException, msg.encode('utf8')
 
     def detect_missing_values(self, vector):
         """Checks for required values such as distinct values."""
@@ -855,22 +923,9 @@ class AbstractChangesetRegister(TrackedObjectRegister, Json):
                 if not target_id:
                     raise Exception, "Can't find head changeset for the working line."
         target = self.get(target_id)
-        range_forward = None
-        range_back = None
-        # Infer a path from the target.
-        common = CommonAncestor(working, target)
-        ancestor = common.find()
-        if ancestor.id == working.id:
-            # Just go forward towards head.
-            range_forward = Range(working, target)
-        elif ancestor.id == target.id:
-            # Just go back towards root.
-            range_back = Range(target, working)
-        else:
-            # Go back and then go forward.
-            range_forward = Range(ancestor, target)
-            range_back = Range(ancestor, working)
-        if range_forward and range_back == None:
+        route = Route(working, target)
+        range_back, range_forward = route.get_ranges()
+        if range_back == None and range_forward:
             # It's on the range so we can move forward through the revisions.
             print "Applying changesets individually..."
             range_forward.pop_first()
@@ -971,6 +1026,11 @@ class AbstractChangesetRegister(TrackedObjectRegister, Json):
                 new_keys.sort()
                 for key in new_keys:
                     value = change.new[key]
+                    if isinstance(value, dict):
+                        value = value.items()
+                        value.sort()
+                    elif isinstance(value, list):
+                        value.sort()
                     id_profile.append(key)
                     id_profile.append(value)
         id_profile = self.dumps(id_profile)
@@ -1013,6 +1073,56 @@ class AbstractChangesetRegister(TrackedObjectRegister, Json):
         Session.commit()
         Session.remove()
         return changeset.id
+
+
+class Route(object):
+
+    def __init__(self, start, stop):
+        self.start = start
+        self.stop = stop
+        self.back = None
+        self.forward = None
+        self.changes = None
+
+    def get_ranges(self):
+        if self.back == None and self.forward == None:
+            common = CommonAncestor(self.start, self.stop)
+            ancestor = common.find()
+            if ancestor == None:
+                msg = "%s %s" % (self.start.id, self.stop.id)
+                raise NoCommonAncestorException, msg
+            if ancestor.id == self.start.id:
+                # Just go forward towards head.
+                self.forward = Range(self.start, self.stop)
+            elif ancestor.id == self.stop.id:
+                # Just go back towards root.
+                self.back = Range(self.stop, self.start)
+            else:
+                # Go back and then go forward.
+                self.back = Range(ancestor, self.start)
+                self.forward = Range(ancestor, self.stop)
+        return self.back, self.forward
+
+    def calc_changes(self):
+        if self.changes == None:
+            self.get_ranges()
+            changes_back = None
+            changes_forward = None
+            if self.back != None:
+                self.back.pop_first()
+                changes = self.back.calc_changes()
+                changes_back = Reverse(changes).calc_changes()
+            if self.forward != None:
+                self.forward.pop_first()
+                changes = self.forward.calc_changes()
+                changes_forward = changes
+            if changes_back != None and changes_forward != None:
+                self.changes = Sum(changes_back, changes_forward).calc_changes()
+            elif changes_back != None:
+                self.changes = changes_back
+            elif changes_forward != None:
+                self.changes = changes_forward
+        return self.changes
 
 
 register_classes['changeset'] = AbstractChangesetRegister
@@ -1125,7 +1235,6 @@ class ChangesetRegister(AbstractChangesetRegister):
 
     def apply_changes(self, changes, meta={}, report={}, is_forced=False):
         """Applies changes to CKAN repository as a single revision."""
-        need_access_control = []
         if not 'created' in report:
             report['created'] = []
         if not 'updated' in report:
@@ -1137,20 +1246,42 @@ class ChangesetRegister(AbstractChangesetRegister):
         revision = revision_register.create_entity()
         revision.message = unicode(meta.get('log_message', ''))
         revision.author = unicode(meta.get('author', ''))
+        # Apply deleting changes, then updating changes, then creating changes.
+        deleting = []
+        updating = []
+        creating = []
         for change in changes:
-            entity = change.apply(is_forced=is_forced)
             if not change.old and change.new:
-                need_access_control.append(entity)
-                report['created'].append(entity)
+                creating.append(change)
             elif change.old and change.new:
-                report['updated'].append(entity)
+                updating.append(change)
             if change.old and not change.new:
+                deleting.append(change)
+        try:
+            for change in deleting:
+                entity = change.apply(is_forced=is_forced)
+                print "DDD %s" % change.ref
                 report['deleted'].append(entity)
-        # Todo: On error, rollback and reraise.
-        Session.commit()
+            Session.commit()
+            for change in updating:
+                entity = change.apply(is_forced=is_forced)
+                print "MMM %s" % change.ref
+                report['updated'].append(entity)
+            Session.commit()
+            created_entities = []  # Need to setup access control.
+            for change in creating:
+                entity = change.apply(is_forced=is_forced)
+                print "AAA %s" % change.ref
+                report['created'].append(entity)
+                created_entities.append(entity)
+            Session.commit()
+        except ConflictException:
+            from ckan.model import repo as repository
+            repository.purge_revision(revision) # Commits and removes session.
+            raise
         revision_id = revision.id
         # Setup access control for created entities.
-        for entity in need_access_control:
+        for entity in created_entities:
             setup_default_user_roles(entity, [])
         # Todo: Teardown access control for deleted entities?
         return revision_id
@@ -1289,8 +1420,8 @@ class PackageRegister(TrackedObjectRegister):
             entity.license_id = vector.new['license_id']
         if 'extras' in vector.new:
             entity.extras = vector.new['extras']
-        # Todo: Build PackageResource objects, appending to entity.resource.
         if 'resources' in vector.new:
+            entity.resources = []
             for resource_data in vector.new['resources']:
                 package_resource = PackageResource(
                     url=resource_data.get('url', u''),

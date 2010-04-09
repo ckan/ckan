@@ -476,18 +476,23 @@ class Changes(CkanCommand):
     '''Distribute changes
 
     Usage:
-      changes pull [source]          - pulls unseen changesets from changeset sources
+      changes commit                 - creates changesets for any outstanding revisions
       changes heads                  - list changesets at the end of active lines
-      changes update [target]        - updates repository entities to target changeset (defaults to working line's head)
-      changes commit                 - creates changesets for all outstanding changes (revisions)
-      changes merge [follow]         - creates mergeset to follow changeset and close working line
       changes log [changeset]        - display changeset summary
+      changes merge [target] [mode]  - creates mergeset to follow target changeset and to close the working changeset
+      changes update [target]        - updates repository entities to target changeset (defaults to working line's head)
+      changes moderate [target]      - updates repository entities whilst allowing for changes to be ignored
+      changes pull [sources]         - pulls unseen changesets from changeset sources
       changes working                - display working changeset
     '''
+      # Todo:
+      #changes branch [name]          - sets or displays the current branch
+      #changes branches               - displays all known branches
+      #changes push [sinks]           - pushes new changesets to changeset sinks
 
     summary = __doc__.split('\n')[0]
     usage = __doc__
-    max_args = 2
+    max_args = 3
     min_args = 1
 
     def command(self):
@@ -508,29 +513,46 @@ class Changes(CkanCommand):
             self.working()
         elif cmd == 'log':
             self.log()
+        elif cmd == 'diff':
+            self.diff()
         else:
             print 'Command %s not recognized' % cmd
+
+    def _load_config(self):
+        super(Changes, self)._load_config()
+        import logging
+        logging.basicConfig()
+        logger_vdm = logging.getLogger('vdm')
+        logger_vdm.setLevel(logging.ERROR)
+
 
     def pull(self):
         if len(self.args) > 1:
             sources = [unicode(self.args[1])]
         else:
             from pylons import config
-            sources = config.get('changes_source', '').strip().split(',')
+            sources = config.get('changeset.sources', '').strip().split(',')
         sources = [s.strip() for s in sources if s.strip()]
         if not sources:
-            print "No changes source to pull (set 'changes_source' in config)."
+            print "No changes source to pull (set 'changeset.sources' in config)."
             return
         from ckan.model.changeset import ChangesetRegister
         from ckan.model.changeset import ChangesSourceException
         changeset_register = ChangesetRegister()
+        is_error = False
         for source in sources:
             try:
-                changesets = changeset_register.pull_source(source)
+                changesets = changeset_register.pull(source)
             except ChangesSourceException, inst:
-                print repr(inst)
-                sys.exit(1)
-            print "Pulled %s changesets from '%s'." % (len(changesets), source)
+                print "%s" % inst
+            else:
+                print "Pulled %s changeset%s from '%s'." % (
+                    len(changesets), 
+                    (len(changesets) == 1 and "" or "s"),
+                    source
+                )
+        if is_error:
+            sys.exit(1)
 
     def heads(self):
         from ckan.model.changeset import Heads
@@ -556,6 +578,7 @@ class Changes(CkanCommand):
         try:
             changeset_register.update(changeset_id, changed_entities)
         except ConflictException, inst:
+            print "Update aborted due to conflict with the working model."
             print inst
             sys.exit(1)
         except EmptyChangesetRegisterException, inst:
@@ -616,17 +639,21 @@ class Changes(CkanCommand):
         except ConflictException, inst:
             print inst
             sys.exit(1)
-        print mergeset
+        else:
+            self.log_changeset(mergeset)
         # Todo: Better merge report.
 
     def working(self):
-        from ckan.model.changeset import ChangesetRegister
-        changeset_register = ChangesetRegister()
-        working_changeset = changeset_register.get_working()
+        working_changeset = self.get_working_changeset()
         if working_changeset:
             self.log_changeset(working_changeset)
         else:
             print "There is no working changeset."
+
+    def get_working_changeset(self):
+        from ckan.model.changeset import ChangesetRegister
+        changeset_register = ChangesetRegister()
+        return changeset_register.get_working()
 
     def log(self):
         if len(self.args) > 1:
@@ -662,5 +689,80 @@ class Changes(CkanCommand):
             print "revision:       %s" % changeset.revision_id
         summary = str(changeset.get_meta().get('log_message', ''))
         if summary:
-            print "summary:        %s" % summary.strip()
+            print "summary:        %s" % summary.split('\n')[0]
 
+    def diff(self):
+        if len(self.args) > 2:
+            changeset_id1 = unicode(self.args[1])
+            changeset_id2 = unicode(self.args[2])
+        elif len(self.args) > 1:
+            working_changeset = self.get_working_changeset()
+            if not working_changeset:
+                print "There is no working changeset."
+                sys.exit(1)
+            changeset_id1 = working_changeset.id 
+            changeset_id2 = unicode(self.args[1])
+        else:
+            print "Sorry, calculating changes between working changeset and working model is not yet supported."
+            print ""
+            print "Need at least one target changeset."
+            sys.exit(1)
+        from ckan.model.changeset import NoCommonAncestorException
+        from ckan.model.changeset import ChangesetRegister, Route
+        register = ChangesetRegister()
+        changeset1 = register.get(changeset_id1, None)
+        if not changeset1:
+            print "Changeset '%s' not found." % changeset_id1
+            sys.exit(1)
+        changeset2 = register.get(changeset_id2, None)
+        if not changeset2:
+            print "Changeset '%s' not found." % changeset_id2
+            sys.exit(1)
+        route = Route(changeset1, changeset2)
+        try:
+            changes = route.calc_changes()
+        except NoCommonAncestorException:
+            print "The changesets '%s' and '%s' do not share a common ancestor." % (
+                changeset_id1, changeset_id2
+            )
+        else:
+            print "diff %s %s" % (changeset_id1, changeset_id2) 
+            self.print_changes(changes)
+        
+    def print_changes(self, changes):
+        for change in changes:
+            ref = change.ref
+            vector = change.as_vector()
+            new = vector.new
+            old = vector.old
+            if old == None and new != None:
+                # Creating change.
+                print "AAA %s" % ref
+                for name in new:
+                    new_value = new[name]
+                    msg = "A %s: %s" % (name, repr(new_value))
+                    print msg.encode('utf8')
+            elif old != None and new != None:
+                # Updating change.
+                print "MMM %s" % ref
+                for name in old:
+                    if name in new:
+                        old_value = old[name]
+                        new_value = new[name]
+                        msg = "M %s: %s  --->> %s" % (name, repr(old_value), repr(new_value))
+                        print msg.encode('utf8')
+            elif old != None and new == None:
+                # Deleting change.
+                print "DDD %s" % ref
+                for name in old:
+                    old_value = old[name]
+                    msg = "D %s: %s" % (name, repr(old_value))
+                    print msg.encode('utf8')
+            else:
+                # Shouldn't get here.
+                pass
+            print ""
+                
+
+ 
+        

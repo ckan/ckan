@@ -2,7 +2,7 @@ from ckan.tests import *
 from ckan.model.changeset import ChangesetRegister, Changeset
 from ckan.model.changeset import ChangeRegister, Change
 from ckan.model.changeset import Range, CommonAncestor, Heads, Sum, Merge
-from ckan.model.changeset import Resolve, Overwrite
+from ckan.model.changeset import Resolve, Impose
 from ckan.model.changeset import ConflictException
 from ckan.model.changeset import UncommittedChangesException
 from ckan.model.changeset import WorkingAtHeadException
@@ -694,11 +694,11 @@ class TestArithmetic(TestCase):
         self.assert_equal(change.old['name'], self.name3)
         self.assert_equal(change.new['name'], self.name4)
 
-    def test_overwrite(self):
+    def test_impose(self):
         changes1 = self.cs6.changes
         changes2 = self.cs3.changes
-        overwrite = Overwrite(changes1, changes2)
-        changes = overwrite.calc_changes()
+        impose = Impose(changes1, changes2)
+        changes = impose.calc_changes()
         self.assert_equal(len(changes), 1)
         change = changes[0]
         self.assert_equal(change.old['title'], self.title2)
