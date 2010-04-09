@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: ckan 0.11a\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2009-12-30 13:31+0000\n"
-"PO-Revision-Date: 2010-04-08 16:23+0100\n"
+"PO-Revision-Date: 2010-04-09 22:43+0100\n"
 "Last-Translator: Benoit Boissinot <benoit.boissinot@ens-lyon.org>\n"
 "Language-Team: fr <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
@@ -269,12 +269,75 @@ msgstr ""
 msgid "Changed user details"
 msgstr "Détails utilisateur modifiés"
 
+#: ckan/forms/common.py:21
+#, python-format
+msgid "Name must be at least %s characters long"
+msgstr ""
+
+#: ckan/forms/common.py:23
+msgid ""
+"Name must be purely lowercase alphanumeric (ascii) characters and these "
+"symbols: -_"
+msgstr ""
+
+#: ckan/forms/common.py:31
+#, fuzzy, python-format
+#| msgid "Package %s already exists in database. Import will edit the fields."
+msgid "Package name already exists in database"
+msgstr ""
+"Le paquet %s existe déjà dans la base de donnée. L'import modifiera les "
+"champs."
+
+#: ckan/forms/common.py:39
+msgid "Group name already exists in database"
+msgstr ""
+
+#: ckan/forms/common.py:107
+#, python-format
+msgid "Value does not match required format: %s"
+msgstr ""
+
+#: ckan/forms/common.py:420
+#, python-format
+msgid "Tag \"%s\" length is less than minimum %s"
+msgstr ""
+
+#: ckan/forms/common.py:422
+#, python-format
+msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
+msgstr ""
+
+#: ckan/forms/common.py:424
+#, python-format
+msgid "Tag \"%s\" must not be uppercase"
+msgstr ""
+
+#: ckan/forms/common.py:441
+#, python-format
+msgid "Duplicate key \"%s\""
+msgstr ""
+
+#: ckan/forms/common.py:444
+msgid "Extra key-value pair: key is not set."
+msgstr ""
+
+#: ckan/forms/common.py:566
+msgid "other - please specify"
+msgstr ""
+
+#: ckan/forms/common.py:582
+#, fuzzy
+#| msgid "here."
+msgid "Other"
+msgstr "ici."
+
 #: ckan/forms/package.py:31 ckan/forms/package.py:58
+#: ckan/forms/package_ca.py:42 ckan/forms/package_ca.py:80
 #, fuzzy
 msgid "Name"
 msgstr "Nom d'utilisateur :"
 
-#: ckan/forms/package.py:31
+#: ckan/forms/package.py:31 ckan/forms/package_ca.py:42
 msgid "(required)"
 msgstr ""
 
@@ -285,11 +348,13 @@ msgid ""
 msgstr ""
 
 #: ckan/forms/package.py:32 ckan/forms/package.py:60
+#: ckan/forms/package_ca.py:48 ckan/forms/package_ca.py:82
 #: ckan/templates/home/license.html:4
 msgid "License"
 msgstr "Licence"
 
 #: ckan/forms/package.py:33 ckan/forms/package.py:60
+#: ckan/forms/package_ca.py:51 ckan/forms/package_ca.py:82
 #: ckan/templates/layout.html:68 ckan/templates/package/read_core.html:106
 #: ckan/templates/tag/index.html:7
 msgid "Tags"
@@ -300,27 +365,31 @@ msgid "(space separated list)"
 msgstr ""
 
 #: ckan/forms/package.py:34 ckan/forms/package.py:59
+#: ckan/forms/package_ca.py:52 ckan/forms/package_ca.py:82
 msgid "Notes"
 msgstr ""
 
-#: ckan/forms/package.py:34
+#: ckan/forms/package.py:34 ckan/forms/package_ca.py:52
 msgid ""
 "You can use <a "
 "href=\"http://daringfireball.net/projects/markdown/syntax\">Markdown "
 "formatting</a> here."
 msgstr ""
 
-#: ckan/forms/package.py:44 ckan/forms/package_gov.py:107
+#: ckan/forms/package.py:44 ckan/forms/package_ca.py:65
+#: ckan/forms/package_gov.py:107
 msgid "Basic information"
 msgstr ""
 
 #: ckan/forms/package.py:46 ckan/forms/package.py:59
+#: ckan/forms/package_ca.py:66 ckan/forms/package_ca.py:80
 #: ckan/forms/package_gov.py:114 ckan/templates/package/read_core.html:53
 #: ckan/templates/package/read_core.html:60
 msgid "Resources"
 msgstr "Ressources"
 
 #: ckan/forms/package.py:47 ckan/forms/package.py:53
+#: ckan/forms/package_ca.py:67
 msgid "Detail"
 msgstr ""
 
@@ -329,7 +398,7 @@ msgstr ""
 msgid "Extras"
 msgstr ""
 
-#: ckan/forms/package.py:58
+#: ckan/forms/package.py:58 ckan/forms/package_ca.py:80
 #, fuzzy
 msgid "Title"
 msgstr "Sans titre"
@@ -338,7 +407,8 @@ msgstr "Sans titre"
 msgid "Version"
 msgstr "Version"
 
-#: ckan/forms/package.py:58 ckan/templates/package/form_resources.html:6
+#: ckan/forms/package.py:58 ckan/forms/package_ca.py:80
+#: ckan/templates/package/form_resources.html:6
 #: ckan/templates/package/read_core.html:55
 msgid "URL"
 msgstr "URL"
@@ -357,7 +427,7 @@ msgstr ""
 msgid "Maintainer"
 msgstr ""
 
-#: ckan/forms/package.py:60
+#: ckan/forms/package.py:60 ckan/forms/package_ca.py:83
 msgid "Maintainer email"
 msgstr ""
 
@@ -365,6 +435,151 @@ msgstr ""
 #, fuzzy
 msgid "State"
 msgstr "État"
+
+#: ckan/forms/package_ca.py:42
+msgid ""
+"Insert a short, unique, descriptive title here, using only 'a-z', '0-9' "
+"and '-_'. Must be lowercase; no spaces allowed."
+msgstr ""
+
+#: ckan/forms/package_ca.py:42
+msgid "(Example: geogratis-radarsat-mosaic)"
+msgstr ""
+
+#: ckan/forms/package_ca.py:43
+msgid ""
+"Insert a more descriptive title - ideally the same as that used on the "
+"government website."
+msgstr ""
+
+#: ckan/forms/package_ca.py:43
+msgid ""
+"(Example: RADARSAT Ortho-rectified Mosaic of Canada, Lambert Conformal "
+"Conic, 1000 Metres)"
+msgstr ""
+
+#: ckan/forms/package_ca.py:44
+msgid ""
+"The link to the government web page where the data is described and "
+"located. Do not link to the dataset itself."
+msgstr ""
+
+#: ckan/forms/package_ca.py:44
+msgid ""
+"(Example: "
+"http://geogratis.cgdi.gc.ca/geogratis/en/collection/detail.do?id=9369)"
+msgstr ""
+
+#: ckan/forms/package_ca.py:45
+msgid ""
+"<div>URL: The link to the actual data set (if "
+"available)</div><div>Format: Describe the format type, e.g. XML, CSV, "
+"SHAPE, etc.</div><div>Description: A description of the data. Feel free "
+"to copy the description on the government website.</div><div>Hash: Just "
+"leave it blank.</div>"
+msgstr ""
+
+#: ckan/forms/package_ca.py:46 ckan/forms/package_ca.py:47
+msgid "Please enter in YYYY-MM-DD format."
+msgstr ""
+
+#: ckan/forms/package_ca.py:46
+msgid "(Example: 2009-01-15)"
+msgstr ""
+
+#: ckan/forms/package_ca.py:47
+msgid "(Example: 2010-04-12)"
+msgstr ""
+
+#: ckan/forms/package_ca.py:48
+msgid "Select the license type"
+msgstr ""
+
+#: ckan/forms/package_ca.py:49
+#, fuzzy
+#| msgid "available."
+msgid "Only if available"
+msgstr "disponibles."
+
+#: ckan/forms/package_ca.py:49
+msgid "(Example: monthly)"
+msgstr ""
+
+#: ckan/forms/package_ca.py:50 ckan/forms/package_ca.py:81
+msgid "Years covered"
+msgstr ""
+
+#: ckan/forms/package_ca.py:50
+msgid "Please enter in YYYY - YYYY format"
+msgstr ""
+
+#: ckan/forms/package_ca.py:50
+msgid "(Example: 1992 - 1995)"
+msgstr ""
+
+#: ckan/forms/package_ca.py:51
+msgid ""
+"Include tags you think are descriptive and appropriate. Tags are space "
+"separated; to  join two words together, use a dash (-) or underscore (_)."
+msgstr ""
+
+#: ckan/forms/package_ca.py:51
+msgid ""
+"(Example:  radar radar-imagery radarsat-1 satellite-imagery mosaic  "
+"spectral-engineering geogratis canada gcmd earth-science)"
+msgstr ""
+
+#: ckan/forms/package_ca.py:52
+msgid ""
+"A  more detailed description of the data can go here. Feel free to copy  "
+"& paste from the government website."
+msgstr ""
+
+#: ckan/forms/package_ca.py:53
+msgid "What level of government produced this data?"
+msgstr ""
+
+#: ckan/forms/package_ca.py:54
+msgid "Federal Ministry (if applicable)"
+msgstr ""
+
+#: ckan/forms/package_ca.py:54
+msgid "Indicate the ministry responsible for the data."
+msgstr ""
+
+#: ckan/forms/package_ca.py:55
+msgid "Indicate the agency responsible for the data."
+msgstr ""
+
+#: ckan/forms/package_ca.py:56
+msgid ""
+"Include an email address for the ministry or agency responsible for "
+"maintaining the data (if available)."
+msgstr ""
+
+#: ckan/forms/package_ca.py:80 ckan/forms/package_gov.py:125
+msgid "Date released"
+msgstr ""
+
+#: ckan/forms/package_ca.py:81 ckan/forms/package_gov.py:125
+msgid "Date updated"
+msgstr ""
+
+#: ckan/forms/package_ca.py:81 ckan/forms/package_gov.py:126
+msgid "Update frequency"
+msgstr ""
+
+#: ckan/forms/package_ca.py:82
+msgid "Level of government"
+msgstr ""
+
+#: ckan/forms/package_ca.py:83
+msgid "Federal Ministry"
+msgstr ""
+
+#: ckan/forms/package_ca.py:83
+msgid "Federal Agency"
+msgstr ""
 
 #: ckan/forms/package_gov.py:100 ckan/forms/package_gov.py:128
 msgid "National Statistic"
@@ -380,18 +595,6 @@ msgstr ""
 
 #: ckan/forms/package_gov.py:125
 msgid "External reference"
-msgstr ""
-
-#: ckan/forms/package_gov.py:125
-msgid "Date released"
-msgstr ""
-
-#: ckan/forms/package_gov.py:125
-msgid "Date updated"
-msgstr ""
-
-#: ckan/forms/package_gov.py:126
-msgid "Update frequency"
 msgstr ""
 
 #: ckan/forms/package_gov.py:126

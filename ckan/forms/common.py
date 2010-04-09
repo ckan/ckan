@@ -563,7 +563,7 @@ class SuggestedTextExtraField(TextExtraField):
 
         def render(self, options, **kwargs):
             selected = self._get_value()
-            options = [('', None)] + options + [(_('other - please specify'), 'other')]
+            options = [('', '')] + options + [(_('other - please specify'), 'other')]
             option_keys = [key for value, key in options]
             if selected in option_keys:
                 select_field_selected = selected
