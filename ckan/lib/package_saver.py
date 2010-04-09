@@ -119,9 +119,18 @@ class PackageSaver(object):
                 # i.e. preview
                 pkg = fs.model
                 return pkg
-        if rev:
-            from ckan.model.changeset import ChangesetRegister
-            ChangesetRegister().commit()
+        if rev and 'true' == config.get('changeset.auto_commit', '').strip():
+            try:
+                from ckan.model.changeset import ChangesetRegister
+                changeset_ids = ChangesetRegister().commit()
+                for id in changeset_ids:
+                    msg = "PackageSaver auto-committed changeset '%s'." % id
+                    logging.info(msg)
+            except Exception, inst:
+                msg = "PackageSaver failed to auto-commit revision '%s': %s" % (
+                    rev.id, inst
+                )
+                logging.error(msg)
 
     @classmethod
     def _revision_validation(cls, log_message):
