@@ -118,9 +118,7 @@ class TestForm(PylonsTestCase):
         dept = fs.department.render()
         dept_readonly = fs.department.render_readonly()
         assert '<select' in dept, dept
-        assert 'selected' not in dept, dept # nothing selected
-        assert 'Other:' in dept, dept
-        assert 'value=""' in dept, dept
+        assert '<option selected="selected" value=""></option>' in dept, dept
         assert 'Department:</strong> <br/>' in dept_readonly, dept_readonly
 
     def test_2_field_department_other(self):
