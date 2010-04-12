@@ -477,8 +477,9 @@ class Changes(CkanCommand):
 
     Usage:
       changes commit                 - creates changesets for any outstanding revisions
-      changes heads                  - list changesets at the end of active lines
-      changes log [changeset]        - display changeset summary
+      changes diff [[start] stop]    - prints sum of changes for any outstanding revisions
+      changes heads                  - display the last changeset of all active lines
+      changes log [changeset]        - display summary of changeset(s)
       changes merge [target] [mode]  - creates mergeset to follow target changeset and to close the working changeset
       changes update [target]        - updates repository entities to target changeset (defaults to working line's head)
       changes moderate [target]      - updates repository entities whilst allowing for changes to be ignored
@@ -489,6 +490,7 @@ class Changes(CkanCommand):
       #changes branch [name]          - sets or displays the current branch
       #changes branches               - displays all known branches
       #changes push [sinks]           - pushes new changesets to changeset sinks
+      #changes status                 - prints sum of changes for any outstanding revisions
 
     summary = __doc__.split('\n')[0]
     usage = __doc__
@@ -505,6 +507,8 @@ class Changes(CkanCommand):
             self.heads()
         elif cmd == 'update':
             self.update()
+        elif cmd == 'moderate':
+            self.moderate()
         elif cmd == 'commit':
             self.commit()
         elif cmd == 'merge':
@@ -556,10 +560,23 @@ class Changes(CkanCommand):
 
     def heads(self):
         from ckan.model.changeset import Heads
-        head_ids = Heads().ids()
-        print "\n".join(head_ids)
+        from ckan.model.changeset import ChangesetRegister
+        print "Most recent changeset for each active line:"
+        ids = Heads().ids()
+        ids.reverse()  # Ordered by timestamp.
+        changeset_register = ChangesetRegister()
+        for id in ids:
+            head = changeset_register.get(id)
+            print ""
+            self.log_changeset(head)
 
     def update(self):
+        self.update_repository(is_moderated=False)
+
+    def moderate(self):
+        self.update_repository(is_moderated=True)
+
+    def update_repository(self, is_moderated=False):
         if len(self.args) > 1:
             changeset_id = unicode(self.args[1])
         else:
@@ -570,13 +587,17 @@ class Changes(CkanCommand):
         from ckan.model.changeset import WorkingAtHeadException
         from ckan.model.changeset import ConflictException
         changeset_register = ChangesetRegister()
-        changed_entities = {
+        report = {
             'created': [],
             'updated': [],
             'deleted': [],
         }
         try:
-            changeset_register.update(changeset_id, changed_entities)
+            changeset_register.update(
+                target_id=changeset_id,
+                report=report, 
+                moderator=is_moderated and self or None,
+            )
         except ConflictException, inst:
             print "Update aborted due to conflict with the working model."
             print inst
@@ -585,35 +606,94 @@ class Changes(CkanCommand):
             print "Nothing to update (changeset register is empty)."
             sys.exit(0)
         except WorkingAtHeadException, inst:
-            print "Nothing to update (working is head of its line)."
+            print inst
             sys.exit(0)
         except UncommittedChangesException, inst:
             print "There are uncommitted revisions (run 'changes commit')."
             sys.exit(1)
-        if changed_entities['created']:
+        print ", ".join(["%s %s packages" % (key, len(val)) for (key, val) in report.items()])
+        if report['created']:
+            print ""
             print "The following packages were created:"
             names = []
-            for entity in changed_entities['created']:
+            for entity in report['created']:
+                if not entity:
+                    continue
                 if entity.name in names:
                     continue
                 print "package:    %s" % entity.name
                 names.append(entity.name)
-        if changed_entities['updated']:
-            names = []
+        if report['updated']:
+            print ""
             print "The following packages were updated:"
-            for entity in changed_entities['updated']:
-                if entity.name in names:
-                    continue
-                print "package:    %s" % entity.name
-                names.append(entity.name)
-        if changed_entities['deleted']:
             names = []
-            print "The following packages were deleted:"
-            for entity in changed_entities['deleted']:
+            for entity in report['updated']:
+                if not entity:
+                    continue
                 if entity.name in names:
                     continue
                 print "package:    %s" % entity.name
                 names.append(entity.name)
+        if report['deleted']:
+            print ""
+            print "The following packages were deleted:"
+            names = []
+            for entity in report['deleted']:
+                if not entity:
+                    continue
+                if entity.name in names:
+                    continue
+                print "package:    %s" % entity.name
+                names.append(entity.name)
+
+    def moderate_changeset_apply(self, changeset):
+        self.log_changeset(changeset)
+        answer = None
+        while answer not in ['y', 'n']:
+            print ""
+            question = "Do you want to apply this changeset? [Y/n/d] "
+            try:
+                answer = raw_input(question).strip() or 'y'
+            except KeyboardInterrupt:
+                print ""
+                print ""
+                return False
+            print ""
+            answer = answer[0].lower()
+            if answer == 'd':
+                print "Printing changes..."
+                print ""
+                print "diff %s %s" % (changeset.follows_id, changeset.id)
+                self.print_changes(changeset.changes)
+        return answer == 'y'
+
+    def moderate_change_apply(self, change):
+        print "Printing change..."
+        self.print_changes([change])
+        print ""
+        answer = raw_input("Do you want to apply this change? [Y/n] ").strip() or "y"
+        answer = answer[0].lower()
+        print ""
+        if answer == 'y':
+            return True
+        else:
+            print 
+            answer = raw_input("Do you want to mask changes to this ref? [Y/n] ").strip() or "y"
+            answer = answer[0].lower()
+            print ""
+            if answer == 'y':
+                from ckan.model.changeset import ChangemaskRegister
+                register = ChangemaskRegister()
+                register.create_entity(change.ref)
+                from ckan import model
+                model.Session.commit()
+                print "Mask has been set for ref: %s" % change.ref
+                print ""
+            else:
+                print "Warning: Not setting a mask after not applying changes may lead to conflicts."
+                import time
+                time.sleep(5)
+                print ""
 
     def commit(self):
         from ckan.model.changeset import ChangesetRegister
@@ -646,6 +726,8 @@ class Changes(CkanCommand):
     def working(self):
         working_changeset = self.get_working_changeset()
         if working_changeset:
+            print "Last updated or committed changeset:"
+            print ""
             self.log_changeset(working_changeset)
         else:
             print "There is no working changeset."
@@ -665,9 +747,7 @@ class Changes(CkanCommand):
         if changeset_id:
             changeset = changeset_register[changeset_id]
             self.log_changeset(changeset)
-            for change in changeset.changes:
-                print change.ref
-                print change.dumps(change.load_diff())
+            self.print_changes(changeset.changes)
         else:
             changesets = changeset_register.values()
             changesets.reverse()  # Ordered by timestamp.
@@ -677,6 +757,8 @@ class Changes(CkanCommand):
 
     def log_changeset(self, changeset):
         print "Changeset:    %s %s" % (changeset.is_working and "@" or " ", changeset.id)
+        if changeset.branch and changeset.branch != 'default':
+            print "branch:         %s" % changeset.branch
         if changeset.follows_id:
             print "follows:        %s" % changeset.follows_id
         if changeset.closes_id:
@@ -684,7 +766,7 @@ class Changes(CkanCommand):
         user = str(changeset.get_meta().get('author', ''))
         if user:
             print "user:           %s" % user
-        print "date:           %s" % changeset.timestamp.strftime('%c')
+        print "date:           %s +0000" % changeset.timestamp.strftime('%c')
         if changeset.revision_id:
             print "revision:       %s" % changeset.revision_id
         summary = str(changeset.get_meta().get('log_message', ''))
@@ -700,12 +782,13 @@ class Changes(CkanCommand):
             if not working_changeset:
                 print "There is no working changeset."
                 sys.exit(1)
+            print "Displaying changes from the working changeset (without any outstanding revisions)..."
             changeset_id1 = working_changeset.id 
             changeset_id2 = unicode(self.args[1])
         else:
-            print "Sorry, calculating changes between working changeset and working model is not yet supported."
+            print "Sorry, displaying changes of uncommitted revisions is not yet supported."
             print ""
-            print "Need at least one target changeset."
+            print "Providing one target changeset will display the changes from the working changeset. Providing two target changesets will display the sum of changes between the first and the second target."
             sys.exit(1)
         from ckan.model.changeset import NoCommonAncestorException
         from ckan.model.changeset import ChangesetRegister, Route
@@ -730,39 +813,46 @@ class Changes(CkanCommand):
             self.print_changes(changes)
         
     def print_changes(self, changes):
+        deleting = []
+        updating = []
+        creating = []
+        # Todo: Refactor with identical ordering routine in apply_changes().
         for change in changes:
-            ref = change.ref
-            vector = change.as_vector()
-            new = vector.new
-            old = vector.old
-            if old == None and new != None:
-                # Creating change.
-                print "AAA %s" % ref
-                for name in new:
-                    new_value = new[name]
-                    msg = "A %s: %s" % (name, repr(new_value))
-                    print msg.encode('utf8')
-            elif old != None and new != None:
-                # Updating change.
-                print "MMM %s" % ref
-                for name in old:
-                    if name in new:
-                        old_value = old[name]
-                        new_value = new[name]
-                        msg = "M %s: %s  --->> %s" % (name, repr(old_value), repr(new_value))
-                        print msg.encode('utf8')
-            elif old != None and new == None:
-                # Deleting change.
-                print "DDD %s" % ref
-                for name in old:
-                    old_value = old[name]
-                    msg = "D %s: %s" % (name, repr(old_value))
-                    print msg.encode('utf8')
-            else:
-                # Shouldn't get here.
-                pass
+            if change.old == None and change.new != None:
+                creating.append(change)
+            elif change.old != None and change.new != None:
+                updating.append(change)
+            elif change.old != None and change.new == None:
+                deleting.append(change)
+        # Todo: Also sort changes by ref before printing, so they always appear in the same way. 
+        for change in deleting:
             print ""
-                
+            print "D %s" % change.ref
+            attr_names = change.old.keys()
+            attr_names.sort()
+            for attr_name in attr_names:
+                old_value = change.old[attr_name]
+                msg = "D @%s:  %s" % (attr_name, repr(old_value))
+                print msg.encode('utf8')
+        for change in updating:
+            print ""
+            print "M %s" % change.ref
+            attr_names = change.old.keys()
+            attr_names.sort()
+            for attr_name in attr_names:
+                if attr_name in change.new:
+                    old_value = change.old[attr_name]
+                    new_value = change.new[attr_name]
+                    msg = "M @%s:  %s  ----->>>   %s" % (attr_name, repr(old_value), repr(new_value))
+                    print msg.encode('utf8')
+        for change in creating:
+            print ""
+            print "A %s" % change.ref
+            attr_names = change.new.keys()
+            attr_names.sort()
+            for attr_name in attr_names:
+                new_value = change.new[attr_name]
+                msg = "A @%s:  %s" % (attr_name, repr(new_value))
+                print msg.encode('utf8')
 
  
-        

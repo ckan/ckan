@@ -102,7 +102,6 @@ class TestChangesetRegister(TestCase):
         self.assert_isinstance(changeset, Changeset)
         self.assert_true(changeset.revision_id)
         self.assert_true(changeset.changes)
-        self.assert_equal(changeset.status, changeset.STATUS_CONSTRUCTED)
         
         revision_id = self.build_creating_revision('1')
         revision = self.revisions[revision_id]
@@ -221,7 +220,6 @@ class TestChangesetRegister(TestCase):
         count_before = len(self.revisions)
         self.assert_false(changeset.revision_id)
         revision_id = changeset.apply()
-        self.assert_equal(changeset.status, changeset.STATUS_APPLIED)
         revision = self.revisions[revision_id]
         self.assert_true(changeset.revision_id)
         count_after = len(self.revisions)
@@ -451,7 +449,6 @@ class TestChangesetRegister(TestCase):
         }
         changeset_id = self.changesets.add_unseen(changeset_data)
         changeset = ChangesetRegister()[changeset_id]
-        self.assert_equal(changeset.status, changeset.STATUS_QUEUED)
 
 
 class TestChangeset(TestCase):
