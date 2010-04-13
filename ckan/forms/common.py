@@ -443,7 +443,7 @@ class ExtrasField(ConfiguredField):
                 raise formalchemy.ValidationError(_('Duplicate key "%s"') % key)
             if value and not key:
                 # Note value is allowed to be None - REST way of deleting fields.
-                raise formalchemy.ValidationError(_('Extra key-value pair: key is not set.'))
+                raise formalchemy.ValidationError(_('Extra key-value pair: key is not set for value "%s".') % value)
 
     class ExtrasField(formalchemy.Field):
         def sync(self):
@@ -486,14 +486,15 @@ class ExtrasField(ConfiguredField):
             field_values = []
             for key, value in extras:
                 field_values.append({
-                    'name':'%s-%s' % (self.name, key),
+                    'name':self.name + '-' + key,
                     'key':key.capitalize(),
                     'value':value,})
             for i in range(3):
                 field_values.append({
                     'name':'%s-newfield%s' % (self.name, i)})
             c.fields = field_values
-            return render('package/form_extra_fields')
+            html = render('package/form_extra_fields')
+            return h.literal(html)
 
         def render_readonly(self, **kwargs):
             html_items = []
@@ -505,10 +506,14 @@ class ExtrasField(ConfiguredField):
         def deserialize(self):
             # Example params:
             # ('Package-1-extras', {...}) (via REST i/f)
-            # ('Package-1-extras-genre', u'romantic novel'), (Package-1-extras-1-checkbox', 'on')
-            # ('Package-1-extras-newfield0-key', u'aaa'), ('Package-1-extras-newfield0-value', u'bbb'),
+            # ('Package-1-extras-genre', u'romantic novel'),
+            # ('Package-1-extras-genre-checkbox', 'on')
+            # ('Package-1-extras-newfield0-key', u'aaa'),
+            # ('Package-1-extras-newfield0-value', u'bbb'),
+            # TODO: This method is run multiple times per edit - cache results?
             if not hasattr(self, 'extras_re'):
-                self.extras_re = re.compile('Package-([a-f0-9-]*)-extras(?:-(\w+))?(?:-(\w+))?$')
+                self.extras_re = re.compile('Package-([a-f0-9-]*)-extras(?:-(.+))?$')
+                self.newfield_re = re.compile('newfield(\d+)-(.*)')
             extra_fields = []
             for key, value in self.params.items():
                 extras_match = self.extras_re.match(key)
@@ -520,28 +525,35 @@ class ExtrasField(ConfiguredField):
                     if isinstance(value, dict):
                         # simple dict passed into 'Package-1-extras' e.g. via REST i/f
                         extra_fields.extend(value.items())
-                elif key_parts[2] is None:
-                    # existing field
-                    key = key_parts[1]
-                    checkbox_key = 'Package-%s-extras-%s-checkbox' % (package_id, key)
-                    delete = self.params.get(checkbox_key, '') == 'on'
-                    if not delete:
-                        extra_fields.append((key, value))
                 elif key_parts[1].startswith('newfield'):
-                    new_field_index = key_parts[1][len('newfield'):]
-                    if key_parts[2] == u'key':
+                    newfield_match = self.newfield_re.match(key_parts[1])
+                    if not newfield_match:
+                        print 'Warning: did not parse newfield correctly: ', ney_parts
+                        continue
+                    new_field_index, key_or_value = newfield_match.groups()
+                    if key_or_value == 'key':
                         new_key = value
                         value_key = 'Package-%s-extras-newfield%s-value' % (package_id, new_field_index)
                         new_value = self.params.get(value_key, '')
                         if new_key or new_value:
                             extra_fields.append((new_key, new_value))
-                    elif key_parts[2] == u'value':
+                    elif key_or_value == 'value':
                         # if it doesn't have a matching key, add it to extra_fields anyway for
                         # validation to fail
                         key_key = 'Package-%s-extras-newfield%s-key' % (package_id, new_field_index)
                         if not self.params.has_key(key_key):
-                            extra_fields.append(('', value))                
-
+                            extra_fields.append(('', value))
+                    else:
+                        print 'Warning: expected key or value for newfield: ', key
+                elif key_parts[1].endswith('-checkbox'):
+                    continue
+                else:
+                    # existing field
+                    key = key_parts[1].decode('utf8')
+                    checkbox_key = 'Package-%s-extras-%s-checkbox' % (package_id, key)
+                    delete = self.params.get(checkbox_key, '') == 'on'
+                    if not delete:
+                        extra_fields.append((key, value))
             return extra_fields
 
 class SuggestedTextExtraField(TextExtraField):

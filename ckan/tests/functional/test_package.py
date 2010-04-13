@@ -5,12 +5,20 @@ from paste.fixture import AppError
 from ckan.tests import *
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
+import ckan.lib.helpers as h
+from genshi.core import escape as genshi_escape
 
 existing_extra_html = ('<label class="field_opt" for="Package-%(package_id)s-extras-%(key)s">%(capitalized_key)s</label>', '<input id="Package-%(package_id)s-extras-%(key)s" name="Package-%(package_id)s-extras-%(key)s" size="20" type="text" value="%(value)s">')
 
 package_form=''
 
 class TestPackageBase(TestController):
+    key1 = u'key1 Less-than: < Umlaut: \xfc'
+    value1 = u'value1 Less-than: < Umlaut: \xfc'
+    # Note: Can't put a quotation mark in key1 or value1 because
+    # paste.fixture doesn't unescape the value in an input field
+    # on form submission. (But it works in real life.)
+    
     def _assert_form_errors(self, res):
         self.check_tag(res, '<form', 'class="has-errors"')
         assert 'class="field_error"' in res, res
@@ -44,7 +52,9 @@ class TestPackageForm(TestPackageBase):
         else:
             raise NotImplementedError
         for key, value in extras:
-            self.check_named_element(main_div, 'tr', key, value)
+            key_in_html_body = self.escape_for_html_body(key)
+            value_in_html_body = self.escape_for_html_body(value)
+            self.check_named_element(main_div, 'tr', key_in_html_body, value_in_html_body)
         if params.has_key('deleted_extras'):
             if isinstance(params['deleted_extras'], dict):
                 deleted_extras = params['deleted_extras'].items()
@@ -78,11 +88,15 @@ class TestPackageForm(TestPackageBase):
         else:
             assert 'state' not in preview
         for key, value in params['extras']:
-            self.check_named_element(preview, 'tr', key, value)
+            key_html = self.escape_for_html_body(key)
+            value_html = self.escape_for_html_body(value)
+            self.check_named_element(preview, 'tr', key_html, value_html)
         if params.has_key('deleted_extras'):
             for key, value in params['deleted_extras']:
-                self.check_named_element(preview, 'tr', '!' + key)
-                self.check_named_element(preview, 'tr', '!' + value)
+                key_html = self.escape_for_html_body(key)
+                value_html = self.escape_for_html_body(value)
+                self.check_named_element(preview, 'tr', '!' + key_html)
+                self.check_named_element(preview, 'tr', '!' + value_html)
 
     def _get_resource_values(self, resources, by_resource=False):
         assert isinstance(resources, (list, tuple))
@@ -106,6 +120,10 @@ class TestPackageForm(TestPackageBase):
                     values.append(expected_value)
             if by_resource:
                 yield(res_index, values)
+
+    def escape_for_html_body(self, unescaped_str):
+        # just deal with chars in tests
+        return unescaped_str.replace('<', '&lt;')
 
     def check_form_filled_correctly(self, res, **params):
         if params.has_key('pkg'):
@@ -136,8 +154,12 @@ class TestPackageForm(TestPackageBase):
         else:
             extras = params['extras']
         for key, value in extras:
-            self.check_tag_and_data(main_res, 'Package-%s-extras-%s' % (params['id'], key), key.capitalize())
-            self.check_tag(main_res, 'Package-%s-extras-%s' % (params['id'], key), value)
+            key_in_html_body = self.escape_for_html_body(key)
+            value_in_html_body = self.escape_for_html_body(value)
+            key_escaped = genshi_escape(key)
+            value_escaped = genshi_escape(value)
+            self.check_tag_and_data(main_res, 'Package-%s-extras-%s' % (params['id'], key_escaped), key_in_html_body.capitalize())
+            self.check_tag(main_res, 'Package-%s-extras-%s' % (params['id'], key_escaped), value_escaped)
         assert params['log_message'] in main_res, main_res
     
 
@@ -475,7 +497,7 @@ u with umlaut \xc3\xbc
         state = model.State.ACTIVE
         tags = (u'tag1', u'tag2', u'tag3')
         tags_txt = u' '.join(tags)
-        extra_changed = 'key1', 'value1 CHANGED'
+        extra_changed = 'key1', self.value1 + ' CHANGED'
         extra_new = 'newkey', 'newvalue'
         log_message = 'This is a comment'
         assert not model.Package.by_name(name)
@@ -492,9 +514,9 @@ u with umlaut \xc3\xbc
         fv[prefix+'license_id'] = license_id
         fv[prefix+'tags'] = tags_txt
         fv[prefix+'state'] = state
-        fv[prefix+'extras-%s' % extra_changed[0]] = extra_changed[1]
-        fv[prefix+'extras-newfield0-key'] = extra_new[0]
-        fv[prefix+'extras-newfield0-value'] = extra_new[1]
+        fv[prefix+'extras-%s' % extra_changed[0]] = extra_changed[1].encode('utf8')
+        fv[prefix+'extras-newfield0-key'] = extra_new[0].encode('utf8')
+        fv[prefix+'extras-newfield0-value'] = extra_new[1].encode('utf8')
         fv[prefix+'extras-key3-checkbox'] = True
         fv['log_message'] = log_message
         res = fv.submit('preview', extra_environ={'REMOTE_USER':'testadmin'})
@@ -678,7 +700,7 @@ class TestNew(TestPackageForm):
         license_id = u'gpl-3.0'
         tags = (u'tag1', u'tag2', u'tag3', u'SomeCaps')
         tags_txt = u' '.join(tags)
-        extras = {'key1':'value1', 'key2':'value2', 'key3':'value3'}
+        extras = {self.key1:self.value1, 'key2':'value2', 'key3':'value3'}
         log_message = 'This is a comment'
         assert not model.Package.by_name(name)
         offset = url_for(controller='package', action='new', package_form=package_form)
@@ -696,8 +718,8 @@ class TestNew(TestPackageForm):
         fv[prefix+'license_id'] = license_id
         fv[prefix+'tags'] = tags_txt
         for i, extra in enumerate(extras.items()):
-            fv[prefix+'extras-newfield%s-key' % i] = extra[0]
-            fv[prefix+'extras-newfield%s-value' % i] = extra[1]
+            fv[prefix+'extras-newfield%s-key' % i] = extra[0].encode('utf8')
+            fv[prefix+'extras-newfield%s-value' % i] = extra[1].encode('utf8')
         fv['log_message'] = log_message
         res = fv.submit('preview')
         assert not 'Error' in res, res
@@ -723,7 +745,6 @@ class TestNew(TestPackageForm):
                                          log_message=log_message,
 #                                         state=state
                                          )
-
         # Submit
         fv = res.forms[0]
         res = fv.submit('commit')

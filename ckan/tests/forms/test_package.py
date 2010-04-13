@@ -262,7 +262,7 @@ class TestFormErrors(PylonsTestCase):
         indict[prefix + 'extras-newfield0-key'] = u'testkey'
         fs = ckan.forms.get_standard_fieldset().bind(model.Package, data=indict)
         model.repo.new_revision()
-        assert fs.validate()
+        assert fs.validate(), fs.errors
 
 class TestValidation:
     @classmethod
