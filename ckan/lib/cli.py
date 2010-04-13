@@ -496,6 +496,12 @@ class Changes(CkanCommand):
     usage = __doc__
     max_args = 3
     min_args = 1
+    CkanCommand.parser.add_option('-i', '--interactive',
+        action='store_true',
+        dest='is_interactive',
+        default=False,
+        help="Prompt for confirmation of actions.")
+
 
     def command(self):
         self._load_config()
@@ -571,12 +577,13 @@ class Changes(CkanCommand):
             self.log_changeset(head)
 
     def update(self):
-        self.update_repository(is_moderated=False)
+        self.update_repository()
 
     def moderate(self):
-        self.update_repository(is_moderated=True)
+        self.options.is_interactive = True
+        self.update_repository()
 
-    def update_repository(self, is_moderated=False):
+    def update_repository(self):
         if len(self.args) > 1:
             changeset_id = unicode(self.args[1])
         else:
@@ -596,7 +603,7 @@ class Changes(CkanCommand):
             changeset_register.update(
                 target_id=changeset_id,
                 report=report, 
-                moderator=is_moderated and self or None,
+                moderator=self.options.is_interactive and self or None,
             )
         except ConflictException, inst:
             print "Update aborted due to conflict with the working model."
@@ -702,20 +709,34 @@ class Changes(CkanCommand):
         print "Committed %s revision%s." % (len(changeset_ids), (len(changeset_ids) != 1) and "s" or "")
 
     def merge(self):
-        if len(self.args) > 1:
-            changeset_id = unicode(self.args[1])
+        if len(self.args) == 3:
+            closing_id = unicode(self.args[1])
+            continuing_id = unicode(self.args[2])
+        elif len(self.args) == 2:
+            working_changeset = self.get_working_changeset()
+            if not working_changeset:
+                print "There is no working changeset to merge into '%s'." % continuing_id
+                sys.exit(1)
+            closing_id = working_changeset.id
+            continuing_id = unicode(self.args[1])
         else:
-            print "Need a target changeset to merge working into."
+            print "Need a target changeset to merge into."
             sys.exit(1)
         from ckan.model.changeset import ChangesetRegister
         from ckan.model.changeset import ConflictException
         from ckan.model.changeset import Heads
+        from ckan.model.changeset import Resolve, CliResolve
         changeset_register = ChangesetRegister()
         if not len(changeset_register):
             print "There are zero changesets in the changeset register."
             sys.exit(1)
         try:
-            mergeset = changeset_register.merge(changeset_id)
+            resolve_class = self.options.is_interactive and CliResolve or Resolve
+            mergeset = changeset_register.merge(
+                closing_id=closing_id,
+                continuing_id=continuing_id,
+                resolve_class=resolve_class,
+            )
         except ConflictException, inst:
             print inst
             sys.exit(1)
@@ -786,12 +807,13 @@ class Changes(CkanCommand):
             changeset_id1 = working_changeset.id 
             changeset_id2 = unicode(self.args[1])
         else:
+            # Todo: Calc changes for outstanding revisions.
             print "Sorry, displaying changes of uncommitted revisions is not yet supported."
             print ""
             print "Providing one target changeset will display the changes from the working changeset. Providing two target changesets will display the sum of changes between the first and the second target."
             sys.exit(1)
         from ckan.model.changeset import NoCommonAncestorException
-        from ckan.model.changeset import ChangesetRegister, Route
+        from ckan.model.changeset import ChangesetRegister, Route, Reduce
         register = ChangesetRegister()
         changeset1 = register.get(changeset_id1, None)
         if not changeset1:
@@ -804,11 +826,14 @@ class Changes(CkanCommand):
         route = Route(changeset1, changeset2)
         try:
             changes = route.calc_changes()
+            # Todo: Calc and sum with changes for outstanding revisions.
+            changes = Reduce(changes).calc_changes()
         except NoCommonAncestorException:
             print "The changesets '%s' and '%s' do not share a common ancestor." % (
                 changeset_id1, changeset_id2
             )
         else:
+   
             print "diff %s %s" % (changeset_id1, changeset_id2) 
             self.print_changes(changes)
         
@@ -832,8 +857,9 @@ class Changes(CkanCommand):
             attr_names.sort()
             for attr_name in attr_names:
                 old_value = change.old[attr_name]
-                msg = "D @%s:  %s" % (attr_name, repr(old_value))
-                print msg.encode('utf8')
+                if old_value:
+                    msg = "D @%s:  %s" % (attr_name, repr(old_value))
+                    print msg.encode('utf8')
         for change in updating:
             print ""
             print "M %s" % change.ref
@@ -852,7 +878,8 @@ class Changes(CkanCommand):
             attr_names.sort()
             for attr_name in attr_names:
                 new_value = change.new[attr_name]
-                msg = "A @%s:  %s" % (attr_name, repr(new_value))
-                print msg.encode('utf8')
+                if new_value:
+                    msg = "A @%s:  %s" % (attr_name, repr(new_value))
+                    print msg.encode('utf8')
 
  
