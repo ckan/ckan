@@ -87,12 +87,15 @@ class NoCommonAncestorException(ChangesetException): pass
 #
 
 class Sequence(object):
-    """Calculates changes effected by a sequence of changes."""
+    """A list of lists of changes."""
+
+    def __init__(self, changeses):
+        self.changeses = changeses 
 
     def calc_changes(self):
-        sequence = self.get_sequence()
         cache = {}
-        for changes in sequence:
+        #print "Sequence changes: %s" % self.changeses
+        for changes in self.changeses:
             for change in changes:
                 if change.ref not in cache:
                     cache[change.ref] = Vector(change.old, change.new)
@@ -115,8 +118,11 @@ class Sequence(object):
             changes.append(change)
         return changes
 
-    def get_sequence(self):
-        return []
+    def pop_first(self):
+        return self.changeses.pop(0)
+
+    def append(self, changes):
+        return self.changeses.append(changes)
 
 
 class Json(object):
@@ -176,13 +182,13 @@ class Vector(Json):
         return value1 == value2
 
 
-class Range(Sequence):
+class Range(object):
     """Continguous changesets along one line of development."""
 
     def __init__(self, start, stop):
         self.start = start   # Changeset instance.
         self.stop = stop     # Changeset instance.
-        self.sequence = None # List of Change instances.
+        self.sequence = None
         self.changesets = None # List of Changeset instances
 
     def is_broken(self):
@@ -192,6 +198,19 @@ class Range(Sequence):
             return True
         else:
             return False
+
+    def calc_changes(self):
+        return self.get_sequence().calc_changes()
+
+    def pop_first(self):  # Todo: Rework as 'exclude_start' parameter.
+        return self.get_sequence().pop_first()
+
+    def get_sequence(self):
+        if self.sequence == None:
+            self.sequence = Sequence([])
+            for changeset in self.get_changesets():
+                self.sequence.append(changeset.changes)
+        return self.sequence
 
     def get_changesets(self):
         if self.changesets == None:
@@ -207,20 +226,9 @@ class Range(Sequence):
             self.changesets.reverse()
         return self.changesets
 
-    def get_sequence(self):
-        if self.sequence == None:
-            self.sequence = []
-            for changeset in self.get_changesets():
-                self.sequence.append(changeset.changes)
-        return self.sequence
 
-    def pop_first(self):  # Todo: Rework as 'exclude_start' parameter.
-        sequence = self.get_sequence()
-        return sequence.pop(0)
-
-
-class Sum(Sequence):
-    """Adds together two sets of non-conflicting changes."""
+class Sum(object):
+    """Concatentates two sets of changes. Non-sequiturs are conflicts."""
 
     def __init__(self, changes1, changes2):
         self.changes1 = changes1  # List of Change instances.
@@ -246,23 +254,23 @@ class Sum(Sequence):
                     old2 = vector2.old
                     new1 = vector1.new
                     new2 = vector2.new
-                    if (old1 == None and old2 != None) or (old1 != None and old2 == None) \
-                    or (new1 == None and new2 != None) or (new1 != None and new2 == None):
-                        msg = "Changes conflict about object lifetime on ref: %s %s" % (change1, change2)
+                    if (new1 == None and old2 != None) or (new1 != None and old2 == None):
+                        msg = "Changes conflict about object lifetime on ref "
+                        msg += " '%s' when summing  %s  and  %s." % (change1.ref, change1, change2)
                         raise ConflictException, msg
-                    elif new1 and new2:
+                    elif new1 and old2:
                         for name, value1 in new1.items():
-                            if name not in new2:
+                            if name not in old2:
                                 continue
-                            value2 = new2[name]
+                            value2 = old2[name]
                             if not vector1.is_equal(value1, value2):
-                                msg = "Changes conflict about new values of '%s' on %s: %s or %s" % (
+                                msg = "Changes conflict about intermediate value of '%s' on %s: %s or %s" % (
                                     name, change1.ref, value1, value2
                                 )
                                 raise ConflictException, msg
 
-    def get_sequence(self):
-        return [self.changes1, self.changes2]
+    def calc_changes(self):
+        return Sequence([self.changes1, self.changes2]).calc_changes()
 
         
 class Reverse(object):
@@ -334,7 +342,7 @@ class CommonAncestor(object):
 
 
 class Resolve(object):
-    """Decides between conflicting values."""
+    """Decides between conflicting changes."""
 
     def __init__(self, changes1, changes2):
         self.changes1 = changes1
@@ -342,8 +350,9 @@ class Resolve(object):
 
     def calc_changes(self):
         resolution = []
-        resolution_uniqueness_violation = []
-        resolution_value_conflict = []
+        resolution_uniqueness_violations = []
+        resolution_value_conflicts = []
+        # Todo: Push this data down to CKAN statements (somehow).
         unique_aspects = ['/package@name']
         # Resolve any duplication of unique attribute values.
         #  - e.g. names of packages must be unique
@@ -359,7 +368,7 @@ class Resolve(object):
         for aspect in unique_aspects:
             unique_values = {}
             ref, attr_name = aspect.split('@')
-            for change in self.changes1 + self.changes2:
+            for change in self.changes2 + self.changes1:
                 if not change.ref.startswith(ref):
                     continue
                 if change.new == None:
@@ -368,16 +377,22 @@ class Resolve(object):
                     continue
                 change_value = change.new[attr_name]
                 if change_value not in unique_values:
+                    # No other uses of this unique value detected so far.
                     unique_values[change_value] = change.ref
+                elif unique_values[change_value] == change.ref:
+                    # It's the same value, but on the same entity.
+                    continue
                 else:
-                    msg = "Changes violate unique '%s' value constraint ('%s' repeats)." % (
-                        attr_name, change_value
+                    # It's the same value, but on a different entity.
+                    msg = "Changes violate unique '%s' value constraint ('%s' used on both %s and %s)." % (
+                        attr_name, change_value, unique_values[change_value], change.ref
                     )
                     print msg
                     entity_id = change.ref.split('/')[2]
                     mangled_value = change_value + '-' + entity_id
                     try:
-                        decided_value = self.decide_value(change_value, mangled_value)
+                        # Prefer the mangled value over the duplicate value.
+                        decided_value = self.decide_value(mangled_value, change_value)
                     except ConflictException:
                         msg = "Unable to resolve duplicate "
                         msg += "%s '%s' " % (attr_name, change_value)
@@ -391,8 +406,8 @@ class Resolve(object):
                     vector.new[attr_name] = decided_value
                     # Update the change directly, so if it is involved in any
                     # value resolutions the new name will be carried forward.
-                    change.diff = vector.as_diff()
-                    resolution_uniqueness_violation.append(change)
+                    change.set_diff(vector.as_diff())
+                    resolution_uniqueness_violations.append(change)
         # Resolve any conflicting entity attribute values.
         for change1 in self.changes1:
             ref = change1.ref
@@ -407,9 +422,9 @@ class Resolve(object):
                 if ref == change2.ref:
                     if (old1 == None and old2 != None) or (old1 != None and old2 == None) \
                     or (new1 == None and new2 != None) or (new1 != None and new2 == None):
-                        print "Changes conflict about object lifetime on ref: %s %s" % (change1, change2)
-
-                        new = self.decide_value(new1, new2)
+                        print "Changes conflict about object lifetime: %s %s" % (change1, change2)
+                        # Prefer the continuing value over the closing value.
+                        new = self.decide_value(new2, new1)
                         print "Using values: %s" % new
                         vector3 = Vector(new1, new)
                     elif new1 and new2:
@@ -426,9 +441,10 @@ class Resolve(object):
                                 if old3 == None and new3 == None:
                                     old3 = {}
                                     new3 = {}
-                                value3 = self.decide_value(value1, value2)
+                                # Prefer the continuing value over the closing value.
+                                value3 = self.decide_value(value2, value1)
                                 print "Using value: %s" % value3
-                                old3[name] = value1 # Because the resolution will be added to the closing changes before being used in the mergeset.
+                                old3[name] = value1
                                 new3[name] = value3
                         if old3 != None and new3 != None:
                             vector3 = Vector(old3, new3)
@@ -436,89 +452,42 @@ class Resolve(object):
             if vector3:
                 diff = vector3.as_diff()
                 change3 = Change(ref=ref, diff=diff)
-                resolution_value_conflict.append(change3)
-        changes3 = resolution_value_conflict
-        for change in resolution_uniqueness_violation:
+                resolution_value_conflicts.append(change3)
+        changes3 = resolution_value_conflicts
+        for change in resolution_uniqueness_violations:
             # Append any changes resolved only for uniqueness.
             if change.ref not in [c.ref for c in changes3]:
                 changes3.append(change)
         # NB Don't ever reduce here, because resolution changes are imposed on
         # the closing range changes within a merge, so all values need carrying.
-        # Todo: Test whether summing the resolution with the closing range would work - if old values of the resolution are closing branch values, and new values are resolving values, then summing the closing branch with the resolution shouldn't conflict?
         return changes3
 
-    def decide_value(self, value1, value2):
-        raise ConflictException, "Unable to resolve conflicted values '%s' and '%s'." % (value1, value2)
+    def decide_value(self, preferred, alternative):
+        raise ConflictException, "Unable to resolve conflicted values '%s' and '%s'." % (preferred, alternative)
 
 
 class AutoResolve(Resolve):
 
-    def decide_value(self, value1, value2):
-        return value2
+    def decide_value(self, preferred, alternative):
+        print "Auto-resolving conflicting values:"
+        print "1:  %s  <--- auto-selected" % preferred.encode('utf8')
+        print "2:  %s" % alternative.encode('utf8')
+        return preferred
 
 
 class CliResolve(Resolve):
     """Decides between conflicting values using command line intervention."""
 
-    def decide_value(self, value1, value2):
-        print "Conflicting values:"
-        print "1:  %s" % value1
-        print "2:  %s" % value2
-        input = raw_input("Which value is best? [2]: ")
-        if input == "1":
-            value = value1
+    def decide_value(self, preferred, alternative):
+        print "Please decide between these values:"
+        print "1:  %s" % preferred
+        print "2:  %s" % alternative
+        input = raw_input("Which value is best? [1]: ")
+        if input == "2":
+            value = alternative
         else:
-            value = value2
+            value = preferred
         return value
-
-
-class Impose(object):
-    """Overlays one set of changes with another."""
-
-    def __init__(self, changes1, changes2):
-        self.changes1 = changes1
-        self.changes2 = changes2
-        
-    def calc_changes(self):
-        # Todo: Switch around, to copy 2 then add anything missing from 1?
-        imposed = []
-        # Copy changes1.
-        for change1 in self.changes1:
-            ref = change1.ref
-            vector = change1.as_vector()
-            diff = vector.as_diff()
-            change = Change(ref=ref, diff=diff)
-            imposed.append(change)
-        # Update copy of changes1 from changes2.
-        for change2 in self.changes2:
-            is_needs_appending = True
-            for change in imposed:
-                if change2.ref == change.ref:
-                    is_needs_appending = False
-                    vector = change.as_vector()
-                    vector2 = change2.as_vector()
-                    if vector2.old == None:
-                        vector.old = vector2.old
-                    elif vector.old == None:
-                        vector.old = vector2.old
-                    else:
-                        vector.old.update(vector2.old)
-                    if vector2.new == None:
-                        vector.new = vector2.new
-                    elif vector.new == None:
-                        vector.new = vector2.new
-                    else:
-                        vector.new.update(vector2.new)
-                    change.diff = vector.as_diff()
-                    break
-            if is_needs_appending:
-                ref = change2.ref
-                vector = change2.as_vector()
-                diff = vector.as_diff()
-                change = Change(ref=ref, diff=diff)
-                imposed.append(change)
-        # Reduce these changes by eliminating invariant values.
-        return Reduce(imposed).calc_changes()
 
 
 class Reduce(object):
@@ -545,18 +514,18 @@ class Reduce(object):
             # Reduce any invariant entities.
             if vector.old == {} and vector.new == {}:
                 continue
-            change.diff = vector.as_diff()
+            change.set_diff(vector.as_diff())
             reduction.append(change)
         #print "Reduced changes: %s" % reduction
         return reduction
 
 
 class Merge(object):
-    """Creates changeset which closes the working line of development."""
+    """Creates changeset which closes one line and continues another."""
 
-    def __init__(self, continuing, closing):
-        self.continuing = continuing
+    def __init__(self, closing, continuing):
         self.closing = closing
+        self.continuing = continuing
         self.range_sum = None
         self.range1 = None
         self.range2 = None
@@ -567,15 +536,54 @@ class Merge(object):
         return sum.is_conflicting()
 
     def create_mergeset(self, resolve_class=None):
+        # Identify common ancestor and calculate diverging changes.
         sum = self.get_range_sum()
+        changes_closing = sum.changes1
+        changes_continuing = sum.changes2
+        #print "Closing: %s" % changes_closing
+        #print "Continuing: %s" % changes_continuing
+        # Resolve conflicts between diverging changes.
         if resolve_class == None:
             resolve_class = Resolve
-        resolve = resolve_class(sum.changes1, sum.changes2)
-        resolution = resolve.calc_changes()
-        impose = Impose(sum.changes2, resolution)
-        changes = impose.calc_changes()
-        register = register_classes['changeset']()
-        # Todo: Use values provided by the user doing the merge.
+        resolve = resolve_class(changes_closing, changes_continuing)
+        changes_resolving = resolve.calc_changes()
+        # Sum the closing and resolution changes to make the merging changes.
+        changes_merging = Sum(changes_closing, changes_resolving).calc_changes()
+        #print "Merging raw: %s" % changes_merging
+        # Fix merging's old values to avoid conflict with continuing's new values.
+        #  - basically use continuing's new values for merging's old values.
+        for change_merging in changes_merging:
+            ref = change_merging.ref
+            for change_continuing in changes_continuing:
+                if change_continuing.ref == ref:
+                    vector_merging = change_merging.as_vector()
+                    vector_continuing = change_continuing.as_vector()
+                    is_changed = False
+                    if vector_merging.old == None and vector_continuing.new == None:
+                        pass
+                    elif vector_merging.old != None and vector_continuing.new != None:
+                        for attr_name in change_continuing.new:
+                            if attr_name in vector.old:
+                                value = change_continuing.new[attr_name]
+                                vector_merging.old[attr_name] = value
+                                is_changed = True
+                    else:
+                        vector_merging.old = vector_continuing.new
+                        is_changed = True
+                    if is_changed:
+                        change_merging.set_diff(vector_merging.as_diff())
+        #print "Merging restarted: %s" % changes_merging
+        # Reduce the merging changes.
+        changes_merging = Reduce(changes_merging).calc_changes()
+        #print "Merging reduced: %s" % changes_merging
+        # Assert there are no conflicts with continuing line.
+        try:
+            Sum(changes_continuing, changes_merging).detect_conflict()
+        except ConflictException, inst:
+            msg = "Merge in a non-sequitur for the continuing line: %s" % inst
+            raise ConflictException, msg
+        # Create a new changeset with these changes.
+        # Todo: Use message and author provided by the user doing the merge.
         log_message = 'Merged changes from %s to %s.' % (
             self.common_ancestor.id, self.closing.id
         )
@@ -584,13 +592,14 @@ class Merge(object):
             'log_message': log_message,
             'author': author,
         }
-        mergeset = register.create_entity(
+        changeset_register = register_classes['changeset']()
+        merging_changeset = changeset_register.create_entity(
             meta=meta,
             closes_id=self.closing.id,
             follows_id=self.continuing.id,
-            changes=changes
+            changes=changes_merging
         )
-        return mergeset
+        return merging_changeset
  
     def get_range_sum(self):
         if self.range_sum == None:
@@ -603,12 +612,12 @@ class Merge(object):
 
     def get_range1(self):
         if self.range1 == None:
-            self.range1 = self.create_merge_range(self.continuing)
+            self.range1 = self.create_merge_range(self.closing)
         return self.range1
 
     def get_range2(self):
         if self.range2 == None:
-            self.range2 = self.create_merge_range(self.closing)
+            self.range2 = self.create_merge_range(self.continuing)
         return self.range2
 
     def create_merge_range(self, stop):
@@ -759,7 +768,7 @@ class Change(ChangesetSubdomainObject):
 
     def as_vector(self):
         """Returns the pure vector of change, without any reference to an entity."""
-        if not hasattr(self, 'vector'):
+        if not hasattr(self, 'vector') or self.vector == None:
             data = self.load_diff()
             self.vector = Vector(data['old'], data['new'])
         return self.vector
@@ -767,6 +776,10 @@ class Change(ChangesetSubdomainObject):
     def load_diff(self):
         """Parses the stored JSON diff string into Vector data."""
         return self.loads(self.diff)
+
+    def set_diff(self, diff):
+        self.diff = diff
+        self.vector = None
 
     def as_dict(self):
         """Presents domain data with basic data types."""
@@ -809,6 +822,7 @@ class ObjectRegister(object):
 
     def get(self, key, default=Exception, attr=None, state=State.ACTIVE):
         """Finds a single entity in the register."""
+        # Todo: Implement a simple entity cache.
         if attr == None:
             attr = self.key_attr
         kwds = {attr: key}
@@ -1134,9 +1148,9 @@ class AbstractChangesetRegister(TrackedObjectRegister, Json):
 
     def merge(self, closing_id, continuing_id, resolve_class=None):
         """Creates a new changeset combining diverged lines of development."""
-        continuing = self.get(continuing_id)
         closing = self.get(closing_id)
-        merge = Merge(continuing, closing)
+        continuing = self.get(continuing_id)
+        merge = Merge(closing=closing, continuing=continuing)
         mergeset = merge.create_mergeset(resolve_class=resolve_class)
         Session.commit()
         return mergeset

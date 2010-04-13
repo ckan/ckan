@@ -621,7 +621,7 @@ class Changes(CkanCommand):
         print ", ".join(["%s %s packages" % (key, len(val)) for (key, val) in report.items()])
         if report['created']:
             print ""
-            print "The following packages were created:"
+            print "The following packages have been created:"
             names = []
             for entity in report['created']:
                 if not entity:
@@ -632,7 +632,7 @@ class Changes(CkanCommand):
                 names.append(entity.name)
         if report['updated']:
             print ""
-            print "The following packages were updated:"
+            print "The following packages have been updated:"
             names = []
             for entity in report['updated']:
                 if not entity:
@@ -643,7 +643,7 @@ class Changes(CkanCommand):
                 names.append(entity.name)
         if report['deleted']:
             print ""
-            print "The following packages were deleted:"
+            print "The following packages have been deleted:"
             names = []
             for entity in report['deleted']:
                 if not entity:

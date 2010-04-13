@@ -2,7 +2,7 @@ from ckan.tests import *
 from ckan.model.changeset import ChangesetRegister, Changeset
 from ckan.model.changeset import ChangeRegister, Change
 from ckan.model.changeset import Range, CommonAncestor, Heads, Sum, Merge
-from ckan.model.changeset import Resolve, Impose
+from ckan.model.changeset import AutoResolve
 from ckan.model.changeset import ConflictException
 from ckan.model.changeset import UncommittedChangesException
 from ckan.model.changeset import WorkingAtHeadException
@@ -673,16 +673,16 @@ class TestArithmetic(TestCase):
         self.assert_equal(changes[0].new['title'], 'Title Three')
     
     def test_resolve(self):
-        resolve = self.create_resolve(self.cs3, self.cs5)
+        resolve = self.create_resolve(self.cs5, self.cs3)
         changes = resolve.calc_changes()
         self.assert_equal(len(changes), 0)
 
-        resolve = self.create_resolve(self.cs3, self.cs6)
+        resolve = self.create_resolve(self.cs6, self.cs3)
         changes = resolve.calc_changes()
         self.assert_equal(len(changes), 1)
         change = changes[0]
-        self.assert_equal(change.old['title'], self.title3)
-        self.assert_equal(change.new['title'], self.title4)
+        self.assert_equal(change.old['title'], self.title4)
+        self.assert_equal(change.new['title'], self.title3)
 
         resolve = self.create_resolve(self.cs5, self.cs7)
         changes = resolve.calc_changes()
@@ -691,28 +691,19 @@ class TestArithmetic(TestCase):
         self.assert_equal(change.old['name'], self.name3)
         self.assert_equal(change.new['name'], self.name4)
 
-    def test_impose(self):
-        changes1 = self.cs6.changes
-        changes2 = self.cs3.changes
-        impose = Impose(changes1, changes2)
-        changes = impose.calc_changes()
-        self.assert_equal(len(changes), 1)
-        change = changes[0]
-        self.assert_equal(change.old['title'], self.title2)
-        self.assert_equal(change.new['title'], self.title3)
-    
     def test_merge_non_conflicting(self):
-        merge = Merge(self.cs3, self.cs5)
+        merge = Merge(closing=self.cs5, continuing=self.cs3)
         self.assert_false(merge.is_conflicting())
         mergeset = merge.create_mergeset()
         self.assert_true(mergeset.id)
         self.assert_equal(mergeset.follows_id, self.cs3.id)
         self.assert_equal(mergeset.closes_id, self.cs5.id)
         changes = mergeset.changes
-        self.assert_equal(len(mergeset.changes), 1)
-        self.assert_equal(mergeset.changes[0].old['name'], 'nameone')
-        self.assert_equal(mergeset.changes[0].new['name'], 'namethree')
-        self.assert_false('title' in mergeset.changes[0].new)
+        print changes
+        self.assert_equal(len(changes), 1)
+        self.assert_equal(changes[0].old['name'], 'nameone')
+        self.assert_equal(changes[0].new['name'], 'namethree')
+        self.assert_false('title' in changes[0].new)
         self.assert_true(mergeset.get_meta().get('log_message'))
         self.assert_true(mergeset.get_meta().get('author'))
         # More tests to calculate Range from cs0 to mergeset.
@@ -739,9 +730,9 @@ class TestArithmetic(TestCase):
             self.assert_equal(changes1.new['title'], self.title3)
 
     def test_merge_conflicting(self):
-        merge = Merge(self.cs3, self.cs6)
+        merge = Merge(closing=self.cs6, continuing=self.cs3)
         self.assert_true(merge.is_conflicting())
-        mergeset = merge.create_mergeset()
+        mergeset = merge.create_mergeset(resolve_class=AutoResolve)
         self.assert_true(mergeset.id)
         self.assert_equal(mergeset.follows_id, self.cs3.id)
         self.assert_equal(mergeset.closes_id, self.cs6.id)
@@ -760,7 +751,7 @@ class TestArithmetic(TestCase):
         range2.pop_first()
         changes1 = range1.calc_changes()
         changes2 = range2.calc_changes()
-        return Resolve(changes1, changes2)
+        return AutoResolve(changes1, changes2)
 
     def create_range(self, start, stop):
         return Range(start, stop)
