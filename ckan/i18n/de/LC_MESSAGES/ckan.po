@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: ckan 0.10\n"
 "Report-Msgid-Bugs-To: DANIEL@OPENDATA-NETWORK.ORG\n"
 "POT-Creation-Date: 2009-12-05 23:18+0000\n"
-"PO-Revision-Date: 2010-04-08 16:23+0100\n"
+"PO-Revision-Date: 2010-04-09 22:43+0100\n"
 "Last-Translator: DANIEL DIETRICH <DANIEL.DIETRICH@OKFN.ORG>\n"
 "Language-Team: de <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -164,7 +164,6 @@ msgstr ""
 
 #: ckan/controllers/rest.py:150
 #, fuzzy, python-format
-#| msgid "Cannot create new entity of this type: %s"
 msgid "Cannot create new entity of this type: %s %s"
 msgstr "Eine neue Entität des Typs %s konnte nicht angelegt werden"
 
@@ -185,7 +184,6 @@ msgstr "REST API: Update Objekt %s"
 
 #: ckan/controllers/rest.py:273
 #, fuzzy, python-format
-#| msgid "Cannot delete entity of this type: %s"
 msgid "Cannot delete entity of this type: %s %s"
 msgstr "Entität des Typs %s konnte nicht entfernt werden"
 
@@ -269,13 +267,75 @@ msgstr "Säuberung der Revision fehlgeschlagen: %s"
 msgid "Changed user details"
 msgstr "Geänderte Benutzerdetails"
 
-#: ckan/forms/package.py:31 ckan/forms/package.py:58
+#: ckan/forms/common.py:21
+#, python-format
+msgid "Name must be at least %s characters long"
+msgstr ""
+
+#: ckan/forms/common.py:23
+msgid ""
+"Name must be purely lowercase alphanumeric (ascii) characters and these "
+"symbols: -_"
+msgstr ""
+
+#: ckan/forms/common.py:31
+#, fuzzy, python-format
+#| msgid "Package %s already exists in database. Import will edit the fields."
+msgid "Package name already exists in database"
+msgstr ""
+"Pakete %s existieren bereits in der Datenbank. Ein Import wird die Felder"
+" bearbeiten."
+
+#: ckan/forms/common.py:39
+msgid "Group name already exists in database"
+msgstr ""
+
+#: ckan/forms/common.py:107
+#, python-format
+msgid "Value does not match required format: %s"
+msgstr ""
+
+#: ckan/forms/common.py:420
+#, python-format
+msgid "Tag \"%s\" length is less than minimum %s"
+msgstr ""
+
+#: ckan/forms/common.py:422
+#, python-format
+msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
+msgstr ""
+
+#: ckan/forms/common.py:424
+#, python-format
+msgid "Tag \"%s\" must not be uppercase"
+msgstr ""
+
+#: ckan/forms/common.py:441
+#, python-format
+msgid "Duplicate key \"%s\""
+msgstr ""
+
+#: ckan/forms/common.py:444
+msgid "Extra key-value pair: key is not set."
+msgstr ""
+
+#: ckan/forms/common.py:566
+msgid "other - please specify"
+msgstr ""
+
+#: ckan/forms/common.py:582
 #, fuzzy
-#| msgid "Username:"
+#| msgid "here."
+msgid "Other"
+msgstr "hier."
+
+#: ckan/forms/package.py:31 ckan/forms/package.py:58
+#: ckan/forms/package_ca.py:42 ckan/forms/package_ca.py:80
+#, fuzzy
 msgid "Name"
 msgstr "Benutzername:"
 
-#: ckan/forms/package.py:31
+#: ckan/forms/package.py:31 ckan/forms/package_ca.py:42
 msgid "(required)"
 msgstr ""
 
@@ -286,11 +346,13 @@ msgid ""
 msgstr ""
 
 #: ckan/forms/package.py:32 ckan/forms/package.py:60
+#: ckan/forms/package_ca.py:48 ckan/forms/package_ca.py:82
 #: ckan/templates/home/license.html:4
 msgid "License"
 msgstr "Lizenz"
 
 #: ckan/forms/package.py:33 ckan/forms/package.py:60
+#: ckan/forms/package_ca.py:51 ckan/forms/package_ca.py:82
 #: ckan/templates/layout.html:68 ckan/templates/package/read_core.html:106
 #: ckan/templates/tag/index.html:7
 msgid "Tags"
@@ -301,27 +363,31 @@ msgid "(space separated list)"
 msgstr ""
 
 #: ckan/forms/package.py:34 ckan/forms/package.py:59
+#: ckan/forms/package_ca.py:52 ckan/forms/package_ca.py:82
 msgid "Notes"
 msgstr ""
 
-#: ckan/forms/package.py:34
+#: ckan/forms/package.py:34 ckan/forms/package_ca.py:52
 msgid ""
 "You can use <a "
 "href=\"http://daringfireball.net/projects/markdown/syntax\">Markdown "
 "formatting</a> here."
 msgstr ""
 
-#: ckan/forms/package.py:44 ckan/forms/package_gov.py:107
+#: ckan/forms/package.py:44 ckan/forms/package_ca.py:65
+#: ckan/forms/package_gov.py:107
 msgid "Basic information"
 msgstr ""
 
 #: ckan/forms/package.py:46 ckan/forms/package.py:59
+#: ckan/forms/package_ca.py:66 ckan/forms/package_ca.py:80
 #: ckan/forms/package_gov.py:114 ckan/templates/package/read_core.html:53
 #: ckan/templates/package/read_core.html:60
 msgid "Resources"
 msgstr "Ressourcen"
 
 #: ckan/forms/package.py:47 ckan/forms/package.py:53
+#: ckan/forms/package_ca.py:67
 msgid "Detail"
 msgstr ""
 
@@ -330,9 +396,8 @@ msgstr ""
 msgid "Extras"
 msgstr "Extras"
 
-#: ckan/forms/package.py:58
+#: ckan/forms/package.py:58 ckan/forms/package_ca.py:80
 #, fuzzy
-#| msgid "No Title"
 msgid "Title"
 msgstr "Kein Titel"
 
@@ -340,7 +405,8 @@ msgstr "Kein Titel"
 msgid "Version"
 msgstr "Version"
 
-#: ckan/forms/package.py:58 ckan/templates/package/form_resources.html:6
+#: ckan/forms/package.py:58 ckan/forms/package_ca.py:80
+#: ckan/templates/package/form_resources.html:6
 #: ckan/templates/package/read_core.html:55
 msgid "URL"
 msgstr "URL"
@@ -359,15 +425,159 @@ msgstr ""
 msgid "Maintainer"
 msgstr ""
 
-#: ckan/forms/package.py:60
+#: ckan/forms/package.py:60 ckan/forms/package_ca.py:83
 msgid "Maintainer email"
 msgstr ""
 
 #: ckan/forms/package.py:60
 #, fuzzy
-#| msgid "State:"
 msgid "State"
 msgstr "Status:"
+
+#: ckan/forms/package_ca.py:42
+msgid ""
+"Insert a short, unique, descriptive title here, using only 'a-z', '0-9' "
+"and '-_'. Must be lowercase; no spaces allowed."
+msgstr ""
+
+#: ckan/forms/package_ca.py:42
+msgid "(Example: geogratis-radarsat-mosaic)"
+msgstr ""
+
+#: ckan/forms/package_ca.py:43
+msgid ""
+"Insert a more descriptive title - ideally the same as that used on the "
+"government website."
+msgstr ""
+
+#: ckan/forms/package_ca.py:43
+msgid ""
+"(Example: RADARSAT Ortho-rectified Mosaic of Canada, Lambert Conformal "
+"Conic, 1000 Metres)"
+msgstr ""
+
+#: ckan/forms/package_ca.py:44
+msgid ""
+"The link to the government web page where the data is described and "
+"located. Do not link to the dataset itself."
+msgstr ""
+
+#: ckan/forms/package_ca.py:44
+msgid ""
+"(Example: "
+"http://geogratis.cgdi.gc.ca/geogratis/en/collection/detail.do?id=9369)"
+msgstr ""
+
+#: ckan/forms/package_ca.py:45
+msgid ""
+"<div>URL: The link to the actual data set (if "
+"available)</div><div>Format: Describe the format type, e.g. XML, CSV, "
+"SHAPE, etc.</div><div>Description: A description of the data. Feel free "
+"to copy the description on the government website.</div><div>Hash: Just "
+"leave it blank.</div>"
+msgstr ""
+
+#: ckan/forms/package_ca.py:46 ckan/forms/package_ca.py:47
+msgid "Please enter in YYYY-MM-DD format."
+msgstr ""
+
+#: ckan/forms/package_ca.py:46
+msgid "(Example: 2009-01-15)"
+msgstr ""
+
+#: ckan/forms/package_ca.py:47
+msgid "(Example: 2010-04-12)"
+msgstr ""
+
+#: ckan/forms/package_ca.py:48
+msgid "Select the license type"
+msgstr ""
+
+#: ckan/forms/package_ca.py:49
+#, fuzzy
+#| msgid "available."
+msgid "Only if available"
+msgstr "vorhanden."
+
+#: ckan/forms/package_ca.py:49
+msgid "(Example: monthly)"
+msgstr ""
+
+#: ckan/forms/package_ca.py:50 ckan/forms/package_ca.py:81
+msgid "Years covered"
+msgstr ""
+
+#: ckan/forms/package_ca.py:50
+msgid "Please enter in YYYY - YYYY format"
+msgstr ""
+
+#: ckan/forms/package_ca.py:50
+msgid "(Example: 1992 - 1995)"
+msgstr ""
+
+#: ckan/forms/package_ca.py:51
+msgid ""
+"Include tags you think are descriptive and appropriate. Tags are space "
+"separated; to  join two words together, use a dash (-) or underscore (_)."
+msgstr ""
+
+#: ckan/forms/package_ca.py:51
+msgid ""
+"(Example:  radar radar-imagery radarsat-1 satellite-imagery mosaic  "
+"spectral-engineering geogratis canada gcmd earth-science)"
+msgstr ""
+
+#: ckan/forms/package_ca.py:52
+msgid ""
+"A  more detailed description of the data can go here. Feel free to copy  "
+"& paste from the government website."
+msgstr ""
+
+#: ckan/forms/package_ca.py:53
+msgid "What level of government produced this data?"
+msgstr ""
+
+#: ckan/forms/package_ca.py:54
+msgid "Federal Ministry (if applicable)"
+msgstr ""
+
+#: ckan/forms/package_ca.py:54
+msgid "Indicate the ministry responsible for the data."
+msgstr ""
+
+#: ckan/forms/package_ca.py:55
+msgid "Indicate the agency responsible for the data."
+msgstr ""
+
+#: ckan/forms/package_ca.py:56
+msgid ""
+"Include an email address for the ministry or agency responsible for "
+"maintaining the data (if available)."
+msgstr ""
+
+#: ckan/forms/package_ca.py:80 ckan/forms/package_gov.py:125
+msgid "Date released"
+msgstr ""
+
+#: ckan/forms/package_ca.py:81 ckan/forms/package_gov.py:125
+msgid "Date updated"
+msgstr ""
+
+#: ckan/forms/package_ca.py:81 ckan/forms/package_gov.py:126
+msgid "Update frequency"
+msgstr ""
+
+#: ckan/forms/package_ca.py:82
+msgid "Level of government"
+msgstr ""
+
+#: ckan/forms/package_ca.py:83
+msgid "Federal Ministry"
+msgstr ""
+
+#: ckan/forms/package_ca.py:83
+msgid "Federal Agency"
+msgstr ""
 
 #: ckan/forms/package_gov.py:100 ckan/forms/package_gov.py:128
 msgid "National Statistic"
@@ -383,18 +593,6 @@ msgstr ""
 
 #: ckan/forms/package_gov.py:125
 msgid "External reference"
-msgstr ""
-
-#: ckan/forms/package_gov.py:125
-msgid "Date released"
-msgstr ""
-
-#: ckan/forms/package_gov.py:125
-msgid "Date updated"
-msgstr ""
-
-#: ckan/forms/package_gov.py:126
-msgid "Update frequency"
 msgstr ""
 
 #: ckan/forms/package_gov.py:126
@@ -419,7 +617,6 @@ msgstr ""
 
 #: ckan/forms/package_gov.py:129
 #, fuzzy
-#| msgid "Revision"
 msgid "Precision"
 msgstr "Revision"
 
@@ -694,13 +891,11 @@ msgstr ""
 
 #: ckan/templates/group/layout.html:12
 #, fuzzy
-#| msgid "Create a new group"
 msgid "To create a new group, please first"
 msgstr "Eine neue Gruppe anlegen"
 
 #: ckan/templates/group/layout.html:12
 #, fuzzy
-#| msgid "Login"
 msgid "login"
 msgstr "Anmeldung"
 
@@ -710,7 +905,6 @@ msgstr "Eine neue Gruppe anlegen"
 
 #: ckan/templates/group/new.html:4
 #, fuzzy
-#| msgid "Groups - Index"
 msgid "Groups - New"
 msgstr "Gruppen - Index"
 
@@ -1222,7 +1416,6 @@ msgstr "registriere Pakete"
 
 #: ckan/templates/home/stats.html:16 ckan/templates/home/stats.html:24
 #, fuzzy
-#| msgid "packages."
 msgid "Package"
 msgstr "Pakete."
 
@@ -1232,7 +1425,6 @@ msgstr ""
 
 #: ckan/templates/home/stats.html:16
 #, fuzzy
-#| msgid "Number of edits:"
 msgid "Number of ratings"
 msgstr "Anzahl der Bearbeitungen:"
 
@@ -1242,7 +1434,6 @@ msgstr "registriere Pakete"
 
 #: ckan/templates/home/stats.html:24
 #, fuzzy
-#| msgid "Number of edits:"
 msgid "Number of edits"
 msgstr "Anzahl der Bearbeitungen:"
 
@@ -1252,13 +1443,11 @@ msgstr "Größte Gruppen"
 
 #: ckan/templates/home/stats.html:32
 #, fuzzy
-#| msgid "group"
 msgid "Group"
 msgstr "Gruppe"
 
 #: ckan/templates/home/stats.html:32
 #, fuzzy
-#| msgid "Number of new packages"
 msgid "Number of packages"
 msgstr "Anzahl neuer Pakete"
 
@@ -1268,7 +1457,6 @@ msgstr "Benutzer mit den meisten Paketen"
 
 #: ckan/templates/home/stats.html:52
 #, fuzzy
-#| msgid "Number of new packages"
 msgid "Total number of packages"
 msgstr "Anzahl neuer Pakete"
 
@@ -1308,7 +1496,6 @@ msgstr "Vorschau"
 
 #: ckan/templates/package/edit_form.html:12
 #, fuzzy
-#| msgid "Optional Log Message about this Change:"
 msgid "Optional log message about this change:"
 msgstr "Optionaler Logeintrag zu dieser Änderung"
 
@@ -1470,7 +1657,6 @@ msgstr "Geschichte"
 
 #: ckan/templates/package/layout.html:15
 #, fuzzy
-#| msgid "[authorization]"
 msgid "Authorization"
 msgstr "[Autorisierung]"
 
@@ -1572,7 +1758,6 @@ msgstr "Keine Lizenz spezifiziert"
 
 #: ckan/templates/package/read_core.html:33
 #, fuzzy
-#| msgid "registered packages"
 msgid "Related packages"
 msgstr "registriere Pakete"
 
@@ -1586,7 +1771,6 @@ msgstr "Offenheit"
 
 #: ckan/templates/package/read_core.html:77
 #, fuzzy
-#| msgid "This package is licensed"
 msgid "This package is licensed with"
 msgstr "Dieses Paket ist offen lizensiert"
 
@@ -1903,19 +2087,4 @@ msgstr "Anzahl der Bearbeitungen:"
 #: ckan/templates/user/read.html:31
 msgid "Number of packages administered:"
 msgstr "Anzahl der administrierten Pakete:"
-
-#~ msgid "Master stylesheet"
-#~ msgstr "Hauptstylesheet"
-
-#~ msgid "Help"
-#~ msgstr "Hilfe"
-
-#~ msgid "Rate of new packages"
-#~ msgstr "Ein neues Paket bewerten"
-
-#~ msgid "Week commencing"
-#~ msgstr "Wochen beginn"
-
-#~ msgid "Is It Open"
-#~ msgstr "Ist es offen"
 

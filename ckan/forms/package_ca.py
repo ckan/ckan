@@ -3,6 +3,7 @@ import re
 from pylons import config
 import formalchemy
 from formalchemy import helpers as h
+from pylons.i18n import _, ungettext, N_, gettext
 
 from common import ResourcesField, TagField, ExtrasField, TextExtraField, \
      TextRangeExtraField, SuggestedTextExtraField, package_name_validator
@@ -34,47 +35,53 @@ def build_package_form(is_admin=False):
     builder.add_field(TextExtraField('update_frequency'))
     builder.add_field(TextRangeExtraField('temporal_coverage', validate_re=('^\d{4}$', 'YYYY')))
     builder.add_field(SuggestedTextExtraField('level_of_government', ['Federal', 'Provincial/Territorial', 'Regional', 'Municipal']))
-    builder.add_field(SuggestedTextExtraField('federal_ministry', ministries))
+    builder.add_field(SuggestedTextExtraField('department', ministries))
     builder.add_field(SuggestedTextExtraField('federal_agency', agencies))
 
     # Labels and instructions
-    builder.set_field_text('name', 'Name (required)', "Insert a short, unique, descriptive title here, using only 'a-z', '0-9' and '-_'. Must be lowercase; no spaces allowed.", '(Example: geogratis-radarsat-mosaic)')
-    builder.set_field_text('title', instructions='Insert a more descriptive title - ideally the same as that used on the government website.', hints='(Example: RADARSAT Ortho-rectified Mosaic of Canada, Lambert Conformal Conic, 1000 Metres)')
-    builder.set_field_text('url', instructions='The link to the government web page where the data is described and located. Do not link to the dataset itself.', hints='(Example: http://geogratis.cgdi.gc.ca/geogratis/en/collection/detail.do?id=9369)')
-    builder.set_field_text('resources', instructions=literal('<div>URL: The link to the actual data set (if available)</div><div>Format: Describe the format type, e.g. XML, CSV, SHAPE, etc.</div><div>Description: A description of the data. Feel free to copy the description on the government website.</div><div>Hash: Just leave it blank.</div>'))
-    builder.set_field_text('date_released', instructions='Please enter in YYYY-MM-DD format.', hints='(Example: 2009-01-15)')
-    builder.set_field_text('date_updated', instructions='Please enter in YYYY-MM-DD format.', hints='(Example: 2010-04-12)')
-    builder.set_field_text('license_id', 'License', instructions='Select the license type')
-    builder.set_field_text('update_frequency', instructions='Only if available', hints='(Example: monthly)')
-    builder.set_field_text('temporal_coverage', 'Years covered', instructions='Please enter in YYYY - YYYY format', hints='(Example: 1992 - 1995)')
-    builder.set_field_text('tags', 'Tags', instructions='Include tags you think are descriptive and appropriate. Tags are space separated; to  join two words together, use a dash (-) or underscore (_).', hints='(Example:  radar radar-imagery radarsat-1 satellite-imagery mosaic  spectral-engineering geogratis canada gcmd earth-science)')
-    builder.set_field_text('notes', 'Notes', instructions='A  more detailed description of the data can go here. Feel free to copy  & paste from the government website.', hints=literal('You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.'))
-    builder.set_field_text('level_of_government', instructions='What level of government produced this data?')
-    builder.set_field_text('federal_ministry', 'Federal Ministry (if applicable)', instructions='Indicate the ministry responsible for the data.')
-    builder.set_field_text('federal_agency', instructions='Indicate the agency responsible for the data.')
-    builder.set_field_text('maintainer_email', instructions='Include an email address for the ministry or agency responsible for maintaining the data (if available).')
+    builder.set_field_text('name', '%s %s' % (_('Name'), _('(required)')), _("Insert a short, unique, descriptive title here, using only 'a-z', '0-9' and '-_'. Must be lowercase; no spaces allowed."), _('(Example: geogratis-radarsat-mosaic)'))
+    builder.set_field_text('title', instructions=_('Insert a more descriptive title - ideally the same as that used on the government website.'), hints=_('(Example: RADARSAT Ortho-rectified Mosaic of Canada, Lambert Conformal Conic, 1000 Metres)'))
+    builder.set_field_text('url', instructions=_('The link to the government web page where the data is described and located. Do not link to the dataset itself.'), hints=_('(Example: http://geogratis.cgdi.gc.ca/geogratis/en/collection/detail.do?id=9369)'))
+    builder.set_field_text('resources', instructions=literal(_('<div>URL: The link to the actual data set (if available)</div><div>Format: Describe the format type, e.g. XML, CSV, SHAPE, etc.</div><div>Description: A description of the data. Feel free to copy the description on the government website.</div><div>Hash: Just leave it blank.</div>')))
+    builder.set_field_text('date_released', instructions=_('Please enter in YYYY-MM-DD format.'), hints=_('(Example: 2009-01-15)'))
+    builder.set_field_text('date_updated', instructions=_('Please enter in YYYY-MM-DD format.'), hints=_('(Example: 2010-04-12)'))
+    builder.set_field_text('license_id', _('License'), instructions=_('Select the license type'))
+    builder.set_field_text('update_frequency', instructions=_('Only if available'), hints=_('(Example: monthly)'))
+    builder.set_field_text('temporal_coverage', _('Years covered'), instructions=_('Please enter in YYYY - YYYY format'), hints=_('(Example: 1992 - 1995)'))
+    builder.set_field_text('tags', _('Tags'), instructions=_('Include tags you think are descriptive and appropriate. Tags are space separated; to  join two words together, use a dash (-) or underscore (_).'), hints=_('(Example:  radar radar-imagery radarsat-1 satellite-imagery mosaic  spectral-engineering geogratis canada gcmd earth-science)'))
+    builder.set_field_text('notes', _('Notes'), instructions=_('A  more detailed description of the data can go here. Feel free to copy  & paste from the government website.'), hints=literal(_('You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.')))
+    builder.set_field_text('level_of_government', instructions=_('What level of government produced this data?'))
+    builder.set_field_text('department', _('Federal Ministry (if applicable)'), instructions=_('Indicate the ministry responsible for the data.'))
+    builder.set_field_text('federal_agency', instructions=_('Indicate the agency responsible for the data.'))
+    builder.set_field_text('maintainer_email', instructions=_('Include an email address for the ministry or agency responsible for maintaining the data (if available).'))
 
     # Options/settings
     builder.set_field_option('name', 'validate', package_name_validator)
-    builder.set_field_option('license_id', 'dropdown', {'options':[('', None)] + model.Package.get_license_options()})
+    builder.set_field_option('license_id', 'dropdown', {'options':[('', '')] + model.Package.get_license_options()})
     builder.set_field_option('state', 'dropdown', {'options':model.State.all})
     builder.set_field_option('notes', 'textarea', {'size':'60x15'})
 
     # Layout
-    field_groups = {'Basic information':['name', 'title', 'url'],
-                    'Resources':['resources'],
-                    'Detail':['date_released', 'date_updated',
-                              'update_frequency', 'temporal_coverage',
-                              'license_id', 'notes', 'tags',
-                              'level_of_government', 'federal_ministry',
-                              'federal_agency', 'maintainer_email',
-                              ]
+    field_groups = {_('Basic information'):['name', 'title', 'url'],
+                    _('Resources'):['resources'],
+                    _('Detail'):['date_released', 'date_updated',
+                                 'update_frequency', 'temporal_coverage',
+                                 'license_id', 'notes', 'tags',
+                                 'level_of_government', 'department',
+                                 'federal_agency', 'maintainer_email',
+                                 ]
                     }
     if is_admin:
         field_groups['Detail'].append('state')
     builder.set_displayed_fields(field_groups)
     builder.set_label_prettifier(package.prettify)
     return builder
+    #i18n
+    [_('Name'), _('Title'), _('URL'), _('Resources'), _('Date released'),
+     _('Date updated'), _('Update frequency'), _('Years covered'),
+     _('License'), _('Notes'), _('Tags'), _('Level of government'),
+     _('Federal Ministry'), _('Federal Agency'), _('Maintainer email')]
+
 
 package_fs = build_package_form().get_fieldset()
 package_fs_admin = build_package_form(is_admin=True).get_fieldset()
