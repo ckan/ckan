@@ -14,6 +14,7 @@ Contents:
 
    README
    deployment
+   configuration
    design
    importer
    api
