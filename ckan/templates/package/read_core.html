@@ -5,30 +5,31 @@
   <xi:include href="../_util.html" />
 
   <div class="package">
-    <div class="information">
-      <dl class="icons clearfix">
-        <dt>${h.icon('user')}</dt>
-        <dd>${c.pkg_author_link}</dd>
-        <py:if test="c.pkg.maintainer or c.pkg.maintainer_email">
-          <dt>${h.icon('user_grey')}</dt>
-          <dd>${c.pkg_maintainer_link}</dd>
-        </py:if>
-        <py:if test="c.pkg.version">
-          <dt>${h.icon('package')}</dt>
-          <dd>Version <strong>${c.pkg.version}</strong></dd>
-        </py:if>
-        <dt>${package_license_icon(c.pkg)}</dt>
-        <py:choose test="">
-          <dd py:when="c.pkg.license and c.pkg.license.url"><a href="${c.pkg.license.url}">${c.pkg.license.title}</a></dd>
-          <dd py:when="c.pkg.license">${c.pkg.license.title}</dd>
-          <dd py:when="c.pkg.license_id">${c.pkg.license_id}</dd>
-          <dd py:otherwise="">
-            License not given
-          </dd>
-        </py:choose>
-        <dt>${package_resources_icon(c.pkg)}</dt>
-        <dd>${"Resources available for download" if c.pkg.resources else "No resources given"}</dd>
-      </dl>
+    <div class="information-column">
+      <div class="information">
+        <dl class="icons clearfix">
+          <dt>${h.icon('user')}</dt>
+          <dd>${c.pkg_author_link}</dd>
+          <py:if test="c.pkg.maintainer or c.pkg.maintainer_email">
+            <dt>${h.icon('user_grey')}</dt>
+            <dd>${c.pkg_maintainer_link}</dd>
+          </py:if>
+          <py:if test="c.pkg.version">
+            <dt>${h.icon('package')}</dt>
+            <dd>Version <strong>${c.pkg.version}</strong></dd>
+          </py:if>
+          <dt>${package_license_icon(c.pkg)}</dt>
+          <py:choose test="">
+            <dd py:when="c.pkg.license and c.pkg.license.url"><a href="${c.pkg.license.url}">${c.pkg.license.title}</a></dd>
+            <dd py:when="c.pkg.license">${c.pkg.license.title}</dd>
+            <dd py:when="c.pkg.license_id">${c.pkg.license_id}</dd>
+            <dd py:otherwise="">
+              License not given
+            </dd>
+          </py:choose>
+          <dt>${package_resources_icon(c.pkg)}</dt>
+          <dd>${"Resources available for download" if c.pkg.resources else "No resources given"}</dd>
+        </dl>
         <py:if test="c.package_relationships">
           <h3>Related packages</h3>
           <ul>
@@ -37,6 +38,22 @@
             </py:for>
           </ul>
         </py:if>
+      </div>
+      <div class="information">
+        <p>Alternative metadata formats</p>
+        <ul class="clearfix">
+          <li>
+            <a href="${h.url_for(controller='rest', register='package', action='show', id=c.pkg.name)}">
+              <img src="${h.icon_url('page_white_json')}" title="JSON format" alt="JSON" />
+            </a>
+          </li>
+          <li py:if="config.get('rdf_packages')">
+            <a href="${config.get('rdf_packages') + c.pkg.name}">
+              <img src="${h.icon_url('page_white_rdf')}" title="RDF format" alt="RDF" />
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
 
     <h2 class="head">
