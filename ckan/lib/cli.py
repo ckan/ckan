@@ -577,17 +577,21 @@ class Changes(CkanCommand):
             self.log_changeset(head)
 
     def update(self):
-        self.update_repository()
-
-    def moderate(self):
-        self.options.is_interactive = True
-        self.update_repository()
-
-    def update_repository(self):
         if len(self.args) > 1:
             changeset_id = unicode(self.args[1])
         else:
             changeset_id = None
+        self.update_repository(changeset_id)
+
+    def moderate(self):
+        if len(self.args) > 1:
+            changeset_id = unicode(self.args[1])
+        else:
+            changeset_id = None
+        self.options.is_interactive = True
+        self.update_repository(changeset_id)
+
+    def update_repository(self, changeset_id):
         from ckan.model.changeset import ChangesetRegister
         from ckan.model.changeset import EmptyChangesetRegisterException
         from ckan.model.changeset import UncommittedChangesException
@@ -668,14 +672,14 @@ class Changes(CkanCommand):
             print ""
             answer = answer[0].lower()
             if answer == 'd':
-                print "Printing changes..."
+                print "Change summary:"
                 print ""
                 print "diff %s %s" % (changeset.follows_id, changeset.id)
                 self.print_changes(changeset.changes)
         return answer == 'y'
 
     def moderate_change_apply(self, change):
-        print "Printing change..."
+        print "Change summary:"
         self.print_changes([change])
         print ""
         answer = raw_input("Do you want to apply this change? [Y/n] ").strip() or "y"
@@ -737,6 +741,9 @@ class Changes(CkanCommand):
                 continuing_id=continuing_id,
                 resolve_class=resolve_class,
             )
+            # Todo: Update repository before commiting changeset?
+            self.update_repository(mergeset.id)
+            print ""
         except ConflictException, inst:
             print inst
             sys.exit(1)
@@ -812,7 +819,7 @@ class Changes(CkanCommand):
             print ""
             print "Providing one target changeset will display the changes from the working changeset. Providing two target changesets will display the sum of changes between the first and the second target."
             sys.exit(1)
-        from ckan.model.changeset import NoCommonAncestorException
+        from ckan.model.changeset import NoIntersectionException
         from ckan.model.changeset import ChangesetRegister, Route, Reduce
         register = ChangesetRegister()
         changeset1 = register.get(changeset_id1, None)
@@ -828,8 +835,8 @@ class Changes(CkanCommand):
             changes = route.calc_changes()
             # Todo: Calc and sum with changes for outstanding revisions.
             changes = Reduce(changes).calc_changes()
-        except NoCommonAncestorException:
-            print "The changesets '%s' and '%s' do not share a common ancestor." % (
+        except NoIntersectionException:
+            print "The changesets '%s' and '%s' are not on intersecting lines." % (
                 changeset_id1, changeset_id2
             )
         else:

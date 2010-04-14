@@ -1,8 +1,8 @@
 from ckan.tests import *
 from ckan.model.changeset import ChangesetRegister, Changeset
 from ckan.model.changeset import ChangeRegister, Change
-from ckan.model.changeset import Range, CommonAncestor, Heads, Sum, Merge
-from ckan.model.changeset import AutoResolve
+from ckan.model.changeset import Range, Intersection, Heads, Sum, Merge
+from ckan.model.changeset import AutoResolve, AutoResolvePreferClosing
 from ckan.model.changeset import ConflictException
 from ckan.model.changeset import UncommittedChangesException
 from ckan.model.changeset import WorkingAtHeadException
@@ -580,57 +580,57 @@ class TestArithmetic(TestCase):
         self.assert_true(change.new)
         self.assert_equal(change.new['title'], self.title3)
 
-    def test_common_ancestor_1_1(self):
-        common = self.create_common(self.cs1, self.cs1)
-        changeset = common.find()
+    def test_intersection_1_1(self):
+        intersection = self.create_intersection(self.cs1, self.cs1)
+        changeset = intersection.find()
         self.assert_true(changeset)
         self.assert_equal(changeset.id, self.cs1.id)
 
-    def test_common_ancestor_1_2(self):
-        common = self.create_common(self.cs1, self.cs2)
-        changeset = common.find()
+    def test_intersection_1_2(self):
+        intersection = self.create_intersection(self.cs1, self.cs2)
+        changeset = intersection.find()
         self.assert_true(changeset)
         self.assert_equal(changeset.id, self.cs1.id)
 
-    def test_common_ancestor_2_1(self):
-        common = self.create_common(self.cs2, self.cs1)
-        changeset = common.find()
+    def test_intersection_2_1(self):
+        intersection = self.create_intersection(self.cs2, self.cs1)
+        changeset = intersection.find()
         self.assert_true(changeset)
         self.assert_equal(changeset.id, self.cs1.id)
 
-    def test_common_ancestor_2_3(self):
-        common = self.create_common(self.cs2, self.cs3)
-        changeset = common.find()
+    def test_intersection_2_3(self):
+        intersection = self.create_intersection(self.cs2, self.cs3)
+        changeset = intersection.find()
         self.assert_true(changeset)
         self.assert_equal(changeset.id, self.cs2.id)
 
-    def test_common_ancestor_3_2(self):
-        common = self.create_common(self.cs3, self.cs2)
-        changeset = common.find()
+    def test_intersection_3_2(self):
+        intersection = self.create_intersection(self.cs3, self.cs2)
+        changeset = intersection.find()
         self.assert_true(changeset)
         self.assert_equal(changeset.id, self.cs2.id)
 
-    def test_common_ancestor_4_2(self):
-        common = self.create_common(self.cs4, self.cs2)
-        changeset = common.find()
+    def test_intersection_4_2(self):
+        intersection = self.create_intersection(self.cs4, self.cs2)
+        changeset = intersection.find()
         self.assert_true(changeset)
         self.assert_equal(changeset.id, self.cs1.id)
 
-    def test_common_ancestor_2_4(self):
-        common = self.create_common(self.cs2, self.cs4)
-        changeset = common.find()
+    def test_intersection_2_4(self):
+        intersection = self.create_intersection(self.cs2, self.cs4)
+        changeset = intersection.find()
         self.assert_true(changeset)
         self.assert_equal(changeset.id, self.cs1.id)
 
-    def test_common_ancestor_3_5(self):
-        common = self.create_common(self.cs3, self.cs5)
-        changeset = common.find()
+    def test_intersection_3_5(self):
+        intersection = self.create_intersection(self.cs3, self.cs5)
+        changeset = intersection.find()
         self.assert_true(changeset)
         self.assert_equal(changeset.id, self.cs1.id)
 
-    def test_common_ancestor_5_3(self):
-        common = self.create_common(self.cs5, self.cs3)
-        changeset = common.find()
+    def test_intersection_5_3(self):
+        intersection = self.create_intersection(self.cs5, self.cs3)
+        changeset = intersection.find()
         self.assert_true(changeset)
         self.assert_equal(changeset.id, self.cs1.id)
 
@@ -737,14 +737,25 @@ class TestArithmetic(TestCase):
         self.assert_equal(mergeset.follows_id, self.cs3.id)
         self.assert_equal(mergeset.closes_id, self.cs6.id)
         changes = mergeset.changes
+        self.assert_equal(len(mergeset.changes), 0)
+        self.assert_true(mergeset.get_meta().get('log_message'))
+        self.assert_true(mergeset.get_meta().get('author'))
+
+        merge = Merge(closing=self.cs6, continuing=self.cs3)
+        self.assert_true(merge.is_conflicting())
+        mergeset = merge.create_mergeset(resolve_class=AutoResolvePreferClosing)
+        self.assert_true(mergeset.id)
+        self.assert_equal(mergeset.follows_id, self.cs3.id)
+        self.assert_equal(mergeset.closes_id, self.cs6.id)
+        changes = mergeset.changes
         self.assert_equal(len(mergeset.changes), 1)
         self.assert_true(mergeset.get_meta().get('log_message'))
         self.assert_true(mergeset.get_meta().get('author'))
 
 
     def create_resolve(self, changeset1, changeset2):
-        common = self.create_common(changeset1, changeset2)
-        ancestor = common.find()
+        intersection = self.create_intersection(changeset1, changeset2)
+        ancestor = intersection.find()
         range1 = self.create_range(ancestor, changeset1)
         range2 = self.create_range(ancestor, changeset2)
         range1.pop_first()
@@ -756,8 +767,8 @@ class TestArithmetic(TestCase):
     def create_range(self, start, stop):
         return Range(start, stop)
 
-    def create_common(self, child1, child2):
-        return CommonAncestor(child1, child2)
+    def create_intersection(self, child1, child2):
+        return Intersection(child1, child2)
 
     def create_cs(self, **kwds):
         cs = ChangesetRegister().create_entity(**kwds)
