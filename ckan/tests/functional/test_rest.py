@@ -576,6 +576,9 @@ class TestRest(TestController):
         res_dict = simplejson.loads(res.body)
         assert rev.id == res_dict['id']
         assert rev.timestamp.isoformat() == res_dict['timestamp'], (rev.timestamp.isoformat(), res_dict['timestamp'])
+        assert 'packages' in res_dict
+        assert isinstance(res_dict['packages'], list)
+        assert len(res_dict['packages']) != 0, "List of package names is empty: %s" % res_dict['packages']
 
     def test_14_get_revision_404(self):
         revision_id = "xxxxxxxxxxxxxxxxxxxxxxxxxx"

@@ -51,6 +51,7 @@ class RestController(BaseController):
                 'timestamp': model.strftimestamp(rev.timestamp),
                 'author': rev.author,
                 'message': rev.message,
+                'packages': [p.name for p in rev.packages],
             }
             return self._finish_ok(response_data)
         elif register == u'package' and not subregister:
