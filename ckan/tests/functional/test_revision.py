@@ -150,16 +150,13 @@ class TestRevisionController(TestController):
         # Page 1.   (Implied id=1)
         offset = url_for(controller='revision', action='list')
         res = self.app.get(offset + '?format=atom')
-        print res
-        assert '<feed' in res
-        assert 'xmlns="http://www.w3.org/2005/Atom"' in res
-        assert '</feed>' in res
+        assert '<feed' in res, res
+        assert 'xmlns="http://www.w3.org/2005/Atom"' in res, res
+        assert '</feed>' in res, res
         # Todo: Better test for 'days' request param.
         #  - fake some older revisions and check they aren't included.
         res = self.app.get(offset + '?format=atom&days=30')
-        print res
-        assert '<feed' in res
-        assert 'xmlns="http://www.w3.org/2005/Atom"' in res
-        assert '</feed>' in res
-
+        assert '<feed' in res, res
+        assert 'xmlns="http://www.w3.org/2005/Atom"' in res, res
+        assert '</feed>' in res, res
 

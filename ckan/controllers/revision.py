@@ -34,7 +34,29 @@ class RevisionController(BaseController):
                     dayAge = 0
                 if dayAge >= dayHorizon:
                     break
-                pkgs = u'[%s]' % ' '.join([ p.name for p in revision.packages ])
+                package_indications = []
+                for package in revision.packages:
+                    age = len(package.all_revisions)
+                    if package.state == model.State.DELETED:
+                        transition = "deleted"
+                    elif package.state == model.State.ACTIVE:
+                        transition = ''
+                        generation = len(package.all_revisions)
+                        for package_revision in package.all_revisions:
+                            if package_revision.revision.id == revision.id:
+                                if generation == 1:
+                                    transition = "created"
+                                else:
+                                    try:
+                                        diff = package.diff(revision)
+                                    except:
+                                        diff = '?'
+                                    transition = "updated:%s" % diff
+                                break
+                            generation -= 1
+                    indication = "%s:%s" % (package.name, transition)
+                    package_indications.append(indication)
+                pkgs = u'[%s]' % ' '.join(package_indications)
                 item_title = u'r%s ' % (revision.id)
                 item_title += pkgs
                 if revision.message:
