@@ -203,37 +203,37 @@ dl.icons dd.tiny {
 	margin: 0 0 0 26px;
 }
 
-/* =============== */
-/* = Tag listing = */
-/* =============== */
+/* ========================= */
+/* = Tag and Group listing = */
+/* ========================= */
 
-ul.tags {
-	list-style: none;
-	padding: 0;
-	line-height: 2em;
+.item-list {
+  border-top: solid 1px #cbcbcb;
+  border-bottom: solid 1px #cbcbcb;
+  margin-top: 5px;
 }
 
-ul.tags li {
-	float: left;
+.item-list ul, ul.tags {
+  margin: 0 0 0.75em 0;
+  padding:0;
+  display: inline;
+  list-style: disc;
+  font-size: 0.9em;
+}
+
+.item-list ul li, ul.tags li {
+  background: url(http://datadotgc.ca/sites/default/themes/descartes/images/bullet_separator.png) no-repeat 0% 50%;
+  padding-left: 9px;
+  padding-right: 3px;
+  display: inline;
 }
 
 .tags a {
-	-webkit-border-radius: 0.3em;
-	-moz-border-radius: 0.3em;
-	border-radius: 0.3em;
-	background: #AFC6E9;
-	color: #400F16;
 	text-decoration: none;
-	padding: 0.2em;
-	margin: 0 0.2em;
+  color: #b00;
 }
 
 .tags a:hover {
-	background: #2B69C6;
-	color: #fff;
-	text-decoration: none;
-	padding: 0.2em;
-	margin: 0 0.2em;
 }
 
 /* =================== */
@@ -316,45 +316,41 @@ ul.packages {
 /* = Package read view = */
 /* ===================== */
 
+.box .formats ul {
+  background: transparent;
+}
+
+.box .formats ul li {
+  background: transparent;
+  display: inline;
+}
+
+.package h3, .package h4 {
+  background-color: #444;
+  padding: 10px;
+  color: white;
+}
+
 .package h4 {
 	font-weight: bold;
 	margin: 1em 0 0.6em 0;
 }
 
-.package .information-column { 
-        float: right;
-	width: 31%;
+.package div.tags {
+  margin: 20px 0;
 }
 
-.package .information {
-	font-size: 85%;
-	background: #efefef;
-	border: 1px solid #ccc;
-	border-top: none;
-	border-left: none;
-	border-radius: 0.5em;
-	-moz-border-radius: 0.5em;
-	-webkit-border-radius: 0.5em;
-	margin-top: 1em;
-	margin-left: 1em;
+.package .resources {
+  margin-bottom: 2em;
 }
 
-.package .information ul {
-	list-style: none;
-	padding: 0;
-	line-height: 2em;
-}
-
-.package .information li { 
-        float: left;
-}
-
-.package .information dl.icons, p, ul {
-	margin: 0em 0.4em 0.4em 0.4em;
+.package .resources table {
+  width: 100%;
 }
 
 .package .head {
 	margin-bottom: 0;
+  line-height: 1.0;
 }
 
 .package .name, .group .name {
@@ -362,15 +358,17 @@ ul.packages {
 	font-family: monospace;
 }
 
+.package div.url {
+  margin: 1em;
+}
+
 .package .url a {
 	text-decoration: none;
 }
 
 .package .notes, .group .description {
-	width: 65%;
-	padding: 0.2em 0 0.2em 1%;
+	padding: 0.2em 0 0.2em 0;
 	margin: 0 3% 0.5 0 ! important;
-	border-left: 1px solid #ccc;
 }
 
 .package .notes span.nonegiven {
@@ -380,31 +378,24 @@ ul.packages {
 	opacity: 1;
 }
 
-.twocol {
-	margin: 1em 0 0 0;
+.package .details table {
+  border-collapse: collapse;
+  background: transparent;
+  border-color: grey;
+  border-spacing: 2px 2px;
 }
 
-.twocol > div {
-	width: 49%;
-	min-height: 10em;
-	display: -moz-inline-stack;
-	display: inline-block;
-	vertical-align: top;
-	margin: 0;
-	zoom: 1;
-	*display: inline;
+.package .details table tr {
+  border: none;
+  border-bottom: solid 1px #888;
 }
 
-.twocol h4 {
-	margin-top: 0;
-	padding-top: 0.5em;
+.package .details td {
+  background: transparent;
+  border: none;
 }
 
-.twocol hr {
-	height: 1px ! important;
+.package .details td.package-label {
+  width: 150px;
 }
 
-.package .grouplist, .package .rating {
-	border-left: 1px solid #ddd;
-	padding-left: 0.5em;
-}
