@@ -38,9 +38,9 @@
         ${package_license_icon(package)}
         ${package_resources_icon(package)}
         ${h.link_to(package.title or package.name, h.url_for(controller='package', action='read', id=package.name))}
-        <span py:if="package.tags" class="tags">
-          <py:for each="tag in package.tags">${h.link_to(tag.name, h.url_for(controller='tag', action='read', id=tag.name))}</py:for>
-        </span>
+        <ul py:if="package.tags" class="tags">
+          <li py:for="tag in package.tags">${h.link_to(tag.name, h.url_for(controller='tag', action='read', id=tag.name))}</li>
+        </ul>
     </li>
   </ul>
 
