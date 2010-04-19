@@ -13,6 +13,7 @@ import ckan.authz
 import ckan.rating
 import ckan.misc
 from ckan.lib.helpers import Page
+from pylons.i18n import get_lang
 
 logger = logging.getLogger('ckan.controllers')
 
@@ -109,6 +110,46 @@ class PackageController(BaseController):
         c.pkg = model.Package.by_name(id)
         if not c.pkg:
             abort(404, gettext('Package not found'))
+        format = request.params.get('format', '')
+        if format == 'atom':
+            # Generate and return Atom 1.0 document.
+            from webhelpers.feedgenerator import Atom1Feed
+            feed = Atom1Feed(
+                title=_(u'CKAN Package Revision History'),
+                link=h.url_for(controller='revision', action='read', id=c.pkg.name),
+                description=_(u'Recent changes to CKAN Package: ') + (c.pkg.title or ''),
+                language=unicode(get_lang()),
+            )
+            for pkg_revision in c.pkg.all_revisions:
+                revision = pkg_revision.revision
+                try:
+                    dayHorizon = int(request.params.get('days'))
+                except:
+                    dayHorizon = 30
+                try:
+                    dayAge = (datetime.now() - revision.timestamp).days
+                except:
+                    dayAge = 0
+                if dayAge >= dayHorizon:
+                    break
+                if revision.message:
+                    item_title = u'%s' % revision.message.split('\n')[0]
+                else:
+                    item_title = u'%s' % revision.id
+                item_link = h.url_for(controller='revision', action='read', id=revision.id)
+                item_description = _('Log message: ')
+                item_description += '%s' % (revision.message or '')
+                item_author_name = revision.author
+                item_pubdate = revision.timestamp
+                feed.add_item(
+                    title=item_title,
+                    link=item_link,
+                    description=item_description,
+                    author_name=item_author_name,
+                    pubdate=item_pubdate,
+                )
+            feed.content_type = 'application/atom+xml'
+            return feed.writeString('utf-8')
         c.pkg_revisions = c.pkg.all_revisions
         c.youngest_rev_id = c.pkg_revisions[0].revision_id
         return render('package/history')
@@ -198,6 +239,7 @@ class PackageController(BaseController):
 
         if not 'commit' in request.params and not 'preview' in request.params:
             # edit
+            c.pkgname = id
             fs = fs.bind(pkg)
             c.form = self._render_edit_form(fs, request.params)
             return render('package/edit')
@@ -220,7 +262,7 @@ class PackageController(BaseController):
             except KeyError, error:
                 abort(400, 'Missing parameter: %s' % error.args)
         else: # Must be preview
-            pkgname = id
+            c.pkgname = id
             fs = fs.bind(pkg, data=dict(request.params))
             try:
                 PackageSaver().render_preview(fs, id, pkg.id,

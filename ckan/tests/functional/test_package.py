@@ -981,3 +981,12 @@ class TestRevisions(TestPackageBase):
         assert 'Revision Differences' in main_res, main_res
         assert self.pkg1.name in main_res, main_res
         assert '<tr><td>notes</td><td><pre>- Written by Puccini\n+ Written off</pre></td></tr>' in main_res, main_res
+
+    def test_2_atom_feed(self):
+        offset = url_for(controller='package', action='history', id=self.pkg1.name)
+        offset = "%s?format=atom" % offset
+        res = self.app.get(offset)
+        assert '<feed' in res, res
+        assert 'xmlns="http://www.w3.org/2005/Atom"' in res, res
+        assert '</feed>' in res, res
+   
