@@ -14,7 +14,7 @@ class UserController(BaseController):
         return self.read()
 
     def read(self, id):
-        if id:            
+        if id:
             user = model.Session.query(model.User).get(id)
         else:
             user = model.User.by_name(c.user)
