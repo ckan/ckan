@@ -64,7 +64,7 @@ Example main feed::
       <updated>2010-04-18T21:17:57Z</updated>
       <author><name>208.65.246.156</name></author>
       <id>tag:,2010-04-18:/revision/read/dbc6b54d-1fd1-4b13-b250-340a01646909</id>
-      <summary type="html">Packages affected: [pgcanada:].</summary>
+      <summary type="html">Packages affected: [pgcanada:created].</summary>
     </entry>
     <!-- ...other entries... -->
   </feed>
@@ -108,4 +108,4 @@ or::
 
 A revision may have changes to several packages, particularly if it was created using the API. In this case, the package list is space separated::
 
- Packages affected: [hospital_performance:created water_voles:edited bus_stops:edited:resources].</summary>
+ Packages affected: [hospital_performance:created water_voles:updated bus_stops:updated:resources].</summary>
