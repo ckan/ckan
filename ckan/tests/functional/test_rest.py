@@ -28,32 +28,36 @@ class TestRest(TestController):
             'name' : u'testpkg',
             'title': u'Some Title',
             'url': u'http://blahblahblah.mydomain',
-            'resources': [{u'url':u'http://blah.com/file.xml',
-                           u'format':u'xml',
-                           u'description':u'Main file',
-                           u'hash':u'abc123'},
-                          {u'url':u'http://blah.com/file2.xml',
-                           u'format':u'xml',
-                           u'description':u'Second file',
-                           u'hash':u'def123'},],
+            'resources': [{
+                u'url':u'http://blah.com/file.xml',
+                u'format':u'xml',
+                u'description':u'Main file',
+                u'hash':u'abc123',
+            }, {
+                u'url':u'http://blah.com/file2.xml',
+                u'format':u'xml',
+                u'description':u'Second file',
+                u'hash':u'def123',
+            }],
             'tags': [u'russion', u'novel'],
             'license': self.testpackage_license_id,
-            'extras': {'genre' : u'horror',
-                       'media' : u'dvd',
-                       },
-            }
+            'extras': {
+                'genre' : u'horror',
+                'media' : u'dvd',
+            },
+        }
         self.testgroupvalues = {
             'name' : u'testgroup',
             'title' : u'Some Group Title',
             'description' : u'Great group!',
             'packages' : [u'annakarenina', 'warandpeace'],
-            }
+        }
         self.random_name = u'http://myrandom.openidservice.org/'
         self.user = model.User(name=self.random_name)
         model.Session.add(self.user)
         model.Session.commit()
         model.Session.remove()
-        self.extra_environ={ 'Authorization' : str(self.user.apikey) }
+        self.extra_environ={'Authorization' : str(self.user.apikey)}
 
     @classmethod
     def teardown_class(self):
@@ -314,7 +318,7 @@ class TestRest(TestController):
         #        extra_environ=self.extra_environ)
         model.Session.remove()
 
-    def test_10_edit_pkg(self):
+    def test_10_edit_pkg_values(self):
         # Test Packages Entity Put 200.
 
         # create a package with testpackagevalues
@@ -339,24 +343,58 @@ class TestRest(TestController):
         model.repo.commit_and_remove()
 
         # edit it
-        pkg_vals = {'name':u'somethingnew',
-                    'title':u'newtesttitle',
-                    'extras':{u'key3':u'val3', u'key2':None},
-                    'tags':[u'tag1', u'tag2', u'tag4', u'tag5']
-                    }
+        pkg_vals = {
+            'name':u'somethingnew',
+            'title':u'newtesttitle',
+            'resources': [
+                {
+                    u'url':u'http://blah.com/file2.xml',
+                    u'format':u'xml',
+                    u'description':u'Appendix 1',
+                    u'hash':u'def123',
+                },
+                {
+                    u'url':u'http://blah.com/file3.xml',
+                    u'format':u'xml',
+                    u'description':u'Appenddic 2',
+                    u'hash':u'ghi123',
+                },
+            ],
+            'extras':{u'key3':u'val3', u'key2':None},
+            'tags':[u'tag1', u'tag2', u'tag4', u'tag5'],
+        }
         offset = '/api/rest/package/%s' % self.testpackagevalues['name']
         postparams = '%s=1' % simplejson.dumps(pkg_vals)
         res = self.app.post(offset, params=postparams, status=[200],
                             extra_environ=self.extra_environ)
+
+        # Check submitted field have changed.
         model.Session.remove()
         pkg = model.Session.query(model.Package).filter_by(name=pkg_vals['name']).one()
+        # - title
         assert pkg.title == pkg_vals['title']
+        # - tags
         pkg_tagnames = [tag.name for tag in pkg.tags]
         for tagname in pkg_vals['tags']:
             assert tagname in pkg_tagnames, 'tag %r not in %r' % (tagname, pkg_tagnames)
-        # check that unsubmitted fields are unchanged
+        # - resources
+        assert len(pkg.resources), "Package has no resources: %s" % pkg
+        assert len(pkg.resources) == 2, len(pkg.resources)
+        resource = pkg.resources[0]
+        assert resource.url == u'http://blah.com/file2.xml', resource.url
+        assert resource.format == u'xml', resource.format
+        assert resource.description == u'Appendix 1', resource.description
+        assert resource.hash == u'def123', resource.hash
+        resource = pkg.resources[1]
+        assert resource.url == 'http://blah.com/file3.xml', resource.url
+        assert resource.format == u'xml', resource.format
+        assert resource.description == u'Appenddic 2', resource.description
+        assert resource.hash == u'ghi123', resource.hash
+
+        # Check unsubmitted fields have not changed.
+        # - url
         assert pkg.url == self.testpackagevalues['url'], pkg.url
-        
+        # - extras
         assert len(pkg.extras) == 2, pkg.extras
         for key, value in {u'key1':u'val1', u'key3':u'val3'}.items():
             assert pkg.extras[key] == value, pkg.extras
