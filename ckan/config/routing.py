@@ -56,8 +56,6 @@ def make_map():
         controller='rest', action='delete',
         conditions=dict(method=['DELETE']))
 
-    map.redirect("/tags", "/tag")
-    map.redirect("/tags/{url:.*}", "/tag/{url}")
     map.redirect("/packages", "/package")
     map.redirect("/packages/{url:.*}", "/package/{url}")
     map.connect('/package/', controller='package', action='index')
@@ -71,6 +69,11 @@ def make_map():
     map.connect('/group/list', controller='group', action='list')
     map.connect('/group/new', controller='group', action='new')
     map.connect('/group/:id', controller='group', action='read')
+    map.redirect("/tags", "/tag")
+    map.redirect("/tags/{url:.*}", "/tag/{url}")
+    map.redirect("/tag/read/{url:.*}", "/tag/{url}", _redirect_code='301 Moved Permanently')
+    map.connect('/tag/', controller='tag', action='index')
+    map.connect('/tag/:id', controller='tag', action='read')
     map.redirect("/users/{url:.*}", "/user/{url}")
     map.connect('/user/all', controller='user', action='all')
     map.connect('/user/edit', controller='user', action='edit')
