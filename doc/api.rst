@@ -68,8 +68,6 @@ locations of the CKAN REST API resources:
 +--------------------------------+---------------------------------------------------------------+
 | Resource Name                  | Location                                                      |
 +================================+===============================================================+
-| Revision Entity                | /api/rest/revision/REVISION-ID                                |
-+--------------------------------+---------------------------------------------------------------+
 | Package Register               | /api/rest/package                                             |
 +--------------------------------+---------------------------------------------------------------+
 | Package Entity                 | /api/rest/package/PACKAGE-NAME                                |
@@ -92,18 +90,22 @@ locations of the CKAN REST API resources:
 +--------------------------------+---------------------------------------------------------------+
 | Package Relationship Entity    | /api/rest/package/PACKAGE-NAME/RELATIONSHIP-NAME/PACKAGE-NAME |
 +--------------------------------+---------------------------------------------------------------+
+| Revision Entity                | /api/rest/revision/REVISION-ID                                |
++--------------------------------+---------------------------------------------------------------+
 
 Here are the non-REST API locations:
 
 +-------------------+-----------------------+
 | API functions     | Location              |
 +===================+=======================+
-| Revision Search   | /api/search/revision  |
-+-------------------+-----------------------+
 | Package Search    | /api/search/package   |
 +-------------------+-----------------------+
 | Tag Counts        | /api/tag_counts       |
 +-------------------+-----------------------+
+| Revision Search   | /api/search/revision  |
++-------------------+-----------------------+
+
+See below for more information about package and revision search parameters.
 
 
 Methods and data formats
@@ -116,8 +118,6 @@ the operation.
 +-------------------------------+--------+------------------+-------------------+
 | Resource                      | Method | Request          | Response          |
 +===============================+========+==================+===================+ 
-| Revision Entity               | GET    |                  | Revision          | 
-+-------------------------------+--------+------------------+-------------------+
 | Package Register              | GET    |                  | Package-List      | 
 +-------------------------------+--------+------------------+-------------------+
 | Package Register              | POST   | Package          |                   | 
@@ -155,6 +155,8 @@ the operation.
 | Search                        | POST   | Query-String     | Search-Response   | 
 +-------------------------------+--------+------------------+-------------------+
 | Tag Counts                    | GET    |                  | Tag-Count-List    | 
++-------------------------------+--------+------------------+-------------------+
+| Revision Entity               | GET    |                  | Revision          | 
 +-------------------------------+--------+------------------+-------------------+
 
 Notes:
