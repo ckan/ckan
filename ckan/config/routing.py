@@ -73,6 +73,7 @@ def make_map():
     map.redirect("/tags/{url:.*}", "/tag/{url}")
     map.redirect("/tag/read/{url:.*}", "/tag/{url}", _redirect_code='301 Moved Permanently')
     map.connect('/tag/', controller='tag', action='index')
+    map.connect('/tag/autocomplete', controller='tag', action='autocomplete')
     map.connect('/tag/:id', controller='tag', action='read')
     map.redirect("/users/{url:.*}", "/user/{url}")
     map.connect('/user/all', controller='user', action='all')
