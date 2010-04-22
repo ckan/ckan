@@ -334,7 +334,7 @@ class TestData(CkanCommand):
         assert pkg.title in res, res
         for tag in pkg.tags:
             assert tag.name in res, res
-        assert pkg.license.name in res, res
+        assert pkg.license in res, res
 
         tag = pkg.tags[0]
         res = check_page('/tag/read/%s' % tag.name, 
