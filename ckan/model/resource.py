@@ -30,19 +30,17 @@ class PackageResource(vdm.sqlalchemy.RevisionedObjectMixin,
         self.description = description
         self.hash = hash
         
-    def __repr__(self):
-        return '<PackageResource id=%s package_id=%s url=%s description=%s>' % (self.id, self.package_id, self.url, self.description)
-
     @staticmethod
     def get_columns():
         return ('url', 'format', 'description', 'hash')
 
 mapper(PackageResource, package_resource_table, properties={
     'package':orm.relation(Package,
-        backref=orm.backref('resources',
+        # all resources including deleted
+        backref=orm.backref('package_resources_all',
                             collection_class=ordering_list('position'),
-                            order_by=[package_resource_table.c.position],
                             cascade='all, delete, delete-orphan',
+                            order_by=package_resource_table.c.position,
                             ),
                        )
     },
@@ -53,3 +51,30 @@ mapper(PackageResource, package_resource_table, properties={
 vdm.sqlalchemy.modify_base_object_mapper(PackageResource, Revision, State)
 PackageResourceRevision= vdm.sqlalchemy.create_object_version(
     mapper, PackageResource, resource_revision_table)
+
+import vdm.sqlalchemy.stateful
+# TODO: move this into vdm
+def add_stateful_m21(object_to_alter, m21_property_name,
+        underlying_m21_attrname, **kwargs):
+    # identifier for PackageResource objects
+    def _identifier(obj):
+        return getattr(obj, 'url')
+    from sqlalchemy.orm import object_session
+    def _f(obj_to_delete):
+        sess = object_session(obj_to_delete)
+        if sess: # for tests at least must support obj not being sqlalchemy
+            sess.expunge(obj_to_delete)
+
+    active_list = vdm.sqlalchemy.stateful.DeferredProperty(
+            underlying_m21_attrname,
+            vdm.sqlalchemy.stateful.StatefulList,
+            # these args are passed to StatefulList
+            # identifier if url (could use id but have issue with None)
+            identifier=_identifier,
+            unneeded_deleter=_f,
+            base_modifier=lambda x: x.get_as_of()
+            )
+    setattr(object_to_alter, m21_property_name, active_list)
+
+add_stateful_m21(Package, 'resources', 'package_resources_all')
+
