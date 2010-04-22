@@ -201,7 +201,8 @@ Data Formats
 +-----------------+------------------------------------------------------------+
 | Name-String     | An alphanumeric string.                                    |
 +-----------------+------------------------------------------------------------+
-| Resource-Dict   | { url: String, format: String, description: String }       |
+| Resource-Dict   | { url: String, format: String, description: String,        |
+|                 | hash: String }                                             |
 +-----------------+------------------------------------------------------------+
 | Rating          | { package: Name-String, rating: int }                      |
 +-----------------+------------------------------------------------------------+
