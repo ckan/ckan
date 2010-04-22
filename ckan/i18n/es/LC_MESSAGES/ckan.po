@@ -1,0 +1,2165 @@
+# Spanish translations for ckan.
+# Copyright (C) 2010 ORGANIZATION
+# This file is distributed under the same license as the ckan project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ckan 1.0a\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2010-02-27 14:18+0100\n"
+"PO-Revision-Date: 2010-04-22 19:05+0100\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: es <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.4\n"
+
+#: ckan/controllers/group.py:31
+#, python-format
+msgid "Not authorized to read %s"
+msgstr ""
+
+#: ckan/controllers/group.py:54
+msgid "Must be logged in to create a new group."
+msgstr ""
+
+#: ckan/controllers/group.py:100
+#, python-format
+msgid "User %r not authorized to edit %r"
+msgstr ""
+
+#: ckan/controllers/group.py:136
+msgid "Group not found"
+msgstr ""
+
+#: ckan/controllers/group.py:141
+msgid "Not authorized to edit authization for group"
+msgstr ""
+
+#: ckan/controllers/group.py:168 ckan/controllers/package.py:316
+#, python-format
+msgid "Added role '%s' for user '%s'"
+msgstr ""
+
+#: ckan/controllers/group.py:175 ckan/controllers/package.py:323
+msgid "Error: No role found with that id"
+msgstr ""
+
+#: ckan/controllers/group.py:178 ckan/controllers/package.py:325
+#, python-format
+msgid "Deleted role '%s' for user '%s'"
+msgstr ""
+
+#: ckan/controllers/importer.py:36
+msgid "Need to login before importing."
+msgstr ""
+
+#: ckan/controllers/importer.py:41
+msgid "Need to specify a filename."
+msgstr ""
+
+#: ckan/controllers/importer.py:44
+msgid "Did not receive file successfully."
+msgstr ""
+
+#: ckan/controllers/importer.py:50
+#, python-format
+msgid "File '%s' not found."
+msgstr ""
+
+#: ckan/controllers/importer.py:55 ckan/controllers/importer.py:84
+#, python-format
+msgid "Error importing file '%s' as Excel or CSV format: %s"
+msgstr ""
+
+#: ckan/controllers/importer.py:95
+msgid "Errors remain - see preview."
+msgstr ""
+
+#: ckan/controllers/importer.py:109
+msgid "Problem with user account."
+msgstr ""
+
+#: ckan/controllers/importer.py:116
+#, python-format
+msgid "Imported %i package."
+msgid_plural "Imported %i packages."
+msgstr[0] ""
+msgstr[1] ""
+
+#: ckan/controllers/importer.py:148
+msgid "Could not access import file any more."
+msgstr ""
+
+#: ckan/controllers/importer.py:160
+msgid "User is not logged in"
+msgstr ""
+
+#: ckan/controllers/importer.py:164
+msgid "Error with user account. Log out and log in again."
+msgstr ""
+
+#: ckan/controllers/importer.py:167
+#, python-format
+msgid "Package %s already exists in database. Import will edit the fields."
+msgstr ""
+
+#: ckan/controllers/importer.py:170
+#, python-format
+msgid "User %r unauthorized to edit existing package %s"
+msgstr ""
+
+#: ckan/controllers/package.py:76 ckan/controllers/package.py:112
+#: ckan/controllers/package.py:284
+msgid "Package not found"
+msgstr ""
+
+#: ckan/controllers/package.py:87
+#, python-format
+msgid "Unauthorized to read package %s"
+msgstr ""
+
+#: ckan/controllers/package.py:106
+msgid "Select two revisions before doing the comparison."
+msgstr ""
+
+#: ckan/controllers/package.py:118
+msgid "CKAN Package Revision History"
+msgstr ""
+
+#: ckan/controllers/package.py:120
+msgid "Recent changes to CKAN Package: "
+msgstr ""
+
+#: ckan/controllers/package.py:140
+msgid "Log message: "
+msgstr ""
+
+#: ckan/controllers/package.py:229
+#, python-format
+msgid "User %r not authorized to edit %s"
+msgstr ""
+
+#: ckan/controllers/package.py:289
+#, python-format
+msgid "User %r not authorized to edit %s authorizations"
+msgstr ""
+
+#: ckan/controllers/package.py:341
+msgid "404 Package Not Found"
+msgstr ""
+
+#: ckan/controllers/package.py:347
+msgid "Rating value invalid"
+msgstr ""
+
+#: ckan/controllers/rest.py:113 ckan/controllers/rest.py:204
+#: ckan/controllers/rest.py:280
+msgid "Access denied"
+msgstr ""
+
+#: ckan/controllers/rest.py:118 ckan/controllers/rest.py:210
+#, python-format
+msgid "JSON Error: %s"
+msgstr ""
+
+#: ckan/controllers/rest.py:140
+#, python-format
+msgid "REST API: Create package relationship: %s %s %s"
+msgstr ""
+
+#: ckan/controllers/rest.py:151
+#, python-format
+msgid "Cannot create new entity of this type: %s %s"
+msgstr ""
+
+#: ckan/controllers/rest.py:158
+#, python-format
+msgid "REST API: Create object %s"
+msgstr ""
+
+#: ckan/controllers/rest.py:196
+#, python-format
+msgid "Cannot update entity of this type: %s"
+msgstr ""
+
+#: ckan/controllers/rest.py:229
+#, python-format
+msgid "REST API: Update object %s"
+msgstr ""
+
+#: ckan/controllers/rest.py:274
+#, python-format
+msgid "Cannot delete entity of this type: %s %s"
+msgstr ""
+
+#: ckan/controllers/rest.py:285
+#, python-format
+msgid "REST API: Delete %s"
+msgstr ""
+
+#: ckan/controllers/rest.py:315
+msgid "Blank qjson parameter"
+msgstr ""
+
+#: ckan/controllers/rest.py:324
+#, python-format
+msgid "Search params: %s"
+msgstr ""
+
+#: ckan/controllers/rest.py:352
+msgid "You must supply a package name (parameter \"package\")."
+msgstr ""
+
+#: ckan/controllers/rest.py:354
+msgid "You must supply a rating (parameter \"rating\")."
+msgstr ""
+
+#: ckan/controllers/rest.py:359
+msgid "Rating must be an integer value."
+msgstr ""
+
+#: ckan/controllers/rest.py:363
+#, python-format
+msgid "Rating must be between %i and %i."
+msgstr ""
+
+#: ckan/controllers/rest.py:365
+#, python-format
+msgid "Package with name %r does not exist."
+msgstr ""
+
+#: ckan/controllers/rest.py:428
+#, python-format
+msgid "Can't find entity data in request params %s: %s"
+msgstr ""
+
+#: ckan/controllers/rest.py:434
+msgid "Request params must be in form of a json encoded dictionary."
+msgstr ""
+
+#: ckan/controllers/rest.py:463
+#, python-format
+msgid "REST API: Update package relationship: %s %s %s"
+msgstr ""
+
+#: ckan/controllers/revision.py:18
+msgid "CKAN Repository Revision History"
+msgstr ""
+
+#: ckan/controllers/revision.py:20
+msgid "Recent changes to the CKAN repository."
+msgstr ""
+
+#: ckan/controllers/revision.py:73
+#, python-format
+msgid "Packages affected: %s.\n"
+msgstr ""
+
+#: ckan/controllers/revision.py:131
+msgid "No revision id specified"
+msgstr ""
+
+#: ckan/controllers/revision.py:134
+msgid "You are not authorized to perform this action"
+msgstr ""
+
+#: ckan/controllers/revision.py:143
+#, python-format
+msgid "Purge of revision failed: %s"
+msgstr ""
+
+#: ckan/controllers/user.py:75
+msgid "Changed user details"
+msgstr ""
+
+#: ckan/forms/common.py:21
+#, python-format
+msgid "Name must be at least %s characters long"
+msgstr ""
+
+#: ckan/forms/common.py:23
+msgid ""
+"Name must be purely lowercase alphanumeric (ascii) characters and these "
+"symbols: -_"
+msgstr ""
+
+#: ckan/forms/common.py:31
+msgid "Package name already exists in database"
+msgstr ""
+
+#: ckan/forms/common.py:39
+msgid "Group name already exists in database"
+msgstr ""
+
+#: ckan/forms/common.py:107
+#, python-format
+msgid "Value does not match required format: %s"
+msgstr ""
+
+#: ckan/forms/common.py:420
+#, python-format
+msgid "Tag \"%s\" length is less than minimum %s"
+msgstr ""
+
+#: ckan/forms/common.py:422
+#, python-format
+msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
+msgstr ""
+
+#: ckan/forms/common.py:424
+#, python-format
+msgid "Tag \"%s\" must not be uppercase"
+msgstr ""
+
+#: ckan/forms/common.py:441
+#, python-format
+msgid "Duplicate key \"%s\""
+msgstr ""
+
+#: ckan/forms/common.py:444
+#, python-format
+msgid "Extra key-value pair: key is not set for value \"%s\"."
+msgstr ""
+
+#: ckan/forms/common.py:578
+msgid "other - please specify"
+msgstr ""
+
+#: ckan/forms/common.py:594
+msgid "Other"
+msgstr ""
+
+#: ckan/forms/package.py:31 ckan/forms/package.py:58
+#: ckan/forms/package_ca.py:42 ckan/forms/package_ca.py:80
+msgid "Name"
+msgstr ""
+
+#: ckan/forms/package.py:31 ckan/forms/package_ca.py:42
+msgid "(required)"
+msgstr ""
+
+#: ckan/forms/package.py:31
+msgid ""
+"<strong>Unique identifier</strong> for package.<br/>2+ chars, lowercase, "
+"using only 'a-z0-9' and '-_'"
+msgstr ""
+
+#: ckan/forms/package.py:32 ckan/forms/package.py:60
+#: ckan/forms/package_ca.py:48 ckan/forms/package_ca.py:82
+#: ckan/templates/home/license.html:4 ckan/templates/package/read_core.html:70
+msgid "License"
+msgstr ""
+
+#: ckan/forms/package.py:33 ckan/forms/package.py:60
+#: ckan/forms/package_ca.py:51 ckan/forms/package_ca.py:82
+#: ckan/templates/layout.html:75 ckan/templates/tag/index.html:7
+msgid "Tags"
+msgstr ""
+
+#: ckan/forms/package.py:33
+msgid "(space separated list)"
+msgstr ""
+
+#: ckan/forms/package.py:34 ckan/forms/package.py:59
+#: ckan/forms/package_ca.py:52 ckan/forms/package_ca.py:82
+msgid "Notes"
+msgstr ""
+
+#: ckan/forms/package.py:34 ckan/forms/package_ca.py:52
+msgid ""
+"You can use <a "
+"href=\"http://daringfireball.net/projects/markdown/syntax\">Markdown "
+"formatting</a> here."
+msgstr ""
+
+#: ckan/forms/package.py:44 ckan/forms/package_ca.py:65
+#: ckan/forms/package_gov.py:107
+msgid "Basic information"
+msgstr ""
+
+#: ckan/forms/package.py:46 ckan/forms/package.py:59
+#: ckan/forms/package_ca.py:66 ckan/forms/package_ca.py:80
+#: ckan/forms/package_gov.py:114 ckan/templates/package/read_core.html:33
+#: ckan/templates/package/read_core.html:41
+msgid "Resources"
+msgstr ""
+
+#: ckan/forms/package.py:47 ckan/forms/package.py:53
+#: ckan/forms/package_ca.py:67
+msgid "Detail"
+msgstr ""
+
+#: ckan/forms/package.py:50 ckan/forms/package.py:60
+msgid "Extras"
+msgstr ""
+
+#: ckan/forms/package.py:58 ckan/forms/package_ca.py:80
+msgid "Title"
+msgstr ""
+
+#: ckan/forms/package.py:58 ckan/templates/package/read.html:15
+msgid "Version"
+msgstr ""
+
+#: ckan/forms/package.py:58 ckan/forms/package_ca.py:80
+#: ckan/templates/package/form_resources.html:6
+#: ckan/templates/package/read_core.html:36
+msgid "URL"
+msgstr ""
+
+#: ckan/forms/package.py:59 ckan/templates/home/index.html:84
+#: ckan/templates/package/history.html:26 ckan/templates/revision/list.html:16
+#: ckan/templates/user/read.html:37
+msgid "Author"
+msgstr ""
+
+#: ckan/forms/package.py:59
+msgid "Author email"
+msgstr ""
+
+#: ckan/forms/package.py:59
+msgid "Maintainer"
+msgstr ""
+
+#: ckan/forms/package.py:60 ckan/forms/package_ca.py:83
+msgid "Maintainer email"
+msgstr ""
+
+#: ckan/forms/package.py:60
+msgid "State"
+msgstr ""
+
+#: ckan/forms/package_ca.py:42
+msgid ""
+"Insert a short, unique, descriptive title here, using only 'a-z', '0-9' "
+"and '-_'. Must be lowercase; no spaces allowed."
+msgstr ""
+
+#: ckan/forms/package_ca.py:42
+msgid "(Example: geogratis-radarsat-mosaic)"
+msgstr ""
+
+#: ckan/forms/package_ca.py:43
+msgid ""
+"Insert a more descriptive title - ideally the same as that used on the "
+"government website."
+msgstr ""
+
+#: ckan/forms/package_ca.py:43
+msgid ""
+"(Example: RADARSAT Ortho-rectified Mosaic of Canada, Lambert Conformal "
+"Conic, 1000 Metres)"
+msgstr ""
+
+#: ckan/forms/package_ca.py:44
+msgid ""
+"The link to the government web page where the data is described and "
+"located. Do not link to the dataset itself."
+msgstr ""
+
+#: ckan/forms/package_ca.py:44
+msgid ""
+"(Example: "
+"http://geogratis.cgdi.gc.ca/geogratis/en/collection/detail.do?id=9369)"
+msgstr ""
+
+#: ckan/forms/package_ca.py:45
+msgid ""
+"<div>URL: The link to the actual data set (if "
+"available)</div><div>Format: Describe the format type, e.g. XML, CSV, "
+"SHAPE, etc.</div><div>Description: A description of the data. Feel free "
+"to copy the description on the government website.</div><div>Hash: Just "
+"leave it blank.</div>"
+msgstr ""
+
+#: ckan/forms/package_ca.py:46 ckan/forms/package_ca.py:47
+msgid "Please enter in YYYY-MM-DD format."
+msgstr ""
+
+#: ckan/forms/package_ca.py:46
+msgid "(Example: 2009-01-15)"
+msgstr ""
+
+#: ckan/forms/package_ca.py:47
+msgid "(Example: 2010-04-12)"
+msgstr ""
+
+#: ckan/forms/package_ca.py:48
+msgid "Select the license type"
+msgstr ""
+
+#: ckan/forms/package_ca.py:49
+msgid "Only if available"
+msgstr ""
+
+#: ckan/forms/package_ca.py:49
+msgid "(Example: monthly)"
+msgstr ""
+
+#: ckan/forms/package_ca.py:50 ckan/forms/package_ca.py:81
+msgid "Years covered"
+msgstr ""
+
+#: ckan/forms/package_ca.py:50
+msgid "Please enter in YYYY - YYYY format"
+msgstr ""
+
+#: ckan/forms/package_ca.py:50
+msgid "(Example: 1992 - 1995)"
+msgstr ""
+
+#: ckan/forms/package_ca.py:51
+msgid ""
+"Include tags you think are descriptive and appropriate. Tags are space "
+"separated; to  join two words together, use a dash (-) or underscore (_)."
+msgstr ""
+
+#: ckan/forms/package_ca.py:51
+msgid ""
+"(Example:  radar radar-imagery radarsat-1 satellite-imagery mosaic  "
+"spectral-engineering geogratis canada gcmd earth-science)"
+msgstr ""
+
+#: ckan/forms/package_ca.py:52
+msgid ""
+"A  more detailed description of the data can go here. Feel free to copy  "
+"& paste from the government website."
+msgstr ""
+
+#: ckan/forms/package_ca.py:53
+msgid "What level of government produced this data?"
+msgstr ""
+
+#: ckan/forms/package_ca.py:54
+msgid "Federal Ministry (if applicable)"
+msgstr ""
+
+#: ckan/forms/package_ca.py:54
+msgid "Indicate the ministry responsible for the data."
+msgstr ""
+
+#: ckan/forms/package_ca.py:55
+msgid "Indicate the agency responsible for the data."
+msgstr ""
+
+#: ckan/forms/package_ca.py:56
+msgid ""
+"Include an email address for the ministry or agency responsible for "
+"maintaining the data (if available)."
+msgstr ""
+
+#: ckan/forms/package_ca.py:80 ckan/forms/package_gov.py:125
+msgid "Date released"
+msgstr ""
+
+#: ckan/forms/package_ca.py:81 ckan/forms/package_gov.py:125
+msgid "Date updated"
+msgstr ""
+
+#: ckan/forms/package_ca.py:81 ckan/forms/package_gov.py:126
+msgid "Update frequency"
+msgstr ""
+
+#: ckan/forms/package_ca.py:82
+msgid "Level of government"
+msgstr ""
+
+#: ckan/forms/package_ca.py:83
+msgid "Federal Ministry"
+msgstr ""
+
+#: ckan/forms/package_ca.py:83
+msgid "Federal Agency"
+msgstr ""
+
+#: ckan/forms/package_gov.py:100 ckan/forms/package_gov.py:128
+msgid "National Statistic"
+msgstr ""
+
+#: ckan/forms/package_gov.py:109 ckan/templates/package/read_core.html:63
+msgid "Details"
+msgstr ""
+
+#: ckan/forms/package_gov.py:115
+msgid "More details"
+msgstr ""
+
+#: ckan/forms/package_gov.py:125
+msgid "External reference"
+msgstr ""
+
+#: ckan/forms/package_gov.py:126
+msgid "Geographic granularity"
+msgstr ""
+
+#: ckan/forms/package_gov.py:127
+msgid "Geographic coverage"
+msgstr ""
+
+#: ckan/forms/package_gov.py:127
+msgid "Temporal granularity"
+msgstr ""
+
+#: ckan/forms/package_gov.py:128
+msgid "Temporal coverage"
+msgstr ""
+
+#: ckan/forms/package_gov.py:128
+msgid "Categories"
+msgstr ""
+
+#: ckan/forms/package_gov.py:129
+msgid "Precision"
+msgstr ""
+
+#: ckan/forms/package_gov.py:129
+msgid "Taxonomy URL"
+msgstr ""
+
+#: ckan/forms/package_gov.py:129
+msgid "Department"
+msgstr ""
+
+#: ckan/forms/package_gov.py:129
+msgid "Agency"
+msgstr ""
+
+#: ckan/lib/package_saver.py:117
+msgid "No links are allowed in the log_message."
+msgstr ""
+
+#: ckan/model/package_relationship.py:45
+#, python-format
+msgid "depends on %s"
+msgstr ""
+
+#: ckan/model/package_relationship.py:45
+#, python-format
+msgid "is a dependency of %s"
+msgstr ""
+
+#: ckan/model/package_relationship.py:46
+#, python-format
+msgid "derives from %s"
+msgstr ""
+
+#: ckan/model/package_relationship.py:46
+#, python-format
+msgid "has derivation %s"
+msgstr ""
+
+#: ckan/model/package_relationship.py:47
+#, python-format
+msgid "is a child of %s"
+msgstr ""
+
+#: ckan/model/package_relationship.py:47
+#, python-format
+msgid "is a parent of %s"
+msgstr ""
+
+#: ckan/model/package_relationship.py:51
+#, python-format
+msgid "has sibling %s"
+msgstr ""
+
+#: ckan/templates/error_document_template.html:4
+#, python-format
+msgid "Error %(code)s"
+msgstr ""
+
+#: ckan/templates/error_document_template.html:6
+#, python-format
+msgid "%(message)s"
+msgstr ""
+
+#: ckan/templates/layout.html:11
+msgid "CKAN - Comprehensive Knowledge Archive Network -"
+msgstr ""
+
+#: ckan/templates/layout.html:19
+msgid "CKAN Recent Changes"
+msgstr ""
+
+#: ckan/templates/layout.html:53
+msgid "Logged in as"
+msgstr ""
+
+#: ckan/templates/layout.html:55
+msgid "My account"
+msgstr ""
+
+#: ckan/templates/layout.html:56 ckan/templates/user/logout.html:7
+msgid "Logout"
+msgstr ""
+
+#: ckan/templates/layout.html:59
+msgid "Login with"
+msgstr ""
+
+#: ckan/templates/layout.html:59
+msgid "OpenID"
+msgstr ""
+
+#: ckan/templates/layout.html:65
+msgid "CKAN Logo"
+msgstr ""
+
+#: ckan/templates/layout.html:71
+msgid "Sections:"
+msgstr ""
+
+#: ckan/templates/layout.html:73 ckan/templates/group/layout.html:18
+#: ckan/templates/home/about.html:4 ckan/templates/home/index.html:4
+#: ckan/templates/package/layout.html:19
+msgid "Home"
+msgstr ""
+
+#: ckan/templates/layout.html:74 ckan/templates/group/edit_form.html:10
+#: ckan/templates/home/index.html:83 ckan/templates/package/index.html:7
+#: ckan/templates/package/list.html:32 ckan/templates/revision/list.html:16
+#: ckan/templates/revision/read.html:20 ckan/templates/user/read.html:37
+msgid "Packages"
+msgstr ""
+
+#: ckan/templates/layout.html:76 ckan/templates/group/index.html:7
+msgid "Groups"
+msgstr ""
+
+#: ckan/templates/layout.html:77 ckan/templates/user/read.html:34
+msgid "Recent changes"
+msgstr ""
+
+#: ckan/templates/layout.html:78
+msgid "API"
+msgstr ""
+
+#: ckan/templates/layout.html:80
+msgid "In this section:"
+msgstr ""
+
+#: ckan/templates/layout.html:91
+msgid "Skip to page content"
+msgstr ""
+
+#: ckan/templates/layout.html:91
+msgid "[ Skip to main content ]"
+msgstr ""
+
+#: ckan/templates/layout.html:105
+msgid "Master content template placeholder … please replace me."
+msgstr ""
+
+#: ckan/templates/layout.html:110
+msgid "Valid XHTML 1.1"
+msgstr ""
+
+#: ckan/templates/layout.html:110
+msgid "XHTML"
+msgstr ""
+
+#: ckan/templates/layout.html:111
+msgid "CSS"
+msgstr ""
+
+#: ckan/templates/layout.html:112
+msgid "Project Home Page"
+msgstr ""
+
+#: ckan/templates/layout.html:113
+msgid "Contact Us"
+msgstr ""
+
+#: ckan/templates/layout.html:114
+msgid "Privacy Policy"
+msgstr ""
+
+#: ckan/templates/layout.html:117
+msgid "An"
+msgstr ""
+
+#: ckan/templates/layout.html:117 ckan/templates/home/about.html:46
+msgid "Open Knowledge Foundation"
+msgstr ""
+
+#: ckan/templates/layout.html:117
+msgid "Project"
+msgstr ""
+
+#: ckan/templates/layout.html:119
+msgid "v"
+msgstr ""
+
+#: ckan/templates/layout.html:120
+msgid ""
+"| (c) Open Knowledge Foundation\n"
+"\t| All material available under an"
+msgstr ""
+
+#: ckan/templates/layout.html:122 ckan/templates/package/search_form.html:7
+msgid "open license"
+msgstr ""
+
+#: ckan/templates/layout.html:123 ckan/templates/layout.html:127
+msgid "This Content and Data is Open"
+msgstr ""
+
+#: ckan/templates/group/authz.html:4
+msgid "Groups - Authorization -"
+msgstr ""
+
+#: ckan/templates/group/authz.html:7
+msgid "Authorization for group:"
+msgstr ""
+
+#: ckan/templates/group/authz.html:14 ckan/templates/package/authz.html:14
+msgid "Update Existing Roles"
+msgstr ""
+
+#: ckan/templates/group/authz.html:19 ckan/templates/package/authz.html:19
+msgid "Create New User Roles"
+msgstr ""
+
+#: ckan/templates/group/authz.html:24 ckan/templates/group/edit_form.html:24
+#: ckan/templates/package/authz.html:24
+msgid "Save"
+msgstr ""
+
+#: ckan/templates/group/edit.html:4
+msgid "Groups - Edit -"
+msgstr ""
+
+#: ckan/templates/group/edit.html:11
+msgid "Edit Group:"
+msgstr ""
+
+#: ckan/templates/group/edit_form.html:17
+msgid "New Packages"
+msgstr ""
+
+#: ckan/templates/group/index.html:4
+msgid "Groups - Index"
+msgstr ""
+
+#: ckan/templates/group/index.html:9 ckan/templates/group/read.html:40
+#: ckan/templates/package/index.html:13 ckan/templates/tag/index.html:18
+#: ckan/templates/tag/index.html:21 ckan/templates/tag/read.html:8
+msgid "There are"
+msgstr ""
+
+#: ckan/templates/group/index.html:9
+msgid "groups."
+msgstr ""
+
+#: ckan/templates/group/layout.html:10
+msgid "Groups section"
+msgstr ""
+
+#: ckan/templates/group/layout.html:11
+msgid ""
+"Whilst tags are great at collecting packages together, there are "
+"occasions when you want to restrict users from editing a collection. A"
+msgstr ""
+
+#: ckan/templates/group/layout.html:11
+msgid "group"
+msgstr ""
+
+#: ckan/templates/group/layout.html:11
+msgid ""
+"can be set-up to specify which users have permission to add or remove "
+"packages from it."
+msgstr ""
+
+#: ckan/templates/group/layout.html:12
+msgid "To create a new group, please first"
+msgstr ""
+
+#: ckan/templates/group/layout.html:12
+msgid "login"
+msgstr ""
+
+#: ckan/templates/group/layout.html:13 ckan/templates/group/layout.html:19
+msgid "Create a new group"
+msgstr ""
+
+#: ckan/templates/group/new.html:4
+msgid "Groups - New"
+msgstr ""
+
+#: ckan/templates/group/new.html:11
+msgid "New Group"
+msgstr ""
+
+#: ckan/templates/group/read.html:4
+msgid "Groups -"
+msgstr ""
+
+#: ckan/templates/group/read.html:10
+msgid "No Title"
+msgstr ""
+
+#: ckan/templates/group/read.html:18
+msgid "[edit]"
+msgstr ""
+
+#: ckan/templates/group/read.html:21
+msgid "[authorization]"
+msgstr ""
+
+#: ckan/templates/group/read.html:31
+msgid "Administrators:"
+msgstr ""
+
+#: ckan/templates/group/read.html:37
+msgid "Packages:"
+msgstr ""
+
+#: ckan/templates/group/read.html:41
+msgid "packages in this group."
+msgstr ""
+
+#: ckan/templates/home/about.html:7 ckan/templates/home/index.html:41
+msgid "About CKAN"
+msgstr ""
+
+#: ckan/templates/home/about.html:9
+msgid "CKAN is the Comprehensive Knowledge Archive Network, a"
+msgstr ""
+
+#: ckan/templates/home/about.html:9
+msgid "registry"
+msgstr ""
+
+#: ckan/templates/home/about.html:9
+msgid "of"
+msgstr ""
+
+#: ckan/templates/home/about.html:10
+msgid "open knowledge"
+msgstr ""
+
+#: ckan/templates/home/about.html:10
+msgid ""
+"packages and projects\n"
+"    (and a few closed ones)."
+msgstr ""
+
+#: ckan/templates/home/about.html:13
+msgid "CKAN makes it easy to"
+msgstr ""
+
+#: ckan/templates/home/about.html:13
+msgid ""
+"find, share and reuse open\n"
+"      content and data"
+msgstr ""
+
+#: ckan/templates/home/about.html:14
+msgid ""
+", especially in ways that are machine\n"
+"      automatable."
+msgstr ""
+
+#: ckan/templates/home/about.html:18
+msgid "As a system CKAN functions as a synthesis of several different services:"
+msgstr ""
+
+#: ckan/templates/home/about.html:20
+msgid "CKAN Features Overview"
+msgstr ""
+
+#: ckan/templates/home/about.html:22
+msgid ""
+"As the diagram shows, CKAN combines the features of a listing/registry,\n"
+"\t\ta package index and a wiki. As a registry it acts like"
+msgstr ""
+
+#: ckan/templates/home/about.html:24
+msgid "freshmeat"
+msgstr ""
+
+#: ckan/templates/home/about.html:24
+msgid ""
+"but for open data and\n"
+"\t\tcontent resources. However it adds to a simple registry in key ways."
+msgstr ""
+
+#: ckan/templates/home/about.html:27
+msgid "First, thanks to its underlying"
+msgstr ""
+
+#: ckan/templates/home/about.html:28
+msgid "versioned domain model"
+msgstr ""
+
+#: ckan/templates/home/about.html:28
+msgid ""
+"CKAN has a\n"
+"\t\twiki-like interface that lets anyone add and material held in it. "
+"Second,\n"
+"\t\tand unlike a wiki, CKAN can store 'structured' information, which "
+"allows it\n"
+"\t\tto provide 'index'-like features such as automated registration, "
+"discovery\n"
+"\t\tand installation of material. In this respect it behaves like"
+msgstr ""
+
+#: ckan/templates/home/about.html:33
+msgid "CPAN"
+msgstr ""
+
+#: ckan/templates/home/about.html:33
+msgid "or"
+msgstr ""
+
+#: ckan/templates/home/about.html:34
+msgid "PyPI"
+msgstr ""
+
+#: ckan/templates/home/about.html:34
+msgid ""
+"in the software world -- though\n"
+"\t\tagain for"
+msgstr ""
+
+#: ckan/templates/home/about.html:35
+msgid "open data and content"
+msgstr ""
+
+#: ckan/templates/home/about.html:35
+msgid "not code."
+msgstr ""
+
+#: ckan/templates/home/about.html:38
+msgid ""
+"More about CKAN, and the background to its creation can\n"
+"    be found in"
+msgstr ""
+
+#: ckan/templates/home/about.html:40
+msgid ""
+"these\n"
+"      slides"
+msgstr ""
+
+#: ckan/templates/home/about.html:43
+msgid "Who's Behind CKAN?"
+msgstr ""
+
+#: ckan/templates/home/about.html:45
+msgid "The CKAN software and site is developed and maintained by the"
+msgstr ""
+
+#: ckan/templates/home/about.html:46
+msgid ""
+". Both the\n"
+"    CKAN code and data are open:"
+msgstr ""
+
+#: ckan/templates/home/about.html:47
+msgid ""
+"free for anyone to use\n"
+"      and reuse"
+msgstr ""
+
+#: ckan/templates/home/about.html:48
+msgid ". To find out more check out the the"
+msgstr ""
+
+#: ckan/templates/home/about.html:49
+msgid "CKAN project page"
+msgstr ""
+
+#: ckan/templates/home/about.html:49
+msgid ""
+"on the Open\n"
+"    Knowledge Foundation site."
+msgstr ""
+
+#: ckan/templates/home/about.html:52
+msgid "Contributors"
+msgstr ""
+
+#: ckan/templates/home/about.html:54
+msgid ""
+"Various people and projects have contributed to the development of CKAN "
+"including:"
+msgstr ""
+
+#: ckan/templates/home/about.html:56
+msgid "Rufus Pollock"
+msgstr ""
+
+#: ckan/templates/home/about.html:57
+msgid "David Read"
+msgstr ""
+
+#: ckan/templates/home/about.html:58
+msgid "Nick Stenning"
+msgstr ""
+
+#: ckan/templates/home/about.html:58
+msgid "(css and js)"
+msgstr ""
+
+#: ckan/templates/home/about.html:59
+msgid "John Bywater"
+msgstr ""
+
+#: ckan/templates/home/about.html:60
+msgid "CKAN logo: \""
+msgstr ""
+
+#: ckan/templates/home/about.html:60
+msgid "angry"
+msgstr ""
+
+#: ckan/templates/home/about.html:60
+msgid "hamster"
+msgstr ""
+
+#: ckan/templates/home/about.html:61
+msgid "famfamfam.com for silk icons"
+msgstr ""
+
+#: ckan/templates/home/about.html:62
+msgid "Pylons"
+msgstr ""
+
+#: ckan/templates/home/about.html:63
+msgid "Genshi"
+msgstr ""
+
+#: ckan/templates/home/guide.html:4
+msgid "Guide"
+msgstr ""
+
+#: ckan/templates/home/guide.html:7
+msgid "CKAN Guide"
+msgstr ""
+
+#: ckan/templates/home/guide.html:9
+msgid "Bookmarklet for Adding Packages"
+msgstr ""
+
+#: ckan/templates/home/guide.html:10
+msgid ""
+"Want to automate creating a package from the info in a webpage? You can "
+"use the CKAN bookmarklet. This will automatically extract information "
+"such as url, title and a description and send it off to the new package "
+"form (where you can then edit further)."
+msgstr ""
+
+#: ckan/templates/home/guide.html:11
+msgid ""
+"To install the bookmarklet just drag the following link to your bookmarks"
+" toolbar (in IE: right-click on it and select Add to Favourites). For "
+"more details on installing bookmarklets see"
+msgstr ""
+
+#: ckan/templates/home/guide.html:11
+msgid "the del.icio.us help page on the topic"
+msgstr ""
+
+#: ckan/templates/home/guide.html:14
+msgid "Add to CKAN"
+msgstr ""
+
+#: ckan/templates/home/index.html:42
+msgid ""
+"Find out more about CKAN by reading our about pages or consulting the \n"
+"        CKAN guide."
+msgstr ""
+
+#: ckan/templates/home/index.html:52
+msgid "Development »"
+msgstr ""
+
+#: ckan/templates/home/index.html:58
+msgid "Welcome to CKAN"
+msgstr ""
+
+#: ckan/templates/home/index.html:59
+msgid "CKAN is a registry of"
+msgstr ""
+
+#: ckan/templates/home/index.html:60
+msgid ""
+"open data \n"
+"      and content"
+msgstr ""
+
+#: ckan/templates/home/index.html:61
+msgid "packages. CKAN makes it easy to"
+msgstr ""
+
+#: ckan/templates/home/index.html:61
+msgid ""
+"find, share and reuse \n"
+"      open content and data"
+msgstr ""
+
+#: ckan/templates/home/index.html:62
+msgid ""
+", especially in ways that are machine \n"
+"      automatable."
+msgstr ""
+
+#: ckan/templates/home/index.html:66
+msgid "registered packages"
+msgstr ""
+
+#: ckan/templates/home/index.html:66
+msgid "available."
+msgstr ""
+
+#: ckan/templates/home/index.html:70 ckan/templates/home/stats.html:93
+msgid "Top Tags"
+msgstr ""
+
+#: ckan/templates/home/index.html:80
+msgid "Recently changed"
+msgstr ""
+
+#: ckan/templates/home/index.html:85
+msgid "Time"
+msgstr ""
+
+#: ckan/templates/home/index.html:99
+msgid "View older changes »"
+msgstr ""
+
+#: ckan/templates/home/layout.html:9 ckan/templates/user/read.html:18
+msgid "About"
+msgstr ""
+
+#: ckan/templates/home/license.html:7
+msgid "CKAN License"
+msgstr ""
+
+#: ckan/templates/home/license.html:9
+msgid "Code"
+msgstr ""
+
+#: ckan/templates/home/license.html:10
+msgid "The code that runs CKAN is open-source and licensed under the"
+msgstr ""
+
+#: ckan/templates/home/license.html:12
+msgid "GNU Affero GPL"
+msgstr ""
+
+#: ckan/templates/home/license.html:13
+msgid ". It is hosted on"
+msgstr ""
+
+#: ckan/templates/home/license.html:14
+msgid "KnowledgeForge"
+msgstr ""
+
+#: ckan/templates/home/license.html:14
+msgid ""
+", and the project\n"
+"    home page is here:"
+msgstr ""
+
+#: ckan/templates/home/license.html:16
+msgid "http://knowledgeforge.net/project/ckan/"
+msgstr ""
+
+#: ckan/templates/home/license.html:19
+msgid "Content and Data"
+msgstr ""
+
+#: ckan/templates/home/license.html:20
+msgid "All material on this site is"
+msgstr ""
+
+#: ckan/templates/home/license.html:21
+msgid "open"
+msgstr ""
+
+#: ckan/templates/home/license.html:21
+msgid ""
+"and can be freely used, reused\n"
+"    and redistributed. Formally, the data/database is licensed under the"
+msgstr ""
+
+#: ckan/templates/home/license.html:23
+msgid ""
+"Open Data Commons Open\n"
+"      Database License v1.0"
+msgstr ""
+
+#: ckan/templates/home/license.html:24
+msgid ""
+", with all copyrightable content in that\n"
+"    database plus any additional content on this site licensed under a"
+msgstr ""
+
+#: ckan/templates/home/license.html:26
+msgid ""
+"Creative Commons\n"
+"      Attribution Share-Alike v3.0 license"
+msgstr ""
+
+#: ckan/templates/home/license.html:28
+msgid ""
+"For convenience, all material - including all package, tag and revision "
+"information - is available in bulk, in the form of a full dump of the "
+"CKAN database. This (gzipped) dump file is updated daily and can be "
+"downloaded from"
+msgstr ""
+
+#: ckan/templates/home/license.html:29
+msgid "http://www.ckan.net/dump/"
+msgstr ""
+
+#: ckan/templates/home/stats.html:4
+msgid "Stats"
+msgstr ""
+
+#: ckan/templates/home/stats.html:12
+msgid "Statistics"
+msgstr ""
+
+#: ckan/templates/home/stats.html:14
+msgid "Total number of packages"
+msgstr ""
+
+#: ckan/templates/home/stats.html:33
+msgid "Revisions to packages per week"
+msgstr ""
+
+#: ckan/templates/home/stats.html:69
+msgid "Top Rated Packages"
+msgstr ""
+
+#: ckan/templates/home/stats.html:71 ckan/templates/home/stats.html:79
+msgid "Package"
+msgstr ""
+
+#: ckan/templates/home/stats.html:71
+msgid "Average rating"
+msgstr ""
+
+#: ckan/templates/home/stats.html:71
+msgid "Number of ratings"
+msgstr ""
+
+#: ckan/templates/home/stats.html:77
+msgid "Most Edited Packages"
+msgstr ""
+
+#: ckan/templates/home/stats.html:79
+msgid "Number of edits"
+msgstr ""
+
+#: ckan/templates/home/stats.html:85
+msgid "Largest Groups"
+msgstr ""
+
+#: ckan/templates/home/stats.html:87
+msgid "Group"
+msgstr ""
+
+#: ckan/templates/home/stats.html:87
+msgid "Number of packages"
+msgstr ""
+
+#: ckan/templates/home/stats.html:100
+msgid "Users owning most packages"
+msgstr ""
+
+#: ckan/templates/home/stats.html:107
+msgid "Page last updated:"
+msgstr ""
+
+#: ckan/templates/package/authz.html:4
+msgid "Packages - Authorization -"
+msgstr ""
+
+#: ckan/templates/package/authz.html:7
+msgid "Authorization for package:"
+msgstr ""
+
+#: ckan/templates/package/edit.html:4
+msgid "Packages - Edit -"
+msgstr ""
+
+#: ckan/templates/package/edit.html:19
+msgid "Edit package:"
+msgstr ""
+
+#: ckan/templates/package/edit.html:21 ckan/templates/package/new.html:20
+#: ckan/templates/user/edit.html:9
+msgid "(skip to preview)"
+msgstr ""
+
+#: ckan/templates/package/edit.html:28 ckan/templates/package/new.html:31
+#: ckan/templates/user/edit.html:29
+msgid "Preview"
+msgstr ""
+
+#: ckan/templates/package/edit.html:36 ckan/templates/package/history.html:48
+#: ckan/templates/package/read.html:130
+msgid "Package History"
+msgstr ""
+
+#: ckan/templates/package/edit_form.html:12
+msgid "Optional log message about this change:"
+msgstr ""
+
+#: ckan/templates/package/edit_form.html:14 ckan/templates/user/edit.html:18
+msgid "You can use"
+msgstr ""
+
+#: ckan/templates/package/edit_form.html:14 ckan/templates/user/edit.html:18
+msgid "Markdown formatting"
+msgstr ""
+
+#: ckan/templates/package/edit_form.html:14 ckan/templates/user/edit.html:18
+msgid "here."
+msgstr ""
+
+#: ckan/templates/package/edit_form.html:16
+#: ckan/templates/revision/read.html:11
+msgid "Author:"
+msgstr ""
+
+#: ckan/templates/package/edit_form.html:17
+msgid "If you have not signed in this will just be your IP address."
+msgstr ""
+
+#: ckan/templates/package/edit_form.html:19
+msgid "Click here to sign in"
+msgstr ""
+
+#: ckan/templates/package/edit_form.html:19
+msgid "before submitting (opens in new window)."
+msgstr ""
+
+#: ckan/templates/package/edit_form.html:24 ckan/templates/user/edit.html:22
+msgid "Commit"
+msgstr ""
+
+#: ckan/templates/package/edit_form.html:27
+msgid "Please Note:"
+msgstr ""
+
+#: ckan/templates/package/edit_form.html:29
+msgid ""
+"By submitting content, you agree to release your contributions\n"
+"        under the open license specified on the"
+msgstr ""
+
+#: ckan/templates/package/edit_form.html:31
+msgid "(basically Attribution-ShareAlike)."
+msgstr ""
+
+#: ckan/templates/package/edit_form.html:32
+msgid ""
+"If you are not happy for this to occur please refrain from editing\n"
+"        this page."
+msgstr ""
+
+#: ckan/templates/package/form.html:6
+msgid "Errors in form"
+msgstr ""
+
+#: ckan/templates/package/form.html:7
+msgid "The form contains invalid entries:"
+msgstr ""
+
+#: ckan/templates/package/form_extra_fields.html:11
+msgid "New key"
+msgstr ""
+
+#: ckan/templates/package/form_extra_fields.html:21
+msgid "Delete"
+msgstr ""
+
+#: ckan/templates/package/form_extra_fields.html:25
+msgid "with value"
+msgstr ""
+
+#: ckan/templates/package/form_resources.html:6
+#: ckan/templates/package/read_core.html:36
+msgid "Format"
+msgstr ""
+
+#: ckan/templates/package/form_resources.html:6
+#: ckan/templates/package/read_core.html:36
+msgid "Description"
+msgstr ""
+
+#: ckan/templates/package/form_resources.html:6
+#: ckan/templates/package/read_core.html:36
+msgid "Hash"
+msgstr ""
+
+#: ckan/templates/package/history.html:4 ckan/templates/revision/read.html:32
+msgid "Package -"
+msgstr ""
+
+#: ckan/templates/package/history.html:4
+msgid "- History"
+msgstr ""
+
+#: ckan/templates/package/history.html:12
+msgid "Revisions"
+msgstr ""
+
+#: ckan/templates/package/history.html:18 ckan/templates/package/new.html:23
+msgid "Error:"
+msgstr ""
+
+#: ckan/templates/package/history.html:26 ckan/templates/revision/read.html:4
+#: ckan/templates/user/read.html:37
+msgid "Revision"
+msgstr ""
+
+#: ckan/templates/package/history.html:26 ckan/templates/revision/list.html:16
+#: ckan/templates/user/read.html:37
+msgid "Timestamp"
+msgstr ""
+
+#: ckan/templates/package/history.html:26 ckan/templates/revision/list.html:16
+#: ckan/templates/user/read.html:37
+msgid "Log Message"
+msgstr ""
+
+#: ckan/templates/package/history.html:43
+msgid "Compare »"
+msgstr ""
+
+#: ckan/templates/package/index.html:4
+msgid "Packages - Index"
+msgstr ""
+
+#: ckan/templates/package/index.html:13
+msgid "packages."
+msgstr ""
+
+#: ckan/templates/package/layout.html:10
+msgid "This package:"
+msgstr ""
+
+#: ckan/templates/package/layout.html:11
+msgid "View"
+msgstr ""
+
+#: ckan/templates/package/layout.html:12 ckan/templates/user/read.html:24
+msgid "Edit"
+msgstr ""
+
+#: ckan/templates/package/layout.html:13
+msgid "History"
+msgstr ""
+
+#: ckan/templates/package/layout.html:15
+msgid "Authorization"
+msgstr ""
+
+#: ckan/templates/package/layout.html:20
+msgid "Browse"
+msgstr ""
+
+#: ckan/templates/package/layout.html:21
+msgid "Register new package"
+msgstr ""
+
+#: ckan/templates/package/list.html:4
+msgid "Packages - List"
+msgstr ""
+
+#: ckan/templates/package/list.html:8
+msgid "Package listing key"
+msgstr ""
+
+#: ckan/templates/package/list.html:11
+msgid "Openly licensed"
+msgstr ""
+
+#: ckan/templates/package/list.html:13
+msgid "Closed/unknown licensing"
+msgstr ""
+
+#: ckan/templates/package/list.html:15
+msgid "Resources available"
+msgstr ""
+
+#: ckan/templates/package/list.html:16
+msgid "Click on the arrow to show the package resources."
+msgstr ""
+
+#: ckan/templates/package/list.html:18
+msgid "No resources listed"
+msgstr ""
+
+#: ckan/templates/package/list.html:21
+msgid "Packages with a blue stripe satisfy the OKFN's"
+msgstr ""
+
+#: ckan/templates/package/list.html:23
+msgid "Open Knowledge Definition."
+msgstr ""
+
+#: ckan/templates/package/new.html:4
+msgid "Packages - New"
+msgstr ""
+
+#: ckan/templates/package/new.html:19
+msgid "Register a New Package"
+msgstr ""
+
+#: ckan/templates/package/read.html:4
+msgid "Packages -"
+msgstr ""
+
+#: ckan/templates/package/read.html:21 ckan/templates/package/read.html:59
+msgid "License not given"
+msgstr ""
+
+#: ckan/templates/package/read.html:29
+#, fuzzy, python-format
+#| msgid "Imported %i package."
+#| msgid_plural "Imported %i packages."
+msgid "Related packages"
+msgstr ""
+
+#: ckan/templates/package/read.html:40
+msgid "Openness:"
+msgstr ""
+
+#: ckan/templates/package/read.html:42
+msgid "OPEN"
+msgstr ""
+
+#: ckan/templates/package/read.html:45
+msgid "NOT OPEN"
+msgstr ""
+
+#: ckan/templates/package/read.html:51
+msgid "This package is licensed with"
+msgstr ""
+
+#: ckan/templates/package/read.html:66 ckan/templates/package/read.html:70
+msgid "This package satisfies the Open Knowledge Definition."
+msgstr ""
+
+#: ckan/templates/package/read.html:69
+msgid "[Open Data]"
+msgstr ""
+
+#: ckan/templates/package/read.html:73
+msgid "[Open Content]"
+msgstr ""
+
+#: ckan/templates/package/read.html:76
+msgid "Help Make This Package Open!"
+msgstr ""
+
+#: ckan/templates/package/read.html:77
+msgid "This package is"
+msgstr ""
+
+#: ckan/templates/package/read.html:77
+msgid "not open"
+msgstr ""
+
+#: ckan/templates/package/read.html:77
+msgid "as it is"
+msgstr ""
+
+#: ckan/templates/package/read.html:78
+msgid "not openly licensed"
+msgstr ""
+
+#: ckan/templates/package/read.html:78
+msgid "or is"
+msgstr ""
+
+#: ckan/templates/package/read.html:79
+msgid "missing downloadable resources"
+msgstr ""
+
+#: ckan/templates/package/read.html:79
+msgid ""
+". Help\n"
+"      make it open by"
+msgstr ""
+
+#: ckan/templates/package/read.html:81
+msgid "starting an enquiry"
+msgstr ""
+
+#: ckan/templates/package/read.html:81
+msgid "using the"
+msgstr ""
+
+#: ckan/templates/package/read.html:83
+msgid ""
+"Is It Open\n"
+"          Data service"
+msgstr ""
+
+#: ckan/templates/package/read.html:91
+#, fuzzy, python-format
+#| msgid "Imported %i package."
+#| msgid_plural "Imported %i packages."
+msgid "Edit this Package"
+msgstr ""
+
+#: ckan/templates/package/read.html:92
+msgid ""
+"Can you help us keep this page up to date?\n"
+"          If so, why not"
+msgstr ""
+
+#: ckan/templates/package/read.html:95
+msgid "update the package information"
+msgstr ""
+
+#: ckan/templates/package/read.html:103
+msgid "Alternative metadata formats"
+msgstr ""
+
+#: ckan/templates/package/read.html:107
+msgid "JSON format"
+msgstr ""
+
+#: ckan/templates/package/read.html:107
+msgid "JSON"
+msgstr ""
+
+#: ckan/templates/package/read.html:111
+msgid "RDF format"
+msgstr ""
+
+#: ckan/templates/package/read.html:111
+msgid "RDF"
+msgstr ""
+
+#: ckan/templates/package/read.html:125
+msgid "RDF Version"
+msgstr ""
+
+#: ckan/templates/package/read_core.html:19
+msgid "Tags:"
+msgstr ""
+
+#: ckan/templates/package/read_core.html:23
+msgid "A curated collection of packages"
+msgstr ""
+
+#: ckan/templates/package/read_core.html:23
+msgid "Groups:"
+msgstr ""
+
+#: ckan/templates/package/read_core.html:38
+msgid "Download"
+msgstr ""
+
+#: ckan/templates/package/read_core.html:41
+msgid "None given for this package."
+msgstr ""
+
+#: ckan/templates/package/read_core.html:96
+msgid "Rating"
+msgstr ""
+
+#: ckan/templates/package/read_core.html:102
+msgid "State:"
+msgstr ""
+
+#: ckan/templates/package/resources.html:2
+msgid "Someresources"
+msgstr ""
+
+#: ckan/templates/package/search.html:6
+msgid "Packages - Search"
+msgstr ""
+
+#: ckan/templates/package/search.html:9
+msgid "Search packages"
+msgstr ""
+
+#: ckan/templates/package/search.html:17
+msgid "tags found (max"
+msgstr ""
+
+#: ckan/templates/package/search.html:17
+msgid "shown)."
+msgstr ""
+
+#: ckan/templates/package/search.html:21
+msgid "packages found."
+msgstr ""
+
+#: ckan/templates/package/search.html:23
+msgid "Would you like to"
+msgstr ""
+
+#: ckan/templates/package/search.html:23
+msgid "create a new package?"
+msgstr ""
+
+#: ckan/templates/package/search_form.html:3
+msgid "Search Packages »"
+msgstr ""
+
+#: ckan/templates/package/search_form.html:4
+msgid "E.g. 'geo', 'shakespeare', 'science'"
+msgstr ""
+
+#: ckan/templates/package/search_form.html:7
+msgid "Filters:"
+msgstr ""
+
+#: ckan/templates/package/search_form.html:8
+msgid "downloadable"
+msgstr ""
+
+#: ckan/templates/revision/diff.html:4
+msgid "Diff"
+msgstr ""
+
+#: ckan/templates/revision/diff.html:7
+msgid "Revision Differences -"
+msgstr ""
+
+#: ckan/templates/revision/diff.html:9
+msgid "From:"
+msgstr ""
+
+#: ckan/templates/revision/diff.html:13
+msgid "To:"
+msgstr ""
+
+#: ckan/templates/revision/diff.html:20
+msgid "Field"
+msgstr ""
+
+#: ckan/templates/revision/diff.html:20
+msgid "Difference"
+msgstr ""
+
+#: ckan/templates/revision/diff.html:28
+msgid "No differences"
+msgstr ""
+
+#: ckan/templates/revision/layout.html:8
+msgid "CKAN Atom Feed"
+msgstr ""
+
+#: ckan/templates/revision/list.html:4 ckan/templates/revision/list.html:7
+msgid "Repository History"
+msgstr ""
+
+#: ckan/templates/revision/list.html:8
+msgid ""
+"This page lists all changes to package database, with most recent\n"
+"    changes first. It is also available as an"
+msgstr ""
+
+#: ckan/templates/revision/list.html:9
+msgid ""
+"Atom\n"
+"      Feed"
+msgstr ""
+
+#: ckan/templates/revision/list.html:16
+msgid "Number"
+msgstr ""
+
+#: ckan/templates/revision/purge.html:4
+msgid "Revisions - Purge"
+msgstr ""
+
+#: ckan/templates/revision/purge.html:7
+msgid "Revision Purge"
+msgstr ""
+
+#: ckan/templates/revision/purge.html:8
+msgid "There was an error:"
+msgstr ""
+
+#: ckan/templates/revision/purge.html:9
+msgid "Purge successful."
+msgstr ""
+
+#: ckan/templates/revision/read.html:7
+msgid "Revision:"
+msgstr ""
+
+#: ckan/templates/revision/read.html:14
+msgid "Timestamp:"
+msgstr ""
+
+#: ckan/templates/revision/read.html:16
+msgid "Log Message:"
+msgstr ""
+
+#: ckan/templates/revision/read.html:19
+msgid "Changes"
+msgstr ""
+
+#: ckan/templates/revision/read.html:29
+msgid "Packages' Tags"
+msgstr ""
+
+#: ckan/templates/revision/read.html:33
+msgid ""
+",\n"
+"      Tag -"
+msgstr ""
+
+#: ckan/templates/tag/index.html:4
+msgid "Tags - Index"
+msgstr ""
+
+#: ckan/templates/tag/index.html:19
+msgid "results for ‘"
+msgstr ""
+
+#: ckan/templates/tag/index.html:22
+msgid "results for tags."
+msgstr ""
+
+#: ckan/templates/tag/index.html:32
+msgid "and see all tags."
+msgstr ""
+
+#: ckan/templates/tag/read.html:4
+msgid "Tags -"
+msgstr ""
+
+#: ckan/templates/tag/read.html:7
+msgid "Tag:"
+msgstr ""
+
+#: ckan/templates/tag/read.html:8
+msgid "packages tagged with"
+msgstr ""
+
+#: ckan/templates/user/apikey.html:4 ckan/templates/user/login_form.html:4
+#: ckan/templates/user/openid_form.html:17
+msgid "Account - Login"
+msgstr ""
+
+#: ckan/templates/user/apikey.html:7
+msgid "API Key"
+msgstr ""
+
+#: ckan/templates/user/apikey.html:8
+msgid "Your API key is:"
+msgstr ""
+
+#: ckan/templates/user/edit.html:4
+msgid "User - Edit -"
+msgstr ""
+
+#: ckan/templates/user/edit.html:7
+msgid "Edit User:"
+msgstr ""
+
+#: ckan/templates/user/edit.html:17
+msgid "About user:"
+msgstr ""
+
+#: ckan/templates/user/login_form.html:7
+#: ckan/templates/user/openid_form.html:20
+msgid "Login"
+msgstr ""
+
+#: ckan/templates/user/login_form.html:8
+msgid "Please login now."
+msgstr ""
+
+#: ckan/templates/user/login_form.html:11
+msgid "Username:"
+msgstr ""
+
+#: ckan/templates/user/login_form.html:13
+msgid "Password:"
+msgstr ""
+
+#: ckan/templates/user/logout.html:4
+msgid "Account - Logout"
+msgstr ""
+
+#: ckan/templates/user/logout.html:8
+msgid "You have logged out successfully."
+msgstr ""
+
+#: ckan/templates/user/openid_form.html:26
+msgid "Sign-in or Create New Account"
+msgstr ""
+
+#: ckan/templates/user/openid_form.html:28
+msgid "Please click your account provider:"
+msgstr ""
+
+#: ckan/templates/user/openid_form.html:36
+msgid ""
+"OpenID is service that allows you to log-on to many different websites "
+"using a single indentity.\n"
+"    Find out"
+msgstr ""
+
+#: ckan/templates/user/openid_form.html:37
+msgid "more about OpenID"
+msgstr ""
+
+#: ckan/templates/user/openid_form.html:37
+#: ckan/templates/user/openid_form.html:46
+msgid "and"
+msgstr ""
+
+#: ckan/templates/user/openid_form.html:37
+msgid "how to get an OpenID enabled account"
+msgstr ""
+
+#: ckan/templates/user/openid_form.html:42
+msgid "Don't have an OpenID?"
+msgstr ""
+
+#: ckan/templates/user/openid_form.html:43
+msgid ""
+"OpenID is service that allows you to log-on to many different websites\n"
+"      using a single indentity. Find out"
+msgstr ""
+
+#: ckan/templates/user/openid_form.html:45
+msgid ""
+"more\n"
+"      about OpenID"
+msgstr ""
+
+#: ckan/templates/user/openid_form.html:46
+msgid ""
+"how to get an\n"
+"      OpenID enabled account"
+msgstr ""
+
+#: ckan/templates/user/openid_form.html:47
+msgid ""
+". Probably the simplest way is sign up with a\n"
+"      free OpenID provider such as"
+msgstr ""
+
+#: ckan/templates/user/openid_form.html:49
+msgid "https://www.myopenid.com/"
+msgstr ""
+
+#: ckan/templates/user/read.html:6 ckan/templates/user/read.html:10
+msgid "User Account -"
+msgstr ""
+
+#: ckan/templates/user/read.html:12
+msgid "My Account"
+msgstr ""
+
+#: ckan/templates/user/read.html:13
+msgid "You are logged in."
+msgstr ""
+
+#: ckan/templates/user/read.html:13
+msgid "Log out"
+msgstr ""
+
+#: ckan/templates/user/read.html:15
+msgid "View your API key"
+msgstr ""
+
+#: ckan/templates/user/read.html:28
+msgid "Activity"
+msgstr ""
+
+#: ckan/templates/user/read.html:30
+msgid "Number of edits:"
+msgstr ""
+
+#: ckan/templates/user/read.html:31
+msgid "Number of packages administered:"
+msgstr ""
+
+#~ msgid "Cannot create new entity of this type: %s"
+#~ msgstr ""
+
+#~ msgid "Cannot delete entity of this type: %s"
+#~ msgstr ""
+
+#~ msgid "Master stylesheet"
+#~ msgstr ""
+
+#~ msgid "Help"
+#~ msgstr ""
+
+#~ msgid "Optional Log Message about this Change:"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "(essentially Creative Commons\n"
+#~ "        Attribution-Share Alike v3.0)."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Do you work on the project producing this data?\n"
+#~ "          Can you help us keep this page up to date?\n"
+#~ "          If so, why not"
+#~ msgstr ""
+
+#~ msgid "You can"
+#~ msgstr ""
+
+#~ msgid "make an enquiry"
+#~ msgstr ""
+
+#~ msgid "about the openness of this package using"
+#~ msgstr ""
+
+#~ msgid "Is It Open Data"
+#~ msgstr ""
+
+#~ msgid "Openness"
+#~ msgstr ""
+
+#~ msgid "This package is licensed"
+#~ msgstr ""
+
+#~ msgid "This package satisfies the OKFN's Open Knowledge Definition."
+#~ msgstr ""
+
+#~ msgid "[Open Knowledge]"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "You don't need to sign up for "
+#~ "yet another account to use CKAN. "
+#~ "Instead you can just"
+#~ msgstr ""
+
+#~ msgid "use your OpenID"
+#~ msgstr ""
+
+#~ msgid "Your OpenID identity URL:"
+#~ msgstr ""
+
+#~ msgid "If you haven't already got an OpenID it is"
+#~ msgstr ""
+
+#~ msgid "easy to get one"
+#~ msgstr ""
+
+#~ msgid ""
+#~ ". Probably the simplest\n"
+#~ "    way is sign up with a free OpenID provider such as"
+#~ msgstr ""
+
