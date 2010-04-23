@@ -123,6 +123,43 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         text_query = text_query
         return Session.query(self).filter(self.name.contains(text_query.lower()))
 
+    def update_resources(self, res_dicts, autoflush=True):
+        '''Change this package\'s resources.
+        @param res_dicts - ordered list of dicts, each detailing a resource
+        The resource dictionaries contain 'url', 'format' etc. Optionally they
+        can also provide the 'id' of the PackageResource, to help matching
+        res_dicts to existing PackageResources. Otherwise, it searches
+        for an exactly matching PackageResource.
+        The caller is responsible for creating a revision and committing.'''
+        import resource
+        assert isinstance(res_dicts, (list, tuple))
+        # Map the incoming res_dicts (by index) to existing resources
+        index_to_res = {}
+        # Match up the res_dicts by id
+        for i, res_dict in enumerate(res_dicts):
+            assert isinstance(res_dict, dict)
+            id = res_dict.get('id')
+            if id:
+                res = Session.query(resource.PackageResource).autoflush(autoflush).get(id)
+                index_to_res[i] = res
+            elif res_dict.has_key('id'):
+                # get rid of blank id - disrupts creation of new resource
+                del res_dict['id']
+        # Delete unmapped resources
+        mapped_resources = index_to_res.values()
+        for res in self.resources:
+            if res not in mapped_resources:
+                res.delete()        
+        # Edit resources and create the new ones
+        for i, res_dict in enumerate(res_dicts):
+            if i in index_to_res:
+                res = index_to_res[i]
+                for col, value in res_dict.items():
+                    setattr(res, col, value)
+            else:
+                self.resources.insert(i, resource.PackageResource(**res_dict))
+        
+
     def add_resource(self, url, format=u'', description=u'', hash=u''):
         import resource
         self.resources.append(resource.PackageResource(

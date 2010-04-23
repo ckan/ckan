@@ -5,6 +5,8 @@ from sqlalchemy.ext.orderinglist import ordering_list
 
 from core import DomainObject, Package, package_table, Revision, State
 
+__all__ = ['PackageResource', 'package_resource_table']
+
 package_resource_table = Table(
     'package_resource', metadata,
     Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
@@ -32,7 +34,7 @@ class PackageResource(vdm.sqlalchemy.RevisionedObjectMixin,
         
     @staticmethod
     def get_columns():
-        return ('url', 'format', 'description', 'hash')
+        return ['url', 'format', 'description', 'hash']
 
 mapper(PackageResource, package_resource_table, properties={
     'package':orm.relation(Package,

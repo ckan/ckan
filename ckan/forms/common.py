@@ -276,10 +276,8 @@ class ResourcesField(ConfiguredField):
         def sync(self):
             if not self.is_readonly():
                 pkg = self.model
-                resources = self._deserialize() or []
-                pkg.resources = []
-                for res_dict in resources:
-                    pkg.add_resource(**res_dict)
+                res_dicts = self._deserialize() or []
+                pkg.update_resources(res_dicts, autoflush=False)
 
         def requires_label(self):
             return not self._hidden_label
@@ -306,7 +304,7 @@ class ResourcesField(ConfiguredField):
             res_dict = {}
             if v:
                 assert isinstance(v, model.PackageResource)
-                for col in model.PackageResource.get_columns():
+                for col in model.PackageResource.get_columns() + ['id']:
                     res_dict[col] = getattr(v, col)
             return res_dict
 
@@ -329,7 +327,7 @@ class ResourcesField(ConfiguredField):
                     break
                 new_resource = {}
                 blank_row = True
-                for col in model.PackageResource.get_columns():
+                for col in model.PackageResource.get_columns() + ['id']:
                     value = params.get('%s-%i-%s' % (self.name, row, col), u'')
                     new_resource[col] = value
                     if value:

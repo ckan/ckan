@@ -20,9 +20,24 @@ Here's an example for deploying CKAN to http://demo.ckan.net/ via Apache.
    postgresql             PostgreSQL database
    libpq-dev              PostgreSQL library
    python-psycopg2        PostgreSQL python module
+   python-setuptools      Python package management
+   =====================  ============================================
+
+   Now use easy_install (which comes with python-setuptools) to install
+   these packages:
+   (e.g. sudo easy_install <package-name>)
+
+   =====================  ============================================
+   Package                Notes
+   =====================  ============================================
    python-virtualenv      Python virtual environment sandboxing
    pip                    Python installer (use easy_install for this)
    =====================  ============================================
+
+   Check that you received:
+
+    * virtualenv v1.3 or later
+    * pip v0.7.1 or later
 
 
 NB: Instead of using these manual instructions, steps 3 to 9 can be achieved

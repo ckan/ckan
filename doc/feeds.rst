@@ -33,8 +33,8 @@ The Package feed is a subset of the Main Feed, with only the Revisions that refl
 
 The details given for each Revision are:
 
-+===========+=====================================+
-| field     | Description                         |
++-----------+-------------------------------------+
+| Field     | Description                         |
 +===========+=====================================+
 | updated / | Date & time of the change, given    | 
 | published | in ISO format.                      |
@@ -108,4 +108,4 @@ or::
 
 A revision may have changes to several packages, particularly if it was created using the API. In this case, the package list is space separated::
 
- Packages affected: [hospital_performance:created water_voles:updated bus_stops:updated:resources].</summary>
+ Packages affected: [hospital_performance:created water_voles:updated bus_stops:updated:resources bus_stats:updated:resources:date_updated].</summary>

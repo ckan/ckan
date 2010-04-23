@@ -4,7 +4,7 @@ from group import group_table, Group, PackageGroup
 from full_search import package_search_table
 from authz import *
 from extras import PackageExtra, package_extra_table, PackageExtraRevision
-from resource import PackageResource, package_resource_table
+from resource import *
 from rating import *
 from package_relationship import PackageRelationship
 

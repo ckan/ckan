@@ -37,7 +37,6 @@ vdm.sqlalchemy.modify_base_object_mapper(PackageExtra, Revision, State)
 PackageExtraRevision= vdm.sqlalchemy.create_object_version(mapper, PackageExtra,
         extra_revision_table)
 
-from sqlalchemy.ext.associationproxy import association_proxy
 def _create_extra(key, value):
     return PackageExtra(key=unicode(key), value=value)
 

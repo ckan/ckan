@@ -659,7 +659,7 @@ class TestNew(TestPackageForm):
         pkg = model.Package.by_name(name)
         assert pkg
         assert pkg.name == name
-        assert pkg.resources == [], pkg.resources
+        assert not pkg.resources, pkg.resources
 
 
     def test_new(self):
