@@ -22,6 +22,9 @@ class TestRest(TestController):
         model.Session.add(model.Package(name=u'--'))
         rev = model.repo.new_revision()
         model.repo.commit_and_remove()
+        from ckan.model.changeset import ChangesetRegister
+        changesets = ChangesetRegister()
+        changesets.construct_from_revision(rev)
 
         self.testpackage_license_id = u'gpl-3.0'
         self.testpackagevalues = {
@@ -109,8 +112,7 @@ class TestRest(TestController):
         res = self.app.get(offset, status=[200])
         anna = model.Package.by_name(u'annakarenina')
         assert 'annakarenina' in res, res
-        assert 'license_id' not in res, res
-        assert '"license": "other-open"' in res, str(res)
+        assert '"license_id": "other-open"' in res, str(res)
         assert 'russian' in res, res
         assert 'tolstoy' in res, res
         assert '"extras": {' in res, res
@@ -624,6 +626,33 @@ class TestRest(TestController):
         res = self.app.get(offset, status=404)
         model.Session.remove()
 
+    def test_15_list_changesets(self):
+        offset = '/api/rest/changeset'
+        res = self.app.get(offset, status=[200])
+        from ckan.model.changeset import ChangesetRegister
+        changesets = ChangesetRegister()
+        assert len(changesets), "No changesets found in model."
+        for id in changesets:
+            assert id in res, "Didn't find changeset id '%s' in: %s" % (id, res)
+
+    def test_15_get_changeset(self):
+        from ckan.model.changeset import ChangesetRegister
+        changesets = ChangesetRegister()
+        assert len(changesets), "No changesets found in model."
+        for id in changesets:
+            offset = '/api/rest/changeset/%s' % id
+            res = self.app.get(offset, status=[200])
+            changeset_data = simplejson.loads(res.body)
+            assert 'id' in changeset_data, "No 'id' in changeset data: %s" % changeset_data
+            assert 'meta' in changeset_data, "No 'meta' in changeset data: %s" % changeset_data
+            assert 'changes' in changeset_data, "No 'changes' in changeset data: %s" % changeset_data
+
+    def test_15_get_changeset_404(self):
+        changeset_id = "xxxxxxxxxxxxxxxxxxxxxxxxxx"
+        offset = '/api/rest/changeset/%s' % changeset_id
+        res = self.app.get(offset, status=404)
+        model.Session.remove()
+
 class TestRelationships(TestController):
     @classmethod
     def setup_class(self):
@@ -845,7 +874,7 @@ class TestSearch(TestController):
             'resources': [{u'url':u'http://blahblahblah.mydomain',
                            u'format':u'', u'description':''}],
             'tags': ['russion', 'novel'],
-            'license': u'gpl-3.0',
+            'license_id': u'gpl-3.0',
             'extras': {'national_statistic':'yes',
                        'geographic_coverage':'England, Wales'},
         }
@@ -987,7 +1016,7 @@ class TestSearch(TestController):
                 break
         assert anna_rec['name'] == 'annakarenina', res_dict['results']
         assert anna_rec['title'] == 'A Novel By Tolstoy', anna_rec['title']
-        assert anna_rec['license'] == u'other-open', anna_rec['license']
+        assert anna_rec['license_id'] == u'other-open', anna_rec['license_id']
         assert len(anna_rec['tags']) == 2, anna_rec['tags']
         for expected_tag in ['russian', 'tolstoy']:
             assert expected_tag in anna_rec['tags']

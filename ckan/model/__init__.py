@@ -7,6 +7,7 @@ from extras import PackageExtra, package_extra_table, PackageExtraRevision
 from resource import *
 from rating import *
 from package_relationship import PackageRelationship
+from changeset import Changeset, Change, Changemask
 
 import ckan.migration
 

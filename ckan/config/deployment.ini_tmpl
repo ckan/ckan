@@ -60,6 +60,10 @@ rdf_packages =
 # Package form to use
 package_form = standard
 
+# Changeset configuration
+#changeset.auto_commit = true
+#changeset.sources = http://www.ckan.net/,
+
 # Logging configuration
 [loggers]
 keys = root

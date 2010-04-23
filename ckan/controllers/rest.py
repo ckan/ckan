@@ -35,6 +35,11 @@ class RestController(BaseController):
             tags = model.Session.query(model.Tag).all() #TODO
             results = [tag.name for tag in tags]
             return self._finish_ok(results)
+        elif register == u'changeset':
+            from ckan.model.changeset import ChangesetRegister
+            changesets = ChangesetRegister()
+            results = changesets.keys()
+            return self._finish_ok(results)
         else:
             response.status_int = 400
             return ''
@@ -54,6 +59,17 @@ class RestController(BaseController):
                 'packages': [p.name for p in rev.packages],
             }
             return self._finish_ok(response_data)
+        elif register == u'changeset':
+            from ckan.model.changeset import ChangesetRegister
+            changesets = ChangesetRegister()
+            changeset = changesets.get(id, None)
+            #if not self._check_access(changeset, model.Action.READ):
+            #    return ''
+            if changeset is None:
+                response.status_int = 404
+                return ''            
+            _dict = changeset.as_dict()
+            return self._finish_ok(_dict)
         elif register == u'package' and not subregister:
             pkg = model.Package.by_name(id)
             if pkg is None:
