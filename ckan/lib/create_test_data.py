@@ -224,13 +224,8 @@ left arrow <
         self.tag_names = [u'russian', u'tolstoy']
         pkg1.license_id = u'other-open'
         pkg2.title = u'A Wonderful Story'
-        genre_extra = model.PackageExtra(key=u'genre', value='romantic novel')
-        media_extra = model.PackageExtra(key=u'original media', value='book')
-        pkg1._extras = {'genre':genre_extra,
-                        'original media':media_extra
-                        }
-        model.Session.add(genre_extra)
-        model.Session.add(media_extra)
+        pkg1.extras = {u'genre':'romantic novel',
+                       u'original media':'book'}
         # api key
         tester = model.User(name=u'tester', apikey=u'tester')
         model.Session.add(tester)
