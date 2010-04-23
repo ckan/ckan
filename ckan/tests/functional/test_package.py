@@ -606,6 +606,79 @@ u with umlaut \xc3\xbc
         self.check_tag(res, '<form', 'class="has-errors"')
         assert 'No links are allowed' in res, res
 
+
+class TestMarkdownHtmlWhitelist(TestPackageForm):
+
+    pkg_name = u'markdownhtmlwhitelisttest'
+    pkg_notes = u'''
+<table width="100%" border="1">
+<tr>
+<td rowspan="2"><b>Description</b></td>
+<td rowspan="2"><b>Documentation</b></td>
+
+<td colspan="2"><b><center>Data -- Pkzipped</center></b> </td>
+</tr>
+<tr>
+<td><b>SAS .tpt</b></td>
+<td><b>ASCII CSV</b> </td>
+</tr>
+<tr>
+<td><b>Overview</b></td>
+<td><A HREF="http://www.nber.org/patents/subcategories.txt">subcategory.txt</A></td>
+<td colspan="2"><center>--</center></td>
+</tr>
+<script><!--
+alert('Hello world!');
+//-->
+</script>
+
+'''
+
+    def setup_method(self, method):
+        self.setUp()
+
+    def setUp(self):
+        model.Session.remove()
+        rev = model.repo.new_revision()
+        self.pkg = model.Package(name=self.pkg_name, notes=self.pkg_notes)
+        model.Session.add(self.pkg)
+        u = model.User(name=u'testadmin')
+        model.Session.add(u)
+        model.repo.commit_and_remove()
+
+        self.pkg = model.Package.by_name(self.pkg_name)
+        admin = model.User.by_name(u'testadmin')
+        model.setup_default_user_roles(self.pkg, [admin])
+        self.pkg_id = self.pkg.id
+        offset = url_for(controller='package', action='read', id=self.pkg_name)
+        self.res = self.app.get(offset)
+        model.repo.commit_and_remove()
+
+        self.pkg = model.Package.by_name(self.pkg_name)
+        self.admin = model.User.by_name(u'testadmin')
+
+    def teardown_method(self, method):
+        self.tearDown()
+
+    def tearDown(self):
+        model.repo.rebuild_db()
+        model.Session.remove()
+
+    def test_markdown_html_whitelist(self):
+        self.body = str(self.res)
+        self.assert_fragment('<table width="100%" border="1">')
+        self.assert_fragment('<td rowspan="2"><b>Description</b></td>')
+        self.assert_fragment('<a href="http://www.nber.org/patents/subcategories.txt">subcategory.txt</a>')
+        self.assert_fragment('<td colspan="2"><center>--</center></td>')
+        self.fail_if_fragment('<script>')
+
+    def assert_fragment(self, fragment):
+        assert fragment in self.body, (fragment, self.body)
+
+    def fail_if_fragment(self, fragment):
+        assert fragment not in self.body, (fragment, self.body)
+
+
 class TestNew(TestPackageForm):
     pkgname = u'testpkg'
     pkgtitle = u'mytesttitle'
