@@ -28,6 +28,12 @@ change_table = Table('change', metadata,
         Column('changeset_id', UnicodeText, ForeignKey('changeset.id')),
 )
 
+changemask_table = Table('changemask', metadata,
+        Column('ref', UnicodeText, primary_key=True),
+        Column('timestamp', DateTime, default=datetime.datetime.utcnow),
+)
+
+
 def upgrade():
     changeset_table.create()
     change_table.create()

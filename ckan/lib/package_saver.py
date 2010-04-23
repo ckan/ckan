@@ -39,15 +39,14 @@ class PackageSaver(object):
         c.pkg_url_link = h.link_to(c.pkg.url, c.pkg.url) if c.pkg.url else "No web page given"
         c.pkg_author_link = cls._person_email_link(c.pkg.author, c.pkg.author_email, "Author")
         c.pkg_maintainer_link = cls._person_email_link(c.pkg.maintainer, c.pkg.maintainer_email, "Maintainer")
-        c.package_relationships = pkg.relationships_printable()
+        c.package_relationships = pkg.get_relationships_printable()
         # c.auth_for_change_state and c.auth_for_edit may also used
         # return render('package/read')
 
     @classmethod
     def _preview_pkg(cls, fs, original_name, pkg_id,
                      log_message=None, author=None):
-        '''Previews the POST data (associated with a package edit) to the
-        database
+        '''Previews the POST data (associated with a package edit)
         @input c.error
         @input fs      FieldSet with the param data bound to it
         @input original_name Name of the package before this edit
@@ -64,8 +63,6 @@ class PackageSaver(object):
             fs.model.license
             fs.model.groups
             fs.model.ratings
-            fs.model.relationships_as_subject
-            fs.model.relationships_as_object
         except ValidationException, e:
             # remove everything from session so nothing can get saved accidentally
             model.Session.clear()
@@ -89,15 +86,9 @@ class PackageSaver(object):
     def _update(cls, fs, original_name, pkg_id, log_message, author, commit=True):
         rev = None
         # validation
-        validation_errors = []
-        revision_errors = cls._revision_validation(log_message)
-        if revision_errors:
-            validation_errors.extend(revision_errors)
-        fs_validation = fs.validate_on_edit(original_name, pkg_id)
-        if not fs_validation:
-            for field, err_list in fs.errors.items():
-                validation_errors.append("%s: %s" % (field.name, ";".join(err_list)))
-        validation_errors_str = ', '.join(validation_errors)
+        c.errors = cls._revision_validation(log_message)
+        fs_validation = fs.validate() #errors stored in fs.errors
+        validates = not (c.errors or fs.errors)
 
         # sync
         try:
@@ -111,10 +102,10 @@ class PackageSaver(object):
             raise
         else:
             # only commit if desired and it validates ok
-            if commit and not validation_errors:
+            if commit and validates:
                 model.Session.commit()
-            elif validation_errors:
-                raise ValidationException(validation_errors, fs)
+            elif not validates:
+                raise ValidationException(fs)
             else:
                 # i.e. preview
                 pkg = fs.model

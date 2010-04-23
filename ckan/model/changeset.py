@@ -1478,14 +1478,12 @@ class ChangesetRegister(AbstractChangesetRegister):
 
     def construct_from_revision(self, revision, follows_id=None):
         """Creates changeset from given CKAN repository revision."""
+        Session.commit()
+        Session.remove()
         meta = unicode(self.dumps({
             'log_message': revision.message,
             'author': revision.author,
         }))
-        changes = []
-        for package in revision.packages:
-            change = self.construct_package_change(package, revision)
-            changes.append(change)
         if follows_id:
             pass
             # Todo: Detect if the new changes conflict with the line (it's a system error).
@@ -1498,9 +1496,12 @@ class ChangesetRegister(AbstractChangesetRegister):
         changeset = self.create_entity(
             follows_id=follows_id,
             meta=meta,
-            changes=changes,
             revision_id=revision.id,
         )
+        Session.commit()
+        for package in revision.packages:
+            change = self.construct_package_change(package, revision)
+            changeset.changes.append(change)
         Session.commit()
         Session.remove()
         return changeset.id

@@ -37,7 +37,7 @@ setup(
         # does not declare the dependency!
         # (not sure we need this except in tests but ...)
         'WebOb',
-        'FormAlchemy>=1.2.3,<=1.3.1',
+        'FormAlchemy>=1.3.3',
         # Excel libaries are only for importer tool
         # 'xlrd>=0.7.1',
         # 'xlwt>=0.7.2',
@@ -68,6 +68,11 @@ setup(
     create-search-index = ckan.lib.cli:CreateSearchIndex
     ratings = ckan.lib.cli:Ratings
     changes = ckan.lib.cli:Changes
+
+    [ckan.forms]
+    standard = ckan.forms.package:get_standard_fieldset
+    gov = ckan.forms.package_gov:get_gov_fieldset
+    ca = ckan.forms.package_ca:get_ca_fieldset
     """,
     # setup.py test command needs a TestSuite so does not work with py.test
     # test_suite = 'nose.collector',

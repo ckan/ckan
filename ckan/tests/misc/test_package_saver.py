@@ -3,8 +3,9 @@ import ckan.forms
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib.package_saver import PackageSaver
+from ckan.tests.pylons_controller import PylonsTestCase
 
-class TestPreview(TestController):
+class TestPreview(PylonsTestCase):
 
     @classmethod
     def teardown_class(self):
@@ -14,8 +15,8 @@ class TestPreview(TestController):
         u'name':u'name_after',
         u'title':u'title_after',
         u'url':u'testurl',
-        u'resources':[[u'dlu1c', u'tf1c', u'', u''],
-                      [u'dlu2c', u'tf2c', u'', u''],
+        u'resources':[{'url':u'dlu1c', 'format':u'tf1c'},
+                      {'url':u'dlu2c', 'format':u'tf2c'},
                       ],
         u'notes':u'testnotes',
         u'version':u'testversion',
@@ -25,8 +26,7 @@ class TestPreview(TestController):
         }
 
     def test_new(self):
-        fs = ckan.forms.get_fieldset(is_admin=False, basic=False,
-                package_form='')
+        fs = ckan.forms.get_standard_fieldset(is_admin=False)
         data = ckan.forms.add_to_package_dict(
             ckan.forms.get_package_dict(fs=fs), self.params)
         fs = fs.bind(model.Package, data=data)
@@ -51,8 +51,7 @@ class TestPreview(TestController):
             )
 
         pkg = model.Package.by_name(u'name_before')
-        fs = ckan.forms.get_fieldset(is_admin=False, basic=False,
-                package_form='')
+        fs = ckan.forms.get_standard_fieldset(is_admin=False)
         data =  ckan.forms.add_to_package_dict(
                 ckan.forms.get_package_dict(pkg=pkg, fs=fs), self.params,
                     pkg.id)
@@ -81,10 +80,10 @@ class TestPreview(TestController):
                 for tag in pkg.tags:
                     assert tag.name in reqd_tags
             elif key == u'resources':
-                assert pkg.resources[0].url == value[0][0]
-                assert pkg.resources[0].format == value[0][1]
-                assert pkg.resources[1].url == value[1][0]
-                assert pkg.resources[1].format == value[1][1]
+                assert pkg.resources[0].url == value[0]['url']
+                assert pkg.resources[0].format == value[0]['format']
+                assert pkg.resources[1].url == value[1]['url']
+                assert pkg.resources[1].format == value[1]['format']
             else:
                 assert getattr(pkg, key) == value, \
                        'Package has "%s"="%s" when it should be %s' % \

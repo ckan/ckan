@@ -1,133 +1,92 @@
-function addRowToTable()
-{
-    var tbl = document.getElementById('flexitable');
-    var prefix = tbl.getAttribute('prefix');
+/* flexitable.js
+  
+   TODO:
+   - replace separate moveUp/moveDown buttons with a drag handle.
+*/
 
-    var lastRow = tbl.rows.length;
-    var rowToInsert = lastRow;
-    var row = tbl.insertRow(rowToInsert);
-    var iteration = lastRow - 1;
+(function ($) {
 
-    var row_prefix = prefix + '-' + iteration;
-    
-    var cell = row.insertCell(0);
-    var el = document.createElement('input');
-    el.type = 'text';
-    el.id = row_prefix + '-url';
-    el.name = row_prefix + '-url';
-    el.size = 40;
-    cell.appendChild(el);
-    
-    var cell = row.insertCell(1);
-    var el = document.createElement('input');
-    el.type = 'text';
-    el.id = row_prefix + '-format';
-    el.name = row_prefix + '-format';
-    el.size = 5;
-    cell.appendChild(el);
+  var fieldNameRegex = /^(\S+)-(\d+)-(\S+)$/;
 
-    var cell = row.insertCell(2);
-    var el = document.createElement('input');
-    el.type = 'text';
-    el.id = row_prefix + '-description';
-    el.name = row_prefix + '-description';
-    el.size = 25;
-    cell.appendChild(el);
-    
-    var cell = row.insertCell(3);
-    var el = document.createElement('input');
-    el.type = 'text';
-    el.id = row_prefix + '-hash';
-    el.name = row_prefix + '-hash';
-    el.size = 10;
-    cell.appendChild(el);
+  var controlsHtml = '<td><div class="controls">' +
+                       '<a class="moveUp"   title="Move this row up" href="#moveUp">Move up</a>' +
+                       '<a class="moveDown" title="Move this row down" href="#moveDown">Move down</a>' +
+                       '<a class="remove"   title="Remove this row" href="#remove">Remove row</a>' +
+                     '</div></td>';
+  
+  var addRowHtml = '<p class="flexitable"><button class="addRow">Add row to table</button></p>';
 
-    var cell = row.insertCell(4);
-    var anchor = document.createElement('a');
-    anchor.href = 'javascript:moveRowUp(' + iteration + ')';
-    var image = document.createElement('img');
-    image.src = '/images/icons/arrow_up.png';
-    anchor.appendChild(image);
-    cell.appendChild(anchor);
-    var anchor = document.createElement('a');
-    anchor.href = 'javascript:moveRowDown(' + iteration + ')';
-    var image = document.createElement('img');
-    image.src = '/images/icons/arrow_down.png';
-    anchor.appendChild(image);
-    cell.appendChild(anchor);
-    var anchor = document.createElement('a');
-    anchor.href = 'javascript:removeRowFromTable(' + iteration + ')';
-    var image = document.createElement('img');
-    image.src = 'http://m.okfn.org/kforge/images/icon-delete.png';
-    image.className = 'icon';
-    anchor.appendChild(image);
-    cell.appendChild(anchor);
-}
-
-function renumberRowFunctions()
-{
-    var tbl = document.getElementById('flexitable');
-    var lastRow = tbl.rows.length;
-    for (var row=1; row<lastRow; row++) {
-      var button_cell = tbl.rows[row].cells[3];
-      var anchor = button_cell.firstChild;
-      while (anchor)
-        {
-          if (anchor.nodeType == 1) {
-            anchor.href = anchor.href.replace(/(\d)/, (row-1));
-          }
-          anchor=anchor.nextSibling;
-        }
-    }
-}
-
-function removeLastRowFromTable()
-{
-    var tbl = document.getElementById('flexitable');
-    var lastRow = tbl.rows.length;
-    if (lastRow > 1) tbl.deleteRow(lastRow - 1);
-}
-function removeRowFromTable(row_index)
-{
-    var tbl = document.getElementById('flexitable');
-    var lastRow = tbl.rows.length;
-    var table_row = row_index + 1;
-    if (table_row > 0 && table_row <= lastRow) tbl.deleteRow(table_row);
-    renumberRowFunctions();
-}
-function moveRowUp(row_index)
-{
-    var tbl = document.getElementById('flexitable');
-    var lastRow = tbl.rows.length;
-    var table_row_index = row_index + 1;
-    var swap_row_index = table_row_index - 1;
-    if (table_row_index > 1 && table_row_index <= lastRow) {
-      swapRows(swap_row_index, table_row_index, tbl);
-    }
-}
-function moveRowDown(row_index)
-{
-    var tbl = document.getElementById('flexitable');
-    var lastRow = tbl.rows.length;
-    var table_row_index = row_index + 1;
-    var swap_row_index = table_row_index + 1;
-    if (table_row_index > 0 && table_row_index < lastRow-1) {
-      swapRows(swap_row_index, table_row_index, tbl);
-    }
-}
-function swapRows(row_i, row_j, table)
-{
-  var tbl = document.getElementById('flexitable');
-  var lastRow = tbl.rows.length;
-  for (var col=0; col<lastRow; col++){
-    cell1 = table.rows[row_i].cells[col];
-    cell2 = table.rows[row_j].cells[col];
-    swapCells(cell1, cell2);
+  function getRowNumber(tr) {
+    var rowNumber = $(tr).find('input').attr('name').match(fieldNameRegex)[2];
+    return parseInt(rowNumber, 10);
   }
-}
-function swapCells(cell1, cell2)
-{
-  var dummy = cell1.firstChild.value;
-  cell1.firstChild.value = cell2.firstChild.value;
-  cell2.firstChild.value = dummy;
-}
+
+  function setRowNumber(tr, num) {
+    $(tr).find('input').each(function () {
+      $(this).attr({
+        id:   $(this).attr('id').replace(fieldNameRegex, "$1-" + num + "-$3"),
+        name: $(this).attr('name').replace(fieldNameRegex, "$1-" + num + "-$3")
+      });
+    });
+  }
+  
+  // Currently only supports -1 or 1 for up or down respectively.
+  function moveRow(row, offset) {
+    row = $(row);
+    var movingUp = (offset < 0),
+        swapWith = movingUp ? 'prev' : 'next',
+        swapHow  = movingUp ? 'after' : 'before',
+        swapEl = row[swapWith](),
+        rowNum = getRowNumber(row);
+
+    if (swapEl[0]) {
+      row[swapHow](swapEl);
+
+      setRowNumber(row, rowNum + offset);
+      setRowNumber(swapEl, rowNum);
+    }
+  }
+  
+  function addRow () {
+    var table = $(this).parents('p').eq(0).prev(),
+        lastRow = table.find('tr:last'),
+        clone = lastRow.clone(true);
+
+    clone.insertAfter(lastRow).find('input').val('');
+    setRowNumber(clone, getRowNumber(lastRow) + 1);
+    return false;
+  }
+  
+  function removeRow () {
+    if (confirm('Are you sure you wish to remove this row?')) {
+      var row = $(this).parents('tr'),
+          following = row.nextAll();
+      
+      row.remove();
+      following.each(function () {
+        setRowNumber(this, getRowNumber(this) - 1);
+      });
+    }
+    return false;
+  }
+
+  $(document).ready(function () {
+    $('.flexitable').find('tbody tr').append(controlsHtml).end()
+
+                    .find('a.moveUp').click(function () {
+                      moveRow($(this).parents('tr')[0], -1);
+                      return false;
+                    }).end()
+
+                    .find('a.moveDown').click(function () {
+                      moveRow($(this).parents('tr')[0], 1);
+                      return false;
+                    }).end()
+                    
+                    .find('a.remove').click(removeRow).end()
+                    
+                    .after(addRowHtml)
+                    .next().find('button.addRow').click(addRow);
+  });
+
+})(jQuery);

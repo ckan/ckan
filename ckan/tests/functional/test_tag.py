@@ -1,6 +1,8 @@
 from ckan.tests import *
 import ckan.model as model
 
+HTTP_MOVED_PERMANENTLY = 301
+
 class TestTagController(TestController):
 
     @classmethod
@@ -18,10 +20,21 @@ class TestTagController(TestController):
         assert 'Tags' in res
         assert 'There are' in res
 
+    def test_read_moved(self):
+        name = 'tolstoy'
+        offset = '/tag/read/%s/' % name
+        res = self.app.get(offset, status=HTTP_MOVED_PERMANENTLY)
+        res = res.follow()
+        assert 'Tags - %s' % name in res
+        assert name in res
+        # res = res.click(pkgname)
+        # assert 'Packages - %s' % pkgname in res
+
     def test_read(self):
         name = 'tolstoy'
         pkgname = 'warandpeace'
         offset = url_for(controller='tag', action='read', id=name)
+        assert offset == '/tag/tolstoy', offset
         res = self.app.get(offset)
         assert 'Tags - %s' % name in res
         assert name in res

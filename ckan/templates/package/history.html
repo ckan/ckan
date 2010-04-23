@@ -44,5 +44,9 @@
     </form>
   </div> <!-- content -->
 
+  <py:def function="optional_feed">
+  <link rel="alternate" type="application/atom+xml" title="Package History" href="/package/history/${c.pkg.name}?format=atom&amp;days=7" />
+  </py:def>
+
   <xi:include href="layout.html" />
 </html>

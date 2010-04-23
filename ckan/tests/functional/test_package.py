@@ -5,12 +5,25 @@ from paste.fixture import AppError
 from ckan.tests import *
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
+import ckan.lib.helpers as h
+from genshi.core import escape as genshi_escape
 
 existing_extra_html = ('<label class="field_opt" for="Package-%(package_id)s-extras-%(key)s">%(capitalized_key)s</label>', '<input id="Package-%(package_id)s-extras-%(key)s" name="Package-%(package_id)s-extras-%(key)s" size="20" type="text" value="%(value)s">')
 
 package_form=''
 
-class TestPackageForm(TestController):
+class TestPackageBase(TestController):
+    key1 = u'key1 Less-than: < Umlaut: \xfc'
+    value1 = u'value1 Less-than: < Umlaut: \xfc'
+    # Note: Can't put a quotation mark in key1 or value1 because
+    # paste.fixture doesn't unescape the value in an input field
+    # on form submission. (But it works in real life.)
+    
+    def _assert_form_errors(self, res):
+        self.check_tag(res, '<form', 'class="has-errors"')
+        assert 'class="field_error"' in res, res
+
+class TestPackageForm(TestPackageBase):
     '''Inherit this in tests for these form testing methods'''
     def _check_package_read(self, res, **params):
         assert not 'Error' in res, res
@@ -39,7 +52,9 @@ class TestPackageForm(TestController):
         else:
             raise NotImplementedError
         for key, value in extras:
-            self.check_named_element(main_div, 'tr', key, value)
+            key_in_html_body = self.escape_for_html_body(key)
+            value_in_html_body = self.escape_for_html_body(value)
+            self.check_named_element(main_div, 'tr', key_in_html_body, value_in_html_body)
         if params.has_key('deleted_extras'):
             if isinstance(params['deleted_extras'], dict):
                 deleted_extras = params['deleted_extras'].items()
@@ -73,11 +88,15 @@ class TestPackageForm(TestController):
         else:
             assert 'state' not in preview
         for key, value in params['extras']:
-            self.check_named_element(preview, 'tr', key, value)
+            key_html = self.escape_for_html_body(key)
+            value_html = self.escape_for_html_body(value)
+            self.check_named_element(preview, 'tr', key_html, value_html)
         if params.has_key('deleted_extras'):
             for key, value in params['deleted_extras']:
-                self.check_named_element(preview, 'tr', '!' + key)
-                self.check_named_element(preview, 'tr', '!' + value)
+                key_html = self.escape_for_html_body(key)
+                value_html = self.escape_for_html_body(value)
+                self.check_named_element(preview, 'tr', '!' + key_html)
+                self.check_named_element(preview, 'tr', '!' + value_html)
 
     def _get_resource_values(self, resources, by_resource=False):
         assert isinstance(resources, (list, tuple))
@@ -101,6 +120,10 @@ class TestPackageForm(TestController):
                     values.append(expected_value)
             if by_resource:
                 yield(res_index, values)
+
+    def escape_for_html_body(self, unescaped_str):
+        # just deal with chars in tests
+        return unescaped_str.replace('<', '&lt;')
 
     def check_form_filled_correctly(self, res, **params):
         if params.has_key('pkg'):
@@ -131,8 +154,12 @@ class TestPackageForm(TestController):
         else:
             extras = params['extras']
         for key, value in extras:
-            self.check_tag_and_data(main_res, 'Package-%s-extras-%s' % (params['id'], key), key.capitalize())
-            self.check_tag(main_res, 'Package-%s-extras-%s' % (params['id'], key), value)
+            key_in_html_body = self.escape_for_html_body(key)
+            value_in_html_body = self.escape_for_html_body(value)
+            key_escaped = genshi_escape(key)
+            value_escaped = genshi_escape(value)
+            self.check_tag_and_data(main_res, 'Package-%s-extras-%s' % (params['id'], key_escaped), key_in_html_body.capitalize())
+            self.check_tag(main_res, 'Package-%s-extras-%s' % (params['id'], key_escaped), value_escaped)
         assert params['log_message'] in main_res, main_res
     
 
@@ -305,7 +332,7 @@ class TestEdit(TestPackageForm):
 
     def test_edit(self):
         # the absolute basics
-        assert 'Packages - Edit' in self.res
+        assert 'Packages - Edit' in self.res, self.res
         assert self.editpkg.notes in self.res
 
         new_name = u'new-name'
@@ -397,15 +424,13 @@ u with umlaut \xc3\xbc
         assert 'Error' in res, res
         assert 'Name must be at least 2 characters long' in res, res
         # Ensure there is an error at the top of the form and by the field
-        assert 'class="form-errors"' in res, res
-        assert 'class="field_error"' in res, res
+        self._assert_form_errors(res)
 
         res = fv.submit('commit')
         assert 'Error' in res, res
         assert 'Name must be at least 2 characters long' in res, res
         # Ensure there is an error at the top of the form and by the field
-        assert 'class="form-errors"' in res, res
-        assert 'class="field_error"' in res, res
+        self._assert_form_errors(res)
 
     def test_missing_fields(self):
         # User edits and a field is left out in the commit parameters.
@@ -472,7 +497,7 @@ u with umlaut \xc3\xbc
         state = model.State.ACTIVE
         tags = (u'tag1', u'tag2', u'tag3')
         tags_txt = u' '.join(tags)
-        extra_changed = 'key1', 'value1 CHANGED'
+        extra_changed = 'key1', self.value1 + ' CHANGED'
         extra_new = 'newkey', 'newvalue'
         log_message = 'This is a comment'
         assert not model.Package.by_name(name)
@@ -489,9 +514,9 @@ u with umlaut \xc3\xbc
         fv[prefix+'license_id'] = license_id
         fv[prefix+'tags'] = tags_txt
         fv[prefix+'state'] = state
-        fv[prefix+'extras-%s' % extra_changed[0]] = extra_changed[1]
-        fv[prefix+'extras-newfield0-key'] = extra_new[0]
-        fv[prefix+'extras-newfield0-value'] = extra_new[1]
+        fv[prefix+'extras-%s' % extra_changed[0]] = extra_changed[1].encode('utf8')
+        fv[prefix+'extras-newfield0-key'] = extra_new[0].encode('utf8')
+        fv[prefix+'extras-newfield0-value'] = extra_new[1].encode('utf8')
         fv[prefix+'extras-key3-checkbox'] = True
         fv['log_message'] = log_message
         res = fv.submit('preview', extra_environ={'REMOTE_USER':'testadmin'})
@@ -573,12 +598,86 @@ u with umlaut \xc3\xbc
         res = fv.submit('preview')
         assert 'Error' in res, res
         assert 'No links are allowed' in res, res
-        assert 'class="form-errors"' in res, res
+        self.check_tag(res, '<form', 'class="has-errors"')
+        assert 'No links are allowed' in res, res
 
         res = fv.submit('commit')
         assert 'Error' in res, res
+        self.check_tag(res, '<form', 'class="has-errors"')
         assert 'No links are allowed' in res, res
-        assert 'class="form-errors"' in res, res
+
+
+class TestMarkdownHtmlWhitelist(TestPackageForm):
+
+    pkg_name = u'markdownhtmlwhitelisttest'
+    pkg_notes = u'''
+<table width="100%" border="1">
+<tr>
+<td rowspan="2"><b>Description</b></td>
+<td rowspan="2"><b>Documentation</b></td>
+
+<td colspan="2"><b><center>Data -- Pkzipped</center></b> </td>
+</tr>
+<tr>
+<td><b>SAS .tpt</b></td>
+<td><b>ASCII CSV</b> </td>
+</tr>
+<tr>
+<td><b>Overview</b></td>
+<td><A HREF="http://www.nber.org/patents/subcategories.txt">subcategory.txt</A></td>
+<td colspan="2"><center>--</center></td>
+</tr>
+<script><!--
+alert('Hello world!');
+//-->
+</script>
+
+'''
+
+    def setup_method(self, method):
+        self.setUp()
+
+    def setUp(self):
+        model.Session.remove()
+        rev = model.repo.new_revision()
+        self.pkg = model.Package(name=self.pkg_name, notes=self.pkg_notes)
+        model.Session.add(self.pkg)
+        u = model.User(name=u'testadmin')
+        model.Session.add(u)
+        model.repo.commit_and_remove()
+
+        self.pkg = model.Package.by_name(self.pkg_name)
+        admin = model.User.by_name(u'testadmin')
+        model.setup_default_user_roles(self.pkg, [admin])
+        self.pkg_id = self.pkg.id
+        offset = url_for(controller='package', action='read', id=self.pkg_name)
+        self.res = self.app.get(offset)
+        model.repo.commit_and_remove()
+
+        self.pkg = model.Package.by_name(self.pkg_name)
+        self.admin = model.User.by_name(u'testadmin')
+
+    def teardown_method(self, method):
+        self.tearDown()
+
+    def tearDown(self):
+        model.repo.rebuild_db()
+        model.Session.remove()
+
+    def test_markdown_html_whitelist(self):
+        self.body = str(self.res)
+        self.assert_fragment('<table width="100%" border="1">')
+        self.assert_fragment('<td rowspan="2"><b>Description</b></td>')
+        self.assert_fragment('<a href="http://www.nber.org/patents/subcategories.txt">subcategory.txt</a>')
+        self.assert_fragment('<td colspan="2"><center>--</center></td>')
+        self.fail_if_fragment('<script>')
+
+    def assert_fragment(self, fragment):
+        assert fragment in self.body, (fragment, self.body)
+
+    def fail_if_fragment(self, fragment):
+        assert fragment not in self.body, (fragment, self.body)
+
 
 class TestNew(TestPackageForm):
     pkgname = u'testpkg'
@@ -657,16 +756,12 @@ class TestNew(TestPackageForm):
         res = fv.submit('preview')
         assert 'Error' in res, res
         assert 'Name must be at least 2 characters long' in res, res
-        # Ensure there is an error at the top of the form and by the field
-        assert 'class="form-errors"' in res, res
-        assert 'class="field_error"' in res, res
+        self._assert_form_errors(res)
 
         res = fv.submit('commit')
         assert 'Error' in res, res
         assert 'Name must be at least 2 characters long' in res, res
-        # Ensure there is an error at the top of the form and by the field
-        assert 'class="form-errors"' in res, res
-        assert 'class="field_error"' in res, res
+        self._assert_form_errors(res)
 
     def test_new_all_fields(self):
         name = u'test_name2'
@@ -678,7 +773,7 @@ class TestNew(TestPackageForm):
         license_id = u'gpl-3.0'
         tags = (u'tag1', u'tag2', u'tag3', u'SomeCaps')
         tags_txt = u' '.join(tags)
-        extras = {'key1':'value1', 'key2':'value2', 'key3':'value3'}
+        extras = {self.key1:self.value1, 'key2':'value2', 'key3':'value3'}
         log_message = 'This is a comment'
         assert not model.Package.by_name(name)
         offset = url_for(controller='package', action='new', package_form=package_form)
@@ -696,8 +791,8 @@ class TestNew(TestPackageForm):
         fv[prefix+'license_id'] = license_id
         fv[prefix+'tags'] = tags_txt
         for i, extra in enumerate(extras.items()):
-            fv[prefix+'extras-newfield%s-key' % i] = extra[0]
-            fv[prefix+'extras-newfield%s-value' % i] = extra[1]
+            fv[prefix+'extras-newfield%s-key' % i] = extra[0].encode('utf8')
+            fv[prefix+'extras-newfield%s-value' % i] = extra[1].encode('utf8')
         fv['log_message'] = log_message
         res = fv.submit('preview')
         assert not 'Error' in res, res
@@ -723,7 +818,6 @@ class TestNew(TestPackageForm):
                                          log_message=log_message,
 #                                         state=state
                                          )
-
         # Submit
         fv = res.forms[0]
         res = fv.submit('commit')
@@ -792,9 +886,7 @@ class TestNew(TestPackageForm):
         res = fv.submit('commit')
         assert 'Error' in res, res
         assert 'Package name already exists in database' in res, res
-        # Ensure there is an error at the top of the form and by the field
-        assert 'class="form-errors"' in res, res
-        assert 'class="field_error"' in res, res
+        self._assert_form_errors(res)
         
     def test_missing_fields(self):
         # A field is left out in the commit parameters.
@@ -802,7 +894,9 @@ class TestNew(TestPackageForm):
         offset = url_for(controller='package', action='new', package_form=package_form)
         res = self.app.get(offset)
         assert 'Packages - New' in res
+        prefix = 'Package--'
         fv = res.forms[0]
+        fv[prefix + 'name'] = 'anything'
         del fv.fields['log_message']
         res = fv.submit('commit', status=400)
 
@@ -810,11 +904,15 @@ class TestNew(TestPackageForm):
         res = self.app.get(offset)
         assert 'Packages - New' in res
         fv = res.forms[0]
+        fv[prefix + 'name'] = 'anything'
         prefix = 'Package--'
-        del fv.fields[prefix + 'license_id']
+        del fv.fields[prefix + 'notes']
+        # NOTE Missing dropdowns fields don't cause KeyError in
+        # _serialized_value so don't register as an error here like
+        # text field tested here.
         res = fv.submit('commit', status=400)     
 
-class TestNewPreview(TestController):
+class TestNewPreview(TestPackageBase):
     pkgname = u'testpkg'
     pkgtitle = u'mytesttitle'
 
@@ -848,7 +946,7 @@ class TestNewPreview(TestController):
         assert model.Session.query(model.Package).count() == 0, model.Session.query(model.Package).all()
         
 
-class TestNonActivePackages(TestController):
+class TestNonActivePackages(TestPackageBase):
 
     @classmethod
     def setup_class(self):
@@ -901,7 +999,7 @@ class TestNonActivePackages(TestController):
         assert '<strong>0</strong> packages found' in results_page, (self.non_active_name, results_page)
 
 
-class TestRevisions(TestController):
+class TestRevisions(TestPackageBase):
     @classmethod
     def setup_class(self):
         model.Session.remove()
@@ -926,7 +1024,7 @@ class TestRevisions(TestController):
         self.pkg1 = model.Package.by_name(self.name)        
 
     @classmethod
-    def _teardown_class(self):
+    def teardown_class(self):
         rev = model.repo.new_revision()
         pkg1 = model.Package.by_name(self.name)
         pkg1.purge()
@@ -956,3 +1054,12 @@ class TestRevisions(TestController):
         assert 'Revision Differences' in main_res, main_res
         assert self.pkg1.name in main_res, main_res
         assert '<tr><td>notes</td><td><pre>- Written by Puccini\n+ Written off</pre></td></tr>' in main_res, main_res
+
+    def test_2_atom_feed(self):
+        offset = url_for(controller='package', action='history', id=self.pkg1.name)
+        offset = "%s?format=atom" % offset
+        res = self.app.get(offset)
+        assert '<feed' in res, res
+        assert 'xmlns="http://www.w3.org/2005/Atom"' in res, res
+        assert '</feed>' in res, res
+   

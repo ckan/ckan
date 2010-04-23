@@ -3,14 +3,14 @@
   
   <py:def function="page_title">Groups - Edit - ${c.groupname}</py:def>
 
+  <py:def function="optional_head">
+    <link rel="stylesheet" href="/css/forms.css" type="text/css" media="screen, print" />
+  </py:def>
+
   <div py:match="content">
     <h2>
       Edit Group: ${c.groupname}
     </h2>
-
-    <h3 py:if="c.error" class="form-errors">
-      Error: ${c.error}
-    </h3>
 
     ${Markup(c.form)}
   </div>
