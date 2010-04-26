@@ -112,7 +112,7 @@ class TestRest(TestController):
         res = self.app.get(offset, status=[200])
         anna = model.Package.by_name(u'annakarenina')
         assert 'annakarenina' in res, res
-        assert '"license_id": "other-open"' in res, str(res)
+        assert '"license": "other-open"' in res, str(res)
         assert 'russian' in res, res
         assert 'tolstoy' in res, res
         assert '"extras": {' in res, res
@@ -1016,7 +1016,7 @@ class TestSearch(TestController):
                 break
         assert anna_rec['name'] == 'annakarenina', res_dict['results']
         assert anna_rec['title'] == 'A Novel By Tolstoy', anna_rec['title']
-        assert anna_rec['license_id'] == u'other-open', anna_rec['license_id']
+        assert anna_rec['license'] == u'other-open', anna_rec['license']
         assert len(anna_rec['tags']) == 2, anna_rec['tags']
         for expected_tag in ['russian', 'tolstoy']:
             assert expected_tag in anna_rec['tags']
