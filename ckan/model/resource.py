@@ -1,11 +1,14 @@
+import simplejson as json
+
+from sqlalchemy.ext.orderinglist import ordering_list
+import vdm.sqlalchemy
+
 from meta import *
 from types import make_uuid
-import vdm.sqlalchemy
-from sqlalchemy.ext.orderinglist import ordering_list
-
 from core import DomainObject, Package, package_table, Revision, State
 
-__all__ = ['PackageResource', 'package_resource_table']
+__all__ = ['PackageResource', 'package_resource_table',
+           'PackageResourceRevision', 'resource_revision_table']
 
 package_resource_table = Table(
     'package_resource', metadata,
@@ -31,6 +34,10 @@ class PackageResource(vdm.sqlalchemy.RevisionedObjectMixin,
         self.format = format
         self.description = description
         self.hash = hash
+
+    @property
+    def as_dict(self):
+        return dict([(col, getattr(self, col)) for col in self.get_columns()])
         
     @staticmethod
     def get_columns():
@@ -57,10 +64,7 @@ PackageResourceRevision= vdm.sqlalchemy.create_object_version(
 import vdm.sqlalchemy.stateful
 # TODO: move this into vdm
 def add_stateful_m21(object_to_alter, m21_property_name,
-        underlying_m21_attrname, **kwargs):
-    # identifier for PackageResource objects
-    def _identifier(obj):
-        return getattr(obj, 'url')
+        underlying_m21_attrname, identifier, **kwargs):
     from sqlalchemy.orm import object_session
     def _f(obj_to_delete):
         sess = object_session(obj_to_delete)
@@ -72,11 +76,14 @@ def add_stateful_m21(object_to_alter, m21_property_name,
             vdm.sqlalchemy.stateful.StatefulList,
             # these args are passed to StatefulList
             # identifier if url (could use id but have issue with None)
-            identifier=_identifier,
+            identifier=identifier,
             unneeded_deleter=_f,
             base_modifier=lambda x: x.get_as_of()
             )
     setattr(object_to_alter, m21_property_name, active_list)
 
-add_stateful_m21(Package, 'resources', 'package_resources_all')
+def package_resource_identifier(obj):
+    return json.dumps(obj.as_dict)
+add_stateful_m21(Package, 'resources', 'package_resources_all',
+                 package_resource_identifier)
 

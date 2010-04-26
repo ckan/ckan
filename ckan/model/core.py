@@ -145,20 +145,17 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             elif res_dict.has_key('id'):
                 # get rid of blank id - disrupts creation of new resource
                 del res_dict['id']
-        # Delete unmapped resources
-        mapped_resources = index_to_res.values()
-        for res in self.resources:
-            if res not in mapped_resources:
-                res.delete()        
         # Edit resources and create the new ones
+        new_res_list = []
         for i, res_dict in enumerate(res_dicts):
             if i in index_to_res:
                 res = index_to_res[i]
                 for col, value in res_dict.items():
                     setattr(res, col, value)
             else:
-                self.resources.insert(i, resource.PackageResource(**res_dict))
-        
+                res = resource.PackageResource(**res_dict)
+            new_res_list.append(res)
+        self.resources = new_res_list
 
     def add_resource(self, url, format=u'', description=u'', hash=u''):
         import resource

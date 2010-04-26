@@ -236,3 +236,36 @@ class TestResourceEdit:
         previous_rev = model.repo.history()[1]
         previous_rev_prrs = model.repo.list_changes(previous_rev)[model.PackageResource]
         assert len(previous_rev_prrs) == offset, rev_prrs
+
+    def test_2_update_resources_with_ids(self):
+        pkg = model.Package.by_name(self.pkgname)
+        offset = len(self.urls)
+        assert len(pkg.resources) == offset, pkg.resources
+        original_res_ids = [res.id for res in pkg.resources]
+        def print_resources(caption, resources):
+            print caption, '\n'.join(['<url=%s format=%s>' % (res.url, res.format) for res in resources])
+        print_resources('BEFORE', pkg.resources)
+        
+        rev = model.repo.new_revision()
+        res_dicts = [
+            { #unchanged
+                'url':self.urls[0], 'format':self.format,
+                'description':self.description, 'hash':self.hash,
+                'id':original_res_ids[0]},
+            { #id from res 2, but url from res 1
+                'url':self.urls[1], 'format':u'OTHER FORMAT',
+                'description':self.description, 'hash':self.hash,
+                'id':original_res_ids[2]},
+            ]
+        pkg.update_resources(res_dicts)
+        model.repo.commit_and_remove()
+
+        pkg = model.Package.by_name(self.pkgname)
+        print_resources('AFTER', pkg.resources)
+        assert len(pkg.resources) == len(res_dicts), pkg.resources
+        for i, res in enumerate(pkg.resources):
+            assert res.url == res_dicts[i]['url']
+            assert res.format == res_dicts[i]['format']
+        assert pkg.resources[0].id == original_res_ids[0]
+        assert pkg.resources[1].id == original_res_ids[2]
+
