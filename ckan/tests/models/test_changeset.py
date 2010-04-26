@@ -8,6 +8,7 @@ from ckan.model.changeset import UncommittedChangesException
 from ckan.model.changeset import WorkingAtHeadException
 from ckan.model.changeset import RevisionRegister, PackageRegister
 import ckan.model as model
+from ckan.model import setup_default_user_roles
 
 class TestCase(object):
 
@@ -134,6 +135,7 @@ class TestChangesetRegister(TestCase):
         meta = data['meta']
         self.assert_true('log_message' in meta)
         self.assert_true('author' in meta)
+        self.assert_true('timestamp' in meta)
         changes = data['changes']
         self.assert_true(changes[0]['ref'])
         self.assert_true(changes[0]['diff'])
@@ -332,8 +334,10 @@ class TestChangesetRegister(TestCase):
     def build_creating_revision(self, mark=''):
         revision = self.revisions.create_entity(author=u'test', log_message=u'test')
         package = self.packages.create_entity(name=u'annie%s'%mark, title=u'Annie Get Your Coat (%s)'%mark)
+        model.Session.add(package)
         model.Session.commit()
         model.Session.remove()
+        setup_default_user_roles(package, [])
         self.assert_true(revision.id)
         self.assert_true(package.id)
         self.assert_true(revision.packages)
@@ -345,6 +349,9 @@ class TestChangesetRegister(TestCase):
         package.title = u'Annie Get Your Coat (%s)' % vary_new
         model.Session.commit()
         model.Session.remove()
+        self.assert_true(revision.id)
+        self.assert_true(package.id)
+        self.assert_true(revision.packages)
         return revision.id
 
     def build_creating_changeset(self, mark='', follows_id=None):
@@ -365,13 +372,13 @@ class TestChangesetRegister(TestCase):
         }""" % (mark, vary, vary)
         ref = u"/package/%s" % id
         change = self.changes.create_entity(diff=diff, ref=ref)
-        changes = [change]
         changeset = self.changesets.create_entity(
             follows_id=follows_id,
             changes=[change], 
         )
+        model.Session.add(changeset)
         model.Session.commit()
-        model.Session.remove()
+        assert changeset.id
         return changeset.id
 
     def build_updating_changeset(self, mark='', vary_old='', vary_new='', follows_id=None):
@@ -397,8 +404,8 @@ class TestChangesetRegister(TestCase):
             follows_id=follows_id,
             changes=[change],
         )
+        model.Session.add(changeset)
         model.Session.commit()
-        model.Session.remove()
         return changeset.id
 
     def build_conflicting_changeset(self, mark='', vary_old='', vary_new='', follows_id=None):
@@ -424,8 +431,8 @@ class TestChangesetRegister(TestCase):
             follows_id=follows_id,
             changes=[change],
         )
+        model.Session.add(changeset)
         model.Session.commit()
-        model.Session.remove()
         return changeset.id
 
     def test_add_unseen(self):

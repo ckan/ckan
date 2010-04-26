@@ -26,6 +26,14 @@ class License(object):
     def isopen(self):
         return self.is_okd_compliant or self.is_osi_compliant
 
+    def as_dict(self):
+        data = self._data.copy()
+        if 'date_created' in data:
+            value = data['date_created']
+            value = value.isoformat()
+            data['date_created'] = value
+        return data
+
 
 class LicenseRegister(object):
     """Dictionary-like interface to a group of licenses."""
@@ -62,3 +70,5 @@ class LicenseRegister(object):
     def __iter__(self):
         return iter(self.keys())
 
+    def __len__(self):
+        return len(self.licenses)

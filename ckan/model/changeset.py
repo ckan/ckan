@@ -676,8 +676,14 @@ class Changeset(ChangesetSubdomainObject):
         meta = self.get_meta()
         register = register_classes['changeset']()
         Session.add(self) # Otherwise self.changes db lazy-load doesn't work.
-        revision_id = register.apply_changes(self.changes, meta=meta,
-            report=report, is_forced=is_forced, moderator=moderator)
+        changes = self.changes
+        revision_id = register.apply_changes(
+            changes=changes,
+            meta=meta,
+            report=report,
+            is_forced=is_forced,
+            moderator=moderator,
+        )
         Session.add(self) # Otherwise revision_id isn't persisted.
         self.revision_id = revision_id
         Session.commit()
@@ -889,10 +895,10 @@ class ObjectRegister(object):
             )
             if deleted_entity:
                 deleted_entity.state = State.ACTIVE
-                Session.add(deleted_entity)
+                #Session.add(deleted_entity)
                 return deleted_entity
         entity = self.object_type(**kwds)
-        Session.add(entity)
+        #Session.add(entity)
         return entity
 
 
@@ -1169,6 +1175,7 @@ class AbstractChangesetRegister(TrackedObjectRegister, Json):
         continuing = self.get(continuing_id)
         merge = Merge(closing=closing, continuing=continuing)
         mergeset = merge.create_mergeset(resolve_class=resolve_class)
+        Session.add(mergeset)
         Session.commit()
         return mergeset
 
@@ -1206,6 +1213,7 @@ class AbstractChangesetRegister(TrackedObjectRegister, Json):
         changes = []
         changes_data = changeset_data['changes']
         change_register = ChangeRegister()
+        # Create changes before changeset (changeset id depends on changes).
         for change_data in changes_data:
             ref = unicode(change_data['ref'])
             diff_data = change_data['diff']
@@ -1220,8 +1228,8 @@ class AbstractChangesetRegister(TrackedObjectRegister, Json):
             timestamp=timestamp,
             changes=changes,
         )
+        Session.add(changeset)
         Session.commit()
-        Session.remove()
         return changeset.id
 
 
@@ -1445,10 +1453,13 @@ class ChangesetRegister(AbstractChangesetRegister):
                     report['created'].append(entity)
                     created_entities.append(entity)
             Session.commit()
-        except:
-            from ckan.model import repo as repository
-            repository.purge_revision(revision) # Commits and removes session.
-            raise
+        except Exception, inst:
+            try:
+                from ckan.model import repo as repository
+                repository.purge_revision(revision) # Commits and removes session.
+            except:
+                print "Error: Couldn't purge revision: %s" % revision
+            raise inst
         revision_id = revision.id
         # Setup access control for created entities.
         for entity in created_entities:
@@ -1478,11 +1489,10 @@ class ChangesetRegister(AbstractChangesetRegister):
 
     def construct_from_revision(self, revision, follows_id=None):
         """Creates changeset from given CKAN repository revision."""
-        Session.commit()
-        Session.remove()
         meta = unicode(self.dumps({
             'log_message': revision.message,
             'author': revision.author,
+            'timestamp': revision.timestamp.isoformat(),
         }))
         if follows_id:
             pass
@@ -1493,17 +1503,19 @@ class ChangesetRegister(AbstractChangesetRegister):
             #        - all values for a single entity
             #        - all active entity refs
             # Todo: Cache the change entity refs in the changeset to follow refs down a line.
+        # Create changes before changeset (changeset id depends on changes).
+        changes = []
+        for package in revision.packages:
+            change = self.construct_package_change(package, revision)
+            changes.append(change)
         changeset = self.create_entity(
             follows_id=follows_id,
             meta=meta,
             revision_id=revision.id,
+            changes=changes,
         )
+        Session.add(changeset)
         Session.commit()
-        for package in revision.packages:
-            change = self.construct_package_change(package, revision)
-            changeset.changes.append(change)
-        Session.commit()
-        Session.remove()
         return changeset.id
 
     def construct_package_change(self, package, revision):
@@ -1512,7 +1524,8 @@ class ChangesetRegister(AbstractChangesetRegister):
         vector = packages.diff(package, revision)
         ref = packages.ref(package)
         diff = vector.as_diff()
-        return ChangeRegister().create_entity(ref=ref, diff=diff)
+        change_register = ChangeRegister()
+        return change_register.create_entity(ref=ref, diff=diff)
 
     def is_outstanding_changes(self):
         """Checks for uncommitted revisions in CKAN repository."""
@@ -1558,7 +1571,7 @@ class PackageRegister(TrackedObjectRegister):
                     previous_package_revision = history[i+1]
                 break
         if not current_package_revision:
-            raise Exception, "Can't find package revision: %s" % repr(entity)
+            raise Exception, "Can't find package-revision for package: %s and revision: %s with package history: %s" % (entity, revision, history)
         old_data = None  # Signifies object creation.
         new_data = entity.as_dict()
         del(new_data['revision_id'])
@@ -1611,7 +1624,7 @@ class PackageRegister(TrackedObjectRegister):
                     description=resource_data.get('description', u''),
                     hash=resource_data.get('hash', u''),
                 )
-                Session.add(package_resource)
+                #Session.add(package_resource)
                 entity.resources.append(package_resource) 
 
  

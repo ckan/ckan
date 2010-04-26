@@ -43,7 +43,7 @@ class TestRest(TestController):
                 u'hash':u'def123',
             }],
             'tags': [u'russion', u'novel'],
-            'license': self.testpackage_license_id,
+            'license_id': self.testpackage_license_id,
             'extras': {
                 'genre' : u'horror',
                 'media' : u'dvd',
@@ -112,7 +112,7 @@ class TestRest(TestController):
         res = self.app.get(offset, status=[200])
         anna = model.Package.by_name(u'annakarenina')
         assert 'annakarenina' in res, res
-        assert '"license": "other-open"' in res, str(res)
+        assert '"license_id": "other-open"' in res, str(res)
         assert 'russian' in res, res
         assert 'tolstoy' in res, res
         assert '"extras": {' in res, res
@@ -192,8 +192,7 @@ class TestRest(TestController):
         offset = '/api/rest/package/%s' % self.testpackagevalues['name']
         res = self.app.get(offset, status=[200])
         assert self.testpackagevalues['name'] in res, res
-        assert 'license_id' not in res, res
-        assert '"license": "%s"' % self.testpackagevalues['license'] in res, res
+        assert '"license_id": "%s"' % self.testpackagevalues['license_id'] in res, res
         assert self.testpackagevalues['tags'][0] in res, res
         assert self.testpackagevalues['tags'][1] in res, res
         assert '"extras": {' in res, res
@@ -653,6 +652,20 @@ class TestRest(TestController):
         res = self.app.get(offset, status=404)
         model.Session.remove()
 
+    def test_16_list_licenses(self):
+        from ckan.model.license import LicenseRegister
+        register = LicenseRegister()
+        assert len(register), "No changesets found in model."
+        offset = '/api/rest/licenses'
+        res = self.app.get(offset, status=[200])
+        licenses_data = simplejson.loads(res.body)
+        assert len(licenses_data) == len(register), (len(licenses_data), len(register))
+        for license_data in licenses_data:
+            id = license_data['id']
+            license = register[id]
+            assert license['title'] == license.title
+            assert license['url'] == license.url
+            
 class TestRelationships(TestController):
     @classmethod
     def setup_class(self):
@@ -1016,7 +1029,7 @@ class TestSearch(TestController):
                 break
         assert anna_rec['name'] == 'annakarenina', res_dict['results']
         assert anna_rec['title'] == 'A Novel By Tolstoy', anna_rec['title']
-        assert anna_rec['license'] == u'other-open', anna_rec['license']
+        assert anna_rec['license_id'] == u'other-open', anna_rec['license_id']
         assert len(anna_rec['tags']) == 2, anna_rec['tags']
         for expected_tag in ['russian', 'tolstoy']:
             assert expected_tag in anna_rec['tags']

@@ -37,8 +37,11 @@ class RestController(BaseController):
             return self._finish_ok(results)
         elif register == u'changeset':
             from ckan.model.changeset import ChangesetRegister
-            changesets = ChangesetRegister()
-            results = changesets.keys()
+            return self._finish_ok(ChangesetRegister().keys())
+        elif register == u'licenses':
+            from ckan.model.license import LicenseRegister
+            licenses = LicenseRegister().values()
+            results = [l.as_dict() for l in licenses]
             return self._finish_ok(results)
         else:
             response.status_int = 400

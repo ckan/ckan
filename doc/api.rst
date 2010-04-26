@@ -92,6 +92,8 @@ locations of the CKAN REST API resources:
 +--------------------------------+---------------------------------------------------------------+
 | Revision Entity                | /api/rest/revision/REVISION-ID                                |
 +--------------------------------+---------------------------------------------------------------+
+| License List                   | /api/rest/licenses                                            |
++--------------------------------+---------------------------------------------------------------+
 
 Here are the non-REST API locations:
 
@@ -158,6 +160,8 @@ the operation.
 +-------------------------------+--------+------------------+-------------------+
 | Revision Entity               | GET    |                  | Revision          | 
 +-------------------------------+--------+------------------+-------------------+
+| License List                  | GET    |                  | License-List      | 
++-------------------------------+--------+------------------+-------------------+
 
 Notes:
 
@@ -176,18 +180,13 @@ Data Formats
 +-----------------+------------------------------------------------------------+
 | Name            | Format                                                     |
 +=================+============================================================+
-| Revision-List   | [ Uuid, Uuid, Uuid, ... ]                                  |
-+-----------------+------------------------------------------------------------+
-| Revision        | { id: Uuid, message: String, author: String,               |
-|                 | timestamp: DateTime }                                      |
-+-----------------+------------------------------------------------------------+
 | Package-List    | [ Name-String, Name-String, Name-String, ... ]             |
 +-----------------+------------------------------------------------------------+
 | Package         | { name: Name-String, title: String, version: String,       |
 |                 | url: String, resources: [ Resource-Dict, Resource-Dict,    |
 |                 | ... ], author: String, author_email: String,               |
 |                 | maintainer: String, maintainer_email: String,              |
-|                 | license: String, tags: Tag-List, notes: String,            |
+|                 | license_id: Stringw, tags: Tag-List, notes: String,         |
 |                 | extras: { Name-String: Value-String, ... } }               |
 +-----------------+------------------------------------------------------------+
 | Group-List      | [ Name-String, Name-String, Name-String, ... ]             | 
@@ -223,6 +222,20 @@ Data Formats
 +-----------------+------------------------------------------------------------+
 |RELATIONSHIP-NAME| One of: 'child_of', 'parent_of', 'depends_on',             |
 |                 | 'dependency_of', 'derives_from', 'has_derivation'          |
++-----------------+------------------------------------------------------------+
+| Pkg-Relationship| {'comment':String}                                         |
++-----------------+------------------------------------------------------------+
+| Revision-List   | [ Uuid, Uuid, Uuid, ... ]                                  |
++-----------------+------------------------------------------------------------+
+| Revision        | { id: Uuid, message: String, author: String,               |
+|                 | timestamp: Date-Time }                                      |
++-----------------+------------------------------------------------------------+
+| License-List    | [ License, License, License, ... ]                         |
++-----------------+------------------------------------------------------------+
+| License         | [ id: Name-String, title: String, is_okd_compliant:        |
+|                 | Boolean, is_osi_compliant: Boolean, tags: Tag-List,        |
+|                 | family: String, url: String, maintainer: String,           |
+|                 | date_created: Date-Time, status: String ]                   |
 +-----------------+------------------------------------------------------------+
 
 To send request data, create a simple data structure, then convert it to a JSON string, then percent-encode the JSON string, then send it as the request body.
@@ -266,18 +279,6 @@ If requests that are required to be authorized are not sent with a currently
 valid Authorization header, or the user associated with the key is not 
 authorized for the operation, then the requested operation will not be carried
 out and the CKAN REST API will respond with status code 403.
-
-
-Revision Search Parameters
-==========================
-
-+-----------------------+---------------+----------------------------------+----------------------------------+
-| Key                   |    Value      | Example                          |  Notes                           |
-+=======================+===============+==================================+==================================+ 
-| since_time            | Date-Time     |                                  |                                  |
-+-----------------------+---------------+----------------------------------+----------------------------------+
-| since_revision        | Uuid          |                                  |                                  |
-+-----------------------+---------------+----------------------------------+----------------------------------+
 
 
 Package Search Parameters
@@ -330,6 +331,18 @@ Package Search Parameters
 +-----------------------+---------------+----------------------------------+----------------------------------+
 |filter_by_downloadbable| 0 (default)   | filter_by_downloadable=1         | Filters results by ones which    |
 |                       | or 1          |                                  | have at least one resource URL.  |
++-----------------------+---------------+----------------------------------+----------------------------------+
+
+
+Revision Search Parameters
+==========================
+
++-----------------------+---------------+----------------------------------+----------------------------------+
+| Key                   |    Value      | Example                          |  Notes                           |
++=======================+===============+==================================+==================================+ 
+| since_time            | Date-Time     |                                  |                                  |
++-----------------------+---------------+----------------------------------+----------------------------------+
+| since_revision        | Uuid          |                                  |                                  |
 +-----------------------+---------------+----------------------------------+----------------------------------+
 
 

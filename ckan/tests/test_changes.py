@@ -133,9 +133,10 @@ class TestDistributingChanges(TestControllerWithForeign):
 
         version = u'1.1'
         url = u'http://something.com/somewhere.zip'
-        resources = ((u'http://something.com/somewhere-else.xml', u'xml', u'Best', u'hash1'),
-                     (u'http://something.com/somewhere-else2.xml', u'xml2', u'Best2', u'hash2'),
-                     )
+        resources = (
+        #    (u'http://something.com/somewhere-else.xml', u'xml', u'Best', u'hash1'),
+            (u'http://something.com/somewhere-else2.xml', u'xml2', u'Best2', u'hash2'),
+        )
 
         assert len(resources[0]) == len(model.PackageResource.get_columns())
         notes = u'Very important'

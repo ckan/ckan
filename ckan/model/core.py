@@ -198,8 +198,6 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         _dict = DomainObject.as_dict(self)
         _dict['tags'] = [tag.name for tag in self.tags]
         _dict['groups'] = [group.name for group in self.groups]
-        _dict['license'] = self.license.id if self.license else ''
-        del _dict['license_id']
         _dict['extras'] = dict([(extra.key, extra.value) for key, extra in self._extras.items()])
         _dict['ratings_average'] = self.get_average_rating()
         _dict['ratings_count'] = len(self.ratings)
