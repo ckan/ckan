@@ -898,7 +898,6 @@ class ObjectRegister(object):
                 #Session.add(deleted_entity)
                 return deleted_entity
         entity = self.object_type(**kwds)
-        #Session.add(entity)
         return entity
 
 
@@ -1314,7 +1313,10 @@ class ChangeRegister(TrackedObjectRegister):
     object_type = Change
     key_attr = 'ref'
 
-
+# Todo: Extract (and put under test) the mask-setting and mask-getting routines.
+# Todo: Prevent user from easily not applying change and not applying mask.
+# Todo: Support mask-unsetting (necessarily with entity "catch up").
+# Todo: Support apply-conflict override (so some changes can be skipped).
 class ChangemaskRegister(TrackedObjectRegister):
     """Dictionary-like interface to ignore objects."""
 
