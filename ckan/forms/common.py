@@ -262,12 +262,24 @@ class TextRangeExtraField(RegExRangeValidatingField):
 
 class ResourcesField(ConfiguredField):
     '''A form field for multiple package resources.'''
+
     def __init__(self, name, hidden_label=False):
         super(ResourcesField, self).__init__(name)
         self._hidden_label = hidden_label
 
+    def url_validator(self, val, field=None):
+        resources_data = val
+        assert isinstance(resources_data, list)
+        url_regex = re.compile('\S') # Todo: Restrict this further?
+        errormsg = 'Package resources must have URLs.'
+        validator = formalchemy.validators.regex(url_regex, errormsg)
+        for resource_data in resources_data:
+            assert isinstance(resource_data, dict)
+            resource_url = resource_data.get('url', '')
+            validator(resource_url, field)
+
     def get_configured(self):
-        field = self.ResourcesField(self.name).with_renderer(self.ResourcesRenderer)
+        field = self.ResourcesField(self.name).with_renderer(self.ResourcesRenderer).validate(self.url_validator)
         field._hidden_label = self._hidden_label
         field.set(multiple=True)
         return field

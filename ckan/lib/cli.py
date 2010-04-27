@@ -701,11 +701,11 @@ class Changes(CkanCommand):
             answer = answer[0].lower()
             print ""
             if answer == 'y':
-                from ckan.model.changeset import ChangemaskRegister
+                from ckan.model.changeset import ChangemaskRegister, Session
                 register = ChangemaskRegister()
-                register.create_entity(change.ref)
-                from ckan import model
-                model.Session.commit()
+                mask = register.create_entity(change.ref)
+                Session.add(mask)
+                Session.commit()
                 print "Mask has been set for ref: %s" % change.ref
                 print ""
             else:
