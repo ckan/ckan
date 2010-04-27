@@ -1,8 +1,7 @@
 from ckan.tests import *
 import ckan.model as model
 
-class TestResourceLifecycle:
-    @classmethod
+class TestPackageResource:
     def setup(self):
         self.pkgname = u'resourcetest'
         assert not model.Package.by_name(self.pkgname)
@@ -23,7 +22,6 @@ class TestResourceLifecycle:
             pkg.resources.append(pr)
         model.repo.commit_and_remove()
 
-    @classmethod
     def teardown(self):
         model.Session.remove()
         pkg = model.Package.by_name(self.pkgname)
@@ -59,14 +57,27 @@ class TestResourceLifecycle:
         res0 = pkg.resources[0]
         del pkg.resources[0]
         pkg.resources.append(res0)
+        # this assert will fail
+        # assert pkg.resources[1].position == 1
+        # Why? According to docs for ordering list it does not reorder appended
+        # elements by default (see
+        # http://www.sqlalchemy.org/trac/browser/lib/sqlalchemy/ext/orderinglist.py#L197)
+        # Possible ways to deal with this:
+        # 1. Call reorder() on list. Problematic as this method is hidden by
+        #   StatefulList()
+        # 2. set res0.position = None
+        pkg.resources[1].position = None
         print [ p.url for p in pkg.resources ]
+        print [ p.position for p in pkg.resources ]
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(self.pkgname)
         assert len(pkg.resources) == 2, pkg.package_resources_all
         print [ p.url for p in pkg.resources ]
         print [ p.position for p in pkg.resources ]
-        assert pkg.resources[1].url == self.urls[0], pkg.resources[1]
+        lastres = pkg.resources[1]
+        assert lastres.position == 1, lastres
+        assert lastres.url == self.urls[0], pkg.lastres
 
     def test_04_insert_resource(self):
         pkg = model.Package.by_name(self.pkgname)
@@ -108,54 +119,6 @@ class TestResourceLifecycle:
         all_resources = model.Session.query(model.PackageResource).\
                         filter_by(state=model.State.ACTIVE).all()
         assert len(all_resources) == 0, pkg.resources
-
-
-class TestResourceUse:
-    @classmethod
-    def setup_class(self):
-        self.pkgname = u'geodata'
-        self.urls = ['http://urlC.1/', 'http://urlB.2/', 'http://urlA.3/']
-        self.formats = [u'csv', u'json', u'xml']
-        self.description = u'Important part.'
-        self.hash = u'abc123'
-        rev = model.repo.new_revision()
-        pkg = model.Package(name=self.pkgname)
-        for index, url in enumerate(self.urls):
-            pr = model.PackageResource(url=unicode(url),
-                                       format=self.formats[index],
-                                       description=self.description,
-                                       hash=self.hash,
-                                       )
-            model.Session.add(pr)
-            pkg.resources.append(pr)
-        model.repo.commit_and_remove()
-
-        self.pkg = model.Package.by_name(self.pkgname)
-
-    @classmethod
-    def teardown_class(self):
-        model.Session.remove()
-        model.repo.rebuild_db()
-
-    def test_0_order_correct_at_start(self):
-        resources = self.pkg.resources
-        for index, urls in enumerate(self.urls):
-            assert resources[index].url == self.urls[index], resources[index]
-            assert resources[index].position == index, '%i %i' % (resources[index].position, index)
-
-    def test_1_reorder(self):
-        resources = self.pkg.resources
-        rev = model.repo.new_revision()
-        pr = model.PackageResource(url=u'new.url')
-        model.Session.add(pr)
-        self.pkg.resources.insert(1, pr)
-        model.repo.commit_and_remove()
-
-        self.pkg = model.Package.by_name(self.pkgname)
-        resources = self.pkg.resources
-        assert resources[0].url == self.urls[0], resources[index]
-        assert resources[1].url == u'new.url', resources[index]
-        assert resources[3].url == self.urls[2], resources[index]
 
 
 class TestResourceEdit:
