@@ -180,6 +180,7 @@ class PackageController(BaseController):
                     if user:
                         admins = [user]
                 model.setup_default_user_roles(pkg, admins)
+                model.repo.commit_and_remove()
 
                 h.redirect_to(action='read', id=pkgname)
             except ValidationException, error:
@@ -311,8 +312,7 @@ class PackageController(BaseController):
                 # With FA no way to get new PackageRole back to set package attribute
                 # new_roles = ckan.forms.new_roles_fs.bind(model.PackageRole, data=params or None)
                 # new_roles.sync()
-                model.Session.commit()
-                model.Session.remove()
+                model.repo.commit_and_remove()
                 c.message = _(u'Added role \'%s\' for user \'%s\'') % (
                     newpkgrole.role,
                     newpkgrole.user.name)
@@ -325,7 +325,7 @@ class PackageController(BaseController):
                 c.message = _(u'Deleted role \'%s\' for user \'%s\'') % (pkgrole.role,
                         pkgrole.user.name)
                 pkgrole.purge()
-                model.Session.commit()
+                model.repo.commit_and_remove()
 
         # retrieve pkg again ...
         c.pkg = model.Package.by_name(id)

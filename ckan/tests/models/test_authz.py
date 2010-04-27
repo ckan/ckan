@@ -339,6 +339,7 @@ class TestUseCasePermissions:
         annakarenina_creator = model.User(name=u'annakarenina_creator')
         model.Session.add(annakarenina_creator)
         model.setup_default_user_roles(anna, [annakarenina_creator])
+        model.repo.commit_and_remove()
 
         # setup warandpeace with no roles
         war = model.Package.by_name(u'warandpeace')
@@ -368,6 +369,7 @@ class TestUseCasePermissions:
 
         mrsysadmin = model.User.by_name(u'mrsysadmin')
         model.add_user_to_role(mrsysadmin, model.Role.ADMIN, model.System())
+        model.repo.commit_and_remove()
 
         self.mreditor = model.User.by_name(u'mreditor')
         self.mrreader = model.User.by_name(u'mrreader')
@@ -436,8 +438,6 @@ class TestUseCasePermissions:
         assert not self.authorizer.is_authorized(username=self.visitor.name,
                 action=model.Action.EDIT, domain_object=self.war)
 
-        # have to be careful using objects created in setup (may be stale).
-        model.Session.remove()
         self.visitor = model.User.by_name(model.PSEUDO_USER__VISITOR)
         self.war = model.Package.by_name(u'warandpeace')
         model.add_user_to_role(self.visitor, model.Role.EDITOR, self.war)

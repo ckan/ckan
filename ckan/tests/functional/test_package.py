@@ -314,6 +314,8 @@ class TestEdit(TestPackageForm):
         editpkg = model.Package.by_name(self.editpkg_name)
         admin = model.User.by_name(u'testadmin')
         model.setup_default_user_roles(editpkg, [admin])
+        model.repo.commit_and_remove()
+
         self.pkgid = editpkg.id
         offset = url_for(controller='package', action='edit', id=self.editpkg_name, package_form=package_form)
         self.res = self.app.get(offset)
@@ -474,6 +476,7 @@ u with umlaut \xc3\xbc
         model.repo.commit_and_remove()
         pkg = model.Package.by_name(pkg_name)
         model.setup_default_user_roles(pkg, [self.admin])
+        model.repo.commit_and_remove()
 
         # Edit it
         offset = url_for(controller='package', action='edit', id=pkg.name, package_form=package_form)
@@ -649,6 +652,7 @@ alert('Hello world!');
         self.pkg = model.Package.by_name(self.pkg_name)
         admin = model.User.by_name(u'testadmin')
         model.setup_default_user_roles(self.pkg, [admin])
+        model.repo.commit_and_remove()
         self.pkg_id = self.pkg.id
         offset = url_for(controller='package', action='read', id=self.pkg_name)
         self.res = self.app.get(offset)
@@ -960,6 +964,7 @@ class TestNonActivePackages(TestPackageBase):
         pkg = model.Session.query(model.Package).filter_by(name=self.non_active_name).one()
         admin = model.User.by_name(u'joeadmin')
         model.setup_default_user_roles(pkg, [admin])
+        model.repo.commit_and_remove()
         
         pkg = model.Session.query(model.Package).filter_by(name=self.non_active_name).one()
         pkg.delete() # becomes non active
