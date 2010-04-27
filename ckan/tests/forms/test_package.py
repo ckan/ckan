@@ -264,6 +264,19 @@ class TestFormErrors(PylonsTestCase):
         model.repo.new_revision()
         assert fs.validate(), fs.errors
 
+    def test_3_resource_no_url(self):
+        indict = _get_blank_param_dict()
+        prefix = 'Package--'
+        indict[prefix + 'name'] = u'annakarenina123'
+        indict[prefix + 'title'] = u'Some title'
+        indict[prefix + 'resources-'] = u'testvalue'
+        indict['Package--resources-0-url'] = u''
+        indict['Package--resources-0-format'] = u'xml'
+        indict['Package--resources-0-description'] = u'test desc'
+        fs = ckan.forms.get_standard_fieldset().bind(model.Package, data=indict)
+        model.repo.new_revision()
+        assert not fs.validate()
+
 class TestValidation:
     @classmethod
     def setup_class(self):
