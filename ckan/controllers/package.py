@@ -347,6 +347,16 @@ class PackageController(BaseController):
                 abort(400, gettext('Rating value invalid'))
         h.redirect_to(controller='package', action='read', id=package_name)
 
+    def autocomplete(self):
+        pkg_list = []
+        pkg_query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
+        for pkg in pkg_query:
+            pkg_list.extend([
+                '%s (%s)|%s' % (pkg.title, pkg.name, pkg.id),
+                '%s|%s' % (pkg.name, pkg.id),
+                ])
+        return '\n'.join(pkg_list)
+
     def _render_edit_form(self, fs, params={}, clear_session=False):
         # errors arrive in c.error and fs.errors
         c.log_message = params.get('log_message', '')
