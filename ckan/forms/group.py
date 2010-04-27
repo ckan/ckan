@@ -1,5 +1,6 @@
 import formalchemy
-from formalchemy import helpers as h
+from formalchemy import helpers as fa_h
+import ckan.lib.helpers as h
 
 from builder import FormBuilder
 import ckan.model as model
@@ -38,9 +39,10 @@ class PackagesField(common.ConfiguredField):
 # For new_package_group_fs
 class PackagesRenderer(formalchemy.fields.FieldRenderer):
     def render(self, **kwargs):
-        selected = unicode(kwargs.get('selected', None) or self._value)
-        options = [('', '__null_value__')] + [(p.name, p.id) for p in model.Session.query(model.Package).all()]
-        return h.select(self.name, selected, options, **kwargs)
+        kwargs['class'] = 'autocomplete'
+        kwargs['data-autocomplete-url'] = h.url_for(controller='package', action='autocomplete', id=None)
+        html = fa_h.text_field(self.name, **kwargs)
+        return html
 
 def build_group_form(with_packages=False):
     builder = FormBuilder(model.Group)
@@ -67,7 +69,8 @@ def get_group_fieldset(name):
         # new_package_group_fs is the packages for the WUI form
         builder = FormBuilder(model.PackageGroup)
         builder.set_field_option('package_id', 'with_renderer', PackagesRenderer)
-        builder.set_displayed_fields({'Details':['package_id']})
+        builder.set_displayed_fields({'Add packages':['package_id']},
+                                     focus_field=False)
         fieldsets['new_package_group_fs'] = builder.get_fieldset()
     return fieldsets[name]
 
