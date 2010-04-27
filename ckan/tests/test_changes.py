@@ -25,17 +25,23 @@ class TestControllerWithForeign(TestController):
         if os.system(cmd):
             raise Exception, "Couldn't execute cmd: %s" % cmd
 
+    def paster(self, cmd, config_filename):
+        config_fpath = os.path.join(instance_dir, config_filename)
+        self.system('paster --plugin ckan %s --config=%s' % (cmd, config_fpath))
+
     def setup(self):
         # setup Server A (sub process)
-        self.system('paster db clean --config=test_sync.ini')
-        self.system('paster db init --config=test_sync.ini')
-        self.system('paster create-test-data --config=test_sync.ini')
-        self.sub_proc = subprocess.Popen(['paster', 'serve', 'test_sync.ini'])
+        self.paster('db clean', 'test_sync.ini')
+        self.paster('db init', 'test_sync.ini')
+        self.paster('create-test-data', 'test_sync.ini')
+        self.sub_proc = subprocess.Popen(['paster', 'serve',
+                         os.path.join(instance_dir, 'test_sync.ini')])
         # setup Server B (sub process)
-        self.system('paster db clean --config=test_sync2.ini')
-        self.system('paster db init --config=test_sync2.ini')
-        self.system('paster create-test-data --config=test_sync2.ini')
-        self.sub_proc2 = subprocess.Popen(['paster', 'serve', 'test_sync2.ini'])
+        self.paster('db clean', 'test_sync2.ini')
+        self.paster('db init', 'test_sync2.ini')
+        self.paster('create-test-data', 'test_sync2.ini')
+        self.sub_proc2 = subprocess.Popen(['paster', 'serve',
+                        os.path.join(instance_dir, 'test_sync2.ini')])
 
     def teardown(self):
         #self.sub_proc.kill()  # Only in Python 2.6
@@ -75,16 +81,13 @@ class TestControllerWithForeign(TestController):
 class TestDistributingChanges(TestControllerWithForeign):
 
     def commit(self):
-        cmd = 'paster changes commit --config=test_sync.ini'
-        self.system(cmd)
+        self.paster('changes commit', 'test_sync.ini')
 
     def pull(self):
-        cmd = 'paster changes pull --config=test_sync.ini'
-        self.system(cmd)
+        self.paster('changes pull', 'test_sync.ini')
 
     def update(self):
-        cmd = 'paster changes update --config=test_sync.ini'
-        self.system(cmd)
+        self.paster('changes update', 'test_sync.ini')
 
     def test_pull(self):
         self.sub_app_get('/')
