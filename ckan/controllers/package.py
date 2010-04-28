@@ -241,6 +241,8 @@ class PackageController(BaseController):
         if not 'commit' in request.params and not 'preview' in request.params:
             # edit
             c.pkgname = id
+            if pkg.license_id:
+                self._adjust_license_id_options(pkg, fs)
             fs = fs.bind(pkg)
             c.form = self._render_edit_form(fs, request.params)
             return render('package/edit')
@@ -264,6 +266,8 @@ class PackageController(BaseController):
                 abort(400, 'Missing parameter: %s' % error.args)
         else: # Must be preview
             c.pkgname = id
+            if pkg.license_id:
+                self._adjust_license_id_options(pkg, fs)
             fs = fs.bind(pkg, data=dict(request.params))
             try:
                 PackageSaver().render_preview(fs, id, pkg.id,
@@ -278,6 +282,16 @@ class PackageController(BaseController):
                         clear_session=True)
                 return render('package/edit')
             return render('package/edit') # uses c.form and c.preview
+
+    def _adjust_license_id_options(self, pkg, fs):
+        options = fs.license_id.render_opts['options']
+        is_included = False
+        for option in options:
+            license_id = option[1]
+            if license_id == pkg.license_id:
+                is_included = True
+        if not is_included:
+            options.insert(1, (pkg.license_id, pkg.license_id))
 
     def authz(self, id):
         pkg = model.Package.by_name(id)

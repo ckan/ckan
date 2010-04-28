@@ -59,17 +59,7 @@ def build_package_form(is_admin=False):
      _('Notes'), _('Resources'), _('Author'), _('Author email'), _('Maintainer'),
      _('Maintainer email'), _('License'), _('Tags'), _('Extras'), _('State')]
 
-fieldsets = {} # fieldset cache
-
 def get_standard_fieldset(is_admin=False):
-    '''Returns the standard fieldset
-    '''
-    if not fieldsets:
-        # fill cache
-        fieldsets['package_fs'] = build_package_form().get_fieldset()
-        fieldsets['package_fs_admin'] = build_package_form(is_admin=True).get_fieldset()
-        
-    if is_admin:
-        return fieldsets['package_fs_admin']
-    else:
-        return fieldsets['package_fs']
+    '''Returns the package fieldset (optionally with admin fields)'''
+
+    return build_package_form(is_admin=is_admin).get_fieldset()
