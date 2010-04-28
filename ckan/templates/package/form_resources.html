@@ -11,7 +11,7 @@
               <td><input name="${c.id}-${i}-format" type="text" class="short" value="${res['format'] if res else ''}" /></td> 
               <td><input name="${c.id}-${i}-description" type="text" class="medium-width" value="${res['description'] if res else ''}" /></td> 
               <td><input name="${c.id}-${i}-hash" type="text" class="short" value="${res['hash'] if res else ''}" /></td> 
-              <td><input name="${c.id}-${i}-id" type="hidden" value="${res['id'] if res else ''}" /></td> 
+              <td><input name="${c.id}-${i}-id" type="hidden" value="${res.get('id', '') if res else ''}" /></td> 
             </tr>
           </tbody>
 </table>
