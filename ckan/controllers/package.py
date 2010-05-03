@@ -150,8 +150,8 @@ class PackageController(BaseController):
                 )
             feed.content_type = 'application/atom+xml'
             return feed.writeString('utf-8')
-        c.pkg_revisions = c.pkg.all_revisions
-        c.youngest_rev_id = c.pkg_revisions[0].revision_id
+        c.pkg_revisions = c.pkg.all_related_revisions
+#        c.youngest_rev_id = c.pkg_revisions[0].revision_id
         return render('package/history')
 
     def new(self):

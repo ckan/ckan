@@ -226,3 +226,106 @@ class TestPackageRevisions:
             assert rev.notes == self.notes[num_notes - i - 1], '%s != %s' % (rev.notes, self.notes[i])
 
 
+class TestRelatedRevisions:
+    @classmethod
+    def setup_class(self):
+        model.Session.remove()
+        self.name = u'difftest'
+
+        # create pkg - PackageRevision
+        rev = model.repo.new_revision()
+        self.pkg1 = model.Package(name=self.name)
+        model.Session.add(self.pkg1)
+        self.pkg1.version = u'First version'
+        model.repo.commit_and_remove()
+
+        # edit pkg - PackageRevision
+        rev = model.repo.new_revision()
+        pkg1 = model.Package.by_name(self.name)
+        pkg1.notes = u'New notes'
+        rev.message = u'Added notes'
+        model.repo.commit_and_remove()
+
+        # edit pkg - PackageExtraRevision
+        rev = model.repo.new_revision()
+        pkg1 = model.Package.by_name(self.name)
+        pkg1.extras = {u'a':u'b', u'c':u'd'}
+        rev.message = u'Added extras'
+        model.repo.commit_and_remove()
+
+        # edit pkg - PackageTagRevision
+        rev = model.repo.new_revision()
+        pkg1 = model.Package.by_name(self.name)
+        pkg1.add_tag_by_name(u'geo')
+        pkg1.add_tag_by_name(u'scientific')
+        rev.message = u'Added tags'
+        model.repo.commit_and_remove()
+
+        # edit pkg - PackageResourceRevision
+        rev = model.repo.new_revision()
+        pkg1 = model.Package.by_name(self.name)
+        pkg1.resources.append(model.PackageResource(url=u'http://url1.com',
+                                                    format=u'xls',
+                                                    description=u'It is.',
+                                                    hash=u'abc123'))
+        rev.message = u'Added resource'
+        model.repo.commit_and_remove()
+
+        # edit pkg - PackageResourceRevision
+        rev = model.repo.new_revision()
+        pkg1 = model.Package.by_name(self.name)
+        pkg1.resources[0].url = u'http://url1.com/edited'
+        pkg1.resources.append(model.PackageResource(url=u'http://url2.com'))
+        rev.message = u'Added resource'
+        model.repo.commit_and_remove()
+
+        # edit pkg - PackageRevision
+        rev = model.repo.new_revision()
+        pkg1 = model.Package.by_name(self.name)
+        pkg1.notes = u'Changed notes'
+        rev.message = u'Changed notes'
+        model.repo.commit_and_remove()
+
+        self.pkg1 = model.Package.by_name(self.name)
+        self.res1 = model.Session.query(model.PackageResource).filter_by(url=u'http://url1.com/edited').one()
+        self.res2 = model.Session.query(model.PackageResource).filter_by(url=u'http://url2.com').one()
+        assert self.pkg1
+
+    @classmethod
+    def teardown_class(self):
+        rev = model.repo.new_revision()
+        pkg1 = model.Package.by_name(self.name)
+        pkg1.purge()
+        model.repo.commit_and_remove()
+
+    def test_1_all_revisions(self):
+        assert len(self.pkg1.all_revisions) == 3, self.pkg1.all_revisions
+        assert len(self.pkg1.all_related_revisions) == 7, self.pkg1.all_related_revisions        
+
+    def test_2_diff(self):
+        rev_q = model.repo.history()
+        rev_q = rev_q.order_by(model.Revision.timestamp.desc())
+        last_rev = rev_q.first()
+        first_rev = rev_q.all()[-1]
+        second_rev = rev_q.all()[-2]
+        diff = self.pkg1.diff(last_rev, second_rev)
+        assert diff['notes'] == '- None\n+ Changed notes', diff['notes']
+        assert diff.get('PackageTag-geo') == u'- \n+ active', diff
+        assert diff.get('PackageTag-scientific') == u'- \n+ active', diff
+        assert diff.get('PackageExtra-a-value') == u'- \n+ b', diff
+        assert diff.get('PackageExtra-a-state') == u'- \n+ active', diff
+        assert diff.get('PackageExtra-c-value') == u'- \n+ d', diff
+        assert diff.get('PackageExtra-c-state') == u'- \n+ active', diff
+        def test_res(diff, res, field, expected_value):
+            key = 'PackageResource-%s-%s' % (res.id, field)
+            got_value = diff.get(key)
+            expected_value = u'- \n+ %s' % expected_value
+            assert got_value == expected_value, 'Key: %s Got: %r Expected: %r' % (key, got_value, expected_value)
+        print diff
+        test_res(diff, self.res1, 'url', 'http://url1.com/edited')
+        test_res(diff, self.res1, 'position', '0')
+        test_res(diff, self.res1, 'format', 'xls')
+        test_res(diff, self.res1, 'description', 'It is.')
+        test_res(diff, self.res1, 'hash', 'abc123')
+        test_res(diff, self.res1, 'state', 'active')
+        test_res(diff, self.res2, 'url', 'http://url2.com')

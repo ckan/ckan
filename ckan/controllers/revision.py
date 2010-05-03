@@ -116,7 +116,9 @@ class RevisionController(BaseController):
             request.params.getone('oldid'))
         c.revision_to = model.Session.query(model.Revision).get(
             request.params.getone('diff'))
-        c.diff = pkg.diff(c.revision_to, c.revision_from)
+        diff = pkg.diff(c.revision_to, c.revision_from)
+        c.diff = diff.items()
+        c.diff.sort()
         c.pkg = pkg
         return render('revision/diff')
 

@@ -1579,7 +1579,7 @@ class PackageRegister(TrackedObjectRegister):
         del(new_data['revision_id'])
         if previous_package_revision:
             old_data = {}
-            for name in entity.revisioned_fields:
+            for name in entity.revisioned_fields():
                 old_value = getattr(previous_package_revision, name)
                 new_value = getattr(current_package_revision, name)
                 if old_value == new_value:

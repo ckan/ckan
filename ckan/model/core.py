@@ -336,6 +336,107 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
     license = property(get_license, set_license)
 
+    @property
+    def all_related_revisions(self):
+        results = {} # revision:[PackageRevision1, PackageTagRevision1, etc.]
+        for pkg_rev in self.all_revisions:
+            if not results.has_key(pkg_rev.revision):
+                results[pkg_rev.revision] = []
+            results[pkg_rev.revision].append(pkg_rev)
+        for class_ in get_revisioned_classes_related_to_package():
+            rev_class = class_.__revision_class__
+            obj_revisions = Session.query(rev_class).filter_by(package_id=self.id).all()
+            for obj_rev in obj_revisions:
+                if not results.has_key(obj_rev.revision):
+                    results[obj_rev.revision] = []
+                results[obj_rev.revision].append(obj_rev)
+        result_list = results.items()
+        ourcmp = lambda rev_tuple1, rev_tuple2: \
+                 cmp(rev_tuple2[0].timestamp, rev_tuple1[0].timestamp)
+        return sorted(result_list, cmp=ourcmp)
+
+    @property
+    def _all_related_revisions(self):
+        results = {} # revision:[Package:[PackageRevision1, ], PackageTag:[...]]
+        for class_ in get_revisioned_classes_related_to_package():
+            rev_class = class_.__revision_class__
+            obj_revisions = Session.query(rev_class).filter_by(continuity=self).all()
+            for obj_rev in obj_revisions:
+                if not results.has_key(obj_rev.revision):
+                    results[obj_rev.revision] = []
+                if not results[obj_rev.revision].has_key(obj_rev.__revision_class__):
+                    results[obj_rev.revision][obj_rev.__revision_class__] = []
+                results[obj_rev.revision][obj_rev.__revision_class__].append(obj_rev)
+        return results
+
+    def list_changes(self, revision):
+        '''List all objects changed by this `revision` that are related to
+        this package.
+
+        @return: dictionary of changed instances keyed by object class.
+        '''
+                                       
+        results = {}
+        for class_ in get_package_and_related_revisioned_classes():
+            rev_class = class_.__revision_class__
+            obj_revisions = Session.query(rev_class).filter_by(revision=revision).all()
+            results[class_] = obj_revisions
+        return results
+
+    def diff(self, to_revision=None, from_revision=None):
+        '''Overrides the diff in vdm, so that related obj revisions are
+        diffed as well as PackageRevisions'''
+        import extras, resource
+        results = {} # field_name:diffs
+        results.update(super(Package, self).diff(to_revision, from_revision))
+        for obj_class in get_revisioned_classes_related_to_package():
+            obj_rev_class = obj_class.__revision_class__
+            obj_rev_query = Session.query(obj_rev_class).\
+                            filter_by(package_id=self.id).\
+                            join('revision').\
+                            order_by(Revision.timestamp.desc())
+            if obj_class.__name__ == 'PackageTag':
+                for package_tag in obj_rev_query.all():
+                    tag_name = package_tag.tag.name
+                    q = obj_rev_query.filter(PackageTagRevision.tag==package_tag.tag)
+                    to_obj_rev, from_obj_rev = super(Package, self).\
+                        get_obj_revisions_to_diff(
+                        q, to_revision, from_revision)
+                    values = [obj_rev.state if obj_rev else '' for obj_rev in (from_obj_rev, to_obj_rev)]
+                    obj_rev_diff = self._differ(*values)
+                    if obj_rev_diff:
+                        results['%s-%s' % (obj_class.__name__, tag_name)] = obj_rev_diff
+            elif obj_class.__name__ == 'PackageExtra':
+                for package_extra in obj_rev_query.all():
+                    extra_key = package_extra.key
+                    q = obj_rev_query.filter(extras.PackageExtraRevision.key==extra_key)
+                    to_obj_rev, from_obj_rev = super(Package, self).\
+                        get_obj_revisions_to_diff(
+                        q, to_revision, from_revision)
+                    value_values = [obj_rev.value if obj_rev else '' for obj_rev in (from_obj_rev, to_obj_rev)]
+                    state_values = [obj_rev.state if obj_rev else '' for obj_rev in (from_obj_rev, to_obj_rev)]
+                    value_diff = self._differ(*value_values)
+                    state_diff = self._differ(*state_values)
+                    if value_diff:
+                        results['%s-%s-value' % (obj_class.__name__, package_extra.key)] = value_diff
+                    if state_diff:
+                        results['%s-%s-state' % (obj_class.__name__, package_extra.key)] = state_diff
+            elif obj_class.__name__ == 'PackageResource':
+                ids = set([package_resource.id for package_resource in obj_rev_query.all()])
+                for package_resource_id in ids:
+                    q = obj_rev_query.filter(resource.PackageResourceRevision.id==package_resource_id)
+                    to_obj_rev, from_obj_rev = super(Package, self).\
+                        get_obj_revisions_to_diff(
+                        q, to_revision, from_revision)
+                    for col in resource.PackageResource.get_columns() + ['position', 'state']:
+                        values = [getattr(obj_rev, col) if obj_rev else '' for obj_rev in (from_obj_rev, to_obj_rev)]
+                        value_diff = self._differ(*values)
+                        if value_diff:
+                            results['%s-%s-%s' % (obj_class.__name__, package_resource_id, col)] = value_diff
+            else:
+                raise NotImplementedError
+        return results
+
 
 class Tag(DomainObject):
     def __init__(self, name=''):
@@ -377,6 +478,12 @@ class System(DomainObject):
         return 'System'
     def purge(self):
         pass
+
+def get_revisioned_classes_related_to_package():
+    import resource
+    import extras
+    return [PackageTag, resource.PackageResource,
+            extras.PackageExtra]
 
 # VDM-specific domain objects
 State = vdm.sqlalchemy.State
