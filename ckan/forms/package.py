@@ -42,11 +42,11 @@ def build_package_form(is_admin=False):
     # Layout
     field_groups = OrderedDict([
         (_('Basic information'), ['name', 'title', 'version', 'url',
-                               'notes']),
+                               'notes', 'tags']),
         (_('Resources'), ['resources']),
         (_('Detail'), ['author', 'author_email',
                     'maintainer', 'maintainer_email',
-                    'license_id', 'tags']),
+                    'license_id']),
         (_('Extras'), ['extras']),
         ])
     if is_admin:
