@@ -120,8 +120,7 @@ class PackageController(BaseController):
                 description=_(u'Recent changes to CKAN Package: ') + (c.pkg.title or ''),
                 language=unicode(get_lang()),
             )
-            for pkg_revision in c.pkg.all_revisions:
-                revision = pkg_revision.revision
+            for revision, obj_rev in c.pkg.all_related_revisions:
                 try:
                     dayHorizon = int(request.params.get('days'))
                 except:
@@ -151,7 +150,6 @@ class PackageController(BaseController):
             feed.content_type = 'application/atom+xml'
             return feed.writeString('utf-8')
         c.pkg_revisions = c.pkg.all_related_revisions
-#        c.youngest_rev_id = c.pkg_revisions[0].revision_id
         return render('package/history')
 
     def new(self):

@@ -338,6 +338,13 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
     @property
     def all_related_revisions(self):
+        '''Returns chronological list of all object revisions related to
+        this package. Includes PackageRevisions, PackageTagRevisions,
+        PackageExtraRevisions and PackageResourceRevisions.
+        @return List of tuples (revision, [list of object revisions of this
+                                           revision])
+                Ordered by most recent first.
+        '''
         results = {} # revision:[PackageRevision1, PackageTagRevision1, etc.]
         for pkg_rev in self.all_revisions:
             if not results.has_key(pkg_rev.revision):
@@ -354,34 +361,6 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         ourcmp = lambda rev_tuple1, rev_tuple2: \
                  cmp(rev_tuple2[0].timestamp, rev_tuple1[0].timestamp)
         return sorted(result_list, cmp=ourcmp)
-
-    @property
-    def _all_related_revisions(self):
-        results = {} # revision:[Package:[PackageRevision1, ], PackageTag:[...]]
-        for class_ in get_revisioned_classes_related_to_package():
-            rev_class = class_.__revision_class__
-            obj_revisions = Session.query(rev_class).filter_by(continuity=self).all()
-            for obj_rev in obj_revisions:
-                if not results.has_key(obj_rev.revision):
-                    results[obj_rev.revision] = []
-                if not results[obj_rev.revision].has_key(obj_rev.__revision_class__):
-                    results[obj_rev.revision][obj_rev.__revision_class__] = []
-                results[obj_rev.revision][obj_rev.__revision_class__].append(obj_rev)
-        return results
-
-    def list_changes(self, revision):
-        '''List all objects changed by this `revision` that are related to
-        this package.
-
-        @return: dictionary of changed instances keyed by object class.
-        '''
-                                       
-        results = {}
-        for class_ in get_package_and_related_revisioned_classes():
-            rev_class = class_.__revision_class__
-            obj_revisions = Session.query(rev_class).filter_by(revision=revision).all()
-            results[class_] = obj_revisions
-        return results
 
     def diff(self, to_revision=None, from_revision=None):
         '''Overrides the diff in vdm, so that related obj revisions are
