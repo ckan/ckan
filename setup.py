@@ -67,6 +67,7 @@ setup(
     sysadmin = ckan.lib.cli:Sysadmin
     create-search-index = ckan.lib.cli:CreateSearchIndex
     ratings = ckan.lib.cli:Ratings
+    changes = ckan.lib.cli:Changes
 
     [ckan.forms]
     standard = ckan.forms.package:get_standard_fieldset

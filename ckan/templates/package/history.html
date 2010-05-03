@@ -4,6 +4,7 @@
   <py:def function="page_title">Package - ${c.pkg.name} - History</py:def>
 
   <div py:match="content" class="package">
+    <p style="float: right"><a href="?format=atom"><img style="height:16; width:16; margin-bottom:-0.3em" src="/images/icons/atom_feed.png" alt="Atom Feed" title="Package history"/></a> <a href="/package/history/${c.pkg.name}?format=atom&amp;days=7">Subscribe &raquo;</a></p>
     <h2 class="head">
       ${c.pkg.title}
       <span class="name">(${c.pkg.name})</span>
@@ -25,7 +26,7 @@
         <tr>
           <th></th><th>Revision</th><th>Timestamp</th><th>Author</th><th>Log Message</th>
         </tr>
-        <py:for each="index, rev in enumerate([ pkg_rev.revision for pkg_rev in c.pkg_revisions ])">
+        <py:for each="index, rev in enumerate([rev for rev, obj_revs in c.pkg_revisions])">
           <tr>
             <td nowrap="nowrap">
               ${h.radio("selected1", rev.id, checked=(index == 0))}
@@ -43,6 +44,10 @@
       ${h.submit('diff', _('Compare &raquo;'))}
     </form>
   </div> <!-- content -->
+
+  <py:def function="optional_feed">
+  <link rel="alternate" type="application/atom+xml" title="Package History" href="/package/history/${c.pkg.name}?format=atom&amp;days=7" />
+  </py:def>
 
   <xi:include href="layout.html" />
 </html>

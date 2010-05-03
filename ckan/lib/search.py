@@ -190,7 +190,7 @@ class Search:
 
         # Filter for options
         if self._options.filter_by_downloadable:
-            query = query.join('resources', aliased=True).\
+            query = query.join('package_resources_all', aliased=True).\
                     filter(sqlalchemy.and_(
                 model.PackageResource.state==model.State.ACTIVE,
                 model.PackageResource.package_id==model.Package.id))

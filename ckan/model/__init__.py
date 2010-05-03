@@ -3,10 +3,11 @@ from user import user_table, User
 from group import group_table, Group, PackageGroup
 from full_search import package_search_table
 from authz import *
-from extras import PackageExtra, package_extra_table, PackageExtraRevision
-from resource import PackageResource, package_resource_table
+from extras import *
+from resource import *
 from rating import *
 from package_relationship import PackageRelationship
+from changeset import Changeset, Change, Changemask
 
 import ckan.migration
 
@@ -79,23 +80,20 @@ class Repository(vdm.sqlalchemy.Repository):
 
 
 repo = Repository(metadata, Session,
-        versioned_objects=[Package, PackageTag, PackageResource]
+        versioned_objects=[Package, PackageTag, PackageResource, PackageExtra]
         )
 
 
 # Fix up Revision with project-specific attributes
 def _get_packages(self):
     changes = repo.list_changes(self)
-    pkgrevs = changes[Package]
-    pkgtagrevs = changes[PackageTag]
-    pkgresourcerevs = changes[PackageResource]
-    pkgs  = [ p.continuity for p in pkgrevs ]
-    pkgs += [ pkgtagrev.continuity.package for pkgtagrev in pkgtagrevs ]
-    pkgs += [ pkgresourcerev.continuity.package for pkgresourcerev in
-            pkgresourcerevs]
-    # remove duplicates
-    pkgs = list(set(pkgs))
-    return pkgs
+    pkgs = set()
+    for pkg_rev in changes.pop(Package):
+        pkgs.add(pkg_rev.continuity)
+    for non_pkg_rev_list in changes.values():
+        for non_pkg_rev in non_pkg_rev_list:
+            pkgs.add(non_pkg_rev.continuity.package)
+    return list(pkgs)
 
 # could set this up directly on the mapper?
 def _get_revision_user(self):

@@ -18,6 +18,7 @@ Contents:
    design
    importer
    api
+   feeds
    getdata
    package_forms
    model

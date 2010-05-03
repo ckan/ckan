@@ -77,10 +77,12 @@ class GroupController(BaseController):
             group = model.Group.by_name(c.groupname)
             pkgs = [model.Package.by_name(name) for name in request.params.getall('Group-packages-current')]
             group.packages = pkgs
-            pkgid = request.params.get('PackageGroup--package_id')
-            if pkgid != '__null_value__':
-                package = model.Session.query(model.Package).get(pkgid)
-                group.packages.append(package)
+            pkgids = request.params.getall('PackageGroup--package_id')
+            for pkgid in pkgids:
+                if pkgid:
+                    package = model.Session.query(model.Package).get(pkgid)
+                    if package and package not in group.packages:
+                        group.packages.append(package)
             model.repo.commit_and_remove()
             h.redirect_to(action='read', id=c.groupname)
 
@@ -123,10 +125,12 @@ class GroupController(BaseController):
                 return render('group/edit')
             pkgs = [model.Package.by_name(name) for name in request.params.getall('Group-packages-current')]
             group.packages = pkgs
-            pkgid = request.params.get('PackageGroup--package_id')
-            if pkgid != '__null_value__':
-                package = model.Session.query(model.Package).get(pkgid)
-                group.packages.append(package)
+            pkgids = request.params.getall('PackageGroup--package_id')
+            for pkgid in pkgids:
+                if pkgid:
+                    package = model.Session.query(model.Package).get(pkgid)
+                    if package and package not in group.packages:
+                        group.packages.append(package)
             model.repo.commit_and_remove()
             h.redirect_to(action='read', id=c.groupname)
 

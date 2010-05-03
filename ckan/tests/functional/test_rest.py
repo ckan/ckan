@@ -22,38 +22,45 @@ class TestRest(TestController):
         model.Session.add(model.Package(name=u'--'))
         rev = model.repo.new_revision()
         model.repo.commit_and_remove()
+        from ckan.model.changeset import ChangesetRegister
+        changesets = ChangesetRegister()
+        changesets.construct_from_revision(rev)
 
         self.testpackage_license_id = u'gpl-3.0'
         self.testpackagevalues = {
             'name' : u'testpkg',
             'title': u'Some Title',
             'url': u'http://blahblahblah.mydomain',
-            'resources': [{u'url':u'http://blah.com/file.xml',
-                           u'format':u'xml',
-                           u'description':u'Main file',
-                           u'hash':u'abc123'},
-                          {u'url':u'http://blah.com/file2.xml',
-                           u'format':u'xml',
-                           u'description':u'Second file',
-                           u'hash':u'def123'},],
+            'resources': [{
+                u'url':u'http://blah.com/file.xml',
+                u'format':u'xml',
+                u'description':u'Main file',
+                u'hash':u'abc123',
+            }, {
+                u'url':u'http://blah.com/file2.xml',
+                u'format':u'xml',
+                u'description':u'Second file',
+                u'hash':u'def123',
+            }],
             'tags': [u'russion', u'novel'],
-            'license': self.testpackage_license_id,
-            'extras': {'genre' : u'horror',
-                       'media' : u'dvd',
-                       },
-            }
+            'license_id': self.testpackage_license_id,
+            'extras': {
+                'genre' : u'horror',
+                'media' : u'dvd',
+            },
+        }
         self.testgroupvalues = {
             'name' : u'testgroup',
             'title' : u'Some Group Title',
             'description' : u'Great group!',
             'packages' : [u'annakarenina', 'warandpeace'],
-            }
+        }
         self.random_name = u'http://myrandom.openidservice.org/'
         self.user = model.User(name=self.random_name)
         model.Session.add(self.user)
         model.Session.commit()
         model.Session.remove()
-        self.extra_environ={ 'Authorization' : str(self.user.apikey) }
+        self.extra_environ={'Authorization' : str(self.user.apikey)}
 
     @classmethod
     def teardown_class(self):
@@ -105,8 +112,7 @@ class TestRest(TestController):
         res = self.app.get(offset, status=[200])
         anna = model.Package.by_name(u'annakarenina')
         assert 'annakarenina' in res, res
-        assert 'license_id' not in res, res
-        assert '"license": "other-open"' in res, str(res)
+        assert '"license_id": "other-open"' in res, str(res)
         assert 'russian' in res, res
         assert 'tolstoy' in res, res
         assert '"extras": {' in res, res
@@ -186,8 +192,7 @@ class TestRest(TestController):
         offset = '/api/rest/package/%s' % self.testpackagevalues['name']
         res = self.app.get(offset, status=[200])
         assert self.testpackagevalues['name'] in res, res
-        assert 'license_id' not in res, res
-        assert '"license": "%s"' % self.testpackagevalues['license'] in res, res
+        assert '"license_id": "%s"' % self.testpackagevalues['license_id'] in res, res
         assert self.testpackagevalues['tags'][0] in res, res
         assert self.testpackagevalues['tags'][1] in res, res
         assert '"extras": {' in res, res
@@ -314,7 +319,7 @@ class TestRest(TestController):
         #        extra_environ=self.extra_environ)
         model.Session.remove()
 
-    def test_10_edit_pkg(self):
+    def test_10_edit_pkg_values(self):
         # Test Packages Entity Put 200.
 
         # create a package with testpackagevalues
@@ -339,24 +344,58 @@ class TestRest(TestController):
         model.repo.commit_and_remove()
 
         # edit it
-        pkg_vals = {'name':u'somethingnew',
-                    'title':u'newtesttitle',
-                    'extras':{u'key3':u'val3', u'key2':None},
-                    'tags':[u'tag1', u'tag2', u'tag4', u'tag5']
-                    }
+        pkg_vals = {
+            'name':u'somethingnew',
+            'title':u'newtesttitle',
+            'resources': [
+                {
+                    u'url':u'http://blah.com/file2.xml',
+                    u'format':u'xml',
+                    u'description':u'Appendix 1',
+                    u'hash':u'def123',
+                },
+                {
+                    u'url':u'http://blah.com/file3.xml',
+                    u'format':u'xml',
+                    u'description':u'Appenddic 2',
+                    u'hash':u'ghi123',
+                },
+            ],
+            'extras':{u'key3':u'val3', u'key2':None},
+            'tags':[u'tag1', u'tag2', u'tag4', u'tag5'],
+        }
         offset = '/api/rest/package/%s' % self.testpackagevalues['name']
         postparams = '%s=1' % simplejson.dumps(pkg_vals)
         res = self.app.post(offset, params=postparams, status=[200],
                             extra_environ=self.extra_environ)
+
+        # Check submitted field have changed.
         model.Session.remove()
         pkg = model.Session.query(model.Package).filter_by(name=pkg_vals['name']).one()
+        # - title
         assert pkg.title == pkg_vals['title']
+        # - tags
         pkg_tagnames = [tag.name for tag in pkg.tags]
         for tagname in pkg_vals['tags']:
             assert tagname in pkg_tagnames, 'tag %r not in %r' % (tagname, pkg_tagnames)
-        # check that unsubmitted fields are unchanged
+        # - resources
+        assert len(pkg.resources), "Package has no resources: %s" % pkg
+        assert len(pkg.resources) == 2, len(pkg.resources)
+        resource = pkg.resources[0]
+        assert resource.url == u'http://blah.com/file2.xml', resource.url
+        assert resource.format == u'xml', resource.format
+        assert resource.description == u'Appendix 1', resource.description
+        assert resource.hash == u'def123', resource.hash
+        resource = pkg.resources[1]
+        assert resource.url == 'http://blah.com/file3.xml', resource.url
+        assert resource.format == u'xml', resource.format
+        assert resource.description == u'Appenddic 2', resource.description
+        assert resource.hash == u'ghi123', resource.hash
+
+        # Check unsubmitted fields have not changed.
+        # - url
         assert pkg.url == self.testpackagevalues['url'], pkg.url
-        
+        # - extras
         assert len(pkg.extras) == 2, pkg.extras
         for key, value in {u'key1':u'val1', u'key3':u'val3'}.items():
             assert pkg.extras[key] == value, pkg.extras
@@ -576,6 +615,9 @@ class TestRest(TestController):
         res_dict = simplejson.loads(res.body)
         assert rev.id == res_dict['id']
         assert rev.timestamp.isoformat() == res_dict['timestamp'], (rev.timestamp.isoformat(), res_dict['timestamp'])
+        assert 'packages' in res_dict
+        assert isinstance(res_dict['packages'], list)
+        assert len(res_dict['packages']) != 0, "List of package names is empty: %s" % res_dict['packages']
 
     def test_14_get_revision_404(self):
         revision_id = "xxxxxxxxxxxxxxxxxxxxxxxxxx"
@@ -583,6 +625,47 @@ class TestRest(TestController):
         res = self.app.get(offset, status=404)
         model.Session.remove()
 
+    def test_15_list_changesets(self):
+        offset = '/api/rest/changeset'
+        res = self.app.get(offset, status=[200])
+        from ckan.model.changeset import ChangesetRegister
+        changesets = ChangesetRegister()
+        assert len(changesets), "No changesets found in model."
+        for id in changesets:
+            assert id in res, "Didn't find changeset id '%s' in: %s" % (id, res)
+
+    def test_15_get_changeset(self):
+        from ckan.model.changeset import ChangesetRegister
+        changesets = ChangesetRegister()
+        assert len(changesets), "No changesets found in model."
+        for id in changesets:
+            offset = '/api/rest/changeset/%s' % id
+            res = self.app.get(offset, status=[200])
+            changeset_data = simplejson.loads(res.body)
+            assert 'id' in changeset_data, "No 'id' in changeset data: %s" % changeset_data
+            assert 'meta' in changeset_data, "No 'meta' in changeset data: %s" % changeset_data
+            assert 'changes' in changeset_data, "No 'changes' in changeset data: %s" % changeset_data
+
+    def test_15_get_changeset_404(self):
+        changeset_id = "xxxxxxxxxxxxxxxxxxxxxxxxxx"
+        offset = '/api/rest/changeset/%s' % changeset_id
+        res = self.app.get(offset, status=404)
+        model.Session.remove()
+
+    def test_16_list_licenses(self):
+        from ckan.model.license import LicenseRegister
+        register = LicenseRegister()
+        assert len(register), "No changesets found in model."
+        offset = '/api/rest/licenses'
+        res = self.app.get(offset, status=[200])
+        licenses_data = simplejson.loads(res.body)
+        assert len(licenses_data) == len(register), (len(licenses_data), len(register))
+        for license_data in licenses_data:
+            id = license_data['id']
+            license = register[id]
+            assert license['title'] == license.title
+            assert license['url'] == license.url
+            
 class TestRelationships(TestController):
     @classmethod
     def setup_class(self):
@@ -804,7 +887,7 @@ class TestSearch(TestController):
             'resources': [{u'url':u'http://blahblahblah.mydomain',
                            u'format':u'', u'description':''}],
             'tags': ['russion', 'novel'],
-            'license': u'gpl-3.0',
+            'license_id': u'gpl-3.0',
             'extras': {'national_statistic':'yes',
                        'geographic_coverage':'England, Wales'},
         }
@@ -946,7 +1029,7 @@ class TestSearch(TestController):
                 break
         assert anna_rec['name'] == 'annakarenina', res_dict['results']
         assert anna_rec['title'] == 'A Novel By Tolstoy', anna_rec['title']
-        assert anna_rec['license'] == u'other-open', anna_rec['license']
+        assert anna_rec['license_id'] == u'other-open', anna_rec['license_id']
         assert len(anna_rec['tags']) == 2, anna_rec['tags']
         for expected_tag in ['russian', 'tolstoy']:
             assert expected_tag in anna_rec['tags']

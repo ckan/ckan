@@ -11,7 +11,14 @@
   <title>CKAN - Comprehensive Knowledge Archive Network - ${page_title()}</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link rel="shortcut icon" href="http://m.okfn.org/gfx/logo/favicon.ico" type="image/x-icon" />
+  <py:choose>
+  <py:when test="defined('optional_feed')">
+    ${optional_feed()}
+  </py:when>
+  <py:otherwise>
   <link rel="alternate" type="application/atom+xml" title="CKAN Recent Changes" href="/revision/list?format=atom&amp;days=1" />
+  </py:otherwise>
+  </py:choose>
 
   <style type="text/css"> 
     @import url(http://m.okfn.org/kforge/css/structure.css);

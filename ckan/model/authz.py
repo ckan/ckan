@@ -189,10 +189,9 @@ def add_user_to_role(user, role, domain_obj):
     else:
         raise NotImplementedError()
     Session.add(pr)
-    Session.commit()
-    Session.remove()
 
 def remove_user_from_role(user, role, domain_obj):
+    '''NB This calls Session.commit()'''
     assert Role.is_valid(role), role
 
     if isinstance(domain_obj, Package):
