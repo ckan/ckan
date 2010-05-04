@@ -109,6 +109,13 @@ class TestController(object):
         the_html = html.body.decode('utf8')
         return the_html[the_html.find(u'<div id="main">'):the_html.find(u'<!-- /main -->')]
 
+    def preview_div(self, html):
+        'strips html to just the <div id="preview"> section'
+        the_html = html.body.decode('utf8')
+        preview_html = the_html[the_html.find(u'<div id="preview"'):the_html.find(u'<!-- /preview -->')]
+        assert preview_html, the_html
+        return preview_html
+
     def sidebar(self, html):
         'strips html to just the <div id="primary"> section'
         the_html = str(html)
