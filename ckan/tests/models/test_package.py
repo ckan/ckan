@@ -310,14 +310,14 @@ class TestRelatedRevisions:
         second_rev = rev_q.all()[-2]
         diff = self.pkg1.diff(last_rev, second_rev)
         assert diff['notes'] == '- None\n+ Changed notes', diff['notes']
-        assert diff.get('PackageTag-geo') == u'- \n+ active', diff
-        assert diff.get('PackageTag-scientific') == u'- \n+ active', diff
+        assert diff.get('PackageTag-geo-state') == u'- \n+ active', diff
+        assert diff.get('PackageTag-scientific-state') == u'- \n+ active', diff
         assert diff.get('PackageExtra-a-value') == u'- \n+ b', diff
         assert diff.get('PackageExtra-a-state') == u'- \n+ active', diff
         assert diff.get('PackageExtra-c-value') == u'- \n+ d', diff
         assert diff.get('PackageExtra-c-state') == u'- \n+ active', diff
         def test_res(diff, res, field, expected_value):
-            key = 'PackageResource-%s-%s' % (res.id, field)
+            key = 'PackageResource-%s-%s' % (res.id[:4], field)
             got_value = diff.get(key)
             expected_value = u'- \n+ %s' % expected_value
             assert got_value == expected_value, 'Key: %s Got: %r Expected: %r' % (key, got_value, expected_value)

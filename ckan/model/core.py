@@ -368,52 +368,43 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         import extras, resource
         results = {} # field_name:diffs
         results.update(super(Package, self).diff(to_revision, from_revision))
+        # Iterate over PackageTag, PackageExtra, PackageResources etc.
         for obj_class in get_revisioned_classes_related_to_package():
             obj_rev_class = obj_class.__revision_class__
+            # Query for object revisions related to this package            
             obj_rev_query = Session.query(obj_rev_class).\
                             filter_by(package_id=self.id).\
                             join('revision').\
                             order_by(Revision.timestamp.desc())
+            # Columns to include in the diff
+            cols_to_diff = obj_class.revisioned_fields()
+            cols_to_diff.remove('id')
+            cols_to_diff.remove('package_id')
+            # Particular object types are better known by an invariant field
             if obj_class.__name__ == 'PackageTag':
-                for package_tag in obj_rev_query.all():
-                    tag_name = package_tag.tag.name
-                    q = obj_rev_query.filter(PackageTagRevision.tag==package_tag.tag)
-                    to_obj_rev, from_obj_rev = super(Package, self).\
-                        get_obj_revisions_to_diff(
-                        q, to_revision, from_revision)
-                    values = [obj_rev.state if obj_rev else '' for obj_rev in (from_obj_rev, to_obj_rev)]
-                    obj_rev_diff = self._differ(*values)
-                    if obj_rev_diff:
-                        results['%s-%s' % (obj_class.__name__, tag_name)] = obj_rev_diff
+                cols_to_diff.remove('tag_id')
             elif obj_class.__name__ == 'PackageExtra':
-                for package_extra in obj_rev_query.all():
-                    extra_key = package_extra.key
-                    q = obj_rev_query.filter(extras.PackageExtraRevision.key==extra_key)
-                    to_obj_rev, from_obj_rev = super(Package, self).\
-                        get_obj_revisions_to_diff(
-                        q, to_revision, from_revision)
-                    value_values = [obj_rev.value if obj_rev else '' for obj_rev in (from_obj_rev, to_obj_rev)]
-                    state_values = [obj_rev.state if obj_rev else '' for obj_rev in (from_obj_rev, to_obj_rev)]
-                    value_diff = self._differ(*value_values)
-                    state_diff = self._differ(*state_values)
+                cols_to_diff.remove('key')
+            # Iterate over each object ID
+            # e.g. for PackageTag, iterate over Tag objects
+            related_obj_ids = set([related_obj.id for related_obj in obj_rev_query.all()])
+            for related_obj_id in related_obj_ids:
+                q = obj_rev_query.filter(obj_rev_class.id==related_obj_id)
+                to_obj_rev, from_obj_rev = super(Package, self).\
+                    get_obj_revisions_to_diff(
+                    q, to_revision, from_revision)
+                for col in cols_to_diff:
+                    values = [getattr(obj_rev, col) if obj_rev else '' for obj_rev in (from_obj_rev, to_obj_rev)]
+                    value_diff = self._differ(*values)
                     if value_diff:
-                        results['%s-%s-value' % (obj_class.__name__, package_extra.key)] = value_diff
-                    if state_diff:
-                        results['%s-%s-state' % (obj_class.__name__, package_extra.key)] = state_diff
-            elif obj_class.__name__ == 'PackageResource':
-                ids = set([package_resource.id for package_resource in obj_rev_query.all()])
-                for package_resource_id in ids:
-                    q = obj_rev_query.filter(resource.PackageResourceRevision.id==package_resource_id)
-                    to_obj_rev, from_obj_rev = super(Package, self).\
-                        get_obj_revisions_to_diff(
-                        q, to_revision, from_revision)
-                    for col in resource.PackageResource.get_columns() + ['position', 'state']:
-                        values = [getattr(obj_rev, col) if obj_rev else '' for obj_rev in (from_obj_rev, to_obj_rev)]
-                        value_diff = self._differ(*values)
-                        if value_diff:
-                            results['%s-%s-%s' % (obj_class.__name__, package_resource_id, col)] = value_diff
-            else:
-                raise NotImplementedError
+                        if obj_class.__name__ == 'PackageTag':
+                            display_id = to_obj_rev.tag.name
+                        elif obj_class.__name__ == 'PackageExtra':
+                            display_id = to_obj_rev.key
+                        else:
+                            display_id = related_obj_id[:4]
+                        key = '%s-%s-%s' % (obj_class.__name__, display_id, col)
+                        results[key] = value_diff
         return results
 
 
