@@ -916,6 +916,22 @@ class TestNew(TestPackageForm):
         # text field tested here.
         res = fv.submit('commit', status=400)     
 
+    def test_multi_resource_bug(self):
+        # ticket:276
+        offset = url_for(controller='package', action='new', package_form=package_form)
+        res = self.app.get(offset)
+        assert 'Packages - New' in res
+        fv = res.forms[0]
+        prefix = 'Package--'
+        fv[prefix + 'name'] = 'name276'
+        resformat = u'xls'    
+        fv[prefix + 'resources-0-format'] = resformat
+        res = fv.submit('preview')
+
+        res = self.main_div(res)
+        assert resformat in res, res
+        assert res.count(str(resformat)) == 1, res.count(str(resformat))
+
 class TestNewPreview(TestPackageBase):
     pkgname = u'testpkg'
     pkgtitle = u'mytesttitle'
