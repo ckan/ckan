@@ -24,9 +24,9 @@
       </py:choose>
     </p>
     
-    ${c.page.pager()}
+    ${c.page.pager(q=c.q)}
     ${tag_list(c.page.items)}
-    ${c.page.pager()}
+    ${c.page.pager(q=c.q)}
     
     <p py:if="c.q">
       ${h.link_to('Clear search', h.url_for(controller='tag', action='index', id=None))} and see all tags.
