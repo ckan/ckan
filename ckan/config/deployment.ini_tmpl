@@ -64,6 +64,9 @@ package_form = standard
 #changeset.auto_commit = true
 #changeset.sources = http://www.ckan.net/,
 
+# Guide location
+#guide_url = http://wiki.okfn.org/ckan/doc/
+
 # Logging configuration
 [loggers]
 keys = root

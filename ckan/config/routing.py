@@ -19,7 +19,7 @@ def make_map():
 
     # CUSTOM ROUTES HERE
     map.connect('home', '/', controller='home', action='index')
-    map.connect('guide', '/guide', controller='home', action='guide')
+    map.connect('guide', config.get('guide_url', 'http://wiki.okfn.org/ckan/doc/'), _static=True)
     map.connect('license', '/license', controller='home', action='license')
     map.connect('about', '/about', controller='home', action='about')
     map.connect('stats', '/stats', controller='home', action='stats')
