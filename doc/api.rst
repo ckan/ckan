@@ -62,7 +62,7 @@ So that the system knows who is making this change, you need to send your API ke
 API Locations
 =============
 
-A REST interface presents resources at published locations. Here are the names
+A REST interface presents resources at published locations. Here are the named
 locations of the CKAN REST API resources:
 
 +--------------------------------+---------------------------------------------------------------+
@@ -80,7 +80,7 @@ locations of the CKAN REST API resources:
 +--------------------------------+---------------------------------------------------------------+
 | Tag Entity                     | /api/rest/tag/TAG-NAME                                        |
 +--------------------------------+---------------------------------------------------------------+
-| Rating Registry                | /api/rest/rating                                              |
+| Rating Register                | /api/rest/rating                                              |
 +--------------------------------+---------------------------------------------------------------+
 | Rating Entity                  | /api/rest/rating/PACKAGE-NAME                                 |
 +--------------------------------+---------------------------------------------------------------+
@@ -94,6 +94,15 @@ locations of the CKAN REST API resources:
 +--------------------------------+---------------------------------------------------------------+
 | License List                   | /api/rest/licenses                                            |
 +--------------------------------+---------------------------------------------------------------+
+
+Please note, possible package relationship names are: 
+
+* child_of
+* parent_of
+* depends_on
+* dependency_of
+* derives_from
+* has_derivation
 
 Here are the non-REST API locations:
 
@@ -140,17 +149,17 @@ the operation.
 +-------------------------------+--------+------------------+-------------------+
 | Tag Entity                    | GET    | Tag              | Package-List      | 
 +-------------------------------+--------+------------------+-------------------+
+| Rating Register               | POST   | Rating           |                   | 
++-------------------------------+--------+------------------+-------------------+
 | Rating Entity                 | GET    |                  | Rating            | 
 +-------------------------------+--------+------------------+-------------------+
-| Rating Register               | POST   | Rating           |                   | 
+| Package Relationship Register | GET    | Rating           | Pkg-Relationships | 
 +-------------------------------+--------+------------------+-------------------+
 | Package Relationship Entity   | GET    |                  | Pkg-Relationship  |
 +-------------------------------+--------+------------------+-------------------+
 | Package Relationship Entity   | POST   | Pkg-Relationship |                   | 
 +-------------------------------+--------+------------------+-------------------+
 | Package Relationship Entity   | PUT    | Pkg-Relationship |                   | 
-+-------------------------------+--------+------------------+-------------------+
-| Package Relationship Register | GET    | Rating           | Pkg-Relationships | 
 +-------------------------------+--------+------------------+-------------------+
 | Search                        | GET    |                  | Search-Response   | 
 +-------------------------------+--------+------------------+-------------------+
@@ -198,8 +207,6 @@ Data Formats
 +-----------------+------------------------------------------------------------+
 | Tag             | { name: Name-String }                                      |
 +-----------------+------------------------------------------------------------+
-| Name-String     | An alphanumeric string.                                    |
-+-----------------+------------------------------------------------------------+
 | Resource-Dict   | { url: String, format: String, description: String,        |
 |                 | hash: String }                                             |
 +-----------------+------------------------------------------------------------+
@@ -207,35 +214,34 @@ Data Formats
 +-----------------+------------------------------------------------------------+
 | Ratings         | { ratings_average: float, ratings_count: int }             |
 +-----------------+------------------------------------------------------------+
-| Query-String    | [ q: String ]                                              |
+| Pkg-Relationships|  [ ]                                                    |
 +-----------------+------------------------------------------------------------+
-| Search-Response | { count: Count-int, results: [Package-Name-String,         |
-|                 | Package-Name-String, ... ] }                               |
+| Pkg-Relationship| { comment: String }                                        |
++-----------------+------------------------------------------------------------+
+| Search-Response | { count: Count-int, results: [Name-String,                 |
+|                 | Name-String, ... ] }                                       |
 |                 | **or**                                                     |
 |                 | { count: Count-int,                                        |
 |                 | results: [{ name:Name-String, title: String ... },         |
 |                 | { name:Name-String, title: String ... }, ... ]}            |
 +-----------------+------------------------------------------------------------+
-| Tag-Count-List  | [ [tag-name, tag-count], [tag-name, tag-count], ... ]      |
+| Query-String    | [ q: String ]                                              |
 +-----------------+------------------------------------------------------------+
-| Pkg-Relationship| {'comment':String}                                         |
+| Tag-Count-List  | [ [Name-String, Integer], [Name-String, Integer], ... ]    |
 +-----------------+------------------------------------------------------------+
-|RELATIONSHIP-NAME| One of: 'child_of', 'parent_of', 'depends_on',             |
-|                 | 'dependency_of', 'derives_from', 'has_derivation'          |
-+-----------------+------------------------------------------------------------+
-| Pkg-Relationship| {'comment':String}                                         |
+| Revision        | { id: Uuid, message: String, author: String,               |
+|                 | timestamp: Date-Time }                                     |
 +-----------------+------------------------------------------------------------+
 | Revision-List   | [ Uuid, Uuid, Uuid, ... ]                                  |
 +-----------------+------------------------------------------------------------+
-| Revision        | { id: Uuid, message: String, author: String,               |
-|                 | timestamp: Date-Time }                                      |
-+-----------------+------------------------------------------------------------+
 | License-List    | [ License, License, License, ... ]                         |
 +-----------------+------------------------------------------------------------+
-| License         | [ id: Name-String, title: String, is_okd_compliant:        |
+| License         | { id: Name-String, title: String, is_okd_compliant:        |
 |                 | Boolean, is_osi_compliant: Boolean, tags: Tag-List,        |
 |                 | family: String, url: String, maintainer: String,           |
-|                 | date_created: Date-Time, status: String ]                   |
+|                 | date_created: Date-Time, status: String ]                  |
++-----------------+------------------------------------------------------------+
+| Name-String     | An alphanumeric string.                                    |
 +-----------------+------------------------------------------------------------+
 
 To send request data, create a simple data structure, then convert it to a JSON string, then percent-encode the JSON string, then send it as the request body.
@@ -337,13 +343,13 @@ Package Search Parameters
 Revision Search Parameters
 ==========================
 
-+-----------------------+---------------+----------------------------------+----------------------------------+
-| Key                   |    Value      | Example                          |  Notes                           |
-+=======================+===============+==================================+==================================+ 
-| since_time            | Date-Time     |                                  |                                  |
-+-----------------------+---------------+----------------------------------+----------------------------------+
-| since_revision        | Uuid          |                                  |                                  |
-+-----------------------+---------------+----------------------------------+----------------------------------+
++-----------------------+---------------+-----------------------------------------------------+----------------------------------+
+| Key                   |    Value      | Example                                             |  Notes                           |
++=======================+===============+=====================================================+==================================+ 
+| since_time            | Date-Time     | since_time=2010-05-05T19:42:45.854533               |                                  |
++-----------------------+---------------+-----------------------------------------------------+----------------------------------+
+| since_revision        | Uuid          | since_revision=6c9f32ef-1f93-4b2f-891b-fd01924ebe08 |                                  |
++-----------------------+---------------+-----------------------------------------------------+----------------------------------+
 
 
 Status Codes
