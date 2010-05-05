@@ -67,6 +67,12 @@ package_form = standard
 # Guide location
 #guide_url = http://wiki.okfn.org/ckan/doc/
 
+## extra places to look for templates (comma separated list)
+## any templates found will override correspondingly named templates in in
+## ckan/templates/ (e.g. to override main layout template provide a new one
+## called layout.html)
+# extra_template_paths = %(here)s/my-extra-templates
+
 # Logging configuration
 [loggers]
 keys = root

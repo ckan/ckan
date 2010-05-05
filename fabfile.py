@@ -61,7 +61,7 @@ def config_staging_hmg_ckan_net():
     env.pip_requirements = 'pip-requirements-stable.txt'
 
 def config_test_hmg_ckan_net():
-    staging_hmg_ckan_net()
+    config_staging_hmg_ckan_net()
     env.ckan_instance_name = 'test.hmg.ckan.net'
     env.hosts = ['ssh.' + env.ckan_instance_name]
 
@@ -76,7 +76,7 @@ def config_hmg_ckan_net_1():
     env.pip_requirements = 'pip-requirements-stable.txt'
 
 def config_hmg_ckan_net_2():
-    hmg_ckan_net_1()
+    config_hmg_ckan_net_1()
     env.ckan_instance_name = 'hmg.ckan.net.2'
     env.hosts = ['ssh.hmg.ckan.net']
     env.config_ini_filename = 'hmg.ckan.net.ini'

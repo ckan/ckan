@@ -22,9 +22,9 @@
       <py:if test="c.page.item_count == 0">
         <p>Would you like to <a href="${h.url_for(action='new', id=None)}">create a new package?</a></p>
       </py:if>
-      ${c.page.pager()}  
+      ${c.page.pager(q=c.q)}  
       ${package_list(c.page.items)}
-      ${c.page.pager()}
+      ${c.page.pager(q=c.q)}
     </py:if>
   </div>
 

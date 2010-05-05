@@ -222,7 +222,7 @@ dl.icons dd.tiny {
 }
 
 .item-list ul li, ul.tags li {
-  background: url(http://datadotgc.ca/sites/default/themes/descartes/images/bullet_separator.png) no-repeat 0% 50%;
+  background: url(/images/bullet_separator.png) no-repeat 0% 50%;
   padding-left: 9px;
   padding-right: 3px;
   display: inline;
@@ -234,6 +234,12 @@ dl.icons dd.tiny {
 }
 
 .tags a:hover {
+}
+
+/* tags small is for autocomplete list in package editor */
+.tags.small a {
+  padding-left: 6px;
+  padding-right: 6px;
 }
 
 /* =================== */

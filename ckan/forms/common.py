@@ -329,7 +329,7 @@ class ResourcesField(ConfiguredField):
             # REST param format
             # e.g. 'Package-1-resources': [{u'url':u'http://ww...
             if params.has_key(rest_key) and isinstance(params[rest_key], (list, tuple)):
-                new_resources = params[rest_key]
+                new_resources = params[rest_key][:] # copy, so don't edit orig
 
             # formalchemy form param format
             # e.g. 'Package-1-resources-0-url': u'http://ww...'
@@ -342,7 +342,7 @@ class ResourcesField(ConfiguredField):
                 for col in model.PackageResource.get_columns() + ['id']:
                     value = params.get('%s-%i-%s' % (self.name, row, col), u'')
                     new_resource[col] = value
-                    if value:
+                    if col != 'id' and value:
                         blank_row = False
                 if not blank_row:
                     new_resources.append(new_resource)

@@ -26,7 +26,7 @@
         <tr>
           <th></th><th>Revision</th><th>Timestamp</th><th>Author</th><th>Log Message</th>
         </tr>
-        <py:for each="index, rev in enumerate([ pkg_rev.revision for pkg_rev in c.pkg_revisions ])">
+        <py:for each="index, rev in enumerate([rev for rev, obj_revs in c.pkg_revisions])">
           <tr>
             <td nowrap="nowrap">
               ${h.radio("selected1", rev.id, checked=(index == 0))}
