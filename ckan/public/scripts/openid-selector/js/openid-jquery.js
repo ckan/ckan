@@ -14,10 +14,10 @@ var providers_large = {
         name: 'Yahoo',      
         url: 'http://yahoo.com/'
     },    
-    aol: {
-        name: 'AOL',     
-        label: 'Enter your AOL screenname.',
-        url: 'http://openid.aol.com/{username}/'
+    verisign: {
+        name: 'Verisign',
+        label: 'Your Verisign username',
+        url: 'http://{username}.pip.verisignlabs.com/'
     },
     openid: {
         name: 'OpenID',     
@@ -56,20 +56,10 @@ var providers_small = {
         label: 'Your Blogger account',
         url: 'http://{username}.blogspot.com/'
     },
-    verisign: {
-        name: 'Verisign',
-        label: 'Your Verisign username',
-        url: 'http://{username}.pip.verisignlabs.com/'
-    },
     vidoop: {
         name: 'Vidoop',
         label: 'Your Vidoop username',
         url: 'http://{username}.myvidoop.com/'
-    },
-    verisign: {
-        name: 'Verisign',
-        label: 'Your Verisign username',
-        url: 'http://{username}.pip.verisignlabs.com/'
     },
     claimid: {
         name: 'ClaimID',
