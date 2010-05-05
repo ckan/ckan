@@ -137,7 +137,7 @@ var openid = {
   		}
 		
 		this.highlight(box_id);
-		this.setCookie(box_id);
+		//this.setCookie(box_id);
 		
 		// prompt user for input?
 		if (provider['label']) {
