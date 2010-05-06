@@ -88,21 +88,14 @@ locations of the CKAN REST API resources:
 +--------------------------------+---------------------------------------------------------------+
 | Package Relationships Register | /api/rest/package/PACKAGE-NAME/relationships/PACKAGE-NAME     |
 +--------------------------------+---------------------------------------------------------------+
-| Package Relationship Entity    | /api/rest/package/PACKAGE-NAME/RELATIONSHIP-NAME/PACKAGE-NAME |
+| Package Relationship Entity    | /api/rest/package/PACKAGE-NAME/RELATIONSHIP-TYPE/PACKAGE-NAME |
 +--------------------------------+---------------------------------------------------------------+
 | Revision Entity                | /api/rest/revision/REVISION-ID                                |
 +--------------------------------+---------------------------------------------------------------+
 | License List                   | /api/rest/licenses                                            |
 +--------------------------------+---------------------------------------------------------------+
 
-Please note, possible package relationship names are: 
-
-* child_of
-* parent_of
-* depends_on
-* dependency_of
-* derives_from
-* has_derivation
+Possible values for RELATIONSHIP-TYPE are given below for Data Formats - Relationship-Type
 
 Here are the non-REST API locations:
 
@@ -153,7 +146,7 @@ the operation.
 +-------------------------------+--------+------------------+-------------------+
 | Rating Entity                 | GET    |                  | Rating            | 
 +-------------------------------+--------+------------------+-------------------+
-| Package Relationship Register | GET    | Rating           | Pkg-Relationships | 
+| Package Relationships Register| GET    |                  | Pkg-Relationships | 
 +-------------------------------+--------+------------------+-------------------+
 | Package Relationship Entity   | GET    |                  | Pkg-Relationship  |
 +-------------------------------+--------+------------------+-------------------+
@@ -195,8 +188,9 @@ Data Formats
 |                 | url: String, resources: [ Resource-Dict, Resource-Dict,    |
 |                 | ... ], author: String, author_email: String,               |
 |                 | maintainer: String, maintainer_email: String,              |
-|                 | license_id: Stringw, tags: Tag-List, notes: String,         |
+|                 | license_id: String, tags: Tag-List, notes: String,         |
 |                 | extras: { Name-String: Value-String, ... } }               |
+|                 | See note below on additional fields upon GET of a package. |
 +-----------------+------------------------------------------------------------+
 | Group-List      | [ Name-String, Name-String, Name-String, ... ]             | 
 +-----------------+------------------------------------------------------------+
@@ -214,9 +208,15 @@ Data Formats
 +-----------------+------------------------------------------------------------+
 | Ratings         | { ratings_average: float, ratings_count: int }             |
 +-----------------+------------------------------------------------------------+
-| Pkg-Relationships|  [ ]                                                    |
+|Pkg-Relationships| [ Pkg-Relationship, Pkg-Relationship, ... ]                |
 +-----------------+------------------------------------------------------------+
-| Pkg-Relationship| { comment: String }                                        |
+| Pkg-Relationship| { subject: Package-Name-String,                            |
+|                 | object: Package-Name-String, type: Relationship-Type,      |
+|                 | comment: String }                                          |
++-----------------+------------------------------------------------------------+
+|Relationship-Type| One of: 'depends_on', 'dependency_of',                     |
+|                 | 'derives_from', 'has_derivation',                          |
+|                 | 'child_of', 'parent_of'                                    |
 +-----------------+------------------------------------------------------------+
 | Search-Response | { count: Count-int, results: [Name-String,                 |
 |                 | Name-String, ... ] }                                       |
@@ -230,7 +230,7 @@ Data Formats
 | Tag-Count-List  | [ [Name-String, Integer], [Name-String, Integer], ... ]    |
 +-----------------+------------------------------------------------------------+
 | Revision        | { id: Uuid, message: String, author: String,               |
-|                 | timestamp: Date-Time }                                     |
+|                 | timestamp: Date-Time, packages: Package-List }             |
 +-----------------+------------------------------------------------------------+
 | Revision-List   | [ Uuid, Uuid, Uuid, ... ]                                  |
 +-----------------+------------------------------------------------------------+
@@ -254,7 +254,7 @@ Notes:
 
  * To delete an 'extra' key-value pair, supply the key with a None value.
 
- * When you read a package then some additional information is supplied that cannot be edited in the REST style. This includes info on Package Relationship. This is a convenience.
+ * When you read a package then some additional information is supplied that cannot be edited in the REST style. This includes info on Package Relationship ('relationships'), Group membership ('groups'), ratings ('ratings_average' and 'ratings_count') and Package ID ('id'). This is purely a convenience for clients, and only forms part of the Package on GET.
 
 
 API Keys
