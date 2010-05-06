@@ -48,6 +48,31 @@ def dump_data4nr_names(csv_filepath):
             old_name, new_name = data4nr._create_name(data4nr_dict)
             print '%s %s' % (old_name, new_name)
         index += 1
+
+def munge_old_data4nr_names(old_names_filepath):
+    '''Matches list of old Data4Nr names to new names
+    Format of a line of old_names file is like:
+       [0] => accident_and_emergency_statistics_2000-2001_to_2008-2009
+    This routine tries to match this old_name to a name in the current database
+    '''
+    from ckan import model
+    assert os.path.exists(old_names_filepath)
+    f_obj = open(old_names_filepath, 'r')
+    for line in f_obj:
+        ignore, old_name = line.split('=>')
+        old_name = old_name.strip()
+        bit_of_name = old_name
+        new_name = None
+        while bit_of_name:
+            if model.Package.by_name(unicode(bit_of_name)):
+                new_name = bit_of_name
+                break
+            bit_of_name = bit_of_name[:-1]
+        if new_name:
+            print '%s %s' % (old_name, new_name)
+        else:
+            print '%s UNKNOWN' % old_name
+    f_obj.close()
             
 def canada_extras():
     keys_changed = StatsCount()
@@ -101,6 +126,7 @@ if __name__ == '__main__':
     commands:
         ons-prefix - Remove ONS prefix in resources
         dump_data4nr_names - Dump list of old/new package names for Data4Nr csv file
+        munge_old_data4nr_names - Matches list of old Data4Nr names to new names
         canada_extras - Standardise keys of Canada extra fields
     ''' # NB Options are automatically listed
     parser = OptionParser(usage=usage)
@@ -122,5 +148,10 @@ if __name__ == '__main__':
         ons_prefix()
     elif command == 'dump_data4nr_names':
         dump_data4nr_names(options.filepath)
+    elif command == 'munge_old_data4nr_names':
+        munge_old_data4nr_names(options.filepath)
     elif command == 'canada_extras':
         canada_extras()
+    else:
+        print 'Command %r not found' % command
+        print usage
