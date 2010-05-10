@@ -47,8 +47,14 @@ def load_environment(global_conf, app_conf):
     # Create the Genshi TemplateLoader
     # config['pylons.app_globals'].genshi_loader = TemplateLoader(
     #    paths['templates'], auto_reload=True)
+    # tmpl_options["genshi.loader_callback"] = template_loaded
     config['pylons.app_globals'].genshi_loader = TemplateLoader(
         template_paths, auto_reload=True, callback=template_loaded)
+    # HACK! For some reason callback=template_loaded in previous line does
+    # *not* work (this required 1h to track down!!)
+    # This does work ...
+    tmpl_options = config['buffet.template_options']
+    tmpl_options["genshi.loader_callback"] = template_loaded
 
     # CONFIGURATION OPTIONS HERE (note: all config options will override
     # any Pylons config options)
