@@ -7,8 +7,7 @@
   
   <py:match path="minornavigation">
     <li>${h.subnav_link(c, _('About'), controller='home', action='about', id=None)}</li>
-    <li>${h.link_to('FAQ and Guide', h.url_for('guide'))}</li>
-    <li>${h.link_to('Statistics', h.url_for('stats'))}</li>
+    <li>${h.subnav_link(c, _('Statistics'), controller='home', action='stats', id=None)}</li>
   </py:match>
   
   <xi:include href="../layout.html" />
