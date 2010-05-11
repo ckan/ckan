@@ -1,6 +1,42 @@
 CKAN CHANGELOG
 ++++++++++++++
 
+v1.0 2010-05-11
+===============
+
+CKAN comes of age, having been used successfully in several deployments around
+the world. 56 tickets covered in this release. See:
+http://knowledgeforge.net/ckan/trac/milestone/v1.0
+
+Highlights of changes:
+
+* Package edit form: new pluggable architecture for custom forms (#281, #286)
+* Package revisions: diffs now include tag, license and resource changes (#303)
+* Web interface: visual overhaul (#182, #206, #214-#227, #260) including
+  a tag cloud (#89)
+* i18n: completion in Web UI - now covers package edit form (#248)
+* API extended: revisions (#251, #265), feeds per package (#266)
+* Developer documentation expanded (#289, #290)
+* Performance improved and CKAN stress-tested (#201)
+* Package relationships (Read-Write in API, Read-Only in Web UI) (#253-257)
+* Statistics page (#184)
+* Group edit: add multiple packages at once (#295)
+* Package view: RDF and JSON formatted metadata linked to from package page
+  (#247)
+
+Bugfixes:
+ 
+* Resources were losing their history (#292)
+* Extra fields now work with spaces in the name (#278, #280) and international 
+  characters (#288)
+* Updating resources in the REST API (#293)
+
+Infrastructural:
+
+* Licenses: now uses external License Service ('licenses' Python module)
+* Changesets introduced in readiness for revision distribution
+
+
 v0.11 2010-01-25
 ================
 
