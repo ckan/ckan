@@ -73,11 +73,11 @@ msgstr "No se ha encontrado el archivo  '%s' "
 #: ckan/controllers/importer.py:55 ckan/controllers/importer.py:84
 #, python-format
 msgid "Error importing file '%s' as Excel or CSV format: %s"
-msgstr ""
+msgstr "Error de importación del archivo '%s' como formato de Excel o CSV: %s"
 
 #: ckan/controllers/importer.py:95
 msgid "Errors remain - see preview."
-msgstr ""
+msgstr "Siguen los errores - mirar la previsualización"
 
 #: ckan/controllers/importer.py:109
 msgid "Problem with user account."
@@ -100,7 +100,7 @@ msgstr "El usuario no está conectado"
 
 #: ckan/controllers/importer.py:164
 msgid "Error with user account. Log out and log in again."
-msgstr ""
+msgstr "Error con la cuenta de usuario. Sal y vuelve a entrar."
 
 #: ckan/controllers/importer.py:167
 #, python-format
@@ -110,17 +110,17 @@ msgstr ""
 #: ckan/controllers/importer.py:170
 #, python-format
 msgid "User %r unauthorized to edit existing package %s"
-msgstr ""
+msgstr "El usuario %r no está autorizado a editar el paquete existente %s"
 
 #: ckan/controllers/package.py:76 ckan/controllers/package.py:112
 #: ckan/controllers/package.py:284
 msgid "Package not found"
-msgstr ""
+msgstr "No se ha encontrado el paquete"
 
 #: ckan/controllers/package.py:87
 #, python-format
 msgid "Unauthorized to read package %s"
-msgstr ""
+msgstr "No estás autorizado a leer el paquete %s"
 
 #: ckan/controllers/package.py:106
 msgid "Select two revisions before doing the comparison."
@@ -132,16 +132,16 @@ msgstr ""
 
 #: ckan/controllers/package.py:120
 msgid "Recent changes to CKAN Package: "
-msgstr ""
+msgstr "Cambios recientes en el paquete CKAN:"
 
 #: ckan/controllers/package.py:140
 msgid "Log message: "
-msgstr ""
+msgstr "Mensaje del log:"
 
 #: ckan/controllers/package.py:229
 #, python-format
 msgid "User %r not authorized to edit %s"
-msgstr ""
+msgstr "El usuario %r no está autorizado para editar %s"
 
 #: ckan/controllers/package.py:289
 #, python-format
@@ -150,7 +150,7 @@ msgstr ""
 
 #: ckan/controllers/package.py:341
 msgid "404 Package Not Found"
-msgstr ""
+msgstr "404 No se ha encontrado el paquete"
 
 #: ckan/controllers/package.py:347
 msgid "Rating value invalid"
@@ -159,12 +159,12 @@ msgstr ""
 #: ckan/controllers/rest.py:113 ckan/controllers/rest.py:204
 #: ckan/controllers/rest.py:280
 msgid "Access denied"
-msgstr ""
+msgstr "Acceso denegado"
 
 #: ckan/controllers/rest.py:118 ckan/controllers/rest.py:210
 #, python-format
 msgid "JSON Error: %s"
-msgstr ""
+msgstr "Error JSONr: %s"
 
 #: ckan/controllers/rest.py:140
 #, python-format
