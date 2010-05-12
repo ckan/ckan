@@ -1166,11 +1166,11 @@ msgstr ""
 
 #: ckan/templates/home/index.html:66
 msgid "registered packages"
-msgstr ""
+msgstr "paquetes registrados"
 
 #: ckan/templates/home/index.html:66
 msgid "available."
-msgstr ""
+msgstr "disponible"
 
 #: ckan/templates/home/index.html:70 ckan/templates/home/stats.html:93
 msgid "Top Tags"
@@ -1178,7 +1178,7 @@ msgstr ""
 
 #: ckan/templates/home/index.html:80
 msgid "Recently changed"
-msgstr ""
+msgstr "Cambiados recientemente"
 
 #: ckan/templates/home/index.html:85
 msgid "Time"
@@ -1190,7 +1190,7 @@ msgstr ""
 
 #: ckan/templates/home/layout.html:9 ckan/templates/user/read.html:18
 msgid "About"
-msgstr ""
+msgstr "Acerca de "
 
 #: ckan/templates/home/license.html:7
 msgid "CKAN License"
@@ -1198,7 +1198,7 @@ msgstr ""
 
 #: ckan/templates/home/license.html:9
 msgid "Code"
-msgstr ""
+msgstr "Código"
 
 #: ckan/templates/home/license.html:10
 msgid "The code that runs CKAN is open-source and licensed under the"
@@ -1206,7 +1206,7 @@ msgstr ""
 
 #: ckan/templates/home/license.html:12
 msgid "GNU Affero GPL"
-msgstr ""
+msgstr "GNU Affero GPL"
 
 #: ckan/templates/home/license.html:13
 msgid ". It is hosted on"
@@ -1236,7 +1236,7 @@ msgstr ""
 
 #: ckan/templates/home/license.html:21
 msgid "open"
-msgstr ""
+msgstr "abierto"
 
 #: ckan/templates/home/license.html:21
 msgid ""
@@ -1249,6 +1249,8 @@ msgid ""
 "Open Data Commons Open\n"
 "      Database License v1.0"
 msgstr ""
+"Licencia Open Data Commons\n"
+" Open Database v1.0"
 
 #: ckan/templates/home/license.html:24
 msgid ""
@@ -1577,7 +1579,7 @@ msgid "License not given"
 msgstr ""
 
 #: ckan/templates/package/read.html:29
-#, fuzzy, python-format
+#, python-format
 msgid "Related packages"
 msgstr ""
 
