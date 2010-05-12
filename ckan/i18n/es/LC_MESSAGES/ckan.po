@@ -1572,28 +1572,28 @@ msgstr ""
 
 #: ckan/templates/package/read.html:4
 msgid "Packages -"
-msgstr ""
+msgstr "Paquetes -"
 
 #: ckan/templates/package/read.html:21 ckan/templates/package/read.html:59
 msgid "License not given"
-msgstr ""
+msgstr "No se ofrece ninguna licencia"
 
 #: ckan/templates/package/read.html:29
 #, python-format
 msgid "Related packages"
-msgstr ""
+msgstr "Paquetes relacionados"
 
 #: ckan/templates/package/read.html:40
 msgid "Openness:"
-msgstr ""
+msgstr "Apertura:"
 
 #: ckan/templates/package/read.html:42
 msgid "OPEN"
-msgstr ""
+msgstr "ABIERTO"
 
 #: ckan/templates/package/read.html:45
 msgid "NOT OPEN"
-msgstr ""
+msgstr "CERRADO"
 
 #: ckan/templates/package/read.html:51
 msgid "This package is licensed with"
@@ -1605,11 +1605,11 @@ msgstr ""
 
 #: ckan/templates/package/read.html:69
 msgid "[Open Data]"
-msgstr ""
+msgstr "[Datos abiertos]"
 
 #: ckan/templates/package/read.html:73
 msgid "[Open Content]"
-msgstr ""
+msgstr "[Contenidos abiertos]"
 
 #: ckan/templates/package/read.html:76
 msgid "Help Make This Package Open!"
