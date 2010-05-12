@@ -424,7 +424,7 @@ msgstr ""
 
 #: ckan/forms/package.py:60
 msgid "State"
-msgstr ""
+msgstr "Estado"
 
 #: ckan/forms/package_ca.py:42
 msgid "Insert a short, unique, descriptive title here, using only 'a-z', '0-9' and '-_'. Must be lowercase; no spaces allowed."
@@ -460,11 +460,11 @@ msgstr ""
 
 #: ckan/forms/package_ca.py:46
 msgid "(Example: 2009-01-15)"
-msgstr ""
+msgstr "(Ejemplo: 2009-01-15)"
 
 #: ckan/forms/package_ca.py:47
 msgid "(Example: 2010-04-12)"
-msgstr ""
+msgstr "(Ejemplo: 2010-04-12)"
 
 #: ckan/forms/package_ca.py:48
 msgid "Select the license type"
