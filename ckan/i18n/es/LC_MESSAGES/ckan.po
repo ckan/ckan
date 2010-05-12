@@ -432,7 +432,7 @@ msgstr ""
 
 #: ckan/forms/package_ca.py:42
 msgid "(Example: geogratis-radarsat-mosaic)"
-msgstr ""
+msgstr "(Ejemplo: geogratis-radarsat-mosaic)"
 
 #: ckan/forms/package_ca.py:43
 msgid "Insert a more descriptive title - ideally the same as that used on the government website."
@@ -440,7 +440,7 @@ msgstr ""
 
 #: ckan/forms/package_ca.py:43
 msgid "(Example: RADARSAT Ortho-rectified Mosaic of Canada, Lambert Conformal Conic, 1000 Metres)"
-msgstr ""
+msgstr "(EEjemplo: RADARSAT Mosaico ortorectificado de Canadá Lambert Conformal Conic, 1000 metros)"
 
 #: ckan/forms/package_ca.py:44
 msgid "The link to the government web page where the data is described and located. Do not link to the dataset itself."
@@ -448,7 +448,7 @@ msgstr ""
 
 #: ckan/forms/package_ca.py:44
 msgid "(Example: http://geogratis.cgdi.gc.ca/geogratis/en/collection/detail.do?id=9369)"
-msgstr ""
+msgstr "(Ejemplo: http://geogratis.cgdi.gc.ca/geogratis/en/collection/detail.do?id=9369)"
 
 #: ckan/forms/package_ca.py:45
 msgid "<div>URL: The link to the actual data set (if available)</div><div>Format: Describe the format type, e.g. XML, CSV, SHAPE, etc.</div><div>Description: A description of the data. Feel free to copy the description on the government website.</div><div>Hash: Just leave it blank.</div>"
@@ -476,7 +476,7 @@ msgstr ""
 
 #: ckan/forms/package_ca.py:49
 msgid "(Example: monthly)"
-msgstr ""
+msgstr "(Ejemplo: mensual)"
 
 #: ckan/forms/package_ca.py:50 ckan/forms/package_ca.py:81
 msgid "Years covered"
@@ -488,7 +488,7 @@ msgstr ""
 
 #: ckan/forms/package_ca.py:50
 msgid "(Example: 1992 - 1995)"
-msgstr ""
+msgstr "(Ejemplo: 1992 - 1995)"
 
 #: ckan/forms/package_ca.py:51
 msgid "Include tags you think are descriptive and appropriate. Tags are space separated; to  join two words together, use a dash (-) or underscore (_)."
