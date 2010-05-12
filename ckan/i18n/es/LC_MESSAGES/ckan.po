@@ -1698,7 +1698,7 @@ msgstr ""
 
 #: ckan/templates/package/read_core.html:19
 msgid "Tags:"
-msgstr ""
+msgstr "Etiquetas:"
 
 #: ckan/templates/package/read_core.html:23
 msgid "A curated collection of packages"
@@ -1706,11 +1706,11 @@ msgstr ""
 
 #: ckan/templates/package/read_core.html:23
 msgid "Groups:"
-msgstr ""
+msgstr "Grupos:"
 
 #: ckan/templates/package/read_core.html:38
 msgid "Download"
-msgstr ""
+msgstr "Descarga"
 
 #: ckan/templates/package/read_core.html:41
 msgid "None given for this package."
@@ -1722,7 +1722,7 @@ msgstr ""
 
 #: ckan/templates/package/read_core.html:102
 msgid "State:"
-msgstr ""
+msgstr "Estado:"
 
 #: ckan/templates/package/resources.html:2
 msgid "Someresources"
@@ -1750,11 +1750,11 @@ msgstr ""
 
 #: ckan/templates/package/search.html:23
 msgid "Would you like to"
-msgstr ""
+msgstr "¿Te gustaría"
 
 #: ckan/templates/package/search.html:23
 msgid "create a new package?"
-msgstr ""
+msgstr "crear un nuevo paquete?"
 
 #: ckan/templates/package/search_form.html:3
 msgid "Search Packages »"
@@ -1762,15 +1762,15 @@ msgstr ""
 
 #: ckan/templates/package/search_form.html:4
 msgid "E.g. 'geo', 'shakespeare', 'science'"
-msgstr ""
+msgstr "Por ejemplo 'geo', 'shakespeare', 'ciencia'"
 
 #: ckan/templates/package/search_form.html:7
 msgid "Filters:"
-msgstr ""
+msgstr "Filtros:"
 
 #: ckan/templates/package/search_form.html:8
 msgid "downloadable"
-msgstr ""
+msgstr "descargable"
 
 #: ckan/templates/revision/diff.html:4
 msgid "Diff"
