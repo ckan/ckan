@@ -1,4 +1,4 @@
-__version__ = '1.0'
+__version__ = '1.1a'
 __description__ = 'Comprehensive Knowledge Archive Network (CKAN) Software'
 __long_description__ = \
 '''The CKAN software is used to run the Comprehensive Knowledge Archive

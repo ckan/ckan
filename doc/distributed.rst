@@ -121,8 +121,10 @@ Terminology
   * Patch: payload of a change(set) - description of the changes to the
     data/domain model 
   * Changeset: the combination of a Revision and its associated Patch
-  * Node/Repository: a given standalone instance containing data/domain
-    objects.
+  * Repository: a standalone instance containing data/domain objects.
+  * Working copy: a "view" representing the application of a set of (perhaps filtered) Changesets. Classic examples are "HEAD": i.e. applying all changesets 
+    * Normally these changesets must be coherent -- i.e. if changeset X follows on from changeset Y to apply X 'coherently' one must first apply Y
+  * Filtering: in applying a changeset to a working copy the changeset may be 'filtered', for example by only applying the changes in that changeset that apply to given set of entities or by skipping the application of changesets from a given source.
 
 Remarks:
 
@@ -163,7 +165,18 @@ Protocol
 The most complex part of this specification is the definition of the protocol
 especially the patch application protocol and the merge process.
 
-IN PROGRESS
+Merge algorithm
+---------------
+
+Merge algorithm used will vary from application to application.
+
+TODO: details of example merge algorithm (e.g. that from CKAN)
+
+Issues
+------
+
+  * Enforcement of constraints (e.g. uniqueness) during merge
+  * User intervention in merges and pending merges
 
 
 Appendix: Distributed Revision Control for Source Code
