@@ -329,16 +329,16 @@ msgstr ""
 
 #: ckan/forms/common.py:594
 msgid "Other"
-msgstr ""
+msgstr "Otro"
 
 #: ckan/forms/package.py:31 ckan/forms/package.py:58
 #: ckan/forms/package_ca.py:42 ckan/forms/package_ca.py:80
 msgid "Name"
-msgstr ""
+msgstr "Nombre"
 
 #: ckan/forms/package.py:31 ckan/forms/package_ca.py:42
 msgid "(required)"
-msgstr ""
+msgstr "(requerido)"
 
 #: ckan/forms/package.py:31
 msgid "<strong>Unique identifier</strong> for package.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'"
@@ -348,13 +348,13 @@ msgstr ""
 #: ckan/forms/package_ca.py:48 ckan/forms/package_ca.py:82
 #: ckan/templates/home/license.html:4 ckan/templates/package/read_core.html:70
 msgid "License"
-msgstr ""
+msgstr "Licencia"
 
 #: ckan/forms/package.py:33 ckan/forms/package.py:60
 #: ckan/forms/package_ca.py:51 ckan/forms/package_ca.py:82
 #: ckan/templates/layout.html:75 ckan/templates/tag/index.html:7
 msgid "Tags"
-msgstr ""
+msgstr "Etiquetas"
 
 #: ckan/forms/package.py:33
 msgid "(space separated list)"
@@ -363,7 +363,7 @@ msgstr ""
 #: ckan/forms/package.py:34 ckan/forms/package.py:59
 #: ckan/forms/package_ca.py:52 ckan/forms/package_ca.py:82
 msgid "Notes"
-msgstr ""
+msgstr "Notas"
 
 #: ckan/forms/package.py:34 ckan/forms/package_ca.py:52
 msgid "You can use <a href=\"http://daringfireball.net/projects/markdown/syntax\">Markdown formatting</a> here."
@@ -372,43 +372,43 @@ msgstr ""
 #: ckan/forms/package.py:44 ckan/forms/package_ca.py:65
 #: ckan/forms/package_gov.py:107
 msgid "Basic information"
-msgstr ""
+msgstr "Información básica"
 
 #: ckan/forms/package.py:46 ckan/forms/package.py:59
 #: ckan/forms/package_ca.py:66 ckan/forms/package_ca.py:80
 #: ckan/forms/package_gov.py:114 ckan/templates/package/read_core.html:33
 #: ckan/templates/package/read_core.html:41
 msgid "Resources"
-msgstr ""
+msgstr "Recursos"
 
 #: ckan/forms/package.py:47 ckan/forms/package.py:53
 #: ckan/forms/package_ca.py:67
 msgid "Detail"
-msgstr ""
+msgstr "Detalles"
 
 #: ckan/forms/package.py:50 ckan/forms/package.py:60
 msgid "Extras"
-msgstr ""
+msgstr "Extras"
 
 #: ckan/forms/package.py:58 ckan/forms/package_ca.py:80
 msgid "Title"
-msgstr ""
+msgstr "Título"
 
 #: ckan/forms/package.py:58 ckan/templates/package/read.html:15
 msgid "Version"
-msgstr ""
+msgstr "Versión"
 
 #: ckan/forms/package.py:58 ckan/forms/package_ca.py:80
 #: ckan/templates/package/form_resources.html:6
 #: ckan/templates/package/read_core.html:36
 msgid "URL"
-msgstr ""
+msgstr "URL"
 
 #: ckan/forms/package.py:59 ckan/templates/home/index.html:84
 #: ckan/templates/package/history.html:26 ckan/templates/revision/list.html:16
 #: ckan/templates/user/read.html:37
 msgid "Author"
-msgstr ""
+msgstr "Autor"
 
 #: ckan/forms/package.py:59
 msgid "Author email"
