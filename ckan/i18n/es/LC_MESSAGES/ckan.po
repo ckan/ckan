@@ -1611,27 +1611,27 @@ msgstr ""
 
 #: ckan/templates/package/read.html:76
 msgid "Help Make This Package Open!"
-msgstr ""
+msgstr "Ayuda a hacer este paquete abierto!"
 
 #: ckan/templates/package/read.html:77
 msgid "This package is"
-msgstr ""
+msgstr "Este paquete"
 
 #: ckan/templates/package/read.html:77
 msgid "not open"
-msgstr ""
+msgstr "no es abierto"
 
 #: ckan/templates/package/read.html:77
 msgid "as it is"
-msgstr ""
+msgstr "como está"
 
 #: ckan/templates/package/read.html:78
 msgid "not openly licensed"
-msgstr ""
+msgstr "no tiene una licencia abierta"
 
 #: ckan/templates/package/read.html:78
 msgid "or is"
-msgstr ""
+msgstr "o es"
 
 #: ckan/templates/package/read.html:79
 msgid "missing downloadable resources"
@@ -1649,7 +1649,7 @@ msgstr ""
 
 #: ckan/templates/package/read.html:81
 msgid "using the"
-msgstr ""
+msgstr "utilizando el "
 
 #: ckan/templates/package/read.html:83
 msgid ""
@@ -1658,9 +1658,9 @@ msgid ""
 msgstr ""
 
 #: ckan/templates/package/read.html:91
-#, fuzzy, python-format
+#, python-format
 msgid "Edit this Package"
-msgstr ""
+msgstr "Editar este paquete"
 
 #: ckan/templates/package/read.html:92
 msgid ""
@@ -1678,23 +1678,23 @@ msgstr ""
 
 #: ckan/templates/package/read.html:107
 msgid "JSON format"
-msgstr ""
+msgstr "Formato JSON "
 
 #: ckan/templates/package/read.html:107
 msgid "JSON"
-msgstr ""
+msgstr "JSON"
 
 #: ckan/templates/package/read.html:111
 msgid "RDF format"
-msgstr ""
+msgstr "Formato RDF"
 
 #: ckan/templates/package/read.html:111
 msgid "RDF"
-msgstr ""
+msgstr "RDF"
 
 #: ckan/templates/package/read.html:125
 msgid "RDF Version"
-msgstr ""
+msgstr "Versión RDF "
 
 #: ckan/templates/package/read_core.html:19
 msgid "Tags:"
