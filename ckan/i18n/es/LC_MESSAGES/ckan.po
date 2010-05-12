@@ -528,11 +528,11 @@ msgstr ""
 
 #: ckan/forms/package_ca.py:81 ckan/forms/package_gov.py:125
 msgid "Date updated"
-msgstr ""
+msgstr "Fecha de actualización"
 
 #: ckan/forms/package_ca.py:81 ckan/forms/package_gov.py:126
 msgid "Update frequency"
-msgstr ""
+msgstr "Frecuencia de actualización"
 
 #: ckan/forms/package_ca.py:82
 msgid "Level of government"
@@ -580,23 +580,23 @@ msgstr "Cobertura temporal"
 
 #: ckan/forms/package_gov.py:128
 msgid "Categories"
-msgstr ""
+msgstr "Categorías"
 
 #: ckan/forms/package_gov.py:129
 msgid "Precision"
-msgstr ""
+msgstr "Precisión"
 
 #: ckan/forms/package_gov.py:129
 msgid "Taxonomy URL"
-msgstr ""
+msgstr "URL de la taxonomía"
 
 #: ckan/forms/package_gov.py:129
 msgid "Department"
-msgstr ""
+msgstr "Departmento"
 
 #: ckan/forms/package_gov.py:129
 msgid "Agency"
-msgstr ""
+msgstr "Agencia"
 
 #: ckan/lib/package_saver.py:117
 msgid "No links are allowed in the log_message."
@@ -605,37 +605,37 @@ msgstr ""
 #: ckan/model/package_relationship.py:45
 #, python-format
 msgid "depends on %s"
-msgstr ""
+msgstr "depende de %s"
 
 #: ckan/model/package_relationship.py:45
 #, python-format
 msgid "is a dependency of %s"
-msgstr ""
+msgstr "es dependiente de %s"
 
 #: ckan/model/package_relationship.py:46
 #, python-format
 msgid "derives from %s"
-msgstr ""
+msgstr "deriva de %s"
 
 #: ckan/model/package_relationship.py:46
 #, python-format
 msgid "has derivation %s"
-msgstr ""
+msgstr "tiene un derivado en %s"
 
 #: ckan/model/package_relationship.py:47
 #, python-format
 msgid "is a child of %s"
-msgstr ""
+msgstr "es hijo de %s"
 
 #: ckan/model/package_relationship.py:47
 #, python-format
 msgid "is a parent of %s"
-msgstr ""
+msgstr "es padre de %s"
 
 #: ckan/model/package_relationship.py:51
 #, python-format
 msgid "has sibling %s"
-msgstr ""
+msgstr "tiene un hermano %s"
 
 #: ckan/templates/error_document_template.html:4
 #, python-format
