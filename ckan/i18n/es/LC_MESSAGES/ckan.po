@@ -653,11 +653,11 @@ msgstr "CKAN - Comprehensive Knowledge Archive Network -"
 
 #: ckan/templates/layout.html:19
 msgid "CKAN Recent Changes"
-msgstr ""
+msgstr "Cambios recientes en CKAN"
 
 #: ckan/templates/layout.html:53
 msgid "Logged in as"
-msgstr ""
+msgstr "Connectado como"
 
 #: ckan/templates/layout.html:55
 msgid "My account"
@@ -786,11 +786,11 @@ msgstr "Grupos - Autorización -"
 
 #: ckan/templates/group/authz.html:7
 msgid "Authorization for group:"
-msgstr ""
+msgstr "Autorización para grupo:"
 
 #: ckan/templates/group/authz.html:14 ckan/templates/package/authz.html:14
 msgid "Update Existing Roles"
-msgstr ""
+msgstr "Actualizar los roles existentes"
 
 #: ckan/templates/group/authz.html:19 ckan/templates/package/authz.html:19
 msgid "Create New User Roles"
@@ -877,15 +877,15 @@ msgstr "[editar]"
 
 #: ckan/templates/group/read.html:21
 msgid "[authorization]"
-msgstr ""
+msgstr "[autorización]"
 
 #: ckan/templates/group/read.html:31
 msgid "Administrators:"
-msgstr ""
+msgstr "Administradores:"
 
 #: ckan/templates/group/read.html:37
 msgid "Packages:"
-msgstr ""
+msgstr "Paquetes:"
 
 #: ckan/templates/group/read.html:41
 msgid "packages in this group."
@@ -893,11 +893,11 @@ msgstr ""
 
 #: ckan/templates/home/about.html:7 ckan/templates/home/index.html:41
 msgid "About CKAN"
-msgstr ""
+msgstr "Acerca de CKAN"
 
 #: ckan/templates/home/about.html:9
 msgid "CKAN is the Comprehensive Knowledge Archive Network, a"
-msgstr ""
+msgstr "CKAN es el Comprehensive Knowledge Archive Network, un"
 
 #: ckan/templates/home/about.html:9
 msgid "registry"
@@ -994,7 +994,7 @@ msgstr ""
 
 #: ckan/templates/home/about.html:35
 msgid "open data and content"
-msgstr ""
+msgstr "datos y contenidos abiertos"
 
 #: ckan/templates/home/about.html:35
 msgid "not code."
@@ -1014,7 +1014,7 @@ msgstr ""
 
 #: ckan/templates/home/about.html:43
 msgid "Who's Behind CKAN?"
-msgstr ""
+msgstr "¿Quien hay detrás de  CKAN?"
 
 #: ckan/templates/home/about.html:45
 msgid "The CKAN software and site is developed and maintained by the"
@@ -1102,11 +1102,11 @@ msgstr "Genshi"
 
 #: ckan/templates/home/guide.html:4
 msgid "Guide"
-msgstr ""
+msgstr "Guía"
 
 #: ckan/templates/home/guide.html:7
 msgid "CKAN Guide"
-msgstr ""
+msgstr "Guía CKAN"
 
 #: ckan/templates/home/guide.html:9
 msgid "Bookmarklet for Adding Packages"
@@ -1126,7 +1126,7 @@ msgstr ""
 
 #: ckan/templates/home/guide.html:14
 msgid "Add to CKAN"
-msgstr ""
+msgstr "Añadir a CKAN"
 
 #: ckan/templates/home/index.html:42
 msgid ""
@@ -1136,21 +1136,23 @@ msgstr ""
 
 #: ckan/templates/home/index.html:52
 msgid "Development »"
-msgstr ""
+msgstr "Desarrollo »"
 
 #: ckan/templates/home/index.html:58
 msgid "Welcome to CKAN"
-msgstr ""
+msgstr "Bienevenido a CKAN"
 
 #: ckan/templates/home/index.html:59
 msgid "CKAN is a registry of"
-msgstr ""
+msgstr "CKAN es un registro de"
 
 #: ckan/templates/home/index.html:60
 msgid ""
 "open data \n"
 "      and content"
 msgstr ""
+"datos y contenidos \n"
+"      abiertos"
 
 #: ckan/templates/home/index.html:61
 msgid "packages. CKAN makes it easy to"
@@ -1198,7 +1200,7 @@ msgstr "Acerca de "
 
 #: ckan/templates/home/license.html:7
 msgid "CKAN License"
-msgstr ""
+msgstr "Licencia CKAN"
 
 #: ckan/templates/home/license.html:9
 msgid "Code"
@@ -1232,7 +1234,7 @@ msgstr ""
 
 #: ckan/templates/home/license.html:19
 msgid "Content and Data"
-msgstr ""
+msgstr "Contenidos y datos"
 
 #: ckan/templates/home/license.html:20
 msgid "All material on this site is"
@@ -1267,6 +1269,8 @@ msgid ""
 "Creative Commons\n"
 "      Attribution Share-Alike v3.0 license"
 msgstr ""
+"Licencia de Creative Commons\n"
+"      Reconocieminiento CompartirIgual  v3.0"
 
 #: ckan/templates/home/license.html:28
 msgid "For convenience, all material - including all package, tag and revision information - is available in bulk, in the form of a full dump of the CKAN database. This (gzipped) dump file is updated daily and can be downloaded from"
@@ -1286,11 +1290,11 @@ msgstr "Estadísticas"
 
 #: ckan/templates/home/stats.html:14
 msgid "Total number of packages"
-msgstr ""
+msgstr "Número total de paquetes"
 
 #: ckan/templates/home/stats.html:33
 msgid "Revisions to packages per week"
-msgstr ""
+msgstr "Revisiones semanales de los paquetes"
 
 #: ckan/templates/home/stats.html:69
 msgid "Top Rated Packages"
@@ -1314,31 +1318,31 @@ msgstr ""
 
 #: ckan/templates/home/stats.html:79
 msgid "Number of edits"
-msgstr ""
+msgstr "Número de ediciones"
 
 #: ckan/templates/home/stats.html:85
 msgid "Largest Groups"
-msgstr ""
+msgstr "Grupos más grandes"
 
 #: ckan/templates/home/stats.html:87
 msgid "Group"
-msgstr ""
+msgstr "Grupo"
 
 #: ckan/templates/home/stats.html:87
 msgid "Number of packages"
-msgstr ""
+msgstr "Número de paquetes"
 
 #: ckan/templates/home/stats.html:100
 msgid "Users owning most packages"
-msgstr ""
+msgstr "Usuarios con mayor número de paquetes"
 
 #: ckan/templates/home/stats.html:107
 msgid "Page last updated:"
-msgstr ""
+msgstr "Página con al última actualización:"
 
 #: ckan/templates/package/authz.html:4
 msgid "Packages - Authorization -"
-msgstr ""
+msgstr "Paquetes - Autorización -"
 
 #: ckan/templates/package/authz.html:7
 msgid "Authorization for package:"
@@ -1346,11 +1350,11 @@ msgstr ""
 
 #: ckan/templates/package/edit.html:4
 msgid "Packages - Edit -"
-msgstr ""
+msgstr "Paquetes - Editar"
 
 #: ckan/templates/package/edit.html:19
 msgid "Edit package:"
-msgstr ""
+msgstr "Editar paquete:"
 
 #: ckan/templates/package/edit.html:21 ckan/templates/package/new.html:20
 #: ckan/templates/user/edit.html:9
@@ -1360,12 +1364,12 @@ msgstr ""
 #: ckan/templates/package/edit.html:28 ckan/templates/package/new.html:31
 #: ckan/templates/user/edit.html:29
 msgid "Preview"
-msgstr ""
+msgstr "Previsualización"
 
 #: ckan/templates/package/edit.html:36 ckan/templates/package/history.html:48
 #: ckan/templates/package/read.html:130
 msgid "Package History"
-msgstr ""
+msgstr "Historial del paquete"
 
 #: ckan/templates/package/edit_form.html:12
 msgid "Optional log message about this change:"
@@ -1381,12 +1385,12 @@ msgstr ""
 
 #: ckan/templates/package/edit_form.html:14 ckan/templates/user/edit.html:18
 msgid "here."
-msgstr ""
+msgstr "aquí."
 
 #: ckan/templates/package/edit_form.html:16
 #: ckan/templates/revision/read.html:11
 msgid "Author:"
-msgstr ""
+msgstr "Autor:"
 
 #: ckan/templates/package/edit_form.html:17
 msgid "If you have not signed in this will just be your IP address."
@@ -1434,7 +1438,7 @@ msgstr ""
 
 #: ckan/templates/package/form_extra_fields.html:11
 msgid "New key"
-msgstr ""
+msgstr "Nueva clave:"
 
 #: ckan/templates/package/form_extra_fields.html:21
 msgid "Delete"
@@ -1442,7 +1446,7 @@ msgstr "Borrar"
 
 #: ckan/templates/package/form_extra_fields.html:25
 msgid "with value"
-msgstr ""
+msgstr "con valor"
 
 #: ckan/templates/package/form_resources.html:6
 #: ckan/templates/package/read_core.html:36
@@ -1492,7 +1496,7 @@ msgstr ""
 
 #: ckan/templates/package/history.html:43
 msgid "Compare »"
-msgstr ""
+msgstr "Comparar »"
 
 #: ckan/templates/package/index.html:4
 msgid "Packages - Index"
@@ -1540,7 +1544,7 @@ msgstr ""
 
 #: ckan/templates/package/list.html:11
 msgid "Openly licensed"
-msgstr ""
+msgstr "con licencia abierta"
 
 #: ckan/templates/package/list.html:13
 msgid "Closed/unknown licensing"
@@ -1744,15 +1748,15 @@ msgstr ""
 
 #: ckan/templates/package/search.html:17
 msgid "tags found (max"
-msgstr ""
+msgstr "etiquetas encontradas (máx"
 
 #: ckan/templates/package/search.html:17
 msgid "shown)."
-msgstr ""
+msgstr "mostradas)."
 
 #: ckan/templates/package/search.html:21
 msgid "packages found."
-msgstr ""
+msgstr "paquetes encontrados"
 
 #: ckan/templates/package/search.html:23
 msgid "Would you like to"
@@ -1874,7 +1878,7 @@ msgstr ""
 
 #: ckan/templates/tag/index.html:4
 msgid "Tags - Index"
-msgstr ""
+msgstr "Etiquetas - Índice"
 
 #: ckan/templates/tag/index.html:19
 msgid "results for ‘"
