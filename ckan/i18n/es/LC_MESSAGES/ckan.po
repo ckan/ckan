@@ -1446,7 +1446,7 @@ msgstr ""
 #: ckan/templates/package/form_resources.html:6
 #: ckan/templates/package/read_core.html:36
 msgid "Description"
-msgstr ""
+msgstr "Descripción"
 
 #: ckan/templates/package/form_resources.html:6
 #: ckan/templates/package/read_core.html:36
@@ -1455,24 +1455,24 @@ msgstr ""
 
 #: ckan/templates/package/history.html:4 ckan/templates/revision/read.html:32
 msgid "Package -"
-msgstr ""
+msgstr "Paquete -"
 
 #: ckan/templates/package/history.html:4
 msgid "- History"
-msgstr ""
+msgstr "- Historial"
 
 #: ckan/templates/package/history.html:12
 msgid "Revisions"
-msgstr ""
+msgstr "Revisiones"
 
 #: ckan/templates/package/history.html:18 ckan/templates/package/new.html:23
 msgid "Error:"
-msgstr ""
+msgstr "Error:"
 
 #: ckan/templates/package/history.html:26 ckan/templates/revision/read.html:4
 #: ckan/templates/user/read.html:37
 msgid "Revision"
-msgstr ""
+msgstr "Revisión"
 
 #: ckan/templates/package/history.html:26 ckan/templates/revision/list.html:16
 #: ckan/templates/user/read.html:37
@@ -1490,43 +1490,43 @@ msgstr ""
 
 #: ckan/templates/package/index.html:4
 msgid "Packages - Index"
-msgstr ""
+msgstr "Paquetes - Índice"
 
 #: ckan/templates/package/index.html:13
 msgid "packages."
-msgstr ""
+msgstr "paquetes."
 
 #: ckan/templates/package/layout.html:10
 msgid "This package:"
-msgstr ""
+msgstr "Este paquete:"
 
 #: ckan/templates/package/layout.html:11
 msgid "View"
-msgstr ""
+msgstr "Ver"
 
 #: ckan/templates/package/layout.html:12 ckan/templates/user/read.html:24
 msgid "Edit"
-msgstr ""
+msgstr "Editar"
 
 #: ckan/templates/package/layout.html:13
 msgid "History"
-msgstr ""
+msgstr "Historial"
 
 #: ckan/templates/package/layout.html:15
 msgid "Authorization"
-msgstr ""
+msgstr "Autorización"
 
 #: ckan/templates/package/layout.html:20
 msgid "Browse"
-msgstr ""
+msgstr "Navegar"
 
 #: ckan/templates/package/layout.html:21
 msgid "Register new package"
-msgstr ""
+msgstr "Registrar un nuevo paquete"
 
 #: ckan/templates/package/list.html:4
 msgid "Packages - List"
-msgstr ""
+msgstr "Paquetes - Lista"
 
 #: ckan/templates/package/list.html:8
 msgid "Package listing key"
