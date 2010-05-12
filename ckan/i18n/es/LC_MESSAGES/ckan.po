@@ -899,11 +899,11 @@ msgstr ""
 
 #: ckan/templates/home/about.html:9
 msgid "registry"
-msgstr ""
+msgstr "registro"
 
 #: ckan/templates/home/about.html:9
 msgid "of"
-msgstr ""
+msgstr "de"
 
 #: ckan/templates/home/about.html:10
 msgid "open knowledge"
@@ -974,15 +974,15 @@ msgstr ""
 
 #: ckan/templates/home/about.html:33
 msgid "CPAN"
-msgstr ""
+msgstr "CPAN"
 
 #: ckan/templates/home/about.html:33
 msgid "or"
-msgstr ""
+msgstr "o"
 
 #: ckan/templates/home/about.html:34
 msgid "PyPI"
-msgstr ""
+msgstr "PyPI"
 
 #: ckan/templates/home/about.html:34
 msgid ""
@@ -1054,15 +1054,15 @@ msgstr ""
 
 #: ckan/templates/home/about.html:56
 msgid "Rufus Pollock"
-msgstr ""
+msgstr "Rufus Pollock"
 
 #: ckan/templates/home/about.html:57
 msgid "David Read"
-msgstr ""
+msgstr "David Read"
 
 #: ckan/templates/home/about.html:58
 msgid "Nick Stenning"
-msgstr ""
+msgstr "Nick Stenning"
 
 #: ckan/templates/home/about.html:58
 msgid "(css and js)"
@@ -1070,7 +1070,7 @@ msgstr ""
 
 #: ckan/templates/home/about.html:59
 msgid "John Bywater"
-msgstr ""
+msgstr "John Bywater"
 
 #: ckan/templates/home/about.html:60
 msgid "CKAN logo: \""
