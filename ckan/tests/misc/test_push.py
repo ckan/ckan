@@ -27,6 +27,8 @@ class OurConsumer(Thread):
         consumer.wait() # Go into the consumer loop.       
       
 class TestQueue(TestController):
+    __test__ = False
+
     def get_conn(self):
         from carrot.connection import BrokerConnection
         return BrokerConnection(hostname="localhost", port=5672,
