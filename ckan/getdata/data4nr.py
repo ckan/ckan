@@ -4,6 +4,7 @@ import csv
 
 import ckan.model as model
 from ckan.lib import schema_gov
+from ckan.lib import field_types
 
 class Data4Nr(object):
     def load_csv_into_db(self, csv_filepath):
@@ -78,7 +79,7 @@ class Data4Nr(object):
             }
         for extra_key in ['categories', 'geographic_granularity', 'temporal_granularity', 'date_updated', 'agency', 'taxonomy_url', 'date_released']:
             extras_dict[extra_key] = u''
-        extras_dict['national_statistic'] = u'no'
+        extras_dict['national_statistic'] = u'' #u'no'
         geo_cover = []
         geo_coverage_type = schema_gov.GeoCoverageType.get_instance()
         geo_val = _dict['geographic coverage']
@@ -122,7 +123,7 @@ class Data4Nr(object):
         pkg.resources = []
         pkg.add_resource(res_url, description=res_description)
         pkg.notes=notes
-        pkg.license = model.License.by_name(u'Non-OKD Compliant::Crown Copyright')
+        pkg.license_id = u'ukcrown-withrights'
         if not existing_pkg:
             user = model.User.by_name(self._username)
 
@@ -187,6 +188,8 @@ class Data4Nr(object):
         if not group:
             group = model.Group(name=self._groupname)
             model.Session.add(group)
+            user = model.User.by_name(self._username)
+            model.setup_default_user_roles(group, [user])
 
         self._existing_pkgs = []
         self._new_pkgs = []
@@ -209,7 +212,7 @@ class Data4Nr(object):
             self.temporal_point = re.compile('^(?:[^\d]*)(\d{2,4})(?:\s\(.+\))?$')
             self.temporal_period_simple = re.compile('^(?:[^\d]*)(\d{2,4})\s?[/\-]\s?(\d{2,4})(?:\s\(.+\))?(?:\s[^\d]+)?$')
             self.temporal_period_complex = re.compile('^(?:[^\d]*)(\d{2,4})(\s?[/\-]\s?\d{2,4})?\s?[a-z,]+\s?(\d{2,4}\s?[/\-]\s?)?(\d{2,4})')
-            self.months_lower = [month.lower() for month in schema_gov.months]
+            self.months_lower = [month.lower() for month in field_types.months]
             self.full_date = re.compile('\d{1,2}/\d{1,2}/(\d{1,4})')
         from1, from2, to1, to2 = [None]*4
         # remove any month words - confuses things
@@ -244,7 +247,7 @@ class Data4Nr(object):
         return (unicode(from_), unicode(to))
 
     def _process_years(self, y1, y2, choose_func):
-        add_centurys = schema_gov.DateType.add_centurys_to_two_digit_year
+        add_centurys = field_types.DateType.add_centurys_to_two_digit_year
         if y1 is None and y2 is None:
             return None
         elif y1 is not None and y2 is not None:

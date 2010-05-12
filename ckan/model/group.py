@@ -2,6 +2,7 @@ from datetime import datetime
 from meta import *
 from core import DomainObject, Package, package_table
 from types import make_uuid
+import vdm.sqlalchemy
 
 package_group_table = Table('package_group', metadata,
         Column('id', UnicodeText, primary_key=True, default=make_uuid),
@@ -29,6 +30,11 @@ class Group(DomainObject):
     # not versioned
     def delete(self):
         self.purge()
+
+    def active_packages(self):
+        return Session.query(Package).\
+               filter_by(state=vdm.sqlalchemy.State.ACTIVE).\
+               join('groups').filter_by(id=self.id)
 
     @classmethod
     def search_by_name(self, text_query):

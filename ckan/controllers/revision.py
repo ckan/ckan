@@ -15,7 +15,7 @@ class RevisionController(BaseController):
             # Generate and return Atom 1.0 document.
             from webhelpers.feedgenerator import Atom1Feed
             feed = Atom1Feed(
-                title=_(u'CKAN Package Revision History'),
+                title=_(u'CKAN Repository Revision History'),
                 link=h.url_for(controller='revision', action='list', id=''),
                 description=_(u'Recent changes to the CKAN repository.'),
                 language=unicode(get_lang()),
@@ -34,7 +34,37 @@ class RevisionController(BaseController):
                     dayAge = 0
                 if dayAge >= dayHorizon:
                     break
-                pkgs = u'[%s]' % ' '.join([ p.name for p in revision.packages ])
+                package_indications = []
+                revision_changes = model.repo.list_changes(revision)
+                package_resource_revisions = revision_changes[model.PackageResource]
+                package_extra_revisions = revision_changes[model.PackageExtra]
+                for package in revision.packages:
+                    number = len(package.all_revisions)
+                    package_revision = None
+                    count = 0
+                    for pr in package.all_revisions:
+                        count += 1
+                        if pr.revision.id == revision.id:
+                            package_revision = pr
+                            break
+                    if package_revision and package_revision.state == model.State.DELETED:
+                        transition = 'deleted'
+                    elif package_revision and count == number:
+                        transition = 'created'
+                    else:
+                        transition = 'updated'
+                        for package_resource_revision in package_resource_revisions:
+                            if package_resource_revision.package_id == package.id:
+                                transition += ':resources'
+                                break
+                        for package_extra_revision in package_extra_revisions:
+                            if package_extra_revision.package_id == package.id:
+                                if package_extra_revision.key == 'date_updated':
+                                    transition += ':date_updated'
+                                    break
+                    indication = "%s:%s" % (package.name, transition)
+                    package_indications.append(indication)
+                pkgs = u'[%s]' % ' '.join(package_indications)
                 item_title = u'r%s ' % (revision.id)
                 item_title += pkgs
                 if revision.message:
@@ -86,7 +116,9 @@ class RevisionController(BaseController):
             request.params.getone('oldid'))
         c.revision_to = model.Session.query(model.Revision).get(
             request.params.getone('diff'))
-        c.diff = pkg.diff(c.revision_to, c.revision_from)
+        diff = pkg.diff(c.revision_to, c.revision_from)
+        c.diff = diff.items()
+        c.diff.sort()
         c.pkg = pkg
         return render('revision/diff')
 

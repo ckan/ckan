@@ -52,8 +52,8 @@ class TestUserController(TestController):
         offset = url_for(controller='user', action='login')
         res = self.app.get(offset, status=200)
         assert 'Login' in res, res
-        assert 'use your OpenID' in res
-        assert 'haven\'t already got an OpenID' in res
+        assert 'Please click your account provider' in res, res
+        assert 'Don\'t have an OpenID' in res, res
 
     def test_logout(self):
         offset = url_for(controller='user', action='logout')
@@ -107,7 +107,7 @@ class TestUserController(TestController):
         user = model.User.by_name(u'okfntest')
         if not user:
             user = model.User(name=u'okfntest')
-            model.Session.save(user)
+            model.Session.add(user)
             model.Session.commit()
             model.Session.remove()
 
@@ -125,7 +125,7 @@ class TestUserController(TestController):
         about = u'Test About'
         user = model.User.by_name(unicode(username))
         if not user:
-            model.Session.save(model.User(name=unicode(username), about=about))            
+            model.Session.add(model.User(name=unicode(username), about=about))            
             model.repo.commit_and_remove()
             user = model.User.by_name(unicode(username))
 

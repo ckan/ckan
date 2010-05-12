@@ -1,22 +1,21 @@
     <form action="" method="post"
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:xi="http://www.w3.org/2001/XInclude"
+      py:attrs="{'class':'has-errors'} if c.errors or c.fieldset.errors else {}"
       >
-      ${Markup(c.fieldset.render())}
 
-     <div>
-      <label class="field_opt">Packages</label>
+      ${h.literal(c.fieldset.render())}
+
+     <fieldset>
+      <legend>Packages</legend>
       <py:for each="pkg in c.fieldset.model.packages">
         <input checked="checked" id="Group-packages-current" name="Group-packages-current" type="checkbox" value="${pkg.name}" />
         <label for="Group-packages_${pkg.name}" style="display: inline;">${pkg.name}</label>
       </py:for>
-     </div>
+      <p py:if="not c.fieldset.model.packages">There are no packages currently in this group.</p>
+     </fieldset>
 
-      <h3>
-        New Packages
-      </h3>
-
-      ${Markup(c.fieldset2.render())}
+      ${h.literal(c.fieldset2.render())}
 
       <br/>
       ${h.submit('commit', _('Save'))}

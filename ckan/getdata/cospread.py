@@ -6,6 +6,7 @@ import sqlalchemy
 
 import ckan.model as model
 from ckan.lib import schema_gov
+from ckan.lib import field_types
 
 class Data(object):
     def load_csv_into_db(self, csv_filepath):
@@ -17,8 +18,9 @@ class Data(object):
         self._current_filename = os.path.basename(csv_filepath)
         reader = csv.reader(f_obj)
         index = 0
-        reader.next()
         for row_list in reader:
+            if 'UK Public Data Project' in row_list[0]:
+                reader.next()
             cospread_dict = self._parse_line(row_list, index)
             if cospread_dict:
                 self._load_line_into_db(cospread_dict, index)
@@ -35,7 +37,7 @@ class Data(object):
         # self._resources stores all URLs in this spreadsheet so that if a
         # duplicate package_name is found then previous URLs are added to the
         # record.
-        self._resources = {} # name:[url, {'url':, 'description':}]
+        self._resources = {} # name:[url, {'url':, 'description':, 'format':}]
         self._packages_created = []
         self._packages_updated = []
         
@@ -101,10 +103,18 @@ class Data(object):
 
 # ['name', 'title', 'co identifier', 'notes', 'date released', 'date updated', 'update frequency', 'geographical granularity - standard', 'geographical granularity - other', 'geographic coverage - england', 'geographic coverage - n. ireland', 'geographic coverage - scotland', 'geographic coverage - wales', 'geographic coverage - overseas', 'geographic coverage - global', 'temporal granularity - standard', 'temporal granularity - other', 'file format', 'categories', 'national statistic', 'precision', 'url', 'download url', 'taxonomy url', 'department', 'agency responsible', 'contact - name', 'contact - email', 'maintainer - name', 'maintainer - email', 'licence', 'tags']
 
+    def _name_munge(self, input_name):
+        '''Munges the name field in case it is not to spec.'''
+        return self._munge(input_name.replace(' ', '').replace('.', '_').replace('&', 'and'))
+
+    def _parse_tags(self, tags_str):
+        tag_list = re.split(',\s?|\s', tags_str)
+        return [schema_gov.tag_munge(tag_name) for tag_name in tag_list]
+
     def _load_line_into_db(self, _dict, line_index):
         # Create package
         rev = self._new_revision()
-        name = self._munge(_dict['name'].replace(' ', '').replace('.', '_').replace('&', 'and'))
+        name = self._name_munge(_dict['name'])
         title = _dict['title']
         url = _dict['url']
         notes = _dict['notes']
@@ -117,18 +127,18 @@ class Data(object):
             line_is_just_adding_multiple_resources = False
         multiple_urls = False
         description = _dict.get('download description', u'').strip()
+        format = _dict.get('file format', u'')
         for split_char in '\n, ':
             if split_char in _dict['download url']:
                 for url_ in _dict['download url'].split(split_char):
                     if url_.strip():
-                        resources.append({'url':url_, 'description':description})
+                        resources.append({'url':url_, 'description':description, 'format':format})
                 multiple_urls = True
                 break
         if not multiple_urls and _dict['download url']:
-            resources.append({'url':_dict['download url'], 'description':description})
+            resources.append({'url':_dict['download url'], 'description':description, 'format':format})
         if resources:
             self._resources[name] = resources
-        format = _dict['file format']
             
         author = _dict['author - name']
         author_email = _dict['author - email']
@@ -139,6 +149,10 @@ class Data(object):
             _dict[field] = _dict['%s - other' % field] if \
                            _dict['%s - standard' % field] == 'Other (specify)' else \
                            _dict['%s - standard' % field]
+        license_id = license_map.get(_dict['licence'], '')
+        if not license_id:
+            print 'Warning: license not recognised: %s. Defaulting to UK Crown Copyright.' % _dict['licence']
+            license_name = u'ukcrown'
 
         # extras
         extras_dict = {}
@@ -154,12 +168,14 @@ class Data(object):
         
         for column in ['date released', 'date updated']:
             try:
-                val = schema_gov.DateType.form_to_db(_dict[column])
+                val = field_types.DateType.form_to_db(_dict[column])
             except TypeError, e:
                 print "WARNING: Value for column '%s' of '%s' is not understood as a date format." % (column, _dict[column])
                 val = _dict[column]
             extras_dict[column.replace(' ', '_')] = val
 
+        given_tags = self._parse_tags(_dict['tags'])
+            
         field_map = [
             ['co identifier'],
             ['update frequency'],
@@ -197,10 +213,8 @@ class Data(object):
                     print "WARNING: Value for column '%s' of '%s' is not in suggestions '%s'" % (column, val, suggestions)
             extras_dict[extras_key] = val
         
-        extras_dict['national_statistic'] = _dict['national statistic'].lower()
+        extras_dict['national_statistic'] = u'' # Ignored: _dict['national statistic'].lower()
         extras_dict['import_source'] = 'COSPREAD-%s' % self._current_filename
-
-
         for field in ['temporal_coverage_from', 'temporal_coverage_to']:
             extras_dict[field] = u''
 
@@ -235,9 +249,10 @@ class Data(object):
         pkg.url=url
         pkg.resources = []
         for resource in resources:
-            pkg.add_resource(resource['url'], format=format, description=resource['description'])
+            pkg.add_resource(resource['url'], format=resource['format'], description=resource['description'])
         pkg.notes=notes
-        pkg.license = model.License.by_name(u'Non-OKD Compliant::Crown Copyright')
+        pkg.license_id = license_id
+        assert pkg.license
         if not existing_pkg:
             user = model.User.by_name(self._username)
 
@@ -251,13 +266,15 @@ class Data(object):
         # Update tags
         pkg_dict = {'name':pkg.name, 'title':pkg.title, 'notes':pkg.notes, 'categories':pkg.extras['categories'],
                     'agency':pkg.extras['agency']}
-        taglist = schema_gov.TagSuggester.suggest_tags(pkg_dict)
+        tag_set = schema_gov.TagSuggester.suggest_tags(pkg_dict)
+        for tag in given_tags:
+            tag_set.add(tag)
         current_tags = pkg.tags
-        for name in taglist:
+        for name in tag_set:
             if name not in current_tags:
                 pkg.add_tag_by_name(unicode(name))
         for pkgtag in pkg.package_tags:
-            if pkgtag.tag.name not in taglist:
+            if pkgtag.tag.name not in tag_set:
                 pkgtag.delete()
 
         # Put package in the group
@@ -267,10 +284,8 @@ class Data(object):
         
         model.Session.commit()
 
-    def _tag_munge(self, name):
-        return self._munge(name).replace('_', '-').replace('--', '-')
-
     def _munge(self, name):
+        '''Munge a title into a name'''
         # convert spaces to underscores
         name = re.sub(' ', '_', name).lower()        
         # convert symbols to dashes
@@ -295,6 +310,8 @@ class Data(object):
         if not group:
             group = model.Group(name=self._groupname)
             model.Session.add(group)
+            user = model.User.by_name(self._username)
+            model.setup_default_user_roles(group, [user])
 
     def _new_revision(self):
         # Revision info
@@ -303,5 +320,10 @@ class Data(object):
         rev.log_message = u'Load from cospread database'
         return rev
 
+license_map = {
+    u'UK Crown Copyright with data.gov.uk rights':u'ukcrown-withrights',
+    u'\xa9 HESA. Not core Crown Copyright.':u'hesa-withrights',
+    u'UK Crown Copyright':u'ukcrown',
+    u'Crown Copyright':u'ukcrown', }
 #agencies_raw = ['Health Protection Agency', 'Office for National Statistics', 'Census', 'Performance Assessment Framework', 'Annual Population Survey', 'Annual Survey of Hours and Earnings', 'Business Registers Unit', 'UK Hydrographic Office', 'Defence Analytical Services and Advice', 'Housing and Communities Agency', 'Tenants Service Authority', 'Higher Education Statistics Agency']
 geographic_regions = ['england', 'n. ireland', 'scotland', 'wales', 'overseas', 'global']

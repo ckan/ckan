@@ -8,6 +8,7 @@ import ckan.getdata.cospread as data_getter
 test_data=os.path.join(config['here'], 'ckan/tests/getdata/samples/cospread.csv')
 test_data2=os.path.join(config['here'], 'ckan/tests/getdata/samples/cospread2.csv')
 test_data3=os.path.join(config['here'], 'ckan/tests/getdata/samples/cospread3.csv') # slightly altered format 29-1-2010
+test_data4=os.path.join(config['here'], 'ckan/tests/getdata/samples/cospread4.csv') # slightly altered csv format 15-3-2010
 
 class TestBasic:
     @classmethod
@@ -24,13 +25,25 @@ class TestBasic:
         self.data.load_csv_into_db(test_data)
         assert model.Session.query(model.Package).count() == 3, model.Session.query(model.Package).count()
 
-    def test_name_munge(self):
+    def test_munge(self):
         def test_munge(title, expected_munge):
             munge = self.data._munge(title)
             assert munge == expected_munge, 'Got %s not %s' % (munge, expected_munge)
         test_munge('Adult participation in learning', 'adult_participation_in_learning')
         test_munge('Alcohol Profile: Alcohol-specific hospital admission, males', 'alcohol_profile_-_alcohol-specific_hospital_admission_males')
         test_munge('Age and limiting long-term illness by NS-SeC', 'age_and_limiting_long-term_illness_by_ns-sec')
+
+    def test_parse_tags(self):
+        def test_parse(tag_str, expected_tags):
+            tags = self.data._parse_tags(tag_str)
+            assert tags == expected_tags, 'Got %s not %s' % (tags, expected_tags)
+        test_parse('one two three', ['one', 'two', 'three'])
+        test_parse('one, two, three', ['one', 'two', 'three'])
+        test_parse('one,two,three', ['one', 'two', 'three'])
+        test_parse('one-two,three', ['one-two', 'three'])
+        test_parse('One, two&three', ['one', 'twothree'])
+        test_parse('One, two_three', ['one', 'two-three'])
+        
 
 class TestData:
     @classmethod
@@ -49,6 +62,8 @@ class TestData:
         pkg2 = model.Session.query(model.Package).filter_by(name=u'provision-children-under-5-england-2009').one()
         pkg3 = model.Session.query(model.Package).filter_by(name=u'laboratory-tests-and-prices').one()
         assert pkg1
+        assert pkg2
+        assert pkg3
         assert pkg1.title == 'Child Protection Plan', pkg1.title
         assert pkg1.extras['external_reference'] == u'DCSF-DCSF-0017', pkg1.extras
         assert pkg1.notes.startswith(u'Referrals, assessment and children and young people who are the subjects of child protection plans (on the child protection register) for year ending March 2009'), pkg1.notes
@@ -64,11 +79,14 @@ class TestData:
         assert 'Geographical granularity:' not in pkg1.notes, pkg1.notes
         tag_names = set()
         [tag_names.add(tag.name) for tag in pkg1.tags]
-        assert 'england' not in tag_names, tag_names
+        for tag in ['dcsf', 'england', 'child-protection-plan-statistics', 'referrals', 'assessments', 'child-protection-register']:
+            assert tag in tag_names, '%s not in %s' % (tag, tag_names)
+        for tag in ['child-protection']:
+            assert tag in tag_names, '%s not in %s' % (tag, tag_names)
         assert 'northern_ireland' not in tag_names, tag_names
         assert pkg1.extras['temporal_granularity'] == u'years', pkg1.extras
         assert 'Temporal granularity:' not in pkg1.notes, pkg1.notes
-        assert pkg1.extras['national_statistic'] == u'yes', pkg1.extras
+        assert pkg1.extras['national_statistic'] == u'' #u'yes', pkg1.extras
         assert 'National statistic:' not in pkg1.notes, pkg1.notes
         val = u'Numbers rounded to nearest 100 if over 1,000, and to the nearest 10 otherwise.  Percentage to nearest whole number.'
         assert pkg1.extras['precision'] == val, pkg1.extras
@@ -96,9 +114,10 @@ class TestData:
         assert pkg1.author_email == 'statistics@dcsf.gsi.gov.uk', pkg1.author_email
         assert not pkg1.maintainer, pkg1.maintainer
         assert not pkg1.maintainer_email, pkg1.maintainer_email
-        assert 'Crown Copyright' in pkg.license.name, pkg.license.name
-        for tag in ['child-protection']:
-            assert tag in tag_names, '%s not in %s' % (tag, tag_names)
+        assert pkg1.license_id == u'ukcrown', pkg1.license_id
+        assert pkg3.license_id == u'ukcrown-withrights', pkg3.license_id
+        assert 'UK Crown' in pkg1.license['title'], pkg1.license['title']
+        assert pkg3.license_id == u'ukcrown-withrights', pkg3.license_id
 
         assert model.Group.by_name(u'ukgov') in pkg1.groups
         assert pkg1.extras['import_source'].startswith('COSPREAD'), pkg1.extras['import_source']
@@ -141,6 +160,7 @@ class TestData3:
         names = [pkg.name for pkg in model.Session.query(model.Package).all()]
         pkg1 = model.Package.by_name(u'judicial-and-court-statistics-england-and-wales')
         pkg2 = model.Package.by_name(u'england-nhs-connecting-for-health-organisation-data-service-data-files-of-nhsorganisations')
+        pkg3 = model.Session.query(model.Package).filter_by(name=u'uk-he-enrolments-by-subject-200708').one()
         assert pkg1
         assert pkg2
         assert pkg1.title == 'Judicial and Court Statistics', pkg1.title
@@ -153,7 +173,7 @@ class TestData3:
         assert pkg1.extras['geographic_coverage'] == '101000: England, Wales', pkg.extras['geographic_coverage']
         assert pkg1.extras['temporal_granularity'] == u'years', pkg1.extras
         assert pkg1.extras['categories'] == u'Crime and Justice', pkg1.extras
-        assert pkg1.extras['national_statistic'] == u'no', pkg1.extras
+        assert pkg1.extras['national_statistic'] == u'', pkg1.extras
         assert pkg1.extras['precision'] == r'Unrounded whole numbers / %ages generally to nearest %', pkg1.extras
         assert pkg1.url == 'http://www.justice.gov.uk/publications/judicialandcourtstatistics.htm', pkg1.url
         assert len(pkg1.resources) == 0, pkg1.resources
@@ -174,7 +194,8 @@ class TestData3:
         assert pkg1.author_email == 'statistics.enquiries@justice.gsi.gov.uk', pkg1.author_email
         assert not pkg1.maintainer, pkg1.maintainer
         assert not pkg1.maintainer_email, pkg1.maintainer_email
-        assert 'Crown Copyright' in pkg.license.name, pkg.license.name
+        assert pkg1.license_id == u'ukcrown', pkg1.license_id
+        assert pkg3.license_id == u'hesa-withrights', pkg3.license_id
         tag_names = set()
         [tag_names.add(tag.name) for tag in pkg1.tags]
         for tag in []:
@@ -183,3 +204,22 @@ class TestData3:
         assert model.Group.by_name(u'ukgov') in pkg1.groups
         assert pkg1.extras['import_source'].startswith('COSPREAD'), pkg1.extras['import_source']
         
+class TestData4:
+    @classmethod
+    def setup_class(self):
+        data = data_getter.Data()
+        data.load_csv_into_db(test_data4)
+
+    @classmethod
+    def teardown_class(self):
+        model.Session.remove()
+        model.repo.rebuild_db()
+
+    def test_fields(self):
+        names = [pkg.name for pkg in model.Session.query(model.Package).all()]
+        assert names == ['dfid-projects']
+        pkg1 = model.Package.by_name(u'dfid-projects')
+        assert pkg1.title == u'DFID Project Information', pkg1.title
+        assert pkg1.notes == u'Information about aid projects funded by the Department for International Development. The dataset contains project descriptions, dates, purposes, locations, sectors, summary financial data and whether or not conditions are attached.', pkg1.notes
+        assert pkg.license_id == u'ukcrown-withrights', pkg.license_id
+

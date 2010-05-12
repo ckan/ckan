@@ -1,33 +1,34 @@
     <form action="" method="post"
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:xi="http://www.w3.org/2001/XInclude"
+      py:attrs="{'class':'has-errors'} if c.errors or c.fieldset.errors else {}"
       >
-      <script type="text/javascript" src="/scripts/flexitable.js"></script>
 
       ${c.form}
 
 
       <hr />
 
-      <label for="log_message">Optional Log Message about this Change:</label>
-      <p class="desc">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.</p>
-      <textarea id="log_message" rows="3" name="log_message" cols="60">${c.log_message}</textarea>
+      <label for="log_message">Optional log message about this change:</label>
+      <textarea id="log_message" rows="3" name="log_message" cols="60" class="short">${c.log_message}</textarea>
+      <p class="small">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.</p>
 
-      <label>Author: ${c.author}</label>
+      <p>Author: ${c.author}</p>
       <p class="desc">
       If you have not signed in this will just be your IP address.<br />
       <a href="${h.url_for(controller='user',action='login',id=None)}" target="_blank">Click here to sign in</a> before submitting (opens in new window).
       </p>
+      
+      <p>
+        <input name="preview" type="submit" value="Preview" />
+        ${h.submit('commit', _('Commit'))}
+      </p>
 
-      <input name="preview" type="submit" value="Preview" />
-      ${h.submit('commit', _('Commit'))}
-
-      <label>Please Note:</label>
+      <p>Please Note:</p>
       <ul class="desc">
         <li>By submitting content, you agree to release your contributions
         under the open license specified on the ${h.link_to('license page',
-        h.url_for(str('/license')))} (essentially Creative Commons
-        Attribution-Share Alike v3.0).</li>
+        h.url_for(str('/license')))} (basically Attribution-ShareAlike).</li>
         <li>If you are not happy for this to occur please refrain from editing
         this page.</li>
       </ul>

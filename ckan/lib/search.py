@@ -4,7 +4,8 @@ import simplejson
 from pylons import config
 
 import ckan.model as model
-from licenses import LicenseList
+
+from ckan import authz
 
 ENABLE_CACHING = bool(config.get('enable_caching', ''))
 LIMIT_DEFAULT = 20
@@ -60,7 +61,7 @@ class Search:
         options = SearchOptions({'q':query_string})
         return self.run(options)
 
-    def query(self, options):
+    def query(self, options, username=None):
         '''For the given search options, returns a query object.'''
         self._options = options
         general_terms, field_specific_terms = self._parse_query_string()
@@ -70,19 +71,21 @@ class Search:
             return None
 
         if self._options.entity == 'package':
-            query = self._build_package_query(general_terms, field_specific_terms)
+            query = authz.Authorizer().authorized_query(username, model.Package)
+            query = self._build_package_query(query, general_terms, field_specific_terms)
         elif self._options.entity == 'tag':
             query = self._build_tags_query(general_terms)
         elif self._options.entity == 'group':
-            query = self._build_groups_query(general_terms)
+            query = authz.Authorizer().authorized_query(username, model.Group)
+            query = self._build_groups_query(query, general_terms)
         else:
             # error
             pass
         return query
 
-    def run(self, options):
+    def run(self, options, username=None):
         '''For the given search options, returns query results.'''
-        query = self.query(options)
+        query = self.query(options, username)
 
         self._results = {}
         if not query:
@@ -151,9 +154,10 @@ class Search:
         
         return general_terms, field_specific_terms
 
-    def _build_package_query(self, general_terms, field_specific_terms):
+    def _build_package_query(self, authorized_package_query,
+                             general_terms, field_specific_terms):
         make_like = lambda x,y: x.ilike('%' + y + '%')
-        query = model.Session.query(model.Package)
+        query = authorized_package_query
         query = query.filter(model.package_search_table.c.package_id==model.Package.id)
 
         # Full search by general_terms (and field specific terms but not by field)
@@ -186,7 +190,7 @@ class Search:
 
         # Filter for options
         if self._options.filter_by_downloadable:
-            query = query.join('resources', aliased=True).\
+            query = query.join('package_resources_all', aliased=True).\
                     filter(sqlalchemy.and_(
                 model.PackageResource.state==model.State.ACTIVE,
                 model.PackageResource.package_id==model.Package.id))
@@ -206,7 +210,6 @@ class Search:
                 raise NotImplemented
 
         query = query.distinct()
-        query = query.filter(model.Package.state == model.State.ACTIVE)
         return query
 
     def _build_tags_query(self, general_terms):
@@ -215,8 +218,8 @@ class Search:
             query = query.filter(model.Tag.name.contains(term.lower()))
         return query
 
-    def _build_groups_query(self, general_terms):
-        query = model.Session.query(model.Group)
+    def _build_groups_query(self, authorized_package_query, general_terms):
+        query = authorized_package_query
         for term in general_terms:
             query = query.filter(model.Group.name.contains(term.lower()))
         return query
@@ -273,12 +276,11 @@ class Search:
             )).filter(make_like(model.PackageExtra.value, value))
         return query
         
-    def _update_open_licenses(self):
+    def _update_open_licenses(self):  # Update, or init?
         self._open_licenses = []
-        for license_name in LicenseList.all_formatted:
-            _license = model.License.by_name(license_name, autoflush=False)
-            if _license and _license.isopen():                
-                self._open_licenses.append(_license.id)
+        for license in model.Package.get_license_register().values():
+            if license and license.isopen():
+                self._open_licenses.append(license.id)
 
     def _format_results(self):
         if not self._options.return_objects:

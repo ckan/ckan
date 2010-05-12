@@ -10,17 +10,32 @@ class TextFormat(object):
 class MarkdownFormat(TextFormat):
     internal_link = re.compile('(package|tag|group):([a-z0-9\-_]+)')
     normal_link = re.compile('<(http:[^>]+)>')
+
+    html_whitelist = 'a b center li ol p table td tr ul'.split(' ')
+    whitelist_elem = re.compile(r'<(\/?(%s)[^>]*)>' % "|".join(html_whitelist), re.IGNORECASE)
+    whitelist_escp = re.compile(r'\\xfc\\xfd(\/?(%s)[^>]*?)\\xfd\\xfc' % "|".join(html_whitelist), re.IGNORECASE)
     
-    def to_html(self, instr):
-        if instr is None:
+    def to_html(self, text):
+        if text is None:
             return ''
         
-        # Convert internal links
-        instr = self.internal_link.sub(r'[\1:\2] (/\1/read/\2)', instr)
+        # Encode whitelist elements.
+        text = self.whitelist_elem.sub(r'\\\\xfc\\\\xfd\1\\\\xfd\\\\xfc', text)
 
-        # Convert <link> to markdown format
-        instr = self.normal_link.sub(r'[\1] (\1)', instr)
+        # Convert internal links.
+        text = self.internal_link.sub(r'[\1:\2] (/\1/read/\2)', text)
 
-        # Markdown to HTML
-        return webhelpers.markdown.markdown(instr, safe_mode=True)
+        # Convert <link> to markdown format.
+        text = self.normal_link.sub(r'[\1] (\1)', text)
+
+        # Convert <link> to markdown format.
+        text = self.normal_link.sub(r'[\1] (\1)', text)
+
+        # Markdown to HTML.
+        text = webhelpers.markdown.markdown(text, safe_mode=True)
+
+        # Decode whitelist elements.
+        text = self.whitelist_escp.sub(r'<\1>', text)
+
+        return text
 

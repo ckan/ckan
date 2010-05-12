@@ -29,10 +29,8 @@ class TestHomeController(TestController):
         assert 'The code that runs CKAN is open-source' in res
 
     def test_guide(self):
-        offset = url_for('guide')
-        res = self.app.get(offset)
-        print str(res)
-        assert 'CKAN Guide' in res
+        url = url_for('guide')
+        assert url == 'http://wiki.okfn.org/ckan/doc/'
 
     def test_search_packages(self):
         offset = url_for('home')
