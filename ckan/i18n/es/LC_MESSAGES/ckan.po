@@ -504,11 +504,11 @@ msgstr ""
 
 #: ckan/forms/package_ca.py:53
 msgid "What level of government produced this data?"
-msgstr ""
+msgstr "A qué nivel de administración se han generado estos datos?"
 
 #: ckan/forms/package_ca.py:54
 msgid "Federal Ministry (if applicable)"
-msgstr ""
+msgstr "Ministerio federal (si es posible)"
 
 #: ckan/forms/package_ca.py:54
 msgid "Indicate the ministry responsible for the data."
@@ -536,47 +536,47 @@ msgstr ""
 
 #: ckan/forms/package_ca.py:82
 msgid "Level of government"
-msgstr ""
+msgstr "Nivel de administración"
 
 #: ckan/forms/package_ca.py:83
 msgid "Federal Ministry"
-msgstr ""
+msgstr "Ministerio federal"
 
 #: ckan/forms/package_ca.py:83
 msgid "Federal Agency"
-msgstr ""
+msgstr "Agencia federal"
 
 #: ckan/forms/package_gov.py:100 ckan/forms/package_gov.py:128
 msgid "National Statistic"
-msgstr ""
+msgstr "Estadística nacional"
 
 #: ckan/forms/package_gov.py:109 ckan/templates/package/read_core.html:63
 msgid "Details"
-msgstr ""
+msgstr "Detalles"
 
 #: ckan/forms/package_gov.py:115
 msgid "More details"
-msgstr ""
+msgstr "Más detalles"
 
 #: ckan/forms/package_gov.py:125
 msgid "External reference"
-msgstr ""
+msgstr "Referencia externa"
 
 #: ckan/forms/package_gov.py:126
 msgid "Geographic granularity"
-msgstr ""
+msgstr "Granularidad geográfica"
 
 #: ckan/forms/package_gov.py:127
 msgid "Geographic coverage"
-msgstr ""
+msgstr "Cobertura geográfica"
 
 #: ckan/forms/package_gov.py:127
 msgid "Temporal granularity"
-msgstr ""
+msgstr "Granularidad temporal"
 
 #: ckan/forms/package_gov.py:128
 msgid "Temporal coverage"
-msgstr ""
+msgstr "Cobertura temporal"
 
 #: ckan/forms/package_gov.py:128
 msgid "Categories"
