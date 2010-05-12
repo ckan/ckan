@@ -1782,23 +1782,23 @@ msgstr ""
 
 #: ckan/templates/revision/diff.html:9
 msgid "From:"
-msgstr ""
+msgstr "De:"
 
 #: ckan/templates/revision/diff.html:13
 msgid "To:"
-msgstr ""
+msgstr "A:"
 
 #: ckan/templates/revision/diff.html:20
 msgid "Field"
-msgstr ""
+msgstr "Campo"
 
 #: ckan/templates/revision/diff.html:20
 msgid "Difference"
-msgstr ""
+msgstr "Diferencias"
 
 #: ckan/templates/revision/diff.html:28
 msgid "No differences"
-msgstr ""
+msgstr "Sin diferencias"
 
 #: ckan/templates/revision/layout.html:8
 msgid "CKAN Atom Feed"
@@ -1822,7 +1822,7 @@ msgstr ""
 
 #: ckan/templates/revision/list.html:16
 msgid "Number"
-msgstr ""
+msgstr "Número"
 
 #: ckan/templates/revision/purge.html:4
 msgid "Revisions - Purge"
@@ -1842,7 +1842,7 @@ msgstr ""
 
 #: ckan/templates/revision/read.html:7
 msgid "Revision:"
-msgstr ""
+msgstr "Revisión:"
 
 #: ckan/templates/revision/read.html:14
 msgid "Timestamp:"
@@ -1854,7 +1854,7 @@ msgstr ""
 
 #: ckan/templates/revision/read.html:19
 msgid "Changes"
-msgstr ""
+msgstr "Cambios"
 
 #: ckan/templates/revision/read.html:29
 msgid "Packages' Tags"
