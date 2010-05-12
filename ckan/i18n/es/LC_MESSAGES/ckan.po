@@ -1965,7 +1965,7 @@ msgstr ""
 #: ckan/templates/user/openid_form.html:37
 #: ckan/templates/user/openid_form.html:46
 msgid "and"
-msgstr ""
+msgstr "y"
 
 #: ckan/templates/user/openid_form.html:37
 msgid "how to get an OpenID enabled account"
@@ -2009,7 +2009,7 @@ msgstr ""
 
 #: ckan/templates/user/read.html:12
 msgid "My Account"
-msgstr ""
+msgstr "Mi cuenta"
 
 #: ckan/templates/user/read.html:13
 msgid "You are logged in."
@@ -2017,7 +2017,7 @@ msgstr ""
 
 #: ckan/templates/user/read.html:13
 msgid "Log out"
-msgstr ""
+msgstr "Salir"
 
 #: ckan/templates/user/read.html:15
 msgid "View your API key"
@@ -2025,7 +2025,7 @@ msgstr ""
 
 #: ckan/templates/user/read.html:28
 msgid "Activity"
-msgstr ""
+msgstr "Actividad"
 
 #: ckan/templates/user/read.html:30
 msgid "Number of edits:"
