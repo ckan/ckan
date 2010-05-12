@@ -640,7 +640,7 @@ msgstr ""
 #: ckan/templates/error_document_template.html:4
 #, python-format
 msgid "Error %(code)s"
-msgstr ""
+msgstr "Error %(code)s"
 
 #: ckan/templates/error_document_template.html:6
 #, python-format
@@ -649,7 +649,7 @@ msgstr "%(message)s"
 
 #: ckan/templates/layout.html:11
 msgid "CKAN - Comprehensive Knowledge Archive Network -"
-msgstr ""
+msgstr "CKAN - Comprehensive Knowledge Archive Network -"
 
 #: ckan/templates/layout.html:19
 msgid "CKAN Recent Changes"
@@ -746,41 +746,43 @@ msgstr "Contacta con nostros"
 
 #: ckan/templates/layout.html:114
 msgid "Privacy Policy"
-msgstr ""
+msgstr "Política de privacidad"
 
 #: ckan/templates/layout.html:117
 msgid "An"
-msgstr ""
+msgstr "Un"
 
 #: ckan/templates/layout.html:117 ckan/templates/home/about.html:46
 msgid "Open Knowledge Foundation"
-msgstr ""
+msgstr "Open Knowledge Foundation"
 
 #: ckan/templates/layout.html:117
 msgid "Project"
-msgstr ""
+msgstr "Proyecto"
 
 #: ckan/templates/layout.html:119
 msgid "v"
-msgstr ""
+msgstr "v"
 
 #: ckan/templates/layout.html:120
 msgid ""
 "| (c) Open Knowledge Foundation\n"
 "\t| All material available under an"
 msgstr ""
+"| (c) Open Knowledge Foundation\n"
+"\t| Todo los materiales están disponibles bajo una"
 
 #: ckan/templates/layout.html:122 ckan/templates/package/search_form.html:7
 msgid "open license"
-msgstr ""
+msgstr "licencia abierta"
 
 #: ckan/templates/layout.html:123 ckan/templates/layout.html:127
 msgid "This Content and Data is Open"
-msgstr ""
+msgstr "Estos contenidos y estos datos son abiertos"
 
 #: ckan/templates/group/authz.html:4
 msgid "Groups - Authorization -"
-msgstr ""
+msgstr "Grupos - Autorización -"
 
 #: ckan/templates/group/authz.html:7
 msgid "Authorization for group:"
@@ -792,42 +794,42 @@ msgstr ""
 
 #: ckan/templates/group/authz.html:19 ckan/templates/package/authz.html:19
 msgid "Create New User Roles"
-msgstr ""
+msgstr "Crear nuevos roles de usuario"
 
 #: ckan/templates/group/authz.html:24 ckan/templates/group/edit_form.html:24
 #: ckan/templates/package/authz.html:24
 msgid "Save"
-msgstr ""
+msgstr "Guardar"
 
 #: ckan/templates/group/edit.html:4
 msgid "Groups - Edit -"
-msgstr ""
+msgstr "Grupos - Editar"
 
 #: ckan/templates/group/edit.html:11
 msgid "Edit Group:"
-msgstr ""
+msgstr "Editar grupo"
 
 #: ckan/templates/group/edit_form.html:17
 msgid "New Packages"
-msgstr ""
+msgstr "Nuevos paquetes"
 
 #: ckan/templates/group/index.html:4
 msgid "Groups - Index"
-msgstr ""
+msgstr "Grupos - Índice"
 
 #: ckan/templates/group/index.html:9 ckan/templates/group/read.html:40
 #: ckan/templates/package/index.html:13 ckan/templates/tag/index.html:18
 #: ckan/templates/tag/index.html:21 ckan/templates/tag/read.html:8
 msgid "There are"
-msgstr ""
+msgstr "Hay"
 
 #: ckan/templates/group/index.html:9
 msgid "groups."
-msgstr ""
+msgstr "grupos"
 
 #: ckan/templates/group/layout.html:10
 msgid "Groups section"
-msgstr ""
+msgstr "Sección de grupos"
 
 #: ckan/templates/group/layout.html:11
 msgid "Whilst tags are great at collecting packages together, there are occasions when you want to restrict users from editing a collection. A"
@@ -835,7 +837,7 @@ msgstr ""
 
 #: ckan/templates/group/layout.html:11
 msgid "group"
-msgstr ""
+msgstr "grupo"
 
 #: ckan/templates/group/layout.html:11
 msgid "can be set-up to specify which users have permission to add or remove packages from it."
@@ -847,31 +849,31 @@ msgstr ""
 
 #: ckan/templates/group/layout.html:12
 msgid "login"
-msgstr ""
+msgstr "entrar"
 
 #: ckan/templates/group/layout.html:13 ckan/templates/group/layout.html:19
 msgid "Create a new group"
-msgstr ""
+msgstr "Crear un nuevo grupo"
 
 #: ckan/templates/group/new.html:4
 msgid "Groups - New"
-msgstr ""
+msgstr "Grupos - Nuevo"
 
 #: ckan/templates/group/new.html:11
 msgid "New Group"
-msgstr ""
+msgstr "Nuevo grupo"
 
 #: ckan/templates/group/read.html:4
 msgid "Groups -"
-msgstr ""
+msgstr "Grupos -"
 
 #: ckan/templates/group/read.html:10
 msgid "No Title"
-msgstr ""
+msgstr "Sín título"
 
 #: ckan/templates/group/read.html:18
 msgid "[edit]"
-msgstr ""
+msgstr "[editar]"
 
 #: ckan/templates/group/read.html:21
 msgid "[authorization]"
