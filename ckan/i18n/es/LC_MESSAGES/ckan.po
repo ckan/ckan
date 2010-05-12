@@ -645,7 +645,7 @@ msgstr ""
 #: ckan/templates/error_document_template.html:6
 #, python-format
 msgid "%(message)s"
-msgstr ""
+msgstr "%(message)s"
 
 #: ckan/templates/layout.html:11
 msgid "CKAN - Comprehensive Knowledge Archive Network -"
