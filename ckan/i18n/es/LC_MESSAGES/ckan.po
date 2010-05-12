@@ -996,7 +996,7 @@ msgstr ""
 
 #: ckan/templates/home/about.html:35
 msgid "not code."
-msgstr ""
+msgstr "sin código"
 
 #: ckan/templates/home/about.html:38
 msgid ""
@@ -1066,7 +1066,7 @@ msgstr "Nick Stenning"
 
 #: ckan/templates/home/about.html:58
 msgid "(css and js)"
-msgstr ""
+msgstr "(css y js)"
 
 #: ckan/templates/home/about.html:59
 msgid "John Bywater"
@@ -1077,12 +1077,14 @@ msgid "CKAN logo: \""
 msgstr ""
 
 #: ckan/templates/home/about.html:60
+#, fuzzy
 msgid "angry"
-msgstr ""
+msgstr "angry"
 
 #: ckan/templates/home/about.html:60
+#, fuzzy
 msgid "hamster"
-msgstr ""
+msgstr "hamster"
 
 #: ckan/templates/home/about.html:61
 msgid "famfamfam.com for silk icons"
@@ -1090,11 +1092,11 @@ msgstr ""
 
 #: ckan/templates/home/about.html:62
 msgid "Pylons"
-msgstr ""
+msgstr "Pylons"
 
 #: ckan/templates/home/about.html:63
 msgid "Genshi"
-msgstr ""
+msgstr "Genshi"
 
 #: ckan/templates/home/guide.html:4
 msgid "Guide"
@@ -1270,15 +1272,15 @@ msgstr ""
 
 #: ckan/templates/home/license.html:29
 msgid "http://www.ckan.net/dump/"
-msgstr ""
+msgstr "http://www.ckan.net/dump/"
 
 #: ckan/templates/home/stats.html:4
 msgid "Stats"
-msgstr ""
+msgstr "Estad"
 
 #: ckan/templates/home/stats.html:12
 msgid "Statistics"
-msgstr ""
+msgstr "Estadísticas"
 
 #: ckan/templates/home/stats.html:14
 msgid "Total number of packages"
@@ -1294,7 +1296,7 @@ msgstr ""
 
 #: ckan/templates/home/stats.html:71 ckan/templates/home/stats.html:79
 msgid "Package"
-msgstr ""
+msgstr "Paquete"
 
 #: ckan/templates/home/stats.html:71
 msgid "Average rating"
@@ -1434,7 +1436,7 @@ msgstr ""
 
 #: ckan/templates/package/form_extra_fields.html:21
 msgid "Delete"
-msgstr ""
+msgstr "Borrar"
 
 #: ckan/templates/package/form_extra_fields.html:25
 msgid "with value"
@@ -1443,7 +1445,7 @@ msgstr ""
 #: ckan/templates/package/form_resources.html:6
 #: ckan/templates/package/read_core.html:36
 msgid "Format"
-msgstr ""
+msgstr "Formato"
 
 #: ckan/templates/package/form_resources.html:6
 #: ckan/templates/package/read_core.html:36
@@ -1544,7 +1546,7 @@ msgstr ""
 
 #: ckan/templates/package/list.html:15
 msgid "Resources available"
-msgstr ""
+msgstr "Recursos disponibles"
 
 #: ckan/templates/package/list.html:16
 msgid "Click on the arrow to show the package resources."
@@ -1564,7 +1566,7 @@ msgstr ""
 
 #: ckan/templates/package/new.html:4
 msgid "Packages - New"
-msgstr ""
+msgstr "Paquetes - nuevo"
 
 #: ckan/templates/package/new.html:19
 msgid "Register a New Package"
@@ -1732,7 +1734,7 @@ msgstr ""
 
 #: ckan/templates/package/search.html:6
 msgid "Packages - Search"
-msgstr ""
+msgstr "Paquetes - Búsqueda"
 
 #: ckan/templates/package/search.html:9
 msgid "Search packages"
