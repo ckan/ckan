@@ -487,7 +487,7 @@ class RestController(BaseController):
     def _finish_ok(self, response_data=None):
         response.status_int = 200
         response.headers['Content-Type'] = 'application/json'
-        if response_data:
+        if response_data is not None:
             return simplejson.dumps(response_data)
         else:
             return ''
