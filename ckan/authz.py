@@ -31,6 +31,15 @@ class Authorizer(object):
 
     @classmethod
     def is_authorized(cls, username, action, domain_object):
+        '''Authorize `action` by `username` on `domain_object`.
+        
+        :param username: a user identifier (may be e.g. an IP address).
+        :param action: a ckan.model.authz.Action enumeration.
+        :param domain_object: the domain object instance (or class/type in the
+            case of e.g. 'create' action).
+
+        :returns: True or False
+        '''
         if isinstance(username, str):
             username = username.decode('utf8')
         assert isinstance(username, unicode), type(username)
