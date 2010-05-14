@@ -608,6 +608,16 @@ class TestRest(TestController):
         res = self.app.delete(offset, status=[404],
                               extra_environ=self.extra_environ)
 
+    def test_14_list_revisions(self):
+        # Check mock register behaviour.
+        offset = '/api/rest/revision'
+        res = self.app.get(offset, status=200)
+        revs = model.Session.query(model.Revision).all()
+        assert revs, "There are no revisions in the model."
+        res_dict = simplejson.loads(res.body)
+        for rev in revs:
+            assert rev.id in res_dict, (rev.id, res_dict)
+
     def test_14_get_revision(self):
         rev = model.Revision.youngest(model.Session)
         offset = '/api/rest/revision/%s' % rev.id
@@ -1076,29 +1086,34 @@ class TestSearch(TestController):
         assert len(res_dict['results']) == 1, res_dict
         assert res_dict['results'][0]['name'] == 'warandpeace', res_dict['results'][0]['name']
 
-    def test_12_search_revision(self):
+    def test_12_search_revision_basic(self):
         offset = '/api/search/revision'
-        res = self.app.get(offset, status=200)
-        revs = model.Session.query(model.Revision).all()
-        res_dict = simplejson.loads(res.body)
-        for rev in revs:
-            print rev
-            assert rev.id in res_dict, (rev.id, res_dict)
+        # Check bad request.
+        self.app.get(offset, status=400)
+        self.app.get(offset+'?since_rev=2010-01-01T00:00:00', status=400)
+        self.app.get(offset+'?since_revision=2010-01-01T00:00:00', status=400)
+        self.app.get(offset+'?since_id=', status=400)
 
     def test_12_search_revision_since_rev(self):
         offset = '/api/search/revision'
         revs = model.Session.query(model.Revision).all()
         rev_first = revs[-1]
-        params = "?since_rev=%s" % str(rev_first.id)
+        params = "?since_id=%s" % str(rev_first.id)
         res = self.app.get(offset+params, status=200)
         res_list = simplejson.loads(res.body)
         assert rev_first.id not in res_list
         for rev in revs[:-1]:
             assert rev.id in res_list, (rev.id, res_list)
+        rev_last = revs[0]
+        params = "?since_id=%s" % str(rev_last.id)
+        res = self.app.get(offset+params, status=200)
+        res_list = simplejson.loads(res.body)
+        assert res_list == [], res_list
 
     def test_12_search_revision_since_time(self):
         offset = '/api/search/revision'
         revs = model.Session.query(model.Revision).all()
+        # Check since time of first.
         rev_first = revs[-1]
         params = "?since_time=%s" % model.strftimestamp(rev_first.timestamp)
         res = self.app.get(offset+params, status=200)
@@ -1106,6 +1121,15 @@ class TestSearch(TestController):
         assert rev_first.id not in res_list
         for rev in revs[:-1]:
             assert rev.id in res_list, (rev.id, res_list)
+        # Check since time of last.
+        rev_last = revs[0]
+        params = "?since_time=%s" % model.strftimestamp(rev_last.timestamp)
+        res = self.app.get(offset+params, status=200)
+        res_list = simplejson.loads(res.body)
+        assert res_list == [], res_list
+        # Check bad format.
+        params = "?since_time=2010-04-31T23:45"
+        self.app.get(offset+params, status=400)
 
     def test_strftimestamp(self):
         import datetime
