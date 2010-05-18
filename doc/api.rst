@@ -234,7 +234,7 @@ Data Formats
 | License         | { id: Name-String, title: String, is_okd_compliant:        |
 |                 | Boolean, is_osi_compliant: Boolean, tags: Tag-List,        |
 |                 | family: String, url: String, maintainer: String,           |
-|                 | date_created: Date-Time, status: String ]                  |
+|                 | date_created: Date-Time, status: String }                  |
 +-----------------+------------------------------------------------------------+
 | Name-String     | An alphanumeric string.                                    |
 +-----------------+------------------------------------------------------------+
