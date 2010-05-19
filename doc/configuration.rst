@@ -99,3 +99,24 @@ Example::
  lang=de
 
 Use this to specify the default language of the text displayed in the CKAN web UI. The default is English (en).
+
+
+messaging_library
+-----------------
+
+Example::
+
+ messaging_library=pyamqplib
+
+This is the messaging library backend to use. Options::
+
+ * pyamqplib - AMQP (e.g. for RabbitMQ)
+
+ * pika - alternative AMQP
+
+ * stomp - python-stomp
+
+ * queue - native Python Queue (default)
+
+See carrot documentation for details.
+

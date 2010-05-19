@@ -73,6 +73,11 @@ package_form = standard
 ## called layout.html)
 # extra_template_paths = %(here)s/my-extra-templates
 
+# Messaging module used by carrot:
+# * pyamqplib - AMQP (e.g. for RabbitMQ)
+# * queue - native Python Queue
+messaging_library = queue
+
 # Logging configuration
 [loggers]
 keys = root

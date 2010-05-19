@@ -40,10 +40,11 @@ Here's an example for deploying CKAN to http://demo.ckan.net/ via Apache.
     * pip v0.7.1 or later
 
 
-NB: Instead of using these manual instructions, steps 3 to 9 can be achieved
+NB: Instead of using these manual instructions, steps 3 to 10 can be achieved
 automatically on a remote server by running the fabric deploy script on 
 your local machine. You need fabric and python-dev modules installed locally.
-If you don't have the ckan repo checked out then download the fabfile.py using::
+If you don't have the ckan repo checked out locally then download the 
+fabfile.py using::
 
   $ wget https://knowledgeforge.net/ckan/hg/raw-file/default/fabfile.py
 
@@ -126,7 +127,17 @@ Now you can then do the deployment with something like::
   $ paster --plugin ckan db init --config demo.ckan.net.ini
 
 
-10. Setup Apache with Ckan
+10. Set some permissions for Pylons
+
+  Whilst still in the ~/demo.ckan.net directory::
+
+    $ mkdir data
+    $ chmod g+w -R data
+    $ sudo chgrp -R www-data data
+    $ ln -s pyenv/src/ckan/who.ini ./
+
+
+11. Setup Apache with Ckan
 
   Create file /etc/apache2/sites-enabled/demo.ckan.net as follows::
 
@@ -138,23 +149,17 @@ Now you can then do the deployment with something like::
         # pass authorization info on (needed for rest api)
         WSGIPassAuthorization On
 
-        ErrorLog /var/log/apache2/ckan.net.error.log
-        CustomLog /var/log/apache2/ckan.net.custom.log combined
+        ErrorLog /var/log/apache2/ckan.error.log
+        CustomLog /var/log/apache2/ckan.custom.log combined
     </VirtualHost>
 
-  And whilst still in the ~/demo.ckan.net directory::
 
-    $ mkdir data
-    $ chmod g+w -R data
-    $ sudo chgrp -R www-data data
-    $ ln -s pyenv/src/ckan/who.ini ./
-
-
-11. Restart Apache
+12. Restart Apache
 
   ::
 
   $ sudo /etc/init.d/apache2 restart
 
-12. Browse website at http://demo.ckan.net/
+
+13. Browse website at http://demo.ckan.net/
 
