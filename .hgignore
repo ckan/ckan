@@ -10,6 +10,7 @@ development.ini*
 sstore/*
 data/*
 pylons_data/*
+ckan/i18n/*/*/*.mo
 
 # other
 pip-requirements-local.txt
