@@ -10,14 +10,16 @@ access control are dealt with separately in the :ref:authorization.rst.
 Overview
 ========
 
-In essence, CKAN implements a standard role-based access control model.
+CKAN implements a fine-grained role-based access control system.
 
 Protected Objects and Authorization
 -----------------------------------
 
 There are variety of "protected objects" to which access can be controlled, for
-example the "System" (e.g. in relation to administrative access), Packages,
-Groups (nb: these are 'package' groups not 'access control' groups).
+example the "System" (for administrative access), Packages, Groups (nb: these
+are 'package' groups not 'access control' groups). Access control is
+fine-grained in that it can be set for each individual package or group
+instance.
 
 For each protected object there are a set of relevant **actions** such as 'create', 'admin', 'edit' etc.
 
@@ -26,7 +28,7 @@ The responsibility of the authorization system is to determine whether a **given
 The system therefore needs to record tuples of the form::
 
   user    |  action | object
-  # e.g.
+  --------------------------
   levin   |  edit   | package::warandpeace
 
 In fact, in CKAN actions are aggregated using the standard concept of a **Role** (e.g. an editor role would have 'edit' and 'read' action).
@@ -34,9 +36,10 @@ In fact, in CKAN actions are aggregated using the standard concept of a **Role**
 This means we in fact record tuples of the form::
 
   user    |  role   | object
+  --------------------------
   levin   |  editor | package::warandpeace
    
-The assignment of users to roles on a given protection object (such as a
+The assignment of users to roles on a given protected object (such as a
 package) can be done by 'admins' via the 'authorization' tab of
 the web interface (or by system admins via that interface or the system
 admin interface).
@@ -49,11 +52,28 @@ Each role has a list of permitted *actions* appropriate for that Protected Objec
 
 Currently there are three basic roles:
 
- * An 'admin' can do anything (includes package/group deletion & changing user roles)
- * An 'editor' can edit or read
- * A 'reader' can read
+  * **reader**: can read the object
+  * **editor**: can edit and read the object
+  * **admin**: admin can do anything including: edit, read, delete,
+    update-permissions (change authorizations for that object)
+
+In addition at the System or Protected Object 'type' level there are some additional actions:
+
+  * create instances
+  * update assignment of system level role
+
+The actions associated with a role may be "context" specific, i.e. they may
+vary with the type of protected object (the context). For example, the set of
+actions for the 'admin' role may be different for the System Protected Object
+from a Package Protected Object.
 
 Roles are only editable via the raw Model interface at /admin/ (sysadmin-only).
+
+There are also some shortcuts that are provided directly by the authorization
+system (rather than being expressed as user-object-role tuples):
+
+  * (system) admin can do everything on anything
+  * admin can do everything on the given object
 
 Examples
 --------
@@ -79,11 +99,10 @@ NB: "Visitor" and "Logged-in" are special "pseudo-users" used as a way of
 concretely referring to the special sets of users, namely those that are a) not
 logged-in ("visitor") and b) logged-in ("Logged-in")
 
+User Notes
+==========
 
-Design Notes
-============
-
-When a new package is created you as the creator automatically become admin for
+When a new package is created its creator automatically become admin for
 it and you can assign which other users have write or read access.
 
 NB: by default any user (including someone who is not-logged-in) will be able
@@ -91,8 +110,12 @@ to read and write.
 
 There are "system" level admins for CKAN who may alter permissions on any package.
 
-Use Cases
----------
+
+Developer Notes
+===============
+
+Requirements and Use Cases
+--------------------------
 
   * A user means someone who is logged in.
   * A visitor means someone who is not logged in.
@@ -125,46 +148,57 @@ Use Cases
 
 
 Not Yet Implemented
--------------------
++++++++++++++++++++
 
   * Support for access-related groups
   * Support for blacklisting
 
 
-Implementation Details
-----------------------
+Conceptual Overview
+-------------------
 
-Role assignment::
+  * There are Users and (User) ACL Groups
+  * There are actions which may be performed on "protected objects" such as
+    Package, Group, System
+  * Roles aggregate actions
+  * UserObjectRole which assign users (or ACL groups) a role on an object
+    (user, role, object). We will often refer to these informally as
+    "permissions".
+  
+NB: there is no object explicitly named "Permission". This is to avoid
+confusion: a 'normal' "Permission" (as in e.g. repoze.what) would correspond to
+an action-object tuple. This works for the case where protected objects are
+limited e.g. a few core subsystems like email, admin panel etc). However, we
+have many protected objects (e.g. one for each package) and we use roles so
+this 'normal' model does not work well.
 
-        Context
-  Protected Object ----> Role
+Question: do we require for *both* Users and UserACLGroup to be subject of ACL or not?
 
-  E.g. a user is assigned to a given role for a particular package.
+Ans: Yes. Why? Consider, situation where I just want to give an individual user
+permission on a given object (e.g. assigning authz permission for a package)?
+If I just have UserACLGroups one would need to create a group just for that
+individual. This isn't impossible but consider next how to assign permissions to
+edit the ACL Groups? One would need create another group for this but then we
+have recursion ad infinitum (unless this were especially encompassed in some
+system level permission or one has some group which is uneditable ...)
 
-      Context
-  Role ----> Action/Permission/Capability (on an Object e.g. a Package)
+Thus, one requires both Users and UserACLGroups to be subject of "permissions".
+To summarize the approximate structure we have is::
 
+    class SubjectOfAcl
+        class User
+        class UserACLGroup
+            
+    class ObjectOfACL
+        class Package
+        class Group
+        class UserACLGroup
+        ...
 
-Package level:
-
-  * Package Roles: admin, editor, reader
-  * Entities: xyz@xyz.com (user), pseudo-users 'visitor'
-  * Assignment of entities to roles in a given context (the package)
-  * Roles give permissions (in a given context)
-    * admin -> update assignment to roles, delete package, plus editor
-    * editor -> update package plus reader
-    * reader -> read package
-
-System level permissions:
-
-  * Roles: admin, ?
-  * create package 
-  * update assignment of system level role
-
-Shortcuts:
-
-  * sysadmin can do everything on anything
-  * ? admin can do everything on the given object
+    class SubjectRoleObject
+        subject_of_acl
+        object_of_acl
+        role
 
 
 Determining permissions
@@ -175,28 +209,23 @@ See ckan.authz.Authorizer.is_authorized
 .. automethod:: ckan.authz.Authorizer.is_authorized
 
 
-DB Sketch
----------
+Comparison with other frameworks and approaches
+===============================================
 
-  * role enum: admin, editor, reader
-  * action enum: read, edit, delete (to deleted state), purge (destroy),
-    edit-permissions, create
-  * context enum: system, package, tag, group, revision
+repoze.what
+-----------
 
-role-action table::
+Demo example model::
 
-    role | context | action
-    admin| package | update
-    admin| package | update-permissions
-    admin| package | read
-    editor| package | update
-    editor| package | read
+    User
+    Group
+    Permission
 
-user-role table::
+  * Users are assigned to groups
+  * Groups are assigned permissions
 
-    username.id | context | objectid    | role
-    xyz.id      | package | geonames.id | admin
-    rgrp.id     | system  |             | admin
-    visitor.id  | package | geonames.id | editor 
-    visitor.id  | package | geonames.id | reader
+Capabilities
+------------
 
+Each possible action-object tuple receive an identifier which we term the
+"capability". We would then list tuples (capability_subject, capability).
