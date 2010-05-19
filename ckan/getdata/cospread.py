@@ -339,6 +339,7 @@ license_map = {
     u'UK Crown Copyright with data.gov.uk rights':u'OKD Compliant::UK Crown Copyright with data.gov.uk rights',
     u'\xa9 HESA. Not core Crown Copyright.':u'OKD Compliant::Higher Education Statistics Agency Copyright with data.gov.uk rights',
     u'Local Authority copyright with data.gov.uk rights':u'OKD Compliant::Local Authority Copyright with data.gov.uk rights',
+    u'Local Authority Copyright with data.gov.uk rights':u'OKD Compliant::Local Authority Copyright with data.gov.uk rights',
     u'UK Crown Copyright':u'Non-OKD Compliant::Crown Copyright',
     u'Crown Copyright':u'Non-OKD Compliant::Crown Copyright',}
 #agencies_raw = ['Health Protection Agency', 'Office for National Statistics', 'Census', 'Performance Assessment Framework', 'Annual Population Survey', 'Annual Survey of Hours and Earnings', 'Business Registers Unit', 'UK Hydrographic Office', 'Defence Analytical Services and Advice', 'Housing and Communities Agency', 'Tenants Service Authority', 'Higher Education Statistics Agency']

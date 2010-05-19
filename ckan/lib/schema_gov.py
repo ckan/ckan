@@ -61,6 +61,7 @@ Northern Ireland Executive
 Ordnance Survey
 Lichfield District Council
 Society of Information Technology Management
+Warwickshire County Council
 """
 government_depts = []
 for line in government_depts_raw.split('\n'):
