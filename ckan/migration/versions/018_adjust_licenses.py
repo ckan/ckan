@@ -71,7 +71,7 @@ map = {
     u'OSI Approved::Vovida Software License v. 1.0': 'vovidapl', 
     u'OSI Approved::Apple Public Source License': 'apsl-2.0', 
     u'OKD Compliant::UK Crown Copyright with data.gov.uk rights': 'ukcrown-withrights', 
-    u'OKD Compliant::Local Authority Copyright with data.gov.uk rights': 'uklocalauthority-withrights', 
+    u'OKD Compliant::Local Authority Copyright with data.gov.uk rights': 'localauth-withrights', 
     u'OKD Compliant::Open Data Commons Open Database License (ODbL)': 'odc-odbl', 
     u'OSI Approved::New BSD license': 'bsd-license', 
     u'OSI Approved::Qt Public License (QPL)': 'qtpl', 
