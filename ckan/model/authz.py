@@ -119,7 +119,7 @@ class UserObjectRole(DomainObject):
     def _query(cls, user, role, domain_obj):
         q = Session.query(cls).filter_by(role=role)
         # some protected objects are not "contextual"
-        if cls.name:
+        if cls.name is not None:
             # e.g. filter_by(package=domain_obj)
             q = q.filter_by(**dict({cls.name: domain_obj}))
         q = q.filter_by(user=user)
@@ -131,7 +131,8 @@ class UserObjectRole(DomainObject):
         if cls.user_has_role(user, role, domain_obj):
             return
         objectrole = cls(role=role, user=user)
-        setattr(objectrole, cls.name, domain_obj)
+        if cls.name is not None:
+            setattr(objectrole, cls.name, domain_obj)
         Session.add(objectrole)
 
     @classmethod
@@ -149,12 +150,12 @@ protected_objects[PackageRole.protected_object] = PackageRole
 
 class GroupRole(UserObjectRole):
     protected_object = Group
-    name = 'package'
+    name = 'group'
 protected_objects[GroupRole.protected_object] = GroupRole
 
 class SystemRole(UserObjectRole):
     protected_object = System
-    name = 'package'
+    name = None
 protected_objects[SystemRole.protected_object] = SystemRole
 
 
@@ -166,7 +167,6 @@ protected_objects[SystemRole.protected_object] = SystemRole
 def user_has_role(user, role, domain_obj):
     objectrole = UserObjectRole.get_object_role_class(domain_obj)
     return objectrole.user_has_role(user, role, domain_obj)
-
 
 def add_user_to_role(user, role, domain_obj):
     objectrole = UserObjectRole.get_object_role_class(domain_obj)
