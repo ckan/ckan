@@ -109,9 +109,7 @@ class UserObjectRole(DomainObject):
     @classmethod
     def user_has_role(cls, user, role, domain_obj):
         assert isinstance(user, User), user
-        assert user.id
         assert Role.is_valid(role), role
-        
         q = cls._query(user, role, domain_obj)
         return q.count() == 1
 
