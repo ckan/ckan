@@ -18,7 +18,7 @@ Developer Installation
    
       # grab the install requirements from the ckan mercurial repo
       # Or checkout the mercurial repo directly!
-      wget http://knowledgeforge.net/ckan/hg/raw-file/tip/pip-requirements.txt
+      wget http://knowledgeforge.net/ckan/hg/raw-file/default/pip-requirements.txt
       # create a virtualenv to install into
       virtualenv pyenv-ckan
       # install using pip-requirements

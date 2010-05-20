@@ -14,7 +14,10 @@ class RestController(BaseController):
         return render('rest/index')
 
     def list(self, register, subregister=None, id=None):
-        if register == u'package' and not subregister:
+        if register == 'revision':
+            revs = model.Session.query(model.Revision).all()
+            return self._finish_ok([rev.id for rev in revs])
+        elif register == u'package' and not subregister:
             query = ckan.authz.Authorizer().authorized_query(self._get_username(), model.Package)
             packages = query.all() 
             results = [package.name for package in packages]
@@ -82,7 +85,13 @@ class RestController(BaseController):
             if not self._check_access(pkg, model.Action.READ):
                 return ''
             _dict = pkg.as_dict()
-            #TODO check it's not none
+            # Set 'license' in _dict to cater for old clients.
+            # Todo: Remove this ASAP.
+            pkg_license = pkg.license
+            if pkg_license:
+                _dict['license'] = pkg_license.title
+            else:
+                _dict['license'] = _dict.get('license_id', '')
             return self._finish_ok(_dict)
         elif register == u'package' and (subregister == 'relationships' or subregister in model.PackageRelationship.get_all_types()):
             pkg1 = model.Package.by_name(id)
@@ -313,19 +322,25 @@ class RestController(BaseController):
 
     def search(self, register=None):
         if register == 'revision':
-            if request.params.has_key('since_time'):
+            since_time = None
+            if request.params.has_key('since_id'):
+                id = request.params['since_id']
+                rev = model.Session.query(model.Revision).get(id)
+                if rev is None:
+                    response.status_int = 400
+                    return 'There is no revision with id: %s' % id
+                since_time = rev.timestamp
+            elif request.params.has_key('since_time'):
                 since_time_str = request.params['since_time']
-                since_time = model.strptimestamp(since_time_str)
-                revs = model.Session.query(model.Revision).filter(model.Revision.timestamp>since_time)
-            elif request.params.has_key('since_rev'):
-                since_id = request.params['since_rev']
-                revs = []
-                for rev in model.Session.query(model.Revision).all():
-                    if since_id == rev.id:
-                        break
-                    revs.append(rev)
+                try:
+                    since_time = model.strptimestamp(since_time_str)
+                except ValueError, inst:
+                    response.status_int = 400
+                    return 'ValueError: %s' % inst
             else:
-                revs = model.Session.query(model.Revision).all()
+                response.status_int = 400
+                return 'Missing search term (\'since_id=UUID\' or \'since_time=TIMESTAMP\')'
+            revs = model.Session.query(model.Revision).filter(model.Revision.timestamp>since_time)
             return self._finish_ok([rev.id for rev in revs])
         elif register == 'package':
             if request.params.has_key('qjson'):
@@ -487,7 +502,7 @@ class RestController(BaseController):
     def _finish_ok(self, response_data=None):
         response.status_int = 200
         response.headers['Content-Type'] = 'application/json'
-        if response_data:
+        if response_data is not None:
             return simplejson.dumps(response_data)
         else:
             return ''
