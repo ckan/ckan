@@ -267,6 +267,14 @@ class TestSearch(object):
         count = result['count']
         assert len(pkgs) == 2, pkgs
         
+    def test_search_foreign_chars(self):
+        result = Search().search('umlaut')
+        assert result['results'] == ['gils'], result['results']
+        result = Search().search(u'thumb')
+        assert result['count'] == 0, result['results']
+        result = Search().search(u'th\xfcmb')
+        assert result['results'] == ['gils'], result['results']
+
     def test_groups(self):
         result = Search().search(u'groups:random')
         assert self._pkg_names(result) == '', self._pkg_names(result)

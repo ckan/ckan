@@ -35,7 +35,7 @@ class PackageController(BaseController):
         return render('package/list')
 
     def search(self):        
-        c.q = request.params.get('q')
+        c.q = request.params.get('q') # unicode format (decoded from utf8)
         c.open_only = request.params.get('open_only')
         c.downloadable_only = request.params.get('downloadable_only')
         if c.q:

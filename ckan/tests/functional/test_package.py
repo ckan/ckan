@@ -273,9 +273,25 @@ class TestReadOnly(TestPackageForm):
         # check for something that also finds tags ...
         self._check_search_results(res, 'russian', ['<strong>2</strong>'])
 
+    def test_search_foreign_chars(self):
+        offset = url_for(controller='package', action='search')
+        res = self.app.get(offset)
+        assert 'Search packages' in res
+        self._check_search_results(res, u'th\xfcmb', ['<strong>1</strong>'])
+        self._check_search_results(res, 'thumb', ['<strong>0</strong>'])
+
+    def test_search_escape_chars(self):
+        payload = '?q=fjdkf%2B%C2%B4gfhgfkgf%7Bg%C2%B4pk&search=Search+Packages+%C2%BB'
+        offset = url_for(controller='package', action='search') + payload
+        print offset
+        results_page = self.app.get(offset)
+        assert 'Search packages' in results_page, results_page
+        results_page = self.main_div(results_page)
+        assert '<strong>0</strong>' in results_page, results_page
+
     def _check_search_results(self, page, terms, requireds, only_open=False, only_downloadable=False):
         form = page.forms[0]
-        form['q'] = str(terms)
+        form['q'] = terms.encode('utf8') # paste doesn't handle this!
         form['open_only'] = only_open
         form['downloadable_only'] = only_downloadable
         results_page = form.submit()

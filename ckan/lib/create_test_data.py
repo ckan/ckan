@@ -206,7 +206,8 @@ class CreateTestData(cli.CkanCommand):
 Foreign characters:
 u with umlaut \xfc
 66-style quote \u201c
-
+foreign word: th\xfcmb
+ 
 Needs escaping:
 left arrow <
 
@@ -298,10 +299,14 @@ search_items = [{'name':'gils',
               'tags':'registry  country-usa  government  federal  gov  workshop-20081101',
               'groups':'ukgov test1 test2 penguin',
               'license':'gpl-3.0',
-              'notes':'''From <http://www.gpoaccess.gov/gils/about.html>
+              'notes':u'''From <http://www.gpoaccess.gov/gils/about.html>
               
 > The Government Information Locator Service (GILS) is an effort to identify, locate, and describe publicly available Federal
-> Because this collection is decentralized, the GPO''',
+> Because this collection is decentralized, the GPO
+
+Foreign word:
+u with umlaut th\xfcmb
+''',
               'extras':{'date_released':'2008'},
               },
              {'name':'us-gov-images',
