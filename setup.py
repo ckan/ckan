@@ -38,11 +38,13 @@ setup(
         # (not sure we need this except in tests but ...)
         'WebOb',
         'FormAlchemy>=1.3.3',
-        'solrpy>=0.9',
         # Excel libaries are only for importer tool
         # 'xlrd>=0.7.1',
         # 'xlwt>=0.7.2',
     ],
+    extras_require = {
+        'solr': ['solrpy>=0.9'],
+    },
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
     package_data={'ckan': ['i18n/*/LC_MESSAGES/*.mo']},

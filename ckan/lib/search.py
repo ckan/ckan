@@ -1,5 +1,4 @@
 import sqlalchemy
-from solr import SolrConnection # == solrpy 
 
 from pylons import config
 
@@ -315,6 +314,8 @@ class SolrSearch(SQLSearch):
     def __init__(self, solr_url=None):
         if solr_url is None: 
             solr_url = config.get('solr_url', 'http://localhost:8983/solr')
+        # import inline to avoid external dependency 
+        from solr import SolrConnection # == solrpy 
         self._conn = SolrConnection(solr_url)
 
     def _open_license_query_part():
