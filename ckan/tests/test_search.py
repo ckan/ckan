@@ -304,7 +304,7 @@ class TestSearchOverall(object):
         result = Search().run(options)
         pkgs = result['results']
         count = result['count']
-        assert count == expected_count, count
+        assert count == expected_count, (count, expected_count)
         for expected_pkg in expected_packages:
             assert expected_pkg in pkgs, '%s : %s' % (expected_pkg, result)
 
@@ -423,41 +423,38 @@ class TestRank(object):
     @classmethod
     def setup_class(self):
         model.Session.remove()
-        self.data = [(u'test1-penguin-canary', u'canary goose squirrel wombat wombat'),
-                     (u'test2-squirrel-squirrel-canary-goose', u'penguin wombat'),
+        init_data = [{'name':u'test1-penguin-canary',
+                      'tags':u'canary goose squirrel wombat wombat'},
+                     {'name':u'test2-squirrel-squirrel-canary-goose',
+                      'tags':u'penguin wombat'},
                      ]
-        self.pkgs = []
-        model.repo.new_revision()
-        for name, notes in self.data:
-            pkg = model.Package(name=name, notes=notes)
-            model.Session.add(pkg)
-            self.pkgs.append(name)
-        model.repo.commit_and_remove()
+        CreateTestData.create_arbitrary(init_data)
+        self.pkg_names = [u'test1-penguin-canary',
+                     u'test2-squirrel-squirrel-canary-goose']
 
     @classmethod
     def teardown_class(self):
-        # CreateTestData.delete()
         model.Session.remove()
         model.repo.rebuild_db()
         model.Session.remove()
     
-    def _do_search(self, q, results):
+    def _do_search(self, q, wanted_results):
         options = SearchOptions({'q':q})
         options.order_by = 'rank'
         result = Search().run(options)
-        pkgs = result['results']
-        fields = [model.Package.by_name(pkg_name).name for pkg_name in pkgs]
-        assert fields[0] == results[0], fields
-        assert fields[1] == results[1], fields
+        results = result['results']
+        err = 'Wanted %r, got %r' % (wanted_results, results)
+        assert wanted_results[0] == results[0], err
+        assert wanted_results[1] == results[1], err
 
     def test_0_basic(self):
-        self._do_search(u'wombat', self.pkgs)
-        self._do_search(u'squirrel', self.pkgs[::-1])
-        self._do_search(u'canary', self.pkgs)
+        self._do_search(u'wombat', self.pkg_names)
+        self._do_search(u'squirrel', self.pkg_names[::-1])
+        self._do_search(u'canary', self.pkg_names)
 
     def test_1_weighting(self):
-        self._do_search(u'penguin', self.pkgs)
-        self._do_search(u'goose', self.pkgs[::-1])
+        self._do_search(u'penguin', self.pkg_names)
+        self._do_search(u'goose', self.pkg_names[::-1])
 
 class PostgresSearch(object):
     def filter_by(self, query, terms):

@@ -5,6 +5,8 @@ import vdm.sqlalchemy
 from core import DomainObject, Package, Revision, State
 from types import JsonType
 
+__all__ = ['PackageExtra', 'package_extra_table', 'PackageExtraRevision']
+
 package_extra_table = Table('package_extra', metadata,
     Column('id', UnicodeText, primary_key=True, default=make_uuid),
     # NB: only (package, key) pair is unique
@@ -37,7 +39,6 @@ vdm.sqlalchemy.modify_base_object_mapper(PackageExtra, Revision, State)
 PackageExtraRevision= vdm.sqlalchemy.create_object_version(mapper, PackageExtra,
         extra_revision_table)
 
-from sqlalchemy.ext.associationproxy import association_proxy
 def _create_extra(key, value):
     return PackageExtra(key=unicode(key), value=value)
 

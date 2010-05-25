@@ -114,7 +114,7 @@ Ho ho ho
         form[titlefn] = newtitle
         form[descfn] = newdesc
         pkg = model.Package.by_name(self.packagename)
-        form.select('PackageGroup--package_id', pkg.id)
+        form['PackageGroup--package_id'] = pkg.id
 
         
         res = form.submit('commit', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
@@ -130,7 +130,8 @@ Ho ho ho
         assert len(group.packages) == 3
 
     def test_3_edit_form_has_new_package(self):
-        offset = url_for(controller='group', action='edit', id=self.groupname)
+        # check for package in autocomplete
+        offset = url_for(controller='package', action='autocomplete')
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
         assert 'annakarenina' in res, res
         assert not 'newone' in res, res
@@ -146,7 +147,6 @@ Ho ho ho
         model.repo.new_revision()
         model.repo.commit_and_remove()
         
-        offset = url_for(controller='group', action='edit', id=self.groupname)
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
         assert 'annakarenina' in res, res
         assert 'newone' in res
@@ -191,14 +191,14 @@ class TestNew(TestController):
         assert fv[prefix+'name'].value == '', fv.fields
         assert fv[prefix+'title'].value == ''
         assert fv[prefix+'description'].value == ''
-        assert fv['PackageGroup--package_id'].value == '__null_value__', fv['PackageGroup--package_id'].value
+        assert fv['PackageGroup--package_id'].value == '', fv['PackageGroup--package_id'].value
 
         # Edit form
         fv[prefix+'name'] = group_name
         fv[prefix+'title'] = group_title
         fv[prefix+'description'] = group_description
         pkg = model.Package.by_name(self.packagename)
-        fv.select('PackageGroup--package_id', pkg.id)        
+        fv['PackageGroup--package_id'] = pkg.id
         res = fv.submit('commit', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
         res = res.follow()
         assert '%s' % group_title in res, res
@@ -238,5 +238,5 @@ class TestNew(TestController):
         fv[prefix+'name'] = group_name
         res = fv.submit('commit', status=200, extra_environ={'REMOTE_USER': 'russianfan'})
         assert 'Group name already exists' in res, res
-        assert 'class="form-errors"' in res, res
+        self.check_tag(res, '<form', 'class="has-errors"')
         assert 'class="field_error"' in res, res

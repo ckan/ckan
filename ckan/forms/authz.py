@@ -9,6 +9,9 @@ import formalchemy.config
 
 from formalchemy import Field
 from sqlalchemy import types
+
+__all__ = ['get_authz_fieldset']
+
 def get_package_linker(action):
     return lambda item: '<a href="%s" title="%s"><img src="http://m.okfn.org/kforge/images/icon-delete.png" alt="%s" class="icon" /></a>' % (
                         ckan_h.url_for(controller='package',
@@ -30,11 +33,11 @@ def get_group_linker(action):
 class RolesRenderer(formalchemy.fields.FieldRenderer):
     def render(self, **kwargs):
         selected = kwargs.get('selected', None) or unicode(self._value)
-        options = model.Role.get_all()
-        select = fa_h.select(self.name, fa_h.options_for_select(options, selected=selected), **kwargs)
+        options = [(role, role) for role in model.Role.get_all()]
+        select = fa_h.select(self.name, selected, options, **kwargs)
         return select
 
-def get_authz_fieldset(role_class):
+def authz_fieldset_builder(role_class):
     fs = fa.Grid(role_class)
     role_options = model.Role.get_all()
 
@@ -47,7 +50,7 @@ def get_authz_fieldset(role_class):
             Field(u'delete', types.String, get_group_linker(u'delete')).readonly()
             )
     fs.append(
-        # use getattr because thought we should always have a user name
+        # use getattr because though we should always have a user name,
         # sometimes (due to error) we don't and want to avoid a 500 ...
         Field(u'username', types.String,
             lambda item: getattr(item.user, 'name', 'No User!')).readonly()
@@ -63,13 +66,11 @@ def get_authz_fieldset(role_class):
         )
     return fs
 
-package_authz_fs = get_authz_fieldset(model.PackageRole)
-group_authz_fs = get_authz_fieldset(model.GroupRole)
-
 class UsersRenderer(formalchemy.fields.FieldRenderer):
     def render(self, options, **kwargs):
         options = [('', '__null_value__')] + [(u.name, u.id) for u in model.Session.query(model.User).all()]
-        return fa_h.select(self.name, fa_h.options_for_select(options), **kwargs)
+        selected = None
+        return fa_h.select(self.name, selected, options, **kwargs)
 
 def get_new_role_fieldset(role_class):
     fs = fa.FieldSet(role_class, session=model.Session)
@@ -86,5 +87,11 @@ def get_new_role_fieldset(role_class):
         )
     return fs
 
-new_package_roles_fs = get_new_role_fieldset(model.PackageRole)
-new_group_roles_fs = get_new_role_fieldset(model.GroupRole)
+fieldsets = {}
+def get_authz_fieldset(name):
+    if not fieldsets: 
+        fieldsets['package_authz_fs'] = authz_fieldset_builder(model.PackageRole)
+        fieldsets['group_authz_fs'] = authz_fieldset_builder(model.GroupRole)
+        fieldsets['new_package_roles_fs'] = get_new_role_fieldset(model.PackageRole)
+        fieldsets['new_group_roles_fs'] = get_new_role_fieldset(model.GroupRole)
+    return fieldsets[name]

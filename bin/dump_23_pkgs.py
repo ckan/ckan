@@ -1,5 +1,6 @@
 import os
 
+xl_filename = '28pkgs.xls'
 import loadconfig
 path = os.path.abspath('development.ini')
 loadconfig.load_config(path)
@@ -17,6 +18,10 @@ for pkg in model.Session.query(model.Package):
         print pkg.name
         xl_dict = pkg_to_xl_dict(pkg)
         xl_dicts.append(xl_dict)
-dumper.PackagesXlWriter(xl_dicts).save(open('28pkgs.xls', 'wb'))
-        
+
 print 'Found %i matching packages' % count
+
+dumper_ = dumper.PackagesXlWriter(xl_dicts)
+dumper_.add_col_titles(('notes', 'url', 'resource-0-url', 'resource-0-format', 'resource-0-description', 'author', 'author_email', 'state', 'version', 'tags', 'groups', 'license' ))
+dumper_.save(open(xl_filename, 'wb'))
+print 'Saved in %s' % xl_filename

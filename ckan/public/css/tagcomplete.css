@@ -1,0 +1,7 @@
+.tags a.active {
+	background: #2B69C6;
+	color: #fff;
+	text-decoration: none;
+	padding: 0.2em;
+	margin: 0 0.2em;
+}

@@ -8,9 +8,6 @@ import webhelpers
 from ckan.lib.create_test_data import CreateTestData
 
 ACCESS_DENIED = [401,403]
-def get_license_name(id):
-    return model.Session.get(model.License, id).name
-
 
 class TestRest(TestController):
 
@@ -25,57 +22,50 @@ class TestRest(TestController):
         model.Session.add(model.Package(name=u'--'))
         rev = model.repo.new_revision()
         model.repo.commit_and_remove()
+        from ckan.model.changeset import ChangesetRegister
+        changesets = ChangesetRegister()
+        changesets.construct_from_revision(rev)
 
-
-    @classmethod
-    def teardown_class(self):
-        model.Session.remove()
-        model.repo.rebuild_db()
-        model.Session.remove()
-
-    def setup(self):
-        self.testpackage_license_id = 4
-        license_name = get_license_name(self.testpackage_license_id)
+        self.testpackage_license_id = u'gpl-3.0'
         self.testpackagevalues = {
             'name' : u'testpkg',
             'title': u'Some Title',
             'url': u'http://blahblahblah.mydomain',
-            'resources': [{u'url':u'http://blah.com/file.xml',
-                           u'format':u'xml',
-                           u'description':u'Main file',
-                           u'hash':u'abc123'},
-                          {u'url':u'http://blah.com/file2.xml',
-                           u'format':u'xml',
-                           u'description':u'Second file',
-                           u'hash':u'def123'},],
+            'resources': [{
+                u'url':u'http://blah.com/file.xml',
+                u'format':u'xml',
+                u'description':u'Main file',
+                u'hash':u'abc123',
+            }, {
+                u'url':u'http://blah.com/file2.xml',
+                u'format':u'xml',
+                u'description':u'Second file',
+                u'hash':u'def123',
+            }],
             'tags': [u'russion', u'novel'],
-            'license': license_name,
-            'extras': {'genre' : u'horror',
-                       'media' : u'dvd',
-                       },
-            }
+            'license_id': self.testpackage_license_id,
+            'extras': {
+                'genre' : u'horror',
+                'media' : u'dvd',
+            },
+        }
         self.testgroupvalues = {
             'name' : u'testgroup',
             'title' : u'Some Group Title',
-            'description' : 'Great group!',
+            'description' : u'Great group!',
             'packages' : [u'annakarenina', 'warandpeace'],
-            }
+        }
         self.random_name = u'http://myrandom.openidservice.org/'
         self.user = model.User(name=self.random_name)
         model.Session.add(self.user)
         model.Session.commit()
         model.Session.remove()
-        self.extra_environ={ 'Authorization' : str(self.user.apikey) }
+        self.extra_environ={'Authorization' : str(self.user.apikey)}
 
-    def teardown(self):
+    @classmethod
+    def teardown_class(self):
         model.Session.remove()
-        user = model.User.by_name(self.random_name)
-        if user:
-            user.purge()
-        pkg = model.Package.by_name(self.testpackagevalues['name'])
-        if pkg:
-            pkg.purge()
-        model.Session.commit()
+        model.repo.rebuild_db()
         model.Session.remove()
 
     def test_01_register_post_noauth(self):
@@ -122,10 +112,7 @@ class TestRest(TestController):
         res = self.app.get(offset, status=[200])
         anna = model.Package.by_name(u'annakarenina')
         assert 'annakarenina' in res, res
-#        assert '"license_id": 9' in res, res
-        assert 'license_id' not in res, res
-        expected_license = '"license": "%s"' % get_license_name(9)
-        assert expected_license in res, repr(res) + repr(expected_license)
+        assert '"license_id": "other-open"' in res, str(res)
         assert 'russian' in res, res
         assert 'tolstoy' in res, res
         assert '"extras": {' in res, res
@@ -179,6 +166,7 @@ class TestRest(TestController):
 
     def test_06_create_pkg(self):
         # Test Packages Register Post 200.
+        assert not model.Package.by_name(self.testpackagevalues['name'])
         offset = '/api/rest/package'
         postparams = '%s=1' % simplejson.dumps(self.testpackagevalues)
         res = self.app.post(offset, params=postparams, status=[200],
@@ -189,7 +177,6 @@ class TestRest(TestController):
         assert pkg.title == self.testpackagevalues['title'], pkg
         assert pkg.url == self.testpackagevalues['url'], pkg
         assert pkg.license_id == self.testpackage_license_id, pkg
-        assert pkg.license.name == self.testpackagevalues['license'], pkg.license
         assert len(pkg.tags) == 2
         assert len(pkg.extras) == 2, len(pkg.extras)
         for key, value in self.testpackagevalues['extras'].items():
@@ -205,8 +192,7 @@ class TestRest(TestController):
         offset = '/api/rest/package/%s' % self.testpackagevalues['name']
         res = self.app.get(offset, status=[200])
         assert self.testpackagevalues['name'] in res, res
-#        assert '"license_id": %s' % self.testpackagevalues['license_id'] in res, res
-        assert '"license": "%s"' % self.testpackagevalues['license'] in res, res
+        assert '"license_id": "%s"' % self.testpackagevalues['license_id'] in res, res
         assert self.testpackagevalues['tags'][0] in res, res
         assert self.testpackagevalues['tags'][1] in res, res
         assert '"extras": {' in res, res
@@ -333,49 +319,83 @@ class TestRest(TestController):
         #        extra_environ=self.extra_environ)
         model.Session.remove()
 
-    def test_10_edit_pkg(self):
+    def test_10_edit_pkg_values(self):
         # Test Packages Entity Put 200.
 
         # create a package with testpackagevalues
         tag_names = [u'tag1', u'tag2', u'tag3']
-        if not model.Package.by_name(self.testpackagevalues['name']):
-            rev = model.repo.new_revision()
+        pkg = model.Package.by_name(self.testpackagevalues['name'])
+        if not pkg:
             pkg = model.Package()
             model.Session.add(pkg)
-            pkg.name = self.testpackagevalues['name']
-            pkg.url = self.testpackagevalues['url']
-            tags = [model.Tag(name=tag_name) for tag_name in tag_names]
-            for tag in tags:
-                model.Session.add(tag)
-            pkg.tags = tags
-            pkg.extras = {u'key1':u'val1', u'key2':u'val2'}
-            model.Session.commit()
+        rev = model.repo.new_revision()
+        pkg.name = self.testpackagevalues['name']
+        pkg.url = self.testpackagevalues['url']
+        tags = [model.Tag(name=tag_name) for tag_name in tag_names]
+        for tag in tags:
+            model.Session.add(tag)
+        pkg.tags = tags
+        pkg.extras = {u'key1':u'val1', u'key2':u'val2'}
+        model.Session.commit()
 
-            pkg = model.Package.by_name(self.testpackagevalues['name'])
-            model.setup_default_user_roles(pkg, [self.user])
-            rev = model.repo.new_revision()
-            model.repo.commit_and_remove()
-        assert model.Package.by_name(self.testpackagevalues['name'])
+        pkg = model.Package.by_name(self.testpackagevalues['name'])
+        model.setup_default_user_roles(pkg, [self.user])
+        rev = model.repo.new_revision()
+        model.repo.commit_and_remove()
 
         # edit it
-        pkg_vals = {'name':u'somethingnew',
-                    'title':u'newtesttitle',
-                    'extras':{u'key3':u'val3', u'key2':None},
-                    'tags':[u'tag1', u'tag2', u'tag4', u'tag5']
-                    }
+        pkg_vals = {
+            'name':u'somethingnew',
+            'title':u'newtesttitle',
+            'resources': [
+                {
+                    u'url':u'http://blah.com/file2.xml',
+                    u'format':u'xml',
+                    u'description':u'Appendix 1',
+                    u'hash':u'def123',
+                },
+                {
+                    u'url':u'http://blah.com/file3.xml',
+                    u'format':u'xml',
+                    u'description':u'Appenddic 2',
+                    u'hash':u'ghi123',
+                },
+            ],
+            'extras':{u'key3':u'val3', u'key2':None},
+            'tags':[u'tag1', u'tag2', u'tag4', u'tag5'],
+        }
         offset = '/api/rest/package/%s' % self.testpackagevalues['name']
         postparams = '%s=1' % simplejson.dumps(pkg_vals)
         res = self.app.post(offset, params=postparams, status=[200],
                             extra_environ=self.extra_environ)
+
+        # Check submitted field have changed.
         model.Session.remove()
         pkg = model.Session.query(model.Package).filter_by(name=pkg_vals['name']).one()
+        # - title
         assert pkg.title == pkg_vals['title']
+        # - tags
         pkg_tagnames = [tag.name for tag in pkg.tags]
         for tagname in pkg_vals['tags']:
             assert tagname in pkg_tagnames, 'tag %r not in %r' % (tagname, pkg_tagnames)
-        # check that unsubmitted fields are unchanged
+        # - resources
+        assert len(pkg.resources), "Package has no resources: %s" % pkg
+        assert len(pkg.resources) == 2, len(pkg.resources)
+        resource = pkg.resources[0]
+        assert resource.url == u'http://blah.com/file2.xml', resource.url
+        assert resource.format == u'xml', resource.format
+        assert resource.description == u'Appendix 1', resource.description
+        assert resource.hash == u'def123', resource.hash
+        resource = pkg.resources[1]
+        assert resource.url == 'http://blah.com/file3.xml', resource.url
+        assert resource.format == u'xml', resource.format
+        assert resource.description == u'Appenddic 2', resource.description
+        assert resource.hash == u'ghi123', resource.hash
+
+        # Check unsubmitted fields have not changed.
+        # - url
         assert pkg.url == self.testpackagevalues['url'], pkg.url
-        
+        # - extras
         assert len(pkg.extras) == 2, pkg.extras
         for key, value in {u'key1':u'val1', u'key3':u'val3'}.items():
             assert pkg.extras[key] == value, pkg.extras
@@ -420,8 +440,6 @@ class TestRest(TestController):
                     extra_environ=self.extra_environ)
             model.Session.remove()
             group = model.Group.by_name(self.testgroupvalues['name'])
-            rev = model.repo.new_revision()
-            model.repo.commit_and_remove()
         assert group
         assert len(group.packages) == 2, group.packages
         user = model.User.by_name(self.random_name)
@@ -527,7 +545,6 @@ class TestRest(TestController):
 
         # delete it
         offset = '/api/rest/package/%s' % self.testpackagevalues['name']
-        rev = model.repo.new_revision()
         res = self.app.delete(offset, status=[200],
                 extra_environ=self.extra_environ)
         pkg = model.Package.by_name(self.testpackagevalues['name'])
@@ -556,7 +573,6 @@ class TestRest(TestController):
 
         # delete it
         offset = '/api/rest/group/%s' % self.testgroupvalues['name']
-        rev = model.repo.new_revision()
         res = self.app.delete(offset, status=[200],
                 extra_environ=self.extra_environ)
         assert not model.Group.by_name(self.testgroupvalues['name'])
@@ -564,8 +580,9 @@ class TestRest(TestController):
 
     def test_12_get_pkg_404(self):
         # Test Package Entity Get 404.
-        assert not model.Session.query(model.Package).filter_by(name=self.testpackagevalues['name']).count()
-        offset = '/api/rest/package/%s' % self.testpackagevalues['name']
+        pkg_name = u'random_one'
+        assert not model.Session.query(model.Package).filter_by(name=pkg_name).count()
+        offset = '/api/rest/package/%s' % pkg_name
         res = self.app.get(offset, status=404)
         model.Session.remove()
 
@@ -578,8 +595,9 @@ class TestRest(TestController):
 
     def test_13_delete_pkg_404(self):
         # Test Packages Entity Delete 404.
-        assert not model.Session.query(model.Package).filter_by(name=self.testpackagevalues['name']).count()
-        offset = '/api/rest/package/%s' % self.testpackagevalues['name']
+        pkg_name = u'random_one'
+        assert not model.Session.query(model.Package).filter_by(name=pkg_name).count()
+        offset = '/api/rest/package/%s' % pkg_name
         res = self.app.delete(offset, status=[404],
                               extra_environ=self.extra_environ)
 
@@ -596,13 +614,252 @@ class TestRest(TestController):
         res = self.app.get(offset, status=[200])
         res_dict = simplejson.loads(res.body)
         assert rev.id == res_dict['id']
-        assert str(rev.timestamp) == res_dict['timestamp']
+        assert rev.timestamp.isoformat() == res_dict['timestamp'], (rev.timestamp.isoformat(), res_dict['timestamp'])
+        assert 'packages' in res_dict
+        assert isinstance(res_dict['packages'], list)
+        assert len(res_dict['packages']) != 0, "List of package names is empty: %s" % res_dict['packages']
 
     def test_14_get_revision_404(self):
         revision_id = "xxxxxxxxxxxxxxxxxxxxxxxxxx"
         offset = '/api/rest/revision/%s' % revision_id
         res = self.app.get(offset, status=404)
         model.Session.remove()
+
+    def test_15_list_changesets(self):
+        offset = '/api/rest/changeset'
+        res = self.app.get(offset, status=[200])
+        from ckan.model.changeset import ChangesetRegister
+        changesets = ChangesetRegister()
+        assert len(changesets), "No changesets found in model."
+        for id in changesets:
+            assert id in res, "Didn't find changeset id '%s' in: %s" % (id, res)
+
+    def test_15_get_changeset(self):
+        from ckan.model.changeset import ChangesetRegister
+        changesets = ChangesetRegister()
+        assert len(changesets), "No changesets found in model."
+        for id in changesets:
+            offset = '/api/rest/changeset/%s' % id
+            res = self.app.get(offset, status=[200])
+            changeset_data = simplejson.loads(res.body)
+            assert 'id' in changeset_data, "No 'id' in changeset data: %s" % changeset_data
+            assert 'meta' in changeset_data, "No 'meta' in changeset data: %s" % changeset_data
+            assert 'changes' in changeset_data, "No 'changes' in changeset data: %s" % changeset_data
+
+    def test_15_get_changeset_404(self):
+        changeset_id = "xxxxxxxxxxxxxxxxxxxxxxxxxx"
+        offset = '/api/rest/changeset/%s' % changeset_id
+        res = self.app.get(offset, status=404)
+        model.Session.remove()
+
+    def test_16_list_licenses(self):
+        from ckan.model.license import LicenseRegister
+        register = LicenseRegister()
+        assert len(register), "No changesets found in model."
+        offset = '/api/rest/licenses'
+        res = self.app.get(offset, status=[200])
+        licenses_data = simplejson.loads(res.body)
+        assert len(licenses_data) == len(register), (len(licenses_data), len(register))
+        for license_data in licenses_data:
+            id = license_data['id']
+            license = register[id]
+            assert license['title'] == license.title
+            assert license['url'] == license.url
+            
+class TestRelationships(TestController):
+    @classmethod
+    def setup_class(self):
+        CreateTestData.create()
+        username = u'barry'
+        self.user = model.User(name=username)
+        model.Session.add(self.user)
+        model.Session.commit()
+        model.Session.remove()
+        self.extra_environ={ 'Authorization' : str(self.user.apikey) }
+        self.comment = u'Comment umlaut: \xfc.'
+
+
+    @classmethod
+    def teardown_class(self):
+        model.Session.remove()
+        model.repo.rebuild_db()
+        model.Session.remove()
+
+    def _get_relationships(self, package1_name='annakarenina', type='relationships', package2_name=None):
+        if not package2_name:
+            offset = '/api/rest/package/%s/%s' % (str(package1_name), type)
+        else:
+            offset = '/api/rest/package/%s/%s/%s/' % (
+                str(package1_name), type, str(package2_name))
+        allowable_statuses = [200]
+        if type:
+            allowable_statuses.append(404)
+        res = self.app.get(offset, status=allowable_statuses)
+        if res.status == 200:
+            res_dict = simplejson.loads(res.body) if res.body else []
+            return res_dict
+        else:
+            return 404
+
+    def _get_relationships_via_package(self, package1_name):
+        offset = '/api/rest/package/%s' % (str(package1_name))
+        res = self.app.get(offset, status=200)
+        res_dict = simplejson.loads(res.body) if res.body else []
+        return res_dict['relationships']
+
+    @property
+    def war(self):
+        return model.Package.by_name(u'warandpeace')
+    @property
+    def anna(self):
+        return model.Package.by_name(u'annakarenina')
+    @property
+    def anna_offset(self):
+        return '/api/rest/package/annakarenina'
+
+    def _check_relationships_rest(self, pkg1_name, pkg2_name=None,
+                                 expected_relationships=[]):
+        rels = self._get_relationships(package1_name=pkg1_name,
+                                      package2_name=pkg2_name)
+        assert len(rels) == len(expected_relationships), \
+               'Found %i relationships, but expected %i.\nFound: %r' % \
+               (len(rels), len(expected_relationships),
+                ['%s %s %s' % (rel['subject'], rel['type'], rel['object']) \
+                 for rel in rels])
+        for rel in rels:
+            the_expected_rel = None
+            for expected_rel in expected_relationships:
+                if expected_rel['type'] == rel['type'] and \
+                   (pkg2_name or expected_rel['object'] == pkg2_name):
+                    the_expected_rel = expected_rel
+                    break
+            if not the_expected_rel:
+                raise Exception('Unexpected relationship: %s %s %s' %
+                                (rel['subject'], rel['type'], rel['object']))
+            for field in ('subject', 'object', 'type', 'comment'):
+                if the_expected_rel.has_key(field):
+                    assert rel[field] == the_expected_rel[field], rel
+
+    def _check_relationship_dict(self, rel_dict, subject, type, object, comment):
+        assert rel_dict['subject'] == subject, rel_dict
+        assert rel_dict['object'] == object, rel_dict
+        assert rel_dict['type'] == type, rel_dict
+        assert rel_dict['comment'] == comment, rel_dict
+
+
+    def test_01_add_relationship(self):
+        # check anna has no existing relationships
+        assert not self.anna.get_relationships()
+        assert self._get_relationships(package1_name='annakarenina') == []
+        assert self._get_relationships(package1_name='annakarenina',
+                                       package2_name='warandpeace') == []
+        assert self._get_relationships(package1_name='annakarenina',
+                                       type='child_of',
+                                       package2_name='warandpeace') == 404
+        assert self._get_relationships_via_package('annakarenina') == []
+
+        # make annakarenina parent of warandpeace
+        offset='/api/rest/package/annakarenina/parent_of/warandpeace'
+        postparams = '%s=1' % simplejson.dumps({'comment':self.comment})
+        res = self.app.post(offset, params=postparams, status=[200],
+                            extra_environ=self.extra_environ)
+
+    def test_02_read_relationship(self):
+        'check relationship is made (in test 01)'
+
+        # check model is right
+        rels = self.anna.get_relationships()
+        assert len(rels) == 1, rels
+        assert rels[0].type == 'child_of'
+        assert rels[0].subject.name == 'warandpeace'
+        assert rels[0].object.name == 'annakarenina'
+
+        # check '/api/rest/package/annakarenina/relationships'
+        rels = self._get_relationships(package1_name='annakarenina')
+        assert len(rels) == 1
+        self._check_relationship_dict(rels[0],
+               'annakarenina', 'parent_of', 'warandpeace', self.comment)
+
+        # check '/api/rest/package/annakarenina/relationships/warandpeace'
+        rels = self._get_relationships(package1_name='annakarenina',
+                                      package2_name='warandpeace')
+        assert len(rels) == 1
+        self._check_relationship_dict(rels[0],
+               'annakarenina', 'parent_of', 'warandpeace', self.comment)
+
+        # check '/api/rest/package/annakarenina/parent_of/warandpeace'
+        rels = self._get_relationships(package1_name='annakarenina',
+                                       type='parent_of',
+                                      package2_name='warandpeace')
+        assert len(rels) == 1
+        self._check_relationship_dict(rels[0],
+               'annakarenina', 'parent_of', 'warandpeace', self.comment)
+
+        # same checks in reverse direction
+        rels = self._get_relationships(package1_name='warandpeace')
+        assert len(rels) == 1
+        self._check_relationship_dict(rels[0],
+               'warandpeace', 'child_of', 'annakarenina', self.comment)
+
+        rels = self._get_relationships(package1_name='warandpeace',
+                                      package2_name='annakarenina')
+        assert len(rels) == 1
+        self._check_relationship_dict(rels[0],
+               'warandpeace', 'child_of', 'annakarenina', self.comment)
+
+        rels = self._get_relationships(package1_name='warandpeace',
+                                       type='child_of',
+                                      package2_name='annakarenina')
+        assert len(rels) == 1
+        self._check_relationship_dict(rels[0],
+               'warandpeace', 'child_of', 'annakarenina', self.comment)
+
+        # check '/api/rest/package/annakarenina'
+        rels = self._get_relationships_via_package('annakarenina')
+        assert len(rels) == 1
+        self._check_relationship_dict(rels[0],
+               'annakarenina', 'parent_of', 'warandpeace', self.comment)
+        
+
+    def test_03_update_relationship(self):
+        self._check_relationships_rest('warandpeace', 'annakarenina',
+                                      [{'type': 'child_of',
+                                        'comment': self.comment}])
+
+        offset='/api/rest/package/annakarenina/parent_of/warandpeace'
+        comment = u'New comment.'
+        postparams = '%s=1' % simplejson.dumps({'comment':comment})
+        res = self.app.post(offset, params=postparams, status=[200],
+                            extra_environ=self.extra_environ)
+
+        self._check_relationships_rest('warandpeace', 'annakarenina',
+                                      [{'type': 'child_of',
+                                        'comment': u'New comment.'}])
+
+    def test_04_update_relationship_no_change(self):
+        offset='/api/rest/package/annakarenina/parent_of/warandpeace'
+
+        comment = u'New comment.' # same as previous test
+        postparams = '%s=1' % simplejson.dumps({'comment':comment})
+        res = self.app.post(offset, params=postparams, status=[200],
+                            extra_environ=self.extra_environ)
+
+        self._check_relationships_rest('warandpeace', 'annakarenina',
+                                      [{'type': 'child_of',
+                                        'comment': u'New comment.'}])
+
+        
+    def test_05_delete_relationship(self):
+        self._check_relationships_rest('warandpeace', 'annakarenina',
+                                      [{'type': 'child_of',
+                                        'comment': u'New comment.'}])
+
+        offset='/api/rest/package/annakarenina/parent_of/warandpeace'
+        res = self.app.delete(offset, status=[200],
+                              extra_environ=self.extra_environ)
+
+        self._check_relationships_rest('warandpeace', 'annakarenina',
+                                      [])
 
 
 class TestSearch(TestController):
@@ -628,9 +885,9 @@ class TestSearch(TestController):
             'title': 'Some Title',
             'url': u'http://blahblahblah.mydomain',
             'resources': [{u'url':u'http://blahblahblah.mydomain',
-                           'format':'', 'description':''}],
+                           u'format':u'', u'description':''}],
             'tags': ['russion', 'novel'],
-            'license_id': '4',
+            'license_id': u'gpl-3.0',
             'extras': {'national_statistic':'yes',
                        'geographic_coverage':'England, Wales'},
         }
@@ -772,7 +1029,7 @@ class TestSearch(TestController):
                 break
         assert anna_rec['name'] == 'annakarenina', res_dict['results']
         assert anna_rec['title'] == 'A Novel By Tolstoy', anna_rec['title']
-        assert anna_rec['license'] == 'OKD Compliant::Other', anna_rec['license']
+        assert anna_rec['license_id'] == u'other-open', anna_rec['license_id']
         assert len(anna_rec['tags']) == 2, anna_rec['tags']
         for expected_tag in ['russian', 'tolstoy']:
             assert expected_tag in anna_rec['tags']

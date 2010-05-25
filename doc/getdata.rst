@@ -14,7 +14,7 @@ Overview
 The scripts are stored in::
  ckan/getdata
 
-The basics of operation are::
+The basics of operation are:
 
 1. Read in a record from the new/updated external data.
 

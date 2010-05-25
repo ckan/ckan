@@ -20,9 +20,36 @@ Here's an example for deploying CKAN to http://demo.ckan.net/ via Apache.
    postgresql             PostgreSQL database
    libpq-dev              PostgreSQL library
    python-psycopg2        PostgreSQL python module
+   python-setuptools      Python package management
+   =====================  ============================================
+
+   Now use easy_install (which comes with python-setuptools) to install
+   these packages:
+   (e.g. sudo easy_install <package-name>)
+
+   =====================  ============================================
+   Package                Notes
+   =====================  ============================================
    python-virtualenv      Python virtual environment sandboxing
    pip                    Python installer (use easy_install for this)
    =====================  ============================================
+
+   Check that you received:
+
+    * virtualenv v1.3 or later
+    * pip v0.7.1 or later
+
+
+NB: Instead of using these manual instructions, steps 3 to 9 can be achieved
+automatically on a remote server by running the fabric deploy script on 
+your local machine. You need fabric and python-dev modules installed locally.
+If you don't have the ckan repo checked out then download the fabfile.py using::
+
+  $ wget https://knowledgeforge.net/ckan/hg/raw-file/default/fabfile.py
+
+Now you can then do the deployment with something like::
+
+  $ fab config_0:demo.ckan.net,hosts_str=someserver.net,db_pass=my_password deploy
 
 
 3. Setup a PostgreSQL database
@@ -41,13 +68,6 @@ Here's an example for deploying CKAN to http://demo.ckan.net/ via Apache.
   Now create the database::
 
   $ sudo -u postgres createdb -O <user> ckandemo
-
-
-NB Instead of using these manual instruction, steps 4 to 7 can be achieved
-automatically using the fabric deploy script. Add your server details 
-to fabfile.py and then run something like::
-
-  $ fab demo_server_net deploy
 
 
 4. Create a python virtual environment
@@ -130,5 +150,11 @@ to fabfile.py and then run something like::
     $ ln -s pyenv/src/ckan/who.ini ./
 
 
-11. Restart Apache and browse website at http://demo.ckan.net/
+11. Restart Apache
+
+  ::
+
+  $ sudo /etc/init.d/apache2 restart
+
+12. Browse website at http://demo.ckan.net/
 

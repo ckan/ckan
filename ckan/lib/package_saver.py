@@ -16,7 +16,10 @@ class PackageSaver(object):
     def render_preview(cls, fs, original_name, record_id,
                        log_message=None,
                        author=None):
-        'Renders a package on the basis of a fieldset - perfect for preview'
+        '''Renders a package on the basis of a fieldset - perfect for
+        preview of form data.
+        Note that the actual calling of render('package/read') is left
+        to the caller.'''
         pkg = cls._preview_pkg(fs, original_name, record_id,
                                log_message, author)
         cls.render_package(pkg)
@@ -24,7 +27,11 @@ class PackageSaver(object):
     # TODO: rename to something more correct like prepare_for_render
     @classmethod
     def render_package(cls, pkg):
-        'Renders a package'
+        '''Prepares for rendering a package. Takes a Package object and
+        formats it for the various context variables required to call
+        render. 
+        Note that the actual calling of render('package/read') is left
+        to the caller.'''
         c.pkg = pkg
         notes_formatted = ckan.misc.MarkdownFormat().to_html(pkg.notes)
         c.pkg_notes_formatted = genshi.HTML(notes_formatted)
@@ -32,14 +39,14 @@ class PackageSaver(object):
         c.pkg_url_link = h.link_to(c.pkg.url, c.pkg.url) if c.pkg.url else "No web page given"
         c.pkg_author_link = cls._person_email_link(c.pkg.author, c.pkg.author_email, "Author")
         c.pkg_maintainer_link = cls._person_email_link(c.pkg.maintainer, c.pkg.maintainer_email, "Maintainer")
+        c.package_relationships = pkg.get_relationships_printable()
         # c.auth_for_change_state and c.auth_for_edit may also used
         # return render('package/read')
 
     @classmethod
     def _preview_pkg(cls, fs, original_name, pkg_id,
                      log_message=None, author=None):
-        '''Previews the POST data (associated with a package edit) to the
-        database
+        '''Previews the POST data (associated with a package edit)
         @input c.error
         @input fs      FieldSet with the param data bound to it
         @input original_name Name of the package before this edit
@@ -62,9 +69,6 @@ class PackageSaver(object):
             raise ValidationException(*e)
         # remove everything from session so nothing can get saved accidentally
         model.Session.clear()
-        # license field's _id only updated, not object.id, so cludge that:
-        if fs.model.license_id:
-            fs.model.license = model.Session.query(model.License).get(fs.model.license_id)
         return out
 
     @classmethod
@@ -80,16 +84,11 @@ class PackageSaver(object):
 
     @classmethod
     def _update(cls, fs, original_name, pkg_id, log_message, author, commit=True):
+        rev = None
         # validation
-        validation_errors = []
-        revision_errors = cls._revision_validation(log_message)
-        if revision_errors:
-            validation_errors.extend(revision_errors)
-        fs_validation = fs.validate_on_edit(original_name, pkg_id)
-        if not fs_validation:
-            for field, err_list in fs.errors.items():
-                validation_errors.append("%s: %s" % (field.name, ";".join(err_list)))
-        validation_errors_str = ', '.join(validation_errors)
+        c.errors = cls._revision_validation(log_message)
+        fs_validation = fs.validate() #errors stored in fs.errors
+        validates = not (c.errors or fs.errors)
 
         # sync
         try:
@@ -103,14 +102,26 @@ class PackageSaver(object):
             raise
         else:
             # only commit if desired and it validates ok
-            if commit and not validation_errors:
+            if commit and validates:
                 model.Session.commit()
-            elif validation_errors:
-                raise ValidationException(validation_errors, fs)
+            elif not validates:
+                raise ValidationException(fs)
             else:
                 # i.e. preview
                 pkg = fs.model
                 return pkg
+        if rev and 'true' == config.get('changeset.auto_commit', '').strip():
+            try:
+                from ckan.model.changeset import ChangesetRegister
+                changeset_ids = ChangesetRegister().commit()
+                for id in changeset_ids:
+                    msg = "PackageSaver auto-committed changeset '%s'." % id
+                    logging.info(msg)
+            except Exception, inst:
+                msg = "PackageSaver failed to auto-commit revision '%s': %s" % (
+                    rev.id, inst
+                )
+                logging.error(msg)
 
     @classmethod
     def _revision_validation(cls, log_message):

@@ -35,14 +35,6 @@ class HomeController(BaseController):
 
     def license(self):
         return render('home/license')
-    
-    def guide(self):
-        ckan_pkg = model.Package.by_name(u'ckan')
-        if ckan_pkg:
-            c.info = ckan_pkg.notes
-        else:
-            c.info = ''
-        return render('home/guide')
 
     def about(self):
         return render('home/about')

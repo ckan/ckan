@@ -1,8 +1,9 @@
 from ckan.tests import *
 import ckan.model as model
 import ckan.forms
+from ckan.tests.pylons_controller import PylonsTestCase
 
-class TestGroupFieldset:
+class TestGroupFieldset(PylonsTestCase):
     @classmethod
     def setup_class(self):
         model.Session.remove()
@@ -14,7 +15,7 @@ class TestGroupFieldset:
 
     def test_1(self):
         group = model.Group.by_name(u'roger')
-        fs = ckan.forms.group_fs.bind(group)
+        fs = ckan.forms.get_group_fieldset('group_fs').bind(group)
         out = fs.render()
         print out
         desc = fs.description.render()

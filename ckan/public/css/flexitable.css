@@ -1,0 +1,43 @@
+table.flexitable .controls {
+	margin: 0 0.5em;
+	padding: 0;
+	width: 4.3em;
+}
+
+table.flexitable .controls a {
+	float: left;
+	display: block;
+	height: 16px;
+	width: 16px;
+	margin: 0 0.3em 0 0;
+	padding: 0;
+	background-color: transparent;
+	background-repeat: no-repeat;
+	background-position: left top;
+	overflow: hidden;
+	text-indent: -999em;
+	letter-spacing: -1000em;
+}
+
+table.flexitable .controls a:last-child {
+	margin-right: 0;
+}
+
+table.flexitable .controls a.remove { background-image: url(../images/icons/remove.png); }
+/*.flexitable .controls .move { 
+	background-image: url(../images/icons/handle_grey.png);
+	cursor: move;
+}*/
+table.flexitable .controls a.moveUp { background-image: url(../images/icons/arrow_up.png); }
+table.flexitable .controls a.moveDown { background-image: url(../images/icons/arrow_down.png); }
+
+p.flexitable button.addRow {
+	background-image: url(../images/icons/add.png);
+	background-position: 0.4em 0.4em;
+	background-repeat: no-repeat;
+	padding-left: 1.7em;
+}
+
+button.addRow {
+        float: right;
+}

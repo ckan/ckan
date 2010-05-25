@@ -62,28 +62,40 @@ So that the system knows who is making this change, you need to send your API ke
 API Locations
 =============
 
-A REST interface presents resources at published locations. Here are the names
+A REST interface presents resources at published locations. Here are the named
 locations of the CKAN REST API resources:
 
-+------------------------+--------------------------------+
-| Resource Name          | Location                       |
-+========================+================================+
-| Package Register       | /api/rest/package              |
-+------------------------+--------------------------------+
-| Package Entity         | /api/rest/package/PACKAGE-NAME |
-+------------------------+--------------------------------+
-| Group Register         | /api/rest/group                |
-+------------------------+--------------------------------+
-| Group Entity           | /api/rest/group/GROUP-NAME     |
-+------------------------+--------------------------------+
-| Tag Register           | /api/rest/tag                  |
-+------------------------+--------------------------------+
-| Tag Entity             | /api/rest/tag/TAG-NAME         |
-+------------------------+--------------------------------+
-| Rating Registry        | /api/rest/rating               |
-+------------------------+--------------------------------+
-| Rating Entity          | /api/rest/rating/PACKAGE-NAME  |
-+------------------------+--------------------------------+
++--------------------------------+---------------------------------------------------------------+
+| Resource Name                  | Location                                                      |
++================================+===============================================================+
+| Package Register               | /api/rest/package                                             |
++--------------------------------+---------------------------------------------------------------+
+| Package Entity                 | /api/rest/package/PACKAGE-NAME                                |
++--------------------------------+---------------------------------------------------------------+
+| Group Register                 | /api/rest/group                                               |
++--------------------------------+---------------------------------------------------------------+
+| Group Entity                   | /api/rest/group/GROUP-NAME                                    |
++--------------------------------+---------------------------------------------------------------+
+| Tag Register                   | /api/rest/tag                                                 |
++--------------------------------+---------------------------------------------------------------+
+| Tag Entity                     | /api/rest/tag/TAG-NAME                                        |
++--------------------------------+---------------------------------------------------------------+
+| Rating Register                | /api/rest/rating                                              |
++--------------------------------+---------------------------------------------------------------+
+| Rating Entity                  | /api/rest/rating/PACKAGE-NAME                                 |
++--------------------------------+---------------------------------------------------------------+
+| Package Relationships Register | /api/rest/package/PACKAGE-NAME/relationships                  |
++--------------------------------+---------------------------------------------------------------+
+| Package Relationships Register | /api/rest/package/PACKAGE-NAME/relationships/PACKAGE-NAME     |
++--------------------------------+---------------------------------------------------------------+
+| Package Relationship Entity    | /api/rest/package/PACKAGE-NAME/RELATIONSHIP-TYPE/PACKAGE-NAME |
++--------------------------------+---------------------------------------------------------------+
+| Revision Entity                | /api/rest/revision/REVISION-ID                                |
++--------------------------------+---------------------------------------------------------------+
+| License List                   | /api/rest/licenses                                            |
++--------------------------------+---------------------------------------------------------------+
+
+Possible values for RELATIONSHIP-TYPE are given below for Data Formats - Relationship-Type
 
 Here are the non-REST API locations:
 
@@ -94,6 +106,10 @@ Here are the non-REST API locations:
 +-------------------+-----------------------+
 | Tag Counts        | /api/tag_counts       |
 +-------------------+-----------------------+
+| Revision Search   | /api/search/revision  |
++-------------------+-----------------------+
+
+See below for more information about package and revision search parameters.
 
 
 Methods and data formats
@@ -103,39 +119,51 @@ Each resource location supports a number of methods, which may send or receive
 a piece of data. Standard http status codes are used to signal the outcome of
 the operation.
 
-+------------------+--------+--------------+-----------------+
-| Resource         | Method | Request      | Response        |
-+==================+========+==============+=================+ 
-| Package Register | GET    |              | Package-List    | 
-+------------------+--------+--------------+-----------------+
-| Package Register | POST   | Package      |                 | 
-+------------------+--------+--------------+-----------------+
-| Package Entity   | GET    |              | Package         | 
-+------------------+--------+--------------+-----------------+
-| Package Entity   | PUT    | Package      |                 | 
-+------------------+--------+--------------+-----------------+
-| Group Register   | GET    |              | Group-List      | 
-+------------------+--------+--------------+-----------------+
-| Group Register   | POST   | Group        |                 | 
-+------------------+--------+--------------+-----------------+
-| Group Entity     | GET    |              | Group           | 
-+------------------+--------+--------------+-----------------+
-| Group Entity     | PUT    | Group        |                 | 
-+------------------+--------+--------------+-----------------+
-| Tag Register     | GET    |              | Tag-List        |  
-+------------------+--------+--------------+-----------------+
-| Tag Entity       | GET    | Tag          | Package-List    | 
-+------------------+--------+--------------+-----------------+
-| Rating Entity    | GET    |              | Ratings         | 
-+------------------+--------+--------------+-----------------+
-| Rating Register  | POST   | Rating       |                 | 
-+------------------+--------+--------------+-----------------+
-| Search           | GET    |              | Search-Response | 
-+------------------+--------+--------------+-----------------+
-| Search           | POST   | Query-String | Search-Response | 
-+------------------+--------+--------------+-----------------+
-| Tag Counts       | GET    |              | Tag-Count-List  | 
-+------------------+--------+--------------+-----------------+
++-------------------------------+--------+------------------+-------------------+
+| Resource                      | Method | Request          | Response          |
++===============================+========+==================+===================+ 
+| Package Register              | GET    |                  | Package-List      | 
++-------------------------------+--------+------------------+-------------------+
+| Package Register              | POST   | Package          |                   | 
++-------------------------------+--------+------------------+-------------------+
+| Package Entity                | GET    |                  | Package           | 
++-------------------------------+--------+------------------+-------------------+
+| Package Entity                | PUT    | Package          |                   | 
++-------------------------------+--------+------------------+-------------------+
+| Group Register                | GET    |                  | Group-List        | 
++-------------------------------+--------+------------------+-------------------+
+| Group Register                | POST   | Group            |                   | 
++-------------------------------+--------+------------------+-------------------+
+| Group Entity                  | GET    |                  | Group             | 
++-------------------------------+--------+------------------+-------------------+
+| Group Entity                  | PUT    | Group            |                   | 
++-------------------------------+--------+------------------+-------------------+
+| Tag Register                  | GET    |                  | Tag-List          |  
++-------------------------------+--------+------------------+-------------------+
+| Tag Entity                    | GET    | Tag              | Package-List      | 
++-------------------------------+--------+------------------+-------------------+
+| Rating Register               | POST   | Rating           |                   | 
++-------------------------------+--------+------------------+-------------------+
+| Rating Entity                 | GET    |                  | Rating            | 
++-------------------------------+--------+------------------+-------------------+
+| Package Relationships Register| GET    |                  | Pkg-Relationships | 
++-------------------------------+--------+------------------+-------------------+
+| Package Relationship Entity   | GET    |                  | Pkg-Relationship  |
++-------------------------------+--------+------------------+-------------------+
+| Package Relationship Entity   | POST   | Pkg-Relationship |                   | 
++-------------------------------+--------+------------------+-------------------+
+| Package Relationship Entity   | PUT    | Pkg-Relationship |                   | 
++-------------------------------+--------+------------------+-------------------+
+| Search                        | GET    |                  | Search-Response   | 
++-------------------------------+--------+------------------+-------------------+
+| Search                        | POST   | Query-String     | Search-Response   | 
++-------------------------------+--------+------------------+-------------------+
+| Tag Counts                    | GET    |                  | Tag-Count-List    | 
++-------------------------------+--------+------------------+-------------------+
+| Revision Entity               | GET    |                  | Revision          | 
++-------------------------------+--------+------------------+-------------------+
+| License List                  | GET    |                  | License-List      | 
++-------------------------------+--------+------------------+-------------------+
 
 Notes:
 
@@ -160,8 +188,9 @@ Data Formats
 |                 | url: String, resources: [ Resource-Dict, Resource-Dict,    |
 |                 | ... ], author: String, author_email: String,               |
 |                 | maintainer: String, maintainer_email: String,              |
-|                 | license: String, tags: Tag-List, notes: String,            |
+|                 | license_id: String, tags: Tag-List, notes: String,         |
 |                 | extras: { Name-String: Value-String, ... } }               |
+|                 | See note below on additional fields upon GET of a package. |
 +-----------------+------------------------------------------------------------+
 | Group-List      | [ Name-String, Name-String, Name-String, ... ]             | 
 +-----------------+------------------------------------------------------------+
@@ -172,24 +201,47 @@ Data Formats
 +-----------------+------------------------------------------------------------+
 | Tag             | { name: Name-String }                                      |
 +-----------------+------------------------------------------------------------+
-| Name-String     | An alphanumeric string.                                    |
-+-----------------+------------------------------------------------------------+
-| Resource-Dict   | { url: String, format: String, description: String }       |
+| Resource-Dict   | { url: String, format: String, description: String,        |
+|                 | hash: String }                                             |
 +-----------------+------------------------------------------------------------+
 | Rating          | { package: Name-String, rating: int }                      |
 +-----------------+------------------------------------------------------------+
 | Ratings         | { ratings_average: float, ratings_count: int }             |
 +-----------------+------------------------------------------------------------+
-| Query-String    | [ q: String ]                                              |
+|Pkg-Relationships| [ Pkg-Relationship, Pkg-Relationship, ... ]                |
 +-----------------+------------------------------------------------------------+
-| Search-Response | { count: Count-int, results: [Package-Name-String,         |
-|                 | Package-Name-String, ... ] }                               |
+| Pkg-Relationship| { subject: Package-Name-String,                            |
+|                 | object: Package-Name-String, type: Relationship-Type,      |
+|                 | comment: String }                                          |
++-----------------+------------------------------------------------------------+
+|Relationship-Type| One of: 'depends_on', 'dependency_of',                     |
+|                 | 'derives_from', 'has_derivation',                          |
+|                 | 'child_of', 'parent_of'                                    |
++-----------------+------------------------------------------------------------+
+| Search-Response | { count: Count-int, results: [Name-String,                 |
+|                 | Name-String, ... ] }                                       |
 |                 | **or**                                                     |
 |                 | { count: Count-int,                                        |
 |                 | results: [{ name:Name-String, title: String ... },         |
 |                 | { name:Name-String, title: String ... }, ... ]}            |
 +-----------------+------------------------------------------------------------+
-| Tag-Count-List  | [ [tag-name, tag-count], [tag-name, tag-count], ... ]      |
+| Query-String    | [ q: String ]                                              |
++-----------------+------------------------------------------------------------+
+| Tag-Count-List  | [ [Name-String, Integer], [Name-String, Integer], ... ]    |
++-----------------+------------------------------------------------------------+
+| Revision        | { id: Uuid, message: String, author: String,               |
+|                 | timestamp: Date-Time, packages: Package-List }             |
++-----------------+------------------------------------------------------------+
+| Revision-List   | [ Uuid, Uuid, Uuid, ... ]                                  |
++-----------------+------------------------------------------------------------+
+| License-List    | [ License, License, License, ... ]                         |
++-----------------+------------------------------------------------------------+
+| License         | { id: Name-String, title: String, is_okd_compliant:        |
+|                 | Boolean, is_osi_compliant: Boolean, tags: Tag-List,        |
+|                 | family: String, url: String, maintainer: String,           |
+|                 | date_created: Date-Time, status: String ]                  |
++-----------------+------------------------------------------------------------+
+| Name-String     | An alphanumeric string.                                    |
 +-----------------+------------------------------------------------------------+
 
 To send request data, create a simple data structure, then convert it to a JSON string, then percent-encode the JSON string, then send it as the request body.
@@ -201,6 +253,8 @@ Notes:
  * When you update an object, fields that you don't supply will remain as they were before.
 
  * To delete an 'extra' key-value pair, supply the key with a None value.
+
+ * When you read a package then some additional information is supplied that cannot be edited in the REST style. This includes info on Package Relationship ('relationships'), Group membership ('groups'), ratings ('ratings_average' and 'ratings_count') and Package ID ('id'). This is purely a convenience for clients, and only forms part of the Package on GET.
 
 
 API Keys
@@ -233,8 +287,8 @@ authorized for the operation, then the requested operation will not be carried
 out and the CKAN REST API will respond with status code 403.
 
 
-Search parameters
-=================
+Package Search Parameters
+=========================
 
 +-----------------------+---------------+----------------------------------+----------------------------------+
 | Key                   |    Value      | Example                          |  Notes                           |
@@ -284,6 +338,18 @@ Search parameters
 |filter_by_downloadbable| 0 (default)   | filter_by_downloadable=1         | Filters results by ones which    |
 |                       | or 1          |                                  | have at least one resource URL.  |
 +-----------------------+---------------+----------------------------------+----------------------------------+
+
+
+Revision Search Parameters
+==========================
+
++-----------------------+---------------+-----------------------------------------------------+----------------------------------+
+| Key                   |    Value      | Example                                             |  Notes                           |
++=======================+===============+=====================================================+==================================+ 
+| since_time            | Date-Time     | since_time=2010-05-05T19:42:45.854533               |                                  |
++-----------------------+---------------+-----------------------------------------------------+----------------------------------+
+| since_revision        | Uuid          | since_revision=6c9f32ef-1f93-4b2f-891b-fd01924ebe08 |                                  |
++-----------------------+---------------+-----------------------------------------------------+----------------------------------+
 
 
 Status Codes

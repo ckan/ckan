@@ -14,8 +14,9 @@ class GroupController(BaseController):
     def index(self):
         from ckan.lib.helpers import Page
 
+        query = ckan.authz.Authorizer().authorized_query(c.user, model.Group)
         c.page = Page(
-            collection=model.Session.query(model.Group),
+            collection=query,
             page=request.params.get('page', 1),
             items_per_page=20
         )
@@ -52,7 +53,7 @@ class GroupController(BaseController):
         if not c.user:
             abort(401, gettext('Must be logged in to create a new group.'))
 
-        fs = ckan.forms.group_fs
+        fs = ckan.forms.get_group_fieldset('group_fs')
 
         if request.params.has_key('commit'):
             # needed because request is nested
@@ -62,7 +63,7 @@ class GroupController(BaseController):
             try:
                 self._update(c.fs, id, record.id)
             except ValidationException, error:
-                c.error, fs = error.args
+                fs = error.args[0]
                 c.form = self._render_edit_form(fs)
                 return render('group/edit')
             # do not use groupname from id as may have changed
@@ -76,19 +77,19 @@ class GroupController(BaseController):
             group = model.Group.by_name(c.groupname)
             pkgs = [model.Package.by_name(name) for name in request.params.getall('Group-packages-current')]
             group.packages = pkgs
-            pkgid = request.params.get('PackageGroup--package_id')
-            if pkgid != '__null_value__':
-                package = model.Session.query(model.Package).get(pkgid)
-                group.packages.append(package)
+            pkgids = request.params.getall('PackageGroup--package_id')
+            for pkgid in pkgids:
+                if pkgid:
+                    package = model.Session.query(model.Package).get(pkgid)
+                    if package and package not in group.packages:
+                        group.packages.append(package)
             model.repo.commit_and_remove()
             h.redirect_to(action='read', id=c.groupname)
 
         if request.params:
             data = ckan.forms.edit_group_dict(ckan.forms.get_group_dict(), request.params)
-            fs = fs.bind(data=data)
+            fs = fs.bind(data=data, session=model.Session)
         c.form = self._render_edit_form(fs)
-        if 'preview' in request.params:
-            c.preview = genshi.HTML(self._render_package(fs))
         return render('group/new')
 
     def edit(self, id=None): # allow id=None to allow posting
@@ -104,7 +105,7 @@ class GroupController(BaseController):
             c.group = group
             c.groupname = group.name
             
-            fs = ckan.forms.group_fs.bind(c.group)
+            fs = ckan.forms.get_group_fieldset('group_fs').bind(c.group)
             c.form = self._render_edit_form(fs)
             return render('group/edit')
         else:
@@ -113,21 +114,23 @@ class GroupController(BaseController):
             # needed because request is nested
             # multidict which is read only
             params = dict(request.params)
-            c.fs = ckan.forms.group_fs.bind(group, data=params or None)
+            c.fs = ckan.forms.get_group_fieldset('group_fs').bind(group, data=params or None)
             try:
                 self._update(c.fs, id, group.id)
                 # do not use groupname from id as may have changed
                 c.groupname = c.fs.name.value
             except ValidationException, error:
-                c.error, fs = error.args
+                fs = error.args[0]
                 c.form = self._render_edit_form(fs)
                 return render('group/edit')
             pkgs = [model.Package.by_name(name) for name in request.params.getall('Group-packages-current')]
             group.packages = pkgs
-            pkgid = request.params.get('PackageGroup--package_id')
-            if pkgid != '__null_value__':
-                package = model.Session.query(model.Package).get(pkgid)
-                group.packages.append(package)
+            pkgids = request.params.getall('PackageGroup--package_id')
+            for pkgid in pkgids:
+                if pkgid:
+                    package = model.Session.query(model.Package).get(pkgid)
+                    if package and package not in group.packages:
+                        group.packages.append(package)
             model.repo.commit_and_remove()
             h.redirect_to(action='read', id=c.groupname)
 
@@ -145,12 +148,12 @@ class GroupController(BaseController):
             # needed because request is nested
             # multidict which is read only
             params = dict(request.params)
-            c.fs = ckan.forms.group_authz_fs.bind(group.roles, data=params or None)
+            c.fs = ckan.forms.get_authz_fieldset('group_authz_fs').bind(group.roles, data=params or None)
             try:
                 self._update_authz(c.fs)
             except ValidationException, error:
                 # TODO: sort this out 
-                # c.error, fs = error.args
+                # fs = error.args[0]
                 # return render('group/authz')
                 raise
             # now do new roles
@@ -182,15 +185,15 @@ class GroupController(BaseController):
 
         # retrieve group again ...
         group = model.Group.by_name(id)
-        fs = ckan.forms.group_authz_fs.bind(group.roles)
+        fs = ckan.forms.get_authz_fieldset('group_authz_fs').bind(group.roles)
         c.form = fs.render()
-        c.new_roles_form = ckan.forms.new_group_roles_fs.render()
+        c.new_roles_form = ckan.forms.get_authz_fieldset('new_group_roles_fs').render()
         return render('group/authz')
 
     def _render_edit_form(self, fs):
         # errors arrive in c.error and fs.errors
         c.fieldset = fs
-        c.fieldset2 = ckan.forms.new_package_group_fs
+        c.fieldset2 = ckan.forms.get_group_fieldset('new_package_group_fs')
         return render('group/edit_form')
 
     def _update(self, fs, group_name, group_id):
@@ -198,14 +201,10 @@ class GroupController(BaseController):
         Writes the POST data (associated with a group edit) to the database
         @input c.error
         '''
-        validation = fs.validate_on_edit(group_name, group_id)
+        validation = fs.validate()
         if not validation:
-            errors = []            
-            for field, err_list in fs.errors.items():
-                errors.append("%s:%s" % (field.name, ";".join(err_list)))
-            c.error = ', '.join(errors)
             c.form = self._render_edit_form(fs)
-            raise ValidationException(c.error, fs)
+            raise ValidationException(fs)
 
         try:
             fs.sync()
@@ -218,12 +217,8 @@ class GroupController(BaseController):
     def _update_authz(self, fs):
         validation = fs.validate()
         if not validation:
-            errors = []            
-            for row, err in fs.errors.items():
-                errors.append(err)
-            c.error = ', '.join(errors)
             c.form = self._render_edit_form(fs)
-            raise ValidationException(c.error, fs)
+            raise ValidationException(fs)
         try:
             fs.sync()
         except Exception, inst:

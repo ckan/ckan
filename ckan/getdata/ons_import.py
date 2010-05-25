@@ -6,6 +6,9 @@ import logging
 
 import ckan.model as model
 from ckan.lib import schema_gov
+from ckan.lib import field_types
+
+guid_prefix = 'http://www.statistics.gov.uk/'
 
 class Data(object):
     def load_xml_into_db(self, xml_filepaths, log=False):
@@ -38,9 +41,22 @@ class Data(object):
         title, release = self._split_title(item['title'])
         munged_title = schema_gov.name_munge(title)
         pkg = model.Package.by_name(munged_title)
+        department = self._source_to_department(item['hub:source-agency'])
+        if pkg and pkg.extras.get('department') != department:
+            munged_title = schema_gov.name_munge('%s - %s' % (title, department))
+            pkg = model.Package.by_name(munged_title)
+        while pkg and not pkg.extras.get('import_source', u'').startswith('ONS'):
+            print 'Avoiding clash with non-ONS (%s) item of similar name: %s' % (pkg.extras.get('import_source'), munged_title)
+            munged_title += '_'
+            pkg = model.Package.by_name(munged_title)
+
 
         # Resources
-        guid = item['guid']
+        guid = item['guid'] or None
+        if guid:
+            assert guid.startswith(guid_prefix)
+            guid = guid[len(guid_prefix):]
+            assert 'http' not in guid, guid
         existing_resource = None
         if guid and pkg:
             for res in pkg.resources:
@@ -53,8 +69,8 @@ class Data(object):
         descriptors = []
         if release:
             descriptors.append(release)
-        if item.get('guid', None):
-            descriptors.append(item['guid'])
+        if guid:
+            descriptors.append(guid)
         description = ' | '.join(descriptors)
 
         notes_list = []
@@ -67,13 +83,14 @@ class Data(object):
                        ]:
             if item[column]:
                 notes_list.append('%s: %s' % (name, item[column]))
+        notes = '\n\n'.join(notes_list)
 #        rev = self._new_revision()
 
         extras = {'geographic_coverage':u'', 'external_reference':u'', 'temporal_granularity':u'', 'date_updated':u'', 'agency':u'', 'precision':u'', 'geographical_granularity':u'', 'temporal_coverage_from':u'', 'temporal_coverage_to':u'', 'national_statistic':u'', 'department':u'', 'update_frequency':u'', 'date_released':u'', 'categories':u''}
         date_released = u''
         if item['pubDate']:
             try:
-                date_released = schema_gov.DateType.iso_to_db(item['pubDate'], '%a, %d %b %Y %H:%M:%S %Z')
+                date_released = field_types.DateType.iso_to_db(item['pubDate'], '%a, %d %b %Y %H:%M:%S %Z')
             except TypeError, e:
                 self._log(logging.warning, 'Warning: Could not read format of publication (release) date: %r' % e.args)
         extras['date_released'] = date_released
@@ -95,9 +112,14 @@ class Data(object):
         extras['import_source'] = 'ONS-%s' % self._current_filename 
 
         tags = set()
+        pkg_dict = {'name':munged_title, 'title':title, 'notes':notes,
+                    'categories':extras['categories'],
+                    'agency':extras['agency']}
+        suggested_tags = schema_gov.TagSuggester.suggest_tags(pkg_dict)
         for keyword in item['hub:ipsv'].split(';') + \
                 item['hub:keywords'].split(';') + \
-                item['hub:nscl'].split(';'):
+                item['hub:nscl'].split(';') + \
+                list(suggested_tags):
             tags.add(schema_gov.tag_munge(keyword))
 
 
@@ -117,8 +139,8 @@ class Data(object):
             
 
         pkg.title = title
-        pkg.notes = '\n\n'.join(notes_list)
-        pkg.license = model.Session.query(model.License).get(self._crown_license_id)
+        pkg.notes = notes
+        pkg.license_id = self._crown_license_id
         pkg.extras = extras
         if extras['department']:
             pkg.author = extras['department']
@@ -167,7 +189,7 @@ class Data(object):
             assert department in schema_gov.government_depts, department
             return department
         else:
-            if dept_given and dept_given not in ['Office for National Statistics', 'Health Protection Agency', 'Information Centre for Health and Social Care', 'General Register Office for Scotland', 'Northern Ireland Statistics and Research Agency', 'National Health Service in Scotland', 'National Treatment Agency', 'Police Service of Northern Ireland (PSNI)', 'Child Maintenance and Enforcement Commission', 'Health and Safety Executive']:
+            if dept_given and dept_given not in ['Office for National Statistics', 'Health Protection Agency', 'Information Centre for Health and Social Care', 'General Register Office for Scotland', 'Northern Ireland Statistics and Research Agency', 'National Health Service in Scotland', 'National Treatment Agency', 'Police Service of Northern Ireland (PSNI)', 'Child Maintenance and Enforcement Commission', 'Health and Safety Executive', 'ISD Scotland (part of NHS National Services Scotland)']:
                 self._log(logging.warning, 'Warning: Double check this is not a gvt department source: %s' % dept_given)
             return None
         
@@ -189,8 +211,7 @@ class Data(object):
     def _basic_setup(self):
         self._item_count = 0
         self._new_package_count = 0
-        license_str = u'OKD Compliant::UK Crown Copyright with data.gov.uk rights'
-        self._crown_license_id = model.License.by_name(license_str).id
+        self._crown_license_id = u'ukcrown-withrights'
 
 
         # ensure there is a user hmg
@@ -208,6 +229,8 @@ class Data(object):
             self._new_revision('Adding group')
             group = model.Group(name=groupname)
             model.Session.add(group)
+            user = model.User.by_name(username)
+            model.setup_default_user_roles(group, [user])
 
         if model.Session.new:
             model.repo.commit_and_remove()

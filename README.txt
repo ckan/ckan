@@ -48,8 +48,6 @@ Developer Installation
    config file then youl will need to change 5000 to whatever port value you
    chose).
 
-$ ln -s pyenv/src/ckan/who.ini
-
 
 Test
 ====
@@ -64,7 +62,7 @@ Documentation
 
 The home page for the CKAN project is: http://knowledgeforge.net/ckan
 
-This file is part of the developer docs. The complete developer docs are built from the ckan repository using Sphinx and uploaded by an admin to KnowledgeForge. To build the developer docs::
+This file is part of the developer docs. The complete developer docs are built from the ckan repository using `Sphinx <http://sphinx.pocoo.org/>`_ and uploaded by an admin to KnowledgeForge. To build the developer docs::
 
       python setup.py build_sphinx
  
@@ -90,7 +88,7 @@ been possible:
 Copying and License
 ===================
 
-This material is copyright (c) 2006-2009 Open Knowledge Foundation.
+This material is copyright (c) 2006-2010 Open Knowledge Foundation.
 
 It is open and licensed under the GNU Affero General Public License (AGPL) v3.0
 whose full text may be found at:
