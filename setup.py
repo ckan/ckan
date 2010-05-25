@@ -38,6 +38,7 @@ setup(
         # (not sure we need this except in tests but ...)
         'WebOb',
         'FormAlchemy>=1.3.3',
+        'solrpy>=0.9',
         # Excel libaries are only for importer tool
         # 'xlrd>=0.7.1',
         # 'xlwt>=0.7.2',

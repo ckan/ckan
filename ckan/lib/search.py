@@ -1,5 +1,4 @@
 import sqlalchemy
-import simplejson
 from solr import SolrConnection # == solrpy 
 
 from pylons import config
@@ -82,7 +81,6 @@ class SQLSearch:
         else:
             # error
             pass
-        
         return query
 
     def run(self, options, username=None):
@@ -192,7 +190,7 @@ class SQLSearch:
 
         # Filter for options
         if self._options.filter_by_downloadable:
-            query = query.join('resources', aliased=True).\
+            query = query.join('package_resources_all', aliased=True).\
                     filter(sqlalchemy.and_(
                 model.PackageResource.state==model.State.ACTIVE,
                 model.PackageResource.package_id==model.Package.id))
@@ -303,6 +301,8 @@ class SQLSearch:
 
 
 class SolrSearch(SQLSearch):
+    solr_fields = ["entity_type", "tags", "groups", "res_description", "res_format", 
+                   "res_url", "text", "urls", "indexed_ts"]
 
     def __init__(self, solr_url=None):
         if solr_url is None: 
@@ -355,7 +355,40 @@ class SolrSearch(SQLSearch):
             self._results['results'] = results
         else:
             SQLSearch._run_query(self, query)
+    
+    def index_package(self, package):
+        return self.index_package_dict(package.as_dict())
+    
+    def index_package_dict(self, package):
+        index_fields = self.solr_fields + package.keys()
+
+        # deleted packages appear to remain listed:
+        if not isinstance(package, type({})):
+            return 
             
+        # include the extras in the main namespace
+        extras = package.get('extras', {})
+        if 'extras' in package:
+            del package['extras']
+        for (key, value) in extras.items():
+            if key in not index_fields:
+                package[key] = value
+
+        # flatten the structure for indexing: 
+        for resource in package.get('resources', []):
+            for (okey, nkey) in [('description', 'res_description'),
+                                 ('format', 'res_format'),
+                                 ('url', 'res_url')]:
+                package[nkey] = package.get(nkey, []) + [resource.get(okey, u'')]
+        if 'resources' in package:
+            del package['resources']
+
+        package['entity_type'] = u"package"    
+        package = dict([(str(k), v] for (k, v) in package.items()])
+
+        # send to solr:    
+        self._conn.add(**plain_package)
+        
 
 #Search = SQLSearch
 Search = SolrSearch
