@@ -179,10 +179,9 @@ msgid "REST API: Create package relationship: %s %s %s"
 msgstr ""
 
 #: ckan/controllers/rest.py:170
-#, fuzzy, python-format
-#| msgid "Cannot create new entity of this type: %s"
+#, python-format
 msgid "Cannot create new entity of this type: %s %s"
-msgstr "Ne peut créer un nouvel élément de ce type : %s"
+msgstr "Ne peut créer un nouvel élément de ce type : %s %s"
 
 #: ckan/controllers/rest.py:177
 #, python-format
@@ -200,10 +199,9 @@ msgid "REST API: Update object %s"
 msgstr "REST API: Met-à-jour l'objet %s"
 
 #: ckan/controllers/rest.py:293
-#, fuzzy, python-format
-#| msgid "Cannot delete entity of this type: %s"
+#, python-format
 msgid "Cannot delete entity of this type: %s %s"
-msgstr "Ne peut supprimer un élément de ce type : %s"
+msgstr "Ne peut supprimer un élément de ce type : %s %s"
 
 #: ckan/controllers/rest.py:304
 #, python-format

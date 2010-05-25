@@ -145,7 +145,7 @@ msgstr "Napló Üzenet:"
 #: ckan/controllers/package.py:228
 #, python-format
 msgid "User %r not authorized to edit %s"
-msgstr "A(z) '%s' felhasználó nem jogosult az %s módosítására"
+msgstr "A(z) '%r' felhasználó nem jogosult az %s módosítására"
 
 #: ckan/controllers/package.py:302
 #, python-format

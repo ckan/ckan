@@ -178,9 +178,8 @@ msgstr ""
 
 #: ckan/controllers/rest.py:170
 #, fuzzy, python-format
-#| msgid "Cannot create new entity of this type: %s"
 msgid "Cannot create new entity of this type: %s %s"
-msgstr "Eine neue Entität des Typs %s konnte nicht angelegt werden"
+msgstr "Eine neue Entität des Typs %s %s konnte nicht angelegt werden"
 
 #: ckan/controllers/rest.py:177
 #, python-format
@@ -199,9 +198,8 @@ msgstr "REST API: Update Objekt %s"
 
 #: ckan/controllers/rest.py:293
 #, fuzzy, python-format
-#| msgid "Cannot delete entity of this type: %s"
 msgid "Cannot delete entity of this type: %s %s"
-msgstr "Entität des Typs %s konnte nicht entfernt werden"
+msgstr "Entität des Typs %s %s konnte nicht entfernt werden"
 
 #: ckan/controllers/rest.py:304
 #, python-format
