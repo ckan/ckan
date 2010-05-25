@@ -1,10 +1,10 @@
 import csv
-import simplejson
 import datetime
 from sqlalchemy import orm
 
 import ckan.model as model
 import ckan.model
+from helpers import json
 
 class SimpleDumper(object):
     '''Dumps just package data but including tags, groups, license text etc'''
@@ -48,7 +48,7 @@ class SimpleDumper(object):
         for pkg in query:
             pkg_dict = pkg.as_dict()
             pkgs.append(pkg_dict)
-        simplejson.dump(pkgs, dump_file_obj, indent=4, sort_keys=True)
+        json.dump(pkgs, dump_file_obj, indent=4, sort_keys=True)
 
 class Dumper(object):
     '''Dumps the database in same structure as it appears in the database'''
@@ -92,7 +92,7 @@ class Dumper(object):
         if verbose:
             print '---------------------------------'
             print 'Dumping to %s' % dump_path
-        simplejson.dump(dump_struct, file(dump_path, 'w'), indent=4, sort_keys=True)
+        json.dump(dump_struct, file(dump_path, 'w'), indent=4, sort_keys=True)
 
     def cvt_record_to_dict(self, record, table):
         out = {}
@@ -105,7 +105,7 @@ class Dumper(object):
         return out
 
     def load_json(self, dump_path, verbose=False):
-        dump_struct = simplejson.load(open(dump_path))
+        dump_struct = json.load(open(dump_path))
 
         if verbose:
             print 'Building table...'

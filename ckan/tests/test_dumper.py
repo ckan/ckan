@@ -1,11 +1,11 @@
 import tempfile
-import simplejson
 import os
 
 import ckan
 from ckan.tests import *
 import ckan.model as model
 import ckan.lib.dumper as dumper
+from ckan.lib.helpers import json
 from ckan.lib.dumper import Dumper
 simple_dumper = dumper.SimpleDumper()
 
@@ -64,7 +64,7 @@ class TestDumper(object):
 
     def test_dump(self):
         assert os.path.exists(self.outpath) 
-        dumpeddata = simplejson.load(open(self.outpath))
+        dumpeddata = json.load(open(self.outpath))
         assert dumpeddata['version'] == ckan.__version__
         tables = dumpeddata.keys()
         for key in ['Package', 'Tag', 'Group', 'PackageGroup', 'PackageExtra']:

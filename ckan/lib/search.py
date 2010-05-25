@@ -1,5 +1,4 @@
 import sqlalchemy
-import simplejson
 
 from pylons import config
 

@@ -1,7 +1,6 @@
 import genshi
 
 from ckan.lib.base import *
-from simplejson import dumps
 import ckan.authz as authz
 import ckan.forms
 from ckan.lib.helpers import Page

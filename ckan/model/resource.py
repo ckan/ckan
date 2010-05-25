@@ -1,11 +1,10 @@
-import simplejson as json
-
 from sqlalchemy.ext.orderinglist import ordering_list
 import vdm.sqlalchemy
 
 from meta import *
 from types import make_uuid
 from core import DomainObject, Package, package_table, Revision, State
+from ckan.lib.helpers import json
 
 __all__ = ['PackageResource', 'package_resource_table',
            'PackageResourceRevision', 'resource_revision_table']

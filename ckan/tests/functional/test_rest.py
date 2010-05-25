@@ -1,11 +1,11 @@
 from pylons import config
+import webhelpers
 
 from ckan.tests import *
 import ckan.model as model
 import ckan.authz as authz
-import simplejson
-import webhelpers
 from ckan.lib.create_test_data import CreateTestData
+from ckan.lib.helpers import json
 
 ACCESS_DENIED = [401,403]
 
@@ -71,13 +71,13 @@ class TestRest(TestController):
     def test_01_register_post_noauth(self):
         # Test Packages Register Post 401.
         offset = '/api/rest/package'
-        postparams = '%s=1' % simplejson.dumps(self.testpackagevalues)
+        postparams = '%s=1' % json.dumps(self.testpackagevalues)
         res = self.app.post(offset, params=postparams, status=ACCESS_DENIED)
 
     def test_01_entity_put_noauth(self):
         # Test Packages Entity Put 401.
         offset = '/api/rest/package/%s' % u'--'
-        postparams = '%s=1' % simplejson.dumps(self.testpackagevalues)
+        postparams = '%s=1' % json.dumps(self.testpackagevalues)
         res = self.app.post(offset, params=postparams, status=ACCESS_DENIED)
 
     def test_01_entity_delete_noauth(self):
@@ -168,7 +168,7 @@ class TestRest(TestController):
         # Test Packages Register Post 200.
         assert not model.Package.by_name(self.testpackagevalues['name'])
         offset = '/api/rest/package'
-        postparams = '%s=1' % simplejson.dumps(self.testpackagevalues)
+        postparams = '%s=1' % json.dumps(self.testpackagevalues)
         res = self.app.post(offset, params=postparams, status=[200],
                 extra_environ=self.extra_environ)
         model.Session.remove()
@@ -203,7 +203,7 @@ class TestRest(TestController):
         
         # Test Packages Register Post 409 (conflict - create duplicate package).
         offset = '/api/rest/package'
-        postparams = '%s=1' % simplejson.dumps(self.testpackagevalues)
+        postparams = '%s=1' % json.dumps(self.testpackagevalues)
         res = self.app.post(offset, params=postparams, status=[409],
                 extra_environ=self.extra_environ)
         model.Session.remove()
@@ -215,7 +215,7 @@ class TestRest(TestController):
             'download_url':u'testurl',
             }
         offset = '/api/rest/package'
-        postparams = '%s=1' % simplejson.dumps(test_params)
+        postparams = '%s=1' % json.dumps(test_params)
         res = self.app.post(offset, params=postparams, status=[200],
                 extra_environ=self.extra_environ)
         model.Session.remove()
@@ -227,7 +227,7 @@ class TestRest(TestController):
 
     def test_06_create_group(self):
         offset = '/api/rest/group'
-        postparams = '%s=1' % simplejson.dumps(self.testgroupvalues)
+        postparams = '%s=1' % json.dumps(self.testgroupvalues)
         res = self.app.post(offset, params=postparams, status=200,
                 extra_environ=self.extra_environ)
         model.Session.remove()
@@ -257,7 +257,7 @@ class TestRest(TestController):
         
         # Test Packages Register Post 409 (conflict - create duplicate package).
         offset = '/api/rest/group'
-        postparams = '%s=1' % simplejson.dumps(self.testgroupvalues)
+        postparams = '%s=1' % json.dumps(self.testgroupvalues)
         res = self.app.post(offset, params=postparams, status=[409],
                 extra_environ=self.extra_environ)
         model.Session.remove()
@@ -268,7 +268,7 @@ class TestRest(TestController):
         offset = '/api/rest/rating'
         rating_opts = {'package':u'warandpeace',
                        'rating':5}
-        postparams = '%s=1' % simplejson.dumps(rating_opts)
+        postparams = '%s=1' % json.dumps(rating_opts)
         res = self.app.post(offset, params=postparams, status=[200],
                 extra_environ=self.extra_environ)
         model.Session.remove()
@@ -288,7 +288,7 @@ class TestRest(TestController):
         
         # Rerate package
         offset = '/api/rest/rating'
-        postparams = '%s=1' % simplejson.dumps(rating_opts)
+        postparams = '%s=1' % json.dumps(rating_opts)
         res = self.app.post(offset, params=postparams, status=[200],
                 extra_environ=self.extra_environ)
         model.Session.remove()
@@ -302,7 +302,7 @@ class TestRest(TestController):
         offset = '/api/rest/rating'
         rating_opts = {'package':u'warandpeace',
                        'rating':0}
-        postparams = '%s=1' % simplejson.dumps(rating_opts)
+        postparams = '%s=1' % json.dumps(rating_opts)
         res = self.app.post(offset, params=postparams, status=[400],
                 extra_environ=self.extra_environ)
         model.Session.remove()
@@ -314,7 +314,7 @@ class TestRest(TestController):
         # TODO: get this working again. At present returns 400
         # Test Package Entity Put 404.
         offset = '/api/rest/package/22222'
-        postparams = '%s=1' % simplejson.dumps(self.testpackagevalues)
+        postparams = '%s=1' % json.dumps(self.testpackagevalues)
         # res = self.app.post(offset, params=postparams, status=[404],
         #        extra_environ=self.extra_environ)
         model.Session.remove()
@@ -365,7 +365,7 @@ class TestRest(TestController):
             'tags':[u'tag1', u'tag2', u'tag4', u'tag5'],
         }
         offset = '/api/rest/package/%s' % self.testpackagevalues['name']
-        postparams = '%s=1' % simplejson.dumps(pkg_vals)
+        postparams = '%s=1' % json.dumps(pkg_vals)
         res = self.app.post(offset, params=postparams, status=[200],
                             extra_environ=self.extra_environ)
 
@@ -422,7 +422,7 @@ class TestRest(TestController):
         # edit it
         pkg_vals = {'download_url':u'newurl'}
         offset = '/api/rest/package/%s' % test_params['name']
-        postparams = '%s=1' % simplejson.dumps(pkg_vals)
+        postparams = '%s=1' % json.dumps(pkg_vals)
         res = self.app.post(offset, params=postparams, status=[200],
                             extra_environ=self.extra_environ)
         model.Session.remove()
@@ -435,7 +435,7 @@ class TestRest(TestController):
         group = model.Group.by_name(self.testgroupvalues['name'])
         if not group:
             offset = '/api/rest/group'
-            postparams = '%s=1' % simplejson.dumps(self.testgroupvalues)
+            postparams = '%s=1' % json.dumps(self.testgroupvalues)
             res = self.app.post(offset, params=postparams, status=[200],
                     extra_environ=self.extra_environ)
             model.Session.remove()
@@ -449,7 +449,7 @@ class TestRest(TestController):
         group_vals = {'name':u'somethingnew', 'title':u'newtesttitle',
                       'packages':[u'annakarenina']}
         offset = '/api/rest/group/%s' % self.testgroupvalues['name']
-        postparams = '%s=1' % simplejson.dumps(group_vals)
+        postparams = '%s=1' % json.dumps(group_vals)
         res = self.app.post(offset, params=postparams, status=[200],
                             extra_environ=self.extra_environ)
         model.Session.remove()
@@ -488,7 +488,7 @@ class TestRest(TestController):
         # edit first package to have dupname
         pkg_vals = {'name':dupname}
         offset = '/api/rest/package/%s' % self.testpackagevalues['name']
-        postparams = '%s=1' % simplejson.dumps(pkg_vals)
+        postparams = '%s=1' % json.dumps(pkg_vals)
         res = self.app.post(offset, params=postparams, status=[409],
                             extra_environ=self.extra_environ)
         model.Session.remove()
@@ -521,7 +521,7 @@ class TestRest(TestController):
         # edit first group to have dupname
         group_vals = {'name':dupname}
         offset = '/api/rest/group/%s' % self.testgroupvalues['name']
-        postparams = '%s=1' % simplejson.dumps(group_vals)
+        postparams = '%s=1' % json.dumps(group_vals)
         res = self.app.post(offset, params=postparams, status=[409],
                             extra_environ=self.extra_environ)
         model.Session.remove()
@@ -614,7 +614,7 @@ class TestRest(TestController):
         res = self.app.get(offset, status=200)
         revs = model.Session.query(model.Revision).all()
         assert revs, "There are no revisions in the model."
-        res_dict = simplejson.loads(res.body)
+        res_dict = json.loads(res.body)
         for rev in revs:
             assert rev.id in res_dict, (rev.id, res_dict)
 
@@ -622,7 +622,7 @@ class TestRest(TestController):
         rev = model.Revision.youngest(model.Session)
         offset = '/api/rest/revision/%s' % rev.id
         res = self.app.get(offset, status=[200])
-        res_dict = simplejson.loads(res.body)
+        res_dict = json.loads(res.body)
         assert rev.id == res_dict['id']
         assert rev.timestamp.isoformat() == res_dict['timestamp'], (rev.timestamp.isoformat(), res_dict['timestamp'])
         assert 'packages' in res_dict
@@ -651,7 +651,7 @@ class TestRest(TestController):
         for id in changesets:
             offset = '/api/rest/changeset/%s' % id
             res = self.app.get(offset, status=[200])
-            changeset_data = simplejson.loads(res.body)
+            changeset_data = json.loads(res.body)
             assert 'id' in changeset_data, "No 'id' in changeset data: %s" % changeset_data
             assert 'meta' in changeset_data, "No 'meta' in changeset data: %s" % changeset_data
             assert 'changes' in changeset_data, "No 'changes' in changeset data: %s" % changeset_data
@@ -668,7 +668,7 @@ class TestRest(TestController):
         assert len(register), "No changesets found in model."
         offset = '/api/rest/licenses'
         res = self.app.get(offset, status=[200])
-        licenses_data = simplejson.loads(res.body)
+        licenses_data = json.loads(res.body)
         assert len(licenses_data) == len(register), (len(licenses_data), len(register))
         for license_data in licenses_data:
             id = license_data['id']
@@ -706,7 +706,7 @@ class TestRelationships(TestController):
             allowable_statuses.append(404)
         res = self.app.get(offset, status=allowable_statuses)
         if res.status == 200:
-            res_dict = simplejson.loads(res.body) if res.body else []
+            res_dict = json.loads(res.body) if res.body else []
             return res_dict
         else:
             return 404
@@ -714,7 +714,7 @@ class TestRelationships(TestController):
     def _get_relationships_via_package(self, package1_name):
         offset = '/api/rest/package/%s' % (str(package1_name))
         res = self.app.get(offset, status=200)
-        res_dict = simplejson.loads(res.body) if res.body else []
+        res_dict = json.loads(res.body) if res.body else []
         return res_dict['relationships']
 
     @property
@@ -770,7 +770,7 @@ class TestRelationships(TestController):
 
         # make annakarenina parent of warandpeace
         offset='/api/rest/package/annakarenina/parent_of/warandpeace'
-        postparams = '%s=1' % simplejson.dumps({'comment':self.comment})
+        postparams = '%s=1' % json.dumps({'comment':self.comment})
         res = self.app.post(offset, params=postparams, status=[200],
                             extra_environ=self.extra_environ)
 
@@ -838,7 +838,7 @@ class TestRelationships(TestController):
 
         offset='/api/rest/package/annakarenina/parent_of/warandpeace'
         comment = u'New comment.'
-        postparams = '%s=1' % simplejson.dumps({'comment':comment})
+        postparams = '%s=1' % json.dumps({'comment':comment})
         res = self.app.post(offset, params=postparams, status=[200],
                             extra_environ=self.extra_environ)
 
@@ -850,7 +850,7 @@ class TestRelationships(TestController):
         offset='/api/rest/package/annakarenina/parent_of/warandpeace'
 
         comment = u'New comment.' # same as previous test
-        postparams = '%s=1' % simplejson.dumps({'comment':comment})
+        postparams = '%s=1' % json.dumps({'comment':comment})
         res = self.app.post(offset, params=postparams, status=[200],
                             extra_environ=self.extra_environ)
 
@@ -919,7 +919,7 @@ class TestSearch(TestController):
     def test_01_uri_q(self):
         offset = self.base_url + '?q=%s' % self.testpackagevalues['name']
         res = self.app.get(offset, status=200)
-        res_dict = simplejson.loads(res.body)
+        res_dict = json.loads(res.body)
         assert u'testpkg' in res_dict['results'], res_dict['results']
         assert res_dict['count'] == 1, res_dict['count']
 
@@ -927,43 +927,43 @@ class TestSearch(TestController):
         offset = self.base_url
         query = {'q':'testpkg'}
         res = self.app.post(offset, params=query, status=200)
-        res_dict = simplejson.loads(res.body)
+        res_dict = json.loads(res.body)
         assert u'testpkg' in res_dict['results'], res_dict['results']
         assert res_dict['count'] == 1, res_dict['count']
 
     def test_03_uri_qjson(self):
         query = {'q': self.testpackagevalues['name']}
-        json_query = simplejson.dumps(query)
+        json_query = json.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
-        res_dict = simplejson.loads(res.body)
+        res_dict = json.loads(res.body)
         assert u'testpkg' in res_dict['results'], res_dict['results']
         assert res_dict['count'] == 1, res_dict['count']
 
     def test_04_post_qjson(self):
         query = {'q': self.testpackagevalues['name']}
-        json_query = simplejson.dumps(query)
+        json_query = json.dumps(query)
         offset = self.base_url
         res = self.app.post(offset, params=json_query, status=200)
-        res_dict = simplejson.loads(res.body)
+        res_dict = json.loads(res.body)
         assert u'testpkg' in res_dict['results'], res_dict['results']
         assert res_dict['count'] == 1, res_dict['count']
 
     def test_05_uri_qjson_tags(self):
         query = {'q': 'annakarenina tags:russian tags:tolstoy'}
-        json_query = simplejson.dumps(query)
+        json_query = json.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
-        res_dict = simplejson.loads(res.body)
+        res_dict = json.loads(res.body)
         assert u'annakarenina' in res_dict['results'], res_dict['results']
         assert res_dict['count'] == 1, res_dict
         
     def test_05_uri_qjson_tags_multiple(self):
         query = {'q': 'tags:russian tags:tolstoy'}
-        json_query = simplejson.dumps(query)
+        json_query = json.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
-        res_dict = simplejson.loads(res.body)
+        res_dict = json.loads(res.body)
         assert u'annakarenina' in res_dict['results'], res_dict['results']
         assert res_dict['count'] == 1, res_dict
 
@@ -971,51 +971,51 @@ class TestSearch(TestController):
         query = webhelpers.util.html_escape('annakarenina tags:russian tags:tolstoy')
         offset = self.base_url + '?q=%s' % query
         res = self.app.get(offset, status=200)
-        res_dict = simplejson.loads(res.body)
+        res_dict = json.loads(res.body)
         assert u'annakarenina' in res_dict['results'], res_dict['results']
         assert res_dict['count'] == 1, res_dict['count']
 
     def test_07_uri_qjson_tags(self):
         query = {'q': '', 'tags':['tolstoy']}
-        json_query = simplejson.dumps(query)
+        json_query = json.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
-        res_dict = simplejson.loads(res.body)
+        res_dict = json.loads(res.body)
         assert u'annakarenina' in res_dict['results'], res_dict['results']
         assert res_dict['count'] == 1, res_dict
 
     def test_07_uri_qjson_tags_multiple(self):
         query = {'q': '', 'tags':['tolstoy', 'russian']}
-        json_query = simplejson.dumps(query)
+        json_query = json.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
-        res_dict = simplejson.loads(res.body)
+        res_dict = json.loads(res.body)
         assert u'annakarenina' in res_dict['results'], res_dict['results']
         assert res_dict['count'] == 1, res_dict
 
     def test_07_uri_qjson_tags_reverse(self):
         query = {'q': '', 'tags':['russian']}
-        json_query = simplejson.dumps(query)
+        json_query = json.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
-        res_dict = simplejson.loads(res.body)
+        res_dict = json.loads(res.body)
         assert u'annakarenina' in res_dict['results'], res_dict['results']
         assert res_dict['count'] == 2, res_dict
 
     def test_07_uri_qjson_extras(self):
         query = {"geographic_coverage":"England"}
-        json_query = simplejson.dumps(query)
+        json_query = json.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
-        res_dict = simplejson.loads(res.body)
+        res_dict = json.loads(res.body)
         assert res_dict['count'] == 1, res_dict
 
     def test_07_uri_qjson_extras_2(self):
         query = {"national_statistic":"yes"}
-        json_query = simplejson.dumps(query)
+        json_query = json.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
-        res_dict = simplejson.loads(res.body)
+        res_dict = json.loads(res.body)
         assert res_dict['count'] == 1, res_dict
         
         
@@ -1027,10 +1027,10 @@ class TestSearch(TestController):
         model.repo.commit_and_remove()
         
         query = {'q': 'russian', 'all_fields':1}
-        json_query = simplejson.dumps(query)
+        json_query = json.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
-        res_dict = simplejson.loads(res.body)
+        res_dict = json.loads(res.body)
         assert res_dict['count'] == 2, res_dict
         print res_dict['results']
         for rec in res_dict['results']:
@@ -1049,31 +1049,31 @@ class TestSearch(TestController):
     def test_09_just_tags(self):
         offset = self.base_url + '?tags=russian&all_fields=1'
         res = self.app.get(offset, status=200)
-        res_dict = simplejson.loads(res.body)
+        res_dict = json.loads(res.body)
         assert res_dict['count'] == 2, res_dict
 
     def test_10_multiple_tags_with_plus(self):
         offset = self.base_url + '?tags=tolstoy+russian&all_fields=1'
         res = self.app.get(offset, status=200)
-        res_dict = simplejson.loads(res.body)
+        res_dict = json.loads(res.body)
         assert res_dict['count'] == 1, res_dict
 
     def test_10_multiple_tags_with_ampersand(self):
         offset = self.base_url + '?tags=tolstoy&tags=russian&all_fields=1'
         res = self.app.get(offset, status=200)
-        res_dict = simplejson.loads(res.body)
+        res_dict = json.loads(res.body)
         assert res_dict['count'] == 1, res_dict
 
     def test_10_many_tags_with_ampersand(self):
         offset = self.base_url + '?tags=tolstoy&tags=russian&tags=tolstoy'
         res = self.app.get(offset, status=200)
-        res_dict = simplejson.loads(res.body)
+        res_dict = json.loads(res.body)
         assert res_dict['count'] == 1, res_dict
 
     def test_11_pagination_limit(self):
         offset = self.base_url + '?all_fields=1&tags=russian&limit=1&order_by=name'
         res = self.app.get(offset, status=200)
-        res_dict = simplejson.loads(res.body)
+        res_dict = json.loads(res.body)
         assert res_dict['count'] == 2, res_dict
         assert len(res_dict['results']) == 1, res_dict
         assert res_dict['results'][0]['name'] == 'annakarenina', res_dict['results'][0]['name']
@@ -1081,7 +1081,7 @@ class TestSearch(TestController):
     def test_11_pagination_offset_limit(self):
         offset = self.base_url + '?all_fields=1&tags=russian&offset=1&limit=1&order_by=name'
         res = self.app.get(offset, status=200)
-        res_dict = simplejson.loads(res.body)
+        res_dict = json.loads(res.body)
         assert res_dict['count'] == 2, res_dict
         assert len(res_dict['results']) == 1, res_dict
         assert res_dict['results'][0]['name'] == 'warandpeace', res_dict['results'][0]['name']
@@ -1100,14 +1100,14 @@ class TestSearch(TestController):
         rev_first = revs[-1]
         params = "?since_id=%s" % str(rev_first.id)
         res = self.app.get(offset+params, status=200)
-        res_list = simplejson.loads(res.body)
+        res_list = json.loads(res.body)
         assert rev_first.id not in res_list
         for rev in revs[:-1]:
             assert rev.id in res_list, (rev.id, res_list)
         rev_last = revs[0]
         params = "?since_id=%s" % str(rev_last.id)
         res = self.app.get(offset+params, status=200)
-        res_list = simplejson.loads(res.body)
+        res_list = json.loads(res.body)
         assert res_list == [], res_list
 
     def test_12_search_revision_since_time(self):
@@ -1117,7 +1117,7 @@ class TestSearch(TestController):
         rev_first = revs[-1]
         params = "?since_time=%s" % model.strftimestamp(rev_first.timestamp)
         res = self.app.get(offset+params, status=200)
-        res_list = simplejson.loads(res.body)
+        res_list = json.loads(res.body)
         assert rev_first.id not in res_list
         for rev in revs[:-1]:
             assert rev.id in res_list, (rev.id, res_list)
@@ -1125,7 +1125,7 @@ class TestSearch(TestController):
         rev_last = revs[0]
         params = "?since_time=%s" % model.strftimestamp(rev_last.timestamp)
         res = self.app.get(offset+params, status=200)
-        res_list = simplejson.loads(res.body)
+        res_list = json.loads(res.body)
         assert res_list == [], res_list
         # Check bad format.
         params = "?since_time=2010-04-31T23:45"

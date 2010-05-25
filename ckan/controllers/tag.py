@@ -1,5 +1,5 @@
 from ckan.lib.base import *
-from simplejson import dumps
+from ckan.lib.helpers import json
 
 class TagController(BaseController):
 
@@ -44,5 +44,5 @@ class TagController(BaseController):
                 "Name": tagName
             }
             resultSet["ResultSet"]["Result"].append(result)
-        return dumps(resultSet)
+        return json.dumps(resultSet)
 

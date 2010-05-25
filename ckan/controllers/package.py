@@ -1,7 +1,6 @@
 import logging
 import urlparse
 
-import simplejson
 import genshi
 from pylons import config
 

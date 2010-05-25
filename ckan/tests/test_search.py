@@ -1,4 +1,3 @@
-import simplejson
 import sqlalchemy as sa
 
 from ckan.model import Package

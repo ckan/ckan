@@ -57,7 +57,7 @@ from ckan.model.core import DomainObject, State
 from ckan.model import Session, Revision, Package
 from ckan.model import PackageResource, Tag, Group
 from ckan.model import setup_default_user_roles
-from simplejson import dumps, loads
+from ckan.lib.helpers import json
 import datetime
 import uuid
 
@@ -597,19 +597,19 @@ class Json(object):
 
     def dumps(self, data):
         try:
-            json = dumps(data, indent=2)
+            json_str = json.dumps(data, indent=2)
         except Exception, inst:
             msg = "Couldn't convert to JSON: %s" % data
             raise Exception, "%s: %s" % (msg, inst)
-        return json
+        return json_str
 
     dumps = classmethod(dumps)
 
-    def loads(self, json):
+    def loads(self, json_str):
         try:
-            data = loads(json)
+            data = json.loads(json_str)
         except Exception, inst:
-            msg = "Couldn't parse JSON: %s" % json
+            msg = "Couldn't parse JSON: %s" % json_str
             raise Exception, "%s: %s" % (msg, inst)
         return data
 
