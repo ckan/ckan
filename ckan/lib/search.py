@@ -1,4 +1,6 @@
 import sqlalchemy
+import simplejson
+from solr import SolrConnection # == solrpy 
 
 from pylons import config
 
@@ -50,7 +52,7 @@ class SearchOptions:
     def __str__(self):
         return repr(self.__dict__)
 
-class Search:
+class SQLSearch:
     _tokens = [ 'name', 'title', 'notes', 'tags', 'groups', 'author', 'maintainer', 'update_frequency', 'geographic_granularity', 'geographic_coverage', 'temporal_granularity', 'temporal_coverage', 'national_statistic', 'categories', 'precision', 'department', 'agency', 'external_reference']
     # Note: all tokens must be in the search vector (see model/full_search.py)
     _open_licenses = None
@@ -80,6 +82,7 @@ class Search:
         else:
             # error
             pass
+        
         return query
 
     def run(self, options, username=None):
@@ -189,7 +192,7 @@ class Search:
 
         # Filter for options
         if self._options.filter_by_downloadable:
-            query = query.join('package_resources_all', aliased=True).\
+            query = query.join('resources', aliased=True).\
                     filter(sqlalchemy.and_(
                 model.PackageResource.state==model.State.ACTIVE,
                 model.PackageResource.package_id==model.Package.id))
@@ -297,3 +300,62 @@ class Search:
             else:
                 self._results['results'] = [entity.name for entity in self._results['results']]
  
+
+
+class SolrSearch(SQLSearch):
+
+    def __init__(self, solr_url=None):
+        if solr_url is None: 
+            solr_url = config.get('solr_url', 'http://localhost:8983/solr')
+        self._conn = SolrConnection(solr_url)
+
+    def _open_license_query_part():
+        if self._open_licenses is None:
+            self._update_open_licenses()
+        licenses = ["+%d" % id for id in self.open_licenses]
+        licenses = " OR ".join(licenses)
+        return "license_id:(%s) " % licenses
+
+    def _build_package_query(self, authorized_package_query,
+                             general_terms, field_specific_terms):
+        orm_query = authorized_package_query
+        orm_query = orm_query.filter(model.package_search_table.c.package_id==model.Package.id)
+
+        # Full search by general_terms (and field specific terms but not by field)
+        query = u""
+        for field, term in field_specific_terms.items():
+            query += field + u":" + term + u" "
+        for term in general_terms:
+            query += term + u" "
+
+        # Filter for options
+        if self._options.filter_by_downloadable:
+            query += u"res_url:[* TO *] " # not null resource URL 
+        if self._options.filter_by_openness:
+            query += self._open_license_query_part()
+        
+        self._solr_results = self._conn.query(query, #sort=sorting, 
+                                        rows=self._options.limit,
+                                        start=self._options.offset)
+        entity_ids = [r.get('id') for r in self._solr_results.results]
+        orm_query = orm_query.filter(model.Package.id.in_(entity_ids))
+        orm_query = orm_query.add_column(sqlalchemy.func.now())
+        
+        if self._options.order_by and self._options.order_by != 'rank':
+            if hasattr(model.Package, self._options.order_by):
+                model_attr = getattr(model.Package, self._options.order_by)
+                orm_query = orm_query.order_by(model_attr)
+        
+        return orm_query
+        
+    def _run_query(self, query):
+        if self._options.entity == 'package':
+            self._results['count'] = query.count()
+            results = [(r, self._solr_results.get('score', 0)) for r in query]
+            self._results['results'] = results
+        else:
+            SQLSearch._run_query(self, query)
+            
+
+#Search = SQLSearch
+Search = SolrSearch
