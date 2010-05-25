@@ -4,7 +4,7 @@ from ckan.lib.base import *
 from ckan.lib.helpers import json
 import ckan.model as model
 import ckan.forms
-from ckan.lib.search import Search, SearchOptions
+from ckan.lib.search import make_search, SearchOptions
 import ckan.authz
 import ckan.rating
 
@@ -361,7 +361,7 @@ class RestController(BaseController):
             options.search_tags = False
             options.return_objects = False
             username = self._get_username()
-            results = Search().run(options, username)
+            results = make_search().run(options, username)
             return self._finish_ok(results)
 
     def tag_counts(self):

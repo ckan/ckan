@@ -5,7 +5,7 @@ import genshi
 from pylons import config
 
 from ckan.lib.base import *
-from ckan.lib.search import Search, SearchOptions
+from ckan.lib.search import make_search, SearchOptions
 from ckan.lib.package_saver import PackageSaver, ValidationException
 import ckan.forms
 import ckan.authz
@@ -44,7 +44,7 @@ class PackageController(BaseController):
                 'filter_by_downloadable': c.downloadable_only,
                 })
             # package search
-            query = Search().query(options, username=c.user)
+            query = make_search().query(options, username=c.user)
             c.page = Page(
                 collection=query,
                 page=request.params.get('page', 1),
@@ -63,7 +63,7 @@ class PackageController(BaseController):
                 'return_objects': True,
                 'limit': c.tag_limit,
                 })
-            results = Search().run(options)
+            results = make_search().run(options)
             c.tags = results['results']
             c.tags_count = results['count']
 

@@ -297,12 +297,20 @@ class SQLSearch:
                 self._results['results'] = results
             else:
                 self._results['results'] = [entity.name for entity in self._results['results']]
- 
+    
+    def index_package(self, package):
+        pass
+        
+    def index_group(self, group):
+        pass
+        
+    def index_tag(self, tag):
+        pass
 
 
 class SolrSearch(SQLSearch):
-    solr_fields = ["entity_type", "tags", "groups", "res_description", "res_format", 
-                   "res_url", "text", "urls", "indexed_ts"]
+    _solr_fields = ["entity_type", "tags", "groups", "res_description", "res_format", 
+                    "res_url", "text", "urls", "indexed_ts"]
 
     def __init__(self, solr_url=None):
         if solr_url is None: 
@@ -360,18 +368,14 @@ class SolrSearch(SQLSearch):
         return self.index_package_dict(package.as_dict())
     
     def index_package_dict(self, package):
-        index_fields = self.solr_fields + package.keys()
-
-        # deleted packages appear to remain listed:
-        if not isinstance(package, type({})):
-            return 
+        index_fields = self._solr_fields + package.keys()
             
         # include the extras in the main namespace
         extras = package.get('extras', {})
         if 'extras' in package:
             del package['extras']
         for (key, value) in extras.items():
-            if key in not index_fields:
+            if key not in index_fields:
                 package[key] = value
 
         # flatten the structure for indexing: 
@@ -383,12 +387,21 @@ class SolrSearch(SQLSearch):
         if 'resources' in package:
             del package['resources']
 
-        package['entity_type'] = u"package"    
-        package = dict([(str(k), v] for (k, v) in package.items()])
+        package['entity_type'] = u"package"
+        package = dict([(str(k), v) for (k, v) in package.items()])
 
         # send to solr:    
-        self._conn.add(**plain_package)
-        
+        self._conn.add(**package)
 
-#Search = SQLSearch
-Search = SolrSearch
+
+ENGINES = {
+    'sql': SQLSearch, 
+    'solr': SolrSearch
+    }
+
+
+def make_search(engine=None, **kwargs):
+    if engine is None:
+        engine = config.get('search_engine', 'sql')
+    klass = ENGINES.get(engine.strip().lower())
+    return klass(**kwargs)
