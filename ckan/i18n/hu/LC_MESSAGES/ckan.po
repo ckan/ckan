@@ -1797,8 +1797,7 @@ msgstr "Ez a csomag:"
 
 #: ckan/templates/package/read.html:92
 #, fuzzy
-#| msgid "" "Do you work on the project producing this data?\n" "          Can
-#| you help us keep this page up to date?\n" "          If so, why not"
+#| msgid "Do you work on the project producing this data?\n Can you help us keep this page up to date?\n If so, why not"
 msgid ""
 "Can you help us keep this page up to date?\n"
 "          If so, why not"
@@ -1962,8 +1961,7 @@ msgstr "Adatbázis napló"
 
 #: ckan/templates/revision/list.html:9
 #, fuzzy
-#| msgid "" "This page lists all changes to package database, with most
-#| recent\n" "    changes first. It is also available as an"
+#| msgid "This page lists all changes to package database, with most recent\n changes first. It is also available as an"
 msgid ""
 "This page lists all changes to package database, with most recent\n"
 "    changes first."
@@ -2147,8 +2145,7 @@ msgstr ""
 
 #: ckan/templates/user/openid_form.html:47
 #, fuzzy
-#| msgid "" ". Probably the simplest\n" "    way is sign up with a free OpenID
-#| provider such as"
+#| msgid ". Probably the simplest\n way is sign up with a free OpenID provider such as"
 msgid ""
 ". Probably the simplest way is sign up with a\n"
 "      free OpenID provider such as"
