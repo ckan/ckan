@@ -330,7 +330,7 @@ msgstr "Már létező kulcs \"%s\""
 #, fuzzy, python-format
 #| msgid "Extra key-value pair: key is not set."
 msgid "Extra key-value pair: key is not set for value \"%s\"."
-msgstr "Többlet kulcs-érték pár: a kulcs nincs beállítva."
+msgstr "Többlet kulcs-érték pár: a kulcs nincs beállítva \"%s\"."
 
 #: ckan/forms/common.py:588
 msgid "other - please specify"
