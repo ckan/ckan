@@ -6,17 +6,14 @@
 
       ${h.literal(c.fieldset.render())}
 
-     <div>
-      <h3>Packages</h3>
+     <fieldset>
+      <legend>Packages</legend>
       <py:for each="pkg in c.fieldset.model.packages">
         <input checked="checked" id="Group-packages-current" name="Group-packages-current" type="checkbox" value="${pkg.name}" />
         <label for="Group-packages_${pkg.name}" style="display: inline;">${pkg.name}</label>
       </py:for>
-     </div>
-
-      <h3>
-        New Packages
-      </h3>
+      <p py:if="not c.fieldset.model.packages">There are no packages currently in this group.</p>
+     </fieldset>
 
       ${h.literal(c.fieldset2.render())}
 

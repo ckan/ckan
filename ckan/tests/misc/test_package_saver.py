@@ -3,8 +3,9 @@ import ckan.forms
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib.package_saver import PackageSaver
+from ckan.tests.pylons_controller import PylonsTestCase
 
-class TestPreview(TestController):
+class TestPreview(PylonsTestCase):
 
     @classmethod
     def teardown_class(self):

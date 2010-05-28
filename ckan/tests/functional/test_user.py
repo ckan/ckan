@@ -52,8 +52,8 @@ class TestUserController(TestController):
         offset = url_for(controller='user', action='login')
         res = self.app.get(offset, status=200)
         assert 'Login' in res, res
-        assert 'use your OpenID' in res
-        assert 'haven\'t already got an OpenID' in res
+        assert 'Please click your account provider' in res, res
+        assert 'Don\'t have an OpenID' in res, res
 
     def test_logout(self):
         offset = url_for(controller='user', action='logout')

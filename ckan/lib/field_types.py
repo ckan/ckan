@@ -2,6 +2,8 @@ import re
 import time
 import datetime
 
+import formalchemy
+
 months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
 class DateType(object):
@@ -19,6 +21,8 @@ class DateType(object):
     def iso_to_db(self, iso_date, format):
         # e.g. 'Wed, 06 Jan 2010 09:30:00 GMT'
         #      '%a, %d %b %Y %H:%M:%S %Z'
+        if iso_date.endswith('+0100'):
+            iso_date = iso_date.replace('+0100', 'BST')
         assert isinstance(iso_date, (unicode, str))
         try:
             date_tuple = time.strptime(iso_date, format)
@@ -88,7 +92,7 @@ class DateType(object):
         try:
             DateType.form_to_db(form_date_str)
         except TypeError, e:
-            return e
+            raise formalchemy.ValidationError(e)
 
     @classmethod
     def db_to_form(self, db_str):

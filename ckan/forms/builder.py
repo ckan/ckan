@@ -56,7 +56,7 @@ class FormBuilder(object):
         if hints:
             self.set_field_option(field_name, 'with_metadata', {'hints':hints})
 
-    def set_displayed_fields(self, groups_dict):
+    def set_displayed_fields(self, groups_dict, focus_field=None):
         '''Sets fields to be displayed, what groupings they are in and
         what order groups and fields appear in.
 
@@ -68,8 +68,10 @@ class FormBuilder(object):
                            keyed by the group name. e.g.:
           groups_dict = {'Basic information':['name', 'title'],
                          'Resources':['resources']}
-
-        (Or use an sqlalchemy.util.OrderedDict to ensure order of groups)
+          (Or use an sqlalchemy.util.OrderedDict to ensure order of groups)
+        @param focus_field Name of field to have initial focus. If None,
+           it defaults to the first field. If False, none are set to take
+           focus.
         '''
         assert isinstance(groups_dict, dict), dict
         all_field_names = []
@@ -81,8 +83,9 @@ class FormBuilder(object):
                 self.set_field_option(field_name, 'with_metadata', {'field_group':group_name})
             all_field_names += field_names
         self.includes = all_field_names
-        self.focus = self.fs._fields[all_field_names[0]]
-
+        self.focus = self.fs._fields[all_field_names[0]] \
+                     if focus_field is None else focus_field
+            
     def set_label_prettifier(self, prettify):
         '''@prettify function that munges field labels'''
         self.fs.prettify = prettify

@@ -60,106 +60,105 @@ class CreateTestData(cli.CkanCommand):
                          relationships=[], extra_user_names=[]):
         import ckan.model as model
         model.Session.remove()
-        rev = model.repo.new_revision() 
-        rev.author = self.author
-        rev.message = u'Creating search test data.'
         self.pkg_names = []
         self.tag_names = []
         self.group_names = set()
         self.user_names = extra_user_names
         admins_list = [] # list of (package_name, admin_names)
-        if isinstance(package_dicts, dict):
-            package_dicts = [package_dicts]
-        for item in package_dicts:
-            pkg = model.Package(name=unicode(item['name']))
-            model.Session.add(pkg)
-            for attr, val in item.items():
-                if isinstance(val, str):
-                    val = unicode(val)
-                if attr=='name':
-                    continue                
-                if attr in ['title', 'version', 'url', 'notes',
-                            'author', 'author_email',
-                            'maintainer', 'maintainer_email',
-                            ]:
-                    setattr(pkg, attr, unicode(val))
-                elif attr == 'download_url':
-                    pkg.add_resource(unicode(val))
-                elif attr == 'resources':
-                    for res_dict in val:
-                        pkg.add_resource(
-                            url=unicode(res_dict['url']),
-                            format=unicode(res_dict.get('format')),
-                            description=unicode(res_dict.get('description')),
-                            hash=unicode(res_dict.get('hash')),
-                            )
-                elif attr == 'tags':
-                    if isinstance(val, (str, unicode)):
-                        tags = val.split()
-                    elif isinstance(val, list):
-                        tags = val
-                    else:
-                        raise NotImplementedError
-                    for tag_name in tags:
-                        tag_name = unicode(tag_name)
-                        tag = model.Tag.by_name(tag_name)
-                        if not tag:
-                            tag = model.Tag(name=tag_name)
-                            self.tag_names.append(tag_name)
-                            model.Session.add(tag)    
-                        pkg.tags.append(tag)
-                elif attr == 'groups':
-                    for group_name in val.split():
-                        group = model.Group.by_name(group_name)
-                        if not group:
-                            group = model.Group(name=group_name)
-                            self.group_names.add(group_name)
-                            model.Session.add(group)
-                        pkg.groups.append(group)
-                elif attr == 'license':
-                    pkg.license_id = val
-                elif attr == 'license_id':
-                    pkg.license_id = val
-                elif attr == 'extras':
-                    pkg.extras = val
-                elif attr == 'admins':
-                    assert isinstance(val, list)
-                    admins_list.append((item['name'], val))
-                    for user in val:
-                        if user not in self.user_names:
-                            self.user_names.append(user)
-                else:
-                    raise NotImplementedError(attr)
-            self.pkg_names.append(item['name'])
-            model.setup_default_user_roles(pkg)
+        if package_dicts:
             rev = model.repo.new_revision() 
             rev.author = self.author
-            rev.message = u'Creating test data.'
+            rev.message = u'Creating test packages.'
+            if isinstance(package_dicts, dict):
+                package_dicts = [package_dicts]
+            for item in package_dicts:
+                pkg = model.Package(name=unicode(item['name']))
+                model.Session.add(pkg)
+                for attr, val in item.items():
+                    if isinstance(val, str):
+                        val = unicode(val)
+                    if attr=='name':
+                        continue                
+                    if attr in ['title', 'version', 'url', 'notes',
+                                'author', 'author_email',
+                                'maintainer', 'maintainer_email',
+                                ]:
+                        setattr(pkg, attr, unicode(val))
+                    elif attr == 'download_url':
+                        pkg.add_resource(unicode(val))
+                    elif attr == 'resources':
+                        for res_dict in val:
+                            pkg.add_resource(
+                                url=unicode(res_dict['url']),
+                                format=unicode(res_dict.get('format')),
+                                description=unicode(res_dict.get('description')),
+                                hash=unicode(res_dict.get('hash')),
+                                )
+                    elif attr == 'tags':
+                        if isinstance(val, (str, unicode)):
+                            tags = val.split()
+                        elif isinstance(val, list):
+                            tags = val
+                        else:
+                            raise NotImplementedError
+                        for tag_name in tags:
+                            tag_name = unicode(tag_name)
+                            tag = model.Tag.by_name(tag_name)
+                            if not tag:
+                                tag = model.Tag(name=tag_name)
+                                self.tag_names.append(tag_name)
+                                model.Session.add(tag)    
+                            pkg.tags.append(tag)
+                    elif attr == 'groups':
+                        for group_name in val.split():
+                            group = model.Group.by_name(group_name)
+                            if not group:
+                                group = model.Group(name=group_name)
+                                self.group_names.add(group_name)
+                                model.Session.add(group)
+                            pkg.groups.append(group)
+                    elif attr == 'license':
+                        pkg.license_id = val
+                    elif attr == 'license_id':
+                        pkg.license_id = val
+                    elif attr == 'extras':
+                        pkg.extras = val
+                    elif attr == 'admins':
+                        assert isinstance(val, list)
+                        admins_list.append((item['name'], val))
+                        for user in val:
+                            if user not in self.user_names:
+                                self.user_names.append(user)
+                    else:
+                        raise NotImplementedError(attr)
+                self.pkg_names.append(item['name'])
+                model.setup_default_user_roles(pkg)
+            model.repo.commit_and_remove()
+
         for user_name in self.user_names:
             user = model.User(name=unicode(user_name))
             model.Session.add(user)
+
+        for pkg_name, admins in admins_list:
+            pkg = model.Package.by_name(unicode(pkg_name))
+            admins = [model.User.by_name(unicode(user_name)) for user_name in self.user_names]
+            model.setup_default_user_roles(pkg, admins)
+
         for group_name in self.group_names:
             model.setup_default_user_roles(group)
-        model.repo.commit_and_remove()
-
-        if admins_list:
-            for pkg_name, admins in admins_list:
-                pkg = model.Package.by_name(unicode(pkg_name))
-                admins = [model.User.by_name(unicode(user_name)) for user_name in self.user_names]
-                model.setup_default_user_roles(pkg, admins)
-                # (setup_default_user_roles does commit and remove)
 
         if relationships:
+            rev = model.repo.new_revision() 
+            rev.author = self.author
+            rev.message = u'Creating package relationships.'
+
             def pkg(pkg_name):
                 return model.Package.by_name(unicode(pkg_name))
             for subject_name, relationship, object_name in relationships:
                 pkg(subject_name).add_relationship(
                     unicode(relationship), pkg(object_name))
-                rev = model.repo.new_revision() 
-                rev.author = self.author
-                rev.message = u'Creating test data relationships.'
-                model.Session.commit()
-            model.Session.remove()
+
+            model.repo.commit_and_remove()
     
     @classmethod
     def create(self):
@@ -207,7 +206,8 @@ class CreateTestData(cli.CkanCommand):
 Foreign characters:
 u with umlaut \xfc
 66-style quote \u201c
-
+foreign word: th\xfcmb
+ 
 Needs escaping:
 left arrow <
 
@@ -224,13 +224,8 @@ left arrow <
         self.tag_names = [u'russian', u'tolstoy']
         pkg1.license_id = u'other-open'
         pkg2.title = u'A Wonderful Story'
-        genre_extra = model.PackageExtra(key=u'genre', value='romantic novel')
-        media_extra = model.PackageExtra(key=u'original media', value='book')
-        pkg1._extras = {'genre':genre_extra,
-                        'original media':media_extra
-                        }
-        model.Session.add(genre_extra)
-        model.Session.add(media_extra)
+        pkg1.extras = {u'genre':'romantic novel',
+                       u'original media':'book'}
         # api key
         tester = model.User(name=u'tester', apikey=u'tester')
         model.Session.add(tester)
@@ -263,6 +258,8 @@ left arrow <
         model.setup_default_user_roles(anna, [annafan])
         model.setup_default_user_roles(war, [russianfan])
         model.add_user_to_role(visitor, model.Role.ADMIN, war)
+        david = model.Group.by_name(u'david')
+        roger = model.Group.by_name(u'roger')
         model.setup_default_user_roles(david, [russianfan])
         model.setup_default_user_roles(roger, [russianfan])
         model.add_user_to_role(visitor, model.Role.ADMIN, roger)
@@ -302,10 +299,14 @@ search_items = [{'name':'gils',
               'tags':'registry  country-usa  government  federal  gov  workshop-20081101',
               'groups':'ukgov test1 test2 penguin',
               'license':'gpl-3.0',
-              'notes':'''From <http://www.gpoaccess.gov/gils/about.html>
+              'notes':u'''From <http://www.gpoaccess.gov/gils/about.html>
               
 > The Government Information Locator Service (GILS) is an effort to identify, locate, and describe publicly available Federal
-> Because this collection is decentralized, the GPO''',
+> Because this collection is decentralized, the GPO
+
+Foreign word:
+u with umlaut th\xfcmb
+''',
               'extras':{'date_released':'2008'},
               },
              {'name':'us-gov-images',

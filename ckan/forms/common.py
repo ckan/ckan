@@ -110,10 +110,8 @@ class RegExRangeValidatingField(RegExValidatingField):
     '''Validates a range field (each value is validated on the same regex)'''
     def validate_re(self, values, field=None):
         for value in values:
-            match = re.match(self._validate_re[0], value)
-            if not match:
-                raise formalchemy.ValidationError(_('Value "%s" does not match required format: %s') % (value, self._validate_re[1]))
-
+            RegExValidatingField.validate_re(self, value, field=field)
+            
 
 class TextExtraField(RegExValidatingField):
     '''A form field for basic text in an "extras" field.'''
@@ -159,7 +157,13 @@ class DateRangeExtraField(ConfiguredField):
     '''A form field for two DateType fields, representing a date range,
     stored in 'extra' fields.'''
     def get_configured(self):
-        return self.DateRangeField(self.name).with_renderer(self.DateRangeRenderer).validate(field_types.DateType.form_validator)
+        return self.DateRangeField(self.name).with_renderer(self.DateRangeRenderer).validate(self.validator)
+
+    def validator(self, form_date_tuple, field=None):
+        assert isinstance(form_date_tuple, tuple), form_date_tuple
+        from_, to_ = form_date_tuple
+        return field_types.DateType.form_validator(from_) and \
+               field_types.DateType.form_validator(to_)
 
     class DateRangeField(formalchemy.Field):
         def sync(self):
@@ -264,12 +268,24 @@ class TextRangeExtraField(RegExRangeValidatingField):
 
 class ResourcesField(ConfiguredField):
     '''A form field for multiple package resources.'''
+
     def __init__(self, name, hidden_label=False):
         super(ResourcesField, self).__init__(name)
         self._hidden_label = hidden_label
 
+    def url_validator(self, val, field=None):
+        resources_data = val
+        assert isinstance(resources_data, list)
+        url_regex = re.compile('\S') # Todo: Restrict this further?
+        errormsg = 'Package resources must have URLs.'
+        validator = formalchemy.validators.regex(url_regex, errormsg)
+        for resource_data in resources_data:
+            assert isinstance(resource_data, dict)
+            resource_url = resource_data.get('url', '')
+            validator(resource_url, field)
+
     def get_configured(self):
-        field = self.ResourcesField(self.name).with_renderer(self.ResourcesRenderer)
+        field = self.ResourcesField(self.name).with_renderer(self.ResourcesRenderer).validate(self.url_validator)
         field._hidden_label = self._hidden_label
         field.set(multiple=True)
         return field
@@ -278,10 +294,8 @@ class ResourcesField(ConfiguredField):
         def sync(self):
             if not self.is_readonly():
                 pkg = self.model
-                resources = self._deserialize() or []
-                pkg.resources = []
-                for res_dict in resources:
-                    pkg.add_resource(**res_dict)
+                res_dicts = self._deserialize() or []
+                pkg.update_resources(res_dicts, autoflush=False)
 
         def requires_label(self):
             return not self._hidden_label
@@ -308,7 +322,7 @@ class ResourcesField(ConfiguredField):
             res_dict = {}
             if v:
                 assert isinstance(v, model.PackageResource)
-                for col in model.PackageResource.get_columns():
+                for col in model.PackageResource.get_columns() + ['id']:
                     res_dict[col] = getattr(v, col)
             return res_dict
 
@@ -321,7 +335,7 @@ class ResourcesField(ConfiguredField):
             # REST param format
             # e.g. 'Package-1-resources': [{u'url':u'http://ww...
             if params.has_key(rest_key) and isinstance(params[rest_key], (list, tuple)):
-                new_resources = params[rest_key]
+                new_resources = params[rest_key][:] # copy, so don't edit orig
 
             # formalchemy form param format
             # e.g. 'Package-1-resources-0-url': u'http://ww...'
@@ -331,10 +345,10 @@ class ResourcesField(ConfiguredField):
                     break
                 new_resource = {}
                 blank_row = True
-                for col in model.PackageResource.get_columns():
+                for col in model.PackageResource.get_columns() + ['id']:
                     value = params.get('%s-%i-%s' % (self.name, row, col), u'')
                     new_resource[col] = value
-                    if value:
+                    if col != 'id' and value:
                         blank_row = False
                 if not blank_row:
                     new_resources.append(new_resource)
@@ -577,7 +591,7 @@ class SuggestedTextExtraField(TextExtraField):
 
         def render(self, options, **kwargs):
             selected = self._get_value()
-            options = [('', None)] + options + [(_('other - please specify'), 'other')]
+            options = [('', '')] + options + [(_('other - please specify'), 'other')]
             option_keys = [key for value, key in options]
             if selected in option_keys:
                 select_field_selected = selected

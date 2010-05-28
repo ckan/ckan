@@ -14,12 +14,16 @@ Contents:
 
    README
    deployment
+   configuration
    design
    importer
    api
+   feeds
    getdata
    package_forms
    model
+   authentication
+   authorization
    load_testing
 
 

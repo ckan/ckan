@@ -4,27 +4,6 @@ import uuid
 
 metadata = MetaData(migrate_engine)
 
-#license_table = Table('license', metadata, autoload=True)
-#license_table = Table('license', metadata,
-#        Column('id', Integer, primary_key=True),
-#        Column('name', Unicode(100)),
-#        )
-#
-#package_table = Table('package', metadata, autoload=True)
-#package_table = Table('package', metadata,
-#        Column('id', UnicodeText, primary_key=True, default=make_uuid),
-#        Column('name', Unicode(100), unique=True, nullable=False),
-#        Column('title', UnicodeText),
-#        Column('version', Unicode(100)),
-#        Column('url', UnicodeText),
-#        Column('author', UnicodeText),
-#        Column('author_email', UnicodeText),
-#        Column('maintainer', UnicodeText),
-#        Column('maintainer_email', UnicodeText),                      
-#        Column('notes', UnicodeText),
-#        Column('license_id', Integer, ForeignKey('license.id')),
-#)
-
 map = {
     u'OSI Approved::Mozilla Public License 1.1 (MPL)': 'mozilla1.1', 
     u'OKD Compliant::Creative Commons Attribution-ShareAlike': 'cc-by-sa', 
@@ -92,6 +71,7 @@ map = {
     u'OSI Approved::Vovida Software License v. 1.0': 'vovidapl', 
     u'OSI Approved::Apple Public Source License': 'apsl-2.0', 
     u'OKD Compliant::UK Crown Copyright with data.gov.uk rights': 'ukcrown-withrights', 
+    u'OKD Compliant::Local Authority Copyright with data.gov.uk rights': 'localauth-withrights', 
     u'OKD Compliant::Open Data Commons Open Database License (ODbL)': 'odc-odbl', 
     u'OSI Approved::New BSD license': 'bsd-license', 
     u'OSI Approved::Qt Public License (QPL)': 'qtpl', 

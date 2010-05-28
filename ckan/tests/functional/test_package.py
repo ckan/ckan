@@ -273,9 +273,25 @@ class TestReadOnly(TestPackageForm):
         # check for something that also finds tags ...
         self._check_search_results(res, 'russian', ['<strong>2</strong>'])
 
+    def test_search_foreign_chars(self):
+        offset = url_for(controller='package', action='search')
+        res = self.app.get(offset)
+        assert 'Search packages' in res
+        self._check_search_results(res, u'th\xfcmb', ['<strong>1</strong>'])
+        self._check_search_results(res, 'thumb', ['<strong>0</strong>'])
+
+    def test_search_escape_chars(self):
+        payload = '?q=fjdkf%2B%C2%B4gfhgfkgf%7Bg%C2%B4pk&search=Search+Packages+%C2%BB'
+        offset = url_for(controller='package', action='search') + payload
+        print offset
+        results_page = self.app.get(offset)
+        assert 'Search packages' in results_page, results_page
+        results_page = self.main_div(results_page)
+        assert '<strong>0</strong>' in results_page, results_page
+
     def _check_search_results(self, page, terms, requireds, only_open=False, only_downloadable=False):
         form = page.forms[0]
-        form['q'] = str(terms)
+        form['q'] = terms.encode('utf8') # paste doesn't handle this!
         form['open_only'] = only_open
         form['downloadable_only'] = only_downloadable
         results_page = form.submit()
@@ -314,6 +330,8 @@ class TestEdit(TestPackageForm):
         editpkg = model.Package.by_name(self.editpkg_name)
         admin = model.User.by_name(u'testadmin')
         model.setup_default_user_roles(editpkg, [admin])
+        model.repo.commit_and_remove()
+
         self.pkgid = editpkg.id
         offset = url_for(controller='package', action='edit', id=self.editpkg_name, package_form=package_form)
         self.res = self.app.get(offset)
@@ -474,6 +492,7 @@ u with umlaut \xc3\xbc
         model.repo.commit_and_remove()
         pkg = model.Package.by_name(pkg_name)
         model.setup_default_user_roles(pkg, [self.admin])
+        model.repo.commit_and_remove()
 
         # Edit it
         offset = url_for(controller='package', action='edit', id=pkg.name, package_form=package_form)
@@ -606,6 +625,80 @@ u with umlaut \xc3\xbc
         self.check_tag(res, '<form', 'class="has-errors"')
         assert 'No links are allowed' in res, res
 
+
+class TestMarkdownHtmlWhitelist(TestPackageForm):
+
+    pkg_name = u'markdownhtmlwhitelisttest'
+    pkg_notes = u'''
+<table width="100%" border="1">
+<tr>
+<td rowspan="2"><b>Description</b></td>
+<td rowspan="2"><b>Documentation</b></td>
+
+<td colspan="2"><b><center>Data -- Pkzipped</center></b> </td>
+</tr>
+<tr>
+<td><b>SAS .tpt</b></td>
+<td><b>ASCII CSV</b> </td>
+</tr>
+<tr>
+<td><b>Overview</b></td>
+<td><A HREF="http://www.nber.org/patents/subcategories.txt">subcategory.txt</A></td>
+<td colspan="2"><center>--</center></td>
+</tr>
+<script><!--
+alert('Hello world!');
+//-->
+</script>
+
+'''
+
+    def setup_method(self, method):
+        self.setUp()
+
+    def setUp(self):
+        model.Session.remove()
+        rev = model.repo.new_revision()
+        self.pkg = model.Package(name=self.pkg_name, notes=self.pkg_notes)
+        model.Session.add(self.pkg)
+        u = model.User(name=u'testadmin')
+        model.Session.add(u)
+        model.repo.commit_and_remove()
+
+        self.pkg = model.Package.by_name(self.pkg_name)
+        admin = model.User.by_name(u'testadmin')
+        model.setup_default_user_roles(self.pkg, [admin])
+        model.repo.commit_and_remove()
+        self.pkg_id = self.pkg.id
+        offset = url_for(controller='package', action='read', id=self.pkg_name)
+        self.res = self.app.get(offset)
+        model.repo.commit_and_remove()
+
+        self.pkg = model.Package.by_name(self.pkg_name)
+        self.admin = model.User.by_name(u'testadmin')
+
+    def teardown_method(self, method):
+        self.tearDown()
+
+    def tearDown(self):
+        model.repo.rebuild_db()
+        model.Session.remove()
+
+    def test_markdown_html_whitelist(self):
+        self.body = str(self.res)
+        self.assert_fragment('<table width="100%" border="1">')
+        self.assert_fragment('<td rowspan="2"><b>Description</b></td>')
+        self.assert_fragment('<a href="http://www.nber.org/patents/subcategories.txt">subcategory.txt</a>')
+        self.assert_fragment('<td colspan="2"><center>--</center></td>')
+        self.fail_if_fragment('<script>')
+
+    def assert_fragment(self, fragment):
+        assert fragment in self.body, (fragment, self.body)
+
+    def fail_if_fragment(self, fragment):
+        assert fragment not in self.body, (fragment, self.body)
+
+
 class TestNew(TestPackageForm):
     pkgname = u'testpkg'
     pkgtitle = u'mytesttitle'
@@ -659,7 +752,7 @@ class TestNew(TestPackageForm):
         pkg = model.Package.by_name(name)
         assert pkg
         assert pkg.name == name
-        assert pkg.resources == [], pkg.resources
+        assert not pkg.resources, pkg.resources
 
 
     def test_new(self):
@@ -839,6 +932,22 @@ class TestNew(TestPackageForm):
         # text field tested here.
         res = fv.submit('commit', status=400)     
 
+    def test_multi_resource_bug(self):
+        # ticket:276
+        offset = url_for(controller='package', action='new', package_form=package_form)
+        res = self.app.get(offset)
+        assert 'Packages - New' in res
+        fv = res.forms[0]
+        prefix = 'Package--'
+        fv[prefix + 'name'] = 'name276'
+        resformat = u'xls'    
+        fv[prefix + 'resources-0-format'] = resformat
+        res = fv.submit('preview')
+
+        res = self.main_div(res)
+        assert resformat in res, res
+        assert res.count(str(resformat)) == 1, res.count(str(resformat))
+
 class TestNewPreview(TestPackageBase):
     pkgname = u'testpkg'
     pkgtitle = u'mytesttitle'
@@ -887,6 +996,7 @@ class TestNonActivePackages(TestPackageBase):
         pkg = model.Session.query(model.Package).filter_by(name=self.non_active_name).one()
         admin = model.User.by_name(u'joeadmin')
         model.setup_default_user_roles(pkg, [admin])
+        model.repo.commit_and_remove()
         
         pkg = model.Session.query(model.Package).filter_by(name=self.non_active_name).one()
         pkg.delete() # becomes non active
@@ -981,3 +1091,12 @@ class TestRevisions(TestPackageBase):
         assert 'Revision Differences' in main_res, main_res
         assert self.pkg1.name in main_res, main_res
         assert '<tr><td>notes</td><td><pre>- Written by Puccini\n+ Written off</pre></td></tr>' in main_res, main_res
+
+    def test_2_atom_feed(self):
+        offset = url_for(controller='package', action='history', id=self.pkg1.name)
+        offset = "%s?format=atom" % offset
+        res = self.app.get(offset)
+        assert '<feed' in res, res
+        assert 'xmlns="http://www.w3.org/2005/Atom"' in res, res
+        assert '</feed>' in res, res
+   

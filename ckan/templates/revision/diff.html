@@ -19,7 +19,7 @@
         <tr>
           <th>Field</th><th>Difference</th>
         </tr>
-       <py:for each="field, diff in c.diff.items()">
+       <py:for each="field, diff in c.diff">
           <tr><td>${field}</td><td><pre>${diff}</pre></td></tr>
         </py:for>
       </table>

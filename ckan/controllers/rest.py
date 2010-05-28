@@ -1,10 +1,10 @@
 import sqlalchemy.orm
-import simplejson
 
 from ckan.lib.base import *
+from ckan.lib.helpers import json
 import ckan.model as model
 import ckan.forms
-from ckan.lib.search import Search, SearchOptions
+from ckan.lib.search import make_search, SearchOptions
 import ckan.authz
 import ckan.rating
 
@@ -14,7 +14,10 @@ class RestController(BaseController):
         return render('rest/index')
 
     def list(self, register, subregister=None, id=None):
-        if register == u'package' and not subregister:
+        if register == 'revision':
+            revs = model.Session.query(model.Revision).all()
+            return self._finish_ok([rev.id for rev in revs])
+        elif register == u'package' and not subregister:
             query = ckan.authz.Authorizer().authorized_query(self._get_username(), model.Package)
             packages = query.all() 
             results = [package.name for package in packages]
@@ -35,6 +38,14 @@ class RestController(BaseController):
             tags = model.Session.query(model.Tag).all() #TODO
             results = [tag.name for tag in tags]
             return self._finish_ok(results)
+        elif register == u'changeset':
+            from ckan.model.changeset import ChangesetRegister
+            return self._finish_ok(ChangesetRegister().keys())
+        elif register == u'licenses':
+            from ckan.model.license import LicenseRegister
+            licenses = LicenseRegister().values()
+            results = [l.as_dict() for l in licenses]
+            return self._finish_ok(results)
         else:
             response.status_int = 400
             return ''
@@ -51,8 +62,20 @@ class RestController(BaseController):
                 'timestamp': model.strftimestamp(rev.timestamp),
                 'author': rev.author,
                 'message': rev.message,
+                'packages': [p.name for p in rev.packages],
             }
             return self._finish_ok(response_data)
+        elif register == u'changeset':
+            from ckan.model.changeset import ChangesetRegister
+            changesets = ChangesetRegister()
+            changeset = changesets.get(id, None)
+            #if not self._check_access(changeset, model.Action.READ):
+            #    return ''
+            if changeset is None:
+                response.status_int = 404
+                return ''            
+            _dict = changeset.as_dict()
+            return self._finish_ok(_dict)
         elif register == u'package' and not subregister:
             pkg = model.Package.by_name(id)
             if pkg is None:
@@ -62,7 +85,13 @@ class RestController(BaseController):
             if not self._check_access(pkg, model.Action.READ):
                 return ''
             _dict = pkg.as_dict()
-            #TODO check it's not none
+            # Set 'license' in _dict to cater for old clients.
+            # Todo: Remove this ASAP.
+            pkg_license = pkg.license
+            if pkg_license:
+                _dict['license'] = pkg_license.title
+            else:
+                _dict['license'] = _dict.get('license_id', '')
             return self._finish_ok(_dict)
         elif register == u'package' and (subregister == 'relationships' or subregister in model.PackageRelationship.get_all_types()):
             pkg1 = model.Package.by_name(id)
@@ -109,7 +138,7 @@ class RestController(BaseController):
     def create(self, register, id=None, subregister=None, id2=None):
         # Check an API key given
         if not self._check_access(None, None):
-            return simplejson.dumps(_('Access denied'))
+            return json.dumps(_('Access denied'))
         try:
             request_data = self._get_request_data()
         except ValueError, inst:
@@ -151,7 +180,7 @@ class RestController(BaseController):
             validation = fs.validate()
             if not validation:
                 response.status_int = 409
-                return simplejson.dumps(repr(fs.errors))
+                return json.dumps(repr(fs.errors))
             rev = model.repo.new_revision()
             rev.author = self.rest_api_user
             rev.message = _(u'REST API: Create object %s') % str(fs.name.value)
@@ -200,7 +229,7 @@ class RestController(BaseController):
         if (not subregister and \
             not self._check_access(entity, model.Action.EDIT)) \
             or not self._check_access(None, None):
-            return simplejson.dumps(_('Access denied'))
+            return json.dumps(_('Access denied'))
 
         try:
             request_data = self._get_request_data()
@@ -221,7 +250,7 @@ class RestController(BaseController):
             validation = fs.validate()
             if not validation:
                 response.status_int = 409
-                return simplejson.dumps(repr(fs.errors))
+                return json.dumps(repr(fs.errors))
             try:
                 rev = model.repo.new_revision()
                 rev.author = self.rest_api_user
@@ -276,7 +305,7 @@ class RestController(BaseController):
             return ''
 
         if not self._check_access(entity, model.Action.PURGE):
-            return simplejson.dumps(_('Access denied'))
+            return json.dumps(_('Access denied'))
 
         if revisioned_details:
             rev = model.repo.new_revision()
@@ -293,26 +322,32 @@ class RestController(BaseController):
 
     def search(self, register=None):
         if register == 'revision':
-            if request.params.has_key('since_time'):
+            since_time = None
+            if request.params.has_key('since_id'):
+                id = request.params['since_id']
+                rev = model.Session.query(model.Revision).get(id)
+                if rev is None:
+                    response.status_int = 400
+                    return 'There is no revision with id: %s' % id
+                since_time = rev.timestamp
+            elif request.params.has_key('since_time'):
                 since_time_str = request.params['since_time']
-                since_time = model.strptimestamp(since_time_str)
-                revs = model.Session.query(model.Revision).filter(model.Revision.timestamp>since_time)
-            elif request.params.has_key('since_rev'):
-                since_id = request.params['since_rev']
-                revs = []
-                for rev in model.Session.query(model.Revision).all():
-                    if since_id == rev.id:
-                        break
-                    revs.append(rev)
+                try:
+                    since_time = model.strptimestamp(since_time_str)
+                except ValueError, inst:
+                    response.status_int = 400
+                    return 'ValueError: %s' % inst
             else:
-                revs = model.Session.query(model.Revision).all()
+                response.status_int = 400
+                return 'Missing search term (\'since_id=UUID\' or \'since_time=TIMESTAMP\')'
+            revs = model.Session.query(model.Revision).filter(model.Revision.timestamp>since_time)
             return self._finish_ok([rev.id for rev in revs])
         elif register == 'package':
             if request.params.has_key('qjson'):
                 if not request.params['qjson']:
                     response.status_int = 400
                     return gettext('Blank qjson parameter')
-                params = simplejson.loads(request.params['qjson'])
+                params = json.loads(request.params['qjson'])
             elif request.params.values() and request.params.values() != [u''] and request.params.values() != [u'1']:
                 params = request.params
             else:
@@ -326,7 +361,7 @@ class RestController(BaseController):
             options.search_tags = False
             options.return_objects = False
             username = self._get_username()
-            results = Search().run(options, username)
+            results = make_search().run(options, username)
             return self._finish_ok(results)
 
     def tag_counts(self):
@@ -428,12 +463,12 @@ class RestController(BaseController):
                 request.params.items(), str(inst)
             )
             raise ValueError, msg
-        request_data = simplejson.loads(request_data, encoding='utf8')
+        request_data = json.loads(request_data, encoding='utf8')
         if not isinstance(request_data, dict):
             raise ValueError, _("Request params must be in form of a json encoded dictionary.")
         # ensure unicode values
         for key, val in request_data.items():
-            # if val is str then assume it is ascii, since simplejson converts
+            # if val is str then assume it is ascii, since json converts
             # utf8 encoded JSON to unicode
             request_data[key] = self._make_unicode(val)
         return request_data
@@ -467,8 +502,8 @@ class RestController(BaseController):
     def _finish_ok(self, response_data=None):
         response.status_int = 200
         response.headers['Content-Type'] = 'application/json'
-        if response_data:
-            return simplejson.dumps(response_data)
+        if response_data is not None:
+            return json.dumps(response_data)
         else:
             return ''
 

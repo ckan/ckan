@@ -9,6 +9,7 @@ test_data=os.path.join(config['here'], 'ckan/tests/getdata/samples/cospread.csv'
 test_data2=os.path.join(config['here'], 'ckan/tests/getdata/samples/cospread2.csv')
 test_data3=os.path.join(config['here'], 'ckan/tests/getdata/samples/cospread3.csv') # slightly altered format 29-1-2010
 test_data4=os.path.join(config['here'], 'ckan/tests/getdata/samples/cospread4.csv') # slightly altered csv format 15-3-2010
+test_data5=os.path.join(config['here'], 'ckan/tests/getdata/samples/cospread5.csv') # slightly altered headings 31-3-2010
 
 class TestBasic:
     @classmethod
@@ -32,17 +33,6 @@ class TestBasic:
         test_munge('Adult participation in learning', 'adult_participation_in_learning')
         test_munge('Alcohol Profile: Alcohol-specific hospital admission, males', 'alcohol_profile_-_alcohol-specific_hospital_admission_males')
         test_munge('Age and limiting long-term illness by NS-SeC', 'age_and_limiting_long-term_illness_by_ns-sec')
-
-    def test_parse_tags(self):
-        def test_parse(tag_str, expected_tags):
-            tags = self.data._parse_tags(tag_str)
-            assert tags == expected_tags, 'Got %s not %s' % (tags, expected_tags)
-        test_parse('one two three', ['one', 'two', 'three'])
-        test_parse('one, two, three', ['one', 'two', 'three'])
-        test_parse('one,two,three', ['one', 'two', 'three'])
-        test_parse('one-two,three', ['one-two', 'three'])
-        test_parse('One, two&three', ['one', 'twothree'])
-        test_parse('One, two_three', ['one', 'two-three'])
         
 
 class TestData:
@@ -129,6 +119,11 @@ class TestDataTwice:
         data.load_csv_into_db(test_data)
         data.load_csv_into_db(test_data2) # same packages, slightly different
 
+    @classmethod
+    def teardown_class(self):
+        model.Session.remove()
+        model.repo.rebuild_db()
+
     def test_packages(self):
         q = model.Session.query(model.Package).filter_by(name=u'child-protection-plan-england-2009')
         pkg = q.one()
@@ -163,6 +158,7 @@ class TestData3:
         pkg3 = model.Session.query(model.Package).filter_by(name=u'uk-he-enrolments-by-subject-200708').one()
         assert pkg1
         assert pkg2
+        assert pkg3
         assert pkg1.title == 'Judicial and Court Statistics', pkg1.title
         assert pkg1.extras['external_reference'] == u'', pkg1.extras
         assert pkg1.notes.startswith('HMCS case management systems'), pkg1.notes
@@ -217,9 +213,43 @@ class TestData4:
 
     def test_fields(self):
         names = [pkg.name for pkg in model.Session.query(model.Package).all()]
-        assert names == ['dfid-projects']
+        assert names == ['dfid-projects'], names
         pkg1 = model.Package.by_name(u'dfid-projects')
         assert pkg1.title == u'DFID Project Information', pkg1.title
         assert pkg1.notes == u'Information about aid projects funded by the Department for International Development. The dataset contains project descriptions, dates, purposes, locations, sectors, summary financial data and whether or not conditions are attached.', pkg1.notes
         assert pkg.license_id == u'ukcrown-withrights', pkg.license_id
 
+class TestData5:
+    @classmethod
+    def setup_class(self):
+        data = data_getter.Data()
+        data.load_csv_into_db(test_data5)
+
+    @classmethod
+    def teardown_class(self):
+        model.Session.remove()
+        model.repo.rebuild_db()
+
+    def test_fields(self):
+        names = [pkg.name for pkg in model.Session.query(model.Package).all()]
+        assert '' not in names, names
+        assert 'os-boundary-line' not in names, names
+        pkg1 = model.Session.query(model.Package).filter_by(name=u'os-50k-gazetteer').one()
+        pkg2 = model.Session.query(model.Package).filter_by(name=u'lichfield-car-parks').one()
+        assert pkg1
+        assert pkg2
+        assert pkg2.title == 'Car Parks'
+        assert pkg1.url == u'http://www.ordnancesurvey.co.uk/opendata', pkg1.url
+        assert pkg1.resources[0].url == u'http://www.ordnancesurvey.co.uk/opendatadownload/products.html', pkg1.resources[0]
+        assert pkg1.extras['date_released'] == u'2010-04-01', pkg1.extras['date_released']
+        assert pkg1.extras['date_updated'] == u'2009-06', pkg1.extras['date_updated']
+        assert pkg1.extras['department'] == 'Ordnance Survey', pkg1.extras['department']
+        assert pkg1.license.title == u'OKD Compliant::UK Crown Copyright with data.gov.uk rights', pkg1.license.title
+        assert 'Licence detail: UK Crown Copyright with data.gov.uk rights; see www.ordnancesurvey.co.uk/opendata/licence for further information' in pkg1.notes, pkg1.notes
+        assert pkg2.license.title == u'OKD Compliant::Local Authority Copyright with data.gov.uk rights', pkg2.license.title
+        tag_names1 = set()
+        [tag_names1.add(tag.name) for tag in pkg1.tags]
+        for tag in ['ordnance-survey', 'os', '50000']:
+            assert tag in tag_names1, '%s not in %s' % (tag, tag_names1)
+        assert model.Group.by_name(u'ukgov') in pkg1.groups
+        assert pkg1.extras['import_source'].startswith('COSPREAD'), pkg1.extras['import_source']

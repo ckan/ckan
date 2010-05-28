@@ -1,5 +1,5 @@
 =========================
-CKAN API (including REST)
+CKAN  (including REST)
 =========================
 
 Introduction
@@ -9,7 +9,7 @@ A CKAN server's data catalog is not only available in a web browser, but also vi
 Application Programming Interface (API). The API can be used to view and change
 the CKAN data.
 
-The API has two basic sections:
+The API has two sections:
 
 * a RESTful (Representational State Transfer) style interface for accessing 
   CKAN database objects
@@ -62,7 +62,7 @@ So that the system knows who is making this change, you need to send your API ke
 API Locations
 =============
 
-A REST interface presents resources at published locations. Here are the names
+A REST interface presents resources at published locations. Here are the named
 locations of the CKAN REST API resources:
 
 +--------------------------------+---------------------------------------------------------------+
@@ -80,7 +80,7 @@ locations of the CKAN REST API resources:
 +--------------------------------+---------------------------------------------------------------+
 | Tag Entity                     | /api/rest/tag/TAG-NAME                                        |
 +--------------------------------+---------------------------------------------------------------+
-| Rating Registry                | /api/rest/rating                                              |
+| Rating Register                | /api/rest/rating                                              |
 +--------------------------------+---------------------------------------------------------------+
 | Rating Entity                  | /api/rest/rating/PACKAGE-NAME                                 |
 +--------------------------------+---------------------------------------------------------------+
@@ -88,8 +88,16 @@ locations of the CKAN REST API resources:
 +--------------------------------+---------------------------------------------------------------+
 | Package Relationships Register | /api/rest/package/PACKAGE-NAME/relationships/PACKAGE-NAME     |
 +--------------------------------+---------------------------------------------------------------+
-| Package Relationship Entity    | /api/rest/package/PACKAGE-NAME/RELATIONSHIP-NAME/PACKAGE-NAME |
+| Package Relationship Entity    | /api/rest/package/PACKAGE-NAME/RELATIONSHIP-TYPE/PACKAGE-NAME |
 +--------------------------------+---------------------------------------------------------------+
+| Revision Register              | /api/rest/revision                                            |
++--------------------------------+---------------------------------------------------------------+
+| Revision Entity                | /api/rest/revision/REVISION-ID                                |
++--------------------------------+---------------------------------------------------------------+
+| License List                   | /api/rest/licenses                                            |
++--------------------------------+---------------------------------------------------------------+
+
+Possible values for RELATIONSHIP-TYPE are given below for Data Formats - Relationship-Type.
 
 Here are the non-REST API locations:
 
@@ -100,6 +108,10 @@ Here are the non-REST API locations:
 +-------------------+-----------------------+
 | Tag Counts        | /api/tag_counts       |
 +-------------------+-----------------------+
+| Revision Search   | /api/search/revision  |
++-------------------+-----------------------+
+
+See below for more information about package and revision search parameters.
 
 
 Methods and data formats
@@ -132,9 +144,11 @@ the operation.
 +-------------------------------+--------+------------------+-------------------+
 | Tag Entity                    | GET    | Tag              | Package-List      | 
 +-------------------------------+--------+------------------+-------------------+
-| Rating Entity                 | GET    |                  | Ratings           | 
-+-------------------------------+--------+------------------+-------------------+
 | Rating Register               | POST   | Rating           |                   | 
++-------------------------------+--------+------------------+-------------------+
+| Rating Entity                 | GET    |                  | Rating            | 
++-------------------------------+--------+------------------+-------------------+
+| Package Relationships Register | GET    |                  | Pkg-Relationships | 
 +-------------------------------+--------+------------------+-------------------+
 | Package Relationship Entity   | GET    |                  | Pkg-Relationship  |
 +-------------------------------+--------+------------------+-------------------+
@@ -142,13 +156,15 @@ the operation.
 +-------------------------------+--------+------------------+-------------------+
 | Package Relationship Entity   | PUT    | Pkg-Relationship |                   | 
 +-------------------------------+--------+------------------+-------------------+
-| Package Relationship Register | GET    | Rating           | Pkg-Relationships | 
-+-------------------------------+--------+------------------+-------------------+
 | Search                        | GET    |                  | Search-Response   | 
 +-------------------------------+--------+------------------+-------------------+
 | Search                        | POST   | Query-String     | Search-Response   | 
 +-------------------------------+--------+------------------+-------------------+
 | Tag Counts                    | GET    |                  | Tag-Count-List    | 
++-------------------------------+--------+------------------+-------------------+
+| Revision Entity               | GET    |                  | Revision          | 
++-------------------------------+--------+------------------+-------------------+
+| License List                  | GET    |                  | License-List      | 
 +-------------------------------+--------+------------------+-------------------+
 
 Notes:
@@ -171,44 +187,56 @@ Data Formats
 | Package-List    | [ Name-String, Name-String, Name-String, ... ]             |
 +-----------------+------------------------------------------------------------+
 | Package         | { name: Name-String, title: String, version: String,       |
-|                 | url: String, resources: [ Resource-Dict, Resource-Dict,    |
-|                 | ... ], author: String, author_email: String,               |
+|                 | url: String, resources: [ Resource, Resource, ...],        |
+|                 | author: String, author_email: String,                      |
 |                 | maintainer: String, maintainer_email: String,              |
-|                 | license: String, tags: Tag-List, notes: String,            |
-|                 | extras: { Name-String: Value-String, ... } }               |
+|                 | license_id: String, tags: Tag-List, notes: String,         |
+|                 | extras: { Name-String: String, ... } }                     |
+|                 | See note below on additional fields upon GET of a package. |
 +-----------------+------------------------------------------------------------+
 | Group-List      | [ Name-String, Name-String, Name-String, ... ]             | 
 +-----------------+------------------------------------------------------------+
 | Group           | { name: Name-String, title: String, description: String,   | 
-|                 | packages: Group-List }                                     |
+|                 | packages: Package-List }                                   |
 +-----------------+------------------------------------------------------------+
 | Tag-List        | [ Name-String, Name-String, Name-String, ... ]             |
 +-----------------+------------------------------------------------------------+
 | Tag             | { name: Name-String }                                      |
 +-----------------+------------------------------------------------------------+
-| Name-String     | An alphanumeric string.                                    |
-+-----------------+------------------------------------------------------------+
-| Resource-Dict   | { url: String, format: String, description: String }       |
+| Resource        | { url: String, format: String, description: String,        |
+|                 | hash: String }                                             |
 +-----------------+------------------------------------------------------------+
 | Rating          | { package: Name-String, rating: int }                      |
 +-----------------+------------------------------------------------------------+
-| Ratings         | { ratings_average: float, ratings_count: int }             |
+|Pkg-Relationships| [ Pkg-Relationship, Pkg-Relationship, ... ]                |
++-----------------+------------------------------------------------------------+
+| Pkg-Relationship| { subject: Package-Name-String,                            |
+|                 | object: Package-Name-String, type: Relationship-Type,      |
+|                 | comment: String }                                          |
++-----------------+------------------------------------------------------------+
+|Relationship-Type| One of: 'depends_on', 'dependency_of',                     |
+|                 | 'derives_from', 'has_derivation',                          |
+|                 | 'child_of', 'parent_of'.                                   |
++-----------------+------------------------------------------------------------+
+| Search-Response | { count: Count-int, results: [Package, Package, ...] }     |
 +-----------------+------------------------------------------------------------+
 | Query-String    | [ q: String ]                                              |
 +-----------------+------------------------------------------------------------+
-| Search-Response | { count: Count-int, results: [Package-Name-String,         |
-|                 | Package-Name-String, ... ] }                               |
-|                 | **or**                                                     |
-|                 | { count: Count-int,                                        |
-|                 | results: [{ name:Name-String, title: String ... },         |
-|                 | { name:Name-String, title: String ... }, ... ]}            |
+| Tag-Count-List  | [ [Name-String, Integer], [Name-String, Integer], ... ]    |
 +-----------------+------------------------------------------------------------+
-| Tag-Count-List  | [ [tag-name, tag-count], [tag-name, tag-count], ... ]      |
+| Revision        | { id: Uuid, message: String, author: String,               |
+|                 | timestamp: Date-Time, packages: Package-List }             |
 +-----------------+------------------------------------------------------------+
-| Pkg-Relationship| {'comment':String}                                         |
+| Revision-List   | [ Uuid, Uuid, Uuid, ... ]                                  |
 +-----------------+------------------------------------------------------------+
-|RELATIONSHIP-NAME| One of: 'child_of', 'parent_of', 'depends_on',             |
-|                 | 'dependency_of', 'derives_from', 'has_derivation'          |
+| License-List    | [ License, License, License, ... ]                         |
++-----------------+------------------------------------------------------------+
+| License         | { id: Name-String, title: String, is_okd_compliant:        |
+|                 | Boolean, is_osi_compliant: Boolean, tags: Tag-List,        |
+|                 | family: String, url: String, maintainer: String,           |
+|                 | date_created: Date-Time, status: String }                  |
++-----------------+------------------------------------------------------------+
+| Name-String     | An alphanumeric string.                                    |
 +-----------------+------------------------------------------------------------+
 
 To send request data, create a simple data structure, then convert it to a JSON string, then percent-encode the JSON string, then send it as the request body.
@@ -221,8 +249,7 @@ Notes:
 
  * To delete an 'extra' key-value pair, supply the key with a None value.
 
- * When you read a package then some additional information is supplied that cannot be edited in the REST style. This includes info on Package Relationship. This is a convenience.
-
+ * When you read a package then some additional information is supplied that cannot be edited in the REST style. This includes info on Package Relationship ('relationships'), Group membership ('groups'), ratings ('ratings_average' and 'ratings_count') and Package ID ('id'). This is purely a convenience for clients, and only forms part of the Package on GET.
 
 API Keys
 ========
@@ -254,8 +281,8 @@ authorized for the operation, then the requested operation will not be carried
 out and the CKAN REST API will respond with status code 403.
 
 
-Search parameters
-=================
+Package Search Parameters
+=========================
 
 +-----------------------+---------------+----------------------------------+----------------------------------+
 | Key                   |    Value      | Example                          |  Notes                           |
@@ -305,6 +332,18 @@ Search parameters
 |filter_by_downloadbable| 0 (default)   | filter_by_downloadable=1         | Filters results by ones which    |
 |                       | or 1          |                                  | have at least one resource URL.  |
 +-----------------------+---------------+----------------------------------+----------------------------------+
+
+
+Revision Search Parameters
+==========================
+
++-----------------------+---------------+-----------------------------------------------------+----------------------------------+
+| Key                   |    Value      | Example                                             |  Notes                           |
++=======================+===============+=====================================================+==================================+ 
+| since_time            | Date-Time     | since_time=2010-05-05T19:42:45.854533               | The time can be less precisely stated (e.g. 2010, or 2010-05, or 2010-05-05, and so on). |
++-----------------------+---------------+-----------------------------------------------------+----------------------------------+
+| since_id              | Uuid          | since_id=6c9f32ef-1f93-4b2f-891b-fd01924ebe08       | The stated id will not be included in the results.  |
++-----------------------+---------------+-----------------------------------------------------+----------------------------------+
 
 
 Status Codes

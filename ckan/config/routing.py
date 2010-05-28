@@ -19,7 +19,7 @@ def make_map():
 
     # CUSTOM ROUTES HERE
     map.connect('home', '/', controller='home', action='index')
-    map.connect('guide', '/guide', controller='home', action='guide')
+    map.connect('guide', config.get('guide_url', 'http://wiki.okfn.org/ckan/doc/'), _static=True)
     map.connect('license', '/license', controller='home', action='license')
     map.connect('about', '/about', controller='home', action='about')
     map.connect('stats', '/stats', controller='home', action='stats')
@@ -56,14 +56,13 @@ def make_map():
         controller='rest', action='delete',
         conditions=dict(method=['DELETE']))
 
-    map.redirect("/tags", "/tag")
-    map.redirect("/tags/{url:.*}", "/tag/{url}")
     map.redirect("/packages", "/package")
     map.redirect("/packages/{url:.*}", "/package/{url}")
     map.connect('/package/', controller='package', action='index')
     map.connect('/package/search', controller='package', action='search')
     map.connect('/package/list', controller='package', action='list')
     map.connect('/package/new', controller='package', action='new')
+    map.connect('/package/autocomplete', controller='package', action='autocomplete')
     map.connect('/package/:id', controller='package', action='read')
     map.redirect("/groups", "/group")
     map.redirect("/groups/{url:.*}", "/group/{url}")
@@ -71,6 +70,12 @@ def make_map():
     map.connect('/group/list', controller='group', action='list')
     map.connect('/group/new', controller='group', action='new')
     map.connect('/group/:id', controller='group', action='read')
+    map.redirect("/tags", "/tag")
+    map.redirect("/tags/{url:.*}", "/tag/{url}")
+    map.redirect("/tag/read/{url:.*}", "/tag/{url}", _redirect_code='301 Moved Permanently')
+    map.connect('/tag/', controller='tag', action='index')
+    map.connect('/tag/autocomplete', controller='tag', action='autocomplete')
+    map.connect('/tag/:id', controller='tag', action='read')
     map.redirect("/users/{url:.*}", "/user/{url}")
     map.connect('/user/all', controller='user', action='all')
     map.connect('/user/edit', controller='user', action='edit')
