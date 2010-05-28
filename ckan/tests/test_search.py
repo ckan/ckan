@@ -61,7 +61,7 @@ class TestSearch(object):
 # Can't search for partial words in postgres
 ##    def test_1_name_partial(self):
 ##        # partial name
-##        result = Search().search(u'gil')
+##        result = make_search().search(u'gil')
 ##        assert self._pkg_names(result) == 'gils', self._pkg_names(result)
 ##        assert result['count'] == 1, self._pkg_names(result)
 
@@ -266,6 +266,14 @@ class TestSearch(object):
         count = result['count']
         assert len(pkgs) == 2, pkgs
         
+    def test_search_foreign_chars(self):
+        result = make_search().search('umlaut')
+        assert result['results'] == ['gils'], result['results']
+        result = make_search().search(u'thumb')
+        assert result['count'] == 0, result['results']
+        result = make_search().search(u'th\xfcmb')
+        assert result['results'] == ['gils'], result['results']
+
     def test_groups(self):
         result = make_search().search(u'groups:random')
         assert self._pkg_names(result) == '', self._pkg_names(result)

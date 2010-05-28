@@ -323,3 +323,18 @@ class TestForm(PylonsTestCase):
                  'Extra %s should equal %s but equals %s' % \
                  (reqd_extra_key, reqd_extra_value,
                   outpkg.extras[reqd_extra_key])
+
+    def test_5_validate_bad_date(self):
+        # bad dates must be picked up in validation
+        indict = _get_blank_param_dict(fs=ckan.forms.get_gov_fieldset())
+        prefix = 'Package--'
+        indict[prefix + 'name'] = u'testname3'
+        indict[prefix + 'date_released'] = u'27/11/2008'
+        fs = ckan.forms.get_gov_fieldset().bind(model.Package, data=indict, session=model.Session)
+        validation = fs.validate()
+        assert validation
+
+        indict[prefix + 'date_released'] = u'27/11/0208'
+        fs = ckan.forms.get_gov_fieldset().bind(model.Package, data=indict, session=model.Session)
+        validation = fs.validate()
+        assert not validation

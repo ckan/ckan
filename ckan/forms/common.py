@@ -157,7 +157,13 @@ class DateRangeExtraField(ConfiguredField):
     '''A form field for two DateType fields, representing a date range,
     stored in 'extra' fields.'''
     def get_configured(self):
-        return self.DateRangeField(self.name).with_renderer(self.DateRangeRenderer).validate(field_types.DateType.form_validator)
+        return self.DateRangeField(self.name).with_renderer(self.DateRangeRenderer).validate(self.validator)
+
+    def validator(self, form_date_tuple, field=None):
+        assert isinstance(form_date_tuple, tuple), form_date_tuple
+        from_, to_ = form_date_tuple
+        return field_types.DateType.form_validator(from_) and \
+               field_types.DateType.form_validator(to_)
 
     class DateRangeField(formalchemy.Field):
         def sync(self):
