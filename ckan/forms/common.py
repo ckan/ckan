@@ -139,7 +139,7 @@ class DateExtraField(ConfiguredField):
             if not self.is_readonly():
                 pkg = self.model
                 form_date = self._deserialize()
-                date_db = field_types.DateType.form_to_db(form_date)
+                date_db = field_types.DateType.form_to_db(form_date, may_except=False)
                 pkg.extras[self.name] = date_db
 
     class DateExtraRenderer(TextExtraRenderer):
@@ -170,8 +170,8 @@ class DateRangeExtraField(ConfiguredField):
             if not self.is_readonly():
                 pkg = self.model
                 vals = self._deserialize() or u''
-                pkg.extras[self.name + '-from'] = field_types.DateType.form_to_db(vals[0])
-                pkg.extras[self.name + '-to'] = field_types.DateType.form_to_db(vals[1])
+                pkg.extras[self.name + '-from'] = field_types.DateType.form_to_db(vals[0], may_except=False)
+                pkg.extras[self.name + '-to'] = field_types.DateType.form_to_db(vals[1], may_except=False)
 
     class DateRangeRenderer(formalchemy.fields.FieldRenderer):
         def _get_value(self):
