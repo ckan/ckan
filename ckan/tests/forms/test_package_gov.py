@@ -341,3 +341,8 @@ class TestForm(TestController):
         fs = ckan.forms.package_gov_fs.bind(model.Package, data=indict, session=model.Session)
         validation = fs.validate()
         assert not validation
+
+        # make sure it syncs without exception (this is req'd for a preview)
+        model.repo.new_revision()
+        fs.sync()
+        model.repo.commit_and_remove()

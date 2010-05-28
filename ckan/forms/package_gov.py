@@ -15,7 +15,7 @@ class DateField(formalchemy.Field):
         if not self.is_readonly():
             pkg = self.model
             form_date = self._deserialize()
-            date_db = schema_gov.DateType.form_to_db(form_date)
+            date_db = schema_gov.DateType.form_to_db(form_date, may_except=False)
             pkg.extras[self.name] = date_db
 
 class TemporalCoverageField(formalchemy.Field):
@@ -23,8 +23,8 @@ class TemporalCoverageField(formalchemy.Field):
         if not self.is_readonly():
             pkg = self.model
             vals = self._deserialize() or u''
-            pkg.extras[self.name + '-from'] = schema_gov.DateType.form_to_db(vals[0])
-            pkg.extras[self.name + '-to'] = schema_gov.DateType.form_to_db(vals[1])
+            pkg.extras[self.name + '-from'] = schema_gov.DateType.form_to_db(vals[0], may_except=False)
+            pkg.extras[self.name + '-to'] = schema_gov.DateType.form_to_db(vals[1], may_except=False)
 
 
 

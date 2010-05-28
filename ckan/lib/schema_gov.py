@@ -4,7 +4,7 @@ import datetime
 
 import formalchemy
 
-__all__ = ['government_depts', 'geographic_granularity_options', 'temporal_granularity_options', 'category_options', 'region_options', 'region_groupings', 'update_frequency_suggestions', 'tag_pool', 'tag_words_to_join', 'suggest_tags', 'tags_parse', 'DateType', 'GeoCoverageType', 'expand_abbreviations', 'name_munge', 'tag_munge']
+__all__ = ['government_depts', 'geographic_granularity_options', 'temporal_granularity_options', 'category_options', 'region_options', 'region_groupings', 'update_frequency_suggestions', 'tag_pool', 'tag_words_to_join', 'suggest_tags', 'tags_parse', 'DateType', 'DateConvertError', 'GeoCoverageType', 'expand_abbreviations', 'name_munge', 'tag_munge']
 
 government_depts_raw = """
 Attorney General's Office
@@ -134,6 +134,9 @@ def tags_parse(tags_str):
     tag_list = re.split(',\s*|\s+', tags_str.strip())
     return [tag_munge(tag_name) for tag_name in tag_list]
 
+class DateConvertError(Exception):
+    pass
+
 class DateType(object):
     '''Handles conversions between form and database as well as
     validation.'''
@@ -153,13 +156,13 @@ class DateType(object):
         try:
             date_tuple = time.strptime(iso_date, format)
         except ValueError, e:
-            raise TypeError('Could not read date as ISO format "%s". Date provided: "%s"' % (format, iso_date))
+            raise DateConvertError('Could not read date as ISO format "%s". Date provided: "%s"' % (format, iso_date))
         date_obj = datetime.datetime(*date_tuple[:4])
         date_str = date_obj.strftime('%Y-%m-%d')
         return date_str
 
     @classmethod
-    def form_to_db(self, form_str):
+    def form_to_db(self, form_str, may_except=True):
         '''
         27/2/2005 -> 2005-02-27
         27/Feb/2005 -> 2005-02-27
@@ -167,58 +170,64 @@ class DateType(object):
         Feb/2005 -> 2005-02
         2005 -> 2005
         '''
-        if not form_str:
-            # Allow blank
-            return u''
-        err_str = 'Date must be format DD/MM/YYYY or DD/MM/YY.'
-        match = self.date_match.match(form_str)
-        if not match:
-            raise TypeError('%s Date provided: "%s"' % (err_str, form_str))
-        matched_date = ''.join([group if group else '' for group in match.groups()])
-        if matched_date != form_str:
-            raise TypeError('%s Matched only "%s"' % (err_str, matched_date))
-        standard_date_fields = [] # integers, year first
-        for match_group in match.groups()[::-1]:
-            if match_group is not None:
-                val = match_group.strip('/-.')
-                word_in_val = self.word_match.match(val)
-                if word_in_val:
-                    word_in_val_c = word_in_val.group().capitalize()
-                    month_i = None
-                    if word_in_val_c in months:
-                        month_i = months.index(word_in_val_c)
-                    elif word_in_val_c in self.months_chopped:
-                        month_i = self.months_chopped.index(word_in_val_c)
-                    if month_i is not None:
-                        val = val.replace(word_in_val.group(), str(month_i+1))
-                try:
-                    standard_date_fields.append(int(val))
-                except ValueError:
-                    raise TypeError('%s Date provided: "%s"' % (err_str, form_str))
-        # Deal with 2 digit dates
-        if standard_date_fields[0] < 100:
-            standard_date_fields[0] = self.add_centurys_to_two_digit_year(standard_date_fields[0])
-        # Check range of dates
-        if standard_date_fields[0] < 1000 or standard_date_fields[0] > 2100:
-            raise TypeError('%s Year of "%s" is outside range.' % (err_str, standard_date_fields[0]))
-        if len(standard_date_fields) > 1 and (standard_date_fields[1] > 12 or standard_date_fields[1] < 1):
-            raise TypeError('%s Month of "%s" is outside range.' % (err_str, standard_date_fields[0]))
-        if len(standard_date_fields) > 2 and (standard_date_fields[2] > 31 or standard_date_fields[2] < 1):
-            raise TypeError('%s Month of "%s" is outside range.' % (err_str, standard_date_fields[0]))
-        str_date_fields = [] # strings, year first
-        for i, digits in enumerate((4, 2, 2)):
-            if len(standard_date_fields) > i:
-                format_string = '%%0%sd' % digits
-                str_date_fields.append(format_string % standard_date_fields[i])
-        db_date = unicode(self.default_db_separator.join(str_date_fields))
-        return db_date
+        try:
+            if not form_str:
+                # Allow blank
+                return u''
+            err_str = 'Date must be format DD/MM/YYYY or DD/MM/YY.'
+            match = self.date_match.match(form_str)
+            if not match:
+                raise DateConvertError('%s Date provided: "%s"' % (err_str, form_str))
+            matched_date = ''.join([group if group else '' for group in match.groups()])
+            if matched_date != form_str:
+                raise DateConvertError('%s Matched only "%s"' % (err_str, matched_date))
+            standard_date_fields = [] # integers, year first
+            for match_group in match.groups()[::-1]:
+                if match_group is not None:
+                    val = match_group.strip('/-.')
+                    word_in_val = self.word_match.match(val)
+                    if word_in_val:
+                        word_in_val_c = word_in_val.group().capitalize()
+                        month_i = None
+                        if word_in_val_c in months:
+                            month_i = months.index(word_in_val_c)
+                        elif word_in_val_c in self.months_chopped:
+                            month_i = self.months_chopped.index(word_in_val_c)
+                        if month_i is not None:
+                            val = val.replace(word_in_val.group(), str(month_i+1))
+                    try:
+                        standard_date_fields.append(int(val))
+                    except ValueError:
+                        raise DateConvertError('%s Date provided: "%s"' % (err_str, form_str))
+            # Deal with 2 digit dates
+            if standard_date_fields[0] < 100:
+                standard_date_fields[0] = self.add_centurys_to_two_digit_year(standard_date_fields[0])
+            # Check range of dates
+            if standard_date_fields[0] < 1000 or standard_date_fields[0] > 2100:
+                raise DateConvertError('%s Year of "%s" is outside range.' % (err_str, standard_date_fields[0]))
+            if len(standard_date_fields) > 1 and (standard_date_fields[1] > 12 or standard_date_fields[1] < 1):
+                raise DateConvertError('%s Month of "%s" is outside range.' % (err_str, standard_date_fields[0]))
+            if len(standard_date_fields) > 2 and (standard_date_fields[2] > 31 or standard_date_fields[2] < 1):
+                raise DateConvertError('%s Month of "%s" is outside range.' % (err_str, standard_date_fields[0]))
+            str_date_fields = [] # strings, year first
+            for i, digits in enumerate((4, 2, 2)):
+                if len(standard_date_fields) > i:
+                    format_string = '%%0%sd' % digits
+                    str_date_fields.append(format_string % standard_date_fields[i])
+            db_date = unicode(self.default_db_separator.join(str_date_fields))
+            return db_date
+        except DateConvertError, e:
+            if may_except:
+                raise e
+            else:
+                return form_str
 
     @staticmethod
     def form_validator(form_date_str, field=None):
         try:
             DateType.form_to_db(form_date_str)
-        except TypeError, e:
-            raise formalchemy.ValidationError(e)
+        except DateConvertError, e:
+            raise formalchemy.ValidationError(str(e))
 
     @classmethod
     def db_to_form(self, db_str):
