@@ -25,7 +25,7 @@ package_resource_revision_table = Table('package_resource_revision', metadata,
     Column('description', UnicodeText),
     Column('position', Integer),
     Column('state_id', Integer),
-    Column('revision_id', UnicodeText, ForeignKey('revision.id')),
+    Column('revision_id', UnicodeText, ForeignKey('revision.id'), primary_key=True),
     Column('continuity_id', Integer, ForeignKey('package_resource.id'))
     )
 

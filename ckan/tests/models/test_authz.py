@@ -15,7 +15,7 @@ class TestCreation(object):
         p3 = model.Package(name=u'test0')
         mradmin = model.User(name=u'tester')
         for obj in (p1, p2, p3, mradmin):
-            model.Session.save(obj)
+            model.Session.add(obj)
         self.authorizer = authz.Authorizer()
         model.repo.new_revision()
         model.repo.commit_and_remove()
@@ -30,12 +30,12 @@ class TestCreation(object):
         test0 = model.Package.by_name(u'test0')
         mradmin = model.User.by_name(u'tester')
         uor = model.UserObjectRole(role=model.Role.ADMIN, user=mradmin)
-        model.Session.save(uor)
+        model.Session.add(uor)
         pr = model.PackageRole(role=model.Role.ADMIN,
                                package=test0,
                                user=mradmin
                                )
-        model.Session.save(pr)
+        model.Session.add(pr)
         test0 = model.Package.by_name(u'test0')        
         prs = model.Session.query(model.PackageRole).filter_by(
             role=model.Role.ADMIN,
@@ -86,7 +86,7 @@ class TestCreation(object):
                               context=context,
                               action=action,
                               )
-        model.Session.save(ra)
+        model.Session.add(ra)
         model.repo.commit_and_remove()
 
         ra = model.Session.query(model.RoleAction).filter_by(role=admin_role,
@@ -100,7 +100,7 @@ class TestCreation(object):
         pr = model.GroupRole(role=model.Role.ADMIN,
                                group=war,
                                user=mradmin)
-        model.Session.save(pr)
+        model.Session.add(pr)
         model.repo.commit_and_remove()
 
         pr = model.Session.query(model.GroupRole).filter_by(role=model.Role.ADMIN,
@@ -193,7 +193,7 @@ class TestUsage(object):
         mrreader = model.User(name=u'mrreader')
         tester = model.User(name=u'tester')
         for obj in [anna, war, mradmin, mreditor, mrreader, tester]:
-            model.Session.save(obj)
+            model.Session.add(obj)
         model.repo.commit_and_remove()
 
         anna = model.Package.by_name(u'annakarenina')
@@ -214,7 +214,7 @@ class TestUsage(object):
                               action=model.Action.READ,
                               )
         for obj in [ra1, ra2, ra3]:
-            model.Session.save(obj)
+            model.Session.add(obj)
         model.repo.commit_and_remove()
 
         mradmin = model.User.by_name(u'mradmin')
@@ -290,7 +290,7 @@ class TestMigrate:
         warauthor1 = model.User(name=u'warauthor1')
         warauthor2 = model.User(name=u'warauthor2')
         for obj in [anna, war, warauthor1, warauthor2]:
-            model.Session.save(obj)
+            model.Session.add(obj)
         model.repo.commit_and_remove()
 
         # make changes
@@ -339,6 +339,7 @@ class TestUseCasePermissions:
         annakarenina_creator = model.User(name=u'annakarenina_creator')
         model.Session.add(annakarenina_creator)
         model.setup_default_user_roles(anna, [annakarenina_creator])
+        model.repo.commit_and_remove()
 
         # setup warandpeace with no roles
         war = model.Package.by_name(u'warandpeace')
@@ -368,6 +369,7 @@ class TestUseCasePermissions:
 
         mrsysadmin = model.User.by_name(u'mrsysadmin')
         model.add_user_to_role(mrsysadmin, model.Role.ADMIN, model.System())
+        model.repo.commit_and_remove()
 
         self.mreditor = model.User.by_name(u'mreditor')
         self.mrreader = model.User.by_name(u'mrreader')
@@ -436,8 +438,6 @@ class TestUseCasePermissions:
         assert not self.authorizer.is_authorized(username=self.visitor.name,
                 action=model.Action.EDIT, domain_object=self.war)
 
-        # have to be careful using objects created in setup (may be stale).
-        model.Session.remove()
         self.visitor = model.User.by_name(model.PSEUDO_USER__VISITOR)
         self.war = model.Package.by_name(u'warandpeace')
         model.add_user_to_role(self.visitor, model.Role.EDITOR, self.war)

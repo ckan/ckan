@@ -1,0 +1,164 @@
+/* Generated at 2010-03-25 16:44:39 from css@pearl.joyent.us commit 1d2b5cf. */
+ 
+fieldset {
+  padding: 1em;
+  margin: 0 0 1.5em 0;
+  border: 1px solid #ccc; }
+ 
+legend {
+  font-weight: bold;
+  font-size: 1.2em; }
+ 
+textarea, select,
+input[type=text], input.text,
+input[type=password], input.password,
+input[type=email], input.email,
+input[type=url], input.url {
+  padding: 0.4em;
+  width: 30em;
+  margin: 0 0 0.5em 0;
+  background: #fff;
+  border: 1px solid #bbb; }
+  textarea:focus, select:focus,
+  input[type=text]:focus, input.text:focus,
+  input[type=password]:focus, input.password:focus,
+  input[type=email]:focus, input.email:focus,
+  input[type=url]:focus, input.url:focus {
+    border-color: #666; }
+  textarea.has-errors, select.has-errors,
+  textarea.fieldWithErrors, select.fieldWithErrors,
+  input[type=text].has-errors, input.text.has-errors,
+  input[type=text].fieldWithErrors, input.text.fieldWithErrors,
+  input[type=password].has-errors, input.password.has-errors,
+  input[type=password].fieldWithErrors, input.password.fieldWithErrors,
+  input[type=email].has-errors, input.email.has-errors,
+  input[type=email].fieldWithErrors, input.email.fieldWithErrors,
+  input[type=url].has-errors, input.url.has-errors,
+  input[type=url].fieldWithErrors, input.url.fieldWithErrors {
+    border-color: #d12f19; }
+  table textarea, table select,
+  table input[type=text], table input.text,
+  table input[type=password], table input.password,
+  table input[type=email], table input.email,
+  table input[type=url], table input.url {
+    margin: 0; }
+ 
+input.title {
+  font-size: 1.5em; }
+input.short {
+  width: 5em; }
+input.medium-width {
+  width: 14.5em; }
+input.long {
+  width: 38em; }
+ 
+select.short { 
+  width: 14.5em; }
+
+textarea {
+  width: 30em;
+  height: 15em; }
+  textarea.short {
+    height: 5em; }
+ 
+select[multiple], select.multiple {
+  padding: 0;
+  height: 10em; }
+ 
+form dl {
+  *display: inline-block;
+  clear: left;
+  width: 100%;
+  background: transparent url(../images/dlbg.png) repeat-y 21% top;
+  padding: 0.5em 0; }
+  form dl:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden; }
+  form dl dt {
+    width: 20%;
+    margin: 1em 0 0 0;
+    float: left;
+    clear: right;
+    text-align: right; }
+    form dl dt:first-child, form dl dt:first-child + dd {
+      margin-top: 0em; }
+  form dl dd {
+    float: right;
+    min-height: 1.5em;
+    width: 78%;
+    margin: 0 0 0 2%; }
+  form dl dt + dd {
+    margin-top: 1em; }
+  form dl dt, form dl dd {
+    font-size: 1em;
+    line-height: 1.5em; }
+  * html form dl {
+    height: 1px; }
+  form dl dd img {
+    vertical-align: middle; }
+  form dl dd ul {
+    margin: 0.5em 0 0 0;
+    padding: 0; }
+  form dl dd.notes, form dl dd.hints {
+    padding: 0 0 0.3em 0;
+    color: #555; }
+ 
+label.has-errors, label.fieldWithErrors {
+  font-weight: bold;
+  color: #d12f19; }
+ 
+form .field_error, form .error-explanation {
+  display: none; }
+form.has-errors .field_error, form.has-errors .error-explanation {
+  display: block; }
+ 
+.field_error {
+  color: #d12f19;
+  left: 20px;
+  padding-left: 20px;
+  position: relative;
+  background: transparent url(../images/icons/error.png) left 3px no-repeat; }
+ 
+.error-explanation,
+#errorExplanation {
+  background: #fff;
+  border: 1px solid #d12f19;
+  margin-bottom: 1em;
+  clear: left; }
+  .error-explanation h2,
+  #errorExplanation h2 {
+    margin: 0;
+    font-size: 1.1em;
+    font-weight: bold;
+    padding-left: 1em;
+    line-height: 2.6em;
+    background: #d12f19;
+    color: #fff; }
+  .error-explanation ul, .error-explanation p,
+  #errorExplanation ul, #errorExplanation p {
+    margin: 0.5em 1em; }
+  .error-explanation ul,
+  #errorExplanation ul {
+    margin-left: 2em; }
+ 
+.taglist {
+  margin-top: 0; }
+  .taglist li {
+    -moz-border-radius: 0.4em;
+    -webkit-border-radius: 0.4em;
+    border-radius: 0.4em;
+    margin: 0 0.3em 0 0;
+    padding: 0 0.5em;
+    background: #395ee8;
+    font-weight: bold;
+    color: white;
+    display: inline;
+    float: left;
+    line-height: 16px; }
+    .taglist li img {
+      opacity: 0.5; }
+    .taglist li img:hover {
+      opacity: 1; }

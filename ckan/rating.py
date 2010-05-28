@@ -42,10 +42,10 @@ def set_rating(user_or_ip, package, rating):
         rating = model.Rating(package=package,
                               user=user,
                               rating=rating)
-        model.Session.save(rating)
+        model.Session.add(rating)
     else:
         rating = model.Rating(package=package,
                               user_ip_address=ip,
                               rating=rating)
-        model.Session.save(rating)
+        model.Session.add(rating)
     model.repo.commit_and_remove()

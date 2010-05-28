@@ -14,7 +14,7 @@ class UserController(BaseController):
         return self.read()
 
     def read(self, id):
-        if id:            
+        if id:
             user = model.Session.query(model.User).get(id)
         else:
             user = model.User.by_name(c.user)
@@ -34,7 +34,7 @@ class UserController(BaseController):
             userobj = model.User.by_name(c.user)
             if userobj is None:
                 userobj = model.User(name=c.user)
-                model.Session.save(userobj)
+                model.Session.add(userobj)
                 model.Session.commit()
             h.redirect_to(controller='user', action=None, id=None)
         else:

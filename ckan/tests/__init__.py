@@ -67,7 +67,7 @@ class TestController(object):
         rev = model.repo.new_revision()
         for i in range(0,100):
             name = u"testpackage%s" % i
-            model.Session.save(model.Package(name=name))
+            model.Session.add(model.Package(name=name))
         model.Session.commit()
         model.Session.remove()
 
@@ -83,7 +83,7 @@ class TestController(object):
     def create_200_tags(self):
         for i in range(0,200):
             name = u"testtag%s" % i
-            model.Session.save(model.Tag(name=name))
+            model.Session.add(model.Tag(name=name))
             print "Created tag: %s" % name
         model.Session.commit()
         model.Session.remove()
@@ -108,6 +108,13 @@ class TestController(object):
         'strips html to just the <div id="main"> section'
         the_html = html.body.decode('utf8')
         return the_html[the_html.find(u'<div id="main">'):the_html.find(u'<!-- /main -->')]
+
+    def preview_div(self, html):
+        'strips html to just the <div id="preview"> section'
+        the_html = html.body.decode('utf8')
+        preview_html = the_html[the_html.find(u'<div id="preview"'):the_html.find(u'<!-- /preview -->')]
+        assert preview_html, the_html
+        return preview_html
 
     def sidebar(self, html):
         'strips html to just the <div id="primary"> section'
