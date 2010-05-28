@@ -2,6 +2,8 @@ import re
 import time
 import datetime
 
+import formalchemy
+
 __all__ = ['government_depts', 'geographic_granularity_options', 'temporal_granularity_options', 'category_options', 'region_options', 'region_groupings', 'update_frequency_suggestions', 'tag_pool', 'tag_words_to_join', 'suggest_tags', 'tags_parse', 'DateType', 'GeoCoverageType', 'expand_abbreviations', 'name_munge', 'tag_munge']
 
 government_depts_raw = """
@@ -216,7 +218,7 @@ class DateType(object):
         try:
             DateType.form_to_db(form_date_str)
         except TypeError, e:
-            return e
+            raise formalchemy.ValidationError(e)
 
     @classmethod
     def db_to_form(self, db_str):
