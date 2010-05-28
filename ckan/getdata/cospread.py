@@ -185,7 +185,7 @@ class Data(object):
         for column in ['date released', 'date updated']:
             try:
                 val = field_types.DateType.form_to_db(_dict[column])
-            except TypeError, e:
+            except field_types.DateConvertError, e:
                 print "WARNING: Value for column '%s' of '%s' is not understood as a date format." % (column, _dict[column])
                 val = _dict[column]
             extras_dict[column.replace(' ', '_')] = val
