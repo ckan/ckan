@@ -2,6 +2,6 @@
 # pip -E pyenv install -r pip-requirements.txt
 
 -e hg+https://knowledgeforge.net/okfn/vdm#egg=vdm
--e hg+https://knowledgeforge.net/okfn/licenses@0.2#egg=licenses
+-e hg+https://knowledgeforge.net/okfn/licenses#egg=licenses
 -e hg+https://knowledgeforge.net/ckan/ckanclient/hg#egg=ckanclient
 -e hg+https://knowledgeforge.net/ckan/hg#egg=ckan
