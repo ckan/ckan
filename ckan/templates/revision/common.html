@@ -1,5 +1,6 @@
 <html
   xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
   xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip=""
@@ -20,12 +21,12 @@
           <py:if test="c.show_purge_links">
           ${
             XML(
-            h.link_to('Purge',
+            h.link_to(_('Purge'),
               h.url_for(
                 controller='revision',
                 action='purge',
                 id=item.id),
-              confirm='Are you sure?'
+              confirm=_('Are you sure?')
               )
             )
           }
