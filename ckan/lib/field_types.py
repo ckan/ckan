@@ -18,14 +18,13 @@ class DateType(object):
     default_db_separator = '-'
     default_form_separator = '/'
     word_match = re.compile('[A-Za-z]+')
+    timezone_match = re.compile('(\s[A-Z]{3})|(\s[+-]\d\d:?\d\d)')
     months_chopped = [month[:3] for month in months]
 
     @classmethod
     def iso_to_db(self, iso_date, format):
-        # e.g. 'Wed, 06 Jan 2010 09:30:00 GMT'
-        #      '%a, %d %b %Y %H:%M:%S %Z'
-        if iso_date.endswith('+0100'):
-            iso_date = iso_date.replace('+0100', 'BST')
+        # e.g. 'Wed, 06 Jan 2010 09:30:00'
+        #      '%a, %d %b %Y %H:%M:%S'
         assert isinstance(iso_date, (unicode, str))
         try:
             date_tuple = time.strptime(iso_date, format)
@@ -34,6 +33,10 @@ class DateType(object):
         date_obj = datetime.datetime(*date_tuple[:4])
         date_str = date_obj.strftime('%Y-%m-%d')
         return date_str
+
+    @classmethod
+    def strip_iso_timezone(self, iso_date):
+        return self.timezone_match.sub('', iso_date)
 
     @classmethod
     def form_to_db(self, form_str, may_except=True):

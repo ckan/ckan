@@ -45,6 +45,16 @@ class TestDate(TestCase):
         out = DateType.db_to_form('27/2/2008')
         assert out == '27/2/2008', out
 
+    def test_3_iso_to_db(self):
+        out = DateType.iso_to_db('Wed, 06 Jan 2010 09:30:00', '%a, %d %b %Y %H:%M:%S')
+        assert out == '2010-01-06', out
+
+    def test_4_strip_iso_timezone(self):
+        out = DateType.strip_iso_timezone('Wed, 06 Jan 2010 09:30:00 GMT')
+        assert out == 'Wed, 06 Jan 2010 09:30:00', out
+        out = DateType.strip_iso_timezone('Wed, 06 Jan 2010 09:30:00 +0100')
+        assert out == 'Wed, 06 Jan 2010 09:30:00', out
+
 class TestGovTags(object):
     def test_tags_parse(self):
         def test_parse(tag_str, expected_tags):
