@@ -12,6 +12,8 @@ See :mod:`ckan.__long_description__` for more information.
 Developer Installation
 ======================
 
+These are quick instructions to get developing. For fuller instructions see :doc:`deployment`.
+
 1. Get the code and install it:
 
    We recommend installing using pip and virtualenv::
@@ -35,7 +37,7 @@ Developer Installation
 
    NB: you'll need to setup a database -- see sqlalchemy.url config option.
    We support only PostgreSQL at this time. You'll need to install the relevant
-   python library (eg. On debiani/ubuntu: python-psycopg2)
+   python library (eg. On debian/ubuntu: python-psycopg2)
 
    NB: You may also need to create the Pylon's cache directory specified by
    cache_dir in the config file.
@@ -44,9 +46,8 @@ Developer Installation
 
       paster serve {your-config.ini} 
 
-6. Point your browser at: localhost:5000 (if you set a different port in your
-   config file then youl will need to change 5000 to whatever port value you
-   chose).
+6. Point your browser at: http://localhost:5000/ (or a different port, depending
+   on the one given in your config file)
 
 
 Test

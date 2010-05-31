@@ -51,7 +51,7 @@ Example::
 
 By telling CKAN what hostname it is served at, it can provide backlinks to packages in two places:
 
-1. The REST API: when you read a package register it contains a property giving a link to the package on CKAN. e.g. `"ckan_url": "http://ckan.net/package/pollution-2008"
+1. The REST API: when you read a package register it contains a property giving a link to the package on CKAN. e.g. `"ckan_url": "http://ckan.net/package/pollution-2008"`
 
 2. The backend RDF generator can use the CKAN package URLs for the subject in the triples.
 
@@ -112,7 +112,7 @@ Example::
 
 To customise the display of CKAN you can supply replacements for the Genshi template files. Use this option to specify where CKAN should look for them, before reverting to the 'ckan/templates' folder. You can supply more than one folder, separating the paths with a comma (,).
 
-The example value for the extra_template_paths option could, for example, be used to override CKAN templates with these ones:: 
+The example value for the extra_template_paths option could, for example, be used to override CKAN templates with these ones:
 
  * /home/okfn/ckan_custom_templates/layout.html
  * /home/okfn/ckan_custom_templates/package/edit.html

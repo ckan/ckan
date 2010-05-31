@@ -25,6 +25,7 @@ Contents:
    authentication
    authorization
    load_testing
+   distributed
 
 
 Other material

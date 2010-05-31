@@ -1,6 +1,7 @@
 =========================
-CKAN  (including REST)
+CKAN API (including REST)
 =========================
+
 
 Introduction
 ============
@@ -22,12 +23,19 @@ of which resources are available, what their locations are, what methods each
 resource supports, and what the responses might be. It also species the usage
 and responses to the Search API.
 
+Code modules
+============
+
+There are also some code modules (Python, PHP, Drupal, Perl etc.) that provide 
+convenient wrappers around much of the CKAN API. For full details of these, 
+please consult: http://wiki.okfn.org/ckan/related
+
 
 Example
 =======
 
 You're using ckan.net and want a list of all the packages. If you GET
-http://ckan.net/api/rest/package then it will return the list of the package
+``http://ckan.net/api/rest/package`` then it will return the list of the package
 names in JSON format::
 
 ["2000-us-census-rdf", "32000-naples-florida-businesses-kml", "aaoe-87", "acawiki", "adb-sdbs", "addgene", "advances-in-dental-research", ... ]
@@ -44,15 +52,15 @@ There are several ways you might access this URL:
 
 * use 'Datapkg', for getting datasets listed in CKAN in a similar way to getting software packages
 
-You could search for packages to do with 'open street map' like this: http://ckan.net/api/search/package?q=open+street+map returning::
+You could search for packages to do with 'open street map' like this: ``http://ckan.net/api/search/package?q=open+street+map`` returning::
 
 {"count": 4, "results": ["uk-naptan-osm", "osm-uk", "osm", "naptan"]}
 
-You can see the full record for the osm package in JSON format with this: http://ckan.net/api/rest/package/osm which returns::
+You can see the full record for the osm package in JSON format with this: ``http://ckan.net/api/rest/package/osm`` which returns::
 
 {"name": "osm", "resources": [{"url": "http://wiki.openstreetmap.org/index.php/Planet.osm", "description": "All data", "format": ""}], "tags": ["navigation", "openstreetmap", "map", "geo", "geodata", "xml", "publicdomain", "osm"] ... }
 
-You might add a tag by POSTing to http://ckan.net/api/rest/package/osm this::
+You might add a tag by POSTing to ``http://ckan.net/api/rest/package/osm`` this::
 
 "tags": ["navigation", "openstreetmap", "map", "geo", "geodata", "xml", "publicdomain", "osm", "my-new-tag"]
 
@@ -65,51 +73,51 @@ API Locations
 A REST interface presents resources at published locations. Here are the named
 locations of the CKAN REST API resources:
 
-+--------------------------------+---------------------------------------------------------------+
-| Resource Name                  | Location                                                      |
-+================================+===============================================================+
-| Package Register               | /api/rest/package                                             |
-+--------------------------------+---------------------------------------------------------------+
-| Package Entity                 | /api/rest/package/PACKAGE-NAME                                |
-+--------------------------------+---------------------------------------------------------------+
-| Group Register                 | /api/rest/group                                               |
-+--------------------------------+---------------------------------------------------------------+
-| Group Entity                   | /api/rest/group/GROUP-NAME                                    |
-+--------------------------------+---------------------------------------------------------------+
-| Tag Register                   | /api/rest/tag                                                 |
-+--------------------------------+---------------------------------------------------------------+
-| Tag Entity                     | /api/rest/tag/TAG-NAME                                        |
-+--------------------------------+---------------------------------------------------------------+
-| Rating Register                | /api/rest/rating                                              |
-+--------------------------------+---------------------------------------------------------------+
-| Rating Entity                  | /api/rest/rating/PACKAGE-NAME                                 |
-+--------------------------------+---------------------------------------------------------------+
-| Package Relationships Register | /api/rest/package/PACKAGE-NAME/relationships                  |
-+--------------------------------+---------------------------------------------------------------+
-| Package Relationships Register | /api/rest/package/PACKAGE-NAME/relationships/PACKAGE-NAME     |
-+--------------------------------+---------------------------------------------------------------+
-| Package Relationship Entity    | /api/rest/package/PACKAGE-NAME/RELATIONSHIP-TYPE/PACKAGE-NAME |
-+--------------------------------+---------------------------------------------------------------+
-| Revision Register              | /api/rest/revision                                            |
-+--------------------------------+---------------------------------------------------------------+
-| Revision Entity                | /api/rest/revision/REVISION-ID                                |
-+--------------------------------+---------------------------------------------------------------+
-| License List                   | /api/rest/licenses                                            |
-+--------------------------------+---------------------------------------------------------------+
++--------------------------------+-------------------------------------------------------------------+
+| Resource Name                  | Location                                                          |
++================================+===================================================================+
+| Package Register               | ``/api/rest/package``                                             |
++--------------------------------+-------------------------------------------------------------------+
+| Package Entity                 | ``/api/rest/package/PACKAGE-NAME``                                |
++--------------------------------+-------------------------------------------------------------------+
+| Group Register                 | ``/api/rest/group``                                               |
++--------------------------------+-------------------------------------------------------------------+
+| Group Entity                   | ``/api/rest/group/GROUP-NAME``                                    |
++--------------------------------+-------------------------------------------------------------------+
+| Tag Register                   | ``/api/rest/tag``                                                 |
++--------------------------------+-------------------------------------------------------------------+
+| Tag Entity                     | ``/api/rest/tag/TAG-NAME``                                        |
++--------------------------------+-------------------------------------------------------------------+
+| Rating Register                | ``/api/rest/rating``                                              |
++--------------------------------+-------------------------------------------------------------------+
+| Rating Entity                  | ``/api/rest/rating/PACKAGE-NAME``                                 |
++--------------------------------+-------------------------------------------------------------------+
+| Package Relationships Register | ``/api/rest/package/PACKAGE-NAME/relationships``                  |
++--------------------------------+-------------------------------------------------------------------+
+| Package Relationships Register | ``/api/rest/package/PACKAGE-NAME/relationships/PACKAGE-NAME``     |
++--------------------------------+-------------------------------------------------------------------+
+| Package Relationship Entity    | ``/api/rest/package/PACKAGE-NAME/RELATIONSHIP-TYPE/PACKAGE-NAME`` |
++--------------------------------+-------------------------------------------------------------------+
+| Revision Register              | ``/api/rest/revision``                                            |
++--------------------------------+-------------------------------------------------------------------+
+| Revision Entity                | ``/api/rest/revision/REVISION-ID``                                |
++--------------------------------+-------------------------------------------------------------------+
+| License List                   | ``/api/rest/licenses``                                            |
++--------------------------------+-------------------------------------------------------------------+
 
 Possible values for RELATIONSHIP-TYPE are given below for Data Formats - Relationship-Type.
 
 Here are the non-REST API locations:
 
-+-------------------+-----------------------+
-| API functions     | Location              |
-+===================+=======================+
-| Package Search    | /api/search/package   |
-+-------------------+-----------------------+
-| Tag Counts        | /api/tag_counts       |
-+-------------------+-----------------------+
-| Revision Search   | /api/search/revision  |
-+-------------------+-----------------------+
++-------------------+--------------------------+
+| API functions     | Location                 |
++===================+==========================+
+| Package Search    | ``/api/search/package``  |
++-------------------+--------------------------+
+| Tag Counts        | ``/api/tag_counts``      |
++-------------------+--------------------------+
+| Revision Search   | ``/api/search/revision`` |
++-------------------+--------------------------+
 
 See below for more information about package and revision search parameters.
 
@@ -148,7 +156,7 @@ the operation.
 +-------------------------------+--------+------------------+-------------------+
 | Rating Entity                 | GET    |                  | Rating            | 
 +-------------------------------+--------+------------------+-------------------+
-| Package Relationships Register | GET    |                  | Pkg-Relationships | 
+| Package Relationships Register| GET    |                  | Pkg-Relationships | 
 +-------------------------------+--------+------------------+-------------------+
 | Package Relationship Entity   | GET    |                  | Pkg-Relationship  |
 +-------------------------------+--------+------------------+-------------------+
@@ -286,7 +294,7 @@ Package Search Parameters
 
 +-----------------------+---------------+----------------------------------+----------------------------------+
 | Key                   |    Value      | Example                          |  Notes                           |
-+=======================+===============+==================================+==================================+ 
++=======================+===============+==================================+==================================+
 | q                     | Search-String || q=geodata                       | Criteria to search the package   |
 |                       |               || q=government+sweden             | fields for. URL-encoded search   |
 |                       |               || q=%22drug%20abuse%22            | text. (You can also concatenate  |
@@ -296,7 +304,7 @@ Package Search Parameters
 +-----------------------+---------------+----------------------------------+----------------------------------+
 | qjson                 | JSON encoded  | ['q':'geodata']                  | All search parameters can be     |
 |                       | options       |                                  | json-encoded and supplied to this|
-|                       |               |                                  | URL parameter as a more flexible | 
+|                       |               |                                  | URL parameter as a more flexible |
 |                       |               |                                  | alternative.                     |
 +-----------------------+---------------+----------------------------------+----------------------------------+
 |title,                 | Search-String | title=uk&amp;tags=health+census  | Search a particular a field. Note|
@@ -340,9 +348,12 @@ Revision Search Parameters
 +-----------------------+---------------+-----------------------------------------------------+----------------------------------+
 | Key                   |    Value      | Example                                             |  Notes                           |
 +=======================+===============+=====================================================+==================================+ 
-| since_time            | Date-Time     | since_time=2010-05-05T19:42:45.854533               | The time can be less precisely stated (e.g. 2010, or 2010-05, or 2010-05-05, and so on). |
+| since_time            | Date-Time     | since_time=2010-05-05T19:42:45.854533               | The time can be less precisely   |
+|                       |               |                                                     | stated (e.g. 2010, or 2010-05, or|
+|                       |               |                                                     | 2010-05-05, and so on).          |
 +-----------------------+---------------+-----------------------------------------------------+----------------------------------+
-| since_id              | Uuid          | since_id=6c9f32ef-1f93-4b2f-891b-fd01924ebe08       | The stated id will not be included in the results.  |
+| since_id              | Uuid          | since_id=6c9f32ef-1f93-4b2f-891b-fd01924ebe08       | The stated id will not be        |
+|                       |               |                                                     | included in the results.         |
 +-----------------------+---------------+-----------------------------------------------------+----------------------------------+
 
 
