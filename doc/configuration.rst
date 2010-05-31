@@ -15,6 +15,7 @@ There are several general Pylons options, and all the CKAN-specific ones are in 
 
 Once the config file is changed, Apache needs to be restarted to read in the new changes.
 
+
 sqlalchemy.url
 --------------
 
@@ -25,6 +26,7 @@ Example::
 This defines the database that CKAN is to use. The format is::
 
  sqlalchemy.url = postgres://USERNAME:PASSWORD@HOST/DBNAME
+
 
 package_form
 ------------
@@ -99,3 +101,20 @@ Example::
  lang=de
 
 Use this to specify the default language of the text displayed in the CKAN web UI. The default is English (en).
+
+
+extra_template_paths
+--------------------
+
+Example::
+
+ extra_template_paths=/home/okfn/ckan_custom_templates
+
+To customise the display of CKAN you can supply replacements for the Genshi template files. Use this option to specify where CKAN should look for them, before reverting to the 'ckan/templates' folder. You can supply more than one folder, separating the paths with a comma (,).
+
+The example value for the extra_template_paths option could, for example, be used to override CKAN templates with these ones:: 
+
+ * /home/okfn/ckan_custom_templates/layout.html
+ * /home/okfn/ckan_custom_templates/package/edit.html
+
+More details about this feature are found at: http://wiki.okfn.org/ckan/doc/theme
