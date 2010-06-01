@@ -125,6 +125,22 @@ class TestRest(TestController):
         assert '"download_url": "http://www.annakarenina.com/download/x=1&y=2"' in res, res
         assert '"id": "%s"' % anna.id in res, res
 
+        # Get package by ID.
+        offset = '/api/rest/package/%s' % anna.id
+        res = self.app.get(offset, status=[200])
+        assert 'annakarenina' in res, res
+        assert '"license_id": "other-open"' in res, str(res)
+        assert 'russian' in res, res
+        assert 'tolstoy' in res, res
+        assert '"extras": {' in res, res
+        assert '"genre": "romantic novel"' in res, res
+        assert '"original media": "book"' in res, res
+        assert 'annakarenina.com/download' in res, res
+        assert '"plain text"' in res, res
+        assert '"Index of the novel"' in res, res
+        assert '"id": "%s"' % anna.id in res, res
+
+
 
     def _test_04_ckan_url(self):
         # NB This only works if run on its own

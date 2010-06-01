@@ -77,11 +77,13 @@ class RestController(BaseController):
             _dict = changeset.as_dict()
             return self._finish_ok(_dict)
         elif register == u'package' and not subregister:
-            pkg = model.Package.by_name(id)
-            if pkg is None:
+            pkg = model.Session.query(model.Package).get(id)
+            if pkg == None:
+                pkg = model.Package.by_name(id)
+                # Todo: Make sure package names can't be changed to look like package IDs?
+            if pkg == None:
                 response.status_int = 404
                 return ''
-
             if not self._check_access(pkg, model.Action.READ):
                 return ''
             _dict = pkg.as_dict()
