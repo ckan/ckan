@@ -11,8 +11,9 @@ ACCESS_DENIED = [401,403]
 
 class TestRest(TestController):
 
-    @classmethod
-    def setup_class(self):
+#    @classmethod
+#    def setup_class(self):
+    def setup(self):
         try:
             CreateTestData.delete()
         except:
@@ -62,11 +63,17 @@ class TestRest(TestController):
         model.Session.remove()
         self.extra_environ={'Authorization' : str(self.user.apikey)}
 
-    @classmethod
-    def teardown_class(self):
+#    @classmethod
+#    def teardown_class(self):
+    def tearDown(self):
         model.Session.remove()
         model.repo.rebuild_db()
         model.Session.remove()
+
+    def teardown_method(self, name):
+        pkg = model.Package.by_name(u'testpkg')
+        if pkg:
+            pkg.purge()
 
     def test_01_register_post_noauth(self):
         # Test Packages Register Post 401.
@@ -140,8 +147,6 @@ class TestRest(TestController):
         assert '"Index of the novel"' in res, res
         assert '"id": "%s"' % anna.id in res, res
 
-
-
     def _test_04_ckan_url(self):
         # NB This only works if run on its own
         config['ckan_host'] = 'test.ckan.net'
@@ -187,6 +192,11 @@ class TestRest(TestController):
         postparams = '%s=1' % json.dumps(self.testpackagevalues)
         res = self.app.post(offset, params=postparams, status=[200],
                 extra_environ=self.extra_environ)
+        # Check the value of the Location header.
+        location = res.header('Location')
+        assert offset in location
+        res = self.app.get(location, status=[200])
+        # Check the database record.
         model.Session.remove()
         pkg = model.Package.by_name(self.testpackagevalues['name'])
         assert pkg
@@ -335,7 +345,88 @@ class TestRest(TestController):
         #        extra_environ=self.extra_environ)
         model.Session.remove()
 
-    def test_10_edit_pkg_values(self):
+    def test_10_edit_pkg_values_by_id(self):
+        # Test Packages Entity Put 200.
+
+        # create a package with testpackagevalues
+        tag_names = [u'tag1', u'tag2', u'tag3']
+        pkg = model.Package.by_name(self.testpackagevalues['name'])
+        if not pkg:
+            pkg = model.Package()
+            model.Session.add(pkg)
+        rev = model.repo.new_revision()
+        pkg.name = self.testpackagevalues['name']
+        pkg.url = self.testpackagevalues['url']
+        tags = [model.Tag(name=tag_name) for tag_name in tag_names]
+        for tag in tags:
+            model.Session.add(tag)
+        pkg.tags = tags
+        pkg.extras = {u'key1':u'val1', u'key2':u'val2'}
+        model.Session.commit()
+
+        pkg = model.Package.by_name(self.testpackagevalues['name'])
+        model.setup_default_user_roles(pkg, [self.user])
+        rev = model.repo.new_revision()
+        model.repo.commit_and_remove()
+
+        # edit it
+        pkg_vals = {
+            'name':u'somethingnew',
+            'title':u'newtesttitle',
+            'resources': [
+                {
+                    u'url':u'http://blah.com/file2.xml',
+                    u'format':u'xml',
+                    u'description':u'Appendix 1',
+                    u'hash':u'def123',
+                },
+                {
+                    u'url':u'http://blah.com/file3.xml',
+                    u'format':u'xml',
+                    u'description':u'Appenddic 2',
+                    u'hash':u'ghi123',
+                },
+            ],
+            'extras':{u'key3':u'val3', u'key2':None},
+            'tags':[u'tag1', u'tag2', u'tag4', u'tag5'],
+        }
+        offset = '/api/rest/package/%s' % pkg.id
+        postparams = '%s=1' % json.dumps(pkg_vals)
+        res = self.app.post(offset, params=postparams, status=[200],
+                            extra_environ=self.extra_environ)
+
+        # Check submitted field have changed.
+        model.Session.remove()
+        pkg = model.Session.query(model.Package).filter_by(name=pkg_vals['name']).one()
+        # - title
+        assert pkg.title == pkg_vals['title']
+        # - tags
+        pkg_tagnames = [tag.name for tag in pkg.tags]
+        for tagname in pkg_vals['tags']:
+            assert tagname in pkg_tagnames, 'tag %r not in %r' % (tagname, pkg_tagnames)
+        # - resources
+        assert len(pkg.resources), "Package has no resources: %s" % pkg
+        assert len(pkg.resources) == 2, len(pkg.resources)
+        resource = pkg.resources[0]
+        assert resource.url == u'http://blah.com/file2.xml', resource.url
+        assert resource.format == u'xml', resource.format
+        assert resource.description == u'Appendix 1', resource.description
+        assert resource.hash == u'def123', resource.hash
+        resource = pkg.resources[1]
+        assert resource.url == 'http://blah.com/file3.xml', resource.url
+        assert resource.format == u'xml', resource.format
+        assert resource.description == u'Appenddic 2', resource.description
+        assert resource.hash == u'ghi123', resource.hash
+
+        # Check unsubmitted fields have not changed.
+        # - url
+        assert pkg.url == self.testpackagevalues['url'], pkg.url
+        # - extras
+        assert len(pkg.extras) == 2, pkg.extras
+        for key, value in {u'key1':u'val1', u'key3':u'val3'}.items():
+            assert pkg.extras[key] == value, pkg.extras
+
+    def test_10_edit_pkg_values_by_name(self):
         # Test Packages Entity Put 200.
 
         # create a package with testpackagevalues

@@ -24,7 +24,7 @@ class RestController(BaseController):
             return self._finish_ok(results)
         elif register == u'package' and subregister == 'relationships':
             #TODO authz stuff for this and related packages
-            pkg = model.Package.by_name(id)
+            pkg = self._get_pkg(id)
             if not pkg:
                 response.status_int = 404
                 return 'First package named in request was not found.'
@@ -49,6 +49,13 @@ class RestController(BaseController):
         else:
             response.status_int = 400
             return ''
+
+    def _get_pkg(self, id):
+        pkg = model.Session.query(model.Package).get(id)
+        if pkg == None:
+            pkg = model.Package.by_name(id)
+            # Todo: Make sure package names can't be changed to look like package IDs?
+        return pkg
 
     def show(self, register, id, subregister=None, id2=None):
         if register == u'revision':
@@ -77,10 +84,7 @@ class RestController(BaseController):
             _dict = changeset.as_dict()
             return self._finish_ok(_dict)
         elif register == u'package' and not subregister:
-            pkg = model.Session.query(model.Package).get(id)
-            if pkg == None:
-                pkg = model.Package.by_name(id)
-                # Todo: Make sure package names can't be changed to look like package IDs?
+            pkg = self._get_pkg(id)
             if pkg == None:
                 response.status_int = 404
                 return ''
@@ -96,8 +100,8 @@ class RestController(BaseController):
                 _dict['license'] = _dict.get('license_id', '')
             return self._finish_ok(_dict)
         elif register == u'package' and (subregister == 'relationships' or subregister in model.PackageRelationship.get_all_types()):
-            pkg1 = model.Package.by_name(id)
-            pkg2 = model.Package.by_name(id2)
+            pkg1 = self._get_pkg(id)
+            pkg2 = self._get_pkg(id2)
             if not pkg1:
                 response.status_int = 404
                 return 'First package named in address was not found.'
@@ -152,8 +156,8 @@ class RestController(BaseController):
                 request_fa_dict = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(fs=fs), request_data)
                 fs = fs.bind(model.Package, data=request_fa_dict, session=model.Session)
             elif register == 'package' and subregister in model.PackageRelationship.get_all_types():
-                pkg1 = model.Package.by_name(id)
-                pkg2 = model.Package.by_name(id2)
+                pkg1 = self._get_pkg(id)
+                pkg2 = self._get_pkg(id2)
                 if not pkg1:
                     response.status_int = 404
                     return 'First package named in address was not found.'
@@ -200,14 +204,19 @@ class RestController(BaseController):
             model.Session.rollback()
             raise
         obj = fs.model
+        location = "%s/%s" % (request.path, obj.id)
+        response.headers['Location'] = location
         return self._finish_ok(obj.as_dict())
             
     def update(self, register, id, subregister=None, id2=None):
         if register == 'package' and not subregister:
-            entity = model.Package.by_name(id)
+            entity = self._get_pkg(id)
+            if entity == None:
+                response.status_int = 404
+                return 'Package was not found.'
         elif register == 'package' and subregister in model.PackageRelationship.get_all_types():
-            pkg1 = model.Package.by_name(id)
-            pkg2 = model.Package.by_name(id2)
+            pkg1 = self._get_pkg(id)
+            pkg2 = self._get_pkg(id2)
             if not pkg1:
                 response.status_int = 404
                 return 'First package named in address was not found.'
@@ -276,14 +285,14 @@ class RestController(BaseController):
 
     def delete(self, register, id, subregister=None, id2=None):
         if register == 'package' and not subregister:
-            entity = model.Package.by_name(id)
+            entity = self._get_pkg(id)
             if not entity:
                 response.status_int = 404
                 return 'Package was not found.'
             revisioned_details = 'Package: %s' % entity.name
         elif register == 'package' and subregister in model.PackageRelationship.get_all_types():
-            pkg1 = model.Package.by_name(id)
-            pkg2 = model.Package.by_name(id2)
+            pkg1 = self._get_pkg(id)
+            pkg2 = self._get_pkg(id2)
             if not pkg1:
                 response.status_int = 404
                 return 'First package named in address was not found.'
@@ -380,12 +389,12 @@ class RestController(BaseController):
                               'rating':5}
         """
         # check options
-        package_name = params.get('package')
+        package_ref = params.get('package')
         rating = params.get('rating')
         user = self.rest_api_user
         opts_err = None
-        if not package_name:
-            opts_err = gettext('You must supply a package name (parameter "package").')
+        if not package_ref:
+            opts_err = gettext('You must supply a package id or name (parameter "package").')
         elif not rating:
             opts_err = gettext('You must supply a rating (parameter "rating").')
         else:
@@ -394,11 +403,11 @@ class RestController(BaseController):
             except ValueError:
                 opts_err = gettext('Rating must be an integer value.')
             else:
-                package = model.Package.by_name(package_name)
+                package = self._get_pkg(package_ref)
                 if rating < ckan.rating.MIN_RATING or rating > ckan.rating.MAX_RATING:
                     opts_err = gettext('Rating must be between %i and %i.') % (ckan.rating.MIN_RATING, ckan.rating.MAX_RATING)
                 elif not package:
-                    opts_err = gettext('Package with name %r does not exist.') % package_name
+                    opts_err = gettext('Package with name %r does not exist.') % package_ref
         if opts_err:
             self.log.debug(opts_err)
             response.status_int = 400
@@ -409,7 +418,7 @@ class RestController(BaseController):
         ckan.rating.set_rating(user, package, rating_int)
 
         response.headers['Content-Type'] = 'application/json'
-        package = model.Package.by_name(package_name)
+        package = self._get_pkg(package_ref)
         ret_dict = {'rating average':package.get_average_rating(),
                     'rating count': len(package.ratings)}
         return self._finish_ok(ret_dict)
