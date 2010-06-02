@@ -11,7 +11,7 @@ import ckan.rating
 class RestController(BaseController):
 
     def index(self):
-        return render('rest/index')
+        return render('rest/index.html')
 
     def list(self, register, subregister=None, id=None):
         if register == 'revision':

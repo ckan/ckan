@@ -806,7 +806,7 @@ class TestRelationships(TestController):
         if not package2_name:
             offset = '/api/rest/package/%s/%s' % (str(package1_name), type)
         else:
-            offset = '/api/rest/package/%s/%s/%s/' % (
+            offset = '/api/rest/package/%s/%s/%s' % (
                 str(package1_name), type, str(package2_name))
         allowable_statuses = [200]
         if type:

@@ -94,7 +94,7 @@ class RevisionController(BaseController):
                 items_per_page=50
             )
             
-            return render('revision/list')
+            return render('revision/list.html')
 
     def read(self, id=None):
         if id is None:
@@ -106,7 +106,7 @@ class RevisionController(BaseController):
         c.packages = [ pkg.continuity for pkg in pkgs ]
         pkgtags = model.Session.query(model.PackageTagRevision).filter_by(revision=c.revision)
         c.pkgtags = [ pkgtag.continuity for pkgtag in pkgtags ]
-        return render('revision/read')
+        return render('revision/read.html')
 
     def diff(self, id=None):
         if 'diff' not in request.params or 'oldid' not in request.params:
@@ -120,7 +120,7 @@ class RevisionController(BaseController):
         c.diff = diff.items()
         c.diff.sort()
         c.pkg = pkg
-        return render('revision/diff')
+        return render('revision/diff.html')
 
     def _has_purge_permissions(self):
         authorizer = ckan.authz.Authorizer()
@@ -131,10 +131,10 @@ class RevisionController(BaseController):
     def purge(self, id=None):
         if id is None:
             c.error = _('No revision id specified')
-            return render('revision/purge')
+            return render('revision/purge.html')
         if not self._has_purge_permissions():
             c.error = _('You are not authorized to perform this action')
-            return render('revision/purge')
+            return render('revision/purge.html')
         else:
             revision = model.Session.query(model.Revision).get(id)
             try:
@@ -143,5 +143,5 @@ class RevisionController(BaseController):
                 # is this a security risk?
                 # probably not because only admins get to here
                 c.error = _('Purge of revision failed: %s') % inst
-            return render('revision/purge')
+            return render('revision/purge.html')
 
