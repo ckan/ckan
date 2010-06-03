@@ -12,6 +12,7 @@ ACCESS_DENIED = [401,403]
 class RestTestCase(TestController):
 
     api_version = ''
+    fixture_package_name = u'--'
 
 #    @classmethod
 #    def setup_class(self):
@@ -22,7 +23,7 @@ class RestTestCase(TestController):
             pass
         model.Session.remove()
         CreateTestData.create()
-        model.Session.add(model.Package(name=u'--'))
+        model.Session.add(model.Package(name=self.fixture_package_name))
         rev = model.repo.new_revision()
         model.repo.commit_and_remove()
         from ckan.model.changeset import ChangesetRegister
@@ -85,7 +86,7 @@ class RestTestCase(TestController):
 
     def test_01_entity_put_noauth(self):
         # Test Packages Entity Put 401.
-        offset = '/api/rest/package/%s' % u'--'
+        offset = '/api/rest/package/%s' % self.fixture_package_name
         postparams = '%s=1' % json.dumps(self.testpackagevalues)
         res = self.app.post(offset, params=postparams, status=ACCESS_DENIED)
 
@@ -735,14 +736,16 @@ class RestTestCase(TestController):
 
     def test_14_get_revision(self):
         rev = model.Revision.youngest(model.Session)
-        offset = '/api/rest/revision/%s' % rev.id
+        offset = self.offset('/rest/revision/%s' % rev.id)
         res = self.app.get(offset, status=[200])
         res_dict = json.loads(res.body)
         assert rev.id == res_dict['id']
         assert rev.timestamp.isoformat() == res_dict['timestamp'], (rev.timestamp.isoformat(), res_dict['timestamp'])
         assert 'packages' in res_dict
-        assert isinstance(res_dict['packages'], list)
-        assert len(res_dict['packages']) != 0, "List of package names is empty: %s" % res_dict['packages']
+        self.assert_revision_packages(res_dict['packages'])
+
+    def assert_revision_packages(self, packages):
+        raise Exception, "Method not implemented."
 
     def test_14_get_revision_404(self):
         revision_id = "xxxxxxxxxxxxxxxxxxxxxxxxxx"
@@ -801,7 +804,11 @@ class TestRest(RestTestCase):
         assert self.anna.name in res, res
         assert self.war.name in res, res
 
-        
+    def assert_revision_packages(self, packages):
+        assert isinstance(packages, list)
+        assert len(packages) != 0, "Revision packages is empty: %s" % packages
+        assert self.fixture_package_name in packages, packages
+
 
 class TestRelationships(TestController):
     @classmethod

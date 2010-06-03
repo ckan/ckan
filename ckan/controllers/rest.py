@@ -16,6 +16,13 @@ class BaseRestController(BaseController):
     def _list_package_refs(self, packages):
         raise Exception, "Method not implemented."
 
+    def _get_pkg(self, id):
+        pkg = model.Session.query(model.Package).get(id)
+        if pkg == None:
+            pkg = model.Package.by_name(id)
+            # Todo: Make sure package names can't be changed to look like package IDs?
+        return pkg
+
     def list(self, register, subregister=None, id=None):
         if register == 'revision':
             revs = model.Session.query(model.Revision).all()
@@ -53,13 +60,6 @@ class BaseRestController(BaseController):
             response.status_int = 400
             return ''
 
-    def _get_pkg(self, id):
-        pkg = model.Session.query(model.Package).get(id)
-        if pkg == None:
-            pkg = model.Package.by_name(id)
-            # Todo: Make sure package names can't be changed to look like package IDs?
-        return pkg
-
     def show(self, register, id, subregister=None, id2=None):
         if register == u'revision':
             # Todo: Implement access control for revisions.
@@ -72,7 +72,7 @@ class BaseRestController(BaseController):
                 'timestamp': model.strftimestamp(rev.timestamp),
                 'author': rev.author,
                 'message': rev.message,
-                'packages': [p.name for p in rev.packages],
+                'packages': self._list_package_refs(rev.packages),
             }
             return self._finish_ok(response_data)
         elif register == u'changeset':
