@@ -29,7 +29,7 @@ class ImporterController(BaseController):
     authorizer = ckan.authz.Authorizer()
 
     def index(self):
-        return render('importer/importer')
+        return render('importer/importer.html')
 
     def preview(self):
         if not c.user:
@@ -39,21 +39,21 @@ class ImporterController(BaseController):
         params = dict(request.params)
         if not params.has_key('file'):
             c.error = _('Need to specify a filename.')
-            return render('importer/importer')                
+            return render('importer/importer.html')                
         if not hasattr(params['file'], 'value'):
             c.error = _('Did not receive file successfully.')
-            return render('importer/importer')
+            return render('importer/importer.html')
         file_buf = params['file'].value
         # save as temp file for when you do import
         self._save_tempfile(file_buf)
         if not file_buf:
             c.error = _('File \'%s\' not found.') % params['file'].filename
-            return render('importer/importer')
+            return render('importer/importer.html')
         try:
             importer = importer.PackageImporter(buf=file_buf)
         except importer.ImportException, e:
             c.error = _('Error importing file \'%s\' as Excel or CSV format: %s') % (params['file'].filename, e)
-            return render('importer/importer')
+            return render('importer/importer.html')
         c.import_filename = params['file'].filename.lstrip(os.sep)
         if params.has_key('log_message'):
             c.log_message = params['log_message']
@@ -73,7 +73,7 @@ class ImporterController(BaseController):
             c.fs_list.append(fs)
         c.errors = len(all_errors)
         c.num_pkgs = len(c.fs_list)
-        return render('importer/preview')
+        return render('importer/preview.html')
 
     def do_import(self):
         import ckan.lib.importer as importer
@@ -82,7 +82,7 @@ class ImporterController(BaseController):
             importer = importer.PackageImporter(buf=file_buf)
         except importer.ImportException, e:
             c.error = _('Error importing file \'%s\' as Excel or CSV format: %s') % (params['file'].filename, e)
-            return render('importer/importer')
+            return render('importer/importer.html')
         if 'log_message' in request.params:
             log_message = request.params.getone('log_message')
         else:
@@ -114,7 +114,7 @@ class ImporterController(BaseController):
 
         model.Session.commit()
         c.message = ungettext('Imported %i package.', 'Imported %i packages.', count) % count
-        return render('importer/result')
+        return render('importer/result.html')
 
     def _get_fs(self, importer):
         for index, pkg_dict in enumerate(importer.pkg_dict()):
@@ -179,7 +179,7 @@ class ImporterController(BaseController):
     def package_render(self, fs, errors, warnings):
         try:
             PackageSaver().render_preview(fs, None, None) # create a new package for now
-            preview = h.literal(render('package/read_core'))
+            preview = h.literal(render('package/read_core.html'))
         except ValidationException, error:
             c.error, fs = error.args
             preview = h.literal('<li>Errors: %s</li>\n') % c.error

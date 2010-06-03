@@ -12,10 +12,12 @@ def make_map():
     """Create, configure and return the routes Mapper"""
     map = Mapper(directory=config['pylons.paths']['controllers'],
                  always_scan=config['debug'])
+    map.minimization = False
 
     # The ErrorController route (handles 404/500 error pages); it should
     # likely stay at the top, ensuring it can always be resolved
-    map.connect('/error/:action/:id', controller='error')
+    map.connect('/error/{action}', controller='error')
+    map.connect('/error/{action}/{id}', controller='error')
 
     # CUSTOM ROUTES HERE
     map.connect('home', '/', controller='home', action='index')
@@ -149,9 +151,11 @@ def make_map():
     map.connect('/user/logout', controller='user', action='logout')
     map.connect('/user/apikey', controller='user', action='apikey')
     map.connect('/user/:id', controller='user', action='read')
-    map.connect('/:controller/:action/:id')
-    map.connect('/:controller/', action='index')
-    map.connect('/:controller/:action/', id=None)
+    map.connect('/{controller}', action='index')
+    map.connect('/:controller/{action}')
+    map.connect('/{controller}/{action}/{id}')
+    map.redirect('/*(url)/', '/{url}',
+                 _redirect_code='301 Moved Permanently')
     map.connect('/*url', controller='template', action='view')
 
     return map

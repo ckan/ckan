@@ -11,7 +11,7 @@ import ckan.rating
 class BaseRestController(BaseController):
 
     def index(self):
-        return render('rest/index')
+        return render('rest/index.html')
 
     def _list_package_refs(self, packages):
         raise Exception, "Method not implemented."

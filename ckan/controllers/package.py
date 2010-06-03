@@ -22,7 +22,7 @@ class PackageController(BaseController):
     def index(self):
         query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
         c.package_count = query.count()
-        return render('package/index')
+        return render('package/index.html')
 
     def list(self):
         query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
@@ -31,7 +31,7 @@ class PackageController(BaseController):
             page=request.params.get('page', 1),
             items_per_page=50
         )
-        return render('package/list')
+        return render('package/list.html')
 
     def search(self):        
         c.q = request.params.get('q') # unicode format (decoded from utf8)
@@ -67,7 +67,7 @@ class PackageController(BaseController):
             c.tags = results['results']
             c.tags_count = results['count']
 
-        return render('package/search')
+        return render('package/search.html')
 
     def read(self, id):
         pkg = model.Package.by_name(id)
@@ -90,7 +90,7 @@ class PackageController(BaseController):
         c.auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, pkg)
 
         PackageSaver().render_package(pkg)
-        return render('package/read') 
+        return render('package/read.html') 
 
     def history(self, id):
         if 'diff' in request.params or 'selected1' in request.params:
@@ -149,7 +149,7 @@ class PackageController(BaseController):
             feed.content_type = 'application/atom+xml'
             return feed.writeString('utf-8')
         c.pkg_revisions = c.pkg.all_related_revisions
-        return render('package/history')
+        return render('package/history.html')
 
     def new(self):
         c.error = ''
@@ -184,7 +184,7 @@ class PackageController(BaseController):
                 fs = error.args[0]
                 c.form = self._render_edit_form(fs, request.params,
                         clear_session=True)
-                return render('package/new')
+                return render('package/new.html')
             except KeyError, error:
                 abort(400, ('Missing parameter: %s' % error.args).encode('utf8'))
 
@@ -207,13 +207,13 @@ class PackageController(BaseController):
                 PackageSaver().render_preview(fs, id, record.id,
                                               log_message=log_message,
                                               author=c.author)
-                c.preview = h.literal(render('package/read_core'))
+                c.preview = h.literal(render('package/read_core.html'))
             except ValidationException, error:
                 fs = error.args[0]
                 c.form = self._render_edit_form(fs, request.params,
                         clear_session=True)
-                return render('package/new')
-        return render('package/new')
+                return render('package/new.html')
+        return render('package/new.html')
 
     def edit(self, id=None): # allow id=None to allow posting
         # TODO: refactor to avoid duplication between here and new
@@ -242,7 +242,7 @@ class PackageController(BaseController):
                 self._adjust_license_id_options(pkg, fs)
             fs = fs.bind(pkg)
             c.form = self._render_edit_form(fs, request.params)
-            return render('package/edit')
+            return render('package/edit.html')
         elif request.params.has_key('commit'):
             # id is the name (pre-edited state)
             pkgname = id
@@ -258,7 +258,7 @@ class PackageController(BaseController):
                 fs = error.args[0]
                 c.form = self._render_edit_form(fs, request.params,
                         clear_session=True)
-                return render('package/edit')
+                return render('package/edit.html')
             except KeyError, error:
                 abort(400, 'Missing parameter: %s' % error.args)
         else: # Must be preview
@@ -270,15 +270,15 @@ class PackageController(BaseController):
                 PackageSaver().render_preview(fs, id, pkg.id,
                                               log_message=log_message,
                                               author=c.author)
-                read_core_html = render('package/read_core') #utf8 format
+                read_core_html = render('package/read_core.html') #utf8 format
                 c.preview = h.literal(read_core_html)
                 c.form = self._render_edit_form(fs, request.params)
             except ValidationException, error:
                 fs = error.args[0]
                 c.form = self._render_edit_form(fs, request.params,
                         clear_session=True)
-                return render('package/edit')
-            return render('package/edit') # uses c.form and c.preview
+                return render('package/edit.html')
+            return render('package/edit.html') # uses c.form and c.preview
 
     def _adjust_license_id_options(self, pkg, fs):
         options = fs.license_id.render_opts['options']
@@ -310,7 +310,7 @@ class PackageController(BaseController):
             except ValidationException, error:
                 # TODO: sort this out 
                 # fs = error.args
-                # return render('package/authz')
+                # return render('package/authz.html')
                 raise
             # now do new roles
             newrole_user_id = request.params.get('PackageRole--user_id')
@@ -343,7 +343,7 @@ class PackageController(BaseController):
         fs = ckan.forms.get_authz_fieldset('package_authz_fs').bind(c.pkg.roles)
         c.form = fs.render()
         c.new_roles_form = ckan.forms.get_authz_fieldset('new_package_roles_fs').render()
-        return render('package/authz')
+        return render('package/authz.html')
 
     def rate(self, id):
         package_name = id
@@ -377,7 +377,7 @@ class PackageController(BaseController):
             model.Session.clear()
         edit_form_html = fs.render()
         c.form = h.literal(edit_form_html)
-        return h.literal(render('package/edit_form'))
+        return h.literal(render('package/edit_form.html'))
 
     def _update_authz(self, fs):
         validation = fs.validate()

@@ -22,7 +22,7 @@ class TestTagController(TestController):
 
     def test_read_moved(self):
         name = 'tolstoy'
-        offset = '/tag/read/%s/' % name
+        offset = '/tag/read/%s' % name
         res = self.app.get(offset, status=HTTP_MOVED_PERMANENTLY)
         res = res.follow()
         assert 'Tags - %s' % name in res
