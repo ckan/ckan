@@ -24,6 +24,7 @@ def make_map():
     map.connect('about', '/about', controller='home', action='about')
     map.connect('stats', '/stats', controller='home', action='stats')
     maps.admin_map(map, controller='admin', url='/admin')
+    # CKAN API.
     map.connect('/api/search/:register', controller='rest', action='search')
     map.connect('/api/tag_counts', controller='rest', action='tag_counts')
     map.connect('/api', controller='rest', action='index')
@@ -54,6 +55,71 @@ def make_map():
         conditions=dict(method=['PUT']))
     map.connect('/api/rest/:register/:id/:subregister/:id2',
         controller='rest', action='delete',
+        conditions=dict(method=['DELETE']))
+    # CKAN API v1.
+    map.connect('/api/1/search/:register', controller='rest', action='search')
+    map.connect('/api/1/tag_counts', controller='rest', action='tag_counts')
+    map.connect('/api/1', controller='rest', action='index')
+    map.connect('/api/1/rest', controller='rest', action='index')
+    map.connect('/api/1/rest/:register', controller='rest', action='list',
+        conditions=dict(method=['GET']))
+    map.connect('/api/1/rest/:register', controller='rest', action='create',
+        conditions=dict(method=['POST']))
+    map.connect('/api/1/rest/:register/:id', controller='rest', action='show',
+        conditions=dict(method=['GET']))
+    map.connect('/api/1/rest/:register/:id', controller='rest', action='update',
+        conditions=dict(method=['PUT']))
+    map.connect('/api/1/rest/:register/:id', controller='rest', action='update',
+        conditions=dict(method=['POST']))
+    map.connect('/api/1/rest/:register/:id', controller='rest', action='delete',
+        conditions=dict(method=['DELETE']))
+    map.connect('/api/1/rest/:register/:id/:subregister',
+        controller='rest', action='list',
+        conditions=dict(method=['GET']))
+    map.connect('/api/1/rest/:register/:id/:subregister/:id2',
+        controller='rest', action='create',
+        conditions=dict(method=['POST']))
+    map.connect('/api/1/rest/:register/:id/:subregister/:id2',
+        controller='rest', action='show',
+        conditions=dict(method=['GET']))
+    map.connect('/api/1/rest/:register/:id/:subregister/:id2',
+        controller='rest', action='update',
+        conditions=dict(method=['PUT']))
+    map.connect('/api/1/rest/:register/:id/:subregister/:id2',
+        controller='rest', action='delete',
+        conditions=dict(method=['DELETE']))
+
+    # CKAN API v2.
+    map.connect('/api/2/search/:register', controller='rest2', action='search')
+    map.connect('/api/2/tag_counts', controller='rest2', action='tag_counts')
+    map.connect('/api/2', controller='rest2', action='index')
+    map.connect('/api/2/rest', controller='rest2', action='index')
+    map.connect('/api/2/rest/:register', controller='rest2', action='list',
+        conditions=dict(method=['GET']))
+    map.connect('/api/2/rest/:register', controller='rest2', action='create',
+        conditions=dict(method=['POST']))
+    map.connect('/api/2/rest/:register/:id', controller='rest2', action='show',
+        conditions=dict(method=['GET']))
+    map.connect('/api/2/rest/:register/:id', controller='rest2', action='update',
+        conditions=dict(method=['PUT']))
+    map.connect('/api/2/rest/:register/:id', controller='rest2', action='update',
+        conditions=dict(method=['POST']))
+    map.connect('/api/2/rest/:register/:id', controller='rest2', action='delete',
+        conditions=dict(method=['DELETE']))
+    map.connect('/api/2/rest/:register/:id/:subregister',
+        controller='rest2', action='list',
+        conditions=dict(method=['GET']))
+    map.connect('/api/2/rest/:register/:id/:subregister/:id2',
+        controller='rest2', action='create',
+        conditions=dict(method=['POST']))
+    map.connect('/api/2/rest/:register/:id/:subregister/:id2',
+        controller='rest2', action='show',
+        conditions=dict(method=['GET']))
+    map.connect('/api/2/rest/:register/:id/:subregister/:id2',
+        controller='rest2', action='update',
+        conditions=dict(method=['PUT']))
+    map.connect('/api/2/rest/:register/:id/:subregister/:id2',
+        controller='rest2', action='delete',
         conditions=dict(method=['DELETE']))
 
     map.redirect("/packages", "/package")

@@ -9,7 +9,9 @@ from ckan.lib.helpers import json
 
 ACCESS_DENIED = [401,403]
 
-class TestRest(TestController):
+class RestTestCase(TestController):
+
+    api_version = ''
 
 #    @classmethod
 #    def setup_class(self):
@@ -71,7 +73,7 @@ class TestRest(TestController):
         model.Session.remove()
 
     def teardown_method(self, name):
-        pkg = model.Package.by_name(u'testpkg')
+        pkg = self.get_package_by_name(u'testpkg')
         if pkg:
             pkg.purge()
 
@@ -89,15 +91,21 @@ class TestRest(TestController):
 
     def test_01_entity_delete_noauth(self):
         # Test Packages Entity Delete 401.
-        offset = '/api/rest/package/%s' % u'annakarenina'
+        offset = self.offset('/rest/package/%s' % u'annakarenina')
         res = self.app.delete(offset, status=ACCESS_DENIED)
 
     def test_02_list_package(self):
         # Test Packages Register Get 200.
-        offset = '/api/rest/package'
+        offset = self.offset('/rest/package')
         res = self.app.get(offset, status=[200])
-        assert 'annakarenina' in res, res
-        assert 'warandpeace' in res, res
+        self.assert_package_refs(res)
+
+    def offset(self, path):
+        assert self.api_version, "API version is missing."
+        return '/api/%s%s' % (self.api_version, path)
+
+    def assert_package_refs(self, res):
+        raise Exception, "Method not implemented."
 
     def test_02_list_tags(self):
         # Test Packages Register Get 200.
@@ -117,7 +125,7 @@ class TestRest(TestController):
         #   ..or is that "entity get"? "register get" == "list" --jb
         offset = '/api/rest/package/annakarenina'
         res = self.app.get(offset, status=[200])
-        anna = model.Package.by_name(u'annakarenina')
+        anna = self.anna
         assert 'annakarenina' in res, res
         assert '"license_id": "other-open"' in res, str(res)
         assert 'russian' in res, res
@@ -187,7 +195,7 @@ class TestRest(TestController):
 
     def test_06_create_pkg(self):
         # Test Packages Register Post 200.
-        assert not model.Package.by_name(self.testpackagevalues['name'])
+        assert not self.get_package_by_name(self.testpackagevalues['name'])
         offset = '/api/rest/package'
         postparams = '%s=1' % json.dumps(self.testpackagevalues)
         res = self.app.post(offset, params=postparams, status=[200],
@@ -198,7 +206,7 @@ class TestRest(TestController):
         res = self.app.get(location, status=[200])
         # Check the database record.
         model.Session.remove()
-        pkg = model.Package.by_name(self.testpackagevalues['name'])
+        pkg = self.get_package_by_name(self.testpackagevalues['name'])
         assert pkg
         assert pkg.title == self.testpackagevalues['title'], pkg
         assert pkg.url == self.testpackagevalues['url'], pkg
@@ -245,7 +253,7 @@ class TestRest(TestController):
         res = self.app.post(offset, params=postparams, status=[200],
                 extra_environ=self.extra_environ)
         model.Session.remove()
-        pkg = model.Package.by_name(test_params['name'])
+        pkg = self.get_package_by_name(test_params['name'])
         assert pkg
         assert pkg.name == test_params['name'], pkg
         assert len(pkg.resources) == 1, pkg.resources
@@ -267,8 +275,8 @@ class TestRest(TestController):
         assert group.title == self.testgroupvalues['title'], group
         assert group.description == self.testgroupvalues['description'], group
         assert len(group.packages) == 2, len(group.packages)
-        anna = model.Package.by_name(u'annakarenina')
-        warandpeace = model.Package.by_name(u'warandpeace')
+        anna = self.anna
+        warandpeace = self.war
         assert anna in group.packages
         assert warandpeace in group.packages
 
@@ -298,7 +306,7 @@ class TestRest(TestController):
         res = self.app.post(offset, params=postparams, status=[200],
                 extra_environ=self.extra_environ)
         model.Session.remove()
-        pkg = model.Package.by_name(rating_opts['package'])
+        pkg = self.get_package_by_name(rating_opts['package'])
         assert pkg
         assert len(pkg.ratings) == 1
         assert pkg.ratings[0].rating == rating_opts['rating'], pkg.ratings
@@ -318,7 +326,7 @@ class TestRest(TestController):
         res = self.app.post(offset, params=postparams, status=[200],
                 extra_environ=self.extra_environ)
         model.Session.remove()
-        pkg = model.Package.by_name(rating_opts['package'])
+        pkg = self.get_package_by_name(rating_opts['package'])
         assert pkg
         assert len(pkg.ratings) == 1
         assert pkg.ratings[0].rating == rating_opts['rating'], pkg.ratings
@@ -332,7 +340,7 @@ class TestRest(TestController):
         res = self.app.post(offset, params=postparams, status=[400],
                 extra_environ=self.extra_environ)
         model.Session.remove()
-        pkg = model.Package.by_name(rating_opts['package'])
+        pkg = self.get_package_by_name(rating_opts['package'])
         assert pkg
         assert len(pkg.ratings) == 0
 
@@ -350,7 +358,7 @@ class TestRest(TestController):
 
         # create a package with testpackagevalues
         tag_names = [u'tag1', u'tag2', u'tag3']
-        pkg = model.Package.by_name(self.testpackagevalues['name'])
+        pkg = self.get_package_by_name(self.testpackagevalues['name'])
         if not pkg:
             pkg = model.Package()
             model.Session.add(pkg)
@@ -364,7 +372,7 @@ class TestRest(TestController):
         pkg.extras = {u'key1':u'val1', u'key2':u'val2'}
         model.Session.commit()
 
-        pkg = model.Package.by_name(self.testpackagevalues['name'])
+        pkg = self.get_package_by_name(self.testpackagevalues['name'])
         model.setup_default_user_roles(pkg, [self.user])
         rev = model.repo.new_revision()
         model.repo.commit_and_remove()
@@ -431,7 +439,7 @@ class TestRest(TestController):
 
         # create a package with testpackagevalues
         tag_names = [u'tag1', u'tag2', u'tag3']
-        pkg = model.Package.by_name(self.testpackagevalues['name'])
+        pkg = self.get_package_by_name(self.testpackagevalues['name'])
         if not pkg:
             pkg = model.Package()
             model.Session.add(pkg)
@@ -445,7 +453,7 @@ class TestRest(TestController):
         pkg.extras = {u'key1':u'val1', u'key2':u'val2'}
         model.Session.commit()
 
-        pkg = model.Package.by_name(self.testpackagevalues['name'])
+        pkg = self.get_package_by_name(self.testpackagevalues['name'])
         model.setup_default_user_roles(pkg, [self.user])
         rev = model.repo.new_revision()
         model.repo.commit_and_remove()
@@ -520,11 +528,11 @@ class TestRest(TestController):
         pkg.download_url = test_params['download_url']
         model.Session.commit()
 
-        pkg = model.Package.by_name(test_params['name'])
+        pkg = self.get_package_by_name(test_params['name'])
         model.setup_default_user_roles(pkg, [self.user])
         rev = model.repo.new_revision()
         model.repo.commit_and_remove()
-        assert model.Package.by_name(test_params['name'])
+        assert self.get_package_by_name(test_params['name'])
 
         # edit it
         pkg_vals = {'download_url':u'newurl'}
@@ -569,28 +577,28 @@ class TestRest(TestController):
 
     def test_10_edit_pkg_name_duplicate(self):
         # create a package with testpackagevalues
-        if not model.Package.by_name(self.testpackagevalues['name']):
+        if not self.get_package_by_name(self.testpackagevalues['name']):
             pkg = model.Package()
             model.Session.add(pkg)
             pkg.name = self.testpackagevalues['name']
             rev = model.repo.new_revision()
             model.Session.commit()
 
-            pkg = model.Package.by_name(self.testpackagevalues['name'])
+            pkg = self.get_package_by_name(self.testpackagevalues['name'])
             model.setup_default_user_roles(pkg, [self.user])
             rev = model.repo.new_revision()
             model.repo.commit_and_remove()
-        assert model.Package.by_name(self.testpackagevalues['name'])
+        assert self.get_package_by_name(self.testpackagevalues['name'])
         
         # create a package with name 'dupname'
         dupname = u'dupname'
-        if not model.Package.by_name(dupname):
+        if not self.get_package_by_name(dupname):
             pkg = model.Package()
             model.Session.add(pkg)
             pkg.name = dupname
             rev = model.repo.new_revision()
             model.Session.commit()
-        assert model.Package.by_name(dupname)
+        assert self.get_package_by_name(dupname)
 
         # edit first package to have dupname
         pkg_vals = {'name':dupname}
@@ -637,24 +645,24 @@ class TestRest(TestController):
         # Test Packages Entity Delete 200.
 
         # create a package with testpackagevalues
-        if not model.Package.by_name(self.testpackagevalues['name']):
+        if not self.get_package_by_name(self.testpackagevalues['name']):
             pkg = model.Package()
             model.Session.add(pkg)
             pkg.name = self.testpackagevalues['name']
             rev = model.repo.new_revision()
             model.repo.commit_and_remove()
 
-            pkg = model.Package.by_name(self.testpackagevalues['name'])
+            pkg = self.get_package_by_name(self.testpackagevalues['name'])
             model.setup_default_user_roles(pkg, [self.user])
             rev = model.repo.new_revision()
             model.repo.commit_and_remove()
-        assert model.Package.by_name(self.testpackagevalues['name'])
+        assert self.get_package_by_name(self.testpackagevalues['name'])
 
         # delete it
         offset = '/api/rest/package/%s' % self.testpackagevalues['name']
         res = self.app.delete(offset, status=[200],
                 extra_environ=self.extra_environ)
-        pkg = model.Package.by_name(self.testpackagevalues['name'])
+        pkg = self.get_package_by_name(self.testpackagevalues['name'])
         assert pkg.state == 'deleted'
         model.Session.remove()
 
@@ -782,7 +790,19 @@ class TestRest(TestController):
             license = register[id]
             assert license['title'] == license.title
             assert license['url'] == license.url
-            
+
+
+class TestRest(RestTestCase):
+    # Tests for CKAN API v1.0.
+
+    api_version = '1'
+
+    def assert_package_refs(self, res):
+        assert self.anna.name in res, res
+        assert self.war.name in res, res
+
+        
+
 class TestRelationships(TestController):
     @classmethod
     def setup_class(self):
@@ -824,12 +844,6 @@ class TestRelationships(TestController):
         res_dict = json.loads(res.body) if res.body else []
         return res_dict['relationships']
 
-    @property
-    def war(self):
-        return model.Package.by_name(u'warandpeace')
-    @property
-    def anna(self):
-        return model.Package.by_name(u'annakarenina')
     @property
     def anna_offset(self):
         return '/api/rest/package/annakarenina'
@@ -1017,7 +1031,7 @@ class TestSearch(TestController):
 
     def teardown(self):
         model.Session.remove()
-        pkg = model.Package.by_name(self.testpackagevalues['name'])
+        pkg = self.get_package_by_name(self.testpackagevalues['name'])
         if pkg:
             pkg.purge()
         model.Session.commit()
@@ -1128,7 +1142,7 @@ class TestSearch(TestController):
         
     def test_08_all_fields(self):
         rating = model.Rating(user_ip_address=u'123.1.2.3',
-                              package=model.Package.by_name(u'annakarenina'),
+                              package=self.anna,
                               rating=3.0)
         model.Session.add(rating)
         model.repo.commit_and_remove()

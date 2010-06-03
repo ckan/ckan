@@ -8,10 +8,13 @@ from ckan.lib.search import make_search, SearchOptions
 import ckan.authz
 import ckan.rating
 
-class RestController(BaseController):
+class BaseRestController(BaseController):
 
     def index(self):
         return render('rest/index')
+
+    def _list_package_refs(self, packages):
+        raise Exception, "Method not implemented."
 
     def list(self, register, subregister=None, id=None):
         if register == 'revision':
@@ -19,8 +22,8 @@ class RestController(BaseController):
             return self._finish_ok([rev.id for rev in revs])
         elif register == u'package' and not subregister:
             query = ckan.authz.Authorizer().authorized_query(self._get_username(), model.Package)
-            packages = query.all() 
-            results = [package.name for package in packages]
+            packages = query.all()
+            results = self._list_package_refs(packages)
             return self._finish_ok(results)
         elif register == u'package' and subregister == 'relationships':
             #TODO authz stuff for this and related packages
@@ -517,4 +520,10 @@ class RestController(BaseController):
             return json.dumps(response_data)
         else:
             return ''
+
+class RestController(BaseRestController):
+
+    def _list_package_refs(self, packages):
+        return [package.name for package in packages]
+
 

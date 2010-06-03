@@ -197,14 +197,14 @@ class TestReadOnly(TestPackageForm):
         offset = url_for(controller='package', action='read', id=name)
         res = self.app.get(offset)
         # only retrieve after app has been called
-        self.anna = model.Package.by_name(name)
+        anna = self.anna
         assert 'Packages - %s' % name in res
         assert name in res
-        assert self.anna.version in res
-        assert self.anna.url in res
-        assert cgi.escape(self.anna.resources[0].url) in res
-        assert self.anna.resources[0].description in res
-        assert self.anna.resources[0].hash in res
+        assert anna.version in res
+        assert anna.url in res
+        assert cgi.escape(anna.resources[0].url) in res
+        assert anna.resources[0].description in res
+        assert anna.resources[0].hash in res
         assert 'Some test notes' in res
         assert '<strong>Some bolded text.</strong>' in res
         self.check_tag_and_data(res, 'left arrow', '&lt;')
