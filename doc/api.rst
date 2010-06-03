@@ -72,6 +72,20 @@ identified in server responses. For example, after successfully POSTing data
 to a model register, the location of the newly created entity is indicated in
 the method response's 'Location' header.
 
+API Versions
+============
+
+The CKAN API is versioned, so that backwards incompatible changes can be
+introduced without removing existing support. The version number is inserted
+after the '/api' part of the path.
+
+``http://ckan.net/api/API-VERSION/rest/package``
+
+For example versions 1 and 2 of the CKAN API are located here:
+
+``http://ckan.net/api/1/rest/package``
+``http://ckan.net/api/2/rest/package``
+
 
 CKAN Model API
 ==============
@@ -180,10 +194,16 @@ Model API Data Formats
 
 Here are the data formats for the Model API.
 
+Todo: Fork API documentation.
+
 +-----------------+------------------------------------------------------------+
 | Name            | Format                                                     |
 +=================+============================================================+
 | Package-List    | [ Name-String, Name-String, Name-String, ... ]             |
+| (API v1 only)   |                                                            |
++-----------------+------------------------------------------------------------+
+| Package-List    | [ Id-String, Id-String, Id-String, ... ]                   |
+| (API v2 only)   |                                                            |
 +-----------------+------------------------------------------------------------+
 | Package         | { name: Name-String, title: String, version: String,       |
 |                 | url: String, resources: [ Resource, Resource, ...],        |
