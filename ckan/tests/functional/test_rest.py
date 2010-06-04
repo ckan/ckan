@@ -795,8 +795,8 @@ class RestTestCase(TestController):
             assert license['url'] == license.url
 
 
+# For CKAN API Version 1.
 class TestRest(RestTestCase):
-    # Tests for CKAN API v1.0.
 
     api_version = '1'
 
@@ -1000,7 +1000,15 @@ class TestRelationships(TestController):
                                       [])
 
 
-class TestSearch(TestController):
+class BaseSearchCase(TestController):
+
+    api_version = ''
+
+    @classmethod
+    def offset(self, path):
+        assert self.api_version, "API version is missing."
+        return '/api/%s%s' % (self.api_version, path)
+
     @classmethod
     def setup_class(self):
         try:
@@ -1009,7 +1017,7 @@ class TestSearch(TestController):
             pass
         model.Session.remove()
         CreateTestData.create()
-        self.base_url = '/api/search/package'
+        self.base_url = self.offset('/search/package')
 
     @classmethod
     def teardown_class(self):
@@ -1048,15 +1056,18 @@ class TestSearch(TestController):
         offset = self.base_url + '?q=%s' % self.testpackagevalues['name']
         res = self.app.get(offset, status=200)
         res_dict = json.loads(res.body)
-        assert u'testpkg' in res_dict['results'], res_dict['results']
+        self.assert_package_search_results(res_dict['results'])
         assert res_dict['count'] == 1, res_dict['count']
+
+    def assert_package_search_results(self, results, names=[u'testpkg']):
+        raise Exception, "Method not implemented."
 
     def test_02_post_q(self):
         offset = self.base_url
         query = {'q':'testpkg'}
         res = self.app.post(offset, params=query, status=200)
         res_dict = json.loads(res.body)
-        assert u'testpkg' in res_dict['results'], res_dict['results']
+        self.assert_package_search_results(res_dict['results'])
         assert res_dict['count'] == 1, res_dict['count']
 
     def test_03_uri_qjson(self):
@@ -1065,7 +1076,7 @@ class TestSearch(TestController):
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
         res_dict = json.loads(res.body)
-        assert u'testpkg' in res_dict['results'], res_dict['results']
+        self.assert_package_search_results(res_dict['results'])
         assert res_dict['count'] == 1, res_dict['count']
 
     def test_04_post_qjson(self):
@@ -1074,7 +1085,7 @@ class TestSearch(TestController):
         offset = self.base_url
         res = self.app.post(offset, params=json_query, status=200)
         res_dict = json.loads(res.body)
-        assert u'testpkg' in res_dict['results'], res_dict['results']
+        self.assert_package_search_results(res_dict['results'])
         assert res_dict['count'] == 1, res_dict['count']
 
     def test_05_uri_qjson_tags(self):
@@ -1083,7 +1094,7 @@ class TestSearch(TestController):
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
         res_dict = json.loads(res.body)
-        assert u'annakarenina' in res_dict['results'], res_dict['results']
+        self.assert_package_search_results(res_dict['results'], names=[u'annakarenina'])
         assert res_dict['count'] == 1, res_dict
         
     def test_05_uri_qjson_tags_multiple(self):
@@ -1092,7 +1103,7 @@ class TestSearch(TestController):
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
         res_dict = json.loads(res.body)
-        assert u'annakarenina' in res_dict['results'], res_dict['results']
+        self.assert_package_search_results(res_dict['results'], names=[u'annakarenina'])
         assert res_dict['count'] == 1, res_dict
 
     def test_06_uri_q_tags(self):
@@ -1100,7 +1111,7 @@ class TestSearch(TestController):
         offset = self.base_url + '?q=%s' % query
         res = self.app.get(offset, status=200)
         res_dict = json.loads(res.body)
-        assert u'annakarenina' in res_dict['results'], res_dict['results']
+        self.assert_package_search_results(res_dict['results'], names=[u'annakarenina'])
         assert res_dict['count'] == 1, res_dict['count']
 
     def test_07_uri_qjson_tags(self):
@@ -1109,7 +1120,7 @@ class TestSearch(TestController):
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
         res_dict = json.loads(res.body)
-        assert u'annakarenina' in res_dict['results'], res_dict['results']
+        self.assert_package_search_results(res_dict['results'], names=[u'annakarenina'])
         assert res_dict['count'] == 1, res_dict
 
     def test_07_uri_qjson_tags_multiple(self):
@@ -1118,7 +1129,7 @@ class TestSearch(TestController):
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
         res_dict = json.loads(res.body)
-        assert u'annakarenina' in res_dict['results'], res_dict['results']
+        self.assert_package_search_results(res_dict['results'], names=[u'annakarenina'])
         assert res_dict['count'] == 1, res_dict
 
     def test_07_uri_qjson_tags_reverse(self):
@@ -1127,7 +1138,7 @@ class TestSearch(TestController):
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
         res_dict = json.loads(res.body)
-        assert u'annakarenina' in res_dict['results'], res_dict['results']
+        self.assert_package_search_results(res_dict['results'], names=[u'annakarenina'])
         assert res_dict['count'] == 2, res_dict
 
     def test_07_uri_qjson_extras(self):
@@ -1136,6 +1147,7 @@ class TestSearch(TestController):
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
         res_dict = json.loads(res.body)
+        self.assert_package_search_results(res_dict['results'])
         assert res_dict['count'] == 1, res_dict
 
     def test_07_uri_qjson_extras_2(self):
@@ -1144,6 +1156,7 @@ class TestSearch(TestController):
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
         res_dict = json.loads(res.body)
+        self.assert_package_search_results(res_dict['results'])
         assert res_dict['count'] == 1, res_dict
         
         
@@ -1270,6 +1283,16 @@ class TestSearch(TestController):
         s = "2012-03-04T05:06:07.890123"
         t = model.strptimestamp(s)
         assert t == datetime.datetime(2012, 3, 4, 5, 6, 7, 890123), t
+
+
+# For CKAN API Version 1.
+class TestSearch(BaseSearchCase):
+
+    api_version = '1'
+
+    def assert_package_search_results(self, results, names=[u'testpkg']):
+        for name in names:
+            assert name in results, (name, results)
 
 
 class TestApiMisc(TestController):

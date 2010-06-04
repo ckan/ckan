@@ -10,11 +10,10 @@ import ckan.rating
 
 class BaseRestController(BaseController):
 
-    def index(self):
-        return render('rest/index.html')
+    ref_package_with_attr = 'id'
 
     def _list_package_refs(self, packages):
-        raise Exception, "Method not implemented."
+        return [getattr(p, self.ref_package_with_attr) for p in packages]
 
     def _get_pkg(self, id):
         pkg = model.Session.query(model.Package).get(id)
@@ -22,6 +21,9 @@ class BaseRestController(BaseController):
             pkg = model.Package.by_name(id)
             # Todo: Make sure package names can't be changed to look like package IDs?
         return pkg
+
+    def index(self):
+        return render('rest/index.html')
 
     def list(self, register, subregister=None, id=None):
         if register == 'revision':
@@ -374,6 +376,7 @@ class BaseRestController(BaseController):
             options = SearchOptions(params)
             options.search_tags = False
             options.return_objects = False
+            options.ref_entity_with_attr = self.ref_package_with_attr
             username = self._get_username()
             results = make_search().run(options, username)
             return self._finish_ok(results)
@@ -522,8 +525,9 @@ class BaseRestController(BaseController):
             return ''
 
 class RestController(BaseRestController):
+    # Implements CKAN API Version 1.
 
-    def _list_package_refs(self, packages):
-        return [package.name for package in packages]
+    ref_package_with_attr = 'name'
+
 
 

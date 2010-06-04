@@ -11,6 +11,5 @@ import ckan.rating
 
 class Rest2Controller(BaseRestController):
 
-    def _list_package_refs(self, packages):
-        return [package.id for package in packages]
+    ref_package_with_attr = 'id'
 
