@@ -3,6 +3,7 @@ import datetime
 from pylons import config
 from meta import *
 import vdm.sqlalchemy
+from sqlalchemy.util import OrderedDict
 
 from types import make_uuid
 import full_search
@@ -93,7 +94,7 @@ class DomainObject(object):
         sess.delete(self)
 
     def as_dict(self):
-        _dict = {}
+        _dict = OrderedDict()
         table = orm.class_mapper(self.__class__).mapped_table
         for col in table.c:
             val = getattr(self, col.name)

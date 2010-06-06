@@ -48,7 +48,7 @@ class SimpleDumper(object):
         for pkg in query:
             pkg_dict = pkg.as_dict()
             pkgs.append(pkg_dict)
-        simplejson.dump(pkgs, dump_file_obj, indent=4, sort_keys=True)
+        simplejson.dump(pkgs, dump_file_obj, indent=4)
 
 class Dumper(object):
     '''Dumps the database in same structure as it appears in the database'''
@@ -203,21 +203,14 @@ class Dumper(object):
                 update.execute()
 
 class PackagesCsvWriter:
-    title_order = ('name', 'title', 'version')
-    
     def __init__(self, package_dict_list=None):
         self._rows = []
         self._col_titles = []
         titles_set = set()
         for row_dict in package_dict_list:
             for key in row_dict.keys():
-                titles_set.add(key)
-        self._col_titles = []
-        for ordered_title in self.title_order:
-            if ordered_title in titles_set:
-                titles_set.remove(ordered_title)
-                self._col_titles.append(ordered_title)
-        self._col_titles.extend(list(titles_set))
+                if key not in self._col_titles:
+                    self._col_titles.append(key)
         for row_dict in package_dict_list:
             self._add_row_dict(row_dict)
         
