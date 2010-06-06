@@ -1,3 +1,7 @@
+'''For an overview of CKAN authorization system and model see
+doc/authorization.rst.
+
+'''
 from meta import *
 from core import DomainObject, Package, System
 from group import Group
@@ -6,6 +10,12 @@ from user import User
 
 PSEUDO_USER__LOGGED_IN = u'logged_in'
 PSEUDO_USER__VISITOR = u'visitor'
+
+class NotRealUserException(Exception):
+    pass
+
+## ======================================
+## Action and Role Enums
 
 class Enum(object):
     @classmethod
@@ -35,6 +45,18 @@ class Role(Enum):
     EDITOR = u'editor'
     READER = u'reader'
 
+default_role_actions = [
+    (Role.EDITOR, Action.EDIT),
+    (Role.EDITOR, Action.CREATE),
+    (Role.EDITOR, Action.READ),        
+    (Role.READER, Action.CREATE),
+    (Role.READER, Action.READ),
+    ]
+
+
+## ======================================
+## Table Definitions
+
 role_action_table = Table('role_action', metadata,
            Column('id', UnicodeText, primary_key=True, default=make_uuid),
            Column('role', UnicodeText),
@@ -63,156 +85,97 @@ system_role_table = Table('system_role', metadata,
            Column('user_object_role_id', UnicodeText, ForeignKey('user_object_role.id'), primary_key=True),
            )
 
+
 class RoleAction(DomainObject):
     pass
 
+# dictionary mapping protected objects (e.g. Package) to related ObjectRole
+protected_objects = {}
+
 class UserObjectRole(DomainObject):
-    pass
+    name = None
+    protected_object = None
+
+    @classmethod
+    def get_object_role_class(self, domain_obj):
+        protected_object = protected_objects.get(domain_obj.__class__, None)
+        if protected_object is None:
+            # TODO: make into an authz exception
+            msg = '%s is not a protected object, i.e. a subject of authorization' % domain_obj
+            raise Exception(msg)
+        else:
+            return protected_object
+
+    @classmethod
+    def user_has_role(cls, user, role, domain_obj):
+        assert isinstance(user, User), user
+        assert Role.is_valid(role), role
+        q = cls._query(user, role, domain_obj)
+        return q.count() == 1
+
+    @classmethod
+    def _query(cls, user, role, domain_obj):
+        q = Session.query(cls).filter_by(role=role)
+        # some protected objects are not "contextual"
+        if cls.name is not None:
+            # e.g. filter_by(package=domain_obj)
+            q = q.filter_by(**dict({cls.name: domain_obj}))
+        q = q.filter_by(user=user)
+        return q
+
+    @classmethod
+    def add_user_to_role(cls, user, role, domain_obj):
+        # role assignment already exists
+        if cls.user_has_role(user, role, domain_obj):
+            return
+        objectrole = cls(role=role, user=user)
+        if cls.name is not None:
+            setattr(objectrole, cls.name, domain_obj)
+        Session.add(objectrole)
+
+    @classmethod
+    def remove_user_from_role(cls, user, role, domain_obj):
+        q = self._query(user, role, domain_obj)
+        uo_role = q.one()
+        Session.delete(ou_role)
+        Session.commit()
+        Session.remove()
 
 class PackageRole(UserObjectRole):
-    pass
+    protected_object = Package
+    name = 'package'
+protected_objects[PackageRole.protected_object] = PackageRole
 
 class GroupRole(UserObjectRole):
-    pass
+    protected_object = Group
+    name = 'group'
+protected_objects[GroupRole.protected_object] = GroupRole
 
 class SystemRole(UserObjectRole):
-    pass
+    protected_object = System
+    name = None
+protected_objects[SystemRole.protected_object] = SystemRole
 
-mapper(RoleAction, role_action_table)
-       
-mapper(UserObjectRole, user_object_role_table,
-    polymorphic_on=user_object_role_table.c.context,
-    polymorphic_identity=u'user_object',
-    properties={
-        'user': orm.relation(User,
-            backref=orm.backref('roles',
-                cascade='all, delete, delete-orphan'
-            )
-        )
-    },
-    order_by=[user_object_role_table.c.id],
-)
 
-mapper(PackageRole, package_role_table, inherits=UserObjectRole,
-    polymorphic_identity=unicode(Package.__name__),
-    properties={
-        'package': orm.relation(Package,
-             backref=orm.backref('roles',
-             cascade='all, delete, delete-orphan'
-             )
-        ),
-    },
-    order_by=[package_role_table.c.user_object_role_id],
-)
 
-mapper(GroupRole, group_role_table, inherits=UserObjectRole,
-       polymorphic_identity=unicode(Group.__name__),
-       properties={
-            'group': orm.relation(Group,
-                 backref=orm.backref('roles',
-                 cascade='all, delete, delete-orphan'
-                 ),
-            )
-    },
-    order_by=[group_role_table.c.user_object_role_id],
-)
+## ======================================
+## Helpers
 
-mapper(SystemRole, system_role_table, inherits=UserObjectRole,
-       polymorphic_identity=unicode(System.__name__),
-       order_by=[system_role_table.c.user_object_role_id],
-)
-
-class NotRealUserException(Exception):
-    pass
-
-default_role_actions = [
-    (Role.EDITOR, Action.EDIT),
-    (Role.EDITOR, Action.CREATE),
-    (Role.EDITOR, Action.READ),        
-    (Role.READER, Action.CREATE),
-    (Role.READER, Action.READ),
-    ]
 
 def user_has_role(user, role, domain_obj):
-    assert isinstance(user, User), user
-    assert user.id
-    assert Role.is_valid(role), role
-    assert isinstance(domain_obj, (Package, Group, System)), domain_obj
-    assert domain_obj.id
-    
-    if isinstance(domain_obj, Package):
-        return Session.query(PackageRole).filter_by(role=role,
-                                           package=domain_obj,
-                                           user=user).count() == 1
-    elif isinstance(domain_obj, Group):
-        return Session.query(GroupRole).filter_by(role=role,
-                                           group=domain_obj,
-                                           user=user).count() == 1
-    elif isinstance(domain_obj, System):
-        return Session.query(SystemRole).filter_by(role=role,
-                                          user=user).count() == 1
-    else:
-        raise NotImplementedError()
-
+    objectrole = UserObjectRole.get_object_role_class(domain_obj)
+    return objectrole.user_has_role(user, role, domain_obj)
 
 def add_user_to_role(user, role, domain_obj):
-    assert Role.is_valid(role), role
-
-    if isinstance(domain_obj, Package):
-        existing_pr = Session.query(PackageRole).filter_by(role=role,
-                                                  package=domain_obj,
-                                                  user=user).count()
-    elif isinstance(domain_obj, Group):        
-        existing_pr = Session.query(GroupRole).filter_by(role=role,
-                                                group=domain_obj,
-                                                user=user).count()
-    elif isinstance(domain_obj, System):        
-        existing_pr = Session.query(SystemRole).filter_by(role=role,
-                                                 user=user).count()
-    else:
-        msg = '%s is not an object for which there are roles' % domain_obj
-        raise NotImplementedError(msg)
-    if existing_pr:
-        return
-
-    if isinstance(domain_obj, Package):
-        pr = PackageRole(role=role,
-                         package=domain_obj,
-                         user=user)
-    elif isinstance(domain_obj, Group):
-        pr = GroupRole(role=role,
-                         group=domain_obj,
-                         user=user)
-    elif isinstance(domain_obj, System):
-        pr = SystemRole(role=role,
-                        user=user)
-    else:
-        raise NotImplementedError()
-    Session.add(pr)
+    objectrole = UserObjectRole.get_object_role_class(domain_obj)
+    objectrole.add_user_to_role(user, role, domain_obj)
 
 def remove_user_from_role(user, role, domain_obj):
-    '''NB This calls Session.commit()'''
-    assert Role.is_valid(role), role
+    objectrole = UserObjectRole.get_object_role_class(domain_obj)
+    objectrole.remove_user_from_role(user, role, domain_obj)
 
-    if isinstance(domain_obj, Package):
-        uo_role = Session.query(PackageRole).filter_by(role=role,
-                                         package=domain_obj,
-                                         user=user).one()
-    elif isinstance(domain_obj, Group):
-        uo_role = Session.query(GroupRole).filter_by(role=role,
-                                         group=domain_obj,
-                                         user=user).one()
-    elif isinstance(domain_obj, System):
-        uo_role = Session.query(SystemRole).filter_by(role=role,
-                                         user=user).one()
-    else:
-        raise NotImplementedError()
 
-    Session.delete(ou_role)
-
-    Session.commit()
-    Session.remove()
-
+## TODO: this should be in ckan/authz.py
 def setup_user_roles(domain_object, visitor_roles, logged_in_roles, admins=[]):
     assert type(admins) == type([])
     admin_roles = [Role.ADMIN]
@@ -282,3 +245,51 @@ def clear_user_roles(domain_object):
     user_roles = q.all()
     for user_role in user_roles:
         Session.delete(user_role)
+
+
+## ======================================
+## Mappers
+
+mapper(RoleAction, role_action_table)
+       
+mapper(UserObjectRole, user_object_role_table,
+    polymorphic_on=user_object_role_table.c.context,
+    polymorphic_identity=u'user_object',
+    properties={
+        'user': orm.relation(User,
+            backref=orm.backref('roles',
+                cascade='all, delete, delete-orphan'
+            )
+        )
+    },
+    order_by=[user_object_role_table.c.id],
+)
+
+mapper(PackageRole, package_role_table, inherits=UserObjectRole,
+    polymorphic_identity=unicode(Package.__name__),
+    properties={
+        'package': orm.relation(Package,
+             backref=orm.backref('roles',
+             cascade='all, delete, delete-orphan'
+             )
+        ),
+    },
+    order_by=[package_role_table.c.user_object_role_id],
+)
+
+mapper(GroupRole, group_role_table, inherits=UserObjectRole,
+       polymorphic_identity=unicode(Group.__name__),
+       properties={
+            'group': orm.relation(Group,
+                 backref=orm.backref('roles',
+                 cascade='all, delete, delete-orphan'
+                 ),
+            )
+    },
+    order_by=[group_role_table.c.user_object_role_id],
+)
+
+mapper(SystemRole, system_role_table, inherits=UserObjectRole,
+       polymorphic_identity=unicode(System.__name__),
+       order_by=[system_role_table.c.user_object_role_id],
+)

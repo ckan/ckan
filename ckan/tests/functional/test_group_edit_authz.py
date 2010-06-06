@@ -1,5 +1,3 @@
-import simplejson
-
 import ckan.model as model
 from ckan.tests import *
 from ckan.lib.base import *

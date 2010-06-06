@@ -1,7 +1,6 @@
 import genshi
 
 from ckan.lib.base import *
-from simplejson import dumps
 import ckan.authz as authz
 import ckan.forms
 from ckan.lib.helpers import Page
@@ -20,7 +19,7 @@ class GroupController(BaseController):
             page=request.params.get('page', 1),
             items_per_page=20
         )
-        return render('group/index')
+        return render('group/index.html')
 
     def read(self, id):
         c.group = model.Group.by_name(id)
@@ -45,7 +44,7 @@ class GroupController(BaseController):
             page=request.params.get('page', 1),
             items_per_page=50
         )
-        return render('group/read')
+        return render('group/read.html')
 
     def new(self):
         record = model.Group
@@ -65,7 +64,7 @@ class GroupController(BaseController):
             except ValidationException, error:
                 fs = error.args[0]
                 c.form = self._render_edit_form(fs)
-                return render('group/edit')
+                return render('group/edit.html')
             # do not use groupname from id as may have changed
             c.groupname = c.fs.name.value
             group = model.Group.by_name(c.groupname)
@@ -90,7 +89,7 @@ class GroupController(BaseController):
             data = ckan.forms.edit_group_dict(ckan.forms.get_group_dict(), request.params)
             fs = fs.bind(data=data, session=model.Session)
         c.form = self._render_edit_form(fs)
-        return render('group/new')
+        return render('group/new.html')
 
     def edit(self, id=None): # allow id=None to allow posting
         c.error = ''
@@ -107,7 +106,7 @@ class GroupController(BaseController):
             
             fs = ckan.forms.get_group_fieldset('group_fs').bind(c.group)
             c.form = self._render_edit_form(fs)
-            return render('group/edit')
+            return render('group/edit.html')
         else:
             # id is the name (pre-edited state)
             c.groupname = id
@@ -122,7 +121,7 @@ class GroupController(BaseController):
             except ValidationException, error:
                 fs = error.args[0]
                 c.form = self._render_edit_form(fs)
-                return render('group/edit')
+                return render('group/edit.html')
             pkgs = [model.Package.by_name(name) for name in request.params.getall('Group-packages-current')]
             group.packages = pkgs
             pkgids = request.params.getall('PackageGroup--package_id')
@@ -154,7 +153,7 @@ class GroupController(BaseController):
             except ValidationException, error:
                 # TODO: sort this out 
                 # fs = error.args[0]
-                # return render('group/authz')
+                # return render('group/authz.html')
                 raise
             # now do new roles
             newrole_user_id = request.params.get('GroupRole--user_id')
@@ -188,13 +187,13 @@ class GroupController(BaseController):
         fs = ckan.forms.get_authz_fieldset('group_authz_fs').bind(group.roles)
         c.form = fs.render()
         c.new_roles_form = ckan.forms.get_authz_fieldset('new_group_roles_fs').render()
-        return render('group/authz')
+        return render('group/authz.html')
 
     def _render_edit_form(self, fs):
         # errors arrive in c.error and fs.errors
         c.fieldset = fs
         c.fieldset2 = ckan.forms.get_group_fieldset('new_package_group_fs')
-        return render('group/edit_form')
+        return render('group/edit_form.html')
 
     def _update(self, fs, group_name, group_id):
         '''

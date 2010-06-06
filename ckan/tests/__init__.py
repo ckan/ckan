@@ -180,3 +180,15 @@ class TestController(object):
                 return # found it
         # didn't find it
         assert 0, "Couldn't find %s in html. Closest matches were:\n%s" % (', '.join(["'%s'" % html.encode('utf8') for html in html_to_find]), '\n'.join([tag.encode('utf8') for tag in partly_matching_tags]))
+
+    @property
+    def war(self):
+        return self.get_package_by_name(u'warandpeace')
+
+    @property
+    def anna(self):
+        return self.get_package_by_name(u'annakarenina')
+
+    def get_package_by_name(self, package_name):
+        return model.Package.by_name(package_name)
+

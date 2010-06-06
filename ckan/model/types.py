@@ -23,7 +23,7 @@ class UuidType(types.TypeDecorator):
         return unicode(uuid.uuid4())
 
 
-import simplejson
+from ckan.lib.helpers import json
 class JsonType(types.TypeDecorator):
     '''Store data as JSON serializing on save and unserializing on use.
     '''
@@ -34,13 +34,13 @@ class JsonType(types.TypeDecorator):
             return None
         else:
             # ensure_ascii=False => allow unicode but still need to convert
-            return unicode(simplejson.dumps(value, ensure_ascii=False))
+            return unicode(json.dumps(value, ensure_ascii=False))
 
     def process_result_value(self, value, engine):
         if value is None:
             return None
         else:
-            return simplejson.loads(value)
+            return json.loads(value)
 
     def copy(self):
         return JsonType(self.impl.length)

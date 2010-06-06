@@ -1,0 +1,157 @@
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip=""
+  >
+
+<xi:include href="_util.html" />
+
+<head>
+  <title>CKAN - Comprehensive Knowledge Archive Network - ${page_title()}</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <link rel="shortcut icon" href="http://m.okfn.org/gfx/logo/favicon.ico" type="image/x-icon" />
+  <py:choose>
+  <py:when test="defined('optional_feed')">
+    ${optional_feed()}
+  </py:when>
+  <py:otherwise>
+  <link rel="alternate" type="application/atom+xml" title="CKAN Recent Changes" href="/revision/list?format=atom&amp;days=1" />
+  </py:otherwise>
+  </py:choose>
+
+  <style type="text/css"> 
+    @import url(http://m.okfn.org/kforge/css/structure.css);
+    @import url(http://m.okfn.org/kforge/css/display.css);
+    @import url(http://m.okfn.org/kforge/css/navigation.css);
+    @import url(http://m.okfn.org/kforge/css/print.css);
+  </style> 
+
+  <link rel="stylesheet" href="/css/ckan.master.css" type="text/css" media="screen, print" />
+
+  <!--[if IE]>
+  <link rel="stylesheet" href="/css/ie.css" type="text/css" media="screen, print" />
+  <![endif]-->
+
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+  <script type="text/javascript" src="/scripts/application.js"></script>
+
+  <py:if test="defined('optional_head')">
+    ${optional_head()}
+  </py:if>
+</head>
+
+<body>
+<div id="airlock">
+  <!--[if IE]>
+    <hr class="holder" />
+  <![endif]-->
+  <div id="top">
+    <div id="top-inner">
+      <div id="top-bar">
+        <topbar py:choose="">
+          <p py:when="c.user">
+            Logged in as <strong>${h.icon('openid')} ${c.user}</strong>
+            &middot; <a href="${h.url_for(controller='user',action=None)}">My account</a>
+            &middot; <a href="${h.url_for('/logout_openid')}">Logout</a>
+          </p>
+          <p py:otherwise="">
+            <a href="${h.url_for(controller='user',action='login', id=None)}">Login with ${h.icon('openid')} OpenID</a>
+          </p>
+        </topbar>
+      </div><!-- /top-bar -->
+
+      <h1>
+        <a href="${h.url_for('home')}"><img style="padding: 0; margin-top: -10px; margin-bottom: -10px;" src="/images/ckan_logo_fullname_long.png" alt="CKAN Logo" /></a>
+        <!-- <a href="/" title="CKAN Home">Comprehensive Knowledge Archive Network</a> -->
+      </h1>
+
+    </div><!-- /top-inner -->
+
+    <h3 class="hidden">Sections:</h3>
+    <ul id="navigation">
+      <li>${h.nav_link(c, _('Home'), controller='home', action='index', id=None)}</li>
+      <li>${h.nav_link(c, _('Packages'), controller='package', action='index', id=None)}</li>
+      <li>${h.nav_link(c, _('Tags'), controller='tag', action='index', id=None)}</li>
+      <li>${h.nav_link(c, _('Groups'), controller='group', action='index', id=None)}</li>
+      <li>${h.nav_link(c, _('Recent changes'), controller='revision', action='index', id=None)}</li>
+			<li>${h.nav_link(c, _('API'), controller='rest', action='index', id=None)}</li>
+    </ul>
+    <h3 class="hidden">In this section:</h3>
+    <!--! This is a default (blank) subnav. -->
+    <py:match path="minornavigation"></py:match>
+    <ul id="subnav"><minornavigation></minornavigation></ul>
+
+    <!--[if IE]>
+    <hr class="holder" />
+    <![endif]-->
+
+  </div><!-- /top -->
+
+  <p class="hidden"><a href="#main" title="Skip to page content">[ Skip to main content ]</a></p>
+
+  <div id="primary" class="sidebar">
+    <primarysidebar>
+    <!-- Primary Side Bar Goes Here -->
+    </primarysidebar>
+
+    <!--[if IE]>
+    <hr class="primary" />
+    <![endif]-->
+  </div><!-- /primary -->
+
+  <div id="main">
+    <content>
+      <p>Master content template placeholder &hellip; please replace me.</p>
+    </content>
+
+    <div id="footer">
+      <p>
+        <a href="http://validator.w3.org/check/referer" title="Valid XHTML 1.1">XHTML</a>
+        | <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a>
+        | <a href="http://www.okfn.org/ckan/">Project Home Page</a>
+        | <a href="http://www.okfn.org/contact/">Contact Us</a>
+        | <a href="http://www.okfn.org/privacy-policy/">Privacy Policy</a>
+      </p>
+      <p>
+        <img style="margin-bottom: -5px;" src="http://m.okfn.org/images/logo/okf_logo_white_and_green_tiny.png" /> An <a href="http://www.okfn.org/">Open Knowledge Foundation</a> Project
+      </p>
+      <p>
+        v${c.__version__}
+        | (c) Open Knowledge Foundation
+	| All material available under an <a href="${h.url_for('license')}">open license</a>
+        | <a href="http://www.opendefinition.org/1.0/"><img
+            style="border: none; margin-bottom: -4px;"
+            src="http://m.okfn.org/images/ok_buttons/ok_90x15_blue.png"
+            alt="This Content and Data is Open" /></a>
+        | <a href="http://www.opendefinition.org/1.0/"><img
+            style="border: none; margin-bottom: -4px;"
+            src="http://m.okfn.org/images/ok_buttons/od_80x15_blue.png"
+            alt="This Content and Data is Open" /></a>
+      </p>
+    </div><!-- /footer -->
+
+    <!--[if IE]>
+    <hr class="main" />
+    <![endif]-->
+
+  </div><!-- /main -->
+
+</div><!-- /airlock -->
+
+<!--! No need to load GA in development -->
+<py:if test="not config['debug']">
+  <!-- Google Analytics -->
+  <script src='http://www.google-analytics.com/ga.js' type='text/javascript'></script>
+  <script type="text/javascript">
+  try {
+  var pageTracker = _gat._getTracker("UA-8271754-2");
+  pageTracker._setDomainName(".ckan.net");
+  pageTracker._trackPageview();
+  } catch(err) {}
+  </script>
+  <!-- /Google Analytics -->
+</py:if>
+
+</body>
+</html>

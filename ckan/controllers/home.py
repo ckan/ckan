@@ -31,13 +31,13 @@ class HomeController(BaseController):
         # 3600=hourly, 86400=daily
         c.tag_counts = mycache.get_value(key='tag_counts_home_page',
                 createfunc=tag_counts, expiretime=86400)
-        return render('home/index')
+        return render('home/index.html')
 
     def license(self):
-        return render('home/license')
+        return render('home/license.html')
 
     def about(self):
-        return render('home/about')
+        return render('home/about.html')
 
     def stats(self):
         def stats_html():
@@ -50,7 +50,7 @@ class HomeController(BaseController):
             c.top_package_owners = stats.top_package_owners()
             c.new_packages_by_week = rev_stats.get_by_week('new_packages')
             c.package_revisions_by_week = rev_stats.get_by_week('package_revisions')
-            return render('home/stats')
+            return render('home/stats.html')
         if not c.user:
             mycache = cache.get_cache('stats', type='dbm')
             # 3600=hourly, 86400=daily
