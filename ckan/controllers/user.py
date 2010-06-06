@@ -8,12 +8,12 @@ def login_form():
 
 class UserController(BaseController):
 
-    def index(self, id):
-        if not c.user or c.user != id:
+    def index(self, id=None):
+        if not c.user:
             h.redirect_to(controller='user', action='login', id=None)
         return self.read()
 
-    def read(self, id):
+    def read(self, id=None):
         if id:
             user = model.Session.query(model.User).get(id)
         else:
