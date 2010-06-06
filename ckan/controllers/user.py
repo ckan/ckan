@@ -4,16 +4,16 @@ import ckan.misc
 from ckan.lib.base import *
 
 def login_form():
-    return render('user/login_form').replace('FORM_ACTION', '%s')
+    return render('user/login_form.html').replace('FORM_ACTION', '%s')
 
 class UserController(BaseController):
 
-    def index(self, id):
-        if not c.user or c.user != id:
+    def index(self, id=None):
+        if not c.user:
             h.redirect_to(controller='user', action='login', id=None)
         return self.read()
 
-    def read(self, id):
+    def read(self, id=None):
         if id:
             user = model.Session.query(model.User).get(id)
         else:
@@ -27,7 +27,7 @@ class UserController(BaseController):
         c.num_edits = revisions_q.count()
         c.num_pkg_admin = model.Session.query(model.PackageRole).filter_by(user=user, role=model.Role.ADMIN).count()
         c.activity = revisions_q.limit(20).all()
-        return render('user/read')
+        return render('user/read.html')
 
     def login(self):
         if c.user:
@@ -38,14 +38,14 @@ class UserController(BaseController):
                 model.Session.commit()
             h.redirect_to(controller='user', action=None, id=None)
         else:
-            form = render('user/openid_form')
+            form = render('user/openid_form.html')
             # /login_openid page need not exist -- request gets intercepted by openid plugin
             form = form.replace('FORM_ACTION', '/login_openid')
             return form
 
     def logout(self):
         c.user = None
-        return render('user/logout')
+        return render('user/logout.html')
 
     def apikey(self):
         # logged in
@@ -54,7 +54,7 @@ class UserController(BaseController):
         else:
             user = model.User.by_name(c.user)
             c.api_key = user.apikey
-        return render('user/apikey')
+        return render('user/apikey.html')
 
     def edit(self):
         # logged in
@@ -81,7 +81,7 @@ class UserController(BaseController):
                 model.Session.commit()
             h.redirect_to(controller='user', action='read', id=user.id)
             
-        return render('user/edit')
+        return render('user/edit.html')
         
     def _format_about(self, about):
         about_formatted = ckan.misc.MarkdownFormat().to_html(about)

@@ -55,7 +55,6 @@ class TestForms(PylonsTestCase):
         anna = model.Package.by_name(u'annakarenina')
         fs = fs.bind(anna)
         out = fs.notes.render()
-        print out
 
     def test_2_name(self):
         fs = ckan.forms.get_standard_fieldset()
@@ -79,8 +78,6 @@ class TestForms(PylonsTestCase):
         anna = model.Package.by_name(u'annakarenina')
         fs = fs.bind(anna)
         out = fs.resources.render()
-        # out is str, but it contains unicode characters
-        out = unicode(out, 'utf8') # now it's unicode type
         out_printable = out.encode('utf8') # encoded utf8
         for res in anna.resources:
             assert escape(res.url) in out, out_printable

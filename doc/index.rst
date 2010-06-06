@@ -22,7 +22,10 @@ Contents:
    getdata
    package_forms
    model
+   authentication
+   authorization
    load_testing
+   distributed
 
 
 Other material

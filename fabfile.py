@@ -10,6 +10,12 @@ Deploy a new CKAN instance called new.ckan.net on new.ckan.net::
     # see fab -d config_0 for more info
     fab config_0:new.ckan.net,db_pass={your-db-pass} deploy
 
+Note, a database is created with this password if it does not already exist.
+
+Deploy new.ckan.net but the DNS is not setup yet::
+
+    fab config_0:new.ckan.net,hosts_str=132.23.4.15,db_pass={your-db-pass} deploy
+
 Deploy to a local directory::
 
     fab local:~/test,test deploy
@@ -17,6 +23,7 @@ Deploy to a local directory::
 '''
 from __future__ import with_statement
 import os
+import sys
 import datetime
 import urllib2
 import subprocess
@@ -29,7 +36,7 @@ from fabric.contrib.files import *
 env.ckan_instance_name = 'test' # e.g. test.ckan.net
 env.base_dir = os.getcwd() # e.g. /home/jsmith/var/srvc
 env.local_backup_dir = os.path.expanduser('~/db_backup')
-env.ckan_repo = 'http://knowledgeforge.net/ckan/hg/raw-file/tip/'
+env.ckan_repo = 'http://knowledgeforge.net/ckan/hg/raw-file/default/'
 env.pip_requirements = 'pip-requirements.txt'
 env.skip_setup_db = False
 
@@ -65,21 +72,25 @@ def config_test_hmg_ckan_net():
     env.ckan_instance_name = 'test.hmg.ckan.net'
     env.hosts = ['ssh.' + env.ckan_instance_name]
 
-def config_hmg_ckan_net_1():
-    env.user = 'ckan1'
+def config_hmg_ckan_net_1(db_pass=None):
+    env.user = 'okfn'
     env.base_dir = '/home/%s' % env.user
-    env.cmd_pyenv = os.path.join(env.base_dir, 'ourenv')
-    env.no_sudo = None
-    env.ckan_instance_name = 'hmg.ckan.net'
-    env.hosts = ['ssh.hmg.ckan.net']
-    env.wsgi_script_filepath = None # os.path.join(env.base_dir, 'hmg.ckan.net/pyenv/bin/pylonsapp_modwsgi.py')
-    env.pip_requirements = 'pip-requirements-stable.txt'
-
-def config_hmg_ckan_net_2():
-    config_hmg_ckan_net_1()
-    env.ckan_instance_name = 'hmg.ckan.net.2'
-    env.hosts = ['ssh.hmg.ckan.net']
+    env.hosts = ['hmg2.ckan.net']
+    env.wsgi_script_filepath = os.path.join(env.base_dir, 'pylonsapp_modwsgi.py')
+    env.pip_requirements = 'pip-requirements.txt'
+    env.db_pass = db_pass
+    env.ckan_instance_name = 'hmg.ckan.net.1'
     env.config_ini_filename = 'hmg.ckan.net.ini'
+
+def config_hmg_ckan_net_2(db_pass=None):
+    config_hmg_ckan_net_1(db_pass)
+    env.ckan_instance_name = 'hmg.ckan.net.2'
+
+def config_hmg_ckan_net():
+    # i.e. whichever instance is current
+    config_hmg_ckan_net_1()
+    env.ckan_instance_name = 'hmg.ckan.net.current'
+    env.switch_between_ckan_instances = ['hmg.ckan.net.1', 'hmg.ckan.net.2']
 
 def config_test_ckan_net():
     config_0('test.ckan.net', requirements='pip-requirements.txt')
@@ -206,7 +217,7 @@ def setup_db(db_details=None):
         * Also creates db user if relevant user does not exist.
 
     @param db_details: dictionary with values like db_user, db_name. If not
-        provided load if from ckan config using _get_db_config()
+        provided load from existing pylons config using _get_db_config()
     '''
     if not db_details:
         db_details = _get_db_config()
@@ -338,6 +349,34 @@ def sysadmin_create(open_id):
     with cd(env.instance_path):
         _run_in_pyenv('paster --plugin ckan sysadmin create %s --config %s' % (open_id, env.config_ini_filename))
 
+def switch_instance():
+    '''For dual instance servers, switches the one that is active.'''
+    _setup()
+    if not env.has_key('switch_between_ckan_instances'):
+        print 'CKAN instance "%s" is not switchable.' % env.ckan_instance_name
+        sys.exit(1)
+    # check existing symbolic link
+    if exists(env.ckan_instance_name):
+        output = run('ls %s -l' % env.ckan_instance_name)
+        ignore, current_instance = output.split(' -> ')
+        assert current_instance in env.switch_between_ckan_instances, \
+            'Instance "%s" not in list of switchable instances.' \
+            % current_instance
+        next_instance_index = (env.switch_between_ckan_instances.index(current_instance) + 1) % len(env.switch_between_ckan_instances)
+        # delete existing symbolic link
+        run('rm %s' % env.ckan_instance_name)
+    else:
+        next_instance_index = 0
+    next_instance = env.switch_between_ckan_instances[next_instance_index]
+    run('ln -s %s %s' % (next_instance, env.ckan_instance_name))
+    # restart apache
+    restart_apache()
+
+def log(cmd='tail', filename='error'):
+    '''Displays the log.
+    @filename error or custom'''
+    #todo make this more flexible
+    run('%s /var/log/apache2/ckan.net.%s.log' % (cmd, filename))
 
 ## ===================================
 #  Helper Methods

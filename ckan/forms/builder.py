@@ -1,5 +1,5 @@
 import formalchemy
-from pylons.templating import render
+from pylons.templating import render_genshi as render
 from pylons import c
 
 from ckan import model
@@ -31,7 +31,7 @@ class FormBuilder(object):
         self.added_fields = []
         self.options = self.fs._fields # {field_name:fs.field}
         self.includes = None
-        self.set_form_template('package/form')
+        self.set_form_template('package/form.html')
 
     def add_field(self, field):
         if isinstance(field, common.ConfiguredField):

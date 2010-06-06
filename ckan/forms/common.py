@@ -3,7 +3,7 @@ import re
 from formalchemy import helpers as fa_h
 import formalchemy
 import genshi
-from pylons.templating import render
+from pylons.templating import render_genshi as render
 from pylons import c
 from pylons.i18n import _, ungettext, N_, gettext
 
@@ -314,7 +314,7 @@ class ResourcesField(ConfiguredField):
             c.resources = c.resources[:]
             c.resources.extend([None])
             c.id = self.name
-            return render('package/form_resources')            
+            return render('package/form_resources.html')            
 
         def stringify_value(self, v):
             # actually returns dict here for _value
@@ -507,7 +507,7 @@ class ExtrasField(ConfiguredField):
                 field_values.append({
                     'name':'%s-newfield%s' % (self.name, i)})
             c.fields = field_values
-            html = render('package/form_extra_fields')
+            html = render('package/form_extra_fields.html')
             return h.literal(html)
 
         def render_readonly(self, **kwargs):

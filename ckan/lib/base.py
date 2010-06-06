@@ -1,7 +1,6 @@
 """The base Controller API
 
-Provides the BaseController class for subclassing, and other objects
-utilized by Controllers.
+Provides the BaseController class for subclassing.
 """
 import logging
 
@@ -10,7 +9,7 @@ from pylons.controllers import WSGIController
 from pylons.controllers.util import abort, etag_cache, redirect_to, redirect
 from pylons.decorators import jsonify, validate
 from pylons.i18n import _, ungettext, N_, gettext
-from pylons.templating import render
+from pylons.templating import render_genshi as render
 
 import ckan
 import ckan.lib.helpers as h

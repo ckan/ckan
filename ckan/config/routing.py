@@ -12,10 +12,12 @@ def make_map():
     """Create, configure and return the routes Mapper"""
     map = Mapper(directory=config['pylons.paths']['controllers'],
                  always_scan=config['debug'])
+    map.minimization = False
 
     # The ErrorController route (handles 404/500 error pages); it should
     # likely stay at the top, ensuring it can always be resolved
-    map.connect('/error/:action/:id', controller='error')
+    map.connect('/error/{action}', controller='error')
+    map.connect('/error/{action}/{id}', controller='error')
 
     # CUSTOM ROUTES HERE
     map.connect('home', '/', controller='home', action='index')
@@ -24,6 +26,7 @@ def make_map():
     map.connect('about', '/about', controller='home', action='about')
     map.connect('stats', '/stats', controller='home', action='stats')
     maps.admin_map(map, controller='admin', url='/admin')
+    # CKAN API.
     map.connect('/api/search/:register', controller='rest', action='search')
     map.connect('/api/tag_counts', controller='rest', action='tag_counts')
     map.connect('/api', controller='rest', action='index')
@@ -55,6 +58,71 @@ def make_map():
     map.connect('/api/rest/:register/:id/:subregister/:id2',
         controller='rest', action='delete',
         conditions=dict(method=['DELETE']))
+    # CKAN API v1.
+    map.connect('/api/1/search/:register', controller='rest', action='search')
+    map.connect('/api/1/tag_counts', controller='rest', action='tag_counts')
+    map.connect('/api/1', controller='rest', action='index')
+    map.connect('/api/1/rest', controller='rest', action='index')
+    map.connect('/api/1/rest/:register', controller='rest', action='list',
+        conditions=dict(method=['GET']))
+    map.connect('/api/1/rest/:register', controller='rest', action='create',
+        conditions=dict(method=['POST']))
+    map.connect('/api/1/rest/:register/:id', controller='rest', action='show',
+        conditions=dict(method=['GET']))
+    map.connect('/api/1/rest/:register/:id', controller='rest', action='update',
+        conditions=dict(method=['PUT']))
+    map.connect('/api/1/rest/:register/:id', controller='rest', action='update',
+        conditions=dict(method=['POST']))
+    map.connect('/api/1/rest/:register/:id', controller='rest', action='delete',
+        conditions=dict(method=['DELETE']))
+    map.connect('/api/1/rest/:register/:id/:subregister',
+        controller='rest', action='list',
+        conditions=dict(method=['GET']))
+    map.connect('/api/1/rest/:register/:id/:subregister/:id2',
+        controller='rest', action='create',
+        conditions=dict(method=['POST']))
+    map.connect('/api/1/rest/:register/:id/:subregister/:id2',
+        controller='rest', action='show',
+        conditions=dict(method=['GET']))
+    map.connect('/api/1/rest/:register/:id/:subregister/:id2',
+        controller='rest', action='update',
+        conditions=dict(method=['PUT']))
+    map.connect('/api/1/rest/:register/:id/:subregister/:id2',
+        controller='rest', action='delete',
+        conditions=dict(method=['DELETE']))
+
+    # CKAN API v2.
+    map.connect('/api/2/search/:register', controller='rest2', action='search')
+    map.connect('/api/2/tag_counts', controller='rest2', action='tag_counts')
+    map.connect('/api/2', controller='rest2', action='index')
+    map.connect('/api/2/rest', controller='rest2', action='index')
+    map.connect('/api/2/rest/:register', controller='rest2', action='list',
+        conditions=dict(method=['GET']))
+    map.connect('/api/2/rest/:register', controller='rest2', action='create',
+        conditions=dict(method=['POST']))
+    map.connect('/api/2/rest/:register/:id', controller='rest2', action='show',
+        conditions=dict(method=['GET']))
+    map.connect('/api/2/rest/:register/:id', controller='rest2', action='update',
+        conditions=dict(method=['PUT']))
+    map.connect('/api/2/rest/:register/:id', controller='rest2', action='update',
+        conditions=dict(method=['POST']))
+    map.connect('/api/2/rest/:register/:id', controller='rest2', action='delete',
+        conditions=dict(method=['DELETE']))
+    map.connect('/api/2/rest/:register/:id/:subregister',
+        controller='rest2', action='list',
+        conditions=dict(method=['GET']))
+    map.connect('/api/2/rest/:register/:id/:subregister/:id2',
+        controller='rest2', action='create',
+        conditions=dict(method=['POST']))
+    map.connect('/api/2/rest/:register/:id/:subregister/:id2',
+        controller='rest2', action='show',
+        conditions=dict(method=['GET']))
+    map.connect('/api/2/rest/:register/:id/:subregister/:id2',
+        controller='rest2', action='update',
+        conditions=dict(method=['PUT']))
+    map.connect('/api/2/rest/:register/:id/:subregister/:id2',
+        controller='rest2', action='delete',
+        conditions=dict(method=['DELETE']))
 
     map.redirect("/packages", "/package")
     map.redirect("/packages/{url:.*}", "/package/{url}")
@@ -83,9 +151,11 @@ def make_map():
     map.connect('/user/logout', controller='user', action='logout')
     map.connect('/user/apikey', controller='user', action='apikey')
     map.connect('/user/:id', controller='user', action='read')
-    map.connect('/:controller/:action/:id')
-    map.connect('/:controller/', action='index')
-    map.connect('/:controller/:action/', id=None)
+    map.connect('/{controller}', action='index')
+    map.connect('/:controller/{action}')
+    map.connect('/{controller}/{action}/{id}')
+    map.redirect('/*(url)/', '/{url}',
+                 _redirect_code='301 Moved Permanently')
     map.connect('/*url', controller='template', action='view')
 
     return map
