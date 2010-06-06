@@ -25,6 +25,8 @@ if print_those_not_in_group:
 
 pkgs_by_source = {}
 for pkg in q_packages:
+    if pkg.extras.get('national_statistic', None) == 'yes':
+        print pkg.extras.get('national_statistic'), pkg.extras.get('import_source', u'')
     if pkg.extras.has_key('import_source'):
         source = pkg.extras['import_source']
         if '-' in source:

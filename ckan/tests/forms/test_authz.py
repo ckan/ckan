@@ -17,7 +17,7 @@ class TestRender(object):
         model.repo.rebuild_db()
 
     def test_render_authorized(self):
-        fs = ckan.forms.package_authz_fs
+        fs = ckan.forms.get_authz_fieldset('package_authz_fs')
         anna = model.Package.by_name(u'annakarenina')
         assert len(anna.roles) == 3, [ (r.user, r.role) for r in anna.roles ]
         fs = fs.bind(anna.roles) # bind
@@ -126,7 +126,7 @@ class _TestSync:
         params = self._make_params(pkg.roles, after_roles)
         print 'PARAMS', params
         roles = pkg.roles
-        fs = ckan.forms.authz_fs.bind(roles, data=params)
+        fs = ckan.forms.get_authz_fieldset('authz_fs').bind(roles, data=params)
         fs.sync()
         model.repo.commit_and_remove()
 

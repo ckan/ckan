@@ -1,0 +1,102 @@
+CEP: 1
+Title: Package Identifiers, Renaming and Persistence
+Version: 2010-05-12
+Last-Modified: 2010-05-12
+Author: Rufus Pollock <rufus.pollock@okfn.org>
+Contributors: Sean Burlington, David Read, Evan King
+Status: Active
+Created: 2010-03-20
+
+
+Package Identifiers, Renaming and Persistence
+=============================================
+
+Packages have a name and an id attribute. The name attribute at the
+present aims to be:
+
+  * human readable and usable
+  * uri-usable (so restricted in characters it can contain)
+  * stable but not unchangeable
+  * not unique across instances
+
+Id attribute:
+
+  * globally unique (uuid like)
+  * uri-usable
+  * stable and permanent
+  * not that *human* (or search-engine) friendly
+
+Currently package names are widely used, and, furthermore are primary
+way of addressing packages in the API and WUI (web user interface).
+
+Because package names can change, the issue has arisen of how this can
+be handled in client applications, especially those using the package
+name as the entity reference or in some other prominent manner.
+
+Persistent Identifiers
+======================
+
+In addition there is the question of generating persistent identifiers
+(and urls), for example, referring to the package in RDF (and creating
+linked data). Here, it seems there is a clear requirment to create
+identifiers that are *permanent*, i.e. stable in perpetuity.
+
+Here there are two options:
+
+  * Use names in generation of these persistent identifiers. In this
+    case there is a requirement that names never change (or, more
+    weakly, that a) names never get re-used b) there is a suitable
+    redirect mechanism)
+  * Use ids to generate permanent urls
+
+Going for the first option would move package names away from
+debian-like or or wikipedia-like set up where "usurpation" [1]_, though
+rare, is permitted -- i.e. names are generally stable but not guaranteed
+forever.
+
+.. [1]_: http://en.wikipedia.org/wiki/Wikipedia:USURPTITLE#Usurping_a_page_title
+
+Our preference is for the second option as we believe some flexibility
+in naming is useful and that names and ids serve different purposes (see
+layout above).
+
+NB: since uuid urls are rather opaque they are not that attractive in
+the web user interface. Thus, there (and even REST API) it may be better
+to use "names" by default but provide ids for those who want absolute
+stability.
+
+
+Proposed Coure of Action
+========================
+
+Propose the following:
+
+  1. Continuing use of package *names* as *primary* method for addressing
+  packages in the web user interface, and API. Thus, for example in
+  locations where only a single identifier is returned (e.g. list of
+  packages, search) the package name will be provided. However, this does
+  not the address the requirements for permanent identifiers (and uris)
+  especially for linked data.
+
+  2. Provision of id package information in data returned by API in
+  relevant "GET" locations including:
+
+    * /api/rest/package/{xxx}
+    * /api/search/package/{xxx}
+    * /api/rest/revision
+
+    Note that provision of package id information in revision and package
+    api allow a client to know when package renames have occurred and
+    adapt/update accordingly.
+
+  3. Support for *accepting* package ids in API including GET/POST
+  locations
+
+
+Additional changes that could be made but propose not to do at the
+present time:
+
+  1. [optional] Provision of a simple method of obtaining name changes
+  (specifically). This could be via a special tag on revisions or a
+  dedicated API.
+

@@ -1,32 +1,7 @@
 from ckan.tests import *
 import ckan.model as model
 
-
-class TestLicense:
-    name = u'testlicense'
-
-    @classmethod
-    def teardown_class(self):
-        lic = model.License.by_name(self.name)
-        if lic:
-            lic.purge()
-        model.repo.commit_and_remove()
-
-    def test_license_names(self):
-        all = model.LicenseList.all_formatted
-        # make test lenient so do not break every time a license gets added
-        assert len(all) >= 72, len(all)
-        assert 'Other::License Not Specified' in all
-
-    def test_license(self):
-        license = model.License(name=self.name)
-        model.Session.save(license)
-        assert license in model.Session
-        model.Session.flush()
-        model.Session.clear()
-        exp = model.License.by_name(self.name)
-        assert exp.name == self.name
-
+# Todo: More domain logic tests e.g. for isopen() and other domain logic.
 
 class TestPackage:
     @classmethod
@@ -37,14 +12,11 @@ class TestPackage:
         for p in pkgs:
             p.purge()
         model.Session.commit()
-
         rev = model.repo.new_revision()
         self.pkg1 = model.Package(name=self.name)
-        model.Session.save(self.pkg1)
+        model.Session.add(self.pkg1)
         self.pkg1.notes = self.notes
-        self.license_name = u'OKD Compliant::Other'
-        license = model.License.by_name(self.license_name)
-        self.pkg1.license = license
+        self.pkg1.license_id = u'gpl-3.0'
         model.Session.commit()
         model.Session.remove()
 
@@ -56,10 +28,11 @@ class TestPackage:
         model.Session.remove()
 
     def test_create_package(self):
-        out = model.Package.by_name(self.name)
-        assert out.name == self.name
-        assert out.notes == self.notes
-        assert out.license.name == self.license_name
+        package = model.Package.by_name(self.name)
+        assert package.name == self.name
+        assert package.notes == self.notes
+        assert package.license.id == u'gpl-3.0'
+        assert package.license.title == u'OSI Approved::GNU General Public License version 3.0 (GPLv3)', package.license.title
 
     def test_update_package(self):
         newnotes = u'Written by Beethoven'
@@ -76,12 +49,20 @@ class TestPackage:
         assert len(outpkg.all_revisions) > 0
         assert outpkg.all_revisions[0].revision.author == author
 
+    def test_package_license(self):
+        # Check unregistered license_id causes license to be 'None'.
+        package = model.Package.by_name(self.name)
+        package.license_id = u'zzzzzzz'
+        assert package.license == None
+        model.Session.remove() # forget change
+
 
 class TestPackageWithTags:
     """
     WARNING: with sqlite these tests may fail (depending on the order they are
     run in) as sqlite does not support ForeignKeys properly.
     """
+    # Todo: Remove comment, since it pertains to sqlite, which CKAN doesn't support?
 
     @classmethod
     def setup_class(self):
@@ -128,7 +109,7 @@ class TestPackageWithTags:
         # TODO: go back to this
         # 2 default packages each with 2 tags so we have 2 + 4
         all = model.Session.query(model.Tag).all() 
-        assert len(all) == 3
+        assert len(all) == 3, all
 
     def test_add_tag_by_name(self):
         rev = model.repo.new_revision()
@@ -147,57 +128,6 @@ class TestPackageWithTags:
         assert len(pkg.tags) == 3
         pkg.add_tag_by_name(self.tagname)
         assert len(pkg.tags) == 3
-    
-
-class TestPackageWithLicense:
-
-    @classmethod
-    def setup_class(self):
-        self.licname1 = u'test_license1'
-        self.licname2 = u'test_license2'
-        self.license1 = model.License(name=self.licname1)
-        model.Session.save(self.license1)
-        self.license2 = model.License(name=self.licname2)
-        model.Session.save(self.license2)
-        rev = model.repo.new_revision()
-        self.pkgname = u'testpkgfk'
-        pkg = model.Package(name=self.pkgname)
-        model.Session.save(pkg)
-        pkg.license = self.license1
-        model.Session.commit()
-        self.rev1id = rev.id
-        model.Session.remove()
-
-        rev = model.repo.new_revision()
-        pkg = model.Package.by_name(self.pkgname)
-        pkg.license = self.license2
-        model.Session.commit()
-        self.rev2id = rev.id
-        model.Session.remove()
-
-    @classmethod
-    def teardown_class(self):
-        model.Session.clear()
-        pkg = model.Package.by_name(self.pkgname)
-        pkg.purge()
-        lic1 = model.License.by_name(self.licname1)
-        lic2 = model.License.by_name(self.licname2)
-        lic1.purge()
-        lic2.purge()
-        model.Session.commit()
- 
-    def test_set1(self):
-        rev = model.Session.query(model.Revision).get(self.rev1id)
-        pkg = model.Package.by_name(self.pkgname)
-        pkgrev = pkg.get_as_of(rev)
-        out = pkgrev.license.name 
-        assert out == self.licname1
-
-    def test_set2(self):
-        pkg = model.Package.by_name(self.pkgname)
-        out = pkg.license.name 
-        assert out == self.licname2
-
 
 
 class TestPackageTagSearch:
@@ -268,7 +198,7 @@ class TestPackageRevisions:
         self.notes = [u'Written by Puccini', u'Written by Rossini', u'Not written at all', u'Written again', u'Written off']
         rev = model.repo.new_revision()
         self.pkg1 = model.Package(name=self.name)
-        model.Session.save(self.pkg1)
+        model.Session.add(self.pkg1)
         self.pkg1.notes = self.notes[0]
         model.repo.commit_and_remove()
 
@@ -296,3 +226,106 @@ class TestPackageRevisions:
             assert rev.notes == self.notes[num_notes - i - 1], '%s != %s' % (rev.notes, self.notes[i])
 
 
+class TestRelatedRevisions:
+    @classmethod
+    def setup_class(self):
+        model.Session.remove()
+        self.name = u'difftest'
+
+        # create pkg - PackageRevision
+        rev = model.repo.new_revision()
+        self.pkg1 = model.Package(name=self.name)
+        model.Session.add(self.pkg1)
+        self.pkg1.version = u'First version'
+        model.repo.commit_and_remove()
+
+        # edit pkg - PackageRevision
+        rev = model.repo.new_revision()
+        pkg1 = model.Package.by_name(self.name)
+        pkg1.notes = u'New notes'
+        rev.message = u'Added notes'
+        model.repo.commit_and_remove()
+
+        # edit pkg - PackageExtraRevision
+        rev = model.repo.new_revision()
+        pkg1 = model.Package.by_name(self.name)
+        pkg1.extras = {u'a':u'b', u'c':u'd'}
+        rev.message = u'Added extras'
+        model.repo.commit_and_remove()
+
+        # edit pkg - PackageTagRevision
+        rev = model.repo.new_revision()
+        pkg1 = model.Package.by_name(self.name)
+        pkg1.add_tag_by_name(u'geo')
+        pkg1.add_tag_by_name(u'scientific')
+        rev.message = u'Added tags'
+        model.repo.commit_and_remove()
+
+        # edit pkg - PackageResourceRevision
+        rev = model.repo.new_revision()
+        pkg1 = model.Package.by_name(self.name)
+        pkg1.resources.append(model.PackageResource(url=u'http://url1.com',
+                                                    format=u'xls',
+                                                    description=u'It is.',
+                                                    hash=u'abc123'))
+        rev.message = u'Added resource'
+        model.repo.commit_and_remove()
+
+        # edit pkg - PackageResourceRevision
+        rev = model.repo.new_revision()
+        pkg1 = model.Package.by_name(self.name)
+        pkg1.resources[0].url = u'http://url1.com/edited'
+        pkg1.resources.append(model.PackageResource(url=u'http://url2.com'))
+        rev.message = u'Added resource'
+        model.repo.commit_and_remove()
+
+        # edit pkg - PackageRevision
+        rev = model.repo.new_revision()
+        pkg1 = model.Package.by_name(self.name)
+        pkg1.notes = u'Changed notes'
+        rev.message = u'Changed notes'
+        model.repo.commit_and_remove()
+
+        self.pkg1 = model.Package.by_name(self.name)
+        self.res1 = model.Session.query(model.PackageResource).filter_by(url=u'http://url1.com/edited').one()
+        self.res2 = model.Session.query(model.PackageResource).filter_by(url=u'http://url2.com').one()
+        assert self.pkg1
+
+    @classmethod
+    def teardown_class(self):
+        rev = model.repo.new_revision()
+        pkg1 = model.Package.by_name(self.name)
+        pkg1.purge()
+        model.repo.commit_and_remove()
+
+    def test_1_all_revisions(self):
+        assert len(self.pkg1.all_revisions) == 3, self.pkg1.all_revisions
+        assert len(self.pkg1.all_related_revisions) == 7, self.pkg1.all_related_revisions        
+
+    def test_2_diff(self):
+        rev_q = model.repo.history()
+        rev_q = rev_q.order_by(model.Revision.timestamp.desc())
+        last_rev = rev_q.first()
+        first_rev = rev_q.all()[-1]
+        second_rev = rev_q.all()[-2]
+        diff = self.pkg1.diff(last_rev, second_rev)
+        assert diff['notes'] == '- None\n+ Changed notes', diff['notes']
+        assert diff.get('PackageTag-geo-state') == u'- \n+ active', diff
+        assert diff.get('PackageTag-scientific-state') == u'- \n+ active', diff
+        assert diff.get('PackageExtra-a-value') == u'- \n+ b', diff
+        assert diff.get('PackageExtra-a-state') == u'- \n+ active', diff
+        assert diff.get('PackageExtra-c-value') == u'- \n+ d', diff
+        assert diff.get('PackageExtra-c-state') == u'- \n+ active', diff
+        def test_res(diff, res, field, expected_value):
+            key = 'PackageResource-%s-%s' % (res.id[:4], field)
+            got_value = diff.get(key)
+            expected_value = u'- \n+ %s' % expected_value
+            assert got_value == expected_value, 'Key: %s Got: %r Expected: %r' % (key, got_value, expected_value)
+        print diff
+        test_res(diff, self.res1, 'url', 'http://url1.com/edited')
+        test_res(diff, self.res1, 'position', '0')
+        test_res(diff, self.res1, 'format', 'xls')
+        test_res(diff, self.res1, 'description', 'It is.')
+        test_res(diff, self.res1, 'hash', 'abc123')
+        test_res(diff, self.res1, 'state', 'active')
+        test_res(diff, self.res2, 'url', 'http://url2.com')

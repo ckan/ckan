@@ -1,0 +1,117 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <py:def function="page_title">Stats</py:def>
+
+  <py:def function="optional_head">
+    <!--[if IE]><script language="javascript" type="text/javascript" src="/scripts/flot-0.5/excanvas.pack.js"></script><![endif]-->
+    <script type="text/javascript" src="http://m.okfn.org/ext/flot-0.6/jquery.flot.js">//pointless jscript comment</script>
+  </py:def>
+
+  <div py:match="content">
+    <h1>Statistics</h1>
+  
+    <h3>Total number of packages</h3>
+    <div id="new_packages_graph" style="width:800px;height:300px"></div>
+    <script type="text/javascript">
+      var options = {
+          xaxis: {
+          mode: "time",
+          timeformat: "%y-%b"
+          }
+      };
+      var data = [
+        [ 
+        <py:for each="week_date, pkgs, num_packages, cumulative_num_packages in c.new_packages_by_week">
+          [ new Date(${week_date.replace('-', ',')}), ${cumulative_num_packages} ],
+        </py:for>
+        ]
+      ];
+      $.plot($("#new_packages_graph"), data, options);
+    </script>
+    
+    <h3>Revisions to packages per week</h3>
+    <div id="package_revisions_graph" style="width:800px;height:300px"></div>
+    <script type="text/javascript">
+      var options = {
+          xaxis: {
+          mode: "time",
+          timeformat: "%y-%b"
+          },
+          legend: {
+          position: "nw",
+          },
+          colors: ["#ffcc33", "#ff8844"]
+      };
+      var data = [
+        {label: "All package revisions",
+          lines: {
+            fill: 1,
+            },
+        data: [ 
+        <py:for each="week_date, revs, num_revisions, cumulative_num_revisions in c.package_revisions_by_week">
+          [ new Date(${week_date.replace('-', ',')}), ${num_revisions} ],
+        </py:for>
+        ]},
+        {label: "New packages",
+          lines: {
+            fill: 1,
+            },
+        data: [ 
+        <py:for each="week_date, pkgs, num_packages, cumulative_num_packages in c.new_packages_by_week">
+          [ new Date(${week_date.replace('-', ',')}), ${num_packages} ],
+        </py:for>
+        ]},
+      ];
+      $.plot($("#package_revisions_graph"), data, options);
+    </script>
+        
+    <h3>Top Rated Packages</h3>
+    <table>
+      <tr><th>Package</th><th>Average rating</th><th>Number of ratings</th></tr>
+      <tr py:for="package, rating, num_ratings in c.top_rated_packages">
+        <td>${h.link_to(package.title or package.name, h.url_for(controller='package', action='read', id=package.name))}</td><td>${rating}</td><td>${num_ratings}</td>
+      </tr>
+    </table>
+
+    <h3>Most Edited Packages</h3>
+    <table>
+      <tr><th>Package</th><th>Number of edits</th></tr>
+      <tr py:for="package, edits in c.most_edited_packages">
+        <td>${h.link_to(package.title or package.name, h.url_for(controller='package', action='read', id=package.name))}</td><td>${edits}</td>
+      </tr>
+    </table>
+
+    <h3>Largest Groups</h3>
+    <table>
+      <tr><th>Group</th><th>Number of packages</th></tr>
+      <tr py:for="group, num_packages in c.largest_groups">
+        <td>${h.link_to(group.title or group.name, h.url_for(controller='group', action='read', id=group.name))}</td><td>${num_packages}</td>
+      </tr>
+    </table>
+
+    <h3>Top Tags</h3>
+    <table>
+      <tr py:for="tag, num_packages in c.top_tags">
+        <td>${h.link_to(tag.name, h.url_for(controller='tag', action='read', id=tag.name))}</td><td>${num_packages}</td>
+      </tr>
+    </table>
+  
+    <h3>Users owning most packages</h3>
+    <table>
+      <tr py:for="user, num_packages in c.top_package_owners">
+        <td>${user.name}</td><td>${num_packages}</td>
+      </tr>
+    </table>
+
+    <p>
+      Page last updated:
+       <?python 
+          import datetime
+       ?>
+      ${datetime.datetime.now().strftime('%c')}
+    </p>
+  </div>
+
+  <xi:include href="layout.html" />
+</html>

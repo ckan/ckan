@@ -54,7 +54,6 @@ class Dumper(object):
     '''Dumps the database in same structure as it appears in the database'''
     model_classes = [
 #        ckan.model.State,
-        ckan.model.License,
         ckan.model.Revision,
         ckan.model.Package,
         ckan.model.Tag,

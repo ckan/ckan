@@ -32,14 +32,6 @@ class _TestImporter(TestController):
         res = self.app.get(offset)
         assert 'Importer' in res, res
 
-        res = res.click('Import documentation')
-        assert 'Package Importer - Documentation' in res, res
-
-    def test_0_docs(self):
-        offset = url_for(controller='importer', action='doc')
-        res = self.app.get(offset)
-        assert 'Package Importer - Documentation' in res, res
-
     def test_1_not_logged_in(self):
         res = self._submit_file(EXAMPLE_TESTFILE_FILEPATH + XL_EXTENSION, username=None, status=302)
 
@@ -56,8 +48,8 @@ class _TestImporter(TestController):
         res_ = self._strip_res(res)
         assert 'Import Preview' in res, res_
         assert '2 packages read' in res, res_
-        assert 'name: wikipedia' in res_, res_
-        assert 'name: tviv' in res_, res_
+        assert 'wikipedia' in res_, res_
+        assert 'tviv' in res_, res_
         res = self._import(res, 'test', status=200)
         assert 'Imported 2 packages' in res, self.main_div(res)
 

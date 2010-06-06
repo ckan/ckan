@@ -1,0 +1,17 @@
+<table xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      class="flexitable">
+
+          <thead> 
+            <tr><th>URL</th><th>Format</th><th>Description</th><th>Hash</th></tr> 
+          </thead> 
+          <tbody> 
+            <tr py:for="i, res in enumerate(c.resources)"> 
+              <td><input name="${c.id}-${i}-url" type="url" value="${res['url'] if res else ''}" /></td> 
+              <td><input name="${c.id}-${i}-format" type="text" class="short" value="${res['format'] if res else ''}" /></td> 
+              <td><input name="${c.id}-${i}-description" type="text" class="medium-width" value="${res['description'] if res else ''}" /></td> 
+              <td><input name="${c.id}-${i}-hash" type="text" class="short" value="${res['hash'] if res else ''}" /></td> 
+              <td><input name="${c.id}-${i}-id" type="hidden" value="${res.get('id', '') if res else ''}" /></td> 
+            </tr>
+          </tbody>
+</table>

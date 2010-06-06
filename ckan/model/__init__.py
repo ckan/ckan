@@ -1,50 +1,57 @@
+import meta
 from core import *
 from user import user_table, User
 from group import group_table, Group, PackageGroup
 from full_search import package_search_table
 from authz import *
-from extras import PackageExtra, package_extra_table, PackageExtraRevision
-from resource import PackageResource, package_resource_table
+from extras import *
+from resource import *
 from rating import *
-from licenses import LicenseList
-license_names = LicenseList.all_formatted
+from package_relationship import PackageRelationship
+from changeset import Changeset, Change, Changemask
 
 import ckan.migration
 
-# sqlalchemy migrate version table
-import sqlalchemy.exceptions
-try:
-    version_table = Table('migrate_version', metadata, autoload=True)
-except sqlalchemy.exceptions.NoSuchTableError:
-    pass
+# set up in init_model after metadata is bound
+version_table = None
+
+def init_model(engine):
+    '''Call me before using any of the tables or classes in the model'''
+    meta.Session.configure(bind=engine)
+    meta.engine = engine
+    meta.metadata.bind = engine
+    # sqlalchemy migrate version table
+    import sqlalchemy.exceptions
+    try:
+        version_table = Table('migrate_version', metadata, autoload=True)
+    except sqlalchemy.exceptions.NoSuchTableError:
+        pass
+
+
 
 class Repository(vdm.sqlalchemy.Repository):
     migrate_repository = ckan.migration.__path__[0]
 
     def init_db(self):
         super(Repository, self).init_db()
-        for name in license_names:
-            if not License.by_name(name):
-                l = License(name=name)
-                Session.save(l)
         # assume if this exists everything else does too
         if not User.by_name(PSEUDO_USER__VISITOR):
             visitor = User(name=PSEUDO_USER__VISITOR)
             logged_in = User(name=PSEUDO_USER__LOGGED_IN)
-            Session.save(visitor)
-            Session.save(logged_in)
+            Session.add(visitor)
+            Session.add(logged_in)
             # setup all role-actions
             # context is blank as not currently used
             # Note that Role.ADMIN can already do anything - hardcoded in.
             for role, action in default_role_actions:
                 ra = RoleAction(role=role, context=u'',
                         action=action,)
-                Session.save(ra)
+                Session.add(ra)
         if Session.query(Revision).count() == 0:
             rev = Revision()
             rev.author = 'system'
             rev.message = u'Initialising the Repository'
-            Session.save(rev)
+            Session.add(rev)
         self.commit_and_remove()   
 
     def create_db(self):
@@ -84,23 +91,20 @@ class Repository(vdm.sqlalchemy.Repository):
 
 
 repo = Repository(metadata, Session,
-        versioned_objects=[Package, PackageTag, PackageResource]
+        versioned_objects=[Package, PackageTag, PackageResource, PackageExtra]
         )
 
 
 # Fix up Revision with project-specific attributes
 def _get_packages(self):
     changes = repo.list_changes(self)
-    pkgrevs = changes[Package]
-    pkgtagrevs = changes[PackageTag]
-    pkgresourcerevs = changes[PackageResource]
-    pkgs  = [ p.continuity for p in pkgrevs ]
-    pkgs += [ pkgtagrev.continuity.package for pkgtagrev in pkgtagrevs ]
-    pkgs += [ pkgresourcerev.continuity.package for pkgresourcerev in
-            pkgresourcerevs]
-    # remove duplicates
-    pkgs = list(set(pkgs))
-    return pkgs
+    pkgs = set()
+    for pkg_rev in changes.pop(Package):
+        pkgs.add(pkg_rev.continuity)
+    for non_pkg_rev_list in changes.values():
+        for non_pkg_rev in non_pkg_rev_list:
+            pkgs.add(non_pkg_rev.continuity.package)
+    return list(pkgs)
 
 # could set this up directly on the mapper?
 def _get_revision_user(self):
@@ -110,4 +114,11 @@ def _get_revision_user(self):
 
 Revision.packages = property(_get_packages)
 Revision.user = property(_get_revision_user)
+
+def strptimestamp(s):
+    import datetime, re
+    return datetime.datetime(*map(int, re.split('[^\d]', s)))
+
+def strftimestamp(t):
+    return t.isoformat()
 

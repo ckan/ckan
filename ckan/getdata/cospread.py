@@ -6,6 +6,7 @@ import sqlalchemy
 
 import ckan.model as model
 from ckan.lib import schema_gov
+from ckan.lib import field_types
 
 class Data(object):
     def load_csv_into_db(self, csv_filepath):
@@ -157,17 +158,17 @@ class Data(object):
                            _dict['%s - standard' % field] == 'Other (specify)' else \
                            _dict['%s - standard' % field]
 
-        license_name = license_map.get(_dict['licence'].strip(), '')
-        if not license_name and ';' in _dict['licence']:
+        license_id = license_map.get(_dict['licence'].strip(), '')
+        if not license_id and ';' in _dict['licence']:
             license_parts = _dict['licence'].split(';')
             for i, license_part in enumerate(license_parts):
-                license_name = license_map.get(license_part.strip(), '')
-                if license_name:
+                license_id = license_map.get(license_part.strip(), '')
+                if license_id:
                     notes += '\n\nLicence detail: %s' % _dict['licence']
                     break
-        if not license_name:
-            license_name = license_map[u'UK Crown Copyright with data.gov.uk rights']
-            print 'Warning: license not recognised: "%s". Defaulting to: %s.' % (_dict['licence'], license_name)
+        if not license_id:
+            license_id = license_map[u'UK Crown Copyright with data.gov.uk rights']
+            print 'Warning: license not recognised: "%s". Defaulting to: %s.' % (_dict['licence'], license_id)
 
         # extras
         extras_dict = {}
@@ -183,8 +184,8 @@ class Data(object):
         
         for column in ['date released', 'date updated']:
             try:
-                val = schema_gov.DateType.form_to_db(_dict[column])
-            except schema_gov.DateConvertError, e:
+                val = field_types.DateType.form_to_db(_dict[column])
+            except field_types.DateConvertError, e:
                 print "WARNING: Value for column '%s' of '%s' is not understood as a date format." % (column, _dict[column])
                 val = _dict[column]
             extras_dict[column.replace(' ', '_')] = val
@@ -230,8 +231,6 @@ class Data(object):
         
         extras_dict['national_statistic'] = u'' # Ignored: _dict['national statistic'].lower()
         extras_dict['import_source'] = 'COSPREAD-%s' % self._current_filename
-
-
         for field in ['temporal_coverage_from', 'temporal_coverage_to']:
             extras_dict[field] = u''
 
@@ -268,7 +267,7 @@ class Data(object):
         for resource in resources:
             pkg.add_resource(resource['url'], format=resource['format'], description=resource['description'])
         pkg.notes=notes
-        pkg.license = model.License.by_name(license_name)
+        pkg.license_id = license_id
         assert pkg.license, license_name
         if not existing_pkg:
             user = model.User.by_name(self._username)
@@ -327,6 +326,8 @@ class Data(object):
         if not group:
             group = model.Group(name=self._groupname)
             model.Session.add(group)
+            user = model.User.by_name(self._username)
+            model.setup_default_user_roles(group, [user])
 
     def _new_revision(self):
         # Revision info
@@ -336,11 +337,11 @@ class Data(object):
         return rev
 
 license_map = {
-    u'UK Crown Copyright with data.gov.uk rights':u'OKD Compliant::UK Crown Copyright with data.gov.uk rights',
-    u'\xa9 HESA. Not core Crown Copyright.':u'OKD Compliant::Higher Education Statistics Agency Copyright with data.gov.uk rights',
-    u'Local Authority copyright with data.gov.uk rights':u'OKD Compliant::Local Authority Copyright with data.gov.uk rights',
-    u'Local Authority Copyright with data.gov.uk rights':u'OKD Compliant::Local Authority Copyright with data.gov.uk rights',
-    u'UK Crown Copyright':u'Non-OKD Compliant::Crown Copyright',
-    u'Crown Copyright':u'Non-OKD Compliant::Crown Copyright',}
+    u'UK Crown Copyright with data.gov.uk rights':u'ukcrown-withrights',
+    u'\xa9 HESA. Not core Crown Copyright.':u'hesa-withrights',
+    u'Local Authority copyright with data.gov.uk rights':u'localauth-withrights',
+    u'Local Authority Copyright with data.gov.uk rights':u'localauth-withrights',
+    u'UK Crown Copyright':u'ukcrown',
+    u'Crown Copyright':u'ukcrown', }
 #agencies_raw = ['Health Protection Agency', 'Office for National Statistics', 'Census', 'Performance Assessment Framework', 'Annual Population Survey', 'Annual Survey of Hours and Earnings', 'Business Registers Unit', 'UK Hydrographic Office', 'Defence Analytical Services and Advice', 'Housing and Communities Agency', 'Tenants Service Authority', 'Higher Education Statistics Agency']
 geographic_regions = ['england', 'n. ireland', 'scotland', 'wales', 'overseas', 'global']

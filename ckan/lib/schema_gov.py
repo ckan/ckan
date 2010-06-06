@@ -2,9 +2,7 @@ import re
 import time
 import datetime
 
-import formalchemy
-
-__all__ = ['government_depts', 'geographic_granularity_options', 'temporal_granularity_options', 'category_options', 'region_options', 'region_groupings', 'update_frequency_suggestions', 'tag_pool', 'tag_words_to_join', 'suggest_tags', 'tags_parse', 'DateType', 'DateConvertError', 'GeoCoverageType', 'expand_abbreviations', 'name_munge', 'tag_munge']
+__all__ = ['government_depts', 'geographic_granularity_options', 'temporal_granularity_options', 'category_options', 'region_options', 'region_groupings', 'update_frequency_suggestions', 'tag_pool', 'tag_words_to_join', 'suggest_tags', 'tags_parse', 'GeoCoverageType', 'expand_abbreviations', 'name_munge', 'tag_munge']
 
 government_depts_raw = """
 Attorney General's Office
@@ -92,8 +90,6 @@ tag_search_fields = ['name', 'title', 'notes', 'categories', 'agency']
 
 tag_words_to_join = ['ordnance survey', 'environmental protection', 'water conservation', 'water resources', 'water quality', 'climate and weather', 'nature conservation', 'waste management', 'waste policies and regulation', 'air quality', 'tariff codes', 'life stages']
 
-months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-
 def name_munge(name):
     # convert spaces to underscores
     name = re.sub(' ', '_', name).lower()        
@@ -134,141 +130,7 @@ def tags_parse(tags_str):
     tag_list = re.split(',\s*|\s+', tags_str.strip())
     return [tag_munge(tag_name) for tag_name in tag_list]
 
-class DateConvertError(Exception):
-    pass
-
-class DateType(object):
-    '''Handles conversions between form and database as well as
-    validation.'''
-    date_match = re.compile('(\w+)([/\-.]\w+)?([/\-.]\w+)?')
-    default_db_separator = '-'
-    default_form_separator = '/'
-    word_match = re.compile('[A-Za-z]+')
-    months_chopped = [month[:3] for month in months]
-
-    @classmethod
-    def iso_to_db(self, iso_date, format):
-        # e.g. 'Wed, 06 Jan 2010 09:30:00 GMT'
-        #      '%a, %d %b %Y %H:%M:%S %Z'
-        if iso_date.endswith('+0100'):
-            iso_date = iso_date.replace('+0100', 'BST')
-        assert isinstance(iso_date, (unicode, str))
-        try:
-            date_tuple = time.strptime(iso_date, format)
-        except ValueError, e:
-            raise DateConvertError('Could not read date as ISO format "%s". Date provided: "%s"' % (format, iso_date))
-        date_obj = datetime.datetime(*date_tuple[:4])
-        date_str = date_obj.strftime('%Y-%m-%d')
-        return date_str
-
-    @classmethod
-    def form_to_db(self, form_str, may_except=True):
-        '''
-        27/2/2005 -> 2005-02-27
-        27/Feb/2005 -> 2005-02-27
-        2/2005 -> 2005-02
-        Feb/2005 -> 2005-02
-        2005 -> 2005
-        '''
-        try:
-            if not form_str:
-                # Allow blank
-                return u''
-            err_str = 'Date must be format DD/MM/YYYY or DD/MM/YY.'
-            match = self.date_match.match(form_str)
-            if not match:
-                raise DateConvertError('%s Date provided: "%s"' % (err_str, form_str))
-            matched_date = ''.join([group if group else '' for group in match.groups()])
-            if matched_date != form_str:
-                raise DateConvertError('%s Matched only "%s"' % (err_str, matched_date))
-            standard_date_fields = [] # integers, year first
-            for match_group in match.groups()[::-1]:
-                if match_group is not None:
-                    val = match_group.strip('/-.')
-                    word_in_val = self.word_match.match(val)
-                    if word_in_val:
-                        word_in_val_c = word_in_val.group().capitalize()
-                        month_i = None
-                        if word_in_val_c in months:
-                            month_i = months.index(word_in_val_c)
-                        elif word_in_val_c in self.months_chopped:
-                            month_i = self.months_chopped.index(word_in_val_c)
-                        if month_i is not None:
-                            val = val.replace(word_in_val.group(), str(month_i+1))
-                    try:
-                        standard_date_fields.append(int(val))
-                    except ValueError:
-                        raise DateConvertError('%s Date provided: "%s"' % (err_str, form_str))
-            # Deal with 2 digit dates
-            if standard_date_fields[0] < 100:
-                standard_date_fields[0] = self.add_centurys_to_two_digit_year(standard_date_fields[0])
-            # Check range of dates
-            if standard_date_fields[0] < 1000 or standard_date_fields[0] > 2100:
-                raise DateConvertError('%s Year of "%s" is outside range.' % (err_str, standard_date_fields[0]))
-            if len(standard_date_fields) > 1 and (standard_date_fields[1] > 12 or standard_date_fields[1] < 1):
-                raise DateConvertError('%s Month of "%s" is outside range.' % (err_str, standard_date_fields[0]))
-            if len(standard_date_fields) > 2 and (standard_date_fields[2] > 31 or standard_date_fields[2] < 1):
-                raise DateConvertError('%s Month of "%s" is outside range.' % (err_str, standard_date_fields[0]))
-            str_date_fields = [] # strings, year first
-            for i, digits in enumerate((4, 2, 2)):
-                if len(standard_date_fields) > i:
-                    format_string = '%%0%sd' % digits
-                    str_date_fields.append(format_string % standard_date_fields[i])
-            db_date = unicode(self.default_db_separator.join(str_date_fields))
-            return db_date
-        except DateConvertError, e:
-            if may_except:
-                raise e
-            else:
-                return form_str
-
-    @staticmethod
-    def form_validator(form_date_str, field=None):
-        try:
-            DateType.form_to_db(form_date_str)
-        except DateConvertError, e:
-            raise formalchemy.ValidationError(str(e))
-
-    @classmethod
-    def db_to_form(self, db_str):
-        '2005-02-27 -> 27/2/2005 if correct format, otherwise, display as is.'
-        if not db_str.strip():
-            return db_str
-        match = self.date_match.match(db_str)
-        if not match:
-            return db_str
-        matched_date = ''.join([group if group else '' for group in match.groups()])
-        if matched_date != db_str.strip():
-            return db_str
-        standard_date_fields = [] # integers, year first
-        for match_group in match.groups():
-            if match_group is not None:
-                try:
-                    standard_date_fields.append(int(match_group.strip('/-.')))
-                except ValueError:
-                    return db_str
-        if standard_date_fields[0] < 1000 or standard_date_fields[0] > 2100:
-            return db_str
-        if len(standard_date_fields) > 1 and (standard_date_fields[1] > 12 or standard_date_fields[1] < 1):
-            return db_str
-        if len(standard_date_fields) > 2 and (standard_date_fields[2] > 31 or standard_date_fields[2] < 1):
-            return db_str
-        str_date_fields = [str(field) for field in standard_date_fields]
-        form_date = unicode(self.default_form_separator.join(str_date_fields[::-1]))
-        return form_date
-
-    @classmethod
-    def add_centurys_to_two_digit_year(self, year, near_year=2010):
-        assert isinstance(year, int)
-        assert isinstance(near_year, int)
-        assert year < 1000, repr(year)
-        assert near_year > 1000 and near_year < 2200, repr(near_year)
-        year += 1000
-        while abs(year - near_year) > 50:
-            year += 100
-        return year
     
-
 class GeoCoverageType(object):
     @staticmethod
     def get_instance():

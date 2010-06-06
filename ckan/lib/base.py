@@ -40,7 +40,6 @@ class BaseController(WSGIController):
         else:
             c.author = c.remote_addr
         c.author = unicode(c.author)
-        c.has_autocomplete = False
 
     def __call__(self, environ, start_response):
         """Invoke the Controller"""
