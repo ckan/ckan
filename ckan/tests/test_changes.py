@@ -2,7 +2,6 @@ import os
 import subprocess
 import urllib2
 import time
-import simplejson as json
 
 from pylons import config
 

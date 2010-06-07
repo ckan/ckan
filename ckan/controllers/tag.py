@@ -1,5 +1,5 @@
 from ckan.lib.base import *
-from simplejson import dumps
+from ckan.lib.helpers import json
 
 class TagController(BaseController):
 
@@ -19,13 +19,13 @@ class TagController(BaseController):
             items_per_page=100
         )
            
-        return render('tag/index')
+        return render('tag/index.html')
 
     def read(self, id):
         c.tag = model.Tag.by_name(id)
         if c.tag is None:
             abort(404)
-        return render('tag/read')
+        return render('tag/read.html')
 
     def autocomplete(self):
         incomplete = request.params.get('incomplete', '')
@@ -44,5 +44,5 @@ class TagController(BaseController):
                 "Name": tagName
             }
             resultSet["ResultSet"]["Result"].append(result)
-        return dumps(resultSet)
+        return json.dumps(resultSet)
 
