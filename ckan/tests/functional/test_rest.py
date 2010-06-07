@@ -7,29 +7,14 @@ import ckan.authz as authz
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib.helpers import json
 
-ACCESS_DENIED = [401,403]
+ACCESS_DENIED = [403]
 
-class RestTestCase(TestController):
+class BaseRestCase(TestController):
 
     api_version = ''
-    fixture_package_name = u'--'
 
-#    @classmethod
-#    def setup_class(self):
-    def setup(self):
-        try:
-            CreateTestData.delete()
-        except:
-            pass
-        model.Session.remove()
-        CreateTestData.create()
-        model.Session.add(model.Package(name=self.fixture_package_name))
-        rev = model.repo.new_revision()
-        model.repo.commit_and_remove()
-        from ckan.model.changeset import ChangesetRegister
-        changesets = ChangesetRegister()
-        changesets.construct_from_revision(rev)
-
+    @classmethod
+    def setup_class(self):
         self.testpackage_license_id = u'gpl-3.0'
         self.testpackagevalues = {
             'name' : u'testpkg',
@@ -59,24 +44,20 @@ class RestTestCase(TestController):
             'description' : u'Great group!',
             'packages' : [u'annakarenina', 'warandpeace'],
         }
-        self.random_name = u'http://myrandom.openidservice.org/'
-        self.user = model.User(name=self.random_name)
-        model.Session.add(self.user)
-        model.Session.commit()
-        model.Session.remove()
+        self.user_name = u'http://myrandom.openidservice.org/'
+
+        CreateTestData.create(commit_changesets=True)
+        CreateTestData.create_arbitrary([], extra_user_names=[self.user_name])
+
+        self.user = model.User.by_name(self.user_name)
         self.extra_environ={'Authorization' : str(self.user.apikey)}
 
-#    @classmethod
-#    def teardown_class(self):
-    def tearDown(self):
+
+    @classmethod
+    def teardown_class(self):
         model.Session.remove()
         model.repo.rebuild_db()
         model.Session.remove()
-
-    def teardown_method(self, name):
-        pkg = self.get_package_by_name(u'testpkg')
-        if pkg:
-            pkg.purge()
 
     def test_01_register_post_noauth(self):
         # Test Packages Register Post 401.
@@ -86,7 +67,7 @@ class RestTestCase(TestController):
 
     def test_01_entity_put_noauth(self):
         # Test Packages Entity Put 401.
-        offset = '/api/rest/package/%s' % self.fixture_package_name
+        offset = '/api/rest/package/annakarenina'
         postparams = '%s=1' % json.dumps(self.testpackagevalues)
         res = self.app.post(offset, params=postparams, status=ACCESS_DENIED)
 
@@ -122,43 +103,26 @@ class RestTestCase(TestController):
         assert 'roger' in res, res
 
     def test_04_get_package(self):
-        # Test Packages Register Get 200.
-        #   ..or is that "entity get"? "register get" == "list" --jb
-        offset = '/api/rest/package/annakarenina'
-        res = self.app.get(offset, status=[200])
+        # Test Packages Entity Get 200.
         anna = self.anna
-        assert 'annakarenina' in res, res
-        assert '"license_id": "other-open"' in res, str(res)
-        assert 'russian' in res, res
-        assert 'tolstoy' in res, res
-        assert '"extras": {' in res, res
-        assert '"genre": "romantic novel"' in res, res
-        assert '"original media": "book"' in res, res
-        assert 'annakarenina.com/download' in res, res
-        assert '"plain text"' in res, res
-        assert '"Index of the novel"' in res, res
-        # 2/12/09 download_url is now deprecated - to be removed in the future
-        assert '"download_url": "http://www.annakarenina.com/download/x=1&y=2"' in res, res
-        assert '"id": "%s"' % anna.id in res, res
+        for pkg_ref in ('annakarenina', anna.id):
+            offset = '/api/rest/package/%s' % pkg_ref
+            res = self.app.get(offset, status=[200])
+            assert 'annakarenina' in res, res
+            assert '"license_id": "other-open"' in res, str(res)
+            assert 'russian' in res, res
+            assert 'tolstoy' in res, res
+            assert '"extras": {' in res, res
+            assert '"genre": "romantic novel"' in res, res
+            assert '"original media": "book"' in res, res
+            assert 'annakarenina.com/download' in res, res
+            assert '"plain text"' in res, res
+            assert '"Index of the novel"' in res, res
+            # 2/12/09 download_url is now deprecated - to be removed in the future
+            assert '"download_url": "http://www.annakarenina.com/download/x=1&y=2"' in res, res
+            assert '"id": "%s"' % anna.id in res, res
 
-        # Get package by ID.
-        offset = '/api/rest/package/%s' % anna.id
-        res = self.app.get(offset, status=[200])
-        assert 'annakarenina' in res, res
-        assert '"license_id": "other-open"' in res, str(res)
-        assert 'russian' in res, res
-        assert 'tolstoy' in res, res
-        assert '"extras": {' in res, res
-        assert '"genre": "romantic novel"' in res, res
-        assert '"original media": "book"' in res, res
-        assert 'annakarenina.com/download' in res, res
-        assert '"plain text"' in res, res
-        assert '"Index of the novel"' in res, res
-        assert '"id": "%s"' % anna.id in res, res
-
-    def _test_04_ckan_url(self):
-        # NB This only works if run on its own
-        config['ckan_host'] = 'test.ckan.net'
+    def test_04_ckan_url(self):
         offset = '/api/rest/package/annakarenina'
         res = self.app.get(offset, status=[200])
         assert 'ckan_url' in res
@@ -175,7 +139,7 @@ class RestTestCase(TestController):
         res = self.app.get(offset, status=[200])
         assert 'annakarenina' in res, res
         assert not 'warandpeace' in res, res
-
+        
     def test_05_get_404_package(self):
         # Test Package Entity Get 404.
         offset = '/api/rest/package/22222'
@@ -354,167 +318,93 @@ class RestTestCase(TestController):
         #        extra_environ=self.extra_environ)
         model.Session.remove()
 
-    def test_10_edit_pkg_values_by_id(self):
+    def base_10_edit_pkg_values(self, pkg_ref_attribute):
         # Test Packages Entity Put 200.
 
-        # create a package with testpackagevalues
-        tag_names = [u'tag1', u'tag2', u'tag3']
-        pkg = self.get_package_by_name(self.testpackagevalues['name'])
-        if not pkg:
-            pkg = model.Package()
-            model.Session.add(pkg)
-        rev = model.repo.new_revision()
-        pkg.name = self.testpackagevalues['name']
-        pkg.url = self.testpackagevalues['url']
-        tags = [model.Tag(name=tag_name) for tag_name in tag_names]
-        for tag in tags:
-            model.Session.add(tag)
-        pkg.tags = tags
-        pkg.extras = {u'key1':u'val1', u'key2':u'val2'}
-        model.Session.commit()
+        try:
+            # create a package with testpackagevalues
+            tag_names = [u'tag1', u'tag2', u'tag3']
+            test_pkg_dict = {'name':u'test_10_edit_pkg',
+                             'url':self.testpackagevalues['url'],
+                             'tags':tag_names,
+                             'extras':{u'key1':u'val1', u'key2':u'val2'},
+                             'admins':[self.user.name],
+                             }
+            CreateTestData.create_arbitrary(test_pkg_dict)
 
-        pkg = self.get_package_by_name(self.testpackagevalues['name'])
-        model.setup_default_user_roles(pkg, [self.user])
-        rev = model.repo.new_revision()
-        model.repo.commit_and_remove()
+            pkg = self.get_package_by_name(test_pkg_dict['name'])
+            model.setup_default_user_roles(pkg, [self.user])
+            rev = model.repo.new_revision()
+            model.repo.commit_and_remove()
 
-        # edit it
-        pkg_vals = {
-            'name':u'somethingnew',
-            'title':u'newtesttitle',
-            'resources': [
-                {
-                    u'url':u'http://blah.com/file2.xml',
-                    u'format':u'xml',
-                    u'description':u'Appendix 1',
-                    u'hash':u'def123',
-                },
-                {
-                    u'url':u'http://blah.com/file3.xml',
-                    u'format':u'xml',
-                    u'description':u'Appenddic 2',
-                    u'hash':u'ghi123',
-                },
-            ],
-            'extras':{u'key3':u'val3', u'key2':None},
-            'tags':[u'tag1', u'tag2', u'tag4', u'tag5'],
-        }
-        offset = '/api/rest/package/%s' % pkg.id
-        postparams = '%s=1' % json.dumps(pkg_vals)
-        res = self.app.post(offset, params=postparams, status=[200],
-                            extra_environ=self.extra_environ)
+            # edit it
+            edited_pkg_dict = {
+                'name':u'somethingnew',
+                'title':u'newtesttitle',
+                'resources': [
+                    {
+                        u'url':u'http://blah.com/file2.xml',
+                        u'format':u'xml',
+                        u'description':u'Appendix 1',
+                        u'hash':u'def123',
+                    },
+                    {
+                        u'url':u'http://blah.com/file3.xml',
+                        u'format':u'xml',
+                        u'description':u'Appenddic 2',
+                        u'hash':u'ghi123',
+                    },
+                ],
+                'extras':{u'key3':u'val3', u'key2':None},
+                'tags':[u'tag1', u'tag2', u'tag4', u'tag5'],
+            }
+            offset = '/api/rest/package/%s' % getattr(pkg, pkg_ref_attribute)
+            postparams = '%s=1' % json.dumps(edited_pkg_dict)
+            res = self.app.post(offset, params=postparams, status=[200],
+                                extra_environ=self.extra_environ)
 
-        # Check submitted field have changed.
-        model.Session.remove()
-        pkg = model.Session.query(model.Package).filter_by(name=pkg_vals['name']).one()
-        # - title
-        assert pkg.title == pkg_vals['title']
-        # - tags
-        pkg_tagnames = [tag.name for tag in pkg.tags]
-        for tagname in pkg_vals['tags']:
-            assert tagname in pkg_tagnames, 'tag %r not in %r' % (tagname, pkg_tagnames)
-        # - resources
-        assert len(pkg.resources), "Package has no resources: %s" % pkg
-        assert len(pkg.resources) == 2, len(pkg.resources)
-        resource = pkg.resources[0]
-        assert resource.url == u'http://blah.com/file2.xml', resource.url
-        assert resource.format == u'xml', resource.format
-        assert resource.description == u'Appendix 1', resource.description
-        assert resource.hash == u'def123', resource.hash
-        resource = pkg.resources[1]
-        assert resource.url == 'http://blah.com/file3.xml', resource.url
-        assert resource.format == u'xml', resource.format
-        assert resource.description == u'Appenddic 2', resource.description
-        assert resource.hash == u'ghi123', resource.hash
+            # Check submitted field have changed.
+            model.Session.remove()
+            pkg = model.Session.query(model.Package).filter_by(name=edited_pkg_dict['name']).one()
+            # - title
+            assert pkg.title == edited_pkg_dict['title']
+            # - tags
+            pkg_tagnames = [tag.name for tag in pkg.tags]
+            for tagname in edited_pkg_dict['tags']:
+                assert tagname in pkg_tagnames, 'tag %r not in %r' % (tagname, pkg_tagnames)
+            # - resources
+            assert len(pkg.resources), "Package has no resources: %s" % pkg
+            assert len(pkg.resources) == 2, len(pkg.resources)
+            resource = pkg.resources[0]
+            assert resource.url == u'http://blah.com/file2.xml', resource.url
+            assert resource.format == u'xml', resource.format
+            assert resource.description == u'Appendix 1', resource.description
+            assert resource.hash == u'def123', resource.hash
+            resource = pkg.resources[1]
+            assert resource.url == 'http://blah.com/file3.xml', resource.url
+            assert resource.format == u'xml', resource.format
+            assert resource.description == u'Appenddic 2', resource.description
+            assert resource.hash == u'ghi123', resource.hash
 
-        # Check unsubmitted fields have not changed.
-        # - url
-        assert pkg.url == self.testpackagevalues['url'], pkg.url
-        # - extras
-        assert len(pkg.extras) == 2, pkg.extras
-        for key, value in {u'key1':u'val1', u'key3':u'val3'}.items():
-            assert pkg.extras[key] == value, pkg.extras
+            # Check unsubmitted fields have not changed.
+            # - url
+            assert pkg.url == self.testpackagevalues['url'], pkg.url
+            # - extras
+            assert len(pkg.extras) == 2, pkg.extras
+            for key, value in {u'key1':u'val1', u'key3':u'val3'}.items():
+                assert pkg.extras[key] == value, pkg.extras
+        finally:
+            for pkg_dict in test_pkg_dict, edited_pkg_dict:
+                pkg = model.Package.by_name(pkg_dict['name'])
+                if pkg:
+                    pkg.purge()
+            model.repo.commit_and_remove()
+
+    def test_10_edit_pkg_values_by_id(self):
+        self.base_10_edit_pkg_values('id')
 
     def test_10_edit_pkg_values_by_name(self):
-        # Test Packages Entity Put 200.
-
-        # create a package with testpackagevalues
-        tag_names = [u'tag1', u'tag2', u'tag3']
-        pkg = self.get_package_by_name(self.testpackagevalues['name'])
-        if not pkg:
-            pkg = model.Package()
-            model.Session.add(pkg)
-        rev = model.repo.new_revision()
-        pkg.name = self.testpackagevalues['name']
-        pkg.url = self.testpackagevalues['url']
-        tags = [model.Tag(name=tag_name) for tag_name in tag_names]
-        for tag in tags:
-            model.Session.add(tag)
-        pkg.tags = tags
-        pkg.extras = {u'key1':u'val1', u'key2':u'val2'}
-        model.Session.commit()
-
-        pkg = self.get_package_by_name(self.testpackagevalues['name'])
-        model.setup_default_user_roles(pkg, [self.user])
-        rev = model.repo.new_revision()
-        model.repo.commit_and_remove()
-
-        # edit it
-        pkg_vals = {
-            'name':u'somethingnew',
-            'title':u'newtesttitle',
-            'resources': [
-                {
-                    u'url':u'http://blah.com/file2.xml',
-                    u'format':u'xml',
-                    u'description':u'Appendix 1',
-                    u'hash':u'def123',
-                },
-                {
-                    u'url':u'http://blah.com/file3.xml',
-                    u'format':u'xml',
-                    u'description':u'Appenddic 2',
-                    u'hash':u'ghi123',
-                },
-            ],
-            'extras':{u'key3':u'val3', u'key2':None},
-            'tags':[u'tag1', u'tag2', u'tag4', u'tag5'],
-        }
-        offset = '/api/rest/package/%s' % self.testpackagevalues['name']
-        postparams = '%s=1' % json.dumps(pkg_vals)
-        res = self.app.post(offset, params=postparams, status=[200],
-                            extra_environ=self.extra_environ)
-
-        # Check submitted field have changed.
-        model.Session.remove()
-        pkg = model.Session.query(model.Package).filter_by(name=pkg_vals['name']).one()
-        # - title
-        assert pkg.title == pkg_vals['title']
-        # - tags
-        pkg_tagnames = [tag.name for tag in pkg.tags]
-        for tagname in pkg_vals['tags']:
-            assert tagname in pkg_tagnames, 'tag %r not in %r' % (tagname, pkg_tagnames)
-        # - resources
-        assert len(pkg.resources), "Package has no resources: %s" % pkg
-        assert len(pkg.resources) == 2, len(pkg.resources)
-        resource = pkg.resources[0]
-        assert resource.url == u'http://blah.com/file2.xml', resource.url
-        assert resource.format == u'xml', resource.format
-        assert resource.description == u'Appendix 1', resource.description
-        assert resource.hash == u'def123', resource.hash
-        resource = pkg.resources[1]
-        assert resource.url == 'http://blah.com/file3.xml', resource.url
-        assert resource.format == u'xml', resource.format
-        assert resource.description == u'Appenddic 2', resource.description
-        assert resource.hash == u'ghi123', resource.hash
-
-        # Check unsubmitted fields have not changed.
-        # - url
-        assert pkg.url == self.testpackagevalues['url'], pkg.url
-        # - extras
-        assert len(pkg.extras) == 2, pkg.extras
-        for key, value in {u'key1':u'val1', u'key3':u'val3'}.items():
-            assert pkg.extras[key] == value, pkg.extras
+        self.base_10_edit_pkg_values('name')
 
     def test_10_edit_pkg_with_download_url(self):
         # 2/12/09 download_url is deprecated - remove in future
@@ -558,7 +448,7 @@ class RestTestCase(TestController):
             group = model.Group.by_name(self.testgroupvalues['name'])
         assert group
         assert len(group.packages) == 2, group.packages
-        user = model.User.by_name(self.random_name)
+        user = model.User.by_name(self.user_name)
         model.setup_default_user_roles(group, [user])
 
         # edit it
@@ -684,7 +574,7 @@ class RestTestCase(TestController):
             rev = model.repo.new_revision()
             model.repo.commit_and_remove()
         assert group
-        user = model.User.by_name(self.random_name)
+        user = model.User.by_name(self.user_name)
         model.setup_default_user_roles(group, [user])
 
         # delete it
@@ -735,7 +625,7 @@ class RestTestCase(TestController):
             assert rev.id in res_dict, (rev.id, res_dict)
 
     def test_14_get_revision(self):
-        rev = model.Revision.youngest(model.Session)
+        rev = model.repo.history().all()[-2] # 2nd revision is the creation of pkgs
         offset = self.offset('/rest/revision/%s' % rev.id)
         res = self.app.get(offset, status=[200])
         res_dict = json.loads(res.body)
@@ -796,7 +686,7 @@ class RestTestCase(TestController):
 
 
 # For CKAN API Version 1.
-class TestRest(RestTestCase):
+class TestRest(BaseRestCase):
 
     api_version = '1'
 
@@ -807,7 +697,8 @@ class TestRest(RestTestCase):
     def assert_revision_packages(self, packages):
         assert isinstance(packages, list)
         assert len(packages) != 0, "Revision packages is empty: %s" % packages
-        assert self.fixture_package_name in packages, packages
+        assert 'annakarenina' in packages, packages
+        assert 'warandpeace' in packages, packages
 
 
 class TestRelationships(TestController):

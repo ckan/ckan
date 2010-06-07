@@ -1,7 +1,7 @@
-from ckan.tests.functional.test_rest import *
+from ckan.tests.functional.test_rest import BaseRestCase, BaseSearchCase
 
 # For CKAN API Version 2.
-class TestRest2(RestTestCase):
+class TestRest2(BaseRestCase):
 
     api_version = '2'
 
@@ -12,8 +12,8 @@ class TestRest2(RestTestCase):
     def assert_revision_packages(self, packages):
         assert isinstance(packages, list)
         assert len(packages) != 0, "Revision packages is empty: %s" % packages
-        package = self.get_package_by_name(self.fixture_package_name)
-        assert package.id in packages, (package.id, packages)
+        assert self.anna.id in packages, packages
+        assert self.war.id in packages, packages
 
 
 # For CKAN API Version 2.

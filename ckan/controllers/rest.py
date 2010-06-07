@@ -214,6 +214,10 @@ class BaseRestController(BaseController):
         return self._finish_ok(obj.as_dict())
             
     def update(self, register, id, subregister=None, id2=None):
+        # must be logged in to start with
+        if not self._check_access(None, None):
+            return json.dumps(_('Access denied'))
+
         if register == 'package' and not subregister:
             entity = self._get_pkg(id)
             if entity == None:
@@ -289,6 +293,10 @@ class BaseRestController(BaseController):
                 return self._update_package_relationship(entity, comment)
 
     def delete(self, register, id, subregister=None, id2=None):
+        # must be logged in to start with
+        if not self._check_access(None, None):
+            return json.dumps(_('Access denied'))
+
         if register == 'package' and not subregister:
             entity = self._get_pkg(id)
             if not entity:
