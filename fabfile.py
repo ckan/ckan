@@ -74,9 +74,8 @@ def config_test_hmg_ckan_net():
 
 def config_hmg_ckan_net_1(db_pass=None):
     env.user = 'okfn'
-    env.base_dir = '/home/%s' % env.user
     env.hosts = ['hmg2.ckan.net']
-    env.wsgi_script_filepath = os.path.join(env.base_dir, 'pylonsapp_modwsgi.py')
+#    env.wsgi_script_filepath = os.path.join(env.base_dir, 'pylonsapp_modwsgi.py')
     env.pip_requirements = 'pip-requirements.txt'
     env.db_pass = db_pass
     env.ckan_instance_name = 'hmg.ckan.net.1'

@@ -192,3 +192,15 @@ class TestController(object):
     def get_package_by_name(self, package_name):
         return model.Package.by_name(package_name)
 
+    @classmethod
+    def purge_packages(self, pkg_names):
+        for pkg_name in pkg_names:
+            pkg = model.Package.by_name(unicode(pkg_name))
+            if pkg:
+                pkg.purge()
+        model.repo.commit_and_remove()
+
+    @classmethod
+    def purge_all_packages(self):
+        all_pkg_names = [pkg.name for pkg in model.Session.query(model.Package)]
+        self.purge_packages(all_pkg_names)
