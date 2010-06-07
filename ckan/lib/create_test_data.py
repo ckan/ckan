@@ -57,7 +57,10 @@ class CreateTestData(cli.CkanCommand):
 
     @classmethod
     def create_arbitrary(self, package_dicts,
-                         relationships=[], extra_user_names=[]):
+                         relationships=[], extra_user_names=[],
+                         commit_changesets=False):
+        assert isinstance(relationships, (list, tuple))
+        assert isinstance(extra_user_names, (list, tuple))
         import ckan.model as model
         model.Session.remove()
         self.pkg_names = []
@@ -135,17 +138,26 @@ class CreateTestData(cli.CkanCommand):
                 model.setup_default_user_roles(pkg)
             model.repo.commit_and_remove()
 
+        needs_commit = False
         for user_name in self.user_names:
-            user = model.User(name=unicode(user_name))
-            model.Session.add(user)
+            if not model.User.by_name(unicode(user_name)):
+                user = model.User(name=unicode(user_name))
+                model.Session.add(user)
+                needs_commit = True
 
         for pkg_name, admins in admins_list:
             pkg = model.Package.by_name(unicode(pkg_name))
             admins = [model.User.by_name(unicode(user_name)) for user_name in self.user_names]
             model.setup_default_user_roles(pkg, admins)
+            needs_commit = True
 
         for group_name in self.group_names:
             model.setup_default_user_roles(group)
+            needs_commit = True
+
+        if needs_commit:
+            model.repo.commit_and_remove()
+            needs_commit = False
 
         if relationships:
             rev = model.repo.new_revision() 
@@ -157,11 +169,16 @@ class CreateTestData(cli.CkanCommand):
             for subject_name, relationship, object_name in relationships:
                 pkg(subject_name).add_relationship(
                     unicode(relationship), pkg(object_name))
+                needs_commit = True
 
             model.repo.commit_and_remove()
-    
+        
+        if commit_changesets:
+            from ckan.model.changeset import ChangesetRegister
+            changeset_ids = ChangesetRegister().commit()
+
     @classmethod
-    def create(self):
+    def create(self, commit_changesets=False):
         import ckan.model as model
         model.Session.remove()
         rev = model.repo.new_revision()
@@ -266,6 +283,9 @@ left arrow <
 
         model.repo.commit_and_remove()
 
+        if commit_changesets:
+            from ckan.model.changeset import ChangesetRegister
+            changeset_ids = ChangesetRegister().commit()
 
     @classmethod
     def delete(self):
