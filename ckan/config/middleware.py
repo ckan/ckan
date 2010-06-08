@@ -70,6 +70,15 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
     if asbool(static_files):
         # Serve static files
         static_app = StaticURLParser(config['pylons.paths']['static_files'])
-        app = Cascade([static_app, app])
+        static_parsers = [static_app, app]
+
+        # Configurable extra static file paths
+        extra_public_paths = app_conf.get('extra_public_paths')
+        if extra_public_paths:
+            static_parsers = [StaticURLParser(public_path) \
+                              for public_path in \
+                              extra_public_paths.split(',')] + static_parsers
+            
+        app = Cascade(static_parsers)
 
     return app

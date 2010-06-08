@@ -108,13 +108,30 @@ extra_template_paths
 
 Example::
 
- extra_template_paths=/home/okfn/ckan_custom_templates
+ extra_template_paths=/home/okfn/brazil_ckan_config/templates
 
 To customise the display of CKAN you can supply replacements for the Genshi template files. Use this option to specify where CKAN should look for them, before reverting to the 'ckan/templates' folder. You can supply more than one folder, separating the paths with a comma (,).
 
 The example value for the extra_template_paths option could, for example, be used to override CKAN templates with these ones:
 
- * /home/okfn/ckan_custom_templates/layout.html
- * /home/okfn/ckan_custom_templates/package/edit.html
+ * /home/okfn/brazil_ckan_config/templates/layout.html
+ * /home/okfn/brazil_ckan_config/templates/package/edit.html
+
+More details about this feature are found at: http://wiki.okfn.org/ckan/doc/theme
+
+
+extra_template_paths
+--------------------
+
+Example::
+
+ extra_public_paths = /home/okfn/brazil_ckan_config/public
+
+To customise the display of CKAN you can supply replacements for staticly served files such as HTML, CSS, script and PNG files. Use this option to specify where CKAN should look for them, before reverting to the 'ckan/public' folder. You can supply more than one folder, separating the paths with a comma (,).
+
+The example value for the extra_public_paths option could, for example, be used to provide an image and stylesheet:
+
+ * /home/okfn/brazil_ckan_config/public/images/brazil.png
+ * /home/okfn/brazil_ckan_config/public/css/extra.css
 
 More details about this feature are found at: http://wiki.okfn.org/ckan/doc/theme
