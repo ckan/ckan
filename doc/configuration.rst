@@ -120,8 +120,8 @@ The example value for the extra_template_paths option could, for example, be use
 More details about this feature are found at: http://wiki.okfn.org/ckan/doc/theme
 
 
-extra_template_paths
---------------------
+extra_public_paths
+------------------
 
 Example::
 
