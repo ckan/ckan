@@ -27,7 +27,7 @@ class GeoCoverageExtraField(common.ConfiguredField):
 
     class GeoCoverageRenderer(formalchemy.fields.FieldRenderer):
         def _get_value(self):
-            form_regions = self._value # params
+            form_regions = self.value # params
             if not form_regions:
                 extras = self.field.parent.model.extras # db
                 db_regions = extras.get(self.field.name, []) or []
@@ -69,7 +69,7 @@ class SuggestTagRenderer(common.TagField.TagEditRenderer):
         fs = self.field.parent
         pkg_dict = {}
         for field_name, field in fs.render_fields.items():
-            pkg_dict[field_name] = field.renderer._value
+            pkg_dict[field_name] = field.renderer.value
         tag_suggestions = schema_gov.suggest_tags(pkg_dict)
         html = literal("<div>Suggestions (preview refreshes): %s</div>") % ' '.join(tag_suggestions)
         html += common.TagField.TagEditRenderer.render(self, **kwargs)

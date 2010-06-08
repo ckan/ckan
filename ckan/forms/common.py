@@ -56,7 +56,7 @@ def field_readonly_renderer(key, value, newline_reqd=True):
 class TextExtraRenderer(formalchemy.fields.TextFieldRenderer):
     def _get_value(self):
         extras = self.field.parent.model.extras # db
-        return self._value or extras.get(self.field.name, u'') or u''
+        return self.value or extras.get(self.field.name, u'') or u''
 
     def render(self, **kwargs):
         value = self._get_value()
@@ -176,8 +176,8 @@ class DateRangeExtraField(ConfiguredField):
     class DateRangeRenderer(formalchemy.fields.FieldRenderer):
         def _get_value(self):
             extras = self.field.parent.model.extras
-            if self._value:
-                from_form, to_form = self._value
+            if self.value:
+                from_form, to_form = self.value
             else:
                 from_ = extras.get(self.field.name + '-from') or u''
                 to = extras.get(self.field.name + '-to') or u''
@@ -231,8 +231,8 @@ class TextRangeExtraField(RegExRangeValidatingField):
     class TextRangeRenderer(formalchemy.fields.FieldRenderer):
         def _get_value(self):
             extras = self.field.parent.model.extras
-            if self._value:
-                from_form, to_form = self._value
+            if self.value:
+                from_form, to_form = self.value
             else:
                 from_ = extras.get(self.field.name + '-from') or u''
                 to = extras.get(self.field.name + '-to') or u''
@@ -309,7 +309,7 @@ class ResourcesField(ConfiguredField):
 
     class ResourcesRenderer(formalchemy.fields.FieldRenderer):
         def render(self, **kwargs):
-            c.resources = self._value or []
+            c.resources = self.value or []
             # [:] does a copy, so we don't change original
             c.resources = c.resources[:]
             c.resources.extend([None])
@@ -587,7 +587,7 @@ class SuggestedTextExtraField(TextExtraField):
     class SelectRenderer(formalchemy.fields.FieldRenderer):
         def _get_value(self, **kwargs):
             extras = self.field.parent.model.extras
-            return unicode(kwargs.get('selected', '') or self._value or extras.get(self.field.name, ''))
+            return unicode(kwargs.get('selected', '') or self.value or extras.get(self.field.name, ''))
 
         def render(self, options, **kwargs):
             selected = self._get_value()
@@ -627,7 +627,7 @@ class CheckboxExtraField(TextExtraField):
     class CheckboxExtraRenderer(formalchemy.fields.CheckBoxFieldRenderer):
         def _get_value(self):
             extras = self.field.parent.model.extras
-            return bool(self._value or extras.get(self.field.name) == u'yes')
+            return bool(self.value or extras.get(self.field.name) == u'yes')
 
         def render(self, **kwargs):
             value = self._get_value()

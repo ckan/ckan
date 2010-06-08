@@ -33,8 +33,8 @@ def get_package_dict(pkg=None, blank=False, fs=None):
             if blank:
                 indict[field.renderer.name] = u''
             else:
-                if field.renderer._value:
-                    indict[field.renderer.name] = field.renderer._value
+                if field.renderer.value:
+                    indict[field.renderer.name] = field.renderer.value
                 else:
                     indict[field.renderer.name] = u''
 

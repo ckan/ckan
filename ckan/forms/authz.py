@@ -32,7 +32,7 @@ def get_group_linker(action):
 
 class RolesRenderer(formalchemy.fields.FieldRenderer):
     def render(self, **kwargs):
-        selected = kwargs.get('selected', None) or unicode(self._value)
+        selected = kwargs.get('selected', None) or unicode(self.value)
         options = [(role, role) for role in model.Role.get_all()]
         select = fa_h.select(self.name, selected, options, **kwargs)
         return select
