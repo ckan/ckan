@@ -10,8 +10,6 @@ from genshi.core import escape as genshi_escape
 
 existing_extra_html = ('<label class="field_opt" for="Package-%(package_id)s-extras-%(key)s">%(capitalized_key)s</label>', '<input id="Package-%(package_id)s-extras-%(key)s" name="Package-%(package_id)s-extras-%(key)s" size="20" type="text" value="%(value)s">')
 
-package_form=''
-
 class TestPackageBase(TestController):
     key1 = u'key1 Less-than: < Umlaut: \xfc'
     value1 = u'value1 Less-than: < Umlaut: \xfc'
@@ -334,7 +332,7 @@ class TestEdit(TestPackageForm):
 
         self.editpkg = model.Package.by_name(self.editpkg_name)
         self.pkgid = self.editpkg.id
-        self.offset = url_for(controller='package', action='edit', id=self.editpkg_name, package_form=package_form)
+        self.offset = url_for(controller='package', action='edit', id=self.editpkg_name)
 
         self.editpkg = model.Package.by_name(self.editpkg_name)
         self.admin = model.User.by_name(u'testadmin')
@@ -463,6 +461,35 @@ u with umlaut \xc3\xbc
         del fv.fields[prefix + 'license_id']
         res = fv.submit('commit', status=400)     
 
+    def test_redirect_after_edit(self):
+        try:
+            pkg_name = self.editpkg_name
+            new_name = u'new-name'
+            assert model.Package.by_name(pkg_name)
+            return_url = 'http://random.site.com/package/<NAME>?param=value'
+            return_url_encoded = '/package/edit/editpkgtest?return_to=http%3A%2F%2Frandom.site.com%2Fpackage%2F%3CNAME%3E%3Fparam%3Dvalue'
+            offset = url_for(controller='package', action='edit', id=pkg_name, return_to=return_url)
+            res = self.app.get(offset)
+            assert 'Packages - Edit' in res
+            fv = res.forms[0]
+            prefix = 'Package-%s-' % self.pkgid
+            fv[prefix + 'name'] = new_name
+            res = fv.submit('preview')
+            assert not 'Error' in res, res
+            fv = res.forms[0]
+            res = fv.submit('commit', status=302)
+            assert not 'Error' in res, res
+            redirected_to = dict(res.headers)['Location']
+            completed_return_url = return_url.replace('<NAME>', new_name)
+            assert redirected_to == completed_return_url, redirected_to
+        finally:
+            # revert name change
+            pkg = model.Package.by_name(new_name)
+            if pkg:
+                rev = model.repo.new_revision()
+                pkg.name = self.editpkg_name
+                model.repo.commit_and_remove()
+
     def test_edit_all_fields(self):
         try:
             # Create new item
@@ -497,7 +524,7 @@ u with umlaut \xc3\xbc
             model.repo.commit_and_remove()
 
             # Edit it
-            offset = url_for(controller='package', action='edit', id=pkg.name, package_form=package_form)
+            offset = url_for(controller='package', action='edit', id=pkg.name)
             res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':'testadmin'})
             assert 'Packages - Edit' in res, res
 
@@ -631,65 +658,6 @@ u with umlaut \xc3\xbc
         assert 'No links are allowed' in res, res
 
 
-class TestMarkdownHtmlWhitelist(TestPackageForm):
-
-    pkg_name = u'markdownhtmlwhitelisttest'
-    pkg_notes = u'''
-<table width="100%" border="1">
-<tr>
-<td rowspan="2"><b>Description</b></td>
-<td rowspan="2"><b>Documentation</b></td>
-
-<td colspan="2"><b><center>Data -- Pkzipped</center></b> </td>
-</tr>
-<tr>
-<td><b>SAS .tpt</b></td>
-<td><b>ASCII CSV</b> </td>
-</tr>
-<tr>
-<td><b>Overview</b></td>
-<td><A HREF="http://www.nber.org/patents/subcategories.txt">subcategory.txt</A></td>
-<td colspan="2"><center>--</center></td>
-</tr>
-<script><!--
-alert('Hello world!');
-//-->
-</script>
-
-'''
-
-    def setUp(self):
-        model.Session.remove()
-        rev = model.repo.new_revision()
-        CreateTestData.create_arbitrary(
-            {'name':self.pkg_name,
-             'notes':self.pkg_notes,
-             'admins':[u'testadmin']}
-            )
-        self.pkg = model.Package.by_name(self.pkg_name)
-        self.pkg_id = self.pkg.id
-
-        offset = url_for(controller='package', action='read', id=self.pkg_name)
-        self.res = self.app.get(offset)
-
-    def tearDown(self):
-        CreateTestData.delete()
-
-    def test_markdown_html_whitelist(self):
-        self.body = str(self.res)
-        self.assert_fragment('<table width="100%" border="1">')
-        self.assert_fragment('<td rowspan="2"><b>Description</b></td>')
-        self.assert_fragment('<a href="http://www.nber.org/patents/subcategories.txt">subcategory.txt</a>')
-        self.assert_fragment('<td colspan="2"><center>--</center></td>')
-        self.fail_if_fragment('<script>')
-
-    def assert_fragment(self, fragment):
-        assert fragment in self.body, (fragment, self.body)
-
-    def fail_if_fragment(self, fragment):
-        assert fragment not in self.body, (fragment, self.body)
-
-
 class TestNew(TestPackageForm):
     pkg_names = []
     
@@ -699,7 +667,7 @@ class TestNew(TestPackageForm):
 
     def test_new_with_params_1(self):
         offset = url_for(controller='package', action='new',
-                url='http://xxx.org', package_form=package_form)
+                url='http://xxx.org')
         res = self.app.get(offset)
         form = res.forms[0]
         form['Package--url'].value == 'http://xxx.org/'
@@ -707,7 +675,7 @@ class TestNew(TestPackageForm):
 
     def test_new_with_params_2(self):
         offset = url_for(controller='package', action='new',
-                url='http://www.xxx.org', package_form=package_form)
+                url='http://www.xxx.org')
         res = self.app.get(offset)
         form = res.forms[0]
         form['Package--name'].value == 'xxx.org'
@@ -716,7 +684,7 @@ class TestNew(TestPackageForm):
         # new package
         prefix = 'Package--'
         name = u'test_no_res'
-        offset = url_for(controller='package', action='new', package_form=package_form)
+        offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         fv = res.forms[0]
         fv[prefix+'name'] = name
@@ -744,10 +712,9 @@ class TestNew(TestPackageForm):
         assert pkg.name == name
         assert not pkg.resources, pkg.resources
 
-
     def test_new(self):
         assert not model.Package.by_name(u'annakarenina')
-        offset = url_for(controller='package', action='new', package_form=package_form)
+        offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         assert 'Packages - New' in res
         fv = res.forms[0]
@@ -758,7 +725,7 @@ class TestNew(TestPackageForm):
         assert not 'Error' in res, res
 
     def test_new_bad_name(self):
-        offset = url_for(controller='package', action='new', package_form=package_form)
+        offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         assert 'Packages - New' in res
         fv = res.forms[0]
@@ -775,6 +742,23 @@ class TestNew(TestPackageForm):
         assert 'Name must be at least 2 characters long' in res, res
         self._assert_form_errors(res)
 
+    def test_redirect_after_new(self):
+        pkg_name = u'redirect_1'
+        assert not model.Package.by_name(pkg_name)
+        return_url = 'http://random.site.com/package/<NAME>?param=value'
+        offset = url_for(controller='package', action='new', return_to=return_url)
+        res = self.app.get(offset)
+        assert 'Packages - New' in res
+        fv = res.forms[0]
+        prefix = 'Package--'
+        fv[prefix + 'name'] = pkg_name
+        self.pkg_names.append(pkg_name)
+        res = fv.submit('commit', status=302)
+        assert not 'Error' in res, res
+        redirected_to = dict(res.headers)['Location']
+        completed_return_url = return_url.replace('<NAME>', pkg_name)
+        assert redirected_to == completed_return_url, redirected_to
+
     def test_new_all_fields(self):
         name = u'test_name2'
         title = u'Test Title'
@@ -788,7 +772,7 @@ class TestNew(TestPackageForm):
         extras = {self.key1:self.value1, 'key2':'value2', 'key3':'value3'}
         log_message = 'This is a comment'
         assert not model.Package.by_name(name)
-        offset = url_for(controller='package', action='new', package_form=package_form)
+        offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         assert 'Packages - New' in res
         fv = res.forms[0]
@@ -880,7 +864,7 @@ class TestNew(TestPackageForm):
         pkgname = u'testpkg'
         pkgtitle = u'mytesttitle'
         assert not model.Package.by_name(pkgname)
-        offset = url_for(controller='package', action='new', package_form=package_form)
+        offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         assert 'Packages - New' in res
         fv = res.forms[0]
@@ -907,7 +891,7 @@ class TestNew(TestPackageForm):
     def test_missing_fields(self):
         # A field is left out in the commit parameters.
         # (Spammers can cause this)
-        offset = url_for(controller='package', action='new', package_form=package_form)
+        offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         assert 'Packages - New' in res
         prefix = 'Package--'
@@ -917,7 +901,7 @@ class TestNew(TestPackageForm):
         self.pkg_names.append('anything')
         res = fv.submit('commit', status=400)
 
-        offset = url_for(controller='package', action='new', package_form=package_form)
+        offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         assert 'Packages - New' in res
         fv = res.forms[0]
@@ -931,7 +915,7 @@ class TestNew(TestPackageForm):
 
     def test_multi_resource_bug(self):
         # ticket:276
-        offset = url_for(controller='package', action='new', package_form=package_form)
+        offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         assert 'Packages - New' in res
         fv = res.forms[0]
@@ -960,7 +944,7 @@ class TestNewPreview(TestPackageBase):
     def test_preview(self):
         assert model.Session.query(model.Package).count() == 0, model.Session.query(model.Package).all()
         
-        offset = url_for(controller='package', action='new', package_form=package_form)
+        offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         assert 'Packages - New' in res
         fv = res.forms[0]
@@ -1093,4 +1077,62 @@ class TestRevisions(TestPackageBase):
         assert '<feed' in res, res
         assert 'xmlns="http://www.w3.org/2005/Atom"' in res, res
         assert '</feed>' in res, res
+
    
+class TestMarkdownHtmlWhitelist(TestPackageForm):
+
+    pkg_name = u'markdownhtmlwhitelisttest'
+    pkg_notes = u'''
+<table width="100%" border="1">
+<tr>
+<td rowspan="2"><b>Description</b></td>
+<td rowspan="2"><b>Documentation</b></td>
+
+<td colspan="2"><b><center>Data -- Pkzipped</center></b> </td>
+</tr>
+<tr>
+<td><b>SAS .tpt</b></td>
+<td><b>ASCII CSV</b> </td>
+</tr>
+<tr>
+<td><b>Overview</b></td>
+<td><A HREF="http://www.nber.org/patents/subcategories.txt">subcategory.txt</A></td>
+<td colspan="2"><center>--</center></td>
+</tr>
+<script><!--
+alert('Hello world!');
+//-->
+</script>
+
+'''
+
+    def setUp(self):
+        model.Session.remove()
+        rev = model.repo.new_revision()
+        CreateTestData.create_arbitrary(
+            {'name':self.pkg_name,
+             'notes':self.pkg_notes,
+             'admins':[u'testadmin']}
+            )
+        self.pkg = model.Package.by_name(self.pkg_name)
+        self.pkg_id = self.pkg.id
+
+        offset = url_for(controller='package', action='read', id=self.pkg_name)
+        self.res = self.app.get(offset)
+
+    def tearDown(self):
+        CreateTestData.delete()
+
+    def test_markdown_html_whitelist(self):
+        self.body = str(self.res)
+        self.assert_fragment('<table width="100%" border="1">')
+        self.assert_fragment('<td rowspan="2"><b>Description</b></td>')
+        self.assert_fragment('<a href="http://www.nber.org/patents/subcategories.txt">subcategory.txt</a>')
+        self.assert_fragment('<td colspan="2"><center>--</center></td>')
+        self.fail_if_fragment('<script>')
+
+    def assert_fragment(self, fragment):
+        assert fragment in self.body, (fragment, self.body)
+
+    def fail_if_fragment(self, fragment):
+        assert fragment not in self.body, (fragment, self.body)

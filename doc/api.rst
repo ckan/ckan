@@ -389,7 +389,7 @@ Revision Search Parameters
 | Key                   |    Value      | Example                                             |  Notes                           |
 +=======================+===============+=====================================================+==================================+ 
 | since_time            | Date-Time     | since_time=2010-05-05T19:42:45.854533               | The time can be less precisely   |
-|                       |               |                                                     | stated (e.g 2010-05-05).          |
+|                       |               |                                                     | stated (e.g 2010-05-05).         |
 +-----------------------+---------------+-----------------------------------------------------+----------------------------------+
 | since_id              | Uuid          | since_id=6c9f32ef-1f93-4b2f-891b-fd01924ebe08       | The stated id will not be        |
 |                       |               |                                                     | included in the results.         |

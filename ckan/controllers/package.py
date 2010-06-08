@@ -11,7 +11,6 @@ import ckan.forms
 import ckan.authz
 import ckan.rating
 import ckan.misc
-from ckan.lib.helpers import Page
 from pylons.i18n import get_lang
 
 logger = logging.getLogger('ckan.controllers')
@@ -26,7 +25,7 @@ class PackageController(BaseController):
 
     def list(self):
         query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
-        c.page = Page(
+        c.page = h.Page(
             collection=query,
             page=request.params.get('page', 1),
             items_per_page=50
@@ -45,7 +44,7 @@ class PackageController(BaseController):
                 })
             # package search
             query = make_search().query(options, username=c.user)
-            c.page = Page(
+            c.page = h.Page(
                 collection=query,
                 page=request.params.get('page', 1),
                 items_per_page=50
@@ -179,7 +178,7 @@ class PackageController(BaseController):
                 model.setup_default_user_roles(pkg, admins)
                 model.repo.commit_and_remove()
 
-                h.redirect_to(action='read', id=pkgname)
+                self._post_edit_redirect(pkgname)
             except ValidationException, error:
                 fs = error.args[0]
                 c.form = self._render_edit_form(fs, request.params,
@@ -253,7 +252,7 @@ class PackageController(BaseController):
                 PackageSaver().commit_pkg(fs, id, pkg.id, log_message, c.author)
                 # do not use pkgname from id as may have changed
                 pkgname = fs.name.value
-                h.redirect_to(action='read', id=pkgname)
+                self._post_edit_redirect(pkgname)
             except ValidationException, error:
                 fs = error.args[0]
                 c.form = self._render_edit_form(fs, request.params,
@@ -280,6 +279,18 @@ class PackageController(BaseController):
                 return render('package/edit.html')
             return render('package/edit.html') # uses c.form and c.preview
 
+    def _post_edit_redirect(self, pkgname):
+        '''This redirects the user to the package/read page,
+        unless there is request parameter giving an alternate location.
+        @param pkgname - Name of the package just edited
+        '''
+        url = request.params.get('return_to')
+        if url:
+            url = url.replace('<NAME>', pkgname)
+        else:
+            url = h.url_for(action='read', id=pkgname)
+        redirect(url)        
+        
     def _adjust_license_id_options(self, pkg, fs):
         options = fs.license_id.render_opts['options']
         is_included = False
