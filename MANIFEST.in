@@ -1,3 +1,4 @@
+include ckan/config/deployment.ini_tmpl
 recursive-include ckan/public *
 recursive-include ckan/templates *
 include CHANGELOG.txt

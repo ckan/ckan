@@ -10,8 +10,6 @@ from genshi.core import escape as genshi_escape
 
 existing_extra_html = ('<label class="field_opt" for="Package-%(package_id)s-extras-%(key)s">%(capitalized_key)s</label>', '<input id="Package-%(package_id)s-extras-%(key)s" name="Package-%(package_id)s-extras-%(key)s" size="20" type="text" value="%(value)s">')
 
-package_form=''
-
 class TestPackageBase(TestController):
     key1 = u'key1 Less-than: < Umlaut: \xfc'
     value1 = u'value1 Less-than: < Umlaut: \xfc'
@@ -171,7 +169,7 @@ class TestReadOnly(TestPackageForm):
 
     @classmethod
     def teardown_class(self):
-        model.repo.rebuild_db()
+        CreateTestData.delete()
 
     def test_index(self):
         offset = url_for(controller='package')
@@ -197,14 +195,14 @@ class TestReadOnly(TestPackageForm):
         offset = url_for(controller='package', action='read', id=name)
         res = self.app.get(offset)
         # only retrieve after app has been called
-        self.anna = model.Package.by_name(name)
+        anna = self.anna
         assert 'Packages - %s' % name in res
         assert name in res
-        assert self.anna.version in res
-        assert self.anna.url in res
-        assert cgi.escape(self.anna.resources[0].url) in res
-        assert self.anna.resources[0].description in res
-        assert self.anna.resources[0].hash in res
+        assert anna.version in res
+        assert anna.url in res
+        assert cgi.escape(anna.resources[0].url) in res
+        assert anna.resources[0].description in res
+        assert anna.resources[0].hash in res
         assert 'Some test notes' in res
         assert '<strong>Some bolded text.</strong>' in res
         self.check_tag_and_data(res, 'left arrow', '&lt;')
@@ -309,77 +307,77 @@ class TestReadOnly(TestPackageForm):
         assert name in res
 
 class TestEdit(TestPackageForm):
-    def setup_method(self, method):
-        self.setUp()
+    editpkg_name = u'editpkgtest'
+    
+    @classmethod
+    def setup_class(self):
+        self._reset_data()
 
     def setUp(self):
-        model.Session.remove()
-        rev = model.repo.new_revision()
-        self.editpkg_name = u'editpkgtest'
-        editpkg = model.Package(name=self.editpkg_name)
-        editpkg.url = u'editpkgurl.com'
-        editpkg.notes = u'Some notes'
-        editpkg.add_tag_by_name(u'mytesttag')
-        editpkg.add_resource(u'url escape: & umlaut: \xfc quote: "',
-                             description=u'description escape: & umlaut: \xfc quote "')
-        model.Session.add(editpkg)
-        u = model.User(name=u'testadmin')
-        model.Session.add(u)
-        model.repo.commit_and_remove()
+        if not self.res:
+            self.res = self.app.get(self.offset)
+            
+    @classmethod
+    def _reset_data(self):
+        CreateTestData.delete()
+        CreateTestData.create_arbitrary(
+            {'name':self.editpkg_name,
+             'url':u'editpkgurl.com',
+             'tags':[u'mytesttag'],
+             'resources':[{'url':u'url escape: & umlaut: \xfc quote: "',
+                          'description':u'description escape: & umlaut: \xfc quote "',
+                          }],
+             'admins':[u'testadmin'],
+             })
 
-        editpkg = model.Package.by_name(self.editpkg_name)
-        admin = model.User.by_name(u'testadmin')
-        model.setup_default_user_roles(editpkg, [admin])
-        model.repo.commit_and_remove()
-
-        self.pkgid = editpkg.id
-        offset = url_for(controller='package', action='edit', id=self.editpkg_name, package_form=package_form)
-        self.res = self.app.get(offset)
-        self.newtagnames = [u'russian', u'tolstoy', u'superb']
-        model.repo.commit_and_remove()
+        self.editpkg = model.Package.by_name(self.editpkg_name)
+        self.pkgid = self.editpkg.id
+        self.offset = url_for(controller='package', action='edit', id=self.editpkg_name)
 
         self.editpkg = model.Package.by_name(self.editpkg_name)
         self.admin = model.User.by_name(u'testadmin')
+        self.res = None #get's refreshed by setUp
 
-    def teardown_method(self, method):
-        self.tearDown()
-
-    def tearDown(self):
-        model.repo.rebuild_db()
-        model.Session.remove()
+    @classmethod
+    def teardown_class(self):
+        CreateTestData.delete()
 
     def test_edit(self):
         # the absolute basics
-        assert 'Packages - Edit' in self.res, self.res
-        assert self.editpkg.notes in self.res
+        try:
+            self.res = self.app.get(self.offset)
+            assert 'Packages - Edit' in self.res, self.res
+            assert self.editpkg.notes in self.res
 
-        new_name = u'new-name'
-        new_title = u'A Short Description of this Package'
-        newurl = u'http://www.editpkgnewurl.com'
-        new_download_url = newurl + u'/download/'
-        newlicense_id = u'cc-by'
-        newversion = u'0.9b'
-        fv = self.res.forms[0]
-        prefix = 'Package-%s-' % self.pkgid
-        fv[prefix + 'name'] = new_name
-        fv[prefix + 'title'] =  new_title
-        fv[prefix + 'url'] =  newurl
-        fv[prefix + 'resources-0-url'] =  new_download_url
-        fv[prefix + 'license_id'] =  newlicense_id
-        fv[prefix + 'version'] = newversion
-        res = fv.submit('commit')
-        # get redirected ...
-        res = res.follow()
-        model.Session.remove()
-        offset = url_for(controller='package', action='read', id=new_name)
-        res = self.app.get(offset)
-        assert 'Packages - %s' % new_name in res, res
-        pkg = model.Package.by_name(new_name)
-        assert pkg.title == new_title 
-        assert pkg.url == newurl
-        assert pkg.resources[0].url == new_download_url
-        assert pkg.version == newversion
-        assert newlicense_id == pkg.license.id
+            new_name = u'new-name'
+            new_title = u'A Short Description of this Package'
+            newurl = u'http://www.editpkgnewurl.com'
+            new_download_url = newurl + u'/download/'
+            newlicense_id = u'cc-by'
+            newversion = u'0.9b'
+            fv = self.res.forms[0]
+            prefix = 'Package-%s-' % self.pkgid
+            fv[prefix + 'name'] = new_name
+            fv[prefix + 'title'] =  new_title
+            fv[prefix + 'url'] =  newurl
+            fv[prefix + 'resources-0-url'] =  new_download_url
+            fv[prefix + 'license_id'] =  newlicense_id
+            fv[prefix + 'version'] = newversion
+            res = fv.submit('commit')
+            # get redirected ...
+            res = res.follow()
+            model.Session.remove()
+            offset = url_for(controller='package', action='read', id=new_name)
+            res = self.app.get(offset)
+            assert 'Packages - %s' % new_name in res, res
+            pkg = model.Package.by_name(new_name)
+            assert pkg.title == new_title 
+            assert pkg.url == newurl
+            assert pkg.resources[0].url == new_download_url
+            assert pkg.version == newversion
+            assert newlicense_id == pkg.license.id
+        finally:
+            self._reset_data()
 
     def test_edit_2_not_groups(self):
         # not allowed to edit groups for now
@@ -389,7 +387,8 @@ class TestEdit(TestPackageForm):
         
     def test_edit_2_tags_and_groups(self):
         # testing tag updating
-        newtags = self.newtagnames
+        newtagnames = [u'russian', u'tolstoy', u'superb']
+        newtags = newtagnames
         tagvalues = ' '.join(newtags)
         fv = self.res.forms[0]
         prefix = 'Package-%s-' % self.pkgid
@@ -402,7 +401,7 @@ class TestEdit(TestPackageForm):
         print str(res)
         assert 'Packages - %s' % self.editpkg_name in res
         pkg = model.Package.by_name(self.editpkg.name)
-        assert len(pkg.tags) == len(self.newtagnames)
+        assert len(pkg.tags) == len(newtagnames)
         outtags = [ tag.name for tag in pkg.tags ]
         for tag in newtags:
             assert tag in outtags 
@@ -462,153 +461,186 @@ u with umlaut \xc3\xbc
         del fv.fields[prefix + 'license_id']
         res = fv.submit('commit', status=400)     
 
+    def test_redirect_after_edit(self):
+        try:
+            pkg_name = self.editpkg_name
+            new_name = u'new-name'
+            assert model.Package.by_name(pkg_name)
+            return_url = 'http://random.site.com/package/<NAME>?param=value'
+            return_url_encoded = '/package/edit/editpkgtest?return_to=http%3A%2F%2Frandom.site.com%2Fpackage%2F%3CNAME%3E%3Fparam%3Dvalue'
+            offset = url_for(controller='package', action='edit', id=pkg_name, return_to=return_url)
+            res = self.app.get(offset)
+            assert 'Packages - Edit' in res
+            fv = res.forms[0]
+            prefix = 'Package-%s-' % self.pkgid
+            fv[prefix + 'name'] = new_name
+            res = fv.submit('preview')
+            assert not 'Error' in res, res
+            fv = res.forms[0]
+            res = fv.submit('commit', status=302)
+            assert not 'Error' in res, res
+            redirected_to = dict(res.headers)['Location']
+            completed_return_url = return_url.replace('<NAME>', new_name)
+            assert redirected_to == completed_return_url, redirected_to
+        finally:
+            # revert name change
+            pkg = model.Package.by_name(new_name)
+            if pkg:
+                rev = model.repo.new_revision()
+                pkg.name = self.editpkg_name
+                model.repo.commit_and_remove()
+
     def test_edit_all_fields(self):
-        # Create new item
-        rev = model.repo.new_revision()
-        pkg_name = u'new_editpkgtest'
-        pkg = model.Package(name=pkg_name)
-        pkg.title = u'This is a Test Title'
-        pkg.url = u'editpkgurl.com'
-        pr1 = model.PackageResource(url=u'editpkgurl1',
-              format=u'plain text', description=u'Full text',
-              hash=u'123abc',)
-        pr2 = model.PackageResource(url=u'editpkgurl2',
-              format=u'plain text2', description=u'Full text2',
-              hash=u'456abc',)
-        pkg.resources.append(pr1)
-        pkg.resources.append(pr2)
-        pkg.notes= u'this is editpkg'
-        pkg.version = u'2.2'
-        t1 = model.Tag(name=u'one')
-        t2 = model.Tag(name=u'two')
-        pkg.tags = [t1, t2]
-        pkg.state = model.State.DELETED
-        pkg.license_id = u'other-open'
-        extras = {'key1':'value1', 'key2':'value2', 'key3':'value3'}
-        for key, value in extras.items():
-            pkg.extras[unicode(key)] = unicode(value)
-        for obj in [pkg, t1, t2, pr1, pr2]:
-            model.Session.add(obj)
-        model.repo.commit_and_remove()
-        pkg = model.Package.by_name(pkg_name)
-        model.setup_default_user_roles(pkg, [self.admin])
-        model.repo.commit_and_remove()
+        try:
+            # Create new item
+            rev = model.repo.new_revision()
+            pkg_name = u'new_editpkgtest'
+            pkg = model.Package(name=pkg_name)
+            pkg.title = u'This is a Test Title'
+            pkg.url = u'editpkgurl.com'
+            pr1 = model.PackageResource(url=u'editpkgurl1',
+                  format=u'plain text', description=u'Full text',
+                  hash=u'123abc',)
+            pr2 = model.PackageResource(url=u'editpkgurl2',
+                  format=u'plain text2', description=u'Full text2',
+                  hash=u'456abc',)
+            pkg.resources.append(pr1)
+            pkg.resources.append(pr2)
+            pkg.notes= u'this is editpkg'
+            pkg.version = u'2.2'
+            t1 = model.Tag(name=u'one')
+            t2 = model.Tag(name=u'two')
+            pkg.tags = [t1, t2]
+            pkg.state = model.State.DELETED
+            pkg.license_id = u'other-open'
+            extras = {'key1':'value1', 'key2':'value2', 'key3':'value3'}
+            for key, value in extras.items():
+                pkg.extras[unicode(key)] = unicode(value)
+            for obj in [pkg, t1, t2, pr1, pr2]:
+                model.Session.add(obj)
+            model.repo.commit_and_remove()
+            pkg = model.Package.by_name(pkg_name)
+            model.setup_default_user_roles(pkg, [self.admin])
+            model.repo.commit_and_remove()
 
-        # Edit it
-        offset = url_for(controller='package', action='edit', id=pkg.name, package_form=package_form)
-        res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':'testadmin'})
-        assert 'Packages - Edit' in res, res
-        
-        # Check form is correctly filled
-        self.check_form_filled_correctly(res, pkg=pkg, log_message='')
-                                         
-        # Amend form
-        name = u'test_name'
-        title = u'Test Title'
-        version = u'1.1'
-        url = u'http://something.com/somewhere.zip'
-        resources = ((u'http://something.com/somewhere-else.xml', u'xml', u'Best', u'hash1'),
-                     (u'http://something.com/somewhere-else2.xml', u'xml2', u'Best2', u'hash2'),
-                     )
-        assert len(resources[0]) == len(model.PackageResource.get_columns())
-        notes = u'Very important'
-        license_id = u'gpl-3.0'
-        state = model.State.ACTIVE
-        tags = (u'tag1', u'tag2', u'tag3')
-        tags_txt = u' '.join(tags)
-        extra_changed = 'key1', self.value1 + ' CHANGED'
-        extra_new = 'newkey', 'newvalue'
-        log_message = 'This is a comment'
-        assert not model.Package.by_name(name)
-        fv = res.forms[0]
-        prefix = 'Package-%s-' % pkg.id
-        fv[prefix+'name'] = name
-        fv[prefix+'title'] = title
-        fv[prefix+'version'] = version
-        fv[prefix+'url'] = url
-        for res_index, resource in enumerate(resources):
-            for field_index, res_field in enumerate(model.PackageResource.get_columns()):
-                fv[prefix+'resources-%s-%s' % (res_index, res_field)] = resource[field_index]
-        fv[prefix+'notes'] = notes
-        fv[prefix+'license_id'] = license_id
-        fv[prefix+'tags'] = tags_txt
-        fv[prefix+'state'] = state
-        fv[prefix+'extras-%s' % extra_changed[0]] = extra_changed[1].encode('utf8')
-        fv[prefix+'extras-newfield0-key'] = extra_new[0].encode('utf8')
-        fv[prefix+'extras-newfield0-value'] = extra_new[1].encode('utf8')
-        fv[prefix+'extras-key3-checkbox'] = True
-        fv['log_message'] = log_message
-        res = fv.submit('preview', extra_environ={'REMOTE_USER':'testadmin'})
-        assert not 'Error' in res, res
+            # Edit it
+            offset = url_for(controller='package', action='edit', id=pkg.name)
+            res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':'testadmin'})
+            assert 'Packages - Edit' in res, res
 
-        # Check preview is correct
-        current_extras = (('key2', extras['key2']),
-                          extra_changed,
-                          extra_new)
-        deleted_extras = [('key3', extras['key3'])]
-        self._check_preview(res, name=name, title=title, version=version,
-                            url=url,
-                            download_url='',
-                            resources=resources, notes=notes, license_id=license_id,
-                            tags=tags, extras=current_extras,
-                            deleted_extras=deleted_extras,
-                            state=state)
-                            
-        # Check form is correctly filled
-        self.check_form_filled_correctly(res, id=pkg.id, name=name,
-                                         title=title, version=version,
-                                         url=url, resources=resources,
-                                         notes=notes, license_id=license_id,
-                                         tags=tags, extras=current_extras,
-                                         deleted_extras=deleted_extras,
-                                         log_message=log_message,
-                                         state=state)
+            # Check form is correctly filled
+            self.check_form_filled_correctly(res, pkg=pkg, log_message='')
 
-        # Submit
-        fv = res.forms[0]
-        res = fv.submit('commit', extra_environ={'REMOTE_USER':'testadmin'})
+            # Amend form
+            name = u'test_name'
+            title = u'Test Title'
+            version = u'1.1'
+            url = u'http://something.com/somewhere.zip'
+            resources = ((u'http://something.com/somewhere-else.xml', u'xml', u'Best', u'hash1'),
+                         (u'http://something.com/somewhere-else2.xml', u'xml2', u'Best2', u'hash2'),
+                         )
+            assert len(resources[0]) == len(model.PackageResource.get_columns())
+            notes = u'Very important'
+            license_id = u'gpl-3.0'
+            state = model.State.ACTIVE
+            tags = (u'tag1', u'tag2', u'tag3')
+            tags_txt = u' '.join(tags)
+            extra_changed = 'key1', self.value1 + ' CHANGED'
+            extra_new = 'newkey', 'newvalue'
+            log_message = 'This is a comment'
+            assert not model.Package.by_name(name)
+            fv = res.forms[0]
+            prefix = 'Package-%s-' % pkg.id
+            fv[prefix+'name'] = name
+            fv[prefix+'title'] = title
+            fv[prefix+'version'] = version
+            fv[prefix+'url'] = url
+            for res_index, resource in enumerate(resources):
+                for field_index, res_field in enumerate(model.PackageResource.get_columns()):
+                    fv[prefix+'resources-%s-%s' % (res_index, res_field)] = resource[field_index]
+            fv[prefix+'notes'] = notes
+            fv[prefix+'license_id'] = license_id
+            fv[prefix+'tags'] = tags_txt
+            fv[prefix+'state'] = state
+            fv[prefix+'extras-%s' % extra_changed[0]] = extra_changed[1].encode('utf8')
+            fv[prefix+'extras-newfield0-key'] = extra_new[0].encode('utf8')
+            fv[prefix+'extras-newfield0-value'] = extra_new[1].encode('utf8')
+            fv[prefix+'extras-key3-checkbox'] = True
+            fv['log_message'] = log_message
+            res = fv.submit('preview', extra_environ={'REMOTE_USER':'testadmin'})
+            assert not 'Error' in res, res
 
-        # Check package page
-        assert not 'Error' in res, res
-        res = res.follow(extra_environ={'REMOTE_USER':'testadmin'})
-        self._check_package_read(res, name=name, title=title,
-                                 version=version, url=url,
-                                 resources=resources, notes=notes,
-                                 license_id=license_id, 
-                                 tags=tags,
-                                 extras=current_extras,
-                                 deleted_extras=deleted_extras,
-                                 state=state,
-                                 )
+            # Check preview is correct
+            current_extras = (('key2', extras['key2']),
+                              extra_changed,
+                              extra_new)
+            deleted_extras = [('key3', extras['key3'])]
+            self._check_preview(res, name=name, title=title, version=version,
+                                url=url,
+                                download_url='',
+                                resources=resources, notes=notes, license_id=license_id,
+                                tags=tags, extras=current_extras,
+                                deleted_extras=deleted_extras,
+                                state=state)
 
-        # Check package object
-        pkg = model.Package.by_name(name)
-        assert pkg.name == name
-        assert pkg.title == title
-        assert pkg.version == version
-        assert pkg.url == url
-        for res_index, resource in enumerate(resources):
-            for field_index, res_field in enumerate(model.PackageResource.get_columns()):
-                assert getattr(pkg.resources[res_index], res_field) == resource[field_index]
-        assert pkg.notes == notes
-        assert pkg.license.id == license_id
-        saved_tagnames = [str(tag.name) for tag in pkg.tags]
-        saved_tagnames.sort()
-        expected_tagnames = list(tags)
-        expected_tagnames.sort()
-        assert saved_tagnames == expected_tagnames
-        assert pkg.state == state
-        assert len(pkg.extras) == len(current_extras)
-        for key, value in current_extras:
-            assert pkg.extras[key] == value
+            # Check form is correctly filled
+            self.check_form_filled_correctly(res, id=pkg.id, name=name,
+                                             title=title, version=version,
+                                             url=url, resources=resources,
+                                             notes=notes, license_id=license_id,
+                                             tags=tags, extras=current_extras,
+                                             deleted_extras=deleted_extras,
+                                             log_message=log_message,
+                                             state=state)
 
-        # for some reason environ['REMOTE_ADDR'] is undefined
-        rev = model.Revision.youngest(model.Session)
-        assert rev.author == 'testadmin', rev.author
-        assert rev.message == log_message
-        # TODO: reinstate once fixed in code
-        exp_log_message = u'Creating package %s' % name
-        #assert rev.message == exp_log_message
+            # Submit
+            fv = res.forms[0]
+            res = fv.submit('commit', extra_environ={'REMOTE_USER':'testadmin'})
+
+            # Check package page
+            assert not 'Error' in res, res
+            res = res.follow(extra_environ={'REMOTE_USER':'testadmin'})
+            self._check_package_read(res, name=name, title=title,
+                                     version=version, url=url,
+                                     resources=resources, notes=notes,
+                                     license_id=license_id, 
+                                     tags=tags,
+                                     extras=current_extras,
+                                     deleted_extras=deleted_extras,
+                                     state=state,
+                                     )
+
+            # Check package object
+            pkg = model.Package.by_name(name)
+            assert pkg.name == name
+            assert pkg.title == title
+            assert pkg.version == version
+            assert pkg.url == url
+            for res_index, resource in enumerate(resources):
+                for field_index, res_field in enumerate(model.PackageResource.get_columns()):
+                    assert getattr(pkg.resources[res_index], res_field) == resource[field_index]
+            assert pkg.notes == notes
+            assert pkg.license.id == license_id
+            saved_tagnames = [str(tag.name) for tag in pkg.tags]
+            saved_tagnames.sort()
+            expected_tagnames = list(tags)
+            expected_tagnames.sort()
+            assert saved_tagnames == expected_tagnames
+            assert pkg.state == state
+            assert len(pkg.extras) == len(current_extras)
+            for key, value in current_extras:
+                assert pkg.extras[key] == value
+
+            # for some reason environ['REMOTE_ADDR'] is undefined
+            rev = model.Revision.youngest(model.Session)
+            assert rev.author == 'testadmin', rev.author
+            assert rev.message == log_message
+            # TODO: reinstate once fixed in code
+            exp_log_message = u'Creating package %s' % name
+            #assert rev.message == exp_log_message
+        finally:
+            self._reset_data()
+
 
     def test_edit_bad_log_message(self):
         fv = self.res.forms[0]
@@ -626,91 +658,16 @@ u with umlaut \xc3\xbc
         assert 'No links are allowed' in res, res
 
 
-class TestMarkdownHtmlWhitelist(TestPackageForm):
-
-    pkg_name = u'markdownhtmlwhitelisttest'
-    pkg_notes = u'''
-<table width="100%" border="1">
-<tr>
-<td rowspan="2"><b>Description</b></td>
-<td rowspan="2"><b>Documentation</b></td>
-
-<td colspan="2"><b><center>Data -- Pkzipped</center></b> </td>
-</tr>
-<tr>
-<td><b>SAS .tpt</b></td>
-<td><b>ASCII CSV</b> </td>
-</tr>
-<tr>
-<td><b>Overview</b></td>
-<td><A HREF="http://www.nber.org/patents/subcategories.txt">subcategory.txt</A></td>
-<td colspan="2"><center>--</center></td>
-</tr>
-<script><!--
-alert('Hello world!');
-//-->
-</script>
-
-'''
-
-    def setup_method(self, method):
-        self.setUp()
-
-    def setUp(self):
-        model.Session.remove()
-        rev = model.repo.new_revision()
-        self.pkg = model.Package(name=self.pkg_name, notes=self.pkg_notes)
-        model.Session.add(self.pkg)
-        u = model.User(name=u'testadmin')
-        model.Session.add(u)
-        model.repo.commit_and_remove()
-
-        self.pkg = model.Package.by_name(self.pkg_name)
-        admin = model.User.by_name(u'testadmin')
-        model.setup_default_user_roles(self.pkg, [admin])
-        model.repo.commit_and_remove()
-        self.pkg_id = self.pkg.id
-        offset = url_for(controller='package', action='read', id=self.pkg_name)
-        self.res = self.app.get(offset)
-        model.repo.commit_and_remove()
-
-        self.pkg = model.Package.by_name(self.pkg_name)
-        self.admin = model.User.by_name(u'testadmin')
-
-    def teardown_method(self, method):
-        self.tearDown()
-
-    def tearDown(self):
-        model.repo.rebuild_db()
-        model.Session.remove()
-
-    def test_markdown_html_whitelist(self):
-        self.body = str(self.res)
-        self.assert_fragment('<table width="100%" border="1">')
-        self.assert_fragment('<td rowspan="2"><b>Description</b></td>')
-        self.assert_fragment('<a href="http://www.nber.org/patents/subcategories.txt">subcategory.txt</a>')
-        self.assert_fragment('<td colspan="2"><center>--</center></td>')
-        self.fail_if_fragment('<script>')
-
-    def assert_fragment(self, fragment):
-        assert fragment in self.body, (fragment, self.body)
-
-    def fail_if_fragment(self, fragment):
-        assert fragment not in self.body, (fragment, self.body)
-
-
 class TestNew(TestPackageForm):
-    pkgname = u'testpkg'
-    pkgtitle = u'mytesttitle'
-
+    pkg_names = []
+    
     @classmethod
     def teardown_class(self):
-        model.repo.rebuild_db()
-        model.Session.remove()
+        self.purge_packages(self.pkg_names)
 
     def test_new_with_params_1(self):
         offset = url_for(controller='package', action='new',
-                url='http://xxx.org', package_form=package_form)
+                url='http://xxx.org')
         res = self.app.get(offset)
         form = res.forms[0]
         form['Package--url'].value == 'http://xxx.org/'
@@ -718,7 +675,7 @@ class TestNew(TestPackageForm):
 
     def test_new_with_params_2(self):
         offset = url_for(controller='package', action='new',
-                url='http://www.xxx.org', package_form=package_form)
+                url='http://www.xxx.org')
         res = self.app.get(offset)
         form = res.forms[0]
         form['Package--name'].value == 'xxx.org'
@@ -727,7 +684,7 @@ class TestNew(TestPackageForm):
         # new package
         prefix = 'Package--'
         name = u'test_no_res'
-        offset = url_for(controller='package', action='new', package_form=package_form)
+        offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         fv = res.forms[0]
         fv[prefix+'name'] = name
@@ -740,6 +697,7 @@ class TestNew(TestPackageForm):
 
         # submit
         fv = res.forms[0]
+        self.pkg_names.append(name)
         res = fv.submit('commit')
 
         # check package page
@@ -754,20 +712,20 @@ class TestNew(TestPackageForm):
         assert pkg.name == name
         assert not pkg.resources, pkg.resources
 
-
     def test_new(self):
         assert not model.Package.by_name(u'annakarenina')
-        offset = url_for(controller='package', action='new', package_form=package_form)
+        offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         assert 'Packages - New' in res
         fv = res.forms[0]
         prefix = 'Package--'
         fv[prefix + 'name'] = 'annakarenina'
+        self.pkg_names.append('annakarenina')
         res = fv.submit('commit')
         assert not 'Error' in res, res
 
     def test_new_bad_name(self):
-        offset = url_for(controller='package', action='new', package_form=package_form)
+        offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         assert 'Packages - New' in res
         fv = res.forms[0]
@@ -778,10 +736,28 @@ class TestNew(TestPackageForm):
         assert 'Name must be at least 2 characters long' in res, res
         self._assert_form_errors(res)
 
+        self.pkg_names.append('a')
         res = fv.submit('commit')
         assert 'Error' in res, res
         assert 'Name must be at least 2 characters long' in res, res
         self._assert_form_errors(res)
+
+    def test_redirect_after_new(self):
+        pkg_name = u'redirect_1'
+        assert not model.Package.by_name(pkg_name)
+        return_url = 'http://random.site.com/package/<NAME>?param=value'
+        offset = url_for(controller='package', action='new', return_to=return_url)
+        res = self.app.get(offset)
+        assert 'Packages - New' in res
+        fv = res.forms[0]
+        prefix = 'Package--'
+        fv[prefix + 'name'] = pkg_name
+        self.pkg_names.append(pkg_name)
+        res = fv.submit('commit', status=302)
+        assert not 'Error' in res, res
+        redirected_to = dict(res.headers)['Location']
+        completed_return_url = return_url.replace('<NAME>', pkg_name)
+        assert redirected_to == completed_return_url, redirected_to
 
     def test_new_all_fields(self):
         name = u'test_name2'
@@ -796,7 +772,7 @@ class TestNew(TestPackageForm):
         extras = {self.key1:self.value1, 'key2':'value2', 'key3':'value3'}
         log_message = 'This is a comment'
         assert not model.Package.by_name(name)
-        offset = url_for(controller='package', action='new', package_form=package_form)
+        offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         assert 'Packages - New' in res
         fv = res.forms[0]
@@ -840,6 +816,7 @@ class TestNew(TestPackageForm):
                                          )
         # Submit
         fv = res.forms[0]
+        self.pkg_names.append(name)
         res = fv.submit('commit')
 
         # Check package page
@@ -884,22 +861,25 @@ class TestNew(TestPackageForm):
     def test_new_existing_name(self):
         # test creating a package with an existing name results in error'
         # create initial package
-        assert not model.Package.by_name(self.pkgname)
-        offset = url_for(controller='package', action='new', package_form=package_form)
+        pkgname = u'testpkg'
+        pkgtitle = u'mytesttitle'
+        assert not model.Package.by_name(pkgname)
+        offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         assert 'Packages - New' in res
         fv = res.forms[0]
         prefix = 'Package--'
-        fv[prefix + 'name'] = self.pkgname
+        fv[prefix + 'name'] = pkgname
+        self.pkg_names.append(pkgname)
         res = fv.submit('commit')
         assert not 'Error' in res, res
-        assert model.Package.by_name(self.pkgname)
+        assert model.Package.by_name(pkgname)
         # create duplicate package
         res = self.app.get(offset)
         assert 'Packages - New' in res
         fv = res.forms[0]
-        fv[prefix+'name'] = self.pkgname
-        fv[prefix+'title'] = self.pkgtitle
+        fv[prefix+'name'] = pkgname
+        fv[prefix+'title'] = pkgtitle
         res = fv.submit('preview')
         assert 'Preview' in res
         fv = res.forms[0]
@@ -911,16 +891,17 @@ class TestNew(TestPackageForm):
     def test_missing_fields(self):
         # A field is left out in the commit parameters.
         # (Spammers can cause this)
-        offset = url_for(controller='package', action='new', package_form=package_form)
+        offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         assert 'Packages - New' in res
         prefix = 'Package--'
         fv = res.forms[0]
         fv[prefix + 'name'] = 'anything'
         del fv.fields['log_message']
+        self.pkg_names.append('anything')
         res = fv.submit('commit', status=400)
 
-        offset = url_for(controller='package', action='new', package_form=package_form)
+        offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         assert 'Packages - New' in res
         fv = res.forms[0]
@@ -934,7 +915,7 @@ class TestNew(TestPackageForm):
 
     def test_multi_resource_bug(self):
         # ticket:276
-        offset = url_for(controller='package', action='new', package_form=package_form)
+        offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         assert 'Packages - New' in res
         fv = res.forms[0]
@@ -953,18 +934,17 @@ class TestNewPreview(TestPackageBase):
     pkgtitle = u'mytesttitle'
 
     @classmethod
+    def setup_class(self):
+        model.repo.rebuild_db() # ensure no revisions from other tests
+
+    @classmethod
     def teardown_class(self):
-        model.Session.remove()
-        pkg = model.Package.by_name(self.pkgname)
-        if pkg:
-            pkg.purge()
-        model.Session.commit()
-        model.Session.remove()
+        self.purge_packages([self.pkgname])
 
     def test_preview(self):
         assert model.Session.query(model.Package).count() == 0, model.Session.query(model.Package).all()
         
-        offset = url_for(controller='package', action='new', package_form=package_form)
+        offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         assert 'Packages - New' in res
         fv = res.forms[0]
@@ -1006,7 +986,8 @@ class TestNonActivePackages(TestPackageBase):
 
     @classmethod
     def teardown_class(self):
-        model.repo.rebuild_db()
+        CreateTestData.delete()
+        self.purge_packages([self.non_active_name])
 
     def test_list(self):
         offset = url_for(controller='package', action='list')
@@ -1062,10 +1043,7 @@ class TestRevisions(TestPackageBase):
 
     @classmethod
     def teardown_class(self):
-        rev = model.repo.new_revision()
-        pkg1 = model.Package.by_name(self.name)
-        pkg1.purge()
-        model.repo.commit_and_remove()
+        self.purge_packages([self.name])
     
     def test_0_read_history(self):
         offset = url_for(controller='package', action='history', id=self.pkg1.name)
@@ -1099,4 +1077,62 @@ class TestRevisions(TestPackageBase):
         assert '<feed' in res, res
         assert 'xmlns="http://www.w3.org/2005/Atom"' in res, res
         assert '</feed>' in res, res
+
    
+class TestMarkdownHtmlWhitelist(TestPackageForm):
+
+    pkg_name = u'markdownhtmlwhitelisttest'
+    pkg_notes = u'''
+<table width="100%" border="1">
+<tr>
+<td rowspan="2"><b>Description</b></td>
+<td rowspan="2"><b>Documentation</b></td>
+
+<td colspan="2"><b><center>Data -- Pkzipped</center></b> </td>
+</tr>
+<tr>
+<td><b>SAS .tpt</b></td>
+<td><b>ASCII CSV</b> </td>
+</tr>
+<tr>
+<td><b>Overview</b></td>
+<td><A HREF="http://www.nber.org/patents/subcategories.txt">subcategory.txt</A></td>
+<td colspan="2"><center>--</center></td>
+</tr>
+<script><!--
+alert('Hello world!');
+//-->
+</script>
+
+'''
+
+    def setUp(self):
+        model.Session.remove()
+        rev = model.repo.new_revision()
+        CreateTestData.create_arbitrary(
+            {'name':self.pkg_name,
+             'notes':self.pkg_notes,
+             'admins':[u'testadmin']}
+            )
+        self.pkg = model.Package.by_name(self.pkg_name)
+        self.pkg_id = self.pkg.id
+
+        offset = url_for(controller='package', action='read', id=self.pkg_name)
+        self.res = self.app.get(offset)
+
+    def tearDown(self):
+        CreateTestData.delete()
+
+    def test_markdown_html_whitelist(self):
+        self.body = str(self.res)
+        self.assert_fragment('<table width="100%" border="1">')
+        self.assert_fragment('<td rowspan="2"><b>Description</b></td>')
+        self.assert_fragment('<a href="http://www.nber.org/patents/subcategories.txt">subcategory.txt</a>')
+        self.assert_fragment('<td colspan="2"><center>--</center></td>')
+        self.fail_if_fragment('<script>')
+
+    def assert_fragment(self, fragment):
+        assert fragment in self.body, (fragment, self.body)
+
+    def fail_if_fragment(self, fragment):
+        assert fragment not in self.body, (fragment, self.body)

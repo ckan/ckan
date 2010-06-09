@@ -12,8 +12,10 @@ class Data4Nr(object):
         rev = self._new_revision()
         assert os.path.exists(csv_filepath)
         f_obj = open(csv_filepath, "r")
+        dialect = csv.excel
+        dialect.escapechar = '\\' # for openoffice
+        reader = csv.reader(f_obj, dialect)
         self._current_filename = os.path.basename(csv_filepath)
-        reader = csv.reader(f_obj)
         index = 0
         reader.next()
         for row_list in reader:

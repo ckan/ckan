@@ -13,18 +13,20 @@ Contents:
    :maxdepth: 2
 
    README
+   design
    deployment
    configuration
-   design
-   importer
    api
    feeds
    getdata
+   importer
    package_forms
+   form-integration
    model
    authentication
    authorization
    load_testing
+   distributed
 
 
 Other material

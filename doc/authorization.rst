@@ -4,7 +4,7 @@ CKAN Authorization and Access Control
 
 This document gives an overview of CKAN's authorization capabilities and model
 in relation to access control. The authentication/identification aspects of
-access control are dealt with separately in the :ref:authorization.rst.
+access control are dealt with separately in :doc:`authorization`.
 
 
 Overview
@@ -25,19 +25,23 @@ For each protected object there are a set of relevant **actions** such as 'creat
 
 The responsibility of the authorization system is to determine whether a **given user is permitted to carry out a given action on a given protected object.**
 
-The system therefore needs to record tuples of the form::
+The system therefore needs to record tuples of the form:
 
-  user    |  action | object
-  --------------------------
-  levin   |  edit   | package::warandpeace
+======== ======= ====================
+user     action  object
+======== ======= ====================
+levin    edit    package::warandpeace
+======== ======= ====================
 
 In fact, in CKAN actions are aggregated using the standard concept of a **Role** (e.g. an editor role would have 'edit' and 'read' action).
 
-This means we in fact record tuples of the form::
+This means we in fact record tuples of the form:
 
-  user    |  role   | object
-  --------------------------
-  levin   |  editor | package::warandpeace
+======== ======= ====================
+user     role    object
+======== ======= ====================
+levin    editor  package::warandpeace
+======== ======= ====================
    
 The assignment of users to roles on a given protected object (such as a
 package) can be done by 'admins' via the 'authorization' tab of

@@ -34,6 +34,7 @@ class TestSimpleDump(TestController):
         assert 'annakarenina.com/download' in res, res
         assert 'Index of the novel' in res, res
         assert 'joeadmin' not in res, res
+        self.assert_correct_field_order(res)
         
     def test_simple_dump_json(self):
         dump_file = tempfile.TemporaryFile()
@@ -45,6 +46,14 @@ class TestSimpleDump(TestController):
         assert 'genre' in res, res
         assert 'romantic novel' in res, res
         assert 'joeadmin' not in res, res
+        self.assert_correct_field_order(res)
+
+    def assert_correct_field_order(self, res):
+        correct_field_order = ('id', 'name', 'title', 'version', 'url')
+        field_position = [res.find('"%s"' % field) for field in correct_field_order]
+        field_position_sorted = field_position[:]
+        field_position_sorted.sort()
+        assert field_position == field_position_sorted, field_position
 
 class TestDumper(object):
 # TODO this doesn't work on sqlite - we should fix this

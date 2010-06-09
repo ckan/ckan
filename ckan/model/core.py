@@ -3,6 +3,7 @@ import datetime
 from pylons import config
 from meta import *
 import vdm.sqlalchemy
+from sqlalchemy.util import OrderedDict
 
 from types import make_uuid
 import full_search
@@ -88,7 +89,7 @@ class DomainObject(object):
         sess.delete(self)
 
     def as_dict(self):
-        _dict = {}
+        _dict = OrderedDict()
         table = orm.class_mapper(self.__class__).mapped_table
         for col in table.c:
             val = getattr(self, col.name)
@@ -196,6 +197,9 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
     def as_dict(self):
         _dict = DomainObject.as_dict(self)
+        # Set 'license' in _dict to cater for old clients.
+        # Todo: Remove this ASAP.
+        _dict['license'] = self.license.title if self.license else _dict.get('license_id', '')
         _dict['tags'] = [tag.name for tag in self.tags]
         _dict['groups'] = [group.name for group in self.groups]
         _dict['extras'] = dict([(extra.key, extra.value) for key, extra in self._extras.items()])

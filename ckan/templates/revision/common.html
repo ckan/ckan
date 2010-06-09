@@ -9,18 +9,15 @@
       <tr py:def="revision_row(item)">
         <td>
           ${
-            XML(
             h.link_to(item.id,
               h.url_for(
                 controller='revision',
                 action='read',
                 id=item.id)
               )
-            )
           }
           <py:if test="c.show_purge_links">
           ${
-            XML(
             h.link_to(_('Purge'),
               h.url_for(
                 controller='revision',
@@ -28,7 +25,6 @@
                 id=item.id),
               confirm=_('Are you sure?')
               )
-            )
           }
           </py:if>
         </td>

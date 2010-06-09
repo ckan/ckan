@@ -86,8 +86,8 @@ def get_group_dict(group=None):
 
     for field in fs._fields.values():
         if not filter(lambda x: field.renderer.name.endswith(x), exclude):
-            if field.renderer._value:
-                indict[field.renderer.name] = field.renderer._value
+            if field.renderer.value:
+                indict[field.renderer.name] = field.renderer.value
             else:
                 indict[field.renderer.name] = u''
 

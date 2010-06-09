@@ -4,13 +4,16 @@ Daily script for gov server
 import os
 import logging
 import sys
-import gzip
+import zipfile
 import traceback
 import datetime
 
 LOG_FILENAME = os.path.expanduser('~/gov-daily.log')
 ONS_CACHE_DIR = os.path.expanduser('~/ons_data')
-DUMP_FILE_BASE = os.path.expanduser('~/data.gov.uk-daily')
+DUMP_DIR = os.path.expanduser('~/dump/')
+# e.g. hmg.ckan.net-20091125.json.gz	
+DUMP_FILE_BASE = os.path.expanduser('hmg.ckan.net-%Y-%m-%d')
+TMP_FILEPATH = '/tmp/dump'
 USAGE = '''Daily script for government
 Usage: python %s [config.ini]
 ''' % sys.argv[0]
@@ -59,17 +62,28 @@ logging.info('Time taken (so far): %i seconds' % time_taken)
 
 # Dump
 logging.info('Creating database dump')
-dump_filepath_base = DUMP_FILE_BASE
-csv_filepath = dump_filepath_base + '.csv.gz'
-json_filepath = dump_filepath_base + '.json.gz'
-csv_file = gzip.open(csv_filepath, 'wb')
-json_file = gzip.open(json_filepath, 'wb')
+if not os.path.exists(DUMP_DIR):
+    logging.info('Creating dump dir: %s' % DUMP_DIR)
+    os.makedirs(DUMP_DIR)
+dump_file_base = start_time.strftime(DUMP_FILE_BASE)
+csv_dump_filename_base = dump_file_base + '.csv'
+json_dump_filename_base = dump_file_base + '.json'
+csv_filepath = DUMP_DIR + csv_dump_filename_base + '.zip'
+json_filepath = DUMP_DIR + json_dump_filename_base + '.zip'
 query = model.Session.query(model.Package)
+tmp_file = open(TMP_FILEPATH, 'w')
 logging.info('Creating CSV file: %s' % csv_filepath)
-dumper.SimpleDumper().dump_csv(csv_file, query)
+dumper.SimpleDumper().dump_csv(tmp_file, query)
+tmp_file.close()
+csv_file = zipfile.ZipFile(csv_filepath, 'w', zipfile.ZIP_DEFLATED)
+csv_file.write(TMP_FILEPATH, dump_file_base)
 csv_file.close()
+tmp_file = open(TMP_FILEPATH, 'w')
 logging.info('Creating JSON file: %s' % json_filepath)
-dumper.SimpleDumper().dump_json(json_file, query)
+dumper.SimpleDumper().dump_json(tmp_file, query)
+tmp_file.close()
+json_file = zipfile.ZipFile(json_filepath, 'w', zipfile.ZIP_DEFLATED)
+json_file.write(TMP_FILEPATH, dump_file_base)
 json_file.close()
 #logging.info('Transferring dumps to ckan.net')
 #TODO

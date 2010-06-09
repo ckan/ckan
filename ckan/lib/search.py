@@ -26,6 +26,7 @@ class SearchOptions:
     order_by = 'rank'
     all_fields = False
     return_objects = False
+    ref_entity_with_attr = 'name'
 
     def __init__(self, kw_dict):
         if not kw_dict.keys():
@@ -295,7 +296,8 @@ class SQLSearch:
                     results.append(result)
                 self._results['results'] = results
             else:
-                self._results['results'] = [entity.name for entity in self._results['results']]
+                attr_name = self._options.ref_entity_with_attr
+                self._results['results'] = [getattr(entity, attr_name) for entity in self._results['results']]
     
     def index_package(self, package):
         pass
@@ -312,7 +314,7 @@ class SolrSearch(SQLSearch):
                     "res_url", "text", "urls", "indexed_ts"]
 
     def __init__(self, solr_url=None):
-        if solr_url is None: 
+        if solr_url is None:
             solr_url = config.get('solr_url', 'http://localhost:8983/solr')
         # import inline to avoid external dependency 
         from solr import SolrConnection # == solrpy 

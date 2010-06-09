@@ -350,9 +350,7 @@ class TestGeographicCoverage(object):
 
     @classmethod
     def teardown_class(self):
-        model.Session.remove()
-        model.repo.rebuild_db()
-        model.Session.remove()
+        CreateTestData.delete()
     
     def _do_search(self, q, expected_pkgs, count=None):
         options = SearchOptions({'q':q})
@@ -426,10 +424,11 @@ class TestExtraFields(object):
         self._do_search(u'abc cde', [], 0)
         self._do_search(u'cde abc', 'c', 1)
 
-class TestRank(object):
+class TestRank(TestController):
     @classmethod
     def setup_class(self):
-        model.Session.remove()
+        self.purge_all_packages()
+
         init_data = [{'name':u'test1-penguin-canary',
                       'tags':u'canary goose squirrel wombat wombat'},
                      {'name':u'test2-squirrel-squirrel-canary-goose',
@@ -441,9 +440,7 @@ class TestRank(object):
 
     @classmethod
     def teardown_class(self):
-        model.Session.remove()
-        model.repo.rebuild_db()
-        model.Session.remove()
+        CreateTestData.delete()
     
     def _do_search(self, q, wanted_results):
         options = SearchOptions({'q':q})

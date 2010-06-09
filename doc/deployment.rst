@@ -59,7 +59,12 @@ Now you can then do the deployment with something like::
 
   $ psql -l
 
-  Create a user if one doesn't already exist::
+  It is advisable to ensure that the encoding of databases is 'UTF8', or 
+  internationalisation may be a problem. Since changing the encoding of Postgres
+  may mean deleting existing databases, it is suggested that this is fixed before
+  continuing with the CKAN install.
+
+  Create a database user if one doesn't already exist::
 
   $ sudo -u postgres createuser -S -D -R -P <user>
 

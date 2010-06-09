@@ -15,6 +15,7 @@ There are several general Pylons options, and all the CKAN-specific ones are in 
 
 Once the config file is changed, Apache needs to be restarted to read in the new changes.
 
+
 sqlalchemy.url
 --------------
 
@@ -25,6 +26,7 @@ Example::
 This defines the database that CKAN is to use. The format is::
 
  sqlalchemy.url = postgres://USERNAME:PASSWORD@HOST/DBNAME
+
 
 package_form
 ------------
@@ -49,7 +51,7 @@ Example::
 
 By telling CKAN what hostname it is served at, it can provide backlinks to packages in two places:
 
-1. The REST API: when you read a package register it contains a property giving a link to the package on CKAN. e.g. `"ckan_url": "http://ckan.net/package/pollution-2008"
+1. The REST API: when you read a package register it contains a property giving a link to the package on CKAN. e.g. `"ckan_url": "http://ckan.net/package/pollution-2008"`
 
 2. The backend RDF generator can use the CKAN package URLs for the subject in the triples.
 
@@ -99,3 +101,37 @@ Example::
  lang=de
 
 Use this to specify the default language of the text displayed in the CKAN web UI. The default is English (en).
+
+
+extra_template_paths
+--------------------
+
+Example::
+
+ extra_template_paths=/home/okfn/brazil_ckan_config/templates
+
+To customise the display of CKAN you can supply replacements for the Genshi template files. Use this option to specify where CKAN should look for them, before reverting to the 'ckan/templates' folder. You can supply more than one folder, separating the paths with a comma (,).
+
+The example value for the extra_template_paths option could, for example, be used to override CKAN templates with these ones:
+
+ * /home/okfn/brazil_ckan_config/templates/layout.html
+ * /home/okfn/brazil_ckan_config/templates/package/edit.html
+
+More details about this feature are found at: http://wiki.okfn.org/ckan/doc/theme
+
+
+extra_public_paths
+------------------
+
+Example::
+
+ extra_public_paths = /home/okfn/brazil_ckan_config/public
+
+To customise the display of CKAN you can supply replacements for staticly served files such as HTML, CSS, script and PNG files. Use this option to specify where CKAN should look for them, before reverting to the 'ckan/public' folder. You can supply more than one folder, separating the paths with a comma (,).
+
+The example value for the extra_public_paths option could, for example, be used to provide an image and stylesheet:
+
+ * /home/okfn/brazil_ckan_config/public/images/brazil.png
+ * /home/okfn/brazil_ckan_config/public/css/extra.css
+
+More details about this feature are found at: http://wiki.okfn.org/ckan/doc/theme

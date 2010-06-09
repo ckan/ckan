@@ -86,6 +86,7 @@ class TestData:
         assert res.url == 'https://www.nomisweb.co.uk/query/construct/summary.asp?mode=construct&version=0&dataset=62', pkg1.resources
         assert res.description == 'Can be accessed through advanced query and wizard query. Access using the cell tab.'
         assert 'Age and limiting long-term illness by NS-SeC. Census Area Statistics Table CAS024' in pkg1.notes, pkg1.notes
+        assert 'Difficult quotes ""lower quartile"" (per thousand)' in pkg2.notes, pkg2.notes
         assert 'Source: Census 2001' in pkg1.notes, pkg1.notes
         assert pkg1.extras['department'] == '', pkg1.extras['department']
         assert pkg2.extras['department'] == 'Department of Health', pkg2.extras['department']

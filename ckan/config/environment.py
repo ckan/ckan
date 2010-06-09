@@ -4,14 +4,15 @@ import os
 import pylons
 from sqlalchemy import engine_from_config
 from pylons import config
+from pylons.i18n.translation import ugettext
 from genshi.template import TemplateLoader
+from genshi.filters.i18n import Translator
 
 import ckan.lib.app_globals as app_globals
 import ckan.lib.helpers
 from ckan.config.routing import make_map
 from ckan import model
 
-from genshi.filters.i18n import Translator
 
 def load_environment(global_conf, app_conf):
     """Configure the Pylons environment via the ``pylons.config``
@@ -25,8 +26,7 @@ def load_environment(global_conf, app_conf):
                  templates=[os.path.join(root, 'templates')])
 
     # Initialize config with the basic options
-    config.init_app(global_conf, app_conf, package='ckan',
-                    template_engine='genshi', paths=paths)
+    config.init_app(global_conf, app_conf, package='ckan', paths=paths)
 
     config['routes.map'] = make_map()
     config['pylons.app_globals'] = app_globals.Globals()
@@ -50,11 +50,6 @@ def load_environment(global_conf, app_conf):
     # tmpl_options["genshi.loader_callback"] = template_loaded
     config['pylons.app_globals'].genshi_loader = TemplateLoader(
         template_paths, auto_reload=True, callback=template_loaded)
-    # HACK! For some reason callback=template_loaded in previous line does
-    # *not* work (this required 1h to track down!!)
-    # This does work ...
-    tmpl_options = config['buffet.template_options']
-    tmpl_options["genshi.loader_callback"] = template_loaded
 
     # CONFIGURATION OPTIONS HERE (note: all config options will override
     # any Pylons config options)
