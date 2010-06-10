@@ -178,7 +178,7 @@ class PackageController(BaseController):
                 model.setup_default_user_roles(pkg, admins)
                 model.repo.commit_and_remove()
 
-                self._post_edit_redirect(pkgname)
+                self._form_commit_redirect(pkgname, 'new')
             except ValidationException, error:
                 fs = error.args[0]
                 c.form = self._render_edit_form(fs, request.params,
@@ -252,7 +252,7 @@ class PackageController(BaseController):
                 PackageSaver().commit_pkg(fs, id, pkg.id, log_message, c.author)
                 # do not use pkgname from id as may have changed
                 pkgname = fs.name.value
-                self._post_edit_redirect(pkgname)
+                self._form_commit_redirect(pkgname, 'edit')
             except ValidationException, error:
                 fs = error.args[0]
                 c.form = self._render_edit_form(fs, request.params,
@@ -279,12 +279,16 @@ class PackageController(BaseController):
                 return render('package/edit.html')
             return render('package/edit.html') # uses c.form and c.preview
 
-    def _post_edit_redirect(self, pkgname):
-        '''This redirects the user to the package/read page,
-        unless there is request parameter giving an alternate location.
+    def _form_commit_redirect(self, pkgname, action):
+        '''This redirects the user to the CKAN package/read page,
+        unless there is request parameter giving an alternate location,
+        perhaps an external website.
         @param pkgname - Name of the package just edited
+        @param action - What the action of the edit was
         '''
-        url = request.params.get('return_to')
+        assert action in ('new', 'edit')
+        url = request.params.get('return_to') or \
+              config.get('package_%s_return_url' % action)
         if url:
             url = url.replace('<NAME>', pkgname)
         else:

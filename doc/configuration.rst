@@ -135,3 +135,16 @@ The example value for the extra_public_paths option could, for example, be used 
  * /home/okfn/brazil_ckan_config/public/css/extra.css
 
 More details about this feature are found at: http://wiki.okfn.org/ckan/doc/theme
+
+
+package_new_return_url & package_edit_return_url
+------------------------------------------------
+
+Example::
+
+ package_new_return_url = http://datadotgc.ca/new_dataset_complete?name=<NAME>
+ package_edit_return_url = http://datadotgc.ca/dataset/<NAME>
+
+To allow the Edit Package and New Package forms to be integrated into a third party interface, setting these options allows you to set a the return address. So when the user has completed the form and presses 'commit', the user is redirected to the URL specified.
+
+The '<NAME>' string is replaced with the name of the package edited. Full details of this process are given in :doc:`form-integration`.

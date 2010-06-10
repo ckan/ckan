@@ -1,12 +1,13 @@
 import cgi
 
 from paste.fixture import AppError
+from pylons import config
+from genshi.core import escape as genshi_escape
 
 from ckan.tests import *
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 import ckan.lib.helpers as h
-from genshi.core import escape as genshi_escape
 
 existing_extra_html = ('<label class="field_opt" for="Package-%(package_id)s-extras-%(key)s">%(capitalized_key)s</label>', '<input id="Package-%(package_id)s-extras-%(key)s" name="Package-%(package_id)s-extras-%(key)s" size="20" type="text" value="%(value)s">')
 
@@ -160,6 +161,57 @@ class TestPackageForm(TestPackageBase):
             self.check_tag(main_res, 'Package-%s-extras-%s' % (params['id'], key_escaped), value_escaped)
         assert params['log_message'] in main_res, main_res
     
+    def _check_redirect(self, return_url_param, expected_redirect,
+                        pkg_name_to_edit=''):
+        '''
+        @param return_url_param - encoded url to be given as param - if None
+                       then assume redirect is specified in pylons config
+        @param expected_redirect - url we expect to redirect to (but <NAME>
+                       not yet substituted)
+        @param pkg_name_to_edit - '' means create a new package
+        '''
+        try:
+            new_name = u'new-name'
+            offset_params = {'controller':'package'}
+            if pkg_name_to_edit:
+                pkg_name = pkg_name_to_edit
+                pkg = model.Package.by_name(pkg_name)
+                assert pkg
+                pkg_id = pkg.id
+                offset_params['action'] = 'edit'
+                offset_params['id'] = pkg_name_to_edit
+            else:
+                offset_params['action'] = 'new'
+                pkg_id = ''
+            if return_url_param:
+                offset_params['return_to'] = return_url_param
+            offset = url_for(**offset_params)
+            res = self.app.get(offset)
+            assert 'Packages -' in res
+            fv = res.forms[0]
+            prefix = 'Package-%s-' % pkg_id
+            fv[prefix + 'name'] = new_name
+            res = fv.submit('preview')
+            assert not 'Error' in res, res
+            fv = res.forms[0]
+            res = fv.submit('commit', status=302)
+            assert not 'Error' in res, res
+            redirected_to = dict(res.headers)['Location']
+            expected_redirect_url = expected_redirect.replace('<NAME>', new_name)
+            assert redirected_to == expected_redirect_url, \
+                   'Redirected to %s but should have been %s' % \
+                   (redirected_to, expected_redirect_url)
+        finally:
+            # revert name change or pkg creation
+            pkg = model.Package.by_name(new_name)
+            if pkg:
+                rev = model.repo.new_revision()
+                if pkg_name_to_edit:
+                    pkg.name = pkg_name_to_edit
+                else:
+                    pkg.purge()
+                model.repo.commit_and_remove()
+                 
 
 class TestReadOnly(TestPackageForm):
 
@@ -461,34 +513,20 @@ u with umlaut \xc3\xbc
         del fv.fields[prefix + 'license_id']
         res = fv.submit('commit', status=400)     
 
-    def test_redirect_after_edit(self):
-        try:
-            pkg_name = self.editpkg_name
-            new_name = u'new-name'
-            assert model.Package.by_name(pkg_name)
-            return_url = 'http://random.site.com/package/<NAME>?param=value'
-            return_url_encoded = '/package/edit/editpkgtest?return_to=http%3A%2F%2Frandom.site.com%2Fpackage%2F%3CNAME%3E%3Fparam%3Dvalue'
-            offset = url_for(controller='package', action='edit', id=pkg_name, return_to=return_url)
-            res = self.app.get(offset)
-            assert 'Packages - Edit' in res
-            fv = res.forms[0]
-            prefix = 'Package-%s-' % self.pkgid
-            fv[prefix + 'name'] = new_name
-            res = fv.submit('preview')
-            assert not 'Error' in res, res
-            fv = res.forms[0]
-            res = fv.submit('commit', status=302)
-            assert not 'Error' in res, res
-            redirected_to = dict(res.headers)['Location']
-            completed_return_url = return_url.replace('<NAME>', new_name)
-            assert redirected_to == completed_return_url, redirected_to
-        finally:
-            # revert name change
-            pkg = model.Package.by_name(new_name)
-            if pkg:
-                rev = model.repo.new_revision()
-                pkg.name = self.editpkg_name
-                model.repo.commit_and_remove()
+
+    def test_redirect_after_edit_using_param(self):
+        return_url = 'http://random.site.com/package/<NAME>?test=param'
+        # It's useful to know that this url encodes to:
+        # 'http%3A%2F%2Frandom.site.com%2Fpackage%2F%3CNAME%3E%3Ftest%3Dparam'
+        expected_redirect = return_url
+        self._check_redirect(return_url, expected_redirect,
+                             pkg_name_to_edit=self.editpkg_name)
+
+    def test_redirect_after_edit_using_config(self):
+        return_url = '' # redirect comes from test.ini setting
+        expected_redirect = config['package_edit_return_url']
+        self._check_redirect(return_url, expected_redirect,
+                             pkg_name_to_edit=self.editpkg_name)
 
     def test_edit_all_fields(self):
         try:
@@ -742,22 +780,19 @@ class TestNew(TestPackageForm):
         assert 'Name must be at least 2 characters long' in res, res
         self._assert_form_errors(res)
 
-    def test_redirect_after_new(self):
-        pkg_name = u'redirect_1'
-        assert not model.Package.by_name(pkg_name)
-        return_url = 'http://random.site.com/package/<NAME>?param=value'
-        offset = url_for(controller='package', action='new', return_to=return_url)
-        res = self.app.get(offset)
-        assert 'Packages - New' in res
-        fv = res.forms[0]
-        prefix = 'Package--'
-        fv[prefix + 'name'] = pkg_name
-        self.pkg_names.append(pkg_name)
-        res = fv.submit('commit', status=302)
-        assert not 'Error' in res, res
-        redirected_to = dict(res.headers)['Location']
-        completed_return_url = return_url.replace('<NAME>', pkg_name)
-        assert redirected_to == completed_return_url, redirected_to
+    def test_redirect_after_new_using_param(self):
+        return_url = 'http://random.site.com/package/<NAME>?test=param'
+        # It's useful to know that this url encodes to:
+        # 'http%3A%2F%2Frandom.site.com%2Fpackage%2F%3CNAME%3E%3Ftest%3Dparam'
+        expected_redirect = return_url
+        self._check_redirect(return_url, expected_redirect,
+                             pkg_name_to_edit='')
+
+    def test_redirect_after_new_using_config(self):
+        return_url = '' # redirect comes from test.ini setting
+        expected_redirect = config['package_new_return_url']
+        self._check_redirect(return_url, expected_redirect,
+                             pkg_name_to_edit='')
 
     def test_new_all_fields(self):
         name = u'test_name2'
