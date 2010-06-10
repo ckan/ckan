@@ -52,7 +52,7 @@ You might add a tag by POSTing to ``http://ckan.net/api/rest/package/osm`` this:
 
 "tags": ["navigation", "openstreetmap", "map", "geo", "geodata", "xml", "publicdomain", "osm", "my-new-tag"]
 
-So that the system knows who is making this change, you need to send your API key in the headers (see below).
+So that the system knows who is making this change, you need to send your API key in the headers - see `CKAN API Keys`_.
 
 
 Overview
@@ -72,6 +72,7 @@ identified in server responses. For example, after successfully POSTing data
 to a model register, the location of the newly created entity is indicated in
 the method response's 'Location' header.
 
+
 API Versions
 ============
 
@@ -85,6 +86,8 @@ For example versions 1 and 2 of the CKAN API are located here:
 
 ``http://ckan.net/api/1/rest/package``
 ``http://ckan.net/api/2/rest/package``
+
+Clients that don't supply the version number access version 1 by default.
 
 
 CKAN Model API
@@ -186,7 +189,6 @@ Here are the methods of the Model API.
 * PUT operations may instead use the HTTP POST method with the same.
 
 * POSTing data to a register resource will create a new entity, whilst PUT/POSTing data to an entity resource will update an existing entity.
-
 
 
 Model API Data Formats
@@ -329,7 +331,7 @@ Here are the data formats for the Search API.
 | Tag-Count-List        | [ [Name-String, Integer], [Name-String, Integer], ... ]    |
 +-----------------------+------------------------------------------------------------+
 
-The ``Package`` and ``Revision`` data formats are as defined in the CKAN Model API.
+The ``Package`` and ``Revision`` data formats are as defined in `Model API Data Formats`_.
 
 
 Package Search Parameters
