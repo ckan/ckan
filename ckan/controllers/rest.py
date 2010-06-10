@@ -424,7 +424,6 @@ class BaseRestController(BaseController):
         user = model.User.by_name(self.rest_api_user)
         ckan.rating.set_rating(user, package, rating_int)
 
-        response.headers['Content-Type'] = 'application/json'
         package = self._get_pkg(package_ref)
         ret_dict = {'rating average':package.get_average_rating(),
                     'rating count': len(package.ratings)}
@@ -519,7 +518,7 @@ class BaseRestController(BaseController):
 
     def _finish_ok(self, response_data=None):
         response.status_int = 200
-        response.headers['Content-Type'] = 'application/json'
+        response.headers['Content-Type'] = 'application/json;charset=utf-8'
         if response_data is not None:
             return json.dumps(response_data)
         else:
