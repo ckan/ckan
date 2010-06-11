@@ -519,10 +519,13 @@ class BaseRestController(BaseController):
     def _finish_ok(self, response_data=None):
         response.status_int = 200
         response.headers['Content-Type'] = 'application/json;charset=utf-8'
+        json_response = ''
         if response_data is not None:
-            return json.dumps(response_data)
-        else:
-            return ''
+            json_response = json.dumps(response_data)
+            if request.params.has_key('callback') and request.method == 'GET': 
+                json_response = '%s(%s);' % (request.params['callback'],
+                                             json_response)
+        return json_response
 
 class RestController(BaseRestController):
     # Implements CKAN API Version 1.
