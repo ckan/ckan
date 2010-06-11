@@ -1,5 +1,6 @@
 from pylons import config
 import webhelpers
+import re
 
 from ckan.tests import *
 import ckan.model as model
@@ -140,6 +141,11 @@ class BaseRestCase(TestController):
         assert 'annakarenina' in res, res
         assert not 'warandpeace' in res, res
         
+    def test_04_get_package_with_jsonp_callback(self):
+        offset = '/api/rest/package/annakarenina?callback=jsoncallback'
+        res = self.app.get(offset, status=200)
+        assert re.match('jsoncallback\(.*\);', res.body), res
+
     def test_05_get_404_package(self):
         # Test Package Entity Get 404.
         offset = '/api/rest/package/22222'
@@ -223,6 +229,15 @@ class BaseRestCase(TestController):
         assert pkg.name == test_params['name'], pkg
         assert len(pkg.resources) == 1, pkg.resources
         assert pkg.resources[0].url == test_params['download_url'], pkg.resources[0]
+
+    def test_06_create_package_with_jsonp_callback(self):
+        # JSONP callback should only work for GETs, not POSTs.
+        pkg_name = u'test6jsonp'
+        assert not self.get_package_by_name(pkg_name)
+        offset = '/api/rest/package?callback=jsoncallback'
+        postparams = '%s=1' % json.dumps({'name': pkg_name})
+        res = self.app.post(offset, params=postparams, status=[400],
+                            extra_environ=self.extra_environ)
 
     def test_06_create_group(self):
         offset = '/api/rest/group'
