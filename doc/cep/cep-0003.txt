@@ -1,0 +1,96 @@
+CEP: 3
+Title: Plugins
+Version: 0.1
+Last-Modified: 2010-06-15
+Author: Rufus Pollock <rufus.pollock@okfn.org>
+Status: Active
+Created: 2010-05-04
+
+Plugins
+=======
+
+Summary:
+
+Plugin entry points:
+
+  * [ckan.plugin]
+  * model
+    * model_create(session)
+    * model_upgrade(session, version) method taking a session argument 
+  * templates.
+    * template path (use pkgutil)
+    * templates directroy as plugin/{plugin-name}
+  * event hooks, integration points
+    * ckan has to expose a set of interfaces
+  * settings access
+
+
+Authentication
+==============
+
+Wants
+-----
+
+Have different methods of authentication e.g. openid, form based, external cookie
+
+Current status
+--------------
+
+repoze.who + wsgi middleware provides significant flexibility at least for external methods of authentiation. For form-based question of integration with existing user model.
+
+configure repoze.who / install new middleware.
+
+Interface API
+-------------
+
+  * remote_user
+  * what we pull out from repoze.who (repoze.who.identity)
+
+
+Authorization
+=============
+
+Wants
+-----
+
+1. post-object creation authorization setting
+  * e.g. make this person or group an owner/admin of this package
+
+2. acceptance/rejection of object updaes (e.g. for spam)
+  * Similar to authorization but separate from pure access control ...
+
+
+Package Editing
+===============
+
+Wants
+-----
+
+1. Custom Forms
+2. Custom from sections and fields
+3. Bulk updating
+4. Merge support
+
+Package View
+============
+
+1. Wikipedia like flags on pages based on tags
+2. Sidebar customization (widgets)
+
+
+Storage Integration
+===================
+
+Wants
+-----
+
+1. Integrated Uploader -- provide way for uploading and registering package resources at the same time
+2. Preview of data in package pages
+
+
+Validation etc
+==============
+
+1. If needed to be done pre-package save this has to be directly pluggable
+2. If this can be post-hoc (does this 404) then can be done via event notification and rest interface (given sufficient structure)
+
