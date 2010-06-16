@@ -15,7 +15,7 @@ class OurConsumer(Thread):
         from carrot.messaging import Consumer
         conn = self.conn
         consumer = Consumer(connection=conn, queue="feed",
-                            exchange=EXCHANGE, routing_key="importer")
+                            exchange=model.EXCHANGE, routing_key="importer")
 
         def import_feed_callback(message_data, message):
             feed_url = message_data["import_feed"]
@@ -46,10 +46,9 @@ class RecordingConsumer(Thread):
         conn = self.conn
         consumer = Consumer(connection=self.conn, **self.consumer_options)
 
-        def callback(message_data, message):
-            self.queued.append((message_data, message))
-            print "MESSAGE DATA", message_data
-            print "MESSAGE", message
+        def callback(notification_dict, message):
+            notification = model.Notification.recreate_from_dict(notification_dict)
+            self.queued.append(notification)
             message.ack()
            
         consumer.register_callback(callback)
@@ -59,14 +58,14 @@ class RecordingConsumer(Thread):
 class TestQueue(TestController):
     def test_basic(self):
         # create connection
-        consumer = OurConsumer(model.get_conn())
+        consumer = OurConsumer(model.get_carrot_connection())
         consumer.daemon = True # so destroyed automatically
         consumer.start()
 
 
         # send message
         from carrot.messaging import Publisher
-        publisher = Publisher(connection=model.get_conn(),
+        publisher = Publisher(connection=model.get_carrot_connection(),
                               exchange=model.EXCHANGE, routing_key="importer")
         publisher.send({"import_feed": "http://cnn.com/rss/edition.rss"})
         publisher.close()
@@ -86,18 +85,9 @@ class TestPackageEditMessage(object):
         model.Session.remove()
         model.repo.rebuild_db()
 
-    def get_conn(self):
-        from carrot.connection import BrokerConnection
-        return BrokerConnection(hostname="localhost", port=5672,
-                                userid="guest", password="guest",
-                                virtual_host="/",
-#                                backend_cls='carrot.backends.pyamqplib.Backend',
-                                backend_cls='carrot.backends.queue.Backend',
-                                )
-
     def test_new_package(self):
         # create connection
-        consumer = RecordingConsumer(model.get_conn())
+        consumer = RecordingConsumer(model.get_carrot_connection())
         consumer.daemon = True # so destroyed automatically
         consumer.start()
 
@@ -110,7 +100,9 @@ class TestPackageEditMessage(object):
 
         time.sleep(0.1)
 
+        assert not consumer._Thread__stopped, 'Consumer thread had exception'
         assert len(consumer.queued) == 1, consumer.queued
-        payload, header = consumer.queued[0]
-        assert payload['name'] == name, payload
-        import pdb; pdb.set_trace()
+        notification = consumer.queued[0]
+        assert isinstance(notification, model.PackageNotification), notification
+        assert notification.package['name'] == name, notification.payload
+

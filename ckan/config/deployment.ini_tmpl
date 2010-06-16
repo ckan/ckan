@@ -76,7 +76,7 @@ package_form = standard
 # Messaging module used by carrot:
 # * pyamqplib - AMQP (e.g. for RabbitMQ)
 # * queue - native Python Queue
-messaging_library = queue
+carrot_messaging_library = queue
 
 # Logging configuration
 [loggers]

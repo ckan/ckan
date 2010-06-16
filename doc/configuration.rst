@@ -101,12 +101,12 @@ Example::
 Use this to specify the default language of the text displayed in the CKAN web UI. The default is English (en).
 
 
-messaging_library
------------------
+carrot_messaging_library
+------------------------
 
 Example::
 
- messaging_library=pyamqplib
+ carrot_messaging_library=pyamqplib
 
 This is the messaging library backend to use. Options::
 
@@ -118,5 +118,5 @@ This is the messaging library backend to use. Options::
 
  * queue - native Python Queue (default)
 
-See carrot documentation for details.
+See `carrot documentation <http://packages.python.org/carrot/index.html>`_ for details.
 
