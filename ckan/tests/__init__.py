@@ -63,6 +63,9 @@ class TestController(object):
         wsgiapp = loadapp('config:test.ini', relative_to=conf_dir)
         self.app = paste.fixture.TestApp(wsgiapp)
 
+    def create_package(self, **kwds):
+        CreateTestData.create_arbitrary(package_dicts=[kwds])
+
     def create_100_packages(self):
         rev = model.repo.new_revision()
         for i in range(0,100):
@@ -70,6 +73,15 @@ class TestController(object):
             model.Session.add(model.Package(name=name))
         model.Session.commit()
         model.Session.remove()
+
+    def get_package_by_name(self, package_name):
+        return model.Package.by_name(package_name)
+
+    def purge_package_by_name(self, package_name):
+        package = self.get_package_by_name(package_name)
+        if package:
+            package.purge()
+        model.repo.commit_and_remove()
 
     def purge_100_packages(self):
         listRegister = self.get_model().packages
@@ -79,6 +91,19 @@ class TestController(object):
             pkg.purge(name)
         model.Session.commit()
         model.Session.remove()
+
+    @classmethod
+    def purge_packages(self, pkg_names):
+        for pkg_name in pkg_names:
+            pkg = model.Package.by_name(unicode(pkg_name))
+            if pkg:
+                pkg.purge()
+        model.repo.commit_and_remove()
+
+    @classmethod
+    def purge_all_packages(self):
+        all_pkg_names = [pkg.name for pkg in model.Session.query(model.Package)]
+        self.purge_packages(all_pkg_names)
 
     def create_200_tags(self):
         for i in range(0,200):
@@ -189,18 +214,3 @@ class TestController(object):
     def anna(self):
         return self.get_package_by_name(u'annakarenina')
 
-    def get_package_by_name(self, package_name):
-        return model.Package.by_name(package_name)
-
-    @classmethod
-    def purge_packages(self, pkg_names):
-        for pkg_name in pkg_names:
-            pkg = model.Package.by_name(unicode(pkg_name))
-            if pkg:
-                pkg.purge()
-        model.repo.commit_and_remove()
-
-    @classmethod
-    def purge_all_packages(self):
-        all_pkg_names = [pkg.name for pkg in model.Session.query(model.Package)]
-        self.purge_packages(all_pkg_names)
