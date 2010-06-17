@@ -38,6 +38,8 @@ setup(
         # (not sure we need this except in tests but ...)
         'WebOb',
         'FormAlchemy>=1.3.4',
+        'carrot>=0.10.2',
+        'blinker>=1.0',
         # Excel libaries are only for importer tool
         # 'xlrd>=0.7.1',
         # 'xlwt>=0.7.2',

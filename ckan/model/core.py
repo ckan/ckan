@@ -7,6 +7,7 @@ from sqlalchemy.util import OrderedDict
 
 from types import make_uuid
 import full_search
+import notifier
 from license import License, LicenseRegister
 
 ## VDM-specific tables
@@ -481,7 +482,8 @@ mapper(Package, package_table, properties={
     },
     order_by=package_table.c.name,
     extension = [vdm.sqlalchemy.Revisioner(package_revision_table),
-                 full_search.SearchVectorTrigger()]
+#                 full_search.SearchVectorTrigger(),
+                 notifier.NotifierTrigger()]
     )
 
 mapper(Tag, tag_table, properties={
