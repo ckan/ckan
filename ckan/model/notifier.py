@@ -1,5 +1,10 @@
-import sqlalchemy
+from sqlalchemy.orm import object_session
+from sqlalchemy.orm.interfaces import MapperExtension, EXT_CONTINUE
 import blinker
+
+import vdm.sqlalchemy
+
+State = vdm.sqlalchemy.State
 
 __all__ = ['Notification', 'PackageNotification', 'DatabaseNotification',
            'ROUTING_KEYS']
@@ -74,15 +79,24 @@ class DatabaseNotification(Notification):
         return super(DatabaseNotification, cls).create(\
             routing_key, operation=operation)
 
-class NotifierTrigger(sqlalchemy.orm.interfaces.MapperExtension):
-    '''Triggered by all edits to database'''
+class NotifierTrigger(MapperExtension):
+    '''Triggered by all edits to table (and related tables, which we filter
+    out with check_real_change).'''
+    def check_real_change(self, instance):
+        if not instance.revision:
+            return False
+        return object_session(instance).is_modified(instance, include_collections=False)
+    
     def after_insert(self, mapper, connection, instance):
-        if instance.__class__.__name__ in NOTIFYING_DOMAIN_OBJ_NAMES:
+        if instance.__class__.__name__ in NOTIFYING_DOMAIN_OBJ_NAMES and\
+               self.check_real_change(instance):
             notification = PackageNotification.create(instance, 'new')
             notification.send_synchronously()
+        return EXT_CONTINUE
 
     def after_update(self, mapper, connection, instance):
-        if instance.__class__.__name__ in NOTIFYING_DOMAIN_OBJ_NAMES:
+        if instance.__class__.__name__ in NOTIFYING_DOMAIN_OBJ_NAMES and\
+               self.check_real_change(instance):
             if instance.state == State.DELETED:
                 if instance.all_revisions[1].state != State.DELETED:
                     # i.e. just deleted
@@ -90,5 +104,6 @@ class NotifierTrigger(sqlalchemy.orm.interfaces.MapperExtension):
                 # no notification sent if changed whilst deleted
             else:
                 PackageNotification.create(instance, 'changed').send_synchronously()
+        return EXT_CONTINUE
 
     

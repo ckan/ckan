@@ -4,29 +4,7 @@ import time
 from ckan.tests import *
 from ckan import model
 from ckan.lib.helpers import json
-
-class OurConsumer(Thread):
-    def __init__ (self, conn):
-        Thread.__init__(self)
-        self.result = None
-        self.conn = conn
-
-    def run(self):
-        from carrot.messaging import Consumer
-        conn = self.conn
-        consumer = Consumer(connection=conn, queue="feed",
-                            exchange=model.EXCHANGE, routing_key="importer")
-
-        def import_feed_callback(message_data, message):
-            feed_url = message_data["import_feed"]
-            print "GOT SOMETHING"
-            self.result = "Got feed import message for: %s" % feed_url
-            # something importing this feed url
-            # import_feed(feed_url)
-            message.ack()
-           
-        consumer.register_callback(import_feed_callback)
-        consumer.wait() # Go into the consumer loop.       
+from ckan.lib.create_test_data import CreateTestData
 
 class RecordingConsumer(Thread):
     '''As a consumer, this thread creates a queue and records what is put
@@ -39,70 +17,81 @@ class RecordingConsumer(Thread):
         self.conn = conn
         self.consumer_options = {
             queue:queue, exchange:model.EXCHANGE, routing_key:routing_key}
-        self.queued = []
+        self.clear()
 
     def run(self):
         from carrot.messaging import Consumer
         conn = self.conn
-        consumer = Consumer(connection=self.conn, **self.consumer_options)
+        self.consumer = Consumer(connection=self.conn, **self.consumer_options)
 
         def callback(notification_dict, message):
             notification = model.Notification.recreate_from_dict(notification_dict)
             self.queued.append(notification)
             message.ack()
            
-        consumer.register_callback(callback)
-        consumer.wait() # Go into the consumer loop.       
+        self.consumer.register_callback(callback)
+        self.consumer.wait() # Go into the consumer loop.
 
+    def clear(self):
+        self.queued = []
+
+    def stop(self):
+        self.consumer.cancel()
       
-class TestQueue(TestController):
-    def test_basic(self):
-        # create connection
-        consumer = OurConsumer(model.get_carrot_connection())
-        consumer.daemon = True # so destroyed automatically
-        consumer.start()
 
-
-        # send message
-        from carrot.messaging import Publisher
-        publisher = Publisher(connection=model.get_carrot_connection(),
-                              exchange=model.EXCHANGE, routing_key="importer")
-        publisher.send({"import_feed": "http://cnn.com/rss/edition.rss"})
-        publisher.close()
-
-        time.sleep(0.1)
-
-        for i in range(10):
-            print consumer.result
-
-class TestPackageEditMessage(object):
+class TestNotification(TestController):
     @classmethod
     def setup_class(self):
-        model.Session.remove()
+        # create notification consumer
+        self.consumer = RecordingConsumer(model.get_carrot_connection())
+        self.consumer.daemon = True # so destroyed automatically
+        self.consumer.start()
+
+        self.pkg_names = []
 
     @classmethod
     def teardown_class(self):
-        model.Session.remove()
-        model.repo.rebuild_db()
+        self.consumer.stop()
+        self.purge_packages(self.pkg_names)
+        CreateTestData.delete()
+
+    def tearDown(self):
+        self.consumer.clear()
+
+    def usher_message_sending(self):
+        '''This is a simple way to block the current thread briefly to
+        allow the consumer thread to process a message. Since
+        these tests use Python Queue then the queue thread should pass the
+        message immediately. Should this not work or become intermittent
+        on some machines then we should rethink this.'''
+        time.sleep(0.1)
+        assert not self.consumer._Thread__stopped, 'Consumer thread had exception'
+
+    def queue_get_one(self):
+        assert len(self.consumer.queued) == 1, self.consumer.queued
+        notification = self.consumer.queued[0]
+        assert isinstance(notification, model.PackageNotification), notification
+        return notification
 
     def test_new_package(self):
-        # create connection
-        consumer = RecordingConsumer(model.get_carrot_connection())
-        consumer.daemon = True # so destroyed automatically
-        consumer.start()
-
         # create package
         name = u'testpkg'
-        rev = model.repo.new_revision()        
-        pkg = model.Package(name=name)
-        model.Session.add(pkg)
-        model.repo.commit_and_remove()
+        CreateTestData.create_arbitrary([{'name':name}])
+        self.pkg_names.append(name)
 
-        time.sleep(0.1)
+        self.usher_message_sending()
+                                        
+        notification = self.queue_get_one()
+        assert notification.package['name'] == name, notification.payload
 
-        assert not consumer._Thread__stopped, 'Consumer thread had exception'
-        assert len(consumer.queued) == 1, consumer.queued
-        notification = consumer.queued[0]
-        assert isinstance(notification, model.PackageNotification), notification
+    def test_new_package_and_permissions(self):
+        # create package
+        name = u'testpkg2'
+        # creasts package and default permission objects
+        CreateTestData.create_arbitrary([{'name':name}])
+
+        self.usher_message_sending()
+                                        
+        notification = self.queue_get_one()
         assert notification.package['name'] == name, notification.payload
 
