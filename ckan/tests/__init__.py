@@ -57,6 +57,7 @@ class Stripper(sgmllib.SGMLParser):
     def handle_data(self, data):
         self.str += data
 
+
 class TestController(object):
 
     def __init__(self, *args, **kwargs):
@@ -66,6 +67,7 @@ class TestController(object):
     def create_package(self, **kwds):
         CreateTestData.create_arbitrary(package_dicts=[kwds])
 
+    @classmethod
     def create_user(self, **kwds):
         user = model.User(name=kwds['name'])             
         model.Session.add(user)

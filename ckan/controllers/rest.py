@@ -424,8 +424,7 @@ class BaseRestController(BaseController):
 
     def _get_username(self):
         user = self._get_user_for_apikey()
-        if user:
-            return user.name
+        return user and user.name or u''
 
     def _check_access(self, entity, action):
         # Checks apikey is okay and user is authorized to do the specified
