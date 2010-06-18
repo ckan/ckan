@@ -13,6 +13,7 @@ from pylons.templating import render_genshi as render
 
 import ckan
 import ckan.lib.helpers as h
+from ckan.lib.helpers import json
 import ckan.model as model
 
 PAGINATE_ITEMS_PER_PAGE = 50
@@ -58,6 +59,52 @@ class BaseController(WSGIController):
             pkg = model.Package.by_name(id)
         return pkg
     # Todo: Make sure package names can't be changed to look like package IDs?
+
+    def _get_request_data(self):
+        try:
+            request_data = request.params.keys()[0]
+        except Exception, inst:
+            msg = _("Can't find entity data in request params %s: %s") % (
+                request.params.items(), str(inst)
+            )
+            raise ValueError, msg
+        request_data = json.loads(request_data, encoding='utf8')
+        if not isinstance(request_data, dict):
+            raise ValueError, _("Request params must be in form of a json encoded dictionary.")
+        # ensure unicode values
+        for key, val in request_data.items():
+            # if val is str then assume it is ascii, since json converts
+            # utf8 encoded JSON to unicode
+            request_data[key] = self._make_unicode(val)
+        return request_data
+        
+    def _make_unicode(self, entity):
+        if isinstance(entity, str):
+            return unicode(entity)
+        elif isinstance(entity, list):
+            new_items = []
+            for item in entity:
+                new_items.append(self._make_unicode(item))
+            return new_items
+        elif isinstance(entity, dict):
+            new_dict = {}
+            for key, val in entity.items():
+                new_dict[key] = self._make_unicode(val)
+            return new_dict
+        else:
+            return entity
+
+    def _get_user_for_apikey(self):
+        apikey = request.environ.get('HTTP_AUTHORIZATION', '')
+        if not apikey:
+            apikey = request.environ.get('Authorization', '')
+        self.log.debug("Received API Key: %s" % apikey)
+        if not apikey:
+            return None
+        apikey = unicode(apikey)
+        query = model.Session.query(model.User)
+        user = query.filter_by(apikey=apikey).first()
+        return user
 
 # Include the '_' function in the public names
 __all__ = [__name for __name in locals().keys() if not __name.startswith('_') \

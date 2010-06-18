@@ -423,16 +423,10 @@ class BaseRestController(BaseController):
         return self._finish_ok(ret_dict)
 
     def _get_username(self):
-        keystr = request.environ.get('HTTP_AUTHORIZATION', None)
-        if keystr is None:
-            keystr = request.environ.get('Authorization', None)
-        self.log.debug("Received API Key: %s" % keystr)
-        api_key = model.Session.query(model.User).filter_by(apikey=unicode(keystr)).first()
-        if api_key is not None:
-            return api_key.name
-        else:
-            return u''
-    
+        user = self._get_user_for_apikey()
+        if user:
+            return user.name
+
     def _check_access(self, entity, action):
         # Checks apikey is okay and user is authorized to do the specified
         # action on the specified package (or other entity).
@@ -465,40 +459,6 @@ class BaseRestController(BaseController):
         response.status_int = 200
         return True                
 
-    def _get_request_data(self):
-        try:
-            request_data = request.params.keys()[0]
-        except Exception, inst:
-            msg = _("Can't find entity data in request params %s: %s") % (
-                request.params.items(), str(inst)
-            )
-            raise ValueError, msg
-        request_data = json.loads(request_data, encoding='utf8')
-        if not isinstance(request_data, dict):
-            raise ValueError, _("Request params must be in form of a json encoded dictionary.")
-        # ensure unicode values
-        for key, val in request_data.items():
-            # if val is str then assume it is ascii, since json converts
-            # utf8 encoded JSON to unicode
-            request_data[key] = self._make_unicode(val)
-        return request_data
-        
-    def _make_unicode(self, entity):
-        if isinstance(entity, str):
-            return unicode(entity)
-        elif isinstance(entity, list):
-            new_items = []
-            for item in entity:
-                new_items.append(self._make_unicode(item))
-            return new_items
-        elif isinstance(entity, dict):
-            new_dict = {}
-            for key, val in entity.items():
-                new_dict[key] = self._make_unicode(val)
-            return new_dict
-        else:
-            return entity
-
     def _update_package_relationship(self, relationship, comment):
         is_changed = relationship.comment != comment
         if is_changed:
@@ -515,7 +475,7 @@ class BaseRestController(BaseController):
         json_response = ''
         if response_data is not None:
             json_response = json.dumps(response_data)
-            if request.params.has_key('callback') and request.method == 'GET': 
+            if request.params.has_key('callback') and request.method == 'GET':
                 json_response = '%s(%s);' % (request.params['callback'],
                                              json_response)
         return json_response

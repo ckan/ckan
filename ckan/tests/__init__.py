@@ -66,6 +66,13 @@ class TestController(object):
     def create_package(self, **kwds):
         CreateTestData.create_arbitrary(package_dicts=[kwds])
 
+    def create_user(self, **kwds):
+        user = model.User(name=kwds['name'])             
+        model.Session.add(user)
+        model.Session.commit()
+        model.Session.remove()
+        return user
+
     def create_100_packages(self):
         rev = model.repo.new_revision()
         for i in range(0,100):

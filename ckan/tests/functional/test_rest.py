@@ -720,11 +720,7 @@ class TestRelationships(TestController):
     @classmethod
     def setup_class(self):
         CreateTestData.create()
-        username = u'barry'
-        self.user = model.User(name=username)
-        model.Session.add(self.user)
-        model.Session.commit()
-        model.Session.remove()
+        self.user = self.create_user(u'barry')
         self.extra_environ={ 'Authorization' : str(self.user.apikey) }
         self.comment = u'Comment umlaut: \xfc.'
 
