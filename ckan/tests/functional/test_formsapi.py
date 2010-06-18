@@ -43,12 +43,18 @@ class BaseFormsApiCase(TestController):
         return res
 
     def get_package_edit_form(self, package_id, status=[200]):
-        return self.get(controller='formsapi', action='package_edit', id=package_id, status=status)
+        res = self.get(controller='formsapi', action='package_edit', id=package_id, status=status)
+        form = self.form_from_res(res)
+        return form
 
-    def post_package_edit_form(self, package_id, status=[200], **kwds):
-        res = self.get_package_edit_form(package_id)
+    def form_from_res(self, res):
         res.body = "<html><form action=\"\" method=\"post\">" + res.body + "<input type=\"submit\" name=\"send\"></form></html>"
         form = res.forms[0]
+        return form
+
+    def post_package_edit_form(self, package_id, form=None, status=[200], **kwds):
+        if form == None:
+            form = self.get_package_edit_form(package_id)
         for key,value in kwds.items():
             field_name = 'Package-%s-%s' % (package_id, key)
             form[field_name] = value
@@ -79,25 +85,44 @@ class TestFormsApi(BaseFormsApiCase):
 
     def test_get_package_edit_form(self):
         package = self.get_package_by_name(self.package_name)
-        res = self.get_package_edit_form(package.id)
-        assert '<fieldset>' in res, res
-        assert package.name in res, res
+        form = self.get_package_edit_form(package.id)
+        field_name = 'Package-%s-name' % (package.id)
+        field_value = form[field_name].value
+        self.assert_equal(field_value, package.name)
 
     def test_submit_package_edit_form_valid(self):
         package = self.get_package_by_name(self.package_name)
         res = self.post_package_edit_form(package.id, name=self.package_name_alt)
         self.assert_header(res, 'Location')
+        assert not json.loads(res.body)
         assert not self.get_package_by_name(self.package_name)
         assert self.get_package_by_name(self.package_name_alt)
 
     def test_submit_package_edit_form_errors(self):
         package = self.get_package_by_name(self.package_name)
+        # Nothing in name.
         invalid_name = ''
         res = self.post_package_edit_form(package.id, name=invalid_name)
+        # Check location header is not set.
         self.assert_not_header(res, 'Location')
+        # Check package is unchanged.
         assert self.get_package_by_name(self.package_name)
+        # Check response is an error form.
+        form = self.form_from_res(res)
+        field_name = 'Package-%s-name' % (package.id)
+        field_value = form[field_name].value
+        assert field_value == invalid_name, (field_value, invalid_name)
+
+        # Whitespace in name.
         invalid_name = ' '
-        self.post_package_edit_form(package.id, name=invalid_name)
+        res = self.post_package_edit_form(package.id, name=invalid_name)
+        # Check location header is not set.
         self.assert_not_header(res, 'Location')
+        # Check package is unchanged.
         assert self.get_package_by_name(self.package_name)
+        # Check response is an error form.
+        form = self.form_from_res(res)
+        field_name = 'Package-%s-name' % (package.id)
+        field_value = form[field_name].value
+        assert field_value == invalid_name, (field_value, invalid_name)
 

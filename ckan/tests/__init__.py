@@ -12,6 +12,7 @@ import os
 import sys
 import re
 from unittest import TestCase
+from nose.tools import assert_equal
 
 import sgmllib
 import pkg_resources
@@ -214,6 +215,9 @@ class TestController(object):
                 return # found it
         # didn't find it
         assert 0, "Couldn't find %s in html. Closest matches were:\n%s" % (', '.join(["'%s'" % html.encode('utf8') for html in html_to_find]), '\n'.join([tag.encode('utf8') for tag in partly_matching_tags]))
+
+    def assert_equal(self, *args, **kwds):
+        assert_equal(*args, **kwds)
 
     @property
     def war(self):
