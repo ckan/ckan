@@ -6,13 +6,18 @@ import ckan.model as model
 from ckan.tests import *
 from ckan.lib.create_test_data import CreateTestData
 
-class TestSearch(object):
+class TestSearch():#TestControllerWithSearchIndexer):
     q_all = u'penguin'
 
     @classmethod
     def setup_class(self):
+        TestControllerWithSearchIndexer.setup_class()
         model.Session.remove()
+        print "A"
         CreateTestData.create_search_test_data()
+        print "B"
+        import time; time.sleep(1)
+        print "C"
 
         # now remove a tag so we can test search with deleted tags
         model.repo.new_revision()
@@ -31,6 +36,7 @@ class TestSearch(object):
 
     @classmethod
     def teardown_class(self):
+        TestControllerWithSearchIndexer.teardown_class()
         model.Session.remove()
         model.repo.rebuild_db()
         model.Session.remove()

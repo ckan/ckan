@@ -21,10 +21,12 @@ from paste.deploy import loadapp
 from routes import url_for
 
 from ckan.lib.create_test_data import CreateTestData
+from test_search_indexer import SearchIndexManagerThread
 
 __all__ = ['url_for',
         'TestController',
         'CreateTestData',
+        'TestControllerWithSearchIndexer',
         ]
 
 here_dir = os.path.dirname(os.path.abspath(__file__))
@@ -204,3 +206,12 @@ class TestController(object):
     def purge_all_packages(self):
         all_pkg_names = [pkg.name for pkg in model.Session.query(model.Package)]
         self.purge_packages(all_pkg_names)
+
+class TestControllerWithSearchIndexer(TestController):
+    @classmethod
+    def setup_class(cls):
+        SearchIndexManagerThread.start()
+
+    @classmethod
+    def teardown_class(cls):
+        SearchIndexManagerThread.stop()

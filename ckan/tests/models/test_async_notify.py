@@ -1,6 +1,8 @@
 from threading import Thread
 import time
 
+from carrot.messaging import Consumer
+
 from ckan.tests import *
 from ckan import model
 from ckan.lib.helpers import json
@@ -10,17 +12,15 @@ class RecordingConsumer(Thread):
     '''As a consumer, this thread creates a queue and records what is put
     on it.
     '''
-    def __init__ (self, conn, queue='recorder', exchange=model.EXCHANGE,
-                  routing_key='*'):
+    def __init__ (self, conn, queue='recorder', routing_key='*'):
         Thread.__init__(self)
-        self.result = None
+
         self.conn = conn
         self.consumer_options = {
-            queue:queue, exchange:model.EXCHANGE, routing_key:routing_key}
+            'queue':queue, 'exchange':model.EXCHANGE, 'routing_key':routing_key}
         self.clear()
 
     def run(self):
-        from carrot.messaging import Consumer
         conn = self.conn
         self.consumer = Consumer(connection=self.conn, **self.consumer_options)
 
@@ -65,7 +65,6 @@ class TestNotification(TestController):
         message immediately. Should this not work or become intermittent
         on some machines then we should rethink this.'''
         time.sleep(0.1)
-        assert not self.consumer._Thread__stopped, 'Consumer thread had exception'
 
     def queue_get_one(self):
         assert len(self.consumer.queued) == 1, self.consumer.queued

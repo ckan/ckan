@@ -482,8 +482,8 @@ mapper(Package, package_table, properties={
     },
     order_by=package_table.c.name,
     extension = [vdm.sqlalchemy.Revisioner(package_revision_table),
-#                 full_search.SearchVectorTrigger(),
-                 notifier.NotifierTrigger()]
+                 notifier.NotifierMapperTrigger()
+                 ]
     )
 
 mapper(Tag, tag_table, properties={
@@ -498,7 +498,8 @@ mapper(PackageTag, package_tag_table, properties={
     },
     order_by=package_tag_table.c.id,
     extension = [vdm.sqlalchemy.Revisioner(package_tag_revision_table),
-                 full_search.SearchVectorTrigger()],
+#                 full_search.SearchVectorTrigger()
+                ],
     )
 
 vdm.sqlalchemy.modify_base_object_mapper(Package, Revision, State)

@@ -19,6 +19,11 @@ class CreateTestData(cli.CkanCommand):
     group_names = set()
     user_names = []
     
+    pkg_core_fields = ['name', 'title', 'version', 'url', 'notes',
+                       'author', 'author_email',
+                       'maintainer', 'maintainer_email',
+                       ]
+
     def command(self):
         self._load_config()
         self._setup_app()
@@ -79,18 +84,19 @@ class CreateTestData(cli.CkanCommand):
             if isinstance(package_dicts, dict):
                 package_dicts = [package_dicts]
             for item in package_dicts:
-                pkg = model.Package(name=unicode(item['name']))
+                pkg_dict = {}
+                for field in self.pkg_core_fields:
+                    if item.has_key(field):
+                        pkg_dict[field] = unicode(item[field])
+                pkg = model.Package(**pkg_dict)
                 model.Session.add(pkg)
                 for attr, val in item.items():
                     if isinstance(val, str):
                         val = unicode(val)
                     if attr=='name':
                         continue                
-                    if attr in ['title', 'version', 'url', 'notes',
-                                'author', 'author_email',
-                                'maintainer', 'maintainer_email',
-                                ]:
-                        setattr(pkg, attr, unicode(val))
+                    if attr in self.pkg_core_fields:
+                        pass
                     elif attr == 'download_url':
                         pkg.add_resource(unicode(val))
                     elif attr == 'resources':

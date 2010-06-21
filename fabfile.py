@@ -374,7 +374,8 @@ def log(cmd='tail', log='error'):
     @log - error or custom'''
     #todo make this more flexible
     filename = env.log_filename_pattern % log
-    run('%s /var/log/apache2/%s' % (cmd, filename))
+    run_func = run if hasattr(env, 'no_sudo') else sudo
+    run_func('%s /var/log/apache2/%s' % (cmd, filename))
 
 def current():
     '''Tells you which instance is current for switchable instances'''
