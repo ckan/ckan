@@ -11,7 +11,6 @@ class SearchIndexManagerThread(Thread):
 
     @classmethod
     def start(cls):
-        print "START"
         if not cls._instance:
             cls._instance = SearchIndexManagerThread()
         elif not cls._instance.is_alive():
@@ -23,12 +22,10 @@ class SearchIndexManagerThread(Thread):
 
     @classmethod
     def stop(cls):
-        print "STOP"
-        cls._instance.manager.consumer.cancel()
-        cls._instance.manager.session_remove()
+        cls._instance.manager.stop()
 
     def run(self):
-        print "THREAD STARTING"
         self.manager = model.SearchIndexManager()
         self.manager.run()
+
         

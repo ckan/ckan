@@ -2,7 +2,6 @@ import re
 
 import sqlalchemy
 
-import meta
 from meta import Table, Column, UnicodeText, ForeignKey, mapper, metadata
 from notifier import DomainObjectNotification, Notification
 from async_notifier import AsyncConsumer, EXCHANGE
@@ -17,19 +16,14 @@ class SearchIndexManager(AsyncConsumer):
     '''
     def __init__ (self):
         queue_name = 'search_indexer'
-        routing_key = '*'
+        routing_key = 'Package'
         super(SearchIndexManager, self).__init__(queue_name, routing_key)
 
         self.indexer = SearchIndexer()
 
-    def callback(notification):
-        print "MESSAGE"
+    def callback(self, notification):
         if isinstance(notification, DomainObjectNotification):
             self.indexer.update_vector(notification)
-
-if __name__ == "__main__":
-    indexer = SearchIndexManager()
-    indexer.run()
 
 
 class SearchIndexer(object):
@@ -56,7 +50,16 @@ class SearchIndexer(object):
                 raise
 
     def update_package_vector(self, pkg_dict):
-        engine = meta.Session
+        import meta
+        engine = meta.engine
+
+        # Check the package exists
+        from core import Package
+        pkg = meta.Session.query(Package).get(unicode(pkg_dict['id']))
+        if not pkg:
+            print 'Not indexing missing package', pkg_dict['name']
+            return
+        
         if isinstance(pkg_dict['tags'], (list, tuple)):
             pkg_dict['tags'] = ' '.join(pkg_dict['tags'])
         if isinstance(pkg_dict['groups'], (list, tuple)):
@@ -88,7 +91,6 @@ class SearchIndexer(object):
         else:
             sql = "UPDATE package_search SET search_vector=%s WHERE package_id=%%s" % vector_sql
             params.append(pkg_dict['id'])
-        print "SQL", sql, "PARAMS", params
         res = engine.execute(sql, params)
         # uncomment this to print lexemes
         # sql = "SELECT package_id, search_vector FROM package_search WHERE package_id = %s"
@@ -110,3 +112,5 @@ class PackageSearch(object):
 mapper(PackageSearch, package_search_table, properties={})
 
 package_search_table.append_ddl_listener('after-create', setup_db)
+
+

@@ -8,12 +8,12 @@ import vdm.sqlalchemy
 State = vdm.sqlalchemy.State
 
 __all__ = ['Notification', 'PackageNotification', 'DatabaseNotification',
-           'DomainObjectNotification',
+           'DomainObjectNotification', 'StopNotification',
            'ROUTING_KEYS']
 
 NOTIFYING_DOMAIN_OBJ_NAMES = ['Package', 'PackageResource']
 DOMAIN_OBJECT_OPERATIONS = ('new', 'changed', 'deleted')
-ROUTING_KEYS = ['db'] + NOTIFYING_DOMAIN_OBJ_NAMES
+ROUTING_KEYS = ['db', 'stop'] + NOTIFYING_DOMAIN_OBJ_NAMES
 
 class Notification(dict):
     def __init__(self, routing_key, operation=None, payload=None):
@@ -40,6 +40,8 @@ class Notification(dict):
                 raise NotImplementedError()
         elif routing_key == 'db':
             cls = DatabaseNotification
+        elif routing_key == StopNotification.msg:
+            cls = StopNotification
         else:
             raise NotImplementedError()
         return cls(routing_key, **notification_dict)
@@ -79,6 +81,15 @@ class DatabaseNotification(Notification):
         return super(DatabaseNotification, cls).create(\
             routing_key, operation=operation)
 
+class StopNotification(Notification):
+    '''Used to stop the notification service down during tests.'''
+    msg = 'stop'
+    
+    @classmethod
+    def create(cls):
+        return super(StopNotification, cls).create(cls.msg)
+
+
 class NotifierMapperTrigger(MapperExtension):
     '''Triggered by all edits to table (and related tables, which we filter
     out with check_real_change).'''
@@ -93,7 +104,6 @@ class NotifierMapperTrigger(MapperExtension):
         if instance.__class__.__name__ in NOTIFYING_DOMAIN_OBJ_NAMES and\
                self.check_real_change(instance):
             notification = PackageNotification.create(instance, 'new')
-            print "Created notification", notification
             self.queued_notifications.append(notification)
             # can't send this now because the domain object may still be
             # in this thread's session so not yet flushed to the db table,
