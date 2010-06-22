@@ -64,7 +64,7 @@ mapper(Group, group_table, properties={
         order_by=package_table.c.name
     )},
 # Not needed - triggers anyway       
-#    extension = full_search.SearchVectorTrigger(),
+#    extension = search_index.SearchVectorTrigger(),
 )
 
 mapper(PackageGroup, package_group_table)

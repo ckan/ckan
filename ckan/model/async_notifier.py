@@ -25,11 +25,18 @@ class StopConsuming(Exception):
 
 def get_carrot_connection():
     backend = config.get('carrot_messaging_library', 'queue')
-    print 'Using backend: ', backend
+    try:
+        port = int(config.get('amqp_port', PORT))
+    except ValueError:
+        port = PORT
+    userid = config.get('amqp_user_id', USERID)
+    password = config.get('amqp_password', PASSWORD)
+    hostname = config.get('amqp_hostname', HOSTNAME)
+    virtual_host = config.get('amqp_virtual_host', VIRTUAL_HOST)
     backend_cls = 'carrot.backends.%s.Backend' % backend
-    return BrokerConnection(hostname=HOSTNAME, port=PORT,
-                            userid=USERID, password=PASSWORD,
-                            virtual_host=VIRTUAL_HOST,
+    return BrokerConnection(hostname=hostname, port=port,
+                            userid=userid, password=password,
+                            virtual_host=virtual_host,
                             backend_cls=backend_cls)
 
 class AsyncNotifier(object):
@@ -62,7 +69,9 @@ class AsyncConsumer(object):
         self.conn = get_carrot_connection()
         self.consumer_options = {
             'queue':queue_name, 'exchange':EXCHANGE,
-            'routing_key':routing_key}
+            'routing_key':routing_key,
+#            'exchange_type':'topic',
+            }
 
     def callback(self, notification):
         raise NotImplementedError
@@ -80,19 +89,19 @@ class AsyncConsumer(object):
            
         self.consumer.register_callback(callback)
         # Consumer loop
-        self.consumer.wait()
-##        it = self.consumer.iterconsume()
+##        self.consumer.wait()
+        it = self.consumer.iterconsume()
         print 'Search indexer: Waiting for messages'
-##        while True:
-##            try:
-##                it.next()
-##            except StopConsuming:
-##                break
+        while True:
+            try:
+                it.next()
+            except StopConsuming:
+                break
         print 'Search indexer: Shutting down'
 
     def stop(self):
-        # cancel doesn't work for Queue impl. so send a Stop Message too
+        # consumer.cancel doesn't work for Queue implementation, so instead
+        # send a Stop Message.
         AsyncNotifier.send_asynchronously(None, **notifier.StopNotification.create())
-        self.consumer.cancel()
         meta.Session.remove()
         meta.Session.close()

@@ -2,7 +2,7 @@ import meta
 from core import *
 from user import user_table, User
 from group import group_table, Group, PackageGroup
-from full_search import *
+from search_index import *
 from authz import *
 from extras import *
 from resource import *

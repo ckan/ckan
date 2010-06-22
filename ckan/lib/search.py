@@ -53,7 +53,7 @@ class SearchOptions:
 
 class SQLSearch:
     _tokens = [ 'name', 'title', 'notes', 'tags', 'groups', 'author', 'maintainer', 'update_frequency', 'geographic_granularity', 'geographic_coverage', 'temporal_granularity', 'temporal_coverage', 'national_statistic', 'categories', 'precision', 'department', 'agency', 'external_reference']
-    # Note: all tokens must be in the search vector (see model/full_search.py)
+    # Note: all tokens must be in the search vector (see model/search_index.py)
     _open_licenses = None
 
     def search(self, query_string):

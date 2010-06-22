@@ -476,7 +476,7 @@ mapper(Package, package_table, properties={
     'package_tags':relation(PackageTag, backref='package',
         cascade='all, delete', #, delete-orphan',
         ),
-    'package_search':relation(full_search.PackageSearch,
+    'package_search':relation(search_index.PackageSearch,
         cascade='all, delete', #, delete-orphan',
         ),
     },
@@ -498,7 +498,7 @@ mapper(PackageTag, package_tag_table, properties={
     },
     order_by=package_tag_table.c.id,
     extension = [vdm.sqlalchemy.Revisioner(package_tag_revision_table),
-#                 full_search.SearchVectorTrigger()
+#                 search_index.SearchVectorTrigger()
                 ],
     )
 

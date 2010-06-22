@@ -85,6 +85,7 @@ class SearchIndexer(object):
         sql = "SELECT package_id FROM package_search WHERE package_id = %s"
         res = engine.execute(sql, pkg_dict['id'])
         pkgs = res.fetchall()
+        res.close()
         if not pkgs:
             sql = "INSERT INTO package_search VALUES (%%s, %s)" % vector_sql
             params = [pkg_dict['id']] + params
@@ -96,11 +97,13 @@ class SearchIndexer(object):
         # sql = "SELECT package_id, search_vector FROM package_search WHERE package_id = %s"
         # res = engine.execute(sql, pkg_dict['id'])
         # print res.fetchall()
+        res.close()
 
 
 def setup_db(event, schema_item, engine):
     sql = 'ALTER TABLE package_search ADD COLUMN search_vector tsvector'
-    engine.execute(sql)
+    res = engine.execute(sql)
+    res.close()
 
 package_search_table = Table('package_search', metadata,
         Column('package_id', UnicodeText, ForeignKey('package.id'), primary_key=True),
