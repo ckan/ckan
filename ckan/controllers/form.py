@@ -7,7 +7,17 @@ from ckan.lib.package_saver import ValidationException
 
 class ApiError(Exception): pass
 
-class FormsapiController(BaseController):
+# Todo: Test for errors.
+# Todo: Documentation.
+# Todo: Set log message from request.
+# Todo: Set author from request.
+# Todo: Validate for department.
+# Todo: Refactor forms handling logic (to share common line between forms and edit).
+# Todo: Remove superfluous commit_pkg() method parameter.
+# Todo: Create controller for testing package edit form (but try to disable for production usage).
+
+class FormController(BaseController):
+    """Implements the CKAN Forms API."""
 
     def _abort_bad_request(self):
         response.status_int = 400

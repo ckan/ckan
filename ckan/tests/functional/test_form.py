@@ -43,7 +43,7 @@ class BaseFormsApiCase(TestController):
         return res
 
     def get_package_edit_form(self, package_id, status=[200]):
-        res = self.get(controller='formsapi', action='package_edit', id=package_id, status=status)
+        res = self.get(controller='form', action='package_edit', id=package_id, status=status)
         form = self.form_from_res(res)
         return form
 
@@ -64,7 +64,7 @@ class BaseFormsApiCase(TestController):
             'form_data': form_data,
             'choices': {'departments': departments},
         }
-        return self.post(request_data, controller='formsapi', action='package_edit', status=status)
+        return self.post(request_data, controller='form', action='package_edit', status=status)
         
     def assert_not_header(self, res, name):
         keys = self.get_header_keys(res)
