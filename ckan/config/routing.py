@@ -15,7 +15,7 @@ def make_map():
     map.minimization = False
 
     # The ErrorController route (handles 404/500 error pages); it should
-    # likely stay at the top, ensuring it can always be resolved
+    # likely stay at the top, ensuring it can always be resolved.
     map.connect('/error/{action}', controller='error')
     map.connect('/error/{action}/{id}', controller='error')
 

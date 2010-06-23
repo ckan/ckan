@@ -1,6 +1,7 @@
 """Pylons environment configuration"""
 import os
 
+import pylons
 from sqlalchemy import engine_from_config
 from pylons import config
 from pylons.i18n.translation import ugettext
@@ -39,9 +40,9 @@ def load_environment(global_conf, app_conf):
         template_paths = extra_template_paths.split(',') + template_paths
 
     # Translator (i18n)
-    translator = Translator(ugettext)
+    translator = Translator(pylons.translator)
     def template_loaded(template):
-        template.filters.insert(0, translator)
+        translator.setup(template)
 
     # Create the Genshi TemplateLoader
     # config['pylons.app_globals'].genshi_loader = TemplateLoader(
