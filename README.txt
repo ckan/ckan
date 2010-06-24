@@ -12,50 +12,163 @@ See :mod:`ckan.__long_description__` for more information.
 Developer Installation
 ======================
 
-These are quick instructions to get developing. For fuller instructions see :doc:`deployment`.
+These are instructions to get developing with CKAN. Instructions for deploying
+CKAN to a server are at: :doc:`deployment` (doc/deployment.rst).
 
-1. Get the code and install it:
+Before you start it may be worth checking CKAN has passed the auto build and
+tests. See: http://buildbot.okfn.org/waterfall
 
-   We recommend installing using pip and virtualenv::
-   
-      # grab the install requirements from the ckan mercurial repo
-      # Or checkout the mercurial repo directly!
-      wget http://knowledgeforge.net/ckan/hg/raw-file/default/pip-requirements.txt
-      # create a virtualenv to install into
-      virtualenv pyenv-ckan
-      # install using pip-requirements
-      pip -E pyenv-ckan install -r pip-requirements.txt
 
-3. Make a config file as follows::
+1. Ensure these packages are installed:
+   (e.g. for ubuntu: sudo apt-get install <package-name>)
 
-      # NB: you need to activate the virtualenv
-      paster --plugin ckan make-config ckan {your-config.ini}
+   =====================  ============================================
+   Package                Description
+   =====================  ============================================
+   mercurial              Source control
+   python                 Python interpreter
+   apache2                Web server
+   libapache2-mod-python  Apache module for python
+   libapache2-mod-wsgi    Apache module for WSGI
+   postgresql             PostgreSQL database
+   libpq-dev              PostgreSQL library
+   python-psycopg2        PostgreSQL python module
+   python-setuptools      Python package management
+   =====================  ============================================
 
-4. Tweak the config file as appropriate and then setup the application::
+   Now use easy_install (which comes with python-setuptools) to install
+   these packages:
+   (e.g. sudo easy_install <package-name>)
 
-      paster --plugin ckan setup-app {your-config.ini}
+   =====================  ============================================
+   Package                Notes
+   =====================  ============================================
+   python-virtualenv      Python virtual environment sandboxing
+   pip                    Python installer (use easy_install for this)
+   =====================  ============================================
 
-   NB: you'll need to setup a database -- see sqlalchemy.url config option.
-   We support only PostgreSQL at this time. You'll need to install the relevant
-   python library (eg. On debian/ubuntu: python-psycopg2)
+   Check that you received:
 
-   NB: You may also need to create the Pylon's cache directory specified by
-   cache_dir in the config file.
+    * virtualenv v1.3 or later
+    * pip v0.7.1 or later
 
-5. Run the webserver::
 
-      paster serve {your-config.ini} 
+2. Create a python virtual environment
 
-6. Point your browser at: http://localhost:5000/ (or a different port, depending
-   on the one given in your config file)
+  e.g. in your home directory::
+
+  $ virtualenv pyenv
+
+
+3. Install CKAN code and required Python packages into the new environment
+
+  For the most recent version use::
+
+  $ wget http://knowledgeforge.net/ckan/hg/raw-file/default/pip-requirements.txt
+
+  Or for the 'metastable' branch (used for most server installs)::
+
+  $ wget http://knowledgeforge.net/ckan/hg/raw-file/default/pip-requirements-metastable.txt
+
+  And install::
+
+  $ pip -E pyenv install -r pip-requirements.txt
+
+  or::
+
+  $ pip -E pyenv install -r pip-requirements-metastable.txt
+
+
+4. Setup a Postgresql database
+
+  List existing databases::
+
+  $ psql -l
+
+  It is advisable to ensure that the encoding of databases is 'UTF8', or 
+  internationalisation may be a problem. Since changing the encoding of Postgres
+  may mean deleting existing databases, it is suggested that this is fixed before
+  continuing with the CKAN install.
+
+  Create a database user if one doesn't already exist. Here we choose 'ckantest'::
+
+  $ sudo -u postgres createuser -S -D -R -P ckantest
+
+  It should prompt you for a new password for the CKAN data in the database.
+  It is suggested you enter 'pass' for the password.
+
+  Now create the database, which we'll call 'ckantest' (the last argument)::
+
+  $ sudo -u postgres createdb -O ckantest ckantest
+
+
+5. Create a CKAN config file
+
+  First 'activate' your environment so that Python Paste and other modules are
+  put on the python path::
+
+  $ . pyenv/bin/activate
+
+  Now we create the config file 'development.ini' using Paste::
+
+  $ cd pyenv/src/ckan
+  $ paster make-config ckan development.ini
+
+  Now edit development.ini and change the `sqlalchemy.url` line, filling
+  in the database user and password as given in the previous step::
+  
+    sqlalchemy.url = postgres://ckantest:pass@localhost/ckantest
+
+  Other configuration, such as setting the language of the site or editing the
+  visual theme are described in :doc:`configuration` (doc/configuration.rst)  
+
+
+6. Initialise the database
+
+  NB If you've started a new shell, you'll have to activate the environment
+  again first - see step 5.
+
+  (from the pyenv/src/ckan directory)::
+
+  $ paster db init
+
+  You should see "Initialising DB: SUCCESS"
+
+
+7. Create the cache directory
+
+  You need to create the Pylon's cache directory specified by 'cache_dir' 
+  in the config file.
+
+  (from the pyenv/src/ckan directory)::
+
+  $ mkdir data
+
+
+8. Run the CKAN webserver
+
+  NB If you've started a new shell, you'll have to activate the environment
+  again first - see step 5.
+
+  (from the pyenv/src/ckan directory)::
+
+  $ paster serve development.ini
+
+
+9. Point your web browser at: http://127.0.0.1:5000/
+   The CKAN homepage should load without problem.
 
 
 Test
 ====
 
-Make sure you've created a config called development.ini, then:: 
+Make sure you've created a config file: pyenv/ckan/development.ini 
 
-    nosetests ckan/tests
+Ensure you have activated the environment:
+  $ pyenv/bin/activate
+
+Now start the starts:
+  $ nosetests pyenv/src/ckan/ckan/tests
 
 
 Documentation
