@@ -16,7 +16,7 @@ class SearchIndexManager(AsyncConsumer):
     '''
     def __init__ (self):
         queue_name = 'search_indexer'
-        routing_key = 'Package'
+        routing_key = '*'
         super(SearchIndexManager, self).__init__(queue_name, routing_key)
 
         self.indexer = SearchIndexer()

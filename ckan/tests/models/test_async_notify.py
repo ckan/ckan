@@ -8,42 +8,48 @@ from ckan import model
 from ckan.lib.helpers import json
 from ckan.lib.create_test_data import CreateTestData
 
-class RecordingConsumer(Thread):
+class RecordingConsumerManager(Thread):
     '''As a consumer, this thread creates a queue and records what is put
     on it.
     '''
-    def __init__ (self, conn, queue='recorder', routing_key='*'):
+    def __init__ (self):
         Thread.__init__(self)
 
-        self.conn = conn
-        self.consumer_options = {
-            'queue':queue, 'exchange':model.EXCHANGE, 'routing_key':routing_key}
+    def run(self):
+        self.consumer = RecordingConsumer()
+        self.consumer.run(clear_queue=True)
+
+    @property
+    def queued(self):
+        return self.consumer.queued
+
+    def stop(self):
+        model.AsyncNotifier.send_asynchronously(None, **model.StopNotification.create())
+        model.Session.remove()
+        model.Session.close()
+
+    def clear(self):
+        self.consumer.clear()
+
+class RecordingConsumer(model.AsyncConsumer):
+    def __init__ (self):
+        queue_name = 'recording_consumer'
+        routing_key = '*'
+        super(RecordingConsumer, self).__init__(queue_name, routing_key)
         self.clear()
 
-    def run(self):
-        conn = self.conn
-        self.consumer = Consumer(connection=self.conn, **self.consumer_options)
-
-        def callback(notification_dict, message):
-            notification = model.Notification.recreate_from_dict(notification_dict)
-            self.queued.append(notification)
-            message.ack()
-           
-        self.consumer.register_callback(callback)
-        self.consumer.wait() # Go into the consumer loop.
+    def callback(self, notification):
+        self.queued.append(notification)
 
     def clear(self):
         self.queued = []
 
-    def stop(self):
-        self.consumer.cancel()
-      
 
 class TestNotification(TestController):
     @classmethod
     def setup_class(self):
         # create notification consumer
-        self.consumer = RecordingConsumer(model.get_carrot_connection())
+        self.consumer = RecordingConsumerManager()
         self.consumer.daemon = True # so destroyed automatically
         self.consumer.start()
 
@@ -67,7 +73,7 @@ class TestNotification(TestController):
         time.sleep(0.1)
 
     def queue_get_one(self):
-        assert len(self.consumer.queued) == 1, self.consumer.queued
+        assert len(self.consumer.queued) == 1, [notification['operation'] for notification in self.consumer.queued]
         notification = self.consumer.queued[0]
         assert isinstance(notification, model.PackageNotification), notification
         return notification

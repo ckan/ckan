@@ -6,7 +6,7 @@ import vdm.sqlalchemy
 from sqlalchemy.util import OrderedDict
 
 from types import make_uuid
-import full_search
+import search_index
 import notifier
 from license import License, LicenseRegister
 

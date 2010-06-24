@@ -7,11 +7,12 @@ from carrot.messaging import Consumer
 import notifier
 import meta
 
-__all__ = ['EXCHANGE', 'get_carrot_connection',
+__all__ = ['EXCHANGE', 'EXCHANGE_TYPE', 'get_carrot_connection',
            'AsyncNotifier', 'AsyncConsumer']
 
 # settings for AMQP
 EXCHANGE = 'ckan'
+EXCHANGE_TYPE = 'topic'
 
 # defaults for AMQP
 PORT = 5672 
@@ -38,6 +39,7 @@ def get_carrot_connection():
                             userid=userid, password=password,
                             virtual_host=virtual_host,
                             backend_cls=backend_cls)
+    
 
 class AsyncNotifier(object):
     '''Sends out notifications asynchronously via carrot.
@@ -48,7 +50,8 @@ class AsyncNotifier(object):
     def send_asynchronously(cls, sender, **notification_dict):
         if cls._publisher == None:
             cls._publisher = Publisher(connection=get_carrot_connection(),
-                                        exchange=EXCHANGE)
+                                       exchange=EXCHANGE,
+                                       exchange_type=EXCHANGE_TYPE)
         print 'SEND', notification_dict['operation'], notification_dict['routing_key']
         cls._publisher.send(notification_dict,
                        routing_key=notification_dict['routing_key'])
@@ -68,17 +71,18 @@ class AsyncConsumer(object):
     def __init__ (self, queue_name, routing_key):
         self.conn = get_carrot_connection()
         self.consumer_options = {
-            'queue':queue_name, 'exchange':EXCHANGE,
-            'routing_key':routing_key,
-#            'exchange_type':'topic',
+            'exchange':EXCHANGE, 'exchange_type':EXCHANGE_TYPE,
+            'queue':queue_name, 'routing_key':routing_key,
             }
 
     def callback(self, notification):
         raise NotImplementedError
 
-    def run(self):
+    def run(self, clear_queue=False):
         self.consumer = Consumer(connection=self.conn, **self.consumer_options)
-
+        if clear_queue:
+            self.clear_queue()
+            
         def callback(notification_dict, message):
             print "MESSAGE"
             notification = notifier.Notification.recreate_from_dict(notification_dict)
@@ -105,3 +109,7 @@ class AsyncConsumer(object):
         AsyncNotifier.send_asynchronously(None, **notifier.StopNotification.create())
         meta.Session.remove()
         meta.Session.close()
+
+    def clear_queue(self):
+        '''Clears all notifications on the queue for this consumer.'''
+        self.consumer.discard_all()
