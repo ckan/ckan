@@ -63,7 +63,8 @@ class BaseFormsApiCase(TestController):
         departments = ['department1', 'department2', 'department3']
         request_data = {
             'form_data': form_data,
-            'choices': {'departments': departments},
+            'log_message': 'Unit-testing the Forms API...',
+            'author': 'automated test suite',
         }
         return self.post(request_data, controller='form', action='package_edit', id=package_id, status=status)
         
@@ -77,7 +78,6 @@ class BaseFormsApiCase(TestController):
 
     def get_header_keys(self, res):
         return [h[0] for h in res.headers]
-
 
 
 class TestFormsApi(BaseFormsApiCase):

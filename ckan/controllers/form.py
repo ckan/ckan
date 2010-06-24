@@ -7,13 +7,10 @@ from ckan.lib.package_saver import ValidationException
 
 class ApiError(Exception): pass
 
-# Todo: Documentation.
-# Todo: Set log message from request.
-# Todo: Set author from request.
-# Todo: Validate for department.
+# Todo: Create controller for testing package edit form (but try to disable for production usage).
 # Todo: Refactor forms handling logic (to share common line between forms and edit).
 # Todo: Remove superfluous commit_pkg() method parameter.
-# Todo: Create controller for testing package edit form (but try to disable for production usage).
+# Todo: Support setting choices (populates form input options and constrains validation)? Actually, perhaps groups shouldn't be editable on packages?
 
 class FormController(BaseController):
     """Implements the CKAN Forms API."""
@@ -44,8 +41,6 @@ class FormController(BaseController):
             # Find the entity.
             pkg = self._get_pkg(id)
             self._assert_is_found(pkg)
-            # Check user authorization.
-            self._assert_is_authorized(pkg)
             # Get the fieldset.
             fieldset = ckan.forms.registry.get_fieldset()
             if request.method == 'GET':
@@ -60,6 +55,9 @@ class FormController(BaseController):
                 # Return the response body.
                 return response_body
             if request.method == 'POST':
+                # Check user authorization.
+                self._assert_is_authorized(pkg)
+                # Read request.
                 request_data = self._get_request_data()
                 try:
                     form_data = request_data['form_data']
@@ -72,8 +70,12 @@ class FormController(BaseController):
                 except Exception, error:
                     self._abort_bad_request()
                 # Validate and save form data.
-                log_message = u''
-                author = u''
+                log_message = request_data.get('log_message', 'Form API')
+                author = request_data.get('author', '')
+                if not author:
+                    user = self._get_user_for_apikey()
+                    if user:
+                        author = user.name
                 try:
                     self._save_package(id, bound_fieldset, log_message, author)
                 except ValidationException, exception:
