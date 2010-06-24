@@ -7,7 +7,6 @@ from ckan.lib.package_saver import ValidationException
 
 class ApiError(Exception): pass
 
-# Todo: Test for errors.
 # Todo: Documentation.
 # Todo: Set log message from request.
 # Todo: Set author from request.
@@ -85,7 +84,7 @@ class FormController(BaseController):
                     # Set response body.
                     response_body = fieldset_html
                     # Set status code.
-                    response.status_int = 200
+                    response.status_int = 400
                     # Return response body.
                     return response_body
                 else:

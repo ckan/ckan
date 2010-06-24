@@ -48,6 +48,7 @@ class BaseFormsApiCase(TestController):
         return form
 
     def form_from_res(self, res):
+        assert not "<html>" in str(res.body), "The response is an HTML doc, not just a form: %s" % str(res.body)
         res.body = "<html><form action=\"\" method=\"post\">" + res.body + "<input type=\"submit\" name=\"send\"></form></html>"
         form = res.forms[0]
         return form
@@ -64,7 +65,7 @@ class BaseFormsApiCase(TestController):
             'form_data': form_data,
             'choices': {'departments': departments},
         }
-        return self.post(request_data, controller='form', action='package_edit', status=status)
+        return self.post(request_data, controller='form', action='package_edit', id=package_id, status=status)
         
     def assert_not_header(self, res, name):
         keys = self.get_header_keys(res)
@@ -100,29 +101,39 @@ class TestFormsApi(BaseFormsApiCase):
 
     def test_submit_package_edit_form_errors(self):
         package = self.get_package_by_name(self.package_name)
+        package_id = package.id
         # Nothing in name.
         invalid_name = ''
-        res = self.post_package_edit_form(package.id, name=invalid_name)
+        res = self.post_package_edit_form(package_id, name=invalid_name, status=[400])
         # Check location header is not set.
         self.assert_not_header(res, 'Location')
         # Check package is unchanged.
         assert self.get_package_by_name(self.package_name)
         # Check response is an error form.
+        assert "class=\"field_error\"" in res
         form = self.form_from_res(res)
-        field_name = 'Package-%s-name' % (package.id)
+        field_name = 'Package-%s-name' % (package_id)
         field_value = form[field_name].value
         assert field_value == invalid_name, (field_value, invalid_name)
 
         # Whitespace in name.
         invalid_name = ' '
-        res = self.post_package_edit_form(package.id, name=invalid_name)
+        res = self.post_package_edit_form(package_id, name=invalid_name, status=[400])
         # Check location header is not set.
         self.assert_not_header(res, 'Location')
         # Check package is unchanged.
         assert self.get_package_by_name(self.package_name)
         # Check response is an error form.
+        assert "class=\"field_error\"" in res
         form = self.form_from_res(res)
-        field_name = 'Package-%s-name' % (package.id)
+        field_name = 'Package-%s-name' % (package_id)
         field_value = form[field_name].value
         assert field_value == invalid_name, (field_value, invalid_name)
+        # Check submitting error form with corrected values is OK.
+        res = self.post_package_edit_form(package_id, form=form, name=self.package_name_alt)
+        self.assert_header(res, 'Location')
+        assert not json.loads(res.body)
+        assert not self.get_package_by_name(self.package_name)
+        assert self.get_package_by_name(self.package_name_alt)
+
 

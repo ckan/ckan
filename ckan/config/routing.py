@@ -27,6 +27,7 @@ def make_map():
     map.connect('stats', '/stats', controller='home', action='stats')
     maps.admin_map(map, controller='admin', url='/admin')
     # CKAN API.
+    map.connect('/api/form/package/edit/:id', controller='form', action='package_edit')
     map.connect('/api/search/:register', controller='rest', action='search')
     map.connect('/api/tag_counts', controller='rest', action='tag_counts')
     map.connect('/api', controller='rest', action='index')
@@ -59,6 +60,7 @@ def make_map():
         controller='rest', action='delete',
         conditions=dict(method=['DELETE']))
     # CKAN API v1.
+    map.connect('/api/1/form/package/edit/:id', controller='form', action='package_edit')
     map.connect('/api/1/search/:register', controller='rest', action='search')
     map.connect('/api/1/tag_counts', controller='rest', action='tag_counts')
     map.connect('/api/1', controller='rest', action='index')
@@ -92,6 +94,7 @@ def make_map():
         conditions=dict(method=['DELETE']))
 
     # CKAN API v2.
+    map.connect('/api/2/form/package/edit/:id', controller='form', action='package_edit')
     map.connect('/api/2/search/:register', controller='rest2', action='search')
     map.connect('/api/2/tag_counts', controller='rest2', action='tag_counts')
     map.connect('/api/2', controller='rest2', action='index')
