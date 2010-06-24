@@ -52,7 +52,6 @@ setup(
             ('**.py', 'python', None),
             ('templates/_util.html', 'ignore', None),
             ('templates/importer/**', 'ignore', None),
-            ('templates/rest/**', 'ignore', None),
             ('templates/**.html', 'genshi', None),
             ('public/**', 'ignore', None),
             ]},
