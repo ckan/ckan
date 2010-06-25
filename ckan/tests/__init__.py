@@ -65,6 +65,7 @@ class TestController(object):
         wsgiapp = loadapp('config:test.ini', relative_to=conf_dir)
         self.app = paste.fixture.TestApp(wsgiapp)
 
+    @classmethod
     def create_package(self, **kwds):
         CreateTestData.create_arbitrary(package_dicts=[kwds])
 
@@ -84,9 +85,11 @@ class TestController(object):
         model.Session.commit()
         model.Session.remove()
 
+    @classmethod
     def get_package_by_name(self, package_name):
         return model.Package.by_name(package_name)
 
+    @classmethod
     def purge_package_by_name(self, package_name):
         package = self.get_package_by_name(package_name)
         if package:
