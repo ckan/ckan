@@ -516,16 +516,20 @@ To obtain your API key:
 
 The key should be passed in the API request header:
 
-====================== =====
-Header                 Example value
-====================== =====
-HTTP_AUTHORIZATION     fde34a3c-b716-4c39-8dc4-881ba115c6d4
-====================== =====
+================= =====
+Header            Example value
+================= =====
+Authorization     fde34a3c-b716-4c39-8dc4-881ba115c6d4
+================= =====
 
-If requests that are required to be authorized are not sent with a currently 
-valid Authorization header, or the user associated with the key is not 
-authorized for the operation, then the requested operation will not be carried
-out and the CKAN API will respond with status code 403.
+If requests that are required to be authorized are not sent with a 
+valid Authorization header, for example the user associated with the 
+key is not authorized for the operation, or the header is somehow malformed,
+then the requested operation will not be carried out and the CKAN API will
+respond with status code 403.
+
+For more information about HTTP Authorization header, please refer to section
+14.8 of `RFC 2616 <http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.8>`_.
 
 
 JSONP formatted responses
