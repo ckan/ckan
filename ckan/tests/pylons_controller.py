@@ -17,6 +17,12 @@ class MockTranslator(object):
     def ugettext(self, value): 
         return value 
 
+    def ungettext(self, singular, plural, n):
+        if n > 1:
+            return plural
+        return singular
+
+    
 class PylonsTestCase(TestController): 
     """A basic test case which allows access to pylons.c and pylons.request. 
     """ 

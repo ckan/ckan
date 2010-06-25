@@ -12,6 +12,7 @@ import os
 import sys
 import re
 from unittest import TestCase
+from nose.tools import assert_equal
 
 import sgmllib
 import pkg_resources
@@ -57,11 +58,24 @@ class Stripper(sgmllib.SGMLParser):
     def handle_data(self, data):
         self.str += data
 
+
 class TestController(object):
 
     def __init__(self, *args, **kwargs):
         wsgiapp = loadapp('config:test.ini', relative_to=conf_dir)
         self.app = paste.fixture.TestApp(wsgiapp)
+
+    @classmethod
+    def create_package(self, **kwds):
+        CreateTestData.create_arbitrary(package_dicts=[kwds])
+
+    @classmethod
+    def create_user(self, **kwds):
+        user = model.User(name=kwds['name'])             
+        model.Session.add(user)
+        model.Session.commit()
+        model.Session.remove()
+        return user
 
     def create_100_packages(self):
         rev = model.repo.new_revision()
@@ -71,6 +85,17 @@ class TestController(object):
         model.Session.commit()
         model.Session.remove()
 
+    @classmethod
+    def get_package_by_name(self, package_name):
+        return model.Package.by_name(package_name)
+
+    @classmethod
+    def purge_package_by_name(self, package_name):
+        package = self.get_package_by_name(package_name)
+        if package:
+            package.purge()
+        model.repo.commit_and_remove()
+
     def purge_100_packages(self):
         listRegister = self.get_model().packages
         for i in range(0,100):
@@ -79,6 +104,19 @@ class TestController(object):
             pkg.purge(name)
         model.Session.commit()
         model.Session.remove()
+
+    @classmethod
+    def purge_packages(self, pkg_names):
+        for pkg_name in pkg_names:
+            pkg = model.Package.by_name(unicode(pkg_name))
+            if pkg:
+                pkg.purge()
+        model.repo.commit_and_remove()
+
+    @classmethod
+    def purge_all_packages(self):
+        all_pkg_names = [pkg.name for pkg in model.Session.query(model.Package)]
+        self.purge_packages(all_pkg_names)
 
     def create_200_tags(self):
         for i in range(0,200):
@@ -181,6 +219,9 @@ class TestController(object):
         # didn't find it
         assert 0, "Couldn't find %s in html. Closest matches were:\n%s" % (', '.join(["'%s'" % html.encode('utf8') for html in html_to_find]), '\n'.join([tag.encode('utf8') for tag in partly_matching_tags]))
 
+    def assert_equal(self, *args, **kwds):
+        assert_equal(*args, **kwds)
+
     @property
     def war(self):
         return self.get_package_by_name(u'warandpeace')
@@ -189,18 +230,3 @@ class TestController(object):
     def anna(self):
         return self.get_package_by_name(u'annakarenina')
 
-    def get_package_by_name(self, package_name):
-        return model.Package.by_name(package_name)
-
-    @classmethod
-    def purge_packages(self, pkg_names):
-        for pkg_name in pkg_names:
-            pkg = model.Package.by_name(unicode(pkg_name))
-            if pkg:
-                pkg.purge()
-        model.repo.commit_and_remove()
-
-    @classmethod
-    def purge_all_packages(self):
-        all_pkg_names = [pkg.name for pkg in model.Session.query(model.Package)]
-        self.purge_packages(all_pkg_names)

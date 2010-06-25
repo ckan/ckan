@@ -1,4 +1,5 @@
 <html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
   xmlns:xi="http://www.w3.org/2001/XInclude">
 
   <py:def function="page_title">Home</py:def>
@@ -54,14 +55,14 @@
 
   <div py:match="content">
     <h2>Welcome to CKAN</h2>
-    <p>
+    <p i18n:msg="">
       CKAN is a registry of <a href="http://opendefinition.org/">open data 
       and content</a> packages. CKAN makes it easy to <strong>find, share and reuse 
       open content and data</strong>, especially in ways that are machine 
       automatable.
     </p>
     
-    <p><strong>${c.package_count} registered packages</strong> available.</p>
+    <p i18n:msg="package_count"><strong>${c.package_count} registered packages</strong> available.</p>
 
     <xi:include href="../package/search_form.html" />
 

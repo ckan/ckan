@@ -1,4 +1,5 @@
 <html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
   xmlns:xi="http://www.w3.org/2001/XInclude">
 
   <py:def function="optional_head">
@@ -33,14 +34,14 @@
           <input id="openid_submit" type="submit" value="Log in &raquo;"/>
         </div>
         <noscript>
-          <p>OpenID is service that allows you to log-on to many different websites using a single identity.
+          <p i18n:msg="">OpenID is service that allows you to log-on to many different websites using a single identity.
     Find out <a href="http://openid.net/what/">more about OpenID</a> and <a href="http://openid.net/get/">how to get an OpenID enabled account</a>.</p>
         </noscript>
       </fieldset>
     </form>
 
     <h3>Don't have an OpenID?</h3>
-    <p>
+    <p i18n:msg="">
       OpenID is service that allows you to log-on to many different websites
       using a single indentity. Find out <a href="http://openid.net/what/">more
       about OpenID</a> and <a href="http://openid.net/get/">how to get an

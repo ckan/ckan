@@ -1,4 +1,5 @@
 <html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
   xmlns:xi="http://www.w3.org/2001/XInclude">
   
   <py:def function="page_title">Groups - ${c.group.name}</py:def>
@@ -38,7 +39,7 @@
     ${c.page.pager()}
     ${package_list(c.page.items)}
     ${c.page.pager()}
-    There are ${c.page.item_count} packages in this group.
+    <p i18n:msg="item_count">There are ${c.page.item_count} packages in this group.</p>
    </div>
   </div>
 

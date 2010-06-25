@@ -23,14 +23,17 @@ class ErrorController(BaseController):
 
     def document(self):
         """Render the error document"""
+        original_request = request.environ.get('pylons.original_request')
+        original_response = request.environ.get('pylons.original_response')
+        # Bypass error template for API operations.
+        if original_request.path.startswith('/api'):
+            return original_response.body
+        # Otherwise, decorate original response with error template.
         ckan_template = render('error_document_template.html')
-        # ckan_template = ckan_template.decode('utf8')
-        resp = request.environ.get('pylons.original_response')
-        content = literal(resp.body) or cgi.escape(request.GET.get('message', ''))
-        # page = error_document_template % \
+        content = literal(original_response.body) or cgi.escape(request.GET.get('message', ''))
         page = ckan_template % \
             dict(prefix=request.environ.get('SCRIPT_NAME', ''),
-                 code=cgi.escape(request.GET.get('code', str(resp.status_int))),
+                 code=cgi.escape(request.GET.get('code', str(original_response.status_int))),
                  message=content)
         return page
 
