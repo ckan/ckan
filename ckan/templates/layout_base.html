@@ -1,5 +1,6 @@
 <html
   xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
   xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip=""
@@ -50,12 +51,12 @@
     <div id="top-inner">
       <div id="top-bar">
         <topbar py:choose="">
-          <p py:when="c.user">
+	<p py:when="c.user" i18n:msg="openid_icon, user">
             Logged in as <strong>${h.icon('openid')} ${c.user}</strong>
             &middot; <a href="${h.url_for(controller='user',action=None)}">My account</a>
-            &middot; <a href="${h.url_for('/logout_openid')}">Logout</a>
+	    &middot; <a href="${h.url_for('/logout_openid')}">Logout</a>
           </p>
-          <p py:otherwise="">
+          <p py:otherwise="" i18n:msg="openid_icon">
             <a href="${h.url_for(controller='user',action='login', id=None)}">Login with ${h.icon('openid')} OpenID</a>
           </p>
         </topbar>
@@ -113,10 +114,10 @@
         | <a href="http://www.okfn.org/contact/">Contact Us</a>
         | <a href="http://www.okfn.org/privacy-policy/">Privacy Policy</a>
       </p>
-      <p>
+      <p i18n:msg="">
         <img style="margin-bottom: -5px;" src="http://m.okfn.org/images/logo/okf_logo_white_and_green_tiny.png" /> An <a href="http://www.okfn.org/">Open Knowledge Foundation</a> Project
       </p>
-      <p>
+      <p i18n:msg="version">
         v${c.__version__}
         | (c) Open Knowledge Foundation
 	| All material available under an <a href="${h.url_for('license')}">open license</a>
