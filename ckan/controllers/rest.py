@@ -151,7 +151,11 @@ class BaseRestController(BaseController):
         try:
             if register == 'package' and not subregister:
                 fs = ckan.forms.get_standard_fieldset()
-                request_fa_dict = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(fs=fs), request_data)
+                try:
+                    request_fa_dict = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(fs=fs), request_data)
+                except ckan.forms.PackageDictFormatError, inst:
+                    response.status_int = 400
+                    return gettext('Package format incorrect: %s') % str(inst)
                 fs = fs.bind(model.Package, data=request_fa_dict, session=model.Session)
             elif register == 'package' and subregister in model.PackageRelationship.get_all_types():
                 pkg1 = self._get_pkg(id)
@@ -254,7 +258,11 @@ class BaseRestController(BaseController):
             if register == 'package':
                 fs = ckan.forms.get_standard_fieldset()
                 orig_entity_dict = ckan.forms.get_package_dict(pkg=entity, fs=fs)
-                request_fa_dict = ckan.forms.edit_package_dict(orig_entity_dict, request_data, id=entity.id)
+                try:
+                    request_fa_dict = ckan.forms.edit_package_dict(orig_entity_dict, request_data, id=entity.id)
+                except ckan.forms.PackageDictFormatError, inst:
+                    response.status_int = 400
+                    return gettext('Package format incorrect: %s') % str(inst)
             elif register == 'group':
                 orig_entity_dict = ckan.forms.get_group_dict(entity)
                 request_fa_dict = ckan.forms.edit_group_dict(orig_entity_dict, request_data, id=entity.id)

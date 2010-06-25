@@ -230,6 +230,16 @@ class BaseRestCase(TestController):
         assert len(pkg.resources) == 1, pkg.resources
         assert pkg.resources[0].url == test_params['download_url'], pkg.resources[0]
 
+    def test_06_create_pkg_bad_format_400(self):
+        test_params = {
+            'name':u'testpkg06_400',
+            'resources':[u'should_be_a_dict'],
+            }
+        offset = '/api/rest/package'
+        postparams = '%s=1' % json.dumps(test_params)
+        res = self.app.post(offset, params=postparams, status=[400],
+                extra_environ=self.extra_environ)
+
     def test_06_create_package_with_jsonp_callback(self):
         # JSONP callback should only work for GETs, not POSTs.
         pkg_name = u'test6jsonp'
@@ -917,21 +927,7 @@ class BaseSearchCase(TestController):
 
     @classmethod
     def setup_class(self):
-        try:
-            CreateTestData.delete()
-        except:
-            pass
-        model.Session.remove()
         CreateTestData.create()
-        self.base_url = self.offset('/search/package')
-
-    @classmethod
-    def teardown_class(self):
-        model.Session.remove()
-        model.repo.rebuild_db()
-        model.Session.remove()
-
-    def setup(self):
         self.testpackagevalues = {
             'name' : u'testpkg',
             'title': 'Some Title',
@@ -943,20 +939,12 @@ class BaseSearchCase(TestController):
             'extras': {'national_statistic':'yes',
                        'geographic_coverage':'England, Wales'},
         }
-
         CreateTestData.create_arbitrary(self.testpackagevalues)
+        self.base_url = self.offset('/search/package')
 
-        model.Session.commit()
-        model.Session.remove()
-
-
-    def teardown(self):
-        model.Session.remove()
-        pkg = self.get_package_by_name(self.testpackagevalues['name'])
-        if pkg:
-            pkg.purge()
-        model.Session.commit()
-        model.Session.remove()
+    @classmethod
+    def teardown_class(self):
+        CreateTestData.delete()
 
     def test_01_uri_q(self):
         offset = self.base_url + '?q=%s' % self.testpackagevalues['name']
