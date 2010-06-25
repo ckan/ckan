@@ -3,6 +3,7 @@ import cgi
 from paste.fixture import AppError
 from pylons import config
 from genshi.core import escape as genshi_escape
+from difflib import unified_diff
 
 from ckan.tests import *
 import ckan.model as model
@@ -21,6 +22,10 @@ class TestPackageBase(TestController):
     def _assert_form_errors(self, res):
         self.check_tag(res, '<form', 'class="has-errors"')
         assert 'class="field_error"' in res, res
+
+    def diff_responses(self, res1, res2):
+        return '\n'.join(unified_diff(res1.body.split('\n'),
+                                      res2.body.split('\n')))
 
 class TestPackageForm(TestPackageBase):
     '''Inherit this in tests for these form testing methods'''
@@ -246,6 +251,10 @@ class TestReadOnly(TestPackageForm):
         name = u'annakarenina'
         offset = url_for(controller='package', action='read', id=name)
         res = self.app.get(offset)
+        # check you get the same thing referring to pkg by id
+        offset = url_for(controller='package', action='read', id=self.anna.id)
+        res_by_id = self.app.get(offset)
+        assert res_by_id.body == res.body
         # only retrieve after app has been called
         anna = self.anna
         assert 'Packages - %s' % name in res
@@ -394,8 +403,28 @@ class TestEdit(TestPackageForm):
     def teardown_class(self):
         CreateTestData.delete()
 
+    def test_edit_basic(self):
+        # just the absolute basics
+        try:
+            self.res = self.app.get(self.offset)
+            assert 'Packages - Edit' in self.res, self.res
+            new_name = u'new-name'
+            fv = self.res.forms[0]
+            prefix = 'Package-%s-' % self.pkgid
+            fv[prefix + 'name'] = new_name
+            res = fv.submit('commit')
+            # get redirected ...
+            res = res.follow()
+            offset = url_for(controller='package', action='read', id=new_name)
+            res = self.app.get(offset)
+            assert 'Packages - %s' % new_name in res, res
+            pkg = model.Package.by_name(new_name)
+            assert pkg
+        finally:
+            self._reset_data()
+
     def test_edit(self):
-        # the absolute basics
+        # just the key fields
         try:
             self.res = self.app.get(self.offset)
             assert 'Packages - Edit' in self.res, self.res
@@ -428,6 +457,29 @@ class TestEdit(TestPackageForm):
             assert pkg.resources[0].url == new_download_url
             assert pkg.version == newversion
             assert newlicense_id == pkg.license.id
+        finally:
+            self._reset_data()
+
+    def test_edit_basic_pkg_by_id(self):
+        try:
+            pkg = model.Package.by_name(u'editpkgtest')
+            offset = url_for(controller='package', action='edit', id=pkg.id)
+            res = self.app.get(offset)
+            assert res.body == self.res.body, self.diff_responses(res, self.res)
+            assert 'Packages - Edit' in res, res
+            assert pkg.name in res
+            new_name = u'new-name'
+            fv = self.res.forms[0]
+            prefix = 'Package-%s-' % self.pkgid
+            fv[prefix + 'name'] = new_name
+            res = fv.submit('commit')
+            # get redirected ...
+            res = res.follow()
+            offset = url_for(controller='package', action='read', id=new_name)
+            res = self.app.get(offset)
+            assert 'Packages - %s' % new_name in res, res
+            pkg = model.Package.by_name(new_name)
+            assert pkg
         finally:
             self._reset_data()
 

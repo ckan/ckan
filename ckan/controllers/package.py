@@ -69,7 +69,7 @@ class PackageController(BaseController):
         return render('package/search.html')
 
     def read(self, id):
-        pkg = model.Package.by_name(id)
+        pkg = model.Package.get(id)
         if pkg is None:
             abort(404, gettext('Package not found'))
 
@@ -105,7 +105,7 @@ class PackageController(BaseController):
             else:
                 h.redirect_to(controller='revision', action='diff', **params)
 
-        c.pkg = model.Package.by_name(id)
+        c.pkg = model.Package.get(id)
         if not c.pkg:
             abort(404, gettext('Package not found'))
         format = request.params.get('format', '')
@@ -218,7 +218,7 @@ class PackageController(BaseController):
         # TODO: refactor to avoid duplication between here and new
         c.error = ''
 
-        pkg = model.Package.by_name(id)
+        pkg = model.Package.get(id)
         if pkg is None:
             abort(404, '404 Not Found')
         am_authz = self.authorizer.am_authorized(c, model.Action.EDIT, pkg)
@@ -236,7 +236,7 @@ class PackageController(BaseController):
 
         if not 'commit' in request.params and not 'preview' in request.params:
             # edit
-            c.pkgname = id
+            c.pkgname = pkg.name
             if pkg.license_id:
                 self._adjust_license_id_options(pkg, fs)
             fs = fs.bind(pkg)
@@ -261,7 +261,7 @@ class PackageController(BaseController):
             except KeyError, error:
                 abort(400, 'Missing parameter: %s' % error.args)
         else: # Must be preview
-            c.pkgname = id
+            c.pkgname = pkg.name
             if pkg.license_id:
                 self._adjust_license_id_options(pkg, fs)
             fs = fs.bind(pkg, data=dict(request.params))
@@ -306,7 +306,7 @@ class PackageController(BaseController):
             options.insert(1, (pkg.license_id, pkg.license_id))
 
     def authz(self, id):
-        pkg = model.Package.by_name(id)
+        pkg = model.Package.get(id)
         if pkg is None:
             abort(404, gettext('Package not found'))
         c.pkgname = pkg.name
@@ -354,7 +354,7 @@ class PackageController(BaseController):
                 model.repo.commit_and_remove()
 
         # retrieve pkg again ...
-        c.pkg = model.Package.by_name(id)
+        c.pkg = model.Package.get(id)
         fs = ckan.forms.get_authz_fieldset('package_authz_fs').bind(c.pkg.roles)
         c.form = fs.render()
         c.new_roles_form = ckan.forms.get_authz_fieldset('new_package_roles_fs').render()
@@ -362,7 +362,7 @@ class PackageController(BaseController):
 
     def rate(self, id):
         package_name = id
-        package = model.Package.by_name(package_name)
+        package = model.Package.get(package_name)
         if package is None:
             abort(404, gettext('404 Package Not Found'))
         rating = request.params.get('rating', '')

@@ -16,11 +16,7 @@ class BaseRestController(BaseController):
         return [getattr(p, self.ref_package_with_attr) for p in packages]
 
     def _get_pkg(self, id):
-        pkg = model.Session.query(model.Package).get(id)
-        if pkg == None:
-            pkg = model.Package.by_name(id)
-            # Todo: Make sure package names can't be changed to look like package IDs?
-        return pkg
+        return model.Package.get(id)
 
     def index(self):
         return render('rest/index.html')

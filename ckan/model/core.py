@@ -124,6 +124,15 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         text_query = text_query
         return Session.query(self).filter(self.name.contains(text_query.lower()))
 
+    @classmethod
+    def get(cls, reference):
+        '''Returns a package object referenced by its id or name.'''
+        pkg = Session.query(cls).get(reference)
+        if pkg == None:
+            pkg = cls.by_name(reference)
+            # Todo: Make sure package names can't be changed to look like package IDs?
+        return pkg
+
     def update_resources(self, res_dicts, autoflush=True):
         '''Change this package\'s resources.
         @param res_dicts - ordered list of dicts, each detailing a resource
