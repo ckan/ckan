@@ -4,6 +4,8 @@ import ckan.lib.helpers as h
 from ckan.lib.base import *
 import ckan.rating
 
+# Todo: Factor out unused original_name argument.
+
 class ValidationException(Exception):
     pass
 

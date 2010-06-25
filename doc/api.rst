@@ -58,10 +58,11 @@ So that the system knows who is making this change, you need to send your API ke
 Overview
 ========
 
-The CKAN API is separated into two parts:
+The CKAN API is separated into three parts:
 
-* the Model API; and
-* the Search API.
+* the Model API;
+* the Search API; and
+* the Form API.
 
 The CKAN API follows the RESTful (Representational State Transfer) style.
 Published resources are separated both from the methods supported by the
@@ -78,16 +79,15 @@ API Versions
 
 The CKAN API is versioned, so that backwards incompatible changes can be
 introduced without removing existing support. The version number is inserted
-after the '/api' part of the path.
+after the '/api' part of the resource locations.
 
-``http://ckan.net/api/API-VERSION/rest/package``
-
-For example versions 1 and 2 of the CKAN API are located here:
+For example, version 1 of the CKAN API has its Package Register located here:
 
 ``http://ckan.net/api/1/rest/package``
-``http://ckan.net/api/2/rest/package``
 
-Clients that don't supply the version number access version 1 by default.
+whilst version 2 of the CKAN API has its Package Register located here:
+
+``http://ckan.net/api/2/rest/package``
 
 
 CKAN Model API
@@ -186,7 +186,7 @@ Here are the methods of the Model API.
 
 * The location of new entity resources will be indicated in the 'Location' header containing the resource location of the new entity.
 
-* PUT operations may instead use the HTTP POST method with the same.
+* PUT operations may instead use the HTTP POST method.
 
 * POSTing data to a register resource will create a new entity, whilst PUT/POSTing data to an entity resource will update an existing entity.
 
@@ -400,6 +400,85 @@ Revision Search Parameters
 |                       |               |                                                     | included in the results.         |
 +-----------------------+---------------+-----------------------------------------------------+----------------------------------+
 
+CKAN Form API
+==============
+
+Form resources are available at published locations. They are represented with
+a variety of data formats. Each resource location supports a number of methods.
+
+The data formats of the requests and the responses are defined below.
+
+
+Form API Resources
+------------------
+
+Here are the resources of the Form API.
+
++--------------------------------+-------------------------------------------------------------------+
+| Resource                       | Location                                                          |
++================================+===================================================================+
+| Package Edit Form              | ``/api/form/package/edit/PACKAGE-REF``                            |
++--------------------------------+-------------------------------------------------------------------+
+
+Possible values for PACKAGE-REF are the package id, or the current package name.
+
+
+Form API Methods
+----------------
+
+Here are the methods of the Form API.
+
++-------------------------------+--------+-------------------------------+-------------------------+
+| Resource                      | Method | Request                       | Response                |
++===============================+========+===============================+=========================+ 
+| Package Edit Form             | GET    |                               | Package-Edit-Form       | 
++-------------------------------+--------+-------------------------------+-------------------------+
+| Package Edit Form             | PUT    | Package-Edit-Form-Submission  |                         | 
++-------------------------------+--------+-------------------------------+-------------------------+
+
+* The form responses are used by clients within their HTML pages.
+
+* PUT operations may instead use the HTTP POST method.
+
+* Successful form submission requests will return status code of 200 with an empty response.
+
+* Unsuccessful form submission requests will return status code of 400 with an error form response. The error form response are used instead of the original form response to display errorful submissions to users.
+
+
+Form API Data Formats
+---------------------
+
+Here are the data formats for the Form API.
+
++------------------------------+---------------------------------------------------------------------------+
+| Name                         | Format                                                                    |
++==============================+===========================================================================+
+| Package-Edit-Form            | Form-FieldSet Form-FieldSet Form-FieldSet                                 |
++------------------------------+---------------------------------------------------------------------------+
+| Form-FieldSet                | <fieldset>                                                                |
+|                              |   <legend>...</legend>                                                    |
+|                              |   <dl>                                                                    |
+|                              |     Form-Field Form-Field Form-Field ...                                  |
+|                              |   </dl>                                                                   |
+|                              | </fieldset>                                                               |
++------------------------------+---------------------------------------------------------------------------+
+| Form-Field                   | <dt>Form-Label</dt><dd>Html-Input</dd>                                    |
++------------------------------+---------------------------------------------------------------------------+
+| Form-Label                   | <label class="field_opt" for="FIELD-NAME">LABEL</label>                   |
++------------------------------+---------------------------------------------------------------------------+
+| Form-Input                   | <input id="FIELD-NAME" name="FIELD-NAME" value="FIELD-VALUE" ... />       |
++------------------------------+---------------------------------------------------------------------------+
+| Package-Edit-Form-Submission | { form_data: [ (FIELD-NAME, FIELD-VALUE), (FIELD-NAME, FIELD-VALUE),      |
+|                              |   (FIELD-NAME, FIELD-VALUE), ... ],                                       |
+|                              |   log_message: LOG-MESSAGE, author: AUTHOR }                              |
++------------------------------+---------------------------------------------------------------------------+
+ 
+
+To send request data, create a simple data structure, then convert it to a JSON string, then percent-encode the JSON string, then send it as the request body.
+
+Response data will be in the response body.
+
+
 
 CKAN API Status Codes
 =====================
@@ -437,16 +516,20 @@ To obtain your API key:
 
 The key should be passed in the API request header:
 
-====================== =====
-Header                 Example value
-====================== =====
-HTTP_AUTHORIZATION     fde34a3c-b716-4c39-8dc4-881ba115c6d4
-====================== =====
+================= =====
+Header            Example value
+================= =====
+Authorization     fde34a3c-b716-4c39-8dc4-881ba115c6d4
+================= =====
 
-If requests that are required to be authorized are not sent with a currently 
-valid Authorization header, or the user associated with the key is not 
-authorized for the operation, then the requested operation will not be carried
-out and the CKAN API will respond with status code 403.
+If requests that are required to be authorized are not sent with a 
+valid Authorization header, for example the user associated with the 
+key is not authorized for the operation, or the header is somehow malformed,
+then the requested operation will not be carried out and the CKAN API will
+respond with status code 403.
+
+For more information about HTTP Authorization header, please refer to section
+14.8 of `RFC 2616 <http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.8>`_.
 
 
 JSONP formatted responses
