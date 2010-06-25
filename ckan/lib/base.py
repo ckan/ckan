@@ -51,12 +51,15 @@ class BaseController(WSGIController):
         finally:
             model.Session.remove()
 
-    def _get_pkg(self, id):
+    def _get_user(self, ref):
+        return model.User.by_name(ref)
+
+    def _get_pkg(self, ref):
         # Try to find a package id...
-        pkg = model.Session.query(model.Package).get(id)
+        pkg = model.Session.query(model.Package).get(ref)
         if pkg == None:
             # ...otherwise try to find a package name.
-            pkg = model.Package.by_name(id)
+            pkg = model.Package.by_name(ref)
         return pkg
     # Todo: Make sure package names can't be changed to look like package IDs?
 

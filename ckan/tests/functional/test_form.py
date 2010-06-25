@@ -17,17 +17,19 @@ class BaseFormsApiCase(TestController):
     package_name_alt = u'formsapialt'
 
     def setup(self):
-        self.user = self.create_user(name=u'alex')
+        self.user = self.get_user_by_name(u'tester')
+        if not self.user:
+            self.user = self.create_user(name=u'tester')
         self.extra_environ = {
             'Authorization' : str(self.user.apikey)
         }
         self.create_package(name=self.package_name)
 
     def teardown(self):
-        if self.user:
-            model.Session.remove()
-            model.Session.add(self.user)
-            self.user.purge()
+        #if self.user:
+        #    model.Session.remove()
+        #    model.Session.add(self.user)
+        #    self.user.purge()
         self.purge_package_by_name(self.package_name)
         self.purge_package_by_name(self.package_name_alt)
 
@@ -60,7 +62,6 @@ class BaseFormsApiCase(TestController):
             field_name = 'Package-%s-%s' % (package_id, key)
             form[field_name] = value
         form_data = form.submit_fields()
-        departments = ['department1', 'department2', 'department3']
         request_data = {
             'form_data': form_data,
             'log_message': 'Unit-testing the Forms API...',
@@ -136,4 +137,23 @@ class TestFormsApi(BaseFormsApiCase):
         assert not self.get_package_by_name(self.package_name)
         assert self.get_package_by_name(self.package_name_alt)
 
+    def test_package_edit_example(self):
+        #self.ckan_server = self._start_ckan_server('development.ini')
+        import time
+        #time.sleep(2)
+        try:
+            package = self.get_package_by_name(self.package_name)
+            package_id = package.id
+            res = self.get(controller='form', action='package_edit_example', id=package_id)
+            form = res.forms[0]
+            form_data = form.submit_fields()
+            import urllib
+            params = urllib.urlencode(form_data)
+            offset = url_for(controller='form', action='package_edit_example', id=package_id)
+            res = self.app.post(offset, params=params, status=[200], extra_environ=self.extra_environ)
+            body = res.body
+            assert '<html' in body, "The result does NOT have an HTML doc tag: %s" % body
+            assert "Submitted OK" in body, body
+        finally:
+            pass # self._stop_ckan_server(self.ckan_server)
 
