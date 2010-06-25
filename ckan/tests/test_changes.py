@@ -1,60 +1,28 @@
 import os
-import subprocess
 import urllib2
 import time
 
-from pylons import config
-
 import ckan.model as model
 from ckan.tests import *
-
-instance_dir = config['here']
 
 class Options:
     pid_file = 'paster.pid'
 
 class TestControllerWithForeign(TestController):
 
-    def system(self, cmd):
-        #import commands
-        #(status, output) = commands.getstatusoutput(cmd)
-        #if status:
-        #    raise Exception, "Couldn't execute cmd: %s: %s" % (cmd, output)
-        import os
-        if os.system(cmd):
-            raise Exception, "Couldn't execute cmd: %s" % cmd
-
-    def paster(self, cmd, config_filename):
-        config_fpath = os.path.join(instance_dir, config_filename)
-        self.system('paster --plugin ckan %s --config=%s' % (cmd, config_fpath))
-
     def setup(self):
-        # setup Server A (sub process)
-        self.paster('db clean', 'test_sync.ini')
-        self.paster('db init', 'test_sync.ini')
-        self.paster('create-test-data', 'test_sync.ini')
-        self.sub_proc = subprocess.Popen(['paster', 'serve',
-                         os.path.join(instance_dir, 'test_sync.ini')])
-        # setup Server B (sub process)
-        self.paster('db clean', 'test_sync2.ini')
-        self.paster('db init', 'test_sync2.ini')
-        self.paster('create-test-data', 'test_sync2.ini')
-        self.sub_proc2 = subprocess.Popen(['paster', 'serve',
-                        os.path.join(instance_dir, 'test_sync2.ini')])
+        self._recreate_ckan_server_testdata('test_sync.ini')
+        self.sub_proc = self._start_ckan_server('test_sync.ini')
+        self._recreate_ckan_server_testdata('test_sync2.ini')
+        self.sub_proc2 = self._start_ckan_server('test_sync2.ini')
 
     def teardown(self):
         #self.sub_proc.kill()  # Only in Python 2.6
-        pid = self.sub_proc.pid
-        pid = int(pid)
         try:
-            if os.system("kill -9 %d" % pid):
-                raise Exception, "Can't kill foreign CKAN instance."
+            self._stop_ckan_server(self.sub_proc2)
         finally:
-            pid = self.sub_proc2.pid
-            pid = int(pid)
             try:
-                if os.system("kill -9 %d" % pid):
-                    raise Exception, "Can't kill local CKAN instance."
+                self._stop_ckan_server(self.sub_proc)
             finally:
                 model.repo.rebuild_db()
 
@@ -80,13 +48,13 @@ class TestControllerWithForeign(TestController):
 class TestDistributingChanges(TestControllerWithForeign):
 
     def commit(self):
-        self.paster('changes commit', 'test_sync.ini')
+        self._paster('changes commit', 'test_sync.ini')
 
     def pull(self):
-        self.paster('changes pull', 'test_sync.ini')
+        self._paster('changes pull', 'test_sync.ini')
 
     def update(self):
-        self.paster('changes update', 'test_sync.ini')
+        self._paster('changes update', 'test_sync.ini')
 
     def test_pull(self):
         self.sub_app_get('/')

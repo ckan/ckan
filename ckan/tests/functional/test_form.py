@@ -17,17 +17,19 @@ class BaseFormsApiCase(TestController):
     package_name_alt = u'formsapialt'
 
     def setup(self):
-        self.user = self.create_user(name=u'alex')
+        self.user = self.get_user_by_name(u'tester')
+        if not self.user:
+            self.user = self.create_user(name=u'tester')
         self.extra_environ = {
             'Authorization' : str(self.user.apikey)
         }
         self.create_package(name=self.package_name)
 
     def teardown(self):
-        if self.user:
-            model.Session.remove()
-            model.Session.add(self.user)
-            self.user.purge()
+        #if self.user:
+        #    model.Session.remove()
+        #    model.Session.add(self.user)
+        #    self.user.purge()
         self.purge_package_by_name(self.package_name)
         self.purge_package_by_name(self.package_name_alt)
 
@@ -135,5 +137,19 @@ class TestFormsApi(BaseFormsApiCase):
         assert not json.loads(res.body)
         assert not self.get_package_by_name(self.package_name)
         assert self.get_package_by_name(self.package_name_alt)
+
+    def test_package_edit_example(self):
+        #self.ckan_server = self._start_ckan_server('development.ini')
+        import time
+        #time.sleep(2)
+        try:
+            package = self.get_package_by_name(self.package_name)
+            res = self.get(controller='form', action='package_edit_example', id=package.id)
+        finally:
+            pass # self._stop_ckan_server(self.ckan_server)
+        body = res.body
+        assert '<html' in body, "The result does NOT have an HTML doc tag: %s" % body
+        assert '<form' in body, "The result does NOT have an HTML form tag: %s" % body
+        assert '<fieldset' in body, "The result does NOT have an HTML fieldset tag: %s" % body
 
 

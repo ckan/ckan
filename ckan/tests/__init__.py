@@ -23,6 +23,7 @@ from routes import url_for
 
 from ckan.lib.create_test_data import CreateTestData
 
+
 __all__ = ['url_for',
         'TestController',
         'CreateTestData',
@@ -83,6 +84,9 @@ class TestController(object):
             model.Session.add(model.Package(name=name))
         model.Session.commit()
         model.Session.remove()
+
+    def get_user_by_name(self, name):
+        return model.User.by_name(name)
 
     def get_package_by_name(self, package_name):
         return model.Package.by_name(package_name)
@@ -226,4 +230,32 @@ class TestController(object):
     @property
     def anna(self):
         return self.get_package_by_name(u'annakarenina')
+
+    def _system(self, cmd):
+        import os
+        if os.system(cmd):
+            raise Exception, "Couldn't execute cmd: %s" % cmd
+
+    def _paster(self, cmd, config_path_rel):
+        from pylons import config
+        config_path = os.path.join(config['here'], config_path_rel)
+        self._system('paster --plugin ckan %s --config=%s' % (cmd, config_path))
+
+    def _recreate_ckan_server_testdata(self, config_path):
+        self._paster('db clean', config_path)
+        self._paster('db init', config_path)
+        self._paster('create-test-data', config_path)
+
+    def _start_ckan_server(self, config_path):
+        from pylons import config
+        config_path = os.path.join(config['here'], config_path)
+        import subprocess
+        process = subprocess.Popen(['paster', 'serve', config_path])
+        return process
+
+    def _stop_ckan_server(self, process): 
+        pid = process.pid
+        pid = int(pid)
+        if os.system("kill -9 %d" % pid):
+            raise Exception, "Can't kill foreign CKAN instance (pid: %d)." % pid
 
