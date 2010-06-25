@@ -196,7 +196,7 @@ class TestPackageForm(TestPackageBase):
             fv = res.forms[0]
             res = fv.submit('commit', status=302)
             assert not 'Error' in res, res
-            redirected_to = dict(res.headers)['Location']
+            redirected_to = dict(res.headers).get('Location') or dict(res.headers)['location']
             expected_redirect_url = expected_redirect.replace('<NAME>', new_name)
             assert redirected_to == expected_redirect_url, \
                    'Redirected to %s but should have been %s' % \
