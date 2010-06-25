@@ -51,7 +51,10 @@ class BaseController(WSGIController):
         finally:
             model.Session.remove()
 
-    def _get_pkg(self, id):
+    def _get_user(self, ref):
+        return model.User.by_name(ref)
+
+    def _get_pkg(self, ref):
         return model.Package.get(id)
 
     def _get_request_data(self):
