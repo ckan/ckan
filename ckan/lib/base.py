@@ -51,11 +51,11 @@ class BaseController(WSGIController):
         finally:
             model.Session.remove()
 
-    def _get_user(self, ref):
-        return model.User.by_name(ref)
+    def _get_user(self, reference):
+        return model.User.by_name(reference)
 
-    def _get_pkg(self, ref):
-        return model.Package.get(id)
+    def _get_pkg(self, reference):
+        return model.Package.get(reference)
 
     def _get_request_data(self):
         try:
