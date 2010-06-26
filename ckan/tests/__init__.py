@@ -257,6 +257,18 @@ class TestController(object):
         process = subprocess.Popen(['paster', 'serve', config_path])
         return process
 
+    def _wait_for_url(self, url, timeout=15):
+        for i in range(int(timeout)):
+            import urllib2
+            import time
+            try:
+                response = urllib2.urlopen('http://127.0.0.1:5000/')
+            except urllib2.URLError:
+                pass 
+                time.sleep(1)
+            else:
+                break
+
     def _stop_ckan_server(self, process): 
         pid = process.pid
         pid = int(pid)

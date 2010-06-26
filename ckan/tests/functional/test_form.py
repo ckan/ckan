@@ -137,11 +137,10 @@ class TestFormsApi(BaseFormsApiCase):
         assert not self.get_package_by_name(self.package_name)
         assert self.get_package_by_name(self.package_name_alt)
 
-    def test_package_edit_example(self):
-        #self.ckan_server = self._start_ckan_server('development.ini')
-        import time
-        #time.sleep(2)
+    def test_package_edit_example_page(self):
+        self.ckan_server = self._start_ckan_server('development.ini')
         try:
+            self._wait_for_url('http://127.0.0.1:5000')
             package = self.get_package_by_name(self.package_name)
             package_id = package.id
             res = self.get(controller='form', action='package_edit_example', id=package_id)
@@ -155,5 +154,5 @@ class TestFormsApi(BaseFormsApiCase):
             assert '<html' in body, "The result does NOT have an HTML doc tag: %s" % body
             assert "Submitted OK" in body, body
         finally:
-            pass # self._stop_ckan_server(self.ckan_server)
+            self._stop_ckan_server(self.ckan_server)
 
