@@ -161,12 +161,15 @@ Not Yet Implemented
 Conceptual Overview
 -------------------
 
-  * There are Users and (User) ACL Groups
+**Warning: not all of what is described in this conceptual overview is yet
+fully implemented.**
+
+  * There are Users and (User) Authorization Groups
   * There are actions which may be performed on "protected objects" such as
     Package, Group, System
   * Roles aggregate actions
-  * UserObjectRole which assign users (or ACL groups) a role on an object
-    (user, role, object). We will often refer to these informally as
+  * UserObjectRole which assign users (or Authorization groups) a role on an
+    object (user, role, object). We will often refer to these informally as
     "permissions".
   
 NB: there is no object explicitly named "Permission". This is to avoid
@@ -176,32 +179,34 @@ limited e.g. a few core subsystems like email, admin panel etc). However, we
 have many protected objects (e.g. one for each package) and we use roles so
 this 'normal' model does not work well.
 
-Question: do we require for *both* Users and UserACLGroup to be subject of ACL or not?
+Question: do we require for *both* Users and UserAuthorizationGroup to be
+subject of Role or not?
 
 Ans: Yes. Why? Consider, situation where I just want to give an individual user
 permission on a given object (e.g. assigning authz permission for a package)?
-If I just have UserACLGroups one would need to create a group just for that
-individual. This isn't impossible but consider next how to assign permissions to
-edit the ACL Groups? One would need create another group for this but then we
-have recursion ad infinitum (unless this were especially encompassed in some
-system level permission or one has some group which is uneditable ...)
+If I just have UserAuthorizationGroups one would need to create a group just
+for that individual. This isn't impossible but consider next how to assign
+permissions to edit the Authorization Groups? One would need create another
+group for this but then we have recursion ad infinitum (unless this were
+especially encompassed in some system level permission or one has some group
+which is uneditable ...)
 
-Thus, one requires both Users and UserACLGroups to be subject of "permissions".
-To summarize the approximate structure we have is::
+Thus, one requires both Users and UserAuthorizationGroups to be subject of
+"permissions".  To summarize the approximate structure we have is::
 
-    class SubjectOfAcl
+    class SubjectOfAuthorization
         class User
-        class UserACLGroup
+        class UserAuthorizationGroup
             
-    class ObjectOfACL
+    class ObjectOfAuthorization
         class Package
         class Group
-        class UserACLGroup
+        class UserAuthorizationGroup
         ...
 
     class SubjectRoleObject
-        subject_of_acl
-        object_of_acl
+        subject_of_authorization
+        object_of_authorization
         role
 
 
