@@ -3,7 +3,8 @@ import vdm.sqlalchemy
 
 from meta import *
 from types import make_uuid
-from core import DomainObject, Package, package_table, Revision, State
+from core import *
+from package import *
 from ckan.lib.helpers import json
 
 __all__ = ['PackageResource', 'package_resource_table',

@@ -1,7 +1,8 @@
 import vdm.sqlalchemy
 
 from meta import *
-from core import DomainObject, Package, Revision, State
+from core import *
+from package import *
 from types import make_uuid
 
 # i18n only works when this is run as part of pylons,

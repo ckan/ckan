@@ -2,7 +2,8 @@ from meta import *
 from types import make_uuid
 import vdm.sqlalchemy
 
-from core import DomainObject, Package, Revision, State
+from core import *
+from package import *
 from types import JsonType
 
 __all__ = ['PackageExtra', 'package_extra_table', 'PackageExtraRevision']

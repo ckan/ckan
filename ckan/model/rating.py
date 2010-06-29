@@ -1,7 +1,8 @@
 from datetime import datetime
 
 from meta import *
-from core import DomainObject, Package
+from core import *
+from package import *
 from types import make_uuid
 from user import User
 

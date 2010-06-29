@@ -1,8 +1,11 @@
 from datetime import datetime
 from meta import *
-from core import DomainObject, Package, package_table
+from core import *
+from package import *
 from types import make_uuid
 import vdm.sqlalchemy
+
+__all__ = ['group_table', 'Group', 'PackageGroup']
 
 package_group_table = Table('package_group', metadata,
         Column('id', UnicodeText, primary_key=True, default=make_uuid),

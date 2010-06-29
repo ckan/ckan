@@ -1,7 +1,10 @@
 import meta
 from core import *
+from package import *
+from tag import *
+from package_mapping import *
 from user import user_table, User
-from group import group_table, Group, PackageGroup
+from group import *
 from full_search import package_search_table
 from authz import *
 from extras import *
