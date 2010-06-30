@@ -204,7 +204,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         else:
             return total / len(self.ratings)
 
-    def as_dict(self):
+    def as_dict(self, ref_package_with_attr='id'):
         _dict = DomainObject.as_dict(self)
         # Set 'license' in _dict to cater for old clients.
         # Todo: Remove this ASAP.
@@ -219,7 +219,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         ckan_host = config.get('ckan_host', None)
         if ckan_host:
             _dict['ckan_url'] = 'http://%s/package/%s' % (ckan_host, self.name)
-        _dict['relationships'] = [rel.as_dict(self) for rel in self.get_relationships()]
+        _dict['relationships'] = [rel.as_dict(self, ref_package_with_attr=ref_package_with_attr) for rel in self.get_relationships()]
         return _dict
 
     def add_relationship(self, type_, related_package, comment=u''):

@@ -138,7 +138,7 @@ class TestFormsApi(BaseFormsApiCase):
         assert self.get_package_by_name(self.package_name_alt)
 
     def test_package_edit_example_page(self):
-        self.ckan_server = self._start_ckan_server('development.ini')
+        self.ckan_server = self._start_ckan_server()
         try:
             self._wait_for_url('http://127.0.0.1:5000')
             package = self.get_package_by_name(self.package_name)

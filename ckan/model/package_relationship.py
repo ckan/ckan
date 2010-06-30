@@ -56,7 +56,7 @@ class PackageRelationship(vdm.sqlalchemy.RevisionedObjectMixin,
     def __repr__(self):
         return str(self)
 
-    def as_dict(self, package=None):
+    def as_dict(self, package=None, ref_package_with_attr='id'):
         """Returns full relationship info as a dict from the point of view
         of the given package if specified.
         e.g. {'subject':u'annakarenina',
@@ -65,14 +65,16 @@ class PackageRelationship(vdm.sqlalchemy.RevisionedObjectMixin,
               'comment':u'Since 1843'}"""
         subject_pkg = self.subject
         object_pkg = self.object
-        type_ = self.type
+        relationship_type = self.type
         if package and package == object_pkg:
             subject_pkg = self.object
             object_pkg = self.subject
-            type_ = self.forward_to_reverse_type(type_)
-        return {'subject':subject_pkg.name,
-                'type':type_,
-                'object':object_pkg.name,
+            relationship_type = self.forward_to_reverse_type(self.type)
+        subject_ref = getattr(subject_pkg, ref_package_with_attr)
+        object_ref = getattr(object_pkg, ref_package_with_attr)
+        return {'subject':subject_ref,
+                'type':relationship_type,
+                'object':object_ref,
                 'comment':self.comment}
 
     def as_tuple(self, package):
