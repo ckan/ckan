@@ -37,10 +37,15 @@ pkg_resources.working_set.add_entry(conf_dir)
 pkg_resources.require('Paste')
 pkg_resources.require('PasteScript')
 
-test_file = os.path.join(conf_dir, 'test.ini')
+def config_abspath(file_path):
+    if os.path.isabs(file_path):
+        return file_path
+    return os.path.join(conf_dir, file_path)
+
+config_path = config_abspath('test.ini')
 
 cmd = paste.script.appinstall.SetupCommand('setup-app')
-cmd.run([test_file])
+cmd.run([config_path])
 
 import ckan.model as model
 model.repo.rebuild_db()
@@ -92,7 +97,6 @@ class TestController(object):
 
     def get_user_by_name(self, name):
         return model.User.by_name(name)
-
 
     @classmethod
     def purge_package_by_name(self, package_name):
@@ -250,9 +254,8 @@ class TestController(object):
         self._paster('db init', config_path)
         self._paster('create-test-data', config_path)
 
-    def _start_ckan_server(self, config_path):
-        from pylons import config
-        config_path = os.path.join(config['here'], config_path)
+    def _start_ckan_server(self, config_file='test.ini'):
+        config_path = config_abspath(config_file)
         import subprocess
         process = subprocess.Popen(['paster', 'serve', config_path])
         return process
