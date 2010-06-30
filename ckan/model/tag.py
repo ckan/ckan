@@ -7,7 +7,8 @@ from domain_object import DomainObject
 from package import Package
 import full_search
 
-__all__ = ['tag_table', 'package_tag_table', 'Tag', 'PackageTag']
+__all__ = ['tag_table', 'package_tag_table', 'Tag', 'PackageTag',
+           'PackageTagRevision']
 
 tag_table = Table('tag', metadata,
         Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
