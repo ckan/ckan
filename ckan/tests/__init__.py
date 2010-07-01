@@ -240,9 +240,10 @@ class TestController(object):
         return self.get_package_by_name(u'annakarenina')
 
     def _system(self, cmd):
-        import os
-        if os.system(cmd):
-            raise Exception, "Couldn't execute cmd: %s" % cmd
+        import command
+        (status, output) = command.getstatusoutput(cmd):
+        if status:
+            raise Exception, "Couldn't execute cmd: %s: %s" % (cmd, output)
 
     def _paster(self, cmd, config_path_rel):
         from pylons import config
