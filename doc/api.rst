@@ -401,7 +401,7 @@ Revision Search Parameters
 +-----------------------+---------------+-----------------------------------------------------+----------------------------------+
 
 CKAN Form API
-==============
+=============
 
 Form resources are available at published locations. They are represented with
 a variety of data formats. Each resource location supports a number of methods.
@@ -456,10 +456,10 @@ Here are the data formats for the Form API.
 | Package-Edit-Form            | Form-FieldSet Form-FieldSet Form-FieldSet                                 |
 +------------------------------+---------------------------------------------------------------------------+
 | Form-FieldSet                | <fieldset>                                                                |
-|                              |   <legend>...</legend>                                                    |
-|                              |   <dl>                                                                    |
-|                              |     Form-Field Form-Field Form-Field ...                                  |
-|                              |   </dl>                                                                   |
+|                              | <legend>...</legend>                                                      |
+|                              | <dl>                                                                      |
+|                              | Form-Field Form-Field Form-Field ...                                      |
+|                              | </dl>                                                                     |
 |                              | </fieldset>                                                               |
 +------------------------------+---------------------------------------------------------------------------+
 | Form-Field                   | <dt>Form-Label</dt><dd>Html-Input</dd>                                    |
@@ -469,8 +469,8 @@ Here are the data formats for the Form API.
 | Form-Input                   | <input id="FIELD-NAME" name="FIELD-NAME" value="FIELD-VALUE" ... />       |
 +------------------------------+---------------------------------------------------------------------------+
 | Package-Edit-Form-Submission | { form_data: [ (FIELD-NAME, FIELD-VALUE), (FIELD-NAME, FIELD-VALUE),      |
-|                              |   (FIELD-NAME, FIELD-VALUE), ... ],                                       |
-|                              |   log_message: LOG-MESSAGE, author: AUTHOR }                              |
+|                              | (FIELD-NAME, FIELD-VALUE), ... ],                                         |
+|                              | log_message: LOG-MESSAGE, author: AUTHOR }                                |
 +------------------------------+---------------------------------------------------------------------------+
  
 
