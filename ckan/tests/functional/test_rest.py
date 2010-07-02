@@ -40,6 +40,19 @@ class ApiTestCase(ControllerTestCase):
     def anna_offset(self, postfix=''):
         return self.package_offset('annakarenina') + postfix
 
+    def assert_msg_represents_anna(self, msg):
+        assert 'annakarenina' in msg, msg
+        assert '"license_id": "other-open"' in msg, str(msg)
+        assert 'russian' in msg, msg
+        assert 'tolstoy' in msg, msg
+        assert '"extras": {' in msg, msg
+        assert '"genre": "romantic novel"' in msg, msg
+        assert '"original media": "book"' in msg, msg
+        assert 'annakarenina.com/download' in msg, msg
+        assert '"plain text"' in msg, msg
+        assert '"Index of the novel"' in msg, msg
+        assert '"id": "%s"' % self.anna.id in msg, msg
+
 
 class ModelApiTestCase(ApiTestCase):
 
@@ -128,25 +141,12 @@ class ModelApiTestCase(ApiTestCase):
         assert 'david' in res, res
         assert 'roger' in res, res
 
-    def test_04_get_package(self):
+    def test_04_get_package_entity(self):
         # Test Packages Entity Get 200.
-        anna = self.anna
-        for pkg_ref in ('annakarenina', anna.id):
+        for pkg_ref in ('annakarenina', self.anna.id):
             offset = self.offset('/rest/package/%s' % pkg_ref)
             res = self.app.get(offset, status=[200])
-            assert 'annakarenina' in res, res
-            assert '"license_id": "other-open"' in res, str(res)
-            assert 'russian' in res, res
-            assert 'tolstoy' in res, res
-            assert '"extras": {' in res, res
-            assert '"genre": "romantic novel"' in res, res
-            assert '"original media": "book"' in res, res
-            assert 'annakarenina.com/download' in res, res
-            assert '"plain text"' in res, res
-            assert '"Index of the novel"' in res, res
-            # 2/12/09 download_url is now deprecated - to be removed in the future
-            assert '"download_url": "http://www.annakarenina.com/download/x=1&y=2"' in res, res
-            assert '"id": "%s"' % anna.id in res, res
+            self.assert_msg_represents_anna(msg=res.body)
 
     def test_04_ckan_url(self):
         offset = self.offset('/rest/package/annakarenina')
@@ -170,8 +170,8 @@ class ModelApiTestCase(ApiTestCase):
     def test_04_get_package_with_jsonp_callback(self):
         offset = self.anna_offset(postfix='?callback=jsoncallback')
         res = self.app.get(offset, status=200)
-        # Todo: Test the content of the method call is good?
         assert re.match('jsoncallback\(.*\);', res.body), res
+        self.assert_msg_represents_anna(msg=res.body)
 
     def test_05_get_404_package(self):
         # Test Package Entity Get 404.
@@ -239,23 +239,6 @@ class ModelApiTestCase(ApiTestCase):
         res = self.app.post(offset, params=postparams, status=[409],
                 extra_environ=self.extra_environ)
         model.Session.remove()
-
-    def test_06_create_pkg_using_download_url(self):
-        # 2/12/09 download_url is deprecated - remove in future
-        test_params = {
-            'name':u'testpkg06',
-            'download_url':u'testurl',
-            }
-        offset = self.package_offset()
-        postparams = '%s=1' % json.dumps(test_params)
-        res = self.app.post(offset, params=postparams, status=[200],
-                extra_environ=self.extra_environ)
-        model.Session.remove()
-        pkg = self.get_package_by_name(test_params['name'])
-        assert pkg
-        assert pkg.name == test_params['name'], pkg
-        assert len(pkg.resources) == 1, pkg.resources
-        assert pkg.resources[0].url == test_params['download_url'], pkg.resources[0]
 
     def test_06_create_pkg_bad_format_400(self):
         test_params = {
@@ -457,36 +440,6 @@ class ModelApiTestCase(ApiTestCase):
 
     def test_10_edit_pkg_values_by_name(self):
         self.base_10_edit_pkg_values('name')
-
-    def test_10_edit_pkg_with_download_url(self):
-        # 2/12/09 download_url is deprecated - remove in future
-        test_params = {
-            'name':u'testpkg10',
-            'download_url':u'testurl',
-            }
-        rev = model.repo.new_revision()
-        pkg = model.Package()
-        model.Session.add(pkg)
-        pkg.name = test_params['name']
-        pkg.download_url = test_params['download_url']
-        model.Session.commit()
-
-        pkg = self.get_package_by_name(test_params['name'])
-        model.setup_default_user_roles(pkg, [self.user])
-        rev = model.repo.new_revision()
-        model.repo.commit_and_remove()
-        assert self.get_package_by_name(test_params['name'])
-
-        # edit it
-        pkg_vals = {'download_url':u'newurl'}
-        offset = self.package_offset(test_params['name'])
-        postparams = '%s=1' % json.dumps(pkg_vals)
-        res = self.app.post(offset, params=postparams, status=[200],
-                            extra_environ=self.extra_environ)
-        model.Session.remove()
-        pkg = model.Session.query(model.Package).filter_by(name=test_params['name']).one()
-        assert len(pkg.resources) == 1, pkg.resources
-        assert pkg.resources[0].url == pkg_vals['download_url']
 
     def test_10_edit_group(self):
         # create a group with testgroupvalues
@@ -1237,6 +1190,7 @@ class MiscApiTestCase(ApiTestCase):
         model.Session.remove()
         CreateTestData.delete()
 
+    # Todo: Move this method to the Model API?
     def test_0_tag_counts(self):
         offset = self.offset('/tag_counts')
         res = self.app.get(offset, status=200)
@@ -1250,9 +1204,58 @@ class Api1TestCase(ApiTestCase):
     api_version = '1'
     ref_package_with_attr = 'name'
 
+    def assert_msg_represents_anna(self, msg):
+        super(Api1TestCase, self).assert_msg_represents_anna(msg)
+        assert '"download_url": "http://www.annakarenina.com/download/x=1&y=2"' in msg, msg
+
 
 class TestModelApi1(ModelApiTestCase, Api1TestCase):
-    pass
+
+    def test_06_create_pkg_using_download_url(self):
+        test_params = {
+            'name':u'testpkg06',
+            'download_url':u'testurl',
+            }
+        offset = self.package_offset()
+        postparams = '%s=1' % json.dumps(test_params)
+        res = self.app.post(offset, params=postparams, status=[200],
+                extra_environ=self.extra_environ)
+        model.Session.remove()
+        pkg = self.get_package_by_name(test_params['name'])
+        assert pkg
+        assert pkg.name == test_params['name'], pkg
+        assert len(pkg.resources) == 1, pkg.resources
+        assert pkg.resources[0].url == test_params['download_url'], pkg.resources[0]
+
+    def test_10_edit_pkg_with_download_url(self):
+        test_params = {
+            'name':u'testpkg10',
+            'download_url':u'testurl',
+            }
+        rev = model.repo.new_revision()
+        pkg = model.Package()
+        model.Session.add(pkg)
+        pkg.name = test_params['name']
+        pkg.download_url = test_params['download_url']
+        model.Session.commit()
+
+        pkg = self.get_package_by_name(test_params['name'])
+        model.setup_default_user_roles(pkg, [self.user])
+        rev = model.repo.new_revision()
+        model.repo.commit_and_remove()
+        assert self.get_package_by_name(test_params['name'])
+
+        # edit it
+        pkg_vals = {'download_url':u'newurl'}
+        offset = self.package_offset(test_params['name'])
+        postparams = '%s=1' % json.dumps(pkg_vals)
+        res = self.app.post(offset, params=postparams, status=[200],
+                            extra_environ=self.extra_environ)
+        model.Session.remove()
+        pkg = model.Session.query(model.Package).filter_by(name=test_params['name']).one()
+        assert len(pkg.resources) == 1, pkg.resources
+        assert pkg.resources[0].url == pkg_vals['download_url']
+
 
 class TestRelationshipsApi1(RelationshipsApiTestCase, Api1TestCase):
     pass

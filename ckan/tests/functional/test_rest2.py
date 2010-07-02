@@ -9,6 +9,11 @@ class Api2TestCase(ApiTestCase):
     api_version = '2'
     ref_package_with_attr = 'id'
 
+    def assert_msg_represents_anna(self, msg):
+        super(Api2TestCase, self).assert_msg_represents_anna(msg)
+        assert 'download_url' not in msg, msg
+
+
 class TestModelApi2(ModelApiTestCase, Api2TestCase):
     pass
 

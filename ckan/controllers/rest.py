@@ -101,7 +101,7 @@ class BaseRestController(BaseController):
                 return ''
             if not self._check_access(pkg, model.Action.READ):
                 return ''
-            response_data = pkg.as_dict(ref_package_with_attr=self.ref_package_with_attr)
+            response_data = self._represent_package(pkg)
             return self._finish_ok(response_data)
         elif register == u'package' and (subregister == 'relationships' or subregister in model.PackageRelationship.get_all_types()):
             pkg1 = self._get_pkg(id)
@@ -146,6 +146,9 @@ class BaseRestController(BaseController):
         else:
             response.status_int = 400
             return ''
+
+    def _represent_package(self, package):
+        return package.as_dict(ref_package_with_attr=self.ref_package_with_attr)
 
     def create(self, register, id=None, subregister=None, id2=None):
         # Check an API key given
@@ -492,10 +495,15 @@ class BaseRestController(BaseController):
             model.repo.commit_and_remove()
         return self._finish_ok(relationship.as_dict())
 
+
 class RestController(BaseRestController):
     # Implements CKAN API Version 1.
 
     ref_package_with_attr = 'name'
 
+    def _represent_package(self, package):
+        msg_data = super(RestController, self)._represent_package(package)
+        msg_data['download_url'] = package.resources[0].url if package.resources else ''
+        return msg_data
 
 

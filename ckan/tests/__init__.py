@@ -240,8 +240,8 @@ class TestController(object):
         return self.get_package_by_name(u'annakarenina')
 
     def _system(self, cmd):
-        import command
-        (status, output) = command.getstatusoutput(cmd):
+        import commands
+        (status, output) = commands.getstatusoutput(cmd)
         if status:
             raise Exception, "Couldn't execute cmd: %s: %s" % (cmd, output)
 
