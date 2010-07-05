@@ -86,20 +86,6 @@ def config_hmg_ckan_net_2():
     hmg_ckan_net_1()
     env.ckan_instance_name = 'hmg.ckan.net.2'
     env.hosts = ['ssh.hmg.ckan.net']
-    env.config_ini_filename = 'hmg.ckan.net.ini'68	def config_hmg_ckan_net_1():
-    env.user = 'ckan1'
-    env.base_dir = '/home/%s' % env.user
-    env.cmd_pyenv = os.path.join(env.base_dir, 'ourenv')
-    env.no_sudo = None
-    env.ckan_instance_name = 'hmg.ckan.net'
-    env.hosts = ['ssh.hmg.ckan.net']
-    env.wsgi_script_filepath = None # os.path.join(env.base_dir, 'hmg.ckan.net/pyenv/bin/pylonsapp_modwsgi.py')
-    env.pip_requirements = 'pip-requirements-stable.txt'
-
-def config_hmg_ckan_net_2():
-    hmg_ckan_net_1()
-    env.ckan_instance_name = 'hmg.ckan.net.2'
-    env.hosts = ['ssh.hmg.ckan.net']
     env.config_ini_filename = 'hmg.ckan.net.ini'
 
 def config_hmg2_ckan_net_1(db_pass=None):
