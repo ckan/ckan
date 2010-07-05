@@ -5,17 +5,23 @@ import blinker
 
 import vdm.sqlalchemy
 
+from ckan.lib.util import Enum
+
 State = vdm.sqlalchemy.State
 
 __all__ = ['Notification', 'PackageNotification', 'DatabaseNotification',
            'DomainObjectNotification', 'StopNotification',
-           'ROUTING_KEYS']
+           'ROUTING_KEYS', 'NotifierMapperTrigger',
+           'PackageRelationNotifierMapperTrigger']
 
 NOTIFYING_DOMAIN_OBJ_NAMES = ['Package', 'PackageResource']
 DOMAIN_OBJECT_OPERATIONS = ('new', 'changed', 'deleted')
+DomainObjectNotificationOperation = Enum('new', 'changed', 'deleted')
 ROUTING_KEYS = ['db', 'stop'] + NOTIFYING_DOMAIN_OBJ_NAMES
 
 class Notification(dict):
+    '''This is the message that is sent in both synchronous and asynchronous
+    notifications. It has various subclasses depending on the payload.'''
     def __init__(self, routing_key, operation=None, payload=None):
         '''This should only be called by create or recreate methods.'''
         self['routing_key'] = routing_key
@@ -36,6 +42,8 @@ class Notification(dict):
         if routing_key in NOTIFYING_DOMAIN_OBJ_NAMES:
             if routing_key == 'Package':
                 cls = PackageNotification
+            elif routing_key == 'PackageResource':
+                cls = PackageResourceNotification
             else:
                 raise NotImplementedError()
         elif routing_key == 'db':
@@ -53,9 +61,19 @@ class Notification(dict):
 class DomainObjectNotification(Notification):
     @classmethod
     def create(cls, domain_object, operation):
-        assert domain_object.__class__.__name__ in NOTIFYING_DOMAIN_OBJ_NAMES
+        '''Creates a suitable notification object, based on the type of the
+        domain_object.'''
+        assert domain_object.__class__.__name__ in NOTIFYING_DOMAIN_OBJ_NAMES, domain_object.__class__.__name__
+        if cls == DomainObjectNotification:
+            for subclass in [PackageNotification, PackageResourceNotification]:
+                if domain_object.__class__.__name__ == subclass.domain_object_class:
+                    cls = subclass
+                    break
+            assert cls != DomainObjectNotification, 'Could not create ' + \
+                   'notification for domain object type: ' + \
+                   domain_object.__class__.__name__
         assert domain_object.__class__.__name__ == cls.domain_object_class
-        assert operation in DOMAIN_OBJECT_OPERATIONS
+        assert operation in DomainObjectNotificationOperation, operation
         object_type = domain_object.__class__.__name__
         return super(DomainObjectNotification, cls).create(\
             object_type,
@@ -66,11 +84,21 @@ class DomainObjectNotification(Notification):
     def domain_object(self):
         return self['payload']
 
+    def __repr__(self):
+        return '<%s %s %s>' % (self.__class__.__name__, self['operation'], self['payload']['name'])
+
 class PackageNotification(DomainObjectNotification):
     domain_object_class = 'Package'
 
     @property
     def package(self):
+        return self['payload']
+
+class PackageResourceNotification(DomainObjectNotification):
+    domain_object_class = 'PackageResource'
+
+    @property
+    def resource(self):
         return self['payload']
 
 class DatabaseNotification(Notification):
@@ -101,27 +129,36 @@ class NotifierMapperTrigger(MapperExtension):
     queued_notifications = []
     
     def after_insert(self, mapper, connection, instance):
-        if instance.__class__.__name__ in NOTIFYING_DOMAIN_OBJ_NAMES and\
-               self.check_real_change(instance):
-            notification = PackageNotification.create(instance, 'new')
-            self.queued_notifications.append(notification)
-            # can't send this now because the domain object may still be
-            # in this thread's session so not yet flushed to the db table,
-            # and another thread may want to access it. Therefore queue it
-            # up until the commit is done.
-        return EXT_CONTINUE
+        return self.notify(instance, instance, DomainObjectNotificationOperation.new)
 
     def after_update(self, mapper, connection, instance):
-        if instance.__class__.__name__ in NOTIFYING_DOMAIN_OBJ_NAMES and\
-               self.check_real_change(instance):
-            if instance.state == State.DELETED:
-                if instance.all_revisions[1].state != State.DELETED:
+        return self.notify(instance, instance, DomainObjectNotificationOperation.changed)
+            
+    def notify(self, triggered_instance, notify_instance, operation):
+        if self.check_real_change(triggered_instance):
+            if notify_instance.state == State.DELETED:
+                if notify_instance.all_revisions[1].state != State.DELETED:
                     # i.e. just deleted
-                    self.queued_notifications.append(PackageNotification.create(instance, 'deleted'))
+                    self.queued_notifications.append(DomainObjectNotification.create(notify_instance, 'deleted'))
                 # no notification sent if changed whilst deleted
             else:
-                self.queued_notifications.append(PackageNotification.create(instance, 'changed'))
+                self.queued_notifications.append(DomainObjectNotification.create(notify_instance, operation))
+                # can't send notification yet because the domain object may still
+                # be in this thread's session so not yet flushed to the db table,
+                # and another thread may want to access it. Therefore queue it
+                # up until the commit is done.
         return EXT_CONTINUE
+
+class PackageRelationNotifierMapperTrigger(NotifierMapperTrigger):
+    def after_insert(self, mapper, connection, instance):
+        return super(PackageRelationNotifierMapperTrigger, self).notify(instance, instance.package, DomainObjectNotificationOperation.changed)
+
+    def after_update(self, mapper, connection, instance):
+        print "TRIGGER", instance
+        return super(PackageRelationNotifierMapperTrigger, self).notify(instance, instance.package, DomainObjectNotificationOperation.changed)
+
+        
+
 
 class NotifierSessionTrigger(SessionExtension):
     def after_commit(self, session):

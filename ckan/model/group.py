@@ -1,6 +1,9 @@
 from datetime import datetime
+
+from sqlalchemy.ext.associationproxy import association_proxy
+
 from meta import *
-from core import DomainObject, Package, package_table
+from domain_object import DomainObject
 from types import make_uuid
 import vdm.sqlalchemy
 
@@ -32,6 +35,7 @@ class Group(DomainObject):
         self.purge()
 
     def active_packages(self):
+        from core import Package
         return Session.query(Package).\
                filter_by(state=vdm.sqlalchemy.State.ACTIVE).\
                join('groups').filter_by(id=self.id)
@@ -57,15 +61,15 @@ class Group(DomainObject):
     def __repr__(self):
         return '<Group %s>' % self.name
 
+    packages = association_proxy('package_assocs', 'package')
 
 mapper(Group, group_table, properties={
     'packages':relation(Package, secondary=package_group_table,
         backref='groups',
         order_by=package_table.c.name
     )},
-# Not needed - triggers anyway       
-#    extension = search_index.SearchVectorTrigger(),
 )
 
-mapper(PackageGroup, package_group_table)
-
+mapper(PackageGroup, package_group_table,
+       extension=[notifier.PackageRelationNotifierMapperTrigger()],
+)

@@ -2,6 +2,7 @@ import cli
 
 class CreateTestData(cli.CkanCommand):
     '''Create test data in the database.
+    Tests can also delete the created objects easily with the delete() method.
 
     create-test-data         - annakarenina and warandpeace
     create-test-data search  - realistic data to test search
@@ -68,14 +69,16 @@ class CreateTestData(cli.CkanCommand):
     @classmethod
     def create_arbitrary(self, package_dicts,
                          relationships=[], extra_user_names=[],
+                         extra_group_names=[],
                          commit_changesets=False):
         assert isinstance(relationships, (list, tuple))
         assert isinstance(extra_user_names, (list, tuple))
+        assert isinstance(extra_group_names, (list, tuple))
         import ckan.model as model
         model.Session.remove()
         new_user_names = extra_user_names
         new_group_names = set()
-        
+
         admins_list = [] # list of (package_name, admin_names)
         if package_dicts:
             rev = model.repo.new_revision() 
@@ -124,7 +127,13 @@ class CreateTestData(cli.CkanCommand):
                                 model.Session.add(tag)    
                             pkg.tags.append(tag)
                     elif attr == 'groups':
-                        for group_name in val.split():
+                        if isinstance(val, (str, unicode)):
+                            group_names = val.split()
+                        elif isinstance(val, list):
+                            group_names = val
+                        else:
+                            raise NotImplementedError
+                        for group_name in group_names:
                             group = model.Group.by_name(group_name)
                             if not group:
                                 group = model.Group(name=group_name)
@@ -150,6 +159,18 @@ class CreateTestData(cli.CkanCommand):
             model.repo.commit_and_remove()
 
         needs_commit = False
+
+        for group_name in extra_group_names:
+            group = model.Group(name=unicode(group_name))
+            model.Session.add(group)
+            new_group_names.add(group_name)
+            needs_commit = True
+
+        if needs_commit:
+            model.repo.commit_and_remove()
+            needs_commit = False
+
+        # create users that have been identified as being needed
         for user_name in new_user_names:
             if not model.User.by_name(unicode(user_name)):
                 user = model.User(name=unicode(user_name))
@@ -157,12 +178,14 @@ class CreateTestData(cli.CkanCommand):
                 self.user_names.append(user_name)
                 needs_commit = True
 
+        # setup authz for admins
         for pkg_name, admins in admins_list:
             pkg = model.Package.by_name(unicode(pkg_name))
             admins = [model.User.by_name(unicode(user_name)) for user_name in self.user_names]
             model.setup_default_user_roles(pkg, admins)
             needs_commit = True
 
+        # setup authz for groups just created
         for group_name in new_group_names:
             group = model.Group.by_name(unicode(group_name))
             model.setup_default_user_roles(group)
@@ -301,6 +324,17 @@ left arrow <
         if commit_changesets:
             from ckan.model.changeset import ChangesetRegister
             changeset_ids = ChangesetRegister().commit()
+
+    @classmethod
+    def flag_for_deletion(self, pkg_names=[], tag_names=[], group_names=[],
+                          user_names=[]):
+        '''If you create a domain object manually in your test then you
+        can name it here (flag it up) and it will be deleted when you next
+        call CreateTestData.delete().'''
+        self.pkg_names.extend(pkg_names)
+        self.tag_names.extend(tag_names)
+        self.group_names = self.group_names.union(set(group_names))
+        self.user_names.extend(user_names)
 
     @classmethod
     def delete(self):

@@ -53,7 +53,9 @@ mapper(PackageResource, package_resource_table, properties={
                        )
     },
     order_by=[package_resource_table.c.package_id],
-    extension = vdm.sqlalchemy.Revisioner(resource_revision_table)       
+    extension=[vdm.sqlalchemy.Revisioner(resource_revision_table),
+               notifier.PackageRelationNotifierMapperTrigger(),
+               ],
 )
     
 vdm.sqlalchemy.modify_base_object_mapper(PackageResource, Revision, State)
