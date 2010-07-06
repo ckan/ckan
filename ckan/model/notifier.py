@@ -135,7 +135,6 @@ class NotifierMapperTrigger(MapperExtension):
         return self.notify(instance, instance, DomainObjectNotificationOperation.changed)
             
     def notify(self, triggered_instance, notify_instance, operation):
-        print "NOTIFY"
         if self.check_real_change(triggered_instance):
             if notify_instance.state == State.DELETED:
                 if notify_instance.all_revisions and notify_instance.all_revisions[1].state != State.DELETED:
@@ -159,7 +158,6 @@ class PackageRelationNotifierMapperTrigger(NotifierMapperTrigger):
         return super(PackageRelationNotifierMapperTrigger, self).notify(instance, instance.package, DomainObjectNotificationOperation.changed)
 
     def after_update(self, mapper, connection, instance):
-#        print "TRIGGER", instance
         return super(PackageRelationNotifierMapperTrigger, self).notify(instance, instance.package, DomainObjectNotificationOperation.changed)
 
         

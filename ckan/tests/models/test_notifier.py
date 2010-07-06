@@ -27,7 +27,8 @@ class TestNotification(TestController):
         
         self.pkg_dict = {'name':u'test_notification_pkg',
                          'notes':u'This is a test package',
-                         'resources':[{u'url':u'url1'}, {u'url':u'url2'}],
+                         'resources':[{u'url':u'url1', u'description':u'desc1'},
+                                      {u'url':u'url2', u'description':u'desc2'}],
                          'extras':{'key1':'value1',
                                    'key2':'value2'},
                          'tags':[u'one', u'two', u'three'],
@@ -173,39 +174,126 @@ class TestNotification(TestController):
 ##                               for group_name in self.pkg_dict['groups']]
 ##            model.repo.commit_and_remove()
 
-##    def test_07_add_package_extra(self):
-##        # edit package
-##        rev = model.repo.new_revision()
-##        self.pkg.extras[u'key3'] = u'value3'
-##        model.repo.commit_and_remove()
+    def test_07_add_package_extra(self):
+        assert set(self.pkg.extras) == set(self.pkg_dict['extras']), self.pkg.extras
+        # edit package
+        rev = model.repo.new_revision()
+        self.pkg.extras[u'key3'] = u'value3'
+        model.repo.commit_and_remove()
 
-##        try:
-##            self.usher_message_sending()
+        try:
+            notification = self.queue_get_one()
+            assert notification['operation'] == 'changed', notification['operation']
+            assert notification.package['name'] == self.pkg_dict['name'], notification.payload
+            extra_keys = set(notification.package['extras'].keys())
+            expected_keys = set((u'key1', u'key2', u'key3'))
+            assert extra_keys == expected_keys, '%s != %s' % (extra_keys, expected_keys)
+            assert notification.package['extras']['key3'] == 'value3', notification.package['extras']['key3']
+        finally:
+            # revert package change
+            rev = model.repo.new_revision()
+            del self.pkg.extras['key3']
+            model.repo.commit_and_remove()
 
-##            notification = self.queue_get_one()
-##            assert notification['operation'] == 'changed', notification['operation']
-##            assert notification.package['name'] == self.pkg_dict['name'], notification.payload
-##            extra_keys = set(notification.package['extras'].keys())
-##            expected_keys = set((u'key1', u'key2', u'key3'))
-##            assert extra_keys == expected_keys, '%s != %s' % (extra_keys, expected_keys)
-##            assert notification.package['extras']['key3'] == 'value3', notification.package['extras']['key3']
-##        finally:
-##            # revert package change
-##            rev = model.repo.new_revision()
-##            del self.pkg.extras['key3']
-##            model.repo.commit_and_remove()
+    def test_08_edit_package_extra(self):
+        assert set(self.pkg.extras) == set(self.pkg_dict['extras']), self.pkg.extras
+        # edit package
+        rev = model.repo.new_revision()
+        self.pkg.extras[u'key2'] = u'value2_changed'
+        model.repo.commit_and_remove()
 
-##    def _test_08_edit_package_extra(self):
-##        raise NotImplementedError()
+        try:
+            notification = self.queue_get_one()
+            assert notification['operation'] == 'changed', notification['operation']
+            assert notification.package['name'] == self.pkg_dict['name'], notification.payload
+            extra_keys = set(notification.package['extras'].keys())
+            extras = notification.package['extras']
+            expected_keys = set((u'key1', u'key2'))
+            assert extra_keys == expected_keys, '%s != %s' % (extra_keys, expected_keys)
+            assert notification.package['extras']['key2'] == 'value2_changed', notification.package['extras']['key3']
+        finally:
+            # revert package change
+            rev = model.repo.new_revision()
+            self.pkg.extras['key2'] = u'value2'
+            model.repo.commit_and_remove()
 
-##    def _test_09_remove_package_extra(self):
-##        raise NotImplementedError()
+
+    def test_09_remove_package_extra(self):
+        assert set(self.pkg.extras) == set(self.pkg_dict['extras']), self.pkg.extras
+        # edit package
+        rev = model.repo.new_revision()
+        del self.pkg.extras[u'key2']
+        model.repo.commit_and_remove()
+
+        try:
+            notification = self.queue_get_one()
+            assert notification['operation'] == 'changed', notification['operation']
+            assert notification.package['name'] == self.pkg_dict['name'], notification.payload
+            extra_keys = set(notification.package['extras'].keys())
+            expected_keys = set([u'key1'])
+            assert extra_keys == expected_keys, '%s != %s' % (extra_keys, expected_keys)
+        finally:
+            # revert package change
+            rev = model.repo.new_revision()
+            self.pkg.extras['key2'] = u'value2'
+            model.repo.commit_and_remove()
         
-##    def _test_10_add_package_resource(self):
-##        raise NotImplementedError()
+    def test_10_add_package_resource(self):
+        assert len(self.pkg.as_dict()['resources']) == len(self.pkg_dict['resources']), self.pkg.as_dict()['resources']
+        # edit package
+        rev = model.repo.new_revision()
+        self.pkg.add_resource(u'newurl')
+        model.repo.commit_and_remove()
 
-##    def _test_11_edit_package_resource(self):
-##        raise NotImplementedError()
+        try:
+            notification = self.queue_get_one()
+            assert notification['operation'] == 'changed', notification['operation']
+            assert notification.package['name'] == self.pkg_dict['name'], notification.payload
+            resources = notification.package['resources']
+            assert len(resources) == 3
+            assert resources[2]['url'] == 'newurl', resources
+        finally:
+            # revert package change
+            rev = model.repo.new_revision()
+            del self.pkg.resources[2]
+            model.repo.commit_and_remove()
 
-##    def _test_12_remove_package_resource(self):
-##        raise NotImplementedError()
+    def test_11_edit_package_resource(self):
+        assert len(self.pkg.as_dict()['resources']) == len(self.pkg_dict['resources']), self.pkg.as_dict()['resources']
+        # edit package
+        rev = model.repo.new_revision()
+        self.pkg.resources[0].description = u'edited description'
+        model.repo.commit_and_remove()
+
+        try:
+            notification = self.queue_get_one()
+            assert notification['operation'] == 'changed', notification['operation']
+            assert notification.package['name'] == self.pkg_dict['name'], notification.payload
+            resources = notification.package['resources']
+            assert len(resources) == 2
+            assert resources[0]['description'] == u'edited description', resources
+        finally:
+            # revert package change
+            rev = model.repo.new_revision()
+            self.pkg.resources[0].description = self.pkg_dict['resources'][0]['description']
+            model.repo.commit_and_remove()
+
+    def test_12_remove_package_resource(self):
+        assert len(self.pkg.as_dict()['resources']) == len(self.pkg_dict['resources']), self.pkg.as_dict()['resources']
+        # edit package
+        rev = model.repo.new_revision()
+        del self.pkg.resources[0]
+        model.repo.commit_and_remove()
+
+        try:
+            notification = self.queue_get_one()
+            assert notification['operation'] == 'changed', notification['operation']
+            assert notification.package['name'] == self.pkg_dict['name'], notification.payload
+            resources = notification.package['resources']
+            assert len(resources) == 1
+        finally:
+            # revert package change
+            rev = model.repo.new_revision()
+            res = self.pkg_dict['resources'][0]
+            self.pkg.add_resource(res['url'], description=res['description'])
+            model.repo.commit_and_remove()
