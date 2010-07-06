@@ -135,19 +135,24 @@ class NotifierMapperTrigger(MapperExtension):
         return self.notify(instance, instance, DomainObjectNotificationOperation.changed)
             
     def notify(self, triggered_instance, notify_instance, operation):
+        print "NOTIFY"
         if self.check_real_change(triggered_instance):
             if notify_instance.state == State.DELETED:
                 if notify_instance.all_revisions and notify_instance.all_revisions[1].state != State.DELETED:
                     # i.e. just deleted
-                    self.queued_notifications.append(DomainObjectNotification.create(notify_instance, 'deleted'))
+                    self.add_notification_to_queue(DomainObjectNotification.create(notify_instance, 'deleted'))
                 # no notification sent if changed whilst deleted
             else:
-                self.queued_notifications.append(DomainObjectNotification.create(notify_instance, operation))
-                # can't send notification yet because the domain object may still
-                # be in this thread's session so not yet flushed to the db table,
-                # and another thread may want to access it. Therefore queue it
-                # up until the commit is done.
+                self.add_notification_to_queue(DomainObjectNotification.create(notify_instance, operation))
         return EXT_CONTINUE
+
+    def add_notification_to_queue(self, notification):
+        '''We can\'t send notification yet because the domain object may still
+        be in this thread\'s session so not yet flushed to the db table,
+        and another thread may want to access it. Therefore queue it
+        up until the commit is done.'''
+        self.queued_notifications.append(notification)
+        
 
 class PackageRelationNotifierMapperTrigger(NotifierMapperTrigger):
     def after_insert(self, mapper, connection, instance):
