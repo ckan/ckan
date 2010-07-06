@@ -1,14 +1,19 @@
-from pylons import config
 import blinker
+import time
+import logging
+
+from pylons import config
 from carrot.connection import BrokerConnection
 from carrot.messaging import Publisher
 from carrot.messaging import Consumer
 
-import notifier
-import meta
+from ckan.model import meta
+from ckan.model import notifier
 
 __all__ = ['EXCHANGE', 'EXCHANGE_TYPE', 'get_carrot_connection',
            'AsyncNotifier', 'AsyncConsumer']
+
+logger = logging.getLogger('ckan.async_notifier')
 
 # settings for AMQP
 EXCHANGE = 'ckan'
@@ -52,7 +57,7 @@ class AsyncNotifier(object):
             cls._publisher = Publisher(connection=get_carrot_connection(),
                                        exchange=EXCHANGE,
                                        exchange_type=EXCHANGE_TYPE)
-        print 'SEND', notification_dict['operation'], notification_dict['routing_key']
+#        print 'SEND', notification_dict['operation'], notification_dict['routing_key']
         cls._publisher.send(notification_dict,
                        routing_key=notification_dict['routing_key'])
 #        cls._publisher.close()
@@ -84,7 +89,7 @@ class AsyncConsumer(object):
             self.clear_queue()
             
         def callback(notification_dict, message):
-            print "MESSAGE"
+            logger.debug('Received message')
             notification = notifier.Notification.recreate_from_dict(notification_dict)
             if isinstance(notification, notifier.StopNotification):
                 raise StopConsuming()
@@ -93,15 +98,18 @@ class AsyncConsumer(object):
            
         self.consumer.register_callback(callback)
         # Consumer loop
-##        self.consumer.wait()
+        # NB wait() is only for test mode - using iterconsume() instead
+        # self.consumer.wait()
         it = self.consumer.iterconsume()
-        print 'Search indexer: Waiting for messages'
+        logger.info('Search indexer: Waiting for messages')
         while True:
             try:
                 it.next()
             except StopConsuming:
                 break
-        print 'Search indexer: Shutting down'
+            # only need to poll once every few seconds?
+#            time.sleep(1.0)
+        logger.info('Search indexer: Shutting down')
 
     def stop(self):
         # consumer.cancel doesn't work for Queue implementation, so instead

@@ -4,7 +4,7 @@ import sqlalchemy
 
 from meta import Table, Column, UnicodeText, ForeignKey, mapper, metadata
 from notifier import DomainObjectNotification, Notification
-from async_notifier import AsyncConsumer, EXCHANGE
+from ckan.lib.async_notifier import AsyncConsumer, EXCHANGE
 
 __all__ = ['SearchIndexManager', 'SearchIndexer', 'package_search_table']
 

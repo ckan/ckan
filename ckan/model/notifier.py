@@ -137,7 +137,7 @@ class NotifierMapperTrigger(MapperExtension):
     def notify(self, triggered_instance, notify_instance, operation):
         if self.check_real_change(triggered_instance):
             if notify_instance.state == State.DELETED:
-                if notify_instance.all_revisions[1].state != State.DELETED:
+                if notify_instance.all_revisions and notify_instance.all_revisions[1].state != State.DELETED:
                     # i.e. just deleted
                     self.queued_notifications.append(DomainObjectNotification.create(notify_instance, 'deleted'))
                 # no notification sent if changed whilst deleted
@@ -154,7 +154,7 @@ class PackageRelationNotifierMapperTrigger(NotifierMapperTrigger):
         return super(PackageRelationNotifierMapperTrigger, self).notify(instance, instance.package, DomainObjectNotificationOperation.changed)
 
     def after_update(self, mapper, connection, instance):
-        print "TRIGGER", instance
+#        print "TRIGGER", instance
         return super(PackageRelationNotifierMapperTrigger, self).notify(instance, instance.package, DomainObjectNotificationOperation.changed)
 
         

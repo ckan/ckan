@@ -64,13 +64,29 @@ def config_staging_hmg_ckan_net():
     env.user = 'ckan1'
     env.base_dir = '/home/%s' % env.user
     env.cmd_pyenv = os.path.join(env.base_dir, 'ourenv')
-    env.ckan_instance_name = 'staging.hmg.ckan.net'
+    env.ckan_instance_name = 'staging.hmg2.ckan.net'
     env.pip_requirements = 'pip-requirements-stable.txt'
 
 def config_test_hmg_ckan_net():
     config_staging_hmg_ckan_net()
     env.ckan_instance_name = 'test.hmg.ckan.net'
     env.hosts = ['ssh.' + env.ckan_instance_name]
+
+def config_hmg_ckan_net_1():
+    env.user = 'ckan1'
+    env.base_dir = '/home/%s' % env.user
+    env.cmd_pyenv = os.path.join(env.base_dir, 'ourenv')
+    env.no_sudo = None
+    env.ckan_instance_name = 'hmg.ckan.net'
+    env.hosts = ['ssh.hmg.ckan.net']
+    env.wsgi_script_filepath = None # os.path.join(env.base_dir, 'hmg.ckan.net/pyenv/bin/pylonsapp_modwsgi.py')
+    env.pip_requirements = 'pip-requirements-stable.txt'
+
+def config_hmg_ckan_net_2():
+    config_hmg_ckan_net_1()
+    env.ckan_instance_name = 'hmg.ckan.net.2'
+    env.hosts = ['ssh.hmg.ckan.net']
+    env.config_ini_filename = 'hmg.ckan.net.ini'
 
 def config_hmg2_ckan_net_1(db_pass=None):
     env.user = 'okfn'
@@ -90,8 +106,8 @@ def config_hmg2_ckan_net_2(db_pass=None):
 def config_hmg2_ckan_net():
     # i.e. whichever instance is current
     config_hmg2_ckan_net_1()
-    env.switch_between_ckan_instances = ['hmg2.ckan.net.1', 'hmg2.ckan.net.2']
     env.ckan_instance_name = 'hmg2.ckan.net.current'
+    env.switch_between_ckan_instances = ['hmg2.ckan.net.1', 'hmg2.ckan.net.2']
 
 def config_test_ckan_net():
     config_0('test.ckan.net', requirements='pip-requirements.txt')
