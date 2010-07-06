@@ -49,25 +49,43 @@ def get_carrot_connection():
 class AsyncNotifier(object):
     '''Sends out notifications asynchronously via carrot.
     Receives notifications via blinker (synchronously).'''
-    _publisher = None
 
-    @classmethod
-    def send_asynchronously(cls, sender, **notification_dict):
-        if cls._publisher == None:
+    # list of signals That we are subscribed to
+    signals = []
+
+    @classmethod 
+    def publisher(cls):
+        if getattr(cls, '_publisher', None) is None:
             cls._publisher = Publisher(connection=get_carrot_connection(),
                                        exchange=EXCHANGE,
                                        exchange_type=EXCHANGE_TYPE)
-#        print 'SEND', notification_dict['operation'], notification_dict['routing_key']
-        cls._publisher.send(notification_dict,
-                       routing_key=notification_dict['routing_key'])
-#        cls._publisher.close()
+        return cls._publisher
 
+    @classmethod
+    def send_asynchronously(cls, sender, **notification_dict):
+        cls.publisher().send(notification_dict,
+                       routing_key=notification_dict['routing_key'])
+        # TODO: sort out whether this is needed
+        # cls._publisher.close()
+
+    @classmethod
+    def register_signal(cls, signal):
+        '''Register AsyncNotifier to receive `blinker` signal (event) (AsyncNotifier will then rebroadcast this using
+        asynchronous system).
+
+        :param signal: signal to rebroadcast. Signal *must* have a kwarg
+        routing_key used for routing in the AMQP system.
+        '''
+        if signal not in cls.signals:
+            signal.connect(cls.send_asynchronously)
+            cls.signals.append(signal)
+
+
+# TODO: move this to model/notifier and use register_signal
 # Register AsyncNotifier to receive *synchronous* notifications
-signals = []
 for routing_key in notifier.ROUTING_KEYS:
     signal = blinker.signal(routing_key)
     signal.connect(AsyncNotifier.send_asynchronously)
-    signals.append(signal)
 
     
 class AsyncConsumer(object):
@@ -79,12 +97,12 @@ class AsyncConsumer(object):
             'exchange':EXCHANGE, 'exchange_type':EXCHANGE_TYPE,
             'queue':queue_name, 'routing_key':routing_key,
             }
+        self.consumer = Consumer(connection=self.conn, **self.consumer_options)
 
     def callback(self, notification):
         raise NotImplementedError
 
     def run(self, clear_queue=False):
-        self.consumer = Consumer(connection=self.conn, **self.consumer_options)
         if clear_queue:
             self.clear_queue()
             
