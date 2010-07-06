@@ -56,6 +56,7 @@ class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
         offset = self.offset('/form/package/create')
         if form_schema != None:
             offset += '?package_form=%s' % form_schema
+        return offset
 
     def offset_package_edit_form(self, ref):
         return self.offset('/form/package/edit/%s' % ref)
