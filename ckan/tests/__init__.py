@@ -283,10 +283,21 @@ class TestController(object):
 
 
 class TestControllerWithSearchIndexer(TestController):
+    # Enable external_indexer allows you to run disable this search indexer
+    # thread and allows you to run one in an external process.
+    external_indexer = False
+
     @classmethod
     def setup_class(cls):
-        SearchIndexManagerThread.start()
+        if not cls.external_indexer:
+            SearchIndexManagerThread.start()
 
     @classmethod
     def teardown_class(cls):
-        SearchIndexManagerThread.stop()
+        if not cls.external_indexer:
+            SearchIndexManagerThread.stop()
+
+    @staticmethod
+    def allow_time_to_create_search_index():
+        import time
+        time.sleep(0.1)

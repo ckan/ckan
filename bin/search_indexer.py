@@ -19,4 +19,6 @@ from pylons import config
 # start indexer
 from ckan.model import SearchIndexManager
 indexer = SearchIndexManager()
-indexer.run()
+indexer.clear_queue()
+while True:
+    indexer.run()

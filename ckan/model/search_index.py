@@ -54,7 +54,7 @@ class SearchIndexer(object):
         engine = meta.engine
 
         # Check the package exists
-        from core import Package
+        from package import Package
         pkg = meta.Session.query(Package).get(unicode(pkg_dict['id']))
         if not pkg:
             print 'Not indexing missing package', pkg_dict['name']
@@ -93,10 +93,11 @@ class SearchIndexer(object):
             sql = "UPDATE package_search SET search_vector=%s WHERE package_id=%%s" % vector_sql
             params.append(pkg_dict['id'])
         res = engine.execute(sql, params)
-        # uncomment this to print lexemes
-        # sql = "SELECT package_id, search_vector FROM package_search WHERE package_id = %s"
-        # res = engine.execute(sql, pkg_dict['id'])
-        # print res.fetchall()
+        # make this True to print lexemes
+        if False:
+            sql = "SELECT package_id, search_vector FROM package_search WHERE package_id = %s"
+            res = engine.execute(sql, pkg_dict['id'])
+            print res.fetchall()
         res.close()
 
 

@@ -1,4 +1,4 @@
-import sqlalchemy as sa
+import time
 
 from ckan.model import Package
 from ckan.lib.search import make_search, SearchOptions
@@ -6,18 +6,17 @@ import ckan.model as model
 from ckan.tests import *
 from ckan.lib.create_test_data import CreateTestData
 
-external_indexer = True
+def allow_time_to_create_search_index():
+    time.sleep(1.0)
 
 class TestSearch(TestControllerWithSearchIndexer):
     q_all = u'penguin'
 
     @classmethod
     def setup_class(self):
-        if not external_indexer:
-            TestControllerWithSearchIndexer.setup_class()
+        TestControllerWithSearchIndexer.setup_class()
         model.Session.remove()
         CreateTestData.create_search_test_data()
-        import time; time.sleep(0.1)
 
         # now remove a tag so we can test search with deleted tags
         model.repo.new_revision()
@@ -28,6 +27,7 @@ class TestSearch(TestControllerWithSearchIndexer):
         idx = [ t.name for t in gils.tags].index(self.tagname)
         del gils.tags[idx]
         model.repo.commit_and_remove()
+        allow_time_to_create_search_index()
 
         self.gils = model.Package.by_name(u'gils')
         self.war = model.Package.by_name(u'warandpeace')
@@ -36,11 +36,8 @@ class TestSearch(TestControllerWithSearchIndexer):
 
     @classmethod
     def teardown_class(self):
-        if not external_indexer:
-            TestControllerWithSearchIndexer.teardown_class()
-        model.Session.remove()
-        model.repo.rebuild_db()
-        model.Session.remove()
+        TestControllerWithSearchIndexer.teardown_class()
+        CreateTestData.delete()
 
     def _pkg_names(self, result):
         return ' '.join(result['results'])
@@ -52,7 +49,8 @@ class TestSearch(TestControllerWithSearchIndexer):
                 return False
         return True
 
-# Can't search for all records in postgres
+    # Can't search for all records in postgres, so search for 'penguin' which
+    # we have put in all the records.
     def test_1_all_records(self):
         # all records
         result = make_search().search(self.q_all)
@@ -62,7 +60,7 @@ class TestSearch(TestControllerWithSearchIndexer):
     def test_1_name(self):
         # exact name
         result = make_search().search(u'gils')
-        assert self._pkg_names(result) == 'gils', self._pkg_names(result)
+        assert self._pkg_names(result) == 'gils', result
         assert result['count'] == 1, result
 
 # Can't search for partial words in postgres
@@ -281,7 +279,8 @@ class TestSearch(TestControllerWithSearchIndexer):
         result = make_search().search(u'th\xfcmb')
         assert result['results'] == ['gils'], result['results']
 
-    def test_groups(self):
+    # Groups searching deprecated for now
+    def _test_groups(self):
         result = make_search().search(u'groups:random')
         assert self._pkg_names(result) == '', self._pkg_names(result)
 
@@ -299,17 +298,17 @@ class TestSearch(TestControllerWithSearchIndexer):
         assert query.first()[0].name == run_result['results'][0], '%s\n%s' % (query.first()[0].name, run_result['results'][0])
         
 
-class TestSearchOverall(object):
+class TestSearchOverall(TestControllerWithSearchIndexer):
     @classmethod
     def setup_class(self):
-        model.Session.remove()
+        TestControllerWithSearchIndexer.setup_class()
         CreateTestData.create()
+        allow_time_to_create_search_index()
 
     @classmethod
     def teardown_class(self):
-        model.Session.remove()
-        model.repo.rebuild_db()
-        model.Session.remove()
+        TestControllerWithSearchIndexer.teardown_class()
+        CreateTestData.delete()
 
     def _check_search_results(self, terms, expected_count, expected_packages=[], only_open=False, only_downloadable=False):
         options = SearchOptions({'q':unicode(terms)})
@@ -338,9 +337,10 @@ class TestSearchOverall(object):
         self._check_search_results('annakarenina', 1, ['annakarenina'], True, True )
         
 
-class TestGeographicCoverage(object):
+class TestGeographicCoverage(TestControllerWithSearchIndexer):
     @classmethod
     def setup_class(self):
+        TestControllerWithSearchIndexer.setup_class()
         init_data = [
             {'name':'eng',
              'extras':{'geographic_coverage':'100000: England'},},
@@ -354,9 +354,12 @@ class TestGeographicCoverage(object):
              'extras':{'geographic_coverage':'000000:'},},
             ]
         CreateTestData.create_arbitrary(init_data)
+        allow_time_to_create_search_index()
+
 
     @classmethod
     def teardown_class(self):
+        TestControllerWithSearchIndexer.teardown_class()
         CreateTestData.delete()
     
     def _do_search(self, q, expected_pkgs, count=None):
@@ -390,9 +393,10 @@ class TestGeographicCoverage(object):
     def test_1_filtered(self):
         self._filtered_search(u'england', ['eng', 'eng_ni', 'uk', 'gb'], 4)
 
-class TestExtraFields(object):
+class TestExtraFields(TestControllerWithSearchIndexer):
     @classmethod
     def setup_class(self):
+        TestControllerWithSearchIndexer.setup_class()
         init_data = [
             {'name':'a',
              'extras':{'department':'abc',
@@ -406,12 +410,13 @@ class TestExtraFields(object):
              'extras':{'department':''},},
             ]
         CreateTestData.create_arbitrary(init_data)
+        allow_time_to_create_search_index()
+
 
     @classmethod
     def teardown_class(self):
-        model.Session.remove()
-        model.repo.rebuild_db()
-        model.Session.remove()
+        TestControllerWithSearchIndexer.teardown_class()
+        CreateTestData.delete()
     
     def _do_search(self, department, expected_pkgs, count=None):
         options = SearchOptions({'q':''})
@@ -431,10 +436,11 @@ class TestExtraFields(object):
         self._do_search(u'abc cde', [], 0)
         self._do_search(u'cde abc', 'c', 1)
 
-class TestRank(TestController):
+class TestRank(TestControllerWithSearchIndexer):
     @classmethod
     def setup_class(self):
         self.purge_all_packages()
+        TestControllerWithSearchIndexer.setup_class()
 
         init_data = [{'name':u'test1-penguin-canary',
                       'tags':u'canary goose squirrel wombat wombat'},
@@ -442,11 +448,13 @@ class TestRank(TestController):
                       'tags':u'penguin wombat'},
                      ]
         CreateTestData.create_arbitrary(init_data)
+        allow_time_to_create_search_index()
         self.pkg_names = [u'test1-penguin-canary',
                      u'test2-squirrel-squirrel-canary-goose']
 
     @classmethod
     def teardown_class(self):
+        TestControllerWithSearchIndexer.teardown_class()
         CreateTestData.delete()
     
     def _do_search(self, q, wanted_results):
@@ -455,6 +463,7 @@ class TestRank(TestController):
         result = make_search().run(options)
         results = result['results']
         err = 'Wanted %r, got %r' % (wanted_results, results)
+        print wanted_results, results
         assert wanted_results[0] == results[0], err
         assert wanted_results[1] == results[1], err
 
@@ -466,56 +475,4 @@ class TestRank(TestController):
     def test_1_weighting(self):
         self._do_search(u'penguin', self.pkg_names)
         self._do_search(u'goose', self.pkg_names[::-1])
-
-class PostgresSearch(object):
-    def filter_by(self, query, terms):
-        q = query
-        q = q.filter(model.package_search_table.c.package_id==model.Package.id)
-        q = q.filter('package_search.search_vector '\
-                                       '@@ plainto_tsquery(:terms)')
-        q = q.params(terms=terms)
-        q = q.add_column(sa.func.ts_rank_cd('package_search.search_vector', sa.func.plainto_tsquery(terms)))
-        return q
-
-    def order_by(self, query):
-        return query.order_by('ts_rank_cd_1')
-        
-    def search(self, terms):
-        import ckan.model as model
-        q = self.filter_by(model.Session.query(model.Package), terms)
-        q = self.order_by(q)
-        q = q.distinct()
-        results = [pkg_tuple[0].name for pkg_tuple in q.all()]
-        return {'results':results, 'count':q.count()}
-
-class TestPostgresSearch(object):
-
-    @classmethod
-    def setup_class(self):
-        model.Session.remove()
-        CreateTestData.create_search_test_data()
-        self.gils = model.Package.by_name(u'gils')
-        self.war = model.Package.by_name(u'warandpeace')
-        self.russian = model.Tag.by_name(u'russian')
-        self.tolstoy = model.Tag.by_name(u'tolstoy')
-
-    @classmethod
-    def teardown_class(self):
-        # CreateTestData.delete()
-        model.Session.remove()
-        model.repo.rebuild_db()
-        model.Session.remove()
-
-    def test_0_indexing(self):
-        searches = model.metadata.bind.execute('SELECT package_id, search_vector FROM package_search').fetchall()
-        print searches
-        assert searches[0][1], searches
-        q = model.Session.query(model.Package).filter(model.package_search_table.c.package_id==model.Package.id)
-        assert q.count() == 6, q.count()
-        
-    def test_1_basic(self):
-        result = PostgresSearch().search(u'sweden')
-        print result
-        assert 'se-publications' in result['results'], result['results']
-        assert result['count'] == 2, result['count']
 

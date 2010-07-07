@@ -218,14 +218,17 @@ class TestPackageForm(TestPackageBase):
                 model.repo.commit_and_remove()
                  
 
-class TestReadOnly(TestPackageForm):
+class TestReadOnly(TestPackageForm, TestControllerWithSearchIndexer):
 
     @classmethod
     def setup_class(self):
+        TestControllerWithSearchIndexer.setup_class()
         CreateTestData.create()
+        TestControllerWithSearchIndexer.allow_time_to_create_search_index()
 
     @classmethod
     def teardown_class(self):
+        TestControllerWithSearchIndexer.teardown_class()
         CreateTestData.delete()
 
     def test_index(self):

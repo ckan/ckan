@@ -343,6 +343,12 @@ left arrow <
         for pkg_name in self.pkg_names:
             pkg = model.Package.by_name(unicode(pkg_name))
             if pkg:
+                sql = "DELETE FROM package_search WHERE package_id='%s'" % pkg.id
+                model.Session.execute(sql)
+        model.repo.commit_and_remove()
+        for pkg_name in self.pkg_names:
+            pkg = model.Package.by_name(unicode(pkg_name))
+            if pkg:
                 pkg.purge()
         for tag_name in self.tag_names:
             tag = model.Tag.by_name(unicode(tag_name))
@@ -368,7 +374,7 @@ left arrow <
 search_items = [{'name':'gils',
               'title':'Government Information Locator Service',
               'url':'',
-              'tags':'registry  country-usa  government  federal  gov  workshop-20081101',
+              'tags':'registry  country-usa  government  federal  gov  workshop-20081101 penguin',
               'groups':'ukgov test1 test2 penguin',
               'license':'gpl-3.0',
               'notes':u'''From <http://www.gpoaccess.gov/gils/about.html>
@@ -385,7 +391,7 @@ u with umlaut th\xfcmb
               'title':'U.S. Government Photos and Graphics',
               'url':'http://www.usa.gov/Topics/Graphics.shtml',
               'download_url':'http://www.usa.gov/Topics/Graphics.shtml',
-              'tags':'images  graphics  photographs  photos  pictures  us  usa  america  history  wildlife  nature  war  military  todo-split  gov',
+              'tags':'images  graphics  photographs  photos  pictures  us  usa  america  history  wildlife  nature  war  military  todo-split  gov penguin',
               'groups':'ukgov test1 penguin',
               'license':'other-open',
               'notes':'''## About
@@ -413,7 +419,7 @@ Collection of links to different US image collections in the public domain.
               },
              {'name':'uk-government-expenditure',
               'title':'UK Government Expenditure',
-              'tags':'workshop-20081101  uk  gov  expenditure  finance  public  funding',
+              'tags':'workshop-20081101  uk  gov  expenditure  finance  public  funding penguin',
               'groups':'ukgov penguin',              
               'notes':'''Discussed at [Workshop on Public Information, 2008-11-02](http://okfn.org/wiki/PublicInformation).
 
@@ -424,7 +430,7 @@ Overview is available in Red Book, or Financial Statement and Budget Report (FSB
               'title':'Sweden - Government Offices of Sweden - Publications',
               'url':'http://www.sweden.gov.se/sb/d/574',
               'groups':'penguin',              
-              'tags':'country-sweden  format-pdf  access-www  documents  publications  government  eutransparency',
+              'tags':'country-sweden  format-pdf  access-www  documents  publications  government  eutransparency penguin',
               'license':'',
               'notes':'''### About
 
@@ -440,7 +446,7 @@ Not clear.''',
               'groups':'penguin',              
               'url':'http://www.opengov.se/',
               'download_url':'http://www.opengov.se/data/open/',
-              'tags':'country-sweden  government  data',
+              'tags':'country-sweden  government  data penguin',
               'license':'cc-by-sa',
               'notes':'''### About
 

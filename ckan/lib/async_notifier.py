@@ -111,11 +111,15 @@ class AsyncConsumer(object):
             
         def callback(notification_dict, message):
             logger.debug('Received message')
-            notification = notifier.Notification.recreate_from_dict(notification_dict)
-            if isinstance(notification, notifier.StopNotification):
-                raise StopConsuming()
-            self.callback(notification)
-            message.ack()
+            try:
+                notification = notifier.Notification.recreate_from_dict(notification_dict)
+            except notifier.NotificationError, e:
+                logger.error('Notification malformed: %r', e)
+            else:
+                if isinstance(notification, notifier.StopNotification):
+                    raise StopConsuming()
+                self.callback(notification)
+                message.ack()
            
         self.consumer.register_callback(callback)
         # Consumer loop

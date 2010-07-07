@@ -12,12 +12,15 @@ State = vdm.sqlalchemy.State
 __all__ = ['Notification', 'PackageNotification', 'DatabaseNotification',
            'DomainObjectNotification', 'StopNotification',
            'ROUTING_KEYS', 'NotifierMapperTrigger',
-           'PackageRelationNotifierMapperTrigger']
+           'PackageRelationNotifierMapperTrigger', 'NotificationError']
 
 NOTIFYING_DOMAIN_OBJ_NAMES = ['Package', 'PackageResource']
 DOMAIN_OBJECT_OPERATIONS = ('new', 'changed', 'deleted')
 DomainObjectNotificationOperation = Enum('new', 'changed', 'deleted')
 ROUTING_KEYS = ['db', 'stop'] + NOTIFYING_DOMAIN_OBJ_NAMES
+
+class NotificationError(Exception):
+    pass
 
 class Notification(dict):
     '''This is the message that is sent in both synchronous and asynchronous
@@ -36,6 +39,8 @@ class Notification(dict):
     @staticmethod
     def recreate_from_dict(notification_dict):
         '''Call to recreate a notification from its queue representation.'''
+        if not notification_dict.has_key('routing_key'):
+            raise NotificationError('Missing a routing_key')
         routing_key = notification_dict.pop('routing_key')
         assert routing_key in ROUTING_KEYS, routing_key
         # Work out what class of Notification it is
@@ -52,11 +57,7 @@ class Notification(dict):
             cls = StopNotification
         else:
             raise NotImplementedError()
-        # handle fact dict keys may be unicode
-        newdict = {}
-        for k,v in notification_dict.items():
-            newdict[str(k)] = v
-        return cls(routing_key, **newdict)
+        return cls(routing_key, **notification_dict)
         
     def send_synchronously(self):
         signal = blinker.signal(self['routing_key'])
