@@ -63,6 +63,8 @@ class AsyncNotifier(object):
 
     @classmethod
     def send_asynchronously(cls, sender, **notification_dict):
+        logger.debug('AsyncNotifier.send_asynchronously: %s %s' % (sender,
+            notification_dict))
         cls.publisher().send(notification_dict,
                        routing_key=notification_dict['routing_key'])
         # TODO: sort out whether this is needed
@@ -77,6 +79,7 @@ class AsyncNotifier(object):
         routing_key used for routing in the AMQP system.
         '''
         if signal not in cls.signals:
+            logger.debug('AsyncNotifier.register_signal: %s' % signal)
             signal.connect(cls.send_asynchronously)
             cls.signals.append(signal)
 
@@ -85,7 +88,7 @@ class AsyncNotifier(object):
 # Register AsyncNotifier to receive *synchronous* notifications
 for routing_key in notifier.ROUTING_KEYS:
     signal = blinker.signal(routing_key)
-    signal.connect(AsyncNotifier.send_asynchronously)
+    AsyncNotifier.register_signal(signal)
 
     
 class AsyncConsumer(object):

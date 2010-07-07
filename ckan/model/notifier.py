@@ -52,7 +52,11 @@ class Notification(dict):
             cls = StopNotification
         else:
             raise NotImplementedError()
-        return cls(routing_key, **notification_dict)
+        # handle fact dict keys may be unicode
+        newdict = {}
+        for k,v in notification_dict.items():
+            newdict[str(k)] = v
+        return cls(routing_key, **newdict)
         
     def send_synchronously(self):
         signal = blinker.signal(self['routing_key'])

@@ -80,7 +80,6 @@ class TestBlinkerNotifiesAsync:
                 self.queue_name)
         self.signal.send(self.event_name, routing_key=self.routing_key,
                 **self.message_data)
-        time.sleep(0.1)
         message = consumer.consumer.fetch()
         out_message_data = message.payload
         assert 'import_feed' in out_message_data, out_message_data
@@ -92,7 +91,6 @@ class TestBlinkerNotifiesAsync:
 
         self.signal.send(self.event_name, routing_key=self.routing_key,
                 **self.message_data)
-        time.sleep(0.1)
         message = consumer.consumer.fetch()
         out_message_data = message.payload
         assert 'import_feed' in out_message_data, out_message_data
