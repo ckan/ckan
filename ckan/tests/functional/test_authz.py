@@ -4,7 +4,7 @@ from ckan.lib.base import *
 import ckan.authz as authz
 from ckan.lib.helpers import json
 
-class TestUsage(TestController):
+class TestUsage(TestControllerWithSearchIndexer):
     deleted = model.State.DELETED
     active = model.State.ACTIVE
     
@@ -92,11 +92,14 @@ class TestUsage(TestController):
 
     @classmethod
     def setup_class(self):
+        TestControllerWithSearchIndexer.setup_class()
         self._create_test_data()
         model.Session.remove()
+        TestControllerWithSearchIndexer.allow_time_to_create_search_index()
 
     @classmethod
     def teardown_class(self):
+        TestControllerWithSearchIndexer.teardown_class()
         model.Session.remove()
         model.repo.rebuild_db()
         model.Session.remove()

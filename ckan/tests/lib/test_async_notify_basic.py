@@ -19,6 +19,8 @@ class OurConsumer(Thread):
                             exchange=async_notifier.EXCHANGE, routing_key='importer')
 
         def import_feed_callback(message_data, message):
+            if not message.has_key('import_feed'):
+                print 'Badly formatted message:', message
             feed_url = message_data['import_feed']
 #            print 'GOT SOMETHING'
             self.result = 'Got feed import message for: %s' % feed_url

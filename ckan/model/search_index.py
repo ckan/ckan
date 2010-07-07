@@ -57,7 +57,7 @@ class SearchIndexer(object):
         from package import Package
         pkg = meta.Session.query(Package).get(unicode(pkg_dict['id']))
         if not pkg:
-            print 'Not indexing missing package', pkg_dict['name']
+#            print 'Not indexing missing package', pkg_dict['name']
             return
         
         if isinstance(pkg_dict['tags'], (list, tuple)):
