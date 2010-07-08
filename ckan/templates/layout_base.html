@@ -60,6 +60,9 @@
             <a href="${h.url_for(controller='user',action='login', id=None)}">Login with ${h.icon('openid')} OpenID</a>
           </p>
         </topbar>
+        <form class="package-search" action="${h.url_for(controller='package', action='search', id=None)}" method="GET">
+          <input type="search" class="search" name="q" />
+        </form>
       </div><!-- /top-bar -->
 
       <h1>

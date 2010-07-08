@@ -1,9 +1,9 @@
-<form action="${h.url_for(controller='package', action='search', id=None)}" method="GET">
-  ${h.text('q', size=40, value=c.q)}
-  ${h.submit('search', _('Search Packages &raquo;'))}
-  <p class="desc">
+<form class="package-search" action="${h.url_for(controller='package', action='search', id=None)}" method="GET">
+  <input type="search" class="search" name="q" value="${c.q}" />
+  <input type="submit" value="Search" class="button" />
+  <p class="small">
     E.g. 'geo', 'shakespeare', 'science'
   </p>
-  <div>Filters: <label for="open_only" class="inline">${h.checkbox(name='open_only', checked=c.open_only)} open license</label>
+  <div class="package-search-filters">Filters: <label for="open_only" class="inline">${h.checkbox(name='open_only', checked=c.open_only)} open license</label>
   <label for="downloadable_only" class="inline">${h.checkbox(name='downloadable_only', checked=c.downloadable_only)} downloadable</label></div>
 </form>
