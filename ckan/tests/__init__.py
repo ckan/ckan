@@ -13,6 +13,7 @@ import sys
 import re
 from unittest import TestCase
 from nose.tools import assert_equal
+import time
 
 import sgmllib
 import pkg_resources
@@ -26,9 +27,9 @@ from test_search_indexer import SearchIndexManagerThread
 
 
 __all__ = ['url_for',
-        'TestController',
-        'CreateTestData',
-        'TestControllerWithSearchIndexer',
+           'TestController',
+           'CreateTestData',
+           'TestSearchIndexer',
         ]
 
 here_dir = os.path.dirname(os.path.abspath(__file__))
@@ -282,22 +283,19 @@ class TestController(object):
             raise Exception, "Can't kill foreign CKAN instance (pid: %d)." % pid
 
 
-class TestControllerWithSearchIndexer(TestController):
-    # Enable external_indexer allows you to run disable this search indexer
-    # thread and allows you to run one in an external process.
-    external_indexer = False
+class TestSearchIndexer:
+    indexer = None
+    
+    def __init__(self):
+        TestSearchIndexer.indexer = model.SearchIndexManager()
+        TestSearchIndexer.indexer.clear_queue()
+        self.indexer.consumer.close()
 
     @classmethod
-    def setup_class(cls):
-        if not cls.external_indexer:
-            SearchIndexManagerThread.start()
+    def index(cls):
+        message = cls.indexer.consumer.fetch()
+        while message is not None:
+            cls.indexer.async_callback(message.payload, message)
+            message = cls.indexer.consumer.fetch()
+        cls.indexer.consumer.close()        
 
-    @classmethod
-    def teardown_class(cls):
-        if not cls.external_indexer:
-            SearchIndexManagerThread.stop()
-
-    @staticmethod
-    def allow_time_to_create_search_index():
-        import time
-        time.sleep(0.1)

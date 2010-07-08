@@ -1,4 +1,5 @@
 import time
+import blinker
 
 from carrot.messaging import Consumer
 
@@ -14,16 +15,18 @@ class TestNotification(TestController):
     you change a package etc.'''
 
     our_queue = []
+
+    @classmethod
+    def add_notification_to_our_queue(cls, sender, **notification_dict):
+        notification = model.Notification.recreate_from_dict(notification_dict)
+        cls.our_queue.append(notification)
     
     @classmethod
     def setup_class(self):
         # divert NotifierMapperTrigger's message sending to us
-        def add_notification_to_our_queue(self_, notification):
-            self.our_queue.append(notification)
-        model.NotifierMapperTrigger.real_add_notification_to_queue = \
-          model.NotifierMapperTrigger.add_notification_to_queue
-        model.NotifierMapperTrigger.add_notification_to_queue = \
-                                    add_notification_to_our_queue
+        for routing_key in model.ROUTING_KEYS:
+            signal = blinker.signal(routing_key)
+            signal.connect(self.add_notification_to_our_queue)
         
         self.pkg_dict = {'name':u'test_notification_pkg',
                          'notes':u'This is a test package',
@@ -49,9 +52,9 @@ class TestNotification(TestController):
         
     @classmethod
     def teardown_class(self):
-        # reinstate method
-        model.NotifierMapperTrigger.real_add_notification_to_queue = \
-          model.NotifierMapperTrigger.add_notification_to_queue
+        for routing_key in model.ROUTING_KEYS:
+            signal = blinker.signal(routing_key)
+            signal.disconnect(self.add_notification_to_our_queue)
         CreateTestData.delete()
 
     @property

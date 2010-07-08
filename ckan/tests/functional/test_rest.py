@@ -910,11 +910,11 @@ class RelationshipsApiTestCase(ApiTestCase):
         assert rel_dict['comment'] == comment, (rel_dict, comment)
 
 
-class SearchApiTestCase(ApiTestCase, TestControllerWithSearchIndexer):
+class SearchApiTestCase(ApiTestCase):
 
     @classmethod
     def setup_class(self):
-        TestControllerWithSearchIndexer.setup_class()
+        indexer = TestSearchIndexer()
         CreateTestData.create()
         self.testpackagevalues = {
             'name' : u'testpkg',
@@ -928,12 +928,11 @@ class SearchApiTestCase(ApiTestCase, TestControllerWithSearchIndexer):
                        'geographic_coverage':'England, Wales'},
         }
         CreateTestData.create_arbitrary(self.testpackagevalues)
-        TestControllerWithSearchIndexer.allow_time_to_create_search_index()
+        indexer.index()
         self.base_url = self.offset('/search/package')
 
     @classmethod
     def teardown_class(self):
-        TestControllerWithSearchIndexer.teardown_class()
         CreateTestData.delete()
 
     def test_01_uri_q(self):

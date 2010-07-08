@@ -103,25 +103,29 @@ class AsyncConsumer(object):
         self.consumer = Consumer(connection=self.conn, **self.consumer_options)
 
     def callback(self, notification):
+        '''Derived classes are notified in this method when an async
+        notification comes in.'''
         raise NotImplementedError
+
+    def async_callback(self, notification_dict, message):
+        '''Called by carrot when a message comes in. It converts the message
+        payload to an object and calls self.callback(notification).'''
+        logger.debug('Received message')
+        try:
+            notification = notifier.Notification.recreate_from_dict(notification_dict)
+        except notifier.NotificationError, e:
+            logger.error('Notification malformed: %r', e)
+        else:
+            if isinstance(notification, notifier.StopNotification):
+                raise StopConsuming()
+            self.callback(notification)
+            message.ack()
 
     def run(self, clear_queue=False):
         if clear_queue:
             self.clear_queue()
-            
-        def callback(notification_dict, message):
-            logger.debug('Received message')
-            try:
-                notification = notifier.Notification.recreate_from_dict(notification_dict)
-            except notifier.NotificationError, e:
-                logger.error('Notification malformed: %r', e)
-            else:
-                if isinstance(notification, notifier.StopNotification):
-                    raise StopConsuming()
-                self.callback(notification)
-                message.ack()
            
-        self.consumer.register_callback(callback)
+        self.consumer.register_callback(self.async_callback)
         # Consumer loop
         # NB wait() is only for test mode - using iterconsume() instead
         # self.consumer.wait()
@@ -132,8 +136,8 @@ class AsyncConsumer(object):
                 it.next()
             except StopConsuming:
                 break
-            # only need to poll once every few seconds?
-#            time.sleep(1.0)
+            # only need to poll once every few seconds - Queue doesn't block
+            time.sleep(1.0)
         logger.info('Search indexer: Shutting down')
 
     def stop(self):

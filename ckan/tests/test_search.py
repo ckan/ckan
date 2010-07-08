@@ -6,15 +6,12 @@ import ckan.model as model
 from ckan.tests import *
 from ckan.lib.create_test_data import CreateTestData
 
-def allow_time_to_create_search_index():
-    time.sleep(1.0)
-
-class TestSearch(TestControllerWithSearchIndexer):
+class TestSearch(TestController):
     q_all = u'penguin'
 
     @classmethod
     def setup_class(self):
-        TestControllerWithSearchIndexer.setup_class()
+        indexer = TestSearchIndexer()
         model.Session.remove()
         CreateTestData.create_search_test_data()
 
@@ -27,7 +24,7 @@ class TestSearch(TestControllerWithSearchIndexer):
         idx = [ t.name for t in gils.tags].index(self.tagname)
         del gils.tags[idx]
         model.repo.commit_and_remove()
-        allow_time_to_create_search_index()
+        indexer.index()
 
         self.gils = model.Package.by_name(u'gils')
         self.war = model.Package.by_name(u'warandpeace')
@@ -36,7 +33,6 @@ class TestSearch(TestControllerWithSearchIndexer):
 
     @classmethod
     def teardown_class(self):
-        TestControllerWithSearchIndexer.teardown_class()
         CreateTestData.delete()
 
     def _pkg_names(self, result):
@@ -298,16 +294,15 @@ class TestSearch(TestControllerWithSearchIndexer):
         assert query.first()[0].name == run_result['results'][0], '%s\n%s' % (query.first()[0].name, run_result['results'][0])
         
 
-class TestSearchOverall(TestControllerWithSearchIndexer):
+class TestSearchOverall(TestController):
     @classmethod
     def setup_class(self):
-        TestControllerWithSearchIndexer.setup_class()
+        indexer = TestSearchIndexer()
         CreateTestData.create()
-        allow_time_to_create_search_index()
+        indexer.index()
 
     @classmethod
     def teardown_class(self):
-        TestControllerWithSearchIndexer.teardown_class()
         CreateTestData.delete()
 
     def _check_search_results(self, terms, expected_count, expected_packages=[], only_open=False, only_downloadable=False):
@@ -337,10 +332,10 @@ class TestSearchOverall(TestControllerWithSearchIndexer):
         self._check_search_results('annakarenina', 1, ['annakarenina'], True, True )
         
 
-class TestGeographicCoverage(TestControllerWithSearchIndexer):
+class TestGeographicCoverage(TestController):
     @classmethod
     def setup_class(self):
-        TestControllerWithSearchIndexer.setup_class()
+        indexer = TestSearchIndexer()
         init_data = [
             {'name':'eng',
              'extras':{'geographic_coverage':'100000: England'},},
@@ -354,12 +349,11 @@ class TestGeographicCoverage(TestControllerWithSearchIndexer):
              'extras':{'geographic_coverage':'000000:'},},
             ]
         CreateTestData.create_arbitrary(init_data)
-        allow_time_to_create_search_index()
+        indexer.index()
 
 
     @classmethod
     def teardown_class(self):
-        TestControllerWithSearchIndexer.teardown_class()
         CreateTestData.delete()
     
     def _do_search(self, q, expected_pkgs, count=None):
@@ -393,10 +387,10 @@ class TestGeographicCoverage(TestControllerWithSearchIndexer):
     def test_1_filtered(self):
         self._filtered_search(u'england', ['eng', 'eng_ni', 'uk', 'gb'], 4)
 
-class TestExtraFields(TestControllerWithSearchIndexer):
+class TestExtraFields(TestController):
     @classmethod
     def setup_class(self):
-        TestControllerWithSearchIndexer.setup_class()
+        indexer = TestSearchIndexer()
         init_data = [
             {'name':'a',
              'extras':{'department':'abc',
@@ -410,12 +404,10 @@ class TestExtraFields(TestControllerWithSearchIndexer):
              'extras':{'department':''},},
             ]
         CreateTestData.create_arbitrary(init_data)
-        allow_time_to_create_search_index()
-
+        indexer.index()
 
     @classmethod
     def teardown_class(self):
-        TestControllerWithSearchIndexer.teardown_class()
         CreateTestData.delete()
     
     def _do_search(self, department, expected_pkgs, count=None):
@@ -436,11 +428,11 @@ class TestExtraFields(TestControllerWithSearchIndexer):
         self._do_search(u'abc cde', [], 0)
         self._do_search(u'cde abc', 'c', 1)
 
-class TestRank(TestControllerWithSearchIndexer):
+class TestRank(TestController):
     @classmethod
     def setup_class(self):
         self.purge_all_packages()
-        TestControllerWithSearchIndexer.setup_class()
+        indexer = TestSearchIndexer()
 
         init_data = [{'name':u'test1-penguin-canary',
                       'tags':u'canary goose squirrel wombat wombat'},
@@ -448,13 +440,12 @@ class TestRank(TestControllerWithSearchIndexer):
                       'tags':u'penguin wombat'},
                      ]
         CreateTestData.create_arbitrary(init_data)
-        allow_time_to_create_search_index()
+        indexer.index()
         self.pkg_names = [u'test1-penguin-canary',
                      u'test2-squirrel-squirrel-canary-goose']
 
     @classmethod
     def teardown_class(self):
-        TestControllerWithSearchIndexer.teardown_class()
         CreateTestData.delete()
     
     def _do_search(self, q, wanted_results):

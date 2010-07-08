@@ -24,7 +24,6 @@ class TestSearchIndex(TestController):
         notification['payload']['title'] = 'penguin'
         self.indexer.callback(notification)
 
-        self.anna.id
         sql = "select search_vector from package_search where package_id='%s'" % self.anna.id
         vector = model.Session.execute(sql).fetchone()[0]
         assert 'annakarenina' in vector, vector
@@ -57,12 +56,13 @@ class PostgresSearch(object):
 def allow_time_to_create_search_index():
     time.sleep(0.5)
 
-class TestPostgresSearch(TestControllerWithSearchIndexer):
+class TestPostgresSearch:
     @classmethod
     def setup_class(self):
-        TestControllerWithSearchIndexer.setup_class()
+        indexer = TestSearchIndexer()
         CreateTestData.create_search_test_data()
-        allow_time_to_create_search_index()
+        indexer.index()
+
         self.gils = model.Package.by_name(u'gils')
         self.war = model.Package.by_name(u'warandpeace')
         self.russian = model.Tag.by_name(u'russian')
@@ -70,7 +70,6 @@ class TestPostgresSearch(TestControllerWithSearchIndexer):
 
     @classmethod
     def teardown_class(self):
-        TestControllerWithSearchIndexer.teardown_class()
         CreateTestData.delete()
 
     def test_0_indexing(self):
