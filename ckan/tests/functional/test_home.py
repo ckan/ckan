@@ -35,7 +35,7 @@ class TestHomeController(TestController):
     def test_search_packages(self):
         offset = url_for('home')
         res = self.app.get(offset)
-        form = res.forms[0]
+        form = res.forms['package-search']
         form['q'] =  'anna'
         results_page = form.submit()
         assert 'Search packages' in results_page, results_page

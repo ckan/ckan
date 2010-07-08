@@ -101,7 +101,7 @@ class TestTagController(TestController):
         offset = url_for(controller='tag', action='index')
         res = self.app.get(offset)
         search_term = 's'
-        fv = res.forms[0]
+        fv = res.forms['tag-search']
         print fv.fields
         fv['q'] =  str(search_term)
         res = fv.submit()

@@ -15,7 +15,7 @@
         ${c.message}
       </h3>
 
-      ${h.form(h.url_for(controller='importer', action='preview'), multipart=True)}
+      ${h.form(h.url_for(controller='importer', action='preview'), multipart=True, id='import')}
         <div>
           <?python enable_preview = {'disabled':'disabled'} if not c.user else {} ?>
           ${h.file(name='file', **enable_preview)}

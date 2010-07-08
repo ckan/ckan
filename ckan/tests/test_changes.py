@@ -87,7 +87,7 @@ class TestDistributingChanges(TestControllerWithForeign):
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         assert 'Packages - New' in res
-        fv = res.forms[0]
+        fv = res.forms['package-edit']
         prefix = 'Package--'
         fv[prefix + 'name'] = name
         res = fv.submit('commit')
@@ -117,7 +117,7 @@ class TestDistributingChanges(TestControllerWithForeign):
         extra_new = 'newkey', 'newvalue'
         log_message = 'This is a comment'
         pkg = model.Package.by_name(name)
-        fv = res.forms[0]
+        fv = res.forms['package-edit']
         prefix = 'Package-%s-' % pkg.id
         fv[prefix+'name'] = name
         fv[prefix+'title'] = title

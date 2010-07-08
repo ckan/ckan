@@ -51,8 +51,8 @@ class BaseFormsApiCase(TestController):
 
     def form_from_res(self, res):
         assert not "<html>" in str(res.body), "The response is an HTML doc, not just a form: %s" % str(res.body)
-        res.body = "<html><form action=\"\" method=\"post\">" + res.body + "<input type=\"submit\" name=\"send\"></form></html>"
-        form = res.forms[0]
+        res.body = "<html><form id=\"test\" action=\"\" method=\"post\">" + res.body + "<input type=\"submit\" name=\"send\"></form></html>"
+        form = res.forms['test']
         return form
 
     def post_package_edit_form(self, package_id, form=None, status=[200], **kwds):

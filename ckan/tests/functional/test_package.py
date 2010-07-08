@@ -193,12 +193,12 @@ class TestPackageForm(TestPackageBase):
             offset = url_for(**offset_params)
             res = self.app.get(offset)
             assert 'Packages -' in res
-            fv = res.forms[0]
+            fv = res.forms['package-edit']
             prefix = 'Package-%s-' % pkg_id
             fv[prefix + 'name'] = new_name
             res = fv.submit('preview')
             assert not 'Error' in res, res
-            fv = res.forms[0]
+            fv = res.forms['package-edit']
             res = fv.submit('commit', status=302)
             assert not 'Error' in res, res
             redirected_to = dict(res.headers).get('Location') or dict(res.headers)['location']
@@ -351,7 +351,7 @@ class TestReadOnly(TestPackageForm):
         assert '<strong>0</strong>' in results_page, results_page
 
     def _check_search_results(self, page, terms, requireds, only_open=False, only_downloadable=False):
-        form = page.forms[0]
+        form = page.forms['package-search']
         form['q'] = terms.encode('utf8') # paste doesn't handle this!
         form['open_only'] = only_open
         form['downloadable_only'] = only_downloadable
@@ -411,7 +411,7 @@ class TestEdit(TestPackageForm):
             self.res = self.app.get(self.offset)
             assert 'Packages - Edit' in self.res, self.res
             new_name = u'new-name'
-            fv = self.res.forms[0]
+            fv = self.res.forms['package-edit']
             prefix = 'Package-%s-' % self.pkgid
             fv[prefix + 'name'] = new_name
             res = fv.submit('commit')
@@ -438,7 +438,7 @@ class TestEdit(TestPackageForm):
             new_download_url = newurl + u'/download/'
             newlicense_id = u'cc-by'
             newversion = u'0.9b'
-            fv = self.res.forms[0]
+            fv = self.res.forms['package-edit']
             prefix = 'Package-%s-' % self.pkgid
             fv[prefix + 'name'] = new_name
             fv[prefix + 'title'] =  new_title
@@ -471,7 +471,7 @@ class TestEdit(TestPackageForm):
             assert 'Packages - Edit' in res, res
             assert pkg.name in res
             new_name = u'new-name'
-            fv = self.res.forms[0]
+            fv = self.res.forms['package-edit']
             prefix = 'Package-%s-' % self.pkgid
             fv[prefix + 'name'] = new_name
             res = fv.submit('commit')
@@ -488,7 +488,7 @@ class TestEdit(TestPackageForm):
     def test_edit_2_not_groups(self):
         # not allowed to edit groups for now
         prefix = 'Package-%s-' % self.pkgid
-        fv = self.res.forms[0]
+        fv = self.res.forms['package-edit']
         assert not fv.fields.has_key(prefix + 'groups')
         
     def test_edit_2_tags_and_groups(self):
@@ -496,7 +496,7 @@ class TestEdit(TestPackageForm):
         newtagnames = [u'russian', u'tolstoy', u'superb']
         newtags = newtagnames
         tagvalues = ' '.join(newtags)
-        fv = self.res.forms[0]
+        fv = self.res.forms['package-edit']
         prefix = 'Package-%s-' % self.pkgid
         fv[prefix + 'tags'] =  tagvalues
         exp_log_message = 'test_edit_2: making some changes'
@@ -527,7 +527,7 @@ Arrow <
 u with umlaut \xc3\xbc
 
 '''
-        fv = self.res.forms[0]
+        fv = self.res.forms['package-edit']
         prefix = 'Package-%s-' % self.pkgid
         fv[prefix + 'url'] =  newurl
         fv[prefix + 'notes'] =  newnotes
@@ -540,7 +540,7 @@ u with umlaut \xc3\xbc
         self.check_tag_and_data(res, 'Arrow', '&lt;')
 
     def test_edit_bad_name(self):
-        fv = self.res.forms[0]
+        fv = self.res.forms['package-edit']
         prefix = 'Package-%s-' % self.pkgid
         fv[prefix + 'name'] = u'a' # invalid name
         res = fv.submit('preview')
@@ -558,11 +558,11 @@ u with umlaut \xc3\xbc
     def test_missing_fields(self):
         # User edits and a field is left out in the commit parameters.
         # (Spammers can cause this)
-        fv = self.res.forms[0]
+        fv = self.res.forms['package-edit']
         del fv.fields['log_message']
         res = fv.submit('commit', status=400)
 
-        fv = self.res.forms[0]
+        fv = self.res.forms['package-edit']
         prefix = 'Package-%s-' % self.pkgid
         del fv.fields[prefix + 'license_id']
         res = fv.submit('commit', status=400)     
@@ -642,7 +642,7 @@ u with umlaut \xc3\xbc
             extra_new = 'newkey', 'newvalue'
             log_message = 'This is a comment'
             assert not model.Package.by_name(name)
-            fv = res.forms[0]
+            fv = res.forms['package-edit']
             prefix = 'Package-%s-' % pkg.id
             fv[prefix+'name'] = name
             fv[prefix+'title'] = title
@@ -687,7 +687,7 @@ u with umlaut \xc3\xbc
                                              state=state)
 
             # Submit
-            fv = res.forms[0]
+            fv = res.forms['package-edit']
             res = fv.submit('commit', extra_environ={'REMOTE_USER':'testadmin'})
 
             # Check package page
@@ -736,7 +736,7 @@ u with umlaut \xc3\xbc
 
 
     def test_edit_bad_log_message(self):
-        fv = self.res.forms[0]
+        fv = self.res.forms['package-edit']
         prefix = 'Package-%s-' % self.pkgid
         fv['log_message'] = u'Free enlargements: http://drugs.com/' # spam
         res = fv.submit('preview')
@@ -762,7 +762,7 @@ class TestNew(TestPackageForm):
         offset = url_for(controller='package', action='new',
                 url='http://xxx.org')
         res = self.app.get(offset)
-        form = res.forms[0]
+        form = res.forms['package-edit']
         form['Package--url'].value == 'http://xxx.org/'
         form['Package--name'].value == 'xxx.org'
 
@@ -770,7 +770,7 @@ class TestNew(TestPackageForm):
         offset = url_for(controller='package', action='new',
                 url='http://www.xxx.org')
         res = self.app.get(offset)
-        form = res.forms[0]
+        form = res.forms['package-edit']
         form['Package--name'].value == 'xxx.org'
 
     def test_new_without_resource(self):
@@ -779,7 +779,7 @@ class TestNew(TestPackageForm):
         name = u'test_no_res'
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
-        fv = res.forms[0]
+        fv = res.forms['package-edit']
         fv[prefix+'name'] = name
         res = fv.submit('preview')
         assert not 'Error' in res, res
@@ -789,7 +789,7 @@ class TestNew(TestPackageForm):
         assert '<td><a href="">' not in res1, res1
 
         # submit
-        fv = res.forms[0]
+        fv = res.forms['package-edit']
         self.pkg_names.append(name)
         res = fv.submit('commit')
 
@@ -810,7 +810,7 @@ class TestNew(TestPackageForm):
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         assert 'Packages - New' in res
-        fv = res.forms[0]
+        fv = res.forms['package-edit']
         prefix = 'Package--'
         fv[prefix + 'name'] = 'annakarenina'
         self.pkg_names.append('annakarenina')
@@ -821,7 +821,7 @@ class TestNew(TestPackageForm):
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         assert 'Packages - New' in res
-        fv = res.forms[0]
+        fv = res.forms['package-edit']
         prefix = 'Package--'
         fv[prefix + 'name'] = u'a' # invalid name
         res = fv.submit('preview')
@@ -865,7 +865,7 @@ class TestNew(TestPackageForm):
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         assert 'Packages - New' in res
-        fv = res.forms[0]
+        fv = res.forms['package-edit']
         prefix = 'Package--'
         fv[prefix+'name'] = name
         fv[prefix+'title'] = title
@@ -905,7 +905,7 @@ class TestNew(TestPackageForm):
 #                                         state=state
                                          )
         # Submit
-        fv = res.forms[0]
+        fv = res.forms['package-edit']
         self.pkg_names.append(name)
         res = fv.submit('commit')
 
@@ -957,7 +957,7 @@ class TestNew(TestPackageForm):
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         assert 'Packages - New' in res
-        fv = res.forms[0]
+        fv = res.forms['package-edit']
         prefix = 'Package--'
         fv[prefix + 'name'] = pkgname
         self.pkg_names.append(pkgname)
@@ -967,12 +967,12 @@ class TestNew(TestPackageForm):
         # create duplicate package
         res = self.app.get(offset)
         assert 'Packages - New' in res
-        fv = res.forms[0]
+        fv = res.forms['package-edit']
         fv[prefix+'name'] = pkgname
         fv[prefix+'title'] = pkgtitle
         res = fv.submit('preview')
         assert 'Preview' in res
-        fv = res.forms[0]
+        fv = res.forms['package-edit']
         res = fv.submit('commit')
         assert 'Error' in res, res
         assert 'Package name already exists in database' in res, res
@@ -985,7 +985,7 @@ class TestNew(TestPackageForm):
         res = self.app.get(offset)
         assert 'Packages - New' in res
         prefix = 'Package--'
-        fv = res.forms[0]
+        fv = res.forms['package-edit']
         fv[prefix + 'name'] = 'anything'
         del fv.fields['log_message']
         self.pkg_names.append('anything')
@@ -994,7 +994,7 @@ class TestNew(TestPackageForm):
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         assert 'Packages - New' in res
-        fv = res.forms[0]
+        fv = res.forms['package-edit']
         fv[prefix + 'name'] = 'anything'
         prefix = 'Package--'
         del fv.fields[prefix + 'notes']
@@ -1008,7 +1008,7 @@ class TestNew(TestPackageForm):
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         assert 'Packages - New' in res
-        fv = res.forms[0]
+        fv = res.forms['package-edit']
         prefix = 'Package--'
         fv[prefix + 'name'] = 'name276'
         resformat = u'xls'    
@@ -1037,7 +1037,7 @@ class TestNewPreview(TestPackageBase):
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         assert 'Packages - New' in res
-        fv = res.forms[0]
+        fv = res.forms['package-edit']
         prefix = 'Package--'
         fv[prefix + 'name'] = self.pkgname
         fv[prefix + 'title'] = self.pkgtitle
@@ -1099,7 +1099,7 @@ class TestNonActivePackages(TestPackageBase):
         offset = url_for(controller='package', action='search')
         res = self.app.get(offset)
         assert 'Search packages' in res
-        form = res.forms[0]
+        form = res.forms['package-search']
         form['q'] =  str(self.non_active_name)
         results_page = form.submit()
         assert 'Search packages' in results_page, results_page
@@ -1151,7 +1151,7 @@ class TestRevisions(TestPackageBase):
     def test_1_do_diff(self):
         offset = url_for(controller='package', action='history', id=self.pkg1.name)
         res = self.app.get(offset)
-        form = res.forms[0]
+        form = res.forms['package-revisions']
         res = form.submit()
         res = res.follow()
         main_res = self.main_div(res)

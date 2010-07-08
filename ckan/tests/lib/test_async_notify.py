@@ -72,5 +72,5 @@ class TestNotification(TestController):
         CreateTestData.create_arbitrary([{'name':name}])
         notification = self.queue_get_one()
         assert notification['operation'] == 'new', notification['operation']
-        assert notification.package['name'] == name, notification.payload
+        assert notification.package['name'] == name, notification
 

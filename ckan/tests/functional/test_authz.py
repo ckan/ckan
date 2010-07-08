@@ -241,7 +241,7 @@ class TestUsage(TestController):
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset, extra_environ={'REMOTE_USER': user.name.encode('utf8')})
         assert 'Packages - New' in res
-        fv = res.forms[0]
+        fv = res.forms['package-edit']
         prefix = 'Package--'
         fv[prefix + 'name'] = u'annakarenina'
         res = fv.submit('commit', extra_environ={'REMOTE_USER': user.name.encode('utf8')})

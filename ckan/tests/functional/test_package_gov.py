@@ -70,7 +70,7 @@ class TestEdit(TestPackageBase):
         offset = url_for(controller='package', action='edit', id=init_data[0]['name'], package_form=package_form)
         self.res = self.app.get(offset)
 
-        fv = self.res.forms[0]
+        fv = self.res.forms['package-edit']
         prefix = 'Package-%s-' % self.pkgid
         fv[prefix + 'name'] = u'a' # invalid name
         res = fv.submit('commit')
@@ -237,7 +237,7 @@ class TestEdit(TestPackageBase):
             'agency':agency,
             }
         assert not model.Package.by_name(name)
-        fv = res.forms[0]
+        fv = res.forms['package-edit']
         prefix = 'Package-%s-' % pkg.id
         fv[prefix+'name'] = name
         fv[prefix+'title'] = title
@@ -413,7 +413,7 @@ class TestNew(TestPackageBase):
         name = u'test_simple'
         offset = url_for(controller='package', action='new', package_form=package_form)
         res = self.app.get(offset)
-        fv = res.forms[0]
+        fv = res.forms['package-edit']
         fv[prefix+'name'] = name
         res = fv.submit('commit')
 
@@ -460,7 +460,7 @@ class TestNew(TestPackageBase):
         offset = url_for(controller='package', action='new', package_form=package_form)
         res = self.app.get(offset)
         assert 'Packages - New' in res
-        fv = res.forms[0]
+        fv = res.forms['package-edit']
         prefix = 'Package--'
         fv[prefix+'name'] = name
         fv[prefix+'title'] = title
@@ -628,7 +628,7 @@ class TestNew(TestPackageBase):
         offset = url_for(controller='package', action='new', package_form=package_form)
         res = self.app.get(offset)
         assert 'Packages - New' in res
-        fv = res.forms[0]
+        fv = res.forms['package-edit']
         prefix = 'Package--'
         fv[prefix + 'name'] = self.pkgname
         res = fv.submit('commit')
@@ -638,13 +638,13 @@ class TestNew(TestPackageBase):
         # create duplicate package
         res = self.app.get(offset)
         assert 'Packages - New' in res
-        fv = res.forms[0]
+        fv = res.forms['package-edit']
         fv[prefix+'name'] = self.pkgname
         res = fv.submit('preview')
         assert 'Preview' in res
         assert 'Error' in res, res
         assert 'Package name already exists in database' in res, res
-        fv = res.forms[0]
+        fv = res.forms['package-edit']
         res = fv.submit('commit')
         assert 'Error' in res, res
         assert 'Package name already exists in database' in res, res
@@ -654,7 +654,7 @@ class TestNew(TestPackageBase):
         offset = url_for(controller='package', action='new', package_form=package_form)
         res = self.app.get(offset)
         assert 'Packages - New' in res
-        fv = res.forms[0]
+        fv = res.forms['package-edit']
         prefix = 'Package--'
         # should result in error as need >= 2 chars
         fv[prefix + 'name'] = 'a'

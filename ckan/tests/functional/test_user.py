@@ -136,7 +136,7 @@ class TestUserController(TestController):
         main_res = self.main_div(res)
         assert 'Edit User: ' in main_res, main_res
         assert about in main_res, main_res
-        fv = res.forms[0]
+        fv = res.forms['user-edit']
         fv['about'] = new_about
         res = fv.submit('preview', extra_environ={'REMOTE_USER':username})
         
@@ -184,7 +184,7 @@ class TestUserController(TestController):
         assert 'Please Sign In' in res
         username = u'okfntest'
         password = u'okfntest'
-        fv = res.forms[0]
+        fv = res.forms['user-login']
         fv['username'] = username
         fv['password'] = password
         res = fv.submit()
@@ -195,7 +195,7 @@ class TestUserController(TestController):
         # (or for us to stub an open_id provider ...)
         assert 'Please Sign In' in res
         username = u'http://okfntest.myopenid.com'
-        fv = res.forms[0]
+        fv = res.forms['user-login']
         fv['passurl'] =  username
         web.submit()
         web.code(200)
