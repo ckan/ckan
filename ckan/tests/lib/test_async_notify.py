@@ -48,8 +48,7 @@ class TestNotification(TestController):
         return notification
 
     def clear_queue(self):
-        self.consumer.consumer.discard_all()
-        self.consumer.consumer.close()
+        self.consumer.clear_queue()
 
     def test_01_new_package(self):
         # manually create package so no auth objects created
