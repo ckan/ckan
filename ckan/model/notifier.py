@@ -57,7 +57,15 @@ class Notification(dict):
             cls = StopNotification
         else:
             raise NotImplementedError()
-        return cls(routing_key, **notification_dict)
+        try:
+            return cls(routing_key, **notification_dict)
+        except TypeError:
+            # python 2.6.2 get errors (not on 2.6.5 though!)
+            # TypeError: __init__() keywords must be strings
+            newdict = {}
+            for k,v in notification_dict.items():
+                newdict[str(k)] = v
+            return cls(routing_key, **newdict)
         
     def send_synchronously(self):
         signal = blinker.signal(self['routing_key'])
