@@ -165,8 +165,18 @@ This is the messaging library backend to use. Options::
 
  * stomp - python-stomp
 
- * queue - native Python Queue (default)
+ * queue - native Python Queue (default) - NB this isn't inter-process
 
 See `carrot documentation <http://packages.python.org/carrot/index.html>`_ for details.
 
 
+amqp_hostname, amqp_port, amqp_user_id, amqp_password
+-----------------------------------------------------
+
+Example::
+ amqp_hostname=myserver.com
+ amqp_port=5672
+ amqp_user_id=guest
+ amqp_password=guest
+
+These are the setup parameters for AMQP messaging. These only apply if the messageing library has been set to use AMQP (see `carrot_messaging_library`_).
