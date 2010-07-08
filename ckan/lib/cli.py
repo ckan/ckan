@@ -323,7 +323,7 @@ class TestData(CkanCommand):
 
 
         res = check_page('/', ('Search'))
-        form = res.forms[0]
+        form = res.forms['package-search']
         form['q'] = pkg.name
         res = form.submit()
         print '* Checking search using %r' % pkg.name

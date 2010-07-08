@@ -101,7 +101,7 @@ class TestEdit(TestController):
         print res
         assert 'Edit Group: %s' % self.groupname in res, res
 
-        form = res.forms[0]
+        form = res.forms['group-edit']
         group = model.Group.by_name(self.groupname)
         titlefn = 'Group-%s-title' % group.id
         descfn = 'Group-%s-description' % group.id
@@ -187,7 +187,7 @@ class TestNew(TestController):
         offset = url_for(controller='group', action='new')
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
         assert 'New Group' in res, res
-        fv = res.forms[0]
+        fv = res.forms['group-edit']
         assert fv[prefix+'name'].value == '', fv.fields
         assert fv[prefix+'title'].value == ''
         assert fv[prefix+'description'].value == ''
@@ -219,7 +219,7 @@ class TestNew(TestController):
         offset = url_for(controller='group', action='new')
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
         assert 'New Group' in res, res
-        fv = res.forms[0]
+        fv = res.forms['group-edit']
         assert fv[prefix+'name'].value == '', fv.fields
         fv[prefix+'name'] = group_name
         res = fv.submit('commit', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
@@ -233,7 +233,7 @@ class TestNew(TestController):
         offset = url_for(controller='group', action='new')
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
         assert 'New Group' in res, res
-        fv = res.forms[0]
+        fv = res.forms['group-edit']
         assert fv[prefix+'name'].value == '', fv.fields
         fv[prefix+'name'] = group_name
         res = fv.submit('commit', status=200, extra_environ={'REMOTE_USER': 'russianfan'})
