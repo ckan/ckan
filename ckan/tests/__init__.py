@@ -23,7 +23,6 @@ from paste.deploy import loadapp
 from routes import url_for
 
 from ckan.lib.create_test_data import CreateTestData
-from test_search_indexer import SearchIndexManagerThread
 
 
 __all__ = ['url_for',
