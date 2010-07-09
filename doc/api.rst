@@ -284,6 +284,8 @@ Here are the published resources of the CKAN Search API.
 +===========================+==========================+
 | Package Search            | ``/api/search/package``  |
 +---------------------------+--------------------------+
+| Resource Search           | ``/api/search/resource`` |
++---------------------------+--------------------------+
 | Revision Search           | ``/api/search/revision`` |
 +---------------------------+--------------------------+
 | Tag Counts                | ``/api/tag_counts``      |
@@ -297,15 +299,17 @@ Search API Methods
 
 Here are the methods of the CKAN Search API.
 
-+-------------------------------+--------+------------------------+-------------------+
-| Resource                      | Method | Request                | Response          |
-+===============================+========+========================+===================+ 
-| Package Search                | POST   | Package-Search-Params  | Search-Response   | 
-+-------------------------------+--------+------------------------+-------------------+
-| Revision Search               | POST   | Revision-Search-Params | Revision-List     | 
-+-------------------------------+--------+------------------------+-------------------+
-| Tag Counts                    | GET    |                        | Tag-Count-List    | 
-+-------------------------------+--------+------------------------+-------------------+
++-------------------------------+--------+------------------------+--------------------------+
+| Resource                      | Method | Request                | Response                 |
++===============================+========+========================+==========================+ 
+| Package Search                | POST   | Package-Search-Params  | Package-Search-Response  | 
++-------------------------------+--------+------------------------+--------------------------+
+| Resource Search               | POST   | Resource-Search-Params | Resource-Search-Response | 
++-------------------------------+--------+------------------------+--------------------------+
+| Revision Search               | POST   | Revision-Search-Params | Revision-List            | 
++-------------------------------+--------+------------------------+--------------------------+
+| Tag Counts                    | GET    |                        | Tag-Count-List           | 
++-------------------------------+--------+------------------------+--------------------------+
 
 It is also possible to supply the search parameters in the URL of a GET request, 
 for example ``/api/search/package?q=geodata&amp;allfields=1``.
@@ -316,20 +320,22 @@ Search API Data Formats
 
 Here are the data formats for the Search API.
 
-+-----------------------+------------------------------------------------------------+
-| Name                  | Format                                                     |
-+=======================+============================================================+
-| Package-Search-Params | { Param-Key: Param-Value, Param-Key: Param-Value, ... }    |
-| Revision-Search-Params| See below for full details of search parameters across the | 
-|                       | various domain objects.                                    |
-+-----------------------+------------------------------------------------------------+
-| Search-Response       | { count: Count-int, results: [Package, Package, ... ] }    |
-+-----------------------+------------------------------------------------------------+
-| Revision-List         | [ Revision-Id, Revision-Id, Revision-Id, ... ]             |
-|                       | NB: Ordered with youngest revision first                   |
-+-----------------------+------------------------------------------------------------+
-| Tag-Count-List        | [ [Name-String, Integer], [Name-String, Integer], ... ]    |
-+-----------------------+------------------------------------------------------------+
++-------------------------+------------------------------------------------------------+
+| Name                    | Format                                                     |
++=========================+============================================================+
+| Package-Search-Params   | { Param-Key: Param-Value, Param-Key: Param-Value, ... }    |
+| Resource-Search-Params  | See below for full details of search parameters across the | 
+| Revision-Search-Params  | various domain objects.                                    |
++-------------------------+------------------------------------------------------------+
+| Package-Search-Response | { count: Count-int, results: [Package, Package, ... ] }    |
++-------------------------+------------------------------------------------------------+
+| Resource-Search-Response| { count: Count-int, results: [Resource, Resource, ... ] }  |
++-------------------------+------------------------------------------------------------+
+| Revision-List           | [ Revision-Id, Revision-Id, Revision-Id, ... ]             |
+|                         | NB: Ordered with youngest revision first                   |
++-------------------------+------------------------------------------------------------+
+| Tag-Count-List          | [ [Name-String, Integer], [Name-String, Integer], ... ]    |
++-------------------------+------------------------------------------------------------+
 
 The ``Package`` and ``Revision`` data formats are as defined in `Model API Data Formats`_.
 
@@ -385,6 +391,34 @@ Package Search Parameters
 |filter_by_downloadbable| 0 (default)   | filter_by_downloadable=1         | Filters results by ones which    |
 |                       | or 1          |                                  | have at least one resource URL.  |
 +-----------------------+---------------+----------------------------------+----------------------------------+
+
+
+Resource Search Parameters
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++-----------------------+---------------+-----------------------------------------+----------------------------------+
+| Param-Key             | Param-Value   | Example                                 |  Notes                           |
++=======================+===============+=========================================+==================================+
+| url, format,          | Search-String || url=statistics.org                     | Criteria to search the package   |
+| description           |               || format=xls                             | fields for. URL-encoded search   |
+|                       |               || description=Research+Institute         | text. This search string must be |
+|                       |               |                                         | found somewhere within the field |
+|                       |               |                                         | to match.                        |
+|                       |               |                                         | Case insensitive.                |
++-----------------------+---------------+-----------------------------------------+----------------------------------+
+| qjson                 | JSON encoded  | ['url':'www.statistics.org']            | All search parameters can be     |
+|                       | options       |                                         | json-encoded and supplied to this|
+|                       |               |                                         | parameter as a more flexible     |
+|                       |               |                                         | alternative in GET requests.     |
++-----------------------+---------------+-----------------------------------------+----------------------------------+
+| hash                  | Search-String |hash=b0d7c260-35d4-42ab-9e3d-c1f4db9bc2f0| Searches for an match of the     |
+|                       |               |                                         | hash field. An exact match is    |
+|                       |               |                                         | required.                        |
++-----------------------+---------------+-----------------------------------------+----------------------------------+
+| all_fields            | 0 or 1        | all_fields=0                            | Each matching search result is   |
+|                       | (default)     |                                         | given as either an ID (0) or the |
+|                       |               |                                         | full resource record             |
++-----------------------+---------------+-----------------------------------------+----------------------------------+
 
 
 Revision Search Parameters
@@ -455,12 +489,12 @@ Here are the data formats for the Form API.
 +==============================+===========================================================================+
 | Package-Edit-Form            | Form-FieldSet Form-FieldSet Form-FieldSet                                 |
 +------------------------------+---------------------------------------------------------------------------+
-| Form-FieldSet                | <fieldset>                                                                |
-|                              | <legend>...</legend>                                                      |
-|                              | <dl>                                                                      |
-|                              | Form-Field Form-Field Form-Field ...                                      |
-|                              | </dl>                                                                     |
-|                              | </fieldset>                                                               |
+| Form-FieldSet                || <fieldset>                                                               |
+|                              ||     <legend>...</legend>                                                 |
+|                              ||     <dl>                                                                 |
+|                              ||         Form-Field Form-Field Form-Field ...                             |
+|                              ||     </dl>                                                                |
+|                              || </fieldset>                                                              |
 +------------------------------+---------------------------------------------------------------------------+
 | Form-Field                   | <dt>Form-Label</dt><dd>Html-Input</dd>                                    |
 +------------------------------+---------------------------------------------------------------------------+

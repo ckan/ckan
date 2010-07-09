@@ -14,31 +14,50 @@ if ENABLE_CACHING:
     our_cache = cache.get_cache('search_results', type='dbm')
 
 class SearchOptions:
-    # about the search
-    q = None
-    entity = 'package'
-    limit = LIMIT_DEFAULT
-    offset = 0
-    filter_by_openness = False
-    filter_by_downloadable = False
+    options = {
+        # about the search
+        'q':None,
+        'entity':'package',
+        'limit':LIMIT_DEFAULT,
+        'offset':0,
+        'filter_by_openness':False,
+        'filter_by_downloadable':False,
+        # about presenting the results
+        'order_by':'rank',
+        'return_objects':False,
+        'ref_entity_with_attr':'name',
+        'all_fields':False,
+        'search_tags':False}
+    # Any attributes set on this object, other than those in the 'options',
+    # will be treated as field_specific_terms - terms searched for in the
+    # specified field.
+    # e.g. 'version' or 'url'
 
-    # about presenting the results
-    order_by = 'rank'
-    all_fields = False
-    return_objects = False
-    ref_entity_with_attr = 'name'
-
+    @classmethod
+    def get_option_name_set(self):
+        if not hasattr(self, 'option_name_set'):
+            self._option_name_set = set(self.options.keys())
+        return self._option_name_set
+    
     def __init__(self, kw_dict):
+        # Note that the kw_dict may well be a UnicodeMultiDict so you may
+        # have keys repeated.
         if not kw_dict.keys():
             raise Exception('no options supplied')
 
-        for k,v in kw_dict.items():
-            # Ensure boolean fields are boolean
-            if k in ['filter_by_downloadable', 'filter_by_openness', 'all_fields']:
-                v = v == 1 or v
-            # Ensure integer fields are integer
-            if k in ['offset', 'limit']:
-                v = int(v)
+        # set values according to the defaults
+        for option_name, default_value in self.options.items():
+            setattr(self, option_name, default_value)
+
+        # overwrite defaults with options passed in
+        for k, v in kw_dict.items():
+            if k in self.get_option_name_set():
+                # Ensure boolean fields are boolean
+                if k in ['filter_by_downloadable', 'filter_by_openness', 'all_fields']:
+                    v = v == 1 or v
+                # Ensure integer fields are integer
+                if k in ['offset', 'limit']:
+                    v = int(v)
             # Multiple tags params are added in list
             if hasattr(self, k) and k in ['tags', 'groups']:
                 existing_val = getattr(self, k)
@@ -52,7 +71,6 @@ class SearchOptions:
         return repr(self.__dict__)
 
 class SQLSearch:
-    _tokens = [ 'name', 'title', 'notes', 'tags', 'groups', 'author', 'maintainer', 'update_frequency', 'geographic_granularity', 'geographic_coverage', 'temporal_granularity', 'temporal_coverage', 'national_statistic', 'categories', 'precision', 'department', 'agency', 'external_reference']
     # Note: all tokens must be in the search vector (see model/full_search.py)
     _open_licenses = None
 
@@ -66,16 +84,22 @@ class SQLSearch:
         self._options = options
         general_terms, field_specific_terms = self._parse_query_string()
 
-        if not general_terms and \
-           (self._options.entity != 'package' or not field_specific_terms):
+        # for case of no search terms, return nothing
+        if not (general_terms or field_specific_terms):
             return None
 
         if self._options.entity == 'package':
             query = authz.Authorizer().authorized_query(username, model.Package)
             query = self._build_package_query(query, general_terms, field_specific_terms)
+        elif self._options.entity == 'resource':
+            query = self._build_resource_query(query, general_terms, field_specific_terms)
         elif self._options.entity == 'tag':
+            if not general_terms:
+                return None
             query = self._build_tags_query(general_terms)
         elif self._options.entity == 'group':
+            if not general_terms:
+                return None
             query = authz.Authorizer().authorized_query(username, model.Group)
             query = self._build_groups_query(query, general_terms)
         else:
@@ -125,26 +149,23 @@ class SQLSearch:
         general_terms = []
         for term in terms:
             
-            # Look for 'token:'
+            # Look for 'token:' - is put into field_specific_terms dict
             token = None
             colon_pos = term.find(':')
             if colon_pos != -1:
                 token = term[:colon_pos]
-                if token in self._tokens:
-                    term = term[colon_pos+1:]
-                    if term:
-                        if not field_specific_terms.has_key(token):
-                            field_specific_terms[token] = []
-                        field_specific_terms[token].append(term)
-                else:
-                    general_terms.append(term)
+                term = term[colon_pos+1:]
+                if term:
+                    if not field_specific_terms.has_key(token):
+                        field_specific_terms[token] = []
+                    field_specific_terms[token].append(term)
             else:
                 general_terms.append(term)
 
-        # add field-specific terms that have come in via the options
-        for token in self._tokens:
-            if self._options.__dict__.has_key(token):
-                field_specific_terms[token] = getattr(self._options, token)
+        # add other field-specific terms that have come in via the options
+        for token, value in self._options.__dict__.items():
+            if token not in SearchOptions.get_option_name_set():
+                field_specific_terms[token] = value
 
         # special case - 'tags:' becomes a general term when searching
         # tag entities.
@@ -167,6 +188,7 @@ class SQLSearch:
                 for term in term_list:
                     terms_set.add(term)
             else:
+                print term_list
                 terms_set.add(term_list)
         for term in general_terms:
             terms_set.add(term)
