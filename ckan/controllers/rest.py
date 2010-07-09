@@ -4,7 +4,7 @@ from ckan.lib.base import *
 from ckan.lib.helpers import json
 import ckan.model as model
 import ckan.forms
-from ckan.lib.search import make_search, SearchOptions
+from ckan.lib.search import make_search, SearchOptions, SearchOptionsError
 import ckan.authz
 import ckan.rating
 
@@ -365,7 +365,7 @@ class BaseRestController(BaseController):
                 rev = model.Session.query(model.Revision).get(id)
                 if rev is None:
                     response.status_int = 400
-                    return 'There is no revision with id: %s' % id
+                    return gettext('There is no revision with id: %s') % id
                 since_time = rev.timestamp
             elif request.params.has_key('since_time'):
                 since_time_str = request.params['since_time']
@@ -376,10 +376,10 @@ class BaseRestController(BaseController):
                     return 'ValueError: %s' % inst
             else:
                 response.status_int = 400
-                return 'Missing search term (\'since_id=UUID\' or \'since_time=TIMESTAMP\')'
+                return gettext("Missing search term ('since_id=UUID' or 'since_time=TIMESTAMP')")
             revs = model.Session.query(model.Revision).filter(model.Revision.timestamp>since_time)
             return self._finish_ok([rev.id for rev in revs])
-        elif register == 'package':
+        elif register == 'package' or register == 'resource':
             if request.params.has_key('qjson'):
                 if not request.params['qjson']:
                     response.status_int = 400
@@ -395,12 +395,23 @@ class BaseRestController(BaseController):
                     return gettext('Search params: %s') % str(inst)
                     
             options = SearchOptions(params)
+            options.entity = register
             options.search_tags = False
             options.return_objects = False
-            options.ref_entity_with_attr = self.ref_package_with_attr
+            if register == 'package':
+                options.ref_entity_with_attr = self.ref_package_with_attr
             username = self._get_username()
-            results = make_search().run(options, username)
-            return self._finish_ok(results)
+            try:
+                results = make_search().run(options, username)
+            except SearchOptionsError, e:
+                response.status_int = 400
+                return gettext('Bad search option: %s') % e
+            else:
+                return self._finish_ok(results)
+        else:
+            response.status_int = 404
+            return gettext('Unknown register: %s') % register
+            
 
     def tag_counts(self):
         tags = model.Session.query(model.Tag).all()

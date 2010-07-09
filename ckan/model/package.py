@@ -138,7 +138,8 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         _dict['extras'] = dict([(key, value) for key, value in self.extras.items()])
         _dict['ratings_average'] = self.get_average_rating()
         _dict['ratings_count'] = len(self.ratings)
-        _dict['resources'] = [{'url':res.url, 'format':res.format, 'description':res.description} for res in self.resources]
+        _dict['resources'] = [res.as_dict(core_columns_only=False) \
+                              for res in self.resources]
         ckan_host = config.get('ckan_host', None)
         if ckan_host:
             _dict['ckan_url'] = 'http://%s/package/%s' % (ckan_host, self.name)

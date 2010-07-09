@@ -415,9 +415,14 @@ Resource Search Parameters
 |                       |               |                                         | hash field. An exact match is    |
 |                       |               |                                         | required.                        |
 +-----------------------+---------------+-----------------------------------------+----------------------------------+
-| all_fields            | 0 or 1        | all_fields=0                            | Each matching search result is   |
-|                       | (default)     |                                         | given as either an ID (0) or the |
+| all_fields            | 0 (default)   | all_fields=0                            | Each matching search result is   |
+|                       | or 1          |                                         | given as either an ID (0) or the |
 |                       |               |                                         | full resource record             |
++-----------------------+---------------+-----------------------------------------+----------------------------------+
+| offset, limit         | result-int    | offset=40&amp;limit=20                  | Pagination options. Offset is the|
+|                       | (defaults:    |                                         | number of the first result and   |
+|                       | offset=0,     |                                         | limit is the number of results to|
+|                       | limit=20)     |                                         | return.                          |
 +-----------------------+---------------+-----------------------------------------+----------------------------------+
 
 

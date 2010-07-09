@@ -13,7 +13,10 @@ if ENABLE_CACHING:
     from pylons import cache
     our_cache = cache.get_cache('search_results', type='dbm')
 
-class SearchOptions:
+class SearchOptionsError(Exception):
+    pass
+
+class SearchOptions(object):
     options = {
         # about the search
         'q':None,
@@ -40,10 +43,10 @@ class SearchOptions:
         return self._option_name_set
     
     def __init__(self, kw_dict):
-        # Note that the kw_dict may well be a UnicodeMultiDict so you may
+        # Note that the kw_dict may well be a MultiDict so you may
         # have keys repeated.
         if not kw_dict.keys():
-            raise Exception('no options supplied')
+            raise SearchOptionsError('no options supplied')
 
         # set values according to the defaults
         for option_name, default_value in self.options.items():
@@ -69,13 +72,15 @@ class SearchOptions:
 
     def __str__(self):
         return repr(self.__dict__)
+    
 
 class SQLSearch:
     # Note: all tokens must be in the search vector (see model/search_index.py)
     _open_licenses = None
 
     def search(self, query_string):
-        '''For the given basic query string, returns query results.'''
+        '''Simple interface for package search.
+        For the given basic query string, returns query results.'''
         options = SearchOptions({'q':query_string})
         return self.run(options)
 
@@ -92,6 +97,7 @@ class SQLSearch:
             query = authz.Authorizer().authorized_query(username, model.Package)
             query = self._build_package_query(query, general_terms, field_specific_terms)
         elif self._options.entity == 'resource':
+            query = model.Session.query(model.PackageResource) # TODO authz
             query = self._build_resource_query(query, general_terms, field_specific_terms)
         elif self._options.entity == 'tag':
             if not general_terms:
@@ -188,7 +194,6 @@ class SQLSearch:
                 for term in term_list:
                     terms_set.add(term)
             else:
-                print term_list
                 terms_set.add(term_list)
         for term in general_terms:
             terms_set.add(term)
@@ -233,6 +238,28 @@ class SQLSearch:
 
         query = query.distinct()
         return query
+
+    def _build_resource_query(self, authorized_resource_query,
+                             general_terms, field_specific_terms):
+        if general_terms:
+            raise SearchOptionsError('Only field specific terms allowed in resource search.')
+        self._check_options_specified_are_allowed('resource search', ['all_fields', 'offset', 'limit'])
+        self._options.ref_entity_with_attr = 'id' # has no name
+        query = authorized_resource_query
+        resource_fields = model.PackageResource.get_columns()
+        for field, terms in field_specific_terms.items():
+            if isinstance(terms, (str, unicode)):
+                terms = terms.split()
+            if field not in resource_fields:
+                raise SearchOptionsError('Field "%s" not recognised in Resource search.' % field)
+            for term in terms:
+                model_attr = getattr(model.PackageResource, field)
+                if field == 'hash':                
+                    query = query.filter(model_attr.ilike(unicode(term) + '%'))
+                else:
+                    query = query.filter(model_attr.ilike('%' + unicode(term) + '%'))
+        return query
+
 
     def _build_tags_query(self, general_terms):
         query = model.Session.query(model.Tag)
@@ -330,6 +357,16 @@ class SQLSearch:
     def index_tag(self, tag):
         pass
 
+    def _check_options_specified_are_allowed(self, search_type, options_allowed):
+        '''Note: options that are field names are not checked here.'''
+        options_always_allowed = ['entity']
+        non_field_options = self._options.get_option_name_set()
+        options_allowed = set(options_allowed + options_always_allowed)
+        for option_specified, value in self._options.__dict__.items():
+            if option_specified in non_field_options:
+                if option_specified not in options_allowed and \
+                       value != SearchOptions.options[option_specified]:
+                    raise SearchOptionsError('Invalid option "%s" specified for search type: %s' % (option_specified, search_type))
 
 class SolrSearch(SQLSearch):
     _solr_fields = ["entity_type", "tags", "groups", "res_description", "res_format", 
