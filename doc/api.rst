@@ -412,10 +412,11 @@ Resource Search Parameters
 |                       |               |                                         | alternative in GET requests.     |
 +-----------------------+---------------+-----------------------------------------+----------------------------------+
 | hash                  | Search-String |hash=b0d7c260-35d4-42ab-9e3d-c1f4db9bc2f0| Searches for an match of the     |
-|                       |               |                                         | hash field. An exact match is    |
-|                       |               |                                         | required.                        |
+|                       |               |                                         | hash field. An exact match or    |
+|                       |               |                                         | match up to the length of the    |
+|                       |               |                                         | hash given.                      |
 +-----------------------+---------------+-----------------------------------------+----------------------------------+
-| all_fields            | 0 (default)   | all_fields=0                            | Each matching search result is   |
+| all_fields            | 0 (default)   | all_fields=1                            | Each matching search result is   |
 |                       | or 1          |                                         | given as either an ID (0) or the |
 |                       |               |                                         | full resource record             |
 +-----------------------+---------------+-----------------------------------------+----------------------------------+
