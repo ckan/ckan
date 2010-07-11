@@ -83,6 +83,10 @@ package_form = standard
 # * pyamqplib - AMQP (e.g. for RabbitMQ)
 # * queue - native Python Queue
 carrot_messaging_library = queue
+## Update the search index synchronously (i.e. in-process rather than
+## out-of-process as would be case if using AMQP framework)
+## Set to any value to enable
+# ckan.build_search_index_synchronously = 1
 
 # Logging configuration
 [loggers]

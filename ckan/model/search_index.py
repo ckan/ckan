@@ -1,12 +1,16 @@
 import re
 
+import blinker
 import sqlalchemy
 
 from meta import Table, Column, UnicodeText, ForeignKey, mapper, metadata
-from notifier import DomainObjectNotification, Notification
+from notifier import DomainObjectNotification, Notification, ROUTING_KEYS
 from ckan.lib.async_notifier import AsyncConsumer, EXCHANGE
 
-__all__ = ['SearchIndexManager', 'SearchIndexer', 'package_search_table']
+__all__ = ['SearchIndexManager', 'SearchIndexer', 'package_search_table',
+        'setup_synchronous_indexing',
+        'remove_synchronous_indexing'
+        ]
 
 class SearchIndexManager(AsyncConsumer):
     '''Waits for async notifications about package updates and sends them to
@@ -25,6 +29,23 @@ class SearchIndexManager(AsyncConsumer):
         if isinstance(notification, DomainObjectNotification):
             self.indexer.update_vector(notification)
 
+
+# TODO: clear duplication between this and SearchIndexManager.callback. Remove this duplication?
+def update_index(sender, **notification_dict):
+    notification = Notification.recreate_from_dict(notification_dict)
+    if isinstance(notification, DomainObjectNotification):
+        SearchIndexer().update_vector(notification)
+
+def setup_synchronous_indexing():
+    for routing_key in ROUTING_KEYS:
+        signal = blinker.signal(routing_key)
+        signal.connect(update_index)
+
+def remove_synchronous_indexing():
+    for routing_key in ROUTING_KEYS:
+        signal = blinker.signal(routing_key)
+        signal.disconnect(update_index)
+    
 
 class SearchIndexer(object):
     def update_vector(self, notification):
