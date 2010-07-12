@@ -165,7 +165,7 @@ This is the messaging library backend to use. Options::
 
  * stomp - python-stomp
 
- * queue - native Python Queue (default) - NB this isn't inter-process
+ * queue - native Python Queue (default) - NB this doesn't work inter-process
 
 See `carrot documentation <http://packages.python.org/carrot/index.html>`_ for details.
 
@@ -174,9 +174,21 @@ amqp_hostname, amqp_port, amqp_user_id, amqp_password
 -----------------------------------------------------
 
 Example::
- amqp_hostname=myserver.com
+ amqp_hostname=localhost
  amqp_port=5672
  amqp_user_id=guest
  amqp_password=guest
 
-These are the setup parameters for AMQP messaging. These only apply if the messageing library has been set to use AMQP (see `carrot_messaging_library`_).
+These are the setup parameters for AMQP messaging. These only apply if the messageing library has been set to use AMQP (see `carrot_messaging_library`_). The values given in the example are the default values.
+
+
+build_search_index_synchronously
+--------------------------------
+
+Example::
+ ckan.build_search_index_synchronously=
+
+Default (if you don't define it)::
+ 1
+
+This controls the operation of the CKAN Postgres full text search indexing. If you don't define this option then it is on by default. You will want to turn this off if you want to use a different search engine for CKAN (e.g. SOLR). In this case you need to define the option equal to blank (as in the given example).
