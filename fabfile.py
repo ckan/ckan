@@ -352,7 +352,13 @@ def upload_i18n(lang):
     _setup()
     localpath = 'ckan/i18n/%s/LC_MESSAGES/ckan.mo' % lang
     remotepath = os.path.join(env.pyenv_dir, 'src', 'ckan', localpath)
+    assert exists(env.pyenv_dir)
+    remotedir = os.path.dirname(remotepath)
+    _mkdir(remotedir)
     put(localpath, remotepath)
+    current_lang = _get_ini_value('lang')
+    if current_lang != lang:
+        print "Warning: current language set to '%s' not '%s'." % (current_lang, lang)
 
 def sysadmin_list():
     '''Lists sysadmins'''
@@ -433,7 +439,11 @@ def _get_ini_value(key, ini_filepath=None):
         # default to config ini
         ini_filepath = os.path.join(env.instance_path, env.config_ini_filename)
     assert exists(ini_filepath)
-    output = run('grep -E "^%s" %s' % (key, ini_filepath))
+    with settings(warn_only=True):
+        output = run('grep -E "^%s" %s' % (key, ini_filepath))
+    if output == '':
+        print 'Did not find key "%s" in config.' % key
+        return None
     lines = output.split('\n')
     assert len(lines) == 1, 'Difficulty finding key %s in config %s:\n%s' % (key, ini_filepath, output)
     value = re.match('^%s[^=]=\s*(.*)' % key, lines[0]).groups()[0]
