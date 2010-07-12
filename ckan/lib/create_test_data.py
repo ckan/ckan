@@ -414,7 +414,10 @@ Collection of links to different US image collections in the public domain.
 
 1.8 million pages of U.S. case law available with no restrictions. From the [README](http://bulk.resource.org/courts.gov/0_README.html):
 
-> This file is  http://bulk.resource.org/courts.gov/0_README.html and was last revised''',
+> This file is  http://bulk.resource.org/courts.gov/0_README.html and was last revised.
+
+penguin
+''',
               'extras':{'date_released':'2007-06'},
               },
              {'name':'uk-government-expenditure',
