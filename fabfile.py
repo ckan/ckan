@@ -241,7 +241,7 @@ def setup_db(db_details=None):
         db_details = _get_db_config()
     dbname = db_details['db_name']
     output = sudo('psql -l', user='postgres')
-    if dbname in output:
+    if ' %s ' % dbname in output:
         print 'DB already exists with name: %s' % dbname
         return 0
     users = sudo('psql -c "\du"', user='postgres')
