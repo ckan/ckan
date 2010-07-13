@@ -38,10 +38,15 @@ class PackageSolrSearchQuery(SearchQuery):
             licenses = " OR ".join(licenses)
             query += "license_id:(%s) " % licenses
         
+        order_by = self.options.order_by
+        if order_by == 'rank': order_by = 'score'
+        
         data = self.backend.connection.query(query, 
-                                       start=self.options.get('offset'), 
-                                       rows=self.options.get('limit'),
-                                       fl="id,score")
+                                       start=self.options.offset, 
+                                       rows=self.options.limit,
+                                       fields='id,score', 
+                                       sort_order='desc', 
+                                       sort=order_by)
         self.count = int(data.numFound)
         result_ids = [(r.get('id')) for r in data.results]
         

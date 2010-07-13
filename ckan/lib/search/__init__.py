@@ -21,16 +21,6 @@ DEFAULT_OPTIONS = {
     'all_fields': False,
     'search_tags': False}
 
-#class QueryParser(object): pass
-#class QueryOptions(object): pass
-
-#class SearchBackend(object): pass
-#class SearchQuery(object): pass
-#class SearchIndex(object): pass
-
-#class SearchWorker(object): pass
-#class SearchCommand(object): pass
-
 BACKENDS = {
     'sql': SqlSearchBackend,
     'solr': SolrSearchBackend
@@ -62,7 +52,6 @@ def query_for(_type, backend=None):
     """ Query for entities of a specified type (name, class, instance). """
     return get_backend(backend=backend).query_for(_type)
 
-query_for('package').run(query='bogon')
 
 
     

@@ -1,10 +1,11 @@
 import sqlalchemy.orm
 
+from paste.util.multidict import MultiDict 
 from ckan.lib.base import *
 from ckan.lib.helpers import json
 import ckan.model as model
 import ckan.forms
-from ckan.lib.search import query_for, QueryOptions, SearchError
+from ckan.lib.search import query_for, QueryOptions, SearchError, DEFAULT_OPTIONS
 import ckan.authz
 import ckan.rating
 
@@ -395,22 +396,29 @@ class BaseRestController(BaseController):
                     return gettext('Search params: %s') % str(inst)
                     
             options = QueryOptions(params)
-            #options.entity = register
             options['search_tags'] = False
             options['return_objects'] = False
+            
+            qjson_fields = MultiDict()
+            for field, value in params.items():
+                field = field.strip().lower()
+                if not field in DEFAULT_OPTIONS.keys():
+                    qjson_fields[field] = value
+            
             if register == 'package':
                 options.ref_entity_with_attr = self.ref_package_with_attr
-            username = 
             try:
                 backend = None
                 if register != 'package': backend = 'sql'
                 query = query_for(register, backend=backend)
-                query.run(options=options, username=self._get_username())
+                query.run(query=params.get('q'), 
+                          fields=qjson_fields, 
+                          options=options, 
+                          username=self._get_username())
+                return self._finish_ok(query.results)
             except SearchError, e:
                 response.status_int = 400
                 return gettext('Bad search option: %s') % e
-            else:
-                return self._finish_ok(results)
         else:
             response.status_int = 404
             return gettext('Unknown register: %s') % register

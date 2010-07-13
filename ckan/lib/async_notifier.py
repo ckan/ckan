@@ -65,7 +65,6 @@ class AsyncNotifier(object):
     def send_asynchronously(cls, sender, **notification_dict):
         logger.debug('AsyncNotifier.send_asynchronously: %s %s' % (sender,
             notification_dict))
-        print "TEST", notification_dict
         cls.publisher().send(notification_dict,
                        routing_key=notification_dict['routing_key'])
         # TODO: sort out whether this is needed
