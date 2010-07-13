@@ -72,7 +72,7 @@ mapper(PackageTag, package_tag_table, properties={
     },
     order_by=package_tag_table.c.id,
     extension=[vdm.sqlalchemy.Revisioner(package_tag_revision_table),
-               notifier.PackageRelationNotifierMapperTrigger(),
+               notifier.NotifierMapperTrigger(),
                ],
     )
 

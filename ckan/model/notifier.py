@@ -9,15 +9,57 @@ from ckan.lib.util import Enum
 
 State = vdm.sqlalchemy.State
 
-__all__ = ['Notification', 'PackageNotification', 'DatabaseNotification',
+__all__ = ['Notification', 'PackageNotification', 'ResourceNotification',
+           'DatabaseNotification',
            'DomainObjectNotification', 'StopNotification',
            'ROUTING_KEYS', 'NotifierMapperTrigger',
-           'PackageRelationNotifierMapperTrigger', 'NotificationError']
+           'NotificationError']
 
-NOTIFYING_DOMAIN_OBJ_NAMES = ['Package', 'PackageResource']
-DOMAIN_OBJECT_OPERATIONS = ('new', 'changed', 'deleted')
-DomainObjectNotificationOperation = Enum('new', 'changed', 'deleted')
+NOTIFYING_DOMAIN_OBJ_NAMES = ['Package', 'Resource']
 ROUTING_KEYS = ['db', 'stop'] + NOTIFYING_DOMAIN_OBJ_NAMES
+
+class Notifications(object):
+    '''Stores info about all notification objects.'''
+    # Using singleton to avoid any processing during import of this file
+    class _Notifications(object):
+        def __init__(self):
+            self.type_info = [
+                #(routing key, notification class)
+                ('Package', PackageNotification),
+                ('Resource', ResourceNotification),
+                ('db', DatabaseNotification),
+                ('stop', StopNotification),
+                ]
+
+            self.classes_by_routing_key = {}
+            for routing_key, notification_class in self.type_info:
+                self.classes_by_routing_key[routing_key] = notification_class
+
+            self.routing_keys_by_class = {}
+            for routing_key, notification_class in self.type_info:
+                self.routing_keys_by_class[notification_class] = routing_key
+
+            self.domain_object_notifications = {}
+            self.domain_object_notifications_by_class = {}
+            for routing_key, notification_class in self.type_info:
+                if hasattr(notification_class, 'domain_object_class'):
+                    classes = notification_class.domain_object_class.split()
+                    self.domain_object_notifications[notification_class] = classes
+                    for class_ in classes:
+                        self.domain_object_notifications_by_class[class_] = notification_class
+        
+    @classmethod
+    def instance(cls):
+        if not hasattr(cls, '_instance'):
+            cls._instance = cls._Notifications()
+        return cls._instance
+
+    def __getattr__(self, attr):
+        return getattr(self.instance(), attr)
+    
+    
+DomainObjectNotificationOperation = Enum('new', 'changed', 'deleted')
+    
 
 class NotificationError(Exception):
     pass
@@ -42,21 +84,7 @@ class Notification(dict):
         if not notification_dict.has_key('routing_key'):
             raise NotificationError('Missing a routing_key')
         routing_key = notification_dict.pop('routing_key')
-        assert routing_key in ROUTING_KEYS, routing_key
-        # Work out what class of Notification it is
-        if routing_key in NOTIFYING_DOMAIN_OBJ_NAMES:
-            if routing_key == 'Package':
-                cls = PackageNotification
-            elif routing_key == 'PackageResource':
-                cls = PackageResourceNotification
-            else:
-                raise NotImplementedError()
-        elif routing_key == 'db':
-            cls = DatabaseNotification
-        elif routing_key == StopNotification.msg:
-            cls = StopNotification
-        else:
-            raise NotImplementedError()
+        cls = Notifications.instance().classes_by_routing_key[routing_key]
         try:
             return cls(routing_key, **notification_dict)
         except TypeError:
@@ -76,20 +104,13 @@ class DomainObjectNotification(Notification):
     def create(cls, domain_object, operation):
         '''Creates a suitable notification object, based on the type of the
         domain_object.'''
-        assert domain_object.__class__.__name__ in NOTIFYING_DOMAIN_OBJ_NAMES, domain_object.__class__.__name__
-        if cls == DomainObjectNotification:
-            for subclass in [PackageNotification, PackageResourceNotification]:
-                if domain_object.__class__.__name__ == subclass.domain_object_class:
-                    cls = subclass
-                    break
-            assert cls != DomainObjectNotification, 'Could not create ' + \
-                   'notification for domain object type: ' + \
-                   domain_object.__class__.__name__
-        assert domain_object.__class__.__name__ == cls.domain_object_class
+        # Change cls to the appropriate Notification subclass
+        # e.g. if domain_object is Package then cls becomes PackageNotification
+        cls = Notifications.instance().domain_object_notifications_by_class.get(domain_object.__class__.__name__, cls)
+        routing_key = Notifications.instance().routing_keys_by_class[cls]
         assert operation in DomainObjectNotificationOperation, operation
-        object_type = domain_object.__class__.__name__
         return super(DomainObjectNotification, cls).create(\
-            object_type,
+            routing_key,
             operation=operation,
             payload=domain_object.as_dict())
 
@@ -97,8 +118,6 @@ class DomainObjectNotification(Notification):
     def domain_object(self):
         return self['payload']
 
-    def __repr__(self):
-        return '<%s %s %s>' % (self.__class__.__name__, self['operation'], self['payload']['name'])
 
 class PackageNotification(DomainObjectNotification):
     domain_object_class = 'Package'
@@ -107,12 +126,18 @@ class PackageNotification(DomainObjectNotification):
     def package(self):
         return self['payload']
 
-class PackageResourceNotification(DomainObjectNotification):
+    def __repr__(self):
+        return '<%s %s %s>' % (self.__class__.__name__, self['operation'], self['payload']['name'])
+
+class ResourceNotification(DomainObjectNotification):
     domain_object_class = 'PackageResource'
 
     @property
     def resource(self):
         return self['payload']
+
+    def __repr__(self):
+        return '<%s %s %s>' % (self.__class__.__name__, self['operation'], self['payload']['id'])
 
 class DatabaseNotification(Notification):
     @classmethod
@@ -142,21 +167,39 @@ class NotifierMapperTrigger(MapperExtension):
     queued_notifications = []
     
     def after_insert(self, mapper, connection, instance):
-        return self.notify(instance, instance, DomainObjectNotificationOperation.new)
+        return self.send_notifications(instance, DomainObjectNotificationOperation.new)
 
     def after_update(self, mapper, connection, instance):
-        return self.notify(instance, instance, DomainObjectNotificationOperation.changed)
+        return self.send_notifications(instance, DomainObjectNotificationOperation.changed)
             
-    def notify(self, triggered_instance, notify_instance, operation):
-        if self.check_real_change(triggered_instance):
-            if notify_instance.state == State.DELETED:
-                if notify_instance.all_revisions and notify_instance.all_revisions[1].state != State.DELETED:
-                    # i.e. just deleted
-                    self.add_notification_to_queue(DomainObjectNotification.create(notify_instance, 'deleted'))
-                # no notification sent if changed whilst deleted
+    def send_notifications(self, instance, operation):
+        '''Called when an db object changes, this method works out what
+        notifications need to be sent and calls send_notification to do it.
+        '''
+        from package import Package
+        from resource import PackageResource
+        from extras import PackageExtra
+        from tag import PackageTag
+        if self.check_real_change(instance):
+            if isinstance(instance, Package):
+                self.send_notification(instance, operation)
+            elif isinstance(instance, PackageResource):
+                self.send_notification(instance, operation)
+                self.send_notification(instance.package, DomainObjectNotificationOperation.changed)
+            elif isinstance(instance, (PackageExtra, PackageTag)):
+                self.send_notification(instance.package, DomainObjectNotificationOperation.changed)
             else:
-                self.add_notification_to_queue(DomainObjectNotification.create(notify_instance, operation))
+                raise NotImplementedError, instance
         return EXT_CONTINUE
+
+    def send_notification(self, notify_instance, operation):
+        if notify_instance.state == State.DELETED:
+            if notify_instance.all_revisions and notify_instance.all_revisions[1].state != State.DELETED:
+                # i.e. just deleted
+                self.add_notification_to_queue(DomainObjectNotification.create(notify_instance, 'deleted'))
+            # no notification sent if changed whilst deleted
+        else:
+            self.add_notification_to_queue(DomainObjectNotification.create(notify_instance, operation))
 
     def add_notification_to_queue(self, notification):
         '''We can\'t send notification yet because the domain object may still
@@ -165,16 +208,6 @@ class NotifierMapperTrigger(MapperExtension):
         up until the commit is done.'''
         self.queued_notifications.append(notification)
         
-
-class PackageRelationNotifierMapperTrigger(NotifierMapperTrigger):
-    def after_insert(self, mapper, connection, instance):
-        return super(PackageRelationNotifierMapperTrigger, self).notify(instance, instance.package, DomainObjectNotificationOperation.changed)
-
-    def after_update(self, mapper, connection, instance):
-        return super(PackageRelationNotifierMapperTrigger, self).notify(instance, instance.package, DomainObjectNotificationOperation.changed)
-
-        
-
 
 class NotifierSessionTrigger(SessionExtension):
     def after_commit(self, session):

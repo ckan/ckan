@@ -61,11 +61,31 @@ class TestNotification(TestController):
     def pkg(self):
         return model.Package.by_name(self.pkg_dict['name'])
 
-    def queue_get_one(self):
-        notifications = TestNotification.our_queue
+    def check_queue(self, expected_notification_types):
+        notification_types = set([type(n) for n in TestNotification.our_queue])
+        assert notification_types == set(expected_notification_types), \
+               '%s != %s' % (tuple(notification_types), expected_notification_types)
+
+    def queue_get_all(self):
+        return TestNotification.our_queue
+
+    def queue_get_one(self, filter_class=None):
+        '''Checks there is only one notification on the queue and
+        returns it.
+        @param filter_class - ignore notifications other than this class
+        @return Notification-derivation
+        '''
+        if not filter_class:
+            notifications = TestNotification.our_queue
+        else:            
+            notifications = []
+            for notification in TestNotification.our_queue:
+                if isinstance(notification, filter_class):
+                    notifications.append(notification)
+        
         assert len(notifications) == 1, [n for n in notifications]
         notification = notifications[0]
-        assert isinstance(notification, model.PackageNotification), notification
+        assert isinstance(notification, model.Notification), notification
         return notification
 
     def test_01_new_package(self):
@@ -131,6 +151,8 @@ class TestNotification(TestController):
                              for tag_name in self.pkg_dict['tags']]
             model.repo.commit_and_remove()
 
+# Group tests commented as we may well want groups to trigger a
+# package notification in the future.
 ##    def _test_05_add_package_group(self):
 ##        # edit package
 ##        group = model.Group.by_name(self.group_name)
@@ -249,12 +271,22 @@ class TestNotification(TestController):
         model.repo.commit_and_remove()
 
         try:
-            notification = self.queue_get_one()
+            self.check_queue((model.PackageNotification,
+                              model.ResourceNotification))
+            
+            # Package notification
+            notification = self.queue_get_one(filter_class=model.PackageNotification)
             assert notification['operation'] == 'changed', notification['operation']
             assert notification.package['name'] == self.pkg_dict['name'], notification.payload
             resources = notification.package['resources']
             assert len(resources) == 3
             assert resources[2]['url'] == 'newurl', resources
+
+            # Resource notification
+            notification = self.queue_get_one(filter_class=model.ResourceNotification)
+            assert notification['operation'] == 'new', notification['operation']
+            assert notification.resource['url'] == u'newurl', notification.resource['url']
+            assert notification.resource['package_id'] == self.pkg.id, notification.resource
         finally:
             # revert package change
             rev = model.repo.new_revision()
@@ -269,12 +301,22 @@ class TestNotification(TestController):
         model.repo.commit_and_remove()
 
         try:
-            notification = self.queue_get_one()
+            self.check_queue((model.PackageNotification,
+                              model.ResourceNotification))
+
+            # Package notification
+            notification = self.queue_get_one(filter_class=model.PackageNotification)
             assert notification['operation'] == 'changed', notification['operation']
             assert notification.package['name'] == self.pkg_dict['name'], notification.payload
             resources = notification.package['resources']
             assert len(resources) == 2
             assert resources[0]['description'] == u'edited description', resources
+            
+            # Resource notification
+            notification = self.queue_get_one(filter_class=model.ResourceNotification)
+            assert notification['operation'] == 'changed', notification['operation']
+            assert notification.resource['description'] == u'edited description', notification.resource['description']
+            assert notification.resource['package_id'] == self.pkg.id, notification.resource
         finally:
             # revert package change
             rev = model.repo.new_revision()
@@ -285,15 +327,25 @@ class TestNotification(TestController):
         assert len(self.pkg.as_dict()['resources']) == len(self.pkg_dict['resources']), self.pkg.as_dict()['resources']
         # edit package
         rev = model.repo.new_revision()
+        res_id = self.pkg.resources[0].id
         del self.pkg.resources[0]
         model.repo.commit_and_remove()
 
         try:
-            notification = self.queue_get_one()
+            self.check_queue((model.PackageNotification,
+                              model.ResourceNotification))
+
+            # Package notification
+            notification = self.queue_get_one(filter_class=model.PackageNotification)
             assert notification['operation'] == 'changed', notification['operation']
             assert notification.package['name'] == self.pkg_dict['name'], notification.payload
             resources = notification.package['resources']
             assert len(resources) == 1
+
+            # Resource notification
+            notification = self.queue_get_one(filter_class=model.ResourceNotification)
+            assert notification['operation'] == 'deleted', notification['operation']
+            assert notification.resource['id'] == res_id, notification.resource
         finally:
             # revert package change
             rev = model.repo.new_revision()

@@ -34,7 +34,7 @@ mapper(PackageExtra, package_extra_table, properties={
     },
     order_by=[package_extra_table.c.package_id, package_extra_table.c.key],
     extension=[vdm.sqlalchemy.Revisioner(extra_revision_table),
-               notifier.PackageRelationNotifierMapperTrigger(),
+               notifier.NotifierMapperTrigger(),
                ],
 )
 

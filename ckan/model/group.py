@@ -71,5 +71,5 @@ mapper(Group, group_table, properties={
 )
 
 mapper(PackageGroup, package_group_table,
-#       extension=[notifier.PackageRelationNotifierMapperTrigger()],
+#       extension=[notifier.NotifierMapperTrigger()],
 )
