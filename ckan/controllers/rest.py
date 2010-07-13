@@ -4,7 +4,7 @@ from ckan.lib.base import *
 from ckan.lib.helpers import json
 import ckan.model as model
 import ckan.forms
-from ckan.lib.search import make_search, SearchOptions, SearchOptionsError
+from ckan.lib.search import query_for, QueryOptions, SearchError
 import ckan.authz
 import ckan.rating
 
@@ -394,16 +394,19 @@ class BaseRestController(BaseController):
                     response.status_int = 400
                     return gettext('Search params: %s') % str(inst)
                     
-            options = SearchOptions(params)
-            options.entity = register
-            options.search_tags = False
-            options.return_objects = False
+            options = QueryOptions(params)
+            #options.entity = register
+            options['search_tags'] = False
+            options['return_objects'] = False
             if register == 'package':
                 options.ref_entity_with_attr = self.ref_package_with_attr
-            username = self._get_username()
+            username = 
             try:
-                results = make_search().run(options, username)
-            except SearchOptionsError, e:
+                backend = None
+                if register != 'package': backend = 'sql'
+                query = query_for(register, backend=backend)
+                query.run(options=options, username=self._get_username())
+            except SearchError, e:
                 response.status_int = 400
                 return gettext('Bad search option: %s') % e
             else:

@@ -5,7 +5,7 @@ import genshi
 from pylons import config
 
 from ckan.lib.base import *
-from ckan.lib.search import make_search, SearchOptions
+from ckan.lib.search import query_for, QueryOptions
 from ckan.lib.package_saver import PackageSaver, ValidationException
 import ckan.forms
 import ckan.authz
@@ -37,34 +37,32 @@ class PackageController(BaseController):
         c.open_only = request.params.get('open_only')
         c.downloadable_only = request.params.get('downloadable_only')
         if c.q:
-            options = SearchOptions({
-                'q': c.q,
-                'filter_by_openness': c.open_only,
-                'filter_by_downloadable': c.downloadable_only,
-                })
-            # package search
-            query = make_search().query(options, username=c.user)
+            query = query_for(model.Package)
+            query.run(query=c.q,
+                      return_objects=True,
+                      filter_by_openness=c.open_only,
+                      filter_by_downloadable=c.downloadable_only,
+                      username=c.user)
+            
             c.page = h.Page(
-                collection=query,
+                collection=query.results,
                 page=request.params.get('page', 1),
+                item_count=query.count,
                 items_per_page=50
             )
             # filter out ranks from the query result
             # annoying but no better way to do this it seems
-            pkg_list = [pkg for pkg, rank in c.page]
-            c.page.items = pkg_list
+            # pkg_list = [pkg for pkg, rank in c.page]
+            # c.page.items = pkg_list
 
             # tag search
             c.tag_limit = 25
-            options = SearchOptions({
-                'entity': 'tag',
-                'q': c.q,
-                'return_objects': True,
-                'limit': c.tag_limit,
-                })
-            results = make_search().run(options)
-            c.tags = results['results']
-            c.tags_count = results['count']
+            query = query_for('tag', backend='sql')
+            query.run(query=c.q,
+                      return_objects=True,
+                      limit=c.tag_limit)
+            c.tags = query.results
+            c.tags_count = query.count
 
         return render('package/search.html')
 
