@@ -192,3 +192,15 @@ Default (if you don't define it)::
  1
 
 This controls the operation of the CKAN Postgres full text search indexing. If you don't define this option then it is on by default. You will want to turn this off if you want to use a different search engine for CKAN (e.g. SOLR). In this case you need to define the option equal to blank (as in the given example).
+
+
+site_title
+----------
+
+Example::
+ ckan.site_title=Open Data Scotland
+
+Default::
+ CKAN - Comprehensive Knowledge Archive Network
+
+This set the name of the site.

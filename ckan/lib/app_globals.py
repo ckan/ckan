@@ -1,5 +1,7 @@
 """The application's Globals object"""
 
+from pylons import config
+
 class Globals(object):
 
     """Globals acts as a container for objects available throughout the
@@ -13,3 +15,4 @@ class Globals(object):
         'app_globals' variable
 
         """
+        self.site_title = config.get('ckan.site_title', 'CKAN')

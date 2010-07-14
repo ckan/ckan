@@ -39,30 +39,28 @@
 
   <py:match path="primarysidebar">
     <div class="box">
-      <h2>About CKAN</h2>
-      <p>
-        Find out more about CKAN by reading our about pages or consulting the 
-        CKAN guide.
-      </p>
+      <h2>More information</h2>
       <ul>
         <li>${h.link_to(_('About'), h.url_for('about'))}</li>
         <li>${h.link_to(_('User Guide'), h.url_for('guide'))}</li>
         <li>${h.link_to(_('Statistics'), h.url_for('stats'))}</li>
-        <li><a href="http://knowledgeforge.net/ckan/">Development</a></li>
+        <li>${h.link_to(_('About CKAN'), 'http://wiki.okfn.org/ckan/')}</li>
+        <li>${h.link_to(_('CKAN development'), 'http://knowledgeforge.net/ckan/')}</li>
       </ul>
     </div>
   </py:match>
 
   <div py:match="content">
-    <h2>Welcome to CKAN</h2>
-    <p i18n:msg="">
-      CKAN is a registry of <a href="http://opendefinition.org/">open data 
-      and content</a> packages. CKAN makes it easy to <strong>find, share and reuse 
-      open content and data</strong>, especially in ways that are machine 
-      automatable.
+    <h2>Welcome to ${g.site_title}</h2>
+    <p i18n:msg="title">
+      ${g.site_title} is a registry of 
+      <a href="http://opendefinition.org/">open data and content</a>
+      packages. Harnessing the CKAN software, this site makes it easy to
+      find, share and reuse open content and data,
+      especially in ways that are machine automatable.
     </p>
     
-    <p i18n:msg="package_count"><strong>${c.package_count} registered packages</strong> available.</p>
+    <p i18n:msg="package_count"><strong>${c.package_count} registered data packages</strong> available.</p>
 
     <xi:include href="../package/search_form.html" />
 

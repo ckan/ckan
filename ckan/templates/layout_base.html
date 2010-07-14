@@ -9,7 +9,7 @@
 <xi:include href="_util.html" />
 
 <head>
-  <title>CKAN - Comprehensive Knowledge Archive Network - ${page_title()}</title>
+  <title>${page_title()} - ${g.site_title}</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link rel="shortcut icon" href="http://m.okfn.org/gfx/logo/favicon.ico" type="image/x-icon" />
   <py:choose>
@@ -17,7 +17,7 @@
     ${optional_feed()}
   </py:when>
   <py:otherwise>
-  <link rel="alternate" type="application/atom+xml" title="CKAN Recent Changes" href="/revision/list?format=atom&amp;days=1" />
+  <link rel="alternate" type="application/atom+xml" title="Recent Changes - ${g.site_title}" href="/revision/list?format=atom&amp;days=1" />
   </py:otherwise>
   </py:choose>
 
@@ -66,8 +66,8 @@
       </div><!-- /top-bar -->
 
       <h1>
-        <a href="${h.url_for('home')}"><img style="padding: 0; margin-top: -10px; margin-bottom: -10px;" src="/images/ckan_logo_fullname_long.png" alt="CKAN Logo" /></a>
-        <!-- <a href="/" title="CKAN Home">Comprehensive Knowledge Archive Network</a> -->
+        <a href="${h.url_for('home')}"><img style="padding: 0; margin-top: -10px; margin-bottom: -10px;" src="/images/ckan_logo_fullname_long.png" alt="${g.site_title} Logo" /></a>
+        <!-- <a href="/" title="CKAN Home">${g.site_title}</a> -->
       </h1>
 
     </div><!-- /top-inner -->
@@ -118,7 +118,7 @@
         | <a href="http://www.okfn.org/privacy-policy/">Privacy Policy</a>
       </p>
       <p i18n:msg="">
-        <img style="margin-bottom: -5px;" src="http://m.okfn.org/images/logo/okf_logo_white_and_green_tiny.png" /> An <a href="http://www.okfn.org/">Open Knowledge Foundation</a> Project
+        <img style="margin-bottom: -5px;" src="http://m.okfn.org/images/logo/okf_logo_white_and_green_tiny.png" /> CKAN is an <a href="http://www.okfn.org/">Open Knowledge Foundation</a> project
       </p>
       <p i18n:msg="version">
         v${c.__version__}
