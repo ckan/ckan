@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckan 1.1b\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2010-07-14 12:34+0100\n"
+"POT-Creation-Date: 2010-07-14 12:43+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1599,13 +1599,10 @@ msgid "API - Index"
 msgstr ""
 
 #: ckan/templates/rest/index.html:10
-msgid "In addition to use of this website,"
-msgstr ""
-
-#: ckan/templates/rest/index.html:10
+#, python-format
 msgid ""
-"data can be viewed and changed by using CKAN's Application Programming "
-"Interface (API)."
+"In addition to use of this website, %(site_title)s data can be viewed and "
+"changed by using CKAN's Application Programming Interface (API)."
 msgstr ""
 
 #: ckan/templates/rest/index.html:12
@@ -1803,11 +1800,8 @@ msgid "You have logged out successfully."
 msgstr ""
 
 #: ckan/templates/user/openid_form.html:27
-msgid "Login to"
-msgstr ""
-
-#: ckan/templates/user/openid_form.html:27
-msgid "using Open ID"
+#, python-format
+msgid "Login to %(site_title)s using Open ID"
 msgstr ""
 
 #: ckan/templates/user/openid_form.html:29
