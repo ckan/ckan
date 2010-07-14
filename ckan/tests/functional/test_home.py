@@ -26,7 +26,7 @@ class TestHomeController(TestController):
         offset = url_for('license')
         res = self.app.get(offset)
         print str(res)
-        assert 'The code that runs CKAN is open-source' in res
+        assert 'The CKAN code that runs this site is open-source' in res
 
     def test_guide(self):
         url = url_for('guide')

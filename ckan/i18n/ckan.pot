@@ -6,16 +6,16 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ckan 1.1a\n"
+"Project-Id-Version: ckan 1.1b\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2010-05-30 21:16+0200\n"
+"POT-Creation-Date: 2010-07-14 12:34+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 0.9.4\n"
+"Generated-By: Babel 0.9.5\n"
 
 #: ckan/controllers/group.py:30
 #, python-format
@@ -39,16 +39,16 @@ msgstr ""
 msgid "Not authorized to edit authization for group"
 msgstr ""
 
-#: ckan/controllers/group.py:171 ckan/controllers/package.py:327
+#: ckan/controllers/group.py:171 ckan/controllers/package.py:342
 #, python-format
 msgid "Added role '%s' for user '%s'"
 msgstr ""
 
-#: ckan/controllers/group.py:178 ckan/controllers/package.py:334
+#: ckan/controllers/group.py:178 ckan/controllers/package.py:349
 msgid "Error: No role found with that id"
 msgstr ""
 
-#: ckan/controllers/group.py:181 ckan/controllers/package.py:336
+#: ckan/controllers/group.py:181 ckan/controllers/package.py:351
 #, python-format
 msgid "Deleted role '%s' for user '%s'"
 msgstr ""
@@ -112,136 +112,152 @@ msgstr ""
 msgid "User %r unauthorized to edit existing package %s"
 msgstr ""
 
-#: ckan/controllers/package.py:75 ckan/controllers/package.py:111
-#: ckan/controllers/package.py:296
+#: ckan/controllers/package.py:74 ckan/controllers/package.py:110
+#: ckan/controllers/package.py:311
 msgid "Package not found"
 msgstr ""
 
-#: ckan/controllers/package.py:86
+#: ckan/controllers/package.py:85
 #, python-format
 msgid "Unauthorized to read package %s"
 msgstr ""
 
-#: ckan/controllers/package.py:105
+#: ckan/controllers/package.py:104
 msgid "Select two revisions before doing the comparison."
 msgstr ""
 
-#: ckan/controllers/package.py:117
+#: ckan/controllers/package.py:116
 msgid "CKAN Package Revision History"
 msgstr ""
 
-#: ckan/controllers/package.py:119
+#: ckan/controllers/package.py:118
 msgid "Recent changes to CKAN Package: "
 msgstr ""
 
-#: ckan/controllers/package.py:138
+#: ckan/controllers/package.py:137
 msgid "Log message: "
 msgstr ""
 
-#: ckan/controllers/package.py:227
+#: ckan/controllers/package.py:226
 #, python-format
 msgid "User %r not authorized to edit %s"
 msgstr ""
 
-#: ckan/controllers/package.py:301
+#: ckan/controllers/package.py:316
 #, python-format
 msgid "User %r not authorized to edit %s authorizations"
 msgstr ""
 
-#: ckan/controllers/package.py:352
+#: ckan/controllers/package.py:367
 msgid "404 Package Not Found"
 msgstr ""
 
-#: ckan/controllers/package.py:358
+#: ckan/controllers/package.py:373
 msgid "Rating value invalid"
 msgstr ""
 
-#: ckan/controllers/rest.py:141 ckan/controllers/rest.py:232
-#: ckan/controllers/rest.py:308
+#: ckan/controllers/rest.py:156 ckan/controllers/rest.py:228
+#: ckan/controllers/rest.py:261 ckan/controllers/rest.py:311
+#: ckan/controllers/rest.py:345
 msgid "Access denied"
 msgstr ""
 
-#: ckan/controllers/rest.py:146 ckan/controllers/rest.py:238
+#: ckan/controllers/rest.py:161 ckan/controllers/rest.py:267
 #, python-format
 msgid "JSON Error: %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:168
+#: ckan/controllers/rest.py:169 ckan/controllers/rest.py:277
+#, python-format
+msgid "Package format incorrect: %s"
+msgstr ""
+
+#: ckan/controllers/rest.py:187
 #, python-format
 msgid "REST API: Create package relationship: %s %s %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:179
+#: ckan/controllers/rest.py:199
 #, python-format
 msgid "Cannot create new entity of this type: %s %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:186
+#: ckan/controllers/rest.py:206
 #, python-format
 msgid "REST API: Create object %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:224
+#: ckan/controllers/rest.py:253
 #, python-format
 msgid "Cannot update entity of this type: %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:257
+#: ckan/controllers/rest.py:290
 #, python-format
 msgid "REST API: Update object %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:302
+#: ckan/controllers/rest.py:339
 #, python-format
 msgid "Cannot delete entity of this type: %s %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:313
+#: ckan/controllers/rest.py:350
 #, python-format
 msgid "REST API: Delete %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:349
+#: ckan/controllers/rest.py:368
+#, python-format
+msgid "There is no revision with id: %s"
+msgstr ""
+
+#: ckan/controllers/rest.py:379
+msgid "Missing search term ('since_id=UUID' or 'since_time=TIMESTAMP')"
+msgstr ""
+
+#: ckan/controllers/rest.py:386
 msgid "Blank qjson parameter"
 msgstr ""
 
-#: ckan/controllers/rest.py:358
+#: ckan/controllers/rest.py:395
 #, python-format
 msgid "Search params: %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:386
-msgid "You must supply a package name (parameter \"package\")."
+#: ckan/controllers/rest.py:408
+#, python-format
+msgid "Bad search option: %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:388
+#: ckan/controllers/rest.py:413
+#, python-format
+msgid "Unknown register: %s"
+msgstr ""
+
+#: ckan/controllers/rest.py:435
+msgid "You must supply a package id or name (parameter \"package\")."
+msgstr ""
+
+#: ckan/controllers/rest.py:437
 msgid "You must supply a rating (parameter \"rating\")."
 msgstr ""
 
-#: ckan/controllers/rest.py:393
+#: ckan/controllers/rest.py:442
 msgid "Rating must be an integer value."
 msgstr ""
 
-#: ckan/controllers/rest.py:397
+#: ckan/controllers/rest.py:446
 #, python-format
 msgid "Rating must be between %i and %i."
 msgstr ""
 
-#: ckan/controllers/rest.py:399
+#: ckan/controllers/rest.py:448
 #, python-format
 msgid "Package with name %r does not exist."
 msgstr ""
 
-#: ckan/controllers/rest.py:462
-#, python-format
-msgid "Can't find entity data in request params %s: %s"
-msgstr ""
-
-#: ckan/controllers/rest.py:468
-msgid "Request params must be in form of a json encoded dictionary."
-msgstr ""
-
-#: ckan/controllers/rest.py:497
+#: ckan/controllers/rest.py:504
 #, python-format
 msgid "REST API: Update package relationship: %s %s %s"
 msgstr ""
@@ -350,12 +366,12 @@ msgstr ""
 
 #: ckan/forms/package.py:32 ckan/forms/package.py:60 ckan/forms/package_ca.py:48
 #: ckan/forms/package_ca.py:82 ckan/templates/home/license.html:5
-#: ckan/templates/package/read_core.html:71
+#: ckan/templates/home/license.html:8 ckan/templates/package/read_core.html:71
 msgid "License"
 msgstr ""
 
 #: ckan/forms/package.py:33 ckan/forms/package.py:60 ckan/forms/package_ca.py:51
-#: ckan/forms/package_ca.py:82 ckan/templates/layout.html:76
+#: ckan/forms/package_ca.py:82 ckan/templates/layout_base.html:79
 #: ckan/templates/tag/index.html:8
 msgid "Tags"
 msgstr ""
@@ -410,7 +426,7 @@ msgstr ""
 msgid "URL"
 msgstr ""
 
-#: ckan/forms/package.py:59 ckan/templates/home/index.html:83
+#: ckan/forms/package.py:59 ckan/templates/home/index.html:81
 #: ckan/templates/package/history.html:27 ckan/templates/revision/list.html:16
 #: ckan/templates/user/read.html:37
 msgid "Author"
@@ -626,41 +642,50 @@ msgstr ""
 msgid "Agency"
 msgstr ""
 
-#: ckan/lib/package_saver.py:130
+#: ckan/lib/base.py:64
+#, python-format
+msgid "Can't find entity data in request params %s: %s"
+msgstr ""
+
+#: ckan/lib/base.py:70
+msgid "Request params must be in form of a json encoded dictionary."
+msgstr ""
+
+#: ckan/lib/package_saver.py:132
 msgid "No links are allowed in the log_message."
 msgstr ""
 
-#: ckan/model/package_relationship.py:45
+#: ckan/model/package_relationship.py:46
 #, python-format
 msgid "depends on %s"
 msgstr ""
 
-#: ckan/model/package_relationship.py:45
+#: ckan/model/package_relationship.py:46
 #, python-format
 msgid "is a dependency of %s"
 msgstr ""
 
-#: ckan/model/package_relationship.py:46
+#: ckan/model/package_relationship.py:47
 #, python-format
 msgid "derives from %s"
 msgstr ""
 
-#: ckan/model/package_relationship.py:46
+#: ckan/model/package_relationship.py:47
 #, python-format
 msgid "has derivation %s"
 msgstr ""
 
-#: ckan/model/package_relationship.py:47
+#: ckan/model/package_relationship.py:48
 #, python-format
 msgid "is a child of %s"
 msgstr ""
 
-#: ckan/model/package_relationship.py:47
+#: ckan/model/package_relationship.py:48
 #, python-format
 msgid "is a parent of %s"
 msgstr ""
 
-#: ckan/model/package_relationship.py:51
+#: ckan/model/package_relationship.py:52
 #, python-format
 msgid "has sibling %s"
 msgstr ""
@@ -675,15 +700,7 @@ msgstr ""
 msgid "%(message)s"
 msgstr ""
 
-#: ckan/templates/layout.html:12
-msgid "CKAN - Comprehensive Knowledge Archive Network -"
-msgstr ""
-
-#: ckan/templates/layout.html:20
-msgid "CKAN Recent Changes"
-msgstr ""
-
-#: ckan/templates/layout.html:54
+#: ckan/templates/layout_base.html:54
 #, python-format
 msgid ""
 "Logged in as [1:%(openid_icon)s %(user)s]\n"
@@ -691,93 +708,89 @@ msgid ""
 "\t    · [3:Logout]"
 msgstr ""
 
-#: ckan/templates/layout.html:59
+#: ckan/templates/layout_base.html:59
 #, python-format
 msgid "[1:Login with %(openid_icon)s OpenID]"
 msgstr ""
 
-#: ckan/templates/layout.html:66
-msgid "CKAN Logo"
-msgstr ""
-
-#: ckan/templates/layout.html:72
+#: ckan/templates/layout_base.html:75
 msgid "Sections:"
 msgstr ""
 
-#: ckan/templates/layout.html:74 ckan/templates/group/layout.html:19
+#: ckan/templates/layout_base.html:77 ckan/templates/group/layout.html:19
 #: ckan/templates/home/about.html:5 ckan/templates/home/index.html:5
 #: ckan/templates/package/layout.html:19
 msgid "Home"
 msgstr ""
 
-#: ckan/templates/layout.html:75 ckan/templates/group/edit_form.html:10
-#: ckan/templates/home/index.html:82 ckan/templates/package/index.html:8
+#: ckan/templates/layout_base.html:78 ckan/templates/group/edit_form.html:10
+#: ckan/templates/home/index.html:80 ckan/templates/package/index.html:8
 #: ckan/templates/package/list.html:33 ckan/templates/revision/list.html:16
 #: ckan/templates/revision/read.html:20 ckan/templates/user/read.html:37
 msgid "Packages"
 msgstr ""
 
-#: ckan/templates/layout.html:77 ckan/templates/group/index.html:8
+#: ckan/templates/layout_base.html:80 ckan/templates/group/index.html:8
 msgid "Groups"
 msgstr ""
 
-#: ckan/templates/layout.html:78 ckan/templates/user/read.html:34
+#: ckan/templates/layout_base.html:81 ckan/templates/user/read.html:34
 msgid "Recent changes"
 msgstr ""
 
-#: ckan/templates/layout.html:79
+#: ckan/templates/layout_base.html:82 ckan/templates/rest/index.html:8
 msgid "API"
 msgstr ""
 
-#: ckan/templates/layout.html:81
+#: ckan/templates/layout_base.html:84
 msgid "In this section:"
 msgstr ""
 
-#: ckan/templates/layout.html:92
+#: ckan/templates/layout_base.html:95
 msgid "Skip to page content"
 msgstr ""
 
-#: ckan/templates/layout.html:92
+#: ckan/templates/layout_base.html:95
 msgid "[ Skip to main content ]"
 msgstr ""
 
-#: ckan/templates/layout.html:106
+#: ckan/templates/layout_base.html:109
 msgid "Master content template placeholder … please replace me."
 msgstr ""
 
-#: ckan/templates/layout.html:111
+#: ckan/templates/layout_base.html:114
 msgid "Valid XHTML 1.1"
 msgstr ""
 
-#: ckan/templates/layout.html:111
+#: ckan/templates/layout_base.html:114
 msgid "XHTML"
 msgstr ""
 
-#: ckan/templates/layout.html:112
+#: ckan/templates/layout_base.html:115
 msgid "CSS"
 msgstr ""
 
-#: ckan/templates/layout.html:113
+#: ckan/templates/layout_base.html:116
 msgid "Project Home Page"
 msgstr ""
 
-#: ckan/templates/layout.html:114
+#: ckan/templates/layout_base.html:117
 msgid "Contact Us"
 msgstr ""
 
-#: ckan/templates/layout.html:115
+#: ckan/templates/layout_base.html:118
 msgid "Privacy Policy"
 msgstr ""
 
-#: ckan/templates/layout.html:117
-msgid "[1:] An [2:Open Knowledge Foundation] Project"
+#: ckan/templates/layout_base.html:120
+msgid "[1:] CKAN is an [2:Open Knowledge Foundation] project"
 msgstr ""
 
-#: ckan/templates/layout.html:124 ckan/templates/layout.html:128
+#: ckan/templates/layout_base.html:127 ckan/templates/layout_base.html:131
 msgid "This Content and Data is Open"
 msgstr ""
 
-#: ckan/templates/layout.html:120
+#: ckan/templates/layout_base.html:123
 #, python-format
 msgid ""
 "v%(version)s\n"
@@ -890,7 +903,7 @@ msgstr ""
 msgid "There are %(item_count)s packages in this group."
 msgstr ""
 
-#: ckan/templates/home/about.html:8 ckan/templates/home/index.html:42
+#: ckan/templates/home/about.html:8 ckan/templates/home/index.html:47
 msgid "About CKAN"
 msgstr ""
 
@@ -1014,65 +1027,61 @@ msgstr ""
 msgid "Genshi"
 msgstr ""
 
-#: ckan/templates/home/index.html:43
-msgid ""
-"Find out more about CKAN by reading our about pages or consulting the \n"
-"        CKAN guide."
+#: ckan/templates/home/index.html:42
+msgid "More information"
 msgstr ""
 
-#: ckan/templates/home/index.html:48 ckan/templates/home/layout.html:9
+#: ckan/templates/home/index.html:44 ckan/templates/home/layout.html:9
 #: ckan/templates/user/read.html:18
 msgid "About"
 msgstr ""
 
-#: ckan/templates/home/index.html:49
+#: ckan/templates/home/index.html:45
 msgid "User Guide"
 msgstr ""
 
-#: ckan/templates/home/index.html:50 ckan/templates/home/layout.html:10
+#: ckan/templates/home/index.html:46 ckan/templates/home/layout.html:10
 #: ckan/templates/home/stats.html:13
 msgid "Statistics"
 msgstr ""
 
-#: ckan/templates/home/index.html:51
-msgid "Development"
+#: ckan/templates/home/index.html:48
+msgid "CKAN development"
 msgstr ""
 
-#: ckan/templates/home/index.html:57
-msgid "Welcome to CKAN"
+#: ckan/templates/home/index.html:54
+msgid "Welcome to"
 msgstr ""
 
-#: ckan/templates/home/index.html:58
-msgid ""
-"CKAN is a registry of [1:open data \n"
-"      and content] packages. CKAN makes it easy to [2:find, share and reuse \n"
-"      open content and data], especially in ways that are machine \n"
-"      automatable."
-msgstr ""
-
-#: ckan/templates/home/index.html:65
+#: ckan/templates/home/index.html:55
 #, python-format
-msgid "[1:%(package_count)s registered packages] available."
+msgid ""
+"%(title)s is a registry of \n"
+"      [1:open data and content]\n"
+"      packages. Harnessing the CKAN software, this site makes it easy to\n"
+"      find, share and reuse open content and data,\n"
+"      especially in ways that are machine automatable."
 msgstr ""
 
-#: ckan/templates/home/index.html:69 ckan/templates/home/stats.html:94
+#: ckan/templates/home/index.html:63
+#, python-format
+msgid "[1:%(package_count)s registered data packages] available."
+msgstr ""
+
+#: ckan/templates/home/index.html:67 ckan/templates/home/stats.html:94
 msgid "Top Tags"
 msgstr ""
 
-#: ckan/templates/home/index.html:79
+#: ckan/templates/home/index.html:77
 msgid "Recently changed"
 msgstr ""
 
-#: ckan/templates/home/index.html:84
+#: ckan/templates/home/index.html:82
 msgid "Time"
 msgstr ""
 
-#: ckan/templates/home/index.html:98
+#: ckan/templates/home/index.html:96
 msgid "View older changes »"
-msgstr ""
-
-#: ckan/templates/home/license.html:8
-msgid "CKAN License"
 msgstr ""
 
 #: ckan/templates/home/license.html:10
@@ -1081,10 +1090,10 @@ msgstr ""
 
 #: ckan/templates/home/license.html:11
 msgid ""
-"The code that runs CKAN is open-source and licensed under the [1:GNU Affero "
-"GPL\n"
+"The CKAN code that runs this site is open-source and licensed under the "
+"[1:GNU Affero GPL\n"
 "      ]. It is hosted on [2:KnowledgeForge], and the project\n"
-"    home page is here:[3:http://knowledgeforge.net/project/ckan/]."
+"    home page is here: [3:http://knowledgeforge.net/project/ckan/]."
 msgstr ""
 
 #: ckan/templates/home/license.html:20
@@ -1289,10 +1298,6 @@ msgstr ""
 #: ckan/templates/package/history.html:7 ckan/templates/package/read_core.html:8
 #: ckan/templates/revision/list.html:7
 msgid "Atom Feed"
-msgstr ""
-
-#: ckan/templates/package/history.html:7 ckan/templates/package/read_core.html:8
-msgid "Package history"
 msgstr ""
 
 #: ckan/templates/package/history.html:7 ckan/templates/package/read_core.html:8
@@ -1573,10 +1578,6 @@ msgstr ""
 msgid "Would you like to [1:create a new package?]"
 msgstr ""
 
-#: ckan/templates/package/search_form.html:3
-msgid "Search Packages »"
-msgstr ""
-
 #: ckan/templates/package/search_form.html:4
 msgid "E.g. 'geo', 'shakespeare', 'science'"
 msgstr ""
@@ -1593,11 +1594,37 @@ msgstr ""
 msgid "downloadable"
 msgstr ""
 
-#: ckan/templates/revision/common.html:22
+#: ckan/templates/rest/index.html:5
+msgid "API - Index"
+msgstr ""
+
+#: ckan/templates/rest/index.html:10
+msgid "In addition to use of this website,"
+msgstr ""
+
+#: ckan/templates/rest/index.html:10
+msgid ""
+"data can be viewed and changed by using CKAN's Application Programming "
+"Interface (API)."
+msgstr ""
+
+#: ckan/templates/rest/index.html:12
+msgid ""
+"The API takes the form of a RESTful (Representational State Transfer) style "
+"API for accessing CKAN database objects and a Search API."
+msgstr ""
+
+#: ckan/templates/rest/index.html:14
+msgid ""
+"For full details of accessing the API, see the documentation at: "
+"[1:http://knowledgeforge.net/ckan/doc/ckan/api.html]"
+msgstr ""
+
+#: ckan/templates/revision/common.html:20
 msgid "Purge"
 msgstr ""
 
-#: ckan/templates/revision/common.html:22
+#: ckan/templates/revision/common.html:20
 msgid "Are you sure?"
 msgstr ""
 
@@ -1629,16 +1656,8 @@ msgstr ""
 msgid "No differences"
 msgstr ""
 
-#: ckan/templates/revision/layout.html:8
-msgid "CKAN Atom Feed"
-msgstr ""
-
 #: ckan/templates/revision/list.html:4 ckan/templates/revision/list.html:8
 msgid "Repository History"
-msgstr ""
-
-#: ckan/templates/revision/list.html:7
-msgid "Repository history"
 msgstr ""
 
 #: ckan/templates/revision/list.html:9
@@ -1784,7 +1803,11 @@ msgid "You have logged out successfully."
 msgstr ""
 
 #: ckan/templates/user/openid_form.html:27
-msgid "Login to CKAN using Open ID"
+msgid "Login to"
+msgstr ""
+
+#: ckan/templates/user/openid_form.html:27
+msgid "using Open ID"
 msgstr ""
 
 #: ckan/templates/user/openid_form.html:29
