@@ -1,7 +1,7 @@
 import time
 
 from ckan.model import Package
-from ckan.lib.search import query_for, QueryOptions
+from ckan.lib.search import get_backend, query_for, QueryOptions
 import ckan.model as model
 from ckan.tests import *
 from ckan.lib.create_test_data import CreateTestData
@@ -30,6 +30,8 @@ class TestSearch(TestController):
         self.war = model.Package.by_name(u'warandpeace')
         self.russian = model.Tag.by_name(u'russian')
         self.tolstoy = model.Tag.by_name(u'tolstoy')
+        
+        self.backend = get_backend(backend='sql')
 
     @classmethod
     def teardown_class(self):
@@ -49,13 +51,13 @@ class TestSearch(TestController):
     # we have put in all the records.
     def test_1_all_records(self):
         # all records
-        result = make_search().search(self.q_all)
+        result = self.backend.query_for(model.Package).run(query=self.q_all)
         assert 'gils' in result['results'], result['results']
         assert result['count'] > 5, result['count']
 
     def test_1_name(self):
         # exact name
-        result = make_search().search(u'gils')
+        result = self.backend.query_for(model.Package).run(query=u'gils')
         assert self._pkg_names(result) == 'gils', result
         assert result['count'] == 1, result
 
@@ -67,20 +69,20 @@ class TestSearch(TestController):
 ##        assert result['count'] == 1, self._pkg_names(result)
 
     def test_1_name_multiple_results(self):
-        result = make_search().search(u'gov')
+        result = self.backend.query_for(model.Package).run(query=u'gov')
         assert self._check_entity_names(result, ('us-gov-images', 'usa-courts-gov')), self._pkg_names(result)
         assert result['count'] == 4, self._pkg_names(result)
 
     def test_1_name_token(self):
-        result = make_search().search(u'name:gils')
+        result = self.backend.query_for(model.Package).run(query=u'name:gils')
         assert self._pkg_names(result) == 'gils', self._pkg_names(result)
 
-        result = make_search().search(u'title:gils')
+        result = self.backend.query_for(model.Package).run(query=u'title:gils')
         assert not self._check_entity_names(result, ('gils')), self._pkg_names(result)
 
     def test_2_title(self):
         # exact title, one word
-        result = make_search().search(u'Opengov.se')
+        result = self.backend.query_for(model.Package).run(query=u'Opengov.se')
         assert self._pkg_names(result) == 'se-opengov', self._pkg_names(result)
 
 ##        # part word
@@ -88,15 +90,15 @@ class TestSearch(TestController):
 ##        assert self._pkg_names(result) == 'se-opengov', self._pkg_names(result)
 
         # multiple words
-        result = make_search().search(u'Government Expenditure')
+        result = self.backend.query_for(model.Package).run(query=u'Government Expenditure')
         assert self._pkg_names(result) == 'uk-government-expenditure', self._pkg_names(result)
 
         # multiple words wrong order
-        result = make_search().search(u'Expenditure Government')
+        result = self.backend.query_for(model.Package).run(query=u'Expenditure Government')
         assert self._pkg_names(result) == 'uk-government-expenditure', self._pkg_names(result)
 
         # multiple words, one doesn't match
-        result = make_search().search(u'Expenditure Government China')
+        result = self.backend.query_for(model.Package).run(query=u'Expenditure Government China')
         assert self._pkg_names(result) == '', self._pkg_names(result)
 
 # Quotation not supported now
@@ -109,81 +111,72 @@ class TestSearch(TestController):
 ##        assert self._pkg_names(result) == '', self._pkg_names(result)
 
         # token
-        result = make_search().search(u'title:Opengov.se')
+        result = self.backend.query_for(model.Package).run(query=u'title:Opengov.se')
         assert self._pkg_names(result) == 'se-opengov', self._pkg_names(result)
 
         # token
-        result = make_search().search(u'title:gils')
+        result = self.backend.query_for(model.Package).run(query=u'title:gils')
         assert self._pkg_names(result) == '', self._pkg_names(result)
 
         # token
-        result = make_search().search(u'randomthing')
+        result = self.backend.query_for(model.Package).run(query=u'randomthing')
         assert self._pkg_names(result) == '', self._pkg_names(result)
 
     def test_tags_field(self):
-        result = make_search().search(u'country-sweden')
+        result = self.backend.query_for(model.Package).run(query=u'country-sweden')
         assert self._check_entity_names(result, ['se-publications', 'se-opengov']), self._pkg_names(result)
 
     def test_tags_token_simple(self):
-        result = make_search().search(u'tags:country-sweden')
+        result = self.backend.query_for(model.Package).run(query=u'tags:country-sweden')
         assert self._check_entity_names(result, ['se-publications', 'se-opengov']), self._pkg_names(result)
 
-        result = make_search().search(u'tags:wildlife')
+        result = self.backend.query_for(model.Package).run(query=u'tags:wildlife')
         assert self._pkg_names(result) == 'us-gov-images', self._pkg_names(result)
 
     def test_tags_token_simple_with_deleted_tag(self):
         # registry has been deleted
-        result = make_search().search(u'tags:registry')
+        result = self.backend.query_for(model.Package).run(query=u'tags:registry')
         assert self._pkg_names(result) == '', self._pkg_names(result)
 
     def test_tags_token_multiple(self):
-        result = make_search().search(u'tags:country-sweden tags:format-pdf')
+        result = self.backend.query_for(model.Package).run(query=u'tags:country-sweden tags:format-pdf')
         assert self._pkg_names(result) == 'se-publications', self._pkg_names(result)
 
     def test_tags_token_complicated(self):
-        result = make_search().search(u'tags:country-sweden tags:somethingrandom')
+        result = self.backend.query_for(model.Package).run(query=u'tags:country-sweden tags:somethingrandom')
         assert self._pkg_names(result) == '', self._pkg_names(result)
 
     def test_tags_token_blank(self):
-        options = SearchOptions({'q':u'tags: wildlife'})
-        result = make_search().run(options)
+        result = self.backend.query_for(model.Package).run(query=u'tags: wildlife')
         assert self._pkg_names(result) == 'us-gov-images', self._pkg_names(result)
 
     def test_tag_basic(self):
-        options = SearchOptions({'q':u'gov',
-                                 'entity':'tag'})
-        result = make_search().run(options)
+        result = self.backend.query_for('tag').run(query=u'gov')
         assert result['count'] == 2, result
         assert self._check_entity_names(result, ('gov', 'government')), self._pkg_names(result)
 
     def test_tag_basic_2(self):
-        options = SearchOptions({'q':u'wildlife',
-                                 'entity':'tag'})
-        result = make_search().run(options)
+        result = self.backend.query_for('tag').run(query=u'wildlife')
         assert self._pkg_names(result) == 'wildlife', self._pkg_names(result)
 
     def test_tag_with_tags_option(self):
-        options = SearchOptions({'q':u'tags:wildlife',
-                                 'entity':'tag'})
-        result = make_search().run(options)
+        result = self.backend.query_for('tag').run(query=u'tags:wildlife')
         assert self._pkg_names(result) == 'wildlife', self._pkg_names(result)
 
     def test_tag_with_blank_tags(self):
-        options = SearchOptions({'q':u'tags: wildlife',
-                                 'entity':'tag'})
-        result = make_search().run(options)
+        result = self.backend.query_for('tag').run(query=u'tags: wildlife')
         assert self._pkg_names(result) == 'wildlife', self._pkg_names(result)
 
     def test_pagination(self):
         # large search
-        all_results = make_search().search(self.q_all)
+        all_results = self.backend.query_for(model.Package).run(query=self.q_all)
         all_pkgs = all_results['results']
         all_pkg_count = all_results['count']
 
         # limit
-        options = SearchOptions({'q':self.q_all})
+        options = QueryOptions()
         options.limit = 2
-        result = make_search().run(options)
+        result = self.backend.query_for(model.Package).run(query=self.q_all, options=options)
         pkgs = result['results']
         count = result['count']
         assert len(pkgs) == 2, pkgs
@@ -191,60 +184,60 @@ class TestSearch(TestController):
         assert pkgs == all_pkgs[:2]
 
         # offset
-        options = SearchOptions({'q':self.q_all})
+        options = QueryOptions()
         options.limit = 2
         options.offset = 2
-        results = make_search().run(options)
+        result = self.backend.query_for(model.Package).run(query=self.q_all, options=options)
         pkgs = results['results']
         assert len(pkgs) == 2, pkgs
         assert pkgs == all_pkgs[2:4]
 
         # larger offset
-        options = SearchOptions({'q':self.q_all})
+        options = QueryOptions()
         options.limit = 2
         options.offset = 4
-        result = make_search().run(options)
+        result = self.backend.query_for(model.Package).run(query=self.q_all, options=options)
         pkgs = result['results']
         assert len(pkgs) == 2, pkgs
         assert pkgs == all_pkgs[4:6]
 
     def test_order_by(self):
         # large search
-        all_results = make_search().search(self.q_all)
+        all_results = self.backend.query_for(model.Package).run(query=self.q_all)
         all_pkgs = all_results['results']
         all_pkg_count = all_results['count']
 
         # rank
-        options = SearchOptions({'q':u'penguin'})
+        options = QueryOptions()
         options.order_by = 'rank'
-        result = make_search().run(options)
+        result = self.backend.query_for(model.Package).run(fields={'q':u'penguin'}, options=options)
         pkgs = result['results']
         fields = [model.Package.by_name(pkg_name).name for pkg_name in pkgs]
         assert fields[0] == 'usa-courts-gov', fields # has penguin three times
         assert pkgs == all_pkgs, pkgs #default ordering        
 
         # name
-        options = SearchOptions({'q':self.q_all})
+        options = QueryOptions()
         options.order_by = 'name'
-        result = make_search().run(options)
+        result = self.backend.query_for(model.Package).run(query=self.q_all, options=options)
         pkgs = result['results']
         fields = [model.Package.by_name(pkg_name).name for pkg_name in pkgs]
         sorted_fields = fields; sorted_fields.sort()
         assert fields == sorted_fields, repr(fields) + repr(sorted_fields)
 
         # title
-        options = SearchOptions({'q':self.q_all})
+        options = QueryOptions()
         options.order_by = 'title'
-        result = make_search().run(options)
+        result = self.backend.query_for(model.Package).run(query=self.q_all, options=options)
         pkgs = result['results']
         fields = [model.Package.by_name(pkg_name).title for pkg_name in pkgs]
         sorted_fields = fields; sorted_fields.sort()
         assert fields == sorted_fields, repr(fields) + repr(sorted_fields)
 
         # notes
-        options = SearchOptions({'q':self.q_all})
+        options = QueryOptions()
         options.order_by = 'notes'
-        result = make_search().run(options)
+        result = self.backend.query_for(model.Package).run(query=self.q_all, options=options)
         pkgs = result['results']
         fields = [model.Package.by_name(pkg_name).notes for pkg_name in pkgs]
         sorted_fields = fields; sorted_fields.sort()
@@ -261,37 +254,36 @@ class TestSearch(TestController):
 ##        assert fields == sorted_fields, repr(fields) + repr(sorted_fields)
 
     def test_search_notes_on(self):
-        options = SearchOptions({'q':u'restrictions'})
-        result = make_search().run(options)
+        result = self.backend.query_for(model.Package).run(query=u'restrictions')
         pkgs = result['results']
         count = result['count']
         assert len(pkgs) == 2, pkgs
         
     def test_search_foreign_chars(self):
-        result = make_search().search('umlaut')
+        result = self.backend.query_for(model.Package).run(query='umlaut')
         assert result['results'] == ['gils'], result['results']
-        result = make_search().search(u'thumb')
+        result = self.backend.query_for(model.Package).run(query=u'thumb')
         assert result['count'] == 0, result['results']
-        result = make_search().search(u'th\xfcmb')
+        result = self.backend.query_for(model.Package).run(query=u'th\xfcmb')
         assert result['results'] == ['gils'], result['results']
 
     # Groups searching deprecated for now
     def _test_groups(self):
-        result = make_search().search(u'groups:random')
+        result = self.backend.query_for(model.Package).run(query=u'groups:random')
         assert self._pkg_names(result) == '', self._pkg_names(result)
-
-        result = make_search().search(u'groups:ukgov')
+        
+        result = self.backend.query_for(model.Package).run(query=u'groups:ukgov')
         assert result['count'] == 4, self._pkg_names(result)
 
-        result = make_search().search(u'groups:ukgov tags:us')
+        result = self.backend.query_for(model.Package).run(query=u'groups:ukgov tags:us')
         assert result['count'] == 2, self._pkg_names(result)
 
     def test_query(self):
-        options = SearchOptions({'q':u'tags: wildlife'})
-        run_result = make_search().run(options)
-        query = make_search().query(options)
-        assert query.count() == run_result['count']
-        assert query.first()[0].name == run_result['results'][0], '%s\n%s' % (query.first()[0].name, run_result['results'][0])
+        run_result = self.backend.query_for(model.Package).run(query=u'tags: wildlife')
+        # make_search().run(options)
+        #query = make_search().query(options)
+        #assert query.count() == run_result['count']
+        #assert query.first()[0].name == run_result['results'][0], '%s\n%s' % (query.first()[0].name, run_result['results'][0])
         
 
 class TestSearchOverall(TestController):
@@ -300,16 +292,17 @@ class TestSearchOverall(TestController):
         indexer = TestSearchIndexer()
         CreateTestData.create()
         indexer.index()
+        self.backend = get_backend(backend='sql')
 
     @classmethod
     def teardown_class(self):
         CreateTestData.delete()
 
     def _check_search_results(self, terms, expected_count, expected_packages=[], only_open=False, only_downloadable=False):
-        options = SearchOptions({'q':unicode(terms)})
+        options = QueryOptions()
         options.filter_by_openness = only_open
         options.filter_by_downloadable = only_downloadable
-        result = make_search().run(options)
+        result = self.backend.query_for(model.Package).run(query=unicode(terms))
         pkgs = result['results']
         count = result['count']
         assert count == expected_count, (count, expected_count)
@@ -350,6 +343,7 @@ class TestGeographicCoverage(TestController):
             ]
         CreateTestData.create_arbitrary(init_data)
         indexer.index()
+        self.backend = get_backend(backend='sql')
 
 
     @classmethod
@@ -357,9 +351,9 @@ class TestGeographicCoverage(TestController):
         CreateTestData.delete()
     
     def _do_search(self, q, expected_pkgs, count=None):
-        options = SearchOptions({'q':q})
+        options = QueryOptions()
         options.order_by = 'rank'
-        result = make_search().run(options)
+        result = self.backend.query_for(model.Package).run(query=q, options=options)
         pkgs = result['results']
         fields = [model.Package.by_name(pkg_name).name for pkg_name in pkgs]
         if not (count is None):
@@ -368,9 +362,9 @@ class TestGeographicCoverage(TestController):
             assert expected_pkg in fields, expected_pkg
 
     def _filtered_search(self, value, expected_pkgs, count=None):
-        options = SearchOptions({'q':'', 'geographic_coverage':value})
+        options = QueryOptions()
         options.order_by = 'rank'
-        result = make_search().run(options)
+        result = self.backend.query_for(model.Package).run(fields={'geographic_coverage':value}, options=options)
         pkgs = result['results']
         fields = [model.Package.by_name(pkg_name).name for pkg_name in pkgs]
         if not (count is None):
@@ -405,15 +399,14 @@ class TestExtraFields(TestController):
             ]
         CreateTestData.create_arbitrary(init_data)
         indexer.index()
+        self.backend = get_backend(backend='sql')
 
     @classmethod
     def teardown_class(self):
         CreateTestData.delete()
     
     def _do_search(self, department, expected_pkgs, count=None):
-        options = SearchOptions({'q':''})
-        options.department = department
-        result = make_search().run(options)
+        result = self.backend.query_for(model.Package).run(fields={'department':department})
         pkgs = result['results']
         fields = [model.Package.by_name(pkg_name).name for pkg_name in pkgs]
         if not (count is None):
@@ -443,15 +436,16 @@ class TestRank(TestController):
         indexer.index()
         self.pkg_names = [u'test1-penguin-canary',
                      u'test2-squirrel-squirrel-canary-goose']
+        self.backend = get_backend(backend='sql')
 
     @classmethod
     def teardown_class(self):
         CreateTestData.delete()
     
     def _do_search(self, q, wanted_results):
-        options = SearchOptions({'q':q})
+        options = QueryOptions()
         options.order_by = 'rank'
-        result = make_search().run(options)
+        result = self.backend.query_for(model.Package).run(query=q, options=options)
         results = result['results']
         err = 'Wanted %r, got %r' % (wanted_results, results)
         print wanted_results, results

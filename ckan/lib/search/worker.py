@@ -30,7 +30,7 @@ class SearchIndexWorker(AsyncConsumer):
         """ Call the appropriate index method for a given notification. """
         if not isinstance(notification, DomainObjectNotification):
             return
-        log.info("Search received notification: %s" % notification)
+        log.debug("Search received notification: %s" % notification)
         try:
             index = backend.index_for(notification.domain_object_class)
             op = notification['operation']
