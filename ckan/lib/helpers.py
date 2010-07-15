@@ -12,6 +12,7 @@ from webhelpers.markdown import markdown
 from webhelpers import paginate
 from webhelpers.text import truncate
 from routes import url_for, redirect_to
+from alphabet_paginate import AlphaPage
 try:
     import json
 except Exception:
@@ -49,3 +50,4 @@ class Page(paginate.Page):
             symbol_previous='« Prev', symbol_next='Next »'
         )
         return super(Page, self).pager(*args, **kwargs)
+

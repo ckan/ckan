@@ -3,6 +3,7 @@ import urlparse
 
 import genshi
 from pylons import config
+from pylons.i18n import get_lang, _
 
 from ckan.lib.base import *
 from ckan.lib.search import make_search, SearchOptions
@@ -11,7 +12,6 @@ import ckan.forms
 import ckan.authz
 import ckan.rating
 import ckan.misc
-from pylons.i18n import get_lang
 
 logger = logging.getLogger('ckan.controllers')
 
@@ -25,10 +25,11 @@ class PackageController(BaseController):
 
     def list(self):
         query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
-        c.page = h.Page(
+        c.page = h.AlphaPage(
             collection=query,
-            page=request.params.get('page', 1),
-            items_per_page=50
+            page=request.params.get('page', 'A'),
+            alpha_attribute='title',
+            other_text=_('Other'),
         )
         return render('package/list.html')
 

@@ -1,11 +1,11 @@
+from pylons.i18n import _
+
 from ckan.lib.base import *
-from ckan.lib.helpers import json
+from ckan.lib.helpers import json, AlphaPage
 
 class TagController(BaseController):
 
     def index(self):
-        from ckan.lib.helpers import Page
-        
         c.q = request.params.get('q', '')
         
         if c.q:
@@ -13,10 +13,11 @@ class TagController(BaseController):
         else:
             query = model.Session.query(model.Tag)
            
-        c.page = Page(
+        c.page = AlphaPage(
             collection=query,
-            page=request.params.get('page', 1),
-            items_per_page=100
+            page=request.params.get('page', 'A'),
+            alpha_attribute='name',
+            other_text=_('Other'),
         )
            
         return render('tag/index.html')
