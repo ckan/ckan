@@ -109,6 +109,9 @@ form dl {
 label.has-errors, label.fieldWithErrors {
   font-weight: bold;
   color: #d12f19; }
+
+label { 
+  display: block; }
  
 form .field_error, form .error-explanation {
   display: none; }

@@ -53,7 +53,7 @@
         <topbar py:choose="">
 	<p py:when="c.user" i18n:msg="openid_icon, user">
             Logged in as <strong>${h.icon('openid')} ${c.user}</strong>
-            &middot; <a href="${h.url_for(controller='user',action=None)}">My account</a>
+            &middot; <a href="${h.url_for(controller='user',action=None,id=None)}">My account</a>
 	    &middot; <a href="${h.url_for('/logout_openid')}">Logout</a>
           </p>
           <p py:otherwise="" i18n:msg="openid_icon">
@@ -75,7 +75,7 @@
     <h3 class="hidden">Sections:</h3>
     <ul id="navigation">
       <li>${h.nav_link(c, _('Home'), controller='home', action='index', id=None)}</li>
-      <li>${h.nav_link(c, _('Packages'), controller='package', action='index', id=None)}</li>
+      <li>${h.nav_link(c, _('Data Packages'), controller='package', action='index', id=None)}</li>
       <li>${h.nav_link(c, _('Tags'), controller='tag', action='index', id=None)}</li>
       <li>${h.nav_link(c, _('Groups'), controller='group', action='index', id=None)}</li>
       <li>${h.nav_link(c, _('Revision history'), controller='revision', action='index', id=None)}</li>

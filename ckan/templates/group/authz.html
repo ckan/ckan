@@ -1,11 +1,11 @@
 <html xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude">
   
-  <py:def function="page_title">Groups - Authorization - ${c.groupname}</py:def>
+  <py:def function="page_title">${c.grouptitle or c.groupname} - Authorization - Groups</py:def>
 
   <div py:match="content">
     <h2>
-      Authorization for group: ${c.groupname}
+      Authorization for group: ${c.grouptitle or c.groupname}
     </h2>
 
     <p py:if="c.message">${c.message}</p>

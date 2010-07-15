@@ -237,6 +237,7 @@ class PackageController(BaseController):
         if not 'commit' in request.params and not 'preview' in request.params:
             # edit
             c.pkgname = pkg.name
+            c.pkgtitle = pkg.title
             if pkg.license_id:
                 self._adjust_license_id_options(pkg, fs)
             fs = fs.bind(pkg)
@@ -250,7 +251,7 @@ class PackageController(BaseController):
             fs = fs.bind(pkg, data=params or None)
             try:
                 PackageSaver().commit_pkg(fs, id, pkg.id, log_message, c.author)
-                # do not use pkgname from id as may have changed
+                # do not use package name from id, as it may have been edited
                 pkgname = fs.name.value
                 self._form_commit_redirect(pkgname, 'edit')
             except ValidationException, error:
@@ -262,6 +263,7 @@ class PackageController(BaseController):
                 abort(400, 'Missing parameter: %s' % error.args)
         else: # Must be preview
             c.pkgname = pkg.name
+            c.pkgtitle = pkg.title
             if pkg.license_id:
                 self._adjust_license_id_options(pkg, fs)
             fs = fs.bind(pkg, data=dict(request.params))
@@ -269,6 +271,8 @@ class PackageController(BaseController):
                 PackageSaver().render_preview(fs, id, pkg.id,
                                               log_message=log_message,
                                               author=c.author)
+                c.pkgname = fs.name.value
+                c.pkgtitle = fs.title.value
                 read_core_html = render('package/read_core.html') #utf8 format
                 c.preview = h.literal(read_core_html)
                 c.form = self._render_edit_form(fs, request.params)
@@ -310,6 +314,7 @@ class PackageController(BaseController):
         if pkg is None:
             abort(404, gettext('Package not found'))
         c.pkgname = pkg.name
+        c.pkgtitle = pkg.title
 
         c.authz_editable = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, pkg)
         if not c.authz_editable:

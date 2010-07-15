@@ -4,10 +4,10 @@
   xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude">
 
-  <py:def function="page_title">Packages - Search</py:def>
+  <py:def function="page_title">Search - Data Packages</py:def>
 
   <div py:match="content">
-    <h2>Search packages</h2>
+    <h2>Search Data Packages</h2>
     
     <xi:include href="search_form.html" />
     
@@ -15,7 +15,7 @@
       <hr />
     
       <py:if test="c.tags_count > 0">
-        <p i18n:msg="tags_count, tags_limit"><strong>${c.tags_count}</strong> tags found (max ${c.tag_limit} shown).</p>
+        <p i18n:msg="tags_count, tags_limit"><strong>${c.tags_count}</strong> tags found (max $nd{c.tag_limit} shown).</p>
         ${tag_list(c.tags)}
       </py:if>
 

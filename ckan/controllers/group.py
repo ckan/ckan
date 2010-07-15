@@ -67,6 +67,7 @@ class GroupController(BaseController):
                 return render('group/edit.html')
             # do not use groupname from id as may have changed
             c.groupname = c.fs.name.value
+            c.grouptitle = c.fs.title.value
             group = model.Group.by_name(c.groupname)
             assert group
             admins = []
@@ -103,6 +104,7 @@ class GroupController(BaseController):
         if not 'commit' in request.params:
             c.group = group
             c.groupname = group.name
+            c.grouptitle = group.title
             
             fs = ckan.forms.get_group_fieldset('group_fs').bind(c.group)
             c.form = self._render_edit_form(fs)
@@ -118,6 +120,7 @@ class GroupController(BaseController):
                 self._update(c.fs, id, group.id)
                 # do not use groupname from id as may have changed
                 c.groupname = c.fs.name.value
+                c.grouptitle = c.fs.title.value
             except ValidationException, error:
                 fs = error.args[0]
                 c.form = self._render_edit_form(fs)
@@ -138,6 +141,7 @@ class GroupController(BaseController):
         if group is None:
             abort(404, gettext('Group not found'))
         c.groupname = group.name
+        c.grouptitle = group.title
 
         c.authz_editable = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, group)
         if not c.authz_editable:

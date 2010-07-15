@@ -1,7 +1,7 @@
 <html xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude">
   
-  <py:def function="page_title">Diff</py:def>
+  <py:def function="page_title">Differences - Revisions</py:def>
 
   <div py:match="content">
     <h2>Revision Differences - <a href="${h.url_for(controller='package', action='read', id=c.pkg.name)}">${c.pkg.name}</a></h2>

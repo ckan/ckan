@@ -1,7 +1,7 @@
 <html xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude">
   
-  <py:def function="page_title">Package - ${c.pkg.name} - History</py:def>
+  <py:def function="page_title">${c.pkg.title or c.pkg.name} - Data Packages - History</py:def>
 
   <div py:match="content" class="package">
     <p style="float: right"><a href="?format=atom"><img style="height:16; width:16; margin-bottom:-0.3em" src="/images/icons/atom_feed.png" alt="Atom Feed" title="${g.site_title} - Package History - ${c.pkg.name}"/></a> <a href="/package/history/${c.pkg.name}?format=atom&amp;days=7">Subscribe &raquo;</a></p>

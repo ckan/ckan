@@ -86,7 +86,7 @@ class TestDistributingChanges(TestControllerWithForeign):
         assert not model.Package.by_name(name)
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
-        assert 'Packages - New' in res
+        assert 'New - Data Packages' in res
         fv = res.forms['package-edit']
         prefix = 'Package--'
         fv[prefix + 'name'] = name
