@@ -1,7 +1,7 @@
 from webob.multidict import UnicodeMultiDict, MultiDict
 
 from ckan.tests import *
-from ckan.lib.search import make_search, SearchOptions
+from ckan.lib.search import get_backend, QueryOptions
 from ckan import model
 from ckan.lib.create_test_data import CreateTestData
 
@@ -38,6 +38,7 @@ class TestSearch(object):
              },
             ]
         CreateTestData.create_arbitrary(self.pkgs)
+        self.backend = get_backend(backend='sql')
 
     @classmethod
     def teardown_class(self):

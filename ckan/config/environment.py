@@ -58,5 +58,8 @@ def load_environment(global_conf, app_conf):
     engine = engine_from_config(config, 'sqlalchemy.')
     model.init_model(engine)
     if bool(config.get('ckan.build_search_index_synchronously', True)):
-        model.setup_synchronous_indexing()
+        import ckan.lib.search as search
+        search.setup_synchronous_indexing()
+    else:
+        import ckan.lib.async_notifier as notf
 
