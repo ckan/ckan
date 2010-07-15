@@ -15,7 +15,7 @@
       <hr />
     
       <py:if test="c.tags_count > 0">
-        <p i18n:msg="tags_count, tags_limit"><strong>${c.tags_count}</strong> tags found (max $nd{c.tag_limit} shown).</p>
+        <p i18n:msg="tags_count, tags_limit"><strong>${c.tags_count}</strong> tags found (max ${c.tag_limit} shown).</p>
         ${tag_list(c.tags)}
       </py:if>
 

@@ -25,10 +25,10 @@ class TestTagController(TestController):
         offset = '/tag/read/%s' % name
         res = self.app.get(offset, status=HTTP_MOVED_PERMANENTLY)
         res = res.follow()
-        assert 'Tags - %s' % name in res
+        assert '%s - Tags' % name in res
         assert name in res
         # res = res.click(pkgname)
-        # assert 'Packages - %s' % pkgname in res
+        # assert '%s - Data Packages' % pkgname in res
 
     def test_read(self):
         name = 'tolstoy'
@@ -36,10 +36,10 @@ class TestTagController(TestController):
         offset = url_for(controller='tag', action='read', id=name)
         assert offset == '/tag/tolstoy', offset
         res = self.app.get(offset)
-        assert 'Tags - %s' % name in res
+        assert '%s - Tags' % name in res
         assert name in res
         # res = res.click(pkgname)
-        # assert 'Packages - %s' % pkgname in res
+        # assert '%s - Data Packages' % pkgname in res
 
     def test_list_short(self):
         offset = url_for(controller='tag', action='index')

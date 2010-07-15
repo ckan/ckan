@@ -37,25 +37,28 @@ class TestGroup(TestController):
         
     def test_read(self):
         name = u'david'
+        title = u'Dave\'s books'
         pkgname = u'warandpeace'
         offset = url_for(controller='group', action='read', id=name)
         res = self.app.get(offset)
         main_res = self.main_div(res)
-        assert 'Groups - %s' % name in res, res
+        assert '%s - Groups' % title in res, res
         assert '[edit]' not in main_res, main_res
         assert 'Administrators:' in main_res, main_res
         assert 'russianfan' in main_res, main_res
         assert name in res, res
         assert 'There are 2 packages in this group' in self.strip_tags(main_res), main_res
-        res = res.click(model.Package.by_name(pkgname).title)
-        assert 'Packages - %s' % pkgname in res
+        pkg = model.Package.by_name(pkgname)
+        res = res.click(pkg.title)
+        assert '%s - Data Packages' % pkg.title in res
 
     def test_read_and_authorized_to_edit(self):
         name = u'david'
+        title = u'Dave\'s books'
         pkgname = u'warandpeace'
         offset = url_for(controller='group', action='read', id=name)
         res = self.app.get(offset, extra_environ={'REMOTE_USER': 'russianfan'})
-        assert 'Groups - %s' % name in res, res
+        assert '%s - Groups' % title in res, res
         assert '[edit]' in res
         assert name in res
 

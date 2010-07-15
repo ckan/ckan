@@ -31,7 +31,7 @@ class TestPackageForm(TestPackageBase):
     '''Inherit this in tests for these form testing methods'''
     def _check_package_read(self, res, **params):
         assert not 'Error' in res, res
-        assert u'Packages - %s' % params['name'] in res, res
+        assert u'%s - Data Packages' % params['title'] in res, res
         main_res = self.main_div(res)
         main_div = main_res
         main_div_str = main_div.encode('utf8')
@@ -233,7 +233,7 @@ class TestReadOnly(TestPackageForm):
     def test_index(self):
         offset = url_for(controller='package')
         res = self.app.get(offset)
-        assert 'Packages - Index' in res
+        assert 'Data Packages' in res
 
     def test_minornavigation(self):
         offset = url_for(controller='package')
@@ -241,13 +241,13 @@ class TestReadOnly(TestPackageForm):
         # TODO: make this a bit more rigorous!
         assert 'Browse' in res, res
         res = res.click('Browse packages')
-        assert 'Packages - List' in res
+        assert 'Browse - Data Packages' in res
     
     def test_minornavigation_2(self):
         offset = url_for(controller='package')
         res = self.app.get(offset)
         res = res.click('Register a new package')
-        assert 'Packages - New' in res
+        assert 'New - Data Packages' in res
 
     def test_read(self):
         name = u'annakarenina'
@@ -259,7 +259,7 @@ class TestReadOnly(TestPackageForm):
         assert res_by_id.body == res.body
         # only retrieve after app has been called
         anna = self.anna
-        assert 'Packages - %s' % name in res
+        assert '%s - Data Packages' % anna.title in res
         assert name in res
         assert anna.version in res
         assert anna.url in res
@@ -319,14 +319,14 @@ class TestReadOnly(TestPackageForm):
         title = u'A Novel By Tolstoy'
         assert title in res
         res = res.click(title)
-        assert 'Packages - %s' % name in res, res
+        assert '%s - Data Packages' % title in res, res
         main_div = self.main_div(res)
         assert title in main_div, main_div.encode('utf8')
 
     def test_search(self):
         offset = url_for(controller='package', action='search')
         res = self.app.get(offset)
-        assert 'Search packages' in res
+        assert 'Search - Data Packages' in res
         self._check_search_results(res, 'annakarenina', ['<strong>1</strong>', 'A Novel By Tolstoy'] )
         self._check_search_results(res, 'warandpeace', ['<strong>0</strong>'], only_downloadable=True )
         self._check_search_results(res, 'warandpeace', ['<strong>0</strong>'], only_open=True )
@@ -337,7 +337,7 @@ class TestReadOnly(TestPackageForm):
     def test_search_foreign_chars(self):
         offset = url_for(controller='package', action='search')
         res = self.app.get(offset)
-        assert 'Search packages' in res
+        assert 'Search - Data Packages' in res
         self._check_search_results(res, u'th\xfcmb', ['<strong>1</strong>'])
         self._check_search_results(res, 'thumb', ['<strong>0</strong>'])
 
@@ -346,7 +346,7 @@ class TestReadOnly(TestPackageForm):
         offset = url_for(controller='package', action='search') + payload
         print offset
         results_page = self.app.get(offset)
-        assert 'Search packages' in results_page, results_page
+        assert 'Search - Data Packages' in results_page, results_page
         results_page = self.main_div(results_page)
         assert '<strong>0</strong>' in results_page, results_page
 
@@ -356,7 +356,7 @@ class TestReadOnly(TestPackageForm):
         form['open_only'] = only_open
         form['downloadable_only'] = only_downloadable
         results_page = form.submit()
-        assert 'Search packages' in results_page, results_page
+        assert 'Search - Data Packages' in results_page, results_page
         results_page = self.main_div(results_page)
         for required in requireds:
             assert required in results_page, "%s : %s" % (results_page, required)
@@ -409,19 +409,22 @@ class TestEdit(TestPackageForm):
         # just the absolute basics
         try:
             self.res = self.app.get(self.offset)
-            assert 'Packages - Edit' in self.res, self.res
+            assert 'Edit - Data Packages' in self.res, self.res
             new_name = u'new-name'
+            new_title = u'New Title'
             fv = self.res.forms['package-edit']
             prefix = 'Package-%s-' % self.pkgid
             fv[prefix + 'name'] = new_name
+            fv[prefix + 'title'] = new_title
             res = fv.submit('commit')
             # get redirected ...
             res = res.follow()
             offset = url_for(controller='package', action='read', id=new_name)
             res = self.app.get(offset)
-            assert 'Packages - %s' % new_name in res, res
+            assert '%s - Data Packages' % new_title in res, res
             pkg = model.Package.by_name(new_name)
             assert pkg
+            assert pkg.title == new_title
         finally:
             self._reset_data()
 
@@ -429,7 +432,7 @@ class TestEdit(TestPackageForm):
         # just the key fields
         try:
             self.res = self.app.get(self.offset)
-            assert 'Packages - Edit' in self.res, self.res
+            assert 'Edit - Data Packages' in self.res, self.res
             assert self.editpkg.notes in self.res
 
             new_name = u'new-name'
@@ -452,7 +455,7 @@ class TestEdit(TestPackageForm):
             model.Session.remove()
             offset = url_for(controller='package', action='read', id=new_name)
             res = self.app.get(offset)
-            assert 'Packages - %s' % new_name in res, res
+            assert '%s - Data Packages' % new_title in res, res
             pkg = model.Package.by_name(new_name)
             assert pkg.title == new_title 
             assert pkg.url == newurl
@@ -468,18 +471,20 @@ class TestEdit(TestPackageForm):
             offset = url_for(controller='package', action='edit', id=pkg.id)
             res = self.app.get(offset)
             assert res.body == self.res.body, self.diff_responses(res, self.res)
-            assert 'Packages - Edit' in res, res
+            assert 'Edit - Data Packages' in res, res
             assert pkg.name in res
             new_name = u'new-name'
+            new_title = u'A Short Description of this Package'
             fv = self.res.forms['package-edit']
             prefix = 'Package-%s-' % self.pkgid
             fv[prefix + 'name'] = new_name
+            fv[prefix + 'title'] =  new_title
             res = fv.submit('commit')
             # get redirected ...
             res = res.follow()
             offset = url_for(controller='package', action='read', id=new_name)
             res = self.app.get(offset)
-            assert 'Packages - %s' % new_name in res, res
+            assert '%s - Data Packages' % new_title in res, res
             pkg = model.Package.by_name(new_name)
             assert pkg
         finally:
@@ -505,7 +510,7 @@ class TestEdit(TestPackageForm):
         # get redirected ...
         res = res.follow()
         print str(res)
-        assert 'Packages - %s' % self.editpkg_name in res
+        assert '%s - Data Packages' % self.editpkg_name in res
         pkg = model.Package.by_name(self.editpkg.name)
         assert len(pkg.tags) == len(newtagnames)
         outtags = [ tag.name for tag in pkg.tags ]
@@ -533,7 +538,7 @@ u with umlaut \xc3\xbc
         fv[prefix + 'notes'] =  newnotes
         res = fv.submit('preview')
         print str(res)
-        assert 'Packages - Edit' in res
+        assert 'Edit - Data Packages' in res
         assert 'Preview' in res
         assert 'Hello world' in res
         self.check_tag_and_data(res, 'umlaut', u'\xfc')
@@ -618,7 +623,7 @@ u with umlaut \xc3\xbc
             # Edit it
             offset = url_for(controller='package', action='edit', id=pkg.name)
             res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':'testadmin'})
-            assert 'Packages - Edit' in res, res
+            assert 'Edit - Data Packages' in res, res
 
             # Check form is correctly filled
             pkg = model.Package.by_name(pkg_name)
@@ -809,7 +814,7 @@ class TestNew(TestPackageForm):
         assert not model.Package.by_name(u'annakarenina')
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
-        assert 'Packages - New' in res
+        assert 'New - Data Packages' in res
         fv = res.forms['package-edit']
         prefix = 'Package--'
         fv[prefix + 'name'] = 'annakarenina'
@@ -820,7 +825,7 @@ class TestNew(TestPackageForm):
     def test_new_bad_name(self):
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
-        assert 'Packages - New' in res
+        assert 'New - Data Packages' in res
         fv = res.forms['package-edit']
         prefix = 'Package--'
         fv[prefix + 'name'] = u'a' # invalid name
@@ -864,7 +869,7 @@ class TestNew(TestPackageForm):
         assert not model.Package.by_name(name)
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
-        assert 'Packages - New' in res
+        assert 'New - Data Packages' in res
         fv = res.forms['package-edit']
         prefix = 'Package--'
         fv[prefix+'name'] = name
@@ -956,7 +961,7 @@ class TestNew(TestPackageForm):
         assert not model.Package.by_name(pkgname)
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
-        assert 'Packages - New' in res
+        assert 'New - Data Packages' in res
         fv = res.forms['package-edit']
         prefix = 'Package--'
         fv[prefix + 'name'] = pkgname
@@ -966,7 +971,7 @@ class TestNew(TestPackageForm):
         assert model.Package.by_name(pkgname)
         # create duplicate package
         res = self.app.get(offset)
-        assert 'Packages - New' in res
+        assert 'New - Data Packages' in res
         fv = res.forms['package-edit']
         fv[prefix+'name'] = pkgname
         fv[prefix+'title'] = pkgtitle
@@ -983,7 +988,7 @@ class TestNew(TestPackageForm):
         # (Spammers can cause this)
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
-        assert 'Packages - New' in res
+        assert 'New - Data Packages' in res
         prefix = 'Package--'
         fv = res.forms['package-edit']
         fv[prefix + 'name'] = 'anything'
@@ -993,7 +998,7 @@ class TestNew(TestPackageForm):
 
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
-        assert 'Packages - New' in res
+        assert 'New - Data Packages' in res
         fv = res.forms['package-edit']
         fv[prefix + 'name'] = 'anything'
         prefix = 'Package--'
@@ -1007,7 +1012,7 @@ class TestNew(TestPackageForm):
         # ticket:276
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
-        assert 'Packages - New' in res
+        assert 'New - Data Packages' in res
         fv = res.forms['package-edit']
         prefix = 'Package--'
         fv[prefix + 'name'] = 'name276'
@@ -1036,7 +1041,7 @@ class TestNewPreview(TestPackageBase):
         
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
-        assert 'Packages - New' in res
+        assert 'New - Data Packages' in res
         fv = res.forms['package-edit']
         prefix = 'Package--'
         fv[prefix + 'name'] = self.pkgname
@@ -1082,7 +1087,7 @@ class TestNonActivePackages(TestPackageBase):
     def test_list(self):
         offset = url_for(controller='package', action='list')
         res = self.app.get(offset)
-        assert 'Packages - List' in res
+        assert 'Browse - Data Packages' in res
         assert 'annakarenina' in res
         assert self.non_active_name not in res
 
@@ -1098,11 +1103,11 @@ class TestNonActivePackages(TestPackageBase):
     def test_search(self):
         offset = url_for(controller='package', action='search')
         res = self.app.get(offset)
-        assert 'Search packages' in res
+        assert 'Search - Data Packages' in res
         form = res.forms['package-search']
         form['q'] =  str(self.non_active_name)
         results_page = form.submit()
-        assert 'Search packages' in results_page, results_page
+        assert 'Search - Data Packages' in results_page, results_page
         print results_page
         assert '<strong>0</strong> packages found' in results_page, (self.non_active_name, results_page)
 

@@ -60,7 +60,7 @@
   <py:def function="linked_user(username)">
           <?python
             from ckan import model
-            user = model.User.by_name(username)
+            user = model.User.by_name(unicode(username))
           ?>
           ${
             h.link_to(username,

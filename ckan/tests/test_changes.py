@@ -99,7 +99,7 @@ class TestDistributingChanges(TestControllerWithForeign):
 
         offset = url_for(controller='package', action='edit', id=name)
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':'testadmin'})
-        assert 'Packages - Edit' in res, res
+        assert 'Edit - Data Packages' in res, res
 
         version = u'1.1'
         url = u'http://something.com/somewhere.zip'

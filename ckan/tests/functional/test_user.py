@@ -28,20 +28,20 @@ class TestUserController(TestController):
         offset = url_for(controller='user', action='read', id=user.id)
         res = self.app.get(offset, status=200)
         main_res = self.main_div(res)
-        assert 'User Account - annafan' in res, res
+        assert 'annafan - User' in res, res
         assert 'Logged in' not in main_res, main_res
         assert 'About' in main_res, main_res
         assert 'I love reading Annakarenina' in res, main_res
         assert 'Edit' not in main_res, main_res
         assert 'Number of edits:</strong> 3' in res, res
         assert 'Number of packages administered:</strong> 1' in res, res
-        assert 'Recent changes' in res, res
+        assert 'Revision History' in res, res
 
     def test_user_read_logged_in(self):
         user = model.User.by_name(u'annafan')
         offset = url_for(controller='user', action='read', id=user.id)
         res = self.app.get(offset, extra_environ={'REMOTE_USER': str(user.name)})
-        assert 'User Account - annafan' in res, res
+        assert 'annafan - User' in res, res
         print res
         self.check_named_element(res, 'p', 'Logged in as', user.name)
         assert 'View your API key' in res
@@ -152,7 +152,7 @@ class TestUserController(TestController):
         # commit
         res = res.follow()
         main_res = self.main_div(res)
-        assert 'User Account - testedit' in main_res, main_res
+        assert 'User: testedit' in main_res, main_res
         assert new_about in main_res, main_res
 
         # read, not logged in

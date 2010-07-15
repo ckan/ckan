@@ -36,7 +36,7 @@ class TestRead(TestPackageBase):
         # only retrieve after app has been called
         self.anna = model.Package.by_name(name)
         print self.main_div(res)
-        assert 'Packages - %s' % name in res
+        assert '%s - Data Packages' % title in res
         assert name in res
         assert 'State:' not in res
 
@@ -149,7 +149,7 @@ class TestEdit(TestPackageBase):
         # Edit it
         offset = url_for(controller='package', action='edit', id=pkg.name, package_form=package_form)
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':'testadmin'})
-        assert 'Packages - Edit' in res, res
+        assert 'Edit - Data Packages' in res, res
         
         # Check form is correctly filled
         prefix = 'Package-%s-' % pkg.id
@@ -351,7 +351,7 @@ class TestEdit(TestPackageBase):
         main_res = self.main_div(res).replace('</strong>', '')
         sidebar = self.sidebar(res)
         res1 = (main_res + sidebar).decode('ascii', 'ignore')
-        assert 'Packages - %s' % str(name) in res, res
+        assert '%s - Data Packages' % str(name) in res, res
         assert str(name) in res1, res1
         assert str(title) in res1, res1
 #        assert str(version) in res1, res1
@@ -459,7 +459,7 @@ class TestNew(TestPackageBase):
         assert not model.Package.by_name(name)
         offset = url_for(controller='package', action='new', package_form=package_form)
         res = self.app.get(offset)
-        assert 'Packages - New' in res
+        assert 'New - Data Packages' in res
         fv = res.forms['package-edit']
         prefix = 'Package--'
         fv[prefix+'name'] = name
@@ -565,7 +565,7 @@ class TestNew(TestPackageBase):
         main_res = self.main_div(res).replace('</strong>', '')
         sidebar = self.sidebar(res)
         res1 = main_res + sidebar.decode('ascii', 'ignore')
-        assert 'Packages - %s' % str(name) in res, res
+        assert '%s - Data Packages' % str(name) in res, res
         assert  str(name) in res1, res1
         assert str(title) in res1, res1
 #        assert str(version) in res1, res1
@@ -627,7 +627,7 @@ class TestNew(TestPackageBase):
         assert not model.Package.by_name(self.pkgname)
         offset = url_for(controller='package', action='new', package_form=package_form)
         res = self.app.get(offset)
-        assert 'Packages - New' in res
+        assert 'New - Data Packages' in res
         fv = res.forms['package-edit']
         prefix = 'Package--'
         fv[prefix + 'name'] = self.pkgname
@@ -637,7 +637,7 @@ class TestNew(TestPackageBase):
 
         # create duplicate package
         res = self.app.get(offset)
-        assert 'Packages - New' in res
+        assert 'New - Data Packages' in res
         fv = res.forms['package-edit']
         fv[prefix+'name'] = self.pkgname
         res = fv.submit('preview')
@@ -653,7 +653,7 @@ class TestNew(TestPackageBase):
     def test_new_bad_name(self):
         offset = url_for(controller='package', action='new', package_form=package_form)
         res = self.app.get(offset)
-        assert 'Packages - New' in res
+        assert 'New - Data Packages' in res
         fv = res.forms['package-edit']
         prefix = 'Package--'
         # should result in error as need >= 2 chars

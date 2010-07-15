@@ -240,7 +240,7 @@ class TestUsage(TestController):
         assert not model.Package.by_name(u'annakarenina')
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset, extra_environ={'REMOTE_USER': user.name.encode('utf8')})
-        assert 'Packages - New' in res
+        assert 'New - Data Packages' in res
         fv = res.forms['package-edit']
         prefix = 'Package--'
         fv[prefix + 'name'] = u'annakarenina'
