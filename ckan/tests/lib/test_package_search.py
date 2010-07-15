@@ -1,6 +1,7 @@
 import time
 
 from ckan.model import Package
+import ckan.lib.search as search
 from ckan.lib.search import get_backend, query_for, QueryOptions
 import ckan.model as model
 from ckan.tests import *

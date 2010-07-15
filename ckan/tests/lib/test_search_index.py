@@ -4,16 +4,18 @@ import sqlalchemy as sa
 
 from ckan.tests import *
 from ckan import model
+import ckan.lib.search as search
 
 class TestSearchIndex(TestController):
     '''Tests that a package is indexed when the packagenotification is
     received by the indexer.'''
-    indexer = None
+    worker = None
+    
     @classmethod
     def setup_class(cls):
         CreateTestData.create()
-        cls.indexer = model.SearchIndexManager()
-        cls.indexer.clear_queue()
+        cls.worker = search.SearchIndexWorker()
+        cls.worker.clear_queue()
 
     @classmethod
     def teardown_class(cls):
@@ -22,7 +24,7 @@ class TestSearchIndex(TestController):
     def test_index(self):
         notification = model.PackageNotification.create(self.anna, 'changed')
         notification['payload']['title'] = 'penguin'
-        self.indexer.callback(notification)
+        self.worker.callback(notification)
 
         sql = "select search_vector from package_search where package_id='%s'" % self.anna.id
         vector = model.Session.execute(sql).fetchone()[0]
@@ -59,7 +61,7 @@ def allow_time_to_create_search_index():
 class TestPostgresSearch:
     @classmethod
     def setup_class(self):
-        indexer = TestSearchIndexer()
+        tsi = TestSearchIndexer()
         CreateTestData.create_search_test_data()
         indexer.index()
 
