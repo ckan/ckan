@@ -203,6 +203,10 @@ in `the ckan-solr-index repository <http://bitbucket.org/pudo/ckan-solr-index>`_
 Example::
  search_backend = solr
  solr_url = http://solr.okfn.org/solr/test.ckan.net
+ 
+Optionally, ``solr_user`` and ``solr_password`` can be passed along to specify HTTP Basic authentication 
+details for all solr requests. 
+
 
 site_title
 ----------
