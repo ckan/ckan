@@ -114,6 +114,9 @@ class SearchQuery(object):
         
     def _run(self):
         raise SearchError("SearchQuery._run() not implemented!")
+        
+    # convenience, allows to query(..)
+    __call__ = run
 
 
 class QueryOptions(dict):
