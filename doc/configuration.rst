@@ -194,6 +194,20 @@ Default (if you don't define it)::
 This controls the operation of the CKAN Postgres full text search indexing. If you don't define this option then it is on by default. You will want to turn this off if you want to use a different search engine for CKAN (e.g. SOLR). In this case you need to define the option equal to blank (as in the given example).
 
 
+search_backend, solr_url
+------------------------
+
+This will control the type of search backend and the configuration of solr, if selected. Valid values for ``search_backend`` are ``sql`` and ``solr``. Running solr will require a schema.xml file, such as the one
+in `the ckan-solr-index repository <http://bitbucket.org/pudo/ckan-solr-index>`_.
+
+Example::
+ search_backend = solr
+ solr_url = http://solr.okfn.org/solr/test.ckan.net
+ 
+Optionally, ``solr_user`` and ``solr_password`` can be passed along to specify HTTP Basic authentication 
+details for all solr requests. 
+
+
 site_title
 ----------
 
@@ -203,4 +217,4 @@ Example::
 Default::
  CKAN - Comprehensive Knowledge Archive Network
 
-This set the name of the site.
+This sets the name of the site.

@@ -1,12 +1,18 @@
 import sqlalchemy.orm
+import logging
 
+from paste.util.multidict import MultiDict 
 from ckan.lib.base import *
 from ckan.lib.helpers import json
 import ckan.model as model
 import ckan.forms
-from ckan.lib.search import make_search, SearchOptions, SearchOptionsError
+from ckan.lib.search import query_for, QueryOptions, SearchError, DEFAULT_OPTIONS
 import ckan.authz
 import ckan.rating
+
+log = logging.getLogger(__name__)
+
+IGNORE_FIELDS = ['q']
 
 class BaseRestController(BaseController):
 
@@ -393,21 +399,44 @@ class BaseRestController(BaseController):
                 except ValueError, inst:
                     response.status_int = 400
                     return gettext('Search params: %s') % str(inst)
-                    
-            options = SearchOptions(params)
-            options.entity = register
+            
+            options = QueryOptions()
+            for k, v in params.items():
+                if (k in DEFAULT_OPTIONS.keys()):
+                    options[k] = v
+            options.update(params)
+            options.username = self._get_username()
             options.search_tags = False
             options.return_objects = False
+            
+            query_fields = MultiDict()
+            for field, value in params.items():
+                field = field.strip()
+                if field in DEFAULT_OPTIONS.keys() or \
+                   field in IGNORE_FIELDS:
+                    continue
+                values = [value]
+                if isinstance(value, list):
+                    values = value
+                for v in values:
+                    query_fields.add(field, v)
+            
             if register == 'package':
                 options.ref_entity_with_attr = self.ref_package_with_attr
-            username = self._get_username()
             try:
-                results = make_search().run(options, username)
-            except SearchOptionsError, e:
+                backend = None
+                if register == 'resource': 
+                    query = query_for(model.PackageResource, backend='sql')
+                else:
+                    query = query_for(model.Package)
+                results = query.run(query=params.get('q'), 
+                                    fields=query_fields, 
+                                    options=options)
+                return self._finish_ok(results)
+            except SearchError, e:
+                log.exception(e)
                 response.status_int = 400
                 return gettext('Bad search option: %s') % e
-            else:
-                return self._finish_ok(results)
         else:
             response.status_int = 404
             return gettext('Unknown register: %s') % register

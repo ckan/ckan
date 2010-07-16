@@ -345,7 +345,39 @@ class TestData(CkanCommand):
         
         res = check_page('/package/list', 'Packages')
 
+class SearchIndexCommand(CkanCommand):
+    '''Creates a search index for all packages
 
+    Usage:
+      search-index                         - indexes changes as they occur
+      search-index rebuild                 - indexes all packages
+    '''
+
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    max_args = 1
+    min_args = 0
+
+    def command(self):
+        self._load_config()
+        logging.basicConfig(level=logging.DEBUG)
+        from ckan.lib.search import get_backend, rebuild, SearchIndexWorker
+
+        if not self.args:
+            # default to run
+            cmd = 'run'
+        else:
+            cmd = self.args[0]
+        if cmd == 'run':
+            backend = get_backend()
+            indexer = SearchIndexWorker(backend)
+            indexer.clear_queue()
+            while True:
+                indexer.run()
+        if cmd == 'rebuild':
+            rebuild()
+        else:
+            print 'Command %s not recognized' % cmd
 
 class Sysadmin(CkanCommand):
     '''Gives sysadmin rights to a named 
@@ -410,50 +442,6 @@ class Sysadmin(CkanCommand):
             return
         model.remove_user_from_role(user, model.Role.ADMIN, model.System())
         model.repo.commit_and_remove()
-
-class SearchIndex(CkanCommand):
-    '''Creates a search index for all packages
-
-    Usage:
-      search-index                         - indexes changes as they occur
-      search-index rebuild                 - indexes all packages
-    '''
-
-    summary = __doc__.split('\n')[0]
-    usage = __doc__
-    max_args = 1
-    min_args = 0
-
-    def command(self):
-        self._load_config()
-        from ckan import model
-
-        if not self.args:
-            # default to run
-            cmd = 'run'
-        else:
-            cmd = self.args[0]
-        if cmd == 'run':
-            self.run_indexer()
-        if cmd == 'rebuild':
-            self.rebuild()
-        else:
-            print 'Command %s not recognized' % cmd
-
-    def rebuild(self):
-        from ckan import model
-        from ckan.model.search_index import SearchIndexer
-        engine = model.metadata.bind
-        for pkg in model.Session.query(model.Package).all():
-            pkg_dict = pkg.as_dict()
-            SearchIndexer().update_package_vector(pkg_dict)
-
-    def run_indexer(self):
-        from ckan.model import SearchIndexManager
-        indexer = SearchIndexManager()
-        indexer.clear_queue()
-        while True:
-            indexer.run()
         
 
 class Ratings(CkanCommand):
