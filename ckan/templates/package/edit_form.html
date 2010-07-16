@@ -10,22 +10,23 @@
 
       <hr />
 
-      <label for="log_message">Optional log message about this change:</label>
-      <textarea id="log_message" rows="3" name="log_message" cols="60" class="short">${c.log_message}</textarea>
-      <p class="small" i18n:msg="">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.</p>
+      <label for="log_message">Edit summary (briefly describe the changes you have made)</label>
+      <textarea id="log_message" name="log_message" class="short">${c.log_message}</textarea>
 
-      <p>Author: ${c.author}</p>
-      <p class="desc" i18n:msg="">
-      If you have not signed in this will just be your IP address.<br />
-      <a href="${h.url_for(controller='user',action='login',id=None)}" target="_blank">Click here to sign in</a> before submitting (opens in new window).
-      </p>
+      <p py:if="c.user">Author: ${c.author}</p>
+      <py:if test="not c.user">
+        <label>Author: ${c.author}</label>
+        <p py:if="not c.user" class="small" i18n:msg="">
+        Since you have not signed in this will just be your IP address.<br />
+        <a href="${h.url_for(controller='user', action='login', id=None)}" target="_blank">Click here to sign in</a> before saving (opens in new window).
+        </p>
+      </py:if>
       
       <p>
         <input name="preview" type="submit" value="Preview" />
-        ${h.submit('commit', _('Commit'))}
+        ${h.submit('save', _('Save'))}
       </p>
 
-      <p>Please Note:</p>
       <ul class="desc">
         <li>By submitting content, you agree to release your contributions
         under the open license specified on the ${h.link_to(_('license page'),

@@ -199,7 +199,7 @@ class TestPackageForm(TestPackageBase):
             res = fv.submit('preview')
             assert not 'Error' in res, res
             fv = res.forms['package-edit']
-            res = fv.submit('commit', status=302)
+            res = fv.submit('save', status=302)
             assert not 'Error' in res, res
             redirected_to = dict(res.headers).get('Location') or dict(res.headers)['location']
             expected_redirect_url = expected_redirect.replace('<NAME>', new_name)
@@ -416,7 +416,7 @@ class TestEdit(TestPackageForm):
             prefix = 'Package-%s-' % self.pkgid
             fv[prefix + 'name'] = new_name
             fv[prefix + 'title'] = new_title
-            res = fv.submit('commit')
+            res = fv.submit('save')
             # get redirected ...
             res = res.follow()
             offset = url_for(controller='package', action='read', id=new_name)
@@ -449,7 +449,7 @@ class TestEdit(TestPackageForm):
             fv[prefix + 'resources-0-url'] =  new_download_url
             fv[prefix + 'license_id'] =  newlicense_id
             fv[prefix + 'version'] = newversion
-            res = fv.submit('commit')
+            res = fv.submit('save')
             # get redirected ...
             res = res.follow()
             model.Session.remove()
@@ -479,7 +479,7 @@ class TestEdit(TestPackageForm):
             prefix = 'Package-%s-' % self.pkgid
             fv[prefix + 'name'] = new_name
             fv[prefix + 'title'] =  new_title
-            res = fv.submit('commit')
+            res = fv.submit('save')
             # get redirected ...
             res = res.follow()
             offset = url_for(controller='package', action='read', id=new_name)
@@ -506,7 +506,7 @@ class TestEdit(TestPackageForm):
         fv[prefix + 'tags'] =  tagvalues
         exp_log_message = 'test_edit_2: making some changes'
         fv['log_message'] =  exp_log_message
-        res = fv.submit('commit')
+        res = fv.submit('save')
         # get redirected ...
         res = res.follow()
         print str(res)
@@ -554,7 +554,7 @@ u with umlaut \xc3\xbc
         # Ensure there is an error at the top of the form and by the field
         self._assert_form_errors(res)
 
-        res = fv.submit('commit')
+        res = fv.submit('save')
         assert 'Error' in res, res
         assert 'Name must be at least 2 characters long' in res, res
         # Ensure there is an error at the top of the form and by the field
@@ -565,12 +565,12 @@ u with umlaut \xc3\xbc
         # (Spammers can cause this)
         fv = self.res.forms['package-edit']
         del fv.fields['log_message']
-        res = fv.submit('commit', status=400)
+        res = fv.submit('save', status=400)
 
         fv = self.res.forms['package-edit']
         prefix = 'Package-%s-' % self.pkgid
         del fv.fields[prefix + 'license_id']
-        res = fv.submit('commit', status=400)     
+        res = fv.submit('save', status=400)     
 
 
     def test_redirect_after_edit_using_param(self):
@@ -693,7 +693,7 @@ u with umlaut \xc3\xbc
 
             # Submit
             fv = res.forms['package-edit']
-            res = fv.submit('commit', extra_environ={'REMOTE_USER':'testadmin'})
+            res = fv.submit('save', extra_environ={'REMOTE_USER':'testadmin'})
 
             # Check package page
             assert not 'Error' in res, res
@@ -750,7 +750,7 @@ u with umlaut \xc3\xbc
         self.check_tag(res, '<form', 'class="has-errors"')
         assert 'No links are allowed' in res, res
 
-        res = fv.submit('commit')
+        res = fv.submit('save')
         assert 'Error' in res, res
         self.check_tag(res, '<form', 'class="has-errors"')
         assert 'No links are allowed' in res, res
@@ -796,7 +796,7 @@ class TestNew(TestPackageForm):
         # submit
         fv = res.forms['package-edit']
         self.pkg_names.append(name)
-        res = fv.submit('commit')
+        res = fv.submit('save')
 
         # check package page
         assert not 'Error' in res, res
@@ -819,7 +819,7 @@ class TestNew(TestPackageForm):
         prefix = 'Package--'
         fv[prefix + 'name'] = 'annakarenina'
         self.pkg_names.append('annakarenina')
-        res = fv.submit('commit')
+        res = fv.submit('save')
         assert not 'Error' in res, res
 
     def test_new_bad_name(self):
@@ -835,7 +835,7 @@ class TestNew(TestPackageForm):
         self._assert_form_errors(res)
 
         self.pkg_names.append('a')
-        res = fv.submit('commit')
+        res = fv.submit('save')
         assert 'Error' in res, res
         assert 'Name must be at least 2 characters long' in res, res
         self._assert_form_errors(res)
@@ -912,7 +912,7 @@ class TestNew(TestPackageForm):
         # Submit
         fv = res.forms['package-edit']
         self.pkg_names.append(name)
-        res = fv.submit('commit')
+        res = fv.submit('save')
 
         # Check package page
         assert not 'Error' in res, res
@@ -966,7 +966,7 @@ class TestNew(TestPackageForm):
         prefix = 'Package--'
         fv[prefix + 'name'] = pkgname
         self.pkg_names.append(pkgname)
-        res = fv.submit('commit')
+        res = fv.submit('save')
         assert not 'Error' in res, res
         assert model.Package.by_name(pkgname)
         # create duplicate package
@@ -978,7 +978,7 @@ class TestNew(TestPackageForm):
         res = fv.submit('preview')
         assert 'Preview' in res
         fv = res.forms['package-edit']
-        res = fv.submit('commit')
+        res = fv.submit('save')
         assert 'Error' in res, res
         assert 'Package name already exists in database' in res, res
         self._assert_form_errors(res)
@@ -994,7 +994,7 @@ class TestNew(TestPackageForm):
         fv[prefix + 'name'] = 'anything'
         del fv.fields['log_message']
         self.pkg_names.append('anything')
-        res = fv.submit('commit', status=400)
+        res = fv.submit('save', status=400)
 
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
@@ -1006,7 +1006,7 @@ class TestNew(TestPackageForm):
         # NOTE Missing dropdowns fields don't cause KeyError in
         # _serialized_value so don't register as an error here like
         # text field tested here.
-        res = fv.submit('commit', status=400)     
+        res = fv.submit('save', status=400)     
 
     def test_multi_resource_bug(self):
         # ticket:276

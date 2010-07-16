@@ -158,13 +158,13 @@ class PackageController(BaseController):
 
         fs = ckan.forms.registry.get_fieldset(is_admin=is_admin,
                          package_form=request.params.get('package_form'))
-        if 'commit' in request.params or 'preview' in request.params:
+        if 'save' in request.params or 'preview' in request.params:
             if not request.params.has_key('log_message'):
                 abort(400, ('Missing parameter: log_message'))
             log_message = request.params['log_message']
 
         record = model.Package
-        if request.params.has_key('commit'):
+        if request.params.has_key('save'):
             fs = fs.bind(record, data=dict(request.params) or None, session=model.Session)
             try:
                 PackageSaver().commit_pkg(fs, None, None, log_message, c.author)
@@ -179,7 +179,7 @@ class PackageController(BaseController):
                 model.setup_default_user_roles(pkg, admins)
                 model.repo.commit_and_remove()
 
-                self._form_commit_redirect(pkgname, 'new')
+                self._form_save_redirect(pkgname, 'new')
             except ValidationException, error:
                 fs = error.args[0]
                 c.form = self._render_edit_form(fs, request.params,
@@ -230,12 +230,12 @@ class PackageController(BaseController):
         fs = ckan.forms.registry.get_fieldset(is_admin=c.auth_for_change_state,
                        package_form=request.params.get('package_form'))
 
-        if 'commit' in request.params or 'preview' in request.params:
+        if 'save' in request.params or 'preview' in request.params:
             if not request.params.has_key('log_message'):
                 abort(400, ('Missing parameter: log_message'))
             log_message = request.params['log_message']
 
-        if not 'commit' in request.params and not 'preview' in request.params:
+        if not 'save' in request.params and not 'preview' in request.params:
             # edit
             c.pkgname = pkg.name
             c.pkgtitle = pkg.title
@@ -244,7 +244,7 @@ class PackageController(BaseController):
             fs = fs.bind(pkg)
             c.form = self._render_edit_form(fs, request.params)
             return render('package/edit.html')
-        elif request.params.has_key('commit'):
+        elif request.params.has_key('save'):
             # id is the name (pre-edited state)
             pkgname = id
             params = dict(request.params) # needed because request is nested
@@ -254,7 +254,7 @@ class PackageController(BaseController):
                 PackageSaver().commit_pkg(fs, id, pkg.id, log_message, c.author)
                 # do not use package name from id, as it may have been edited
                 pkgname = fs.name.value
-                self._form_commit_redirect(pkgname, 'edit')
+                self._form_save_redirect(pkgname, 'edit')
             except ValidationException, error:
                 fs = error.args[0]
                 c.form = self._render_edit_form(fs, request.params,
@@ -284,7 +284,7 @@ class PackageController(BaseController):
                 return render('package/edit.html')
             return render('package/edit.html') # uses c.form and c.preview
 
-    def _form_commit_redirect(self, pkgname, action):
+    def _form_save_redirect(self, pkgname, action):
         '''This redirects the user to the CKAN package/read page,
         unless there is request parameter giving an alternate location,
         perhaps an external website.
@@ -321,7 +321,7 @@ class PackageController(BaseController):
         if not c.authz_editable:
             abort(401, str(gettext('User %r not authorized to edit %s authorizations') % (c.user, id)))
 
-        if 'commit' in request.params: # form posted
+        if 'save' in request.params: # form posted
             # needed because request is nested
             # multidict which is read only
             params = dict(request.params)

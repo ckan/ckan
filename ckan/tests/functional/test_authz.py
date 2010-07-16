@@ -244,7 +244,7 @@ class TestUsage(TestController):
         fv = res.forms['package-edit']
         prefix = 'Package--'
         fv[prefix + 'name'] = u'annakarenina'
-        res = fv.submit('commit', extra_environ={'REMOTE_USER': user.name.encode('utf8')})
+        res = fv.submit('save', extra_environ={'REMOTE_USER': user.name.encode('utf8')})
 
         # check user is admin
         pkg = model.Package.by_name(u'annakarenina')

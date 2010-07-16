@@ -73,7 +73,7 @@ class TestEdit(TestPackageBase):
         fv = self.res.forms['package-edit']
         prefix = 'Package-%s-' % self.pkgid
         fv[prefix + 'name'] = u'a' # invalid name
-        res = fv.submit('commit')
+        res = fv.submit('save')
         assert 'Error' in res, res
         assert 'Name must be at least 2 characters long' in res, res
         self._assert_form_errors(res)
@@ -343,7 +343,7 @@ class TestEdit(TestPackageBase):
         assert log_message in res
 
         # Submit
-        res = fv.submit('commit', extra_environ={'REMOTE_USER':'testadmin'})
+        res = fv.submit('save', extra_environ={'REMOTE_USER':'testadmin'})
 
         # Check package page
         assert not 'Error' in res, res
@@ -415,7 +415,7 @@ class TestNew(TestPackageBase):
         res = self.app.get(offset)
         fv = res.forms['package-edit']
         fv[prefix+'name'] = name
-        res = fv.submit('commit')
+        res = fv.submit('save')
 
         # check package page
         assert not 'Error' in res, res
@@ -557,7 +557,7 @@ class TestNew(TestPackageBase):
         assert log_message in main_res
 
         # Submit
-        res = fv.submit('commit')
+        res = fv.submit('save')
 
         # Check package page
         assert not 'Error' in res, res
@@ -631,7 +631,7 @@ class TestNew(TestPackageBase):
         fv = res.forms['package-edit']
         prefix = 'Package--'
         fv[prefix + 'name'] = self.pkgname
-        res = fv.submit('commit')
+        res = fv.submit('save')
         assert not 'Error' in res, res
         assert model.Package.by_name(self.pkgname)
 
@@ -645,7 +645,7 @@ class TestNew(TestPackageBase):
         assert 'Error' in res, res
         assert 'Package name already exists in database' in res, res
         fv = res.forms['package-edit']
-        res = fv.submit('commit')
+        res = fv.submit('save')
         assert 'Error' in res, res
         assert 'Package name already exists in database' in res, res
         self._assert_form_errors(res)
@@ -661,7 +661,7 @@ class TestNew(TestPackageBase):
         fv[prefix + 'title'] = 'A Test Package'
         fv[prefix + 'tags'] = 'test tags'
 #        fv[prefix + 'groups'] = 'test groups'
-        res = fv.submit('commit')
+        res = fv.submit('save')
         assert 'Error' in res, res
         assert 'Name must be at least 2 characters long' in res, res
         self._assert_form_errors(res)
