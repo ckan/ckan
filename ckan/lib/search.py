@@ -258,6 +258,7 @@ class SQLSearch:
                     query = query.filter(model_attr.ilike(unicode(term) + '%'))
                 else:
                     query = query.filter(model_attr.ilike('%' + unicode(term) + '%'))
+        query = query.order_by(model_attr)
         return query
 
 
