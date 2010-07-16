@@ -93,10 +93,10 @@ class SearchQuery(object):
         return self.backend._open_licenses
     
     def _format_results(self):
-        if not self.options.return_objects:
+        if not self.options.return_objects and len(self.results):
             if self.options.all_fields:
                 self.results = [r.as_dict() for r in self.results]
-            else:
+            elif not isinstance(self.results[0], basestring):
                 attr_name = self.options.ref_entity_with_attr
                 self.results = [getattr(entity, attr_name) for entity in self.results]
     
@@ -164,31 +164,31 @@ class QueryParser(object):
             parts = [self._query if self._query is not None else '']
             
             for term in self._terms:
-                if term.find(' ') != -1:
-                    term = "\"%s\"" % term
+                if term.find(u' ') != -1:
+                    term = u"\"%s\"" % term
                 parts.append(term.strip())
                 
             for field, value in self._fields.items():
                 if value.find(' ') != -1:
-                    value = "\"%s\"" % value
-                parts.append("%s:%s" % (field.strip(), value.strip()))
+                    value = u"\"%s\"" % value
+                parts.append(u"%s:%s" % (field.strip(), value.strip()))
                 
-            self._combined_query = ' '.join(parts)
+            self._combined_query = u' '.join(parts)
         return self._combined_query
     
     def _query_tokens(self):
         """ Split the query string, leaving quoted strings intact. """
         if self._query:
             inside_quote = False
-            buf = ''
+            buf = u''
             for ch in self._query:
-                if ch == ' ' and not inside_quote:
+                if ch == u' ' and not inside_quote:
                     if len(buf):
                         yield buf.strip()
-                    buf = ''
+                    buf = u''
                 elif ch == inside_quote:
                     inside_quote = False
-                elif ch in ["\"", "'"]:
+                elif ch in [u"\"", u"'"]:
                     inside_quote = ch
                 else:
                     buf += ch
@@ -200,7 +200,7 @@ class QueryParser(object):
         self._combined_fields = MultiDict(self._fields)
         self._combined_terms = list(self._terms)
         for token in self._query_tokens():
-            colon_pos = token.find(':')
+            colon_pos = token.find(u':')
             if colon_pos != -1:
                 field = token[:colon_pos]
                 value = token[colon_pos+1:]

@@ -14,10 +14,15 @@ SOLR_FIELDS = [TYPE_FIELD, "res_url", "text", "urls", "indexed_ts"]
 class SolrSearchBackend(SearchBackend):
     
     def _setup(self):
-        solr_url = config.get('solr_url', 'http://localhost:8983/solr')
         # import inline to avoid external dependency 
         from solr import SolrConnection # == solrpy 
-        self.connection = SolrConnection(solr_url)
+        solr_url = config.get('solr_url', 'http://localhost:8983/solr')
+        solr_user = config.get('solr_user')
+        solr_password = config.get('solr_password')
+        if http_user and http_password:
+            self.connection = SolrConnection(solr_url, http_user=solr_user, http_pass=solr_password)
+        else:
+            self.connection = SolrConnection(solr_url)
         
         self.register(model.Package.__name__, PackageSolrSearchIndex, PackageSolrSearchQuery)
         

@@ -14,7 +14,7 @@ class TestSearchIndex(TestController):
     @classmethod
     def setup_class(cls):
         CreateTestData.create()
-        cls.worker = search.SearchIndexWorker()
+        cls.worker = search.SearchIndexWorker(search.get_backend(backend='sql'))
         cls.worker.clear_queue()
 
     @classmethod
@@ -22,7 +22,7 @@ class TestSearchIndex(TestController):
         CreateTestData.delete()        
 
     def test_index(self):
-        notification = model.PackageNotification.create(self.anna, 'changed')
+        notification = model.PackageNotification.create(self.anna, 'new')
         notification['payload']['title'] = 'penguin'
         self.worker.callback(notification)
 
@@ -63,7 +63,7 @@ class TestPostgresSearch:
     def setup_class(self):
         tsi = TestSearchIndexer()
         CreateTestData.create_search_test_data()
-        indexer.index()
+        tsi.index()
 
         self.gils = model.Package.by_name(u'gils')
         self.war = model.Package.by_name(u'warandpeace')

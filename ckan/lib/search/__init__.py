@@ -19,7 +19,7 @@ DEFAULT_OPTIONS = {
     'return_objects': False,
     'ref_entity_with_attr': 'name',
     'all_fields': False,
-    'search_tags': False}
+    'search_tags': True}
 
 BACKENDS = {
     'sql': SqlSearchBackend,

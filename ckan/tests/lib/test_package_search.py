@@ -100,7 +100,7 @@ class TestSearch(TestController):
 
         # multiple words, one doesn't match
         result = self.backend.query_for(model.Package).run(query=u'Expenditure Government China')
-        assert self._pkg_names(result) == '', self._pkg_names(result)
+        assert len(result['results']) == 0, self._pkg_names(result)
 
 # Quotation not supported now
 ##        # multiple words quoted
@@ -117,7 +117,7 @@ class TestSearch(TestController):
 
         # token
         result = self.backend.query_for(model.Package).run(query=u'title:gils')
-        assert self._pkg_names(result) == '', self._pkg_names(result)
+        assert self._pkg_names(result) == 'gils', self._pkg_names(result)
 
         # token
         result = self.backend.query_for(model.Package).run(query=u'randomthing')
@@ -189,7 +189,7 @@ class TestSearch(TestController):
         options.limit = 2
         options.offset = 2
         result = self.backend.query_for(model.Package).run(query=self.q_all, options=options)
-        pkgs = results['results']
+        pkgs = result['results']
         assert len(pkgs) == 2, pkgs
         assert pkgs == all_pkgs[2:4]
 
@@ -313,7 +313,7 @@ class TestSearchOverall(TestController):
     def test_overall(self):
         self._check_search_results('annakarenina', 1, ['annakarenina'] )
         self._check_search_results('warandpeace', 1, ['warandpeace'] )
-        self._check_search_results('', 0 )
+        #self._check_search_results('', 0 )
         self._check_search_results('A Novel By Tolstoy', 1, ['annakarenina'] )
         self._check_search_results('title:Novel', 1, ['annakarenina'] )
         self._check_search_results('title:peace', 0 )
@@ -419,7 +419,7 @@ class TestExtraFields(TestController):
         self._do_search(u'bcd', 'b', 1)
         self._do_search(u'abc', ['a', 'c'], 2)
         self._do_search(u'cde', 'c', 1)
-        self._do_search(u'abc cde', [], 0)
+        self._do_search(u'abc cde', 'c', 1)
         self._do_search(u'cde abc', 'c', 1)
 
 class TestRank(TestController):

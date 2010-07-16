@@ -65,13 +65,13 @@ class TagSqlSearchQuery(SqlSearchQuery):
     """ Search for tags in plain SQL. """
 
     def _run(self):
-        if not self.query.terms:
-            return
         q = model.Session.query(model.Tag)
         terms = list(self.query.terms)
         for field, value in self.query.fields.items():
             if field in ('tag', 'tags'):
                 terms.append(value)
+        if not len(terms):
+            return
         for term in terms:
             q = q.filter(model.Tag.name.contains(term.lower()))
         self._db_query(q)
@@ -116,7 +116,7 @@ class PackageSqlSearchQuery(SqlSearchQuery):
         
         q = q.filter('package_search.search_vector @@ plainto_tsquery(:terms)')
         q = q.params(terms=all_terms)
-            
+        
         # Filter by field specific terms
         for field, terms in self.query.fields.items():
             if field == 'tags':
@@ -125,15 +125,15 @@ class PackageSqlSearchQuery(SqlSearchQuery):
             elif field == 'groups':
                 q = self._filter_by_group(q, terms)
                 continue
-            if isinstance(term, basestring):
+            if isinstance(terms, basestring):
                 terms = terms.split()
             elif hasattr(model.Package, field):
+                model_attr = getattr(model.Package, field)
                 for term in terms:
-                    model_attr = getattr(model.Package, field)
-                    q = q.filter(make_like(model_attr, term))
+                    q = q.filter(model_attr==make_like(model_attr, term))
             else:
-                query = self._filter_by_extra(field, q, terms)
-
+                q = self._filter_by_extra(field, q, terms)
+        
         # Filter for options
         if self.options.filter_by_downloadable:
             q = q.join('package_resources_all', aliased=True)
@@ -142,7 +142,7 @@ class PackageSqlSearchQuery(SqlSearchQuery):
                 model.PackageResource.package_id==model.Package.id))
         if self.options.filter_by_openness:
             q = q.filter(model.Package.license_id.in_(self.open_licenses))
-            
+        
         order_by = self.options.order_by
         if order_by is not None:
             if order_by == 'rank':
@@ -150,17 +150,17 @@ class PackageSqlSearchQuery(SqlSearchQuery):
                                                             sqlalchemy.func.plainto_tsquery(all_terms)))
                 q = q.order_by(sqlalchemy.text('ts_rank_cd_1 DESC'))
             elif hasattr(model.Package, order_by):
-                query = query.order_by(getattr(model.Package, order_by))
+                q = q.order_by(getattr(model.Package, order_by))
             else:
                 # TODO extras
                 raise NotImplemented
 
         q = q.distinct()
         self._db_query(q)
-        
+    
     def _filter_by_tag(self, q, term):
         if not self.options.search_tags:
-            return 
+            return q
         tag = model.Tag.by_name(term, autoflush=False)
         if tag:
             # need to keep joining for each filter
@@ -187,12 +187,12 @@ class PackageSqlSearchQuery(SqlSearchQuery):
     def _filter_by_extra(self, q, field, terms):
         make_like = lambda x,y: x.ilike('%' + y + '%')
         value = '%'.join(terms)
-        query = query.join('_extras', aliased=True).filter(
+        q = q.join('_extras', aliased=True).filter(
             sqlalchemy.and_(
               model.PackageExtra.state==model.State.ACTIVE,
               model.PackageExtra.key==unicode(field),
             )).filter(make_like(model.PackageExtra.value, value))
-        return query
+        return q
         
 
 class SqlSearchIndex(SearchIndex): pass
