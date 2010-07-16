@@ -38,7 +38,7 @@ class TestPackageForm(TestPackageBase):
         assert params['name'] in main_div, main_div_str
         assert params['title'] in main_div, main_div_str
         assert params['version'] in main_div, main_div_str
-        assert '<a href="%s">' % params['url'] in main_div, main_div_str
+        self.check_named_element(main_div, 'a', 'href="%s"' % params['url'])
         prefix = 'Package-%s-' % params.get('id', '')
         for res_index, values in self._get_resource_values(params['resources'], by_resource=True):
             self.check_named_element(main_div, 'tr', *values)
@@ -76,7 +76,7 @@ class TestPackageForm(TestPackageBase):
         assert str(params['name']) in preview, preview
         assert str(params['title']) in preview, preview
         assert str(params['version']) in preview, preview
-        assert '<a href="%s">' % str(params['url']) in preview, preview
+        self.check_named_element(preview, 'a', 'href="%s"' % params['url'])
         for res_index, resource in enumerate(params['resources']):
             if isinstance(resource, (str, unicode)):
                 resource = [resource]
