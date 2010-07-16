@@ -62,13 +62,6 @@ class TestSearch(TestController):
         assert self._pkg_names(result) == 'gils', result
         assert result['count'] == 1, result
 
-# Can't search for partial words in postgres
-##    def test_1_name_partial(self):
-##        # partial name
-##        result = make_search().search(u'gil')
-##        assert self._pkg_names(result) == 'gils', self._pkg_names(result)
-##        assert result['count'] == 1, self._pkg_names(result)
-
     def test_1_name_multiple_results(self):
         result = self.backend.query_for(model.Package).run(query=u'gov')
         assert self._check_entity_names(result, ('us-gov-images', 'usa-courts-gov')), self._pkg_names(result)
@@ -278,14 +271,6 @@ class TestSearch(TestController):
 
         result = self.backend.query_for(model.Package).run(query=u'groups:ukgov tags:us')
         assert result['count'] == 2, self._pkg_names(result)
-
-    def test_query(self):
-        run_result = self.backend.query_for(model.Package).run(query=u'tags: wildlife')
-        # make_search().run(options)
-        #query = make_search().query(options)
-        #assert query.count() == run_result['count']
-        #assert query.first()[0].name == run_result['results'][0], '%s\n%s' % (query.first()[0].name, run_result['results'][0])
-        
 
 class TestSearchOverall(TestController):
     @classmethod

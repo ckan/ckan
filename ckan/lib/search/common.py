@@ -96,7 +96,7 @@ class SearchQuery(object):
         if not self.options.return_objects and len(self.results):
             if self.options.all_fields:
                 self.results = [r.as_dict() for r in self.results]
-            elif not isinstance(self.results[0], basestring):
+            else:
                 attr_name = self.options.ref_entity_with_attr
                 self.results = [getattr(entity, attr_name) for entity in self.results]
     

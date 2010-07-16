@@ -9,6 +9,9 @@ class TestSearchOverallWithSynchronousIndexing(_TestSearchOverall):
 
     @classmethod
     def setup_class(self):
+        from pylons import config
+        config['search_backend'] = 'sql'
+        self.backend = search.get_backend()
         search.setup_synchronous_indexing()
         CreateTestData.create()
 

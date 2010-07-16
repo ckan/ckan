@@ -44,66 +44,66 @@ class TestSearch(object):
     def teardown_class(self):
         CreateTestData.delete()
 
-    def res_search(self, options):
-        options['entity'] = 'resource'
-        result = make_search().run(SearchOptions(options))
+    def res_search(self, query='', fields={}, terms=[], options=QueryOptions()):
+        result = self.backend.query_for(model.PackageResource).run(query=query, fields=fields, terms=terms, options=options)
         resources = [model.Session.query(model.PackageResource).get(resource_id) for resource_id in result['results']]
         urls = set([resource.url for resource in resources])
         return urls
 
     def test_01_search_url(self):
-        options = {'url':'site.com', 'entity':'resource'}
-        result = make_search().run(SearchOptions(options))
+        fields = {'url':'site.com'}
+        result = self.backend.query_for(model.PackageResource).run(fields=fields)
         assert result['count'] == 6, result
         resources = [model.Session.query(model.PackageResource).get(resource_id) for resource_id in result['results']]
         urls = set([resource.url for resource in resources])
         assert set([self.ab, self.cd, self.ef]) == urls, urls
         
     def test_02_search_url_2(self):
-        urls = self.res_search({'url':'a/b'})
+        urls = self.res_search(fields={'url':'a/b'})
         assert set([self.ab]) == urls, urls
 
     def test_03_search_url_multiple_words(self):
-        options = UnicodeMultiDict(MultiDict(url='e'))
-        options.add('url', 'f')
-        urls = self.res_search(options)
+        fields = UnicodeMultiDict(MultiDict(url='e'))
+        fields.add('url', 'f')
+        urls = self.res_search(fields=fields)
         assert set([self.ef]) == urls, urls
 
     def test_04_search_url_none(self):
-        urls = self.res_search({'url':'nothing'})
+        urls = self.res_search(fields={'url':'nothing'})
         assert set() == urls, urls
         
     def test_05_search_description(self):
-        urls = self.res_search({'description':'cd'})
+        urls = self.res_search(fields={'description':'cd'})
         assert set([self.cd]) == urls, urls
 
     def test_06_search_format(self):
-        urls = self.res_search({'format':'excel'})
+        urls = self.res_search(fields={'format':'excel'})
         assert set([self.ab]) == urls, urls
 
     def test_07_search_format_2(self):
-        urls = self.res_search({'format':'sheet'})
+        urls = self.res_search(fields={'format':'sheet'})
         assert set([self.ab, self.cd]) == urls, urls
 
     def test_08_search_hash_complete(self):
-        urls = self.res_search({'hash':'abc-123'})
+        urls = self.res_search(fields={'hash':'abc-123'})
         assert set([self.ab]) == urls, urls
 
     def test_09_search_hash_partial(self):
-        urls = self.res_search({'hash':'abc'})
+        urls = self.res_search(fields={'hash':'abc'})
         assert set([self.ab]) == urls, urls
 
     def test_10_search_hash_partial_but_not_initial(self):
-        urls = self.res_search({'hash':'123'})
+        urls = self.res_search(fields={'hash':'123'})
         assert set() == urls, urls
 
     def test_11_search_several_fields(self):
-        urls = self.res_search({'description':'ab', 'format':'sheet'})
+        urls = self.res_search(fields={'description':'ab', 'format':'sheet'})
         assert set([self.ab]) == urls, urls
 
     def test_12_search_all_fields(self):
-        options = {'url':'a/b', 'all_fields':'1', 'entity':'resource'}
-        result = make_search().run(SearchOptions(options))
+        fields = {'url':'a/b'}
+        options = QueryOptions(all_fields=True)
+        result = self.backend.query_for(model.PackageResource).run(fields=fields, options=options)
         assert result['count'] == 1, result
         res_dict = result['results'][0]
         assert isinstance(res_dict, dict)
@@ -123,16 +123,17 @@ class TestSearch(object):
 
     def test_13_pagination(self):
         # large search
-        base_options = {'url':'site', 'entity':'resource'}
-        all_results = make_search().run(SearchOptions(base_options))
+        options = QueryOptions(order_by='hash')
+        fields = {'url':'site'}
+        all_results = self.backend.query_for(model.PackageResource).run(fields=fields, options=options)
         all_resources = all_results['results']
         all_resource_count = all_results['count']
         assert all_resource_count >= 6, all_results
 
         # limit
-        options = SearchOptions(base_options)
+        options = QueryOptions(order_by='hash')
         options.limit = 2
-        result = make_search().run(options)
+        result = self.backend.query_for(model.PackageResource).run(fields=fields, options=options)
         resources = result['results']
         count = result['count']
         assert len(resources) == 2, resources
@@ -140,19 +141,19 @@ class TestSearch(object):
         assert resources == all_resources[:2], resources
 
         # offset
-        options = SearchOptions(base_options)
+        options = QueryOptions()
         options.limit = 2
         options.offset = 2
-        results = make_search().run(options)
-        resources = results['results']
+        result = self.backend.query_for(model.PackageResource).run(fields=fields, options=options)
+        resources = result['results']
         assert len(resources) == 2, resources
         assert resources == all_resources[2:4]
 
         # larger offset
-        options = SearchOptions(base_options)
+        options = QueryOptions()
         options.limit = 2
         options.offset = 4
-        result = make_search().run(options)
+        result = self.backend.query_for(model.PackageResource).run(fields=fields, options=options)
         resources = result['results']
         assert len(resources) == 2, resources
         assert resources == all_resources[4:6]

@@ -19,7 +19,7 @@ class SolrSearchBackend(SearchBackend):
         solr_url = config.get('solr_url', 'http://localhost:8983/solr')
         solr_user = config.get('solr_user')
         solr_password = config.get('solr_password')
-        if http_user and http_password:
+        if solr_user is not None and solr_password is not None:
             self.connection = SolrConnection(solr_url, http_user=solr_user, http_pass=solr_password)
         else:
             self.connection = SolrConnection(solr_url)

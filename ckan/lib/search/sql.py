@@ -46,7 +46,6 @@ class SqlSearchQuery(SearchQuery):
                 self.results.append(result[0])
             else:
                 self.results.append(result)
-        self._format_results()
 
 
 class GroupSqlSearchQuery(SqlSearchQuery):
@@ -82,12 +81,12 @@ class ResourceSqlSearchQuery(SqlSearchQuery):
 
     def _run(self):
         q = model.Session.query(model.PackageResource) # TODO authz
-        if self.terms:
+        if self.query.terms:
             raise SearchError('Only field specific terms allowed in resource search.')
         #self._check_options_specified_are_allowed('resource search', ['all_fields', 'offset', 'limit'])
-        self.options['ref_entity_with_attr'] = 'id' # has no name
+        self.options.ref_entity_with_attr = 'id' # has no name
         resource_fields = model.PackageResource.get_columns()
-        for field, term in self.query.fields.items():
+        for field, terms in self.query.fields.items():
             if isinstance(terms, basestring):
                 terms = terms.split()
             if field not in resource_fields:
@@ -98,6 +97,11 @@ class ResourceSqlSearchQuery(SqlSearchQuery):
                     q = q.filter(model_attr.ilike(unicode(term) + '%'))
                 else:
                     q = q.filter(model_attr.ilike('%' + unicode(term) + '%'))
+        
+        order_by = self.options.order_by
+        if order_by is not None:
+            if hasattr(model.PackageResource, order_by):
+                q = q.order_by(getattr(model.PackageResource, order_by))
         self._db_query(q)
 
 
