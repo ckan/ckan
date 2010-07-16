@@ -61,7 +61,8 @@ class PackageController(BaseController):
             query = query_for('tag', backend='sql')
             query.run(query=c.q,
                       return_objects=True,
-                      limit=c.tag_limit)
+                      limit=c.tag_limit,
+                      username=c.user)
             c.tags = query.results
             c.tags_count = query.count
 

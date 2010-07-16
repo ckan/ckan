@@ -2,7 +2,8 @@ import logging
 
 import sqlalchemy
 
-from common import SearchBackend, SearchQuery, SearchIndex, NoopSearchIndex
+from common import SearchBackend, SearchQuery, SearchError
+from common import SearchIndex, NoopSearchIndex
 from ckan import model
 from ckan.model import meta
 from ckan import authz
