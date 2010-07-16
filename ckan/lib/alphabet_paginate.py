@@ -60,7 +60,7 @@ class AlphaPage(object):
             else:
                 page = HTML.span(class_='pager_curpage', c=letter)
             pages.append(page)                           
-        div = HTML.tag('div', *pages, class_='pager')
+        div = HTML.tag('div', class_='pager', *pages)
         return div
 
 
