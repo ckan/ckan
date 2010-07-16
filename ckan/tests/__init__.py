@@ -23,7 +23,7 @@ from paste.deploy import loadapp
 from routes import url_for
 
 from ckan.lib.create_test_data import CreateTestData
-
+from ckan.lib import search
 
 __all__ = ['url_for',
            'TestController',
@@ -283,18 +283,18 @@ class TestController(object):
 
 
 class TestSearchIndexer:
-    indexer = None
+    worker = None
     
     def __init__(self):
-        TestSearchIndexer.indexer = model.SearchIndexManager()
-        TestSearchIndexer.indexer.clear_queue()
-        self.indexer.consumer.close()
+        TestSearchIndexer.worker = search.SearchIndexWorker(search.get_backend(backend='sql'))
+        TestSearchIndexer.worker.clear_queue()
+        self.worker.consumer.close()
 
     @classmethod
     def index(cls):
-        message = cls.indexer.consumer.fetch()
+        message = cls.worker.consumer.fetch()
         while message is not None:
-            cls.indexer.async_callback(message.payload, message)
-            message = cls.indexer.consumer.fetch()
-        cls.indexer.consumer.close()        
+            cls.worker.async_callback(message.payload, message)
+            message = cls.worker.consumer.fetch()
+        cls.worker.consumer.close()        
 

@@ -1,5 +1,5 @@
 from ckan.tests import *
-import ckan.model as model
+import ckan.lib.search as search
 from test_package_search import TestSearchOverall as _TestSearchOverall
 
 
@@ -9,11 +9,14 @@ class TestSearchOverallWithSynchronousIndexing(_TestSearchOverall):
 
     @classmethod
     def setup_class(self):
-        model.setup_synchronous_indexing()
+        from pylons import config
+        config['search_backend'] = 'sql'
+        self.backend = search.get_backend()
+        search.setup_synchronous_indexing()
         CreateTestData.create()
 
     @classmethod
     def teardown_class(self):
         CreateTestData.delete()
-        model.remove_synchronous_indexing()
+        search.remove_synchronous_indexing()
 

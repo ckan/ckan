@@ -5,7 +5,7 @@ from ckan.controllers.rest import BaseRestController
 from ckan.lib.helpers import json
 import ckan.model as model
 import ckan.forms
-from ckan.lib.search import make_search, SearchOptions
+from ckan.lib.search import query_for, QueryOptions
 import ckan.authz
 import ckan.rating
 
