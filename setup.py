@@ -76,6 +76,7 @@ setup(
     search-index = ckan.lib.cli:SearchIndex
     ratings = ckan.lib.cli:Ratings
     changes = ckan.lib.cli:Changes
+    notifications = ckan.lib.cli:Notifications
 
     [ckan.forms]
     standard = ckan.forms.package:get_standard_fieldset

@@ -84,7 +84,9 @@ class Notification(dict):
         if not notification_dict.has_key('routing_key'):
             raise NotificationError('Missing a routing_key')
         routing_key = notification_dict.pop('routing_key')
-        cls = Notifications.instance().classes_by_routing_key[routing_key]
+        cls = Notifications.instance().classes_by_routing_key.get(routing_key)
+        if not cls:
+            raise NotificationError('Routing key not understood as a notification: %s' % routing_key)            
         try:
             return cls(routing_key, **notification_dict)
         except TypeError:
