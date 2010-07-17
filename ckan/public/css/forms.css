@@ -56,9 +56,12 @@ select.short {
   width: 14.5em; }
 
 textarea {
-  width: 62.5em;
+  width: 30em;
   height: 15em; }
-  textarea.short {
+textarea.short {
+    height: 1em; }
+textarea.wide {
+    width: 62.5em;
     height: 1em; }
  
 select[multiple], select.multiple {
