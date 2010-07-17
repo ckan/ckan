@@ -141,7 +141,7 @@ class TestSearch(object):
         assert resources == all_resources[:2], resources
 
         # offset
-        options = QueryOptions()
+        options = QueryOptions(order_by='hash')
         options.limit = 2
         options.offset = 2
         result = self.backend.query_for(model.PackageResource).run(fields=fields, options=options)
@@ -150,7 +150,7 @@ class TestSearch(object):
         assert resources == all_resources[2:4]
 
         # larger offset
-        options = QueryOptions()
+        options = QueryOptions(order_by='hash')
         options.limit = 2
         options.offset = 4
         result = self.backend.query_for(model.PackageResource).run(fields=fields, options=options)
