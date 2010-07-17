@@ -102,7 +102,7 @@ class TestPackageEditAuthz(TestController):
         # change role assignments
         form.select(_r(prs['visitor']), model.Role.READER)
         form.select(_r(prs['logged_in']), model.Role.ADMIN)
-        res = form.submit('commit', extra_environ={'REMOTE_USER': self.admin})
+        res = form.submit('save', extra_environ={'REMOTE_USER': self.admin})
         model.repo.commit_and_remove()
 
         # ensure db was changed
@@ -142,7 +142,7 @@ class TestPackageEditAuthz(TestController):
         # change role assignments
         form.select(_r(prs['visitor']), model.Role.READER)
         form.select(_r(prs['logged_in']), model.Role.ADMIN)
-        res = form.submit('commit', extra_environ={'REMOTE_USER': self.sysadmin})
+        res = form.submit('save', extra_environ={'REMOTE_USER': self.sysadmin})
         model.repo.commit_and_remove()
 
         # ensure db was changed
@@ -212,7 +212,7 @@ class TestPackageEditAuthz(TestController):
         another = model.User.by_name(self.another)
         form.select('PackageRole--user_id', another.id)
         form.select('PackageRole--role', model.Role.ADMIN)
-        res = form.submit('commit', extra_environ={'REMOTE_USER': self.admin})
+        res = form.submit('save', extra_environ={'REMOTE_USER': self.admin})
         model.Session.remove()
 
         prs = self._prs(self.pkgname)
@@ -235,7 +235,7 @@ class TestPackageEditAuthz(TestController):
         another = model.User.by_name(self.another)
         form.select('PackageRole--user_id', another.id)
         form.select('PackageRole--role', model.Role.ADMIN)
-        res = form.submit('commit', extra_environ={'REMOTE_USER': self.sysadmin})
+        res = form.submit('save', extra_environ={'REMOTE_USER': self.sysadmin})
         model.Session.remove()
 
         prs = self._prs(self.pkgname2)

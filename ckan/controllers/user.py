@@ -61,13 +61,13 @@ class UserController(BaseController):
         if not c.user:
             abort(401)
         user = model.User.by_name(c.user)
-        if not 'commit' in request.params and not 'preview' in request.params:
+        if not 'save' in request.params and not 'preview' in request.params:
             c.user_about = user.about
         elif 'preview' in request.params:
             about = request.params.getone('about')
             c.preview = self._format_about(about)
             c.user_about = about
-        elif 'commit' in request.params:
+        elif 'save' in request.params:
             about = request.params.getone('about')
             try:
                 rev = model.repo.new_revision()

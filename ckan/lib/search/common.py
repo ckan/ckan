@@ -106,6 +106,7 @@ class SearchQuery(object):
         else:
             options.update(kwargs)
         self.options = options
+        self.options.validate()
         self.query = QueryParser(query, terms, fields)
         self.query.validate()
         self._run()
@@ -129,7 +130,6 @@ class QueryOptions(dict):
     INTEGER_OPTIONS = ['offset', 'limit']
 
     def __init__(self, **kwargs):
-        super(QueryOptions, self).__init__(**kwargs)
         from ckan.lib.search import DEFAULT_OPTIONS
         
         # set values according to the defaults
@@ -137,12 +137,16 @@ class QueryOptions(dict):
             if not option_name in self:
                 self[option_name] = default_value
         
-        for boolean_option in self.BOOLEAN_OPTIONS:
-            self[boolean_option] = self[boolean_option] == 1 or self[boolean_option]
-            
-        for integer_option in self.INTEGER_OPTIONS:
-            self[integer_option] = int(self[integer_option])
-            
+        super(QueryOptions, self).__init__(**kwargs)
+    
+    def validate(self):
+        for key, value in self.items():
+            if key in self.BOOLEAN_OPTIONS:
+                value = value == 1 or value
+            elif key in self.INTEGER_OPTIONS:
+                value = int(value)
+            self[key] = value    
+    
     def __getattr__(self, name):
         return self.get(name)
         
@@ -208,7 +212,7 @@ class QueryParser(object):
                 field = token[:colon_pos]
                 value = token[colon_pos+1:]
                 if len(value):
-                    self._combined_fields[field] = value
+                    self._combined_fields.add(field, value)
             else:
                 self._combined_terms.append(token)
     

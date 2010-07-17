@@ -90,7 +90,7 @@ class TestDistributingChanges(TestControllerWithForeign):
         fv = res.forms['package-edit']
         prefix = 'Package--'
         fv[prefix + 'name'] = name
-        res = fv.submit('commit')
+        res = fv.submit('save')
         offset = url_for(controller='package', action='read', id=name)
         res = self.app.get(offset, status=200)
         assert not 'Error' in res, res
@@ -136,7 +136,7 @@ class TestDistributingChanges(TestControllerWithForeign):
         fv['log_message'] = log_message
 
         # Submit
-        res = fv.submit('commit', extra_environ={'REMOTE_USER':'testadmin'})
+        res = fv.submit('save', extra_environ={'REMOTE_USER':'testadmin'})
         assert not 'Error' in res, res
 
 

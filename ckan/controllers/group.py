@@ -54,7 +54,7 @@ class GroupController(BaseController):
 
         fs = ckan.forms.get_group_fieldset('group_fs')
 
-        if request.params.has_key('commit'):
+        if request.params.has_key('save'):
             # needed because request is nested
             # multidict which is read only
             params = dict(request.params)
@@ -101,7 +101,7 @@ class GroupController(BaseController):
         if not am_authz:
             abort(401, gettext('User %r not authorized to edit %r') % (c.user, id))
 
-        if not 'commit' in request.params:
+        if not 'save' in request.params:
             c.group = group
             c.groupname = group.name
             c.grouptitle = group.title
@@ -147,7 +147,7 @@ class GroupController(BaseController):
         if not c.authz_editable:
             abort(401, gettext('Not authorized to edit authization for group'))
 
-        if 'commit' in request.params: # form posted
+        if 'save' in request.params: # form posted
             # needed because request is nested
             # multidict which is read only
             params = dict(request.params)

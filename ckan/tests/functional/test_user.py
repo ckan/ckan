@@ -147,7 +147,7 @@ class TestUserController(TestController):
         assert new_about in before_preview, before_preview
         in_preview = main_res[main_res.find('Preview'):]
         assert new_about in in_preview, in_preview
-        res = fv.submit('commit', extra_environ={'REMOTE_USER':username})
+        res = fv.submit('save', extra_environ={'REMOTE_USER':username})
 
         # commit
         res = res.follow()

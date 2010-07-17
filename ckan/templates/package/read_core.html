@@ -36,7 +36,7 @@
       <table py:when="c.pkg.resources">
         <tr><th>URL</th><th>Format</th><th>Description</th><th>Hash</th></tr>
         <py:for each="res in c.pkg.resources">
-          <tr><td><a href="${res.url}">Download</a></td><td>${res.format}</td><td>${res.description}</td><td>${res.hash}</td></tr>
+          <tr><td><a href="${res.url}" target="_blank">Download</a></td><td>${res.format}</td><td>${res.description}</td><td>${res.hash}</td></tr>
         </py:for>
       </table>
       <table py:otherwise=""><tr><th>Resources</th><td>None given for this package.</td></tr></table>

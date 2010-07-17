@@ -501,7 +501,7 @@ class Changes(CkanCommand):
       changes heads                  - display the last changeset of all active lines
       changes log [changeset]        - display summary of changeset(s)
       changes merge [target] [mode]  - creates mergeset to follow target changeset and to close the working changeset
-      changes update [target]        - updates repository entities to target changeset (defaults to working line's head)
+      changes update [target]        - updates repository entities to target changeset (defaults to working line\'s head)
       changes moderate [target]      - updates repository entities whilst allowing for changes to be ignored
       changes pull [sources]         - pulls unseen changesets from changeset sources
       changes working                - display working changeset
@@ -910,3 +910,32 @@ class Changes(CkanCommand):
                     print msg.encode('utf8')
 
  
+class Notifications(CkanCommand):
+    '''Manage notifications
+
+    Usage:
+      notifications monitor                 - runs monitor, printing all notifications
+    '''
+
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    max_args = 1
+    min_args = 1
+
+    def command(self):
+        self._load_config()
+        from ckan import model
+
+        cmd = self.args[0]
+        if cmd == 'monitor':
+            self.monitor()
+        else:
+            print 'Command %s not recognized' % cmd
+
+    def monitor(self):
+        from pylons import config
+        if config.get('carrot_messaging_library') != 'pyamqplib':
+            print 'Carrot messaging library not configured to AMQP. Currently set to:', config.get('carrot_messaging_library')
+            sys.exit(1)
+        from ckan.lib import monitor
+        monitor = monitor.Monitor()

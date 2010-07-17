@@ -120,7 +120,7 @@ Ho ho ho
         form['PackageGroup--package_id'] = pkg.id
 
         
-        res = form.submit('commit', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
+        res = form.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
         # should be read page
         # assert 'Groups - %s' % self.groupname in res, res
         
@@ -202,7 +202,7 @@ class TestNew(TestController):
         fv[prefix+'description'] = group_description
         pkg = model.Package.by_name(self.packagename)
         fv['PackageGroup--package_id'] = pkg.id
-        res = fv.submit('commit', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
+        res = fv.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
         res = res.follow()
         assert '%s' % group_title in res, res
         
@@ -225,7 +225,7 @@ class TestNew(TestController):
         fv = res.forms['group-edit']
         assert fv[prefix+'name'].value == '', fv.fields
         fv[prefix+'name'] = group_name
-        res = fv.submit('commit', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
+        res = fv.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
         res = res.follow()
         assert group_name in res, res
         assert 'No Title' in res, res
@@ -239,7 +239,7 @@ class TestNew(TestController):
         fv = res.forms['group-edit']
         assert fv[prefix+'name'].value == '', fv.fields
         fv[prefix+'name'] = group_name
-        res = fv.submit('commit', status=200, extra_environ={'REMOTE_USER': 'russianfan'})
+        res = fv.submit('save', status=200, extra_environ={'REMOTE_USER': 'russianfan'})
         assert 'Group name already exists' in res, res
         self.check_tag(res, '<form', 'class="has-errors"')
         assert 'class="field_error"' in res, res

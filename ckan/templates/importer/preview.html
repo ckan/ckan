@@ -25,9 +25,10 @@
             <p>Further package previews not shown.</p>
           </py:if>
 
-          <label for="log_message">Optional log message about this change:</label>
-          <p class="desc" i18n:msg="">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.</p>
-          <textarea id="log_message" rows="3" name="log_message" cols="60">${c.log_message}</textarea>
+          <label for="log_message">Edit summary (briefly describe the changes you have made)</label>
+          <textarea id="log_message" name="log_message" class="short">${c.log_message}</textarea>
+          <p>Author: ${c.author}</p>
+
           <div>          
             <?python enable_import = {'disabled':'disabled'} if not (c.user and c.import_previews) and not c.errors else {} ?>
             ${h.submit('import', _('Import'), **enable_import)}

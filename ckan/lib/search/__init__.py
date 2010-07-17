@@ -2,7 +2,7 @@ import logging
 
 from pylons import config
 from ckan import model
-from common import QueryOptions
+from common import QueryOptions, SearchError
 from sql import SqlSearchBackend
 from solr_ import SolrSearchBackend
 from worker import SearchIndexWorker, setup_synchronous_indexing, remove_synchronous_indexing
@@ -19,7 +19,9 @@ DEFAULT_OPTIONS = {
     'return_objects': False,
     'ref_entity_with_attr': 'name',
     'all_fields': False,
-    'search_tags': True}
+    'search_tags': True,
+    'callback': None, # simply passed through
+    }
 
 BACKENDS = {
     'sql': SqlSearchBackend,

@@ -1,3 +1,5 @@
+import re
+
 from ckan.tests import *
 from ckan.lib.create_test_data import CreateTestData
 import ckan.model as model
@@ -69,6 +71,12 @@ class SearchResourceApiTestCase(ApiTestCase):
     def test_04_bad_option(self):
         offset = self.base_url + '?random=option'
         result = self.app.get(offset, status=400)
+
+    def test_05_options(self):
+        offset = self.base_url + '?url=site&all_fields=1&callback=mycallback'
+        result = self.app.get(offset, status=200)
+        assert re.match('^mycallback\(.*\);$', result.body), result.body
+        assert 'package_id' in result.body, result.body
 
 class TestSearchResourceApi1(SearchResourceApiTestCase, Api1TestCase):
     pass
