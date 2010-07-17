@@ -27,7 +27,7 @@ class Stats(object):
         rating = table('rating')
         sql = select([package.c.id, func.avg(rating.c.rating), func.count(rating.c.rating)], from_obj=[package.join(rating)]).\
               group_by(package.c.id).\
-              order_by(func.avg(rating.c.rating).desc()).\
+              order_by(func.avg(rating.c.rating).desc(), func.count(rating.c.rating).desc()).\
               limit(limit)
         res_ids = model.Session.execute(sql).fetchall()
         res_pkgs = [(model.Session.query(model.Package).get(unicode(pkg_id)), avg, num) for pkg_id, avg, num in res_ids]
