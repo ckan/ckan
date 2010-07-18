@@ -51,3 +51,12 @@ class Page(paginate.Page):
         )
         return super(Page, self).pager(*args, **kwargs)
 
+
+def render_datetime(datetime_):
+    '''Render a datetime object as a string in a reasonable way (Y-m-d H:m).
+    '''
+    if datetime_:
+        return datetime_.strftime('%Y-%m-%d %H:%m')
+    else:
+        return ''
+

@@ -28,7 +28,7 @@
           }
           </py:if>
         </td>
-        <td>${item.timestamp_pretty}</td>
+        <td>${h.render_datetime(item.timestamp)}</td>
         <td>${linked_user(item.author)}</td>
         <td>
           <py:for each="pkg in item.packages">
