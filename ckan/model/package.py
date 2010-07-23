@@ -140,9 +140,9 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         _dict['ratings_count'] = len(self.ratings)
         _dict['resources'] = [res.as_dict(core_columns_only=False) \
                               for res in self.resources]
-        ckan_host = config.get('ckan_host', None)
-        if ckan_host:
-            _dict['ckan_url'] = 'http://%s/package/%s' % (ckan_host, self.name)
+        site_url = config.get('ckan.site_url', None)
+        if site_url:
+            _dict['ckan_url'] = '%s/package/%s' % (site_url, self.name)
         _dict['relationships'] = [rel.as_dict(self, ref_package_with_attr=ref_package_with_attr) for rel in self.get_relationships()]
         return _dict
 

@@ -3,7 +3,7 @@ import blinker
 
 from ckan.model.notifier import DomainObjectNotification, Notification
 from ckan.model.notifier import ROUTING_KEYS, DomainObjectNotificationOperation
-from ckan.lib.async_notifier import AsyncConsumer, EXCHANGE
+from ckan.lib.async_notifier import AsyncConsumer
 from common import SearchError
 
 log = logging.getLogger(__name__)

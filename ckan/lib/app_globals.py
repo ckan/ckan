@@ -16,3 +16,7 @@ class Globals(object):
 
         """
         self.site_title = config.get('ckan.site_title', 'CKAN')
+        self.site_url = config.get('ckan.site_url', 'http://www.ckan.net')
+        
+        # has been setup in load_environment():
+        self.site_id = config.get('ckan.site_id')

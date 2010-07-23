@@ -42,20 +42,6 @@ Default::
 This sets the name of the form to use when editing a package. This can be a form defined in the core CKAN code or in another setuputils-managed python module. The only requirement is that the setup.py has an entrypoint for the form defined in the `ckan.forms` section. See :doc:`package_forms`
 
 
-ckan_host
----------
-
-Example::
-
- ckan_host = ckan.net
-
-By telling CKAN what hostname it is served at, it can provide backlinks to packages in two places:
-
-1. The REST API: when you read a package register it contains a property giving a link to the package on CKAN. e.g. `"ckan_url": "http://ckan.net/package/pollution-2008"`
-
-2. The backend RDF generator can use the CKAN package URLs for the subject in the triples.
-
-
 rdf_packages
 ------------
 
@@ -218,3 +204,15 @@ Default::
  CKAN - Comprehensive Knowledge Archive Network
 
 This sets the name of the site.
+
+
+site_url
+--------
+
+Example::
+ ckan.site_url=http://scotdata.ckan.net
+
+Default::
+ http://www.ckan.net
+
+The primary URL used by this site. 

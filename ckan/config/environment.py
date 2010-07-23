@@ -1,5 +1,6 @@
 """Pylons environment configuration"""
 import os
+from urlparse import urlparse
 
 import pylons
 from sqlalchemy import engine_from_config
@@ -27,7 +28,13 @@ def load_environment(global_conf, app_conf):
 
     # Initialize config with the basic options
     config.init_app(global_conf, app_conf, package='ckan', paths=paths)
-
+    
+    # This is set up before globals are initialized
+    site_url = config.get('ckan.site_url', 'http://www.ckan.net')
+    config['ckan.host'] = urlparse(site_url).netloc
+    if config.get('ckan.site_id') is None:
+        config['ckan.site_id'] = '_'.join(config['ckan.host'].split('.')[::-1])
+    
     config['routes.map'] = make_map()
     config['pylons.app_globals'] = app_globals.Globals()
     config['pylons.h'] = ckan.lib.helpers
@@ -57,6 +64,7 @@ def load_environment(global_conf, app_conf):
     # Setup the SQLAlchemy database engine
     engine = engine_from_config(config, 'sqlalchemy.')
     model.init_model(engine)
+        
     if bool(config.get('ckan.build_search_index_synchronously', True)):
         import ckan.lib.search as search
         search.setup_synchronous_indexing()

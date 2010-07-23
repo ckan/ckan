@@ -16,7 +16,6 @@ __all__ = ['EXCHANGE', 'EXCHANGE_TYPE', 'get_carrot_connection',
 logger = logging.getLogger('ckan.async_notifier')
 
 # settings for AMQP
-EXCHANGE = 'ckan'
 EXCHANGE_TYPE = 'topic'
 
 # defaults for AMQP
@@ -57,7 +56,7 @@ class AsyncNotifier(object):
     def publisher(cls):
         if getattr(cls, '_publisher', None) is None:
             cls._publisher = Publisher(connection=get_carrot_connection(),
-                                       exchange=EXCHANGE,
+                                       exchange=config.get('ckan.site_id'),
                                        exchange_type=EXCHANGE_TYPE)
         return cls._publisher
 
@@ -97,8 +96,10 @@ class AsyncConsumer(object):
     def __init__ (self, queue_name, routing_key):
         self.conn = get_carrot_connection()
         self.consumer_options = {
-            'exchange':EXCHANGE, 'exchange_type':EXCHANGE_TYPE,
-            'queue':queue_name, 'routing_key':routing_key,
+            'exchange': config.get('ckan.site_id'), 
+            'exchange_type': EXCHANGE_TYPE,
+            'queue': queue_name, 
+            'routing_key': routing_key,
             }
         self.consumer = Consumer(connection=self.conn, **self.consumer_options)
 

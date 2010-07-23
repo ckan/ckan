@@ -9,7 +9,7 @@ from ckan.model import meta
 log = logging.getLogger(__name__)
 
 TYPE_FIELD = "entity_type"
-SOLR_FIELDS = [TYPE_FIELD, "res_url", "text", "urls", "indexed_ts"]
+SOLR_FIELDS = [TYPE_FIELD, "res_url", "text", "urls", "indexed_ts", "site_id"]
 
 class SolrSearchBackend(SearchBackend):
     
@@ -37,14 +37,17 @@ class PackageSolrSearchQuery(SearchQuery):
         
         # Filter for options
         if self.options.filter_by_downloadable:
-            query += u"res_url:[* TO *] " # not null resource URL 
+            query += u" res_url:[* TO *] " # not null resource URL 
         if self.options.filter_by_openness:
             licenses = ["+%d" % id for id in self.open_licenses]
             licenses = " OR ".join(licenses)
-            query += "license_id:(%s) " % licenses
+            query += " license_id:(%s) " % licenses
         
         order_by = self.options.order_by
         if order_by == 'rank': order_by = 'score'
+        
+        # show only results from this CKAN instance:
+        query = query + " +site_id:%s" % config.get('ckan.site_id')
         
         data = self.backend.connection.query(query, 
                                        start=self.options.offset, 
@@ -67,12 +70,12 @@ class SolrSearchIndex(SearchIndex):
     def remove_dict(self, data):
         if not 'id' in data:
             raise SearchError("No ID for record deletion")
-        query = "%s:%s AND id:%s" % (TYPE_FIELD, self.TYPE, data.get('id'))
+        query = "+%s:%s +id:%s +site_id:%s" % (TYPE_FIELD, self.TYPE, data.get('id'), config.get('ckan.site_id'))
         self.backend.connection.delete_query(query)
         self.backend.connection.commit()
         
     def clear(self):
-        query = "%s:%s" % (TYPE_FIELD, self.TYPE)
+        query = "+%s:%s +site_id:%s" % (TYPE_FIELD, self.TYPE, config.get('ckan.site_id'))
         self.backend.connection.delete_query(query)
         self.backend.connection.commit()
 
@@ -105,7 +108,10 @@ class PackageSolrSearchIndex(SolrSearchIndex):
 
         pkg_dict[TYPE_FIELD] = self.TYPE
         pkg_dict = dict([(str(k), v) for (k, v) in pkg_dict.items()])
-
+        
+        # mark this CKAN instance as data source:
+        pkg_dict['site_id'] = config.get('ckan.site_id')
+        
         # send to solr:    
         self.backend.connection.add(**pkg_dict)
         self.backend.connection.commit()
