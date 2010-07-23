@@ -49,17 +49,25 @@ class PackageSolrSearchQuery(SearchQuery):
         # show only results from this CKAN instance:
         query = query + " +site_id:%s" % config.get('ckan.site_id')
         
+        # we're not using Solr's pagination because it will mess up the 
+        # pager and it returns overly correct numFound counts.
         data = self.backend.connection.query(query, 
-                                       start=self.options.offset, 
-                                       rows=self.options.limit,
+        #                               start=self.options.offset, 
+        #                               rows=self.options.limit,
+                                       rows=100000,
                                        fields='id,score', 
                                        sort_order='desc', 
                                        sort=order_by)
-        self.count = int(data.numFound)
-        result_ids = [(r.get('id')) for r in data.results]
         
+        #self.count = int(data.numFound)
+        result_ids = [(r.get('id')) for r in data.results]
         q = authz.Authorizer().authorized_query(self.options.username, model.Package)
         q = q.filter(model.Package.id.in_(result_ids))
+        
+        self.count = q.count()
+        q = q.offset(self.options.offset)
+        q = q.limit(self.options.limit)
+        
         self.results = q.all()
 
     

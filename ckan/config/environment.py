@@ -31,7 +31,9 @@ def load_environment(global_conf, app_conf):
     
     # This is set up before globals are initialized
     site_url = config.get('ckan.site_url', 'http://www.ckan.net')
-    config['ckan.host'] = urlparse(site_url).netloc
+    ckan_host = config['ckan.host'] = urlparse(site_url).netloc
+    if ':' in ckan_host:
+        ckan_host, port = ckan_host.split(':')
     if config.get('ckan.site_id') is None:
         config['ckan.site_id'] = '_'.join(config['ckan.host'].split('.')[::-1])
     

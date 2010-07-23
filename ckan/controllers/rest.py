@@ -221,6 +221,7 @@ class BaseRestController(BaseController):
 
             model.repo.commit()        
         except Exception, inst:
+            log.exception(inst)
             model.Session.rollback()
             raise
         obj = fs.model
@@ -298,6 +299,7 @@ class BaseRestController(BaseController):
 
                 model.repo.commit()        
             except Exception, inst:
+                log.exception(inst)
                 model.Session.rollback()
                 if inst.__class__.__name__ == 'IntegrityError':
                     response.status_int = 409
@@ -359,6 +361,7 @@ class BaseRestController(BaseController):
             entity.delete()
             model.repo.commit()        
         except Exception, inst:
+            log.exception(inst)
             raise
 
         return self._finish_ok()

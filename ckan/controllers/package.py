@@ -48,6 +48,7 @@ class PackageController(BaseController):
             c.page = h.Page(
                 collection=query.results,
                 page=request.params.get('page', 1),
+                items=query.results,
                 item_count=query.count,
                 items_per_page=50
             )
