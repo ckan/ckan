@@ -38,8 +38,12 @@ class PackageController(BaseController):
         c.open_only = request.params.get('open_only')
         c.downloadable_only = request.params.get('downloadable_only')
         if c.q:
+            page = int(request.params.get('page', 1))
+            limit = 20
             query = query_for(model.Package)
             query.run(query=c.q,
+                      limit=limit,
+                      offset=(page-1)*limit,
                       return_objects=True,
                       filter_by_openness=c.open_only,
                       filter_by_downloadable=c.downloadable_only,
@@ -47,16 +51,13 @@ class PackageController(BaseController):
             
             c.page = h.Page(
                 collection=query.results,
-                page=request.params.get('page', 1),
-                items=query.results,
+                page=page,
+                #items=query.results,
                 item_count=query.count,
-                items_per_page=50
+                items_per_page=limit
             )
-            # filter out ranks from the query result
-            # annoying but no better way to do this it seems
-            # pkg_list = [pkg for pkg, rank in c.page]
-            # c.page.items = pkg_list
-
+            c.page.items = query.results
+            
             # tag search
             c.tag_limit = 25
             query = query_for('tag', backend='sql')
