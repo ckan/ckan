@@ -30,7 +30,7 @@ class SolrSearchBackend(SearchBackend):
 class PackageSolrSearchQuery(SearchQuery):
     
     def _run(self):
-        query = "+(%s)" % self.query.query
+        query = ""
         
         #if not self.options.get('search_tags', True):
         # TODO: figure out how to handle this without messing with the query parser too much    
@@ -49,7 +49,8 @@ class PackageSolrSearchQuery(SearchQuery):
         # show only results from this CKAN instance:
         query = query + " +site_id:%s" % config.get('ckan.site_id')
         
-        data = self.backend.connection.query(query, 
+        data = self.backend.connection.query(self.query.query,
+                                       fq=query, 
                                        start=self.options.offset, 
                                        rows=self.options.limit,
                                        fields='id,score', 
