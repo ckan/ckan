@@ -16,7 +16,7 @@ class OurConsumer(Thread):
         self.queue = queue
         conn = self.conn
         self.consumer = Consumer(connection=conn, queue=self.queue,
-                            exchange=async_notifier.EXCHANGE, routing_key='importer')
+                            exchange='ckan', routing_key='importer')
 
         def import_feed_callback(message_data, message):
             if not message_data.has_key('import_feed'):
@@ -46,7 +46,7 @@ class TestQueue:
         # send message
         from carrot.messaging import Publisher
         publisher = Publisher(connection=async_notifier.get_carrot_connection(),
-                              exchange=async_notifier.EXCHANGE, routing_key='importer')
+                              exchange='ckan', routing_key='importer')
         msg = 'ckan.net'
         publisher.send({'import_feed': msg})
         publisher.close()
