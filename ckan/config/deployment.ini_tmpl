@@ -90,7 +90,7 @@ carrot_messaging_library = queue
 # ckan.build_search_index_synchronously = 1
 
 #ckan.site_title = CKAN
-#ckan.site_url = http://www.ckan.net
+ckan.site_url = http://www.ckan.net
 
 # Logging configuration
 [loggers]

@@ -10,7 +10,7 @@ from carrot.messaging import Consumer
 from ckan.model import meta
 from ckan.model import notifier
 
-__all__ = ['EXCHANGE', 'EXCHANGE_TYPE', 'get_carrot_connection',
+__all__ = ['EXCHANGE_TYPE', 'get_carrot_connection',
            'AsyncNotifier', 'AsyncConsumer']
 
 logger = logging.getLogger('ckan.async_notifier')
@@ -65,9 +65,7 @@ class AsyncNotifier(object):
         logger.debug('AsyncNotifier.send_asynchronously: %s %s' % (sender,
             notification_dict))
         cls.publisher().send(notification_dict,
-                       routing_key=notification_dict['routing_key'])
-        # TODO: sort out whether this is needed
-        # cls._publisher.close()
+                             routing_key=notification_dict['routing_key'])
 
     @classmethod
     def register_signal(cls, signal):
