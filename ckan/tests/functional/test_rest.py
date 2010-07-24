@@ -14,14 +14,30 @@ ACCESS_DENIED = [403]
 class ApiTestCase(ControllerTestCase):
 
     api_version = ''
-    ref_package_with_attr = '' # Todo: Rename to 'ref_package_by'.
+    ref_package_by = ''
+    ref_group_by = ''
 
     def package_ref_from_name(self, package_name):
         package = self.get_package_by_name(unicode(package_name))
         if package == None:
             return package_name
         else:
-            return getattr(package, self.ref_package_with_attr)
+            return self.ref_package(package)
+
+    def ref_package(self, package):
+        assert self.ref_package_by in ['id', 'name']
+        return getattr(package, self.ref_package_by)
+
+    def group_ref_from_name(self, group_name):
+        group = self.get_group_by_name(unicode(group_name))
+        if group == None:
+            return group_name
+        else:
+            return self.ref_group(group)
+
+    def ref_group(self, group):
+        assert self.ref_group_by in ['id', 'name']
+        return getattr(group, self.ref_group_by)
 
     @classmethod
     def offset(self, path):
@@ -52,6 +68,12 @@ class ApiTestCase(ControllerTestCase):
         assert '"plain text"' in msg, msg
         assert '"Index of the novel"' in msg, msg
         assert '"id": "%s"' % self.anna.id in msg, msg
+        expected = '"groups": ['
+        assert expected in msg, (expected, msg)
+        expected = self.group_ref_from_name('roger')
+        assert expected in msg, (expected, msg)
+        expected = self.group_ref_from_name('david')
+        assert expected in msg, (expected, msg)
 
 
 class ModelApiTestCase(ApiTestCase):
@@ -123,10 +145,8 @@ class ModelApiTestCase(ApiTestCase):
         # Test Packages Register Get 200.
         offset = self.offset('/rest/package')
         res = self.app.get(offset, status=[200])
-        package_ref = getattr(self.anna, self.ref_package_with_attr)
-        assert package_ref in res, res
-        package_ref = getattr(self.war, self.ref_package_with_attr)
-        assert package_ref in res, res
+        assert self.ref_package(self.anna) in res, res
+        assert self.ref_package(self.war) in res, res
 
     def test_02_list_tags(self):
         # Test Packages Register Get 200.
@@ -138,8 +158,8 @@ class ModelApiTestCase(ApiTestCase):
     def test_02_list_groups(self):
         offset = self.offset('/rest/group')
         res = self.app.get(offset, status=[200])
-        assert 'david' in res, res
-        assert 'roger' in res, res
+        assert self.group_ref_from_name('david') in res, res
+        assert self.group_ref_from_name('roger') in res, res
 
     def test_04_get_package_entity(self):
         # Test Packages Entity Get 200.
@@ -164,8 +184,9 @@ class ModelApiTestCase(ApiTestCase):
     def test_04_get_group(self):
         offset = self.offset('/rest/group/roger')
         res = self.app.get(offset, status=[200])
-        assert 'annakarenina' in res, res
-        assert not 'warandpeace' in res, res
+        assert self.package_ref_from_name('annakarenina') in res, res
+        assert self.group_ref_from_name('roger') in res, res
+        assert not self.package_ref_from_name('warandpeace') in res, res
         
     def test_04_get_package_with_jsonp_callback(self):
         offset = self.anna_offset(postfix='?callback=jsoncallback')
@@ -284,9 +305,11 @@ class ModelApiTestCase(ApiTestCase):
         offset = self.offset('/rest/group/%s' % self.testgroupvalues['name'])
         res = self.app.get(offset, status=[200])
         assert self.testgroupvalues['name'] in res, res
-        assert self.testgroupvalues['packages'][0] in res, res
-        assert self.testgroupvalues['packages'][1] in res, res
-        
+        assert self.package_ref_from_name(self.testgroupvalues['packages'][0]) in res, res
+        ref = self.package_ref_from_name(self.testgroupvalues['packages'][0])
+        assert ref in res, res
+        ref = self.package_ref_from_name(self.testgroupvalues['packages'][1])
+        assert ref in res, res
         model.Session.remove()
         
         # Test Packages Register Post 409 (conflict - create duplicate package).
@@ -640,10 +663,8 @@ class ModelApiTestCase(ApiTestCase):
         packages = response_data['packages']
         assert isinstance(packages, list)
         assert len(packages) != 0, "Revision packages is empty: %s" % packages
-        package_ref = getattr(self.anna, self.ref_package_with_attr)
-        assert package_ref in packages, packages
-        package_ref = getattr(self.war, self.ref_package_with_attr)
-        assert package_ref in packages, packages
+        assert self.ref_package(self.anna) in packages, packages
+        assert self.ref_package(self.war) in packages, packages
 
     def test_14_get_revision_404(self):
         revision_id = "xxxxxxxxxxxxxxxxxxxxxxxxxx"
@@ -949,8 +970,7 @@ class SearchApiTestCase(ApiTestCase):
 
     def package_ref_from_name(self, package_name):
         package = self.get_package_by_name(package_name)
-        assert self.ref_package_with_attr in ['id', 'name']
-        return getattr(package, self.ref_package_with_attr)
+        return self.ref_package(package)
 
     def test_02_post_q(self):
         offset = self.base_url
@@ -1204,12 +1224,12 @@ class MiscApiTestCase(ApiTestCase):
 class Api1TestCase(ApiTestCase):
 
     api_version = '1'
-    ref_package_with_attr = 'name'
+    ref_package_by = 'name'
+    ref_group_by = 'name'
 
     def assert_msg_represents_anna(self, msg):
         super(Api1TestCase, self).assert_msg_represents_anna(msg)
         assert '"download_url": "http://www.annakarenina.com/download/x=1&y=2"' in msg, msg
-
 
 class TestModelApi1(ModelApiTestCase, Api1TestCase):
 

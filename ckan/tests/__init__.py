@@ -97,6 +97,9 @@ class TestController(object):
     def get_package_by_name(self, package_name):
         return model.Package.by_name(package_name)
 
+    def get_group_by_name(self, group_name):
+        return model.Group.by_name(group_name)
+
     def get_user_by_name(self, name):
         return model.User.by_name(name)
 

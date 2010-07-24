@@ -16,10 +16,14 @@ IGNORE_FIELDS = ['q']
 
 class BaseRestController(BaseController):
 
-    ref_package_with_attr = 'id'
+    ref_package_by = 'id'
+    ref_group_by = 'id'
 
     def _list_package_refs(self, packages):
-        return [getattr(p, self.ref_package_with_attr) for p in packages]
+        return [getattr(p, self.ref_package_by) for p in packages]
+
+    def _list_group_refs(self, groups):
+        return [getattr(p, self.ref_group_by) for p in groups]
 
     def _finish_ok(self, response_data=None):
         response.status_int = 200
@@ -51,11 +55,11 @@ class BaseRestController(BaseController):
                 response.status_int = 404
                 return 'First package named in request was not found.'
             relationships = pkg.get_relationships()
-            response_data = [rel.as_dict(package=pkg, ref_package_with_attr=self.ref_package_with_attr) for rel in relationships]
+            response_data = [rel.as_dict(package=pkg, ref_package_by=self.ref_package_by) for rel in relationships]
             return self._finish_ok(response_data)
         elif register == u'group':
             groups = model.Session.query(model.Group).all() 
-            response_data = [group.name for group in groups]
+            response_data = self._list_group_refs(groups)
             return self._finish_ok(response_data)
         elif register == u'tag':
             tags = model.Session.query(model.Tag).all() #TODO
@@ -127,7 +131,7 @@ class BaseRestController(BaseController):
                     response.status_int = 404
                     return 'Relationship "%s %s %s" not found.' % \
                            (id, subregister, id2)
-            response_data = [rel.as_dict(pkg1, ref_package_with_attr=self.ref_package_with_attr) for rel in relationships]
+            response_data = [rel.as_dict(pkg1, ref_package_by=self.ref_package_by) for rel in relationships]
             return self._finish_ok(response_data)
 
         elif register == u'group':
@@ -139,7 +143,7 @@ class BaseRestController(BaseController):
             if not self._check_access(group, model.Action.READ):
                 return ''
 
-            _dict = group.as_dict()
+            _dict = group.as_dict(ref_package_by=self.ref_package_by)
             #TODO check it's not none
             return self._finish_ok(_dict)
         elif register == u'tag':
@@ -154,7 +158,7 @@ class BaseRestController(BaseController):
             return ''
 
     def _represent_package(self, package):
-        return package.as_dict(ref_package_with_attr=self.ref_package_with_attr)
+        return package.as_dict(ref_package_by=self.ref_package_by, ref_group_by=self.ref_group_by)
 
     def create(self, register, id=None, subregister=None, id2=None):
         # Check an API key given
@@ -193,7 +197,7 @@ class BaseRestController(BaseController):
                 rev.message = _(u'REST API: Create package relationship: %s %s %s') % (pkg1, subregister, pkg2)
                 rel = pkg1.add_relationship(subregister, pkg2, comment=comment)
                 model.repo.commit_and_remove()
-                response_data = rel.as_dict(ref_package_with_attr=self.ref_package_with_attr)
+                response_data = rel.as_dict(ref_package_by=self.ref_package_by)
                 return self._finish_ok(response_data)
             elif register == 'group' and not subregister:
                 request_fa_dict = ckan.forms.edit_group_dict(ckan.forms.get_group_dict(), request_data)
@@ -425,7 +429,7 @@ class BaseRestController(BaseController):
                     query_fields.add(field, v)
             
             if register == 'package':
-                options.ref_entity_with_attr = self.ref_package_with_attr
+                options.ref_entity_with_attr = self.ref_package_by
             try:
                 backend = None
                 if register == 'resource': 
@@ -542,7 +546,8 @@ class BaseRestController(BaseController):
 class RestController(BaseRestController):
     # Implements CKAN API Version 1.
 
-    ref_package_with_attr = 'name'
+    ref_package_by = 'name'
+    ref_group_by = 'name'
 
     def _represent_package(self, package):
         msg_data = super(RestController, self)._represent_package(package)

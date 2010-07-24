@@ -8,7 +8,8 @@ from ckan.tests.functional.test_rest import MiscApiTestCase
 # For CKAN API Version 2.
 class Api2TestCase(ApiTestCase):
     api_version = '2'
-    ref_package_with_attr = 'id'
+    ref_package_by = 'id'
+    ref_group_by = 'id'
 
     def assert_msg_represents_anna(self, msg):
         super(Api2TestCase, self).assert_msg_represents_anna(msg)

@@ -216,6 +216,10 @@ Todo: Fork API documentation.
 |                 | See note below on additional fields upon GET of a package. |
 +-----------------+------------------------------------------------------------+
 | Group-List      | [ Name-String, Name-String, Name-String, ... ]             | 
+| (API v1 only)   |                                                            |
++-----------------+------------------------------------------------------------+
+| Group-List      | [ Id-String, Id-String, Id-String, ... ]                   |
+| (API v2 only)   |                                                            |
 +-----------------+------------------------------------------------------------+
 | Group           | { name: Name-String, title: String, description: String,   | 
 |                 | packages: Package-List }                                   |

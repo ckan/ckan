@@ -128,13 +128,13 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         else:
             return total / len(self.ratings)
 
-    def as_dict(self, ref_package_with_attr='id'):
+    def as_dict(self, ref_package_by='id', ref_group_by='id'):
         _dict = DomainObject.as_dict(self)
         # Set 'license' in _dict to cater for old clients.
-        # Todo: Remove this ASAP.
+        # Todo: Remove from Version 2?
         _dict['license'] = self.license.title if self.license else _dict.get('license_id', '')
         _dict['tags'] = [tag.name for tag in self.tags]
-        _dict['groups'] = [group.name for group in self.groups]
+        _dict['groups'] = [getattr(group, ref_group_by) for group in self.groups]
         _dict['extras'] = dict([(key, value) for key, value in self.extras.items()])
         _dict['ratings_average'] = self.get_average_rating()
         _dict['ratings_count'] = len(self.ratings)
@@ -143,7 +143,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         site_url = config.get('ckan.site_url', None)
         if site_url:
             _dict['ckan_url'] = '%s/package/%s' % (site_url, self.name)
-        _dict['relationships'] = [rel.as_dict(self, ref_package_with_attr=ref_package_with_attr) for rel in self.get_relationships()]
+        _dict['relationships'] = [rel.as_dict(self, ref_package_by=ref_package_by) for rel in self.get_relationships()]
         return _dict
 
     def add_relationship(self, type_, related_package, comment=u''):
