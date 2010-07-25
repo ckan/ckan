@@ -25,6 +25,11 @@ from routes import url_for
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib import search
 
+import resource 
+
+resource.setrlimit(resource.RLIMIT_NOFILE, (500,-1))
+
+
 __all__ = ['url_for',
            'TestController',
            'CreateTestData',
