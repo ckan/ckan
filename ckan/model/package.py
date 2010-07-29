@@ -128,7 +128,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         else:
             return total / len(self.ratings)
 
-    def as_dict(self, ref_package_by='id', ref_group_by='id'):
+    def as_dict(self, ref_package_by='name', ref_group_by='name'):
         _dict = DomainObject.as_dict(self)
         # Set 'license' in _dict to cater for old clients.
         # Todo: Remove from Version 2?

@@ -46,7 +46,7 @@ class Group(DomainObject):
         text_query = text_query.strip().lower()
         return Session.query(self).filter(self.name.contains(text_query))
 
-    def as_dict(self, ref_package_by='id'):
+    def as_dict(self, ref_package_by='name'):
         _dict = DomainObject.as_dict(self)
         _dict['packages'] = [getattr(package, ref_package_by) for package in self.packages]
         return _dict
