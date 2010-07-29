@@ -17,6 +17,13 @@
                 .end().hover(function () {
                   $(this).addClass('active').siblings().removeClass('active');
                 });
+		$(container).children().click(function() {
+			var tagInput = $(container).prev('.tagComplete');
+			var tags = $(tagInput).val().split(/\s+/).slice(0, -1);
+      tags.push($(this).text());
+      $(tagInput).val(tags.join(" ") + " ");
+			$(this).parent().empty();
+		}); 
   }
 
   function checkForIncompleteTag() {
