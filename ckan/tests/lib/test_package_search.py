@@ -109,7 +109,7 @@ class TestSearch(TestController):
         assert self._pkg_names(result) == 'se-opengov', self._pkg_names(result)
 
         # token
-        result = self.backend.query_for(model.Package).run(query=u'title:gils')
+        result = self.backend.query_for(model.Package).run(query=u'name:gils')
         assert self._pkg_names(result) == 'gils', self._pkg_names(result)
 
         # token
@@ -204,7 +204,7 @@ class TestSearch(TestController):
         # rank
         options = QueryOptions()
         options.order_by = 'rank'
-        result = self.backend.query_for(model.Package).run(fields={'q':u'penguin'}, options=options)
+        result = self.backend.query_for(model.Package).run(query='penguin', options=options)
         pkgs = result['results']
         fields = [model.Package.by_name(pkg_name).name for pkg_name in pkgs]
         assert fields[0] == 'usa-courts-gov', fields # has penguin three times

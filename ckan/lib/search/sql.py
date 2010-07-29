@@ -10,9 +10,6 @@ from ckan import authz
 
 log = logging.getLogger(__name__)
 
-EXTRA_FIELD_NAMES = ['update_frequency', 'geographic_granularity', 'geographic_coverage', 'temporal_granularity', 
-                     'temporal_coverage', 'national_statistic', 'categories', 'precision', 'department', 'agency', 
-                     'external_reference']
 
 class SqlSearchBackend(SearchBackend):
     
@@ -130,14 +127,16 @@ class PackageSqlSearchQuery(SqlSearchQuery):
             elif field == 'groups':
                 q = self._filter_by_group(q, terms)
                 continue
+            
             if isinstance(terms, basestring):
                 terms = terms.split()
-            elif hasattr(model.Package, field):
+                
+            if hasattr(model.Package, field):
                 model_attr = getattr(model.Package, field)
                 for term in terms:
-                    q = q.filter(model_attr==make_like(model_attr, term))
+                    q = q.filter(make_like(model_attr, term))
             else:
-                q = self._filter_by_extra(field, q, terms)
+                q = self._filter_by_extra(q, field, terms)
         
         # Filter for options
         if self.options.filter_by_downloadable:
@@ -191,12 +190,11 @@ class PackageSqlSearchQuery(SqlSearchQuery):
 
     def _filter_by_extra(self, q, field, terms):
         make_like = lambda x,y: x.ilike('%' + y + '%')
-        value = '%'.join(terms)
-        q = q.join('_extras', aliased=True).filter(
-            sqlalchemy.and_(
-              model.PackageExtra.state==model.State.ACTIVE,
-              model.PackageExtra.key==unicode(field),
-            )).filter(make_like(model.PackageExtra.value, value))
+        for term in terms:
+            q = q.join('_extras', aliased=True)
+            q = q.filter(model.PackageExtra.state==model.State.ACTIVE)
+            q = q.filter(model.PackageExtra.key==unicode(field))
+            q = q.filter(make_like(model.PackageExtra.value, term))
         return q
         
 
@@ -217,11 +215,10 @@ class PackageSqlSearchIndex(SqlSearchIndex):
             val = pkg_dict.get(field_name)
             if val:
                 document_b_items.append(val)
-        extras = pkg_dict['extras']
-        for extra_field_name in EXTRA_FIELD_NAMES:
-            val = extras.get(extra_field_name)
-            if val:
-                document_b_items.append(val)
+        extras = pkg_dict.get('extras', {})
+        for key, value in extras.items():
+            if value is not None:
+                document_b_items.append(unicode(value))
         document_b = u' '.join(document_b_items)
 
         # Create weighted vector

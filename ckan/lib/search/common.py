@@ -211,6 +211,7 @@ class QueryParser(object):
             if colon_pos != -1:
                 field = token[:colon_pos]
                 value = token[colon_pos+1:]
+                value = value.strip('"').strip("'")
                 if len(value):
                     self._combined_fields.add(field, value)
             else:
