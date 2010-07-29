@@ -35,7 +35,21 @@ class Tag(DomainObject):
     @classmethod
     def search_by_name(self, text_query):
         text_query = text_query.strip().lower()
-        return Session.query(self).filter(self.name.contains(text_query))
+        q = Session.query(self).filter(self.name.contains(text_query))
+        q = q.distinct().join(self.package_tags)
+        return q
+        
+    @classmethod
+    def by_name(self, name, autoflush=True):
+        q = Session.query(self).autoflush(autoflush).filter_by(name=name)
+        q = q.distinct().join(self.package_tags)
+        return q.first()
+        
+    @classmethod
+    def all(self):
+        q = Session.query(self)
+        q = q.distinct().join(self.package_tags)
+        return q
 
     @property
     def packages_ordered(self):
