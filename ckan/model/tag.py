@@ -39,11 +39,11 @@ class Tag(DomainObject):
         q = q.distinct().join(self.package_tags)
         return q
         
-    @classmethod
-    def by_name(self, name, autoflush=True):
-        q = Session.query(self).autoflush(autoflush).filter_by(name=name)
-        q = q.distinct().join(self.package_tags)
-        return q.first()
+    #@classmethod
+    #def by_name(self, name, autoflush=True):
+    #    q = Session.query(self).autoflush(autoflush).filter_by(name=name)
+    #    q = q.distinct().join(self.package_tags)
+    #    return q.first()
         
     @classmethod
     def all(self):
