@@ -14,6 +14,8 @@ import ckan.lib.helpers
 from ckan.config.routing import make_map
 from ckan import model
 
+import plugins
+
 
 def load_environment(global_conf, app_conf):
     """Configure the Pylons environment via the ``pylons.config``
@@ -40,7 +42,10 @@ def load_environment(global_conf, app_conf):
     config['routes.map'] = make_map()
     config['pylons.app_globals'] = app_globals.Globals()
     config['pylons.h'] = ckan.lib.helpers
-
+    
+    # load all CKAN plugins
+    plugins.load_all(config)
+    
     ## redo template setup to use genshi.search_path (so remove std template setup)
     template_paths = [paths['templates'][0]]
     extra_template_paths = app_conf.get('extra_template_paths', '')
@@ -61,7 +66,7 @@ def load_environment(global_conf, app_conf):
         template_paths, auto_reload=True, callback=template_loaded)
 
     # CONFIGURATION OPTIONS HERE (note: all config options will override
-    # any Pylons config options)
+    # any Pylons config options)    
 
     # Setup the SQLAlchemy database engine
     engine = engine_from_config(config, 'sqlalchemy.')

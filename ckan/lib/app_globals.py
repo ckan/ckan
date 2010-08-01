@@ -20,3 +20,6 @@ class Globals(object):
         
         # has been setup in load_environment():
         self.site_id = config.get('ckan.site_id')
+        
+        # plugin 'registry'
+        self.plugins = {}
