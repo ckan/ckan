@@ -9,14 +9,37 @@ from pylons.controllers import WSGIController
 from pylons.controllers.util import abort, etag_cache, redirect_to, redirect
 from pylons.decorators import jsonify, validate
 from pylons.i18n import _, ungettext, N_, gettext
-from pylons.templating import render_genshi as render
+from pylons.templating import cached_template, pylons_globals
+from webhelpers.html import literal
 
 import ckan
 import ckan.lib.helpers as h
+from ckan.config import plugins
 from ckan.lib.helpers import json
 import ckan.model as model
 
 PAGINATE_ITEMS_PER_PAGE = 50
+
+
+def render(template_name, extra_vars=None, cache_key=None, cache_type=None, 
+           cache_expire=None, method='xhtml'):
+    def render_template():
+        globs = extra_vars or {}
+        globs.update(pylons_globals())
+        template = globs['app_globals'].genshi_loader.load(template_name)
+        stream = template.generate(**globs)
+        
+        # extension point for all plugins implementing 'render(self, stream)'.
+        for _filter in plugins.find_methods('render'):
+            stream = _filter(stream)
+        
+        return literal(stream.render(method=method, encoding=None))
+    
+    return render_template()
+	#return cached_template(template_name, render_template, cache_key=cache_key,
+	#                       cache_type=cache_type, cache_expire=cache_expire,
+	#                       ns_options=('method'), method=method)
+
 
 class ValidationException(Exception):
     pass
