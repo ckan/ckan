@@ -16,7 +16,7 @@ __all__ = ['Notification', 'PackageNotification', 'ResourceNotification',
            'NotificationError']
 
 NOTIFYING_DOMAIN_OBJ_NAMES = ['Package', 'Resource']
-ROUTING_KEYS = ['db', 'stop'] + NOTIFYING_DOMAIN_OBJ_NAMES
+ROUTING_KEYS = ['db', 'stop', 'request_log'] + NOTIFYING_DOMAIN_OBJ_NAMES
 
 class Notifications(object):
     '''Stores info about all notification objects.'''

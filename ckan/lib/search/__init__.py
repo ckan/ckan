@@ -1,7 +1,6 @@
 import logging
 
 from pylons import config
-from ckan import model
 from common import QueryOptions, SearchError
 from sql import SqlSearchBackend
 from solr_ import SolrSearchBackend
@@ -41,6 +40,7 @@ def get_backend(backend=None):
     return INSTANCE_CACHE.get(klass)
 
 def rebuild():
+    from ckan import model
     backend = get_backend()
     log.debug("Rebuilding search index...")
     
