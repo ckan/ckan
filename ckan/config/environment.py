@@ -34,10 +34,10 @@ def load_environment(global_conf, app_conf):
     # This is set up before globals are initialized
     site_url = config.get('ckan.site_url', 'http://www.ckan.net')
     ckan_host = config['ckan.host'] = urlparse(site_url).netloc
-    if ':' in ckan_host:
-        ckan_host, port = ckan_host.split(':')
     if config.get('ckan.site_id') is None:
-        config['ckan.site_id'] = '_'.join(config['ckan.host'].split('.')[::-1])
+        if ':' in ckan_host:
+            ckan_host, port = ckan_host.split(':')
+        config['ckan.site_id'] = ckan_host
     
     config['routes.map'] = make_map()
     config['pylons.app_globals'] = app_globals.Globals()
