@@ -379,6 +379,7 @@ class TestEdit(TestPackageForm):
     def setUp(self):
         if not self.res:
             self.res = self.app.get(self.offset)
+        
             
     @classmethod
     def _reset_data(self):
@@ -755,6 +756,15 @@ u with umlaut \xc3\xbc
         self.check_tag(res, '<form', 'class="has-errors"')
         assert 'No links are allowed' in res, res
 
+
+    def test_edit_with_admin_login_during_form(self):
+        from pprint import pprint
+        offset = url_for(controller='package', action='edit', id=self.pkgid)
+        res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':''})
+        form = res.forms['package-edit']
+        res = form.submit('save', status=302, extra_environ={'REMOTE_USER': 'testadmin'})
+        assert not 'Errors in form' in res, res
+        
 
 class TestNew(TestPackageForm):
     pkg_names = []
