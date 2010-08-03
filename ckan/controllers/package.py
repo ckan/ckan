@@ -74,7 +74,10 @@ class PackageController(BaseController):
         pkg = model.Package.get(id)
         if pkg is None:
             abort(404, gettext('Package not found'))
-
+        
+        # used by disqus plugin
+        c.current_package_id = pkg.id
+        
         if config.get('rdf_packages'):
             accept_headers = request.headers.get('Accept', '')
             if 'application/rdf+xml' in accept_headers and \
