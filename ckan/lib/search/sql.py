@@ -63,6 +63,7 @@ class TagSqlSearchQuery(SqlSearchQuery):
 
     def _run(self):
         q = model.Session.query(model.Tag)
+        q = q.distinct().join(model.Tag.package_tags)
         terms = list(self.query.terms)
         for field, value in self.query.fields.items():
             if field in ('tag', 'tags'):

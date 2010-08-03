@@ -1,7 +1,10 @@
 from pylons.i18n import _
 
 from ckan.lib.base import *
-from ckan.lib.helpers import json, AlphaPage
+from ckan.lib.search import query_for
+from ckan.lib.helpers import json, AlphaPage, Page
+
+LIMIT = 25
 
 class TagController(BaseController):
 
@@ -9,16 +12,28 @@ class TagController(BaseController):
         c.q = request.params.get('q', '')
         
         if c.q:
-            query = model.Tag.search_by_name(c.q)
+            page = int(request.params.get('page', 1))
+            query = query_for('tag', backend='sql')
+            query.run(query=c.q,
+                      limit=LIMIT,
+                      offset=(page-1)*LIMIT,
+                      return_objects=True,
+                      username=c.user)
+            c.page = h.Page(
+                            collection=query.results,
+                            page=page,
+                            item_count=query.count,
+                            items_per_page=LIMIT
+                            )
+            c.page.items = query.results
         else:
             query = model.Tag.all()
-           
-        c.page = AlphaPage(
-            collection=query,
-            page=request.params.get('page', 'A'),
-            alpha_attribute='name',
-            other_text=_('Other'),
-        )
+            c.page = AlphaPage(
+                collection=query,
+                page=request.params.get('page', 'A'),
+                alpha_attribute='name',
+                other_text=_('Other'),
+            )
            
         return render('tag/index.html')
 
@@ -31,8 +46,12 @@ class TagController(BaseController):
     def autocomplete(self):
         incomplete = request.params.get('incomplete', '')
         if incomplete:
-            tags = list(model.Tag.search_by_name(incomplete))
-            tagNames = [t.name for t in tags]
+            query = query_for('tag', backend='sql')
+            query.run(query=incomplete,
+                      return_objects=True,
+                      limit=10,
+                      username=c.user)
+            tagNames = [t.name for t in query.results]
         else:
             tagNames = []
         resultSet = {
