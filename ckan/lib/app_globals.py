@@ -16,6 +16,7 @@ class Globals(object):
 
         """
         self.site_title = config.get('ckan.site_title', 'CKAN')
+        self.site_logo = config.get('ckan.site_logo', '/images/ckan_logo_fullname_long.png')
         self.site_url = config.get('ckan.site_url', 'http://www.ckan.net')
         
         # has been setup in load_environment():

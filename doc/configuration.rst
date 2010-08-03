@@ -206,6 +206,18 @@ Default::
 This sets the name of the site.
 
 
+site_logo
+----------
+
+Example::
+ ckan.site_logo=http://myregistry/logo.png
+
+Default::
+ CKAN Text Logo, /images/ckan_logo_fullname_long.png
+
+This sets the logo used in the title bar.
+
+
 site_url
 --------
 
