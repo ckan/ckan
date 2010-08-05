@@ -4,8 +4,8 @@ Plugins
 **NOTE: CKAN plugin support is under development. All features documented on this page 
 are subject to frequent and breaking changes and should only be used with that in mind.**
 
-Plugin installation
--------------------
+Plugin activation
+-----------------
 
 All plug-ins must be installed as generic setuptools packages and available in the 
 virtualenv used by CKAN. After installing a plugin, add it to the CKAN plugin registry
@@ -43,3 +43,6 @@ classes. If the required method is present, it will be called and its return val
 handled by CKAN. 
 
 * ``render``: This method is called when a specific page is rendered. Any registered plugin will be handed one argument, ``stream``. This is a Genshi stream of the current output document. It can be transformed using XML tree manipulation. The method is expected to return a Genshi stream.
+
+* ``make_map``: This method is called when a routes map is generated. It will receive a ``map`` object and it is expected to return a modified version of the same object. Because it is called as the first mapping entry, it can 
+override all others. 

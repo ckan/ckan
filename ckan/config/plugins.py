@@ -22,14 +22,16 @@ def load_all(config):
 def load(name, entry_point, config):
     log.debug("Plugin: %s", entry_point.dist)
     entry_obj = entry_point.load()(config)
-    config.get('pylons.app_globals').plugins[entry_point] = entry_obj
+    registry = config.get('ckan.plugin_registry', {})
+    registry[entry_point] = entry_obj
+    config['ckan.plugin_registry'] = registry
     return entry_obj
     
     
 def find_methods(method_name):
     """ For a given method name, find all plugins where that method exists and iterate over them. """
-    from pylons import g
-    for k, v in g.plugins.items():
+    from pylons import config
+    for k, v in config.get('ckan.plugin_registry').items():
         if hasattr(v, method_name):
             yield getattr(v, method_name)
         else:

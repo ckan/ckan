@@ -39,13 +39,13 @@ def load_environment(global_conf, app_conf):
             ckan_host, port = ckan_host.split(':')
         config['ckan.site_id'] = ckan_host
     
-    config['routes.map'] = make_map()
-    config['pylons.app_globals'] = app_globals.Globals()
-    config['pylons.h'] = ckan.lib.helpers
-    
     # load all CKAN plugins
     plugins.load_all(config)
     
+    config['routes.map'] = make_map()
+    config['pylons.app_globals'] = app_globals.Globals()
+    config['pylons.h'] = ckan.lib.helpers
+        
     ## redo template setup to use genshi.search_path (so remove std template setup)
     template_paths = [paths['templates'][0]]
     extra_template_paths = app_conf.get('extra_template_paths', '')
