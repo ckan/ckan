@@ -31,7 +31,7 @@ def load(name, entry_point, config):
 def find_methods(method_name):
     """ For a given method name, find all plugins where that method exists and iterate over them. """
     from pylons import config
-    for k, v in config.get('ckan.plugin_registry').items():
+    for k, v in config.get('ckan.plugin_registry', {}).items():
         if hasattr(v, method_name):
             yield getattr(v, method_name)
         else:
