@@ -30,6 +30,7 @@ class DomainObject(object):
 
     @classmethod
     def active(self):
+        from core import State
         return Session.query(self).filter_by(state=State.ACTIVE)
 
     def purge(self):

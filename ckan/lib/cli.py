@@ -918,6 +918,7 @@ class Notifications(CkanCommand):
 
     Usage:
       notifications monitor                 - runs monitor, printing all notifications
+      notifications replay                  - simulate a change to all packages in the system
     '''
 
     summary = __doc__.split('\n')[0]
@@ -928,17 +929,32 @@ class Notifications(CkanCommand):
     def command(self):
         self._load_config()
         from ckan import model
-
-        cmd = self.args[0]
-        if cmd == 'monitor':
-            self.monitor()
-        else:
-            print 'Command %s not recognized' % cmd
-
-    def monitor(self):
+        
         from pylons import config
         if config.get('carrot_messaging_library') != 'pyamqplib':
             print 'Carrot messaging library not configured to AMQP. Currently set to:', config.get('carrot_messaging_library')
             sys.exit(1)
+        
+        cmd = self.args[0]
+        if cmd == 'monitor':
+            self.monitor()
+        if cmd == 'replay':
+            self.replay()
+        else:
+            print 'Command %s not recognized' % cmd
+
+    def replay(self):
+        from ckan.model import Package, PackageResource
+        from ckan.model.notifier import DomainObjectNotificationOperation, DomainObjectNotification
+        for klass in [Package, PackageResource]:
+            for obj in klass.active():
+                if hasattr(obj, 'name'):
+                    print "Simulating change to:", obj.name
+                elif hasattr(obj, 'url'):
+                    print "Simulating change to:", obj.url
+                notification = DomainObjectNotification.create(obj, DomainObjectNotificationOperation.changed)
+                notification.send_synchronously()
+
+    def monitor(self):
         from ckan.lib import monitor
         monitor = monitor.Monitor()
