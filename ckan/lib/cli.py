@@ -325,26 +325,26 @@ class TestData(CkanCommand):
         import urllib
         res = check_page('/', ('Search'))
         form = res.forms['package-search']
-        form.update(urllib.urlencode({'q': pkg.title}))
+        form['q'] = pkg.title
         res = form.submit()
         print '* Checking search using %r' % pkg.title.encode('utf-8')
         assert ('package found' in res) or ('packages found' in res), res
-
+        
         res = res.click(pkg.title)
         print '* Checking package page %s' % res.request.url
         assert pkg.title in res, res
         for tag in pkg.tags:
             assert tag.name in res, res
-        assert pkg.license in res, res
+        license = pkg.license.as_dict().get('title')
+        assert license in res, res
 
         tag = pkg.tags[0]
-        res = check_page('/tag/read/%s' % tag.name, 
+        res = check_page('/tag/%s' % tag.name, 
                 ('Tag: %s' % str(tag.name), str(pkg.name))
             )
 
-        res = check_page('/package/new', 'Register a New Package')
-        
-        res = check_page('/package/list', 'Packages')
+        res = check_page('/package/new', 'Register a New Data Package')
+        res = check_page('/package/list', 'Data Packages')
 
 class SearchIndexCommand(CkanCommand):
     '''Creates a search index for all packages
