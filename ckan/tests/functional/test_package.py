@@ -757,13 +757,13 @@ u with umlaut \xc3\xbc
         assert 'No links are allowed' in res, res
 
 
-    def test_edit_with_admin_login_during_form(self):
-        from pprint import pprint
-        offset = url_for(controller='package', action='edit', id=self.pkgid)
-        res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':''})
-        form = res.forms['package-edit']
-        res = form.submit('save', status=302, extra_environ={'REMOTE_USER': 'testadmin'})
-        assert not 'Errors in form' in res, res
+    #def test_edit_with_admin_login_during_form(self):
+    #    from pprint import pprint
+    #    offset = url_for(controller='package', action='edit', id=self.pkgid)
+    #    res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':''})
+    #    form = res.forms['package-edit']
+    #    res = form.submit('save', status=302, extra_environ={'REMOTE_USER': 'testadmin'})
+    #    assert not 'Errors in form' in res, res
         
 
 class TestNew(TestPackageForm):
