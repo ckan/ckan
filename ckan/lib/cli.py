@@ -321,12 +321,13 @@ class TestData(CkanCommand):
                 assert required_contents in res, res
             return res
 
-
+        
+        import urllib
         res = check_page('/', ('Search'))
         form = res.forms['package-search']
-        form['q'] = pkg.name
+        form['q'] = urllib.urlencode(pkg.title)
         res = form.submit()
-        print '* Checking search using %r' % pkg.name
+        print '* Checking search using %r' % pkg.title.encode('utf-8')
         assert ('package found' in res) or ('packages found' in res), res
 
         res = res.click(pkg.title)
