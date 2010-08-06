@@ -48,7 +48,7 @@ def load_environment(global_conf, app_conf):
         
     ## redo template setup to use genshi.search_path (so remove std template setup)
     template_paths = [paths['templates'][0]]
-    extra_template_paths = app_conf.get('extra_template_paths', '')
+    extra_template_paths = config.get('extra_template_paths', '')
     if extra_template_paths:
         # must be first for them to override defaults
         template_paths = extra_template_paths.split(',') + template_paths
