@@ -47,7 +47,7 @@ class PackageSolrSearchQuery(SearchQuery):
         if order_by == 'rank': order_by = 'score'
         
         # show only results from this CKAN instance:
-        query = query + " +site_id:%s" % config.get('ckan.site_id')
+        query = query + " +site_id:\"%s\"" % config.get('ckan.site_id')
         
         data = self.backend.connection.query(self.query.query,
                                        fq=query, 
@@ -71,12 +71,12 @@ class SolrSearchIndex(SearchIndex):
     def remove_dict(self, data):
         if not 'id' in data:
             raise SearchError("No ID for record deletion")
-        query = "+%s:%s +id:%s +site_id:%s" % (TYPE_FIELD, self.TYPE, data.get('id'), config.get('ckan.site_id'))
+        query = "+%s:\"%s\" +id:%s +site_id:\"%s\"" % (TYPE_FIELD, self.TYPE, data.get('id'), config.get('ckan.site_id'))
         self.backend.connection.delete_query(query)
         self.backend.connection.commit()
         
     def clear(self):
-        query = "+%s:%s +site_id:%s" % (TYPE_FIELD, self.TYPE, config.get('ckan.site_id'))
+        query = "+%s:%s +site_id:\"%s\"" % (TYPE_FIELD, self.TYPE, config.get('ckan.site_id'))
         self.backend.connection.delete_query(query)
         self.backend.connection.commit()
 
