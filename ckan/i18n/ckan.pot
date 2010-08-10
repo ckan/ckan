@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckan 1.1c\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2010-08-06 20:27+0200\n"
+"POT-Creation-Date: 2010-08-10 14:33+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1786,8 +1786,7 @@ msgid "You have logged out successfully."
 msgstr ""
 
 #: ckan/templates/user/openid_form.html:28
-#, python-format
-msgid "Login to %(site_title)s using Open ID"
+msgid "Login using Open ID"
 msgstr ""
 
 #: ckan/templates/user/openid_form.html:30
@@ -1809,7 +1808,7 @@ msgstr ""
 #: ckan/templates/user/openid_form.html:45
 msgid ""
 "OpenID is service that allows you to log-on to many different websites\n"
-"      using a single indentity. Find out [1:more\n"
+"      using a single identity. Find out [1:more\n"
 "      about OpenID] and [2:how to get an\n"
 "      OpenID enabled account]. Probably the simplest way is sign up with a\n"
 "      free OpenID provider such as [3:https://www.myopenid.com/]."
