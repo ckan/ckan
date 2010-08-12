@@ -80,7 +80,7 @@ class LicenseRegister(object):
     
     def get_by_title(self, title, default=None):
         for license in self.licenses:
-            if title == license.title:
+            if title == license.title or title == license.title.split('::')[1]:
                 return license
         else:
             return default
