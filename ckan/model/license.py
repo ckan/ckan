@@ -56,8 +56,11 @@ class LicenseRegister(object):
         if default != Exception:
             return default
         else:
-            raise Exception, "License not found: %s" % key
+            raise KeyError, "License not found: %s" % key
 
+    def get(self, key, default=None):
+        return self.__getitem__(key, default=default)
+        
     def keys(self):
         return [license.id for license in self.licenses]
 
@@ -72,3 +75,13 @@ class LicenseRegister(object):
 
     def __len__(self):
         return len(self.licenses)
+
+    # non-dict like interface
+    
+    def get_by_title(self, title, default=None):
+        for license in self.licenses:
+            if title == license.title:
+                return license
+        else:
+            return default
+        
