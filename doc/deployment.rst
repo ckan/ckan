@@ -120,8 +120,22 @@ Now you can then do the deployment with something like::
   $ paster make-config ckan demo.ckan.net.ini
 
 
-8. Edit demo.ckan.net.ini to set the sqlalchemy.url database connection
-   information using values from step 3.
+8. Edit default values of demo.ckan.net.ini.
+
+  8.1. sqlalchemy.url
+
+    Set the sqlalchemy.url database connection information using values from step 3.
+
+  8.2. licenses_group_url
+
+    Set the licenses_group_url to point to a licenses service. Options
+    include: ::
+
+      http://licenses.opendefinition.org/2.0/ckan_original
+      http://licenses.opendefinition.org/2.0/all_alphabetical
+
+    For information about creating your own licenses services, please refer to
+    the Python package called 'licenses' (http://pypi.python.org/pypi/licenses).
 
 
 9. Initialise database
