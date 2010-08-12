@@ -31,7 +31,7 @@ Here's an example for deploying CKAN to http://demo.ckan.net/ via Apache.
    Package                Notes
    =====================  ============================================
    python-virtualenv      Python virtual environment sandboxing
-   pip                    Python installer (use easy_install for this)
+   pip                    Python installer
    =====================  ============================================
 
    Check that you received:
