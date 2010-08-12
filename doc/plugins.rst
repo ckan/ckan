@@ -44,4 +44,4 @@ handled by CKAN.
 
 * ``render``: This method is called when a specific page is rendered. Any registered plugin will be handed one argument, ``stream``. This is a Genshi stream of the current output document. It can be transformed using XML tree manipulation. The method is expected to return a Genshi stream.
 
-* ``make_map``: This method is called when a routes map is generated. It will receive a ``map`` object and it is expected to return a modified version of the same object. Because it is called as the first mapping entry, it can override all others. 
+* ``make_map_begin``, ``make_map_end``: These methods are called when a routes map is generated. They will receive a ``map`` object and it is expected to return a modified version of the same object. ``make_map_begin`` is called as the first mapping entry, it can override all others. ``make_map_end`` can be used to add fall-back handlers. 

@@ -21,7 +21,7 @@ def make_map():
     map.connect('/error/{action}/{id}', controller='error')
 
     # CUSTOM ROUTES HERE
-    for _plugin_map in plugins.find_methods('make_map'):
+    for _plugin_map in plugins.find_methods('make_map_begin'):
         map = _plugin_map(map)
         
     map.connect('home', '/', controller='home', action='index')
@@ -161,6 +161,10 @@ def make_map():
     map.connect('/{controller}', action='index')
     map.connect('/:controller/{action}')
     map.connect('/{controller}/{action}/{id}')
+    
+    for _plugin_map in plugins.find_methods('make_map_end'):
+        map = _plugin_map(map)
+    
     map.redirect('/*(url)/', '/{url}',
                  _redirect_code='301 Moved Permanently')
     map.connect('/*url', controller='template', action='view')

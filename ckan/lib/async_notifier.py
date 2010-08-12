@@ -129,7 +129,7 @@ class AsyncConsumer(object):
         # NB wait() is only for test mode - using iterconsume() instead
         # self.consumer.wait()
         it = self.consumer.iterconsume()
-        logger.info('Search indexer: Waiting for messages')
+        logger.info('Queue consumer: Waiting for messages')
         while True:
             try:
                 it.next()
@@ -137,7 +137,7 @@ class AsyncConsumer(object):
                 break
             # only need to poll once every few seconds - Queue doesn't block
             time.sleep(1.0)
-        logger.info('Search indexer: Shutting down')
+        logger.info('Queue consumer: Shutting down')
 
     def stop(self):
         # consumer.cancel doesn't work for Queue implementation, so instead
