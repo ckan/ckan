@@ -69,6 +69,7 @@ setup(
 
     [paste.paster_command]
     db = ckan.lib.cli:ManageDb
+    load = ckan.lib.cli:Load
     create-test-data = ckan.lib.create_test_data:CreateTestData
     test-data = ckan.lib.cli:TestData
     sysadmin = ckan.lib.cli:Sysadmin
