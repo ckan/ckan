@@ -37,7 +37,7 @@ class BaseRestController(BaseController):
         return json_response
 
     def index(self):
-        return render('rest/index.html')
+        return render('rest/index.html', cache_expire=84600)
 
     def list(self, register, subregister=None, id=None):
         if register == 'revision':

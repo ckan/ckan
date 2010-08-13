@@ -2,7 +2,7 @@ import logging
 import urlparse
 
 import genshi
-from pylons import config
+from pylons import config, cache
 from pylons.i18n import get_lang, _
 
 from ckan.lib.base import *
@@ -69,11 +69,21 @@ class PackageController(BaseController):
             c.tags_count = query.count
 
         return render('package/search.html')
+    
+    def _pkg_cache_key(self, pkg):
+        return str(hash((pkg.revision.id, c.user)))
+        
+    def _clear_pkg_cache(self, pkg):
+        read_cache = cache.get_cache('package/read.html')
+        read_cache.remove_value(self._pkg_cache_key(pkg))
 
     def read(self, id):
         pkg = model.Package.get(id)
         if pkg is None:
             abort(404, gettext('Package not found'))
+        
+        cache_key = self._pkg_cache_key(pkg)
+        etag_cache(cache_key)
         
         # used by disqus plugin
         c.current_package_id = pkg.id
@@ -94,7 +104,7 @@ class PackageController(BaseController):
         c.auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, pkg)
 
         PackageSaver().render_package(pkg)
-        return render('package/read.html') 
+        return render('package/read.html', cache_key=cache_key, cache_expire=84600) 
 
     def history(self, id):
         if 'diff' in request.params or 'selected1' in request.params:
@@ -375,6 +385,7 @@ class PackageController(BaseController):
         package = model.Package.get(package_name)
         if package is None:
             abort(404, gettext('404 Package Not Found'))
+        self._clear_pkg_cache(package)
         rating = request.params.get('rating', '')
         if rating:
             try:

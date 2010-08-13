@@ -11,6 +11,12 @@ class HomeController(BaseController):
     def index(self):
         c.package_count = model.Session.query(model.Package).count()
         c.revisions = model.Session.query(model.Revision).limit(10).all()
+        if len(c.revisions):
+            cache_key = str(hash((c.revisions[0].id, c.user)))
+        else:
+            cache_key = "fresh-install"
+        
+        etag_cache(cache_key)
         def tag_counts():
             '''Top 50 tags (by package counts) in random order (to make cloud
             look nice).
@@ -31,13 +37,13 @@ class HomeController(BaseController):
         # 3600=hourly, 86400=daily
         c.tag_counts = mycache.get_value(key='tag_counts_home_page',
                 createfunc=tag_counts, expiretime=86400)
-        return render('home/index.html')
+        return render('home/index.html', cache_key=cache_key, cache_expire=84600)
 
     def license(self):
-        return render('home/license.html')
+        return render('home/license.html', cache_expire=84600)
 
     def about(self):
-        return render('home/about.html')
+        return render('home/about.html', cache_expire=84600)
 
     def stats(self):
         def stats_html():
