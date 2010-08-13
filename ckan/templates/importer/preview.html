@@ -12,7 +12,7 @@
         Error: ${c.error}
       </h3>
 
-      ${h.form(h.url_for(controller='importer', action='do_import'), multipart=True)}
+      ${h.form(h.url_for(controller='importer', action='do_import'), multipart=True, id='import-preview')}
           <p>${c.num_pkgs} package${'s' if c.num_pkgs != 1 else ''} read from ${c.import_filename}:</p>
 
           <py:for each="pkg in c.import_previews">
