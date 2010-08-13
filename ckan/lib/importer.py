@@ -232,7 +232,7 @@ class PackageImporter(object):
                 if title in standard_fields:
                     pkg_fs_dict[title] = cell
                 elif title == 'license':
-                    license_id = self.license_2_license_id(cell)
+                    license_id = cls.license_2_license_id(cell)
                     if license:
                         pkg_fs_dict['license_id'] = license_id
                     else:
@@ -270,6 +270,12 @@ class PackageImporter(object):
                     pkg_fs_dict['extras'][title] = cell
         return pkg_fs_dict
 
+    def log(self, msg):
+        self._log.append(msg)
+
+    def get_log(self):
+        return self._log
+
     @classmethod
     def license_2_license_id(self, license_title, logger=None):
         licenses = LicenseRegister()
@@ -280,9 +286,31 @@ class PackageImporter(object):
             logger('Warning: No license name matches \'%s\'. Ignoring license.' % license_title)
 
 
-    def log(self, msg):
-        self._log.append(msg)
+    @classmethod
+    def munge(self, name):
+        '''Munge a title into a name'''
+        # convert spaces to underscores
+        name = re.sub(' ', '_', name).lower()        
+        # convert symbols to dashes
+        name = re.sub('[:]', '_-', name).lower()        
+        name = re.sub('[/]', '-', name).lower()        
+        # take out not-allowed characters
+        name = re.sub('[^a-zA-Z0-9-_]', '', name).lower()
+        # remove double underscores
+        name = re.sub('__', '_', name).lower()                
+        return name[:100]
 
-    def get_log(self):
-        return self._log
+    @classmethod
+    def name_munge(self, input_name):
+        '''Munges the name field in case it is not to spec.'''
+        return self.munge(input_name.replace(' ', '').replace('.', '_').replace('&', 'and'))
 
+    @classmethod
+    def tidy_url(self, url, logger=None):
+        if url and not url.startswith('http') and not url.startswith('webcal:'):
+            if url.startswith('www.'):
+                url = url.replace('www.', 'http://www.')
+            else:
+                logger('Warning: URL doesn\'t start with http: %s' % url)
+        return url
+                
