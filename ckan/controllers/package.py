@@ -71,10 +71,10 @@ class PackageController(BaseController):
         return render('package/search.html')
     
     def _pkg_cache_key(self, pkg):
-        return str(hash((pkg.revision.id, c.user)))
+        return str(hash((pkg.revision.id, c.user, pkg.get_average_rating())))
         
     def _clear_pkg_cache(self, pkg):
-        read_cache = cache.get_cache('package/read.html')
+        read_cache = cache.get_cache('package/read.html', type='dbm')
         read_cache.remove_value(self._pkg_cache_key(pkg))
 
     def read(self, id):
@@ -392,7 +392,7 @@ class PackageController(BaseController):
                 ckan.rating.set_my_rating(c, package, rating)
             except ckan.rating.RatingValueException, e:
                 abort(400, gettext('Rating value invalid'))
-        h.redirect_to(controller='package', action='read', id=package_name)
+        h.redirect_to(controller='package', action='read', id=package_name, rating=str(rating))
 
     def autocomplete(self):
         pkg_list = []

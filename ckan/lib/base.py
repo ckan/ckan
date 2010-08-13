@@ -42,11 +42,11 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         response.headers["Cache-Control"] = "public"  
     
     if cache_expire is not None:
-        response.headers["Cache-Control"] = "public, max-age=%s" % cache_expire
+        response.headers["Cache-Control"] = "max-age=%s, must-revalidate" % cache_expire
     
     return cached_template(template_name, render_template, cache_key=cache_key, 
-                           cache_type=cache_type, cache_expire=cache_expire, 
-                           ns_options=('method'), method=method)
+                           cache_type=cache_type, cache_expire=cache_expire)
+                           #, ns_options=('method'), method=method)
 
 
 class ValidationException(Exception):
