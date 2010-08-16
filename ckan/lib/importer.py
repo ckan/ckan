@@ -209,7 +209,10 @@ class PackageImporter(object):
     def pkg_dict(self):
         '''Generates package dicts from the package data records.'''
         for row_dict in self._package_data_records.records:
-            yield self.row_2_package(row_dict)
+            try:
+                yield self.row_2_package(row_dict)
+            except RowParseError, e:
+                print 'Error with row', e
         raise StopIteration
 
     @classmethod
@@ -297,8 +300,16 @@ class PackageImporter(object):
         # take out not-allowed characters
         name = re.sub('[^a-zA-Z0-9-_]', '', name).lower()
         # remove double underscores
-        name = re.sub('__', '_', name).lower()                
-        return name[:100]
+        name = re.sub('__', '_', name).lower()
+        # if longer than 100 chars, keep last word if a year
+        if len(name) > 100:
+            year_match = re.match('.*?[_-]((?:\d{2,4}[-/])?\d{2,4})$', name)
+            if year_match:
+                year = year_match.groups()[0]
+                name = '%s-%s' % (name[:(100-len(year)-1)], year)
+            else:
+                name = name[:100]
+        return name
 
     @classmethod
     def name_munge(self, input_name):

@@ -984,7 +984,7 @@ class Load(CkanCommand):
             assert api_url.startswith('http://') and api_url.endswith('/api'), api_url
             # import them
             from ckanext.getdata.bis import BisImporter
-            package_import = BisImporter(filepath=filepath)            
+            importer = BisImporter(filepath=filepath)            
             pkg_dicts = [pkg_dict for pkg_dict in importer.pkg_dict()]
             log = importer.get_log()
             if log:
@@ -994,7 +994,9 @@ class Load(CkanCommand):
                 raw_input("Press any key to load")
 
                 # load them
-                client = CkanClient(api_key=api_key, base_location=api_key,
+                from ckanclient import CkanClient
+                from ckanext.getdata.loader import PackageLoader
+                client = CkanClient(api_key=api_key, base_location=api_url,
                                     is_verbose=False)
                 loader = PackageLoader(client, unique_extra_field='external_reference')
                 num_loaded, num_errors = loader.load_packages(pkg_dicts)
