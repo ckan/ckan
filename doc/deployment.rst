@@ -31,7 +31,7 @@ Here's an example for deploying CKAN to http://demo.ckan.net/ via Apache.
    Package                Notes
    =====================  ============================================
    python-virtualenv      Python virtual environment sandboxing
-   pip                    Python installer (use easy_install for this)
+   pip                    Python installer
    =====================  ============================================
 
    Check that you received:
@@ -120,11 +120,24 @@ Now you can then do the deployment with something like::
   $ paster make-config ckan demo.ckan.net.ini
 
 
-8. Edit demo.ckan.net.ini to set the sqlalchemy.url database connection
-   information using values from step 3.
-   
-   Also edit the repoze.who configuration file to set a secret for the
-   auth_tkt plugin. 
+8. Edit default values of demo.ckan.net.ini.
+
+  8.1. sqlalchemy.url
+
+    Set the sqlalchemy.url database connection information using values from step 3.
+
+  8.2. licenses_group_url
+
+    Set the licenses_group_url to point to a licenses service. Options
+    include: ::
+
+      http://licenses.opendefinition.org/2.0/ckan_original
+      http://licenses.opendefinition.org/2.0/all_alphabetical
+
+    For information about creating your own licenses services, please refer to
+    the Python package called 'licenses' (http://pypi.python.org/pypi/licenses).
+    
+  8.3. Also edit the who.ini configuration file to set a secret for the auth_tkt plugin.
 
 
 9. Initialise database

@@ -280,16 +280,15 @@ class PackagesXlWriter:
     def pkg_to_xl_dict(pkg):
         '''Convert a Package object to a dictionary suitable for XL format'''
         dict_ = pkg.as_dict()
-        del dict_['download_url'] # deprecated - only in there for compatibility
+
         for key, value in dict_.items():
             if key.endswith('_id') or key.startswith('rating') or key == 'id':
                 del dict_[key]
             if key=='resources':
                 for i, res in enumerate(value):
                     prefix = 'resource-%i' % i
-                    dict_[prefix + '-url'] = res['url']
-                    dict_[prefix + '-format'] = res['format']
-                    dict_[prefix + '-description'] = res['description']
+                    for field in model.PackageResource.get_columns():
+                        dict_['%s-%s' % (prefix, field)] = res[field]
                 del dict_[key]
             elif isinstance(value, (list, tuple)):
                 dict_[key] = ' '.join(value)

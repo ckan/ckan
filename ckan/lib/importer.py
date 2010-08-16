@@ -2,18 +2,43 @@ import StringIO
 
 import csv
 import re
+import datetime
 
+from sqlalchemy.util import OrderedDict
+
+from ckan.model.license import LicenseRegister
 import ckan.model as model
 
 class ImportException(Exception):
     pass
 
-class CsvData:
+class RowParseError(ImportException):
+    pass
+
+class SpreadsheetData(object):
+    '''Represents a spreadsheet file which you can access row by row.''' 
     def __init__(self, logger, filepath=None, buf=None):
         assert filepath or buf
         assert not (filepath and buf)
         self._logger = logger
         self._rows = []
+
+    def get_row(self, row_index):
+        'Returns a list of the cells in unicode format.'
+        raise NotImplementedError
+
+    def get_num_rows(self):
+        'Returns the number of rows in the sheet.'
+        raise NotImplementedError
+
+    def get_all_rows(self):
+        'A crude way to get all the rows at once.'
+        return [self.get_row(i) for i in range(self.get_num_rows())]
+
+
+class CsvData(SpreadsheetData):
+    def __init__(self, logger, filepath=None, buf=None):
+        super(CsvData, self).__init__(logger, filepath, buf)
         if 1:
             if filepath:
                 csvfile = open(filepath)
@@ -51,13 +76,15 @@ class CsvData:
     def get_num_rows(self):
         return self._num_rows
 
-class XlData:
-    def __init__(self, logger, filepath=None, buf=None):
-        import xlrd
 
-        assert filepath or buf
-        assert not (filepath and buf)
-        self._logger = logger
+class XlData(SpreadsheetData):
+    '''Spreadsheet data in Excel format.
+    NB Cells with no value return None rather than u''.
+    @param sheet_index - if None, warn if more than 1 sheet in workbook.
+    '''
+    def __init__(self, logger, filepath=None, buf=None, sheet_index=None):
+        super(XlData, self).__init__(logger, filepath, buf)
+        import xlrd
 
         try:
             if filepath:
@@ -67,89 +94,181 @@ class XlData:
         except xlrd.XLRDError, e:
             raise ImportException('Could not open workbook: %r' % e)
 
-        self.sheet = self._book.sheet_by_index(0)
-        if self._book.nsheets != 1:
-            self._logger('Warning: Just importing from sheet %r' % self.sheet.name)
+        if sheet_index == None:
+            if self._book.nsheets != 1:
+                self._logger('Warning: Just importing from sheet %r' % self._book.sheet_by_index(0))
+            sheet_index = 0
+        self.sheet = self._book.sheet_by_index(sheet_index)
+
+    def get_sheet_names(self):
+        return self._book.sheet_names()
 
     def get_row(self, row_index):
+        import xlrd
         row = self.sheet.row(row_index)
-        row_values = [cell.value for cell in row]
+        row_values = []
+        for cell in row:
+            value = None
+            if cell.ctype == xlrd.XL_CELL_TEXT:
+                value = cell.value
+            elif cell.ctype == xlrd.XL_CELL_NUMBER:
+                if cell.value == int(cell.value):
+                    value = int(cell.value)
+                else:
+                    value = cell.value
+            elif cell.ctype == xlrd.XL_CELL_DATE:
+                date_tuple = xlrd.xldate_as_tuple(cell.value, self._book.datemode)
+                value = datetime.date(*date_tuple[:3])
+            elif cell.ctype == xlrd.XL_CELL_EMPTY:
+                value = None
+            else:
+                raise ImportException, 'Unknown cell type: %s' % cell.ctype
+            row_values.append(value)    
         return row_values
 
     def get_num_rows(self):
         return self.sheet.nrows
 
-class PackageImporter:
+class DataRecords(object):
+    '''Takes SpreadsheetData and converts it its titles and
+    data records. Handles title rows and filters out rows of rubbish.
+    '''
+    def __init__(self, data, essential_title):
+        self._data = data
+        # find titles row
+        row_index = -1
+        self.titles = []
+        essential_title_lower = essential_title.lower()
+        while essential_title not in self.titles and\
+              essential_title.lower() not in self.titles:
+            row_index += 1
+            if row_index >= self._data.get_num_rows():
+                raise ImportException('Could not find title row')
+            self.titles = []
+            for title in self._data.get_row(row_index):
+                if isinstance(title, basestring):
+                    title = title.strip()
+                self.titles.append(title)
+        # find first data row
+        while True:
+            row_index += 1
+            if row_index >= self._data.get_num_rows():
+                raise ImportException('Could not find first record row')
+            row = self._data.get_row(row_index)
+            if not (u'<< Datasets Displayed Below' in row or\
+                    row[:5] == [None, None, None, None, None] or\
+                    row[:5] == ['', '', '', '', '']\
+                    ):
+                self._first_record_row = row_index
+                break
+
+    @property
+    def records(self):
+        '''Returns each record as a dict.'''
+        for row_index in range(self._first_record_row, self._data.get_num_rows()):
+            row = self._data.get_row(row_index)
+            row_has_content = False
+            for cell in row:
+                if cell:
+                    row_has_content = True
+                    break
+            if row_has_content:
+                record_dict = OrderedDict(zip(self.titles, row))
+                if record_dict.has_key(None):
+                    del record_dict[None]
+                yield record_dict
+
+
+class PackageImporter(object):
+    '''From a filepath of an Excel or csv file, extracts package
+    dictionaries.'''
     def __init__(self, filepath=None, buf=None):
         self._log = []
+        self._filepath = filepath
+        self._buf = buf
+        self.import_into_package_records()
+
+    def import_into_package_records(self):
         try:
-            self._data = XlData(self.log, filepath=filepath, buf=buf)
+            package_data = XlData(self.log, filepath=self._filepath,
+                                  buf=self._buf, sheet_index=0)
         except ImportException, e:
             # try csv
-            self._data = CsvData(self.log, filepath=filepath, buf=buf)
-        import ckan.forms
-        self._standard_fields = [key.split('-')[-1] for key in ckan.forms.get_package_dict().keys()]
+            package_data = CsvData(self.log, filepath=self._filepath,
+                                   buf=self._buf)
 
-        self._row_index = -1
-        self._titles = []
-        while 'title' not in self._titles and 'Title' not in self._titles and 'name' not in self._titles and 'Name' not in self._titles:
-            if self._titles is None:
-                raise 'No titles'
-            self._row_index += 1
-            if self._row_index >= self._data.get_num_rows():
-                raise ImportException('Could not find title row')
-            self._titles = self._data.get_row(self._row_index)
-        self._titles = [title.lower() for title in self._titles]
+        self._package_data_records = DataRecords(package_data, 'Title')
+        
+    def log(self, msg):
+        self._log.append(msg)
 
+    def row_2_package(self, row_dict):
+        pkg_dict = self.pkg_xl_dict_to_fs_dict(row_dict, self.log)
+        return pkg_dict
         
     def pkg_dict(self):
-        '''Iterator for the package dicts'''
-        row = []
-        for row_index in range(self._data.get_num_rows())[self._row_index+1:]:
-            row = self._data.get_row(row_index)
-            if row:
-                pkg_dict = {}
-                for col_index, cell in enumerate(row):
-                    if cell:
-                        title = self._titles[col_index]
-                        if not title:
-                            self._log.append('Warning: No title for column %i. Titles: %s' % (col_index, ', '.join(self._titles)))
-                        else:
-                            if title in self._standard_fields:
-                                pkg_dict[title] = cell
-                            elif title == 'license':
-                                license = model.License.by_name(cell)
-                                if license:
-                                    pkg_dict['license_id'] = '%s' % license.id
-                                else:
-                                    self._log.append('Warning: No license name matches \'%s\'. Ignoring license.' % cell)
-                            elif title.startswith('resource-'):
-                                match = re.match('resource-(\d+)-(\w+)', title)
-                                if match:
-                                    res_index, field = match.groups()
-                                    res_index = int(res_index)
-                                    field = str(field)
-                                    if not pkg_dict.has_key('resources'):
-                                        pkg_dict['resources'] = []
-                                    resources = pkg_dict['resources']
-                                    num_new_resources = 1 + res_index - len(resources)
-                                    for i in range(num_new_resources):
-                                        blank_dict = {}
-                                        for blank_field in model.PackageResource.get_columns():
-                                            blank_dict[blank_field] = u''
-                                        pkg_dict['resources'].append(blank_dict)
-                                    pkg_dict['resources'][res_index][field] = cell
-                                else:
-                                    self._log.append('Warning: Could not understand resource title \'%s\'. Ignoring value: %s' % (title, cell))
-                            elif title == 'download_url':
-                                # deprecated - only in there for compatibility
-                                pass
-                            else:
-                                if not pkg_dict.has_key('extras'):
-                                    pkg_dict['extras'] = {}
-                                pkg_dict['extras'][title] = cell
-                yield pkg_dict
+        '''Generates package dicts from the package data records.'''
+        for row_dict in self._package_data_records.records:
+            yield self.row_2_package(row_dict)
         raise StopIteration
+
+    @classmethod
+    def pkg_xl_dict_to_fs_dict(cls, pkg_xl_dict, logger=None):
+        '''Convert a Package represented in an Excel-type dictionary to a
+        dictionary suitable for fieldset data.
+        Takes Excel-type dict:
+            {'name':'wikipedia', 
+             'resource-0-url':'http://static.wikipedia.org/'}
+        Returns Fieldset-type dict:
+            {'name':'wikipedia',
+             'resources':[{'url':'http://static.wikipedia.org/'}]}
+        '''
+        import ckan.forms
+        standard_fields = [key.split('-')[-1] for key in ckan.forms.get_package_dict().keys()]
+
+        pkg_fs_dict = OrderedDict()
+        for title, cell in pkg_xl_dict.items():
+            if cell:
+                if title in standard_fields:
+                    pkg_fs_dict[title] = cell
+                elif title == 'license':
+                    license_id = cls.license_2_license_id(cell)
+                    if license:
+                        pkg_fs_dict['license_id'] = license_id
+                    else:
+                        logger('Warning: No license name matches \'%s\'. Ignoring license.' % cell)
+                elif title.startswith('resource-'):
+                    match = re.match('resource-(\d+)-(\w+)', title)
+                    if match:
+                        res_index, field = match.groups()
+                        res_index = int(res_index)
+                        field = str(field)
+                        if not pkg_fs_dict.has_key('resources'):
+                            pkg_fs_dict['resources'] = []
+                        resources = pkg_fs_dict['resources']
+                        num_new_resources = 1 + res_index - len(resources)
+                        for i in range(num_new_resources):
+                            blank_dict = OrderedDict()
+                            for blank_field in model.PackageResource.get_columns():
+                                blank_dict[blank_field] = u''
+                            pkg_fs_dict['resources'].append(blank_dict)
+
+                        pkg_fs_dict['resources'][res_index][field] = cell
+                    else:
+                        logger('Warning: Could not understand resource title \'%s\'. Ignoring value: %s' % (title, cell))
+                elif title.startswith('relationships'):
+                    # TODO
+                    pass
+                elif title == 'download_url':
+                    # deprecated - only in there for compatibility
+                    pass
+                elif title == 'ckan_url':
+                    pass
+                else:
+                    if not pkg_fs_dict.has_key('extras'):
+                        pkg_fs_dict['extras'] = {}
+                    pkg_fs_dict['extras'][title] = cell
+        return pkg_fs_dict
 
     def log(self, msg):
         self._log.append(msg)
@@ -157,3 +276,41 @@ class PackageImporter:
     def get_log(self):
         return self._log
 
+    @classmethod
+    def license_2_license_id(self, license_title, logger=None):
+        licenses = LicenseRegister()
+        license_obj = licenses.get_by_title(license_title)
+        if license_obj:
+            return u'%s' % license_obj.id
+        else:
+            logger('Warning: No license name matches \'%s\'. Ignoring license.' % license_title)
+
+
+    @classmethod
+    def munge(self, name):
+        '''Munge a title into a name'''
+        # convert spaces to underscores
+        name = re.sub(' ', '_', name).lower()        
+        # convert symbols to dashes
+        name = re.sub('[:]', '_-', name).lower()        
+        name = re.sub('[/]', '-', name).lower()        
+        # take out not-allowed characters
+        name = re.sub('[^a-zA-Z0-9-_]', '', name).lower()
+        # remove double underscores
+        name = re.sub('__', '_', name).lower()                
+        return name[:100]
+
+    @classmethod
+    def name_munge(self, input_name):
+        '''Munges the name field in case it is not to spec.'''
+        return self.munge(input_name.replace(' ', '').replace('.', '_').replace('&', 'and'))
+
+    @classmethod
+    def tidy_url(self, url, logger=None):
+        if url and not url.startswith('http') and not url.startswith('webcal:'):
+            if url.startswith('www.'):
+                url = url.replace('www.', 'http://www.')
+            else:
+                logger('Warning: URL doesn\'t start with http: %s' % url)
+        return url
+                

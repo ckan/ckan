@@ -111,7 +111,11 @@ class TagSuggester(object):
     def suggest_tags(cls, pkg_dict):
         tags = set()
         for field_name in tag_search_fields:
-            text = pkg_dict[field_name]
+            if pkg_dict.has_key(field_name):
+                text = pkg_dict[field_name]
+            else:
+                if pkg_dict.has_key('extras'):
+                    text = pkg_dict['extras'][field_name]                
             if text and isinstance(text, (str, unicode)):
                 for keyword in tag_pool:
                     if keyword in text:

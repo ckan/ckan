@@ -958,3 +958,44 @@ class Notifications(CkanCommand):
     def monitor(self):
         from ckan.lib import monitor
         monitor = monitor.Monitor()
+
+class Load(CkanCommand):
+    '''Load data to a remote CKAN instance.
+
+    load bis {filepath.xls} {ckan-api-url} {api-key}
+    '''
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    max_args = None
+    min_args = 1
+
+    def command(self):
+        # Avoids vdm logging warning
+        logging.basicConfig(level=logging.ERROR)
+        
+        self._load_config()
+        from ckan import model
+
+        cmd = self.args[0]
+        if cmd == 'bis':
+            if len(self.args) != 4:
+                print 'Wrong number of arguments for data type: %s' % cmd
+            filepath, api_url, api_key = self.args[1:]
+            assert api_url.startswith('http://') and api_url.endswith('/api'), api_url
+            # import them
+            from ckanext.getdata.bis import BisImporter
+            package_import = BisImporter(filepath=filepath)            
+            pkg_dicts = [pkg_dict for pkg_dict in importer.pkg_dict()]
+            log = importer.get_log()
+            if log:
+                print log
+            print '%i packages' % len(pkg_dicts)
+            if pkg_dicts:
+                raw_input("Press any key to load")
+
+                # load them
+                client = CkanClient(api_key=api_key, base_location=api_key,
+                                    is_verbose=False)
+                loader = PackageLoader(client, unique_extra_field='external_reference')
+                num_loaded, num_errors = loader.load_packages(pkg_dicts)
+
