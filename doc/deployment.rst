@@ -122,6 +122,9 @@ Now you can then do the deployment with something like::
 
 8. Edit demo.ckan.net.ini to set the sqlalchemy.url database connection
    information using values from step 3.
+   
+   Also edit the repoze.who configuration file to set a secret for the
+   auth_tkt plugin. 
 
 
 9. Initialise database
