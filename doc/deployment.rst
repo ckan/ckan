@@ -136,6 +136,8 @@ Now you can then do the deployment with something like::
 
     For information about creating your own licenses services, please refer to
     the Python package called 'licenses' (http://pypi.python.org/pypi/licenses).
+    
+  8.3. Also edit the who.ini configuration file to set a secret for the auth_tkt plugin.
 
 
 9. Initialise database
