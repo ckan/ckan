@@ -301,14 +301,17 @@ class PackageImporter(object):
         name = re.sub('[^a-zA-Z0-9-_]', '', name).lower()
         # remove double underscores
         name = re.sub('__', '_', name).lower()
-        # if longer than 100 chars, keep last word if a year
-        if len(name) > 100:
+        # if longer than max_length, keep last word if a year
+        max_length = model.PACKAGE_NAME_MAX_LENGTH - 5
+        # (make length less than max, in case we need a few for '_' chars
+        # to de-clash names.)
+        if len(name) > max_length:
             year_match = re.match('.*?[_-]((?:\d{2,4}[-/])?\d{2,4})$', name)
             if year_match:
                 year = year_match.groups()[0]
-                name = '%s-%s' % (name[:(100-len(year)-1)], year)
+                name = '%s-%s' % (name[:(max_length-len(year)-1)], year)
             else:
-                name = name[:100]
+                name = name[:max_length]
         return name
 
     @classmethod

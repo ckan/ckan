@@ -95,7 +95,7 @@ class TestPackageImporter:
         test_munge('Adult participation in learning', 'adult_participation_in_learning')
         test_munge('Alcohol Profile: Alcohol-specific hospital admission, males', 'alcohol_profile_-_alcohol-specific_hospital_admission_males')
         test_munge('Age and limiting long-term illness by NS-SeC', 'age_and_limiting_long-term_illness_by_ns-sec')
-        test_munge('Higher Education Statistics: HE qualifications obtained in the UK by level, mode of study, domicile, gender, class of first degree and subject area 2001/02', 'higher_education_statistics_-_he_qualifications_obtained_in_the_uk_by_level_mode_of_study_do-2001-02')        
+        test_munge('Higher Education Statistics: HE qualifications obtained in the UK by level, mode of study, domicile, gender, class of first degree and subject area 2001/02', 'higher_education_statistics_-_he_qualifications_obtained_in_the_uk_by_level_mode_of_stu-2001-02')        
         
     def test_0_example_by_filepath(self):
         for extension in EXTENSIONS:

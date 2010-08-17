@@ -1000,4 +1000,7 @@ class Load(CkanCommand):
                                     is_verbose=False)
                 loader = PackageLoader(client, unique_extra_field='external_reference')
                 num_loaded, num_errors = loader.load_packages(pkg_dicts)
+        else:
+            print 'Error: Command %r not recognised' % cmd
+            print self.usage
 
