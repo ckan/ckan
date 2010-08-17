@@ -321,31 +321,66 @@ class TestData(CkanCommand):
                 assert required_contents in res, res
             return res
 
-
+        
+        import urllib
         res = check_page('/', ('Search'))
-        form = res.forms[0]
-        form['q'] = pkg.name
+        form = res.forms['package-search']
+        form['q'] = pkg.title
         res = form.submit()
-        print '* Checking search using %r' % pkg.name
+        print '* Checking search using %r' % pkg.title.encode('utf-8')
         assert ('package found' in res) or ('packages found' in res), res
-
+        
         res = res.click(pkg.title)
         print '* Checking package page %s' % res.request.url
         assert pkg.title in res, res
         for tag in pkg.tags:
             assert tag.name in res, res
-        assert pkg.license in res, res
+        
+        if pkg.license:
+            license = pkg.license.as_dict().get('title')
+            assert license in res, res
 
         tag = pkg.tags[0]
-        res = check_page('/tag/read/%s' % tag.name, 
+        res = check_page('/tag/%s' % tag.name, 
                 ('Tag: %s' % str(tag.name), str(pkg.name))
             )
 
-        res = check_page('/package/new', 'Register a New Package')
-        
-        res = check_page('/package/list', 'Packages')
+        res = check_page('/package/new', 'Register a New Data Package')
+        res = check_page('/package/list', 'Data Packages')
 
+class SearchIndexCommand(CkanCommand):
+    '''Creates a search index for all packages
 
+    Usage:
+      search-index                         - indexes changes as they occur
+      search-index rebuild                 - indexes all packages
+    '''
+
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    max_args = 1
+    min_args = 0
+
+    def command(self):
+        self._load_config()
+        logging.basicConfig(level=logging.DEBUG)
+        from ckan.lib.search import get_backend, rebuild, SearchIndexWorker
+
+        if not self.args:
+            # default to run
+            cmd = 'run'
+        else:
+            cmd = self.args[0]
+        if cmd == 'run':
+            backend = get_backend()
+            indexer = SearchIndexWorker(backend)
+            indexer.clear_queue()
+            while True:
+                indexer.run()
+        if cmd == 'rebuild':
+            rebuild()
+        else:
+            print 'Command %s not recognized' % cmd
 
 class Sysadmin(CkanCommand):
     '''Gives sysadmin rights to a named 
@@ -410,27 +445,7 @@ class Sysadmin(CkanCommand):
             return
         model.remove_user_from_role(user, model.Role.ADMIN, model.System())
         model.repo.commit_and_remove()
-
-class CreateSearchIndex(CkanCommand):
-    '''Creates a search index for all packages
-    '''
-
-    summary = __doc__.split('\n')[0]
-    usage = __doc__
-    max_args = 0
-    min_args = 0
-
-    def command(self):
-        self._load_config()
-        self.index()
-
-    def index(self):
-        from ckan import model
-        from ckan.model.full_search import SearchVectorTrigger
-        engine = model.metadata.bind
-        for pkg in model.Session.query(model.Package).all():
-            pkg_dict = pkg.as_dict()
-            SearchVectorTrigger().update_package_vector(pkg_dict, engine)
+        
 
 class Ratings(CkanCommand):
     '''Manage the ratings stored in the db
@@ -489,7 +504,7 @@ class Changes(CkanCommand):
       changes heads                  - display the last changeset of all active lines
       changes log [changeset]        - display summary of changeset(s)
       changes merge [target] [mode]  - creates mergeset to follow target changeset and to close the working changeset
-      changes update [target]        - updates repository entities to target changeset (defaults to working line's head)
+      changes update [target]        - updates repository entities to target changeset (defaults to working line\'s head)
       changes moderate [target]      - updates repository entities whilst allowing for changes to be ignored
       changes pull [sources]         - pulls unseen changesets from changeset sources
       changes working                - display working changeset
@@ -898,3 +913,48 @@ class Changes(CkanCommand):
                     print msg.encode('utf8')
 
  
+class Notifications(CkanCommand):
+    '''Manage notifications
+
+    Usage:
+      notifications monitor                 - runs monitor, printing all notifications
+      notifications replay                  - simulate a change to all packages in the system
+    '''
+
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    max_args = 1
+    min_args = 1
+
+    def command(self):
+        self._load_config()
+        from ckan import model
+        
+        from pylons import config
+        if config.get('carrot_messaging_library') != 'pyamqplib':
+            print 'Carrot messaging library not configured to AMQP. Currently set to:', config.get('carrot_messaging_library')
+            sys.exit(1)
+        
+        cmd = self.args[0]
+        if cmd == 'monitor':
+            self.monitor()
+        if cmd == 'replay':
+            self.replay()
+        else:
+            print 'Command %s not recognized' % cmd
+
+    def replay(self):
+        from ckan.model import Package, PackageResource
+        from ckan.model.notifier import DomainObjectNotificationOperation, DomainObjectNotification
+        for klass in [Package, PackageResource]:
+            for obj in klass.active():
+                if hasattr(obj, 'name'):
+                    print "Simulating change to:", obj.name
+                elif hasattr(obj, 'url'):
+                    print "Simulating change to:", obj.url
+                notification = DomainObjectNotification.create(obj, DomainObjectNotificationOperation.changed)
+                notification.send_synchronously()
+
+    def monitor(self):
+        from ckan.lib import monitor
+        monitor = monitor.Monitor()

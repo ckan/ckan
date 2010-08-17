@@ -58,10 +58,11 @@ So that the system knows who is making this change, you need to send your API ke
 Overview
 ========
 
-The CKAN API is separated into two parts:
+The CKAN API is separated into three parts:
 
-* the Model API; and
-* the Search API.
+* the Model API;
+* the Search API; and
+* the Form API.
 
 The CKAN API follows the RESTful (Representational State Transfer) style.
 Published resources are separated both from the methods supported by the
@@ -78,16 +79,15 @@ API Versions
 
 The CKAN API is versioned, so that backwards incompatible changes can be
 introduced without removing existing support. The version number is inserted
-after the '/api' part of the path.
+after the '/api' part of the resource locations.
 
-``http://ckan.net/api/API-VERSION/rest/package``
-
-For example versions 1 and 2 of the CKAN API are located here:
+For example, version 1 of the CKAN API has its Package Register located here:
 
 ``http://ckan.net/api/1/rest/package``
-``http://ckan.net/api/2/rest/package``
 
-Clients that don't supply the version number access version 1 by default.
+whilst version 2 of the CKAN API has its Package Register located here:
+
+``http://ckan.net/api/2/rest/package``
 
 
 CKAN Model API
@@ -186,7 +186,7 @@ Here are the methods of the Model API.
 
 * The location of new entity resources will be indicated in the 'Location' header containing the resource location of the new entity.
 
-* PUT operations may instead use the HTTP POST method with the same.
+* PUT operations may instead use the HTTP POST method.
 
 * POSTing data to a register resource will create a new entity, whilst PUT/POSTing data to an entity resource will update an existing entity.
 
@@ -216,6 +216,10 @@ Todo: Fork API documentation.
 |                 | See note below on additional fields upon GET of a package. |
 +-----------------+------------------------------------------------------------+
 | Group-List      | [ Name-String, Name-String, Name-String, ... ]             | 
+| (API v1 only)   |                                                            |
++-----------------+------------------------------------------------------------+
+| Group-List      | [ Id-String, Id-String, Id-String, ... ]                   |
+| (API v2 only)   |                                                            |
 +-----------------+------------------------------------------------------------+
 | Group           | { name: Name-String, title: String, description: String,   | 
 |                 | packages: Package-List }                                   |
@@ -284,6 +288,8 @@ Here are the published resources of the CKAN Search API.
 +===========================+==========================+
 | Package Search            | ``/api/search/package``  |
 +---------------------------+--------------------------+
+| Resource Search           | ``/api/search/resource`` |
++---------------------------+--------------------------+
 | Revision Search           | ``/api/search/revision`` |
 +---------------------------+--------------------------+
 | Tag Counts                | ``/api/tag_counts``      |
@@ -297,15 +303,17 @@ Search API Methods
 
 Here are the methods of the CKAN Search API.
 
-+-------------------------------+--------+------------------------+-------------------+
-| Resource                      | Method | Request                | Response          |
-+===============================+========+========================+===================+ 
-| Package Search                | POST   | Package-Search-Params  | Search-Response   | 
-+-------------------------------+--------+------------------------+-------------------+
-| Revision Search               | POST   | Revision-Search-Params | Revision-List     | 
-+-------------------------------+--------+------------------------+-------------------+
-| Tag Counts                    | GET    |                        | Tag-Count-List    | 
-+-------------------------------+--------+------------------------+-------------------+
++-------------------------------+--------+------------------------+--------------------------+
+| Resource                      | Method | Request                | Response                 |
++===============================+========+========================+==========================+ 
+| Package Search                | POST   | Package-Search-Params  | Package-Search-Response  | 
++-------------------------------+--------+------------------------+--------------------------+
+| Resource Search               | POST   | Resource-Search-Params | Resource-Search-Response | 
++-------------------------------+--------+------------------------+--------------------------+
+| Revision Search               | POST   | Revision-Search-Params | Revision-List            | 
++-------------------------------+--------+------------------------+--------------------------+
+| Tag Counts                    | GET    |                        | Tag-Count-List           | 
++-------------------------------+--------+------------------------+--------------------------+
 
 It is also possible to supply the search parameters in the URL of a GET request, 
 for example ``/api/search/package?q=geodata&amp;allfields=1``.
@@ -316,20 +324,22 @@ Search API Data Formats
 
 Here are the data formats for the Search API.
 
-+-----------------------+------------------------------------------------------------+
-| Name                  | Format                                                     |
-+=======================+============================================================+
-| Package-Search-Params | { Param-Key: Param-Value, Param-Key: Param-Value, ... }    |
-| Revision-Search-Params| See below for full details of search parameters across the | 
-|                       | various domain objects.                                    |
-+-----------------------+------------------------------------------------------------+
-| Search-Response       | { count: Count-int, results: [Package, Package, ... ] }    |
-+-----------------------+------------------------------------------------------------+
-| Revision-List         | [ Revision-Id, Revision-Id, Revision-Id, ... ]             |
-|                       | NB: Ordered with youngest revision first                   |
-+-----------------------+------------------------------------------------------------+
-| Tag-Count-List        | [ [Name-String, Integer], [Name-String, Integer], ... ]    |
-+-----------------------+------------------------------------------------------------+
++-------------------------+------------------------------------------------------------+
+| Name                    | Format                                                     |
++=========================+============================================================+
+| Package-Search-Params   | { Param-Key: Param-Value, Param-Key: Param-Value, ... }    |
+| Resource-Search-Params  | See below for full details of search parameters across the | 
+| Revision-Search-Params  | various domain objects.                                    |
++-------------------------+------------------------------------------------------------+
+| Package-Search-Response | { count: Count-int, results: [Package, Package, ... ] }    |
++-------------------------+------------------------------------------------------------+
+| Resource-Search-Response| { count: Count-int, results: [Resource, Resource, ... ] }  |
++-------------------------+------------------------------------------------------------+
+| Revision-List           | [ Revision-Id, Revision-Id, Revision-Id, ... ]             |
+|                         | NB: Ordered with youngest revision first                   |
++-------------------------+------------------------------------------------------------+
+| Tag-Count-List          | [ [Name-String, Integer], [Name-String, Integer], ... ]    |
++-------------------------+------------------------------------------------------------+
 
 The ``Package`` and ``Revision`` data formats are as defined in `Model API Data Formats`_.
 
@@ -387,6 +397,40 @@ Package Search Parameters
 +-----------------------+---------------+----------------------------------+----------------------------------+
 
 
+Resource Search Parameters
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++-----------------------+---------------+-----------------------------------------+----------------------------------+
+| Param-Key             | Param-Value   | Example                                 |  Notes                           |
++=======================+===============+=========================================+==================================+
+| url, format,          | Search-String || url=statistics.org                     | Criteria to search the package   |
+| description           |               || format=xls                             | fields for. URL-encoded search   |
+|                       |               || description=Research+Institute         | text. This search string must be |
+|                       |               |                                         | found somewhere within the field |
+|                       |               |                                         | to match.                        |
+|                       |               |                                         | Case insensitive.                |
++-----------------------+---------------+-----------------------------------------+----------------------------------+
+| qjson                 | JSON encoded  | ['url':'www.statistics.org']            | All search parameters can be     |
+|                       | options       |                                         | json-encoded and supplied to this|
+|                       |               |                                         | parameter as a more flexible     |
+|                       |               |                                         | alternative in GET requests.     |
++-----------------------+---------------+-----------------------------------------+----------------------------------+
+| hash                  | Search-String |hash=b0d7c260-35d4-42ab-9e3d-c1f4db9bc2f0| Searches for an match of the     |
+|                       |               |                                         | hash field. An exact match or    |
+|                       |               |                                         | match up to the length of the    |
+|                       |               |                                         | hash given.                      |
++-----------------------+---------------+-----------------------------------------+----------------------------------+
+| all_fields            | 0 (default)   | all_fields=1                            | Each matching search result is   |
+|                       | or 1          |                                         | given as either an ID (0) or the |
+|                       |               |                                         | full resource record             |
++-----------------------+---------------+-----------------------------------------+----------------------------------+
+| offset, limit         | result-int    | offset=40&amp;limit=20                  | Pagination options. Offset is the|
+|                       | (defaults:    |                                         | number of the first result and   |
+|                       | offset=0,     |                                         | limit is the number of results to|
+|                       | limit=20)     |                                         | return.                          |
++-----------------------+---------------+-----------------------------------------+----------------------------------+
+
+
 Revision Search Parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -399,6 +443,85 @@ Revision Search Parameters
 | since_id              | Uuid          | since_id=6c9f32ef-1f93-4b2f-891b-fd01924ebe08       | The stated id will not be        |
 |                       |               |                                                     | included in the results.         |
 +-----------------------+---------------+-----------------------------------------------------+----------------------------------+
+
+CKAN Form API
+=============
+
+Form resources are available at published locations. They are represented with
+a variety of data formats. Each resource location supports a number of methods.
+
+The data formats of the requests and the responses are defined below.
+
+
+Form API Resources
+------------------
+
+Here are the resources of the Form API.
+
++--------------------------------+-------------------------------------------------------------------+
+| Resource                       | Location                                                          |
++================================+===================================================================+
+| Package Edit Form              | ``/api/form/package/edit/PACKAGE-REF``                            |
++--------------------------------+-------------------------------------------------------------------+
+
+Possible values for PACKAGE-REF are the package id, or the current package name.
+
+
+Form API Methods
+----------------
+
+Here are the methods of the Form API.
+
++-------------------------------+--------+-------------------------------+-------------------------+
+| Resource                      | Method | Request                       | Response                |
++===============================+========+===============================+=========================+ 
+| Package Edit Form             | GET    |                               | Package-Edit-Form       | 
++-------------------------------+--------+-------------------------------+-------------------------+
+| Package Edit Form             | PUT    | Package-Edit-Form-Submission  |                         | 
++-------------------------------+--------+-------------------------------+-------------------------+
+
+* The form responses are used by clients within their HTML pages.
+
+* PUT operations may instead use the HTTP POST method.
+
+* Successful form submission requests will return status code of 200 with an empty response.
+
+* Unsuccessful form submission requests will return status code of 400 with an error form response. The error form response are used instead of the original form response to display errorful submissions to users.
+
+
+Form API Data Formats
+---------------------
+
+Here are the data formats for the Form API.
+
++------------------------------+---------------------------------------------------------------------------+
+| Name                         | Format                                                                    |
++==============================+===========================================================================+
+| Package-Edit-Form            | Form-FieldSet Form-FieldSet Form-FieldSet                                 |
++------------------------------+---------------------------------------------------------------------------+
+| Form-FieldSet                || <fieldset>                                                               |
+|                              ||     <legend>...</legend>                                                 |
+|                              ||     <dl>                                                                 |
+|                              ||         Form-Field Form-Field Form-Field ...                             |
+|                              ||     </dl>                                                                |
+|                              || </fieldset>                                                              |
++------------------------------+---------------------------------------------------------------------------+
+| Form-Field                   | <dt>Form-Label</dt><dd>Form-Input</dd>                                    |
++------------------------------+---------------------------------------------------------------------------+
+| Form-Label                   | <label class="field_opt" for="FIELD-NAME">LABEL</label>                   |
++------------------------------+---------------------------------------------------------------------------+
+| Form-Input                   | <input id="FIELD-NAME" name="FIELD-NAME" value="FIELD-VALUE" ... />       |
++------------------------------+---------------------------------------------------------------------------+
+| Package-Edit-Form-Submission | { form_data: [ (FIELD-NAME, FIELD-VALUE), (FIELD-NAME, FIELD-VALUE),      |
+|                              | (FIELD-NAME, FIELD-VALUE), ... ],                                         |
+|                              | log_message: LOG-MESSAGE, author: AUTHOR }                                |
++------------------------------+---------------------------------------------------------------------------+
+ 
+
+To send request data, create a simple data structure, then convert it to a JSON string, then percent-encode the JSON string, then send it as the request body.
+
+Response data will be in the response body.
+
 
 
 CKAN API Status Codes
@@ -437,15 +560,35 @@ To obtain your API key:
 
 The key should be passed in the API request header:
 
-====================== =====
-Header                 Example value
-====================== =====
-HTTP_AUTHORIZATION     fde34a3c-b716-4c39-8dc4-881ba115c6d4
-====================== =====
+================= =====
+Header            Example value
+================= =====
+Authorization     fde34a3c-b716-4c39-8dc4-881ba115c6d4
+================= =====
 
-If requests that are required to be authorized are not sent with a currently 
-valid Authorization header, or the user associated with the key is not 
-authorized for the operation, then the requested operation will not be carried
-out and the CKAN API will respond with status code 403.
+If requests that are required to be authorized are not sent with a 
+valid Authorization header, for example the user associated with the 
+key is not authorized for the operation, or the header is somehow malformed,
+then the requested operation will not be carried out and the CKAN API will
+respond with status code 403.
+
+For more information about HTTP Authorization header, please refer to section
+14.8 of `RFC 2616 <http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.8>`_.
 
 
+JSONP formatted responses
+=========================
+
+To cater for scripts from other sites that wish to access the API, the data can be returned in JSONP format, where the JSON data is 'padded' with a function call. The function is named in the 'callback' parameter.
+
+Example normal request::
+
+ GET /api/rest/package/pollution_stats
+ returns: {"name": "pollution_stats", ... }
+
+but now with the callback parameter::
+
+ GET /api/rest/package/pollution_stats?callback=jsoncallback
+ returns: jsoncallback({"name": "pollution_stats", ... });
+
+This parameter can apply to all GET requests in the API.

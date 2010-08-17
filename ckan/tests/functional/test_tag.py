@@ -25,10 +25,10 @@ class TestTagController(TestController):
         offset = '/tag/read/%s' % name
         res = self.app.get(offset, status=HTTP_MOVED_PERMANENTLY)
         res = res.follow()
-        assert 'Tags - %s' % name in res
+        assert '%s - Tags' % name in res
         assert name in res
         # res = res.click(pkgname)
-        # assert 'Packages - %s' % pkgname in res
+        # assert '%s - Data Packages' % pkgname in res
 
     def test_read(self):
         name = 'tolstoy'
@@ -36,10 +36,10 @@ class TestTagController(TestController):
         offset = url_for(controller='tag', action='read', id=name)
         assert offset == '/tag/tolstoy', offset
         res = self.app.get(offset)
-        assert 'Tags - %s' % name in res
+        assert '%s - Tags' % name in res
         assert name in res
         # res = res.click(pkgname)
-        # assert 'Packages - %s' % pkgname in res
+        # assert '%s - Data Packages' % pkgname in res
 
     def test_list_short(self):
         offset = url_for(controller='tag', action='index')
@@ -66,42 +66,11 @@ class TestTagController(TestController):
         # Avoid interactions.
         offset = url_for(controller='tag', action='index')
     
-    def test_list_long(self):
-        try:
-            self.create_200_tags()
-            tag_count = model.Session.query(model.Tag).count()
-            # Page 1.
-            print
-            offset = url_for(controller='tag', action='index')
-            print offset
-            res = self.app.get(offset)
-            print str(res)
-            # tolstoy not in because now a 100 tags starting 'test'
-            assert 'tolstoy' not in res
-            assert 'testtag105' in res
-            assert not 'testtag81' in res
-            assert 'Next' in res
-            assert not 'Prev' in res
-            # Page 2.
-            offset = url_for(controller='tag', action='index')
-            print offset
-            print "Path offset: %s" % offset
-            res = self.app.get(offset, params={'page':2})
-            print str(res)
-            assert not 'tolstoy' in res
-            assert not 'testtag105' in res
-            assert 'testtag8' in res
-            assert 'Next' in res
-            assert 'Prev' in res
-        finally:
-            model.Session.remove()
-            self.purge_200_tags()
-
     def test_search(self):
-        offset = url_for(controller='tag', action='index')
+        offset = url_for(controller='tag', action='index', id=None)
         res = self.app.get(offset)
         search_term = 's'
-        fv = res.forms[0]
+        fv = res.forms['tag-search']
         print fv.fields
         fv['q'] =  str(search_term)
         res = fv.submit()

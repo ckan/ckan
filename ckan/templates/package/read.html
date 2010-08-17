@@ -1,7 +1,9 @@
 <html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude">
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
 
-  <py:def function="page_title">Packages - ${c.pkg.name}</py:def>
+  <py:def function="page_title">${c.pkg.title or c.pkg.name} - Data Packages</py:def>
 
   <py:match path="primarysidebar">
     <div class="box">
@@ -12,7 +14,7 @@
           <dt>${h.icon('user_grey')}</dt>
           <dd>${c.pkg_maintainer_link}</dd>
           <dt>${h.icon('package')}</dt>
-          <dd>Version <strong>${c.pkg.version}</strong></dd>
+          <dd i18n:msg="pkg_version">Version <strong>${c.pkg.version}</strong></dd>
           <dt>${package_license_icon(c.pkg)}</dt>
           <py:choose test="">
             <dd py:when="c.pkg.license and c.pkg.license.url"><a href="${c.pkg.license.url}">${c.pkg.license.title}</a></dd>
@@ -23,7 +25,7 @@
             </dd>
           </py:choose>
           <dt>${package_resources_icon(c.pkg)}</dt>
-          <dd>${"Downloadable resources" if c.pkg.resources else "No resources"}</dd>
+          <dd>${_("Downloadable resources") if c.pkg.resources else _("No resources")}</dd>
         </dl>
         <py:if test="c.package_relationships">
           <h3>Related packages</h3>
@@ -74,7 +76,7 @@
         </p>
       <div py:otherwise="">
       <h5>Help Make This Package Open!</h5>
-      <p>This package is <strong>not open</strong> as it is
+      <p i18n:msg="">This package is <strong>not open</strong> as it is
       <strong>not openly licensed</strong> or is
       <strong>missing downloadable resources</strong>. Help
       make it open by 
@@ -89,7 +91,7 @@
     <py:if test="c.auth_for_edit">
     <div class="box">
       <h2>Edit this Package</h2>
-        <p>
+        <p i18n:msg="">
           Can you help us keep this page up to date?
           If so, why not
           <a href="${h.url_for(controller='package',action='edit',id=c.pkg.name)}">
@@ -127,7 +129,7 @@
   </py:if>
 
   <py:def function="optional_feed">
-  <link rel="alternate" type="application/atom+xml" title="Package History" href="/package/history/${c.pkg.name}?format=atom&amp;days=7" />
+  <link rel="alternate" type="application/atom+xml" title="${g.site_title} - Package History - ${c.pkg.name}" href="/package/history/${c.pkg.name}?format=atom&amp;days=7" />
   </py:def>
 
   <xi:include href="layout.html" />

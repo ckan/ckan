@@ -1,16 +1,18 @@
 <html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude">
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
   
-  <py:def function="page_title">API - Index</py:def>
+  <py:def function="page_title">API</py:def>
 
   <div py:match="content">
     <h2>API</h2>
 
-    <p>In addition to use of this website, CKAN data can be viewed and changed by using an Application Programming Interface (API).</p>
+    <p i18n:msg="site_title">In addition to use of this website, ${g.site_title} data can be viewed and changed by using CKAN's Application Programming Interface (API).</p>
 
     <p>The API takes the form of a RESTful (Representational State Transfer) style API for accessing CKAN database objects and a Search API.</p>
    
-    <p>For full details of accessing the API, see the documentation at: <a href="http://knowledgeforge.net/ckan/doc/ckan/api.html">http://knowledgeforge.net/ckan/doc/ckan/api.html</a></p>
+    <p i18n:msg="api_docs">For full details of accessing the API, see the documentation at: <a href="http://knowledgeforge.net/ckan/doc/ckan/api.html">http://knowledgeforge.net/ckan/doc/ckan/api.html</a></p>
 
   </div>
 

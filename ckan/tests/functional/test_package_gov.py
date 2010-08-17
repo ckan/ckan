@@ -36,7 +36,7 @@ class TestRead(TestPackageBase):
         # only retrieve after app has been called
         self.anna = model.Package.by_name(name)
         print self.main_div(res)
-        assert 'Packages - %s' % name in res
+        assert '%s - Data Packages' % title in res
         assert name in res
         assert 'State:' not in res
 
@@ -70,10 +70,10 @@ class TestEdit(TestPackageBase):
         offset = url_for(controller='package', action='edit', id=init_data[0]['name'], package_form=package_form)
         self.res = self.app.get(offset)
 
-        fv = self.res.forms[0]
+        fv = self.res.forms['package-edit']
         prefix = 'Package-%s-' % self.pkgid
         fv[prefix + 'name'] = u'a' # invalid name
-        res = fv.submit('commit')
+        res = fv.submit('save')
         assert 'Error' in res, res
         assert 'Name must be at least 2 characters long' in res, res
         self._assert_form_errors(res)
@@ -149,7 +149,7 @@ class TestEdit(TestPackageBase):
         # Edit it
         offset = url_for(controller='package', action='edit', id=pkg.name, package_form=package_form)
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':'testadmin'})
-        assert 'Packages - Edit' in res, res
+        assert 'Edit - Data Packages' in res, res
         
         # Check form is correctly filled
         prefix = 'Package-%s-' % pkg.id
@@ -237,7 +237,7 @@ class TestEdit(TestPackageBase):
             'agency':agency,
             }
         assert not model.Package.by_name(name)
-        fv = res.forms[0]
+        fv = res.forms['package-edit']
         prefix = 'Package-%s-' % pkg.id
         fv[prefix+'name'] = name
         fv[prefix+'title'] = title
@@ -343,7 +343,7 @@ class TestEdit(TestPackageBase):
         assert log_message in res
 
         # Submit
-        res = fv.submit('commit', extra_environ={'REMOTE_USER':'testadmin'})
+        res = fv.submit('save', extra_environ={'REMOTE_USER':'testadmin'})
 
         # Check package page
         assert not 'Error' in res, res
@@ -351,7 +351,7 @@ class TestEdit(TestPackageBase):
         main_res = self.main_div(res).replace('</strong>', '')
         sidebar = self.sidebar(res)
         res1 = (main_res + sidebar).decode('ascii', 'ignore')
-        assert 'Packages - %s' % str(name) in res, res
+        assert '%s - Data Packages' % str(name) in res, res
         assert str(name) in res1, res1
         assert str(title) in res1, res1
 #        assert str(version) in res1, res1
@@ -413,9 +413,9 @@ class TestNew(TestPackageBase):
         name = u'test_simple'
         offset = url_for(controller='package', action='new', package_form=package_form)
         res = self.app.get(offset)
-        fv = res.forms[0]
+        fv = res.forms['package-edit']
         fv[prefix+'name'] = name
-        res = fv.submit('commit')
+        res = fv.submit('save')
 
         # check package page
         assert not 'Error' in res, res
@@ -459,8 +459,8 @@ class TestNew(TestPackageBase):
         assert not model.Package.by_name(name)
         offset = url_for(controller='package', action='new', package_form=package_form)
         res = self.app.get(offset)
-        assert 'Packages - New' in res
-        fv = res.forms[0]
+        assert 'New - Data Packages' in res
+        fv = res.forms['package-edit']
         prefix = 'Package--'
         fv[prefix+'name'] = name
         fv[prefix+'title'] = title
@@ -557,7 +557,7 @@ class TestNew(TestPackageBase):
         assert log_message in main_res
 
         # Submit
-        res = fv.submit('commit')
+        res = fv.submit('save')
 
         # Check package page
         assert not 'Error' in res, res
@@ -565,7 +565,7 @@ class TestNew(TestPackageBase):
         main_res = self.main_div(res).replace('</strong>', '')
         sidebar = self.sidebar(res)
         res1 = main_res + sidebar.decode('ascii', 'ignore')
-        assert 'Packages - %s' % str(name) in res, res
+        assert '%s - Data Packages' % str(name) in res, res
         assert  str(name) in res1, res1
         assert str(title) in res1, res1
 #        assert str(version) in res1, res1
@@ -627,25 +627,25 @@ class TestNew(TestPackageBase):
         assert not model.Package.by_name(self.pkgname)
         offset = url_for(controller='package', action='new', package_form=package_form)
         res = self.app.get(offset)
-        assert 'Packages - New' in res
-        fv = res.forms[0]
+        assert 'New - Data Packages' in res
+        fv = res.forms['package-edit']
         prefix = 'Package--'
         fv[prefix + 'name'] = self.pkgname
-        res = fv.submit('commit')
+        res = fv.submit('save')
         assert not 'Error' in res, res
         assert model.Package.by_name(self.pkgname)
 
         # create duplicate package
         res = self.app.get(offset)
-        assert 'Packages - New' in res
-        fv = res.forms[0]
+        assert 'New - Data Packages' in res
+        fv = res.forms['package-edit']
         fv[prefix+'name'] = self.pkgname
         res = fv.submit('preview')
         assert 'Preview' in res
         assert 'Error' in res, res
         assert 'Package name already exists in database' in res, res
-        fv = res.forms[0]
-        res = fv.submit('commit')
+        fv = res.forms['package-edit']
+        res = fv.submit('save')
         assert 'Error' in res, res
         assert 'Package name already exists in database' in res, res
         self._assert_form_errors(res)
@@ -653,15 +653,15 @@ class TestNew(TestPackageBase):
     def test_new_bad_name(self):
         offset = url_for(controller='package', action='new', package_form=package_form)
         res = self.app.get(offset)
-        assert 'Packages - New' in res
-        fv = res.forms[0]
+        assert 'New - Data Packages' in res
+        fv = res.forms['package-edit']
         prefix = 'Package--'
         # should result in error as need >= 2 chars
         fv[prefix + 'name'] = 'a'
         fv[prefix + 'title'] = 'A Test Package'
         fv[prefix + 'tags'] = 'test tags'
 #        fv[prefix + 'groups'] = 'test groups'
-        res = fv.submit('commit')
+        res = fv.submit('save')
         assert 'Error' in res, res
         assert 'Name must be at least 2 characters long' in res, res
         self._assert_form_errors(res)

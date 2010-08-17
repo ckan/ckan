@@ -36,7 +36,7 @@ def set_rating(user_or_ip, package, rating):
         raise RatingValueException
     
     if rating_query.count():
-        rating_obj = rating_query.one()
+        rating_obj = rating_query.first()
         rating_obj.rating = rating
     elif user:
         rating = model.Rating(package=package,

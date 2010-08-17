@@ -1,13 +1,14 @@
 <html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude">
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
   
   <xi:include href="../revision/common.html" />
 
-  <py:def function="page_title">User Account - ${c.read_user}</py:def>
+  <py:def function="page_title">${c.read_user} - User</py:def>
 
   <div py:match="content">
 
-    <h2>User Account - ${c.read_user}</h2>
+    <h2>User: ${c.read_user}</h2>
     <py:if test="c.is_myself">
       <h3>My Account</h3>
       <p>You are logged in. <a href="${h.url_for('/logout_openid')}">Log out</a></p>

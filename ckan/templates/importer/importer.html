@@ -1,11 +1,12 @@
 <html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude">
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
   
   <py:def function="page_title">Importer</py:def>
 
   <div py:match="content">
-    <h2>Import Packages</h2>
-    <p>Here you can supply an Excel file with details of multiple packages and import these into CKAN.</p>
+    <h2>Import Data Packages</h2>
+    <p>Here you can supply an Excel file with details of multiple packages and import these into ${g.site_title}.</p>
     <div>
       <h3 py:if="c.error" class="form-errors">
         Error: ${c.error}
@@ -15,7 +16,7 @@
         ${c.message}
       </h3>
 
-      ${h.form(h.url_for(controller='importer', action='preview'), multipart=True)}
+      ${h.form(h.url_for(controller='importer', action='preview'), multipart=True, id='import')}
         <div>
           <?python enable_preview = {'disabled':'disabled'} if not c.user else {} ?>
           ${h.file(name='file', **enable_preview)}

@@ -3,15 +3,15 @@ import urlparse
 
 import genshi
 from pylons import config
+from pylons.i18n import get_lang, _
 
 from ckan.lib.base import *
-from ckan.lib.search import make_search, SearchOptions
+from ckan.lib.search import query_for, QueryOptions
 from ckan.lib.package_saver import PackageSaver, ValidationException
 import ckan.forms
 import ckan.authz
 import ckan.rating
 import ckan.misc
-from pylons.i18n import get_lang
 
 logger = logging.getLogger('ckan.controllers')
 
@@ -25,10 +25,11 @@ class PackageController(BaseController):
 
     def list(self):
         query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
-        c.page = h.Page(
+        c.page = h.AlphaPage(
             collection=query,
-            page=request.params.get('page', 1),
-            items_per_page=50
+            page=request.params.get('page', 'A'),
+            alpha_attribute='title',
+            other_text=_('Other'),
         )
         return render('package/list.html')
 
@@ -37,42 +38,46 @@ class PackageController(BaseController):
         c.open_only = request.params.get('open_only')
         c.downloadable_only = request.params.get('downloadable_only')
         if c.q:
-            options = SearchOptions({
-                'q': c.q,
-                'filter_by_openness': c.open_only,
-                'filter_by_downloadable': c.downloadable_only,
-                })
-            # package search
-            query = make_search().query(options, username=c.user)
+            page = int(request.params.get('page', 1))
+            limit = 20
+            query = query_for(model.Package)
+            query.run(query=c.q,
+                      limit=limit,
+                      offset=(page-1)*limit,
+                      return_objects=True,
+                      filter_by_openness=c.open_only,
+                      filter_by_downloadable=c.downloadable_only,
+                      username=c.user)
+            
             c.page = h.Page(
-                collection=query,
-                page=request.params.get('page', 1),
-                items_per_page=50
+                collection=query.results,
+                page=page,
+                #items=query.results,
+                item_count=query.count,
+                items_per_page=limit
             )
-            # filter out ranks from the query result
-            # annoying but no better way to do this it seems
-            pkg_list = [pkg for pkg, rank in c.page]
-            c.page.items = pkg_list
-
+            c.page.items = query.results
+            
             # tag search
             c.tag_limit = 25
-            options = SearchOptions({
-                'entity': 'tag',
-                'q': c.q,
-                'return_objects': True,
-                'limit': c.tag_limit,
-                })
-            results = make_search().run(options)
-            c.tags = results['results']
-            c.tags_count = results['count']
+            query = query_for('tag', backend='sql')
+            query.run(query=c.q,
+                      return_objects=True,
+                      limit=c.tag_limit,
+                      username=c.user)
+            c.tags = query.results
+            c.tags_count = query.count
 
         return render('package/search.html')
 
     def read(self, id):
-        pkg = model.Package.by_name(id)
+        pkg = model.Package.get(id)
         if pkg is None:
             abort(404, gettext('Package not found'))
-
+        
+        # used by disqus plugin
+        c.current_package_id = pkg.id
+        
         if config.get('rdf_packages'):
             accept_headers = request.headers.get('Accept', '')
             if 'application/rdf+xml' in accept_headers and \
@@ -105,7 +110,7 @@ class PackageController(BaseController):
             else:
                 h.redirect_to(controller='revision', action='diff', **params)
 
-        c.pkg = model.Package.by_name(id)
+        c.pkg = model.Package.get(id)
         if not c.pkg:
             abort(404, gettext('Package not found'))
         format = request.params.get('format', '')
@@ -157,13 +162,13 @@ class PackageController(BaseController):
 
         fs = ckan.forms.registry.get_fieldset(is_admin=is_admin,
                          package_form=request.params.get('package_form'))
-        if 'commit' in request.params or 'preview' in request.params:
+        if 'save' in request.params or 'preview' in request.params:
             if not request.params.has_key('log_message'):
                 abort(400, ('Missing parameter: log_message'))
             log_message = request.params['log_message']
 
         record = model.Package
-        if request.params.has_key('commit'):
+        if request.params.has_key('save'):
             fs = fs.bind(record, data=dict(request.params) or None, session=model.Session)
             try:
                 PackageSaver().commit_pkg(fs, None, None, log_message, c.author)
@@ -178,7 +183,7 @@ class PackageController(BaseController):
                 model.setup_default_user_roles(pkg, admins)
                 model.repo.commit_and_remove()
 
-                self._form_commit_redirect(pkgname, 'new')
+                self._form_save_redirect(pkgname, 'new')
             except ValidationException, error:
                 fs = error.args[0]
                 c.form = self._render_edit_form(fs, request.params,
@@ -218,7 +223,7 @@ class PackageController(BaseController):
         # TODO: refactor to avoid duplication between here and new
         c.error = ''
 
-        pkg = model.Package.by_name(id)
+        pkg = model.Package.get(id)
         if pkg is None:
             abort(404, '404 Not Found')
         am_authz = self.authorizer.am_authorized(c, model.Action.EDIT, pkg)
@@ -229,20 +234,21 @@ class PackageController(BaseController):
         fs = ckan.forms.registry.get_fieldset(is_admin=c.auth_for_change_state,
                        package_form=request.params.get('package_form'))
 
-        if 'commit' in request.params or 'preview' in request.params:
+        if 'save' in request.params or 'preview' in request.params:
             if not request.params.has_key('log_message'):
                 abort(400, ('Missing parameter: log_message'))
             log_message = request.params['log_message']
 
-        if not 'commit' in request.params and not 'preview' in request.params:
+        if not 'save' in request.params and not 'preview' in request.params:
             # edit
-            c.pkgname = id
+            c.pkgname = pkg.name
+            c.pkgtitle = pkg.title
             if pkg.license_id:
                 self._adjust_license_id_options(pkg, fs)
             fs = fs.bind(pkg)
             c.form = self._render_edit_form(fs, request.params)
             return render('package/edit.html')
-        elif request.params.has_key('commit'):
+        elif request.params.has_key('save'):
             # id is the name (pre-edited state)
             pkgname = id
             params = dict(request.params) # needed because request is nested
@@ -250,9 +256,9 @@ class PackageController(BaseController):
             fs = fs.bind(pkg, data=params or None)
             try:
                 PackageSaver().commit_pkg(fs, id, pkg.id, log_message, c.author)
-                # do not use pkgname from id as may have changed
+                # do not use package name from id, as it may have been edited
                 pkgname = fs.name.value
-                self._form_commit_redirect(pkgname, 'edit')
+                self._form_save_redirect(pkgname, 'edit')
             except ValidationException, error:
                 fs = error.args[0]
                 c.form = self._render_edit_form(fs, request.params,
@@ -261,7 +267,8 @@ class PackageController(BaseController):
             except KeyError, error:
                 abort(400, 'Missing parameter: %s' % error.args)
         else: # Must be preview
-            c.pkgname = id
+            c.pkgname = pkg.name
+            c.pkgtitle = pkg.title
             if pkg.license_id:
                 self._adjust_license_id_options(pkg, fs)
             fs = fs.bind(pkg, data=dict(request.params))
@@ -269,6 +276,8 @@ class PackageController(BaseController):
                 PackageSaver().render_preview(fs, id, pkg.id,
                                               log_message=log_message,
                                               author=c.author)
+                c.pkgname = fs.name.value
+                c.pkgtitle = fs.title.value
                 read_core_html = render('package/read_core.html') #utf8 format
                 c.preview = h.literal(read_core_html)
                 c.form = self._render_edit_form(fs, request.params)
@@ -279,7 +288,7 @@ class PackageController(BaseController):
                 return render('package/edit.html')
             return render('package/edit.html') # uses c.form and c.preview
 
-    def _form_commit_redirect(self, pkgname, action):
+    def _form_save_redirect(self, pkgname, action):
         '''This redirects the user to the CKAN package/read page,
         unless there is request parameter giving an alternate location,
         perhaps an external website.
@@ -306,16 +315,17 @@ class PackageController(BaseController):
             options.insert(1, (pkg.license_id, pkg.license_id))
 
     def authz(self, id):
-        pkg = model.Package.by_name(id)
+        pkg = model.Package.get(id)
         if pkg is None:
             abort(404, gettext('Package not found'))
         c.pkgname = pkg.name
+        c.pkgtitle = pkg.title
 
         c.authz_editable = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, pkg)
         if not c.authz_editable:
             abort(401, str(gettext('User %r not authorized to edit %s authorizations') % (c.user, id)))
 
-        if 'commit' in request.params: # form posted
+        if 'save' in request.params: # form posted
             # needed because request is nested
             # multidict which is read only
             params = dict(request.params)
@@ -354,7 +364,7 @@ class PackageController(BaseController):
                 model.repo.commit_and_remove()
 
         # retrieve pkg again ...
-        c.pkg = model.Package.by_name(id)
+        c.pkg = model.Package.get(id)
         fs = ckan.forms.get_authz_fieldset('package_authz_fs').bind(c.pkg.roles)
         c.form = fs.render()
         c.new_roles_form = ckan.forms.get_authz_fieldset('new_package_roles_fs').render()
@@ -362,7 +372,7 @@ class PackageController(BaseController):
 
     def rate(self, id):
         package_name = id
-        package = model.Package.by_name(package_name)
+        package = model.Package.get(package_name)
         if package is None:
             abort(404, gettext('404 Package Not Found'))
         rating = request.params.get('rating', '')

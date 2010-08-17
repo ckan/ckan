@@ -1,7 +1,10 @@
 from ckan import model
 import package
 
-__all__ = ['get_package_dict', 'edit_package_dict', 'add_to_package_dict', 'strip_ids_from_package_dict']
+__all__ = ['get_package_dict', 'edit_package_dict', 'add_to_package_dict', 'strip_ids_from_package_dict', 'PackageDictFormatError']
+
+class PackageDictFormatError(Exception):
+    pass
 
 def get_package_dict(pkg=None, blank=False, fs=None):
     '''
@@ -85,6 +88,8 @@ def edit_package_dict(dict_, changed_items, id=''):
                     resources = []
                     for res_dict in value:
                         res_dict_str = {}
+                        if not isinstance(res_dict, dict):
+                            raise PackageDictFormatError('Resource should be a dictionary: %r' % res_dict)
                         for key, value in res_dict.items():
                             res_dict_str[str(key)] = value
                         resources.append(res_dict_str)
@@ -100,6 +105,10 @@ def edit_package_dict(dict_, changed_items, id=''):
                 dict_[license_id_key] = unicode(value)
             elif key == license_key:
                 dict_[license_id_key] = unicode(value)
+            else:
+                raise PackageDictFormatError('Key unknown: %s' % key)
+        else:
+            raise PackageDictFormatError('Key blank')
     return dict_
 
 def add_to_package_dict(dict_, changed_items, id=''):

@@ -1,26 +1,40 @@
 import sqlalchemy.orm
+import logging
 
+from paste.util.multidict import MultiDict 
 from ckan.lib.base import *
 from ckan.lib.helpers import json
 import ckan.model as model
 import ckan.forms
-from ckan.lib.search import make_search, SearchOptions
+from ckan.lib.search import query_for, QueryOptions, SearchError, DEFAULT_OPTIONS
 import ckan.authz
 import ckan.rating
 
+log = logging.getLogger(__name__)
+
+IGNORE_FIELDS = ['q']
+
 class BaseRestController(BaseController):
 
-    ref_package_with_attr = 'id'
+    ref_package_by = 'id'
+    ref_group_by = 'id'
 
     def _list_package_refs(self, packages):
-        return [getattr(p, self.ref_package_with_attr) for p in packages]
+        return [getattr(p, self.ref_package_by) for p in packages]
 
-    def _get_pkg(self, id):
-        pkg = model.Session.query(model.Package).get(id)
-        if pkg == None:
-            pkg = model.Package.by_name(id)
-            # Todo: Make sure package names can't be changed to look like package IDs?
-        return pkg
+    def _list_group_refs(self, groups):
+        return [getattr(p, self.ref_group_by) for p in groups]
+
+    def _finish_ok(self, response_data=None):
+        response.status_int = 200
+        response.headers['Content-Type'] = 'application/json;charset=utf-8'
+        json_response = ''
+        if response_data is not None:
+            json_response = json.dumps(response_data)
+            if request.params.has_key('callback') and request.method == 'GET':
+                json_response = '%s(%s);' % (request.params['callback'],
+                                             json_response)
+        return json_response
 
     def index(self):
         return render('rest/index.html')
@@ -32,8 +46,8 @@ class BaseRestController(BaseController):
         elif register == u'package' and not subregister:
             query = ckan.authz.Authorizer().authorized_query(self._get_username(), model.Package)
             packages = query.all()
-            results = self._list_package_refs(packages)
-            return self._finish_ok(results)
+            response_data = self._list_package_refs(packages)
+            return self._finish_ok(response_data)
         elif register == u'package' and subregister == 'relationships':
             #TODO authz stuff for this and related packages
             pkg = self._get_pkg(id)
@@ -41,23 +55,25 @@ class BaseRestController(BaseController):
                 response.status_int = 404
                 return 'First package named in request was not found.'
             relationships = pkg.get_relationships()
-            return self._finish_ok([rel.as_dict(pkg) for rel in relationships])
+            response_data = [rel.as_dict(package=pkg, ref_package_by=self.ref_package_by) for rel in relationships]
+            return self._finish_ok(response_data)
         elif register == u'group':
             groups = model.Session.query(model.Group).all() 
-            results = [group.name for group in groups]
-            return self._finish_ok(results)
+            response_data = self._list_group_refs(groups)
+            return self._finish_ok(response_data)
         elif register == u'tag':
             tags = model.Session.query(model.Tag).all() #TODO
-            results = [tag.name for tag in tags]
-            return self._finish_ok(results)
+            response_data = [tag.name for tag in tags]
+            return self._finish_ok(response_data)
         elif register == u'changeset':
             from ckan.model.changeset import ChangesetRegister
-            return self._finish_ok(ChangesetRegister().keys())
+            response_data = ChangesetRegister().keys()
+            return self._finish_ok(response_data)
         elif register == u'licenses':
             from ckan.model.license import LicenseRegister
             licenses = LicenseRegister().values()
-            results = [l.as_dict() for l in licenses]
-            return self._finish_ok(results)
+            response_data = [l.as_dict() for l in licenses]
+            return self._finish_ok(response_data)
         else:
             response.status_int = 400
             return ''
@@ -86,8 +102,8 @@ class BaseRestController(BaseController):
             if changeset is None:
                 response.status_int = 404
                 return ''            
-            _dict = changeset.as_dict()
-            return self._finish_ok(_dict)
+            response_data = changeset.as_dict()
+            return self._finish_ok(response_data)
         elif register == u'package' and not subregister:
             pkg = self._get_pkg(id)
             if pkg == None:
@@ -95,8 +111,8 @@ class BaseRestController(BaseController):
                 return ''
             if not self._check_access(pkg, model.Action.READ):
                 return ''
-            _dict = pkg.as_dict()
-            return self._finish_ok(_dict)
+            response_data = self._represent_package(pkg)
+            return self._finish_ok(response_data)
         elif register == u'package' and (subregister == 'relationships' or subregister in model.PackageRelationship.get_all_types()):
             pkg1 = self._get_pkg(id)
             pkg2 = self._get_pkg(id2)
@@ -115,7 +131,9 @@ class BaseRestController(BaseController):
                     response.status_int = 404
                     return 'Relationship "%s %s %s" not found.' % \
                            (id, subregister, id2)
-            return self._finish_ok([rel.as_dict(pkg1) for rel in relationships])
+            response_data = [rel.as_dict(pkg1, ref_package_by=self.ref_package_by) for rel in relationships]
+            return self._finish_ok(response_data)
+
         elif register == u'group':
             group = model.Group.by_name(id)
             if group is None:
@@ -125,7 +143,7 @@ class BaseRestController(BaseController):
             if not self._check_access(group, model.Action.READ):
                 return ''
 
-            _dict = group.as_dict()
+            _dict = group.as_dict(ref_package_by=self.ref_package_by)
             #TODO check it's not none
             return self._finish_ok(_dict)
         elif register == u'tag':
@@ -133,11 +151,14 @@ class BaseRestController(BaseController):
             if obj is None:
                 response.status_int = 404
                 return ''            
-            _dict = [pkgtag.package.name for pkgtag in obj.package_tags]
-            return self._finish_ok(_dict)
+            response_data = [pkgtag.package.name for pkgtag in obj.package_tags]
+            return self._finish_ok(response_data)
         else:
             response.status_int = 400
             return ''
+
+    def _represent_package(self, package):
+        return package.as_dict(ref_package_by=self.ref_package_by, ref_group_by=self.ref_group_by)
 
     def create(self, register, id=None, subregister=None, id2=None):
         # Check an API key given
@@ -151,7 +172,11 @@ class BaseRestController(BaseController):
         try:
             if register == 'package' and not subregister:
                 fs = ckan.forms.get_standard_fieldset()
-                request_fa_dict = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(fs=fs), request_data)
+                try:
+                    request_fa_dict = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(fs=fs), request_data)
+                except ckan.forms.PackageDictFormatError, inst:
+                    response.status_int = 400
+                    return gettext('Package format incorrect: %s') % str(inst)
                 fs = fs.bind(model.Package, data=request_fa_dict, session=model.Session)
             elif register == 'package' and subregister in model.PackageRelationship.get_all_types():
                 pkg1 = self._get_pkg(id)
@@ -172,7 +197,8 @@ class BaseRestController(BaseController):
                 rev.message = _(u'REST API: Create package relationship: %s %s %s') % (pkg1, subregister, pkg2)
                 rel = pkg1.add_relationship(subregister, pkg2, comment=comment)
                 model.repo.commit_and_remove()
-                return self._finish_ok(rel.as_dict())
+                response_data = rel.as_dict(ref_package_by=self.ref_package_by)
+                return self._finish_ok(response_data)
             elif register == 'group' and not subregister:
                 request_fa_dict = ckan.forms.edit_group_dict(ckan.forms.get_group_dict(), request_data)
                 fs = ckan.forms.get_group_fieldset('group_fs_combined').bind(model.Group, data=request_fa_dict, session=model.Session)
@@ -199,6 +225,7 @@ class BaseRestController(BaseController):
 
             model.repo.commit()        
         except Exception, inst:
+            log.exception(inst)
             model.Session.rollback()
             raise
         obj = fs.model
@@ -254,7 +281,11 @@ class BaseRestController(BaseController):
             if register == 'package':
                 fs = ckan.forms.get_standard_fieldset()
                 orig_entity_dict = ckan.forms.get_package_dict(pkg=entity, fs=fs)
-                request_fa_dict = ckan.forms.edit_package_dict(orig_entity_dict, request_data, id=entity.id)
+                try:
+                    request_fa_dict = ckan.forms.edit_package_dict(orig_entity_dict, request_data, id=entity.id)
+                except ckan.forms.PackageDictFormatError, inst:
+                    response.status_int = 400
+                    return gettext('Package format incorrect: %s') % str(inst)
             elif register == 'group':
                 orig_entity_dict = ckan.forms.get_group_dict(entity)
                 request_fa_dict = ckan.forms.edit_group_dict(orig_entity_dict, request_data, id=entity.id)
@@ -272,6 +303,7 @@ class BaseRestController(BaseController):
 
                 model.repo.commit()        
             except Exception, inst:
+                log.exception(inst)
                 model.Session.rollback()
                 if inst.__class__.__name__ == 'IntegrityError':
                     response.status_int = 409
@@ -333,6 +365,7 @@ class BaseRestController(BaseController):
             entity.delete()
             model.repo.commit()        
         except Exception, inst:
+            log.exception(inst)
             raise
 
         return self._finish_ok()
@@ -345,7 +378,7 @@ class BaseRestController(BaseController):
                 rev = model.Session.query(model.Revision).get(id)
                 if rev is None:
                     response.status_int = 400
-                    return 'There is no revision with id: %s' % id
+                    return gettext('There is no revision with id: %s') % id
                 since_time = rev.timestamp
             elif request.params.has_key('since_time'):
                 since_time_str = request.params['since_time']
@@ -356,10 +389,10 @@ class BaseRestController(BaseController):
                     return 'ValueError: %s' % inst
             else:
                 response.status_int = 400
-                return 'Missing search term (\'since_id=UUID\' or \'since_time=TIMESTAMP\')'
+                return gettext("Missing search term ('since_id=UUID' or 'since_time=TIMESTAMP')")
             revs = model.Session.query(model.Revision).filter(model.Revision.timestamp>since_time)
             return self._finish_ok([rev.id for rev in revs])
-        elif register == 'package':
+        elif register == 'package' or register == 'resource':
             if request.params.has_key('qjson'):
                 if not request.params['qjson']:
                     response.status_int = 400
@@ -373,14 +406,48 @@ class BaseRestController(BaseController):
                 except ValueError, inst:
                     response.status_int = 400
                     return gettext('Search params: %s') % str(inst)
-                    
-            options = SearchOptions(params)
+            
+            options = QueryOptions()
+            for k, v in params.items():
+                if (k in DEFAULT_OPTIONS.keys()):
+                    options[k] = v
+            options.update(params)
+            options.username = self._get_username()
             options.search_tags = False
             options.return_objects = False
-            options.ref_entity_with_attr = self.ref_package_with_attr
-            username = self._get_username()
-            results = make_search().run(options, username)
-            return self._finish_ok(results)
+            
+            query_fields = MultiDict()
+            for field, value in params.items():
+                field = field.strip()
+                if field in DEFAULT_OPTIONS.keys() or \
+                   field in IGNORE_FIELDS:
+                    continue
+                values = [value]
+                if isinstance(value, list):
+                    values = value
+                for v in values:
+                    query_fields.add(field, v)
+            
+            if register == 'package':
+                options.ref_entity_with_attr = self.ref_package_by
+            try:
+                backend = None
+                if register == 'resource': 
+                    query = query_for(model.PackageResource, backend='sql')
+                else:
+                    query = query_for(model.Package)
+                results = query.run(query=params.get('q'), 
+                                    fields=query_fields, 
+                                    options=options)
+                return self._finish_ok(results)
+            except SearchError, e:
+                log.exception(e)
+                response.status_int = 400
+                return gettext('Bad search option: %s') % e
+        else:
+            response.status_int = 404
+            return gettext('Unknown register: %s') % register
+            
 
     def tag_counts(self):
         tags = model.Session.query(model.Tag).all()
@@ -430,16 +497,9 @@ class BaseRestController(BaseController):
         return self._finish_ok(ret_dict)
 
     def _get_username(self):
-        keystr = request.environ.get('HTTP_AUTHORIZATION', None)
-        if keystr is None:
-            keystr = request.environ.get('Authorization', None)
-        self.log.debug("Received API Key: %s" % keystr)
-        api_key = model.Session.query(model.User).filter_by(apikey=unicode(keystr)).first()
-        if api_key is not None:
-            return api_key.name
-        else:
-            return u''
-    
+        user = self._get_user_for_apikey()
+        return user and user.name or u''
+
     def _check_access(self, entity, action):
         # Checks apikey is okay and user is authorized to do the specified
         # action on the specified package (or other entity).
@@ -472,40 +532,6 @@ class BaseRestController(BaseController):
         response.status_int = 200
         return True                
 
-    def _get_request_data(self):
-        try:
-            request_data = request.params.keys()[0]
-        except Exception, inst:
-            msg = _("Can't find entity data in request params %s: %s") % (
-                request.params.items(), str(inst)
-            )
-            raise ValueError, msg
-        request_data = json.loads(request_data, encoding='utf8')
-        if not isinstance(request_data, dict):
-            raise ValueError, _("Request params must be in form of a json encoded dictionary.")
-        # ensure unicode values
-        for key, val in request_data.items():
-            # if val is str then assume it is ascii, since json converts
-            # utf8 encoded JSON to unicode
-            request_data[key] = self._make_unicode(val)
-        return request_data
-        
-    def _make_unicode(self, entity):
-        if isinstance(entity, str):
-            return unicode(entity)
-        elif isinstance(entity, list):
-            new_items = []
-            for item in entity:
-                new_items.append(self._make_unicode(item))
-            return new_items
-        elif isinstance(entity, dict):
-            new_dict = {}
-            for key, val in entity.items():
-                new_dict[key] = self._make_unicode(val)
-            return new_dict
-        else:
-            return entity
-
     def _update_package_relationship(self, relationship, comment):
         is_changed = relationship.comment != comment
         if is_changed:
@@ -516,18 +542,16 @@ class BaseRestController(BaseController):
             model.repo.commit_and_remove()
         return self._finish_ok(relationship.as_dict())
 
-    def _finish_ok(self, response_data=None):
-        response.status_int = 200
-        response.headers['Content-Type'] = 'application/json;charset=utf-8'
-        if response_data is not None:
-            return json.dumps(response_data)
-        else:
-            return ''
 
 class RestController(BaseRestController):
     # Implements CKAN API Version 1.
 
-    ref_package_with_attr = 'name'
+    ref_package_by = 'name'
+    ref_group_by = 'name'
 
+    def _represent_package(self, package):
+        msg_data = super(RestController, self)._represent_package(package)
+        msg_data['download_url'] = package.resources[0].url if package.resources else ''
+        return msg_data
 
 

@@ -42,20 +42,6 @@ Default::
 This sets the name of the form to use when editing a package. This can be a form defined in the core CKAN code or in another setuputils-managed python module. The only requirement is that the setup.py has an entrypoint for the form defined in the `ckan.forms` section. See :doc:`package_forms`
 
 
-ckan_host
----------
-
-Example::
-
- ckan_host = ckan.net
-
-By telling CKAN what hostname it is served at, it can provide backlinks to packages in two places:
-
-1. The REST API: when you read a package register it contains a property giving a link to the package on CKAN. e.g. `"ckan_url": "http://ckan.net/package/pollution-2008"`
-
-2. The backend RDF generator can use the CKAN package URLs for the subject in the triples.
-
-
 rdf_packages
 ------------
 
@@ -148,3 +134,97 @@ Example::
 To allow the Edit Package and New Package forms to be integrated into a third party interface, setting these options allows you to set a the return address. So when the user has completed the form and presses 'commit', the user is redirected to the URL specified.
 
 The '<NAME>' string is replaced with the name of the package edited. Full details of this process are given in :doc:`form-integration`.
+
+
+carrot_messaging_library
+------------------------
+
+Example::
+
+ carrot_messaging_library=pyamqplib
+
+This is the messaging library backend to use. Options::
+
+ * pyamqplib - AMQP (e.g. for RabbitMQ)
+
+ * pika - alternative AMQP
+
+ * stomp - python-stomp
+
+ * queue - native Python Queue (default) - NB this doesn't work inter-process
+
+See `carrot documentation <http://packages.python.org/carrot/index.html>`_ for details.
+
+
+amqp_hostname, amqp_port, amqp_user_id, amqp_password
+-----------------------------------------------------
+
+Example::
+ amqp_hostname=localhost
+ amqp_port=5672
+ amqp_user_id=guest
+ amqp_password=guest
+
+These are the setup parameters for AMQP messaging. These only apply if the messageing library has been set to use AMQP (see `carrot_messaging_library`_). The values given in the example are the default values.
+
+
+build_search_index_synchronously
+--------------------------------
+
+Example::
+ ckan.build_search_index_synchronously=
+
+Default (if you don't define it)::
+ 1
+
+This controls the operation of the CKAN Postgres full text search indexing. If you don't define this option then it is on by default. You will want to turn this off if you want to use a different search engine for CKAN (e.g. SOLR). In this case you need to define the option equal to blank (as in the given example).
+
+
+search_backend, solr_url
+------------------------
+
+This will control the type of search backend and the configuration of solr, if selected. Valid values for ``search_backend`` are ``sql`` and ``solr``. Running solr will require a schema.xml file, such as the one
+in `the ckan-solr-index repository <http://bitbucket.org/pudo/ckan-solr-index>`_.
+
+Example::
+ search_backend = solr
+ solr_url = http://solr.okfn.org/solr/test.ckan.net
+ 
+Optionally, ``solr_user`` and ``solr_password`` can be passed along to specify HTTP Basic authentication 
+details for all solr requests. 
+
+
+site_title
+----------
+
+Example::
+ ckan.site_title=Open Data Scotland
+
+Default::
+ CKAN - Comprehensive Knowledge Archive Network
+
+This sets the name of the site.
+
+
+site_logo
+----------
+
+Example::
+ ckan.site_logo=http://myregistry/logo.png
+
+Default::
+ CKAN Text Logo, /images/ckan_logo_fullname_long.png
+
+This sets the logo used in the title bar.
+
+
+site_url
+--------
+
+Example::
+ ckan.site_url=http://scotdata.ckan.net
+
+Default::
+ http://www.ckan.net
+
+The primary URL used by this site. 
