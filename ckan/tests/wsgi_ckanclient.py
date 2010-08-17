@@ -53,22 +53,33 @@ class WsgiCkanClient(CkanClient):
             self.last_status = 500
             self.last_message = repr(inst.args)
         else:
-            self._print("ckanclient: OK opening CKAN resource: %s" % location)
-            self.last_status = res.status
-            self._print('ckanclient: last status %s' % self.last_status)
-            self.last_body = res.body
-            self._print('ckanclient: last body %s' % self.last_body)
-            self.last_headers = dict(res.headers)
-            self._print('ckanclient: last headers %s' % self.last_headers)
-            content_type = self.last_headers['Content-Type']
-            self._print('ckanclient: content type: %s' % content_type)
-            is_json_response = False
-            if 'json' in content_type:
-                is_json_response = True
-            if is_json_response:
-                self.last_message = self._loadstr(self.last_body)
+            if res.status != 200:
+                self._print("ckanclient: Received HTTP error code from CKAN resource.")
+                self._print("ckanclient: location: %s" % location)
+                self._print("ckanclient: response code: %s" % res.status)
+                self._print("ckanclient: request headers: %s" % headers)
+                self._print("ckanclient: request data: %s" % data)
+                self._print("ckanclient: error: %s" % res)
+                self.last_http_error = res
+                self.last_status = res.status
+                self.last_message = res.body
             else:
-                self.last_message = self.last_body
-            self._print('ckanclient: last message %s' % self.last_message)
+                self._print("ckanclient: OK opening CKAN resource: %s" % location)
+                self.last_status = res.status
+                self._print('ckanclient: last status %s' % self.last_status)
+                self.last_body = res.body
+                self._print('ckanclient: last body %s' % self.last_body)
+                self.last_headers = dict(res.headers)
+                self._print('ckanclient: last headers %s' % self.last_headers)
+                content_type = self.last_headers['Content-Type']
+                self._print('ckanclient: content type: %s' % content_type)
+                is_json_response = False
+                if 'json' in content_type:
+                    is_json_response = True
+                if is_json_response:
+                    self.last_message = self._loadstr(self.last_body)
+                else:
+                    self.last_message = self.last_body
+                self._print('ckanclient: last message %s' % self.last_message)
 
         

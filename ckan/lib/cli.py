@@ -979,7 +979,9 @@ class Load(CkanCommand):
         cmd = self.args[0]
         if cmd == 'bis':
             if len(self.args) != 4:
-                print 'Wrong number of arguments for data type: %s' % cmd
+                print 'Error: Wrong number of arguments for data type: %s' % cmd
+                print self.usage
+                sys.exit(1)
             filepath, api_url, api_key = self.args[1:]
             assert api_url.startswith('http://') and api_url.endswith('/api'), api_url
             # import them
@@ -1003,4 +1005,5 @@ class Load(CkanCommand):
         else:
             print 'Error: Command %r not recognised' % cmd
             print self.usage
+            sys.exit(1)
 
