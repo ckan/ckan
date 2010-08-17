@@ -37,9 +37,10 @@ class BaseRestController(BaseController):
         return json_response
 
     def index(self):
-        return render('rest/index.html')
+        return render('rest/index.html', cache_expire=84600)
 
     def list(self, register, subregister=None, id=None):
+        log.debug('list %s/%s/%s' % (register, subregister, id))
         if register == 'revision':
             revs = model.Session.query(model.Revision).all()
             return self._finish_ok([rev.id for rev in revs])
@@ -79,6 +80,7 @@ class BaseRestController(BaseController):
             return ''
 
     def show(self, register, id, subregister=None, id2=None):
+        log.debug('show %s/%s/%s/%s' % (register, id, subregister, id2))
         if register == u'revision':
             # Todo: Implement access control for revisions.
             rev = model.Session.query(model.Revision).get(id)
@@ -161,6 +163,7 @@ class BaseRestController(BaseController):
         return package.as_dict(ref_package_by=self.ref_package_by, ref_group_by=self.ref_group_by)
 
     def create(self, register, id=None, subregister=None, id2=None):
+        log.debug('create %s/%s/%s/%s params: %r' % (register, id, subregister, id2, request.params))
         # Check an API key given
         if not self._check_access(None, None):
             return json.dumps(_('Access denied'))
@@ -175,6 +178,7 @@ class BaseRestController(BaseController):
                 try:
                     request_fa_dict = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(fs=fs), request_data)
                 except ckan.forms.PackageDictFormatError, inst:
+                    log.error('Package format incorrect: %s' % str(inst))
                     response.status_int = 400
                     return gettext('Package format incorrect: %s') % str(inst)
                 fs = fs.bind(model.Package, data=request_fa_dict, session=model.Session)
@@ -205,10 +209,12 @@ class BaseRestController(BaseController):
             elif register == 'rating' and not subregister:
                 return self._create_rating(request_data)
             else:
+                log.error('Cannot create new entity of this type: %s %s' % (register, subregister))
                 response.status_int = 400
                 return gettext('Cannot create new entity of this type: %s %s') % (register, subregister)
             validation = fs.validate()
             if not validation:
+                log.error('Validation error: %r' % repr(fs.errors))
                 response.status_int = 409
                 return json.dumps(repr(fs.errors))
             rev = model.repo.new_revision()
@@ -227,13 +233,17 @@ class BaseRestController(BaseController):
         except Exception, inst:
             log.exception(inst)
             model.Session.rollback()
+            log.error('Exception creating object %s: %r' % (str(fs.name.value), inst))
             raise
+        log.debug('Created object %s' % str(fs.name.value))
         obj = fs.model
-        location = "%s/%s" % (request.path, obj.id)
+        location = str('%s/%s' % (request.path, obj.id))
         response.headers['Location'] = location
+        log.debug('Response headers: %r' % (response.headers))
         return self._finish_ok(obj.as_dict())
             
     def update(self, register, id, subregister=None, id2=None):
+        log.debug('update %s/%s/%s/%s' % (register, id, subregister, id2))
         # must be logged in to start with
         if not self._check_access(None, None):
             return json.dumps(_('Access denied'))
@@ -318,6 +328,7 @@ class BaseRestController(BaseController):
                 return self._update_package_relationship(entity, comment)
 
     def delete(self, register, id, subregister=None, id2=None):
+        log.debug('delete %s/%s/%s/%s' % (register, id, subregister, id2))
         # must be logged in to start with
         if not self._check_access(None, None):
             return json.dumps(_('Access denied'))
@@ -371,6 +382,7 @@ class BaseRestController(BaseController):
         return self._finish_ok()
 
     def search(self, register=None):
+        log.debug('search %s params: %r' % (register, request.params))
         if register == 'revision':
             since_time = None
             if request.params.has_key('since_id'):
@@ -450,6 +462,7 @@ class BaseRestController(BaseController):
             
 
     def tag_counts(self):
+        log.debug('tag counts')
         tags = model.Session.query(model.Tag).all()
         results = []
         for tag in tags:
@@ -509,6 +522,7 @@ class BaseRestController(BaseController):
         isOk = False
 
         self.rest_api_user = self._get_username()
+        log.debug('check access - user %r' % self.rest_api_user)
         
         if action and entity and not isinstance(entity, model.PackageRelationship):
             if action != model.Action.READ and self.rest_api_user in (model.PSEUDO_USER__VISITOR, ''):
