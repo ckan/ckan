@@ -6,7 +6,7 @@ from pylons import config, cache
 from pylons.i18n import get_lang, _
 
 from ckan.lib.base import *
-from ckan.lib.search import query_for, QueryOptions
+from ckan.lib.search import query_for, QueryOptions, SearchError
 from ckan.lib.package_saver import PackageSaver, ValidationException
 import ckan.forms
 import ckan.authz
@@ -38,35 +38,43 @@ class PackageController(BaseController):
         c.open_only = request.params.get('open_only')
         c.downloadable_only = request.params.get('downloadable_only')
         if c.q:
+            c.query_error = False
             page = int(request.params.get('page', 1))
             limit = 20
             query = query_for(model.Package)
-            query.run(query=c.q,
-                      limit=limit,
-                      offset=(page-1)*limit,
-                      return_objects=True,
-                      filter_by_openness=c.open_only,
-                      filter_by_downloadable=c.downloadable_only,
-                      username=c.user)
+            try:
+                query.run(query=c.q,
+                          limit=limit,
+                          offset=(page-1)*limit,
+                          return_objects=True,
+                          filter_by_openness=c.open_only,
+                          filter_by_downloadable=c.downloadable_only,
+                          username=c.user)
             
-            c.page = h.Page(
-                collection=query.results,
-                page=page,
-                #items=query.results,
-                item_count=query.count,
-                items_per_page=limit
-            )
-            c.page.items = query.results
+                c.page = h.Page(
+                    collection=query.results,
+                    page=page,
+                    item_count=query.count,
+                    items_per_page=limit
+                )
+                c.page.items = query.results
+            except SearchError, se:
+                c.query_error = True
+                c.page = h.Page(collection=[])
             
             # tag search
             c.tag_limit = 25
             query = query_for('tag', backend='sql')
-            query.run(query=c.q,
-                      return_objects=True,
-                      limit=c.tag_limit,
-                      username=c.user)
-            c.tags = query.results
-            c.tags_count = query.count
+            try:
+                query.run(query=c.q,
+                          return_objects=True,
+                          limit=c.tag_limit,
+                          username=c.user)
+                c.tags = query.results
+                c.tags_count = query.count
+            except SearchError, se:
+                c.tags = []
+                c.tags_count = 0
 
         return render('package/search.html')
     

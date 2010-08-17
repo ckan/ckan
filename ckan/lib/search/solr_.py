@@ -30,32 +30,38 @@ class SolrSearchBackend(SearchBackend):
 class PackageSolrSearchQuery(SearchQuery):
     
     def _run(self):
-        query = ""
+        fq = ""
         
         #if not self.options.get('search_tags', True):
         # TODO: figure out how to handle this without messing with the query parser too much    
         
         # Filter for options
         if self.options.filter_by_downloadable:
-            query += u" +res_url:[* TO *] " # not null resource URL 
+            fq += u" +res_url:[* TO *] " # not null resource URL 
         if self.options.filter_by_openness:
             licenses = ["license_id:%s" % id for id in self.open_licenses]
             licenses = " OR ".join(licenses)
-            query += " +(%s) " % licenses
+            fq += " +(%s) " % licenses
         
         order_by = self.options.order_by
         if order_by == 'rank': order_by = 'score'
         
         # show only results from this CKAN instance:
-        query = query + " +site_id:\"%s\"" % config.get('ckan.site_id')
+        fq = fq + " +site_id:\"%s\"" % config.get('ckan.site_id')
         
-        data = self.backend.connection.query(self.query.query,
-                                       fq=query, 
-                                       start=self.options.offset, 
-                                       rows=self.options.limit,
-                                       fields='id,score', 
-                                       sort_order='desc', 
-                                       sort=order_by)
+        try:
+            data = self.backend.connection.query(self.query.query,
+                                                 fq=fq, 
+                                                 start=self.options.offset, 
+                                                 rows=self.options.limit,
+                                                 fields='id,score', 
+                                                 sort_order='desc', 
+                                                 sort=order_by)
+        
+        except Exception, e:
+            # this wrapping will be caught further up in the WUI.
+            log.exception(e)
+            raise SearchError(e)
         
         self.count = int(data.numFound)
         result_ids = [(r.get('id')) for r in data.results]

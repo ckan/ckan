@@ -19,7 +19,11 @@
         <p i18n:msg="tags_count, tags_limit"><strong>${c.tags_count}</strong> tags found (max ${c.tag_limit} shown).</p>
         ${tag_list(c.tags)}
       </py:if>
-
+      
+      <py:if test="c.query_error">
+        <p i18n:msg="item_count"><strong>There was an error while searching.</strong> 
+            Please try another search term.</p>
+      </py:if>
       <p i18n:msg="item_count"><strong>${c.page.item_count}</strong> packages found.</p>
       <py:if test="c.page.item_count == 0">
         <p i18n:msg="">Would you like to <a href="${h.url_for(action='new', id=None)}">create a new package?</a></p>
