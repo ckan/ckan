@@ -79,7 +79,9 @@ class PackageController(BaseController):
         return render('package/search.html')
     
     def _pkg_cache_key(self, pkg):
-        return str(hash((pkg.revision.id, c.user, pkg.get_average_rating())))
+        # note: we need pkg.id in addition to pkg.revision.id because a
+        # revision may have more than one package in it.
+        return str(hash((pkg.id, pkg.revision.id, c.user, pkg.get_average_rating())))
         
     def _clear_pkg_cache(self, pkg):
         read_cache = cache.get_cache('package/read.html', type='dbm')
