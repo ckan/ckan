@@ -52,7 +52,9 @@ You might add a tag by POSTing to ``http://ckan.net/api/rest/package/osm`` this:
 
 "tags": ["navigation", "openstreetmap", "map", "geo", "geodata", "xml", "publicdomain", "osm", "my-new-tag"]
 
-So that the system knows who is making this change, you need to send your API key in the headers - see `CKAN API Keys`_.
+Here we use 'curl' to create a new package::
+
+$ curl http://test.ckan.net/api/rest/package -d '{"name":"test", "title":"Test package"}' -H "Authorization: 474d34e4-b710-4b77-b89f-2e909c336b91"
 
 
 Overview
@@ -72,6 +74,8 @@ At the same time, clients can proceed by following related resources
 identified in server responses. For example, after successfully POSTing data
 to a model register, the location of the newly created entity is indicated in
 the method response's 'Location' header.
+
+So that the system knows who is making this change, you need to send your API key in the headers - see `CKAN API Keys`_.
 
 
 API Versions
