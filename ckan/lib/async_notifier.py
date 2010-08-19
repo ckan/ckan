@@ -121,27 +121,29 @@ class AsyncConsumer(object):
             message.ack()
 
     def run(self, clear_queue=False):
-        if clear_queue:
+        if clear_queue is True:
             self.clear_queue()
            
         self.consumer.register_callback(self.async_callback)
         # Consumer loop
         # NB wait() is only for test mode - using iterconsume() instead
-        # self.consumer.wait()
-        it = self.consumer.iterconsume()
         logger.info('Queue consumer: Waiting for messages')
+        #self.consumer.wait()
+        
+        it = self.consumer.iterconsume()
         while True:
             try:
                 it.next()
             except StopConsuming:
                 break
-            # only need to poll once every few seconds - Queue doesn't block
-            time.sleep(1.0)
+        #    # only need to poll once every few seconds - Queue doesn't block
+        #    time.sleep(1.0)
         logger.info('Queue consumer: Shutting down')
 
     def stop(self):
         # consumer.cancel doesn't work for Queue implementation, so instead
         # send a Stop Message.
+        self.consumer.cancel()
         AsyncNotifier.send_asynchronously(None, **notifier.StopNotification.create())
         meta.Session.remove()
         meta.Session.close()

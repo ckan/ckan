@@ -126,9 +126,9 @@ class BaseController(WSGIController):
         apikey = request.environ.get('HTTP_AUTHORIZATION', '')
         if not apikey:
             apikey = request.environ.get('Authorization', '')
-        self.log.debug("Received API Key: %s" % apikey)
         if not apikey:
             return None
+        self.log.debug("Received API Key: %s" % apikey)
         apikey = unicode(apikey)
         query = model.Session.query(model.User)
         user = query.filter_by(apikey=apikey).first()

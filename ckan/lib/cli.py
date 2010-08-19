@@ -3,6 +3,7 @@ import sys
 import logging
 
 import paste.script
+from paste.script.util.logging_config import fileConfig
 
 class CkanCommand(paste.script.command.Command):
     parser = paste.script.command.Command.standard_parser(verbose=True)
@@ -22,8 +23,10 @@ class CkanCommand(paste.script.command.Command):
             msg = 'No config file supplied'
             raise self.BadCommand(msg)
         self.filename = os.path.abspath(self.options.config)
+        fileConfig(self.filename)
         conf = appconfig('config:' + self.filename)
         load_environment(conf.global_conf, conf.local_conf)
+        
 
     def _setup_app(self):
         cmd = paste.script.appinstall.SetupCommand('setup-app') 
@@ -363,7 +366,6 @@ class SearchIndexCommand(CkanCommand):
 
     def command(self):
         self._load_config()
-        logging.basicConfig(level=logging.DEBUG)
         from ckan.lib.search import get_backend, rebuild, SearchIndexWorker
 
         if not self.args:
@@ -378,6 +380,7 @@ class SearchIndexCommand(CkanCommand):
             while True:
                 indexer.run()
         if cmd == 'rebuild':
+            print "WARNING: rebuild is deprecated. Use 'notifications replay' and a queue indexer instead."
             rebuild()
         else:
             print 'Command %s not recognized' % cmd

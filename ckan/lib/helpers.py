@@ -60,3 +60,5 @@ def render_datetime(datetime_):
     else:
         return ''
 
+def stringbool(string):
+    return string.lower() not in ["false", "f", "no", "n", "none", "0", "[]", "{}", ""]
