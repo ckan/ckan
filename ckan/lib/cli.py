@@ -23,7 +23,9 @@ class CkanCommand(paste.script.command.Command):
             msg = 'No config file supplied'
             raise self.BadCommand(msg)
         self.filename = os.path.abspath(self.options.config)
-        fileConfig(self.filename)
+        try:
+            fileConfig(self.filename)
+        except Exception: pass
         conf = appconfig('config:' + self.filename)
         load_environment(conf.global_conf, conf.local_conf)
         

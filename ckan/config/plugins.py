@@ -35,7 +35,8 @@ def find_methods(method_name):
         if hasattr(v, method_name):
             yield getattr(v, method_name)
         else:
-            log.debug("%s has no method %s" % (k.name, method_name))
+            pass
+            #log.debug("%s has no method %s" % (k.name, method_name))
 
 
 
