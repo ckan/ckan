@@ -8,8 +8,9 @@ import ckan.model as model
 from ckan.tests import *
 import ckan.lib.importer as importer
 import ckan.lib.dumper as dumper
+from pylons import config
 
-TEST_FILES_DIR = 'ckan/tests/misc/'
+TEST_FILES_DIR = os.path.join(config['here'], 'ckan/tests/misc/')
 TEST_FILE_FULL = 'test_importer_full'
 TEST_FILE_EXAMPLE = 'test_importer_example'
 XL_EXTENSION = '.xls'
