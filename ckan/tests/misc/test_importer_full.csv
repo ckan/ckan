@@ -1,5 +1,5 @@
-"name","title","version","resource-1-url","resource-0-url","resource-1-format","maintainer","license","author","author_email","resource-1-description","notes","original media","resource-0-description","maintainer_email","url","state","groups","genre","tags","resource-0-format"
-"annakarenina","A Novel By Tolstoy","0.7a","http://www.annakarenina.com/index.json","http://www.annakarenina.com/download/x=1&y=2","json","","OKD Compliant::Other","","","Index of the novel","Some test notes
+"name","title","version","url","author","author_email","maintainer","maintainer_email","notes","state","license","tags","groups","ckan_url","relationships","genre","original media","resource-0-url","resource-0-format","resource-0-description","resource-0-hash","resource-1-url","resource-1-format","resource-1-description","resource-1-hash"
+"annakarenina","A Novel By Tolstoy","0.7a","http://www.annakarenina.com","","","","","Some test notes
 
 ### A 3rd level heading
 
@@ -9,11 +9,13 @@
 
 Foreign characters:
 u with umlaut ü
-
+66-style quote “
+foreign word: thümb
+ 
 Needs escaping:
 left arrow <
 
 <http://ckan.net/>
 
-","book","Full text. Needs escaping: "" Umlaut: ü","","http://www.annakarenina.com","active","david roger","romantic novel","russian tolstoy","plain text"
-"warandpeace","A Wonderful Story","","","","","","","","","","","","","","","active","david","","russian",""
+","active","OKD Compliant::Other (Open)","russian tolstoy","david roger","http://test.ckan.net/package/annakarenina","","romantic novel","book","http://www.annakarenina.com/download/x=1&y=2","plain text","Full text. Needs escaping: "" Umlaut: ü","abc123","http://www.annakarenina.com/index.json","json","Index of the novel","def456"
+"warandpeace","A Wonderful Story","","","","","","","","active","","russian","david","http://test.ckan.net/package/warandpeace","","","","","","","","","","",""

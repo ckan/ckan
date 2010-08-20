@@ -71,6 +71,13 @@ class CreateTestData(cli.CkanCommand):
                          relationships=[], extra_user_names=[],
                          extra_group_names=[],
                          commit_changesets=False):
+        '''Creates packages and a few extra objects as well at the
+        same time if required.
+        @param package_dicts - a list of dictionaries with the package
+                               properties
+        @param extra_group_names - a list of group names to create. No
+                               properties get set though.
+        '''
         assert isinstance(relationships, (list, tuple))
         assert isinstance(extra_user_names, (list, tuple))
         assert isinstance(extra_group_names, (list, tuple))
@@ -213,6 +220,30 @@ class CreateTestData(cli.CkanCommand):
         if commit_changesets:
             from ckan.model.changeset import ChangesetRegister
             changeset_ids = ChangesetRegister().commit()
+
+    @classmethod
+    def create_groups(self, group_dicts, admin_user_name):
+        '''A more featured interface for creating groups.
+        All group fields can be filled, packages added and they can
+        have an admin user.'''
+        import ckan.model as model
+        admin_user = model.User.by_name(admin_user_name)
+        assert isinstance(group_dicts, (list, tuple))
+        for group_dict in group_dicts:
+            group = model.Group(name=unicode(group_dict['name']))
+            for key in ('title', 'description'):
+                if group_dict.has_key(key):
+                    setattr(group, key, group_dict[key])
+            pkg_names = group_dict.get('packages', [])
+            assert isinstance(pkg_names, (list, tuple))
+            for pkg_name in pkg_names:
+                pkg = model.Package.by_name(unicode(pkg_name))
+                assert pkg, pkg_name
+                pkg.groups.append(group)
+            model.Session.add(group)
+            model.setup_default_user_roles(group, [admin_user])
+            self.group_names.add(group_dict['name'])
+        model.repo.commit_and_remove()
 
     @classmethod
     def create(self, commit_changesets=False):

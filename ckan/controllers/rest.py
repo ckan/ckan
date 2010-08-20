@@ -568,4 +568,3 @@ class RestController(BaseRestController):
         msg_data['download_url'] = package.resources[0].url if package.resources else ''
         return msg_data
 
-

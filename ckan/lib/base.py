@@ -23,6 +23,7 @@ PAGINATE_ITEMS_PER_PAGE = 50
 
 def render(template_name, extra_vars=None, cache_key=None, cache_type=None, 
            cache_expire=None, method='xhtml'):
+    
     def render_template():
         globs = extra_vars or {}
         globs.update(pylons_globals())
@@ -35,10 +36,17 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         
         return literal(stream.render(method=method, encoding=None))
     
-    return render_template()
-	#return cached_template(template_name, render_template, cache_key=cache_key,
-	#                       cache_type=cache_type, cache_expire=cache_expire,
-	#                       ns_options=('method'), method=method)
+    if 'Pragma' in response.headers:
+        del response.headers["Pragma"]
+    if cache_key is not None or cache_type is not None:
+        response.headers["Cache-Control"] = "public"  
+    
+    if cache_expire is not None:
+        response.headers["Cache-Control"] = "max-age=%s, must-revalidate" % cache_expire
+    
+    return cached_template(template_name, render_template, cache_key=cache_key, 
+                           cache_type=cache_type, cache_expire=cache_expire)
+                           #, ns_options=('method'), method=method)
 
 
 class ValidationException(Exception):
@@ -118,9 +126,9 @@ class BaseController(WSGIController):
         apikey = request.environ.get('HTTP_AUTHORIZATION', '')
         if not apikey:
             apikey = request.environ.get('Authorization', '')
-        self.log.debug("Received API Key: %s" % apikey)
         if not apikey:
             return None
+        self.log.debug("Received API Key: %s" % apikey)
         apikey = unicode(apikey)
         query = model.Session.query(model.User)
         user = query.filter_by(apikey=apikey).first()

@@ -9,15 +9,18 @@ from core import *
 from license import License, LicenseRegister
 from domain_object import DomainObject
 
-__all__ = ['Package', 'package_table', 'package_revision_table']
+__all__ = ['Package', 'package_table', 'package_revision_table',
+           'PACKAGE_NAME_MAX_LENGTH', 'PACKAGE_VERSION_MAX_LENGTH']
 
+PACKAGE_NAME_MAX_LENGTH = 100
+PACKAGE_VERSION_MAX_LENGTH = 100
 ## Our Domain Object Tables
-
 package_table = Table('package', metadata,
         Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
-        Column('name', types.Unicode(100), unique=True, nullable=False),
+        Column('name', types.Unicode(PACKAGE_NAME_MAX_LENGTH),
+               unique=True, nullable=False),
         Column('title', types.UnicodeText),
-        Column('version', types.Unicode(100)),
+        Column('version', types.Unicode(PACKAGE_VERSION_MAX_LENGTH)),
         Column('url', types.UnicodeText),
         Column('author', types.UnicodeText),
         Column('author_email', types.UnicodeText),
@@ -133,8 +136,12 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         # Set 'license' in _dict to cater for old clients.
         # Todo: Remove from Version 2?
         _dict['license'] = self.license.title if self.license else _dict.get('license_id', '')
-        _dict['tags'] = [tag.name for tag in self.tags]
-        _dict['groups'] = [getattr(group, ref_group_by) for group in self.groups]
+        tags = [tag.name for tag in self.tags]
+        tags.sort() # so it is determinable
+        _dict['tags'] = tags
+        groups = [getattr(group, ref_group_by) for group in self.groups]
+        groups.sort()
+        _dict['groups'] = groups
         _dict['extras'] = dict([(key, value) for key, value in self.extras.items()])
         _dict['ratings_average'] = self.get_average_rating()
         _dict['ratings_count'] = len(self.ratings)
