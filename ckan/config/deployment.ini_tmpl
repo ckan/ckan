@@ -86,8 +86,11 @@ carrot_messaging_library = queue
 
 ## Update the search index synchronously (i.e. in-process rather than
 ## out-of-process as would be case if using AMQP framework)
-## Set to any value to enable
-# ckan.build_search_index_synchronously = 1
+## Set to any value to enable, set to empty value to disable e.g.:
+## ckan.build_search_index_synchronously = 
+## Default enabled (so enabled if option entirely absent)
+ckan.build_search_index_synchronously = 1
+
 
 #ckan.site_title = CKAN
 ckan.site_url = http://www.ckan.net
