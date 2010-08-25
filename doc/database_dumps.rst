@@ -28,6 +28,7 @@ Edit your user's cron config::
  $ crontab -e
 
 Now add a line such as this::
+
  0 21 * * * /home/okfn/var/srvc/ckan.net/dump.sh
 
 
