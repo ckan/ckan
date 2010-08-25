@@ -202,7 +202,7 @@ class BaseRestController(BaseController):
             model.Session.rollback()
             raise
         obj = fs.model
-        location = "%s/%s" % (request.path, obj.id)
+        location = str('%s/%s' % (request.path, obj.id))
         response.headers['Location'] = location
         return self._finish_ok(obj.as_dict())
             
