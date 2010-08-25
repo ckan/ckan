@@ -981,10 +981,10 @@ class Load(CkanCommand):
         self._load_config()
         from ckan import model
 
-        cmd = self.args[0]
-        if cmd == 'bis':
+        data_type = self.args[0]
+        if data_type == 'bis':
             if len(self.args) != 4:
-                print 'Error: Wrong number of arguments for data type: %s' % cmd
+                print 'Error: Wrong number of arguments for data type: %s' % data_type
                 print self.usage
                 sys.exit(1)
             filepath, api_url, api_key = self.args[1:]
@@ -998,7 +998,7 @@ class Load(CkanCommand):
                 print log
             print '%i packages' % len(pkg_dicts)
             if pkg_dicts:
-                raw_input("Press any key to load")
+                raw_input('Press return to load packages')
 
                 # load them
                 from ckanclient import CkanClient
@@ -1006,9 +1006,21 @@ class Load(CkanCommand):
                 client = CkanClient(api_key=api_key, base_location=api_url,
                                     is_verbose=False)
                 loader = PackageLoader(client, unique_extra_field='external_reference')
-                num_loaded, num_errors = loader.load_packages(pkg_dicts)
+                res = loader.load_packages(pkg_dicts)
+                if res['num_errors'] == 0 and res['num_loaded']:
+                    print 'SUCCESS'
+                else:
+                    print '%i ERRORS' % res['num_errors']
+                print '%i package loaded' % res['num_loaded']
+
+                if res['num_loaded']:
+                    raw_input('Press return to add them to the ukgov group')
+
+                    # add them to the group
+                    loader.add_pkgs_to_group(res['pkg_names'], 'ukgov')
+                    print 'SUCCESS'
         else:
-            print 'Error: Command %r not recognised' % cmd
+            print 'Error: Data type %r not recognised' % data_type
             print self.usage
             sys.exit(1)
 
