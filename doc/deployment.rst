@@ -190,12 +190,9 @@ Now you can then do the deployment with something like::
 
   Whilst still in the ~/var/srvc/demo.ckan.net directory::
 
-    $ mkdir data
-    $ chmod g+w -R data
-    $ sudo chgrp -R www-data data
-    $ mkdir sstore
-    $ chmod g+w -R sstore
-    $ sudo chgrp -R www-data sstore
+    $ mkdir data sstore
+    $ chmod g+w -R data sstore
+    $ sudo chgrp -R www-data data sstore
     $ ln -s pyenv/src/ckan/who.ini ./
 
 
