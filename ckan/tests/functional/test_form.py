@@ -15,7 +15,8 @@ class BaseFormsApiCase(TestController):
     api_version = ''
     package_name = u'formsapi'
     package_name_alt = u'formsapialt'
-    apikey_header_name = 'X-CKAN-API-Key'
+    #apikey_header_name = 'X-CKAN-API-Key'
+    apikey_header_name = config.get('apikey_header_name', 'X-CKAN-API-Key')
 
     def setup(self):
         self.user = self.get_user_by_name(u'tester')

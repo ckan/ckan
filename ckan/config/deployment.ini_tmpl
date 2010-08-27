@@ -60,6 +60,9 @@ rdf_packages =
 # Package form to use
 package_form = standard
 
+# API configuration
+#apikey_header_name = X-CKAN-API-Key
+
 # Changeset configuration
 #changeset.auto_commit = true
 #changeset.sources = http://www.ckan.net/,

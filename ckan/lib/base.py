@@ -21,6 +21,8 @@ import os
 
 PAGINATE_ITEMS_PER_PAGE = 50
 
+APIKEY_HEADER_NAME_KEY = 'apikey_header_name'
+APIKEY_HEADER_NAME_DEFAULT = 'X-CKAN-API-Key'
 
 def render(template_name, extra_vars=None, cache_key=None, cache_type=None, 
            cache_expire=None, method='xhtml'):
@@ -129,13 +131,18 @@ class BaseController(WSGIController):
             return entity
 
     def _get_user_for_apikey(self):
-        apikey = request.headers.get('X-CKAN-API-Key', '')
+        apikey_header_name = config.get(APIKEY_HEADER_NAME_KEY, APIKEY_HEADER_NAME_DEFAULT)
+        apikey = request.headers.get(apikey_header_name, '')
         if not apikey:
-            apikey = request.environ.get('X-CKAN-API-Key', '')
+            apikey = request.environ.get(apikey_header_name, '')
         if not apikey:
+            # For misunderstanding old documentation (now fixed).
             apikey = request.environ.get('HTTP_AUTHORIZATION', '')
         if not apikey:
             apikey = request.environ.get('Authorization', '')
+            # Forget HTTP Auth credentials (they have spaces).
+            if ' ' in apikey:
+                apikey = ''
         if not apikey:
             return None
         self.log.debug("Received API Key: %s" % apikey)
