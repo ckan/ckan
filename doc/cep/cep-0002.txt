@@ -1,0 +1,39 @@
+CEP: 2
+Title: API Versioning
+Version: 1.0b
+Last-Modified: 2010-05-27
+Author: Rufus Pollock <rufus.pollock@okfn.org>
+Status: Active
+Created: 2010-05-04
+
+API versioning
+==============
+
+In making the API available for public consumption we have the challenge
+of handling changes (include backwards-breaking changes) in as graceful
+manner as possile.
+
+To do this it is proposed that the API be "versioned" so that users of
+an existing API can be supported through an upgrade to a new (and
+possibly incompatible) API.
+
+We propose to have the following basic URI scheme::
+
+  .../api/{version}/*
+
+For example::
+
+  /api/{version}/1.0/
+
+Deprecation and removal of APIs:
+
+  * As new versions of the API become available it may be necessary to
+    deprecate, and then remove, a particular version of the API.
+  * Current supported versions of the API will be clearly marked in the
+    documentation. API versions scheduled for removal will first be
+    deprecated for a reasonable period prior to removal allowing clients
+    time to transition.
+  * In addition components of an API scheduled for change or removal
+    will be clearly marked as such -- following the standard approach
+    for software API documentation.
+

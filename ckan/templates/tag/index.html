@@ -1,12 +1,14 @@
 <html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude">
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
   
-  <py:def function="page_title">Tags - Index</py:def>
+  <py:def function="page_title">Tags</py:def>
 
   <div py:match="content">
     <h2>Tags</h2>
 
-    <form action="" method="GET">
+    <form id="tag-search" action="" method="GET">
       <input type="text" id="q" name="q" value="${c.q}" />
       <input type="submit" name="search" value="Search &raquo;" />
     </form>
@@ -15,10 +17,10 @@
     
     <p>
       <py:choose test="">
-        <py:when test="c.q">
+        <py:when test="c.q" i18n:msg="item_count, tagname">
           There are <strong>${c.page.item_count}</strong> results for &lsquo;<strong>${c.q.strip()}</strong>&rsquo;.
         </py:when>
-        <py:otherwise>
+        <py:otherwise i18n:msg="item_count">
           There are <strong>${c.page.item_count}</strong> results for tags.
         </py:otherwise>
       </py:choose>
@@ -29,7 +31,7 @@
     ${c.page.pager(q=c.q)}
     
     <p py:if="c.q">
-      ${h.link_to('Clear search', h.url_for(controller='tag', action='index', id=None))} and see all tags.
+      ${h.link_to(_('Clear search'), h.url_for(controller='tag', action='index', id=None))} and see all tags.
     </p>
     
   </div>

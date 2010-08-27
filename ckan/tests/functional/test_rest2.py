@@ -1,28 +1,33 @@
-from ckan.tests.functional.test_rest import BaseRestCase, BaseSearchCase
+from ckan.tests.functional.test_rest import ApiTestCase
+from ckan.tests.functional.test_rest import ModelApiTestCase
+from ckan.tests.functional.test_rest import RelationshipsApiTestCase
+from ckan.tests.functional.test_rest import SearchApiTestCase
+from ckan.tests.functional.test_rest_resource_search import SearchResourceApiTestCase
+from ckan.tests.functional.test_rest import MiscApiTestCase
 
 # For CKAN API Version 2.
-class TestRest2(BaseRestCase):
-
+class Api2TestCase(ApiTestCase):
     api_version = '2'
+    ref_package_by = 'id'
+    ref_group_by = 'id'
 
-    def assert_package_refs(self, res):
-        assert self.anna.id in res, res
-        assert self.war.id in res, res
-
-    def assert_revision_packages(self, packages):
-        assert isinstance(packages, list)
-        assert len(packages) != 0, "Revision packages is empty: %s" % packages
-        assert self.anna.id in packages, packages
-        assert self.war.id in packages, packages
+    def assert_msg_represents_anna(self, msg):
+        super(Api2TestCase, self).assert_msg_represents_anna(msg)
+        assert 'download_url' not in msg, msg
 
 
-# For CKAN API Version 2.
-class TestSearch2(BaseSearchCase):
+class TestModelApi2(ModelApiTestCase, Api2TestCase):
+    pass
 
-    api_version = '2'
+class TestRelationshipsApi2(RelationshipsApiTestCase, Api2TestCase):
+    pass
 
-    def assert_package_search_results(self, results, names=[u'testpkg']):
-        for name in names:
-            package = self.get_package_by_name(name)
-            assert package.id in results, (package.id, results)
+class TestSearchApi2(SearchApiTestCase, Api2TestCase):
+    pass
+
+class TestSearchResourceApi2(SearchResourceApiTestCase, Api2TestCase):
+    pass
+
+class TestMiscApi2(MiscApiTestCase, Api2TestCase):
+    pass
 

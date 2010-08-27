@@ -1,9 +1,11 @@
+from sqlalchemy.util import OrderedDict
 from sqlalchemy.ext.orderinglist import ordering_list
 import vdm.sqlalchemy
 
 from meta import *
 from types import make_uuid
-from core import DomainObject, Package, package_table, Revision, State
+from core import *
+from package import *
 from ckan.lib.helpers import json
 
 __all__ = ['PackageResource', 'package_resource_table',
@@ -34,12 +36,18 @@ class PackageResource(vdm.sqlalchemy.RevisionedObjectMixin,
         self.description = description
         self.hash = hash
 
-    @property
-    def as_dict(self):
-        return dict([(col, getattr(self, col)) for col in self.get_columns()])
+    def as_dict(self, core_columns_only=False):
+        _dict = OrderedDict()
+        cols = self.get_columns()
+        if not core_columns_only:
+            cols = ['id', 'package_id'] + cols + ['position']
+        for col in cols:
+            _dict[col] = getattr(self, col)
+        return _dict
         
     @staticmethod
     def get_columns():
+        '''Returns the core editable columns of the resource.'''
         return ['url', 'format', 'description', 'hash']
 
 mapper(PackageResource, package_resource_table, properties={
@@ -53,7 +61,9 @@ mapper(PackageResource, package_resource_table, properties={
                        )
     },
     order_by=[package_resource_table.c.package_id],
-    extension = vdm.sqlalchemy.Revisioner(resource_revision_table)       
+    extension=[vdm.sqlalchemy.Revisioner(resource_revision_table),
+               notifier.NotifierMapperTrigger(),
+               ],
 )
     
 vdm.sqlalchemy.modify_base_object_mapper(PackageResource, Revision, State)
@@ -82,7 +92,7 @@ def add_stateful_m21(object_to_alter, m21_property_name,
     setattr(object_to_alter, m21_property_name, active_list)
 
 def package_resource_identifier(obj):
-    return json.dumps(obj.as_dict)
+    return json.dumps(obj.as_dict(core_columns_only=True))
 add_stateful_m21(Package, 'resources', 'package_resources_all',
                  package_resource_identifier)
 

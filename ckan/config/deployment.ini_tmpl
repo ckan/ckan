@@ -79,6 +79,19 @@ package_form = standard
 #package_new_return_url = http://another.frontend/package/<NAME>
 
 
+# Messaging module used by carrot:
+# * pyamqplib - AMQP (e.g. for RabbitMQ)
+# * queue - native Python Queue
+carrot_messaging_library = queue
+
+## Update the search index synchronously (i.e. in-process rather than
+## out-of-process as would be case if using AMQP framework)
+## Set to any value to enable
+# ckan.build_search_index_synchronously = 1
+
+#ckan.site_title = CKAN
+ckan.site_url = http://www.ckan.net
+
 # Logging configuration
 [loggers]
 keys = root

@@ -106,6 +106,31 @@ h1, h2, h3, h4, h5, h6 {
 	-webkit-border-radius: 0.5em;
 }
 
+/* ================ */
+/* = Search boxes = */
+/* ================ */
+
+input.search {
+  width: 30em;
+}
+
+#top-bar form.package-search {
+  display: inline;
+}
+
+#top-bar form.package-search input.search {
+  background: white url(/images/icons/magnifier.png) no-repeat 2px center;
+  width: 150px;
+  height: 22px;
+  padding-left: 19px;
+}
+
+form.package-search p {
+  margin-bottom: 0;
+  margin-left: 1em;
+  font-style: italic;
+}
+
 /* ========================================= */
 /* = Changes/additions to kforge forms.css = */
 /* ========================================= */

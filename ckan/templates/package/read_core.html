@@ -5,7 +5,7 @@
   <xi:include href="../_util.html" />
 
   <div class="package">
-    <p style="float: right"><a href="?format=atom"><img style="height:16; width:16; margin-bottom:-0.3em" src="/images/icons/atom_feed.png" alt="Atom Feed" title="Package history"/></a> <a href="/package/history/${c.pkg.name}?format=atom&amp;days=7">Subscribe &raquo;</a></p>
+    <p style="float: right"><a href="?format=atom"><img style="height:16; width:16; margin-bottom:-0.3em" src="/images/icons/atom_feed.png" alt="Atom Feed" title="${g.site_title} - Package History - ${c.pkg.name}"/></a> <a href="/package/history/${c.pkg.name}?format=atom&amp;days=7">Subscribe &raquo;</a></p>
     <h2 class="head">
       ${c.pkg.title}
       <span class="name">(${c.pkg.name})</span>
@@ -36,7 +36,7 @@
       <table py:when="c.pkg.resources">
         <tr><th>URL</th><th>Format</th><th>Description</th><th>Hash</th></tr>
         <py:for each="res in c.pkg.resources">
-          <tr><td><a href="${res.url}">Download</a></td><td>${res.format}</td><td>${res.description}</td><td>${res.hash}</td></tr>
+          <tr><td><a href="${res.url}" target="_blank">Download</a></td><td>${res.format}</td><td>${res.description}</td><td>${res.hash}</td></tr>
         </py:for>
       </table>
       <table py:otherwise=""><tr><th>Resources</th><td>None given for this package.</td></tr></table>

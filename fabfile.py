@@ -64,7 +64,7 @@ def config_staging_hmg_ckan_net():
     env.user = 'ckan1'
     env.base_dir = '/home/%s' % env.user
     env.cmd_pyenv = os.path.join(env.base_dir, 'ourenv')
-    env.ckan_instance_name = 'staging.hmg.ckan.net'
+    env.ckan_instance_name = 'staging.hmg2.ckan.net'
     env.pip_requirements = 'pip-requirements-stable.txt'
 
 def config_test_hmg_ckan_net():
@@ -72,24 +72,42 @@ def config_test_hmg_ckan_net():
     env.ckan_instance_name = 'test.hmg.ckan.net'
     env.hosts = ['ssh.' + env.ckan_instance_name]
 
-def config_hmg_ckan_net_1(db_pass=None):
+def config_hmg_ckan_net_1():
+    env.user = 'ckan1'
+    env.base_dir = '/home/%s' % env.user
+    env.cmd_pyenv = os.path.join(env.base_dir, 'ourenv')
+    env.no_sudo = None
+    env.ckan_instance_name = 'hmg.ckan.net'
+    env.hosts = ['ssh.hmg.ckan.net']
+    env.wsgi_script_filepath = None # os.path.join(env.base_dir, 'hmg.ckan.net/pyenv/bin/pylonsapp_modwsgi.py')
+    env.pip_requirements = 'pip-requirements-stable.txt'
+
+def config_hmg_ckan_net_2():
+    config_hmg_ckan_net_1()
+    env.ckan_instance_name = 'hmg.ckan.net.2'
+    env.hosts = ['ssh.hmg.ckan.net']
+    env.config_ini_filename = 'hmg.ckan.net.ini'
+
+def config_hmg2_ckan_net_1(db_pass=None):
     env.user = 'okfn'
     env.hosts = ['hmg2.ckan.net']
+    env.base_dir = '/home/%s/var/srvc' % env.user
 #    env.wsgi_script_filepath = os.path.join(env.base_dir, 'pylonsapp_modwsgi.py')
     env.pip_requirements = 'pip-requirements.txt'
     env.db_pass = db_pass
-    env.ckan_instance_name = 'hmg.ckan.net.1'
-    env.config_ini_filename = 'hmg.ckan.net.ini'
+    env.ckan_instance_name = 'hmg2.ckan.net.1'
+    env.config_ini_filename = 'hmg2.ckan.net.ini'
+    env.log_filename_pattern = 'hmg2.ckan.net.%s.log'
 
-def config_hmg_ckan_net_2(db_pass=None):
-    config_hmg_ckan_net_1(db_pass)
-    env.ckan_instance_name = 'hmg.ckan.net.2'
+def config_hmg2_ckan_net_2(db_pass=None):
+    config_hmg2_ckan_net_1(db_pass)
+    env.ckan_instance_name = 'hmg2.ckan.net.2'
 
-def config_hmg_ckan_net():
+def config_hmg2_ckan_net():
     # i.e. whichever instance is current
-    config_hmg_ckan_net_1()
-    env.ckan_instance_name = 'hmg.ckan.net.current'
-    env.switch_between_ckan_instances = ['hmg.ckan.net.1', 'hmg.ckan.net.2']
+    config_hmg2_ckan_net_1()
+    env.ckan_instance_name = 'hmg2.ckan.net.current'
+    env.switch_between_ckan_instances = ['hmg2.ckan.net.1', 'hmg2.ckan.net.2']
 
 def config_test_ckan_net():
     config_0('test.ckan.net', requirements='pip-requirements.txt')
@@ -115,6 +133,7 @@ def config_0(name, hosts_str='', requirements='pip-requirements-metastable.txt',
     env.config_ini_filename = '%s.ini' % name
     env.pip_requirements = requirements
     env.db_pass = db_pass
+    env.log_filename_pattern = name + '.%s.log'
     
 def _setup():
     def _default(key, value):
@@ -222,7 +241,7 @@ def setup_db(db_details=None):
         db_details = _get_db_config()
     dbname = db_details['db_name']
     output = sudo('psql -l', user='postgres')
-    if dbname in output:
+    if ' %s ' % dbname in output:
         print 'DB already exists with name: %s' % dbname
         return 0
     users = sudo('psql -c "\du"', user='postgres')
@@ -333,7 +352,13 @@ def upload_i18n(lang):
     _setup()
     localpath = 'ckan/i18n/%s/LC_MESSAGES/ckan.mo' % lang
     remotepath = os.path.join(env.pyenv_dir, 'src', 'ckan', localpath)
+    assert exists(env.pyenv_dir)
+    remotedir = os.path.dirname(remotepath)
+    _mkdir(remotedir)
     put(localpath, remotepath)
+    current_lang = _get_ini_value('lang')
+    if current_lang != lang:
+        print "Warning: current language set to '%s' not '%s'." % (current_lang, lang)
 
 def sysadmin_list():
     '''Lists sysadmins'''
@@ -349,33 +374,42 @@ def sysadmin_create(open_id):
         _run_in_pyenv('paster --plugin ckan sysadmin create %s --config %s' % (open_id, env.config_ini_filename))
 
 def switch_instance():
-    '''For dual instance servers, switches the one that is active.'''
+    '''For multiple instance servers, switches the one that is active.'''
     _setup()
-    if not env.has_key('switch_between_ckan_instances'):
-        print 'CKAN instance "%s" is not switchable.' % env.ckan_instance_name
-        sys.exit(1)
+    current_instance = _get_current_instance()
     # check existing symbolic link
-    if exists(env.ckan_instance_name):
-        output = run('ls %s -l' % env.ckan_instance_name)
-        ignore, current_instance = output.split(' -> ')
-        assert current_instance in env.switch_between_ckan_instances, \
-            'Instance "%s" not in list of switchable instances.' \
-            % current_instance
-        next_instance_index = (env.switch_between_ckan_instances.index(current_instance) + 1) % len(env.switch_between_ckan_instances)
-        # delete existing symbolic link
-        run('rm %s' % env.ckan_instance_name)
-    else:
-        next_instance_index = 0
-    next_instance = env.switch_between_ckan_instances[next_instance_index]
-    run('ln -s %s %s' % (next_instance, env.ckan_instance_name))
+    with cd(env.base_dir):
+        if current_instance:
+            next_instance_index = (env.switch_between_ckan_instances.index(current_instance) + 1) % len(env.switch_between_ckan_instances)
+            # delete existing symbolic link
+            run('rm %s' % env.ckan_instance_name)
+        else:
+            next_instance_index = 0
+        next_instance = env.switch_between_ckan_instances[next_instance_index]
+        run('ln -s %s %s' % (next_instance, env.ckan_instance_name))
     # restart apache
     restart_apache()
+    print 'Current instance changed %s -> %s' % (current_instance, next_instance)
 
-def log(cmd='tail', filename='error'):
-    '''Displays the log.
-    @filename error or custom'''
+def log(cmd='tail', log='error'):
+    '''Displays the apache log.
+    @log - error or custom'''
     #todo make this more flexible
-    run('%s /var/log/apache2/ckan.net.%s.log' % (cmd, filename))
+    filename = env.log_filename_pattern % log
+    run_func = run if hasattr(env, 'no_sudo') else sudo
+    run_func('%s /var/log/apache2/%s' % (cmd, filename))
+
+def current():
+    '''Tells you which instance is current for switchable instances'''
+    assert env.switch_between_ckan_instances
+    current_instance = _get_current_instance()
+    print 'Current instance is: %s' % current_instance
+    if len(env.switch_between_ckan_instances) == 2:
+        current_instance_index = env.switch_between_ckan_instances.index(current_instance)
+        reserve_instance_index = (current_instance_index + 1) % 2
+        env.ckan_instance_name = env.switch_between_ckan_instances[reserve_instance_index]
+        print 'Reserve instance is: %s' % env.ckan_instance_name
+
 
 ## ===================================
 #  Helper Methods
@@ -405,7 +439,11 @@ def _get_ini_value(key, ini_filepath=None):
         # default to config ini
         ini_filepath = os.path.join(env.instance_path, env.config_ini_filename)
     assert exists(ini_filepath)
-    output = run('grep -E "^%s" %s' % (key, ini_filepath))
+    with settings(warn_only=True):
+        output = run('grep -E "^%s" %s' % (key, ini_filepath))
+    if output == '':
+        print 'Did not find key "%s" in config.' % key
+        return None
     lines = output.split('\n')
     assert len(lines) == 1, 'Difficulty finding key %s in config %s:\n%s' % (key, ini_filepath, output)
     value = re.match('^%s[^=]=\s*(.*)' % key, lines[0]).groups()[0]
@@ -492,6 +530,22 @@ def _upload_template_buffer(template, destination, context=None, use_sudo=False)
         func("cp %s %s.bak" % (to_backup, to_backup))
     # Actually move uploaded template to destination
     func("mv %s %s" % (temp_destination, destination))
+
+def _get_current_instance():
+    '''For switchable instances, returns the current one in use.'''
+    if not env.has_key('switch_between_ckan_instances'):
+        print 'CKAN instance "%s" is not switchable.' % env.ckan_instance_name
+        sys.exit(1)
+    with cd(env.base_dir):
+        if exists(env.ckan_instance_name):
+            current_instance = run('python -c "import os; assert os.path.islink(\'%s\'); print os.path.realpath(\'%s\')"' % (os.path.join(env.base_dir, env.ckan_instance_name), env.ckan_instance_name))
+            current_instance = current_instance.replace(env.base_dir + '/', '')
+            assert current_instance in env.switch_between_ckan_instances, \
+                   'Instance "%s" not in list of switchable instances.' \
+                   % current_instance
+        else:
+            current_instance = None
+    return current_instance
 
 wsgi_script = """
 import os

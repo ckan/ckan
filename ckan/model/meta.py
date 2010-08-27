@@ -10,6 +10,8 @@ from sqlalchemy.types import *
 from sqlalchemy.orm import scoped_session, sessionmaker, create_session
 from sqlalchemy.orm import relation, backref
 
+import notifier
+
 # __all__ = ['Session', 'engine', 'metadata', 'mapper']
 
 # SQLAlchemy database engine. Updated by model.init_model()
@@ -19,6 +21,7 @@ engine = None
 Session = scoped_session(sessionmaker(
     autoflush=True,
     transactional=True,
+    extension=notifier.NotifierSessionTrigger(),
     ))
 
 #mapper = Session.mapper

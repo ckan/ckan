@@ -91,11 +91,11 @@ class TestGroupEditAuthz(TestController):
         assert prs.has_key('visitor')
         assert prs.has_key('logged_in')
         assert prs.has_key(self.admin), prs
-        form = res.forms[0]
+        form = res.forms['group-authz']
         
         # change role assignments
         form.select(_r(prs['visitor']), model.Role.EDITOR)
-        res = form.submit('commit', extra_environ={'REMOTE_USER': self.admin})
+        res = form.submit('save', extra_environ={'REMOTE_USER': self.admin})
 
         model.Session.remove()
         prs = self._prs(self.groupname)
@@ -140,11 +140,11 @@ class TestGroupEditAuthz(TestController):
         assert 'Create New User Roles' in res
         assert '<select id="GroupRole--user_id"' in res, res
         assert '<td>madeup-administrator</td>' not in res, res
-        form = res.forms[0]
+        form = res.forms['group-authz']
         another = model.User.by_name(self.another)
         form.select('GroupRole--user_id', another.id)
         form.select('GroupRole--role', model.Role.ADMIN)
-        res = form.submit('commit', extra_environ={'REMOTE_USER': self.admin})
+        res = form.submit('save', extra_environ={'REMOTE_USER': self.admin})
         model.Session.remove()
 
         prs = self._prs(self.groupname)

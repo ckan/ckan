@@ -1,7 +1,9 @@
 <html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude">
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
   
-  <py:def function="page_title">Packages - List</py:def>
+  <py:def function="page_title">Browse - Data Packages</py:def>
 
   <py:match path="primarysidebar">
     <div class="box">
@@ -18,7 +20,7 @@
         <dd>No resources listed</dd>
       </dl>
       <hr />
-      <p class="okdstripe">
+      <p class="okdstripe" i18n:msg="">
         Packages with a blue stripe satisfy the OKFN's 
         <a href="http://www.opendefinition.org/1.0/">Open Knowledge Definition.</a>
       </p>
@@ -29,7 +31,7 @@
   </py:match>
 
   <div py:match="content">
-    <h2>Packages</h2>
+    <h2>Data Packages</h2>
     ${c.page.pager()}
     ${package_list(c.page.items)}
     ${c.page.pager()}

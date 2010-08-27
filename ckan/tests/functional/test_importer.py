@@ -76,7 +76,7 @@ class _TestImporter(TestController):
         return res
         
     def _import(self, res, log_message, username=DEFAULT_USER, status=None):
-        form = res.forms[0]
+        form = res.forms['import']
         form['log_message'] = log_message
         extra_environ = {'REMOTE_USER':username} if username else {}
         res = form.submit('import', extra_environ=extra_environ,
