@@ -59,21 +59,6 @@
     </py:for>
   </table>
 
-  <py:def function="linked_user(username)">
-          <?python
-            from ckan import model
-            user = model.User.by_name(unicode(username))
-          ?>
-          ${
-            h.link_to(username,
-              h.url_for(
-                controller='user',
-                action='read',
-                id=user.id),
-              ) if user else username
-          }
-  </py:def>
-
   <!--! Package openness icons -->
   <img py:def="package_license_icon(package)"
     src="/images/icons/door_${'open' if package.isopen() else 'grey'}.png"
