@@ -19,6 +19,12 @@ from ckan.lib.helpers import json
 import ckan.model as model
 import os
 
+
+# nuke cache
+from pylons import cache
+cache.clear()
+
+
 PAGINATE_ITEMS_PER_PAGE = 50
 
 APIKEY_HEADER_NAME_KEY = 'apikey_header_name'

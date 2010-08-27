@@ -87,11 +87,13 @@ class RevisionController(BaseController):
             c.show_purge_links = self._has_purge_permissions()
                         
             from ckan.lib.helpers import Page
-
+            
+            query = model.Session.query(model.Revision)
+            
             c.page = Page(
-                collection=model.Session.query(model.Revision),
+                collection=query,
                 page=request.params.get('page', 1),
-                items_per_page=50
+                items_per_page=20
             )
             
             return render('revision/list.html')
@@ -99,6 +101,10 @@ class RevisionController(BaseController):
     def read(self, id=None):
         if id is None:
             h.redirect_to(controller='revision', action='list')
+        
+        cache_key = str(hash(id))
+        etag_cache(cache_key)    
+        
         c.revision = model.Session.query(model.Revision).get(id)
         if c.revision is None:
             abort(404)
@@ -106,7 +112,7 @@ class RevisionController(BaseController):
         c.packages = [ pkg.continuity for pkg in pkgs ]
         pkgtags = model.Session.query(model.PackageTagRevision).filter_by(revision=c.revision)
         c.pkgtags = [ pkgtag.continuity for pkgtag in pkgtags ]
-        return render('revision/read.html')
+        return render('revision/read.html', cache_key=cache_key)
 
     def diff(self, id=None):
         if 'diff' not in request.params or 'oldid' not in request.params:

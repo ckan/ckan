@@ -77,4 +77,4 @@ def load_environment(global_conf, app_conf):
         search.setup_synchronous_indexing()
 
     import ckan.lib.async_notifier as async_notifer
-
+    

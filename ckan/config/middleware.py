@@ -45,7 +45,7 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
     app = RoutesMiddleware(app, config['routes.map'])
     app = SessionMiddleware(app, config)
     app = CacheMiddleware(app, config)
-
+    
     # CUSTOM MIDDLEWARE HERE (filtered by error handling middlewares)
     #app = QueueLogMiddleware(app)
     
@@ -81,5 +81,5 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
                               extra_public_paths.split(',')] + static_parsers
             
         app = Cascade(static_parsers)
-
+    
     return app
