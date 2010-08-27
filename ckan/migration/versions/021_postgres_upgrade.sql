@@ -18,9 +18,9 @@ CREATE INDEX idx_pkg_slname ON package (lower(name),state);
 CREATE INDEX idx_pkg_suname ON package (upper(name),state);
 CREATE INDEX idx_pkg_srev_id ON package (revision_id,state);
 
-CREATE INDEX idx_pkg_rev_id ON package_revision (id);
-CREATE INDEX idx_pkg_rev_name ON package_revision (name);
-CREATE INDEX idx_pkg_rev_rev_id ON package_revision (revision_id);
+CREATE INDEX idx_pkg_revision_id ON package_revision (id);
+CREATE INDEX idx_pkg_revision_name ON package_revision (name);
+CREATE INDEX idx_pkg_revision_rev_id ON package_revision (revision_id);
 
 CREATE INDEX idx_rev_state ON revision (state);
 

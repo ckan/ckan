@@ -66,6 +66,7 @@ class Repository(vdm.sqlalchemy.Repository):
         # doing paster db clean && paster db upgrade !
         # self.upgrade_db()
         self.setup_migration_version_control(self.latest_migration_version())
+        self.create_indexes()
 
     def latest_migration_version(self):
         import migrate.versioning.api as mig
@@ -81,7 +82,19 @@ class Repository(vdm.sqlalchemy.Repository):
                     self.migrate_repository, version)
         except migrate.versioning.exceptions.DatabaseAlreadyControlledError:
             pass
-
+    
+    def create_indexes(self):
+        import os
+        from migrate.versioning.script import SqlScript
+        from sqlalchemy.exceptions import ProgrammingError
+        try:
+            path = os.path.join(self.migrate_repository, 'versions', '021_postgres_upgrade.sql')
+            script = SqlScript(path) 
+            script.run(meta.engine, step=None)
+        except ProgrammingError, e:
+            if not 'already exists' in repr(e):
+                raise
+    
     def upgrade_db(self, version=None):
         '''Upgrade db using sqlalchemy migrations.
 
