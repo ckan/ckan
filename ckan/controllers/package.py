@@ -1,6 +1,7 @@
 import logging
 import urlparse
 
+from sqlalchemy.orm import eagerload_all
 import genshi
 from pylons import config, cache
 from pylons.i18n import get_lang, _
@@ -25,6 +26,8 @@ class PackageController(BaseController):
 
     def list(self):
         query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
+        #query = query.options(eagerload_all('package_tags.tag'))
+        #query = query.options(eagerload_all('package_resources_all'))
         c.page = h.AlphaPage(
             collection=query,
             page=request.params.get('page', 'A'),
