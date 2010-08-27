@@ -1,5 +1,6 @@
 import datetime
 
+from sqlalchemy.orm import eagerload_all
 from pylons import config
 from meta import *
 import vdm.sqlalchemy
@@ -53,7 +54,10 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     @classmethod
     def get(cls, reference):
         '''Returns a package object referenced by its id or name.'''
-        pkg = Session.query(cls).get(reference)
+        query = Session.query(cls).filter(cls.id==reference)
+        query = query.options(eagerload_all('package_tags.tag'))
+        query = query.options(eagerload_all('package_resources_all'))
+        pkg = query.first()
         if pkg == None:
             pkg = cls.by_name(reference)            
         return pkg

@@ -1,5 +1,6 @@
 import genshi
 
+from sqlalchemy.orm import eagerload_all
 from ckan.lib.base import *
 import ckan.authz as authz
 import ckan.forms
@@ -14,6 +15,7 @@ class GroupController(BaseController):
         from ckan.lib.helpers import Page
 
         query = ckan.authz.Authorizer().authorized_query(c.user, model.Group)
+        query = query.options(eagerload_all('packages'))
         c.page = Page(
             collection=query,
             page=request.params.get('page', 1),
