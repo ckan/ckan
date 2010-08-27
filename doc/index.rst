@@ -28,6 +28,7 @@ Contents:
    authorization
    load_testing
    distributed
+   database_dumps
 
 
 Other material

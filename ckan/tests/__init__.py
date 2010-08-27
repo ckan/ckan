@@ -272,12 +272,12 @@ class TestController(object):
         process = subprocess.Popen(['paster', 'serve', config_path])
         return process
 
-    def _wait_for_url(self, url, timeout=15):
+    def _wait_for_url(self, url='http://127.0.0.1:5000/', timeout=15):
         for i in range(int(timeout)):
             import urllib2
             import time
             try:
-                response = urllib2.urlopen('http://127.0.0.1:5000/')
+                response = urllib2.urlopen(url)
             except urllib2.URLError:
                 pass 
                 time.sleep(1)

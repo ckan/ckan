@@ -57,6 +57,7 @@ Configure this if you have an RDF store of the same packages as are in your CKAN
 
 3. A visible RDF link on the page in the 'Alternative metadata formats' box. e.g. `<a href="http://semantic.ckan.net/package/pollution-2008">`
 
+
 enable_caching
 --------------
 
@@ -160,6 +161,7 @@ amqp_hostname, amqp_port, amqp_user_id, amqp_password
 -----------------------------------------------------
 
 Example::
+
  amqp_hostname=localhost
  amqp_port=5672
  amqp_user_id=guest
@@ -172,36 +174,52 @@ build_search_index_synchronously
 --------------------------------
 
 Example::
+
  ckan.build_search_index_synchronously=
 
 Default (if you don't define it)::
- 1
+ indexing is on
 
-This controls the operation of the CKAN Postgres full text search indexing. If you don't define this option then it is on by default. You will want to turn this off if you want to use a different search engine for CKAN (e.g. SOLR). In this case you need to define the option equal to blank (as in the given example).
+This controls the operation of the CKAN Postgres full text search indexing. If you don't define this option then indexing is on. You will want to turn this off if you want to use a different search engine for CKAN (e.g. SOLR). In this case you need to define the option equal to blank (as in the given example).
 
 
-search_backend, solr_url
-------------------------
-
-This will control the type of search backend and the configuration of solr, if selected. Valid values for ``search_backend`` are ``sql`` and ``solr``. Running solr will require a schema.xml file, such as the one
-in `the ckan-solr-index repository <http://bitbucket.org/pudo/ckan-solr-index>`_.
+search_backend
+--------------
 
 Example::
+
  search_backend = solr
+
+Default::
+
+ sql
+
+This controls the type of search backend. Currently valid values are ``sql`` (meaning Postgres full text search) and ``solr``. If you specify ``sql`` then ensure indexing is on (`build_search_index_synchronously`_ is not defined). If you specify ``solr`` then ensure you specify a `solr_url`_.
+
+
+solr_url
+--------
+
+Example::
+
  solr_url = http://solr.okfn.org/solr/test.ckan.net
  
-Optionally, ``solr_user`` and ``solr_password`` can be passed along to specify HTTP Basic authentication 
-details for all solr requests. 
+This configures SOLR search, (if selected with 'search_backend'_). Running solr will require a schema.xml file, such as the one
+in `the ckan-solr-index repository <http://bitbucket.org/pudo/ckan-solr-index>`_.
+
+Optionally, ``solr_user`` and ``solr_password`` can also be passed along to specify HTTP Basic authentication details for all solr requests. 
 
 
 site_title
 ----------
 
 Example::
+
  ckan.site_title=Open Data Scotland
 
 Default::
- CKAN - Comprehensive Knowledge Archive Network
+
+ CKAN
 
 This sets the name of the site.
 
@@ -210,9 +228,11 @@ site_logo
 ----------
 
 Example::
+
  ckan.site_logo=http://myregistry/logo.png
 
 Default::
+
  CKAN Text Logo, /images/ckan_logo_fullname_long.png
 
 This sets the logo used in the title bar.
@@ -222,9 +242,11 @@ site_url
 --------
 
 Example::
+
  ckan.site_url=http://scotdata.ckan.net
 
 Default::
+
  http://www.ckan.net
 
 The primary URL used by this site. 

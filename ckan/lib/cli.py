@@ -3,6 +3,7 @@ import sys
 import logging
 
 import paste.script
+from paste.script.util.logging_config import fileConfig
 
 class CkanCommand(paste.script.command.Command):
     parser = paste.script.command.Command.standard_parser(verbose=True)
@@ -22,8 +23,12 @@ class CkanCommand(paste.script.command.Command):
             msg = 'No config file supplied'
             raise self.BadCommand(msg)
         self.filename = os.path.abspath(self.options.config)
+        try:
+            fileConfig(self.filename)
+        except Exception: pass
         conf = appconfig('config:' + self.filename)
         load_environment(conf.global_conf, conf.local_conf)
+        
 
     def _setup_app(self):
         cmd = paste.script.appinstall.SetupCommand('setup-app') 
@@ -363,7 +368,6 @@ class SearchIndexCommand(CkanCommand):
 
     def command(self):
         self._load_config()
-        logging.basicConfig(level=logging.DEBUG)
         from ckan.lib.search import get_backend, rebuild, SearchIndexWorker
 
         if not self.args:
@@ -378,6 +382,7 @@ class SearchIndexCommand(CkanCommand):
             while True:
                 indexer.run()
         if cmd == 'rebuild':
+            print "WARNING: rebuild is deprecated. Use 'notifications replay' and a queue indexer instead."
             rebuild()
         else:
             print 'Command %s not recognized' % cmd
@@ -958,3 +963,64 @@ class Notifications(CkanCommand):
     def monitor(self):
         from ckan.lib import monitor
         monitor = monitor.Monitor()
+
+class Load(CkanCommand):
+    '''Load data to a remote CKAN instance.
+
+    load bis {filepath.xls} {ckan-api-url} {api-key}
+    '''
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    max_args = None
+    min_args = 1
+
+    def command(self):
+        # Avoids vdm logging warning
+        logging.basicConfig(level=logging.ERROR)
+        
+        self._load_config()
+        from ckan import model
+
+        data_type = self.args[0]
+        if data_type == 'bis':
+            if len(self.args) != 4:
+                print 'Error: Wrong number of arguments for data type: %s' % data_type
+                print self.usage
+                sys.exit(1)
+            filepath, api_url, api_key = self.args[1:]
+            assert api_url.startswith('http://') and api_url.endswith('/api'), api_url
+            # import them
+            from ckanext.getdata.bis import BisImporter
+            importer = BisImporter(filepath=filepath)            
+            pkg_dicts = [pkg_dict for pkg_dict in importer.pkg_dict()]
+            log = importer.get_log()
+            if log:
+                print log
+            print '%i packages' % len(pkg_dicts)
+            if pkg_dicts:
+                raw_input('Press return to load packages')
+
+                # load them
+                from ckanclient import CkanClient
+                from ckanext.getdata.loader import PackageLoader
+                client = CkanClient(api_key=api_key, base_location=api_url,
+                                    is_verbose=False)
+                loader = PackageLoader(client, unique_extra_field='external_reference')
+                res = loader.load_packages(pkg_dicts)
+                if res['num_errors'] == 0 and res['num_loaded']:
+                    print 'SUCCESS'
+                else:
+                    print '%i ERRORS' % res['num_errors']
+                print '%i package loaded' % res['num_loaded']
+
+                if res['num_loaded']:
+                    raw_input('Press return to add them to the ukgov group')
+
+                    # add them to the group
+                    loader.add_pkgs_to_group(res['pkg_names'], 'ukgov')
+                    print 'SUCCESS'
+        else:
+            print 'Error: Data type %r not recognised' % data_type
+            print self.usage
+            sys.exit(1)
+
