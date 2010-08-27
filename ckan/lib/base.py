@@ -177,7 +177,7 @@ class BaseController(WSGIController):
         return datetime.datetime.now()
 
     def _get_timing_cache_path(self):
-        path = os.path.join(config['here'], 'data', 'cache', 'call_timing')
+        path = os.path.join(config['pylons.cache_dir'], 'call_timing')
         if not os.path.exists(path):
              os.makedirs(path)
         return path
