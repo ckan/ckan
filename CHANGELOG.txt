@@ -1,6 +1,32 @@
 CKAN CHANGELOG
 ++++++++++++++
 
+
+v1.0.2 2010-08-27
+=================
+
+ * Bugfix: API returns error when creating package (#432)
+
+
+v1.0.1 2010-06-23
+=================
+
+Functionality:
+
+  * API: Revision search 'since id' and revision model in API
+  * API: Basic API versioning - packages specified by ID (#313)
+  * Pluggable search - initial hooks
+  * Customisable templates (#340) and external UI hooks (#335)
+
+Bugfixes:
+
+  * Revision primary key lost in migrating data (#311)
+  * Local authority license correction in migration (#319)
+  * I18n formatting issues
+  * Web i/f searches foreign characters (#319)
+  * Data importer timezone issue (#330)
+
+
 v1.0 2010-05-11
 ===============
 
