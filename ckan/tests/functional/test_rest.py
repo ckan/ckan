@@ -13,7 +13,7 @@ ACCESS_DENIED = [403]
 
 class ApiTestCase(ControllerTestCase):
 
-    api_version = ''
+    api_version = None
     ref_package_by = ''
     ref_group_by = ''
 
@@ -41,8 +41,11 @@ class ApiTestCase(ControllerTestCase):
 
     @classmethod
     def offset(self, path):
-        assert self.api_version, "API version is missing."
-        return '/api/%s%s' % (self.api_version, path)
+        assert self.api_version != None, "API version is missing."
+        base = '/api'
+        if self.api_version:
+            base += '/' + self.api_version
+        return '%s%s' % (base, path)
 
     def package_offset(self, package_name=None):
         if package_name == None:
@@ -75,6 +78,8 @@ class ApiTestCase(ControllerTestCase):
         expected = self.group_ref_from_name('david')
         assert expected in msg, (expected, msg)
 
+    def data_from_res(self, res):
+        return json.loads(res.body)
 
 class ModelApiTestCase(ApiTestCase):
 
@@ -648,7 +653,7 @@ class ModelApiTestCase(ApiTestCase):
         res = self.app.get(offset, status=200)
         revs = model.Session.query(model.Revision).all()
         assert revs, "There are no revisions in the model."
-        res_dict = json.loads(res.body)
+        res_dict = self.data_from_res(res)
         for rev in revs:
             assert rev.id in res_dict, (rev.id, res_dict)
 
@@ -656,7 +661,7 @@ class ModelApiTestCase(ApiTestCase):
         rev = model.repo.history().all()[-2] # 2nd revision is the creation of pkgs
         offset = self.offset('/rest/revision/%s' % rev.id)
         response = self.app.get(offset, status=[200])
-        response_data = json.loads(response.body)
+        response_data = self.data_from_res(response)
         assert rev.id == response_data['id']
         assert rev.timestamp.isoformat() == response_data['timestamp'], (rev.timestamp.isoformat(), response_data['timestamp'])
         assert 'packages' in response_data
@@ -688,7 +693,7 @@ class ModelApiTestCase(ApiTestCase):
         for id in changesets:
             offset = self.offset('/rest/changeset/%s' % id)
             res = self.app.get(offset, status=[200])
-            changeset_data = json.loads(res.body)
+            changeset_data = self.data_from_res(res)
             assert 'id' in changeset_data, "No 'id' in changeset data: %s" % changeset_data
             assert 'meta' in changeset_data, "No 'meta' in changeset data: %s" % changeset_data
             assert 'changes' in changeset_data, "No 'changes' in changeset data: %s" % changeset_data
@@ -705,7 +710,7 @@ class ModelApiTestCase(ApiTestCase):
         assert len(register), "No changesets found in model."
         offset = self.offset('/rest/licenses')
         res = self.app.get(offset, status=[200])
-        licenses_data = json.loads(res.body)
+        licenses_data = self.data_from_res(res)
         assert len(licenses_data) == len(register), (len(licenses_data), len(register))
         for license_data in licenses_data:
             id = license_data['id']
@@ -876,7 +881,7 @@ class RelationshipsApiTestCase(ApiTestCase):
             allowable_statuses.append(404)
         res = self.app.get(offset, status=allowable_statuses)
         if res.status == 200:
-            res_dict = json.loads(res.body) if res.body else []
+            res_dict = self.data_from_res(res) if res.body else []
             return res_dict
         else:
             return 404
@@ -884,7 +889,7 @@ class RelationshipsApiTestCase(ApiTestCase):
     def get_relationships_via_package(self, package1_name):
         offset = self.offset('/rest/package/%s' % (str(package1_name)))
         res = self.app.get(offset, status=200)
-        res_dict = json.loads(res.body) if res.body else []
+        res_dict = self.data_from_res(res)
         return res_dict['relationships']
 
     def assert_len_relationships(self, relationships, expected_relationships):
@@ -959,7 +964,7 @@ class SearchApiTestCase(ApiTestCase):
     def test_01_uri_q(self):
         offset = self.base_url + '?q=%s' % self.testpackagevalues['name']
         res = self.app.get(offset, status=200)
-        res_dict = json.loads(res.body)
+        res_dict = self.data_from_res(res)
         self.assert_package_search_results(res_dict['results'])
         assert res_dict['count'] == 1, res_dict['count']
 
@@ -976,7 +981,7 @@ class SearchApiTestCase(ApiTestCase):
         offset = self.base_url
         query = {'q':'testpkg'}
         res = self.app.post(offset, params=query, status=200)
-        res_dict = json.loads(res.body)
+        res_dict = self.data_from_res(res)
         self.assert_package_search_results(res_dict['results'])
         assert res_dict['count'] == 1, res_dict['count']
 
@@ -985,7 +990,7 @@ class SearchApiTestCase(ApiTestCase):
         json_query = json.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
-        res_dict = json.loads(res.body)
+        res_dict = self.data_from_res(res)
         self.assert_package_search_results(res_dict['results'])
         assert res_dict['count'] == 1, res_dict['count']
 
@@ -994,7 +999,7 @@ class SearchApiTestCase(ApiTestCase):
         json_query = json.dumps(query)
         offset = self.base_url
         res = self.app.post(offset, params=json_query, status=200)
-        res_dict = json.loads(res.body)
+        res_dict = self.data_from_res(res)
         self.assert_package_search_results(res_dict['results'])
         assert res_dict['count'] == 1, res_dict['count']
 
@@ -1003,7 +1008,7 @@ class SearchApiTestCase(ApiTestCase):
         json_query = json.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
-        res_dict = json.loads(res.body)
+        res_dict = self.data_from_res(res)
         self.assert_package_search_results(res_dict['results'], names=[u'annakarenina'])
         assert res_dict['count'] == 1, res_dict
         
@@ -1012,7 +1017,7 @@ class SearchApiTestCase(ApiTestCase):
         json_query = json.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
-        res_dict = json.loads(res.body)
+        res_dict = self.data_from_res(res)
         self.assert_package_search_results(res_dict['results'], names=[u'annakarenina'])
         assert res_dict['count'] == 1, res_dict
 
@@ -1020,7 +1025,7 @@ class SearchApiTestCase(ApiTestCase):
         query = webhelpers.util.html_escape('annakarenina tags:russian tags:tolstoy')
         offset = self.base_url + '?q=%s' % query
         res = self.app.get(offset, status=200)
-        res_dict = json.loads(res.body)
+        res_dict = self.data_from_res(res)
         self.assert_package_search_results(res_dict['results'], names=[u'annakarenina'])
         assert res_dict['count'] == 1, res_dict['count']
 
@@ -1029,7 +1034,7 @@ class SearchApiTestCase(ApiTestCase):
         json_query = json.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
-        res_dict = json.loads(res.body)
+        res_dict = self.data_from_res(res)
         self.assert_package_search_results(res_dict['results'], names=[u'annakarenina'])
         assert res_dict['count'] == 1, res_dict
 
@@ -1038,7 +1043,7 @@ class SearchApiTestCase(ApiTestCase):
         json_query = json.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
-        res_dict = json.loads(res.body)
+        res_dict = self.data_from_res(res)
         self.assert_package_search_results(res_dict['results'], names=[u'annakarenina'])
         assert res_dict['count'] == 1, res_dict
 
@@ -1047,7 +1052,7 @@ class SearchApiTestCase(ApiTestCase):
         json_query = json.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
-        res_dict = json.loads(res.body)
+        res_dict = self.data_from_res(res)
         self.assert_package_search_results(res_dict['results'], names=[u'annakarenina'])
         assert res_dict['count'] == 2, res_dict
 
@@ -1056,7 +1061,7 @@ class SearchApiTestCase(ApiTestCase):
         json_query = json.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
-        res_dict = json.loads(res.body)
+        res_dict = self.data_from_res(res)
         self.assert_package_search_results(res_dict['results'])
         assert res_dict['count'] == 1, res_dict
 
@@ -1065,7 +1070,7 @@ class SearchApiTestCase(ApiTestCase):
         json_query = json.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
-        res_dict = json.loads(res.body)
+        res_dict = self.data_from_res(res)
         self.assert_package_search_results(res_dict['results'])
         assert res_dict['count'] == 1, res_dict
         
@@ -1081,7 +1086,7 @@ class SearchApiTestCase(ApiTestCase):
         json_query = json.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
-        res_dict = json.loads(res.body)
+        res_dict = self.data_from_res(res)
         assert res_dict['count'] == 2, res_dict
         print res_dict['results']
         for rec in res_dict['results']:
@@ -1100,31 +1105,31 @@ class SearchApiTestCase(ApiTestCase):
     def test_09_just_tags(self):
         offset = self.base_url + '?tags=russian&all_fields=1'
         res = self.app.get(offset, status=200)
-        res_dict = json.loads(res.body)
+        res_dict = self.data_from_res(res)
         assert res_dict['count'] == 2, res_dict
 
     def test_10_multiple_tags_with_plus(self):
         offset = self.base_url + '?tags=tolstoy+russian&all_fields=1'
         res = self.app.get(offset, status=200)
-        res_dict = json.loads(res.body)
+        res_dict = self.data_from_res(res)
         assert res_dict['count'] == 1, res_dict
 
     def test_10_multiple_tags_with_ampersand(self):
         offset = self.base_url + '?tags=tolstoy&tags=russian&all_fields=1'
         res = self.app.get(offset, status=200)
-        res_dict = json.loads(res.body)
+        res_dict = self.data_from_res(res)
         assert res_dict['count'] == 1, res_dict
 
     def test_10_many_tags_with_ampersand(self):
         offset = self.base_url + '?tags=tolstoy&tags=russian&tags=tolstoy'
         res = self.app.get(offset, status=200)
-        res_dict = json.loads(res.body)
+        res_dict = self.data_from_res(res)
         assert res_dict['count'] == 1, res_dict
 
     def test_11_pagination_limit(self):
         offset = self.base_url + '?all_fields=1&tags=russian&limit=1&order_by=name'
         res = self.app.get(offset, status=200)
-        res_dict = json.loads(res.body)
+        res_dict = self.data_from_res(res)
         assert res_dict['count'] == 2, res_dict
         assert len(res_dict['results']) == 1, res_dict
         assert res_dict['results'][0]['name'] == 'annakarenina', res_dict['results'][0]['name']
@@ -1132,7 +1137,7 @@ class SearchApiTestCase(ApiTestCase):
     def test_11_pagination_offset_limit(self):
         offset = self.base_url + '?all_fields=1&tags=russian&offset=1&limit=1&order_by=name'
         res = self.app.get(offset, status=200)
-        res_dict = json.loads(res.body)
+        res_dict = self.data_from_res(res)
         assert res_dict['count'] == 2, res_dict
         assert len(res_dict['results']) == 1, res_dict
         assert res_dict['results'][0]['name'] == 'warandpeace', res_dict['results'][0]['name']
@@ -1151,14 +1156,14 @@ class SearchApiTestCase(ApiTestCase):
         rev_first = revs[-1]
         params = "?since_id=%s" % str(rev_first.id)
         res = self.app.get(offset+params, status=200)
-        res_list = json.loads(res.body)
+        res_list = self.data_from_res(res)
         assert rev_first.id not in res_list
         for rev in revs[:-1]:
             assert rev.id in res_list, (rev.id, res_list)
         rev_last = revs[0]
         params = "?since_id=%s" % str(rev_last.id)
         res = self.app.get(offset+params, status=200)
-        res_list = json.loads(res.body)
+        res_list = self.data_from_res(res)
         assert res_list == [], res_list
 
     def test_12_search_revision_since_time(self):
@@ -1168,7 +1173,7 @@ class SearchApiTestCase(ApiTestCase):
         rev_first = revs[-1]
         params = "?since_time=%s" % model.strftimestamp(rev_first.timestamp)
         res = self.app.get(offset+params, status=200)
-        res_list = json.loads(res.body)
+        res_list = self.data_from_res(res)
         assert rev_first.id not in res_list
         for rev in revs[:-1]:
             assert rev.id in res_list, (rev.id, res_list)
@@ -1176,7 +1181,7 @@ class SearchApiTestCase(ApiTestCase):
         rev_last = revs[0]
         params = "?since_time=%s" % model.strftimestamp(rev_last.timestamp)
         res = self.app.get(offset+params, status=200)
-        res_list = json.loads(res.body)
+        res_list = self.data_from_res(res)
         assert res_list == [], res_list
         # Check bad format.
         params = "?since_time=2010-04-31T23:45"
@@ -1195,6 +1200,22 @@ class SearchApiTestCase(ApiTestCase):
         assert t == datetime.datetime(2012, 3, 4, 5, 6, 7, 890123), t
 
 
+class QosApiTestCase(ApiTestCase):
+
+    def test_throughput(self):
+        # Create some throughput.
+        for i in range(0,20):
+            offset = self.offset('/qos/throughput/')
+            res = self.app.get(offset, status=[200])
+            import time
+            time.sleep(0.1)
+        # Check throughput:
+        offset = self.offset('/qos/throughput/')
+        res = self.app.get(offset, status=[200])
+        data = self.data_from_res(res)
+        throughput = float(data)
+        assert throughput > 1, throughput
+ 
 
 class MiscApiTestCase(ApiTestCase):
 
@@ -1230,6 +1251,12 @@ class Api1TestCase(ApiTestCase):
     def assert_msg_represents_anna(self, msg):
         super(Api1TestCase, self).assert_msg_represents_anna(msg)
         assert '"download_url": "http://www.annakarenina.com/download/x=1&y=2"' in msg, msg
+
+# For CKAN API (unversioned location).
+class ApiUnversionedTestCase(Api1TestCase):
+
+    api_version = ''
+
 
 class TestModelApi1(ModelApiTestCase, Api1TestCase):
 
@@ -1287,4 +1314,20 @@ class TestSearchApi1(SearchApiTestCase, Api1TestCase):
 
 class TestMiscApi1(MiscApiTestCase, Api1TestCase):
     pass
- 
+
+class TestQosApi1(QosApiTestCase, Api1TestCase):
+    pass
+
+class TestModelApiUnversioned(ModelApiTestCase, ApiUnversionedTestCase):
+    pass
+
+# Todo: Refactor to run the download_url tests on versioned location too.
+#class TestRelationshipsApiUnversioned(RelationshipsApiTestCase, ApiUnversionedTestCase):
+#    pass
+#
+#class TestSearchApiUnversioned(SearchApiTestCase, ApiUnversionedTestCase):
+#    pass
+#
+#class TestMiscApiUnversioned(MiscApiTestCase, ApiUnversionedTestCase):
+#    pass
+

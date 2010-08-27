@@ -470,6 +470,25 @@ class BaseRestController(BaseController):
             results.append((tag.name, tag_count))
         return self._finish_ok(results)
 
+    def throughput(self):
+        qos = self._calc_throughput()
+        qos = str(qos)
+        return self._finish_ok(qos)
+
+    def _calc_throughput(self):
+        period = 10  # Seconds.
+        timing_cache_path = self._get_timing_cache_path()
+        call_count = 0
+        import datetime, glob
+        for t in range(0, period):
+            expr = '%s/%s*' % (
+                timing_cache_path,
+                (datetime.datetime.now() - datetime.timedelta(0,t)).isoformat()[0:19],
+            )
+            call_count += len(glob.glob(expr))
+        # Todo: Clear old records.
+        return float(call_count) / period
+
     def _create_rating(self, params):
         """ Example data:
                rating_opts = {'package':u'warandpeace',

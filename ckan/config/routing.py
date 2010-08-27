@@ -63,6 +63,10 @@ def make_map():
     map.connect('/api/rest/:register/:id/:subregister/:id2',
         controller='rest', action='delete',
         conditions=dict(method=['DELETE']))
+    map.connect('/api/qos/throughput/',
+        controller='rest', action='throughput',
+        conditions=dict(method=['GET']))
+
     # CKAN API v1.
     map.connect('/api/1/form/package/edit/:id', controller='form', action='package_edit')
     map.connect('/api/1/search/:register', controller='rest', action='search')
@@ -96,6 +100,9 @@ def make_map():
     map.connect('/api/1/rest/:register/:id/:subregister/:id2',
         controller='rest', action='delete',
         conditions=dict(method=['DELETE']))
+    map.connect('/api/1/qos/throughput/',
+        controller='rest', action='throughput',
+        conditions=dict(method=['GET']))
 
     # CKAN API v2.
     map.connect('/api/2/form/package/edit/:id', controller='form', action='package_edit')
@@ -130,6 +137,9 @@ def make_map():
     map.connect('/api/2/rest/:register/:id/:subregister/:id2',
         controller='rest2', action='delete',
         conditions=dict(method=['DELETE']))
+    map.connect('/api/2/qos/throughput/',
+        controller='rest', action='throughput',
+        conditions=dict(method=['GET']))
 
     map.redirect("/packages", "/package")
     map.redirect("/packages/{url:.*}", "/package/{url}")

@@ -15,13 +15,14 @@ class BaseFormsApiCase(TestController):
     api_version = ''
     package_name = u'formsapi'
     package_name_alt = u'formsapialt'
+    apikey_header_name = 'X-CKAN-API-Key'
 
     def setup(self):
         self.user = self.get_user_by_name(u'tester')
         if not self.user:
             self.user = self.create_user(name=u'tester')
         self.extra_environ = {
-            'Authorization' : str(self.user.apikey)
+            self.apikey_header_name : str(self.user.apikey)
         }
         self.create_package(name=self.package_name)
 
@@ -155,4 +156,10 @@ class TestFormsApi(BaseFormsApiCase):
             assert "Submitted OK" in body, body
         finally:
             self._stop_ckan_server(self.ckan_server)
+
+
+class TestFormsApiWithOrigKeyHeader(TestFormsApi):
+
+    apikey_header_name = 'Authorization'
+
 

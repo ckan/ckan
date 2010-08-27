@@ -17,6 +17,7 @@ import ckan.lib.helpers as h
 from ckan.config import plugins
 from ckan.lib.helpers import json
 import ckan.model as model
+import os
 
 PAGINATE_ITEMS_PER_PAGE = 50
 
@@ -57,6 +58,7 @@ class BaseController(WSGIController):
     log = logging.getLogger(__name__)
 
     def __before__(self, action, **params):
+        self._start_call_timing()
         # what is different between session['user'] and environ['REMOTE_USER']
         c.__version__ = ckan.__version__
         c.user = request.environ.get('REMOTE_USER', None)
@@ -81,6 +83,10 @@ class BaseController(WSGIController):
             return WSGIController.__call__(self, environ, start_response)
         finally:
             model.Session.remove()
+
+    def __after__(self, action, **params):
+        self._stop_call_timing()
+        self._write_call_timing()
 
     def _get_user(self, reference):
         return model.User.by_name(reference)
@@ -123,7 +129,11 @@ class BaseController(WSGIController):
             return entity
 
     def _get_user_for_apikey(self):
-        apikey = request.environ.get('HTTP_AUTHORIZATION', '')
+        apikey = request.headers.get('X-CKAN-API-Key', '')
+        if not apikey:
+            apikey = request.environ.get('X-CKAN-API-Key', '')
+        if not apikey:
+            apikey = request.environ.get('HTTP_AUTHORIZATION', '')
         if not apikey:
             apikey = request.environ.get('Authorization', '')
         if not apikey:
@@ -133,6 +143,39 @@ class BaseController(WSGIController):
         query = model.Session.query(model.User)
         user = query.filter_by(apikey=apikey).first()
         return user
+
+    def _start_call_timing(self):
+        c.time_call_started = self._get_now_time()
+
+    def _stop_call_timing(self):
+        c.time_call_stopped = self._get_now_time()
+        
+    def _write_call_timing(self):
+        call_duration = c.time_call_stopped - c.time_call_started
+        request_path = request.path
+        timing_data = {
+            "path": request.path, 
+            "started": c.time_call_started.isoformat(),
+            "duration": str(call_duration),
+        }
+        timing_msg = json.dumps(timing_data)
+        timing_cache_path = self._get_timing_cache_path()
+        timing_file_path = os.path.join(timing_cache_path, c.time_call_started.isoformat())
+        timing_file = file(timing_file_path, 'w')
+        timing_file.write(timing_msg)
+        timing_file.close()
+
+    def _get_now_time(self):
+        import datetime
+        return datetime.datetime.now()
+
+    def _get_timing_cache_path(self):
+        path = os.path.join(config['here'], 'data', 'cache', 'call_timing')
+        if not os.path.exists(path):
+             os.makedirs(path)
+        return path
+
+
 
 # Include the '_' function in the public names
 __all__ = [__name for __name in locals().keys() if not __name.startswith('_') \
