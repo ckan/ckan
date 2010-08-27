@@ -1,6 +1,7 @@
 from pylons.i18n import _
 
 from ckan.lib.base import *
+from sqlalchemy.orm import eagerload_all
 from ckan.lib.search import query_for
 from ckan.lib.helpers import json, AlphaPage, Page
 
@@ -38,7 +39,12 @@ class TagController(BaseController):
         return render('tag/index.html')
 
     def read(self, id):
-        c.tag = model.Tag.by_name(id)
+        query = model.Session.query(model.Tag)
+        query = query.filter(model.Tag.name==id)
+        query = query.options(eagerload_all('package_tags.package'))
+        query = query.options(eagerload_all('package_tags.package.package_tags.tag'))
+        query = query.options(eagerload_all('package_tags.package.package_resources_all'))
+        c.tag = query.first()
         if c.tag is None:
             abort(404)
         return render('tag/read.html')
