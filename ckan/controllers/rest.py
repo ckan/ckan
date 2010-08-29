@@ -390,7 +390,7 @@ class BaseRestController(BaseController):
                 rev = model.Session.query(model.Revision).get(id)
                 if rev is None:
                     response.status_int = 400
-                    return gettext('There is no revision with id: %s') % id
+                    return gettext(u'There is no revision with id: %s') % id
                 since_time = rev.timestamp
             elif request.params.has_key('since_time'):
                 since_time_str = request.params['since_time']
@@ -417,7 +417,7 @@ class BaseRestController(BaseController):
                     params = self._get_request_data()
                 except ValueError, inst:
                     response.status_int = 400
-                    return gettext('Search params: %s') % str(inst)
+                    return gettext(u'Search params: %s') % unicode(inst)
             
             options = QueryOptions()
             for k, v in params.items():
