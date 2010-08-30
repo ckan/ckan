@@ -3,6 +3,7 @@ import os
 from pylons import config
 
 import ckan.lib.importer as importer
+import ckan.lib.spreadsheet_importer as spreadsheet_importer
 
 EXAMPLES_DIR = 'ckan/tests/misc/'
 EXAMPLE_TESTFILE_FILEPATH = os.path.join(config['here'], EXAMPLES_DIR, 'test_importer_example')
@@ -10,8 +11,8 @@ FULL_TESTFILE_FILEPATH = os.path.join(config['here'], EXAMPLES_DIR, 'test_import
 XL_EXTENSION = '.xls'
 CSV_EXTENSION = '.csv'
 EXTENSIONS = [CSV_EXTENSION, XL_EXTENSION]
-SPREADSHEET_CLASS_MAP = {XL_EXTENSION:importer.XlData,
-                         CSV_EXTENSION:importer.CsvData}
+SPREADSHEET_CLASS_MAP = {XL_EXTENSION:spreadsheet_importer.XlData,
+                         CSV_EXTENSION:spreadsheet_importer.CsvData}
 
 class BasicLogger:
     def __init__(self):
@@ -65,7 +66,7 @@ def get_example_data():
 class TestDataRecords:
     def test_0_example(self):
         data = get_example_data()
-        data_records = importer.DataRecords(data, 'title')
+        data_records = spreadsheet_importer.SpreadsheetDataRecords(data, 'title')
         assert data_records.titles == data.get_row(0), data_records.titles
         records = [record for record in data_records.records]
         assert len(records) == 2, records
@@ -90,7 +91,7 @@ class TestDataRecords:
 class TestPackageImporter:
     def test_munge(self):
         def test_munge(title, expected_munge):
-            munge = importer.PackageImporter.munge(title)
+            munge = spreadsheet_importer.SpreadsheetPackageImporter.munge(title)
             assert munge == expected_munge, 'Got %s not %s' % (munge, expected_munge)
         test_munge('Adult participation in learning', 'adult_participation_in_learning')
         test_munge('Alcohol Profile: Alcohol-specific hospital admission, males', 'alcohol_profile_-_alcohol-specific_hospital_admission_males')
@@ -100,7 +101,7 @@ class TestPackageImporter:
     def test_0_example_by_filepath(self):
         for extension in EXTENSIONS:
             filepath = EXAMPLE_TESTFILE_FILEPATH + extension
-            package_import = importer.PackageImporter(filepath=filepath)
+            package_import = spreadsheet_importer.SpreadsheetPackageImporter(filepath=filepath)
             self.assert_example_package_import(package_import)
 
     def assert_example_package_import(self, package_import):

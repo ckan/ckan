@@ -7,6 +7,7 @@ from sqlalchemy.util import OrderedDict
 import ckan.model as model
 from ckan.tests import *
 import ckan.lib.importer as importer
+import ckan.lib.spreadsheet_importer as spreadsheet_importer
 import ckan.lib.dumper as dumper
 from pylons import config
 
@@ -141,7 +142,7 @@ class Test1Import(TestController):
             log = self._test_read(filepath=TEST_FILES_DIR + TEST_FILE_EXAMPLE + extension, expected_dicts=comparison_dicts)
 
     def _test_read(self, buf=None, filepath=None, expected_dicts=None):
-        reader = importer.PackageImporter(buf=buf, filepath=filepath)
+        reader = spreadsheet_importer.SpreadsheetPackageImporter(buf=buf, filepath=filepath)
         index = 0
         for pkg_dict in reader.pkg_dict():
             for key, comp_val in expected_dicts[index].items():
@@ -184,4 +185,4 @@ def pkg_to_fs_dict(pkg):
     return dict_
 
 def pkg_xl_dict_to_fs_dict(pkg_xl_dict):
-    return importer.PackageImporter.pkg_xl_dict_to_fs_dict(pkg_xl_dict)
+    return spreadsheet_importer.SpreadsheetPackageImporter.pkg_xl_dict_to_fs_dict(pkg_xl_dict)
