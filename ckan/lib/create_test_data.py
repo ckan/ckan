@@ -8,6 +8,7 @@ class CreateTestData(cli.CkanCommand):
     create-test-data search  - realistic data to test search
     create-test-data gov     - government style data
     create-test-data family  - package relationships data
+    create-test-data user    - create a user 'tester' with api key 'tester'
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
@@ -36,6 +37,8 @@ class CreateTestData(cli.CkanCommand):
             print 'Creating %s test data' % cmd
         if cmd == 'basic':
             self.create_basic_test_data()
+        elif cmd == 'user':
+            self.create_user()
         elif cmd == 'search':
             self.create_search_test_data()
         elif cmd == 'gov':
@@ -65,6 +68,17 @@ class CreateTestData(cli.CkanCommand):
         self.create_arbitrary(family_items,
                               relationships=family_relationships,
                               extra_user_names=extra_users)
+
+    @classmethod
+    def create_user(self):
+        import ckan.model as model
+        tester = model.User.by_name(u'tester')
+        if tester is None:
+            tester = model.User(name=u'tester', apikey=u'tester')
+            model.Session.add(tester)
+            model.Session.commit()
+        model.Session.remove()
+        self.user_names = [u'tester']
 
     @classmethod
     def create_arbitrary(self, package_dicts,
@@ -249,6 +263,7 @@ class CreateTestData(cli.CkanCommand):
     def create(self, commit_changesets=False):
         import ckan.model as model
         model.Session.remove()
+        self.create_user()
         rev = model.repo.new_revision()
         # same name as user we create below
         rev.author = self.author
@@ -311,10 +326,6 @@ left arrow <
         pkg2.title = u'A Wonderful Story'
         pkg1.extras = {u'genre':'romantic novel',
                        u'original media':'book'}
-        # api key
-        tester = model.User(name=u'tester', apikey=u'tester')
-        model.Session.add(tester)
-        self.user_names = [u'tester']
         # group
         david = model.Group(name=u'david',
                              title=u'Dave\'s books',
