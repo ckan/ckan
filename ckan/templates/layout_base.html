@@ -44,13 +44,9 @@
         var ckan_user = $.cookie("ckan_user");
         if (ckan_user) {
             ckan_user = eval(ckan_user); // get rid of spurious quotes
-            if (ckan_user == "anonymous")
-                ckan_user = null;
-        }
-        if (ckan_user) {
             $("#ckan_user_name")[0].innerHTML = ckan_user;
-            $("#ckan_logged_out").hide();
-            $("#ckan_logged_in").show();
+            $(".ckan_logged_out").hide();
+            $(".ckan_logged_in").show();
         }
     });
   </script>
@@ -67,12 +63,12 @@
   <div id="top">
     <div id="top-inner">
       <div id="top-bar">
-	<span id="ckan_logged_in" style="display: none;">
+	<span class="ckan_logged_in" style="display: none;">
           Logged in as <strong>${h.icon('openid')} <span id="ckan_user_name">username</span></strong>
           &middot; <a href="${h.url_for(controller='user',action=None,id=None)}">My account</a>
 	  &middot; <a href="${h.url_for('/logout_openid')}">Logout</a>
 	</span>
-	<span id="ckan_logged_out">
+	<span class="ckan_logged_out">
           <a href="${h.url_for(controller='user',action='login', id=None)}">Login with ${h.icon('openid')} OpenID</a>
 	</span>
         <form class="package-search" action="${h.url_for(controller='package', action='search', id=None)}" method="GET">
