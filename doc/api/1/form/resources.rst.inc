@@ -3,13 +3,7 @@ Form Resources
 
 Here are the resources of the Form API.
 
-+--------------------------------+-------------------------------------------------------------------+
-| Resource                       | Location                                                          |
-+================================+===================================================================+
-| Package Edit Form              | ``/api/form/package/edit/PACKAGE-REF``                            |
-+--------------------------------+-------------------------------------------------------------------+
+.. include:: resources_table.rst.inc
 
 Possible values for PACKAGE-REF are the package id, or the current package name.
-
-
 
