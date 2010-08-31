@@ -16,8 +16,9 @@ IGNORE_FIELDS = ['q']
 
 class BaseRestController(BaseController):
 
-    ref_package_by = 'id'
-    ref_group_by = 'id'
+    api_version = ''
+    ref_package_by = ''
+    ref_group_by = ''
 
     def _list_package_refs(self, packages):
         return [getattr(p, self.ref_package_by) for p in packages]
@@ -36,8 +37,10 @@ class BaseRestController(BaseController):
                                              json_response)
         return json_response
 
-    def index(self):
-        return render('rest/index.html', cache_expire=84600)
+    def get_api(self):
+        response_data = {}
+        response_data['version'] = self.api_version
+        return self._finish_ok(response_data) 
 
     def list(self, register, subregister=None, id=None):
         log.debug('list %s/%s/%s' % (register, subregister, id))
@@ -579,6 +582,7 @@ class BaseRestController(BaseController):
 class RestController(BaseRestController):
     # Implements CKAN API Version 1.
 
+    api_version = '1'
     ref_package_by = 'name'
     ref_group_by = 'name'
 

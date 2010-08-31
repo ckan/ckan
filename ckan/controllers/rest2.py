@@ -11,5 +11,7 @@ import ckan.rating
 
 class Rest2Controller(BaseRestController):
 
+    api_version = '2'
     ref_package_by = 'id'
+    ref_group_by = 'id'
 
