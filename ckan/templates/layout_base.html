@@ -36,8 +36,24 @@
   <![endif]-->
 
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+  <script src="http://m.okfn.org/ext/jquery.cookie.js"></script>
   <script type="text/javascript" src="/scripts/application.js"></script>
 
+  <script type="text/javascript">
+    $(document).ready(function() {
+        var ckan_user = $.cookie("ckan_user");
+        if (ckan_user) {
+            ckan_user = eval(ckan_user); // get rid of spurious quotes
+            if (ckan_user == "anonymous")
+                ckan_user = null;
+        }
+        if (ckan_user) {
+            $("#ckan_user_name")[0].innerHTML = ckan_user;
+            $("#ckan_logged_out").hide();
+            $("#ckan_logged_in").show();
+        }
+    });
+  </script>
   <py:if test="defined('optional_head')">
     ${optional_head()}
   </py:if>
@@ -51,16 +67,14 @@
   <div id="top">
     <div id="top-inner">
       <div id="top-bar">
-        <topbar py:choose="">
-	<p py:when="c.user" i18n:msg="openid_icon, user">
-            Logged in as <strong>${h.icon('openid')} ${c.user}</strong>
-            &middot; <a href="${h.url_for(controller='user',action=None,id=None)}">My account</a>
-	    &middot; <a href="${h.url_for('/logout_openid')}">Logout</a>
-          </p>
-          <p py:otherwise="" i18n:msg="openid_icon">
-            <a href="${h.url_for(controller='user',action='login', id=None)}">Login with ${h.icon('openid')} OpenID</a>
-          </p>
-        </topbar>
+	<span id="ckan_logged_in" style="display: none;">
+          Logged in as <strong>${h.icon('openid')} <span id="ckan_user_name">username</span></strong>
+          &middot; <a href="${h.url_for(controller='user',action=None,id=None)}">My account</a>
+	  &middot; <a href="${h.url_for('/logout_openid')}">Logout</a>
+	</span>
+	<span id="ckan_logged_out">
+          <a href="${h.url_for(controller='user',action='login', id=None)}">Login with ${h.icon('openid')} OpenID</a>
+	</span>
         <form class="package-search" action="${h.url_for(controller='package', action='search', id=None)}" method="GET">
           <input type="search" class="search" name="q" />
         </form>
