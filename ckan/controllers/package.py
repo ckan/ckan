@@ -5,6 +5,7 @@ from sqlalchemy.orm import eagerload_all
 import genshi
 from pylons import config, cache
 from pylons.i18n import get_lang, _
+from pylons.decorators.cache import beaker_cache
 
 from ckan.lib.base import *
 from ckan.lib.search import query_for, QueryOptions, SearchError
@@ -24,6 +25,7 @@ class PackageController(BaseController):
         c.package_count = query.count()
         return render('package/index.html')
 
+    @beaker_cache(expire=3600, type='file', query_args=True)
     def list(self):
         query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
         query = query.options(eagerload_all('package_tags.tag'))

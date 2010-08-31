@@ -1,7 +1,8 @@
 from pylons.i18n import _
+from pylons.decorators.cache import beaker_cache
+from sqlalchemy.orm import eagerload_all
 
 from ckan.lib.base import *
-from sqlalchemy.orm import eagerload_all
 from ckan.lib.search import query_for
 from ckan.lib.helpers import json, AlphaPage, Page
 
@@ -38,6 +39,7 @@ class TagController(BaseController):
            
         return render('tag/index.html')
 
+    @beaker_cache(expire=3600, type='file', query_args=True)
     def read(self, id):
         query = model.Session.query(model.Tag)
         query = query.filter(model.Tag.name==id)
