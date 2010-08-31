@@ -129,6 +129,26 @@ class ModelApiTestCase(ApiTestCase):
         model.repo.rebuild_db()
         model.Session.remove()
 
+    def test_00_get_api(self):
+        # Check interface resource (without a slash).
+        offset = self.offset('')
+        res = self.app.get(offset, status=[200])
+        self.assert_version_data(res)
+        # Check interface resource (with a slash).
+        # Todo: Stop this raising an error.
+        #offset = self.offset('/')
+        #res = self.app.get(offset, status=[200])
+        #self.assert_version_data(res)
+
+    def assert_version_data(self, res):
+        data = self.data_from_res(res)
+        assert 'version' in data, data
+        expected_version = self.get_expected_api_version()
+        self.assert_equal(data['version'], expected_version) 
+
+    def get_expected_api_version(self):
+        return self.api_version
+
     def test_01_register_post_noauth(self):
         # Test Packages Register Post 401.
         offset = self.offset('/rest/package')
@@ -1255,7 +1275,10 @@ class Api1TestCase(ApiTestCase):
 # For CKAN API (unversioned location).
 class ApiUnversionedTestCase(Api1TestCase):
 
-    api_version = ''
+    oldest_api_version = '1'
+
+    def get_expected_api_version(self):
+        return self.oldest_api_version
 
 
 class TestModelApi1(ModelApiTestCase, Api1TestCase):
