@@ -20,6 +20,9 @@ class BaseRestController(BaseController):
     ref_package_by = ''
     ref_group_by = ''
 
+    def index(self):
+        return render("rest/index.html")
+
     def _list_package_refs(self, packages):
         return [getattr(p, self.ref_package_by) for p in packages]
 
