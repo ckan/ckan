@@ -968,6 +968,7 @@ class Load(CkanCommand):
     '''Load data to a remote CKAN instance.
 
     load bis {filepath.xls} {ckan-api-url} {api-key}
+    load ons {number_of_days_worth} {ckan-api-url} {api-key}
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
@@ -992,35 +993,53 @@ class Load(CkanCommand):
             # import them
             from ckanext.getdata.bis import BisImporter
             importer = BisImporter(filepath=filepath)            
-            pkg_dicts = [pkg_dict for pkg_dict in importer.pkg_dict()]
-            log = importer.get_log()
-            if log:
-                print log
-            print '%i packages' % len(pkg_dicts)
-            if pkg_dicts:
-                raw_input('Press return to load packages')
-
-                # load them
-                from ckanclient import CkanClient
-                from ckanext.getdata.loader import PackageLoader
-                client = CkanClient(api_key=api_key, base_location=api_url,
-                                    is_verbose=False)
-                loader = PackageLoader(client, unique_extra_field='external_reference')
-                res = loader.load_packages(pkg_dicts)
-                if res['num_errors'] == 0 and res['num_loaded']:
-                    print 'SUCCESS'
-                else:
-                    print '%i ERRORS' % res['num_errors']
-                print '%i package loaded' % res['num_loaded']
-
-                if res['num_loaded']:
-                    raw_input('Press return to add them to the ukgov group')
-
-                    # add them to the group
-                    loader.add_pkgs_to_group(res['pkg_names'], 'ukgov')
-                    print 'SUCCESS'
+            unique_extra_field = 'external_reference'
+        elif data_type == 'ons':
+            if len(self.args) != 4:
+                print 'Error: Wrong number of arguments for data type: %s' % data_type
+                print self.usage
+                sys.exit(1)
+            days, api_url, api_key = self.args[1:]
+            days = int(days)
+            assert api_url.startswith('http://') and api_url.endswith('/api'), api_url
+            # download data
+            from ckanext.getdata.ons_download import OnsData
+            ons_data = OnsData()
+            url, url_name = ons_data._get_url_recent(days=days)
+            data_filepath = ons_data.download(url, url_name, force_download=True)
+            
+            # import them
+            from ckanext.getdata.ons_loader import OnsImporter
+            importer = OnsImporter(filepath=data_filepath)
+            unique_extra_field = None
         else:
             print 'Error: Data type %r not recognised' % data_type
             print self.usage
             sys.exit(1)
 
+        pkg_dicts = [pkg_dict for pkg_dict in importer.pkg_dict()]
+        log = importer.get_log()
+        if log:
+            print log
+        print '%i packages' % len(pkg_dicts)
+        if pkg_dicts:
+            raw_input('Press return to load packages')
+            # load them
+            from ckanclient import CkanClient
+            from ckanext.getdata.loader import PackageLoader
+            client = CkanClient(api_key=api_key, base_location=api_url,
+                                is_verbose=False)
+            loader = PackageLoader(client, unique_extra_field=unique_extra_field)
+            res = loader.load_packages(pkg_dicts)
+            if res['num_errors'] == 0 and res['num_loaded']:
+                print 'SUCCESS'
+            else:
+                print '%i ERRORS' % res['num_errors']
+            print '%i package loaded' % res['num_loaded']
+
+            if res['num_loaded']:
+                raw_input('Press return to add them to the ukgov group')
+
+                # add them to the group
+                loader.add_pkgs_to_group(res['pkg_names'], 'ukgov')
+                print 'SUCCESS'
