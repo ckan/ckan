@@ -1,5 +1,5 @@
 JSONP formatted responses
-=========================
+-------------------------
 
 To cater for scripts from other sites that wish to access the API, the data can be returned in JSONP format, where the JSON data is 'padded' with a function call. The function is named in the 'callback' parameter.
 

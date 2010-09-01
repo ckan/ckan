@@ -1,33 +1,30 @@
-API Versions
-============
+.. |oldest_version| replace:: 1
 
-The CKAN API is versioned, so that backwards incompatible changes can be
-introduced without removing existing support. A resource location for a
-particular version can be formed by inserting the version number between the API location and the resource path, like this:
+Versions
+--------
 
-  API_LOCATION + "/" + API_VERSION + RESOURCE_LOCATION
+The |site| |api| is versioned, so that backwards incompatible changes can be
+introduced without removing existing support.  A particular version of the API
+can be used by including its version number after the API location and before
+the resource location.
 
-If a request does not specify an API version, then the API will use the oldest
-supported version of the API to handle that request. The oldest supported
-version is currently 1.
+If the API version is not included in the request, then the API will use the 
+oldest supported version of the API to handle that request. The oldest supported
+version is currently |oldest_version|.
 
 
-CKAN API Version 1
-------------------
+Version 1
+~~~~~~~~~
 
-The :doc:`api/1/index` is the original CKAN API.
+The |version_1_doc| is the original API. At first, package and group names were invariant, and were used in persistent references.
 
-Packages are identified by name in entity representations.
+Version 2
+~~~~~~~~~
 
-CKAN API Version 2
-------------------
+The |version_2_doc| is the latest API. Since edting the names of packages and groups is now possible, packages and groups are identified by their UUID in entity representations.
 
-The :doc:`api/2/index` is the latest CKAN API.
+Version 3
+~~~~~~~~~
 
-Packages are identified by id in entity representations.
-
-CKAN API Version 3
-------------------
-
-The :doc:`api/3/index` is the next CKAN API, and is currently unstable. Some resource locations have been changed.
+The |version_3_doc| is the next CKAN API, and is currently unstable. Various resource locations are being changed to consolidate the interface design and help simplify the documentation and client implementations.
 
