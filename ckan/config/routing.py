@@ -32,6 +32,7 @@ def make_map():
     maps.admin_map(map, controller='admin', url='/admin')
     # CKAN API.
     map.connect('/api', controller='rest', action='get_api')
+    map.connect('/api/form/package/create', controller='form', action='package_create')
     map.connect('/api/form/package/edit/:id', controller='form', action='package_edit')
     map.connect('/api/search/:register', controller='rest', action='search')
     map.connect('/api/tag_counts', controller='rest', action='tag_counts')
@@ -69,6 +70,7 @@ def make_map():
 
     # CKAN API v1.
     map.connect('/api/1', controller='rest', action='get_api')
+    map.connect('/api/1/form/package/create', controller='form', action='package_create')
     map.connect('/api/1/form/package/edit/:id', controller='form', action='package_edit')
     map.connect('/api/1/search/:register', controller='rest', action='search')
     map.connect('/api/1/tag_counts', controller='rest', action='tag_counts')
@@ -106,6 +108,7 @@ def make_map():
 
     # CKAN API v2.
     map.connect('/api/2', controller='rest2', action='get_api')
+    map.connect('/api/2/form/package/create', controller='form', action='package_create')
     map.connect('/api/2/form/package/edit/:id', controller='form', action='package_edit')
     map.connect('/api/2/search/:register', controller='rest2', action='search')
     map.connect('/api/2/tag_counts', controller='rest2', action='tag_counts')

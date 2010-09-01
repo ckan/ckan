@@ -46,6 +46,11 @@ class BaseFormsApiCase(TestController):
         res = self.app.post(offset, params=params, status=status, extra_environ=self.extra_environ)
         return res
 
+    def get_package_create_form(self, status=[200]):
+        res = self.get(controller='form', action='package_create', status=status)
+        form = self.form_from_res(res)
+        return form
+
     def get_package_edit_form(self, package_id, status=[200]):
         res = self.get(controller='form', action='package_edit', id=package_id, status=status)
         form = self.form_from_res(res)
@@ -86,6 +91,33 @@ class BaseFormsApiCase(TestController):
 class TestFormsApi(BaseFormsApiCase):
 
     api_version = '1'
+
+    def test_get_package_create_form(self):
+        form = self.get_package_create_form()
+        self.check_formfield(form, 'Package--name', '')
+        self.check_formfield(form, 'Package--title', '')
+        self.check_formfield(form, 'Package--version', '')
+        self.check_formfield(form, 'Package--url', '')
+        self.check_formfield(form, 'Package--notes', '')
+        self.check_formfield(form, 'Package--resources-0-url', '')
+        self.check_formfield(form, 'Package--resources-0-format', '')
+        self.check_formfield(form, 'Package--resources-0-description', '')
+        self.check_formfield(form, 'Package--resources-0-hash', '')
+        self.check_formfield(form, 'Package--resources-0-id', '')
+        self.check_formfield(form, 'Package--author', '')
+        self.check_formfield(form, 'Package--author_email', '')
+        self.check_formfield(form, 'Package--maintainer', '')
+        self.check_formfield(form, 'Package--maintainer_email', '')
+        self.check_formfield(form, 'Package--license_id', '')
+        self.check_formfield(form, 'Package--extras-newfield0-key', '')
+        self.check_formfield(form, 'Package--extras-newfield0-value', '')
+        self.check_formfield(form, 'Package--extras-newfield1-key', '')
+        self.check_formfield(form, 'Package--extras-newfield1-value', '')
+        self.check_formfield(form, 'Package--extras-newfield2-key', '')
+        self.check_formfield(form, 'Package--extras-newfield2-value', '')
+
+    def check_formfield(self, form, name, value):
+        self.assert_equal(form[name].value, value)
 
     def test_get_package_edit_form(self):
         package = self.get_package_by_name(self.package_name)
@@ -138,6 +170,26 @@ class TestFormsApi(BaseFormsApiCase):
         assert not json.loads(res.body)
         assert not self.get_package_by_name(self.package_name)
         assert self.get_package_by_name(self.package_name_alt)
+
+    def test_package_create_example_page(self):
+        self.ckan_server = self._start_ckan_server()
+        try:
+            self._wait_for_url('http://127.0.0.1:5000')
+            package = self.get_package_by_name(self.package_name)
+            package_id = package.id
+            res = self.get(controller='form', action='package_create_example', id=package_id)
+            form = res.forms[0]
+            form_data = form.submit_fields()
+            # Todo: Uncomment before implementing 'create form submit'. 
+            #import urllib
+            #params = urllib.urlencode(form_data)
+            #offset = url_for(controller='form', action='package_create_example', id=package_id)
+            #res = self.app.post(offset, params=params, status=[200], extra_environ=self.extra_environ)
+            #body = res.body
+            #assert '<html' in body, "The result does NOT have an HTML doc tag: %s" % body
+            #assert "Submitted OK" in body, body
+        finally:
+            self._stop_ckan_server(self.ckan_server)
 
     def test_package_edit_example_page(self):
         self.ckan_server = self._start_ckan_server()

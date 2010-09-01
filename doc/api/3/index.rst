@@ -1,4 +1,4 @@
-CKAN API Version 1
+CKAN API Version 3
 ==================
 
 .. toctree::
