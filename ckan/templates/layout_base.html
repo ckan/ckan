@@ -77,7 +77,12 @@
       </div><!-- /top-bar -->
 
       <h1>
-        <a href="${h.url_for('home')}"><img style="padding: 0; margin-top: -10px; margin-bottom: -10px;" src="${g.site_logo}" alt="${g.site_title} Logo" /></a>
+        <a href="${h.url_for('home')}">
+          <py:if test="g.site_logo">
+          <img src="${g.site_logo}" alt="${g.site_title} Logo" />
+          </py:if>
+          ${g.site_title}
+        </a>
         <!-- <a href="/" title="CKAN Home">${g.site_title}</a> -->
       </h1>
 
