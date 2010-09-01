@@ -43,9 +43,9 @@
       <h2>More information</h2>
       <ul>
         <li>${h.link_to(_('About'), h.url_for('about'))}</li>
+        <li>${h.link_to(_('API'), h.url_for('about', anchor='api'))}</li>
         <li>${h.link_to(_('User Guide'), h.url_for('guide'))}</li>
         <li>${h.link_to(_('Statistics'), h.url_for('stats'))}</li>
-        <li>${h.link_to(_('About CKAN'), 'http://wiki.okfn.org/ckan/')}</li>
         <li>${h.link_to(_('CKAN development'), 'http://knowledgeforge.net/ckan/')}</li>
       </ul>
     </div>
