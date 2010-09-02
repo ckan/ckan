@@ -39,12 +39,14 @@ class PackageRelationship(vdm.sqlalchemy.RevisionedObjectMixin,
     # e.g. (A "depends_on" B, B has a "dependency_of" A)
     types = [(u'depends_on', u'dependency_of'),
              (u'derives_from', u'has_derivation'),
+             (u'links_to', u'linked_from'),
              (u'child_of', u'parent_of'),
              ]
 
     types_printable = \
             [(_(u'depends on %s'), _(u'is a dependency of %s')),
              (_(u'derives from %s'), _(u'has derivation %s')),
+             (_(u'links to %s'), _(u'is linked from %s')),
              (_(u'is a child of %s'), _(u'is a parent of %s')),
              ]
 

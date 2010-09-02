@@ -31,7 +31,10 @@
           <h3>Related packages</h3>
           <ul>
             <py:for each="pkg, relationship_str in c.package_relationships">
-              <li>${h.literal(relationship_str % (h.link_to(pkg.name, h.url_for(controller="package", action="read", id=pkg.name))))}</li>
+              <li>
+                ${h.literal(relationship_str % (h.link_to(pkg.name, h.url_for(controller="package", action="read", id=pkg.name))))}
+                <span py:if="comment" class="relationship_comment"></span>
+              </li>
             </py:for>
           </ul>
         </py:if>
