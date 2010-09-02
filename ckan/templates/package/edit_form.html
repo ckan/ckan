@@ -13,15 +13,15 @@
       <label for="log_message">Edit summary (briefly describe the changes you have made)</label>
       <textarea id="log_message" name="log_message" class="short wide">${c.log_message}</textarea>
 
-      <p py:if="c.user">Author: ${c.author}</p>
-      <py:if test="not c.user">
+      <span class="ckan_logged_in" style="display: none;">
+	<p>Author: ${c.author}</p>
+      </span>
+      <span class="ckan_logged_out">
         <label>Author: ${c.author}</label>
-        <p py:if="not c.user" class="small" i18n:msg="">
         Since you have not signed in this will just be your IP address.<br />
         <a href="${h.url_for(controller='user', action='login', id=None)}" target="_blank">Click here to sign in</a> before saving (opens in new window).
-        </p>
-      </py:if>
-      
+      </span>
+
       <p>
         <input name="preview" type="submit" value="Preview" />
         ${h.submit('save', _('Save'))}

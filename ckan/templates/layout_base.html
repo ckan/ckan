@@ -36,8 +36,20 @@
   <![endif]-->
 
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+  <script src="http://m.okfn.org/ext/jquery.cookie.min.js"></script>
   <script type="text/javascript" src="/scripts/application.js"></script>
 
+  <script type="text/javascript">
+    $(document).ready(function() {
+        var ckan_user = $.cookie("ckan_user");
+        if (ckan_user) {
+            ckan_user = eval(ckan_user); // get rid of spurious quotes
+            $("#ckan_user_name")[0].innerHTML = ckan_user;
+            $(".ckan_logged_out").hide();
+            $(".ckan_logged_in").show();
+        }
+    });
+  </script>
   <py:if test="defined('optional_head')">
     ${optional_head()}
   </py:if>
@@ -51,23 +63,26 @@
   <div id="top">
     <div id="top-inner">
       <div id="top-bar">
-        <topbar py:choose="">
-	<p py:when="c.user" i18n:msg="openid_icon, user">
-            Logged in as <strong>${h.icon('openid')} ${c.user}</strong>
-            &middot; <a href="${h.url_for(controller='user',action=None,id=None)}">My account</a>
-	    &middot; <a href="${h.url_for('/logout_openid')}">Logout</a>
-          </p>
-          <p py:otherwise="" i18n:msg="openid_icon">
-            <a href="${h.url_for(controller='user',action='login', id=None)}">Login with ${h.icon('openid')} OpenID</a>
-          </p>
-        </topbar>
+	<span class="ckan_logged_in" style="display: none;">
+          Logged in as <strong>${h.icon('openid')} <span id="ckan_user_name">username</span></strong>
+          &middot; <a href="${h.url_for(controller='user',action=None,id=None)}">My account</a>
+	  &middot; <a href="${h.url_for('/logout_openid')}">Logout</a>
+	</span>
+	<span class="ckan_logged_out">
+          <a href="${h.url_for(controller='user',action='login', id=None)}">Login with ${h.icon('openid')} OpenID</a>
+	</span>
         <form class="package-search" action="${h.url_for(controller='package', action='search', id=None)}" method="GET">
           <input type="search" class="search" name="q" />
         </form>
       </div><!-- /top-bar -->
 
       <h1>
-        <a href="${h.url_for('home')}"><img style="padding: 0; margin-top: -10px; margin-bottom: -10px;" src="${g.site_logo}" alt="${g.site_title} Logo" /></a>
+        <a href="${h.url_for('home')}">
+          <py:if test="g.site_logo">
+          <img src="${g.site_logo}" alt="${g.site_title} Logo" />
+          </py:if>
+          ${g.site_title}
+        </a>
         <!-- <a href="/" title="CKAN Home">${g.site_title}</a> -->
       </h1>
 
@@ -80,7 +95,6 @@
       <li>${h.nav_link(c, _('Tags'), controller='tag', action='index', id=None)}</li>
       <li>${h.nav_link(c, _('Groups'), controller='group', action='index', id=None)}</li>
       <li>${h.nav_link(c, _('Revision History'), controller='revision', action='index', id=None)}</li>
-			<li>${h.nav_link(c, _('API'), controller='rest', action='index', id=None)}</li>
     </ul>
     <h3 class="hidden">In this section:</h3>
     <!--! This is a default (blank) subnav. -->

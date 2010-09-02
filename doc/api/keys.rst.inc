@@ -1,5 +1,5 @@
 API Keys
-========
+--------
 
 You will need to supply an API Key for certain requests to the CKAN API:
 
