@@ -227,13 +227,13 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         for rel in self.get_relationships():
             if rel.subject == self:
                 type_printable = PackageRelationship.make_type_printable(rel.type)
-                rel_list.append((rel.object, type_printable))
+                rel_list.append((rel.object, type_printable, rel.comment))
             else:
                 type_printable = PackageRelationship.make_type_printable(\
                     PackageRelationship.forward_to_reverse_type(
                         rel.type)
                     )
-                rel_list.append((rel.subject, type_printable))
+                rel_list.append((rel.subject, type_printable, rel.comment))
         # sibling types
         # e.g. 'gary' is a child of 'mum', looking for 'bert' is a child of 'mum'
         # i.e. for each 'child_of' type relationship ...

@@ -438,3 +438,7 @@ ul.packages {
 .package .details td.package-label {
   width: 150px;
 }
+
+.relationship_comment {
+  font-style: italic;
+}
