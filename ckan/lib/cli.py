@@ -991,10 +991,12 @@ class Load(CkanCommand):
             filepath, api_url, api_key = self.args[1:]
             assert api_url.startswith('http://') and api_url.endswith('/api'), api_url
             # import them
-            from ckanext.getdata.bis import BisImporter
-            importer = BisImporter(filepath=filepath)            
-            unique_extra_field = 'external_reference'
+            from ckanext.getdata.bis import BisImporter, BisLoader
+            importer = BisImporter(filepath=filepath)
+            loader = BisLoader
         elif data_type == 'ons':
+            from ckanext.getdata.ons_importer import *
+            from ckanext.getdata.ons_loader import *
             if len(self.args) != 4:
                 print 'Error: Wrong number of arguments for data type: %s' % data_type
                 print self.usage
@@ -1009,9 +1011,8 @@ class Load(CkanCommand):
             data_filepath = ons_data.download(url, url_name, force_download=True)
             
             # import them
-            from ckanext.getdata.ons_importer import OnsImporter
             importer = OnsImporter(filepath=data_filepath)
-            unique_extra_field = None
+            loader = OnsLoader
         else:
             print 'Error: Data type %r not recognised' % data_type
             print self.usage
@@ -1026,10 +1027,9 @@ class Load(CkanCommand):
             #raw_input('Press return to load packages')
             # load them
             from ckanclient import CkanClient
-            from ckanext.getdata.loader import PackageLoader
             client = CkanClient(api_key=api_key, base_location=api_url,
                                 is_verbose=False)
-            loader = PackageLoader(client)
+            loader = loader(client)
             res = loader.load_packages(pkg_dicts)
             if res['num_errors'] == 0 and res['num_loaded']:
                 print 'SUCCESS'
