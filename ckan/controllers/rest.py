@@ -14,11 +14,19 @@ log = logging.getLogger(__name__)
 
 IGNORE_FIELDS = ['q']
 
-class BaseRestController(BaseController):
+class BaseApiController(BaseController):
 
     api_version = ''
     ref_package_by = ''
     ref_group_by = ''
+
+    def _ref_package(self, package):
+        assert self.ref_package_by in ['id', 'name']
+        return getattr(package, self.ref_package_by)
+
+    def _ref_group(self, group):
+        assert self.ref_group_by in ['id', 'name']
+        return getattr(group, self.ref_group_by)
 
     def _list_package_refs(self, packages):
         return [getattr(p, self.ref_package_by) for p in packages]
@@ -29,13 +37,34 @@ class BaseRestController(BaseController):
     def _finish_ok(self, response_data=None):
         response.status_int = 200
         response.headers['Content-Type'] = 'application/json;charset=utf-8'
-        json_response = ''
+        response_msg = ''
         if response_data is not None:
-            json_response = json.dumps(response_data)
+            response_msg = json.dumps(response_data)
+            # Support "JSONP" callback.
             if request.params.has_key('callback') and request.method == 'GET':
-                json_response = '%s(%s);' % (request.params['callback'],
-                                             json_response)
-        return json_response
+                callback = request.params['callback']
+                response_msg = self._wrap_jsonp(callback, response_msg)
+        return response_msg
+
+    def _wrap_jsonp(self, callback, response_msg):
+        return '%s(%s);' % (callback, response_msg)
+
+
+class ApiVersion1(BaseApiController):
+
+    api_version = '1'
+    ref_package_by = 'name'
+    ref_group_by = 'name'
+
+
+class ApiVersion2(BaseApiController):
+
+    api_version = '2'
+    ref_package_by = 'id'
+    ref_group_by = 'id'
+
+
+class BaseRestController(BaseApiController):
 
     def get_api(self):
         response_data = {}
@@ -43,7 +72,7 @@ class BaseRestController(BaseController):
         return self._finish_ok(response_data) 
 
     def list(self, register, subregister=None, id=None):
-        log.debug('list %s/%s/%s' % (register, subregister, id))
+        log.debug('list %s' % (request.path))
         if register == 'revision':
             revs = model.Session.query(model.Revision).all()
             return self._finish_ok([rev.id for rev in revs])
@@ -167,9 +196,10 @@ class BaseRestController(BaseController):
 
     def create(self, register, id=None, subregister=None, id2=None):
         log.debug('create %s/%s/%s/%s params: %r' % (register, id, subregister, id2, request.params))
-        # Check an API key given
+        # Check an API key given, otherwise deny access.
         if not self._check_access(None, None):
             return json.dumps(_('Access denied'))
+        # Read the request data.
         try:
             request_data = self._get_request_data()
         except ValueError, inst:
@@ -177,6 +207,7 @@ class BaseRestController(BaseController):
             return gettext('JSON Error: %s') % str(inst)
         try:
             if register == 'package' and not subregister:
+                # Create a Package.
                 fs = ckan.forms.get_standard_fieldset()
                 try:
                     request_fa_dict = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(fs=fs), request_data)
@@ -185,7 +216,9 @@ class BaseRestController(BaseController):
                     response.status_int = 400
                     return gettext('Package format incorrect: %s') % str(inst)
                 fs = fs.bind(model.Package, data=request_fa_dict, session=model.Session)
+                # ...continues below.
             elif register == 'package' and subregister in model.PackageRelationship.get_all_types():
+                # Create a Package Relationship.
                 pkg1 = self._get_pkg(id)
                 pkg2 = self._get_pkg(id2)
                 if not pkg1:
@@ -207,31 +240,38 @@ class BaseRestController(BaseController):
                 response_data = rel.as_dict(ref_package_by=self.ref_package_by)
                 return self._finish_ok(response_data)
             elif register == 'group' and not subregister:
+                # Create a Group.
                 request_fa_dict = ckan.forms.edit_group_dict(ckan.forms.get_group_dict(), request_data)
                 fs = ckan.forms.get_group_fieldset('group_fs_combined').bind(model.Group, data=request_fa_dict, session=model.Session)
+                # ...continues below.
             elif register == 'rating' and not subregister:
+                # Create a Rating.
                 return self._create_rating(request_data)
             else:
+                # Complain about unsupported entity type.
                 log.error('Cannot create new entity of this type: %s %s' % (register, subregister))
                 response.status_int = 400
                 return gettext('Cannot create new entity of this type: %s %s') % (register, subregister)
+            # Validate the fieldset.
             validation = fs.validate()
             if not validation:
+                # Complain about validation errors.
                 log.error('Validation error: %r' % repr(fs.errors))
                 response.status_int = 409
                 return json.dumps(repr(fs.errors))
+            # Construct new revision.
             rev = model.repo.new_revision()
             rev.author = self.rest_api_user
             rev.message = _(u'REST API: Create object %s') % str(fs.name.value)
+            # Construct catalogue entity.
             fs.sync()
-
-            # set default permissions
+            # Construct access control entities.
             if self.rest_api_user:
                 admins = [model.User.by_name(self.rest_api_user.decode('utf8'))]
             else:
                 admins = []
             model.setup_default_user_roles(fs.model, admins)
-
+            # Commit
             model.repo.commit()        
         except Exception, inst:
             log.exception(inst)
@@ -240,9 +280,11 @@ class BaseRestController(BaseController):
             raise
         log.debug('Created object %s' % str(fs.name.value))
         obj = fs.model
+        # Set location header with new ID.
         location = str('%s/%s' % (request.path, obj.id))
         response.headers['Location'] = location
         log.debug('Response headers: %r' % (response.headers))
+        # Todo: Return 201, not 200.
         return self._finish_ok(obj.as_dict())
             
     def update(self, register, id, subregister=None, id2=None):
@@ -462,7 +504,6 @@ class BaseRestController(BaseController):
         else:
             response.status_int = 404
             return gettext('Unknown register: %s') % register
-            
 
     def tag_counts(self):
         log.debug('tag counts')
@@ -579,12 +620,8 @@ class BaseRestController(BaseController):
         return self._finish_ok(relationship.as_dict())
 
 
-class RestController(BaseRestController):
+class RestController(ApiVersion1, BaseRestController):
     # Implements CKAN API Version 1.
-
-    api_version = '1'
-    ref_package_by = 'name'
-    ref_group_by = 'name'
 
     def _represent_package(self, package):
         msg_data = super(RestController, self)._represent_package(package)
