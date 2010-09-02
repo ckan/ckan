@@ -7,11 +7,6 @@ from ckan.lib.base import *
 from ckan.lib.search import query_for
 from ckan.lib.helpers import json, AlphaPage, Page
 
-if bool(config.get('enable_caching', '')):
-    _cache = beaker_cache(expire=3600, type='file', query_args=True)
-else:
-    _cache = lambda x: x
-
 LIMIT = 25
 
 class TagController(BaseController):
@@ -45,7 +40,7 @@ class TagController(BaseController):
            
         return render('tag/index.html')
 
-    @_cache
+    @beaker_cache(expire=3600, type='file')
     def read(self, id):
         query = model.Session.query(model.Tag)
         query = query.filter(model.Tag.name==id)
