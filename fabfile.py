@@ -40,7 +40,8 @@ env.ckan_repo = 'http://knowledgeforge.net/ckan/hg/raw-file/default/'
 env.pip_requirements = 'pip-requirements.txt'
 env.skip_setup_db = False
 
-def config_local(base_dir, ckan_instance_name, db_pass=None, skip_setup_db=None, no_sudo=None):
+def config_local(base_dir, ckan_instance_name, db_host=None, db_pass=None, 
+                 skip_setup_db=None, no_sudo=None):
     '''Run on localhost. e.g. local:~/test,myhost.com
                             puts it at ~/test/myhost.com
                             '''
@@ -49,6 +50,8 @@ def config_local(base_dir, ckan_instance_name, db_pass=None, skip_setup_db=None,
     env.base_dir = os.path.expanduser(base_dir)    # e.g. ~/var/srvc
     if db_pass:
         env.db_pass = db_pass
+    if db_host:
+        env.db_host = db_host
     if skip_setup_db != None:
         env.skip_setup_db = skip_setup_db    
     if no_sudo != None:
@@ -151,6 +154,7 @@ def _setup():
     _default('who_ini_filepath', os.path.join(env.pyenv_dir, 'src', 'ckan',
         'who.ini'))
     _default('db_user', env.user)
+    _default('db_host', 'localhost')
     _default('db_name', env.ckan_instance_name)
 
 def deploy():
@@ -185,8 +189,8 @@ def deploy():
             _run_in_pyenv('paster make-config --no-interactive ckan %s' % env.config_ini_filename)
             dburi = '^sqlalchemy.url.*'
             # e.g. 'postgres://tester:pass@localhost/ckantest3'
-            newdburi = 'sqlalchemy.url = postgres://%s:%s@localhost/%s' % (
-                    env.db_user, env.db_pass, env.db_name)
+            newdburi = 'sqlalchemy.url = postgres://%s:%s@%s/%s' % (
+                    env.db_user, env.db_pass, env.db_host, env.db_name)
             # sed does not find the path if not absolute (!)
             config_path = os.path.join(env.instance_path, env.config_ini_filename)
             sed(config_path, dburi, newdburi, backup='')
