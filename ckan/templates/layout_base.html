@@ -79,9 +79,11 @@
       <h1>
         <a href="${h.url_for('home')}">
           <py:if test="g.site_logo">
-          <img src="${g.site_logo}" alt="${g.site_title} Logo" />
+            <img src="${g.site_logo}" alt="${g.site_title} Logo" />
           </py:if>
-          ${g.site_title}
+          <py:if test="not g.site_logo">
+            ${g.site_title}
+          </py:if>
         </a>
         <!-- <a href="/" title="CKAN Home">${g.site_title}</a> -->
       </h1>
