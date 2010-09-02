@@ -1009,7 +1009,7 @@ class Load(CkanCommand):
             data_filepath = ons_data.download(url, url_name, force_download=True)
             
             # import them
-            from ckanext.getdata.ons_loader import OnsImporter
+            from ckanext.getdata.ons_importer import OnsImporter
             importer = OnsImporter(filepath=data_filepath)
             unique_extra_field = None
         else:
@@ -1029,7 +1029,7 @@ class Load(CkanCommand):
             from ckanext.getdata.loader import PackageLoader
             client = CkanClient(api_key=api_key, base_location=api_url,
                                 is_verbose=False)
-            loader = PackageLoader(client, unique_extra_field=unique_extra_field)
+            loader = PackageLoader(client)
             res = loader.load_packages(pkg_dicts)
             if res['num_errors'] == 0 and res['num_loaded']:
                 print 'SUCCESS'
