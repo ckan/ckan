@@ -75,9 +75,3 @@ class HomeController(BaseController):
                 cache_ = cache.get_cache(cache_name, type='dbm')
                 cache_.clear()
             return 'Cleared caches: %s' % ', '.join(wui_caches)
-
-    from ckan.lib.cache import cache
-#    @cache(test=lambda : 1283380688.0+ 1000000)
-    @cache()
-    def test_cache(self):
-        return "Hello"
