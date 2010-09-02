@@ -108,8 +108,8 @@ def make_map():
 
     # CKAN API v2.
     map.connect('/api/2', controller='rest2', action='get_api')
-    map.connect('/api/2/form/package/create', controller='form', action='package_create')
-    map.connect('/api/2/form/package/edit/:id', controller='form', action='package_edit')
+    map.connect('/api/2/form/package/create', controller='form2', action='package_create')
+    map.connect('/api/2/form/package/edit/:id', controller='form2', action='package_edit')
     map.connect('/api/2/search/:register', controller='rest2', action='search')
     map.connect('/api/2/tag_counts', controller='rest2', action='tag_counts')
     map.connect('/api/2/rest', controller='rest2', action='index')

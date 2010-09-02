@@ -163,7 +163,6 @@ class BaseController(WSGIController):
         
     def _write_call_timing(self):
         call_duration = c.time_call_stopped - c.time_call_started
-        request_path = request.path
         timing_data = {
             "path": request.path, 
             "started": c.time_call_started.isoformat(),
