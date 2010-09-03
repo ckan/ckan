@@ -1,7 +1,7 @@
 from ckan.tests import *
 from pylons import config
 from ckan.lib.base import BaseController
-from ckan.lib.cache import cache
+from ckan.lib.cache import ckan_cache
 from time import gmtime, time, mktime, strptime, sleep
 import sys
 
@@ -10,15 +10,15 @@ def now():
 start = now()
 
 class CacheController(BaseController):
-    @cache()
+    @ckan_cache()
     def defaults(self):
         return "defaults"
 
-    @cache(test=lambda : start + 3600)
+    @ckan_cache(test=lambda : start + 3600)
     def future(self):
         return "future"
 
-    @cache(test=lambda : now())
+    @ckan_cache(test=lambda : now())
     def always(self):
         return "always"
     
@@ -63,6 +63,11 @@ class TestCacheController(TestController):
         assert headers["X-CKAN-Cache"] == "HIT"
 
     def test_future(self):
+        """
+        Expiry in the future
+
+        This should raise an exception as it is not allowed per HTTP/1.1
+        """
         url = url_for(controller="cache", action="future")
         
         resp = self.app.get(url)
