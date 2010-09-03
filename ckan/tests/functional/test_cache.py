@@ -10,6 +10,10 @@ def now():
 start = now()
 
 class CacheController(BaseController):
+    """
+    Dummy controller - we are testing the decorator
+    not the controller
+    """
     @ckan_cache()
     def defaults(self):
         return "defaults"
@@ -21,7 +25,7 @@ class CacheController(BaseController):
     @ckan_cache(test=lambda : now())
     def always(self):
         return "always"
-    
+# put the dummy controller where routes can find it    
 sys.modules["ckan.controllers.cache"] = __import__(__name__)
 sys.modules["ckan.controllers.cache"].CacheController = CacheController
 
