@@ -30,7 +30,7 @@ class GroupController(BaseController):
         auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, c.group)
         if not auth_for_read:
             abort(401, gettext('Not authorized to read %s') % id.encode('utf8'))
-
+            
         c.auth_for_edit = self.authorizer.am_authorized(c, model.Action.EDIT, c.group)
         c.auth_for_authz = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, c.group)
         
