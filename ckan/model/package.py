@@ -313,7 +313,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     def diff(self, to_revision=None, from_revision=None):
         '''Overrides the diff in vdm, so that related obj revisions are
         diffed as well as PackageRevisions'''
-        import extras, resource
+        import package_extra, resource
         results = {} # field_name:diffs
         results.update(super(Package, self).diff(to_revision, from_revision))
         # Iterate over PackageTag, PackageExtra, PackageResources etc.
@@ -358,8 +358,8 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
 def get_revisioned_classes_related_to_package():
     import resource
-    import extras
+    import package_extra
     import tag
     return [tag.PackageTag, resource.PackageResource,
-            extras.PackageExtra]
+            package_extra.PackageExtra]
 

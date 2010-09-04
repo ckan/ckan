@@ -7,7 +7,7 @@ from user import user_table, User
 from group import *
 from search_index import *
 from authz import *
-from extras import *
+from package_extra import *
 from resource import *
 from rating import *
 from package_relationship import PackageRelationship

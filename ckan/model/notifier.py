@@ -180,7 +180,7 @@ class NotifierMapperTrigger(MapperExtension):
         '''
         from package import Package
         from resource import PackageResource
-        from extras import PackageExtra
+        from package_extra import PackageExtra
         from tag import PackageTag
         if self.check_real_change(instance):
             if isinstance(instance, Package):
