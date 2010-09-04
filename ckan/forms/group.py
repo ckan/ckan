@@ -3,8 +3,10 @@ from formalchemy import helpers as fa_h
 import ckan.lib.helpers as h
 
 from builder import FormBuilder
+from sqlalchemy.util import OrderedDict
 import ckan.model as model
 import common
+from common import ExtrasField
 from ckan.lib.helpers import literal
 
 __all__ = ['get_group_fieldset', 'get_group_dict', 'edit_group_dict']
@@ -49,13 +51,15 @@ def build_group_form(with_packages=False):
     builder.set_field_text('name', 'Unique Name (required)', literal("<br/><strong>Unique identifier</strong> for group.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'"))
     builder.set_field_option('name', 'validate', common.group_name_validator)
     builder.set_field_option('description', 'textarea', {'size':'60x15'})
+    builder.add_field(ExtrasField('extras', hidden_label=True))
     displayed_fields = ['name', 'title', 'description']
     if with_packages:
         builder.add_field(PackagesField('packages'))
         displayed_fields.append('packages')
-    builder.set_displayed_fields({'Details':displayed_fields})
+    builder.set_displayed_fields(OrderedDict([('Details', displayed_fields),
+                                              ('Extras', ['extras'])]))
     builder.set_label_prettifier(common.prettify)
-    return builder
+    return builder  
 
 fieldsets = {}
 def get_group_fieldset(name):
