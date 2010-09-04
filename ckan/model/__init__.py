@@ -5,6 +5,7 @@ from tag import *
 from package_mapping import *
 from user import user_table, User
 from group import *
+from group_extra import *
 from search_index import *
 from authz import *
 from package_extra import *
