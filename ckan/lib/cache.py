@@ -1,5 +1,4 @@
 from time import gmtime, mktime, strftime, time
-
 from decorator import decorator
 from paste.deploy.converters import asbool
 from pylons.decorators.cache import beaker_cache, create_cache_key, _make_dict_from_args
@@ -9,7 +8,7 @@ __all__ = ["ckan_cache"]
 
 log = __import__("logging").getLogger(__name__)
 
-def ckan_cache(test=lambda: 0,
+def ckan_cache(test=lambda *av, **kw: 0,
           key="cache_default",
           expires=900,
           type=None,
@@ -68,7 +67,7 @@ def ckan_cache(test=lambda: 0,
         # this section copies entirely too much from beaker cache
         if key:
             if query_args:
-                key_dict = request.GET.mixed()
+                key_dict = pylons.request.GET.mixed()
             else:
                 key_dict = kwargs.copy()
             # beaker only does this if !query_args, we do it in
@@ -80,13 +79,13 @@ def ckan_cache(test=lambda: 0,
                     key_dict = dict((k, key_dict[k]) for k in key)
                 else:
                     key_dict = {key: key_dict[key]}
-            else:
-                key_dict = None
+        else:
+            key_dict = None
 
         self = None
         if args:
             self = args[0]
-
+        
         namespace, cache_key = create_cache_key(func, key_dict, self)
 
         if type:
@@ -95,7 +94,7 @@ def ckan_cache(test=lambda: 0,
 
         ## end copy from beaker_cache
         
-        last_modified = test()
+        last_modified = test(*args, **kwargs)
         cache_miss = list()
         
         def render():
@@ -103,7 +102,7 @@ def ckan_cache(test=lambda: 0,
                       cache_key, type)
             result = func(*args, **kwargs)
             glob_response = pylons.response
-            headers = glob_response.headers
+            headers = dict(glob_response.headerlist)
             status = glob_response.status
             full_response = dict(headers=headers, status=status,
                                  cookies=None, content=result,
@@ -116,28 +115,31 @@ def ckan_cache(test=lambda: 0,
         if timestamp < last_modified:
             my_cache.remove(cache_key)
         response = my_cache.get_value(cache_key, createfunc=render)
-        
+
         glob_response = pylons.response
-        headers = dict(glob_response.headerlist)
-        headers.update(header for header in response["headers"]
-                       if header[0].lower() in cache_headers)
-
-        if "Pragma" in headers: del headers["Pragma"]
-        if "Cache-Control" in headers: del headers["Cache-Control"]
-        headers["Last-Modified"] = strftime("%a, %d %b %Y %H:%M:%S GMT", gmtime(last_modified))
-        if cache_miss:
-            headers["X-CKAN-Cache"] = "MISS"
-        else:
-            headers["X-CKAN-Cache"] = "HIT"
-
-        glob_response.headerlist = headers.items()
-
-        glob_response.cache_expires(seconds=expires)
-        cc = glob_response.headers["Cache-Control"]
-        glob_response.headers["Cache-Control"] = "%s, must-revalidate" % cc
         
-        glob_response.status = response['status']
+        if response["status"][0] in ("4", "5"): # do not cache 4XX, 5XX
+            my_cache.remove(cache_key)
+        else:
+            headers = dict(glob_response.headerlist)
+            headers.update(header for header in response["headers"].items()
+                           if header[0].lower() in cache_headers)
+                   
+            if "Pragma" in headers: del headers["Pragma"]
+            if "Cache-Control" in headers: del headers["Cache-Control"]
+            headers["Last-Modified"] = strftime("%a, %d %b %Y %H:%M:%S GMT", gmtime(last_modified))
+            if cache_miss:
+                headers["X-CKAN-Cache"] = "MISS"
+            else:
+                headers["X-CKAN-Cache"] = "HIT"
 
+            glob_response.headerlist = headers.items()
+            
+            glob_response.cache_expires(seconds=expires)
+            cc = glob_response.headers["Cache-Control"]
+            glob_response.headers["Cache-Control"] = "%s, must-revalidate" % cc
+
+        glob_response.status = response['status']
         return response["content"]
 
     return decorator(wrapper)

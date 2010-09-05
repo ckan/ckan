@@ -206,7 +206,7 @@ class ModelApiTestCase(ApiControllerTestCase):
         offset = self.offset('/rest/package')
         postparams = '%s=1' % json.dumps(self.testpackagevalues)
         res = self.app.post(offset, params=postparams, status=ACCESS_DENIED)
-
+        
     def test_01_entity_put_noauth(self):
         # Test Packages Entity Put 401.
         offset = self.anna_offset()

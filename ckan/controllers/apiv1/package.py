@@ -1,0 +1,191 @@
+from time import mktime, gmtime
+from sqlalchemy.sql import select, and_, or_, union
+
+from ckan.controllers.rest import RestController
+from ckan.lib.base import _, request, response
+from ckan.lib.cache import ckan_cache
+from ckan.lib.helpers import json
+import ckan.model as model
+import ckan
+
+log = __import__("logging").getLogger(__name__)
+
+class PackageController(RestController):
+    def _package_time(self, where=None):
+        """
+        Return most recent timestamp for a package revision, with optionally
+        extra where clause.
+        """
+        where = [where] if where else []
+        where_clauses = [
+            and_(model.package_table.c.revision_id == model.revision_table.c.id, *where),
+            and_(model.package_extra_table.c.package_id == model.package_table.c.id,
+                 model.package_extra_table.c.revision_id == model.revision_table.c.id, *where),
+            and_(model.package_relationship_table.c.subject_package_id == model.package_table.c.id,
+                 model.package_relationship_table.c.revision_id == model.revision_table.c.id, *where),
+            and_(model.package_relationship_table.c.object_package_id == model.package_table.c.id,
+                 model.package_relationship_table.c.revision_id == model.revision_table.c.id, *where),
+            and_(model.package_resource_table.c.package_id == model.package_table.c.id,
+                 model.package_resource_table.c.revision_id == model.revision_table.c.id, *where),
+            and_(model.package_tag_table.c.package_id == model.package_table.c.id,
+                 model.package_tag_table.c.revision_id == model.revision_table.c.id, *where)
+            ]
+        query = union(*[select([model.revision_table.c.timestamp], x) for x in where_clauses]
+                      ).order_by("timestamp DESC").limit(1)
+        conn = model.meta.engine.connect()
+        result = conn.execute(query).fetchone()
+        timestamp = result[0].utctimetuple() if result else gmtime()
+        return mktime(timestamp)
+
+    @ckan_cache(test=_package_time, query_args=True)
+    def list(self):
+        """
+        Return a list of all packages
+        """
+        query = ckan.authz.Authorizer().authorized_query(self._get_username(), model.Package)
+        packages = query.all()
+        response_data = self._list_package_refs(packages)
+        return self._finish_ok(response_data)
+
+    def _last_modified(self, id):
+        """
+        Return most recent timestamp for this package
+        """
+        return self._package_time(model.package_table.c.name == id)
+
+    @ckan_cache(test=_last_modified, query_args=True)
+    def show(self, id):
+        """
+        Return the specified package
+        """
+        pkg = self._get_pkg(id)
+        if pkg is None:
+            response.status_int = 404
+            response_data = json.dumps(_('Not found'))
+        elif not self._check_access(pkg, model.Action.READ):
+            response.status_int = 403
+            response_data = json.dumps(_('Access denied'))
+        else:
+            response_data = self._represent_package(pkg)
+        return self._finish_ok(response_data)
+    
+    def create(self):
+        if not self._check_access(None, None):
+            return json.dumps(_('Access denied'))
+
+        # Create a Package.
+        fs = ckan.forms.get_standard_fieldset()
+        try:
+            request_data = self._get_request_data()
+            request_fa_dict = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(fs=fs), request_data)
+            fs = fs.bind(model.Package, data=request_fa_dict, session=model.Session)
+            log.debug('Created object %s' % str(fs.name.value))
+            obj = fs.model
+            
+            # Validate the fieldset.
+            validation = fs.validate()
+            if not validation:
+                # Complain about validation errors.
+                log.error('Validation error: %r' % repr(fs.errors))
+                response.status_int = 409
+                response.write(json.dumps(repr(fs.errors)))
+            else:
+                try:
+                    # Construct new revision.
+                    rev = model.repo.new_revision()
+                    rev.author = self.rest_api_user
+                    rev.message = _(u'REST API: Create object %s') % str(fs.name.value)
+                    # Construct catalogue entity.
+                    fs.sync()
+                    # Construct access control entities.
+                    if self.rest_api_user:
+                        admins = [model.User.by_name(self.rest_api_user.decode('utf8'))]
+                    else:
+                        admins = []
+                    model.setup_default_user_roles(fs.model, admins)
+                    # Commit
+                    model.repo.commit()        
+                    # Set location header with new ID.
+                    location = str('%s/%s' % (request.path, obj.id))
+                    response.headers['Location'] = location
+                    log.debug('Response headers: %r' % (response.headers))
+                    # Todo: Return 201, not 200.
+                    response.write(self._finish_ok(obj.as_dict()))
+                except Exception, inst:
+                    log.exception(inst)
+                    model.Session.rollback()
+                    log.error('Exception creating object %s: %r' % (str(fs.name.value), inst))
+                    raise
+        except ValueError, inst:
+            response.status_int = 400
+            response.write(_(u'JSON Error: %s') % str(inst))
+        except ckan.forms.PackageDictFormatError, inst:
+            log.error('Package format incorrect: %s' % str(inst))
+            response.status_int = 400
+            response.write(_(u'Package format incorrect: %s') % str(inst))
+        return response
+    
+    def update(self, id):
+        if not self._check_access(None, None):
+            return json.dumps(_('Access denied'))
+        
+        entity = self._get_pkg(id)
+        if entity is None:
+            response.status_int = 404
+            response.write(_('Package was not found.'))
+        else:
+            fs = ckan.forms.get_standard_fieldset()
+            orig_entity_dict = ckan.forms.get_package_dict(pkg=entity, fs=fs)
+            try:
+                request_data = self._get_request_data()
+                request_fa_dict = ckan.forms.edit_package_dict(orig_entity_dict, request_data, id=entity.id)
+                fs = fs.bind(entity, data=request_fa_dict)
+                validation = fs.validate()
+                if not validation:
+                    response.status_int = 409
+                    response.write(json.dumps(repr(fs.errors)))
+                else:
+                    try:
+                        rev = model.repo.new_revision()
+                        rev.author = self.rest_api_user
+                        rev.message = _(u'REST API: Update object %s') % str(fs.name.value)
+                        fs.sync()
+
+                        model.repo.commit()        
+                    except Exception, inst:
+                        log.exception(inst)
+                        model.Session.rollback()
+                        if inst.__class__.__name__ == 'IntegrityError':
+                            response.status_int = 409
+                            response.write(_(u'Integrity Error'))
+                        else:
+                            raise
+                    obj = fs.model
+                    response.write(self._finish_ok(obj.as_dict()))
+            except ValueError, inst:
+                response.status_int = 400
+                response.write(gettext('JSON Error: %s') % str(inst))
+            except ckan.forms.PackageDictFormatError, inst:
+                response.status_int = 400
+                response.write(_(u'Package format incorrect: %s') % str(inst))
+        return response
+
+    def delete(self, id):
+        if not self._check_access(None, None):
+            return json.dumps(_('Access denied'))
+
+        entity = self._get_pkg(id)
+        if not entity:
+            response.status_int = 404
+            response.write(_(u'Package was not found.'))
+        else:
+            rev = model.repo.new_revision()
+            rev.author = self.rest_api_user
+            rev.message = _(u'REST API: Delete Package: %s') % entity.name
+            try:
+                entity.delete()
+                model.repo.commit()        
+            except Exception, inst:
+                log.exception(inst)
+                raise
+            return self._finish_ok()

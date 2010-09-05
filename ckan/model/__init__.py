@@ -10,7 +10,7 @@ from authz import *
 from extras import *
 from resource import *
 from rating import *
-from package_relationship import PackageRelationship
+from package_relationship import *
 from changeset import Changeset, Change, Changemask
 from notifier import *
 
