@@ -25,7 +25,7 @@ class PackageController(BaseController):
         c.package_count = query.count()
         return render('package/index.html')
 
-    @proxy_cache(expires=3600)
+    @proxy_cache()
     def list(self):
         query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
         query = query.options(eagerload_all('package_tags.tag'))

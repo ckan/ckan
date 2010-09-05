@@ -40,7 +40,7 @@ class TagController(BaseController):
            
         return render('tag/index.html')
 
-    @proxy_cache(expires=3600)
+    @proxy_cache()
     def read(self, id):
         query = model.Session.query(model.Tag)
         query = query.filter(model.Tag.name==id)
