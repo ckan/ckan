@@ -2,7 +2,7 @@ from time import gmtime, mktime, strftime, time
 from decorator import decorator
 from paste.deploy.converters import asbool
 from pylons.decorators.cache import beaker_cache, create_cache_key, _make_dict_from_args
-import pylons
+from pylons.decorators.util import get_pylons
 
 __all__ = ["ckan_cache"]
 
@@ -23,8 +23,8 @@ def ckan_cache(test=lambda *av, **kw: 0,
         expiry that gets set in the max-age Cache-Control header. The default is
         15 minutes
         
-    :param test: is a function that takes no arguments and returns an numeric
-        value in seconds from the epoch GMT.
+    :param test: is a function that takes the same arguments as the wrapped
+        controller and returns an numeric value in seconds from the epoch GMT.
 
     The ''test'' function is crucial for cache expiry. The decorator keeps a
     timestamp for the last time the cache was updated. If the value returned by
@@ -48,7 +48,7 @@ def ckan_cache(test=lambda *av, **kw: 0,
             return "I never expire, last-modified is the epoch"
 
         from time import mktime, gmtime
-        @cache(test=lambda : mktime(gmtime()))
+        @cache(test=lambda *av, **kw: mktime(gmtime()))
         def controller():
             return "I am never cached locally but set cache-control headers"
 
@@ -59,6 +59,7 @@ def ckan_cache(test=lambda *av, **kw: 0,
     """
     cache_headers = set(cache_headers)
     def wrapper(func, *args, **kwargs):
+        pylons = get_pylons(args)
         enabled = pylons.config.get("cache_enabled", "True")
         if not asbool(enabled):
             log.debug("Caching disabled, skipping cache lookup")
