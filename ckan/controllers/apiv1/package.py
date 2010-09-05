@@ -1,6 +1,3 @@
-from time import mktime, gmtime
-from sqlalchemy.sql import select, and_, or_, union
-
 from ckan.controllers.rest import RestController
 from ckan.lib.base import _, request, response
 from ckan.lib.cache import ckan_cache
@@ -11,33 +8,7 @@ import ckan
 log = __import__("logging").getLogger(__name__)
 
 class PackageController(RestController):
-    def _package_time(self, where=None):
-        """
-        Return most recent timestamp for a package revision, with optionally
-        extra where clause.
-        """
-        where = [where] if where else []
-        where_clauses = [
-            and_(model.package_table.c.revision_id == model.revision_table.c.id, *where),
-            and_(model.package_extra_table.c.package_id == model.package_table.c.id,
-                 model.package_extra_table.c.revision_id == model.revision_table.c.id, *where),
-            and_(model.package_relationship_table.c.subject_package_id == model.package_table.c.id,
-                 model.package_relationship_table.c.revision_id == model.revision_table.c.id, *where),
-            and_(model.package_relationship_table.c.object_package_id == model.package_table.c.id,
-                 model.package_relationship_table.c.revision_id == model.revision_table.c.id, *where),
-            and_(model.package_resource_table.c.package_id == model.package_table.c.id,
-                 model.package_resource_table.c.revision_id == model.revision_table.c.id, *where),
-            and_(model.package_tag_table.c.package_id == model.package_table.c.id,
-                 model.package_tag_table.c.revision_id == model.revision_table.c.id, *where)
-            ]
-        query = union(*[select([model.revision_table.c.timestamp], x) for x in where_clauses]
-                      ).order_by("timestamp DESC").limit(1)
-        conn = model.meta.engine.connect()
-        result = conn.execute(query).fetchone()
-        timestamp = result[0].utctimetuple() if result else gmtime()
-        return mktime(timestamp)
-
-    @ckan_cache(test=_package_time, query_args=True)
+    @ckan_cache(test=model.Package.last_modified, query_args=True)
     def list(self):
         """
         Return a list of all packages
@@ -51,7 +22,7 @@ class PackageController(RestController):
         """
         Return most recent timestamp for this package
         """
-        return self._package_time(model.package_table.c.name == id)
+        return model.Package.last_modified(model.package_table.c.name == id)
 
     @ckan_cache(test=_last_modified, query_args=True)
     def show(self, id):

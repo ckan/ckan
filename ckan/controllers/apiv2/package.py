@@ -22,7 +22,7 @@ class PackageController(Rest2Controller, _PackageV1Controller):
         """
         Return most recent timestamp for this package
         """
-        return self._package_time(model.package_table.c.id == id)
+        return model.Package.last_modified(model.package_table.c.id == id)
 
     @ckan_cache(test=_last_modified, query_args=True)
     def show(self, id):

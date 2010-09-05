@@ -1,5 +1,7 @@
 import datetime
+from time import mktime, gmtime
 
+from sqlalchemy.sql import select, and_, union, expression
 from sqlalchemy.orm import eagerload_all
 from pylons import config
 from meta import *
@@ -355,6 +357,36 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                         results[key] = value_diff
         return results
 
+    @staticmethod
+    def last_modified(*av):
+        """
+        Return most recent timestamp for a package revision, with optionally
+        extra where clause.
+        """
+        from ckan import model
+        where = []
+        for arg in av:
+            if isinstance(arg, expression.ClauseElement) or isinstance(arg, basestring):
+                where.append(arg)
+        where_clauses = [
+            and_(model.package_table.c.revision_id == model.revision_table.c.id, *where),
+            and_(model.package_extra_table.c.package_id == model.package_table.c.id,
+                 model.package_extra_table.c.revision_id == model.revision_table.c.id, *where),
+            and_(model.package_relationship_table.c.subject_package_id == model.package_table.c.id,
+                 model.package_relationship_table.c.revision_id == model.revision_table.c.id, *where),
+            and_(model.package_relationship_table.c.object_package_id == model.package_table.c.id,
+                 model.package_relationship_table.c.revision_id == model.revision_table.c.id, *where),
+            and_(model.package_resource_table.c.package_id == model.package_table.c.id,
+                 model.package_resource_table.c.revision_id == model.revision_table.c.id, *where),
+            and_(model.package_tag_table.c.package_id == model.package_table.c.id,
+                 model.package_tag_table.c.revision_id == model.revision_table.c.id, *where)
+            ]
+        query = union(*[select([model.revision_table.c.timestamp], x) for x in where_clauses]
+                      ).order_by("timestamp DESC").limit(1)
+        conn = model.meta.engine.connect()
+        result = conn.execute(query).fetchone()
+        timestamp = result[0].utctimetuple() if result else gmtime()
+        return mktime(timestamp)
 
 def get_revisioned_classes_related_to_package():
     import resource
