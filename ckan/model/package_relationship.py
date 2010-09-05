@@ -54,7 +54,9 @@ class PackageRelationship(vdm.sqlalchemy.RevisionedObjectMixin,
             {'sibling':_('has sibling %s')}
 
     def __str__(self):
-        return '<PackageRelationship %s %s %s>' % (self.subject.name, self.type, self.object.name)
+        from ckan import model
+        return '<%sPackageRelationship %s %s %s>' % ("*" if self.active != model.State.ACTIVE else "",
+                                                     self.subject.name, self.type, self.object.name)
 
     def __repr__(self):
         return str(self)

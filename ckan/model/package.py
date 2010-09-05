@@ -163,6 +163,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         '''Creates a new relationship between this package and a
         related_package. It leaves the caller to commit the change.'''
         import package_relationship
+        from ckan import model
         if type_ in package_relationship.PackageRelationship.get_forward_types():
             subject = self
             object_ = related_package
@@ -173,12 +174,21 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             object_ = self
         else:
             raise NotImplementedError, 'Package relationship type: %r' % type_
-            
-        rel = package_relationship.PackageRelationship(
-            subject=subject,
-            object=object_,
-            type=type_,
-            comment=comment)
+
+        rels = self.get_relationships(with_package=related_package,
+                                      type=type_, active=False, direction="forward")
+        if rels:
+            rel = rels[0]
+            if comment:
+                rel.comment=comment
+            if rel.state == model.State.DELETED:
+                rel.undelete()
+        else:
+            rel = package_relationship.PackageRelationship(
+                subject=subject,
+                object=object_,
+                type=type_,
+                comment=comment)
         Session.add(rel)
         return rel
 
