@@ -17,11 +17,6 @@ import ckan.misc
 
 logger = logging.getLogger('ckan.controllers')
 
-if bool(config.get('enable_caching', '')):
-    _cache = beaker_cache(expire=3600, type='file', query_args=True)
-else:
-    _cache = lambda x: x
-    
 class PackageController(BaseController):
     authorizer = ckan.authz.Authorizer()
 
@@ -30,7 +25,7 @@ class PackageController(BaseController):
         c.package_count = query.count()
         return render('package/index.html')
 
-    @_cache
+    @beaker_cache(expire=3600, type='file', query_args=True)
     def list(self):
         query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
         query = query.options(eagerload_all('package_tags.tag'))

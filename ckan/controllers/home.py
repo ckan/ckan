@@ -4,10 +4,12 @@ from pylons import cache
 
 from ckan.lib.base import *
 import ckan.lib.stats
+from pylons.decorators.cache import beaker_cache
 
 class HomeController(BaseController):
     repo = model.repo
 
+    @beaker_cache(expire=900, type="file")
     def index(self):
         c.package_count = model.Session.query(model.Package).count()
         c.revisions = model.Session.query(model.Revision).limit(10).all()
