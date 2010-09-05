@@ -4,7 +4,7 @@ from sqlalchemy.orm import eagerload_all
 
 from ckan.lib.base import *
 from ckan.lib.search import query_for
-from ckan.lib.cache import prox_cache
+from ckan.lib.cache import proxy_cache
 from ckan.lib.helpers import json, AlphaPage, Page
 
 LIMIT = 25
@@ -40,7 +40,7 @@ class TagController(BaseController):
            
         return render('tag/index.html')
 
-    @proxy_cache(expires=3600)
+    @proxy_cache()
     def read(self, id):
         query = model.Session.query(model.Tag)
         query = query.filter(model.Tag.name==id)

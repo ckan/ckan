@@ -10,7 +10,7 @@ log = __import__("logging").getLogger(__name__)
 
 def ckan_cache(test=lambda *av, **kw: 0,
           key="cache_default",
-          expires=900,
+          expires=None,
           type=None,
           query_args=False,
           cache_headers=('content-type', 'content-length',),
@@ -64,6 +64,9 @@ def ckan_cache(test=lambda *av, **kw: 0,
         if not asbool(enabled):
             log.debug("Caching disabled, skipping cache lookup")
             return func(*args, **kwargs)
+
+        cfg_expires = "%s.expires" % _func_cname(func)
+        cache_expires = expires if expires else int(pylons.config.get(cfg_expires, 900))
 
         # this section copies entirely too much from beaker cache
         if key:
@@ -136,7 +139,7 @@ def ckan_cache(test=lambda *av, **kw: 0,
 
             glob_response.headerlist = headers.items()
             
-            glob_response.cache_expires(seconds=expires)
+            glob_response.cache_expires(seconds=cache_expires)
             cc = glob_response.headers["Cache-Control"]
             glob_response.headers["Cache-Control"] = "%s, must-revalidate" % cc
 
@@ -145,16 +148,29 @@ def ckan_cache(test=lambda *av, **kw: 0,
 
     return decorator(wrapper)
 
-def proxy_cache(expires=1800):
+def proxy_cache(expires=None):
     def wrapper(func, *args, **kwargs):
         result = func(*args, **kwargs)
         pylons = get_pylons(args)
+        cfg_expires = "%s.expires" % _func_cname(func)
+        print cfg_expires
+        cache_expires = expires if expires else int(pylons.config.get(cfg_expires, 900))
+        print "PROXY CACHE EXPIRES", cache_expires
+
         headers = pylons.response.headers
         status = pylons.response.status
         if pylons.response.status[0] not in ("4", "5"):
             if "Pragma" in headers: del headers["Pragma"]
             if "Cache-Control" in headers: del headers["Cache-Control"]
             headers["Last-Modified"] = strftime("%a, %d %b %Y %H:%M:%S GMT", gmtime())
-            pylons.response.cache_expires(seconds=expires)
+            pylons.response.cache_expires(seconds=cache_expires)
         return result
     return decorator(wrapper)
+
+def _func_cname(func):
+    if hasattr(func, "im_class"):
+        base = "%s.%s" % (func.im_class.__module__, func.im_class.__name__)
+        func = func.im_func
+    else:
+        base = func.__module__
+    return "%s.%s" % (base, func.func_name)

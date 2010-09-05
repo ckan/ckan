@@ -22,6 +22,7 @@ beaker.session.key = ckan
 beaker.session.secret = ${app_instance_secret}
 app_instance_uuid = ${app_instance_uuid}
 
+
 # If you'd like to fine-tune the individual locations of the cache data dirs
 # for the Cache data, or the Session saves, un-comment the desired settings
 # here:
@@ -49,6 +50,13 @@ auth.admins =
 # CKAN search cache
 # any non-empty value enables it
 enable_caching =
+# cache to persistent files
+beaker.cache.type = file
+# cache expiry settings for specific controllers
+ckan.controllers.package.list.expires = 1800
+ckan.controllers.tag.read.expires = 900
+ckan.controllers.apiv1.package.list.expires = 900
+ckan.controllers.apiv1.package.show.expires = 900
 
 # Location of RDF versions of packages
 # e.g. rdf_packages = http://semantic.ckan.net/data/
