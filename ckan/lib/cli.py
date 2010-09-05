@@ -1023,7 +1023,7 @@ class Load(CkanCommand):
             print log
         print '%i packages' % len(pkg_dicts)
         if pkg_dicts:
-            raw_input('Press return to load packages')
+            #raw_input('Press return to load packages')
             # load them
             from ckanclient import CkanClient
             from ckanext.getdata.loader import PackageLoader

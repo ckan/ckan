@@ -35,7 +35,7 @@ class BaseApiController(BaseController):
         return [getattr(p, self.ref_group_by) for p in groups]
 
     def _finish_ok(self, response_data=None):
-        response.status_int = 200
+        # response.status_int = 200 -- already will be so
         response.headers['Content-Type'] = 'application/json;charset=utf-8'
         response_msg = ''
         if response_data is not None:

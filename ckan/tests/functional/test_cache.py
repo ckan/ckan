@@ -18,11 +18,11 @@ class CacheController(BaseController):
     def defaults(self):
         return "defaults"
 
-    @ckan_cache(test=lambda : start + 3600)
+    @ckan_cache(test=lambda *av, **kw: start + 3600)
     def future(self):
         return "future"
 
-    @ckan_cache(test=lambda : now())
+    @ckan_cache(test=lambda *av, **kw: now())
     def always(self):
         return "always"
 # put the dummy controller where routes can find it    
