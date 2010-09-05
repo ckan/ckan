@@ -1,5 +1,0 @@
-from ckan.lib.base import BaseController
-
-class Package(BaseController):
-    def index(self):
-        return "hello"
