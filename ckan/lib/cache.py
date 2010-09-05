@@ -144,3 +144,17 @@ def ckan_cache(test=lambda *av, **kw: 0,
         return response["content"]
 
     return decorator(wrapper)
+
+def proxy_cache(expires=1800):
+    def wrapper(func, *args, **kwargs):
+        result = func(*args, **kwargs)
+        pylons = get_pylons(args)
+        headers = pylons.response.headers
+        status = pylons.response.status
+        if pylons.response.status[0] not in ("4", "5"):
+            if "Pragma" in headers: del headers["Pragma"]
+            if "Cache-Control" in headers: del headers["Cache-Control"]
+            headers["Last-Modified"] = strftime("%a, %d %b %Y %H:%M:%S GMT", gmtime())
+            pylons.response.cache_expires(seconds=expires)
+        return result
+    return decorator(wrapper)
