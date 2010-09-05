@@ -1,5 +1,5 @@
 from pylons import config
-import webhelpers
+import webhelpers.util
 import re
 
 from ckan.tests import *
