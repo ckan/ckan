@@ -57,6 +57,8 @@ ckan.controllers.package.list.expires = 1800
 ckan.controllers.tag.read.expires = 900
 ckan.controllers.apiv1.package.list.expires = 900
 ckan.controllers.apiv1.package.show.expires = 900
+ckan.controllers.apiv2.package.list.expires = 900
+ckan.controllers.apiv2.package.show.expires = 900
 
 # Location of RDF versions of packages
 # e.g. rdf_packages = http://semantic.ckan.net/data/
