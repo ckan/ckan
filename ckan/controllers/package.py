@@ -92,6 +92,7 @@ class PackageController(BaseController):
         read_cache = cache.get_cache('package/read.html', type='dbm')
         read_cache.remove_value(self._pkg_cache_key(pkg))
 
+    @proxy_cache()
     def read(self, id):
         pkg = model.Package.get(id)
         if pkg is None:
@@ -119,7 +120,7 @@ class PackageController(BaseController):
         c.auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, pkg)
 
         PackageSaver().render_package(pkg)
-        return render('package/read.html', cache_key=cache_key, cache_expire=84600) 
+        return render('package/read.html')
 
     def history(self, id):
         if 'diff' in request.params or 'selected1' in request.params:
