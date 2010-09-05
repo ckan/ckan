@@ -153,9 +153,7 @@ def proxy_cache(expires=None):
         result = func(*args, **kwargs)
         pylons = get_pylons(args)
         cfg_expires = "%s.expires" % _func_cname(func)
-        print cfg_expires
         cache_expires = expires if expires else int(pylons.config.get(cfg_expires, 900))
-        print "PROXY CACHE EXPIRES", cache_expires
 
         headers = pylons.response.headers
         status = pylons.response.status
