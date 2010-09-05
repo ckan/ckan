@@ -37,7 +37,7 @@ class PackageController(RestController):
         timestamp = result[0].utctimetuple() if result else gmtime()
         return mktime(timestamp)
 
-    @ckan_cache(test=_package_time, query_args=True)
+    @ckan_cache(test=_package_time, query_args=True, expires=900)
     def list(self):
         """
         Return a list of all packages
@@ -53,7 +53,7 @@ class PackageController(RestController):
         """
         return self._package_time(model.package_table.c.name == id)
 
-    @ckan_cache(test=_last_modified, query_args=True)
+    @ckan_cache(test=_last_modified, query_args=True, expires=3600)
     def show(self, id):
         """
         Return the specified package

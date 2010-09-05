@@ -24,7 +24,7 @@ class PackageController(Rest2Controller, _PackageV1Controller):
         """
         return self._package_time(model.package_table.c.id == id)
 
-    @ckan_cache(test=_last_modified, query_args=True)
+    @ckan_cache(test=_last_modified, query_args=True, expires=3600)
     def show(self, id):
         """
         Return the specified package
