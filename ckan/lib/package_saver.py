@@ -135,6 +135,6 @@ class PackageSaver(object):
     @classmethod
     def _person_email_link(cls, name, email, reference):
         if email:
-            return h.mail_to(email_address=email, name=name or email, encode='javascript')
+            return h.mail_to(email_address=email, name=name or email, encode='hex')
         else:
             return name or reference + " not given"
