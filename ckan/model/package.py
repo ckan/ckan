@@ -250,17 +250,21 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         # e.g. 'gary' is a child of 'mum', looking for 'bert' is a child of 'mum'
         # i.e. for each 'child_of' type relationship ...
         for rel_as_subject in self.get_relationships(direction='forward'):
+            if rel_as_subject.active != State.ACTIVE:
+                continue
             # ... parent is the object
             parent_pkg = rel_as_subject.object
             # Now look for the parent's other relationships as object ...
             for parent_rel_as_object in parent_pkg.get_relationships(direction='reverse'):
+                if parent_rel_as_object.active != State.ACTIVE:
+                    continue
                 # and check children
                 child_pkg = parent_rel_as_object.subject
                 if child_pkg != self and \
                        parent_rel_as_object.type == rel_as_subject.type:
                     type_printable = PackageRelationship.inferred_types_printable['sibling']
                     rel_list.append((child_pkg, type_printable, None))
-        return rel_list
+        return sorted(rel_list)
     #
     ## Licenses are currently integrated into the domain model here.   
  
