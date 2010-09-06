@@ -184,7 +184,6 @@ class FormsApiTestCase(BaseFormsApiCase):
     def test_submit_package_edit_form_valid(self):
         package = self.get_package_by_name(self.package_name)
         res = self.post_package_edit_form(package.id, name=self.package_name_alt)
-        self.assert_header(res, 'Location')
         assert not json.loads(res.body)
         assert not self.get_package_by_name(self.package_name)
         assert self.get_package_by_name(self.package_name_alt)
@@ -195,8 +194,6 @@ class FormsApiTestCase(BaseFormsApiCase):
         # Nothing in name.
         invalid_name = ''
         res = self.post_package_edit_form(package_id, name=invalid_name, status=[400])
-        # Check location header is not set.
-        self.assert_not_header(res, 'Location')
         # Check package is unchanged.
         assert self.get_package_by_name(self.package_name)
         # Check response is an error form.
@@ -208,8 +205,6 @@ class FormsApiTestCase(BaseFormsApiCase):
         # Whitespace in name.
         invalid_name = ' '
         res = self.post_package_edit_form(package_id, name=invalid_name, status=[400])
-        # Check location header is not set.
-        self.assert_not_header(res, 'Location')
         # Check package is unchanged.
         assert self.get_package_by_name(self.package_name)
         # Check response is an error form.
@@ -219,7 +214,6 @@ class FormsApiTestCase(BaseFormsApiCase):
         self.assert_formfield(form, field_name, invalid_name)
         # Check submitting error form with corrected values is OK.
         res = self.post_package_edit_form(package_id, form=form, name=self.package_name_alt)
-        self.assert_header(res, 'Location')
         assert not json.loads(res.body)
         assert not self.get_package_by_name(self.package_name)
         assert self.get_package_by_name(self.package_name_alt)
