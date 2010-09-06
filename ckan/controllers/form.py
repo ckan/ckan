@@ -96,7 +96,7 @@ class BaseFormController(BaseApiController):
                     self._create_permissions(package, user)
                     # Set the Location header.
                     location = self._make_package_201_location(package)
-                    response.headers['Location'] = location
+                    self._set_response_header('Location', location)
                     # Set response body.
                     response_body = json.dumps('')
                     # Set status code.
@@ -130,6 +130,14 @@ class BaseFormController(BaseApiController):
         package_ref = self._ref_package(package)
         location += '/rest/package/%s' % package_ref
         return location
+
+    def _set_response_header(self, name, value):
+        try:
+            value = str(value)
+        except Exception, inst:
+            msg = "Couldn't convert '%s' header value '%s' to string: %s" % (name, value, inst)
+            raise Exception, msg
+        response.headers[name] = value
 
     def package_edit(self, id):
         try:
@@ -185,9 +193,6 @@ class BaseFormController(BaseApiController):
                     # Return response body.
                     return response_body
                 else:
-                    # Set the Location header.
-                    location = '/forms'
-                    response.headers['Location'] = location
                     # Set response body.
                     response_body = json.dumps('')
                     # Set status code.
