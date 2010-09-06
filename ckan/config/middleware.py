@@ -8,6 +8,7 @@ from pylons import config
 from pylons.middleware import ErrorHandler, StatusCodeRedirect
 from pylons.wsgiapp import PylonsApp
 from routes.middleware import RoutesMiddleware
+from ckan.lib.queue_log import QueueLogMiddleware
 
 from ckan.config.environment import load_environment
 
@@ -46,7 +47,8 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
     app = CacheMiddleware(app, config)
 
     # CUSTOM MIDDLEWARE HERE (filtered by error handling middlewares)
-
+    #app = QueueLogMiddleware(app)
+    
     if asbool(full_stack):
         # Handle Python exceptions
         app = ErrorHandler(app, global_conf, **config['pylons.errorware'])
@@ -62,8 +64,7 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
     app = make_middleware_with_config(app, global_conf,
         app_conf['who.config_file'], app_conf['who.log_file'],
         app_conf['who.log_level'])
-
-
+    
     # Establish the Registry for this application
     app = RegistryManager(app)
 
@@ -73,7 +74,7 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
         static_parsers = [static_app, app]
 
         # Configurable extra static file paths
-        extra_public_paths = app_conf.get('extra_public_paths')
+        extra_public_paths = config.get('extra_public_paths')
         if extra_public_paths:
             static_parsers = [StaticURLParser(public_path) \
                               for public_path in \

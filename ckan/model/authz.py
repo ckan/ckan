@@ -3,7 +3,8 @@ doc/authorization.rst.
 
 '''
 from meta import *
-from core import DomainObject, Package, System
+from core import *
+from package import *
 from group import Group
 from types import make_uuid
 from user import User

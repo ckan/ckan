@@ -1,14 +1,16 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html
   xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
   xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude"
-  py:strip=""
   >
 
 <xi:include href="_util.html" />
 
 <head>
-  <title>CKAN - Comprehensive Knowledge Archive Network - ${page_title()}</title>
+  <title>${page_title()} - ${g.site_title}</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link rel="shortcut icon" href="http://m.okfn.org/gfx/logo/favicon.ico" type="image/x-icon" />
   <py:choose>
@@ -16,7 +18,7 @@
     ${optional_feed()}
   </py:when>
   <py:otherwise>
-  <link rel="alternate" type="application/atom+xml" title="CKAN Recent Changes" href="/revision/list?format=atom&amp;days=1" />
+  <link rel="alternate" type="application/atom+xml" title="${g.site_title} - Recent Revision History" href="/revision/list?format=atom&amp;days=1" />
   </py:otherwise>
   </py:choose>
 
@@ -50,20 +52,23 @@
     <div id="top-inner">
       <div id="top-bar">
         <topbar py:choose="">
-          <p py:when="c.user">
+	<p py:when="c.user" i18n:msg="openid_icon, user">
             Logged in as <strong>${h.icon('openid')} ${c.user}</strong>
-            &middot; <a href="${h.url_for(controller='user',action=None)}">My account</a>
-            &middot; <a href="${h.url_for('/logout_openid')}">Logout</a>
+            &middot; <a href="${h.url_for(controller='user',action=None,id=None)}">My account</a>
+	    &middot; <a href="${h.url_for('/logout_openid')}">Logout</a>
           </p>
-          <p py:otherwise="">
+          <p py:otherwise="" i18n:msg="openid_icon">
             <a href="${h.url_for(controller='user',action='login', id=None)}">Login with ${h.icon('openid')} OpenID</a>
           </p>
         </topbar>
+        <form class="package-search" action="${h.url_for(controller='package', action='search', id=None)}" method="GET">
+          <input type="search" class="search" name="q" />
+        </form>
       </div><!-- /top-bar -->
 
       <h1>
-        <a href="${h.url_for('home')}"><img style="padding: 0; margin-top: -10px; margin-bottom: -10px;" src="/images/ckan_logo_fullname_long.png" alt="CKAN Logo" /></a>
-        <!-- <a href="/" title="CKAN Home">Comprehensive Knowledge Archive Network</a> -->
+        <a href="${h.url_for('home')}"><img style="padding: 0; margin-top: -10px; margin-bottom: -10px;" src="${g.site_logo}" alt="${g.site_title} Logo" /></a>
+        <!-- <a href="/" title="CKAN Home">${g.site_title}</a> -->
       </h1>
 
     </div><!-- /top-inner -->
@@ -71,10 +76,10 @@
     <h3 class="hidden">Sections:</h3>
     <ul id="navigation">
       <li>${h.nav_link(c, _('Home'), controller='home', action='index', id=None)}</li>
-      <li>${h.nav_link(c, _('Packages'), controller='package', action='index', id=None)}</li>
+      <li>${h.nav_link(c, _('Data Packages'), controller='package', action='index', id=None)}</li>
       <li>${h.nav_link(c, _('Tags'), controller='tag', action='index', id=None)}</li>
       <li>${h.nav_link(c, _('Groups'), controller='group', action='index', id=None)}</li>
-      <li>${h.nav_link(c, _('Recent changes'), controller='revision', action='index', id=None)}</li>
+      <li>${h.nav_link(c, _('Revision History'), controller='revision', action='index', id=None)}</li>
 			<li>${h.nav_link(c, _('API'), controller='rest', action='index', id=None)}</li>
     </ul>
     <h3 class="hidden">In this section:</h3>
@@ -113,10 +118,10 @@
         | <a href="http://www.okfn.org/contact/">Contact Us</a>
         | <a href="http://www.okfn.org/privacy-policy/">Privacy Policy</a>
       </p>
-      <p>
-        <img style="margin-bottom: -5px;" src="http://m.okfn.org/images/logo/okf_logo_white_and_green_tiny.png" /> An <a href="http://www.okfn.org/">Open Knowledge Foundation</a> Project
+      <p i18n:msg="">
+        <img style="margin-bottom: -5px;" src="http://m.okfn.org/images/logo/okf_logo_white_and_green_tiny.png" /> CKAN is an <a href="http://www.okfn.org/">Open Knowledge Foundation</a> project
       </p>
-      <p>
+      <p i18n:msg="version">
         v${c.__version__}
         | (c) Open Knowledge Foundation
 	| All material available under an <a href="${h.url_for('license')}">open license</a>

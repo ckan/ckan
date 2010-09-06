@@ -1,16 +1,17 @@
 <html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude">
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
   
-  <py:def function="page_title">Packages - Authorization - ${c.pkgname}</py:def>
+  <py:def function="page_title">${c.pkgtitle or c.pkgname} - Authorization - Data Packages</py:def>
 
   <div py:match="content">
     <h2>
-      Authorization for package: ${c.pkgname}
+      Authorization for Data Package: ${c.pkgname}
     </h2>
 
     <p py:if="c.message">${c.message}</p>
 
-    <form action="" method="post">
+    <form id="package-authz" action="" method="post">
       <h3>Update Existing Roles</h3>
       <table>
       ${h.literal(c.form)}
@@ -21,7 +22,7 @@
         
       <br/>
 
-      ${h.submit('commit', _('Save'))}
+      ${h.submit('save', _('Save'))}
     </form>
   </div>
 

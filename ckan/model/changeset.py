@@ -1068,13 +1068,19 @@ class AbstractChangesetRegister(TrackedObjectRegister, Json):
         id_uuid = uuid.uuid5(self.NAMESPACE_CHANGESET, id_profile)
         changeset_id = unicode(id_uuid)
         return changeset_id
-            
+        
+    def assert_status_code(self, ckan_service, operation_name, required_status=[200]):    
+        if ckan_service.last_status not in required_status:
+            raise Exception, "CKAN API operation '%s' returned status code %s (not one of %s): %s" % (operation_name, ckan_service.last_status, required_status, ckan_service.last_message)
+
     def pull(self, source):
         """Detects and retrieves unseen changesets from given source."""
         api_location = source.split('/api')[0].strip('/') + '/api'
         from ckanclient import CkanClient
         ckan_service = CkanClient(base_location=api_location)
-        foreign_ids = ckan_service.changeset_register_get()
+        ckan_service.changeset_register_get()
+        self.assert_status_code(ckan_service, operation_name='Changeset Register Get')
+        foreign_ids = ckan_service.last_message
         if foreign_ids == None:
             msg = "Error pulling changes from: %s (CKAN service error: %s: %s)" % (source, ckan_service.last_url_error or "%s: %s" % (ckan_service.last_status, ckan_service.last_http_error), ckan_service.last_location)
             raise ChangesSourceException, msg
@@ -1084,8 +1090,10 @@ class AbstractChangesetRegister(TrackedObjectRegister, Json):
             if changeset_id not in local_ids:
                 unseen_ids.append(changeset_id)
         unseen_changesets = []
+        print "Unseen ids: ", unseen_ids
         for unseen_id in unseen_ids:
             unseen_data = ckan_service.changeset_entity_get(unseen_id)
+            self.assert_status_code(ckan_service, operation_name='Changeset Entity Get')
             changeset_id = self.add_unseen(unseen_data)
             if not changeset_id:
                 msg = "Error: Couldn't add incoming changeset: %s" % unseen_id
@@ -1198,7 +1206,11 @@ class AbstractChangesetRegister(TrackedObjectRegister, Json):
     def add_unseen(self, changeset_data):
         """Puts foreign changesets into the register."""
         # Todo: Validate the data (dict with id str, meta dict, and changes list).
-        changeset_id = unicode(changeset_data['id'])
+        try:
+            changeset_id = unicode(changeset_data['id'])
+        except TypeError, exception:
+            msg = "%s: %s" % (str(exception), repr(changeset_data))
+            raise TypeError, msg
         if changeset_id in self:
             raise Exception, "Already have changeset with id '%s'." % changeset_id
         closes_id = changeset_data.get('closes_id', None)

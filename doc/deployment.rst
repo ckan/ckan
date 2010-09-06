@@ -139,6 +139,9 @@ Now you can then do the deployment with something like::
     $ mkdir data
     $ chmod g+w -R data
     $ sudo chgrp -R www-data data
+    $ mkdir sstore
+    $ chmod g+w -R sstore
+    $ sudo chgrp -R www-data sstore
     $ ln -s pyenv/src/ckan/who.ini ./
 
 
@@ -154,8 +157,8 @@ Now you can then do the deployment with something like::
         # pass authorization info on (needed for rest api)
         WSGIPassAuthorization On
 
-        ErrorLog /var/log/apache2/ckan.error.log
-        CustomLog /var/log/apache2/ckan.custom.log combined
+        ErrorLog /var/log/apache2/demo.ckan.net.error.log
+        CustomLog /var/log/apache2/demo.ckan.net.custom.log combined
     </VirtualHost>
 
 

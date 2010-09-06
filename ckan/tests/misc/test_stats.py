@@ -77,17 +77,20 @@ class TestStats(TestController):
         assert res[2] == (model.Group.by_name(u'tst3'), 1), res[2]
         
     def test_top_tags(self):
+        top_tag = model.Tag.by_name(u'penguin')
+        top_tag_num = 6
+        
         res = Stats().top_tags()
         assert len(res) > 5, res
-        assert res[0] == (model.Tag.by_name(u'gov'), 4), res[0]
+        assert res[0] == (top_tag, top_tag_num), res[0]
 
         res = Stats().top_tags(returned_tag_info='id')
         gov = model.Tag.by_name(u'gov')
-        assert res[0] == (gov.id, 4), res[0]
+        assert res[0] == (top_tag.id, top_tag_num), res[0]
 
         res = Stats().top_tags(returned_tag_info='name')
         gov = model.Tag.by_name(u'gov')
-        assert res[0] == (gov.name, 4), res[0]
+        assert res[0] == (top_tag.name, top_tag_num), res[0]
 
     def test_top_package_owners(self):
         cath = model.User(name=u'Cath')

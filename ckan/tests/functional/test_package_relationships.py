@@ -16,7 +16,8 @@ class TestRelationships(TestController):
         def read_package(pkg_name):
             offset = url_for(controller='package', action='read', id=pkg_name)
             res = self.app.get(offset)
-            assert 'Packages - %s' % pkg_name in res
+            pkg = model.Package.by_name(pkg_name)
+            assert '%s - Data Packages' % pkg.title in res
             return res
         res = read_package(u'homer')
         self.check_named_element(res, 'li', 'is a child of', 'abraham')

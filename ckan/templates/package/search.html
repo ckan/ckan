@@ -1,12 +1,14 @@
 <html
   xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
   xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude">
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
 
-  <py:def function="page_title">Packages - Search</py:def>
+  <py:def function="page_title">Search - Data Packages</py:def>
 
   <div py:match="content">
-    <h2>Search packages</h2>
+    <h2>Search Data Packages</h2>
     
     <xi:include href="search_form.html" />
     
@@ -14,13 +16,13 @@
       <hr />
     
       <py:if test="c.tags_count > 0">
-        <p><strong>${c.tags_count}</strong> tags found (max ${c.tag_limit} shown).</p>
+        <p i18n:msg="tags_count, tags_limit"><strong>${c.tags_count}</strong> tags found (max ${c.tag_limit} shown).</p>
         ${tag_list(c.tags)}
       </py:if>
 
-      <p><strong>${c.page.item_count}</strong> packages found.</p>
+      <p i18n:msg="item_count"><strong>${c.page.item_count}</strong> packages found.</p>
       <py:if test="c.page.item_count == 0">
-        <p>Would you like to <a href="${h.url_for(action='new', id=None)}">create a new package?</a></p>
+        <p i18n:msg="">Would you like to <a href="${h.url_for(action='new', id=None)}">create a new package?</a></p>
       </py:if>
       ${c.page.pager(q=c.q)}  
       ${package_list(c.page.items)}

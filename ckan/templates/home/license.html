@@ -1,23 +1,25 @@
 <html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude">
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
   
   <py:def function="page_title">License</py:def>
 
   <div py:match="content">
-    <h2>CKAN License</h2>
+    <h2>${g.site_title} License</h2>
 
     <h3>Code</h3>
-    <p>
-    The code that runs CKAN is open-source and licensed under the <a
+    <p i18n:msg="">
+    The CKAN code that runs this site is open-source and licensed under the <a
       href="http://www.fsf.org/licensing/licenses/agpl-3.0.html">GNU Affero GPL
       </a>. It is hosted on <a
       href="http://www.knowledgeforge.net/">KnowledgeForge</a>, and the project
-    home page is here:<a
+    home page is here: <a
       href="http://knowledgeforge.net/project/ckan/">http://knowledgeforge.net/project/ckan/</a>.
     </p>
 
     <h3>Content and Data</h3>
-    <p>All material on this site is <a
+    <p i18n:msg="">All material on this site is <a
       href="http://opendefinition.org/">open</a> and can be freely used, reused
     and redistributed. Formally, the data/database is licensed under the <a
       href="http://opendatacommons.org/licenses/odbl/">Open Data Commons Open
@@ -25,7 +27,7 @@
     database plus any additional content on this site licensed under a <a
       href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons
       Attribution Share-Alike v3.0 license</a>.</p>
-    <p>
+    <p i18n:msg="">
       For convenience, all material - including all package, tag and revision information - is available in bulk, in the form of a full dump of the CKAN database. This (gzipped) dump file is updated daily and can be downloaded from <a href="http://www.ckan.net/dump/">http://www.ckan.net/dump/</a>.
     </p>
   </div>

@@ -97,12 +97,12 @@ class TestPackageEditAuthz(TestController):
         prs = self._prs(self.pkgname)
         assert prs['visitor'].role == model.Role.EDITOR
         assert prs['logged_in'].role == model.Role.EDITOR
-        form = res.forms[0]
+        form = res.forms['package-authz']
         
         # change role assignments
         form.select(_r(prs['visitor']), model.Role.READER)
         form.select(_r(prs['logged_in']), model.Role.ADMIN)
-        res = form.submit('commit', extra_environ={'REMOTE_USER': self.admin})
+        res = form.submit('save', extra_environ={'REMOTE_USER': self.admin})
         model.repo.commit_and_remove()
 
         # ensure db was changed
@@ -116,7 +116,7 @@ class TestPackageEditAuthz(TestController):
         res = self.app.get(offset, extra_environ={'REMOTE_USER':
             self.admin})
         assert self.pkgname in res
-        fv = res.forms[0]
+        fv = res.forms['package-authz']
         visitor_options = fv[_r(prs['visitor'])].options
         assert ('reader', True) in visitor_options, visitor_options
         logged_in_options = fv[_r(prs['logged_in'])].options
@@ -137,12 +137,12 @@ class TestPackageEditAuthz(TestController):
         prs = self._prs(self.pkgname2)
         assert prs['visitor'].role == model.Role.EDITOR
         assert prs['logged_in'].role == model.Role.EDITOR
-        form = res.forms[0]
+        form = res.forms['package-authz']
         
         # change role assignments
         form.select(_r(prs['visitor']), model.Role.READER)
         form.select(_r(prs['logged_in']), model.Role.ADMIN)
-        res = form.submit('commit', extra_environ={'REMOTE_USER': self.sysadmin})
+        res = form.submit('save', extra_environ={'REMOTE_USER': self.sysadmin})
         model.repo.commit_and_remove()
 
         # ensure db was changed
@@ -156,7 +156,7 @@ class TestPackageEditAuthz(TestController):
         res = self.app.get(offset, extra_environ={'REMOTE_USER':
             self.sysadmin})
         assert self.pkgname2 in res
-        fv = res.forms[0]
+        fv = res.forms['package-authz']
         visitor_options = fv[_r(prs['visitor'])].options
         assert ('reader', True) in visitor_options, visitor_options
         logged_in_options = fv[_r(prs['logged_in'])].options
@@ -208,11 +208,11 @@ class TestPackageEditAuthz(TestController):
 
         assert 'Create New User Roles' in res
         assert '<select id=' in res, res
-        form = res.forms[0]
+        form = res.forms['package-authz']
         another = model.User.by_name(self.another)
         form.select('PackageRole--user_id', another.id)
         form.select('PackageRole--role', model.Role.ADMIN)
-        res = form.submit('commit', extra_environ={'REMOTE_USER': self.admin})
+        res = form.submit('save', extra_environ={'REMOTE_USER': self.admin})
         model.Session.remove()
 
         prs = self._prs(self.pkgname)
@@ -231,11 +231,11 @@ class TestPackageEditAuthz(TestController):
 
         assert 'Create New User Roles' in res
         assert '<select id=' in res, res
-        form = res.forms[0]
+        form = res.forms['package-authz']
         another = model.User.by_name(self.another)
         form.select('PackageRole--user_id', another.id)
         form.select('PackageRole--role', model.Role.ADMIN)
-        res = form.submit('commit', extra_environ={'REMOTE_USER': self.sysadmin})
+        res = form.submit('save', extra_environ={'REMOTE_USER': self.sysadmin})
         model.Session.remove()
 
         prs = self._prs(self.pkgname2)
