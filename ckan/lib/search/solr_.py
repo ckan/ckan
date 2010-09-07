@@ -1,4 +1,5 @@
 import logging
+import itertools
 
 from pylons import config
 from common import SearchBackend, SearchQuery, SearchIndex, SearchError
@@ -112,6 +113,20 @@ class PackageSolrSearchIndex(SolrSearchIndex):
                 pkg_dict[nkey] = pkg_dict.get(nkey, []) + [resource.get(okey, u'')]
         if 'resources' in pkg_dict:
             del pkg_dict['resources']
+        
+        # index relationships as <type>:<object>
+        rel_dict = {}
+        rel_types = list(itertools.chain(model.PackageRelationship.types))
+        for rel in pkg_dict.get('relationships', []):
+            _type = rel.get('type', 'rel')
+            if (_type in pkg_dict.keys()) or (_type not in rel_types): 
+                continue
+            rel_dict[_type] = rel_dict.get(_type, []) + [rel.get('object')]
+        
+        pkg_dict.update(rel_dict)
+        
+        if 'relationships' in pkg_dict:
+            del pkg_dict['relationships']
 
         pkg_dict[TYPE_FIELD] = self.TYPE
         pkg_dict = dict([(str(k), v) for (k, v) in pkg_dict.items()])
