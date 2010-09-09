@@ -6,8 +6,6 @@ from pylons.decorators.util import get_pylons
 
 __all__ = ["ckan_cache"]
 
-log = __import__("logging").getLogger(__name__)
-
 def ckan_cache(test=lambda *av, **kw: 0,
           key="cache_default",
           expires=None,
@@ -58,6 +56,8 @@ def ckan_cache(test=lambda *av, **kw: 0,
         
     """
     cache_headers = set(cache_headers)
+    log = __import__("logging").getLogger("ckan_cache")
+
     def wrapper(func, *args, **kwargs):
         pylons = get_pylons(args)
         enabled = pylons.config.get("cache_enabled", "True")
@@ -149,9 +149,16 @@ def ckan_cache(test=lambda *av, **kw: 0,
     return decorator(wrapper)
 
 def proxy_cache(expires=None):
+    log = __import__("logging").getLogger("proxy_cache")
     def wrapper(func, *args, **kwargs):
         result = func(*args, **kwargs)
+
         pylons = get_pylons(args)
+        enabled = pylons.config.get("cache_enabled", "True")
+        if not asbool(enabled):
+            log.debug("Caching disabled, skipping cache lookup")
+            return result
+
         cfg_expires = "%s.expires" % _func_cname(func)
         cache_expires = expires if expires else int(pylons.config.get(cfg_expires, 900))
 
