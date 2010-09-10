@@ -10,7 +10,7 @@ class PluginException(Exception): pass
 
 def load_all(config):
     plugins = config.get('ckan.plugins', '')
-    log.info("Loading plugins: %s" % plugins)
+    log.debug("Loading plugins: %s" % plugins)
     for plugin in plugins.split():
         for entry_point in iter_entry_points(group=GROUP_NAME, name=plugin):
             load(plugin, entry_point, config)
