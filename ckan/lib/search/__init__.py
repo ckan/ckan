@@ -3,6 +3,7 @@ import logging
 from pylons import config
 from common import QueryOptions, SearchError
 from sql import SqlSearchBackend
+from solr_ import SolrSearchBackend
 from worker import SearchIndexWorker, setup_synchronous_indexing, remove_synchronous_indexing
 
 log = logging.getLogger(__name__)
@@ -23,13 +24,8 @@ DEFAULT_OPTIONS = {
 
 BACKENDS = {
     'sql': SqlSearchBackend,
+    'solr': SolrSearchBackend
     }
-
-try:
-    from solr_ import SolrSearchBackend
-    BACKENDS['solr'] = SolrSearchBackend
-except ImportError:
-    pass
 
 # TODO make sure all backends are thread-safe! 
 INSTANCE_CACHE = {}
