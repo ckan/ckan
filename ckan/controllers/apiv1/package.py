@@ -97,10 +97,11 @@ class PackageController(RestController):
         return response
     
     def update(self, id):
-        if not self._check_access(None, None):
+        entity = self._get_pkg(id)
+
+        if entity is not None and not self._check_access(entity, model.Action.EDIT):
             return json.dumps(_('Access denied'))
         
-        entity = self._get_pkg(id)
         if entity is None:
             response.status_int = 404
             response.write(_('Package was not found.'))
