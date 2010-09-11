@@ -159,9 +159,9 @@ class PackageRelationship(vdm.sqlalchemy.RevisionedObjectMixin,
 
 mapper(PackageRelationship, package_relationship_table, properties={
     'subject':relation(Package, primaryjoin=\
-           package_relationship_table.c.subject_package_id==Package.c.id,
+           package_relationship_table.c.subject_package_id==Package.id,
            backref='relationships_as_subject'),
-    'object':relation(Package, primaryjoin=package_relationship_table.c.object_package_id==Package.c.id,
+    'object':relation(Package, primaryjoin=package_relationship_table.c.object_package_id==Package.id,
            backref='relationships_as_object'),
     },
     extension = [vdm.sqlalchemy.Revisioner(package_relationship_revision_table)]
