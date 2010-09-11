@@ -69,7 +69,7 @@ def load_environment(global_conf, app_conf):
     # any Pylons config options)    
 
     # Setup the SQLAlchemy database engine
-    engine = engine_from_config(config, 'sqlalchemy.')
+    engine = engine_from_config(config, 'sqlalchemy.', pool_threadlocal=True)
     model.init_model(engine)
     
     import ckan.lib.search as search
