@@ -47,6 +47,8 @@ def make_map():
                 conditions=dict(method=['PUT']))
     map.connect('/api/rest/package/:id', controller='apiv1/package', action='delete',
                 conditions=dict(method=['DELETE']))
+
+    map.connect('/api/form/harvest/source/create', controller='form', action='harvest_source_create')
     
     map.connect('/api/search/:register', controller='rest', action='search')
     map.connect('/api/tag_counts', controller='rest', action='tag_counts')
