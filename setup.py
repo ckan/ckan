@@ -79,6 +79,10 @@ setup(
     standard = ckan.forms.package:get_standard_fieldset
     gov = ckan.forms.package_gov:get_gov_fieldset
     ca = ckan.forms.package_ca:get_ca_fieldset
+
+    [ckan.search]
+    sql = ckan.lib.search.sql:SqlSearchBackend
+    solr = ckan.lib.search.solr_:SolrSearchBackend
     """,
     # setup.py test command needs a TestSuite so does not work with py.test
     # test_suite = 'nose.collector',
