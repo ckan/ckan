@@ -49,6 +49,9 @@ class BaseFormsApiCase(ApiControllerTestCase):
     def offset_package_edit_form(self, ref):
         return self.offset('/form/package/edit/%s' % ref)
 
+    def offset_harvest_source_create_form(self):
+        return self.offset('/form/harvest/source/create')
+
     def get_package_create_form(self, status=[200]):
         offset = self.offset_package_create_form()
         res = self.get(offset, status=status)
@@ -56,6 +59,11 @@ class BaseFormsApiCase(ApiControllerTestCase):
 
     def get_package_edit_form(self, package_ref, status=[200]):
         offset = self.offset_package_edit_form(package_ref)
+        res = self.get(offset, status=status)
+        return self.form_from_res(res)
+
+    def get_harvest_source_create_form(self, status=[200]):
+        offset = self.offset_harvest_source_create_form()
         res = self.get(offset, status=status)
         return self.form_from_res(res)
 
@@ -257,6 +265,11 @@ class FormsApiTestCase(BaseFormsApiCase):
             assert "Submitted OK" in body, body
         finally:
             self._stop_ckan_server(self.ckan_server)
+
+    def test_get_harvest_source_create_form(self):
+        form = self.get_harvest_source_create_form()
+        self.assert_formfield(form, 'HarvestSource--url', '')
+        self.assert_formfield(form, 'HarvestSource--description', '')
 
 
 class TestFormsApi1(Api1TestCase, FormsApiTestCase): pass
