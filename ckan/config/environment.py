@@ -74,11 +74,17 @@ def load_environment(global_conf, app_conf):
     # Setup the SQLAlchemy database engine
     engine = engine_from_config(config, 'sqlalchemy.', pool_threadlocal=True)
     model.init_model(engine)
-    
-    import ckan.lib.search as search
-    if bool(config.get('ckan.build_search_index_synchronously', True)):
+   
+    async_search = asbool(config.get('ckan.async_notifier', "False"))
+    sync_search = asbool(config.get('ckan.build_search_index_synchronously', "True"))
+
+    if async_search and sync_search:
+        raise ValueError("ckan.async_notifier and ckan.build_search_index_synchronously must not be set at the same time")
+
+    if sync_search:
+        import ckan.lib.search as search
         search.setup_synchronous_indexing()
 
-    if asbool(config.get('ckan.async_notifier', "False")):
+    if async_search:
         from ckan.model import notifier
         notifier.initialise()
