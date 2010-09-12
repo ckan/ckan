@@ -1012,6 +1012,7 @@ class PackageSearchApiTestCase(ApiControllerTestCase):
 
     @classmethod
     def setup_class(self):
+        model.notifier.initialise()
         indexer = TestSearchIndexer()
         CreateTestData.create()
         self.testpackagevalues = {
@@ -1032,6 +1033,7 @@ class PackageSearchApiTestCase(ApiControllerTestCase):
     @classmethod
     def teardown_class(self):
         CreateTestData.delete()
+        model.notifier.deactivate()
 
     def test_01_uri_q(self):
         offset = self.base_url + '?q=%s' % self.testpackagevalues['name']

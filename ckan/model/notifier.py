@@ -223,3 +223,7 @@ def initialise():
     for routing_key in ROUTING_KEYS:
         signal = blinker.signal(routing_key)
         AsyncNotifier.register_signal(signal)
+
+def deactivate():
+    from ckan.lib.async_notifier import AsyncNotifier
+    AsyncNotifier.deregister_all()
