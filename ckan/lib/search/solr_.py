@@ -1,12 +1,12 @@
+__import__("pkg_resources").get_distribution("solrpy>=0.9.1")
+
 import logging
 import itertools
-
 from solr import SolrConnection # == solrpy
 from pylons import config
 from common import SearchBackend, SearchQuery, SearchIndex, SearchError
 from ckan import model, authz
 from ckan.model import meta
-
 
 log = logging.getLogger(__name__)
 
