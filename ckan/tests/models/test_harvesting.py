@@ -10,6 +10,7 @@ class TestCase(object):
         model.Session.remove()
 
     def teardown(self):
+        model.repo.clean_db()
         model.Session.remove()
 
     def assert_true(self, value):
