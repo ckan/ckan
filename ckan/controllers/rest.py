@@ -318,7 +318,7 @@ class BaseRestController(BaseApiController):
         elif register == 'group' and not subregister:
             entity = model.Group.by_name(id)
         else:
-            reponse.status_int = 400
+            response.status_int = 400
             return gettext('Cannot update entity of this type: %s') % register
         if not entity:
             response.status_int = 404
