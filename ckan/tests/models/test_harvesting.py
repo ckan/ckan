@@ -1,5 +1,6 @@
 from ckan.tests import *
 from ckan.model.harvesting import HarvestSource
+from ckan.model.harvesting import HarvestingJob
 import ckan.model as model
 
 class TestCase(object):
@@ -47,7 +48,7 @@ class TestHarvestSource(TestCase):
         model.Session.remove()
         super(TestHarvestSource, self).teardown()
 
-    def test_crud(self):
+    def test_crud_source(self):
         self.assert_false(self.source)
         fixture_url = u'http://'
         self.source = HarvestSource(url=fixture_url)
@@ -59,4 +60,42 @@ class TestHarvestSource(TestCase):
         self.source.delete()
         model.Session.commit()
         self.assert_raises(Exception, HarvestSource.get, self.source.id)
+
+
+class TestHarvestingJob(TestCase):
+
+    def setup(self):
+        super(TestHarvestingJob, self).setup()
+        source_url = u'http://'
+        self.source = HarvestSource(url=source_url)
+        model.Session.add(self.source)
+        model.Session.commit()
+        self.assert_true(self.source.id)
+        self.job = None
+
+    def tearDown(self):
+        try:
+            if self.job:
+                self.job.delete()
+        finally:
+            if self.source:
+                self.source.delete()
+        model.Session.commit()
+        model.Session.remove()
+        super(TestHarvestSource, self).teardown()
+
+    def test_crud_job(self):
+        self.assert_false(self.job)
+        user_ref = u'publisheruser1'
+        self.job = HarvestingJob(source=self.source, user_ref=user_ref)
+        model.Session.add(self.job)
+        model.Session.commit()
+        self.assert_true(self.job)
+        self.assert_true(self.job.id)
+        self.assert_true(self.job.source.id)
+        self.assert_equal(self.job.source.id, self.source.id)
+        dup = HarvestingJob.get(self.job.id)
+        self.job.delete()
+        model.Session.commit()
+        self.assert_raises(Exception, HarvestSource.get, self.job.id)
 

@@ -5,7 +5,10 @@ from types import make_uuid
 from core import *
 from domain_object import DomainObject
 
-__all__ = ['HarvestSource', 'harvest_source_table']
+__all__ = [
+    'HarvestSource', 'harvest_source_table'
+    'HarvestingJob', 'harvesting_job_table'
+]
 
 class DomainObject(DomainObject):
 
@@ -32,16 +35,29 @@ class DomainObject(DomainObject):
 
 class HarvestSource(DomainObject): pass
     
+class HarvestingJob(DomainObject): pass
+    
 
 harvest_source_table = Table('harvest_source', metadata,
         Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
+        Column('status', types.UnicodeText),
         Column('url', types.UnicodeText, unique=True, nullable=False),
         Column('description', types.UnicodeText),                      
-        Column('userRef', types.UnicodeText),
-        Column('publisherRef', types.UnicodeText),
-        Column('status', types.UnicodeText),
+        Column('user_ref', types.UnicodeText),
+        Column('publisher_ref', types.UnicodeText),
         Column('created', DateTime, default=datetime.datetime.utcnow),
 )
 
+harvesting_job_table = Table('harvesting_job', metadata,
+        Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
+        Column('status', types.UnicodeText),
+        Column('created', DateTime, default=datetime.datetime.utcnow),
+        Column('user_ref', types.UnicodeText, nullable=False),
+        Column('report', types.UnicodeText),                     
+        Column('source_id', UnicodeText, ForeignKey('harvest_source.id')), 
+)
+
 mapper(HarvestSource, harvest_source_table, properties={ })
+
+mapper(HarvestingJob, harvesting_job_table, properties={ })
 
