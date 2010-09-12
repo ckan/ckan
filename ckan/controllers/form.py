@@ -277,6 +277,82 @@ class BaseFormController(BaseApiController):
         import ckanclient
         return ckanclient.CkanClient(base_location=base_location, api_key=api_key)
 
+    def harvest_source_create(self):
+        try:
+            # Get the fieldset.
+            fieldset = ckan.forms.get_harvest_source_fieldset()
+            if request.method == 'GET':
+                # Render the fields.
+                fieldset_html = fieldset.render()
+                # Set response body.
+                response_body = fieldset_html
+                # Set status code.
+                response.status_int = 200
+                # Return the response body.
+                return response_body
+            if request.method == 'POST':
+                # Check user authorization.
+                self._assert_is_authorized()
+                # Read request.
+                request_data = self._get_request_data()
+                try:
+                    form_data = request_data['form_data']
+                    form_data = request_data['publisher_ref']
+                    form_data = request_data['user_ref']
+                except KeyError, error:
+                    self._abort_bad_request()
+                # Bind form data to fieldset.
+                try:
+                    bound_fieldset = fieldset.bind(model.HarvestSource, data=form_data, session=model.Session)
+                except Exception, error:
+                    # Todo: Replace 'Exception' with bind error.
+                    self._abort_bad_request()
+                # Validate and save form data.
+                author = user.name
+                try:
+                    self._create_harvest_source_entity(bound_fieldset, publisher_ref, user_ref)
+                except ValidationException, exception:
+                    # Get the errorful fieldset.
+                    errorful_fieldset = exception.args[0]
+                    # Render the fields.
+                    fieldset_html = errorful_fieldset.render()
+                    # Set response body.
+                    response_body = fieldset_html
+                    # Set status code.
+                    response.status_int = 400
+                    # Return response body.
+                    return response_body
+                else:
+                    # Retrieve created pacakge.
+                    source_url = bound_fieldset.url.value
+                    package = model.Package.get(source_url=package_name)
+                    # Construct access control entities.
+                    self._create_permissions(package, user)
+                    # Set the Location header.
+                    location = self._make_package_201_location(package)
+                    self._set_response_header('Location', location)
+                    # Set response body.
+                    response_body = json.dumps('')
+                    # Set status code.
+                    response.status_int = 201
+                    # Return response body.
+                    return response_body
+        except ApiError, api_error:
+            # Set response body.
+            response_body = str(api_error) 
+            # Assume status code is set.
+            # Return response body.
+            return response_body
+        except Exception:
+            # Log error.
+            log.error("Couldn't run create package form method: %s" % traceback.format_exc())
+            # Set response body.
+            response_body = "Internal server error"
+            # Set status code.
+            response.status_int = 500
+            # Return response body.
+            return response_body
+
 
 class FormController(ApiVersion1, BaseFormController): pass
  
