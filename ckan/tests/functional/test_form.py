@@ -42,6 +42,13 @@ class BaseFormsApiCase(ApiControllerTestCase):
         self.purge_package_by_name(self.package_name)
         self.purge_package_by_name(self.package_name_alt)
         self.purge_package_by_name(self.package_name_alt2)
+        self.delete_harvest_source(u'http://localhost/')
+
+    def delete_harvest_source(self, url):
+        source = self.get_harvest_source_by_url(url, None)
+        if source:
+            source.delete()
+            model.Session.commit()
 
     def offset_package_create_form(self):
         return self.offset('/form/package/create')
@@ -86,6 +93,21 @@ class BaseFormsApiCase(ApiControllerTestCase):
             'author': 'automated test suite',
         }
         offset = self.offset_package_create_form()
+        return self.post(offset, data, status=status)
+
+    def post_harvest_source_create_form(self, form=None, status=[201], **kwds):
+        if form == None:
+            form = self.get_harvest_source_create_form()
+        for key,field_value in kwds.items():
+            field_name = 'HarvestSource--%s' % key
+            form[field_name] = field_value
+        form_data = form.submit_fields()
+        data = {
+            'form_data': form_data,
+            'user_ref': 'example publisher user',
+            'publisher_ref': 'example publisher',
+        }
+        offset = self.offset_harvest_source_create_form()
         return self.post(offset, data, status=status)
 
     def package_id_from_ref(self, package_ref):
@@ -270,6 +292,31 @@ class FormsApiTestCase(BaseFormsApiCase):
         form = self.get_harvest_source_create_form()
         self.assert_formfield(form, 'HarvestSource--url', '')
         self.assert_formfield(form, 'HarvestSource--description', '')
+
+    def test_submit_harvest_source_create_form_valid(self):
+        source_url = u'http://localhost/'
+        source_description = u'My harvest source.'
+        assert not self.get_harvest_source_by_url(source_url, None)
+        res = self.post_harvest_source_create_form(url=source_url, description=source_description)
+        self.assert_header(res, 'Location')
+        assert not json.loads(res.body)
+        assert self.get_harvest_source_by_url(source_url)
+        #self.assert_header(res, 'Location', expected_path)
+
+    def test_submit_harvest_source_create_form_invalid(self):
+        source_url = u'' # Blank URL.
+        assert not self.get_harvest_source_by_url(source_url, None)
+        res = self.post_harvest_source_create_form(url=source_url, status=[400])
+        self.assert_not_header(res, 'Location')
+        assert "Url: Please enter a value" in res.body, res.body
+        assert not self.get_harvest_source_by_url(source_url, None)
+
+        source_url = u' ' # Not '^http://'
+        assert not self.get_harvest_source_by_url(source_url, None)
+        res = self.post_harvest_source_create_form(url=source_url, status=[400])
+        self.assert_not_header(res, 'Location')
+        assert "Url: Harvest source URL is invalid" in res.body, res.body
+        assert not self.get_harvest_source_by_url(source_url, None)
 
 
 class TestFormsApi1(Api1TestCase, FormsApiTestCase): pass

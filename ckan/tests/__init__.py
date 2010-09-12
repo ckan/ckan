@@ -109,6 +109,9 @@ class TestController(object):
     def get_user_by_name(self, name):
         return model.User.by_name(name)
 
+    def get_harvest_source_by_url(self, source_url, default=Exception):
+        return model.HarvestSource.get(source_url, default, 'url')
+
     @classmethod
     def purge_package_by_name(self, package_name):
         package = self.get_package_by_name(package_name)

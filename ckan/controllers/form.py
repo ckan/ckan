@@ -121,15 +121,27 @@ class BaseFormController(BaseApiController):
 
     def _make_package_201_location(self, package):
         location = '/api'
+        location += self._make_version_part()
+        package_ref = self._ref_package(package)
+        location += '/rest/package/%s' % package_ref
+        return location
+
+    def _make_harvest_source_201_location(self, harvest_source):
+        location = '/api'
+        location += self._make_version_part()
+        source_ref = self._ref_harvest_source(harvest_source)
+        location += '/rest/harvest/source/%s' % source_ref
+        return location
+
+    def _make_version_part(self):
+        part = ''
         is_version_in_path = False
         path_parts = request.path.split('/')
         if path_parts[2] == self.api_version:
             is_version_in_path = True
         if is_version_in_path:
-            location += '/%s' % self.api_version
-        package_ref = self._ref_package(package)
-        location += '/rest/package/%s' % package_ref
-        return location
+            part = '/%s' % self.api_version
+        return part
 
     def _set_response_header(self, name, value):
         try:
@@ -220,6 +232,13 @@ class BaseFormController(BaseApiController):
         superfluous = None # Value is never consumed.
         PackageSaver().commit_pkg(bound_fieldset, superfluous, None, log_message, author) 
 
+    def _create_harvest_source_entity(self, bound_fieldset, user_ref=None, publisher_ref=None):
+        bound_fieldset.validate()
+        if bound_fieldset.errors:
+            raise ValidationException(bound_fieldset)
+        bound_fieldset.sync()
+        model.Session.commit()
+
     def _create_permissions(self, package, user):
         model.setup_default_user_roles(package, [user])
         model.repo.commit_and_remove()
@@ -297,8 +316,8 @@ class BaseFormController(BaseApiController):
                 request_data = self._get_request_data()
                 try:
                     form_data = request_data['form_data']
-                    form_data = request_data['publisher_ref']
-                    form_data = request_data['user_ref']
+                    user_ref = request_data['user_ref']
+                    publisher_ref = request_data['publisher_ref']
                 except KeyError, error:
                     self._abort_bad_request()
                 # Bind form data to fieldset.
@@ -308,9 +327,8 @@ class BaseFormController(BaseApiController):
                     # Todo: Replace 'Exception' with bind error.
                     self._abort_bad_request()
                 # Validate and save form data.
-                author = user.name
                 try:
-                    self._create_harvest_source_entity(bound_fieldset, publisher_ref, user_ref)
+                    self._create_harvest_source_entity(bound_fieldset, user_ref=user_ref, publisher_ref=publisher_ref)
                 except ValidationException, exception:
                     # Get the errorful fieldset.
                     errorful_fieldset = exception.args[0]
@@ -323,13 +341,11 @@ class BaseFormController(BaseApiController):
                     # Return response body.
                     return response_body
                 else:
-                    # Retrieve created pacakge.
+                    # Retrieve created harvest source entity.
                     source_url = bound_fieldset.url.value
-                    package = model.Package.get(source_url=package_name)
-                    # Construct access control entities.
-                    self._create_permissions(package, user)
+                    source = model.HarvestSource.get(source_url, attr='url')
                     # Set the Location header.
-                    location = self._make_package_201_location(package)
+                    location = self._make_harvest_source_201_location(source)
                     self._set_response_header('Location', location)
                     # Set response body.
                     response_body = json.dumps('')
@@ -345,7 +361,7 @@ class BaseFormController(BaseApiController):
             return response_body
         except Exception:
             # Log error.
-            log.error("Couldn't run create package form method: %s" % traceback.format_exc())
+            log.error("Couldn't run create harvest source form method: %s" % traceback.format_exc())
             # Set response body.
             response_body = "Internal server error"
             # Set status code.

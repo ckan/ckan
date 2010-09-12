@@ -89,6 +89,7 @@ class PackageSaver(object):
         rev = None
         # validation
         c.errors = cls._revision_validation(log_message)
+        # Todo: Remove assignment to fs_validation, checks fs.errors instead.
         fs_validation = fs.validate() #errors stored in fs.errors
         validates = not (c.errors or fs.errors)
 

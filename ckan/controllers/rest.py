@@ -28,6 +28,9 @@ class BaseApiController(BaseController):
         assert self.ref_group_by in ['id', 'name']
         return getattr(group, self.ref_group_by)
 
+    def _ref_harvest_source(self, harvest_source):
+        return getattr(harvest_source, 'id')
+
     def _list_package_refs(self, packages):
         return [getattr(p, self.ref_package_by) for p in packages]
 

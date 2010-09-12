@@ -35,8 +35,8 @@ class HarvestSource(DomainObject): pass
 
 harvest_source_table = Table('harvest_source', metadata,
         Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
+        Column('url', types.UnicodeText, unique=True, nullable=False),
         Column('description', types.UnicodeText),                      
-        Column('url', types.UnicodeText),
         Column('userRef', types.UnicodeText),
         Column('publisherRef', types.UnicodeText),
         Column('status', types.UnicodeText),
