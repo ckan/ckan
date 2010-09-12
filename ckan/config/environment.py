@@ -2,6 +2,8 @@
 import os
 from urlparse import urlparse
 
+from paste.deploy.converters import asbool
+
 import pylons
 from sqlalchemy import engine_from_config
 from pylons import config
@@ -14,6 +16,7 @@ import ckan.lib.helpers
 from ckan.config.routing import make_map
 from ckan import model
 
+import blinker
 import plugins
 
 
@@ -76,5 +79,6 @@ def load_environment(global_conf, app_conf):
     if bool(config.get('ckan.build_search_index_synchronously', True)):
         search.setup_synchronous_indexing()
 
-    import ckan.lib.async_notifier as async_notifer
-    
+    if asbool(config.get('ckan.async_notifier', "False")):
+        from ckan.model import notifier
+        notifier.initialise()

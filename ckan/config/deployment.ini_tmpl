@@ -92,10 +92,12 @@ package_form = standard
 #package_new_return_url = http://another.frontend/package/<NAME>
 
 
+# Turn on messaging with carrot, default to false
+#ckan.async_notifier = true
 # Messaging module used by carrot:
 # * pyamqplib - AMQP (e.g. for RabbitMQ)
-# * queue - native Python Queue
-carrot_messaging_library = queue
+# * queue - native Python Queue (debugging and tests only)
+#carrot_messaging_library = pyamqplib
 
 ## Update the search index synchronously (i.e. in-process rather than
 ## out-of-process as would be case if using AMQP framework)

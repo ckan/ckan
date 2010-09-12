@@ -217,3 +217,9 @@ class NotifierSessionTrigger(SessionExtension):
             notification.send_synchronously()
         NotifierMapperTrigger.queued_notifications = []
 
+def initialise():
+    from ckan.lib.async_notifier import AsyncNotifier
+    # Register AsyncNotifier to receive *synchronous* notifications
+    for routing_key in ROUTING_KEYS:
+        signal = blinker.signal(routing_key)
+        AsyncNotifier.register_signal(signal)

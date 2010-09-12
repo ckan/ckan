@@ -29,7 +29,8 @@ class StopConsuming(Exception):
     pass
 
 def get_carrot_connection():
-    backend = config.get('carrot_messaging_library', 'queue')
+    backend = config.get('carrot_messaging_library', 'pyamqplib')
+    logger.info("AsyncNotifier using %s backend" % backend)
     try:
         port = int(config.get('amqp_port', PORT))
     except ValueError:
@@ -76,18 +77,29 @@ class AsyncNotifier(object):
         routing_key used for routing in the AMQP system.
         '''
         if signal not in cls.signals:
-            logger.debug('AsyncNotifier.register_signal: %s' % signal)
+            logger.info('AsyncNotifier.register_signal: %s' % signal)
             signal.connect(cls.send_asynchronously)
             cls.signals.append(signal)
+            
+    @classmethod
+    def deregister_signal(cls, signal):
+        '''Deregister the AsyncNotifer so that it no longer receives a `blinker` signal
+        
+        :param signal: signal to rebroadcast. Signal *must* have a kwarg
+        routing_key used for routing in the AMQP system.
+        '''
+        if signal in cls.signals:
+            logger.info('AsyncNotifier.deregester_signal: %s')
+            signal.disconnect(cls.send_asynchronously)
+            del cls.signals[cls.signals.index(signal)]
+            
+    @classmethod
+    def deregister_all(cls):
+        '''Unregister all signals this notifier is registered to receive'''
+        for signal in cls.signals:
+            cls.deregister_signal(signal)
+        
 
-
-# TODO: move this to model/notifier and use register_signal
-# Register AsyncNotifier to receive *synchronous* notifications
-for routing_key in notifier.ROUTING_KEYS:
-    signal = blinker.signal(routing_key)
-    AsyncNotifier.register_signal(signal)
-
-    
 class AsyncConsumer(object):
     '''Receive async notifications. (Derive from this class.)
     '''
