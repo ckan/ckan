@@ -817,6 +817,16 @@ class ModelApiTestCase(ApiControllerTestCase):
         job_error = self.data_from_res(response)
         assert "does not exist" in job_error
         assert not model.HarvestingJob.get(u'a_publisher_user', default=None, attr='user_ref')
+        #  - invalid example.
+        job_details = {
+            'source_id': self.source.id,
+            'user_ref': u'',
+        }
+        assert not model.HarvestingJob.get(u'a_publisher_user', None, 'user_ref')
+        response = self.post(offset, job_details, status=400)
+        job_error = self.data_from_res(response)
+        assert "You must supply a user_ref" in job_error
+        assert not model.HarvestingJob.get(self.source.id, default=None, attr='source_id')
         #  - valid example.
         job_details = {
             'source_id': self.source.id,
