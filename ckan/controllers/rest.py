@@ -19,6 +19,7 @@ class BaseApiController(BaseController):
     api_version = ''
     ref_package_by = ''
     ref_group_by = ''
+    content_type_json = 'application/json;charset=utf-8'
 
     def _ref_package(self, package):
         assert self.ref_package_by in ['id', 'name']
@@ -39,7 +40,7 @@ class BaseApiController(BaseController):
 
     def _finish_ok(self, response_data=None):
         # response.status_int = 200 -- already will be so
-        response.headers['Content-Type'] = 'application/json;charset=utf-8'
+        response.headers['Content-Type'] = self.content_type_json
         response_msg = ''
         if response_data is not None:
             response_msg = json.dumps(response_data)
@@ -250,6 +251,9 @@ class BaseRestController(BaseApiController):
             elif register == 'rating' and not subregister:
                 # Create a Rating.
                 return self._create_rating(request_data)
+            elif register == 'harvestingjob' and not subregister:
+                # Create a HarvestingJob.
+                return self._create_harvesting_job(request_data)
             else:
                 # Complain about unsupported entity type.
                 log.error('Cannot create new entity of this type: %s %s' % (register, subregister))
@@ -573,6 +577,34 @@ class BaseRestController(BaseApiController):
         package = self._get_pkg(package_ref)
         ret_dict = {'rating average':package.get_average_rating(),
                     'rating count': len(package.ratings)}
+        return self._finish_ok(ret_dict)
+
+    def _create_harvesting_job(self, params):
+        """ Example data: {'user_ref':u'0005', 'source_id':5}
+        """
+        # Pick out attribute values from request.
+        user_ref = params.get('user_ref')
+        source_id = params.get('source_id')
+        # Validate values.
+        opts_err = ''
+        if not user_ref:
+            opts_err = gettext('You must supply a user_ref.')
+        elif not source_id:
+            opts_err = gettext('You must supply a source_id.')
+        else:
+            source = model.HarvestSource.get(source_id, None)
+            if not source:
+                opts_err = gettext('Harvest source %s does not exist.') % source_ref
+        if opts_err:
+            self.log.debug(opts_err)
+            response.status_int = 400
+            response.headers['Content-Type'] = 'application/json'
+            return opts_err
+        # Create job.
+        job = model.HarvestingJob(source_id=source_id, user_ref=user_ref)
+        model.Session.add(job)
+        model.Session.commit()
+        ret_dict = job.as_dict()
         return self._finish_ok(ret_dict)
 
     def _get_username(self):

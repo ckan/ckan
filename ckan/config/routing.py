@@ -34,10 +34,15 @@ def make_map():
     map.connect('/api', controller='rest', action='get_api')
     map.connect('/api/form/package/create', controller='form', action='package_create')
     map.connect('/api/form/package/edit/:id', controller='form', action='package_edit')
+    map.connect('/api/form/harvest/source/create', controller='form', action='harvest_source_create')
+
+    map.connect('/api/search/:register', controller='rest', action='search')
+    map.connect('/api/tag_counts', controller='rest', action='tag_counts')
+    
+    map.connect('/api/rest', controller='rest', action='index')
     
     map.connect('/api/rest/package', controller='apiv1/package', action='list',
                 conditions=dict(method=['GET']))
-    map.connect('/api/form/harvest/source/create', controller='form', action='harvest_source_create')
     map.connect('/api/rest/package', controller='apiv1/package', action='create',
                 conditions=dict(method=['POST']))
     map.connect('/api/rest/package/:id', controller='apiv1/package', action='show',
@@ -49,9 +54,19 @@ def make_map():
     map.connect('/api/rest/package/:id', controller='apiv1/package', action='delete',
                 conditions=dict(method=['DELETE']))
 
-    map.connect('/api/search/:register', controller='rest', action='search')
-    map.connect('/api/tag_counts', controller='rest', action='tag_counts')
-    map.connect('/api/rest', controller='rest', action='index')
+    map.connect('/api/rest/package', controller='apiv1/package', action='list',
+                conditions=dict(method=['GET']))
+    map.connect('/api/rest/package', controller='apiv1/package', action='create',
+                conditions=dict(method=['POST']))
+    map.connect('/api/rest/package/:id', controller='apiv1/package', action='show',
+                conditions=dict(method=['GET']))
+    map.connect('/api/rest/package/:id', controller='apiv1/package', action='update',
+                conditions=dict(method=['POST']))
+    map.connect('/api/rest/package/:id', controller='apiv1/package', action='update',
+                conditions=dict(method=['PUT']))
+    map.connect('/api/rest/package/:id', controller='apiv1/package', action='delete',
+                conditions=dict(method=['DELETE']))
+
     map.connect('/api/rest/:register', controller='rest', action='list',
         conditions=dict(method=['GET']))
     map.connect('/api/rest/:register', controller='rest', action='create',
@@ -88,8 +103,10 @@ def make_map():
     map.connect('/api/1/form/package/create', controller='form', action='package_create')
     map.connect('/api/1/form/package/edit/:id', controller='form', action='package_edit')
     map.connect('/api/1/form/harvest/source/create', controller='form', action='harvest_source_create')
+
     map.connect('/api/1/search/:register', controller='rest', action='search')
     map.connect('/api/1/tag_counts', controller='rest', action='tag_counts')
+
     map.connect('/api/1/rest', controller='rest', action='index')
 
     map.connect('/api/1/rest/package', controller='apiv1/package', action='list',
@@ -141,8 +158,10 @@ def make_map():
     map.connect('/api/2/form/package/create', controller='form2', action='package_create')
     map.connect('/api/2/form/package/edit/:id', controller='form2', action='package_edit')
     map.connect('/api/2/form/harvest/source/create', controller='form', action='harvest_source_create')
+
     map.connect('/api/2/search/:register', controller='rest2', action='search')
     map.connect('/api/2/tag_counts', controller='rest2', action='tag_counts')
+
     map.connect('/api/2/rest', controller='rest2', action='index')
 
     map.connect('/api/2/rest/package', controller='apiv2/package', action='list',

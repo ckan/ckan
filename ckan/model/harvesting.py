@@ -40,20 +40,20 @@ class HarvestingJob(DomainObject): pass
 
 harvest_source_table = Table('harvest_source', metadata,
         Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
-        Column('status', types.UnicodeText),
+        Column('status', types.UnicodeText, default=u'New'),
         Column('url', types.UnicodeText, unique=True, nullable=False),
-        Column('description', types.UnicodeText),                      
-        Column('user_ref', types.UnicodeText),
-        Column('publisher_ref', types.UnicodeText),
+        Column('description', types.UnicodeText, default=u''),                      
+        Column('user_ref', types.UnicodeText, default=u''),
+        Column('publisher_ref', types.UnicodeText, default=u''),
         Column('created', DateTime, default=datetime.datetime.utcnow),
 )
 
 harvesting_job_table = Table('harvesting_job', metadata,
         Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
-        Column('status', types.UnicodeText),
+        Column('status', types.UnicodeText, default=u''),
         Column('created', DateTime, default=datetime.datetime.utcnow),
         Column('user_ref', types.UnicodeText, nullable=False),
-        Column('report', types.UnicodeText),                     
+        Column('report', types.UnicodeText, default=u''),                     
         Column('source_id', UnicodeText, ForeignKey('harvest_source.id')), 
 )
 

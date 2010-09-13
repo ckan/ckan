@@ -22,7 +22,7 @@ class ApiControllerTestCase(ControllerTestCase):
             extra_environ=self.extra_environ)
         return response
 
-    def post(self, offset, data, status=[200], *args, **kwds):
+    def post(self, offset, data, status=[200,201], *args, **kwds):
         params = '%s=1' % json.dumps(data)
         response = self.app.post(offset, params=params, status=status,
             extra_environ=self.extra_environ)
@@ -165,6 +165,15 @@ class ModelApiTestCase(ApiControllerTestCase):
             'title' : u'Some Group Title',
             'description' : u'Great group!',
             'packages' : [u'annakarenina', u'warandpeace'],
+        }
+        self.testharvestsourcevalues = {
+            'url' : u'http://localhost/',
+            'description' : u'My metadata.',
+            'user_ref': u'a_publisher_user',
+            'publisher_ref': u'a_publisher',
+        }
+        self.testharvestingjobvalues = {
+            'user_ref': u'a_publisher_user',
         }
         self.user_name = u'http://myrandom.openidservice.org/'
 
@@ -790,6 +799,26 @@ class ModelApiTestCase(ApiControllerTestCase):
             assert license['title'] == license.title
             assert license['url'] == license.url
 
+    def test_17_create_harvesting_job(self):
+        # Setup harvest source fixture.
+        self.source = model.HarvestSource(url=u'http://localhost/')
+        model.Session.add(self.source)
+        model.Session.commit()
+        assert self.source.id
+        # Prepare and send POST request to register.
+        offset = self.offset('/rest/harvestingjob')
+        job_details = {
+            'source_id': self.source.id,
+            'user_ref': u'a_publisher_user',
+        }
+        assert not model.HarvestingJob.get(u'a_publisher_user', None, 'user_ref')
+        response = self.post(offset, job_details)
+        new_job = self.data_from_res(response)
+        assert new_job['id']
+        self.assert_equal(new_job['source_id'], self.source.id)
+        self.assert_equal(new_job['user_ref'], u'a_publisher_user')
+        model.HarvestingJob.get(self.source.id, attr='source_id')
+        model.HarvestingJob.get(u'a_publisher_user', attr='user_ref')
 
 # Note well, relationships are actually part of the Model API.
 class RelationshipsApiTestCase(ApiControllerTestCase):
