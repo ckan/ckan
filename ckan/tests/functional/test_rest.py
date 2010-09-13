@@ -854,7 +854,7 @@ class ModelApiTestCase(ApiControllerTestCase):
 
     def test_18_get_harvesting_job(self):
         # Setup harvesting job fixture.
-        fixture_url = u'http://localhost/'
+        fixture_url = u'http://localhost/6'
         source = self._create_harvest_source_fixture(url=fixture_url)
         job = self._create_harvesting_job_fixture(source_id=source.id)
         offset = self.offset('/rest/harvestingjob/%s' % job.id)
@@ -864,7 +864,8 @@ class ModelApiTestCase(ApiControllerTestCase):
 
     def test_18_create_harvesting_job(self):
         # Setup harvest source fixture.
-        source = self._create_harvest_source_fixture(url=u'http://localhost/')
+        fixture_url = u'http://localhost/7'
+        source = self._create_harvest_source_fixture(url=fixture_url)
         # Prepare and send POST request to register.
         offset = self.offset('/rest/harvestingjob')
         #  - invalid example.
