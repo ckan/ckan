@@ -23,14 +23,18 @@ class DomainObject(DomainObject):
         if attr == None:
             attr = self.key_attr
         kwds = {attr: key}
-        q = Session.query(self).autoflush(False)
-        o = q.filter_by(**kwds).first()
+        o = self.filter(**kwds).first()
         if o:
             return o
         if default != Exception:
             return default
         else:
             raise Exception, "%s not found: %s" % (self.__name__, key)
+
+    @classmethod 
+    def filter(self, **kwds): 
+        query = Session.query(self).autoflush(False)
+        return query.filter_by(**kwds)
 
 
 class HarvestSource(DomainObject): pass

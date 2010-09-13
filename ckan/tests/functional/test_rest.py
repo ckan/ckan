@@ -835,6 +835,23 @@ class ModelApiTestCase(ApiControllerTestCase):
         assert 'url' in source_data, "No 'id' in changeset data: %s" % source_data
         self.assert_equal(source_data.get('url'), fixture_url)
 
+    def test_17_list_harvest_source_for_publisher(self):
+        # Setup harvest source fixtures.
+        fixture_url = u'http://localhost/'
+        source1 = self._create_harvest_source_fixture(url=fixture_url+'1', publisher_ref=u'pub1')
+        source2 = self._create_harvest_source_fixture(url=fixture_url+'2', publisher_ref=u'pub1')
+        source3 = self._create_harvest_source_fixture(url=fixture_url+'3', publisher_ref=u'pub1')
+        source4 = self._create_harvest_source_fixture(url=fixture_url+'4', publisher_ref=u'pub2')
+        source5 = self._create_harvest_source_fixture(url=fixture_url+'5', publisher_ref=u'pub2')
+        offset = self.offset('/rest/harvestsource/publisher/pub1')
+        res = self.app.get(offset, status=[200])
+        source_data = self.data_from_res(res)
+        self.assert_equal(len(source_data), 3)
+        offset = self.offset('/rest/harvestsource/publisher/pub2')
+        res = self.app.get(offset, status=[200])
+        source_data = self.data_from_res(res)
+        self.assert_equal(len(source_data), 2)
+
     def test_18_get_harvesting_job(self):
         # Setup harvesting job fixture.
         fixture_url = u'http://localhost/'

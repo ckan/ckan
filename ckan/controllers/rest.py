@@ -111,9 +111,18 @@ class BaseRestController(BaseApiController):
             licenses = LicenseRegister().values()
             response_data = [l.as_dict() for l in licenses]
             return self._finish_ok(response_data)
+        elif register == u'harvestsource':
+            if id == 'publisher':
+                publisher_ref = subregister
+                s = model.HarvestSource.filter(publisher_ref=publisher_ref)
+            else:
+                raise Exception, "Not picking up publisher part."
+                s = model.HarvestSource.filter()
+            response_data = [o.id for o in s]
+            return self._finish_ok(response_data)
         else:
             response.status_int = 400
-            return ''
+            return gettext('Cannot list entity of this type: %s') % register
 
     def show(self, register, id, subregister=None, id2=None):
         log.debug('show %s/%s/%s/%s' % (register, id, subregister, id2))
