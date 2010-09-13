@@ -807,6 +807,17 @@ class ModelApiTestCase(ApiControllerTestCase):
         assert self.source.id
         # Prepare and send POST request to register.
         offset = self.offset('/rest/harvestingjob')
+        #  - invalid example.
+        job_details = {
+            'source_id': 'made-up-source-id',
+            'user_ref': u'a_publisher_user',
+        }
+        assert not model.HarvestingJob.get(u'a_publisher_user', None, 'user_ref')
+        response = self.post(offset, job_details, status=400)
+        job_error = self.data_from_res(response)
+        assert "does not exist" in job_error
+        assert not model.HarvestingJob.get(u'a_publisher_user', default=None, attr='user_ref')
+        #  - valid example.
         job_details = {
             'source_id': self.source.id,
             'user_ref': u'a_publisher_user',

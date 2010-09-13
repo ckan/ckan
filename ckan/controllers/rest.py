@@ -568,7 +568,7 @@ class BaseRestController(BaseApiController):
         if opts_err:
             self.log.debug(opts_err)
             response.status_int = 400
-            response.headers['Content-Type'] = 'application/json'
+            response.headers['Content-Type'] = self.content_type_json
             return opts_err
 
         user = model.User.by_name(self.rest_api_user)
@@ -594,12 +594,12 @@ class BaseRestController(BaseApiController):
         else:
             source = model.HarvestSource.get(source_id, None)
             if not source:
-                opts_err = gettext('Harvest source %s does not exist.') % source_ref
+                opts_err = gettext('Harvest source %s does not exist.') % source_id
         if opts_err:
             self.log.debug(opts_err)
             response.status_int = 400
-            response.headers['Content-Type'] = 'application/json'
-            return opts_err
+            response.headers['Content-Type'] = self.content_type_json
+            return json.dumps(opts_err)
         # Create job.
         job = model.HarvestingJob(source_id=source_id, user_ref=user_ref)
         model.Session.add(job)
@@ -626,19 +626,19 @@ class BaseRestController(BaseApiController):
             if action != model.Action.READ and self.rest_api_user in (model.PSEUDO_USER__VISITOR, ''):
                 self.log.debug("Valid API key needed to make changes")
                 response.status_int = 403
-                response.headers['Content-Type'] = 'application/json'
+                response.headers['Content-Type'] = self.content_type_json
                 return False                
             
             am_authz = ckan.authz.Authorizer().is_authorized(self.rest_api_user, action, entity)
             if not am_authz:
                 self.log.debug("User is not authorized to %s %s" % (action, entity))
                 response.status_int = 403
-                response.headers['Content-Type'] = 'application/json'
+                response.headers['Content-Type'] = self.content_type_json
                 return False
         elif not self.rest_api_user:
             self.log.debug("No valid API key provided.")
             response.status_int = 403
-            response.headers['Content-Type'] = 'application/json'
+            response.headers['Content-Type'] = self.content_type_json
             return False
         self.log.debug("Access OK.")
         response.status_int = 200
