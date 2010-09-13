@@ -14,8 +14,8 @@ class DomainObject(DomainObject):
 
     key_attr = 'id'
 
-    def delete(self):
-        self.purge()
+#    def delete(self):
+#        self.purge()
 
     @classmethod 
     def get(self, key, default=Exception, attr=None):

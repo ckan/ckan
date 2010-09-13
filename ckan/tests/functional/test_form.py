@@ -47,7 +47,7 @@ class BaseFormsApiCase(ApiControllerTestCase):
     def delete_harvest_source(self, url):
         source = self.get_harvest_source_by_url(url, None)
         if source:
-            source.delete()
+            model.Session.delete(source)
             model.Session.commit()
 
     def offset_package_create_form(self):
