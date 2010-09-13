@@ -36,12 +36,37 @@ class DomainObject(DomainObject):
         query = Session.query(self).autoflush(False)
         return query.filter_by(**kwds)
 
+    @classmethod 
+    def create_record(self, model_session, **kwds):
+        # Create an object instance.
+        domain_object = self.create_instance(**kwds)
+        # Create a record for the object.
+        model_session.add(domain_object)
+        model_session.commit()
+        # Return the object.
+        return domain_object
+
+    @classmethod 
+    def create_instance(self, **kwds):
+        # Initialise object key attribute.
+        if self.key_attr not in kwds:
+            kwds[self.key_attr] = self.create_key()
+        # Create an object instance.
+        domain_object = self(**kwds)
+        return domain_object
+
+    @classmethod 
+    def create_key(self, **kwds):
+        # By default, it's a new UUID.
+        return make_uuid()
+
 
 class HarvestSource(DomainObject): pass
     
-class HarvestingJob(DomainObject): pass
-    
 
+class HarvestingJob(DomainObject): pass
+
+    
 harvest_source_table = Table('harvest_source', metadata,
         Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
         Column('status', types.UnicodeText, default=u'New'),

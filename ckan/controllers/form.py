@@ -90,8 +90,7 @@ class BaseFormController(BaseApiController):
                     return response_body
                 else:
                     # Retrieve created pacakge.
-                    package_name = bound_fieldset.name.value
-                    package = model.Package.by_name(package_name)
+                    package = bound_fieldset.model
                     # Construct access control entities.
                     self._create_permissions(package, user)
                     # Set the Location header.
@@ -342,9 +341,13 @@ class BaseFormController(BaseApiController):
                     return response_body
                 else:
                     # Retrieve created harvest source entity.
-                    source_url = bound_fieldset.url.value
-                    source = model.HarvestSource.get(source_url, attr='url')
-                    # Set the Location header.
+                    source = bound_fieldset.model
+                    # Set and store the non-form object attributes.
+                    source.user_ref = user_ref
+                    source.publisher_ref = publisher_ref
+                    model.Session.add(source)
+                    model.Session.commit()
+                    # Set the response's Location header.
                     location = self._make_harvest_source_201_location(source)
                     self._set_response_header('Location', location)
                     # Set response body.

@@ -299,9 +299,11 @@ class FormsApiTestCase(BaseFormsApiCase):
         assert not self.get_harvest_source_by_url(source_url, None)
         res = self.post_harvest_source_create_form(url=source_url, description=source_description)
         self.assert_header(res, 'Location')
+        # Todo: Check the Location looks promising (extract and check given ID).
         assert not json.loads(res.body)
-        assert self.get_harvest_source_by_url(source_url)
-        #self.assert_header(res, 'Location', expected_path)
+        source = self.get_harvest_source_by_url(source_url) # Todo: Use extracted ID.
+        self.assert_equal(source.user_ref, 'example publisher user')
+        self.assert_equal(source.publisher_ref, 'example publisher')
 
     def test_submit_harvest_source_create_form_invalid(self):
         source_url = u'' # Blank URL.

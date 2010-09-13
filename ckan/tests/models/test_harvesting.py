@@ -84,12 +84,14 @@ class TestHarvestingJob(TestCase):
         model.Session.remove()
         super(TestHarvestSource, self).teardown()
 
+    def create_harvesting_job(self, source, user_ref):
+        return HarvestingJob.create_record(model.Session,
+            source=source, user_ref=user_ref)
+ 
     def test_crud_job(self):
         self.assert_false(self.job)
         user_ref = u'publisheruser1'
-        self.job = HarvestingJob(source=self.source, user_ref=user_ref)
-        model.Session.add(self.job)
-        model.Session.commit()
+        self.job = self.create_harvesting_job(source=self.source, user_ref=user_ref)
         self.assert_true(self.job)
         self.assert_true(self.job.id)
         self.assert_true(self.job.source.id)
