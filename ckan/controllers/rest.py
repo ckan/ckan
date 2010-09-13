@@ -191,6 +191,13 @@ class BaseRestController(BaseApiController):
                 return ''            
             response_data = [pkgtag.package.name for pkgtag in obj.package_tags]
             return self._finish_ok(response_data)
+        elif register == u'harvestsource':
+            obj = model.HarvestSource.get(id) #TODO tags
+            if obj is None:
+                response.status_int = 404
+                return ''            
+            response_data = obj.as_dict()
+            return self._finish_ok(response_data)
         else:
             response.status_int = 400
             return ''

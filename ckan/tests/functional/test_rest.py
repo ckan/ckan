@@ -799,12 +799,26 @@ class ModelApiTestCase(ApiControllerTestCase):
             assert license['title'] == license.title
             assert license['url'] == license.url
 
-    def test_17_create_harvesting_job(self):
+    def test_17_get_harvest_source(self):
         # Setup harvest source fixture.
-        self.source = model.HarvestSource(url=u'http://localhost/')
-        model.Session.add(self.source)
+        fixture_url = u'http://localhost/'
+        source = self._create_harvest_source_fixture(url=fixture_url)
+        offset = self.offset('/rest/harvestsource/%s' % source.id)
+        res = self.app.get(offset, status=[200])
+        source_data = self.data_from_res(res)
+        assert 'url' in source_data, "No 'id' in changeset data: %s" % source_data
+        self.assert_equal(source_data.get('url'), fixture_url)
+
+    def _create_harvest_source_fixture(self, **kwds):
+        source = model.HarvestSource(**kwds)
+        model.Session.add(source)
         model.Session.commit()
-        assert self.source.id
+        assert source.id
+        return source
+
+    def test_18_create_harvesting_job(self):
+        # Setup harvest source fixture.
+        source = self._create_harvest_source_fixture(url=u'http://localhost/')
         # Prepare and send POST request to register.
         offset = self.offset('/rest/harvestingjob')
         #  - invalid example.
@@ -819,26 +833,26 @@ class ModelApiTestCase(ApiControllerTestCase):
         assert not model.HarvestingJob.get(u'a_publisher_user', default=None, attr='user_ref')
         #  - invalid example.
         job_details = {
-            'source_id': self.source.id,
+            'source_id': source.id,
             'user_ref': u'',
         }
         assert not model.HarvestingJob.get(u'a_publisher_user', None, 'user_ref')
         response = self.post(offset, job_details, status=400)
         job_error = self.data_from_res(response)
         assert "You must supply a user_ref" in job_error
-        assert not model.HarvestingJob.get(self.source.id, default=None, attr='source_id')
+        assert not model.HarvestingJob.get(source.id, default=None, attr='source_id')
         #  - valid example.
         job_details = {
-            'source_id': self.source.id,
+            'source_id': source.id,
             'user_ref': u'a_publisher_user',
         }
         assert not model.HarvestingJob.get(u'a_publisher_user', None, 'user_ref')
         response = self.post(offset, job_details)
         new_job = self.data_from_res(response)
         assert new_job['id']
-        self.assert_equal(new_job['source_id'], self.source.id)
+        self.assert_equal(new_job['source_id'], source.id)
         self.assert_equal(new_job['user_ref'], u'a_publisher_user')
-        model.HarvestingJob.get(self.source.id, attr='source_id')
+        model.HarvestingJob.get(source.id, attr='source_id')
         model.HarvestingJob.get(u'a_publisher_user', attr='user_ref')
 
 # Note well, relationships are actually part of the Model API.
