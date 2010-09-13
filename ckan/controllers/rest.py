@@ -192,7 +192,14 @@ class BaseRestController(BaseApiController):
             response_data = [pkgtag.package.name for pkgtag in obj.package_tags]
             return self._finish_ok(response_data)
         elif register == u'harvestsource':
-            obj = model.HarvestSource.get(id) #TODO tags
+            obj = model.HarvestSource.get(id)
+            if obj is None:
+                response.status_int = 404
+                return ''            
+            response_data = obj.as_dict()
+            return self._finish_ok(response_data)
+        elif register == u'harvestingjob':
+            obj = model.HarvestingJob.get(id)
             if obj is None:
                 response.status_int = 404
                 return ''            
@@ -200,7 +207,7 @@ class BaseRestController(BaseApiController):
             return self._finish_ok(response_data)
         else:
             response.status_int = 400
-            return ''
+            return gettext('Cannot read entity of this type: %s') % register
 
     def _represent_package(self, package):
         return package.as_dict(ref_package_by=self.ref_package_by, ref_group_by=self.ref_group_by)

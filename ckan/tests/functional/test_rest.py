@@ -816,6 +816,35 @@ class ModelApiTestCase(ApiControllerTestCase):
         assert source.id
         return source
 
+    def _create_harvesting_job_fixture(self, **kwds):
+        if not kwds.get('user_ref'):
+            kwds['user_ref'] = u'c_publisher_user'
+        job = model.HarvestingJob(**kwds)
+        model.Session.add(job)
+        model.Session.commit()
+        assert job.id
+        return job
+
+    def test_17_get_harvest_source(self):
+        # Setup harvest source fixture.
+        fixture_url = u'http://localhost/'
+        source = self._create_harvest_source_fixture(url=fixture_url)
+        offset = self.offset('/rest/harvestsource/%s' % source.id)
+        res = self.app.get(offset, status=[200])
+        source_data = self.data_from_res(res)
+        assert 'url' in source_data, "No 'id' in changeset data: %s" % source_data
+        self.assert_equal(source_data.get('url'), fixture_url)
+
+    def test_18_get_harvesting_job(self):
+        # Setup harvesting job fixture.
+        fixture_url = u'http://localhost/'
+        source = self._create_harvest_source_fixture(url=fixture_url)
+        job = self._create_harvesting_job_fixture(source_id=source.id)
+        offset = self.offset('/rest/harvestingjob/%s' % job.id)
+        res = self.app.get(offset, status=[200])
+        job_data = self.data_from_res(res)
+        self.assert_equal(job_data.get('source_id'), source.id)
+
     def test_18_create_harvesting_job(self):
         # Setup harvest source fixture.
         source = self._create_harvest_source_fixture(url=u'http://localhost/')
