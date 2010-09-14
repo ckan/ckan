@@ -27,8 +27,8 @@ from ckan.lib import search
 
 import resource, socket
 
-if 'ubik.local' == socket.gethostname():
-    resource.setrlimit(resource.RLIMIT_NOFILE, (500,-1))
+#if 'ubik.local' == socket.gethostname():
+resource.setrlimit(resource.RLIMIT_NOFILE, (500,-1))
 
 
 __all__ = ['url_for',

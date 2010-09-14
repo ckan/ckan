@@ -117,7 +117,7 @@ Ho ho ho
         form[titlefn] = newtitle
         form[descfn] = newdesc
         pkg = model.Package.by_name(self.packagename)
-        form['PackageGroup--package_id'] = pkg.id
+        form['PackageGroup--package_name'] = pkg.name
 
         
         res = form.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
@@ -194,14 +194,14 @@ class TestNew(TestController):
         assert fv[prefix+'name'].value == '', fv.fields
         assert fv[prefix+'title'].value == ''
         assert fv[prefix+'description'].value == ''
-        assert fv['PackageGroup--package_id'].value == '', fv['PackageGroup--package_id'].value
+        assert fv['PackageGroup--package_name'].value == '', fv['PackageGroup--package_name'].value
 
         # Edit form
         fv[prefix+'name'] = group_name
         fv[prefix+'title'] = group_title
         fv[prefix+'description'] = group_description
         pkg = model.Package.by_name(self.packagename)
-        fv['PackageGroup--package_id'] = pkg.id
+        fv['PackageGroup--package_name'] = pkg.name
         res = fv.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
         res = res.follow()
         assert '%s' % group_title in res, res

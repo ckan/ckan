@@ -655,6 +655,24 @@ class CheckboxExtraField(TextExtraField):
         def deserialize(self):
             return u'yes' if self._serialized_value() else u'no'
 
+
+class PackageNameField(ConfiguredField):
+    
+    def get_configured(self):
+        return self.PackageNameField(self.name).with_renderer(self.PackageNameRenderer)
+
+    class PackageNameField(formalchemy.Field):
+        #def sync(self):
+        #    if not self.is_readonly():
+        pass
+        
+    class PackageNameRenderer(formalchemy.fields.FieldRenderer):
+        #def _get_value(self):
+        #    package_id = self.field.parent.model.package_id
+        #    pkg = model.Package.get(package_id)
+        #    return pkg.name
+        pass
+
 def prettify(field_name):
     '''Generates a field label based on the field name.
     Used by the FormBuilder in method set_label_prettifier.

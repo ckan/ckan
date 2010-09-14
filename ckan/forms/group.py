@@ -6,7 +6,7 @@ from builder import FormBuilder
 from sqlalchemy.util import OrderedDict
 import ckan.model as model
 import common
-from common import ExtrasField
+from common import ExtrasField, PackageNameField
 from ckan.lib.helpers import literal
 
 __all__ = ['get_group_fieldset', 'get_group_dict', 'edit_group_dict']
@@ -72,8 +72,9 @@ def get_group_fieldset(name):
 
         # new_package_group_fs is the packages for the WUI form
         builder = FormBuilder(model.PackageGroup)
-        builder.set_field_option('package_id', 'with_renderer', PackagesRenderer)
-        builder.set_displayed_fields({'Add packages':['package_id']},
+        builder.add_field(PackageNameField('package_name'))
+        builder.set_field_option('package_name', 'with_renderer', PackagesRenderer)
+        builder.set_displayed_fields({'Add packages':['package_name']},
                                      focus_field=False)
         fieldsets['new_package_group_fs'] = builder.get_fieldset()
     return fieldsets[name]

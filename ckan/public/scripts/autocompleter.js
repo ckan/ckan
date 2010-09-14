@@ -11,7 +11,7 @@
   function processResult(e, item) {
     $(this).val('')
            .parent('dd').before(
-      '<input type="hidden" name="PackageGroup--package_id" value="' + item[1] + '">' +
+      '<input type="hidden" name="PackageGroup--package_name" value="' + item[0] + '">' +
       '<dd>' + item[0] + '</dd>'
     );
   }
