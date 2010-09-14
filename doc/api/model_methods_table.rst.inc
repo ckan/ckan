@@ -1,42 +1,57 @@
 +-------------------------------+--------+------------------+-------------------+
 | Resource                      | Method | Request          | Response          |
 +===============================+========+==================+===================+ 
-| Package Register              | GET    |                  | Package-List      | 
+| Package Register              | GET    |                  | Package-List      |
 +-------------------------------+--------+------------------+-------------------+
-| Package Register              | POST   | Package          |                   | 
+| Package Register              | POST   | Package          |                   |
 +-------------------------------+--------+------------------+-------------------+
-| Package Entity                | GET    |                  | Package           | 
+| Package Entity                | GET    |                  | Package           |
 +-------------------------------+--------+------------------+-------------------+
-| Package Entity                | PUT    | Package          |                   | 
+| Package Entity                | PUT    | Package          |                   |
 +-------------------------------+--------+------------------+-------------------+
-| Group Register                | GET    |                  | Group-List        | 
+| Group Register                | GET    |                  | Group-List        |
 +-------------------------------+--------+------------------+-------------------+
-| Group Register                | POST   | Group            |                   | 
+| Group Register                | POST   | Group            |                   |
 +-------------------------------+--------+------------------+-------------------+
-| Group Entity                  | GET    |                  | Group             | 
+| Group Entity                  | GET    |                  | Group             |
 +-------------------------------+--------+------------------+-------------------+
-| Group Entity                  | PUT    | Group            |                   | 
+| Group Entity                  | PUT    | Group            |                   |
 +-------------------------------+--------+------------------+-------------------+
-| Tag Register                  | GET    |                  | Tag-List          |  
+| Tag Register                  | GET    |                  | Tag-List          | 
 +-------------------------------+--------+------------------+-------------------+
-| Tag Entity                    | GET    |                  | Package-List      | 
+| Tag Entity                    | GET    |                  | Package-List      |
 +-------------------------------+--------+------------------+-------------------+
-| Rating Register               | POST   | Rating           |                   | 
+| Rating Register               | POST   | Rating           |                   |
 +-------------------------------+--------+------------------+-------------------+
-| Rating Entity                 | GET    |                  | Rating            | 
+| Rating Entity                 | GET    |                  | Rating            |
 +-------------------------------+--------+------------------+-------------------+
-| Package Relationships Register| GET    |                  | Pkg-Relationships | 
+| Package Relationships Register| GET    |                  | Pkg-Relationships |
 +-------------------------------+--------+------------------+-------------------+
 | Package Relationship Entity   | GET    |                  | Pkg-Relationship  |
 +-------------------------------+--------+------------------+-------------------+
-| Package Relationship Entity   | PUT    | Pkg-Relationship |                   | 
+| Package Relationship Entity   | PUT    | Pkg-Relationship |                   |
 +-------------------------------+--------+------------------+-------------------+
-| Revision Entity               | GET    |                  | Revision          | 
+| Revision Entity               | GET    |                  | Revision          |
 +-------------------------------+--------+------------------+-------------------+
-| License List                  | GET    |                  | License-List      | 
+| License List                  | GET    |                  | License-List      |
 +-------------------------------+--------+------------------+-------------------+
+| Harvest Source Register       | GET    |                  | HarvestSource-List|
++-------------------------------+--------+------------------+-------------------+
+| Harvest Source Entity         | GET    |                  | HarvestSource     |
++-------------------------------+--------+------------------+-------------------+
+| Publisher's Harvest Source    | GET    |                  |HarvestSource-List |
+| Register                      |        |                  |                   |
++-------------------------------+--------+------------------+-------------------+
+| Harvesting Job Register       | GET    |                  | HarvestingJob-List|
++-------------------------------+--------+------------------+-------------------+
+| Harvesting Job Register       | POST   | HarvestingJob    |                   |
++-------------------------------+--------+------------------+-------------------+
+| Harvesting Job Entity         | GET    |                  | HarvestingJob     |
++-------------------------------+--------+------------------+-------------------+
+
+* POSTing data to a register resource will create a new entity.
+
+* PUT/POSTing data to an entity resource will update an existing entity.
 
 * PUT operations may instead use the HTTP POST method.
-
-* POSTing data to a register resource will create a new entity, whilst PUT/POSTing data to an entity resource will update an existing entity.
 

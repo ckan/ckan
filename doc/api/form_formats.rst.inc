@@ -10,6 +10,8 @@ Here are the data formats for the Form API.
 +--------------------------------+---------------------------------------------------------------------------+
 | Package-Edit-Form              | Form-FieldSet Form-FieldSet Form-FieldSet                                 |
 +--------------------------------+---------------------------------------------------------------------------+
+| HarvestSource-Create-Form      | Form-FieldSet Form-FieldSet Form-FieldSet                                 |
++--------------------------------+---------------------------------------------------------------------------+
 | Form-FieldSet                  || <fieldset>                                                               |
 |                                ||     <legend>...</legend>                                                 |
 |                                ||     <dl>                                                                 |
@@ -31,7 +33,10 @@ Here are the data formats for the Form API.
 |                                | (FIELD-NAME, FIELD-VALUE), ... ],                                         |
 |                                | log_message: LOG-MESSAGE, author: AUTHOR }                                |
 +--------------------------------+---------------------------------------------------------------------------+
- 
+| HarvestSource-Create-          | { form_data: [ (FIELD-NAME, FIELD-VALUE), (FIELD-NAME, FIELD-VALUE),      |
+|  Form-Submission               | (FIELD-NAME, FIELD-VALUE), ... ],                                         |
+|                                | user_ref: USER-REF, publisher_ref: PUBLISHER-REF }                        |
++--------------------------------+---------------------------------------------------------------------------+
 
 To send request data, create a simple data structure, then convert it to a JSON string, then percent-encode the JSON string, then send it as the request body.
 

@@ -1,10 +1,3 @@
-.. |site| replace:: CKAN
-.. |api| replace:: API
-.. |version| replace:: Version 1
-.. |base_location| replace:: ``http://ckan.net/api/1``
-.. |main_doc| replace:: :doc:`../api`
-.. |usage| replace:: to view and change
-
 .. toctree::
    :hidden:
 
@@ -16,8 +9,34 @@ Model API
 .. include:: model_preamble.rst.inc
 .. include:: model_resources.rst.inc
 .. include:: model_methods.rst.inc
-.. include:: 1/model/formats.rst.inc
+.. include:: model_formats.rst.inc
 
-.. include:: search/index.rst.inc
-.. include:: form/index.rst.inc
+Search API
+----------
+
+.. include:: search_preamble.rst.inc
+.. include:: search_resources.rst.inc
+.. include:: search_methods.rst.inc
+.. include:: search_formats.rst.inc
+
+Form API
+--------
+
+.. include:: form_preamble.rst.inc
+.. include:: form_resources.rst.inc
+.. include:: form_methods.rst.inc
+.. include:: form_formats.rst.inc
+
 .. include:: bottom.rst.inc
+
+.. |site| replace:: CKAN
+.. |api| replace:: API
+.. |version| replace:: Version 1
+.. |base_location| replace:: ``http://ckan.net/api/1``
+.. |main_doc| replace:: :doc:`../api`
+.. |usage| replace:: to view and change
+
+.. |format-package-ref| replace:: Package-Name
+.. |format-group-ref| replace:: Group-Name
+
+
