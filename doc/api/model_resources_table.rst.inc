@@ -34,6 +34,9 @@
 +--------------------------------+-------------------------------------------------------------------+
 | Harvest Source Entity          | ``/rest/harvestsource/HARVESTSOURCE-ID``                          |
 +--------------------------------+-------------------------------------------------------------------+
+| Publisher's Harvest Source     | ``/rest/harvestsource/publisher/PUBLISHER-REF                     |
+| Register                       |                                                                   |
++--------------------------------+-------------------------------------------------------------------+
 | Harvesting Job Register        | ``/rest/harvestingjob``                                           |
 +--------------------------------+-------------------------------------------------------------------+
 | Harvesting Job Entity          | ``/rest/harvestingjob/HARVESTINGJOB-ID``                          |
