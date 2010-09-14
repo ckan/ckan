@@ -9,9 +9,10 @@
   }
   
   function processResult(e, item) {
+		console.log(item);
     $(this).val('')
            .parent('dd').before(
-      '<input type="hidden" name="PackageGroup--package_name" value="' + item[0] + '">' +
+      '<input type="hidden" name="PackageGroup--package_name" value="' + item[1] + '">' +
       '<dd>' + item[0] + '</dd>'
     );
   }

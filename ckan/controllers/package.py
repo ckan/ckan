@@ -2,6 +2,7 @@ import logging
 import urlparse
 
 from sqlalchemy.orm import eagerload_all
+from sqlalchemy import or_
 import genshi
 from pylons import config, cache
 from pylons.i18n import get_lang, _
@@ -411,13 +412,20 @@ class PackageController(BaseController):
         h.redirect_to(controller='package', action='read', id=package_name, rating=str(rating))
 
     def autocomplete(self):
+        q = unicode(request.params.get('q', ''))
+        if not len(q): 
+            return ''
         pkg_list = []
+        like_q = u"%s%%" % q
         pkg_query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
+        pkg_query = pkg_query.filter(or_(model.Package.name.ilike(like_q),
+                                         model.Package.title.ilike(like_q)))
+        pkg_query = pkg_query.limit(10)
         for pkg in pkg_query:
-            pkg_list.extend([
-                '%s (%s)|%s' % (pkg.title, pkg.name, pkg.id),
-                '%s|%s' % (pkg.name, pkg.id),
-                ])
+            if pkg.name.lower().startswith(q.lower()):
+                pkg_list.append('%s|%s' % (pkg.name, pkg.name))
+            else:
+                pkg_list.append('%s (%s)|%s' % (pkg.title.replace('|', ' '), pkg.name, pkg.name))
         return '\n'.join(pkg_list)
 
     def _render_edit_form(self, fs, params={}, clear_session=False):
