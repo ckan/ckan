@@ -17,7 +17,7 @@ class Test_0_Empty(TestMigrationBase):
         from ckan import model
         query = model.Session.query(model.Changeset)
         count = query.count()
-        assert count == 2, pkg_query.all()
+        assert count == 2, query.all()
 
 
 class Test_1_BasicData(TestMigrationBase):
@@ -37,7 +37,7 @@ class Test_1_BasicData(TestMigrationBase):
         from ckan import model
         query = model.Session.query(model.Changeset)
         count = query.count()
-        assert count == 2, pkg_query.all()
+        assert count == 2, query.all()
 
         
 class Test_2_RealData(TestMigrationBase):

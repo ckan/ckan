@@ -35,8 +35,26 @@
 +-------------------------------+--------+------------------+-------------------+
 | License List                  | GET    |                  | License-List      | 
 +-------------------------------+--------+------------------+-------------------+
+| Harvest Source Register       | GET    |                  | HarvestSource-List| 
++-------------------------------+--------+------------------+-------------------+
+| Harvest Source Register       | POST   | HarvestSource    |                   | 
++-------------------------------+--------+------------------+-------------------+
+| Harvest Source Entity         | GET    |                  | HarvestSource     | 
++-------------------------------+--------+------------------+-------------------+
+| Harvest Source Entity         | PUT    | HarvestSource    |                   | 
++-------------------------------+--------+------------------+-------------------+
+| Harvesting Job Register       | GET    |                  | HarvestingJob-List| 
++-------------------------------+--------+------------------+-------------------+
+| Harvesting Job Register       | POST   | HarvestingJob    |                   | 
++-------------------------------+--------+------------------+-------------------+
+| Harvesting Job Entity         | GET    |                  | HarvestingJob     | 
++-------------------------------+--------+------------------+-------------------+
+| Harvesting Job Entity         | PUT    | HarvestingJob    |                   | 
++-------------------------------+--------+------------------+-------------------+
+
+* POSTing data to a register resource will create a new entity.
+
+* PUT/POSTing data to an entity resource will update an existing entity.
 
 * PUT operations may instead use the HTTP POST method.
-
-* POSTing data to a register resource will create a new entity, whilst PUT/POSTing data to an entity resource will update an existing entity.
 
