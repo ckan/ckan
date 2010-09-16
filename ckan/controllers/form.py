@@ -129,7 +129,7 @@ class BaseFormController(BaseApiController):
         location = '/api'
         location += self._make_version_part()
         source_ref = self._ref_harvest_source(harvest_source)
-        location += '/rest/harvest/source/%s' % source_ref
+        location += '/rest/harvestsource/%s' % source_ref
         return location
 
     def _make_version_part(self):
