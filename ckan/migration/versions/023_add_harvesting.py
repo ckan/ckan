@@ -1,9 +1,13 @@
 from sqlalchemy import *
 from migrate import *
 import datetime
+import uuid
 from migrate.changeset.constraint import PrimaryKeyConstraint
 
 metadata = MetaData(migrate_engine)
+
+def make_uuid():
+    return unicode(uuid.uuid4())
 
 harvest_source_table = Table('harvest_source', metadata,
         Column('id', UnicodeText, primary_key=True, default=make_uuid),
