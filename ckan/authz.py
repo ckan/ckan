@@ -64,7 +64,7 @@ class Authorizer(object):
             return True
 
         # check it's active
-        if hasattr(domain_object, 'state'):
+        if domain_object.__class__ != type and hasattr(domain_object, 'state'):
             if domain_object.state != model.State.ACTIVE:
                 return False
 

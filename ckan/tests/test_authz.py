@@ -156,9 +156,17 @@ class TestLockedDownAuthorizer(object):
     def test_pkg_create(self):
         action = model.Action.CREATE
         assert self.authorizer.is_authorized(self.admin.name, action, model.Package)
-        #assert not self.authorizer.is_authorized(self.admin.name, action, self.pkg2)
+        assert self.authorizer.is_authorized(self.notadmin.name, action, model.Package)
         assert not self.authorizer.is_authorized(u'blah', action, model.Package)
-
+    
+    def test_pkg_edit(self):
+        #reproduce a bug 
+        from pprint import pprint 
+        pprint(model.Session.query(model.RoleAction).all())
+        pprint(model.Session.query(model.UserObjectRole).all())
+        action = model.Action.EDIT
+        assert self.authorizer.is_authorized(self.notadmin.name, action, model.Package)
+    
     def test_pkg_admin(self):
         action = model.Action.PURGE
         assert self.authorizer.is_authorized(self.admin.name, action, self.pkg)
