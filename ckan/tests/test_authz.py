@@ -173,45 +173,10 @@ class TestLockedDownAuthorizer(object):
         assert not self.authorizer.is_authorized(self.admin.name, action, self.pkg2)
         assert not self.authorizer.is_authorized(u'blah', action, self.pkg)
 
-    def test_grp_admin(self):
-        action = model.Action.PURGE
-        assert self.authorizer.is_authorized(self.admin.name, action, self.grp)
-        assert not self.authorizer.is_authorized(self.admin.name, action, self.grp2)
-        assert not self.authorizer.is_authorized(u'blah', action, self.grp)
-
-    def test_pkg_sys_admin(self):
-        action = model.Action.PURGE
-        assert self.authorizer.is_authorized(self.sysadmin.name, action, self.pkg)
-        assert self.authorizer.is_authorized(self.sysadmin.name, action, self.pkg2)
-        assert not self.authorizer.is_authorized(u'blah', action, self.pkg)
-
     def test_grp_sys_admin(self):
         action = model.Action.PURGE
         assert self.authorizer.is_authorized(self.sysadmin.name, action, self.grp)
         assert self.authorizer.is_authorized(self.sysadmin.name, action, self.grp2)
         assert not self.authorizer.is_authorized(u'blah', action, self.grp)
-
-    def test_blacklist_edit_pkg(self):
-        action = model.Action.EDIT
-        username = u'testadmin'
-        bad_username = u'83.222.23.234'
-        assert self.authorizer.is_authorized(self.admin.name, action, self.pkg)
-        assert not self.authorizer.is_authorized(bad_username, action, self.pkg)
-
-    def test_blacklist_edit_grp(self):
-        action = model.Action.EDIT
-        username = u'testadmin'
-        bad_username = u'83.222.23.234'
-        assert self.authorizer.is_authorized(self.admin.name, action, self.grp)
-        assert not self.authorizer.is_authorized(bad_username, action, self.grp)
-
-    def test_revision_purge(self):
-        action = model.Action.PURGE
-        isa = self.authorizer.is_authorized(self.sysadmin.name, action,
-                model.Revision)
-        assert isa, isa
-        isnot = self.authorizer.is_authorized(self.notadmin.name, action,
-                model.Revision)
-        assert not isnot, isnot
 
 
