@@ -1,3 +1,7 @@
+
+from copy import copy
+from ckan.model import Role, Action
+
 import ckan.model as model
 from ckan.tests import *
 from ckan.lib.base import *
@@ -118,6 +122,8 @@ class TestUsage(TestController):
                 offset = '/group'
             else:
                 offset = '/%s/list' % entity
+        elif action == 'create':
+            offset = '/%s/new' % entity
         else:
             raise NotImplementedError
         res = self.app.get(offset, extra_environ={'REMOTE_USER': user.name.encode('utf8')}, expect_errors=True)
@@ -142,6 +148,10 @@ class TestUsage(TestController):
             offset = '/api/rest/%s' % (entity)
             postparams = None
             func = self.app.get
+        elif action == 'create':
+            offset = '/api/rest/%s' % (entity)
+            postparams = '%s=1' % json.dumps({'title':u'newtitle'}, encoding='utf8')
+            func = self.app.post
         else:
             raise NotImplementedError, action
         if user.name == 'visitor':
@@ -193,6 +203,7 @@ class TestUsage(TestController):
         self._test_cant('edit', self.visitor, ['ww'], interfaces=['rest'])
         self._test_cant('edit', self.visitor, ['xx', 'rx', 'wx', 'rr', 'wr'], interfaces=['wui'])
         self._test_cant('edit', self.visitor, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww'], interfaces=['rest'])
+        
     def test_02_visitor_edits(self):
         self._test_can('edit', self.visitor, ['ww'], interfaces=['wui'])
         self._test_can('edit', self.visitor, [], interfaces=['rest'])
@@ -263,12 +274,51 @@ class TestUsage(TestController):
     def test_sysadmin_can_read_anything(self):
         self._test_can('read', self.testsysadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww'])
         self._test_can('read', self.testsysadmin, ['deleted'], entities=['package']) # groups not stateful
+        
     def test_sysadmin_can_edit_anything(self):
         self._test_can('edit', self.testsysadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww'])
         self._test_can('edit', self.testsysadmin, ['deleted'], entities=['package'])
+        
     def test_sysadmin_can_search_anything(self):
         self._test_can('search', self.testsysadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted'], entities=['package'])
+        
     def test_sysadmin_can_list_anything(self):
         self._test_can('list', self.testsysadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww'], interfaces=['wui'])
         self._test_can('list', self.testsysadmin, ['deleted'], interfaces=['wui'], entities=['package'])
         
+    def test_visitor_creates(self): 
+        self._test_can('create', self.visitor, ['rr'])
+
+    def test_user_creates(self):
+        self._test_can('create', self.mrloggedin, ['rr'])
+    
+        
+class TestLockedDownUsage(TestUsage):
+    
+    @classmethod
+    def setup_class(self):
+        self.PRE_MAUTHZ_RULES = copy(mauthz.default_role_actions)
+        mauthz.default_role_actions.remove((Role.READER, Action.CREATE))
+        #raise Exception(mauthz.default_role_actions)
+        model.Session.remove()
+        model.repo.rebuild_db()
+        model.Session.remove()
+        model.notifier.initialise()
+        indexer = TestSearchIndexer()
+        self._create_test_data()
+        model.Session.remove()
+        indexer.index()
+        
+    def test_visitor_creates(self): 
+        self._test_cant('create', self.visitor, ['rr'])
+
+    def test_user_creates(self):
+        self._test_cant('create', self.mrloggedin, ['rr'])
+    
+    @classmethod
+    def teardown_class(self):
+        mauthz.default_role_actions = self.PRE_MAUTHZ_RULES
+        model.Session.remove()
+        model.repo.rebuild_db()
+        model.Session.remove()
+        model.notifier.deactivate()
