@@ -69,6 +69,7 @@ user_object_role_table = Table('user_object_role', metadata,
            Column('id', UnicodeText, primary_key=True, default=make_uuid),
            Column('user_id', UnicodeText, ForeignKey('user.id')),
            Column('context', UnicodeText, nullable=False),
+           Column('instance', Boolean, default=True),
            Column('role', UnicodeText)
            )
 
