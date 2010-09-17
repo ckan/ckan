@@ -39,7 +39,8 @@ class Action(Enum):
     READ = u'read'
     PURGE = u'purge'
     EDIT_PERMISSIONS = u'edit-permissions'
-    CREATE = u'create'
+    PACKAGE_CREATE = u'package_create'
+    GROUP_CREATE = u'group_create'
 
 class Role(Enum):
     ADMIN = u'admin'
@@ -48,9 +49,11 @@ class Role(Enum):
 
 default_role_actions = [
     (Role.EDITOR, Action.EDIT),
-    (Role.EDITOR, Action.CREATE),
+    (Role.EDITOR, Action.PACKAGE_CREATE),
+    (Role.EDITOR, Action.GROUP_CREATE),
     (Role.EDITOR, Action.READ),        
-    (Role.READER, Action.CREATE),
+    (Role.READER, Action.PACKAGE_CREATE),
+    (Role.READER, Action.GROUP_CREATE),
     (Role.READER, Action.READ),
     ]
 
@@ -69,7 +72,6 @@ user_object_role_table = Table('user_object_role', metadata,
            Column('id', UnicodeText, primary_key=True, default=make_uuid),
            Column('user_id', UnicodeText, ForeignKey('user.id')),
            Column('context', UnicodeText, nullable=False),
-           Column('instance', Boolean, default=True),
            Column('role', UnicodeText)
            )
 
@@ -119,7 +121,7 @@ class UserObjectRole(DomainObject):
     def _query(cls, user, role, domain_obj):
         q = Session.query(cls).filter_by(role=role)
         # some protected objects are not "contextual"
-        if cls.name is not None and domain_obj.__class__ != type:
+        if cls.name is not None:
             # e.g. filter_by(package=domain_obj)
             q = q.filter_by(**dict({cls.name: domain_obj}))
         q = q.filter_by(user=user)

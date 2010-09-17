@@ -110,7 +110,7 @@ class TestLockedDownAuthorizer(object):
     @classmethod
     def setup_class(self):
         q = model.Session.query(model.RoleAction).filter(model.RoleAction.role==Role.READER)
-        q = q.filter(model.RoleAction.action==Action.CREATE)
+        q = q.filter(model.RoleAction.action==Action.PACKAGE_CREATE)
         model.Session.delete(q.first())
         
         model.Session.add(model.Package(name=u'testpkg'))
@@ -150,16 +150,16 @@ class TestLockedDownAuthorizer(object):
     authorizer = ckan.authz.Authorizer()
 
     def test_pkg_create(self):
-        action = model.Action.CREATE
-        assert self.authorizer.is_authorized(self.admin.name, action, model.Package)
-        assert self.authorizer.is_authorized(self.notadmin.name, action, model.Package)
+        action = model.Action.PACKAGE_CREATE
+        assert self.authorizer.is_authorized(self.admin.name, action, model.System())
+        assert self.authorizer.is_authorized(self.notadmin.name, action, model.System())
         assert not self.authorizer.is_authorized(u'blah', action, model.Package)
     
     def test_pkg_edit(self):
         #reproduce a bug 
-        #from pprint import pprint 
-        #pprint(model.Session.query(model.RoleAction).all())
-        #pprint(model.Session.query(model.UserObjectRole).all())
+        from pprint import pprint 
+        pprint(model.Session.query(model.RoleAction).all())
+        pprint(model.Session.query(model.UserObjectRole).all())
         action = model.Action.EDIT
         assert self.authorizer.is_authorized(self.notadmin.name, action, model.Package)
     

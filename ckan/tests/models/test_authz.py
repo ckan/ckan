@@ -107,18 +107,6 @@ class TestCreation(object):
                                                group=war)
                                                
         assert len(pr.all()) == 1, pr.all()
-        
-    def test_4_package_class_role(self):
-        anna = model.Package.by_name(u'annakarenina')
-        tester = model.User.by_name(u'tester')
-        pr = model.PackageRole.add_user_to_role(tester, model.Role.ADMIN, model.Package)
-        model.repo.commit_and_remove()
-        
-        from pprint import pprint
-        pprint(model.Session.query(model.UserObjectRole).all())
-        pr = model.Session.query(model.UserObjectRole).filter_by(role=model.Role.ADMIN,)
-
-        assert len(pr.all()) == 1, pr.all()
 
 
 class TestDefaultRoles(object):
@@ -136,8 +124,10 @@ class TestDefaultRoles(object):
         assert self.is_allowed(model.Role.EDITOR, model.Action.EDIT)
 
     def test_create(self):
-        assert self.is_allowed(model.Role.READER, model.Action.CREATE)
-        assert self.is_allowed(model.Role.EDITOR, model.Action.CREATE)
+        assert self.is_allowed(model.Role.READER, model.Action.PACKAGE_CREATE)
+        assert self.is_allowed(model.Role.EDITOR, model.Action.PACKAGE_CREATE)
+        assert self.is_allowed(model.Role.READER, model.Action.GROUP_CREATE)
+        assert self.is_allowed(model.Role.EDITOR, model.Action.GROUP_CREATE)
 
     def test_edit_permissions(self):
         assert not self.is_allowed(model.Role.READER, model.Action.EDIT_PERMISSIONS)

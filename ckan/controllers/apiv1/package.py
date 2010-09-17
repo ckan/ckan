@@ -41,7 +41,7 @@ class PackageController(RestController):
         return self._finish_ok(response_data)
     
     def create(self):
-        if not self._check_access(model.Package, model.Action.CREATE):
+        if not self._check_access(model.System(), model.Action.PACKAGE_CREATE):
             return json.dumps(_('Access denied'))
 
         # Create a Package.

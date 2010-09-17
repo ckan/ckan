@@ -187,7 +187,7 @@ class PackageController(BaseController):
 
         is_admin = self.authorizer.is_sysadmin(c.user)
         
-        auth_for_create = self.authorizer.am_authorized(c, model.Action.CREATE, model.Package)
+        auth_for_create = self.authorizer.am_authorized(c, model.Action.PACKAGE_CREATE, model.System())
         if not auth_for_create:
             abort(401, str(gettext('Unauthorized to create a package')))
         
