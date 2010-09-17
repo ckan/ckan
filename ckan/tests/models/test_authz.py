@@ -107,6 +107,18 @@ class TestCreation(object):
                                                group=war)
                                                
         assert len(pr.all()) == 1, pr.all()
+        
+    def test_4_package_class_role(self):
+        anna = model.Package.by_name(u'annakarenina')
+        tester = model.User.by_name(u'tester')
+        pr = model.PackageRole.add_user_to_role(tester, model.Role.ADMIN, model.Package)
+        model.repo.commit_and_remove()
+        
+        from pprint import pprint
+        pprint(model.Session.query(model.UserObjectRole).all())
+        pr = model.Session.query(model.UserObjectRole).filter_by(role=model.Role.ADMIN,)
+
+        assert len(pr.all()) == 1, pr.all()
 
 
 class TestDefaultRoles(object):

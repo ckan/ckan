@@ -119,7 +119,7 @@ class UserObjectRole(DomainObject):
     def _query(cls, user, role, domain_obj):
         q = Session.query(cls).filter_by(role=role)
         # some protected objects are not "contextual"
-        if cls.name is not None:
+        if cls.name is not None and domain_obj.__class__ != type:
             # e.g. filter_by(package=domain_obj)
             q = q.filter_by(**dict({cls.name: domain_obj}))
         q = q.filter_by(user=user)
