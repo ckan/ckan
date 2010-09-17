@@ -30,11 +30,9 @@
 +--------------------------------+-------------------------------------------------------------------+
 | License List                   | ``/rest/licenses``                                                |
 +--------------------------------+-------------------------------------------------------------------+
-| Harvest Source Register        | ``/rest/harvestsource``                                           |
-+--------------------------------+-------------------------------------------------------------------+
 | Harvest Source Entity          | ``/rest/harvestsource/HARVESTSOURCE-ID``                          |
 +--------------------------------+-------------------------------------------------------------------+
-| Publisher's Harvest Source     | ``/rest/harvestsource/publisher/PUBLISHER-REF                     |
+| Publisher's Harvest Source     | ``/rest/harvestsource/publisher/PUBLISHER-REF``                   |
 | Register                       |                                                                   |
 +--------------------------------+-------------------------------------------------------------------+
 | Harvesting Job Register        | ``/rest/harvestingjob``                                           |
