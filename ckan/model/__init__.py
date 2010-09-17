@@ -53,6 +53,7 @@ class Repository(vdm.sqlalchemy.Repository):
                 ra = RoleAction(role=role, context=u'',
                         action=action,)
                 Session.add(ra)
+            setup_default_user_roles(System())
         if Session.query(Revision).count() == 0:
             rev = Revision()
             rev.author = 'system'

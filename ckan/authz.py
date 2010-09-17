@@ -193,10 +193,10 @@ class Authorizer(object):
                 q = q.filter(model.GroupRole.group==domain_obj)
             elif isinstance(domain_obj, model.System):
                 q = q.with_polymorphic(model.SystemRole)
+                q = q.filter(model.SystemRole.context==unicode(model.System.__name__))
             else:
                 raise Exception('Do not support context object like: %r' %
                         domain_obj)
-
         return q
 
         

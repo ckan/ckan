@@ -228,7 +228,7 @@ def give_all_packages_default_user_roles():
 def setup_default_user_roles(domain_object, admins=[]):
     # sets up roles for visitor, logged-in user and any admins provided
     # admins is a list of User objects
-    assert isinstance(domain_object, (Package, Group))
+    assert isinstance(domain_object, (Package, Group, System))
     assert isinstance(admins, list)
     if type(domain_object) == Package:
         visitor_roles = [Role.EDITOR]
@@ -236,6 +236,9 @@ def setup_default_user_roles(domain_object, admins=[]):
     elif type(domain_object) == Group:
         visitor_roles = [Role.READER]
         logged_in_roles = [Role.READER]
+    elif type(domain_object) == System:
+        visitor_roles = [Role.EDITOR]
+        logged_in_roles = [Role.EDITOR]
     setup_user_roles(domain_object, visitor_roles, logged_in_roles, admins)
 
 def clear_user_roles(domain_object):

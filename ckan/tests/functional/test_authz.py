@@ -323,13 +323,11 @@ class TestLockedDownUsage(TestUsage):
     
     @classmethod
     def setup_class(self):
-        q = model.Session.query(model.RoleAction).filter(model.RoleAction.role==Role.READER)
-        q = q.filter(model.RoleAction.action==Action.PACKAGE_CREATE)
-        model.Session.delete(q.first())
+        q = model.Session.query(model.UserObjectRole).filter(model.UserObjectRole.role==Role.EDITOR)
+        q = q.filter(model.UserObjectRole.user==model.User.by_name(u"visitor"))
+        model.Session.delete(q.one())
+        model.repo.commit_and_remove()
         
-        model.Session.remove()
-        model.repo.rebuild_db()
-        model.Session.remove()
         model.notifier.initialise()
         indexer = TestSearchIndexer()
         self._create_test_data()
@@ -337,7 +335,12 @@ class TestLockedDownUsage(TestUsage):
         indexer.index()
         
     def test_visitor_creates(self): 
-        self._test_cant('create', self.visitor, ['rr'], entities=['package'])
+        #from pprint import pprint
+        #pprint(model.Session.query(model.User).all())
+        #pprint(model.Session.query(model.RoleAction).all())
+        #pprint(model.Session.query(model.UserObjectRole).filter_by(context='System').all())
+        
+        self._test_cant('create', self.visitor, ['rrx'], entities=['package'])
 
     def test_user_creates(self):
         self._test_can('create', self.mrloggedin, ['rr'])

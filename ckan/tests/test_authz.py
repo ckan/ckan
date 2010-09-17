@@ -109,9 +109,10 @@ class TestLockedDownAuthorizer(object):
 
     @classmethod
     def setup_class(self):
-        q = model.Session.query(model.RoleAction).filter(model.RoleAction.role==Role.READER)
-        q = q.filter(model.RoleAction.action==Action.PACKAGE_CREATE)
-        model.Session.delete(q.first())
+        q = model.Session.query(model.UserObjectRole).filter(model.UserObjectRole.role==Role.EDITOR)
+        q = q.filter(model.UserObjectRole.user==model.User.by_name(u"visitor"))
+        model.Session.delete(q.one())
+        model.repo.commit_and_remove()
         
         model.Session.add(model.Package(name=u'testpkg'))
         model.Session.add(model.Package(name=u'testpkg2'))
@@ -153,7 +154,8 @@ class TestLockedDownAuthorizer(object):
         action = model.Action.PACKAGE_CREATE
         assert self.authorizer.is_authorized(self.admin.name, action, model.System())
         assert self.authorizer.is_authorized(self.notadmin.name, action, model.System())
-        assert not self.authorizer.is_authorized(u'blah', action, model.Package)
+        assert not self.authorizer.is_authorized(u'blah', action, model.System())
+        assert not self.authorizer.is_authorized(u'visitor', action, model.System())
     
     def test_pkg_edit(self):
         #reproduce a bug 
