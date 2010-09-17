@@ -1,8 +1,9 @@
-
+from time import time
 from copy import copy
 from ckan.model import Role, Action
 
 import ckan.model as model
+from ckan.model import authz as mauthz
 from ckan.tests import *
 from ckan.lib.base import *
 import ckan.authz as authz
@@ -124,14 +125,17 @@ class TestUsage(TestController):
                 offset = '/%s/list' % entity
         elif action == 'create':
             offset = '/%s/new' % entity
+            search_for = 'New'
         else:
             raise NotImplementedError
         res = self.app.get(offset, extra_environ={'REMOTE_USER': user.name.encode('utf8')}, expect_errors=True)
+        #print res
         is_ok = search_for in res and u'error' not in res and res.status==200 and not '0 packages found' in res
         return is_ok
 
     def _do_test_rest(self, action, user, mode, entity='package'):
         # Test action on REST
+        search_for = mode
         if action == model.Action.EDIT:
             offset = '/api/rest/%s/%s' % (entity, mode)
             postparams = '%s=1' % json.dumps({'title':u'newtitle'}, encoding='utf8')
@@ -150,8 +154,10 @@ class TestUsage(TestController):
             func = self.app.get
         elif action == 'create':
             offset = '/api/rest/%s' % (entity)
-            postparams = '%s=1' % json.dumps({'title':u'newtitle'}, encoding='utf8')
+            postparams = '%s=1' % json.dumps({'name': u'%s-%s' % (mode, int(time())), 
+                                              'title': u'newtitle'}, encoding='utf8')
             func = self.app.post
+            search_for = ''
         else:
             raise NotImplementedError, action
         if user.name == 'visitor':
@@ -161,7 +167,8 @@ class TestUsage(TestController):
         res = func(offset, params=postparams,
                    extra_environ=environ,
                    expect_errors=True)
-        return mode in res and u'error' not in res and res.status==200 and u'0 packages found' not in res
+        print res
+        return search_for in res and u'error' not in res and res.status==200 and u'0 packages found' not in res
         
     def _test_can(self, action, users, modes, interfaces=['wui', 'rest'], entities=['package', 'group']):
         if isinstance(users, model.User):
@@ -287,7 +294,7 @@ class TestUsage(TestController):
         self._test_can('list', self.testsysadmin, ['deleted'], interfaces=['wui'], entities=['package'])
         
     def test_visitor_creates(self): 
-        self._test_can('create', self.visitor, ['rr'])
+        self._test_can('create', self.visitor, ['rr'], interfaces=['wui'], entities=['package'])
 
     def test_user_creates(self):
         self._test_can('create', self.mrloggedin, ['rr'])
@@ -310,10 +317,10 @@ class TestLockedDownUsage(TestUsage):
         indexer.index()
         
     def test_visitor_creates(self): 
-        self._test_cant('create', self.visitor, ['rr'])
+        self._test_cant('create', self.visitor, ['rr'], entities=['package'])
 
     def test_user_creates(self):
-        self._test_cant('create', self.mrloggedin, ['rr'])
+        self._test_can('create', self.mrloggedin, ['rr'])
     
     @classmethod
     def teardown_class(self):
