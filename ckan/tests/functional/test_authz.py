@@ -28,6 +28,10 @@ class TestUsage(TestController):
             if mode != 'deleted':
                 # Groups aren't stateful
                 model.Session.add(model.Group(name=unicode(mode)))
+        
+        model.Session.add(model.Package(name=u'delete_visitor_rest'))
+        model.Session.add(model.Package(name=u'delete_admin_rest'))
+        
         model.Session.add(model.User(name=u'testsysadmin'))
         model.Session.add(model.User(name=u'pkgadmin'))
         model.Session.add(model.User(name=u'pkgeditor'))
@@ -80,6 +84,7 @@ class TestUsage(TestController):
                     model.add_user_to_role(visitor, model.Role.EDITOR, pkg)
                     model.add_user_to_role(visitor, model.Role.EDITOR, group)
         model.add_user_to_role(testsysadmin, model.Role.ADMIN, model.System())
+        
         model.repo.commit_and_remove()
 
         assert model.Package.by_name(u'deleted').state == model.State.DELETED
@@ -158,6 +163,11 @@ class TestUsage(TestController):
                                               'title': u'newtitle'}, encoding='utf8')
             func = self.app.post
             search_for = ''
+        elif action == 'delete':
+            offset = '/api/rest/%s/%s' % (entity, mode)
+            func = self.app.delete
+            postparams = {}
+            search_for = ''
         else:
             raise NotImplementedError, action
         if user.name == 'visitor':
@@ -167,7 +177,6 @@ class TestUsage(TestController):
         res = func(offset, params=postparams,
                    extra_environ=environ,
                    expect_errors=True)
-        print res
         return search_for in res and u'error' not in res and res.status==200 and u'0 packages found' not in res
         
     def _test_can(self, action, users, modes, interfaces=['wui', 'rest'], entities=['package', 'group']):
@@ -298,6 +307,16 @@ class TestUsage(TestController):
 
     def test_user_creates(self):
         self._test_can('create', self.mrloggedin, ['rr'])
+        
+    def test_visitor_deletes(self):
+        pkg = model.Package.by_name(u'delete_admin_rest')
+        assert pkg is not None
+        self._test_cant('delete', self.visitor, [str(pkg.id)], interfaces=['rest'], entities=['package'])
+        
+    def test_sysadmin_deletes(self):
+        pkg = model.Package.by_name(u'delete_admin_rest')
+        assert pkg is not None
+        self._test_can('delete', self.testsysadmin, [str(pkg.id)], interfaces=['rest'], entities=['package'])
     
         
 class TestLockedDownUsage(TestUsage):

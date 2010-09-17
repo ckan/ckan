@@ -186,7 +186,11 @@ class PackageController(BaseController):
         c.error = ''
 
         is_admin = self.authorizer.is_sysadmin(c.user)
-
+        
+        auth_for_create = self.authorizer.am_authorized(c, model.Action.CREATE, model.Package)
+        if not auth_for_create:
+            abort(401, str(gettext('Unauthorized to create a package')))
+        
         fs = ckan.forms.registry.get_fieldset(is_admin=is_admin,
                          package_form=request.params.get('package_form'))
         if 'save' in request.params or 'preview' in request.params:
