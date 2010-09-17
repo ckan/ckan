@@ -161,7 +161,7 @@ class TestLockedDownAuthorizer(object):
         pprint(model.Session.query(model.RoleAction).all())
         pprint(model.Session.query(model.UserObjectRole).all())
         action = model.Action.EDIT
-        assert self.authorizer.is_authorized(self.notadmin.name, action, model.Package)
+        assert self.authorizer.is_authorized(self.notadmin.name, action, model.System())
     
     def test_pkg_admin(self):
         action = model.Action.PURGE
