@@ -323,9 +323,10 @@ class TestLockedDownUsage(TestUsage):
     
     @classmethod
     def setup_class(self):
-        self.PRE_MAUTHZ_RULES = copy(mauthz.default_role_actions)
-        mauthz.default_role_actions.remove((Role.READER, Action.CREATE))
-        #raise Exception(mauthz.default_role_actions)
+        q = model.Session.query(model.RoleAction).filter(model.RoleAction.role==Role.READER)
+        q = q.filter(model.RoleAction.action==Action.CREATE)
+        model.Session.delete(q.first())
+        
         model.Session.remove()
         model.repo.rebuild_db()
         model.Session.remove()
@@ -343,7 +344,6 @@ class TestLockedDownUsage(TestUsage):
     
     @classmethod
     def teardown_class(self):
-        mauthz.default_role_actions = self.PRE_MAUTHZ_RULES
         model.Session.remove()
         model.repo.rebuild_db()
         model.Session.remove()
