@@ -185,6 +185,7 @@ class TestAuthorizationGroups(object):
         model.Session.add(model.Package(name=u'testpkgag'))
         model.Session.add(model.Group(name=u'testgroupag'))
         model.Session.add(model.User(name=u'ag_member'))
+        model.Session.add(model.User(name=u'ag_admin'))
         model.Session.add(model.User(name=u'ag_notmember'))
         model.Session.add(model.AuthorizationGroup(name=u'authz_group'))
         model.repo.new_revision()
@@ -194,16 +195,19 @@ class TestAuthorizationGroups(object):
         grp = model.Group.by_name(u'testgroupag')
         authzgrp = model.AuthorizationGroup.by_name(u'authz_group')
         member = model.User.by_name(u'ag_member')
-        #sysadmin = model.User.by_name(u'testsysadmin')
+        admin = model.User.by_name(u'ag_admin')
+    
+        model.setup_default_user_roles(authzgrp, [admin])
         model.add_authorization_group_to_role(authzgrp, model.Role.ADMIN, pkg)
         model.add_authorization_group_to_role(authzgrp, model.Role.ADMIN, grp)
-        model.add_user_to_authorization_group(member, authzgrp, model.Role.ADMIN)
+        model.add_user_to_authorization_group(member, authzgrp, model.Role.EDITOR)
         model.repo.commit_and_remove()
 
         self.authorizer = ckan.authz.Authorizer()
         self.pkg = model.Package.by_name(u'testpkgag')
         self.grp = model.Group.by_name(u'testgroupag')
         self.member = model.User.by_name(u'ag_member')
+        self.admin = model.User.by_name(u'ag_admin')
         self.notmember = model.User.by_name(u'ag_notmember')
         self.authzgrp = model.AuthorizationGroup.by_name(u'authz_group')
 
@@ -253,7 +257,8 @@ class TestAuthorizationGroups(object):
 
     def test_authzgrp_edit_rights(self):
         assert self.authorizer.is_authorized(self.member.name, model.Action.READ, self.authzgrp)
-        # TODO for all domain_objs: 
-        #assert self.authorizer.is_authorized(self.notmember.name, model.Action.READ, self.authzgrp)
+        assert self.authorizer.is_authorized(self.notmember.name, model.Action.READ, self.authzgrp)
         assert self.authorizer.is_authorized(self.member.name, model.Action.EDIT, self.authzgrp)
+        assert not self.authorizer.is_authorized(self.member.name, model.Action.PURGE, self.authzgrp)
+        assert self.authorizer.is_authorized(self.admin.name, model.Action.PURGE, self.authzgrp)
         assert not self.authorizer.is_authorized(self.notmember.name, model.Action.EDIT, self.authzgrp)
