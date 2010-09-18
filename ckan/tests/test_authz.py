@@ -178,20 +178,20 @@ class TestLockedDownAuthorizer(object):
         assert not self.authorizer.is_authorized(u'blah', action, self.grp)
 
 
-class TestAuthorizerForAuthorizationGroups(object):
+class TestAuthorizationGroups(object):
 
     @classmethod
     def setup_class(self):
-        model.Session.add(model.Package(name=u'testpkg'))
-        model.Session.add(model.Group(name=u'testgroup'))
+        model.Session.add(model.Package(name=u'testpkgag'))
+        model.Session.add(model.Group(name=u'testgroupag'))
         model.Session.add(model.User(name=u'ag_member'))
         model.Session.add(model.User(name=u'ag_notmember'))
         model.Session.add(model.AuthorizationGroup(name=u'authz_group'))
         model.repo.new_revision()
         model.repo.commit_and_remove()
 
-        pkg = model.Package.by_name(u'testpkg')
-        grp = model.Group.by_name(u'testgroup')
+        pkg = model.Package.by_name(u'testpkgag')
+        grp = model.Group.by_name(u'testgroupag')
         authzgrp = model.AuthorizationGroup.by_name(u'authz_group')
         member = model.User.by_name(u'ag_member')
         #sysadmin = model.User.by_name(u'testsysadmin')
@@ -201,8 +201,8 @@ class TestAuthorizerForAuthorizationGroups(object):
         model.repo.commit_and_remove()
 
         self.authorizer = ckan.authz.Authorizer()
-        self.pkg = model.Package.by_name(u'testpkg')
-        self.grp = model.Group.by_name(u'testgroup')
+        self.pkg = model.Package.by_name(u'testpkgag')
+        self.grp = model.Group.by_name(u'testgroupag')
         self.member = model.User.by_name(u'ag_member')
         self.notmember = model.User.by_name(u'ag_notmember')
         self.authzgrp = model.AuthorizationGroup.by_name(u'authz_group')
