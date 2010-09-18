@@ -70,7 +70,8 @@ role_action_table = Table('role_action', metadata,
 
 user_object_role_table = Table('user_object_role', metadata,
            Column('id', UnicodeText, primary_key=True, default=make_uuid),
-           Column('user_id', UnicodeText, ForeignKey('user.id')),
+           Column('user_id', UnicodeText, ForeignKey('user.id'), nullable=True),
+           Column('authorization_group_id', UnicodeText, ForeignKey('authorization_group.id'), nullable=True),
            Column('context', UnicodeText, nullable=False),
            Column('role', UnicodeText)
            )
