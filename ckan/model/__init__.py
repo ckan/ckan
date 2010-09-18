@@ -14,7 +14,7 @@ from rating import *
 from package_relationship import *
 from changeset import Changeset, Change, Changemask
 from notifier import *
-from harvesting import HarvestSource, HarvestingJob
+from harvesting import HarvestSource, HarvestingJob, HarvestedDocument
 
 import ckan.migration
 

@@ -34,6 +34,10 @@ tests. See: http://buildbot.okfn.org/waterfall
    libpq-dev              PostgreSQL library
    python-psycopg2        PostgreSQL python module
    python-setuptools      Python package management
+   python-libxml2         Python XML library
+   python-libxslt1        Python XSLT library
+   libxml2-dev            XML library development files
+   libxslt1-dev           XSLT library development files
    =====================  ============================================
 
    Now use easy_install (which comes with python-setuptools) to install

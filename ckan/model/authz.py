@@ -171,6 +171,7 @@ def user_has_role(user, role, domain_obj):
     return objectrole.user_has_role(user, role, domain_obj)
 
 def add_user_to_role(user, role, domain_obj):
+    assert isinstance(user, User), user
     objectrole = UserObjectRole.get_object_role_class(domain_obj)
     objectrole.add_user_to_role(user, role, domain_obj)
 
@@ -184,11 +185,13 @@ def setup_user_roles(domain_object, visitor_roles, logged_in_roles, admins=[]):
     assert type(admins) == type([])
     admin_roles = [Role.ADMIN]
     visitor = User.by_name(PSEUDO_USER__VISITOR)
-    for role in visitor_roles:
-        add_user_to_role(visitor, role, domain_object)
+    if visitor:
+        for role in visitor_roles:
+            add_user_to_role(visitor, role, domain_object)
     logged_in = User.by_name(PSEUDO_USER__LOGGED_IN)
-    for role in logged_in_roles:
-        add_user_to_role(logged_in, role, domain_object)
+    if logged_in:
+        for role in logged_in_roles:
+            add_user_to_role(logged_in, role, domain_object)
     for admin in admins:
         # not sure if admin would reasonably by None
         if admin is not None:

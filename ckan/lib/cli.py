@@ -1043,3 +1043,108 @@ class Load(CkanCommand):
                 # add them to the group
                 loader.add_pkgs_to_group(res['pkg_names'], 'ukgov')
                 print 'SUCCESS'
+
+class Harvester(CkanCommand):
+    '''Harvests remotely mastered metadata
+
+    Usage:
+      harvester source {url} {user-ref} {publisher-ref}       
+        - create new harvest source
+
+      harvester sources                                 
+        - lists harvest sources
+
+      harvester job {source-id} {user-ref}
+        - create new harvesting job
+
+      harvester jobs
+        - lists harvesting jobs
+
+      harvester run
+        - runs harvesting jobs
+    '''
+
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    max_args = 4
+    min_args = 0
+
+    def command(self):
+        self._load_config()
+        cmd = self.args[0]
+        if cmd == 'source':
+            if len(self.args) == 4:
+                url = unicode(self.args[1])
+                user_ref = unicode(self.args[2])
+                publisher_ref = unicode(self.args[3])
+                self.create_harvest_source(url, user_ref, publisher_ref)
+            else:
+                print 'Need url, user-ref and publisher-ref.'
+        elif cmd == 'sources':
+            self.list_harvest_sources()
+        elif cmd == 'job':
+            if len(self.args) == 3:
+                url = unicode(self.args[1])
+                user_ref = unicode(self.args[2])
+                self.create_harvesting_job(url, user_ref)
+            else:
+                print 'Need source-id and user-ref.'
+        elif cmd == 'jobs':
+            self.list_harvesting_jobs()
+        elif cmd == 'run':
+            self.run_harvester()
+        else:
+            print 'Command %s not recognized' % cmd
+
+    def _load_config(self):
+        super(Harvester, self)._load_config()
+        import logging
+        logging.basicConfig()
+        logger_vdm = logging.getLogger('vdm')
+        logger_vdm.setLevel(logging.ERROR)
+
+    def run_harvester(self, *args, **kwds):
+        from pylons.i18n.translation import _get_translator
+        import pylons
+        pylons.translator._push_object(_get_translator(pylons.config.get('lang')))
+
+        from ckan.model import HarvestingJob
+        jobs = HarvestingJob.filter(status=u"New").all()
+        print "There are %s harvesting jobs" % len(jobs)
+        for job in jobs:
+            print "Running job %s" % job.id
+            print "job source id: %s" % job.source.id
+            print "job source url: %s" % job.source.url
+            job.harvest_documents()
+            print "job status: %s" % job.status
+            print "job report: %s" % job.report
+            print
+
+    def list_harvesting_jobs(self):
+        from ckan.model import HarvestingJob
+        jobs = HarvestingJob.filter().all()
+        for job in jobs:
+            print job.id, job.source and job.source.id or "sourceless", job.status
+        print "There are %s harvesting jobs" % len(jobs)
+       
+    def create_harvesting_job(self, source_id, user_ref):
+        from ckan.model import HarvestingJob
+        job = HarvestingJob.create_save(source_id=source_id, user_ref=user_ref, status=u"New")
+        print "New harvesting job id: %s" % job.id
+        jobs = HarvestingJob.filter().all()
+        print "There are now %s harvesting jobs" % len(jobs)
+
+    def list_harvest_sources(self):
+        from ckan.model import HarvestSource
+        sources = HarvestSource.filter().all()
+        for source in sources:
+            print source.id, source.status, source.url
+        print "There are %s harvest sources" % len(sources)
+       
+    def create_harvest_source(self, url, user_ref, publisher_ref):
+        from ckan.model import HarvestSource
+        source = HarvestSource.create_save(url=url, user_ref=user_ref, publisher_ref=publisher_ref)
+        print "New harvest source id: %s" % source.id
+        sources = HarvestSource.filter().all()
+        print "There are now %s harvest sources" % len(sources)
+

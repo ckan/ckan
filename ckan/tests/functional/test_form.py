@@ -57,7 +57,7 @@ class BaseFormsApiCase(ApiControllerTestCase):
         return self.offset('/form/package/edit/%s' % ref)
 
     def offset_harvest_source_create_form(self):
-        return self.offset('/form/harvest/source/create')
+        return self.offset('/form/harvestsource/create')
 
     def get_package_create_form(self, status=[200]):
         offset = self.offset_package_create_form()
