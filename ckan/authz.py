@@ -178,23 +178,26 @@ class Authorizer(object):
                 state = entity.state
             else:
                 state = model.State.ACTIVE
+                
+            filters = [model.UserObjectRole.user==visitor]
+            for authz_group in cls.get_authorization_groups(username):
+                filters.append(model.UserObjectRole.authorized_group==authz_group)
+                
             if user:
-                q = q.filter(sa.or_(model.UserObjectRole.user==user,
-                                   model.UserObjectRole.user==visitor,
-                                   model.UserObjectRole.user==logged_in))
+                filters.append(model.UserObjectRole.user==user)
+                filters.append(model.UserObjectRole.user==logged_in)
                 q = q.filter(sa.or_(
                     sa.and_(model.UserObjectRole.role==model.RoleAction.role,
                             model.RoleAction.action==action,
                             state==model.State.ACTIVE),
                     model.UserObjectRole.role==model.Role.ADMIN))
             else:
-                q = q.filter(model.UserObjectRole.user==visitor)
                 q = q.filter(
                     sa.and_(model.UserObjectRole.role==model.RoleAction.role,
                             model.RoleAction.action==action,
                             state==model.State.ACTIVE),
                     )
-                
+            q = q.filter(sa.or_(*filters))   
             q = q.distinct()
 
         return q

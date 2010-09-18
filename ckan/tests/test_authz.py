@@ -262,3 +262,15 @@ class TestAuthorizationGroups(object):
         assert not self.authorizer.is_authorized(self.member.name, model.Action.PURGE, self.authzgrp)
         assert self.authorizer.is_authorized(self.admin.name, model.Action.PURGE, self.authzgrp)
         assert not self.authorizer.is_authorized(self.notmember.name, model.Action.EDIT, self.authzgrp)
+
+    def test_authorized_query(self):
+        assert not self.authorizer.is_authorized(self.notmember.name, model.Action.READ, self.pkg)
+        assert self.authorizer.is_authorized(self.member.name, model.Action.READ, self.pkg)
+        
+        q = self.authorizer.authorized_query(self.notmember.name, model.Package)
+        q = q.filter(model.Package.name==self.pkg.name)
+        assert not len(q.all()) 
+        
+        q = self.authorizer.authorized_query(self.member.name, model.Package)
+        q = q.filter(model.Package.name==self.pkg.name)
+        assert len(q.all()) == 1
