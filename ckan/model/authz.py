@@ -173,9 +173,9 @@ class UserObjectRole(DomainObject):
 
     @classmethod
     def remove_user_from_role(cls, user, role, domain_obj):
-        q = self._user_query(user, role, domain_obj)
+        q = cls._user_query(user, role, domain_obj)
         uo_role = q.one()
-        Session.delete(ou_role)
+        Session.delete(uo_role)
         Session.commit()
         Session.remove()
 

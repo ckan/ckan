@@ -21,13 +21,29 @@ class AuthorizationGroup(DomainObject):
     pass
 
 def user_in_authorization_group(user, authorization_group):
-    pass
+    q = Session.query(AuthorizationGroup)
+    q = q.filter_by(id=authorization_group.id)
+    q = q.filter(AuthorizationGroup.users.contains(user))
+    return q.count() == 1
         
 def add_user_to_authorization_group(user, authorization_group, role):
-    pass
+    assert not user_in_authorization_group(user, authorization_group)
+    from authz import add_user_to_role
+    Session.add(authorization_group)
+    authorization_group.users.append(user)
+    add_user_to_role(user, role, authorization_group)
 
 def remove_user_from_authorization_group(user, authorization_group):
-    pass
+    assert user_in_authorization_group(user, authorization_group)
+    from authz import remove_user_from_role, AuthorizationGroupRole
+    Session.add(authorization_group)
+    authorization_group.users.remove(user)
+    q = Session.query(AuthorizationGroupRole)
+    q = q.filter_by(authorization_group=authorization_group,
+                    user=user)
+    for agr in q:
+        remove_user_from_role(user, agr.role, authorization_group)
+    
 
 
 mapper(AuthorizationGroup, authorization_group_table, properties={
