@@ -14,8 +14,13 @@ class TestRevisionController(TestController):
 
     @classmethod
     def teardown_class(self):
-        CreateTestData.delete()
         model.repo.rebuild_db()
+
+    def create_40_revisions(self):
+        for i in range(0,40):
+            rev = model.repo.new_revision()
+            rev.author = "Test Revision %s" % i
+            model.repo.commit()
 
     def test_link_major_navigation(self):
         offset = url_for(controller='home')
@@ -34,11 +39,11 @@ class TestRevisionController(TestController):
         #
         # </rant> -- NS 2009-12-17
 
-        self.create_100_revisions()
+        self.create_40_revisions()
         revisions = model.repo.history().all()
         revision1 = revisions[0]
-        revision2 = revisions[50]
-        revision3 = revisions[100]
+        revision2 = revisions[20]
+        revision3 = revisions[40]
         revision4 = revisions[-1]
         # Revisions are most recent first, with first rev on last page.
         # Todo: Look at the model to see which revision is last.
@@ -63,7 +68,7 @@ class TestRevisionController(TestController):
         self.assert_click(res, revision3.id, 'Revision: %s' % revision3.id)
 
         # Last page.
-        last_id = 1 + len(revisions) / 50
+        last_id = 1 + len(revisions) / 20
         res = self.app.get(offset, params={'page':last_id})
 
         print str(res)
@@ -98,13 +103,6 @@ class TestRevisionController(TestController):
             print "\nThe expression that couldn't be found:"
             print str(res2_exp)
             raise
-
-
-    def create_100_revisions(self):
-        for i in range(0,100):
-            rev = model.repo.new_revision()
-            rev.author = "Test Revision %s" % i
-            model.repo.commit()
 
     def create_updating_revision(self, name, **kwds):
         rev = model.repo.new_revision()
@@ -178,7 +176,7 @@ class TestRevisionController(TestController):
         # TODO: come back once login is sorted out
 
     def test_list_format_atom(self):
-        self.create_100_revisions()
+        self.create_40_revisions()
         self.create_updating_revision(u'warandpeace',
             title=u"My Updated 'War and Peace' Title",
         )
