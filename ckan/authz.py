@@ -93,6 +93,8 @@ class Authorizer(object):
             q = model.Session.query(model.PackageRole).filter_by(package=domain_obj)
         elif isinstance(domain_obj, model.Group):
             q = model.Session.query(model.GroupRole).filter_by(group=domain_obj)
+        elif isinstance(domain_obj, model.AuthorizationGroup):
+            q = model.Session.query(model.AuthorizationGroupRole).filter_by(authorization_group=domain_obj)
         prs = [ (pr.user, pr.role) for pr in q.all() ]
         return prs
 
@@ -134,6 +136,9 @@ class Authorizer(object):
                                                   role=model.Role.ADMIN)
         elif isinstance(domain_obj, model.Group):
             q = model.Session.query(model.GroupRole).filter_by(group=domain_obj,
+                                                role=model.Role.ADMIN)
+        elif isinstance(domain_obj, model.AuthorizationGroup):
+            q = model.Session.query(model.AuthorizationGroupRole).filter_by(authorization_group=domain_obj,
                                                 role=model.Role.ADMIN)
         admins = [do_role.user for do_role in q.all()]
         return admins
@@ -191,6 +196,9 @@ class Authorizer(object):
             elif isinstance(domain_obj, model.Group):
                 q = q.with_polymorphic(model.GroupRole)
                 q = q.filter(model.GroupRole.group==domain_obj)
+            elif isinstance(domain_obj, model.AuthorizationGroup):
+                q = q.with_polymorphic(model.AuthorizationGroupRole)
+                q = q.filter(model.AuthorizationGroupRole.authorization_group==domain_obj)
             elif isinstance(domain_obj, model.System):
                 q = q.with_polymorphic(model.SystemRole)
                 q = q.filter(model.SystemRole.context==unicode(model.System.__name__))

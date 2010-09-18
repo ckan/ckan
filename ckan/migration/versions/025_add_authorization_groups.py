@@ -31,11 +31,18 @@ user_object_role_table = Table('user_object_role', metadata,
     Column('context', UnicodeText, nullable=False),
     Column('role', UnicodeText)
     )
+    
+authorization_group_role_table = Table('authorization_group_role', metadata,
+    Column('user_object_role_id', UnicodeText, ForeignKey('user_object_role.id'), primary_key=True),
+    Column('authorization_group_id', UnicodeText, ForeignKey('authorization_group.id')),
+    )
+
 
 def upgrade():
     authorization_group_table.create()
     authorization_group_user_table.create()
-    authorization_group_id = Column('authorization_group_id', UnicodeText, 
+    authorization_group_role_table.create()
+    authorization_group_id = Column('authorized_group_id', UnicodeText, 
                                     ForeignKey('authorization_group.id'), nullable=True)
     authorization_group_id.create(user_object_role_table)
 
