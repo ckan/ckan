@@ -42,6 +42,9 @@ setup(
         'blinker>=1.0',
         'xlrd>=0.7.1',
         'xlwt>=0.7.2',
+        ## required for harvesting
+        ## TODO: this could be removed if harvesting moved to worker
+        'lxml',
     ],
     extras_require = {
         'solr': ['solrpy>=0.9'],
