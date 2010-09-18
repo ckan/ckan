@@ -20,6 +20,15 @@ authorization_group_user_table = Table('authorization_group_user', metadata,
 class AuthorizationGroup(DomainObject):
     pass
 
+def user_in_authorization_group(user, authorization_group):
+    pass
+        
+def add_user_to_authorization_group(user, authorization_group, role):
+    pass
+
+def remove_user_from_authorization_group(user, authorization_group):
+    pass
+
 
 mapper(AuthorizationGroup, authorization_group_table, properties={
        'users': relation(User, lazy=True, secondary=authorization_group_user_table, 

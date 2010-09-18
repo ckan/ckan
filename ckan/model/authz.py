@@ -8,6 +8,7 @@ from package import *
 from group import Group
 from types import make_uuid
 from user import User
+from authorization_group import AuthorizationGroup
 
 PSEUDO_USER__LOGGED_IN = u'logged_in'
 PSEUDO_USER__VISITOR = u'visitor'
@@ -115,17 +116,34 @@ class UserObjectRole(DomainObject):
     def user_has_role(cls, user, role, domain_obj):
         assert isinstance(user, User), user
         assert Role.is_valid(role), role
-        q = cls._query(user, role, domain_obj)
+        q = cls._user_query(user, role, domain_obj)
         return q.count() == 1
-
+        
     @classmethod
-    def _query(cls, user, role, domain_obj):
+    def authorization_group_has_role(cls, authorization_group, role, domain_obj):
+        assert isinstance(authorization_group, AuthorizationGroup), authorization_group
+        assert Role.is_valid(role), role
+        q = cls._authorization_group_query(authorization_group, role, domain_obj)
+        return q.count() == 1
+        
+    @classmethod
+    def _user_query(cls, user, role, domain_obj):
         q = Session.query(cls).filter_by(role=role)
         # some protected objects are not "contextual"
         if cls.name is not None:
             # e.g. filter_by(package=domain_obj)
             q = q.filter_by(**dict({cls.name: domain_obj}))
         q = q.filter_by(user=user)
+        return q
+    
+    @classmethod
+    def _authorization_group_query(cls, authorization_group, role, domain_obj):
+        q = Session.query(cls).filter_by(role=role)
+        # some protected objects are not "contextual"
+        if cls.name is not None:
+            # e.g. filter_by(package=domain_obj)
+            q = q.filter_by(**dict({cls.name: domain_obj}))
+        q = q.filter_by(authorization_group=authorization_group)
         return q
 
     @classmethod
@@ -137,12 +155,30 @@ class UserObjectRole(DomainObject):
         if cls.name is not None:
             setattr(objectrole, cls.name, domain_obj)
         Session.add(objectrole)
+        
+    @classmethod
+    def add_authorization_group_to_role(cls, authorization_group, role, domain_obj):
+        # role assignment already exists
+        if cls.authorization_group_has_role(authorization_group, role, domain_obj):
+            return
+        objectrole = cls(role=role, authorization_group=authorization_group)
+        if cls.name is not None:
+            setattr(objectrole, cls.name, domain_obj)
+        Session.add(objectrole)
 
     @classmethod
     def remove_user_from_role(cls, user, role, domain_obj):
-        q = self._query(user, role, domain_obj)
+        q = self._user_query(user, role, domain_obj)
         uo_role = q.one()
         Session.delete(ou_role)
+        Session.commit()
+        Session.remove()
+
+    @classmethod
+    def remove_authorization_group_from_role(cls, authorization_group, role, domain_obj):
+        q = self._authorization_group_query(authorization_group, role, domain_obj)
+        ago_role = q.one()
+        Session.delete(agu_role)
         Session.commit()
         Session.remove()
 
@@ -172,13 +208,26 @@ def user_has_role(user, role, domain_obj):
     return objectrole.user_has_role(user, role, domain_obj)
 
 def add_user_to_role(user, role, domain_obj):
-    assert isinstance(user, User), user
     objectrole = UserObjectRole.get_object_role_class(domain_obj)
     objectrole.add_user_to_role(user, role, domain_obj)
 
 def remove_user_from_role(user, role, domain_obj):
     objectrole = UserObjectRole.get_object_role_class(domain_obj)
     objectrole.remove_user_from_role(user, role, domain_obj)
+
+    
+def authorization_group_has_role(authorization_group, role, domain_obj):
+    objectrole = UserObjectRole.get_object_role_class(domain_obj)
+    return objectrole.authorization_group_has_role(authorization_group, role, domain_obj)
+        
+def add_authorization_group_to_role(authorization_group, role, domain_obj):
+    objectrole = UserObjectRole.get_object_role_class(domain_obj)
+    objectrole.add_authorization_group_to_role(authorization_group, role, domain_obj)
+
+def remove_authorization_group_from_role(authorization_group, role, domain_obj):
+    objectrole = UserObjectRole.get_object_role_class(domain_obj)
+    objectrole.remove_authorization_group_from_role(authorization_group, role, domain_obj)
+    
 
 
 ## TODO: this should be in ckan/authz.py
@@ -268,6 +317,11 @@ mapper(UserObjectRole, user_object_role_table,
     polymorphic_identity=u'user_object',
     properties={
         'user': orm.relation(User,
+            backref=orm.backref('roles',
+                cascade='all, delete, delete-orphan'
+            )
+        ),
+        'authorization_group': orm.relation(AuthorizationGroup,
             backref=orm.backref('roles',
                 cascade='all, delete, delete-orphan'
             )
