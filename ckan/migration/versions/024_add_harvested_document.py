@@ -12,8 +12,8 @@ harvested_document_table = Table('harvested_document', metadata,
 )
 
 def upgrade():
-    harvested_document.create()
+    harvested_document_table.create()
 
 def downgrade():
-    harvested_document.drop()
+    harvested_document_table.drop()
 
