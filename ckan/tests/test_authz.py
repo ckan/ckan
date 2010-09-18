@@ -215,6 +215,10 @@ class TestAuthorizationGroups(object):
 
     authorizer = ckan.authz.Authorizer()
 
+    def test_get_authorization_groups(self):
+        assert self.authzgrp.id == self.authorizer.get_authorization_groups(self.member.name)[0].id
+        assert not self.authorizer.get_authorization_groups(self.notmember.name)
+
     def test_edit_via_grp(self):
         action = model.Action.EDIT
         assert not self.authorizer.is_authorized(self.notmember.name, action, self.pkg)
@@ -249,6 +253,7 @@ class TestAuthorizationGroups(object):
 
     def test_authzgrp_edit_rights(self):
         assert self.authorizer.is_authorized(self.member.name, model.Action.READ, self.authzgrp)
-        assert self.authorizer.is_authorized(self.notmember.name, model.Action.READ, self.authzgrp)
+        # TODO for all domain_objs: 
+        #assert self.authorizer.is_authorized(self.notmember.name, model.Action.READ, self.authzgrp)
         assert self.authorizer.is_authorized(self.member.name, model.Action.EDIT, self.authzgrp)
         assert not self.authorizer.is_authorized(self.notmember.name, model.Action.EDIT, self.authzgrp)

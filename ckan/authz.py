@@ -99,6 +99,20 @@ class Authorizer(object):
         return prs
 
     @classmethod
+    def get_authorization_groups(cls, username):
+        assert isinstance(username, unicode), repr(username)
+        q = model.Session.query(model.AuthorizationGroup)
+        user = model.User.by_name(username)
+        if username == model.PSEUDO_USER__VISITOR or not user:
+            q = q.filter(model.AuthorizationGroup.users.any(name=model.PSEUDO_USER__VISITOR))
+        else:
+            q = q.filter(model.AuthorizationGroup.users.any(
+                            sa.or_(model.User.name==model.PSEUDO_USER__VISITOR,
+                                   model.User.name==model.PSEUDO_USER__LOGGED_IN,
+                                   model.User.name==username)))
+        return q.all()
+
+    @classmethod
     def get_roles(cls, username, domain_obj):
         '''Get the roles that the specified user has on the specified domain
         object.
@@ -106,20 +120,23 @@ class Authorizer(object):
         assert isinstance(username, unicode), repr(username)
 
         # filter by user and pseudo-users
+        # TODO: these can be made into subqueries/joins! 
         user = model.User.by_name(username)
         visitor = model.User.by_name(model.PSEUDO_USER__VISITOR)
-        logged_in = model.User.by_name(model.PSEUDO_USER__LOGGED_IN)
         q = cls._get_roles_query(domain_obj)
-        if username == model.PSEUDO_USER__VISITOR or not user:
-            q = q.filter_by(user=visitor)
-        else:
-            # logged in user
-            q = q.filter(sa.or_(
-                model.UserObjectRole.user==user,
-                model.UserObjectRole.user==logged_in,
-                model.UserObjectRole.user==visitor,
-                ))
-        prs = q.all()
+        
+        filters = []
+        # check for groups:
+        for authz_group in cls.get_authorization_groups(username):
+            filters.append(model.UserObjectRole.authorized_group==authz_group)
+        
+        filters.append(model.UserObjectRole.user==visitor)    
+        if username != model.PSEUDO_USER__VISITOR and user:
+            logged_in = model.User.by_name(model.PSEUDO_USER__LOGGED_IN)
+            filters.append(model.UserObjectRole.user==user)
+            filters.append(model.UserObjectRole.user==logged_in)
+        
+        prs = q.filter(sa.or_(*filters)).all()
         return [pr.role for pr in prs]
 
     @classmethod
