@@ -100,7 +100,6 @@ class Authorizer(object):
 
     @classmethod
     def get_authorization_groups(cls, username):
-        assert isinstance(username, unicode), repr(username)
         q = model.Session.query(model.AuthorizationGroup)
         user = model.User.by_name(username)
         if username == model.PSEUDO_USER__VISITOR or not user:
@@ -161,7 +160,7 @@ class Authorizer(object):
         return admins
 
     @classmethod
-    def authorized_query(cls, username, entity):
+    def authorized_query(cls, username, entity, action=model.Action.READ):
         q = model.Session.query(entity)
         if username:
             user = model.User.by_name(username)
@@ -170,7 +169,6 @@ class Authorizer(object):
 
         visitor = model.User.by_name(model.PSEUDO_USER__VISITOR)
         logged_in = model.User.by_name(model.PSEUDO_USER__LOGGED_IN)
-        action = model.Action.READ
 
         if not cls.is_sysadmin(username):
             q = q.outerjoin('roles')

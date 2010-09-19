@@ -49,6 +49,7 @@ class TestCreation(object):
 
         # test delete-orphan
         q = model.Session.query(model.UserObjectRole)
+        q = q.filter_by(user=mradmin)
         assert q.count() == 2, q.all()
         uow = q.filter_by(context=u'user_object').first()
         uow.user = None
