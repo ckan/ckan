@@ -61,10 +61,10 @@ class Stripper(sgmllib.SGMLParser):
         sgmllib.SGMLParser.__init__(self)
 
     def strip(self, html):
-        self.str = ""
+        self.str = u""
         self.feed(html)
         self.close()
-        return ' '.join(self.str.split())
+        return u' '.join(self.str.split())
 
     def handle_data(self, data):
         self.str += data
@@ -181,7 +181,9 @@ class TestController(object):
 
     def strip_tags(self, res):
         '''Call strip_tags on a TestResponse object to strip any and all HTML and normalise whitespace.'''
-        return Stripper().strip(str(res))
+        if not isinstance(res, basestring):
+            res = res.body.decode('utf-8')
+        return Stripper().strip(res)    
 
     def check_named_element(self, html, tag_name, *html_to_find):
         '''Searches in the html and returns True if it can find a particular
