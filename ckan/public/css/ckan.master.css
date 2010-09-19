@@ -284,13 +284,21 @@ ul.packages {
 	padding-left: 0;
 }
 
+.packages .header {
+    font-weight: bold;
+}
+
+.packages .extract {
+	font-size: 0.9em;
+}
+
 .packages li {
 	list-style: none;
 	padding: 0.4em 0 0.4em 0.5em;
 	border-left: 0.5em solid #fff;
 	border-bottom: 1px solid #ececec;
 	overflow: hidden;
-	white-space: nowrap;
+	/*white-space: nowrap;*/
 }
 
 .packages li a {
@@ -318,6 +326,13 @@ ul.packages {
 
 .packages li:hover .tags {
 	opacity: 1;
+}
+
+.packages .name, 
+.packages .license {
+    color: #666;
+	font-weight: normal;
+	font-size: 0.9em;
 }
 
 /* ==================== */

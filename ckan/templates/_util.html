@@ -36,12 +36,28 @@
   <ul py:def="package_list(packages)" class="packages">
     <li py:for="package in packages"
         class="${'fullyopen' if (package.isopen() and package.resources) else None}">
-        ${package_license_icon(package)}
+        <div class="header">
+			<span class="title">
+				${h.link_to(package.title or package.name, h.url_for(controller='package', action='read', id=package.name))}
+			</span>
+		</div>
+		<div class="extract">
+			${h.markdown_extract(package.notes)}
+		</div>
+		${package_license_icon(package)}
         ${package_resources_icon(package)}
-        ${h.link_to(package.title or package.name, h.url_for(controller='package', action='read', id=package.name))}
-        <ul py:if="package.tags" class="tags">
+		<span class="name">
+		 	<b>${package.name}</b>
+		</span>
+		<py:if test="package.license">
+		    <span class="license">
+		        &middot;
+			    ${package.license.title.split('::')[-1]}
+		    </span>
+		</py:if>
+        <!--ul py:if="package.tags" class="tags">
           <li py:for="tag in package.tags">${tag.name}</li>
-        </ul>
+        </ul-->
     </li>
     <p py:if="not packages">No results</p>
   </ul>
