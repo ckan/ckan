@@ -42,6 +42,9 @@ setup(
         'blinker>=1.0',
         'xlrd>=0.7.1',
         'xlwt>=0.7.2',
+        ## required for harvesting
+        ## TODO: this could be removed if harvesting moved to worker
+        'lxml',
     ],
     extras_require = {
         'solr': ['solrpy>=0.9'],
@@ -78,7 +81,6 @@ setup(
     [ckan.forms]
     standard = ckan.forms.package:get_standard_fieldset
     gov = ckan.forms.package_gov:get_gov_fieldset
-    ca = ckan.forms.package_ca:get_ca_fieldset
 
     [ckan.search]
     sql = ckan.lib.search.sql:SqlSearchBackend
