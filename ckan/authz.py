@@ -46,7 +46,7 @@ class Authorizer(object):
         assert model.Action.is_valid(action), action
         
         # sysadmins can do everything
-        if cls.is_sysadmin(username):
+        if cls.is_sysadmin(username) or domain_object is None:
             return True
 
         # check not blacklisted
@@ -129,7 +129,7 @@ class Authorizer(object):
         for authz_group in cls.get_authorization_groups(username):
             filters.append(model.UserObjectRole.authorized_group==authz_group)
         
-        if username != model.PSEUDO_USER__VISITOR and user:
+        if (username != model.PSEUDO_USER__VISITOR) and (user is not None):
             logged_in = model.User.by_name(model.PSEUDO_USER__LOGGED_IN)
             filters.append(model.UserObjectRole.user==user)
             filters.append(model.UserObjectRole.user==logged_in)

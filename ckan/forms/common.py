@@ -613,9 +613,9 @@ class GroupSelectField(ConfiguredField):
             return self.field.parent.model.groups
         
         def render(self, **kwargs):
-            from ckan.model import Group
             from pylons import c
-            available_groups = Authorizer.authorized_query(c.user, Group, action=model.Action.EDIT).all()
+            available_groups = Authorizer.authorized_query(c.user, model.Group, 
+                                                    action=model.Action.EDIT).all()
             c.new_name = self.name + '-new'
             
             c.fields = []
@@ -640,16 +640,16 @@ class GroupSelectField(ConfiguredField):
             return field_readonly_renderer(self.field.key, self._get_value())
 
         def _serialized_value(self):
-            return [v for k, v in self.params.items() if k.startswith(self.name)]
+            name = self.name.encode('utf-8')
+            return [v for k, v in self.params.items() if k.startswith(name)]
         
         def deserialize(self):
             from pylons import c
-            from ckan.model import Session
             groups = self._get_value()
             group_ids = self._serialized_value() # space separated string
             for group_id in group_ids:
-                group = Session.query(model.Group).get(group_id)
-                if group in groups:
+                group = model.Session.query(model.Group).autoflush(False).get(group_id)
+                if group is None or group in groups:
                     continue
                 if not Authorizer.am_authorized(c, model.Action.EDIT, group):
                     continue
