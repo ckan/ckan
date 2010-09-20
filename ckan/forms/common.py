@@ -620,6 +620,8 @@ class GroupSelectField(ConfiguredField):
             
             c.fields = []
             for group in self._get_value():
+                if group in available_groups:
+                    available_groups.remove(group)
                 c.fields.append({'id': group.id,
                                  'name': self.name + '-' + group.id,
                                  'title': group.title})

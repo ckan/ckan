@@ -23,7 +23,7 @@ def build_package_form(is_admin=False):
     builder = FormBuilder(model.Package)
 
     # Extra fields
-    builder.add_field(GroupSelectField('groups'))
+    builder.add_field(GroupSelectField('groups', allow_empty=True))
     builder.add_field(ResourcesField('resources', hidden_label=True))
     builder.add_field(TagField('tags'))
     builder.add_field(ExtrasField('extras', hidden_label=True))
