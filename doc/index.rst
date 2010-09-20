@@ -21,7 +21,7 @@ Contents:
    feeds
    getdata
    importer
-   package_forms
+   forms
    form-integration
    model
    authentication

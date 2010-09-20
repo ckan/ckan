@@ -614,8 +614,11 @@ class GroupSelectField(ConfiguredField):
         
         def render(self, **kwargs):
             from pylons import c
+            if not hasattr(c, 'user'):
+                c.user = model.PSEUDO_USER__VISITOR
             available_groups = Authorizer.authorized_query(c.user, model.Group, 
-                                                    action=model.Action.EDIT).all()
+                                                        action=model.Action.EDIT).all()
+            
             c.new_name = self.name + '-new'
             
             c.fields = []
@@ -645,6 +648,8 @@ class GroupSelectField(ConfiguredField):
         
         def deserialize(self):
             from pylons import c
+            if not hasattr(c, 'user'):
+                c.user = model.PSEUDO_USER__VISITOR
             groups = self._get_value()
             group_ids = self._serialized_value() # space separated string
             for group_id in group_ids:

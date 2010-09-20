@@ -54,7 +54,7 @@ class GroupController(BaseController):
         if not c.user:
             abort(401, gettext('Must be logged in to create a new group.'))
 
-        fs = ckan.forms.get_group_fieldset('group_fs')
+        fs = ckan.forms.get_group_fieldset()
 
         if request.params.has_key('save'):
             # needed because request is nested
@@ -108,7 +108,7 @@ class GroupController(BaseController):
             c.groupname = group.name
             c.grouptitle = group.title
             
-            fs = ckan.forms.get_group_fieldset('group_fs').bind(c.group)
+            fs = ckan.forms.get_group_fieldset().bind(c.group)
             c.form = self._render_edit_form(fs)
             return render('group/edit.html')
         else:
@@ -117,7 +117,7 @@ class GroupController(BaseController):
             # needed because request is nested
             # multidict which is read only
             params = dict(request.params)
-            c.fs = ckan.forms.get_group_fieldset('group_fs').bind(group, data=params or None)
+            c.fs = ckan.forms.get_group_fieldset().bind(group, data=params or None)
             try:
                 self._update(c.fs, id, group.id)
                 # do not use groupname from id as may have changed
@@ -198,7 +198,7 @@ class GroupController(BaseController):
     def _render_edit_form(self, fs):
         # errors arrive in c.error and fs.errors
         c.fieldset = fs
-        c.fieldset2 = ckan.forms.get_group_fieldset('new_package_group_fs')
+        c.fieldset2 = ckan.forms.get_package_group_fieldset()
         return render('group/edit_form.html')
 
     def _update(self, fs, group_name, group_id):
