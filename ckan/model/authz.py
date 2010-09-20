@@ -40,8 +40,8 @@ class Action(Enum):
     READ = u'read'
     PURGE = u'purge'
     EDIT_PERMISSIONS = u'edit-permissions'
-    PACKAGE_CREATE = u'package_create'
-    GROUP_CREATE = u'group_create'
+    PACKAGE_CREATE = u'create-package'
+    GROUP_CREATE = u'create-group'
 
 class Role(Enum):
     ADMIN = u'admin'

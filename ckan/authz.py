@@ -44,7 +44,7 @@ class Authorizer(object):
             username = username.decode('utf8')
         assert isinstance(username, unicode), type(username)
         assert model.Action.is_valid(action), action
-
+        
         # sysadmins can do everything
         if cls.is_sysadmin(username):
             return True
@@ -124,19 +124,18 @@ class Authorizer(object):
         visitor = model.User.by_name(model.PSEUDO_USER__VISITOR)
         q = cls._get_roles_query(domain_obj)
         
-        filters = []
+        filters = [model.UserObjectRole.user==visitor]
         # check for groups:
         for authz_group in cls.get_authorization_groups(username):
             filters.append(model.UserObjectRole.authorized_group==authz_group)
         
-        filters.append(model.UserObjectRole.user==visitor)    
         if username != model.PSEUDO_USER__VISITOR and user:
             logged_in = model.User.by_name(model.PSEUDO_USER__LOGGED_IN)
             filters.append(model.UserObjectRole.user==user)
             filters.append(model.UserObjectRole.user==logged_in)
         
-        prs = q.filter(sa.or_(*filters)).all()
-        return [pr.role for pr in prs]
+        q = q.filter(sa.or_(*filters))
+        return [pr.role for pr in q]
 
     @classmethod
     def is_sysadmin(cls, username):

@@ -44,7 +44,8 @@ def build_package_form(is_admin=False):
     field_groups = OrderedDict([
         (_('Basic information'), ['name', 'title', 'version', 'url',
                                'notes', 'tags']),
-        (_('Resources'), ['resources', 'groups']),
+        (_('Resources'), ['resources']),
+        (_('Groups'), ['groups']),
         (_('Detail'), ['author', 'author_email',
                     'maintainer', 'maintainer_email',
                     'license_id']),
