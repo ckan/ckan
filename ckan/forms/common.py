@@ -8,6 +8,7 @@ from pylons import c
 from pylons.i18n import _, ungettext, N_, gettext
 
 from ckan.lib.helpers import literal
+from ckan.authz import Authorizer
 import ckan.model as model
 import ckan.lib.helpers as h
 import ckan.lib.field_types as field_types
@@ -575,6 +576,69 @@ class ExtrasField(ConfiguredField):
                     if not delete:
                         extra_fields.append((key, value))
             return extra_fields
+
+
+class GroupSelectField(ConfiguredField):
+    '''A form field for selecting groups'''
+    
+    def __init__(self, name, allow_empty=False):
+        super(GroupSelectField, self).__init__(name)
+        self._allow_empty = allow_empty
+    
+    def get_configured(self):
+        return self.GroupSelectField(self.name).with_renderer(self.GroupSelectEditRenderer).validate(self.group_id_validator)
+
+    class GroupSelectField(formalchemy.Field):
+        def sync(self):
+            if not self.is_readonly():
+                self._update_groups()
+
+        def _update_groups(self):
+            pkg = self.model
+            groups = self._deserialize() or []
+
+    class GroupSelectEditRenderer(formalchemy.fields.FieldRenderer):
+        def _get_value(self, **kwargs):
+            groups = self.field.parent.model.groups
+            return groups
+
+        def render(self, **kwargs):
+            from ckan.model import Group
+            from pylons import c
+            selected = self._get_value()
+            options = []
+            for group in Authorizer.authorized_query(c.user, Group).all():
+                options.append((group.id, group.name))
+            options.append(('test', 'test'))
+            html = literal(fa_h.select(self.name, selected, options, **kwargs))
+            return html
+
+        def render_readonly(self, **kwargs):
+            return field_readonly_renderer(self.field.key, self._get_value())
+
+        def _serialized_value(self):
+            return self.params.get(self.name, [])
+        
+        # Looks remarkably similar to _update_tags above
+        def deserialize(self):
+            group_ids = self._serialized_value() # space separated string
+            package = self.field.parent.model
+            print group_ids
+            return group_ids
+        
+
+    def group_id_validator(self, val, field):
+        #for tag in val:
+        #    min_length = 2
+        #    if len(tag.name) < min_length:
+        #        raise formalchemy.ValidationError(_('Tag "%s" length is less than minimum %s') % (tag.name, min_length))
+        #    if not self.tagname_match.match(tag.name):
+        #        raise formalchemy.ValidationError(_('Tag "%s" must be alphanumeric characters or symbols: -_.') % (tag.name))
+        #    if self.tagname_uppercase.search(tag.name):
+        #        raise formalchemy.ValidationError(_('Tag "%s" must not be uppercase' % (tag.name)))
+        pass
+
+
 
 class SuggestedTextExtraField(TextExtraField):
     '''A form field for text suggested from from a list of options, that is

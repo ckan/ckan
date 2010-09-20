@@ -6,7 +6,7 @@ from formalchemy import helpers as h
 from sqlalchemy.util import OrderedDict
 from pylons.i18n import _, ungettext, N_, gettext
 
-from common import ResourcesField, TagField, ExtrasField, package_name_validator
+from common import ResourcesField, TagField, ExtrasField, GroupSelectField, package_name_validator
 from builder import FormBuilder
 import ckan.model as model
 import ckan.lib.helpers
@@ -23,6 +23,7 @@ def build_package_form(is_admin=False):
     builder = FormBuilder(model.Package)
 
     # Extra fields
+    builder.add_field(GroupSelectField('groups'))
     builder.add_field(ResourcesField('resources', hidden_label=True))
     builder.add_field(TagField('tags'))
     builder.add_field(ExtrasField('extras', hidden_label=True))
@@ -43,7 +44,7 @@ def build_package_form(is_admin=False):
     field_groups = OrderedDict([
         (_('Basic information'), ['name', 'title', 'version', 'url',
                                'notes', 'tags']),
-        (_('Resources'), ['resources']),
+        (_('Resources'), ['resources', 'groups']),
         (_('Detail'), ['author', 'author_email',
                     'maintainer', 'maintainer_email',
                     'license_id']),
