@@ -147,7 +147,7 @@ class GroupController(BaseController):
 
         c.authz_editable = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, group)
         if not c.authz_editable:
-            abort(401, gettext('Not authorized to edit authization for group'))
+            abort(401, gettext('Not authorized to edit authorization for group'))
 
         if 'save' in request.params: # form posted
             # needed because request is nested

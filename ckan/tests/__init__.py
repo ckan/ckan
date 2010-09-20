@@ -25,9 +25,6 @@ from routes import url_for
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib import search
 
-import resource, socket
-
-
 __all__ = ['url_for',
            'TestController',
            'CreateTestData',
