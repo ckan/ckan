@@ -191,7 +191,7 @@ class PackageController(BaseController):
         if not auth_for_create:
             abort(401, str(gettext('Unauthorized to create a package')))
         
-        fs = ckan.forms.registry.get_fieldset(is_admin=is_admin,
+        fs = ckan.forms.registry.get_package_fieldset(is_admin=is_admin,
                          package_form=request.params.get('package_form'))
         if 'save' in request.params or 'preview' in request.params:
             if not request.params.has_key('log_message'):
@@ -262,7 +262,7 @@ class PackageController(BaseController):
             abort(401, str(gettext('User %r not authorized to edit %s') % (c.user, id)))
 
         c.auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, pkg)
-        fs = ckan.forms.registry.get_fieldset(is_admin=c.auth_for_change_state,
+        fs = ckan.forms.registry.get_package_fieldset(is_admin=c.auth_for_change_state,
                        package_form=request.params.get('package_form'))
 
         if 'save' in request.params or 'preview' in request.params:

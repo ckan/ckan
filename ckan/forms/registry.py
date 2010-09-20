@@ -5,7 +5,7 @@ from pylons import config
 
 PACKAGE_FORM_KEY = 'package_form'
 
-__all__ = ['get_fieldset']
+__all__ = ['get_package_fieldset']
 
 def get_entrypoints():
     entrypoints = []
@@ -14,7 +14,7 @@ def get_entrypoints():
     return entrypoints
 #print get_entrypoints()   #[0].load()
 
-def get_fieldset(is_admin=False, package_form=None):
+def get_package_fieldset(is_admin=False, package_form=None):
     ''' Returns the appropriate fieldset
     @param is_admin: whether user has admin rights for this package
     @param package_form: form name. Default taken from the config file.
