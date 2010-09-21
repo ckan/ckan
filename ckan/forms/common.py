@@ -669,6 +669,45 @@ class GroupSelectField(ConfiguredField):
             return groups
 
 
+class SelectExtraField(TextExtraField):
+    '''A form field for text suggested from from a list of options, that is
+    stored in an "extras" field.'''
+    
+    def __init__(self, name, options, allow_empty=True):
+        self.options = options[:]
+        self.allow_empty = allow_empty
+        # ensure options have key and value, not just a value
+        for i, option in enumerate(self.options):
+            if not isinstance(option, (tuple, list)):
+                self.options[i] = (option, option)
+        super(SelectExtraField, self).__init__(name)
+
+    def get_configured(self):
+        field = self.TextExtraField(self.name, options=self.options)
+        field.allow_empty = self.allow_empty
+        return field.with_renderer(self.SelectRenderer)
+        
+
+    class SelectRenderer(formalchemy.fields.FieldRenderer):
+        def _get_value(self, **kwargs):
+            extras = self.field.parent.model.extras
+            return self.value 
+
+        def render(self, options, **kwargs):
+            selected = self._get_value()
+            if self.field.allow_empty:
+                options = [(_('(None)'), '')] + options
+            
+            html = literal(fa_h.select(self.name, selected, options, **kwargs))
+            return html
+
+        def render_readonly(self, **kwargs):
+            return field_readonly_renderer(self.field.key, self._get_value())
+
+        def _serialized_value(self):
+            return self.params.get(self.name, u'')
+
+
 class SuggestedTextExtraField(TextExtraField):
     '''A form field for text suggested from from a list of options, that is
     stored in an "extras" field.'''
