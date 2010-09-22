@@ -1,9 +1,13 @@
-Locations
----------
+Locators
+--------
 
-The |site| |api| |version| can be found at the following location.
+The locator for a given resource can be formed by appending
+the relative path for that resource to the API locator.
+
+  ``Resource Locator = API Locator + Resource Path``
+
+The API locator for the |site| |api| |version| is:
 
   |base_location|
 
-Resource locations are formed by appending a resource location (see below).
-
+The relative paths for each resource are listed in the sections below.

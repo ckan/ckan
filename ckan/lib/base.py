@@ -100,6 +100,9 @@ class BaseController(WSGIController):
     def _get_pkg(self, reference):
         return model.Package.get(reference)
 
+    def _get_harvest_source(self, reference):
+        return model.HarvestSource.get(reference)
+
     def _get_request_data(self):
         try:
             request_data = request.params.keys()[0]
