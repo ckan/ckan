@@ -413,7 +413,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         # ['id', 'name', 'title', 'version', 'url', 'author', 'author_email', 'maintainer', 'maintainer_email', 'notes', 'license_id', 'state']
         fields = Package.revisioned_fields()
         if not core_only:
-            fields += ['resources', 'tags', 'extras', 'relationships']
+            fields += ['resources', 'tags', 'groups', 'extras', 'relationships']
 
         if fields_to_ignore:
             for field in fields_to_ignore:
