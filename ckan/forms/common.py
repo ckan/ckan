@@ -38,6 +38,11 @@ def group_name_validator(val, field=None):
         if group != field.parent.model:
             raise formalchemy.ValidationError(_('Group name already exists in database'))
 
+def harvest_source_url_validator(val, field=None):
+    if not val.strip().startswith('http://'):
+        raise formalchemy.ValidationError(_('Harvest source URL is invalid (must start with "http://").'))
+
+
 def field_readonly_renderer(key, value, newline_reqd=True):
     if value is None:
         value = ''
@@ -526,7 +531,7 @@ class ExtrasField(ConfiguredField):
             # ('Package-1-extras-newfield0-value', u'bbb'),
             # TODO: This method is run multiple times per edit - cache results?
             if not hasattr(self, 'extras_re'):
-                self.extras_re = re.compile('Package-([a-f0-9-]*)-extras(?:-(.+))?$')
+                self.extras_re = re.compile('([a-zA-Z0-9-]*)-([a-f0-9-]*)-extras(?:-(.+))?$')
                 self.newfield_re = re.compile('newfield(\d+)-(.*)')
             extra_fields = []
             for key, value in self.params.items():
@@ -534,37 +539,38 @@ class ExtrasField(ConfiguredField):
                 if not extras_match:
                     continue
                 key_parts = extras_match.groups()
-                package_id = key_parts[0]
-                if key_parts[1] is None:
+                entity_name = key_parts[0]
+                entity_id = key_parts[1]
+                if key_parts[2] is None:
                     if isinstance(value, dict):
                         # simple dict passed into 'Package-1-extras' e.g. via REST i/f
                         extra_fields.extend(value.items())
-                elif key_parts[1].startswith('newfield'):
-                    newfield_match = self.newfield_re.match(key_parts[1])
+                elif key_parts[2].startswith('newfield'):
+                    newfield_match = self.newfield_re.match(key_parts[2])
                     if not newfield_match:
-                        print 'Warning: did not parse newfield correctly: ', ney_parts
+                        print 'Warning: did not parse newfield correctly: ', key_parts
                         continue
                     new_field_index, key_or_value = newfield_match.groups()
                     if key_or_value == 'key':
                         new_key = value
-                        value_key = 'Package-%s-extras-newfield%s-value' % (package_id, new_field_index)
+                        value_key = '%s-%s-extras-newfield%s-value' % (entity_name, entity_id, new_field_index)
                         new_value = self.params.get(value_key, '')
                         if new_key or new_value:
                             extra_fields.append((new_key, new_value))
                     elif key_or_value == 'value':
                         # if it doesn't have a matching key, add it to extra_fields anyway for
                         # validation to fail
-                        key_key = 'Package-%s-extras-newfield%s-key' % (package_id, new_field_index)
+                        key_key = '%s-%s-extras-newfield%s-key' % (entity_name, entity_id, new_field_index)
                         if not self.params.has_key(key_key):
                             extra_fields.append(('', value))
                     else:
                         print 'Warning: expected key or value for newfield: ', key
-                elif key_parts[1].endswith('-checkbox'):
+                elif key_parts[2].endswith('-checkbox'):
                     continue
                 else:
                     # existing field
-                    key = key_parts[1].decode('utf8')
-                    checkbox_key = 'Package-%s-extras-%s-checkbox' % (package_id, key)
+                    key = key_parts[2].decode('utf8')
+                    checkbox_key = '%s-%s-extras-%s-checkbox' % (entity_name, entity_id, key)
                     delete = self.params.get(checkbox_key, '') == 'on'
                     if not delete:
                         extra_fields.append((key, value))
@@ -648,6 +654,24 @@ class CheckboxExtraField(TextExtraField):
 
         def deserialize(self):
             return u'yes' if self._serialized_value() else u'no'
+
+
+class PackageNameField(ConfiguredField):
+    
+    def get_configured(self):
+        return self.PackageNameField(self.name).with_renderer(self.PackageNameRenderer)
+
+    class PackageNameField(formalchemy.Field):
+        #def sync(self):
+        #    if not self.is_readonly():
+        pass
+        
+    class PackageNameRenderer(formalchemy.fields.FieldRenderer):
+        #def _get_value(self):
+        #    package_id = self.field.parent.model.package_id
+        #    pkg = model.Package.get(package_id)
+        #    return pkg.name
+        pass
 
 def prettify(field_name):
     '''Generates a field label based on the field name.

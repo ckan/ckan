@@ -2,13 +2,14 @@ import logging
 import urlparse
 
 from sqlalchemy.orm import eagerload_all
+from sqlalchemy import or_
 import genshi
 from pylons import config, cache
 from pylons.i18n import get_lang, _
-from pylons.decorators.cache import beaker_cache
 
 from ckan.lib.base import *
 from ckan.lib.search import query_for, QueryOptions, SearchError
+from ckan.lib.cache import proxy_cache
 from ckan.lib.package_saver import PackageSaver, ValidationException
 import ckan.forms
 import ckan.authz
@@ -17,11 +18,6 @@ import ckan.misc
 
 logger = logging.getLogger('ckan.controllers')
 
-if bool(config.get('enable_caching', '')):
-    _cache = beaker_cache(expire=3600, type='file', query_args=True)
-else:
-    _cache = lambda x: x
-    
 class PackageController(BaseController):
     authorizer = ckan.authz.Authorizer()
 
@@ -30,7 +26,7 @@ class PackageController(BaseController):
         c.package_count = query.count()
         return render('package/index.html')
 
-    @_cache
+    @proxy_cache()
     def list(self):
         query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
         query = query.options(eagerload_all('package_tags.tag'))
@@ -97,6 +93,7 @@ class PackageController(BaseController):
         read_cache = cache.get_cache('package/read.html', type='dbm')
         read_cache.remove_value(self._pkg_cache_key(pkg))
 
+    @proxy_cache()
     def read(self, id):
         pkg = model.Package.get(id)
         if pkg is None:
@@ -124,7 +121,7 @@ class PackageController(BaseController):
         c.auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, pkg)
 
         PackageSaver().render_package(pkg)
-        return render('package/read.html', cache_key=cache_key, cache_expire=84600) 
+        return render('package/read.html')
 
     def history(self, id):
         if 'diff' in request.params or 'selected1' in request.params:
@@ -415,13 +412,20 @@ class PackageController(BaseController):
         h.redirect_to(controller='package', action='read', id=package_name, rating=str(rating))
 
     def autocomplete(self):
+        q = unicode(request.params.get('q', ''))
+        if not len(q): 
+            return ''
         pkg_list = []
+        like_q = u"%s%%" % q
         pkg_query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
+        pkg_query = pkg_query.filter(or_(model.Package.name.ilike(like_q),
+                                         model.Package.title.ilike(like_q)))
+        pkg_query = pkg_query.limit(10)
         for pkg in pkg_query:
-            pkg_list.extend([
-                '%s (%s)|%s' % (pkg.title, pkg.name, pkg.id),
-                '%s|%s' % (pkg.name, pkg.id),
-                ])
+            if pkg.name.lower().startswith(q.lower()):
+                pkg_list.append('%s|%s' % (pkg.name, pkg.name))
+            else:
+                pkg_list.append('%s (%s)|%s' % (pkg.title.replace('|', ' '), pkg.name, pkg.name))
         return '\n'.join(pkg_list)
 
     def _render_edit_form(self, fs, params={}, clear_session=False):

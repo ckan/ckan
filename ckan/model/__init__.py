@@ -5,14 +5,16 @@ from tag import *
 from package_mapping import *
 from user import user_table, User
 from group import *
+from group_extra import *
 from search_index import *
 from authz import *
-from extras import *
+from package_extra import *
 from resource import *
 from rating import *
-from package_relationship import PackageRelationship
+from package_relationship import *
 from changeset import Changeset, Change, Changemask
 from notifier import *
+from harvesting import HarvestSource, HarvestingJob, HarvestedDocument
 
 import ckan.migration
 

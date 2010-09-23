@@ -27,9 +27,6 @@ from ckan.lib import search
 
 import resource, socket
 
-if 'ubik.local' == socket.gethostname():
-    resource.setrlimit(resource.RLIMIT_NOFILE, (500,-1))
-
 
 __all__ = ['url_for',
            'TestController',
@@ -64,10 +61,10 @@ class Stripper(sgmllib.SGMLParser):
         sgmllib.SGMLParser.__init__(self)
 
     def strip(self, html):
-        self.str = ""
+        self.str = u""
         self.feed(html)
         self.close()
-        return ' '.join(self.str.split())
+        return u' '.join(self.str.split())
 
     def handle_data(self, data):
         self.str += data
@@ -108,6 +105,9 @@ class TestController(object):
 
     def get_user_by_name(self, name):
         return model.User.by_name(name)
+
+    def get_harvest_source_by_url(self, source_url, default=Exception):
+        return model.HarvestSource.get(source_url, default, 'url')
 
     @classmethod
     def purge_package_by_name(self, package_name):
@@ -181,7 +181,9 @@ class TestController(object):
 
     def strip_tags(self, res):
         '''Call strip_tags on a TestResponse object to strip any and all HTML and normalise whitespace.'''
-        return Stripper().strip(str(res))
+        if not isinstance(res, basestring):
+            res = res.body.decode('utf-8')
+        return Stripper().strip(res)    
 
     def check_named_element(self, html, tag_name, *html_to_find):
         '''Searches in the html and returns True if it can find a particular
@@ -292,6 +294,16 @@ class TestController(object):
 
 
 class TestSearchIndexer:
+    '''
+    Tests which use search can use this object to provide indexing
+    Usage:
+    model.notifier.initialise()
+    self.tsi = TestSearchIndexer()
+     (create packages)
+    self.tsi.index()
+     (do searching)
+    model.notifier.deactivate()
+    ''' 
     worker = None
     
     def __init__(self):

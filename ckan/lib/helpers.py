@@ -14,6 +14,8 @@ from webhelpers.text import truncate
 from pylons.decorators.cache import beaker_cache
 from routes import url_for, redirect_to
 from alphabet_paginate import AlphaPage
+from lxml.html import fromstring
+
 try:
     import json
 except Exception:
@@ -42,6 +44,14 @@ def linked_user(username):
     if user:
         return link_to(username, url_for(controller='user', action='read', id=user.id))
     return username
+
+@beaker_cache(expire=600, cache_response=False)
+def markdown_extract(text):
+    if (text is None) or (text == ''):
+        return ''
+    html = fromstring(markdown(text))
+    plain = html.xpath("string()")
+    return truncate(plain, length=190, indicator='...', whole_word=True)
 
 def icon_url(name):
     return '/images/icons/%s.png' % name

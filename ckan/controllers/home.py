@@ -2,12 +2,14 @@ import random
 
 from pylons import cache
 
+from ckan.lib.cache import proxy_cache
 from ckan.lib.base import *
 import ckan.lib.stats
 
 class HomeController(BaseController):
     repo = model.repo
 
+    @proxy_cache(expires=1800)
     def index(self):
         c.package_count = model.Session.query(model.Package).count()
         c.revisions = model.Session.query(model.Revision).limit(10).all()

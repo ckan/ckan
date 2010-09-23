@@ -1,8 +1,9 @@
 from pylons.i18n import get_lang
 
 from ckan.lib.base import *
+from ckan.lib.helpers import Page
 import ckan.authz
-from datetime import datetime
+from datetime import datetime, timedelta
 
 class RevisionController(BaseController):
 
@@ -20,20 +21,21 @@ class RevisionController(BaseController):
                 description=_(u'Recent changes to the CKAN repository.'),
                 language=unicode(get_lang()),
             )
-            select_results = model.repo.history().all()
-            for revision in select_results:
-                if not revision.id and revision.number:
-                    continue
-                try:
-                    dayHorizon = int(request.params.get('days'))
-                except:
-                    dayHorizon = 30
-                try:
-                    dayAge = (datetime.now() - revision.timestamp).days
-                except:
-                    dayAge = 0
-                if dayAge >= dayHorizon:
-                    break
+            # TODO: make this configurable?
+            # we do not want the system to fall over!
+            maxresults = 200
+            try:
+                dayHorizon = int(request.params.get('days', 5))
+            except:
+                dayHorizon = 5
+            ourtimedelta = timedelta(days=-dayHorizon)
+            since_when = datetime.now() + ourtimedelta
+            revision_query = model.repo.history()
+            revision_query = revision_query.filter(
+                    model.Revision.timestamp>=since_when).filter(
+                    model.Revision.id!=None)
+            revision_query = revision_query.limit(maxresults)
+            for revision in revision_query:
                 package_indications = []
                 revision_changes = model.repo.list_changes(revision)
                 package_resource_revisions = revision_changes[model.PackageResource]
@@ -85,17 +87,12 @@ class RevisionController(BaseController):
             return feed.writeString('utf-8')
         else:
             c.show_purge_links = self._has_purge_permissions()
-                        
-            from ckan.lib.helpers import Page
-            
             query = model.Session.query(model.Revision)
-            
             c.page = Page(
                 collection=query,
                 page=request.params.get('page', 1),
-                items_per_page=50
+                items_per_page=20
             )
-            
             return render('revision/list.html')
 
     def read(self, id=None):

@@ -1,5 +1,7 @@
 import datetime
+from time import mktime, gmtime
 
+from sqlalchemy.sql import select, and_, union, expression
 from sqlalchemy.orm import eagerload_all
 from pylons import config
 from meta import *
@@ -161,6 +163,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         '''Creates a new relationship between this package and a
         related_package. It leaves the caller to commit the change.'''
         import package_relationship
+        from ckan import model
         if type_ in package_relationship.PackageRelationship.get_forward_types():
             subject = self
             object_ = related_package
@@ -171,12 +174,21 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             object_ = self
         else:
             raise NotImplementedError, 'Package relationship type: %r' % type_
-            
-        rel = package_relationship.PackageRelationship(
-            subject=subject,
-            object=object_,
-            type=type_,
-            comment=comment)
+
+        rels = self.get_relationships(with_package=related_package,
+                                      type=type_, active=False, direction="forward")
+        if rels:
+            rel = rels[0]
+            if comment:
+                rel.comment=comment
+            if rel.state == model.State.DELETED:
+                rel.undelete()
+        else:
+            rel = package_relationship.PackageRelationship(
+                subject=subject,
+                object=object_,
+                type=type_,
+                comment=comment)
         Session.add(rel)
         return rel
 
@@ -227,28 +239,32 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         for rel in self.get_relationships():
             if rel.subject == self:
                 type_printable = PackageRelationship.make_type_printable(rel.type)
-                rel_list.append((rel.object, type_printable))
+                rel_list.append((rel.object, type_printable, rel.comment))
             else:
                 type_printable = PackageRelationship.make_type_printable(\
                     PackageRelationship.forward_to_reverse_type(
                         rel.type)
                     )
-                rel_list.append((rel.subject, type_printable))
+                rel_list.append((rel.subject, type_printable, rel.comment))
         # sibling types
         # e.g. 'gary' is a child of 'mum', looking for 'bert' is a child of 'mum'
         # i.e. for each 'child_of' type relationship ...
         for rel_as_subject in self.get_relationships(direction='forward'):
+            if rel_as_subject.state != State.ACTIVE:
+                continue
             # ... parent is the object
             parent_pkg = rel_as_subject.object
             # Now look for the parent's other relationships as object ...
             for parent_rel_as_object in parent_pkg.get_relationships(direction='reverse'):
+                if parent_rel_as_object.state != State.ACTIVE:
+                    continue
                 # and check children
                 child_pkg = parent_rel_as_object.subject
                 if child_pkg != self and \
                        parent_rel_as_object.type == rel_as_subject.type:
                     type_printable = PackageRelationship.inferred_types_printable['sibling']
-                    rel_list.append((child_pkg, type_printable))
-        return rel_list
+                    rel_list.append((child_pkg, type_printable, None))
+        return sorted(rel_list)
     #
     ## Licenses are currently integrated into the domain model here.   
  
@@ -313,7 +329,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     def diff(self, to_revision=None, from_revision=None):
         '''Overrides the diff in vdm, so that related obj revisions are
         diffed as well as PackageRevisions'''
-        import extras, resource
+        import package_extra, resource
         results = {} # field_name:diffs
         results.update(super(Package, self).diff(to_revision, from_revision))
         # Iterate over PackageTag, PackageExtra, PackageResources etc.
@@ -355,11 +371,60 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                         results[key] = value_diff
         return results
 
+    @staticmethod
+    def last_modified(*av):
+        """
+        Return most recent timestamp for a package revision, with optionally
+        extra where clause.
+        """
+        from ckan import model
+        where = []
+        for arg in av:
+            if isinstance(arg, expression.ClauseElement) or isinstance(arg, basestring):
+                where.append(arg)
+        where_clauses = [
+            and_(model.package_table.c.revision_id == model.revision_table.c.id, *where),
+            and_(model.package_extra_table.c.package_id == model.package_table.c.id,
+                 model.package_extra_table.c.revision_id == model.revision_table.c.id, *where),
+            and_(model.package_relationship_table.c.subject_package_id == model.package_table.c.id,
+                 model.package_relationship_table.c.revision_id == model.revision_table.c.id, *where),
+            and_(model.package_relationship_table.c.object_package_id == model.package_table.c.id,
+                 model.package_relationship_table.c.revision_id == model.revision_table.c.id, *where),
+            and_(model.package_resource_table.c.package_id == model.package_table.c.id,
+                 model.package_resource_table.c.revision_id == model.revision_table.c.id, *where),
+            and_(model.package_tag_table.c.package_id == model.package_table.c.id,
+                 model.package_tag_table.c.revision_id == model.revision_table.c.id, *where)
+            ]
+        query = union(*[select([model.revision_table.c.timestamp], x) for x in where_clauses]
+                      ).order_by("timestamp DESC").limit(1)
+        conn = model.meta.engine.connect()
+        result = conn.execute(query).fetchone()
+        timestamp = result[0].utctimetuple() if result else gmtime()
+        return mktime(timestamp)
+
+    @staticmethod
+    def get_fields(core_only=False, fields_to_ignore=None):
+        '''Returns a list of the properties of a package.
+        @param core_only - limit it to fields actually in the package table and
+                           not those on related objects, such as tags & extras.
+        @param fields_to_ignore - a list of names of fields to not return if
+                           present.
+        '''
+        # ['id', 'name', 'title', 'version', 'url', 'author', 'author_email', 'maintainer', 'maintainer_email', 'notes', 'license_id', 'state']
+        fields = Package.revisioned_fields()
+        if not core_only:
+            fields += ['resources', 'tags', 'extras', 'relationships']
+
+        if fields_to_ignore:
+            for field in fields_to_ignore:
+                fields.remove(field)
+
+        return fields
 
 def get_revisioned_classes_related_to_package():
     import resource
-    import extras
+    import package_extra
     import tag
     return [tag.PackageTag, resource.PackageResource,
-            extras.PackageExtra]
+            package_extra.PackageExtra]
 

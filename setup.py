@@ -26,10 +26,6 @@ setup(
         'Genshi>=0.6',
         'SQLAlchemy>=0.4.8,<=0.4.99',
         'repoze.who>=1.0.0,<1.0.99',
-        # ensure openid is 2.2.1, since the latest (2.2.3) which is pulled
-        # in by repoze.who.plugins.openid causes exception on importing the
-        # plugin.
-        'python-openid==2.2.1', 
         'repoze.who.plugins.openid>=0.5,<0.5.99',
         # uuid in python >= 2.5
         # 'uuid>=1.0',
@@ -46,6 +42,9 @@ setup(
         'blinker>=1.0',
         'xlrd>=0.7.1',
         'xlwt>=0.7.2',
+        ## required for harvesting
+        ## TODO: this could be removed if harvesting moved to worker
+        'lxml',
     ],
     extras_require = {
         'solr': ['solrpy>=0.9'],
@@ -77,11 +76,15 @@ setup(
     ratings = ckan.lib.cli:Ratings
     changes = ckan.lib.cli:Changes
     notifications = ckan.lib.cli:Notifications
+    harvester = ckan.lib.cli:Harvester
 
     [ckan.forms]
     standard = ckan.forms.package:get_standard_fieldset
     gov = ckan.forms.package_gov:get_gov_fieldset
-    ca = ckan.forms.package_ca:get_ca_fieldset
+
+    [ckan.search]
+    sql = ckan.lib.search.sql:SqlSearchBackend
+    solr = ckan.lib.search.solr_:SolrSearchBackend
     """,
     # setup.py test command needs a TestSuite so does not work with py.test
     # test_suite = 'nose.collector',

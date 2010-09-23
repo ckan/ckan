@@ -30,7 +30,7 @@ class GroupController(BaseController):
         auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, c.group)
         if not auth_for_read:
             abort(401, gettext('Not authorized to read %s') % id.encode('utf8'))
-
+            
         c.auth_for_edit = self.authorizer.am_authorized(c, model.Action.EDIT, c.group)
         c.auth_for_authz = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, c.group)
         
@@ -79,10 +79,10 @@ class GroupController(BaseController):
             group = model.Group.by_name(c.groupname)
             pkgs = [model.Package.by_name(name) for name in request.params.getall('Group-packages-current')]
             group.packages = pkgs
-            pkgids = request.params.getall('PackageGroup--package_id')
-            for pkgid in pkgids:
-                if pkgid:
-                    package = model.Session.query(model.Package).get(pkgid)
+            pkgnames = request.params.getall('PackageGroup--package_name')
+            for pkgname in pkgnames:
+                if pkgname:
+                    package = model.Package.by_name(pkgname)
                     if package and package not in group.packages:
                         group.packages.append(package)
             model.repo.commit_and_remove()
@@ -129,10 +129,10 @@ class GroupController(BaseController):
                 return render('group/edit.html')
             pkgs = [model.Package.by_name(name) for name in request.params.getall('Group-packages-current')]
             group.packages = pkgs
-            pkgids = request.params.getall('PackageGroup--package_id')
-            for pkgid in pkgids:
-                if pkgid:
-                    package = model.Session.query(model.Package).get(pkgid)
+            pkgnames = request.params.getall('PackageGroup--package_name')
+            for pkgname in pkgnames:
+                if pkgname:
+                    package = model.Package.by_name(pkgname)
                     if package and package not in group.packages:
                         group.packages.append(package)
             model.repo.commit_and_remove()
