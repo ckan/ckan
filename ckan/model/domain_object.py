@@ -50,10 +50,13 @@ class DomainObject(object):
         self.remove()
 
     def commit(self):
-        Session.commit()
+        self.Session.commit()
 
     def remove(self):
-        Session.remove()
+        self.Session.remove()
+
+    def delete(self):
+        self.Session.delete(self)
 
     def purge(self):
         sess = orm.object_session(self)

@@ -13,20 +13,38 @@ ACCESS_DENIED = [403]
 
 class ApiControllerTestCase(ControllerTestCase):
 
+    send_authorization_header = True
+    extra_environ = {}
+
     api_version = None
     ref_package_by = ''
     ref_group_by = ''
 
     def get(self, offset, status=[200]):
         response = self.app.get(offset, status=status,
-            extra_environ=self.extra_environ)
+            extra_environ=self.get_extra_environ())
         return response
 
     def post(self, offset, data, status=[200,201], *args, **kwds):
         params = '%s=1' % json.dumps(data)
         response = self.app.post(offset, params=params, status=status,
-            extra_environ=self.extra_environ)
+            extra_environ=self.get_extra_environ())
         return response
+
+    def app_delete(self, offset, status=[200,201], *args, **kwds):
+        response = self.app.delete(offset, status=status,
+            extra_environ=self.get_extra_environ())
+        return response
+
+    def get_extra_environ(self):
+        extra_environ = {}
+        for (key,value) in self.extra_environ.items():
+            if key == 'Authorization':
+                if self.send_authorization_header == True:
+                    extra_environ[key] = value
+            else:
+                extra_environ[key] = value
+        return extra_environ
 
     @classmethod
     def offset(self, path):
@@ -197,8 +215,11 @@ class ModelApiTestCase(ModelMethods, ApiControllerTestCase):
         self.source3 = None
         self.source4 = None
         self.source5 = None
+        self.job = None
 
     def teardown(self):
+        if self.job:
+            self.delete_commit(self.job)
         if self.source:
             self.delete_commit(self.source)
         if self.source1:
@@ -847,7 +868,7 @@ class ModelApiTestCase(ModelMethods, ApiControllerTestCase):
         assert 'url' in source_data, "No 'id' in changeset data: %s" % source_data
         self.assert_equal(source_data.get('url'), fixture_url)
 
-    def test_18_get_harvest_source_not_found(self):
+    def test_17_get_harvest_source_not_found(self):
         offset = self.offset('/rest/harvestsource/%s' % "notasource")
         self.app.get(offset, status=[404])
 
@@ -868,16 +889,15 @@ class ModelApiTestCase(ModelMethods, ApiControllerTestCase):
         source_data = self.data_from_res(res)
         self.assert_equal(len(source_data), 2)
         
-
     def test_18_get_harvesting_job_ok(self):
         # Setup harvesting job fixture.
         fixture_url = u'http://localhost/6'
-        source = self._create_harvest_source_fixture(url=fixture_url)
-        job = self._create_harvesting_job_fixture(source_id=source.id)
-        offset = self.offset('/rest/harvestingjob/%s' % job.id)
+        self.source = self._create_harvest_source_fixture(url=fixture_url)
+        self.job = self._create_harvesting_job_fixture(source_id=self.source.id)
+        offset = self.offset('/rest/harvestingjob/%s' % self.job.id)
         res = self.app.get(offset, status=[200])
         job_data = self.data_from_res(res)
-        self.assert_equal(job_data.get('source_id'), source.id)
+        self.assert_equal(job_data.get('source_id'), self.source.id)
 
     def test_18_get_harvesting_job_not_found(self):
         # Setup harvesting job fixture.
@@ -895,7 +915,7 @@ class ModelApiTestCase(ModelMethods, ApiControllerTestCase):
             'source_id': 'made-up-source-id',
             'user_ref': u'a_publisher_user',
         }
-        assert not model.HarvestingJob.get(u'a_publisher_user', None, 'user_ref')
+        assert not model.HarvestingJob.get(u'a_publisher_user', default=None, attr='user_ref')
         response = self.post(offset, job_details, status=400)
         job_error = self.data_from_res(response)
         assert "does not exist" in job_error
@@ -921,8 +941,34 @@ class ModelApiTestCase(ModelMethods, ApiControllerTestCase):
         assert new_job['id']
         self.assert_equal(new_job['source_id'], source.id)
         self.assert_equal(new_job['user_ref'], u'a_publisher_user')
-        model.HarvestingJob.get(source.id, attr='source_id')
+        self.job = model.HarvestingJob.get(source.id, attr='source_id')
         model.HarvestingJob.get(u'a_publisher_user', attr='user_ref')
+
+    def test_18_delete_harvesting_job_ok(self):
+        # Setup harvesting job fixture.
+        fixture_url = u'http://localhost/6'
+        self.source = self._create_harvest_source_fixture(url=fixture_url)
+        self.job = self._create_harvesting_job_fixture(source_id=self.source.id)
+        offset = self.offset('/rest/harvestingjob/%s' % self.job.id)
+        self.get(offset, status=[200])
+        res = self.app_delete(offset, status=[200])
+        self.get(offset, status=[404])
+
+    def test_18_delete_harvesting_job_denied(self):
+        self.send_authorization_header = False
+        # Setup harvesting job fixture.
+        fixture_url = u'http://localhost/6'
+        self.source = self._create_harvest_source_fixture(url=fixture_url)
+        self.job = self._create_harvesting_job_fixture(source_id=self.source.id)
+        offset = self.offset('/rest/harvestingjob/%s' % self.job.id)
+        self.get(offset, status=[200])
+        self.app_delete(offset, status=[403])
+
+    def test_18_delete_harvesting_job_not_found(self):
+        # Setup harvesting job fixture.
+        offset = self.offset('/rest/harvestingjob/%s' % "notajob")
+        self.get(offset, status=[404])
+
 
 # Note well, relationships are actually part of the Model API.
 class RelationshipsApiTestCase(ApiControllerTestCase):

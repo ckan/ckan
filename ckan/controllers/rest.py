@@ -432,8 +432,11 @@ class BaseRestController(BaseApiController):
         elif register == 'group' and not subregister:
             entity = model.Group.by_name(id)
             revisioned_details = None
+        elif register == 'harvestingjob' and not subregister:
+            entity = model.HarvestingJob.get(id, default=None)
+            revisioned_details = None
         else:
-            reponse.status_int = 400
+            response.status_int = 400
             return gettext('Cannot delete entity of this type: %s %s') % (register, subregister or '')
         if not entity:
             response.status_int = 404
@@ -640,12 +643,14 @@ class BaseRestController(BaseApiController):
         # If both args are None then just check the apikey corresponds
         # to a user.
         api_key = None
+        # Todo: Remove unused 'isOk' variable.
         isOk = False
 
         self.rest_api_user = self._get_username()
         log.debug('check access - user %r' % self.rest_api_user)
         
-        if action and entity and not isinstance(entity, model.PackageRelationship):
+        if action and entity and not isinstance(entity, model.PackageRelationship) \
+                and not isinstance(entity, model.HarvestingJob):
             if action != model.Action.READ and self.rest_api_user in (model.PSEUDO_USER__VISITOR, ''):
                 self.log.debug("Valid API key needed to make changes")
                 response.status_int = 403
