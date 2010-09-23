@@ -18,6 +18,10 @@ Here are the methods of the Form API.
 +-------------------------------+--------+-------------------------------------+---------------------------+
 | HarvestSource Create Form     | PUT    | HarvestSource-Create-Form-Submission|                           | 
 +-------------------------------+--------+-------------------------------------+---------------------------+
+| HarvestSource Edit Form       | GET    |                                     | HarvestSource-Edit-Form   | 
++-------------------------------+--------+-------------------------------------+---------------------------+
+| HarvestSource Edit Form       | PUT    | HarvestSource-Edit-Form-Submission  |                           | 
++-------------------------------+--------+-------------------------------------+---------------------------+
 
 * The form responses are used by clients within their HTML pages.
 

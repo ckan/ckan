@@ -32,6 +32,8 @@ __all__ = ['url_for',
            'TestController',
            'CreateTestData',
            'TestSearchIndexer',
+           'ModelMethods',
+           'CheckMethods',
         ]
 
 here_dir = os.path.dirname(os.path.abspath(__file__))
@@ -108,6 +110,9 @@ class TestController(object):
 
     def get_harvest_source_by_url(self, source_url, default=Exception):
         return model.HarvestSource.get(source_url, default, 'url')
+
+    def create_harvest_source(self, **kwds):
+        return model.HarvestSource.create_save(**kwds)             
 
     @classmethod
     def purge_package_by_name(self, package_name):
@@ -318,4 +323,72 @@ class TestSearchIndexer:
             cls.worker.async_callback(message.payload, message)
             message = cls.worker.consumer.fetch()
         cls.worker.consumer.close()        
+
+
+class ModelMethods(object):
+
+    def dropall(self):
+        model.repo.clean_db()
+
+    def rebuild(self):
+        model.repo.rebuild_db()
+        self.remove()
+
+    def add(self, domain_object):
+        model.Session.add(domain_object)
+
+    def add_commit(self, domain_object):
+        self.add(domain_object)
+        self.commit()
+
+    def add_commit_remove(self, domain_object):
+        self.add(domain_object)
+        self.commit_remove()
+
+    def delete(self, domain_object):
+        model.Session.delete(domain_object)
+
+    def delete_commit(self, domain_object):
+        self.delete(domain_object)
+        self.commit()
+
+    def delete_commit_remove(self, domain_object):
+        self.delete(domain_object)
+        self.commit()
+
+    def commit(self):
+        model.Session.commit()
+
+    def commit_remove(self):
+        self.commit()
+        self.remove()
+
+    def remove(self):
+        model.Session.remove()
+
+    def count_packages(self):
+        return model.Session.query(model.Package).count()
+
+
+class CheckMethods(object):
+
+    def assert_true(self, value):
+        assert value, "Not true: '%s'" % value
+
+    def assert_false(self, value):
+        assert not value, "Not false: '%s'" % value
+
+    def assert_equal(self, value1, value2):
+        assert value1 == value2, 'Not equal: %s' % ((value1, value2),)
+
+    def assert_isinstance(self, value, check):
+        assert isinstance(value, check), 'Not an instance: %s' % ((value, check),)
+    
+    def assert_raises(self, exception_class, callable, *args, **kwds): 
+        try:
+            callable(*args, **kwds)
+        except exception_class:
+            pass
+        else:
+            assert False, "Didn't raise '%s' when calling: %s with %s" % (exception_class, callable, (args, kwds))
 

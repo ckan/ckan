@@ -12,6 +12,8 @@ Here are the data formats for the Form API.
 +--------------------------------+---------------------------------------------------------------------------+
 | HarvestSource-Create-Form      | Form-FieldSet Form-FieldSet Form-FieldSet                                 |
 +--------------------------------+---------------------------------------------------------------------------+
+| HarvestSource-Edit-Form        | Form-FieldSet Form-FieldSet Form-FieldSet                                 |
++--------------------------------+---------------------------------------------------------------------------+
 | Form-FieldSet                  || <fieldset>                                                               |
 |                                ||     <legend>...</legend>                                                 |
 |                                ||     <dl>                                                                 |
@@ -34,6 +36,10 @@ Here are the data formats for the Form API.
 |                                | log_message: LOG-MESSAGE, author: AUTHOR }                                |
 +--------------------------------+---------------------------------------------------------------------------+
 | HarvestSource-Create-          | { form_data: [ (FIELD-NAME, FIELD-VALUE), (FIELD-NAME, FIELD-VALUE),      |
+|  Form-Submission               | (FIELD-NAME, FIELD-VALUE), ... ],                                         |
+|                                | user_ref: USER-REF, publisher_ref: PUBLISHER-REF }                        |
++--------------------------------+---------------------------------------------------------------------------+
+| HarvestSource-Edit-            | { form_data: [ (FIELD-NAME, FIELD-VALUE), (FIELD-NAME, FIELD-VALUE),      |
 |  Form-Submission               | (FIELD-NAME, FIELD-VALUE), ... ],                                         |
 |                                | user_ref: USER-REF, publisher_ref: PUBLISHER-REF }                        |
 +--------------------------------+---------------------------------------------------------------------------+
