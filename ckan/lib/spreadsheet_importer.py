@@ -199,7 +199,7 @@ class SpreadsheetPackageImporter(PackageImporter):
              'resources':[{'url':'http://static.wikipedia.org/'}]}
         '''
         import ckan.forms
-        standard_fields = [key.split('-')[-1] for key in ckan.forms.get_package_dict().keys()]
+        standard_fields = model.Package.get_fields()
 
         pkg_fs_dict = OrderedDict()
         for title, cell in pkg_xl_dict.items():

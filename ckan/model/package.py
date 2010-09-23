@@ -402,6 +402,25 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         timestamp = result[0].utctimetuple() if result else gmtime()
         return mktime(timestamp)
 
+    @staticmethod
+    def get_fields(core_only=False, fields_to_ignore=None):
+        '''Returns a list of the properties of a package.
+        @param core_only - limit it to fields actually in the package table and
+                           not those on related objects, such as tags & extras.
+        @param fields_to_ignore - a list of names of fields to not return if
+                           present.
+        '''
+        # ['id', 'name', 'title', 'version', 'url', 'author', 'author_email', 'maintainer', 'maintainer_email', 'notes', 'license_id', 'state']
+        fields = Package.revisioned_fields()
+        if not core_only:
+            fields += ['resources', 'tags', 'groups', 'extras', 'relationships']
+
+        if fields_to_ignore:
+            for field in fields_to_ignore:
+                fields.remove(field)
+
+        return fields
+
 def get_revisioned_classes_related_to_package():
     import resource
     import package_extra

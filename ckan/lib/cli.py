@@ -991,10 +991,13 @@ class Load(CkanCommand):
             filepath, api_url, api_key = self.args[1:]
             assert api_url.startswith('http://') and api_url.endswith('/api'), api_url
             # import them
-            from ckanext.getdata.bis import BisImporter
-            importer = BisImporter(filepath=filepath)            
-            unique_extra_field = 'external_reference'
+            from ckanext.dgu.bis.bis import BisImporter, BisLoader
+            importer = BisImporter(filepath=filepath)
+            loader = BisLoader
         elif data_type == 'ons':
+            from ckanext.dgu.ons.importer import OnsImporter
+            from ckanext.dgu.ons.loader import OnsLoader
+            from ckanext.dgu.ons.downloader import OnsData
             if len(self.args) != 4:
                 print 'Error: Wrong number of arguments for data type: %s' % data_type
                 print self.usage
@@ -1003,33 +1006,28 @@ class Load(CkanCommand):
             days = int(days)
             assert api_url.startswith('http://') and api_url.endswith('/api'), api_url
             # download data
-            from ckanext.getdata.ons_download import OnsData
             ons_data = OnsData()
             url, url_name = ons_data._get_url_recent(days=days)
             data_filepath = ons_data.download(url, url_name, force_download=True)
             
             # import them
-            from ckanext.getdata.ons_importer import OnsImporter
             importer = OnsImporter(filepath=data_filepath)
-            unique_extra_field = None
+            loader = OnsLoader
         else:
             print 'Error: Data type %r not recognised' % data_type
             print self.usage
             sys.exit(1)
 
         pkg_dicts = [pkg_dict for pkg_dict in importer.pkg_dict()]
-        log = importer.get_log()
-        if log:
-            print log
         print '%i packages' % len(pkg_dicts)
         if pkg_dicts:
             #raw_input('Press return to load packages')
+            print 'Loading packages...'
             # load them
             from ckanclient import CkanClient
-            from ckanext.getdata.loader import PackageLoader
             client = CkanClient(api_key=api_key, base_location=api_url,
                                 is_verbose=False)
-            loader = PackageLoader(client)
+            loader = loader(client)
             res = loader.load_packages(pkg_dicts)
             if res['num_errors'] == 0 and res['num_loaded']:
                 print 'SUCCESS'
@@ -1038,11 +1036,12 @@ class Load(CkanCommand):
             print '%i package loaded' % res['num_loaded']
 
             if res['num_loaded']:
-                raw_input('Press return to add them to the ukgov group')
+                #raw_input('Press return to add them to the ukgov group')
 
                 # add them to the group
+                print 'Adding them to the ukgov group...'
                 loader.add_pkgs_to_group(res['pkg_names'], 'ukgov')
-                print 'SUCCESS'
+                print '...SUCCESS'
 
 class Harvester(CkanCommand):
     '''Harvests remotely mastered metadata

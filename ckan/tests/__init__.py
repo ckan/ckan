@@ -299,6 +299,16 @@ class TestController(object):
 
 
 class TestSearchIndexer:
+    '''
+    Tests which use search can use this object to provide indexing
+    Usage:
+    model.notifier.initialise()
+    self.tsi = TestSearchIndexer()
+     (create packages)
+    self.tsi.index()
+     (do searching)
+    model.notifier.deactivate()
+    ''' 
     worker = None
     
     def __init__(self):
