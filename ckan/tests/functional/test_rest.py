@@ -133,7 +133,7 @@ class ApiUnversionedTestCase(Api1TestCase):
 
 
 
-class ModelApiTestCase(ApiControllerTestCase):
+class ModelApiTestCase(ModelMethods, ApiControllerTestCase):
 
     @classmethod
     def setup_class(self):
@@ -189,6 +189,28 @@ class ModelApiTestCase(ApiControllerTestCase):
         model.Session.remove()
         model.repo.rebuild_db()
         model.Session.remove()
+
+    def setup(self):
+        self.source = None
+        self.source1 = None
+        self.source2 = None
+        self.source3 = None
+        self.source4 = None
+        self.source5 = None
+
+    def teardown(self):
+        if self.source:
+            self.delete_commit(self.source)
+        if self.source1:
+            self.delete_commit(self.source1)
+        if self.source2:
+            self.delete_commit(self.source2)
+        if self.source3:
+            self.delete_commit(self.source3)
+        if self.source4:
+            self.delete_commit(self.source4)
+        if self.source5:
+            self.delete_commit(self.source5)
 
     def test_00_get_api(self):
         # Check interface resource (without a slash).
@@ -799,16 +821,6 @@ class ModelApiTestCase(ApiControllerTestCase):
             assert license['title'] == license.title
             assert license['url'] == license.url
 
-    def test_17_get_harvest_source(self):
-        # Setup harvest source fixture.
-        fixture_url = u'http://localhost/'
-        source = self._create_harvest_source_fixture(url=fixture_url)
-        offset = self.offset('/rest/harvestsource/%s' % source.id)
-        res = self.app.get(offset, status=[200])
-        source_data = self.data_from_res(res)
-        assert 'url' in source_data, "No 'id' in changeset data: %s" % source_data
-        self.assert_equal(source_data.get('url'), fixture_url)
-
     def _create_harvest_source_fixture(self, **kwds):
         source = model.HarvestSource(**kwds)
         model.Session.add(source)
@@ -825,24 +837,28 @@ class ModelApiTestCase(ApiControllerTestCase):
         assert job.id
         return job
 
-    def test_17_get_harvest_source(self):
+    def test_17_get_harvest_source_ok(self):
         # Setup harvest source fixture.
         fixture_url = u'http://localhost/'
-        source = self._create_harvest_source_fixture(url=fixture_url)
-        offset = self.offset('/rest/harvestsource/%s' % source.id)
+        self.source = self._create_harvest_source_fixture(url=fixture_url)
+        offset = self.offset('/rest/harvestsource/%s' % self.source.id)
         res = self.app.get(offset, status=[200])
         source_data = self.data_from_res(res)
         assert 'url' in source_data, "No 'id' in changeset data: %s" % source_data
         self.assert_equal(source_data.get('url'), fixture_url)
 
+    def test_18_get_harvest_source_not_found(self):
+        offset = self.offset('/rest/harvestsource/%s' % "notasource")
+        self.app.get(offset, status=[404])
+
     def test_17_list_harvest_source_for_publisher(self):
         # Setup harvest source fixtures.
         fixture_url = u'http://localhost/'
-        source1 = self._create_harvest_source_fixture(url=fixture_url+'1', publisher_ref=u'pub1')
-        source2 = self._create_harvest_source_fixture(url=fixture_url+'2', publisher_ref=u'pub1')
-        source3 = self._create_harvest_source_fixture(url=fixture_url+'3', publisher_ref=u'pub1')
-        source4 = self._create_harvest_source_fixture(url=fixture_url+'4', publisher_ref=u'pub2')
-        source5 = self._create_harvest_source_fixture(url=fixture_url+'5', publisher_ref=u'pub2')
+        self.source1 = self._create_harvest_source_fixture(url=fixture_url+'1', publisher_ref=u'pub1')
+        self.source2 = self._create_harvest_source_fixture(url=fixture_url+'2', publisher_ref=u'pub1')
+        self.source3 = self._create_harvest_source_fixture(url=fixture_url+'3', publisher_ref=u'pub1')
+        self.source4 = self._create_harvest_source_fixture(url=fixture_url+'4', publisher_ref=u'pub2')
+        self.source5 = self._create_harvest_source_fixture(url=fixture_url+'5', publisher_ref=u'pub2')
         offset = self.offset('/rest/harvestsource/publisher/pub1')
         res = self.app.get(offset, status=[200])
         source_data = self.data_from_res(res)
@@ -851,8 +867,9 @@ class ModelApiTestCase(ApiControllerTestCase):
         res = self.app.get(offset, status=[200])
         source_data = self.data_from_res(res)
         self.assert_equal(len(source_data), 2)
+        
 
-    def test_18_get_harvesting_job(self):
+    def test_18_get_harvesting_job_ok(self):
         # Setup harvesting job fixture.
         fixture_url = u'http://localhost/6'
         source = self._create_harvest_source_fixture(url=fixture_url)
@@ -861,6 +878,11 @@ class ModelApiTestCase(ApiControllerTestCase):
         res = self.app.get(offset, status=[200])
         job_data = self.data_from_res(res)
         self.assert_equal(job_data.get('source_id'), source.id)
+
+    def test_18_get_harvesting_job_not_found(self):
+        # Setup harvesting job fixture.
+        offset = self.offset('/rest/harvestingjob/%s' % "notajob")
+        self.app.get(offset, status=[404])
 
     def test_18_create_harvesting_job(self):
         # Setup harvest source fixture.
@@ -917,9 +939,6 @@ class RelationshipsApiTestCase(ApiControllerTestCase):
         model.Session.remove()
         model.repo.rebuild_db()
         model.Session.remove()
-
-    def setup(self):
-        pass
 
     def teardown(self):
         for relationship in self.anna.get_relationships():

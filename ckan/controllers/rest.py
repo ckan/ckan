@@ -201,14 +201,14 @@ class BaseRestController(BaseApiController):
             response_data = [pkgtag.package.name for pkgtag in obj.package_tags]
             return self._finish_ok(response_data)
         elif register == u'harvestsource':
-            obj = model.HarvestSource.get(id)
+            obj = model.HarvestSource.get(id, default=None)
             if obj is None:
                 response.status_int = 404
                 return ''            
             response_data = obj.as_dict()
             return self._finish_ok(response_data)
         elif register == u'harvestingjob':
-            obj = model.HarvestingJob.get(id)
+            obj = model.HarvestingJob.get(id, default=None)
             if obj is None:
                 response.status_int = 404
                 return ''            
@@ -615,7 +615,7 @@ class BaseRestController(BaseApiController):
         elif not source_id:
             opts_err = gettext('You must supply a source_id.')
         else:
-            source = model.HarvestSource.get(source_id, None)
+            source = model.HarvestSource.get(source_id, default=None)
             if not source:
                 opts_err = gettext('Harvest source %s does not exist.') % source_id
         if opts_err:
