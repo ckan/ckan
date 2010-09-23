@@ -1,12 +1,12 @@
-Package Forms
-=============
+Forms
+=====
 
-The form used to edit Packages in CKAN can be customised. This makes it easier to help users input data, helping them choose from sensible options or to use different data formats. This document sets out to show how this is achieved, without getting embroilled in the main CKAN code.
+The forms used to edit Packages and Groups in CKAN can be customised. This makes it easier to help users input data, helping them choose from sensible options or to use different data formats. This document sets out to show how this is achieved, without getting embroilled in the main CKAN code.
 
 Each form is defined in a python script and then 'plugged-in' to the CKAN code.
 The form script uses the FormBuilder to simply select from the standard field types, or even define some more field types. You can easily specify the content of drop-downs, hint text and the order of fields which are displayed.
 
-Note that this section deals with the form used to *edit* the package, not the way the package is displayed. Display is done in the CKAN templates.
+Note that this section deals with the form used to *edit* packages and groups, not the way they are displayed. Display is done in the CKAN templates.
 
 
 Location of related code
@@ -167,6 +167,8 @@ To register your new form with CKAN you need to do three things.
   [app:main]
   ...
   package_form = my_form
+  group_form = my_group_form
+  package_group_form = my_package_group_form
 
  For this to have an effect you may need to restart the pylons (either by restarting the 'serve' command or the Apache host). Now go and edit a package and try out the new form!
 

@@ -269,7 +269,7 @@ class BaseRestController(BaseApiController):
             elif register == 'group' and not subregister:
                 # Create a Group.
                 request_fa_dict = ckan.forms.edit_group_dict(ckan.forms.get_group_dict(), request_data)
-                fs = ckan.forms.get_group_fieldset('group_fs_combined').bind(model.Group, data=request_fa_dict, session=model.Session)
+                fs = ckan.forms.get_group_fieldset(combined=True).bind(model.Group, data=request_fa_dict, session=model.Session)
                 # ...continues below.
             elif register == 'rating' and not subregister:
                 # Create a Rating.
@@ -374,7 +374,7 @@ class BaseRestController(BaseApiController):
             elif register == 'group':
                 orig_entity_dict = ckan.forms.get_group_dict(entity)
                 request_fa_dict = ckan.forms.edit_group_dict(orig_entity_dict, request_data, id=entity.id)
-                fs = ckan.forms.get_group_fieldset('group_fs_combined')
+                fs = ckan.forms.get_group_fieldset(combined=True)
             fs = fs.bind(entity, data=request_fa_dict)
             validation = fs.validate()
             if not validation:

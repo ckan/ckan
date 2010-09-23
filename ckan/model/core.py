@@ -9,6 +9,7 @@ revision_table = vdm.sqlalchemy.make_revision_table(metadata)
 class System(DomainObject):
     def __str__(self):
         return 'System'
+    __repr__ = __str__
     def purge(self):
         pass
 
