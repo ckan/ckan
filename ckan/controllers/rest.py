@@ -112,13 +112,18 @@ class BaseRestController(BaseApiController):
             response_data = [l.as_dict() for l in licenses]
             return self._finish_ok(response_data)
         elif register == u'harvestsource':
+            filter_kwds = {}
             if id == 'publisher':
-                publisher_ref = subregister
-                s = model.HarvestSource.filter(publisher_ref=publisher_ref)
-            else:
-                raise Exception, "Not picking up publisher part."
-                s = model.HarvestSource.filter()
-            response_data = [o.id for o in s]
+                filter_kwds['publisher_ref'] = subregister
+            objects = model.HarvestSource.filter(**filter_kwds)
+            response_data = [o.id for o in objects]
+            return self._finish_ok(response_data)
+        elif register == u'harvestingjob':
+            filter_kwds = {}
+            if id == 'status':
+                filter_kwds['status'] = subregister.lower().capitalize()
+            objects = model.HarvestingJob.filter(**filter_kwds)
+            response_data = [o.id for o in objects]
             return self._finish_ok(response_data)
         else:
             response.status_int = 400

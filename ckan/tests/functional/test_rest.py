@@ -216,10 +216,19 @@ class ModelApiTestCase(ModelMethods, ApiControllerTestCase):
         self.source4 = None
         self.source5 = None
         self.job = None
+        self.job1 = None
+        self.job2 = None
+        self.job3 = None
 
     def teardown(self):
         if self.job:
             self.delete_commit(self.job)
+        if self.job1:
+            self.delete_commit(self.job1)
+        if self.job2:
+            self.delete_commit(self.job2)
+        if self.job3:
+            self.delete_commit(self.job3)
         if self.source:
             self.delete_commit(self.source)
         if self.source1:
@@ -907,7 +916,7 @@ class ModelApiTestCase(ModelMethods, ApiControllerTestCase):
     def test_18_create_harvesting_job(self):
         # Setup harvest source fixture.
         fixture_url = u'http://localhost/7'
-        source = self._create_harvest_source_fixture(url=fixture_url)
+        self.source = self._create_harvest_source_fixture(url=fixture_url)
         # Prepare and send POST request to register.
         offset = self.offset('/rest/harvestingjob')
         #  - invalid example.
@@ -922,27 +931,65 @@ class ModelApiTestCase(ModelMethods, ApiControllerTestCase):
         assert not model.HarvestingJob.get(u'a_publisher_user', default=None, attr='user_ref')
         #  - invalid example.
         job_details = {
-            'source_id': source.id,
+            'source_id': self.source.id,
             'user_ref': u'',
         }
         assert not model.HarvestingJob.get(u'a_publisher_user', None, 'user_ref')
         response = self.post(offset, job_details, status=400)
         job_error = self.data_from_res(response)
         assert "You must supply a user_ref" in job_error
-        assert not model.HarvestingJob.get(source.id, default=None, attr='source_id')
+        assert not model.HarvestingJob.get(self.source.id, default=None, attr='source_id')
         #  - valid example.
         job_details = {
-            'source_id': source.id,
+            'source_id': self.source.id,
             'user_ref': u'a_publisher_user',
         }
         assert not model.HarvestingJob.get(u'a_publisher_user', None, 'user_ref')
         response = self.post(offset, job_details)
         new_job = self.data_from_res(response)
         assert new_job['id']
-        self.assert_equal(new_job['source_id'], source.id)
+        self.assert_equal(new_job['source_id'], self.source.id)
         self.assert_equal(new_job['user_ref'], u'a_publisher_user')
-        self.job = model.HarvestingJob.get(source.id, attr='source_id')
+        self.job = model.HarvestingJob.get(self.source.id, attr='source_id')
         model.HarvestingJob.get(u'a_publisher_user', attr='user_ref')
+
+    def test_18_get_harvesting_job_register_filter_by_status(self):
+        # Setup harvest source fixture.
+        fixture_url = u'http://localhost/8'
+        self.source = self._create_harvest_source_fixture(url=fixture_url)
+        self.job = self._create_harvesting_job_fixture(source_id=self.source.id)
+        register_offset = self.offset('/rest/harvestingjob')
+        self.assert_equal(self.job.status, 'New')
+ 
+        filter_offset = '/status/new'
+        offset = register_offset + filter_offset
+        res = self.get(offset)
+        data = self.data_from_res(res)
+        self.assert_equal(data, [self.job.id])
+
+        filter_offset = '/status/error'
+        offset = register_offset + filter_offset
+        res = self.get(offset)
+        data = self.data_from_res(res)
+        self.assert_equal(data, [])
+
+        self.job.status = u'Error'
+        self.job.save()
+        res = self.get(offset)
+        data = self.data_from_res(res)
+        self.assert_equal(data, [self.job.id])
+
+        filter_offset = '/status/new'
+        offset = register_offset + filter_offset
+        res = self.get(offset)
+        data = self.data_from_res(res)
+        self.assert_equal(data, [])
+
+        filter_offset = '/status/error'
+        offset = register_offset + filter_offset
+        res = self.get(offset)
+        data = self.data_from_res(res)
+        self.assert_equal(data, [self.job.id])
 
     def test_18_delete_harvesting_job_ok(self):
         # Setup harvesting job fixture.
