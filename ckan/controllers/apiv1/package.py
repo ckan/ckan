@@ -136,7 +136,7 @@ class PackageController(RestController):
                     response.write(self._finish_ok(obj.as_dict()))
             except ValueError, inst:
                 response.status_int = 400
-                response.write(gettext('JSON Error: %s') % str(inst))
+                response.write(_('JSON Error: %s') % str(inst))
             except ckan.forms.PackageDictFormatError, inst:
                 response.status_int = 400
                 response.write(_(u'Package format incorrect: %s') % str(inst))
