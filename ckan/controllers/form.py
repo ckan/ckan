@@ -150,6 +150,14 @@ class BaseFormController(BaseApiController):
             raise Exception, msg
         response.headers[name] = value
 
+    def _set_response_header(self, name, value):
+        try:
+            value = str(value)
+        except Exception, inst:
+            msg = "Couldn't convert '%s' header value '%s' to string: %s" % (name, value, inst)
+            raise Exception, msg
+        response.headers[name] = value
+
     def package_edit(self, id):
         try:
             # Find the entity.
