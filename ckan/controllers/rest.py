@@ -376,6 +376,7 @@ class BaseRestController(BaseApiController):
                 request_fa_dict = ckan.forms.edit_group_dict(orig_entity_dict, request_data, id=entity.id)
                 fs = ckan.forms.get_group_fieldset(combined=True)
             fs = fs.bind(entity, data=request_fa_dict)
+            
             validation = fs.validate()
             if not validation:
                 response.status_int = 409

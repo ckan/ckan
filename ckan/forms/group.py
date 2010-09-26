@@ -46,7 +46,7 @@ class PackagesRenderer(formalchemy.fields.FieldRenderer):
         html = fa_h.text_field(self.name, **kwargs)
         return html
 
-def build_group_form(with_packages=False):
+def build_group_form(is_admin=False, with_packages=False):
     builder = FormBuilder(model.Group)
     builder.set_field_text('name', 'Unique Name (required)', literal("<br/><strong>Unique identifier</strong> for group.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'"))
     builder.set_field_option('name', 'validate', common.group_name_validator)
@@ -63,13 +63,14 @@ def build_group_form(with_packages=False):
 
 fieldsets = {}
 
-def get_group_fieldset(combined=False):
+def get_group_fieldset(combined=False, is_admin=False):
     if not 'group_fs' in fieldsets:
         # group_fs has no packages - first half of the WUI form
-        fieldsets['group_fs'] = build_group_form().get_fieldset()
+        fieldsets['group_fs'] = build_group_form(is_admin=is_admin).get_fieldset()
         
         # group_fs_combined has packages - used for REST interface
-        fieldsets['group_fs_combined'] = build_group_form(with_packages=True).get_fieldset()
+        fieldsets['group_fs_combined'] = build_group_form(is_admin=is_admin, 
+                                                          with_packages=True).get_fieldset()
     if combined:
         return fieldsets['group_fs_combined']
     return fieldsets['group_fs']

@@ -122,7 +122,6 @@ class PackageController(RestController):
                         rev.author = self.rest_api_user
                         rev.message = _(u'REST API: Update object %s') % str(fs.name.value)
                         fs.sync()
-
                         model.repo.commit()        
                     except Exception, inst:
                         log.exception(inst)

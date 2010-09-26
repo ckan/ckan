@@ -54,7 +54,7 @@ default_role_actions = [
     (Role.EDITOR, Action.GROUP_CREATE),
     (Role.EDITOR, Action.READ),        
     (Role.READER, Action.PACKAGE_CREATE),
-    (Role.READER, Action.GROUP_CREATE),
+    #(Role.READER, Action.GROUP_CREATE),
     (Role.READER, Action.READ),
     ]
 
@@ -300,7 +300,7 @@ def setup_default_user_roles(domain_object, admins=[]):
         visitor_roles = [Role.READER]
         logged_in_roles = [Role.READER]
     elif type(domain_object) == System:
-        visitor_roles = [Role.EDITOR]
+        visitor_roles = [Role.READER]
         logged_in_roles = [Role.EDITOR]
     elif type(domain_object) == AuthorizationGroup:
         visitor_roles = [Role.READER]

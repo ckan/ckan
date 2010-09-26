@@ -51,10 +51,14 @@ class GroupController(BaseController):
     def new(self):
         record = model.Group
         c.error = ''
-        if not c.user:
-            abort(401, gettext('Must be logged in to create a new group.'))
-
-        fs = ckan.forms.get_group_fieldset()
+        
+        auth_for_create = self.authorizer.am_authorized(c, model.Action.GROUP_CREATE, model.System())
+        if not auth_for_create:
+            abort(401, str(gettext('Unauthorized to create a group')))
+        
+        is_admin = self.authorizer.is_sysadmin(c.user)
+        
+        fs = ckan.forms.get_group_fieldset(is_admin=is_admin)
 
         if request.params.has_key('save'):
             # needed because request is nested
@@ -102,13 +106,15 @@ class GroupController(BaseController):
         am_authz = self.authorizer.am_authorized(c, model.Action.EDIT, group)
         if not am_authz:
             abort(401, gettext('User %r not authorized to edit %r') % (c.user, id))
-
+            
+        is_admin = self.authorizer.is_sysadmin(c.user)
+        
         if not 'save' in request.params:
             c.group = group
             c.groupname = group.name
             c.grouptitle = group.title
             
-            fs = ckan.forms.get_group_fieldset().bind(c.group)
+            fs = ckan.forms.get_group_fieldset(is_admin=is_admin).bind(c.group)
             c.form = self._render_edit_form(fs)
             return render('group/edit.html')
         else:
