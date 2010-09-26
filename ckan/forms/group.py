@@ -9,7 +9,7 @@ import common
 from common import ExtrasField, PackageNameField
 from ckan.lib.helpers import literal
 
-__all__ = ['get_group_fieldset', 'get_group_dict', 'edit_group_dict']
+__all__ = ['get_group_dict', 'edit_group_dict']
 
 # for group_fs_combined (REST)
 class PackagesField(common.ConfiguredField):
@@ -46,7 +46,7 @@ class PackagesRenderer(formalchemy.fields.FieldRenderer):
         html = fa_h.text_field(self.name, **kwargs)
         return html
 
-def build_group_form(with_packages=False):
+def build_group_form(is_admin=False, with_packages=False):
     builder = FormBuilder(model.Group)
     builder.set_field_text('name', 'Unique Name (required)', literal("<br/><strong>Unique identifier</strong> for group.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'"))
     builder.set_field_option('name', 'validate', common.group_name_validator)
@@ -62,14 +62,21 @@ def build_group_form(with_packages=False):
     return builder  
 
 fieldsets = {}
-def get_group_fieldset(name):
-    if not fieldsets:
+
+def get_group_fieldset(combined=False, is_admin=False):
+    if not 'group_fs' in fieldsets:
         # group_fs has no packages - first half of the WUI form
-        fieldsets['group_fs'] = build_group_form().get_fieldset()
+        fieldsets['group_fs'] = build_group_form(is_admin=is_admin).get_fieldset()
         
         # group_fs_combined has packages - used for REST interface
-        fieldsets['group_fs_combined'] = build_group_form(with_packages=True).get_fieldset()
+        fieldsets['group_fs_combined'] = build_group_form(is_admin=is_admin, 
+                                                          with_packages=True).get_fieldset()
+    if combined:
+        return fieldsets['group_fs_combined']
+    return fieldsets['group_fs']
 
+def get_package_group_fieldset():
+    if not 'new_package_group_fs' in fieldsets:
         # new_package_group_fs is the packages for the WUI form
         builder = FormBuilder(model.PackageGroup)
         builder.add_field(PackageNameField('package_name'))
@@ -77,15 +84,14 @@ def get_group_fieldset(name):
         builder.set_displayed_fields({'Add packages':['package_name']},
                                      focus_field=False)
         fieldsets['new_package_group_fs'] = builder.get_fieldset()
-    return fieldsets[name]
-
+    return fieldsets['new_package_group_fs']
     
 def get_group_dict(group=None):
     indict = {}
     if group:
-        fs = get_group_fieldset('group_fs').bind(group)
+        fs = get_group_fieldset().bind(group)
     else:
-        fs = get_group_fieldset('group_fs')
+        fs = get_group_fieldset()
 
     exclude = ('-id', '-roles', '-created')
 

@@ -8,6 +8,7 @@ from pylons import c
 from pylons.i18n import _, ungettext, N_, gettext
 
 from ckan.lib.helpers import literal
+from ckan.authz import Authorizer
 import ckan.model as model
 import ckan.lib.helpers as h
 import ckan.lib.field_types as field_types
@@ -575,6 +576,137 @@ class ExtrasField(ConfiguredField):
                     if not delete:
                         extra_fields.append((key, value))
             return extra_fields
+
+
+class GroupSelectField(ConfiguredField):
+    '''A form field for selecting groups'''
+    
+    def __init__(self, name, allow_empty=True, multiple=True):
+        super(GroupSelectField, self).__init__(name)
+        self.allow_empty = allow_empty
+        self.multiple = multiple
+    
+    def get_configured(self):
+        field = self.GroupSelectionField(self.name, self.allow_empty).with_renderer(self.GroupSelectEditRenderer)
+        field.set(multiple=self.multiple)
+        return field
+
+    class GroupSelectionField(formalchemy.Field):
+        
+        def __init__(self, name, allow_empty):
+            formalchemy.Field.__init__(self, name)
+            self.allow_empty = allow_empty
+        
+        def sync(self):
+            if not self.is_readonly():
+                self._update_groups()
+
+        def _update_groups(self):
+            return self._deserialize() or []
+            
+        def requires_label(self):
+            return False
+        requires_label = property(requires_label)
+
+    class GroupSelectEditRenderer(formalchemy.fields.FieldRenderer):
+        def _get_value(self, **kwargs):
+            return self.field.parent.model.groups
+        
+        def render(self, **kwargs):
+            from pylons import c
+            if not hasattr(c, 'user'):
+                c.user = model.PSEUDO_USER__VISITOR
+            available_groups = Authorizer.authorized_query(c.user, model.Group, 
+                                                        action=model.Action.EDIT).all()
+            
+            c.new_name = self.name + '-new'
+            
+            c.fields = []
+            for group in self._get_value():
+                if group in available_groups:
+                    available_groups.remove(group)
+                c.fields.append({'id': group.id,
+                                 'name': self.name + '-' + group.id,
+                                 'title': group.title})
+                
+            c.options = []
+            if len(available_groups):
+                if self.field.allow_empty or len(c.fields):
+                    c.options.append(('', _('(None)')))
+            for group in available_groups:
+                c.options.append((group.id, group.title))
+            
+            html = render('package/form_groups.html')
+            return h.literal(html)
+
+        def render_readonly(self, **kwargs):
+            return field_readonly_renderer(self.field.key, self._get_value())
+
+        def _serialized_value(self):
+            name = self.name.encode('utf-8')
+            return [v for k, v in self.params.items() if k.startswith(name)]
+        
+        def deserialize(self):
+            from pylons import c
+            if not hasattr(c, 'user'):
+                c.user = model.PSEUDO_USER__VISITOR
+            groups = self._get_value()
+            group_ids = self._serialized_value() # space separated string
+            for group_id in group_ids:
+                group = model.Session.query(model.Group).autoflush(False).get(group_id)
+                if group is None or group in groups:
+                    continue
+                if not Authorizer.am_authorized(c, model.Action.EDIT, group):
+                    continue
+                groups.append(group)
+            for group in groups:
+                if group.id in group_ids:
+                    continue
+                if not Authorizer.am_authorized(c, model.Action.EDIT, group):
+                    continue
+                groups.remove(group)
+            self.field.parent.model.groups = groups
+            return groups
+
+
+class SelectExtraField(TextExtraField):
+    '''A form field for text suggested from from a list of options, that is
+    stored in an "extras" field.'''
+    
+    def __init__(self, name, options, allow_empty=True):
+        self.options = options[:]
+        self.allow_empty = allow_empty
+        # ensure options have key and value, not just a value
+        for i, option in enumerate(self.options):
+            if not isinstance(option, (tuple, list)):
+                self.options[i] = (option, option)
+        super(SelectExtraField, self).__init__(name)
+
+    def get_configured(self):
+        field = self.TextExtraField(self.name, options=self.options)
+        field.allow_empty = self.allow_empty
+        return field.with_renderer(self.SelectRenderer)
+        
+
+    class SelectRenderer(formalchemy.fields.FieldRenderer):
+        def _get_value(self, **kwargs):
+            extras = self.field.parent.model.extras
+            return self.value 
+
+        def render(self, options, **kwargs):
+            selected = self._get_value()
+            if self.field.allow_empty:
+                options = [(_('(None)'), '')] + options
+            
+            html = literal(fa_h.select(self.name, selected, options, **kwargs))
+            return html
+
+        def render_readonly(self, **kwargs):
+            return field_readonly_renderer(self.field.key, self._get_value())
+
+        def _serialized_value(self):
+            return self.params.get(self.name, u'')
+
 
 class SuggestedTextExtraField(TextExtraField):
     '''A form field for text suggested from from a list of options, that is
