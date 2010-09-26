@@ -127,7 +127,7 @@ class TestDefaultRoles(object):
     def test_create(self):
         assert self.is_allowed(model.Role.READER, model.Action.PACKAGE_CREATE)
         assert self.is_allowed(model.Role.EDITOR, model.Action.PACKAGE_CREATE)
-        assert self.is_allowed(model.Role.READER, model.Action.GROUP_CREATE)
+        assert not self.is_allowed(model.Role.READER, model.Action.GROUP_CREATE)
         assert self.is_allowed(model.Role.EDITOR, model.Action.GROUP_CREATE)
 
     def test_edit_permissions(self):

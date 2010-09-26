@@ -1,3 +1,4 @@
+import sqlalchemy as sa
 import ckan.model as model
 import ckan.model.authz as mauthz
 import ckan.authz
@@ -109,9 +110,11 @@ class TestLockedDownAuthorizer(object):
 
     @classmethod
     def setup_class(self):
-        q = model.Session.query(model.UserObjectRole).filter(model.UserObjectRole.role==Role.EDITOR)
+        q = model.Session.query(model.UserObjectRole).filter(sa.or_(model.UserObjectRole.role==Role.EDITOR,
+                                                                    model.UserObjectRole.role==Role.READER))
         q = q.filter(model.UserObjectRole.user==model.User.by_name(u"visitor"))
-        model.Session.delete(q.one())
+        for role in q:
+            model.Session.delete(role)
         model.repo.commit_and_remove()
         
         model.Session.add(model.Package(name=u'testpkg'))
