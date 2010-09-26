@@ -8,6 +8,7 @@ from package import *
 from group import Group
 from types import make_uuid
 from user import User
+from core import System
 from authorization_group import AuthorizationGroup, authorization_group_table
 
 PSEUDO_USER__LOGGED_IN = u'logged_in'
@@ -239,6 +240,11 @@ def remove_authorization_group_from_role(authorization_group, role, domain_obj):
     objectrole.remove_authorization_group_from_role(authorization_group, role, domain_obj)
     
 
+def validate_authorization_setup():
+    # since some of the authz config mgmt is taking place in DB, this should 
+    # be validated on launch. it is a bit like a lazy migration, but seems 
+    # sensible to make sure authz is always correct. 
+    setup_default_user_roles(System())
 
 ## TODO: this should be in ckan/authz.py
 def setup_user_roles(domain_object, visitor_roles, logged_in_roles, admins=[]):
