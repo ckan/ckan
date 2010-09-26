@@ -51,7 +51,7 @@ def markdown_extract(text):
         return ''
     html = fromstring(markdown(text))
     plain = html.xpath("string()")
-    return truncate(plain, length=190, indicator='...', whole_word=True)
+    return unicode(truncate(plain, length=270, indicator='...', whole_word=True))
 
 def icon_url(name):
     return '/images/icons/%s.png' % name
