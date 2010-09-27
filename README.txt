@@ -175,12 +175,26 @@ Now start the starts:
   $ nosetests pyenv/src/ckan/ckan/tests
 
 
+Development
+===========
+
+CKAN is an open source project and contributions are welcome! 
+
+There are a number of stakeholders in the direction of the project, so we discuss large changes and new features on the ckan-discuss list: http://lists.okfn.org/mailman/listinfo/ckan-discuss
+
+New developers should aquaint themselves with the documentation (see below) and proposed patches emailed to ckan-discuss. Once they are comfortable they should request write-access to the repo.
+
+We have policies for check-ins that ensure the build doesn't break etc. on https://knowledgeforge.net/ckan/trac#ProjectProcessesandPolicies which should be followed unless someone builds concensus to change it.
+
+
 Documentation
 =============
 
 The home page for the CKAN project is: http://knowledgeforge.net/ckan
 
-This file is part of the developer docs. The complete developer docs are built from the ckan repository using `Sphinx <http://sphinx.pocoo.org/>`_ and uploaded by an admin to KnowledgeForge. To build the developer docs::
+This README file is part of the Developer Documentation, viewable at: `http://knowledgeforge.net/ckan/doc/ckan/index.html`_ and stored in the CKAN repo at ckan/doc. 
+
+The Developer Docs are built using `Sphinx <http://sphinx.pocoo.org/>`_ and uploaded by an admin to KnowledgeForge. To build the developer docs::
 
       python setup.py build_sphinx
  
