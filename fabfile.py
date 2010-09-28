@@ -134,6 +134,18 @@ def config_0(name, hosts_str='', requirements='pip-requirements-metastable.txt',
     env.ckan_instance_name = name
     env.base_dir = '/home/%s/var/srvc' % env.user
     env.config_ini_filename = '%s.ini' % name
+    # check if the host is just a squid caching a ckan running on another host
+    assert len(env.hosts) == 1, 'Must specify one host'
+    env.host_string = env.hosts[0]
+    if exists('/etc/squid3/squid.conf'):
+        # e.g. acl eu7_sites dstdomain ckan.net
+        conf_line = run('grep -E "^acl .* %s" /etc/squid3/squid.conf' % env.host_string)
+        if conf_line:
+            host_txt = conf_line.split()[1].replace('_sites', '.okfn.org')
+            env.hosts = [host_txt]
+            print 'Found Squid cache is of CKAN host: %s' % host_txt
+        else:
+            print 'Found Squid cache but did not find host in config.'
     env.pip_requirements = requirements
     env.db_pass = db_pass
     env.log_filename_pattern = name + '.%s.log'
