@@ -273,6 +273,17 @@ def restart_apache():
     'Restart apache'
     sudo('/etc/init.d/apache2 restart')
 
+def status():
+    'Provides version number info'
+    _setup()
+    with cd(env.instance_path):
+        run('pip freeze')
+    with cd(os.path.join(env.pyenv_dir, 'src', 'ckan')):
+        run('hg log -l 1')
+        run('hg branch')
+        run('hg identify')
+        run('grep version ckan/__init__.py')
+
 def backup():
     'Backup database'
     _setup()
