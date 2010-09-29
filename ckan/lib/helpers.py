@@ -17,8 +17,13 @@ from alphabet_paginate import AlphaPage
 from lxml.html import fromstring
 
 try:
+    from collections import OrderedDict # from python 2.7
+except ImportError:
+    from sqlalchemy.util import OrderedDict
+
+try:
     import json
-except Exception:
+except ImportError:
     import simplejson as json
 
 # FIXME: shouldn't have to pass the c object in to this.
