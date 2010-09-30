@@ -278,6 +278,7 @@ def status():
     _setup()
     with cd(env.instance_path):
         run('pip freeze')
+        run('cat %s' % env.config_ini_filename)
     with cd(os.path.join(env.pyenv_dir, 'src', 'ckan')):
         run('hg log -l 1')
         run('hg branch')
