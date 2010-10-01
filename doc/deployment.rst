@@ -21,6 +21,10 @@ Here's an example for deploying CKAN to http://demo.ckan.net/ via Apache.
    libpq-dev              PostgreSQL library
    python-psycopg2        PostgreSQL python module
    python-setuptools      Python package management
+   python-libxml2         Python XML library
+   python-libxslt1        Python XSLT library
+   libxml2-dev            XML library development files
+   libxslt1-dev           XSLT library development files
    =====================  ============================================
 
    Now use easy_install (which comes with python-setuptools) to install
@@ -37,7 +41,7 @@ Here's an example for deploying CKAN to http://demo.ckan.net/ via Apache.
    Check that you received:
 
     * virtualenv v1.3 or later
-    * pip v0.7.1 or later
+    * pip v0.4 or later
 
 
 NB: Instead of using these manual instructions, steps 3 to 10 can be achieved
