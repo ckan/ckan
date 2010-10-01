@@ -72,7 +72,6 @@ def load_environment(global_conf, app_conf):
     # any Pylons config options)    
 
     # Setup the SQLAlchemy database engine
-    import pdb; pdb.set_trace()
     engine = engine_from_config(config, 'sqlalchemy.', pool_threadlocal=True)
     model.init_model(engine)
    
