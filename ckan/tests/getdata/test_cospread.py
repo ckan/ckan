@@ -174,7 +174,8 @@ class TestData3:
         assert pkg1.url == 'http://www.justice.gov.uk/publications/judicialandcourtstatistics.htm', pkg1.url
         assert len(pkg1.resources) == 0, pkg1.resources
         assert len(pkg2.resources) == 3, pkg2.resources
-        assert pkg2.resources[0].url == u'http://www.connectingforhealth.nhs.uk/systemsandservices/data/ods/data-files/ro.csv', pkg1.resources[0]
+        print pkg2.resources
+        assert pkg2.resources[0].url == u'http://www.connectingforhealth.nhs.uk/systemsandservices/data/ods/data-files/ro.csv', pkg2.resources[0]
         assert pkg2.resources[0].format == u'CSV', pkg2.resources[0]
         assert pkg2.resources[0].description == u'Regional directorates', pkg2.resources[0]
         assert pkg2.resources[1].url == u'http://www.connectingforhealth.nhs.uk/systemsandservices/data/ods/data-files/ha.csv', pkg2.resources[1]

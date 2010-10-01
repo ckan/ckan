@@ -28,8 +28,11 @@
             <dd>
               ${h.literal(field.render())}
             </dd>
-            <py:if test="field.metadata.has_key('instructions')">
-              <dd class="instructions">${field.metadata['instructions']}</dd>
+            <py:if test="field.metadata.has_key('basic_instructions')">
+              <dd id="basic_instructions" class="instructions">${field.metadata['basic_instructions']}</dd>
+            </py:if>
+            <py:if test="field.metadata.has_key('further_instructions')">
+              <dd id="further_instructions" class="instructions">${field.metadata['further_instructions']}</dd>
             </py:if>
             <py:if test="field.metadata.has_key('hints')">
               <dd class="hints">${field.metadata['hints']}</dd>
