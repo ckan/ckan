@@ -1,4 +1,4 @@
-from lib_api import *
+from ckan.tests.functional.api.base import *
 
 class BaseModelApiTestCase(ModelMethods, ApiControllerTestCase):
 
@@ -624,6 +624,8 @@ class ModelApiTestCase(BaseModelApiTestCase):
 
     def test_14_get_revision(self):
         rev = model.repo.history().all()[-2] # 2nd revision is the creation of pkgs
+        assert rev.id
+        assert rev.timestamp.isoformat()
         offset = self.offset('/rest/revision/%s' % rev.id)
         response = self.app.get(offset, status=[200])
         response_data = self.data_from_res(response)
@@ -632,7 +634,7 @@ class ModelApiTestCase(BaseModelApiTestCase):
         assert 'packages' in response_data
         packages = response_data['packages']
         assert isinstance(packages, list)
-        assert len(packages) != 0, "Revision packages is empty: %s" % packages
+        #assert len(packages) != 0, "Revision packages is empty: %s" % packages
         assert self.ref_package(self.anna) in packages, packages
         assert self.ref_package(self.war) in packages, packages
 
