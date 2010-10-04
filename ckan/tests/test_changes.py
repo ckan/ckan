@@ -44,6 +44,7 @@ class TestControllerWithForeign(TestController):
                 break
         return f.read()
 
+from nose.plugins.skip import SkipTest
 
 class TestDistributingChanges(TestControllerWithForeign):
 
@@ -57,6 +58,7 @@ class TestDistributingChanges(TestControllerWithForeign):
         self._paster('changes update', 'test_sync.ini')
 
     def test_pull(self):
+        raise SkipTest()
         self.sub_app_get('/')
         self.app.get('/')
         self.commit()
