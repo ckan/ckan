@@ -1,139 +1,6 @@
-from pylons import config
-import webhelpers.util
-import re
+from lib_api import *
 
-from ckan.tests import *
-from ckan.tests import TestController as ControllerTestCase
-import ckan.model as model
-import ckan.authz as authz
-from ckan.lib.create_test_data import CreateTestData
-from ckan.lib.helpers import json
-
-ACCESS_DENIED = [403]
-
-class ApiControllerTestCase(ControllerTestCase):
-
-    api_version = None
-    ref_package_by = ''
-    ref_group_by = ''
-
-    def get(self, offset, status=[200]):
-        response = self.app.get(offset, status=status,
-            extra_environ=self.extra_environ)
-        return response
-
-    def post(self, offset, data, status=[200,201], *args, **kwds):
-        params = '%s=1' % json.dumps(data)
-        response = self.app.post(offset, params=params, status=status,
-            extra_environ=self.extra_environ)
-        return response
-
-    @classmethod
-    def offset(self, path):
-        assert self.api_version != None, "API version is missing."
-        base = '/api'
-        if self.api_version:
-            base += '/' + self.api_version
-        return '%s%s' % (base, path)
-
-    def package_offset(self, package_name=None):
-        if package_name == None:
-            # Package Register
-            return self.offset('/rest/package')
-        else:
-            # Package Entity
-            package_ref = self.package_ref_from_name(package_name)
-            return self.offset('/rest/package/%s' % package_ref)
-
-    def package_ref_from_name(self, package_name):
-        package = self.get_package_by_name(unicode(package_name))
-        if package == None:
-            return package_name
-        else:
-            return self.ref_package(package)
-
-    def package_id_from_ref(self, package_name):
-        package = self.get_package_by_name(unicode(package_name))
-        if package == None:
-            return package_name
-        else:
-            return self.ref_package(package)
-
-    def ref_package(self, package):
-        assert self.ref_package_by in ['id', 'name']
-        return getattr(package, self.ref_package_by)
-
-    def group_ref_from_name(self, group_name):
-        group = self.get_group_by_name(unicode(group_name))
-        if group == None:
-            return group_name
-        else:
-            return self.ref_group(group)
-
-    def ref_group(self, group):
-        assert self.ref_group_by in ['id', 'name']
-        return getattr(group, self.ref_group_by)
-
-    def anna_offset(self, postfix=''):
-        return self.package_offset('annakarenina') + postfix
-
-    def assert_msg_represents_anna(self, msg):
-        assert 'annakarenina' in msg, msg
-        assert '"license_id": "other-open"' in msg, str(msg)
-        assert 'russian' in msg, msg
-        assert 'tolstoy' in msg, msg
-        assert '"extras": {' in msg, msg
-        assert '"genre": "romantic novel"' in msg, msg
-        assert '"original media": "book"' in msg, msg
-        assert 'annakarenina.com/download' in msg, msg
-        assert '"plain text"' in msg, msg
-        assert '"Index of the novel"' in msg, msg
-        assert '"id": "%s"' % self.anna.id in msg, msg
-        expected = '"groups": ['
-        assert expected in msg, (expected, msg)
-        expected = self.group_ref_from_name('roger')
-        assert expected in msg, (expected, msg)
-        expected = self.group_ref_from_name('david')
-        assert expected in msg, (expected, msg)
-
-    def data_from_res(self, res):
-        return json.loads(res.body)
-
-
-class Api1TestCase(ApiControllerTestCase):
-
-    api_version = '1'
-    ref_package_by = 'name'
-    ref_group_by = 'name'
-
-    def assert_msg_represents_anna(self, msg):
-        super(Api1TestCase, self).assert_msg_represents_anna(msg)
-        assert '"download_url": "http://www.annakarenina.com/download/x=1&y=2"' in msg, msg
-
-
-class Api2TestCase(ApiControllerTestCase):
-
-    api_version = '2'
-    ref_package_by = 'id'
-    ref_group_by = 'id'
-
-    def assert_msg_represents_anna(self, msg):
-        super(Api2TestCase, self).assert_msg_represents_anna(msg)
-        assert 'download_url' not in msg, msg
-
-
-# For CKAN API (unversioned location).
-class ApiUnversionedTestCase(Api1TestCase):
-
-    api_version = ''
-    oldest_api_version = '1'
-
-    def get_expected_api_version(self):
-        return self.oldest_api_version
-
-
-
-class ModelApiTestCase(ApiControllerTestCase):
+class BaseModelApiTestCase(ModelMethods, ApiControllerTestCase):
 
     @classmethod
     def setup_class(self):
@@ -190,25 +57,42 @@ class ModelApiTestCase(ApiControllerTestCase):
         model.repo.rebuild_db()
         model.Session.remove()
 
-    def test_00_get_api(self):
-        # Check interface resource (without a slash).
-        offset = self.offset('')
-        res = self.app.get(offset, status=[200])
-        self.assert_version_data(res)
-        # Check interface resource (with a slash).
-        # Todo: Stop this raising an error.
-        #offset = self.offset('/')
-        #res = self.app.get(offset, status=[200])
-        #self.assert_version_data(res)
+    def setup(self):
+        self.source = None
+        self.source1 = None
+        self.source2 = None
+        self.source3 = None
+        self.source4 = None
+        self.source5 = None
+        self.job = None
+        self.job1 = None
+        self.job2 = None
+        self.job3 = None
 
-    def assert_version_data(self, res):
-        data = self.data_from_res(res)
-        assert 'version' in data, data
-        expected_version = self.get_expected_api_version()
-        self.assert_equal(data['version'], expected_version) 
+    def teardown(self):
+        if self.job:
+            self.delete_commit(self.job)
+        if self.job1:
+            self.delete_commit(self.job1)
+        if self.job2:
+            self.delete_commit(self.job2)
+        if self.job3:
+            self.delete_commit(self.job3)
+        if self.source:
+            self.delete_commit(self.source)
+        if self.source1:
+            self.delete_commit(self.source1)
+        if self.source2:
+            self.delete_commit(self.source2)
+        if self.source3:
+            self.delete_commit(self.source3)
+        if self.source4:
+            self.delete_commit(self.source4)
+        if self.source5:
+            self.delete_commit(self.source5)
 
-    def get_expected_api_version(self):
-        return self.api_version
+class ModelApiTestCase(BaseModelApiTestCase):
+    """Test operations involving other register and entities."""
 
     def test_01_register_post_noauth(self):
         # Test Packages Register Post 401.
@@ -799,16 +683,6 @@ class ModelApiTestCase(ApiControllerTestCase):
             assert license['title'] == license.title
             assert license['url'] == license.url
 
-    def test_17_get_harvest_source(self):
-        # Setup harvest source fixture.
-        fixture_url = u'http://localhost/'
-        source = self._create_harvest_source_fixture(url=fixture_url)
-        offset = self.offset('/rest/harvestsource/%s' % source.id)
-        res = self.app.get(offset, status=[200])
-        source_data = self.data_from_res(res)
-        assert 'url' in source_data, "No 'id' in changeset data: %s" % source_data
-        self.assert_equal(source_data.get('url'), fixture_url)
-
     def _create_harvest_source_fixture(self, **kwds):
         source = model.HarvestSource(**kwds)
         model.Session.add(source)
@@ -825,24 +699,28 @@ class ModelApiTestCase(ApiControllerTestCase):
         assert job.id
         return job
 
-    def test_17_get_harvest_source(self):
+    def test_17_get_harvest_source_ok(self):
         # Setup harvest source fixture.
         fixture_url = u'http://localhost/'
-        source = self._create_harvest_source_fixture(url=fixture_url)
-        offset = self.offset('/rest/harvestsource/%s' % source.id)
+        self.source = self._create_harvest_source_fixture(url=fixture_url)
+        offset = self.offset('/rest/harvestsource/%s' % self.source.id)
         res = self.app.get(offset, status=[200])
         source_data = self.data_from_res(res)
         assert 'url' in source_data, "No 'id' in changeset data: %s" % source_data
         self.assert_equal(source_data.get('url'), fixture_url)
 
+    def test_17_get_harvest_source_not_found(self):
+        offset = self.offset('/rest/harvestsource/%s' % "notasource")
+        self.app.get(offset, status=[404])
+
     def test_17_list_harvest_source_for_publisher(self):
         # Setup harvest source fixtures.
         fixture_url = u'http://localhost/'
-        source1 = self._create_harvest_source_fixture(url=fixture_url+'1', publisher_ref=u'pub1')
-        source2 = self._create_harvest_source_fixture(url=fixture_url+'2', publisher_ref=u'pub1')
-        source3 = self._create_harvest_source_fixture(url=fixture_url+'3', publisher_ref=u'pub1')
-        source4 = self._create_harvest_source_fixture(url=fixture_url+'4', publisher_ref=u'pub2')
-        source5 = self._create_harvest_source_fixture(url=fixture_url+'5', publisher_ref=u'pub2')
+        self.source1 = self._create_harvest_source_fixture(url=fixture_url+'1', publisher_ref=u'pub1')
+        self.source2 = self._create_harvest_source_fixture(url=fixture_url+'2', publisher_ref=u'pub1')
+        self.source3 = self._create_harvest_source_fixture(url=fixture_url+'3', publisher_ref=u'pub1')
+        self.source4 = self._create_harvest_source_fixture(url=fixture_url+'4', publisher_ref=u'pub2')
+        self.source5 = self._create_harvest_source_fixture(url=fixture_url+'5', publisher_ref=u'pub2')
         offset = self.offset('/rest/harvestsource/publisher/pub1')
         res = self.app.get(offset, status=[200])
         source_data = self.data_from_res(res)
@@ -851,21 +729,26 @@ class ModelApiTestCase(ApiControllerTestCase):
         res = self.app.get(offset, status=[200])
         source_data = self.data_from_res(res)
         self.assert_equal(len(source_data), 2)
-
-    def test_18_get_harvesting_job(self):
+        
+    def test_18_get_harvesting_job_ok(self):
         # Setup harvesting job fixture.
         fixture_url = u'http://localhost/6'
-        source = self._create_harvest_source_fixture(url=fixture_url)
-        job = self._create_harvesting_job_fixture(source_id=source.id)
-        offset = self.offset('/rest/harvestingjob/%s' % job.id)
+        self.source = self._create_harvest_source_fixture(url=fixture_url)
+        self.job = self._create_harvesting_job_fixture(source_id=self.source.id)
+        offset = self.offset('/rest/harvestingjob/%s' % self.job.id)
         res = self.app.get(offset, status=[200])
         job_data = self.data_from_res(res)
-        self.assert_equal(job_data.get('source_id'), source.id)
+        self.assert_equal(job_data.get('source_id'), self.source.id)
+
+    def test_18_get_harvesting_job_not_found(self):
+        # Setup harvesting job fixture.
+        offset = self.offset('/rest/harvestingjob/%s' % "notajob")
+        self.app.get(offset, status=[404])
 
     def test_18_create_harvesting_job(self):
         # Setup harvest source fixture.
         fixture_url = u'http://localhost/7'
-        source = self._create_harvest_source_fixture(url=fixture_url)
+        self.source = self._create_harvest_source_fixture(url=fixture_url)
         # Prepare and send POST request to register.
         offset = self.offset('/rest/harvestingjob')
         #  - invalid example.
@@ -873,34 +756,102 @@ class ModelApiTestCase(ApiControllerTestCase):
             'source_id': 'made-up-source-id',
             'user_ref': u'a_publisher_user',
         }
-        assert not model.HarvestingJob.get(u'a_publisher_user', None, 'user_ref')
+        assert not model.HarvestingJob.get(u'a_publisher_user', default=None, attr='user_ref')
         response = self.post(offset, job_details, status=400)
         job_error = self.data_from_res(response)
         assert "does not exist" in job_error
         assert not model.HarvestingJob.get(u'a_publisher_user', default=None, attr='user_ref')
         #  - invalid example.
         job_details = {
-            'source_id': source.id,
+            'source_id': self.source.id,
             'user_ref': u'',
         }
         assert not model.HarvestingJob.get(u'a_publisher_user', None, 'user_ref')
         response = self.post(offset, job_details, status=400)
         job_error = self.data_from_res(response)
         assert "You must supply a user_ref" in job_error
-        assert not model.HarvestingJob.get(source.id, default=None, attr='source_id')
+        assert not model.HarvestingJob.get(self.source.id, default=None, attr='source_id')
         #  - valid example.
         job_details = {
-            'source_id': source.id,
+            'source_id': self.source.id,
             'user_ref': u'a_publisher_user',
         }
         assert not model.HarvestingJob.get(u'a_publisher_user', None, 'user_ref')
         response = self.post(offset, job_details)
         new_job = self.data_from_res(response)
         assert new_job['id']
-        self.assert_equal(new_job['source_id'], source.id)
+        self.assert_equal(new_job['source_id'], self.source.id)
         self.assert_equal(new_job['user_ref'], u'a_publisher_user')
-        model.HarvestingJob.get(source.id, attr='source_id')
+        self.job = model.HarvestingJob.get(self.source.id, attr='source_id')
         model.HarvestingJob.get(u'a_publisher_user', attr='user_ref')
+
+    def test_18_get_harvesting_job_register_filter_by_status(self):
+        # Setup harvest source fixture.
+        fixture_url = u'http://localhost/8'
+        self.source = self._create_harvest_source_fixture(url=fixture_url)
+        self.job = self._create_harvesting_job_fixture(source_id=self.source.id)
+        register_offset = self.offset('/rest/harvestingjob')
+        self.assert_equal(self.job.status, 'New')
+ 
+        filter_offset = '/status/new'
+        offset = register_offset + filter_offset
+        res = self.get(offset)
+        data = self.data_from_res(res)
+        self.assert_equal(data, [self.job.id])
+
+        filter_offset = '/status/error'
+        offset = register_offset + filter_offset
+        res = self.get(offset)
+        data = self.data_from_res(res)
+        self.assert_equal(data, [])
+
+        self.job.status = u'Error'
+        self.job.save()
+        res = self.get(offset)
+        data = self.data_from_res(res)
+        self.assert_equal(data, [self.job.id])
+
+        filter_offset = '/status/new'
+        offset = register_offset + filter_offset
+        res = self.get(offset)
+        data = self.data_from_res(res)
+        self.assert_equal(data, [])
+
+        filter_offset = '/status/error'
+        offset = register_offset + filter_offset
+        res = self.get(offset)
+        data = self.data_from_res(res)
+        self.assert_equal(data, [self.job.id])
+
+    def test_18_delete_harvesting_job_ok(self):
+        # Setup harvesting job fixture.
+        fixture_url = u'http://localhost/6'
+        self.source = self._create_harvest_source_fixture(url=fixture_url)
+        self.job = self._create_harvesting_job_fixture(source_id=self.source.id)
+        offset = self.offset('/rest/harvestingjob/%s' % self.job.id)
+        self.get(offset, status=[200])
+        res = self.app_delete(offset, status=[200])
+        self.get(offset, status=[404])
+
+    def test_18_delete_harvesting_job_denied(self):
+        self.send_authorization_header = False
+        # Setup harvesting job fixture.
+        fixture_url = u'http://localhost/6'
+        self.source = self._create_harvest_source_fixture(url=fixture_url)
+        self.job = self._create_harvesting_job_fixture(source_id=self.source.id)
+        offset = self.offset('/rest/harvestingjob/%s' % self.job.id)
+        self.get(offset, status=[200])
+        self.app_delete(offset, status=[403])
+
+    def test_18_delete_harvesting_job_not_found(self):
+        # Setup harvesting job fixture.
+        offset = self.offset('/rest/harvestingjob/%s' % "notajob")
+        self.get(offset, status=[404])
+
+
+class PackagesApiTestCase(BaseModelApiTestCase):
+    """Test operations involving the Package register and entities."""
+    pass
 
 # Note well, relationships are actually part of the Model API.
 class RelationshipsApiTestCase(ApiControllerTestCase):
@@ -917,9 +868,6 @@ class RelationshipsApiTestCase(ApiControllerTestCase):
         model.Session.remove()
         model.repo.rebuild_db()
         model.Session.remove()
-
-    def setup(self):
-        pass
 
     def teardown(self):
         for relationship in self.anna.get_relationships():
@@ -1500,7 +1448,8 @@ class MiscApiTestCase(ApiControllerTestCase):
 
 
 # Tests for Version 1 of the API.
-class TestModelApi1(ModelApiTestCase, Api1TestCase):
+class TestPackagesApi1(Api1TestCase, PackagesApiTestCase): pass
+class TestModelApi1(Api1TestCase, ModelApiTestCase):
 
     def test_06_create_pkg_using_download_url(self):
         test_params = {
@@ -1555,6 +1504,7 @@ class TestMiscApi1(Api1TestCase, MiscApiTestCase): pass
 class TestQosApi1(Api1TestCase, QosApiTestCase): pass
 
 # Tests for Version 2 of the API.
+class TestPackagesApi2(Api2TestCase, PackagesApiTestCase): pass
 class TestModelApi2(Api2TestCase, ModelApiTestCase): pass
 class TestRelationshipsApi2(Api2TestCase, RelationshipsApiTestCase): pass
 class TestPackageSearchApi2(Api2TestCase, PackageSearchApiTestCase): pass
@@ -1563,6 +1513,7 @@ class TestMiscApi2(Api2TestCase, MiscApiTestCase): pass
 class TestQosApi2(Api2TestCase, QosApiTestCase): pass
 
 # Tests for unversioned API.
+class TestPackagesApiUnversioned(ApiUnversionedTestCase, PackagesApiTestCase): pass
 class TestModelApiUnversioned(ApiUnversionedTestCase, ModelApiTestCase): pass
 
 # Todo: Refactor to run the download_url tests on versioned location too.

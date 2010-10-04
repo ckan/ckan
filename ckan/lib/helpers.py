@@ -42,7 +42,6 @@ def subnav_link(c, text, action, **kwargs):
         class_=('active' if c.action == action else '')
     )
 
-@beaker_cache(expire=600, cache_response=False)
 def linked_user(username):
     from ckan import model
     user = model.User.by_name(unicode(username))
@@ -50,13 +49,12 @@ def linked_user(username):
         return link_to(username, url_for(controller='user', action='read', id=user.id))
     return username
 
-@beaker_cache(expire=600, cache_response=False)
 def markdown_extract(text):
     if (text is None) or (text == ''):
         return ''
     html = fromstring(markdown(text))
     plain = html.xpath("string()")
-    return truncate(plain, length=190, indicator='...', whole_word=True)
+    return unicode(truncate(plain, length=270, indicator='...', whole_word=True))
 
 def icon_url(name):
     return '/images/icons/%s.png' % name

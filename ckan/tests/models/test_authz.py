@@ -49,6 +49,7 @@ class TestCreation(object):
 
         # test delete-orphan
         q = model.Session.query(model.UserObjectRole)
+        q = q.filter_by(user=mradmin)
         assert q.count() == 2, q.all()
         uow = q.filter_by(context=u'user_object').first()
         uow.user = None
@@ -124,8 +125,10 @@ class TestDefaultRoles(object):
         assert self.is_allowed(model.Role.EDITOR, model.Action.EDIT)
 
     def test_create(self):
-        assert self.is_allowed(model.Role.READER, model.Action.CREATE)
-        assert self.is_allowed(model.Role.EDITOR, model.Action.CREATE)
+        assert self.is_allowed(model.Role.READER, model.Action.PACKAGE_CREATE)
+        assert self.is_allowed(model.Role.EDITOR, model.Action.PACKAGE_CREATE)
+        assert not self.is_allowed(model.Role.READER, model.Action.GROUP_CREATE)
+        assert self.is_allowed(model.Role.EDITOR, model.Action.GROUP_CREATE)
 
     def test_edit_permissions(self):
         assert not self.is_allowed(model.Role.READER, model.Action.EDIT_PERMISSIONS)

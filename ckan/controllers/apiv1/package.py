@@ -41,7 +41,7 @@ class PackageController(RestController):
         return self._finish_ok(response_data)
     
     def create(self):
-        if not self._check_access(None, None):
+        if not self._check_access(model.System(), model.Action.PACKAGE_CREATE):
             return json.dumps(_('Access denied'))
 
         # Create a Package.
@@ -122,7 +122,6 @@ class PackageController(RestController):
                         rev.author = self.rest_api_user
                         rev.message = _(u'REST API: Update object %s') % str(fs.name.value)
                         fs.sync()
-
                         model.repo.commit()        
                     except Exception, inst:
                         log.exception(inst)
@@ -143,21 +142,22 @@ class PackageController(RestController):
         return response
 
     def delete(self, id):
-        if not self._check_access(None, None):
-            return json.dumps(_('Access denied'))
-
         entity = self._get_pkg(id)
-        if not entity:
+        if entity is None:
             response.status_int = 404
-            response.write(_(u'Package was not found.'))
-        else:
-            rev = model.repo.new_revision()
-            rev.author = self.rest_api_user
-            rev.message = _(u'REST API: Delete Package: %s') % entity.name
-            try:
-                entity.delete()
-                model.repo.commit()        
-            except Exception, inst:
-                log.exception(inst)
-                raise
-            return self._finish_ok()
+            return _(u'Package was not found.')
+        
+        if not self._check_access(entity, model.Action.PURGE):
+            #response.status_int = 401
+            return json.dumps(_('Access denied'))
+        
+        rev = model.repo.new_revision()
+        rev.author = self.rest_api_user
+        rev.message = _(u'REST API: Delete Package: %s') % entity.name
+        try:
+            entity.delete()
+            model.repo.commit()        
+        except Exception, inst:
+            log.exception(inst)
+            raise
+        return self._finish_ok()

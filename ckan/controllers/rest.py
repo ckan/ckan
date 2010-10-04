@@ -112,13 +112,18 @@ class BaseRestController(BaseApiController):
             response_data = [l.as_dict() for l in licenses]
             return self._finish_ok(response_data)
         elif register == u'harvestsource':
+            filter_kwds = {}
             if id == 'publisher':
-                publisher_ref = subregister
-                s = model.HarvestSource.filter(publisher_ref=publisher_ref)
-            else:
-                raise Exception, "Not picking up publisher part."
-                s = model.HarvestSource.filter()
-            response_data = [o.id for o in s]
+                filter_kwds['publisher_ref'] = subregister
+            objects = model.HarvestSource.filter(**filter_kwds)
+            response_data = [o.id for o in objects]
+            return self._finish_ok(response_data)
+        elif register == u'harvestingjob':
+            filter_kwds = {}
+            if id == 'status':
+                filter_kwds['status'] = subregister.lower().capitalize()
+            objects = model.HarvestingJob.filter(**filter_kwds)
+            response_data = [o.id for o in objects]
             return self._finish_ok(response_data)
         else:
             response.status_int = 400
@@ -201,14 +206,14 @@ class BaseRestController(BaseApiController):
             response_data = [pkgtag.package.name for pkgtag in obj.package_tags]
             return self._finish_ok(response_data)
         elif register == u'harvestsource':
-            obj = model.HarvestSource.get(id)
+            obj = model.HarvestSource.get(id, default=None)
             if obj is None:
                 response.status_int = 404
                 return ''            
             response_data = obj.as_dict()
             return self._finish_ok(response_data)
         elif register == u'harvestingjob':
-            obj = model.HarvestingJob.get(id)
+            obj = model.HarvestingJob.get(id, default=None)
             if obj is None:
                 response.status_int = 404
                 return ''            
@@ -269,7 +274,7 @@ class BaseRestController(BaseApiController):
             elif register == 'group' and not subregister:
                 # Create a Group.
                 request_fa_dict = ckan.forms.edit_group_dict(ckan.forms.get_group_dict(), request_data)
-                fs = ckan.forms.get_group_fieldset('group_fs_combined').bind(model.Group, data=request_fa_dict, session=model.Session)
+                fs = ckan.forms.get_group_fieldset(combined=True).bind(model.Group, data=request_fa_dict, session=model.Session)
                 # ...continues below.
             elif register == 'rating' and not subregister:
                 # Create a Rating.
@@ -374,8 +379,9 @@ class BaseRestController(BaseApiController):
             elif register == 'group':
                 orig_entity_dict = ckan.forms.get_group_dict(entity)
                 request_fa_dict = ckan.forms.edit_group_dict(orig_entity_dict, request_data, id=entity.id)
-                fs = ckan.forms.get_group_fieldset('group_fs_combined')
+                fs = ckan.forms.get_group_fieldset(combined=True)
             fs = fs.bind(entity, data=request_fa_dict)
+            
             validation = fs.validate()
             if not validation:
                 response.status_int = 409
@@ -432,8 +438,11 @@ class BaseRestController(BaseApiController):
         elif register == 'group' and not subregister:
             entity = model.Group.by_name(id)
             revisioned_details = None
+        elif register == 'harvestingjob' and not subregister:
+            entity = model.HarvestingJob.get(id, default=None)
+            revisioned_details = None
         else:
-            reponse.status_int = 400
+            response.status_int = 400
             return gettext('Cannot delete entity of this type: %s %s') % (register, subregister or '')
         if not entity:
             response.status_int = 404
@@ -615,7 +624,7 @@ class BaseRestController(BaseApiController):
         elif not source_id:
             opts_err = gettext('You must supply a source_id.')
         else:
-            source = model.HarvestSource.get(source_id, None)
+            source = model.HarvestSource.get(source_id, default=None)
             if not source:
                 opts_err = gettext('Harvest source %s does not exist.') % source_id
         if opts_err:
@@ -640,12 +649,14 @@ class BaseRestController(BaseApiController):
         # If both args are None then just check the apikey corresponds
         # to a user.
         api_key = None
+        # Todo: Remove unused 'isOk' variable.
         isOk = False
 
         self.rest_api_user = self._get_username()
         log.debug('check access - user %r' % self.rest_api_user)
         
-        if action and entity and not isinstance(entity, model.PackageRelationship):
+        if action and entity and not isinstance(entity, model.PackageRelationship) \
+                and not isinstance(entity, model.HarvestingJob):
             if action != model.Action.READ and self.rest_api_user in (model.PSEUDO_USER__VISITOR, ''):
                 self.log.debug("Valid API key needed to make changes")
                 response.status_int = 403

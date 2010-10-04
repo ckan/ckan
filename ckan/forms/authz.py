@@ -49,18 +49,25 @@ def authz_fieldset_builder(role_class):
         fs.append(
             Field(u'delete', types.String, get_group_linker(u'delete')).readonly()
             )
+        
     fs.append(
-        # use getattr because though we should always have a user name,
-        # sometimes (due to error) we don't and want to avoid a 500 ...
-        Field(u'username', types.String,
-            lambda item: getattr(item.user, 'name', 'No User!')).readonly()
-        )
+            # use getattr because though we should always have a user name,
+            # sometimes (due to error) we don't and want to avoid a 500 ...
+            Field(u'username', types.String,
+                lambda item: getattr(item.user, 'name', '')).readonly()
+            )
+            
+    fs.append(
+            Field(u'authzgroupname', types.String,
+                lambda item: getattr(item.authorized_group, 'name', '')).readonly()
+            )
 
     fs.configure(
         options = [
             fs.role.with_renderer(RolesRenderer),
             ],
         include=[fs.username,
+                 fs.authzgroupname,
                  fs.role,
                  fs.delete],
         )
