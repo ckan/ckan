@@ -143,7 +143,6 @@ class Api2TestCase(ApiControllerTestCase):
         assert 'download_url' not in msg, msg
 
 
-# For CKAN API (unversioned location).
 class ApiUnversionedTestCase(Api1TestCase):
 
     api_version = ''
@@ -151,6 +150,4 @@ class ApiUnversionedTestCase(Api1TestCase):
 
     def get_expected_api_version(self):
         return self.oldest_api_version
-
-
 

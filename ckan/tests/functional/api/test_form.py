@@ -12,10 +12,10 @@ ACCESS_DENIED = [403]
 
 # Todo: Test for access control setup. Just checking an object exists in the model doesn't mean it will be presented through the WebUI.
 
-from ckan.tests.functional.test_rest import ApiControllerTestCase
-from ckan.tests.functional.test_rest import Api1TestCase
-from ckan.tests.functional.test_rest import Api2TestCase
-from ckan.tests.functional.test_rest import ApiUnversionedTestCase
+from ckan.tests.functional.api.test_model import ApiControllerTestCase
+from ckan.tests.functional.api.test_model import Api1TestCase
+from ckan.tests.functional.api.test_model import Api2TestCase
+from ckan.tests.functional.api.test_model import ApiUnversionedTestCase
 
 class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
 
