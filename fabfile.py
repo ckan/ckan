@@ -485,7 +485,7 @@ def _get_db_config():
     db_details = re.match('^\s*(?P<db_type>\w*)://(?P<db_user>\w*):(?P<db_pass>[^@]*)@(?P<db_host>[\w\.]*)/(?P<db_name>[\w.-]*)', url).groupdict()
     return db_details
 
-def _get_ckan_pyenv_dict(self):
+def _get_ckan_pyenv_dict():
     return {'here':os.path.join(env.pyenv_dir, 'src', 'ckan')}
 
 def _get_pylons_cache_dir():
