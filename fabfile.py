@@ -485,16 +485,18 @@ def _get_db_config():
     db_details = re.match('^\s*(?P<db_type>\w*)://(?P<db_user>\w*):(?P<db_pass>[^@]*)@(?P<db_host>[\w\.]*)/(?P<db_name>[\w.-]*)', url).groupdict()
     return db_details
 
+def _get_ckan_pyenv_dict(self):
+    return {'here':os.path.join(env.pyenv_dir, 'src', 'ckan')}
+
 def _get_pylons_cache_dir():
     cache_dir = _get_ini_value('cache_dir')
     # e.g. '%(here)s/data'
-    return cache_dir % {'here':env.instance_path}
+    return cache_dir % _get_ckan_pyenv_dict()
 
 def _get_open_id_store_dir():
     store_file_path = _get_ini_value('store_file_path', env.who_ini_filepath)
     # e.g. '%(here)s/sstore'
-    return store_file_path % {'here':env.instance_path}
-    
+    return store_file_path % _get_ckan_pyenv_dict()
 
 def _create_live_data_dir(readable_name, dir):
     if not exists(dir):
