@@ -41,7 +41,7 @@ env.pip_requirements = 'pip-requirements.txt'
 env.skip_setup_db = False
 
 def config_local(base_dir, ckan_instance_name, db_host=None, db_pass=None, 
-                 skip_setup_db=None, no_sudo=None):
+                 skip_setup_db=None, no_sudo=None, pip_requirements=None):
     '''Run on localhost. e.g. local:~/test,myhost.com
                             puts it at ~/test/myhost.com
                             '''
@@ -55,7 +55,9 @@ def config_local(base_dir, ckan_instance_name, db_host=None, db_pass=None,
     if skip_setup_db != None:
         env.skip_setup_db = skip_setup_db    
     if no_sudo != None:
-        env.no_sudo = no_sudo    
+        env.no_sudo = no_sudo
+    if pip_requirements:
+        env.pip_requirements = pip_requirements
 
 def config_local_dev(base_dir, ckan_instance_name):
     config_local(base_dir, ckan_instance_name)
