@@ -277,7 +277,7 @@ def status():
     'Provides version number info'
     _setup()
     with cd(env.instance_path):
-        run('pip freeze')
+        _run_in_cmd_pyenv('pip freeze')
         run('cat %s' % env.config_ini_filename)
     with cd(os.path.join(env.pyenv_dir, 'src', 'ckan')):
         run('hg log -l 1')
