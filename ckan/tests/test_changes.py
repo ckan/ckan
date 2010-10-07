@@ -4,6 +4,7 @@ import time
 
 import ckan.model as model
 from ckan.tests import *
+from nose.plugins.skip import SkipTest
 
 class Options:
     pid_file = 'paster.pid'
@@ -11,6 +12,7 @@ class Options:
 class TestControllerWithForeign(TestController):
 
     def setup(self):
+        raise SkipTest()
         self._recreate_ckan_server_testdata('test_sync.ini')
         self.sub_proc = self._start_ckan_server('test_sync.ini')
         self._recreate_ckan_server_testdata('test_sync2.ini')
@@ -51,8 +53,6 @@ class TestControllerWithForeign(TestController):
         return f.read()
 
 
-from nose.plugins.skip import SkipTest
-
 class TestDistributingChanges(TestControllerWithForeign):
 
     def commit(self):
@@ -65,7 +65,6 @@ class TestDistributingChanges(TestControllerWithForeign):
         self._paster('changes update', 'test_sync.ini')
 
     def test_pull(self):
-        raise SkipTest()
         self.sub_app_get('/')
         self.app.get('/')
         self.commit()
