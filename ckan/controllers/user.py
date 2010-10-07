@@ -36,6 +36,8 @@ class UserController(BaseController):
                 userobj = model.User(name=c.user)
                 model.Session.add(userobj)
                 model.Session.commit()
+            response.set_cookie("ckan_user", userobj.name)
+            response.set_cookie("ckan_apikey", userobj.apikey)
             h.redirect_to(controller='user', action=None, id=None)
         else:
             form = render('user/openid_form.html')
@@ -45,6 +47,8 @@ class UserController(BaseController):
 
     def logout(self):
         c.user = None
+        response.delete_cookie("ckan_user")
+        response.delete_cookie("ckan_apikey")
         return render('user/logout.html')
 
     def apikey(self):

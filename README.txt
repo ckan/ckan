@@ -26,7 +26,7 @@ tests. See: http://buildbot.okfn.org/waterfall
    Package                Description
    =====================  ============================================
    mercurial              Source control
-   python                 Python interpreter
+   python                 Python interpreter v2.5 - v2.7
    apache2                Web server
    libapache2-mod-python  Apache module for python
    libapache2-mod-wsgi    Apache module for WSGI
@@ -34,6 +34,10 @@ tests. See: http://buildbot.okfn.org/waterfall
    libpq-dev              PostgreSQL library
    python-psycopg2        PostgreSQL python module
    python-setuptools      Python package management
+   python-libxml2         Python XML library
+   python-libxslt1        Python XSLT library
+   libxml2-dev            XML library development files
+   libxslt1-dev           XSLT library development files
    =====================  ============================================
 
    Now use easy_install (which comes with python-setuptools) to install
@@ -50,7 +54,7 @@ tests. See: http://buildbot.okfn.org/waterfall
    Check that you received:
 
     * virtualenv v1.3 or later
-    * pip v0.7.1 or later
+    * pip v0.4 or later
 
 
 2. Create a python virtual environment

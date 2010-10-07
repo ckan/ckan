@@ -10,8 +10,15 @@
     <div class="box">
       <h2>Groups section</h2>
       <p i18n:msg="">Whilst tags are great at collecting packages together, there are occasions when you want to restrict users from editing a collection. A <strong>group</strong> can be set-up to specify which users have permission to add or remove packages from it.</p>
-      <p py:if="not c.user" i18n:msg="">To create a new group, please first <a href="${h.url_for(controller='user',action='login', id=None)}">login</a>.</p>
-      <p py:if="c.user" i18n:msg=""><a href="${h.url_for(controller='group',action='new', id=None)}">Create a new group</a></p>
+      <p>
+	<span class="ckan_logged_in" style="display: none;">
+	  To create a new group, please first <a href="${h.url_for(controller='user',action='login', id=None)}">login</a>.
+	</span>
+	<span class="ckan_logged_out">
+	  <a href="${h.url_for(controller='group',action='new', id=None)}">Create a new group</a>
+	</span>
+      </p>
+      
     </div>
   </py:match>
   

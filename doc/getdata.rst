@@ -2,6 +2,10 @@
 'Getdata' import scripts
 ========================
 
+NOTE
+====
+
+These 'getdata' import scripts are deprecated in favour of the :doc:`loader_scripts`.
 
 Introduction
 ============

@@ -35,7 +35,7 @@ class ImporterController(BaseController):
         if not c.user:
             abort(401, gettext('Need to login before importing.'))
         c.import_previews = []
-        import ckan.lib.importer as importer
+        import ckan.lib.spreadsheet_importer as importer
         params = dict(request.params)
         if not params.has_key('file'):
             c.error = _('Need to specify a filename.')
@@ -50,7 +50,7 @@ class ImporterController(BaseController):
             c.error = _('File \'%s\' not found.') % params['file'].filename
             return render('importer/importer.html')
         try:
-            importer = importer.PackageImporter(buf=file_buf)
+            importer = importer.SpreadsheetPackageImporter(buf=file_buf)
         except importer.ImportException, e:
             c.error = _('Error importing file \'%s\' as Excel or CSV format: %s') % (params['file'].filename, e)
             return render('importer/importer.html')
@@ -76,10 +76,10 @@ class ImporterController(BaseController):
         return render('importer/preview.html')
 
     def do_import(self):
-        import ckan.lib.importer as importer
+        import ckan.lib.spreadsheet_importer as importer
         file_buf = self._load_tempfile()
         try:
-            importer = importer.PackageImporter(buf=file_buf)
+            importer = importer.SpreadsheetPackageImporter(buf=file_buf)
         except importer.ImportException, e:
             c.error = _('Error importing file \'%s\' as Excel or CSV format: %s') % (params['file'].filename, e)
             return render('importer/importer.html')

@@ -2,6 +2,8 @@
 import os
 from urlparse import urlparse
 
+from paste.deploy.converters import asbool
+
 import pylons
 from sqlalchemy import engine_from_config
 from pylons import config
@@ -14,6 +16,7 @@ import ckan.lib.helpers
 from ckan.config.routing import make_map
 from ckan import model
 
+import blinker
 import plugins
 
 
@@ -69,12 +72,19 @@ def load_environment(global_conf, app_conf):
     # any Pylons config options)    
 
     # Setup the SQLAlchemy database engine
-    engine = engine_from_config(config, 'sqlalchemy.')
+    engine = engine_from_config(config, 'sqlalchemy.', pool_threadlocal=True)
     model.init_model(engine)
-        
-    if bool(config.get('ckan.build_search_index_synchronously', True)):
+   
+    async_search = asbool(config.get('ckan.async_notifier', "False"))
+    sync_search = asbool(config.get('ckan.build_search_index_synchronously', "True"))
+
+    if async_search and sync_search:
+        raise ValueError("ckan.async_notifier and ckan.build_search_index_synchronously must not be set at the same time")
+
+    if sync_search:
         import ckan.lib.search as search
         search.setup_synchronous_indexing()
-    else:
-        import ckan.lib.async_notifier as notf
 
+    if async_search:
+        from ckan.model import notifier
+        notifier.initialise()

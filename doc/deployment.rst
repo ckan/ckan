@@ -31,7 +31,7 @@ Here's an example for deploying CKAN to http://demo.ckan.net/ via Apache.
    Package                Notes
    =====================  ============================================
    python-virtualenv      Python virtual environment sandboxing
-   pip                    Python installer (use easy_install for this)
+   pip                    Python installer
    =====================  ============================================
 
    Check that you received:
@@ -80,48 +80,102 @@ Now you can then do the deployment with something like::
 
   In a general user's home directory::
 
-  $ mkdir demo.ckan.net
-  $ cd demo.ckan.net
+  $ mkdir -p ~/var/srvc/demo.ckan.net
+  $ cd ~/var/srvc/demo.ckan.net
   $ virtualenv pyenv
   $ . pyenv/bin/activate
 
 
 5. Create the Pylons WSGI script
 
-  Create a file ~/demo.ckan.net/pyenv/bin/pylonsapp_modwsgi.py as follows::
+  Create a file ~/var/srvc/demo.ckan.net/pyenv/bin/demp.ckan.net.py as follows (editing the first couple of variables as necessary)::
 
     import os
-    here = os.path.abspath(os.path.dirname(__file__))
-    activate_this = os.path.join(here, 'activate_this.py')
+    instance_dir = '/home/USER/var/srvc/demo.ckan.net'
+    config_file = 'demo.ckan.net.ini'
+    pyenv_bin_dir = os.path.join(instance_dir, 'pyenv', 'bin')
+    activate_this = os.path.join(pyenv_bin_dir, 'activate_this.py')
     execfile(activate_this, dict(__file__=activate_this))
     from paste.deploy import loadapp
-    application = loadapp('config:/home/USER/demo.ckan.net/demo.ckan.net.ini')
+    config_filepath = os.path.join(instance_dir, config_file)
+    from paste.script.util.logging_config import fileConfig
+    fileConfig(config_filepath)
+    application = loadapp('config:%s' % config_filepath)
 
 
 6. Install code and dependent packages into the environment
 
-  For the most recent version use::
+  For the most recent stable version use::
 
-  $ wget http://knowledgeforge.net/ckan/hg/raw-file/tip/pip-requirements.txt
+  $ wget http://knowledgeforge.net/ckan/hg/raw-file/metastable/pip-requirements.txt
 
-  Or for version xxx::
+  Or for the bleeding edge use::
 
-  $ wget http://knowledgeforge.net/ckan/hg/raw-file/ckan-xxx/pip-requirements.txt
+  $ wget http://knowledgeforge.net/ckan/hg/raw-file/default/pip-requirements.txt
 
   And install::
 
   $ pip -E pyenv install -r pip-requirements.txt 
 
 
-7. Create paster database config file
+7. Create CKAN config file
 
   ::
 
   $ paster make-config ckan demo.ckan.net.ini
 
 
-8. Edit demo.ckan.net.ini to set the sqlalchemy.url database connection
-   information using values from step 3.
+8. Configure CKAN
+
+  Edit 'demo.ckan.net.ini' and change the default values as follows:
+
+  8.1. sqlalchemy.url
+
+    Set the sqlalchemy.url database connection information using values from step 3.
+
+  8.2. licenses_group_url
+
+    Set the licenses_group_url to point to a licenses service. Options
+    include: ::
+
+      http://licenses.opendefinition.org/2.0/ckan_original
+      http://licenses.opendefinition.org/2.0/all_alphabetical
+
+    For information about creating your own licenses services, please refer to
+    the Python package called 'licenses' (http://pypi.python.org/pypi/licenses).
+    
+  8.3. Also edit the who.ini configuration file to set a secret for the auth_tkt plugin.
+
+  8.3. loggers
+     
+    CKAN can make a log file if you change the [loggers] section to this::
+
+      [loggers]
+      keys = root, ckan
+      
+      [handlers]
+      keys = file
+      
+      [formatters]
+      keys = generic
+      
+      [logger_root]
+      level = INFO
+      handlers = file
+      
+      [logger_ckan]
+      level = DEBUG
+      handlers = file
+      qualname = ckan
+      
+      [handler_file]
+      class = handlers.RotatingFileHandler
+      formatter = generic
+      level = NOTSET
+      args = ('/var/log/ckan/demo.ckan.log', 'a', 2048, 3)
+      
+      [formatter_generic]
+      format = %(asctime)s %(levelname)-5.5s [%(name)s] %(message)s
 
 
 9. Initialise database
@@ -134,14 +188,11 @@ Now you can then do the deployment with something like::
 
 10. Set some permissions for Pylons
 
-  Whilst still in the ~/demo.ckan.net directory::
+  Whilst still in the ~/var/srvc/demo.ckan.net directory::
 
-    $ mkdir data
-    $ chmod g+w -R data
-    $ sudo chgrp -R www-data data
-    $ mkdir sstore
-    $ chmod g+w -R sstore
-    $ sudo chgrp -R www-data sstore
+    $ mkdir data sstore
+    $ chmod g+w -R data sstore
+    $ sudo chgrp -R www-data data sstore
     $ ln -s pyenv/src/ckan/who.ini ./
 
 
@@ -153,7 +204,7 @@ Now you can then do the deployment with something like::
         ServerName demo.ckan.net
         ServerAlias demo.ckan.net
 
-        WSGIScriptAlias / /home/USER/demo.ckan.net/pyenv/bin/pylonsapp_modwsgi.py
+        WSGIScriptAlias / /home/USER/var/srvc/demo.ckan.net/pyenv/bin/demo.ckan.net.py
         # pass authorization info on (needed for rest api)
         WSGIPassAuthorization On
 

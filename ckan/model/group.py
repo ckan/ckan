@@ -2,6 +2,7 @@ from datetime import datetime
 
 from meta import *
 from core import *
+from sqlalchemy.orm import eagerload_all
 from domain_object import DomainObject
 from package import *
 from types import make_uuid
@@ -36,10 +37,14 @@ class Group(DomainObject):
     def delete(self):
         self.purge()
 
-    def active_packages(self):
-        return Session.query(Package).\
+    def active_packages(self, load_eager=True):
+        query = Session.query(Package).\
                filter_by(state=vdm.sqlalchemy.State.ACTIVE).\
                join('groups').filter_by(id=self.id)
+        if load_eager:
+            query = query.options(eagerload_all('package_tags.tag'))
+            query = query.options(eagerload_all('package_resources_all'))
+        return query
 
     @classmethod
     def search_by_name(self, text_query):
@@ -49,6 +54,7 @@ class Group(DomainObject):
     def as_dict(self, ref_package_by='name'):
         _dict = DomainObject.as_dict(self)
         _dict['packages'] = [getattr(package, ref_package_by) for package in self.packages]
+        _dict['extras'] = dict([(key, value) for key, value in self.extras.items()])
         return _dict
 
     def add_package_by_name(self, package_name):

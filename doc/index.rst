@@ -19,6 +19,7 @@ Contents:
    api
    plugins
    feeds
+   loader_scripts
    getdata
    importer
    package_forms
@@ -28,6 +29,7 @@ Contents:
    authorization
    load_testing
    distributed
+   database_dumps
 
 
 Other material
