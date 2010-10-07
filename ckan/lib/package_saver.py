@@ -4,6 +4,8 @@ import ckan.lib.helpers as h
 from ckan.lib.base import *
 import ckan.rating
 
+# Todo: Factor out unused original_name argument.
+
 class ValidationException(Exception):
     pass
 
@@ -36,7 +38,7 @@ class PackageSaver(object):
         notes_formatted = ckan.misc.MarkdownFormat().to_html(pkg.notes)
         c.pkg_notes_formatted = genshi.HTML(notes_formatted)
         c.current_rating, c.num_ratings = ckan.rating.get_rating(pkg)
-        c.pkg_url_link = h.link_to(c.pkg.url, c.pkg.url) if c.pkg.url else "No web page given"
+        c.pkg_url_link = h.link_to(c.pkg.url, c.pkg.url, target='_blank') if c.pkg.url else "No web page given"
         c.pkg_author_link = cls._person_email_link(c.pkg.author, c.pkg.author_email, "Author")
         c.pkg_maintainer_link = cls._person_email_link(c.pkg.maintainer, c.pkg.maintainer_email, "Maintainer")
         c.package_relationships = pkg.get_relationships_printable()

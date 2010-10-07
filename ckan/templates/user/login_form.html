@@ -1,12 +1,13 @@
 <html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude">
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
 
-  <py:def function="page_title">Account - Login</py:def>
+  <py:def function="page_title">Login - User</py:def>
 
   <div py:match="content">
     <h2>Login</h2>
     <p>Please login now.</p>
-    <form action="FORM_ACTION" method="post">
+    <form id="user-login" action="FORM_ACTION" method="post">
       <dl>
         <dt>Username:</dt>
         <dd><input type="text" name="username" /></dd>

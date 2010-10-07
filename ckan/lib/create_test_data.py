@@ -2,6 +2,7 @@ import cli
 
 class CreateTestData(cli.CkanCommand):
     '''Create test data in the database.
+    Tests can also delete the created objects easily with the delete() method.
 
     create-test-data         - annakarenina and warandpeace
     create-test-data search  - realistic data to test search
@@ -19,6 +20,11 @@ class CreateTestData(cli.CkanCommand):
     group_names = set()
     user_names = []
     
+    pkg_core_fields = ['name', 'title', 'version', 'url', 'notes',
+                       'author', 'author_email',
+                       'maintainer', 'maintainer_email',
+                       ]
+
     def command(self):
         self._load_config()
         self._setup_app()
@@ -63,14 +69,16 @@ class CreateTestData(cli.CkanCommand):
     @classmethod
     def create_arbitrary(self, package_dicts,
                          relationships=[], extra_user_names=[],
+                         extra_group_names=[],
                          commit_changesets=False):
         assert isinstance(relationships, (list, tuple))
         assert isinstance(extra_user_names, (list, tuple))
+        assert isinstance(extra_group_names, (list, tuple))
         import ckan.model as model
         model.Session.remove()
         new_user_names = extra_user_names
         new_group_names = set()
-        
+
         admins_list = [] # list of (package_name, admin_names)
         if package_dicts:
             rev = model.repo.new_revision() 
@@ -79,18 +87,19 @@ class CreateTestData(cli.CkanCommand):
             if isinstance(package_dicts, dict):
                 package_dicts = [package_dicts]
             for item in package_dicts:
-                pkg = model.Package(name=unicode(item['name']))
+                pkg_dict = {}
+                for field in self.pkg_core_fields:
+                    if item.has_key(field):
+                        pkg_dict[field] = unicode(item[field])
+                pkg = model.Package(**pkg_dict)
                 model.Session.add(pkg)
                 for attr, val in item.items():
                     if isinstance(val, str):
                         val = unicode(val)
                     if attr=='name':
                         continue                
-                    if attr in ['title', 'version', 'url', 'notes',
-                                'author', 'author_email',
-                                'maintainer', 'maintainer_email',
-                                ]:
-                        setattr(pkg, attr, unicode(val))
+                    if attr in self.pkg_core_fields:
+                        pass
                     elif attr == 'download_url':
                         pkg.add_resource(unicode(val))
                     elif attr == 'resources':
@@ -118,7 +127,13 @@ class CreateTestData(cli.CkanCommand):
                                 model.Session.add(tag)    
                             pkg.tags.append(tag)
                     elif attr == 'groups':
-                        for group_name in val.split():
+                        if isinstance(val, (str, unicode)):
+                            group_names = val.split()
+                        elif isinstance(val, list):
+                            group_names = val
+                        else:
+                            raise NotImplementedError
+                        for group_name in group_names:
                             group = model.Group.by_name(group_name)
                             if not group:
                                 group = model.Group(name=group_name)
@@ -144,6 +159,18 @@ class CreateTestData(cli.CkanCommand):
             model.repo.commit_and_remove()
 
         needs_commit = False
+
+        for group_name in extra_group_names:
+            group = model.Group(name=unicode(group_name))
+            model.Session.add(group)
+            new_group_names.add(group_name)
+            needs_commit = True
+
+        if needs_commit:
+            model.repo.commit_and_remove()
+            needs_commit = False
+
+        # create users that have been identified as being needed
         for user_name in new_user_names:
             if not model.User.by_name(unicode(user_name)):
                 user = model.User(name=unicode(user_name))
@@ -151,12 +178,14 @@ class CreateTestData(cli.CkanCommand):
                 self.user_names.append(user_name)
                 needs_commit = True
 
+        # setup authz for admins
         for pkg_name, admins in admins_list:
             pkg = model.Package.by_name(unicode(pkg_name))
             admins = [model.User.by_name(unicode(user_name)) for user_name in self.user_names]
             model.setup_default_user_roles(pkg, admins)
             needs_commit = True
 
+        # setup authz for groups just created
         for group_name in new_group_names:
             group = model.Group.by_name(unicode(group_name))
             model.setup_default_user_roles(group)
@@ -297,9 +326,26 @@ left arrow <
             changeset_ids = ChangesetRegister().commit()
 
     @classmethod
+    def flag_for_deletion(self, pkg_names=[], tag_names=[], group_names=[],
+                          user_names=[]):
+        '''If you create a domain object manually in your test then you
+        can name it here (flag it up) and it will be deleted when you next
+        call CreateTestData.delete().'''
+        self.pkg_names.extend(pkg_names)
+        self.tag_names.extend(tag_names)
+        self.group_names = self.group_names.union(set(group_names))
+        self.user_names.extend(user_names)
+
+    @classmethod
     def delete(self):
         '''Purges packages etc. that were created by this class.'''
         import ckan.model as model
+        for pkg_name in self.pkg_names:
+            pkg = model.Package.by_name(unicode(pkg_name))
+            if pkg:
+                sql = "DELETE FROM package_search WHERE package_id='%s'" % pkg.id
+                model.Session.execute(sql)
+        model.repo.commit_and_remove()
         for pkg_name in self.pkg_names:
             pkg = model.Package.by_name(unicode(pkg_name))
             if pkg:
@@ -328,7 +374,7 @@ left arrow <
 search_items = [{'name':'gils',
               'title':'Government Information Locator Service',
               'url':'',
-              'tags':'registry  country-usa  government  federal  gov  workshop-20081101',
+              'tags':'registry  country-usa  government  federal  gov  workshop-20081101 penguin',
               'groups':'ukgov test1 test2 penguin',
               'license':'gpl-3.0',
               'notes':u'''From <http://www.gpoaccess.gov/gils/about.html>
@@ -345,7 +391,7 @@ u with umlaut th\xfcmb
               'title':'U.S. Government Photos and Graphics',
               'url':'http://www.usa.gov/Topics/Graphics.shtml',
               'download_url':'http://www.usa.gov/Topics/Graphics.shtml',
-              'tags':'images  graphics  photographs  photos  pictures  us  usa  america  history  wildlife  nature  war  military  todo-split  gov',
+              'tags':'images  graphics  photographs  photos  pictures  us  usa  america  history  wildlife  nature  war  military  todo-split  gov penguin',
               'groups':'ukgov test1 penguin',
               'license':'other-open',
               'notes':'''## About
@@ -368,12 +414,15 @@ Collection of links to different US image collections in the public domain.
 
 1.8 million pages of U.S. case law available with no restrictions. From the [README](http://bulk.resource.org/courts.gov/0_README.html):
 
-> This file is  http://bulk.resource.org/courts.gov/0_README.html and was last revised''',
+> This file is  http://bulk.resource.org/courts.gov/0_README.html and was last revised.
+
+penguin
+''',
               'extras':{'date_released':'2007-06'},
               },
              {'name':'uk-government-expenditure',
               'title':'UK Government Expenditure',
-              'tags':'workshop-20081101  uk  gov  expenditure  finance  public  funding',
+              'tags':'workshop-20081101  uk  gov  expenditure  finance  public  funding penguin',
               'groups':'ukgov penguin',              
               'notes':'''Discussed at [Workshop on Public Information, 2008-11-02](http://okfn.org/wiki/PublicInformation).
 
@@ -384,7 +433,7 @@ Overview is available in Red Book, or Financial Statement and Budget Report (FSB
               'title':'Sweden - Government Offices of Sweden - Publications',
               'url':'http://www.sweden.gov.se/sb/d/574',
               'groups':'penguin',              
-              'tags':'country-sweden  format-pdf  access-www  documents  publications  government  eutransparency',
+              'tags':'country-sweden  format-pdf  access-www  documents  publications  government  eutransparency penguin',
               'license':'',
               'notes':'''### About
 
@@ -400,7 +449,7 @@ Not clear.''',
               'groups':'penguin',              
               'url':'http://www.opengov.se/',
               'download_url':'http://www.opengov.se/data/open/',
-              'tags':'country-sweden  government  data',
+              'tags':'country-sweden  government  data penguin',
               'license':'cc-by-sa',
               'notes':'''### About
 

@@ -1,8 +1,13 @@
 from datetime import datetime
+
 from meta import *
-from core import DomainObject, Package, package_table
+from core import *
+from domain_object import DomainObject
+from package import *
 from types import make_uuid
 import vdm.sqlalchemy
+
+__all__ = ['group_table', 'Group', 'PackageGroup']
 
 package_group_table = Table('package_group', metadata,
         Column('id', UnicodeText, primary_key=True, default=make_uuid),
@@ -41,9 +46,9 @@ class Group(DomainObject):
         text_query = text_query.strip().lower()
         return Session.query(self).filter(self.name.contains(text_query))
 
-    def as_dict(self):
+    def as_dict(self, ref_package_by='name'):
         _dict = DomainObject.as_dict(self)
-        _dict['packages'] = [package.name for package in self.packages]
+        _dict['packages'] = [getattr(package, ref_package_by) for package in self.packages]
         return _dict
 
     def add_package_by_name(self, package_name):
@@ -63,9 +68,8 @@ mapper(Group, group_table, properties={
         backref='groups',
         order_by=package_table.c.name
     )},
-# Not needed - triggers anyway       
-#    extension = full_search.SearchVectorTrigger(),
 )
 
-mapper(PackageGroup, package_group_table)
-
+mapper(PackageGroup, package_group_table,
+#       extension=[notifier.NotifierMapperTrigger()],
+)

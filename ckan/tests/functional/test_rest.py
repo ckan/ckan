@@ -1,7 +1,9 @@
 from pylons import config
 import webhelpers
+import re
 
 from ckan.tests import *
+from ckan.tests import TestController as ControllerTestCase
 import ckan.model as model
 import ckan.authz as authz
 from ckan.lib.create_test_data import CreateTestData
@@ -9,9 +11,72 @@ from ckan.lib.helpers import json
 
 ACCESS_DENIED = [403]
 
-class BaseRestCase(TestController):
+class ApiTestCase(ControllerTestCase):
 
     api_version = ''
+    ref_package_by = ''
+    ref_group_by = ''
+
+    def package_ref_from_name(self, package_name):
+        package = self.get_package_by_name(unicode(package_name))
+        if package == None:
+            return package_name
+        else:
+            return self.ref_package(package)
+
+    def ref_package(self, package):
+        assert self.ref_package_by in ['id', 'name']
+        return getattr(package, self.ref_package_by)
+
+    def group_ref_from_name(self, group_name):
+        group = self.get_group_by_name(unicode(group_name))
+        if group == None:
+            return group_name
+        else:
+            return self.ref_group(group)
+
+    def ref_group(self, group):
+        assert self.ref_group_by in ['id', 'name']
+        return getattr(group, self.ref_group_by)
+
+    @classmethod
+    def offset(self, path):
+        assert self.api_version, "API version is missing."
+        return '/api/%s%s' % (self.api_version, path)
+
+    def package_offset(self, package_name=None):
+        if package_name == None:
+            # Package Register
+            return self.offset('/rest/package')
+        else:
+            # Package Entity
+            package_ref = self.package_ref_from_name(package_name)
+            return self.offset('/rest/package/%s' % package_ref)
+
+    def anna_offset(self, postfix=''):
+        return self.package_offset('annakarenina') + postfix
+
+    def assert_msg_represents_anna(self, msg):
+        assert 'annakarenina' in msg, msg
+        assert '"license_id": "other-open"' in msg, str(msg)
+        assert 'russian' in msg, msg
+        assert 'tolstoy' in msg, msg
+        assert '"extras": {' in msg, msg
+        assert '"genre": "romantic novel"' in msg, msg
+        assert '"original media": "book"' in msg, msg
+        assert 'annakarenina.com/download' in msg, msg
+        assert '"plain text"' in msg, msg
+        assert '"Index of the novel"' in msg, msg
+        assert '"id": "%s"' % self.anna.id in msg, msg
+        expected = '"groups": ['
+        assert expected in msg, (expected, msg)
+        expected = self.group_ref_from_name('roger')
+        assert expected in msg, (expected, msg)
+        expected = self.group_ref_from_name('david')
+        assert expected in msg, (expected, msg)
+
+
+class ModelApiTestCase(ApiTestCase):
 
     @classmethod
     def setup_class(self):
@@ -42,7 +107,7 @@ class BaseRestCase(TestController):
             'name' : u'testgroup',
             'title' : u'Some Group Title',
             'description' : u'Great group!',
-            'packages' : [u'annakarenina', 'warandpeace'],
+            'packages' : [u'annakarenina', u'warandpeace'],
         }
         self.user_name = u'http://myrandom.openidservice.org/'
 
@@ -61,107 +126,96 @@ class BaseRestCase(TestController):
 
     def test_01_register_post_noauth(self):
         # Test Packages Register Post 401.
-        offset = '/api/rest/package'
+        offset = self.offset('/rest/package')
         postparams = '%s=1' % json.dumps(self.testpackagevalues)
         res = self.app.post(offset, params=postparams, status=ACCESS_DENIED)
 
     def test_01_entity_put_noauth(self):
         # Test Packages Entity Put 401.
-        offset = '/api/rest/package/annakarenina'
+        offset = self.anna_offset()
         postparams = '%s=1' % json.dumps(self.testpackagevalues)
         res = self.app.post(offset, params=postparams, status=ACCESS_DENIED)
 
     def test_01_entity_delete_noauth(self):
         # Test Packages Entity Delete 401.
-        offset = self.offset('/rest/package/%s' % u'annakarenina')
+        offset = self.anna_offset()
         res = self.app.delete(offset, status=ACCESS_DENIED)
 
     def test_02_list_package(self):
         # Test Packages Register Get 200.
         offset = self.offset('/rest/package')
         res = self.app.get(offset, status=[200])
-        self.assert_package_refs(res)
-
-    def offset(self, path):
-        assert self.api_version, "API version is missing."
-        return '/api/%s%s' % (self.api_version, path)
-
-    def assert_package_refs(self, res):
-        raise Exception, "Method not implemented."
+        assert self.ref_package(self.anna) in res, res
+        assert self.ref_package(self.war) in res, res
 
     def test_02_list_tags(self):
         # Test Packages Register Get 200.
-        offset = '/api/rest/tag'
+        offset = self.offset('/rest/tag')
         res = self.app.get(offset, status=[200])
         assert 'russian' in res, res
         assert 'tolstoy' in res, res
 
     def test_02_list_groups(self):
-        offset = '/api/rest/group'
+        offset = self.offset('/rest/group')
         res = self.app.get(offset, status=[200])
-        assert 'david' in res, res
-        assert 'roger' in res, res
+        assert self.group_ref_from_name('david') in res, res
+        assert self.group_ref_from_name('roger') in res, res
 
-    def test_04_get_package(self):
+    def test_04_get_package_entity(self):
         # Test Packages Entity Get 200.
-        anna = self.anna
-        for pkg_ref in ('annakarenina', anna.id):
-            offset = '/api/rest/package/%s' % pkg_ref
+        for pkg_ref in ('annakarenina', self.anna.id):
+            offset = self.offset('/rest/package/%s' % pkg_ref)
             res = self.app.get(offset, status=[200])
-            assert 'annakarenina' in res, res
-            assert '"license_id": "other-open"' in res, str(res)
-            assert 'russian' in res, res
-            assert 'tolstoy' in res, res
-            assert '"extras": {' in res, res
-            assert '"genre": "romantic novel"' in res, res
-            assert '"original media": "book"' in res, res
-            assert 'annakarenina.com/download' in res, res
-            assert '"plain text"' in res, res
-            assert '"Index of the novel"' in res, res
-            # 2/12/09 download_url is now deprecated - to be removed in the future
-            assert '"download_url": "http://www.annakarenina.com/download/x=1&y=2"' in res, res
-            assert '"id": "%s"' % anna.id in res, res
+            self.assert_msg_represents_anna(msg=res.body)
 
     def test_04_ckan_url(self):
-        offset = '/api/rest/package/annakarenina'
+        offset = self.offset('/rest/package/annakarenina')
         res = self.app.get(offset, status=[200])
         assert 'ckan_url' in res
+        # Todo: What is the deal with ckan_url? And should this use IDs rather than names?
         assert '"ckan_url": "http://test.ckan.net/package/annakarenina"' in res, res
 
     def test_04_get_tag(self):
-        offset = '/api/rest/tag/tolstoy'
+        offset = self.offset('/rest/tag/tolstoy')
         res = self.app.get(offset, status=[200])
         assert 'annakarenina' in res, res
         assert not 'warandpeace' in res, res
 
     def test_04_get_group(self):
-        offset = '/api/rest/group/roger'
+        offset = self.offset('/rest/group/roger')
         res = self.app.get(offset, status=[200])
-        assert 'annakarenina' in res, res
-        assert not 'warandpeace' in res, res
+        assert self.package_ref_from_name('annakarenina') in res, res
+        assert self.group_ref_from_name('roger') in res, res
+        assert not self.package_ref_from_name('warandpeace') in res, res
         
+    def test_04_get_package_with_jsonp_callback(self):
+        offset = self.anna_offset(postfix='?callback=jsoncallback')
+        res = self.app.get(offset, status=200)
+        assert re.match('jsoncallback\(.*\);', res.body), res
+        self.assert_msg_represents_anna(msg=res.body)
+
     def test_05_get_404_package(self):
         # Test Package Entity Get 404.
-        offset = '/api/rest/package/22222'
+        offset = self.offset('/rest/package/22222')
         res = self.app.get(offset, status=404)
         model.Session.remove()
 
     def test_05_get_404_group(self):
         # Test Group Entity Get 404.
-        offset = '/api/rest/group/22222'
+        offset = self.offset('/rest/group/22222')
         res = self.app.get(offset, status=404)
         model.Session.remove()
 
     def test_05_get_404_tag(self):
         # Test Tag Entity Get 404.
-        offset = '/api/rest/tag/doesntexist'
+        offset = self.offset('/rest/tag/doesntexist')
         res = self.app.get(offset, status=404)
         model.Session.remove()
 
     def test_06_create_pkg(self):
         # Test Packages Register Post 200.
         assert not self.get_package_by_name(self.testpackagevalues['name'])
-        offset = '/api/rest/package'
+        offset = self.package_offset()
         postparams = '%s=1' % json.dumps(self.testpackagevalues)
         res = self.app.post(offset, params=postparams, status=[200],
                 extra_environ=self.extra_environ)
@@ -188,7 +242,7 @@ class BaseRestCase(TestController):
                 assert comp_value == resource[key], '%s != %s' % (comp_value, resource[key])
 
         # Test Package Entity Get 200.
-        offset = '/api/rest/package/%s' % self.testpackagevalues['name']
+        offset = self.package_offset(self.testpackagevalues['name'])
         res = self.app.get(offset, status=[200])
         assert self.testpackagevalues['name'] in res, res
         assert '"license_id": "%s"' % self.testpackagevalues['license_id'] in res, res
@@ -201,31 +255,33 @@ class BaseRestCase(TestController):
         model.Session.remove()
         
         # Test Packages Register Post 409 (conflict - create duplicate package).
-        offset = '/api/rest/package'
+        offset = self.package_offset()
         postparams = '%s=1' % json.dumps(self.testpackagevalues)
         res = self.app.post(offset, params=postparams, status=[409],
                 extra_environ=self.extra_environ)
         model.Session.remove()
 
-    def test_06_create_pkg_using_download_url(self):
-        # 2/12/09 download_url is deprecated - remove in future
+    def test_06_create_pkg_bad_format_400(self):
         test_params = {
-            'name':u'testpkg06',
-            'download_url':u'testurl',
+            'name':u'testpkg06_400',
+            'resources':[u'should_be_a_dict'],
             }
-        offset = '/api/rest/package'
+        offset = self.offset('/rest/package')
         postparams = '%s=1' % json.dumps(test_params)
-        res = self.app.post(offset, params=postparams, status=[200],
+        res = self.app.post(offset, params=postparams, status=[400],
                 extra_environ=self.extra_environ)
-        model.Session.remove()
-        pkg = self.get_package_by_name(test_params['name'])
-        assert pkg
-        assert pkg.name == test_params['name'], pkg
-        assert len(pkg.resources) == 1, pkg.resources
-        assert pkg.resources[0].url == test_params['download_url'], pkg.resources[0]
+
+    def test_06_create_package_with_jsonp_callback(self):
+        # JSONP callback should only work for GETs, not POSTs.
+        pkg_name = u'test6jsonp'
+        assert not self.get_package_by_name(pkg_name)
+        offset = self.offset('/rest/package?callback=jsoncallback')
+        postparams = '%s=1' % json.dumps({'name': pkg_name})
+        res = self.app.post(offset, params=postparams, status=[400],
+                            extra_environ=self.extra_environ)
 
     def test_06_create_group(self):
-        offset = '/api/rest/group'
+        offset = self.offset('/rest/group')
         postparams = '%s=1' % json.dumps(self.testgroupvalues)
         res = self.app.post(offset, params=postparams, status=200,
                 extra_environ=self.extra_environ)
@@ -246,16 +302,18 @@ class BaseRestCase(TestController):
         assert warandpeace in group.packages
 
         # Test Package Entity Get 200.
-        offset = '/api/rest/group/%s' % self.testgroupvalues['name']
+        offset = self.offset('/rest/group/%s' % self.testgroupvalues['name'])
         res = self.app.get(offset, status=[200])
         assert self.testgroupvalues['name'] in res, res
-        assert self.testgroupvalues['packages'][0] in res, res
-        assert self.testgroupvalues['packages'][1] in res, res
-        
+        assert self.package_ref_from_name(self.testgroupvalues['packages'][0]) in res, res
+        ref = self.package_ref_from_name(self.testgroupvalues['packages'][0])
+        assert ref in res, res
+        ref = self.package_ref_from_name(self.testgroupvalues['packages'][1])
+        assert ref in res, res
         model.Session.remove()
         
         # Test Packages Register Post 409 (conflict - create duplicate package).
-        offset = '/api/rest/group'
+        offset = self.offset('/rest/group')
         postparams = '%s=1' % json.dumps(self.testgroupvalues)
         res = self.app.post(offset, params=postparams, status=[409],
                 extra_environ=self.extra_environ)
@@ -264,7 +322,7 @@ class BaseRestCase(TestController):
     def test_06_rate_package(self):
         # Test Rating Register Post 200.
         self.clear_all_tst_ratings()
-        offset = '/api/rest/rating'
+        offset = self.offset('/rest/rating')
         rating_opts = {'package':u'warandpeace',
                        'rating':5}
         postparams = '%s=1' % json.dumps(rating_opts)
@@ -277,7 +335,7 @@ class BaseRestCase(TestController):
         assert pkg.ratings[0].rating == rating_opts['rating'], pkg.ratings
 
         # Get package to see rating
-        offset = '/api/rest/package/%s' % rating_opts['package']
+        offset = self.offset('/rest/package/%s' % rating_opts['package'])
         res = self.app.get(offset, status=[200])
         assert rating_opts['package'] in res, res
         assert '"ratings_average": %s.0' % rating_opts['rating'] in res, res
@@ -286,7 +344,7 @@ class BaseRestCase(TestController):
         model.Session.remove()
         
         # Rerate package
-        offset = '/api/rest/rating'
+        offset = self.offset('/rest/rating')
         postparams = '%s=1' % json.dumps(rating_opts)
         res = self.app.post(offset, params=postparams, status=[200],
                 extra_environ=self.extra_environ)
@@ -298,7 +356,7 @@ class BaseRestCase(TestController):
 
     def test_06_rate_package_out_of_range(self):
         self.clear_all_tst_ratings()
-        offset = '/api/rest/rating'
+        offset = self.offset('/rest/rating')
         rating_opts = {'package':u'warandpeace',
                        'rating':0}
         postparams = '%s=1' % json.dumps(rating_opts)
@@ -312,7 +370,7 @@ class BaseRestCase(TestController):
     def _test_09_entity_put_404(self):
         # TODO: get this working again. At present returns 400
         # Test Package Entity Put 404.
-        offset = '/api/rest/package/22222'
+        offset = self.package_offset('22222')
         postparams = '%s=1' % json.dumps(self.testpackagevalues)
         # res = self.app.post(offset, params=postparams, status=[404],
         #        extra_environ=self.extra_environ)
@@ -358,7 +416,7 @@ class BaseRestCase(TestController):
                 'extras':{u'key3':u'val3', u'key2':None},
                 'tags':[u'tag1', u'tag2', u'tag4', u'tag5'],
             }
-            offset = '/api/rest/package/%s' % getattr(pkg, pkg_ref_attribute)
+            offset = self.package_offset(test_pkg_dict['name'])
             postparams = '%s=1' % json.dumps(edited_pkg_dict)
             res = self.app.post(offset, params=postparams, status=[200],
                                 extra_environ=self.extra_environ)
@@ -406,41 +464,11 @@ class BaseRestCase(TestController):
     def test_10_edit_pkg_values_by_name(self):
         self.base_10_edit_pkg_values('name')
 
-    def test_10_edit_pkg_with_download_url(self):
-        # 2/12/09 download_url is deprecated - remove in future
-        test_params = {
-            'name':u'testpkg10',
-            'download_url':u'testurl',
-            }
-        rev = model.repo.new_revision()
-        pkg = model.Package()
-        model.Session.add(pkg)
-        pkg.name = test_params['name']
-        pkg.download_url = test_params['download_url']
-        model.Session.commit()
-
-        pkg = self.get_package_by_name(test_params['name'])
-        model.setup_default_user_roles(pkg, [self.user])
-        rev = model.repo.new_revision()
-        model.repo.commit_and_remove()
-        assert self.get_package_by_name(test_params['name'])
-
-        # edit it
-        pkg_vals = {'download_url':u'newurl'}
-        offset = '/api/rest/package/%s' % test_params['name']
-        postparams = '%s=1' % json.dumps(pkg_vals)
-        res = self.app.post(offset, params=postparams, status=[200],
-                            extra_environ=self.extra_environ)
-        model.Session.remove()
-        pkg = model.Session.query(model.Package).filter_by(name=test_params['name']).one()
-        assert len(pkg.resources) == 1, pkg.resources
-        assert pkg.resources[0].url == pkg_vals['download_url']
-
     def test_10_edit_group(self):
         # create a group with testgroupvalues
         group = model.Group.by_name(self.testgroupvalues['name'])
         if not group:
-            offset = '/api/rest/group'
+            offset = self.offset('/rest/group')
             postparams = '%s=1' % json.dumps(self.testgroupvalues)
             res = self.app.post(offset, params=postparams, status=[200],
                     extra_environ=self.extra_environ)
@@ -454,7 +482,7 @@ class BaseRestCase(TestController):
         # edit it
         group_vals = {'name':u'somethingnew', 'title':u'newtesttitle',
                       'packages':[u'annakarenina']}
-        offset = '/api/rest/group/%s' % self.testgroupvalues['name']
+        offset = self.offset('/rest/group/%s' % self.testgroupvalues['name'])
         postparams = '%s=1' % json.dumps(group_vals)
         res = self.app.post(offset, params=postparams, status=[200],
                             extra_environ=self.extra_environ)
@@ -493,7 +521,7 @@ class BaseRestCase(TestController):
 
         # edit first package to have dupname
         pkg_vals = {'name':dupname}
-        offset = '/api/rest/package/%s' % self.testpackagevalues['name']
+        offset = self.package_offset(self.testpackagevalues['name'])
         postparams = '%s=1' % json.dumps(pkg_vals)
         res = self.app.post(offset, params=postparams, status=[409],
                             extra_environ=self.extra_environ)
@@ -526,7 +554,7 @@ class BaseRestCase(TestController):
 
         # edit first group to have dupname
         group_vals = {'name':dupname}
-        offset = '/api/rest/group/%s' % self.testgroupvalues['name']
+        offset = self.offset('/rest/group/%s' % self.testgroupvalues['name'])
         postparams = '%s=1' % json.dumps(group_vals)
         res = self.app.post(offset, params=postparams, status=[409],
                             extra_environ=self.extra_environ)
@@ -550,7 +578,7 @@ class BaseRestCase(TestController):
         assert self.get_package_by_name(self.testpackagevalues['name'])
 
         # delete it
-        offset = '/api/rest/package/%s' % self.testpackagevalues['name']
+        offset = self.package_offset(self.testpackagevalues['name'])
         res = self.app.delete(offset, status=[200],
                 extra_environ=self.extra_environ)
         pkg = self.get_package_by_name(self.testpackagevalues['name'])
@@ -578,7 +606,7 @@ class BaseRestCase(TestController):
         model.setup_default_user_roles(group, [user])
 
         # delete it
-        offset = '/api/rest/group/%s' % self.testgroupvalues['name']
+        offset = self.offset('/rest/group/%s' % self.testgroupvalues['name'])
         res = self.app.delete(offset, status=[200],
                 extra_environ=self.extra_environ)
         assert not model.Group.by_name(self.testgroupvalues['name'])
@@ -588,14 +616,14 @@ class BaseRestCase(TestController):
         # Test Package Entity Get 404.
         pkg_name = u'random_one'
         assert not model.Session.query(model.Package).filter_by(name=pkg_name).count()
-        offset = '/api/rest/package/%s' % pkg_name
+        offset = self.package_offset(pkg_name)
         res = self.app.get(offset, status=404)
         model.Session.remove()
 
     def test_12_get_group_404(self):
         # Test Package Entity Get 404.
         assert not model.Session.query(model.Group).filter_by(name=self.testgroupvalues['name']).count()
-        offset = '/api/rest/group/%s' % self.testgroupvalues['name']
+        offset = self.offset('/rest/group/%s' % self.testgroupvalues['name'])
         res = self.app.get(offset, status=404)
         model.Session.remove()
 
@@ -603,20 +631,20 @@ class BaseRestCase(TestController):
         # Test Packages Entity Delete 404.
         pkg_name = u'random_one'
         assert not model.Session.query(model.Package).filter_by(name=pkg_name).count()
-        offset = '/api/rest/package/%s' % pkg_name
+        offset = self.offset('/rest/package/%s' % pkg_name)
         res = self.app.delete(offset, status=[404],
                               extra_environ=self.extra_environ)
 
     def test_13_delete_group_404(self):
         # Test Packages Entity Delete 404.
         assert not model.Session.query(model.Group).filter_by(name=self.testgroupvalues['name']).count()
-        offset = '/api/rest/group/%s' % self.testgroupvalues['name']
+        offset = self.offset('/rest/group/%s' % self.testgroupvalues['name'])
         res = self.app.delete(offset, status=[404],
                               extra_environ=self.extra_environ)
 
     def test_14_list_revisions(self):
         # Check mock register behaviour.
-        offset = '/api/rest/revision'
+        offset = self.offset('/rest/revision')
         res = self.app.get(offset, status=200)
         revs = model.Session.query(model.Revision).all()
         assert revs, "There are no revisions in the model."
@@ -627,24 +655,25 @@ class BaseRestCase(TestController):
     def test_14_get_revision(self):
         rev = model.repo.history().all()[-2] # 2nd revision is the creation of pkgs
         offset = self.offset('/rest/revision/%s' % rev.id)
-        res = self.app.get(offset, status=[200])
-        res_dict = json.loads(res.body)
-        assert rev.id == res_dict['id']
-        assert rev.timestamp.isoformat() == res_dict['timestamp'], (rev.timestamp.isoformat(), res_dict['timestamp'])
-        assert 'packages' in res_dict
-        self.assert_revision_packages(res_dict['packages'])
-
-    def assert_revision_packages(self, packages):
-        raise Exception, "Method not implemented."
+        response = self.app.get(offset, status=[200])
+        response_data = json.loads(response.body)
+        assert rev.id == response_data['id']
+        assert rev.timestamp.isoformat() == response_data['timestamp'], (rev.timestamp.isoformat(), response_data['timestamp'])
+        assert 'packages' in response_data
+        packages = response_data['packages']
+        assert isinstance(packages, list)
+        assert len(packages) != 0, "Revision packages is empty: %s" % packages
+        assert self.ref_package(self.anna) in packages, packages
+        assert self.ref_package(self.war) in packages, packages
 
     def test_14_get_revision_404(self):
         revision_id = "xxxxxxxxxxxxxxxxxxxxxxxxxx"
-        offset = '/api/rest/revision/%s' % revision_id
+        offset = self.offset('/rest/revision/%s' % revision_id)
         res = self.app.get(offset, status=404)
         model.Session.remove()
 
     def test_15_list_changesets(self):
-        offset = '/api/rest/changeset'
+        offset = self.offset('/rest/changeset')
         res = self.app.get(offset, status=[200])
         from ckan.model.changeset import ChangesetRegister
         changesets = ChangesetRegister()
@@ -657,7 +686,7 @@ class BaseRestCase(TestController):
         changesets = ChangesetRegister()
         assert len(changesets), "No changesets found in model."
         for id in changesets:
-            offset = '/api/rest/changeset/%s' % id
+            offset = self.offset('/rest/changeset/%s' % id)
             res = self.app.get(offset, status=[200])
             changeset_data = json.loads(res.body)
             assert 'id' in changeset_data, "No 'id' in changeset data: %s" % changeset_data
@@ -666,7 +695,7 @@ class BaseRestCase(TestController):
 
     def test_15_get_changeset_404(self):
         changeset_id = "xxxxxxxxxxxxxxxxxxxxxxxxxx"
-        offset = '/api/rest/changeset/%s' % changeset_id
+        offset = self.offset('/rest/changeset/%s' % changeset_id)
         res = self.app.get(offset, status=404)
         model.Session.remove()
 
@@ -674,7 +703,7 @@ class BaseRestCase(TestController):
         from ckan.model.license import LicenseRegister
         register = LicenseRegister()
         assert len(register), "No changesets found in model."
-        offset = '/api/rest/licenses'
+        offset = self.offset('/rest/licenses')
         res = self.app.get(offset, status=[200])
         licenses_data = json.loads(res.body)
         assert len(licenses_data) == len(register), (len(licenses_data), len(register))
@@ -685,34 +714,15 @@ class BaseRestCase(TestController):
             assert license['url'] == license.url
 
 
-# For CKAN API Version 1.
-class TestRest(BaseRestCase):
+# Note well, relationships are actually part of the Model API.
+class RelationshipsApiTestCase(ApiTestCase):
 
-    api_version = '1'
-
-    def assert_package_refs(self, res):
-        assert self.anna.name in res, res
-        assert self.war.name in res, res
-
-    def assert_revision_packages(self, packages):
-        assert isinstance(packages, list)
-        assert len(packages) != 0, "Revision packages is empty: %s" % packages
-        assert 'annakarenina' in packages, packages
-        assert 'warandpeace' in packages, packages
-
-
-class TestRelationships(TestController):
     @classmethod
     def setup_class(self):
         CreateTestData.create()
-        username = u'barry'
-        self.user = model.User(name=username)
-        model.Session.add(self.user)
-        model.Session.commit()
-        model.Session.remove()
+        self.user = self.create_user(name=u'barry')
         self.extra_environ={ 'Authorization' : str(self.user.apikey) }
         self.comment = u'Comment umlaut: \xfc.'
-
 
     @classmethod
     def teardown_class(self):
@@ -720,12 +730,147 @@ class TestRelationships(TestController):
         model.repo.rebuild_db()
         model.Session.remove()
 
-    def _get_relationships(self, package1_name='annakarenina', type='relationships', package2_name=None):
+    def setup(self):
+        pass
+
+    def teardown(self):
+        for relationship in self.anna.get_relationships():
+            relationship.purge()
+        relationships = self.anna.get_relationships()
+        assert relationships == [], "There are still some relationships: %s" % relationships
+
+    def test_01_create_and_read_relationship(self):
+        # check anna has no existing relationships
+        assert not self.anna.get_relationships()
+        assert self.get_relationships(package1_name='annakarenina') == []
+        assert self.get_relationships(package1_name='annakarenina',
+                                       package2_name='warandpeace') == []
+        assert self.get_relationships(package1_name='annakarenina',
+                                       type='child_of',
+                                       package2_name='warandpeace') == 404
+        assert self.get_relationships_via_package('annakarenina') == []
+
+        # Create a relationship.
+        self.create_annakarenina_parent_of_war_and_peace()
+
+        # Check package relationship register.
+        rels = self.get_relationships(package1_name='annakarenina')
+        assert len(rels) == 1
+        self.check_relationship_dict(rels[0],
+               'annakarenina', 'parent_of', 'warandpeace', self.comment)
+
+        # Todo: Name this?
+        # Check '/api/VER/rest/package/annakarenina/relationships/warandpeace'
+        rels = self.get_relationships(package1_name='annakarenina',
+                                       package2_name='warandpeace')
+        assert len(rels) == 1
+        self.check_relationship_dict(rels[0],
+               'annakarenina', 'parent_of', 'warandpeace', self.comment)
+
+        # Todo: Name this?
+        # check '/api/VER/rest/package/annakarenina/parent_of/warandpeace'
+        rels = self.get_relationships(package1_name='annakarenina',
+                                       type='parent_of',
+                                       package2_name='warandpeace')
+        assert len(rels) == 1
+        self.check_relationship_dict(rels[0],
+               'annakarenina', 'parent_of', 'warandpeace', self.comment)
+
+        # same checks in reverse direction
+        rels = self.get_relationships(package1_name='warandpeace')
+        assert len(rels) == 1
+        self.check_relationship_dict(rels[0],
+               'warandpeace', 'child_of', 'annakarenina', self.comment)
+
+        rels = self.get_relationships(package1_name='warandpeace',
+                                       package2_name='annakarenina')
+        assert len(rels) == 1
+        self.check_relationship_dict(rels[0],
+               'warandpeace', 'child_of', 'annakarenina', self.comment)
+
+        rels = self.get_relationships(package1_name='warandpeace',
+                                       type='child_of',
+                                      package2_name='annakarenina')
+        assert len(rels) == 1
+        self.check_relationship_dict(rels[0],
+               'warandpeace', 'child_of', 'annakarenina', self.comment)
+
+        # Check package entity relationships.
+        rels = self.get_relationships_via_package('annakarenina')
+        assert len(rels) == 1
+        self.check_relationship_dict(rels[0],
+               'annakarenina', 'parent_of', 'warandpeace', self.comment)
+        
+    def test_03_update_relationship(self):
+        # Create a relationship.
+        self.create_annakarenina_parent_of_war_and_peace()
+
+        # Check the relationship before update.
+        self.check_relationships_rest('warandpeace', 'annakarenina',
+                                      [{'type': 'child_of',
+                                        'comment': self.comment}])
+
+        # Update the relationship.
+        new_comment = u'New comment.'
+        self.update_annakarenina_parent_of_war_and_peace(comment=new_comment)
+
+        # Check the relationship after update.
+        self.check_relationships_rest('warandpeace', 'annakarenina', [{'type': 'child_of', 'comment': new_comment}])
+
+        # Repeat update with same values, to check it remains the same?
+
+        # Update the relationship.
+        new_comment = u'New comment.'
+        self.update_annakarenina_parent_of_war_and_peace(comment=new_comment)
+
+        # Check the relationship after update.
+        self.check_relationships_rest('warandpeace', 'annakarenina', [{'type': 'child_of', 'comment': new_comment}])
+
+    def test_05_delete_relationship(self):
+        self.create_annakarenina_parent_of_war_and_peace()
+        self.update_annakarenina_parent_of_war_and_peace()
+        expected = [ {'type': 'child_of', 'comment': u'New comment.'} ]
+        self.check_relationships_rest('warandpeace', 'annakarenina', expected)
+
+        self.delete_annakarenina_parent_of_war_and_peace()
+
+        expected = []
+        self.check_relationships_rest('warandpeace', 'annakarenina', expected)
+
+    def create_annakarenina_parent_of_war_and_peace(self):
+        # Create package relationship.
+        # Todo: Redesign this in a RESTful style, so that a relationship is 
+        # created by posting a relationship to a relationship **register**.
+        offset = self.offset('/rest/package/annakarenina/parent_of/warandpeace')
+        postparams = '%s=1' % json.dumps({'comment':self.comment})
+        res = self.app.post(offset, params=postparams, status=[200],
+                            extra_environ=self.extra_environ)
+        # Check the model, directly.
+        rels = self.anna.get_relationships()
+        assert len(rels) == 1, rels
+        assert rels[0].type == 'child_of'
+        assert rels[0].subject.name == 'warandpeace'
+        assert rels[0].object.name == 'annakarenina'
+
+    def update_annakarenina_parent_of_war_and_peace(self, comment=u'New comment.'):
+        offset = self.offset('/rest/package/annakarenina/parent_of/warandpeace')
+        postparams = '%s=1' % json.dumps({'comment':comment})
+        res = self.app.post(offset, params=postparams, status=[200], extra_environ=self.extra_environ)
+        return res
+
+    def delete_annakarenina_parent_of_war_and_peace(self):
+        offset = self.offset('/rest/package/annakarenina/parent_of/warandpeace')
+        res = self.app.delete(offset, status=[200], extra_environ=self.extra_environ)
+        return res
+
+    def get_relationships(self, package1_name=u'annakarenina', type='relationships', package2_name=None):
+        package1_ref = self.package_ref_from_name(package1_name)
         if not package2_name:
-            offset = '/api/rest/package/%s/%s' % (str(package1_name), type)
+            offset = self.offset('/rest/package/%s/%s' % (package1_ref, type))
         else:
-            offset = '/api/rest/package/%s/%s/%s' % (
-                str(package1_name), type, str(package2_name))
+            package2_ref = self.package_ref_from_name(package2_name)
+            offset = self.offset('/rest/package/%s/%s/%s' % (
+                str(package1_ref), type, str(package2_ref)))
         allowable_statuses = [200]
         if type:
             allowable_statuses.append(404)
@@ -736,25 +881,30 @@ class TestRelationships(TestController):
         else:
             return 404
 
-    def _get_relationships_via_package(self, package1_name):
-        offset = '/api/rest/package/%s' % (str(package1_name))
+    def get_relationships_via_package(self, package1_name):
+        offset = self.offset('/rest/package/%s' % (str(package1_name)))
         res = self.app.get(offset, status=200)
         res_dict = json.loads(res.body) if res.body else []
         return res_dict['relationships']
 
-    @property
-    def anna_offset(self):
-        return '/api/rest/package/annakarenina'
+    def assert_len_relationships(self, relationships, expected_relationships):
+        len_relationships = len(relationships)
+        len_expected_relationships = len(expected_relationships)
+        if len_relationships != len_expected_relationships:
+            msg = 'Found %i relationships, ' % len_relationships
+            msg += 'but expected %i.' % len_expected_relationships
+            if len_relationships:
+                msg += ' Found: '
+                for r in relationships:
+                    msg += '%s %s %s; ' % r['subject'], r['type'], r['object']
+                msg += '.'
+            raise Exception, msg
 
-    def _check_relationships_rest(self, pkg1_name, pkg2_name=None,
+    def check_relationships_rest(self, pkg1_name, pkg2_name=None,
                                  expected_relationships=[]):
-        rels = self._get_relationships(package1_name=pkg1_name,
+        rels = self.get_relationships(package1_name=pkg1_name,
                                       package2_name=pkg2_name)
-        assert len(rels) == len(expected_relationships), \
-               'Found %i relationships, but expected %i.\nFound: %r' % \
-               (len(rels), len(expected_relationships),
-                ['%s %s %s' % (rel['subject'], rel['type'], rel['object']) \
-                 for rel in rels])
+        self.assert_len_relationships(rels, expected_relationships) 
         for rel in rels:
             the_expected_rel = None
             for expected_rel in expected_relationships:
@@ -767,156 +917,26 @@ class TestRelationships(TestController):
                                 (rel['subject'], rel['type'], rel['object']))
             for field in ('subject', 'object', 'type', 'comment'):
                 if the_expected_rel.has_key(field):
-                    assert rel[field] == the_expected_rel[field], rel
+                    value = rel[field]
+                    expected = the_expected_rel[field]
+                    assert value == expected, (value, expected, field, rel)
 
-    def _check_relationship_dict(self, rel_dict, subject, type, object, comment):
-        assert rel_dict['subject'] == subject, rel_dict
-        assert rel_dict['object'] == object, rel_dict
-        assert rel_dict['type'] == type, rel_dict
-        assert rel_dict['comment'] == comment, rel_dict
+    def check_relationship_dict(self, rel_dict, subject_name, type, object_name, comment):
+        subject_ref = self.package_ref_from_name(subject_name)
+        object_ref = self.package_ref_from_name(object_name)
 
-
-    def test_01_add_relationship(self):
-        # check anna has no existing relationships
-        assert not self.anna.get_relationships()
-        assert self._get_relationships(package1_name='annakarenina') == []
-        assert self._get_relationships(package1_name='annakarenina',
-                                       package2_name='warandpeace') == []
-        assert self._get_relationships(package1_name='annakarenina',
-                                       type='child_of',
-                                       package2_name='warandpeace') == 404
-        assert self._get_relationships_via_package('annakarenina') == []
-
-        # make annakarenina parent of warandpeace
-        offset='/api/rest/package/annakarenina/parent_of/warandpeace'
-        postparams = '%s=1' % json.dumps({'comment':self.comment})
-        res = self.app.post(offset, params=postparams, status=[200],
-                            extra_environ=self.extra_environ)
-
-    def test_02_read_relationship(self):
-        'check relationship is made (in test 01)'
-
-        # check model is right
-        rels = self.anna.get_relationships()
-        assert len(rels) == 1, rels
-        assert rels[0].type == 'child_of'
-        assert rels[0].subject.name == 'warandpeace'
-        assert rels[0].object.name == 'annakarenina'
-
-        # check '/api/rest/package/annakarenina/relationships'
-        rels = self._get_relationships(package1_name='annakarenina')
-        assert len(rels) == 1
-        self._check_relationship_dict(rels[0],
-               'annakarenina', 'parent_of', 'warandpeace', self.comment)
-
-        # check '/api/rest/package/annakarenina/relationships/warandpeace'
-        rels = self._get_relationships(package1_name='annakarenina',
-                                      package2_name='warandpeace')
-        assert len(rels) == 1
-        self._check_relationship_dict(rels[0],
-               'annakarenina', 'parent_of', 'warandpeace', self.comment)
-
-        # check '/api/rest/package/annakarenina/parent_of/warandpeace'
-        rels = self._get_relationships(package1_name='annakarenina',
-                                       type='parent_of',
-                                      package2_name='warandpeace')
-        assert len(rels) == 1
-        self._check_relationship_dict(rels[0],
-               'annakarenina', 'parent_of', 'warandpeace', self.comment)
-
-        # same checks in reverse direction
-        rels = self._get_relationships(package1_name='warandpeace')
-        assert len(rels) == 1
-        self._check_relationship_dict(rels[0],
-               'warandpeace', 'child_of', 'annakarenina', self.comment)
-
-        rels = self._get_relationships(package1_name='warandpeace',
-                                      package2_name='annakarenina')
-        assert len(rels) == 1
-        self._check_relationship_dict(rels[0],
-               'warandpeace', 'child_of', 'annakarenina', self.comment)
-
-        rels = self._get_relationships(package1_name='warandpeace',
-                                       type='child_of',
-                                      package2_name='annakarenina')
-        assert len(rels) == 1
-        self._check_relationship_dict(rels[0],
-               'warandpeace', 'child_of', 'annakarenina', self.comment)
-
-        # check '/api/rest/package/annakarenina'
-        rels = self._get_relationships_via_package('annakarenina')
-        assert len(rels) == 1
-        self._check_relationship_dict(rels[0],
-               'annakarenina', 'parent_of', 'warandpeace', self.comment)
-        
-
-    def test_03_update_relationship(self):
-        self._check_relationships_rest('warandpeace', 'annakarenina',
-                                      [{'type': 'child_of',
-                                        'comment': self.comment}])
-
-        offset='/api/rest/package/annakarenina/parent_of/warandpeace'
-        comment = u'New comment.'
-        postparams = '%s=1' % json.dumps({'comment':comment})
-        res = self.app.post(offset, params=postparams, status=[200],
-                            extra_environ=self.extra_environ)
-
-        self._check_relationships_rest('warandpeace', 'annakarenina',
-                                      [{'type': 'child_of',
-                                        'comment': u'New comment.'}])
-
-    def test_04_update_relationship_no_change(self):
-        offset='/api/rest/package/annakarenina/parent_of/warandpeace'
-
-        comment = u'New comment.' # same as previous test
-        postparams = '%s=1' % json.dumps({'comment':comment})
-        res = self.app.post(offset, params=postparams, status=[200],
-                            extra_environ=self.extra_environ)
-
-        self._check_relationships_rest('warandpeace', 'annakarenina',
-                                      [{'type': 'child_of',
-                                        'comment': u'New comment.'}])
-
-        
-    def test_05_delete_relationship(self):
-        self._check_relationships_rest('warandpeace', 'annakarenina',
-                                      [{'type': 'child_of',
-                                        'comment': u'New comment.'}])
-
-        offset='/api/rest/package/annakarenina/parent_of/warandpeace'
-        res = self.app.delete(offset, status=[200],
-                              extra_environ=self.extra_environ)
-
-        self._check_relationships_rest('warandpeace', 'annakarenina',
-                                      [])
+        assert rel_dict['subject'] == subject_ref, (rel_dict, subject_ref)
+        assert rel_dict['object'] == object_ref, (rel_dict, object_ref)
+        assert rel_dict['type'] == type, (rel_dict, type)
+        assert rel_dict['comment'] == comment, (rel_dict, comment)
 
 
-class BaseSearchCase(TestController):
-
-    api_version = ''
-
-    @classmethod
-    def offset(self, path):
-        assert self.api_version, "API version is missing."
-        return '/api/%s%s' % (self.api_version, path)
+class SearchApiTestCase(ApiTestCase):
 
     @classmethod
     def setup_class(self):
-        try:
-            CreateTestData.delete()
-        except:
-            pass
-        model.Session.remove()
+        indexer = TestSearchIndexer()
         CreateTestData.create()
-        self.base_url = self.offset('/search/package')
-
-    @classmethod
-    def teardown_class(self):
-        model.Session.remove()
-        model.repo.rebuild_db()
-        model.Session.remove()
-
-    def setup(self):
         self.testpackagevalues = {
             'name' : u'testpkg',
             'title': 'Some Title',
@@ -928,20 +948,13 @@ class BaseSearchCase(TestController):
             'extras': {'national_statistic':'yes',
                        'geographic_coverage':'England, Wales'},
         }
-
         CreateTestData.create_arbitrary(self.testpackagevalues)
+        indexer.index()
+        self.base_url = self.offset('/search/package')
 
-        model.Session.commit()
-        model.Session.remove()
-
-
-    def teardown(self):
-        model.Session.remove()
-        pkg = self.get_package_by_name(self.testpackagevalues['name'])
-        if pkg:
-            pkg.purge()
-        model.Session.commit()
-        model.Session.remove()
+    @classmethod
+    def teardown_class(self):
+        CreateTestData.delete()
 
     def test_01_uri_q(self):
         offset = self.base_url + '?q=%s' % self.testpackagevalues['name']
@@ -951,7 +964,13 @@ class BaseSearchCase(TestController):
         assert res_dict['count'] == 1, res_dict['count']
 
     def assert_package_search_results(self, results, names=[u'testpkg']):
-        raise Exception, "Method not implemented."
+        for name in names:
+            ref = self.package_ref_from_name(name)
+            assert ref in results, (ref, results)
+
+    def package_ref_from_name(self, package_name):
+        package = self.get_package_by_name(package_name)
+        return self.ref_package(package)
 
     def test_02_post_q(self):
         offset = self.base_url
@@ -1119,7 +1138,7 @@ class BaseSearchCase(TestController):
         assert res_dict['results'][0]['name'] == 'warandpeace', res_dict['results'][0]['name']
 
     def test_12_search_revision_basic(self):
-        offset = '/api/search/revision'
+        offset = self.offset('/search/revision')
         # Check bad request.
         self.app.get(offset, status=400)
         self.app.get(offset+'?since_rev=2010-01-01T00:00:00', status=400)
@@ -1127,7 +1146,7 @@ class BaseSearchCase(TestController):
         self.app.get(offset+'?since_id=', status=400)
 
     def test_12_search_revision_since_rev(self):
-        offset = '/api/search/revision'
+        offset = self.offset('/search/revision')
         revs = model.Session.query(model.Revision).all()
         rev_first = revs[-1]
         params = "?since_id=%s" % str(rev_first.id)
@@ -1143,7 +1162,7 @@ class BaseSearchCase(TestController):
         assert res_list == [], res_list
 
     def test_12_search_revision_since_time(self):
-        offset = '/api/search/revision'
+        offset = self.offset('/search/revision')
         revs = model.Session.query(model.Revision).all()
         # Check since time of first.
         rev_first = revs[-1]
@@ -1176,17 +1195,9 @@ class BaseSearchCase(TestController):
         assert t == datetime.datetime(2012, 3, 4, 5, 6, 7, 890123), t
 
 
-# For CKAN API Version 1.
-class TestSearch(BaseSearchCase):
 
-    api_version = '1'
+class MiscApiTestCase(ApiTestCase):
 
-    def assert_package_search_results(self, results, names=[u'testpkg']):
-        for name in names:
-            assert name in results, (name, results)
-
-
-class TestApiMisc(TestController):
     @classmethod
     def setup_class(self):
         try:
@@ -1195,16 +1206,85 @@ class TestApiMisc(TestController):
             pass
         model.Session.remove()
         CreateTestData.create()
-        self.base_url = '/api'
 
     @classmethod
     def teardown_class(self):
         model.Session.remove()
         CreateTestData.delete()
 
+    # Todo: Move this method to the Model API?
     def test_0_tag_counts(self):
-        offset = self.base_url + '/tag_counts'
+        offset = self.offset('/tag_counts')
         res = self.app.get(offset, status=200)
         assert '["russian", 2]' in res, res
         assert '["tolstoy", 1]' in res, res
-        
+
+
+# For CKAN API Version 1.
+class Api1TestCase(ApiTestCase):
+
+    api_version = '1'
+    ref_package_by = 'name'
+    ref_group_by = 'name'
+
+    def assert_msg_represents_anna(self, msg):
+        super(Api1TestCase, self).assert_msg_represents_anna(msg)
+        assert '"download_url": "http://www.annakarenina.com/download/x=1&y=2"' in msg, msg
+
+class TestModelApi1(ModelApiTestCase, Api1TestCase):
+
+    def test_06_create_pkg_using_download_url(self):
+        test_params = {
+            'name':u'testpkg06',
+            'download_url':u'testurl',
+            }
+        offset = self.package_offset()
+        postparams = '%s=1' % json.dumps(test_params)
+        res = self.app.post(offset, params=postparams, status=[200],
+                extra_environ=self.extra_environ)
+        model.Session.remove()
+        pkg = self.get_package_by_name(test_params['name'])
+        assert pkg
+        assert pkg.name == test_params['name'], pkg
+        assert len(pkg.resources) == 1, pkg.resources
+        assert pkg.resources[0].url == test_params['download_url'], pkg.resources[0]
+
+    def test_10_edit_pkg_with_download_url(self):
+        test_params = {
+            'name':u'testpkg10',
+            'download_url':u'testurl',
+            }
+        rev = model.repo.new_revision()
+        pkg = model.Package()
+        model.Session.add(pkg)
+        pkg.name = test_params['name']
+        pkg.download_url = test_params['download_url']
+        model.Session.commit()
+
+        pkg = self.get_package_by_name(test_params['name'])
+        model.setup_default_user_roles(pkg, [self.user])
+        rev = model.repo.new_revision()
+        model.repo.commit_and_remove()
+        assert self.get_package_by_name(test_params['name'])
+
+        # edit it
+        pkg_vals = {'download_url':u'newurl'}
+        offset = self.package_offset(test_params['name'])
+        postparams = '%s=1' % json.dumps(pkg_vals)
+        res = self.app.post(offset, params=postparams, status=[200],
+                            extra_environ=self.extra_environ)
+        model.Session.remove()
+        pkg = model.Session.query(model.Package).filter_by(name=test_params['name']).one()
+        assert len(pkg.resources) == 1, pkg.resources
+        assert pkg.resources[0].url == pkg_vals['download_url']
+
+
+class TestRelationshipsApi1(RelationshipsApiTestCase, Api1TestCase):
+    pass
+
+class TestSearchApi1(SearchApiTestCase, Api1TestCase):
+    pass
+
+class TestMiscApi1(MiscApiTestCase, Api1TestCase):
+    pass
+ 

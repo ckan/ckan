@@ -37,25 +37,28 @@ class TestGroup(TestController):
         
     def test_read(self):
         name = u'david'
+        title = u'Dave\'s books'
         pkgname = u'warandpeace'
         offset = url_for(controller='group', action='read', id=name)
         res = self.app.get(offset)
         main_res = self.main_div(res)
-        assert 'Groups - %s' % name in res, res
+        assert '%s - Groups' % title in res, res
         assert '[edit]' not in main_res, main_res
         assert 'Administrators:' in main_res, main_res
         assert 'russianfan' in main_res, main_res
         assert name in res, res
         assert 'There are 2 packages in this group' in self.strip_tags(main_res), main_res
-        res = res.click(model.Package.by_name(pkgname).title)
-        assert 'Packages - %s' % pkgname in res
+        pkg = model.Package.by_name(pkgname)
+        res = res.click(pkg.title)
+        assert '%s - Data Packages' % pkg.title in res
 
     def test_read_and_authorized_to_edit(self):
         name = u'david'
+        title = u'Dave\'s books'
         pkgname = u'warandpeace'
         offset = url_for(controller='group', action='read', id=name)
         res = self.app.get(offset, extra_environ={'REMOTE_USER': 'russianfan'})
-        assert 'Groups - %s' % name in res, res
+        assert '%s - Groups' % title in res, res
         assert '[edit]' in res
         assert name in res
 
@@ -101,7 +104,7 @@ class TestEdit(TestController):
         print res
         assert 'Edit Group: %s' % self.groupname in res, res
 
-        form = res.forms[0]
+        form = res.forms['group-edit']
         group = model.Group.by_name(self.groupname)
         titlefn = 'Group-%s-title' % group.id
         descfn = 'Group-%s-description' % group.id
@@ -117,7 +120,7 @@ Ho ho ho
         form['PackageGroup--package_id'] = pkg.id
 
         
-        res = form.submit('commit', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
+        res = form.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
         # should be read page
         # assert 'Groups - %s' % self.groupname in res, res
         
@@ -187,7 +190,7 @@ class TestNew(TestController):
         offset = url_for(controller='group', action='new')
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
         assert 'New Group' in res, res
-        fv = res.forms[0]
+        fv = res.forms['group-edit']
         assert fv[prefix+'name'].value == '', fv.fields
         assert fv[prefix+'title'].value == ''
         assert fv[prefix+'description'].value == ''
@@ -199,7 +202,7 @@ class TestNew(TestController):
         fv[prefix+'description'] = group_description
         pkg = model.Package.by_name(self.packagename)
         fv['PackageGroup--package_id'] = pkg.id
-        res = fv.submit('commit', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
+        res = fv.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
         res = res.follow()
         assert '%s' % group_title in res, res
         
@@ -219,10 +222,10 @@ class TestNew(TestController):
         offset = url_for(controller='group', action='new')
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
         assert 'New Group' in res, res
-        fv = res.forms[0]
+        fv = res.forms['group-edit']
         assert fv[prefix+'name'].value == '', fv.fields
         fv[prefix+'name'] = group_name
-        res = fv.submit('commit', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
+        res = fv.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
         res = res.follow()
         assert group_name in res, res
         assert 'No Title' in res, res
@@ -233,10 +236,10 @@ class TestNew(TestController):
         offset = url_for(controller='group', action='new')
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
         assert 'New Group' in res, res
-        fv = res.forms[0]
+        fv = res.forms['group-edit']
         assert fv[prefix+'name'].value == '', fv.fields
         fv[prefix+'name'] = group_name
-        res = fv.submit('commit', status=200, extra_environ={'REMOTE_USER': 'russianfan'})
+        res = fv.submit('save', status=200, extra_environ={'REMOTE_USER': 'russianfan'})
         assert 'Group name already exists' in res, res
         self.check_tag(res, '<form', 'class="has-errors"')
         assert 'class="field_error"' in res, res

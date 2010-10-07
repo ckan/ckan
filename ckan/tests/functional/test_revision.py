@@ -20,8 +20,8 @@ class TestRevisionController(TestController):
     def test_link_major_navigation(self):
         offset = url_for(controller='home')
         res = self.app.get(offset)
-        res = res.click('Recent changes')
-        assert 'Repository History' in res
+        res = res.click('Revision History')
+        assert 'Revision History' in res
 
     def test_paginated_list(self):
         # Ugh. Why is the number of items per page hard-coded? A designer might
@@ -67,7 +67,7 @@ class TestRevisionController(TestController):
         res = self.app.get(offset, params={'page':last_id})
 
         print str(res)
-        assert 'Repository History' in res
+        assert 'Revision History' in res
         assert '1' in res
         assert 'Author' in res
         assert 'tester' in res
@@ -151,7 +151,7 @@ class TestRevisionController(TestController):
         # redirect
         res = res.follow()
         print str(res)
-        assert 'Repository History' in res
+        assert 'Revision History' in res
 
     def test_read(self):
         anna = model.Package.by_name(u'annakarenina')

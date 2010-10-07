@@ -49,6 +49,7 @@ class TestUsage(TestController):
             pkg = model.Package.by_name(pkg_name)
             res = res.click(href='rating=%s' % rating)
             res = res.follow()
+            pkg = model.Package.by_name(pkg_name)
             ave_rating, num_ratings = ckan.rating.get_rating(pkg)
             assert ave_rating == float(rating), rating
             assert num_ratings == 1, num_ratings

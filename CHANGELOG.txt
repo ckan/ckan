@@ -1,7 +1,26 @@
 CKAN CHANGELOG
 ++++++++++++++
 
+v1.1 2010-08-10
+===============
+http://knowledgeforge.net/ckan/trac/milestone/v1.1
 
+Highlights of changes:
+  * Changes to the database cause notifications via AMQP for clients (#325)
+  * Pluggable search engines (#317), including SOLR (#353)
+  * API is versioned and packages & groups can be referred to by invariant ID
+    (#313)
+  * Resource search in API (#336)
+  * Visual theming of CKAN now easy (#340, #320)
+  * Greater integration with external Web UIs (#335, #347, #348)
+  * Plug-ins can be configured to handle web requests from specified URIs and 
+    insert HTML into pages.
+
+Minor:
+  * Search engine optimisations e.g. alphabetical browsing (#350)
+  * CSV and JSON dumps improved (#315)
+
+  
 v1.0.2 2010-08-27
 =================
 

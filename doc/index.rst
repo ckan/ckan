@@ -17,6 +17,7 @@ Contents:
    deployment
    configuration
    api
+   plugins
    feeds
    getdata
    importer

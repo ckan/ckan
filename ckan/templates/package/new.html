@@ -1,7 +1,9 @@
 <html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude">
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
   
-  <py:def function="page_title">Packages - New</py:def>
+  <py:def function="page_title">New - Data Packages</py:def>
 
   <py:def function="optional_head">
     <link rel="stylesheet" href="/css/forms.css" type="text/css" media="screen, print" />
@@ -16,7 +18,7 @@
   </py:def>
 
   <div py:match="content">
-    <h2>Register a New Package
+    <h2>Register a New Data Package
       <a href="#preview" py:if="c.preview">(skip to preview)</a>
     </h2>
 

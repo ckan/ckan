@@ -1,7 +1,9 @@
 <html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude">
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
   
-  <py:def function="page_title">Groups - ${c.group.name}</py:def>
+  <py:def function="page_title">${c.group.title or c.group.name} - Groups</py:def>
 
   <div py:match="content">
    <div class="group">
@@ -28,7 +30,7 @@
     </div>
 
     <py:if test="c.group_admins">
-      <strong>Administrators:</strong> 
+      <h3>Administrators:</h3> 
         <py:for each="admin in c.group_admins">
           <a href="${h.url_for(controller='user',action='read',id=admin.id)}">${admin.name}</a>
         </py:for>
@@ -38,7 +40,7 @@
     ${c.page.pager()}
     ${package_list(c.page.items)}
     ${c.page.pager()}
-    There are ${c.page.item_count} packages in this group.
+    <p i18n:msg="item_count">There are ${c.page.item_count} packages in this group.</p>
    </div>
   </div>
 
