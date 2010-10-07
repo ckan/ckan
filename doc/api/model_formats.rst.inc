@@ -41,4 +41,4 @@ Notes:
 
  * To delete an 'extra' key-value pair, supply the key with a None value.
 
- * When you read a package then some additional information is supplied that cannot current be adjusted throught the CKAN API. This includes info on Package Relationship ('relationships'), Group membership ('groups'), ratings ('ratings_average' and 'ratings_count') and Package ID ('id'). This is purely a convenience for clients, and only forms part of the Package on GET.
+ * When you read a package then some additional information is supplied that cannot current be adjusted throught the CKAN API. This includes info on Package Relationship ('relationships'), Group membership ('groups'), ratings ('ratings_average' and 'ratings_count'), full URL of the package in CKAN ('ckan_url') and Package ID ('id'). This is purely a convenience for clients, and only forms part of the Package on GET.
