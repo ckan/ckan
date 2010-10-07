@@ -1,0 +1,25 @@
+<py:if test="True" xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+      <dl>
+        <py:for each="field in c.fields">
+            <dt>
+              <label for="${field['name']}">
+                  <input type="checkbox" name="${field['name']}" checked="checked" value="${field['id']}" />
+              </label>
+            </dt>
+            <dd>
+              ${field['title']}
+            </dd>
+        </py:for>
+        <dt>
+            Group:
+        </dt>
+        <dd py:if="len(c.options)">
+            ${h.select(c.new_name, None, c.options)}
+        </dd>
+        <dd py:if="not len(c.options)">
+            Cannot add any groups.
+        </dd>
+      </dl>
+</py:if>

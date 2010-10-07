@@ -2,7 +2,6 @@ import formalchemy
 from pylons.templating import render_genshi as render
 from pylons import c
 
-from ckan import model
 import common
 
 class CkanFieldset(formalchemy.FieldSet):
@@ -48,11 +47,22 @@ class FormBuilder(object):
         else:
             self.options[field_name] = option(*args)
 
-    def set_field_text(self, field_name, label=None, instructions=None, hints=None):
+    def set_field_text(self, field_name, label=None, instructions=None, further_instructions=None, hints=None):
+        '''
+        Go beyond the default field text and customise the form label,
+        instructions and/or hints.
+        @param label - label on the form
+        @param instructions - basic instructions for the field
+        @param further_instructions - extra help (may need to be revealed
+                                      on the form)
+        @param hints - a short string to suggest an example field value
+        '''
         if label:
             self.set_field_option(field_name, 'label', label)
         if instructions:
-            self.set_field_option(field_name, 'with_metadata', {'instructions':instructions})
+            self.set_field_option(field_name, 'with_metadata', {'basic_instructions':instructions})
+        if further_instructions:
+            self.set_field_option(field_name, 'with_metadata', {'further_instructions':further_instructions})
         if hints:
             self.set_field_option(field_name, 'with_metadata', {'hints':hints})
 

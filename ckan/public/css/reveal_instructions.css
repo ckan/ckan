@@ -1,0 +1,5 @@
+fieldset span.as_hyperlink {
+  text-decoration: underline;
+  color: blue;
+  cursor: pointer; }
+

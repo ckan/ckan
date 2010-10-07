@@ -1,55 +1,52 @@
-from lib_api import *
+from ckan.tests.functional.api.base import *
 
 class BaseModelApiTestCase(ModelMethods, ApiControllerTestCase):
 
+    testpackage_license_id = u'gpl-3.0'
+    testpackagevalues = {
+        'name' : u'testpkg',
+        'title': u'Some Title',
+        'url': u'http://blahblahblah.mydomain',
+        'resources': [{
+            u'url':u'http://blah.com/file.xml',
+            u'format':u'xml',
+            u'description':u'Main file',
+            u'hash':u'abc123',
+        }, {
+            u'url':u'http://blah.com/file2.xml',
+            u'format':u'xml',
+            u'description':u'Second file',
+            u'hash':u'def123',
+        }],
+        'tags': [u'russion', u'novel'],
+        'license_id': testpackage_license_id,
+        'extras': {
+            'genre' : u'horror',
+            'media' : u'dvd',
+        },
+    }
+    testgroupvalues = {
+        'name' : u'testgroup',
+        'title' : u'Some Group Title',
+        'description' : u'Great group!',
+        'packages' : [u'annakarenina', u'warandpeace'],
+    }
+    testharvestsourcevalues = {
+        'url' : u'http://localhost/',
+        'description' : u'My metadata.',
+        'user_ref': u'a_publisher_user',
+        'publisher_ref': u'a_publisher',
+    }
+    testharvestingjobvalues = {
+        'user_ref': u'a_publisher_user',
+    }
+    user_name = u'http://myrandom.openidservice.org/'
+
     @classmethod
     def setup_class(self):
-        self.testpackage_license_id = u'gpl-3.0'
-        self.testpackagevalues = {
-            'name' : u'testpkg',
-            'title': u'Some Title',
-            'url': u'http://blahblahblah.mydomain',
-            'resources': [{
-                u'url':u'http://blah.com/file.xml',
-                u'format':u'xml',
-                u'description':u'Main file',
-                u'hash':u'abc123',
-            }, {
-                u'url':u'http://blah.com/file2.xml',
-                u'format':u'xml',
-                u'description':u'Second file',
-                u'hash':u'def123',
-            }],
-            'tags': [u'russion', u'novel'],
-            'license_id': self.testpackage_license_id,
-            'extras': {
-                'genre' : u'horror',
-                'media' : u'dvd',
-            },
-        }
-        self.testgroupvalues = {
-            'name' : u'testgroup',
-            'title' : u'Some Group Title',
-            'description' : u'Great group!',
-            'packages' : [u'annakarenina', u'warandpeace'],
-        }
-        self.testharvestsourcevalues = {
-            'url' : u'http://localhost/',
-            'description' : u'My metadata.',
-            'user_ref': u'a_publisher_user',
-            'publisher_ref': u'a_publisher',
-        }
-        self.testharvestingjobvalues = {
-            'user_ref': u'a_publisher_user',
-        }
-        self.user_name = u'http://myrandom.openidservice.org/'
-
-        CreateTestData.create(commit_changesets=True)
-        CreateTestData.create_arbitrary([], extra_user_names=[self.user_name])
-
-        self.user = model.User.by_name(self.user_name)
-        self.extra_environ={'Authorization' : str(self.user.apikey)}
-
+        model.Session.remove()
+        model.repo.rebuild_db()
+        model.Session.remove()
 
     @classmethod
     def teardown_class(self):
@@ -58,6 +55,8 @@ class BaseModelApiTestCase(ModelMethods, ApiControllerTestCase):
         model.Session.remove()
 
     def setup(self):
+        self.create_common_fixtures()
+        self.init_extra_environ()
         self.source = None
         self.source1 = None
         self.source2 = None
@@ -70,26 +69,41 @@ class BaseModelApiTestCase(ModelMethods, ApiControllerTestCase):
         self.job3 = None
 
     def teardown(self):
-        if self.job:
-            self.delete_commit(self.job)
-        if self.job1:
-            self.delete_commit(self.job1)
-        if self.job2:
-            self.delete_commit(self.job2)
-        if self.job3:
-            self.delete_commit(self.job3)
-        if self.source:
-            self.delete_commit(self.source)
-        if self.source1:
-            self.delete_commit(self.source1)
-        if self.source2:
-            self.delete_commit(self.source2)
-        if self.source3:
-            self.delete_commit(self.source3)
-        if self.source4:
-            self.delete_commit(self.source4)
-        if self.source5:
-            self.delete_commit(self.source5)
+        self.rebuild() 
+        return
+#        if self.job:
+#            self.delete_commit(self.job)
+#        if self.job1:
+#            self.delete_commit(self.job1)
+#        if self.job2:
+#            self.delete_commit(self.job2)
+#        if self.job3:
+#            self.delete_commit(self.job3)
+#        if self.source:
+#            self.delete_commit(self.source)
+#        if self.source1:
+#            self.delete_commit(self.source1)
+#        if self.source2:
+#            self.delete_commit(self.source2)
+#        if self.source3:
+#            self.delete_commit(self.source3)
+#        if self.source4:
+#            self.delete_commit(self.source4)
+#        if self.source5:
+#            self.delete_commit(self.source5)
+#        self.delete_common_fixtures()
+
+    def create_common_fixtures(self):
+        CreateTestData.create(commit_changesets=True)
+        CreateTestData.create_arbitrary([], extra_user_names=[self.user_name])
+
+    def delete_common_fixtures(self):
+        CreateTestData.delete()
+
+    def init_extra_environ(self):
+        self.user = model.User.by_name(self.user_name)
+        self.extra_environ={'Authorization' : str(self.user.apikey)}
+
 
 class ModelApiTestCase(BaseModelApiTestCase):
     """Test operations involving other register and entities."""
@@ -624,6 +638,8 @@ class ModelApiTestCase(BaseModelApiTestCase):
 
     def test_14_get_revision(self):
         rev = model.repo.history().all()[-2] # 2nd revision is the creation of pkgs
+        assert rev.id
+        assert rev.timestamp.isoformat()
         offset = self.offset('/rest/revision/%s' % rev.id)
         response = self.app.get(offset, status=[200])
         response_data = self.data_from_res(response)
@@ -632,7 +648,7 @@ class ModelApiTestCase(BaseModelApiTestCase):
         assert 'packages' in response_data
         packages = response_data['packages']
         assert isinstance(packages, list)
-        assert len(packages) != 0, "Revision packages is empty: %s" % packages
+        #assert len(packages) != 0, "Revision packages is empty: %s" % packages
         assert self.ref_package(self.anna) in packages, packages
         assert self.ref_package(self.war) in packages, packages
 

@@ -1,4 +1,4 @@
-from lib_api import *
+from ckan.tests.functional.api.base import *
 
 class ApiTestCase(ApiControllerTestCase): 
 
@@ -7,11 +7,6 @@ class ApiTestCase(ApiControllerTestCase):
         offset = self.offset('')
         res = self.app.get(offset, status=[200])
         self.assert_version_data(res)
-        # Check interface resource (with a slash).
-        # Todo: Stop this raising an error.
-        #offset = self.offset('/')
-        #res = self.app.get(offset, status=[200])
-        #self.assert_version_data(res)
 
     def assert_version_data(self, res):
         data = self.data_from_res(res)
@@ -22,8 +17,10 @@ class ApiTestCase(ApiControllerTestCase):
 
 # Tests for Version 1 of the API.
 class TestApi1(Api1TestCase, ApiTestCase): pass
+
 # Tests for Version 2 of the API.
 class TestApi2(Api2TestCase, ApiTestCase): pass
+
 # Tests for unversioned API.
 class TestApiUnversioned(ApiUnversionedTestCase, ApiTestCase): pass
 

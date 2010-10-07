@@ -399,8 +399,12 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                       ).order_by("timestamp DESC").limit(1)
         conn = model.meta.engine.connect()
         result = conn.execute(query).fetchone()
-        timestamp = result[0].utctimetuple() if result else gmtime()
-        return mktime(timestamp)
+        if result:
+            timestamp = result[0].utctimetuple()
+            usecs = float("0.%s" % result[0].microsecond)
+        else:
+            timestamp, usecs = gmtime(), 0
+        return mktime(timestamp) + usecs
 
     @staticmethod
     def get_fields(core_only=False, fields_to_ignore=None):
