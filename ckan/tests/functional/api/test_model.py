@@ -1,46 +1,6 @@
 from ckan.tests.functional.api.base import *
 
-class BaseModelApiTestCase(ModelMethods, ApiControllerTestCase):
-
-    testpackage_license_id = u'gpl-3.0'
-    testpackagevalues = {
-        'name' : u'testpkg',
-        'title': u'Some Title',
-        'url': u'http://blahblahblah.mydomain',
-        'resources': [{
-            u'url':u'http://blah.com/file.xml',
-            u'format':u'xml',
-            u'description':u'Main file',
-            u'hash':u'abc123',
-        }, {
-            u'url':u'http://blah.com/file2.xml',
-            u'format':u'xml',
-            u'description':u'Second file',
-            u'hash':u'def123',
-        }],
-        'tags': [u'russion', u'novel'],
-        'license_id': testpackage_license_id,
-        'extras': {
-            'genre' : u'horror',
-            'media' : u'dvd',
-        },
-    }
-    testgroupvalues = {
-        'name' : u'testgroup',
-        'title' : u'Some Group Title',
-        'description' : u'Great group!',
-        'packages' : [u'annakarenina', u'warandpeace'],
-    }
-    testharvestsourcevalues = {
-        'url' : u'http://localhost/',
-        'description' : u'My metadata.',
-        'user_ref': u'a_publisher_user',
-        'publisher_ref': u'a_publisher',
-    }
-    testharvestingjobvalues = {
-        'user_ref': u'a_publisher_user',
-    }
-    user_name = u'http://myrandom.openidservice.org/'
+class ModelApiTestCase(BaseModelApiTestCase):
 
     @classmethod
     def setup_class(self):
@@ -93,71 +53,18 @@ class BaseModelApiTestCase(ModelMethods, ApiControllerTestCase):
 #            self.delete_commit(self.source5)
 #        self.delete_common_fixtures()
 
-    def create_common_fixtures(self):
-        CreateTestData.create(commit_changesets=True)
-        CreateTestData.create_arbitrary([], extra_user_names=[self.user_name])
-
-    def delete_common_fixtures(self):
-        CreateTestData.delete()
-
-    def init_extra_environ(self):
-        self.user = model.User.by_name(self.user_name)
-        self.extra_environ={'Authorization' : str(self.user.apikey)}
-
-
-class ModelApiTestCase(BaseModelApiTestCase):
-    """Test operations involving other register and entities."""
-
-    def test_01_register_post_noauth(self):
-        # Test Packages Register Post 401.
-        offset = self.offset('/rest/package')
-        postparams = '%s=1' % json.dumps(self.testpackagevalues)
-        res = self.app.post(offset, params=postparams, status=ACCESS_DENIED)
-        
-    def test_01_entity_put_noauth(self):
-        # Test Packages Entity Put 401.
-        offset = self.anna_offset()
-        postparams = '%s=1' % json.dumps(self.testpackagevalues)
-        res = self.app.post(offset, params=postparams, status=ACCESS_DENIED)
-
-    def test_01_entity_delete_noauth(self):
-        # Test Packages Entity Delete 401.
-        offset = self.anna_offset()
-        res = self.app.delete(offset, status=ACCESS_DENIED)
-
-    def test_02_list_package(self):
-        # Test Packages Register Get 200.
-        offset = self.offset('/rest/package')
-        res = self.app.get(offset, status=[200])
-        assert self.ref_package(self.anna) in res, res
-        assert self.ref_package(self.war) in res, res
-
-    def test_02_list_tags(self):
+    def test_02_get_tag_register_ok(self):
         # Test Packages Register Get 200.
         offset = self.offset('/rest/tag')
         res = self.app.get(offset, status=[200])
         assert 'russian' in res, res
         assert 'tolstoy' in res, res
 
-    def test_02_list_groups(self):
+    def test_02_get_group_register_ok(self):
         offset = self.offset('/rest/group')
         res = self.app.get(offset, status=[200])
         assert self.group_ref_from_name('david') in res, res
         assert self.group_ref_from_name('roger') in res, res
-
-    def test_04_get_package_entity(self):
-        # Test Packages Entity Get 200.
-        for pkg_ref in ('annakarenina', self.anna.id):
-            offset = self.offset('/rest/package/%s' % pkg_ref)
-            res = self.app.get(offset, status=[200])
-            self.assert_msg_represents_anna(msg=res.body)
-
-    def test_04_ckan_url(self):
-        offset = self.offset('/rest/package/annakarenina')
-        res = self.app.get(offset, status=[200])
-        assert 'ckan_url' in res
-        # Todo: What is the deal with ckan_url? And should this use IDs rather than names?
-        assert '"ckan_url": "http://test.ckan.net/package/annakarenina"' in res, res
 
     def test_04_get_tag(self):
         offset = self.offset('/rest/tag/tolstoy')
@@ -172,101 +79,19 @@ class ModelApiTestCase(BaseModelApiTestCase):
         assert self.group_ref_from_name('roger') in res, res
         assert not self.package_ref_from_name('warandpeace') in res, res
         
-    def test_04_get_package_with_jsonp_callback(self):
-        offset = self.anna_offset(postfix='?callback=jsoncallback')
-        res = self.app.get(offset, status=200)
-        assert re.match('jsoncallback\(.*\);', res.body), res
-        self.assert_msg_represents_anna(msg=res.body)
-
-    def test_05_get_404_package(self):
-        # Test Package Entity Get 404.
-        offset = self.offset('/rest/package/22222')
-        res = self.app.get(offset, status=404)
-        model.Session.remove()
-
-    def test_05_get_404_group(self):
-        # Test Group Entity Get 404.
+    def test_05_get_group_entity_not_found(self):
         offset = self.offset('/rest/group/22222')
         res = self.app.get(offset, status=404)
         model.Session.remove()
 
-    def test_05_get_404_tag(self):
-        # Test Tag Entity Get 404.
+    def test_05_get_tag_entity_not_found(self):
         offset = self.offset('/rest/tag/doesntexist')
         res = self.app.get(offset, status=404)
         model.Session.remove()
 
-    def test_06_create_pkg(self):
-        # Test Packages Register Post 200.
-        assert not self.get_package_by_name(self.testpackagevalues['name'])
-        offset = self.package_offset()
-        postparams = '%s=1' % json.dumps(self.testpackagevalues)
-        res = self.app.post(offset, params=postparams, status=[200],
-                extra_environ=self.extra_environ)
-        # Check the value of the Location header.
-        location = res.header('Location')
-        assert offset in location
-        res = self.app.get(location, status=[200])
-        # Check the database record.
-        model.Session.remove()
-        pkg = self.get_package_by_name(self.testpackagevalues['name'])
-        assert pkg
-        assert pkg.title == self.testpackagevalues['title'], pkg
-        assert pkg.url == self.testpackagevalues['url'], pkg
-        assert pkg.license_id == self.testpackage_license_id, pkg
-        assert len(pkg.tags) == 2
-        assert len(pkg.extras) == 2, len(pkg.extras)
-        for key, value in self.testpackagevalues['extras'].items():
-            assert pkg.extras[key] == value, pkg.extras
-        assert len(pkg.resources) == len(self.testpackagevalues['resources']), pkg.resources
-        for res_index, resource in enumerate(self.testpackagevalues['resources']):
-            comp_resource = pkg.resources[res_index]
-            for key in resource.keys():
-                comp_value = getattr(comp_resource, key)
-                assert comp_value == resource[key], '%s != %s' % (comp_value, resource[key])
-
-        # Test Package Entity Get 200.
-        offset = self.package_offset(self.testpackagevalues['name'])
-        res = self.app.get(offset, status=[200])
-        assert self.testpackagevalues['name'] in res, res
-        assert '"license_id": "%s"' % self.testpackagevalues['license_id'] in res, res
-        assert self.testpackagevalues['tags'][0] in res, res
-        assert self.testpackagevalues['tags'][1] in res, res
-        assert '"extras": {' in res, res
-        for key, value in self.testpackagevalues['extras'].items():
-            assert '"%s": "%s"' % (key, value) in res, res
-        
-        model.Session.remove()
-        
-        # Test Packages Register Post 409 (conflict - create duplicate package).
-        offset = self.package_offset()
-        postparams = '%s=1' % json.dumps(self.testpackagevalues)
-        res = self.app.post(offset, params=postparams, status=[409],
-                extra_environ=self.extra_environ)
-        model.Session.remove()
-
-    def test_06_create_pkg_bad_format_400(self):
-        test_params = {
-            'name':u'testpkg06_400',
-            'resources':[u'should_be_a_dict'],
-            }
-        offset = self.offset('/rest/package')
-        postparams = '%s=1' % json.dumps(test_params)
-        res = self.app.post(offset, params=postparams, status=[400],
-                extra_environ=self.extra_environ)
-
-    def test_06_create_package_with_jsonp_callback(self):
-        # JSONP callback should only work for GETs, not POSTs.
-        pkg_name = u'test6jsonp'
-        assert not self.get_package_by_name(pkg_name)
-        offset = self.offset('/rest/package?callback=jsoncallback')
-        postparams = '%s=1' % json.dumps({'name': pkg_name})
-        res = self.app.post(offset, params=postparams, status=[400],
-                            extra_environ=self.extra_environ)
-
-    def test_06_create_group(self):
+    def test_06_create_group_entity_ok(self):
         offset = self.offset('/rest/group')
-        postparams = '%s=1' % json.dumps(self.testgroupvalues)
+        postparams = '%s=1' % self.dumps(self.testgroupvalues)
         res = self.app.post(offset, params=postparams, status=200,
                 extra_environ=self.extra_environ)
         model.Session.remove()
@@ -285,7 +110,7 @@ class ModelApiTestCase(BaseModelApiTestCase):
         assert anna in group.packages
         assert warandpeace in group.packages
 
-        # Test Package Entity Get 200.
+        # Check group packages.
         offset = self.offset('/rest/group/%s' % self.testgroupvalues['name'])
         res = self.app.get(offset, status=[200])
         assert self.testgroupvalues['name'] in res, res
@@ -296,9 +121,9 @@ class ModelApiTestCase(BaseModelApiTestCase):
         assert ref in res, res
         model.Session.remove()
         
-        # Test Packages Register Post 409 (conflict - create duplicate package).
+        # Check create group entity conflict.
         offset = self.offset('/rest/group')
-        postparams = '%s=1' % json.dumps(self.testgroupvalues)
+        postparams = '%s=1' % self.dumps(self.testgroupvalues)
         res = self.app.post(offset, params=postparams, status=[409],
                 extra_environ=self.extra_environ)
         model.Session.remove()
@@ -309,7 +134,7 @@ class ModelApiTestCase(BaseModelApiTestCase):
         offset = self.offset('/rest/rating')
         rating_opts = {'package':u'warandpeace',
                        'rating':5}
-        postparams = '%s=1' % json.dumps(rating_opts)
+        postparams = '%s=1' % self.dumps(rating_opts)
         res = self.app.post(offset, params=postparams, status=[200],
                 extra_environ=self.extra_environ)
         model.Session.remove()
@@ -329,7 +154,7 @@ class ModelApiTestCase(BaseModelApiTestCase):
         
         # Rerate package
         offset = self.offset('/rest/rating')
-        postparams = '%s=1' % json.dumps(rating_opts)
+        postparams = '%s=1' % self.dumps(rating_opts)
         res = self.app.post(offset, params=postparams, status=[200],
                 extra_environ=self.extra_environ)
         model.Session.remove()
@@ -343,7 +168,7 @@ class ModelApiTestCase(BaseModelApiTestCase):
         offset = self.offset('/rest/rating')
         rating_opts = {'package':u'warandpeace',
                        'rating':0}
-        postparams = '%s=1' % json.dumps(rating_opts)
+        postparams = '%s=1' % self.dumps(rating_opts)
         res = self.app.post(offset, params=postparams, status=[400],
                 extra_environ=self.extra_environ)
         model.Session.remove()
@@ -351,109 +176,12 @@ class ModelApiTestCase(BaseModelApiTestCase):
         assert pkg
         assert len(pkg.ratings) == 0
 
-    def _test_09_entity_put_404(self):
-        # TODO: get this working again. At present returns 400
-        # Test Package Entity Put 404.
-        offset = self.package_offset('22222')
-        postparams = '%s=1' % json.dumps(self.testpackagevalues)
-        # res = self.app.post(offset, params=postparams, status=[404],
-        #        extra_environ=self.extra_environ)
-        model.Session.remove()
-
-    def base_10_edit_pkg_values(self, pkg_ref_attribute):
-        # Test Packages Entity Put 200.
-
-        try:
-            # create a package with testpackagevalues
-            tag_names = [u'tag1', u'tag2', u'tag3']
-            test_pkg_dict = {'name':u'test_10_edit_pkg',
-                             'url':self.testpackagevalues['url'],
-                             'tags':tag_names,
-                             'extras':{u'key1':u'val1', u'key2':u'val2'},
-                             'admins':[self.user.name],
-                             }
-            CreateTestData.create_arbitrary(test_pkg_dict)
-
-            pkg = self.get_package_by_name(test_pkg_dict['name'])
-            model.setup_default_user_roles(pkg, [self.user])
-            rev = model.repo.new_revision()
-            model.repo.commit_and_remove()
-
-            # edit it
-            edited_pkg_dict = {
-                'name':u'somethingnew',
-                'title':u'newtesttitle',
-                'resources': [
-                    {
-                        u'url':u'http://blah.com/file2.xml',
-                        u'format':u'xml',
-                        u'description':u'Appendix 1',
-                        u'hash':u'def123',
-                    },
-                    {
-                        u'url':u'http://blah.com/file3.xml',
-                        u'format':u'xml',
-                        u'description':u'Appenddic 2',
-                        u'hash':u'ghi123',
-                    },
-                ],
-                'extras':{u'key3':u'val3', u'key2':None},
-                'tags':[u'tag1', u'tag2', u'tag4', u'tag5'],
-            }
-            offset = self.package_offset(test_pkg_dict['name'])
-            postparams = '%s=1' % json.dumps(edited_pkg_dict)
-            res = self.app.post(offset, params=postparams, status=[200],
-                                extra_environ=self.extra_environ)
-
-            # Check submitted field have changed.
-            model.Session.remove()
-            pkg = model.Session.query(model.Package).filter_by(name=edited_pkg_dict['name']).one()
-            # - title
-            assert pkg.title == edited_pkg_dict['title']
-            # - tags
-            pkg_tagnames = [tag.name for tag in pkg.tags]
-            for tagname in edited_pkg_dict['tags']:
-                assert tagname in pkg_tagnames, 'tag %r not in %r' % (tagname, pkg_tagnames)
-            # - resources
-            assert len(pkg.resources), "Package has no resources: %s" % pkg
-            assert len(pkg.resources) == 2, len(pkg.resources)
-            resource = pkg.resources[0]
-            assert resource.url == u'http://blah.com/file2.xml', resource.url
-            assert resource.format == u'xml', resource.format
-            assert resource.description == u'Appendix 1', resource.description
-            assert resource.hash == u'def123', resource.hash
-            resource = pkg.resources[1]
-            assert resource.url == 'http://blah.com/file3.xml', resource.url
-            assert resource.format == u'xml', resource.format
-            assert resource.description == u'Appenddic 2', resource.description
-            assert resource.hash == u'ghi123', resource.hash
-
-            # Check unsubmitted fields have not changed.
-            # - url
-            assert pkg.url == self.testpackagevalues['url'], pkg.url
-            # - extras
-            assert len(pkg.extras) == 2, pkg.extras
-            for key, value in {u'key1':u'val1', u'key3':u'val3'}.items():
-                assert pkg.extras[key] == value, pkg.extras
-        finally:
-            for pkg_dict in test_pkg_dict, edited_pkg_dict:
-                pkg = model.Package.by_name(pkg_dict['name'])
-                if pkg:
-                    pkg.purge()
-            model.repo.commit_and_remove()
-
-    def test_10_edit_pkg_values_by_id(self):
-        self.base_10_edit_pkg_values('id')
-
-    def test_10_edit_pkg_values_by_name(self):
-        self.base_10_edit_pkg_values('name')
-
     def test_10_edit_group(self):
         # create a group with testgroupvalues
         group = model.Group.by_name(self.testgroupvalues['name'])
         if not group:
             offset = self.offset('/rest/group')
-            postparams = '%s=1' % json.dumps(self.testgroupvalues)
+            postparams = '%s=1' % self.dumps(self.testgroupvalues)
             res = self.app.post(offset, params=postparams, status=[200],
                     extra_environ=self.extra_environ)
             model.Session.remove()
@@ -467,7 +195,7 @@ class ModelApiTestCase(BaseModelApiTestCase):
         group_vals = {'name':u'somethingnew', 'title':u'newtesttitle',
                       'packages':[u'annakarenina']}
         offset = self.offset('/rest/group/%s' % self.testgroupvalues['name'])
-        postparams = '%s=1' % json.dumps(group_vals)
+        postparams = '%s=1' % self.dumps(group_vals)
         res = self.app.post(offset, params=postparams, status=[200],
                             extra_environ=self.extra_environ)
         model.Session.remove()
@@ -476,40 +204,6 @@ class ModelApiTestCase(BaseModelApiTestCase):
         assert group.title == group_vals['title']
         assert len(group.packages) == 1, group.packages
         assert group.packages[0].name == group_vals['packages'][0]
-
-
-    def test_10_edit_pkg_name_duplicate(self):
-        # create a package with testpackagevalues
-        if not self.get_package_by_name(self.testpackagevalues['name']):
-            pkg = model.Package()
-            model.Session.add(pkg)
-            pkg.name = self.testpackagevalues['name']
-            rev = model.repo.new_revision()
-            model.Session.commit()
-
-            pkg = self.get_package_by_name(self.testpackagevalues['name'])
-            model.setup_default_user_roles(pkg, [self.user])
-            rev = model.repo.new_revision()
-            model.repo.commit_and_remove()
-        assert self.get_package_by_name(self.testpackagevalues['name'])
-        
-        # create a package with name 'dupname'
-        dupname = u'dupname'
-        if not self.get_package_by_name(dupname):
-            pkg = model.Package()
-            model.Session.add(pkg)
-            pkg.name = dupname
-            rev = model.repo.new_revision()
-            model.Session.commit()
-        assert self.get_package_by_name(dupname)
-
-        # edit first package to have dupname
-        pkg_vals = {'name':dupname}
-        offset = self.package_offset(self.testpackagevalues['name'])
-        postparams = '%s=1' % json.dumps(pkg_vals)
-        res = self.app.post(offset, params=postparams, status=[409],
-                            extra_environ=self.extra_environ)
-        model.Session.remove()
 
     def test_10_edit_group_name_duplicate(self):
         # create a group with testgroupvalues
@@ -539,36 +233,11 @@ class ModelApiTestCase(BaseModelApiTestCase):
         # edit first group to have dupname
         group_vals = {'name':dupname}
         offset = self.offset('/rest/group/%s' % self.testgroupvalues['name'])
-        postparams = '%s=1' % json.dumps(group_vals)
+        postparams = '%s=1' % self.dumps(group_vals)
         res = self.app.post(offset, params=postparams, status=[409],
                             extra_environ=self.extra_environ)
         model.Session.remove()
         
-    def test_11_delete_pkg(self):
-        # Test Packages Entity Delete 200.
-
-        # create a package with testpackagevalues
-        if not self.get_package_by_name(self.testpackagevalues['name']):
-            pkg = model.Package()
-            model.Session.add(pkg)
-            pkg.name = self.testpackagevalues['name']
-            rev = model.repo.new_revision()
-            model.repo.commit_and_remove()
-
-            pkg = self.get_package_by_name(self.testpackagevalues['name'])
-            model.setup_default_user_roles(pkg, [self.user])
-            rev = model.repo.new_revision()
-            model.repo.commit_and_remove()
-        assert self.get_package_by_name(self.testpackagevalues['name'])
-
-        # delete it
-        offset = self.package_offset(self.testpackagevalues['name'])
-        res = self.app.delete(offset, status=[200],
-                extra_environ=self.extra_environ)
-        pkg = self.get_package_by_name(self.testpackagevalues['name'])
-        assert pkg.state == 'deleted'
-        model.Session.remove()
-
     def test_11_delete_group(self):
         # Test Groups Entity Delete 200.
 
@@ -596,28 +265,12 @@ class ModelApiTestCase(BaseModelApiTestCase):
         assert not model.Group.by_name(self.testgroupvalues['name'])
         model.Session.remove()
 
-    def test_12_get_pkg_404(self):
-        # Test Package Entity Get 404.
-        pkg_name = u'random_one'
-        assert not model.Session.query(model.Package).filter_by(name=pkg_name).count()
-        offset = self.package_offset(pkg_name)
-        res = self.app.get(offset, status=404)
-        model.Session.remove()
-
     def test_12_get_group_404(self):
         # Test Package Entity Get 404.
         assert not model.Session.query(model.Group).filter_by(name=self.testgroupvalues['name']).count()
         offset = self.offset('/rest/group/%s' % self.testgroupvalues['name'])
         res = self.app.get(offset, status=404)
         model.Session.remove()
-
-    def test_13_delete_pkg_404(self):
-        # Test Packages Entity Delete 404.
-        pkg_name = u'random_one'
-        assert not model.Session.query(model.Package).filter_by(name=pkg_name).count()
-        offset = self.offset('/rest/package/%s' % pkg_name)
-        res = self.app.delete(offset, status=[404],
-                              extra_environ=self.extra_environ)
 
     def test_13_delete_group_404(self):
         # Test Packages Entity Delete 404.
@@ -865,10 +518,6 @@ class ModelApiTestCase(BaseModelApiTestCase):
         self.get(offset, status=[404])
 
 
-class PackagesApiTestCase(BaseModelApiTestCase):
-    """Test operations involving the Package register and entities."""
-    pass
-
 # Note well, relationships are actually part of the Model API.
 class RelationshipsApiTestCase(ApiControllerTestCase):
 
@@ -994,7 +643,7 @@ class RelationshipsApiTestCase(ApiControllerTestCase):
         # Todo: Redesign this in a RESTful style, so that a relationship is 
         # created by posting a relationship to a relationship **register**.
         offset = self.offset('/rest/package/annakarenina/parent_of/warandpeace')
-        postparams = '%s=1' % json.dumps({'comment':self.comment})
+        postparams = '%s=1' % self.dumps({'comment':self.comment})
         res = self.app.post(offset, params=postparams, status=[200],
                             extra_environ=self.extra_environ)
         # Check the model, directly.
@@ -1006,7 +655,7 @@ class RelationshipsApiTestCase(ApiControllerTestCase):
 
     def update_annakarenina_parent_of_war_and_peace(self, comment=u'New comment.'):
         offset = self.offset('/rest/package/annakarenina/parent_of/warandpeace')
-        postparams = '%s=1' % json.dumps({'comment':comment})
+        postparams = '%s=1' % self.dumps({'comment':comment})
         res = self.app.post(offset, params=postparams, status=[200], extra_environ=self.extra_environ)
         return res
 
@@ -1136,7 +785,7 @@ class PackageSearchApiTestCase(ApiControllerTestCase):
 
     def test_03_uri_qjson(self):
         query = {'q': self.testpackagevalues['name']}
-        json_query = json.dumps(query)
+        json_query = self.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
@@ -1145,7 +794,7 @@ class PackageSearchApiTestCase(ApiControllerTestCase):
 
     def test_04_post_qjson(self):
         query = {'q': self.testpackagevalues['name']}
-        json_query = json.dumps(query)
+        json_query = self.dumps(query)
         offset = self.base_url
         res = self.app.post(offset, params=json_query, status=200)
         res_dict = self.data_from_res(res)
@@ -1154,7 +803,7 @@ class PackageSearchApiTestCase(ApiControllerTestCase):
 
     def test_05_uri_qjson_tags(self):
         query = {'q': 'annakarenina tags:russian tags:tolstoy'}
-        json_query = json.dumps(query)
+        json_query = self.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
@@ -1163,7 +812,7 @@ class PackageSearchApiTestCase(ApiControllerTestCase):
         
     def test_05_uri_qjson_tags_multiple(self):
         query = {'q': 'tags:russian tags:tolstoy'}
-        json_query = json.dumps(query)
+        json_query = self.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
@@ -1180,7 +829,7 @@ class PackageSearchApiTestCase(ApiControllerTestCase):
 
     def test_07_uri_qjson_tags(self):
         query = {'q': '', 'tags':['tolstoy']}
-        json_query = json.dumps(query)
+        json_query = self.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
@@ -1189,7 +838,7 @@ class PackageSearchApiTestCase(ApiControllerTestCase):
 
     def test_07_uri_qjson_tags_multiple(self):
         query = {'q': '', 'tags':['tolstoy', 'russian']}
-        json_query = json.dumps(query)
+        json_query = self.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
@@ -1198,7 +847,7 @@ class PackageSearchApiTestCase(ApiControllerTestCase):
 
     def test_07_uri_qjson_tags_reverse(self):
         query = {'q': '', 'tags':['russian']}
-        json_query = json.dumps(query)
+        json_query = self.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
@@ -1207,7 +856,7 @@ class PackageSearchApiTestCase(ApiControllerTestCase):
 
     def test_07_uri_qjson_extras(self):
         query = {"geographic_coverage":"England"}
-        json_query = json.dumps(query)
+        json_query = self.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
@@ -1216,7 +865,7 @@ class PackageSearchApiTestCase(ApiControllerTestCase):
 
     def test_07_uri_qjson_extras_2(self):
         query = {"national_statistic":"yes"}
-        json_query = json.dumps(query)
+        json_query = self.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
@@ -1232,7 +881,7 @@ class PackageSearchApiTestCase(ApiControllerTestCase):
         model.repo.commit_and_remove()
         
         query = {'q': 'russian', 'all_fields':1}
-        json_query = json.dumps(query)
+        json_query = self.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
@@ -1384,7 +1033,7 @@ class ResourceSearchApiTestCase(ApiControllerTestCase):
 
     def assert_urls_in_search_results(self, offset, expected_urls):
         result = self.app.get(offset, status=200)
-        result_dict = json.loads(result.body)
+        result_dict = self.loads(result.body)
         resources = [model.Session.query(model.PackageResource).get(resource_id) for resource_id in result_dict['results']]
         urls = set([resource.url for resource in resources])
         assert urls == set(expected_urls), urls
@@ -1396,17 +1045,17 @@ class ResourceSearchApiTestCase(ApiControllerTestCase):
 
     def test_02_url_qjson(self):
         query = {'url':'site'}
-        json_query = json.dumps(query)
+        json_query = self.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         self.assert_urls_in_search_results(offset, [self.ab, self.cd])
 
     def test_03_post_qjson(self):
         query = {'url':'site'}
-        json_query = json.dumps(query)
+        json_query = self.dumps(query)
         offset = self.base_url
         result = self.app.post(offset, params=json_query, status=200)
         expected_urls = [self.ab, self.cd]
-        result_dict = json.loads(result.body)
+        result_dict = self.loads(result.body)
         resources = [model.Session.query(model.PackageResource).get(resource_id) for resource_id in result_dict['results']]
         urls = set([resource.url for resource in resources])
         assert urls == set(expected_urls), urls
@@ -1464,7 +1113,6 @@ class MiscApiTestCase(ApiControllerTestCase):
 
 
 # Tests for Version 1 of the API.
-class TestPackagesApi1(Api1TestCase, PackagesApiTestCase): pass
 class TestModelApi1(Api1TestCase, ModelApiTestCase):
 
     def test_06_create_pkg_using_download_url(self):
@@ -1473,7 +1121,7 @@ class TestModelApi1(Api1TestCase, ModelApiTestCase):
             'download_url':u'testurl',
             }
         offset = self.package_offset()
-        postparams = '%s=1' % json.dumps(test_params)
+        postparams = '%s=1' % self.dumps(test_params)
         res = self.app.post(offset, params=postparams, status=[200],
                 extra_environ=self.extra_environ)
         model.Session.remove()
@@ -1504,7 +1152,7 @@ class TestModelApi1(Api1TestCase, ModelApiTestCase):
         # edit it
         pkg_vals = {'download_url':u'newurl'}
         offset = self.package_offset(test_params['name'])
-        postparams = '%s=1' % json.dumps(pkg_vals)
+        postparams = '%s=1' % self.dumps(pkg_vals)
         res = self.app.post(offset, params=postparams, status=[200],
                             extra_environ=self.extra_environ)
         model.Session.remove()
@@ -1520,7 +1168,6 @@ class TestMiscApi1(Api1TestCase, MiscApiTestCase): pass
 class TestQosApi1(Api1TestCase, QosApiTestCase): pass
 
 # Tests for Version 2 of the API.
-class TestPackagesApi2(Api2TestCase, PackagesApiTestCase): pass
 class TestModelApi2(Api2TestCase, ModelApiTestCase): pass
 class TestRelationshipsApi2(Api2TestCase, RelationshipsApiTestCase): pass
 class TestPackageSearchApi2(Api2TestCase, PackageSearchApiTestCase): pass
@@ -1529,7 +1176,6 @@ class TestMiscApi2(Api2TestCase, MiscApiTestCase): pass
 class TestQosApi2(Api2TestCase, QosApiTestCase): pass
 
 # Tests for unversioned API.
-class TestPackagesApiUnversioned(ApiUnversionedTestCase, PackagesApiTestCase): pass
 class TestModelApiUnversioned(ApiUnversionedTestCase, ModelApiTestCase): pass
 
 # Todo: Refactor to run the download_url tests on versioned location too.
