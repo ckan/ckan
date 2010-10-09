@@ -3,7 +3,6 @@ from ckan.tests.functional.api.base import *
 class ApiTestCase(ApiControllerTestCase): 
 
     def test_get_api(self):
-        # Check interface resource (without a slash).
         offset = self.offset('')
         res = self.app.get(offset, status=[200])
         self.assert_version_data(res)
