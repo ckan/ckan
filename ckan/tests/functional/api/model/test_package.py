@@ -211,12 +211,12 @@ class PackagesTestCase(BaseModelApiTestCase):
         # - url
         self.assert_equal(package.url, self.package_fixture_data['url'])
         # - extras
-        # Todo: Extras are submitted!
         self.assert_equal(len(package.extras), 2)
         for key, value in {u'key1':u'val1', u'key3':u'val3'}.items():
             self.assert_equal(package.extras[key], value)
+        # Todo: Something about the fact that extras are not unsubmitted!
         # Todo: Check what happens to key2.
-        # Todo: Figure out why key2 is set to None, and whether we need a test for key2 not existing.
+        # Todo: Figure out why key2 is set to None - do we need a test for key2 not existing.
 
     def test_package_update_ok_by_id(self):
         self.assert_package_update_ok('id')
@@ -225,37 +225,14 @@ class PackagesTestCase(BaseModelApiTestCase):
         self.assert_package_update_ok('name')
 
     def test_entity_update_conflict(self):
-        # create a package with package_fixture_data
-        if not self.get_package_by_name(self.package_fixture_data['name']):
-            package = model.Package()
-            model.Session.add(package)
-            package.name = self.package_fixture_data['name']
-            rev = model.repo.new_revision()
-            model.Session.commit()
-
-            package = self.get_package_by_name(self.package_fixture_data['name'])
-            model.setup_default_user_roles(package, [self.user])
-            rev = model.repo.new_revision()
-            model.repo.commit_and_remove()
-        assert self.get_package_by_name(self.package_fixture_data['name'])
-        
-        # create a package with name 'dupname'
-        dupname = u'dupname'
-        if not self.get_package_by_name(dupname):
-            package = model.Package()
-            model.Session.add(package)
-            package.name = dupname
-            rev = model.repo.new_revision()
-            model.Session.commit()
-        assert self.get_package_by_name(dupname)
-
-        # edit first package to have dupname
-        package_vals = {'name':dupname}
-        offset = self.package_offset(self.package_fixture_data['name'])
-        postparams = '%s=1' % self.dumps(package_vals)
-        res = self.app.post(offset, params=postparams, status=self.STATUS_409_CONFLICT,
-                            extra_environ=self.extra_environ)
-        model.Session.remove()
+        package1_name = self.package_fixture_data['name']
+        package1_data = {'name': package1_name}
+        package1 = self.create_package_roles_revision(package1_data)
+        package2_name = u'somethingnew'
+        package2_data = {'name': package2_name}
+        package2 = self.create_package_roles_revision(package2_data)
+        package1_offset = self.package_offset(package1_name)
+        self.post(package1_offset, package2_data, self.STATUS_409_CONFLICT)
 
     def test_entity_delete_ok(self):
         # create a package with package_fixture_data
