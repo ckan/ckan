@@ -241,7 +241,7 @@ class ModelApiTestCase(BaseModelApiTestCase):
     def test_11_delete_group(self):
         # Test Groups Entity Delete 200.
 
-        # create a group with testpackagevalues
+        # create a group with testgroupvalues
         group = model.Group.by_name(self.testgroupvalues['name'])
         if not group:
             group = model.Group()
@@ -739,7 +739,7 @@ class PackageSearchApiTestCase(ApiControllerTestCase):
         model.notifier.initialise()
         indexer = TestSearchIndexer()
         CreateTestData.create()
-        self.testpackagevalues = {
+        self.package_fixture_data = {
             'name' : u'testpkg',
             'title': 'Some Title',
             'url': u'http://blahblahblah.mydomain',
@@ -750,7 +750,7 @@ class PackageSearchApiTestCase(ApiControllerTestCase):
             'extras': {'national_statistic':'yes',
                        'geographic_coverage':'England, Wales'},
         }
-        CreateTestData.create_arbitrary(self.testpackagevalues)
+        CreateTestData.create_arbitrary(self.package_fixture_data)
         indexer.index()
         self.base_url = self.offset('/search/package')
 
@@ -760,7 +760,7 @@ class PackageSearchApiTestCase(ApiControllerTestCase):
         model.notifier.deactivate()
 
     def test_01_uri_q(self):
-        offset = self.base_url + '?q=%s' % self.testpackagevalues['name']
+        offset = self.base_url + '?q=%s' % self.package_fixture_data['name']
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
         self.assert_package_search_results(res_dict['results'])
@@ -784,7 +784,7 @@ class PackageSearchApiTestCase(ApiControllerTestCase):
         assert res_dict['count'] == 1, res_dict['count']
 
     def test_03_uri_qjson(self):
-        query = {'q': self.testpackagevalues['name']}
+        query = {'q': self.package_fixture_data['name']}
         json_query = self.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
@@ -793,7 +793,7 @@ class PackageSearchApiTestCase(ApiControllerTestCase):
         assert res_dict['count'] == 1, res_dict['count']
 
     def test_04_post_qjson(self):
-        query = {'q': self.testpackagevalues['name']}
+        query = {'q': self.package_fixture_data['name']}
         json_query = self.dumps(query)
         offset = self.base_url
         res = self.app.post(offset, params=json_query, status=200)
@@ -1005,7 +1005,7 @@ class ResourceSearchApiTestCase(ApiControllerTestCase):
         CreateTestData.create()
         self.ab = 'http://site.com/a/b.txt'
         self.cd = 'http://site.com/c/d.txt'
-        self.testpackagevalues = {
+        self.package_fixture_data = {
             'name' : u'testpkg',
             'title': 'Some Title',
             'url': u'http://blahblahblah.mydomain',
@@ -1024,7 +1024,7 @@ class ResourceSearchApiTestCase(ApiControllerTestCase):
             'extras': {'national_statistic':'yes',
                        'geographic_coverage':'England, Wales'},
         }
-        CreateTestData.create_arbitrary(self.testpackagevalues)
+        CreateTestData.create_arbitrary(self.package_fixture_data)
         self.base_url = self.offset('/search/resource')
 
     @classmethod

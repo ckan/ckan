@@ -16,6 +16,7 @@ class ApiControllerTestCase(ControllerTestCase):
     STATUS_200_OK = 200
     STATUS_400_BAD_REQUEST = 400
     STATUS_403_ACCESS_DENIED = 403
+    STATUS_404_NOT_FOUND = 404
     STATUS_409_CONFLICT = 409
 
     send_authorization_header = True
@@ -185,7 +186,7 @@ class BaseModelApiTestCase(ModelMethods, ApiControllerTestCase):
     has_common_fixtures = False
 
     testpackage_license_id = u'gpl-3.0'
-    testpackagevalues = {
+    package_fixture_data = {
         'name' : u'testpkg',
         'title': u'Some Title',
         'url': u'http://blahblahblah.mydomain',
