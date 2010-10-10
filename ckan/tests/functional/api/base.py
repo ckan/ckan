@@ -154,8 +154,6 @@ class Api1TestCase(ApiControllerTestCase):
         assert '"download_url": "http://www.annakarenina.com/download/x=1&y=2"' in msg, msg
 
 
-
-
 class Api2TestCase(ApiControllerTestCase):
 
     api_version = '2'
@@ -236,7 +234,6 @@ class BaseModelApiTestCase(ModelMethods, ApiControllerTestCase):
 
     def reuse_or_delete_common_fixtures(self):
         if BaseModelApiTestCase.has_common_fixtures and not self.reuse_common_fixtures:
-            raise Exception, "Blah"
             BaseModelApiTestCase.has_common_fixtures = False
             self.delete_common_fixtures()
             self.commit_remove()

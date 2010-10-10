@@ -6,7 +6,6 @@ from ckan.tests.functional.api.base import ApiUnversionedTestCase as Unversioned
 # Todo: Remove this ckan.model stuff.
 import ckan.model as model
 
-
 class PackagesTestCase(BaseModelApiTestCase):
 
     commit_changesets = False
