@@ -10,9 +10,7 @@ import ckan.model as model
 class PackagesTestCase(BaseModelApiTestCase):
 
     commit_changesets = False
-    require_common_fixtures = True
     reuse_common_fixtures = True
-    has_common_fixtures = False
 
     def setup(self):
         self.conditional_create_common_fixtures()
