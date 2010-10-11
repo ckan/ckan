@@ -132,8 +132,8 @@ class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
     def post_package_edit_form(self, package_ref, form=None, status=[200], **kwds):
         if form == None:
             form = self.get_package_edit_form(package_ref)
+        package_id = self.package_id_from_ref(package_ref)
         for key,field_value in kwds.items():
-            package_id = self.package_id_from_ref(package_ref)
             field_name = 'Package-%s-%s' % (package_id, key)
             self.set_formfield(form, field_name, field_value)
         form_data = form.submit_fields()
@@ -242,6 +242,52 @@ class FormsApiTestCase(BaseFormsApiCase):
         assert not json.loads(res.body)
         assert not self.get_package_by_name(self.package_name)
         assert self.get_package_by_name(self.package_name_alt)
+
+    def test_submit_full_package_edit_form_valid(self):
+        package = self.get_package_by_name(self.package_name)
+        data = {
+            'name':self.package_name_alt,
+            'title':'test title',
+            'version':'1.2',
+            'url':'http://someurl.com/',
+            'notes':'test notes',
+            'tags':'sheep goat fish',
+            'resources-0-url':'http://someurl.com/download.csv',
+            'resources-0-format':'CSV',
+            'resources-0-description':'A csv file',
+            'author':'Brian',
+            'author_email':'brian@company.com',
+            'maintainer':'Jim',
+            'maintainer_email':'jim@company.com',
+            'license_id':'cc-zero',
+            'extras-newfield0-key':'genre',
+            'extras-newfield0-value':'romance',
+            'extras-newfield1-key':'quality',
+            'extras-newfield1-value':'high',
+            }
+        res = self.post_package_edit_form(package.id, **data)
+        assert not json.loads(res.body)
+        assert not self.get_package_by_name(self.package_name)
+        pkg = self.get_package_by_name(self.package_name_alt)
+        assert pkg
+        for key in data.keys():
+            if key.startswith('resources'):
+                subkey = key.split('-')[-1]
+                pkg_value = getattr(pkg.resources[0], subkey)
+            elif key.startswith('extras'):
+                ignore, field_name, subkey = key.split('-')
+                extra_index = int(field_name[-1])
+                if subkey == 'key':
+                    continue
+                extra_key_subkey = '-'.join(('extras', field_name, 'key'))
+                extra_key = data[extra_key_subkey]
+                pkg_value = pkg.extras[extra_key]
+            elif key == 'tags':
+                pkg_value = set([tag.name for tag in pkg.tags])
+                data[key] = set(data[key].split())
+            else:
+                pkg_value = getattr(pkg, key)
+            assert pkg_value == data[key], '%r should be %r but is %r' % (key, data[key], pkg_value)
 
     def test_submit_package_edit_form_errors(self):
         package = self.get_package_by_name(self.package_name)
