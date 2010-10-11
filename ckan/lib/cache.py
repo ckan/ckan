@@ -19,7 +19,7 @@ def ckan_cache(test=lambda *av, **kw: 0,
 
     :param expires: is not the expiry of the local disk or memory cache but the
         expiry that gets set in the max-age Cache-Control header. The default is
-        15 minutes
+        not to set Cache-Control
         
     :param test: is a function that takes the same arguments as the wrapped
         controller and returns an numeric value in seconds from the epoch GMT.
@@ -29,9 +29,9 @@ def ckan_cache(test=lambda *av, **kw: 0,
     ''test()'' is greater than the timestamp, the cache will be purged and the
     document re-rendered.
 
-    This decorator sets the ''Last-Modified'' and ''Cache-Control'' HTTP headers
-    in the response according to the remembered timestamp and the given ''expires''
-    parameter.
+    This decorator sets the ''Last-Modified'', ''ETag'' and ''Cache-Control''
+    HTTP headers in the response according to the remembered timestamp and the
+    given ''expires'' parameter.
 
     Other parameters as supported by the beaker cache are supported here in the
     same way.
@@ -66,7 +66,6 @@ def ckan_cache(test=lambda *av, **kw: 0,
             return func(*args, **kwargs)
 
         cfg_expires = "%s.expires" % _func_cname(func)
-        cache_expires = expires if expires else int(pylons.config.get(cfg_expires, 900))
 
         # this section copies entirely too much from beaker cache
         if key:
@@ -129,19 +128,26 @@ def ckan_cache(test=lambda *av, **kw: 0,
             headers.update(header for header in response["headers"].items()
                            if header[0].lower() in cache_headers)
                    
-            if "Pragma" in headers: del headers["Pragma"]
-            if "Cache-Control" in headers: del headers["Cache-Control"]
             headers["Last-Modified"] = strftime("%a, %d %b %Y %H:%M:%S GMT", gmtime(last_modified))
+            headers["ETag"] = str(last_modified)
             if cache_miss:
                 headers["X-CKAN-Cache"] = "MISS"
             else:
                 headers["X-CKAN-Cache"] = "HIT"
 
+            if expires:
+                if "Pragma" in headers: del headers["Pragma"]
+                if "Cache-Control" in headers: del headers["Cache-Control"]
+            else:
+                headers["Pragma"] = "no-cache"
+                headers["Cache-Control"] = "no-cache"
+                
             glob_response.headerlist = headers.items()
             
-            glob_response.cache_expires(seconds=cache_expires)
-            cc = glob_response.headers["Cache-Control"]
-            glob_response.headers["Cache-Control"] = "%s, must-revalidate" % cc
+            if expires:
+                glob_response.cache_expires(seconds=expires)
+                cc = glob_response.headers["Cache-Control"]
+                glob_response.headers["Cache-Control"] = "%s, must-revalidate" % cc
 
         glob_response.status = response['status']
         return response["content"]
