@@ -74,13 +74,13 @@ class Stripper(sgmllib.SGMLParser):
 
 class TestController(object):
 
-    def __init__(self, *args, **kwargs):
-        wsgiapp = loadapp('config:test.ini', relative_to=conf_dir)
-        self.app = paste.fixture.TestApp(wsgiapp)
+    wsgiapp = loadapp('config:test.ini', relative_to=conf_dir)
+    app = paste.fixture.TestApp(wsgiapp)
 
     @classmethod
-    def create_package(self, **kwds):
-        CreateTestData.create_arbitrary(package_dicts=[kwds])
+    def create_package(self, data={}, admins=[], **kwds):
+        # Todo: A simpler method for just creating a package.
+        CreateTestData.create_arbitrary(package_dicts=[data or kwds], admins=admins)
 
     @classmethod
     def create_user(self, **kwds):
