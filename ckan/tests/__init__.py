@@ -78,9 +78,9 @@ class TestController(object):
     app = paste.fixture.TestApp(wsgiapp)
 
     @classmethod
-    def create_package(self, data={}, admins=[], **kwds):
+    def create_package(self, data={}, **kwds):
         # Todo: A simpler method for just creating a package.
-        CreateTestData.create_arbitrary(package_dicts=[data or kwds], admins=admins)
+        CreateTestData.create_arbitrary(package_dicts=[data or kwds])
 
     @classmethod
     def create_user(self, **kwds):
