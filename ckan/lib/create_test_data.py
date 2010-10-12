@@ -154,9 +154,9 @@ class CreateTestData(cli.CkanCommand):
                         else:
                             raise NotImplementedError
                         for group_name in group_names:
-                            group = model.Group.by_name(group_name)
+                            group = model.Group.by_name(unicode(group_name))
                             if not group:
-                                group = model.Group(name=group_name)
+                                group = model.Group(name=unicode(group_name))
                                 model.Session.add(group)
                                 new_group_names.add(group_name)
                             pkg.groups.append(group)
