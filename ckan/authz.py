@@ -59,7 +59,7 @@ class Authorizer(object):
         if not roles:
             return False
         # print '%r has roles %s on object %s. Checking permission to %s' % (username, roles, domain_object.name, action)
-        
+
         if model.Role.ADMIN in roles:
             return True
 

@@ -20,7 +20,7 @@
     #tagcloud * {
       display: inline-block;
       vertical-align: middle;
-			line-height: 0.9;
+      line-height: 0.9;
     }
 
     #tagcloud a {
@@ -43,9 +43,9 @@
       <h2>More information</h2>
       <ul>
         <li>${h.link_to(_('About'), h.url_for('about'))}</li>
+        <li>${h.link_to(_('API'), h.url_for('about', anchor='api'))}</li>
         <li>${h.link_to(_('User Guide'), h.url_for('guide'))}</li>
         <li>${h.link_to(_('Statistics'), h.url_for('stats'))}</li>
-        <li>${h.link_to(_('About CKAN'), 'http://wiki.okfn.org/ckan/')}</li>
         <li>${h.link_to(_('CKAN development'), 'http://knowledgeforge.net/ckan/')}</li>
       </ul>
     </div>
@@ -54,10 +54,10 @@
   <div py:match="content">
     <h2>Welcome to ${g.site_title}</h2>
     <p i18n:msg="title">
-      ${g.site_title} is a registry of 
-      <a href="http://opendefinition.org/">open data and content</a>
-      packages. Harnessing the CKAN software, this site makes it easy to
-      find, share and reuse open content and data,
+      ${g.site_title} is an
+      <a href="http://www.opendefinition.org/ossd/">open registry</a>
+      of data and content packages. Harnessing the CKAN software, this
+      site makes it easy to find, share and reuse content and data,
       especially in ways that are machine automatable.
     </p>
     

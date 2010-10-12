@@ -8,10 +8,12 @@
 
      <fieldset>
       <legend>Packages</legend>
-      <py:for each="pkg in c.fieldset.model.packages">
-        <input checked="checked" id="Group-packages-current" name="Group-packages-current" type="checkbox" value="${pkg.name}" />
-        <label for="Group-packages_${pkg.name}" style="display: inline;">${pkg.name}</label>
-      </py:for>
+      <ul py:for="pkg in c.fieldset.model.packages">
+        <li>
+            <input checked="checked" id="Group-packages-current" name="Group-packages-current" type="checkbox" value="${pkg.name}" />
+            <label for="Group-packages_${pkg.name}" style="display: inline;">${pkg.name}</label>
+        </li>
+      </ul>
       <p py:if="not c.fieldset.model.packages">There are no packages currently in this group.</p>
      </fieldset>
 

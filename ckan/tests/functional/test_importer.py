@@ -14,9 +14,7 @@ EXTENSIONS = [CSV_EXTENSION, XL_EXTENSION]
 
 DEFAULT_USER = 'annafan'
 
-# Only run this if xlrd is installed!
-class _TestImporter(TestController):
-
+class TestImporter(TestController):
     @classmethod
     def setup_class(self):
         model.repo.rebuild_db()
@@ -76,7 +74,7 @@ class _TestImporter(TestController):
         return res
         
     def _import(self, res, log_message, username=DEFAULT_USER, status=None):
-        form = res.forms['import']
+        form = res.forms['import-preview']
         form['log_message'] = log_message
         extra_environ = {'REMOTE_USER':username} if username else {}
         res = form.submit('import', extra_environ=extra_environ,

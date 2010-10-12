@@ -12,6 +12,8 @@ class TestSearch(TestController):
 
     @classmethod
     def setup_class(self):
+        model.notifier.initialise()
+
         indexer = TestSearchIndexer()
         model.Session.remove()
         CreateTestData.create_search_test_data()
@@ -37,6 +39,7 @@ class TestSearch(TestController):
     @classmethod
     def teardown_class(self):
         CreateTestData.delete()
+        model.notifier.deactivate()
 
     def _pkg_names(self, result):
         return ' '.join(result['results'])
@@ -275,6 +278,7 @@ class TestSearch(TestController):
 class TestSearchOverall(TestController):
     @classmethod
     def setup_class(self):
+        model.notifier.initialise()
         indexer = TestSearchIndexer()
         CreateTestData.create()
         indexer.index()
@@ -283,6 +287,7 @@ class TestSearchOverall(TestController):
     @classmethod
     def teardown_class(self):
         CreateTestData.delete()
+        model.notifier.deactivate()
 
     def _check_search_results(self, terms, expected_count, expected_packages=[], only_open=False, only_downloadable=False):
         options = QueryOptions()
@@ -314,6 +319,7 @@ class TestSearchOverall(TestController):
 class TestGeographicCoverage(TestController):
     @classmethod
     def setup_class(self):
+        model.notifier.initialise()
         indexer = TestSearchIndexer()
         init_data = [
             {'name':'eng',
@@ -335,6 +341,7 @@ class TestGeographicCoverage(TestController):
     @classmethod
     def teardown_class(self):
         CreateTestData.delete()
+        model.notifier.deactivate()
     
     def _do_search(self, q, expected_pkgs, count=None):
         options = QueryOptions()
@@ -370,6 +377,7 @@ class TestGeographicCoverage(TestController):
 class TestExtraFields(TestController):
     @classmethod
     def setup_class(self):
+        model.notifier.initialise()
         indexer = TestSearchIndexer()
         init_data = [
             {'name':'a',
@@ -390,6 +398,7 @@ class TestExtraFields(TestController):
     @classmethod
     def teardown_class(self):
         CreateTestData.delete()
+        model.notifier.deactivate()
     
     def _do_search(self, department, expected_pkgs, count=None):
         result = self.backend.query_for(model.Package).run(fields={'department':department})
@@ -410,6 +419,7 @@ class TestExtraFields(TestController):
 class TestRank(TestController):
     @classmethod
     def setup_class(self):
+        model.notifier.initialise()
         self.purge_all_packages()
         indexer = TestSearchIndexer()
 
@@ -427,6 +437,7 @@ class TestRank(TestController):
     @classmethod
     def teardown_class(self):
         CreateTestData.delete()
+        model.notifier.deactivate()
     
     def _do_search(self, q, wanted_results):
         options = QueryOptions()

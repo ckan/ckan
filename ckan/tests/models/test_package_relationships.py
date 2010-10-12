@@ -199,6 +199,7 @@ class TestComplicated:
         model.repo.rebuild_db()
 
     def test_01_rels(self):
+        "audit the simpsons family relationships"
         rels = model.Package.by_name(u'homer').get_relationships()
         assert len(rels) == 5, '%i: %s' % (len(rels), [str(rel) for rel in rels])
         def check(rels, subject, type, object):
@@ -216,6 +217,7 @@ class TestComplicated:
         check(rels, 'bart', 'child_of', 'homer')
 
     def test_02_deletion(self):
+        "delete bart is child of homer"
         rels = model.Package.by_name(u'bart').get_relationships()
         assert len(rels) == 1
         assert rels[0].state == model.State.ACTIVE
@@ -233,3 +235,26 @@ class TestComplicated:
         assert q.first().state == model.State.DELETED
         q = q.filter_by(state=model.State.ACTIVE)
         assert q.count() == 0
+
+    def test_03_recreate(self):
+        "recreate bart is child of homer"
+        bart = model.Package.by_name(u"bart")
+        homer = model.Package.by_name(u"homer")
+
+        rels = bart.get_relationships()
+        assert len(rels) == 0, "expected bart to have no relations, found %s" % rels
+
+        model.repo.new_revision()
+        bart.add_relationship(u"child_of", homer)
+        model.repo.commit_and_remove()
+
+        rels = bart.get_relationships()
+        assert len(rels) == 1, "expected bart to have one relation, found %s" % rels
+
+        q = model.Session.query(model.PackageRelationship).filter_by(subject=bart)
+        count = q.count()
+        assert count == 1, "bart has %d relationships, expected 1" % count
+        active = q.filter_by(state=model.State.ACTIVE).count()
+        assert active == 1, "bart has %d active relationships, expected 1" % active
+        deleted = q.filter_by(state=model.State.DELETED).count()
+        assert deleted == 0, "bart has %d deleted relationships, expect 0" % deleted

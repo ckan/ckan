@@ -81,6 +81,10 @@ class TestBlinkerNotifiesAsync:
         async_notifier.AsyncNotifier.register_signal(self.signal)
         self.queue_name = self.__name__
 
+    @classmethod
+    def teardown_class(self):
+        async_notifier.AsyncNotifier.deregister_signal(self.signal)
+        
     def test_01_ourconsumer(self):
         consumer = OurConsumer(async_notifier.get_carrot_connection(),
                 self.queue_name)

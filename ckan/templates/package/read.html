@@ -30,8 +30,13 @@
         <py:if test="c.package_relationships">
           <h3>Related packages</h3>
           <ul>
-            <py:for each="pkg, relationship_str in c.package_relationships">
-              <li>${h.literal(relationship_str % (h.link_to(pkg.name, h.url_for(controller="package", action="read", id=pkg.name))))}</li>
+            <py:for each="pkg, relationship_str, comment in c.package_relationships">
+              <li>
+                ${h.literal(relationship_str % (h.link_to(pkg.name, h.url_for(controller="package", action="read", id=pkg.name))))}
+                <span py:if="comment is not None and len(comment)" class="relationship_comment">
+                    (${comment})
+                </span>
+              </li>
             </py:for>
           </ul>
         </py:if>

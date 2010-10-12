@@ -8,10 +8,15 @@ from meta import *
 class DomainObject(object):
     
     text_search_fields = []
+    Session = Session
 
     def __init__(self, **kwargs):
         for k,v in kwargs.items():
             setattr(self, k, v)
+
+    @classmethod
+    def count(self):
+        self.Session.query(self).count()
 
     @classmethod
     def by_name(self, name, autoflush=True):
@@ -32,6 +37,26 @@ class DomainObject(object):
     def active(self):
         from core import State
         return Session.query(self).filter_by(state=State.ACTIVE)
+
+    def save(self):
+        self.add()
+        self.commit()
+
+    def add(self):
+        self.Session.add(self)
+
+    def commit_remove(self):
+        self.commit()
+        self.remove()
+
+    def commit(self):
+        self.Session.commit()
+
+    def remove(self):
+        self.Session.remove()
+
+    def delete(self):
+        self.Session.delete(self)
 
     def purge(self):
         sess = orm.object_session(self)

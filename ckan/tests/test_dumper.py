@@ -1,5 +1,6 @@
 import tempfile
 import os
+from time import time
 
 import ckan
 from ckan.tests import *
@@ -62,7 +63,8 @@ class TestDumper(object):
         model.Session.remove()
         CreateTestData.create()
         d = Dumper()
-        self.outpath = '/tmp/mytestdump.js'
+        ts = int(time())
+        self.outpath = '/tmp/mytestdump-%s.js' % ts
         if os.path.exists(self.outpath):
             os.remove(self.outpath)
         d.dump_json(self.outpath)

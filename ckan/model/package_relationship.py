@@ -37,14 +37,17 @@ class PackageRelationship(vdm.sqlalchemy.RevisionedObjectMixin,
     
     # List of (type, corresponding_reverse_type)
     # e.g. (A "depends_on" B, B has a "dependency_of" A)
+    # don't forget to add specs to Solr's schema.xml
     types = [(u'depends_on', u'dependency_of'),
              (u'derives_from', u'has_derivation'),
+             (u'links_to', u'linked_from'),
              (u'child_of', u'parent_of'),
              ]
 
     types_printable = \
             [(_(u'depends on %s'), _(u'is a dependency of %s')),
              (_(u'derives from %s'), _(u'has derivation %s')),
+             (_(u'links to %s'), _(u'is linked from %s')),
              (_(u'is a child of %s'), _(u'is a parent of %s')),
              ]
 
@@ -52,7 +55,9 @@ class PackageRelationship(vdm.sqlalchemy.RevisionedObjectMixin,
             {'sibling':_('has sibling %s')}
 
     def __str__(self):
-        return '<PackageRelationship %s %s %s>' % (self.subject.name, self.type, self.object.name)
+        from ckan import model
+        return '<%sPackageRelationship %s %s %s>' % ("*" if self.active != model.State.ACTIVE else "",
+                                                     self.subject.name, self.type, self.object.name)
 
     def __repr__(self):
         return str(self)
@@ -154,9 +159,9 @@ class PackageRelationship(vdm.sqlalchemy.RevisionedObjectMixin,
 
 mapper(PackageRelationship, package_relationship_table, properties={
     'subject':relation(Package, primaryjoin=\
-           package_relationship_table.c.subject_package_id==Package.c.id,
+           package_relationship_table.c.subject_package_id==Package.id,
            backref='relationships_as_subject'),
-    'object':relation(Package, primaryjoin=package_relationship_table.c.object_package_id==Package.c.id,
+    'object':relation(Package, primaryjoin=package_relationship_table.c.object_package_id==Package.id,
            backref='relationships_as_object'),
     },
     extension = [vdm.sqlalchemy.Revisioner(package_relationship_revision_table)]

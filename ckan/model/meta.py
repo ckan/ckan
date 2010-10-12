@@ -1,5 +1,5 @@
 """SQLAlchemy Metadata and Session object"""
-from sqlalchemy import MetaData
+from sqlalchemy import MetaData, __version__ as sqav
 from sqlalchemy.orm import scoped_session, sessionmaker
 import sqlalchemy.orm as orm
 
@@ -17,12 +17,22 @@ import notifier
 # SQLAlchemy database engine. Updated by model.init_model()
 engine = None
 
-# SQLAlchemy session manager. Updated by model.init_model()
-Session = scoped_session(sessionmaker(
-    autoflush=True,
-    transactional=True,
-    extension=notifier.NotifierSessionTrigger(),
-    ))
+if sqav.startswith("0.4"):
+    # SQLAlchemy session manager. Updated by model.init_model()
+    Session = scoped_session(sessionmaker(
+        autoflush=True,
+        transactional=True,
+        extension=notifier.NotifierSessionTrigger(),
+        ))
+elif sqav.startswith("0.5"):
+    Session = scoped_session(sessionmaker(
+        autoflush=True,
+        autocommit=False,
+        expire_on_commit=False,
+        extension=notifier.NotifierSessionTrigger(),
+        ))
+else:
+    raise ValueError("We can only work with SQLAlchemy 0.4 or 0.5 at present")
 
 #mapper = Session.mapper
 mapper = orm.mapper
