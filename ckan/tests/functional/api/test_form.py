@@ -12,10 +12,10 @@ ACCESS_DENIED = [403]
 
 # Todo: Test for access control setup. Just checking an object exists in the model doesn't mean it will be presented through the WebUI.
 
-from ckan.tests.functional.test_rest import ApiControllerTestCase
-from ckan.tests.functional.test_rest import Api1TestCase
-from ckan.tests.functional.test_rest import Api2TestCase
-from ckan.tests.functional.test_rest import ApiUnversionedTestCase
+from ckan.tests.functional.api.test_model import ApiControllerTestCase
+from ckan.tests.functional.api.test_model import Api1TestCase
+from ckan.tests.functional.api.test_model import Api2TestCase
+from ckan.tests.functional.api.test_model import ApiUnversionedTestCase
 
 class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
 
@@ -187,8 +187,19 @@ class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
 
 class FormsApiTestCase(BaseFormsApiCase):
 
-    def assert_formfield(self, form, name, value):
-        self.assert_equal(form[name].value, value)
+    def get_field_names(self, form):
+        return form.fields.keys()
+
+    def assert_formfield(self, form, name, expected):
+        try:
+            field = form[name]
+        except Exception, inst:
+            msg = "Couldn't read field '%s' from form fields: %s: %s" % (
+                name, self.get_field_names(form), inst
+            )
+            raise Exception, msg
+        value = field.value
+        self.assert_equal(value, expected)
 
     def test_get_package_create_form(self):
         form = self.get_package_create_form()

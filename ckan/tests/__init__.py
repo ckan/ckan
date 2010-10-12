@@ -25,9 +25,6 @@ from routes import url_for
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib import search
 
-import resource, socket
-
-
 __all__ = ['url_for',
            'TestController',
            'CreateTestData',
@@ -78,9 +75,9 @@ class TestController(object):
     app = paste.fixture.TestApp(wsgiapp)
 
     @classmethod
-    def create_package(self, data={}, **kwds):
+    def create_package(self, data={}, admins=[], **kwds):
         # Todo: A simpler method for just creating a package.
-        CreateTestData.create_arbitrary(package_dicts=[data or kwds])
+        CreateTestData.create_arbitrary(package_dicts=[data or kwds], admins=admins)
 
     @classmethod
     def create_user(self, **kwds):
