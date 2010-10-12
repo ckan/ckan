@@ -55,8 +55,11 @@ document.getElementById("${field.renderer.name}").focus();
         <py:for each="field in fields">
           ${h.literal(field.render())}
         </py:for>
-            <py:if test="field.metadata.has_key('instructions')">
-              <div class="instructions">${field.metadata['instructions']}</div>
+            <py:if test="field.metadata.has_key('basic_instructions')">
+              <div class="instructions basic">${field.metadata['basic_instructions']}</div>
+            </py:if>
+            <py:if test="field.metadata.has_key('further_instructions')">
+              <div class="instructions further">${field.metadata['further_instructions']}</div>
             </py:if>
             <py:if test="field.metadata.has_key('hints')">
               <div class="hints">${field.metadata['hints']}</div>
