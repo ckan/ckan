@@ -243,7 +243,8 @@ def remove_authorization_group_from_role(authorization_group, role, domain_obj):
 def validate_authorization_setup():
     # since some of the authz config mgmt is taking place in DB, this should 
     # be validated on launch. it is a bit like a lazy migration, but seems 
-    # sensible to make sure authz is always correct. 
+    # sensible to make sure authz is always correct.
+    import pdb; pdb.set_trace()
     setup_default_user_roles(System())
 
 ## TODO: this should be in ckan/authz.py
