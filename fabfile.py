@@ -170,6 +170,8 @@ def _setup():
     _default('db_user', env.user)
     _default('db_host', 'localhost')
     _default('db_name', env.ckan_instance_name)
+    _default('pip_from_pyenv', None)
+
 
 def deploy():
     '''Deploy app on server. Keeps existing config files.'''
@@ -195,7 +197,7 @@ def deploy():
             _run_in_cmd_pyenv('virtualenv %s' % env.pyenv_dir)
         else:
             print 'Virtualenv already exists: %s' % env.pyenv_dir
-        _run_in_cmd_pyenv('pip -E %s install -r %s' % (env.pyenv_dir, env.pip_requirements))
+        _pip_cmd('pip -E %s install -r %s' % (env.pyenv_dir, env.pip_requirements))
 
         # create config ini file
         if not exists(env.config_ini_filename):
@@ -517,6 +519,15 @@ def _run_in_pyenv(command):
     activate_path = os.path.join(env.pyenv_dir, 'bin', 'activate')
     run('source %s&&%s' % (activate_path, command))
 
+def _pip_cmd(command):
+    '''Looks for pip in the pyenv before finding it in the cmd pyenv'''
+    if env.pip_from_pyenv == None:
+        env.pip_from_pyenv = bool(exists(os.path.join(env.pyenv_dir, 'bin', 'pip')))
+    if env.pip_from_pyenv:
+        return _run_in_pyenv(command)
+    else:
+        return _run_in_cmd_pyenv(command)            
+    
 def _run_in_cmd_pyenv(command):
     '''For running commands that are installed in a specific python
     environment specified by env.cmd_pyenv'''
