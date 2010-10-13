@@ -328,6 +328,8 @@ class GeminiDocument(MetadataDocument):
         #        "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date/gmd:dateType/gmd:CI_DateTypeCode",
         #    ],
         #    multiplicity="*",
+
+        # Todo: Suggestion from PP not to bother pulling this into the package.
         ),GeminiAttribute(
             name="unique-resource-identifier",
             xpaths=[

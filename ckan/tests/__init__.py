@@ -74,6 +74,12 @@ class TestController(object):
     wsgiapp = loadapp('config:test.ini', relative_to=conf_dir)
     app = paste.fixture.TestApp(wsgiapp)
 
+    def setup(self):
+        pass
+
+    def teardown(self):
+        pass
+
     @classmethod
     def create_package(self, data={}, admins=[], **kwds):
         # Todo: A simpler method for just creating a package.
@@ -111,11 +117,14 @@ class TestController(object):
     def create_harvest_source(self, **kwds):
         return model.HarvestSource.create_save(**kwds)             
 
-    @classmethod
     def purge_package_by_name(self, package_name):
         package = self.get_package_by_name(package_name)
         if package:
             package.purge()
+            self.commit_remove()
+
+    def commit_remove(self):
+        # Todo: Converge with ModelMethods.commit_remove().
         model.repo.commit_and_remove()
 
     def purge_100_packages(self):
@@ -323,6 +332,30 @@ class TestSearchIndexer:
 
 
 class ModelMethods(object):
+
+    require_common_fixtures = True
+    reuse_common_fixtures = True
+    has_common_fixtures = False
+    commit_changesets = False
+
+    def conditional_create_common_fixtures(self):
+        if self.require_common_fixtures and not ModelMethods.has_common_fixtures:
+            self.create_common_fixtures()
+            ModelMethods.has_common_fixtures = True
+
+    def create_common_fixtures(self):
+        CreateTestData.create(commit_changesets=self.commit_changesets)
+        CreateTestData.create_arbitrary([], extra_user_names=[self.user_name])
+
+    def reuse_or_delete_common_fixtures(self):
+        if ModelMethods.has_common_fixtures and not self.reuse_common_fixtures:
+            ModelMethods.has_common_fixtures = False
+            self.delete_common_fixtures()
+            self.commit_remove()
+
+    def delete_common_fixtures(self):
+        CreateTestData.delete()
+
 
     def dropall(self):
         model.repo.clean_db()

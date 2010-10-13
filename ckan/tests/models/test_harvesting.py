@@ -5,6 +5,7 @@ from ckan.model.harvesting import HarvestingJob
 from ckan.model.harvesting import HarvestedDocument
 import ckan.model as model
 
+
 class GeminiExamples(object):
     """Encapsulates the Gemini example files in ckan/tests/gemini2_examples."""
 
@@ -34,16 +35,34 @@ class GeminiExamples(object):
         return content
 
 
-class TestCase(CheckMethods, ModelMethods, GeminiExamples):
+class TestCase(CheckMethods, ModelMethods):
 
     def setup(self):
-        self.dropall()
-        self.rebuild()
-        self.remove()
+        self.conditional_create_common_fixtures()
 
     def teardown(self):
-        self.dropall()
-        self.remove()
+        self.reuse_or_delete_common_fixtures()
+
+
+class HarvesterTestCase(GeminiExamples, TestCase):
+
+    require_common_fixtures = False
+
+    def setup(self):
+        super(HarvesterTestCase, self).setup()
+        self.source = None
+        self.job = None
+        self.document = None
+
+    def teardown(self):
+        if self.document:
+            self.delete(self.document)
+        if self.job:
+            self.delete(self.job)
+        if self.source:
+            self.delete(self.source)
+        self.commit_remove()
+        super(HarvesterTestCase, self).teardown()
 
     def create_fixture(self, domain_type, **kwds):
         # Create and check new fixture.
@@ -61,21 +80,7 @@ class TestCase(CheckMethods, ModelMethods, GeminiExamples):
         return self.create_fixture(HarvestingJob, **kwds)
 
 
-class TestHarvestSource(TestCase):
-
-    def setup(self):
-        super(TestHarvestSource, self).setup()
-        self.source = None
-        self.document = None
-
-    def teardown(self):
-        if self.source:
-            self.delete(self.source)
-        self.commit_remove()
-        if self.document:
-            self.delete(self.document)
-        self.commit_remove()
-        super(TestHarvestSource, self).teardown()
+class TestHarvestSource(HarvesterTestCase):
 
     def test_crud_source(self):
         self.assert_false(self.source)
@@ -99,58 +104,47 @@ class TestHarvestSource(TestCase):
         self.assert_equal(count_after, count_before + 1)
 
 
-class TestHarvestingJob(TestCase):
+class TestHarvestingJob(HarvesterTestCase):
+
+    fixture_user_ref = u'publisheruser1'
 
     def setup(self):
         super(TestHarvestingJob, self).setup()
-        url = self.gemini_url(0)
-        self.source = self.create_harvest_source(url=url)
-        self.job = None
-
-    def teardown(self):
-        try:
-            if self.job:
-                self.delete_commit(self.job)
-        finally:
-            if self.source:
-                pass #self.delete_commit(self.source)
-        super(TestHarvestingJob, self).teardown()
+        self.assert_false(self.source)
+        self.source = self.create_harvest_source(
+            url=self.gemini_url(0)
+        )
+        self.assert_true(self.source.id)
+        self.assert_false(self.job)
+        self.job = self.create_harvesting_job(
+            source=self.source, 
+            user_ref=self.fixture_user_ref
+        )
 
     def test_crud_job(self):
-        self.assert_false(self.job)
-        user_ref = u'publisheruser1'
-        self.assert_true(self.source.id)
-        self.job = self.create_harvesting_job(source=self.source, user_ref=user_ref)
+        # Create.
         self.assert_true(self.job)
         self.assert_true(self.job.id)
         self.assert_true(self.job.source_id)
         self.assert_true(self.job.source)
         self.assert_equal(self.job.source_id, self.source.id)
+        # Read.
         dup = HarvestingJob.get(self.job.id)
+        # Todo: Update.
+        # Delete.
         self.delete_commit(self.job)
-        self.assert_raises(Exception, HarvestSource.get, self.job.id)
-        dup = HarvestSource.get(self.source.id)
+        self.assert_raises(Exception, HarvestingJob.get, self.job.id)
+        # - check source has not been deleted!
+        HarvestSource.get(self.source.id)
 
     def test_harvest_documents(self):
-        self.assert_false(self.job)
-        user_ref = u'publisheruser2'
-        count_before = self.count_packages()
-        self.job = self.create_harvesting_job(source=self.source, user_ref=user_ref)
+        before_count = self.count_packages()
         self.job.harvest_documents()
-        count_after = self.count_packages()
-        self.assert_equal(count_after, count_before + 1)
+        after_count = self.count_packages()
+        self.assert_equal(after_count, before_count + 1)
 
 
-class TestHarvestedDocument(TestCase):
-
-    def setup(self):
-        super(TestHarvestedDocument, self).setup()
-        self.document = None
-
-    def teardown(self):
-        if self.document:
-            self.delete_commit(self.document)
-        super(TestHarvestedDocument, self).teardown()
+class TestHarvestedDocument(HarvesterTestCase):
 
     def test_crud_document(self):
         self.assert_false(self.document)
