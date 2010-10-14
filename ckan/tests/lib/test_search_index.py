@@ -13,6 +13,7 @@ class TestSearchIndex(TestController):
     
     @classmethod
     def setup_class(cls):
+        model.notifier.initialise()
         CreateTestData.create()
         cls.worker = search.SearchIndexWorker(search.get_backend(backend='sql'))
         cls.worker.clear_queue()
@@ -20,6 +21,7 @@ class TestSearchIndex(TestController):
     @classmethod
     def teardown_class(cls):
         CreateTestData.delete()        
+        model.notifier.deactivate()
 
     def test_index(self):
         notification = model.PackageNotification.create(self.anna, 'new')
@@ -61,6 +63,7 @@ def allow_time_to_create_search_index():
 class TestPostgresSearch:
     @classmethod
     def setup_class(self):
+        model.notifier.initialise()
         tsi = TestSearchIndexer()
         CreateTestData.create_search_test_data()
         tsi.index()
@@ -73,6 +76,7 @@ class TestPostgresSearch:
     @classmethod
     def teardown_class(self):
         CreateTestData.delete()
+        model.notifier.deactivate()
 
     def test_0_indexing(self):
         searches = model.metadata.bind.execute('SELECT package_id, search_vector FROM package_search').fetchall()

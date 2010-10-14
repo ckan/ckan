@@ -3,6 +3,7 @@ import sys
 import logging
 
 import paste.script
+from paste.script.util.logging_config import fileConfig
 
 class CkanCommand(paste.script.command.Command):
     parser = paste.script.command.Command.standard_parser(verbose=True)
@@ -22,8 +23,12 @@ class CkanCommand(paste.script.command.Command):
             msg = 'No config file supplied'
             raise self.BadCommand(msg)
         self.filename = os.path.abspath(self.options.config)
+        try:
+            fileConfig(self.filename)
+        except Exception: pass
         conf = appconfig('config:' + self.filename)
         load_environment(conf.global_conf, conf.local_conf)
+        
 
     def _setup_app(self):
         cmd = paste.script.appinstall.SetupCommand('setup-app') 
@@ -363,7 +368,6 @@ class SearchIndexCommand(CkanCommand):
 
     def command(self):
         self._load_config()
-        logging.basicConfig(level=logging.DEBUG)
         from ckan.lib.search import get_backend, rebuild, SearchIndexWorker
 
         if not self.args:
@@ -378,6 +382,7 @@ class SearchIndexCommand(CkanCommand):
             while True:
                 indexer.run()
         if cmd == 'rebuild':
+            print "WARNING: rebuild is deprecated. Use 'notifications replay' and a queue indexer instead."
             rebuild()
         else:
             print 'Command %s not recognized' % cmd
@@ -958,3 +963,187 @@ class Notifications(CkanCommand):
     def monitor(self):
         from ckan.lib import monitor
         monitor = monitor.Monitor()
+
+class Load(CkanCommand):
+    '''Load data to a remote CKAN instance.
+
+    load bis {filepath.xls} {ckan-api-url} {api-key}
+    load ons {number_of_days_worth} {ckan-api-url} {api-key}
+    '''
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    max_args = None
+    min_args = 1
+
+    def command(self):
+        # Avoids vdm logging warning
+        logging.basicConfig(level=logging.ERROR)
+        
+        self._load_config()
+        from ckan import model
+
+        data_type = self.args[0]
+        if data_type == 'bis':
+            if len(self.args) != 4:
+                print 'Error: Wrong number of arguments for data type: %s' % data_type
+                print self.usage
+                sys.exit(1)
+            filepath, api_url, api_key = self.args[1:]
+            assert api_url.startswith('http://') and api_url.endswith('/api'), api_url
+            # import them
+            from ckanext.dgu.bis.bis import BisImporter, BisLoader
+            importer = BisImporter(filepath=filepath)
+            loader = BisLoader
+        elif data_type == 'ons':
+            from ckanext.dgu.ons.importer import OnsImporter
+            from ckanext.dgu.ons.loader import OnsLoader
+            from ckanext.dgu.ons.downloader import OnsData
+            if len(self.args) != 4:
+                print 'Error: Wrong number of arguments for data type: %s' % data_type
+                print self.usage
+                sys.exit(1)
+            days, api_url, api_key = self.args[1:]
+            days = int(days)
+            assert api_url.startswith('http://') and api_url.endswith('/api'), api_url
+            # download data
+            ons_data = OnsData()
+            url, url_name = ons_data._get_url_recent(days=days)
+            data_filepath = ons_data.download(url, url_name, force_download=True)
+            
+            # import them
+            importer = OnsImporter(filepath=data_filepath)
+            loader = OnsLoader
+        else:
+            print 'Error: Data type %r not recognised' % data_type
+            print self.usage
+            sys.exit(1)
+
+        pkg_dicts = [pkg_dict for pkg_dict in importer.pkg_dict()]
+        print '%i packages' % len(pkg_dicts)
+        if pkg_dicts:
+            #raw_input('Press return to load packages')
+            print 'Loading packages...'
+            # load them
+            from ckanclient import CkanClient
+            client = CkanClient(api_key=api_key, base_location=api_url,
+                                is_verbose=False)
+            loader = loader(client)
+            res = loader.load_packages(pkg_dicts)
+            if res['num_errors'] == 0 and res['num_loaded']:
+                print 'SUCCESS'
+            else:
+                print '%i ERRORS' % res['num_errors']
+            print '%i package loaded' % res['num_loaded']
+
+            if res['num_loaded']:
+                #raw_input('Press return to add them to the ukgov group')
+
+                # add them to the group
+                print 'Adding them to the ukgov group...'
+                loader.add_pkgs_to_group(res['pkg_names'], 'ukgov')
+                print '...SUCCESS'
+
+class Harvester(CkanCommand):
+    '''Harvests remotely mastered metadata
+
+    Usage:
+      harvester source {url} {user-ref} {publisher-ref}       
+        - create new harvest source
+
+      harvester sources                                 
+        - lists harvest sources
+
+      harvester job {source-id} {user-ref}
+        - create new harvesting job
+
+      harvester jobs
+        - lists harvesting jobs
+
+      harvester run
+        - runs harvesting jobs
+    '''
+
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    max_args = 4
+    min_args = 0
+
+    def command(self):
+        self._load_config()
+        cmd = self.args[0]
+        if cmd == 'source':
+            if len(self.args) == 4:
+                url = unicode(self.args[1])
+                user_ref = unicode(self.args[2])
+                publisher_ref = unicode(self.args[3])
+                self.create_harvest_source(url, user_ref, publisher_ref)
+            else:
+                print 'Need url, user-ref and publisher-ref.'
+        elif cmd == 'sources':
+            self.list_harvest_sources()
+        elif cmd == 'job':
+            if len(self.args) == 3:
+                url = unicode(self.args[1])
+                user_ref = unicode(self.args[2])
+                self.create_harvesting_job(url, user_ref)
+            else:
+                print 'Need source-id and user-ref.'
+        elif cmd == 'jobs':
+            self.list_harvesting_jobs()
+        elif cmd == 'run':
+            self.run_harvester()
+        else:
+            print 'Command %s not recognized' % cmd
+
+    def _load_config(self):
+        super(Harvester, self)._load_config()
+        import logging
+        logging.basicConfig()
+        logger_vdm = logging.getLogger('vdm')
+        logger_vdm.setLevel(logging.ERROR)
+
+    def run_harvester(self, *args, **kwds):
+        from pylons.i18n.translation import _get_translator
+        import pylons
+        pylons.translator._push_object(_get_translator(pylons.config.get('lang')))
+
+        from ckan.model import HarvestingJob
+        jobs = HarvestingJob.filter(status=u"New").all()
+        print "There are %s harvesting jobs" % len(jobs)
+        for job in jobs:
+            print "Running job %s" % job.id
+            print "job source id: %s" % job.source.id
+            print "job source url: %s" % job.source.url
+            job.harvest_documents()
+            print "job status: %s" % job.status
+            print "job report: %s" % job.report
+            print
+
+    def list_harvesting_jobs(self):
+        from ckan.model import HarvestingJob
+        jobs = HarvestingJob.filter().all()
+        for job in jobs:
+            print job.id, job.source and job.source.id or "sourceless", job.status
+        print "There are %s harvesting jobs" % len(jobs)
+       
+    def create_harvesting_job(self, source_id, user_ref):
+        from ckan.model import HarvestingJob
+        job = HarvestingJob.create_save(source_id=source_id, user_ref=user_ref, status=u"New")
+        print "New harvesting job id: %s" % job.id
+        jobs = HarvestingJob.filter().all()
+        print "There are now %s harvesting jobs" % len(jobs)
+
+    def list_harvest_sources(self):
+        from ckan.model import HarvestSource
+        sources = HarvestSource.filter().all()
+        for source in sources:
+            print source.id, source.status, source.url
+        print "There are %s harvest sources" % len(sources)
+       
+    def create_harvest_source(self, url, user_ref, publisher_ref):
+        from ckan.model import HarvestSource
+        source = HarvestSource.create_save(url=url, user_ref=user_ref, publisher_ref=publisher_ref)
+        print "New harvest source id: %s" % source.id
+        sources = HarvestSource.filter().all()
+        print "There are now %s harvest sources" % len(sources)
+

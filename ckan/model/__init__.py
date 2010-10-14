@@ -4,15 +4,18 @@ from package import *
 from tag import *
 from package_mapping import *
 from user import user_table, User
+from authorization_group import * 
 from group import *
+from group_extra import *
 from search_index import *
 from authz import *
-from extras import *
+from package_extra import *
 from resource import *
 from rating import *
-from package_relationship import PackageRelationship
+from package_relationship import *
 from changeset import Changeset, Change, Changemask
 from notifier import *
+from harvesting import HarvestSource, HarvestingJob, HarvestedDocument
 
 import ckan.migration
 
@@ -56,6 +59,7 @@ class Repository(vdm.sqlalchemy.Repository):
             rev.author = 'system'
             rev.message = u'Initialising the Repository'
             Session.add(rev)
+        validate_authorization_setup()
         self.commit_and_remove()   
 
     def create_db(self):
@@ -66,6 +70,7 @@ class Repository(vdm.sqlalchemy.Repository):
         # doing paster db clean && paster db upgrade !
         # self.upgrade_db()
         self.setup_migration_version_control(self.latest_migration_version())
+        self.create_indexes()
 
     def latest_migration_version(self):
         import migrate.versioning.api as mig
@@ -81,7 +86,19 @@ class Repository(vdm.sqlalchemy.Repository):
                     self.migrate_repository, version)
         except migrate.versioning.exceptions.DatabaseAlreadyControlledError:
             pass
-
+    
+    def create_indexes(self):
+        import os
+        from migrate.versioning.script import SqlScript
+        from sqlalchemy.exceptions import ProgrammingError
+        try:
+            path = os.path.join(self.migrate_repository, 'versions', '021_postgres_upgrade.sql')
+            script = SqlScript(path) 
+            script.run(meta.engine, step=None)
+        except ProgrammingError, e:
+            if not 'already exists' in repr(e):
+                raise
+    
     def upgrade_db(self, version=None):
         '''Upgrade db using sqlalchemy migrations.
 
@@ -91,6 +108,7 @@ class Repository(vdm.sqlalchemy.Repository):
         self.setup_migration_version_control()
         mig.upgrade(self.metadata.bind.url, self.migrate_repository,
                 version=version)
+        validate_authorization_setup()
 
 
 

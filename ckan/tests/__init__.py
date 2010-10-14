@@ -25,16 +25,12 @@ from routes import url_for
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib import search
 
-import resource, socket
-
-if 'ubik.local' == socket.gethostname():
-    resource.setrlimit(resource.RLIMIT_NOFILE, (500,-1))
-
-
 __all__ = ['url_for',
            'TestController',
            'CreateTestData',
            'TestSearchIndexer',
+           'ModelMethods',
+           'CheckMethods',
         ]
 
 here_dir = os.path.dirname(os.path.abspath(__file__))
@@ -64,10 +60,10 @@ class Stripper(sgmllib.SGMLParser):
         sgmllib.SGMLParser.__init__(self)
 
     def strip(self, html):
-        self.str = ""
+        self.str = u""
         self.feed(html)
         self.close()
-        return ' '.join(self.str.split())
+        return u' '.join(self.str.split())
 
     def handle_data(self, data):
         self.str += data
@@ -108,6 +104,12 @@ class TestController(object):
 
     def get_user_by_name(self, name):
         return model.User.by_name(name)
+
+    def get_harvest_source_by_url(self, source_url, default=Exception):
+        return model.HarvestSource.get(source_url, default, 'url')
+
+    def create_harvest_source(self, **kwds):
+        return model.HarvestSource.create_save(**kwds)             
 
     @classmethod
     def purge_package_by_name(self, package_name):
@@ -181,7 +183,9 @@ class TestController(object):
 
     def strip_tags(self, res):
         '''Call strip_tags on a TestResponse object to strip any and all HTML and normalise whitespace.'''
-        return Stripper().strip(str(res))
+        if not isinstance(res, basestring):
+            res = res.body.decode('utf-8')
+        return Stripper().strip(res)    
 
     def check_named_element(self, html, tag_name, *html_to_find):
         '''Searches in the html and returns True if it can find a particular
@@ -272,12 +276,12 @@ class TestController(object):
         process = subprocess.Popen(['paster', 'serve', config_path])
         return process
 
-    def _wait_for_url(self, url, timeout=15):
+    def _wait_for_url(self, url='http://127.0.0.1:5000/', timeout=15):
         for i in range(int(timeout)):
             import urllib2
             import time
             try:
-                response = urllib2.urlopen('http://127.0.0.1:5000/')
+                response = urllib2.urlopen(url)
             except urllib2.URLError:
                 pass 
                 time.sleep(1)
@@ -292,6 +296,16 @@ class TestController(object):
 
 
 class TestSearchIndexer:
+    '''
+    Tests which use search can use this object to provide indexing
+    Usage:
+    model.notifier.initialise()
+    self.tsi = TestSearchIndexer()
+     (create packages)
+    self.tsi.index()
+     (do searching)
+    model.notifier.deactivate()
+    ''' 
     worker = None
     
     def __init__(self):
@@ -306,4 +320,72 @@ class TestSearchIndexer:
             cls.worker.async_callback(message.payload, message)
             message = cls.worker.consumer.fetch()
         cls.worker.consumer.close()        
+
+
+class ModelMethods(object):
+
+    def dropall(self):
+        model.repo.clean_db()
+
+    def rebuild(self):
+        model.repo.rebuild_db()
+        self.remove()
+
+    def add(self, domain_object):
+        model.Session.add(domain_object)
+
+    def add_commit(self, domain_object):
+        self.add(domain_object)
+        self.commit()
+
+    def add_commit_remove(self, domain_object):
+        self.add(domain_object)
+        self.commit_remove()
+
+    def delete(self, domain_object):
+        model.Session.delete(domain_object)
+
+    def delete_commit(self, domain_object):
+        self.delete(domain_object)
+        self.commit()
+
+    def delete_commit_remove(self, domain_object):
+        self.delete(domain_object)
+        self.commit()
+
+    def commit(self):
+        model.Session.commit()
+
+    def commit_remove(self):
+        self.commit()
+        self.remove()
+
+    def remove(self):
+        model.Session.remove()
+
+    def count_packages(self):
+        return model.Session.query(model.Package).count()
+
+
+class CheckMethods(object):
+
+    def assert_true(self, value):
+        assert value, "Not true: '%s'" % value
+
+    def assert_false(self, value):
+        assert not value, "Not false: '%s'" % value
+
+    def assert_equal(self, value1, value2):
+        assert value1 == value2, 'Not equal: %s' % ((value1, value2),)
+
+    def assert_isinstance(self, value, check):
+        assert isinstance(value, check), 'Not an instance: %s' % ((value, check),)
+    
+    def assert_raises(self, exception_class, callable, *args, **kwds): 
+        try:
+            callable(*args, **kwds)
+        except exception_class:
+            pass
+        else:
+            assert False, "Didn't raise '%s' when calling: %s with %s" % (exception_class, callable, (args, kwds))
 

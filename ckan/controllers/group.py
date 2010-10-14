@@ -1,5 +1,6 @@
 import genshi
 
+from sqlalchemy.orm import eagerload_all
 from ckan.lib.base import *
 import ckan.authz as authz
 import ckan.forms
@@ -14,6 +15,7 @@ class GroupController(BaseController):
         from ckan.lib.helpers import Page
 
         query = ckan.authz.Authorizer().authorized_query(c.user, model.Group)
+        query = query.options(eagerload_all('packages'))
         c.page = Page(
             collection=query,
             page=request.params.get('page', 1),
@@ -28,7 +30,7 @@ class GroupController(BaseController):
         auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, c.group)
         if not auth_for_read:
             abort(401, gettext('Not authorized to read %s') % id.encode('utf8'))
-
+            
         c.auth_for_edit = self.authorizer.am_authorized(c, model.Action.EDIT, c.group)
         c.auth_for_authz = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, c.group)
         
@@ -49,10 +51,14 @@ class GroupController(BaseController):
     def new(self):
         record = model.Group
         c.error = ''
-        if not c.user:
-            abort(401, gettext('Must be logged in to create a new group.'))
-
-        fs = ckan.forms.get_group_fieldset('group_fs')
+        
+        auth_for_create = self.authorizer.am_authorized(c, model.Action.GROUP_CREATE, model.System())
+        if not auth_for_create:
+            abort(401, str(gettext('Unauthorized to create a group')))
+        
+        is_admin = self.authorizer.is_sysadmin(c.user)
+        
+        fs = ckan.forms.get_group_fieldset(is_admin=is_admin)
 
         if request.params.has_key('save'):
             # needed because request is nested
@@ -77,10 +83,10 @@ class GroupController(BaseController):
             group = model.Group.by_name(c.groupname)
             pkgs = [model.Package.by_name(name) for name in request.params.getall('Group-packages-current')]
             group.packages = pkgs
-            pkgids = request.params.getall('PackageGroup--package_id')
-            for pkgid in pkgids:
-                if pkgid:
-                    package = model.Session.query(model.Package).get(pkgid)
+            pkgnames = request.params.getall('PackageGroup--package_name')
+            for pkgname in pkgnames:
+                if pkgname:
+                    package = model.Package.by_name(pkgname)
                     if package and package not in group.packages:
                         group.packages.append(package)
             model.repo.commit_and_remove()
@@ -100,13 +106,15 @@ class GroupController(BaseController):
         am_authz = self.authorizer.am_authorized(c, model.Action.EDIT, group)
         if not am_authz:
             abort(401, gettext('User %r not authorized to edit %r') % (c.user, id))
-
+            
+        is_admin = self.authorizer.is_sysadmin(c.user)
+        
         if not 'save' in request.params:
             c.group = group
             c.groupname = group.name
             c.grouptitle = group.title
             
-            fs = ckan.forms.get_group_fieldset('group_fs').bind(c.group)
+            fs = ckan.forms.get_group_fieldset(is_admin=is_admin).bind(c.group)
             c.form = self._render_edit_form(fs)
             return render('group/edit.html')
         else:
@@ -115,7 +123,7 @@ class GroupController(BaseController):
             # needed because request is nested
             # multidict which is read only
             params = dict(request.params)
-            c.fs = ckan.forms.get_group_fieldset('group_fs').bind(group, data=params or None)
+            c.fs = ckan.forms.get_group_fieldset().bind(group, data=params or None)
             try:
                 self._update(c.fs, id, group.id)
                 # do not use groupname from id as may have changed
@@ -127,10 +135,10 @@ class GroupController(BaseController):
                 return render('group/edit.html')
             pkgs = [model.Package.by_name(name) for name in request.params.getall('Group-packages-current')]
             group.packages = pkgs
-            pkgids = request.params.getall('PackageGroup--package_id')
-            for pkgid in pkgids:
-                if pkgid:
-                    package = model.Session.query(model.Package).get(pkgid)
+            pkgnames = request.params.getall('PackageGroup--package_name')
+            for pkgname in pkgnames:
+                if pkgname:
+                    package = model.Package.by_name(pkgname)
                     if package and package not in group.packages:
                         group.packages.append(package)
             model.repo.commit_and_remove()
@@ -145,7 +153,7 @@ class GroupController(BaseController):
 
         c.authz_editable = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, group)
         if not c.authz_editable:
-            abort(401, gettext('Not authorized to edit authization for group'))
+            abort(401, gettext('Not authorized to edit authorization for group'))
 
         if 'save' in request.params: # form posted
             # needed because request is nested
@@ -196,7 +204,7 @@ class GroupController(BaseController):
     def _render_edit_form(self, fs):
         # errors arrive in c.error and fs.errors
         c.fieldset = fs
-        c.fieldset2 = ckan.forms.get_group_fieldset('new_package_group_fs')
+        c.fieldset2 = ckan.forms.get_package_group_fieldset()
         return render('group/edit_form.html')
 
     def _update(self, fs, group_name, group_id):

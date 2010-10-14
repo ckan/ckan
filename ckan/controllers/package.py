@@ -1,12 +1,15 @@
 import logging
 import urlparse
 
+from sqlalchemy.orm import eagerload_all
+from sqlalchemy import or_
 import genshi
-from pylons import config
+from pylons import config, cache
 from pylons.i18n import get_lang, _
 
 from ckan.lib.base import *
-from ckan.lib.search import query_for, QueryOptions
+from ckan.lib.search import query_for, QueryOptions, SearchError
+from ckan.lib.cache import proxy_cache
 from ckan.lib.package_saver import PackageSaver, ValidationException
 import ckan.forms
 import ckan.authz
@@ -23,8 +26,11 @@ class PackageController(BaseController):
         c.package_count = query.count()
         return render('package/index.html')
 
+    @proxy_cache()
     def list(self):
         query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
+        query = query.options(eagerload_all('package_tags.tag'))
+        query = query.options(eagerload_all('package_resources_all'))
         c.page = h.AlphaPage(
             collection=query,
             page=request.params.get('page', 'A'),
@@ -38,42 +44,63 @@ class PackageController(BaseController):
         c.open_only = request.params.get('open_only')
         c.downloadable_only = request.params.get('downloadable_only')
         if c.q:
+            c.query_error = False
             page = int(request.params.get('page', 1))
             limit = 20
             query = query_for(model.Package)
-            query.run(query=c.q,
-                      limit=limit,
-                      offset=(page-1)*limit,
-                      return_objects=True,
-                      filter_by_openness=c.open_only,
-                      filter_by_downloadable=c.downloadable_only,
-                      username=c.user)
+            try:
+                query.run(query=c.q,
+                          limit=limit,
+                          offset=(page-1)*limit,
+                          return_objects=True,
+                          filter_by_openness=c.open_only,
+                          filter_by_downloadable=c.downloadable_only,
+                          username=c.user)
             
-            c.page = h.Page(
-                collection=query.results,
-                page=page,
-                #items=query.results,
-                item_count=query.count,
-                items_per_page=limit
-            )
-            c.page.items = query.results
+                c.page = h.Page(
+                    collection=query.results,
+                    page=page,
+                    item_count=query.count,
+                    items_per_page=limit
+                )
+                c.page.items = query.results
+            except SearchError, se:
+                c.query_error = True
+                c.page = h.Page(collection=[])
             
             # tag search
             c.tag_limit = 25
             query = query_for('tag', backend='sql')
-            query.run(query=c.q,
-                      return_objects=True,
-                      limit=c.tag_limit,
-                      username=c.user)
-            c.tags = query.results
-            c.tags_count = query.count
+            try:
+                query.run(query=c.q,
+                          return_objects=True,
+                          limit=c.tag_limit,
+                          username=c.user)
+                c.tags = query.results
+                c.tags_count = query.count
+            except SearchError, se:
+                c.tags = []
+                c.tags_count = 0
 
         return render('package/search.html')
+    
+    def _pkg_cache_key(self, pkg):
+        # note: we need pkg.id in addition to pkg.revision.id because a
+        # revision may have more than one package in it.
+        return str(hash((pkg.id, pkg.revision.id, c.user, pkg.get_average_rating())))
+        
+    def _clear_pkg_cache(self, pkg):
+        read_cache = cache.get_cache('package/read.html', type='dbm')
+        read_cache.remove_value(self._pkg_cache_key(pkg))
 
+    @proxy_cache()
     def read(self, id):
         pkg = model.Package.get(id)
         if pkg is None:
             abort(404, gettext('Package not found'))
+        
+        cache_key = self._pkg_cache_key(pkg)
+        etag_cache(cache_key)
         
         # used by disqus plugin
         c.current_package_id = pkg.id
@@ -94,7 +121,7 @@ class PackageController(BaseController):
         c.auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, pkg)
 
         PackageSaver().render_package(pkg)
-        return render('package/read.html') 
+        return render('package/read.html')
 
     def history(self, id):
         if 'diff' in request.params or 'selected1' in request.params:
@@ -159,8 +186,12 @@ class PackageController(BaseController):
         c.error = ''
 
         is_admin = self.authorizer.is_sysadmin(c.user)
-
-        fs = ckan.forms.registry.get_fieldset(is_admin=is_admin,
+        
+        auth_for_create = self.authorizer.am_authorized(c, model.Action.PACKAGE_CREATE, model.System())
+        if not auth_for_create:
+            abort(401, str(gettext('Unauthorized to create a package')))
+        
+        fs = ckan.forms.registry.get_package_fieldset(is_admin=is_admin,
                          package_form=request.params.get('package_form'))
         if 'save' in request.params or 'preview' in request.params:
             if not request.params.has_key('log_message'):
@@ -231,7 +262,7 @@ class PackageController(BaseController):
             abort(401, str(gettext('User %r not authorized to edit %s') % (c.user, id)))
 
         c.auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, pkg)
-        fs = ckan.forms.registry.get_fieldset(is_admin=c.auth_for_change_state,
+        fs = ckan.forms.registry.get_package_fieldset(is_admin=c.auth_for_change_state,
                        package_form=request.params.get('package_form'))
 
         if 'save' in request.params or 'preview' in request.params:
@@ -375,22 +406,30 @@ class PackageController(BaseController):
         package = model.Package.get(package_name)
         if package is None:
             abort(404, gettext('404 Package Not Found'))
+        self._clear_pkg_cache(package)
         rating = request.params.get('rating', '')
         if rating:
             try:
                 ckan.rating.set_my_rating(c, package, rating)
             except ckan.rating.RatingValueException, e:
                 abort(400, gettext('Rating value invalid'))
-        h.redirect_to(controller='package', action='read', id=package_name)
+        h.redirect_to(controller='package', action='read', id=package_name, rating=str(rating))
 
     def autocomplete(self):
+        q = unicode(request.params.get('q', ''))
+        if not len(q): 
+            return ''
         pkg_list = []
+        like_q = u"%s%%" % q
         pkg_query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
+        pkg_query = pkg_query.filter(or_(model.Package.name.ilike(like_q),
+                                         model.Package.title.ilike(like_q)))
+        pkg_query = pkg_query.limit(10)
         for pkg in pkg_query:
-            pkg_list.extend([
-                '%s (%s)|%s' % (pkg.title, pkg.name, pkg.id),
-                '%s|%s' % (pkg.name, pkg.id),
-                ])
+            if pkg.name.lower().startswith(q.lower()):
+                pkg_list.append('%s|%s' % (pkg.name, pkg.name))
+            else:
+                pkg_list.append('%s (%s)|%s' % (pkg.title.replace('|', ' '), pkg.name, pkg.name))
         return '\n'.join(pkg_list)
 
     def _render_edit_form(self, fs, params={}, clear_session=False):

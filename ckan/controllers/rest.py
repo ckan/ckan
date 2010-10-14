@@ -14,10 +14,23 @@ log = logging.getLogger(__name__)
 
 IGNORE_FIELDS = ['q']
 
-class BaseRestController(BaseController):
+class BaseApiController(BaseController):
 
-    ref_package_by = 'id'
-    ref_group_by = 'id'
+    api_version = ''
+    ref_package_by = ''
+    ref_group_by = ''
+    content_type_json = 'application/json;charset=utf-8'
+
+    def _ref_package(self, package):
+        assert self.ref_package_by in ['id', 'name']
+        return getattr(package, self.ref_package_by)
+
+    def _ref_group(self, group):
+        assert self.ref_group_by in ['id', 'name']
+        return getattr(group, self.ref_group_by)
+
+    def _ref_harvest_source(self, harvest_source):
+        return getattr(harvest_source, 'id')
 
     def _list_package_refs(self, packages):
         return [getattr(p, self.ref_package_by) for p in packages]
@@ -26,20 +39,44 @@ class BaseRestController(BaseController):
         return [getattr(p, self.ref_group_by) for p in groups]
 
     def _finish_ok(self, response_data=None):
-        response.status_int = 200
-        response.headers['Content-Type'] = 'application/json;charset=utf-8'
-        json_response = ''
+        # response.status_int = 200 -- already will be so
+        response.headers['Content-Type'] = self.content_type_json
+        response_msg = ''
         if response_data is not None:
-            json_response = json.dumps(response_data)
+            response_msg = json.dumps(response_data)
+            # Support "JSONP" callback.
             if request.params.has_key('callback') and request.method == 'GET':
-                json_response = '%s(%s);' % (request.params['callback'],
-                                             json_response)
-        return json_response
+                callback = request.params['callback']
+                response_msg = self._wrap_jsonp(callback, response_msg)
+        return response_msg
 
-    def index(self):
-        return render('rest/index.html')
+    def _wrap_jsonp(self, callback, response_msg):
+        return '%s(%s);' % (callback, response_msg)
+
+
+class ApiVersion1(BaseApiController):
+
+    api_version = '1'
+    ref_package_by = 'name'
+    ref_group_by = 'name'
+
+
+class ApiVersion2(BaseApiController):
+
+    api_version = '2'
+    ref_package_by = 'id'
+    ref_group_by = 'id'
+
+
+class BaseRestController(BaseApiController):
+
+    def get_api(self):
+        response_data = {}
+        response_data['version'] = self.api_version
+        return self._finish_ok(response_data) 
 
     def list(self, register, subregister=None, id=None):
+        log.debug('list %s' % (request.path))
         if register == 'revision':
             revs = model.Session.query(model.Revision).all()
             return self._finish_ok([rev.id for rev in revs])
@@ -74,11 +111,26 @@ class BaseRestController(BaseController):
             licenses = LicenseRegister().values()
             response_data = [l.as_dict() for l in licenses]
             return self._finish_ok(response_data)
+        elif register == u'harvestsource':
+            filter_kwds = {}
+            if id == 'publisher':
+                filter_kwds['publisher_ref'] = subregister
+            objects = model.HarvestSource.filter(**filter_kwds)
+            response_data = [o.id for o in objects]
+            return self._finish_ok(response_data)
+        elif register == u'harvestingjob':
+            filter_kwds = {}
+            if id == 'status':
+                filter_kwds['status'] = subregister.lower().capitalize()
+            objects = model.HarvestingJob.filter(**filter_kwds)
+            response_data = [o.id for o in objects]
+            return self._finish_ok(response_data)
         else:
             response.status_int = 400
-            return ''
+            return gettext('Cannot list entity of this type: %s') % register
 
     def show(self, register, id, subregister=None, id2=None):
+        log.debug('show %s/%s/%s/%s' % (register, id, subregister, id2))
         if register == u'revision':
             # Todo: Implement access control for revisions.
             rev = model.Session.query(model.Revision).get(id)
@@ -153,17 +205,33 @@ class BaseRestController(BaseController):
                 return ''            
             response_data = [pkgtag.package.name for pkgtag in obj.package_tags]
             return self._finish_ok(response_data)
+        elif register == u'harvestsource':
+            obj = model.HarvestSource.get(id, default=None)
+            if obj is None:
+                response.status_int = 404
+                return ''            
+            response_data = obj.as_dict()
+            return self._finish_ok(response_data)
+        elif register == u'harvestingjob':
+            obj = model.HarvestingJob.get(id, default=None)
+            if obj is None:
+                response.status_int = 404
+                return ''            
+            response_data = obj.as_dict()
+            return self._finish_ok(response_data)
         else:
             response.status_int = 400
-            return ''
+            return gettext('Cannot read entity of this type: %s') % register
 
     def _represent_package(self, package):
         return package.as_dict(ref_package_by=self.ref_package_by, ref_group_by=self.ref_group_by)
 
     def create(self, register, id=None, subregister=None, id2=None):
-        # Check an API key given
+        log.debug('create %s/%s/%s/%s params: %r' % (register, id, subregister, id2, request.params))
+        # Check an API key given, otherwise deny access.
         if not self._check_access(None, None):
             return json.dumps(_('Access denied'))
+        # Read the request data.
         try:
             request_data = self._get_request_data()
         except ValueError, inst:
@@ -171,14 +239,18 @@ class BaseRestController(BaseController):
             return gettext('JSON Error: %s') % str(inst)
         try:
             if register == 'package' and not subregister:
+                # Create a Package.
                 fs = ckan.forms.get_standard_fieldset()
                 try:
                     request_fa_dict = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(fs=fs), request_data)
                 except ckan.forms.PackageDictFormatError, inst:
+                    log.error('Package format incorrect: %s' % str(inst))
                     response.status_int = 400
                     return gettext('Package format incorrect: %s') % str(inst)
                 fs = fs.bind(model.Package, data=request_fa_dict, session=model.Session)
+                # ...continues below.
             elif register == 'package' and subregister in model.PackageRelationship.get_all_types():
+                # Create a Package Relationship.
                 pkg1 = self._get_pkg(id)
                 pkg2 = self._get_pkg(id2)
                 if not pkg1:
@@ -200,40 +272,58 @@ class BaseRestController(BaseController):
                 response_data = rel.as_dict(ref_package_by=self.ref_package_by)
                 return self._finish_ok(response_data)
             elif register == 'group' and not subregister:
+                # Create a Group.
                 request_fa_dict = ckan.forms.edit_group_dict(ckan.forms.get_group_dict(), request_data)
-                fs = ckan.forms.get_group_fieldset('group_fs_combined').bind(model.Group, data=request_fa_dict, session=model.Session)
+                fs = ckan.forms.get_group_fieldset(combined=True).bind(model.Group, data=request_fa_dict, session=model.Session)
+                # ...continues below.
             elif register == 'rating' and not subregister:
+                # Create a Rating.
                 return self._create_rating(request_data)
+            elif register == 'harvestingjob' and not subregister:
+                # Create a HarvestingJob.
+                return self._create_harvesting_job(request_data)
             else:
+                # Complain about unsupported entity type.
+                log.error('Cannot create new entity of this type: %s %s' % (register, subregister))
                 response.status_int = 400
                 return gettext('Cannot create new entity of this type: %s %s') % (register, subregister)
+            # Validate the fieldset.
             validation = fs.validate()
             if not validation:
+                # Complain about validation errors.
+                log.error('Validation error: %r' % repr(fs.errors))
                 response.status_int = 409
                 return json.dumps(repr(fs.errors))
+            # Construct new revision.
             rev = model.repo.new_revision()
             rev.author = self.rest_api_user
             rev.message = _(u'REST API: Create object %s') % str(fs.name.value)
+            # Construct catalogue entity.
             fs.sync()
-
-            # set default permissions
+            # Construct access control entities.
             if self.rest_api_user:
                 admins = [model.User.by_name(self.rest_api_user.decode('utf8'))]
             else:
                 admins = []
             model.setup_default_user_roles(fs.model, admins)
-
+            # Commit
             model.repo.commit()        
         except Exception, inst:
             log.exception(inst)
             model.Session.rollback()
+            log.error('Exception creating object %s: %r' % (str(fs.name.value), inst))
             raise
+        log.debug('Created object %s' % str(fs.name.value))
         obj = fs.model
+        # Set location header with new ID.
         location = str('%s/%s' % (request.path, obj.id))
         response.headers['Location'] = location
+        log.debug('Response headers: %r' % (response.headers))
+        # Todo: Return 201, not 200.
         return self._finish_ok(obj.as_dict())
             
     def update(self, register, id, subregister=None, id2=None):
+        log.debug('update %s/%s/%s/%s' % (register, id, subregister, id2))
         # must be logged in to start with
         if not self._check_access(None, None):
             return json.dumps(_('Access denied'))
@@ -260,7 +350,7 @@ class BaseRestController(BaseController):
         elif register == 'group' and not subregister:
             entity = model.Group.by_name(id)
         else:
-            reponse.status_int = 400
+            response.status_int = 400
             return gettext('Cannot update entity of this type: %s') % register
         if not entity:
             response.status_int = 404
@@ -289,8 +379,9 @@ class BaseRestController(BaseController):
             elif register == 'group':
                 orig_entity_dict = ckan.forms.get_group_dict(entity)
                 request_fa_dict = ckan.forms.edit_group_dict(orig_entity_dict, request_data, id=entity.id)
-                fs = ckan.forms.get_group_fieldset('group_fs_combined')
+                fs = ckan.forms.get_group_fieldset(combined=True)
             fs = fs.bind(entity, data=request_fa_dict)
+            
             validation = fs.validate()
             if not validation:
                 response.status_int = 409
@@ -318,6 +409,7 @@ class BaseRestController(BaseController):
                 return self._update_package_relationship(entity, comment)
 
     def delete(self, register, id, subregister=None, id2=None):
+        log.debug('delete %s/%s/%s/%s' % (register, id, subregister, id2))
         # must be logged in to start with
         if not self._check_access(None, None):
             return json.dumps(_('Access denied'))
@@ -346,8 +438,11 @@ class BaseRestController(BaseController):
         elif register == 'group' and not subregister:
             entity = model.Group.by_name(id)
             revisioned_details = None
+        elif register == 'harvestingjob' and not subregister:
+            entity = model.HarvestingJob.get(id, default=None)
+            revisioned_details = None
         else:
-            reponse.status_int = 400
+            response.status_int = 400
             return gettext('Cannot delete entity of this type: %s %s') % (register, subregister or '')
         if not entity:
             response.status_int = 404
@@ -371,6 +466,7 @@ class BaseRestController(BaseController):
         return self._finish_ok()
 
     def search(self, register=None):
+        log.debug('search %s params: %r' % (register, request.params))
         if register == 'revision':
             since_time = None
             if request.params.has_key('since_id'):
@@ -378,7 +474,7 @@ class BaseRestController(BaseController):
                 rev = model.Session.query(model.Revision).get(id)
                 if rev is None:
                     response.status_int = 400
-                    return gettext('There is no revision with id: %s') % id
+                    return gettext(u'There is no revision with id: %s') % id
                 since_time = rev.timestamp
             elif request.params.has_key('since_time'):
                 since_time_str = request.params['since_time']
@@ -405,7 +501,7 @@ class BaseRestController(BaseController):
                     params = self._get_request_data()
                 except ValueError, inst:
                     response.status_int = 400
-                    return gettext('Search params: %s') % str(inst)
+                    return gettext(u'Search params: %s') % unicode(inst)
             
             options = QueryOptions()
             for k, v in params.items():
@@ -447,15 +543,34 @@ class BaseRestController(BaseController):
         else:
             response.status_int = 404
             return gettext('Unknown register: %s') % register
-            
 
     def tag_counts(self):
+        log.debug('tag counts')
         tags = model.Session.query(model.Tag).all()
         results = []
         for tag in tags:
             tag_count = len(tag.package_tags)
             results.append((tag.name, tag_count))
         return self._finish_ok(results)
+
+    def throughput(self):
+        qos = self._calc_throughput()
+        qos = str(qos)
+        return self._finish_ok(qos)
+
+    def _calc_throughput(self):
+        period = 10  # Seconds.
+        timing_cache_path = self._get_timing_cache_path()
+        call_count = 0
+        import datetime, glob
+        for t in range(0, period):
+            expr = '%s/%s*' % (
+                timing_cache_path,
+                (datetime.datetime.now() - datetime.timedelta(0,t)).isoformat()[0:19],
+            )
+            call_count += len(glob.glob(expr))
+        # Todo: Clear old records.
+        return float(call_count) / period
 
     def _create_rating(self, params):
         """ Example data:
@@ -485,7 +600,7 @@ class BaseRestController(BaseController):
         if opts_err:
             self.log.debug(opts_err)
             response.status_int = 400
-            response.headers['Content-Type'] = 'application/json'
+            response.headers['Content-Type'] = self.content_type_json
             return opts_err
 
         user = model.User.by_name(self.rest_api_user)
@@ -494,6 +609,34 @@ class BaseRestController(BaseController):
         package = self._get_pkg(package_ref)
         ret_dict = {'rating average':package.get_average_rating(),
                     'rating count': len(package.ratings)}
+        return self._finish_ok(ret_dict)
+
+    def _create_harvesting_job(self, params):
+        """ Example data: {'user_ref':u'0005', 'source_id':5}
+        """
+        # Pick out attribute values from request.
+        user_ref = params.get('user_ref')
+        source_id = params.get('source_id')
+        # Validate values.
+        opts_err = ''
+        if not user_ref:
+            opts_err = gettext('You must supply a user_ref.')
+        elif not source_id:
+            opts_err = gettext('You must supply a source_id.')
+        else:
+            source = model.HarvestSource.get(source_id, default=None)
+            if not source:
+                opts_err = gettext('Harvest source %s does not exist.') % source_id
+        if opts_err:
+            self.log.debug(opts_err)
+            response.status_int = 400
+            response.headers['Content-Type'] = self.content_type_json
+            return json.dumps(opts_err)
+        # Create job.
+        job = model.HarvestingJob(source_id=source_id, user_ref=user_ref)
+        model.Session.add(job)
+        model.Session.commit()
+        ret_dict = job.as_dict()
         return self._finish_ok(ret_dict)
 
     def _get_username(self):
@@ -506,27 +649,30 @@ class BaseRestController(BaseController):
         # If both args are None then just check the apikey corresponds
         # to a user.
         api_key = None
+        # Todo: Remove unused 'isOk' variable.
         isOk = False
 
         self.rest_api_user = self._get_username()
+        log.debug('check access - user %r' % self.rest_api_user)
         
-        if action and entity and not isinstance(entity, model.PackageRelationship):
+        if action and entity and not isinstance(entity, model.PackageRelationship) \
+                and not isinstance(entity, model.HarvestingJob):
             if action != model.Action.READ and self.rest_api_user in (model.PSEUDO_USER__VISITOR, ''):
                 self.log.debug("Valid API key needed to make changes")
                 response.status_int = 403
-                response.headers['Content-Type'] = 'application/json'
+                response.headers['Content-Type'] = self.content_type_json
                 return False                
             
             am_authz = ckan.authz.Authorizer().is_authorized(self.rest_api_user, action, entity)
             if not am_authz:
                 self.log.debug("User is not authorized to %s %s" % (action, entity))
                 response.status_int = 403
-                response.headers['Content-Type'] = 'application/json'
+                response.headers['Content-Type'] = self.content_type_json
                 return False
         elif not self.rest_api_user:
             self.log.debug("No valid API key provided.")
             response.status_int = 403
-            response.headers['Content-Type'] = 'application/json'
+            response.headers['Content-Type'] = self.content_type_json
             return False
         self.log.debug("Access OK.")
         response.status_int = 200
@@ -543,15 +689,11 @@ class BaseRestController(BaseController):
         return self._finish_ok(relationship.as_dict())
 
 
-class RestController(BaseRestController):
+class RestController(ApiVersion1, BaseRestController):
     # Implements CKAN API Version 1.
-
-    ref_package_by = 'name'
-    ref_group_by = 'name'
 
     def _represent_package(self, package):
         msg_data = super(RestController, self)._represent_package(package)
         msg_data['download_url'] = package.resources[0].url if package.resources else ''
         return msg_data
-
 

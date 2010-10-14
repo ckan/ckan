@@ -15,6 +15,7 @@ class AdminController(BaseController):
         return meta.Session
 
     def __before__(self, action, **params):
+        self._start_call_timing()
         # note c.user is not available, so use environ
         username = params['environ'].get('REMOTE_USER', '')
         if not ckan.authz.Authorizer().is_sysadmin(unicode(username)):

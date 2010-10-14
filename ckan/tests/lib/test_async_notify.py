@@ -13,6 +13,7 @@ from ckan.lib.create_test_data import CreateTestData
 class TestNotification(TestController):
     @classmethod
     def setup_class(self):
+        model.notifier.initialise()
         self.queue_name = 'recording_consumer'
         self.routing_key = '*'
         self.consumer = async_notifier.AsyncConsumer(self.queue_name, self.routing_key)
@@ -33,7 +34,8 @@ class TestNotification(TestController):
     @classmethod
     def teardown_class(self):
         CreateTestData.delete()
-
+        async_notifier.AsyncNotifier.deregister_all()
+        
     @property
     def pkg(self):
         return model.Package.by_name(self.pkg_dict['name'])

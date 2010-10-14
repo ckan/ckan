@@ -39,7 +39,7 @@ class SearchIndexWorker(AsyncConsumer):
             elif op == 'changed':
                 index.update_dict(notification.domain_object)
             elif op == 'deleted':
-                index.remove(notification.domain_object)
+                index.remove_dict(notification.domain_object)
             else:
                 log.warn("Unknown operation: %s" % op)
         except Exception, ex:

@@ -17,18 +17,18 @@
       </h3>
 
       ${h.form(h.url_for(controller='importer', action='preview'), multipart=True, id='import')}
-        <div>
+      <span class="ckan_logged_in" style="display: none;">
+	<div>
           <?python enable_preview = {'disabled':'disabled'} if not c.user else {} ?>
           ${h.file(name='file', **enable_preview)}
-        </div>
-        <p>
+	</div>
+	<p>
           ${h.submit('preview', _('Preview'), **enable_preview)}
-        </p>
-
-        <py:if test="not c.user">
-          <p><strong>Log in to use this tool</strong></p>
-        </py:if>
-          
+	</p>
+      </span>
+      <span class="ckan_logged_out">
+        <p><strong>Log in to use this tool</strong></p>
+      </span>
       ${h.end_form()}
 
     </div>

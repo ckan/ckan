@@ -29,7 +29,7 @@
           </py:if>
         </td>
         <td>${h.render_datetime(item.timestamp)}</td>
-        <td>${linked_user(item.author)}</td>
+        <td>${h.linked_user(item.author)}</td>
         <td>
           <py:for each="pkg in item.packages">
           <a href="${h.url_for(controller='package', action='read', id=pkg.name)}">${pkg.name}</a>

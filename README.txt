@@ -26,7 +26,7 @@ tests. See: http://buildbot.okfn.org/waterfall
    Package                Description
    =====================  ============================================
    mercurial              Source control
-   python                 Python interpreter
+   python                 Python interpreter v2.5 - v2.7
    apache2                Web server
    libapache2-mod-python  Apache module for python
    libapache2-mod-wsgi    Apache module for WSGI
@@ -34,6 +34,10 @@ tests. See: http://buildbot.okfn.org/waterfall
    libpq-dev              PostgreSQL library
    python-psycopg2        PostgreSQL python module
    python-setuptools      Python package management
+   python-libxml2         Python XML library
+   python-libxslt1        Python XSLT library
+   libxml2-dev            XML library development files
+   libxslt1-dev           XSLT library development files
    =====================  ============================================
 
    Now use easy_install (which comes with python-setuptools) to install
@@ -50,7 +54,7 @@ tests. See: http://buildbot.okfn.org/waterfall
    Check that you received:
 
     * virtualenv v1.3 or later
-    * pip v0.7.1 or later
+    * pip v0.4 or later
 
 
 2. Create a python virtual environment
@@ -171,12 +175,26 @@ Now start the starts:
   $ nosetests pyenv/src/ckan/ckan/tests
 
 
+Development
+===========
+
+CKAN is an open source project and contributions are welcome! 
+
+There are a number of stakeholders in the direction of the project, so we discuss large changes and new features on the ckan-discuss list: http://lists.okfn.org/mailman/listinfo/ckan-discuss
+
+New developers should aquaint themselves with the documentation (see below) and proposed patches emailed to ckan-discuss. Once they are comfortable they should request write-access to the repo.
+
+We have policies for check-ins that ensure the build doesn't break etc. on https://knowledgeforge.net/ckan/trac#ProjectProcessesandPolicies which should be followed unless someone builds concensus to change it.
+
+
 Documentation
 =============
 
 The home page for the CKAN project is: http://knowledgeforge.net/ckan
 
-This file is part of the developer docs. The complete developer docs are built from the ckan repository using `Sphinx <http://sphinx.pocoo.org/>`_ and uploaded by an admin to KnowledgeForge. To build the developer docs::
+This README file is part of the Developer Documentation, viewable at: `http://knowledgeforge.net/ckan/doc/ckan/index.html`_ and stored in the CKAN repo at ckan/doc. 
+
+The Developer Docs are built using `Sphinx <http://sphinx.pocoo.org/>`_ and uploaded by an admin to KnowledgeForge. To build the developer docs::
 
       python setup.py build_sphinx
  

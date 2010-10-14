@@ -49,3 +49,4 @@ def set_rating(user_or_ip, package, rating):
                               rating=rating)
         model.Session.add(rating)
     model.repo.commit_and_remove()
+    

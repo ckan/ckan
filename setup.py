@@ -26,10 +26,6 @@ setup(
         'Genshi>=0.6',
         'SQLAlchemy>=0.4.8,<=0.4.99',
         'repoze.who>=1.0.0,<1.0.99',
-        # ensure openid is 2.2.1, since the latest (2.2.3) which is pulled
-        # in by repoze.who.plugins.openid causes exception on importing the
-        # plugin.
-        'python-openid==2.2.1', 
         'repoze.who.plugins.openid>=0.5,<0.5.99',
         # uuid in python >= 2.5
         # 'uuid>=1.0',
@@ -44,9 +40,11 @@ setup(
         'FormAlchemy>=1.3.4',
         'carrot>=0.10.5',
         'blinker>=1.0',
-        # Excel libaries are only for importer tool
-        # 'xlrd>=0.7.1',
-        # 'xlwt>=0.7.2',
+        'xlrd>=0.7.1',
+        'xlwt>=0.7.2',
+        ## required for harvesting
+        ## TODO: this could be removed if harvesting moved to worker
+        'lxml',
     ],
     extras_require = {
         'solr': ['solrpy>=0.9'],
@@ -70,6 +68,7 @@ setup(
 
     [paste.paster_command]
     db = ckan.lib.cli:ManageDb
+    load = ckan.lib.cli:Load
     create-test-data = ckan.lib.create_test_data:CreateTestData
     test-data = ckan.lib.cli:TestData
     sysadmin = ckan.lib.cli:Sysadmin
@@ -77,11 +76,18 @@ setup(
     ratings = ckan.lib.cli:Ratings
     changes = ckan.lib.cli:Changes
     notifications = ckan.lib.cli:Notifications
+    harvester = ckan.lib.cli:Harvester
 
     [ckan.forms]
     standard = ckan.forms.package:get_standard_fieldset
+    package = ckan.forms.package:get_standard_fieldset
+    group = ckan.forms.group:get_group_fieldset
+    package_group = ckan.forms.group:get_package_group_fieldset
     gov = ckan.forms.package_gov:get_gov_fieldset
-    ca = ckan.forms.package_ca:get_ca_fieldset
+
+    [ckan.search]
+    sql = ckan.lib.search.sql:SqlSearchBackend
+    solr = ckan.lib.search.solr_:SolrSearchBackend
     """,
     # setup.py test command needs a TestSuite so does not work with py.test
     # test_suite = 'nose.collector',

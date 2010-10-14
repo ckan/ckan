@@ -40,7 +40,8 @@ env.ckan_repo = 'http://knowledgeforge.net/ckan/hg/raw-file/default/'
 env.pip_requirements = 'pip-requirements.txt'
 env.skip_setup_db = False
 
-def config_local(base_dir, ckan_instance_name, db_pass=None, skip_setup_db=None, no_sudo=None):
+def config_local(base_dir, ckan_instance_name, db_host=None, db_pass=None, 
+                 skip_setup_db=None, no_sudo=None):
     '''Run on localhost. e.g. local:~/test,myhost.com
                             puts it at ~/test/myhost.com
                             '''
@@ -49,6 +50,8 @@ def config_local(base_dir, ckan_instance_name, db_pass=None, skip_setup_db=None,
     env.base_dir = os.path.expanduser(base_dir)    # e.g. ~/var/srvc
     if db_pass:
         env.db_pass = db_pass
+    if db_host:
+        env.db_host = db_host
     if skip_setup_db != None:
         env.skip_setup_db = skip_setup_db    
     if no_sudo != None:
@@ -131,6 +134,18 @@ def config_0(name, hosts_str='', requirements='pip-requirements-metastable.txt',
     env.ckan_instance_name = name
     env.base_dir = '/home/%s/var/srvc' % env.user
     env.config_ini_filename = '%s.ini' % name
+    # check if the host is just a squid caching a ckan running on another host
+    assert len(env.hosts) == 1, 'Must specify one host'
+    env.host_string = env.hosts[0]
+    if exists('/etc/squid3/squid.conf'):
+        # e.g. acl eu7_sites dstdomain ckan.net
+        conf_line = run('grep -E "^acl .* %s" /etc/squid3/squid.conf' % env.host_string)
+        if conf_line:
+            host_txt = conf_line.split()[1].replace('_sites', '.okfn.org')
+            env.hosts = [host_txt]
+            print 'Found Squid cache is of CKAN host: %s' % host_txt
+        else:
+            print 'Found Squid cache but did not find host in config.'
     env.pip_requirements = requirements
     env.db_pass = db_pass
     env.log_filename_pattern = name + '.%s.log'
@@ -151,6 +166,7 @@ def _setup():
     _default('who_ini_filepath', os.path.join(env.pyenv_dir, 'src', 'ckan',
         'who.ini'))
     _default('db_user', env.user)
+    _default('db_host', 'localhost')
     _default('db_name', env.ckan_instance_name)
 
 def deploy():
@@ -185,8 +201,8 @@ def deploy():
             _run_in_pyenv('paster make-config --no-interactive ckan %s' % env.config_ini_filename)
             dburi = '^sqlalchemy.url.*'
             # e.g. 'postgres://tester:pass@localhost/ckantest3'
-            newdburi = 'sqlalchemy.url = postgres://%s:%s@localhost/%s' % (
-                    env.db_user, env.db_pass, env.db_name)
+            newdburi = 'sqlalchemy.url = postgres://%s:%s@%s/%s' % (
+                    env.db_user, env.db_pass, env.db_host, env.db_name)
             # sed does not find the path if not absolute (!)
             config_path = os.path.join(env.instance_path, env.config_ini_filename)
             sed(config_path, dburi, newdburi, backup='')
@@ -271,7 +287,7 @@ def backup():
         assert exists(env.config_ini_filename), "Can't find config file: %s/%s" % (env.instance_path, env.config_ini_filename)
     db_details = _get_db_config()
     assert db_details['db_type'] == 'postgres'
-    run('export PGPASSWORD=%s&&pg_dump -U %s -D %s -h %s> %s' % (db_details['db_pass'], db_details['db_user'], db_details['db_name'], db_details['db_host'], pg_dump_filepath), shell=False)
+    run('export PGPASSWORD=%s&&pg_dump -U %s -h %s %s > %s' % (db_details['db_pass'], db_details['db_user'], db_details['db_host'], db_details['db_name'], pg_dump_filepath), shell=False)
     assert exists(pg_dump_filepath)
     run('ls -l %s' % pg_dump_filepath)
     # copy backup locally
@@ -452,7 +468,7 @@ def _get_ini_value(key, ini_filepath=None):
 def _get_db_config():
     url = _get_ini_value('sqlalchemy.url')
     # e.g. 'postgres://tester:pass@localhost/ckantest3'
-    db_details = re.match('^\s*(?P<db_type>\w*)://(?P<db_user>\w*):(?P<db_pass>[^@]*)@(?P<db_host>\w*)/(?P<db_name>[\w.-]*)', url).groupdict()
+    db_details = re.match('^\s*(?P<db_type>\w*)://(?P<db_user>\w*):(?P<db_pass>[^@]*)@(?P<db_host>[\w\.]*)/(?P<db_name>[\w.-]*)', url).groupdict()
     return db_details
 
 def _get_pylons_cache_dir():

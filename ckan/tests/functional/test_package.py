@@ -222,6 +222,7 @@ class TestReadOnly(TestPackageForm):
 
     @classmethod
     def setup_class(self):
+        model.notifier.initialise()
         indexer = TestSearchIndexer()
         CreateTestData.create()
         indexer.index()
@@ -229,6 +230,7 @@ class TestReadOnly(TestPackageForm):
     @classmethod
     def teardown_class(self):
         CreateTestData.delete()
+        model.notifier.deactivate()
 
     def test_index(self):
         offset = url_for(controller='package')

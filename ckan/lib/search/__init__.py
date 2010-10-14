@@ -1,9 +1,7 @@
 import logging
-
+import pkg_resources
 from pylons import config
 from common import QueryOptions, SearchError
-from sql import SqlSearchBackend
-from solr_ import SolrSearchBackend
 from worker import SearchIndexWorker, setup_synchronous_indexing, remove_synchronous_indexing
 
 log = logging.getLogger(__name__)
@@ -22,18 +20,17 @@ DEFAULT_OPTIONS = {
     'callback': None, # simply passed through
     }
 
-BACKENDS = {
-    'sql': SqlSearchBackend,
-    'solr': SolrSearchBackend
-    }
-
 # TODO make sure all backends are thread-safe! 
 INSTANCE_CACHE = {}
 
 def get_backend(backend=None):
     if backend is None:
         backend = config.get('search_backend', 'sql')
-    klass = BACKENDS.get(backend.strip().lower())
+    klass = None
+    for ep in pkg_resources.iter_entry_points("ckan.search", backend.strip().lower()):
+        klass = ep.load()
+    if klass is None:
+        raise KeyError("No search backend called %s" % (backend,))
     if not klass in INSTANCE_CACHE.keys():
         log.debug("Creating search backend: %s" % klass.__name__)
         INSTANCE_CACHE[klass] = klass()

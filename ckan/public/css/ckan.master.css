@@ -42,6 +42,14 @@ hr.nomargin { margin: 0; }
 	vertical-align: middle;
 }
 
+#top h1 img {
+  margin-bottom: -10px;
+  margin-top: -10px;
+  margin-right: 15px;
+  padding: 0;
+  max-height: 55px;
+}
+
 #subnav img {
 	margin: -2px 0 0 0;
 	padding: 0 3px 0 1px;
@@ -276,13 +284,21 @@ ul.packages {
 	padding-left: 0;
 }
 
+.packages .header {
+    font-weight: bold;
+}
+
+.packages .extract {
+	font-size: 0.9em;
+}
+
 .packages li {
 	list-style: none;
 	padding: 0.4em 0 0.4em 0.5em;
 	border-left: 0.5em solid #fff;
 	border-bottom: 1px solid #ececec;
 	overflow: hidden;
-	white-space: nowrap;
+	/*white-space: nowrap;*/
 }
 
 .packages li a {
@@ -310,6 +326,13 @@ ul.packages {
 
 .packages li:hover .tags {
 	opacity: 1;
+}
+
+.packages .name, 
+.packages .license {
+    color: #666;
+	font-weight: normal;
+	font-size: 0.9em;
 }
 
 /* ==================== */
@@ -429,4 +452,8 @@ ul.packages {
 
 .package .details td.package-label {
   width: 150px;
+}
+
+.relationship_comment {
+  font-style: italic;
 }

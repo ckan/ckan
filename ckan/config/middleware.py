@@ -1,4 +1,6 @@
 """Pylons middleware initialization"""
+import logging 
+
 from beaker.middleware import CacheMiddleware, SessionMiddleware
 from paste.cascade import Cascade
 from paste.registry import RegistryManager
@@ -9,6 +11,8 @@ from pylons.middleware import ErrorHandler, StatusCodeRedirect
 from pylons.wsgiapp import PylonsApp
 from routes.middleware import RoutesMiddleware
 from ckan.lib.queue_log import QueueLogMiddleware
+from repoze.who.config import WhoConfig
+from repoze.who.middleware import PluggableAuthenticationMiddleware
 
 from ckan.config.environment import load_environment
 
@@ -45,7 +49,7 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
     app = RoutesMiddleware(app, config['routes.map'])
     app = SessionMiddleware(app, config)
     app = CacheMiddleware(app, config)
-
+    
     # CUSTOM MIDDLEWARE HERE (filtered by error handling middlewares)
     #app = QueueLogMiddleware(app)
     
@@ -60,10 +64,20 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
         else:
             app = StatusCodeRedirect(app, [400, 401, 403, 404, 500])
     
-    from repoze.who.config import make_middleware_with_config
-    app = make_middleware_with_config(app, global_conf,
-        app_conf['who.config_file'], app_conf['who.log_file'],
-        app_conf['who.log_level'])
+    # Initialize repoze.who
+    who_parser = WhoConfig(global_conf['here'])
+    who_parser.parse(open(app_conf['who.config_file']))
+    app = PluggableAuthenticationMiddleware(app,
+                    who_parser.identifiers,
+                    who_parser.authenticators,
+                    who_parser.challengers,
+                    who_parser.mdproviders,
+                    who_parser.request_classifier,
+                    who_parser.challenge_decider,
+                    logging.getLogger('repoze.who'),
+                    logging.WARN, # ignored
+                    who_parser.remote_user_key,
+               )
     
     # Establish the Registry for this application
     app = RegistryManager(app)
@@ -81,5 +95,5 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
                               extra_public_paths.split(',')] + static_parsers
             
         app = Cascade(static_parsers)
-
+    
     return app

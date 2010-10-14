@@ -8,6 +8,7 @@ class CreateTestData(cli.CkanCommand):
     create-test-data search  - realistic data to test search
     create-test-data gov     - government style data
     create-test-data family  - package relationships data
+    create-test-data user    - create a user 'tester' with api key 'tester'
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
@@ -36,6 +37,8 @@ class CreateTestData(cli.CkanCommand):
             print 'Creating %s test data' % cmd
         if cmd == 'basic':
             self.create_basic_test_data()
+        elif cmd == 'user':
+            self.create_user()
         elif cmd == 'search':
             self.create_search_test_data()
         elif cmd == 'gov':
@@ -67,10 +70,28 @@ class CreateTestData(cli.CkanCommand):
                               extra_user_names=extra_users)
 
     @classmethod
+    def create_user(self):
+        import ckan.model as model
+        tester = model.User.by_name(u'tester')
+        if tester is None:
+            tester = model.User(name=u'tester', apikey=u'tester')
+            model.Session.add(tester)
+            model.Session.commit()
+        model.Session.remove()
+        self.user_names = [u'tester']
+
+    @classmethod
     def create_arbitrary(self, package_dicts,
                          relationships=[], extra_user_names=[],
                          extra_group_names=[],
                          commit_changesets=False):
+        '''Creates packages and a few extra objects as well at the
+        same time if required.
+        @param package_dicts - a list of dictionaries with the package
+                               properties
+        @param extra_group_names - a list of group names to create. No
+                               properties get set though.
+        '''
         assert isinstance(relationships, (list, tuple))
         assert isinstance(extra_user_names, (list, tuple))
         assert isinstance(extra_group_names, (list, tuple))
@@ -215,9 +236,34 @@ class CreateTestData(cli.CkanCommand):
             changeset_ids = ChangesetRegister().commit()
 
     @classmethod
+    def create_groups(self, group_dicts, admin_user_name):
+        '''A more featured interface for creating groups.
+        All group fields can be filled, packages added and they can
+        have an admin user.'''
+        import ckan.model as model
+        admin_user = model.User.by_name(admin_user_name)
+        assert isinstance(group_dicts, (list, tuple))
+        for group_dict in group_dicts:
+            group = model.Group(name=unicode(group_dict['name']))
+            for key in ('title', 'description'):
+                if group_dict.has_key(key):
+                    setattr(group, key, group_dict[key])
+            pkg_names = group_dict.get('packages', [])
+            assert isinstance(pkg_names, (list, tuple))
+            for pkg_name in pkg_names:
+                pkg = model.Package.by_name(unicode(pkg_name))
+                assert pkg, pkg_name
+                pkg.groups.append(group)
+            model.Session.add(group)
+            model.setup_default_user_roles(group, [admin_user])
+            self.group_names.add(group_dict['name'])
+        model.repo.commit_and_remove()
+
+    @classmethod
     def create(self, commit_changesets=False):
         import ckan.model as model
         model.Session.remove()
+        self.create_user()
         rev = model.repo.new_revision()
         # same name as user we create below
         rev.author = self.author
@@ -280,10 +326,6 @@ left arrow <
         pkg2.title = u'A Wonderful Story'
         pkg1.extras = {u'genre':'romantic novel',
                        u'original media':'book'}
-        # api key
-        tester = model.User(name=u'tester', apikey=u'tester')
-        model.Session.add(tester)
-        self.user_names = [u'tester']
         # group
         david = model.Group(name=u'david',
                              title=u'Dave\'s books',

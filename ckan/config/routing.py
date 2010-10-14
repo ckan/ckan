@@ -21,7 +21,7 @@ def make_map():
     map.connect('/error/{action}/{id}', controller='error')
 
     # CUSTOM ROUTES HERE
-    for _plugin_map in plugins.find_methods('make_map'):
+    for _plugin_map in plugins.find_methods('make_map_begin'):
         map = _plugin_map(map)
         
     map.connect('home', '/', controller='home', action='index')
@@ -31,11 +31,43 @@ def make_map():
     map.connect('stats', '/stats', controller='home', action='stats')
     maps.admin_map(map, controller='admin', url='/admin')
     # CKAN API.
+    map.connect('/api', controller='rest', action='get_api')
+    map.connect('/api/form/package/create', controller='form', action='package_create')
     map.connect('/api/form/package/edit/:id', controller='form', action='package_edit')
+    map.connect('/api/form/harvestsource/create', controller='form', action='harvest_source_create')
+    map.connect('/api/form/harvestsource/edit/:id', controller='form', action='harvest_source_edit')
+
     map.connect('/api/search/:register', controller='rest', action='search')
     map.connect('/api/tag_counts', controller='rest', action='tag_counts')
-    map.connect('/api', controller='rest', action='index')
+    
     map.connect('/api/rest', controller='rest', action='index')
+    
+    map.connect('/api/rest/package', controller='apiv1/package', action='list',
+                conditions=dict(method=['GET']))
+    map.connect('/api/rest/package', controller='apiv1/package', action='create',
+                conditions=dict(method=['POST']))
+    map.connect('/api/rest/package/:id', controller='apiv1/package', action='show',
+                conditions=dict(method=['GET']))
+    map.connect('/api/rest/package/:id', controller='apiv1/package', action='update',
+                conditions=dict(method=['POST']))
+    map.connect('/api/rest/package/:id', controller='apiv1/package', action='update',
+                conditions=dict(method=['PUT']))
+    map.connect('/api/rest/package/:id', controller='apiv1/package', action='delete',
+                conditions=dict(method=['DELETE']))
+
+    map.connect('/api/rest/package', controller='apiv1/package', action='list',
+                conditions=dict(method=['GET']))
+    map.connect('/api/rest/package', controller='apiv1/package', action='create',
+                conditions=dict(method=['POST']))
+    map.connect('/api/rest/package/:id', controller='apiv1/package', action='show',
+                conditions=dict(method=['GET']))
+    map.connect('/api/rest/package/:id', controller='apiv1/package', action='update',
+                conditions=dict(method=['POST']))
+    map.connect('/api/rest/package/:id', controller='apiv1/package', action='update',
+                conditions=dict(method=['PUT']))
+    map.connect('/api/rest/package/:id', controller='apiv1/package', action='delete',
+                conditions=dict(method=['DELETE']))
+
     map.connect('/api/rest/:register', controller='rest', action='list',
         conditions=dict(method=['GET']))
     map.connect('/api/rest/:register', controller='rest', action='create',
@@ -63,12 +95,35 @@ def make_map():
     map.connect('/api/rest/:register/:id/:subregister/:id2',
         controller='rest', action='delete',
         conditions=dict(method=['DELETE']))
+    map.connect('/api/qos/throughput/',
+        controller='rest', action='throughput',
+        conditions=dict(method=['GET']))
+
     # CKAN API v1.
+    map.connect('/api/1', controller='rest', action='get_api')
+    map.connect('/api/1/form/package/create', controller='form', action='package_create')
     map.connect('/api/1/form/package/edit/:id', controller='form', action='package_edit')
+    map.connect('/api/1/form/harvestsource/create', controller='form', action='harvest_source_create')
+    map.connect('/api/1/form/harvestsource/edit/:id', controller='form', action='harvest_source_edit')
+
     map.connect('/api/1/search/:register', controller='rest', action='search')
     map.connect('/api/1/tag_counts', controller='rest', action='tag_counts')
-    map.connect('/api/1', controller='rest', action='index')
+
     map.connect('/api/1/rest', controller='rest', action='index')
+
+    map.connect('/api/1/rest/package', controller='apiv1/package', action='list',
+                conditions=dict(method=['GET']))
+    map.connect('/api/1/rest/package', controller='apiv1/package', action='create',
+                conditions=dict(method=['POST']))
+    map.connect('/api/1/rest/package/:id', controller='apiv1/package', action='show',
+                conditions=dict(method=['GET']))
+    map.connect('/api/1/rest/package/:id', controller='apiv1/package', action='update',
+                conditions=dict(method=['POST']))
+    map.connect('/api/1/rest/package/:id', controller='apiv1/package', action='update',
+                conditions=dict(method=['PUT']))
+    map.connect('/api/1/rest/package/:id', controller='apiv1/package', action='delete',
+                conditions=dict(method=['DELETE']))
+
     map.connect('/api/1/rest/:register', controller='rest', action='list',
         conditions=dict(method=['GET']))
     map.connect('/api/1/rest/:register', controller='rest', action='create',
@@ -96,13 +151,35 @@ def make_map():
     map.connect('/api/1/rest/:register/:id/:subregister/:id2',
         controller='rest', action='delete',
         conditions=dict(method=['DELETE']))
+    map.connect('/api/1/qos/throughput/',
+        controller='rest', action='throughput',
+        conditions=dict(method=['GET']))
 
     # CKAN API v2.
-    map.connect('/api/2/form/package/edit/:id', controller='form', action='package_edit')
+    map.connect('/api/2', controller='rest2', action='get_api')
+    map.connect('/api/2/form/package/create', controller='form2', action='package_create')
+    map.connect('/api/2/form/package/edit/:id', controller='form2', action='package_edit')
+    map.connect('/api/2/form/harvestsource/create', controller='form', action='harvest_source_create')
+    map.connect('/api/2/form/harvestsource/edit/:id', controller='form', action='harvest_source_edit')
+
     map.connect('/api/2/search/:register', controller='rest2', action='search')
     map.connect('/api/2/tag_counts', controller='rest2', action='tag_counts')
-    map.connect('/api/2', controller='rest2', action='index')
+
     map.connect('/api/2/rest', controller='rest2', action='index')
+
+    map.connect('/api/2/rest/package', controller='apiv2/package', action='list',
+                conditions=dict(method=['GET']))
+    map.connect('/api/2/rest/package', controller='apiv2/package', action='create',
+                conditions=dict(method=['POST']))
+    map.connect('/api/2/rest/package/:id', controller='apiv2/package', action='show',
+                conditions=dict(method=['GET']))
+    map.connect('/api/2/rest/package/:id', controller='apiv2/package', action='update',
+                conditions=dict(method=['POST']))
+    map.connect('/api/2/rest/package/:id', controller='apiv2/package', action='update',
+                conditions=dict(method=['PUT']))
+    map.connect('/api/2/rest/package/:id', controller='apiv2/package', action='delete',
+                conditions=dict(method=['DELETE']))
+
     map.connect('/api/2/rest/:register', controller='rest2', action='list',
         conditions=dict(method=['GET']))
     map.connect('/api/2/rest/:register', controller='rest2', action='create',
@@ -130,6 +207,9 @@ def make_map():
     map.connect('/api/2/rest/:register/:id/:subregister/:id2',
         controller='rest2', action='delete',
         conditions=dict(method=['DELETE']))
+    map.connect('/api/2/qos/throughput/',
+        controller='rest', action='throughput',
+        conditions=dict(method=['GET']))
 
     map.redirect("/packages", "/package")
     map.redirect("/packages/{url:.*}", "/package/{url}")
@@ -161,6 +241,10 @@ def make_map():
     map.connect('/{controller}', action='index')
     map.connect('/:controller/{action}')
     map.connect('/{controller}/{action}/{id}')
+    
+    for _plugin_map in plugins.find_methods('make_map_end'):
+        map = _plugin_map(map)
+    
     map.redirect('/*(url)/', '/{url}',
                  _redirect_code='301 Moved Permanently')
     map.connect('/*url', controller='template', action='view')

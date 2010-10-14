@@ -8,6 +8,8 @@ from package import *
 from group import Group
 from types import make_uuid
 from user import User
+from core import System
+from authorization_group import AuthorizationGroup, authorization_group_table
 
 PSEUDO_USER__LOGGED_IN = u'logged_in'
 PSEUDO_USER__VISITOR = u'visitor'
@@ -39,7 +41,8 @@ class Action(Enum):
     READ = u'read'
     PURGE = u'purge'
     EDIT_PERMISSIONS = u'edit-permissions'
-    CREATE = u'create'
+    PACKAGE_CREATE = u'create-package'
+    GROUP_CREATE = u'create-group'
 
 class Role(Enum):
     ADMIN = u'admin'
@@ -48,9 +51,11 @@ class Role(Enum):
 
 default_role_actions = [
     (Role.EDITOR, Action.EDIT),
-    (Role.EDITOR, Action.CREATE),
+    (Role.EDITOR, Action.PACKAGE_CREATE),
+    (Role.EDITOR, Action.GROUP_CREATE),
     (Role.EDITOR, Action.READ),        
-    (Role.READER, Action.CREATE),
+    (Role.READER, Action.PACKAGE_CREATE),
+    #(Role.READER, Action.GROUP_CREATE),
     (Role.READER, Action.READ),
     ]
 
@@ -67,7 +72,8 @@ role_action_table = Table('role_action', metadata,
 
 user_object_role_table = Table('user_object_role', metadata,
            Column('id', UnicodeText, primary_key=True, default=make_uuid),
-           Column('user_id', UnicodeText, ForeignKey('user.id')),
+           Column('user_id', UnicodeText, ForeignKey('user.id'), nullable=True),
+           Column('authorized_group_id', UnicodeText, ForeignKey('authorization_group.id'), nullable=True),
            Column('context', UnicodeText, nullable=False),
            Column('role', UnicodeText)
            )
@@ -80,6 +86,11 @@ package_role_table = Table('package_role', metadata,
 group_role_table = Table('group_role', metadata,
            Column('user_object_role_id', UnicodeText, ForeignKey('user_object_role.id'), primary_key=True),
            Column('group_id', UnicodeText, ForeignKey('group.id')),
+           )
+           
+authorization_group_role_table = Table('authorization_group_role', metadata,
+           Column('user_object_role_id', UnicodeText, ForeignKey('user_object_role.id'), primary_key=True),
+           Column('authorization_group_id', UnicodeText, ForeignKey('authorization_group.id')),
            )
 
 system_role_table = Table('system_role', metadata,
@@ -111,17 +122,34 @@ class UserObjectRole(DomainObject):
     def user_has_role(cls, user, role, domain_obj):
         assert isinstance(user, User), user
         assert Role.is_valid(role), role
-        q = cls._query(user, role, domain_obj)
+        q = cls._user_query(user, role, domain_obj)
         return q.count() == 1
-
+        
     @classmethod
-    def _query(cls, user, role, domain_obj):
+    def authorization_group_has_role(cls, authorized_group, role, domain_obj):
+        assert isinstance(authorized_group, AuthorizationGroup), authorized_group
+        assert Role.is_valid(role), role
+        q = cls._authorized_group_query(authorized_group, role, domain_obj)
+        return q.count() == 1
+        
+    @classmethod
+    def _user_query(cls, user, role, domain_obj):
         q = Session.query(cls).filter_by(role=role)
         # some protected objects are not "contextual"
         if cls.name is not None:
             # e.g. filter_by(package=domain_obj)
             q = q.filter_by(**dict({cls.name: domain_obj}))
         q = q.filter_by(user=user)
+        return q
+    
+    @classmethod
+    def _authorized_group_query(cls, authorized_group, role, domain_obj):
+        q = Session.query(cls).filter_by(role=role)
+        # some protected objects are not "contextual"
+        if cls.name is not None:
+            # e.g. filter_by(package=domain_obj)
+            q = q.filter_by(**dict({cls.name: domain_obj}))
+        q = q.filter_by(authorized_group=authorized_group)
         return q
 
     @classmethod
@@ -133,12 +161,30 @@ class UserObjectRole(DomainObject):
         if cls.name is not None:
             setattr(objectrole, cls.name, domain_obj)
         Session.add(objectrole)
+        
+    @classmethod
+    def add_authorization_group_to_role(cls, authorization_group, role, domain_obj):
+        # role assignment already exists
+        if cls.authorization_group_has_role(authorization_group, role, domain_obj):
+            return
+        objectrole = cls(role=role, authorized_group=authorization_group)
+        if cls.name is not None:
+            setattr(objectrole, cls.name, domain_obj)
+        Session.add(objectrole)
 
     @classmethod
     def remove_user_from_role(cls, user, role, domain_obj):
-        q = self._query(user, role, domain_obj)
+        q = cls._user_query(user, role, domain_obj)
         uo_role = q.one()
-        Session.delete(ou_role)
+        Session.delete(uo_role)
+        Session.commit()
+        Session.remove()
+
+    @classmethod
+    def remove_authorization_group_from_role(cls, authorization_group, role, domain_obj):
+        q = self._authorized_group_query(authorization_group, role, domain_obj)
+        ago_role = q.one()
+        Session.delete(agu_role)
         Session.commit()
         Session.remove()
 
@@ -151,6 +197,11 @@ class GroupRole(UserObjectRole):
     protected_object = Group
     name = 'group'
 protected_objects[GroupRole.protected_object] = GroupRole
+
+class AuthorizationGroupRole(UserObjectRole):
+    protected_object = AuthorizationGroup
+    name = 'authorization_group'
+protected_objects[AuthorizationGroupRole.protected_object] = AuthorizationGroupRole
 
 class SystemRole(UserObjectRole):
     protected_object = System
@@ -175,17 +226,38 @@ def remove_user_from_role(user, role, domain_obj):
     objectrole = UserObjectRole.get_object_role_class(domain_obj)
     objectrole.remove_user_from_role(user, role, domain_obj)
 
+    
+def authorization_group_has_role(authorization_group, role, domain_obj):
+    objectrole = UserObjectRole.get_object_role_class(domain_obj)
+    return objectrole.authorization_group_has_role(authorization_group, role, domain_obj)
+        
+def add_authorization_group_to_role(authorization_group, role, domain_obj):
+    objectrole = UserObjectRole.get_object_role_class(domain_obj)
+    objectrole.add_authorization_group_to_role(authorization_group, role, domain_obj)
+
+def remove_authorization_group_from_role(authorization_group, role, domain_obj):
+    objectrole = UserObjectRole.get_object_role_class(domain_obj)
+    objectrole.remove_authorization_group_from_role(authorization_group, role, domain_obj)
+    
+
+def validate_authorization_setup():
+    # since some of the authz config mgmt is taking place in DB, this should 
+    # be validated on launch. it is a bit like a lazy migration, but seems 
+    # sensible to make sure authz is always correct. 
+    setup_default_user_roles(System())
 
 ## TODO: this should be in ckan/authz.py
 def setup_user_roles(domain_object, visitor_roles, logged_in_roles, admins=[]):
     assert type(admins) == type([])
     admin_roles = [Role.ADMIN]
     visitor = User.by_name(PSEUDO_USER__VISITOR)
-    for role in visitor_roles:
-        add_user_to_role(visitor, role, domain_object)
+    if visitor:
+        for role in visitor_roles:
+            add_user_to_role(visitor, role, domain_object)
     logged_in = User.by_name(PSEUDO_USER__LOGGED_IN)
-    for role in logged_in_roles:
-        add_user_to_role(logged_in, role, domain_object)
+    if logged_in:
+        for role in logged_in_roles:
+            add_user_to_role(logged_in, role, domain_object)
     for admin in admins:
         # not sure if admin would reasonably by None
         if admin is not None:
@@ -225,12 +297,18 @@ def give_all_packages_default_user_roles():
 def setup_default_user_roles(domain_object, admins=[]):
     # sets up roles for visitor, logged-in user and any admins provided
     # admins is a list of User objects
-    assert isinstance(domain_object, (Package, Group))
+    assert isinstance(domain_object, (Package, Group, System, AuthorizationGroup))
     assert isinstance(admins, list)
     if type(domain_object) == Package:
         visitor_roles = [Role.EDITOR]
         logged_in_roles = [Role.EDITOR]
     elif type(domain_object) == Group:
+        visitor_roles = [Role.READER]
+        logged_in_roles = [Role.READER]
+    elif type(domain_object) == System:
+        visitor_roles = [Role.READER]
+        logged_in_roles = [Role.EDITOR]
+    elif type(domain_object) == AuthorizationGroup:
         visitor_roles = [Role.READER]
         logged_in_roles = [Role.READER]
     setup_user_roles(domain_object, visitor_roles, logged_in_roles, admins)
@@ -261,6 +339,11 @@ mapper(UserObjectRole, user_object_role_table,
             backref=orm.backref('roles',
                 cascade='all, delete, delete-orphan'
             )
+        ),
+        'authorized_group': orm.relation(AuthorizationGroup,
+            backref=orm.backref('authorized_roles',
+                cascade='all, delete, delete-orphan'
+            )
         )
     },
     order_by=[user_object_role_table.c.id],
@@ -288,6 +371,19 @@ mapper(GroupRole, group_role_table, inherits=UserObjectRole,
             )
     },
     order_by=[group_role_table.c.user_object_role_id],
+)
+
+mapper(AuthorizationGroupRole, authorization_group_role_table, inherits=UserObjectRole,
+       polymorphic_identity=unicode(AuthorizationGroup.__name__),
+       properties={
+            'authorization_group': orm.relation(AuthorizationGroup,
+                 backref=orm.backref('object_roles',
+                    primaryjoin=authorization_group_table.c.id==authorization_group_role_table.c.authorization_group_id,
+                    cascade='all, delete, delete-orphan'
+                 ),
+            )
+    },
+    order_by=[authorization_group_role_table.c.user_object_role_id],
 )
 
 mapper(SystemRole, system_role_table, inherits=UserObjectRole,

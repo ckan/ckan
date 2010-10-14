@@ -109,15 +109,15 @@ class PackageSqlSearchQuery(SqlSearchQuery):
 
     def _run(self):
         q = authz.Authorizer().authorized_query(self.options.get('username'), model.Package)
-        make_like = lambda x,y: x.ilike('%' + y + '%')
+        make_like = lambda x,y: x.ilike(u'%' + unicode(y) + u'%')
         q = q.filter(model.package_search_table.c.package_id==model.Package.id)
 
         # Full search by general terms (and field specific terms but not by field)
         terms_set = set(self.query.terms)
         terms_set.update(self.query.fields.values())
-        all_terms = ' '.join(terms_set)
+        all_terms = u' '.join(terms_set)
         
-        q = q.filter('package_search.search_vector @@ plainto_tsquery(:terms)')
+        q = q.filter(u'package_search.search_vector @@ plainto_tsquery(:terms)')
         q = q.params(terms=all_terms)
         
         # Filter by field specific terms
@@ -166,7 +166,7 @@ class PackageSqlSearchQuery(SqlSearchQuery):
     def _filter_by_tag(self, q, term):
         if not self.options.search_tags:
             return q
-        tag = model.Tag.by_name(term, autoflush=False)
+        tag = model.Tag.by_name(unicode(term), autoflush=False)
         if tag:
             # need to keep joining for each filter
             # tag should be active hence state_id requirement
@@ -179,7 +179,7 @@ class PackageSqlSearchQuery(SqlSearchQuery):
         return q
         
     def _filter_by_group(self, q, term):
-        group = model.Group.by_name(term, autoflush=False)
+        group = model.Group.by_name(unicode(term), autoflush=False)
         if group:
             # need to keep joining for each filter
             q = q.join('groups', aliased=True).filter(
@@ -190,7 +190,7 @@ class PackageSqlSearchQuery(SqlSearchQuery):
         return q
 
     def _filter_by_extra(self, q, field, terms):
-        make_like = lambda x,y: x.ilike('%' + y + '%')
+        make_like = lambda x,y: x.ilike(u'%' + unicode(y) + u'%')
         for term in terms:
             q = q.join('_extras', aliased=True)
             q = q.filter(model.PackageExtra.state==model.State.ACTIVE)
