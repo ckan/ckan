@@ -52,8 +52,10 @@ class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
         if source:
             self.delete_commit(source)
 
-    def offset_package_create_form(self):
-        return self.offset('/form/package/create')
+    def offset_package_create_form(self, form_schema=None):
+        offset = self.offset('/form/package/create')
+        if form_schema != None:
+            offset += '?package_form=%s' % form_schema
 
     def offset_package_edit_form(self, ref):
         return self.offset('/form/package/edit/%s' % ref)
@@ -64,8 +66,8 @@ class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
     def offset_harvest_source_edit_form(self, ref):
         return self.offset('/form/harvestsource/edit/%s' % ref)
 
-    def get_package_create_form(self, status=[200]):
-        offset = self.offset_package_create_form()
+    def get_package_create_form(self, status=[200], form_schema=None):
+        offset = self.offset_package_create_form(form_schema)
         res = self.get(offset, status=status)
         return self.form_from_res(res)
 
