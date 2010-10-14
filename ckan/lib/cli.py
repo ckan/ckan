@@ -382,7 +382,6 @@ class SearchIndexCommand(CkanCommand):
             while True:
                 indexer.run()
         if cmd == 'rebuild':
-            print "WARNING: rebuild is deprecated. Use 'notifications replay' and a queue indexer instead."
             rebuild()
         else:
             print 'Command %s not recognized' % cmd

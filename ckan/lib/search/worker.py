@@ -2,7 +2,7 @@ import logging
 import blinker
 
 from ckan.model.notifier import DomainObjectNotification, Notification
-from ckan.model.notifier import ROUTING_KEYS, DomainObjectNotificationOperation
+from ckan.model.notifier import NOTIFYING_DOMAIN_OBJ_NAMES, DomainObjectNotificationOperation
 from ckan.lib.async_notifier import AsyncConsumer
 from common import SearchError
 
@@ -52,12 +52,12 @@ def update_index(sender, **notification_dict):
     SearchIndexWorker.dispatch_notification(notification, get_backend())
 
 def setup_synchronous_indexing():
-    for routing_key in ROUTING_KEYS:
+    for routing_key in NOTIFYING_DOMAIN_OBJ_NAMES:
         signal = blinker.signal(routing_key)
         signal.connect(update_index)
 
 def remove_synchronous_indexing():
-    for routing_key in ROUTING_KEYS:
+    for routing_key in NOTIFYING_DOMAIN_OBJ_NAMES:
         signal = blinker.signal(routing_key)
         signal.disconnect(update_index)
 
