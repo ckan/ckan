@@ -43,6 +43,7 @@ class Action(Enum):
     EDIT_PERMISSIONS = u'edit-permissions'
     PACKAGE_CREATE = u'create-package'
     GROUP_CREATE = u'create-group'
+    AUTHZ_GROUP_CREATE = u'create-authorization-group'
 
 class Role(Enum):
     ADMIN = u'admin'
@@ -53,6 +54,7 @@ default_role_actions = [
     (Role.EDITOR, Action.EDIT),
     (Role.EDITOR, Action.PACKAGE_CREATE),
     (Role.EDITOR, Action.GROUP_CREATE),
+    (Role.EDITOR, Action.AUTHZ_GROUP_CREATE),
     (Role.EDITOR, Action.READ),        
     (Role.READER, Action.PACKAGE_CREATE),
     #(Role.READER, Action.GROUP_CREATE),
@@ -245,6 +247,16 @@ def validate_authorization_setup():
     # be validated on launch. it is a bit like a lazy migration, but seems 
     # sensible to make sure authz is always correct. 
     setup_default_user_roles(System())
+    # setup all role-actions
+    # context is blank as not currently used
+    # Note that Role.ADMIN can already do anything - hardcoded in.
+    for role, action in default_role_actions:
+        ra = Session.query(RoleAction).filter_by(role=role, action=action).first()
+        if ra is not None: continue
+        ra = RoleAction(role=role, context=u'', action=action)
+        Session.add(ra)
+    Session.commit()
+    Session.remove()
 
 ## TODO: this should be in ckan/authz.py
 def setup_user_roles(domain_object, visitor_roles, logged_in_roles, admins=[]):
@@ -377,7 +389,7 @@ mapper(AuthorizationGroupRole, authorization_group_role_table, inherits=UserObje
        polymorphic_identity=unicode(AuthorizationGroup.__name__),
        properties={
             'authorization_group': orm.relation(AuthorizationGroup,
-                 backref=orm.backref('object_roles',
+                 backref=orm.backref('roles',
                     primaryjoin=authorization_group_table.c.id==authorization_group_role_table.c.authorization_group_id,
                     cascade='all, delete, delete-orphan'
                  ),
