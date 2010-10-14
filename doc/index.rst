@@ -22,7 +22,7 @@ Contents:
    loader_scripts
    getdata
    importer
-   package_forms
+   forms
    form-integration
    model
    authentication

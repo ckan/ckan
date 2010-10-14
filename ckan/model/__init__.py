@@ -4,6 +4,7 @@ from package import *
 from tag import *
 from package_mapping import *
 from user import user_table, User
+from authorization_group import * 
 from group import *
 from group_extra import *
 from search_index import *
@@ -58,6 +59,7 @@ class Repository(vdm.sqlalchemy.Repository):
             rev.author = 'system'
             rev.message = u'Initialising the Repository'
             Session.add(rev)
+        validate_authorization_setup()
         self.commit_and_remove()   
 
     def create_db(self):
@@ -106,6 +108,7 @@ class Repository(vdm.sqlalchemy.Repository):
         self.setup_migration_version_control()
         mig.upgrade(self.metadata.bind.url, self.migrate_repository,
                 version=version)
+        validate_authorization_setup()
 
 
 

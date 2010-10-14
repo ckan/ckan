@@ -69,11 +69,11 @@ class HarvestSource(DomainObject):
         import ckan.model as model
         package = None
         # Read data for package.
-        doc_data = document.read_attributes()
+        values = document.read_attributes()
         package_data = {
-            'name': doc_data['guid'],
-            'title': doc_data['title'],
-            'extras': doc_data,
+            'name': values['guid'],
+            'title': values['title'],
+            'extras': values,
         }
         # Create package from data.
         try:
@@ -176,7 +176,7 @@ class HarvestingJob(DomainObject):
         self.status = status
 
 
-class HarvestedDocument(DomainObject):
+class GeminiAttribute(object):
 
     namespaces = {
        "gts": "http://www.isotc211.org/2005/gts",
@@ -191,154 +191,16 @@ class HarvestedDocument(DomainObject):
        "xsi": "http://www.w3.org/2001/XMLSchema-instance",
     }
 
-    # Attribute specifications from "XPaths for GEMINI" by Peter Parslow.
-    # - multiplicity options: "0", "1", "*", "1..*"
-    attribute_specs = [
-        {
-            "name": "guid",
-            "xpath": "gmd:fileIdentifier/gco:CharacterString",
-            "multiplicity": "0..1",
-        },{
-            "name": "metadata-language",
-            "xpath": [
-                "gmd:language/gmd:LanguageCode/@codeListValue",
-                "gmd:language/gmd:LanguageCode",
-            ],
-            "multiplicity": "1",
-        },{
-            "name": "resource-type",
-            "xpath": [
-                "gmd:hierarchyLevel/gmd:MD_ScopeCode/@codeListValue",
-                "gmd:hierarchyLevel/gmd:MD_ScopeCode",
-            ],
-            "multiplicity": "1",
-        },{
-            "name": "metadata-point-of-contact",
-            "xpath": [
-                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:pointOfContact/gmd:CI_ResponsibleParty//gco:CharacterString",
-                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:pointOfContact/gmd:CI_ResponsibleParty//gco:CharacterString",
-            ],
-            "multiplicity": "1..*",
-        },{
-            "name": "metadata-date",
-            "xpath": [
-                "gmd:dateStamp/gmd:Date",
-                "gmd:dateStamp/gmd:DateTime",
-            ],
-            "multiplicity": "1",
-        },{
-            "name": "spatial-reference-system",
-            "xpath": [
-                "gmd:referenceSystemInfo/ gmd:MD_ReferenceSystem",
-            ],
-            "multiplicity": "0..1",
-        },{
-            "name": "title",
-            "xpath": [
-                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString",
-                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString",
-            ],
-            "multiplicity": "1",
-        },{
-            "name": "alternative-title",
-            "xpath": [
-                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:alternativeTitle/gco:CharacterString",
-                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:citation/gmd:CI_Citation/gmd:alternativeTitle/gco:CharacterString",
-            ],
-            "multiplicity": "*",
-        },{
-            "name": "dataset-reference-date",
-            "xpath": [
-                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date/gmd:date/gco:Date",
-                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date/gmd:date/gco:Date",
-            ],
-            "multiplicity": "*",
-        },{
-            "name": "dataset-reference-date-type",
-            "xpath": [
-                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date/gmd:dateType/gmd:CI_DateTypeCode/@codeListValue",
-                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date/gmd:dateType/gmd:CI_DateTypeCode",
-            ],
-            "multiplicity": "*",
-        },{
-            "name": "abstract",
-            "xpath": [
-                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:abstract/gco:CharacterString",
-                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:abstract/gco:CharacterString",
-            ],
-            "multiplicity": "*",
-        },{
-            "name": "bbox-west-long",
-            "xpath": [
-                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox/gmd:westBoundLongitude/gco:Decimal",
-                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox/gmd:westBoundLongitude/gco:Decimal",
-            ],
-        },{
-            "name": "bbox-east-long",
-            "xpath": [
-                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox/gmd:eastBoundLongitude/gco:Decimal",
-                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox/gmd:eastBoundLongitude/gco:Decimal",
-            ],
-        },{
-            "name": "bbox-north-lat",
-            "xpath": [
-                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox/gmd:northBoundLatitude/gco:Decimal",
-                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox/gmd:northBoundLatitude/gco:Decimal",
-            ],
-        },{
-            "name": "bbox-south-lat",
-            "xpath": [
-                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox/gmd:southBoundLatitude/gco:Decimal",
-                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox/gmd:southBoundLatitude/gco:Decimal",
-            ],
-        },{
-            "name": "keyword",
-            "xpath": [
-                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:descriptiveKeywords/gmd:MD_Keywords/gmd:keyword/gco:CharacterString",
-                "gmd:identificationInfo/srv:SV_ServiceIdentification/srv:keywords/gmd:MD_Keywords/gmd:keyword/gco:CharacterString",
-                "gmd:identificationInfo//gmd:MD_DataIdentification/gmd:descriptiveKeywords/gmd:MD_Keywords",
-                "gmd:identificationInfo/srv:SV_ServiceIdentification/srv:keywords/gmd:MD_Keywords",
-            ],
-        },{
-            "name": "use-constraints",
-            "xpath": [
-                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:resourceConstraints/gmd:MD_Constraints/gmd:useLimitation/gco:CharacterString",
-                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:resourceConstraints/gmd:MD_Constraints/gmd:useLimitation/gco:CharacterString",
-            ],
-        },{
-            "name": "topic-category",
-            "xpath": [
-                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:topicCategory/gmd:MD_TopicCategoryCode",
-                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:topicCategory/gmd:MD_TopicCategoryCode",
-            ],
-        },{
-            "name": "resource-locator",
-            "xpath": [
-                "gmd:distributionInfo/gmd:MD_Distribution/gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource/gmd:linkage/gmd:URL",
-                "gmd:distributionInfo/gmd:MD_Distribution/gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource/gmd:linkage",
-            ],
-        },{
-            "name": "resource-locator-description",
-            "xpath": "gmd:distributionInfo/gmd:MD_Distribution/gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource/gmd:function/gmd:CI_OnLineFunctionCode/@codeListValue",
-        }
-    ]
+    def __init__(self, name, xpaths=[], multiplicity="*"):
+        self.name = name
+        self.xpaths = xpaths
+        self.multiplicity = multiplicity
 
-    def read_attributes(self):
-        attributes = {}
-        tree = self.get_content_tree()
-        for attr_spec in self.attribute_specs:
-            attr_name = attr_spec["name"]
-            attr_xpaths = attr_spec["xpath"]
-            attr_values = self.read_attribute(tree, attr_xpaths)
-            attributes[attr_name] = attr_values
-        return attributes
-        
-    def get_content_tree(self):
-        return etree.fromstring(self.content)
-
-    def read_attribute(self, tree, xpaths):
-        if type(xpaths) != type([]):
-            xpaths = [xpaths]
+    def read_attribute(self, tree):
+        if type(self.xpaths) != type([]):
+            xpaths = [self.xpaths]
+        else:
+            xpaths = self.xpaths
         values = []
         for xpath in xpaths:
             elements = self.read_xpath(tree, xpath)
@@ -348,25 +210,358 @@ class HarvestedDocument(DomainObject):
                 for e in elements:
                     if (type(e) == etree._ElementStringResult):
                         value = str(e)
-                    elif e.tag == '{http://www.isotc211.org/2005/gco}CharacterString':
-                        value = e.text
-                    elif e.tag == '{http://www.isotc211.org/2005/gco}Decimal':
-                        value = e.text
-                    elif e.tag == '{http://www.isotc211.org/2005/gmd}MD_TopicCategoryCode':
-                        value = e.text
-                    elif e.tag == '{http://www.isotc211.org/2005/gmd}URL':
-                        value = e.text
+                    #elif e.tag == '{http://www.isotc211.org/2005/gco}CharacterString':
+                    #    value = e.text
+                    #elif e.tag == '{http://www.isotc211.org/2005/gco}Decimal':
+                    #    value = e.text
+                    #elif e.tag == '{http://www.isotc211.org/2005/gmd}MD_TopicCategoryCode':
+                    #    value = e.text
+                    #elif e.tag == '{http://www.isotc211.org/2005/gmd}URL':
+                    #    value = e.text
                     else:
-                        value = etree.tostring(e, pretty_print=True)
+                        value = etree.tostring(e, pretty_print=False)
                     values.append(value)
             if values:
                 break
+        if self.multiplicity == "1":
+            if values:
+                values = values[0]
+            else:
+                raise Exception, "Value not found for attribute '%s'" % self.name
+        elif self.multiplicity == "0..1":
+            if values:
+                values = values[0]
+            else:
+                values = ""
         return values
 
     def read_xpath(self, tree, xpath):
         return tree.xpath(xpath, namespaces=self.namespaces)
 
-    
+
+class MetadataDocument(object):
+
+    def __init__(self, content):
+        self.content = content
+
+    def read_attributes(self):
+        values = {}
+        tree = self.get_content_tree()
+        for a in self.attributes:
+            values[a.name] = a.read_attribute(tree)
+        return values
+        
+    def get_content_tree(self):
+        parser = etree.XMLParser(remove_blank_text=True)
+        return etree.fromstring(self.content, parser=parser)
+
+
+class GeminiDocument(MetadataDocument):
+
+    # Attribute specifications from "XPaths for GEMINI" by Peter Parslow.
+    # - multiplicity options: "0", "1", "*", "1..*"
+
+    attributes = [
+        GeminiAttribute(
+            name="guid",
+            xpaths="gmd:fileIdentifier/gco:CharacterString/text()",
+            multiplicity="0..1",
+        ),GeminiAttribute(
+            name="metadata-language",
+            xpaths=[
+                "gmd:language/gmd:LanguageCode/@codeListValue",
+                "gmd:language/gmd:LanguageCode/text()",
+            ],
+            multiplicity="1",
+        ),GeminiAttribute(
+            name="resource-type",
+            xpaths=[
+                "gmd:hierarchyLevel/gmd:MD_ScopeCode/@codeListValue",
+                "gmd:hierarchyLevel/gmd:MD_ScopeCode/text()",
+            ],
+            multiplicity="1",
+        ),GeminiAttribute(
+            name="metadata-point-of-contact",
+            xpaths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:pointOfContact/gmd:CI_ResponsibleParty",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:pointOfContact/gmd:CI_ResponsibleParty",
+            ],
+            multiplicity="1..*",
+        ),GeminiAttribute(
+            name="metadata-date",
+            xpaths=[
+                "gmd:dateStamp/gco:Date/text()",
+                "gmd:dateStamp/gco:DateTime/text()",
+            ],
+            multiplicity="1",
+        ),GeminiAttribute(
+            name="spatial-reference-system",
+            xpaths=[
+                "gmd:referenceSystemInfo/gmd:MD_ReferenceSystem",
+            ],
+            multiplicity="0..1",
+        ),GeminiAttribute(
+            name="title",
+            xpaths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString/text()",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString/text()",
+            ],
+            multiplicity="1",
+        ),GeminiAttribute(
+            name="alternative-title",
+            xpaths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:alternativeTitle/gco:CharacterString/text()",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:citation/gmd:CI_Citation/gmd:alternativeTitle/gco:CharacterString/text()",
+            ],
+            multiplicity="*",
+        ),GeminiAttribute(
+            name="dataset-reference-date",
+            xpaths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date",
+            ],
+            multiplicity="*",
+        #),GeminiAttribute(
+        #    name="dataset-reference-date-type",
+        #    xpaths=[
+        #        "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date/gmd:dateType/gmd:CI_DateTypeCode/@codeListValue",
+        #        "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date/gmd:dateType/gmd:CI_DateTypeCode",
+        #    ],
+        #    multiplicity="*",
+        ),GeminiAttribute(
+            name="unique-resource-identifier",
+            xpaths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier",
+            ],
+            multiplicity="1",
+        ),GeminiAttribute(
+            name="abstract",
+            xpaths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:abstract/gco:CharacterString/text()",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:abstract/gco:CharacterString/text()",
+            ],
+            multiplicity="1",
+        ),GeminiAttribute(
+            name="responsible-organisation",
+            xpaths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:pointOfContact/gmd:CI_ResponsibleParty",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:pointOfContact/gmd:CI_ResponsibleParty",
+            ],
+            multiplicity="1..*",
+        ),GeminiAttribute(
+            name="frequency-of-update",
+            xpaths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:resourceMaintenance/gmd:MD_MaintenanceInformation/gmd:maintenanceAndUpdateFrequency/gmd:MD_MaintenanceFrequencyCode/@codeListValue",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:resourceMaintenance/gmd:MD_MaintenanceInformation/gmd:maintenanceAndUpdateFrequency/gmd:MD_MaintenanceFrequencyCode/@codeListValue",
+
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:resourceMaintenance/gmd:MD_MaintenanceInformation/gmd:maintenanceAndUpdateFrequency/gmd:MD_MaintenanceFrequencyCode/text()",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:resourceMaintenance/gmd:MD_MaintenanceInformation/gmd:maintenanceAndUpdateFrequency/gmd:MD_MaintenanceFrequencyCode/text()",
+            ],
+            multiplicity="0..1",
+        ),GeminiAttribute(
+            name="keyword-inspire-theme",
+            xpaths=[
+                #"gmd:identificationInfo/gmd:MD_DataIdentification/gmd:descriptiveKeywords/gmd:MD_Keywords[some GEMET citation1]/gmd:keyword/gco:CharacterString",
+                #"gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:descriptiveKeywords/gmd:MD_Keywords[some GEMET citation1]/gmd:keyword/gco:CharacterString",
+            ],
+            multiplicity="*",
+        ),GeminiAttribute(
+            name="keyword-controlled-other",
+            xpaths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:descriptiveKeywords/gmd:MD_Keywords/gmd:keyword/gco:CharacterString/text()",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:descriptiveKeywords/gmd:MD_Keywords/gmd:keyword/gco:CharacterString/text()",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/srv:keywords/gmd:MD_Keywords/gmd:keyword/gco:CharacterString/text()",
+            ],
+            multiplicity="*",
+        ),GeminiAttribute(
+            name="keyword-free-text",
+            xpaths=[
+            ],
+            multiplicity="*",
+        ),GeminiAttribute(
+            name="limitations-on-public-access",
+            xpaths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:accessConstraints/gmd:otherConstraints/gco:CharacterString/text()",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:accessConstraints/gmd:otherConstraints/gco:CharacterString/text()",
+            ],
+            multiplicity="1..*",
+        ),GeminiAttribute(
+            name="use-constraints",
+            xpaths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:resourceConstraints/gmd:MD_Constraints/gmd:useLimitation/gco:CharacterString/text()",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:resourceConstraints/gmd:MD_Constraints/gmd:useLimitation/gco:CharacterString/text()",
+            ],
+            multiplicity="*",
+        ),GeminiAttribute(
+            name="spatial-data-service-type",
+            xpaths=[
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/srv:serviceType/gco:LocalName",
+            ],
+            multiplicity="0..1",
+        ),GeminiAttribute(
+            name="spatial-resolution",
+            xpaths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gco:Distance",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gco:Distance",
+            ],
+            multiplicity="0..1",
+        ),GeminiAttribute(
+            name="spatial-resolution-units",
+            xpaths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gco:Distance/@uom",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gco:Distance/@uom",
+            ],
+            multiplicity="0..1",
+        ),GeminiAttribute(
+            name="equivalent-scale",
+            xpaths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale/gmd:MD_RepresentativeFraction/gmd:denominator/gco:Integer/text()",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale/gmd:MD_RepresentativeFraction/gmd:denominator/gco:Integer/text()",
+            ],
+            multiplicity="*",
+        ),GeminiAttribute(
+            name="dataset-language",
+            xpaths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:language/gmd:LanguageCode/@codeListValue",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:language/gmd:LanguageCode/@codeListValue",
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:language/gmd:LanguageCode/text()",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:language/gmd:LanguageCode/text()",
+            ],
+            multiplicity="*",
+        ),GeminiAttribute(
+            name="topic-category",
+            xpaths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:topicCategory/gmd:MD_TopicCategoryCode/text()",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:topicCategory/gmd:MD_TopicCategoryCode/text()",
+            ],
+        ),GeminiAttribute(
+            name="extent-controlled",
+            xpaths=[
+            ],
+            multiplicity="*",
+        ),GeminiAttribute(
+            name="extent-free-text",
+            xpaths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicDescription/gmd:geographicIdentifier/gmd:MD_Identifier/gmd:code/gco:CharacterString/text()",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/srv:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicDescription/gmd:geographicIdentifier/gmd:MD_Identifier/gmd:code/gco:CharacterString/text()",
+            ],
+            multiplicity="*",
+        ),GeminiAttribute(
+            name="bbox-west-long",
+            xpaths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox/gmd:westBoundLongitude/gco:Decimal/text()",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/srv:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox/gmd:westBoundLongitude/gco:Decimal/text()",
+            ],
+            multiplicity="1",
+        ),GeminiAttribute(
+            name="bbox-east-long",
+            xpaths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox/gmd:eastBoundLongitude/gco:Decimal/text()",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/srv:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox/gmd:eastBoundLongitude/gco:Decimal/text()",
+            ],
+            multiplicity="1",
+        ),GeminiAttribute(
+            name="bbox-north-lat",
+            xpaths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox/gmd:northBoundLatitude/gco:Decimal/text()",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/srv:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox/gmd:northBoundLatitude/gco:Decimal/text()",
+            ],
+            multiplicity="1",
+        ),GeminiAttribute(
+            name="bbox-south-lat",
+            xpaths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox/gmd:southBoundLatitude/gco:Decimal/text()",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/srv:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox/gmd:southBoundLatitude/gco:Decimal/text()",
+            ],
+            multiplicity="1",
+        ),GeminiAttribute(
+            name="temporal-extent-begin",
+            xpaths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent/gmd:temporalElement/gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod/gml:beginPosition/text()",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/srv:extent/gmd:EX_Extent/gmd:temporalElement/gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod/gml:beginPosition/text()",
+            ],
+            multiplicity="0..1",
+        ),GeminiAttribute(
+            name="temporal-extent-end",
+            xpaths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent/gmd:temporalElement/gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod/gml:endPosition/text()",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/srv:extent/gmd:EX_Extent/gmd:temporalElement/gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod/gml:endPosition/text()",
+            ],
+            multiplicity="0..1",
+        ),GeminiAttribute(
+            name="vertical-extent",
+            xpaths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent/gmd:verticalElement/gmd:EX_VerticalExtent",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/srv:extent/gmd:EX_Extent/gmd:verticalElement/gmd:EX_VerticalExtent",
+            ],
+            multiplicity="0..1",
+        ),GeminiAttribute(
+            name="coupled-resource",
+            xpaths=[
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/srv:operatesOn/@xlink:href",
+            ],
+            multiplicity="*",
+        ),GeminiAttribute(
+            name="additional-information-source",
+            xpaths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:supplementalInformation/gco:CharacterString/text()",
+            ],
+            multiplicity="0..1",
+        ),GeminiAttribute(
+            name="data-format",
+            xpaths=[
+                "gmd:distributionInfo/gmd:MD_Distribution/gmd:distributionFormat/gmd:MD_Format",
+            ],
+            multiplicity="*",
+        ),GeminiAttribute(
+            name="resource-locator",
+            xpaths=[
+                "gmd:distributionInfo/gmd:MD_Distribution/gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource/gmd:linkage/gmd:URL/text()",
+            ],
+            multiplicity="*",
+        ),GeminiAttribute(
+            name="conformity-specification",
+            xpaths=[
+                "gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:report/gmd:DQ_DomainConsistency/gmd:result/gmd:DQ_ConformanceResult/gmd:specification",
+            ],
+            multiplicity="0..1",
+        ),GeminiAttribute(
+            name="conformity-pass",
+            xpaths=[
+                "gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:report/gmd:DQ_DomainConsistency/gmd:result/gmd:DQ_ConformanceResult/gmd:pass/gco:Boolean/text()",
+            ],
+            multiplicity="0..1",
+        ),GeminiAttribute(
+            name="conformity-explanation",
+            xpaths=[
+                "gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:report/gmd:DQ_DomainConsistency/gmd:result/gmd:DQ_ConformanceResult/gmd:explanation/gco:CharacterString/text()",
+            ],
+            multiplicity="0..1",
+        ),GeminiAttribute(
+            name="lineage",
+            xpaths=[
+                "gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:statement/gco:CharacterString/text()",
+            ],
+            multiplicity="0..1",
+        #),GeminiAttribute(
+        #    name="resource-locator-description",
+        #    xpaths="gmd:distributionInfo/gmd:MD_Distribution/gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource/gmd:function/gmd:CI_OnLineFunctionCode/@codeListValue",
+        )
+    ]
+
+
+
+class HarvestedDocument(DomainObject):
+
+    def read_attributes(self):
+        if "gmd:MD_Metadata" in self.content:
+            doc = GeminiDocument(self.content)
+        else:
+            raise Exception, "Can't identify type of document content: %s" % self.content
+        return doc.read_attributes()
+
+
 harvest_source_table = Table('harvest_source', metadata,
         Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
         Column('status', types.UnicodeText, default=u'New', nullable=False),

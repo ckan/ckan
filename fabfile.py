@@ -134,6 +134,18 @@ def config_0(name, hosts_str='', requirements='pip-requirements-metastable.txt',
     env.ckan_instance_name = name
     env.base_dir = '/home/%s/var/srvc' % env.user
     env.config_ini_filename = '%s.ini' % name
+    # check if the host is just a squid caching a ckan running on another host
+    assert len(env.hosts) == 1, 'Must specify one host'
+    env.host_string = env.hosts[0]
+    if exists('/etc/squid3/squid.conf'):
+        # e.g. acl eu7_sites dstdomain ckan.net
+        conf_line = run('grep -E "^acl .* %s" /etc/squid3/squid.conf' % env.host_string)
+        if conf_line:
+            host_txt = conf_line.split()[1].replace('_sites', '.okfn.org')
+            env.hosts = [host_txt]
+            print 'Found Squid cache is of CKAN host: %s' % host_txt
+        else:
+            print 'Found Squid cache but did not find host in config.'
     env.pip_requirements = requirements
     env.db_pass = db_pass
     env.log_filename_pattern = name + '.%s.log'
@@ -275,7 +287,7 @@ def backup():
         assert exists(env.config_ini_filename), "Can't find config file: %s/%s" % (env.instance_path, env.config_ini_filename)
     db_details = _get_db_config()
     assert db_details['db_type'] == 'postgres'
-    run('export PGPASSWORD=%s&&pg_dump -U %s -D %s -h %s> %s' % (db_details['db_pass'], db_details['db_user'], db_details['db_name'], db_details['db_host'], pg_dump_filepath), shell=False)
+    run('export PGPASSWORD=%s&&pg_dump -U %s -h %s %s > %s' % (db_details['db_pass'], db_details['db_user'], db_details['db_host'], db_details['db_name'], pg_dump_filepath), shell=False)
     assert exists(pg_dump_filepath)
     run('ls -l %s' % pg_dump_filepath)
     # copy backup locally
@@ -456,7 +468,7 @@ def _get_ini_value(key, ini_filepath=None):
 def _get_db_config():
     url = _get_ini_value('sqlalchemy.url')
     # e.g. 'postgres://tester:pass@localhost/ckantest3'
-    db_details = re.match('^\s*(?P<db_type>\w*)://(?P<db_user>\w*):(?P<db_pass>[^@]*)@(?P<db_host>\w*)/(?P<db_name>[\w.-]*)', url).groupdict()
+    db_details = re.match('^\s*(?P<db_type>\w*)://(?P<db_user>\w*):(?P<db_pass>[^@]*)@(?P<db_host>[\w\.]*)/(?P<db_name>[\w.-]*)', url).groupdict()
     return db_details
 
 def _get_pylons_cache_dir():

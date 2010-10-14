@@ -44,9 +44,9 @@ class Authorizer(object):
             username = username.decode('utf8')
         assert isinstance(username, unicode), type(username)
         assert model.Action.is_valid(action), action
-
+        
         # sysadmins can do everything
-        if cls.is_sysadmin(username):
+        if cls.is_sysadmin(username) or domain_object is None:
             return True
 
         # check not blacklisted
@@ -64,13 +64,13 @@ class Authorizer(object):
             return True
 
         # check it's active
-        if hasattr(domain_object, 'state'):
+        if domain_object.__class__ != type and hasattr(domain_object, 'state'):
             if domain_object.state != model.State.ACTIVE:
                 return False
 
         # check if any of the roles allows the action requested
         for role in roles:
-            action_query = model.Session.query(model.RoleAction).filter_by(
+            action_query = model.Session.query(model.RoleAction).autoflush(False).filter_by(
                 role=role, action=action)
             if action_query.count() > 0:
                 return True
@@ -93,8 +93,24 @@ class Authorizer(object):
             q = model.Session.query(model.PackageRole).filter_by(package=domain_obj)
         elif isinstance(domain_obj, model.Group):
             q = model.Session.query(model.GroupRole).filter_by(group=domain_obj)
+        elif isinstance(domain_obj, model.AuthorizationGroup):
+            q = model.Session.query(model.AuthorizationGroupRole).filter_by(authorization_group=domain_obj)
         prs = [ (pr.user, pr.role) for pr in q.all() ]
         return prs
+
+    @classmethod
+    def get_authorization_groups(cls, username):
+        q = model.Session.query(model.AuthorizationGroup)
+        q = q.autoflush(False)
+        user = model.User.by_name(username, autoflush=False)
+        if username == model.PSEUDO_USER__VISITOR or not user:
+            q = q.filter(model.AuthorizationGroup.users.any(name=model.PSEUDO_USER__VISITOR))
+        else:
+            q = q.filter(model.AuthorizationGroup.users.any(
+                            sa.or_(model.User.name==model.PSEUDO_USER__VISITOR,
+                                   model.User.name==model.PSEUDO_USER__LOGGED_IN,
+                                   model.User.name==username)))
+        return q.all()
 
     @classmethod
     def get_roles(cls, username, domain_obj):
@@ -104,27 +120,32 @@ class Authorizer(object):
         assert isinstance(username, unicode), repr(username)
 
         # filter by user and pseudo-users
-        user = model.User.by_name(username)
-        visitor = model.User.by_name(model.PSEUDO_USER__VISITOR)
-        logged_in = model.User.by_name(model.PSEUDO_USER__LOGGED_IN)
+        # TODO: these can be made into subqueries/joins! 
+        user = model.User.by_name(username, autoflush=False)
+        visitor = model.User.by_name(model.PSEUDO_USER__VISITOR, autoflush=False)
         q = cls._get_roles_query(domain_obj)
-        if username == model.PSEUDO_USER__VISITOR or not user:
-            q = q.filter_by(user=visitor)
-        else:
-            # logged in user
-            q = q.filter(sa.or_(
-                model.UserObjectRole.user==user,
-                model.UserObjectRole.user==logged_in,
-                model.UserObjectRole.user==visitor,
-                ))
-        prs = q.all()
-        return [pr.role for pr in prs]
+        q = q.autoflush(False)
+        
+        filters = [model.UserObjectRole.user==visitor]
+        # check for groups:
+        for authz_group in cls.get_authorization_groups(username):
+            filters.append(model.UserObjectRole.authorized_group==authz_group)
+        
+        if (username != model.PSEUDO_USER__VISITOR) and (user is not None):
+            logged_in = model.User.by_name(model.PSEUDO_USER__LOGGED_IN)
+            filters.append(model.UserObjectRole.user==user)
+            filters.append(model.UserObjectRole.user==logged_in)
+        
+        q = q.filter(sa.or_(*filters))
+        return [pr.role for pr in q]
 
     @classmethod
     def is_sysadmin(cls, username):
-        user = model.User.by_name(username)
+        user = model.User.by_name(username, autoflush=False)
         if user:
-            q = model.Session.query(model.SystemRole).filter_by(role=model.Role.ADMIN, user=user)
+            q = model.Session.query(model.SystemRole)
+            q = q.autoflush(False)
+            q = q.filter_by(role=model.Role.ADMIN, user=user)
             return q.count() > 0
 
     @classmethod
@@ -135,20 +156,24 @@ class Authorizer(object):
         elif isinstance(domain_obj, model.Group):
             q = model.Session.query(model.GroupRole).filter_by(group=domain_obj,
                                                 role=model.Role.ADMIN)
+        elif isinstance(domain_obj, model.AuthorizationGroup):
+            q = model.Session.query(model.AuthorizationGroupRole).filter_by(authorization_group=domain_obj,
+                                                role=model.Role.ADMIN)
+        q = q.autoflush(False)
         admins = [do_role.user for do_role in q.all()]
         return admins
 
     @classmethod
-    def authorized_query(cls, username, entity):
+    def authorized_query(cls, username, entity, action=model.Action.READ):
         q = model.Session.query(entity)
+        q = q.autoflush(False)
         if username:
-            user = model.User.by_name(username)
+            user = model.User.by_name(username, autoflush=False)
         else:
             user = None
 
-        visitor = model.User.by_name(model.PSEUDO_USER__VISITOR)
-        logged_in = model.User.by_name(model.PSEUDO_USER__LOGGED_IN)
-        action = model.Action.READ
+        visitor = model.User.by_name(model.PSEUDO_USER__VISITOR, autoflush=False)
+        logged_in = model.User.by_name(model.PSEUDO_USER__LOGGED_IN, autoflush=False)
 
         if not cls.is_sysadmin(username):
             q = q.outerjoin('roles')
@@ -156,23 +181,26 @@ class Authorizer(object):
                 state = entity.state
             else:
                 state = model.State.ACTIVE
+                
+            filters = [model.UserObjectRole.user==visitor]
+            for authz_group in cls.get_authorization_groups(username):
+                filters.append(model.UserObjectRole.authorized_group==authz_group)
+                
             if user:
-                q = q.filter(sa.or_(model.UserObjectRole.user==user,
-                                   model.UserObjectRole.user==visitor,
-                                   model.UserObjectRole.user==logged_in))
+                filters.append(model.UserObjectRole.user==user)
+                filters.append(model.UserObjectRole.user==logged_in)
                 q = q.filter(sa.or_(
                     sa.and_(model.UserObjectRole.role==model.RoleAction.role,
                             model.RoleAction.action==action,
                             state==model.State.ACTIVE),
                     model.UserObjectRole.role==model.Role.ADMIN))
             else:
-                q = q.filter(model.UserObjectRole.user==visitor)
                 q = q.filter(
                     sa.and_(model.UserObjectRole.role==model.RoleAction.role,
                             model.RoleAction.action==action,
                             state==model.State.ACTIVE),
                     )
-                
+            q = q.filter(sa.or_(*filters))   
             q = q.distinct()
 
         return q
@@ -180,6 +208,7 @@ class Authorizer(object):
     @classmethod
     def _get_roles_query(cls, domain_obj):
         q = model.Session.query(model.UserObjectRole)
+        q = q.autoflush(False)
         is_a_class = domain_obj.__class__ == type
         context = domain_obj.__name__ if is_a_class else domain_obj.__class__.__name__
         q = q.filter_by(context=unicode(context))
@@ -191,10 +220,15 @@ class Authorizer(object):
             elif isinstance(domain_obj, model.Group):
                 q = q.with_polymorphic(model.GroupRole)
                 q = q.filter(model.GroupRole.group==domain_obj)
+            elif isinstance(domain_obj, model.AuthorizationGroup):
+                q = q.with_polymorphic(model.AuthorizationGroupRole)
+                q = q.filter(model.AuthorizationGroupRole.authorization_group==domain_obj)
+            elif isinstance(domain_obj, model.System):
+                q = q.with_polymorphic(model.SystemRole)
+                q = q.filter(model.SystemRole.context==unicode(model.System.__name__))
             else:
                 raise Exception('Do not support context object like: %r' %
                         domain_obj)
-
         return q
 
         
