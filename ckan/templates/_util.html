@@ -30,6 +30,15 @@
     </li>
     <p py:if="not tags">No results</p>
   </ul>
+  
+  <!--! List of tags: pass in a collection of users and this renders the standard
+          tag listing -->
+    <ul py:def="user_list(users)" class="users">
+      <li py:for="user in users">
+        ${h.link_to(user.name, h.url_for(controller='user', action='read', id=user.id))}
+      </li>
+      <p py:if="not users">No results</p>
+    </ul>
 
   <!--! List of packages: pass in a collection of tags and this renders the
         standard package listing -->
@@ -62,8 +71,8 @@
     <p py:if="not packages">No results</p>
   </ul>
 
-  <!--! List of groups: pass in a collection of groups and this renders the
-        standard group listing -->
+  <!--! List of data package groups: pass in a collection of data package groups 
+        and this renders the standard group listing -->
   <table py:def="group_list(groups)" class="groups">
     <tr><th>Title</th><th>Number of packages</th><th>Description</th></tr>
     <py:for each="group in groups">
@@ -74,6 +83,20 @@
     </tr>
     </py:for>
   </table>
+  
+  <!--! List of authorization groups: pass in a collection of authorization groups and 
+        this renders the standard group listing -->
+  <table py:def="authorization_group_list(authorization_groups)" class="authorization_groups">
+      <tr><th>Title</th><th>Number of members</th></tr>
+      <py:for each="authorization_group in authorization_groups">
+      <tr>
+        <td><a href="${h.url_for(controller='authorization_group', action='read', id=authorization_group.name)}">
+            ${authorization_group.name}</a>
+        </td>
+        <td>${len(authorization_group.users)}</td>
+      </tr>
+      </py:for>
+    </table>
 
   <!--! Package openness icons -->
   <img py:def="package_license_icon(package)"

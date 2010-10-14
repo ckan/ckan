@@ -12,12 +12,16 @@ authorization_group_table = Table('authorization_group', metadata,
     )
 
 authorization_group_user_table = Table('authorization_group_user', metadata,
-    Column('authorization_group_id', UnicodeText, ForeignKey('authorization_group.id'), nullable=False),
+    Column('authorization_group_id', UnicodeText, ForeignKey('authorization_group.id'), 
+           nullable=False, primary_key=True),
     Column('user_id', UnicodeText, ForeignKey('user.id'), nullable=False)
     )
 
 
 class AuthorizationGroup(DomainObject):
+    pass
+    
+class AuthorizationGroupUser(DomainObject):
     pass
 
 def user_in_authorization_group(user, authorization_group):
@@ -52,3 +56,4 @@ mapper(AuthorizationGroup, authorization_group_table, properties={
        },
        order_by=authorization_group_table.c.name)
     
+mapper(AuthorizationGroupUser, authorization_group_user_table)

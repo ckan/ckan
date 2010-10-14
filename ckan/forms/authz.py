@@ -30,6 +30,15 @@ def get_group_linker(action):
                         action,
                         action)
 
+def get_authorization_group_linker(action):
+    return lambda item: '<a href="%s" title="%s"><img src="http://m.okfn.org/kforge/images/icon-delete.png" alt="%s" class="icon" /></a>' % (
+                        ckan_h.url_for(controller='authorization_group',
+                            action='authz',
+                            id=item.authorization_group.name,
+                            role_to_delete=item.id),
+                        action,
+                        action)
+
 class RolesRenderer(formalchemy.fields.FieldRenderer):
     def render(self, **kwargs):
         selected = kwargs.get('selected', None) or unicode(self.value)
@@ -48,6 +57,10 @@ def authz_fieldset_builder(role_class):
     elif role_class == model.GroupRole:
         fs.append(
             Field(u'delete', types.String, get_group_linker(u'delete')).readonly()
+            )
+    elif role_class == model.AuthorizationGroupRole:
+        fs.append(
+            Field(u'delete', types.String, get_authorization_group_linker(u'delete')).readonly()
             )
         
     fs.append(
@@ -99,6 +112,8 @@ def get_authz_fieldset(name):
     if not fieldsets: 
         fieldsets['package_authz_fs'] = authz_fieldset_builder(model.PackageRole)
         fieldsets['group_authz_fs'] = authz_fieldset_builder(model.GroupRole)
+        fieldsets['authorization_group_authz_fs'] = authz_fieldset_builder(model.AuthorizationGroupRole)
         fieldsets['new_package_roles_fs'] = get_new_role_fieldset(model.PackageRole)
         fieldsets['new_group_roles_fs'] = get_new_role_fieldset(model.GroupRole)
+        fieldsets['new_authorization_group_roles_fs'] = get_new_role_fieldset(model.AuthorizationGroupRole)
     return fieldsets[name]
