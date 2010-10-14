@@ -47,19 +47,12 @@ class Repository(vdm.sqlalchemy.Repository):
             logged_in = User(name=PSEUDO_USER__LOGGED_IN)
             Session.add(visitor)
             Session.add(logged_in)
-            # setup all role-actions
-            # context is blank as not currently used
-            # Note that Role.ADMIN can already do anything - hardcoded in.
-            for role, action in default_role_actions:
-                ra = RoleAction(role=role, context=u'',
-                        action=action,)
-                Session.add(ra)
+        validate_authorization_setup()
         if Session.query(Revision).count() == 0:
             rev = Revision()
             rev.author = 'system'
             rev.message = u'Initialising the Repository'
             Session.add(rev)
-        validate_authorization_setup()
         self.commit_and_remove()   
 
     def create_db(self):
@@ -106,8 +99,7 @@ class Repository(vdm.sqlalchemy.Repository):
         '''
         import migrate.versioning.api as mig
         self.setup_migration_version_control()
-        mig.upgrade(self.metadata.bind.url, self.migrate_repository,
-                version=version)
+        mig.upgrade(self.metadata.bind.url, self.migrate_repository, version=version)
         validate_authorization_setup()
 
 
