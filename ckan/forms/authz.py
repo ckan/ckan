@@ -92,20 +92,29 @@ class UsersRenderer(formalchemy.fields.FieldRenderer):
         selected = None
         return fa_h.select(self.name, selected, options, **kwargs)
 
+class AuthorizationGroupsRenderer(formalchemy.fields.FieldRenderer):
+    def render(self, options, **kwargs):
+        options = [('', '__null_value__')] + [(u.name, u.id) for u in model.Session.query(model.AuthorizationGroup).all()]
+        selected = None
+        return fa_h.select(self.name, selected, options, **kwargs)
+
 def get_new_role_fieldset(role_class):
     fs = fa.FieldSet(role_class, session=model.Session)
     role_options = model.Role.get_all()
     fs.configure(
         include=[
             fs.user,
+            fs.authorized_group,
             fs.role
         ],
         options = [
             fs.user.with_renderer(UsersRenderer),
+            fs.authorized_group.with_renderer(AuthorizationGroupsRenderer),
             fs.role.dropdown(options=role_options)
         ],
         )
     return fs
+
 
 fieldsets = {}
 def get_authz_fieldset(name):
@@ -115,5 +124,6 @@ def get_authz_fieldset(name):
         fieldsets['authorization_group_authz_fs'] = authz_fieldset_builder(model.AuthorizationGroupRole)
         fieldsets['new_package_roles_fs'] = get_new_role_fieldset(model.PackageRole)
         fieldsets['new_group_roles_fs'] = get_new_role_fieldset(model.GroupRole)
-        fieldsets['new_authorization_group_roles_fs'] = get_new_role_fieldset(model.AuthorizationGroupRole)
+        fieldsets['new_authorization_group_roles_fs'] = \
+            get_new_role_fieldset(model.AuthorizationGroupRole)
     return fieldsets[name]

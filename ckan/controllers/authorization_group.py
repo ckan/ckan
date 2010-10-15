@@ -83,7 +83,7 @@ class AuthorizationGroupController(BaseController):
                 if username:
                     usr = model.User.by_name(username)
                     if usr and usr not in authorization_group.users:
-                        authorization_group.users.append(usr)
+                        model.add_user_to_authorization_group(usr, authorization_group, model.Role.READER)
             model.repo.commit_and_remove()
             h.redirect_to(action='read', id=c.authzgroupname)
 
@@ -137,7 +137,7 @@ class AuthorizationGroupController(BaseController):
                 if username:
                     usr = model.User.by_name(username)
                     if usr and usr not in authorization_group.users:
-                        authorization_group.users.append(usr)
+                        model.add_user_to_authorization_group(usr, authorization_group, model.Role.READER)
             model.repo.commit_and_remove()
             h.redirect_to(action='read', id=c.authorization_group_name)
 
@@ -168,7 +168,10 @@ class AuthorizationGroupController(BaseController):
                 raise
             # now do new roles
             newrole_user_id = request.params.get('AuthorizationGroupRole--user_id')
-            if newrole_user_id != '__null_value__':
+            newrole_authzgroup_id = request.params.get('AuthorizationGroupRole--authorized_group_id')
+            if newrole_user_id != '__null_value__' and newrole_authzgroup_id != '__null_value__':
+                c.message = _(u'Please select either a user or an authorization group, not both.')
+            elif newrole_user_id != '__null_value__':
                 user = model.Session.query(model.User).get(newrole_user_id)
                 # TODO: chech user is not None (should go in validation ...)
                 role = request.params.get('AuthorizationGroupRole--role')
@@ -181,7 +184,21 @@ class AuthorizationGroupController(BaseController):
                 model.Session.remove()
                 c.message = _(u'Added role \'%s\' for user \'%s\'') % (
                     newauthzgrouprole.role,
-                    newauthzgrouprole.user.name)
+                    newauthzgrouprole.user.name)      
+            elif newrole_authzgroup_id != '__null_value__':
+                authzgroup = model.Session.query(model.AuthorizationGroup).get(newrole_authzgroup_id)
+                # TODO: chech user is not None (should go in validation ...)
+                role = request.params.get('AuthorizationGroupRole--role')
+                newauthzgrouprole = model.AuthorizationGroupRole(authorized_group=authzgroup, 
+                        authorization_group=authorization_group, role=role)
+                # With FA no way to get new GroupRole back to set group attribute
+                # new_roles = ckan.forms.new_roles_fs.bind(model.GroupRole, data=params or None)
+                # new_roles.sync()
+                model.Session.commit()
+                model.Session.remove()
+                c.message = _(u'Added role \'%s\' for authorization group \'%s\'') % (
+                    newauthzgrouprole.role,
+                    newauthzgrouprole.authorized_group.name)
         elif 'role_to_delete' in request.params:
             authzgrouprole_id = request.params['role_to_delete']
             authzgrouprole = model.Session.query(model.AuthorizationGroupRole).get(authzgrouprole_id)
@@ -189,8 +206,12 @@ class AuthorizationGroupController(BaseController):
                 c.error = _(u'Error: No role found with that id')
             else:
                 authzgrouprole.purge()
-                c.message = _(u'Deleted role \'%s\' for user \'%s\'') % \
-                            (authzgrouprole.role, authzgrouprole.user.name)
+                if authzgrouprole.user:
+                    c.message = _(u'Deleted role \'%s\' for user \'%s\'') % \
+                                (authzgrouprole.role, authzgrouprole.user.name)
+                elif authzgrouprole.authorized_group:
+                    c.message = _(u'Deleted role \'%s\' for authorization group \'%s\'') % \
+                                (authzgrouprole.role, authzgrouprole.authorized_group.name)
                 model.Session.commit()
 
         # retrieve group again ...
@@ -198,7 +219,8 @@ class AuthorizationGroupController(BaseController):
         fs = ckan.forms.get_authz_fieldset('authorization_group_authz_fs')\
                 .bind(authorization_group.roles)
         c.form = fs.render()
-        c.new_roles_form = ckan.forms.get_authz_fieldset('new_authorization_group_roles_fs').render()
+        c.new_roles_form = \
+            ckan.forms.get_authz_fieldset('new_authorization_group_roles_fs').render()
         return render('authorization_group/authz.html')
 
     def _render_edit_form(self, fs):
