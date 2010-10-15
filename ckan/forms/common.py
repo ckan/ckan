@@ -581,14 +581,18 @@ class ExtrasField(ConfiguredField):
 class GroupSelectField(ConfiguredField):
     '''A form field for selecting groups'''
     
-    def __init__(self, name, allow_empty=True, multiple=True):
+    def __init__(self, name, allow_empty=True, multiple=True, user_editable_groups=None):
         super(GroupSelectField, self).__init__(name)
         self.allow_empty = allow_empty
         self.multiple = multiple
+        if user_editable_groups == None:
+            raise Exception, "Group select field 'user_editable_groups' is not initialized."
+        self.user_editable_groups = user_editable_groups
     
     def get_configured(self):
         field = self.GroupSelectionField(self.name, self.allow_empty).with_renderer(self.GroupSelectEditRenderer)
         field.set(multiple=self.multiple)
+        field.user_editable_groups = self.user_editable_groups
         return field
 
     class GroupSelectionField(formalchemy.Field):
@@ -611,33 +615,79 @@ class GroupSelectField(ConfiguredField):
     class GroupSelectEditRenderer(formalchemy.fields.FieldRenderer):
         def _get_value(self, **kwargs):
             return self.field.parent.model.groups
-        
+
+        def _get_user_editable_groups(self):
+            return self.field.user_editable_groups
+       
         def render(self, **kwargs):
-            from pylons import c
-            if not hasattr(c, 'user'):
-                c.user = model.PSEUDO_USER__VISITOR
-            available_groups = Authorizer.authorized_query(c.user, model.Group, 
-                                                        action=model.Action.EDIT).all()
-            
-            c.new_name = self.name + '-new'
-            
-            c.fields = []
-            for group in self._get_value():
-                if group in available_groups:
-                    available_groups.remove(group)
-                c.fields.append({'id': group.id,
-                                 'name': self.name + '-' + group.id,
-                                 'title': group.title})
-                
-            c.options = []
-            if len(available_groups):
-                if self.field.allow_empty or len(c.fields):
-                    c.options.append(('', _('(None)')))
-            for group in available_groups:
-                c.options.append((group.id, group.title))
-            
-            html = render('package/form_groups.html')
-            return h.literal(html)
+            # Get groups which are editable by the user.
+            editable_groups = self._get_user_editable_groups()
+
+            # Get groups which are already selected.
+            selected_groups = self._get_value()
+
+            # Make checkboxes HTML from selected groups.
+            checkboxes_html = ''
+            checkbox_template = '''
+            <dt>
+              <label for="%(name)s">
+                <input type="checkbox" name="%(name)s" checked="checked" value="%(id)s" />
+              </label>
+            </dt>
+            <dd>
+                %(title)s
+            </dd>
+            '''
+            for group in selected_groups:
+                # Make checkbox HTML from a group.
+                checkbox_context = {
+                    'id': group.id,
+                    'name': self.name + '-' + group.id,
+                    'title': group.title
+                }
+                checkbox_html = checkbox_template % checkbox_context
+                checkboxes_html += checkbox_html
+
+            # Infer addable groups, subtract selected from editable groups.
+            addable_groups = []
+            for group in editable_groups:
+                if group not in selected_groups:
+                    addable_groups.append(group)
+
+            # Construct addable options from addable groups.
+            options = []
+            if len(addable_groups):
+                if self.field.allow_empty or len(selected_groups):
+                    options.append(('', _('(None)')))
+            for group in addable_groups:
+                options.append((group.id, group.title))
+
+            # Make select HTML.
+            if len(options):
+                new_name = self.name + '-new'
+                select_html = h.select(new_name, None, options)
+            else:
+                # Todo: Translation call.
+                select_html = "Cannot add any groups."
+
+            # Make the field HTML.
+            field_template = '''  
+        <dl> %(checkboxes)s      
+            <dt>
+                Group:
+            </dt>
+            <dd> %(select)s
+            </dd>
+        </dl>
+            '''
+            field_context = {
+                'checkboxes': checkboxes_html,
+                'select': select_html,
+            } 
+            field_html = field_template % field_context
+
+            # Convert to literals.
+            return h.literal(field_html)
 
         def render_readonly(self, **kwargs):
             return field_readonly_renderer(self.field.key, self._get_value())

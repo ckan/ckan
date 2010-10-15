@@ -77,8 +77,8 @@ class SuggestTagRenderer(common.TagField.TagEditRenderer):
         
 
 # Setup the fieldset
-def build_package_gov_form(is_admin=False):
-    builder = package.build_package_form()
+def build_package_gov_form(is_admin=False, user_editable_groups=None):
+    builder = package.build_package_form(user_editable_groups=user_editable_groups)
 
     # Extra fields
     builder.add_field(common.TextExtraField('external_reference'))
@@ -121,7 +121,7 @@ def build_package_gov_form(is_admin=False):
         field_groups['More details'].append('state')
     builder.set_displayed_fields(field_groups)
     return builder
-    # Strings for i18n:
+    # Strings for i18n
     [_('External reference'),  _('Date released'), _('Date updated'),
      _('Update frequency'), _('Geographic granularity'),
      _('Geographic coverage'), _('Temporal granularity'),
@@ -129,18 +129,5 @@ def build_package_gov_form(is_admin=False):
      _('Precision'), _('Taxonomy URL'), _('Department'), _('Agency'), 
      ]
 
-fieldsets = {} # fieldset cache
-
-def get_gov_fieldset(is_admin=False):
-    '''Returns the standard fieldset
-    '''
-    if not fieldsets:
-        # fill cache
-        fieldsets['package_gov_fs'] = build_package_gov_form().get_fieldset()
-        fieldsets['package_gov_fs_admin'] = build_package_gov_form(is_admin=True).get_fieldset()
-
-    if is_admin:
-        fs = fieldsets['package_gov_fs_admin']
-    else:
-        fs = fieldsets['package_gov_fs']
-    return fs
+def get_gov_fieldset(is_admin=False, user_editable_groups=None):
+    return build_package_gov_form(is_admin=is_admin, user_editable_groups=user_editable_groups).get_fieldset()

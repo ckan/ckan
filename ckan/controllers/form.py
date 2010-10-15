@@ -44,7 +44,7 @@ class BaseFormController(BaseApiController):
     def package_create(self):
         try:
             # Get the fieldset.
-            fieldset = ckan.forms.registry.get_package_fieldset()
+            fieldset = self._get_package_fieldset()
             if request.method == 'GET':
                 # Bind entity to fieldset.
                 #bound_fieldset = fieldset.bind()
@@ -164,7 +164,7 @@ class BaseFormController(BaseApiController):
             pkg = self._get_pkg(id)
             self._assert_is_found(pkg)
             # Get the fieldset.
-            fieldset = ckan.forms.registry.get_package_fieldset()
+            fieldset = self._get_package_fieldset()
             if request.method == 'GET':
                 # Bind entity to fieldset.
                 bound_fieldset = fieldset.bind(pkg)
