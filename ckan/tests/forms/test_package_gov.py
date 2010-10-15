@@ -7,7 +7,7 @@ from ckan.lib.create_test_data import CreateTestData
 from pylons import config
 
 def _get_blank_param_dict(pkg=None, fs=None):
-    return ckan.forms.get_package_dict(pkg, blank=True, fs=fs)
+    return ckan.forms.get_package_dict(pkg, blank=True, fs=fs, user_editable_groups=[])
 
 class TestForm(PylonsTestCase, HtmlCheckMethods):
     @classmethod
@@ -20,8 +20,11 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
         model.Session.remove()
         model.repo.rebuild_db()
 
+    def _get_gov_fieldset(self):
+        return ckan.forms.get_gov_fieldset(user_editable_groups=[])
+       
     def test_0_field_names(self):
-        fs = ckan.forms.get_gov_fieldset()
+        fs = self._get_gov_fieldset()
         pkg = model.Package.by_name(u'private-fostering-england-2009')
         fs = fs.bind(pkg)
         out = fs.render()
@@ -33,7 +36,7 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
         assert 'External reference' in out, out
 
     def test_1_field_values(self):
-        fs = ckan.forms.get_gov_fieldset()
+        fs = self._get_gov_fieldset()
         pkg = model.Package.by_name(u'private-fostering-england-2009')
         fs = fs.bind(pkg)
         out = fs.render()
@@ -92,7 +95,7 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
         self.check_tag(fs.temporal_coverage.render(), 'temporal_coverage-to', 'value="6/2009"')
 
     def test_2_field_department_selected(self):
-        fs = ckan.forms.get_gov_fieldset()
+        fs = self._get_gov_fieldset()
         pkg = model.Package.by_name(u'private-fostering-england-2009')
         fs = fs.bind(pkg)
 
@@ -112,7 +115,7 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(u'test3')
-        fs = ckan.forms.get_gov_fieldset()
+        fs = self._get_gov_fieldset()
         fs = fs.bind(pkg)
         out = fs.render()
         assert out
@@ -131,7 +134,7 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(u'test2')
-        fs = ckan.forms.get_gov_fieldset()
+        fs = self._get_gov_fieldset()
         fs = fs.bind(pkg)
         out = fs.render()
         assert out
@@ -147,7 +150,7 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
         
     def test_3_sync_new(self):
         newtagname = 'newtagname'
-        indict = _get_blank_param_dict(fs=ckan.forms.get_gov_fieldset())
+        indict = _get_blank_param_dict(fs=self._get_gov_fieldset())
         prefix = 'Package--'
         indict[prefix + 'name'] = u'testname'
         indict[prefix + 'title'] = u'testtitle'
@@ -172,7 +175,7 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
         indict[prefix + 'resources-0-url'] = u'http:/1'
         indict[prefix + 'resources-0-format'] = u'xml'
         indict[prefix + 'resources-0-description'] = u'test desc'
-        fs = ckan.forms.get_gov_fieldset().bind(model.Package, data=indict, session=model.Session)
+        fs = self._get_gov_fieldset().bind(model.Package, data=indict, session=model.Session)
 
         model.repo.new_revision()
         fs.sync()
@@ -251,7 +254,7 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
         assert pkg
 
         # edit it with form parameters
-        indict = _get_blank_param_dict(pkg=pkg, fs=ckan.forms.get_gov_fieldset())
+        indict = _get_blank_param_dict(pkg=pkg, fs=self._get_gov_fieldset())
         prefix = 'Package-%s-' % pkg.id
         indict[prefix + 'name'] = u'testname2'
         indict[prefix + 'notes'] = u'some new notes'
@@ -275,7 +278,7 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
         indict[prefix + 'resources-0-url'] = u'http:/1'
         indict[prefix + 'resources-0-format'] = u'xml'
         indict[prefix + 'resources-0-description'] = u'test desc'
-        fs = ckan.forms.get_gov_fieldset().bind(pkg, data=indict)
+        fs = self._get_gov_fieldset().bind(pkg, data=indict)
 
         model.repo.new_revision()
         fs.sync()
@@ -327,16 +330,16 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
 
     def test_5_validate_bad_date(self):
         # bad dates must be picked up in validation
-        indict = _get_blank_param_dict(fs=ckan.forms.get_gov_fieldset())
+        indict = _get_blank_param_dict(fs=self._get_gov_fieldset())
         prefix = 'Package--'
         indict[prefix + 'name'] = u'testname3'
         indict[prefix + 'date_released'] = u'27/11/2008'
-        fs = ckan.forms.get_gov_fieldset().bind(model.Package, data=indict, session=model.Session)
+        fs = self._get_gov_fieldset().bind(model.Package, data=indict, session=model.Session)
         validation = fs.validate()
         assert validation
 
         indict[prefix + 'date_released'] = u'27/11/0208'
-        fs = ckan.forms.get_gov_fieldset().bind(model.Package, data=indict, session=model.Session)
+        fs = self._get_gov_fieldset().bind(model.Package, data=indict, session=model.Session)
         validation = fs.validate()
         assert not validation
 

@@ -77,9 +77,10 @@ class HarvestSource(DomainObject):
         }
         # Create package from data.
         try:
-            fs = ckan.forms.get_standard_fieldset()
+            user_editable_groups = []
+            fs = ckan.forms.get_standard_fieldset(user_editable_groups=user_editable_groups)
             try:
-                fa_dict = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(fs=fs), package_data)
+                fa_dict = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(fs=fs, user_editable_groups=user_editable_groups), package_data)
             except ckan.forms.PackageDictFormatError, inst:
                 log.error('Package format incorrect: %s' % str(inst))
             else:

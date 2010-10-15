@@ -697,26 +697,35 @@ class GroupSelectField(ConfiguredField):
             return [v for k, v in self.params.items() if k.startswith(name)]
         
         def deserialize(self):
-            from pylons import c
-            if not hasattr(c, 'user'):
-                c.user = model.PSEUDO_USER__VISITOR
-            groups = self._get_value()
-            group_ids = self._serialized_value() # space separated string
-            for group_id in group_ids:
-                group = model.Session.query(model.Group).autoflush(False).get(group_id)
-                if group is None or group in groups:
-                    continue
-                if not Authorizer.am_authorized(c, model.Action.EDIT, group):
-                    continue
-                groups.append(group)
-            for group in groups:
-                if group.id in group_ids:
-                    continue
-                if not Authorizer.am_authorized(c, model.Action.EDIT, group):
-                    continue
-                groups.remove(group)
-            self.field.parent.model.groups = groups
-            return groups
+            # Get groups which are editable by the user.
+            editable_groups = self._get_user_editable_groups()
+
+            # Get groups which have just been selected by the user.
+            new_group_ids = self._serialized_value()
+
+            # Get groups which have alread been associated.
+            old_groups = self._get_value()
+
+            # Calculate which to append and which to remove.
+            editable_set = set([g.id for g in editable_groups])
+            old_group_ids = [g.id for g in old_groups]
+            new_set = set(new_group_ids)
+            old_set = set(old_group_ids)
+            append_set = (new_set - old_set).intersection(editable_set)
+            remove_set = (old_set - new_set).intersection(editable_set)
+            
+            # Create package group associations.
+            for id in append_set:
+                group = model.Session.query(model.Group).autoflush(False).get(id)
+                if group:
+                    self.field.parent.model.groups.append(group)
+
+            # Delete package group associations.
+            for group in self.field.parent.model.groups:
+                if group.id in remove_set:
+                    self.field.parent.model.groups.remove(group)
+
+            return self.field.parent.model.groups
 
 
 class SelectExtraField(TextExtraField):
