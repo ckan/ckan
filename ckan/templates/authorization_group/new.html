@@ -1,0 +1,26 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+  
+  <py:def function="page_title">New - Authorization Groups</py:def>
+
+  <py:def function="optional_head">
+    <link rel="stylesheet" href="/css/forms.css" type="text/css" media="screen, print" />
+
+    <!-- Package autocomplete and rack-up --> 
+    <script type="text/javascript" src="/scripts/jquery.autocomplete.pack.js"></script> 
+    <script type="text/javascript" src="/scripts/autocompleter.js"></script> 
+    <link rel="stylesheet" href="/css/jquery.autocomplete.css" /> 
+  </py:def>
+
+  <div py:match="content">
+    <h2>
+      New Authorization Group
+    </h2>
+
+    ${Markup(c.form)}
+  </div>
+
+  <xi:include href="layout.html" />
+</html>
+

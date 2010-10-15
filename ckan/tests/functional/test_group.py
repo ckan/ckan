@@ -17,7 +17,7 @@ class TestGroup(TestController):
         res = self.app.get(offset)
         assert 'Groups' in res, res
         assert 'Groups</a></li>' in res, res
-        res = res.click('Groups')
+        res = res.click(href='/group/')
         assert '<h2>Groups</h2>' in res, res
 
     def test_index(self):

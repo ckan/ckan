@@ -805,6 +805,19 @@ class PackageNameField(ConfiguredField):
         #    return pkg.name
         pass
 
+
+class UserNameField(ConfiguredField):
+
+    def get_configured(self):
+        return self.UserNameField(self.name).with_renderer(self.UserNameRenderer)
+
+    class UserNameField(formalchemy.Field):
+        pass
+
+    class UserNameRenderer(formalchemy.fields.FieldRenderer):
+        pass
+
+
 def prettify(field_name):
     '''Generates a field label based on the field name.
     Used by the FormBuilder in method set_label_prettifier.
