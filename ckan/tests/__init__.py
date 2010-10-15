@@ -336,7 +336,7 @@ class ModelMethods(object):
     require_common_fixtures = True
     reuse_common_fixtures = True
     has_common_fixtures = False
-    commit_changesets = False
+    commit_changesets = True
 
     def conditional_create_common_fixtures(self):
         if self.require_common_fixtures and not ModelMethods.has_common_fixtures:
