@@ -2,12 +2,13 @@ import ckan.model as model
 import ckan.forms
 from ckan.tests import *
 from ckan.tests.pylons_controller import PylonsTestCase
+from ckan.tests.html_check import HtmlCheckMethods
 from ckan.lib.helpers import escape
 
 def _get_blank_param_dict(pkg=None):
     return ckan.forms.get_package_dict(pkg=pkg, blank=True)
 
-class TestForms(PylonsTestCase):
+class TestForms(PylonsTestCase, HtmlCheckMethods):
     @classmethod
     def setup_class(self):
         model.Session.remove()

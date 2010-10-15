@@ -1,17 +1,19 @@
+from nose.plugins.skip import SkipTest
+
 from ckan.tests import *
 from ckan.authz import Authorizer
 import ckan.model as model
-from nose.plugins.skip import SkipTest
+from base import FunctionalTestCase
 
-class TestAuthorizationGroup(TestController):
+class TestAuthorizationGroup(FunctionalTestCase):
 
     @classmethod
     def setup_class(self):
         model.Session.remove()
         CreateTestData.create()
         model.repo.new_revision()
-        treasury = model.AuthorizationGroup(name='treasury')
-        health = model.AuthorizationGroup(name='health')
+        treasury = model.AuthorizationGroup(name=u'treasury')
+        health = model.AuthorizationGroup(name=u'health')
         model.Session.add(treasury)
         model.Session.add(health)
         model.add_user_to_authorization_group(model.User.by_name(u"russianfan"), 
@@ -68,8 +70,8 @@ class TestEdit(TestController):
         model.Session.remove()
         CreateTestData.create()
         model.repo.new_revision()
-        treasury = model.AuthorizationGroup(name='treasury')
-        health = model.AuthorizationGroup(name='health')
+        treasury = model.AuthorizationGroup(name=u'treasury')
+        health = model.AuthorizationGroup(name=u'health')
         model.Session.add(treasury)
         model.Session.add(health)
         model.add_user_to_authorization_group(model.User.by_name(u"russianfan"), 

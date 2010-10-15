@@ -6,13 +6,14 @@ from genshi.core import escape as genshi_escape
 from difflib import unified_diff
 
 from ckan.tests import *
+from base import FunctionalTestCase
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 import ckan.lib.helpers as h
 
 existing_extra_html = ('<label class="field_opt" for="Package-%(package_id)s-extras-%(key)s">%(capitalized_key)s</label>', '<input id="Package-%(package_id)s-extras-%(key)s" name="Package-%(package_id)s-extras-%(key)s" size="20" type="text" value="%(value)s">')
 
-class TestPackageBase(TestController):
+class TestPackageBase(FunctionalTestCase):
     key1 = u'key1 Less-than: < Umlaut: \xfc'
     value1 = u'value1 Less-than: < Umlaut: \xfc'
     # Note: Can't put a quotation mark in key1 or value1 because
