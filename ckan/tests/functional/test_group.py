@@ -1,7 +1,8 @@
 from ckan.tests import *
 import ckan.model as model
+from base import FunctionalTestCase
 
-class TestGroup(TestController):
+class TestGroup(FunctionalTestCase):
 
     @classmethod
     def setup_class(self):
@@ -17,7 +18,7 @@ class TestGroup(TestController):
         res = self.app.get(offset)
         assert 'Groups' in res, res
         assert 'Groups</a></li>' in res, res
-        res = res.click('Groups')
+        res = res.click(href='/group/')
         assert '<h2>Groups</h2>' in res, res
 
     def test_index(self):
@@ -68,7 +69,7 @@ class TestGroup(TestController):
         assert 'Create a new group' in res, res
         
 
-class TestEdit(TestController):
+class TestEdit(FunctionalTestCase):
     groupname = u'david'
 
     @classmethod
@@ -154,7 +155,7 @@ Ho ho ho
         assert 'annakarenina' in res, res
         assert 'newone' in res
 
-class TestNew(TestController):
+class TestNew(FunctionalTestCase):
     groupname = u'david'
 
     @classmethod

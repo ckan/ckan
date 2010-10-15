@@ -18,42 +18,18 @@ from ckan.tests.functional.api.test_model import Api2TestCase
 from ckan.tests.functional.api.test_model import ApiUnversionedTestCase
 
 class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
-
     api_version = ''
-    package_name = u'formsapi'
-    package_name_alt = u'formsapialt'
-    package_name_alt2 = u'formsapialt2'
-    apikey_header_name = config.get('apikey_header_name', 'X-CKAN-API-Key')
-
-    def setup(self):
-        self.user = self.get_user_by_name(u'tester')
-        if not self.user:
-            self.user = self.create_user(name=u'tester')
-        self.extra_environ = {
-            self.apikey_header_name : str(self.user.apikey)
-        }
-        self.create_package(name=self.package_name)
-        self.harvest_source = None
-
-    def teardown(self):
-        #if self.user:
-        #    model.Session.remove()
-        #    model.Session.add(self.user)
-        #    self.user.purge()
-        self.purge_package_by_name(self.package_name)
-        self.purge_package_by_name(self.package_name_alt)
-        self.purge_package_by_name(self.package_name_alt2)
-        self.delete_harvest_source(u'http://localhost/')
-        if self.harvest_source:
-            self.delete_commit(self.harvest_source)
 
     def delete_harvest_source(self, url):
         source = self.get_harvest_source_by_url(url, None)
         if source:
             self.delete_commit(source)
 
-    def offset_package_create_form(self):
-        return self.offset('/form/package/create')
+    def offset_package_create_form(self, form_schema=None):
+        offset = self.offset('/form/package/create')
+        if form_schema != None:
+            offset += '?package_form=%s' % form_schema
+        return offset
 
     def offset_package_edit_form(self, ref):
         return self.offset('/form/package/edit/%s' % ref)
@@ -64,8 +40,8 @@ class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
     def offset_harvest_source_edit_form(self, ref):
         return self.offset('/form/harvestsource/edit/%s' % ref)
 
-    def get_package_create_form(self, status=[200]):
-        offset = self.offset_package_create_form()
+    def get_package_create_form(self, status=[200], form_schema=None):
+        offset = self.offset_package_create_form(form_schema)
         res = self.get(offset, status=status)
         return self.form_from_res(res)
 
@@ -132,8 +108,8 @@ class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
     def post_package_edit_form(self, package_ref, form=None, status=[200], **kwds):
         if form == None:
             form = self.get_package_edit_form(package_ref)
+        package_id = self.package_id_from_ref(package_ref)
         for key,field_value in kwds.items():
-            package_id = self.package_id_from_ref(package_ref)
             field_name = 'Package-%s-%s' % (package_id, key)
             self.set_formfield(form, field_name, field_value)
         form_data = form.submit_fields()
@@ -184,22 +160,53 @@ class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
             headers[name] = value
         return headers
 
+    def assert_formfield(self, form, name, expected):
+        '''
+        Checks the value of a specified form field.
+        '''
+        field = form[name]
+        value = field.value
+        self.assert_equal(value, expected)
+
+    def assert_not_formfield(self, form, name, expected=None):
+        '''
+        Checks a specified field does not exist in the form.
+        @param expected: ignored (allows for same interface as
+                         assert_formfield).
+        '''
+        assert name not in form.fields, name
+
 
 class FormsApiTestCase(BaseFormsApiCase):
+    def setup(self):
+        self.package_name = u'formsapi'
+        self.package_name_alt = u'formsapialt'
+        self.package_name_alt2 = u'formsapialt2'
+        self.apikey_header_name = config.get('apikey_header_name', 'X-CKAN-API-Key')
+
+        self.user = self.get_user_by_name(u'tester')
+        if not self.user:
+            self.user = self.create_user(name=u'tester')
+        self.extra_environ = {
+            self.apikey_header_name : str(self.user.apikey)
+        }
+        self.create_package(name=self.package_name)
+        self.harvest_source = None
+
+    def teardown(self):
+        #if self.user:
+        #    model.Session.remove()
+        #    model.Session.add(self.user)
+        #    self.user.purge()
+        self.purge_package_by_name(self.package_name)
+        self.purge_package_by_name(self.package_name_alt)
+        self.purge_package_by_name(self.package_name_alt2)
+        self.delete_harvest_source(u'http://localhost/')
+        if self.harvest_source:
+            self.delete_commit(self.harvest_source)
 
     def get_field_names(self, form):
         return form.fields.keys()
-
-    def assert_formfield(self, form, name, expected):
-        try:
-            field = form[name]
-        except Exception, inst:
-            msg = "Couldn't read field '%s' from form fields: %s: %s" % (
-                name, self.get_field_names(form), inst
-            )
-            raise Exception, msg
-        value = field.value
-        self.assert_equal(value, expected)
 
     def test_get_package_create_form(self):
         form = self.get_package_create_form()
@@ -253,6 +260,52 @@ class FormsApiTestCase(BaseFormsApiCase):
         assert not json.loads(res.body)
         assert not self.get_package_by_name(self.package_name)
         assert self.get_package_by_name(self.package_name_alt)
+
+    def test_submit_full_package_edit_form_valid(self):
+        package = self.get_package_by_name(self.package_name)
+        data = {
+            'name':self.package_name_alt,
+            'title':'test title',
+            'version':'1.2',
+            'url':'http://someurl.com/',
+            'notes':'test notes',
+            'tags':'sheep goat fish',
+            'resources-0-url':'http://someurl.com/download.csv',
+            'resources-0-format':'CSV',
+            'resources-0-description':'A csv file',
+            'author':'Brian',
+            'author_email':'brian@company.com',
+            'maintainer':'Jim',
+            'maintainer_email':'jim@company.com',
+            'license_id':'cc-zero',
+            'extras-newfield0-key':'genre',
+            'extras-newfield0-value':'romance',
+            'extras-newfield1-key':'quality',
+            'extras-newfield1-value':'high',
+            }
+        res = self.post_package_edit_form(package.id, **data)
+        assert not json.loads(res.body)
+        assert not self.get_package_by_name(self.package_name)
+        pkg = self.get_package_by_name(self.package_name_alt)
+        assert pkg
+        for key in data.keys():
+            if key.startswith('resources'):
+                subkey = key.split('-')[-1]
+                pkg_value = getattr(pkg.resources[0], subkey)
+            elif key.startswith('extras'):
+                ignore, field_name, subkey = key.split('-')
+                extra_index = int(field_name[-1])
+                if subkey == 'key':
+                    continue
+                extra_key_subkey = '-'.join(('extras', field_name, 'key'))
+                extra_key = data[extra_key_subkey]
+                pkg_value = pkg.extras[extra_key]
+            elif key == 'tags':
+                pkg_value = set([tag.name for tag in pkg.tags])
+                data[key] = set(data[key].split())
+            else:
+                pkg_value = getattr(pkg, key)
+            assert pkg_value == data[key], '%r should be %r but is %r' % (key, data[key], pkg_value)
 
     def test_submit_package_edit_form_errors(self):
         package = self.get_package_by_name(self.package_name)

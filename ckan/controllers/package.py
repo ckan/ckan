@@ -366,7 +366,10 @@ class PackageController(BaseController):
                 raise
             # now do new roles
             newrole_user_id = request.params.get('PackageRole--user_id')
-            if newrole_user_id != '__null_value__':
+            newrole_authzgroup_id = request.params.get('PackageRole--authorized_group_id')
+            if newrole_user_id != '__null_value__' and newrole_authzgroup_id != '__null_value__':
+                c.message = _(u'Please select either a user or an authorization group, not both.')
+            elif newrole_user_id != '__null_value__':
                 user = model.Session.query(model.User).get(newrole_user_id)
                 # TODO: chech user is not None (should go in validation ...)
                 role = request.params.get('PackageRole--role')
@@ -379,14 +382,32 @@ class PackageController(BaseController):
                 c.message = _(u'Added role \'%s\' for user \'%s\'') % (
                     newpkgrole.role,
                     newpkgrole.user.name)
+            elif newrole_authzgroup_id != '__null_value__':
+                authzgroup = model.Session.query(model.AuthorizationGroup).get(newrole_authzgroup_id)
+                # TODO: chech user is not None (should go in validation ...)
+                role = request.params.get('PackageRole--role')
+                newpkgrole = model.PackageRole(authorized_group=authzgroup, 
+                        package=pkg, role=role)
+                # With FA no way to get new GroupRole back to set group attribute
+                # new_roles = ckan.forms.new_roles_fs.bind(model.GroupRole, data=params or None)
+                # new_roles.sync()
+                model.Session.commit()
+                model.Session.remove()
+                c.message = _(u'Added role \'%s\' for authorization group \'%s\'') % (
+                    newpkgrole.role,
+                    newpkgrole.authorized_group.name)
         elif 'role_to_delete' in request.params:
             pkgrole_id = request.params['role_to_delete']
             pkgrole = model.Session.query(model.PackageRole).get(pkgrole_id)
             if pkgrole is None:
                 c.error = _(u'Error: No role found with that id')
             else:
-                c.message = _(u'Deleted role \'%s\' for user \'%s\'') % (pkgrole.role,
-                        pkgrole.user.name)
+                if pkgrole.user:
+                    c.message = _(u'Deleted role \'%s\' for user \'%s\'') % \
+                                (pkgrole.role, pkgrole.user.name)
+                elif pkgrole.authorized_group:
+                    c.message = _(u'Deleted role \'%s\' for authorization group \'%s\'') % \
+                                (pkgrole.role, pkgrole.authorized_group.name)
                 pkgrole.purge()
                 model.repo.commit_and_remove()
 
@@ -394,7 +415,8 @@ class PackageController(BaseController):
         c.pkg = model.Package.get(id)
         fs = ckan.forms.get_authz_fieldset('package_authz_fs').bind(c.pkg.roles)
         c.form = fs.render()
-        c.new_roles_form = ckan.forms.get_authz_fieldset('new_package_roles_fs').render()
+        c.new_roles_form = \
+            ckan.forms.get_authz_fieldset('new_package_roles_fs').render()
         return render('package/authz.html')
 
     def rate(self, id):

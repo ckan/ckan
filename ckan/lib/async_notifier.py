@@ -55,7 +55,7 @@ class AsyncNotifier(object):
 
     @classmethod 
     def publisher(cls):
-        if getattr(cls, '_publisher', None) is None:
+        if getattr(cls, '_publisher', None) is None or cls._publisher is None:
             cls._publisher = Publisher(connection=get_carrot_connection(),
                                        exchange=config.get('ckan.site_id'),
                                        exchange_type=EXCHANGE_TYPE)
@@ -68,10 +68,13 @@ class AsyncNotifier(object):
         try:
             cls.publisher().send(notification_dict,
                                  routing_key=notification_dict['routing_key'])
-        except: # try again, in the case of broken pipe, etc
-            del cls._publisher
-            cls.publisher().send(notification_dict,
-                                 routing_key=notification_dict['routing_key'])
+        except Exception, e: # try again, in the case of broken pipe, etc
+            log.exception(e)
+            try:
+                cls._publisher = None
+                cls.publisher().send(notification_dict,
+                                    routing_key=notification_dict['routing_key'])
+            except: pass
 
     @classmethod
     def register_signal(cls, signal):
@@ -168,3 +171,4 @@ class AsyncConsumer(object):
     def clear_queue(self):
         '''Clears all notifications on the queue for this consumer.'''
         self.consumer.discard_all()
+

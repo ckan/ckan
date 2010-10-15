@@ -1,7 +1,8 @@
 from ckan.tests import *
 import ckan.model as model
+from base import FunctionalTestCase
 
-class TestUserController(TestController):
+class TestUserController(FunctionalTestCase):
     @classmethod
     def setup_class(self):
         model.repo.rebuild_db()
