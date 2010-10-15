@@ -18,34 +18,7 @@ from ckan.tests.functional.api.test_model import Api2TestCase
 from ckan.tests.functional.api.test_model import ApiUnversionedTestCase
 
 class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
-
     api_version = ''
-    package_name = u'formsapi'
-    package_name_alt = u'formsapialt'
-    package_name_alt2 = u'formsapialt2'
-    apikey_header_name = config.get('apikey_header_name', 'X-CKAN-API-Key')
-
-    def setup(self):
-        self.user = self.get_user_by_name(u'tester')
-        if not self.user:
-            self.user = self.create_user(name=u'tester')
-        self.extra_environ = {
-            self.apikey_header_name : str(self.user.apikey)
-        }
-        self.create_package(name=self.package_name)
-        self.harvest_source = None
-
-    def teardown(self):
-        #if self.user:
-        #    model.Session.remove()
-        #    model.Session.add(self.user)
-        #    self.user.purge()
-        self.purge_package_by_name(self.package_name)
-        self.purge_package_by_name(self.package_name_alt)
-        self.purge_package_by_name(self.package_name_alt2)
-        self.delete_harvest_source(u'http://localhost/')
-        if self.harvest_source:
-            self.delete_commit(self.harvest_source)
 
     def delete_harvest_source(self, url):
         source = self.get_harvest_source_by_url(url, None)
@@ -187,22 +160,53 @@ class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
             headers[name] = value
         return headers
 
+    def assert_formfield(self, form, name, expected):
+        '''
+        Checks the value of a specified form field.
+        '''
+        field = form[name]
+        value = field.value
+        self.assert_equal(value, expected)
+
+    def assert_not_formfield(self, form, name, expected=None):
+        '''
+        Checks a specified field does not exist in the form.
+        @param expected: ignored (allows for same interface as
+                         assert_formfield).
+        '''
+        assert name not in form.fields, name
+
 
 class FormsApiTestCase(BaseFormsApiCase):
+    def setup(self):
+        self.package_name = u'formsapi'
+        self.package_name_alt = u'formsapialt'
+        self.package_name_alt2 = u'formsapialt2'
+        self.apikey_header_name = config.get('apikey_header_name', 'X-CKAN-API-Key')
+
+        self.user = self.get_user_by_name(u'tester')
+        if not self.user:
+            self.user = self.create_user(name=u'tester')
+        self.extra_environ = {
+            self.apikey_header_name : str(self.user.apikey)
+        }
+        self.create_package(name=self.package_name)
+        self.harvest_source = None
+
+    def teardown(self):
+        #if self.user:
+        #    model.Session.remove()
+        #    model.Session.add(self.user)
+        #    self.user.purge()
+        self.purge_package_by_name(self.package_name)
+        self.purge_package_by_name(self.package_name_alt)
+        self.purge_package_by_name(self.package_name_alt2)
+        self.delete_harvest_source(u'http://localhost/')
+        if self.harvest_source:
+            self.delete_commit(self.harvest_source)
 
     def get_field_names(self, form):
         return form.fields.keys()
-
-    def assert_formfield(self, form, name, expected):
-        try:
-            field = form[name]
-        except Exception, inst:
-            msg = "Couldn't read field '%s' from form fields: %s: %s" % (
-                name, self.get_field_names(form), inst
-            )
-            raise Exception, msg
-        value = field.value
-        self.assert_equal(value, expected)
 
     def test_get_package_create_form(self):
         form = self.get_package_create_form()
