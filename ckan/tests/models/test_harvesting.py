@@ -35,15 +35,6 @@ class GeminiExamples(object):
         return content
 
 
-class TestCase(CheckMethods, ModelMethods):
-
-    def setup(self):
-        self.conditional_create_common_fixtures()
-
-    def teardown(self):
-        self.reuse_or_delete_common_fixtures()
-
-
 class HarvesterTestCase(GeminiExamples, TestCase):
 
     require_common_fixtures = False
@@ -62,6 +53,7 @@ class HarvesterTestCase(GeminiExamples, TestCase):
         if self.source:
             self.delete(self.source)
         self.commit_remove()
+        self.purge_package_by_name('00a743bf-cca4-4c19-a8e5-e64f7edbcadd')
         super(HarvesterTestCase, self).teardown()
 
     def create_fixture(self, domain_type, **kwds):
@@ -99,9 +91,11 @@ class TestHarvestSource(HarvesterTestCase):
         self.source = self.create_harvest_source(url=url)
         count_before = self.count_packages()
         assert self.source.write_package(self.document)
-        self.delete_commit(self.source)
         count_after = self.count_packages()
         self.assert_equal(count_after, count_before + 1)
+        self.delete_commit(self.source)
+        count_after_delete = self.count_packages()
+        self.assert_equal(count_after_delete, count_after)
 
 
 class TestHarvestingJob(HarvesterTestCase):

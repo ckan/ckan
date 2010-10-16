@@ -200,7 +200,7 @@ class PackageController(BaseController):
         if request.params.has_key('save'):
             fs = fs.bind(record, data=dict(request.params) or None, session=model.Session)
             try:
-                PackageSaver().commit_pkg(fs, None, None, log_message, c.author)
+                PackageSaver().commit_pkg(fs, None, None, log_message, c.author, client=c)
                 pkgname = fs.name.value
 
                 pkg = model.Package.by_name(pkgname)
@@ -239,7 +239,7 @@ class PackageController(BaseController):
             try:
                 PackageSaver().render_preview(fs, id, record.id,
                                               log_message=log_message,
-                                              author=c.author)
+                                              author=c.author, client=c)
                 c.preview = h.literal(render('package/read_core.html'))
             except ValidationException, error:
                 fs = error.args[0]
@@ -282,7 +282,7 @@ class PackageController(BaseController):
                                           # multidict which is read only
             fs = fs.bind(pkg, data=params or None)
             try:
-                PackageSaver().commit_pkg(fs, id, pkg.id, log_message, c.author)
+                PackageSaver().commit_pkg(fs, id, pkg.id, log_message, c.author, client=c)
                 # do not use package name from id, as it may have been edited
                 pkgname = fs.name.value
                 self._form_save_redirect(pkgname, 'edit')
@@ -302,7 +302,7 @@ class PackageController(BaseController):
             try:
                 PackageSaver().render_preview(fs, id, pkg.id,
                                               log_message=log_message,
-                                              author=c.author)
+                                              author=c.author, client=c)
                 c.pkgname = fs.name.value
                 c.pkgtitle = fs.title.value
                 read_core_html = render('package/read_core.html') #utf8 format

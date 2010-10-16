@@ -136,7 +136,8 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
         pkg = model.Package.by_name(u'test2')
         fs = self._get_gov_fieldset()
         fs = fs.bind(pkg)
-        out = fs.render()
+        from pylons import c
+        out = fs.render(client=c)
         assert out
         dept = fs.department.render()
         dept_readonly = fs.department.render_readonly()

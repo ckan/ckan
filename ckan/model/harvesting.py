@@ -82,7 +82,8 @@ class HarvestSource(DomainObject):
             try:
                 fa_dict = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(fs=fs, user_editable_groups=user_editable_groups), package_data)
             except ckan.forms.PackageDictFormatError, inst:
-                log.error('Package format incorrect: %s' % str(inst))
+                msg = 'Package format incorrect: %s' % str(inst)
+                raise Exception, msg
             else:
                 fs = fs.bind(model.Package, data=fa_dict, session=model.Session)
                 # Validate the fieldset.
@@ -107,12 +108,14 @@ class HarvestSource(DomainObject):
                     package = fs.model
                 else:
                     # Complain about validation errors.
-                    log.error('Validation error: %r' % repr(fs.errors))
+                    msg = 'Validation error: %r' % repr(fs.errors)
+                    raise Exception, msg
         except Exception, inst:
             log.exception(inst)
             model.Session.rollback()
-            log.error('Exception creating object from data %s: %r' % (str(package_data), inst))
-            raise
+            msg = 'Error creating object from data %s: %r' % (str(package_data), inst)
+            log.error(msg)
+            raise Exception, msg
         return package
 
 

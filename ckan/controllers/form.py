@@ -237,7 +237,7 @@ class BaseFormController(BaseApiController):
     def _create_package_entity(self, bound_fieldset, log_message, author):
         # Superfluous commit_pkg() method parameter.
         superfluous = None # Value is never consumed.
-        PackageSaver().commit_pkg(bound_fieldset, superfluous, None, log_message, author) 
+        PackageSaver().commit_pkg(bound_fieldset, superfluous, None, log_message, author, client=c) 
 
     def _create_harvest_source_entity(self, bound_fieldset, user_ref=None, publisher_ref=None):
         bound_fieldset.validate()
@@ -253,7 +253,7 @@ class BaseFormController(BaseApiController):
     def _update_package_entity(self, id, bound_fieldset, log_message, author):
         # Superfluous commit_pkg() method parameter.
         superfluous = None # Value is never consumed.
-        PackageSaver().commit_pkg(bound_fieldset, superfluous, id, log_message, author) 
+        PackageSaver().commit_pkg(bound_fieldset, superfluous, id, log_message, author, client=c) 
 
     def _update_harvest_source_entity(self, id, bound_fieldset, user_ref, publisher_ref):
         bound_fieldset.validate()
