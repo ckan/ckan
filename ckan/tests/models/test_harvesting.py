@@ -5,37 +5,7 @@ from ckan.model.harvesting import HarvestingJob
 from ckan.model.harvesting import HarvestedDocument
 import ckan.model as model
 
-
-class GeminiExamples(object):
-    """Encapsulates the Gemini example files in ckan/tests/gemini2_examples."""
-
-    gemini_examples = [
-        u'00a743bf-cca4-4c19-a8e5-e64f7edbcadd_gemini2.xml',
-        u'My series sample.xml',
-    ]
-
-    def gemini_examples_path(self):
-        from pylons import config
-        here_path = config['here']
-        examples_path = os.path.join(here_path, 'ckan', 'tests', 'gemini2_examples')
-        return examples_path
-
-    def gemini_url(self, index):
-        name = self.gemini_examples[index]
-        path = os.path.join(self.gemini_examples_path(), name)
-        if not os.path.exists(path):
-            raise Exception, "Gemini example not found on path: %s" % path
-        return "file://%s" % path
-
-    def gemini_content(self, url):
-        import urllib2
-        resource = urllib2.urlopen(url)
-        # Todo: Check the encoding is okay (perhaps change model attribute type)?
-        content = resource.read()
-        return content
-
-
-class HarvesterTestCase(GeminiExamples, TestCase):
+class HarvesterTestCase(TestCase):
 
     require_common_fixtures = False
 
@@ -44,6 +14,7 @@ class HarvesterTestCase(GeminiExamples, TestCase):
         self.source = None
         self.job = None
         self.document = None
+        self.gemini = GeminiExamples()
 
     def teardown(self):
         if self.document:
@@ -76,7 +47,7 @@ class TestHarvestSource(HarvesterTestCase):
 
     def test_crud_source(self):
         self.assert_false(self.source)
-        url = self.gemini_url(0)
+        url = self.gemini.url_for(0)
         self.source = self.create_harvest_source(url=url)
         self.assert_true(self.source)
         self.assert_true(self.source.id)
@@ -85,8 +56,8 @@ class TestHarvestSource(HarvesterTestCase):
         self.assert_raises(Exception, HarvestSource.get, self.source.id)
 
     def test_write_package(self):
-        url = self.gemini_url(0)
-        content = self.gemini_content(url)
+        url = self.gemini.url_for(0)
+        content = self.gemini.get_content(url)
         self.document = self.create_harvested_document(url=url, content=content)
         self.source = self.create_harvest_source(url=url)
         count_before = self.count_packages()
@@ -106,7 +77,7 @@ class TestHarvestingJob(HarvesterTestCase):
         super(TestHarvestingJob, self).setup()
         self.assert_false(self.source)
         self.source = self.create_harvest_source(
-            url=self.gemini_url(0)
+            url=self.gemini.url_for(0)
         )
         self.assert_true(self.source.id)
         self.assert_false(self.job)
@@ -142,8 +113,8 @@ class TestHarvestedDocument(HarvesterTestCase):
 
     def test_crud_document(self):
         self.assert_false(self.document)
-        url = self.gemini_url(0)
-        content = self.gemini_content(url)
+        url = self.gemini.url_for(0)
+        content = self.gemini.get_content(url)
         self.document = self.create_harvested_document(url=url, content=content)
         self.assert_equal(self.document.url, url)
         self.assert_equal(self.document.content, content)
@@ -152,8 +123,8 @@ class TestHarvestedDocument(HarvesterTestCase):
         self.assert_raises(Exception, HarvestSource.get, self.document.id)
 
     def test_read_attributes(self):
-        url = self.gemini_url(0)
-        content = self.gemini_content(url)
+        url = self.gemini.url_for(0)
+        content = self.gemini.get_content(url)
         self.document = self.create_harvested_document(url=url, content=content)
         data = self.document.read_attributes()
         expect = {
@@ -214,4 +185,31 @@ class TestHarvestedDocument(HarvesterTestCase):
             msg = "Attribute '%s' has unexpected value: %s" % (name, inst)
             raise Exception, msg
 
+
+class GeminiExamples(object):
+    """Encapsulates the Gemini example files in ckan/tests/gemini2_examples."""
+
+    file_names = [
+        u'00a743bf-cca4-4c19-a8e5-e64f7edbcadd_gemini2.xml',
+        u'My series sample.xml',
+    ]
+
+    def url_for(self, index):
+        name = self.file_names[index]
+        path = os.path.join(self.folder_path(), name)
+        if not os.path.exists(path):
+            raise Exception, "Gemini example not found on path: %s" % path
+        return "file://%s" % path
+
+    def folder_path(self):
+        from pylons import config
+        here_path = config['here']
+        return os.path.join(here_path, 'ckan', 'tests', 'gemini2_examples')
+
+    def get_content(self, url):
+        import urllib2
+        resource = urllib2.urlopen(url)
+        # Todo: Check the encoding is okay (perhaps change model attribute type)?
+        content = resource.read()
+        return content
 
