@@ -702,9 +702,29 @@ class GroupSelectField(ConfiguredField):
 
             # Get groups which have just been selected by the user.
             new_group_ids = self._serialized_value()
+            if new_group_ids and isinstance(new_group_ids, list):
+                # Either...
+                if len(new_group_ids) == 1:
+                    # Convert [['id1', 'id2', ...]] into ['id1,' 'id2', ...].
+                    nested_value = new_group_ids[0]
+                    if isinstance(new_group_ids, list):
+                        new_group_ids = nested_value
+                # Or...
+                else:
+                    # Convert [['id1'], ['id2'], ...] into ['id1,' 'id2', ...].
+                    for (i, nested_value) in enumerate(new_group_ids):
+                        if nested_value and isinstance(nested_value, list):
+                            if len(nested_value) > 1:
+                                msg = "Can't derived new group selection from "
+                                msg += "serialized value structured like this:"
+                                msg += " %s" % nested_value
+                                raise Exception, msg
+                            new_group_ids[i] = nested_value[0]
+                # Todo: Decide which is the structure of a multiple-group selection.
 
             # Get groups which have alread been associated.
-            old_groups = self._get_value()
+            #old_groups = self._get_value()
+            old_groups = self.field.parent.model.groups
 
             # Calculate which to append and which to remove.
             editable_set = set([g.id for g in editable_groups])
