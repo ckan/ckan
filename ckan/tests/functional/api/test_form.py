@@ -61,6 +61,8 @@ class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
         return self.form_from_res(res)
 
     def form_from_res(self, res):
+        '''Pass in a resource containing the form and this method returns
+        the paster form, which is more easily tested.'''
         assert not "<html>" in str(res.body), "The response is an HTML doc, not just a form: %s" % str(res.body)
         # Arrange 'form fixture' from fieldsets string (helps testing Form API).
         res.body = "<html><form id=\"test\" action=\"\" method=\"post\">" + res.body + "<input type=\"submit\" name=\"send\"></form></html>"
