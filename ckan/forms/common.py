@@ -47,13 +47,7 @@ def harvest_source_url_validator(val, field=None):
 def field_readonly_renderer(key, value, newline_reqd=True):
     if value is None:
         value = ''
-    key = key.capitalize().replace('_', ' ').replace('-', ' ')
-    if key in ('Url', 'Download url', 'Taxonomy url'):
-        key = key.replace(u'Url', u'URL')
-        key = key.replace(u'url', u'URL')
-        value = literal('<a href="%s">%s</a>') % (value, value)
-#        value = '<a href="%s">%s</a>' % (value, value)
-    html = literal('<strong>%s:</strong> %s') % (key, value)
+    html = literal('%s') % value
     if newline_reqd:
         html += literal('<br/>')
     return html
