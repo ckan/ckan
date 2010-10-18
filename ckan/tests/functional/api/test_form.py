@@ -164,6 +164,8 @@ class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
         '''
         Checks the value of a specified form field.
         '''
+        assert name in form.fields, 'No field named %r out of:\n%s' % \
+               (name, '\n'.join(sorted(form.fields)))
         field = form[name]
         value = field.value
         self.assert_equal(value, expected)
