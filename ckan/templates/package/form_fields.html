@@ -28,13 +28,13 @@
             <dd>
               ${h.literal(field.render())}
             </dd>
-            <py:if test="field.metadata.has_key('basic_instructions')">
+            <py:if test="field.metadata.has_key('basic_instructions') and not field.is_readonly()">
               <dd class="instructions basic">${field.metadata['basic_instructions']}</dd>
             </py:if>
-            <py:if test="field.metadata.has_key('further_instructions')">
+            <py:if test="field.metadata.has_key('further_instructions') and not field.is_readonly()">
               <dd class="instructions further">${field.metadata['further_instructions']}</dd>
             </py:if>
-            <py:if test="field.metadata.has_key('hints')">
+            <py:if test="field.metadata.has_key('hints') and not field.is_readonly()">
               <dd class="hints">${field.metadata['hints']}</dd>
             </py:if>
             <dd py:for="error in field.errors" class="field_error">${_(error)}</dd>    
