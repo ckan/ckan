@@ -619,7 +619,6 @@ class GroupSelectField(ConfiguredField):
         return field
 
     class GroupSelectionField(formalchemy.Field):
-        
         def __init__(self, name, allow_empty):
             formalchemy.Field.__init__(self, name)
             self.allow_empty = allow_empty
@@ -629,7 +628,29 @@ class GroupSelectField(ConfiguredField):
                 self._update_groups()
 
         def _update_groups(self):
-            return self._deserialize() or []
+            new_group_ids = self._deserialize() or []
+            
+            # Get groups which have alread been associated.
+            old_groups = self.parent.model.groups
+
+            # Calculate which to append and which to remove.
+            editable_set = set([g.id for g in self.user_editable_groups])
+            old_group_ids = [g.id for g in old_groups]
+            new_set = set(new_group_ids)
+            old_set = set(old_group_ids)
+            append_set = (new_set - old_set).intersection(editable_set)
+            remove_set = (old_set - new_set).intersection(editable_set)
+            
+            # Create package group associations.
+            for id in append_set:
+                group = model.Session.query(model.Group).autoflush(False).get(id)
+                if group:
+                    self.parent.model.groups.append(group)
+
+            # Delete package group associations.
+            for group in self.parent.model.groups:
+                if group.id in remove_set:
+                    self.parent.model.groups.remove(group)
             
         def requires_label(self):
             return False
@@ -733,10 +754,7 @@ class GroupSelectField(ConfiguredField):
             return [v for k, v in self.params.items() if k.startswith(name)]
         
         def deserialize(self):
-            # Get groups which are editable by the user.
-            editable_groups = self._get_user_editable_groups()
-
-            # Get groups which have just been selected by the user.
+            # Return groups which have just been selected by the user.
             new_group_ids = self._serialized_value()
             if new_group_ids and isinstance(new_group_ids, list):
                 # Either...
@@ -756,36 +774,14 @@ class GroupSelectField(ConfiguredField):
                                 msg += " %s" % nested_value
                                 raise Exception, msg
                             new_group_ids[i] = nested_value[0]
-                # Todo: Decide which is the structure of a multiple-group selection.
+                # Todo: Decide on the structure of a multiple-group selection.
             
             if new_group_ids and isinstance(new_group_ids, basestring):
                 new_group_ids = [new_group_ids]
 
+            return new_group_ids
+
             
-            # Get groups which have alread been associated.
-            #old_groups = self._get_value()
-            old_groups = self.field.parent.model.groups
-
-            # Calculate which to append and which to remove.
-            editable_set = set([g.id for g in editable_groups])
-            old_group_ids = [g.id for g in old_groups]
-            new_set = set(new_group_ids)
-            old_set = set(old_group_ids)
-            append_set = (new_set - old_set).intersection(editable_set)
-            remove_set = (old_set - new_set).intersection(editable_set)
-            
-            # Create package group associations.
-            for id in append_set:
-                group = model.Session.query(model.Group).autoflush(False).get(id)
-                if group:
-                    self.field.parent.model.groups.append(group)
-
-            # Delete package group associations.
-            for group in self.field.parent.model.groups:
-                if group.id in remove_set:
-                    self.field.parent.model.groups.remove(group)
-
-            return self.field.parent.model.groups
 
 
 class SelectExtraField(TextExtraField):
