@@ -105,10 +105,10 @@ class BaseController(WSGIController):
 
     def _get_request_data(self):
         try:
-            request_data = request.params.keys()[0]
+            request_data = request.POST.keys()[0]
         except Exception, inst:
-            msg = _("Can't find entity data in request params %s: %s") % (
-                request.params.items(), str(inst)
+            msg = _("Can't find entity data in request POST data %s: %s") % (
+                request.POST, str(inst)
             )
             raise ValueError, msg
         request_data = json.loads(request_data, encoding='utf8')
