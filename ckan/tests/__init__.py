@@ -128,14 +128,17 @@ class ModelMethods(BaseCase):
         self.delete(domain_object)
         self.commit()
 
-    def commit(self):
+    @staticmethod
+    def commit():
         model.Session.commit()
 
-    def commit_remove(self):
-        self.commit()
-        self.remove()
+    @classmethod
+    def commit_remove(cls):
+        cls.commit()
+        cls.remove()
 
-    def remove(self):
+    @staticmethod
+    def remove():
         model.Session.remove()
 
     def count_packages(self):
@@ -157,17 +160,20 @@ class CommonFixtureMethods(BaseCase):
         model.Session.remove()
         return user
 
-    @classmethod
-    def get_package_by_name(self, package_name):
+    @staticmethod
+    def get_package_by_name(package_name):
         return model.Package.by_name(package_name)
 
-    def get_group_by_name(self, group_name):
+    @staticmethod
+    def get_group_by_name(group_name):
         return model.Group.by_name(group_name)
 
-    def get_user_by_name(self, name):
+    @staticmethod
+    def get_user_by_name(name):
         return model.User.by_name(name)
 
-    def get_harvest_source_by_url(self, source_url, default=Exception):
+    @staticmethod
+    def get_harvest_source_by_url(source_url, default=Exception):
         return model.HarvestSource.get(source_url, default, 'url')
 
     def create_harvest_source(self, **kwds):
