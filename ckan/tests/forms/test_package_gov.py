@@ -101,7 +101,7 @@ class TestForm(PylonsTestCase):
         assert 'option value="other">' in dept, dept
         assert 'Other:' in dept, dept
         assert 'value=""' in dept, dept
-        assert 'Department:</strong> Department for Children, Schools and Families' in fs.department.render_readonly(), fs.department.render_readonly()
+        assert 'Department for Children, Schools and Families' in fs.department.render_readonly(), fs.department.render_readonly()
 
     def test_2_field_department_none(self):
         # Create package
@@ -119,7 +119,7 @@ class TestForm(PylonsTestCase):
         dept_readonly = fs.department.render_readonly()
         assert '<select' in dept, dept
         assert '<option selected="selected" value=""></option>' in dept, dept
-        assert 'Department:</strong> <br/>' in dept_readonly, dept_readonly
+        assert '<br/>' == dept_readonly, repr(dept_readonly)
 
     def test_2_field_department_other(self):
         # Create package
@@ -141,7 +141,7 @@ class TestForm(PylonsTestCase):
         self.check_tag(dept, 'option', 'value="other"', 'selected')
         assert 'Other:' in dept, dept
         assert 'value="Not on the list"' in dept, dept
-        assert 'Department:</strong> Not on the list' in dept_readonly, dept_readonly
+        assert 'Not on the list' in dept_readonly, dept_readonly
         
         
     def test_3_sync_new(self):
