@@ -97,7 +97,7 @@ class AsyncNotifier(object):
         routing_key used for routing in the AMQP system.
         '''
         if signal in cls.signals:
-            logger.debug('AsyncNotifier.deregester_signal: %s')
+            logger.debug('AsyncNotifier.deregister_signal: %s')
             signal.disconnect(cls.send_asynchronously)
             del cls.signals[cls.signals.index(signal)]
             
