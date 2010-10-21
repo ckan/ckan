@@ -28,6 +28,8 @@ PAGINATE_ITEMS_PER_PAGE = 50
 APIKEY_HEADER_NAME_KEY = 'apikey_header_name'
 APIKEY_HEADER_NAME_DEFAULT = 'X-CKAN-API-Key'
 
+ALLOWED_FIELDSET_PARAMS = ['package_form', 'restrict']
+
 def render(template_name, extra_vars=None, cache_key=None, cache_type=None, 
            cache_expire=None, method='xhtml'):
     
@@ -188,6 +190,22 @@ class BaseController(WSGIController):
              os.makedirs(path)
         return path
 
+    def _get_package_fieldset(self, is_admin=False):
+        import ckan.forms.registry
+        params = {}
+        for key in request.params:
+            if key in ALLOWED_FIELDSET_PARAMS:
+                params[key] = request.params[key]
+        fieldset = ckan.forms.registry.get_package_fieldset(
+            is_admin=is_admin,
+            **params
+        )
+        return fieldset
+
+    def _get_standard_package_fieldset(self):
+        import ckan.forms
+        fieldset = ckan.forms.get_standard_fieldset()
+        return fieldset
 
 
 # Include the '_' function in the public names

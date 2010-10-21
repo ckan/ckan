@@ -25,38 +25,24 @@ class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
     package_name_alt2 = u'formsapialt2'
     apikey_header_name = config.get('apikey_header_name', 'X-CKAN-API-Key')
 
-    def setup(self):
-        self.user = self.get_user_by_name(u'tester')
-        if not self.user:
-            self.user = self.create_user(name=u'tester')
-        self.extra_environ = {
-            self.apikey_header_name : str(self.user.apikey)
-        }
-        self.create_package(name=self.package_name)
-        self.harvest_source = None
-
-    def teardown(self):
-        #if self.user:
-        #    model.Session.remove()
-        #    model.Session.add(self.user)
-        #    self.user.purge()
-        self.purge_package_by_name(self.package_name)
-        self.purge_package_by_name(self.package_name_alt)
-        self.purge_package_by_name(self.package_name_alt2)
-        self.delete_harvest_source(u'http://localhost/')
-        if self.harvest_source:
-            self.delete_commit(self.harvest_source)
-
     def delete_harvest_source(self, url):
         source = self.get_harvest_source_by_url(url, None)
         if source:
             self.delete_commit(source)
 
-    def offset_package_create_form(self):
-        return self.offset('/form/package/create')
+    def offset_package_create_form(self, form_schema=None):
+        offset = self.offset('/form/package/create')
+        if form_schema != None:
+            offset += '?package_form=%s' % form_schema
+        return offset
 
-    def offset_package_edit_form(self, ref):
-        return self.offset('/form/package/edit/%s' % ref)
+    def offset_package_edit_form(self, ref, form_schema=None, **kwargs):
+        offset = self.offset('/form/package/edit/%s' % str(ref))
+        if form_schema != None:
+            kwargs['package_form'] = form_schema
+        if kwargs:
+            offset = url_for(offset, **kwargs)
+        return offset
 
     def offset_harvest_source_create_form(self):
         return self.offset('/form/harvestsource/create')
@@ -64,13 +50,13 @@ class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
     def offset_harvest_source_edit_form(self, ref):
         return self.offset('/form/harvestsource/edit/%s' % ref)
 
-    def get_package_create_form(self, status=[200]):
-        offset = self.offset_package_create_form()
+    def get_package_create_form(self, status=[200], form_schema=None):
+        offset = self.offset_package_create_form(form_schema)
         res = self.get(offset, status=status)
         return self.form_from_res(res)
 
-    def get_package_edit_form(self, package_ref, status=[200]):
-        offset = self.offset_package_edit_form(package_ref)
+    def get_package_edit_form(self, package_ref, status=[200], form_schema=None, **kwargs):
+        offset = self.offset_package_edit_form(package_ref, form_schema, **kwargs)
         res = self.get(offset, status=status)
         return self.form_from_res(res)
 
@@ -90,9 +76,9 @@ class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
         res.body = "<html><form id=\"test\" action=\"\" method=\"post\">" + res.body + "<input type=\"submit\" name=\"send\"></form></html>"
         return res.forms['test']
 
-    def post_package_create_form(self, form=None, status=[201], **kwds):
+    def post_package_create_form(self, form=None, status=[201], form_schema=None, **kwds):
         if form == None:
-            form = self.get_package_create_form()
+            form = self.get_package_create_form(form_schema)
         for key,field_value in kwds.items():
             field_name = 'Package--%s' % key
             form[field_name] = field_value
@@ -102,7 +88,7 @@ class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
             'log_message': 'Unit-testing the Forms API...',
             'author': 'automated test suite',
         }
-        offset = self.offset_package_create_form()
+        offset = self.offset_package_create_form(form_schema)
         return self.post(offset, data, status=status)
 
     def post_harvest_source_create_form(self, form=None, status=[201], **kwds):
@@ -129,9 +115,9 @@ class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
         else:
             raise Exception, "Unsupported value for ref_package_by: %s" % self.ref_package_by
 
-    def post_package_edit_form(self, package_ref, form=None, status=[200], **kwds):
+    def post_package_edit_form(self, package_ref, form=None, status=[200], form_schema=None, **kwds):
         if form == None:
-            form = self.get_package_edit_form(package_ref)
+            form = self.get_package_edit_form(package_ref, form_schema)
         package_id = self.package_id_from_ref(package_ref)
         for key,field_value in kwds.items():
             field_name = 'Package-%s-%s' % (package_id, key)
@@ -142,7 +128,7 @@ class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
             'log_message': 'Unit-testing the Forms API...',
             'author': 'automated test suite',
         }
-        offset = self.offset_package_edit_form(package_ref)
+        offset = self.offset_package_edit_form(package_ref, form_schema)
         return self.post(offset, data, status=status)
         
     def post_harvest_source_edit_form(self, harvest_source_id, form=None, status=[200], **kwds):
@@ -173,6 +159,24 @@ class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
         if value != None:
             self.assert_equal(headers[name], value)
 
+    def assert_formfield(self, form, name, expected):
+        '''
+        Checks the value of a specified form field.
+        '''
+        assert name in form.fields, 'No field named %r out of:\n%s' % \
+               (name, '\n'.join(sorted(form.fields)))
+        field = form[name]
+        value = field.value
+        self.assert_equal(value, expected)
+
+    def assert_not_formfield(self, form, name, expected=None):
+        '''
+        Checks a specified field does not exist in the form.
+        @param expected: ignored (allows for same interface as
+                         assert_formfield).
+        '''
+        assert name not in form.fields, name
+
     def get_header_keys(self, res):
         return [h[0] for h in res.headers]
 
@@ -187,8 +191,27 @@ class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
 
 class FormsApiTestCase(BaseFormsApiCase):
 
-    def assert_formfield(self, form, name, value):
-        self.assert_equal(form[name].value, value)
+    def setup(self):
+        self.user = self.get_user_by_name(u'tester')
+        if not self.user:
+            self.user = self.create_user(name=u'tester')
+        self.extra_environ = {
+            self.apikey_header_name : str(self.user.apikey)
+        }
+        self.create_package(name=self.package_name)
+        self.harvest_source = None
+
+    def teardown(self):
+        #if self.user:
+        #    model.Session.remove()
+        #    model.Session.add(self.user)
+        #    self.user.purge()
+        self.purge_package_by_name(self.package_name)
+        self.purge_package_by_name(self.package_name_alt)
+        self.purge_package_by_name(self.package_name_alt2)
+        self.delete_harvest_source(u'http://localhost/')
+        if self.harvest_source:
+            self.delete_commit(self.harvest_source)
 
     def test_get_package_create_form(self):
         form = self.get_package_create_form()

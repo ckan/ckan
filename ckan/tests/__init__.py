@@ -102,7 +102,8 @@ class TestController(object):
     def get_group_by_name(self, group_name):
         return model.Group.by_name(group_name)
 
-    def get_user_by_name(self, name):
+    @staticmethod
+    def get_user_by_name(name):
         return model.User.by_name(name)
 
     def get_harvest_source_by_url(self, source_url, default=Exception):

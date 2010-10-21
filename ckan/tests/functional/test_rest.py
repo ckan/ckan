@@ -241,15 +241,6 @@ class ModelApiTestCase(BaseModelApiTestCase):
         res = self.app.post(offset, params=postparams, status=[400],
                 extra_environ=self.extra_environ)
 
-    def test_06_create_package_with_jsonp_callback(self):
-        # JSONP callback should only work for GETs, not POSTs.
-        pkg_name = u'test6jsonp'
-        assert not self.get_package_by_name(pkg_name)
-        offset = self.offset('/rest/package?callback=jsoncallback')
-        postparams = '%s=1' % json.dumps({'name': pkg_name})
-        res = self.app.post(offset, params=postparams, status=[400],
-                            extra_environ=self.extra_environ)
-
     def test_06_create_group(self):
         offset = self.offset('/rest/group')
         postparams = '%s=1' % json.dumps(self.testgroupvalues)
