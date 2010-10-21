@@ -9,6 +9,11 @@ from pylons import config
 def _get_blank_param_dict(pkg=None, fs=None):
     return ckan.forms.get_package_dict(pkg, blank=True, fs=fs, user_editable_groups=[])
 
+def get_fieldset(**kwargs):
+    if not kwargs.has_key('user_editable_groups'):
+        kwargs['user_editable_groups'] = []
+    return ckan.forms.get_gov_fieldset(**kwargs)
+
 class TestForm(PylonsTestCase, HtmlCheckMethods):
     @classmethod
     def setup_class(self):
@@ -20,11 +25,9 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
         model.Session.remove()
         model.repo.rebuild_db()
 
-    def _get_gov_fieldset(self):
-        return ckan.forms.get_gov_fieldset(user_editable_groups=[])
        
     def test_0_field_names(self):
-        fs = self._get_gov_fieldset()
+        fs = get_fieldset()
         pkg = model.Package.by_name(u'private-fostering-england-2009')
         fs = fs.bind(pkg)
         out = fs.render()
@@ -36,7 +39,7 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
         assert 'External reference' in out, out
 
     def test_1_field_values(self):
-        fs = self._get_gov_fieldset()
+        fs = get_fieldset()
         pkg = model.Package.by_name(u'private-fostering-england-2009')
         fs = fs.bind(pkg)
         out = fs.render()
@@ -95,7 +98,7 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
         self.check_tag(fs.temporal_coverage.render(), 'temporal_coverage-to', 'value="6/2009"')
 
     def test_2_field_department_selected(self):
-        fs = self._get_gov_fieldset()
+        fs = get_fieldset()
         pkg = model.Package.by_name(u'private-fostering-england-2009')
         fs = fs.bind(pkg)
 
@@ -115,7 +118,7 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(u'test3')
-        fs = self._get_gov_fieldset()
+        fs = get_fieldset()
         fs = fs.bind(pkg)
         out = fs.render()
         assert out
@@ -134,7 +137,7 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(u'test2')
-        fs = self._get_gov_fieldset()
+        fs = get_fieldset()
         fs = fs.bind(pkg)
         from pylons import c
         out = fs.render(client=c)
@@ -148,10 +151,15 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
         assert 'value="Not on the list"' in dept, dept
         assert 'Not on the list' in dept_readonly, dept_readonly
         
+    def test_3_restrict(self):
+        fs = get_fieldset(restrict=1)
+        restricted_fields = ('name', 'department', 'national_statistic')
+        for field_name in restricted_fields:
+            assert getattr(fs, field_name)._readonly, getattr(fs, field_name)
         
     def test_3_sync_new(self):
         newtagname = 'newtagname'
-        indict = _get_blank_param_dict(fs=self._get_gov_fieldset())
+        indict = _get_blank_param_dict(fs=get_fieldset())
         prefix = 'Package--'
         indict[prefix + 'name'] = u'testname'
         indict[prefix + 'title'] = u'testtitle'
@@ -176,7 +184,7 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
         indict[prefix + 'resources-0-url'] = u'http:/1'
         indict[prefix + 'resources-0-format'] = u'xml'
         indict[prefix + 'resources-0-description'] = u'test desc'
-        fs = self._get_gov_fieldset().bind(model.Package, data=indict, session=model.Session)
+        fs = get_fieldset().bind(model.Package, data=indict, session=model.Session)
 
         model.repo.new_revision()
         fs.sync()
@@ -255,7 +263,7 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
         assert pkg
 
         # edit it with form parameters
-        indict = _get_blank_param_dict(pkg=pkg, fs=self._get_gov_fieldset())
+        indict = _get_blank_param_dict(pkg=pkg, fs=get_fieldset())
         prefix = 'Package-%s-' % pkg.id
         indict[prefix + 'name'] = u'testname2'
         indict[prefix + 'notes'] = u'some new notes'
@@ -279,7 +287,7 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
         indict[prefix + 'resources-0-url'] = u'http:/1'
         indict[prefix + 'resources-0-format'] = u'xml'
         indict[prefix + 'resources-0-description'] = u'test desc'
-        fs = self._get_gov_fieldset().bind(pkg, data=indict)
+        fs = get_fieldset().bind(pkg, data=indict)
 
         model.repo.new_revision()
         fs.sync()
@@ -329,18 +337,69 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
                  (reqd_extra_key, reqd_extra_value,
                   outpkg.extras[reqd_extra_key])
 
+    def test_6_sync_update_restrict(self):
+        # create initial package
+        pkg_name = u'test_sync_restrict'
+        init_data = [{
+            'name':pkg_name,
+            'title':'test_title',
+            'extras':{
+              'notes':'Original notes',
+              'national_statistic':'yes',
+              'department':'dosac',
+              },
+            }]
+        CreateTestData.create_arbitrary(init_data)
+        pkg = model.Package.by_name(pkg_name)
+        assert pkg
+
+        # edit it with form parameters
+        indict = _get_blank_param_dict(pkg=pkg, fs=get_fieldset(restrict=1))
+        prefix = 'Package-%s-' % pkg.id
+        indict[prefix + 'notes'] = u'some new notes'
+        # try changing restricted params anyway
+        new_name = u'testname4' 
+        indict[prefix + 'name'] = new_name
+        indict[prefix + 'department'] = u'testdept'
+        # don't supply national_statistic param at all
+        fs = get_fieldset(restrict=1).bind(pkg, data=indict)
+        CreateTestData.flag_for_deletion(new_name)
+        
+        model.repo.new_revision()
+        fs.sync()
+        model.repo.commit_and_remove()
+
+        assert not model.Package.by_name(new_name) # unchanged
+        outpkg = model.Package.by_name(pkg_name) # unchanged
+        assert outpkg
+        # test sync worked
+        assert outpkg.notes == indict[prefix + 'notes']
+
+        # test gov fields
+        extra_keys = outpkg.extras.keys()
+        reqd_extras = {
+            'national_statistic':'yes', # unchanged
+            'department':init_data[0]['extras']['department'], # unchanged
+            }
+        for reqd_extra_key, reqd_extra_value in reqd_extras.items():
+            assert reqd_extra_key in extra_keys, 'Key "%s" not found in extras %r' % (reqd_extra_key, extra_keys)
+            assert outpkg.extras[reqd_extra_key] == reqd_extra_value, \
+                 'Extra %s should equal %s but equals %s' % \
+                 (reqd_extra_key, reqd_extra_value,
+                  outpkg.extras[reqd_extra_key])
+
     def test_5_validate_bad_date(self):
         # bad dates must be picked up in validation
-        indict = _get_blank_param_dict(fs=self._get_gov_fieldset())
+        indict = _get_blank_param_dict(fs=get_fieldset())
         prefix = 'Package--'
         indict[prefix + 'name'] = u'testname3'
         indict[prefix + 'date_released'] = u'27/11/2008'
-        fs = self._get_gov_fieldset().bind(model.Package, data=indict, session=model.Session)
+        fs = get_fieldset().bind(model.Package, data=indict, session=model.Session)
         validation = fs.validate()
         assert validation
 
         indict[prefix + 'date_released'] = u'27/11/0208'
-        fs = self._get_gov_fieldset().bind(model.Package, data=indict, session=model.Session)
+        fs = get_fieldset().bind(model.Package, data=indict, session=model.Session)
         validation = fs.validate()
         assert not validation
 
