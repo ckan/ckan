@@ -50,7 +50,7 @@ class AsyncNotifier(object):
     '''Sends out notifications asynchronously via carrot.
     Receives notifications via blinker (synchronously).'''
 
-    # list of signals That we are subscribed to
+    # List of signals that we are subscribed to
     signals = []
 
     @classmethod 
@@ -101,7 +101,7 @@ class AsyncNotifier(object):
     @classmethod
     def deregister_all(cls):
         '''Unregister all signals this notifier is registered to receive'''
-        for signal in cls.signals:
+        for signal in cls.signals[:]:
             cls.deregister_signal(signal)
         
 
