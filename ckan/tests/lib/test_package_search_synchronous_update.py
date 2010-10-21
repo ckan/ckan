@@ -1,9 +1,8 @@
 from ckan.tests import *
 import ckan.lib.search as search
-from test_package_search import TestSearchOverall as _TestSearchOverall
+from test_package_search import TestSearchOverall
 
-
-class TestSearchOverallWithSynchronousIndexing(_TestSearchOverall):
+class TestSearchOverallWithSynchronousIndexing(TestSearchOverall):
     '''Repeat test from test_package_search with synchronous indexing
     '''
 
@@ -20,4 +19,5 @@ class TestSearchOverallWithSynchronousIndexing(_TestSearchOverall):
         CreateTestData.delete()
         search.remove_synchronous_indexing()
 
-
+# Stop parent class tests from running
+TestSearchOverall = None
