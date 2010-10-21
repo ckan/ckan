@@ -8,7 +8,12 @@ class TestSearchOverallWithSynchronousIndexing(TestSearchOverall):
 
     @classmethod
     def setup_class(self):
+        import gc
         from pylons import config
+
+        # Force a garbage collection to trigger issue #695
+        gc.collect()
+
         config['search_backend'] = 'sql'
         self.backend = search.get_backend()
         search.setup_synchronous_indexing()
