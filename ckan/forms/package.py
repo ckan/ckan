@@ -61,7 +61,7 @@ def build_package_form(is_admin=False, user_editable_groups=None):
      _('Notes'), _('Resources'), _('Author'), _('Author email'), _('Maintainer'),
      _('Maintainer email'), _('License'), _('Tags'), _('Extras'), _('State')]
 
-def get_standard_fieldset(is_admin=False, user_editable_groups=None):
+def get_standard_fieldset(is_admin=False, user_editable_groups=None, **kwargs):
     '''Returns the package fieldset (optionally with admin fields)'''
 
     return build_package_form(is_admin=is_admin, user_editable_groups=user_editable_groups).get_fieldset()

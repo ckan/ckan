@@ -5,6 +5,7 @@ import re
 from ckan.tests import *
 import ckan.model as model
 import ckan.authz as authz
+from ckan.lib.helpers import url_for
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib.helpers import json
 
@@ -31,10 +32,12 @@ class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
             offset += '?package_form=%s' % form_schema
         return offset
 
-    def offset_package_edit_form(self, ref, form_schema=None):
+    def offset_package_edit_form(self, ref, form_schema=None, **kwargs):
         offset = self.offset('/form/package/edit/%s' % str(ref))
         if form_schema != None:
-            offset += '?package_form=%s' % form_schema
+            kwargs['package_form'] = form_schema
+        if kwargs:
+            offset = url_for(offset, **kwargs)
         return offset
 
     def offset_harvest_source_create_form(self):
@@ -48,9 +51,9 @@ class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
         res = self.get(offset, status=status)
         return self.form_from_res(res)
 
-    def get_package_edit_form(self, package_ref, status=[200], form_schema=None):
-        offset = self.offset_package_edit_form(package_ref, form_schema)
-        res = self.get(offset, status=status,)
+    def get_package_edit_form(self, package_ref, status=[200], form_schema=None, **kwargs):
+        offset = self.offset_package_edit_form(package_ref, form_schema, **kwargs)
+        res = self.get(offset, status=status)
         return self.form_from_res(res)
 
     def get_harvest_source_create_form(self, status=[200]):
