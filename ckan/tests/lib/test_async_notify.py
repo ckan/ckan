@@ -34,7 +34,7 @@ class TestNotification(TestController):
     @classmethod
     def teardown_class(self):
         CreateTestData.delete()
-        async_notifier.AsyncNotifier.deregister_all()
+        model.notifier.deactivate()
         
     @property
     def pkg(self):
