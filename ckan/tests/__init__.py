@@ -239,6 +239,18 @@ class CheckMethods(BaseCase):
         else:
             assert False, "Didn't raise '%s' when calling: %s with %s" % (exception_class, callable, (args, kwds))
 
+    def assert_contains(self, sequence, item):
+        assert item in sequence, "Sequence %s does not contain item: %s" % (sequence, item)
+
+    def assert_missing(self, sequence, item):
+        assert item not in sequence, "Sequence %s does contain item: %s" % (sequence, item)
+
+    def assert_len(self, sequence, count):
+        assert len(sequence) == count, "Length of sequence %s was not %s." % (sequence, count)
+
+    def assert_isinstance(self, object, kind):
+        assert isinstance(object, kind), "Object %s is not an instance of %s." % (object, kind)
+
 
 class TestCase(CommonFixtureMethods, ModelMethods, CheckMethods, BaseCase):
 

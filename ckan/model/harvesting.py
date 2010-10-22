@@ -5,6 +5,7 @@ from lxml import etree
 import urllib2
 
 from types import make_uuid
+from types import JsonType
 from core import *
 from domain_object import DomainObject
 
@@ -123,18 +124,49 @@ class HarvestSource(DomainObject):
 class HarvestingJob(DomainObject):
 
     def harvest_documents(self):
-        content = self.get_source_content()
-        source_type = self.detect_source_type(content)
-        if source_type == 'doc':
-            self.harvest_document(url=self.source.url, content=content)
-        elif source_type == 'csw':
-            self.harvest_csw_documents(url=self.source.url)
-        else:
-            raise Exception, "Source type '%s' not supported." % source_type
-        self.write_report()
-        self.set_status_success()
+        self.set_status_running()
+        self.get_report()
         self.save()
+        try:
+            content = self.get_source_content()
+        except urllib2.URLError, inst:
+            msg = "Unable to read registered URL: %s" % inst
+            self.report_error(msg)
+        else:
+            source_type = self.detect_source_type(content)
+            if source_type == None:
+                self.report_error("Unable to detect source type from content: %s" % content)
+            elif source_type == 'doc':
+                self.harvest_document(url=self.source.url, content=content)
+            elif source_type == 'csw':
+                self.harvest_csw_documents(url=self.source.url)
+            else:
+                raise Exception, "Source type '%s' not supported." % source_type
+            if not self.report_has_errors():
+                self.set_status_success()
+            else:
+                self.set_status_error()
+            self.save()
         return self.report
+
+    def report_error(self, msg):
+        self.get_report()['errors'].append(msg)
+        self.save()
+
+    def report_package(self, msg):
+        self.get_report()['packages'].append(msg)
+        self.save()
+
+    def get_report(self):
+        if self.report == None:
+            self.report = {
+                'packages': [],
+                'errors': [],
+            }
+        return self.report
+
+    def report_has_errors(self):
+        return bool(self.get_report()['errors'])
 
     def get_source_content(self):
         source = urllib2.urlopen(self.source.url)
@@ -147,12 +179,16 @@ class HarvestingJob(DomainObject):
         if "<ows:ExceptionReport" in content:
             return 'csw'
         # Todo: Detect WAF.
-        raise Exception, "Harvest source type can't be detected from content: %s" % content
 
     def harvest_document(self, url, content):
-        self.validate_content(content)
-        document = self.save_content(url, content)
-        package = self.source.write_package(document)
+        try:
+            self.validate_content(content)
+            document = self.save_content(url, content)
+            package = self.source.write_package(document)
+            self.report['packages'].append(package)
+        except CswError, inst:
+            msg = "Error reading harvested content: %s" % content
+            self.report['errors'].append(msg)
 
     def harvest_csw_documents(self, url):
         from ckan.lib.cswclient import CswClient
@@ -167,11 +203,11 @@ class HarvestingJob(DomainObject):
     def save_content(self, url, content):
         return HarvestedDocument.create_save(url=url, content=content)
 
-    def write_report(self):
-        self.report = u"Success"
-
     def set_status_success(self):
         self.set_status(u"Success")
+
+    def set_status_running(self):
+        self.set_status(u"Running")
 
     def set_status_error(self):
         self.set_status(u"Error")
@@ -583,7 +619,8 @@ harvesting_job_table = Table('harvesting_job', metadata,
         Column('status', types.UnicodeText, default=u'New', nullable=False),
         Column('created', DateTime, default=datetime.datetime.utcnow),
         Column('user_ref', types.UnicodeText, nullable=False),
-        Column('report', types.UnicodeText, default=u''),    
+        # Todo: Migration script to delete old column and add new column.
+        Column('report', JsonType),
         Column('source_id', types.UnicodeText, ForeignKey('harvest_source.id')),
 )
 

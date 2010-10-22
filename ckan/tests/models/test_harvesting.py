@@ -128,11 +128,73 @@ class TestHarvestCswSource(HarvesterTestCase):
             user_ref=self.fixture_user_ref
         )
 
-    def test_harvest_csw_records(self):
+    def test_harvest_documents_from_csw(self):
         before_count = self.count_packages()
+        self.assert_false(self.job.report)
         self.job.harvest_documents()
         after_count = self.count_packages()
         self.assert_equal(after_count, before_count + 1)
+        self.assert_true(self.job.report)
+        self.assert_len(self.job.report['packages'], 1)
+        self.assert_len(self.job.report['errors'], 0)
+
+
+class TestHarvestCswSourceDown(HarvesterTestCase):
+
+    fixture_user_ref = u'publisheruser1'
+
+    def setup(self):
+        super(TestHarvestCswSourceDown, self).setup()
+        self.assert_false(self.source)
+        base_url = 'http://127.0.0.1:44444'
+        self.source = self.create_harvest_source(
+            url=base_url,
+        )
+        self.job = self.create_harvesting_job(
+            source=self.source, 
+            user_ref=self.fixture_user_ref
+        )
+
+    def test_harvest_documents_from_csw(self):
+        before_count = self.count_packages()
+        self.assert_false(self.job.report)
+        self.job.harvest_documents()
+        after_count = self.count_packages()
+        self.assert_equal(after_count, before_count)
+        self.assert_true(self.job.report)
+        self.assert_len(self.job.report['packages'], 0)
+        self.assert_len(self.job.report['errors'], 1)
+        error = self.job.report['errors'][0]
+        self.assert_contains(error, 'Unable to read registered URL')
+
+
+class TestHarvestCswSourceRandomWebsite(HarvesterTestCase):
+
+    fixture_user_ref = u'publisheruser1'
+
+    def setup(self):
+        super(TestHarvestCswSourceRandomWebsite, self).setup()
+        self.assert_false(self.source)
+        base_url = 'http://www.fsf.org'
+        self.source = self.create_harvest_source(
+            url=base_url,
+        )
+        self.job = self.create_harvesting_job(
+            source=self.source, 
+            user_ref=self.fixture_user_ref,
+        )
+
+    def test_harvest_documents_from_csw(self):
+        before_count = self.count_packages()
+        self.assert_false(self.job.report)
+        self.job.harvest_documents()
+        after_count = self.count_packages()
+        self.assert_equal(after_count, before_count)
+        self.assert_true(self.job.report)
+        self.assert_len(self.job.report['packages'], 0)
+        self.assert_len(self.job.report['errors'], 1)
+        error = self.job.report['errors'][0]
+        self.assert_contains(error, 'Unable to detect source type from content')
 
 
 class TestHarvestedDocument(HarvesterTestCase):
