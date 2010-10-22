@@ -185,10 +185,10 @@ class HarvestingJob(DomainObject):
             self.validate_content(content)
             document = self.save_content(url, content)
             package = self.source.write_package(document)
-            self.report['packages'].append(package)
+            self.report_package(package.id)
         except CswError, inst:
             msg = "Error reading harvested content: %s" % content
-            self.report['errors'].append(msg)
+            self.report_error(msg)
 
     def harvest_csw_documents(self, url):
         from ckan.lib.cswclient import CswClient
