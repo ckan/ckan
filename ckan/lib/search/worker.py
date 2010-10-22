@@ -51,10 +51,14 @@ def update_index(sender, **notification_dict):
     notification = Notification.recreate_from_dict(notification_dict)
     SearchIndexWorker.dispatch_notification(notification, get_backend())
 
+# Stores refs to blinker signals, fixing issue #695
+__signals__ = []
+
 def setup_synchronous_indexing():
     for routing_key in NOTIFYING_DOMAIN_OBJ_NAMES:
         signal = blinker.signal(routing_key)
         signal.connect(update_index)
+        __signals__.append(signal)
 
 def remove_synchronous_indexing():
     for routing_key in NOTIFYING_DOMAIN_OBJ_NAMES:

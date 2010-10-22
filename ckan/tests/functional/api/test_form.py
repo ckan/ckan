@@ -20,7 +20,6 @@ from ckan.tests.functional.api.test_model import ApiUnversionedTestCase
 
 class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
     api_version = ''
-
     def delete_harvest_source(self, url):
         source = self.get_harvest_source_by_url(url, None)
         if source:
@@ -214,7 +213,6 @@ class FormsApiTestCase(BaseFormsApiCase):
         self.delete_harvest_source(u'http://localhost/')
         if self.harvest_source:
             self.delete_commit(self.harvest_source)
-
     def get_field_names(self, form):
         return form.fields.keys()
 

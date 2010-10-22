@@ -50,7 +50,7 @@ class AsyncNotifier(object):
     '''Sends out notifications asynchronously via carrot.
     Receives notifications via blinker (synchronously).'''
 
-    # list of signals That we are subscribed to
+    # List of signals that we are subscribed to
     signals = []
 
     @classmethod 
@@ -97,14 +97,14 @@ class AsyncNotifier(object):
         routing_key used for routing in the AMQP system.
         '''
         if signal in cls.signals:
-            logger.debug('AsyncNotifier.deregester_signal: %s')
+            logger.debug('AsyncNotifier.deregister_signal: %s')
             signal.disconnect(cls.send_asynchronously)
             del cls.signals[cls.signals.index(signal)]
             
     @classmethod
     def deregister_all(cls):
         '''Unregister all signals this notifier is registered to receive'''
-        for signal in cls.signals:
+        for signal in cls.signals[:]:
             cls.deregister_signal(signal)
         
 

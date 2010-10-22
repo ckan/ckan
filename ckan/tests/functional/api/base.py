@@ -7,7 +7,7 @@ from ckan.tests import TestController as ControllerTestCase
 import ckan.model as model
 import ckan.authz as authz
 from ckan.lib.create_test_data import CreateTestData
-from ckan.lib.helpers import json
+from ckan.lib.helpers import json, url_escape
 
 ACCESS_DENIED = [403]
 
@@ -32,7 +32,7 @@ class ApiControllerTestCase(ControllerTestCase):
         return response
 
     def post(self, offset, data, status=[200,201], *args, **kwds):
-        params = '%s=1' % self.dumps(data)
+        params = '%s=1' % url_escape(self.dumps(data))
         response = self.app.post(offset, params=params, status=status,
             extra_environ=self.get_extra_environ())
         return response
