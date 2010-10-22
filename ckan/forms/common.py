@@ -44,14 +44,36 @@ def harvest_source_url_validator(val, field=None):
         raise formalchemy.ValidationError(_('Harvest source URL is invalid (must start with "http://").'))
 
 
-def field_readonly_renderer(key, value, newline_reqd=True):
+def field_readonly_renderer(key, value, newline_reqd=False):
     if value is None:
         value = ''
-    html = literal('%s') % value
+    html = literal('<p>%s</p>') % value
     if newline_reqd:
         html += literal('<br/>')
     return html
 
+class DateTimeFieldRenderer(formalchemy.fields.DateTimeFieldRenderer):
+    def render_readonly(self, **kwargs):
+        return field_readonly_renderer(self.field.key,
+                formalchemy.fields.DateTimeFieldRenderer.render_readonly(self, **kwargs))
+
+class CheckboxFieldRenderer(formalchemy.fields.CheckBoxFieldRenderer):
+    def render_readonly(self, **kwargs):
+        value = u'yes' if self.raw_value else u'no'
+        return field_readonly_renderer(self.field.key, value)
+
+class TextRenderer(formalchemy.fields.TextFieldRenderer):
+    def render_readonly(self, **kwargs):
+        return field_readonly_renderer(self.field.key, self.raw_value)
+
+class SelectFieldRenderer(formalchemy.fields.SelectFieldRenderer):
+    def render_readonly(self, **kwargs):
+        return field_readonly_renderer(self.field.key,
+                formalchemy.fields.SelectFieldRenderer.render_readonly(self, **kwargs))
+
+class TextAreaRenderer(formalchemy.fields.TextAreaFieldRenderer):
+    def render_readonly(self, **kwargs):
+        return field_readonly_renderer(self.field.key, self.raw_value)
 
 class TextExtraRenderer(formalchemy.fields.TextFieldRenderer):
     def _get_value(self):
