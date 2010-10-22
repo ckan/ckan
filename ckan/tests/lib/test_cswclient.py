@@ -56,6 +56,7 @@ class TestCswGetRecords(CswRequestTestCase):
 <csw:GetRecords xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
     xmlns:gmd="http://www.isotc211.org/2005/gmd" service="CSW" version="2.0.2" resultType="results">
     <csw:Query typeNames="gmd:MD_Metadata">
+        <csw:ElementName>dc:identifier</csw:ElementName>
         <csw:Constraint version="1.1.0">
             <Filter xmlns="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml"/>
         </csw:Constraint>
@@ -74,7 +75,7 @@ class TestCswGetRecordById(CswRequestTestCase):
 </csw:GetRecordById>"""
 
 
-class CswClientTestCase(object):
+class CswClientTestCase(CheckMethods):
 
     csw_client_class = CswClient
     base_url = ""
@@ -125,6 +126,25 @@ class CswClientTestCase(object):
         records = self.client.get_records(max_records=self.max_records)
 
 
+    def test_extract_identifiers(self):
+        get_records_response = """<?xml version="1.0" encoding="UTF-8"?>
+<csw:GetRecordsResponse xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/cat/csw/2.0.2 http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd">
+  <csw:SearchStatus timestamp="2010-10-21T23:38:53" />
+  <csw:SearchResults numberOfRecordsMatched="3" numberOfRecordsReturned="3" elementSet="full" nextRecord="0">
+    <csw:Record xmlns:geonet="http://www.fao.org/geonetwork" xmlns:ows="http://www.opengis.net/ows" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/">
+      <dc:identifier>521ca63d-dad9-43fe-aebe-1138ffee530f</dc:identifier>
+    </csw:Record>
+    <csw:Record xmlns:geonet="http://www.fao.org/geonetwork" xmlns:ows="http://www.opengis.net/ows" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/">
+      <dc:identifier>8dc2dddd-e483-4c1a-9482-eb05e8e4314d</dc:identifier>
+    </csw:Record>
+    <csw:Record xmlns:geonet="http://www.fao.org/geonetwork" xmlns:ows="http://www.opengis.net/ows" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/">
+      <dc:identifier>8d2aaadd-6ad8-41e0-9cd3-ef743ba19887</dc:identifier>
+    </csw:Record>
+  </csw:SearchResults>
+</csw:GetRecordsResponse>"""
+        ids = self.client.extract_identifiers(get_records_response)
+        assert "8d2aaadd-6ad8-41e0-9cd3-ef743ba19887" in ids, ids
+
 class GeoNetworkClientTestCase(CswClientTestCase):
 
     csw_client_class = GeoNetworkClient
@@ -138,12 +158,12 @@ class TestGeoNetworkClient(GeoNetworkClientTestCase):
 
 class TestGeoNetworkClientSite(GeoNetworkClientTestCase):
 
-    base_url=config.get('example_csw_base_url', '')
+    base_url=config.get('example_csw_url', '')
     username=config.get('example_csw_username', '')
     password=config.get('example_csw_password', '')
 
     def setup(self):
-        if not (self.base_url and self.username and self.password):
+        if not self.base_url:
             raise SkipTest
         super(TestGeoNetworkClientSite, self).setup()
 
@@ -182,6 +202,8 @@ class TestGeoNetworkClientSiteBadAuth(TestGeoNetworkClientSite):
     def test_get_identifiers(self): pass
 
     def test_get_records(self): pass
+
+    def test_extract_identifiers(self): pass
 
 
 class TestGeoNetworkClientSiteDown(GeoNetworkClientTestCase):

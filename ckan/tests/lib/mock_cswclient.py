@@ -313,6 +313,7 @@ class MockGeoNetworkClient(GeoNetworkClient):
 <csw:GetRecords xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
     xmlns:gmd="http://www.isotc211.org/2005/gmd" service="CSW" version="2.0.2" resultType="results">
     <csw:Query typeNames="gmd:MD_Metadata">
+        <csw:ElementName>dc:identifier</csw:ElementName>
         <csw:Constraint version="1.1.0">
             <Filter xmlns="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml"/>
         </csw:Constraint>
@@ -323,33 +324,15 @@ class MockGeoNetworkClient(GeoNetworkClient):
 <csw:GetRecordsResponse xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/cat/csw/2.0.2 http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd">
   <csw:SearchStatus timestamp="2010-10-21T14:54:45" />
   <csw:SearchResults numberOfRecordsMatched="3" numberOfRecordsReturned="3" elementSet="summary" nextRecord="0">
-    <csw:SummaryRecord xmlns:geonet="http://www.fao.org/geonetwork" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/">
+    <csw:Record xmlns:geonet="http://www.fao.org/geonetwork" xmlns:ows="http://www.opengis.net/ows" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/">
       <dc:identifier>521ca63d-dad9-43fe-aebe-1138ffee530f</dc:identifier>
-      <dc:title>Justin's Initial Demo Record.</dc:title>
-      <dc:type>dataset</dc:type>
-      <dc:subject />
-      <dc:format>Please enter the name of the format of the service</dc:format>
-      <dct:modified>2010-07-16</dct:modified>
-      <dct:abstract>Please enter an abstract, describing the data set more fully</dct:abstract>
-    </csw:SummaryRecord>
-    <csw:SummaryRecord xmlns:geonet="http://www.fao.org/geonetwork" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/">
+    </csw:Record>
+    <csw:Record xmlns:geonet="http://www.fao.org/geonetwork" xmlns:ows="http://www.opengis.net/ows" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/">
       <dc:identifier>8dc2dddd-e483-4c1a-9482-eb05e8e4314d</dc:identifier>
-      <dc:title>CKAN Dataset Example 1</dc:title>
-      <dc:type>dataset</dc:type>
-      <dc:subject>intelligenceMilitary</dc:subject>
-      <dc:format>Please enter the name of the format of the service</dc:format>
-      <dct:modified>2010-07-16</dct:modified>
-      <dct:abstract>This is just an example metadata record, created for the purpose of developing CKAN CSW client capabilities.</dct:abstract>
-    </csw:SummaryRecord>
-    <csw:SummaryRecord xmlns:geonet="http://www.fao.org/geonetwork" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/">
+    </csw:Record>
+    <csw:Record xmlns:geonet="http://www.fao.org/geonetwork" xmlns:ows="http://www.opengis.net/ows" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/">
       <dc:identifier>8d2aaadd-6ad8-41e0-9cd3-ef743ba19887</dc:identifier>
-      <dc:title>Testing bug 62 - temporal extents</dc:title>
-      <dc:type>dataset</dc:type>
-      <dc:subject />
-      <dc:format>Please enter the name of the format of the service</dc:format>
-      <dct:modified>2010-07-16</dct:modified>
-      <dct:abstract>Please enter an abstract, describing the data set more fully</dct:abstract>
-    </csw:SummaryRecord>
+    </csw:Record>
   </csw:SearchResults>
 </csw:GetRecordsResponse>"""
 

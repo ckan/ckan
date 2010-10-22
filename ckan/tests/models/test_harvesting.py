@@ -109,6 +109,32 @@ class TestHarvestingJob(HarvesterTestCase):
         self.assert_equal(after_count, before_count + 1)
 
 
+class TestHarvestCswSource(HarvesterTestCase):
+
+    fixture_user_ref = u'publisheruser1'
+
+    def setup(self):
+        super(TestHarvestCswSource, self).setup()
+        self.assert_false(self.source)
+        from pylons import config
+        base_url=config.get('example_csw_url', '')
+        if not base_url:
+            raise SkipTest
+        self.source = self.create_harvest_source(
+            url=base_url,
+        )
+        self.job = self.create_harvesting_job(
+            source=self.source, 
+            user_ref=self.fixture_user_ref
+        )
+
+    def test_harvest_csw_records(self):
+        before_count = self.count_packages()
+        self.job.harvest_documents()
+        after_count = self.count_packages()
+        self.assert_equal(after_count, before_count + 1)
+
+
 class TestHarvestedDocument(HarvesterTestCase):
 
     def test_crud_document(self):

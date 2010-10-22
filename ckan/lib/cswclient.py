@@ -41,6 +41,7 @@ class CswGetRecords(CswRequest):
 <csw:GetRecords xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
     xmlns:gmd="http://www.isotc211.org/2005/gmd" service="CSW" version="2.0.2" resultType="%(result_type)s">
     <csw:Query typeNames="gmd:MD_Metadata">
+        <csw:ElementName>dc:identifier</csw:ElementName>
         <csw:Constraint version="1.1.0">
             <Filter xmlns="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml"/>
         </csw:Constraint>
@@ -65,32 +66,6 @@ class CswGetRecordById(CswRequest):
 
 class CswClient(object):
 
-    csw_get_capabilities = """<?xml version="1.0"?>
-<csw:GetCapabilities xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" service="CSW">
-    <ows:AcceptVersions xmlns:ows="http://www.opengis.net/ows">
-        <ows:Version>2.0.2</ows:Version>
-    </ows:AcceptVersions>
-    <ows:AcceptFormats xmlns:ows="http://www.opengis.net/ows">
-        <ows:OutputFormat>application/xml</ows:OutputFormat>
-    </ows:AcceptFormats>
-</csw:GetCapabilities>"""
-
-    csw_get_records_results = """<?xml version="1.0"?>
-<csw:GetRecords xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
-    xmlns:gmd="http://www.isotc211.org/2005/gmd" service="CSW" version="2.0.2" resultType="results">
-    <csw:Query typeNames="gmd:MD_Metadata">
-        <csw:Constraint version="1.1.0">
-            <Filter xmlns="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml"/>
-        </csw:Constraint>
-    </csw:Query>
-</csw:GetRecords>"""
-
-    csw_get_record_by_id = """<?xml version="1.0"?>
-<csw:GetRecordById xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" service="CSW" version="2.0.2"
-    outputSchema="csw:IsoRecord">
-    <csw:Id>%(record_id)s</csw:Id>
-</csw:GetRecordById>"""
-
     namespaces = {
         "csw": "http://www.opengis.net/cat/csw/2.0.2",
         "xsi": "http://www.w3.org/2001/XMLSchema-instance",
@@ -100,7 +75,7 @@ class CswClient(object):
         "gmd": "http://www.isotc211.org/2005/gmd",
     }
 
-    def __init__(self, base_url, csw_uri, login_uri=None, logout_uri=None, username=None, password=None):
+    def __init__(self, base_url, csw_uri="", login_uri="", logout_uri="", username=None, password=None):
         self.base_url = base_url
         self.csw_uri = csw_uri
         self.login_uri = login_uri
@@ -170,13 +145,6 @@ class CswClient(object):
             )
             raise CswError, msg 
         csw_response_xml = http_response.read()
-        #print "-------------------------------------------------"
-        #print
-        #print "CSW Request XML:"
-        #print csw_request_xml
-        #print
-        #print "CSW Request XML:"
-        #print csw_response_xml
         return csw_response_xml
 
     def get_xml_from_csw_request(self, csw_request):
@@ -187,9 +155,10 @@ class CswClient(object):
         return csw_request_xml
 
     def extract_identifiers(self, get_records_response):
+        print get_records_response
         parser = etree.XMLParser(remove_blank_text=True)
         tree = etree.fromstring(get_records_response, parser=parser)
-        xpath = 'csw:SearchResults//csw:SummaryRecord/dc:identifier/text()'
+        xpath = '//csw:Record/dc:identifier/text()'
         return tree.xpath(xpath, namespaces=self.namespaces)
 
     def extract_metadata(self, get_record_by_id_response):
@@ -245,7 +214,7 @@ class CswClient(object):
             else:
                 http_response = urllib2.urlopen(http_request)
         except urllib2.URLError, inst:
-            msg = "Error making CSW server request: %s" % inst
+            msg = 'Error making CSW server request: %s' % inst
             raise CswError, msg
         else:
             return http_response
@@ -253,10 +222,10 @@ class CswClient(object):
 
 class GeoNetworkClient(CswClient):
 
-    def __init__(self, base_url, username=None, password=None):
-        login_uri = "/geonetwork/srv/en/xml.user.login"
-        logout_uri = "/geonetwork/srv/en/xml.user.logout"
-        csw_uri = "/geonetwork/srv/en/csw"
+    def __init__(self, base_url, username='', password=''):
+        login_uri = '/../xml.user.login'
+        logout_uri = '/../xml.user.logout'
+        csw_uri = ''
         super(GeoNetworkClient, self).__init__(
             base_url=base_url,
             csw_uri=csw_uri,

@@ -13,6 +13,7 @@ import sys
 import re
 from unittest import TestCase
 from nose.tools import assert_equal
+from nose.plugins.skip import SkipTest
 import time
 
 import pkg_resources
@@ -31,6 +32,7 @@ __all__ = ['url_for',
            'ModelMethods',
            'CheckMethods',
            'TestCase',
+           'SkipTest',
         ]
 
 here_dir = os.path.dirname(os.path.abspath(__file__))

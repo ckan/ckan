@@ -9,6 +9,7 @@ from core import *
 from domain_object import DomainObject
 
 log = logging.getLogger(__name__)
+
 __all__ = [
     'HarvestSource', 'harvest_source_table',
     'HarvestingJob', 'harvesting_job_table',
@@ -122,26 +123,17 @@ class HarvestSource(DomainObject):
 class HarvestingJob(DomainObject):
 
     def harvest_documents(self):
-        try:
-            content = self.get_source_content()
-            source_type = self.detect_source_type(content)
-            if source_type == 'doc':
-                self.harvest_document(url=self.source.url, content=content)
-            elif source_type == 'csw':
-                pass
-            elif source_type == 'waf':
-                pass
-            else:
-                raise Exception, "Source type '%s' not supported." % source_type
-        except Exception, inst:
-            import traceback
-            self.report = "Couldn't harvest documents: %s" % traceback.format_exc() 
-            self.set_status_error()
-            self.save()
+        content = self.get_source_content()
+        source_type = self.detect_source_type(content)
+        if source_type == 'doc':
+            self.harvest_document(url=self.source.url, content=content)
+        elif source_type == 'csw':
+            self.harvest_csw_documents(url=self.source.url)
         else:
-            self.write_report()
-            self.set_status_success()
-            self.save()
+            raise Exception, "Source type '%s' not supported." % source_type
+        self.write_report()
+        self.set_status_success()
+        self.save()
         return self.report
 
     def get_source_content(self):
@@ -152,7 +144,8 @@ class HarvestingJob(DomainObject):
     def detect_source_type(self, content):
         if "<gmd:MD_Metadata" in content:
             return 'doc'
-        # Todo: Detect CSW.
+        if "<ows:ExceptionReport" in content:
+            return 'csw'
         # Todo: Detect WAF.
         raise Exception, "Harvest source type can't be detected from content: %s" % content
 
@@ -160,6 +153,13 @@ class HarvestingJob(DomainObject):
         self.validate_content(content)
         document = self.save_content(url, content)
         package = self.source.write_package(document)
+
+    def harvest_csw_documents(self, url):
+        from ckan.lib.cswclient import CswClient
+        csw_client = CswClient(base_url=url)
+        records = csw_client.get_records()
+        for record in records:
+            self.harvest_document(url=url, content=record)
 
     def validate_content(self, content):
         pass
