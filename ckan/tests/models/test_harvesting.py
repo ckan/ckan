@@ -19,6 +19,8 @@ class HarvesterTestCase(TestCase):
     def teardown(self):
         if self.document:
             self.delete(self.document)
+        for document in HarvestedDocument.filter():
+            document.delete()
         if self.job:
             self.delete(self.job)
         if self.source:
@@ -48,20 +50,25 @@ class TestHarvestSource(HarvesterTestCase):
     def test_crud_source(self):
         self.assert_false(self.source)
         url = self.gemini.url_for(0)
-        self.source = self.create_harvest_source(url=url)
-        self.assert_true(self.source)
-        self.assert_true(self.source.id)
-        dup = HarvestSource.get(self.source.id)
-        self.delete_commit(self.source)
-        self.assert_raises(Exception, HarvestSource.get, self.source.id)
+        source = self.create_harvest_source(url=url)
+        self.assert_true(source)
+        source_id = source.id
+        self.assert_true(source_id)
+        # Drop reference to make sure we get a fresh instance.
+        source = None  
+        source = HarvestSource.get(source_id)
+        self.assert_true(source.id)
+        self.assert_true(source.url)
+        self.assert_equal(source.url, url)
+        self.delete_commit(source)
+        self.assert_raises(Exception, HarvestSource.get, source_id)
 
     def test_write_package(self):
         url = self.gemini.url_for(0)
         content = self.gemini.get_content(url)
-        self.document = self.create_harvested_document(url=url, content=content)
         self.source = self.create_harvest_source(url=url)
         count_before = self.count_packages()
-        assert self.source.write_package(self.document)
+        assert self.source.write_package(content=content)
         count_after = self.count_packages()
         self.assert_equal(count_after, count_before + 1)
         self.delete_commit(self.source)
@@ -86,6 +93,9 @@ class TestHarvestingJob(HarvesterTestCase):
             user_ref=self.fixture_user_ref
         )
 
+    def teardown(self):
+        super(TestHarvestingJob, self).teardown()
+
     def test_crud_job(self):
         # Create.
         self.assert_true(self.job)
@@ -107,6 +117,12 @@ class TestHarvestingJob(HarvesterTestCase):
         self.job.harvest_documents()
         after_count = self.count_packages()
         self.assert_equal(after_count, before_count + 1)
+        assert self.job.source.documents
+        assert self.job.source.documents[0].package
+        self.assert_true(self.job.report)
+        self.assert_len(self.job.report['packages'], 1)
+        self.assert_len(self.job.report['errors'], 0)
+        self.assert_equal(self.job.source.documents[0].package.id, (self.job.report['packages'][0]))
 
 
 class TestHarvestCswSource(HarvesterTestCase):
@@ -134,9 +150,12 @@ class TestHarvestCswSource(HarvesterTestCase):
         self.job.harvest_documents()
         after_count = self.count_packages()
         self.assert_equal(after_count, before_count + 1)
+        assert self.job.source.documents
+        assert self.job.source.documents[0].package
         self.assert_true(self.job.report)
         self.assert_len(self.job.report['packages'], 1)
         self.assert_len(self.job.report['errors'], 0)
+        self.assert_equal(self.job.source.documents[0].package.id, (self.job.report['packages'][0]))
 
 
 class TestHarvestCswSourceDown(HarvesterTestCase):

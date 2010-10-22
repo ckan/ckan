@@ -8,6 +8,9 @@ from types import make_uuid
 from types import JsonType
 from core import *
 from domain_object import DomainObject
+from package import Package
+from ckan.lib.cswclient import CswClient
+from ckan.lib.cswclient import CswError
 
 log = logging.getLogger(__name__)
 
@@ -65,7 +68,8 @@ class DomainObject(DomainObject):
 
 class HarvestSource(DomainObject):
 
-    def write_package(self, document):
+    def write_package(self, content):
+        document = self.create_document(content)
         from ckan.lib.base import _
         import ckan.forms
         import ckan.model as model
@@ -118,7 +122,15 @@ class HarvestSource(DomainObject):
             msg = 'Error creating object from data %s: %r' % (str(package_data), inst)
             log.error(msg)
             raise Exception, msg
+        document.package = package
+        document.save()
         return package
+
+    def create_document(self, content):
+        document = HarvestedDocument.create_save(content=content)
+        self.documents.append(document)
+        self.save()
+        return document
 
 
 class HarvestingJob(DomainObject):
@@ -137,7 +149,7 @@ class HarvestingJob(DomainObject):
             if source_type == None:
                 self.report_error("Unable to detect source type from content: %s" % content)
             elif source_type == 'doc':
-                self.harvest_document(url=self.source.url, content=content)
+                self.harvest_document(content=content)
             elif source_type == 'csw':
                 self.harvest_csw_documents(url=self.source.url)
             else:
@@ -169,9 +181,8 @@ class HarvestingJob(DomainObject):
         return bool(self.get_report()['errors'])
 
     def get_source_content(self):
-        source = urllib2.urlopen(self.source.url)
-        content = source.read()
-        return content
+        http_response = urllib2.urlopen(self.source.url)
+        return http_response.read()
 
     def detect_source_type(self, content):
         if "<gmd:MD_Metadata" in content:
@@ -180,28 +191,23 @@ class HarvestingJob(DomainObject):
             return 'csw'
         # Todo: Detect WAF.
 
-    def harvest_document(self, url, content):
+    def harvest_document(self, content):
         try:
-            self.validate_content(content)
-            document = self.save_content(url, content)
-            package = self.source.write_package(document)
+            self.validate_document(content)
+            package = self.source.write_package(content)
             self.report_package(package.id)
         except CswError, inst:
-            msg = "Error reading harvested content: %s" % content
+            msg = "Error reading harvested content into package: %s" % content
             self.report_error(msg)
 
     def harvest_csw_documents(self, url):
-        from ckan.lib.cswclient import CswClient
         csw_client = CswClient(base_url=url)
         records = csw_client.get_records()
         for record in records:
-            self.harvest_document(url=url, content=record)
+            self.harvest_document(content=record)
 
-    def validate_content(self, content):
+    def validate_document(self, content):
         pass
-
-    def save_content(self, url, content):
-        return HarvestedDocument.create_save(url=url, content=content)
 
     def set_status_success(self):
         self.set_status(u"Success")
@@ -598,10 +604,10 @@ class HarvestedDocument(DomainObject):
 
     def read_attributes(self):
         if "gmd:MD_Metadata" in self.content:
-            doc = GeminiDocument(self.content)
+            gemini_document = GeminiDocument(self.content)
         else:
             raise Exception, "Can't identify type of document content: %s" % self.content
-        return doc.read_attributes()
+        return gemini_document.read_attributes()
 
 
 harvest_source_table = Table('harvest_source', metadata,
@@ -619,7 +625,7 @@ harvesting_job_table = Table('harvesting_job', metadata,
         Column('status', types.UnicodeText, default=u'New', nullable=False),
         Column('created', DateTime, default=datetime.datetime.utcnow),
         Column('user_ref', types.UnicodeText, nullable=False),
-        # Todo: Migration script to delete old column and add new column.
+        # Todo: Migration script to delete old column and add new column?
         Column('report', JsonType),
         Column('source_id', types.UnicodeText, ForeignKey('harvest_source.id')),
 )
@@ -627,19 +633,28 @@ harvesting_job_table = Table('harvesting_job', metadata,
 harvested_document_table = Table('harvested_document', metadata,
         Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
         Column('created', DateTime, default=datetime.datetime.utcnow),
-        Column('url', types.UnicodeText, nullable=False),
+        # Todo: Migration script to drop this column.
+        #Column('url', types.UnicodeText, nullable=False),
         Column('content', types.UnicodeText, nullable=False),
+        # Todo: Migration script to add this column.
+        Column('source_id', types.UnicodeText, ForeignKey('harvest_source.id')),
+        # Todo: Migration script to add this column.
+        Column('package_id', types.UnicodeText, ForeignKey('package.id')),
 )
 
-mapper(HarvestedDocument, harvested_document_table, properties={ })
+
+mapper(HarvestedDocument, harvested_document_table, properties={
+    'package':relation(Package),
+})
 
 mapper(HarvestingJob, harvesting_job_table, properties={
     'source':relation(HarvestSource),
 })
 
 mapper(HarvestSource, harvest_source_table, properties={ 
+    'documents': relation(HarvestedDocument,
+        backref='source',
+    #    cascade='all, delete, delete-orphan',
+    )
 })
-
-
-
 
