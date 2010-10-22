@@ -19,7 +19,7 @@ def prettify(field_name):
     field_name = re.sub('(?<!\w)[Uu]rl(?!\w)', 'URL', field_name.replace('_', ' ').capitalize())
     return _(field_name.replace('_', ' '))
 
-def build_package_form(is_admin=False):
+def build_package_form(is_admin=False, **params):
     builder = FormBuilder(model.Package)
 
     # Extra fields
