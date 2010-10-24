@@ -93,10 +93,13 @@ class TestHarvestingJob(HarvesterTestCase):
             user_ref=self.fixture_user_ref
         )
         self.job2 = None
+        self.source2 = None
 
     def teardown(self):
         if self.job2:
             self.delete(self.job2)
+        if self.source2:
+            self.delete(self.source2)
         super(TestHarvestingJob, self).teardown()
 
     def test_crud_job(self):
@@ -123,8 +126,8 @@ class TestHarvestingJob(HarvesterTestCase):
         assert self.job.source.documents
         assert self.job.source.documents[0].package
         self.assert_true(self.job.report)
-        self.assert_len(self.job.report['packages'], 1)
         self.assert_len(self.job.report['errors'], 0)
+        self.assert_len(self.job.report['packages'], 1)
         self.assert_equal(self.job.source.documents[0].package.id, (self.job.report['packages'][0]))
 
     def test_harvest_documents_twice_unchanged(self):
@@ -153,7 +156,23 @@ class TestHarvestingJob(HarvesterTestCase):
         self.assert_len(self.job2.report['errors'], 0)
         self.assert_len(self.job2.report['packages'], 1)
 
-assert False, "Todo: Check second publisher can't overwrite first publisher's metadata by repeating GUIDs."
+    def test_harvest_documents_source_guid_contention(self):
+        self.job.harvest_documents()
+        self.assert_len(self.job.report['errors'], 0)
+        self.assert_len(self.job.report['packages'], 1)
+        self.source2 = self.create_harvest_source(
+            url=self.gemini.url_for(2)
+        )
+        self.job2 = self.create_harvesting_job(
+            source=self.source2,
+            user_ref=self.fixture_user_ref
+        )
+        self.job2.harvest_documents()
+        self.assert_len(self.job2.report['packages'], 0)
+        self.assert_len(self.job2.report['errors'], 1)
+        error = self.job2.report['errors'][0]
+        self.assert_contains(error, "Another source is using metadata GUID")
+
 
 class TestHarvestCswSource(HarvesterTestCase):
 
@@ -183,8 +202,8 @@ class TestHarvestCswSource(HarvesterTestCase):
         assert self.job.source.documents
         assert self.job.source.documents[0].package
         self.assert_true(self.job.report)
-        self.assert_len(self.job.report['packages'], 1)
         self.assert_len(self.job.report['errors'], 0)
+        self.assert_len(self.job.report['packages'], 1)
         self.assert_equal(self.job.source.documents[0].package.id, (self.job.report['packages'][0]))
 
 

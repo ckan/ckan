@@ -79,9 +79,13 @@ class HarvestSource(DomainObject):
         gemini_guid = gemini_values['guid']
         harvested_documents = HarvestedDocument.filter(guid=gemini_guid).all()
         if len(harvested_documents) > 1:
-            raise Exception, "More than one harvested document with GUID: %s" % gemini_guid
+            # A programming error.
+            raise Exception, "More than one harvested document GUID %s in database." % gemini_guid
         elif len(harvested_documents) == 1:
             harvested_document = harvested_documents[0]
+            if harvested_document.source.id != self.id:
+                # A 'user' error.
+                raise Exception, "Another source is using metadata GUID %s."
             package = harvested_document.package
         else:
             harvested_document = None
@@ -237,14 +241,14 @@ class HarvestingJob(DomainObject):
         try:
             self.validate_document(content)
         except Exception, exception:
-            msg = "Error validating harvested content: %r" % exception
+            msg = "Error validating harvested content: %s" % exception
             self.report_error(msg)
         else:
             try:
                 package = self.source.write_package(content)
             # Todo: Be more selective about exception classes?
             except Exception, exception:
-                msg = "Error writing package from harvested content: %r" % exception
+                msg = "Error writing package from harvested content: %s" % exception
                 self.report_error(msg)
                 # Todo: Print traceback to exception log?
             else:
