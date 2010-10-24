@@ -218,7 +218,7 @@ class BaseController(WSGIController):
             if key in ALLOWED_FIELDSET_PARAMS:
                 kwds[key] = request.params[key]
         kwds['user_editable_groups'] = self._get_user_editable_groups()
-        kwds['id_admin'] = is_admin
+        kwds['is_admin'] = is_admin
         from ckan.forms import GetPackageFieldset
         return GetPackageFieldset(**kwds).fieldset
 
