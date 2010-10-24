@@ -69,65 +69,107 @@ class DomainObject(DomainObject):
 class HarvestSource(DomainObject):
 
     def write_package(self, content):
-        document = self.create_document(content)
         from ckan.lib.base import _
         import ckan.forms
         import ckan.model as model
         package = None
         # Read data for package.
-        values = document.read_attributes()
+        gemini_document = GeminiDocument(content)
+        gemini_values = gemini_document.read_attributes()
+        gemini_guid = gemini_values['guid']
+        harvested_documents = HarvestedDocument.filter(guid=gemini_guid).all()
+        if len(harvested_documents) > 1:
+            raise Exception, "More than one harvested document with GUID: %s" % gemini_guid
+        elif len(harvested_documents) == 1:
+            harvested_document = harvested_documents[0]
+            package = harvested_document.package
+        else:
+            harvested_document = None
+            package = None
         package_data = {
-            'name': values['guid'],
-            'title': values['title'],
-            'extras': values,
+            'name': gemini_values['guid'],
+            'title': gemini_values['title'],
+            'extras': gemini_values,
         }
-        # Create package from data.
-        try:
-            user_editable_groups = []
-            fs = ckan.forms.get_standard_fieldset(user_editable_groups=user_editable_groups)
+        if package == None:
+            # Create package from data.
             try:
-                fa_dict = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(fs=fs, user_editable_groups=user_editable_groups), package_data)
-            except ckan.forms.PackageDictFormatError, inst:
-                msg = 'Package format incorrect: %s' % str(inst)
-                raise Exception, msg
-            else:
-                fs = fs.bind(model.Package, data=fa_dict, session=model.Session)
-                # Validate the fieldset.
-                is_valid = fs.validate()
-                if is_valid:
-                    # Construct new revision.
-                    rev = model.repo.new_revision()
-                    #rev.author = self.rest_api_user
-                    rev.message = _(u'Harvester: Created package %s') % str(fs.model.id)
-                    # Construct catalogue entity.
-                    fs.sync()
-                    # Construct access control entities.
-                    #if self.rest_api_user:
-                    #    admins = [model.User.by_name(self.rest_api_user.decode('utf8'))]
-                    #else:
-                    #    admins = []
-                    # Todo: Better 'admins' than this?
-                    admins = []
-                    model.setup_default_user_roles(fs.model, admins)
-                    # Commit
-                    model.repo.commit()        
-                    package = fs.model
-                else:
-                    # Complain about validation errors.
-                    msg = 'Validation error: %r' % repr(fs.errors)
+                user_editable_groups = []
+                fs = ckan.forms.get_standard_fieldset(user_editable_groups=user_editable_groups)
+                try:
+                    fa_dict = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(fs=fs, user_editable_groups=user_editable_groups), package_data)
+                except ckan.forms.PackageDictFormatError, exception:
+                    msg = 'Package format incorrect: %r' % exception
                     raise Exception, msg
-        except Exception, inst:
-            log.exception(inst)
-            model.Session.rollback()
-            msg = 'Error creating object from data %s: %r' % (str(package_data), inst)
-            log.error(msg)
-            raise Exception, msg
-        document.package = package
-        document.save()
-        return package
+                else:
+                    fs = fs.bind(model.Package, data=fa_dict, session=model.Session)
+                    # Validate the fieldset.
+                    is_valid = fs.validate()
+                    if is_valid:
+                        # Construct new revision.
+                        rev = model.repo.new_revision()
+                        #rev.author = self.rest_api_user
+                        rev.message = _(u'Harvester: Created package %s') % str(fs.model.id)
+                        # Construct catalogue entity.
+                        fs.sync()
+                        # Construct access control entities.
+                        #if self.rest_api_user:
+                        #    admins = [model.User.by_name(self.rest_api_user.decode('utf8'))]
+                        #else:
+                        #    admins = []
+                        # Todo: Better 'admins' than this?
+                        admins = []
+                        model.setup_default_user_roles(fs.model, admins)
+                        # Commit
+                        model.repo.commit()        
+                        package = fs.model
+                    else:
+                        # Complain about validation errors.
+                        msg = 'Validation error: %r' % repr(fs.errors)
+                        raise Exception, msg
+            except:
+                model.Session.rollback()
+                model.Session.close()
+                raise
+            if harvested_document == None:
+                harvested_document = self.create_document(content=content, guid=gemini_guid, package=package)
+            else:
+                harvested_document.content = content
+                harvested_document.save()
+            return package
+        else:
+            if gemini_values == harvested_document.read_attributes():
+                return None
+            else:
+                from ckan.forms import GetPackageFieldset
+                fieldset = GetPackageFieldset().fieldset
+                from ckan.forms import GetEditFieldsetPackageData
+                fieldset_data = GetEditFieldsetPackageData(
+                    fieldset=fieldset, package=package, data=package_data).data
+                bound_fieldset = fieldset.bind(package, data=fieldset_data)
+                log_message = 'harvester'
+                author = ''
+                from ckan.lib.package_saver import WritePackageFromBoundFieldset
+                from ckan.lib.package_saver import ValidationException
+                try:
+                    WritePackageFromBoundFieldset(
+                        fieldset=bound_fieldset,
+                        log_message=log_message,
+                        author=author,
+                    )
+                except ValidationException:
+                    msgs = []
+                    for (field, errors) in bound_fieldset.errors.items():
+                        for error in errors:
+                            msg = "%s: %s" % (field.name, error)
+                            msgs.append(msg)
+                    msg = "Fieldset validation errors: %s" % msgs
+                    raise Exception, msg
+                else:
+                    return package
 
-    def create_document(self, content):
-        document = HarvestedDocument.create_save(content=content)
+    def create_document(self, content, guid, package):
+        document = HarvestedDocument.create_save(content=content, guid=guid, package=package)
         self.documents.append(document)
         self.save()
         return document
@@ -141,13 +183,13 @@ class HarvestingJob(DomainObject):
         self.save()
         try:
             content = self.get_source_content()
-        except urllib2.URLError, inst:
-            msg = "Unable to read registered URL: %s" % inst
+        except urllib2.URLError, exception:
+            msg = "Unable to read registered URL: %r" % exception
             self.report_error(msg)
         else:
             source_type = self.detect_source_type(content)
             if source_type == None:
-                self.report_error("Unable to detect source type from content: %s" % content)
+                self.report_error("Unable to detect source type from content.")
             elif source_type == 'doc':
                 self.harvest_document(content=content)
             elif source_type == 'csw':
@@ -194,11 +236,20 @@ class HarvestingJob(DomainObject):
     def harvest_document(self, content):
         try:
             self.validate_document(content)
-            package = self.source.write_package(content)
-            self.report_package(package.id)
-        except CswError, inst:
-            msg = "Error reading harvested content into package: %s" % content
+        except Exception, exception:
+            msg = "Error validating harvested content: %r" % exception
             self.report_error(msg)
+        else:
+            try:
+                package = self.source.write_package(content)
+            # Todo: Be more selective about exception classes?
+            except Exception, exception:
+                msg = "Error writing package from harvested content: %r" % exception
+                self.report_error(msg)
+                # Todo: Print traceback to exception log?
+            else:
+                if package:
+                    self.report_package(package.id)
 
     def harvest_csw_documents(self, url):
         csw_client = CswClient(base_url=url)
@@ -632,13 +683,10 @@ harvesting_job_table = Table('harvesting_job', metadata,
 
 harvested_document_table = Table('harvested_document', metadata,
         Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
+        Column('guid', types.UnicodeText, default=''),
         Column('created', DateTime, default=datetime.datetime.utcnow),
-        # Todo: Migration script to drop this column.
-        #Column('url', types.UnicodeText, nullable=False),
         Column('content', types.UnicodeText, nullable=False),
-        # Todo: Migration script to add this column.
         Column('source_id', types.UnicodeText, ForeignKey('harvest_source.id')),
-        # Todo: Migration script to add this column.
         Column('package_id', types.UnicodeText, ForeignKey('package.id')),
 )
 
