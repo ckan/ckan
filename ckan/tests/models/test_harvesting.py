@@ -92,8 +92,11 @@ class TestHarvestingJob(HarvesterTestCase):
             source=self.source, 
             user_ref=self.fixture_user_ref
         )
+        self.job2 = None
 
     def teardown(self):
+        if self.job2:
+            self.delete(self.job2)
         super(TestHarvestingJob, self).teardown()
 
     def test_crud_job(self):
@@ -124,6 +127,33 @@ class TestHarvestingJob(HarvesterTestCase):
         self.assert_len(self.job.report['errors'], 0)
         self.assert_equal(self.job.source.documents[0].package.id, (self.job.report['packages'][0]))
 
+    def test_harvest_documents_twice_unchanged(self):
+        self.job.harvest_documents()
+        self.assert_len(self.job.report['errors'], 0)
+        self.assert_len(self.job.report['packages'], 1)
+        self.job2 = self.create_harvesting_job(
+            source=self.source, 
+            user_ref=self.fixture_user_ref
+        )
+        self.job2.harvest_documents()
+        self.assert_len(self.job2.report['errors'], 0)
+        self.assert_len(self.job2.report['packages'], 0)
+
+    def test_harvest_documents_twice_changed(self):
+        self.job.harvest_documents()
+        self.assert_len(self.job.report['errors'], 0)
+        self.assert_len(self.job.report['packages'], 1)
+        self.source.url = self.gemini.url_for(2)
+        self.source.save()
+        self.job2 = self.create_harvesting_job(
+            source=self.source, 
+            user_ref=self.fixture_user_ref
+        )
+        self.job2.harvest_documents()
+        self.assert_len(self.job2.report['errors'], 0)
+        self.assert_len(self.job2.report['packages'], 1)
+
+assert False, "Todo: Check second publisher can't overwrite first publisher's metadata by repeating GUIDs."
 
 class TestHarvestCswSource(HarvesterTestCase):
 
@@ -299,6 +329,7 @@ class GeminiExamples(object):
     file_names = [
         u'00a743bf-cca4-4c19-a8e5-e64f7edbcadd_gemini2.xml',
         u'My series sample.xml',
+        u'00a743bf-cca4-4c19-a8e5-e64f7edbcadd_gemini2.update.xml',
     ]
 
     def url_for(self, index):

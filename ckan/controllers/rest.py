@@ -68,6 +68,7 @@ class ApiVersion2(BaseApiController):
     ref_group_by = 'id'
 
 
+
 class BaseRestController(BaseApiController):
 
     def get_api(self):
@@ -370,9 +371,9 @@ class BaseRestController(BaseApiController):
         if not subregister:
             if register == 'package':
                 fs = self._get_standard_package_fieldset()
-                orig_entity_dict = ckan.forms.get_package_dict(pkg=entity, fs=fs)
                 try:
-                    request_fa_dict = ckan.forms.edit_package_dict(orig_entity_dict, request_data, id=entity.id)
+                    request_fa_dict = ckan.forms.GetEditFieldsetPackageData(
+                        fieldset=fs, package=entity, data=request_data).data
                 except ckan.forms.PackageDictFormatError, inst:
                     response.status_int = 400
                     return gettext('Package format incorrect: %s') % str(inst)

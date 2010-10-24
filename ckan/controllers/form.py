@@ -4,7 +4,7 @@ from ckan.lib.base import *
 from ckan.lib.helpers import json
 import ckan.forms
 import ckan.controllers.package
-from ckan.lib.package_saver import PackageSaver
+from ckan.lib.package_saver import WritePackageFromBoundFieldset
 from ckan.lib.package_saver import ValidationException
 from ckan.controllers.rest import BaseApiController, ApiVersion1, ApiVersion2
 
@@ -79,7 +79,12 @@ class BaseFormController(BaseApiController):
                 user = self._get_user_for_apikey()
                 author = user.name
                 try:
-                    self._create_package_entity(bound_fieldset, log_message, author)
+                    WritePackageFromBoundFieldset(
+                        fieldset=bound_fieldset,
+                        log_message=log_message, 
+                        author=author,
+                        client=c, 
+                    )
                 except ValidationException, exception:
                     # Get the errorful fieldset.
                     errorful_fieldset = exception.args[0]
@@ -190,7 +195,7 @@ class BaseFormController(BaseApiController):
                 try:
                     form_data = request_data['form_data']
                 except KeyError, error:
-                    self._abort_bad_request()
+                    self._abort_bad_request('Missing \'form_data\' in request data.')
                 # Bind form data to fieldset.
                 try:
                     bound_fieldset = fieldset.bind(pkg, data=form_data)
@@ -205,7 +210,12 @@ class BaseFormController(BaseApiController):
                     if user:
                         author = user.name
                 try:
-                    self._update_package_entity(id, bound_fieldset, log_message, author)
+                    WritePackageFromBoundFieldset(
+                        fieldset=bound_fieldset,
+                        log_message=log_message, 
+                        author=author,
+                        client=c,
+                    )
                 except ValidationException, exception:
                     # Get the errorful fieldset.
                     errorful_fieldset = exception.args[0]
@@ -240,11 +250,6 @@ class BaseFormController(BaseApiController):
             # Return response body.
             return response_body
 
-    def _create_package_entity(self, bound_fieldset, log_message, author):
-        # Superfluous commit_pkg() method parameter.
-        superfluous = None # Value is never consumed.
-        PackageSaver().commit_pkg(bound_fieldset, superfluous, None, log_message, author, client=c) 
-
     def _create_harvest_source_entity(self, bound_fieldset, user_ref=None, publisher_ref=None):
         bound_fieldset.validate()
         if bound_fieldset.errors:
@@ -255,11 +260,6 @@ class BaseFormController(BaseApiController):
     def _create_permissions(self, package, user):
         model.setup_default_user_roles(package, [user])
         model.repo.commit_and_remove()
-
-    def _update_package_entity(self, id, bound_fieldset, log_message, author):
-        # Superfluous commit_pkg() method parameter.
-        superfluous = None # Value is never consumed.
-        PackageSaver().commit_pkg(bound_fieldset, superfluous, id, log_message, author, client=c) 
 
     def _update_harvest_source_entity(self, id, bound_fieldset, user_ref, publisher_ref):
         bound_fieldset.validate()
