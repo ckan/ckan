@@ -168,18 +168,19 @@ class BaseController(WSGIController):
         c.time_call_stopped = self._get_now_time()
         
     def _write_call_timing(self):
-        call_duration = c.time_call_stopped - c.time_call_started
-        timing_data = {
-            "path": request.path, 
-            "started": c.time_call_started.isoformat(),
-            "duration": str(call_duration),
-        }
-        timing_msg = json.dumps(timing_data)
-        timing_cache_path = self._get_timing_cache_path()
-        timing_file_path = os.path.join(timing_cache_path, c.time_call_started.isoformat())
-        timing_file = file(timing_file_path, 'w')
-        timing_file.write(timing_msg)
-        timing_file.close()
+        if config.get('ckan.enable_call_timing', None):
+            call_duration = c.time_call_stopped - c.time_call_started
+            timing_data = {
+                "path": request.path, 
+                "started": c.time_call_started.isoformat(),
+                "duration": str(call_duration),
+            }
+            timing_msg = json.dumps(timing_data)
+            timing_cache_path = self._get_timing_cache_path()
+            timing_file_path = os.path.join(timing_cache_path, c.time_call_started.isoformat())
+            timing_file = file(timing_file_path, 'w')
+            timing_file.write(timing_msg)
+            timing_file.close()
 
     def _get_now_time(self):
         import datetime
