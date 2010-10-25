@@ -174,6 +174,40 @@ class TestHarvestingJob(HarvesterTestCase):
         self.assert_contains(error, "Another source is using metadata GUID")
 
 
+class TestHarvestWafSource(HarvesterTestCase):
+
+    fixture_user_ref = u'publisheruser1'
+
+    def setup(self):
+        super(TestHarvestWafSource, self).setup()
+        self.assert_false(self.source)
+        self.source = self.create_harvest_source(
+            url=self.gemini.url_for('index.html')
+        )
+        self.assert_true(self.source.id)
+        self.assert_false(self.job)
+        self.job = self.create_harvesting_job(
+            source=self.source, 
+            user_ref=self.fixture_user_ref
+        )
+
+    def test_harvest_documents_from_waf(self):
+        before_count = self.count_packages()
+        self.assert_false(self.job.report)
+        self.job.harvest_documents()
+        self.assert_len(self.job.report['errors'], 0)
+        self.assert_len(self.job.report['packages'], 3)
+        self.assert_len(self.job.source.documents, 2)
+        self.assert_true(self.job.source.documents[0].package)
+        self.assert_true(self.job.source.documents[1].package)
+        self.assert_equal(self.job.source.documents[0].package.id, (self.job.report['packages'][0]))
+        self.assert_equal(self.job.source.documents[1].package.id, (self.job.report['packages'][1]))
+        after_count = self.count_packages()
+        self.assert_equal(after_count, before_count + 2)
+
+
+
+
 class TestHarvestCswSource(HarvesterTestCase):
 
     fixture_user_ref = u'publisheruser1'
@@ -262,7 +296,7 @@ class TestHarvestCswSourceRandomWebsite(HarvesterTestCase):
         self.assert_len(self.job.report['packages'], 0)
         self.assert_len(self.job.report['errors'], 1)
         error = self.job.report['errors'][0]
-        self.assert_contains(error, 'Unable to detect source type from content')
+        self.assert_contains(error, "Couldn't find any links to metadata files.")
 
 
 class TestHarvestedDocument(HarvesterTestCase):
@@ -351,8 +385,11 @@ class GeminiExamples(object):
         u'00a743bf-cca4-4c19-a8e5-e64f7edbcadd_gemini2.update.xml',
     ]
 
-    def url_for(self, index):
-        name = self.file_names[index]
+    def url_for(self, index=None):
+        if index in [None, 'index.html']:
+            name = "index.html"
+        else:
+            name = self.file_names[index]
         path = os.path.join(self.folder_path(), name)
         if not os.path.exists(path):
             raise Exception, "Gemini example not found on path: %s" % path

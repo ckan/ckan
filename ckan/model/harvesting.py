@@ -198,6 +198,8 @@ class HarvestingJob(DomainObject):
                 self.harvest_document(content=content)
             elif source_type == 'csw':
                 self.harvest_csw_documents(url=self.source.url)
+            elif source_type == 'waf':
+                self.harvest_waf_documents(content=content)
             else:
                 raise Exception, "Source type '%s' not supported." % source_type
             if not self.report_has_errors():
@@ -227,7 +229,10 @@ class HarvestingJob(DomainObject):
         return bool(self.get_report()['errors'])
 
     def get_source_content(self):
-        http_response = urllib2.urlopen(self.source.url)
+        return self.get_content(self.source.url)
+
+    def get_content(self, url):
+        http_response = urllib2.urlopen(url)
         return http_response.read()
 
     def detect_source_type(self, content):
@@ -235,7 +240,8 @@ class HarvestingJob(DomainObject):
             return 'doc'
         if "<ows:ExceptionReport" in content:
             return 'csw'
-        # Todo: Detect WAF.
+        if "<html" in content:
+            return 'waf'
 
     def harvest_document(self, content):
         try:
@@ -258,8 +264,42 @@ class HarvestingJob(DomainObject):
     def harvest_csw_documents(self, url):
         csw_client = CswClient(base_url=url)
         records = csw_client.get_records()
-        for record in records:
-            self.harvest_document(content=record)
+        for content in records:
+            self.harvest_document(content=content)
+
+    def harvest_waf_documents(self, content):
+        for url in self.extract_urls(content):
+            content = self.get_content(url)
+            if "<gmd:MD_Metadata" in content:
+                self.harvest_document(content=content)
+        if not self.report['packages']:
+            self.report_error("Couldn't find any links to metadata files.")
+
+    def extract_urls(self, content):
+        try:
+            parser = etree.HTMLParser()
+            tree = etree.fromstring(content, parser=parser)
+        except Exception, inst:
+            msg = "Couldn't parse content into a tree: %s: %s" % (inst, content)
+            raise Exception, msg
+        urls = []
+        for url in tree.xpath('//a/@href'):
+            url = url.strip()
+            if not url:
+                continue
+            if '?' in url:
+                continue
+            if '/' in url:
+                continue
+            urls.append(url)
+        base_url = self.source.url
+        base_url = base_url.split('/')
+        if 'index' in base_url[-1]:
+            base_url.pop()
+        base_url = '/'.join(base_url)
+        base_url.rstrip('/')
+        base_url += '/'
+        return [base_url + i for i in urls]
 
     def validate_document(self, content):
         pass
@@ -309,16 +349,10 @@ class GeminiAttribute(object):
                 pass
             else:
                 for e in elements:
-                    if (type(e) == etree._ElementStringResult):
+                    if type(e) == etree._ElementStringResult:
                         value = str(e)
-                    #elif e.tag == '{http://www.isotc211.org/2005/gco}CharacterString':
-                    #    value = e.text
-                    #elif e.tag == '{http://www.isotc211.org/2005/gco}Decimal':
-                    #    value = e.text
-                    #elif e.tag == '{http://www.isotc211.org/2005/gmd}MD_TopicCategoryCode':
-                    #    value = e.text
-                    #elif e.tag == '{http://www.isotc211.org/2005/gmd}URL':
-                    #    value = e.text
+                    elif type(e) == etree._ElementUnicodeResult:
+                        value = unicode(e)
                     else:
                         value = etree.tostring(e, pretty_print=False)
                     values.append(value)
