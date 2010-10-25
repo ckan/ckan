@@ -312,7 +312,10 @@ class BaseRestController(BaseApiController):
         except Exception, inst:
             log.exception(inst)
             model.Session.rollback()
-            log.error('Exception creating object %s: %r' % (str(fs.name.value), inst))
+            if 'fs' in dir():
+                log.error('Exception creating object %s: %r' % (str(fs.name.value), inst))
+            else:
+                log.error('Exception creating object fieldset for register %r: %r' % (register, inst))                
             raise
         log.debug('Created object %s' % str(fs.name.value))
         obj = fs.model

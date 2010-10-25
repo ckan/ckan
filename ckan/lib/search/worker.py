@@ -59,7 +59,7 @@ def setup_synchronous_indexing():
         signal = blinker.signal(routing_key)
         signal.connect(update_index)
         __signals__.append(signal)
-
+        
 def remove_synchronous_indexing():
     for routing_key in NOTIFYING_DOMAIN_OBJ_NAMES:
         signal = blinker.signal(routing_key)
