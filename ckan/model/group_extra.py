@@ -1,13 +1,14 @@
 from meta import *
 from types import make_uuid
 import vdm.sqlalchemy
-from sqlalchemy.ext.associationproxy import association_proxy
 
 from core import *
+from package import *
 from group import *
 from types import JsonType
 
-__all__ = ['GroupExtra', 'group_extra_table']
+
+__all__ = ['GroupExtra', 'group_extra_table', 'GroupExtraRevision']
 
 group_extra_table = Table('group_extra', metadata,
     Column('id', UnicodeText, primary_key=True, default=make_uuid),
@@ -16,7 +17,13 @@ group_extra_table = Table('group_extra', metadata,
     Column('value', JsonType),
 )
 
-class GroupExtra(DomainObject):
+vdm.sqlalchemy.make_table_stateful(group_extra_table)
+group_extra_revision_table = vdm.sqlalchemy.make_revisioned_table(group_extra_table)
+
+
+class GroupExtra(vdm.sqlalchemy.RevisionedObjectMixin,
+        vdm.sqlalchemy.StatefulObjectMixin,
+        DomainObject):
     pass
 
 mapper(GroupExtra, group_extra_table, properties={
@@ -28,12 +35,21 @@ mapper(GroupExtra, group_extra_table, properties={
         )
     },
     order_by=[group_extra_table.c.group_id, group_extra_table.c.key],
-    extension=[],
+    extension=[vdm.sqlalchemy.Revisioner(group_extra_revision_table),
+               notifier.NotifierMapperTrigger(),
+               ],
 )
 
+vdm.sqlalchemy.modify_base_object_mapper(GroupExtra, Revision, State)
+GroupExtraRevision = vdm.sqlalchemy.create_object_version(mapper, GroupExtra,
+    group_extra_revision_table)
 
 def _create_extra(key, value):
     return GroupExtra(key=unicode(key), value=value)
 
-Group.extras = association_proxy('_extras', 'value', creator=_create_extra)
-
+import vdm.sqlalchemy.stateful
+_extras_active = vdm.sqlalchemy.stateful.DeferredProperty('_extras',
+        vdm.sqlalchemy.stateful.StatefulDict, base_modifier=lambda x: x.get_as_of()) 
+setattr(Group, 'extras_active', _extras_active)
+Group.extras = vdm.sqlalchemy.stateful.OurAssociationProxy('extras_active', 'value',
+            creator=_create_extra)
