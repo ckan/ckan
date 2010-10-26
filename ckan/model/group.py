@@ -8,26 +8,38 @@ from package import *
 from types import make_uuid
 import vdm.sqlalchemy
 
-__all__ = ['group_table', 'Group', 'PackageGroup']
+__all__ = ['group_table', 'Group', 'package_revision_table',
+           'PackageGroup']
 
 package_group_table = Table('package_group', metadata,
-        Column('id', UnicodeText, primary_key=True, default=make_uuid),
-        Column('package_id', UnicodeText, ForeignKey('package.id')),
-        Column('group_id', UnicodeText, ForeignKey('group.id')),
-        )
+    Column('id', UnicodeText, primary_key=True, default=make_uuid),
+    Column('package_id', UnicodeText, ForeignKey('package.id')),
+    Column('group_id', UnicodeText, ForeignKey('group.id')),
+    )
+    
+vdm.sqlalchemy.make_table_stateful(package_group_table)
+package_group_revision_table = vdm.sqlalchemy.make_revisioned_table(package_group_table)
 
 group_table = Table('group', metadata,
-        Column('id', UnicodeText, primary_key=True, default=make_uuid),
-        Column('name', UnicodeText, unique=True, nullable=False),
-        Column('title', UnicodeText),
-        Column('description', UnicodeText),
-        Column('created', DateTime, default=datetime.now),
-)
+    Column('id', UnicodeText, primary_key=True, default=make_uuid),
+    Column('name', UnicodeText, unique=True, nullable=False),
+    Column('title', UnicodeText),
+    Column('description', UnicodeText),
+    Column('created', DateTime, default=datetime.now),
+    )
 
-class PackageGroup(DomainObject):
+vdm.sqlalchemy.make_table_stateful(group_table)
+group_revision_table = vdm.sqlalchemy.make_revisioned_table(group_table)
+
+
+class PackageGroup(vdm.sqlalchemy.RevisionedObjectMixin,
+        vdm.sqlalchemy.StatefulObjectMixin,
+        DomainObject):
     pass
 
-class Group(DomainObject):
+class Group(vdm.sqlalchemy.RevisionedObjectMixin,
+            vdm.sqlalchemy.StatefulObjectMixin,
+            DomainObject):
     def __init__(self, name=u'', title=u'', description=u''):
         self.name = name
         self.title = title
@@ -70,12 +82,36 @@ class Group(DomainObject):
 
 
 mapper(Group, group_table, properties={
-    'packages':relation(Package, secondary=package_group_table,
+    'packages': relation(Package, secondary=package_group_table,
         backref='groups',
         order_by=package_table.c.name
     )},
+    extension=[vdm.sqlalchemy.Revisioner(group_revision_table),
+               notifier.NotifierMapperTrigger(),
+               ],
 )
 
+
+vdm.sqlalchemy.modify_base_object_mapper(Group, Revision, State)
+GroupRevision = vdm.sqlalchemy.create_object_version(mapper, Group,
+        group_revision_table)
+
+
 mapper(PackageGroup, package_group_table,
-#       extension=[notifier.NotifierMapperTrigger()],
+    extension=[vdm.sqlalchemy.Revisioner(package_group_revision_table),
+               notifier.NotifierMapperTrigger(),
+              ],
 )
+
+
+vdm.sqlalchemy.modify_base_object_mapper(PackageGroup, Revision, State)
+PackageGroupRevision = vdm.sqlalchemy.create_object_version(mapper, PackageGroup,
+        package_group_revision_table)
+
+
+from vdm.sqlalchemy.base import add_stateful_versioned_m2m 
+#vdm.sqlalchemy.add_stateful_versioned_m2m(Package, PackageGroup, 'groups', 'group',
+#        'package_group')
+vdm.sqlalchemy.add_stateful_versioned_m2m_on_version(GroupRevision, 'groups')
+vdm.sqlalchemy.add_stateful_versioned_m2m(Group, PackageGroup, 'groups', 'group',
+        'package_group')

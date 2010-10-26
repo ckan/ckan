@@ -191,7 +191,8 @@ class NotifierMapperTrigger(MapperExtension):
             elif isinstance(instance, (PackageExtra, PackageTag)):
                 self.send_notification(instance.package, DomainObjectNotificationOperation.changed)
             else:
-                raise NotImplementedError, instance
+                pass
+                #raise NotImplementedError, instance
         return EXT_CONTINUE
 
     def send_notification(self, notify_instance, operation):
