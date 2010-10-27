@@ -30,6 +30,7 @@ APIKEY_HEADER_NAME_DEFAULT = 'X-CKAN-API-Key'
 
 ALLOWED_FIELDSET_PARAMS = ['package_form', 'restrict']
 
+
 def render(template_name, extra_vars=None, cache_key=None, cache_type=None, 
            cache_expire=None, method='xhtml'):
     
@@ -167,18 +168,19 @@ class BaseController(WSGIController):
         c.time_call_stopped = self._get_now_time()
         
     def _write_call_timing(self):
-        call_duration = c.time_call_stopped - c.time_call_started
-        timing_data = {
-            "path": request.path, 
-            "started": c.time_call_started.isoformat(),
-            "duration": str(call_duration),
-        }
-        timing_msg = json.dumps(timing_data)
-        timing_cache_path = self._get_timing_cache_path()
-        timing_file_path = os.path.join(timing_cache_path, c.time_call_started.isoformat())
-        timing_file = file(timing_file_path, 'w')
-        timing_file.write(timing_msg)
-        timing_file.close()
+        if config.get('ckan.enable_call_timing', None):
+            call_duration = c.time_call_stopped - c.time_call_started
+            timing_data = {
+                "path": request.path, 
+                "started": c.time_call_started.isoformat(),
+                "duration": str(call_duration),
+            }
+            timing_msg = json.dumps(timing_data)
+            timing_cache_path = self._get_timing_cache_path()
+            timing_file_path = os.path.join(timing_cache_path, c.time_call_started.isoformat())
+            timing_file = file(timing_file_path, 'w')
+            timing_file.write(timing_msg)
+            timing_file.close()
 
     def _get_now_time(self):
         import datetime
@@ -212,17 +214,14 @@ class BaseController(WSGIController):
         return ckan.forms.edit_package_dict(*args, **kwds)
 
     def _get_package_fieldset(self, is_admin=False):
-        import ckan.forms.registry
-        params = {}
-        params['user_editable_groups'] = self._get_user_editable_groups()
+        kwds= {}
         for key in request.params:
             if key in ALLOWED_FIELDSET_PARAMS:
-                params[key] = request.params[key]
-        fieldset = ckan.forms.registry.get_package_fieldset(
-            is_admin=is_admin,
-            **params
-        )
-        return fieldset
+                kwds[key] = request.params[key]
+        kwds['user_editable_groups'] = self._get_user_editable_groups()
+        kwds['is_admin'] = is_admin
+        from ckan.forms import GetPackageFieldset
+        return GetPackageFieldset(**kwds).fieldset
 
     def _get_standard_package_fieldset(self):
         import ckan.forms

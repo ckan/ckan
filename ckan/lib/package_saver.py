@@ -87,13 +87,14 @@ class PackageSaver(object):
 
     @classmethod
     def _update(cls, fs, original_name, pkg_id, log_message, author, commit=True, client=None):
+        # Todo: Remove original_name and pkg_id, since they aren't used.
+        # Todo: Consolidate log message field (and validation).
         rev = None
         # validation
         errors = cls._revision_validation(log_message)
         if client:
             client.errors = errors
-        # Todo: Remove assignment to fs_validation, checks fs.errors instead.
-        fs_validation = fs.validate() #errors stored in fs.errors
+        fs.validate()
         validates = not (errors or fs.errors)
 
         # sync
@@ -142,3 +143,17 @@ class PackageSaver(object):
             return h.mail_to(email_address=email, name=name or email, encode='hex')
         else:
             return name or reference + " not given"
+
+
+class WritePackageFromBoundFieldset(object):
+
+    def __init__(self, fieldset, log_message='', author='', client=None):
+        self.fieldset = fieldset
+        self.log_message = log_message
+        self.author = author
+        self.client = None
+        self.write_package()
+
+    def write_package(self):
+        PackageSaver().commit_pkg(self.fieldset, None, None, self.log_message, self.author, self.client)
+

@@ -75,7 +75,7 @@ class CswClient(object):
         "gmd": "http://www.isotc211.org/2005/gmd",
     }
 
-    def __init__(self, base_url, csw_uri="", login_uri="", logout_uri="", username=None, password=None):
+    def __init__(self, base_url, csw_uri='', login_uri='', logout_uri='', username=None, password=None):
         self.base_url = base_url
         self.csw_uri = csw_uri
         self.login_uri = login_uri
@@ -87,7 +87,7 @@ class CswClient(object):
         self.csw_url = self.base_url + self.csw_uri
         self.opener = None
 
-    def check_capabilities(self):
+    def assert_capabilities(self):
         xml = self.send_get_capabilities()
         # Check document type is csw:Capabilities.
         if "<csw:Capabilities" not in xml:
@@ -225,10 +225,8 @@ class GeoNetworkClient(CswClient):
     def __init__(self, base_url, username='', password=''):
         login_uri = '/../xml.user.login'
         logout_uri = '/../xml.user.logout'
-        csw_uri = ''
         super(GeoNetworkClient, self).__init__(
             base_url=base_url,
-            csw_uri=csw_uri,
             login_uri=login_uri,
             logout_uri=logout_uri,
             username=username,

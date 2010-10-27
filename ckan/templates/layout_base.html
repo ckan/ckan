@@ -12,7 +12,7 @@
 <head>
   <title>${page_title()} - ${g.site_title}</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link rel="shortcut icon" href="http://m.okfn.org/gfx/logo/favicon.ico" type="image/x-icon" />
+  <link rel="shortcut icon" href="http://assets.okfn.org/images/logo/favicon.ico" type="image/x-icon" />
   <py:choose>
   <py:when test="defined('optional_feed')">
     ${optional_feed()}
@@ -23,10 +23,10 @@
   </py:choose>
 
   <style type="text/css"> 
-    @import url(http://m.okfn.org/kforge/css/structure.css);
-    @import url(http://m.okfn.org/kforge/css/display.css);
-    @import url(http://m.okfn.org/kforge/css/navigation.css);
-    @import url(http://m.okfn.org/kforge/css/print.css);
+    @import url(http://assets.okfn.org/kforge/css/structure.css);
+    @import url(http://assets.okfn.org/kforge/css/display.css);
+    @import url(http://assets.okfn.org/kforge/css/navigation.css);
+    @import url(http://assets.okfn.org/kforge/css/print.css);
   </style> 
 
   <link rel="stylesheet" href="/css/ckan.master.css" type="text/css" media="screen, print" />
@@ -36,7 +36,7 @@
   <![endif]-->
 
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
-  <script src="http://m.okfn.org/ext/jquery.cookie.min.js"></script>
+  <script src="http://assets.okfn.org/ext/jquery.cookie/jquery.cookie.min.js"></script>
   <script type="text/javascript" src="/scripts/application.js"></script>
 
   <script type="text/javascript">
@@ -138,7 +138,7 @@
         | <a href="http://www.okfn.org/privacy-policy/">Privacy Policy</a>
       </p>
       <p i18n:msg="">
-        <img style="margin-bottom: -5px;" src="http://m.okfn.org/images/logo/okf_logo_white_and_green_tiny.png" /> CKAN is an <a href="http://www.okfn.org/">Open Knowledge Foundation</a> project
+        <img style="margin-bottom: -5px;" src="http://assets.okfn.org/images/logo/okf_logo_white_and_green_tiny.png" /> CKAN is an <a href="http://www.okfn.org/">Open Knowledge Foundation</a> project
       </p>
       <p i18n:msg="version">
         v${c.__version__}
@@ -146,11 +146,11 @@
 	| All material available under an <a href="${h.url_for('license')}">open license</a>
         | <a href="http://www.opendefinition.org/1.0/"><img
             style="border: none; margin-bottom: -4px;"
-            src="http://m.okfn.org/images/ok_buttons/ok_90x15_blue.png"
+            src="http://assets.okfn.org/images/ok_buttons/ok_90x15_blue.png"
             alt="This Content and Data is Open" /></a>
         | <a href="http://www.opendefinition.org/1.0/"><img
             style="border: none; margin-bottom: -4px;"
-            src="http://m.okfn.org/images/ok_buttons/od_80x15_blue.png"
+            src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png"
             alt="This Content and Data is Open" /></a>
       </p>
     </div><!-- /footer -->

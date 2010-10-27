@@ -455,6 +455,7 @@ class PackageController(BaseController):
         c.log_message = params.get('log_message', '')
         # expunge everything from session so we don't have any problematic
         # saves (this gets called on validation exceptions a lot)
+        # Todo: Explain why there are 'saves' when rendering a form.
         if clear_session:
             model.Session.clear()
         edit_form_html = fs.render()

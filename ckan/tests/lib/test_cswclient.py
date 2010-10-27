@@ -1,13 +1,14 @@
 from ckan.tests import CheckMethods
+from ckan.tests import SkipTest
+from pylons import config
 
+from ckan.lib.cswclient import CswError
 from ckan.lib.cswclient import CswGetCapabilities
 from ckan.lib.cswclient import CswGetRecords
 from ckan.lib.cswclient import CswGetRecordById
 from ckan.lib.cswclient import CswClient
 from ckan.lib.cswclient import GeoNetworkClient
 from mock_cswclient import MockGeoNetworkClient
-from pylons import config
-from nose.plugins.skip import SkipTest
 
 import socket
 socket.setdefaulttimeout(5)
@@ -25,7 +26,9 @@ class CswRequestTestCase(CheckMethods):
         self.request = None
 
     def make_request(self):
-        assert self.request_class, "Test case '%s' has no request_class." % self.__class__
+        if not self.request_class:
+            msg = "Test case '%s' has no request_class." % self.__class__
+            raise Exception, msg
         return self.request_class(**self.request_params)
 
     def test_msg(self):
@@ -104,27 +107,31 @@ class CswClientTestCase(CheckMethods):
         )
 
     def test_send_get_capabilities(self):
-        self.client.send_get_capabilities()
+        xml = self.client.send_get_capabilities()
+        self.assert_contains(xml, "csw:Capabilities")
 
-    def test_check_capabilities(self):
-        self.client.check_capabilities()
+    def test_assert_capabilities(self):
+        self.client.assert_capabilities()
 
     def test_send_get_records(self):
-        self.client.send_get_records()
+        xml = self.client.send_get_records()
+        self.assert_contains(xml, "GetRecordsResponse")
 
     def test_send_get_record_by_id(self):
-        self.client.send_get_record_by_id("8dc2dddd-e483-4c1a-9482-eb05e8e4314d")
+        xml = self.client.send_get_record_by_id("8dc2dddd-e483-4c1a-9482-eb05e8e4314d")
+        self.assert_contains(xml, "GetRecordByIdResponse")
 
     def test_get_record_by_id(self):
-        self.client.get_record_by_id("8dc2dddd-e483-4c1a-9482-eb05e8e4314d")
+        xml = self.client.get_record_by_id("8dc2dddd-e483-4c1a-9482-eb05e8e4314d")
+        self.assert_contains(xml, "gmd:MD_Metadata")
 
     def test_get_identifiers(self):
         ids = self.client.get_identifiers()
-        assert self.expected_id in ids, ids
+        self.assert_contains(ids, self.expected_id)
 
     def test_get_records(self):
         records = self.client.get_records(max_records=self.max_records)
-
+        self.assert_true(len(records))
 
     def test_extract_identifiers(self):
         get_records_response = """<?xml version="1.0" encoding="UTF-8"?>
@@ -143,55 +150,18 @@ class CswClientTestCase(CheckMethods):
   </csw:SearchResults>
 </csw:GetRecordsResponse>"""
         ids = self.client.extract_identifiers(get_records_response)
-        assert "8d2aaadd-6ad8-41e0-9cd3-ef743ba19887" in ids, ids
-
-class GeoNetworkClientTestCase(CswClientTestCase):
-
-    csw_client_class = GeoNetworkClient
-
-
-
-class TestGeoNetworkClient(GeoNetworkClientTestCase):
-
-    csw_client_class = MockGeoNetworkClient
+        self.assert_isinstance(ids, list)
+        self.assert_len(ids, 3)
+        self.assert_contains(ids, "521ca63d-dad9-43fe-aebe-1138ffee530f")
+        self.assert_contains(ids, "8dc2dddd-e483-4c1a-9482-eb05e8e4314d")
+        self.assert_contains(ids, "8d2aaadd-6ad8-41e0-9cd3-ef743ba19887")
 
 
-class TestGeoNetworkClientSite(GeoNetworkClientTestCase):
-
-    base_url=config.get('example_csw_url', '')
-    username=config.get('example_csw_username', '')
-    password=config.get('example_csw_password', '')
-
-    def setup(self):
-        if not self.base_url:
-            raise SkipTest
-        super(TestGeoNetworkClientSite, self).setup()
-
-
-class TestGeoNetworkClientSiteNoAuth(TestGeoNetworkClientSite):
-
-    username = ''
-    password = ''
-    expected_id = '8d2aaadd-6ad8-41e0-9cd3-ef743ba19887'
-
-
-class TestGeoNetworkClientSiteBadAuth(TestGeoNetworkClientSite):
-
-    username = 'mickey'
-    password = 'mouse'
-    expected_id = '8d2aaadd-6ad8-41e0-9cd3-ef743ba19887'
-
-    def setup(self):
-        try:
-            super(TestGeoNetworkClientWithExampleBadAuth, self).setup()
-        except:
-            pass
-        else:
-            assert False, "Bad auth didn't cause an exception."
+class BlankTests(CswClientTestCase):
 
     def test_send_get_capabilities(self): pass
 
-    def test_check_capabilities(self): pass
+    def test_assert_capabilities(self): pass
 
     def test_send_get_records(self): pass
 
@@ -206,67 +176,76 @@ class TestGeoNetworkClientSiteBadAuth(TestGeoNetworkClientSite):
     def test_extract_identifiers(self): pass
 
 
-class TestGeoNetworkClientSiteDown(GeoNetworkClientTestCase):
+
+class GeoNetworkClientTestCase(CswClientTestCase):
+
+    csw_client_class = GeoNetworkClient
+
+
+class TestGeoNetworkClient(GeoNetworkClientTestCase):
+
+    csw_client_class = MockGeoNetworkClient
+
+
+class TestGeoNetworkClientSite(GeoNetworkClientTestCase):
+
+    # Test with real example GeoNetwork site.
+    base_url=config.get('example_csw_url', '')
+    username=config.get('example_csw_username', '')
+    password=config.get('example_csw_password', '')
+
+    def setup(self):
+        if not self.base_url:
+            raise SkipTest
+        super(TestGeoNetworkClientSite, self).setup()
+
+
+class TestGeoNetworkClientSiteNoAuth(TestGeoNetworkClientSite):
+
+    # Test with real example GeoNetwork site.
+    username = ''
+    password = ''
+    expected_id = '8d2aaadd-6ad8-41e0-9cd3-ef743ba19887'
+
+
+class TestGeoNetworkClientSiteBadAuth(BlankTests, TestGeoNetworkClientSite):
+
+    username = 'mickey'
+    password = 'mouse'
+    expected_id = '8d2aaadd-6ad8-41e0-9cd3-ef743ba19887'
+
+    # Since there is a bad username and password, setup will fail.
+    def setup(self):
+        super_method = super(TestGeoNetworkClientSiteBadAuth, self).setup
+        self.assert_raises(CswError, super_method)
+
+
+class TestGeoNetworkClientSiteDown(BlankTests, GeoNetworkClientTestCase):
 
     base_url = 'http://128.0.0.1:44444'
     username = 'a'
     password = 'b'
 
+    # Since there is a username and password, setup and teardown will fail.
     def setup(self):
-        try:
-            super(TestGeoNetworkClientSiteDown, self).setup()
-        except:
-            pass
-        else:
-            assert False, "Setup didn't cause an exception."
+        super_method = super(TestGeoNetworkClientSiteDown, self).setup
+        self.assert_raises(CswError, super_method)
 
     def teardown(self):
-        try:
-            super(TestGeoNetworkClientSiteDown, self).teardown()
-        except:
-            pass
-        else:
-            assert False, "Teardown didn't cause an exception."
-
-    def test_send_get_capabilities(self): pass
-
-    def test_check_capabilities(self): pass
-
-    def test_send_get_records(self): pass
-
-    def test_send_get_record_by_id(self): pass
-
-    def test_get_record_by_id(self): pass
-
-    def test_get_identifiers(self): pass
-
-    def test_get_records(self): pass
+        super_method = super(TestGeoNetworkClientSiteDown, self).teardown
+        self.assert_raises(CswError, super_method)
 
 
-class TestGeoNetworkClientSiteDownNoAuth(GeoNetworkClientTestCase):
+class TestGeoNetworkClientSiteDownNoAuth(BlankTests, GeoNetworkClientTestCase):
 
     base_url = 'http://128.0.0.1:44444'
     username = ''
     password = ''
 
-    def test_send_get_capabilities(self): pass
+    # Since there is no username and password, setup and teardown won't error.
 
-    def test_check_capabilities(self): pass
-
-    def test_send_get_records(self): pass
-
+    # However, the send methods won't work....
     def test_send_get_record_by_id(self):
-        try:
-            super(TestGeoNetworkClientSiteDownNoAuth, self).test_send_get_record_by_id()
-        except:
-            pass
-        else:
-            assert False, "Send didn't cause an exception."
-
-    def test_get_record_by_id(self): pass
-
-    def test_get_identifiers(self): pass
-
-    def test_get_records(self): pass
-
+        super_method = GeoNetworkClientTestCase.test_send_get_record_by_id
+        self.assert_raises(CswError, super_method, self)
 

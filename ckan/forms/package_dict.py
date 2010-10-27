@@ -51,6 +51,7 @@ def get_package_dict(pkg=None, blank=False, fs=None, user_editable_groups=None):
         
     return indict
 
+# Todo: Rename to indicate prefixing normal attribute names for fieldset.
 def edit_package_dict(dict_, changed_items, id=''):
     '''
     Edits package dictionary obtained by "get_package_dict" ready for

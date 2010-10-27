@@ -909,6 +909,8 @@ class ResourceSearchApiTestCase(ApiControllerTestCase):
 class QosApiTestCase(ApiControllerTestCase):
 
     def test_throughput(self):
+        if not config.get('ckan.enable_call_timing', None):
+            raise SkipTest
         # Create some throughput.
         import datetime
         start = datetime.datetime.now()
