@@ -176,12 +176,12 @@ class TestData3:
         assert len(pkg2.resources) == 3, pkg2.resources
         # TODO Work out why sometimes these first two resources are loaded in
         #      reverse order!
-##        assert pkg2.resources[0].url == u'http://www.connectingforhealth.nhs.uk/systemsandservices/data/ods/data-files/ro.csv', pkg1.resources[0]
-##        assert pkg2.resources[0].format == u'CSV', pkg2.resources[0]
-##        assert pkg2.resources[0].description == u'Regional directorates', pkg2.resources[0]
-##        assert pkg2.resources[1].url == u'http://www.connectingforhealth.nhs.uk/systemsandservices/data/ods/data-files/ha.csv', pkg2.resources[1]
-##        assert pkg2.resources[1].format == u'CSV', pkg2.resources[1]
-##        assert pkg2.resources[1].description == u'Strategic health authorities', pkg2.resources[1]
+#        assert pkg2.resources[0].url == u'http://www.connectingforhealth.nhs.uk/systemsandservices/data/ods/data-files/ro.csv', pkg1.resources[0]
+#        assert pkg2.resources[0].format == u'CSV', pkg2.resources[0]
+#        assert pkg2.resources[0].description == u'Regional directorates', pkg2.resources[0]
+#        assert pkg2.resources[1].url == u'http://www.connectingforhealth.nhs.uk/systemsandservices/data/ods/data-files/ha.csv', pkg2.resources[1]
+#        assert pkg2.resources[1].format == u'CSV', pkg2.resources[1]
+#        assert pkg2.resources[1].description == u'Strategic health authorities', pkg2.resources[1]
         assert pkg2.resources[2].url == u'http://www.connectingforhealth.nhs.uk/systemsandservices/data/ods/data-files/tr.csv', pkg2.resources[2]
         assert pkg2.resources[2].format == u'CSV', pkg2.resources[2]
         assert pkg2.resources[2].description == u'NHS Trusts', pkg2.resources[2]

@@ -160,7 +160,7 @@ class Authorizer(object):
             q = model.Session.query(model.AuthorizationGroupRole).filter_by(authorization_group=domain_obj,
                                                 role=model.Role.ADMIN)
         q = q.autoflush(False)
-        admins = [do_role.user for do_role in q.all()]
+        admins = [do_role.user for do_role in q.all() if do_role.user]
         return admins
 
     @classmethod

@@ -6,7 +6,7 @@ __all__ = ['get_package_dict', 'edit_package_dict', 'add_to_package_dict', 'stri
 class PackageDictFormatError(Exception):
     pass
 
-def get_package_dict(pkg=None, blank=False, fs=None):
+def get_package_dict(pkg=None, blank=False, fs=None, user_editable_groups=None):
     '''
     Creates a package dictionary suitable for use with edit_package_dict and
     deserialization.
@@ -24,8 +24,8 @@ def get_package_dict(pkg=None, blank=False, fs=None):
     '''
     indict = {}
     if fs is None:
-        fs = package.get_standard_fieldset(is_admin=False)
-
+        fs = package.get_standard_fieldset(
+            is_admin=False, user_editable_groups=user_editable_groups)
     if pkg:
         fs = fs.bind(pkg)
 

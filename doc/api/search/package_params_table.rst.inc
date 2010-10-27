@@ -1,5 +1,5 @@
 +-----------------------+---------------+----------------------------------+----------------------------------+
-| Param-Key             | Param-Value   | Example                          |  Notes                           |
+| Param-Key             | Param-Value   | Examples                         |  Notes                           |
 +=======================+===============+==================================+==================================+
 | q                     | Search-String || q=geodata                       | Criteria to search the package   |
 |                       |               || q=government+sweden             | fields for. URL-encoded search   |
@@ -13,19 +13,12 @@
 |                       |               |                                  | parameter as a more flexible     |
 |                       |               |                                  | alternative in GET requests.     |
 +-----------------------+---------------+----------------------------------+----------------------------------+
-|title,                 | Search-String | title=uk&amp;tags=health+census  | Search a particular a field. Note|
-|tags, notes, groups,   |               |                                  | that the latter fields mentioned |
-|author, maintainer,    |               |                                  | here are in the 'extra' fields.  |
-|update_frequency,      |               |                                  |                                  |
-|geographic_granularity,|               |                                  |                                  |
-|geographic_coverage,   |               |                                  |                                  |
-|temporal_granularity,  |               |                                  |                                  |
-|temporal_coverage,     |               |                                  |                                  |
-|national_statistic,    |               |                                  |                                  |
-|categories,            |               |                                  |                                  |
-|precision,             |               |                                  |                                  |
-|department, agency,    |               |                                  |                                  |
-|external_reference     |               |                                  |                                  |
+|title,                 | Search-String || title=uk&amp;tags=health+census | Search in a particular a field.  |
+|tags, notes, groups,   |               || department=environment          |                                  |
+|author, maintainer,    |               |                                  |                                  |
+|update_frequency, or   |               |                                  |                                  |
+|any 'extra' field name |               |                                  |                                  |
+|e.g. department        |               |                                  |                                  |
 +-----------------------+---------------+----------------------------------+----------------------------------+
 | order_by              | field-name    | order_by=name                    | Specify either rank or the field |
 |                       | (default=rank)|                                  | to sort the results by           |

@@ -41,7 +41,7 @@ env.pip_requirements = 'pip-requirements.txt'
 env.skip_setup_db = False
 
 def config_local(base_dir, ckan_instance_name, db_host=None, db_pass=None, 
-                 skip_setup_db=None, no_sudo=None):
+                 skip_setup_db=None, no_sudo=None, pip_requirements=None):
     '''Run on localhost. e.g. local:~/test,myhost.com
                             puts it at ~/test/myhost.com
                             '''
@@ -55,7 +55,9 @@ def config_local(base_dir, ckan_instance_name, db_host=None, db_pass=None,
     if skip_setup_db != None:
         env.skip_setup_db = skip_setup_db    
     if no_sudo != None:
-        env.no_sudo = no_sudo    
+        env.no_sudo = no_sudo
+    if pip_requirements:
+        env.pip_requirements = pip_requirements
 
 def config_local_dev(base_dir, ckan_instance_name):
     config_local(base_dir, ckan_instance_name)
@@ -168,6 +170,8 @@ def _setup():
     _default('db_user', env.user)
     _default('db_host', 'localhost')
     _default('db_name', env.ckan_instance_name)
+    _default('pip_from_pyenv', None)
+
 
 def deploy():
     '''Deploy app on server. Keeps existing config files.'''
@@ -193,7 +197,7 @@ def deploy():
             _run_in_cmd_pyenv('virtualenv %s' % env.pyenv_dir)
         else:
             print 'Virtualenv already exists: %s' % env.pyenv_dir
-        _run_in_cmd_pyenv('pip -E %s install -r %s' % (env.pyenv_dir, env.pip_requirements))
+        _pip_cmd('pip -E %s install -r %s' % (env.pyenv_dir, env.pip_requirements))
 
         # create config ini file
         if not exists(env.config_ini_filename):
@@ -272,6 +276,18 @@ def setup_db(db_details=None):
 def restart_apache():
     'Restart apache'
     sudo('/etc/init.d/apache2 restart')
+
+def status():
+    'Provides version number info'
+    _setup()
+    with cd(env.instance_path):
+        _run_in_cmd_pyenv('pip freeze')
+        run('cat %s' % env.config_ini_filename)
+    with cd(os.path.join(env.pyenv_dir, 'src', 'ckan')):
+        run('hg log -l 1')
+        run('hg branch')
+        run('hg identify')
+        run('grep version ckan/__init__.py')
 
 def backup():
     'Backup database'
@@ -471,16 +487,18 @@ def _get_db_config():
     db_details = re.match('^\s*(?P<db_type>\w*)://(?P<db_user>\w*):(?P<db_pass>[^@]*)@(?P<db_host>[\w\.]*)/(?P<db_name>[\w.-]*)', url).groupdict()
     return db_details
 
+def _get_ckan_pyenv_dict():
+    return {'here':os.path.join(env.pyenv_dir, 'src', 'ckan')}
+
 def _get_pylons_cache_dir():
     cache_dir = _get_ini_value('cache_dir')
     # e.g. '%(here)s/data'
-    return cache_dir % {'here':env.instance_path}
+    return cache_dir % _get_ckan_pyenv_dict()
 
 def _get_open_id_store_dir():
     store_file_path = _get_ini_value('store_file_path', env.who_ini_filepath)
     # e.g. '%(here)s/sstore'
-    return store_file_path % {'here':env.instance_path}
-    
+    return store_file_path % _get_ckan_pyenv_dict()
 
 def _create_live_data_dir(readable_name, dir):
     if not exists(dir):
@@ -501,6 +519,15 @@ def _run_in_pyenv(command):
     activate_path = os.path.join(env.pyenv_dir, 'bin', 'activate')
     run('source %s&&%s' % (activate_path, command))
 
+def _pip_cmd(command):
+    '''Looks for pip in the pyenv before finding it in the cmd pyenv'''
+    if env.pip_from_pyenv == None:
+        env.pip_from_pyenv = bool(exists(os.path.join(env.pyenv_dir, 'bin', 'pip')))
+    if env.pip_from_pyenv:
+        return _run_in_pyenv(command)
+    else:
+        return _run_in_cmd_pyenv(command)            
+    
 def _run_in_cmd_pyenv(command):
     '''For running commands that are installed in a specific python
     environment specified by env.cmd_pyenv'''

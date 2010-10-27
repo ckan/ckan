@@ -597,14 +597,18 @@ class ExtrasField(ConfiguredField):
 class GroupSelectField(ConfiguredField):
     '''A form field for selecting groups'''
     
-    def __init__(self, name, allow_empty=True, multiple=True):
+    def __init__(self, name, allow_empty=True, multiple=True, user_editable_groups=None):
         super(GroupSelectField, self).__init__(name)
         self.allow_empty = allow_empty
         self.multiple = multiple
+        if user_editable_groups == None:
+            raise Exception, "Group select field 'user_editable_groups' is not initialized."
+        self.user_editable_groups = user_editable_groups
     
     def get_configured(self):
         field = self.GroupSelectionField(self.name, self.allow_empty).with_renderer(self.GroupSelectEditRenderer)
         field.set(multiple=self.multiple)
+        field.user_editable_groups = self.user_editable_groups
         return field
 
     class GroupSelectionField(formalchemy.Field):
@@ -627,33 +631,79 @@ class GroupSelectField(ConfiguredField):
     class GroupSelectEditRenderer(formalchemy.fields.FieldRenderer):
         def _get_value(self, **kwargs):
             return self.field.parent.model.groups
-        
+
+        def _get_user_editable_groups(self):
+            return self.field.user_editable_groups
+       
         def render(self, **kwargs):
-            from pylons import c
-            if not hasattr(c, 'user'):
-                c.user = model.PSEUDO_USER__VISITOR
-            available_groups = Authorizer.authorized_query(c.user, model.Group, 
-                                                        action=model.Action.EDIT).all()
-            
-            c.new_name = self.name + '-new'
-            
-            c.fields = []
-            for group in self._get_value():
-                if group in available_groups:
-                    available_groups.remove(group)
-                c.fields.append({'id': group.id,
-                                 'name': self.name + '-' + group.id,
-                                 'title': group.title})
-                
-            c.options = []
-            if len(available_groups):
-                if self.field.allow_empty or len(c.fields):
-                    c.options.append(('', _('(None)')))
-            for group in available_groups:
-                c.options.append((group.id, group.title))
-            
-            html = render('package/form_groups.html')
-            return h.literal(html)
+            # Get groups which are editable by the user.
+            editable_groups = self._get_user_editable_groups()
+
+            # Get groups which are already selected.
+            selected_groups = self._get_value()
+
+            # Make checkboxes HTML from selected groups.
+            checkboxes_html = ''
+            checkbox_template = '''
+            <dt>
+              <label for="%(name)s">
+                <input type="checkbox" name="%(name)s" checked="checked" value="%(id)s" />
+              </label>
+            </dt>
+            <dd>
+                %(title)s
+            </dd>
+            '''
+            for group in selected_groups:
+                # Make checkbox HTML from a group.
+                checkbox_context = {
+                    'id': group.id,
+                    'name': self.name + '-' + group.id,
+                    'title': group.title
+                }
+                checkbox_html = checkbox_template % checkbox_context
+                checkboxes_html += checkbox_html
+
+            # Infer addable groups, subtract selected from editable groups.
+            addable_groups = []
+            for group in editable_groups:
+                if group not in selected_groups:
+                    addable_groups.append(group)
+
+            # Construct addable options from addable groups.
+            options = []
+            if len(addable_groups):
+                if self.field.allow_empty or len(selected_groups):
+                    options.append(('', _('(None)')))
+            for group in addable_groups:
+                options.append((group.id, group.title))
+
+            # Make select HTML.
+            if len(options):
+                new_name = self.name + '-new'
+                select_html = h.select(new_name, None, options)
+            else:
+                # Todo: Translation call.
+                select_html = "Cannot add any groups."
+
+            # Make the field HTML.
+            field_template = '''  
+        <dl> %(checkboxes)s      
+            <dt>
+                Group:
+            </dt>
+            <dd> %(select)s
+            </dd>
+        </dl>
+            '''
+            field_context = {
+                'checkboxes': checkboxes_html,
+                'select': select_html,
+            } 
+            field_html = field_template % field_context
+
+            # Convert to literals.
+            return h.literal(field_html)
 
         def render_readonly(self, **kwargs):
             return field_readonly_renderer(self.field.key, self._get_value())
@@ -663,26 +713,55 @@ class GroupSelectField(ConfiguredField):
             return [v for k, v in self.params.items() if k.startswith(name)]
         
         def deserialize(self):
-            from pylons import c
-            if not hasattr(c, 'user'):
-                c.user = model.PSEUDO_USER__VISITOR
-            groups = self._get_value()
-            group_ids = self._serialized_value() # space separated string
-            for group_id in group_ids:
-                group = model.Session.query(model.Group).autoflush(False).get(group_id)
-                if group is None or group in groups:
-                    continue
-                if not Authorizer.am_authorized(c, model.Action.EDIT, group):
-                    continue
-                groups.append(group)
-            for group in groups:
-                if group.id in group_ids:
-                    continue
-                if not Authorizer.am_authorized(c, model.Action.EDIT, group):
-                    continue
-                groups.remove(group)
-            self.field.parent.model.groups = groups
-            return groups
+            # Get groups which are editable by the user.
+            editable_groups = self._get_user_editable_groups()
+
+            # Get groups which have just been selected by the user.
+            new_group_ids = self._serialized_value()
+            if new_group_ids and isinstance(new_group_ids, list):
+                # Either...
+                if len(new_group_ids) == 1:
+                    # Convert [['id1', 'id2', ...]] into ['id1,' 'id2', ...].
+                    nested_value = new_group_ids[0]
+                    if isinstance(new_group_ids, list):
+                        new_group_ids = nested_value
+                # Or...
+                else:
+                    # Convert [['id1'], ['id2'], ...] into ['id1,' 'id2', ...].
+                    for (i, nested_value) in enumerate(new_group_ids):
+                        if nested_value and isinstance(nested_value, list):
+                            if len(nested_value) > 1:
+                                msg = "Can't derived new group selection from "
+                                msg += "serialized value structured like this:"
+                                msg += " %s" % nested_value
+                                raise Exception, msg
+                            new_group_ids[i] = nested_value[0]
+                # Todo: Decide which is the structure of a multiple-group selection.
+
+            # Get groups which have alread been associated.
+            #old_groups = self._get_value()
+            old_groups = self.field.parent.model.groups
+
+            # Calculate which to append and which to remove.
+            editable_set = set([g.id for g in editable_groups])
+            old_group_ids = [g.id for g in old_groups]
+            new_set = set(new_group_ids)
+            old_set = set(old_group_ids)
+            append_set = (new_set - old_set).intersection(editable_set)
+            remove_set = (old_set - new_set).intersection(editable_set)
+            
+            # Create package group associations.
+            for id in append_set:
+                group = model.Session.query(model.Group).autoflush(False).get(id)
+                if group:
+                    self.field.parent.model.groups.append(group)
+
+            # Delete package group associations.
+            for group in self.field.parent.model.groups:
+                if group.id in remove_set:
+                    self.field.parent.model.groups.remove(group)
+
+            return self.field.parent.model.groups
 
 
 class SelectExtraField(TextExtraField):
@@ -820,6 +899,19 @@ class PackageNameField(ConfiguredField):
         #    pkg = model.Package.get(package_id)
         #    return pkg.name
         pass
+
+
+class UserNameField(ConfiguredField):
+
+    def get_configured(self):
+        return self.UserNameField(self.name).with_renderer(self.UserNameRenderer)
+
+    class UserNameField(formalchemy.Field):
+        pass
+
+    class UserNameRenderer(formalchemy.fields.FieldRenderer):
+        pass
+
 
 def prettify(field_name):
     '''Generates a field label based on the field name.

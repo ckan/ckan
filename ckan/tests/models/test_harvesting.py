@@ -5,45 +5,27 @@ from ckan.model.harvesting import HarvestingJob
 from ckan.model.harvesting import HarvestedDocument
 import ckan.model as model
 
-class GeminiExamples(object):
-    """Encapsulates the Gemini example files in ckan/tests/gemini2_examples."""
+class HarvesterTestCase(TestCase):
 
-    gemini_examples = [
-        u'00a743bf-cca4-4c19-a8e5-e64f7edbcadd_gemini2.xml',
-        u'My series sample.xml',
-    ]
-
-    def gemini_examples_path(self):
-        from pylons import config
-        here_path = config['here']
-        examples_path = os.path.join(here_path, 'ckan', 'tests', 'gemini2_examples')
-        return examples_path
-
-    def gemini_url(self, index):
-        name = self.gemini_examples[index]
-        path = os.path.join(self.gemini_examples_path(), name)
-        if not os.path.exists(path):
-            raise Exception, "Gemini example not found on path: %s" % path
-        return "file://%s" % path
-
-    def gemini_content(self, url):
-        import urllib2
-        resource = urllib2.urlopen(url)
-        # Todo: Check the encoding is okay (perhaps change model attribute type)?
-        content = resource.read()
-        return content
-
-
-class TestCase(CheckMethods, ModelMethods, GeminiExamples):
+    require_common_fixtures = False
 
     def setup(self):
-        self.dropall()
-        self.rebuild()
-        self.remove()
+        super(HarvesterTestCase, self).setup()
+        self.source = None
+        self.job = None
+        self.document = None
+        self.gemini = GeminiExamples()
 
     def teardown(self):
-        self.dropall()
-        self.remove()
+        if self.document:
+            self.delete(self.document)
+        if self.job:
+            self.delete(self.job)
+        if self.source:
+            self.delete(self.source)
+        self.commit_remove()
+        self.purge_package_by_name('00a743bf-cca4-4c19-a8e5-e64f7edbcadd')
+        super(HarvesterTestCase, self).teardown()
 
     def create_fixture(self, domain_type, **kwds):
         # Create and check new fixture.
@@ -61,25 +43,11 @@ class TestCase(CheckMethods, ModelMethods, GeminiExamples):
         return self.create_fixture(HarvestingJob, **kwds)
 
 
-class TestHarvestSource(TestCase):
-
-    def setup(self):
-        super(TestHarvestSource, self).setup()
-        self.source = None
-        self.document = None
-
-    def teardown(self):
-        if self.source:
-            self.delete(self.source)
-        self.commit_remove()
-        if self.document:
-            self.delete(self.document)
-        self.commit_remove()
-        super(TestHarvestSource, self).teardown()
+class TestHarvestSource(HarvesterTestCase):
 
     def test_crud_source(self):
         self.assert_false(self.source)
-        url = self.gemini_url(0)
+        url = self.gemini.url_for(0)
         self.source = self.create_harvest_source(url=url)
         self.assert_true(self.source)
         self.assert_true(self.source.id)
@@ -88,74 +56,91 @@ class TestHarvestSource(TestCase):
         self.assert_raises(Exception, HarvestSource.get, self.source.id)
 
     def test_write_package(self):
-        url = self.gemini_url(0)
-        content = self.gemini_content(url)
+        url = self.gemini.url_for(0)
+        content = self.gemini.get_content(url)
         self.document = self.create_harvested_document(url=url, content=content)
         self.source = self.create_harvest_source(url=url)
         count_before = self.count_packages()
         assert self.source.write_package(self.document)
-        self.delete_commit(self.source)
         count_after = self.count_packages()
         self.assert_equal(count_after, count_before + 1)
+        self.delete_commit(self.source)
+        count_after_delete = self.count_packages()
+        self.assert_equal(count_after_delete, count_after)
 
 
-class TestHarvestingJob(TestCase):
+class TestHarvestingJob(HarvesterTestCase):
+
+    fixture_user_ref = u'publisheruser1'
 
     def setup(self):
         super(TestHarvestingJob, self).setup()
-        url = self.gemini_url(0)
-        self.source = self.create_harvest_source(url=url)
-        self.job = None
-
-    def teardown(self):
-        try:
-            if self.job:
-                self.delete_commit(self.job)
-        finally:
-            if self.source:
-                pass #self.delete_commit(self.source)
-        super(TestHarvestingJob, self).teardown()
+        self.assert_false(self.source)
+        self.source = self.create_harvest_source(
+            url=self.gemini.url_for(0)
+        )
+        self.assert_true(self.source.id)
+        self.assert_false(self.job)
+        self.job = self.create_harvesting_job(
+            source=self.source, 
+            user_ref=self.fixture_user_ref
+        )
 
     def test_crud_job(self):
-        self.assert_false(self.job)
-        user_ref = u'publisheruser1'
-        self.assert_true(self.source.id)
-        self.job = self.create_harvesting_job(source=self.source, user_ref=user_ref)
+        # Create.
         self.assert_true(self.job)
         self.assert_true(self.job.id)
         self.assert_true(self.job.source_id)
         self.assert_true(self.job.source)
         self.assert_equal(self.job.source_id, self.source.id)
+        # Read.
         dup = HarvestingJob.get(self.job.id)
+        # Todo: Update.
+        # Delete.
         self.delete_commit(self.job)
-        self.assert_raises(Exception, HarvestSource.get, self.job.id)
-        dup = HarvestSource.get(self.source.id)
+        self.assert_raises(Exception, HarvestingJob.get, self.job.id)
+        # - check source has not been deleted!
+        HarvestSource.get(self.source.id)
 
     def test_harvest_documents(self):
-        self.assert_false(self.job)
-        user_ref = u'publisheruser2'
-        count_before = self.count_packages()
-        self.job = self.create_harvesting_job(source=self.source, user_ref=user_ref)
+        before_count = self.count_packages()
         self.job.harvest_documents()
-        count_after = self.count_packages()
-        self.assert_equal(count_after, count_before + 1)
+        after_count = self.count_packages()
+        self.assert_equal(after_count, before_count + 1)
 
 
-class TestHarvestedDocument(TestCase):
+class TestHarvestCswSource(HarvesterTestCase):
+
+    fixture_user_ref = u'publisheruser1'
 
     def setup(self):
-        super(TestHarvestedDocument, self).setup()
-        self.document = None
+        super(TestHarvestCswSource, self).setup()
+        self.assert_false(self.source)
+        from pylons import config
+        base_url=config.get('example_csw_url', '')
+        if not base_url:
+            raise SkipTest
+        self.source = self.create_harvest_source(
+            url=base_url,
+        )
+        self.job = self.create_harvesting_job(
+            source=self.source, 
+            user_ref=self.fixture_user_ref
+        )
 
-    def teardown(self):
-        if self.document:
-            self.delete_commit(self.document)
-        super(TestHarvestedDocument, self).teardown()
+    def test_harvest_csw_records(self):
+        before_count = self.count_packages()
+        self.job.harvest_documents()
+        after_count = self.count_packages()
+        self.assert_equal(after_count, before_count + 1)
+
+
+class TestHarvestedDocument(HarvesterTestCase):
 
     def test_crud_document(self):
         self.assert_false(self.document)
-        url = self.gemini_url(0)
-        content = self.gemini_content(url)
+        url = self.gemini.url_for(0)
+        content = self.gemini.get_content(url)
         self.document = self.create_harvested_document(url=url, content=content)
         self.assert_equal(self.document.url, url)
         self.assert_equal(self.document.content, content)
@@ -164,8 +149,8 @@ class TestHarvestedDocument(TestCase):
         self.assert_raises(Exception, HarvestSource.get, self.document.id)
 
     def test_read_attributes(self):
-        url = self.gemini_url(0)
-        content = self.gemini_content(url)
+        url = self.gemini.url_for(0)
+        content = self.gemini.get_content(url)
         self.document = self.create_harvested_document(url=url, content=content)
         data = self.document.read_attributes()
         expect = {
@@ -226,4 +211,31 @@ class TestHarvestedDocument(TestCase):
             msg = "Attribute '%s' has unexpected value: %s" % (name, inst)
             raise Exception, msg
 
+
+class GeminiExamples(object):
+    """Encapsulates the Gemini example files in ckan/tests/gemini2_examples."""
+
+    file_names = [
+        u'00a743bf-cca4-4c19-a8e5-e64f7edbcadd_gemini2.xml',
+        u'My series sample.xml',
+    ]
+
+    def url_for(self, index):
+        name = self.file_names[index]
+        path = os.path.join(self.folder_path(), name)
+        if not os.path.exists(path):
+            raise Exception, "Gemini example not found on path: %s" % path
+        return "file://%s" % path
+
+    def folder_path(self):
+        from pylons import config
+        here_path = config['here']
+        return os.path.join(here_path, 'ckan', 'tests', 'gemini2_examples')
+
+    def get_content(self, url):
+        import urllib2
+        resource = urllib2.urlopen(url)
+        # Todo: Check the encoding is okay (perhaps change model attribute type)?
+        content = resource.read()
+        return content
 

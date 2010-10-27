@@ -20,8 +20,11 @@ class ApiError(Exception): pass
 class BaseFormController(BaseApiController):
     """Implements the CKAN Forms API."""
 
-    def _abort_bad_request(self):
+    def _abort_bad_request(self, msg=None):
         response.status_int = 400
+        error_msg = 'Bad request'
+        if msg:
+            error_msg += ': %s' % msg
         raise ApiError, "Bad request"
         
     def _abort_not_authorized(self):
@@ -180,7 +183,10 @@ class BaseFormController(BaseApiController):
                 # Check user authorization.
                 self._assert_is_authorized()
                 # Read request.
-                request_data = self._get_request_data()
+                try:
+                    request_data = self._get_request_data()
+                except ValueError, error:
+                    self._abort_bad_request('Extracting request data: %r' % error.args)
                 try:
                     form_data = request_data['form_data']
                 except KeyError, error:
@@ -237,7 +243,7 @@ class BaseFormController(BaseApiController):
     def _create_package_entity(self, bound_fieldset, log_message, author):
         # Superfluous commit_pkg() method parameter.
         superfluous = None # Value is never consumed.
-        PackageSaver().commit_pkg(bound_fieldset, superfluous, None, log_message, author) 
+        PackageSaver().commit_pkg(bound_fieldset, superfluous, None, log_message, author, client=c) 
 
     def _create_harvest_source_entity(self, bound_fieldset, user_ref=None, publisher_ref=None):
         bound_fieldset.validate()
@@ -253,7 +259,7 @@ class BaseFormController(BaseApiController):
     def _update_package_entity(self, id, bound_fieldset, log_message, author):
         # Superfluous commit_pkg() method parameter.
         superfluous = None # Value is never consumed.
-        PackageSaver().commit_pkg(bound_fieldset, superfluous, id, log_message, author) 
+        PackageSaver().commit_pkg(bound_fieldset, superfluous, id, log_message, author, client=c) 
 
     def _update_harvest_source_entity(self, id, bound_fieldset, user_ref, publisher_ref):
         bound_fieldset.validate()

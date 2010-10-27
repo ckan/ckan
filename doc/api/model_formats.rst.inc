@@ -29,6 +29,16 @@ Here are the data formats for the Model API.
 
 .. |format-harvesting-job-register| replace:: [ |format-harvesting-job-ref|, |format-harvesting-job-ref|, |format-harvesting-job-ref|, ... ]
 
-.. |format-harvesting-job-entity| replace:: { id: Uuid, status: Sring, created: Date-Time, url: String, description: String, publisher_ref: String, user_ref: String }
+.. |format-harvesting-job-entity| replace:: { id: Uuid, status: String, created: Date-Time, source_id: Uuid, user_ref: String, report: Dict}
 
+To send request data, create the JSON-format string (encode in UTF8) put it in the request body and send it using PUT or POST.
 
+Response data will be in the response body in JSON format.
+
+Notes:
+
+ * When you update an object, fields that you don't supply will remain as they were before.
+
+ * To delete an 'extra' key-value pair, supply the key with a None value.
+
+ * When you read a package then some additional information is supplied that cannot current be adjusted throught the CKAN API. This includes info on Package Relationship ('relationships'), Group membership ('groups'), ratings ('ratings_average' and 'ratings_count'), full URL of the package in CKAN ('ckan_url') and Package ID ('id'). This is purely a convenience for clients, and only forms part of the Package on GET.

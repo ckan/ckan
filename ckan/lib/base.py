@@ -190,9 +190,31 @@ class BaseController(WSGIController):
              os.makedirs(path)
         return path
 
+    def _get_user_editable_groups(self): 
+        if not hasattr(c, 'user'):
+            c.user = model.PSEUDO_USER__VISITOR
+        import ckan.authz # Todo: Move import to top of this file?
+        groups = ckan.authz.Authorizer.authorized_query(c.user, model.Group, 
+            action=model.Action.EDIT).all()
+        return groups
+
+    def _get_package_dict(self, *args, **kwds):
+        import ckan.forms
+        user_editable_groups = self._get_user_editable_groups()
+        package_dict = ckan.forms.get_package_dict(
+            user_editable_groups=user_editable_groups,
+            *args, **kwds
+        )
+        return package_dict
+
+    def _edit_package_dict(self, *args, **kwds):
+        import ckan.forms
+        return ckan.forms.edit_package_dict(*args, **kwds)
+
     def _get_package_fieldset(self, is_admin=False):
         import ckan.forms.registry
         params = {}
+        params['user_editable_groups'] = self._get_user_editable_groups()
         for key in request.params:
             if key in ALLOWED_FIELDSET_PARAMS:
                 params[key] = request.params[key]
@@ -204,7 +226,10 @@ class BaseController(WSGIController):
 
     def _get_standard_package_fieldset(self):
         import ckan.forms
-        fieldset = ckan.forms.get_standard_fieldset()
+        user_editable_groups = self._get_user_editable_groups()
+        fieldset = ckan.forms.get_standard_fieldset(
+            user_editable_groups=user_editable_groups
+        )
         return fieldset
 
 

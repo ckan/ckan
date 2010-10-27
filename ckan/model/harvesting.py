@@ -9,6 +9,7 @@ from core import *
 from domain_object import DomainObject
 
 log = logging.getLogger(__name__)
+
 __all__ = [
     'HarvestSource', 'harvest_source_table',
     'HarvestingJob', 'harvesting_job_table',
@@ -77,11 +78,13 @@ class HarvestSource(DomainObject):
         }
         # Create package from data.
         try:
-            fs = ckan.forms.get_standard_fieldset()
+            user_editable_groups = []
+            fs = ckan.forms.get_standard_fieldset(user_editable_groups=user_editable_groups)
             try:
-                fa_dict = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(fs=fs), package_data)
+                fa_dict = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(fs=fs, user_editable_groups=user_editable_groups), package_data)
             except ckan.forms.PackageDictFormatError, inst:
-                log.error('Package format incorrect: %s' % str(inst))
+                msg = 'Package format incorrect: %s' % str(inst)
+                raise Exception, msg
             else:
                 fs = fs.bind(model.Package, data=fa_dict, session=model.Session)
                 # Validate the fieldset.
@@ -106,38 +109,31 @@ class HarvestSource(DomainObject):
                     package = fs.model
                 else:
                     # Complain about validation errors.
-                    log.error('Validation error: %r' % repr(fs.errors))
+                    msg = 'Validation error: %r' % repr(fs.errors)
+                    raise Exception, msg
         except Exception, inst:
             log.exception(inst)
             model.Session.rollback()
-            log.error('Exception creating object from data %s: %r' % (str(package_data), inst))
-            raise
+            msg = 'Error creating object from data %s: %r' % (str(package_data), inst)
+            log.error(msg)
+            raise Exception, msg
         return package
 
 
 class HarvestingJob(DomainObject):
 
     def harvest_documents(self):
-        try:
-            content = self.get_source_content()
-            source_type = self.detect_source_type(content)
-            if source_type == 'doc':
-                self.harvest_document(url=self.source.url, content=content)
-            elif source_type == 'csw':
-                pass
-            elif source_type == 'waf':
-                pass
-            else:
-                raise Exception, "Source type '%s' not supported." % source_type
-        except Exception, inst:
-            import traceback
-            self.report = "Couldn't harvest documents: %s" % traceback.format_exc() 
-            self.set_status_error()
-            self.save()
+        content = self.get_source_content()
+        source_type = self.detect_source_type(content)
+        if source_type == 'doc':
+            self.harvest_document(url=self.source.url, content=content)
+        elif source_type == 'csw':
+            self.harvest_csw_documents(url=self.source.url)
         else:
-            self.write_report()
-            self.set_status_success()
-            self.save()
+            raise Exception, "Source type '%s' not supported." % source_type
+        self.write_report()
+        self.set_status_success()
+        self.save()
         return self.report
 
     def get_source_content(self):
@@ -148,7 +144,8 @@ class HarvestingJob(DomainObject):
     def detect_source_type(self, content):
         if "<gmd:MD_Metadata" in content:
             return 'doc'
-        # Todo: Detect CSW.
+        if "<ows:ExceptionReport" in content:
+            return 'csw'
         # Todo: Detect WAF.
         raise Exception, "Harvest source type can't be detected from content: %s" % content
 
@@ -156,6 +153,13 @@ class HarvestingJob(DomainObject):
         self.validate_content(content)
         document = self.save_content(url, content)
         package = self.source.write_package(document)
+
+    def harvest_csw_documents(self, url):
+        from ckan.lib.cswclient import CswClient
+        csw_client = CswClient(base_url=url)
+        records = csw_client.get_records()
+        for record in records:
+            self.harvest_document(url=url, content=record)
 
     def validate_content(self, content):
         pass
@@ -328,6 +332,8 @@ class GeminiDocument(MetadataDocument):
         #        "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date/gmd:dateType/gmd:CI_DateTypeCode",
         #    ],
         #    multiplicity="*",
+
+        # Todo: Suggestion from PP not to bother pulling this into the package.
         ),GeminiAttribute(
             name="unique-resource-identifier",
             xpaths=[

@@ -184,15 +184,13 @@ class PackageController(BaseController):
 
     def new(self):
         c.error = ''
-
         is_admin = self.authorizer.is_sysadmin(c.user)
-        
+        # Check access control for user to create a package.
         auth_for_create = self.authorizer.am_authorized(c, model.Action.PACKAGE_CREATE, model.System())
         if not auth_for_create:
             abort(401, str(gettext('Unauthorized to create a package')))
-        
-        fs = ckan.forms.registry.get_package_fieldset(is_admin=is_admin,
-                         package_form=request.params.get('package_form'))
+        # Get the name of the package form.
+        fs = self._get_package_fieldset(is_admin=is_admin)
         if 'save' in request.params or 'preview' in request.params:
             if not request.params.has_key('log_message'):
                 abort(400, ('Missing parameter: log_message'))
@@ -202,7 +200,7 @@ class PackageController(BaseController):
         if request.params.has_key('save'):
             fs = fs.bind(record, data=dict(request.params) or None, session=model.Session)
             try:
-                PackageSaver().commit_pkg(fs, None, None, log_message, c.author)
+                PackageSaver().commit_pkg(fs, None, None, log_message, c.author, client=c)
                 pkgname = fs.name.value
 
                 pkg = model.Package.by_name(pkgname)
@@ -241,7 +239,7 @@ class PackageController(BaseController):
             try:
                 PackageSaver().render_preview(fs, id, record.id,
                                               log_message=log_message,
-                                              author=c.author)
+                                              author=c.author, client=c)
                 c.preview = h.literal(render('package/read_core.html'))
             except ValidationException, error:
                 fs = error.args[0]
@@ -262,9 +260,7 @@ class PackageController(BaseController):
             abort(401, str(gettext('User %r not authorized to edit %s') % (c.user, id)))
 
         c.auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, pkg)
-        fs = ckan.forms.registry.get_package_fieldset(is_admin=c.auth_for_change_state,
-                       package_form=request.params.get('package_form'))
-
+        fs = self._get_package_fieldset(is_admin=c.auth_for_change_state)
         if 'save' in request.params or 'preview' in request.params:
             if not request.params.has_key('log_message'):
                 abort(400, ('Missing parameter: log_message'))
@@ -286,7 +282,7 @@ class PackageController(BaseController):
                                           # multidict which is read only
             fs = fs.bind(pkg, data=params or None)
             try:
-                PackageSaver().commit_pkg(fs, id, pkg.id, log_message, c.author)
+                PackageSaver().commit_pkg(fs, id, pkg.id, log_message, c.author, client=c)
                 # do not use package name from id, as it may have been edited
                 pkgname = fs.name.value
                 self._form_save_redirect(pkgname, 'edit')
@@ -306,7 +302,7 @@ class PackageController(BaseController):
             try:
                 PackageSaver().render_preview(fs, id, pkg.id,
                                               log_message=log_message,
-                                              author=c.author)
+                                              author=c.author, client=c)
                 c.pkgname = fs.name.value
                 c.pkgtitle = fs.title.value
                 read_core_html = render('package/read_core.html') #utf8 format
@@ -370,7 +366,10 @@ class PackageController(BaseController):
                 raise
             # now do new roles
             newrole_user_id = request.params.get('PackageRole--user_id')
-            if newrole_user_id != '__null_value__':
+            newrole_authzgroup_id = request.params.get('PackageRole--authorized_group_id')
+            if newrole_user_id != '__null_value__' and newrole_authzgroup_id != '__null_value__':
+                c.message = _(u'Please select either a user or an authorization group, not both.')
+            elif newrole_user_id != '__null_value__':
                 user = model.Session.query(model.User).get(newrole_user_id)
                 # TODO: chech user is not None (should go in validation ...)
                 role = request.params.get('PackageRole--role')
@@ -383,14 +382,32 @@ class PackageController(BaseController):
                 c.message = _(u'Added role \'%s\' for user \'%s\'') % (
                     newpkgrole.role,
                     newpkgrole.user.name)
+            elif newrole_authzgroup_id != '__null_value__':
+                authzgroup = model.Session.query(model.AuthorizationGroup).get(newrole_authzgroup_id)
+                # TODO: chech user is not None (should go in validation ...)
+                role = request.params.get('PackageRole--role')
+                newpkgrole = model.PackageRole(authorized_group=authzgroup, 
+                        package=pkg, role=role)
+                # With FA no way to get new GroupRole back to set group attribute
+                # new_roles = ckan.forms.new_roles_fs.bind(model.GroupRole, data=params or None)
+                # new_roles.sync()
+                model.Session.commit()
+                model.Session.remove()
+                c.message = _(u'Added role \'%s\' for authorization group \'%s\'') % (
+                    newpkgrole.role,
+                    newpkgrole.authorized_group.name)
         elif 'role_to_delete' in request.params:
             pkgrole_id = request.params['role_to_delete']
             pkgrole = model.Session.query(model.PackageRole).get(pkgrole_id)
             if pkgrole is None:
                 c.error = _(u'Error: No role found with that id')
             else:
-                c.message = _(u'Deleted role \'%s\' for user \'%s\'') % (pkgrole.role,
-                        pkgrole.user.name)
+                if pkgrole.user:
+                    c.message = _(u'Deleted role \'%s\' for user \'%s\'') % \
+                                (pkgrole.role, pkgrole.user.name)
+                elif pkgrole.authorized_group:
+                    c.message = _(u'Deleted role \'%s\' for authorization group \'%s\'') % \
+                                (pkgrole.role, pkgrole.authorized_group.name)
                 pkgrole.purge()
                 model.repo.commit_and_remove()
 
@@ -398,7 +415,8 @@ class PackageController(BaseController):
         c.pkg = model.Package.get(id)
         fs = ckan.forms.get_authz_fieldset('package_authz_fs').bind(c.pkg.roles)
         c.form = fs.render()
-        c.new_roles_form = ckan.forms.get_authz_fieldset('new_package_roles_fs').render()
+        c.new_roles_form = \
+            ckan.forms.get_authz_fieldset('new_package_roles_fs').render()
         return render('package/authz.html')
 
     def rate(self, id):
