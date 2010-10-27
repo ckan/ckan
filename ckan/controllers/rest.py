@@ -441,7 +441,10 @@ class BaseRestController(BaseApiController):
             revisioned_details = 'Package Relationship: %s %s %s' % (id, subregister, id2)
         elif register == 'group' and not subregister:
             entity = model.Group.by_name(id)
-            revisioned_details = None
+            if not entity:
+                response.status_int = 404
+                return 'Group was not found.'
+            revisioned_details = 'Group: %s' % entity.name
         elif register == 'harvestingjob' and not subregister:
             entity = model.HarvestingJob.get(id, default=None)
             revisioned_details = None

@@ -61,6 +61,7 @@ class GroupController(BaseController):
         fs = ckan.forms.get_group_fieldset(is_admin=is_admin)
 
         if request.params.has_key('save'):
+            model.repo.new_revision()
             # needed because request is nested
             # multidict which is read only
             params = dict(request.params)
@@ -118,6 +119,7 @@ class GroupController(BaseController):
             c.form = self._render_edit_form(fs)
             return render('group/edit.html')
         else:
+            model.repo.new_revision()
             # id is the name (pre-edited state)
             c.groupname = id
             # needed because request is nested

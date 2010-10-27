@@ -35,9 +35,7 @@ mapper(GroupExtra, group_extra_table, properties={
         )
     },
     order_by=[group_extra_table.c.group_id, group_extra_table.c.key],
-    extension=[vdm.sqlalchemy.Revisioner(group_extra_revision_table),
-               notifier.NotifierMapperTrigger(),
-               ],
+    extension=[vdm.sqlalchemy.Revisioner(group_extra_revision_table),],
 )
 
 vdm.sqlalchemy.modify_base_object_mapper(GroupExtra, Revision, State)

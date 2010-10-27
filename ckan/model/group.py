@@ -77,6 +77,28 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         if not package in self.packages:
             self.packages.append(package)
 
+    @property
+    def all_related_revisions(self):
+        '''Returns chronological list of all object revisions related to
+        this group. Ordered by most recent first.
+        '''
+        results = {}
+        for grp_rev in self.all_revisions:
+            if not results.has_key(grp_rev.revision):
+                results[grp_rev.revision] = []
+            results[grp_rev.revision].append(grp_rev)
+        for class_ in [PackageGroup, GroupExtra]:
+            rev_class = class_.__revision_class__
+            obj_revisions = Session.query(rev_class).filter_by(group_id=self.id).all()
+            for obj_rev in obj_revisions:
+                if not results.has_key(obj_rev.revision):
+                    results[obj_rev.revision] = []
+                results[obj_rev.revision].append(obj_rev)
+        result_list = results.items()
+        ourcmp = lambda rev_tuple1, rev_tuple2: \
+                 cmp(rev_tuple2[0].timestamp, rev_tuple1[0].timestamp)
+        return sorted(result_list, cmp=ourcmp)
+
     def __repr__(self):
         return '<Group %s>' % self.name
 
@@ -86,9 +108,7 @@ mapper(Group, group_table, properties={
         backref='groups',
         order_by=package_table.c.name
     )},
-    extension=[vdm.sqlalchemy.Revisioner(group_revision_table),
-               notifier.NotifierMapperTrigger(),
-               ],
+    extension=[vdm.sqlalchemy.Revisioner(group_revision_table),],
 )
 
 
@@ -98,9 +118,7 @@ GroupRevision = vdm.sqlalchemy.create_object_version(mapper, Group,
 
 
 mapper(PackageGroup, package_group_table,
-    extension=[vdm.sqlalchemy.Revisioner(package_group_revision_table),
-               notifier.NotifierMapperTrigger(),
-              ],
+    extension=[vdm.sqlalchemy.Revisioner(package_group_revision_table),],
 )
 
 
