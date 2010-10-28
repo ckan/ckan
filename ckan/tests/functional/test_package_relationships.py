@@ -1,8 +1,9 @@
 from ckan.tests import *
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
+from base import FunctionalTestCase
 
-class TestRelationships(TestController):
+class TestRelationships(FunctionalTestCase):
     @classmethod
     def setup_class(self):
         create = CreateTestData

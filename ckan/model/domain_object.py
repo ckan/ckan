@@ -84,7 +84,11 @@ class DomainObject(object):
         repr = u'<%s' % self.__class__.__name__
         table = orm.class_mapper(self.__class__).mapped_table
         for col in table.c:
-            repr += u' %s=%s' % (col.name, getattr(self, col.name))
+            try:
+                repr += u' %s=%s' % (col.name, getattr(self, col.name))
+            except Exception, inst:
+                repr += u' %s=%s' % (col.name, inst)
+                
         repr += '>'
         return repr
 

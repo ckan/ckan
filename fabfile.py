@@ -117,6 +117,9 @@ def config_hmg2_ckan_net():
 def config_test_ckan_net():
     config_0('test.ckan.net', requirements='pip-requirements.txt')
 
+def config_dev_hmg_ckan_net():
+    config_0('dev-hmg.ckan.net', requirements='pip-requirements.txt')
+
 def config_0(name, hosts_str='', requirements='pip-requirements-metastable.txt',
         db_pass=None):
     '''Configurable configuration: fab -d gives full info.
@@ -170,6 +173,10 @@ def _setup():
     _default('db_user', env.user)
     _default('db_host', 'localhost')
     _default('db_name', env.ckan_instance_name)
+    _default('pip_from_pyenv', None)
+    _default('apache_sites_available', '/etc/apache2/sites-available/')
+    _default('apache_sites_enabled', '/etc/apache2/sites-enabled/')
+    _default('apache_config', env.ckan_instance_name)
 
 def deploy():
     '''Deploy app on server. Keeps existing config files.'''
@@ -195,7 +202,7 @@ def deploy():
             _run_in_cmd_pyenv('virtualenv %s' % env.pyenv_dir)
         else:
             print 'Virtualenv already exists: %s' % env.pyenv_dir
-        _run_in_cmd_pyenv('pip -E %s install -r %s' % (env.pyenv_dir, env.pip_requirements))
+        _pip_cmd('pip -E %s install -r %s' % (env.pyenv_dir, env.pip_requirements))
 
         # create config ini file
         if not exists(env.config_ini_filename):
@@ -275,6 +282,10 @@ def restart_apache():
     'Restart apache'
     sudo('/etc/init.d/apache2 restart')
 
+def reload_apache():
+    'Reload apache config'
+    sudo('/etc/init.d/apache2 reload')
+
 def status():
     'Provides version number info'
     _setup()
@@ -286,6 +297,38 @@ def status():
         run('hg branch')
         run('hg identify')
         run('grep version ckan/__init__.py')
+
+def apache_config(set_config=None):
+    '''View and change the currently enabled apache config for this site'''
+    _setup()
+    enabled_config = get_enabled_apache_config()
+    available_configs = get_available_apache_configs()
+    print 'Available modes: %s' % available_configs
+
+    if set_config == None:
+        print 'Current mode: %s' % enabled_config
+    else:
+        assert set_config in available_configs
+        if enabled_config:
+            sudo('a2dissite %s' % enabled_config)
+        sudo('a2ensite %s' % set_config)
+        reload_apache()
+
+def get_available_apache_configs():
+    available_configs = run('ls %s' % env.apache_sites_available).split('\n')
+    related_available_configs = [fname for fname in available_configs if env.apache_config in fname]
+    assert related_available_configs, \
+           'No recognised available apache config in: %r' % available_configs
+    return related_available_configs
+
+def get_enabled_apache_config():
+    with cd(env.apache_sites_enabled):
+        related_enabled_configs = run('ls %s*' % (env.apache_config)).split('\n')
+    assert len(related_enabled_configs) <= 1, \
+           'Seemingly more than one apache config enabled for this site: %r' %\
+           related_enabled_configs
+    return related_enabled_configs[0] if related_enabled_configs else None
+
 
 def backup():
     'Backup database'
@@ -389,6 +432,12 @@ def upload_i18n(lang):
     current_lang = _get_ini_value('lang')
     if current_lang != lang:
         print "Warning: current language set to '%s' not '%s'." % (current_lang, lang)
+
+def paster(cmd):
+    '''Run specified paster command'''
+    _setup()
+    with cd(env.instance_path):
+        _run_in_pyenv('paster --plugin ckan %s --config %s' % (cmd, env.config_ini_filename))
 
 def sysadmin_list():
     '''Lists sysadmins'''
@@ -517,6 +566,15 @@ def _run_in_pyenv(command):
     activate_path = os.path.join(env.pyenv_dir, 'bin', 'activate')
     run('source %s&&%s' % (activate_path, command))
 
+def _pip_cmd(command):
+    '''Looks for pip in the pyenv before finding it in the cmd pyenv'''
+    if env.pip_from_pyenv == None:
+        env.pip_from_pyenv = bool(exists(os.path.join(env.pyenv_dir, 'bin', 'pip')))
+    if env.pip_from_pyenv:
+        return _run_in_pyenv(command)
+    else:
+        return _run_in_cmd_pyenv(command)            
+    
 def _run_in_cmd_pyenv(command):
     '''For running commands that are installed in a specific python
     environment specified by env.cmd_pyenv'''

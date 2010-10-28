@@ -57,8 +57,8 @@ def find_controller(self, controller):
     # Check to see if its a dotted name
     if '.' in controller or ':' in controller:
         mycontroller = pkg_resources.EntryPoint.parse('x=%s' % controller).load(False)
-    	self.controller_classes[controller] = mycontroller
-    	return mycontroller
+        self.controller_classes[controller] = mycontroller
+        return mycontroller
 
     return find_controller_generic(self, controller)
 

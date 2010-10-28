@@ -1,0 +1,30 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+  
+  <py:def function="page_title">${c.authorization_group_name} - Authorization - AuthorizationGroups</py:def>
+
+  <div py:match="content">
+    <h2>
+      Authorization for authorization group: ${c.authorization_group_name}
+    </h2>
+
+    <p py:if="c.message">${c.message}</p>
+
+    <form id="group-authz" action="" method="post">
+      <h3>Update Existing Roles</h3>
+      <table>
+      ${h.literal(c.form)}
+      </table>
+
+      <h3>Create New User or Authorization Group Roles</h3>
+      ${h.literal(c.new_roles_form)}
+      
+      <br/>
+
+      ${h.submit('save', _('Save'))}
+    </form>
+  </div>
+
+  <xi:include href="layout.html" />
+</html>

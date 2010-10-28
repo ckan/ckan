@@ -1,9 +1,9 @@
 import formalchemy
-from unittest import TestCase
 
 from ckan.lib.field_types import *
 import ckan.lib.schema_gov as schema_gov
 from ckan.tests import *
+from unittest import TestCase
 
 class TestDate(TestCase):
     def test_0_parse_timedate(self):

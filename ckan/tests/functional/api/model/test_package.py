@@ -11,20 +11,10 @@ class PackagesTestCase(BaseModelApiTestCase):
     commit_changesets = False
     reuse_common_fixtures = True
 
-    def setup(self):
-        self.conditional_create_common_fixtures()
-        self.init_extra_environ()
-
     def teardown(self):
         self.purge_package_by_name(self.package_fixture_data['name'])
         self.purge_package_by_name(u'somethingnew')
-        self.reuse_or_delete_common_fixtures()
-
-    def purge_package_by_name(self, package_name):
-        package = self.get_package_by_name(package_name)
-        if package:
-            package.purge()
-            self.commit_remove()
+        super(PackagesTestCase, self).teardown()
 
     def test_register_get_ok(self):
         offset = self.package_offset()
@@ -91,15 +81,6 @@ class PackagesTestCase(BaseModelApiTestCase):
         postparams = '%s=1' % self.dumps(test_params)
         res = self.app.post(offset, params=postparams, status=self.STATUS_400_BAD_REQUEST,
                 extra_environ=self.extra_environ)
-
-    def test_register_post_jsonp_bad_request(self):
-        # JSONP callback should only work for GETs, not POSTs.
-        package_name = u'test6jsonp'
-        assert not self.get_package_by_name(package_name)
-        offset = self.offset('/rest/package?callback=jsoncallback')
-        params = '%s=1' % self.dumps({'name': package_name})
-        res = self.app.post(offset, params=params, status=self.STATUS_400_BAD_REQUEST,
-                            extra_environ=self.extra_environ)
 
     def test_register_post_denied(self):
         offset = self.offset('/rest/package')
