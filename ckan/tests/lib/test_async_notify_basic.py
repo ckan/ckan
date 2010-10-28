@@ -71,7 +71,7 @@ class TestBlinkerOnly:
 
 
 class TestBlinkerNotifiesAsync:
-    event_name = 'Package'
+    event_name = 'TestSignal'
     signal = blinker.signal(event_name)
     routing_key = 'importer'
     message_data = { 'import_feed': 'blah' }

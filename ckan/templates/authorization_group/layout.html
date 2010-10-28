@@ -1,0 +1,34 @@
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip=""
+  >
+
+  <py:match path="primarysidebar">
+    <div class="box">
+      <h2>Authorization Groups</h2>
+      <p i18n:msg="">Instead of specifying the privileges of specific users on a package or group,
+          you can also specify a set of users that will share the same rights. To do that, an    
+          <strong>authorization group</strong> can be set-up and users can be added to it.</p>
+      <p>
+	<span class="ckan_logged_in" style="display: none;">
+	  To create a new authorization group, please first <a href="${h.url_for(controller='user',action='login', id=None)}">login</a>.
+	</span>
+	<span class="ckan_logged_out">
+	  <a href="${h.url_for(controller='authorization_group',action='new', id=None)}">Create a new authorization group</a>
+	</span>
+      </p>
+      
+    </div>
+  </py:match>
+  
+  <py:match path="minornavigation">
+    <li>${h.subnav_link(c, _('Home'), controller='authorization_group', action='index', id=None)}</li>
+    <li>${h.subnav_link(c, _('Create a new authorization group'), controller='authorization_group', action='new', id=None)}</li>
+  </py:match>
+
+  
+  <xi:include href="../layout.html" />
+</html>

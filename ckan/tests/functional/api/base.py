@@ -7,7 +7,7 @@ from ckan.tests import TestController as ControllerTestCase
 import ckan.model as model
 import ckan.authz as authz
 from ckan.lib.create_test_data import CreateTestData
-from ckan.lib.helpers import json
+from ckan.lib.helpers import json, url_escape
 
 ACCESS_DENIED = [403]
 
@@ -32,7 +32,7 @@ class ApiControllerTestCase(ControllerTestCase):
         return response
 
     def post(self, offset, data, status=[200,201], *args, **kwds):
-        params = '%s=1' % self.dumps(data)
+        params = '%s=1' % url_escape(self.dumps(data))
         response = self.app.post(offset, params=params, status=status,
             extra_environ=self.get_extra_environ())
         return response
@@ -176,13 +176,6 @@ class ApiUnversionedTestCase(Api1TestCase):
 
 class BaseModelApiTestCase(ModelMethods, ApiControllerTestCase):
 
-    commit_changesets = True
-
-    require_common_fixtures = True
-    # Todo: Eventually reuse_common_fixtures = True.
-    reuse_common_fixtures = False
-    has_common_fixtures = False
-
     testpackage_license_id = u'gpl-3.0'
     package_fixture_data = {
         'name' : u'testpkg',
@@ -223,23 +216,14 @@ class BaseModelApiTestCase(ModelMethods, ApiControllerTestCase):
     }
     user_name = u'http://myrandom.openidservice.org/'
 
-    def conditional_create_common_fixtures(self):
-        if self.require_common_fixtures and not BaseModelApiTestCase.has_common_fixtures:
-            self.create_common_fixtures()
-            BaseModelApiTestCase.has_common_fixtures = True
+    def setup(self):
+        super(BaseModelApiTestCase, self).setup()
+        self.conditional_create_common_fixtures()
+        self.init_extra_environ()
 
-    def create_common_fixtures(self):
-        CreateTestData.create(commit_changesets=self.commit_changesets)
-        CreateTestData.create_arbitrary([], extra_user_names=[self.user_name])
-
-    def reuse_or_delete_common_fixtures(self):
-        if BaseModelApiTestCase.has_common_fixtures and not self.reuse_common_fixtures:
-            BaseModelApiTestCase.has_common_fixtures = False
-            self.delete_common_fixtures()
-            self.commit_remove()
-
-    def delete_common_fixtures(self):
-        CreateTestData.delete()
+    def teardown(self):
+        self.reuse_or_delete_common_fixtures()
+        super(BaseModelApiTestCase, self).teardown()
 
     def init_extra_environ(self):
         self.user = model.User.by_name(self.user_name)

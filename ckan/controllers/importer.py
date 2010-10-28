@@ -8,7 +8,6 @@ from ckan.lib.package_saver import PackageSaver, ValidationException
 import genshi
 
 from ckan.lib.base import *
-import ckan.forms
 from licenses import LicenseList
 
 log = logging.getLogger(__name__)
@@ -26,7 +25,14 @@ def importer_to_fs_dict(pkg_dict):
     return fs_dict
 
 class ImporterController(BaseController):
-    authorizer = ckan.authz.Authorizer()
+
+    def get_authorizer(self):
+        if not has_attr(self, '_authorizer'):
+            import ckan.authz
+            self._authorizer = ckan.authz.Authorizer()
+        return self._authorizer
+
+    authorizer = property(get_authorizer)
 
     def index(self):
         return render('importer/importer.html')
@@ -120,14 +126,14 @@ class ImporterController(BaseController):
         for index, pkg_dict in enumerate(importer.pkg_dict()):
             pkg = model.Package.by_name(pkg_dict['name'])
             if pkg:
-                existing_dict = ckan.forms.get_package_dict(pkg)
+                existing_dict = self._get_package_dict(pkg)
                 pkg_id = pkg.id
             else:
-                existing_dict = ckan.forms.get_package_dict()
+                existing_dict = self._get_package_dict()
                 pkg_id = ''
                 pkg = model.Package
-            fa_dict = ckan.forms.edit_package_dict(existing_dict, pkg_dict, id=pkg_id)
-            fs = ckan.forms.get_standard_fieldset()
+            fa_dict = self._edit_package_dict(existing_dict, pkg_dict, id=pkg_id)
+            fs = self._get_standard_package_fieldset()
             fs = fs.bind(pkg, data=fa_dict)
             yield fs
         

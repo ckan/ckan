@@ -2,12 +2,13 @@ import ckan.model as model
 import ckan.forms
 from ckan.tests import *
 from ckan.tests.pylons_controller import PylonsTestCase
+from ckan.tests.html_check import HtmlCheckMethods
 from ckan.lib.helpers import escape
 
 def _get_blank_param_dict(pkg=None):
-    return ckan.forms.get_package_dict(pkg=pkg, blank=True)
+    return ckan.forms.get_package_dict(pkg=pkg, blank=True, user_editable_groups=[])
 
-class TestForms(PylonsTestCase):
+class TestForms(PylonsTestCase, HtmlCheckMethods):
     @classmethod
     def setup_class(self):
         model.Session.remove()
@@ -18,14 +19,18 @@ class TestForms(PylonsTestCase):
         model.Session.remove()
         model.repo.rebuild_db()
 
+    def _get_standard_fieldset(self):
+        fs = ckan.forms.get_standard_fieldset(user_editable_groups=[])
+        return fs
+
     def test_0_get_package_dict(self):
-        d = ckan.forms.get_package_dict()
+        d = ckan.forms.get_package_dict(user_editable_groups=[])
         assert 'Package--title' in d
         assert not 'Package--all_revisions' in d
 
         anna = model.Package.by_name(u'annakarenina')
         prefix = 'Package-%s-' % anna.id
-        d = ckan.forms.get_package_dict(anna)
+        d = ckan.forms.get_package_dict(anna, user_editable_groups=[])
         assert prefix+'title' in d
         assert d[prefix+'title'] == anna.title
         assert d[prefix+'version'] == anna.version
@@ -39,7 +44,7 @@ class TestForms(PylonsTestCase):
         assert d2[prefix+'name'] == anna.name
 
     def test_1_render(self):
-        fs = ckan.forms.get_standard_fieldset()
+        fs = self._get_standard_fieldset()
         anna = model.Package.by_name(u'annakarenina')
         fs = fs.bind(anna)
         out = fs.render()
@@ -51,20 +56,20 @@ class TestForms(PylonsTestCase):
         assert 'Package tags' not in out, out
 
     def test_1_render_markdown(self):
-        fs = ckan.forms.get_standard_fieldset()
+        fs = self._get_standard_fieldset()
         anna = model.Package.by_name(u'annakarenina')
         fs = fs.bind(anna)
         out = fs.notes.render()
 
     def test_2_name(self):
-        fs = ckan.forms.get_standard_fieldset()
+        fs = self._get_standard_fieldset()
         anna = model.Package.by_name(u'annakarenina')
         fs = fs.bind(anna)
         out = fs.render()
         assert 'Name (required)' in out, out
 
     def test_2_tags(self):
-        fs = ckan.forms.get_standard_fieldset()
+        fs = self._get_standard_fieldset()
         anna = model.Package.by_name(u'annakarenina')
         fs = fs.bind(anna)
         out = fs.tags.render()
@@ -74,7 +79,7 @@ class TestForms(PylonsTestCase):
         self.check_tag(out, 'russian', 'tolstoy')
 
     def test_2_resources(self):
-        fs = ckan.forms.get_standard_fieldset()
+        fs = self._get_standard_fieldset()
         anna = model.Package.by_name(u'annakarenina')
         fs = fs.bind(anna)
         out = fs.resources.render()
@@ -86,7 +91,7 @@ class TestForms(PylonsTestCase):
             assert res.hash in out, out_printable        
 
     def test_2_fields(self):
-        fs = ckan.forms.get_standard_fieldset()
+        fs = self._get_standard_fieldset()
         anna = model.Package.by_name(u'annakarenina')
         fs = fs.bind(anna)
         out = fs.render()
@@ -119,7 +124,7 @@ class TestForms(PylonsTestCase):
         indict['Package--resources-0-url'] = u'http:/1'
         indict['Package--resources-0-format'] = u'xml'
         indict['Package--resources-0-description'] = u'test desc'
-        fs = ckan.forms.get_standard_fieldset().bind(model.Package, data=indict)
+        fs = self._get_standard_fieldset().bind(model.Package, data=indict)
 
         model.repo.new_revision()
         fs.sync()
@@ -167,7 +172,7 @@ class TestForms(PylonsTestCase):
         indict[prefix + 'resources-0-format'] = u'xml'
         indict[prefix + 'resources-0-description'] = u'test desc'
         
-        fs = ckan.forms.get_standard_fieldset().bind(anna, data=indict)
+        fs = self._get_standard_fieldset().bind(anna, data=indict)
         model.repo.new_revision()
         fs.sync()
         model.repo.commit_and_remove()
@@ -211,13 +216,17 @@ class TestFormErrors(PylonsTestCase):
     def teardown_class(self):
         model.repo.rebuild_db()
 
+    def _get_standard_fieldset(self):
+        fs = ckan.forms.get_standard_fieldset(user_editable_groups=[])
+        return fs
+
     def test_1_dup_name(self):
         assert model.Package.by_name(u'annakarenina')
         indict = _get_blank_param_dict()
         prefix = 'Package--'
         indict[prefix + 'name'] = u'annakarenina'
         indict[prefix + 'title'] = u'Some title'
-        fs = ckan.forms.get_standard_fieldset().bind(model.Package, data=indict)
+        fs = self._get_standard_fieldset().bind(model.Package, data=indict)
         model.repo.new_revision()
         assert not fs.validate()
 
@@ -226,7 +235,7 @@ class TestFormErrors(PylonsTestCase):
         prefix = 'Package--'
         indict[prefix + 'name'] = u'annakarenina123'
         indict[prefix + 'title'] = u'Some title'
-        fs = ckan.forms.get_standard_fieldset().bind(model.Package, data=indict)
+        fs = self._get_standard_fieldset().bind(model.Package, data=indict)
         model.repo.new_revision()
         assert fs.validate()
 
@@ -236,7 +245,7 @@ class TestFormErrors(PylonsTestCase):
         indict[prefix + 'name'] = u'annakarenina123'
         indict[prefix + 'title'] = u'Some title'
         indict[prefix + 'extras-newfield0-value'] = u'testvalue'
-        fs = ckan.forms.get_standard_fieldset().bind(model.Package, data=indict)
+        fs = self._get_standard_fieldset().bind(model.Package, data=indict)
         model.repo.new_revision()
         assert not fs.validate()
 
@@ -246,7 +255,7 @@ class TestFormErrors(PylonsTestCase):
         indict[prefix + 'name'] = u'annakarenina123'
         indict[prefix + 'title'] = u'Some title'
         indict[prefix + 'extras-newfield0-key'] = u'testkey'
-        fs = ckan.forms.get_standard_fieldset().bind(model.Package, data=indict)
+        fs = self._get_standard_fieldset().bind(model.Package, data=indict)
         model.repo.new_revision()
         assert fs.validate()
 
@@ -257,7 +266,7 @@ class TestFormErrors(PylonsTestCase):
         indict[prefix + 'title'] = u'Some title'
         indict[prefix + 'extras-newfield0-value'] = u'testvalue'
         indict[prefix + 'extras-newfield0-key'] = u'testkey'
-        fs = ckan.forms.get_standard_fieldset().bind(model.Package, data=indict)
+        fs = self._get_standard_fieldset().bind(model.Package, data=indict)
         model.repo.new_revision()
         assert fs.validate(), fs.errors
 
@@ -270,7 +279,7 @@ class TestFormErrors(PylonsTestCase):
         indict['Package--resources-0-url'] = u''
         indict['Package--resources-0-format'] = u'xml'
         indict['Package--resources-0-description'] = u'test desc'
-        fs = ckan.forms.get_standard_fieldset().bind(model.Package, data=indict)
+        fs = self._get_standard_fieldset().bind(model.Package, data=indict)
         model.repo.new_revision()
         assert not fs.validate()
 
@@ -284,6 +293,10 @@ class TestValidation:
     def teardown_class(self):
         model.repo.rebuild_db()
 
+    def _get_standard_fieldset(self):
+        fs = ckan.forms.get_standard_fieldset(user_editable_groups=[])
+        return fs
+
     def test_1_package_name(self):
         anna = model.Package.by_name(u'annakarenina')
         prefix = 'Package-%s-' % anna.id
@@ -295,13 +308,13 @@ class TestValidation:
         for i, name in enumerate(good_names):
             print "Good name:", i
             indict[prefix + 'name'] = unicode(name)
-            fs = ckan.forms.get_standard_fieldset().bind(anna, data=indict)
+            fs = self._get_standard_fieldset().bind(anna, data=indict)
             assert fs.validate()
 
         for i, name in enumerate(bad_names):
             print "Bad name:", i
             indict[prefix + 'name'] = unicode(name)
-            fs = ckan.forms.get_standard_fieldset().bind(anna, data=indict)
+            fs = self._get_standard_fieldset().bind(anna, data=indict)
             assert not fs.validate()
 
     def test_1_tag_name(self):
@@ -316,7 +329,7 @@ class TestValidation:
             print "Good tag name:", i
             indict[prefix + 'name'] = u'okname'
             indict[prefix + 'tags'] = unicode(name)
-            fs = ckan.forms.get_standard_fieldset().bind(anna, data=indict)
+            fs = self._get_standard_fieldset().bind(anna, data=indict)
             out = fs.validate()
             assert out, fs.errors
 
@@ -324,7 +337,7 @@ class TestValidation:
             print "Bad tag name:", i
             indict[prefix + 'name'] = u'okname'
             indict[prefix + 'tags'] = unicode(name)
-            fs = ckan.forms.get_standard_fieldset().bind(anna, data=indict)
+            fs = self._get_standard_fieldset().bind(anna, data=indict)
             out = fs.validate()
             assert not out, fs.errors
             
