@@ -61,3 +61,12 @@ class TestPlugins(TestCase):
         assert PluginGlobals.env().services == set([MapperPlugin()])
         assert list(PluginMapperExtension.observers) == [MapperPlugin()]
         assert list(routing_plugins) == []
+
+    def test_mapper_plugin_fired(self):
+        config['ckan.plugins'] = 'mapper_plugin'
+        plugins.load_all(config)
+        CreateTestData.create_arbitrary([{'name':u'testpkg'}])
+        mapper_plugin = PluginGlobals.plugin_registry['MapperPlugin'].__instance__
+        assert len(mapper_plugin.added) == 1
+        assert mapper_plugin.added[0].name == 'testpkg'
+

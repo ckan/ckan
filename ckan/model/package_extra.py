@@ -5,6 +5,7 @@ import vdm.sqlalchemy
 from core import *
 from package import *
 from types import JsonType
+from ckan.model import extension
 
 __all__ = ['PackageExtra', 'package_extra_table', 'PackageExtraRevision']
 
@@ -34,7 +35,7 @@ mapper(PackageExtra, package_extra_table, properties={
     },
     order_by=[package_extra_table.c.package_id, package_extra_table.c.key],
     extension=[vdm.sqlalchemy.Revisioner(extra_revision_table),
-               notifier.NotifierMapperTrigger(),
+               extension.PluginMapperExtension(),
                ],
 )
 
