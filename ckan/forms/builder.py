@@ -5,6 +5,13 @@ from pylons import c
 import common
 
 class CkanFieldset(formalchemy.FieldSet):
+    default_renderers = {
+        formalchemy.types.String:common.TextRenderer,
+        'textarea':common.TextAreaRenderer,
+        'dropdown': common.SelectFieldRenderer,
+        'checkbox': common.CheckboxFieldRenderer,
+        formalchemy.types.DateTime: common.DateTimeFieldRenderer,
+        }
     def render(self, **kwargs):
         '''Override FormAlchemy rendering to use a Ckan template'''
         if hasattr(self, 'form_template') and self.form_template is not None:

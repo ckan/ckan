@@ -126,7 +126,7 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
         dept_readonly = fs.department.render_readonly()
         assert '<select' in dept, dept
         assert '<option selected="selected" value=""></option>' in dept, dept
-        assert '<br/>' == dept_readonly, repr(dept_readonly)
+        assert '<p></p>' == dept_readonly, repr(dept_readonly)
 
     def test_2_field_department_other(self):
         # Create package

@@ -114,7 +114,7 @@
               <img src="${h.icon_url('page_white_json')}" title="JSON format" alt="JSON" /></a>
           </li>
           <li py:if="config.get('rdf_packages')">
-            <a href="${config.get('rdf_packages') + c.pkg.name}">
+            <a href="${config.get('rdf_packages') + c.pkg.name[0] + '/' + c.pkg.name[1] + '/' + c.pkg.name}">
               <img src="${h.icon_url('page_white_rdf')}" title="RDF format" alt="RDF" />
             </a>
           </li>
@@ -129,7 +129,7 @@
 
   <py:if test="config.get('rdf_packages')">
     <py:def function="optional_head">
-      <link rel="alternate" type="application/rdf+xml" title="RDF Version" href="${config['rdf_packages']}${c.pkg.name}" />
+      <link rel="alternate" type="application/rdf+xml" title="RDF Version" href="${config['rdf_packages'] + c.pkg.name[0] + '/' + c.pkg.name[1] + '/' + c.pkg.name}" />
     </py:def>
   </py:if>
 
