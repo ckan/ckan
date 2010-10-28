@@ -15,9 +15,9 @@ import ckan.lib.app_globals as app_globals
 import ckan.lib.helpers
 from ckan.config.routing import make_map
 from ckan import model
+from ckan import plugins
 
 import blinker
-import plugins
 
 
 def load_environment(global_conf, app_conf):
