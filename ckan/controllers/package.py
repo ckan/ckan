@@ -135,6 +135,7 @@ class PackageController(BaseController):
                     id = request.params.getone('pkg_name')
                 c.error = _('Select two revisions before doing the comparison.')
             else:
+                params['diff_entity'] = 'package'
                 h.redirect_to(controller='revision', action='diff', **params)
 
         c.pkg = model.Package.get(id)

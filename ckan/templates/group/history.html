@@ -31,7 +31,7 @@
           <tr>
             <td nowrap="nowrap">
               ${h.radio("selected1", rev.id, checked=(index == 0))}
-              ${h.radio("selected2", rev.id, checked=(index == len(c.pkg_revisions)-1))}
+              ${h.radio("selected2", rev.id, checked=(index == len(c.group_revisions)-1))}
             </td>
             <td>
               <a href="${h.url_for(controller='revision',action='read',id=rev.id)}">${rev.id}</a>

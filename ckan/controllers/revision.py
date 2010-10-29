@@ -109,20 +109,32 @@ class RevisionController(BaseController):
         c.packages = [ pkg.continuity for pkg in pkgs ]
         pkgtags = model.Session.query(model.PackageTagRevision).filter_by(revision=c.revision)
         c.pkgtags = [ pkgtag.continuity for pkgtag in pkgtags ]
+        grps = model.Session.query(model.GroupRevision).filter_by(revision=c.revision)
+        c.groups = [ grp.continuity for grp in grps ]
+        pkggroups = model.Session.query(model.PackageGroupRevision).filter_by(revision=c.revision)
+        c.packagegroups = [ pkggroup.continuity for pkggroup in pkggroups ]
         return render('revision/read.html', cache_key=cache_key)
 
     def diff(self, id=None):
         if 'diff' not in request.params or 'oldid' not in request.params:
             abort(400)
-        pkg = model.Package.by_name(id)
         c.revision_from = model.Session.query(model.Revision).get(
             request.params.getone('oldid'))
         c.revision_to = model.Session.query(model.Revision).get(
             request.params.getone('diff'))
-        diff = pkg.diff(c.revision_to, c.revision_from)
+        
+        c.diff_entity = request.params.get('diff_entity')
+        if c.diff_entity == 'package':
+            c.pkg = model.Package.by_name(id)
+            diff = c.pkg.diff(c.revision_to, c.revision_from)
+        elif c.diff_entity == 'group':
+            c.group = model.Group.by_name(id)
+            diff = c.group.diff(c.revision_to, c.revision_from)
+        else:
+            abort(400)
+        
         c.diff = diff.items()
         c.diff.sort()
-        c.pkg = pkg
         return render('revision/diff.html')
 
     def _has_purge_permissions(self):

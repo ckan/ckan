@@ -238,6 +238,7 @@ class GroupController(BaseController):
                     id = request.params.getone('group_name')
                 c.error = _('Select two revisions before doing the comparison.')
             else:
+                params['diff_entity'] = 'group'
                 h.redirect_to(controller='revision', action='diff', **params)
 
         c.group = model.Group.by_name(id)

@@ -9,7 +9,7 @@ from types import make_uuid
 import vdm.sqlalchemy
 
 __all__ = ['group_table', 'Group', 'package_revision_table',
-           'PackageGroup']
+           'PackageGroup', 'GroupRevision', 'PackageGroupRevision']
 
 package_group_table = Table('package_group', metadata,
     Column('id', UnicodeText, primary_key=True, default=make_uuid),

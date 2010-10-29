@@ -5,7 +5,17 @@
   <py:def function="page_title">Differences - Revisions</py:def>
 
   <div py:match="content">
-    <h2>Revision Differences - <a href="${h.url_for(controller='package', action='read', id=c.pkg.name)}">${c.pkg.name}</a></h2>
+    <h2>Revision Differences - 
+    <span py:choose="c.diff_entity">
+        <a py:when="'package'">
+            <a href="${h.url_for(controller='package', action='read', id=c.pkg.name)}">${c.pkg.name}</a>
+        </a>
+        <a py:when="'group'">
+            <a href="${h.url_for(controller='group', action='read', id=c.group.name)}">${c.group.name}</a>
+        </a>
+    </span>
+    </h2>
+        
           
     <p>
     From: ${c.revision_from.id} - ${c.revision_from.timestamp}
