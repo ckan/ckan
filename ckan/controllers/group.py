@@ -2,6 +2,7 @@ import genshi
 
 from sqlalchemy.orm import eagerload_all
 from ckan.lib.base import *
+from pylons.i18n import get_lang, _
 import ckan.authz as authz
 import ckan.forms
 from ckan.lib.helpers import Page
@@ -224,6 +225,65 @@ class GroupController(BaseController):
         c.new_roles_form = \
             ckan.forms.get_authz_fieldset('new_group_roles_fs').render()
         return render('group/authz.html')
+        
+    def history(self, id):
+        if 'diff' in request.params or 'selected1' in request.params:
+            try:
+                params = {'id':request.params.getone('group_name'),
+                          'diff':request.params.getone('selected1'),
+                          'oldid':request.params.getone('selected2'),
+                          }
+            except KeyError, e:
+                if dict(request.params).has_key('group_name'):
+                    id = request.params.getone('group_name')
+                c.error = _('Select two revisions before doing the comparison.')
+            else:
+                h.redirect_to(controller='revision', action='diff', **params)
+
+        c.group = model.Group.by_name(id)
+        if not c.group:
+            abort(404, gettext('Group not found'))
+        format = request.params.get('format', '')
+        if format == 'atom':
+            # Generate and return Atom 1.0 document.
+            from webhelpers.feedgenerator import Atom1Feed
+            feed = Atom1Feed(
+                title=_(u'CKAN Group Revision History'),
+                link=h.url_for(controller='group', action='read', id=c.group.name),
+                description=_(u'Recent changes to CKAN Package: ') + (c.group.title or ''),
+                language=unicode(get_lang()),
+            )
+            for revision, obj_rev in c.group.all_related_revisions:
+                try:
+                    dayHorizon = int(request.params.get('days'))
+                except:
+                    dayHorizon = 30
+                try:
+                    dayAge = (datetime.now() - revision.timestamp).days
+                except:
+                    dayAge = 0
+                if dayAge >= dayHorizon:
+                    break
+                if revision.message:
+                    item_title = u'%s' % revision.message.split('\n')[0]
+                else:
+                    item_title = u'%s' % revision.id
+                item_link = h.url_for(controller='revision', action='read', id=revision.id)
+                item_description = _('Log message: ')
+                item_description += '%s' % (revision.message or '')
+                item_author_name = revision.author
+                item_pubdate = revision.timestamp
+                feed.add_item(
+                    title=item_title,
+                    link=item_link,
+                    description=item_description,
+                    author_name=item_author_name,
+                    pubdate=item_pubdate,
+                )
+            feed.content_type = 'application/atom+xml'
+            return feed.writeString('utf-8')
+        c.group_revisions = c.group.all_related_revisions
+        return render('group/history.html')
 
     def _render_edit_form(self, fs):
         # errors arrive in c.error and fs.errors

@@ -83,6 +83,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         this group. Ordered by most recent first.
         '''
         results = {}
+        from group_extra import GroupExtra
         for grp_rev in self.all_revisions:
             if not results.has_key(grp_rev.revision):
                 results[grp_rev.revision] = []
