@@ -155,7 +155,6 @@ class CswClient(object):
         return csw_request_xml
 
     def extract_identifiers(self, get_records_response):
-        print get_records_response
         parser = etree.XMLParser(remove_blank_text=True)
         tree = etree.fromstring(get_records_response, parser=parser)
         xpath = '//csw:Record/dc:identifier/text()'
