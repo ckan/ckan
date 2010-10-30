@@ -95,15 +95,15 @@ class PackageController(BaseController):
 
     @proxy_cache()
     def read(self, id):
-        pkg = model.Package.get(id)
-        if pkg is None:
+        c.pkg = model.Package.get(id)
+        if c.pkg is None:
             abort(404, gettext('Package not found'))
         
-        cache_key = self._pkg_cache_key(pkg)
+        cache_key = self._pkg_cache_key(c.pkg)
         etag_cache(cache_key)
         
         # used by disqus plugin
-        c.current_package_id = pkg.id
+        c.current_package_id = c.pkg.id
         
         if config.get('rdf_packages'):
             accept_headers = request.headers.get('Accept', '')
@@ -112,15 +112,11 @@ class PackageController(BaseController):
                 rdf_url = '%s%s' % (config['rdf_packages'], pkg.name)
                 redirect(rdf_url, code=303)
 
-        auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, pkg)
+        auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, c.pkg)
         if not auth_for_read:
             abort(401, str(gettext('Unauthorized to read package %s') % id))
-
-        c.auth_for_authz = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, pkg)
-        c.auth_for_edit = self.authorizer.am_authorized(c, model.Action.EDIT, pkg)
-        c.auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, pkg)
-
-        PackageSaver().render_package(pkg)
+        
+        PackageSaver().render_package(c.pkg)
         return render('package/read.html')
 
     def history(self, id):
@@ -253,15 +249,15 @@ class PackageController(BaseController):
         # TODO: refactor to avoid duplication between here and new
         c.error = ''
 
-        pkg = model.Package.get(id)
+        c.pkg = pkg = model.Package.get(id)
         if pkg is None:
             abort(404, '404 Not Found')
         am_authz = self.authorizer.am_authorized(c, model.Action.EDIT, pkg)
         if not am_authz:
             abort(401, str(gettext('User %r not authorized to edit %s') % (c.user, id)))
 
-        c.auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, pkg)
-        fs = self._get_package_fieldset(is_admin=c.auth_for_change_state)
+        auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, pkg)
+        fs = self._get_package_fieldset(is_admin=auth_for_change_state)
         if 'save' in request.params or 'preview' in request.params:
             if not request.params.has_key('log_message'):
                 abort(400, ('Missing parameter: log_message'))

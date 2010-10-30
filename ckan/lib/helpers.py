@@ -42,6 +42,13 @@ def subnav_link(c, text, action, **kwargs):
         class_=('active' if c.action == action else '')
     )
 
+def am_authorized(c, action, domain_object=None):
+    from ckan.authz import Authorizer
+    if domain_object is None:
+        from ckan import model
+        domain_object = model.System()
+    return Authorizer.am_authorized(c, action, domain_object)
+
 def linked_user(username):
     from ckan import model
     user = model.User.by_name(unicode(username))

@@ -37,6 +37,7 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
     def render_template():
         globs = extra_vars or {}
         globs.update(pylons_globals())
+        globs['actions'] = model.Action
         template = globs['app_globals'].genshi_loader.load(template_name)
         stream = template.generate(**globs)
         

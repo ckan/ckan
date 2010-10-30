@@ -42,9 +42,6 @@ class PackageSaver(object):
         c.pkg_author_link = cls._person_email_link(c.pkg.author, c.pkg.author_email, "Author")
         c.pkg_maintainer_link = cls._person_email_link(c.pkg.maintainer, c.pkg.maintainer_email, "Maintainer")
         c.package_relationships = pkg.get_relationships_printable()
-        # Todo: Delete these lines?
-        # c.auth_for_change_state and c.auth_for_edit may also used
-        # return render('package/read')
 
     @classmethod
     def _preview_pkg(cls, fs, original_name, pkg_id,

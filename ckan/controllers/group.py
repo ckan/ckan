@@ -31,9 +31,6 @@ class GroupController(BaseController):
         auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, c.group)
         if not auth_for_read:
             abort(401, gettext('Not authorized to read %s') % id.encode('utf8'))
-            
-        c.auth_for_edit = self.authorizer.am_authorized(c, model.Action.EDIT, c.group)
-        c.auth_for_authz = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, c.group)
         
         import ckan.misc
         format = ckan.misc.MarkdownFormat()
@@ -148,13 +145,13 @@ class GroupController(BaseController):
             h.redirect_to(action='read', id=c.groupname)
 
     def authz(self, id):
-        group = model.Group.by_name(id)
-        if group is None:
+        c.group = model.Group.by_name(id)
+        if c.group is None:
             abort(404, gettext('Group not found'))
-        c.groupname = group.name
-        c.grouptitle = group.title
+        c.groupname = c.group.name
+        c.grouptitle = c.group.title
 
-        c.authz_editable = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, group)
+        c.authz_editable = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, c.group)
         if not c.authz_editable:
             abort(401, gettext('Not authorized to edit authorization for group'))
 
@@ -162,7 +159,7 @@ class GroupController(BaseController):
             # needed because request is nested
             # multidict which is read only
             params = dict(request.params)
-            c.fs = ckan.forms.get_authz_fieldset('group_authz_fs').bind(group.roles, data=params or None)
+            c.fs = ckan.forms.get_authz_fieldset('group_authz_fs').bind(c.group.roles, data=params or None)
             try:
                 self._update_authz(c.fs)
             except ValidationException, error:
@@ -179,7 +176,7 @@ class GroupController(BaseController):
                 user = model.Session.query(model.User).get(newrole_user_id)
                 # TODO: chech user is not None (should go in validation ...)
                 role = request.params.get('GroupRole--role')
-                newgrouprole = model.GroupRole(user=user, group=group,
+                newgrouprole = model.GroupRole(user=user, group=c.group,
                         role=role)
                 # With FA no way to get new GroupRole back to set group attribute
                 # new_roles = ckan.forms.new_roles_fs.bind(model.GroupRole, data=params or None)
@@ -194,7 +191,7 @@ class GroupController(BaseController):
                 # TODO: chech user is not None (should go in validation ...)
                 role = request.params.get('GroupRole--role')
                 newgrouprole = model.GroupRole(authorized_group=authzgroup, 
-                        group=group, role=role)
+                        group=c.group, role=role)
                 # With FA no way to get new GroupRole back to set group attribute
                 # new_roles = ckan.forms.new_roles_fs.bind(model.GroupRole, data=params or None)
                 # new_roles.sync()
@@ -219,8 +216,8 @@ class GroupController(BaseController):
                 model.Session.commit()
 
         # retrieve group again ...
-        group = model.Group.by_name(id)
-        fs = ckan.forms.get_authz_fieldset('group_authz_fs').bind(group.roles)
+        c.group = model.Group.by_name(id)
+        fs = ckan.forms.get_authz_fieldset('group_authz_fs').bind(c.group.roles)
         c.form = fs.render()
         c.new_roles_form = \
             ckan.forms.get_authz_fieldset('new_group_roles_fs').render()

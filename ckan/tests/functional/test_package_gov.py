@@ -46,7 +46,7 @@ class TestRead(TestPackageBase):
         offset = url_for(controller='package', action='read', id=name)
         res = self.app.get(offset, extra_environ={'REMOTE_USER':'testadmin'})
         main_res = self.main_div(res)
-        assert 'State:' in main_res
+        assert 'State' in main_res
 
 class TestEdit(TestPackageBase):
     @classmethod

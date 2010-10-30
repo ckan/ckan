@@ -26,15 +26,20 @@
     <py:when test="c.group">
       <li class="intro">This group:</li>
       <li>${h.subnav_link(c, h.icon('group') + _('View'), controller='group', action='read', id=c.group.name)}</li>
-      <li>${h.subnav_link(c, h.icon('group_edit') + _('Edit'), controller='group', action='edit', id=c.group.name)}</li>
+      <li py:if="h.am_authorized(c, actions.EDIT, c.group)">
+        ${h.subnav_link(c, h.icon('group_edit') + _('Edit'), controller='group', action='edit', id=c.group.name)}
+      </li>
       <li>${h.subnav_link(c, h.icon('page_white_stack') + _('History'), controller='group', action='history', id=c.group.name)}</li>
-      <py:if test="c.auth_for_authz">
-        <li>${h.subnav_link(c, h.icon('lock') + _('Authorization'), controller='group', action='authz', id=c.group.name)}</li>
-      </py:if>
+      
+      <li py:if="h.am_authorized(c, actions.EDIT_PERMISSIONS, c.group)">
+        ${h.subnav_link(c, h.icon('lock') + _('Authorization'), controller='group', action='authz', id=c.group.name)}
+      </li>
     </py:when>
     <py:otherwise>
       <li>${h.subnav_link(c, _('Home'), controller='group', action='index', id=None)}</li>
-      <li>${h.subnav_link(c, _('Create a new group'), controller='group', action='new', id=None)}</li>
+      <li py:if="h.am_authorized(c, actions.GROUP_CREATE)">
+        ${h.subnav_link(c, _('Create a new group'), controller='group', action='new', id=None)}
+      </li>
     </py:otherwise>
   </py:match>
 
