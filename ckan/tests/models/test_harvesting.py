@@ -174,6 +174,36 @@ class TestHarvestingJob(HarvesterTestCase):
         self.assert_contains(error, "Another source is using metadata GUID")
 
 
+class TestHarvestingJobRssFeed(HarvesterTestCase):
+
+    fixture_user_ref = u'publisheruser1'
+
+    def setup(self):
+        super(TestHarvestingJobRssFeed, self).setup()
+        self.assert_false(self.source)
+        self.source = self.create_harvest_source(
+            url=self.gemini.url_for_bad(0)
+        )
+        self.assert_true(self.source.id)
+        self.assert_false(self.job)
+        self.job = self.create_harvesting_job(
+            source=self.source, 
+            user_ref=self.fixture_user_ref
+        )
+
+    def test_harvest_documents_from_rss(self):
+        before_count = self.count_packages()
+        self.assert_false(self.job.report)
+        self.job.harvest_documents()
+        after_count = self.count_packages()
+        self.assert_equal(after_count, before_count)
+        self.assert_true(self.job.report)
+        self.assert_len(self.job.report['packages'], 0)
+        self.assert_len(self.job.report['errors'], 1)
+        error = self.job.report['errors'][0]
+        self.assert_contains(error, 'Unable to detect source type from content')
+
+
 class TestHarvestWafSource(HarvesterTestCase):
 
     fixture_user_ref = u'publisheruser1'
@@ -301,6 +331,151 @@ class TestHarvestCswSourceRandomWebsite(HarvesterTestCase):
 
 class TestHarvestedDocument(HarvesterTestCase):
 
+    expect_values0 = {
+        'guid': '00a743bf-cca4-4c19-a8e5-e64f7edbcadd',
+        'metadata-language': 'eng',
+        'resource-type': 'dataset',
+        'metadata-point-of-contact': [{'contact-info': {'email': 'gis@barrowbc.gov.uk'}, 'organisation-name': 'Barrow Borough Council', 'role': 'pointOfContact', 'position-name': ''}],
+        'metadata-date': '2009-10-16',
+        'spatial-reference-system': '<gmd:MD_ReferenceSystem xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xlink="http://www.w3.org/1999/xlink"><gmd:referenceSystemIdentifier><gmd:RS_Identifier><gmd:code><gco:CharacterString>urn:ogc:def:crs:EPSG::27700</gco:CharacterString></gmd:code></gmd:RS_Identifier></gmd:referenceSystemIdentifier></gmd:MD_ReferenceSystem>',
+        'title': 'Council Owned Litter Bins',
+        'alternative-title': [],
+        'dataset-reference-date': [
+            {
+                'type': 'creation',
+                'value': '2008-10-10',
+            },{
+                'type': 'revision',
+                'value': '2009-10-08',
+            },
+        ],
+        'date-released': '',
+        'date-updated': '2009-10-08',
+        'unique-resource-identifier': '<gmd:RS_Identifier xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xlink="http://www.w3.org/1999/xlink"><gmd:code><gco:CharacterString>BBC:000006</gco:CharacterString></gmd:code><gmd:codeSpace><gco:CharacterString>Barrow Borough Council</gco:CharacterString></gmd:codeSpace></gmd:RS_Identifier>',
+        'abstract': 'Location of Council owned litter bins within Borough.',
+        'responsible-organisation': [
+            {
+                'contact-info': {
+                        'email': 'gis@barrowbc.gov.uk',
+                },
+                'organisation-name': 'Barrow Borough Council',
+                'role': 'pointOfContact',
+                'position-name': ''
+            }
+        ],
+        'publisher': '',
+        'contact': 'Barrow Borough Council',
+        'contact-email': 'gis@barrowbc.gov.uk',
+        'frequency-of-update': 'unknown',
+        'keyword-inspire-theme': ['Utility and governmental services'],
+        'keyword-controlled-other': ['Utility and governmental services'],
+        'keyword-free-text': [],
+        'tags': ['Utility and governmental services'],
+        'limitations-on-public-access': [],
+        'use-constraints': ['conditions unknown'],
+        'spatial-data-service-type': '',
+        'spatial-resolution': '',
+        'equivalent-scale': ['1250'],
+        'dataset-language': ['eng'],
+        'topic-category': ['environment'],
+        'extent-controlled': [],
+        'extent-free-text': [],
+        'bbox-west-long': '-3.32485',
+        'bbox-east-long': '-3.12442',
+        'bbox-north-lat': '54.218407',
+        'bbox-south-lat': '54.039634',
+        'temporal-extent-begin': '1977-03-10T11:45:30',
+        'temporal-extent-end': '2005-01-15T09:10:00',
+        'vertical-extent': '',
+        'coupled-resource': [],
+        'additional-information-source': '',
+        'data-format': [
+            {'version': '', 'name': ''}
+        ],
+        'resource-locator': [
+            {
+                'url': 'http://www.barrowbc.gov.uk',
+                'function': '',
+            }
+        ],
+        'url': '',
+        'conformity-specification': '',
+        'conformity-pass': '',
+        'conformity-explanation': '',
+        'lineage': 'Dataset created from ground surveys using Ordnance Survey Mastemap as base.',
+    }
+
+    expect_values1 = {
+        'guid': '603f921c-79df-4866-ac69-f4acc37e4851',
+        'metadata-language': 'eng',
+        'resource-type': 'series',
+        'metadata-point-of-contact': [{'contact-info': {'email': 'customerservices@ordnancesurvey.co.uk'}, 'organisation-name': 'Ordnance Survey', 'role': 'publisher', 'position-name': 'Customer services'}],
+        'metadata-date': '2010-08-19T17:05:15',
+        'spatial-reference-system': '<gmd:MD_ReferenceSystem xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gts="http://www.isotc211.org/2005/gts" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:gmx="http://www.isotc211.org/2005/gmx" xmlns:gsr="http://www.isotc211.org/2005/gsr" xmlns:gss="http://www.isotc211.org/2005/gss" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><gmd:referenceSystemIdentifier><gmd:RS_Identifier><gmd:code><gco:CharacterString>urn:ogc:def:crs:EPSG::4258</gco:CharacterString></gmd:code></gmd:RS_Identifier></gmd:referenceSystemIdentifier></gmd:MD_ReferenceSystem>',
+        'title': u'OS MasterMap\xae Imagery Layer',
+        'alternative-title': [],
+        'dataset-reference-date': [
+            {
+                'type': 'creation',
+                'value': '2004-09-15T16:13:00',
+            },
+        ],
+        'date-released': '',
+        'date-updated': '',
+        'unique-resource-identifier': '<gmd:RS_Identifier xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gts="http://www.isotc211.org/2005/gts" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:gmx="http://www.isotc211.org/2005/gmx" xmlns:gsr="http://www.isotc211.org/2005/gsr" xmlns:gss="http://www.isotc211.org/2005/gss" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><gmd:code><gco:CharacterString>OSMM Imagery</gco:CharacterString></gmd:code><gmd:codeSpace><gco:CharacterString>http://www.ordnancesurvey.co.uk</gco:CharacterString></gmd:codeSpace></gmd:RS_Identifier>',
+        'abstract': u'High resolution, national, fully Orthorectified colour imagery product. Complements other OS Mastermap\xae Layers. Regularly maintained and updated. Available to order over the internet.',
+        'responsible-organisation': [
+            {
+                'contact-info': {
+                    'email': 'customerservices@ordnancesurvey.co.uk'
+                },
+                'organisation-name': 'Ordnance Survey',
+                'role': 'publisher',
+                'position-name': 'Customer services',
+            }
+        ],
+        'publisher': 'Ordnance Survey',
+        'contact': 'Ordnance Survey',
+        'contact-email': 'customerservices@ordnancesurvey.co.uk',
+        'frequency-of-update': 'asNeeded',
+        'keyword-inspire-theme': ['Land and premises', 'Orthoimagery'],
+        'keyword-controlled-other': ['Land and premises', 'Orthoimagery'],
+        'keyword-free-text': [],
+        'tags': ['Land and premises', 'Orthoimagery'],
+        'limitations-on-public-access': [],
+        'use-constraints': [],
+        'spatial-data-service-type': '',
+        'spatial-resolution': '<gco:Distance xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gts="http://www.isotc211.org/2005/gts" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:gmx="http://www.isotc211.org/2005/gmx" xmlns:gsr="http://www.isotc211.org/2005/gsr" xmlns:gss="http://www.isotc211.org/2005/gss" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uom="urn:ogc:def:uom:EPSG::9001">25</gco:Distance>',
+        'equivalent-scale': [],
+        'dataset-language': [],
+        'topic-category': ['imageryBaseMapsEarthCover'],
+        'extent-controlled': [],
+        'extent-free-text': [],
+        'bbox-west-long': '-8.45472',
+        'bbox-east-long': '1.78024',
+        'bbox-north-lat': '60.8599',
+        'bbox-south-lat': '49.8634',
+        'temporal-extent-begin': '',
+        'temporal-extent-end': '',
+        'vertical-extent': '',
+        'coupled-resource': [],
+        'additional-information-source': '',
+        'data-format': [
+            {'version': 'not applicable', 'name': 'JPEG'}
+        ],
+        'resource-locator': [
+            {
+                'url': 'http://www.ordnancesurvey.co.uk/oswebsite/products/osmastermap/layers/imagery/',
+                'function': 'information',
+            }
+        ],
+        'url': 'http://www.ordnancesurvey.co.uk/oswebsite/products/osmastermap/layers/imagery/',
+        'conformity-specification': '<gmd:specification xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gts="http://www.isotc211.org/2005/gts" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:gmx="http://www.isotc211.org/2005/gmx" xmlns:gsr="http://www.isotc211.org/2005/gsr" xmlns:gss="http://www.isotc211.org/2005/gss" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><gmd:CI_Citation><gmd:title><gco:CharacterString>OS MasterMap Imagery Specification</gco:CharacterString></gmd:title><gmd:date><gmd:CI_Date><gmd:date><gco:Date>2010-08-19</gco:Date></gmd:date><gmd:dateType><gmd:CI_DateTypeCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode" codeListValue="publication"/></gmd:dateType></gmd:CI_Date></gmd:date><gmd:identifier><gmd:MD_Identifier><gmd:code><gco:CharacterString>http://www.ordnancesurvey.co.uk/oswebsite/products/osmastermap/layers/imagery/technical.html</gco:CharacterString></gmd:code></gmd:MD_Identifier></gmd:identifier></gmd:CI_Citation></gmd:specification>',
+        'conformity-pass': 'true',
+        'conformity-explanation': 'conforms',
+        'lineage': 'Aerial imagery processed by Ordnance Survey',
+    }
+
     def test_crud_document(self):
         self.assert_false(self.document)
         url = self.gemini.url_for(0)
@@ -312,65 +487,28 @@ class TestHarvestedDocument(HarvesterTestCase):
         self.delete_commit(self.document)
         self.assert_raises(Exception, HarvestSource.get, self.document.id)
 
-    def test_read_attributes(self):
-        url = self.gemini.url_for(0)
+    def test_read_values_example0(self):
+        self.assert_read_values(0, self.expect_values0)
+
+    def test_read_values_example1(self):
+        self.assert_read_values(1, self.expect_values1)
+
+    def assert_read_values(self, example_index, expect_values):
+        url = self.gemini.url_for(example_index)
         content = self.gemini.get_content(url)
         self.document = self.create_harvested_document(url=url, content=content)
-        data = self.document.read_attributes()
-        expect = {
-            'guid': '00a743bf-cca4-4c19-a8e5-e64f7edbcadd',
-            'metadata-language': 'eng',
-            'resource-type': 'dataset',
-            # Todo: Sort out how to deal with the different parts.
-            'metadata-point-of-contact': ['<gmd:CI_ResponsibleParty xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xlink="http://www.w3.org/1999/xlink"><gmd:organisationName><gco:CharacterString>Barrow Borough Council</gco:CharacterString></gmd:organisationName><gmd:contactInfo><gmd:CI_Contact><gmd:address><gmd:CI_Address><gmd:electronicMailAddress><gco:CharacterString>gis@barrowbc.gov.uk</gco:CharacterString></gmd:electronicMailAddress></gmd:CI_Address></gmd:address></gmd:CI_Contact></gmd:contactInfo><gmd:role><gmd:CI_RoleCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#CI_RoleCode" codeListValue="pointOfContact">pointOfContact</gmd:CI_RoleCode></gmd:role></gmd:CI_ResponsibleParty>'],
-            'metadata-date': '2009-10-16',
-            'spatial-reference-system': '<gmd:MD_ReferenceSystem xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xlink="http://www.w3.org/1999/xlink"><gmd:referenceSystemIdentifier><gmd:RS_Identifier><gmd:code><gco:CharacterString>urn:ogc:def:crs:EPSG::27700</gco:CharacterString></gmd:code></gmd:RS_Identifier></gmd:referenceSystemIdentifier></gmd:MD_ReferenceSystem>',
-            'title': 'Council Owned Litter Bins',
-            'alternative-title': [],
-            # Todo: Sort out how to deal with the different types.
-            'dataset-reference-date': ['<gmd:CI_Date xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xlink="http://www.w3.org/1999/xlink"><gmd:date><gco:Date>2008-10-10</gco:Date></gmd:date><gmd:dateType><gmd:CI_DateTypeCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#CI_DateTypeCode" codeListValue="creation">creation</gmd:CI_DateTypeCode></gmd:dateType></gmd:CI_Date>', '<gmd:CI_Date xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xlink="http://www.w3.org/1999/xlink"><gmd:date><gco:Date>2009-10-08</gco:Date></gmd:date><gmd:dateType><gmd:CI_DateTypeCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#CI_DateTypeCode" codeListValue="revision">revision</gmd:CI_DateTypeCode></gmd:dateType></gmd:CI_Date>'],
-            'unique-resource-identifier': '<gmd:RS_Identifier xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xlink="http://www.w3.org/1999/xlink"><gmd:code><gco:CharacterString>BBC:000006</gco:CharacterString></gmd:code><gmd:codeSpace><gco:CharacterString>Barrow Borough Council</gco:CharacterString></gmd:codeSpace></gmd:RS_Identifier>',
-            'abstract': 'Location of Council owned litter bins within Borough.',
-            'responsible-organisation': ['<gmd:CI_ResponsibleParty xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xlink="http://www.w3.org/1999/xlink"><gmd:organisationName><gco:CharacterString>Barrow Borough Council</gco:CharacterString></gmd:organisationName><gmd:contactInfo><gmd:CI_Contact><gmd:address><gmd:CI_Address><gmd:electronicMailAddress><gco:CharacterString>gis@barrowbc.gov.uk</gco:CharacterString></gmd:electronicMailAddress></gmd:CI_Address></gmd:address></gmd:CI_Contact></gmd:contactInfo><gmd:role><gmd:CI_RoleCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#CI_RoleCode" codeListValue="pointOfContact">pointOfContact</gmd:CI_RoleCode></gmd:role></gmd:CI_ResponsibleParty>'],
-            'frequency-of-update': 'unknown',
-            'keyword-inspire-theme': [],
-            'keyword-controlled-other': ['Utility and governmental services'],
-            'keyword-free-text': [],
-            'limitations-on-public-access': [],
-            'use-constraints': ['conditions unknown'],
-            'spatial-data-service-type': '',
-            'spatial-resolution': '',
-            'equivalent-scale': ['1250'],
-            'dataset-language': ['eng'],
-            'topic-category': ['environment'],
-            'extent-controlled': [],
-            'extent-free-text': [],
-            'bbox-west-long': '-3.32485',
-            'bbox-east-long': '-3.12442',
-            'bbox-north-lat': '54.218407',
-            'bbox-south-lat': '54.039634',
-            # Todo: Sort out how to deal with the different parts.
-            'temporal-extent-begin': '1977-03-10T11:45:30',
-            'temporal-extent-end': '2005-01-15T09:10:00',
-            # Todo: Sort out how to deal with the different parts.
-            'vertical-extent': '',
-            'coupled-resource': [],
-            'additional-information-source': '',
-            # Todo: Sort out how to deal with the different parts.
-            'data-format': ['<gmd:MD_Format xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xlink="http://www.w3.org/1999/xlink"><gmd:name gco:nilReason="inapplicable"/><gmd:version gco:nilReason="inapplicable"/></gmd:MD_Format>'],
-            # Todo: Sort out how to deal with the different types.
-            'resource-locator': ['http://www.barrowbc.gov.uk'],
-            'conformity-specification': '',
-            'conformity-pass': '',
-            'conformity-explanation': '',
-            'lineage': 'Dataset created from ground surveys using Ordnance Survey Mastemap as base.',
-        }
-        for name in expect:
-            self.assert_gemini_value(data[name], expect[name], name)
+        values = self.document.read_values()
+        self.assert_gemini_values(values, expect_values)
 
-    def assert_gemini_value(self, data, expect, name):
+    def assert_gemini_values(self, values, expect_values):
+        for name in expect_values:
+            value = values[name]
+            expect = expect_values[name]
+            self.assert_gemini_value(value, expect, name)
+
+    def assert_gemini_value(self, value, expect, name):
         try:
-            self.assert_equal(data, expect)
+            self.assert_equal(value, expect)
         except Exception, inst:
             msg = "Attribute '%s' has unexpected value: %s" % (name, inst)
             raise Exception, msg
@@ -385,6 +523,10 @@ class GeminiExamples(object):
         u'00a743bf-cca4-4c19-a8e5-e64f7edbcadd_gemini2.update.xml',
     ]
 
+    file_names_bad = [
+        u'RSS-example.xml',
+    ]
+
     def url_for(self, index=None):
         if index in [None, 'index.html']:
             name = "index.html"
@@ -395,10 +537,27 @@ class GeminiExamples(object):
             raise Exception, "Gemini example not found on path: %s" % path
         return "file://%s" % path
 
+    # Todo: Refactor url_for() and url_for_bad().
+    def url_for_bad(self, index=None):
+        if index in [None, 'index.html']:
+            name = "index.html"
+        else:
+            name = self.file_names_bad[index]
+        path = os.path.join(self.folder_path_bad(), name)
+        if not os.path.exists(path):
+            raise Exception, "Gemini bad example not found on path: %s" % path
+        return "file://%s" % path
+
+    # Todo: Refactor folder_path() and folder_path_bad().
     def folder_path(self):
         from pylons import config
         here_path = config['here']
         return os.path.join(here_path, 'ckan', 'tests', 'gemini2_examples')
+
+    def folder_path_bad(self):
+        from pylons import config
+        here_path = config['here']
+        return os.path.join(here_path, 'ckan', 'tests', 'gemini2_examples_bad')
 
     def get_content(self, url):
         import urllib2

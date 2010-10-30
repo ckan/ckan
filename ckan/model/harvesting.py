@@ -75,7 +75,7 @@ class HarvestSource(DomainObject):
         package = None
         # Read data for package.
         gemini_document = GeminiDocument(content)
-        gemini_values = gemini_document.read_attributes()
+        gemini_values = gemini_document.read_values()
         gemini_guid = gemini_values['guid']
         harvested_documents = HarvestedDocument.filter(guid=gemini_guid).all()
         if len(harvested_documents) > 1:
@@ -129,7 +129,12 @@ class HarvestSource(DomainObject):
                         package = fs.model
                     else:
                         # Complain about validation errors.
-                        msg = 'Validation error: %r' % repr(fs.errors)
+                        msg = 'Validation error:'
+                        errors = fs.errors.items()
+                        for error in errors:
+                            attr_name = error[0].name
+                            error_msg = error[1][0]
+                            msg += ' %s: %s' % (attr_name.capitalize(), error_msg)
                         raise Exception, msg
             except:
                 model.Session.rollback()
@@ -142,7 +147,7 @@ class HarvestSource(DomainObject):
                 harvested_document.save()
             return package
         else:
-            if gemini_values == harvested_document.read_attributes():
+            if gemini_values == harvested_document.read_values():
                 return None
             else:
                 from ckan.forms import GetPackageFieldset
@@ -182,48 +187,59 @@ class HarvestSource(DomainObject):
 class HarvestingJob(DomainObject):
 
     def harvest_documents(self):
-        self.set_status_running()
         self.get_report()
+        self.set_status_running()
         self.save()
         try:
-            content = self.get_source_content()
-        except urllib2.URLError, exception:
-            msg = "Unable to read registered URL: %r" % exception
-            self.report_error(msg)
-        else:
-            source_type = self.detect_source_type(content)
-            if source_type == None:
-                self.report_error("Unable to detect source type from content.")
-            elif source_type == 'doc':
-                self.harvest_document(content=content)
-            elif source_type == 'csw':
-                self.harvest_csw_documents(url=self.source.url)
-            elif source_type == 'waf':
-                self.harvest_waf_documents(content=content)
+            try:
+                content = self.get_source_content()
+            except urllib2.URLError, exception:
+                msg = "Unable to read registered URL: %r" % exception
+                self.report_error(msg)
             else:
-                raise Exception, "Source type '%s' not supported." % source_type
-            if not self.report_has_errors():
-                self.set_status_success()
-            else:
-                self.set_status_error()
+                source_type = self.detect_source_type(content)
+                if source_type == None:
+                    self.report_error("Unable to detect source type from content.")
+                elif source_type == 'doc':
+                    self.harvest_document(content=content)
+                elif source_type == 'csw':
+                    self.harvest_csw_documents(url=self.source.url)
+                elif source_type == 'waf':
+                    self.harvest_waf_documents(content=content)
+                else:
+                    raise Exception, "Source type '%s' not supported." % source_type
+        except Exception, inst:
+            self.set_status_error()
+            self.report_error("Harvesting system error.")
             self.save()
-        return self.report
+            self.save_report()
+            raise
+        else:
+            if self.report_has_errors():
+                self.set_status_error()
+            else:
+                self.set_status_success()
+            self.save()
+            self.save_report()
 
     def report_error(self, msg):
         self.get_report()['errors'].append(msg)
-        self.save()
+        self.errors += msg
 
     def report_package(self, msg):
         self.get_report()['packages'].append(msg)
-        self.save()
 
     def get_report(self):
-        if self.report == None:
-            self.report = {
+        if not hasattr(self, '_report'):
+            self._report = {
                 'packages': [],
                 'errors': [],
             }
-        return self.report
+        return self._report
+
+    def save_report(self):
+        self.report = self.get_report()
+        self.save()
 
     def report_has_errors(self):
         return bool(self.get_report()['errors'])
@@ -272,7 +288,7 @@ class HarvestingJob(DomainObject):
             content = self.get_content(url)
             if "<gmd:MD_Metadata" in content:
                 self.harvest_document(content=content)
-        if not self.report['packages']:
+        if not self.get_report()['packages']:
             self.report_error("Couldn't find any links to metadata files.")
 
     def extract_urls(self, content):
@@ -317,7 +333,113 @@ class HarvestingJob(DomainObject):
         self.status = status
 
 
-class GeminiAttribute(object):
+class MappedXmlObject(object):
+
+    elements = []
+
+
+class MappedXmlDocument(MappedXmlObject):
+
+    def __init__(self, content):
+        self.content = content
+
+    def read_values(self):
+        values = {}
+        tree = self.get_content_tree()
+        for element in self.elements:
+            values[element.name] = element.read_value(tree)
+        self.infer_values(values)
+        return values
+
+    def get_content_tree(self):
+        parser = etree.XMLParser(remove_blank_text=True)
+        return etree.fromstring(self.content, parser=parser)
+
+    def infer_values(self, values):
+        pass
+
+
+class MappedXmlElement(MappedXmlObject):
+
+    namespaces = {}
+
+    def __init__(self, name, search_paths=[], multiplicity="*", elements=[]):
+        self.name = name
+        self.search_paths = search_paths
+        self.multiplicity = multiplicity
+        self.elements = elements or self.elements
+
+    def read_value(self, tree):
+        values = []
+        for xpath in self.get_search_paths():
+            elements = self.get_elements(tree, xpath)
+            values = self.get_values(elements)
+            if values:
+                break
+        return self.fix_multiplicity(values)
+
+    def get_search_paths(self):
+        if type(self.search_paths) != type([]):
+            search_paths = [self.search_paths]
+        else:
+            search_paths = self.search_paths
+        return search_paths
+
+    def get_elements(self, tree, xpath):
+        return tree.xpath(xpath, namespaces=self.namespaces)
+
+    def get_values(self, elements):
+        values = []
+        if len(elements) == 0:
+            pass
+        else:
+            for element in elements:
+                value = self.get_value(element)
+                values.append(value)
+        return values
+
+    def get_value(self, element):
+        if self.elements:
+            value = {}
+            for child in self.elements:
+                value[child.name] = child.read_value(element)
+            return value
+        elif type(element) == etree._ElementStringResult:
+            value = str(element)
+        elif type(element) == etree._ElementUnicodeResult:
+            value = unicode(element)
+        else:
+            value = self.element_tostring(element)
+        return value
+
+    def element_tostring(self, element):
+        return etree.tostring(element, pretty_print=False)
+
+    def fix_multiplicity(self, values):
+        if self.multiplicity == "0":
+            if values:
+                raise Exception, "Values found for element '%s': %s" % (self.name, values)
+            else:
+                return ""
+        elif self.multiplicity == "1":
+            if values:
+                return values[0]
+            else:
+                raise Exception, "Value not found for element '%s'" % self.name
+        elif self.multiplicity == "*":
+            return values
+        elif self.multiplicity == "0..1":
+            if values:
+                return values[0]
+            else:
+                return ""
+        elif self.multiplicity == "1..*":
+            return values
+        else:
+            raise Exception, "Can't fix element values for multiplicity '%s'." % self.multiplicity
+
+
+class GeminiElement(MappedXmlElement):
 
     namespaces = {
        "gts": "http://www.isotc211.org/2005/gts",
@@ -332,163 +454,213 @@ class GeminiAttribute(object):
        "xsi": "http://www.w3.org/2001/XMLSchema-instance",
     }
 
-    def __init__(self, name, xpaths=[], multiplicity="*"):
-        self.name = name
-        self.xpaths = xpaths
-        self.multiplicity = multiplicity
 
-    def read_attribute(self, tree):
-        if type(self.xpaths) != type([]):
-            xpaths = [self.xpaths]
-        else:
-            xpaths = self.xpaths
-        values = []
-        for xpath in xpaths:
-            elements = self.read_xpath(tree, xpath)
-            if len(elements) == 0:
-                pass
-            else:
-                for e in elements:
-                    if type(e) == etree._ElementStringResult:
-                        value = str(e)
-                    elif type(e) == etree._ElementUnicodeResult:
-                        value = unicode(e)
-                    else:
-                        value = etree.tostring(e, pretty_print=False)
-                    values.append(value)
-            if values:
-                break
-        if self.multiplicity == "1":
-            if values:
-                values = values[0]
-            else:
-                raise Exception, "Value not found for attribute '%s'" % self.name
-        elif self.multiplicity == "0..1":
-            if values:
-                values = values[0]
-            else:
-                values = ""
-        return values
+class GeminiResponsibleParty(GeminiElement):
 
-    def read_xpath(self, tree, xpath):
-        return tree.xpath(xpath, namespaces=self.namespaces)
-
-
-class MetadataDocument(object):
-
-    def __init__(self, content):
-        self.content = content
-
-    def read_attributes(self):
-        values = {}
-        tree = self.get_content_tree()
-        for a in self.attributes:
-            values[a.name] = a.read_attribute(tree)
-        return values
-        
-    def get_content_tree(self):
-        parser = etree.XMLParser(remove_blank_text=True)
-        return etree.fromstring(self.content, parser=parser)
+    elements = [
+        GeminiElement(
+            name="organisation-name",
+            search_paths=[
+                "gmd:organisationName/gco:CharacterString/text()",
+            ],
+            multiplicity="0..1",
+        ),
+        GeminiElement(
+            name="position-name",
+            search_paths=[
+                "gmd:positionName/gco:CharacterString/text()",
+            ],
+            multiplicity="0..1",
+        ),
+        GeminiElement(
+            name="contact-info",
+            search_paths=[
+                "gmd:contactInfo/gmd:CI_Contact",
+            ],
+            multiplicity="0..1",
+            elements = [
+                GeminiElement(
+                    name="email",
+                    search_paths=[
+                        "gmd:address/gmd:CI_Address/gmd:electronicMailAddress/gco:CharacterString/text()",
+                    ],
+                    multiplicity="0..1",
+                ),
+            ]
+        ),
+        GeminiElement(
+            name="role",
+            search_paths=[
+                "gmd:role/gmd:CI_RoleCode/@codeListValue",
+            ],
+            multiplicity="0..1",
+        ),
+    ]
 
 
-class GeminiDocument(MetadataDocument):
+class GeminiResourceLocator(GeminiElement):
+
+    elements = [
+        GeminiElement(
+            name="url",
+            search_paths=[
+                "gmd:linkage/gmd:URL/text()",
+            ],
+            multiplicity="1",
+        ),
+        GeminiElement(
+            name="function",
+            search_paths=[
+                "gmd:function/gmd:CI_OnLineFunctionCode/@codeListValue",
+            ],
+            multiplicity="0..1",
+        ),
+    ]
+
+
+class GeminiDataFormat(GeminiElement):
+
+    elements = [
+        GeminiElement(
+            name="name",
+            search_paths=[
+                "gmd:name/gco:CharacterString/text()",
+            ],
+            multiplicity="0..1",
+        ),
+        GeminiElement(
+            name="version",
+            search_paths=[
+                "gmd:version/gco:CharacterString/text()",
+            ],
+            multiplicity="0..1",
+        ),
+    ]
+
+
+class GeminiReferenceDate(GeminiElement):
+
+    elements = [
+        GeminiElement(
+            name="type",
+            search_paths=[
+                "gmd:dateType/gmd:CI_DateTypeCode/@codeListValue",
+                "gmd:dateType/gmd:CI_DateTypeCode/text()",
+            ],
+            multiplicity="1",
+        ),
+        GeminiElement(
+            name="value",
+            search_paths=[
+                "gmd:date/gco:Date/text()",
+                "gmd:date/gco:DateTime/text()",
+            ],
+            multiplicity="1",
+        ),
+    ]
+
+
+class GeminiDocument(MappedXmlDocument):
 
     # Attribute specifications from "XPaths for GEMINI" by Peter Parslow.
-    # - multiplicity options: "0", "1", "*", "1..*"
 
-    attributes = [
-        GeminiAttribute(
+    elements = [
+        GeminiElement(
             name="guid",
-            xpaths="gmd:fileIdentifier/gco:CharacterString/text()",
+            search_paths="gmd:fileIdentifier/gco:CharacterString/text()",
             multiplicity="0..1",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="metadata-language",
-            xpaths=[
+            search_paths=[
                 "gmd:language/gmd:LanguageCode/@codeListValue",
                 "gmd:language/gmd:LanguageCode/text()",
             ],
             multiplicity="1",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="resource-type",
-            xpaths=[
+            search_paths=[
                 "gmd:hierarchyLevel/gmd:MD_ScopeCode/@codeListValue",
                 "gmd:hierarchyLevel/gmd:MD_ScopeCode/text()",
             ],
             multiplicity="1",
-        ),GeminiAttribute(
+        ),
+        GeminiResponsibleParty(
             name="metadata-point-of-contact",
-            xpaths=[
+            search_paths=[
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:pointOfContact/gmd:CI_ResponsibleParty",
                 "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:pointOfContact/gmd:CI_ResponsibleParty",
             ],
             multiplicity="1..*",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="metadata-date",
-            xpaths=[
+            search_paths=[
                 "gmd:dateStamp/gco:Date/text()",
                 "gmd:dateStamp/gco:DateTime/text()",
             ],
             multiplicity="1",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="spatial-reference-system",
-            xpaths=[
+            search_paths=[
                 "gmd:referenceSystemInfo/gmd:MD_ReferenceSystem",
             ],
             multiplicity="0..1",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="title",
-            xpaths=[
+            search_paths=[
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString/text()",
                 "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString/text()",
             ],
             multiplicity="1",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="alternative-title",
-            xpaths=[
+            search_paths=[
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:alternativeTitle/gco:CharacterString/text()",
                 "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:citation/gmd:CI_Citation/gmd:alternativeTitle/gco:CharacterString/text()",
             ],
             multiplicity="*",
-        ),GeminiAttribute(
+        ),
+        GeminiReferenceDate(
             name="dataset-reference-date",
-            xpaths=[
+            search_paths=[
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date",
                 "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date",
             ],
             multiplicity="*",
-        #),GeminiAttribute(
-        #    name="dataset-reference-date-type",
-        #    xpaths=[
-        #        "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date/gmd:dateType/gmd:CI_DateTypeCode/@codeListValue",
-        #        "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date/gmd:dateType/gmd:CI_DateTypeCode",
-        #    ],
-        #    multiplicity="*",
-
+        ),
         # Todo: Suggestion from PP not to bother pulling this into the package.
-        ),GeminiAttribute(
+        GeminiElement(
             name="unique-resource-identifier",
-            xpaths=[
+            search_paths=[
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier",
                 "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier",
             ],
             multiplicity="1",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="abstract",
-            xpaths=[
+            search_paths=[
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:abstract/gco:CharacterString/text()",
                 "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:abstract/gco:CharacterString/text()",
             ],
             multiplicity="1",
-        ),GeminiAttribute(
+        ),
+        GeminiResponsibleParty(
             name="responsible-organisation",
-            xpaths=[
+            search_paths=[
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:pointOfContact/gmd:CI_ResponsibleParty",
                 "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:pointOfContact/gmd:CI_ResponsibleParty",
             ],
             multiplicity="1..*",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="frequency-of-update",
-            xpaths=[
+            search_paths=[
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:resourceMaintenance/gmd:MD_MaintenanceInformation/gmd:maintenanceAndUpdateFrequency/gmd:MD_MaintenanceFrequencyCode/@codeListValue",
                 "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:resourceMaintenance/gmd:MD_MaintenanceInformation/gmd:maintenanceAndUpdateFrequency/gmd:MD_MaintenanceFrequencyCode/@codeListValue",
 
@@ -496,211 +668,307 @@ class GeminiDocument(MetadataDocument):
                 "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:resourceMaintenance/gmd:MD_MaintenanceInformation/gmd:maintenanceAndUpdateFrequency/gmd:MD_MaintenanceFrequencyCode/text()",
             ],
             multiplicity="0..1",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="keyword-inspire-theme",
-            xpaths=[
-                #"gmd:identificationInfo/gmd:MD_DataIdentification/gmd:descriptiveKeywords/gmd:MD_Keywords[some GEMET citation1]/gmd:keyword/gco:CharacterString",
-                #"gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:descriptiveKeywords/gmd:MD_Keywords[some GEMET citation1]/gmd:keyword/gco:CharacterString",
+            search_paths=[
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:descriptiveKeywords/gmd:MD_Keywords/gmd:keyword/gco:CharacterString/text()",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:descriptiveKeywords/gmd:MD_Keywords/gmd:keyword/gco:CharacterString/text()",
             ],
             multiplicity="*",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="keyword-controlled-other",
-            xpaths=[
+            search_paths=[
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:descriptiveKeywords/gmd:MD_Keywords/gmd:keyword/gco:CharacterString/text()",
                 "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:descriptiveKeywords/gmd:MD_Keywords/gmd:keyword/gco:CharacterString/text()",
                 "gmd:identificationInfo/srv:SV_ServiceIdentification/srv:keywords/gmd:MD_Keywords/gmd:keyword/gco:CharacterString/text()",
             ],
             multiplicity="*",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="keyword-free-text",
-            xpaths=[
+            search_paths=[
             ],
             multiplicity="*",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="limitations-on-public-access",
-            xpaths=[
+            search_paths=[
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:accessConstraints/gmd:otherConstraints/gco:CharacterString/text()",
                 "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:accessConstraints/gmd:otherConstraints/gco:CharacterString/text()",
             ],
             multiplicity="1..*",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="use-constraints",
-            xpaths=[
+            search_paths=[
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:resourceConstraints/gmd:MD_Constraints/gmd:useLimitation/gco:CharacterString/text()",
                 "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:resourceConstraints/gmd:MD_Constraints/gmd:useLimitation/gco:CharacterString/text()",
             ],
             multiplicity="*",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="spatial-data-service-type",
-            xpaths=[
+            search_paths=[
                 "gmd:identificationInfo/srv:SV_ServiceIdentification/srv:serviceType/gco:LocalName",
             ],
             multiplicity="0..1",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="spatial-resolution",
-            xpaths=[
+            search_paths=[
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gco:Distance",
                 "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gco:Distance",
             ],
             multiplicity="0..1",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="spatial-resolution-units",
-            xpaths=[
+            search_paths=[
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gco:Distance/@uom",
                 "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gco:Distance/@uom",
             ],
             multiplicity="0..1",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="equivalent-scale",
-            xpaths=[
+            search_paths=[
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale/gmd:MD_RepresentativeFraction/gmd:denominator/gco:Integer/text()",
                 "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale/gmd:MD_RepresentativeFraction/gmd:denominator/gco:Integer/text()",
             ],
             multiplicity="*",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="dataset-language",
-            xpaths=[
+            search_paths=[
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:language/gmd:LanguageCode/@codeListValue",
                 "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:language/gmd:LanguageCode/@codeListValue",
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:language/gmd:LanguageCode/text()",
                 "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:language/gmd:LanguageCode/text()",
             ],
             multiplicity="*",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="topic-category",
-            xpaths=[
+            search_paths=[
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:topicCategory/gmd:MD_TopicCategoryCode/text()",
                 "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:topicCategory/gmd:MD_TopicCategoryCode/text()",
             ],
-        ),GeminiAttribute(
+            multiplicity="*",
+        ),
+        GeminiElement(
             name="extent-controlled",
-            xpaths=[
+            search_paths=[
             ],
             multiplicity="*",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="extent-free-text",
-            xpaths=[
+            search_paths=[
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicDescription/gmd:geographicIdentifier/gmd:MD_Identifier/gmd:code/gco:CharacterString/text()",
                 "gmd:identificationInfo/srv:SV_ServiceIdentification/srv:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicDescription/gmd:geographicIdentifier/gmd:MD_Identifier/gmd:code/gco:CharacterString/text()",
             ],
             multiplicity="*",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="bbox-west-long",
-            xpaths=[
+            search_paths=[
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox/gmd:westBoundLongitude/gco:Decimal/text()",
                 "gmd:identificationInfo/srv:SV_ServiceIdentification/srv:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox/gmd:westBoundLongitude/gco:Decimal/text()",
             ],
             multiplicity="1",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="bbox-east-long",
-            xpaths=[
+            search_paths=[
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox/gmd:eastBoundLongitude/gco:Decimal/text()",
                 "gmd:identificationInfo/srv:SV_ServiceIdentification/srv:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox/gmd:eastBoundLongitude/gco:Decimal/text()",
             ],
             multiplicity="1",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="bbox-north-lat",
-            xpaths=[
+            search_paths=[
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox/gmd:northBoundLatitude/gco:Decimal/text()",
                 "gmd:identificationInfo/srv:SV_ServiceIdentification/srv:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox/gmd:northBoundLatitude/gco:Decimal/text()",
             ],
             multiplicity="1",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="bbox-south-lat",
-            xpaths=[
+            search_paths=[
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox/gmd:southBoundLatitude/gco:Decimal/text()",
                 "gmd:identificationInfo/srv:SV_ServiceIdentification/srv:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox/gmd:southBoundLatitude/gco:Decimal/text()",
             ],
             multiplicity="1",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="temporal-extent-begin",
-            xpaths=[
+            search_paths=[
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent/gmd:temporalElement/gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod/gml:beginPosition/text()",
                 "gmd:identificationInfo/srv:SV_ServiceIdentification/srv:extent/gmd:EX_Extent/gmd:temporalElement/gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod/gml:beginPosition/text()",
             ],
             multiplicity="0..1",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="temporal-extent-end",
-            xpaths=[
+            search_paths=[
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent/gmd:temporalElement/gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod/gml:endPosition/text()",
                 "gmd:identificationInfo/srv:SV_ServiceIdentification/srv:extent/gmd:EX_Extent/gmd:temporalElement/gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod/gml:endPosition/text()",
             ],
             multiplicity="0..1",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="vertical-extent",
-            xpaths=[
+            search_paths=[
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent/gmd:verticalElement/gmd:EX_VerticalExtent",
                 "gmd:identificationInfo/srv:SV_ServiceIdentification/srv:extent/gmd:EX_Extent/gmd:verticalElement/gmd:EX_VerticalExtent",
             ],
             multiplicity="0..1",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="coupled-resource",
-            xpaths=[
+            search_paths=[
                 "gmd:identificationInfo/srv:SV_ServiceIdentification/srv:operatesOn/@xlink:href",
             ],
             multiplicity="*",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="additional-information-source",
-            xpaths=[
+            search_paths=[
                 "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:supplementalInformation/gco:CharacterString/text()",
             ],
             multiplicity="0..1",
-        ),GeminiAttribute(
+        ),
+        GeminiDataFormat(
             name="data-format",
-            xpaths=[
+            search_paths=[
                 "gmd:distributionInfo/gmd:MD_Distribution/gmd:distributionFormat/gmd:MD_Format",
             ],
             multiplicity="*",
-        ),GeminiAttribute(
+        ),
+        GeminiResourceLocator(
             name="resource-locator",
-            xpaths=[
-                "gmd:distributionInfo/gmd:MD_Distribution/gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource/gmd:linkage/gmd:URL/text()",
+            search_paths=[
+                "gmd:distributionInfo/gmd:MD_Distribution/gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource",
             ],
             multiplicity="*",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="conformity-specification",
-            xpaths=[
+            search_paths=[
                 "gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:report/gmd:DQ_DomainConsistency/gmd:result/gmd:DQ_ConformanceResult/gmd:specification",
             ],
             multiplicity="0..1",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="conformity-pass",
-            xpaths=[
+            search_paths=[
                 "gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:report/gmd:DQ_DomainConsistency/gmd:result/gmd:DQ_ConformanceResult/gmd:pass/gco:Boolean/text()",
             ],
             multiplicity="0..1",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="conformity-explanation",
-            xpaths=[
+            search_paths=[
                 "gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:report/gmd:DQ_DomainConsistency/gmd:result/gmd:DQ_ConformanceResult/gmd:explanation/gco:CharacterString/text()",
             ],
             multiplicity="0..1",
-        ),GeminiAttribute(
+        ),
+        GeminiElement(
             name="lineage",
-            xpaths=[
+            search_paths=[
                 "gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:statement/gco:CharacterString/text()",
             ],
             multiplicity="0..1",
-        #),GeminiAttribute(
-        #    name="resource-locator-description",
-        #    xpaths="gmd:distributionInfo/gmd:MD_Distribution/gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource/gmd:function/gmd:CI_OnLineFunctionCode/@codeListValue",
         )
     ]
 
+    def infer_values(self, values):
+        # Todo: Infer name.
+        self.infer_date_released(values)
+        self.infer_date_updated(values)
+        self.infer_url(values)
+        # Todo: Infer resources.
+        self.infer_tags(values)
+        self.infer_publisher(values)
+        self.infer_contact(values)
+        self.infer_contact_email(values)
+        return values
+
+    def infer_date_released(self, values):
+        value = ''
+        for date in values['dataset-reference-date']:
+            if date['type'] == 'publication':
+                value = date['value']
+                break
+        values['date-released'] = value
+
+    def infer_date_updated(self, values):
+        value = ''
+        # Todo: Use last of several multiple revision dates.
+        for date in values['dataset-reference-date']:
+            if date['type'] == 'revision':
+                value = date['value']
+                break
+        values['date-updated'] = value
+
+    def infer_url(self, values):
+        value = ''
+        for locator in values['resource-locator']:
+            if locator['function'] == 'information':
+                value = locator['url']
+                break
+        values['url'] = value
+
+    def infer_tags(self, values):
+        value = []
+        value += values['keyword-inspire-theme']
+        value += values['keyword-controlled-other']
+        value += values['keyword-free-text']
+        value = list(set(value))
+        values['tags'] = value
+
+    def infer_publisher(self, values):
+        value = ''
+        for responsible_party in values['responsible-organisation']:
+            if responsible_party['role'] == 'publisher':
+                value = responsible_party['organisation-name']
+            if value:
+                break
+        values['publisher'] = value
+
+    def infer_contact(self, values):
+        value = ''
+        for responsible_party in values['responsible-organisation']:
+            value = responsible_party['organisation-name']
+            if value:
+                break
+        values['contact'] = value
+
+    def infer_contact_email(self, values):
+        value = ''
+        for responsible_party in values['responsible-organisation']:
+            value = responsible_party['contact-info']['email']
+            if value:
+                break
+        values['contact-email'] = value
 
 
 class HarvestedDocument(DomainObject):
 
-    def read_attributes(self):
+    def read_values(self):
         if "gmd:MD_Metadata" in self.content:
             gemini_document = GeminiDocument(self.content)
         else:
             raise Exception, "Can't identify type of document content: %s" % self.content
-        return gemini_document.read_attributes()
+        return gemini_document.read_values()
 
 
 harvest_source_table = Table('harvest_source', metadata,
         Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
+        # Todo: Drop this column, it is not required.
         Column('status', types.UnicodeText, default=u'New', nullable=False),
         Column('url', types.UnicodeText, unique=True, nullable=False),
         Column('description', types.UnicodeText, default=u''),
@@ -716,6 +984,7 @@ harvesting_job_table = Table('harvesting_job', metadata,
         Column('user_ref', types.UnicodeText, nullable=False),
         # Todo: Migration script to delete old column and add new column?
         Column('report', JsonType),
+        Column('errors', types.UnicodeText, default=u''),
         Column('source_id', types.UnicodeText, ForeignKey('harvest_source.id')),
 )
 
