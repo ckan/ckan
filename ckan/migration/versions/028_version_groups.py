@@ -100,8 +100,9 @@ def upgrade():
     
     # handle groups: 
     
-    # BUG in sqlalchemy-migrate: "group" isn't escaped properly when sent to 
+    # BUG in sqlalchemy-migrate 0.4/0.5.4: "group" isn't escaped properly when sent to 
     # postgres. 
+    # cf http://code.google.com/p/sqlalchemy-migrate/issues/detail?id=32
     
     #state = Column('state', UnicodeText)
     #revision_id = Column('revision_id', UnicodeText)
