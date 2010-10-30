@@ -10,6 +10,7 @@ Highlights of changes:
   * API for Package Create/New (#545)
   * Authorization extended: user groups (#647) and creation of packages (#648)
   * Caching support (ETag) (#693)
+  * Harvesting GEMINI2 metadata records from OGC CSW servers (#566)
  
 Minor:
   * New API key header (#466)
