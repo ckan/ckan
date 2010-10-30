@@ -70,7 +70,7 @@ setup(
     db = ckan.lib.cli:ManageDb
     load = ckan.lib.cli:Load
     create-test-data = ckan.lib.create_test_data:CreateTestData
-    test-data = ckan.lib.cli:TestData
+    test-site = ckan.lib.test_site:TestSite
     sysadmin = ckan.lib.cli:Sysadmin
     search-index = ckan.lib.cli:SearchIndexCommand
     ratings = ckan.lib.cli:Ratings
