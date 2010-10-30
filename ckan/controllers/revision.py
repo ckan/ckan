@@ -111,8 +111,6 @@ class RevisionController(BaseController):
         c.pkgtags = [ pkgtag.continuity for pkgtag in pkgtags ]
         grps = model.Session.query(model.GroupRevision).filter_by(revision=c.revision)
         c.groups = [ grp.continuity for grp in grps ]
-        pkggroups = model.Session.query(model.PackageGroupRevision).filter_by(revision=c.revision)
-        c.packagegroups = [ pkggroup.continuity for pkggroup in pkggroups ]
         return render('revision/read.html', cache_key=cache_key)
 
     def diff(self, id=None):

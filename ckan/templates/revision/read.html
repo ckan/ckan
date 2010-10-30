@@ -46,15 +46,6 @@
       </py:for>
     </ul>
     
-    <h4>Groups' Packages</h4>
-    <ul>
-      <py:for each="pkggrp in c.packagegroups">
-      <li>
-      Group - ${h.link_to(pkggrp.group.name, h.url_for(controller='group', action='read', id=pkggrp.group.name))}
-      Package - ${h.link_to(pkggrp.package.name, h.url_for(controller='package', action='read', id=pkggrp.package.name))},
-      </li>
-      </py:for>
-    </ul>
   </div>
 
   <xi:include href="layout.html" />
