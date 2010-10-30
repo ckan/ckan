@@ -89,6 +89,7 @@ class PackageSaver(object):
     def _update(cls, fs, original_name, pkg_id, log_message, author, commit=True, client=None):
         # Todo: Remove original_name and pkg_id, since they aren't used.
         # Todo: Consolidate log message field (and validation).
+        # Todo: Separate out the preview line of execution, it's confusing.
         rev = None
         # validation
         errors = cls._revision_validation(log_message)
