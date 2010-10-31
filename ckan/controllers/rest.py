@@ -274,8 +274,10 @@ class BaseRestController(BaseApiController):
                 return self._finish_ok(response_data)
             elif register == 'group' and not subregister:
                 # Create a Group.
+                is_admin = ckan.authz.Authorizer().is_sysadmin(c.user)
                 request_fa_dict = ckan.forms.edit_group_dict(ckan.forms.get_group_dict(), request_data)
-                fs = ckan.forms.get_group_fieldset(combined=True).bind(model.Group, data=request_fa_dict, session=model.Session)
+                fs = ckan.forms.get_group_fieldset(combined=True, is_admin=is_admin)
+                fs = fs.bind(model.Group, data=request_fa_dict, session=model.Session)
                 # ...continues below.
             elif register == 'rating' and not subregister:
                 # Create a Rating.
@@ -353,6 +355,9 @@ class BaseRestController(BaseApiController):
             entity = existing_rels[0]
         elif register == 'group' and not subregister:
             entity = model.Group.by_name(id)
+            if entity == None:
+                response.status_int = 404
+                return 'Group was not found.'
         else:
             response.status_int = 400
             return gettext('Cannot update entity of this type: %s') % register
@@ -381,9 +386,11 @@ class BaseRestController(BaseApiController):
                     response.status_int = 400
                     return gettext('Package format incorrect: %s') % str(inst)
             elif register == 'group':
+                auth_for_change_state = ckan.authz.Authorizer().am_authorized(c, 
+                    model.Action.CHANGE_STATE, entity)
                 orig_entity_dict = ckan.forms.get_group_dict(entity)
                 request_fa_dict = ckan.forms.edit_group_dict(orig_entity_dict, request_data, id=entity.id)
-                fs = ckan.forms.get_group_fieldset(combined=True)
+                fs = ckan.forms.get_group_fieldset(combined=True, is_admin=auth_for_change_state)
             fs = fs.bind(entity, data=request_fa_dict)
             
             validation = fs.validate()

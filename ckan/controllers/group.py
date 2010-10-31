@@ -55,7 +55,6 @@ class GroupController(BaseController):
             abort(401, str(gettext('Unauthorized to create a group')))
         
         is_admin = self.authorizer.is_sysadmin(c.user)
-        
         fs = ckan.forms.get_group_fieldset(is_admin=is_admin)
 
         if request.params.has_key('save'):
@@ -106,14 +105,14 @@ class GroupController(BaseController):
         if not am_authz:
             abort(401, gettext('User %r not authorized to edit %r') % (c.user, id))
             
-        is_admin = self.authorizer.is_sysadmin(c.user)
+        auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, group)
         
         if not 'save' in request.params:
             c.group = group
             c.groupname = group.name
             c.grouptitle = group.title
             
-            fs = ckan.forms.get_group_fieldset(is_admin=is_admin).bind(c.group)
+            fs = ckan.forms.get_group_fieldset(is_admin=auth_for_change_state).bind(c.group)
             c.form = self._render_edit_form(fs)
             return render('group/edit.html')
         else:
