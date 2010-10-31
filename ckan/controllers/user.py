@@ -31,6 +31,8 @@ class UserController(BaseController):
 
     def login(self):
         if c.user:
+            from pprint import pprint
+            pprint(request)
             userobj = model.User.by_name(c.user)
             if userobj is None:
                 userobj = model.User(name=c.user)
