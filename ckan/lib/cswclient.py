@@ -107,6 +107,15 @@ class CswClient(object):
             raise CswError, msg
         # Todo: Change above code to use XPaths?
 
+    #def iter_records(self, max_records=None):
+    #    records = []
+    #    for id in self.get_identifiers():
+    #        record = self.get_record_by_id(id)
+    #        records.append(record)
+    #        if max_records and len(records) == max_records:
+    #            break
+    #    return records
+
     def get_records(self, max_records=None):
         records = []
         for id in self.get_identifiers():

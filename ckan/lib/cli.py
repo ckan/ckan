@@ -4,6 +4,7 @@ import logging
 
 import paste.script
 from paste.script.util.logging_config import fileConfig
+import re
 
 class CkanCommand(paste.script.command.Command):
     parser = paste.script.command.Command.standard_parser(verbose=True)
@@ -954,13 +955,13 @@ class Harvester(CkanCommand):
     '''Harvests remotely mastered metadata
 
     Usage:
-      harvester source {url} {user-ref} {publisher-ref}       
+      harvester source {url} [{user-ref} [{publisher-ref}]]     
         - create new harvest source
 
       harvester sources                                 
         - lists harvest sources
 
-      harvester job {source-id} {user-ref}
+      harvester job {source-id} [{user-ref}]
         - create new harvesting job
 
       harvester jobs
@@ -979,25 +980,37 @@ class Harvester(CkanCommand):
         self._load_config()
         # Clear the 'No handlers could be found for logger "vdm"' warning message.
         print ""
-        print ""
         cmd = self.args[0]
         if cmd == 'source':
-            if len(self.args) == 4:
+            if len(self.args) >= 2:
                 url = unicode(self.args[1])
-                user_ref = unicode(self.args[2])
-                publisher_ref = unicode(self.args[3])
-                self.register_harvest_source(url, user_ref, publisher_ref)
             else:
-                print 'Need url, user-ref and publisher-ref.'
+                print self.usage
+                print 'Error, source url is not given.'
+                sys.exit(1)
+            if len(self.args) >= 3:
+                user_ref = unicode(self.args[2])
+            else:
+                user_ref = u''
+            if len(self.args) >= 4:
+                publisher_ref = unicode(self.args[3])
+            else:
+                publisher_ref = u''
+            self.register_harvest_source(url, user_ref, publisher_ref)
         elif cmd == 'sources':
             self.list_harvest_sources()
         elif cmd == 'job':
-            if len(self.args) == 3:
-                url = unicode(self.args[1])
-                user_ref = unicode(self.args[2])
-                self.register_harvesting_job(url, user_ref)
+            if len(self.args) >= 2:
+                source_id = unicode(self.args[1])
             else:
-                print 'Need source-id and user-ref.'
+                print self.usage
+                print 'Error, job source is not given.'
+                sys.exit(1)
+            if len(self.args) >= 3:
+                user_ref = unicode(self.args[2])
+            else:
+                user_ref = u''
+            self.register_harvesting_job(source_id, user_ref)
         elif cmd == 'jobs':
             self.list_harvesting_jobs()
         elif cmd == 'run':
@@ -1019,19 +1032,38 @@ class Harvester(CkanCommand):
 
         from ckan.model import HarvestingJob
         jobs = HarvestingJob.filter(status=u"New").all()
-        self.print_there_are(what="harvesting job", sequence=jobs, condition="new")
+        jobs_len = len(jobs)
+        jobs_count = 0
+        if jobs_len:
+            print "Running %s harvesting jobs..." % jobs_len
+        else:
+            print "There are no new harvesting jobs."
+        print ""
         for job in jobs:
-            print "Running job: %s" % job.id
+            jobs_count += 1
+            print "Running job %s/%s: %s" % (jobs_count, jobs_len, job.id)
             job.harvest_documents()
-            self.print_harvesting_job(job)
+            #self.print_harvesting_job(job)
             print ""
             job = HarvestingJob.get(job.id)
             self.print_harvesting_job(job)
 
 
     def register_harvesting_job(self, source_id, user_ref):
+        from ckan.model import HarvestSource
         from ckan.model import HarvestingJob
-        job = HarvestingJob.create_save(source_id=source_id, user_ref=user_ref, status=u"New")
+        if re.match('(http|file)://', source_id):
+            source_url = unicode(source_id)
+            source_id = None
+            sources = HarvestSource.filter(url=source_url).all()
+            if sources:
+                source = sources[0]
+            else:
+                source = self.create_harvest_source(url=source_url, user_ref=user_ref, publisher_ref=u'')
+        else:
+            source = HarvestSource.get(source_id)
+
+        job = HarvestingJob.create_save(source=source, user_ref=user_ref, status=u"New")
         print "Created new harvesting job:"
         self.print_harvesting_job(job)
         status = u"New"
@@ -1100,17 +1132,18 @@ class Harvester(CkanCommand):
 
     def print_harvesting_job(self, job):
         print "Job id: %s" % job.id
-        print "  user: %s" % job.user_ref
+        if job.user_ref:
+            print "  user: %s" % job.user_ref
         print "status: %s" % job.status
-        print "   url: %s" % job.source.url
         print "source: %s" % job.source.id
-        print "report: %s" % job.report
-        #if job.report and job.report['packages']:
-        #    for package_id in job.report['packages']:
-        #        print "   doc: %s" % package_id
-        #if job.report and job.report['errors']:
-        #    for msg in job.report['errors']:
-        #        print " error: %s" % msg
+        print "   url: %s" % job.source.url
+        #print "report: %s" % job.report
+        if job.report and job.report['packages']:
+            for package_id in job.report['packages']:
+                print "   doc: %s" % package_id
+        if job.report and job.report['errors']:
+            for msg in job.report['errors']:
+                print " error: %s" % msg
         print ""
 
     def print_there_are(self, what, sequence, condition=""):

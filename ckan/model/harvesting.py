@@ -20,6 +20,10 @@ __all__ = [
     'HarvestedDocument', 'harvested_document_table',
 ]
 
+class HarvesterError(Exception): pass
+
+class HarvesterUrlError(HarvesterError): pass
+
 class DomainObject(DomainObject):
 
     key_attr = 'id'
@@ -73,7 +77,7 @@ class HarvestSource(DomainObject):
         import ckan.forms
         import ckan.model as model
         package = None
-        # Read data for package.
+        # Look for document with matching Gemini GUID.
         gemini_document = GeminiDocument(content)
         gemini_values = gemini_document.read_values()
         gemini_guid = gemini_values['guid']
@@ -85,7 +89,7 @@ class HarvestSource(DomainObject):
             harvested_document = harvested_documents[0]
             if harvested_document.source.id != self.id:
                 # A 'user' error.
-                raise Exception, "Another source is using metadata GUID %s."
+                raise HarvesterError, "Another source is using metadata GUID %s." % self.id
             package = harvested_document.package
         else:
             harvested_document = None
@@ -135,7 +139,7 @@ class HarvestSource(DomainObject):
                             attr_name = error[0].name
                             error_msg = error[1][0]
                             msg += ' %s: %s' % (attr_name.capitalize(), error_msg)
-                        raise Exception, msg
+                        raise HarvesterError, msg
             except:
                 model.Session.rollback()
                 model.Session.close()
@@ -156,8 +160,8 @@ class HarvestSource(DomainObject):
                 fieldset_data = GetEditFieldsetPackageData(
                     fieldset=fieldset, package=package, data=package_data).data
                 bound_fieldset = fieldset.bind(package, data=fieldset_data)
-                log_message = 'harvester'
-                author = ''
+                log_message = u'harvester'
+                author = u''
                 from ckan.lib.package_saver import WritePackageFromBoundFieldset
                 from ckan.lib.package_saver import ValidationException
                 try:
@@ -173,7 +177,7 @@ class HarvestSource(DomainObject):
                             msg = "%s: %s" % (field.name, error)
                             msgs.append(msg)
                     msg = "Fieldset validation errors: %s" % msgs
-                    raise Exception, msg
+                    raise HarvesterError, msg
                 else:
                     return package
 
@@ -193,8 +197,8 @@ class HarvestingJob(DomainObject):
         try:
             try:
                 content = self.get_source_content()
-            except urllib2.URLError, exception:
-                msg = "Unable to read registered URL: %r" % exception
+            except HarvesterUrlError, exception:
+                msg = "Error harvesting source: %s" % exception
                 self.report_error(msg)
             else:
                 source_type = self.detect_source_type(content)
@@ -248,8 +252,12 @@ class HarvestingJob(DomainObject):
         return self.get_content(self.source.url)
 
     def get_content(self, url):
-        http_response = urllib2.urlopen(url)
-        return http_response.read()
+        try:
+            http_response = urllib2.urlopen(url)
+            return http_response.read()
+        except Exception, inst:
+            msg = "Unable to get content for URL: %s: %r" % (url, inst)
+            raise HarvesterUrlError(msg)
 
     def detect_source_type(self, content):
         if "<gmd:MD_Metadata" in content:
@@ -268,26 +276,39 @@ class HarvestingJob(DomainObject):
         else:
             try:
                 package = self.source.write_package(content)
-            # Todo: Be more selective about exception classes?
+            except HarvesterError, exception:
+                msg = "%s" % exception
+                self.report_error(msg)
             except Exception, exception:
-                msg = "Error writing package from harvested content: %s" % exception
+                msg = "System error writing package from harvested content: %s" % exception
                 self.report_error(msg)
                 # Todo: Print traceback to exception log?
+                raise
             else:
                 if package:
                     self.report_package(package.id)
 
     def harvest_csw_documents(self, url):
-        csw_client = CswClient(base_url=url)
-        records = csw_client.get_records()
+        try:
+            csw_client = CswClient(base_url=url)
+            records = csw_client.get_records()
+        except CswError, error:
+            msg = "Couldn't get records from CSW: %s: %s" % (url, error)
+            self.report_error(msg)
+
         for content in records:
             self.harvest_document(content=content)
 
     def harvest_waf_documents(self, content):
         for url in self.extract_urls(content):
-            content = self.get_content(url)
-            if "<gmd:MD_Metadata" in content:
-                self.harvest_document(content=content)
+            try:
+                content = self.get_content(url)
+            except HarvesterError, error:
+                msg = "Couldn't harvest WAF link: %s: %s" % (url, error)
+                self.report_error(msg)
+            else:
+                if "<gmd:MD_Metadata" in content:
+                    self.harvest_document(content=content)
         if not self.get_report()['packages']:
             self.report_error("Couldn't find any links to metadata files.")
 
@@ -297,7 +318,7 @@ class HarvestingJob(DomainObject):
             tree = etree.fromstring(content, parser=parser)
         except Exception, inst:
             msg = "Couldn't parse content into a tree: %s: %s" % (inst, content)
-            raise Exception, msg
+            raise HarvesterError, msg
         urls = []
         for url in tree.xpath('//a/@href'):
             url = url.strip()
@@ -353,7 +374,11 @@ class MappedXmlDocument(MappedXmlObject):
 
     def get_content_tree(self):
         parser = etree.XMLParser(remove_blank_text=True)
-        return etree.fromstring(self.content, parser=parser)
+        if type(self.content) == unicode:
+            content = self.content.encode('utf8')
+        else:
+            content = self.content
+        return etree.fromstring(content, parser=parser)
 
     def infer_values(self, values):
         pass
@@ -418,14 +443,14 @@ class MappedXmlElement(MappedXmlObject):
     def fix_multiplicity(self, values):
         if self.multiplicity == "0":
             if values:
-                raise Exception, "Values found for element '%s': %s" % (self.name, values)
+                raise HarvesterError, "Values found for element '%s': %s" % (self.name, values)
             else:
                 return ""
         elif self.multiplicity == "1":
             if values:
                 return values[0]
             else:
-                raise Exception, "Value not found for element '%s'" % self.name
+                raise HarvesterError, "Value not found for element '%s'" % self.name
         elif self.multiplicity == "*":
             return values
         elif self.multiplicity == "0..1":
@@ -436,7 +461,7 @@ class MappedXmlElement(MappedXmlObject):
         elif self.multiplicity == "1..*":
             return values
         else:
-            raise Exception, "Can't fix element values for multiplicity '%s'." % self.multiplicity
+            raise HarvesterError, "Can't fix element values for multiplicity '%s'." % self.multiplicity
 
 
 class GeminiElement(MappedXmlElement):
@@ -962,7 +987,7 @@ class HarvestedDocument(DomainObject):
         if "gmd:MD_Metadata" in self.content:
             gemini_document = GeminiDocument(self.content)
         else:
-            raise Exception, "Can't identify type of document content: %s" % self.content
+            raise HarvesterError, "Can't identify type of document content: %s" % self.content
         return gemini_document.read_values()
 
 
