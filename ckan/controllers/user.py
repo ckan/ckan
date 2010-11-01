@@ -20,7 +20,7 @@ class UserController(BaseController):
             user = model.User.by_name(c.user)
         if not user:
             h.redirect_to(controller='user', action='login', id=None)
-        c.read_user = user.name
+        c.read_user = user.display_name
         c.is_myself = user.name == c.user
         c.about_formatted = self._format_about(user.about)
         revisions_q = model.Session.query(model.Revision).filter_by(author=user.name)
@@ -28,24 +28,22 @@ class UserController(BaseController):
         c.num_pkg_admin = model.Session.query(model.PackageRole).filter_by(user=user, role=model.Role.ADMIN).count()
         c.activity = revisions_q.limit(20).all()
         return render('user/read.html')
-
+    
     def login(self):
+        form = render('user/openid_form.html')
+        # /login_openid page need not exist -- request gets intercepted by openid plugin
+        form = form.replace('FORM_ACTION', '/login_openid')
+        return form
+    
+    def openid(self):
         if c.user:
-            from pprint import pprint
-            pprint(request)
             userobj = model.User.by_name(c.user)
-            if userobj is None:
-                userobj = model.User(name=c.user)
-                model.Session.add(userobj)
-                model.Session.commit()
             response.set_cookie("ckan_user", userobj.name)
             response.set_cookie("ckan_apikey", userobj.apikey)
             h.redirect_to(controller='user', action=None, id=None)
         else:
-            form = render('user/openid_form.html')
-            # /login_openid page need not exist -- request gets intercepted by openid plugin
-            form = form.replace('FORM_ACTION', '/login_openid')
-            return form
+            self.login()
+          
 
     def logout(self):
         c.user = None
@@ -69,17 +67,21 @@ class UserController(BaseController):
         user = model.User.by_name(c.user)
         if not 'save' in request.params and not 'preview' in request.params:
             c.user_about = user.about
+            c.user_fullname = user.fullname
         elif 'preview' in request.params:
             about = request.params.getone('about')
             c.preview = self._format_about(about)
             c.user_about = about
+            c.user_fullname = request.params.getone('fullname')
         elif 'save' in request.params:
             about = request.params.getone('about')
+            fullname = request.params.getone('fullname')
             try:
                 rev = model.repo.new_revision()
                 rev.author = c.author
                 rev.message = _(u'Changed user details')
                 user.about = about
+                user.fullname = fullname
             except Exception, inst:
                 model.Session.rollback()
                 raise

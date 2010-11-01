@@ -243,6 +243,7 @@ def make_map():
     map.connect('/user/all', controller='user', action='all')
     map.connect('/user/edit', controller='user', action='edit')
     map.connect('/user/login', controller='user', action='login')
+    map.connect('/user/openid', controller='user', action='openid')
     map.connect('/user/logout', controller='user', action='logout')
     map.connect('/user/apikey', controller='user', action='apikey')
     map.connect('/user/:id', controller='user', action='read')
