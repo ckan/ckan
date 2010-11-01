@@ -297,7 +297,7 @@ class TestHarvestCswSourceDown(HarvesterTestCase):
         self.assert_len(self.job.report['packages'], 0)
         self.assert_len(self.job.report['errors'], 1)
         error = self.job.report['errors'][0]
-        self.assert_contains(error, 'Unable to read registered URL')
+        self.assert_contains(error, 'Unable to get content for URL')
 
 
 class TestHarvestCswSourceRandomWebsite(HarvesterTestCase):
