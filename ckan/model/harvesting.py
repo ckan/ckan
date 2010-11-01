@@ -993,8 +993,6 @@ class HarvestedDocument(DomainObject):
 
 harvest_source_table = Table('harvest_source', metadata,
         Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
-        # Todo: Drop this column, it is not required.
-        Column('status', types.UnicodeText, default=u'New', nullable=False),
         Column('url', types.UnicodeText, unique=True, nullable=False),
         Column('description', types.UnicodeText, default=u''),
         Column('user_ref', types.UnicodeText, default=u''),
@@ -1007,7 +1005,6 @@ harvesting_job_table = Table('harvesting_job', metadata,
         Column('status', types.UnicodeText, default=u'New', nullable=False),
         Column('created', DateTime, default=datetime.datetime.utcnow),
         Column('user_ref', types.UnicodeText, nullable=False),
-        # Todo: Migration script to delete old column and add new column?
         Column('report', JsonType),
         Column('errors', types.UnicodeText, default=u''),
         Column('source_id', types.UnicodeText, ForeignKey('harvest_source.id')),
