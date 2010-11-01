@@ -67,7 +67,7 @@ def authz_fieldset_builder(role_class):
             # use getattr because though we should always have a user name,
             # sometimes (due to error) we don't and want to avoid a 500 ...
             Field(u'username', types.String,
-                lambda item: getattr(item.user, 'name', '')).readonly()
+                lambda item: ckan_h.linked_user(getattr(item.user, 'name', ''))).readonly()
             )
             
     fs.append(

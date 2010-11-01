@@ -23,7 +23,7 @@
     <py:if test="c.group_admins">
       <h3>Administrators:</h3> 
         <py:for each="admin in c.group_admins">
-          <a href="${h.url_for(controller='user',action='read',id=admin.id)}">${admin.name}</a>
+          ${h.linked_user(admin)}
         </py:for>
     </py:if>      
 

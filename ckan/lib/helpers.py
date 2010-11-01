@@ -49,12 +49,19 @@ def am_authorized(c, action, domain_object=None):
         domain_object = model.System()
     return Authorizer.am_authorized(c, action, domain_object)
 
-def linked_user(username):
+def linked_user(user):
     from ckan import model
-    user = model.User.by_name(unicode(username))
+    from urllib import quote
+    if user in [model.PSEUDO_USER__LOGGED_IN, model.PSEUDO_USER__VISITOR]:
+        return user
+    if not isinstance(user, model.User):
+        user = model.User.get(unicode(user))
     if user:
-        return link_to(username, url_for(controller='user', action='read', id=user.id))
-    return username
+        _name = user.name if quote(user.name)==user.name else user.id
+        _icon = icon("user") + " "
+        return _icon + link_to(user.display_name, 
+                       url_for(controller='user', action='read', id=_name))
+    return user
 
 def markdown_extract(text):
     if (text is None) or (text == ''):

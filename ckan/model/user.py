@@ -1,5 +1,6 @@
 from datetime import datetime
 from hashlib import sha1
+from sqlalchemy.sql.expression import or_
 
 from meta import *
 from core import DomainObject
@@ -19,10 +20,18 @@ user_table = Table('user', metadata,
 class User(DomainObject):
     
     @classmethod
-    def by_openid(self, openid):
-        obj = Session.query(self).autoflush(False)
+    def by_openid(cls, openid):
+        obj = Session.query(cls).autoflush(False)
         return obj.filter_by(openid=openid).first()
-        
+    
+    @classmethod
+    def get(cls, identifier):
+        query = Session.query(cls).autoflush(False)
+        query = query.filter(or_(cls.name==identifier,
+                                 cls.openid==identifier,
+                                 cls.id==identifier))
+        return query.first()
+
     @property
     def display_name(self):
         if self.fullname is not None and len(self.fullname.strip()) > 0:

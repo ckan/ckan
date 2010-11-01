@@ -15,7 +15,7 @@ class UserController(BaseController):
 
     def read(self, id=None):
         if id:
-            user = model.Session.query(model.User).get(id)
+            user = model.User.get(id)
         else:
             user = model.User.by_name(c.user)
         if not user:
