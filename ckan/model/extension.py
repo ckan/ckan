@@ -50,12 +50,12 @@ class PluginMapperExtension(MapperExtension, ObserverNotifier):
 
     def after_insert(self, mapper, connection, instance):
         return self.notify_observers(
-            methodcaller('before_delete', mapper, connection, instance)
+            methodcaller('after_insert', mapper, connection, instance)
         )
                                      
     def after_update(self, mapper, connection, instance):
         return self.notify_observers(
-            methodcaller('before_delete', mapper, connection, instance)
+            methodcaller('after_update', mapper, connection, instance)
         )
     
     def after_delete(self, mapper, connection, instance):
