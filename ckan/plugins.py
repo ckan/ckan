@@ -188,8 +188,15 @@ def load_all(config):
     deactivate_all()
 
     for plugin in plugins:
-        service = plugin()
-        service.activate()
+        load(plugin)
+
+def load(plugin):
+    """
+    Load a single plugin
+    """
+    service = plugin()
+    service.activate()
+    return service
 
 def find_user_plugins(config):
     """
