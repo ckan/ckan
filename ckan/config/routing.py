@@ -9,6 +9,8 @@ from routes import Mapper
 from formalchemy.ext.pylons import maps # routes generator
 from ckan.plugins import ExtensionPoint, IRoutesExtension
 
+routing_plugins = ExtensionPoint(IRoutesExtension)
+
 def make_map():
     """Create, configure and return the routes Mapper"""
     map = Mapper(directory=config['pylons.paths']['controllers'],
@@ -21,7 +23,7 @@ def make_map():
     map.connect('/error/{action}/{id}', controller='error')
 
     # CUSTOM ROUTES HERE
-    for service in ExtensionPoint(IRoutesExtension):
+    for service in routing_plugins:
         map = plugin.before_map(map)
         
     map.connect('home', '/', controller='home', action='index')
@@ -250,7 +252,7 @@ def make_map():
     map.connect('/:controller/{action}')
     map.connect('/{controller}/{action}/{id}')
     
-    for service in ExtensionPoint(IRoutesExtension):
+    for service in routing_plugins:
         map = service.after_map(map)
     
     map.redirect('/*(url)/', '/{url}',
