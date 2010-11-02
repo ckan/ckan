@@ -23,7 +23,7 @@ class TestPlugins(TestCase):
 
     def setUp(self):
         plugins.deactivate_all()
-        self._saved_plugins_config = config.get('ckan.plugins')
+        self._saved_plugins_config = config.get('ckan.plugins', '')
         config['ckan.plugins'] = ''
         working_set.add(ckantestplugin_dist)
 
@@ -32,6 +32,7 @@ class TestPlugins(TestCase):
         # set, but I can't find a way to do that in setuptools.
         plugins.deactivate_all()
         config['ckan.plugins'] = self._saved_plugins_config
+        plugins.load_all(config)
 
     def test_plugins_load(self):
 
