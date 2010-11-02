@@ -246,7 +246,6 @@ def validate_authorization_setup():
     # since some of the authz config mgmt is taking place in DB, this should 
     # be validated on launch. it is a bit like a lazy migration, but seems 
     # sensible to make sure authz is always correct.
-    import pdb; pdb.set_trace()
     setup_default_user_roles(System())
     # setup all role-actions
     # context is blank as not currently used
