@@ -6,13 +6,13 @@ import logging
 from sqlalchemy.orm.interfaces import MapperExtension, EXT_CONTINUE, EXT_STOP
 from sqlalchemy.orm.session import SessionExtension
 
-from ckan.plugins import ExtensionPoint
-from ckan.plugins import IMapperExtension, ISessionExtension
+from ckan.plugins import ExtensionPoint, IMapperExtension, ISessionExtension
 
 try:
     from operator import methodcaller
 except ImportError:
     def methodcaller(name, *args, **kwargs):
+        "Replaces stdlib operator.methodcaller in python <2.6"
         def caller(obj):
             return getattr(obj, name)(*args, **kwargs)
         return caller
@@ -20,8 +20,20 @@ except ImportError:
 log = logging.getLogger(__name__)
 
 class ObserverNotifier(object):
+    """
+    Mixin for hooking into SQLAlchemy
+    MapperExtension/SessionExtension
+    """
     
+    observers = None
+
     def notify_observers(self, func):
+        """
+        Call func(observer) for all registered observers.
+
+        :param func: Any callable, which will be called for each observer
+        :returns: EXT_CONTINUE if no errors encountered, otherwise EXT_STOP
+        """
         try:
             for observer in self.observers:
                 func(observer)
@@ -31,6 +43,10 @@ class ObserverNotifier(object):
             return EXT_STOP
 
 class PluginMapperExtension(MapperExtension, ObserverNotifier):
+    """
+    Extension that calls plugins implementing IMapperExtension on SQLAlchemy
+    MapperExtension events
+    """
     observers = ExtensionPoint(IMapperExtension)
     
     def before_insert(self, mapper, connection, instance):
@@ -65,6 +81,11 @@ class PluginMapperExtension(MapperExtension, ObserverNotifier):
         
 
 class PluginSessionExtension(SessionExtension, ObserverNotifier):
+    """
+    Extension that calls plugins implementing IMapperExtension on SQLAlchemy
+    SessionExtension events
+    """
+
     observers = ExtensionPoint(ISessionExtension)
     
     def after_begin(self, session, transaction, connection):
@@ -96,3 +117,4 @@ class PluginSessionExtension(SessionExtension, ObserverNotifier):
         return self.notify_observers(
             methodcaller('after_rollback', session)
         )
+
