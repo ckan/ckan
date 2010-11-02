@@ -83,6 +83,7 @@ def config_hmg_ckan_net_1():
     env.cmd_pyenv = os.path.join(env.base_dir, 'ourenv')
     env.no_sudo = None
     env.ckan_instance_name = 'hmg.ckan.net'
+    env.apache_config = 'hmg.ckan.net'
     env.hosts = ['ssh.hmg.ckan.net']
     env.wsgi_script_filepath = None # os.path.join(env.base_dir, 'hmg.ckan.net/pyenv/bin/pylonsapp_modwsgi.py')
     env.pip_requirements = 'pip-requirements-stable.txt'

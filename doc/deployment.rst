@@ -111,7 +111,7 @@ Now you can then do the deployment with something like::
 
   For the most recent stable version use::
 
-  $ wget http://knowledgeforge.net/ckan/hg/raw-file/metastable/pip-requirements.txt
+  $ wget http://knowledgeforge.net/ckan/hg/raw-file/default/pip-requirements-metastable.txt
 
   Or for the bleeding edge use::
 
@@ -119,7 +119,7 @@ Now you can then do the deployment with something like::
 
   And install::
 
-  $ pip -E pyenv install -r pip-requirements.txt 
+  $ pip -E pyenv install -r pip-requirements-metastable.txt 
 
 
 7. Create CKAN config file
@@ -148,8 +148,6 @@ Now you can then do the deployment with something like::
     For information about creating your own licenses services, please refer to
     the Python package called 'licenses' (http://pypi.python.org/pypi/licenses).
     
-  8.3. Also edit the who.ini configuration file to set a secret for the auth_tkt plugin.
-
   8.3. loggers
      
     CKAN can make a log file if you change the [loggers] section to this::
@@ -198,6 +196,9 @@ Now you can then do the deployment with something like::
     $ chmod g+w -R data sstore
     $ sudo chgrp -R www-data data sstore
     $ ln -s pyenv/src/ckan/who.ini ./
+  
+  Also edit the who.ini configuration file to set a secret for the auth_tkt plugin.
+
 
 
 11. Setup Apache with Ckan
