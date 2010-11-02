@@ -165,14 +165,6 @@ class ISessionExtension(Interface):
         Execute after a rollback has occured.
         """
 
-def deactivate_all():
-    """
-    Deactivate all loaded plugins
-    """
-    for env in PluginGlobals.env_registry.values():
-        for service in env.services.copy():
-            service.deactivate()
-
 def load_all(config):
     """
     Load all plugins listed in the 'ckan.plugins' config directive.
@@ -185,7 +177,7 @@ def load_all(config):
     # PCA default behaviour is to activate SingletonPlugins at import time. We
     # only want to activate those listed in the config, so clear
     # everything then activate only those we want.
-    deactivate_all()
+    unload_all()
 
     for plugin in plugins:
         load(plugin)
@@ -194,9 +186,36 @@ def load(plugin):
     """
     Load a single plugin
     """
-    service = plugin()
+    if isinstance(plugin, (SingletonPlugin, Plugin)):
+        service = plugin
+    elif issubclass(plugin, (SingletonPlugin, Plugin)):
+        service = plugin()
+    else:
+        raise TypeError("Expected a plugin instance or class", plugin)
     service.activate()
     return service
+
+def unload_all():
+    """
+    Unload (deactivate) all loaded plugins
+    """
+    for env in PluginGlobals.env_registry.values():
+        for service in env.services.copy():
+            service.deactivate()
+
+def unload(plugin):
+    """
+    Unload a single plugin
+    """
+    if isinstance(plugin, (SingletonPlugin, Plugin)):
+        service = plugin
+    elif issubclass(plugin, (SingletonPlugin, Plugin)):
+        service = plugin()
+    else:
+        raise TypeError("Expected a plugin instance or class", plugin)
+    service.deactivate()
+    return service
+
 
 def find_user_plugins(config):
     """

@@ -22,7 +22,7 @@ ckantestplugin_dist = Distribution(base_dir, project_name=dist_name, metadata=me
 class TestPlugins(TestCase):
 
     def setUp(self):
-        plugins.deactivate_all()
+        plugins.unload_all()
         self._saved_plugins_config = config.get('ckan.plugins', '')
         config['ckan.plugins'] = ''
         working_set.add(ckantestplugin_dist)
@@ -30,7 +30,7 @@ class TestPlugins(TestCase):
     def tearDown(self):
         # Ideally this would remove the ckantestplugin_dist from the working
         # set, but I can't find a way to do that in setuptools.
-        plugins.deactivate_all()
+        plugins.unload_all()
         config['ckan.plugins'] = self._saved_plugins_config
         plugins.load_all(config)
 
