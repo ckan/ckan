@@ -445,7 +445,6 @@ class TestRank(TestController):
         result = self.backend.query_for(model.Package).run(query=q, options=options)
         results = result['results']
         err = 'Wanted %r, got %r' % (wanted_results, results)
-        print wanted_results, results
         assert wanted_results[0] == results[0], err
         assert wanted_results[1] == results[1], err
 

@@ -24,7 +24,6 @@ class TestExtras:
 
         # now test it is saved
         rev1 = model.repo.youngest_revision().id
-        print rev1
         samepkg = model.Package.by_name(u'warandpeace')
         assert len(samepkg._extras) == 3, samepkg._extras
         assert samepkg.extras_active[u'country'].value == 'us', samepkg.extras_active

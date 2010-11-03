@@ -131,7 +131,6 @@ class TestStats(TestController):
             add_user_to_role(user, model.authz.Role.ADMIN, group)
         
         res = Stats().top_package_owners()
-        print res
         assert len(res) == 3, res
         assert res[0] == (model.User.by_name(u'Jill'), 3), res[0]
         assert res[1] == (model.User.by_name(u'Bob'), 2), res[1]

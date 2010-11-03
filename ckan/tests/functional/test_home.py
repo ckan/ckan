@@ -5,7 +5,6 @@ class TestHomeController(TestController):
     def test_home_page(self):
         offset = url_for('home')
         res = self.app.get(offset)
-        print str(res)
         assert 'Packages' in res
 
     def test_packages_link(self):
@@ -25,7 +24,6 @@ class TestHomeController(TestController):
     def test_license(self):
         offset = url_for('license')
         res = self.app.get(offset)
-        print str(res)
         assert 'The CKAN code that runs this site is open-source' in res
 
     def test_guide(self):

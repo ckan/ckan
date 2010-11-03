@@ -63,7 +63,6 @@ class TestNotification(TestController):
         CreateTestData.flag_for_deletion([name])
 
         notification = self.queue_get_one()
-        print notification
         assert notification.package['name'] == name, notification
 
     def test_02_new_package_and_permissions(self):

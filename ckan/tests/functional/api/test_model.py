@@ -721,7 +721,6 @@ class PackageSearchApiTestCase(ApiControllerTestCase):
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
         assert res_dict['count'] == 2, res_dict
-        print res_dict['results']
         for rec in res_dict['results']:
             if rec['name'] == 'annakarenina':
                 anna_rec = rec

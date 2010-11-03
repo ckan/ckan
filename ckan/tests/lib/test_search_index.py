@@ -80,14 +80,12 @@ class TestPostgresSearch:
 
     def test_0_indexing(self):
         searches = model.metadata.bind.execute('SELECT package_id, search_vector FROM package_search').fetchall()
-        print searches
         assert searches[0][1], searches
         q = model.Session.query(model.Package).filter(model.package_search_table.c.package_id==model.Package.id)
         assert q.count() == 6, q.count()
         
     def test_1_basic(self):
         result = PostgresSearch().search(u'sweden')
-        print result
         assert 'se-publications' in result['results'], result['results']
         assert result['count'] == 2, result['count']
 

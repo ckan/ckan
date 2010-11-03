@@ -347,7 +347,6 @@ class TestReadOnly(TestPackageForm):
     def test_search_escape_chars(self):
         payload = '?q=fjdkf%2B%C2%B4gfhgfkgf%7Bg%C2%B4pk&search=Search+Packages+%C2%BB'
         offset = url_for(controller='package', action='search') + payload
-        print offset
         results_page = self.app.get(offset)
         assert 'Search - Data Packages' in results_page, results_page
         results_page = self.main_div(results_page)
@@ -513,7 +512,6 @@ class TestEdit(TestPackageForm):
         res = fv.submit('save')
         # get redirected ...
         res = res.follow()
-        print str(res)
         assert '%s - Data Packages' % self.editpkg_name in res
         pkg = model.Package.by_name(self.editpkg.name)
         assert len(pkg.tags) == len(newtagnames)
@@ -541,7 +539,6 @@ u with umlaut \xc3\xbc
         fv[prefix + 'url'] =  newurl
         fv[prefix + 'notes'] =  newnotes
         res = fv.submit('preview')
-        print str(res)
         assert 'Edit - Data Packages' in res
         assert 'Preview' in res
         assert 'Hello world' in res
@@ -1121,7 +1118,6 @@ class TestNonActivePackages(TestPackageBase):
         form['q'] =  str(self.non_active_name)
         results_page = form.submit()
         assert 'Search - Data Packages' in results_page, results_page
-        print results_page
         assert '<strong>0</strong> packages found' in results_page, (self.non_active_name, results_page)
 
 
