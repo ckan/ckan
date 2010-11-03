@@ -7,6 +7,7 @@ from pyutilib.component.core import PluginGlobals
 from pylons import config
 from pkg_resources import working_set, Distribution, PathMetadata
 from ckan import plugins
+from ckan.plugins.core import find_system_plugins
 from ckan.lib.create_test_data import CreateTestData
 
 
@@ -43,7 +44,7 @@ class TestPlugins(TestCase):
         # plugin loader starting from a blank slate.
         from ckantestplugin import MapperPlugin, MapperPlugin2, RoutesPlugin
 
-        system_plugins = set(plugin() for plugin in plugins.find_system_plugins())
+        system_plugins = set(plugin() for plugin in find_system_plugins())
         assert PluginGlobals.env().services == set([MapperPlugin(), RoutesPlugin()]) | system_plugins
 
     def test_only_configured_plugins_loaded(self):
