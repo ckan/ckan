@@ -49,6 +49,35 @@ class SingletonPlugin(_pca_SingletonPlugin):
     same singleton instance.
     """
 
+def _get_service(plugin):
+    """
+    Return a service (ie an instance of a plugin class).
+
+    :param plugin: any of: the name of a plugin entry point; a plugin class; an
+        instantiated plugin object.
+    :return: the service object
+    """
+
+    if isinstance(plugin, basestring):
+        try:
+            (plugin,) = iter_entry_points(
+                group=PLUGINS_ENTRY_POINT_GROUP,
+                name=plugin
+            )
+        except ValueError:
+            raise PluginNotFoundException(plugin)
+
+        return plugin.load()()
+
+    elif isinstance(plugin, (SingletonPlugin, Plugin)):
+        return plugin
+
+    elif issubclass(plugin, (SingletonPlugin, Plugin)):
+        return plugin()
+    else:
+        raise TypeError("Expected a plugin name, class or instance", plugin)
+
+
 class IGenshiStreamFilter(Interface):
     '''
     Hook into template rendering.
@@ -204,14 +233,9 @@ def reset():
 
 def load(plugin):
     """
-    Load a single plugin
+    Load a single plugin, given a plugin name, class or instance
     """
-    if isinstance(plugin, (SingletonPlugin, Plugin)):
-        service = plugin
-    elif issubclass(plugin, (SingletonPlugin, Plugin)):
-        service = plugin()
-    else:
-        raise TypeError("Expected a plugin instance or class", plugin)
+    service = _get_service(plugin)
     service.activate()
     return service
 
@@ -225,17 +249,11 @@ def unload_all():
 
 def unload(plugin):
     """
-    Unload a single plugin
+    Unload a single plugin, given a plugin name, class or instance
     """
-    if isinstance(plugin, (SingletonPlugin, Plugin)):
-        service = plugin
-    elif issubclass(plugin, (SingletonPlugin, Plugin)):
-        service = plugin()
-    else:
-        raise TypeError("Expected a plugin instance or class", plugin)
+    service = _get_service(plugin)
     service.deactivate()
     return service
-
 
 def find_user_plugins(config):
     """
