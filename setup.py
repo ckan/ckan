@@ -92,6 +92,7 @@ setup(
 
     [ckan.plugins]
     amqp_notifier = ckan.lib.async_notifier:AMQPDomainObjectNotifier
+    synchronous_search = ckan.lib.search.worker:SynchronousSearchPlugin
 
     [ckan.system_plugins]
     domain_object_notifications = ckan.model.notifier:DomainObjectNotificationExtension

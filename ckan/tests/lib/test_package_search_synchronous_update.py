@@ -1,5 +1,6 @@
 from ckan.tests import *
 import ckan.lib.search as search
+from ckan import plugins
 from test_package_search import TestSearchOverall
 
 class TestSearchOverallWithSynchronousIndexing(TestSearchOverall):
@@ -16,13 +17,13 @@ class TestSearchOverallWithSynchronousIndexing(TestSearchOverall):
 
         config['search_backend'] = 'sql'
         self.backend = search.get_backend()
-        search.setup_synchronous_indexing()
+        plugins.load('synchronous_search')
         CreateTestData.create()
 
     @classmethod
     def teardown_class(self):
         CreateTestData.delete()
-        search.remove_synchronous_indexing()
+        plugins.reset()
 
 # Stop parent class tests from running
 TestSearchOverall = None

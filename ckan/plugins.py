@@ -195,6 +195,13 @@ def load_all(config):
     for plugin in plugins:
         load(plugin)
 
+def reset():
+    """
+    Clear and reload all configured plugins
+    """
+    from pylons import config
+    load_all(config)
+
 def load(plugin):
     """
     Load a single plugin
