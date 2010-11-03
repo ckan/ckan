@@ -121,7 +121,6 @@ class TestUserController(FunctionalTestCase):
         res = self.app.get(offset, status=[302]) 
 
         res = self.app.get(offset, extra_environ=dict(REMOTE_USER='okfntest'))
-        print user.apikey
         assert 'Your API key is: %s' % user.apikey in res, res
 
     def test_user_edit(self):
@@ -208,7 +207,6 @@ class TestUserController(FunctionalTestCase):
         assert username in res
         fv['password'] =  u'okfntest'
         res = fv.submit()
-        print str(res)
         assert 'Please carefully verify whether you wish to trust' in res
         fv = res.forms[0]
         res = fv.submit('allow_once')

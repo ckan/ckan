@@ -103,7 +103,6 @@ class TestUsage(TestController):
 
     @classmethod
     def setup_class(self):
-        model.notifier.initialise()
         indexer = TestSearchIndexer()
         self._create_test_data()
         model.Session.remove()
@@ -114,7 +113,6 @@ class TestUsage(TestController):
         model.Session.remove()
         model.repo.rebuild_db()
         model.Session.remove()
-        model.notifier.deactivate()
 
     def _do_test_wui(self, action, user, mode, entity='package'):
         # Test action on WUI
@@ -330,7 +328,6 @@ class TestLockedDownUsage(TestUsage):
             model.Session.delete(role)
         model.repo.commit_and_remove()
         
-        model.notifier.initialise()
         indexer = TestSearchIndexer()
         self._create_test_data()
         model.Session.remove()
@@ -351,4 +348,3 @@ class TestLockedDownUsage(TestUsage):
         model.Session.remove()
         model.repo.rebuild_db()
         model.Session.remove()
-        model.notifier.deactivate()

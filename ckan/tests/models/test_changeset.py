@@ -65,10 +65,8 @@ class TestChangesetRegister(TestCase):
         revision_id = self.build_creating_revision()
         revision = self.revisions[revision_id]
         changeset_ids = self.changesets.commit()
-        print changeset_ids
         working = self.changesets.get_working()
         self.assert_true(working)
-        print working.id
         self.assert_equal(len(changeset_ids), 2)
         changeset0 = self.changesets.get(changeset_ids[0])
         self.assert_false(changeset0.is_working)
@@ -536,14 +534,6 @@ class TestArithmetic(TestCase):
         self.change7 = self.updating_name_change(id='a', old=self.name2, new=self.name4)
         self.cs7 = self.create_cs(follows_id=self.cs4.id, changes=[self.change7])
         model.Session.commit()
-        print "Changeset0 : %s" % self.cs0.id
-        print "Changeset1 : %s" % self.cs1.id
-        print "Changeset2 : %s" % self.cs2.id
-        print "Changeset3 : %s" % self.cs3.id
-        print "Changeset4 : %s" % self.cs4.id
-        print "Changeset5 : %s" % self.cs5.id
-        print "Changeset6 : %s" % self.cs6.id
-        print "Changeset7 : %s" % self.cs7.id
 
     def teardown(self):
         model.repo.clean_db()
@@ -643,7 +633,6 @@ class TestArithmetic(TestCase):
 
     def test_heads(self):
         ids = Heads().ids()
-        print "Heads: %s" % ids
         self.assert_equal(len(ids), 4)
         self.assert_true(self.cs3.id in ids)
         self.assert_true(self.cs5.id in ids)
@@ -706,7 +695,6 @@ class TestArithmetic(TestCase):
         self.assert_equal(mergeset.follows_id, self.cs3.id)
         self.assert_equal(mergeset.closes_id, self.cs5.id)
         changes = mergeset.changes
-        print changes
         self.assert_equal(len(changes), 1)
         self.assert_equal(changes[0].old['name'], 'nameone')
         self.assert_equal(changes[0].new['name'], 'namethree')

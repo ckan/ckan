@@ -7,6 +7,7 @@ from domain_object import DomainObject
 from package import *
 from types import make_uuid
 import vdm.sqlalchemy
+from ckan.model import extension
 
 __all__ = ['group_table', 'Group', 'PackageGroup']
 
@@ -77,5 +78,5 @@ mapper(Group, group_table, properties={
 )
 
 mapper(PackageGroup, package_group_table,
-#       extension=[notifier.NotifierMapperTrigger()],
+#       extension=[extension.PluginMapperExtension()],
 )

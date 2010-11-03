@@ -44,7 +44,6 @@ class TestTagController(TestController):
     def test_list_short(self):
         offset = url_for(controller='tag', action='index')
         res = self.app.get(offset)
-        print str(res)
         tagname = 'tolstoy'
         assert tagname in res
         #assert '(2 packages)' in res
@@ -52,14 +51,12 @@ class TestTagController(TestController):
         assert tagname in res
         offset = url_for(controller='tag', action='index')
         res = self.app.get(offset)
-        print str(res)
         assert tagname in res
         #assert '(2 packages)' in res
         tag_count = model.Session.query(model.Tag).count()
         assert 'There are <strong>%s</strong> results for tags.' % tag_count in res
         offset = url_for(controller='tag', action='index')
         res = self.app.get(offset)
-        print str(res)
         assert tagname in res
         tag_count = model.Session.query(model.Tag).count()
         assert 'There are <strong>%s</strong> results for tags.' % tag_count in res
@@ -71,10 +68,8 @@ class TestTagController(TestController):
         res = self.app.get(offset)
         search_term = 's'
         fv = res.forms['tag-search']
-        print fv.fields
         fv['q'] =  str(search_term)
         res = fv.submit()
-        print res
         assert 'There are <strong>2</strong> results' in res, res
         assert 'russian' in res, res
         assert 'tolstoy' in res, res

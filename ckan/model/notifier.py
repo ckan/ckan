@@ -1,18 +1,28 @@
 from sqlalchemy.orm import object_session
-from sqlalchemy.orm.interfaces import MapperExtension, EXT_CONTINUE
-from sqlalchemy.orm.session import SessionExtension
+from sqlalchemy.orm.interfaces import EXT_CONTINUE
 import blinker
 
-import vdm.sqlalchemy
+from vdm.sqlalchemy import State
 
 from ckan.lib.util import Enum
+from ckan.plugins import SingletonPlugin, ExtensionPoint, implements
+from ckan.plugins import IMapperExtension, IDomainObjectNotification
+from ckan.model.extension import ObserverNotifier
 
-State = vdm.sqlalchemy.State
+try:
+    from operator import methodcaller
+except ImportError:
+    def methodcaller(name, *args, **kwargs):
+        "Replaces stdlib operator.methodcaller in python <2.6"
+        def caller(obj):
+            return getattr(obj, name)(*args, **kwargs)
+        return caller
+
 
 __all__ = ['Notification', 'PackageNotification', 'ResourceNotification',
            'DatabaseNotification',
            'DomainObjectNotification', 'StopNotification',
-           'ROUTING_KEYS', 'NotifierMapperTrigger',
+           'ROUTING_KEYS',
            'NotificationError']
 
 NOTIFYING_DOMAIN_OBJ_NAMES = ['Package', 'Resource']
@@ -158,72 +168,80 @@ class StopNotification(Notification):
         return super(StopNotification, cls).create(cls.msg)
 
 
-class NotifierMapperTrigger(MapperExtension):
-    '''Triggered by all edits to table (and related tables, which we filter
-    out with check_real_change).'''
+
+DomainObjectNotificationOperation = Enum('new', 'changed', 'deleted')
+
+class DomainObjectNotificationExtension(SingletonPlugin, ObserverNotifier):
+    """
+    A domain object level interface to change notifications
+
+    Triggered by all edits to table and related tables, which we filter
+    out with check_real_change.
+    """
+
+    implements(IMapperExtension, inherit=True)
+    observers = ExtensionPoint(IDomainObjectNotification)
     def check_real_change(self, instance):
+
+        """
+        Return True if the change concerns an object with revision information
+        and has been modifed in the current SQLAlchemy session.
+        """
         if not instance.revision:
             return False
-        return object_session(instance).is_modified(instance, include_collections=False)
+        return object_session(instance).is_modified(
+            instance, include_collections=False
+        )
 
-    queued_notifications = []
-    
     def after_insert(self, mapper, connection, instance):
-        return self.send_notifications(instance, DomainObjectNotificationOperation.new)
+        return self.send_notifications(
+            instance,
+            DomainObjectNotificationOperation.new
+        )
 
     def after_update(self, mapper, connection, instance):
-        return self.send_notifications(instance, DomainObjectNotificationOperation.changed)
-            
+        return self.send_notifications(
+            instance,
+            DomainObjectNotificationOperation.changed
+        )
+
     def send_notifications(self, instance, operation):
-        '''Called when an db object changes, this method works out what
+        """
+        Called when a db object changes, this method works out what
         notifications need to be sent and calls send_notification to do it.
-        '''
-        from package import Package
-        from resource import PackageResource
-        from package_extra import PackageExtra
-        from tag import PackageTag
-        if self.check_real_change(instance):
-            if isinstance(instance, Package):
-                self.send_notification(instance, operation)
-            elif isinstance(instance, PackageResource):
-                self.send_notification(instance, operation)
-                self.send_notification(instance.package, DomainObjectNotificationOperation.changed)
-            elif isinstance(instance, (PackageExtra, PackageTag)):
-                self.send_notification(instance.package, DomainObjectNotificationOperation.changed)
-            else:
-                raise NotImplementedError, instance
+        """
+        if not self.check_real_change(instance):
+            return EXT_CONTINUE
+
+        from ckan.model.package import Package
+        from ckan.model.resource import PackageResource
+        from ckan.model.package_extra import PackageExtra
+        from ckan.model.tag import PackageTag
+
+        if isinstance(instance, Package):
+            self.send_notification(instance, operation)
+        elif isinstance(instance, PackageResource):
+            self.send_notification(instance, operation)
+            self.send_notification(instance.package, DomainObjectNotificationOperation.changed)
+        elif isinstance(instance, (PackageExtra, PackageTag)):
+            self.send_notification(instance.package, DomainObjectNotificationOperation.changed)
+        else:
+            raise NotImplementedError(instance)
+
         return EXT_CONTINUE
 
     def send_notification(self, notify_instance, operation):
+        notification = None
         if notify_instance.state == State.DELETED:
             if notify_instance.all_revisions and notify_instance.all_revisions[1].state != State.DELETED:
-                # i.e. just deleted
-                self.add_notification_to_queue(DomainObjectNotification.create(notify_instance, 'deleted'))
-            # no notification sent if changed whilst deleted
+                notification = DomainObjectNotification.create(notify_instance, 'deleted')
+            else:
+                # no notification sent if changed whilst deleted
+                pass
         else:
-            self.add_notification_to_queue(DomainObjectNotification.create(notify_instance, operation))
+            notification = DomainObjectNotification.create(notify_instance, operation)
 
-    def add_notification_to_queue(self, notification):
-        '''We can\'t send notification yet because the domain object may still
-        be in this thread\'s session so not yet flushed to the db table,
-        and another thread may want to access it. Therefore queue it
-        up until the commit is done.'''
-        self.queued_notifications.append(notification)
-        
+        if not notification:
+            return
+        return self.notify_observers(methodcaller('receive_notification', notification))
 
-class NotifierSessionTrigger(SessionExtension):
-    def after_commit(self, session):
-        for notification in NotifierMapperTrigger.queued_notifications:
-            notification.send_synchronously()
-        NotifierMapperTrigger.queued_notifications = []
-
-def initialise():
-    from ckan.lib.async_notifier import AsyncNotifier
-    # Register AsyncNotifier to receive *synchronous* notifications
-    for routing_key in ROUTING_KEYS:
-        signal = blinker.signal(routing_key)
-        AsyncNotifier.register_signal(signal)
-
-def deactivate():
-    from ckan.lib.async_notifier import AsyncNotifier
-    AsyncNotifier.deregister_all()

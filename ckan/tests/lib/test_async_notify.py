@@ -13,7 +13,6 @@ from ckan.lib.create_test_data import CreateTestData
 class TestNotification(TestController):
     @classmethod
     def setup_class(self):
-        model.notifier.initialise()
         self.queue_name = 'recording_consumer'
         self.routing_key = '*'
         self.consumer = async_notifier.AsyncConsumer(self.queue_name, self.routing_key)
@@ -34,7 +33,6 @@ class TestNotification(TestController):
     @classmethod
     def teardown_class(self):
         CreateTestData.delete()
-        model.notifier.deactivate()
         
     @property
     def pkg(self):
@@ -63,7 +61,6 @@ class TestNotification(TestController):
         CreateTestData.flag_for_deletion([name])
 
         notification = self.queue_get_one()
-        print notification
         assert notification.package['name'] == name, notification
 
     def test_02_new_package_and_permissions(self):

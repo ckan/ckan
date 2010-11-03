@@ -7,7 +7,9 @@ refer to the routes manual at http://routes.groovie.org/docs/
 from pylons import config
 from routes import Mapper
 from formalchemy.ext.pylons import maps # routes generator
-import plugins
+from ckan.plugins import ExtensionPoint, IRoutesExtension
+
+routing_plugins = ExtensionPoint(IRoutesExtension)
 
 def make_map():
     """Create, configure and return the routes Mapper"""
@@ -21,8 +23,8 @@ def make_map():
     map.connect('/error/{action}/{id}', controller='error')
 
     # CUSTOM ROUTES HERE
-    for _plugin_map in plugins.find_methods('make_map_begin'):
-        map = _plugin_map(map)
+    for service in routing_plugins:
+        map = plugin.before_map(map)
         
     map.connect('home', '/', controller='home', action='index')
     map.connect('guide', config.get('guide_url', 'http://wiki.okfn.org/ckan/doc/'), _static=True)
@@ -250,8 +252,8 @@ def make_map():
     map.connect('/:controller/{action}')
     map.connect('/{controller}/{action}/{id}')
     
-    for _plugin_map in plugins.find_methods('make_map_end'):
-        map = _plugin_map(map)
+    for service in routing_plugins:
+        map = service.after_map(map)
     
     map.redirect('/*(url)/', '/{url}',
                  _redirect_code='301 Moved Permanently')

@@ -4,44 +4,173 @@ Plugins
 **NOTE: CKAN plugin support is under development. All features documented on this page 
 are subject to frequent and breaking changes and should only be used with that in mind.**
 
-Plugin activation
------------------
 
-All plug-ins must be installed as generic setuptools packages and available in the 
-virtualenv used by CKAN. After installing a plugin, add it to the CKAN plugin registry
-by adding the following to you ``.ini`` config file::
+Overview
+--------
 
-  ckan.plugins = disqus foo bar
-  
-Each (space-seperated) item will be considered an entry point. If a plugin is not found, 
-CKAN will not start. If you specify multiple ``ckan.plugins`` directives, only the last 
-will be handled by the plugin loader. 
+The CKAN plugin code provides a simple mechanism for plugins to extend core
+CKAN functionality.
 
-Plugin development
-------------------
+Examples of services provided by plugins include:
 
-CKAN will load plugins by searching for entry points in the group ``ckan.plugin``. 
-After setting up a basic package for your plugin (``paster create -t basic_package my_plugin``),
-add the following information to your setup.py::
+- Asynchronous model update notifications through AMQP (ie RabbitMQ_)
+- Genshi template stream filters
+- User comments through disqus_
+- Integration with Deliverance_
 
-    entry_points="""
-        # -*- Entry points: -*-
-  
-        [ckan.plugins]
-        my_plugin = my_plugin:PluginClass
-  
-        """
+Concepts
+--------
 
-This will allow CKAN to load a plugin called ``my_plugin`` by instantiating ``PluginClass``. 
-Your plugin class should accept one argument to its constructor, the pylons configuration 
-dictionary. Note that plugins are initialized before the model or the templating system have
-been set up. 
+The implementation is based on the PyUtilib_ component architecture (PCA). In
+summary:
 
-In its current stage of development, the plugin system is explicitly called from within CKAN. 
-When called, it will check for the presence of a specific method on all registered plugin 
-classes. If the required method is present, it will be called and its return value will be 
-handled by CKAN. 
+#. The CKAN core contains various ``ExtensionPoints``, each specifying a point
+   where plugins may hook into the software.
 
-* ``render``: This method is called when a specific page is rendered. Any registered plugin will be handed one argument, ``stream``. This is a Genshi stream of the current output document. It can be transformed using XML tree manipulation. The method is expected to return a Genshi stream.
+#. Each ``ExtensionPoint`` specifies the interface that corresponding plugins
+   must implement. For example a plugin wanting to hook into the SQLAlchemy
+   mapping layer would need to implement the ``IMapperExtension`` interface.
 
-* ``make_map_begin``, ``make_map_end``: These methods are called when a routes map is generated. They will receive a ``map`` object and it is expected to return a modified version of the same object. ``make_map_begin`` is called as the first mapping entry, it can override all others. ``make_map_end`` can be used to add fall-back handlers. 
+#. Plugin objects must be registered as setuptools entry points. The
+   ``ckan.plugins`` configuration directive is searched for names of plugin entry
+   points to load and activate.
+
+Writing an extension point
+--------------------------
+
+This describes how to add an extension point to make core CKAN code pluggable.
+
+Suppose you have a class such as this::
+
+        class DataInputDoodah(object):
+
+                def accept_new_data(self, data):
+                        self.data = data
+
+And you want plugins to hook into ``accept_new_data`` to modify the data.
+
+You would start by declaring an interface specifying the methods that plugin
+classes must provide. You would add the following code to ``ckan/plugins.py``::
+
+        class IDataMunger(Interface):
+
+                def munge(self, data):
+                        return data
+
+Now you can add an extension point into the original class, so that it looks
+like this::
+
+        from ckan.plugins import ExtensionPoint, IDataMunger
+
+        class DataInputDooDah(object):
+
+                extensionpoint = ExtensionPoint(IDataMunger)
+
+                def accept_new_data(self, data):
+
+                        for service in self.extensionpoint:
+                                data = service.munge(data)
+
+                        self.data = data
+
+Any registered plugins that implement ``IDataMunger`` will then be available in
+your class via the ``ExtensionPoint``.
+
+See the pyutilib_ documentation for more information on creating interfaces and
+extension points.
+
+
+Writing plugins
+----------------
+
+This describes how to create a plugin that works with a previously defined
+extension point.
+
+Plugins should be created as standalone packages in the ``ckanext.plugins``
+namespace and installed in the virtualenv used by CKAN. The following commands
+create a new package and install it in your virtualenv::
+
+        % paster create -t basic_package my_plugin
+        % pip -E /path/to/virtualenv -e my_plugin
+
+The plugin class
+````````````````
+
+A plugin is a class that derives from ``ckan.plugins.Plugin`` or more
+commonly ``SingletonPlugin``.
+
+It must also implement one of the plugin interfaces exposed in
+``ckan.plugins``. The choice of this interface determines the functionality
+the plugin is expected to provide.
+
+See the `ckan.plugins API documentation`_ for a complete list of available interfaces.
+
+A skeleton plugin implementation hooking into the database mapping layer looks
+like this::
+
+        from logging import getLogger
+        from ckan.plugins import implements, SingletonPlugin 
+        from ckan.plugins import IMapperExtension
+
+        log = getLogger(__name__)
+
+        class InsertLoggerPlugin(SingletonPlugin):
+                """
+                Emit a log line when objects are inserted into the database
+                """
+
+                implements(IMapperExtension, inherit=True)
+
+                def after_insert(mapper, connection, instance):
+                        log.info('Object %r was inserted', instance)
+
+
+Registration and entry points
+`````````````````````````````
+
+CKAN finds plugins by searching for entry points in the group ``ckan.plugin``.
+For example, the following line in your package's ``setup.py`` will register an
+entry point for a plugin called ``my_plugin``::
+
+    entry_points={
+        'ckan.plugins': ['my_plugin=ckanext.plugins.my_plugin:PluginClass']
+    }
+
+The entry point will be called without any parameters and must return an
+instance of ``ckan.plugins.Plugin``.
+
+Activation
+``````````
+
+Plugins will not be active until added to your configuration file. To do this
+add a ``ckan.plugins`` directive to your ``.ini`` config file::
+
+  ckan.plugins = my_plugin
+
+If you have multiple plugins, separate them with spaces::
+
+  ckan.plugins = disqus amqp my_plugin
+
+.. Links
+.. -----
+.. 
+.. Etherpad discussion: http://ckan.okfnpad.org/plugins
+.. 
+.. Existing plugin implementations (using the old API), comments from are pudo:
+.. 
+.. - Comments: http://bitbucket.org/pudo/ckandisqus
+.. - Weird stuff: http://bitbucket.org/pudo/ckanextdeliverance
+.. - Shouldn't be a plugin, but typical for localized versions: http://bitbucket.org/pudo/offenedaten
+.. - and probably the largest yet least plugin-ish: http://bitbucket.org/okfn/ckanextiati
+.. - this is what I want to avoid: http://bitbucket.org/okfn/ckanextiati/src/tip/ckanext/iati/authz.py
+
+ckan.plugins API documentation
+-------------------------------
+
+.. automodule:: ckan.plugins
+        :members:
+
+.. _disqus: http://disqus.com/
+.. _pyutilib: https://software.sandia.gov/trac/pyutilib
+.. _deliverance: http://pypi.python.org/pypi/Deliverance
+.. _RabbitMQ: http://www.rabbitmq.com/

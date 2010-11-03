@@ -7,6 +7,7 @@ from types import make_uuid
 from core import *
 from package import *
 from ckan.lib.helpers import json
+from ckan.model import extension
 
 __all__ = ['PackageResource', 'package_resource_table',
            'PackageResourceRevision', 'resource_revision_table']
@@ -62,7 +63,7 @@ mapper(PackageResource, package_resource_table, properties={
     },
     order_by=[package_resource_table.c.package_id],
     extension=[vdm.sqlalchemy.Revisioner(resource_revision_table),
-               notifier.NotifierMapperTrigger(),
+               extension.PluginMapperExtension(),
                ],
 )
     

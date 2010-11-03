@@ -145,7 +145,6 @@ class FormsApiTestCase(BaseFormsApiCase):
 #        del expected_values['external_reference']
         del expected_values['import_source']
         for key, value in expected_values.items():
-            print key
             self.assert_formfield(form, prefix + key, value)
 
     def test_get_package_edit_form_restrict(self):

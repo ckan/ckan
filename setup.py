@@ -27,6 +27,7 @@ setup(
         'SQLAlchemy>=0.4.8,<=0.4.99',
         'repoze.who>=1.0.0,<1.0.99',
         'repoze.who.plugins.openid>=0.5,<0.5.99',
+        'pyutilib.component.core>=4.1',
         # uuid in python >= 2.5
         # 'uuid>=1.0',
         # for open licenses
@@ -88,6 +89,13 @@ setup(
     [ckan.search]
     sql = ckan.lib.search.sql:SqlSearchBackend
     solr = ckan.lib.search.solr_:SolrSearchBackend
+
+    [ckan.plugins]
+    amqp_notifier = ckan.lib.async_notifier:AMQPDomainObjectNotifier
+    synchronous_search = ckan.lib.search.worker:SynchronousSearchPlugin
+
+    [ckan.system_plugins]
+    domain_object_notifications = ckan.model.notifier:DomainObjectNotificationExtension
     """,
     # setup.py test command needs a TestSuite so does not work with py.test
     # test_suite = 'nose.collector',

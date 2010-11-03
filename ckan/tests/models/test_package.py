@@ -321,7 +321,6 @@ class TestRelatedRevisions:
             got_value = diff.get(key)
             expected_value = u'- \n+ %s' % expected_value
             assert got_value == expected_value, 'Key: %s Got: %r Expected: %r' % (key, got_value, expected_value)
-        print diff
         test_res(diff, self.res1, 'url', 'http://url1.com/edited')
         test_res(diff, self.res1, 'position', '0')
         test_res(diff, self.res1, 'format', 'xls')
