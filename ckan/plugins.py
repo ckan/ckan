@@ -15,6 +15,7 @@ __all__ = [
     'ExtensionPoint', 'implements',
     'Plugin', 'SingletonPlugin',
     'IRenderFilterer', 'IRoutesMapExtension', 'IMapperExtension',
+    'IDomainObjectNotification'
 ]
 
 log = logging.getLogger(__name__)
@@ -164,6 +165,18 @@ class ISessionExtension(Interface):
         """
         Execute after a rollback has occured.
         """
+
+class IDomainObjectNotification(Interface):
+    """
+    Receives notification of new and changed domain objects
+    """
+
+    def after_insert(self, mapper, connection, instance):
+        pass
+
+    def after_update(self, mapper, connection, instance):
+        pass
+
 
 def load_all(config):
     """

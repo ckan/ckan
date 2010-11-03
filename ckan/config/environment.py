@@ -78,7 +78,3 @@ def load_environment(global_conf, app_conf):
     if asbool(config.get('ckan.build_search_index_synchronously', "True")):
         import ckan.lib.search as search
         search.setup_synchronous_indexing()
-
-    if asbool(config.get('ckan.async_notifier', "False")):
-        from ckan.model import notifier
-        notifier.initialise()

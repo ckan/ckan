@@ -9,6 +9,8 @@ from carrot.messaging import Consumer
 
 from ckan.model import meta
 from ckan.model import notifier
+from ckan.plugins import SingletonPlugin, implements
+from ckan.plugins import IDomainObjectNotification
 
 __all__ = ['EXCHANGE_TYPE', 'get_carrot_connection',
            'AsyncNotifier', 'AsyncConsumer']
@@ -47,11 +49,9 @@ def get_carrot_connection():
     
 
 class AsyncNotifier(object):
-    '''Sends out notifications asynchronously via carrot.
-    Receives notifications via blinker (synchronously).'''
-
-    # List of signals that we are subscribed to
-    signals = []
+    '''
+    Send notifications asynchronously via AMQP, using carrot.
+    '''
 
     @classmethod 
     def publisher(cls):
@@ -61,14 +61,17 @@ class AsyncNotifier(object):
                                        exchange_type=EXCHANGE_TYPE)
         return cls._publisher
 
-    @classmethod
-    def send_asynchronously(cls, sender, **notification_dict):
-        logger.debug('AsyncNotifier.send_asynchronously: %s %s' % (sender,
-            notification_dict))
+    def send_asynchronously(cls, **notification_dict):
+        """
+        Send a notification to the AMQP queue
+        """
+        logger.debug('AsyncNotifier.send_asynchronously: %s',
+                     notification_dict)
         try:
             cls.publisher().send(notification_dict,
                                  routing_key=notification_dict['routing_key'])
-        except Exception, e: # try again, in the case of broken pipe, etc
+        except Exception, e:
+            # try again, in the case of broken pipe, etc
             log.exception(e)
             try:
                 cls._publisher = None
@@ -76,37 +79,16 @@ class AsyncNotifier(object):
                                     routing_key=notification_dict['routing_key'])
             except: pass
 
-    @classmethod
-    def register_signal(cls, signal):
-        '''Register AsyncNotifier to receive `blinker` signal (event) (AsyncNotifier will then rebroadcast this using
-        asynchronous system).
 
-        :param signal: signal to rebroadcast. Signal *must* have a kwarg
-        routing_key used for routing in the AMQP system.
-        '''
-        if signal not in cls.signals:
-            logger.debug('AsyncNotifier.register_signal: %s' % signal)
-            signal.connect(cls.send_asynchronously)
-            cls.signals.append(signal)
-            
-    @classmethod
-    def deregister_signal(cls, signal):
-        '''Deregister the AsyncNotifer so that it no longer receives a `blinker` signal
-        
-        :param signal: signal to rebroadcast. Signal *must* have a kwarg
-        routing_key used for routing in the AMQP system.
-        '''
-        if signal in cls.signals:
-            logger.debug('AsyncNotifier.deregister_signal: %s')
-            signal.disconnect(cls.send_asynchronously)
-            del cls.signals[cls.signals.index(signal)]
-            
-    @classmethod
-    def deregister_all(cls):
-        '''Unregister all signals this notifier is registered to receive'''
-        for signal in cls.signals[:]:
-            cls.deregister_signal(signal)
-        
+class AMQPDomainObjectNotifier(AsyncNotifier, SingletonPlugin):
+    """
+    Receive to domain object notifications via IDomainObjectNotification and
+    relay them to the AMQP queue.
+    """
+    implements(IDomainObjectNotification)
+
+    def receive_notification(self, notification):
+        self.send_asynchronously(**notification)
 
 class AsyncConsumer(object):
     '''Receive async notifications. (Derive from this class.)

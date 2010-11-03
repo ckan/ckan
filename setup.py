@@ -89,6 +89,12 @@ setup(
     [ckan.search]
     sql = ckan.lib.search.sql:SqlSearchBackend
     solr = ckan.lib.search.solr_:SolrSearchBackend
+
+    [ckan.plugins]
+    amqp_notifier = ckan.lib.async_notifier:AMQPDomainObjectNotifier
+
+    [ckan.system_plugins]
+    domain_object_notifications = ckan.model.notifier:DomainObjectNotificationExtension
     """,
     # setup.py test command needs a TestSuite so does not work with py.test
     # test_suite = 'nose.collector',
