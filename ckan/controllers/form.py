@@ -111,12 +111,7 @@ class BaseFormController(BaseApiController):
         except Exception:
             # Log error.
             log.error("Couldn't create package: %s" % traceback.format_exc())
-            # Set response body.
-            response_body = "Internal server error"
-            # Set status code.
-            response.status_int = 500
-            # Return response body.
-            return response_body
+            raise
 
     def _make_package_201_location(self, package):
         location = '/api'
@@ -227,12 +222,7 @@ class BaseFormController(BaseApiController):
         except Exception:
             # Log error.
             log.error("Couldn't update package: %s" % traceback.format_exc())
-            # Set response body.
-            response_body = "Internal server error"
-            # Set status code.
-            response.status_int = 500
-            # Return response body.
-            return response_body
+            raise
 
     def _create_package_entity(self, bound_fieldset, log_message, author):
         # Superfluous commit_pkg() method parameter.
@@ -380,13 +370,8 @@ class BaseFormController(BaseApiController):
         except Exception:
             # Log error.
             log.error("Couldn't run create harvest source form method: %s" % traceback.format_exc())
-            # Set response body.
-            response_body = "Internal server error"
-            # Set status code.
-            response.status_int = 500
-            # Return response body.
-            return response_body
-
+            raise
+        
     def harvest_source_edit(self, id):
         try:
             # Find the entity.
@@ -465,13 +450,7 @@ class BaseFormController(BaseApiController):
         except Exception:
             # Log error.
             log.error("Couldn't update harvest source: %s" % traceback.format_exc())
-            # Set response body.
-            response_body = "Internal server error"
-            # Set status code.
-            response.status_int = 500
-            # Return response body.
-            return response_body
-
+            raise
 
 class FormController(ApiVersion1, BaseFormController): pass
  
