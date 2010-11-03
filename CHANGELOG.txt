@@ -1,6 +1,21 @@
 CKAN CHANGELOG
 ++++++++++++++
 
+v1.2 TBC
+===============
+http://knowledgeforge.net/ckan/trac/milestone/ckan%20v1.2
+
+Highlights of changes:
+  * Package edit form: attach package to groups (#652) & revealable help
+  * API for Package Create/New (#545)
+  * Authorization extended: user groups (#647) and creation of packages (#648)
+  * Caching support (ETag) (#693)
+  * Harvesting GEMINI2 metadata records from OGC CSW servers (#566)
+ 
+Minor:
+  * New API key header (#466)
+
+
 v1.1 2010-08-10
 ===============
 http://knowledgeforge.net/ckan/trac/milestone/v1.1

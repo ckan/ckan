@@ -26,9 +26,9 @@ class TestPreview(PylonsTestCase):
         }
 
     def test_new(self):
-        fs = ckan.forms.get_standard_fieldset(is_admin=False)
+        fs = ckan.forms.get_standard_fieldset(is_admin=False, user_editable_groups=[])
         data = ckan.forms.add_to_package_dict(
-            ckan.forms.get_package_dict(fs=fs), self.params)
+            ckan.forms.get_package_dict(fs=fs, user_editable_groups=[]), self.params)
         fs = fs.bind(model.Package, data=data)
         pkg = PackageSaver()._preview_pkg(fs, '', '')
 
@@ -51,9 +51,9 @@ class TestPreview(PylonsTestCase):
             )
 
         pkg = model.Package.by_name(u'name_before')
-        fs = ckan.forms.get_standard_fieldset(is_admin=False)
+        fs = ckan.forms.get_standard_fieldset(is_admin=False, user_editable_groups=[])
         data =  ckan.forms.add_to_package_dict(
-                ckan.forms.get_package_dict(pkg=pkg, fs=fs), self.params,
+                ckan.forms.get_package_dict(pkg=pkg, fs=fs, user_editable_groups=[]), self.params,
                     pkg.id)
         fs = fs.bind(pkg, data=data)
         pkg2 = PackageSaver()._preview_pkg(fs, u'name_before', pkg.id)

@@ -2,19 +2,19 @@ from ckan.tests.pylons_controller import PylonsTestCase
 import ckan.model as model
 import ckan.forms
 from ckan.tests import *
+from ckan.tests.html_check import HtmlCheckMethods
 from ckan.lib.create_test_data import CreateTestData
 from pylons import config
 
 def _get_blank_param_dict(pkg=None, fs=None):
-    return ckan.forms.get_package_dict(pkg, blank=True, fs=fs)
+    return ckan.forms.get_package_dict(pkg, blank=True, fs=fs, user_editable_groups=[])
 
 def get_fieldset(**kwargs):
     if not kwargs.has_key('user_editable_groups'):
         kwargs['user_editable_groups'] = []
     return ckan.forms.get_gov_fieldset(**kwargs)
 
-
-class TestForm(PylonsTestCase):
+class TestForm(PylonsTestCase, HtmlCheckMethods):
     @classmethod
     def setup_class(self):
         model.Session.remove()
@@ -25,6 +25,7 @@ class TestForm(PylonsTestCase):
         model.Session.remove()
         model.repo.rebuild_db()
 
+       
     def test_0_field_names(self):
         fs = get_fieldset()
         pkg = model.Package.by_name(u'private-fostering-england-2009')
@@ -138,7 +139,8 @@ class TestForm(PylonsTestCase):
         pkg = model.Package.by_name(u'test2')
         fs = get_fieldset()
         fs = fs.bind(pkg)
-        out = fs.render()
+        from pylons import c
+        out = fs.render(client=c)
         assert out
         dept = fs.department.render()
         dept_readonly = fs.department.render_readonly()

@@ -5,10 +5,11 @@ from paste.fixture import AppError
 from ckan.tests import *
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
+from base import FunctionalTestCase
 
 package_form = 'gov'
 
-class TestPackageBase(TestController):
+class TestPackageBase(FunctionalTestCase):
     def _assert_form_errors(self, res):
         self.check_tag(res, '<form', 'class="has-errors"')
         assert 'class="field_error"' in res, res

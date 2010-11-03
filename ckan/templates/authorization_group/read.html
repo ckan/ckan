@@ -1,0 +1,41 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+  
+  <py:def function="page_title">${c.authorization_group.name} - Authorization Groups</py:def>
+
+  <div py:match="content">
+   <div class="group">
+    <h2 class="head">
+      <span class="name">${c.authorization_group.name}</span>
+
+      <span class="object-action">
+      <py:if test="c.auth_for_edit">
+        <a href="${h.url_for(controller='authorizationgroup',action='edit',id=c.authorization_group.name)}">[edit]</a>
+      </py:if>
+      <py:if test="c.auth_for_authz">
+        <a href="${h.url_for(controller='authorizationgroup',action='authz',id=c.authorization_group.name)}">[authorization]</a>
+      </py:if>
+      </span>
+    </h2>
+    
+    <py:if test="c.group_admins">
+      <h3>Administrators:</h3> 
+        <py:for each="admin in c.authorization_group_admins">
+          <a href="${h.url_for(controller='user',action='read',id=admin.id)}">${admin.name}</a>
+        </py:for>
+    </py:if>      
+
+    <h3>Users:</h3>
+    ${c.page.pager()}
+    ${user_list(c.page.items)}
+    ${c.page.pager()}
+    <p i18n:msg="item_count">There are ${c.page.item_count} users in this authorization group.</p>
+   </div>
+  </div>
+
+  <xi:include href="layout.html" />
+</html>
+
+
