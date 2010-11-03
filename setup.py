@@ -79,6 +79,9 @@ setup(
     notifications = ckan.lib.cli:Notifications
     harvester = ckan.lib.cli:Harvester
 
+    [paste.paster_create_template]
+    ckan_plugin=ckan.pastertemplates:CkanextPluginTemplate
+
     [ckan.forms]
     standard = ckan.forms.package:get_standard_fieldset
     package = ckan.forms.package:get_standard_fieldset
