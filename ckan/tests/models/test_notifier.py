@@ -362,3 +362,10 @@ class TestNotification(TestController):
             res = self.pkg_dict['resources'][0]
             self.pkg.add_resource(res['url'], description=res['description'])
             model.repo.commit_and_remove()
+
+    def test_13_DomainObjectNotificationExtension_is_activated(self):
+        from ckan.model.extension import PluginMapperExtension
+        from ckan.model.notifier import DomainObjectNotificationExtension
+        assert DomainObjectNotificationExtension() in iter(PluginMapperExtension.observers)
+
+
