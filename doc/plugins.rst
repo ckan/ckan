@@ -50,7 +50,8 @@ Suppose you have a class such as this::
 And you want plugins to hook into ``accept_new_data`` to modify the data.
 
 You would start by declaring an interface specifying the methods that plugin
-classes must provide. You would add the following code to ``ckan/plugins.py``::
+classes must provide. You would add the following code to
+``ckan/plugins/interfaces.py``::
 
         class IDataMunger(Interface):
 
@@ -88,10 +89,12 @@ extension point.
 
 Plugins should be created as standalone packages in the ``ckanext.plugins``
 namespace and installed in the virtualenv used by CKAN. The following commands
-create a new package and install it in your virtualenv::
+create a new skeleton plugin package and install it in your virtualenv::
 
-        % paster create -t basic_package my_plugin
-        % pip -E /path/to/virtualenv -e my_plugin
+        % paster create -t ckan_plugin myplugin
+        % pip -E /path/to/virtualenv -e myplugin
+
+Plugins are created within the ``ckanext.plugins`` namespace package.
 
 The plugin class
 ````````````````
@@ -100,8 +103,8 @@ A plugin is a class that derives from ``ckan.plugins.Plugin`` or more
 commonly ``SingletonPlugin``.
 
 It must also implement one of the plugin interfaces exposed in
-``ckan.plugins``. The choice of this interface determines the functionality
-the plugin is expected to provide.
+``ckan.plugins.interfaces``. The choice interface determines the
+functionality the plugin is expected to provide.
 
 See the `ckan.plugins API documentation`_ for a complete list of available interfaces.
 
@@ -139,17 +142,38 @@ entry point for a plugin called ``my_plugin``::
 The entry point will be called without any parameters and must return an
 instance of ``ckan.plugins.Plugin``.
 
+Testing plugins
+---------------
+
+When writing tests for your plugin code you will need setup and teardown code
+similar to the following to ensure that your plugin is loaded while testing::
+
+        from ckan import plugins
+
+        class TestMyPlugin(TestCase):
+
+                @classmethod
+                def setup_class(self):
+                        # Use the entry point name of your plugin as declared
+                        # in your package's setup.py
+                        plugins.load('my_plugin')
+
+                @classmethod
+                def teardown_class(self):
+                        plugins.reset()
+
+
 Activation
 ``````````
 
 Plugins will not be active until added to your configuration file. To do this
 add a ``ckan.plugins`` directive to your ``.ini`` config file::
 
-  ckan.plugins = my_plugin
+  ckan.plugins = myplugin
 
 If you have multiple plugins, separate them with spaces::
 
-  ckan.plugins = disqus amqp my_plugin
+  ckan.plugins = disqus amqp myplugin
 
 .. Links
 .. -----
@@ -167,7 +191,10 @@ If you have multiple plugins, separate them with spaces::
 ckan.plugins API documentation
 -------------------------------
 
-.. automodule:: ckan.plugins
+.. automodule:: ckan.plugins.core
+        :members:
+
+.. automodule:: ckan.plugins.interfaces
         :members:
 
 .. _disqus: http://disqus.com/
