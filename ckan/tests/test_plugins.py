@@ -41,27 +41,27 @@ class TestPlugins(TestCase):
 
         # Imported after call to plugins.load_all to ensure that we test the
         # plugin loader starting from a blank slate.
-        from ckantestplugin import MapperPlugin, RoutesPlugin
+        from ckantestplugin import MapperPlugin, MapperPlugin2, RoutesPlugin
 
-        assert PluginGlobals.env().services == set([MapperPlugin(), RoutesPlugin()])
-        from ckan.model.extension import PluginMapperExtension
-        assert list(PluginMapperExtension.observers) == [MapperPlugin()]
-
-        from ckan.config.routing import routing_plugins
-        assert list(routing_plugins) == [RoutesPlugin()]
+        system_plugins = set(plugin() for plugin in plugins.find_system_plugins())
+        assert PluginGlobals.env().services == set([MapperPlugin(), RoutesPlugin()]) | system_plugins
 
     def test_only_configured_plugins_loaded(self):
 
         config['ckan.plugins'] = 'mapper_plugin'
         plugins.load_all(config)
 
-        from ckantestplugin import MapperPlugin, RoutesPlugin
+        from ckantestplugin import MapperPlugin, MapperPlugin2, RoutesPlugin
         from ckan.model.extension import PluginMapperExtension
         from ckan.config.routing import routing_plugins
 
-        assert PluginGlobals.env().services == set([MapperPlugin()])
-        assert list(PluginMapperExtension.observers) == [MapperPlugin()]
-        assert list(routing_plugins) == []
+
+        # MapperPlugin should be loaded as it is listed in config['ckan.plugins']
+        assert MapperPlugin() in iter(PluginMapperExtension.observers)
+
+        # MapperPlugin2 and RoutesPlugin should NOT be loaded
+        assert MapperPlugin2() not in iter(PluginMapperExtension.observers)
+        assert RoutesPlugin() not in routing_plugins
 
     def test_mapper_plugin_fired(self):
         config['ckan.plugins'] = 'mapper_plugin'
