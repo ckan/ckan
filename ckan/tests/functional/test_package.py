@@ -174,7 +174,7 @@ class PackageFormTestCase(PackageTestCase):
             assert 'state' not in preview
         if params.has_key('extras'):
             extras = params['extras']
-            if isinstance(extras, tuple):
+            if isinstance(extras, (tuple, list)):
                 extras = dict(extras)
             for key, value in extras.items():
                 key_html = self.escape_for_html_body(key)
