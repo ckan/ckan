@@ -77,12 +77,12 @@ class SuggestTagRenderer(common.TagField.TagEditRenderer):
         
 
 # Setup the fieldset
-def build_package_gov_form(is_admin=False, **kwargs):
+def build_package_gov_form(is_admin=False, user_editable_groups=None, **kwargs):
     # Restrict fields
     restrict = str(kwargs.get('restrict', False)).lower() not in \
                ('0', 'no', 'false', 0, False)
 
-    builder = package.build_package_form()
+    builder = package.build_package_form(user_editable_groups=user_editable_groups)
 
     # Extra fields
     builder.add_field(common.TextExtraField('external_reference'))
@@ -129,7 +129,7 @@ def build_package_gov_form(is_admin=False, **kwargs):
         field_groups['More details'].append('state')
     builder.set_displayed_fields(field_groups)
     return builder
-    # Strings for i18n:
+    # Strings for i18n
     [_('External reference'),  _('Date released'), _('Date updated'),
      _('Update frequency'), _('Geographic granularity'),
      _('Geographic coverage'), _('Temporal granularity'),
@@ -137,5 +137,5 @@ def build_package_gov_form(is_admin=False, **kwargs):
      _('Precision'), _('Taxonomy URL'), _('Department'), _('Agency'), 
      ]
 
-def get_gov_fieldset(is_admin=False, **kwargs):
-    return build_package_gov_form(is_admin=is_admin, **kwargs).get_fieldset()
+def get_gov_fieldset(is_admin=False, user_editable_groups=None, **kwargs):
+    return build_package_gov_form(is_admin=is_admin, user_editable_groups=user_editable_groups, **kwargs).get_fieldset()

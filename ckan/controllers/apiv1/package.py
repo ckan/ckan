@@ -45,7 +45,7 @@ class PackageController(RestController):
             return json.dumps(_('Access denied'))
 
         # Create a Package.
-        fs = ckan.forms.get_standard_fieldset()
+        fs = self._get_standard_package_fieldset()
         try:
             request_data = self._get_request_data()
             request_fa_dict = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(fs=fs), request_data)
@@ -106,7 +106,7 @@ class PackageController(RestController):
             response.status_int = 404
             response.write(_('Package was not found.'))
         else:
-            fs = ckan.forms.get_standard_fieldset()
+            fs = self._get_standard_package_fieldset()
             orig_entity_dict = ckan.forms.get_package_dict(pkg=entity, fs=fs)
             try:
                 request_data = self._get_request_data()

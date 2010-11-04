@@ -5,6 +5,7 @@ import re
 from ckan.tests import *
 import ckan.model as model
 import ckan.authz as authz
+from ckan.lib.helpers import url_for
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib.helpers import json
 
@@ -12,19 +13,13 @@ ACCESS_DENIED = [403]
 
 # Todo: Test for access control setup. Just checking an object exists in the model doesn't mean it will be presented through the WebUI.
 
-from ckan.tests.functional.test_rest import ApiControllerTestCase
-from ckan.tests.functional.test_rest import Api1TestCase
-from ckan.tests.functional.test_rest import Api2TestCase
-from ckan.tests.functional.test_rest import ApiUnversionedTestCase
+from ckan.tests.functional.api.test_model import ApiControllerTestCase
+from ckan.tests.functional.api.test_model import Api1TestCase
+from ckan.tests.functional.api.test_model import Api2TestCase
+from ckan.tests.functional.api.test_model import ApiUnversionedTestCase
 
 class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
-
     api_version = ''
-    package_name = u'formsapi'
-    package_name_alt = u'formsapialt'
-    package_name_alt2 = u'formsapialt2'
-    apikey_header_name = config.get('apikey_header_name', 'X-CKAN-API-Key')
-
     def delete_harvest_source(self, url):
         source = self.get_harvest_source_by_url(url, None)
         if source:
@@ -71,6 +66,8 @@ class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
         return self.form_from_res(res)
 
     def form_from_res(self, res):
+        '''Pass in a resource containing the form and this method returns
+        the paster form, which is more easily tested.'''
         assert not "<html>" in str(res.body), "The response is an HTML doc, not just a form: %s" % str(res.body)
         # Arrange 'form fixture' from fieldsets string (helps testing Form API).
         res.body = "<html><form id=\"test\" action=\"\" method=\"post\">" + res.body + "<input type=\"submit\" name=\"send\"></form></html>"
@@ -159,6 +156,17 @@ class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
         if value != None:
             self.assert_equal(headers[name], value)
 
+    def get_header_keys(self, res):
+        return [h[0] for h in res.headers]
+
+    def get_headers(self, res):
+        headers = {}
+        for h in res.headers:
+            name = h[0]
+            value = h[1]
+            headers[name] = value
+        return headers
+
     def assert_formfield(self, form, name, expected):
         '''
         Checks the value of a specified form field.
@@ -177,21 +185,14 @@ class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
         '''
         assert name not in form.fields, name
 
-    def get_header_keys(self, res):
-        return [h[0] for h in res.headers]
-
-    def get_headers(self, res):
-        headers = {}
-        for h in res.headers:
-            name = h[0]
-            value = h[1]
-            headers[name] = value
-        return headers
-
 
 class FormsApiTestCase(BaseFormsApiCase):
-
     def setup(self):
+        self.package_name = u'formsapi'
+        self.package_name_alt = u'formsapialt'
+        self.package_name_alt2 = u'formsapialt2'
+        self.apikey_header_name = config.get('apikey_header_name', 'X-CKAN-API-Key')
+
         self.user = self.get_user_by_name(u'tester')
         if not self.user:
             self.user = self.create_user(name=u'tester')
@@ -212,6 +213,8 @@ class FormsApiTestCase(BaseFormsApiCase):
         self.delete_harvest_source(u'http://localhost/')
         if self.harvest_source:
             self.delete_commit(self.harvest_source)
+    def get_field_names(self, form):
+        return form.fields.keys()
 
     def test_get_package_create_form(self):
         form = self.get_package_create_form()

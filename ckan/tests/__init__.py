@@ -13,9 +13,9 @@ import sys
 import re
 from unittest import TestCase
 from nose.tools import assert_equal
+from nose.plugins.skip import SkipTest
 import time
 
-import sgmllib
 import pkg_resources
 import paste.fixture
 import paste.script.appinstall
@@ -31,6 +31,8 @@ __all__ = ['url_for',
            'TestSearchIndexer',
            'ModelMethods',
            'CheckMethods',
+           'TestCase',
+           'SkipTest',
         ]
 
 here_dir = os.path.dirname(os.path.abspath(__file__))
@@ -54,30 +56,103 @@ cmd.run([config_path])
 import ckan.model as model
 model.repo.rebuild_db()
 
-# A simple helper class to cleanly strip HTML from a response.
-class Stripper(sgmllib.SGMLParser):
-    def __init__(self):
-        sgmllib.SGMLParser.__init__(self)
+class BaseCase(object):
 
-    def strip(self, html):
-        self.str = u""
-        self.feed(html)
-        self.close()
-        return u' '.join(self.str.split())
+    def setup(self):
+        pass
 
-    def handle_data(self, data):
-        self.str += data
+    def teardown(self):
+        pass
+
+    def _system(self, cmd):
+        import commands
+        (status, output) = commands.getstatusoutput(cmd)
+        if status:
+            raise Exception, "Couldn't execute cmd: %s: %s" % (cmd, output)
+
+    def _paster(self, cmd, config_path_rel):
+        from pylons import config
+        config_path = os.path.join(config['here'], config_path_rel)
+        self._system('paster --plugin ckan %s --config=%s' % (cmd, config_path))
 
 
-class TestController(object):
+class ModelMethods(BaseCase):
 
-    wsgiapp = loadapp('config:test.ini', relative_to=conf_dir)
-    app = paste.fixture.TestApp(wsgiapp)
+    require_common_fixtures = True
+    reuse_common_fixtures = True
+    has_common_fixtures = False
+    commit_changesets = True
+
+    def conditional_create_common_fixtures(self):
+        if self.require_common_fixtures and not ModelMethods.has_common_fixtures:
+            self.create_common_fixtures()
+            ModelMethods.has_common_fixtures = True
+
+    def create_common_fixtures(self):
+        CreateTestData.create(commit_changesets=self.commit_changesets)
+        CreateTestData.create_arbitrary([], extra_user_names=[self.user_name])
+
+    def reuse_or_delete_common_fixtures(self):
+        if ModelMethods.has_common_fixtures and not self.reuse_common_fixtures:
+            ModelMethods.has_common_fixtures = False
+            self.delete_common_fixtures()
+            self.commit_remove()
+
+    def delete_common_fixtures(self):
+        CreateTestData.delete()
+
+    def dropall(self):
+        model.repo.clean_db()
+
+    def rebuild(self):
+        model.repo.rebuild_db()
+        self.remove()
+
+    def add(self, domain_object):
+        model.Session.add(domain_object)
+
+    def add_commit(self, domain_object):
+        self.add(domain_object)
+        self.commit()
+
+    def add_commit_remove(self, domain_object):
+        self.add(domain_object)
+        self.commit_remove()
+
+    def delete(self, domain_object):
+        model.Session.delete(domain_object)
+
+    def delete_commit(self, domain_object):
+        self.delete(domain_object)
+        self.commit()
+
+    def delete_commit_remove(self, domain_object):
+        self.delete(domain_object)
+        self.commit()
+
+    @staticmethod
+    def commit():
+        model.Session.commit()
 
     @classmethod
-    def create_package(self, data={}, **kwds):
+    def commit_remove(cls):
+        cls.commit()
+        cls.remove()
+
+    @staticmethod
+    def remove():
+        model.Session.remove()
+
+    def count_packages(self):
+        return model.Session.query(model.Package).count()
+
+
+class CommonFixtureMethods(BaseCase):
+
+    @classmethod
+    def create_package(self, data={}, admins=[], **kwds):
         # Todo: A simpler method for just creating a package.
-        CreateTestData.create_arbitrary(package_dicts=[data or kwds])
+        CreateTestData.create_arbitrary(package_dicts=[data or kwds], admins=admins)
 
     @classmethod
     def create_user(self, **kwds):
@@ -87,46 +162,30 @@ class TestController(object):
         model.Session.remove()
         return user
 
-    def create_100_packages(self):
-        rev = model.repo.new_revision()
-        for i in range(0,100):
-            name = u"testpackage%s" % i
-            model.Session.add(model.Package(name=name))
-        model.Session.commit()
-        model.Session.remove()
-
-    @classmethod
-    def get_package_by_name(self, package_name):
+    @staticmethod
+    def get_package_by_name(package_name):
         return model.Package.by_name(package_name)
 
-    def get_group_by_name(self, group_name):
+    @staticmethod
+    def get_group_by_name(group_name):
         return model.Group.by_name(group_name)
 
     @staticmethod
     def get_user_by_name(name):
         return model.User.by_name(name)
 
-    def get_harvest_source_by_url(self, source_url, default=Exception):
+    @staticmethod
+    def get_harvest_source_by_url(source_url, default=Exception):
         return model.HarvestSource.get(source_url, default, 'url')
 
     def create_harvest_source(self, **kwds):
         return model.HarvestSource.create_save(**kwds)             
 
-    @classmethod
     def purge_package_by_name(self, package_name):
         package = self.get_package_by_name(package_name)
         if package:
             package.purge()
-        model.repo.commit_and_remove()
-
-    def purge_100_packages(self):
-        listRegister = self.get_model().packages
-        for i in range(0,100):
-            name = u"testpackage%s" % i
-            pkg = model.Package.by_name(name)
-            pkg.purge(name)
-        model.Session.commit()
-        model.Session.remove()
+            self.commit_remove()
 
     @classmethod
     def purge_packages(self, pkg_names):
@@ -141,22 +200,6 @@ class TestController(object):
         all_pkg_names = [pkg.name for pkg in model.Session.query(model.Package)]
         self.purge_packages(all_pkg_names)
 
-    def create_200_tags(self):
-        for i in range(0,200):
-            name = u"testtag%s" % i
-            model.Session.add(model.Tag(name=name))
-            print "Created tag: %s" % name
-        model.Session.commit()
-        model.Session.remove()
-
-    def purge_200_tags(self):
-        for i in range(0,200):
-            name = u"testtag%s" % i
-            tag = model.Tag.by_name(name)
-            tag.purge()
-        model.Session.commit()
-        model.Session.remove()
-
     @classmethod
     def clear_all_tst_ratings(self):
         ratings = model.Session.query(model.Rating).filter_by(package=model.Package.by_name(u'annakarenina')).all()
@@ -164,88 +207,6 @@ class TestController(object):
         for rating in ratings[:]:
             model.Session.delete(rating)
         model.repo.commit_and_remove()
-
-    def main_div(self, html):
-        'strips html to just the <div id="main"> section'
-        the_html = html.body.decode('utf8')
-        return the_html[the_html.find(u'<div id="main">'):the_html.find(u'<!-- /main -->')]
-
-    def preview_div(self, html):
-        'strips html to just the <div id="preview"> section'
-        the_html = html.body.decode('utf8')
-        preview_html = the_html[the_html.find(u'<div id="preview"'):the_html.find(u'<!-- /preview -->')]
-        assert preview_html, the_html
-        return preview_html
-
-    def sidebar(self, html):
-        'strips html to just the <div id="primary"> section'
-        the_html = str(html)
-        return the_html[the_html.find('<div id="primary"'):the_html.find('<div id="main">')]
-
-    def strip_tags(self, res):
-        '''Call strip_tags on a TestResponse object to strip any and all HTML and normalise whitespace.'''
-        if not isinstance(res, basestring):
-            res = res.body.decode('utf-8')
-        return Stripper().strip(res)    
-
-    def check_named_element(self, html, tag_name, *html_to_find):
-        '''Searches in the html and returns True if it can find a particular
-        tag and all its subtags & data which contains all the of the
-        html_to_find'''
-        named_element_re = re.compile('(<(%(tag)s\w*).*?>.*?</%(tag)s>)' % {'tag':tag_name}) 
-        html_str = self._get_html_from_res(html)
-        self._check_html(named_element_re, html_str.replace('\n', ''), html_to_find)
-
-    def check_tag_and_data(self, html, *html_to_find):
-        '''Searches in the html and returns True if it can find a tag and its
-        PC Data immediately following it which contains all the of the
-        html_to_find'''
-        if not hasattr(self, 'tag_and_data_re'):
-            self.tag_and_data_re = re.compile('(<(?P<tagname>\w*)[^>]*>[^<]*?</(?P=tagname)>)')
-            # matches "<tag stuff> stuff </tag>"
-        self._check_html(self.tag_and_data_re, html, html_to_find)
-
-    def check_tag(self, html, *html_to_find):
-        '''Searches in the html and returns True if it can find a tag which
-        contains all the of the html_to_find'''
-        if not hasattr(self, 'tag_re'):
-            self.tag_re = re.compile('(<[^>]*>)')
-        self._check_html(self.tag_re, html, html_to_find)
-
-    def _get_html_from_res(self, html):
-        if isinstance(html, paste.fixture.TestResponse):
-            html_str = html.body.decode('utf8')
-        elif isinstance(html, unicode):
-            html_str = html
-        elif isinstance(html, str):
-            html_str = html.decode('utf8')
-        else:
-            raise TypeError
-        return html_str # always unicode
-
-    def _check_html(self, regex_compiled, html, html_to_find):
-        html_to_find = [unicode(html_bit) for html_bit in html_to_find]
-        partly_matching_tags = []
-        html_str = self._get_html_from_res(html)
-        for tag in regex_compiled.finditer(html_str):
-            found_all=True
-            for i, html_bit_to_find in enumerate(html_to_find):
-                assert isinstance(html_bit_to_find, (str, unicode)), html_bit_to_find
-                html_bit_to_find = unicode(html_bit_to_find)
-                find_inverse = html_bit_to_find.startswith('!')
-                if (find_inverse and html_bit_to_find[1:] in tag.group()) or \
-                   (not find_inverse and html_bit_to_find not in tag.group()):
-                    found_all = False
-                    if i>0:
-                        partly_matching_tags.append(tag.group())
-                    break
-            if found_all:
-                return # found it
-        # didn't find it
-        assert 0, "Couldn't find %s in html. Closest matches were:\n%s" % (', '.join(["'%s'" % html.encode('utf8') for html in html_to_find]), '\n'.join([tag.encode('utf8') for tag in partly_matching_tags]))
-
-    def assert_equal(self, *args, **kwds):
-        assert_equal(*args, **kwds)
 
     @property
     def war(self):
@@ -255,16 +216,60 @@ class TestController(object):
     def anna(self):
         return self.get_package_by_name(u'annakarenina')
 
-    def _system(self, cmd):
-        import commands
-        (status, output) = commands.getstatusoutput(cmd)
-        if status:
-            raise Exception, "Couldn't execute cmd: %s: %s" % (cmd, output)
 
-    def _paster(self, cmd, config_path_rel):
-        from pylons import config
-        config_path = os.path.join(config['here'], config_path_rel)
-        self._system('paster --plugin ckan %s --config=%s' % (cmd, config_path))
+class CheckMethods(BaseCase):
+
+    def assert_true(self, value):
+        assert value, "Not true: '%s'" % value
+
+    def assert_false(self, value):
+        assert not value, "Not false: '%s'" % value
+
+    def assert_equal(self, value1, value2):
+        assert value1 == value2, 'Not equal: %s' % ((value1, value2),)
+
+    def assert_isinstance(self, value, check):
+        assert isinstance(value, check), 'Not an instance: %s' % ((value, check),)
+    
+    def assert_raises(self, exception_class, callable, *args, **kwds): 
+        try:
+            callable(*args, **kwds)
+        except exception_class:
+            pass
+        else:
+            assert False, "Didn't raise '%s' when calling: %s with %s" % (exception_class, callable, (args, kwds))
+
+    def assert_contains(self, sequence, item):
+        assert item in sequence, "Sequence %s does not contain item: %s" % (sequence, item)
+
+    def assert_missing(self, sequence, item):
+        assert item not in sequence, "Sequence %s does contain item: %s" % (sequence, item)
+
+    def assert_len(self, sequence, count):
+        assert len(sequence) == count, "Length of sequence %s was not %s." % (sequence, count)
+
+    def assert_isinstance(self, object, kind):
+        assert isinstance(object, kind), "Object %s is not an instance of %s." % (object, kind)
+
+
+class TestCase(CommonFixtureMethods, ModelMethods, CheckMethods, BaseCase):
+
+    def setup(self):
+        super(TestCase, self).setup()
+        self.conditional_create_common_fixtures()
+
+    def teardown(self):
+        self.reuse_or_delete_common_fixtures()
+        super(TestCase, self).setup()
+
+
+class WsgiAppCase(BaseCase):
+
+    wsgiapp = loadapp('config:test.ini', relative_to=conf_dir)
+    app = paste.fixture.TestApp(wsgiapp)
+
+
+class CkanServerCase(BaseCase):
 
     def _recreate_ckan_server_testdata(self, config_path):
         self._paster('db clean', config_path)
@@ -296,6 +301,16 @@ class TestController(object):
             raise Exception, "Can't kill foreign CKAN instance (pid: %d)." % pid
 
 
+class TestController(CommonFixtureMethods, CkanServerCase, WsgiAppCase, BaseCase):
+
+    def commit_remove(self):
+        # Todo: Converge with ModelMethods.commit_remove().
+        model.repo.commit_and_remove()
+
+    def assert_equal(self, *args, **kwds):
+        assert_equal(*args, **kwds)
+
+
 class TestSearchIndexer:
     '''
     Tests which use search can use this object to provide indexing
@@ -322,71 +337,4 @@ class TestSearchIndexer:
             message = cls.worker.consumer.fetch()
         cls.worker.consumer.close()        
 
-
-class ModelMethods(object):
-
-    def dropall(self):
-        model.repo.clean_db()
-
-    def rebuild(self):
-        model.repo.rebuild_db()
-        self.remove()
-
-    def add(self, domain_object):
-        model.Session.add(domain_object)
-
-    def add_commit(self, domain_object):
-        self.add(domain_object)
-        self.commit()
-
-    def add_commit_remove(self, domain_object):
-        self.add(domain_object)
-        self.commit_remove()
-
-    def delete(self, domain_object):
-        model.Session.delete(domain_object)
-
-    def delete_commit(self, domain_object):
-        self.delete(domain_object)
-        self.commit()
-
-    def delete_commit_remove(self, domain_object):
-        self.delete(domain_object)
-        self.commit()
-
-    def commit(self):
-        model.Session.commit()
-
-    def commit_remove(self):
-        self.commit()
-        self.remove()
-
-    def remove(self):
-        model.Session.remove()
-
-    def count_packages(self):
-        return model.Session.query(model.Package).count()
-
-
-class CheckMethods(object):
-
-    def assert_true(self, value):
-        assert value, "Not true: '%s'" % value
-
-    def assert_false(self, value):
-        assert not value, "Not false: '%s'" % value
-
-    def assert_equal(self, value1, value2):
-        assert value1 == value2, 'Not equal: %s' % ((value1, value2),)
-
-    def assert_isinstance(self, value, check):
-        assert isinstance(value, check), 'Not an instance: %s' % ((value, check),)
-    
-    def assert_raises(self, exception_class, callable, *args, **kwds): 
-        try:
-            callable(*args, **kwds)
-        except exception_class:
-            pass
-        else:
-            assert False, "Didn't raise '%s' when calling: %s with %s" % (exception_class, callable, (args, kwds))
 

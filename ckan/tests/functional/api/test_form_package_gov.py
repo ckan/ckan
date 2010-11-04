@@ -5,8 +5,10 @@ from pylons import config
 from ckan.lib.helpers import json
 from ckan.lib.helpers import literal
 from ckan.lib.create_test_data import CreateTestData
-from test_form import *
-#from ckan.tests.functional.api.test_form import BaseFormsApiCase, Api1TestCase, Api2TestCase
+from test_form import BaseFormsApiCase, Api1TestCase, Api2TestCase
+
+# NB: This file tests the original package_gov form, which is moving
+#     to the dgu repo, so this can go there too soon.
 
 class PackageFixturesBase:
     def create(self, **kwargs):
