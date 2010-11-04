@@ -36,10 +36,11 @@ class BaseFormController(BaseApiController):
         if entity is None:
             self._abort_not_found()
 
-    def _assert_is_authorized(self, entity=None):
+    def _assert_authorization_credentials(self, entity=None):
         user = self._get_user_for_apikey()
         if not user:
-           self._abort_not_authorized()
+            log.info('User did not supply authorization credentials when required.')
+            self._abort_not_authorized()
 
     def package_create(self):
         try:
@@ -58,19 +59,22 @@ class BaseFormController(BaseApiController):
                 return response_body
             if request.method == 'POST':
                 # Check user authorization.
-                self._assert_is_authorized()
+                self._assert_authorization_credentials()
                 # Read request.
-                request_data = self._get_request_data()
+                try:
+                    request_data = self._get_request_data()
+                except ValueError, error:
+                    self._abort_bad_request('Extracting request data: %r' % error.args)                
                 try:
                     form_data = request_data['form_data']
                 except KeyError, error:
-                    self._abort_bad_request()
+                    self._abort_bad_request('Missing \'form_data\' in request data.')
                 # Bind form data to fieldset.
                 try:
                     bound_fieldset = fieldset.bind(model.Package, data=form_data, session=model.Session)
                 except Exception, error:
-                    # Todo: Replace 'Exception' with bind error.
-                    self._abort_bad_request()
+                    log.error('Package create - problem binding data. data=%r fieldset=%r', form_data, fields)
+                    self._abort_bad_request('Form data incomplete')
                 # Validate and save form data.
                 log_message = request_data.get('log_message', 'Form API')
                 user = self._get_user_for_apikey()
@@ -86,6 +90,7 @@ class BaseFormController(BaseApiController):
                     response_body = fieldset_html
                     # Set status code.
                     response.status_int = 400
+                    log.info('Package create - data did not validate. user=%r data=%r error=%r', user.name, form_data, errorful_fieldset.errors)
                     # Return response body.
                     return response_body
                 else:
@@ -93,6 +98,8 @@ class BaseFormController(BaseApiController):
                     package = bound_fieldset.model
                     # Construct access control entities.
                     self._create_permissions(package, user)
+                    # Log message
+                    log.info('Package create successful. user=%r data=%r', author, form_data)
                     # Set the Location header.
                     location = self._make_package_201_location(package)
                     self._set_response_header('Location', location)
@@ -103,6 +110,7 @@ class BaseFormController(BaseApiController):
                     # Return response body.
                     return response_body
         except ApiError, api_error:
+            log.info('Package create - ApiError. user=%r data=%r error=%r', author, form_data, api_error)
             # Set response body.
             response_body = str(api_error) 
             # Assume status code is set.
@@ -110,7 +118,7 @@ class BaseFormController(BaseApiController):
             return response_body
         except Exception:
             # Log error.
-            log.error("Couldn't create package: %s" % traceback.format_exc())
+            log.error('Package create - unhandled exception: exception=%r', traceback.format_exc())
             raise
 
     def _make_package_201_location(self, package):
@@ -173,7 +181,7 @@ class BaseFormController(BaseApiController):
                 return response_body
             if request.method == 'POST':
                 # Check user authorization.
-                self._assert_is_authorized()
+                self._assert_authorization_credentials()
                 # Read request.
                 request_data = self._get_request_data()
                 try:
@@ -185,7 +193,8 @@ class BaseFormController(BaseApiController):
                     bound_fieldset = fieldset.bind(pkg, data=form_data)
                     # Todo: Replace 'Exception' with bind error.
                 except Exception, error:
-                    self._abort_bad_request()
+                    log.error('Package edit - problem binding data. data=%r fieldset=%r', form_data, fields)
+                    self._abort_bad_request('Form data incomplete')
                 # Validate and save form data.
                 log_message = request_data.get('log_message', 'Form API')
                 author = request_data.get('author', '')
@@ -204,9 +213,11 @@ class BaseFormController(BaseApiController):
                     response_body = fieldset_html
                     # Set status code.
                     response.status_int = 400
+                    log.info('Package edit - data did not validate. user=%r data=%r error=%r', author, form_data, errorful_fieldset.errors)
                     # Return response body.
                     return response_body
                 else:
+                    log.info('Package edit successful. user=%r data=%r', author, form_data)
                     # Set response body.
                     response_body = json.dumps('')
                     # Set status code.
@@ -214,6 +225,7 @@ class BaseFormController(BaseApiController):
                     # Return response body.
                     return response_body
         except ApiError, api_error:
+            log.info('Package edit - ApiError. user=%r data=%r error=%r', author, form_data, api_error)
             # Set response body.
             response_body = str(api_error) 
             # Assume status code is set.
@@ -221,7 +233,7 @@ class BaseFormController(BaseApiController):
             return response_body
         except Exception:
             # Log error.
-            log.error("Couldn't update package: %s" % traceback.format_exc())
+            log.error('Package edit - unhandled exception: exception=%r', traceback.format_exc())
             raise
 
     def _create_package_entity(self, bound_fieldset, log_message, author):
@@ -315,9 +327,12 @@ class BaseFormController(BaseApiController):
                 return response_body
             if request.method == 'POST':
                 # Check user authorization.
-                self._assert_is_authorized()
+                self._assert_authorization_credentials()
                 # Read request.
-                request_data = self._get_request_data()
+                try:
+                    request_data = self._get_request_data()
+                except ValueError, error:
+                    self._abort_bad_request('Extracting request data: %r' % error.args)                                    
                 try:
                     form_data = request_data['form_data']
                     user_ref = request_data['user_ref']
@@ -392,9 +407,12 @@ class BaseFormController(BaseApiController):
                 return response_body
             if request.method == 'POST':
                 # Check user authorization.
-                self._assert_is_authorized()
+                self._assert_authorization_credentials()
                 # Read request.
-                request_data = self._get_request_data()
+                try:
+                    request_data = self._get_request_data()
+                except ValueError, error:
+                    self._abort_bad_request('Extracting request data: %r' % error.args)                                    
                 try:
                     form_data = request_data['form_data']
                     user_ref = request_data['user_ref']
