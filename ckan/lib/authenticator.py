@@ -10,10 +10,16 @@ class OpenIDAuthenticator(object):
         if 'repoze.who.plugins.openid.userid' in identity:
             openid = identity.get('repoze.who.plugins.openid.userid')
             user = User.by_openid(openid)
-            # TODO: Validate nickname from OpenID 
             if user is None:
-                user = User(openid = openid,
-                        name = identity.get('repoze.who.plugins.openid.nickname', openid),
+                # TODO: Implement a mask to ask for an alternative user 
+                # name instead of just using the OpenID identifier. 
+                name = identity.get('repoze.who.plugins.openid.nickname')
+                if not name or not len(name.strip()) \
+                    or not User.VALID_NAME.match(name):
+                    name = openid
+                if User.by_name(name):
+                    name = openid
+                user = User(openid = openid, name = name,
                         fullname = identity.get('repoze.who.plugins.openid.fullname'),
                         email = identity.get('repoze.who.plugins.openid.email'))
                 Session.add(user)

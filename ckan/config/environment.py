@@ -75,6 +75,3 @@ def load_environment(global_conf, app_conf):
     engine = engine_from_config(config, 'sqlalchemy.', pool_threadlocal=True)
     model.init_model(engine)
     
-    if asbool(config.get('ckan.build_search_index_synchronously', "True")):
-        import ckan.lib.search as search
-        search.setup_synchronous_indexing()

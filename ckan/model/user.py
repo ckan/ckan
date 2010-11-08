@@ -1,4 +1,5 @@
 from datetime import datetime
+import re
 from hashlib import sha1
 from sqlalchemy.sql.expression import or_
 
@@ -19,6 +20,8 @@ user_table = Table('user', metadata,
 
 class User(DomainObject):
     
+    VALID_NAME = re.compile(r"^[a-zA-Z0-9_\-]{3,255}$")
+
     @classmethod
     def by_openid(cls, openid):
         obj = Session.query(cls).autoflush(False)
