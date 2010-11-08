@@ -5,9 +5,10 @@ import re
 from ckan.tests import *
 import ckan.model as model
 import ckan.authz as authz
+from ckan.lib.base import ALLOWED_FIELDSET_PARAMS
 from ckan.lib.helpers import url_for
-from ckan.lib.create_test_data import CreateTestData
 from ckan.lib.helpers import json
+from ckan.lib.create_test_data import CreateTestData
 
 ACCESS_DENIED = [403]
 
@@ -20,24 +21,30 @@ from ckan.tests.functional.api.test_model import ApiUnversionedTestCase
 
 class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
     api_version = ''
+    def split_form_args(self, kwargs):
+        '''Splits form keyword arguments into those for the form url
+        and those for the fields in the form.'''
+        form_url_args = {}
+        form_values_args = {}
+        for k, v, in kwargs.items():
+            if k in ALLOWED_FIELDSET_PARAMS:
+                form_url_args[k] = v
+            else:
+                form_values_args[k] = v
+        return form_url_args, form_values_args
+    
     def delete_harvest_source(self, url):
         source = self.get_harvest_source_by_url(url, None)
         if source:
             self.delete_commit(source)
 
-    def offset_package_create_form(self, form_schema=None):
-        offset = self.offset('/form/package/create')
-        if form_schema != None:
-            offset += '?package_form=%s' % form_schema
-        return offset
+    def offset_package_create_form(self, **kwargs):
+        url_args, ignore = self.split_form_args(kwargs)
+        return self.offset(url_for('/form/package/create', **url_args))
 
-    def offset_package_edit_form(self, ref, form_schema=None, **kwargs):
-        offset = self.offset('/form/package/edit/%s' % str(ref))
-        if form_schema != None:
-            kwargs['package_form'] = form_schema
-        if kwargs:
-            offset = url_for(offset, **kwargs)
-        return offset
+    def offset_package_edit_form(self, ref, **kwargs):
+        url_args, ignore = self.split_form_args(kwargs)
+        return self.offset(url_for('/form/package/edit/%s' % str(ref), **url_args))
 
     def offset_harvest_source_create_form(self):
         return self.offset('/form/harvestsource/create')
@@ -45,13 +52,13 @@ class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
     def offset_harvest_source_edit_form(self, ref):
         return self.offset('/form/harvestsource/edit/%s' % ref)
 
-    def get_package_create_form(self, status=[200], form_schema=None):
-        offset = self.offset_package_create_form(form_schema)
+    def get_package_create_form(self, status=[200], **form_url_args):
+        offset = self.offset_package_create_form(**form_url_args)
         res = self.get(offset, status=status)
         return self.form_from_res(res)
 
-    def get_package_edit_form(self, package_ref, status=[200], form_schema=None, **kwargs):
-        offset = self.offset_package_edit_form(package_ref, form_schema, **kwargs)
+    def get_package_edit_form(self, package_ref, status=[200], **kwargs):
+        offset = self.offset_package_edit_form(package_ref, **kwargs)
         res = self.get(offset, status=status)
         return self.form_from_res(res)
 
@@ -73,10 +80,11 @@ class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
         res.body = "<html><form id=\"test\" action=\"\" method=\"post\">" + res.body + "<input type=\"submit\" name=\"send\"></form></html>"
         return res.forms['test']
 
-    def post_package_create_form(self, form=None, status=[201], form_schema=None, **kwds):
+    def post_package_create_form(self, form=None, status=[201], **kwargs):
+        form_url_args, form_field_args = self.split_form_args(kwargs)
         if form == None:
-            form = self.get_package_create_form(form_schema)
-        for key,field_value in kwds.items():
+            form = self.get_package_create_form(**form_url_args)
+        for key, field_value in form_field_args.items():
             field_name = 'Package--%s' % key
             form[field_name] = field_value
         form_data = form.submit_fields()
@@ -85,13 +93,13 @@ class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
             'log_message': 'Unit-testing the Forms API...',
             'author': 'automated test suite',
         }
-        offset = self.offset_package_create_form(form_schema)
+        offset = self.offset_package_create_form(**form_url_args)
         return self.post(offset, data, status=status)
 
-    def post_harvest_source_create_form(self, form=None, status=[201], **kwds):
+    def post_harvest_source_create_form(self, form=None, status=[201], **field_args):
         if form == None:
             form = self.get_harvest_source_create_form()
-        for key,field_value in kwds.items():
+        for key,field_value in field_args.items():
             field_name = 'HarvestSource--%s' % key
             form[field_name] = field_value
         form_data = form.submit_fields()
@@ -112,11 +120,12 @@ class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
         else:
             raise Exception, "Unsupported value for ref_package_by: %s" % self.ref_package_by
 
-    def post_package_edit_form(self, package_ref, form=None, status=[200], form_schema=None, **kwds):
+    def post_package_edit_form(self, package_ref, form=None, status=[200], **offset_and_field_args):
+        offset_kwargs, field_args = self.split_form_args(offset_and_field_args)
         if form == None:
-            form = self.get_package_edit_form(package_ref, form_schema)
+            form = self.get_package_edit_form(package_ref, **offset_kwargs)
         package_id = self.package_id_from_ref(package_ref)
-        for key,field_value in kwds.items():
+        for key,field_value in field_args.items():
             field_name = 'Package-%s-%s' % (package_id, key)
             self.set_formfield(form, field_name, field_value)
         form_data = form.submit_fields()
@@ -125,13 +134,13 @@ class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
             'log_message': 'Unit-testing the Forms API...',
             'author': 'automated test suite',
         }
-        offset = self.offset_package_edit_form(package_ref, form_schema)
+        offset = self.offset_package_edit_form(package_ref, **offset_kwargs)
         return self.post(offset, data, status=status)
         
-    def post_harvest_source_edit_form(self, harvest_source_id, form=None, status=[200], **kwds):
+    def post_harvest_source_edit_form(self, harvest_source_id, form=None, status=[200], **field_args):
         if form == None:
             form = self.get_harvest_source_edit_form(harvest_source_id)
-        for key,field_value in kwds.items():
+        for key,field_value in field_args.items():
             field_name = 'HarvestSource-%s-%s' % (harvest_source_id, key)
             self.set_formfield(form, field_name, field_value)
         form_data = form.submit_fields()
