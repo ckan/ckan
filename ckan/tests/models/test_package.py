@@ -200,6 +200,7 @@ class TestPackageRevisions:
         self.pkg1 = model.Package(name=self.name)
         model.Session.add(self.pkg1)
         self.pkg1.notes = self.notes[0]
+        self.pkg1.extras['mykey'] = self.notes[0]
         model.repo.commit_and_remove()
 
         # edit pkg
@@ -207,6 +208,7 @@ class TestPackageRevisions:
             rev = model.repo.new_revision()
             pkg1 = model.Package.by_name(self.name)
             pkg1.notes = self.notes[i]
+            pkg1.extras['mykey'] = self.notes[i]
             model.repo.commit_and_remove()
 
         self.pkg1 = model.Package.by_name(self.name)        
@@ -224,6 +226,7 @@ class TestPackageRevisions:
         assert len(all_rev) == num_notes, len(all_rev)
         for i, rev in enumerate(all_rev):
             assert rev.notes == self.notes[num_notes - i - 1], '%s != %s' % (rev.notes, self.notes[i])
+            #assert rev.extras['mykey'] == self.notes[num_notes - i - 1], '%s != %s' % (rev.extras['mykey'], self.notes[i])
 
 
 class TestRelatedRevisions:

@@ -9,15 +9,6 @@
    <div class="group">
     <h2 class="head">
       <span class="name">${c.authorization_group.name}</span>
-
-      <span class="object-action">
-      <py:if test="c.auth_for_edit">
-        <a href="${h.url_for(controller='authorizationgroup',action='edit',id=c.authorization_group.name)}">[edit]</a>
-      </py:if>
-      <py:if test="c.auth_for_authz">
-        <a href="${h.url_for(controller='authorizationgroup',action='authz',id=c.authorization_group.name)}">[authorization]</a>
-      </py:if>
-      </span>
     </h2>
     
     <py:if test="c.group_admins">

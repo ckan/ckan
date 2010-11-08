@@ -14,15 +14,6 @@
 
       ${c.group.title}
       <span class="name">(${c.group.name})</span>
-
-      <span class="object-action">
-      <py:if test="c.auth_for_edit">
-        <a href="${h.url_for(controller='group',action='edit',id=c.group.name)}">[edit]</a>
-      </py:if>
-      <py:if test="c.auth_for_authz">
-        <a href="${h.url_for(controller='group',action='authz',id=c.group.name)}">[authorization]</a>
-      </py:if>
-      </span>
     </h2>
 
     <div class="description">
@@ -32,7 +23,7 @@
     <py:if test="c.group_admins">
       <h3>Administrators:</h3> 
         <py:for each="admin in c.group_admins">
-          <a href="${h.url_for(controller='user',action='read',id=admin.id)}">${admin.name}</a>
+          ${h.linked_user(admin)}
         </py:for>
     </py:if>      
 

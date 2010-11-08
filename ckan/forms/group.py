@@ -53,6 +53,9 @@ def build_group_form(is_admin=False, with_packages=False):
     builder.set_field_option('description', 'textarea', {'size':'60x15'})
     builder.add_field(ExtrasField('extras', hidden_label=True))
     displayed_fields = ['name', 'title', 'description']
+    if is_admin: 
+        builder.set_field_option('state', 'dropdown', {'options':model.State.all})
+        displayed_fields.append('state')
     if with_packages:
         builder.add_field(PackagesField('packages'))
         displayed_fields.append('packages')

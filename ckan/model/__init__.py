@@ -105,7 +105,7 @@ class Repository(vdm.sqlalchemy.Repository):
 
 
 repo = Repository(metadata, Session,
-        versioned_objects=[Package, PackageTag, PackageResource, PackageExtra]
+        versioned_objects=[Package, PackageTag, PackageResource, PackageExtra, PackageGroup, Group]
         )
 
 
@@ -117,8 +117,20 @@ def _get_packages(self):
         pkgs.add(pkg_rev.continuity)
     for non_pkg_rev_list in changes.values():
         for non_pkg_rev in non_pkg_rev_list:
-            pkgs.add(non_pkg_rev.continuity.package)
+            if hasattr(non_pkg_rev.continuity, 'package'):
+                pkgs.add(non_pkg_rev.continuity.package)
     return list(pkgs)
+
+def _get_groups(self):
+    changes = repo.list_changes(self)
+    groups = set()
+    for group_rev in changes.pop(Group):
+        groups.add(group_rev.continuity)
+    for non_group_rev_list in changes.values():
+        for non_group_rev in non_group_rev_list:
+            if hasattr(non_group_rev.continuity, 'group'):
+                groups.add(non_group_rev.continuity.group)
+    return list(groups)
 
 # could set this up directly on the mapper?
 def _get_revision_user(self):
@@ -127,6 +139,7 @@ def _get_revision_user(self):
     return user
 
 Revision.packages = property(_get_packages)
+Revision.groups = property(_get_groups)
 Revision.user = property(_get_revision_user)
 
 def strptimestamp(s):

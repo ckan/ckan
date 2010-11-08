@@ -93,7 +93,7 @@
       </py:choose>
     </div>
 
-    <py:if test="c.auth_for_edit">
+    <py:if test="h.am_authorized(c, actions.EDIT, c.pkg)">
     <div class="box">
       <h2>Edit this Package</h2>
         <p i18n:msg="">

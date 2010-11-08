@@ -1,6 +1,7 @@
 syntax: glob
 # generic
 *.pyc
+*.swp
 .DS_Store
 ckan.egg-info/*
 sandbox/*

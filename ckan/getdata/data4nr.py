@@ -178,6 +178,7 @@ class Data4Nr(object):
 
     def _basic_setup(self):
         # ensure there is a user hmg
+        self._new_revision()
         self._username = u'hmg'
         user = model.User.by_name(self._username)
         if not user:

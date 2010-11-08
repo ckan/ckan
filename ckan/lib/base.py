@@ -37,6 +37,7 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
     def render_template():
         globs = extra_vars or {}
         globs.update(pylons_globals())
+        globs['actions'] = model.Action
         template = globs['app_globals'].genshi_loader.load(template_name)
         stream = template.generate(**globs)
         
@@ -106,8 +107,8 @@ class BaseController(WSGIController):
         return model.HarvestSource.get(reference)
 
     def _get_request_data(self):
-        self.log.debug('Retrieving request params:', request.params)
-        self.log.debug('Retrieving request POST:', request.POST)
+        self.log.debug('Retrieving request params: %r' % request.params)
+        self.log.debug('Retrieving request POST: %r' % request.POST)
         try:
             request_data = request.POST.keys()[0]
         except Exception, inst:
@@ -123,7 +124,7 @@ class BaseController(WSGIController):
             # if val is str then assume it is ascii, since json converts
             # utf8 encoded JSON to unicode
             request_data[key] = self._make_unicode(val)
-        self.log.debug('Request data extracted:', request_data)
+        self.log.debug('Request data extracted: %r' % request_data)
         return request_data
         
     def _make_unicode(self, entity):
