@@ -54,6 +54,7 @@ class TestStats(TestController):
 
     def test_largest_groups(self):
         # Add packages to groups
+        model.repo.new_revision()
         model.Session.add(model.Group(u'tst1'))
         model.Session.add(model.Group(u'tst2'))
         model.Session.add(model.Group(u'tst3'))

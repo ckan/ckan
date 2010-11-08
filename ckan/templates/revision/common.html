@@ -32,7 +32,10 @@
         <td>${h.linked_user(item.author)}</td>
         <td>
           <py:for each="pkg in item.packages">
-          <a href="${h.url_for(controller='package', action='read', id=pkg.name)}">${pkg.name}</a>
+            <a href="${h.url_for(controller='package', action='read', id=pkg.name)}">${pkg.name}</a>
+          </py:for>
+          <py:for each="grp in item.groups">
+            <a href="${h.url_for(controller='group', action='read', id=grp.name)}">${grp.name}</a>
           </py:for>
         </td>
         <td>${item.message}</td>

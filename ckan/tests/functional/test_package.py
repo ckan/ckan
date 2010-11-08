@@ -313,7 +313,7 @@ class TestReadOnly(PackageFormTestCase):
         name = u'annakarenina'
         offset = url_for(controller='package', action='read', id=name)
         res = self.app.get(offset, extra_environ={'REMOTE_USER':'annafan'})
-        assert 'State:' in res, res
+        assert 'State' in res, res
 
     def test_read_nonexistentpackage(self):
         name = 'anonexistentpackage'

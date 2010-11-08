@@ -32,9 +32,6 @@ class AuthorizationGroupController(BaseController):
                                                       c.authorization_group)
         if not auth_for_read:
             abort(401, gettext('Not authorized to read %s') % id.encode('utf8'))
-            
-        c.auth_for_edit = self.authorizer.am_authorized(c, model.Action.EDIT, c.authorization_group)
-        c.auth_for_authz = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, c.authorization_group)
         
         import ckan.misc
         c.authorization_group_admins = self.authorizer.get_admins(c.authorization_group)
@@ -142,13 +139,13 @@ class AuthorizationGroupController(BaseController):
             h.redirect_to(action='read', id=c.authorization_group_name)
 
     def authz(self, id):
-        authorization_group = model.AuthorizationGroup.by_name(id)
-        if authorization_group is None:
+        c.authorization_group = model.AuthorizationGroup.by_name(id)
+        if c.authorization_group is None:
             abort(404, gettext('Group not found'))
-        c.authorization_group_name = authorization_group.name
+        c.authorization_group_name = c.authorization_group.name
         
         c.authz_editable = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, 
-                                                         authorization_group)
+                                                         c.authorization_group)
         if not c.authz_editable:
             abort(401, gettext('Not authorized to edit authorization for group'))
 
@@ -157,7 +154,7 @@ class AuthorizationGroupController(BaseController):
             # multidict which is read only
             params = dict(request.params)
             c.fs = ckan.forms.get_authz_fieldset('authorization_group_authz_fs').bind(
-                                                 authorization_group.roles, 
+                                                 c.authorization_group.roles, 
                                                  data=params or None)
             try:
                 self._update_authz(c.fs)
@@ -176,7 +173,7 @@ class AuthorizationGroupController(BaseController):
                 # TODO: chech user is not None (should go in validation ...)
                 role = request.params.get('AuthorizationGroupRole--role')
                 newauthzgrouprole = model.AuthorizationGroupRole(user=user, 
-                        authorization_group=authorization_group, role=role)
+                        authorization_group=c.authorization_group, role=role)
                 # With FA no way to get new GroupRole back to set group attribute
                 # new_roles = ckan.forms.new_roles_fs.bind(model.GroupRole, data=params or None)
                 # new_roles.sync()
@@ -190,7 +187,7 @@ class AuthorizationGroupController(BaseController):
                 # TODO: chech user is not None (should go in validation ...)
                 role = request.params.get('AuthorizationGroupRole--role')
                 newauthzgrouprole = model.AuthorizationGroupRole(authorized_group=authzgroup, 
-                        authorization_group=authorization_group, role=role)
+                        authorization_group=c.authorization_group, role=role)
                 # With FA no way to get new GroupRole back to set group attribute
                 # new_roles = ckan.forms.new_roles_fs.bind(model.GroupRole, data=params or None)
                 # new_roles.sync()
@@ -215,9 +212,9 @@ class AuthorizationGroupController(BaseController):
                 model.Session.commit()
 
         # retrieve group again ...
-        authorization_group = model.AuthorizationGroup.by_name(id)
+        c.authorization_group = model.AuthorizationGroup.by_name(id)
         fs = ckan.forms.get_authz_fieldset('authorization_group_authz_fs')\
-                .bind(authorization_group.roles)
+                .bind(c.authorization_group.roles)
         c.form = fs.render()
         c.new_roles_form = \
             ckan.forms.get_authz_fieldset('new_authorization_group_roles_fs').render()

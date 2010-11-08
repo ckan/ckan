@@ -89,7 +89,7 @@
         </py:for>
         ${'...' if len(rev.packages) > 10 else ''}
         </td>
-        <td>${rev.author}</td>
+        <td>${h.linked_user(rev.author)}</td>
         <td class="greyed">${rev.timestamp.replace(microsecond=0)}</td>
       </tr>
     </table>
