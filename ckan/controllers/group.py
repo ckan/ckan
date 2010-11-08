@@ -6,11 +6,14 @@ from pylons.i18n import get_lang, _
 import ckan.authz as authz
 import ckan.forms
 from ckan.lib.helpers import Page
+from ckan.plugins import ExtensionPoint, IGroupController
 
 class GroupController(BaseController):
+    
     def __init__(self):
         BaseController.__init__(self)
         self.authorizer = authz.Authorizer()
+        self.extensions = ExtensionPoint(IGroupController)
     
     def index(self):
         from ckan.lib.helpers import Page
@@ -44,6 +47,8 @@ class GroupController(BaseController):
             page=request.params.get('page', 1),
             items_per_page=50
         )
+        for extension in self.extensions:
+            extension.read(c.group)
         return render('group/read.html')
 
     def new(self):
@@ -87,6 +92,8 @@ class GroupController(BaseController):
                     package = model.Package.by_name(pkgname)
                     if package and package not in group.packages:
                         group.packages.append(package)
+            for extension in self.extensions:
+                extension.create(group)
             model.repo.commit_and_remove()
             h.redirect_to(action='read', id=c.groupname)
 
@@ -140,6 +147,8 @@ class GroupController(BaseController):
                     package = model.Package.by_name(pkgname)
                     if package and package not in group.packages:
                         group.packages.append(package)
+            for extension in self.extensions: 
+                extension.edit(extension)
             model.repo.commit_and_remove()
             h.redirect_to(action='read', id=c.groupname)
 
@@ -180,6 +189,8 @@ class GroupController(BaseController):
                 # With FA no way to get new GroupRole back to set group attribute
                 # new_roles = ckan.forms.new_roles_fs.bind(model.GroupRole, data=params or None)
                 # new_roles.sync()
+                for extension in self.extensions:
+                    extension.authz_add_role(newgrouprole)
                 model.Session.commit()
                 model.Session.remove()
                 c.message = _(u'Added role \'%s\' for user \'%s\'') % (
@@ -194,6 +205,8 @@ class GroupController(BaseController):
                 # With FA no way to get new GroupRole back to set group attribute
                 # new_roles = ckan.forms.new_roles_fs.bind(model.GroupRole, data=params or None)
                 # new_roles.sync()
+                for extension in self.extensions:
+                    extensions.authz_add_role(newgrouprole)
                 model.Session.commit()
                 model.Session.remove()
                 c.message = _(u'Added role \'%s\' for authorization group \'%s\'') % (
@@ -205,6 +218,8 @@ class GroupController(BaseController):
             if grouprole is None:
                 c.error = _(u'Error: No role found with that id')
             else:
+                for extension in self.extensions:
+                    extension.authz_remove_role(grouprole)
                 grouprole.purge()
                 if grouprole.user:
                     c.message = _(u'Deleted role \'%s\' for user \'%s\'') % \

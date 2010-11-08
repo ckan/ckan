@@ -6,7 +6,8 @@ See doc/plugins.rst for more information
 __all__ = [
     'IGenshiStreamFilter', 'IRoutesExtension',
     'IMapperExtension', 'ISessionExtension',
-    'IDomainObjectNotification',
+    'IDomainObjectNotification', 'IGroupController', 
+    'IPackageController'
 ]
 
 from pyutilib.component.core import Interface
@@ -137,5 +138,55 @@ class IDomainObjectNotification(Interface):
         pass
 
     def after_update(self, mapper, connection, instance):
+        pass
+
+class IGroupController(Interface):
+    """
+    Extension points in the groups controller. These will 
+    usually be called just before committing or returning the
+    respective object, i.e. all validation, synchronization 
+    and authorization setup are complete. 
+    """
+
+    def read(self, entity):
+        pass
+
+    def create(self, entity):
+        pass
+
+    def edit(self, entity):
+        pass
+
+    def authz_add_role(self, object_role):
+        pass
+    
+    def authz_remove_role(self, object_role):
+        pass
+
+    def delete(self, entity):
+        pass
+
+class IPackageController(Interface):
+    """
+    Extension points in the package controller.
+    (see IGroupController)
+    """
+
+    def read(self, entity):
+        pass
+
+    def create(self, entity):
+        pass
+
+    def edit(self, entity):
+        pass
+
+    def authz_add_role(self, object_role):
+        pass
+    
+    def authz_remove_role(self, object_role):
+        pass
+
+    def delete(self, entity):
         pass
 

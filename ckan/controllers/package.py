@@ -11,6 +11,7 @@ from ckan.lib.base import *
 from ckan.lib.search import query_for, QueryOptions, SearchError
 from ckan.lib.cache import proxy_cache
 from ckan.lib.package_saver import PackageSaver, ValidationException
+from ckan.plugins import ExtensionPoint, IPackageController
 import ckan.forms
 import ckan.authz
 import ckan.rating
@@ -20,6 +21,7 @@ logger = logging.getLogger('ckan.controllers')
 
 class PackageController(BaseController):
     authorizer = ckan.authz.Authorizer()
+    extensions = ExtensionPoint(IPackageController)
 
     def index(self):
         query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
@@ -116,6 +118,9 @@ class PackageController(BaseController):
         if not auth_for_read:
             abort(401, str(gettext('Unauthorized to read package %s') % id))
         
+        for item in self.extensions:
+            item.read(c.pkg)
+
         PackageSaver().render_package(c.pkg)
         return render('package/read.html')
 
@@ -207,6 +212,8 @@ class PackageController(BaseController):
                     if user:
                         admins = [user]
                 model.setup_default_user_roles(pkg, admins)
+                for item in self.extensions:
+                    item.create(pkg)
                 model.repo.commit_and_remove()
 
                 self._form_save_redirect(pkgname, 'new')
@@ -279,6 +286,8 @@ class PackageController(BaseController):
                                           # multidict which is read only
             fs = fs.bind(pkg, data=params or None)
             try:
+                for item in self.extensions:
+                    item.edit(fs.model)
                 PackageSaver().commit_pkg(fs, id, pkg.id, log_message, c.author, client=c)
                 # do not use package name from id, as it may have been edited
                 pkgname = fs.name.value
@@ -375,6 +384,8 @@ class PackageController(BaseController):
                 # With FA no way to get new PackageRole back to set package attribute
                 # new_roles = ckan.forms.new_roles_fs.bind(model.PackageRole, data=params or None)
                 # new_roles.sync()
+                for item in self.extensions:
+                    item.authz_add_role(newpkgrole)
                 model.repo.commit_and_remove()
                 c.message = _(u'Added role \'%s\' for user \'%s\'') % (
                     newpkgrole.role,
@@ -388,6 +399,8 @@ class PackageController(BaseController):
                 # With FA no way to get new GroupRole back to set group attribute
                 # new_roles = ckan.forms.new_roles_fs.bind(model.GroupRole, data=params or None)
                 # new_roles.sync()
+                for item in self.extensions:
+                    item.authz_add_role(newpkgrole)
                 model.Session.commit()
                 model.Session.remove()
                 c.message = _(u'Added role \'%s\' for authorization group \'%s\'') % (
@@ -399,6 +412,8 @@ class PackageController(BaseController):
             if pkgrole is None:
                 c.error = _(u'Error: No role found with that id')
             else:
+                for item in self.extensions:
+                    item.authz_remove_role(pkgrole)
                 if pkgrole.user:
                     c.message = _(u'Deleted role \'%s\' for user \'%s\'') % \
                                 (pkgrole.role, pkgrole.user.name)
