@@ -4,6 +4,7 @@ import blinker
 from ckan.model.notifier import DomainObjectNotification, Notification
 from ckan.model.notifier import NOTIFYING_DOMAIN_OBJ_NAMES, DomainObjectNotificationOperation
 from ckan.lib.async_notifier import AsyncConsumer
+from ckan.plugins import SingletonPlugin, implements, IDomainObjectNotification
 from common import SearchError
 
 log = logging.getLogger(__name__)
@@ -46,23 +47,15 @@ class SearchIndexWorker(AsyncConsumer):
             log.exception(ex)
 
 
-def update_index(sender, **notification_dict):
+def update_index(**notification_dict):
     from ckan.lib.search import get_backend
     notification = Notification.recreate_from_dict(notification_dict)
     SearchIndexWorker.dispatch_notification(notification, get_backend())
 
-# Stores refs to blinker signals, fixing issue #695
-__signals__ = []
+class SynchronousSearchPlugin(SingletonPlugin):
 
-def setup_synchronous_indexing():
-    for routing_key in NOTIFYING_DOMAIN_OBJ_NAMES:
-        signal = blinker.signal(routing_key)
-        signal.connect(update_index)
-        __signals__.append(signal)
-        
-def remove_synchronous_indexing():
-    for routing_key in NOTIFYING_DOMAIN_OBJ_NAMES:
-        signal = blinker.signal(routing_key)
-        signal.disconnect(update_index)
+    implements(IDomainObjectNotification, inherit=True)
 
+    def receive_notification(self, notification):
+        update_index(**notification)
 

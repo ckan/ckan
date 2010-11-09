@@ -25,7 +25,6 @@ class _TestRdf:
     def test_1_package(self):
         pkg = model.Package.by_name(self.pkg_name)
         out = self.rdf.export_package(pkg)
-        print out
         assert pkg.name in out, out
 
     def test_2_post(self):
@@ -43,7 +42,6 @@ class _TestRdf:
     def test_3_download_package(self):
         res = self.talis.get_pkg(self.pkg_name)
         assert not isinstance(res, Exception), res
-        print res
 
         pkg = model.Package.by_name(self.pkg_name)
         assert pkg.name in res, res
@@ -53,7 +51,6 @@ class _TestRdf:
         uri = talis.TALIS_URI + TALIS_STORE_NAME + '/meta?about=%s&output=rdf' % (rdf.CKAN_SUBJECT_BASE + self.pkg_name)
         res = self.talis.get(uri)
         assert not isinstance(res, Exception), res
-        print res
 
         pkg = model.Package.by_name(self.pkg_name)
         assert pkg.name in res, res

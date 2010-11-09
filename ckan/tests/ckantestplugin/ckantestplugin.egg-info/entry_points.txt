@@ -1,0 +1,5 @@
+[ckan.plugins]
+routes_plugin = ckantestplugin:RoutesPlugin
+mapper_plugin2 = ckantestplugin:MapperPlugin2
+mapper_plugin = ckantestplugin:MapperPlugin
+

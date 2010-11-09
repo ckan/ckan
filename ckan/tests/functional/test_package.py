@@ -11,9 +11,38 @@ import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 import ckan.lib.helpers as h
 
+from ckan.plugins import SingletonPlugin, implements, IPackageController
+from ckan import plugins
+
+class MockPackageControllerPlugin(SingletonPlugin):
+    implements(IPackageController)
+    
+    def __init__(self):
+        from collections import defaultdict
+        self.calls = defaultdict(int)
+    
+    def read(self, entity):
+        self.calls['read'] += 1
+
+    def create(self, entity):
+        self.calls['create'] += 1
+
+    def edit(self, entity):
+        self.calls['edit'] += 1
+
+    def authz_add_role(self, object_role):
+        self.calls['authz_add_role'] += 1
+
+    def authz_remove_role(self, object_role):
+        self.calls['authz_remove_role'] += 1
+
+    def delete(self, entity):
+        self.calls['delete'] += 1
+    
+
 existing_extra_html = ('<label class="field_opt" for="Package-%(package_id)s-extras-%(key)s">%(capitalized_key)s</label>', '<input id="Package-%(package_id)s-extras-%(key)s" name="Package-%(package_id)s-extras-%(key)s" size="20" type="text" value="%(value)s">')
 
-class PackageTestCase(FunctionalTestCase):
+class TestPackageBase(FunctionalTestCase):
     key1 = u'key1 Less-than: < Umlaut: \xfc'
     value1 = u'value1 Less-than: < Umlaut: \xfc'
     # Note: Can't put a quotation mark in key1 or value1 because
@@ -28,17 +57,8 @@ class PackageTestCase(FunctionalTestCase):
         return '\n'.join(unified_diff(res1.body.split('\n'),
                                       res2.body.split('\n')))
 
-
-class PackageFormTestCase(PackageTestCase):
+class TestPackageForm(TestPackageBase):
     '''Inherit this in tests for these form testing methods'''
-    @classmethod
-    def setup_class(cls):
-        cls.fields_to_test = set(['name', 'title', 'version', 'url', 'license_id',
-                                  'notes', 'resources', 'tags', 'state',
-                                  'extras',
-                                  ])
-        cls.extra_fields = []
-        
     def _check_package_read(self, res, **params):
         assert not 'Error' in res, res
         assert u'%s - Data Packages' % params['title'] in res, res
@@ -47,8 +67,7 @@ class PackageFormTestCase(PackageTestCase):
         main_div_str = main_div.encode('utf8')
         assert params['name'] in main_div, main_div_str
         assert params['title'] in main_div, main_div_str
-        if 'version' in params:
-            assert params['version'] in main_div, main_div_str
+        assert params['version'] in main_div, main_div_str
         self.check_named_element(main_div, 'a', 'href="%s"' % params['url'])
         prefix = 'Package-%s-' % params.get('id', '')
         for res_index, values in self._get_resource_values(params['resources'], by_resource=True):
@@ -60,44 +79,97 @@ class PackageFormTestCase(PackageTestCase):
         self.check_named_element(main_div, 'ul', *tag_names)
         if params.has_key('state'):
             assert 'State: %s' % params['state'] in main_div.replace('</strong>', ''), main_div_str
-        if params.has_key('extras'):
-            if isinstance(params['extras'], dict):
-                extras = params['extras'].items()
-            elif isinstance(params['extras'], (list, tuple)):
-                extras = params['extras']
+        if isinstance(params['extras'], dict):
+            extras = params['extras'].items()
+        elif isinstance(params['extras'], (list, tuple)):
+            extras = params['extras']
+        else:
+            raise NotImplementedError
+        for key, value in extras:
+            key_in_html_body = self.escape_for_html_body(key)
+            value_in_html_body = self.escape_for_html_body(value)
+            self.check_named_element(main_div, 'tr', key_in_html_body, value_in_html_body)
+        if params.has_key('deleted_extras'):
+            if isinstance(params['deleted_extras'], dict):
+                deleted_extras = params['deleted_extras'].items()
+            elif isinstance(params['deleted_extras'], (list, tuple)):
+                deleted_extras = params['deleted_extras']
             else:
                 raise NotImplementedError
-            for key, value in extras:
-                key_in_html_body = self.escape_for_html_body(key)
-                value_in_html_body = self.escape_for_html_body(value)
-                self.check_named_element(main_div, 'tr', key_in_html_body, value_in_html_body)
-            if params.has_key('deleted_extras'):
-                if isinstance(params['deleted_extras'], dict):
-                    deleted_extras = params['deleted_extras'].items()
-                elif isinstance(params['deleted_extras'], (list, tuple)):
-                    deleted_extras = params['deleted_extras']
+            for key, value in params['deleted_extras']:
+                self.check_named_element(main_div, 'tr', '!' + key)
+                self.check_named_element(main_div, 'tr', '!' + value)
+
+    def _check_preview(self, res, **params):
+        preview =  str(res)[str(res).find('<div id="preview"'):str(res).find('<div id="footer">')]
+        assert 'Preview' in preview, preview
+        assert str(params['name']) in preview, preview
+        assert str(params['title']) in preview, preview
+        assert str(params['version']) in preview, preview
+        self.check_named_element(preview, 'a', 'href="%s"' % params['url'])
+        for res_index, resource in enumerate(params['resources']):
+            if isinstance(resource, (str, unicode)):
+                resource = [resource]
+            self.check_named_element(preview, 'tr', resource[0], resource[1], resource[2], resource[3])
+        preview_ascii = repr(preview)
+        assert str(params['notes']) in preview_ascii, preview_ascii
+        license = model.Package.get_license_register()[params['license_id']]
+        assert license.title in preview_ascii, (license.title, preview_ascii)
+        tag_names = [str(tag.lower()) for tag in params['tags']]
+        self.check_named_element(preview, 'ul', *tag_names)
+        if params.has_key('state'):
+            assert str(params['state']) in preview, preview
+        else:
+            assert 'state' not in preview
+        for key, value in params['extras']:
+            key_html = self.escape_for_html_body(key)
+            value_html = self.escape_for_html_body(value)
+            self.check_named_element(preview, 'tr', key_html, value_html)
+        if params.has_key('deleted_extras'):
+            for key, value in params['deleted_extras']:
+                key_html = self.escape_for_html_body(key)
+                value_html = self.escape_for_html_body(value)
+                self.check_named_element(preview, 'tr', '!' + key_html)
+                self.check_named_element(preview, 'tr', '!' + value_html)
+
+    def _get_resource_values(self, resources, by_resource=False):
+        assert isinstance(resources, (list, tuple))
+        for res_index, resource in enumerate(resources):
+            if by_resource:
+                values = []
+            for i, res_field in enumerate(model.PackageResource.get_columns()):
+                if isinstance(resource, (str, unicode)):
+                    expected_value = resource if res_field == 'url' else ''
+                elif hasattr(resource, res_field):
+                    expected_value = getattr(resource, res_field)
+                elif isinstance(resource, (list, tuple)):
+                    expected_value = resource[i]
+                elif isinstance(resource, dict):
+                    expected_value = resource.get(res_field, u'')
                 else:
-                    raise NotImplementedError
-                for key, value in params['deleted_extras']:
-                    self.check_named_element(main_div, 'tr', '!' + key)
-                    self.check_named_element(main_div, 'tr', '!' + value)
-        for field in self.extra_fields:
-            if params.has_key(field):
-                value = params[field]
-                self.check_tag(main_div, prefix + field, 'value="%s"' % value)
-                
-    def assert_form_filled_correctly(self, res, **params):
+                    raise NotImplemented
+                if not by_resource:
+                    yield (res_index, res_field, expected_value)
+                else:
+                    values.append(expected_value)
+            if by_resource:
+                yield(res_index, values)
+
+    def escape_for_html_body(self, unescaped_str):
+        # just deal with chars in tests
+        return unescaped_str.replace('<', '&lt;')
+
+    def check_form_filled_correctly(self, res, **params):
         if params.has_key('pkg'):
-            pkg_dict = params['pkg'].as_dict()
-            for key, value in pkg_dict.items():
-                if key in self.fields_to_test or key == 'id':
-                    params[key] = value
+            for key, value in params['pkg'].as_dict().items():
+                if key == 'license':
+                    key = 'license_id'
+                params[key] = value
         prefix = 'Package-%s-' % params['id']
         main_res = self.main_div(res)
         self.check_tag(main_res, prefix+'name', params['name'])
         self.check_tag(main_res, prefix+'title', params['title'])
-        if params.has_key('version'):
-            self.check_tag(main_res, prefix+'version', params['version'])
+        self.check_tag(main_res, prefix+'version', params['version'])
         self.check_tag(main_res, prefix+'url', params['url'])
         for res_index, res_field, expected_value in self._get_resource_values(params['resources']):
             self.check_tag(main_res, '%sresources-%i-%s' % (prefix, res_index, res_field), expected_value)
@@ -111,85 +183,18 @@ class PackageFormTestCase(PackageTestCase):
             self.check_tag(main_res, prefix+'tags', tag)
         if params.has_key('state'):
             self.check_tag_and_data(main_res, 'selected', str(params['state']))
-        if params.has_key('extras'):
-            if isinstance(params['extras'], dict):
-                extras = params['extras'].items()
-            else:
-                extras = params['extras']
-            for key, value in extras:
-                key_in_html_body = self.escape_for_html_body(key)
-                value_in_html_body = self.escape_for_html_body(value)
-                key_escaped = genshi_escape(key)
-                value_escaped = genshi_escape(value)
-                self.check_tag_and_data(main_res, 'Package-%s-extras-%s' % (params['id'], key_escaped), key_in_html_body.capitalize())
-                self.check_tag(main_res, 'Package-%s-extras-%s' % (params['id'], key_escaped), value_escaped)
-        assert params['log_message'] in main_res, main_res
-
-    def _get_resource_values(self, resources, by_resource=False):
-        assert isinstance(resources, (list, tuple))
-        for res_index, resource in enumerate(resources):
-            if by_resource:
-                values = []
-            for i, res_field in enumerate(model.PackageResource.get_columns()):
-                if isinstance(resource, (str, unicode)):
-                    expected_value = resource if res_field == 'url' else ''
-                elif hasattr(resource, res_field):
-                    expected_value = getattr(resource, res_field)
-                elif isinstance(resource, (list, tuple)):
-                    if i >= len(resource):
-                        continue
-                    expected_value = resource[i]
-                elif isinstance(resource, dict):
-                    expected_value = resource.get(res_field, u'')
-                else:
-                    raise NotImplemented
-                if not by_resource:
-                    yield (res_index, res_field, expected_value)
-                else:
-                    values.append(expected_value)
-            if by_resource:
-                yield(res_index, values)
-
-    def _check_preview(self, res, **params):
-        preview =  str(res)[str(res).find('<div id="preview"'):str(res).find('<div id="footer">')]
-        assert 'Preview' in preview, preview
-        assert str(params['name']) in preview, preview
-        assert str(params['title']) in preview, preview
-        if params.has_key('version'):
-            assert str(params['version']) in preview, preview
-        self.check_named_element(preview, 'a', 'href="%s"' % params['url'])
-        for res_index, resource in enumerate(params['resources']):
-            if isinstance(resource, (str, unicode)):
-                resource = [resource]
-            self.check_named_element(preview, 'tr', *resource)
-        preview_ascii = repr(preview)
-        assert str(params['notes']) in preview_ascii, preview_ascii
-        license = model.Package.get_license_register()[params['license_id']]
-        assert license.title in preview_ascii, (license.title, preview_ascii)
-        tag_names = [str(tag.lower()) for tag in params['tags']]
-        self.check_named_element(preview, 'ul', *tag_names)
-        if params.has_key('state'):
-            assert str(params['state']) in preview, preview
+        if isinstance(params['extras'], dict):
+            extras = params['extras'].items()
         else:
-            assert 'state' not in preview
-        if params.has_key('extras'):
             extras = params['extras']
-            if isinstance(extras, (tuple, list)):
-                extras = dict(extras)
-            for key, value in extras.items():
-                key_html = self.escape_for_html_body(key)
-                value_html = self.escape_for_html_body(value)
-                self.check_named_element(preview, 'tr', key_html, value_html)
-        if params.has_key('deleted_extras'):
-            for key, value in params['deleted_extras']:
-                key_html = self.escape_for_html_body(key)
-                value_html = self.escape_for_html_body(value)
-                self.check_named_element(preview, 'tr', '!' + key_html)
-                self.check_named_element(preview, 'tr', '!' + value_html)
-
-    def escape_for_html_body(self, unescaped_str):
-        # just deal with chars in tests
-        return unescaped_str.replace('<', '&lt;')
+        for key, value in extras:
+            key_in_html_body = self.escape_for_html_body(key)
+            value_in_html_body = self.escape_for_html_body(value)
+            key_escaped = genshi_escape(key)
+            value_escaped = genshi_escape(value)
+            self.check_tag_and_data(main_res, 'Package-%s-extras-%s' % (params['id'], key_escaped), key_in_html_body.capitalize())
+            self.check_tag(main_res, 'Package-%s-extras-%s' % (params['id'], key_escaped), value_escaped)
+        assert params['log_message'] in main_res, main_res
     
     def _check_redirect(self, return_url_param, expected_redirect,
                         pkg_name_to_edit=''):
@@ -243,12 +248,10 @@ class PackageFormTestCase(PackageTestCase):
                 model.repo.commit_and_remove()
                  
 
-class TestReadOnly(PackageFormTestCase):
+class TestReadOnly(TestPackageForm):
 
     @classmethod
     def setup_class(self):
-        super(TestReadOnly, self).setup_class()
-        model.notifier.initialise()
         indexer = TestSearchIndexer()
         CreateTestData.create()
         indexer.index()
@@ -256,7 +259,6 @@ class TestReadOnly(PackageFormTestCase):
     @classmethod
     def teardown_class(self):
         CreateTestData.delete()
-        model.notifier.deactivate()
 
     def test_index(self):
         offset = url_for(controller='package')
@@ -372,7 +374,6 @@ class TestReadOnly(PackageFormTestCase):
     def test_search_escape_chars(self):
         payload = '?q=fjdkf%2B%C2%B4gfhgfkgf%7Bg%C2%B4pk&search=Search+Packages+%C2%BB'
         offset = url_for(controller='package', action='search') + payload
-        print offset
         results_page = self.app.get(offset)
         assert 'Search - Data Packages' in results_page, results_page
         results_page = self.main_div(results_page)
@@ -396,13 +397,21 @@ class TestReadOnly(PackageFormTestCase):
         assert 'History' in res
         assert 'Revisions' in res
         assert name in res
-
-class TestEdit(PackageFormTestCase):
+        
+    def test_read_plugin_hook(self):
+        plugin = MockPackageControllerPlugin()
+        plugins.load(plugin)
+        name = u'annakarenina'
+        offset = url_for(controller='package', action='read', id=name)
+        res = self.app.get(offset)
+        assert plugin.calls['read'] == 1, plugin.calls
+        plugins.unload(plugin)
+        
+class TestEdit(TestPackageForm):
     editpkg_name = u'editpkgtest'
     
     @classmethod
     def setup_class(self):
-        super(TestEdit, self).setup_class()
         self._reset_data()
 
     def setup(self):
@@ -539,7 +548,6 @@ class TestEdit(PackageFormTestCase):
         res = fv.submit('save')
         # get redirected ...
         res = res.follow()
-        print str(res)
         assert '%s - Data Packages' % self.editpkg_name in res
         pkg = model.Package.by_name(self.editpkg.name)
         assert len(pkg.tags) == len(newtagnames)
@@ -567,7 +575,6 @@ u with umlaut \xc3\xbc
         fv[prefix + 'url'] =  newurl
         fv[prefix + 'notes'] =  newnotes
         res = fv.submit('preview')
-        print str(res)
         assert 'Edit - Data Packages' in res
         assert 'Preview' in res
         assert 'Hello world' in res
@@ -657,7 +664,7 @@ u with umlaut \xc3\xbc
 
             # Check form is correctly filled
             pkg = model.Package.by_name(pkg_name)
-            self.assert_form_filled_correctly(res, pkg=pkg, log_message='')
+            self.check_form_filled_correctly(res, pkg=pkg, log_message='')
 
             # Amend form
             name = u'test_name'
@@ -712,7 +719,7 @@ u with umlaut \xc3\xbc
                                 state=state)
 
             # Check form is correctly filled
-            self.assert_form_filled_correctly(res, id=pkg.id, name=name,
+            self.check_form_filled_correctly(res, id=pkg.id, name=name,
                                              title=title, version=version,
                                              url=url, resources=resources,
                                              notes=notes, license_id=license_id,
@@ -763,6 +770,9 @@ u with umlaut \xc3\xbc
             rev = model.Revision.youngest(model.Session)
             assert rev.author == 'testadmin', rev.author
             assert rev.message == log_message
+            # TODO: reinstate once fixed in code
+            exp_log_message = u'Creating package %s' % name
+            #assert rev.message == exp_log_message
         finally:
             self._reset_data()
 
@@ -781,7 +791,25 @@ u with umlaut \xc3\xbc
         assert 'Error' in res, res
         self.check_tag(res, '<form', 'class="has-errors"')
         assert 'No links are allowed' in res, res
-
+        
+    def test_edit_plugin_hook(self):
+        # just the absolute basics
+        try:
+            plugin = MockPackageControllerPlugin()
+            plugins.load(plugin)
+            res = self.app.get(self.offset)
+            new_name = u'new-name'
+            new_title = u'New Title'
+            fv = res.forms['package-edit']
+            prefix = 'Package-%s-' % self.pkgid
+            fv[prefix + 'name'] = new_name
+            fv[prefix + 'title'] = new_title
+            res = fv.submit('save')
+            # get redirected ...
+            assert plugin.calls['edit'] == 1, plugin.calls
+            plugins.unload(plugin)
+        finally:
+            self._reset_data()
 
     #def test_edit_with_admin_login_during_form(self):
     #    from pprint import pprint
@@ -792,7 +820,7 @@ u with umlaut \xc3\xbc
     #    assert not 'Errors in form' in res, res
         
 
-class TestNew(PackageFormTestCase):
+class TestNew(TestPackageForm):
     pkg_names = []
     
     @classmethod
@@ -935,7 +963,7 @@ class TestNew(PackageFormTestCase):
                             )
 
         # Check form is correctly filled
-        self.assert_form_filled_correctly(res, id='', name=name,
+        self.check_form_filled_correctly(res, id='', name=name,
                                          title=title, version=version,
                                          url=url, resources=[download_url],
                                          notes=notes, license_id=license_id,
@@ -985,6 +1013,9 @@ class TestNew(PackageFormTestCase):
         rev = model.Revision.youngest(model.Session)
         assert rev.author == 'Unknown IP Address'
         assert rev.message == log_message
+        # TODO: reinstate once fixed in code
+        exp_log_message = u'Creating package %s' % name
+        # assert rev.message == exp_log_message
 
     def test_new_existing_name(self):
         # test creating a package with an existing name results in error'
@@ -1056,8 +1087,23 @@ class TestNew(PackageFormTestCase):
         res = self.main_div(res)
         assert resformat in res, res
         assert res.count(str(resformat)) == 1, res.count(str(resformat))
+        
+    def test_new_plugin_hook(self):
+        plugin = MockPackageControllerPlugin()
+        plugins.load(plugin)
+        offset = url_for(controller='package', action='new')
+        res = self.app.get(offset)
+        new_name = u'plugged'
+        fv = res.forms['package-edit']
+        prefix = 'Package--'
+        fv[prefix + 'name'] = new_name
+        res = fv.submit('save')
+        # get redirected ...
+        assert plugin.calls['edit'] == 0, plugin.calls
+        assert plugin.calls['create'] == 1, plugin.calls
+        plugins.unload(plugin)
 
-class TestNewPreview(PackageTestCase):
+class TestNewPreview(TestPackageBase):
     pkgname = u'testpkg'
     pkgtitle = u'mytesttitle'
 
@@ -1090,7 +1136,7 @@ class TestNewPreview(PackageTestCase):
         assert model.Session.query(model.Package).count() == 0, model.Session.query(model.Package).all()
         
 
-class TestNonActivePackages(PackageTestCase):
+class TestNonActivePackages(TestPackageBase):
 
     @classmethod
     def setup_class(self):
@@ -1141,11 +1187,10 @@ class TestNonActivePackages(PackageTestCase):
         form['q'] =  str(self.non_active_name)
         results_page = form.submit()
         assert 'Search - Data Packages' in results_page, results_page
-        print results_page
         assert '<strong>0</strong> packages found' in results_page, (self.non_active_name, results_page)
 
 
-class TestRevisions(PackageTestCase):
+class TestRevisions(TestPackageBase):
     @classmethod
     def setup_class(self):
         model.Session.remove()
@@ -1207,12 +1252,10 @@ class TestRevisions(PackageTestCase):
         assert '</feed>' in res, res
 
    
-class TestMarkdownHtmlWhitelist(PackageFormTestCase):
-    def setup(self):
-        super(TestMarkdownHtmlWhitelist, self).setup_class()
+class TestMarkdownHtmlWhitelist(TestPackageForm):
 
-        self.pkg_name = u'markdownhtmlwhitelisttest'
-        pkg_notes = u'''
+    pkg_name = u'markdownhtmlwhitelisttest'
+    pkg_notes = u'''
 <table width="100%" border="1">
 <tr>
 <td rowspan="2"><b>Description</b></td>
@@ -1235,9 +1278,13 @@ alert('Hello world!');
 </script>
 
 '''
+
+    def setup(self):
+        model.Session.remove()
+        rev = model.repo.new_revision()
         CreateTestData.create_arbitrary(
             {'name':self.pkg_name,
-             'notes':pkg_notes,
+             'notes':self.pkg_notes,
              'admins':[u'testadmin']}
             )
         self.pkg = model.Package.by_name(self.pkg_name)

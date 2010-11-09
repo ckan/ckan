@@ -36,6 +36,16 @@
       </li>
       </py:for>
     </ul>
+    
+    <h4>Groups</h4>
+    <ul>
+      <py:for each="group in c.groups">
+      <li>
+      ${h.link_to(group.name, h.url_for(controller='group', action='read', id=group.name))}
+      </li>
+      </py:for>
+    </ul>
+    
   </div>
 
   <xi:include href="layout.html" />

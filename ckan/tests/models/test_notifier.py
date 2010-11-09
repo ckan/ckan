@@ -8,7 +8,8 @@ from ckan import model
 from ckan.lib import async_notifier
 from ckan.lib.helpers import json
 from ckan.lib.create_test_data import CreateTestData
-
+from ckan.plugins import Plugin, implements, IDomainObjectNotification
+from ckan import plugins
 
 class TestNotification(TestController):
     '''Tests the triggering of the NotifierMapperTrigger(MapperExtension) when
@@ -16,19 +17,29 @@ class TestNotification(TestController):
 
     our_queue = []
 
-    @classmethod
-    def add_notification_to_our_queue(cls, sender, **notification_dict):
-        notification = model.Notification.recreate_from_dict(notification_dict)
-        cls.our_queue.append(notification)
+    class NotificationPlugin(Plugin):
+
+        implements(IDomainObjectNotification)
+
+        def __init__(self, queue):
+            Plugin.__init__(self)
+            self.queue = queue
+
+        def receive_notification(self, notification):
+            self.queue.append(notification)
     
     @classmethod
-    def setup_class(self):
-        # divert NotifierMapperTrigger's message sending to us
-        for routing_key in model.ROUTING_KEYS:
-            signal = blinker.signal(routing_key)
-            signal.connect(self.add_notification_to_our_queue)
-        
-        self.pkg_dict = {'name':u'test_notification_pkg',
+    def setup_class(cls):
+        # Hook into plugin system to receive notifications
+        cls.plugin = cls.NotificationPlugin(cls.our_queue)
+        plugins.load(cls.plugin)
+
+        from ckan.model.extension import PluginMapperExtension
+        from ckan.model.notifier import DomainObjectNotificationExtension
+        assert DomainObjectNotificationExtension() in list(PluginMapperExtension.observers)
+        assert cls.plugin in list(DomainObjectNotificationExtension.observers)
+
+        cls.pkg_dict = {'name':u'test_notification_pkg',
                          'notes':u'This is a test package',
                          'resources':[{u'url':u'url1', u'description':u'desc1'},
                                       {u'url':u'url2', u'description':u'desc2'}],
@@ -37,11 +48,11 @@ class TestNotification(TestController):
                          'tags':[u'one', u'two', u'three'],
                          'groups':[u'big', u'clever'],
                          }
-        self.group_name = u'wonderful'
+        cls.group_name = u'wonderful'
         # tests can use this pkg as long as they promise to leave it as
         # it was created.
-        CreateTestData.create_arbitrary([self.pkg_dict], extra_group_names=[self.group_name])
-        self.clear()        
+        CreateTestData.create_arbitrary([cls.pkg_dict], extra_group_names=[cls.group_name])
+        cls.clear()        
 
     def setup(self):
         super(TestNotification, self).setup()
@@ -49,13 +60,11 @@ class TestNotification(TestController):
 
     @classmethod
     def clear(self):
-        self.our_queue = []
+        self.our_queue[:] = []
         
     @classmethod
-    def teardown_class(self):
-        for routing_key in model.ROUTING_KEYS:
-            signal = blinker.signal(routing_key)
-            signal.disconnect(self.add_notification_to_our_queue)
+    def teardown_class(cls):
+        plugins.unload(cls.plugin)
         CreateTestData.delete()
 
     @property
@@ -353,3 +362,10 @@ class TestNotification(TestController):
             res = self.pkg_dict['resources'][0]
             self.pkg.add_resource(res['url'], description=res['description'])
             model.repo.commit_and_remove()
+
+    def test_13_DomainObjectNotificationExtension_is_activated(self):
+        from ckan.model.extension import PluginMapperExtension
+        from ckan.model.notifier import DomainObjectNotificationExtension
+        assert DomainObjectNotificationExtension() in iter(PluginMapperExtension.observers)
+
+

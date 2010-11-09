@@ -99,7 +99,7 @@
     </div>
 
     <ul>
-      <py:if test="c.auth_for_change_state">
+      <py:if test="h.am_authorized(c, actions.CHANGE_STATE, c.pkg)">
          <li><strong>State:</strong> ${c.pkg.state}</li>
       </py:if>
     </ul>

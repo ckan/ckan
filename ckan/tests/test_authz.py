@@ -162,9 +162,6 @@ class TestLockedDownAuthorizer(object):
     
     def test_pkg_edit(self):
         #reproduce a bug 
-        from pprint import pprint 
-        pprint(model.Session.query(model.RoleAction).all())
-        pprint(model.Session.query(model.UserObjectRole).all())
         action = model.Action.EDIT
         assert self.authorizer.is_authorized(self.notadmin.name, action, model.System())
     

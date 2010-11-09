@@ -17,7 +17,6 @@ class TestGroupFieldset(PylonsTestCase):
         group = model.Group.by_name(u'roger')
         fs = ckan.forms.get_group_fieldset().bind(group)
         out = fs.render()
-        print out
         desc = fs.description.render()
         assert 'textarea' in desc, desc
         # TODO: ...

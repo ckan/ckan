@@ -24,6 +24,26 @@
     </div>
   </py:match>
   
+  <py:match path="minornavigation" py:choose="">
+    <py:when test="c.authorization_group">
+      <li class="intro">This group:</li>
+      <li>${h.subnav_link(c, h.icon('authorization_group') + _('View'), controller='authorization_group', action='read', id=c.authorization_group.name)}</li>
+      <li py:if="h.am_authorized(c, actions.EDIT, c.authorization_group)">
+        ${h.subnav_link(c, h.icon('authorization_group_edit') + _('Edit'), controller='authorization_group', action='edit', id=c.authorization_group.name)}
+      </li>
+      <li py:if="h.am_authorized(c, actions.EDIT_PERMISSIONS, c.authorization_group)">
+        ${h.subnav_link(c, h.icon('lock') + _('Authorization'), controller='authorization_group', action='authz', id=c.authorization_group.name)}
+      </li>
+    </py:when>
+    <py:otherwise>
+      <li>${h.subnav_link(c, _('Home'), controller='authorization_group', action='index', id=None)}</li>
+      <li py:if="h.am_authorized(c, actions.AUTHZ_GROUP_CREATE)">
+        ${h.subnav_link(c, _('Create a new authorization group'), controller='authorization_group', action='new', id=None)}
+      </li>
+    </py:otherwise>
+  </py:match>
+  
+  
   <py:match path="minornavigation">
     <li>${h.subnav_link(c, _('Home'), controller='authorization_group', action='index', id=None)}</li>
     <li>${h.subnav_link(c, _('Create a new authorization group'), controller='authorization_group', action='new', id=None)}</li>

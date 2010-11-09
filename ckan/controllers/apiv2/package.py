@@ -38,5 +38,7 @@ class PackageController(Rest2Controller, _PackageV1Controller):
             response_data = json.dumps(_('Access denied'))
         else:
             response_data = self._represent_package(pkg)
+        for item in self.extensions:
+            item.read(pkg)
         return self._finish_ok(response_data)
     

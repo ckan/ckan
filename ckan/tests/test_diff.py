@@ -82,7 +82,6 @@ class _TestDiffPackage(TestController):
         assert out
         reqd_keys = ['maintainer', 'license', 'author', 'url', 'notes', 'title', 'resources', 'maintainer_email', 'author_email', 'state', 'version']
         out_keys = out.keys()
-        print out
         for reqd_key in reqd_keys:
             assert reqd_key in out_keys, '%s %s' % (out_keys, reqd_key)
         assert out['title'] == u'- Test title\n+ Test CHANGED title', out['title']

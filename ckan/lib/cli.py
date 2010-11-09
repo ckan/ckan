@@ -301,6 +301,7 @@ class Sysadmin(CkanCommand):
     Usage:
       sysadmin list                 - lists sysadmins
       sysadmin create <user-name>   - creates sysadmin user
+      sysadmin remove <user-name>   - removes user fr
     '''
 
     summary = __doc__.split('\n')[0]
@@ -318,7 +319,7 @@ class Sysadmin(CkanCommand):
         elif cmd == 'create':
             self.create()
         elif cmd == 'remove':
-            self.create()
+            self.remove()
         else:
             print 'Command %s not recognized' % cmd
 

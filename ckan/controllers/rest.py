@@ -9,6 +9,7 @@ import ckan.forms
 from ckan.lib.search import query_for, QueryOptions, SearchError, DEFAULT_OPTIONS
 import ckan.authz
 import ckan.rating
+from ckan.plugins import ExtensionPoint, IGroupController, IPackageController
 
 log = logging.getLogger(__name__)
 
@@ -164,6 +165,8 @@ class BaseRestController(BaseApiController):
                 return ''
             if not self._check_access(pkg, model.Action.READ):
                 return ''
+            for item in ExtensionPoint(IPackageController):
+                item.read(pkg)
             response_data = self._represent_package(pkg)
             return self._finish_ok(response_data)
         elif register == u'package' and (subregister == 'relationships' or subregister in model.PackageRelationship.get_all_types()):
@@ -195,7 +198,8 @@ class BaseRestController(BaseApiController):
 
             if not self._check_access(group, model.Action.READ):
                 return ''
-
+            for item in ExtensionPoint(IGroupController):
+                item.read(group)
             _dict = group.as_dict(ref_package_by=self.ref_package_by)
             #TODO check it's not none
             return self._finish_ok(_dict)
@@ -274,8 +278,10 @@ class BaseRestController(BaseApiController):
                 return self._finish_ok(response_data)
             elif register == 'group' and not subregister:
                 # Create a Group.
+                is_admin = ckan.authz.Authorizer().is_sysadmin(c.user)
                 request_fa_dict = ckan.forms.edit_group_dict(ckan.forms.get_group_dict(), request_data)
-                fs = ckan.forms.get_group_fieldset(combined=True).bind(model.Group, data=request_fa_dict, session=model.Session)
+                fs = ckan.forms.get_group_fieldset(combined=True, is_admin=is_admin)
+                fs = fs.bind(model.Group, data=request_fa_dict, session=model.Session)
                 # ...continues below.
             elif register == 'rating' and not subregister:
                 # Create a Rating.
@@ -308,6 +314,12 @@ class BaseRestController(BaseApiController):
                 admins = []
             model.setup_default_user_roles(fs.model, admins)
             # Commit
+            if register == 'package' and not subregister:
+                for item in ExtensionPoint(IPackageController):
+                    item.create(fs.model)
+            elif register == 'group' and not subregister:
+                for item in ExtensionPoint(IGroupController):
+                    item.create(fs.model)
             model.repo.commit()        
         except Exception, inst:
             log.exception(inst)
@@ -353,6 +365,9 @@ class BaseRestController(BaseApiController):
             entity = existing_rels[0]
         elif register == 'group' and not subregister:
             entity = model.Group.by_name(id)
+            if entity == None:
+                response.status_int = 404
+                return 'Group was not found.'
         else:
             response.status_int = 400
             return gettext('Cannot update entity of this type: %s') % register
@@ -381,9 +396,11 @@ class BaseRestController(BaseApiController):
                     response.status_int = 400
                     return gettext('Package format incorrect: %s') % str(inst)
             elif register == 'group':
+                auth_for_change_state = ckan.authz.Authorizer().am_authorized(c, 
+                    model.Action.CHANGE_STATE, entity)
                 orig_entity_dict = ckan.forms.get_group_dict(entity)
                 request_fa_dict = ckan.forms.edit_group_dict(orig_entity_dict, request_data, id=entity.id)
-                fs = ckan.forms.get_group_fieldset(combined=True)
+                fs = ckan.forms.get_group_fieldset(combined=True, is_admin=auth_for_change_state)
             fs = fs.bind(entity, data=request_fa_dict)
             
             validation = fs.validate()
@@ -395,6 +412,13 @@ class BaseRestController(BaseApiController):
                 rev.author = self.rest_api_user
                 rev.message = _(u'REST API: Update object %s') % str(fs.name.value)
                 fs.sync()
+                
+                if register == 'package' and not subregister:
+                    for item in ExtensionPoint(IPackageController):
+                        item.edit(fs.model)
+                elif register == 'group' and not subregister:
+                    for item in ExtensionPoint(IGroupController):
+                        item.edit(fs.model)
 
                 model.repo.commit()        
             except Exception, inst:
@@ -441,7 +465,10 @@ class BaseRestController(BaseApiController):
             revisioned_details = 'Package Relationship: %s %s %s' % (id, subregister, id2)
         elif register == 'group' and not subregister:
             entity = model.Group.by_name(id)
-            revisioned_details = None
+            if not entity:
+                response.status_int = 404
+                return 'Group was not found.'
+            revisioned_details = 'Group: %s' % entity.name
         elif register == 'harvestingjob' and not subregister:
             entity = model.HarvestingJob.get(id, default=None)
             revisioned_details = None
@@ -461,6 +488,13 @@ class BaseRestController(BaseApiController):
             rev.message = _(u'REST API: Delete %s') % revisioned_details
             
         try:
+            if register == 'package' and not subregister:
+                for item in ExtensionPoint(IPackageController):
+                    item.delete(entity)
+            elif register == 'group' and not subregister:
+                for item in ExtensionPoint(IGroupController):
+                    item.delete(entity)
+
             entity.delete()
             model.repo.commit()        
         except Exception, inst:

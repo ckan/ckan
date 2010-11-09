@@ -70,7 +70,6 @@ class TestDataRecords:
         assert data_records.titles == data.get_row(0), data_records.titles
         records = [record for record in data_records.records]
         assert len(records) == 2, records
-        print type(records[0])
         assert records[0].items() == [
             (u'name', u'wikipedia'),
             (u'title', u'Wikipedia'),

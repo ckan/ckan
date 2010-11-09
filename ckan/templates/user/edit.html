@@ -19,7 +19,8 @@
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       >
-
+      <label for="fullname">Full name:</label>
+      <input name="fullname" value="${c.user_fullname}" />
       <label for="about">About user:</label>
       <textarea id="about" rows="5" name="about" cols="60">${c.user_about}</textarea>
       <p class="small" i18n:msg="">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.</p>
@@ -33,6 +34,7 @@
     <div id="preview" style="margin-left: 20px;" py:if="c.preview">
       <hr />
       <h2>Preview</h2>
+      <h4>Full name: ${c.user_fullname}</h4>
       <div style="border: 2px dashed red; padding: 5px;"> 
         ${c.preview}
       </div>

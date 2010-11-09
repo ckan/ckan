@@ -30,7 +30,7 @@ Contents:
    load_testing
    distributed
    database_dumps
-
+   admin
 
 Other material
 ==============

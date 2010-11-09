@@ -76,7 +76,6 @@ class TestCreation(object):
         anna = model.Package.by_name(u'annakarenina')
         mradmin = model.User.by_name(u'tester')
         roles = self.authorizer.get_roles(mradmin.name, anna)
-        print model.Session.query(model.PackageRole).filter_by(user=mradmin).all()
         assert role in roles, roles
 
     def test_2_role_action_basic(self):
@@ -245,7 +244,6 @@ class TestUsage(object):
         anna = model.Package.by_name(u'annakarenina')
         tester = model.User.by_name(u'tester')
         roles = self.authorizer.get_roles(tester.name, anna)
-        print model.Session.query(model.PackageRole).filter_by(user=tester).all()
         assert self.admin_role in roles, roles
 
     def test_2_is_auth_admin(self):
