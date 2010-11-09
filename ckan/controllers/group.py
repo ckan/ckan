@@ -148,7 +148,7 @@ class GroupController(BaseController):
                     if package and package not in group.packages:
                         group.packages.append(package)
             for extension in self.extensions: 
-                extension.edit(extension)
+                extension.edit(group)
             model.repo.commit_and_remove()
             h.redirect_to(action='read', id=c.groupname)
 
