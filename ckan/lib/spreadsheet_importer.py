@@ -86,7 +86,7 @@ class XlData(SpreadsheetData):
 
         if sheet_index == None:
             if self._book.nsheets != 1:
-                self._logger('Warning: Just importing from sheet %r' % self._book.sheet_by_index(0))
+                logger.log.append('Warning: Just importing from sheet %r' % self._book.sheet_by_index(0).name)
             sheet_index = 0
         self.sheet = self._book.sheet_by_index(sheet_index)
 
@@ -127,22 +127,26 @@ class SpreadsheetDataRecords(DataRecords):
         assert isinstance(data, SpreadsheetData)
         self._data = data
         # find titles row
-        row_index = -1
-        self.titles = []
+        self.titles, last_titles_row_index = self.find_titles(essential_title)
+        self._first_record_row = self.find_first_record_row(last_titles_row_index + 1)     
+
+    def find_titles(self, essential_title):
+        row_index = 0
+        titles = []
         essential_title_lower = essential_title.lower()
-        while essential_title not in self.titles and\
-              essential_title.lower() not in self.titles:
-            row_index += 1
+        while True:
             if row_index >= self._data.get_num_rows():
                 raise ImportException('Could not find title row')
-            self.titles = []
-            for title in self._data.get_row(row_index):
-                if isinstance(title, basestring):
-                    title = title.strip()
-                self.titles.append(title)
-        # find first data row
-        while True:
+            row = self._data.get_row(row_index)
+            if essential_title in row or essential_title_lower in row:
+                for row_val in row:
+                    titles.append(row_val.strip() if isinstance(row_val, basestring) else None)
+                return (titles, row_index)
             row_index += 1
+
+    def find_first_record_row(self, row_index_to_start_looking):
+        row_index = row_index_to_start_looking
+        while True:
             if row_index >= self._data.get_num_rows():
                 raise ImportException('Could not find first record row')
             row = self._data.get_row(row_index)
@@ -150,8 +154,8 @@ class SpreadsheetDataRecords(DataRecords):
                     row[:5] == [None, None, None, None, None] or\
                     row[:5] == ['', '', '', '', '']\
                     ):
-                self._first_record_row = row_index
-                break
+                return row_index
+            row_index += 1
 
     @property
     def records(self):
