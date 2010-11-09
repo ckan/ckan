@@ -59,13 +59,12 @@ class DomainObject(object):
         self.Session.delete(self)
 
     def purge(self):
-        sess = orm.object_session(self)
         if hasattr(self, '__revisioned__'): # only for versioned objects ...
             # this actually should auto occur due to cascade relationships but
             # ...
             for rev in self.all_revisions:
                 sess.delete(rev)
-        sess.delete(self)
+        self.Session.delete(self)
 
     def as_dict(self):
         _dict = OrderedDict()
