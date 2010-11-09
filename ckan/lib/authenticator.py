@@ -19,9 +19,9 @@ class OpenIDAuthenticator(object):
                     name = openid
                 if User.by_name(name):
                     name = openid
-                user = User(openid = openid, name = name,
-                        fullname = identity.get('repoze.who.plugins.openid.fullname'),
-                        email = identity.get('repoze.who.plugins.openid.email'))
+                user = User(openid=openid, name=name,
+                        fullname=identity.get('repoze.who.plugins.openid.fullname'),
+                        email=identity.get('repoze.who.plugins.openid.email'))
                 Session.add(user)
                 Session.commit()
                 Session.remove()

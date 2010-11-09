@@ -14,6 +14,8 @@ def upgrade():
     migrate_engine.execute(user_sql)
     user_sql = 'ALTER TABLE "user" ADD fullname TEXT'
     migrate_engine.execute(user_sql)
+    user_sql = 'ALTER TABLE "user" ADD email TEXT'
+    migrate_engine.execute(user_sql)
     
 def downgrade():
     raise NotImplementedError()
