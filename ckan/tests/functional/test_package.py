@@ -11,6 +11,35 @@ import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 import ckan.lib.helpers as h
 
+from ckan.plugins import SingletonPlugin, implements, IPackageController
+from ckan import plugins
+
+class MockPackageControllerPlugin(SingletonPlugin):
+    implements(IPackageController)
+    
+    def __init__(self):
+        from collections import defaultdict
+        self.calls = defaultdict(int)
+    
+    def read(self, entity):
+        self.calls['read'] += 1
+
+    def create(self, entity):
+        self.calls['create'] += 1
+
+    def edit(self, entity):
+        self.calls['edit'] += 1
+
+    def authz_add_role(self, object_role):
+        self.calls['authz_add_role'] += 1
+
+    def authz_remove_role(self, object_role):
+        self.calls['authz_remove_role'] += 1
+
+    def delete(self, entity):
+        self.calls['delete'] += 1
+    
+
 existing_extra_html = ('<label class="field_opt" for="Package-%(package_id)s-extras-%(key)s">%(capitalized_key)s</label>', '<input id="Package-%(package_id)s-extras-%(key)s" name="Package-%(package_id)s-extras-%(key)s" size="20" type="text" value="%(value)s">')
 
 class TestPackageBase(FunctionalTestCase):
@@ -368,7 +397,16 @@ class TestReadOnly(TestPackageForm):
         assert 'History' in res
         assert 'Revisions' in res
         assert name in res
-
+        
+    def test_read_plugin_hook(self):
+        plugin = MockPackageControllerPlugin()
+        plugins.load(plugin)
+        name = u'annakarenina'
+        offset = url_for(controller='package', action='read', id=name)
+        res = self.app.get(offset)
+        assert plugin.calls['read'] == 1, plugin.calls
+        plugins.unload(plugin)
+        
 class TestEdit(TestPackageForm):
     editpkg_name = u'editpkgtest'
     
@@ -753,7 +791,25 @@ u with umlaut \xc3\xbc
         assert 'Error' in res, res
         self.check_tag(res, '<form', 'class="has-errors"')
         assert 'No links are allowed' in res, res
-
+        
+    def test_edit_plugin_hook(self):
+        # just the absolute basics
+        try:
+            plugin = MockPackageControllerPlugin()
+            plugins.load(plugin)
+            res = self.app.get(self.offset)
+            new_name = u'new-name'
+            new_title = u'New Title'
+            fv = res.forms['package-edit']
+            prefix = 'Package-%s-' % self.pkgid
+            fv[prefix + 'name'] = new_name
+            fv[prefix + 'title'] = new_title
+            res = fv.submit('save')
+            # get redirected ...
+            assert plugin.calls['edit'] == 1, plugin.calls
+            plugins.unload(plugin)
+        finally:
+            self._reset_data()
 
     #def test_edit_with_admin_login_during_form(self):
     #    from pprint import pprint
@@ -1031,6 +1087,21 @@ class TestNew(TestPackageForm):
         res = self.main_div(res)
         assert resformat in res, res
         assert res.count(str(resformat)) == 1, res.count(str(resformat))
+        
+    def test_new_plugin_hook(self):
+        plugin = MockPackageControllerPlugin()
+        plugins.load(plugin)
+        offset = url_for(controller='package', action='new')
+        res = self.app.get(offset)
+        new_name = u'plugged'
+        fv = res.forms['package-edit']
+        prefix = 'Package--'
+        fv[prefix + 'name'] = new_name
+        res = fv.submit('save')
+        # get redirected ...
+        assert plugin.calls['edit'] == 0, plugin.calls
+        assert plugin.calls['create'] == 1, plugin.calls
+        plugins.unload(plugin)
 
 class TestNewPreview(TestPackageBase):
     pkgname = u'testpkg'

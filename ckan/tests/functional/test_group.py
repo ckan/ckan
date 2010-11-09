@@ -2,6 +2,34 @@ from ckan.tests import *
 import ckan.model as model
 from base import FunctionalTestCase
 
+from ckan.plugins import SingletonPlugin, implements, IGroupController
+from ckan import plugins
+
+class MockGroupControllerPlugin(SingletonPlugin):
+    implements(IGroupController)
+    
+    def __init__(self):
+        from collections import defaultdict
+        self.calls = defaultdict(int)
+    
+    def read(self, entity):
+        self.calls['read'] += 1
+
+    def create(self, entity):
+        self.calls['create'] += 1
+
+    def edit(self, entity):
+        self.calls['edit'] += 1
+
+    def authz_add_role(self, object_role):
+        self.calls['authz_add_role'] += 1
+
+    def authz_remove_role(self, object_role):
+        self.calls['authz_remove_role'] += 1
+
+    def delete(self, entity):
+        self.calls['delete'] += 1
+
 class TestGroup(FunctionalTestCase):
 
     @classmethod
@@ -52,6 +80,15 @@ class TestGroup(FunctionalTestCase):
         pkg = model.Package.by_name(pkgname)
         res = res.click(pkg.title)
         assert '%s - Data Packages' % pkg.title in res
+        
+    def test_read_plugin_hook(self):
+        plugin = MockGroupControllerPlugin()
+        plugins.load(plugin)
+        name = u'david'
+        offset = url_for(controller='group', action='read', id=name)
+        res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
+        assert plugin.calls['read'] == 1, plugin.calls
+        plugins.unload(plugin)
 
     def test_read_and_authorized_to_edit(self):
         name = u'david'
@@ -153,6 +190,18 @@ Ho ho ho
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
         assert 'annakarenina' in res, res
         assert 'newone' in res
+        
+    def test_edit_plugin_hook(self):
+        plugin = MockGroupControllerPlugin()
+        plugins.load(plugin)
+        offset = url_for(controller='group', action='edit', id=self.groupname)
+        res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
+        form = res.forms['group-edit']
+        group = model.Group.by_name(self.groupname)
+        form['Group-%s-title' % group.id] = "huhuhu"
+        res = form.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
+        assert plugin.calls['edit'] == 1, plugin.calls
+        plugins.unload(plugin)
 
 class TestNew(FunctionalTestCase):
     groupname = u'david'
@@ -243,7 +292,18 @@ class TestNew(FunctionalTestCase):
         assert 'Group name already exists' in res, res
         self.check_tag(res, '<form', 'class="has-errors"')
         assert 'class="field_error"' in res, res
-
+    
+    def test_new_plugin_hook(self):
+        plugin = MockGroupControllerPlugin()
+        plugins.load(plugin)
+        offset = url_for(controller='group', action='new')
+        res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
+        form = res.forms['group-edit']
+        form['Group--name'] = "hahaha"
+        form['Group--title'] = "huhuhu"
+        res = form.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
+        assert plugin.calls['create'] == 1, plugin.calls
+        plugins.unload(plugin)
 
 class TestRevisions(FunctionalTestCase):
     @classmethod
