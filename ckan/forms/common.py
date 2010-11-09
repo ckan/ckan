@@ -737,7 +737,11 @@ class GroupSelectField(ConfiguredField):
                                 raise Exception, msg
                             new_group_ids[i] = nested_value[0]
                 # Todo: Decide which is the structure of a multiple-group selection.
+            
+            if new_group_ids and isinstance(new_group_ids, basestring):
+                new_group_ids = [new_group_ids]
 
+            
             # Get groups which have alread been associated.
             #old_groups = self._get_value()
             old_groups = self.field.parent.model.groups
