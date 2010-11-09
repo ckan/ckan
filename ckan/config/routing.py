@@ -23,7 +23,7 @@ def make_map():
     map.connect('/error/{action}/{id}', controller='error')
 
     # CUSTOM ROUTES HERE
-    for service in routing_plugins:
+    for plugin in routing_plugins:
         map = plugin.before_map(map)
         
     map.connect('home', '/', controller='home', action='index')
@@ -253,8 +253,8 @@ def make_map():
     map.connect('/:controller/{action}')
     map.connect('/{controller}/{action}/{id}')
     
-    for service in routing_plugins:
-        map = service.after_map(map)
+    for plugin in routing_plugins:
+        map = plugin.after_map(map)
     
     map.redirect('/*(url)/', '/{url}',
                  _redirect_code='301 Moved Permanently')
