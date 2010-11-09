@@ -195,7 +195,7 @@ class GroupController(BaseController):
                 model.Session.remove()
                 c.message = _(u'Added role \'%s\' for user \'%s\'') % (
                     newgrouprole.role,
-                    newgrouprole.user.name)
+                    newgrouprole.user.display_name)
             elif newrole_authzgroup_id != '__null_value__':
                 authzgroup = model.Session.query(model.AuthorizationGroup).get(newrole_authzgroup_id)
                 # TODO: chech user is not None (should go in validation ...)
@@ -223,7 +223,7 @@ class GroupController(BaseController):
                 grouprole.purge()
                 if grouprole.user:
                     c.message = _(u'Deleted role \'%s\' for user \'%s\'') % \
-                                (grouprole.role, grouprole.user.name)
+                                (grouprole.role, grouprole.user.display_name)
                 elif grouprole.authorized_group:
                     c.message = _(u'Deleted role \'%s\' for authorization group \'%s\'') % \
                                 (grouprole.role, grouprole.authorized_group.name)

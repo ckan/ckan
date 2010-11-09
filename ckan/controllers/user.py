@@ -39,15 +39,16 @@ class UserController(BaseController):
         if c.user:
             userobj = model.User.by_name(c.user)
             response.set_cookie("ckan_user", userobj.name)
+            response.set_cookie("ckan_display_name", userobj.display_name)
             response.set_cookie("ckan_apikey", userobj.apikey)
             h.redirect_to(controller='user', action=None, id=None)
         else:
             self.login()
           
-
     def logout(self):
         c.user = None
         response.delete_cookie("ckan_user")
+        response.delete_cookie("ckan_display_name")
         response.delete_cookie("ckan_apikey")
         return render('user/logout.html')
 
@@ -87,6 +88,7 @@ class UserController(BaseController):
                 raise
             else:
                 model.Session.commit()
+            response.set_cookie("ckan_display_name", user.display_name)
             h.redirect_to(controller='user', action='read', id=user.id)
             
         return render('user/edit.html')

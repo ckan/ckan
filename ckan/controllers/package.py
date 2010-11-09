@@ -389,7 +389,7 @@ class PackageController(BaseController):
                 model.repo.commit_and_remove()
                 c.message = _(u'Added role \'%s\' for user \'%s\'') % (
                     newpkgrole.role,
-                    newpkgrole.user.name)
+                    newpkgrole.user.display_name)
             elif newrole_authzgroup_id != '__null_value__':
                 authzgroup = model.Session.query(model.AuthorizationGroup).get(newrole_authzgroup_id)
                 # TODO: chech user is not None (should go in validation ...)
@@ -416,7 +416,7 @@ class PackageController(BaseController):
                     item.authz_remove_role(pkgrole)
                 if pkgrole.user:
                     c.message = _(u'Deleted role \'%s\' for user \'%s\'') % \
-                                (pkgrole.role, pkgrole.user.name)
+                                (pkgrole.role, pkgrole.user.display_name)
                 elif pkgrole.authorized_group:
                     c.message = _(u'Deleted role \'%s\' for authorization group \'%s\'') % \
                                 (pkgrole.role, pkgrole.authorized_group.name)

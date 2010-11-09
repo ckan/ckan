@@ -63,7 +63,7 @@ class DomainObject(object):
             # this actually should auto occur due to cascade relationships but
             # ...
             for rev in self.all_revisions:
-                sess.delete(rev)
+                self.Session.delete(rev)
         self.Session.delete(self)
 
     def as_dict(self):
