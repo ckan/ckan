@@ -684,13 +684,13 @@ class GroupSelectField(ConfiguredField):
                 select_html = h.select(new_name, None, options)
             else:
                 # Todo: Translation call.
-                select_html = "Cannot add any groups."
+                select_html = _("Cannot add any groups.")
 
             # Make the field HTML.
             field_template = '''  
         <dl> %(checkboxes)s      
             <dt>
-                Group:
+                %(label)s
             </dt>
             <dd> %(select)s
             </dd>
@@ -699,6 +699,7 @@ class GroupSelectField(ConfiguredField):
             field_context = {
                 'checkboxes': checkboxes_html,
                 'select': select_html,
+                'label': _("Group"),
             } 
             field_html = field_template % field_context
 

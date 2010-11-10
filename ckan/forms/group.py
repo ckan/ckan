@@ -1,6 +1,7 @@
 import formalchemy
 from formalchemy import helpers as fa_h
 import ckan.lib.helpers as h
+from pylons.i18n import _, ungettext, N_, gettext
 
 from builder import FormBuilder
 from sqlalchemy.util import OrderedDict
@@ -48,7 +49,7 @@ class PackagesRenderer(formalchemy.fields.FieldRenderer):
 
 def build_group_form(is_admin=False, with_packages=False):
     builder = FormBuilder(model.Group)
-    builder.set_field_text('name', 'Unique Name (required)', literal("<br/><strong>Unique identifier</strong> for group.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'"))
+    builder.set_field_text('name', _('Unique Name (required)'), literal("<br/><strong>Unique identifier</strong> for group.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'"))
     builder.set_field_option('name', 'validate', common.group_name_validator)
     builder.set_field_option('description', 'textarea', {'size':'60x15'})
     builder.add_field(ExtrasField('extras', hidden_label=True))
@@ -59,8 +60,8 @@ def build_group_form(is_admin=False, with_packages=False):
     if with_packages:
         builder.add_field(PackagesField('packages'))
         displayed_fields.append('packages')
-    builder.set_displayed_fields(OrderedDict([('Details', displayed_fields),
-                                              ('Extras', ['extras'])]))
+    builder.set_displayed_fields(OrderedDict([(_('Details'), displayed_fields),
+                                              (_('Extras'), ['extras'])]))
     builder.set_label_prettifier(common.prettify)
     return builder  
 
@@ -84,7 +85,8 @@ def get_package_group_fieldset():
         builder = FormBuilder(model.PackageGroup)
         builder.add_field(PackageNameField('package_name'))
         builder.set_field_option('package_name', 'with_renderer', PackagesRenderer)
-        builder.set_displayed_fields({'Add packages':['package_name']},
+        builder.set_field_text('package_name', _('Package'))
+        builder.set_displayed_fields({_('Add packages'):['package_name']},
                                      focus_field=False)
         fieldsets['new_package_group_fs'] = builder.get_fieldset()
     return fieldsets['new_package_group_fs']
