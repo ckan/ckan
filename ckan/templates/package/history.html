@@ -37,7 +37,7 @@
               <a href="${h.url_for(controller='revision',action='read',id=rev.id)}">${rev.id}</a>
             </td>
             <td>${rev.timestamp}</td>
-            <td>${rev.author}</td>
+            <td>${h.linked_user(rev.author)}</td>
             <td>${rev.message}</td>
           </tr> 
         </py:for>
