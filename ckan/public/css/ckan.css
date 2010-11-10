@@ -18,6 +18,9 @@ a:hover {
   text-decoration: underline;
 }
 
+#content p, #content ul, #content ol, #content dd, #content pre, #content hr, #content dl {
+  margin-bottom: 14px;
+}
 
 /* ===========================
  * Masthead
@@ -289,4 +292,38 @@ img#footer-okf-logo {
   margin-bottom: -4px;
 }
 
+
+/* ===========================
+ * Forms
+ */
+
+#content input, #content textarea {
+  line-height: 14px;
+  font-size: 14px;
+}
+
+form #log_message {
+  width: 80%;
+  height: 30px;
+}
+
+.entry-content label {
+  font-size: 14px;
+}
+
+form dl {
+  margin-bottom: 0;
+}
+
+/* ===========================
+ * Tables
+ */
+
+#content tr td {
+  padding: 6px 10px;
+}
+
+#content tr th, #content thead th {
+  padding: 6px 12px;
+}
 

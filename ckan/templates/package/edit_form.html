@@ -13,27 +13,27 @@
       <label for="log_message">Edit summary (briefly describe the changes you have made)</label>
       <textarea id="log_message" name="log_message" class="short wide">${c.log_message}</textarea>
 
-      <span class="ckan_logged_in" style="display: none;">
+      <div class="ckan_logged_in" style="display: none;">
 	<p>Author: ${c.author}</p>
-      </span>
-      <span class="ckan_logged_out">
+      </div>
+      <div class="ckan_logged_out">
         <label>Author: ${c.author}</label>
-        Since you have not signed in this will just be your IP address.<br />
+        <p class="hints">
+        Since you have not signed in this will just be your IP address.
         <a href="${h.url_for(controller='user', action='login', id=None)}" target="_blank">Click here to sign in</a> before saving (opens in new window).
-      </span>
+        </p>
+      </div>
 
-      <p>
+      <div class="submit">
         <input name="preview" type="submit" value="Preview" />
         ${h.submit('save', _('Save'))}
-      </p>
+      </div>
 
-      <ul class="desc">
-        <li>By submitting content, you agree to release your contributions
+      <p class="hints">
+      <strong>Important:</strong> By submitting content, you agree to release your contributions
         under the open license specified on the ${h.link_to(_('license page'),
-        h.url_for(str('/license')))} (basically Attribution-ShareAlike).</li>
-        <li>If you are not happy for this to occur please refrain from editing
-        this page.</li>
-      </ul>
+        h.url_for(str('/license')))}. Please <strong>refrain</strong> from editing this page if you are <strong>not</strong> happy to do this.
+      </p>
 
     </form>
 

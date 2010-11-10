@@ -31,7 +31,7 @@ def build_package_form(is_admin=False, user_editable_groups=None, **params):
     # Labels and instructions
     builder.set_field_text('name', '%s %s' % (_('Name'), _('(required)')), hints=literal(_("<strong>Unique identifier</strong> for package.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'")))
     builder.set_field_text('license_id', _('License'))
-    builder.set_field_text('tags', _('Tags'), _('(space separated list)'))
+    builder.set_field_text('tags', _('Tags'), hints=_('Space separated list'))
     builder.set_field_text('notes', _('Notes'), hints=literal(_('You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.')))
 
     # Options/settings
