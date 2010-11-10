@@ -45,7 +45,7 @@ class TestGroup(FunctionalTestCase):
         offset = url_for(controller='home', action='index')
         res = self.app.get(offset)
         assert 'Groups' in res, res
-        assert 'Groups</a></li>' in res, res
+        assert 'Groups</a>' in res, res
         res = res.click(href='/group/')
         assert '<h2>Groups</h2>' in res, res
 

@@ -6,7 +6,7 @@
   <py:def function="page_title">${c.pkg.title or c.pkg.name} - Data Packages</py:def>
 
   <py:match path="primarysidebar">
-    <div class="box">
+    <li class="widget-container widget_text">
       <div class="information">
         <dl class="icons clearfix">
           <dt>${h.icon('user')}</dt>
@@ -41,9 +41,9 @@
           </ul>
         </py:if>
       </div>
-    </div>
+    </li>
 
-    <div class="box">
+    <li class="widget-container widget_text">
       <h2>Openness:
         <py:choose test="">
         <span py:when="c.pkg.isopen() and c.pkg.resources" class="okd">
@@ -91,10 +91,10 @@
           Data service</a>.</p>
       </div>
       </py:choose>
-    </div>
+    </li>
 
     <py:if test="h.am_authorized(c, actions.EDIT, c.pkg)">
-    <div class="box">
+    <li class="widget-container widget_text">
       <h2>Edit this Package</h2>
         <p i18n:msg="">
           Can you help us keep this page up to date?
@@ -102,10 +102,10 @@
           <a href="${h.url_for(controller='package',action='edit',id=c.pkg.name)}">
             update the package information</a>.
         </p>
-    </div>
+    </li>
     </py:if>
 
-    <div class="box">
+    <li class="widget-container widget_text">
       <div class="formats">
         <h2>Alternative metadata formats</h2>
         <ul class="clearfix">
@@ -120,10 +120,10 @@
           </li>
         </ul>
       </div>
-    </div>
+    </li>
   </py:match>
 
-  <div py:match="content" class="package">
+  <div py:match="content">
     <xi:include href="read_core.html" />
   </div>
 

@@ -30,7 +30,7 @@ class TestAuthorizationGroup(FunctionalTestCase):
         offset = url_for(controller='home', action='index')
         res = self.app.get(offset)
         assert 'Authorization Groups' in res, res
-        assert 'Authorization Groups</a></li>' in res, res
+        assert 'Authorization Groups</a>' in res, res
         res = res.click(href='/authorizationgroup')
         assert '<h2>Authorization Groups</h2>' in res, res
 

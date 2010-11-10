@@ -270,13 +270,13 @@ class TestReadOnly(TestPackageForm):
         res = self.app.get(offset)
         # TODO: make this a bit more rigorous!
         assert 'Browse' in res, res
-        res = res.click('Browse packages')
+        res = res.click('Browse')
         assert 'Browse - Data Packages' in res
     
     def test_minornavigation_2(self):
         offset = url_for(controller='package')
         res = self.app.get(offset)
-        res = res.click('Register a new package')
+        res = res.click('Register')
         assert 'New - Data Packages' in res
 
     def test_read(self):
