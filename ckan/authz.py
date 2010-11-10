@@ -209,9 +209,6 @@ class Authorizer(object):
     def _get_roles_query(cls, domain_obj):
         q = model.Session.query(model.UserObjectRole)
         q = q.autoflush(False)
-        is_a_class = domain_obj.__class__ == type
-        context = domain_obj.__name__ if is_a_class else domain_obj.__class__.__name__
-        q = q.filter_by(context=unicode(context))
         if not is_a_class:
             # this is kind of ugly as we have to switch on the instance type
             if isinstance(domain_obj, model.Package):
@@ -229,6 +226,9 @@ class Authorizer(object):
             else:
                 raise Exception('Do not support context object like: %r' %
                         domain_obj)
+        is_a_class = domain_obj.__class__ == type
+        context = domain_obj.__name__ if is_a_class else domain_obj.__class__.__name__
+        q = q.filter_by(context=unicode(context))
         return q
 
         
