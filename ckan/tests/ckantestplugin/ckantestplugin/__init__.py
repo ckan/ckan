@@ -19,6 +19,13 @@ class MapperPlugin2(MapperPlugin):
 class RoutesPlugin(SingletonPlugin):
     implements(IRoutesExtension, inherit=True)
 
+    def __init__(self):
+        self.calls_made = []
+
     def before_add(self, map):
+        self.calls_made.append('before_add')
         return map
 
+    def after_add(self, map):
+        self.calls_made.append('after_add')
+        return map
