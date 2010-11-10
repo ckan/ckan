@@ -72,3 +72,9 @@ class TestPlugins(TestCase):
         assert len(mapper_plugin.added) == 1
         assert mapper_plugin.added[0].name == 'testpkg'
 
+    def test_routes_plugin_fired(self):
+        plugins.load('routes_plugin')
+        routes_plugin = PluginGlobals.plugin_registry['RoutesPlugin'].__instance__
+        assert routes_plugin.calls_made == ['before_add', 'after_add'], \
+               routes_plugin.calls_made
+
