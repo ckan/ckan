@@ -63,7 +63,8 @@ class SearchBackend(object):
             _type_n = self._normalize_type(_type)
             return self._typed_indices[_type_n](self)
         except KeyError, ke:
-            raise SearchError("Unknown search type: %s" % _type)
+            log.warn("Unknown search type: %s" % _type)
+            return NoopSearchIndex(self)
             
     def types(self):
         return self._typed_queries.keys()
