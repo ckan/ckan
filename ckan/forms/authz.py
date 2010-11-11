@@ -88,7 +88,7 @@ def authz_fieldset_builder(role_class):
 
 class UsersRenderer(formalchemy.fields.FieldRenderer):
     def render(self, options, **kwargs):
-        options = [('', '__null_value__')] + [(u.name, u.id) for u in model.Session.query(model.User).all()]
+        options = [('', '__null_value__')] + [(u.display_name, u.id) for u in model.Session.query(model.User).all()]
         selected = None
         return fa_h.select(self.name, selected, options, **kwargs)
 
