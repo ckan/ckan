@@ -69,20 +69,24 @@ class UserController(BaseController):
         if not 'save' in request.params and not 'preview' in request.params:
             c.user_about = user.about
             c.user_fullname = user.fullname
+            c.user_email = user.email
         elif 'preview' in request.params:
             about = request.params.getone('about')
             c.preview = self._format_about(about)
             c.user_about = about
             c.user_fullname = request.params.getone('fullname')
+            c.user_email = request.params.getone('email')
         elif 'save' in request.params:
             about = request.params.getone('about')
             fullname = request.params.getone('fullname')
+            email = request.params.getone('email')
             try:
                 rev = model.repo.new_revision()
                 rev.author = c.author
                 rev.message = _(u'Changed user details')
                 user.about = about
                 user.fullname = fullname
+                user.email = email 
             except Exception, inst:
                 model.Session.rollback()
                 raise
