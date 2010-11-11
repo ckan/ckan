@@ -74,7 +74,7 @@ def icon_url(name):
     return '/images/icons/%s.png' % name
 
 def icon(name, alt=None):
-    return literal('<img src="%s" height="16px" width="16px" alt="%s" />' % (icon_url(name), alt))
+    return literal('<img src="%s" height="16px" width="16px" alt="%s" /> ' % (icon_url(name), alt))
 
 class Page(paginate.Page):
     
