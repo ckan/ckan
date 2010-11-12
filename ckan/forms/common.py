@@ -22,7 +22,12 @@ def name_validator(val, field=None):
         raise formalchemy.ValidationError(_('Name must be at least %s characters long') % min_length)
     if not name_match.match(val):
         raise formalchemy.ValidationError(_('Name must be purely lowercase alphanumeric (ascii) characters and these symbols: -_'))
-        
+
+def package_exists(val):
+    if model.Session.query(model.Package).autoflush(False).filter_by(name=val).count():
+        return True
+    return False
+
 def package_name_validator(val, field=None):
     name_validator(val, field)
     # we disable autoflush here since may get used in package preview

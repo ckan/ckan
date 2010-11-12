@@ -219,6 +219,7 @@ def make_map():
     map.connect('/package/search', controller='package', action='search')
     map.connect('/package/list', controller='package', action='list')
     map.connect('/package/new', controller='package', action='new')
+    map.connect('/package/new_title_to_slug', controller='package', action='new_title_to_slug')
     map.connect('/package/autocomplete', controller='package', action='autocomplete')
     map.connect('/package/:id', controller='package', action='read')
     map.redirect("/groups", "/group")

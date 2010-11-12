@@ -172,3 +172,7 @@ form.has-errors .field_error, form.has-errors .error-explanation {
       opacity: 0.5; }
     .taglist li img:hover {
       opacity: 1; }
+
+#preview {
+  margin-bottom: 30px;
+  }

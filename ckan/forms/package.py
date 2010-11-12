@@ -29,10 +29,58 @@ def build_package_form(is_admin=False, user_editable_groups=None, **params):
     builder.add_field(ExtrasField('extras', hidden_label=True))
 
     # Labels and instructions
-    builder.set_field_text('name', '%s %s' % (_('Name'), _('(required)')), hints=literal(_("<strong>Unique identifier</strong> for package.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'")))
-    builder.set_field_text('license_id', _('License'))
-    builder.set_field_text('tags', _('Tags'), hints=_('Space separated list'))
-    builder.set_field_text('notes', _('Notes'), hints=literal(_('You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.')))
+    builder.set_field_text(
+        'title',
+        instructions='The title of the data set.',
+        further_instructions='It is not a description - save that for the Notes field. Do not give a trailing full stop.',
+    )
+    builder.set_field_text(
+        'name', 
+        '%s %s' % (
+            _('Name'),
+            _('(required)')
+        ), 
+        hints=literal(_("<strong>Unique identifier</strong> for package.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'"))
+    )
+    builder.set_field_text(
+        'version',
+        instructions='A number representing the version (if applicable) e.g. 1.2.0',
+    )
+    builder.set_field_text(
+        'url',
+        instructions='The Internet link to a web page discussing the dataset, not the dataset itself.',
+        hints='e.g. http://www.example.com/growth-figures.html',
+    )
+    builder.set_field_text(
+        'author',
+        instructions='The permanent contact name for enquiries about this particular dataset.',
+    )
+    builder.set_field_text(
+        'author_email',
+    )
+    builder.set_field_text(
+        'license_id',
+        _('License'),
+        instructions='The licence under which the dataset is released.',
+    )
+    builder.set_field_text(
+        'tags', 
+        _('Tags'), 
+        _('(space separated list)')
+    )
+    builder.set_field_text(
+        'resources',
+        instructions='The files containing the data or address of the APIs for accessing it.',
+        further_instructions=literal('<br />These can be repeated as required. For example if the data is being supplied in multiple formats, or split into different areas or time periods, each file is a different \'resource\' which should be described differently. They will all appear on the dataset page on CKAN together.<br/> <b>URL:</b> This is the Internet link directly to the data - by selecting this link in a web browser, the user will immediately download the full data set. Note that datasets are not hosted by data.gov.uk, but by the responsible department<br/> e.g. http://www.somedept.gov.uk/growth-figures-2009.csv<br/><b>Format:</b> This should give the file format in which the data is supplied. You may supply the data in a form not listed here, constrained by the Public Sector Transparency Board\'s principles that require that all data is available in an \'open and standardised format\' that can be read by a machine. Data can also be released in formats that are not machine-processable (e.g. PDF) alongside this.<br/> <b>Description</b> Any information you want to add to desctribe the resource<br />'),  
+        hints='Format choices: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Other as appropriate'
+    )
+    builder.set_field_text(
+        'notes', 
+        _('Notes'), 
+        instructions='The main description of the dataset',
+        further_instructions='It is often displayed with the package title. In particular, it should start with a short sentence that describes the data set succinctly, because the first few words alone may be used in some views of the data sets.',
+        hints=literal(_('You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.'))
+    )
 
     # Options/settings
     builder.set_field_option('name', 'validate', package_name_validator)
@@ -42,7 +90,7 @@ def build_package_form(is_admin=False, user_editable_groups=None, **params):
 
     # Layout
     field_groups = OrderedDict([
-        (_('Basic information'), ['name', 'title', 'version', 'url',
+        (_('Basic information'), ['title', 'name', 'version', 'url',
                                'notes', 'tags']),
         (_('Resources'), ['resources']),
         (_('Groups'), ['groups']),
@@ -57,7 +105,7 @@ def build_package_form(is_admin=False, user_editable_groups=None, **params):
     builder.set_label_prettifier(prettify)
     return builder
     # Strings for i18n:
-    [_('Name'),  _('Title'), _('Version'), _('URL'),
+    [ _('Title'), _('Name'), _('Version'), _('URL'),
      _('Notes'), _('Resources'), _('Author'), _('Author email'), _('Maintainer'),
      _('Maintainer email'), _('License'), _('Tags'), _('Extras'), _('State')]
 

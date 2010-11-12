@@ -16,6 +16,10 @@ import ckan.forms
 import ckan.authz
 import ckan.rating
 import ckan.misc
+# For form name auto-generation
+from ckan.forms.common import package_exists
+from ckan.lib.helpers import json
+from ckan.lib.importer import PackageImporter
 
 logger = logging.getLogger('ckan.controllers')
 
@@ -40,6 +44,16 @@ class PackageController(BaseController):
             other_text=_('Other'),
         )
         return render('package/list.html')
+
+    def new_title_to_slug(self):
+        title = request.params.get('title') or ''
+        name = PackageImporter.munge(title)
+        if package_exists(name):
+            valid = False
+        else:
+            valid = True
+        response.content_type = 'application/javascript'
+        return json.dumps(dict(name=name, valid=valid))
 
     def search(self):        
         c.q = request.params.get('q') # unicode format (decoded from utf8)
@@ -238,6 +252,8 @@ class PackageController(BaseController):
             fs = fs.bind(model.Package, data=data, session=model.Session)
         else:
             fs = fs.bind(session=model.Session)
+        #if 'preview' in request.params:
+        #    c.preview = ' '
         c.form = self._render_edit_form(fs, request.params, clear_session=True)
         if 'preview' in request.params:
             try:

@@ -9,7 +9,7 @@ harvested_source_table = Table('harvest_source', metadata,
 )
 
 def upgrade():
-    harvest_source_table.c.status.drop()
+    harvested_source_table.c.status.drop()
 
 def downgrade():
     raise NotImplementedError()
