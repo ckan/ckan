@@ -378,6 +378,8 @@ left arrow <
         '''If you create a domain object manually in your test then you
         can name it here (flag it up) and it will be deleted when you next
         call CreateTestData.delete().'''
+        if isinstance(pkg_names, basestring):
+            pkg_names = [pkg_names]
         self.pkg_names.extend(pkg_names)
         self.tag_names.extend(tag_names)
         self.group_names = self.group_names.union(set(group_names))
@@ -418,6 +420,18 @@ left arrow <
                 user.purge()
         model.Session.commit()
         model.Session.remove()
+        self.reset()
+
+    @classmethod
+    def reset(cls):
+        cls.pkg_names = []
+        cls.group_names = set()
+        cls.tag_names = []
+        cls.user_names = []
+
+    @classmethod
+    def get_all_data(cls):
+        return cls.pkg_names + list(cls.group_names) + cls.tag_names + cls.user_names
 
 
 search_items = [{'name':'gils',
@@ -567,7 +581,7 @@ gov_items = [
     {'name':'weekly-fuel-prices',
      'title':'Weekly fuel prices',
      'notes':'Latest price as at start of week of unleaded petrol and diesel.',
-     'resources':[{'url':'', 'format':'XLS', 'description':''}],
+     'resources':[{'url':'http://www.decc.gov.uk/en/content/cms/statistics/prices.xls', 'format':'XLS', 'description':''}],
      'url':'http://www.decc.gov.uk/en/content/cms/statistics/source/prices/prices.aspx',
      'author':'DECC Energy Statistics Team',
      'author_email':'energy.stats@decc.gsi.gov.uk',
