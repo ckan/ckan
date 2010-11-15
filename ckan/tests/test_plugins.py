@@ -8,6 +8,7 @@ from pyutilib.component.core import PluginGlobals
 from pylons import config
 from pkg_resources import working_set, Distribution, PathMetadata
 from ckan import plugins
+from ckan.tests.mock_plugin import MockSingletonPlugin
 from ckan.plugins.core import find_system_plugins
 from ckan.plugins import Interface, implements
 from ckan.lib.create_test_data import CreateTestData
@@ -52,6 +53,42 @@ class TestInterface(TestCase):
         assert IFoo.provided_by(FooImpl())
         assert IFoo.provided_by(FooBarImpl())
         assert not IFoo.provided_by(BarImpl())
+
+class TestIPluginObserverPlugin(TestCase):
+
+    class PluginObserverPlugin(MockSingletonPlugin):
+        from ckan.plugins import IPluginObserver
+        implements(IPluginObserver)
+
+    class OtherPlugin(MockSingletonPlugin):
+        implements(IFoo)
+
+    def setUp(self):
+        plugins.unload_all()
+        plugins.load(self.PluginObserverPlugin)
+        self.PluginObserverPlugin().reset_calls()
+
+    def test_notified_on_load(self):
+
+        observer = self.PluginObserverPlugin()
+        plugins.load(self.OtherPlugin)
+        assert observer.before_load.calls == [((self.OtherPlugin,), {})]
+        assert observer.after_load.calls == [((self.OtherPlugin(),), {})]
+        assert observer.before_unload.calls == []
+        assert observer.after_unload.calls == []
+
+    def test_notified_on_unload(self):
+
+        plugins.load(self.OtherPlugin)
+        observer = self.PluginObserverPlugin()
+        observer.reset_calls()
+
+        plugins.unload(self.OtherPlugin)
+
+        assert observer.before_load.calls == []
+        assert observer.after_load.calls == []
+        assert observer.before_unload.calls == [((self.OtherPlugin(),), {})], observer.before_unload.calls
+        assert observer.after_unload.calls == [((self.OtherPlugin(),), {})]
 
 class TestPlugins(TestCase):
 

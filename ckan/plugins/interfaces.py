@@ -8,7 +8,8 @@ __all__ = [
     'IGenshiStreamFilter', 'IRoutesExtension',
     'IMapperExtension', 'ISessionExtension',
     'IDomainObjectNotification', 'IGroupController', 
-    'IPackageController'
+    'IPackageController',
+    'IPluginObserver',
 ]
 
 from inspect import isclass
@@ -208,3 +209,31 @@ class IPackageController(Interface):
     def delete(self, entity):
         pass
 
+class IPluginObserver(Interface):
+    """
+    Plugin to the plugin loading mechanism
+    """
+
+    def before_load(self, plugin):
+        """
+        Called before a plugin is loaded
+        This method is passed the plugin class.
+        """
+
+    def after_load(self, service):
+        """
+        Called after a plugin has been loaded.
+        This method is passed the instantiated service object.
+        """
+
+    def before_unload(self, plugin):
+        """
+        Called before a plugin is loaded
+        This method is passed the plugin class.
+        """
+
+    def after_unload(self, service):
+        """
+        Called after a plugin has been unloaded.
+        This method is passed the instantiated service object.
+        """

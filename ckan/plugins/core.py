@@ -11,6 +11,8 @@ from pyutilib.component.core import Plugin as _pca_Plugin
 from pyutilib.component.core import PluginEnvironment
 from sqlalchemy.orm.interfaces import MapperExtension
 
+from ckan.plugins.interfaces import IPluginObserver
+
 __all__ = [
     'ExtensionPoint', 'implements',
     'PluginNotFoundException', 'Plugin', 'SingletonPlugin',
@@ -106,8 +108,13 @@ def load(plugin):
     """
     Load a single plugin, given a plugin name, class or instance
     """
+    observers = ExtensionPoint(IPluginObserver)
+    for observer_plugin in observers:
+        observer_plugin.before_load(plugin)
     service = _get_service(plugin)
     service.activate()
+    for observer_plugin in observers:
+        observer_plugin.after_load(service)
     return service
 
 def unload_all():
@@ -116,14 +123,22 @@ def unload_all():
     """
     for env in PluginGlobals.env_registry.values():
         for service in env.services.copy():
-            service.deactivate()
+            unload(service)
 
 def unload(plugin):
     """
     Unload a single plugin, given a plugin name, class or instance
     """
+    observers = ExtensionPoint(IPluginObserver)
     service = _get_service(plugin)
+    for observer_plugin in observers:
+        observer_plugin.before_unload(service)
+
     service.deactivate()
+
+    for observer_plugin in observers:
+        observer_plugin.after_unload(service)
+
     return service
 
 def find_user_plugins(config):
