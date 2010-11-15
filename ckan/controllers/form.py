@@ -118,7 +118,10 @@ class BaseFormController(BaseApiController):
                     # Return response body.
                     return response_body
         except ApiError, api_error:
-            log.info('Package create - ApiError. user=%r data=%r error=%r', author, form_data, api_error)
+            log.info('Package create - ApiError. user=%r data=%r error=%r',
+                     author if 'author' in dir() else None,
+                     form_data if 'form_data' in dir() else None,
+                     api_error)
             # Set response body.
             response_body = str(api_error) 
             # Assume status code is set.
@@ -241,7 +244,10 @@ class BaseFormController(BaseApiController):
                     # Return response body.
                     return response_body
         except ApiError, api_error:
-            log.info('Package edit - ApiError. user=%r data=%r error=%r', author, form_data, api_error)
+            log.info('Package edit - ApiError. user=%r data=%r error=%r',
+                     author if 'author' in dir() else None,
+                     form_data if 'form_data' in dir() else None,
+                     api_error)
             # Set response body.
             response_body = str(api_error) 
             # Assume status code is set.
