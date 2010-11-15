@@ -581,7 +581,7 @@ gov_items = [
     {'name':'weekly-fuel-prices',
      'title':'Weekly fuel prices',
      'notes':'Latest price as at start of week of unleaded petrol and diesel.',
-     'resources':[{'url':'', 'format':'XLS', 'description':''}],
+     'resources':[{'url':'http://www.decc.gov.uk/en/content/cms/statistics/prices.xls', 'format':'XLS', 'description':''}],
      'url':'http://www.decc.gov.uk/en/content/cms/statistics/source/prices/prices.aspx',
      'author':'DECC Energy Statistics Team',
      'author_email':'energy.stats@decc.gsi.gov.uk',
