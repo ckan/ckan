@@ -134,6 +134,29 @@ class TestPlugins(TestCase):
         assert MapperPlugin2() not in iter(PluginMapperExtension.observers)
         assert RoutesPlugin() not in routing_plugins
 
+    def test_plugin_loading_order(self):
+        """
+        Check that plugins are loaded in the order specified in the config
+        """
+        from ckantestplugin import MapperPlugin, MapperPlugin2, PluginObserverPlugin
+
+        observerplugin = PluginObserverPlugin()
+
+        config['ckan.plugins'] = 'test_observer_plugin mapper_plugin mapper_plugin2'
+        expected_order = MapperPlugin, MapperPlugin2
+
+        plugins.load_all(config)
+        assert observerplugin.before_load.calls == [((p,), {}) for p in expected_order]
+        assert observerplugin.after_load.calls == [((p.__instance__,), {}) for p in (observerplugin,) + expected_order]
+
+        config['ckan.plugins'] = 'test_observer_plugin mapper_plugin2 mapper_plugin'
+        expected_order = MapperPlugin2, MapperPlugin
+        observerplugin.reset_calls()
+
+        plugins.load_all(config)
+        assert observerplugin.before_load.calls == [((p,), {}) for p in expected_order]
+        assert observerplugin.after_load.calls == [((p.__instance__,), {}) for p in (observerplugin,) + expected_order]
+
     def test_mapper_plugin_fired(self):
         config['ckan.plugins'] = 'mapper_plugin'
         plugins.load_all(config)

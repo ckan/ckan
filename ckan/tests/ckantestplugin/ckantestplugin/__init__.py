@@ -1,4 +1,7 @@
-from ckan.plugins import SingletonPlugin, IMapperExtension, IRoutesExtension, implements
+from ckan.plugins import SingletonPlugin, implements
+from ckan.plugins import IMapperExtension, IRoutesExtension, IPluginObserver
+from ckan.tests.mock_plugin import MockSingletonPlugin
+
 
 class MapperPlugin(SingletonPlugin):
     implements(IMapperExtension, inherit=True)
@@ -29,3 +32,6 @@ class RoutesPlugin(SingletonPlugin):
     def after_add(self, map):
         self.calls_made.append('after_add')
         return map
+    
+class PluginObserverPlugin(MockSingletonPlugin):
+    implements(IPluginObserver)
