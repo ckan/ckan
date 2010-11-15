@@ -157,6 +157,8 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         if site_url:
             _dict['ckan_url'] = '%s/package/%s' % (site_url, self.name)
         _dict['relationships'] = [rel.as_dict(self, ref_package_by=ref_package_by) for rel in self.get_relationships()]
+        _dict['metadata_modified'] = self.metadata_modified
+        _dict['metadata_created'] = self.metadata_created
         return _dict
 
     def add_relationship(self, type_, related_package, comment=u''):
@@ -405,6 +407,22 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         else:
             timestamp, usecs = gmtime(), 0
         return mktime(timestamp) + usecs
+
+    @property
+    def metadata_modified(self):
+        import ckan.model as model
+        epochtime = self.last_modified(model.package_table.c.id==self.id)
+        return datetime.datetime.fromtimestamp(epochtime)
+    
+    @property
+    def metadata_created(self):
+        import ckan.model as model
+        q = model.Session.query(model.Revision).select_from(
+            model.revision_table.join(
+                model.package_revision_table,
+                and_(model.revision_table.c.id==model.package_revision_table.c.revision_id))
+            ).order_by(model.Revision.timestamp.asc())
+        return q.first().timestamp
 
     @staticmethod
     def get_fields(core_only=False, fields_to_ignore=None):

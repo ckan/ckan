@@ -56,6 +56,16 @@ class TestPackage:
         assert package.license == None
         model.Session.remove() # forget change
 
+    def test_as_dict(self):
+        pkg = model.Package.by_name(self.name)
+        out = pkg.as_dict()
+        assert out['name'] == pkg.name
+        assert out['license'] == pkg.license.title
+        assert out['license_id'] == pkg.license.id
+        assert out['tags'] == [tag.name for tag in pkg.tags]
+        assert out['metadata_modified'] == pkg.metadata_modified
+        assert out['metadata_created'] == pkg.metadata_created
+
 
 class TestPackageWithTags:
     """
@@ -228,6 +238,17 @@ class TestPackageRevisions:
             assert rev.notes == self.notes[num_notes - i - 1], '%s != %s' % (rev.notes, self.notes[i])
             #assert rev.extras['mykey'] == self.notes[num_notes - i - 1], '%s != %s' % (rev.extras['mykey'], self.notes[i])
 
+    # put these in here as lots of revisions is good
+    def test_02_metadata_created_and_modified(self):
+        pkg = model.Package.by_name(self.name)
+        all_rev = pkg.all_revisions
+        out = pkg.metadata_created
+        exp = all_rev[-1].revision.timestamp
+        assert  out == exp, (out, exp)
+        out = pkg.metadata_modified
+        exp = all_rev[0].revision.timestamp
+        assert out == exp, (out, exp)
+        
 
 class TestRelatedRevisions:
     @classmethod
