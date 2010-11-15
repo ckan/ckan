@@ -373,6 +373,8 @@ left arrow <
         '''If you create a domain object manually in your test then you
         can name it here (flag it up) and it will be deleted when you next
         call CreateTestData.delete().'''
+        if isinstance(pkg_names, basestring):
+            pkg_names = [pkg_names]
         self.pkg_names.extend(pkg_names)
         self.tag_names.extend(tag_names)
         self.group_names = self.group_names.union(set(group_names))
@@ -411,6 +413,18 @@ left arrow <
                 user.purge()
         model.Session.commit()
         model.Session.remove()
+        self.reset()
+
+    @classmethod
+    def reset(cls):
+        cls.pkg_names = []
+        cls.group_names = set()
+        cls.tag_names = []
+        cls.user_names = []
+
+    @classmethod
+    def get_all_data(cls):
+        return cls.pkg_names + list(cls.group_names) + cls.tag_names + cls.user_names
 
 
 search_items = [{'name':'gils',
