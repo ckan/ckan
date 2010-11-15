@@ -16,10 +16,6 @@ import ckan.forms
 import ckan.authz
 import ckan.rating
 import ckan.misc
-# For form name auto-generation
-from ckan.forms.common import package_exists
-from ckan.lib.helpers import json
-from ckan.lib.importer import PackageImporter
 
 logger = logging.getLogger('ckan.controllers')
 
@@ -44,16 +40,6 @@ class PackageController(BaseController):
             other_text=_('Other'),
         )
         return render('package/list.html')
-
-    def new_title_to_slug(self):
-        title = request.params.get('title') or ''
-        name = PackageImporter.munge(title)
-        if package_exists(name):
-            valid = False
-        else:
-            valid = True
-        response.content_type = 'application/javascript'
-        return json.dumps(dict(name=name, valid=valid))
 
     def search(self):        
         c.q = request.params.get('q') # unicode format (decoded from utf8)
@@ -200,6 +186,8 @@ class PackageController(BaseController):
 
     def new(self):
         c.error = ''
+        api_url = config.get('ckan.api_url', '/').rstrip('/')
+        c.package_create_slug_api_url = api_url+h.url_for(controller='apiv2/package', action='create_slug')
         is_admin = self.authorizer.is_sysadmin(c.user)
         # Check access control for user to create a package.
         auth_for_create = self.authorizer.am_authorized(c, model.Action.PACKAGE_CREATE, model.System())
@@ -211,7 +199,6 @@ class PackageController(BaseController):
             if not request.params.has_key('log_message'):
                 abort(400, ('Missing parameter: log_message'))
             log_message = request.params['log_message']
-
         record = model.Package
         if request.params.has_key('save'):
             fs = fs.bind(record, data=dict(request.params) or None, session=model.Session)

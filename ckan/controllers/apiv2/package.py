@@ -9,6 +9,11 @@ from ckan.controllers.apiv1.package import PackageController as _PackageV1Contro
 
 log = __import__("logging").getLogger(__name__)
 
+# For form name auto-generation
+from ckan.forms.common import package_exists
+from ckan.lib.helpers import json
+from ckan.lib.importer import PackageImporter
+
 class Rest2Controller(object):
     api_version = '2'
     ref_package_by = 'id'
@@ -42,3 +47,14 @@ class PackageController(Rest2Controller, _PackageV1Controller):
             item.read(pkg)
         return self._finish_ok(response_data)
     
+    def create_slug(self):
+        title = request.params.get('title') or ''
+        name = PackageImporter.munge(title)
+        if package_exists(name):
+            valid = False
+        else:
+            valid = True
+        #response.content_type = 'application/javascript'
+        response_data = dict(name=name, valid=valid)
+        return self._finish_ok(response_data)
+

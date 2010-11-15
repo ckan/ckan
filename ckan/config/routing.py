@@ -171,6 +171,10 @@ def make_map():
 
     map.connect('/api/2/rest/package', controller='apiv2/package', action='list',
                 conditions=dict(method=['GET']))
+    map.connect('/api/2/util/package/create_slug', controller='apiv2/package', action='create_slug',
+                conditions=dict(method=['GET']))
+    map.connect('/api/2/util/tag/autocomplete', controller='tag', action='autocomplete',
+                conditions=dict(method=['GET']))
     map.connect('/api/2/rest/package', controller='apiv2/package', action='create',
                 conditions=dict(method=['POST']))
     map.connect('/api/2/rest/package/:id', controller='apiv2/package', action='show',

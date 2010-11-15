@@ -250,3 +250,19 @@ Default::
  http://www.ckan.net
 
 The primary URL used by this site. 
+
+api_url
+--------
+
+Example::
+
+ ckan.api_url=http://scotdata.ckan.net/api
+
+Default::
+
+ /api
+
+The URL which resolves to the CKAN API part of the site. This is useful if the
+API is hosted on a different domain, for example when a third party site uses
+the forms API.
+
