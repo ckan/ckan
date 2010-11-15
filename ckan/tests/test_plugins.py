@@ -2,12 +2,14 @@
 Tests for plugin loading via PCA
 """
 import os
+from nose.tools import raises
 from unittest import TestCase
 from pyutilib.component.core import PluginGlobals
 from pylons import config
 from pkg_resources import working_set, Distribution, PathMetadata
 from ckan import plugins
 from ckan.plugins.core import find_system_plugins
+from ckan.plugins import Interface, implements
 from ckan.lib.create_test_data import CreateTestData
 
 
@@ -19,6 +21,37 @@ metadata = PathMetadata(base_dir, egg_info)
 dist_name = os.path.splitext(os.path.basename(egg_info))[0]
 ckantestplugin_dist = Distribution(base_dir, project_name=dist_name, metadata=metadata)
 
+class IFoo(Interface):
+    pass
+
+class IBar(Interface):
+    pass
+
+class FooImpl(object):
+    implements(IFoo)
+
+class BarImpl(object):
+    implements(IBar)
+
+class FooBarImpl(object):
+    implements(IFoo)
+    implements(IBar)
+
+class TestInterface(TestCase):
+
+    def test_implemented_by(self):
+        assert IFoo.implemented_by(FooImpl)
+        assert IFoo.implemented_by(FooBarImpl)
+        assert not IFoo.implemented_by(BarImpl)
+
+    @raises(TypeError)
+    def test_implemented_by_raises_exception_on_instances(self):
+        assert not IFoo.implemented_by(FooImpl())
+
+    def test_provided_by(self):
+        assert IFoo.provided_by(FooImpl())
+        assert IFoo.provided_by(FooBarImpl())
+        assert not IFoo.provided_by(BarImpl())
 
 class TestPlugins(TestCase):
 
