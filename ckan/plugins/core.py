@@ -3,6 +3,7 @@ Provides plugin services to the CKAN
 """
 
 import logging
+from inspect import isclass
 from itertools import chain
 from pkg_resources import iter_entry_points
 from pyutilib.component.core import PluginGlobals, ExtensionPoint, implements
@@ -71,11 +72,12 @@ def _get_service(plugin):
 
         return plugin.load()()
 
-    elif isinstance(plugin, (SingletonPlugin, Plugin)):
+    elif isinstance(plugin, _pca_Plugin):
         return plugin
 
-    elif issubclass(plugin, (SingletonPlugin, Plugin)):
+    elif isclass(plugin) and issubclass(plugin, _pca_Plugin):
         return plugin()
+
     else:
         raise TypeError("Expected a plugin name, class or instance", plugin)
 
