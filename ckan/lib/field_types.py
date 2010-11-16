@@ -144,7 +144,7 @@ class DateType(object):
         except ValueError, e:
             raise DateConvertError('Could not read date as ISO format "%s". Date provided: "%s"' % (format, iso_date))
         date_obj = datetime.datetime(*date_tuple[:4])
-        date_str = self.date_to_db(date_obj)
+        date_str = cls.date_to_db(date_obj)
         return date_str
 
     @classmethod
