@@ -169,6 +169,9 @@ class Test1Import(TestController):
             index += 1
         return reader.get_log()
 
+# TODO: (rgrp: 2010-11-16)
+# why is not in the ckan/lib/spreadsheet_importer.pkg_xl_dict_to_fs_dict(cls, # pkg_xl_dict, logger=None)?
+# furthermore why is that not in a core module (or forms) rather than there ...
 def pkg_to_fs_dict(pkg):
     '''Convert a Package object to a dictionary suitable for fieldset data.
     e.g. {'name':'annakarenina', 'resources':{'url':'anna.com'}}'''
@@ -181,6 +184,8 @@ def pkg_to_fs_dict(pkg):
         elif isinstance(value, (list, tuple)):
             dict_[key] = ' '.join(value)
         elif key in ('license', 'ckan_url'):
+            del dict_[key]
+        elif key in ['metadata_modified', 'metadata_created']:
             del dict_[key]
     return dict_
 

@@ -7,9 +7,45 @@ refer to the routes manual at http://routes.groovie.org/docs/
 from pylons import config
 from routes import Mapper
 from formalchemy.ext.pylons import maps # routes generator
-from ckan.plugins import ExtensionPoint, IRoutesExtension
+from ckan.plugins import ExtensionPoint, SingletonPlugin, implements
+from ckan.plugins.interfaces import IRoutesExtension, IPluginObserver
 
 routing_plugins = ExtensionPoint(IRoutesExtension)
+routing_middleware = None
+
+class ReloadableMapperWrapper(object):
+    """
+    A wrapper around a mapper that lets the mapper be reloaded.
+    """
+
+    def __init__(self, make_mapper):
+        """
+        :param make_mapper: a callable returning a routes.Mapper object
+        """
+        self.make_mapper = make_mapper
+        self.mapper = make_mapper()
+
+    def __getattr__(self, attr):
+        return getattr(self.mapper, attr)
+
+    def reload(self):
+        """
+        Reload the wrapped mapper object from the make_mapper function
+        """
+        self.mapper = self.make_mapper()
+
+class ReloadRoutesMapsPlugin(SingletonPlugin):
+    """
+    Hook into the plugin system to reload the routes mappings wheneve a
+    IRoutesExtension plugin is loaded.
+    """
+
+    implements(IPluginObserver, inherit=True)
+
+    def after_load(self, service):
+        if IRoutesExtension.provided_by(service):
+            config['routes.map'].reload()
+
 
 def make_map():
     """Create, configure and return the routes Mapper"""
@@ -170,6 +206,10 @@ def make_map():
     map.connect('/api/2/rest', controller='rest2', action='index')
 
     map.connect('/api/2/rest/package', controller='apiv2/package', action='list',
+                conditions=dict(method=['GET']))
+    map.connect('/api/2/util/package/create_slug', controller='apiv2/package', action='create_slug',
+                conditions=dict(method=['GET']))
+    map.connect('/api/2/util/tag/autocomplete', controller='tag', action='autocomplete',
                 conditions=dict(method=['GET']))
     map.connect('/api/2/rest/package', controller='apiv2/package', action='create',
                 conditions=dict(method=['POST']))

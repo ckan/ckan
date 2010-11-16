@@ -2,12 +2,15 @@
 Tests for plugin loading via PCA
 """
 import os
+from nose.tools import raises
 from unittest import TestCase
 from pyutilib.component.core import PluginGlobals
 from pylons import config
 from pkg_resources import working_set, Distribution, PathMetadata
 from ckan import plugins
+from ckan.tests.mock_plugin import MockSingletonPlugin
 from ckan.plugins.core import find_system_plugins
+from ckan.plugins import Interface, implements
 from ckan.lib.create_test_data import CreateTestData
 
 
@@ -19,13 +22,80 @@ metadata = PathMetadata(base_dir, egg_info)
 dist_name = os.path.splitext(os.path.basename(egg_info))[0]
 ckantestplugin_dist = Distribution(base_dir, project_name=dist_name, metadata=metadata)
 
+class IFoo(Interface):
+    pass
+
+class IBar(Interface):
+    pass
+
+class FooImpl(object):
+    implements(IFoo)
+
+class BarImpl(object):
+    implements(IBar)
+
+class FooBarImpl(object):
+    implements(IFoo)
+    implements(IBar)
+
+class TestInterface(TestCase):
+
+    def test_implemented_by(self):
+        assert IFoo.implemented_by(FooImpl)
+        assert IFoo.implemented_by(FooBarImpl)
+        assert not IFoo.implemented_by(BarImpl)
+
+    @raises(TypeError)
+    def test_implemented_by_raises_exception_on_instances(self):
+        assert not IFoo.implemented_by(FooImpl())
+
+    def test_provided_by(self):
+        assert IFoo.provided_by(FooImpl())
+        assert IFoo.provided_by(FooBarImpl())
+        assert not IFoo.provided_by(BarImpl())
+
+class TestIPluginObserverPlugin(TestCase):
+
+    class PluginObserverPlugin(MockSingletonPlugin):
+        from ckan.plugins import IPluginObserver
+        implements(IPluginObserver)
+
+    class OtherPlugin(MockSingletonPlugin):
+        implements(IFoo)
+
+    def setUp(self):
+        plugins.unload_all()
+        plugins.load(self.PluginObserverPlugin)
+        self.PluginObserverPlugin().reset_calls()
+
+    def test_notified_on_load(self):
+
+        observer = self.PluginObserverPlugin()
+        plugins.load(self.OtherPlugin)
+        assert observer.before_load.calls == [((self.OtherPlugin,), {})]
+        assert observer.after_load.calls == [((self.OtherPlugin(),), {})]
+        assert observer.before_unload.calls == []
+        assert observer.after_unload.calls == []
+
+    def test_notified_on_unload(self):
+
+        plugins.load(self.OtherPlugin)
+        observer = self.PluginObserverPlugin()
+        observer.reset_calls()
+
+        plugins.unload(self.OtherPlugin)
+
+        assert observer.before_load.calls == []
+        assert observer.after_load.calls == []
+        assert observer.before_unload.calls == [((self.OtherPlugin(),), {})], observer.before_unload.calls
+        assert observer.after_unload.calls == [((self.OtherPlugin(),), {})]
 
 class TestPlugins(TestCase):
 
     def setUp(self):
-        plugins.unload_all()
         self._saved_plugins_config = config.get('ckan.plugins', '')
         config['ckan.plugins'] = ''
+        plugins.reset()
         working_set.add(ckantestplugin_dist)
 
     def tearDown(self):
@@ -63,6 +133,29 @@ class TestPlugins(TestCase):
         # MapperPlugin2 and RoutesPlugin should NOT be loaded
         assert MapperPlugin2() not in iter(PluginMapperExtension.observers)
         assert RoutesPlugin() not in routing_plugins
+
+    def test_plugin_loading_order(self):
+        """
+        Check that plugins are loaded in the order specified in the config
+        """
+        from ckantestplugin import MapperPlugin, MapperPlugin2, PluginObserverPlugin
+
+        observerplugin = PluginObserverPlugin()
+
+        config['ckan.plugins'] = 'test_observer_plugin mapper_plugin mapper_plugin2'
+        expected_order = MapperPlugin, MapperPlugin2
+
+        plugins.load_all(config)
+        assert observerplugin.before_load.calls == [((p,), {}) for p in expected_order]
+        assert observerplugin.after_load.calls == [((p.__instance__,), {}) for p in (observerplugin,) + expected_order]
+
+        config['ckan.plugins'] = 'test_observer_plugin mapper_plugin2 mapper_plugin'
+        expected_order = MapperPlugin2, MapperPlugin
+        observerplugin.reset_calls()
+
+        plugins.load_all(config)
+        assert observerplugin.before_load.calls == [((p,), {}) for p in expected_order]
+        assert observerplugin.after_load.calls == [((p.__instance__,), {}) for p in (observerplugin,) + expected_order]
 
     def test_mapper_plugin_fired(self):
         config['ckan.plugins'] = 'mapper_plugin'

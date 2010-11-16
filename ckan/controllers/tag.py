@@ -73,5 +73,6 @@ class TagController(BaseController):
                 "Name": tagName
             }
             resultSet["ResultSet"]["Result"].append(result)
+        response.content_type = 'application/json;charset=utf-8'
         return json.dumps(resultSet)
 

@@ -47,6 +47,8 @@ class BaseFormController(BaseApiController):
 
     def package_create(self):
         try:
+            api_url = config.get('ckan.api_url', '/').rstrip('/')
+            c.package_create_slug_api_url = api_url+h.url_for(controller='apiv2/package', action='create_slug')
             # Get the fieldset.
             fieldset = self._get_package_fieldset()
             if request.method == 'GET':

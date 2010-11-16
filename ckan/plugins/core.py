@@ -3,6 +3,7 @@ Provides plugin services to the CKAN
 """
 
 import logging
+from inspect import isclass
 from itertools import chain
 from pkg_resources import iter_entry_points
 from pyutilib.component.core import PluginGlobals, ExtensionPoint, implements
@@ -10,6 +11,8 @@ from pyutilib.component.core import SingletonPlugin as _pca_SingletonPlugin
 from pyutilib.component.core import Plugin as _pca_Plugin
 from pyutilib.component.core import PluginEnvironment
 from sqlalchemy.orm.interfaces import MapperExtension
+
+from ckan.plugins.interfaces import IPluginObserver
 
 __all__ = [
     'ExtensionPoint', 'implements',
@@ -69,11 +72,12 @@ def _get_service(plugin):
 
         return plugin.load()()
 
-    elif isinstance(plugin, (SingletonPlugin, Plugin)):
+    elif isinstance(plugin, _pca_Plugin):
         return plugin
 
-    elif issubclass(plugin, (SingletonPlugin, Plugin)):
+    elif isclass(plugin) and issubclass(plugin, _pca_Plugin):
         return plugin()
+
     else:
         raise TypeError("Expected a plugin name, class or instance", plugin)
 
@@ -106,8 +110,13 @@ def load(plugin):
     """
     Load a single plugin, given a plugin name, class or instance
     """
+    observers = ExtensionPoint(IPluginObserver)
+    for observer_plugin in observers:
+        observer_plugin.before_load(plugin)
     service = _get_service(plugin)
     service.activate()
+    for observer_plugin in observers:
+        observer_plugin.after_load(service)
     return service
 
 def unload_all():
@@ -116,14 +125,22 @@ def unload_all():
     """
     for env in PluginGlobals.env_registry.values():
         for service in env.services.copy():
-            service.deactivate()
+            unload(service)
 
 def unload(plugin):
     """
     Unload a single plugin, given a plugin name, class or instance
     """
+    observers = ExtensionPoint(IPluginObserver)
     service = _get_service(plugin)
+    for observer_plugin in observers:
+        observer_plugin.before_unload(service)
+
     service.deactivate()
+
+    for observer_plugin in observers:
+        observer_plugin.after_unload(service)
+
     return service
 
 def find_user_plugins(config):

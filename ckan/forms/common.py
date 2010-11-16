@@ -4,7 +4,7 @@ from formalchemy import helpers as fa_h
 import formalchemy
 import genshi
 from pylons.templating import render_genshi as render
-from pylons import c
+from pylons import c, config
 from pylons.i18n import _, ungettext, N_, gettext
 
 from ckan.lib.helpers import literal
@@ -412,7 +412,9 @@ class TagField(ConfiguredField):
             pkg_id = self.field.parent.model.id or ''
             kwargs['value'] = self._tags_string()
             kwargs['size'] = 60
-            kwargs['data-tagcomplete-url'] = h.url_for(controller='tag', action='autocomplete', id=None)
+            api_url = config.get('ckan.api_url', '/').rstrip('/')
+            tagcomplete_url = api_url+h.url_for(controller='tag', action='autocomplete', id=None)
+            kwargs['data-tagcomplete-url'] = tagcomplete_url
             kwargs['data-tagcomplete-queryparam'] = 'incomplete'
             kwargs['class'] = 'long tagComplete'
             html = literal(fa_h.text_field(self.name, **kwargs))
@@ -649,20 +651,32 @@ class GroupSelectField(ConfiguredField):
 
             # Make checkboxes HTML from selected groups.
             checkboxes_html = ''
+            checkbox_action = '<input type="checkbox" name="%(name)s" checked="checked" value="%(id)s" />'
+            checkbox_noaction = '&nbsp;'
             checkbox_template = '''
             <dt>
-              <label for="%(name)s">
-                <input type="checkbox" name="%(name)s" checked="checked" value="%(id)s" />
-              </label>
+                %(action)s
             </dt>
             <dd>
-                %(title)s
+                <label for="%(name)s">%(title)s</label><br/>
             </dd>
             '''
             for group in selected_groups:
-                # Make checkbox HTML from a group.
                 checkbox_context = {
                     'id': group.id,
+                    'name': self.name + '-' + group.id,
+                    'title': group.title
+                }
+                action = checkbox_noaction
+                if group in editable_groups:
+                    context = {
+                        'id': group.id,
+                        'name': self.name + '-' + group.id
+                    }
+                    action = checkbox_action % context
+                # Make checkbox HTML from a group.
+                checkbox_context = {
+                    'action': action,
                     'name': self.name + '-' + group.id,
                     'title': group.title
                 }

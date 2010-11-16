@@ -98,6 +98,7 @@ setup(
 
     [ckan.system_plugins]
     domain_object_notifications = ckan.model.notifier:DomainObjectNotificationExtension
+    routes_reloader = ckan.config.routing:ReloadRoutesMapsPlugin
     """,
     # setup.py test command needs a TestSuite so does not work with py.test
     # test_suite = 'nose.collector',

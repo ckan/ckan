@@ -4,13 +4,32 @@ See doc/plugins.rst for more information
 """
 
 __all__ = [
+    'Interface',
     'IGenshiStreamFilter', 'IRoutesExtension',
     'IMapperExtension', 'ISessionExtension',
     'IDomainObjectNotification', 'IGroupController', 
-    'IPackageController'
+    'IPackageController',
+    'IPluginObserver',
 ]
 
-from pyutilib.component.core import Interface
+from inspect import isclass
+from pyutilib.component.core import Interface as _pca_Interface
+
+class Interface(_pca_Interface):
+
+    @classmethod
+    def provided_by(cls, instance):
+        return cls.implemented_by(instance.__class__)
+
+    @classmethod
+    def implemented_by(cls, other):
+        if not isclass(other):
+            raise TypeError("Class expected", other)
+        try:
+            return cls in other._implements
+        except AttributeError:
+            return False
+
 
 class IGenshiStreamFilter(Interface):
     '''
@@ -26,6 +45,7 @@ class IGenshiStreamFilter(Interface):
         :param stream: Genshi stream of the current output document
         :returns: filtered Genshi stream
         """
+        return stream
 
 class IRoutesExtension(Interface):
     """
@@ -40,6 +60,7 @@ class IRoutesExtension(Interface):
         :param map: Routes map object
         :returns: Modified version of the map object
         """
+        return map
 
     def after_map(self, map):
         """
@@ -48,6 +69,7 @@ class IRoutesExtension(Interface):
         :param map: Routes map object
         :returns: Modified version of the map object
         """
+        return map
 
 class IMapperExtension(Interface):
     """
@@ -190,3 +212,31 @@ class IPackageController(Interface):
     def delete(self, entity):
         pass
 
+class IPluginObserver(Interface):
+    """
+    Plugin to the plugin loading mechanism
+    """
+
+    def before_load(self, plugin):
+        """
+        Called before a plugin is loaded
+        This method is passed the plugin class.
+        """
+
+    def after_load(self, service):
+        """
+        Called after a plugin has been loaded.
+        This method is passed the instantiated service object.
+        """
+
+    def before_unload(self, plugin):
+        """
+        Called before a plugin is loaded
+        This method is passed the plugin class.
+        """
+
+    def after_unload(self, service):
+        """
+        Called after a plugin has been unloaded.
+        This method is passed the instantiated service object.
+        """
