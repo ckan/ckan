@@ -651,12 +651,10 @@ class GroupSelectField(ConfiguredField):
             checkboxes_html = ''
             checkbox_template = '''
             <dt>
-              <label for="%(name)s">
                 <input type="checkbox" name="%(name)s" checked="checked" value="%(id)s" />
-              </label>
             </dt>
             <dd>
-                %(title)s
+                <label for="%(name)s">%(title)s</label><br/>
             </dd>
             '''
             for group in selected_groups:
