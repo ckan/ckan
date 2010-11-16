@@ -2,7 +2,7 @@ import logging
 import blinker
 
 from ckan.model.notifier import DomainObjectNotification, Notification
-from ckan.model.notifier import NOTIFYING_DOMAIN_OBJ_NAMES, DomainObjectNotificationOperation
+from ckan.model import DomainObjectOperation
 from ckan.lib.async_notifier import AsyncConsumer
 from ckan.plugins import SingletonPlugin, implements, IDomainObjectNotification
 from common import SearchError

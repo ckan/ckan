@@ -1,4 +1,5 @@
 import meta
+from domain_object import DomainObjectOperation
 from core import *
 from package import *
 from tag import *

@@ -1,13 +1,13 @@
 from sqlalchemy.orm import object_session
 from sqlalchemy.orm.interfaces import EXT_CONTINUE
-import blinker
 
 from vdm.sqlalchemy import State
 
-from ckan.lib.util import Enum
+
 from ckan.plugins import SingletonPlugin, ExtensionPoint, implements
 from ckan.plugins import IMapperExtension, IDomainObjectNotification
 from ckan.model.extension import ObserverNotifier
+from ckan.model.domain_object import DomainObjectOperation
 
 try:
     from operator import methodcaller
@@ -20,13 +20,9 @@ except ImportError:
 
 
 __all__ = ['Notification', 'PackageNotification', 'ResourceNotification',
-           'DatabaseNotification',
-           'DomainObjectNotification', 'StopNotification',
-           'ROUTING_KEYS',
-           'NotificationError']
+           'DatabaseNotification', 'NotificationError',
+           'DomainObjectNotification', 'StopNotification']
 
-NOTIFYING_DOMAIN_OBJ_NAMES = ['Package', 'Resource']
-ROUTING_KEYS = ['db', 'stop', 'request_log'] + NOTIFYING_DOMAIN_OBJ_NAMES
 
 class Notifications(object):
     '''Stores info about all notification objects.'''
@@ -68,7 +64,7 @@ class Notifications(object):
         return getattr(self.instance(), attr)
     
     
-DomainObjectNotificationOperation = Enum('new', 'changed', 'deleted')
+
     
 
 class NotificationError(Exception):
@@ -120,7 +116,7 @@ class DomainObjectNotification(Notification):
         # e.g. if domain_object is Package then cls becomes PackageNotification
         cls = Notifications.instance().domain_object_notifications_by_class.get(domain_object.__class__.__name__, cls)
         routing_key = Notifications.instance().routing_keys_by_class[cls]
-        assert operation in DomainObjectNotificationOperation, operation
+        assert operation in DomainObjectOperation, operation
         return super(DomainObjectNotification, cls).create(\
             routing_key,
             operation=operation,
@@ -168,8 +164,6 @@ class StopNotification(Notification):
         return super(StopNotification, cls).create(cls.msg)
 
 
-
-DomainObjectNotificationOperation = Enum('new', 'changed', 'deleted')
 
 class DomainObjectNotificationExtension(SingletonPlugin, ObserverNotifier):
     """

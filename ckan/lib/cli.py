@@ -859,14 +859,15 @@ class Notifications(CkanCommand):
 
     def replay(self):
         from ckan.model import Package, PackageResource
-        from ckan.model.notifier import DomainObjectNotificationOperation, DomainObjectNotification
+        from ckan.model import DomainObjectOperation
+        from ckan.model.notifier import DomainObjectNotification
         for klass in [Package, PackageResource]:
             for obj in klass.active():
                 if hasattr(obj, 'name'):
                     print "Simulating change to:", obj.name
                 elif hasattr(obj, 'url'):
                     print "Simulating change to:", obj.url
-                notification = DomainObjectNotification.create(obj, DomainObjectNotificationOperation.changed)
+                notification = DomainObjectNotification.create(obj, DomainObjectOperation.changed)
                 notification.send_synchronously()
 
     def monitor(self):
