@@ -1,5 +1,5 @@
 from sqlalchemy.sql import select, and_
-from ckan.lib.base import _, request, response
+from ckan.lib.base import _, request, response, c
 from ckan.lib.cache import ckan_cache
 from ckan.lib.helpers import json
 import ckan.model as model
@@ -13,6 +13,7 @@ log = __import__("logging").getLogger(__name__)
 from ckan.forms.common import package_exists
 from ckan.lib.helpers import json
 from ckan.lib.importer import PackageImporter
+from ckan.lib.search import query_for
 
 class Rest2Controller(object):
     api_version = '2'
@@ -57,4 +58,27 @@ class PackageController(Rest2Controller, _PackageV1Controller):
         #response.content_type = 'application/javascript'
         response_data = dict(name=name, valid=valid)
         return self._finish_ok(response_data)
+
+    def autocomplete(self):
+        incomplete = request.params.get('incomplete', '')
+        if incomplete:
+            query = query_for('tag', backend='sql')
+            query.run(query=incomplete,
+                      return_objects=True,
+                      limit=10,
+                      username=c.user)
+            tagNames = [t.name for t in query.results]
+        else:
+            tagNames = []
+        resultSet = {
+            "ResultSet": {
+                "Result": []
+            }
+        }
+        for tagName in tagNames[:10]:
+            result = {
+                "Name": tagName
+            }
+            resultSet["ResultSet"]["Result"].append(result)
+        return self._finish_ok(resultSet)
 

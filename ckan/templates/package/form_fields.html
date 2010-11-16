@@ -2,6 +2,7 @@
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
 
+<py:if test="hasattr(c, 'package_create_slug_api_url')">
 <script type="text/javascript">
 //<![CDATA[
 (function($){
@@ -69,8 +70,9 @@
                 $.ajax({
                     url: self.url,
                     data: 'title=' + value,
-                    dataType: 'json',
+                    dataType: 'jsonp',
                     type: 'get',
+                    jsonpCallback: 'callback',
                     success: function (data) {
                         if (on_success) {
                             on_success(data);
@@ -107,6 +109,7 @@ $(document).ready(function() {
 
 //]]>
 </script>
+</py:if>
 
 
   <py:def function="form_fields(field_group)">

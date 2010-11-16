@@ -17,6 +17,9 @@ from ckan.config.routing import ReloadableMapperWrapper, make_map
 from ckan import model
 from ckan import plugins
 
+import blinker
+
+
 def load_environment(global_conf, app_conf):
     """Configure the Pylons environment via the ``pylons.config``
     object
@@ -42,7 +45,8 @@ def load_environment(global_conf, app_conf):
     # load all CKAN plugins
     plugins.load_all(config)
     
-    config['routes.map'] = ReloadableMapperWrapper(make_map)
+    # config['routes.map'] = ReloadableMapperWrapper(make_map)
+    config['routes.map'] = make_map()
     config['pylons.app_globals'] = app_globals.Globals()
     config['pylons.h'] = ckan.lib.helpers
         

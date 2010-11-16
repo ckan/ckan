@@ -209,7 +209,7 @@ def make_map():
                 conditions=dict(method=['GET']))
     map.connect('/api/2/util/package/create_slug', controller='apiv2/package', action='create_slug',
                 conditions=dict(method=['GET']))
-    map.connect('/api/2/util/tag/autocomplete', controller='tag', action='autocomplete',
+    map.connect('/api/2/util/tag/autocomplete', controller='apiv2/package', action='autocomplete',
                 conditions=dict(method=['GET']))
     map.connect('/api/2/rest/package', controller='apiv2/package', action='create',
                 conditions=dict(method=['POST']))
@@ -280,7 +280,6 @@ def make_map():
     map.redirect("/tags/{url:.*}", "/tag/{url}")
     map.redirect("/tag/read/{url:.*}", "/tag/{url}", _redirect_code='301 Moved Permanently')
     map.connect('/tag/', controller='tag', action='index')
-    map.connect('/tag/autocomplete', controller='tag', action='autocomplete')
     map.connect('/tag/:id', controller='tag', action='read')
     map.redirect("/users/{url:.*}", "/user/{url}")
     map.connect('/user/all', controller='user', action='all')
