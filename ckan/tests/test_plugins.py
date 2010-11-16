@@ -93,9 +93,9 @@ class TestIPluginObserverPlugin(TestCase):
 class TestPlugins(TestCase):
 
     def setUp(self):
-        plugins.unload_all()
         self._saved_plugins_config = config.get('ckan.plugins', '')
         config['ckan.plugins'] = ''
+        plugins.reset()
         working_set.add(ckantestplugin_dist)
 
     def tearDown(self):
