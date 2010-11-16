@@ -422,6 +422,7 @@ class TestEdit(TestPackageForm):
     @classmethod
     def _reset_data(self):
         CreateTestData.delete()
+        CreateTestData.create()
         CreateTestData.create_arbitrary(
             {'name':self.editpkg_name,
              'url':u'editpkgurl.com',
@@ -438,6 +439,7 @@ class TestEdit(TestPackageForm):
 
         self.editpkg = model.Package.by_name(self.editpkg_name)
         self.admin = model.User.by_name(u'testadmin')
+        
         self.res = None #get's refreshed by setup
 
     @classmethod
@@ -811,14 +813,66 @@ u with umlaut \xc3\xbc
         finally:
             self._reset_data()
 
-    #def test_edit_with_admin_login_during_form(self):
-    #    from pprint import pprint
-    #    offset = url_for(controller='package', action='edit', id=self.pkgid)
-    #    res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':''})
-    #    form = res.forms['package-edit']
-    #    res = form.submit('save', status=302, extra_environ={'REMOTE_USER': 'testadmin'})
-    #    assert not 'Errors in form' in res, res
-        
+    def test_edit_700_groups_unauthorized(self):
+        try:
+            pkg = model.Package.by_name(u'editpkgtest')
+            grp = model.Group.by_name(u'david')
+            assert len(pkg.groups) == 0
+            offset = url_for(controller='package', action='edit', id=pkg.name)
+            res = self.app.get(offset)
+            prefix = 'Package-%s-' % pkg.id
+            fv = res.forms['package-edit']
+            name = prefix + 'groups-new'
+            assert not name in fv.fields.keys()
+            res = fv.submit('save')
+            res = res.follow()
+            pkg = model.Package.by_name(u'editpkgtest')
+            assert len(pkg.groups) == 0
+        finally:
+            self._reset_data()            
+    
+    def test_edit_700_groups_add(self):
+        try:
+            pkg = model.Package.by_name(u'editpkgtest')
+            grp = model.Group.by_name(u'david')
+            assert len(pkg.groups) == 0
+            offset = url_for(controller='package', action='edit', id=pkg.name)
+            
+            res = self.app.get(offset, extra_environ={'REMOTE_USER':'russianfan'})
+            prefix = 'Package-%s-' % pkg.id
+            field_name = prefix + "groups-%s" % grp.id
+            assert not field_name in res
+            fv = res.forms['package-edit']
+            fv[prefix + 'groups-new'] = grp.id
+            res = fv.submit('save', extra_environ={'REMOTE_USER':'russianfan'})
+            res = res.follow()
+            pkg = model.Package.by_name(u'editpkgtest')
+            assert len(pkg.groups) == 1
+            assert 'david' in res, res
+        finally:
+            self._reset_data()
+    
+    def test_edit_700_groups_remove(self):
+        try:
+            pkg = model.Package.by_name(u'editpkgtest')
+            assert len(pkg.groups) == 0
+            grp = model.Group.by_name(u'david')
+            model.repo.new_revision()
+            pkg.groups.append(grp)
+            model.repo.commit_and_remove()
+            pkg = model.Package.by_name(u'editpkgtest')
+            assert len(pkg.groups) == 1
+            offset = url_for(controller='package', action='edit', id=pkg.name)
+            res = self.app.get(offset, extra_environ={'REMOTE_USER':'russianfan'})
+            prefix = 'Package-%s-' % pkg.id
+            field_name = prefix + "groups-%s" % grp.id
+            fv = res.forms['package-edit']
+            fv[field_name] = False
+            res = fv.submit('save', extra_environ={'REMOTE_USER':'russianfan'})
+            pkg = model.Package.by_name(u'editpkgtest')
+            assert len(pkg.groups) == 0
+        finally:
+            self._reset_data()
 
 class TestNew(TestPackageForm):
     pkg_names = []
