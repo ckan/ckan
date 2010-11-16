@@ -93,11 +93,10 @@ setup(
     solr = ckan.lib.search.solr_:SolrSearchBackend
 
     [ckan.plugins]
-    amqp_notifier = ckan.lib.async_notifier:AMQPDomainObjectNotifier
     synchronous_search = ckan.lib.search.worker:SynchronousSearchPlugin
 
     [ckan.system_plugins]
-    domain_object_notifications = ckan.model.notifier:DomainObjectNotificationExtension
+    domain_object_mods = ckan.model.notifier:DomainObjectModificationExtension
     routes_reloader = ckan.config.routing:ReloadRoutesMapsPlugin
     """,
     # setup.py test command needs a TestSuite so does not work with py.test
