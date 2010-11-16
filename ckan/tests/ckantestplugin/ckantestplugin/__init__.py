@@ -25,12 +25,12 @@ class RoutesPlugin(SingletonPlugin):
     def __init__(self):
         self.calls_made = []
 
-    def before_add(self, map):
-        self.calls_made.append('before_add')
+    def before_map(self, map):
+        self.calls_made.append('before_map')
         return map
 
-    def after_add(self, map):
-        self.calls_made.append('after_add')
+    def after_map(self, map):
+        self.calls_made.append('after_map')
         return map
     
 class PluginObserverPlugin(MockSingletonPlugin):
