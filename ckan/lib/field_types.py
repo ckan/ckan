@@ -144,7 +144,7 @@ class DateType(object):
         except ValueError, e:
             raise DateConvertError('Could not read date as ISO format "%s". Date provided: "%s"' % (format, iso_date))
         date_obj = datetime.datetime(*date_tuple[:4])
-        date_str = date_obj.strftime('%Y-%m-%d')
+        date_str = cls.date_to_db(date_obj)
         return date_str
 
     @classmethod
@@ -184,6 +184,15 @@ class DateType(object):
                 raise e
             else:
                 return form_str
+
+    @classmethod
+    def date_to_db(cls, date):
+        '''
+        datetime.date(2005, 2, 27) -> 2005-02-27
+        '''
+        assert isinstance(date, datetime.date)
+        date_str = date.strftime('%Y-%m-%d')
+        return date_str
 
     @classmethod
     def format(cls, datetime_dict, format_type):

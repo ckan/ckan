@@ -63,8 +63,8 @@ class TestPackage:
         assert out['license'] == pkg.license.title
         assert out['license_id'] == pkg.license.id
         assert out['tags'] == [tag.name for tag in pkg.tags]
-        assert out['metadata_modified'] == pkg.metadata_modified
-        assert out['metadata_created'] == pkg.metadata_created
+        assert out['metadata_modified'] == pkg.metadata_modified.isoformat()
+        assert out['metadata_created'] == pkg.metadata_created.isoformat()
 
 
 class TestPackageWithTags:

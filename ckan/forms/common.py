@@ -651,20 +651,32 @@ class GroupSelectField(ConfiguredField):
 
             # Make checkboxes HTML from selected groups.
             checkboxes_html = ''
+            checkbox_action = '<input type="checkbox" name="%(name)s" checked="checked" value="%(id)s" />'
+            checkbox_noaction = '&nbsp;'
             checkbox_template = '''
             <dt>
-              <label for="%(name)s">
-                <input type="checkbox" name="%(name)s" checked="checked" value="%(id)s" />
-              </label>
+                %(action)s
             </dt>
             <dd>
-                %(title)s
+                <label for="%(name)s">%(title)s</label><br/>
             </dd>
             '''
             for group in selected_groups:
-                # Make checkbox HTML from a group.
                 checkbox_context = {
                     'id': group.id,
+                    'name': self.name + '-' + group.id,
+                    'title': group.title
+                }
+                action = checkbox_noaction
+                if group in editable_groups:
+                    context = {
+                        'id': group.id,
+                        'name': self.name + '-' + group.id
+                    }
+                    action = checkbox_action % context
+                # Make checkbox HTML from a group.
+                checkbox_context = {
+                    'action': action,
                     'name': self.name + '-' + group.id,
                     'title': group.title
                 }

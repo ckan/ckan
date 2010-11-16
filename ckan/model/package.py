@@ -157,8 +157,8 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         if site_url:
             _dict['ckan_url'] = '%s/package/%s' % (site_url, self.name)
         _dict['relationships'] = [rel.as_dict(self, ref_package_by=ref_package_by) for rel in self.get_relationships()]
-        _dict['metadata_modified'] = self.metadata_modified
-        _dict['metadata_created'] = self.metadata_created
+        _dict['metadata_modified'] = self.metadata_modified.isoformat()
+        _dict['metadata_created'] = self.metadata_created.isoformat()
         return _dict
 
     def add_relationship(self, type_, related_package, comment=u''):
