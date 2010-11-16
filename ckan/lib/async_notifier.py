@@ -72,7 +72,7 @@ class AsyncNotifier(object):
                                  routing_key=notification_dict['routing_key'])
         except Exception, e:
             # try again, in the case of broken pipe, etc
-            log.exception(e)
+            logger.exception(e)
             try:
                 cls._publisher = None
                 cls.publisher().send(notification_dict,
