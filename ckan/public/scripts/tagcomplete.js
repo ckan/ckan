@@ -46,8 +46,15 @@
     
     if (cbk) { url += '?' + cbk + '=?'; }
     
-    $.getJSON(url, reqData, function (json) {
-      updateTagList(tagsContainer, json);
+    $.ajax({
+        url: url,
+        data: reqData,
+        dataType: 'jsonp',
+        type: 'get',
+        jsonpCallback: 'callback',
+        success: function (json) {
+            updateTagList(tagsContainer, json);
+        },
     });
   }
   

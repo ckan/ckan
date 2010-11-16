@@ -5,7 +5,7 @@ from sqlalchemy.orm import eagerload_all
 from ckan.lib.base import *
 from ckan.lib.search import query_for
 from ckan.lib.cache import proxy_cache
-from ckan.lib.helpers import json, AlphaPage, Page
+from ckan.lib.helpers import AlphaPage, Page
 
 LIMIT = 25
 
@@ -51,28 +51,4 @@ class TagController(BaseController):
         if c.tag is None:
             abort(404)
         return render('tag/read.html')
-
-    def autocomplete(self):
-        incomplete = request.params.get('incomplete', '')
-        if incomplete:
-            query = query_for('tag', backend='sql')
-            query.run(query=incomplete,
-                      return_objects=True,
-                      limit=10,
-                      username=c.user)
-            tagNames = [t.name for t in query.results]
-        else:
-            tagNames = []
-        resultSet = {
-            "ResultSet": {
-                "Result": []
-            }
-        }
-        for tagName in tagNames[:10]:
-            result = {
-                "Name": tagName
-            }
-            resultSet["ResultSet"]["Result"].append(result)
-        response.content_type = 'application/json;charset=utf-8'
-        return json.dumps(resultSet)
 

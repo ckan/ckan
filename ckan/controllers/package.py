@@ -258,6 +258,8 @@ class PackageController(BaseController):
     def edit(self, id=None): # allow id=None to allow posting
         # TODO: refactor to avoid duplication between here and new
         c.error = ''
+        api_url = config.get('ckan.api_url', '/').rstrip('/')
+        c.package_create_slug_api_url = api_url+h.url_for(controller='apiv2/package', action='create_slug')
 
         c.pkg = pkg = model.Package.get(id)
         if pkg is None:
