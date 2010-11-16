@@ -45,6 +45,7 @@ class IGenshiStreamFilter(Interface):
         :param stream: Genshi stream of the current output document
         :returns: filtered Genshi stream
         """
+        return stream
 
 class IRoutesExtension(Interface):
     """
@@ -59,6 +60,7 @@ class IRoutesExtension(Interface):
         :param map: Routes map object
         :returns: Modified version of the map object
         """
+        return map
 
     def after_map(self, map):
         """
@@ -67,6 +69,7 @@ class IRoutesExtension(Interface):
         :param map: Routes map object
         :returns: Modified version of the map object
         """
+        return map
 
 class IMapperExtension(Interface):
     """
