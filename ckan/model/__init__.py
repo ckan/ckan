@@ -1,4 +1,5 @@
 import meta
+from domain_object import DomainObjectOperation
 from core import *
 from package import *
 from tag import *
@@ -14,7 +15,6 @@ from resource import *
 from rating import *
 from package_relationship import *
 from changeset import Changeset, Change, Changemask
-from notifier import *
 from harvesting import HarvestSource, HarvestingJob, HarvestedDocument
 
 import ckan.migration

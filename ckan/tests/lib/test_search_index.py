@@ -14,22 +14,19 @@ class TestSearchIndex(TestController):
     @classmethod
     def setup_class(cls):
         CreateTestData.create()
-        cls.worker = search.SearchIndexWorker(search.get_backend(backend='sql'))
-        cls.worker.clear_queue()
 
     @classmethod
     def teardown_class(cls):
         CreateTestData.delete()        
 
     def test_index(self):
-        notification = model.PackageNotification.create(self.anna, 'new')
-        notification['payload']['title'] = 'penguin'
-        self.worker.callback(notification)
+        search.dispatch_by_operation('Package', {'title': 'penguin'}, 'new', 
+            backend=search.get_backend(backend='sql'))
 
         sql = "select search_vector from package_search where package_id='%s'" % self.anna.id
         vector = model.Session.execute(sql).fetchone()[0]
         assert 'annakarenina' in vector, vector
-        assert 'penguin' in vector, vector
+        assert not 'penguin' in vector, vector
 
 
 class PostgresSearch(object):

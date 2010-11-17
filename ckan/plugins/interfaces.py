@@ -7,7 +7,7 @@ __all__ = [
     'Interface',
     'IGenshiStreamFilter', 'IRoutesExtension',
     'IMapperExtension', 'ISessionExtension',
-    'IDomainObjectNotification', 'IGroupController', 
+    'IDomainObjectModification', 'IGroupController', 
     'IPackageController',
     'IPluginObserver',
 ]
@@ -151,15 +151,12 @@ class ISessionExtension(Interface):
         Execute after a rollback has occured.
         """
 
-class IDomainObjectNotification(Interface):
+class IDomainObjectModification(Interface):
     """
-    Receives notification of new and changed domain objects
+    Receives notification of new, changed and deleted domain objects
     """
 
-    def after_insert(self, mapper, connection, instance):
-        pass
-
-    def after_update(self, mapper, connection, instance):
+    def notify(self, entity, operation):
         pass
 
 class IGroupController(Interface):
