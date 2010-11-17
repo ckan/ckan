@@ -9,7 +9,6 @@ log = logging.getLogger(__name__)
          
 def dispatch_by_operation(entity_type, entity, operation, backend=None):
     """ Call the appropriate index method for a given notification. """
-    log.warn("XXXXXXXXXXXXXXXXXXXXX %s: %s -> %s" % (entity_type, entity.get('id', 'NONE'), operation))
     if backend is None: 
         from ckan.lib.search import get_backend
         backend = get_backend()

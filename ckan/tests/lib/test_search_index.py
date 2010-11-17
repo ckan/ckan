@@ -26,7 +26,7 @@ class TestSearchIndex(TestController):
         sql = "select search_vector from package_search where package_id='%s'" % self.anna.id
         vector = model.Session.execute(sql).fetchone()[0]
         assert 'annakarenina' in vector, vector
-        assert 'penguin' in vector, vector
+        assert not 'penguin' in vector, vector
 
 
 class PostgresSearch(object):

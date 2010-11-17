@@ -205,12 +205,12 @@ class SqlSearchIndex(SearchIndex): pass
 class PackageSqlSearchIndex(SqlSearchIndex):
     
     def _make_vector(self, pkg_dict):
-        if isinstance(pkg_dict['tags'], (list, tuple)):
-            pkg_dict['tags'] = ' '.join(pkg_dict['tags'])
-        if isinstance(pkg_dict['groups'], (list, tuple)):
-            pkg_dict['groups'] = ' '.join(pkg_dict['groups'])
+        if isinstance(pkg_dict.get('tags'), (list, tuple)):
+            pkg_dict['tags'] = ' '.join(pkg_dict.get('tags', []))
+        if isinstance(pkg_dict.get('groups'), (list, tuple)):
+            pkg_dict['groups'] = ' '.join(pkg_dict.get('groups', []))
 
-        document_a = u' '.join((pkg_dict['name'] or u'', pkg_dict['title'] or u''))
+        document_a = u' '.join((pkg_dict.get('name') or u'', pkg_dict.get('title') or u''))
         document_b_items = []
         for field_name in ['notes', 'tags', 'groups', 'author', 'maintainer']:
             val = pkg_dict.get(field_name)
@@ -234,14 +234,18 @@ class PackageSqlSearchIndex(SqlSearchIndex):
         res.close()
     
     def insert_dict(self, pkg_dict):
+        if not 'id' in pkg_dict or not 'name' in pkg_dict:
+            return
         vector_sql, params = self._make_vector(pkg_dict)
         sql = "INSERT INTO package_search VALUES (%%s, %s)" % vector_sql
-        params = [pkg_dict['id']] + params
+        params = [pkg_dict.get('id')] + params
         res = meta.Session.connection().execute(sql, params)
         res.close()
         log.debug("Indexed %s" % pkg_dict.get('name'))
     
     def update_dict(self, pkg_dict):
+        if not 'id' in pkg_dict or not 'name' in pkg_dict:
+            return 
         vector_sql, params = self._make_vector(pkg_dict)
         sql = "UPDATE package_search SET search_vector=%s WHERE package_id=%%s" % vector_sql
         params.append(pkg_dict['id'])
