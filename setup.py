@@ -97,7 +97,6 @@ setup(
 
     [ckan.system_plugins]
     domain_object_mods = ckan.model.modification:DomainObjectModificationExtension
-    routes_reloader = ckan.config.routing:ReloadRoutesMapsPlugin
     """,
     # setup.py test command needs a TestSuite so does not work with py.test
     # test_suite = 'nose.collector',

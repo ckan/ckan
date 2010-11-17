@@ -7,45 +7,9 @@ refer to the routes manual at http://routes.groovie.org/docs/
 from pylons import config
 from routes import Mapper
 from formalchemy.ext.pylons import maps # routes generator
-from ckan.plugins import ExtensionPoint, SingletonPlugin, implements
-from ckan.plugins.interfaces import IRoutesExtension, IPluginObserver
+from ckan.plugins import ExtensionPoint, IRoutesExtension
 
 routing_plugins = ExtensionPoint(IRoutesExtension)
-routing_middleware = None
-
-class ReloadableMapperWrapper(object):
-    """
-    A wrapper around a mapper that lets the mapper be reloaded.
-    """
-
-    def __init__(self, make_mapper):
-        """
-        :param make_mapper: a callable returning a routes.Mapper object
-        """
-        self.make_mapper = make_mapper
-        self.mapper = make_mapper()
-
-    def __getattr__(self, attr):
-        return getattr(self.mapper, attr)
-
-    def reload(self):
-        """
-        Reload the wrapped mapper object from the make_mapper function
-        """
-        self.mapper = self.make_mapper()
-
-class ReloadRoutesMapsPlugin(SingletonPlugin):
-    """
-    Hook into the plugin system to reload the routes mappings wheneve a
-    IRoutesExtension plugin is loaded.
-    """
-
-    implements(IPluginObserver, inherit=True)
-
-    def after_load(self, service):
-        if IRoutesExtension.provided_by(service):
-            config['routes.map'].reload()
-
 
 def make_map():
     """Create, configure and return the routes Mapper"""
