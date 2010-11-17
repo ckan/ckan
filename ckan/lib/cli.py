@@ -266,7 +266,6 @@ class SearchIndexCommand(CkanCommand):
     '''Creates a search index for all packages
 
     Usage:
-      search-index                         - indexes changes as they occur
       search-index rebuild                 - indexes all packages
     '''
 
@@ -277,23 +276,18 @@ class SearchIndexCommand(CkanCommand):
 
     def command(self):
         self._load_config()
-        from ckan.lib.search import get_backend, rebuild, SearchIndexWorker
 
         if not self.args:
             # default to run
-            cmd = 'run'
+            cmd = 'rebuild'
         else:
             cmd = self.args[0]
-        if cmd == 'run':
-            backend = get_backend()
-            indexer = SearchIndexWorker(backend)
-            indexer.clear_queue()
-            while True:
-                indexer.run()
+        
         if cmd == 'rebuild':
             rebuild()
         else:
             print 'Command %s not recognized' % cmd
+
 
 class Sysadmin(CkanCommand):
     '''Gives sysadmin rights to a named 
@@ -832,7 +826,6 @@ class Notifications(CkanCommand):
 
     Usage:
       notifications monitor                 - runs monitor, printing all notifications
-      notifications replay                  - simulate a change to all packages in the system
     '''
 
     summary = __doc__.split('\n')[0]
@@ -852,22 +845,8 @@ class Notifications(CkanCommand):
         cmd = self.args[0]
         if cmd == 'monitor':
             self.monitor()
-        if cmd == 'replay':
-            self.replay()
         else:
             print 'Command %s not recognized' % cmd
-
-    def replay(self):
-        from ckan.model import Package, PackageResource
-        from ckan.model.notifier import DomainObjectNotificationOperation, DomainObjectNotification
-        for klass in [Package, PackageResource]:
-            for obj in klass.active():
-                if hasattr(obj, 'name'):
-                    print "Simulating change to:", obj.name
-                elif hasattr(obj, 'url'):
-                    print "Simulating change to:", obj.url
-                notification = DomainObjectNotification.create(obj, DomainObjectNotificationOperation.changed)
-                notification.send_synchronously()
 
     def monitor(self):
         from ckan.lib import monitor

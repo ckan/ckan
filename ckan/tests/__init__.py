@@ -320,19 +320,13 @@ class TestSearchIndexer:
     self.tsi.index()
      (do searching)
     ''' 
-    worker = None
     
     def __init__(self):
-        TestSearchIndexer.worker = search.SearchIndexWorker(search.get_backend(backend='sql'))
-        TestSearchIndexer.worker.clear_queue()
-        self.worker.consumer.close()
+        from ckan import plugins
+        plugins.load('synchronous_search')
 
     @classmethod
     def index(cls):
-        message = cls.worker.consumer.fetch()
-        while message is not None:
-            cls.worker.async_callback(message.payload, message)
-            message = cls.worker.consumer.fetch()
-        cls.worker.consumer.close()        
+        pass     
 
 

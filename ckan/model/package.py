@@ -157,8 +157,10 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         if site_url:
             _dict['ckan_url'] = '%s/package/%s' % (site_url, self.name)
         _dict['relationships'] = [rel.as_dict(self, ref_package_by=ref_package_by) for rel in self.get_relationships()]
-        _dict['metadata_modified'] = self.metadata_modified.isoformat()
-        _dict['metadata_created'] = self.metadata_created.isoformat()
+        _dict['metadata_modified'] = self.metadata_modified.isoformat() \
+            if self.metadata_modified else None
+        _dict['metadata_created'] = self.metadata_created.isoformat() \
+            if self.metadata_created else None
         return _dict
 
     def add_relationship(self, type_, related_package, comment=u''):
@@ -422,7 +424,9 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                 model.package_revision_table,
                 and_(model.revision_table.c.id==model.package_revision_table.c.revision_id))
             ).order_by(model.Revision.timestamp.asc())
-        return q.first().timestamp
+        ts = q.first()
+        if ts is not None:
+            return ts.timestamp
 
     @staticmethod
     def get_fields(core_only=False, fields_to_ignore=None):
