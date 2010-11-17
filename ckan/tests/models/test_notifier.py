@@ -43,7 +43,8 @@ class TestNotification(TestController):
         CreateTestData.create_arbitrary([self.pkg_dict], extra_group_names=[self.group_name])
         self.clear()        
 
-    def setUp(self):
+    def setup(self):
+        super(TestNotification, self).setup()
         self.clear()
 
     @classmethod

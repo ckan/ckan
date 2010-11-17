@@ -31,6 +31,6 @@ The |site| |api| presents the catalog of metadata behind |site|.
 
 .. include:: api/clients.rst.inc
 
-.. include:: api/jsonp.rst.inc
+.. include:: api/example.rst.inc
 
 

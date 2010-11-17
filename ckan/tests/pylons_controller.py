@@ -26,7 +26,7 @@ class MockTranslator(object):
 class PylonsTestCase(TestController): 
     """A basic test case which allows access to pylons.c and pylons.request. 
     """ 
-    def setUp(self): 
+    def setup(self): 
         self.registry=Registry() 
         self.registry.prepare() 
 

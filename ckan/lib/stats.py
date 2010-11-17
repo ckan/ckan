@@ -85,6 +85,7 @@ class Stats(object):
         user_object_role = table('user_object_role')
         s = select([user_object_role.c.user_id, func.count(user_object_role.c.role)], from_obj=[user_object_role.join(package_role)]).\
             where(user_object_role.c.role==model.authz.Role.ADMIN).\
+            where(user_object_role.c.user_id!=None).\
             group_by(user_object_role.c.user_id).\
             order_by(func.count(user_object_role.c.role).desc()).\
             limit(limit)

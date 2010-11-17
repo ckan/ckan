@@ -81,10 +81,9 @@ class CreateTestData(cli.CkanCommand):
         self.user_names = [u'tester']
 
     @classmethod
-    def create_arbitrary(self, package_dicts,
-                         relationships=[], extra_user_names=[],
-                         extra_group_names=[],
-                         commit_changesets=False):
+    def create_arbitrary(self, package_dicts, relationships=[],
+            extra_user_names=[], extra_group_names=[], 
+            commit_changesets=False, admins=[]):
         '''Creates packages and a few extra objects as well at the
         same time if required.
         @param package_dicts - a list of dictionaries with the package
@@ -155,9 +154,9 @@ class CreateTestData(cli.CkanCommand):
                         else:
                             raise NotImplementedError
                         for group_name in group_names:
-                            group = model.Group.by_name(group_name)
+                            group = model.Group.by_name(unicode(group_name))
                             if not group:
-                                group = model.Group(name=group_name)
+                                group = model.Group(name=unicode(group_name))
                                 model.Session.add(group)
                                 new_group_names.add(group_name)
                             pkg.groups.append(group)
@@ -168,6 +167,7 @@ class CreateTestData(cli.CkanCommand):
                     elif attr == 'extras':
                         pkg.extras = val
                     elif attr == 'admins':
+                        # Todo: Use admins parameter to pass in admins (three tests).
                         assert isinstance(val, list)
                         admins_list.append((item['name'], val))
                         for user_name in val:
@@ -176,7 +176,7 @@ class CreateTestData(cli.CkanCommand):
                     else:
                         raise NotImplementedError(attr)
                 self.pkg_names.append(item['name'])
-                model.setup_default_user_roles(pkg)
+                model.setup_default_user_roles(pkg, admins=admins)
             model.repo.commit_and_remove()
 
         needs_commit = False

@@ -5,10 +5,15 @@ from lxml import etree
 import urllib2
 
 from types import make_uuid
+from types import JsonType
 from core import *
 from domain_object import DomainObject
+from package import Package
+from ckan.lib.cswclient import CswClient
+from ckan.lib.cswclient import CswError
 
 log = logging.getLogger(__name__)
+
 __all__ = [
     'HarvestSource', 'harvest_source_table',
     'HarvestingJob', 'harvesting_job_table',
@@ -63,111 +68,247 @@ class DomainObject(DomainObject):
 
 class HarvestSource(DomainObject):
 
-    def write_package(self, document):
+    def write_package(self, content):
         from ckan.lib.base import _
         import ckan.forms
         import ckan.model as model
         package = None
         # Read data for package.
-        values = document.read_attributes()
+        gemini_document = GeminiDocument(content)
+        gemini_values = gemini_document.read_attributes()
+        gemini_guid = gemini_values['guid']
+        harvested_documents = HarvestedDocument.filter(guid=gemini_guid).all()
+        if len(harvested_documents) > 1:
+            # A programming error.
+            raise Exception, "More than one harvested document GUID %s in database." % gemini_guid
+        elif len(harvested_documents) == 1:
+            harvested_document = harvested_documents[0]
+            if harvested_document.source.id != self.id:
+                # A 'user' error.
+                raise Exception, "Another source is using metadata GUID %s."
+            package = harvested_document.package
+        else:
+            harvested_document = None
+            package = None
         package_data = {
-            'name': values['guid'],
-            'title': values['title'],
-            'extras': values,
+            'name': gemini_values['guid'],
+            'title': gemini_values['title'],
+            'extras': gemini_values,
         }
-        # Create package from data.
-        try:
-            fs = ckan.forms.get_standard_fieldset()
+        if package == None:
+            # Create package from data.
             try:
-                fa_dict = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(fs=fs), package_data)
-            except ckan.forms.PackageDictFormatError, inst:
-                log.error('Package format incorrect: %s' % str(inst))
-            else:
-                fs = fs.bind(model.Package, data=fa_dict, session=model.Session)
-                # Validate the fieldset.
-                is_valid = fs.validate()
-                if is_valid:
-                    # Construct new revision.
-                    rev = model.repo.new_revision()
-                    #rev.author = self.rest_api_user
-                    rev.message = _(u'Harvester: Created package %s') % str(fs.model.id)
-                    # Construct catalogue entity.
-                    fs.sync()
-                    # Construct access control entities.
-                    #if self.rest_api_user:
-                    #    admins = [model.User.by_name(self.rest_api_user.decode('utf8'))]
-                    #else:
-                    #    admins = []
-                    # Todo: Better 'admins' than this?
-                    admins = []
-                    model.setup_default_user_roles(fs.model, admins)
-                    # Commit
-                    model.repo.commit()        
-                    package = fs.model
+                user_editable_groups = []
+                fs = ckan.forms.get_standard_fieldset(user_editable_groups=user_editable_groups)
+                try:
+                    fa_dict = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(fs=fs, user_editable_groups=user_editable_groups), package_data)
+                except ckan.forms.PackageDictFormatError, exception:
+                    msg = 'Package format incorrect: %r' % exception
+                    raise Exception, msg
                 else:
-                    # Complain about validation errors.
-                    log.error('Validation error: %r' % repr(fs.errors))
-        except Exception, inst:
-            log.exception(inst)
-            model.Session.rollback()
-            log.error('Exception creating object from data %s: %r' % (str(package_data), inst))
-            raise
-        return package
+                    fs = fs.bind(model.Package, data=fa_dict, session=model.Session)
+                    # Validate the fieldset.
+                    is_valid = fs.validate()
+                    if is_valid:
+                        # Construct new revision.
+                        rev = model.repo.new_revision()
+                        #rev.author = self.rest_api_user
+                        rev.message = _(u'Harvester: Created package %s') % str(fs.model.id)
+                        # Construct catalogue entity.
+                        fs.sync()
+                        # Construct access control entities.
+                        #if self.rest_api_user:
+                        #    admins = [model.User.by_name(self.rest_api_user.decode('utf8'))]
+                        #else:
+                        #    admins = []
+                        # Todo: Better 'admins' than this?
+                        admins = []
+                        model.setup_default_user_roles(fs.model, admins)
+                        # Commit
+                        model.repo.commit()        
+                        package = fs.model
+                    else:
+                        # Complain about validation errors.
+                        msg = 'Validation error: %r' % repr(fs.errors)
+                        raise Exception, msg
+            except:
+                model.Session.rollback()
+                model.Session.close()
+                raise
+            if harvested_document == None:
+                harvested_document = self.create_document(content=content, guid=gemini_guid, package=package)
+            else:
+                harvested_document.content = content
+                harvested_document.save()
+            return package
+        else:
+            if gemini_values == harvested_document.read_attributes():
+                return None
+            else:
+                from ckan.forms import GetPackageFieldset
+                fieldset = GetPackageFieldset().fieldset
+                from ckan.forms import GetEditFieldsetPackageData
+                fieldset_data = GetEditFieldsetPackageData(
+                    fieldset=fieldset, package=package, data=package_data).data
+                bound_fieldset = fieldset.bind(package, data=fieldset_data)
+                log_message = 'harvester'
+                author = ''
+                from ckan.lib.package_saver import WritePackageFromBoundFieldset
+                from ckan.lib.package_saver import ValidationException
+                try:
+                    WritePackageFromBoundFieldset(
+                        fieldset=bound_fieldset,
+                        log_message=log_message,
+                        author=author,
+                    )
+                except ValidationException:
+                    msgs = []
+                    for (field, errors) in bound_fieldset.errors.items():
+                        for error in errors:
+                            msg = "%s: %s" % (field.name, error)
+                            msgs.append(msg)
+                    msg = "Fieldset validation errors: %s" % msgs
+                    raise Exception, msg
+                else:
+                    return package
+
+    def create_document(self, content, guid, package):
+        document = HarvestedDocument.create_save(content=content, guid=guid, package=package)
+        self.documents.append(document)
+        self.save()
+        return document
 
 
 class HarvestingJob(DomainObject):
 
     def harvest_documents(self):
+        self.set_status_running()
+        self.get_report()
+        self.save()
         try:
             content = self.get_source_content()
+        except urllib2.URLError, exception:
+            msg = "Unable to read registered URL: %r" % exception
+            self.report_error(msg)
+        else:
             source_type = self.detect_source_type(content)
-            if source_type == 'doc':
-                self.harvest_document(url=self.source.url, content=content)
+            if source_type == None:
+                self.report_error("Unable to detect source type from content.")
+            elif source_type == 'doc':
+                self.harvest_document(content=content)
             elif source_type == 'csw':
-                pass
+                self.harvest_csw_documents(url=self.source.url)
             elif source_type == 'waf':
-                pass
+                self.harvest_waf_documents(content=content)
             else:
                 raise Exception, "Source type '%s' not supported." % source_type
-        except Exception, inst:
-            import traceback
-            self.report = "Couldn't harvest documents: %s" % traceback.format_exc() 
-            self.set_status_error()
-            self.save()
-        else:
-            self.write_report()
-            self.set_status_success()
+            if not self.report_has_errors():
+                self.set_status_success()
+            else:
+                self.set_status_error()
             self.save()
         return self.report
 
+    def report_error(self, msg):
+        self.get_report()['errors'].append(msg)
+        self.save()
+
+    def report_package(self, msg):
+        self.get_report()['packages'].append(msg)
+        self.save()
+
+    def get_report(self):
+        if self.report == None:
+            self.report = {
+                'packages': [],
+                'errors': [],
+            }
+        return self.report
+
+    def report_has_errors(self):
+        return bool(self.get_report()['errors'])
+
     def get_source_content(self):
-        source = urllib2.urlopen(self.source.url)
-        content = source.read()
-        return content
+        return self.get_content(self.source.url)
+
+    def get_content(self, url):
+        http_response = urllib2.urlopen(url)
+        return http_response.read()
 
     def detect_source_type(self, content):
         if "<gmd:MD_Metadata" in content:
             return 'doc'
-        # Todo: Detect CSW.
-        # Todo: Detect WAF.
-        raise Exception, "Harvest source type can't be detected from content: %s" % content
+        if "<ows:ExceptionReport" in content:
+            return 'csw'
+        if "<html" in content:
+            return 'waf'
 
-    def harvest_document(self, url, content):
-        self.validate_content(content)
-        document = self.save_content(url, content)
-        package = self.source.write_package(document)
+    def harvest_document(self, content):
+        try:
+            self.validate_document(content)
+        except Exception, exception:
+            msg = "Error validating harvested content: %s" % exception
+            self.report_error(msg)
+        else:
+            try:
+                package = self.source.write_package(content)
+            # Todo: Be more selective about exception classes?
+            except Exception, exception:
+                msg = "Error writing package from harvested content: %s" % exception
+                self.report_error(msg)
+                # Todo: Print traceback to exception log?
+            else:
+                if package:
+                    self.report_package(package.id)
 
-    def validate_content(self, content):
+    def harvest_csw_documents(self, url):
+        csw_client = CswClient(base_url=url)
+        records = csw_client.get_records()
+        for content in records:
+            self.harvest_document(content=content)
+
+    def harvest_waf_documents(self, content):
+        for url in self.extract_urls(content):
+            content = self.get_content(url)
+            if "<gmd:MD_Metadata" in content:
+                self.harvest_document(content=content)
+        if not self.report['packages']:
+            self.report_error("Couldn't find any links to metadata files.")
+
+    def extract_urls(self, content):
+        try:
+            parser = etree.HTMLParser()
+            tree = etree.fromstring(content, parser=parser)
+        except Exception, inst:
+            msg = "Couldn't parse content into a tree: %s: %s" % (inst, content)
+            raise Exception, msg
+        urls = []
+        for url in tree.xpath('//a/@href'):
+            url = url.strip()
+            if not url:
+                continue
+            if '?' in url:
+                continue
+            if '/' in url:
+                continue
+            urls.append(url)
+        base_url = self.source.url
+        base_url = base_url.split('/')
+        if 'index' in base_url[-1]:
+            base_url.pop()
+        base_url = '/'.join(base_url)
+        base_url.rstrip('/')
+        base_url += '/'
+        return [base_url + i for i in urls]
+
+    def validate_document(self, content):
         pass
-
-    def save_content(self, url, content):
-        return HarvestedDocument.create_save(url=url, content=content)
-
-    def write_report(self):
-        self.report = u"Success"
 
     def set_status_success(self):
         self.set_status(u"Success")
+
+    def set_status_running(self):
+        self.set_status(u"Running")
 
     def set_status_error(self):
         self.set_status(u"Error")
@@ -208,16 +349,10 @@ class GeminiAttribute(object):
                 pass
             else:
                 for e in elements:
-                    if (type(e) == etree._ElementStringResult):
+                    if type(e) == etree._ElementStringResult:
                         value = str(e)
-                    #elif e.tag == '{http://www.isotc211.org/2005/gco}CharacterString':
-                    #    value = e.text
-                    #elif e.tag == '{http://www.isotc211.org/2005/gco}Decimal':
-                    #    value = e.text
-                    #elif e.tag == '{http://www.isotc211.org/2005/gmd}MD_TopicCategoryCode':
-                    #    value = e.text
-                    #elif e.tag == '{http://www.isotc211.org/2005/gmd}URL':
-                    #    value = e.text
+                    elif type(e) == etree._ElementUnicodeResult:
+                        value = unicode(e)
                     else:
                         value = etree.tostring(e, pretty_print=False)
                     values.append(value)
@@ -328,6 +463,8 @@ class GeminiDocument(MetadataDocument):
         #        "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date/gmd:dateType/gmd:CI_DateTypeCode",
         #    ],
         #    multiplicity="*",
+
+        # Todo: Suggestion from PP not to bother pulling this into the package.
         ),GeminiAttribute(
             name="unique-resource-identifier",
             xpaths=[
@@ -556,10 +693,10 @@ class HarvestedDocument(DomainObject):
 
     def read_attributes(self):
         if "gmd:MD_Metadata" in self.content:
-            doc = GeminiDocument(self.content)
+            gemini_document = GeminiDocument(self.content)
         else:
             raise Exception, "Can't identify type of document content: %s" % self.content
-        return doc.read_attributes()
+        return gemini_document.read_attributes()
 
 
 harvest_source_table = Table('harvest_source', metadata,
@@ -577,26 +714,33 @@ harvesting_job_table = Table('harvesting_job', metadata,
         Column('status', types.UnicodeText, default=u'New', nullable=False),
         Column('created', DateTime, default=datetime.datetime.utcnow),
         Column('user_ref', types.UnicodeText, nullable=False),
-        Column('report', types.UnicodeText, default=u''),    
+        # Todo: Migration script to delete old column and add new column?
+        Column('report', JsonType),
         Column('source_id', types.UnicodeText, ForeignKey('harvest_source.id')),
 )
 
 harvested_document_table = Table('harvested_document', metadata,
         Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
+        Column('guid', types.UnicodeText, default=''),
         Column('created', DateTime, default=datetime.datetime.utcnow),
-        Column('url', types.UnicodeText, nullable=False),
         Column('content', types.UnicodeText, nullable=False),
+        Column('source_id', types.UnicodeText, ForeignKey('harvest_source.id')),
+        Column('package_id', types.UnicodeText, ForeignKey('package.id')),
 )
 
-mapper(HarvestedDocument, harvested_document_table, properties={ })
+
+mapper(HarvestedDocument, harvested_document_table, properties={
+    'package':relation(Package),
+})
 
 mapper(HarvestingJob, harvesting_job_table, properties={
     'source':relation(HarvestSource),
 })
 
 mapper(HarvestSource, harvest_source_table, properties={ 
+    'documents': relation(HarvestedDocument,
+        backref='source',
+    #    cascade='all, delete, delete-orphan',
+    )
 })
-
-
-
 

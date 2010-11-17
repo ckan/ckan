@@ -60,8 +60,12 @@ ckan.controllers.apiv1.package.show.expires = 900
 ckan.controllers.apiv2.package.list.expires = 900
 ckan.controllers.apiv2.package.show.expires = 900
 
+# CKAN QoS monitoring
+# any non-empty value enables it
+enable_call_timing =
+
 # Location of RDF versions of packages
-# e.g. rdf_packages = http://semantic.ckan.net/data/
+# e.g. rdf_packages = http://semantic.ckan.net/package/
 rdf_packages =
 
 # Location of licenses group (defaults to local Python licenses package)

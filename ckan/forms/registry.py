@@ -26,8 +26,14 @@ def get_package_group_fieldset(package_group_form=None, **kwargs):
     return get_fieldset(package_group_form, PACKAGE_GROUP_FORM_KEY, 'package_group')
 
 def get_fieldset(form, config_key, fallback, **kwargs):
-    ''' Returns the appropriate fieldset
-    @param is_admin: whether user has admin rights for this package
+    ''' Returns the appropriate fieldset.
+    The form it uses is the form parameter, or failing that it looks in the
+    config under the config_key, or finally it tries the fallback parameter.
+    @param form: name of the form to use by default
+    @param config_key: config file key specifying the form name if
+                       not specified in form parameter.
+    @param fallback: name of the form to use as final fallback.
+    @param is_admin: whether user has admin rights for this package.
     @param package_form: form name. Default taken from the config file.
     '''
     fs = None

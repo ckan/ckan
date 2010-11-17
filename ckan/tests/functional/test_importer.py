@@ -4,6 +4,7 @@ from pylons import config
 
 from ckan.tests import *
 import ckan.model as model
+from base import FunctionalTestCase
 
 EXAMPLES_DIR = 'ckan/tests/misc/'
 EXAMPLE_TESTFILE_FILEPATH = os.path.join(config['here'], EXAMPLES_DIR, 'test_importer_example')
@@ -14,7 +15,7 @@ EXTENSIONS = [CSV_EXTENSION, XL_EXTENSION]
 
 DEFAULT_USER = 'annafan'
 
-class TestImporter(TestController):
+class TestImporter(FunctionalTestCase):
     @classmethod
     def setup_class(self):
         model.repo.rebuild_db()

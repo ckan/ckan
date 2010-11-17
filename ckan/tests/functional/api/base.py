@@ -7,11 +7,17 @@ from ckan.tests import TestController as ControllerTestCase
 import ckan.model as model
 import ckan.authz as authz
 from ckan.lib.create_test_data import CreateTestData
-from ckan.lib.helpers import json
+from ckan.lib.helpers import json, url_escape
 
 ACCESS_DENIED = [403]
 
 class ApiControllerTestCase(ControllerTestCase):
+
+    STATUS_200_OK = 200
+    STATUS_400_BAD_REQUEST = 400
+    STATUS_403_ACCESS_DENIED = 403
+    STATUS_404_NOT_FOUND = 404
+    STATUS_409_CONFLICT = 409
 
     send_authorization_header = True
     extra_environ = {}
@@ -26,7 +32,7 @@ class ApiControllerTestCase(ControllerTestCase):
         return response
 
     def post(self, offset, data, status=[200,201], *args, **kwds):
-        params = '%s=1' % json.dumps(data)
+        params = '%s=1' % url_escape(self.dumps(data))
         response = self.app.post(offset, params=params, status=status,
             extra_environ=self.get_extra_environ())
         return response
@@ -97,6 +103,9 @@ class ApiControllerTestCase(ControllerTestCase):
 
     def assert_msg_represents_anna(self, msg):
         assert 'annakarenina' in msg, msg
+        data = self.loads(msg)
+        self.assert_equal(data['name'], 'annakarenina')
+        self.assert_equal(data['license_id'], 'other-open')
         assert '"license_id": "other-open"' in msg, str(msg)
         assert 'russian' in msg, msg
         assert 'tolstoy' in msg, msg
@@ -114,13 +123,26 @@ class ApiControllerTestCase(ControllerTestCase):
         expected = self.group_ref_from_name('david')
         assert expected in msg, (expected, msg)
 
+        # Todo: What is the deal with ckan_url? And should this use IDs rather than names?
+        assert 'ckan_url' in msg
+        assert '"ckan_url": "http://test.ckan.net/package/annakarenina"' in msg, msg
+
     def data_from_res(self, res):
-        return json.loads(res.body)
+        return self.loads(res.body)
 
     def get_expected_api_version(self):
         return self.api_version
 
+    def dumps(self, data):
+        return json.dumps(data)
 
+    def loads(self, chars):
+        try:
+            return json.loads(chars)
+        except ValueError, inst:
+            raise Exception, "Couldn't loads string '%s': %s" % (chars, inst)
+
+# Todo: Rename to Version1TestCase.
 class Api1TestCase(ApiControllerTestCase):
 
     api_version = '1'
@@ -143,7 +165,6 @@ class Api2TestCase(ApiControllerTestCase):
         assert 'download_url' not in msg, msg
 
 
-# For CKAN API (unversioned location).
 class ApiUnversionedTestCase(Api1TestCase):
 
     api_version = ''
@@ -153,4 +174,58 @@ class ApiUnversionedTestCase(Api1TestCase):
         return self.oldest_api_version
 
 
+class BaseModelApiTestCase(ModelMethods, ApiControllerTestCase):
+
+    testpackage_license_id = u'gpl-3.0'
+    package_fixture_data = {
+        'name' : u'testpkg',
+        'title': u'Some Title',
+        'url': u'http://blahblahblah.mydomain',
+        'resources': [{
+            u'url':u'http://blah.com/file.xml',
+            u'format':u'xml',
+            u'description':u'Main file',
+            u'hash':u'abc123',
+        }, {
+            u'url':u'http://blah.com/file2.xml',
+            u'format':u'xml',
+            u'description':u'Second file',
+            u'hash':u'def123',
+        }],
+        'tags': [u'russion', u'novel'],
+        'license_id': testpackage_license_id,
+        'extras': {
+            'genre' : u'horror',
+            'media' : u'dvd',
+        },
+    }
+    testgroupvalues = {
+        'name' : u'testgroup',
+        'title' : u'Some Group Title',
+        'description' : u'Great group!',
+        'packages' : [u'annakarenina', u'warandpeace'],
+    }
+    testharvestsourcevalues = {
+        'url' : u'http://localhost/',
+        'description' : u'My metadata.',
+        'user_ref': u'a_publisher_user',
+        'publisher_ref': u'a_publisher',
+    }
+    testharvestingjobvalues = {
+        'user_ref': u'a_publisher_user',
+    }
+    user_name = u'http://myrandom.openidservice.org/'
+
+    def setup(self):
+        super(BaseModelApiTestCase, self).setup()
+        self.conditional_create_common_fixtures()
+        self.init_extra_environ()
+
+    def teardown(self):
+        self.reuse_or_delete_common_fixtures()
+        super(BaseModelApiTestCase, self).teardown()
+
+    def init_extra_environ(self):
+        self.user = model.User.by_name(self.user_name)
+        self.extra_environ={'Authorization' : str(self.user.apikey)}
 

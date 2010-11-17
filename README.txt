@@ -192,11 +192,17 @@ Documentation
 
 The home page for the CKAN project is: http://knowledgeforge.net/ckan
 
-This README file is part of the Developer Documentation, viewable at: `http://knowledgeforge.net/ckan/doc/ckan/index.html`_ and stored in the CKAN repo at ckan/doc. 
+This README file is part of the Developer Documentation, viewable at:
+`http://knowledgeforge.net/ckan/doc/ckan/index.html`_ and stored in the CKAN
+repo at ckan/doc. 
 
-The Developer Docs are built using `Sphinx <http://sphinx.pocoo.org/>`_ and uploaded by an admin to KnowledgeForge. To build the developer docs::
+The Developer Docs are built using `Sphinx <http://sphinx.pocoo.org/>`_:
 
       python setup.py build_sphinx
+
+The docs are uploaded to packages.python.org/ckan/ and also (via dav) to
+http://knowledgeforge.net/ckan/doc/ckan/ (http://knowledgeforge.net/ location
+is for backwards compatability).
  
 
 Contributors

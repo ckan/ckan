@@ -10,7 +10,7 @@ def setup_app(command, conf, vars):
     load_environment(conf.global_conf, conf.local_conf)
     
     from ckan import model
-    log.info('Creating tables')
+    log.debug('Creating tables')
     model.repo.create_db()
     model.repo.init_db()
     log.info('Creating tables: SUCCESS')

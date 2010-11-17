@@ -4,7 +4,7 @@ from ckan.lib.base import *
 from ckan.lib.helpers import json
 import ckan.forms
 import ckan.controllers.package
-from ckan.lib.package_saver import PackageSaver
+from ckan.lib.package_saver import WritePackageFromBoundFieldset
 from ckan.lib.package_saver import ValidationException
 from ckan.controllers.rest import BaseApiController, ApiVersion1, ApiVersion2
 
@@ -20,8 +20,11 @@ class ApiError(Exception): pass
 class BaseFormController(BaseApiController):
     """Implements the CKAN Forms API."""
 
-    def _abort_bad_request(self):
+    def _abort_bad_request(self, msg=None):
         response.status_int = 400
+        error_msg = 'Bad request'
+        if msg:
+            error_msg += ': %s' % msg
         raise ApiError, "Bad request"
         
     def _abort_not_authorized(self):
@@ -76,7 +79,12 @@ class BaseFormController(BaseApiController):
                 user = self._get_user_for_apikey()
                 author = user.name
                 try:
-                    self._create_package_entity(bound_fieldset, log_message, author)
+                    WritePackageFromBoundFieldset(
+                        fieldset=bound_fieldset,
+                        log_message=log_message, 
+                        author=author,
+                        client=c, 
+                    )
                 except ValidationException, exception:
                     # Get the errorful fieldset.
                     errorful_fieldset = exception.args[0]
@@ -175,11 +183,14 @@ class BaseFormController(BaseApiController):
                 # Check user authorization.
                 self._assert_is_authorized()
                 # Read request.
-                request_data = self._get_request_data()
+                try:
+                    request_data = self._get_request_data()
+                except ValueError, error:
+                    self._abort_bad_request('Extracting request data: %r' % error.args)
                 try:
                     form_data = request_data['form_data']
                 except KeyError, error:
-                    self._abort_bad_request()
+                    self._abort_bad_request('Missing \'form_data\' in request data.')
                 # Bind form data to fieldset.
                 try:
                     bound_fieldset = fieldset.bind(pkg, data=form_data)
@@ -194,7 +205,12 @@ class BaseFormController(BaseApiController):
                     if user:
                         author = user.name
                 try:
-                    self._update_package_entity(id, bound_fieldset, log_message, author)
+                    WritePackageFromBoundFieldset(
+                        fieldset=bound_fieldset,
+                        log_message=log_message, 
+                        author=author,
+                        client=c,
+                    )
                 except ValidationException, exception:
                     # Get the errorful fieldset.
                     errorful_fieldset = exception.args[0]
@@ -224,11 +240,6 @@ class BaseFormController(BaseApiController):
             log.error("Couldn't update package: %s" % traceback.format_exc())
             raise
 
-    def _create_package_entity(self, bound_fieldset, log_message, author):
-        # Superfluous commit_pkg() method parameter.
-        superfluous = None # Value is never consumed.
-        PackageSaver().commit_pkg(bound_fieldset, superfluous, None, log_message, author) 
-
     def _create_harvest_source_entity(self, bound_fieldset, user_ref=None, publisher_ref=None):
         bound_fieldset.validate()
         if bound_fieldset.errors:
@@ -239,11 +250,6 @@ class BaseFormController(BaseApiController):
     def _create_permissions(self, package, user):
         model.setup_default_user_roles(package, [user])
         model.repo.commit_and_remove()
-
-    def _update_package_entity(self, id, bound_fieldset, log_message, author):
-        # Superfluous commit_pkg() method parameter.
-        superfluous = None # Value is never consumed.
-        PackageSaver().commit_pkg(bound_fieldset, superfluous, id, log_message, author) 
 
     def _update_harvest_source_entity(self, id, bound_fieldset, user_ref, publisher_ref):
         bound_fieldset.validate()
