@@ -17,7 +17,6 @@ from ckan.config.routing import ReloadableMapperWrapper, make_map
 from ckan import model
 from ckan import plugins
 
-import blinker
 
 
 def load_environment(global_conf, app_conf):
@@ -75,4 +74,10 @@ def load_environment(global_conf, app_conf):
     # Setup the SQLAlchemy database engine
     engine = engine_from_config(config, 'sqlalchemy.', pool_threadlocal=True)
     model.init_model(engine)
+    
+    from ckan.plugins import ExtensionPoint
+    from ckan.plugins.interfaces import IConfigurable
+    
+    for service in ExtensionPoint(IConfigurable):
+        service.configure(config)
     
