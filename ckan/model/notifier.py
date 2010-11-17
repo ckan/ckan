@@ -47,15 +47,13 @@ class DomainObjectModificationExtension(SingletonPlugin, ObserverNotifier):
         )
 
     def after_insert(self, mapper, connection, instance):
-        return self.send_notifications(
-            instance,
-            DomainObjectNotificationOperation.new
+        return self.send_notifications(instance,
+            DomainObjectOperation.new
         )
 
     def after_update(self, mapper, connection, instance):
-        return self.send_notifications(
-            instance,
-            DomainObjectNotificationOperation.changed
+        return self.send_notifications(instance,
+            DomainObjectOperation.changed
         )
 
     def send_notifications(self, instance, operation):
@@ -70,9 +68,9 @@ class DomainObjectModificationExtension(SingletonPlugin, ObserverNotifier):
             self.notify(instance, operation)
         elif isinstance(instance, PackageResource):
             self.notify(instance, operation)
-            self.notify(instance.package, DomainObjectNotificationOperation.changed)
+            self.notify(instance.package, DomainObjectOperation.changed)
         elif isinstance(instance, (PackageExtra, PackageTag)):
-            self.notify(instance.package, DomainObjectNotificationOperation.changed)
+            self.notify(instance.package, DomainObjectOperation.changed)
         else:
             raise NotImplementedError(instance)
 

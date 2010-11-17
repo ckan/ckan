@@ -7,7 +7,7 @@ __all__ = [
     'Interface',
     'IGenshiStreamFilter', 'IRoutesExtension',
     'IMapperExtension', 'ISessionExtension',
-    'IDomainObjectNotification', 'IGroupController', 
+    'IDomainObjectModification', 'IGroupController', 
     'IPackageController',
     'IPluginObserver',
 ]

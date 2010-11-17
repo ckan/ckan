@@ -1,10 +1,7 @@
 import logging
-import blinker
 
-from ckan.model.notifier import DomainObjectNotification, Notification
 from ckan.model import DomainObjectOperation
-from ckan.lib.async_notifier import AsyncConsumer
-from ckan.plugins import SingletonPlugin, implements, IDomainObjectNotification
+from ckan.plugins import SingletonPlugin, implements, IDomainObjectModification
 from common import SearchError
 
 log = logging.getLogger(__name__)
@@ -16,7 +13,7 @@ def dispatch_by_operation(entity_type, entity, operation, backend=None):
         from ckan.lib.search import get_backend
         backend = get_backend()
     try:
-        index = backend.index_for(entity)
+        index = backend.index_for(entity_type)
         if operation == DomainObjectOperation.new:
             index.insert_dict(entity)
         elif operation == DomainObjectOperation.changed:
@@ -31,7 +28,7 @@ def dispatch_by_operation(entity_type, entity, operation, backend=None):
 
 class SynchronousSearchPlugin(SingletonPlugin):
 
-    implements(IDomainObjectNotification, inherit=True)
+    implements(IDomainObjectModification, inherit=True)
 
     def notify(self, entity, operation):
         if hasattr(entity, 'as_dict'):
