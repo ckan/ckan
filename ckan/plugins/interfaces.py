@@ -8,8 +8,7 @@ __all__ = [
     'IGenshiStreamFilter', 'IRoutesExtension',
     'IMapperExtension', 'ISessionExtension',
     'IDomainObjectModification', 'IGroupController', 
-    'IPackageController',
-    'IPluginObserver',
+    'IPackageController', 'IPluginObserver', 'IConfigurable'
 ]
 
 from inspect import isclass
@@ -236,4 +235,14 @@ class IPluginObserver(Interface):
         """
         Called after a plugin has been unloaded.
         This method is passed the instantiated service object.
+        """
+
+class IConfigurable(Interface): 
+    """
+    Pass configuration to plugins and extensions
+    """
+    
+    def configure(self, config):
+        """
+        Called by load_environment
         """
