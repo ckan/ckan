@@ -96,7 +96,7 @@ setup(
     synchronous_search = ckan.lib.search.worker:SynchronousSearchPlugin
 
     [ckan.system_plugins]
-    domain_object_mods = ckan.model.notifier:DomainObjectModificationExtension
+    domain_object_mods = ckan.model.modification:DomainObjectModificationExtension
     routes_reloader = ckan.config.routing:ReloadRoutesMapsPlugin
     """,
     # setup.py test command needs a TestSuite so does not work with py.test

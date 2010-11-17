@@ -229,7 +229,7 @@ class PackageSqlSearchIndex(SqlSearchIndex):
     
     def _print_lexemes(self, pkg_dict):
         sql = "SELECT package_id, search_vector FROM package_search WHERE package_id = %s"
-        res = self.backend.engine.execute(sql, pkg_dict['id'])
+        res = meta.Session.connection().execute(sql, pkg_dict['id'])
         print res.fetchall()
         res.close()
     
@@ -237,7 +237,7 @@ class PackageSqlSearchIndex(SqlSearchIndex):
         vector_sql, params = self._make_vector(pkg_dict)
         sql = "INSERT INTO package_search VALUES (%%s, %s)" % vector_sql
         params = [pkg_dict['id']] + params
-        res = self.backend.engine.execute(sql, params)
+        res = meta.Session.connection().execute(sql, params)
         res.close()
         log.debug("Indexed %s" % pkg_dict.get('name'))
     
@@ -245,7 +245,7 @@ class PackageSqlSearchIndex(SqlSearchIndex):
         vector_sql, params = self._make_vector(pkg_dict)
         sql = "UPDATE package_search SET search_vector=%s WHERE package_id=%%s" % vector_sql
         params.append(pkg_dict['id'])
-        res = self.backend.engine.execute(sql, params)
+        res = meta.Session.connection().execute(sql, params)
         res.close()
         log.debug("Updated index for %s" % pkg_dict.get('name'))
         

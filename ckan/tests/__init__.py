@@ -322,7 +322,8 @@ class TestSearchIndexer:
     ''' 
     
     def __init__(self):
-        pass
+        from ckan import plugins
+        plugins.load('synchronous_search')
 
     @classmethod
     def index(cls):

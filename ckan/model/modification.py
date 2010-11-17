@@ -14,15 +14,6 @@ from ckan.model.resource import PackageResource
 from ckan.model.package_extra import PackageExtra
 from ckan.model.tag import PackageTag
 
-try:
-    from operator import methodcaller
-except ImportError:
-    def methodcaller(name, *args, **kwargs):
-        "Replaces stdlib operator.methodcaller in python <2.6"
-        def caller(obj):
-            return getattr(obj, name)(*args, **kwargs)
-        return caller
-
 
 class DomainObjectModificationExtension(SingletonPlugin, ObserverNotifier):
     """
@@ -55,13 +46,18 @@ class DomainObjectModificationExtension(SingletonPlugin, ObserverNotifier):
         return self.send_notifications(instance,
             DomainObjectOperation.changed
         )
+        
+    def before_delete(self, mapper, connection, instance):
+        return self.send_notifications(instance,
+            DomainObjectOperation.deleted
+        )
 
     def send_notifications(self, instance, operation):
         """
         Called when a db object changes, this method works out what
         notifications need to be sent and calls send_notification to do it.
         """
-        if not self.check_real_change(instance):
+        if not (operation == DomainObjectOperation.deleted or self.check_real_change(instance)):
             return EXT_CONTINUE
 
         if isinstance(instance, Package):
