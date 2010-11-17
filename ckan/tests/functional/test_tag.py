@@ -75,14 +75,16 @@ class TestTagController(TestController):
         assert 'tolstoy' in res, res
 
     def test_autocomplete(self):
-        offset = url_for(controller='tag', action='autocomplete')
+        controller = 'apiv2/package'
+        action = 'autocomplete'
+        offset = url_for(controller=controller, action=action)
         res = self.app.get(offset)
         assert '[]' in res
-        offset = url_for(controller='tag', action='autocomplete', incomplete='russian')
+        offset = url_for(controller=controller, action=action, incomplete='russian')
         res = self.app.get(offset)
         assert 'russian' in res
         assert 'tolstoy' not in res
-        offset = url_for(controller='tag', action='autocomplete', incomplete='tolstoy')
+        offset = url_for(controller=controller, action=action, incomplete='tolstoy')
         res = self.app.get(offset)
         assert 'russian' not in res
         assert 'tolstoy' in res
