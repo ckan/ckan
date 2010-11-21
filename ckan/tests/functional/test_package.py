@@ -847,7 +847,7 @@ u with umlaut \xc3\xbc
             res = fv.submit('save', extra_environ={'REMOTE_USER':'russianfan'})
             res = res.follow()
             pkg = model.Package.by_name(u'editpkgtest')
-            assert len(pkg.groups) == 1
+            assert len(pkg.groups) == 1, pkg.groups
             assert 'david' in res, res
         finally:
             self._reset_data()

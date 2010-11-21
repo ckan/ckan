@@ -448,7 +448,6 @@ def sysadmin_list():
 
 def sysadmin_create(open_id):
     '''Creates sysadmins with the given OpenID'''
-    assert open_id.startswith('http'), open_id
     _setup()
     with cd(env.instance_path):
         _run_in_pyenv('paster --plugin ckan sysadmin create %s --config %s' % (open_id, env.config_ini_filename))
