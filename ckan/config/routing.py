@@ -35,7 +35,6 @@ def make_map():
     # CKAN API.
     map.connect('/api', controller='rest', action='get_api')
     map.connect('/api/form/package/create', controller='form', action='package_create')
-#    map.connect('/apitest/form/package/create', controller='ckanext.plugins.form_api_tester:FormApiTestController', action='package_create')
     map.connect('/api/form/package/edit/:id', controller='form', action='package_edit')
     map.connect('/api/form/harvestsource/create', controller='form', action='harvest_source_create')
     map.connect('/api/form/harvestsource/edit/:id', controller='form', action='harvest_source_edit')
