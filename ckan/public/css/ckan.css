@@ -311,9 +311,14 @@ form #log_message {
   font-size: 14px;
 }
 
-form dl {
+#content form.ckan.package_create_form dl, #content form.ckan.package_create_form dd {
   margin-bottom: 0;
 }
+
+#content form.ckan.package_create_form select {
+  margin-bottom: 12px;
+}
+
 
 /* ===========================
  * Tables
