@@ -13,15 +13,42 @@ CKAN functionality.
 
 Examples of services provided by plugins include:
 
-- Asynchronous model update notifications through AMQP (ie RabbitMQ_)
+- Asynchronous model update notifications through AMQP (i.e. RabbitMQ_)
 - Genshi template stream filters
 - User comments through disqus_
 - Integration with Deliverance_
 
+Existing plugins are described on the CKAN public wiki: http://wiki.okfn.org/ckan/plugins - If you write a plugin then do share details of it there.
+
+
+Installing a plugin
+-------------------
+
+To install a plugin on a CKAN instance:
+
+1. Install the plugin code using pip. The -E parameter is for your CKAN python environment (e.g. '~/var/srvc/ckan.net/pyenv'). Prefix the source url with the repo type ('hg+' for Mercurial, 'git+' for Git). For example::
+
+       $ pip install -E ~/var/srvc/ckan.net/pyenv hg+http://bitbucket.org/okfn/ckanext-disqus
+
+2. Add it to the CKAN config. The config file may have a filepath something like: '~/var/srvc/ckan.net/ckan.net.ini'. The plugins variable is in the '[app:main]' section under 'ckan.plugins'. e.g.::
+
+       [app:main]
+       ckan.plugins = disqus
+
+   If you have multiple plugins, separate them with spaces::
+
+       ckan.plugins = disqus amqp myplugin
+
+
+3. Restart WSGI, which usually means restarting Apache::
+
+       $ sudo /etc/init.d/apache2 restart
+
+
 Concepts
 --------
 
-The implementation is based on the PyUtilib_ component architecture (PCA). In
+The plug-in implementation is based on the PyUtilib_ component architecture (PCA). In
 summary:
 
 #. The CKAN core contains various ``ExtensionPoints``, each specifying a point
@@ -181,18 +208,6 @@ Here is an example test set-up::
                     wsgiapp = make_app(config.global_conf, **config.local_conf)
                     cls.app = paste.fixture.TestApp(wsgiapp)
 
-
-Activation
-``````````
-
-Plugins will not be active until added to your configuration file. To do this
-add a ``ckan.plugins`` directive to your ``.ini`` config file::
-
-  ckan.plugins = myplugin
-
-If you have multiple plugins, separate them with spaces::
-
-  ckan.plugins = disqus amqp myplugin
 
 .. Links
 .. -----
