@@ -43,13 +43,8 @@ who.config_file = %(here)s/who.ini
 who.log_level = warning
 who.log_file = %(cache_dir)s/who_log.ini
 
-# CKAN auth configuration (TODO: rename to ckan.auth or similar ...)
-# space separated list ...
-auth.admins = 
-
-# CKAN search cache
-# any non-empty value enables it
-enable_caching =
+# CKAN caching 
+cache_enabled = False
 # cache to persistent files
 beaker.cache.type = file
 # cache expiry settings for specific controllers

@@ -4,9 +4,9 @@ from pylons import config
 from sqlalchemy import *
 
 from ckan import model
+from ckan.lib.cache import cache_enabled
 
-ENABLE_CACHING = bool(config.get('enable_caching', ''))
-if ENABLE_CACHING:
+if cache_enabled:
     from pylons import cache
     our_cache = cache.get_cache('stats', type='dbm')
 DATE_FORMAT = '%Y-%m-%d'
@@ -167,7 +167,7 @@ class RevisionStats(object):
             for pkg_id, created_datetime in res:
                 res_pickleable.append((pkg_id, created_datetime.toordinal()))
             return res_pickleable
-        if ENABLE_CACHING:
+        if cache_enabled:
             week_commences = self.get_date_week_started(datetime.date.today())
             key = 'all_new_packages_%s' + week_commences.strftime(DATE_FORMAT)
             new_packages = our_cache.get_value(key=key,
@@ -217,7 +217,7 @@ class RevisionStats(object):
                 week_ends = week_commences + datetime.timedelta(days=7)
                 weekly_pkg_ids.append(build_weekly_stats(week_commences, []))
             return weekly_pkg_ids
-        if ENABLE_CACHING:
+        if cache_enabled:
             week_commences = self.get_date_week_started(datetime.date.today())
             key = '%s_by_week_%s' % (self._object_type, week_commences.strftime(DATE_FORMAT))
             objects_by_week_ = our_cache.get_value(key=key,
