@@ -112,7 +112,7 @@ class PackageController(BaseController):
             accept_headers = request.headers.get('Accept', '')
             if 'application/rdf+xml' in accept_headers and \
                    not 'text/html' in accept_headers:
-                rdf_url = '%s%s' % (config['rdf_packages'], pkg.name)
+                rdf_url = '%s%s' % (config['rdf_packages'], c.pkg.name)
                 redirect(rdf_url, code=303)
 
         auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, c.pkg)
