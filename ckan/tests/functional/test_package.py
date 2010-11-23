@@ -260,23 +260,10 @@ class TestReadOnly(TestPackageForm):
     def teardown_class(self):
         CreateTestData.delete()
 
-    def test_index(self):
-        offset = url_for(controller='package')
-        res = self.app.get(offset)
-        assert 'Data Packages' in res
-
-    def test_minornavigation(self):
-        offset = url_for(controller='package')
-        res = self.app.get(offset)
-        # TODO: make this a bit more rigorous!
-        assert 'Browse' in res, res
-        res = res.click('Browse')
-        assert 'Browse - Data Packages' in res
-    
     def test_minornavigation_2(self):
-        offset = url_for(controller='package')
+        offset = url_for(controller='package', action='search')
         res = self.app.get(offset)
-        res = res.click('Register')
+        res = res.click('Register a package')
         assert 'New - Data Packages' in res
 
     def test_read(self):
@@ -341,17 +328,15 @@ class TestReadOnly(TestPackageForm):
         assert 'decoy</a>' not in res, res
         assert 'decoy"' not in res, res
 
-    def test_list(self):
-        offset = url_for(controller='package', action='list')
-        res = self.app.get(offset)
-        assert 'Packages' in res
-        name = u'annakarenina'
-        title = u'A Novel By Tolstoy'
-        assert title in res
-        res = res.click(title)
-        assert '%s - Data Packages' % title in res, res
-        main_div = self.main_div(res)
-        assert title in main_div, main_div.encode('utf8')
+        #res = self.app.get(offset)
+        #assert 'Packages' in res
+        #name = u'annakarenina'
+        #title = u'A Novel By Tolstoy'
+        #assert title in res
+        #res = res.click(title)
+        #assert '%s - Data Packages' % title in res, res
+        #main_div = self.main_div(res)
+        #assert title in main_div, main_div.encode('utf8')
 
     def test_search(self):
         offset = url_for(controller='package', action='search')
@@ -418,7 +403,6 @@ class TestEdit(TestPackageForm):
         if not self.res:
             self.res = self.app.get(self.offset)
         
-            
     @classmethod
     def _reset_data(self):
         CreateTestData.delete()
@@ -1216,13 +1200,6 @@ class TestNonActivePackages(TestPackageBase):
     def teardown_class(self):
         CreateTestData.delete()
         self.purge_packages([self.non_active_name])
-
-    def test_list(self):
-        offset = url_for(controller='package', action='list')
-        res = self.app.get(offset)
-        assert 'Browse - Data Packages' in res
-        assert 'annakarenina' in res
-        assert self.non_active_name not in res
 
     def test_read(self):
         offset = url_for(controller='package', action='read', id=self.non_active_name)

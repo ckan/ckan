@@ -220,9 +220,10 @@ def make_map():
 
     map.redirect("/packages", "/package")
     map.redirect("/packages/{url:.*}", "/package/{url}")
-    map.connect('/package/', controller='package', action='index')
+    map.connect('/package', controller='package', action='search')
+    map.connect('/package/', controller='package', action='search')
     map.connect('/package/search', controller='package', action='search')
-    map.connect('/package/list', controller='package', action='list')
+    map.connect('/package/list', controller='package', action='search')
     map.connect('/package/new', controller='package', action='new')
     map.connect('/package/new_title_to_slug', controller='package', action='new_title_to_slug')
     map.connect('/package/autocomplete', controller='package', action='autocomplete')

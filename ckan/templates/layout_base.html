@@ -83,11 +83,11 @@
         </span>
       </div>
 
-      <div class="search-form">
+      <!--div class="search-form">
         <form action="${url(controller='package', action='search')}" method="GET">
           <input type="search" class="search" name="q" value="" autocomplete="off" results="5" placeholder="Search..."/>
         </form>
-      </div>
+      </div-->
     </div><!-- /top-bar -->
 
     <div id="access" role="navigation">
@@ -104,7 +104,6 @@
         </li>
         <li>${h.nav_link(c, _('Data Packages'), controller='package', action='index', id=None)}
           <ul class="children">
-            <li class="page_item">${h.subnav_link(c, _('Browse'), controller='package', action='list', id=None)}</li>
             <li class="page_item" py:if="h.am_authorized(c, actions.PACKAGE_CREATE)">
               ${h.subnav_link(c, _('Register'), controller='package', action='new', id=None)}
             </li>
@@ -229,7 +228,7 @@
     </div><!-- #footer-widget-area -->
 
     <div id="site-info">
-      <a href="url('/')" title="${g.site_title}" rel="home">
+      <a href="${url('/')}" title="${g.site_title}" rel="home">
         ${g.site_title}</a>
     </div><!-- #site-info -->
 

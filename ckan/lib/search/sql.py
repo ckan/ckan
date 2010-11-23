@@ -267,9 +267,8 @@ class PackageSqlSearchIndex(SqlSearchIndex):
     def remove_dict(self, pkg_dict):
         if not 'id' in pkg_dict or not 'name' in pkg_dict:
             return 
-        sql = "DELETE FROM package_search WHERE package_id=%%s"
-        params.append(pkg_dict['id'])
-        self._run_sql(sql, params)
+        sql = "DELETE FROM package_search WHERE package_id=%s"
+        self._run_sql(sql, [pkg_dict.get('id')])
         log.debug("Delete entry %s from index" % pkg_dict.get('id'))
         
 

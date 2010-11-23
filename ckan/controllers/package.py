@@ -1,5 +1,6 @@
 import logging
 import urlparse
+import urllib
 
 from sqlalchemy.orm import eagerload_all
 from sqlalchemy import or_
@@ -23,67 +24,65 @@ class PackageController(BaseController):
     authorizer = ckan.authz.Authorizer()
     extensions = ExtensionPoint(IPackageController)
 
-    def index(self):
-        query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
-        c.package_count = query.count()
-        return render('package/index.html')
-
-    @proxy_cache()
-    def list(self):
-        query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
-        query = query.options(eagerload_all('package_tags.tag'))
-        query = query.options(eagerload_all('package_resources_all'))
-        c.page = h.AlphaPage(
-            collection=query,
-            page=request.params.get('page', 'A'),
-            alpha_attribute='title',
-            other_text=_('Other'),
-        )
-        return render('package/list.html')
-
     def search(self):        
-        c.q = request.params.get('q') # unicode format (decoded from utf8)
+        q = c.q = request.params.get('q') # unicode format (decoded from utf8)
         c.open_only = request.params.get('open_only')
         c.downloadable_only = request.params.get('downloadable_only')
-        if c.q:
-            c.query_error = False
-            page = int(request.params.get('page', 1))
-            limit = 20
-            query = query_for(model.Package)
-            try:
-                query.run(query=c.q,
-                          limit=limit,
-                          offset=(page-1)*limit,
-                          return_objects=True,
-                          filter_by_openness=c.open_only,
-                          filter_by_downloadable=c.downloadable_only,
-                          username=c.user)
-            
-                c.page = h.Page(
-                    collection=query.results,
-                    page=page,
-                    item_count=query.count,
-                    items_per_page=limit
-                )
-                c.page.items = query.results
-            except SearchError, se:
-                c.query_error = True
-                c.page = h.Page(collection=[])
-            
-            # tag search
-            c.tag_limit = 25
-            query = query_for('tag', backend='sql')
-            try:
-                query.run(query=c.q,
-                          return_objects=True,
-                          limit=c.tag_limit,
-                          username=c.user)
-                c.tags = query.results
-                c.tags_count = query.count
-            except SearchError, se:
-                c.tags = []
-                c.tags_count = 0
+        if c.q is None or len(c.q.strip()) == 0:
+            q = '*:*'
+        c.query_error = False
+        page = int(request.params.get('page', 1))
+        limit = 20
+        query = query_for(model.Package)
 
+        def drill_down_url(**by):
+            url = h.url_for(controller='package', action='search')
+            param = request.params.items()
+            for k, v in by.items():
+                if not (k, v) in param:
+                    param.append((k, v.encode('utf-8')))
+            return url + '?' + urllib.urlencode(param)
+        
+        c.drill_down_url = drill_down_url 
+        
+        def remove_field(key, value):
+            url = h.url_for(controller='package', action='search')
+            param = request.params.items()
+            param.remove((key, value))
+            return url + '?' + urllib.urlencode(
+                [(k, v.encode('utf-8')) for k, v in param])
+        
+        c.remove_field = remove_field
+
+        try:
+            c.fields = []
+            for (param, value) in request.params.items():
+                if not param in ['q', 'open_only', 'downloadable_only', 'page']:
+                    c.fields.append((param, value))
+
+            query.run(query=q,
+                      fields=c.fields,
+                      facet_by=g.facets,
+                      limit=limit,
+                      offset=(page-1)*limit,
+                      return_objects=True,
+                      filter_by_openness=c.open_only,
+                      filter_by_downloadable=c.downloadable_only,
+                      username=c.user)
+            
+            c.page = h.Page(
+                collection=query.results,
+                page=page,
+                item_count=query.count,
+                items_per_page=limit
+            )
+            c.facets = query.facets
+            c.page.items = query.results
+        except SearchError, se:
+            c.query_error = True
+            c.facets = {}
+            c.page = h.Page(collection=[])
+        
         return render('package/search.html')
     
     def _pkg_cache_key(self, pkg):

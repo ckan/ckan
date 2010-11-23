@@ -60,7 +60,19 @@ h1, h2, h3, h4, h5, h6 {
 /* ================ */
 
 input.search {
-  width: 30em;
+  width: 99%;
+  padding: 5px;
+  font-size: 1.1em;
+  margin: 0px;
+  -webkit-appearance: textfield;
+}
+
+.package-search input.button {
+    display: inline-block;
+    float: right;
+    margin-top: 5px;
+    margin-right: 10px !important;
+    margin-bottom: 1px !important;
 }
 
 /* ========================================= */
@@ -206,6 +218,7 @@ dl.icons dd.tiny {
 
 ul.packages {
 	padding-left: 0;
+        margin: 0 0 18px 0;
 }
 
 .packages .header {
@@ -218,7 +231,7 @@ ul.packages {
 
 .packages li {
 	list-style: none;
-	padding: 0.4em 0 0.4em 0.5em;
+	padding: 0.4em 0 0.4em 0.0em;
 	border-left: 0.5em solid #fff;
 	border-bottom: 1px solid #ececec;
 	overflow: hidden;

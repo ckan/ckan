@@ -1,3 +1,12 @@
+body, input, textarea, .page-title span, .pingback a.url {
+    font-family: "Lucida Grande", Lucida, Verdana, sans-serif;
+}
+
+#content, #content input, #content textarea {
+    font-size: 14px;
+    line-height: 20px;
+}
+
 a { 
   color: #b00; 
   text-decoration: none;
@@ -222,6 +231,75 @@ a:hover {
 #primary .widget-container h2 {
   margin-bottom: 10px;
 }
+
+/* ==========================
+ * Facets
+ */
+
+.facet-box {
+
+}
+
+.facet-box h2 {
+    color: #000;
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-top: 1em;
+}
+
+.facet-options {
+    margin-top: 0.5em;
+}
+
+.facet-options li {
+    padding-top: 0.2em;
+    font-size: 1.2em; 
+    color: #000; 
+}
+
+.register-link {
+    padding-top: 10px;
+}
+
+.register-link a {
+    color: white; 
+    background: #199150;
+    font-weight: bold;
+    padding: 5px;
+    width: 100%;
+    font-size: 1.3em;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+    
+}
+
+.package-search-filters {
+    margin-top: 15px;
+}
+
+.search-field {
+    display: inline-block;
+    margin-right: 5px;
+    margin-bottom: 10px;
+    padding: 1px 1px 3px 2px;
+    font-size: 14px;
+    background-color: #eee;
+    line-height: 16px;
+    -moz-box-shadow: 1px 1px 3px #bbb;
+    -webkit-box-shadow: 1px 1px 3px #bbb;
+    box-shadow: 1px 1px 3px #bbb;
+    
+}
+
+.search-field-name::after {
+    content: ":";
+}
+
+.search-field-value {
+    font-weight: bold;
+}
+
 
 /* ===========================
  * Footer
