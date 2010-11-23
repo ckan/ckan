@@ -200,10 +200,9 @@ Now you can then do the deployment with something like::
   Also edit the who.ini configuration file to set a secret for the auth_tkt plugin.
 
 
-
 11. Setup Apache with Ckan
 
-  Create file /etc/apache2/sites-enabled/demo.ckan.net as follows::
+  Create file /etc/apache2/sites-available/demo.ckan.net as follows::
 
     <VirtualHost *:80>
         ServerName demo.ckan.net
@@ -218,12 +217,19 @@ Now you can then do the deployment with something like::
     </VirtualHost>
 
 
-12. Restart Apache
+12. Enable site in Apache
+
+  ::
+
+  $ sudo a2ensite demo.ckan.net
+
+
+13. Restart Apache
 
   ::
 
   $ sudo /etc/init.d/apache2 restart
 
 
-13. Browse website at http://demo.ckan.net/
+14. Browse website at http://demo.ckan.net/
 
