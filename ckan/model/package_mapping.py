@@ -4,6 +4,7 @@ import tag
 from core import *
 from package import *
 import search_index
+from ckan.model import extension
 
 __all__ = ['PackageRevision']
 
@@ -24,7 +25,7 @@ mapper(Package, package_table, properties={
     },
     order_by=package_table.c.name,
     extension=[vdm.sqlalchemy.Revisioner(package_revision_table),
-               notifier.NotifierMapperTrigger(),
+               extension.PluginMapperExtension(),
                ],
     )
 

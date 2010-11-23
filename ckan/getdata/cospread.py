@@ -10,9 +10,9 @@ from ckan.lib import field_types
 
 class Data(object):
     def load_csv_into_db(self, csv_filepath):
+        rev = self._new_revision()
         self._basic_setup()
         self._new_file_reset()
-        rev = self._new_revision()
         assert os.path.exists(csv_filepath)
         f_obj = open(csv_filepath, "r")
         self._current_filename = os.path.basename(csv_filepath)

@@ -1,0 +1,9 @@
+setup.cfg
+setup.py
+ckantestplugin/__init__.py
+ckantestplugin.egg-info/PKG-INFO
+ckantestplugin.egg-info/SOURCES.txt
+ckantestplugin.egg-info/dependency_links.txt
+ckantestplugin.egg-info/entry_points.txt
+ckantestplugin.egg-info/not-zip-safe
+ckantestplugin.egg-info/top_level.txt

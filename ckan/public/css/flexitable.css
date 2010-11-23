@@ -1,7 +1,14 @@
 table.flexitable .controls {
-	margin: 0 0.5em;
 	padding: 0;
-	width: 4.3em;
+	width: 4em;
+}
+
+table.flexitable input[type="url"] {
+  width: auto;
+}
+
+form .resource-hash, form .resource-id {
+  display: none;
 }
 
 table.flexitable .controls a {

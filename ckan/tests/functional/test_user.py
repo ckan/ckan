@@ -65,19 +65,19 @@ class TestUserController(FunctionalTestCase):
         res = self.app.get(offset)
         assert 'You have logged out successfully.' in res
 
-    def test_user_created_on_login(self):
-        username = u'okfntest'
-        user = model.User.by_name(username)
-        if user:
-            user.purge()
-            model.Session.commit()
-            model.Session.remove()
+    #def test_user_created_on_login(self):
+    #    username = u'okfntest'
+    #    user = model.User.by_name(username)
+    #    if user:
+    #        user.purge()
+    #        model.Session.commit()
+    #        model.Session.remove()
 
-        offset = url_for(controller='user', action='login')
-        res = self.app.get(offset, extra_environ=dict(REMOTE_USER='okfntest'))
-        user = model.User.by_name(u'okfntest')
-        assert user
-        assert len(user.apikey) == 36
+    #    offset = url_for(controller='user', action='login')
+    #    res = self.app.get(offset, extra_environ=dict(REMOTE_USER='okfntest'))
+    #    user = model.User.by_name(u'okfntest')
+    #    assert user
+    #    assert len(user.apikey) == 36
 
 
     def test_apikey(self):
@@ -121,7 +121,6 @@ class TestUserController(FunctionalTestCase):
         res = self.app.get(offset, status=[302]) 
 
         res = self.app.get(offset, extra_environ=dict(REMOTE_USER='okfntest'))
-        print user.apikey
         assert 'Your API key is: %s' % user.apikey in res, res
 
     def test_user_edit(self):
@@ -208,7 +207,6 @@ class TestUserController(FunctionalTestCase):
         assert username in res
         fv['password'] =  u'okfntest'
         res = fv.submit()
-        print str(res)
         assert 'Please carefully verify whether you wish to trust' in res
         fv = res.forms[0]
         res = fv.submit('allow_once')

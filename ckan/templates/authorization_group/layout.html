@@ -6,8 +6,20 @@
   py:strip=""
   >
 
+  <py:match path="minornavigation" py:if="c.authorization_group">
+  <ul>
+    <li>${h.subnav_link(c, h.icon('authorization_group') + _('View'), controller='authorization_group', action='read', id=c.authorization_group.name)}</li>
+    <li py:if="h.am_authorized(c, actions.EDIT, c.authorization_group)">
+      ${h.subnav_link(c, h.icon('authorization_group_edit') + _('Edit'), controller='authorization_group', action='edit', id=c.authorization_group.name)}
+    </li>
+    <li py:if="h.am_authorized(c, actions.EDIT_PERMISSIONS, c.authorization_group)">
+      ${h.subnav_link(c, h.icon('lock') + _('Authorization'), controller='authorization_group', action='authz', id=c.authorization_group.name)}
+    </li>
+  </ul>
+  </py:match>
+
   <py:match path="primarysidebar">
-    <div class="box">
+    <li class="widget-container widget_text">
       <h2>Authorization Groups</h2>
       <p i18n:msg="">Instead of specifying the privileges of specific users on a package or group,
           you can also specify a set of users that will share the same rights. To do that, an    
@@ -20,15 +32,8 @@
 	  <a href="${h.url_for(controller='authorization_group',action='new', id=None)}">Create a new authorization group</a>
 	</span>
       </p>
-      
-    </div>
+    </li>
   </py:match>
-  
-  <py:match path="minornavigation">
-    <li>${h.subnav_link(c, _('Home'), controller='authorization_group', action='index', id=None)}</li>
-    <li>${h.subnav_link(c, _('Create a new authorization group'), controller='authorization_group', action='new', id=None)}</li>
-  </py:match>
-
   
   <xi:include href="../layout.html" />
 </html>

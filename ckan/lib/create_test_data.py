@@ -98,12 +98,13 @@ class CreateTestData(cli.CkanCommand):
         model.Session.remove()
         new_user_names = extra_user_names
         new_group_names = set()
-
+        
+        rev = model.repo.new_revision() 
+        rev.author = self.author
+        rev.message = u'Creating test packages.'
+        
         admins_list = [] # list of (package_name, admin_names)
         if package_dicts:
-            rev = model.repo.new_revision() 
-            rev.author = self.author
-            rev.message = u'Creating test packages.'
             if isinstance(package_dicts, dict):
                 package_dicts = [package_dicts]
             for item in package_dicts:
@@ -180,7 +181,8 @@ class CreateTestData(cli.CkanCommand):
             model.repo.commit_and_remove()
 
         needs_commit = False
-
+        
+        rev = model.repo.new_revision() 
         for group_name in extra_group_names:
             group = model.Group(name=unicode(group_name))
             model.Session.add(group)
@@ -241,6 +243,9 @@ class CreateTestData(cli.CkanCommand):
         All group fields can be filled, packages added and they can
         have an admin user.'''
         import ckan.model as model
+        rev = model.repo.new_revision()
+        # same name as user we create below
+        rev.author = self.author
         admin_user = model.User.by_name(admin_user_name)
         assert isinstance(group_dicts, (list, tuple))
         for group_dict in group_dicts:
@@ -398,15 +403,17 @@ left arrow <
             tag = model.Tag.by_name(unicode(tag_name))
             if tag:
                 tag.purge()
-        revs = model.Session.query(model.Revision).filter_by(author=self.author)
-        for rev in revs:
-            for pkg in rev.packages:
-                pkg.purge()
-            model.Session.delete(rev)
         for group_name in self.group_names:
             group = model.Group.by_name(unicode(group_name))
             if group:
                 model.Session.delete(group)
+        revs = model.Session.query(model.Revision).filter_by(author=self.author)
+        for rev in revs:
+            for pkg in rev.packages:
+                pkg.purge()
+            for grp in rev.groups:
+                grp.purge()
+            model.Session.delete(rev)
         for user_name in self.user_names:
             user = model.User.by_name(unicode(user_name))
             if user:
@@ -574,7 +581,7 @@ gov_items = [
     {'name':'weekly-fuel-prices',
      'title':'Weekly fuel prices',
      'notes':'Latest price as at start of week of unleaded petrol and diesel.',
-     'resources':[{'url':'', 'format':'XLS', 'description':''}],
+     'resources':[{'url':'http://www.decc.gov.uk/en/content/cms/statistics/prices.xls', 'format':'XLS', 'description':''}],
      'url':'http://www.decc.gov.uk/en/content/cms/statistics/source/prices/prices.aspx',
      'author':'DECC Energy Statistics Team',
      'author_email':'energy.stats@decc.gsi.gov.uk',

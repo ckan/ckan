@@ -11,6 +11,7 @@ from ckan.lib.base import *
 from ckan.lib.search import query_for, QueryOptions, SearchError
 from ckan.lib.cache import proxy_cache
 from ckan.lib.package_saver import PackageSaver, ValidationException
+from ckan.plugins import ExtensionPoint, IPackageController
 import ckan.forms
 import ckan.authz
 import ckan.rating
@@ -20,6 +21,7 @@ logger = logging.getLogger('ckan.controllers')
 
 class PackageController(BaseController):
     authorizer = ckan.authz.Authorizer()
+    extensions = ExtensionPoint(IPackageController)
 
     def index(self):
         query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
@@ -83,11 +85,12 @@ class PackageController(BaseController):
                 c.tags_count = 0
 
         return render('package/search.html')
-    
-    def _pkg_cache_key(self, pkg):
+
+    @staticmethod
+    def _pkg_cache_key(pkg):
         # note: we need pkg.id in addition to pkg.revision.id because a
         # revision may have more than one package in it.
-        return str(hash((pkg.id, pkg.revision.id, c.user, pkg.get_average_rating())))
+        return str(hash((pkg.id, pkg.latest_related_revision.id, c.user, pkg.get_average_rating())))
         
     def _clear_pkg_cache(self, pkg):
         read_cache = cache.get_cache('package/read.html', type='dbm')
@@ -95,15 +98,15 @@ class PackageController(BaseController):
 
     @proxy_cache()
     def read(self, id):
-        pkg = model.Package.get(id)
-        if pkg is None:
+        c.pkg = model.Package.get(id)
+        if c.pkg is None:
             abort(404, gettext('Package not found'))
         
-        cache_key = self._pkg_cache_key(pkg)
+        cache_key = self._pkg_cache_key(c.pkg)
         etag_cache(cache_key)
         
         # used by disqus plugin
-        c.current_package_id = pkg.id
+        c.current_package_id = c.pkg.id
         
         if config.get('rdf_packages'):
             accept_headers = request.headers.get('Accept', '')
@@ -112,15 +115,14 @@ class PackageController(BaseController):
                 rdf_url = '%s%s' % (config['rdf_packages'], pkg.name)
                 redirect(rdf_url, code=303)
 
-        auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, pkg)
+        auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, c.pkg)
         if not auth_for_read:
             abort(401, str(gettext('Unauthorized to read package %s') % id))
+        
+        for item in self.extensions:
+            item.read(c.pkg)
 
-        c.auth_for_authz = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, pkg)
-        c.auth_for_edit = self.authorizer.am_authorized(c, model.Action.EDIT, pkg)
-        c.auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, pkg)
-
-        PackageSaver().render_package(pkg)
+        PackageSaver().render_package(c.pkg)
         return render('package/read.html')
 
     def history(self, id):
@@ -135,6 +137,7 @@ class PackageController(BaseController):
                     id = request.params.getone('pkg_name')
                 c.error = _('Select two revisions before doing the comparison.')
             else:
+                params['diff_entity'] = 'package'
                 h.redirect_to(controller='revision', action='diff', **params)
 
         c.pkg = model.Package.get(id)
@@ -184,6 +187,8 @@ class PackageController(BaseController):
 
     def new(self):
         c.error = ''
+        api_url = config.get('ckan.api_url', '/').rstrip('/')
+        c.package_create_slug_api_url = api_url+h.url_for(controller='apiv2/package', action='create_slug')
         is_admin = self.authorizer.is_sysadmin(c.user)
         # Check access control for user to create a package.
         auth_for_create = self.authorizer.am_authorized(c, model.Action.PACKAGE_CREATE, model.System())
@@ -195,7 +200,6 @@ class PackageController(BaseController):
             if not request.params.has_key('log_message'):
                 abort(400, ('Missing parameter: log_message'))
             log_message = request.params['log_message']
-
         record = model.Package
         if request.params.has_key('save'):
             fs = fs.bind(record, data=dict(request.params) or None, session=model.Session)
@@ -210,6 +214,8 @@ class PackageController(BaseController):
                     if user:
                         admins = [user]
                 model.setup_default_user_roles(pkg, admins)
+                for item in self.extensions:
+                    item.create(pkg)
                 model.repo.commit_and_remove()
 
                 self._form_save_redirect(pkgname, 'new')
@@ -234,6 +240,8 @@ class PackageController(BaseController):
             fs = fs.bind(model.Package, data=data, session=model.Session)
         else:
             fs = fs.bind(session=model.Session)
+        #if 'preview' in request.params:
+        #    c.preview = ' '
         c.form = self._render_edit_form(fs, request.params, clear_session=True)
         if 'preview' in request.params:
             try:
@@ -251,16 +259,15 @@ class PackageController(BaseController):
     def edit(self, id=None): # allow id=None to allow posting
         # TODO: refactor to avoid duplication between here and new
         c.error = ''
-
-        pkg = model.Package.get(id)
+        c.pkg = pkg = model.Package.get(id)
         if pkg is None:
             abort(404, '404 Not Found')
         am_authz = self.authorizer.am_authorized(c, model.Action.EDIT, pkg)
         if not am_authz:
             abort(401, str(gettext('User %r not authorized to edit %s') % (c.user, id)))
 
-        c.auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, pkg)
-        fs = self._get_package_fieldset(is_admin=c.auth_for_change_state)
+        auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, pkg)
+        fs = self._get_package_fieldset(is_admin=auth_for_change_state)
         if 'save' in request.params or 'preview' in request.params:
             if not request.params.has_key('log_message'):
                 abort(400, ('Missing parameter: log_message'))
@@ -282,6 +289,8 @@ class PackageController(BaseController):
                                           # multidict which is read only
             fs = fs.bind(pkg, data=params or None)
             try:
+                for item in self.extensions:
+                    item.edit(fs.model)
                 PackageSaver().commit_pkg(fs, id, pkg.id, log_message, c.author, client=c)
                 # do not use package name from id, as it may have been edited
                 pkgname = fs.name.value
@@ -378,10 +387,12 @@ class PackageController(BaseController):
                 # With FA no way to get new PackageRole back to set package attribute
                 # new_roles = ckan.forms.new_roles_fs.bind(model.PackageRole, data=params or None)
                 # new_roles.sync()
+                for item in self.extensions:
+                    item.authz_add_role(newpkgrole)
                 model.repo.commit_and_remove()
                 c.message = _(u'Added role \'%s\' for user \'%s\'') % (
                     newpkgrole.role,
-                    newpkgrole.user.name)
+                    newpkgrole.user.display_name)
             elif newrole_authzgroup_id != '__null_value__':
                 authzgroup = model.Session.query(model.AuthorizationGroup).get(newrole_authzgroup_id)
                 # TODO: chech user is not None (should go in validation ...)
@@ -391,6 +402,8 @@ class PackageController(BaseController):
                 # With FA no way to get new GroupRole back to set group attribute
                 # new_roles = ckan.forms.new_roles_fs.bind(model.GroupRole, data=params or None)
                 # new_roles.sync()
+                for item in self.extensions:
+                    item.authz_add_role(newpkgrole)
                 model.Session.commit()
                 model.Session.remove()
                 c.message = _(u'Added role \'%s\' for authorization group \'%s\'') % (
@@ -402,9 +415,11 @@ class PackageController(BaseController):
             if pkgrole is None:
                 c.error = _(u'Error: No role found with that id')
             else:
+                for item in self.extensions:
+                    item.authz_remove_role(pkgrole)
                 if pkgrole.user:
                     c.message = _(u'Deleted role \'%s\' for user \'%s\'') % \
-                                (pkgrole.role, pkgrole.user.name)
+                                (pkgrole.role, pkgrole.user.display_name)
                 elif pkgrole.authorized_group:
                     c.message = _(u'Deleted role \'%s\' for authorization group \'%s\'') % \
                                 (pkgrole.role, pkgrole.authorized_group.name)

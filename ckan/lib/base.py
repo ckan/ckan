@@ -14,7 +14,7 @@ from webhelpers.html import literal
 
 import ckan
 import ckan.lib.helpers as h
-from ckan.config import plugins
+from ckan.plugins import ExtensionPoint, IGenshiStreamFilter
 from ckan.lib.helpers import json
 import ckan.model as model
 import os
@@ -37,12 +37,12 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
     def render_template():
         globs = extra_vars or {}
         globs.update(pylons_globals())
+        globs['actions'] = model.Action
         template = globs['app_globals'].genshi_loader.load(template_name)
         stream = template.generate(**globs)
         
-        # extension point for all plugins implementing 'render(self, stream)'.
-        for _filter in plugins.find_methods('render'):
-            stream = _filter(stream)
+        for item in ExtensionPoint(IGenshiStreamFilter):
+            stream = item.filter(stream)
         
         return literal(stream.render(method=method, encoding=None))
     

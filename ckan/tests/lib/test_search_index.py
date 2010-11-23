@@ -13,25 +13,20 @@ class TestSearchIndex(TestController):
     
     @classmethod
     def setup_class(cls):
-        model.notifier.initialise()
         CreateTestData.create()
-        cls.worker = search.SearchIndexWorker(search.get_backend(backend='sql'))
-        cls.worker.clear_queue()
 
     @classmethod
     def teardown_class(cls):
         CreateTestData.delete()        
-        model.notifier.deactivate()
 
     def test_index(self):
-        notification = model.PackageNotification.create(self.anna, 'new')
-        notification['payload']['title'] = 'penguin'
-        self.worker.callback(notification)
+        search.dispatch_by_operation('Package', {'title': 'penguin'}, 'new', 
+            backend=search.get_backend(backend='sql'))
 
         sql = "select search_vector from package_search where package_id='%s'" % self.anna.id
         vector = model.Session.execute(sql).fetchone()[0]
         assert 'annakarenina' in vector, vector
-        assert 'penguin' in vector, vector
+        assert not 'penguin' in vector, vector
 
 
 class PostgresSearch(object):
@@ -63,7 +58,6 @@ def allow_time_to_create_search_index():
 class TestPostgresSearch:
     @classmethod
     def setup_class(self):
-        model.notifier.initialise()
         tsi = TestSearchIndexer()
         CreateTestData.create_search_test_data()
         tsi.index()
@@ -76,18 +70,15 @@ class TestPostgresSearch:
     @classmethod
     def teardown_class(self):
         CreateTestData.delete()
-        model.notifier.deactivate()
 
     def test_0_indexing(self):
         searches = model.metadata.bind.execute('SELECT package_id, search_vector FROM package_search').fetchall()
-        print searches
         assert searches[0][1], searches
         q = model.Session.query(model.Package).filter(model.package_search_table.c.package_id==model.Package.id)
         assert q.count() == 6, q.count()
         
     def test_1_basic(self):
         result = PostgresSearch().search(u'sweden')
-        print result
         assert 'se-publications' in result['results'], result['results']
         assert result['count'] == 2, result['count']
 

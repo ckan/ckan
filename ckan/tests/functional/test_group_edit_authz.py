@@ -47,7 +47,6 @@ class TestGroupEditAuthz(TestController):
         offset = url_for(controller='group', action='authz', id=self.groupname)
         res = self.app.get(offset, extra_environ={'REMOTE_USER':
             self.admin})
-        print res
         assert self.groupname in res
         assert '<tr' in res
         assert self.admin in res

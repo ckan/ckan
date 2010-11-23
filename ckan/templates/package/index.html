@@ -7,20 +7,9 @@
 
   <div py:match="content">
     <h2>Data Packages</h2>
-
-    <xi:include href="search_form.html" />
-
-    <hr />
-
     <p i18n:msg="package_count">There are <strong>${c.package_count}</strong> packages.</p>
 
-    <h3>
-      ${h.link_to(_('Browse packages'), h.url_for(controller='package', action='list'))}
-    </h3>
-
-    <h3>
-      ${h.link_to(_('Register a new package'), h.url_for(controller='package', action='new'))}
-    </h3>
+    <xi:include href="search_form.html" />
   </div>
 
   <xi:include href="layout.html" />

@@ -47,6 +47,8 @@ class BaseFormController(BaseApiController):
 
     def package_create(self):
         try:
+            api_url = config.get('ckan.api_url', '/').rstrip('/')
+            c.package_create_slug_api_url = api_url+h.url_for(controller='apiv2/package', action='create_slug')
             # Get the fieldset.
             fieldset = self._get_package_fieldset()
             if request.method == 'GET':
@@ -118,7 +120,10 @@ class BaseFormController(BaseApiController):
                     # Return response body.
                     return response_body
         except ApiError, api_error:
-            log.info('Package create - ApiError. user=%r data=%r error=%r', author, form_data, api_error)
+            log.info('Package create - ApiError. user=%r data=%r error=%r',
+                     author if 'author' in dir() else None,
+                     form_data if 'form_data' in dir() else None,
+                     api_error)
             # Set response body.
             response_body = str(api_error) 
             # Assume status code is set.
@@ -241,7 +246,10 @@ class BaseFormController(BaseApiController):
                     # Return response body.
                     return response_body
         except ApiError, api_error:
-            log.info('Package edit - ApiError. user=%r data=%r error=%r', author, form_data, api_error)
+            log.info('Package edit - ApiError. user=%r data=%r error=%r',
+                     author if 'author' in dir() else None,
+                     form_data if 'form_data' in dir() else None,
+                     api_error)
             # Set response body.
             response_body = str(api_error) 
             # Assume status code is set.

@@ -4,6 +4,7 @@ import logging
 
 import paste.script
 from paste.script.util.logging_config import fileConfig
+import re
 
 class CkanCommand(paste.script.command.Command):
     parser = paste.script.command.Command.standard_parser(verbose=True)
@@ -261,103 +262,10 @@ class ManageDb(CkanCommand):
             self.load_data(data_getter.Data, 'xml')
 
 
-class TestData(CkanCommand):
-    '''Perform simple consistency tests on the db and wui.
-
-    Usage:
-      test-data <wui url>
-    '''
-
-    summary = __doc__.split('\n')[0]
-    usage = __doc__
-    max_args = 1
-    min_args = 1
-
-    def command(self):
-        self._load_config()
-        from ckan import model
-
-        print 'Database check'
-        print '**************'
-
-        num_pkg = model.Session.query(model.Package).count()
-        print '* Number of packages: ', num_pkg
-        assert num_pkg > 0
-
-        num_tag = model.Session.query(model.Tag).count()
-        print '* Number of tags: ', num_tag
-        assert num_tag > 0
-
-        pkg = model.Session.query(model.Package).first()
-        print u'* A package: %s' % pkg.as_dict()
-        expected_attributes = ('name', 'title', 'notes', 'url')
-        for ea in expected_attributes:
-            print '* Checking for attribute ', ea
-            assert ea in pkg.__dict__.keys()
-
-        tag = model.Session.query(model.Tag).first()
-        print '* A tag: ', tag.name
-        expected_attributes = ['name']
-        for ea in expected_attributes:
-            print '* Checking for attribute ', ea
-            assert ea in tag.__dict__.keys()
-
-        print '\nWUI check'
-        print   '========='
-        import paste.fixture
-        self.wui_address = self.args[0]
-        if not self.wui_address.startswith('http://'):
-            self.wui_address = 'http://' + self.wui_address
-        if not self.wui_address.endswith('/'):
-            self.wui_address = self.wui_address + '/'
-
-        import paste.proxy
-        wsgiapp = paste.proxy.make_proxy({}, self.wui_address)
-        self.app = paste.fixture.TestApp(wsgiapp)
-
-        def check_page(path, required_contents, status=200):
-            print "* Checking page '%s%s'" % (self.wui_address, path)
-            res = self.app.get(path, status=status)
-            if type(required_contents) is type(()):
-                for required in required_contents:
-                    print '    ...checking for %r' % required
-                    assert required in res, res
-            else:
-                assert required_contents in res, res
-            return res
-
-        
-        import urllib
-        res = check_page('/', ('Search'))
-        form = res.forms['package-search']
-        form['q'] = pkg.title
-        res = form.submit()
-        print '* Checking search using %r' % pkg.title.encode('utf-8')
-        assert ('package found' in res) or ('packages found' in res), res
-        
-        res = res.click(pkg.title)
-        print '* Checking package page %s' % res.request.url
-        assert pkg.title in res, res
-        for tag in pkg.tags:
-            assert tag.name in res, res
-        
-        if pkg.license:
-            license = pkg.license.as_dict().get('title')
-            assert license in res, res
-
-        tag = pkg.tags[0]
-        res = check_page('/tag/%s' % tag.name, 
-                ('Tag: %s' % str(tag.name), str(pkg.name))
-            )
-
-        res = check_page('/package/new', 'Register a New Data Package')
-        res = check_page('/package/list', 'Data Packages')
-
 class SearchIndexCommand(CkanCommand):
     '''Creates a search index for all packages
 
     Usage:
-      search-index                         - indexes changes as they occur
       search-index rebuild                 - indexes all packages
     '''
 
@@ -368,23 +276,18 @@ class SearchIndexCommand(CkanCommand):
 
     def command(self):
         self._load_config()
-        from ckan.lib.search import get_backend, rebuild, SearchIndexWorker
 
         if not self.args:
             # default to run
-            cmd = 'run'
+            cmd = 'rebuild'
         else:
             cmd = self.args[0]
-        if cmd == 'run':
-            backend = get_backend()
-            indexer = SearchIndexWorker(backend)
-            indexer.clear_queue()
-            while True:
-                indexer.run()
+        
         if cmd == 'rebuild':
             rebuild()
         else:
             print 'Command %s not recognized' % cmd
+
 
 class Sysadmin(CkanCommand):
     '''Gives sysadmin rights to a named 
@@ -392,6 +295,7 @@ class Sysadmin(CkanCommand):
     Usage:
       sysadmin list                 - lists sysadmins
       sysadmin create <user-name>   - creates sysadmin user
+      sysadmin remove <user-name>   - removes user fr
     '''
 
     summary = __doc__.split('\n')[0]
@@ -409,7 +313,7 @@ class Sysadmin(CkanCommand):
         elif cmd == 'create':
             self.create()
         elif cmd == 'remove':
-            self.create()
+            self.remove()
         else:
             print 'Command %s not recognized' % cmd
 
@@ -922,7 +826,6 @@ class Notifications(CkanCommand):
 
     Usage:
       notifications monitor                 - runs monitor, printing all notifications
-      notifications replay                  - simulate a change to all packages in the system
     '''
 
     summary = __doc__.split('\n')[0]
@@ -942,22 +845,8 @@ class Notifications(CkanCommand):
         cmd = self.args[0]
         if cmd == 'monitor':
             self.monitor()
-        if cmd == 'replay':
-            self.replay()
         else:
             print 'Command %s not recognized' % cmd
-
-    def replay(self):
-        from ckan.model import Package, PackageResource
-        from ckan.model.notifier import DomainObjectNotificationOperation, DomainObjectNotification
-        for klass in [Package, PackageResource]:
-            for obj in klass.active():
-                if hasattr(obj, 'name'):
-                    print "Simulating change to:", obj.name
-                elif hasattr(obj, 'url'):
-                    print "Simulating change to:", obj.url
-                notification = DomainObjectNotification.create(obj, DomainObjectNotificationOperation.changed)
-                notification.send_synchronously()
 
     def monitor(self):
         from ckan.lib import monitor
@@ -1046,13 +935,13 @@ class Harvester(CkanCommand):
     '''Harvests remotely mastered metadata
 
     Usage:
-      harvester source {url} {user-ref} {publisher-ref}       
+      harvester source {url} [{user-ref} [{publisher-ref}]]     
         - create new harvest source
 
       harvester sources                                 
         - lists harvest sources
 
-      harvester job {source-id} {user-ref}
+      harvester job {source-id} [{user-ref}]
         - create new harvesting job
 
       harvester jobs
@@ -1069,24 +958,39 @@ class Harvester(CkanCommand):
 
     def command(self):
         self._load_config()
+        # Clear the 'No handlers could be found for logger "vdm"' warning message.
+        print ""
         cmd = self.args[0]
         if cmd == 'source':
-            if len(self.args) == 4:
+            if len(self.args) >= 2:
                 url = unicode(self.args[1])
-                user_ref = unicode(self.args[2])
-                publisher_ref = unicode(self.args[3])
-                self.create_harvest_source(url, user_ref, publisher_ref)
             else:
-                print 'Need url, user-ref and publisher-ref.'
+                print self.usage
+                print 'Error, source url is not given.'
+                sys.exit(1)
+            if len(self.args) >= 3:
+                user_ref = unicode(self.args[2])
+            else:
+                user_ref = u''
+            if len(self.args) >= 4:
+                publisher_ref = unicode(self.args[3])
+            else:
+                publisher_ref = u''
+            self.register_harvest_source(url, user_ref, publisher_ref)
         elif cmd == 'sources':
             self.list_harvest_sources()
         elif cmd == 'job':
-            if len(self.args) == 3:
-                url = unicode(self.args[1])
-                user_ref = unicode(self.args[2])
-                self.create_harvesting_job(url, user_ref)
+            if len(self.args) >= 2:
+                source_id = unicode(self.args[1])
             else:
-                print 'Need source-id and user-ref.'
+                print self.usage
+                print 'Error, job source is not given.'
+                sys.exit(1)
+            if len(self.args) >= 3:
+                user_ref = unicode(self.args[2])
+            else:
+                user_ref = u''
+            self.register_harvesting_job(source_id, user_ref)
         elif cmd == 'jobs':
             self.list_harvesting_jobs()
         elif cmd == 'run':
@@ -1108,41 +1012,130 @@ class Harvester(CkanCommand):
 
         from ckan.model import HarvestingJob
         jobs = HarvestingJob.filter(status=u"New").all()
-        print "There are %s harvesting jobs" % len(jobs)
+        jobs_len = len(jobs)
+        jobs_count = 0
+        if jobs_len:
+            print "Running %s harvesting jobs..." % jobs_len
+        else:
+            print "There are no new harvesting jobs."
+        print ""
         for job in jobs:
-            print "Running job %s" % job.id
-            print "job source id: %s" % job.source.id
-            print "job source url: %s" % job.source.url
+            jobs_count += 1
+            print "Running job %s/%s: %s" % (jobs_count, jobs_len, job.id)
             job.harvest_documents()
-            print "job status: %s" % job.status
-            print "job report: %s" % job.report
-            print
+            #self.print_harvesting_job(job)
+            print ""
+            job = HarvestingJob.get(job.id)
+            self.print_harvesting_job(job)
 
-    def list_harvesting_jobs(self):
+
+    def register_harvesting_job(self, source_id, user_ref):
+        from ckan.model import HarvestSource
         from ckan.model import HarvestingJob
-        jobs = HarvestingJob.filter().all()
-        for job in jobs:
-            print job.id, job.source and job.source.id or "sourceless", job.status
-        print "There are %s harvesting jobs" % len(jobs)
-       
-    def create_harvesting_job(self, source_id, user_ref):
-        from ckan.model import HarvestingJob
-        job = HarvestingJob.create_save(source_id=source_id, user_ref=user_ref, status=u"New")
-        print "New harvesting job id: %s" % job.id
-        jobs = HarvestingJob.filter().all()
-        print "There are now %s harvesting jobs" % len(jobs)
+        if re.match('(http|file)://', source_id):
+            source_url = unicode(source_id)
+            source_id = None
+            sources = HarvestSource.filter(url=source_url).all()
+            if sources:
+                source = sources[0]
+            else:
+                source = self.create_harvest_source(url=source_url, user_ref=user_ref, publisher_ref=u'')
+        else:
+            source = HarvestSource.get(source_id)
+
+        job = HarvestingJob.create_save(source=source, user_ref=user_ref, status=u"New")
+        print "Created new harvesting job:"
+        self.print_harvesting_job(job)
+        status = u"New"
+        jobs = HarvestingJob.filter(status=status).all()
+        self.print_there_are("harvesting job", jobs, condition=status)
+
+    def register_harvest_source(self, url, user_ref, publisher_ref):
+        from ckan.model import HarvestSource
+        existing = self.get_harvest_sources(url=url)
+        if existing:
+            print "Error, there is already a harvesting source for that URL"
+            self.print_harvest_sources(existing)
+            sys.exit(1)
+        else:
+            source = self.create_harvest_source(url=url, user_ref=user_ref, publisher_ref=publisher_ref)
+            print "Created new harvest source:"
+            self.print_harvest_source(source)
+            sources = self.get_harvest_sources()
+            self.print_there_are("harvest source", sources)
 
     def list_harvest_sources(self):
-        from ckan.model import HarvestSource
-        sources = HarvestSource.filter().all()
-        for source in sources:
-            print source.id, source.status, source.url
-        print "There are %s harvest sources" % len(sources)
+        sources = self.get_harvest_sources()
+        self.print_harvest_sources(sources)
+        self.print_there_are(what="harvest source", sequence=sources)
        
-    def create_harvest_source(self, url, user_ref, publisher_ref):
-        from ckan.model import HarvestSource
-        source = HarvestSource.create_save(url=url, user_ref=user_ref, publisher_ref=publisher_ref)
-        print "New harvest source id: %s" % source.id
-        sources = HarvestSource.filter().all()
-        print "There are now %s harvest sources" % len(sources)
+    def list_harvesting_jobs(self):
+        jobs = self.get_harvesting_jobs()
+        self.print_harvesting_jobs(jobs)
+        self.print_there_are(what="harvesting job", sequence=jobs)
 
+    def get_harvest_sources(self, **kwds):
+        from ckan.model import HarvestSource
+        return HarvestSource.filter(**kwds).all()
+
+    def get_harvesting_jobs(self, **kwds):
+        from ckan.model import HarvestingJob
+        return HarvestingJob.filter(**kwds).all()
+
+    def create_harvest_source(self, **kwds):
+        from ckan.model import HarvestSource
+        return HarvestSource.create_save(**kwds)
+
+    def create_harvesting_job(self, **kwds):
+        from ckan.model import HarvestingJob
+        return HarvestingJob.create_save(**kwds)
+
+    def print_harvest_sources(self, sources):
+        if sources:
+            print ""
+        for source in sources:
+            self.print_harvest_source(source)
+
+    def print_harvest_source(self, source):
+        print "Source id: %s" % source.id
+        print "      url: %s" % source.url
+        print "     user: %s" % source.user_ref
+        print "publisher: %s" % source.publisher_ref
+        print "     docs: %s" % len(source.documents)
+        print ""
+
+    def print_harvesting_jobs(self, jobs):
+        if jobs:
+            print ""
+        for job in jobs:
+            self.print_harvesting_job(job)
+
+    def print_harvesting_job(self, job):
+        print "Job id: %s" % job.id
+        if job.user_ref:
+            print "  user: %s" % job.user_ref
+        print "status: %s" % job.status
+        print "source: %s" % job.source.id
+        print "   url: %s" % job.source.url
+        #print "report: %s" % job.report
+        if job.report and job.report['packages']:
+            for package_id in job.report['packages']:
+                print "   doc: %s" % package_id
+        if job.report and job.report['errors']:
+            for msg in job.report['errors']:
+                print " error: %s" % msg
+        print ""
+
+    def print_there_are(self, what, sequence, condition=""):
+        is_singular = self.is_singular(sequence)
+        print "There %s %s %s%s%s" % (
+            is_singular and "is" or "are",
+            len(sequence),
+            condition and ("%s " % condition.lower()) or "",
+            what,
+            not is_singular and "s" or "",
+        )
+
+    def is_singular(self, sequence):
+        return len(sequence) == 1
+    

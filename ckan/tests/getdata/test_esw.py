@@ -66,7 +66,6 @@ class TestLoadIntoDb:
 
     def test_fields(self):
         names = [pkg.name for pkg in model.Session.query(model.Package).all()]
-        print names
         pkgs = []
         for pkg_name in TEST_PKG_NAMES:
             pkg = model.Session.query(model.Package).filter_by(name=unicode(pkg_name)).one()

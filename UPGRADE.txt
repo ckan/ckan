@@ -1,10 +1,18 @@
+# This document describes manually upgrading a deployed CKAN instance.
+# NB: It should not be necessary to do it manually without good reason. The
+# fabric script should be used in preference to these instructions - see
+# fabfile.py
+
 # activate relevant virtualenv
 . pyenv/bin/activate
 
-# update to HEAD on everything
+# update pip-requirements.txt (or pip-requirements-metastable.txt / pip-requirements-stable.txt)
+wget http://knowledgeforge.net/ckan/hg/raw-file/default/pip-requirements.txt
+
+# EITHER update all modules
 pip -E pyenv install -r pip-requirements.txt
 
-# or just update ckan
+# OR just update ckan
 cd pyenv/src/ckan
 hg pull [-r yourrev]
 # may want to check log messages first
@@ -23,8 +31,7 @@ paster --plugin ckan db upgrade --config {config.ini}
 # Restart apache (so modpython has latest code)
 sudo /etc/init.d/apache2 restart
 
-# Basic checks of the db and the site:
-paster --plugin ckan test-data localhost --config {config.ini}
-
-# Browse around manually!
-
+# Run smoketests in ckanext/blackbox
+# (install ckanext and run ckanext from another machine
+#  - see ckanext README.txt for instructions)
+python blackbox/smoke.py blackbox/ckan.net.profile.json

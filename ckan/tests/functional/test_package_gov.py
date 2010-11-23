@@ -36,7 +36,6 @@ class TestRead(TestPackageBase):
         res = self.app.get(offset)
         # only retrieve after app has been called
         self.anna = model.Package.by_name(name)
-        print self.main_div(res)
         assert '%s - Data Packages' % title in res
         assert name in res
         assert 'State:' not in res

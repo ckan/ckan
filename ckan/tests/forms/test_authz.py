@@ -22,7 +22,6 @@ class TestRender(object):
         assert len(anna.roles) == 3, [ (r.user, r.role) for r in anna.roles ]
         fs = fs.bind(anna.roles) # bind
         out = fs.render()
-        print out
         assert '<tr>' in out
         form_words = ['reader', 'editor', 'admin', 'visitor', 'logged_in', 'annafan']
         for s in form_words:
@@ -75,8 +74,6 @@ class _TestSync:
         self._test_change(before_roles, after_roles, pkg_name)
 
     def _check_package_roles(self, pkgroles, roles2):
-        print [ (r.user.name, r.role) for r in pkgroles ]
-        print roles2
         assert len(pkgroles) == len(roles2)
         for r in pkgroles:
             assert roles2[r.user.name] == r.role, (r.user.name, r.role)
@@ -124,7 +121,6 @@ class _TestSync:
         # self._check_package_roles(pkg.roles, before_roles)
 
         params = self._make_params(pkg.roles, after_roles)
-        print 'PARAMS', params
         roles = pkg.roles
         fs = ckan.forms.get_authz_fieldset('authz_fs').bind(roles, data=params)
         fs.sync()

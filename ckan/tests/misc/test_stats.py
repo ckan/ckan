@@ -54,6 +54,7 @@ class TestStats(TestController):
 
     def test_largest_groups(self):
         # Add packages to groups
+        model.repo.new_revision()
         model.Session.add(model.Group(u'tst1'))
         model.Session.add(model.Group(u'tst2'))
         model.Session.add(model.Group(u'tst3'))
@@ -131,7 +132,6 @@ class TestStats(TestController):
             add_user_to_role(user, model.authz.Role.ADMIN, group)
         
         res = Stats().top_package_owners()
-        print res
         assert len(res) == 3, res
         assert res[0] == (model.User.by_name(u'Jill'), 3), res[0]
         assert res[1] == (model.User.by_name(u'Bob'), 2), res[1]
