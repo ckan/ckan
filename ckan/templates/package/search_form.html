@@ -1,9 +1,21 @@
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip=""
+  >
+
 <form id="package-search" class="package-search" action="${h.url_for(controller='package', action='search', id=None)}" method="GET">
   <input type="search" class="search" name="q" value="${c.q}" />
-  <input type="submit" value="Search" class="button" />
-  <p class="small">
-    E.g. 'geo', 'shakespeare', 'science'
-  </p>
+  <span py:if="c.fields">
+  <py:for each="(k, v) in c.fields"> 
+    <input type="hidden" name="${k}" value="${v}" />  
+  </py:for>
+  </span>
   <div class="package-search-filters">Filters: <label for="open_only" class="inline">${h.checkbox(name='open_only', checked=c.open_only)} open license</label>
-  <label for="downloadable_only" class="inline">${h.checkbox(name='downloadable_only', checked=c.downloadable_only)} downloadable</label></div>
+  <label for="downloadable_only" class="inline">${h.checkbox(name='downloadable_only', checked=c.downloadable_only)} downloadable</label>
+  <input type="submit" value="Search" class="button" />
+  </div>
 </form>
+
+</html>
