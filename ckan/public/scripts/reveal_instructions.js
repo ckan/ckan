@@ -1,6 +1,6 @@
 (function ($) {
   $(document).ready(function () {
-    $('fieldset dl dd.basic').each(function() {
+    $('fieldset .basic').each(function() {
         var basic = $(this);
         var further = basic.next('.further');
         if (further.length) {

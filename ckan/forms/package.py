@@ -32,7 +32,7 @@ def build_package_form(is_admin=False, user_editable_groups=None, **params):
     builder.set_field_text(
         'title',
         instructions='The title of the data set.',
-        further_instructions='It is not a description - save that for the Notes field. Do not give a trailing full stop.',
+        further_instructions='Use a short descriptive title for the data set. It should not be a description though - save that for the Notes field. Do not give a trailing full stop.',
     )
     builder.set_field_text(
         'name', 
@@ -48,7 +48,7 @@ def build_package_form(is_admin=False, user_editable_groups=None, **params):
     )
     builder.set_field_text(
         'url',
-        instructions='The Internet link to a web page discussing the dataset, not the dataset itself.',
+        instructions='This is usually the URL for the package project home page not the data itself.',
         hints='e.g. http://www.example.com/growth-figures.html',
     )
     builder.set_field_text(
@@ -71,7 +71,7 @@ def build_package_form(is_admin=False, user_editable_groups=None, **params):
     builder.set_field_text(
         'resources',
         instructions='The files containing the data or address of the APIs for accessing it.',
-        further_instructions=literal('<br />These can be repeated as required. For example if the data is being supplied in multiple formats, or split into different areas or time periods, each file is a different \'resource\' which should be described differently. They will all appear on the dataset page on CKAN together.<br/> <b>URL:</b> This is the Internet link directly to the data - by selecting this link in a web browser, the user will immediately download the full data set. Note that datasets are not hosted by data.gov.uk, but by the responsible department<br/> e.g. http://www.somedept.gov.uk/growth-figures-2009.csv<br/><b>Format:</b> This should give the file format in which the data is supplied. You may supply the data in a form not listed here, constrained by the Public Sector Transparency Board\'s principles that require that all data is available in an \'open and standardised format\' that can be read by a machine. Data can also be released in formats that are not machine-processable (e.g. PDF) alongside this.<br/> <b>Description</b> Any information you want to add to desctribe the resource<br />'),  
+        further_instructions=literal('<br />These can be repeated as required. For example if the data is being supplied in multiple formats, or split into different areas or time periods, each file is a different \'resource\' which should be described differently. They will all appear on the dataset page on CKAN together.<br /><br /> <b>URL:</b> This is the Internet link directly to the data - by selecting this link in a web browser, the user will immediately download the full data set. Note that datasets are not hosted on this site, but by the publisher of the data. Alternatively the URL can point to an API server such as a SPARQL endpoint or JSON-P service.<br /> <b>Format:</b> This should give the file format in which the data is supplied. <br /><b>Description</b> Any information you want to add to describe the resource.<br />'),  
         hints='Format choices: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Other as appropriate'
     )
     builder.set_field_text(
