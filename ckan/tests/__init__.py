@@ -12,7 +12,7 @@ import os
 import sys
 import re
 from unittest import TestCase
-from nose.tools import assert_equal
+from nose.tools import assert_equal, assert_not_equal
 from nose.plugins.skip import SkipTest
 import time
 
@@ -309,6 +309,9 @@ class TestController(CommonFixtureMethods, CkanServerCase, WsgiAppCase, BaseCase
 
     def assert_equal(self, *args, **kwds):
         assert_equal(*args, **kwds)
+
+    def assert_not_equal(self, *args, **kwds):
+        assert_not_equal(*args, **kwds)
 
 
 class TestSearchIndexer:

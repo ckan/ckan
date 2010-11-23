@@ -330,6 +330,12 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                  cmp(rev_tuple2[0].timestamp, rev_tuple1[0].timestamp)
         return sorted(result_list, cmp=ourcmp)
 
+    @property
+    def latest_related_revision(self):
+        '''Returns the latest revision for the package and its related
+        objects.'''
+        return self.all_related_revisions[0][0]
+        
     def diff(self, to_revision=None, from_revision=None):
         '''Overrides the diff in vdm, so that related obj revisions are
         diffed as well as PackageRevisions'''

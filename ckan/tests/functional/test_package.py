@@ -2,17 +2,20 @@ import cgi
 
 from paste.fixture import AppError
 from pylons import config
+from pylons import c
 from genshi.core import escape as genshi_escape
 from difflib import unified_diff
 
 from ckan.tests import *
+from ckan.tests.pylons_controller import PylonsTestCase
 from base import FunctionalTestCase
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 import ckan.lib.helpers as h
-
+from ckan.controllers.package import PackageController
 from ckan.plugins import SingletonPlugin, implements, IPackageController
 from ckan import plugins
+from ckan.rating import set_rating
 
 class MockPackageControllerPlugin(SingletonPlugin):
     implements(IPackageController)
@@ -252,9 +255,7 @@ class TestReadOnly(TestPackageForm):
 
     @classmethod
     def setup_class(self):
-        indexer = TestSearchIndexer()
         CreateTestData.create()
-        indexer.index()
 
     @classmethod
     def teardown_class(self):
@@ -406,6 +407,7 @@ class TestReadOnly(TestPackageForm):
         res = self.app.get(offset)
         assert plugin.calls['read'] == 1, plugin.calls
         plugins.unload(plugin)
+
         
 class TestEdit(TestPackageForm):
     editpkg_name = u'editpkgtest'
@@ -1363,3 +1365,59 @@ alert('Hello world!');
 
     def fail_if_fragment(self, fragment):
         assert fragment not in self.body, (fragment, self.body)
+
+
+class TestEtags(TestPackageBase, PylonsTestCase):
+    @classmethod
+    def setup_class(self):
+        CreateTestData.create()
+
+    @classmethod
+    def teardown_class(self):
+        CreateTestData.delete()
+
+    def test_calculate_etag_hash(self):
+        c.user = 'test user'
+        get_hash = PackageController._pkg_cache_key
+        hash_1 = get_hash(self.anna)
+        hash_2 = get_hash(self.anna)
+        self.assert_equal(hash_1, hash_2)
+        
+        test_title = u'Anna changed'
+        rev = model.repo.new_revision()
+        self.anna.title = test_title
+        model.repo.commit_and_remove()
+        hash_3 = get_hash(self.anna)
+        self.assert_not_equal(hash_2, hash_3)
+
+        test_url = u'http://some.com/file.xls'
+        rev = model.repo.new_revision()
+        self.anna.add_resource(test_url)
+        model.repo.commit_and_remove()
+        hash_4 = get_hash(self.anna)
+        self.assert_not_equal(hash_4, hash_3)
+
+        test_extra_key = u'testkey'
+        test_extra_value = u'testval'
+        rev = model.repo.new_revision()
+        self.anna.extras[test_extra_key] = test_extra_value
+        model.repo.commit_and_remove()
+        hash_5 = get_hash(self.anna)
+        self.assert_not_equal(hash_5, hash_4)
+
+        set_rating(u'random user', self.anna, 4)
+        # (commit_and_remove not required for rating)
+        hash_6 = get_hash(self.anna)
+        self.assert_not_equal(hash_6, hash_5)
+
+        c.user = 'another user'
+        hash_7 = get_hash(self.anna)
+        self.assert_not_equal(hash_7, hash_6)
+
+    def test_etags_in_response(self):
+        c.user = 'test user'
+        res = self.app.get('/package/annakarenina',
+                           extra_environ={'REMOTE_USER':c.user})
+        anna_hash = str(PackageController._pkg_cache_key(self.anna))
+        self.assert_equal(res.header_dict['ETag'], anna_hash)
+    
