@@ -20,6 +20,9 @@ def set_my_rating(c, package, rating):
     set_rating(user_or_ip, package, rating)
 
 def set_rating(user_or_ip, package, rating):
+    # Rates a package.
+    # Caller function does need to create a new_revision,
+    # but the commit happens in this one. (TODO leave caller to commit.)
     user = None
     if isinstance(user_or_ip, model.User):
         user = user_or_ip
