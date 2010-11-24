@@ -38,14 +38,14 @@ class HomeController(BaseController):
         mycache = cache.get_cache('tag_counts', type='dbm')
         # 3600=hourly, 86400=daily
         c.tag_counts = mycache.get_value(key='tag_counts_home_page',
-                createfunc=tag_counts, expiretime=86400)
-        return render('home/index.html', cache_key=cache_key, cache_expire=84600)
+                createfunc=tag_counts, expiretime=ckan.controllers.expires)
+        return render('home/index.html', expiretime=ckan.controllers.expires)
 
     def license(self):
-        return render('home/license.html', cache_expire=84600)
+        return render('home/license.html', cache_expire=ckan.controllers.expires)
 
     def about(self):
-        return render('home/about.html', cache_expire=84600)
+        return render('home/about.html', cache_expire=ckan.controllers.expires)
 
     def stats(self):
         def stats_html():
@@ -61,9 +61,9 @@ class HomeController(BaseController):
             return render('home/stats.html')
         if not c.user:
             mycache = cache.get_cache('stats', type='dbm')
-            # 3600=hourly, 86400=daily
+
             stats_html = mycache.get_value(key='stats_html',
-                createfunc=stats_html, expiretime=86400)
+                createfunc=stats_html, expiretime=ckan.controllers.expires)
         else:
             stats_html = stats_html()
         return stats_html
