@@ -56,7 +56,7 @@ class PackageController(Rest2Controller, _PackageV1Controller):
         else:
             valid = True
         #response.content_type = 'application/javascript'
-        response_data = dict(name=name, valid=valid)
+        response_data = dict(name=name.replace('_', '-'), valid=valid)
         return self._finish_ok(response_data)
 
     def autocomplete(self):
