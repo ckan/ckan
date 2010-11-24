@@ -77,7 +77,8 @@ class PackageImporter(object):
         Note this function must be only carefully changed, as reimporting
         data with a name munged differently may create duplicates packages.
         For this reason, this munge function is for use by the importers only.
-        Other users should use the API slug creation functionality.'''
+        Other users should use the API slug creation functionality.
+        '''
         # convert spaces to underscores
         name = re.sub(' ', '_', name).lower()        
         # convert symbols to dashes
@@ -107,7 +108,7 @@ class PackageImporter(object):
         Note this function must be only carefully changed, as reimporting
         data with a name munged differently may create duplicates packages.
         For this reason, this munge function is for use by the importers only.
-        Other users should use the API slug creation functionality.'''
+        Other users should use the API slug creation functionality.
         '''
         return self.munge(input_name.replace(' ', '').replace('.', '_').replace('&', 'and'))
 
