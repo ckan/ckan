@@ -48,11 +48,7 @@ class ManageDb(CkanCommand):
     db simple-dump-csv {file-path}
     db simple-dump-json {file-path}
     db send-rdf {talis-store} {username} {password}
-    db load {file-path} # load from a file
-    db load-data4nr {file-path.csv}
-    db load-cospread {file-path.csv}
-    db load-esw {file-path.txt} [{host} {api-key}]
-    db load-ons [{file-path.csv}|recent|days={num-days}|all]
+    db load {file-path} # load a dump from a file
     db migrate06
     db migrate09a
     db migrate09b
@@ -98,16 +94,6 @@ class ManageDb(CkanCommand):
             self.dump_rdf(cmd)
         elif cmd == 'send-rdf':
             self.send_rdf(cmd)
-        elif cmd == 'load-data4nr':
-            import ckan.getdata.data4nr as data_getter
-            self.load_data(data_getter.Data4Nr)
-        elif cmd == 'load-cospread':
-            import ckan.getdata.cospread as data_getter
-            self.load_data(data_getter.Data)
-        elif cmd == 'load-esw':
-            self.load_esw(cmd)
-        elif cmd == 'load-ons':
-            self.load_ons()
         elif cmd == 'migrate06':
             import ckan.lib.converter
             dumper = ckan.lib.converter.Dumper()
@@ -148,15 +134,6 @@ class ManageDb(CkanCommand):
             dumper.dump_json(dump_path, verbose=verbose)
         else:
             print 'Unknown command', cmd
-
-    def load_data(self, data_getter, extension='csv'):
-        if len(self.args) < 2:
-            print 'Need %s file path' % extension
-            return
-        load_path = self.args[1] if len(self.args) == 2 else self.args[1:]
-        data = data_getter()
-        load_func = getattr(data, 'load_%s_into_db' % extension)
-        load_func(load_path)
 
     def simple_dump_csv(self, cmd):
         from ckan import model
@@ -207,59 +184,6 @@ class ManageDb(CkanCommand):
         import ckan.lib.talis
         talis = ckan.lib.talis.Talis()
         return talis.send_rdf(talis_store, username, password)
-
-    def load_esw(self, cmd):
-        if len(self.args) < 2:
-            print 'Need ESW data file path'
-            return
-        load_path = self.args[1]
-        if len(self.args) > 3:
-            server = self.args[2]
-            if server.startswith('http://'):
-                server = server.strip('http://').strip('/')
-            base_location = 'http://%s/api/rest' % server
-            api_key = self.args[3]
-        else:
-            server = api_key = None
-        print 'Loading ESW data\n  Filename: %s\n  Server hostname: %s\n  Api-key: %s' % \
-              (load_path, server, api_key)
-        import ckan.getdata.esw
-        data = ckan.getdata.esw.Esw()
-        if server:
-            import ckanclient
-            ckanclient = ckanclient.CkanClient(base_location=base_location, api_key=api_key)
-            data.load_esw_txt_via_rest(load_path, ckanclient)
-        else:
-            data.load_esw_txt_into_db(load_path)
-
-    def load_ons(self):
-        if len(self.args) < 2:
-            print 'Need xml file path or "all" or "recent" or "days=x".'
-            return
-        arg = self.args[1]
-        if arg == 'recent' or arg == 'all' or arg.startswith('days'):
-            import ckan.getdata.ons_download as ons
-            if len(self.args) < 3:
-                ons_cache_dir = '~/ons_data'
-                print 'Defaulting ONS cache dir: %s' % ons_cache_dir
-            else:
-                ons_cache_dir = self.args[2]
-                print 'ONS cache dir: %s' % ons_cache_dir
-        ons_cache_dir = os.path.expanduser(ons_cache_dir)
-        if not os.path.exists(ons_cache_dir):
-            print 'Creating dir: %s' % ons_cache_dir
-            os.makedirs(ons_cache_dir)
-        if arg == 'recent':
-            new_packages, num_packages_after = ons.import_recent(ons_cache_dir)
-        elif arg.startswith('days='):
-            days = int(arg.split('=')[1])
-            new_packages, num_packages_after = ons.import_recent(ons_cache_dir, days=days)
-        elif arg == 'all':
-            new_packages, num_packages_after = ons.import_all(ons_cache_dir)
-        else:
-            # filename given
-            import ckan.getdata.ons_hub as data_getter
-            self.load_data(data_getter.Data, 'xml')
 
 
 class SearchIndexCommand(CkanCommand):
