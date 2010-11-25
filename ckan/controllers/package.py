@@ -361,8 +361,8 @@ class PackageController(BaseController):
             abort(401, str(gettext('User %r not authorized to edit %s authorizations') % (c.user, id)))
 
         if 'save' in request.params: # form posted
-            # needed because request is nested
-            # multidict which is read only
+            # A dict needed for the params because request.params is a nested
+            # multidict, which is read only.
             params = dict(request.params)
             c.fs = ckan.forms.get_authz_fieldset('package_authz_fs').bind(pkg.roles, data=params or None)
             try:

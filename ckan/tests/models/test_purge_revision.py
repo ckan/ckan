@@ -56,8 +56,7 @@ class TestRevisionPurge:
         assert pkg.url == self.old_url
         pkg2 = model.Package.by_name(self.pkgname2)
         assert pkg2 is None, 'pkgname2 should no longer exist'
-        # TODO: reinstate
-        # assert len(pkg.tags) == 2
+        assert len(pkg.tags) == 2
 
     def test_2(self):
         rev = model.repo.youngest_revision()
