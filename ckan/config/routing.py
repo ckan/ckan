@@ -7,7 +7,9 @@ refer to the routes manual at http://routes.groovie.org/docs/
 from pylons import config
 from routes import Mapper
 from formalchemy.ext.pylons import maps # routes generator
-import plugins
+from ckan.plugins import ExtensionPoint, IRoutesExtension
+
+routing_plugins = ExtensionPoint(IRoutesExtension)
 
 def make_map():
     """Create, configure and return the routes Mapper"""
@@ -21,8 +23,8 @@ def make_map():
     map.connect('/error/{action}/{id}', controller='error')
 
     # CUSTOM ROUTES HERE
-    for _plugin_map in plugins.find_methods('make_map_begin'):
-        map = _plugin_map(map)
+    for plugin in routing_plugins:
+        map = plugin.before_map(map)
         
     map.connect('home', '/', controller='home', action='index')
     map.connect('guide', config.get('guide_url', 'http://wiki.okfn.org/ckan/doc/'), _static=True)
@@ -169,6 +171,10 @@ def make_map():
 
     map.connect('/api/2/rest/package', controller='apiv2/package', action='list',
                 conditions=dict(method=['GET']))
+    map.connect('/api/2/util/package/create_slug', controller='apiv2/package', action='create_slug',
+                conditions=dict(method=['GET']))
+    map.connect('/api/2/util/tag/autocomplete', controller='apiv2/package', action='autocomplete',
+                conditions=dict(method=['GET']))
     map.connect('/api/2/rest/package', controller='apiv2/package', action='create',
                 conditions=dict(method=['POST']))
     map.connect('/api/2/rest/package/:id', controller='apiv2/package', action='show',
@@ -217,6 +223,7 @@ def make_map():
     map.connect('/package/search', controller='package', action='search')
     map.connect('/package/list', controller='package', action='list')
     map.connect('/package/new', controller='package', action='new')
+    map.connect('/package/new_title_to_slug', controller='package', action='new_title_to_slug')
     map.connect('/package/autocomplete', controller='package', action='autocomplete')
     map.connect('/package/:id', controller='package', action='read')
     map.redirect("/groups", "/group")
@@ -237,12 +244,12 @@ def make_map():
     map.redirect("/tags/{url:.*}", "/tag/{url}")
     map.redirect("/tag/read/{url:.*}", "/tag/{url}", _redirect_code='301 Moved Permanently')
     map.connect('/tag/', controller='tag', action='index')
-    map.connect('/tag/autocomplete', controller='tag', action='autocomplete')
     map.connect('/tag/:id', controller='tag', action='read')
     map.redirect("/users/{url:.*}", "/user/{url}")
     map.connect('/user/all', controller='user', action='all')
     map.connect('/user/edit', controller='user', action='edit')
     map.connect('/user/login', controller='user', action='login')
+    map.connect('/user/openid', controller='user', action='openid')
     map.connect('/user/logout', controller='user', action='logout')
     map.connect('/user/apikey', controller='user', action='apikey')
     map.connect('/user/:id', controller='user', action='read')
@@ -250,8 +257,8 @@ def make_map():
     map.connect('/:controller/{action}')
     map.connect('/{controller}/{action}/{id}')
     
-    for _plugin_map in plugins.find_methods('make_map_end'):
-        map = _plugin_map(map)
+    for plugin in routing_plugins:
+        map = plugin.after_map(map)
     
     map.redirect('/*(url)/', '/{url}',
                  _redirect_code='301 Moved Permanently')

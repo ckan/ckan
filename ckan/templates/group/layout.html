@@ -7,7 +7,7 @@
   >
 
   <py:match path="primarysidebar">
-    <div class="box">
+    <li class="widget-container widget_text">
       <h2>Groups section</h2>
       <p i18n:msg="">Whilst tags are great at collecting packages together, there are occasions when you want to restrict users from editing a collection. A <strong>group</strong> can be set-up to specify which users have permission to add or remove packages from it.</p>
       <p>
@@ -18,15 +18,21 @@
 	  <a href="${h.url_for(controller='group',action='new', id=None)}">Create a new group</a>
 	</span>
       </p>
-      
-    </div>
-  </py:match>
-  
-  <py:match path="minornavigation">
-    <li>${h.subnav_link(c, _('Home'), controller='group', action='index', id=None)}</li>
-    <li>${h.subnav_link(c, _('Create a new group'), controller='group', action='new', id=None)}</li>
+    </li>
   </py:match>
 
+  <py:match path="minornavigation" py:if="c.group">
+  <ul>
+    <li>${h.subnav_link(c, h.icon('group') + _('View'), controller='group', action='read', id=c.group.name)}</li>
+    <li py:if="h.am_authorized(c, actions.EDIT, c.group)">
+      ${h.subnav_link(c, h.icon('group_edit') + _('Edit'), controller='group', action='edit', id=c.group.name)}
+    </li>
+    <li>${h.subnav_link(c, h.icon('page_white_stack') + _('History'), controller='group', action='history', id=c.group.name)}</li>
+    <li py:if="h.am_authorized(c, actions.EDIT_PERMISSIONS, c.group)">
+      ${h.subnav_link(c, h.icon('lock') + _('Authorization'), controller='group', action='authz', id=c.group.name)}
+    </li>
+  </ul>
+  </py:match>
   
   <xi:include href="../layout.html" />
 </html>

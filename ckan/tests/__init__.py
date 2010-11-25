@@ -12,7 +12,7 @@ import os
 import sys
 import re
 from unittest import TestCase
-from nose.tools import assert_equal
+from nose.tools import assert_equal, assert_not_equal
 from nose.plugins.skip import SkipTest
 import time
 
@@ -310,31 +310,26 @@ class TestController(CommonFixtureMethods, CkanServerCase, WsgiAppCase, BaseCase
     def assert_equal(self, *args, **kwds):
         assert_equal(*args, **kwds)
 
+    def assert_not_equal(self, *args, **kwds):
+        assert_not_equal(*args, **kwds)
+
 
 class TestSearchIndexer:
     '''
     Tests which use search can use this object to provide indexing
     Usage:
-    model.notifier.initialise()
     self.tsi = TestSearchIndexer()
      (create packages)
     self.tsi.index()
      (do searching)
-    model.notifier.deactivate()
     ''' 
-    worker = None
     
     def __init__(self):
-        TestSearchIndexer.worker = search.SearchIndexWorker(search.get_backend(backend='sql'))
-        TestSearchIndexer.worker.clear_queue()
-        self.worker.consumer.close()
+        from ckan import plugins
+        plugins.load('synchronous_search')
 
     @classmethod
     def index(cls):
-        message = cls.worker.consumer.fetch()
-        while message is not None:
-            cls.worker.async_callback(message.payload, message)
-            message = cls.worker.consumer.fetch()
-        cls.worker.consumer.close()        
+        pass     
 
 

@@ -20,7 +20,7 @@
       <h3 py:if="c.error" class="form-errors">
         Error: ${c.error}
       </h3>
-
+      
       <input type="hidden" name="pkg_name" value="${c.pkg.name}"/>
 
       <table>
@@ -37,7 +37,7 @@
               <a href="${h.url_for(controller='revision',action='read',id=rev.id)}">${rev.id}</a>
             </td>
             <td>${rev.timestamp}</td>
-            <td>${rev.author}</td>
+            <td>${h.linked_user(rev.author)}</td>
             <td>${rev.message}</td>
           </tr> 
         </py:for>

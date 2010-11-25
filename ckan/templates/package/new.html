@@ -22,9 +22,15 @@
   </py:def>
 
   <div py:match="content">
-    <h2>Register a New Data Package
-      <a href="#preview" py:if="c.preview">(skip to preview)</a>
-    </h2>
+    <h2>Register a New Data Package</h2>
+
+    <div id="preview" py:if="c.preview">
+      <hr />
+      <h3>Preview</h3>
+      <div style="border: 2px dashed red; padding: 5px;"> 
+        ${c.preview}
+      </div>
+    </div>
 
     <h3 py:if="c.error" class="form-errors">
       Error: ${c.error}
@@ -32,13 +38,6 @@
 
     ${h.literal(c.form)}
 
-    <div id="preview" style="margin-left: 20px;" py:if="c.preview">
-      <hr />
-      <h2>Preview</h2>
-      <div style="border: 2px dashed red; padding: 5px;"> 
-        ${c.preview}
-      </div>
-    </div>
   </div>
 
   <xi:include href="layout.html" />

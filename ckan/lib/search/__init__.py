@@ -2,7 +2,7 @@ import logging
 import pkg_resources
 from pylons import config
 from common import QueryOptions, SearchError
-from worker import SearchIndexWorker, setup_synchronous_indexing, remove_synchronous_indexing
+from worker import dispatch_by_operation
 
 log = logging.getLogger(__name__)
 

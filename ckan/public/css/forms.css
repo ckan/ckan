@@ -14,7 +14,7 @@ input[type=text], input.text,
 input[type=password], input.password,
 input[type=email], input.email,
 input[type=url], input.url {
-  padding: 0.4em;
+  padding: 0.3em;
   width: 30em;
   margin: 0 0 0.5em 0;
   background: #fff;
@@ -48,9 +48,9 @@ input.title {
 input.short {
   width: 5em; }
 input.medium-width {
-  width: 14.5em; }
+  width: 12em; }
 input.long {
-  width: 38em; }
+  width: 100%; }
  
 select.short { 
   width: 14.5em; }
@@ -105,16 +105,20 @@ form dl {
   form dl dd ul {
     margin: 0.5em 0 0 0;
     padding: 0; }
-  form dl dd.notes, form dl dd.hints {
+  form dl dd.notes, form dl dd.hints, .hints {
     padding: 0 0 0.3em 0;
-    color: #555; }
+    color: #555;
+    font-size: 90%;
+  }
  
 label.has-errors, label.fieldWithErrors {
   font-weight: bold;
   color: #d12f19; }
 
 label { 
-  display: block; }
+  display: block;
+  padding: 0.2em;
+}
  
 form .field_error, form .error-explanation {
   display: none; }
@@ -168,3 +172,7 @@ form.has-errors .field_error, form.has-errors .error-explanation {
       opacity: 0.5; }
     .taglist li img:hover {
       opacity: 1; }
+
+#preview {
+  margin-bottom: 30px;
+  }

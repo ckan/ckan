@@ -1,6 +1,7 @@
 syntax: glob
 # generic
 *.pyc
+*.swp
 .DS_Store
 ckan.egg-info/*
 sandbox/*
@@ -20,3 +21,4 @@ tmp/*
 solr_runtime/*
 fl_notes.txt
 *.ini
+.noseids

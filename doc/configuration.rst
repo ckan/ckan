@@ -35,9 +35,7 @@ Example::
 
  package_form = ca
 
-Default::
-
- package_form = standard
+Default value:  ``standard``
 
 This sets the name of the form to use when editing a package. This can be a form defined in the core CKAN code or in another setuputils-managed python module. The only requirement is that the setup.py has an entrypoint for the form defined in the `ckan.forms` section. See :doc:`forms`
 
@@ -58,14 +56,29 @@ Configure this if you have an RDF store of the same packages as are in your CKAN
 3. A visible RDF link on the page in the 'Alternative metadata formats' box. e.g. `<a href="http://semantic.ckan.net/package/pollution-2008">`
 
 
-enable_caching
---------------
+cache_enabled
+-------------
 
 Example::
 
- enable_caching = 1
+ cache_enabled = True
 
-The presence of this option turns on the caching of package details for when a search is done over the API and all_fields is switched on. To disable this, remove the option completely.
+Default value:  ``False``
+
+Setting this option to True turns on several caches. When the caching is on, caching can be further configured as follows.
+
+To set the type of Beaker storage::
+ 
+ beaker.cache.type = file
+
+To set the expiry times (in seconds) for specific controllers (which use the proxy_cache) specifiy the methods like this::
+
+ ckan.controllers.package.list.expires = 600
+ ckan.controllers.tag.read.expires = 600
+ ckan.controllers.apiv1.package.list.expires = 600
+ ckan.controllers.apiv1.package.show.expires = 600
+ ckan.controllers.apiv2.package.list.expires = 600
+ ckan.controllers.apiv2.package.show.expires = 600
 
 
 licenses_group_url
@@ -87,7 +100,9 @@ Example::
 
  lang=de
 
-Use this to specify the default language of the text displayed in the CKAN web UI. The default is English (en).
+Default value:  ``en`` (English)
+
+Use this to specify the language of the text displayed in the CKAN web UI. This requires a suitable `mo` file installed for the language. For more information on internationalization, see: http://wiki.okfn.org/ckan/i18n#DeployingaTranslation
 
 
 extra_template_paths
@@ -146,13 +161,13 @@ Example::
 
 This is the messaging library backend to use. Options::
 
- * pyamqplib - AMQP (e.g. for RabbitMQ)
+ * ``pyamqplib`` - AMQP (e.g. for RabbitMQ)
 
- * pika - alternative AMQP
+ * ``pika`` - alternative AMQP
 
- * stomp - python-stomp
+ * ``stomp`` - python-stomp
 
- * queue - native Python Queue (default) - NB this doesn't work inter-process
+ * ``queue`` - native Python Queue (default) - NB this doesn't work inter-process
 
 See `carrot documentation <http://packages.python.org/carrot/index.html>`_ for details.
 
@@ -190,9 +205,7 @@ Example::
 
  search_backend = solr
 
-Default::
-
- sql
+Default value:  ``sql``
 
 This controls the type of search backend. Currently valid values are ``sql`` (meaning Postgres full text search) and ``solr``. If you specify ``sql`` then ensure indexing is on (`build_search_index_synchronously`_ is not defined). If you specify ``solr`` then ensure you specify a `solr_url`_.
 
@@ -217,11 +230,9 @@ Example::
 
  ckan.site_title=Open Data Scotland
 
-Default::
+Default value:  ``CKAN``
 
- CKAN
-
-This sets the name of the site.
+This sets the name of the site, as displayed in the CKAN web interface.
 
 
 site_logo
@@ -231,9 +242,7 @@ Example::
 
  ckan.site_logo=http://myregistry/logo.png
 
-Default::
-
- CKAN Text Logo, /images/ckan_logo_fullname_long.png
+Default value:  ``/images/ckan_logo_fullname_long.png`` (CKAN Logo)
 
 This sets the logo used in the title bar.
 
@@ -245,8 +254,19 @@ Example::
 
  ckan.site_url=http://scotdata.ckan.net
 
-Default::
-
- http://www.ckan.net
+Default value:  ``http://www.ckan.net``
 
 The primary URL used by this site. 
+
+api_url
+--------
+
+Example::
+
+ ckan.api_url=http://scotdata.ckan.net/api
+
+Default value:  ``/api``
+
+The URL which resolves to the CKAN API part of the site. This is useful if the
+API is hosted on a different domain, for example when a third party site uses
+the forms API.

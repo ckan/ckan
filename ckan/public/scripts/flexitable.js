@@ -47,7 +47,8 @@
     }
   }
   
-  function addRow () {
+  function addRow (e) {
+    e.preventDefault();
     var table = $(this).parents('p').eq(0).prev(),
         lastRow = table.find('tr:last'),
         clone = lastRow.clone(true);

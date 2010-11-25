@@ -2,6 +2,34 @@ from ckan.tests import *
 import ckan.model as model
 from base import FunctionalTestCase
 
+from ckan.plugins import SingletonPlugin, implements, IGroupController
+from ckan import plugins
+
+class MockGroupControllerPlugin(SingletonPlugin):
+    implements(IGroupController)
+    
+    def __init__(self):
+        from collections import defaultdict
+        self.calls = defaultdict(int)
+    
+    def read(self, entity):
+        self.calls['read'] += 1
+
+    def create(self, entity):
+        self.calls['create'] += 1
+
+    def edit(self, entity):
+        self.calls['edit'] += 1
+
+    def authz_add_role(self, object_role):
+        self.calls['authz_add_role'] += 1
+
+    def authz_remove_role(self, object_role):
+        self.calls['authz_remove_role'] += 1
+
+    def delete(self, entity):
+        self.calls['delete'] += 1
+
 class TestGroup(FunctionalTestCase):
 
     @classmethod
@@ -17,7 +45,7 @@ class TestGroup(FunctionalTestCase):
         offset = url_for(controller='home', action='index')
         res = self.app.get(offset)
         assert 'Groups' in res, res
-        assert 'Groups</a></li>' in res, res
+        assert 'Groups</a>' in res, res
         res = res.click(href='/group/')
         assert '<h2>Groups</h2>' in res, res
 
@@ -44,7 +72,7 @@ class TestGroup(FunctionalTestCase):
         res = self.app.get(offset)
         main_res = self.main_div(res)
         assert '%s - Groups' % title in res, res
-        assert '[edit]' not in main_res, main_res
+        #assert 'edit' not in main_res, main_res
         assert 'Administrators:' in main_res, main_res
         assert 'russianfan' in main_res, main_res
         assert name in res, res
@@ -52,6 +80,15 @@ class TestGroup(FunctionalTestCase):
         pkg = model.Package.by_name(pkgname)
         res = res.click(pkg.title)
         assert '%s - Data Packages' % pkg.title in res
+        
+    def test_read_plugin_hook(self):
+        plugin = MockGroupControllerPlugin()
+        plugins.load(plugin)
+        name = u'david'
+        offset = url_for(controller='group', action='read', id=name)
+        res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
+        assert plugin.calls['read'] == 1, plugin.calls
+        plugins.unload(plugin)
 
     def test_read_and_authorized_to_edit(self):
         name = u'david'
@@ -60,7 +97,7 @@ class TestGroup(FunctionalTestCase):
         offset = url_for(controller='group', action='read', id=name)
         res = self.app.get(offset, extra_environ={'REMOTE_USER': 'russianfan'})
         assert '%s - Groups' % title in res, res
-        assert '[edit]' in res
+        assert 'edit' in res
         assert name in res
 
     def test_new(self):
@@ -102,7 +139,6 @@ class TestEdit(FunctionalTestCase):
     def test_2_edit(self):
         offset = url_for(controller='group', action='edit', id=self.groupname)
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
-        print res
         assert 'Edit Group: %s' % self.groupname in res, res
 
         form = res.forms['group-edit']
@@ -154,6 +190,18 @@ Ho ho ho
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
         assert 'annakarenina' in res, res
         assert 'newone' in res
+        
+    def test_edit_plugin_hook(self):
+        plugin = MockGroupControllerPlugin()
+        plugins.load(plugin)
+        offset = url_for(controller='group', action='edit', id=self.groupname)
+        res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
+        form = res.forms['group-edit']
+        group = model.Group.by_name(self.groupname)
+        form['Group-%s-title' % group.id] = "huhuhu"
+        res = form.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
+        assert plugin.calls['edit'] == 1, plugin.calls
+        plugins.unload(plugin)
 
 class TestNew(FunctionalTestCase):
     groupname = u'david'
@@ -206,7 +254,7 @@ class TestNew(FunctionalTestCase):
         res = fv.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
         res = res.follow()
         assert '%s' % group_title in res, res
-        
+
         model.Session.remove()
         group = model.Group.by_name(group_name)
         assert group.title == group_title, group
@@ -244,3 +292,77 @@ class TestNew(FunctionalTestCase):
         assert 'Group name already exists' in res, res
         self.check_tag(res, '<form', 'class="has-errors"')
         assert 'class="field_error"' in res, res
+    
+    def test_new_plugin_hook(self):
+        plugin = MockGroupControllerPlugin()
+        plugins.load(plugin)
+        offset = url_for(controller='group', action='new')
+        res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
+        form = res.forms['group-edit']
+        form['Group--name'] = "hahaha"
+        form['Group--title'] = "huhuhu"
+        res = form.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
+        assert plugin.calls['create'] == 1, plugin.calls
+        plugins.unload(plugin)
+
+class TestRevisions(FunctionalTestCase):
+    @classmethod
+    def setup_class(self):
+        model.Session.remove()
+        self.name = u'revisiontest1'
+
+        # create pkg
+        self.description = [u'Written by Puccini', u'Written by Rossini', u'Not written at all', u'Written again', u'Written off']
+        rev = model.repo.new_revision()
+        self.grp = model.Group(name=self.name)
+        self.grp.description = self.description[0]
+        model.Session.add(self.grp)
+        model.setup_default_user_roles(self.grp)
+        model.repo.commit_and_remove()
+
+        # edit pkg
+        for i in range(5)[1:]:
+            rev = model.repo.new_revision()
+            grp = model.Group.by_name(self.name)
+            grp.description = self.description[i]
+            model.repo.commit_and_remove()
+
+        self.grp = model.Group.by_name(self.name)        
+
+    @classmethod
+    def teardown_class(self):
+        self.purge_packages([self.name])
+
+    def test_0_read_history(self):
+        offset = url_for(controller='group', action='history', id=self.grp.name)
+        res = self.app.get(offset)
+        main_res = self.main_div(res)
+        assert self.grp.name in main_res, main_res
+        assert 'radio' in main_res, main_res
+        latest_rev = self.grp.all_revisions[0]
+        oldest_rev = self.grp.all_revisions[-1]
+        first_radio_checked_html = '<input checked="checked" id="selected1_%s"' % latest_rev.revision_id
+        assert first_radio_checked_html in main_res, '%s %s' % (first_radio_checked_html, main_res)
+        last_radio_checked_html = '<input checked="checked" id="selected2_%s"' % oldest_rev.revision_id
+        assert last_radio_checked_html in main_res, '%s %s' % (last_radio_checked_html, main_res)
+
+    def test_1_do_diff(self):
+        offset = url_for(controller='group', action='history', id=self.grp.name)
+        res = self.app.get(offset)
+        form = res.forms['group-revisions']
+        res = form.submit()
+        res = res.follow()
+        main_res = self.main_div(res)
+        assert 'error' not in main_res.lower(), main_res
+        assert 'Revision Differences' in main_res, main_res
+        assert self.grp.name in main_res, main_res
+        assert '<tr><td>description</td><td><pre>- Written by Puccini\n+ Written off</pre></td></tr>' in main_res, main_res
+
+    def test_2_atom_feed(self):
+        offset = url_for(controller='group', action='history', id=self.grp.name)
+        offset = "%s?format=atom" % offset
+        res = self.app.get(offset)
+        assert '<feed' in res, res
+        assert 'xmlns="http://www.w3.org/2005/Atom"' in res, res
+        assert '</feed>' in res, res
+

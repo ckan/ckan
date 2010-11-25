@@ -112,7 +112,7 @@ def build_package_gov_form(is_admin=False, user_editable_groups=None, **kwargs):
 
     # Layout
     field_groups = OrderedDict([
-        (_('Basic information'), ['name', 'title', 'external_reference',
+        (_('Basic information'), ['title', 'name', 'external_reference',
                                   'notes']),
         (_('Details'), ['date_released', 'date_updated', 'update_frequency',
                         'geographic_granularity', 'geographic_coverage',

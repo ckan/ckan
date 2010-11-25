@@ -1,5 +1,5 @@
+@import url(ckan.css);
 @import url(buttons.css);
-@import url(autocomplete.css);
 @import url(stars.css);
 
 /* ============= */
@@ -28,54 +28,6 @@ hr.nomargin { margin: 0; }
 /* = Fixes to KForge CSS = */
 /* ======================= */
 
-#top h1 a:hover {
-	background: transparent;
-}
-
-#top {
-	margin: 0.3em 0 0 0;
-}
-
-#top-bar img {
-	margin: -5px 0 0 0;
-	vertical-align: middle;
-}
-
-#top h1 img {
-  margin-bottom: -10px;
-  margin-top: -10px;
-  margin-right: 15px;
-  padding: 0;
-  max-height: 55px;
-}
-
-#subnav img {
-	margin: -2px 0 0 0;
-	padding: 0 3px 0 1px;
-	vertical-align: middle;
-}
-
-#subnav li.intro {
-	color: #777;
-	padding-right: 5px;
-}
-
-#subnav:empty {
-	background: transparent;
-	height: 0;
-}
-
-#primary {
-	margin-top: 32px;
-}
-
-#main hr {
-	color: #ddd;
-	background-color: #ddd;
-	border: none;
-	height: 3px;
-}
-
 table {
 	border-collapse: collapse;
 	border: none;
@@ -103,39 +55,12 @@ h1, h2, h3, h4, h5, h6 {
 	letter-spacing: -0.02em;
 }
 
-.box {
-	padding-top: 0.2em;
-	border: 1px solid #ebd897;
-	border-left: none;
-	border-top: none;
-	border-radius: 0.5em;
-	-moz-border-radius: 0.5em;
-	-webkit-border-radius: 0.5em;
-}
-
 /* ================ */
 /* = Search boxes = */
 /* ================ */
 
 input.search {
   width: 30em;
-}
-
-#top-bar form.package-search {
-  display: inline;
-}
-
-#top-bar form.package-search input.search {
-  background: white url(/images/icons/magnifier.png) no-repeat 2px center;
-  width: 150px;
-  height: 22px;
-  padding-left: 19px;
-}
-
-form.package-search p {
-  margin-bottom: 0;
-  margin-left: 1em;
-  font-style: italic;
 }
 
 /* ========================================= */
@@ -370,16 +295,22 @@ ul.packages {
 /* = Package read view = */
 /* ===================== */
 
-.box .formats ul {
+#primary .widget-container .formats ul {
   background: transparent;
 }
 
-.box .formats ul li {
+#primary .widget-container .formats ul li {
   background: transparent;
   display: inline;
 }
 
-.package h3, .package h4 {
+.package-atom-feed {
+  float: right;
+  display: none;
+}
+
+#content .package h3, #content .package h4, 
+#content #comments h3, #content #comments h4 {
   background-color: #444;
   padding: 10px;
   color: white;

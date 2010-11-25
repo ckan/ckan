@@ -3,8 +3,11 @@ from decorator import decorator
 from paste.deploy.converters import asbool
 from pylons.decorators.cache import beaker_cache, create_cache_key, _make_dict_from_args
 from pylons.decorators.util import get_pylons
+import pylons.config
 
 __all__ = ["ckan_cache"]
+
+cache_enabled = asbool(pylons.config.get("cache_enabled", "False"))
 
 def ckan_cache(test=lambda *av, **kw: 0,
           key="cache_default",
@@ -60,8 +63,7 @@ def ckan_cache(test=lambda *av, **kw: 0,
 
     def wrapper(func, *args, **kwargs):
         pylons = get_pylons(args)
-        enabled = pylons.config.get("cache_enabled", "True")
-        if not asbool(enabled):
+        if not cache_enabled:
             log.debug("Caching disabled, skipping cache lookup")
             return func(*args, **kwargs)
 
@@ -160,8 +162,7 @@ def proxy_cache(expires=None):
         result = func(*args, **kwargs)
 
         pylons = get_pylons(args)
-        enabled = pylons.config.get("cache_enabled", "True")
-        if not asbool(enabled):
+        if not cache_enabled:
             log.debug("Caching disabled, skipping cache lookup")
             return result
 

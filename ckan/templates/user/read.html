@@ -11,19 +11,18 @@
     <h2>User: ${c.read_user}</h2>
     <py:if test="c.is_myself">
       <h3>My Account</h3>
-      <p>You are logged in. <a href="${h.url_for('/logout_openid')}">Log out</a></p>
 
-      <p><a href="${h.url_for(controller='user', action='apikey')}">View your API key</a></p>
+      <p>You are logged in.</p>
+      <ul>
+        <li><a href="${h.url_for(controller='user', action='apikey')}">View your API key</a></li>
+        <li><a href="${h.url_for(controller='user', action='edit')}">Edit your profile</a></li>
+        <li><a href="${h.url_for('/logout_openid')}">Log out</a></li>
+      </ul>
     </py:if>
 
     <h3>About</h3>
     <div>
       ${c.about_formatted}
-    </div>
-    <div>
-      <py:if test="c.is_myself">
-        <p><a href="${h.url_for(controller='user', action='edit')}">Edit</a></p>
-      </py:if>
     </div>
 
     <h3>Activity</h3>

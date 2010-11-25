@@ -2,14 +2,46 @@ import cgi
 
 from paste.fixture import AppError
 from pylons import config
+from pylons import c
 from genshi.core import escape as genshi_escape
 from difflib import unified_diff
 
 from ckan.tests import *
+from ckan.tests.pylons_controller import PylonsTestCase
 from base import FunctionalTestCase
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 import ckan.lib.helpers as h
+from ckan.controllers.package import PackageController
+from ckan.plugins import SingletonPlugin, implements, IPackageController
+from ckan import plugins
+from ckan.rating import set_rating
+
+class MockPackageControllerPlugin(SingletonPlugin):
+    implements(IPackageController)
+    
+    def __init__(self):
+        from collections import defaultdict
+        self.calls = defaultdict(int)
+    
+    def read(self, entity):
+        self.calls['read'] += 1
+
+    def create(self, entity):
+        self.calls['create'] += 1
+
+    def edit(self, entity):
+        self.calls['edit'] += 1
+
+    def authz_add_role(self, object_role):
+        self.calls['authz_add_role'] += 1
+
+    def authz_remove_role(self, object_role):
+        self.calls['authz_remove_role'] += 1
+
+    def delete(self, entity):
+        self.calls['delete'] += 1
+    
 
 existing_extra_html = ('<label class="field_opt" for="Package-%(package_id)s-extras-%(key)s">%(capitalized_key)s</label>', '<input id="Package-%(package_id)s-extras-%(key)s" name="Package-%(package_id)s-extras-%(key)s" size="20" type="text" value="%(value)s">')
 
@@ -223,15 +255,11 @@ class TestReadOnly(TestPackageForm):
 
     @classmethod
     def setup_class(self):
-        model.notifier.initialise()
-        indexer = TestSearchIndexer()
         CreateTestData.create()
-        indexer.index()
 
     @classmethod
     def teardown_class(self):
         CreateTestData.delete()
-        model.notifier.deactivate()
 
     def test_index(self):
         offset = url_for(controller='package')
@@ -243,13 +271,13 @@ class TestReadOnly(TestPackageForm):
         res = self.app.get(offset)
         # TODO: make this a bit more rigorous!
         assert 'Browse' in res, res
-        res = res.click('Browse packages')
+        res = res.click('Browse')
         assert 'Browse - Data Packages' in res
     
     def test_minornavigation_2(self):
         offset = url_for(controller='package')
         res = self.app.get(offset)
-        res = res.click('Register a new package')
+        res = res.click('Register')
         assert 'New - Data Packages' in res
 
     def test_read(self):
@@ -347,7 +375,6 @@ class TestReadOnly(TestPackageForm):
     def test_search_escape_chars(self):
         payload = '?q=fjdkf%2B%C2%B4gfhgfkgf%7Bg%C2%B4pk&search=Search+Packages+%C2%BB'
         offset = url_for(controller='package', action='search') + payload
-        print offset
         results_page = self.app.get(offset)
         assert 'Search - Data Packages' in results_page, results_page
         results_page = self.main_div(results_page)
@@ -371,7 +398,17 @@ class TestReadOnly(TestPackageForm):
         assert 'History' in res
         assert 'Revisions' in res
         assert name in res
+        
+    def test_read_plugin_hook(self):
+        plugin = MockPackageControllerPlugin()
+        plugins.load(plugin)
+        name = u'annakarenina'
+        offset = url_for(controller='package', action='read', id=name)
+        res = self.app.get(offset)
+        assert plugin.calls['read'] == 1, plugin.calls
+        plugins.unload(plugin)
 
+        
 class TestEdit(TestPackageForm):
     editpkg_name = u'editpkgtest'
     
@@ -387,6 +424,7 @@ class TestEdit(TestPackageForm):
     @classmethod
     def _reset_data(self):
         CreateTestData.delete()
+        CreateTestData.create()
         CreateTestData.create_arbitrary(
             {'name':self.editpkg_name,
              'url':u'editpkgurl.com',
@@ -403,6 +441,7 @@ class TestEdit(TestPackageForm):
 
         self.editpkg = model.Package.by_name(self.editpkg_name)
         self.admin = model.User.by_name(u'testadmin')
+        
         self.res = None #get's refreshed by setup
 
     @classmethod
@@ -513,7 +552,6 @@ class TestEdit(TestPackageForm):
         res = fv.submit('save')
         # get redirected ...
         res = res.follow()
-        print str(res)
         assert '%s - Data Packages' % self.editpkg_name in res
         pkg = model.Package.by_name(self.editpkg.name)
         assert len(pkg.tags) == len(newtagnames)
@@ -541,7 +579,6 @@ u with umlaut \xc3\xbc
         fv[prefix + 'url'] =  newurl
         fv[prefix + 'notes'] =  newnotes
         res = fv.submit('preview')
-        print str(res)
         assert 'Edit - Data Packages' in res
         assert 'Preview' in res
         assert 'Hello world' in res
@@ -758,16 +795,86 @@ u with umlaut \xc3\xbc
         assert 'Error' in res, res
         self.check_tag(res, '<form', 'class="has-errors"')
         assert 'No links are allowed' in res, res
-
-
-    #def test_edit_with_admin_login_during_form(self):
-    #    from pprint import pprint
-    #    offset = url_for(controller='package', action='edit', id=self.pkgid)
-    #    res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':''})
-    #    form = res.forms['package-edit']
-    #    res = form.submit('save', status=302, extra_environ={'REMOTE_USER': 'testadmin'})
-    #    assert not 'Errors in form' in res, res
         
+    def test_edit_plugin_hook(self):
+        # just the absolute basics
+        try:
+            plugin = MockPackageControllerPlugin()
+            plugins.load(plugin)
+            res = self.app.get(self.offset)
+            new_name = u'new-name'
+            new_title = u'New Title'
+            fv = res.forms['package-edit']
+            prefix = 'Package-%s-' % self.pkgid
+            fv[prefix + 'name'] = new_name
+            fv[prefix + 'title'] = new_title
+            res = fv.submit('save')
+            # get redirected ...
+            assert plugin.calls['edit'] == 1, plugin.calls
+            plugins.unload(plugin)
+        finally:
+            self._reset_data()
+
+    def test_edit_700_groups_unauthorized(self):
+        try:
+            pkg = model.Package.by_name(u'editpkgtest')
+            grp = model.Group.by_name(u'david')
+            assert len(pkg.groups) == 0
+            offset = url_for(controller='package', action='edit', id=pkg.name)
+            res = self.app.get(offset)
+            prefix = 'Package-%s-' % pkg.id
+            fv = res.forms['package-edit']
+            name = prefix + 'groups-new'
+            assert not name in fv.fields.keys()
+            res = fv.submit('save')
+            res = res.follow()
+            pkg = model.Package.by_name(u'editpkgtest')
+            assert len(pkg.groups) == 0
+        finally:
+            self._reset_data()            
+    
+    def test_edit_700_groups_add(self):
+        try:
+            pkg = model.Package.by_name(u'editpkgtest')
+            grp = model.Group.by_name(u'david')
+            assert len(pkg.groups) == 0
+            offset = url_for(controller='package', action='edit', id=pkg.name)
+            
+            res = self.app.get(offset, extra_environ={'REMOTE_USER':'russianfan'})
+            prefix = 'Package-%s-' % pkg.id
+            field_name = prefix + "groups-%s" % grp.id
+            assert not field_name in res
+            fv = res.forms['package-edit']
+            fv[prefix + 'groups-new'] = grp.id
+            res = fv.submit('save', extra_environ={'REMOTE_USER':'russianfan'})
+            res = res.follow()
+            pkg = model.Package.by_name(u'editpkgtest')
+            assert len(pkg.groups) == 1, pkg.groups
+            assert 'david' in res, res
+        finally:
+            self._reset_data()
+    
+    def test_edit_700_groups_remove(self):
+        try:
+            pkg = model.Package.by_name(u'editpkgtest')
+            assert len(pkg.groups) == 0
+            grp = model.Group.by_name(u'david')
+            model.repo.new_revision()
+            pkg.groups.append(grp)
+            model.repo.commit_and_remove()
+            pkg = model.Package.by_name(u'editpkgtest')
+            assert len(pkg.groups) == 1
+            offset = url_for(controller='package', action='edit', id=pkg.name)
+            res = self.app.get(offset, extra_environ={'REMOTE_USER':'russianfan'})
+            prefix = 'Package-%s-' % pkg.id
+            field_name = prefix + "groups-%s" % grp.id
+            fv = res.forms['package-edit']
+            fv[field_name] = False
+            res = fv.submit('save', extra_environ={'REMOTE_USER':'russianfan'})
+            pkg = model.Package.by_name(u'editpkgtest')
+            assert len(pkg.groups) == 0
+        finally:
+            self._reset_data()
 
 class TestNew(TestPackageForm):
     pkg_names = []
@@ -1036,6 +1143,21 @@ class TestNew(TestPackageForm):
         res = self.main_div(res)
         assert resformat in res, res
         assert res.count(str(resformat)) == 1, res.count(str(resformat))
+        
+    def test_new_plugin_hook(self):
+        plugin = MockPackageControllerPlugin()
+        plugins.load(plugin)
+        offset = url_for(controller='package', action='new')
+        res = self.app.get(offset)
+        new_name = u'plugged'
+        fv = res.forms['package-edit']
+        prefix = 'Package--'
+        fv[prefix + 'name'] = new_name
+        res = fv.submit('save')
+        # get redirected ...
+        assert plugin.calls['edit'] == 0, plugin.calls
+        assert plugin.calls['create'] == 1, plugin.calls
+        plugins.unload(plugin)
 
 class TestNewPreview(TestPackageBase):
     pkgname = u'testpkg'
@@ -1121,7 +1243,6 @@ class TestNonActivePackages(TestPackageBase):
         form['q'] =  str(self.non_active_name)
         results_page = form.submit()
         assert 'Search - Data Packages' in results_page, results_page
-        print results_page
         assert '<strong>0</strong> packages found' in results_page, (self.non_active_name, results_page)
 
 
@@ -1244,3 +1365,59 @@ alert('Hello world!');
 
     def fail_if_fragment(self, fragment):
         assert fragment not in self.body, (fragment, self.body)
+
+
+class TestEtags(TestPackageBase, PylonsTestCase):
+    @classmethod
+    def setup_class(self):
+        CreateTestData.create()
+
+    @classmethod
+    def teardown_class(self):
+        CreateTestData.delete()
+
+    def test_calculate_etag_hash(self):
+        c.user = 'test user'
+        get_hash = PackageController._pkg_cache_key
+        hash_1 = get_hash(self.anna)
+        hash_2 = get_hash(self.anna)
+        self.assert_equal(hash_1, hash_2)
+        
+        test_title = u'Anna changed'
+        rev = model.repo.new_revision()
+        self.anna.title = test_title
+        model.repo.commit_and_remove()
+        hash_3 = get_hash(self.anna)
+        self.assert_not_equal(hash_2, hash_3)
+
+        test_url = u'http://some.com/file.xls'
+        rev = model.repo.new_revision()
+        self.anna.add_resource(test_url)
+        model.repo.commit_and_remove()
+        hash_4 = get_hash(self.anna)
+        self.assert_not_equal(hash_4, hash_3)
+
+        test_extra_key = u'testkey'
+        test_extra_value = u'testval'
+        rev = model.repo.new_revision()
+        self.anna.extras[test_extra_key] = test_extra_value
+        model.repo.commit_and_remove()
+        hash_5 = get_hash(self.anna)
+        self.assert_not_equal(hash_5, hash_4)
+
+        set_rating(u'random user', self.anna, 4)
+        # (commit_and_remove not required for rating)
+        hash_6 = get_hash(self.anna)
+        self.assert_not_equal(hash_6, hash_5)
+
+        c.user = 'another user'
+        hash_7 = get_hash(self.anna)
+        self.assert_not_equal(hash_7, hash_6)
+
+    def test_etags_in_response(self):
+        c.user = 'test user'
+        res = self.app.get('/package/annakarenina',
+                           extra_environ={'REMOTE_USER':c.user})
+        anna_hash = str(PackageController._pkg_cache_key(self.anna))
+        self.assert_equal(res.header_dict['ETag'], anna_hash)
+    

@@ -571,7 +571,6 @@ class PackageSearchApiTestCase(ApiControllerTestCase):
 
     @classmethod
     def setup_class(self):
-        model.notifier.initialise()
         indexer = TestSearchIndexer()
         CreateTestData.create()
         self.package_fixture_data = {
@@ -592,7 +591,6 @@ class PackageSearchApiTestCase(ApiControllerTestCase):
     @classmethod
     def teardown_class(self):
         CreateTestData.delete()
-        model.notifier.deactivate()
 
     def test_01_uri_q(self):
         offset = self.base_url + '?q=%s' % self.package_fixture_data['name']
@@ -721,7 +719,6 @@ class PackageSearchApiTestCase(ApiControllerTestCase):
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
         assert res_dict['count'] == 2, res_dict
-        print res_dict['results']
         for rec in res_dict['results']:
             if rec['name'] == 'annakarenina':
                 anna_rec = rec

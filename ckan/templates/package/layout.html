@@ -5,21 +5,19 @@
   py:strip=""
   >
 
-  <py:match path="minornavigation" py:choose="">
-    <py:when test="c.pkg">
-      <li class="intro">This package:</li>
+  <py:match path="minornavigation">
+    <py:if test="c.pkg">
+    <ul>
       <li>${h.subnav_link(c, h.icon('package') + _('View'), controller='package', action='read', id=c.pkg.name)}</li>
-      <li>${h.subnav_link(c, h.icon('package_edit') + _('Edit'), controller='package', action='edit', id=c.pkg.name)}</li>
+      <li py:if="h.am_authorized(c, actions.EDIT, c.pkg)">
+          ${h.subnav_link(c, h.icon('package_edit') + _('Edit'), controller='package', action='edit', id=c.pkg.name)}
+      </li>
       <li>${h.subnav_link(c, h.icon('page_white_stack') + _('History'), controller='package', action='history', id=c.pkg.name)}</li>
-      <py:if test="c.auth_for_authz">
-        <li>${h.subnav_link(c, h.icon('lock') + _('Authorization'), controller='package', action='authz', id=c.pkg.name)}</li>
-      </py:if>
-    </py:when>
-    <py:otherwise>
-      <li>${h.subnav_link(c, _('Home'), controller='package', action='index', id=None)}</li>
-      <li>${h.subnav_link(c, _('Browse'), controller='package', action='list', id=None)}</li>
-      <li>${h.subnav_link(c, _('Register new package'), controller='package', action='new', id=None)}</li>
-    </py:otherwise>
+      <li py:if="h.am_authorized(c, actions.EDIT_PERMISSIONS, c.pkg)">
+        ${h.subnav_link(c, h.icon('lock') + _('Authorization'), controller='package', action='authz', id=c.pkg.name)}
+      </li>
+    </ul>
+    </py:if>
   </py:match>
   
   <xi:include href="../layout.html" />

@@ -18,15 +18,12 @@
     ${optional_feed()}
   </py:when>
   <py:otherwise>
-  <link rel="alternate" type="application/atom+xml" title="${g.site_title} - Recent Revision History" href="/revision/list?format=atom&amp;days=1" />
+  <link rel="alternate" type="application/atom+xml" title="${g.site_title} - Recent Revision History" href="${h.url_for(controller='revision', action='list', format='atom', days=1)}" />
   </py:otherwise>
   </py:choose>
 
   <style type="text/css"> 
-    @import url(http://assets.okfn.org/kforge/css/structure.css);
-    @import url(http://assets.okfn.org/kforge/css/display.css);
-    @import url(http://assets.okfn.org/kforge/css/navigation.css);
-    @import url(http://assets.okfn.org/kforge/css/print.css);
+    @import url(http://openbiblio.net/wp-content/themes/twentyten/style.css);
   </style> 
 
   <link rel="stylesheet" href="/css/ckan.master.css" type="text/css" media="screen, print" />
@@ -41,7 +38,7 @@
 
   <script type="text/javascript">
     $(document).ready(function() {
-        var ckan_user = $.cookie("ckan_user");
+        var ckan_user = $.cookie("ckan_display_name");
         if (ckan_user) {
             ckan_user = eval(ckan_user); // get rid of spurious quotes
             $("#ckan_user_name")[0].innerHTML = ckan_user;
@@ -55,113 +52,200 @@
   </py:if>
 </head>
 
-<body>
-<div id="airlock">
-  <!--[if IE]>
-    <hr class="holder" />
-  <![endif]-->
-  <div id="top">
-    <div id="top-inner">
-      <div id="top-bar">
-	<span class="ckan_logged_in" style="display: none;">
-          Logged in as <strong>${h.icon('openid')} <span id="ckan_user_name">username</span></strong>
-          &middot; <a href="${h.url_for(controller='user',action=None,id=None)}">My account</a>
-	  &middot; <a href="${h.url_for('/logout_openid')}">Logout</a>
-	</span>
-	<span class="ckan_logged_out">
-          <a href="${h.url_for(controller='user',action='login', id=None)}">Login with ${h.icon('openid')} OpenID</a>
-	</span>
-        <form class="package-search" action="${h.url_for(controller='package', action='search', id=None)}" method="GET">
-          <input type="search" class="search" name="q" />
-        </form>
-      </div><!-- /top-bar -->
+<body class="${value_of('body_class', default='')}">
 
-      <h1>
-        <a href="${h.url_for('home')}">
-          <py:if test="g.site_logo">
-            <img src="${g.site_logo}" alt="${g.site_title} Logo" />
+<div id="wrapper" class="hfeed">
+  <div id="header">
+  <div id="masthead">
+    <div id="branding" role="banner">
+       <h1 id="site-title">
+       <a href="${url('home')}" title="${g.site_title} Home">
+      <py:if test="g.site_logo">
+            <img src="${g.site_logo}" alt="${g.site_title} Logo" title="${g.site_title} Logo" style="display: inline;" />
           </py:if>
           <py:if test="not g.site_logo">
             ${g.site_title}
           </py:if>
         </a>
-        <!-- <a href="/" title="CKAN Home">${g.site_title}</a> -->
       </h1>
+      <div id="site-description">${getattr(g, 'site_description', '')}</div>
+    </div> <!-- /branding -->
 
-    </div><!-- /top-inner -->
+    <div id="top-bar">
+      <div id="top-bar-login">
+        <span class="ckan_logged_in" style="display: none;">
+                Logged in as <strong>${h.icon('user')} <span id="ckan_user_name">username</span></strong>
+                &middot; <a href="${h.url_for(controller='user',action=None,id=None)}">My account</a>
+          &middot; <a href="${h.url_for('/logout_openid')}">Logout</a>
+        </span>
+        <span class="ckan_logged_out">
+                <a href="${h.url_for(controller='user',action='login', id=None)}">Login with ${h.icon('openid')} OpenID</a>
+        </span>
+      </div>
 
-    <h3 class="hidden">Sections:</h3>
-    <ul id="navigation">
-      <li>${h.nav_link(c, _('Home'), controller='home', action='index', id=None)}</li>
-      <li>${h.nav_link(c, _('Data Packages'), controller='package', action='index', id=None)}</li>
-      <li>${h.nav_link(c, _('Tags'), controller='tag', action='index', id=None)}</li>
-      <li>${h.nav_link(c, _('Groups'), controller='group', action='index', id=None)}</li>
-      <li>${h.nav_link(c, _('Authorization Groups'), controller='authorization_group', action='index', id=None)}</li>
-      <li>${h.nav_link(c, _('Revision History'), controller='revision', action='index', id=None)}</li>
-    </ul>
-    <h3 class="hidden">In this section:</h3>
-    <!--! This is a default (blank) subnav. -->
-    <py:match path="minornavigation"></py:match>
-    <ul id="subnav"><minornavigation></minornavigation></ul>
+      <div class="search-form">
+        <form action="${url(controller='package', action='search')}" method="GET">
+          <input type="search" class="search" name="q" value="" autocomplete="off" results="5" placeholder="Search..."/>
+        </form>
+      </div>
+    </div><!-- /top-bar -->
 
-    <!--[if IE]>
-    <hr class="holder" />
-    <![endif]-->
+    <div id="access" role="navigation">
+      <div class="skip-link screen-reader-text">
+        <a href="#content" title="Skip to content">Skip to content</a>
+      </div> 
+      <div class="menu">
+        <ul>
+          <li>${h.nav_link(c, _('Home'), controller='home', action='index', id=None)}
+          <ul class="children">
+            <li class="page_item">${h.subnav_link(c, _('About'), controller='home', action='about', id=None)}</li>
+            <li class="page_item">${h.subnav_link(c, _('Statistics'), controller='home', action='stats', id=None)}</li>
+          </ul>
+        </li>
+        <li>${h.nav_link(c, _('Data Packages'), controller='package', action='index', id=None)}
+          <ul class="children">
+            <li class="page_item">${h.subnav_link(c, _('Browse'), controller='package', action='list', id=None)}</li>
+            <li class="page_item" py:if="h.am_authorized(c, actions.PACKAGE_CREATE)">
+              ${h.subnav_link(c, _('Register'), controller='package', action='new', id=None)}
+            </li>
+          </ul>
+        </li>
+        <li>${h.nav_link(c, _('Tags'), controller='tag', action='index', id=None)}</li>
+        <li>${h.nav_link(c, _('Groups'), controller='group', action='index', id=None)}
+          <ul class="children">
+            <li class="page_item" py:if="h.am_authorized(c, actions.GROUP_CREATE)">
+            ${h.subnav_link(c, _('Create a new group'), controller='group', action='new', id=None)}
+            </li>
+          </ul>
+        </li>
+        <li>${h.nav_link(c, _('Authorization Groups'), controller='authorization_group', action='index', id=None)}
+          <ul class="children">
+            <li class="page_item" py:if="h.am_authorized(c, actions.AUTHZ_GROUP_CREATE)">
+              ${h.subnav_link(c, _('Create a new authorization group'), controller='authorization_group', action='new', id=None)}
+            </li>
+          </ul>
+        </li>
+        <li>${h.nav_link(c, _('Revision History'), controller='revision', action='index', id=None)}</li>
+      </ul>
+      </div> <!-- .menu -->
+    </div> <!-- #access -->
 
-  </div><!-- /top -->
+  </div><!-- #masthead -->
+  </div><!-- #header -->  
 
-  <p class="hidden"><a href="#main" title="Skip to page content">[ Skip to main content ]</a></p>
+  <div id="main"> 
+    <div id="container"> 
+      <div id="content" role="main"> 
 
-  <div id="primary" class="sidebar">
-    <primarysidebar>
-    <!-- Primary Side Bar Goes Here -->
-    </primarysidebar>
+        <div class="page type-page hentry">
+          <div class="entry-content">
+            <div id="minornavigation">
+              <minornavigation></minornavigation> 
+            </div>
+            <!-- support both options for defining content -->
+            <py:if test="defined('content')">
+            ${content()}
+            </py:if>
+            <content>
+                <p>Master content template placeholder &hellip; please replace me.</p>
+            </content>
+          </div><!-- .entry-content -->
+        </div>
 
-    <!--[if IE]>
-    <hr class="primary" />
-    <![endif]-->
-  </div><!-- /primary -->
+        <div id="comments">
+        </div><!-- #comments -->
 
-  <div id="main">
-    <div id="content">
-        <content>
-            <p>Master content template placeholder &hellip; please replace me.</p>
-        </content>
-    </div>
+      </div> <!-- #content -->
+    </div> <!-- #container -->
 
-    <div id="footer">
-      <p>
-        <a href="http://validator.w3.org/check/referer" title="Valid XHTML 1.1">XHTML</a>
-        | <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a>
-        | <a href="http://www.okfn.org/ckan/">Project Home Page</a>
-        | <a href="http://www.okfn.org/contact/">Contact Us</a>
-        | <a href="http://www.okfn.org/privacy-policy/">Privacy Policy</a>
-      </p>
-      <p i18n:msg="">
-        <img style="margin-bottom: -5px;" src="http://assets.okfn.org/images/logo/okf_logo_white_and_green_tiny.png" /> CKAN is an <a href="http://www.okfn.org/">Open Knowledge Foundation</a> project
-      </p>
-      <p i18n:msg="version">
-        v${c.__version__}
-        | (c) Open Knowledge Foundation
-	| All material available under an <a href="${h.url_for('license')}">open license</a>
-        | <a href="http://www.opendefinition.org/1.0/"><img
-            style="border: none; margin-bottom: -4px;"
-            src="http://assets.okfn.org/images/ok_buttons/ok_90x15_blue.png"
-            alt="This Content and Data is Open" /></a>
-        | <a href="http://www.opendefinition.org/1.0/"><img
-            style="border: none; margin-bottom: -4px;"
-            src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png"
-            alt="This Content and Data is Open" /></a>
-      </p>
-    </div><!-- /footer -->
+    <div id="primary" class="widget-area" role="complementary">
+      <ul class="xoxo">
+        <py:if test="defined('primary_sidebar_extras')">
+          ${primary_sidebar_extras()}
+        </py:if>
+        <primarysidebar>
+        <!-- Primary Side Bar Goes Here -->
+        </primarysidebar>
+      </ul>
+    </div><!-- #primary .widget-area -->
 
-    <!--[if IE]>
-    <hr class="main" />
-    <![endif]-->
+  </div><!-- #main -->
+  
+<div id="footer" role="contentinfo"> 
+  <div id="colophon">
+    <div id="footer-widget-area" role="complementary">
 
-  </div><!-- /main -->
+      <div id="first" class="widget-area">
+        <ul class="xoxo">
+          <li class="widget-container widget_text">
+          <h3 class="widget-title">About</h3>
+          <div class="textwidget">
+            <ul>
+              <li>
+                <a href="http://www.okfn.org/ckan/">Project Home Page</a>
+              </li>
+              <li>
+                <a href="http://www.okfn.org/contact/">Contact Us</a>
+              </li>
+              <li>
+                <a href="http://www.okfn.org/privacy-policy/">Privacy Policy</a>
+              </li>
+            </ul>
+          </div>
+          </li>
+        </ul>
+      </div><!-- #first .widget-area -->
 
-</div><!-- /airlock -->
+      <div id="fourth" class="widget-area">
+        <ul class="xoxo">
+          <li class="widget-container widget_text">
+          <h3 class="widget-title">Credits</h3>
+          <div class="textwidget">
+            <ul>
+              <li i18n:msg="">
+                <img src="http://assets.okfn.org/images/logo/okf_logo_white_and_green_tiny.png" id="footer-okf-logo" />
+                An
+                <a href="http://www.okfn.org/">Open Knowledge Foundation</a> Project
+              </li>
+              <li>
+                &copy; <a href="http://www.okfn.org/">Open Knowledge Foundation</a>
+              </li>
+              <li>
+                <a href="http://www.opendefinition.org/okd/">
+                <img alt="This Content and Data is Open" src="http://assets.okfn.org/images/ok_buttons/oc_80x15_blue.png" style="border: none ; margin-bottom: -4px;"/>
+                </a>
+              </li>
+              <li>
+                <a href="http://www.opendefinition.org/okd/">
+                <img alt="This Content and Data is Open" src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" style="border: none ; margin-bottom: -4px;"/>
+                </a>
+              </li>
+            </ul>
+          </div>
+          </li>
+        </ul>
+      </div><!-- #fourth .widget-area -->
+
+    </div><!-- #footer-widget-area -->
+
+    <div id="site-info">
+      <a href="${url('/')}" title="${g.site_title}" rel="home">
+        ${g.site_title}</a>
+    </div><!-- #site-info -->
+
+    <div id="site-generator">
+      <a href="http://okfn.org/projects/ckan/"
+        title="CKAN" rel="generator">
+        Powered by CKAN
+        <span i18n:msg="version">
+          v${c.__version__}
+        </span>
+      </a>
+    </div><!-- #site-generator -->
+  </div><!-- #colophon -->
+</div><!-- #footer --> 
+
+</div><!-- #wrapper -->
 
 <!--! No need to load GA in development -->
 <py:if test="not config['debug']">
@@ -176,6 +260,6 @@
   </script>
   <!-- /Google Analytics -->
 </py:if>
-
+${getattr(g, 'template_footer_end', '')}
 </body>
 </html>

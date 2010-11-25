@@ -36,7 +36,6 @@ import loadconfig
 loadconfig.load_config(path)
 
 import ckan.model as model
-import ckan.getdata.ons_download as ons_download
 import ckan.lib.dumper as dumper
 from pylons import config
 

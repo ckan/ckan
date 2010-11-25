@@ -4,10 +4,14 @@ from ckan.lib.cache import ckan_cache
 from ckan.lib.helpers import json
 import ckan.model as model
 import ckan
+from ckan.plugins import ExtensionPoint, IPackageController
 
 log = __import__("logging").getLogger(__name__)
 
 class PackageController(RestController):
+
+    extensions = ExtensionPoint(IPackageController)
+
     @ckan_cache(test=model.Package.last_modified, query_args=True)
     def list(self):
         """
@@ -38,6 +42,8 @@ class PackageController(RestController):
             response_data = json.dumps(_('Access denied'))
         else:
             response_data = self._represent_package(pkg)
+        for item in self.extensions:
+            item.read(pkg)
         return self._finish_ok(response_data)
     
     def create(self):
@@ -74,6 +80,8 @@ class PackageController(RestController):
                     else:
                         admins = []
                     model.setup_default_user_roles(fs.model, admins)
+                    for item in self.extensions:
+                        item.create(fs.model)
                     # Commit
                     model.repo.commit()        
                     # Set location header with new ID.
@@ -122,6 +130,8 @@ class PackageController(RestController):
                         rev.author = self.rest_api_user
                         rev.message = _(u'REST API: Update object %s') % str(fs.name.value)
                         fs.sync()
+                        for item in self.extensions:
+                            item.edit(fs.model)
                         model.repo.commit()        
                     except Exception, inst:
                         log.exception(inst)
@@ -155,6 +165,8 @@ class PackageController(RestController):
         rev.author = self.rest_api_user
         rev.message = _(u'REST API: Delete Package: %s') % entity.name
         try:
+            for item in self.extensions:
+                item.delete(entity)
             entity.delete()
             model.repo.commit()        
         except Exception, inst:

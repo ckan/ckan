@@ -1,4 +1,5 @@
 import csv
+import copy
 
 from sqlalchemy.util import OrderedDict
 
@@ -59,6 +60,9 @@ class CsvData(SpreadsheetData):
         if self._num_rows < 2:
             raise ImportException('Not enough rows')
             
+    def get_num_sheets(self):
+        return 1
+
     def get_row(self, row_index):
         row = self._rows[row_index]
         return [cell.decode('utf8') for cell in row]
@@ -85,13 +89,24 @@ class XlData(SpreadsheetData):
             raise ImportException('Could not open workbook: %r' % e)
 
         if sheet_index == None:
-            if self._book.nsheets != 1:
-                self._logger('Warning: Just importing from sheet %r' % self._book.sheet_by_index(0))
+            if self.get_num_sheets() != 1:
+                logger.log.append('Warning: Just importing from sheet %r' % self._book.sheet_by_index(0).name)
             sheet_index = 0
         self.sheet = self._book.sheet_by_index(sheet_index)
 
+    def get_num_sheets(self):
+        return self._book.nsheets
+
     def get_sheet_names(self):
         return self._book.sheet_names()
+
+    def get_data_by_sheet(self):
+        data_list = []
+        for sheet_index in range(self.get_num_sheets()):
+            data = copy.deepcopy(self)
+            data.sheet = self._book.sheet_by_index(sheet_index)
+            data_list.append(data)
+        return data_list
 
     def get_row(self, row_index):
         import xlrd
@@ -119,30 +134,35 @@ class XlData(SpreadsheetData):
     def get_num_rows(self):
         return self.sheet.nrows
 
+
 class SpreadsheetDataRecords(DataRecords):
     '''Takes SpreadsheetData and converts it its titles and
     data records. Handles title rows and filters out rows of rubbish.
     '''
-    def __init__(self, data, essential_title):
-        assert isinstance(data, SpreadsheetData)
-        self._data = data
+    def __init__(self, spreadsheet_data, essential_title):
+        assert isinstance(spreadsheet_data, SpreadsheetData), spreadsheet_data
+        self._data = spreadsheet_data
         # find titles row
-        row_index = -1
-        self.titles = []
+        self.titles, last_titles_row_index = self.find_titles(essential_title)
+        self._first_record_row = self.find_first_record_row(last_titles_row_index + 1)     
+
+    def find_titles(self, essential_title):
+        row_index = 0
+        titles = []
         essential_title_lower = essential_title.lower()
-        while essential_title not in self.titles and\
-              essential_title.lower() not in self.titles:
-            row_index += 1
+        while True:
             if row_index >= self._data.get_num_rows():
                 raise ImportException('Could not find title row')
-            self.titles = []
-            for title in self._data.get_row(row_index):
-                if isinstance(title, basestring):
-                    title = title.strip()
-                self.titles.append(title)
-        # find first data row
-        while True:
+            row = self._data.get_row(row_index)
+            if essential_title in row or essential_title_lower in row:
+                for row_val in row:
+                    titles.append(row_val.strip() if isinstance(row_val, basestring) else None)
+                return (titles, row_index)
             row_index += 1
+
+    def find_first_record_row(self, row_index_to_start_looking):
+        row_index = row_index_to_start_looking
+        while True:
             if row_index >= self._data.get_num_rows():
                 raise ImportException('Could not find first record row')
             row = self._data.get_row(row_index)
@@ -150,8 +170,8 @@ class SpreadsheetDataRecords(DataRecords):
                     row[:5] == [None, None, None, None, None] or\
                     row[:5] == ['', '', '', '', '']\
                     ):
-                self._first_record_row = row_index
-                break
+                return row_index
+            row_index += 1
 
     @property
     def records(self):
@@ -169,19 +189,29 @@ class SpreadsheetDataRecords(DataRecords):
                     del record_dict[None]
                 yield record_dict
 
+
 class SpreadsheetPackageImporter(PackageImporter):
     '''From a filepath of an Excel or csv file, extracts package
     dictionaries.'''
+    def __init__(self, record_params=None, record_class=SpreadsheetDataRecords, **kwargs):
+        self._record_params = record_params if record_params != None else ['Title']
+        self._record_class = record_class
+        super(SpreadsheetPackageImporter, self).__init__(**kwargs)
+        
     def import_into_package_records(self):
-        try:
-            package_data = XlData(self.log, filepath=self._filepath,
-                                  buf=self._buf, sheet_index=0)
-        except ImportException, e:
-            # try csv
+        try: 
             package_data = CsvData(self.log, filepath=self._filepath,
                                    buf=self._buf)
-
-        self._package_data_records = SpreadsheetDataRecords(package_data, 'Title')
+        except ImportException:
+            package_data = XlData(self.log, filepath=self._filepath,
+                                  buf=self._buf, sheet_index=0)
+            if package_data.get_num_sheets() > 1:
+                package_data = [XlData(self.log, filepath=self._filepath,
+                                  buf=self._buf, sheet_index=i) for i in range(package_data.get_num_sheets())]
+        self._package_data_records = MultipleSpreadsheetDataRecords(
+            data_list=package_data,
+            record_params=self._record_params,
+            record_class=self._record_class)
         
     def record_2_package(self, row_dict):
         pkg_dict = self.pkg_xl_dict_to_fs_dict(row_dict, self.log)
@@ -246,3 +276,21 @@ class SpreadsheetPackageImporter(PackageImporter):
         return pkg_fs_dict
 
                 
+class MultipleSpreadsheetDataRecords(DataRecords):
+    '''Takes several SpreadsheetData objects and returns records for all
+    of them combined.
+    '''
+    def __init__(self, data_list, record_params, record_class=SpreadsheetDataRecords):
+        self.records_list = []
+        if not isinstance(data_list, (list, tuple)):
+            data_list = [data_list]
+        for data in data_list:
+            self.records_list.append(record_class(data, *record_params))
+            
+    @property
+    def records(self):
+        for spreadsheet_records in self.records_list:
+            for spreadsheet_record in spreadsheet_records.records:
+                yield spreadsheet_record
+
+        

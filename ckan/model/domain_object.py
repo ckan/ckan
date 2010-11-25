@@ -4,6 +4,21 @@ from sqlalchemy.util import OrderedDict
 
 from meta import *
 
+class Enum(set):
+    '''Simple enumeration
+    e.g. Animal = Enum("dog", "cat", "horse")
+    joey = Animal.DOG
+    '''
+    def __init__(self, *names):
+        super(Enum, self).__init__(names)
+        
+    def __getattr__(self, name):
+        if name in self:
+            return name
+        raise AttributeError
+
+DomainObjectOperation = Enum('new', 'changed', 'deleted')
+
 # TODO: replace this (or at least inherit from) standard SqlalchemyMixin in vdm
 class DomainObject(object):
     
@@ -59,13 +74,12 @@ class DomainObject(object):
         self.Session.delete(self)
 
     def purge(self):
-        sess = orm.object_session(self)
         if hasattr(self, '__revisioned__'): # only for versioned objects ...
             # this actually should auto occur due to cascade relationships but
             # ...
             for rev in self.all_revisions:
-                sess.delete(rev)
-        sess.delete(self)
+                self.Session.delete(rev)
+        self.Session.delete(self)
 
     def as_dict(self):
         _dict = OrderedDict()

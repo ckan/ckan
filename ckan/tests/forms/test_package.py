@@ -73,7 +73,6 @@ class TestForms(PylonsTestCase, HtmlCheckMethods):
         anna = model.Package.by_name(u'annakarenina')
         fs = fs.bind(anna)
         out = fs.tags.render()
-        print out
         assert out
         assert 'tags' in out
         self.check_tag(out, 'russian', 'tolstoy')
@@ -306,13 +305,11 @@ class TestValidation:
         bad_names = [ '', 'blAh', 'a', 'dot.in.name', u'unicode-\xe0', 'percent%' ]
 
         for i, name in enumerate(good_names):
-            print "Good name:", i
             indict[prefix + 'name'] = unicode(name)
             fs = self._get_standard_fieldset().bind(anna, data=indict)
             assert fs.validate()
 
         for i, name in enumerate(bad_names):
-            print "Bad name:", i
             indict[prefix + 'name'] = unicode(name)
             fs = self._get_standard_fieldset().bind(anna, data=indict)
             assert not fs.validate()
@@ -326,7 +323,6 @@ class TestValidation:
         bad_names = [ 'a', 'percent%' ]
 
         for i, name in enumerate(good_names):
-            print "Good tag name:", i
             indict[prefix + 'name'] = u'okname'
             indict[prefix + 'tags'] = unicode(name)
             fs = self._get_standard_fieldset().bind(anna, data=indict)
@@ -334,7 +330,6 @@ class TestValidation:
             assert out, fs.errors
 
         for i, name in enumerate(bad_names):
-            print "Bad tag name:", i
             indict[prefix + 'name'] = u'okname'
             indict[prefix + 'tags'] = unicode(name)
             fs = self._get_standard_fieldset().bind(anna, data=indict)

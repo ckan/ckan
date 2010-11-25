@@ -1,0 +1,334 @@
+a { 
+  color: #b00; 
+  text-decoration: none;
+}
+a:link {
+  color: #b22;
+  text-decoration: none;
+}
+a:visited {
+  color: #c22;
+  text-decoration: none;
+}
+a:active {
+  color: #f22;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+#content p, #content ul, #content ol, #content dd, #content pre, #content hr, #content dl {
+  margin-bottom: 14px;
+}
+
+/* ===========================
+ * Masthead
+*/
+
+#header {
+  padding-top: 15px;
+  padding-bottom: 5px;
+}
+
+#site-title {
+  line-height: normal;
+  width: auto;
+  float: left;
+  text-transform: uppercase;
+  font-size: 40px;
+  margin: 0;
+  padding: 0;
+  font-weight: normal;
+  letter-spacing: -0.032em;
+}
+
+#site-title a {
+  font-weight:normal;
+}
+
+#site-title a:link, #site-title a:visited {
+  color: #333;
+}
+
+#site-title a:hover, #site-title a:active {
+  color: #d06;
+}
+
+/* hide the main twentyten image */
+#branding img {
+	display:none;
+}
+
+#site-title a img {
+  background: transparent;
+  display: block;
+  border: none;
+  margin: 0;
+}
+
+#site-description {
+  width:auto;
+  float: left;
+  clear: left;
+  color: #888;
+  font-style: italic;
+  font-size: 15px;
+  letter-spacing: normal;
+  text-transform: none;
+  margin: 0;
+  margin-top: -5px;
+  padding: 0 0 0 50px;
+}
+
+/* ===========================
+ * Top Bar
+*/
+
+#top-bar {
+  text-align: right;
+}
+
+#top-bar-login {
+  max-width: 150px;
+  display: inline-block;
+}
+
+#top-bar .search-form, #top-bar .search-form form {
+}
+
+#top-bar .search-form input.search {
+  width: 120px;
+}
+
+
+/* =Menu
+-------------------------------------------------------------- */
+
+#access {
+  border-top: 1px dotted #AAA;
+  border-bottom: 1px dotted #AAA;
+	background: transparent;
+}
+
+#access ul li a {
+	color: #A95A5A;
+  text-decoration: none;
+}
+
+#access ul li a.active {
+  color: black;
+  font-weight: bold;
+}
+
+#access ul li a:hover {
+  color: #333;
+}
+
+#access ul ul a {
+	background: #fff;
+}
+#access li:hover > a,
+#access ul ul :hover > a {
+	background: #fff;
+	color: #333;
+}
+#access ul li.current_page_item > a,
+#access ul li.current-menu-ancestor > a,
+#access ul li.current-menu-item > a,
+#access ul li.current-menu-parent > a {
+	color: #333;
+}
+* html #access ul li.current_page_item a,
+* html #access ul li.current-menu-ancestor a,
+* html #access ul li.current-menu-item a,
+* html #access ul li.current-menu-parent a,
+* html #access ul li a:hover {
+	color: #333;
+	cursor: default;
+  font-weight: bold;
+}
+
+/* ===========================
+ * Main
+ */
+
+#main {
+  padding-top: 20px;
+}
+
+#container {
+}
+
+.entry-content {
+  padding-top: 0;
+}
+
+#minornavigation {
+  margin: 0;
+  padding: 0;
+}
+
+#minornavigation ul {
+  margin: -5px 0 10px 0;
+  font-size: 80%;
+}
+
+#minornavigation ul li {
+  display: inline;
+  margin-right: 5px;
+}
+
+#minornavigation ul li a {
+  padding: 8px 5px 5px 3px;
+  background: #eee;
+	border: 1px solid #aaa;
+	border-left: none;
+	border-top: none;
+	border-radius: 0.5em;
+	-moz-border-radius: 0.5em;
+	-webkit-border-radius: 0.5em;
+}
+
+#minornavigation ul li a img {
+  margin: 0;
+  margin-right: 3px;
+  padding: 0;
+}
+
+#minornavigation ul li a:hover {
+  text-decoration: none;
+  background: transparent;
+}
+
+/* ===========================
+ * Sidebar
+ */
+
+#primary .widget-container
+{
+  background: #f9f2ce;
+  color: #333;
+  margin: 0 0 1em 0;
+  padding: 10px;
+	border: 1px solid #ebd897;
+	border-left: none;
+	border-top: none;
+	border-radius: 0.5em;
+	-moz-border-radius: 0.5em;
+	-webkit-border-radius: 0.5em;
+}
+
+#primary .widget-container h2 {
+  margin-bottom: 10px;
+}
+
+/* ===========================
+ * Footer
+ */
+
+#footer {
+  border-top: 1px solid;
+  margin: 1em auto 0 auto;
+  overflow: auto;
+}
+
+#footer ul {
+  margin-top: 0;
+}
+
+#footer-widget-area .widget-area {
+  float: none; 
+  width: 100%;
+  margin: 0;
+}
+
+#footer-widget-area .widget-container {
+  margin-bottom: 0;
+}
+
+#footer-widget-area .widget-container h3 {
+  display: inline-block;
+  margin-top: 0;
+  margin-right: 10px;
+}
+
+#footer-widget-area .widget-container .textwidget {
+  display: inline;
+}
+
+
+#footer-widget-area .widget-container ul {
+  display: inline;
+  margin: 0.3em 0 0 0;
+}
+
+#footer ul li abbr {
+  border-bottom: none;
+}
+
+#footer-widget-area .widget-container ul li {
+  margin: 0 1em 0 0;
+  padding: 0;
+  display: inline-block;
+}
+
+#footer-widget-area #fourth {
+	margin-right: 0;
+}
+
+#site-info {
+}
+
+#site-generator {
+  width: auto;
+}
+
+#site-generator a {
+  background-image: none;
+}
+
+img#footer-okf-logo {
+  margin-bottom: -4px;
+}
+
+
+/* ===========================
+ * Forms
+ */
+
+#content input, #content textarea {
+  line-height: 14px;
+  font-size: 14px;
+}
+
+form #log_message {
+  width: 80%;
+  height: 30px;
+}
+
+.entry-content label {
+  font-size: 14px;
+}
+
+#content form.ckan.package_create_form dl, #content form.ckan.package_create_form dd {
+  margin-bottom: 0;
+}
+
+#content form.ckan.package_create_form select {
+  margin-bottom: 12px;
+}
+
+
+/* ===========================
+ * Tables
+ */
+
+#content tr td {
+  padding: 6px 10px;
+}
+
+#content tr th, #content thead th {
+  padding: 6px 12px;
+}
+
