@@ -1,13 +1,34 @@
 from ckan.tests import *
 from pylons import config
 from ckan.lib.base import BaseController
-from ckan.lib.cache import ckan_cache
+import ckan.lib.cache
+from ckan.lib.cache import ckan_cache, get_cache_expires
 from time import gmtime, time, mktime, strptime, sleep
 import sys
 
 def now():
     return mktime(gmtime())
 start = now()
+
+class TestCacheBasics:
+    def setup(self):
+        self.cache_enabled = ckan.lib.cache.cache_enabled
+
+    def teardown(self):
+        ckan.lib.cache.cache_enabled = self.cache_enabled
+
+    def test_get_cache_expires(self):
+        # cache enabled disabled by default
+        out = get_cache_expires(sys.modules[__name__])
+        assert out == 0
+
+        ckan.lib.cache.cache_enabled  = True
+        out = get_cache_expires(sys.modules[__name__])
+        assert out == 1800, out
+
+        out = get_cache_expires(self.test_get_cache_expires)
+        assert out == 3600, out
+
 
 class CacheController(BaseController):
     """

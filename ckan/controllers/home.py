@@ -1,15 +1,18 @@
 import random
+import sys
 
-from pylons import cache
+from pylons import cache, config
 
-from ckan.lib.cache import proxy_cache
+from ckan.lib.cache import proxy_cache, get_cache_expires
 from ckan.lib.base import *
 import ckan.lib.stats
+
+cache_expires = get_cache_expires(sys.modules[__name__])
 
 class HomeController(BaseController):
     repo = model.repo
 
-    @proxy_cache(expires=1800)
+    @proxy_cache(expires=cache_expires)
     def index(self):
         c.package_count = model.Session.query(model.Package).count()
         c.revisions = model.Session.query(model.Revision).limit(10).all()
@@ -36,16 +39,16 @@ class HomeController(BaseController):
             random.shuffle(tag_counts)
             return tag_counts
         mycache = cache.get_cache('tag_counts', type='dbm')
-        # 3600=hourly, 86400=daily
         c.tag_counts = mycache.get_value(key='tag_counts_home_page',
-                createfunc=tag_counts, expiretime=86400)
-        return render('home/index.html', cache_key=cache_key, cache_expire=84600)
+                createfunc=tag_counts, expiretime=cache_expires)
+        return render('home/index.html', cache_key=cache_key,
+                cache_expire=cache_expires)
 
     def license(self):
-        return render('home/license.html', cache_expire=84600)
+        return render('home/license.html', cache_expire=cache_expires)
 
     def about(self):
-        return render('home/about.html', cache_expire=84600)
+        return render('home/about.html', cache_expire=cache_expires)
 
     def stats(self):
         def stats_html():
@@ -61,14 +64,12 @@ class HomeController(BaseController):
             return render('home/stats.html')
         if not c.user:
             mycache = cache.get_cache('stats', type='dbm')
-            # 3600=hourly, 86400=daily
             stats_html = mycache.get_value(key='stats_html',
-                createfunc=stats_html, expiretime=86400)
+                createfunc=stats_html, expiretime=cache_expires)
         else:
             stats_html = stats_html()
         return stats_html
             
-
     def cache(self, id):
         '''Manual way to clear the caches'''
         if id == 'clear':
@@ -77,3 +78,4 @@ class HomeController(BaseController):
                 cache_ = cache.get_cache(cache_name, type='dbm')
                 cache_.clear()
             return 'Cleared caches: %s' % ', '.join(wui_caches)
+

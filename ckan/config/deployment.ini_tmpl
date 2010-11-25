@@ -54,6 +54,7 @@ enable_caching =
 beaker.cache.type = file
 # cache expiry settings for specific controllers
 # by default these are disabled, enable as needed to a time in seconds
+ckan.controllers.home.expires = 0
 ckan.controllers.package.list.expires = 0
 ckan.controllers.tag.read.expires = 0
 ckan.controllers.apiv1.package.list.expires = 0
