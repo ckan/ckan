@@ -219,7 +219,7 @@ class Sysadmin(CkanCommand):
     Usage:
       sysadmin list                 - lists sysadmins
       sysadmin create <user-name>   - creates sysadmin user
-      sysadmin remove <user-name>   - removes user fr
+      sysadmin remove <user-name>   - removes user from sysadmins
     '''
 
     summary = __doc__.split('\n')[0]
