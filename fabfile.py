@@ -111,9 +111,8 @@ def config_staging_hmg_ckan_net():
     env.pip_requirements = 'pip-requirements-stable.txt'
 
 def config_test_hmg_ckan_net():
-    config_staging_hmg_ckan_net()
-    env.ckan_instance_name = 'test.hmg.ckan.net'
-    env.hosts = ['ssh.' + env.ckan_instance_name]
+    name = 'test-hmg.ckan.net'
+    config_0(name, hosts_str=name, requirements='pip-requirements-stable.txt')
 
 def config_hmg_ckan_net_1():
     env.user = 'ckan1'
