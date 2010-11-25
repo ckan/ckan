@@ -12,10 +12,7 @@ log = logging.getLogger(__name__)
 
 class ApiError(Exception): pass
 
-# Todo: Create controller for testing package edit form (but try to disable for production usage).
-# Todo: Refactor forms handling logic (to share common line between forms and edit).
-# Todo: Remove superfluous commit_pkg() method parameter.
-# Todo: Support setting choices (populates form input options and constrains validation)? Actually, perhaps groups shouldn't be editable on packages?
+# Todo: Refactor package form logic (to have more common functionality package_create and package_edit)
 
 class BaseFormController(BaseApiController):
     """Implements the CKAN Forms API."""

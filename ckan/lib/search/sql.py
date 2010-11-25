@@ -1,6 +1,7 @@
 import logging
 
 import sqlalchemy
+from sqlalchemy.exceptions import UnboundExecutionError
 
 from common import SearchBackend, SearchQuery, SearchError
 from common import SearchIndex, NoopSearchIndex
@@ -14,11 +15,12 @@ log = logging.getLogger(__name__)
 class SqlSearchBackend(SearchBackend):
     
     @property
-    def engine(self):
-        if not hasattr(self, '__engine'):
-            self.__engine = meta.engine
-        return self.__engine
-        
+    def connection(self):
+        try:
+            return meta.Session.connection()
+        except UnboundExecutionError:
+            return meta.engine.connect()
+       
     def _setup(self):
         self.register(model.Package, PackageSqlSearchIndex, PackageSqlSearchQuery)
         self.register(model.Group, NoopSearchIndex, GroupSqlSearchQuery)
@@ -229,18 +231,28 @@ class PackageSqlSearchIndex(SqlSearchIndex):
     
     def _print_lexemes(self, pkg_dict):
         sql = "SELECT package_id, search_vector FROM package_search WHERE package_id = %s"
-        res = meta.Session.connection().execute(sql, pkg_dict['id'])
+        res = self.backend.connection.execute(sql, pkg_dict['id'])
         print res.fetchall()
         res.close()
     
+    def _run_sql(self, sql, params):
+        conn = self.backend.connection
+        tx = conn.begin_nested()    
+        try:
+            res = conn.execute(sql, params)
+            res.close()
+            tx.commit()
+        except Exception, e:
+            tx.rollback()
+            raise
+
     def insert_dict(self, pkg_dict):
         if not 'id' in pkg_dict or not 'name' in pkg_dict:
             return
         vector_sql, params = self._make_vector(pkg_dict)
         sql = "INSERT INTO package_search VALUES (%%s, %s)" % vector_sql
         params = [pkg_dict.get('id')] + params
-        res = meta.Session.connection().execute(sql, params)
-        res.close()
+        self._run_sql(sql, params)
         log.debug("Indexed %s" % pkg_dict.get('name'))
     
     def update_dict(self, pkg_dict):
@@ -249,15 +261,20 @@ class PackageSqlSearchIndex(SqlSearchIndex):
         vector_sql, params = self._make_vector(pkg_dict)
         sql = "UPDATE package_search SET search_vector=%s WHERE package_id=%%s" % vector_sql
         params.append(pkg_dict['id'])
-        res = meta.Session.connection().execute(sql, params)
-        res.close()
+        self._run_sql(sql, params)
         log.debug("Updated index for %s" % pkg_dict.get('name'))
         
     def remove_dict(self, pkg_dict):
+        if not 'id' in pkg_dict or not 'name' in pkg_dict:
+            return 
+        sql = "DELETE FROM package_search WHERE package_id=%s"
+        self._run_sql(sql, [pkg_dict.get('id')])
+        log.debug("Delete entry %s from index" % pkg_dict.get('id'))
+        
+
         # This is currently handled by the foreign key constraint on package_id. 
         # Once we remove that constraint, manual removal will become necessary.
         pass
         
     def clear(self):
-        res = self.backend.engine.execute("DELETE FROM package_search WHERE 1=1")
-        res.close()
+        self._run_sql("DELETE FROM package_search WHERE 1=1", {})
