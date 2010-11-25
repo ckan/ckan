@@ -1,5 +1,3 @@
-from nose import assert_almost_equals
-
 from ckan.tests import *
 import ckan.model as model
 
@@ -246,10 +244,10 @@ class TestPackageRevisions:
         all_rev = pkg.all_revisions
         out = pkg.metadata_created
         exp = all_rev[-1].revision.timestamp
-        assert_almost_equals(out, exp)
+        assert  out == exp, (out, exp)
         out = pkg.metadata_modified
         exp = all_rev[0].revision.timestamp
-        assert_almost_equals(out, exp)
+        assert out == exp, (out, exp)
         
 
 class TestRelatedRevisions:
