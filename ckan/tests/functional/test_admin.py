@@ -1,34 +1,28 @@
+from nose.plugins.skip import SkipTest
+
 from ckan.tests import *
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 
 # TODO: reenable these tests when we've worked out why it makes a few
-# subsequent tests fail (in test_group and test_package).
-class _TestAdminController(TestController):
+# subsequent tests fail (in test_group and test_package) and generally
+# getting admin working again (#829).
+class TestAdminController(TestController):
+    raise SkipTest()
 
     @classmethod
     def setup_class(self):
-        model.Session.remove()
-
-        # setup a sysadmin        
-        model.Session.add(model.User(name=u'testsysadmin'))        
-        rev = model.repo.new_revision()
-        model.repo.commit_and_remove()
-
-        testsysadmin = model.User.by_name(u'testsysadmin')
-        model.add_user_to_role(testsysadmin, model.Role.ADMIN, model.System())
-        model.repo.commit_and_remove()
-
-        self.testsysadmin = model.User.by_name(u'testsysadmin')
-
+        # setup test data including testsysadmin user
         CreateTestData.create()
 
     @classmethod
     def teardown_class(self):
-        model.Session.remove()
-        model.repo.rebuild_db()
-        model.Session.remove()
+        CreateTestData.delete()
 
+    @property
+    def testsysadmin(self):
+        return model.User.by_name(u'testsysadmin')
+        
     def test_index(self):
         user_name = self.testsysadmin.name
         response = self.app.get(url_for(controller='admin'), extra_environ={'REMOTE_USER': user_name.encode('utf8')})
