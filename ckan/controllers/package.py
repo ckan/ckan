@@ -1,6 +1,6 @@
 import logging
 import urlparse
-import urllib
+from urllib import urlencode
 
 from sqlalchemy.orm import eagerload_all
 from sqlalchemy import or_
@@ -37,11 +37,12 @@ class PackageController(BaseController):
 
         def drill_down_url(**by):
             url = h.url_for(controller='package', action='search')
-            param = request.params.items()
+            param = [(k, v.encode('utf-8')) for k, v in request.params.items()]
             for k, v in by.items():
+                v = v.encode('utf-8')
                 if not (k, v) in param:
-                    param.append((k, v.encode('utf-8')))
-            return url + '?' + urllib.urlencode(param)
+                    param.append((k, v))
+            return url + u'?' + urlencode(param)
         
         c.drill_down_url = drill_down_url 
         
@@ -49,7 +50,7 @@ class PackageController(BaseController):
             url = h.url_for(controller='package', action='search')
             param = request.params.items()
             param.remove((key, value))
-            return url + '?' + urllib.urlencode(
+            return url + u'?' + urlencode(
                 [(k, v.encode('utf-8')) for k, v in param])
         
         c.remove_field = remove_field
