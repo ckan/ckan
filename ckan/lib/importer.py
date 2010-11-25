@@ -73,8 +73,12 @@ class PackageImporter(object):
     @classmethod
     def munge(self, name):
         '''Munge a title into a name.
+
         Note this function must be only carefully changed, as reimporting
-        data with a name munged differently may create duplicates packages.'''
+        data with a name munged differently may create duplicates packages.
+        For this reason, this munge function is for use by the importers only.
+        Other users should use the API slug creation functionality.
+        '''
         # convert spaces to underscores
         name = re.sub(' ', '_', name).lower()        
         # convert symbols to dashes
@@ -99,7 +103,13 @@ class PackageImporter(object):
 
     @classmethod
     def name_munge(self, input_name):
-        '''Munges the name field in case it is not to spec.'''
+        '''Munges the name field in case it is not to spec.
+
+        Note this function must be only carefully changed, as reimporting
+        data with a name munged differently may create duplicates packages.
+        For this reason, this munge function is for use by the importers only.
+        Other users should use the API slug creation functionality.
+        '''
         return self.munge(input_name.replace(' ', '').replace('.', '_').replace('&', 'and'))
 
     @classmethod

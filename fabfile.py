@@ -1,6 +1,44 @@
-'''Automate CKAN deployment, backup etc.
+'''
+CKAN Fabric
+===========
 
-For details of operations do fab -l.
+Purpose: to automate CKAN deployment, backup and other maintenance operations
+
+Usage: fab {config} {command}
+
+{config}:
+This parameter describes the configuration of the server where the CKAN
+instance is, including the host name, ssh user, pathnames, code branch, etc.
+  config_0:{host_name} - the default: ssh to okfn@{host_name},
+                         ckan is in ~/var/srvc/{host_name} and uses
+                         code from the metastable branch.
+  config_dev_hmg_ckan_net - a custom setup for dev-hmg.ckan.net because
+                         this instance uses code branch 'default'.
+  config_local:{base_dir},{instance_name} - for local operations. Host is
+                         'localhost' (it still has to ssh in, so requires
+                         password) and you must specify:
+                         * {base_dir} - path to ckan instances
+                         * {instance_name} - folder name for the specific
+                                             ckan instance you want
+  config_local_dev:{base_dir},{instance_name} - for local operations, but
+                         for developers that have their CKAN repo separate
+                         from their virtual environment. It assumes you have:
+                         * {base_dir}/{instance_name} - ckan code repo
+                         * {base_dir}/pyenv-{instance_name} - virtual env
+
+{command}:
+This parameter describes the operation you want to do on the CKAN instance
+specified in {config}. For example you can start with 'deploy' with host and
+database parameters to deploy the CKAN code, initialise the database and
+configure it to work. (There are then a couple of extra manual steps to
+complete the deployment - see doc/deployment.rst). Once there are some
+packages on there you can do a 'backup' of the db and later 'restore' the file.
+You can check the 'logs' for latest errors, switch to another 'apache_config'
+such as for a maintenance mode, check the version of the code running using
+'status'. When the code is updated you can load it on using 'deploy' (usually
+without specifying any parameters) then 'restart_apache'.
+
+For a list of all parameters from {config} & {command} do: fab -l
 
 Examples:
 =========

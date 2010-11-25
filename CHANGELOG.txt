@@ -3,22 +3,25 @@ CKAN CHANGELOG
 
 v1.2 TBC
 ===============
-http://knowledgeforge.net/ckan/trac/milestone/ckan%20v1.2
+http://ckan.org/milestone/ckan%20v1.2
 
 Highlights of changes:
   * Package edit form: attach package to groups (#652) & revealable help
-  * API for Package Create/New (#545)
+  * Form API - Package/Harvester Create/New (#545)
   * Authorization extended: user groups (#647) and creation of packages (#648)
+  * Plug-in interfaces standardised (#741)
+  * WordPress twentyten compatible theming (#797)
   * Caching support (ETag) (#693)
   * Harvesting GEMINI2 metadata records from OGC CSW servers (#566)
  
 Minor:
   * New API key header (#466)
+  * Group metadata now revisioned (#231)
 
 
 v1.1 2010-08-10
 ===============
-http://knowledgeforge.net/ckan/trac/milestone/v1.1
+http://ckan.org/milestone/v1.1
 
 Highlights of changes:
   * Changes to the database cause notifications via AMQP for clients (#325)
@@ -66,7 +69,7 @@ v1.0 2010-05-11
 
 CKAN comes of age, having been used successfully in several deployments around
 the world. 56 tickets covered in this release. See:
-http://knowledgeforge.net/ckan/trac/milestone/v1.0
+http://ckan.org/milestone/v1.0
 
 Highlights of changes:
 
@@ -104,7 +107,7 @@ v0.11 2010-01-25
 
 Our biggest release so far (55 tickets) with lots of new features and improvements. This release also saw a major new production deployment with the CKAN software powering http://data.gov.uk/ which had its public launch on Jan 21st!
 
-For a full listing of tickets see: <http://knowledgeforge.net/ckan/trac/milestone/v0.11>. Main highlights:
+For a full listing of tickets see: <http://ckan.org/milestone/v0.11>. Main highlights:
 
   * Package Resource object (multiple download urls per package): each package
     can have multiple 'resources' (urls) with each resource having additional

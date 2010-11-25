@@ -14,7 +14,7 @@ class HomeController(BaseController):
         c.package_count = model.Session.query(model.Package).count()
         c.revisions = model.Session.query(model.Revision).limit(10).all()
         if len(c.revisions):
-            cache_key = str(hash((c.revisions[0].id, c.user)))
+            cache_key = str(hash((c.revisions[0].id, c.user, c.__version__)))
         else:
             cache_key = "fresh-install"
         
