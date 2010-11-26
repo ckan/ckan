@@ -411,7 +411,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         result = conn.execute(query).fetchone()
         if result:
             timestamp = result[0].utctimetuple()
-            usecs = float("0.%s" % result[0].microsecond)
+            usecs = float(result[0].microsecond) / 1e6
         else:
             timestamp, usecs = gmtime(), 0
         return mktime(timestamp) + usecs
