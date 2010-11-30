@@ -1,10 +1,10 @@
 from ckan.plugins import SingletonPlugin, implements
-from ckan.plugins import IMapperExtension, IRoutesExtension, IPluginObserver
+from ckan.plugins import IMapper, IRoutes, IPluginObserver
 from ckan.tests.mock_plugin import MockSingletonPlugin
 
 
 class MapperPlugin(SingletonPlugin):
-    implements(IMapperExtension, inherit=True)
+    implements(IMapper, inherit=True)
 
     def __init__(self):
         self.added = []
@@ -17,10 +17,10 @@ class MapperPlugin(SingletonPlugin):
         self.deleted.append(instance)
 
 class MapperPlugin2(MapperPlugin):
-    implements(IMapperExtension)
+    implements(IMapper)
 
 class RoutesPlugin(SingletonPlugin):
-    implements(IRoutesExtension, inherit=True)
+    implements(IRoutes, inherit=True)
 
     def __init__(self):
         self.calls_made = []

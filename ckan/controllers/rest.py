@@ -9,7 +9,7 @@ import ckan.forms
 from ckan.lib.search import query_for, QueryOptions, SearchError, DEFAULT_OPTIONS
 import ckan.authz
 import ckan.rating
-from ckan.plugins import ExtensionPoint, IGroupController, IPackageController
+from ckan.plugins import PluginImplementations, IGroupController, IPackageController
 
 log = logging.getLogger(__name__)
 
@@ -165,7 +165,7 @@ class BaseRestController(BaseApiController):
                 return ''
             if not self._check_access(pkg, model.Action.READ):
                 return ''
-            for item in ExtensionPoint(IPackageController):
+            for item in PluginImplementations(IPackageController):
                 item.read(pkg)
             response_data = self._represent_package(pkg)
             return self._finish_ok(response_data)
@@ -198,7 +198,7 @@ class BaseRestController(BaseApiController):
 
             if not self._check_access(group, model.Action.READ):
                 return ''
-            for item in ExtensionPoint(IGroupController):
+            for item in PluginImplementations(IGroupController):
                 item.read(group)
             _dict = group.as_dict(ref_package_by=self.ref_package_by)
             #TODO check it's not none
@@ -315,10 +315,10 @@ class BaseRestController(BaseApiController):
             model.setup_default_user_roles(fs.model, admins)
             # Commit
             if register == 'package' and not subregister:
-                for item in ExtensionPoint(IPackageController):
+                for item in PluginImplementations(IPackageController):
                     item.create(fs.model)
             elif register == 'group' and not subregister:
-                for item in ExtensionPoint(IGroupController):
+                for item in PluginImplementations(IGroupController):
                     item.create(fs.model)
             model.repo.commit()        
         except Exception, inst:
@@ -414,10 +414,10 @@ class BaseRestController(BaseApiController):
                 fs.sync()
                 
                 if register == 'package' and not subregister:
-                    for item in ExtensionPoint(IPackageController):
+                    for item in PluginImplementations(IPackageController):
                         item.edit(fs.model)
                 elif register == 'group' and not subregister:
-                    for item in ExtensionPoint(IGroupController):
+                    for item in PluginImplementations(IGroupController):
                         item.edit(fs.model)
 
                 model.repo.commit()        
@@ -489,10 +489,10 @@ class BaseRestController(BaseApiController):
             
         try:
             if register == 'package' and not subregister:
-                for item in ExtensionPoint(IPackageController):
+                for item in PluginImplementations(IPackageController):
                     item.delete(entity)
             elif register == 'group' and not subregister:
-                for item in ExtensionPoint(IGroupController):
+                for item in PluginImplementations(IGroupController):
                     item.delete(entity)
 
             entity.delete()

@@ -12,7 +12,7 @@ from ckan.lib.base import *
 from ckan.lib.search import query_for, QueryOptions, SearchError
 from ckan.lib.cache import proxy_cache
 from ckan.lib.package_saver import PackageSaver, ValidationException
-from ckan.plugins import ExtensionPoint, IPackageController
+from ckan.plugins import PluginImplementations, IPackageController
 import ckan.forms
 import ckan.authz
 import ckan.rating
@@ -22,7 +22,7 @@ logger = logging.getLogger('ckan.controllers')
 
 class PackageController(BaseController):
     authorizer = ckan.authz.Authorizer()
-    extensions = ExtensionPoint(IPackageController)
+    extensions = PluginImplementations(IPackageController)
 
     def search(self):        
         q = c.q = request.params.get('q') # unicode format (decoded from utf8)

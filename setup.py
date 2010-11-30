@@ -79,7 +79,7 @@ setup(
     harvester = ckan.lib.cli:Harvester
 
     [paste.paster_create_template]
-    ckan_plugin=ckan.pastertemplates:CkanextPluginTemplate
+    ckanext=ckan.pastertemplates:CkanextTemplate
 
     [ckan.forms]
     standard = ckan.forms.package:get_standard_fieldset

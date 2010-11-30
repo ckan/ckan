@@ -3,8 +3,8 @@ from vdm.sqlalchemy import State
 from sqlalchemy.orm import object_session
 from sqlalchemy.orm.interfaces import EXT_CONTINUE
 
-from ckan.plugins import SingletonPlugin, ExtensionPoint, implements
-from ckan.plugins import IMapperExtension, IDomainObjectModification
+from ckan.plugins import SingletonPlugin, PluginImplementations, implements
+from ckan.plugins import IMapper, IDomainObjectModification
 
 from ckan.model.extension import ObserverNotifier
 from ckan.model.domain_object import DomainObjectOperation
@@ -23,8 +23,8 @@ class DomainObjectModificationExtension(SingletonPlugin, ObserverNotifier):
     out with check_real_change.
     """
 
-    implements(IMapperExtension, inherit=True)
-    observers = ExtensionPoint(IDomainObjectModification)
+    implements(IMapper, inherit=True)
+    observers = PluginImplementations(IDomainObjectModification)
     
     def check_real_change(self, instance):
         """

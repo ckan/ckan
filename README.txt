@@ -193,8 +193,8 @@ Documentation
 The home page for the CKAN project is: http://knowledgeforge.net/ckan
 
 This README file is part of the Developer Documentation, viewable at:
-`http://knowledgeforge.net/ckan/doc/ckan/index.html`_ and stored in the CKAN
-repo at ckan/doc. 
+http://knowledgeforge.net/ckan/doc/ckan/index.html and stored in the CKAN
+repo at ``ckan/doc``. 
 
 The Developer Docs are built using `Sphinx <http://sphinx.pocoo.org/>`_:
 
