@@ -1,7 +1,11 @@
 .. toctree::
    :hidden:
 
-.. include:: top.rst.inc
+.. include:: title.rst.inc
+.. include:: purpose.rst.inc
+.. include:: overview.rst.inc
+.. include:: interfaces1.rst.inc
+.. include:: location.rst.inc
 
 Model API
 ---------
