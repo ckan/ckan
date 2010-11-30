@@ -2,3 +2,4 @@
 -e hg+https://knowledgeforge.net/okfn/licenses@0.6#egg=licenses
 -e hg+https://knowledgeforge.net/ckan/ckanclient/hg@ckanclient-v0.4#egg=ckanclient
 -e hg+https://knowledgeforge.net/ckan/hg@metastable#egg=ckan
+psycopg2

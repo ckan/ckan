@@ -2,6 +2,7 @@
 # pip -E pyenv install -r pip-requirements.txt
 
 sphinx<0.9
+psycopg2
 -e hg+https://solrpy.googlecode.com/hg#egg=solrpy
 -e hg+https://knowledgeforge.net/okfn/vdm#egg=vdm
 -e hg+https://knowledgeforge.net/okfn/licenses#egg=licenses
