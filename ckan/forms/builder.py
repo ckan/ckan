@@ -49,7 +49,7 @@ class FormBuilder(object):
         field = self.options[field_name]
         assert field
         option = getattr(field, option)
-        if isinstance(args[0], dict):
+        if args and isinstance(args[0], dict):
             self.options[field_name] = option(**args[0])
         else:
             self.options[field_name] = option(*args)

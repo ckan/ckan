@@ -35,11 +35,7 @@ def build_package_form(is_admin=False, user_editable_groups=None, **params):
         further_instructions='Use a short descriptive title for the data set. It should not be a description though - save that for the Notes field. Do not give a trailing full stop.',
     )
     builder.set_field_text(
-        'name', 
-        '%s %s' % (
-            _('Name'),
-            _('(required)')
-        ), 
+        'name', _('Name'), 
         hints=literal(_("<strong>Unique identifier</strong> for package.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'"))
     )
     builder.set_field_text(
