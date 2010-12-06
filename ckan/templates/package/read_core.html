@@ -29,13 +29,34 @@
     </div>
 
     <div class="resources">
-      <h4>Resources</h4>
+      <h4>Downloads &amp; Resources</h4>
       <py:choose test="">
       <table py:when="c.pkg.resources">
-        <tr><th>URL</th><th>Format</th><th>Description</th><th>Hash</th></tr>
+        <tr>
+            <th>Description</th>
+            <th>Format</th>
+            <th>Hash</th>
+        </tr>
         <py:for each="res in c.pkg.resources">
-          <tr><td><a href="${res.url}" target="_blank">Download</a></td><td>${res.format}</td><td>${res.description}</td><td>${res.hash}</td></tr>
+          <tr>
+              <td>
+                  <py:choose test="">
+                    <py:when test="res.description">
+                      <a href="${res.url}" target="_blank">${res.description}</a>  
+                    </py:when>
+                    <py:otherwise test="">
+                      <a href="${res.url}" target="_blank">Download <em>(no description)</em></a>  
+                    </py:otherwise>
+                  </py:choose>
+              </td>
+              <td>${res.format}</td>
+              <td>${res.hash}</td>
+          </tr>
         </py:for>
+            <caption>
+                This is a list of all the different formats we know of that <em>${c.pkg.title}</em> has been 
+                published in. If you know of another (CSV, SPARQL end-pont etc.) ${h.subnav_link(c, 'please edit this page and add it to the list', controller='package', action='edit', id=c.pkg.name)}.
+            </caption>
       </table>
       <table py:otherwise=""><tr><th>Resources</th><td>None given for this package.</td></tr></table>
       </py:choose>

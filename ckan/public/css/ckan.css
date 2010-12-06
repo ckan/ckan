@@ -415,6 +415,16 @@ form #log_message {
   padding: 6px 12px;
 }
 
+caption {
+    caption-side:bottom;
+    text-align:left;
+    font-size:0.85em;
+    line-height:1.4em;
+    padding-top:0.5em;
+    color:#888;
+    padding-left:0.8em;
+}
+
 
 
 /* ============= */
