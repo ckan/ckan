@@ -6,14 +6,14 @@ from pylons.i18n import get_lang, _
 import ckan.authz as authz
 import ckan.forms
 from ckan.lib.helpers import Page
-from ckan.plugins import ExtensionPoint, IGroupController
+from ckan.plugins import PluginImplementations, IGroupController
 
 class GroupController(BaseController):
     
     def __init__(self):
         BaseController.__init__(self)
         self.authorizer = authz.Authorizer()
-        self.extensions = ExtensionPoint(IGroupController)
+        self.extensions = PluginImplementations(IGroupController)
     
     def index(self):
         from ckan.lib.helpers import Page

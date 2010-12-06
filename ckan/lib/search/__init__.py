@@ -46,6 +46,8 @@ def rebuild():
     package_index.clear()
     for pkg in model.Session.query(model.Package).all():
         package_index.insert_entity(pkg)
+    model.Session.commit()
+
 
 def query_for(_type, backend=None):
     """ Query for entities of a specified type (name, class, instance). """

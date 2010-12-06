@@ -74,9 +74,9 @@ def load_environment(global_conf, app_conf):
     engine = engine_from_config(config, 'sqlalchemy.', pool_threadlocal=True)
     model.init_model(engine)
     
-    from ckan.plugins import ExtensionPoint
+    from ckan.plugins import PluginImplementations
     from ckan.plugins.interfaces import IConfigurable
     
-    for service in ExtensionPoint(IConfigurable):
-        service.configure(config)
+    for plugin in PluginImplementations(IConfigurable):
+        plugin.configure(config)
     

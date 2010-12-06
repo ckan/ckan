@@ -56,11 +56,16 @@ class PackageSolrSearchQuery(SearchQuery):
         
         # show only results from this CKAN instance:
         fq = fq + " +site_id:\"%s\"" % config.get('ckan.site_id')
-        
+
         conn = self.backend.make_connection()
         try:
             data = conn.query(self.query.query,
                               fq=fq, 
+                              # make sure data.facet_counts is set:
+                              facet='true',                               
+                              facet_limit=50,
+                              facet_field=self.facet_by,
+                              facet_mincount=1,
                               start=self.options.offset, 
                               rows=self.options.limit,
                               fields='id,score', 
@@ -78,6 +83,7 @@ class PackageSolrSearchQuery(SearchQuery):
         result_ids = [(r.get('id')) for r in data.results]
         q = authz.Authorizer().authorized_query(self.options.username, model.Package)
         q = q.filter(model.Package.id.in_(result_ids))
+        self.facets = data.facet_counts.get('facet_fields', {})
         self.results = q.all()
 
     

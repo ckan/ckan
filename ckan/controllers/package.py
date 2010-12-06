@@ -1,5 +1,6 @@
 import logging
 import urlparse
+from urllib import urlencode
 
 from sqlalchemy.orm import eagerload_all
 from sqlalchemy import or_
@@ -11,7 +12,7 @@ from ckan.lib.base import *
 from ckan.lib.search import query_for, QueryOptions, SearchError
 from ckan.lib.cache import proxy_cache
 from ckan.lib.package_saver import PackageSaver, ValidationException
-from ckan.plugins import ExtensionPoint, IPackageController
+from ckan.plugins import PluginImplementations, IPackageController
 import ckan.forms
 import ckan.authz
 import ckan.rating
@@ -21,69 +22,68 @@ logger = logging.getLogger('ckan.controllers')
 
 class PackageController(BaseController):
     authorizer = ckan.authz.Authorizer()
-    extensions = ExtensionPoint(IPackageController)
-
-    def index(self):
-        query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
-        c.package_count = query.count()
-        return render('package/index.html')
-
-    @proxy_cache()
-    def list(self):
-        query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
-        query = query.options(eagerload_all('package_tags.tag'))
-        query = query.options(eagerload_all('package_resources_all'))
-        c.page = h.AlphaPage(
-            collection=query,
-            page=request.params.get('page', 'A'),
-            alpha_attribute='title',
-            other_text=_('Other'),
-        )
-        return render('package/list.html')
+    extensions = PluginImplementations(IPackageController)
 
     def search(self):        
-        c.q = request.params.get('q') # unicode format (decoded from utf8)
+        q = c.q = request.params.get('q') # unicode format (decoded from utf8)
         c.open_only = request.params.get('open_only')
         c.downloadable_only = request.params.get('downloadable_only')
-        if c.q:
-            c.query_error = False
-            page = int(request.params.get('page', 1))
-            limit = 20
-            query = query_for(model.Package)
-            try:
-                query.run(query=c.q,
-                          limit=limit,
-                          offset=(page-1)*limit,
-                          return_objects=True,
-                          filter_by_openness=c.open_only,
-                          filter_by_downloadable=c.downloadable_only,
-                          username=c.user)
-            
-                c.page = h.Page(
-                    collection=query.results,
-                    page=page,
-                    item_count=query.count,
-                    items_per_page=limit
-                )
-                c.page.items = query.results
-            except SearchError, se:
-                c.query_error = True
-                c.page = h.Page(collection=[])
-            
-            # tag search
-            c.tag_limit = 25
-            query = query_for('tag', backend='sql')
-            try:
-                query.run(query=c.q,
-                          return_objects=True,
-                          limit=c.tag_limit,
-                          username=c.user)
-                c.tags = query.results
-                c.tags_count = query.count
-            except SearchError, se:
-                c.tags = []
-                c.tags_count = 0
+        if c.q is None or len(c.q.strip()) == 0:
+            q = '*:*'
+        c.query_error = False
+        page = int(request.params.get('page', 1))
+        limit = 20
+        query = query_for(model.Package)
 
+        def drill_down_url(**by):
+            url = h.url_for(controller='package', action='search')
+            param = [(k, v.encode('utf-8')) for k, v in request.params.items()]
+            for k, v in by.items():
+                v = v.encode('utf-8')
+                if not (k, v) in param:
+                    param.append((k, v))
+            return url + u'?' + urlencode(param)
+        
+        c.drill_down_url = drill_down_url 
+        
+        def remove_field(key, value):
+            url = h.url_for(controller='package', action='search')
+            param = request.params.items()
+            param.remove((key, value))
+            return url + u'?' + urlencode(
+                [(k, v.encode('utf-8')) for k, v in param])
+        
+        c.remove_field = remove_field
+
+        try:
+            c.fields = []
+            for (param, value) in request.params.items():
+                if not param in ['q', 'open_only', 'downloadable_only', 'page']:
+                    c.fields.append((param, value))
+
+            query.run(query=q,
+                      fields=c.fields,
+                      facet_by=g.facets,
+                      limit=limit,
+                      offset=(page-1)*limit,
+                      return_objects=True,
+                      filter_by_openness=c.open_only,
+                      filter_by_downloadable=c.downloadable_only,
+                      username=c.user)
+            
+            c.page = h.Page(
+                collection=query.results,
+                page=page,
+                item_count=query.count,
+                items_per_page=limit
+            )
+            c.facets = query.facets
+            c.page.items = query.results
+        except SearchError, se:
+            c.query_error = True
+            c.facets = {}
+            c.page = h.Page(collection=[])
+        
         return render('package/search.html')
 
     @staticmethod
@@ -362,8 +362,8 @@ class PackageController(BaseController):
             abort(401, str(gettext('User %r not authorized to edit %s authorizations') % (c.user, id)))
 
         if 'save' in request.params: # form posted
-            # needed because request is nested
-            # multidict which is read only
+            # A dict needed for the params because request.params is a nested
+            # multidict, which is read only.
             params = dict(request.params)
             c.fs = ckan.forms.get_authz_fieldset('package_authz_fs').bind(pkg.roles, data=params or None)
             try:

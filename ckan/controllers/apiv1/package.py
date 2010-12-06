@@ -4,13 +4,13 @@ from ckan.lib.cache import ckan_cache
 from ckan.lib.helpers import json
 import ckan.model as model
 import ckan
-from ckan.plugins import ExtensionPoint, IPackageController
+from ckan.plugins import PluginImplementations, IPackageController
 
 log = __import__("logging").getLogger(__name__)
 
 class PackageController(RestController):
 
-    extensions = ExtensionPoint(IPackageController)
+    extensions = PluginImplementations(IPackageController)
 
     @ckan_cache(test=model.Package.last_modified, query_args=True)
     def list(self):

@@ -15,44 +15,85 @@ CKAN implements a fine-grained role-based access control system.
 Protected Objects and Authorization
 -----------------------------------
 
-There are variety of "protected objects" to which access can be controlled, for
-example the "System" (for administrative access), Packages, Groups (nb: these
-are 'package' groups not 'access control' groups). Access control is
-fine-grained in that it can be set for each individual package or group
-instance.
+There are variety of **protected objects** to which access can be controlled, 
+for example the ``System``, ``Packages```, Package ``Groups`` and 
+``Authorization Groups``. Access control is fine-grained in that it can be 
+set for each individual package, group or authorization group instance.
 
-For each protected object there are a set of relevant **actions** such as 'create', 'admin', 'edit' etc.
+For each protected object there are a set of relevant **actions** such as 
+create', 'admin', 'edit' etc. To facilitate that mapping, actions are 
+aggregated into a set of **roles** (e.g. an editor role would have 'edit' 
+and 'read' action).
 
-The responsibility of the authorization system is to determine whether a **given user is permitted to carry out a given action on a given protected object.**
+A special role is taken by the ``System`` object, which serves as an 
+authorization object for any assignments which do not relate to a specific
+object. For example, the creation of a package cannot be linked to a 
+specific package instance and is therefore a system operation. 
 
-The system therefore needs to record tuples of the form:
+To gain further flexibility, users can be assigned to **authorization 
+groups**. Authz groups are both the object of authorization (i.e. one 
+can have several roles with regards to an authz group) and the subject 
+of authorization (i.e. they can be assigned roles on other objects which
+will apply to their members. 
 
-======== ======= ====================
-user     action  object
-======== ======= ====================
-levin    edit    package::warandpeace
-======== ======= ====================
+The assignment of users and authorization groups to roles on a given 
+protected object (such as a package) can be done by 'admins' via the 
+'authorization' tab of the web interface (or by system admins via that 
+interface or the system admin interface). There is also a command-line 
+based authorization manager, detailed below. 
 
-In fact, in CKAN actions are aggregated using the standard concept of a **Role** (e.g. an editor role would have 'edit' and 'read' action).
+Command-line authorization management
+-------------------------------------
 
-This means we in fact record tuples of the form:
+To allow for fine-grained control of the authorization system, CKAN has 
+several command related to the management of roles and access permissions. 
 
-======== ======= ====================
-user     role    object
-======== ======= ====================
-levin    editor  package::warandpeace
-======== ======= ====================
-   
-The assignment of users to roles on a given protected object (such as a
-package) can be done by 'admins' via the 'authorization' tab of
-the web interface (or by system admins via that interface or the system
-admin interface).
+The ``roles`` command will list and modify the assignment of actions to 
+roles::
 
+    $ paster --plugin=ckan roles -c my.ini list 
+    $ paster --plugin=ckan roles -c my.ini deny editor create-package
+    $ paster --plugin=ckan roles -c my.ini allow editor create-package 
+
+This would first list all role action assignments, then remove the 
+'create-package' action from the 'editor' role and finally re-assign 
+that role. 
+
+Similarly, the ``rights`` command will set the authorization roles of 
+a specific user on a given object within the system:: 
+
+    $ paster --plugin=ckan rights -c my.ini list
+
+Will list all assigned rights within the system. It is recommended to then 
+grep over the resulting output to search for specific object roles. 
+
+Rights assignment follows a similar pattern::
+
+    $ paster --plugin=ckan rights -c my.ini make bar admin package:foo
+    
+This would assign the user named ``bar`` the ``admin`` role on the package 
+foo. Instead of user names and package names, a variety of different 
+entities can be the subject or object of a role assignment. Some of those 
+include authorization groups, package groups and the system as a whole 
+(``system:```)::
+
+    # make 'chef' a system-wide admin: 
+    $ paster --plugin=ckan rights -c my.ini make chef admin system
+    # allow all members of authz group 'foo' to edit group 'bar'
+    $ paster --plugin=ckan rights -c my.ini make agroup:foo edit \
+        group:bar
+
+To revoke one of the roles assigned using ``make``, the ``remove`` command 
+is available:: 
+
+    $ paster --plugin=ckan rights -c my.ini remove bar admin package:foo
+    
+For more help on either of these commands, also refer to the paster help. 
 
 Roles
 -----
 
-Each role has a list of permitted *actions* appropriate for that Protected Object.
+Each role has a list of permitted *actions* appropriate for a protected object.
 
 Currently there are three basic roles:
 
@@ -61,7 +102,8 @@ Currently there are three basic roles:
   * **admin**: admin can do anything including: edit, read, delete,
     update-permissions (change authorizations for that object)
 
-In addition at the System or Protected Object 'type' level there are some additional actions:
+In addition, at the System or Protected Object 'type' level there are some 
+additional actions:
 
   * create instances
   * update assignment of system level role
@@ -71,10 +113,8 @@ vary with the type of protected object (the context). For example, the set of
 actions for the 'admin' role may be different for the System Protected Object
 from a Package Protected Object.
 
-Roles are only editable via the raw Model interface at /admin/ (sysadmin-only).
-
 There are also some shortcuts that are provided directly by the authorization
-system (rather than being expressed as user-object-role tuples):
+system (rather than being expressed as subject-object-role tuples):
 
   * (system) admin can do everything on anything
   * admin can do everything on the given object
@@ -117,6 +157,17 @@ There are "system" level admins for CKAN who may alter permissions on any packag
 
 Developer Notes
 ===============
+
+We record tuples of the form:
+
+======== ================= ======= ====================
+user     authorized_group  role    object
+======== ================= ======= ====================
+levin                      editor  package::warandpeace
+======== ================= ======= ====================
+
+
+
 
 Requirements and Use Cases
 --------------------------

@@ -1,12 +1,12 @@
 """
-Provides bridges between the model and plugin ExtensionPoints
+Provides bridges between the model and plugin PluginImplementationss
 """
 import logging
 
 from sqlalchemy.orm.interfaces import MapperExtension, EXT_CONTINUE, EXT_STOP
 from sqlalchemy.orm.session import SessionExtension
 
-from ckan.plugins import ExtensionPoint, IMapperExtension, ISessionExtension
+from ckan.plugins import PluginImplementations, IMapper, ISession
 
 try:
     from operator import methodcaller
@@ -44,10 +44,10 @@ class ObserverNotifier(object):
 
 class PluginMapperExtension(MapperExtension, ObserverNotifier):
     """
-    Extension that calls plugins implementing IMapperExtension on SQLAlchemy
+    Extension that calls plugins implementing IMapper on SQLAlchemy
     MapperExtension events
     """
-    observers = ExtensionPoint(IMapperExtension)
+    observers = PluginImplementations(IMapper)
     
     def before_insert(self, mapper, connection, instance):
         return self.notify_observers(
@@ -82,11 +82,11 @@ class PluginMapperExtension(MapperExtension, ObserverNotifier):
 
 class PluginSessionExtension(SessionExtension, ObserverNotifier):
     """
-    Extension that calls plugins implementing IMapperExtension on SQLAlchemy
+    Class that calls plugins implementing IMapper on SQLAlchemy
     SessionExtension events
     """
 
-    observers = ExtensionPoint(ISessionExtension)
+    observers = PluginImplementations(ISession)
     
     def after_begin(self, session, transaction, connection):
         return self.notify_observers(

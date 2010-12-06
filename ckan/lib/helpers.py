@@ -42,6 +42,22 @@ def subnav_link(c, text, action, **kwargs):
         class_=('active' if c.action == action else '')
     )
 
+def facet_items(c, name, limit=10):
+    from pylons import request
+    if not c.facets or not c.facets.get(name): 
+        return []
+    facets = []
+    for k, v in c.facets.get(name).items():
+        if not len(k.strip()):
+            continue
+        if not (name, k) in request.params.items():
+            facets.append((k, v))
+    return sorted(facets, key=lambda (k, v): v, reverse=True)[:limit]
+
+def facet_title(name):
+    from pylons import config 
+    return config.get('search.facets.%s.title' % name, name.capitalize())
+
 def am_authorized(c, action, domain_object=None):
     from ckan.authz import Authorizer
     if domain_object is None:
@@ -63,12 +79,19 @@ def linked_user(user):
                        url_for(controller='user', action='read', id=_name))
     return user
 
+def group_name_to_title(name):
+    from ckan import model
+    group = model.Group.by_name(name)
+    if group is not None:
+        return group.title
+    return name
+
 def markdown_extract(text):
     if (text is None) or (text == ''):
         return ''
     html = fromstring(markdown(text))
     plain = html.xpath("string()")
-    return unicode(truncate(plain, length=270, indicator='...', whole_word=True))
+    return unicode(truncate(plain, length=190, indicator='...', whole_word=True))
 
 def icon_url(name):
     return '/images/icons/%s.png' % name

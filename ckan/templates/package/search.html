@@ -5,21 +5,29 @@
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
 
+  <xi:include href="facets.html" />
   <py:def function="page_title">Search - Data Packages</py:def>
+    
+  <py:match path="primarysidebar">
+    
+    <div class="register-link" py:if="h.am_authorized(c, actions.PACKAGE_CREATE)">
+        <a href="${h.url_for(controller='package', action='new', id=None)}">Register a package</a>
+    </div>
+ 
+    ${facet_sidebar('groups', label=h.group_name_to_title)}
+    ${facet_sidebar('tags')}
+    ${facet_sidebar('res_format')}
+    ${facet_sidebar('license')}
+
+
+  </py:match>
 
   <div py:match="content">
-    <h2>Search Data Packages</h2>
+    <h2>Discover Data Packages</h2>
     
     <xi:include href="search_form.html" />
+    ${field_list()}   
     
-    <py:if test="c.q">
-      <hr />
-    
-      <py:if test="c.tags_count > 0">
-        <p i18n:msg="tags_count, tags_limit"><strong>${c.tags_count}</strong> tags found (max ${c.tag_limit} shown).</p>
-        ${tag_list(c.tags)}
-      </py:if>
-      
       <py:if test="c.query_error">
         <p i18n:msg="item_count"><strong>There was an error while searching.</strong> 
             Please try another search term.</p>
@@ -31,9 +39,8 @@
       ${c.page.pager(q=c.q)}  
       ${package_list(c.page.items)}
       ${c.page.pager(q=c.q)}
-    </py:if>
-  </div>
 
+  </div>
   <xi:include href="layout.html" />
 </html>
 

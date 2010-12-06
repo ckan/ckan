@@ -14,7 +14,7 @@ from webhelpers.html import literal
 
 import ckan
 import ckan.lib.helpers as h
-from ckan.plugins import ExtensionPoint, IGenshiStreamFilter
+from ckan.plugins import PluginImplementations, IGenshiStreamFilter
 from ckan.lib.helpers import json
 import ckan.model as model
 import os
@@ -41,7 +41,7 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         template = globs['app_globals'].genshi_loader.load(template_name)
         stream = template.generate(**globs)
         
-        for item in ExtensionPoint(IGenshiStreamFilter):
+        for item in PluginImplementations(IGenshiStreamFilter):
             stream = item.filter(stream)
         
         return literal(stream.render(method=method, encoding=None))

@@ -156,7 +156,8 @@ class UserObjectRole(DomainObject):
 
     @classmethod
     def add_user_to_role(cls, user, role, domain_obj):
-        # role assignment already exists
+        '''role assignment already exists
+        NB: leaves caller to commit change'''
         if cls.user_has_role(user, role, domain_obj):
             return
         objectrole = cls(role=role, user=user)
@@ -260,6 +261,7 @@ def validate_authorization_setup():
 
 ## TODO: this should be in ckan/authz.py
 def setup_user_roles(domain_object, visitor_roles, logged_in_roles, admins=[]):
+    '''NB: leaves caller to commit change'''
     assert type(admins) == type([])
     admin_roles = [Role.ADMIN]
     visitor = User.by_name(PSEUDO_USER__VISITOR)
@@ -307,9 +309,11 @@ def give_all_packages_default_user_roles():
         setup_default_user_roles(pkg, admins)
 
 def setup_default_user_roles(domain_object, admins=[]):
-    # sets up roles for visitor, logged-in user and any admins provided
-    # admins is a list of User objects
-    assert isinstance(domain_object, (Package, Group, System, AuthorizationGroup))
+    ''' sets up roles for visitor, logged-in user and any admins provided
+    @param admins - a list of User objects
+    NB: leaves caller to commit change.
+    '''
+    assert isinstance(domain_object, (Package, Group, System, AuthorizationGroup)), domain_object
     assert isinstance(admins, list)
     if type(domain_object) == Package:
         visitor_roles = [Role.EDITOR]
