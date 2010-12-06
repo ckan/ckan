@@ -104,6 +104,36 @@
           </caption>
     </table>
     </div>
+    
+    <div class="api">
+        <h4>CKAN API / datapkg</h4>
+        <div>
+            <p>
+                This information on this page (the package metadata) is also available programatically via the <a href="http://knowledgeforge.net/ckan/doc/ckan/api.html">CKAN API</a>
+            </p>
+            <h5>JSON:</h5>
+            <code>
+                <py:if test="config.get('ckan.api_url')">                
+                    <a href="${config.get('ckan.api_url') + h.url_for(controller='rest', register='package', action='show', id=c.pkg.name)}">${config.get('ckan.api_url') + h.url_for(controller='rest', register='package', action='show', id=c.pkg.name)}</a>
+                </py:if>                
+                <py:if test="not config.get('ckan.api_url')">
+                    <a href="${config.get('ckan.site_url') + h.url_for(controller='rest', register='package', action='show', id=c.pkg.name)}">${config.get('ckan.site_url') + h.url_for(controller='rest', register='package', action='show', id=c.pkg.name)}</a>
+                </py:if>
+            </code>
+            <py:if test="config.get('rdf_packages')">
+                <h5>RDF:</h5>
+                <code><a href="${config.get('rdf_packages') + c.pkg.name[0] + '/' + c.pkg.name[1] + '/' + c.pkg.name}">${config.get('rdf_packages') + c.pkg.name[0] + '/' + c.pkg.name[1] + '/' + c.pkg.name}</a></code>
+            </py:if>
+            <p>
+                The information on this page and the downloads / resources are also available using the 
+                <a href="http://blog.okfn.org/2010/02/23/introducing-datapkg/">datapkg command line utility</a>.
+            </p>
+            <h5>Information about this package:</h5>
+            <code>bla</code>            
+            <h5>Download:</h5>
+            <code>bla</code>            
+        </div>
+    </div>
 
     <ul>
       <py:if test="h.am_authorized(c, actions.CHANGE_STATE, c.pkg)">

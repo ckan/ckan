@@ -822,6 +822,28 @@ ul.packages {
   width: 150px;
 }
 
+.package .api div {
+    background:#f0f0f0;
+    padding:10px;
+}
+
+.package .api h5 {
+    font-weight:bold;
+    margin-bottom:1em!important;
+    font-size:1em;
+}
+
+.package .api code {
+    background:#444;
+    color:#fff;
+    padding:3px 10px ;
+    margin-bottom:1em;
+    display:block;
+}
+.package .api code a {
+    color:#fff;
+}
+
 .relationship_comment {
   font-style: italic;
 }
