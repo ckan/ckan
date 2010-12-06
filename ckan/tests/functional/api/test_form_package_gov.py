@@ -48,7 +48,7 @@ class GovFixtures(PackageFixturesBase):
         'update_frequency':u'annual',
         'geographic_granularity':u'regional',
         'geographic_coverage':u'100000: England',
-        'department':u'Department for Children, Schools and Families',
+        'department':u'Department for Education',
         'temporal_granularity':u'year',
         'temporal_coverage-from':u'2008-6',
         'temporal_coverage-to':u'2009-6',
