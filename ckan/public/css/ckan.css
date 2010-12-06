@@ -771,8 +771,8 @@ ul.packages {
   width: 100%;
 }
 
-.package .head {
-	margin-bottom: 0;
+.package h2.head {
+  margin-bottom: 0.3em!important;
   line-height: 1.0;
 }
 
@@ -782,7 +782,7 @@ ul.packages {
 }
 
 .package div.url {
-  margin: 1em;
+  margin: 0 ;
 }
 
 .package .url a {

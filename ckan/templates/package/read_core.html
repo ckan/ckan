@@ -5,29 +5,25 @@
   <xi:include href="../_util.html" />
   <div class="package">
     <div class="package-atom-feed"><a href="?format=atom"><img style="height:16; width:16; margin-bottom:-0.3em" src="/images/icons/atom_feed.png" alt="Atom Feed" title="${g.site_title} - Package History - ${c.pkg.name}"/></a> <a href="/package/history/${c.pkg.name}?format=atom&amp;days=7">Subscribe &raquo;</a></div>
+
+    <!-- Title -->    
     <h2 class="head">
       ${c.pkg.title}
     </h2>
+    
+    <!-- Source URL -->    
     <div class="url" py:if="c.pkg.url">
       <p>
         Source: ${c.pkg_url_link}
       </p>
     </div>
-
-    <div class="tags">
-      <div class="item-list">
-        Tags: ${tag_list(c.pkg.tags)}
-      </div>
-      <div class="item-list">
-        <span title="A curated collection of packages">Groups:</span>
-        <ul>
-          <li py:for="group in c.pkg.groups">
-          <a href="${h.url_for(controller='group', action='read', id=group.name)}">${group.name}</a>
-          </li>
-        </ul>
-      </div>
+    
+    <!-- About package -->
+    <div class="notes" py:if="str(c.pkg_notes_formatted).strip()">
+      ${c.pkg_notes_formatted}
     </div>
-
+    
+    <!-- Downloads and resources -->
     <div class="resources">
       <h4>Downloads &amp; Resources</h4>
       <py:choose test="">
@@ -63,10 +59,6 @@
     </div>
 
     <hr class="cleared" />
-
-    <div class="notes" py:if="str(c.pkg_notes_formatted).strip()">
-      ${c.pkg_notes_formatted}
-    </div>
 
     <py:def function="details_item(label, value)">
         <tr>
