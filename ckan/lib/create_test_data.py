@@ -582,7 +582,7 @@ gov_items = [
         'update_frequency':'annually',
         'geographic_granularity':'regional',
         'geographic_coverage':'100000: England',
-        'department':'Department for Children, Schools and Families',
+        'department':'Department for Education',
         'temporal_granularity':'years',
         'temporal_coverage-from':'2008-6',
         'temporal_coverage-to':'2009-6',
