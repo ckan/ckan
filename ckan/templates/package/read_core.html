@@ -50,8 +50,7 @@
           </tr>
         </py:for>
             <caption>
-                This is a list of all the different formats we know of that <em>${c.pkg.title}</em> has been 
-                published in. If you know of another (CSV, SPARQL end-pont etc.) ${h.subnav_link(c, 'please edit this page and add it to the list', controller='package', action='edit', id=c.pkg.name)}.
+                This is a list of all known formats and datasets for <em>${c.pkg.title}</em>. If you know of another (CSV, SPARQL end-pont etc.) ${h.subnav_link(c, 'please edit this page and add it to the list', controller='package', action='edit', id=c.pkg.name)}.
             </caption>
       </table>
       <table py:otherwise=""><tr><th>Resources</th><td>None given for this package.</td></tr></table>
@@ -100,6 +99,9 @@
           <td class="package-details">${value}</td>
         </tr>
       </tbody>
+          <caption>
+              Something missing? ${h.subnav_link(c, 'Please help improve this page by adding more information', controller='package', action='edit', id=c.pkg.name)}.
+          </caption>
     </table>
     </div>
 

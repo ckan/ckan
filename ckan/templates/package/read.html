@@ -95,18 +95,6 @@
       </py:choose>
     </li>
 
-    <py:if test="h.am_authorized(c, actions.EDIT, c.pkg)">
-    <li class="widget-container widget_text">
-      <h2>Edit this Package</h2>
-        <p i18n:msg="">
-          Can you help us keep this page up to date?
-          If so, why not
-          <a href="${h.url_for(controller='package',action='edit',id=c.pkg.name)}">
-            update the package information</a>.
-        </p>
-    </li>
-    </py:if>
-    
     <li class="widget-container widget_text">
       <div class="item-list">
         Tags: ${tag_list(c.pkg.tags)}
