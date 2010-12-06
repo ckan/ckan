@@ -130,13 +130,13 @@
 
   <div id="main"> 
     <div id="container"> 
+      <div id="minornavigation">
+        <minornavigation></minornavigation> 
+      </div>
       <div id="content" role="main"> 
 
         <div class="page type-page hentry">
           <div class="entry-content">
-            <div id="minornavigation">
-              <minornavigation></minornavigation> 
-            </div>
             <!-- support both options for defining content -->
             <py:if test="defined('content')">
             ${content()}

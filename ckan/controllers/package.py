@@ -98,11 +98,13 @@ class PackageController(BaseController):
 
     @proxy_cache()
     def read(self, id):
+        
+        #check if package exists
         c.pkg = model.Package.get(id)
         if c.pkg is None:
             abort(404, gettext('Package not found'))
         
-        cache_key = self._pkg_cache_key(c.pkg)
+        cache_key = self._pkg_cache_key(c.pkg)        
         etag_cache(cache_key)
         
         # used by disqus plugin
@@ -115,6 +117,7 @@ class PackageController(BaseController):
                 rdf_url = '%s%s' % (config['rdf_packages'], c.pkg.name)
                 redirect(rdf_url, code=303)
 
+        #is the user allowed to see this package?
         auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, c.pkg)
         if not auth_for_read:
             abort(401, str(gettext('Unauthorized to read package %s') % id))
@@ -122,6 +125,7 @@ class PackageController(BaseController):
         for item in self.extensions:
             item.read(c.pkg)
 
+        #render the package
         PackageSaver().render_package(c.pkg)
         return render('package/read.html')
 

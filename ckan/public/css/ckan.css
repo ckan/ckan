@@ -1,3 +1,5 @@
+/* The main css styles for CKAN (specific UI elements may have thier own css linked via style.css) */
+
 body, input, textarea, .page-title span, .pingback a.url {
     font-family: "Lucida Grande", Lucida, Verdana, sans-serif;
 }
@@ -175,12 +177,12 @@ a:hover {
 
 #minornavigation {
   margin: 0;
-  padding: 0;
+  padding: 0 15px 0 0;
 }
 
 #minornavigation ul {
   margin: -5px 0 10px 0;
-  font-size: 80%;
+  text-align:right;
 }
 
 #minornavigation ul li {
@@ -213,7 +215,10 @@ a:hover {
 /* ===========================
  * Sidebar
  */
-
+#primary
+{
+    padding-top:40px;    
+}
 #primary .widget-container
 {
   background: #f9f2ce;
@@ -410,3 +415,403 @@ form #log_message {
   padding: 6px 12px;
 }
 
+
+
+/* ============= */
+/* = Utilities = */
+/* ============= */
+
+.clearfix:after {
+	content: ".";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
+}
+
+.clearfix { display: inline-block; } /* for IE/Mac */
+
+.cleared { clear: both; }
+hr.cleared {
+	height: 0 ! important;
+	visibility: hidden;
+}
+
+hr.nomargin { margin: 0; }
+
+/* ======================= */
+/* = Fixes to KForge CSS = */
+/* ======================= */
+
+table {
+	border-collapse: collapse;
+	border: none;
+	border-radius: 1em;
+	margin: 0 0 1.2em 0;
+}
+
+table th, table td {
+	border: 1px solid #ccc;
+	border-top-color: #eee;
+	border-left-color: #eee;
+	padding: 0.3em;
+}
+
+table td {
+	background: #f0f0f0;
+}
+
+table th {
+	background: #fff;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-family: 'Lucida Grande', 'Lucida Sans Unicode', Lucida, Arial, Helvetica, sans-serif;
+	letter-spacing: -0.02em;
+}
+
+/* ================ */
+/* = Search boxes = */
+/* ================ */
+
+input.search {
+  width: 99%;
+  padding: 5px;
+  font-size: 1.1em;
+  margin: 0px;
+  -webkit-appearance: textfield;
+}
+
+.package-search input.button {
+    display: inline-block;
+    float: right;
+    margin-top: 5px;
+    margin-right: 10px !important;
+    margin-bottom: 1px !important;
+}
+
+/* ========================================= */
+/* = Changes/additions to kforge forms.css = */
+/* ========================================= */
+
+input.openid {
+	background: transparent url(../images/icons/openid.png) 2px 2px no-repeat;
+	padding-left: 22px;
+}
+
+input.openid:focus {
+	background-position: 1px 1px;
+	padding-left: 21px;
+}
+
+/* ============== */
+/* = Pagination = */
+/* ============== */
+
+.pager {
+	width: 100%;
+	text-align: center;
+	margin: 0 0 1.2em 0;
+	clear: both;
+}
+
+.pager span, .pager a {
+	text-decoration: none;
+	margin: 0em;
+	border: none;
+	padding: 0.3em 0.1em;
+}
+
+.pager a:hover, .pager a:active {
+	color: #fff;
+	background-color: #c22;
+}
+
+.pager span.pager_dotdot {
+	color: #aaa;
+}
+
+.pager span.pager_curpage {
+	font-weight: bold;
+	border: 1px solid #ddd;
+}
+
+/* ======================= */
+/* = Various iconography = */
+/* ======================= */
+
+img.icon {
+	height: 25px;
+}
+
+a.icon {
+	display: block;
+	height: 0;
+	overflow: hidden;
+	padding-top: 20px;
+	width: 20px;
+}
+
+table.no-margin { margin: 0; }
+
+div.extras-new-field label {
+	display: inline;
+	line-height: 2.6em;
+}
+
+label.inline {
+	display:inline;
+	margin: 1em 0 0 1em;
+}
+
+dl.icons dt {
+	float: left;
+	clear: both;
+	margin: 0.4em 0 0 0;
+	height: 16px;
+	width: 16px;
+}
+
+dl.icons dt img {
+	vertical-align: middle;
+}
+
+dl.icons dd {
+	float: left;
+	margin: 0.4em 0 0 10px;
+}
+
+dl.icons dd.tiny {
+	font-size: 75%;
+	color: #888;
+	line-height: 1.2em;
+	margin: 0 0 0 26px;
+}
+
+/* ========================= */
+/* = Tag and Group listing = */
+/* ========================= */
+
+.item-list {
+  border-top: solid 1px #cbcbcb;
+  border-bottom: solid 1px #cbcbcb;
+  margin-top: 5px;
+}
+
+.item-list ul, ul.tags {
+  margin: 0 0 0.75em 0;
+  padding:0;
+  display: inline;
+  list-style: disc;
+  font-size: 0.9em;
+}
+
+.item-list ul li, ul.tags li {
+  background: url(/images/bullet_separator.png) no-repeat 0% 50%;
+  padding-left: 9px;
+  padding-right: 3px;
+  display: inline;
+}
+
+.tags a {
+	text-decoration: none;
+  color: #b00;
+}
+
+.tags a:hover {
+}
+
+/* tags small is for autocomplete list in package editor */
+.tags.small a {
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+/* =================== */
+/* = Package listing = */
+/* =================== */
+
+ul.packages {
+	padding-left: 0;
+        margin: 0 0 18px 0;
+}
+
+.packages .header {
+    font-weight: bold;
+}
+
+.packages .extract {
+	font-size: 0.9em;
+}
+
+.packages li {
+	list-style: none;
+	padding: 0.4em 0 0.4em 0.0em;
+	border-left: 0.5em solid #fff;
+	border-bottom: 1px solid #ececec;
+	overflow: hidden;
+	/*white-space: nowrap;*/
+}
+
+.packages li a {
+	text-decoration: none;
+}
+
+.packages li img {
+	margin-bottom: -2px;
+}
+
+.openness {
+	display: inline;
+	vertical-align: bottom;
+}
+
+.packages li.fullyopen {
+	border-left: 0.5em solid #AFC6E9;
+}
+
+.packages li .tags {
+	margin: 0 0 0 0.5em;
+	font-size: 80%;
+	opacity: 0.3;
+}
+
+.packages li:hover .tags {
+	opacity: 1;
+}
+
+.packages .name, 
+.packages .license {
+    color: #666;
+	font-weight: normal;
+	font-size: 0.9em;
+}
+
+/* ==================== */
+/* = Extra RHS styles = */
+/* ==================== */
+
+.sidebar dl {
+	margin: 0 1em 0.8em 1em;
+	padding: 0;
+}
+
+.sidebar hr {
+	width: 90%;
+	color: #EBDBA7;
+	background-color: #EBDBA7;
+	border: none;
+	height: 1px;
+}
+
+.sidebar .buttons {
+	margin-top: 0;
+}
+
+.sidebar .buttons a, .sidebar .buttons button {
+	margin-bottom: 0.3em;
+}
+
+.okdstripe {
+	/* Amusingly, this has to be a slightly different color to look the same
+	   as the stripe on a white background */
+	border-left: 0.5em solid #8FB0DE;
+	padding-left: 0.4em ! important;
+}
+
+/* ===================== */
+/* = Package read view = */
+/* ===================== */
+
+#primary .widget-container .formats ul {
+  background: transparent;
+}
+
+#primary .widget-container .formats ul li {
+  background: transparent;
+  display: inline;
+}
+
+.package-atom-feed {
+  float: right;
+  display: none;
+}
+
+#content .package h3, #content .package h4, 
+#content #comments h3, #content #comments h4 {
+  background-color: #444;
+  padding: 10px;
+  color: white;
+}
+
+.package h4 {
+	font-weight: bold;
+	margin: 1em 0 0.6em 0;
+}
+
+.package div.tags {
+  margin: 20px 0;
+}
+
+.package .resources {
+  margin-bottom: 2em;
+}
+
+.package .resources table {
+  width: 100%;
+}
+
+.package .head {
+	margin-bottom: 0;
+  line-height: 1.0;
+}
+
+.package .name, .group .name {
+	color: #888;
+	font-family: monospace;
+}
+
+.package div.url {
+  margin: 1em;
+}
+
+.package .url a {
+	text-decoration: none;
+}
+
+.package .notes, .group .description {
+	padding: 0.2em 0 0.2em 0;
+	margin: 0 3% 0.5 0 ! important;
+}
+
+.package .notes span.nonegiven {
+	opacity: 0.5;
+}
+.package .notes span.nonegiven:hover {
+	opacity: 1;
+}
+
+.package .details table {
+  border-collapse: collapse;
+  background: transparent;
+  border-color: grey;
+  border-spacing: 2px 2px;
+}
+
+.package .details table tr {
+  border: none;
+  border-bottom: solid 1px #888;
+}
+
+.package .details td {
+  background: transparent;
+  border: none;
+}
+
+.package .details td.package-label {
+  width: 150px;
+}
+
+.relationship_comment {
+  font-style: italic;
+}
