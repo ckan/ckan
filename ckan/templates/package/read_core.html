@@ -6,7 +6,7 @@
   <div class="package">
     <div class="package-atom-feed"><a href="?format=atom"><img style="height:16; width:16; margin-bottom:-0.3em" src="/images/icons/atom_feed.png" alt="Atom Feed" title="${g.site_title} - Package History - ${c.pkg.name}"/></a> <a href="/package/history/${c.pkg.name}?format=atom&amp;days=7">Subscribe &raquo;</a></div>
 
-    <!-- Title -->    
+    <!-- Title -->
     <h2 class="head">
       ${c.pkg.title}
     </h2>
@@ -72,7 +72,7 @@
     </py:def>
 
     <div class="details">
-    <h4>Details</h4>
+    <h4>About this package</h4>
     <table>
       <tbody>
         ${details_item('Author', c.pkg_author_link)}
@@ -101,12 +101,6 @@
         </tr>
       </tbody>
     </table>
-    </div>
-
-
-    <div class="rating">
-      <h4>Rating</h4>
-      ${package_rating(c.pkg)}
     </div>
 
     <ul>
