@@ -296,24 +296,29 @@ class TextRangeExtraField(RegExRangeValidatingField):
 class ResourcesField(ConfiguredField):
     '''A form field for multiple package resources.'''
 
-    def __init__(self, name, hidden_label=False):
+    def __init__(self, name, hidden_label=False, fields_required=None):
         super(ResourcesField, self).__init__(name)
         self._hidden_label = hidden_label
+        self.fields_required = fields_required or set(['url'])
+        assert isinstance(self.fields_required, set)
 
-    def url_validator(self, val, field=None):
+    def resource_validator(self, val, field=None):
         resources_data = val
         assert isinstance(resources_data, list)
-        url_regex = re.compile('\S') # Todo: Restrict this further?
-        errormsg = 'Package resources must have URLs.'
-        validator = formalchemy.validators.regex(url_regex, errormsg)
+        not_nothing_regex = re.compile('\S')
+        errormsg = 'Package resource(s) incomplete.'
+        not_nothing_validator = formalchemy.validators.regex(not_nothing_regex,
+                                                             errormsg)
         for resource_data in resources_data:
             assert isinstance(resource_data, dict)
-            resource_url = resource_data.get('url', '')
-            validator(resource_url, field)
-
+            for field in self.fields_required:
+                value = resource_data.get(field, '')
+                not_nothing_validator(value, field)
+            
     def get_configured(self):
-        field = self.ResourcesField(self.name).with_renderer(self.ResourcesRenderer).validate(self.url_validator)
+        field = self.ResourcesField(self.name).with_renderer(self.ResourcesRenderer).validate(self.resource_validator)
         field._hidden_label = self._hidden_label
+        field.fields_required = self.fields_required
         field.set(multiple=True)
         return field
 
@@ -333,6 +338,12 @@ class ResourcesField(ConfiguredField):
             # need this because it is a property
             return getattr(self.model, self.name)
 
+        def is_required(self, field_name=None):
+            if not field_name:
+                return False
+            else:
+                return field_name in self.fields_required
+
 
     class ResourcesRenderer(formalchemy.fields.FieldRenderer):
         def render(self, **kwargs):
@@ -341,6 +352,9 @@ class ResourcesField(ConfiguredField):
             c.resources = c.resources[:]
             c.resources.extend([None])
             c.id = self.name
+            c.columns = model.PackageResource.get_columns()
+            c.field = self.field
+            c.fieldset = self.field.parent
             return render('package/form_resources.html')            
 
         def stringify_value(self, v):
