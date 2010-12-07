@@ -6,13 +6,22 @@
   py:strip="">
 
   <xi:include href="facets.html" />
-  <py:def function="page_title">Search - Data Packages</py:def>
+  <py:def function="page_title">Search - ${config.get('ckan.site_title')}</py:def>
     
   <py:match path="primarysidebar">
     
-    <div class="register-link" py:if="h.am_authorized(c, actions.PACKAGE_CREATE)">
-        <a href="${h.url_for(controller='package', action='new', id=None)}">Register a package</a>
-    </div>
+    <li class="widget-container widget_text" py:if="h.am_authorized(c, actions.PACKAGE_CREATE)">
+        <h4>Add a package</h4>
+        <p>
+            Do you know of a dataset that should be added to ${config.get('ckan.site_title')}?
+            <br/>
+            
+            
+            
+            
+            <a href="${h.url_for(controller='package', action='new', id=None)}">Register it now</a>.
+        </p>
+    </li>
  
     ${facet_sidebar('groups', label=h.group_name_to_title)}
     ${facet_sidebar('tags')}
@@ -23,7 +32,7 @@
   </py:match>
 
   <div py:match="content">
-    <h2>Discover Data Packages</h2>
+    <h2>Search ${config.get('ckan.site_title')}</h2>
     
     <xi:include href="search_form.html" />
     ${field_list()}   
@@ -32,7 +41,7 @@
         <p i18n:msg="item_count"><strong>There was an error while searching.</strong> 
             Please try another search term.</p>
       </py:if>
-      <p i18n:msg="item_count"><strong>${c.page.item_count}</strong> packages found.</p>
+      <h4 i18n:msg="item_count"><strong>${c.page.item_count}</strong> packages found</h4>
       <py:if test="c.page.item_count == 0">
         <p i18n:msg="">Would you like to <a href="${h.url_for(action='new', id=None)}">create a new package?</a></p>
       </py:if>

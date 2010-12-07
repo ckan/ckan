@@ -686,9 +686,11 @@ ul.packages {
 	vertical-align: bottom;
 }
 
+/*
 .packages li.fullyopen {
 	border-left: 0.5em solid #AFC6E9;
 }
+*/
 
 .packages li .tags {
 	margin: 0 0 0 0.5em;
@@ -757,7 +759,7 @@ ul.packages {
   display: none;
 }
 
-#content .package h3, #content .package h4, 
+#content .package h3, #content h4, 
 #content #comments h3, #content #comments h4 {
   background-color: #444;
   padding: 10px;
