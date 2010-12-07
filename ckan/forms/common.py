@@ -306,7 +306,7 @@ class ResourcesField(ConfiguredField):
         resources_data = val
         assert isinstance(resources_data, list)
         not_nothing_regex = re.compile('\S')
-        errormsg = 'Package resource(s) incomplete.'
+        errormsg = _('Package resource(s) incomplete.')
         not_nothing_validator = formalchemy.validators.regex(not_nothing_regex,
                                                              errormsg)
         for resource_data in resources_data:
@@ -623,7 +623,7 @@ class GroupSelectField(ConfiguredField):
         self.allow_empty = allow_empty
         self.multiple = multiple
         if user_editable_groups == None:
-            raise Exception, "Group select field 'user_editable_groups' is not initialized."
+            raise Exception, _("Group select field 'user_editable_groups' is not initialized.")
         self.user_editable_groups = user_editable_groups
     
     def get_configured(self):
@@ -783,9 +783,7 @@ class GroupSelectField(ConfiguredField):
                     for (i, nested_value) in enumerate(new_group_ids):
                         if nested_value and isinstance(nested_value, list):
                             if len(nested_value) > 1:
-                                msg = "Can't derived new group selection from "
-                                msg += "serialized value structured like this:"
-                                msg += " %s" % nested_value
+                                msg = _("Can't derived new group selection from serialized value structured like this: %s") % nested_value
                                 raise Exception, msg
                             new_group_ids[i] = nested_value[0]
                 # Todo: Decide on the structure of a multiple-group selection.

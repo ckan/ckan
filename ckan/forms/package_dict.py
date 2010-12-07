@@ -90,7 +90,7 @@ def edit_package_dict(dict_, changed_items, id=''):
                     for res_dict in value:
                         res_dict_str = {}
                         if not isinstance(res_dict, dict):
-                            raise PackageDictFormatError('Resource should be a dictionary: %r' % res_dict)
+                            raise PackageDictFormatError(_('Resource should be a dictionary: %r') % res_dict)
                         for key, value in res_dict.items():
                             res_dict_str[str(key)] = value
                         resources.append(res_dict_str)
@@ -107,9 +107,9 @@ def edit_package_dict(dict_, changed_items, id=''):
             elif key == license_key:
                 dict_[license_id_key] = unicode(value)
             else:
-                raise PackageDictFormatError('Key unknown: %s' % key)
+                raise PackageDictFormatError(_('Key unknown: %s') % key)
         else:
-            raise PackageDictFormatError('Key blank')
+            raise PackageDictFormatError(_('Key blank'))
     return dict_
 
 def add_to_package_dict(dict_, changed_items, id=''):
