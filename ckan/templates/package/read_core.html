@@ -84,7 +84,7 @@
           </py:choose>
           </td>
         </tr>
-        <tr py:for="key, value in sorted(c.pkg.extras.items())">
+        <tr py:for="key, value in c.pkg_extras">
           <td class="package-label">${key}</td>
           <td class="package-details">${value}</td>
         </tr>
