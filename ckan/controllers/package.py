@@ -107,6 +107,10 @@ class PackageController(BaseController):
         cache_key = self._pkg_cache_key(c.pkg)        
         etag_cache(cache_key)
         
+        #set a cookie so we know whether to display the welcome message
+        c.hide_welcome_message = bool(request.cookies.get('hide_welcome_message', False))
+        response.set_cookie('hide_welcome_message', '1', max_age=3600) #(make cross-site?)
+
         # used by disqus plugin
         c.current_package_id = c.pkg.id
         
@@ -128,6 +132,29 @@ class PackageController(BaseController):
         #render the package
         PackageSaver().render_package(c.pkg)
         return render('package/read.html')
+
+    def comments(self, id):
+
+        #check if package exists
+        c.pkg = model.Package.get(id)
+        if c.pkg is None:
+            abort(404, gettext('Package not found'))
+
+        # used by disqus plugin
+        c.current_package_id = c.pkg.id
+
+        #is the user allowed to see this package?
+        auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, c.pkg)
+        if not auth_for_read:
+            abort(401, str(gettext('Unauthorized to read package %s') % id))
+
+        for item in self.extensions:
+            item.read(c.pkg)
+
+        #render the package
+        PackageSaver().render_package(c.pkg)
+        return render('package/comments.html')
+
 
     def history(self, id):
         if 'diff' in request.params or 'selected1' in request.params:

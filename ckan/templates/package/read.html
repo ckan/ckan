@@ -45,6 +45,13 @@
 
     </li>
       -->
+    <li class="widget-container widget_text" py:if="not c.hide_welcome_message">
+      <h3>First time at CKAN?</h3>        
+      <p>
+          CKAN is a data catalogue for the world’s data. ${h.subnav_link(c, _('Click here to find out more ...'), controller='home', action='about', id=None)}
+      </p>
+    </li>
+
     <li class="widget-container widget_text">
       <h2>Openness:
         <py:choose test="">
@@ -107,23 +114,6 @@
         <ul>
           <li py:for="group in c.pkg.groups">
           <a href="${h.url_for(controller='group', action='read', id=group.name)}">${group.name}</a>
-          </li>
-        </ul>
-      </div>
-    </li>
-
-    <li class="widget-container widget_text">
-      <div class="formats">
-        <h2>Alternative metadata formats</h2>
-        <ul class="clearfix">
-          <li>
-            <a href="${h.url_for(controller='rest', register='package', action='show', id=c.pkg.name)}">
-              <img src="${h.icon_url('page_white_json')}" title="JSON format" alt="JSON" /></a>
-          </li>
-          <li py:if="config.get('rdf_packages')">
-            <a href="${config.get('rdf_packages') + c.pkg.name[0] + '/' + c.pkg.name[1] + '/' + c.pkg.name}">
-              <img src="${h.icon_url('page_white_rdf')}" title="RDF format" alt="RDF" />
-            </a>
           </li>
         </ul>
       </div>
