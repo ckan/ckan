@@ -71,6 +71,9 @@ rdf_packages =
 # Package form to use
 package_form = standard
 
+# Hide certain extras fields from package read form:
+# package_hide_extras = for_search_index_only
+
 # API configuration
 #apikey_header_name = X-CKAN-API-Key
 

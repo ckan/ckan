@@ -3,6 +3,7 @@ from sqlalchemy import orm
 import ckan.lib.helpers as h
 from ckan.lib.base import *
 import ckan.rating
+from pylons import g
 
 # Todo: Factor out unused original_name argument.
 
@@ -36,6 +37,8 @@ class PackageSaver(object):
         to the caller.'''
         c.pkg = pkg
         notes_formatted = ckan.misc.MarkdownFormat().to_html(pkg.notes)
+        c.pkg_extras = sorted([(k, v) for k, v in pkg.extras.items() \
+                               if k not in g.package_hide_extras])
         c.pkg_notes_formatted = genshi.HTML(notes_formatted)
         c.current_rating, c.num_ratings = ckan.rating.get_rating(pkg)
         c.pkg_url_link = h.link_to(c.pkg.url, c.pkg.url, target='_blank') if c.pkg.url else "No web page given"
