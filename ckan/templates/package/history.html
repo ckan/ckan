@@ -4,11 +4,22 @@
   
   <py:def function="page_title">${c.pkg.title or c.pkg.name} - Data Packages - History</py:def>
 
+  <!-- Sidebar -->
+  <py:match path="primarysidebar">
+    <li class="widget-container widget_text">
+        <h4>Updates</h4>
+        <p>
+            <a href="?format=atom"><img style="height:16; width:16; margin-bottom:-0.3em" src="/images/icons/atom_feed.png" alt="Atom Feed" title="${g.site_title} - Package History - ${c.pkg.name}"/></a>
+            <a href="/package/history/${c.pkg.name}?format=atom&amp;days=7">Subscribe to an RSS feed of changes to this package</a>
+        </p>
+    </li>
+  </py:match>
+  
   <div py:match="content" class="package">
-    <p style="float: right"><a href="?format=atom"><img style="height:16; width:16; margin-bottom:-0.3em" src="/images/icons/atom_feed.png" alt="Atom Feed" title="${g.site_title} - Package History - ${c.pkg.name}"/></a> <a href="/package/history/${c.pkg.name}?format=atom&amp;days=7">Subscribe &raquo;</a></p>
+
+    <!-- Title -->
     <h2 class="head">
-      ${c.pkg.title}
-      <span class="name">(${c.pkg.name})</span>
+      ${c.pkg.title} - History
     </h2>
 
     <h4>Revisions</h4>
