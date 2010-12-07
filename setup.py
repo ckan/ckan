@@ -77,6 +77,9 @@ setup(
     changes = ckan.lib.cli:Changes
     notifications = ckan.lib.cli:Notifications
     harvester = ckan.lib.cli:Harvester
+    rights = ckan.lib.authztool:RightsCommand
+    roles = ckan.lib.authztool:RolesCommand
+    
 
     [paste.paster_create_template]
     ckanext=ckan.pastertemplates:CkanextTemplate

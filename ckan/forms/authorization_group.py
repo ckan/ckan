@@ -43,7 +43,7 @@ class UsersRenderer(formalchemy.fields.FieldRenderer):
 
 def build_authorization_group_form(is_admin=False, with_users=False):
     builder = FormBuilder(model.AuthorizationGroup)
-    builder.set_field_text('name', 'Unique Name (required)', literal("<br/><strong>Unique identifier</strong> for group.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'"))
+    builder.set_field_text('name', 'Name', literal("<br/><strong>Unique identifier</strong> for group.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'"))
     builder.set_field_option('name', 'validate', common.group_name_validator)
     displayed_fields = ['name']
     if with_users:

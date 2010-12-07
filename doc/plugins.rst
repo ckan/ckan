@@ -8,6 +8,8 @@ are subject to frequent and breaking changes and should only be used with that i
 now have very precise meanings and that the use of the generic word "plugin" to
 describe any way in which CKAN might be extended is deprecated.**
 
+.. contents ::
+
 Background
 ----------
 
@@ -571,52 +573,41 @@ Plugin API documentation
 The Queue Extension
 -------------------
 
-The queue extension code can all be found in the ``ckanext-queue`` package. To
-install it in editable more so that you can look at the sourc code run:
+** Note: the queue extension currently isn't working correctly. These docs
+may not work for you**
 
-::
-
-    pip install -e hg+http://bitbucket.org/okfn/ckanext-queue#egg=ckanext-queue
-
-You will then see the source code in ``/pyenv/src/ckanext-queue/ckanext/queue`` and ``README`` file in ``/pyenv/src/ckanext-queue/README.md``.
-
-Internally the queue extension uses the ``carrot`` library so that we could
-potentially use different queue backends at some point in the future. For the
-moment only the AMQP backend is supported.
-
-It provides two useful Python objects:
-
-``ckanext.queue.connection.get_publisher()``
-
-    This returns a ``Publisher`` instance which has a ``send()`` method for adding an item to the queue.
-    
-``ckanext.queue.worker.Worker``
-
-    This is a base class which you can inherit from. You can override its
-    ``consume()`` method to asyncronously pull items from the queue to do useful
-    things
+Certain tasks that CKAN performs lend themselves to the use of a queue system.
+Queue systems can be very simple. At their heart is the idea that you have two
+separate processes, a *publisher* and a *consumer*. The publisher publishes a
+message of some description to the queue and at another time, the consumer
+takes that message off the queue and processes it.
 
 By writing code that puts things on the queue and then writing workers to take
 things off, you can build lots of useful functionality. At the moment we are
 writing facilities to check for broken links and harvest documents from geodata
 servers. 
 
-.. note ::
+To use the queue in CKAN you need the ``ckanext-queue`` package. To install the
+latest version of ``ckanext-queue`` in editable more so that you can look at
+the source code run:
 
-   To use the queue extension you don't need to implenent any new plugin
-   interfaces, you just need to use the ``get_publisher().send()`` method and the
-   ``Worker`` class. Of course your own extension might use plugins to hook into
-   other parts of CKAN to get information to put or retireve from the queue.
+::
 
+    pip install -e hg+http://bitbucket.org/okfn/ckanext-queue#egg=ckanext-queue
 
-The worker implementation runs outside the CKAN server process, interacting
-directly with both the AMQP queue and the CKAN API (to get CKAN data). The
-``Worker`` class therefore subclasses both the ``carrot`` ``Consumer`` class
-and the ``ckanclient`` ``CkanClient`` class so that your workers can make calls
-to the running CKAN server via its API.
+You will then see the source code in ``/pyenv/src/ckanext-queue/ckanext/queue``
+and ``README`` file in ``/pyenv/src/ckanext-queue/README.md``.
 
-Installing
-~~~~~~~~~~
+Installing ``ckanext-queue`` will also install a ``worker`` command you will
+use in a minute to run workers against the queue.
+
+Internally the queue extension uses the ``carrot`` library so that we could
+potentially use different queue backends at some point in the future. For the
+moment only the AMQP backend is supported so let's install an AMQP server
+called RabbitMQ.
+
+Installing RabbitMQ
+~~~~~~~~~~~~~~~~~~~
 
 CentOS
 ``````
@@ -625,32 +616,46 @@ First you need to install Erlang. To do that first install its dependencies:
 
 ::
 
-    yum install ncurses unixODBC
+    yum install ncurses-devel flex.x86_64 m4.x86_64 openssl-devel.x86_64 unixODBC-devel.x86_64
 
-You can get an i386 version of erlang from here (it will still run on an x64 server):
 
-::
-
-    wget ftp://ftp.pbone.net/mirror/centos.karan.org/el5/extras/testing/i386/RPMS/erlang-R12B-3.3.el5.kb.i386.rpm
-
-Now you can install it:
+Install erlang like this:
 
 ::
 
-    rpm -Uhv erlang-R12B-3.3.el5.kb.i386.rpm
+
+    wget http://www.erlang.org/download/otp_src_R14B.tar.gz
+    tar zxfv otp_src_R14B.tar.gz
+    cd otp_src_R14B
+    LANG=C; export LANG
+    ./configure --prefix=/opt/erlang_R14B
+    make
+    make install
 
 Next download and install RabbitMQ:
 
 ::
 
-    http://www.rabbitmq.com/releases/rabbitmq-server/v2.1.1/rabbitmq-server-2.1.1-1.noarch.rpm
-    rpm -Uhv rabbitmq-server-2.1.1-1.noarch.rpm
+    wget http://www.rabbitmq.com/releases/rabbitmq-server/v2.2.0/rabbitmq-server-2.2.0-1.noarch.rpm
+    rpm -Uhv --no-deps rabbitmq-server-2.2.0-1.noarch.rpm
+
+Finally edit the ``/etc/init.d/rabbitmq-server`` script so that it uses the correct path for your erlang install. Change this line
+
+::
+
+    PATH=/sbin:/usr/sbin:/bin:/usr/bin
+    
+to:
+
+::
+
+    PATH=/sbin:/usr/sbin:/bin:/usr/bin:/opt/erlang_R14B/bin:/opt/erlang_R14B/lib
 
 You can start it like this:
 
 ::
 
-    rabbitmq-server
+    /etc/init.d/rabbitmq-server start
 
 Ubuntu
 ``````
@@ -661,63 +666,184 @@ Just run:
 
     sudo apt-get install rabbitmq-server
 
-CKAN Queue
-``````````
+Working Directly with Carrot
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+As you learned earlier, CKAN uses carrot with the ``pyamqplib`` backend. Carrot is well documented at this URL:
 
-To use the queue in CKAN you need the ``ckanext-queue`` package. Get the latest version like this:
+http://ask.github.com/carrot/introduction.html
 
-::
+Before you learn how to use the tools that ``ckanext-queue`` uses to work with
+the queue, it is instructive to see a simple example that uses carrot directly.
 
-    hg clone http://bitbucket.org/okfn/ckanext-queue
-    cd ckanext-queue
-    python setup.py develop
-
-This will install a ``worker`` command you will use in a minute to run workers
-against the queue.
-
-Configuring CKAN
-~~~~~~~~~~~~~~~~
-
-Once you have installed RabbitMQ and have it running you need to enable the
-CKAN queue by adding this to your CKAN config file (eg. ``~/var/srvc/ckan.net/pyenv``).
+Save this as ``publisher.py``:
 
 ::
 
-    ckan.plugins = queue
+    from carrot.connection import BrokerConnection
+    conn = BrokerConnection(
+        hostname="localhost",
+        port=5672,
+        userid="guest", 
+        password="guest",
+        virtual_host="/",
+    )
+    
+    from carrot.messaging import Publisher
+    publisher = Publisher(
+        connection=conn,
+        exchange='local', 
+        routing_key='*',
+    )
+    publisher.send({"import_feed": "http://cnn.com/rss/edition.rss"})
+    publisher.close()
 
-You don't need to specify configuration options to connect to RabbitMQ because the defaults are fine.
-ou 
-
-At this point if you edit a package it will be using the queue.
-
-Let's write a worker to listen to the queue and log messages when this happens.
-
-Writing a Worker
-~~~~~~~~~~~~~~~~
-
-This example comes from ``ckanext.queue.echo:EchoWorker``. It looks like this:
+Now save this as ``consumer.py``:
 
 ::
 
-    from worker import Worker
-    from pprint import pprint
+    from carrot.connection import BrokerConnection
+    conn = BrokerConnection(
+        hostname="localhost",
+        port=5672,
+        userid="guest",
+        password="guest",
+        virtual_host="/",
+    )
     
-    class EchoWorker(Worker):
+    from carrot.messaging import Consumer
+    consumer = Consumer(
+        connection=conn,
+        queue='local.workerchain',
+        exchange='local',
+        routing_key='*',
+    )
+    def import_feed_callback(message_data, message):
+        feed_url = message_data["import_feed"]
+        print("Got message for: %s" % feed_url)
+        # something importing this feed url
+        # import_feed(feed_url)
+        message.ack()
+    consumer.register_callback(import_feed_callback)
+    # Go into the consumer loop.
+    consumer.wait() 
+
+You'll notice that both examples set up a connection to the same AMQP server
+with the same settings, in this case running on localhost. These also happen to
+be the settings that (at the time of writing) ``ckanext-queue`` uses by default
+if you don't specify other configuration settings.
+
+Make sure you have ``ckanext-queue`` installed (so that carrot and its
+dependencies are installed too) then start the consumer:
+
+::
+
+    python consumer.py
+
+In a different console run the publisher:
+
+::
+
+    python publisher.py
+
+The publisher will quickly exit but if you now switch back to the consumer
+you'll see the message was sent to the queue and the consumer recieved it
+printing this message:
+
+::
+
+    Got message for: http://cnn.com/rss/edition.rss    
+
+
+Working with CKANext Queue
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Rather than working with carrot publishers and consumers directly,
+``ckanext-queue`` provides two useful Python objects to help you:
+
+``ckanext.queue.connection.get_publisher(config)``
+
+    This returns a ``Publisher`` instance which has a ``send()`` method for adding an item to the queue.
+
+    The ``config`` object is the same as ``pylons.config``. If you are writing
+    a standalone script, you can obtain a config object from a config file with
+    code similar to this, adjusting the ``relative_to`` option as necessary:
+
+    ::
+
+        from paste.deploy import appconfig
+        config = appconfig('config:development.ini', relative_to='pyenv/src/ckan')
+
+``ckanext.queue.worker.Worker``
+
+    This is a base class which you can inherit from. You can override its
+    ``consume()`` method to asyncronously pull items from the queue to do useful
+    things
+
+
+.. note ::
+
+   To use the queue extension you don't need to implenent any new plugin
+   interfaces, you just need to use the ``get_publisher(config).send()`` method and the
+   ``Worker`` class. Of course your own extension might use plugins to hook into
+   other parts of CKAN to get information to put or retireve from the queue.
+
+The worker implementation runs outside the CKAN server process, interacting
+directly with both the AMQP queue and the CKAN API (to get CKAN data). The
+``Worker`` class therefore subclasses both the ``carrot`` ``Consumer`` class
+and the ``ckanclient`` ``CkanClient`` class so that your workers can make calls
+to the running CKAN server via its API.
+
+Writing a Publisher
+```````````````````
+
+Here's a simple publisher. Save it as ``publish_on_queue.py``:
+
+::
+
+    from ckanext.queue import connection
+    from paste.deploy import appconfig
     
-        def consume(self, routing_key, operation, payload):
-            print "Route %s, op %s" % (routing_key, operation)
-            pprint(payload)
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
     
+    config = appconfig('config:ckan.ini', relative_to='.')
+    publisher = connection.get_publisher(config)
+    publisher.send({"import_feed": "http://cnn.com/rss/edition.rss"})
+    publisher.close()
+    print "Sent!"
 
-The ``EchoWorker`` has an entry point registered in ``ckanext-queue``'s ``setup.py`` so that the ``worker``
-script in ``pyenv/bin/worker`` can find it::
+Note that this requires a ``ckan.ini`` file relative to the current working
+directory to run. Here's what a sample file will look like:
 
-    [ckan.workers]
-    echo = ckanext.queue.echo:EchoWorker
+::
 
-Configuring a worker
-~~~~~~~~~~~~~~~~~~~~
+    [app:main]
+    use = egg:ckan
+    ckan.site_id = local
+    queue.port = 5672 
+    queue.user_id = guest
+    queue.password = guest
+    queue.hostnane = localhost
+    queue.virtual_host = /
+
+The idea here is that publishers you write will be able to use the same
+settings as CKAN itself would. In the next section you'll see how these same
+options and more to a standard CKAN install config file to enable CKAN to use
+the RabbitMQ queue.
+
+With the ``consumer.py`` script still running, execute the new script:
+
+::
+
+    python publish_on_queue.py
+
+You'll see that once again the consumer picks up the message.
+
+Writing a worker
+````````````````
+
+Now let's replace the consumer with a worker.
 
 Each worker should have its own config file. There is an example you can use
 named ``worker.cfg`` in the ``ckanext-queue`` source code. If you don't specify
@@ -730,7 +856,10 @@ a config file, the defaults will be used.
    point the worker directly to your CKAN config instead. It will just ignore the
    CKAN options.
 
-In particular it is worth setting ``queue.name`` which will be used internally by RabbitMQ:
+In particular it is worth setting ``queue.name`` which will be used internally
+by RabbitMQ.
+
+Here's a suitable configuration for a worker:
 
 ::
 
@@ -753,15 +882,37 @@ You can run it like this:
 
 ::
 
-    worker echo -c worker.cfg
+    worker echo -d -c worker.cfg
 
-
-
-When you save a package you now see what is passed to the queue:
+The echo example comes from ``ckanext.queue.echo:EchoWorker``. It looks like this:
 
 ::
 
-    XXX This doesn't work for me yet.
+    from worker import Worker
+    from pprint import pprint
+    
+    class EchoWorker(Worker):
+    
+        def consume(self, routing_key, operation, payload):
+            print "Route %s, op %s" % (routing_key, operation)
+            pprint(payload)
+    
+The ``EchoWorker`` has an entry point registered in ``ckanext-queue``'s ``setup.py`` so that the ``worker``
+script in ``pyenv/bin/worker`` can find it::
+
+    [ckan.workers]
+    echo = ckanext.queue.echo:EchoWorker
+
+When you run the ``worker`` command with the ``echo`` worker it looks up this
+entry point to run the correct code.
+
+With the worker still running, try to run the publisher again:
+
+::
+
+    python publish_on_queue.py
+
+Once again the message will be output on the command line, this time via the worker.
 
 Internally the ``worker`` script you just used uses the
 ``ckanext.queue.worker.WorkerChain`` class to run all workers you specify on
@@ -774,7 +925,29 @@ the command line. You can get a list of all available workers by executing
     WARNING:root:No config file specified, using worker.cfg
     ERROR:ckanext.queue.worker:No workers. Aborting.
 
-To get logging working you need to add this to your worker config (or CKAN config if you are using the same file for both):
+Configuring CKAN to use the queue
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Once you have installed RabbitMQ and have it running you need to enable the
+CKAN queue functionality within CKAN by adding this to your CKAN config file
+
+::
+
+    ckan.plugins = queue
+
+You don't need to specify configuration options to connect to RabbitMQ because
+the defaults are fine.
+
+At this point if you edit a package it should be using the queue. If you have
+the echo worker running you'll see the message added to the queue.
+
+Logging
+```````
+
+When using the queue with CKAN it is also useful to have logging set up.
+
+To get logging working you need to modify your CKAN config file to also include
+the ``queue`` logger. Here's an example:
 
 ::
 
@@ -796,7 +969,8 @@ To get logging working you need to add this to your worker config (or CKAN confi
     handlers = console
     qualname = ckanext
 
-You may also need to set this in your CKAN configuration:
+You will also need to set this in your CKAN configuration and ensure any
+workers and producers also set their ``ckan.site_id`` to the same value.
 
 ::
 
