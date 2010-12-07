@@ -4,7 +4,7 @@
   py:strip="">
 
   <py:def function="page_title">${c.pkg.title or c.pkg.name} - Data Packages</py:def>
-
+      
   <py:match path="primarysidebar">
           <!--
     <li class="widget-container widget_text">
@@ -53,6 +53,30 @@
     </li>
 
     <li class="widget-container widget_text">
+        <h4>Tags</h4>
+        ${tag_list(c.pkg.tags)}
+        <p class="widget_action">
+            ${h.subnav_link(c, 'Add a new Tag', controller='package', action='edit', id=c.pkg.name)}
+        </p>
+    </li>
+
+    <li class="widget-container widget_text">
+        <h4>Groups</h4>
+        <py:if test="c.pkg.groups">        
+            <ul>
+              <li py:for="group in c.pkg.groups">
+                  <a href="${h.url_for(controller='group', action='read', id=group.name)}">${group.name}</a>
+              </li>
+            </ul>
+        </py:if>
+        <py:if test="not c.pkg.groups">
+             Groups are collecitons of packages maintained by users of CKAN. This package has not been added to any groups yet.
+        </py:if>
+        <p class="widget_action">
+            ${h.subnav_link(c, 'Add to a Group', controller='package', action='edit', id=c.pkg.name)}        
+        </p>
+    </li>
+    <li class="widget-container widget_text">
       <h2>Openness:
         <py:choose test="">
         <span py:when="c.pkg.isopen() and c.pkg.resources" class="okd">
@@ -100,31 +124,6 @@
           Data service</a>.</p>
       </div>
       </py:choose>
-    </li>
-
-    <li class="widget-container widget_text">
-        <h4>Tags</h4>
-        ${tag_list(c.pkg.tags)}
-        <p class="widget_action">
-            ${h.subnav_link(c, 'Add a new Tag', controller='package', action='edit', id=c.pkg.name)}
-        </p>
-    </li>
-
-    <li class="widget-container widget_text">
-        <h4>Groups</h4>
-        <py:if test="c.pkg.groups">        
-            <ul>
-              <li py:for="group in c.pkg.groups">
-                  <a href="${h.url_for(controller='group', action='read', id=group.name)}">${group.name}</a>
-              </li>
-            </ul>
-        </py:if>
-        <py:if test="not c.pkg.groups">
-             Groups are collecitons of packages maintained by users of CKAN. This package has not been added to any groups yet.
-        </py:if>
-        <p class="widget_action">
-            ${h.subnav_link(c, 'Add to a Group', controller='package', action='edit', id=c.pkg.name)}        
-        </p>
     </li>
   </py:match>
 
