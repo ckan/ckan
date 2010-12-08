@@ -31,7 +31,10 @@ class PackageController(BaseController):
         if c.q is None or len(c.q.strip()) == 0:
             q = '*:*'
         c.query_error = False
-        page = int(request.params.get('page', 1))
+        try:
+            page = int(request.params.get('page', 1))
+        except ValueError, e:
+            abort(400, ('"page" parameter must be an integer'))
         limit = 20
         query = query_for(model.Package)
 
