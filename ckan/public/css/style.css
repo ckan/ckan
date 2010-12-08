@@ -60,7 +60,7 @@ h1, h2, h3, h4, h5, h6 {
 /* = Search boxes = */
 /* ================ */
 
-input.search {
+form.package-search input.search {
   width: 99%;
   padding: 5px;
   font-size: 1.1em;

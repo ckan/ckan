@@ -6,7 +6,7 @@
   >
 
 <form id="package-search" class="package-search" action="${h.url_for(controller='package', action='search', id=None)}" method="GET">
-  <input type="search" class="search" name="q" value="${c.q}" />
+  <input type="search" class="search" name="q" value="${c.q}" autocomplete="off" results="5" placeholder="Search..." />
   <span py:if="c.fields">
   <py:for each="(k, v) in c.fields"> 
     <input type="hidden" name="${k}" value="${v}" />  
