@@ -14,7 +14,7 @@
                        '<a class="remove"   title="Remove this row" href="#remove">Remove row</a>' +
                      '</div></td>';
   
-  var addRowHtml = '<p class="flexitable"><button class="addRow">Add row to table</button></p>';
+  var addRowHtml = '<p class="flexitable"><button class="addRow">' + MSG_ADD_ROW + '</button></p>';
 
   function getRowNumber(tr) {
     var rowNumber = $(tr).find('input').attr('name').match(fieldNameRegex)[2];

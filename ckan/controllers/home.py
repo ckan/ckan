@@ -2,6 +2,7 @@ import random
 import sys
 
 from pylons import cache, config
+from genshi.template import NewTextTemplate
 
 from ckan.lib.cache import proxy_cache, get_cache_expires
 from ckan.lib.base import *
@@ -49,6 +50,11 @@ class HomeController(BaseController):
 
     def about(self):
         return render('home/about.html', cache_expire=cache_expires)
+        
+    def language(self):
+        response.content_type = 'application/json'
+        return render('home/language.js', cache_expire=cache_expires,
+                      method='text', loader_class=NewTextTemplate)
 
     def stats(self):
         def stats_html():
