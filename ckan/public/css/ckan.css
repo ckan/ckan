@@ -18,9 +18,14 @@ a:link {
   text-decoration: none;
 }
 a:visited {
-  color: #c22;
+  color: #b22;
   text-decoration: none;
 }
+#main a:visited {
+  color: #95332c;
+  text-decoration: none;
+}
+
 a:active {
   color: #f22;
   text-decoration: none;
@@ -662,6 +667,7 @@ ul.packages {
 
 .packages .extract {
 	font-size: 0.9em;
+	padding-top:10px;
 }
 
 .packages li {
@@ -681,24 +687,40 @@ ul.packages {
 	margin-bottom: -2px;
 }
 
-ul.package_formats {
-    padding:0; margin:0;
+.search_meta {
     float:right;
 }
+
+ul.package_formats {
+    float:right;    
+    padding:0 0 3px 0; margin:0;
+}
+
 ul.package_formats li {
     display:inline;
     margin:0;
     padding:0 5px 0 5px;
     border:none;
     font-weight:normal;
-    font-size:0.9em;
+    font-size:0.8em;
     color:#808080;
     background:#ececec;
 }
 
 .openness {
-	display: inline;
-	vertical-align: bottom;
+    clear:right;
+    float:right;
+    font-size:0.8em;
+}
+
+.openness img {
+    vertical-align:top;
+}
+
+.openness li {
+    margin:0;
+    padding:0;
+    border:none;    
 }
 
 /*
