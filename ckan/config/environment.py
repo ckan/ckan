@@ -34,7 +34,7 @@ def load_environment(global_conf, app_conf):
     config.init_app(global_conf, app_conf, package='ckan', paths=paths)
     
     # This is set up before globals are initialized
-    site_url = config.get('ckan.site_url', 'http://www.ckan.net')
+    site_url = config.get('ckan.site_url', '')
     ckan_host = config['ckan.host'] = urlparse(site_url).netloc
     if config.get('ckan.site_id') is None:
         if ':' in ckan_host:

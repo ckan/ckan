@@ -323,7 +323,7 @@ ul.packages {
   display: none;
 }
 
-#content .package h3, #content .package h4, 
+#content .package h4, 
 #content #comments h3, #content #comments h4 {
   background-color: #444;
   padding: 10px;

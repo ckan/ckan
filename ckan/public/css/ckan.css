@@ -410,3 +410,17 @@ form #log_message {
   padding: 6px 12px;
 }
 
+/* ===========================
+ * Misc
+ */
+
+p.atom-feed-link {
+  float: right;
+  display: inline;
+  font-size: 14px;
+}
+
+p.atom-feed-link a {
+  background: url('../images/icons/atom_feed.png') no-repeat;
+  padding-left: 20px;
+}

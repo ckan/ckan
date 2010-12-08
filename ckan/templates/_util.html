@@ -98,7 +98,7 @@
 
   <!--! Package openness icons -->
   <img py:def="package_license_icon(package)"
-    src="/images/icons/door_${'open' if package.isopen() else 'grey'}.png"
+    src="${g.site_url}/images/icons/door_${'open' if package.isopen() else 'grey'}.png"
     title="License: ${package.license.title if hasattr(package.license, 'title') else '?'}"
     alt="${'OPEN' if package.isopen() else 'CLOSED'}" />
 

@@ -5,13 +5,12 @@
   <py:def function="page_title">Revision History</py:def>
 
   <div py:match="content">
-    <p style="float: right">
-    <img style="height:16; width:16; margin-bottom:-0.3em"
-      src="/images/icons/atom_feed.png"
-      alt="Atom Feed" title="${g.site_title} - Revision History" />
-      <a href="?format=atom&amp;days=5">Subscribe &raquo;</a>
-    </p>
-    <h2>Revision History</h2>
+    <h2>
+      Revision History
+      <p class="atom-feed-link revision-history-link">
+        <a href="?format=atom&amp;days=5" title="${g.site_title} - Revision History">Subscribe &raquo;</a>
+      </p>
+    </h2>
     <p>This page lists all changes to package database, with most recent
     changes first. </p>
       
