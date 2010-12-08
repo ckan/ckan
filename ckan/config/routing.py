@@ -29,6 +29,7 @@ def make_map():
     map.connect('home', '/', controller='home', action='index')
     map.connect('guide', config.get('guide_url', 'http://wiki.okfn.org/ckan/doc/'), _static=True)
     map.connect('license', '/license', controller='home', action='license')
+    map.connect('/language.js', controller='home', action='language')
     map.connect('about', '/about', controller='home', action='about')
     map.connect('stats', '/stats', controller='home', action='stats')
     # TODO get admin controller working again #829
