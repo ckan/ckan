@@ -448,7 +448,13 @@ class TagField(ConfiguredField):
                 tagnames = [ tag.name for tag in tags ]
             else:
                 tagnames = []
-            return literal(' '.join([literal('<a href="/tag/read/%s">%s</a>' % (str(tag), str(tag))) for tag in tagnames]))
+            # TODO: really should not have hard coded links in here
+            # Can we use url() or could this even move in template?
+            # Do we even use this function (it is only called from
+            # render_readonly and not sure we use that ...)?
+            site_url = config.get('ckan.site_url', '')
+            return literal(' '.join([literal('<a href="%s/tag/read/%s">%s</a>' % (
+                site_url, str(tag), str(tag))) for tag in tagnames]))
 
         def render_readonly(self, **kwargs):
             tags_as_string = self._tag_links()
