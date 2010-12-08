@@ -1,17 +1,18 @@
-# Hungarian translations for ckan.
-# Copyright (C) 2010 ckan.org
+# Russian translations for ckan.
+# Copyright (C) 2010 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-# Stefan Marsiske <stefan.marsiske@gmail.com>, 2010.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: ckan 1.0a\n"
-"Report-Msgid-Bugs-To: stefan.marsiske@gmail.com\n"
-"POT-Creation-Date: 2010-04-18 17:14+0100\n"
+"Project-Id-Version: ckan 1.1a\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2010-10-31 00:27+0100\n"
 "PO-Revision-Date: 2010-12-08 13:19+0100\n"
-"Last-Translator: stf <stefan.marsiske@gmail.com>\n"
-"Language-Team: hungary <LL@li.org>\n"
-"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"Last-Translator: Friedrich Lindenberg <friedrich@pudo.org>\n"
+"Language-Team: lt <manovalstybe@googlegroups.com>\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"(n%100<10 || n%100>=20) ? 1 : 2\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -20,195 +21,182 @@ msgstr ""
 #: ckan/controllers/authorization_group.py:34 ckan/controllers/group.py:36
 #, python-format
 msgid "Not authorized to read %s"
-msgstr "%s olvasása nem engedélyezett"
+msgstr "Neturite teisių skaityti %s"
 
 #: ckan/controllers/authorization_group.py:52 ckan/controllers/group.py:60
-#, fuzzy
-#| msgid "Must be logged in to create a new group."
 msgid "Unauthorized to create a group"
-msgstr "Új csoport létrehozásához be kell jelentkezni."
+msgstr "Neturite teisių sukurti grupę"
 
 #: ckan/controllers/authorization_group.py:100 ckan/controllers/group.py:114
 #, python-format
 msgid "User %r not authorized to edit %r"
-msgstr "%r nevü felhasználó nem jogosult %r szerkesztésére"
+msgstr "Vartotojui %r neleidžiama redaguoti %r"
 
 #: ckan/controllers/authorization_group.py:144 ckan/controllers/group.py:161
 #: ckan/controllers/group.py:260
 msgid "Group not found"
-msgstr "Ismeretlen csoport"
+msgstr "Tokios grupės nėra"
 
 #: ckan/controllers/authorization_group.py:150 ckan/controllers/group.py:167
-#, fuzzy
-#| msgid "Not authorized to edit authization for group"
 msgid "Not authorized to edit authorization for group"
-msgstr "A csoport jogosúltságainak szerkesztése nem engedélyezett"
+msgstr "Neleidžiama keisti grupės nuostatų"
 
 #: ckan/controllers/authorization_group.py:170 ckan/controllers/group.py:185
 #: ckan/controllers/package.py:380
 msgid "Please select either a user or an authorization group, not both."
-msgstr ""
+msgstr "Pažymėkite arba vartotoją arba grupę, bet ne abu."
 
 #: ckan/controllers/authorization_group.py:182 ckan/controllers/group.py:199
 #: ckan/controllers/package.py:393
 #, python-format
 msgid "Added role '%s' for user '%s'"
-msgstr "A '%s' szerep hozzáadva a '%s' felhasználóhoz"
+msgstr "Vaidmuo „%s“ suteiktas vartotojui „%s“"
 
 #: ckan/controllers/authorization_group.py:196 ckan/controllers/group.py:215
 #: ckan/controllers/package.py:409
-#, fuzzy, python-format
-#| msgid "Added role '%s' for user '%s'"
+#, python-format
 msgid "Added role '%s' for authorization group '%s'"
-msgstr "A '%s' szerep hozzáadva a '%s' felhasználóhoz"
+msgstr "Vaidmuo „%s“ suteiktas grupei „%s“"
 
 #: ckan/controllers/authorization_group.py:203 ckan/controllers/group.py:222
 #: ckan/controllers/package.py:416
 msgid "Error: No role found with that id"
-msgstr "Hiba: Nincs ilyen azonosítójú szerep"
+msgstr "Klaida: nėra vaidmens su šiuo identifikatoriumi"
 
 #: ckan/controllers/authorization_group.py:207 ckan/controllers/group.py:228
 #: ckan/controllers/package.py:421
 #, python-format
 msgid "Deleted role '%s' for user '%s'"
-msgstr "A '%s' szerep eltávolítva a '%s' felhasználótól."
+msgstr "Ištrintas „%s“ vaidmuo vartotojui „%s“"
 
 #: ckan/controllers/authorization_group.py:210 ckan/controllers/group.py:231
 #: ckan/controllers/package.py:424
-#, fuzzy, python-format
-#| msgid "Deleted role '%s' for user '%s'"
+#, python-format
 msgid "Deleted role '%s' for authorization group '%s'"
-msgstr "A '%s' szerep eltávolítva a '%s' felhasználótól."
+msgstr "Ištrintas vaidmuo „%s“ grupei „%s“"
 
 #: ckan/controllers/group.py:253 ckan/controllers/package.py:138
 msgid "Select two revisions before doing the comparison."
-msgstr "Válasszon ki két verziót az összehasonlításhoz."
+msgstr "Prieš lygindami pažymėkite dvi versijas."
 
 #: ckan/controllers/group.py:266
 #, fuzzy
-#| msgid "CKAN Package Revision History"
 msgid "CKAN Group Revision History"
-msgstr "CKAN Csomag változási napló"
+msgstr "CKAN rinkinių pakeitimų istorija"
 
 #: ckan/controllers/group.py:268 ckan/controllers/package.py:153
 msgid "Recent changes to CKAN Package: "
-msgstr ""
+msgstr "Naujausi CKAN rinkinio pakeitimai:"
 
 #: ckan/controllers/group.py:287 ckan/controllers/package.py:172
-#, fuzzy
 msgid "Log message: "
-msgstr "Napló Üzenet:"
+msgstr "Žurnalo įrašas:"
 
 #: ckan/controllers/importer.py:42
 msgid "Need to login before importing."
-msgstr "Importálás elött be kell jelentkezni."
+msgstr "Prieš įkeliant duomenis būtina prisijungti."
 
 #: ckan/controllers/importer.py:47
 msgid "Need to specify a filename."
-msgstr "Meg kell adni az állomány nevét."
+msgstr "Nurodykite failo pavadinimą."
 
 #: ckan/controllers/importer.py:50
 msgid "Did not receive file successfully."
-msgstr "Az állomány nem érkezett meg sikeresen."
+msgstr "Nepavyko gauti failą."
 
 #: ckan/controllers/importer.py:56
 #, python-format
 msgid "File '%s' not found."
-msgstr "A '%s' állomány nem található."
+msgstr "Failas „%s“ nerastas."
 
 #: ckan/controllers/importer.py:61 ckan/controllers/importer.py:90
 #, python-format
 msgid "Error importing file '%s' as Excel or CSV format: %s"
-msgstr "Hiba a '%s' fájl Excel vagy CSV importálásánal: %s"
+msgstr "Klaida įkeliant failą „%s“ kaip „Excel“ ar CSV lentelę: %s"
 
 #: ckan/controllers/importer.py:101
 msgid "Errors remain - see preview."
-msgstr "Fennmaradó hibák - lásd előzetes."
+msgstr "Liko klaidų – žr. peržiūrą."
 
 #: ckan/controllers/importer.py:115
 msgid "Problem with user account."
-msgstr "A felhasználó adataival probléma van."
+msgstr "Vartotojo paskyros problema."
 
 #: ckan/controllers/importer.py:122
 #, python-format
 msgid "Imported %i package."
 msgid_plural "Imported %i packages."
-msgstr[0] "%i csomag importálva."
-msgstr[1] "%i csomag importálva."
+msgstr[0] "Įkeltas %i rinkinys."
+msgstr[1] "Įkelti %i rinkiniai."
+msgstr[2] "Įkelta %i rinkinių."
 
 #: ckan/controllers/importer.py:154
 msgid "Could not access import file any more."
-msgstr "Az import-állományhoz megszűnt a hozzáférés."
+msgstr "Nepavyko pakartotinai pasiekti įkėlimo failą."
 
 #: ckan/controllers/importer.py:166
 msgid "User is not logged in"
-msgstr "A felhasználó nincs bejelentkezve"
+msgstr "Vartotojas neprisijungęs"
 
 #: ckan/controllers/importer.py:170
 msgid "Error with user account. Log out and log in again."
-msgstr "Hiba a felhasználóval. Jelentkezzen ki és újra be."
+msgstr "Vartotojo paskyros klaida. Atsijunkite ir prisijunkite iš naujo."
 
 #: ckan/controllers/importer.py:173
 #, python-format
 msgid "Package %s already exists in database. Import will edit the fields."
-msgstr ""
-"A '%s' csomag már létezik az adatbázisban. Az importálás mődosítani fogja"
-" a mezőket."
+msgstr "Rinkinys %s jau yra duomenų bazėje. Įkėlimo komanda leis redaguoti laukus."
 
 #: ckan/controllers/importer.py:176
 #, python-format
 msgid "User %r unauthorized to edit existing package %s"
-msgstr "A '%r' felhasználónak nincs jogosúltsága a '%s' csomag szerkesztéséhez"
+msgstr "Vartotojui %r neleidžiama redaguoti rinkinį %s"
 
 #: ckan/controllers/package.py:103 ckan/controllers/package.py:145
 #: ckan/controllers/package.py:356
 msgid "Package not found"
-msgstr "A csomag nem található"
+msgstr "Rinkinys nerastas"
 
 #: ckan/controllers/package.py:120
 #, python-format
 msgid "Unauthorized to read package %s"
-msgstr "A %s csomag olvasás nem engedélyezett."
+msgstr "Neleidžiama skaityti rinkinį %s"
 
 #: ckan/controllers/package.py:151
 msgid "CKAN Package Revision History"
-msgstr "CKAN Csomag változási napló"
+msgstr "CKAN rinkinių pakeitimų istorija"
 
 #: ckan/controllers/package.py:196
-#, fuzzy, python-format
-#| msgid "Unauthorized to read package %s"
 msgid "Unauthorized to create a package"
-msgstr "A %s csomag olvasás nem engedélyezett."
+msgstr "Neleidžiama sukurti rinkinį"
 
 #: ckan/controllers/package.py:267
 #, python-format
 msgid "User %r not authorized to edit %s"
-msgstr "A(z) '%r' felhasználó nem jogosult az %s módosítására"
+msgstr "Vartotojui %r neleidžiama redaguoti %s"
 
 #: ckan/controllers/package.py:362
 #, python-format
 msgid "User %r not authorized to edit %s authorizations"
-msgstr "A(z) %r felhasználó nem jogosult az %s jog módosítására"
+msgstr "Vartotojui %r neleidžiama redaguoti %s teises"
 
 #: ckan/controllers/package.py:441
 msgid "404 Package Not Found"
-msgstr "404 a csomag nem található"
+msgstr "404 rinkinys nerastas"
 
 #: ckan/controllers/package.py:448
 msgid "Rating value invalid"
-msgstr "Érvénytelen értékelés"
+msgstr "Netinkamas vertinimas"
 
 #: ckan/controllers/rest.py:132
-#, fuzzy, python-format
-#| msgid "Cannot update entity of this type: %s"
+#, python-format
 msgid "Cannot list entity of this type: %s"
-msgstr "Ilyen típusú egyed létrehozása sikertelen: %s"
+msgstr "Negalima pateikti šio tipo elementų sąrašo: %s"
 
 #: ckan/controllers/rest.py:229
-#, fuzzy, python-format
-#| msgid "Cannot update entity of this type: %s"
+#, python-format
 msgid "Cannot read entity of this type: %s"
-msgstr "Ilyen típusú egyed létrehozása sikertelen: %s"
+msgstr "Nepavyko perskaityti elementų tipo: %s"
 
 #: ckan/controllers/rest.py:238 ckan/controllers/rest.py:345
 #: ckan/controllers/rest.py:381 ckan/controllers/rest.py:443
@@ -216,211 +204,205 @@ msgstr "Ilyen típusú egyed létrehozása sikertelen: %s"
 #: ckan/controllers/apiv1/package.py:51 ckan/controllers/apiv1/package.py:111
 #: ckan/controllers/apiv1/package.py:162 ckan/controllers/apiv2/package.py:44
 msgid "Access denied"
-msgstr "Hozzáférés megtagadva"
+msgstr "Neleidžiamas prisijungimas"
 
 #: ckan/controllers/rest.py:244 ckan/controllers/rest.py:387
 #: ckan/controllers/apiv1/package.py:100 ckan/controllers/apiv1/package.py:148
 #, python-format
 msgid "JSON Error: %s"
-msgstr "JSON Hiba: %s"
+msgstr "JSON klaida: %s"
 
 #: ckan/controllers/rest.py:254 ckan/controllers/rest.py:397
 #: ckan/controllers/apiv1/package.py:104 ckan/controllers/apiv1/package.py:151
 #, python-format
 msgid "Package format incorrect: %s"
-msgstr ""
+msgstr "Netaisyklingas rinkinio formatas: %s"
 
 #: ckan/controllers/rest.py:274
 #, python-format
 msgid "REST API: Create package relationship: %s %s %s"
-msgstr "REST API: Csomagok közötti kapcsolat létrehozásá: %s %s %s"
+msgstr "REST API: Sukurti rinkinio sąsają: %s %s %s"
 
 #: ckan/controllers/rest.py:296
 #, python-format
 msgid "Cannot create new entity of this type: %s %s"
-msgstr "Ilyen típusú egyed létrehozása sikertelen: %s %s"
+msgstr "Negalima sukurti naujo šių tipų elemento: %s %s"
 
 #: ckan/controllers/rest.py:307 ckan/controllers/apiv1/package.py:74
 #, python-format
 msgid "REST API: Create object %s"
-msgstr "REST API: Objektum létrehozva: %s"
+msgstr "REST API: Sukurti objektą %s"
 
 #: ckan/controllers/rest.py:373
 #, python-format
 msgid "Cannot update entity of this type: %s"
-msgstr "Ilyen típusú egyed létrehozása sikertelen: %s"
+msgstr "Negalima atnaujinti šio tipo elementą: %s"
 
 #: ckan/controllers/rest.py:413 ckan/controllers/apiv1/package.py:131
 #, python-format
 msgid "REST API: Update object %s"
-msgstr "REST API: Objektum módosítva: %s"
+msgstr "REST API: Atnaujintas objektas %s"
 
 #: ckan/controllers/rest.py:477
 #, python-format
 msgid "Cannot delete entity of this type: %s %s"
-msgstr "Ilyen típusú egyed törlése sikertelen: %s %s"
+msgstr "Negalima ištrinti šio tipo elementą: %s %s"
 
 #: ckan/controllers/rest.py:488
 #, python-format
 msgid "REST API: Delete %s"
-msgstr "REST API: Törlés: %s"
+msgstr "REST API: Ištrinti %s"
 
 #: ckan/controllers/rest.py:515
-#, fuzzy, python-format
-#| msgid "Purge of revision failed: %s"
+#, python-format
 msgid "There is no revision with id: %s"
-msgstr "A változás törlése sikertelen: %s"
+msgstr "Nėra versijos su identifikatoriumi: %s"
 
 #: ckan/controllers/rest.py:526
 msgid "Missing search term ('since_id=UUID' or 'since_time=TIMESTAMP')"
-msgstr ""
+msgstr "Trūksta paieškos nuostatos ('since_id=UUID' arba 'since_time=TIMESTAMP')"
 
 #: ckan/controllers/rest.py:533
 msgid "Blank qjson parameter"
-msgstr "Üres qjson paraméter"
+msgstr "Tuščia „qjson“ nuostata"
 
 #: ckan/controllers/rest.py:542
 #, python-format
 msgid "Search params: %s"
-msgstr "Keresési feltételek: %s"
+msgstr "Paieškos nuostatos: %s"
 
 #: ckan/controllers/rest.py:580
 #, python-format
 msgid "Bad search option: %s"
-msgstr ""
+msgstr "Netinkama paieškos nuostata: %s"
 
 #: ckan/controllers/rest.py:583
 #, python-format
 msgid "Unknown register: %s"
-msgstr ""
+msgstr "Nežinomas registras: %s"
 
 #: ckan/controllers/rest.py:624
-#, fuzzy
-#| msgid "You must supply a package name (parameter \"package\")."
 msgid "You must supply a package id or name (parameter \"package\")."
-msgstr "Meg kell adni csomagnevet (\"package\" paraméter)."
+msgstr ""
+"Privalu nurodyti rinkinio identifikatorių arba pavadinimą (nuostata "
+"„rinkinys“)."
 
 #: ckan/controllers/rest.py:626
 msgid "You must supply a rating (parameter \"rating\")."
-msgstr "Meg kell adni értékelést (\"rating\" paraméter)."
+msgstr "Privalu nurodyti reitingą (nuostata „reitingas“)."
 
 #: ckan/controllers/rest.py:631
 msgid "Rating must be an integer value."
-msgstr "Az értékelés egész számnak kell lennie."
+msgstr "Reitingas turi būti sveikasis skaičius."
 
 #: ckan/controllers/rest.py:635
 #, python-format
 msgid "Rating must be between %i and %i."
-msgstr "Az értékelésnek %i és %i közé kell esnie."
+msgstr "Reitingas turi būti tartp %i ir %i."
 
 #: ckan/controllers/rest.py:637
 #, python-format
 msgid "Package with name %r does not exist."
-msgstr "A(z) %r nevü csomag nem létezik."
+msgstr "Rinkinio su pavadinimu %r nėra."
 
 #: ckan/controllers/rest.py:661
 msgid "You must supply a user_ref."
-msgstr ""
+msgstr "Privalu nurodyti „user_ref“."
 
 #: ckan/controllers/rest.py:663
 msgid "You must supply a source_id."
-msgstr ""
+msgstr "Privalu nurodyti „source_id“."
 
 #: ckan/controllers/rest.py:667
-#, fuzzy, python-format
-#| msgid "Package with name %r does not exist."
+#, python-format
 msgid "Harvest source %s does not exist."
-msgstr "A(z) %r nevü csomag nem létezik."
+msgstr "Šaltinio %s nėra."
 
 #: ckan/controllers/rest.py:724
 #, python-format
 msgid "REST API: Update package relationship: %s %s %s"
-msgstr "REST API: csomagok közötti kapcsolat módosítása: %s %s %s"
+msgstr "REST API: Atnaujinti rinkinio sąsajas: %s %s %s"
 
 #: ckan/controllers/revision.py:19
-#, fuzzy
 msgid "CKAN Repository Revision History"
-msgstr "Adatbázis napló"
+msgstr "CKAN saugyklos versijų istorija"
 
 #: ckan/controllers/revision.py:21
 msgid "Recent changes to the CKAN repository."
-msgstr "Legutóbbi változások a CKAN gyűjteményben."
+msgstr "Naujausi CKAN saugyklos pakeitimai."
 
 #: ckan/controllers/revision.py:75
 #, python-format
 msgid "Packages affected: %s.\n"
-msgstr "Érintett csomagok: %s.\n"
+msgstr "Pakitę rinkiniai: %s. \n"
 
 #: ckan/controllers/revision.py:146
 msgid "No revision id specified"
-msgstr "Hiányzó változás azonosító"
+msgstr "Nenurodytas versijos identifikatorius"
 
 #: ckan/controllers/revision.py:149
 msgid "You are not authorized to perform this action"
-msgstr "Ez a művelet nem engedélyezett"
+msgstr "Jums neleidžiama atlikti šį veiksmą"
 
 #: ckan/controllers/revision.py:158
 #, python-format
 msgid "Purge of revision failed: %s"
-msgstr "A változás törlése sikertelen: %s"
+msgstr "Nepavyko versijos valymas: %s"
 
 #: ckan/controllers/tag.py:38 ckan/forms/common.py:875
 msgid "Other"
-msgstr "Egyéb"
+msgstr "Kita"
 
 #: ckan/controllers/user.py:86
 msgid "Changed user details"
-msgstr "A felhasználói adatok megváltoztatva."
+msgstr "Pakeistas vartotojo aprašas"
 
 #: ckan/controllers/apiv1/package.py:39 ckan/controllers/apiv2/package.py:41
-#, fuzzy
-#| msgid "Group not found"
 msgid "Not found"
-msgstr "Ismeretlen csoport"
+msgstr "Nerasta"
 
 #: ckan/controllers/apiv1/package.py:115 ckan/controllers/apiv1/package.py:158
-#, fuzzy
-#| msgid "Package not found"
 msgid "Package was not found."
-msgstr "A csomag nem található"
+msgstr "Rinkinys nerastas."
 
 #: ckan/controllers/apiv1/package.py:141
 msgid "Integrity Error"
-msgstr ""
+msgstr "Vientisumo klaida"
 
 #: ckan/controllers/apiv1/package.py:166
-#, fuzzy, python-format
-#| msgid "registered packages"
+#, python-format
 msgid "REST API: Delete Package: %s"
-msgstr "regisztrált csomagok"
+msgstr "REST API: Ištrinti rinkinį: %s"
 
 #: ckan/forms/common.py:22
 #, python-format
 msgid "Name must be at least %s characters long"
-msgstr "A névnek legalább %s jelből kell állnia"
+msgstr "Pavadinimas turi būti ne mažiau kaip %s ženklų ilgio"
 
 #: ckan/forms/common.py:24
 msgid ""
 "Name must be purely lowercase alphanumeric (ascii) characters and these "
 "symbols: -_"
-msgstr "A névnek kizárólag ékezet nélküli kisbetükből és '-', '_' állhat"
+msgstr ""
+"Pavadinimas turi būti tik mažosiomis raidėmis (ascii) ir gali turėti "
+"naudoti šiuos simbolius: -_"
 
 #: ckan/forms/common.py:37
 msgid "Package name already exists in database"
-msgstr "Ilyen nevü csomag már létezik az adatbázisban"
+msgstr "Toks rinkinio pavadinimas duomenų bazėje jau yra"
 
 #: ckan/forms/common.py:45
 msgid "Group name already exists in database"
-msgstr "Ilyen nevü csoport már létezik az adatbázisban"
+msgstr "Toks grupės pavadinimas duomenų bazėje jau yra"
 
 #: ckan/forms/common.py:49
 msgid "Harvest source URL is invalid (must start with \"http://\")."
-msgstr ""
+msgstr "Netinamas URL šaltinis (turi prasidėti \"http://\")."
 
 #: ckan/forms/common.py:134
 #, python-format
 msgid "Value does not match required format: %s"
-msgstr "Az érték nem megfelelő formátumú: %s"
+msgstr "Vertė neatitinka reikalaujamo formato: %s"
 
 #: ckan/forms/common.py:309
 msgid "Package resource(s) incomplete."
@@ -429,27 +411,27 @@ msgstr ""
 #: ckan/forms/common.py:479
 #, python-format
 msgid "Tag \"%s\" length is less than minimum %s"
-msgstr "A \"%s\" cimkének legalább %s hosszúnak kell lennie"
+msgstr "Žymos „%s“ ilgis yra mažesnis nei minimumas %s"
 
 #: ckan/forms/common.py:481
 #, python-format
 msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
-msgstr "A '%s' cimke csak betűket és számokat '-' és '_' jeleket tartalmazhat."
+msgstr "Žyma „%s“ gali būti tik iš raidžių ir simbolių: -_"
 
 #: ckan/forms/common.py:483
 #, python-format
 msgid "Tag \"%s\" must not be uppercase"
-msgstr "A \"%s\" cimke nem lehet nagybetűs"
+msgstr "Žyma „%s“ negali turėti didžiųjų raidžių"
 
 #: ckan/forms/common.py:500
 #, python-format
 msgid "Duplicate key \"%s\""
-msgstr "Már létező kulcs \"%s\""
+msgstr "Pasikartojantis raktas „%s“"
 
 #: ckan/forms/common.py:503
-#, fuzzy, python-format
+#, python-format
 msgid "Extra key-value pair: key is not set for value \"%s\"."
-msgstr "Többlet kulcs-érték pár: a kulcs nincs beállítva \"%s\"."
+msgstr "Pasikartojanti rakto-vertės pora: raktas nepaskirtas vertei „%s“."
 
 #: ckan/forms/common.py:626
 msgid "Group select field 'user_editable_groups' is not initialized."
@@ -457,17 +439,15 @@ msgstr ""
 
 #: ckan/forms/common.py:731 ckan/forms/common.py:826
 msgid "(None)"
-msgstr ""
+msgstr "(Nėra)"
 
 #: ckan/forms/common.py:741
-#, fuzzy
-#| msgid "Create a new group"
 msgid "Cannot add any groups."
-msgstr "Új csoport létrehozása"
+msgstr "Negalima pridėti grupių."
 
 #: ckan/forms/common.py:756 ckan/templates/home/stats.html:89
 msgid "Group"
-msgstr "Csoport"
+msgstr "Grupė"
 
 #: ckan/forms/common.py:786
 #, python-format
@@ -478,31 +458,30 @@ msgstr ""
 
 #: ckan/forms/common.py:859
 msgid "other - please specify"
-msgstr "egyéb - kérjük határozza meg"
+msgstr "kita – prašome nurodyti"
 
 #: ckan/forms/group.py:52 ckan/forms/package.py:38 ckan/forms/package.py:104
 msgid "Name"
-msgstr "Név"
+msgstr "Pavadinimas"
 
 #: ckan/forms/group.py:63 ckan/forms/package_gov.py:117
 #: ckan/templates/package/read_core.html:64
 msgid "Details"
-msgstr "Részletek"
+msgstr "Smulkiau"
 
 #: ckan/forms/group.py:64 ckan/forms/package.py:96 ckan/forms/package.py:106
 msgid "Extras"
-msgstr "Kiegészitők"
+msgstr "Priedai"
 
 #: ckan/forms/group.py:88 ckan/templates/home/stats.html:73
 #: ckan/templates/home/stats.html:81
 msgid "Package"
-msgstr "Csomag"
+msgstr "Rinkinys"
 
 #: ckan/forms/group.py:89
 #, fuzzy
-#| msgid "Related packages"
 msgid "Add packages"
-msgstr "Kapcsolódó csomagok"
+msgstr "Susiję rinkiniai"
 
 #: ckan/forms/package.py:34
 msgid "The title of the data set."
@@ -520,8 +499,8 @@ msgid ""
 "<strong>Unique identifier</strong> for package.<br/>2+ chars, lowercase, "
 "using only 'a-z0-9' and '-_'"
 msgstr ""
-"A csomag <strong>egyedi azonosítója</strong><br/>2+ jel, csak 'a-z0-9' és"
-" '-_'"
+"<strong>Unikalus rinkinio identifikatorius</strong>.<br/>2+ ženklai, "
+"mažosiomis raidėmis, naudojant tik „a-z, 0-9“ ir „-_“"
 
 #: ckan/forms/package.py:43
 msgid "A number representing the version (if applicable) e.g. 1.2.0"
@@ -545,7 +524,7 @@ msgstr ""
 #: ckan/templates/home/license.html:6 ckan/templates/home/license.html:9
 #: ckan/templates/package/read_core.html:71
 msgid "License"
-msgstr "Licenc"
+msgstr "Licencija"
 
 #: ckan/forms/package.py:60
 msgid "The licence under which the dataset is released."
@@ -555,11 +534,11 @@ msgstr ""
 #: ckan/templates/layout_base.html:109 ckan/templates/tag/index.html:6
 #: ckan/templates/tag/index.html:9
 msgid "Tags"
-msgstr "Cimkék"
+msgstr "Žymos"
 
 #: ckan/forms/package.py:65
 msgid "(space separated list)"
-msgstr "(szóközzel elválasztott lista)"
+msgstr "(tarpeliais atskirtas sąrašas)"
 
 #: ckan/forms/package.py:69
 msgid "The files containing the data or address of the APIs for accessing it."
@@ -589,7 +568,7 @@ msgstr ""
 
 #: ckan/forms/package.py:75 ckan/forms/package.py:105
 msgid "Notes"
-msgstr "Jegyzetek"
+msgstr "Pastabos"
 
 #: ckan/forms/package.py:76
 msgid "The main description of the dataset"
@@ -609,36 +588,37 @@ msgid ""
 "href=\"http://daringfireball.net/projects/markdown/syntax\">Markdown "
 "formatting</a> here."
 msgstr ""
-"<a href=\"http://daringfireball.net/projects/markdown/syntax\">Markdown "
-"formázás</a> támogatva."
+"Galite naudoti <a "
+"href=\"http://daringfireball.net/projects/markdown/syntax\">„Markdown“ "
+"formatavimą</a>."
 
 #: ckan/forms/package.py:89 ckan/forms/package_gov.py:115
 msgid "Basic information"
-msgstr "Alap információk"
+msgstr "Pagrindinė informacija"
 
 #: ckan/forms/package.py:91 ckan/forms/package.py:105
 #: ckan/forms/package_gov.py:122 ckan/templates/package/read_core.html:34
 #: ckan/templates/package/read_core.html:42
 msgid "Resources"
-msgstr "Erőforrások"
+msgstr "Ištekliai"
 
 #: ckan/forms/package.py:92 ckan/templates/layout_base.html:110
 #: ckan/templates/group/index.html:9 ckan/templates/revision/read.html:40
 msgid "Groups"
-msgstr "Csoportok"
+msgstr "Grupės"
 
 #: ckan/forms/package.py:93 ckan/forms/package.py:99
 msgid "Detail"
-msgstr "Részletek"
+msgstr "Smulkiau"
 
 #: ckan/forms/package.py:104 ckan/templates/_util.html:75
 #: ckan/templates/_util.html:88
 msgid "Title"
-msgstr "Cím"
+msgstr "Antraštė"
 
 #: ckan/forms/package.py:104
 msgid "Version"
-msgstr "Verzió"
+msgstr "Versija"
 
 #: ckan/forms/package.py:104 ckan/templates/package/read_core.html:37
 msgid "URL"
@@ -648,23 +628,23 @@ msgstr "URL"
 #: ckan/templates/home/index.html:82 ckan/templates/package/history.html:28
 #: ckan/templates/revision/list.html:22 ckan/templates/user/read.html:37
 msgid "Author"
-msgstr "Szerző"
+msgstr "Autorius"
 
 #: ckan/forms/package.py:105
 msgid "Author email"
-msgstr "Szerző emailcíme"
+msgstr "Autoriaus el. pašto adresas"
 
 #: ckan/forms/package.py:105
 msgid "Maintainer"
-msgstr "Karbantartó"
+msgstr "Prižiūrėtojas"
 
 #: ckan/forms/package.py:106
 msgid "Maintainer email"
-msgstr "Karbantartó emailcíme"
+msgstr "Prižiūrėtojo el. pašto adresas"
 
 #: ckan/forms/package.py:106
 msgid "State"
-msgstr "Állapot"
+msgstr "Būsena"
 
 #: ckan/forms/package_dict.py:95
 #, python-format
@@ -687,159 +667,158 @@ msgstr ""
 
 #: ckan/forms/package_gov.py:104 ckan/forms/package_gov.py:136
 msgid "National Statistic"
-msgstr "Nemzeti statisztika"
+msgstr "Nacionalinė statistika"
 
 #: ckan/forms/package_gov.py:123 ckan/forms/package_gov.py:129
 msgid "More details"
-msgstr "További részletek"
+msgstr "Papildoma informacija"
 
 #: ckan/forms/package_gov.py:133
 msgid "External reference"
-msgstr "Külső hivatkozások"
+msgstr "Išorinės nuorodos"
 
 #: ckan/forms/package_gov.py:133
 msgid "Date released"
-msgstr "A publikálás dátuma"
+msgstr "Išleidimo data"
 
 #: ckan/forms/package_gov.py:133
 msgid "Date updated"
-msgstr "A frissítés dátuma"
+msgstr "Atnaujinimo data"
 
 #: ckan/forms/package_gov.py:134
 msgid "Update frequency"
-msgstr "Frissítés gyakorisága"
+msgstr "Atnaujinimo dažnis"
 
 #: ckan/forms/package_gov.py:134
 msgid "Geographic granularity"
-msgstr "Földrajzi pontosság"
+msgstr "Geografinis pasiskirstymas"
 
 #: ckan/forms/package_gov.py:135
 msgid "Geographic coverage"
-msgstr "Földrajzi lefedettség"
+msgstr "Geografinė aprėptis"
 
 #: ckan/forms/package_gov.py:135
 msgid "Temporal granularity"
-msgstr "Időbeli pontosság"
+msgstr "Pasiskirstymas laike"
 
 #: ckan/forms/package_gov.py:136
 msgid "Temporal coverage"
-msgstr "Időbeli lefedettség"
+msgstr "Laiko aprėptis"
 
 #: ckan/forms/package_gov.py:136
 msgid "Categories"
-msgstr "Kategóriák"
+msgstr "Kategorijos"
 
 #: ckan/forms/package_gov.py:137
 msgid "Precision"
-msgstr "Pontosság"
+msgstr "Tikslumas"
 
 #: ckan/forms/package_gov.py:137
 msgid "Taxonomy URL"
-msgstr "Taxonómia URL"
+msgstr "Taksonomijos URL"
 
 #: ckan/forms/package_gov.py:137
 msgid "Department"
-msgstr "Osztály"
+msgstr "Skyrius"
 
 #: ckan/forms/package_gov.py:137
 msgid "Agency"
-msgstr "Ügynökség"
+msgstr "Agentūra"
 
 #: ckan/lib/base.py:117
-#, fuzzy, python-format
-#| msgid "Can't find entity data in request params %s: %s"
+#, python-format
 msgid "Can't find entity data in request POST data %s: %s"
-msgstr "Az egyedre vonatkozó adatok hiányoznak a kérésből %s: %s"
+msgstr "Komanda POST %s nerado elemento duomenų: %s"
 
 #: ckan/lib/base.py:123
 msgid "Request params must be in form of a json encoded dictionary."
-msgstr "A kérés paramétereit json kódolású \"dictionary\"-ben kell megadni"
+msgstr "Užklausos nuostatos turi būti „json“ koduoto žodyno formos."
 
 #: ckan/lib/package_saver.py:138
 msgid "No links are allowed in the log_message."
-msgstr "Hivatkozások nem engedélyezettek a log_message-ben."
+msgstr "Žurnalo įrašuone nuorodos negalimos."
 
 #: ckan/model/harvesting.py:120
-#, fuzzy, python-format
-#| msgid "registered packages"
+#, python-format
 msgid "Harvester: Created package %s"
-msgstr "regisztrált csomagok"
+msgstr "Surinkėjas: sukurtas rinkinys %s"
 
 #: ckan/model/package_relationship.py:48
 #, python-format
 msgid "depends on %s"
-msgstr "%s-től függ"
+msgstr "priklauso nuo %s"
 
 #: ckan/model/package_relationship.py:48
 #, python-format
 msgid "is a dependency of %s"
-msgstr "%s függősége"
+msgstr "priklauso nuo %s"
 
 #: ckan/model/package_relationship.py:49
 #, python-format
 msgid "derives from %s"
-msgstr "%s leszármazottja"
+msgstr "yra %s atmaina"
 
 #: ckan/model/package_relationship.py:49
 #, python-format
 msgid "has derivation %s"
-msgstr "%s származik belőle"
+msgstr "turi atmainą %s"
 
 #: ckan/model/package_relationship.py:50
 #, python-format
 msgid "links to %s"
-msgstr ""
+msgstr "siejasi su %s"
 
 #: ckan/model/package_relationship.py:50
-#, fuzzy, python-format
-#| msgid "is a child of %s"
+#, python-format
 msgid "is linked from %s"
-msgstr "%s gyermeke"
+msgstr "susietas su %s"
 
 #: ckan/model/package_relationship.py:51
 #, python-format
 msgid "is a child of %s"
-msgstr "%s gyermeke"
+msgstr "yra po %s"
 
 #: ckan/model/package_relationship.py:51
 #, python-format
 msgid "is a parent of %s"
-msgstr "%s szülője"
+msgstr "yra virš %s"
 
 #: ckan/model/package_relationship.py:55
 #, python-format
 msgid "has sibling %s"
-msgstr "%s testvére"
+msgstr "yra greta %s"
 
 #: ckan/templates/_util.html:75 ckan/templates/home/stats.html:89
 msgid "Number of packages"
-msgstr "Csomagok száma"
+msgstr "Rinkinių kiekis"
 
 #: ckan/templates/_util.html:75 ckan/templates/package/read_core.html:37
 msgid "Description"
-msgstr "Leírás"
+msgstr "Aprašymas"
 
 #: ckan/templates/_util.html:88
 #, fuzzy
 #| msgid "Number of edits"
 msgid "Number of members"
-msgstr "Módosítások száma"
+msgstr "Redakcijų skaičius"
 
 #: ckan/templates/_util.html:108
+#, fuzzy
+#| msgid "Downloadable resources"
 msgid "View package resources"
-msgstr ""
+msgstr "Parsiunčiami ištekliai"
 
 #: ckan/templates/_util.html:108
 #, fuzzy
 #| msgid "Download"
 msgid "DOWNLOAD"
-msgstr "letölthető"
+msgstr "Parsisiųsti"
 
 #: ckan/templates/_util.html:111
 #, fuzzy
-#| msgid "downloadable"
+#| msgid "Downloadable resources"
 msgid "No downloadable resources."
-msgstr "letölthető"
+msgstr "Parsiunčiami ištekliai"
 
 #: ckan/templates/_util.html:129
 msgid "no ratings yet"
@@ -854,7 +833,7 @@ msgstr ""
 #: ckan/templates/error_document_template.html:5
 #, python-format
 msgid "Error %(code)s"
-msgstr "Hiba %(code)s"
+msgstr "Klaida %(code)s"
 
 #: ckan/templates/error_document_template.html:7
 #, python-format
@@ -863,118 +842,105 @@ msgstr "%(message)s"
 
 #: ckan/templates/layout_base.html:73
 msgid "Logged in as"
-msgstr "Bejelentkezve mint"
+msgstr "Prisijungėte kaip"
 
 #: ckan/templates/layout_base.html:74
-#, fuzzy
-#| msgid "Username:"
 msgid "username"
-msgstr "Felhasználónév:"
+msgstr "Vartotojo vardas"
 
 #: ckan/templates/layout_base.html:75
 msgid "My account"
-msgstr "Profilom"
+msgstr "Mano paskyra"
 
 #: ckan/templates/layout_base.html:76 ckan/templates/user/logout.html:8
 msgid "Logout"
-msgstr "Kilépés"
+msgstr "Atsijungti"
 
 #: ckan/templates/layout_base.html:79
 msgid "Login with"
-msgstr "Belépés"
+msgstr "Prisijungti su"
 
 #: ckan/templates/layout_base.html:79
 msgid "OpenID"
-msgstr "OpenID"
+msgstr "„OpenID“"
 
 #: ckan/templates/layout_base.html:92
 #, fuzzy
-#| msgid "Skip to page content"
 msgid "Skip to content"
-msgstr "Előreugrás az oldal tartalmára"
+msgstr "Į puslapio turinį"
 
 #: ckan/templates/layout_base.html:96 ckan/templates/home/index.html:6
 msgid "Home"
-msgstr "Főoldal"
+msgstr "Pradžia"
 
 #: ckan/templates/layout_base.html:98 ckan/templates/layout_base.html:177
 #: ckan/templates/home/about.html:6 ckan/templates/home/index.html:45
 #: ckan/templates/user/read.html:23
 msgid "About"
-msgstr "Rólunk"
+msgstr "Informacija"
 
 #: ckan/templates/layout_base.html:99 ckan/templates/home/index.html:48
 #: ckan/templates/home/stats.html:6 ckan/templates/home/stats.html:14
 msgid "Statistics"
-msgstr "Statisztikák"
+msgstr "Statistika"
 
 #: ckan/templates/layout_base.html:102
-#, fuzzy
-#| msgid "Edit package:"
 msgid "Data Packages"
-msgstr "Csomag módosítása:"
+msgstr "Duomenų rinkiniai"
 
 #: ckan/templates/layout_base.html:105
-#, fuzzy
-#| msgid "registry"
 msgid "Register"
-msgstr "regiszter"
+msgstr ""
 
 #: ckan/templates/layout_base.html:113 ckan/templates/group/layout.html:18
 msgid "Create a new group"
-msgstr "Új csoport létrehozása"
+msgstr "Sukurti naują grupę"
 
 #: ckan/templates/layout_base.html:117
 #: ckan/templates/authorization_group/index.html:6
 #: ckan/templates/authorization_group/index.html:9
 #: ckan/templates/authorization_group/layout.html:23
-#, fuzzy
-#| msgid "Authorization for group:"
 msgid "Authorization Groups"
-msgstr "A csoport jogosultságai:"
+msgstr "Autorizavimo grupės"
 
 #: ckan/templates/layout_base.html:120
 #: ckan/templates/authorization_group/layout.html:32
-#, fuzzy
-#| msgid "Create a new group"
 msgid "Create a new authorization group"
-msgstr "Új csoport létrehozása"
+msgstr "Sukurti naują vartotojų grupę"
 
 #: ckan/templates/layout_base.html:124 ckan/templates/revision/list.html:5
 #: ckan/templates/revision/list.html:14
-#, fuzzy
-#| msgid "Repository history"
 msgid "Revision History"
-msgstr "Adatbázis napló"
+msgstr "Versijų istorija"
 
 #: ckan/templates/layout_base.html:146
 msgid "Master content template placeholder … please replace me."
-msgstr ""
+msgstr "Pagrindinio turinio šablono vieta... prašome jį įkelti."
 
 #: ckan/templates/layout_base.html:181
 msgid "Project Home Page"
-msgstr "Projekt főoldal"
+msgstr "Projekto pradžios puslapis"
 
 #: ckan/templates/layout_base.html:184
 msgid "Contact Us"
-msgstr "Kapcsolat"
+msgstr "Kontaktai"
 
 #: ckan/templates/layout_base.html:187
 msgid "Privacy Policy"
-msgstr "Adatvédelmi szabályzat"
+msgstr "Privatumo taisyklės"
 
 #: ckan/templates/layout_base.html:198
 #, fuzzy
-#| msgid "[edit]"
 msgid "Credits"
-msgstr "[szerkeszt]"
+msgstr "[redaguoti]"
 
 #: ckan/templates/layout_base.html:201
+#, fuzzy
 msgid ""
 "[1:]\n"
 "                An\n"
 "                [2:Open Knowledge Foundation] Project"
-msgstr ""
+msgstr "[1:] CKAN yra [2:„Open Knowledge“ fondo] projektas"
 
 #: ckan/templates/layout_base.html:207
 msgid "Open Knowledge Foundation"
@@ -982,7 +948,7 @@ msgstr ""
 
 #: ckan/templates/layout_base.html:211 ckan/templates/layout_base.html:216
 msgid "This Content and Data is Open"
-msgstr "Ez a tartalom és az adatok szabadok"
+msgstr "Turinys ir duomenys yra atviri"
 
 #: ckan/templates/layout_base.html:233
 msgid "CKAN"
@@ -994,30 +960,25 @@ msgstr ""
 
 #: ckan/templates/layout_base.html:236
 #, fuzzy, python-format
-#| msgid "Version"
 msgid "v%(version)s"
-msgstr "Verzió"
+msgstr "Versija"
 
 #: ckan/templates/authorization_group/authz.html:5
-#, fuzzy
-#| msgid "Not authorized to edit authization for group"
 msgid "- Authorization - AuthorizationGroups"
-msgstr "A csoport jogosúltságainak szerkesztése nem engedélyezett"
+msgstr "- Autorizavimas - Autorizavimo Grupės"
 
 #: ckan/templates/authorization_group/authz.html:8
-#, fuzzy
-#| msgid "Authorization for group:"
 msgid "Authorization for authorization group:"
-msgstr "A csoport jogosultságai:"
+msgstr "Autorizavimas autorizavimo grupėms:"
 
 #: ckan/templates/authorization_group/authz.html:15
 #: ckan/templates/group/authz.html:15 ckan/templates/package/authz.html:15
 msgid "Update Existing Roles"
-msgstr "Szerepek Frissítése"
+msgstr "Atnaujinti esamus vaidmenis"
 
 #: ckan/templates/authorization_group/authz.html:20
 msgid "Create New User or Authorization Group Roles"
-msgstr ""
+msgstr "Sukurti naują vartotoją arba naują grupės vaidmenį"
 
 #: ckan/templates/authorization_group/authz.html:25
 #: ckan/templates/authorization_group/edit_form.html:24
@@ -1025,49 +986,43 @@ msgstr ""
 #: ckan/templates/package/authz.html:25
 #: ckan/templates/package/edit_form.html:29 ckan/templates/user/edit.html:33
 msgid "Save"
-msgstr "Mentés"
+msgstr "Išsaugoti"
 
 #: ckan/templates/authorization_group/edit.html:5
-#, fuzzy
-#| msgid "Authorization for group:"
 msgid "- Edit - AuthorizationGroups"
-msgstr "A csoport jogosultságai:"
+msgstr "- Redaguoti – Autorizavimo Grupės"
 
 #: ckan/templates/authorization_group/edit.html:17
-#, fuzzy
-#| msgid "Authorization for group:"
 msgid "Edit Authorization Group:"
-msgstr "A csoport jogosultságai:"
+msgstr "Redaguoti autorizavimo grupę:"
 
 #: ckan/templates/authorization_group/edit_form.html:10
 msgid "Users"
-msgstr ""
+msgstr "Vartotojai"
 
 #: ckan/templates/authorization_group/edit_form.html:17
-#, fuzzy
-#| msgid "There are no packages currently in this group."
 msgid "There are no users currently in this group."
-msgstr "csomagok ebben a gyűjteményben."
+msgstr "Šioje grupėje nėra vartotojų."
 
 #: ckan/templates/authorization_group/index.html:11
 #, python-format
 msgid "There are [1:%(item_count)s] authorization groups."
-msgstr ""
+msgstr "Yra [1:%(item_count)s] autorizavimo grupių."
 
 #: ckan/templates/authorization_group/layout.html:11
 #: ckan/templates/group/layout.html:26 ckan/templates/package/layout.html:11
 msgid "View"
-msgstr "Nézet"
+msgstr "Peržiūrėti"
 
 #: ckan/templates/authorization_group/layout.html:13
 #: ckan/templates/group/layout.html:28 ckan/templates/package/layout.html:13
 msgid "Edit"
-msgstr "Módosítás"
+msgstr "Redaguoti"
 
 #: ckan/templates/authorization_group/layout.html:16
 #: ckan/templates/group/layout.html:32 ckan/templates/package/layout.html:17
 msgid "Authorization"
-msgstr "Jogosultságok"
+msgstr "Autorizacija"
 
 #: ckan/templates/authorization_group/layout.html:24
 msgid ""
@@ -1078,204 +1033,184 @@ msgid ""
 "          [1:authorization group] can be set-up and users can be added to"
 " it."
 msgstr ""
+"Vietoje tam tikrų vartotojų teisių grupei ar rinkiniui \n"
+"          galite nurodyti grupę vartotojų su tomis pačiomis teisėmis. Tam"
+" turi būti sukurta    \n"
+"          [1:vartotojų grupė] ir jai paskirti individualūs vartotojai."
 
 #: ckan/templates/authorization_group/layout.html:28
-#, fuzzy
-#| msgid "To create a new group, please first"
 msgid "To create a new authorization group, please first"
-msgstr "A csoport létrehozásához előszőr"
+msgstr "Prieš sukurdami vartotojų grupę"
 
 #: ckan/templates/authorization_group/layout.html:29
 #: ckan/templates/group/layout.html:15
 msgid "login"
-msgstr "jelentkezzen be"
+msgstr "prisijunkite"
 
 #: ckan/templates/authorization_group/new.html:5
-#, fuzzy
-#| msgid "Authorization for group:"
 msgid "New - Authorization Groups"
-msgstr "A csoport jogosultságai:"
+msgstr "Nauja – Vartotojų grupės"
 
 #: ckan/templates/authorization_group/new.html:17
-#, fuzzy
-#| msgid "Authorization for group:"
 msgid "New Authorization Group"
-msgstr "A csoport jogosultságai:"
+msgstr "Nauja vartotojų grupė"
 
 #: ckan/templates/authorization_group/read.html:6
-#, fuzzy
-#| msgid "Authorization for group:"
 msgid "- Authorization Groups"
-msgstr "A csoport jogosultságai:"
+msgstr "- Vartotojų grupės"
 
 #: ckan/templates/authorization_group/read.html:15
 #: ckan/templates/group/read.html:24
 msgid "Administrators:"
-msgstr "Adminok"
+msgstr "Administratoriai:"
 
 #: ckan/templates/authorization_group/read.html:21
 msgid "Users:"
-msgstr ""
+msgstr "Vartotojai:"
 
 #: ckan/templates/authorization_group/read.html:25
 #, python-format
 msgid "There are %(item_count)s users in this authorization group."
-msgstr ""
+msgstr "Šioje grupėje yra %(item_count)s vartotojų."
 
 #: ckan/templates/group/authz.html:5
-#, fuzzy
-#| msgid "Authorization for group:"
 msgid "- Authorization - Groups"
-msgstr "A csoport jogosultságai:"
+msgstr "- Autorizavimas - Grupės"
 
 #: ckan/templates/group/authz.html:8
 msgid "Authorization for group:"
-msgstr "A csoport jogosultságai:"
+msgstr "Autorizavimas grupei:"
 
 #: ckan/templates/group/authz.html:20 ckan/templates/package/authz.html:20
 msgid "Create New User Roles"
-msgstr "Új Felhasználói Szerepek Létrehozasa"
+msgstr "Sukurti naujus vartotojo vaidmenis"
 
 #: ckan/templates/group/edit.html:5
-#, fuzzy
-#| msgid "Edit Group:"
 msgid "- Edit - Groups"
-msgstr "Csoport szerkesztése:"
+msgstr "- Redaguoti - Grupės"
 
 #: ckan/templates/group/edit.html:17
 msgid "Edit Group:"
-msgstr "Csoport szerkesztése:"
+msgstr "Redaguoti grupę:"
 
 #: ckan/templates/group/edit_form.html:10 ckan/templates/home/index.html:81
 #: ckan/templates/revision/read.html:21 ckan/templates/user/read.html:37
 msgid "Packages"
-msgstr "Csomagok"
+msgstr "Rinkiniai"
 
 #: ckan/templates/group/edit_form.html:17
-#, fuzzy
 msgid "There are no packages currently in this group."
-msgstr "csomagok ebben a gyűjteményben."
+msgstr "Šiuo metu grupėje nėra rinkinių."
 
 #: ckan/templates/group/history.html:5
 #, fuzzy
-#| msgid "Groups - Edit -"
 msgid "- Groups - History"
-msgstr "Csoportok - Szerkeztés -"
+msgstr "- Duomenų rinkiniai - Istorija"
 
 #: ckan/templates/group/history.html:8 ckan/templates/package/history.html:8
 #: ckan/templates/package/read_core.html:8 ckan/templates/revision/list.html:9
 msgid "Atom Feed"
-msgstr ""
+msgstr "„Atom“ srautas"
 
 #: ckan/templates/group/history.html:8 ckan/templates/package/history.html:8
 #: ckan/templates/package/read_core.html:8 ckan/templates/revision/list.html:12
 msgid "Subscribe »"
-msgstr ""
+msgstr "Prenumeruoti »"
 
 #: ckan/templates/group/history.html:14 ckan/templates/package/history.html:14
 msgid "Revisions"
-msgstr "Változatok"
+msgstr "Versijos"
 
 #: ckan/templates/group/history.html:20 ckan/templates/package/history.html:20
 #: ckan/templates/package/new.html:35
 msgid "Error:"
-msgstr "Hiba:"
+msgstr "Klaida:"
 
 #: ckan/templates/group/history.html:28 ckan/templates/package/history.html:28
 #: ckan/templates/revision/read.html:5 ckan/templates/user/read.html:37
 msgid "Revision"
-msgstr "Változat"
+msgstr "Versija"
 
 #: ckan/templates/group/history.html:28 ckan/templates/package/history.html:28
 #: ckan/templates/revision/list.html:22 ckan/templates/user/read.html:37
 msgid "Timestamp"
-msgstr "Időbélyeg"
+msgstr "Data ir laikas"
 
 #: ckan/templates/group/history.html:28 ckan/templates/package/history.html:28
 #: ckan/templates/revision/list.html:22 ckan/templates/user/read.html:37
 msgid "Log Message"
-msgstr "Napló üzenet"
+msgstr "Žurnalo įrašas"
 
 #: ckan/templates/group/history.html:45 ckan/templates/package/history.html:45
 msgid "Compare »"
-msgstr "Összehasonlítás »"
+msgstr "Palyginti »"
 
 #: ckan/templates/group/history.html:50 ckan/templates/package/edit.html:38
 #: ckan/templates/package/history.html:50
-#, fuzzy
 msgid "Package History"
-msgstr "csomagok."
+msgstr "Rinkinio istorija"
 
 #: ckan/templates/group/index.html:6
-#, fuzzy
-#| msgid "Top Rated Packages"
 msgid "Groups of Data Packages"
-msgstr "Legértékesebb csomagok"
+msgstr "Duomenų rinkinių grupės"
 
 #: ckan/templates/group/index.html:11
 #, python-format
 msgid "There are [1:%(item_count)s] groups."
-msgstr ""
+msgstr "[1:%(item_count)s] grupių."
 
 #: ckan/templates/group/layout.html:11
 msgid "Groups section"
-msgstr "Csoportok kiválásztása"
+msgstr "Grupių skyrius"
 
 #: ckan/templates/group/layout.html:12
-#, fuzzy
-#| msgid "" "Whilst tags are great at collecting packages together, there are "
-#| "occasions when you want to restrict users from editing a collection. A"
 msgid ""
 "Whilst tags are great at collecting packages together, there are "
 "occasions when you want to restrict users from editing a collection. A "
 "[1:group] can be set-up to specify which users have permission to add or "
 "remove packages from it."
 msgstr ""
-"A címkék igen hasznosak a csomagok összerendeléséhez, mindazonáltal "
-"előfordulhat, hogy érdemes korlátozni a felhasználókat a gyűjtemények "
-"módosítását. A"
+"Nors žymos praverčia grupuojant rinkinius, kartais prireikia apriboti "
+"vartotojų teises redaguoti kurią jų dalį. Galima sukurti vartotojų "
+"[1:grupę] su redagavimo teisėmis ir paskirti jai reikiamus rinkinius ar "
+"juos pašalinti."
 
 #: ckan/templates/group/layout.html:14
 msgid "To create a new group, please first"
-msgstr "A csoport létrehozásához előszőr"
+msgstr "Prieš sukurdami grupę"
 
 #: ckan/templates/group/layout.html:30 ckan/templates/package/layout.html:15
 msgid "History"
-msgstr "Történet"
+msgstr "Istorija"
 
 #: ckan/templates/group/new.html:5
-#, fuzzy
-#| msgid "New Group"
 msgid "New - Groups"
-msgstr "Új Csoport"
+msgstr "Nauja – Grupės"
 
 #: ckan/templates/group/new.html:17
 msgid "New Group"
-msgstr "Új Csoport"
+msgstr "Nauja grupė"
 
 #: ckan/templates/group/read.html:6
-#, fuzzy
-#| msgid "groups."
 msgid "- Groups"
-msgstr "csoportok."
+msgstr "- Grupės"
 
 #: ckan/templates/group/read.html:12
 msgid "No Title"
-msgstr "Névtelen"
+msgstr "Be pavadinimo"
 
 #: ckan/templates/group/read.html:30
 msgid "Packages:"
-msgstr "Csomagok:"
+msgstr "Rinkiniai:"
 
 #: ckan/templates/group/read.html:31
-#, fuzzy, python-format
-#| msgid "There are no packages currently in this group."
+#, python-format
 msgid "There are %(item_count)s packages in this group."
-msgstr "csomagok ebben a gyűjteményben."
+msgstr "Šioje grupėje yra %(item_count)s rinkinių."
 
 #: ckan/templates/home/about.html:9
 msgid "About CKAN"
-msgstr "A CKAN-ről"
+msgstr "Apie CKAN"
 
 #: ckan/templates/home/about.html:11
 msgid ""
@@ -1283,6 +1218,9 @@ msgid ""
 "[2:open knowledge] packages and projects\n"
 "    (and a few closed ones)."
 msgstr ""
+"CKAN yra „Comprehensive Knowledge Archive Network“, [2:atvirų žinių] "
+"rinkinių ir projektų \n"
+" (bei keleto uždarų) [1:sąvadas]."
 
 #: ckan/templates/home/about.html:15
 msgid ""
@@ -1290,39 +1228,31 @@ msgid ""
 "      content and data], especially in ways that are machine\n"
 "      automatable."
 msgstr ""
+"CKAN padeda [1:surasti, dalintis ir pakartotinai panaudoti\n"
+"atvirą turinį ir duomenis], ypač tuos, kurie tinkami apdoroti\n"
+"kompiuteriais."
 
 #: ckan/templates/home/about.html:20
 msgid "As a system CKAN functions as a synthesis of several different services:"
-msgstr ""
-"Mint rendszer a CKAN több rendszer szolgáltatásainak szintézisét "
-"biztosítja:"
+msgstr "CKAN susideda iš kelių tarnybų:"
 
 #: ckan/templates/home/about.html:22
 msgid "CKAN Features Overview"
-msgstr "CKAN szolgáltatások áttekintése"
+msgstr "CKAN apžvalga"
 
 #: ckan/templates/home/about.html:24
-#, fuzzy
-#| msgid "" "As the diagram shows, CKAN combines the features of a
-#| listing/registry,\n" "\t\ta package index and a wiki. As a registry it acts
-#| like"
 msgid ""
 "As the diagram shows, CKAN combines the features of a listing/registry,\n"
 "\t\ta package index and a wiki. As a registry it acts like [1:freshmeat] "
 "but for open data and\n"
 "\t\tcontent resources. However it adds to a simple registry in key ways."
 msgstr ""
-"Az ábrán látszi, hogy a CKAN egy regiszter, csomagkezelő és wiki "
-"funkcióit kombinálja.\n"
-"A regiszter hasonló a"
+"Kaip matyti diagramoje, CKAN yra registro,\n"
+"\t\t rinkinių sąvado ir „wiki“ junginys. Registro funkcijos yra panašios "
+"į [1:„Freshmeat“], tačiau čia jos skirtos atviriems duomenims ir\n"
+"\t\t turinio ištekliams. Tačiau registro funkcijos turi svarbių priedų."
 
 #: ckan/templates/home/about.html:29
-#, fuzzy
-#| msgid "" "CKAN has a\n" "\t\twiki-like interface that lets anyone add and
-#| material held in it. " "Second,\n" "\t\tand unlike a wiki, CKAN can store
-#| 'structured' information, which " "allows it\n" "\t\tto provide 'index'-like
-#| features such as automated registration, " "discovery\n" "\t\tand
-#| installation of material. In this respect it behaves like"
 msgid ""
 "First, thanks to its underlying [1:versioned domain model] CKAN has a\n"
 "\t\twiki-like interface that lets anyone add and material held in it. "
@@ -1336,25 +1266,26 @@ msgid ""
 "\t\tagain for [4:open data and content]\n"
 "\t\tnot code."
 msgstr ""
-"a CKAN wikihez hasonló interfészt biztosít, amely bárki számára lehetővé "
-"teszi\n"
-"adatok hozzáadását vagy hozzáférését. Másodsorban és ellentétben a "
-"wikikkel a CKAN\n"
-"az adatokat struktúrált formában tárolja, amely lehetővé teszi a "
-"regiszterszerű\n"
-"működést, az automatikus regisztrálást, felfedezést és telepítést. Ebben "
-"a tekintetben\n"
-"a működés hasonló a"
+"Pirma, naudodama [1:domeno versijų modelį] CKAN turi\n"
+"\t\t „wiki“ tipo sąsają, kuri leidžia kiekvienam papildyti medžiagą. "
+"Antra,\n"
+"\t\t skirtingai nuo „wiki“, CKAN gali kaupti struktūrizuotą informaciją, "
+"kuri leidžia\n"
+"\t\t naudoti sąvadą automatizuotam medžiagos registravimui, paieškai\n"
+"\t\t ir diegimui. Šiuo aspektu jis panašus į [2:CPAN] ar [3:„PyPI“] "
+"programas – nors\n"
+"\t\t skirtas [4:atviriems duomenims ir turiniui],\n"
+"\t\t o ne kodui."
 
 #: ckan/templates/home/about.html:40
-#, fuzzy
-#| msgid "" "More about CKAN, and the background to its creation can\n" "    be
-#| found in"
 msgid ""
 "More about CKAN, and the background to its creation can\n"
 "    be found in [1:these\n"
 "      slides]."
-msgstr "A CKAN-ről és létrejöttének hátteréről további részleteket találhatunk"
+msgstr ""
+"Daugiau apie CKAN ir jo įkūrima galima\n"
+"    sužinoti iš [1:šių\n"
+"      skaidrių]."
 
 #: ckan/templates/home/about.html:46 ckan/templates/home/index.html:46
 msgid "API"
@@ -1366,22 +1297,28 @@ msgid ""
 "In addition to use of this website, %(site_title)s data can be viewed and"
 " changed by using CKAN's Application Programming Interface (API)."
 msgstr ""
+"%(site_title)s duomenis galima peržiūrėti ir keisti ne tik šioje "
+"svetainėje, bet ir naudojant CKAN programavimo sąsają (API)."
 
 #: ckan/templates/home/about.html:50
 msgid ""
 "The API takes the form of a RESTful (Representational State Transfer) "
 "style API for accessing CKAN database objects and a Search API."
 msgstr ""
+"Jungtims su CKAN duomenų bazės objektais ir paieška API naudoja „RESTful“"
+" (būsenos perdavimo) formą."
 
 #: ckan/templates/home/about.html:52
 msgid ""
 "For full details of accessing the API, see the documentation at: "
 "[1:http://knowledgeforge.net/ckan/doc/ckan/api.html]"
 msgstr ""
+"Aprašymą, kaip naudotis API, rasite: "
+"[1:http://knowledgeforge.net/ckan/doc/ckan/api.html]"
 
 #: ckan/templates/home/about.html:55
 msgid "Who's Behind CKAN?"
-msgstr "Ki áll a CKAN hátterében?"
+msgstr "Kas sukūrė CKAN?"
 
 #: ckan/templates/home/about.html:57
 msgid ""
@@ -1392,84 +1329,83 @@ msgid ""
 "page] on the Open\n"
 "    Knowledge Foundation site."
 msgstr ""
+"CKAN programa ir svetainė sukurta ir prižiūrima [1:„Atvirų žinių fondo“]."
+" Tiek\n"
+"    CKAN kodas, tiek ir duomenys yra atviri: [2:nemokami naudotis "
+"visiems].\n"
+"      Jei norite sužinoti daugiau, aplankykite [3:CKAN projekto "
+"tinklalapį] „Open\n"
+"    Knowledge Foundation“ svetainėje."
 
 #: ckan/templates/home/about.html:64
 msgid "Contributors"
-msgstr "Közreműködők"
+msgstr "Kūrėjai"
 
 #: ckan/templates/home/about.html:66
 msgid ""
 "Various people and projects have contributed to the development of CKAN "
 "including:"
-msgstr ""
-"Különböző személyek és projektek járultak hozzá a CKAN fejlesztéséhez, "
-"többek között:"
+msgstr "Daug žmonių ir projektų prisidėjo prie CKAN kūrimo:"
 
 #: ckan/templates/home/about.html:68
 msgid "Rufus Pollock"
-msgstr ""
+msgstr "Rufus Pollock"
 
 #: ckan/templates/home/about.html:69
 msgid "David Read"
-msgstr ""
+msgstr "David Read"
 
 #: ckan/templates/home/about.html:70
 msgid "Nick Stenning"
-msgstr ""
+msgstr "Nick Stenning"
 
 #: ckan/templates/home/about.html:70
 msgid "(css and js)"
-msgstr ""
+msgstr "(CSS ir JS)"
 
 #: ckan/templates/home/about.html:71
 msgid "John Bywater"
-msgstr ""
+msgstr "John Bywater"
 
 #: ckan/templates/home/about.html:72
 msgid "CKAN logo: \""
-msgstr "CKAN logó"
+msgstr "CKAN logotipas: \""
 
 #: ckan/templates/home/about.html:72
 msgid "angry"
-msgstr "dühös"
+msgstr "„angry"
 
 #: ckan/templates/home/about.html:72
 msgid "hamster"
-msgstr "hörcsög"
+msgstr "hamster'"
 
 #: ckan/templates/home/about.html:73
 msgid "famfamfam.com for silk icons"
-msgstr "a famfamfam.com ikonkészlete"
+msgstr "„famfamfam.com“ už „silk“ piktogramas"
 
 #: ckan/templates/home/about.html:74
 msgid "Pylons"
-msgstr ""
+msgstr "Pylons"
 
 #: ckan/templates/home/about.html:75
 msgid "Genshi"
-msgstr ""
+msgstr "Genshi"
 
 #: ckan/templates/home/index.html:43
-#, fuzzy
-#| msgid "Basic information"
 msgid "More information"
-msgstr "Alap információk"
+msgstr "Daugiau informacijos"
 
 #: ckan/templates/home/index.html:47
 msgid "User Guide"
-msgstr ""
+msgstr "Vartotojo vadovas"
 
 #: ckan/templates/home/index.html:49
-#, fuzzy
-#| msgid "Development"
 msgid "CKAN development"
-msgstr "Fejlesztés »"
+msgstr "CKAN kūrimas"
 
 #: ckan/templates/home/index.html:55
-#, fuzzy
-#| msgid "Welcome to CKAN"
 msgid "Welcome to"
-msgstr "Üdvözöljük a CKAN-on"
+msgstr "Sveiki!"
 
 #: ckan/templates/home/index.html:56
 #, python-format
@@ -1480,27 +1416,33 @@ msgid ""
 "      site makes it easy to find, share and reuse content and data,\n"
 "      especially in ways that are machine automatable."
 msgstr ""
+"%(title)s yra\n"
+"      [1:atviras]\n"
+"      duomenų ir turinio rinkinių sąvadas. Ši svetainė naudoja CKAN "
+"programą\n"
+"      lengvai duomenų, ypač apdorojamų kompiuteriais, paieškai,\n"
+"      dalinimuisi ir pakartotiniam panaudojimui."
 
 #: ckan/templates/home/index.html:64
 #, python-format
 msgid "[1:%(package_count)s registered data packages] available."
-msgstr ""
+msgstr "Yra [1:%(package_count)s registruotų duomenų rinkinių]."
 
 #: ckan/templates/home/index.html:68 ckan/templates/home/stats.html:95
 msgid "Top Tags"
-msgstr "Legnépszerűbb cimkék"
+msgstr "Populiariausios žymos"
 
 #: ckan/templates/home/index.html:78
 msgid "Recently changed"
-msgstr "Legutóbbi változások"
+msgstr "Naujausi pakeitimai"
 
 #: ckan/templates/home/index.html:83
 msgid "Time"
-msgstr "Idő"
+msgstr "Laikas"
 
 #: ckan/templates/home/index.html:97
 msgid "View older changes »"
-msgstr "Korábbi változások"
+msgstr "Peržiūrėti ankstesnius pakeitimus »"
 
 #: ckan/templates/home/language.js:1
 msgid "var MSG_MORE_HELP = '"
@@ -1522,7 +1464,7 @@ msgstr ""
 
 #: ckan/templates/home/license.html:11
 msgid "Code"
-msgstr "Forrás"
+msgstr "Kodas"
 
 #: ckan/templates/home/license.html:12
 msgid ""
@@ -1531,10 +1473,15 @@ msgid ""
 "      ]. It is hosted on [2:KnowledgeForge], and the project\n"
 "    home page is here: [3:http://knowledgeforge.net/project/ckan/]."
 msgstr ""
+"Šioje svetainėje naudojamas CKAN kodas yra atviras, naudojamas pagal "
+"[1:„GNU Affero GPL“\n"
+"      ]licenciją. Jis talpinamas [2:„KnowledgeForge“] svetainėje, o "
+"projekto\n"
+"    svetainė yra čia: [3:http://knowledgeforge.net/project/ckan/]."
 
 #: ckan/templates/home/license.html:21
 msgid "Content and Data"
-msgstr "Tartalom és Adatok"
+msgstr "Turinys ir duomenys"
 
 #: ckan/templates/home/license.html:22
 msgid ""
@@ -1546,123 +1493,113 @@ msgid ""
 "[3:Creative Commons\n"
 "      Attribution Share-Alike v3.0 license]."
 msgstr ""
+"Visi šios svetainės duomenys yra [1:atviri] laisvai naudojami bei "
+"platinami.\n"
+"    Formaliai duomenims ir jų bazei taikoma [2:„Open Data Commons“ „Open\n"
+"      Database License v1.0“] licencija, kur visas autorių teisių "
+"saugomas turinys,\n"
+"    duomenų bazė bei bet koks šios svetainės turinys yra pateikiamas su "
+"[3:„Creative Commons\n"
+"      Attribution Share-Alike v3.0“ licencija]."
 
 #: ckan/templates/home/license.html:30
-#, fuzzy
-#| msgid "" "For convenience, all material - including all package, tag and
-#| revision " "information - is available in bulk, in the form of a full dump
-#| of the " "CKAN database. This (gzipped) dump file is updated daily and can
-#| be " "downloaded from"
 msgid ""
 "For convenience, all material - including all package, tag and revision "
 "information - is available in bulk, in the form of a full dump of the "
 "CKAN database. This (gzipped) dump file is updated daily and can be "
 "downloaded from [1:http://www.ckan.net/dump/]."
 msgstr ""
-"A kényelem kedvéért az összes anyag - beleértve az összes csomagot, "
-"címkét és\n"
-"változás-naplót - letölthető, amely a teljes CKAN adatbázist tömörítve "
-"tartalmazza.\n"
-"Ez az adatbázis export napont frissül, és innen elérhető"
+"Jūsų patogumui visą medžiagą – visus rinkinius, žymų ir versijų "
+"informaciją – galima gauti kartu pilnoje CKAN duomenų bazės kopijoje. Šis"
+" (gzip) suglaudintas failas atnaujinamas kasdien. Jį galima parsisiųsti "
+"iš [1:http://www.ckan.net/dump/]."
 
 #: ckan/templates/home/stats.html:16
 msgid "Total number of packages"
-msgstr "Összes csomag"
+msgstr "Visas rinkinių skaičius"
 
 #: ckan/templates/home/stats.html:35
 msgid "Revisions to packages per week"
-msgstr "Csomagok változása heti bontásban"
+msgstr "Rinkinių versijos šią savaitę"
 
 #: ckan/templates/home/stats.html:71
 msgid "Top Rated Packages"
-msgstr "Legértékesebb csomagok"
+msgstr "Geriausiai įvertinti rinkiniai"
 
 #: ckan/templates/home/stats.html:73
 msgid "Average rating"
-msgstr "Átlagos értékelés"
+msgstr "Vidutinis vertinimas"
 
 #: ckan/templates/home/stats.html:73
 msgid "Number of ratings"
-msgstr "Értékelések száma"
+msgstr "Vertinimų kiekis"
 
 #: ckan/templates/home/stats.html:79
 msgid "Most Edited Packages"
-msgstr "Legtöbbet szerkesztett csomagok"
+msgstr "Daugiausiai redaguoti rinkiniai"
 
 #: ckan/templates/home/stats.html:81
 msgid "Number of edits"
-msgstr "Módosítások száma"
+msgstr "Redakcijų skaičius"
 
 #: ckan/templates/home/stats.html:87
 msgid "Largest Groups"
-msgstr "Legnagyobb csoportok"
+msgstr "Didžiausios grupės"
 
 #: ckan/templates/home/stats.html:102
 msgid "Users owning most packages"
-msgstr "Legtöbb csomagot birtokló felhasználók"
+msgstr "Vartotojai su daugiausiai rinkinių"
 
 #: ckan/templates/home/stats.html:109
 msgid "Page last updated:"
-msgstr "Az oldal utólsó módosítása:"
+msgstr "Tinklalapis atnaujintas:"
 
 #: ckan/templates/package/authz.html:5
-#, fuzzy
-#| msgid "Authorization for package:"
 msgid "- Authorization - Data Packages"
-msgstr "A csomaghoz kapcsolódó jogosultságok"
+msgstr "- Autorizavimas – Duomenų rinkiniai"
 
 #: ckan/templates/package/authz.html:8
-#, fuzzy
-#| msgid "Authorization for package:"
 msgid "Authorization for Data Package:"
-msgstr "A csomaghoz kapcsolódó jogosultságok"
+msgstr "Autorizavimas duomenų rinkiniui:"
 
 #: ckan/templates/package/edit.html:6
-#, fuzzy
-#| msgid "Related packages"
 msgid "- Edit - Data Packages"
-msgstr "Kapcsolódó csomagok"
+msgstr "- Redaguoti - Duomenų rinkiniai"
 
 #: ckan/templates/package/edit.html:21
-#, fuzzy
-#| msgid "Edit package:"
 msgid "Edit Data Package:"
-msgstr "Csomag módosítása:"
+msgstr "Redaguoti duomenų rinkinį"
 
 #: ckan/templates/package/edit.html:23 ckan/templates/user/edit.html:15
 msgid "(skip to preview)"
-msgstr "(Előzetes nézet átugrása)"
+msgstr "(į peržiūrą)"
 
 #: ckan/templates/package/edit.html:30 ckan/templates/package/new.html:29
 #: ckan/templates/user/edit.html:40
 msgid "Preview"
-msgstr "Előzetes nézet"
+msgstr "Peržiūra"
 
 #: ckan/templates/package/edit_form.html:13
 msgid "Edit summary (briefly describe the changes you have made)"
-msgstr ""
+msgstr "Redagavimo santrauka (trumpai aprašykite padarytus pakeitimus)"
 
 #: ckan/templates/package/edit_form.html:17
 #: ckan/templates/package/edit_form.html:20
 #: ckan/templates/revision/read.html:12
 msgid "Author:"
-msgstr "Szerző"
+msgstr "Autorius:"
 
 #: ckan/templates/package/edit_form.html:21
-#, fuzzy
-#| msgid "If you have not signed in this will just be your IP address."
 msgid "Since you have not signed in this will just be your IP address."
-msgstr "A nem jelentkezett be az IP címe kerül felhasználásra"
+msgstr "Kadangi jūs neprisijungėte, bus naudojamas jūsų IP adresas."
 
 #: ckan/templates/package/edit_form.html:23
 msgid "Click here to sign in"
-msgstr "Ide kattintson a belépéshez"
+msgstr "Prisijunkite čia"
 
 #: ckan/templates/package/edit_form.html:23
-#, fuzzy
-#| msgid "before submitting (opens in new window)."
 msgid "before saving (opens in new window)."
-msgstr "az elküldés előtt (új ablakban nyílik)"
+msgstr "prieš išsaugodami (atsidaro naujame lange)."
 
 #: ckan/templates/package/edit_form.html:33
 msgid "Important:"
@@ -1673,14 +1610,12 @@ msgid ""
 "By submitting content, you agree to release your contributions\n"
 "        under the open license specified on the"
 msgstr ""
-"a tartalom elküldésével hozzájárul a munkája eredményeinek nyílt licenc "
-"alatti publikálásához."
+"Prieš pateikdami turinį turite sutikti savo darbą pateikti\n"
+" pagal licenciją, nurodytą"
 
 #: ckan/templates/package/edit_form.html:34
-#, fuzzy
-#| msgid "License"
 msgid "license page"
-msgstr "Licenc"
+msgstr "licencijos tinklalapyje"
 
 #: ckan/templates/package/edit_form.html:35
 msgid ". Please"
@@ -1704,109 +1639,92 @@ msgstr ""
 
 #: ckan/templates/package/form.html:7
 msgid "Errors in form"
-msgstr "Hibák az űrlapon"
+msgstr "Klaidos anketoje"
 
 #: ckan/templates/package/form.html:8
 msgid "The form contains invalid entries:"
-msgstr "Az űrlap hibás mezőket tartalmaz:"
+msgstr "Anketoje yra netinkamų įrašų:"
 
 #: ckan/templates/package/form_extra_fields.html:12
 msgid "New key"
-msgstr "Új kulcs"
+msgstr "Naujas raktas"
 
 #: ckan/templates/package/form_extra_fields.html:22
 msgid "Delete"
-msgstr "Törlés"
+msgstr "Ištrinti"
 
 #: ckan/templates/package/form_extra_fields.html:26
 msgid "with value"
-msgstr "értékkel"
+msgstr "su verte"
 
 #: ckan/templates/package/history.html:5
-#, fuzzy
-#| msgid "Package history"
 msgid "- Data Packages - History"
-msgstr "csomagok."
+msgstr "- Duomenų rinkiniai - Istorija"
 
 #: ckan/templates/package/new.html:6
-#, fuzzy
-#| msgid "Related packages"
 msgid "New - Data Packages"
-msgstr "Kapcsolódó csomagok"
+msgstr "Nauja - Duomenų rinkiniai"
 
 #: ckan/templates/package/new.html:25
-#, fuzzy
-#| msgid "Register new package"
 msgid "Register a New Data Package"
-msgstr "Új csomag regisztrálása"
+msgstr "Užregistruoti naują duomenų rinkinį"
 
 #: ckan/templates/package/read.html:6
-#, fuzzy
-#| msgid "Edit package:"
 msgid "- Data Packages"
-msgstr "Csomag módosítása:"
+msgstr "- Duomenų rinkiniai"
 
 #: ckan/templates/package/read.html:17
 #, python-format
 msgid "Version [1:%(pkg_version)s]"
-msgstr ""
+msgstr "Versija [1:%(pkg_version)s]"
 
 #: ckan/templates/package/read.html:23 ckan/templates/package/read.html:66
 msgid "License not given"
-msgstr "Licenc nincs megadva"
+msgstr "Nenurodyta licencija"
 
 #: ckan/templates/package/read.html:28
-#, fuzzy
-#| msgid "downloadable"
 msgid "Downloadable resources"
-msgstr "letölthető"
+msgstr "Parsiunčiami ištekliai"
 
 #: ckan/templates/package/read.html:28
-#, fuzzy
-#| msgid "Someresources"
 msgid "No resources"
-msgstr "Néhány erőforrás"
+msgstr "Išteklių nėra"
 
 #: ckan/templates/package/read.html:31
 msgid "Related packages"
-msgstr "Kapcsolódó csomagok"
+msgstr "Susiję rinkiniai"
 
 #: ckan/templates/package/read.html:47
-#, fuzzy
 msgid "Openness:"
-msgstr "Nyíltság"
+msgstr "Atvirumas:"
 
 #: ckan/templates/package/read.html:49
-#, fuzzy
 msgid "OPEN"
-msgstr "nyíltak"
+msgstr "ATVIRAS"
 
 #: ckan/templates/package/read.html:52
-#, fuzzy
 msgid "NOT OPEN"
-msgstr "nem szoftverre értelmezett."
+msgstr "UŽDARAS"
 
 #: ckan/templates/package/read.html:58
 msgid "This package is licensed with"
-msgstr "A csomag licence"
+msgstr "Šio rinkinio licencija yra"
 
 #: ckan/templates/package/read.html:73 ckan/templates/package/read.html:77
-#, fuzzy
 msgid "This package satisfies the Open Knowledge Definition."
-msgstr "Ez a csomag teljesíti az OKFN Nyílt Tudás Definícióját."
+msgstr "Šis rinkinys atitinka Atvirų žinių apibrėžimą."
 
 #: ckan/templates/package/read.html:76
 msgid "[Open Data]"
-msgstr ""
+msgstr "[Atviri duomenys]"
 
 #: ckan/templates/package/read.html:80
-#, fuzzy
 msgid "[Open Content]"
-msgstr "adatokra és tartalomra"
+msgstr "[Atviras turinys]"
 
 #: ckan/templates/package/read.html:83
 msgid "Help Make This Package Open!"
-msgstr ""
+msgstr "Padėkite atvirai šio rinkinio prieigai!"
 
 #: ckan/templates/package/read.html:84
 msgid ""
@@ -1819,306 +1737,300 @@ msgid ""
 "        [5:Is It Open\n"
 "          Data service]."
 msgstr ""
+"Šis rinkinys [1:nėra atviras], nes jis \n"
+"      [2:neturi atviros licencijos] arba\n"
+"      [3:neturi parsisiunčiamų išteklių]. Padėkite\n"
+"      padaryti jį atvirą: \n"
+"        [4:sukurkite užklausą]\n"
+"        naudodami\n"
+"        [5:Atvirų\n"
+"          duomenų tarnybą]."
 
 #: ckan/templates/package/read.html:98
-#, fuzzy
 msgid "Edit this Package"
-msgstr "Ez a csomag:"
+msgstr "Redaguoti šį rinkinį"
 
 #: ckan/templates/package/read.html:99
-#, fuzzy
-#| msgid "" "Can you help us keep this page up to date?\n" "          If so,
-#| why not"
 msgid ""
 "Can you help us keep this page up to date?\n"
 "          If so, why not\n"
 "          [1:\n"
 "            update the package information]."
 msgstr ""
-"Részese annak a projektnek, amely ezeket az adatokat előállítja? Tud "
-"segíteni ennek az oldalnak a naprakészen tartásában? Ha igen, miért ne"
+"Ar galite padėti atnaujinti šį tinklalapį?\n"
+"          Jei taip, gal galite\n"
+"          [1:\n"
+"            atnaujinti rinkinio informaciją?]."
 
 #: ckan/templates/package/read.html:110
 msgid "Alternative metadata formats"
-msgstr ""
+msgstr "Alternatyvūs metaduomenų formatai"
 
 #: ckan/templates/package/read.html:114
 msgid "JSON format"
-msgstr ""
+msgstr "JSON formatas"
 
 #: ckan/templates/package/read.html:114
 msgid "JSON"
-msgstr ""
+msgstr "JSON"
 
 #: ckan/templates/package/read.html:118
-#, fuzzy
 msgid "RDF format"
-msgstr "Formátum"
+msgstr "RDF formatas"
 
 #: ckan/templates/package/read.html:118
 msgid "RDF"
-msgstr ""
+msgstr "RDF"
 
 #: ckan/templates/package/read.html:132
 msgid "RDF Version"
-msgstr ""
+msgstr "RDF versija"
 
 #: ckan/templates/package/read_core.html:20
-#, fuzzy
 msgid "Tags:"
-msgstr "Cimkék"
+msgstr "Žymos"
 
 #: ckan/templates/package/read_core.html:24
 msgid "A curated collection of packages"
-msgstr ""
+msgstr "Kuruojama rinkinių kolekcija"
 
 #: ckan/templates/package/read_core.html:24
-#, fuzzy
 msgid "Groups:"
-msgstr "csoportok."
+msgstr "Grupės"
 
 #: ckan/templates/package/read_core.html:37
 msgid "Format"
-msgstr "Formátum"
+msgstr "Formatas"
 
 #: ckan/templates/package/read_core.html:37
 msgid "Hash"
-msgstr ""
+msgstr "Patikros kodas"
 
 #: ckan/templates/package/read_core.html:39
-#, fuzzy
 msgid "Download"
-msgstr "letölthető"
+msgstr "Parsisiųsti"
 
 #: ckan/templates/package/read_core.html:42
 msgid "None given for this package."
-msgstr "nincs megadva a csomaghoz"
+msgstr "Nepateiktas šiam rinkiniui."
 
 #: ckan/templates/package/read_core.html:97
 msgid "Rating"
-msgstr "Értékelés"
+msgstr "Vertinimas"
 
 #: ckan/templates/package/read_core.html:103
 msgid "State:"
-msgstr "Állapot"
+msgstr "Būklė:"
 
 #: ckan/templates/package/resources.html:2
 msgid "Someresources"
-msgstr "Néhány erőforrás"
+msgstr "Ištekliai"
 
 #: ckan/templates/package/search.html:9
-#, fuzzy
-#| msgid "Search packages"
 msgid "Search - Data Packages"
-msgstr "Csomagkeresés"
+msgstr "Paieška - Duomenų rinkiniai"
 
 #: ckan/templates/package/search.html:14
 #, fuzzy
-#| msgid "registered packages"
 msgid "Register a package"
-msgstr "regisztrált csomagok"
+msgstr "Užregistruoti naują rinkinį"
 
 #: ckan/templates/package/search.html:26
 #, fuzzy
-#| msgid "registered packages"
 msgid "Discover Data Packages"
-msgstr "regisztrált csomagok"
+msgstr "Ieškoti duomenų rinkiniuose"
 
 #: ckan/templates/package/search.html:32
 msgid ""
 "[1:There was an error while searching.] \n"
 "            Please try another search term."
 msgstr ""
+"[1:Paieškos klaida.] \n"
+"            Pabandykite įrašyti kitą žodį."
 
 #: ckan/templates/package/search.html:35
-#, fuzzy, python-format
-#| msgid "packages found."
+#, python-format
 msgid "[1:%(item_count)s] packages found."
-msgstr "talált csomag"
+msgstr "Rasta [1:%(item_count)s] rinkinių."
 
 #: ckan/templates/package/search.html:37
-#, fuzzy
-#| msgid "create a new package?"
 msgid "Would you like to [1:create a new package?]"
-msgstr "új csomagot létrehozni?"
+msgstr "Ar norėtumėte [1:sukurti naują rinkinį?]"
 
 #: ckan/templates/package/search_form.html:15
 msgid "Filters:"
-msgstr "Szűrők:"
+msgstr "Filtrai:"
 
 #: ckan/templates/package/search_form.html:15
 msgid "open license"
-msgstr "nyílt licenc"
+msgstr "atvira licencija"
 
 #: ckan/templates/package/search_form.html:16
 msgid "downloadable"
-msgstr "letölthető"
+msgstr "parsiunčiamas"
 
 #: ckan/templates/package/search_form.html:17
+#, fuzzy
+#| msgid "Clear search"
 msgid "Search"
-msgstr ""
+msgstr "Išvalyti paiešką"
 
 #: ckan/templates/revision/common.html:20
 msgid "Purge"
-msgstr ""
+msgstr "Valyti"
 
 #: ckan/templates/revision/common.html:20
 msgid "Are you sure?"
-msgstr ""
+msgstr "Ar tikrai?"
 
 #: ckan/templates/revision/diff.html:5
 msgid "Differences - Revisions"
-msgstr ""
+msgstr "Skirtumai - Versijos"
 
 #: ckan/templates/revision/diff.html:8
 msgid "Revision Differences -"
-msgstr "Változatok közötti különbségek"
+msgstr "Versijų skirtumai -"
 
 #: ckan/templates/revision/diff.html:20
 msgid "From:"
-msgstr "Forrás:"
+msgstr "Nuo:"
 
 #: ckan/templates/revision/diff.html:24
 msgid "To:"
-msgstr "Cél:"
+msgstr "Iki:"
 
 #: ckan/templates/revision/diff.html:31
 msgid "Field"
-msgstr "Mező"
+msgstr "Laukas"
 
 #: ckan/templates/revision/diff.html:31
 msgid "Difference"
-msgstr "Különbség"
+msgstr "Skirtumas"
 
 #: ckan/templates/revision/diff.html:39
 msgid "No differences"
-msgstr "Nincs különbség"
+msgstr "Nėra skirtumų"
 
 #: ckan/templates/revision/list.html:15
-#, fuzzy
 msgid ""
 "This page lists all changes to package database, with most recent\n"
 "    changes first."
 msgstr ""
-"Ez az oldal az adatbázis összes változását listázzá a legutóbbival "
-"kezdve, ez Atom Feed-ként is elérhető"
+"Šiame puslapyje surašyti visi rinkinio duomenų bazės pakeitimai. Pirma\n"
+"    pateikiami naujausi."
 
 #: ckan/templates/revision/list.html:22
 msgid "Number"
-msgstr "Szám"
+msgstr "Skaičius"
 
 #: ckan/templates/revision/list.html:22
 msgid "Entity"
 msgstr ""
 
 #: ckan/templates/revision/purge.html:5
-#, fuzzy, python-format
-#| msgid "Purge of revision failed: %s"
 msgid "Purge - Revisions"
-msgstr "A változás törlése sikertelen: %s"
+msgstr "Valyti - Versijos"
 
 #: ckan/templates/revision/purge.html:8
 msgid "Revision Purge"
-msgstr "Változat Törlés"
+msgstr "Versijų valymas"
 
 #: ckan/templates/revision/purge.html:9
 msgid "There was an error:"
-msgstr "Hiba:"
+msgstr "Klaida:"
 
 #: ckan/templates/revision/purge.html:10
 msgid "Purge successful."
-msgstr "Sikeres törlés."
+msgstr "Valymas sėkmingas."
 
 #: ckan/templates/revision/read.html:8
 msgid "Revision:"
-msgstr "Változat:"
+msgstr "Versija:"
 
 #: ckan/templates/revision/read.html:15
 msgid "Timestamp:"
-msgstr "Időbélyeg:"
+msgstr "Data ir laikas:"
 
 #: ckan/templates/revision/read.html:17
 msgid "Log Message:"
-msgstr "Napló Üzenet:"
+msgstr "Žurnalo įrašas:"
 
 #: ckan/templates/revision/read.html:20
 msgid "Changes"
-msgstr "Változások"
+msgstr "Pokyčiai"
 
 #: ckan/templates/revision/read.html:30
 msgid "Packages' Tags"
-msgstr "Csomagok címkéi"
+msgstr "Rinkinių žymos"
 
 #: ckan/templates/revision/read.html:33
 msgid "Package -"
-msgstr "Csomag -"
+msgstr "Rinkinys -"
 
 #: ckan/templates/revision/read.html:34
 msgid ""
 ",\n"
 "      Tag -"
-msgstr "Címke -"
+msgstr ""
+",\n"
+"      Žyma -"
 
 #: ckan/templates/tag/index.html:20 ckan/templates/tag/index.html:23
 msgid "There are"
-msgstr ""
+msgstr "Yra"
 
 #: ckan/templates/tag/index.html:21
 msgid "results for ‘"
-msgstr "eredmények"
+msgstr "rezultatų '"
 
 #: ckan/templates/tag/index.html:24
 msgid "results for tags."
-msgstr "címkék eredményei"
+msgstr "žymų rezultatų."
 
 #: ckan/templates/tag/index.html:34
 msgid "Clear search"
-msgstr ""
+msgstr "Išvalyti paiešką"
 
 #: ckan/templates/tag/index.html:34
 msgid "and see all tags."
-msgstr "összes címke mutatása"
+msgstr "ir pamatyti visas žymas."
 
 #: ckan/templates/tag/read.html:6
-#, fuzzy
-#| msgid "Tags"
 msgid "- Tags"
-msgstr "Cimkék"
+msgstr "- Žymos"
 
 #: ckan/templates/tag/read.html:9
 msgid "Tag:"
-msgstr "Címke:"
+msgstr "Žyma:"
 
 #: ckan/templates/tag/read.html:10
 #, python-format
 msgid "There are %(package_count)s packages tagged with [1:%(tagname)s]:"
-msgstr ""
+msgstr "Yra %(package_count)s rinkinių su žymomis [1:%(tagname)s]:"
 
 #: ckan/templates/user/apikey.html:5
 msgid "API Key -"
-msgstr ""
+msgstr "API raktas -"
 
 #: ckan/templates/user/apikey.html:5 ckan/templates/user/read.html:7
 msgid "- User"
-msgstr ""
+msgstr "- Vartotojas"
 
 #: ckan/templates/user/apikey.html:8
 msgid "API Key"
-msgstr "API kulcs"
+msgstr "API raktas"
 
 #: ckan/templates/user/apikey.html:9
 msgid "Your API key is:"
-msgstr "Az ön API kulcsa:"
+msgstr "Jūsų API raktas yra:"
 
 #: ckan/templates/user/edit.html:6
-#, fuzzy
-#| msgid "Edit User:"
 msgid "- Edit - User"
-msgstr "Felhasználó módosítása:"
+msgstr "- Redaguoti - Vartotojas"
 
 #: ckan/templates/user/edit.html:13
 msgid "Edit User:"
-msgstr "Felhasználó módosítása:"
+msgstr "Redaguoti vartotoją:"
 
 #: ckan/templates/user/edit.html:22 ckan/templates/user/edit.html:41
 msgid "Full name:"
@@ -2126,57 +2038,54 @@ msgstr ""
 
 #: ckan/templates/user/edit.html:25
 #, fuzzy
-#| msgid "Detail"
 msgid "E-Mail:"
-msgstr "Részletek"
+msgstr "Smulkiau"
 
 #: ckan/templates/user/edit.html:28
 msgid "About user:"
-msgstr "Felhasználói információk:"
+msgstr "Apie vartotoja:"
 
 #: ckan/templates/user/edit.html:30
 msgid "You can use [1:Markdown formatting] here."
-msgstr ""
+msgstr "Galite čia naudoti [1:„Markdown“ formatavimą]."
 
 #: ckan/templates/user/login_form.html:5
 #: ckan/templates/user/openid_form.html:18
 msgid "Login - User"
-msgstr ""
+msgstr "Prisijungti - Vartotojas"
 
 #: ckan/templates/user/login_form.html:8
 #: ckan/templates/user/openid_form.html:21
 msgid "Login"
-msgstr "Belépés"
+msgstr "Prisijungti"
 
 #: ckan/templates/user/login_form.html:9
 msgid "Please login now."
-msgstr "Kérjük most lépjen be."
+msgstr "Prašome prisijungti."
 
 #: ckan/templates/user/login_form.html:12
 msgid "Username:"
-msgstr "Felhasználónév:"
+msgstr "Vardas:"
 
 #: ckan/templates/user/login_form.html:14
 msgid "Password:"
-msgstr "Jelsző:"
+msgstr "Slaptažodis:"
 
 #: ckan/templates/user/logout.html:5
-#, fuzzy
-#| msgid "About user:"
 msgid "Logout - User"
-msgstr "Felhasználói információk:"
+msgstr "Atsijungti - Vartotojas"
 
 #: ckan/templates/user/logout.html:9
 msgid "You have logged out successfully."
-msgstr "Sikeres kilépés."
+msgstr "Jūs sėkmingai atsijungėte."
 
 #: ckan/templates/user/openid_form.html:27
 msgid "Login using Open ID"
-msgstr ""
+msgstr "Prisijungti su „Open ID“."
 
 #: ckan/templates/user/openid_form.html:29
 msgid "Please click your account provider:"
-msgstr ""
+msgstr "Paspauskite savo paskyros teikėją:"
 
 #: ckan/templates/user/openid_form.html:37
 msgid ""
@@ -2185,10 +2094,14 @@ msgid ""
 "    Find out [1:more about OpenID] and [2:how to get an OpenID enabled "
 "account]."
 msgstr ""
+"„OpenID“ tarnyba leidžia su viena paskyra prisijungti prie daugelio "
+"svetainių.\n"
+"    sužinokite [1:apie „OpenID“] ir [2:apie tai, kaip gauti „OpenID“ "
+"paskyrą], daugiau."
 
 #: ckan/templates/user/openid_form.html:43
 msgid "Don't have an OpenID?"
-msgstr "Nincs OpenID felhasználója?"
+msgstr "Neturite „OpenID“ paskyros?"
 
 #: ckan/templates/user/openid_form.html:44
 msgid ""
@@ -2199,24 +2112,28 @@ msgid ""
 "a\n"
 "      free OpenID provider such as [3:https://www.myopenid.com/]."
 msgstr ""
+"„OpenID“ tarnyba leidžia su viena paskyra prisijungti prie daugelio "
+"svetainių.\n"
+"    sužinokite [1:apie „OpenID“] ir [2:apie tai, kaip gauti „OpenID“ "
+"paskyrą], daugiau.\n"
+"Bene paprasčiausias būdas yra pasinaudoti nemokamo „OpenID“ teikėjo,\n"
+"pavyzdžiui, [3:https://www.myopenid.com/], paslaugomis."
 
 #: ckan/templates/user/read.html:11
-#, fuzzy
-#| msgid "About user:"
 msgid "User:"
-msgstr "Felhasználói információk:"
+msgstr "Vartotojas:"
 
 #: ckan/templates/user/read.html:13
 msgid "My Account"
-msgstr "Saját Profilom"
+msgstr "Mano paskyra"
 
 #: ckan/templates/user/read.html:15
 msgid "You are logged in."
-msgstr "Ön be van jelentkezve."
+msgstr "Jūs esate prisijungę."
 
 #: ckan/templates/user/read.html:17
 msgid "View your API key"
-msgstr "API kulcs megtekintése"
+msgstr "Peržiūrėkite savo API raktą"
 
 #: ckan/templates/user/read.html:18
 msgid "Edit your profile"
@@ -2224,665 +2141,59 @@ msgstr ""
 
 #: ckan/templates/user/read.html:19
 msgid "Log out"
-msgstr "Kijelentkezés"
+msgstr "Atsijungti"
 
 #: ckan/templates/user/read.html:28
 msgid "Activity"
-msgstr "Tevékenységek"
+msgstr "Aktyvumas"
 
 #: ckan/templates/user/read.html:30
 msgid "Number of edits:"
-msgstr "Módosítások száma:"
+msgstr "Pakeitimų skaičius:"
 
 #: ckan/templates/user/read.html:31
 msgid "Number of packages administered:"
-msgstr "Gondozott csomagok száma:"
+msgstr "Administruojamų rinkinių skaičius:"
 
 #: ckan/templates/user/read.html:34
 msgid "Recent changes"
-msgstr "Utóbbi változások"
+msgstr "Naujausi pakeitimai"
+
+# | msgid "(required)"
+#~ msgid "Unique Name (required)"
+#~ msgstr "(būtinas)"
 
 #~ msgid "(required)"
-#~ msgstr "(kötelező)"
+#~ msgstr "(būtinas)"
 
-#~ msgid ""
-#~ "Insert a short, unique, descriptive "
-#~ "title here, using only 'a-z', '0-9' "
-#~ "and '-_'. Must be lowercase; no "
-#~ "spaces allowed."
-#~ msgstr ""
-#~ "Adjon meg rövid, egyedi, beszédes cimet,"
-#~ " kizárolag 'a-z', '0-9' és '-_' jelek"
-#~ " segítségével, csupa kisbetüvel, szóközök "
-#~ "nélkül"
+#~ msgid "There are [1:%(package_count)s] packages."
+#~ msgstr "Yra [1:%(package_count)s] rinkinių."
 
-#~ msgid "(Example: geogratis-radarsat-mosaic)"
-#~ msgstr "Például: geogratis-radarsat-mozaik)"
-
-#~ msgid ""
-#~ "Insert a more descriptive title - "
-#~ "ideally the same as that used on"
-#~ " the government website."
-#~ msgstr ""
-#~ "Adjon meg részletesebb címet, legjobb "
-#~ "esetben a kormányzati portálon használtat."
-
-#~ msgid ""
-#~ "(Example: RADARSAT Ortho-rectified Mosaic "
-#~ "of Canada, Lambert Conformal Conic, 1000"
-#~ " Metres)"
-#~ msgstr "Példa: RADARSAT Szegedi ortogonálisan vetített mozaik."
-
-#~ msgid ""
-#~ "The link to the government web "
-#~ "page where the data is described "
-#~ "and located. Do not link to the"
-#~ " dataset itself."
-#~ msgstr ""
-#~ "Hivatkozás az eredeti kormányzati weboldalra,"
-#~ " ahonnan az adatállomány származik és "
-#~ "megtalálható a leírása. Ne hivatkozza "
-#~ "közvetlenül az adatállományt."
-
-#~ msgid ""
-#~ "(Example: "
-#~ "http://geogratis.cgdi.gc.ca/geogratis/en/collection/detail.do?id=9369)"
-#~ msgstr ""
-#~ "(Példa: "
-#~ "http://geogratis.cgdi.gc.ca/geogratis/en/collection/detail.do?id=9369)"
-
-#~ msgid ""
-#~ "<div>URL: The link to the actual "
-#~ "data set (if available)</div><div>Format: "
-#~ "Describe the format type, e.g. XML, "
-#~ "CSV, SHAPE, etc.</div><div>Description: A "
-#~ "description of the data. Feel free "
-#~ "to copy the description on the "
-#~ "government website.</div><div>Hash: Just leave "
-#~ "it blank.</div>"
-#~ msgstr ""
-#~ "<div>URL: Hivatkozás az eredeti adatállományra"
-#~ " (ha elérhető)</div><div>Formátum: Írja le "
-#~ "a formátum típusát, pl. XML, CSV, "
-#~ "SHAPE, stb.</div><div>Leíras: Az adatok "
-#~ "leírasa. Akár a kormányzati oldalról "
-#~ "származó leírást is idemásolhatja.</div><div>Hash:"
-#~ " hagyja üresen.</div>"
-
-#~ msgid "Please enter in YYYY-MM-DD format."
-#~ msgstr "Használjon ÉÉÉÉ-HH-NN formátumot"
-
-#~ msgid "(Example: 2009-01-15)"
-#~ msgstr "(például 2009-01-15)"
-
-#~ msgid "(Example: 2010-04-12)"
-#~ msgstr "(Például: 2010-04-12)"
-
-#~ msgid "Select the license type"
-#~ msgstr "Válassza ki a licenc típusát"
-
-#~ msgid "Only if available"
-#~ msgstr "Amennyiben elérhető"
-
-#~ msgid "(Example: monthly)"
-#~ msgstr "(Például: havonta)"
-
-#~ msgid "Years covered"
-#~ msgstr "Évekre vonatkozóan"
-
-#~ msgid "Please enter in YYYY - YYYY format"
-#~ msgstr "Adja meg ÉÉÉÉ - ÉÉÉÉ formátumban"
-
-#~ msgid "(Example: 1992 - 1995)"
-#~ msgstr "(Például: 1992 - 1995)"
-
-#~ msgid ""
-#~ "Include tags you think are descriptive"
-#~ " and appropriate. Tags are space "
-#~ "separated; to  join two words together,"
-#~ " use a dash (-) or underscore "
-#~ "(_)."
-#~ msgstr ""
-#~ "Adjon meg releváns címkéket. A címkéket"
-#~ " szóközzel válassza el, ha össze "
-#~ "szeretne vonni szavakat, használjon '-' "
-#~ "vagy '_' jeleket."
-
-#~ msgid ""
-#~ "(Example:  radar radar-imagery radarsat-1 "
-#~ "satellite-imagery mosaic  spectral-engineering"
-#~ " geogratis canada gcmd earth-science)"
-#~ msgstr "(Például:  radar radar-képek radarsat-1 szatellit-képek mozaik)"
-
-#~ msgid ""
-#~ "A  more detailed description of the "
-#~ "data can go here. Feel free to "
-#~ "copy  & paste from the government "
-#~ "website."
-#~ msgstr ""
-#~ "Az adatok részletesebb leírásat adja meg"
-#~ " itt. Ha rendelkezésre áll másolja "
-#~ "ide az eredeti kormányzati weboldal "
-#~ "leírását."
-
-#~ msgid "What level of government produced this data?"
-#~ msgstr "A kormányzat mely szintje állította elő az adatokat?"
-
-#~ msgid "Federal Ministry (if applicable)"
-#~ msgstr "Szövetségi Minisztérium (ha elérhető)"
-
-#~ msgid "Indicate the ministry responsible for the data."
-#~ msgstr "Jelölje meg az adatokért felelős minisztériumot."
-
-#~ msgid "Indicate the agency responsible for the data."
-#~ msgstr "Jelölje meg az adatokért felelős ügynökséget."
-
-#~ msgid ""
-#~ "Include an email address for the "
-#~ "ministry or agency responsible for "
-#~ "maintaining the data (if available)."
-#~ msgstr ""
-#~ "Adja meg az adatok karbantartásáért "
-#~ "felelős ügynökség vagy minisztérium "
-#~ "emailcímet."
-
-#~ msgid "Level of government"
-#~ msgstr "A kormányzat szintje"
-
-#~ msgid "Federal Ministry"
-#~ msgstr "Szövetségi minisztérium"
-
-#~ msgid "Federal Agency"
-#~ msgstr "Szövetségi ügynökség"
-
-#~ msgid "CKAN - Comprehensive Knowledge Archive Network -"
-#~ msgstr "CKAN - Teljeskörű Tudás Archívum Hálózat -"
-
-#~ msgid "CKAN Recent Changes"
-#~ msgstr "CKAN Legutóbbi Változások"
-
-#~ msgid "CKAN Logo"
-#~ msgstr "CKAN Logó"
-
-#~ msgid "Sections:"
-#~ msgstr "Szekciók"
-
-#~ msgid "In this section:"
-#~ msgstr "Ebben a szekcióban:"
-
-#~ msgid "[ Skip to main content ]"
-#~ msgstr "[ Előreugrás a fő tartalomra ]"
-
-#~ msgid "Valid XHTML 1.1"
-#~ msgstr ""
-
-#~ msgid "XHTML"
-#~ msgstr ""
-
-#~ msgid "CSS"
-#~ msgstr ""
-
-#~ msgid "An"
-#~ msgstr "A"
-
-#~ msgid "Project"
-#~ msgstr "Projekt"
-
-#~ msgid "v"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "| (c) Open Knowledge Foundation\n"
-#~ "\t| All material available under an"
-#~ msgstr ""
-
-#~ msgid "Groups - Authorization -"
-#~ msgstr "Csoportok - Jogosultságok -"
-
-#~ msgid "Groups - Index"
-#~ msgstr "Csoportok - Listázás"
-
-#~ msgid "group"
-#~ msgstr "csoport"
-
-#~ msgid ""
-#~ "can be set-up to specify which "
-#~ "users have permission to add or "
-#~ "remove packages from it."
-#~ msgstr ""
-#~ "beállítása segítségvel megadható mely "
-#~ "felhasználók jogosultak csomagok hozzáadására "
-#~ "és törlésére a gyűjteményekből"
-
-#~ msgid "Groups - New"
-#~ msgstr "Csoportok - Új"
-
-#~ msgid "Groups -"
-#~ msgstr "Csoportok -"
-
-#~ msgid "[authorization]"
-#~ msgstr "[jogosultságok]"
-
-#~ msgid "packages in this group."
-#~ msgstr "csomagok ebben a gyűjteményben."
-
-#~ msgid "CKAN is the Comprehensive Knowledge Archive Network, a"
-#~ msgstr "A CKAN az átfogo tudás archívum hálózat, olyan"
-
-#~ msgid "of"
-#~ msgstr "amely"
-
-#~ msgid "open knowledge"
-#~ msgstr "nyílt tudást"
-
-#~ msgid ""
-#~ "packages and projects\n"
-#~ "    (and a few closed ones)."
-#~ msgstr ""
-#~ "csomagokat és projekteket\n"
-#~ "    (és pár zártat)"
-
-#~ msgid "CKAN makes it easy to"
-#~ msgstr "a CKAN megkönnyíti a"
-
-#~ msgid ""
-#~ "find, share and reuse open\n"
-#~ "      content and data"
-#~ msgstr ""
-#~ "tartalom és adatok\n"
-#~ "     keresést, megosztást és újrahasznosítását"
-
-#~ msgid ""
-#~ ", especially in ways that are machine\n"
-#~ "      automatable."
-#~ msgstr "különös tekintettel a gépi automatizálhatóságra."
-
-#~ msgid "freshmeat"
-#~ msgstr "freshmeathez"
-
-#~ msgid ""
-#~ "but for open data and\n"
-#~ "\t\tcontent resources. However it adds"
-#~ " to a simple registry in key "
-#~ "ways."
-#~ msgstr ""
-#~ "nyílt adatokra és tartalmi erőforrásokra. "
-#~ "Az egyszerü regiszter funkciójat fontos "
-#~ "elemekkel egészíti ki."
-
-#~ msgid "First, thanks to its underlying"
-#~ msgstr "Előszőr is, köszönhetően az alapul szolgáló"
-
-#~ msgid "versioned domain model"
-#~ msgstr "változáskövető modelnek"
-
-#~ msgid "CPAN"
-#~ msgstr "CPAN-hoz"
-
-#~ msgid "or"
-#~ msgstr "vagy"
-
-#~ msgid "PyPI"
-#~ msgstr "PyPI-hez"
-
-#~ msgid ""
-#~ "in the software world -- though\n"
-#~ "\t\tagain for"
-#~ msgstr "A szoftver világában -- azzal a különbséggel, hogy "
-
-#~ msgid "open data and content"
-#~ msgstr "adatokra és tartalomra"
-
-#~ msgid "not code."
-#~ msgstr "nem szoftverre értelmezett."
-
-#~ msgid ""
-#~ "these\n"
-#~ "      slides"
-#~ msgstr "ezekben a diákban."
-
-#~ msgid "The CKAN software and site is developed and maintained by the"
-#~ msgstr "A CKAN szoftverét és a weboldalt fejleszti és karbantartja"
-
-#~ msgid ""
-#~ ". Both the\n"
-#~ "    CKAN code and data are open:"
-#~ msgstr "Mind a kód mind az adatok nyíltak:"
-
-#~ msgid ""
-#~ "free for anyone to use\n"
-#~ "      and reuse"
-#~ msgstr "szabadon felhasználhatóak és újrahasznosíthatóak bárki számára"
-
-#~ msgid ". To find out more check out the the"
-#~ msgstr ". További információkért látogassa meg"
-
-#~ msgid "CKAN project page"
-#~ msgstr "CKAN projekt oldalát"
-
-#~ msgid ""
-#~ "on the Open\n"
-#~ "    Knowledge Foundation site."
-#~ msgstr "Az Open Knowledge Foundation weboldalán."
-
-#~ msgid ""
-#~ "Find out more about CKAN by "
-#~ "reading our about pages or consulting"
-#~ " the \n"
-#~ "        CKAN guide."
-#~ msgstr ""
-#~ "A CKAN-ről további információkhoz juthat "
-#~ "oldalaink és a CKAN útmutató "
-#~ "böngészésével."
-
-#~ msgid "CKAN is a registry of"
-#~ msgstr "A CKAN nyílt adat- és tartalomcsomagok regisztere. A CKAN megkönnyíti "
-
-#~ msgid ""
-#~ "open data \n"
-#~ "      and content"
-#~ msgstr ""
-
-#~ msgid "packages. CKAN makes it easy to"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "find, share and reuse \n"
-#~ "      open content and data"
-#~ msgstr "a nyílt adatok és tartalom keresését, megosztását és újrahasznosítását"
-
-#~ msgid ""
-#~ ", especially in ways that are machine \n"
-#~ "      automatable."
-#~ msgstr ""
-#~ "különös tekintettel a gépi feldolgozás "
-#~ "automatizálására való tekintettel."
-
-#~ msgid "available."
-#~ msgstr "eléretőek"
-
-#~ msgid "CKAN License"
-#~ msgstr "CKAN licenc"
-
-#~ msgid "The code that runs CKAN is open-source and licensed under the"
-#~ msgstr "A CKAN szoftvere szabad forráskódú"
-
-#~ msgid "GNU Affero GPL"
-#~ msgstr " a GNU Affero GPL licenc által biztosított feltételek mellett."
-
-#~ msgid ". It is hosted on"
-#~ msgstr "A forráskód megtalálható a"
-
-#~ msgid "KnowledgeForge"
-#~ msgstr ""
-
-#~ msgid ""
-#~ ", and the project\n"
-#~ "    home page is here:"
-#~ msgstr "és a projekt weboldala itt található:"
-
-#~ msgid "http://knowledgeforge.net/project/ckan/"
-#~ msgstr ""
-
-#~ msgid "All material on this site is"
-#~ msgstr "Az oldalon található anyagok"
-
-#~ msgid "open"
-#~ msgstr "nyíltak"
-
-#~ msgid ""
-#~ "and can be freely used, reused\n"
-#~ "    and redistributed. Formally, the "
-#~ "data/database is licensed under the"
-#~ msgstr ""
-#~ "és szabadon felhasználhatóak, újrahasznosíthatóak és terjeszthetők.\n"
-#~ "Formálisan az adatok/adatok"
-
-#~ msgid ""
-#~ "Open Data Commons Open\n"
-#~ "      Database License v1.0"
-#~ msgstr ""
-#~ "az Open Data Commons Open Database "
-#~ "licenc 1.0-ás változata alatt érhetőek "
-#~ "el"
-
-#~ msgid ""
-#~ ", with all copyrightable content in that\n"
-#~ "    database plus any additional content on this site licensed under a"
-#~ msgstr "Minden további az oldalon található tartalomra"
-
-#~ msgid ""
-#~ "Creative Commons\n"
-#~ "      Attribution Share-Alike v3.0 license"
-#~ msgstr "a Creative Commons Attribution Share-Alike v3.0-s licenc vonatkozik."
-
-#~ msgid "http://www.ckan.net/dump/"
-#~ msgstr ""
-
-#~ msgid "Stats"
-#~ msgstr "Statisztikák"
-
-#~ msgid "Packages - Authorization -"
-#~ msgstr "Csomagok - Jogosultságok -"
-
-#~ msgid "Packages - Edit -"
-#~ msgstr "Csomagok - Módosítása -"
-
-#~ msgid "Optional log message about this change:"
-#~ msgstr "Opcionális napló-üzenet a változáshoz"
-
-#~ msgid "You can use"
-#~ msgstr "Markdown formázás felhasználható"
-
-#~ msgid "Markdown formatting"
-#~ msgstr ""
-
-#~ msgid "here."
-#~ msgstr ""
-
-#~ msgid "Commit"
-#~ msgstr "Mentés"
-
-#~ msgid "Please Note:"
-#~ msgstr "Felhívjuk figyelmét, hogy"
-
-#~ msgid "(basically Attribution-ShareAlike)."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "If you are not happy for this to occur please refrain from editing\n"
-#~ "        this page."
-#~ msgstr "Ha nem ért ezzel egyet, kérjük tartozkodjon az oldal módosításától."
-
-#~ msgid "- History"
-#~ msgstr "- Történet"
-
-#~ msgid "Packages - Index"
-#~ msgstr "Csomagok - Index"
-
-#~ msgid "packages."
-#~ msgstr "csomagok."
-
-#~ msgid "This package:"
-#~ msgstr "Ez a csomag:"
-
-#~ msgid "Browse"
-#~ msgstr "Böngészés"
-
-#~ msgid "Packages - List"
-#~ msgstr "Csomagok - Lista"
+#~ msgid "Browse - Data Packages"
+#~ msgstr "Naršyti - Duomenų rinkiniai"
 
 #~ msgid "Package listing key"
-#~ msgstr "Csomagok listázási kulcs"
+#~ msgstr "Duomenų rūšiavimo raktas"
 
 #~ msgid "Openly licensed"
-#~ msgstr "Nyíltan licencelt"
+#~ msgstr "Atvira licencija"
 
 #~ msgid "Closed/unknown licensing"
-#~ msgstr "Zárt/ismeretlen licenc"
+#~ msgstr "Uždara/nežinoma licencija"
 
 #~ msgid "Resources available"
-#~ msgstr "Elérhető erőforrások"
+#~ msgstr "Turimi ištekliai"
 
 #~ msgid "Click on the arrow to show the package resources."
-#~ msgstr "Kattintson a nyílra az csomag erőforrásainak megtekintéséhez."
+#~ msgstr "Paspauskite rodyklę rinkinių išteklių peržiūrai."
 
 #~ msgid "No resources listed"
-#~ msgstr "Nincs megjelenített erőforrás"
-
-#~ msgid "Packages with a blue stripe satisfy the OKFN's"
-#~ msgstr "Kék csíkkal ellátott csomagok teljesítik az OKFN"
-
-#~ msgid "Open Knowledge Definition."
-#~ msgstr "Nyílt Tudás Definícióját."
-
-#~ msgid "Packages - New"
-#~ msgstr "Csomagok - Új"
-
-#~ msgid "Register a New Package"
-#~ msgstr "Új csomag regisztrálása"
-
-#~ msgid "Packages -"
-#~ msgstr "Csomagok -"
-
-# | msgid "This package:"
-#~ msgid "This package is"
-#~ msgstr "Ez a csomag:"
-
-# | msgid "not code."
-#~ msgid "not open"
-#~ msgstr "nem szoftverre értelmezett."
-
-#~ msgid "as it is"
-#~ msgstr ""
-
-# | msgid "Openly licensed"
-#~ msgid "not openly licensed"
-#~ msgstr "Nyíltan licencelt"
-
-#~ msgid "or is"
-#~ msgstr ""
-
-#~ msgid "missing downloadable resources"
-#~ msgstr ""
+#~ msgstr "Išteklių sąraše nėra"
 
 #~ msgid ""
-#~ ". Help\n"
-#~ "      make it open by"
+#~ "Packages with a blue stripe satisfy the OKFN's \n"
+#~ "        [1:Open Knowledge Definition.]"
 #~ msgstr ""
-
-# | msgid "make an enquiry"
-#~ msgid "starting an enquiry"
-#~ msgstr "Kezdeményezzen információ-kérést"
-
-#~ msgid "using the"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Is It Open\n"
-#~ "          Data service"
-#~ msgstr ""
-
-#~ msgid "update the package information"
-#~ msgstr "frissítené a csomag információit."
-
-#~ msgid "Packages - Search"
-#~ msgstr "Csomagok - Keresés"
-
-#~ msgid "tags found (max"
-#~ msgstr "talált címkék (legalább"
-
-#~ msgid "shown)."
-#~ msgstr "mutatva)"
-
-#~ msgid "Would you like to"
-#~ msgstr "szeretne"
-
-#~ msgid "Search Packages »"
-#~ msgstr "Csomagok Keresése »"
-
-#~ msgid "E.g. 'geo', 'shakespeare', 'science'"
-#~ msgstr "Pl. 'geo', 'Petőfi', 'tudomány'"
-
-#~ msgid "Diff"
-#~ msgstr "Különbségek"
-
-#~ msgid "CKAN Atom Feed"
-#~ msgstr ""
-
-#~ msgid "Repository History"
-#~ msgstr "Adatbázis napló"
-
-#~ msgid "Revisions - Purge"
-#~ msgstr "Változatok - Törlés"
-
-#~ msgid "Tags - Index"
-#~ msgstr "Címkék - Index"
-
-#~ msgid "Tags -"
-#~ msgstr "Címkék -"
-
-#~ msgid "packages tagged with"
-#~ msgstr "csomagok ezzel a címkével"
-
-#~ msgid "Account - Login"
-#~ msgstr "Felhasználó - Belépés"
-
-#~ msgid "User - Edit -"
-#~ msgstr "Felhasználó - Módosítás -"
-
-#~ msgid "Account - Logout"
-#~ msgstr "Felhasználó - Kilépés"
-
-#~ msgid "Login to CKAN using Open ID"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "OpenID is service that allows you "
-#~ "to log-on to many different "
-#~ "websites using a single identity.\n"
-#~ "    Find out"
-#~ msgstr ""
-
-#~ msgid "more about OpenID"
-#~ msgstr ""
-
-#~ msgid "and"
-#~ msgstr ""
-
-#~ msgid "how to get an OpenID enabled account"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "OpenID is service that allows you "
-#~ "to log-on to many different "
-#~ "websites\n"
-#~ "      using a single indentity. Find out"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "more\n"
-#~ "      about OpenID"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "how to get an\n"
-#~ "      OpenID enabled account"
-#~ msgstr ""
-
-# | msgid ". Probably the simplest\n way is sign up with a free OpenID
-# provider such as"
-#~ msgid ""
-#~ ". Probably the simplest way is sign up with a\n"
-#~ "      free OpenID provider such as"
-#~ msgstr ""
-#~ "Valószínűleg a legkönnyebb módja egy "
-#~ "ingyenes OpenID szolgáltatónal a regisztráció,"
-#~ " pl:"
-
-#~ msgid "https://www.myopenid.com/"
-#~ msgstr ""
-
-#~ msgid "User Account -"
-#~ msgstr "Felhasználói adatok -"
+#~ "Rinkiniai su mėlyna juostele atitinka OKFN \n"
+#~ "        [1:Atvirų žinių apibrėžimą.]"
 
