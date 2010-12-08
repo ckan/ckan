@@ -29,7 +29,6 @@
     <li py:for="tag in tags">
       ${h.link_to(tag.name, h.url_for(controller='tag', action='read', id=tag.name))}
     </li>
-    <p py:if="not tags" i18n:msg="no_results">No results</p>
   </ul>
   
   <!--! List of tags: pass in a collection of users and this renders the standard
@@ -38,7 +37,6 @@
       <li py:for="user in users">
         ${h.link_to(user.display_name, h.url_for(controller='user', action='read', id=user.id))}
       </li>
-      <p py:if="not users" i18n:msg="no_results">No results</p>
     </ul>
 
   <!--! List of packages: pass in a collection of tags and this renders the
@@ -69,7 +67,6 @@
           <li py:for="tag in package.tags">${tag.name}</li>
         </ul-->
     </li>
-    <p py:if="not packages" i18n:msg="no_results">No results</p>
   </ul>
 
   <!--! List of data package groups: pass in a collection of data package groups 
