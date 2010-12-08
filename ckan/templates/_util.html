@@ -49,15 +49,20 @@
 			<span class="title">
 				${h.link_to(package.title or package.name, h.url_for(controller='package', action='read', id=package.name))}
 			</span>
+			<py:if test="package.resources">
+    			<ul class="package_formats">
+    			    <py:for each="resource in package.resources">
+    			        <py:if test="resource.format and not resource.format == ''">
+    				        <li>${resource.format}</li>
+                        </py:if>
+    				</py:for>
+    			</ul>
+    		</py:if>
 		</div>
 		<div class="extract">
 			${h.markdown_extract(package.notes)}
 		</div>
 		${package_license_icon(package)}
-        ${package_resources_icon(package)}
-		<span class="name">
-		 	<b>${package.name}</b>
-		</span>
 		<py:if test="package.license">
 		    <span class="license">
 		        &middot;

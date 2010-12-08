@@ -681,6 +681,21 @@ ul.packages {
 	margin-bottom: -2px;
 }
 
+ul.package_formats {
+    padding:0; margin:0;
+    float:right;
+}
+ul.package_formats li {
+    display:inline;
+    margin:0;
+    padding:0 5px 0 5px;
+    border:none;
+    font-weight:normal;
+    font-size:0.9em;
+    color:#808080;
+    background:#ececec;
+}
+
 .openness {
 	display: inline;
 	vertical-align: bottom;

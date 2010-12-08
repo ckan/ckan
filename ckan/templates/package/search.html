@@ -7,7 +7,7 @@
 
   <xi:include href="facets.html" />
   <py:def function="page_title">Search - ${config.get('ckan.site_title')}</py:def>
-    
+
   <py:match path="primarysidebar">
     
     <li class="widget-container widget_text" py:if="h.am_authorized(c, actions.PACKAGE_CREATE)">
@@ -27,7 +27,6 @@
     ${facet_sidebar('tags')}
     ${facet_sidebar('res_format')}
     ${facet_sidebar('license')}
-
 
   </py:match>
 
