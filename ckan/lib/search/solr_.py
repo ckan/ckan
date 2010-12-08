@@ -153,7 +153,7 @@ class PackageSolrSearchIndex(SolrSearchIndex):
             del pkg_dict['relationships']
 
         pkg_dict[TYPE_FIELD] = self.TYPE
-        pkg_dict = dict([(str(k), v) for (k, v) in pkg_dict.items()])
+        pkg_dict = dict([(k.encode('ascii', 'ignore'), v) for (k, v) in pkg_dict.items()])
         
         # mark this CKAN instance as data source:
         pkg_dict['site_id'] = config.get('ckan.site_id')

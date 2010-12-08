@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: ckan 1.0a\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2010-05-10 22:45+0100\n"
-"PO-Revision-Date: 2010-12-08 13:29+0100\n"
+"PO-Revision-Date: 2010-12-08 14:10+0100\n"
 "Last-Translator: Friedrich Lindenberg <friedrich@pudo.org>\n"
 "Language-Team: Henri Ahti <henri.ahti@gmail.com>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -979,7 +979,7 @@ msgstr "Powered by CKAN"
 #: ckan/templates/layout_base.html:236
 #, python-format
 msgid "v%(version)s"
-msgstr "v%(version)ta"
+msgstr "v%(version)s"
 
 #: ckan/templates/authorization_group/authz.html:5
 msgid "- Authorization - AuthorizationGroups"
