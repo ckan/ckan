@@ -40,11 +40,12 @@
         <p i18n:msg="item_count"><strong>There was an error while searching.</strong> 
             Please try another search term.</p>
       </py:if>
-      <h4 i18n:msg="item_count"><strong>${c.page.item_count}</strong> packages found</h4>
-      <py:if test="c.page.item_count == 0">
+      <py:if test="c.q">      
+        <h4 i18n:msg="item_count"><strong>${c.page.item_count}</strong> packages found</h4>            
+     </py:if>
+      <py:if test="c.page.item_count == 0 and c.q">
         <p i18n:msg="">Would you like to <a href="${h.url_for(action='new', id=None)}">create a new package?</a></p>
       </py:if>
-      ${c.page.pager(q=c.q)}  
       ${package_list(c.page.items)}
       ${c.page.pager(q=c.q)}
 
