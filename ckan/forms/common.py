@@ -57,6 +57,15 @@ def field_readonly_renderer(key, value, newline_reqd=False):
         html += literal('<br/>')
     return html
 
+class CoreField(formalchemy.fields.Field):
+    '''A field which can sync to a core field in the model.
+    Use this for overriding AttributeFields when you want to be able
+    to set a default value without having to change the sqla Column default.'''
+    def sync(self):
+        if not self.is_readonly():
+            setattr(self.model, self.name, self._deserialize())
+    
+
 class DateTimeFieldRenderer(formalchemy.fields.DateTimeFieldRenderer):
     def render_readonly(self, **kwargs):
         return field_readonly_renderer(self.field.key,
