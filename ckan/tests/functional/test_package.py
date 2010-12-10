@@ -249,7 +249,6 @@ class TestPackageForm(TestPackageBase):
                 else:
                     pkg.purge()
                 model.repo.commit_and_remove()
-                 
 
 class TestReadOnly(TestPackageForm):
 
@@ -1214,7 +1213,7 @@ class TestNonActivePackages(TestPackageBase):
     def test_search(self):
         offset = url_for(controller='package', action='search')
         res = self.app.get(offset)
-        assert 'Search - Data Packages' in res
+        assert 'Search - ' in res
         form = res.forms['package-search']
         form['q'] =  str(self.non_active_name)
         results_page = form.submit()
