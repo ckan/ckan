@@ -353,7 +353,7 @@ class TestReadOnly(TestPackageForm):
     def test_search_foreign_chars(self):
         offset = url_for(controller='package', action='search')
         res = self.app.get(offset)
-        assert 'Search - Data Packages' in res
+        assert 'Search - ' in res
         self._check_search_results(res, u'th\xfcmb', ['<strong>1</strong>'])
         self._check_search_results(res, 'thumb', ['<strong>0</strong>'])
 
