@@ -361,7 +361,7 @@ class TestReadOnly(TestPackageForm):
         payload = '?q=fjdkf%2B%C2%B4gfhgfkgf%7Bg%C2%B4pk&search=Search+Packages+%C2%BB'
         offset = url_for(controller='package', action='search') + payload
         results_page = self.app.get(offset)
-        assert 'Search - Data Packages' in results_page, results_page
+        assert 'Search - ' in results_page, results_page
         results_page = self.main_div(results_page)
         assert '<strong>0</strong>' in results_page, results_page
 
