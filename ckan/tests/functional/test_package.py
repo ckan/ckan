@@ -286,7 +286,6 @@ class TestReadOnly(TestPackageForm):
         assert '<strong>Some bolded text.</strong>' in res
         self.check_tag_and_data(res, 'left arrow', '&lt;')
         self.check_tag_and_data(res, 'umlaut', u'\xfc')
-        assert 'License:' in res
         #assert 'OKD Compliant::' in res
         assert 'russian' in res
         assert 'david' in res
