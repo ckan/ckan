@@ -94,7 +94,7 @@ class PackageController(BaseController):
         # note: we need pkg.id in addition to pkg.revision.id because a
         # revision may have more than one package in it.
         return str(hash((pkg.id, pkg.latest_related_revision.id, c.user, pkg.get_average_rating())))
-        
+
     def _clear_pkg_cache(self, pkg):
         read_cache = cache.get_cache('package/read.html', type='dbm')
         read_cache.remove_value(self._pkg_cache_key(pkg))
