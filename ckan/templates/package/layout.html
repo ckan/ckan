@@ -12,6 +12,9 @@
       <li py:if="h.am_authorized(c, actions.EDIT, c.pkg)">
           ${h.subnav_link(c, h.icon('package_edit') + _('Edit'), controller='package', action='edit', id=c.pkg.name)}
       </li>
+      <li>
+          ${h.subnav_link(c, h.icon('comments') + _('Comments &amp; Quesitons'), controller='package', action='comments', id=c.pkg.name)}
+      </li>
       <li>${h.subnav_link(c, h.icon('page_white_stack') + _('History'), controller='package', action='history', id=c.pkg.name)}</li>
       <li py:if="h.am_authorized(c, actions.EDIT_PERMISSIONS, c.pkg)">
         ${h.subnav_link(c, h.icon('lock') + _('Authorization'), controller='package', action='authz', id=c.pkg.name)}
