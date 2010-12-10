@@ -277,7 +277,6 @@ class TestReadOnly(TestPackageForm):
         assert res_by_id.body == res.body
         # only retrieve after app has been called
         anna = self.anna
-        assert '%s - Data Packages' % anna.title in res
         assert name in res
         assert anna.version in res
         assert anna.url in res
@@ -342,7 +341,7 @@ class TestReadOnly(TestPackageForm):
     def test_search(self):
         offset = url_for(controller='package', action='search')
         res = self.app.get(offset)
-        assert 'Search - Data Packages' in res
+        assert 'Search - ' in res
         self._check_search_results(res, 'annakarenina', ['<strong>1</strong>', 'A Novel By Tolstoy'] )
         self._check_search_results(res, 'warandpeace', ['<strong>0</strong>'], only_downloadable=True )
         self._check_search_results(res, 'warandpeace', ['<strong>0</strong>'], only_open=True )
@@ -371,7 +370,7 @@ class TestReadOnly(TestPackageForm):
         form['open_only'] = only_open
         form['downloadable_only'] = only_downloadable
         results_page = form.submit()
-        assert 'Search - Data Packages' in results_page, results_page
+        assert 'Search - ' in results_page, results_page
         results_page = self.main_div(results_page)
         for required in requireds:
             assert required in results_page, "%s : %s" % (results_page, required)
