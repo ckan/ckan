@@ -6,45 +6,7 @@
   <py:def function="page_title">${c.pkg.title or c.pkg.name} - Data Packages</py:def>
       
   <py:match path="primarysidebar">
-          <!--
-    <li class="widget-container widget_text">
-      <div class="information">
-        <dl class="icons clearfix">
-          <dt>${h.icon('user')}</dt>
-          <dd>${c.pkg_author_link}</dd>
-          <dt>${h.icon('user_grey')}</dt>
-          <dd>${c.pkg_maintainer_link}</dd>
-          <dt>${h.icon('package')}</dt>
-          <dd i18n:msg="pkg_version">Version <strong>${c.pkg.version}</strong></dd>
-          <dt>${package_license_icon(c.pkg)}</dt>
-          <py:choose test="">
-            <dd py:when="c.pkg.license and c.pkg.license.url"><a href="${c.pkg.license.url}">${c.pkg.license.title}</a></dd>
-            <dd py:when="c.pkg.license">${c.pkg.license.title}</dd>
-            <dd py:when="c.pkg.license_id">${c.pkg.license_id}</dd>
-            <dd py:otherwise="">
-              License not given
-            </dd>
-          </py:choose>
-          <dt>${package_resources_icon(c.pkg)}</dt>
-          <dd>${_("Downloadable resources") if c.pkg.resources else _("No resources")}</dd>
-        </dl>
-        <py:if test="c.package_relationships">
-          <h3>Related packages</h3>
-          <ul>
-            <py:for each="pkg, relationship_str, comment in c.package_relationships">
-              <li>
-                ${h.literal(relationship_str % (h.link_to(pkg.name, h.url_for(controller="package", action="read", id=pkg.name))))}
-                <span py:if="comment is not None and len(comment)" class="relationship_comment">
-                    (${comment})
-                </span>
-              </li>
-            </py:for>
-          </ul>
-        </py:if>
-      </div>
 
-    </li>
-      -->
     <li class="widget-container widget_text" py:if="not c.hide_welcome_message">
       <h3>First time at ${config.get('ckan.site_title')}?</h3>        
       <p>
@@ -124,6 +86,9 @@
           Data service</a>.</p>
       </div>
       </py:choose>
+    </li>
+    <li>
+            <div class="package-atom-feed"><a href="?format=atom"><img style="height:16; width:16; margin-bottom:-0.3em" src="/images/icons/atom_feed.png" alt="Atom Feed" title="${g.site_title} - Package History - ${c.pkg.name}"/></a> <a href="/package/history/${c.pkg.name}?format=atom&amp;days=7">Subscribe &raquo;</a></div>
     </li>
   </py:match>
 

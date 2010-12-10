@@ -845,7 +845,7 @@ ul.package_formats li {
 }
 
 .package div.url {
-  margin: 0 ;
+  margin: 0!important;
 }
 
 .package .url a {
