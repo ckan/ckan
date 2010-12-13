@@ -60,10 +60,6 @@ a:hover {
   color: #333;
 }
 
-#site-title a:hover, #site-title a:active {
-  color: #d06;
-}
-
 /* hide the main twentyten image */
 #branding img {
 	display:none;
