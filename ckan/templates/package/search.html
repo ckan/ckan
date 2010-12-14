@@ -6,14 +6,14 @@
   py:strip="">
 
   <xi:include href="facets.html" />
-  <py:def function="page_title">Search - ${config.get('ckan.site_title')}</py:def>
+  <py:def function="page_title">Search - ${g.site_title}</py:def>
 
   <py:match path="primarysidebar">
     
     <li class="widget-container widget_text" py:if="h.am_authorized(c, actions.PACKAGE_CREATE)">
         <h4>Add a package</h4>
         <p>
-            Do you know of a dataset that should be added to ${config.get('ckan.site_title')}?
+            Do you know of a dataset that should be added to ${g.site_title}?
             <br/>
             
             
@@ -31,7 +31,7 @@
   </py:match>
 
   <div py:match="content">
-    <h2>Search ${config.get('ckan.site_title')}</h2>
+    <h2>Search ${g.site_title}</h2>
     
     <xi:include href="search_form.html" />
     ${field_list()}   

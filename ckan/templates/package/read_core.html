@@ -4,16 +4,15 @@
   >
   <xi:include href="../_util.html" />
   <div class="package">
-    <p class="atom-feed-link package-history-link">
-      <a
-        href="${url(controller='package', action='history', id=c.pkg.name, format='atom', days=7)}"
-        title="${g.site_title} - Package History - ${c.pkg.name}">
-        Subscribe &raquo;</a>
-    </p>
-
     <!-- Title -->
     <h2 class="head">
       ${c.pkg.title}
+      <p class="atom-feed-link package-history-link">
+        <a
+          href="${url(controller='package', action='history', id=c.pkg.name, format='atom', days=7)}"
+          title="${g.site_title} - Package History - ${c.pkg.name}">
+          Subscribe &raquo;</a>
+      </p>
     </h2>
     
     <!-- Source URL -->    
@@ -111,18 +110,18 @@
     </div>
     
     <div class="api">
-        <h4>${config.get('ckan.site_title')} API / datapkg</h4>
+        <h4>${g.site_title} API / datapkg</h4>
         <div>
             <p>
-                This information on this page (the package metadata) is also available programatically via the <a href="http://knowledgeforge.net/ckan/doc/ckan/api.html">${config.get('ckan.site_title')}</a>
+                This information on this page (the package metadata) is also available programatically via the <a href="http://knowledgeforge.net/ckan/doc/ckan/api.html">${g.site_title}</a>
             </p>
             <h5>JSON:</h5>
             <code>
                 <py:if test="config.get('ckan.api_url')">                
-                    <a href="${config.get('ckan.api_url') + h.url_for(controller='rest', register='package', action='show', id=c.pkg.name)}">${config.get('ckan.api_url') + h.url_for(controller='rest', register='package', action='show', id=c.pkg.name)}</a>
+                  <a href="${config.get('ckan.api_url') + h.url_for(controller='rest', register='package', action='show', id=c.pkg.name)}">${config.get('ckan.api_url') + h.url_for(controller='rest', register='package', action='show', id=c.pkg.name)}</a>
                 </py:if>                
                 <py:if test="not config.get('ckan.api_url')">
-                    <a href="${config.get('ckan.site_url') + h.url_for(controller='rest', register='package', action='show', id=c.pkg.name)}">${config.get('ckan.site_url') + h.url_for(controller='rest', register='package', action='show', id=c.pkg.name)}</a>
+                    <a href="${h.url_for(controller='rest', register='package', action='show', id=c.pkg.name)}">${h.url_for(controller='rest', register='package', action='show', id=c.pkg.name)}</a>
                 </py:if>
             </code>
             <py:if test="config.get('rdf_packages')">

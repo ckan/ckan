@@ -499,7 +499,7 @@ h1, h2, h3, h4, h5, h6 {
 /* = Search boxes = */
 /* ================ */
 
-input.search {
+form.package-search input.search {
   width: 99%;
   padding: 5px;
   font-size: 1.1em;
@@ -891,6 +891,12 @@ ul.package_formats li {
 
 .relationship_comment {
   font-style: italic;
+}
+
+p.atom-feed-link {
+  float: right;
+  display: inline;
+  font-size: 14px;
 }
 
 p.atom-feed-link a {

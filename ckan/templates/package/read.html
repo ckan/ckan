@@ -46,9 +46,9 @@
     </li>
       -->
     <li class="widget-container widget_text" py:if="not c.hide_welcome_message">
-      <h3>First time at ${config.get('ckan.site_title')}?</h3>        
+      <h3>First time at ${g.site_title}?</h3>        
       <p>
-          ${config.get('ckan.site_title')} is a catalogue for data. ${h.subnav_link(c, _('Click here to find out more ...'), controller='home', action='about', id=None)}
+          ${g.site_title} is a catalogue for data. ${h.subnav_link(c, _('Click here to find out more ...'), controller='home', action='about', id=None)}
       </p>
     </li>
 
@@ -70,7 +70,7 @@
             </ul>
         </py:if>
         <py:if test="not c.pkg.groups">
-             Groups are collecitons of packages maintained by users of ${config.get('ckan.site_title')}. This package has not been added to any groups yet.
+             Groups are collecitons of packages maintained by users of ${g.site_title}. This package has not been added to any groups yet.
         </py:if>
         <p class="widget_action">
             ${h.subnav_link(c, 'Add to a Group', controller='package', action='edit', id=c.pkg.name)}        
