@@ -67,10 +67,6 @@ a:hover {
   color: #333;
 }
 
-#site-title a:hover, #site-title a:active {
-  color: #d06;
-}
-
 /* hide the main twentyten image */
 #branding img {
 	display:none;
@@ -895,4 +891,9 @@ ul.package_formats li {
 
 .relationship_comment {
   font-style: italic;
+}
+
+p.atom-feed-link a {
+  background: url('../images/icons/atom_feed.png') no-repeat;
+  padding-left: 20px;
 }

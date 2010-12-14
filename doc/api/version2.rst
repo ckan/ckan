@@ -92,7 +92,7 @@ This URL:
 
 ::
 
-    /api/2/util/tag/autocomplete?incomplete=title=ru
+    /api/2/util/tag/autocomplete?incomplete=ru
 
 Returns:
 

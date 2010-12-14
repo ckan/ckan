@@ -4,7 +4,12 @@
   >
   <xi:include href="../_util.html" />
   <div class="package">
-    <div class="package-atom-feed"><a href="?format=atom"><img style="height:16; width:16; margin-bottom:-0.3em" src="/images/icons/atom_feed.png" alt="Atom Feed" title="${g.site_title} - Package History - ${c.pkg.name}"/></a> <a href="/package/history/${c.pkg.name}?format=atom&amp;days=7">Subscribe &raquo;</a></div>
+    <p class="atom-feed-link package-history-link">
+      <a
+        href="${url(controller='package', action='history', id=c.pkg.name, format='atom', days=7)}"
+        title="${g.site_title} - Package History - ${c.pkg.name}">
+        Subscribe &raquo;</a>
+    </p>
 
     <!-- Title -->
     <h2 class="head">
@@ -94,7 +99,7 @@
           </py:choose>
           </td>
         </tr>
-        <tr py:for="key, value in sorted(c.pkg.extras.items())">
+        <tr py:for="key, value in c.pkg_extras">
           <td class="package-label">${key}</td>
           <td class="package-details">${value}</td>
         </tr>

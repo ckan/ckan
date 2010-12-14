@@ -71,7 +71,7 @@ class SuggestTagRenderer(common.TagField.TagEditRenderer):
         for field_name, field in fs.render_fields.items():
             pkg_dict[field_name] = field.renderer.value
         tag_suggestions = schema_gov.suggest_tags(pkg_dict)
-        html = literal("<div>Suggestions (preview refreshes): %s</div>") % ' '.join(tag_suggestions)
+        html = literal(_("<div>Suggestions (preview refreshes): %s</div>")) % ' '.join(tag_suggestions)
         html += common.TagField.TagEditRenderer.render(self, **kwargs)
         return html
         
@@ -126,7 +126,7 @@ def build_package_gov_form(is_admin=False, user_editable_groups=None, **kwargs):
                              'license_id', 'tags' ]),
         ])
     if is_admin:
-        field_groups['More details'].append('state')
+        field_groups[_('More details')].append('state')
     builder.set_displayed_fields(field_groups)
     return builder
     # Strings for i18n

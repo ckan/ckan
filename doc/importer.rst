@@ -10,6 +10,8 @@ This part of the CKAN web interface provides an easy way to import packages
 into CKAN in bulk via a spreadsheet. It fills the gap between entry via a 
 simple form (/package/new) and the RESTful API (/api/rest).
 
+** NB: This feature is not currently available. **
+
 
 Details
 =======

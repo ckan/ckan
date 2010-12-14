@@ -1,5 +1,8 @@
 User-agent: *
 Disallow: /package/rate/
+Disallow: /revision/
+Disallow: /package/*/history
+Disallow: /api/
 
 User-Agent: *
 Crawl-Delay: 10

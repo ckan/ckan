@@ -138,7 +138,8 @@
   </py:if>
 
   <py:def function="optional_feed">
-  <link rel="alternate" type="application/atom+xml" title="${g.site_title} - Package History - ${c.pkg.name}" href="/package/history/${c.pkg.name}?format=atom&amp;days=7" />
+  <link rel="alternate" type="application/atom+xml" title="Package History"
+    href="${url(controller='package', action='history', id=c.pkg.name, format='atom', days=7)}" />
   </py:def>
 
   <xi:include href="layout.html" />

@@ -55,9 +55,14 @@ setup(
     package_data={'ckan': ['i18n/*/LC_MESSAGES/*.mo']},
     message_extractors = {'ckan': [
             ('**.py', 'python', None),
-            ('templates/_util.html', 'ignore', None),
             ('templates/importer/**', 'ignore', None),
             ('templates/**.html', 'genshi', None),
+            ('templates/**.js', 'genshi', {
+                'template_class': 'genshi.template:TextTemplate'
+            }),
+            ('templates/**.txt', 'genshi', {
+                'template_class': 'genshi.template:TextTemplate'
+            }),
             ('public/**', 'ignore', None),
             ]},
     entry_points="""

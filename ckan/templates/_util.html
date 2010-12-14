@@ -1,5 +1,6 @@
 <html
   xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
   xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip=""
@@ -28,7 +29,6 @@
     <li py:for="tag in tags">
       ${h.link_to(tag.name, h.url_for(controller='tag', action='read', id=tag.name))}
     </li>
-    <p py:if="not tags">No results</p>
   </ul>
   
   <!--! List of tags: pass in a collection of users and this renders the standard
@@ -37,7 +37,6 @@
       <li py:for="user in users">
         ${h.link_to(user.display_name, h.url_for(controller='user', action='read', id=user.id))}
       </li>
-      <p py:if="not users">No results</p>
     </ul>
 
   <!--! List of packages: pass in a collection of tags and this renders the
@@ -119,7 +118,7 @@
 
   <!--! Package openness icons -->
   <img py:def="package_license_icon(package)"
-    src="/images/icons/door_${'open' if package.isopen() else 'grey'}.png"
+    src="${g.site_url}/images/icons/door_${'open' if package.isopen() else 'grey'}.png"
     title="License: ${package.license.title if hasattr(package.license, 'title') else '?'}"
     alt="${'OPEN' if package.isopen() else 'CLOSED'}" />
 

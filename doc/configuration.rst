@@ -40,6 +40,19 @@ Default value:  ``standard``
 This sets the name of the form to use when editing a package. This can be a form defined in the core CKAN code or in another setuputils-managed python module. The only requirement is that the setup.py has an entrypoint for the form defined in the `ckan.forms` section. See :doc:`forms`
 
 
+package_hide_extras
+-------------------
+
+Example::
+
+ package_hide_extras = my_private_field other_field
+
+Default value:  (empty)
+
+This sets a space-seperated list of extra field key values which will not be shown on the package read page. While this is useful to create internal notes etc., it is not a security measure in any way. The keys will 
+still be available via the API and in revision diffs. 
+
+
 rdf_packages
 ------------
 

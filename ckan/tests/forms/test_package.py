@@ -76,7 +76,12 @@ class TestForms(PylonsTestCase, HtmlCheckMethods):
         out = fs.tags.render()
         assert out
         assert 'tags' in out
-        self.check_tag(out, 'russian', 'tolstoy')
+        self.check_tag(out, 'input', 'russian', 'tolstoy')
+
+        out = fs.tags.render_readonly()
+        self.check_tag(out, 'a', '/tag/russian')
+        self.check_tag(out, 'a', '/tag/tolstoy')
+        self.check_named_element(out, 'a', '>russian<')
 
     def test_2_resources(self):
         fs = self._get_standard_fieldset()

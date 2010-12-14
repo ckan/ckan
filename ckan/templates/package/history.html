@@ -8,9 +8,11 @@
   <py:match path="primarysidebar">
     <li class="widget-container widget_text">
         <h4>Updates</h4>
-        <p>
-            <a href="?format=atom"><img style="height:16; width:16; margin-bottom:-0.3em" src="/images/icons/atom_feed.png" alt="Atom Feed" title="${g.site_title} - Package History - ${c.pkg.name}"/></a>
-            <a href="/package/history/${c.pkg.name}?format=atom&amp;days=7">Subscribe to an RSS feed of changes to this package</a>
+        <p class="atom-feed-link package-history-link">
+          <a
+            href="${url(controller='package', action='history', id=c.pkg.name, format='atom', days=7)}"
+            title="${g.site_title} - Package History - ${c.pkg.name}">
+            Subscribe &raquo;</a>
         </p>
     </li>
   </py:match>
@@ -22,7 +24,7 @@
       ${c.pkg.title} - History
     </h2>
 
-    <h4>Revisions</h4>
+    <h3>Revisions</h3>
     <form id="package-revisions" action="diff" method="post"
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -58,7 +60,8 @@
   </div> <!-- content -->
 
   <py:def function="optional_feed">
-  <link rel="alternate" type="application/atom+xml" title="Package History" href="/package/history/${c.pkg.name}?format=atom&amp;days=7" />
+  <link rel="alternate" type="application/atom+xml" title="Package History"
+    href="${url(controller='package', action='history', id=c.pkg.name, format='atom', days=7)}" />
   </py:def>
 
   <xi:include href="layout.html" />
