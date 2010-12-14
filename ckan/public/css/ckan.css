@@ -67,10 +67,6 @@ a:hover {
   color: #333;
 }
 
-#site-title a:hover, #site-title a:active {
-  color: #d06;
-}
-
 /* hide the main twentyten image */
 #branding img {
 	display:none;
@@ -442,23 +438,8 @@ caption {
     padding-top:0.5em;
     color:#888;
     padding-left:0.8em;
-
-/* ===========================
- * Misc
- */
-
-p.atom-feed-link {
-  float: right;
-  display: inline;
-  font-size: 14px;
-
 }
 
-p.atom-feed-link a {
-  background: url('../images/icons/atom_feed.png') no-repeat;
-  padding-left: 20px
-  
-}
 
 
 /* ============= */
@@ -471,6 +452,7 @@ p.atom-feed-link a {
 	height: 0;
 	clear: both;
 	visibility: hidden;
+}
 
 .clearfix { display: inline-block; } /* for IE/Mac */
 
@@ -845,7 +827,7 @@ ul.package_formats li {
 }
 
 .package div.url {
-  margin: 0!important;
+  margin: 0 ;
 }
 
 .package .url a {
@@ -909,4 +891,9 @@ ul.package_formats li {
 
 .relationship_comment {
   font-style: italic;
+}
+
+p.atom-feed-link a {
+  background: url('../images/icons/atom_feed.png') no-repeat;
+  padding-left: 20px;
 }

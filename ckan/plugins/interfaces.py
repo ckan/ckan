@@ -8,7 +8,8 @@ __all__ = [
     'IGenshiStreamFilter', 'IRoutes',
     'IMapper', 'ISession',
     'IDomainObjectModification', 'IGroupController', 
-    'IPackageController', 'IPluginObserver', 'IConfigurable'
+    'IPackageController', 'IPluginObserver',
+    'IConfigurable', 'IConfigurer'
 ]
 
 from inspect import isclass
@@ -246,3 +247,17 @@ class IConfigurable(Interface):
         """
         Called by load_environment
         """
+
+class IConfigurer(Interface): 
+    """
+    Configure CKAN (pylons) environment via the ``pylons.config`` object
+    """
+    
+    def update_config(self, config):
+        """
+        Called by load_environment at earliest point when config is
+        available to plugins. The config should be updated in place.
+        
+        :param config: ``pylons.config`` object
+        """
+

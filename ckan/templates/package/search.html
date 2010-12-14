@@ -6,7 +6,7 @@
   py:strip="">
 
   <xi:include href="facets.html" />
-  <py:def function="page_title">Search</py:def>
+  <py:def function="page_title">Search - ${config.get('ckan.site_title')}</py:def>
 
   <py:match path="primarysidebar">
     
@@ -22,7 +22,7 @@
             <a href="${h.url_for(controller='package', action='new', id=None)}">Register it now</a>.
         </p>
     </li>
-
+ 
     ${facet_sidebar('groups', label=h.group_name_to_title)}
     ${facet_sidebar('tags')}
     ${facet_sidebar('res_format')}
