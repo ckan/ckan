@@ -46,7 +46,7 @@ class TestGroup(FunctionalTestCase):
         res = self.app.get(offset)
         assert 'Groups' in res, res
         assert 'Groups</a>' in res, res
-        res = res.click(href='/group/')
+        res = res.click(href='/group/', index=0)
         assert '<h2>Groups</h2>' in res, res
 
     def test_index(self):
