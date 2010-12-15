@@ -559,7 +559,7 @@ def _get_ini_value(key, ini_filepath=None):
     if not ini_filepath:
         # default to config ini
         ini_filepath = os.path.join(env.instance_path, env.config_ini_filename)
-    assert exists(ini_filepath)
+    assert exists(ini_filepath), 'Could not find CKAN instance config at: ' % ini_filepath
     with settings(warn_only=True):
         output = run('grep -E "^%s" %s' % (key, ini_filepath))
     if output == '':
