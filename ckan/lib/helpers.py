@@ -29,7 +29,7 @@ except ImportError:
 # FIXME: shouldn't have to pass the c object in to this.
 def nav_link(c, text, controller, **kwargs):
     return link_to(
-        text, 
+        text,
         url_for(controller=controller, **kwargs),
         class_=('active' if c.controller == controller else '')
     )

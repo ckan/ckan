@@ -4,21 +4,27 @@
   
   <py:def function="page_title">${c.pkg.title or c.pkg.name} - Data Packages - History</py:def>
 
-  <div py:match="content" class="package package-history">
+  <!-- Sidebar -->
+  <py:match path="primarysidebar">
+    <li class="widget-container widget_text">
+        <h4>Updates</h4>
+        <p class="atom-feed-link package-history-link">
+          <a
+            href="${url(controller='package', action='history', id=c.pkg.name, format='atom', days=7)}"
+            title="${g.site_title} - Package History - ${c.pkg.name}">
+            Subscribe &raquo;</a>
+        </p>
+    </li>
+  </py:match>
+  
+  <div py:match="content" class="package">
+
+    <!-- Title -->
     <h2 class="head">
-      ${c.pkg.title}
-      <span class="name">(${c.pkg.name})</span>
+      ${c.pkg.title} - History
     </h2>
 
-    <h3>
-      Revisions
-      <p class="atom-feed-link package-history-link">
-        <a
-          href="${url(controller='package', action='history', id=c.pkg.name, format='atom', days=7)}"
-          title="${g.site_title} - Package History - ${c.pkg.name}">
-          Subscribe &raquo;</a>
-      </p>
-    </h3>
+    <h3>Revisions</h3>
     <form id="package-revisions" action="diff" method="post"
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:xi="http://www.w3.org/2001/XInclude"

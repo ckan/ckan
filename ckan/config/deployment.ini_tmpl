@@ -43,19 +43,24 @@ who.config_file = %(here)s/who.ini
 who.log_level = warning
 who.log_file = %(cache_dir)s/who_log.ini
 
-# CKAN caching 
-cache_enabled = False
+# CKAN auth configuration (TODO: rename to ckan.auth or similar ...)
+# space separated list ...
+auth.admins = 
+
+# CKAN search cache
+# any non-empty value enables it
+enable_caching =
 # cache to persistent files
 beaker.cache.type = file
 # cache expiry settings for specific controllers
 # by default these are disabled, enable as needed to a time in seconds
-ckan.controllers.home.expires = 0
-ckan.controllers.package.list.expires = 0
-ckan.controllers.tag.read.expires = 0
-ckan.controllers.apiv1.package.list.expires = 0
-ckan.controllers.apiv1.package.show.expires = 0
-ckan.controllers.apiv2.package.list.expires = 0
-ckan.controllers.apiv2.package.show.expires = 0
+ckan.controllers.home.expires = -1
+ckan.controllers.package.list.expires = -1
+ckan.controllers.tag.read.expires = -1
+ckan.controllers.apiv1.package.list.expires = -1
+ckan.controllers.apiv1.package.show.expires = -1
+ckan.controllers.apiv2.package.list.expires = -1
+ckan.controllers.apiv2.package.show.expires = -1
 
 # CKAN QoS monitoring
 # any non-empty value enables it

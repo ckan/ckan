@@ -4,8 +4,9 @@
   py:strip="">
 
   <py:def function="page_title">${c.pkg.title or c.pkg.name} - Data Packages</py:def>
-
+      
   <py:match path="primarysidebar">
+          <!--
     <li class="widget-container widget_text">
       <div class="information">
         <dl class="icons clearfix">
@@ -41,8 +42,40 @@
           </ul>
         </py:if>
       </div>
+
+    </li>
+      -->
+    <li class="widget-container widget_text" py:if="not c.hide_welcome_message">
+      <h3>First time at ${g.site_title}?</h3>        
+      <p>
+          ${g.site_title} is a catalogue for data. ${h.subnav_link(c, _('Click here to find out more ...'), controller='home', action='about', id=None)}
+      </p>
     </li>
 
+    <li class="widget-container widget_text">
+        <h4>Tags</h4>
+        ${tag_list(c.pkg.tags)}
+        <p class="widget_action">
+            ${h.subnav_link(c, 'Add a new Tag', controller='package', action='edit', id=c.pkg.name)}
+        </p>
+    </li>
+
+    <li class="widget-container widget_text">
+        <h4>Groups</h4>
+        <py:if test="c.pkg.groups">        
+            <ul>
+              <li py:for="group in c.pkg.groups">
+                  <a href="${h.url_for(controller='group', action='read', id=group.name)}">${group.name}</a>
+              </li>
+            </ul>
+        </py:if>
+        <py:if test="not c.pkg.groups">
+             Groups are collecitons of packages maintained by users of ${g.site_title}. This package has not been added to any groups yet.
+        </py:if>
+        <p class="widget_action">
+            ${h.subnav_link(c, 'Add to a Group', controller='package', action='edit', id=c.pkg.name)}        
+        </p>
+    </li>
     <li class="widget-container widget_text">
       <h2>Openness:
         <py:choose test="">
@@ -91,35 +124,6 @@
           Data service</a>.</p>
       </div>
       </py:choose>
-    </li>
-
-    <py:if test="h.am_authorized(c, actions.EDIT, c.pkg)">
-    <li class="widget-container widget_text">
-      <h2>Edit this Package</h2>
-        <p i18n:msg="">
-          Can you help us keep this page up to date?
-          If so, why not
-          <a href="${h.url_for(controller='package',action='edit',id=c.pkg.name)}">
-            update the package information</a>.
-        </p>
-    </li>
-    </py:if>
-
-    <li class="widget-container widget_text">
-      <div class="formats">
-        <h2>Alternative metadata formats</h2>
-        <ul class="clearfix">
-          <li>
-            <a href="${h.url_for(controller='rest', register='package', action='show', id=c.pkg.name)}">
-              <img src="${h.icon_url('page_white_json')}" title="JSON format" alt="JSON" /></a>
-          </li>
-          <li py:if="config.get('rdf_packages')">
-            <a href="${config.get('rdf_packages') + c.pkg.name[0] + '/' + c.pkg.name[1] + '/' + c.pkg.name}">
-              <img src="${h.icon_url('page_white_rdf')}" title="RDF format" alt="RDF" />
-            </a>
-          </li>
-        </ul>
-      </div>
     </li>
   </py:match>
 
