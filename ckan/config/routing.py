@@ -31,7 +31,6 @@ def make_map():
     map.connect('license', '/license', controller='home', action='license')
     map.connect('/language.js', controller='home', action='language')
     map.connect('about', '/about', controller='home', action='about')
-    map.connect('stats', '/stats', controller='home', action='stats')
     # TODO get admin controller working again #829
     #maps.admin_map(map, controller='admin', url='/admin')
     # CKAN API.
