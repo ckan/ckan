@@ -21,7 +21,7 @@ setup(
     install_requires=[
         'routes>=1.9,<=1.11.99',
         'vdm>=0.6,<0.8.99',
-        'ckanclient>=0.1,<0.4.99',
+        'ckanclient>=0.1,<0.5.99',
         'Pylons>=0.9.7.0,<0.9.7.99',
         'Genshi>=0.6',
         'SQLAlchemy>=0.4.8,<=0.4.99',
