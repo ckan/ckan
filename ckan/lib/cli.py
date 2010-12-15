@@ -200,6 +200,7 @@ class SearchIndexCommand(CkanCommand):
 
     def command(self):
         self._load_config()
+        from ckan.lib.search import rebuild
 
         if not self.args:
             # default to run

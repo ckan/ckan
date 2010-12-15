@@ -1,5 +1,9 @@
+from nose.tools import assert_raises
+
 from ckan.tests import *
+
 from wsgi_ckanclient import *
+from ckanclient import CkanApiError
 
 class TestWsgiCkanClient(TestController):
     def setup(self):
@@ -15,5 +19,5 @@ class TestWsgiCkanClient(TestController):
         assert len(register) == 2, register
 
     def test_404(self):
-        self.client.open_url('/random')
+        assert_raises(CkanApiError, self.client.open_url, '/random')
         assert self.client.last_status == 404

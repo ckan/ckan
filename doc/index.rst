@@ -20,7 +20,6 @@ Contents:
    plugins
    feeds
    loader_scripts
-   getdata
    importer
    forms
    form-integration

@@ -57,6 +57,15 @@ def field_readonly_renderer(key, value, newline_reqd=False):
         html += literal('<br/>')
     return html
 
+class CoreField(formalchemy.fields.Field):
+    '''A field which can sync to a core field in the model.
+    Use this for overriding AttributeFields when you want to be able
+    to set a default value without having to change the sqla Column default.'''
+    def sync(self):
+        if not self.is_readonly():
+            setattr(self.model, self.name, self._deserialize())
+    
+
 class DateTimeFieldRenderer(formalchemy.fields.DateTimeFieldRenderer):
     def render_readonly(self, **kwargs):
         return field_readonly_renderer(self.field.key,
@@ -296,24 +305,29 @@ class TextRangeExtraField(RegExRangeValidatingField):
 class ResourcesField(ConfiguredField):
     '''A form field for multiple package resources.'''
 
-    def __init__(self, name, hidden_label=False):
+    def __init__(self, name, hidden_label=False, fields_required=None):
         super(ResourcesField, self).__init__(name)
         self._hidden_label = hidden_label
+        self.fields_required = fields_required or set(['url'])
+        assert isinstance(self.fields_required, set)
 
-    def url_validator(self, val, field=None):
+    def resource_validator(self, val, field=None):
         resources_data = val
         assert isinstance(resources_data, list)
-        url_regex = re.compile('\S') # Todo: Restrict this further?
-        errormsg = 'Package resources must have URLs.'
-        validator = formalchemy.validators.regex(url_regex, errormsg)
+        not_nothing_regex = re.compile('\S')
+        errormsg = _('Package resource(s) incomplete.')
+        not_nothing_validator = formalchemy.validators.regex(not_nothing_regex,
+                                                             errormsg)
         for resource_data in resources_data:
             assert isinstance(resource_data, dict)
-            resource_url = resource_data.get('url', '')
-            validator(resource_url, field)
-
+            for field in self.fields_required:
+                value = resource_data.get(field, '')
+                not_nothing_validator(value, field)
+            
     def get_configured(self):
-        field = self.ResourcesField(self.name).with_renderer(self.ResourcesRenderer).validate(self.url_validator)
+        field = self.ResourcesField(self.name).with_renderer(self.ResourcesRenderer).validate(self.resource_validator)
         field._hidden_label = self._hidden_label
+        field.fields_required = self.fields_required
         field.set(multiple=True)
         return field
 
@@ -333,6 +347,12 @@ class ResourcesField(ConfiguredField):
             # need this because it is a property
             return getattr(self.model, self.name)
 
+        def is_required(self, field_name=None):
+            if not field_name:
+                return False
+            else:
+                return field_name in self.fields_required
+
 
     class ResourcesRenderer(formalchemy.fields.FieldRenderer):
         def render(self, **kwargs):
@@ -341,6 +361,9 @@ class ResourcesField(ConfiguredField):
             c.resources = c.resources[:]
             c.resources.extend([None])
             c.id = self.name
+            c.columns = model.PackageResource.get_columns()
+            c.field = self.field
+            c.fieldset = self.field.parent
             return render('package/form_resources.html')            
 
         def stringify_value(self, v):
@@ -434,7 +457,9 @@ class TagField(ConfiguredField):
                 tagnames = [ tag.name for tag in tags ]
             else:
                 tagnames = []
-            return literal(' '.join([literal('<a href="/tag/read/%s">%s</a>' % (str(tag), str(tag))) for tag in tagnames]))
+            site_url = config.get('ckan.site_url', '')
+            tag_links = [h.link_to(tagname, h.url_for(controller='tag', action='read', id=tagname)) for tagname in tagnames]
+            return literal(' '.join(tag_links))
 
         def render_readonly(self, **kwargs):
             tags_as_string = self._tag_links()
@@ -609,7 +634,7 @@ class GroupSelectField(ConfiguredField):
         self.allow_empty = allow_empty
         self.multiple = multiple
         if user_editable_groups == None:
-            raise Exception, "Group select field 'user_editable_groups' is not initialized."
+            raise Exception, _("Group select field 'user_editable_groups' is not initialized.")
         self.user_editable_groups = user_editable_groups
     
     def get_configured(self):
@@ -769,9 +794,7 @@ class GroupSelectField(ConfiguredField):
                     for (i, nested_value) in enumerate(new_group_ids):
                         if nested_value and isinstance(nested_value, list):
                             if len(nested_value) > 1:
-                                msg = "Can't derived new group selection from "
-                                msg += "serialized value structured like this:"
-                                msg += " %s" % nested_value
+                                msg = _("Can't derived new group selection from serialized value structured like this: %s") % nested_value
                                 raise Exception, msg
                             new_group_ids[i] = nested_value[0]
                 # Todo: Decide on the structure of a multiple-group selection.

@@ -33,16 +33,24 @@ def load_environment(global_conf, app_conf):
     # Initialize config with the basic options
     config.init_app(global_conf, app_conf, package='ckan', paths=paths)
     
+    # load all CKAN plugins
+    plugins.load_all(config)
+
+    from ckan.plugins import PluginImplementations
+    from ckan.plugins.interfaces import IConfigurer
+    
+    for plugin in PluginImplementations(IConfigurer):
+        # must do update in place as this does not work:
+        # config = plugin.update_config(config)
+        plugin.update_config(config)
+    
     # This is set up before globals are initialized
-    site_url = config.get('ckan.site_url', 'http://www.ckan.net')
+    site_url = config.get('ckan.site_url', '')
     ckan_host = config['ckan.host'] = urlparse(site_url).netloc
     if config.get('ckan.site_id') is None:
         if ':' in ckan_host:
             ckan_host, port = ckan_host.split(':')
         config['ckan.site_id'] = ckan_host
-    
-    # load all CKAN plugins
-    plugins.load_all(config)
     
     config['routes.map'] = make_map()
     config['pylons.app_globals'] = app_globals.Globals()
@@ -74,9 +82,9 @@ def load_environment(global_conf, app_conf):
     engine = engine_from_config(config, 'sqlalchemy.', pool_threadlocal=True)
     model.init_model(engine)
     
-    from ckan.plugins import ExtensionPoint
+    from ckan.plugins import PluginImplementations
     from ckan.plugins.interfaces import IConfigurable
     
-    for service in ExtensionPoint(IConfigurable):
-        service.configure(config)
+    for plugin in PluginImplementations(IConfigurable):
+        plugin.configure(config)
     

@@ -5,10 +5,11 @@ See doc/plugins.rst for more information
 
 __all__ = [
     'Interface',
-    'IGenshiStreamFilter', 'IRoutesExtension',
-    'IMapperExtension', 'ISessionExtension',
+    'IGenshiStreamFilter', 'IRoutes',
+    'IMapper', 'ISession',
     'IDomainObjectModification', 'IGroupController', 
-    'IPackageController', 'IPluginObserver', 'IConfigurable'
+    'IPackageController', 'IPluginObserver',
+    'IConfigurable', 'IConfigurer'
 ]
 
 from inspect import isclass
@@ -46,7 +47,7 @@ class IGenshiStreamFilter(Interface):
         """
         return stream
 
-class IRoutesExtension(Interface):
+class IRoutes(Interface):
     """
     Plugin into the setup of the routes map creation.
 
@@ -70,7 +71,7 @@ class IRoutesExtension(Interface):
         """
         return map
 
-class IMapperExtension(Interface):
+class IMapper(Interface):
     """
     A subset of the SQLAlchemy mapper extension hooks.
     See http://www.sqlalchemy.org/docs/05/reference/orm/interfaces.html#sqlalchemy.orm.interfaces.MapperExtension
@@ -79,7 +80,7 @@ class IMapperExtension(Interface):
 
         >>> class MyPlugin(SingletonPlugin):
         ...
-        ...     implements(IMapperExtension)
+        ...     implements(IMapper)
         ...
         ...     def after_update(self, mapper, connection, instance):
         ...         log("Updated: %r", instance)
@@ -115,7 +116,7 @@ class IMapperExtension(Interface):
         Receive an object instance after that instance is DELETEed.
         """
 
-class ISessionExtension(Interface):
+class ISession(Interface):
     """
     A subset of the SQLAlchemy session extension hooks.
     """
@@ -160,7 +161,7 @@ class IDomainObjectModification(Interface):
 
 class IGroupController(Interface):
     """
-    Extension points in the groups controller. These will 
+    Hook into the Group controller. These will 
     usually be called just before committing or returning the
     respective object, i.e. all validation, synchronization 
     and authorization setup are complete. 
@@ -186,7 +187,7 @@ class IGroupController(Interface):
 
 class IPackageController(Interface):
     """
-    Extension points in the package controller.
+    Hook into the package controller.
     (see IGroupController)
     """
 
@@ -246,3 +247,17 @@ class IConfigurable(Interface):
         """
         Called by load_environment
         """
+
+class IConfigurer(Interface): 
+    """
+    Configure CKAN (pylons) environment via the ``pylons.config`` object
+    """
+    
+    def update_config(self, config):
+        """
+        Called by load_environment at earliest point when config is
+        available to plugins. The config should be updated in place.
+        
+        :param config: ``pylons.config`` object
+        """
+

@@ -119,7 +119,7 @@ class TestPackageForm(TestPackageBase):
         license = model.Package.get_license_register()[params['license_id']]
         assert license.title in preview_ascii, (license.title, preview_ascii)
         tag_names = [str(tag.lower()) for tag in params['tags']]
-        self.check_named_element(preview, 'ul', *tag_names)
+        #self.check_named_element(preview, 'ul', *tag_names) # commented out as tags need to move to sidebar for preview
         if params.has_key('state'):
             assert str(params['state']) in preview, preview
         else:
@@ -249,7 +249,6 @@ class TestPackageForm(TestPackageBase):
                 else:
                     pkg.purge()
                 model.repo.commit_and_remove()
-                 
 
 class TestReadOnly(TestPackageForm):
 
@@ -261,23 +260,10 @@ class TestReadOnly(TestPackageForm):
     def teardown_class(self):
         CreateTestData.delete()
 
-    def test_index(self):
-        offset = url_for(controller='package')
-        res = self.app.get(offset)
-        assert 'Data Packages' in res
-
-    def test_minornavigation(self):
-        offset = url_for(controller='package')
-        res = self.app.get(offset)
-        # TODO: make this a bit more rigorous!
-        assert 'Browse' in res, res
-        res = res.click('Browse')
-        assert 'Browse - Data Packages' in res
-    
     def test_minornavigation_2(self):
-        offset = url_for(controller='package')
+        offset = url_for(controller='package', action='search')
         res = self.app.get(offset)
-        res = res.click('Register')
+        res = res.click('Register a package')
         assert 'New - Data Packages' in res
 
     def test_read(self):
@@ -290,7 +276,6 @@ class TestReadOnly(TestPackageForm):
         assert res_by_id.body == res.body
         # only retrieve after app has been called
         anna = self.anna
-        assert '%s - Data Packages' % anna.title in res
         assert name in res
         assert anna.version in res
         assert anna.url in res
@@ -301,7 +286,6 @@ class TestReadOnly(TestPackageForm):
         assert '<strong>Some bolded text.</strong>' in res
         self.check_tag_and_data(res, 'left arrow', '&lt;')
         self.check_tag_and_data(res, 'umlaut', u'\xfc')
-        assert 'License:' in res
         #assert 'OKD Compliant::' in res
         assert 'russian' in res
         assert 'david' in res
@@ -342,22 +326,20 @@ class TestReadOnly(TestPackageForm):
         assert 'decoy</a>' not in res, res
         assert 'decoy"' not in res, res
 
-    def test_list(self):
-        offset = url_for(controller='package', action='list')
-        res = self.app.get(offset)
-        assert 'Packages' in res
-        name = u'annakarenina'
-        title = u'A Novel By Tolstoy'
-        assert title in res
-        res = res.click(title)
-        assert '%s - Data Packages' % title in res, res
-        main_div = self.main_div(res)
-        assert title in main_div, main_div.encode('utf8')
+        #res = self.app.get(offset)
+        #assert 'Packages' in res
+        #name = u'annakarenina'
+        #title = u'A Novel By Tolstoy'
+        #assert title in res
+        #res = res.click(title)
+        #assert '%s - Data Packages' % title in res, res
+        #main_div = self.main_div(res)
+        #assert title in main_div, main_div.encode('utf8')
 
     def test_search(self):
         offset = url_for(controller='package', action='search')
         res = self.app.get(offset)
-        assert 'Search - Data Packages' in res
+        assert 'Search - ' in res
         self._check_search_results(res, 'annakarenina', ['<strong>1</strong>', 'A Novel By Tolstoy'] )
         self._check_search_results(res, 'warandpeace', ['<strong>0</strong>'], only_downloadable=True )
         self._check_search_results(res, 'warandpeace', ['<strong>0</strong>'], only_open=True )
@@ -368,7 +350,7 @@ class TestReadOnly(TestPackageForm):
     def test_search_foreign_chars(self):
         offset = url_for(controller='package', action='search')
         res = self.app.get(offset)
-        assert 'Search - Data Packages' in res
+        assert 'Search - ' in res
         self._check_search_results(res, u'th\xfcmb', ['<strong>1</strong>'])
         self._check_search_results(res, 'thumb', ['<strong>0</strong>'])
 
@@ -376,7 +358,7 @@ class TestReadOnly(TestPackageForm):
         payload = '?q=fjdkf%2B%C2%B4gfhgfkgf%7Bg%C2%B4pk&search=Search+Packages+%C2%BB'
         offset = url_for(controller='package', action='search') + payload
         results_page = self.app.get(offset)
-        assert 'Search - Data Packages' in results_page, results_page
+        assert 'Search - ' in results_page, results_page
         results_page = self.main_div(results_page)
         assert '<strong>0</strong>' in results_page, results_page
 
@@ -386,7 +368,7 @@ class TestReadOnly(TestPackageForm):
         form['open_only'] = only_open
         form['downloadable_only'] = only_downloadable
         results_page = form.submit()
-        assert 'Search - Data Packages' in results_page, results_page
+        assert 'Search - ' in results_page, results_page
         results_page = self.main_div(results_page)
         for required in requireds:
             assert required in results_page, "%s : %s" % (results_page, required)
@@ -420,7 +402,6 @@ class TestEdit(TestPackageForm):
         if not self.res:
             self.res = self.app.get(self.offset)
         
-            
     @classmethod
     def _reset_data(self):
         CreateTestData.delete()
@@ -1219,13 +1200,6 @@ class TestNonActivePackages(TestPackageBase):
         CreateTestData.delete()
         self.purge_packages([self.non_active_name])
 
-    def test_list(self):
-        offset = url_for(controller='package', action='list')
-        res = self.app.get(offset)
-        assert 'Browse - Data Packages' in res
-        assert 'annakarenina' in res
-        assert self.non_active_name not in res
-
     def test_read(self):
         offset = url_for(controller='package', action='read', id=self.non_active_name)
         res = self.app.get(offset, status=[302, 401])
@@ -1238,7 +1212,7 @@ class TestNonActivePackages(TestPackageBase):
     def test_search(self):
         offset = url_for(controller='package', action='search')
         res = self.app.get(offset)
-        assert 'Search - Data Packages' in res
+        assert 'Search - ' in res
         form = res.forms['package-search']
         form['q'] =  str(self.non_active_name)
         results_page = form.submit()

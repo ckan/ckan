@@ -59,7 +59,7 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
             (fs.precision, 'Numbers to nearest 10, percentage to nearest whole number'),
             (fs.url, 'http://www.dcsf.gov.uk/rsgateway/DB/SFR/s000859/index.shtml'),
             (fs.taxonomy_url, '', ''),
-            (fs.department, 'Department for Children, Schools and Families'),
+            (fs.department, 'Department for Education'),
             (fs.agency, '', ''),
             (fs.author, 'DCSF Data Services Group'),
             (fs.author_email, 'statistics@dcsf.gsi.gov.uk'),
@@ -104,11 +104,11 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
 
         dept = fs.department.render()
         assert '<select' in dept, dept
-        self.check_tag(dept, 'option', 'value="Department for Children, Schools and Families"', 'selected')
+        self.check_tag(dept, 'option', 'value="Department for Education"', 'selected')
         assert 'option value="other">' in dept, dept
         assert 'Other:' in dept, dept
         assert 'value=""' in dept, dept
-        assert 'Department for Children, Schools and Families' in fs.department.render_readonly(), fs.department.render_readonly()
+        assert 'Department for Education' in fs.department.render_readonly(), fs.department.render_readonly()
 
     def test_2_field_department_none(self):
         # Create package
@@ -145,7 +145,7 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
         dept = fs.department.render()
         dept_readonly = fs.department.render_readonly()
         assert '<select' in dept, dept
-        self.check_tag(dept, 'option', 'value="Department for Children, Schools and Families"', '!selected')
+        self.check_tag(dept, 'option', 'value="Department for Education"', '!selected')
         self.check_tag(dept, 'option', 'value="other"', 'selected')
         assert 'Other:' in dept, dept
         assert 'value="Not on the list"' in dept, dept

@@ -2,9 +2,11 @@ import urllib
 
 import paste.fixture
 
-from ckanclient import CkanClient, Request
+from ckanclient import CkanClient, Request, CkanApiError
 
 __all__ = ['WsgiCkanClient', 'ClientError']
+
+__version__ = '0.5'
 
 class ClientError(Exception):
     pass
@@ -53,7 +55,7 @@ class WsgiCkanClient(CkanClient):
             self.last_status = 500
             self.last_message = repr(inst.args)
         else:
-            if res.status != 200:
+            if res.status not in (200, 201):
                 self._print("ckanclient: Received HTTP error code from CKAN resource.")
                 self._print("ckanclient: location: %s" % location)
                 self._print("ckanclient: response code: %s" % res.status)
@@ -81,5 +83,7 @@ class WsgiCkanClient(CkanClient):
                 else:
                     self.last_message = self.last_body
                 self._print('ckanclient: last message %s' % self.last_message)
+        if self.last_status not in (200, 201):
+            raise CkanApiError(self.last_message)
 
         

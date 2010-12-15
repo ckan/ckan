@@ -18,24 +18,21 @@
     ${optional_feed()}
   </py:when>
   <py:otherwise>
-  <link rel="alternate" type="application/atom+xml" title="${g.site_title} - Recent Revision History" href="${h.url_for(controller='revision', action='list', format='atom', days=1)}" />
+  <link rel="alternate" type="application/atom+xml" title="${g.site_title} - Recent Revision History" href="${h.url_for(controller='revision', action='list', id=None, format='atom', days=1)}" />
   </py:otherwise>
   </py:choose>
 
-  <style type="text/css"> 
-    @import url(http://openbiblio.net/wp-content/themes/twentyten/style.css);
-  </style> 
-
-  <link rel="stylesheet" href="/css/ckan.master.css" type="text/css" media="screen, print" />
+  <link rel="stylesheet" href="${g.site_url}/css/style.css" type="text/css" media="screen, print" />
 
   <!--[if IE]>
-  <link rel="stylesheet" href="/css/ie.css" type="text/css" media="screen, print" />
+  <link rel="stylesheet" href="${g.site_url}/css/ie.css" type="text/css" media="screen, print" />
   <![endif]-->
-
+  
+  <script type="text/javascript" src="${g.site_url}/language.js"></script>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
   <script src="http://assets.okfn.org/ext/jquery.cookie/jquery.cookie.min.js"></script>
-  <script type="text/javascript" src="/scripts/application.js"></script>
-
+  <script type="text/javascript" src="${g.site_url}/scripts/application.js"></script>
+  
   <script type="text/javascript">
     $(document).ready(function() {
         var ckan_user = $.cookie("ckan_display_name");
@@ -96,36 +93,12 @@
       </div> 
       <div class="menu">
         <ul>
-          <li>${h.nav_link(c, _('Home'), controller='home', action='index', id=None)}
-          <ul class="children">
-            <li class="page_item">${h.subnav_link(c, _('About'), controller='home', action='about', id=None)}</li>
-            <li class="page_item">${h.subnav_link(c, _('Statistics'), controller='home', action='stats', id=None)}</li>
-          </ul>
-        </li>
-        <li>${h.nav_link(c, _('Data Packages'), controller='package', action='index', id=None)}
-          <ul class="children">
-            <li class="page_item">${h.subnav_link(c, _('Browse'), controller='package', action='list', id=None)}</li>
-            <li class="page_item" py:if="h.am_authorized(c, actions.PACKAGE_CREATE)">
-              ${h.subnav_link(c, _('Register'), controller='package', action='new', id=None)}
-            </li>
-          </ul>
-        </li>
-        <li>${h.nav_link(c, _('Tags'), controller='tag', action='index', id=None)}</li>
-        <li>${h.nav_link(c, _('Groups'), controller='group', action='index', id=None)}
-          <ul class="children">
-            <li class="page_item" py:if="h.am_authorized(c, actions.GROUP_CREATE)">
-            ${h.subnav_link(c, _('Create a new group'), controller='group', action='new', id=None)}
-            </li>
-          </ul>
-        </li>
-        <li>${h.nav_link(c, _('Authorization Groups'), controller='authorization_group', action='index', id=None)}
-          <ul class="children">
-            <li class="page_item" py:if="h.am_authorized(c, actions.AUTHZ_GROUP_CREATE)">
-              ${h.subnav_link(c, _('Create a new authorization group'), controller='authorization_group', action='new', id=None)}
-            </li>
-          </ul>
-        </li>
-        <li>${h.nav_link(c, _('Revision History'), controller='revision', action='index', id=None)}</li>
+          <li>${h.nav_link(c, _('Home'), controller='home', action='index', id=None)}</li>
+          <li>${h.nav_link(c, _('Search'), controller='package', action='index', id=None)}</li>
+          <li py:if="h.am_authorized(c, actions.PACKAGE_CREATE)">${h.nav_link(c, _('Add a package'), controller='package', action='new', id=None)}</li>
+          <li>${h.nav_link(c, _('Tags'), controller='tag', action='index', id=None)}</li>
+          <li>${h.nav_link(c, _('Groups'), controller='group', action='index', id=None)}</li>
+          <li>${h.nav_link(c, _('About'), controller='home', action='about', id=None)}</li>                        
       </ul>
       </div> <!-- .menu -->
     </div> <!-- #access -->
@@ -135,13 +108,13 @@
 
   <div id="main"> 
     <div id="container"> 
+      <div id="minornavigation">
+        <minornavigation></minornavigation> 
+      </div>
       <div id="content" role="main"> 
 
         <div class="page type-page hentry">
           <div class="entry-content">
-            <div id="minornavigation">
-              <minornavigation></minornavigation> 
-            </div>
             <!-- support both options for defining content -->
             <py:if test="defined('content')">
             ${content()}
@@ -176,6 +149,33 @@
     <div id="footer-widget-area" role="complementary">
 
       <div id="first" class="widget-area">
+        <ul class="xoxo">
+          <li class="widget-container widget_text">
+          <h3 class="widget-title">Packages</h3>
+          <div class="textwidget">
+            <ul>
+                <li>${h.nav_link(c, _('Search'), controller='package', action='search', id=None)}</li>                
+                <li py:if="h.am_authorized(c, actions.PACKAGE_CREATE)">${h.nav_link(c, _('Register a new Package'), controller='package', action='new', id=None)}</li>
+                <li>${h.nav_link(c, _('Statistics'), controller='home', action='stats', id=None)}</li>
+                <li>${h.nav_link(c, _('Revision History'), controller='revision', action='index', id=None)}</li>                
+            </ul>
+          </div>
+          </li>
+        </ul>
+        <ul class="xoxo">
+          <li class="widget-container widget_text">
+          <h3 class="widget-title">Groups &amp; Tags</h3>
+          <div class="textwidget">
+            <ul>
+              <li>${h.nav_link(c, _('Tags'), controller='tag', action='index', id=None)}</li>
+              <li>${h.nav_link(c, _('Groups'), controller='group', action='index', id=None)}</li>
+              <li py:if="h.am_authorized(c, actions.GROUP_CREATE)">${h.nav_link(c, _('Create a new Group'), controller='group', action='new', id=None)}</li>
+              <li>${h.nav_link(c, _('Authorization Groups'), controller='authorization_group', action='index', id=None)}</li>
+              <li class="page_item" py:if="h.am_authorized(c, actions.AUTHZ_GROUP_CREATE)">${h.nav_link(c, _('Create a new Authorization Group'), controller='authorization_group', action='new', id=None)}</li>
+            </ul>
+          </div>
+          </li>
+        </ul>
         <ul class="xoxo">
           <li class="widget-container widget_text">
           <h3 class="widget-title">About</h3>

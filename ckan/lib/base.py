@@ -10,11 +10,12 @@ from pylons.controllers.util import abort, etag_cache, redirect_to, redirect
 from pylons.decorators import jsonify, validate
 from pylons.i18n import _, ungettext, N_, gettext
 from pylons.templating import cached_template, pylons_globals
+from genshi.template import MarkupTemplate
 from webhelpers.html import literal
 
 import ckan
 import ckan.lib.helpers as h
-from ckan.plugins import ExtensionPoint, IGenshiStreamFilter
+from ckan.plugins import PluginImplementations, IGenshiStreamFilter
 from ckan.lib.helpers import json
 import ckan.model as model
 import os
@@ -32,16 +33,17 @@ ALLOWED_FIELDSET_PARAMS = ['package_form', 'restrict']
 
 
 def render(template_name, extra_vars=None, cache_key=None, cache_type=None, 
-           cache_expire=None, method='xhtml'):
+           cache_expire=None, method='xhtml', loader_class=MarkupTemplate):
     
     def render_template():
         globs = extra_vars or {}
         globs.update(pylons_globals())
         globs['actions'] = model.Action
-        template = globs['app_globals'].genshi_loader.load(template_name)
+        template = globs['app_globals'].genshi_loader.load(template_name,
+            cls=loader_class)
         stream = template.generate(**globs)
         
-        for item in ExtensionPoint(IGenshiStreamFilter):
+        for item in PluginImplementations(IGenshiStreamFilter):
             stream = item.filter(stream)
         
         return literal(stream.render(method=method, encoding=None))

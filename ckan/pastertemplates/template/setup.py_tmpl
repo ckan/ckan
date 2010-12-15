@@ -4,21 +4,21 @@ import sys, os
 version = {{repr(version or "0.0")}}
 
 setup(
-	name={{repr(project)}},
+	name='ckanext-{{project}}',
 	version=version,
 	description="{{description or ''}}",
 	long_description="""\
-	{{long_description or ''}}""",
+	""",
 	classifiers=[], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
-	keywords={{repr(keywords or '')}},
+	keywords='',
 	author={{repr(author or '')}},
 	author_email={{repr(author_email or '')}},
 	url={{repr(url or '')}},
 	license={{repr(license_name or '')}},
 	packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
-	namespace_packages=['ckanext', 'ckanext.plugins'],
+	namespace_packages=['ckanext', 'ckanext.{{project}}'],
 	include_package_data=True,
-	zip_safe={{repr(bool(zip_safe or False))}},
+	zip_safe=False,
 	install_requires=[
 		# -*- Extra requirements: -*-
 	],
@@ -26,6 +26,6 @@ setup(
 	"""
         [ckan.plugins]
 	# Add plugins here, eg
-	# myplugin=ckanext.plugins.{{package}}:PluginClass
+	# myplugin=ckanext.{{project}}:PluginClass
 	""",
 )

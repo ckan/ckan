@@ -1,7 +1,11 @@
 .. toctree::
    :hidden:
 
-.. include:: top.rst.inc
+.. include:: title.rst.inc
+.. include:: purpose.rst.inc
+.. include:: overview.rst.inc
+.. include:: interfaces2.rst.inc
+.. include:: location.rst.inc
 
 Model API
 ---------
@@ -88,7 +92,7 @@ This URL:
 
 ::
 
-    /api/2/util/tag/autocomplete?incomplete=title=ru
+    /api/2/util/tag/autocomplete?incomplete=ru
 
 Returns:
 

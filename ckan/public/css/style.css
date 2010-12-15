@@ -1,0 +1,6 @@
+/* This file is just for importing other css files */
+@import url(http://assets.okfn.org/themes/twentyten/style.css);
+@import url(ckan.css);
+@import url(buttons.css);
+@import url(stars.css);
+@import url(extra.css);

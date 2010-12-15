@@ -132,6 +132,7 @@ $(document).ready(function() {
               <dt>
                 <label class="${field.is_required() and 'field_req' or 'field_opt'}" for="${field.renderer.name}">
                   ${[field.label_text, c.fieldset.prettify(field.key)][int(field.label_text is None)]}
+                  <py:if test="field.is_required()">*</py:if>
                 </label>
               </dt>
             </py:if>

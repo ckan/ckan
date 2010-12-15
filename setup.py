@@ -55,9 +55,14 @@ setup(
     package_data={'ckan': ['i18n/*/LC_MESSAGES/*.mo']},
     message_extractors = {'ckan': [
             ('**.py', 'python', None),
-            ('templates/_util.html', 'ignore', None),
             ('templates/importer/**', 'ignore', None),
             ('templates/**.html', 'genshi', None),
+            ('templates/**.js', 'genshi', {
+                'template_class': 'genshi.template:TextTemplate'
+            }),
+            ('templates/**.txt', 'genshi', {
+                'template_class': 'genshi.template:TextTemplate'
+            }),
             ('public/**', 'ignore', None),
             ]},
     entry_points="""
@@ -77,9 +82,12 @@ setup(
     changes = ckan.lib.cli:Changes
     notifications = ckan.lib.cli:Notifications
     harvester = ckan.lib.cli:Harvester
+    rights = ckan.lib.authztool:RightsCommand
+    roles = ckan.lib.authztool:RolesCommand
+    
 
     [paste.paster_create_template]
-    ckan_plugin=ckan.pastertemplates:CkanextPluginTemplate
+    ckanext=ckan.pastertemplates:CkanextTemplate
 
     [ckan.forms]
     standard = ckan.forms.package:get_standard_fieldset

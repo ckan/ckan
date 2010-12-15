@@ -66,7 +66,8 @@ class TestForms(PylonsTestCase, HtmlCheckMethods):
         anna = model.Package.by_name(u'annakarenina')
         fs = fs.bind(anna)
         out = fs.render()
-        assert 'Name (required)' in out, out
+        assert 'Name' in out, out
+        assert '*' in out, out
 
     def test_2_tags(self):
         fs = self._get_standard_fieldset()
@@ -75,7 +76,12 @@ class TestForms(PylonsTestCase, HtmlCheckMethods):
         out = fs.tags.render()
         assert out
         assert 'tags' in out
-        self.check_tag(out, 'russian', 'tolstoy')
+        self.check_tag(out, 'input', 'russian', 'tolstoy')
+
+        out = fs.tags.render_readonly()
+        self.check_tag(out, 'a', '/tag/russian')
+        self.check_tag(out, 'a', '/tag/tolstoy')
+        self.check_named_element(out, 'a', '>russian<')
 
     def test_2_resources(self):
         fs = self._get_standard_fieldset()

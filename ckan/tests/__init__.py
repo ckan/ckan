@@ -64,16 +64,18 @@ class BaseCase(object):
     def teardown(self):
         pass
 
-    def _system(self, cmd):
+    @staticmethod
+    def _system(cmd):
         import commands
         (status, output) = commands.getstatusoutput(cmd)
         if status:
             raise Exception, "Couldn't execute cmd: %s: %s" % (cmd, output)
 
-    def _paster(self, cmd, config_path_rel):
+    @classmethod
+    def _paster(cls, cmd, config_path_rel):
         from pylons import config
         config_path = os.path.join(config['here'], config_path_rel)
-        self._system('paster --plugin ckan %s --config=%s' % (cmd, config_path))
+        cls._system('paster --plugin ckan %s --config=%s' % (cmd, config_path))
 
 
 class ModelMethods(BaseCase):
@@ -270,19 +272,21 @@ class WsgiAppCase(BaseCase):
 
 
 class CkanServerCase(BaseCase):
+    @classmethod
+    def _recreate_ckan_server_testdata(cls, config_path):
+        cls._paster('db clean', config_path)
+        cls._paster('db init', config_path)
+        cls._paster('create-test-data', config_path)
 
-    def _recreate_ckan_server_testdata(self, config_path):
-        self._paster('db clean', config_path)
-        self._paster('db init', config_path)
-        self._paster('create-test-data', config_path)
-
-    def _start_ckan_server(self, config_file='test.ini'):
+    @staticmethod
+    def _start_ckan_server(config_file='test.ini'):
         config_path = config_abspath(config_file)
         import subprocess
         process = subprocess.Popen(['paster', 'serve', config_path])
         return process
 
-    def _wait_for_url(self, url='http://127.0.0.1:5000/', timeout=15):
+    @staticmethod
+    def _wait_for_url(url='http://127.0.0.1:5000/', timeout=15):
         for i in range(int(timeout)):
             import urllib2
             import time
@@ -294,7 +298,8 @@ class CkanServerCase(BaseCase):
             else:
                 break
 
-    def _stop_ckan_server(self, process): 
+    @staticmethod
+    def _stop_ckan_server(process): 
         pid = process.pid
         pid = int(pid)
         if os.system("kill -9 %d" % pid):
