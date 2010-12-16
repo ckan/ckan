@@ -49,7 +49,7 @@ auth.admins =
 
 # CKAN search cache
 # any non-empty value enables it
-enable_caching =
+cache_enabled = 
 # cache to persistent files
 beaker.cache.type = file
 # default expiry time for the cache (where not specified specifically)
