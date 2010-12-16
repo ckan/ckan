@@ -193,9 +193,14 @@ def _func_cname(func):
             func_name = ''
     return "%s%s" % (base, func_name)
 
-def get_cache_expires(module_or_func, default_expires=0):
+
+def get_cache_expires(module_or_func):
+    # very weird experience (in tests): at module level it does not appear that
+    # config option is defined but it is defined here (must be to do with when
+    # config is loaded ...)
+    default_expires = pylons.config.get('ckan.cache.default_expires', -1)
     if not cache_enabled:
-        return 0
+        return -1
     cfg_expires = '%s.expires' % _func_cname(module_or_func)
     cache_expires = int(pylons.config.get(cfg_expires, default_expires))
     return cache_expires

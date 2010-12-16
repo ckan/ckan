@@ -20,7 +20,7 @@ class TestCacheBasics:
     def test_get_cache_expires(self):
         # cache enabled disabled by default
         out = get_cache_expires(sys.modules[__name__])
-        assert out == 0
+        assert out == -1, out
 
         ckan.lib.cache.cache_enabled  = True
         out = get_cache_expires(sys.modules[__name__])
@@ -28,6 +28,10 @@ class TestCacheBasics:
 
         out = get_cache_expires(self.test_get_cache_expires)
         assert out == 3600, out
+
+        # no match, so use config default_expires
+        out = get_cache_expires(ckan.lib.cache)
+        assert out == 200, out
 
 
 class CacheController(BaseController):
