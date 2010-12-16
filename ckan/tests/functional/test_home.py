@@ -10,12 +10,12 @@ class TestHomeController(TestController):
     def test_packages_link(self):
         offset = url_for('home')
         res = self.app.get(offset)
-        res.click('Packages', index=0)
+        res.click('Search', index=0)
         
     def test_tags_link(self):
         offset = url_for('home')
         res = self.app.get(offset)
-        res.click('Tags')
+        res.click('Tags', index=0)
         
     def test_404(self):
         offset = '/some_nonexistent_url'

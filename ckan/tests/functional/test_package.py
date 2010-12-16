@@ -263,7 +263,7 @@ class TestReadOnly(TestPackageForm):
     def test_minornavigation_2(self):
         offset = url_for(controller='package', action='search')
         res = self.app.get(offset)
-        res = res.click('Register a package')
+        res = res.click('Register it now')
         assert 'New - Data Packages' in res
 
     def test_read(self):
@@ -1216,7 +1216,7 @@ class TestNonActivePackages(TestPackageBase):
         form = res.forms['package-search']
         form['q'] =  str(self.non_active_name)
         results_page = form.submit()
-        assert 'Search - Data Packages' in results_page, results_page
+        assert 'Search - ' in results_page, results_page
         assert '<strong>0</strong> packages found' in results_page, (self.non_active_name, results_page)
 
 
