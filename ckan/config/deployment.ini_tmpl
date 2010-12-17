@@ -47,15 +47,15 @@ who.log_file = %(cache_dir)s/who_log.ini
 # space separated list ...
 auth.admins = 
 
-# CKAN search cache
-# any non-empty value enables it
-cache_enabled = 
+# CKAN caching 
+cache_enabled = False
 # cache to persistent files
 beaker.cache.type = file
 # default expiry time for the cache (where not specified specifically)
-ckan.cache.default_expires = 3600 
+ckan.cache.default_expires = -1
 # cache expiry settings for specific controllers
 # by default these are disabled, enable as needed to a time in seconds
+ckan.controllers.expires = -1
 ckan.controllers.home.expires = -1
 ckan.controllers.package.list.expires = -1
 ckan.controllers.tag.read.expires = -1
