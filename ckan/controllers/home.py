@@ -52,7 +52,7 @@ class HomeController(BaseController):
         return render('home/about.html', cache_expire=cache_expires)
         
     def language(self):
-        response.content_type = 'application/json'
+        response.content_type = 'text/json'
         return render('home/language.js', cache_expire=cache_expires,
                       method='text', loader_class=NewTextTemplate)
 

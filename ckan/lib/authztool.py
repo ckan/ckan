@@ -103,7 +103,7 @@ class RightsCommand(CkanCommand):
     def list(self):
         for uor in model.Session.query(model.UserObjectRole):
             obj = getattr(uor, uor.name) if uor.name else model.System()
-            self.print_row(uor.user if uor.user else uor.autorized_group,
+            self.print_row(uor.user if uor.user else uor.authorized_group,
                            uor.role, obj)
 
 
