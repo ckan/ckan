@@ -7,5 +7,5 @@ psycopg2
 -e hg+https://knowledgeforge.net/okfn/vdm#egg=vdm
 -e hg+https://knowledgeforge.net/okfn/licenses#egg=licenses
 -e hg+https://knowledgeforge.net/ckan/ckanclient/hg#egg=ckanclient
--e hg+https://knowledgeforge.net/ckan/hg#egg=ckan
+-e hg+https://bitbucket.org/okfn/ckan#egg=ckan
 
