@@ -74,7 +74,7 @@ from fabric.contrib.files import *
 env.ckan_instance_name = 'test' # e.g. test.ckan.net
 env.base_dir = os.getcwd() # e.g. /home/jsmith/var/srvc
 env.local_backup_dir = os.path.expanduser('~/db_backup')
-env.ckan_repo = 'http://knowledgeforge.net/ckan/hg/raw-file/default/'
+env.ckan_repo = 'https://bitbucket.org/okfn/ckan/src/default/'
 env.pip_requirements = 'pip-requirements.txt'
 env.skip_setup_db = False
 
