@@ -10,6 +10,7 @@ class TestAuthorizationGroup(FunctionalTestCase):
     @classmethod
     def setup_class(self):
         model.Session.remove()
+        model.repo.init_db()
         CreateTestData.create()
         model.repo.new_revision()
         treasury = model.AuthorizationGroup(name=u'treasury')

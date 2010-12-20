@@ -1,3 +1,5 @@
+from pylons import config
+
 import meta
 from domain_object import DomainObjectOperation
 from core import *
@@ -16,7 +18,6 @@ from rating import *
 from package_relationship import *
 from changeset import Changeset, Change, Changemask
 from harvesting import HarvestSource, HarvestingJob, HarvestedDocument
-
 import ckan.migration
 
 # set up in init_model after metadata is bound
@@ -84,6 +85,10 @@ class Repository(vdm.sqlalchemy.Repository):
         import os
         from migrate.versioning.script import SqlScript
         from sqlalchemy.exceptions import ProgrammingError
+        if "sqlite" in config.get('sqlalchemy.url'):
+            # currently breaks in sqlite, not sure why; probably
+            # sqlalchemy-related bug
+            return 
         try:
             path = os.path.join(self.migrate_repository, 'versions', '021_postgres_upgrade.sql')
             script = SqlScript(path) 

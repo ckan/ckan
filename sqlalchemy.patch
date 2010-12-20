@@ -1,0 +1,12 @@
+--- base.py.orig	2010-12-20 16:32:18.268917162 +0000
++++ base.py	2010-12-20 16:32:22.377904271 +0000
+@@ -329,7 +329,8 @@
+     supports_default_values = True
+     supports_empty_insert = False
+     supports_cast = True
+-    
++    supports_sane_multi_rowcount = False
++
+     default_paramstyle = 'qmark'
+     statement_compiler = SQLiteCompiler
+     ddl_compiler = SQLiteDDLCompiler

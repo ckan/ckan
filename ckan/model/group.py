@@ -23,7 +23,7 @@ package_group_revision_table = vdm.sqlalchemy.make_revisioned_table(package_grou
 
 group_table = Table('group', metadata,
     Column('id', UnicodeText, primary_key=True, default=make_uuid),
-    Column('name', UnicodeText, unique=True, nullable=False),
+    Column('name', UnicodeText, nullable=False),
     Column('title', UnicodeText),
     Column('description', UnicodeText),
     Column('created', DateTime, default=datetime.now),

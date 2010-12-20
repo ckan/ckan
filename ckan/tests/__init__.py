@@ -12,9 +12,11 @@ import os
 import sys
 import re
 from unittest import TestCase
-from nose.tools import assert_equal, assert_not_equal
+from nose.tools import assert_equal, assert_not_equal, make_decorator
 from nose.plugins.skip import SkipTest
 import time
+
+from pylons import config
 
 import pkg_resources
 import paste.fixture
@@ -73,7 +75,6 @@ class BaseCase(object):
 
     @classmethod
     def _paster(cls, cmd, config_path_rel):
-        from pylons import config
         config_path = os.path.join(config['here'], config_path_rel)
         cls._system('paster --plugin ckan %s --config=%s' % (cmd, config_path))
 
@@ -86,9 +87,9 @@ class ModelMethods(BaseCase):
     commit_changesets = True
 
     def conditional_create_common_fixtures(self):
-        if self.require_common_fixtures and not ModelMethods.has_common_fixtures:
+        if self.require_common_fixtures: # XXX relies on state saved
+                                        # between tests?
             self.create_common_fixtures()
-            ModelMethods.has_common_fixtures = True
 
     def create_common_fixtures(self):
         CreateTestData.create(commit_changesets=self.commit_changesets)
@@ -337,4 +338,12 @@ class TestSearchIndexer:
     def index(cls):
         pass     
 
+def is_search_supported():
+    supported_db = "sqlite" not in config.get('sqlalchemy.url')
+    return supported_db
 
+def is_search_related(test):
+    if not is_search_supported():
+        return make_decorator(test)(lambda x: True)
+    return make_decorator(test)
+    

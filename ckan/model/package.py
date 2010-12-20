@@ -21,7 +21,7 @@ PACKAGE_VERSION_MAX_LENGTH = 100
 package_table = Table('package', metadata,
         Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
         Column('name', types.Unicode(PACKAGE_NAME_MAX_LENGTH),
-               unique=True, nullable=False),
+               nullable=False),
         Column('title', types.UnicodeText),
         Column('version', types.Unicode(PACKAGE_VERSION_MAX_LENGTH)),
         Column('url', types.UnicodeText),

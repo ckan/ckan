@@ -11,6 +11,12 @@ class PackagesTestCase(BaseModelApiTestCase):
     commit_changesets = False
     reuse_common_fixtures = True
 
+    def setup(self):
+        model.Session.remove()
+        model.repo.init_db()
+        super(PackagesTestCase, self).setup()
+        # XXX check super.setup for if any dupes there
+
     def teardown(self):
         self.purge_package_by_name(self.package_fixture_data['name'])
         self.purge_package_by_name(u'somethingnew')
@@ -218,10 +224,10 @@ class PackagesTestCase(BaseModelApiTestCase):
     def test_entity_delete_ok(self):
         # create a package with package_fixture_data
         if not self.get_package_by_name(self.package_fixture_data['name']):
+            rev = model.repo.new_revision()
             package = model.Package()
             model.Session.add(package)
             package.name = self.package_fixture_data['name']
-            rev = model.repo.new_revision()
             model.repo.commit_and_remove()
 
             package = self.get_package_by_name(self.package_fixture_data['name'])

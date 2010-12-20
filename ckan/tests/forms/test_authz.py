@@ -8,6 +8,7 @@ import ckan.forms.authz
 class TestRender(object):
     @classmethod
     def setup_class(self):
+        model.repo.init_db()
         model.Session.remove()
         CreateTestData.create()
         self.authorizer = ckan.authz.Authorizer()

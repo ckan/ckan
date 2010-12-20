@@ -12,6 +12,7 @@ class HarvestingTestCase(BaseModelApiTestCase):
     reuse_common_fixtures = True
 
     def setup(self):
+        model.repo.rebuild_db()
         super(HarvestingTestCase, self).setup()
         self.source = None
         self.source1 = None

@@ -1,11 +1,14 @@
 from ckan.tests.functional.api.base import *
+from ckan.lib.create_test_data import CreateTestData
+from ckan.tests import is_search_supported
 
 class ModelApiTestCase(BaseModelApiTestCase):
 
     @classmethod
     def setup_class(self):
         model.Session.remove()
-        model.repo.rebuild_db()
+        model.repo.init_db()
+        CreateTestData.create()
         model.Session.remove()
 
     @classmethod
@@ -571,6 +574,9 @@ class PackageSearchApiTestCase(ApiControllerTestCase):
 
     @classmethod
     def setup_class(self):
+        if not is_search_supported():
+            import nose
+            raise nose.SkipTest
         indexer = TestSearchIndexer()
         CreateTestData.create()
         self.package_fixture_data = {
@@ -930,6 +936,7 @@ class MiscApiTestCase(ApiControllerTestCase):
             CreateTestData.delete()
         except:
             pass
+        model.repo.init_db()
         model.Session.remove()
         CreateTestData.create()
 

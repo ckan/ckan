@@ -18,6 +18,7 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
     @classmethod
     def setup_class(self):
         model.Session.remove()
+        model.repo.init_db()
         CreateTestData.create_gov_test_data()
 
     @classmethod
@@ -366,6 +367,7 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
         CreateTestData.flag_for_deletion(new_name)
         
         model.repo.new_revision()
+
         fs.sync()
         model.repo.commit_and_remove()
 
