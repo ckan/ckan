@@ -26,4 +26,5 @@ class Globals(object):
         
         # hide these extras fields on package read
         self.package_hide_extras = config.get('package_hide_extras', '').split()
+        self.has_commenting = False
         
