@@ -35,7 +35,12 @@ class DomainObject(object):
 
     @classmethod
     def by_name(self, name, autoflush=True):
-        obj = Session.query(self).autoflush(autoflush).filter_by(name=name).first()
+        from sqlalchemy.orm import class_mapper
+        table = class_mapper(self).mapped_table.fullname
+        obj = None
+        if Session.connection().engine.has_table(table):
+            obj = Session.query(self).autoflush(autoflush)\
+                  .filter_by(name=name).first()
         return obj
 
     @classmethod

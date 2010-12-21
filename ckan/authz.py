@@ -192,13 +192,13 @@ class Authorizer(object):
                 q = q.filter(sa.or_(
                     sa.and_(model.UserObjectRole.role==model.RoleAction.role,
                             model.RoleAction.action==action,
-                            state==model.State.ACTIVE),
+                            model.Revision.state==state),
                     model.UserObjectRole.role==model.Role.ADMIN))
             else:
                 q = q.filter(
                     sa.and_(model.UserObjectRole.role==model.RoleAction.role,
                             model.RoleAction.action==action,
-                            state==model.State.ACTIVE),
+                            model.Revision.state==state),
                     )
             q = q.filter(sa.or_(*filters))   
             q = q.distinct()

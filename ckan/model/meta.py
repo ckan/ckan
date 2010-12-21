@@ -24,15 +24,13 @@ if sqav.startswith("0.4"):
         transactional=True,
         extension=extension.PluginSessionExtension(),
         ))
-elif sqav.startswith("0.5"):
+else:
     Session = scoped_session(sessionmaker(
         autoflush=True,
         autocommit=False,
         expire_on_commit=False,
         extension=extension.PluginSessionExtension(),
         ))
-else:
-    raise ValueError("We can only work with SQLAlchemy 0.4 or 0.5 at present")
 
 #mapper = Session.mapper
 mapper = orm.mapper
