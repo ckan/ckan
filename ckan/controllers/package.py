@@ -343,6 +343,14 @@ class PackageController(BaseController):
                 self._adjust_license_id_options(pkg, fs)
             fs = fs.bind(pkg, data=dict(request.params))
             try:
+                # XXX if we don't touch pkg.groups here, then if
+                # there's a validation error, the rendering of the
+                # package edit form below fails with:
+                # DetachedInstanceError: Parent instance <Package at
+                # 0x4abc910> is not bound to a Session; lazy load operation of
+                # attribute 'groups' cannot proceed
+                # What is going on here?!
+                c.pkg.groups
                 PackageSaver().render_preview(fs, id, pkg.id,
                                               log_message=log_message,
                                               author=c.author, client=c)
