@@ -20,6 +20,17 @@ __all__ = [
     'HarvestedDocument', 'harvested_document_table',
 ]
 
+def decode_response(resp):
+    """Decode a response to unicode
+    """
+    encoding = resp.headers['content-type'].split('charset=')[-1]
+    content = resp.read()
+    try:
+        data = unicode(content, encoding)
+    except LookupError:
+        data = unicode(content, 'utf8') # XXX is this a fair assumption?
+    return data
+
 class HarvesterError(Exception): pass
 
 class HarvesterUrlError(HarvesterError): pass
@@ -254,7 +265,7 @@ class HarvestingJob(DomainObject):
     def get_content(self, url):
         try:
             http_response = urllib2.urlopen(url)
-            return http_response.read()
+            return decode_response(http_response)
         except Exception, inst:
             msg = "Unable to get content for URL: %s: %r" % (url, inst)
             raise HarvesterUrlError(msg)
