@@ -1,6 +1,7 @@
 from nose.tools import assert_raises
 
 from ckan.tests import *
+import ckan.model as model
 
 from wsgi_ckanclient import *
 from ckanclient import CkanApiError
@@ -8,6 +9,7 @@ from ckanclient import CkanApiError
 class TestWsgiCkanClient(TestController):
     def setup(self):
         self.client = WsgiCkanClient(self.app)
+        model.repo.init_db()
         CreateTestData.create()
         
     def teardown(self):
