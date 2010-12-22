@@ -1,6 +1,7 @@
 from webob.multidict import UnicodeMultiDict, MultiDict
 
 from ckan.tests import *
+from ckan.tests import is_search_supported
 from ckan.lib.search import get_backend, QueryOptions
 from ckan import model
 from ckan.lib.create_test_data import CreateTestData

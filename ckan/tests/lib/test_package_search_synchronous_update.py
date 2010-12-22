@@ -1,4 +1,5 @@
 from ckan.tests import *
+from ckan.tests import is_search_supported
 import ckan.lib.search as search
 from ckan import plugins
 from test_package_search import TestSearchOverall

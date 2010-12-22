@@ -5,6 +5,7 @@ import ckan.lib.search as search
 from ckan.lib.search import get_backend, query_for, QueryOptions
 import ckan.model as model
 from ckan.tests import *
+from ckan.tests import is_search_supported
 from ckan.lib.create_test_data import CreateTestData
 
 class TestSearch(TestController):
