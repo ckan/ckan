@@ -231,19 +231,9 @@ class TestPackageForm(TestPackageBase):
             fv = res.forms['package-edit']
             prefix = 'Package-%s-' % pkg_id
             fv[prefix + 'name'] = new_name
-            # XXX is this a correct fix?  I think probably not.  We
-            # shouldn't be creating new revision data in the tests but in
-            # whatever is ultimately being called, probably.  I put it
-            # in because the "preview" controller was complaining
-            # about a lack of revision in the before_update book for a
-            # the Package being previewed.
-            model.repo.new_revision()
             res = fv.submit('preview')
             assert not 'Error' in res, res
             fv = res.forms['package-edit']
-            # XXX this next line submits a form to URL ""
-            # why would this be?
-            raise SkipTest("mystery form problems")
             res = fv.submit('save', status=302)
             assert not 'Error' in res, res
             redirected_to = dict(res.headers).get('Location') or dict(res.headers)['location']
@@ -575,10 +565,6 @@ class TestEdit(TestPackageForm):
         assert rev.message == exp_log_message
 
     def test_edit_preview(self):
-        # XXX is this a correct fix?  I think probably not.  We
-        # shouldn't be creating new revision data in the tests but in
-        # whatever is ultimately being called, probably.
-        model.repo.new_revision()
         newurl = 'www.editpkgnewurl.com'
         newnotes = '''
 ### A title
@@ -600,26 +586,6 @@ u with umlaut \xc3\xbc
         assert 'Hello world' in res
         self.check_tag_and_data(res, 'umlaut', u'\xfc')
         self.check_tag_and_data(res, 'Arrow', '&lt;')
-
-    def test_edit_bad_name(self):
-        fv = self.res.forms['package-edit']
-        prefix = 'Package-%s-' % self.pkgid
-        fv[prefix + 'name'] = u'a' # invalid name
-        # XXX the following causes an error to do with sessions, so we
-        # skip it
-        raise SkipTest
-
-        res = fv.submit('preview')
-        assert 'Error' in res, res
-        assert 'Name must be at least 2 characters long' in res, res
-        # Ensure there is an error at the top of the form and by the field
-        self._assert_form_errors(res)
-
-        res = fv.submit('save')
-        assert 'Error' in res, res
-        assert 'Name must be at least 2 characters long' in res, res
-        # Ensure there is an error at the top of the form and by the field
-        self._assert_form_errors(res)
 
     def test_missing_fields(self):
         # User edits and a field is left out in the commit parameters.
@@ -801,16 +767,14 @@ u with umlaut \xc3\xbc
             self._reset_data()
 
 
-    def test_edit_bad_log_message(self):
+    def xtest_edit_bad_log_message(self):
+        # XXX fails on fv.submit('preview') with
+        # DetachedInstanceError: Parent instance <Package at
+        # 0x4abc910> is not bound to a Session; lazy load operation of
+        # attribute 'groups' cannot proceed 
         fv = self.res.forms['package-edit']
-        # XXX the following causes an error to do with sessions, so we
-        # skip it
-        raise SkipTest
         prefix = 'Package-%s-' % self.pkgid
         fv['log_message'] = u'Free enlargements: http://drugs.com/' # spam
-        # XXX the following causes an error to do with sessions, so we
-        # skip it
-        raise SkipTest
         res = fv.submit('preview')
         assert 'Error' in res, res
         assert 'No links are allowed' in res, res
@@ -820,6 +784,24 @@ u with umlaut \xc3\xbc
         assert 'Error' in res, res
         self.check_tag(res, '<form', 'class="has-errors"')
         assert 'No links are allowed' in res, res
+
+    def xtest_edit_bad_name(self):
+        # XXX fails with same error as above
+        fv = self.res.forms['package-edit']
+        prefix = 'Package-%s-' % self.pkgid
+        fv[prefix + 'name'] = u'a' # invalid name
+        res = fv.submit('preview')
+        assert 'Error' in res, res
+        assert 'Name must be at least 2 characters long' in res, res
+        # Ensure there is an error at the top of the form and by the field
+        self._assert_form_errors(res)
+
+        res = fv.submit('save')
+        assert 'Error' in res, res
+        assert 'Name must be at least 2 characters long' in res, res
+        # Ensure there is an error at the top of the form and by the field
+        self._assert_form_errors(res)
+
         
     def test_edit_plugin_hook(self):
         # just the absolute basics
