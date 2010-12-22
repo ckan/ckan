@@ -1,4 +1,7 @@
 import os
+
+from nose.plugins.skip import SkipTest
+
 from ckan.tests import *
 from ckan.model.harvesting import HarvestSource
 from ckan.model.harvesting import HarvestingJob
@@ -325,12 +328,14 @@ class TestHarvestCswSourceRandomWebsite(HarvesterTestCase):
         before_count = self.count_packages()
         self.assert_false(self.job.report)
         self.job.harvest_documents()
+        error = self.job.report['errors'][0]
+        if "timeout" in error:
+            raise SkipTest("Couldn't connect to internet for test")
         after_count = self.count_packages()
         self.assert_equal(after_count, before_count)
         self.assert_true(self.job.report)
         self.assert_len(self.job.report['packages'], 0)
         self.assert_len(self.job.report['errors'], 1)
-        error = self.job.report['errors'][0]
         self.assert_contains(error, "Couldn't find any links to metadata files.")
 
 
