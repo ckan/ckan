@@ -21,6 +21,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         self.purge_package_by_name(self.package_fixture_data['name'])
         self.purge_package_by_name(u'somethingnew')
         super(PackagesTestCase, self).teardown()
+        model.Session.connection().invalidate()
 
     def test_register_get_ok(self):
         offset = self.package_offset()
