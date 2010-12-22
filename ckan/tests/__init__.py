@@ -344,11 +344,20 @@ def is_search_supported():
     supported_db = "sqlite" not in config.get('sqlalchemy.url')
     return supported_db
 
-def is_search_related(test):
+def is_regex_supported():
+    supported_db = "sqlite" not in config.get('sqlalchemy.url')
+    return supported_db
+
+def search_related(test):
     def skip_test(*args):
         raise SkipTest("Search not supported")
     if not is_search_supported():
-        # XXX raise S
         return make_decorator(test)(skip_test)
     return make_decorator(test)
     
+def regex_related(test):
+    def skip_test(*args):
+        raise SkipTest("Regex not supported")
+    if not is_regex_supported():
+        return make_decorator(test)(skip_test)
+    return make_decorator(test)

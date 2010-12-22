@@ -8,7 +8,7 @@ from difflib import unified_diff
 from nose.plugins.skip import SkipTest
 
 from ckan.tests import *
-from ckan.tests import is_search_related
+from ckan.tests import search_related
 from ckan.tests.pylons_controller import PylonsTestCase
 from base import FunctionalTestCase
 import ckan.model as model
@@ -272,7 +272,7 @@ class TestReadOnly(TestPackageForm):
     def teardown_class(self):
         CreateTestData.delete()
 
-    @is_search_related
+    @search_related
     def test_minornavigation_2(self):
         offset = url_for(controller='package', action='search')
         res = self.app.get(offset)
@@ -360,7 +360,7 @@ class TestReadOnly(TestPackageForm):
         #main_div = self.main_div(res)
         #assert title in main_div, main_div.encode('utf8')
 
-    @is_search_related
+    @search_related
     def test_search(self):
         offset = url_for(controller='package', action='search')
         res = self.app.get(offset)
@@ -372,7 +372,7 @@ class TestReadOnly(TestPackageForm):
         # check for something that also finds tags ...
         self._check_search_results(res, 'russian', ['<strong>2</strong>'])
 
-    @is_search_related
+    @search_related
     def test_search_foreign_chars(self):
         offset = url_for(controller='package', action='search')
         res = self.app.get(offset)
@@ -380,7 +380,7 @@ class TestReadOnly(TestPackageForm):
         self._check_search_results(res, u'th\xfcmb', ['<strong>1</strong>'])
         self._check_search_results(res, 'thumb', ['<strong>0</strong>'])
 
-    @is_search_related
+    @search_related
     def test_search_escape_chars(self):
         payload = '?q=fjdkf%2B%C2%B4gfhgfkgf%7Bg%C2%B4pk&search=Search+Packages+%C2%BB'
         offset = url_for(controller='package', action='search') + payload
@@ -1256,7 +1256,7 @@ class TestNonActivePackages(TestPackageBase):
         offset = url_for(controller='package', action='read', id=self.non_active_name)
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':'joeadmin'})
 
-    @is_search_related
+    @search_related
     def test_search(self):
         offset = url_for(controller='package', action='search')
         res = self.app.get(offset)

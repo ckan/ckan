@@ -3,7 +3,7 @@ import webhelpers
 import re
 
 from ckan.tests import *
-from ckan.tests import is_search_related
+from ckan.tests import search_related
 import ckan.model as model
 import ckan.authz as authz
 from ckan.lib.base import ALLOWED_FIELDSET_PARAMS
@@ -357,7 +357,7 @@ class FormsApiTestCase(BaseFormsApiCase):
         assert not self.get_package_by_name(self.package_name)
         assert self.get_package_by_name(self.package_name_alt)
 
-    @is_search_related
+    @search_related
     def test_package_create_example_page(self):
         self.ckan_server = self._start_ckan_server()
         try:
@@ -379,7 +379,7 @@ class FormsApiTestCase(BaseFormsApiCase):
         finally:
             self._stop_ckan_server(self.ckan_server)
 
-    @is_search_related
+    @search_related
     def test_package_edit_example_page(self):
         self.ckan_server = self._start_ckan_server()
         try:

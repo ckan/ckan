@@ -1,7 +1,7 @@
 from ckan.tests import *
 from ckan.lib.create_test_data import CreateTestData
 import ckan.model as model
-from ckan.tests import is_search_related
+from ckan.tests import search_related
 
 class TestHomeController(TestController):
     @classmethod
@@ -14,7 +14,7 @@ class TestHomeController(TestController):
         res = self.app.get(offset)
         assert 'Packages' in res
 
-    @is_search_related
+    @search_related
     def test_packages_link(self):
         offset = url_for('home')
         res = self.app.get(offset)
@@ -38,7 +38,7 @@ class TestHomeController(TestController):
         url = url_for('guide')
         assert url == 'http://wiki.okfn.org/ckan/doc/'
 
-    @is_search_related
+    @search_related
     def test_search_packages(self):
         offset = url_for('home')
         res = self.app.get(offset)
