@@ -175,16 +175,15 @@ Ho ho ho
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
         assert 'annakarenina' in res, res
         assert not 'newone' in res, res
-
+        model.repo.new_revision()
         pkg = model.Package(name=u'anewone')
         model.Session.add(pkg)
-        model.repo.new_revision()
         model.repo.commit_and_remove()
 
+        model.repo.new_revision()
         pkg = model.Package.by_name(u'anewone')
         user = model.User.by_name(u'russianfan')
         model.setup_default_user_roles(pkg, [user])
-        model.repo.new_revision()
         model.repo.commit_and_remove()
         
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
