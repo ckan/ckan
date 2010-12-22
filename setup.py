@@ -14,7 +14,7 @@ setup(
     author='Open Knowledge Foundation',
     author_email='info@okfn.org',
     license=__license__,
-    url='http://knowledgeforge.net/ckan/',
+    url='http://ckan.org/',
     description=__description__,
     keywords='data packaging component tool server',
     long_description =__long_description__,
