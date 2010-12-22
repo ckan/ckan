@@ -68,10 +68,13 @@ class PackageSaver(object):
             fs.model.ratings
         except ValidationException, e:
             # remove everything from session so nothing can get saved accidentally
-            model.Session.clear()
+            model.Session.remove()
             raise ValidationException(*e)
         # remove everything from session so nothing can get saved accidentally
-        model.Session.clear()
+        try:
+            model.Session.expunge_all()
+        except AttributeError: # older Sqlalchemy
+            model.Session.remove()
         return out
 
     @classmethod
@@ -97,7 +100,8 @@ class PackageSaver(object):
             client.errors = errors
         fs.validate()
         validates = not (errors or fs.errors)
-
+        if not validates:
+            raise ValidationException(fs)
         # sync
         try:
             if commit:
@@ -112,9 +116,7 @@ class PackageSaver(object):
             # only commit if desired and it validates ok
             if commit and validates:
                 model.Session.commit()
-            elif not validates:
-                raise ValidationException(fs)
-            else:
+            elif validates:
                 # i.e. preview
                 pkg = fs.model
                 return pkg
