@@ -9,6 +9,9 @@ class TestSearchOverallWithSynchronousIndexing(TestSearchOverall):
 
     @classmethod
     def setup_class(self):
+        if not is_search_supported():
+            raise SkipTest("Search not supported")
+
         import gc
         from pylons import config
 

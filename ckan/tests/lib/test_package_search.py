@@ -12,6 +12,8 @@ class TestSearch(TestController):
 
     @classmethod
     def setup_class(self):
+        if not is_search_supported():
+            raise SkipTest("Search not supported")
 
         indexer = TestSearchIndexer()
         model.Session.remove()

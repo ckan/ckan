@@ -332,6 +332,8 @@ class TestSearchIndexer:
     
     def __init__(self):
         from ckan import plugins
+        if not is_search_supported():
+            raise SkipTest("Search not supported")
         plugins.load('synchronous_search')
 
     @classmethod
@@ -343,7 +345,10 @@ def is_search_supported():
     return supported_db
 
 def is_search_related(test):
+    def skip_test(*args):
+        raise SkipTest("Search not supported")
     if not is_search_supported():
-        return make_decorator(test)(lambda x: True)
+        # XXX raise S
+        return make_decorator(test)(skip_test)
     return make_decorator(test)
     
