@@ -1,8 +1,10 @@
 from ckan.tests import *
 import ckan.model as model
+from ckan.lib.create_test_data import CreateTestData
 
 class TestPackageResource:
     def setup(self):
+        model.repo.init_db()
         self.pkgname = u'resourcetest'
         assert not model.Package.by_name(self.pkgname)
         assert model.Session.query(model.PackageResource).count() == 0
@@ -24,6 +26,7 @@ class TestPackageResource:
 
     def teardown(self):
         model.Session.remove()
+        rev = model.repo.new_revision()
         pkg = model.Package.by_name(self.pkgname)
         if pkg:
             pkg.purge()
@@ -52,8 +55,9 @@ class TestPackageResource:
         assert len(pkg.package_resources_all) == 2, pkg.package_resources_all
     
     def test_03_reorder_resources(self):
-        pkg = model.Package.by_name(self.pkgname)
         rev = model.repo.new_revision()
+        import pdb; pdb.set_trace()
+        pkg = model.Package.by_name(self.pkgname)
         res0 = pkg.resources[0]
         del pkg.resources[0]
         pkg.resources.append(res0)
@@ -66,6 +70,7 @@ class TestPackageResource:
         # 1. Call reorder() on list. Problematic as this method is hidden by
         #   StatefulList()
         # 2. set res0.position = None
+        pkg.resources[0].position = None
         pkg.resources[1].position = None
         model.repo.commit_and_remove()
 
@@ -73,7 +78,11 @@ class TestPackageResource:
         assert len(pkg.resources) == 2, pkg.package_resources_all
         lastres = pkg.resources[1]
         assert lastres.position == 1, lastres
-        assert lastres.url == self.urls[0], pkg.lastres
+        # XXX not sure how the following ever worked, replaced by the
+        # line after it
+        # assert lastres.url == self.urls[0], pkg.lastres
+        assert lastres.url == self.urls[0]
+        
 
     def test_04_insert_resource(self):
         pkg = model.Package.by_name(self.pkgname)
@@ -120,6 +129,7 @@ class TestPackageResource:
 class TestResourceEdit:
     @classmethod
     def setup(self):
+        model.repo.init_db()
         self.pkgname = u'geodata'
         self.urls = [u'http://somewhere.com/',
                      u'http://elsewhere.com/',
@@ -228,3 +238,4 @@ class TestResourceEdit:
         assert pkg.resources[0].id == original_res_ids[0]
         assert pkg.resources[1].id == original_res_ids[2]
 
+1

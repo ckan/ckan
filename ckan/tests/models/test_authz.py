@@ -10,6 +10,7 @@ class TestCreation(object):
     def setup_class(self):
         model.Session.remove()
         model.repo.rebuild_db()
+        model.repo.new_revision()
         p1 = model.Package(name=u'annakarenina')
         p2 = model.Package(name=u'warandpeace')
         p3 = model.Package(name=u'test0')
@@ -17,7 +18,6 @@ class TestCreation(object):
         for obj in (p1, p2, p3, mradmin):
             model.Session.add(obj)
         self.authorizer = authz.Authorizer()
-        model.repo.new_revision()
         model.repo.commit_and_remove()
 
     @classmethod

@@ -50,6 +50,7 @@ class TestRead(TestPackageBase):
 class TestEdit(TestPackageBase):
     @classmethod
     def setup_class(self):
+        model.repo.init_db()
         model.Session.add(model.User(name=u'testadmin'))
         model.repo.commit_and_remove()
 

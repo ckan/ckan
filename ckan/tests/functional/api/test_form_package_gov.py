@@ -4,6 +4,7 @@ from pylons import config
 
 from ckan.lib.helpers import json
 from ckan.lib.helpers import literal
+import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 from test_form import BaseFormsApiCase, Api1TestCase, Api2TestCase
 
@@ -168,6 +169,7 @@ class EmbeddedFormTestCase(BaseFormsApiCase):
 
     @classmethod
     def setup_class(self):
+        model.repo.init_db()
         self.fixtures = GovFixtures()
         self.fixtures.create()
         self.pkg_dict = self.fixtures.pkgs[0]

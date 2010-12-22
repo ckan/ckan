@@ -3,6 +3,7 @@ from ckan.tests import *
 from ckan.model.harvesting import HarvestSource
 from ckan.model.harvesting import HarvestingJob
 from ckan.model.harvesting import HarvestedDocument
+from ckan.model.harvesting import decode_response
 import ckan.model as model
 
 class HarvesterTestCase(TestCase):
@@ -10,6 +11,10 @@ class HarvesterTestCase(TestCase):
     require_common_fixtures = False
 
     def setup(self):
+        # XXX what's the proper way to ensure the Harvesting tables
+        # get set up?
+        from ckan.model.harvesting import metadata
+        metadata.create_all(bind=metadata.bind)
         super(HarvesterTestCase, self).setup()
         self.source = None
         self.job = None
@@ -562,7 +567,5 @@ class GeminiExamples(object):
     def get_content(self, url):
         import urllib2
         resource = urllib2.urlopen(url)
-        # Todo: Check the encoding is okay (perhaps change model attribute type)?
-        content = resource.read()
-        return content
+        return decode_response(resource)
 
