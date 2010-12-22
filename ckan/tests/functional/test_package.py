@@ -767,11 +767,10 @@ u with umlaut \xc3\xbc
             self._reset_data()
 
 
-    def xtest_edit_bad_log_message(self):
-        # XXX fails on fv.submit('preview') with
-        # DetachedInstanceError: Parent instance <Package at
-        # 0x4abc910> is not bound to a Session; lazy load operation of
-        # attribute 'groups' cannot proceed 
+    def test_edit_bad_log_message(self):
+        # XXX to make this test pass, I had to do a strange hack that
+        # I didn't understand -- look for XXX in 
+        # controllers.package.PackageController.edit
         fv = self.res.forms['package-edit']
         prefix = 'Package-%s-' % self.pkgid
         fv['log_message'] = u'Free enlargements: http://drugs.com/' # spam
@@ -781,11 +780,11 @@ u with umlaut \xc3\xbc
         self.check_tag(res, '<form', 'class="has-errors"')
         assert 'No links are allowed' in res, res
         res = fv.submit('save')
-        assert 'Error' in res, res
+        assert 'Error' in res, res 
         self.check_tag(res, '<form', 'class="has-errors"')
         assert 'No links are allowed' in res, res
 
-    def xtest_edit_bad_name(self):
+    def test_edit_bad_name(self):
         # XXX fails with same error as above
         fv = self.res.forms['package-edit']
         prefix = 'Package-%s-' % self.pkgid
@@ -1406,8 +1405,11 @@ class TestEtags(TestPackageBase, PylonsTestCase):
 
         rev = model.repo.new_revision()
         # XXX the following causes "stale association proxy", so
-        # temporarily we return prematurely
-        return 
+        # temporarily we return prematurely.  "extras" appears to me
+        # an association proxy, but I can't find any trace of it in
+        # the code, just a relation called _extras from Package to
+        # PackageExtra
+
         self.anna.extras[test_extra_key] = test_extra_value
         model.repo.commit_and_remove()
         hash_5 = get_hash(self.anna)
