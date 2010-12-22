@@ -67,13 +67,10 @@ class PackageSaver(object):
             fs.model.groups
             fs.model.ratings
         except ValidationException, e:
-            # remove everything from session so nothing can get saved accidentally
-            model.Session.remove()
             raise ValidationException(*e)
-        # remove everything from session so nothing can get saved accidentally
-        try:
-            model.Session.expunge_all()
-        except AttributeError: # older Sqlalchemy
+        finally:
+            # remove everything from session so nothing can get saved
+            # accidentally
             model.Session.remove()
         return out
 
