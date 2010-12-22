@@ -101,10 +101,9 @@ class PackageSaver(object):
             raise ValidationException(fs)
         # sync
         try:
-            if commit:
-                rev = model.repo.new_revision()
-                rev.author = author
-                rev.message = log_message
+            rev = model.repo.new_revision()
+            rev.author = author
+            rev.message = log_message
             fs.sync()
         except Exception, inst:
             model.Session.rollback()
