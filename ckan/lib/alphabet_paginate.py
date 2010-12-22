@@ -13,6 +13,7 @@ Based on webhelpers.paginator, but each page is for items beginning
         ${c.page.pager()}
 '''
 
+from sqlalchemy import  __version__ as sqav
 from sqlalchemy.orm.query import Query
 from pylons.i18n import _
 from webhelpers.html.builder import HTML
@@ -69,7 +70,12 @@ class AlphaPage(object):
         '''Returns items on the current page.'''
         if isinstance(self.collection, Query):
             query = self.collection
-            attribute = getattr(query.table.c, self.alpha_attribute)
+            if sqav.startswith("0.4"):
+                attribute = getattr(query.table.c, self.alpha_attribute)
+            else:
+                # XXX not sure of the "correct" way to do this...
+                attribute = getattr(query._entity_zero().selectable.c,
+                                    self.alpha_attribute)                
             if self.item_count >= self.paging_threshold:
                 if self.page != self.other_text:
                     query = query.filter(attribute.ilike(u'%s%%' % self.page))

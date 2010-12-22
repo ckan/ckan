@@ -43,7 +43,10 @@ class TestPackage:
         pkg.notes = newnotes
         rev2.author = u'jones'
         model.Session.commit()
-        model.Session.clear()
+        try:
+            model.Session.expunge_all()
+        except AttributeError: # sqlalchemy 0.4
+            model.Session.clear()
         outpkg = model.Package.by_name(self.name)
         assert outpkg.notes == newnotes
         assert len(outpkg.all_revisions) > 0
@@ -126,14 +129,20 @@ class TestPackageWithTags:
         pkg = model.Package.by_name(self.pkgname)
         pkg.add_tag_by_name(self.tagname3)
         model.Session.commit()
-        model.Session.clear()
+        try:
+            model.Session.expunge_all()
+        except AttributeError: # sqlalchemy 0.4
+            model.Session.clear()
         outpkg = model.Package.by_name(self.pkgname)
         assert len(outpkg.tags) == 3
         t1 = model.Tag.by_name(self.tagname)
         assert len(t1.package_tags) == 1
 
     def test_add_tag_by_name_existing(self):
-        model.Session.clear()
+        try:
+            model.Session.expunge_all()
+        except AttributeError: # sqlalchemy 0.4
+            model.Session.clear()
         pkg = model.Package.by_name(self.pkgname)
         assert len(pkg.tags) == 3
         pkg.add_tag_by_name(self.tagname)

@@ -332,7 +332,7 @@ class PackageController(BaseController):
             except ValidationException, error:
                 fs = error.args[0]
                 c.form = self._render_edit_form(fs, request.params,
-                        clear_session=True)
+                                                clear_session=True)
                 return render('package/edit.html')
             except KeyError, error:
                 abort(400, 'Missing parameter: %s' % error.args)
@@ -505,8 +505,15 @@ class PackageController(BaseController):
         # expunge everything from session so we don't have any problematic
         # saves (this gets called on validation exceptions a lot)
         # Todo: Explain why there are 'saves' when rendering a form.
+        # XXX If the session is *expunged*, then the form can't be
+        # rendered; the Todo above needs doing!  I've settled with a
+        # rollback for now, which isn't necessarily what's wanted
+        # here. 
         if clear_session:
-            model.Session.clear()
+            try:
+                model.Session.rollback()
+            except AttributeError: # older SQLAlchemy versions
+                model.Session.clear()
         edit_form_html = fs.render()
         c.form = h.literal(edit_form_html)
         return h.literal(render('package/edit_form.html'))
