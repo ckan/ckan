@@ -181,13 +181,13 @@ class TestAuthorizationGroups(object):
 
     @classmethod
     def setup_class(self):
+        model.repo.new_revision()
         model.Session.add(model.Package(name=u'testpkgag'))
         model.Session.add(model.Group(name=u'testgroupag'))
         model.Session.add(model.User(name=u'ag_member'))
         model.Session.add(model.User(name=u'ag_admin'))
         model.Session.add(model.User(name=u'ag_notmember'))
         model.Session.add(model.AuthorizationGroup(name=u'authz_group'))
-        model.repo.new_revision()
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(u'testpkgag')
