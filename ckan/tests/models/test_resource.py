@@ -56,7 +56,6 @@ class TestPackageResource:
     
     def test_03_reorder_resources(self):
         rev = model.repo.new_revision()
-        import pdb; pdb.set_trace()
         pkg = model.Package.by_name(self.pkgname)
         res0 = pkg.resources[0]
         del pkg.resources[0]
@@ -66,21 +65,14 @@ class TestPackageResource:
         # Why? According to docs for ordering list it does not reorder appended
         # elements by default (see
         # http://www.sqlalchemy.org/trac/browser/lib/sqlalchemy/ext/orderinglist.py#L197)
-        # Possible ways to deal with this:
-        # 1. Call reorder() on list. Problematic as this method is hidden by
-        #   StatefulList()
-        # 2. set res0.position = None
-        pkg.resources[0].position = None
-        pkg.resources[1].position = None
+        # so we have to call reorder directly:
+        pkg.resources.target.reorder()
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(self.pkgname)
         assert len(pkg.resources) == 2, pkg.package_resources_all
         lastres = pkg.resources[1]
         assert lastres.position == 1, lastres
-        # XXX not sure how the following ever worked, replaced by the
-        # line after it
-        # assert lastres.url == self.urls[0], pkg.lastres
         assert lastres.url == self.urls[0]
         
 
