@@ -15,7 +15,6 @@ class PackagesTestCase(BaseModelApiTestCase):
         model.Session.remove()
         model.repo.init_db()
         super(PackagesTestCase, self).setup()
-        # XXX check super.setup for if any dupes there
 
     def teardown(self):
         self.purge_package_by_name(self.package_fixture_data['name'])

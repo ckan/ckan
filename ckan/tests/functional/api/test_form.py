@@ -339,7 +339,7 @@ class FormsApiTestCase(BaseFormsApiCase):
         field_name = 'Package-%s-name' % (package_id)
         # XXX the following now breaks against default formalchemy.
         # see https://groups.google.com/group/formalchemy/browse_thread/thread/a1ec53638de5acb5
-        # XXX self.assert_formfield(form, field_name, invalid_name)
+        #self.assert_formfield(form, field_name, invalid_name)
 
         # Whitespace in name.
         invalid_name = ' '
