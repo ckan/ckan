@@ -329,7 +329,7 @@ class TestHarvestCswSourceRandomWebsite(HarvesterTestCase):
         self.assert_false(self.job.report)
         self.job.harvest_documents()
         error = self.job.report['errors'][0]
-        if "timeout" in error:
+        if "timeout" in error or "service not known" in error:
             raise SkipTest("Couldn't connect to internet for test")
         after_count = self.count_packages()
         self.assert_equal(after_count, before_count)
