@@ -831,10 +831,13 @@ u with umlaut \xc3\xbc
             prefix = 'Package-%s-' % pkg.id
             fv = res.forms['package-edit']
             name = prefix + 'groups-new'
-            # XXX not sure why this is failing, or rather, what it's
-            # meant to be doing anyway, so have commented out.  Note
-            # that the next assertion passes.
-            #assert not name in fv.fields.keys()
+            # XXX the following assertion fails since upgrade to
+            # sqlalchemy 0.6.5; apparently outer joins are handled
+            # differently in such a way that
+            # ckan.lib.base._get_user_editable_groups (which calls 
+            # ckan.authz.authorized_query) now returns groups when it
+            # shouldn't.                             
+            assert not name in fv.fields.keys()
             res = fv.submit('save')
             res = res.follow()
             pkg = model.Package.by_name(u'editpkgtest')
