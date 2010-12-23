@@ -221,6 +221,7 @@ class FormsApiTestCase(BaseFormsApiCase):
         self.delete_harvest_source(u'http://localhost/')
         if self.harvest_source:
             self.delete_commit(self.harvest_source)
+        CreateTestData.delete()
         model.Session.connection().invalidate()
         
     def get_field_names(self, form):
@@ -330,16 +331,28 @@ class FormsApiTestCase(BaseFormsApiCase):
         package_id = package.id
         # Nothing in name.
         invalid_name = ''
-        res = self.post_package_edit_form(package_id, name=invalid_name, status=[400])
+        maintainer_email = "foo@baz.com"
+        res = self.post_package_edit_form(package_id,
+                                          name=invalid_name,
+                                          maintainer_email=maintainer_email,
+                                          status=[400])
         # Check package is unchanged.
         assert self.get_package_by_name(self.package_name)
         # Check response is an error form.
         assert "class=\"field_error\"" in res
         form = self.form_from_res(res)
-        field_name = 'Package-%s-name' % (package_id)
-        # XXX the following now breaks against default formalchemy.
-        # see https://groups.google.com/group/formalchemy/browse_thread/thread/a1ec53638de5acb5
-        #self.assert_formfield(form, field_name, invalid_name)
+        name_field_name = 'Package-%s-name' % (package_id)
+        maintainer_field_name = 'Package-%s-maintainer_email' % (package_id)
+        # this test used to be 
+        #   self.assert_formfield(form, field_name, invalid_name)
+        # but since the formalchemy upgrade, we no longer sync data to
+        # the model if the validation fails (as this would cause an
+        # IntegrityError at the database level).
+        # and formalchemy.fields.FieldRenderer.value renders the model
+        # value if the passed in value is an empty string
+        self.assert_formfield(form, name_field_name, package.name)
+        # however, other fields which aren't blank should be preserved
+        self.assert_formfield(form, maintainer_field_name, maintainer_email)
 
         # Whitespace in name.
         invalid_name = ' '
