@@ -1,4 +1,5 @@
 import sqlalchemy as sa
+from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 import ckan.model as model
 
@@ -171,16 +172,15 @@ class Authorizer(object):
             user = model.User.by_name(username, autoflush=False)
         else:
             user = None
-
         visitor = model.User.by_name(model.PSEUDO_USER__VISITOR, autoflush=False)
-        logged_in = model.User.by_name(model.PSEUDO_USER__LOGGED_IN, autoflush=False)
-
+        logged_in = model.User.by_name(model.PSEUDO_USER__LOGGED_IN,
+                                       autoflush=False)
         if not cls.is_sysadmin(username):
             q = q.outerjoin('roles')
             if hasattr(entity, 'state'):
                 state = entity.state
             else:
-                state = model.State.ACTIVE
+                state = None
                 
             filters = [model.UserObjectRole.user==visitor]
             for authz_group in cls.get_authorization_groups(username):
@@ -192,13 +192,13 @@ class Authorizer(object):
                 q = q.filter(sa.or_(
                     sa.and_(model.UserObjectRole.role==model.RoleAction.role,
                             model.RoleAction.action==action,
-                            model.Revision.state==state),
+                            state and state==model.State.ACTIVE),
                     model.UserObjectRole.role==model.Role.ADMIN))
             else:
                 q = q.filter(
                     sa.and_(model.UserObjectRole.role==model.RoleAction.role,
                             model.RoleAction.action==action,
-                            model.Revision.state==state),
+                            state and state==model.State.ACTIVE),
                     )
             q = q.filter(sa.or_(*filters))   
             q = q.distinct()
