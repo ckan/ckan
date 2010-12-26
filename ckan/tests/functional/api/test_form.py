@@ -215,13 +215,7 @@ class FormsApiTestCase(BaseFormsApiCase):
         self.harvest_source = None
 
     def teardown(self):
-        self.purge_package_by_name(self.package_name)
-        self.purge_package_by_name(self.package_name_alt)
-        self.purge_package_by_name(self.package_name_alt2)
-        self.delete_harvest_source(u'http://localhost/')
-        if self.harvest_source:
-            self.delete_commit(self.harvest_source)
-        CreateTestData.delete()
+        model.repo.clean_db()
         model.Session.connection().invalidate()
         
     def get_field_names(self, form):

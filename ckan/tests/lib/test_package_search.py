@@ -414,15 +414,15 @@ class TestExtraFields(TestController):
 class TestRank(TestController):
     @classmethod
     def setup_class(self):
-        self.purge_all_packages()
-        indexer = TestSearchIndexer()
-
         init_data = [{'name':u'test1-penguin-canary',
                       'tags':u'canary goose squirrel wombat wombat'},
                      {'name':u'test2-squirrel-squirrel-canary-goose',
                       'tags':u'penguin wombat'},
                      ]
         CreateTestData.create_arbitrary(init_data)
+        self.purge_all_packages()
+        indexer = TestSearchIndexer()
+
         indexer.index()
         self.pkg_names = [u'test1-penguin-canary',
                      u'test2-squirrel-squirrel-canary-goose']

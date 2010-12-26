@@ -4,14 +4,13 @@ import ckan.model as model
 class TestRevisionExtraAttributes:
     @classmethod
     def setup_class(self):
-        model.repo.rebuild_db()
         model.Session.remove()
         CreateTestData.create()
 
     @classmethod
     def teardown_class(self):
         CreateTestData.delete()
-        model.repo.rebuild_db()
+        model.repo.clean_db()
 
     def test_revision_packages(self):
         rev = model.repo.youngest_revision()

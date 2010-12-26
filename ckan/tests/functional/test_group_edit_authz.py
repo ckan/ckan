@@ -6,7 +6,7 @@ import ckan.authz as authz
 class TestGroupEditAuthz(TestController):
     @classmethod
     def setup_class(self):
-        model.repo.rebuild_db()
+        model.repo.init_db()
         model.repo.new_revision()
         self.admin = 'madeup-administrator'
         user = model.User(name=unicode(self.admin))
@@ -20,7 +20,7 @@ class TestGroupEditAuthz(TestController):
 
     @classmethod
     def teardown_class(self):
-        model.repo.rebuild_db()
+        model.repo.clean_db()
 
     def test_0_nonadmin_cannot_edit_authz(self):
         offset = url_for(controller='group', action='authz', id=self.groupname)

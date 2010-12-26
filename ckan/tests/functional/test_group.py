@@ -308,6 +308,7 @@ class TestRevisions(FunctionalTestCase):
     @classmethod
     def setup_class(self):
         model.Session.remove()
+        CreateTestData.create()
         self.name = u'revisiontest1'
 
         # create pkg
@@ -331,6 +332,7 @@ class TestRevisions(FunctionalTestCase):
     @classmethod
     def teardown_class(self):
         self.purge_packages([self.name])
+        model.repo.clean_db()
 
     def test_0_read_history(self):
         offset = url_for(controller='group', action='history', id=self.grp.name)

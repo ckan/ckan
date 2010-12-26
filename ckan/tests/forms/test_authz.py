@@ -16,7 +16,7 @@ class TestRender(object):
     @classmethod
     def teardown_class(self):
         model.Session.remove()
-        model.repo.rebuild_db()
+        model.repo.clean_db()
 
     def test_render_authorized(self):
         fs = ckan.forms.get_authz_fieldset('package_authz_fs')
@@ -40,13 +40,13 @@ class TestRender(object):
 class TestSync:
     @classmethod
     def setup_class(self):
-        CreateTestData.create()
+        model.repo.init_db()
         CreateTestData.create_arbitrary([], extra_user_names=[u'friend'])
         self.authorizer = ckan.authz.Authorizer()
 
     @classmethod
     def teardown_class(self):
-        CreateTestData.delete()
+        model.repo.clean_db()
 
     def test_0_no_change(self):
         pkg_name, user = self._new_pkg(0)

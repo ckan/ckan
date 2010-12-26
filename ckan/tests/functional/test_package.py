@@ -261,6 +261,7 @@ class TestReadOnly(TestPackageForm):
     @classmethod
     def teardown_class(self):
         CreateTestData.delete()
+        model.repo.clean_db()
 
     @search_related
     def test_minornavigation_2(self):
@@ -413,7 +414,7 @@ class TestEdit(TestPackageForm):
     
     @classmethod
     def setup_class(self):
-        model.repo.init_db()
+        CreateTestData.create()
         self._reset_data()
 
     def setup(self):
@@ -424,8 +425,7 @@ class TestEdit(TestPackageForm):
     @classmethod
     def _reset_data(self):
         model.Session.remove()
-        model.repo.init_db()
-        CreateTestData.delete()
+        model.repo.clean_db()
         CreateTestData.create()
         CreateTestData.create_arbitrary(
             {'name':self.editpkg_name,
@@ -449,6 +449,7 @@ class TestEdit(TestPackageForm):
     @classmethod
     def teardown_class(self):
         CreateTestData.delete()
+        model.repo.clean_db()
 
     def test_edit_basic(self):
         # just the absolute basics
@@ -890,10 +891,15 @@ u with umlaut \xc3\xbc
 
 class TestNew(TestPackageForm):
     pkg_names = []
-    
+
+    @classmethod
+    def setup_class(self):
+        model.repo.init_db()
+
     @classmethod
     def teardown_class(self):
         self.purge_packages(self.pkg_names)
+        model.repo.clean_db()
 
     def test_new_with_params_1(self):
         offset = url_for(controller='package', action='new',
@@ -1177,11 +1183,13 @@ class TestNewPreview(TestPackageBase):
 
     @classmethod
     def setup_class(self):
-        model.repo.rebuild_db() # ensure no revisions from other tests
+        pass
+        model.repo.init_db()
 
     @classmethod
     def teardown_class(self):
         self.purge_packages([self.pkgname])
+        model.repo.clean_db()
 
     def test_preview(self):
         assert model.Session.query(model.Package).count() == 0, model.Session.query(model.Package).all()
@@ -1230,6 +1238,7 @@ class TestNonActivePackages(TestPackageBase):
     def teardown_class(self):
         CreateTestData.delete()
         self.purge_packages([self.non_active_name])
+        model.repo.clean_db()
 
     def test_read(self):
         offset = url_for(controller='package', action='read', id=self.non_active_name)
@@ -1256,6 +1265,7 @@ class TestRevisions(TestPackageBase):
     @classmethod
     def setup_class(self):
         model.Session.remove()
+        model.repo.init_db()
         self.name = u'revisiontest1'
 
         # create pkg
@@ -1279,6 +1289,7 @@ class TestRevisions(TestPackageBase):
     @classmethod
     def teardown_class(self):
         self.purge_packages([self.name])
+        model.repo.clean_db()
     
     def test_0_read_history(self):
         offset = url_for(controller='package', action='history', id=self.pkg1.name)
@@ -1343,6 +1354,7 @@ alert('Hello world!');
 
     def setup(self):
         model.Session.remove()
+        model.repo.init_db()
         rev = model.repo.new_revision()
         CreateTestData.create_arbitrary(
             {'name':self.pkg_name,
@@ -1357,6 +1369,7 @@ alert('Hello world!');
 
     def teardown(self):
         CreateTestData.delete()
+        model.repo.clean_db()
 
     def test_markdown_html_whitelist(self):
         self.body = str(self.res)
@@ -1381,6 +1394,7 @@ class TestEtags(TestPackageBase, PylonsTestCase):
     @classmethod
     def teardown_class(self):
         CreateTestData.delete()
+        model.repo.clean_db()
 
     def test_calculate_etag_hash(self):
         c.user = 'test user'

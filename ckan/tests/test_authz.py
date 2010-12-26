@@ -5,6 +5,7 @@ import ckan.authz
 
 from copy import copy
 from ckan.model import Role, Action
+from ckan.tests import *
 
 class TestBlacklister(object):
 
@@ -22,6 +23,7 @@ class TestAuthorizer(object):
 
     @classmethod
     def setup_class(self):
+        CreateTestData.create()
         model.repo.new_revision()
         model.Session.add(model.Package(name=u'testpkg'))
         model.Session.add(model.Package(name=u'testpkg2'))
@@ -53,7 +55,7 @@ class TestAuthorizer(object):
     @classmethod
     def teardown_class(self):
         model.Session.remove()
-        model.repo.rebuild_db()
+        model.repo.clean_db()
         model.Session.remove()
 
     authorizer = ckan.authz.Authorizer()
@@ -110,6 +112,7 @@ class TestLockedDownAuthorizer(object):
 
     @classmethod
     def setup_class(self):
+        CreateTestData.create()
         q = model.Session.query(model.UserObjectRole).filter(sa.or_(model.UserObjectRole.role==Role.EDITOR,
                                                                     model.UserObjectRole.role==Role.READER))
         q = q.filter(model.UserObjectRole.user==model.User.by_name(u"visitor"))
@@ -147,7 +150,7 @@ class TestLockedDownAuthorizer(object):
     @classmethod
     def teardown_class(self):
         model.Session.remove()
-        model.repo.rebuild_db()
+        model.repo.clean_db()
         model.Session.remove()
 
     authorizer = ckan.authz.Authorizer()
@@ -181,6 +184,7 @@ class TestAuthorizationGroups(object):
 
     @classmethod
     def setup_class(self):
+        CreateTestData.create()
         model.repo.new_revision()
         model.Session.add(model.Package(name=u'testpkgag'))
         model.Session.add(model.Group(name=u'testgroupag'))
@@ -213,7 +217,7 @@ class TestAuthorizationGroups(object):
     @classmethod
     def teardown_class(self):
         model.Session.remove()
-        model.repo.rebuild_db()
+        model.repo.clean_db()
         model.Session.remove()
 
     authorizer = ckan.authz.Authorizer()

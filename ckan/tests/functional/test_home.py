@@ -9,6 +9,10 @@ class TestHomeController(TestController):
         model.repo.init_db()
         CreateTestData.create()
         
+    @classmethod
+    def teardown_class(self):
+        model.repo.clean_db()
+
     def test_home_page(self):
         offset = url_for('home')
         res = self.app.get(offset)

@@ -9,12 +9,12 @@ class TestRevisionController(TestController):
         model.Session.remove()
         # rebuild db before this test as it depends delicately on what
         # revisions exist
-        model.repo.rebuild_db()
+        model.repo.init_db()
         CreateTestData.create()
 
     @classmethod
     def teardown_class(self):
-        model.repo.rebuild_db()
+        model.repo.clean_db()
 
     def create_40_revisions(self):
         for i in range(0,40):

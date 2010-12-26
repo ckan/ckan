@@ -23,6 +23,7 @@ class TestUsage(TestController):
         #   r = Allowed to read
         #   w = Allowed to read/write
         #   x = Not allowed either
+        model.repo.init_db()
         rev = model.repo.new_revision()
         self.modes = ('xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted')
         for mode in self.modes:
@@ -111,7 +112,7 @@ class TestUsage(TestController):
     @classmethod
     def teardown_class(self):
         model.Session.remove()
-        model.repo.rebuild_db()
+        model.repo.clean_db()
         model.Session.remove()
 
     def _do_test_wui(self, action, user, mode, entity='package'):
@@ -329,6 +330,5 @@ class TestLockedDownUsage(TestUsage):
     
     @classmethod
     def teardown_class(self):
-        model.Session.remove()
-        model.repo.rebuild_db()
+        model.repo.clean_db()
         model.Session.remove()

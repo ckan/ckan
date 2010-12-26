@@ -5,8 +5,12 @@ from ckan.tests.pylons_controller import PylonsTestCase
 
 class TestHarvestSource(PylonsTestCase):
 
+    def setup(self):
+        super(TestHarvestSource, self).setup()
+        model.repo.init_db()
+
     def teardown(self):
-        model.repo.rebuild_db()
+        model.repo.clean_db()
 
     def test_form_raw(self):
         fs = ckan.forms.get_harvest_source_fieldset()

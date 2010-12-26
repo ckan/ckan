@@ -4,20 +4,8 @@ from ckan.tests import is_search_supported
 
 class ModelApiTestCase(BaseModelApiTestCase):
 
-    @classmethod
-    def setup_class(self):
-        model.Session.remove()
-        model.repo.init_db()
-        CreateTestData.create()
-        model.Session.remove()
-
-    @classmethod
-    def teardown_class(self):
-        model.Session.remove()
-        model.repo.rebuild_db()
-        model.Session.remove()
-
     def setup(self):
+        CreateTestData.create()
         self.create_common_fixtures()
         self.init_extra_environ()
         self.source = None
@@ -32,7 +20,8 @@ class ModelApiTestCase(BaseModelApiTestCase):
         self.job3 = None
 
     def teardown(self):
-        self.rebuild() 
+        #self.rebuild()
+        model.repo.clean_db()
         return
 #        if self.job:
 #            self.delete_commit(self.job)

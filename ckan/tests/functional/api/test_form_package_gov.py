@@ -184,6 +184,8 @@ class EmbeddedFormTestCase(BaseFormsApiCase):
     @classmethod
     def teardown_class(self):
         self.fixtures.delete()
+        # XXX can we remove the above?
+        model.repo.clean_db()
 
     def _insert_into_field_tag(self, form_html, field_name, tag_name, tag_insertion):
         '''Finds the tag for a package field and inserts some html into it.'''

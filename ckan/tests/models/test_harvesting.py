@@ -14,10 +14,7 @@ class HarvesterTestCase(TestCase):
     require_common_fixtures = False
 
     def setup(self):
-        # XXX what's the proper way to ensure the Harvesting tables
-        # get set up?
-        from ckan.model.harvesting import metadata
-        metadata.create_all(bind=metadata.bind)
+        CreateTestData.create()
         super(HarvesterTestCase, self).setup()
         self.source = None
         self.job = None
@@ -36,6 +33,7 @@ class HarvesterTestCase(TestCase):
         self.commit_remove()
         self.purge_package_by_name('00a743bf-cca4-4c19-a8e5-e64f7edbcadd')
         super(HarvesterTestCase, self).teardown()
+        model.repo.clean_db()
 
     def create_fixture(self, domain_type, **kwds):
         # Create and check new fixture.

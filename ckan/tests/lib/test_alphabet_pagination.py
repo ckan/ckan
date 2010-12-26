@@ -26,7 +26,7 @@ class TestPages:
 
     @classmethod
     def teardown_class(cls):
-        CreateTestData.delete()
+        model.repo.clean_db()
 
     def test_01_package_page(self):
         query = model.Session.query(model.Package)
@@ -85,6 +85,7 @@ class TestTooFewToPage:
     @classmethod
     def setup_class(cls):
         # create data
+        model.repo.init_db()
         pkgs = []
         for letter in 'abcd12':
             for i in range(0, 1):
@@ -98,7 +99,7 @@ class TestTooFewToPage:
 
     @classmethod
     def teardown_class(cls):
-        CreateTestData.delete()
+        model.repo.clean_db()
 
     def test_01_package_page(self):
         query = model.Session.query(model.Package)

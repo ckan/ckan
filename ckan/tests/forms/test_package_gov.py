@@ -18,14 +18,12 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
     @classmethod
     def setup_class(self):
         model.Session.remove()
-        model.repo.init_db()
         CreateTestData.create_gov_test_data()
 
     @classmethod
     def teardown_class(self):
         model.Session.remove()
-        model.repo.rebuild_db()
-
+        #model.repo.clean_db()
        
     def test_0_field_names(self):
         fs = get_fieldset()
