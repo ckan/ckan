@@ -1,3 +1,5 @@
+from sqlalchemy import MetaData, __version__ as sqav
+
 from ckan.tests import *
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
@@ -67,8 +69,12 @@ class TestPackageResource:
         # Why? According to docs for ordering list it does not reorder appended
         # elements by default (see
         # http://www.sqlalchemy.org/trac/browser/lib/sqlalchemy/ext/orderinglist.py#L197)
-        # so we have to call reorder directly:
-        pkg.resources.target.reorder()
+        # so we have to call reorder directly in supported versions
+        # of sqlalchemy and set position to None in older ones.
+        if sqav.startswith("0.4"):
+            pkg.resources[1].position = None
+        else:
+            pkg.resources.target.reorder()            
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(self.pkgname)
