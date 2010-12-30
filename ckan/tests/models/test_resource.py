@@ -31,6 +31,7 @@ class TestPackageResource:
         rev = model.repo.new_revision()
         pkg = model.Package.by_name(self.pkgname)
         if pkg:
+            model.Session().autoflush = False
             pkg.purge()
         model.repo.commit_and_remove()
         # XXX do we need above?

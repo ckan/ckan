@@ -87,6 +87,7 @@ class Repository(vdm.sqlalchemy.Repository):
             self.delete_all()
         else:
             super(Repository, self).clean_db()
+        self.session.flush()
     
     def delete_all(self):
         self.session.remove()
@@ -119,20 +120,14 @@ class Repository(vdm.sqlalchemy.Repository):
         for line in open(path, "r").readlines():
             if not line.strip() or line.startswith("#"):
                 continue
-            print "-%s-" % line.strip()
             table, indexes = line.strip().split(":")
             table_obj = self.metadata.tables[table.strip()] # or something
             indexes_obj = [getattr(table_obj.c, i.strip()) for i in \
                            indexes.split(",")]
             name = "manual_idx_" + indexes.replace(",","_").strip()
             i  = Index(name, *indexes_obj)
-            # XXX this may throw error if already exists
-            try:
-                i.create(meta.engine)
-            except Exception, e:
-                if not 'already exists' in repr(e):
-                    raise
-
+            if i not in table_obj.indexes:
+                i.create()                
     
     def upgrade_db(self, version=None):
         '''Upgrade db using sqlalchemy migrations.

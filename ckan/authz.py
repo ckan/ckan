@@ -172,10 +172,16 @@ class Authorizer(object):
             user = model.User.by_name(username, autoflush=False)
         else:
             user = None
+        entity.roles.property.mapper.class_ 
         visitor = model.User.by_name(model.PSEUDO_USER__VISITOR, autoflush=False)
         logged_in = model.User.by_name(model.PSEUDO_USER__LOGGED_IN,
                                        autoflush=False)
         if not cls.is_sysadmin(username):
+            # This gets the role table the entity is joined to. we
+            # need to use this in the queries below as if we use
+            # model.UserObjectRole a cross join happens always
+            # returning all the roles.  
+            role_cls = entity.roles.property.mapper.class_
             q = q.outerjoin('roles')
             if hasattr(entity, 'state'):
                 state = entity.state
@@ -184,19 +190,18 @@ class Authorizer(object):
                 
             filters = [model.UserObjectRole.user==visitor]
             for authz_group in cls.get_authorization_groups(username):
-                filters.append(model.UserObjectRole.authorized_group==authz_group)
-                
+                filters.append(role_cls.authorized_group==authz_group)
             if user:
-                filters.append(model.UserObjectRole.user==user)
-                filters.append(model.UserObjectRole.user==logged_in)
+                filters.append(role_cls.user==user)
+                filters.append(role_cls.user==logged_in)
                 q = q.filter(sa.or_(
-                    sa.and_(model.UserObjectRole.role==model.RoleAction.role,
+                    sa.and_(role_cls.role==model.RoleAction.role,
                             model.RoleAction.action==action,
                             state and state==model.State.ACTIVE),
-                    model.UserObjectRole.role==model.Role.ADMIN))
+                    role_cls.role==model.Role.ADMIN))
             else:
                 q = q.filter(
-                    sa.and_(model.UserObjectRole.role==model.RoleAction.role,
+                    sa.and_(role_cls.role==model.RoleAction.role,
                             model.RoleAction.action==action,
                             state and state==model.State.ACTIVE),
                     )
