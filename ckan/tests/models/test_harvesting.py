@@ -252,9 +252,9 @@ class TestHarvestCswSource(HarvesterTestCase):
         super(TestHarvestCswSource, self).setup()
         self.assert_false(self.source)
         from pylons import config
-        base_url=config.get('example_csw_url', '')
-        if not base_url:
-            raise SkipTest
+        self.base_url=config.get('example_csw_url', '')
+        if not self.base_url:
+            return
         self.source = self.create_harvest_source(
             url=base_url,
         )
@@ -264,6 +264,8 @@ class TestHarvestCswSource(HarvesterTestCase):
         )
 
     def test_harvest_documents_from_csw(self):
+        if not self.base_url:
+            raise SkipTest
         before_count = self.count_packages()
         self.assert_false(self.job.report)
         self.job.harvest_documents()
