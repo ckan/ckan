@@ -260,7 +260,9 @@ Now start the tests:
     cd pyenv/src/ckan
     nosetests ckan/tests
 
-Against postgres, the full test suite takes over 15 minutes to run.  If you test against an in-memory sqlite database, this can drop to as low as 5 minutes.  To do this, uncomment the following line in test.ini:
+The test suite takes a very long time to run against a standard postgres.  You can make postgres run faster by turning off durability as described at <http://www.postgresql.org/docs/9.0/static/non-durability.html>.
+
+Even with durability turned off, the full test suite can take around 15 minutes to run.  If you test against an in-memory sqlite database, this can drop to as low as 5 minutes.  To do this, uncomment the following line in test.ini:
 
 ::
 
