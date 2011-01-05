@@ -9,7 +9,7 @@ class TestCreation(object):
     @classmethod
     def setup_class(self):
         model.Session.remove()
-        CreateTestData.create()
+        model.repo.init_db()
         model.repo.new_revision()
         p1 = model.Package(name=u'annakarenina')
         p2 = model.Package(name=u'warandpeace')

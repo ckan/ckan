@@ -50,7 +50,7 @@ class Repository(vdm.sqlalchemy.Repository):
             already_done = False
         if not already_done:
             super(Repository, self).init_db()
-            self.add_initial_data()
+        self.add_initial_data()
 
     def add_initial_data(self):
         # assume if this exists everything else does too
@@ -83,12 +83,12 @@ class Repository(vdm.sqlalchemy.Repository):
         return version
 
     def clean_db(self):
-        if config.get('tests_fast_repo_delete_hack', False):
+        if config.get('faster_db_test_hacks', False) != 'False':
             self.delete_all()
         else:
             super(Repository, self).clean_db()
         self.session.flush()
-    
+
     def delete_all(self):
         self.session.remove()
         ## use raw connection for performance
@@ -111,24 +111,23 @@ class Repository(vdm.sqlalchemy.Repository):
                     self.migrate_repository, version)
         except migrate.versioning.exceptions.DatabaseAlreadyControlledError:
             pass
-    
+
     def create_indexes(self):
+        if config.get('faster_db_test_hacks', False) != 'False':
+            return
         import os
         from migrate.versioning.script import SqlScript
         from sqlalchemy.exceptions import ProgrammingError
-        path = os.path.join(config['here'], 'ckan', 'model', 'indexes.txt')
-        for line in open(path, "r").readlines():
-            if not line.strip() or line.startswith("#"):
-                continue
-            table, indexes = line.strip().split(":")
-            table_obj = self.metadata.tables[table.strip()] # or something
-            indexes_obj = [getattr(table_obj.c, i.strip()) for i in \
-                           indexes.split(",")]
-            name = "manual_idx_" + indexes.replace(",","_").strip()
-            i  = Index(name, *indexes_obj)
-            if i not in table_obj.indexes:
-                i.create()                
-    
+        try:
+            path = os.path.join(self.migrate_repository,
+                                'versions',
+                                '021_postgres_upgrade.sql')
+            script = SqlScript(path)
+            script.run(meta.engine, step=None)
+        except ProgrammingError, e:
+            if not 'already exists' in repr(e):
+                raise
+
     def upgrade_db(self, version=None):
         '''Upgrade db using sqlalchemy migrations.
 

@@ -17,10 +17,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         super(PackagesTestCase, self).setup()
 
     def teardown(self):
-        self.purge_package_by_name(self.package_fixture_data['name'])
-        self.purge_package_by_name(u'somethingnew')
         super(PackagesTestCase, self).teardown()
-        model.repo.clean_db()
         model.Session.connection().invalidate()
 
     def test_register_get_ok(self):
@@ -230,17 +227,15 @@ class PackagesTestCase(BaseModelApiTestCase):
             model.Session.add(package)
             package.name = self.package_fixture_data['name']
             model.repo.commit_and_remove()
-
+            rev = model.repo.new_revision()
             package = self.get_package_by_name(self.package_fixture_data['name'])
             model.setup_default_user_roles(package, [self.user])
-            rev = model.repo.new_revision()
             model.repo.commit_and_remove()
         assert self.get_package_by_name(self.package_fixture_data['name'])
-
         # delete it
         offset = self.package_offset(self.package_fixture_data['name'])
         res = self.app.delete(offset, status=self.STATUS_200_OK,
-                extra_environ=self.extra_environ)
+                              extra_environ=self.extra_environ)
         package = self.get_package_by_name(self.package_fixture_data['name'])
         self.assert_equal(package.state, 'deleted')
         model.Session.remove()

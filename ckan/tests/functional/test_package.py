@@ -1421,12 +1421,16 @@ class TestEtags(TestPackageBase, PylonsTestCase):
         test_extra_value = u'testval'
 
         rev = model.repo.new_revision()
-        # XXX the following causes "stale association proxy", so
-        # temporarily we return prematurely.  "extras" appears to me
-        # an association proxy, but I can't find any trace of it in
-        # the code, just a relation called _extras from Package to
-        # PackageExtra
-
+        # XXX without the following line, we get a "stale association
+        # proxy" in sqlalchemy > 0.6 when we try to access
+        # self.anna.extras.  "extras" is the association proxy; for
+        # some reason the association's reference to its parent
+        # (i.e. anna) is garbage-collected prematurely.  By creating a
+        # reference to anna here, we prevent the reference from having
+        # its parent destroyed during garbage collection.  The mystery
+        # is why this should be different with different versions of
+        # sqlalchemy.
+        anna = self.anna
         self.anna.extras[test_extra_key] = test_extra_value
         model.repo.commit_and_remove()
         hash_5 = get_hash(self.anna)

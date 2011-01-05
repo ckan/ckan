@@ -29,6 +29,20 @@ class TestPackage:
         model.repo.clean_db()
         model.Session.remove()
 
+    def test_basic_revisioning(self):
+        # create a package with package_fixture_data
+        name = "frob"
+        rev = model.repo.new_revision()
+        package = model.Package(name=name)
+        model.Session.add(package)
+        model.repo.commit_and_remove()
+
+        # change it
+        rev = model.repo.new_revision()
+        package = model.Package.by_name(name)
+        package.title = "wobsnasm"
+        model.repo.commit_and_remove()
+
     def test_create_package(self):
         package = model.Package.by_name(self.name)
         assert package.name == self.name

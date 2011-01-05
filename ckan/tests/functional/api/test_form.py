@@ -198,7 +198,7 @@ class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
 
 class FormsApiTestCase(BaseFormsApiCase):
     def setup(self):
-        model.repo.init_db()
+        model.repo.init_db(conditional=True)
         CreateTestData.create()
         self.package_name = u'formsapi'
         self.package_name_alt = u'formsapialt'

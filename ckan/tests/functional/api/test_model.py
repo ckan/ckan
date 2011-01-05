@@ -5,7 +5,6 @@ from ckan.tests import is_search_supported
 class ModelApiTestCase(BaseModelApiTestCase):
 
     def setup(self):
-        CreateTestData.create()
         self.create_common_fixtures()
         self.init_extra_environ()
         self.source = None

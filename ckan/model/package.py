@@ -21,7 +21,7 @@ PACKAGE_VERSION_MAX_LENGTH = 100
 package_table = Table('package', metadata,
         Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
         Column('name', types.Unicode(PACKAGE_NAME_MAX_LENGTH),
-               nullable=False),
+               nullable=False, unique=True),
         Column('title', types.UnicodeText),
         Column('version', types.Unicode(PACKAGE_VERSION_MAX_LENGTH)),
         Column('url', types.UnicodeText),
@@ -36,7 +36,6 @@ package_table = Table('package', metadata,
 
 vdm.sqlalchemy.make_table_stateful(package_table)
 package_revision_table = vdm.sqlalchemy.make_revisioned_table(package_table)
-
 
 ## -------------------
 ## Mapped classes
