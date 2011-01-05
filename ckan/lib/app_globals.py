@@ -23,6 +23,8 @@ class Globals(object):
         
         # has been setup in load_environment():
         self.site_id = config.get('ckan.site_id')
+
+        self.template_footer_end = config.get('ckan.template_footer_end', '')
         
         # hide these extras fields on package read
         self.package_hide_extras = config.get('package_hide_extras', '').split()

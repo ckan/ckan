@@ -51,6 +51,11 @@ class TestHomeController(TestController):
         results_page = form.submit()
         assert 'Search - ' in results_page, results_page
         assert '>0<' in results_page, results_page
+    
+    def test_template_footer_end(self):
+        offset = url_for('home')
+        res = self.app.get(offset)
+        assert '<strong>TEST TEMPLATE_FOOTER_END TEST</strong>'
 
     # DISABLED because this is not on home page anymore
     def _test_register_new_package(self):
