@@ -1,6 +1,7 @@
 from webob.multidict import UnicodeMultiDict, MultiDict
 
 from ckan.tests import *
+from ckan.tests import is_search_supported
 from ckan.lib.search import get_backend, QueryOptions
 from ckan import model
 from ckan.lib.create_test_data import CreateTestData
@@ -8,6 +9,9 @@ from ckan.lib.create_test_data import CreateTestData
 class TestSearch(object):
     @classmethod
     def setup_class(self):
+        if not is_search_supported():
+            raise SkipTest("Search not supported")
+
         self.ab = 'http://site.com/a/b.txt'
         self.cd = 'http://site.com/c/d.txt'
         self.ef = 'http://site.com/e/f.txt'

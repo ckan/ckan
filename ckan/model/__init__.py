@@ -1,3 +1,7 @@
+from pylons import config
+from sqlalchemy import MetaData, __version__ as sqav
+from sqlalchemy.schema import Index
+
 import meta
 from domain_object import DomainObjectOperation
 from core import *
@@ -16,7 +20,6 @@ from rating import *
 from package_relationship import *
 from changeset import Changeset, Change, Changemask
 from harvesting import HarvestSource, HarvestingJob, HarvestedDocument
-
 import ckan.migration
 
 # set up in init_model after metadata is bound
@@ -39,8 +42,17 @@ def init_model(engine):
 class Repository(vdm.sqlalchemy.Repository):
     migrate_repository = ckan.migration.__path__[0]
 
-    def init_db(self):
-        super(Repository, self).init_db()
+    def init_db(self, conditional=False):
+        if conditional:
+            already_done = Session.connection()\
+                           .engine.has_table("user")
+        else:
+            already_done = False
+        if not already_done:
+            super(Repository, self).init_db()
+        self.add_initial_data()
+
+    def add_initial_data(self):
         # assume if this exists everything else does too
         if not User.by_name(PSEUDO_USER__VISITOR):
             visitor = User(name=PSEUDO_USER__VISITOR)
@@ -70,6 +82,26 @@ class Repository(vdm.sqlalchemy.Repository):
         version = mig.version(self.migrate_repository)
         return version
 
+    def clean_db(self):
+        if config.get('faster_db_test_hacks', False) != 'False':
+            self.delete_all()
+        else:
+            super(Repository, self).clean_db()
+        self.session.flush()
+
+    def delete_all(self):
+        self.session.remove()
+        ## use raw connection for performance
+        connection = self.session.connection()
+        if sqav.startswith("0.4"):
+            tables = self.metadata.table_iterator()
+        else:
+            tables = reversed(metadata.sorted_tables)
+        for table in tables:
+            connection.execute('drop table "%s"' % table.name)
+        self.session.commit()
+        #self.add_initial_data()
+
     def setup_migration_version_control(self, version=None):
         import migrate.versioning.exceptions
         import migrate.versioning.api as mig
@@ -79,19 +111,23 @@ class Repository(vdm.sqlalchemy.Repository):
                     self.migrate_repository, version)
         except migrate.versioning.exceptions.DatabaseAlreadyControlledError:
             pass
-    
+
     def create_indexes(self):
+        if config.get('faster_db_test_hacks', False) != 'False':
+            return
         import os
         from migrate.versioning.script import SqlScript
         from sqlalchemy.exceptions import ProgrammingError
         try:
-            path = os.path.join(self.migrate_repository, 'versions', '021_postgres_upgrade.sql')
-            script = SqlScript(path) 
+            path = os.path.join(self.migrate_repository,
+                                'versions',
+                                '021_postgres_upgrade.sql')
+            script = SqlScript(path)
             script.run(meta.engine, step=None)
         except ProgrammingError, e:
             if not 'already exists' in repr(e):
                 raise
-    
+
     def upgrade_db(self, version=None):
         '''Upgrade db using sqlalchemy migrations.
 

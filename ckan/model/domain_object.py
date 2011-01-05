@@ -35,7 +35,8 @@ class DomainObject(object):
 
     @classmethod
     def by_name(self, name, autoflush=True):
-        obj = Session.query(self).autoflush(autoflush).filter_by(name=name).first()
+        obj = Session.query(self).autoflush(autoflush)\
+              .filter_by(name=name).first()
         return obj
 
     @classmethod

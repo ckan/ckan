@@ -18,13 +18,12 @@ DEFAULT_USER = 'annafan'
 class TestImporter(FunctionalTestCase):
     @classmethod
     def setup_class(self):
-        model.repo.rebuild_db()
         CreateTestData.create()
         assert model.User.by_name(unicode(DEFAULT_USER))
 
     @classmethod
     def teardown_class(self):
-        model.repo.rebuild_db()
+        model.repo.clean_db()
 
     def test_0_index(self):
         offset = url_for(controller='importer')

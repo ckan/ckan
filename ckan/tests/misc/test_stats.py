@@ -150,6 +150,14 @@ class TimedRevision(TestController):
     date_two_weeks_ago_started = datetime.date.today() - datetime.timedelta(days=datetime.date.weekday(datetime.date.today()) + 14)
 
     @classmethod
+    def setup_class(self):
+        model.repo.init_db()
+        
+    @classmethod
+    def teardown_class(self):
+        model.repo.clean_db()
+
+    @classmethod
     def _create_old_objects(self, num_packages, date, object_class):
         class_name = re.search('\.(\w+)\'', str(object_class)).groups()[0]
         rev = model.repo.new_revision()
@@ -179,6 +187,7 @@ class TimedRevision(TestController):
 class TestRateStatsSimple(TimedRevision):
     @classmethod
     def setup_class(self):
+        model.repo.init_db()
         # created a package last week
         names = self._create_old_objects(1, self.datetime_last_week_started, model.Package)
         self.pkg_name = names[0]
@@ -188,7 +197,7 @@ class TestRateStatsSimple(TimedRevision):
 
     @classmethod
     def teardown_class(self):
-        model.repo.rebuild_db()
+        model.repo.clean_db()
 
     def test_get_new_packages(self):
         new_pkgs = RevisionStats().get_new_packages()
@@ -237,6 +246,7 @@ class TestRateStatsSimple(TimedRevision):
 class TestRateStats(TimedRevision):
     @classmethod
     def setup_class(self):
+        model.repo.init_db()
         # create some packages for last week
         self._create_old_objects(5, self.datetime_last_week_started, model.Package)
         self._create_old_objects(2, self.datetime_two_weeks_ago_started + datetime.timedelta(days=0), model.Package)
@@ -254,7 +264,7 @@ class TestRateStats(TimedRevision):
 
     @classmethod
     def teardown_class(self):
-        model.repo.rebuild_db()
+        model.repo.clean_db()
 
     def test_get_new_packages_by_week(self):
         pkgs_by_week = RevisionStats().get_by_week('new_packages')

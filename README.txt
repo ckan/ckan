@@ -253,19 +253,27 @@ Ensure you have activated the environment:
 
     . pyenv/bin/activate
 
-Now start the starts:
+Now start the tests:
 
 ::
 
     cd pyenv/src/ckan
     nosetests ckan/tests
 
+Against postgres, the full test suite takes over 15 minutes to run.  If you test against an in-memory sqlite database, this can drop to as low as 5 minutes.  To do this, uncomment the following line in test.ini:
+
+::
+
+  sqlalchemy.url = sqlite:///
+
 .. caution ::
 
-   There currently appears to be a bug on fresh installs of Ubuntu 10.04 which
-   means the tests take well over an hour to run. This is a known issue which
-   doesn't affect other versions of Ubuntu or earlier versions which were then
-   upgraded to 10.04.
+   Note that (a) some search-related tests are currently skipped due
+   to postgres-specific code; and (b) only postgres is currently
+   supported in production anyway.  Therefore, you should treat the
+   sqlite support as a convenience during development, and always run
+   the tests against postgres as a final check.
+
 
 Development
 ===========

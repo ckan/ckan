@@ -1,8 +1,12 @@
+from sqlalchemy import MetaData, __version__ as sqav
+
 from ckan.tests import *
 import ckan.model as model
+from ckan.lib.create_test_data import CreateTestData
 
 class TestPackageResource:
     def setup(self):
+        model.repo.init_db()
         self.pkgname = u'resourcetest'
         assert not model.Package.by_name(self.pkgname)
         assert model.Session.query(model.PackageResource).count() == 0
@@ -24,11 +28,15 @@ class TestPackageResource:
 
     def teardown(self):
         model.Session.remove()
+        rev = model.repo.new_revision()
         pkg = model.Package.by_name(self.pkgname)
         if pkg:
+            model.Session().autoflush = False
             pkg.purge()
         model.repo.commit_and_remove()
-
+        # XXX do we need above?
+        model.repo.clean_db()
+        
     def test_01_create_package_resources(self):
         pkg = model.Package.by_name(self.pkgname)
         assert len(pkg.resources) == len(self.urls), pkg.resources
@@ -52,8 +60,8 @@ class TestPackageResource:
         assert len(pkg.package_resources_all) == 2, pkg.package_resources_all
     
     def test_03_reorder_resources(self):
-        pkg = model.Package.by_name(self.pkgname)
         rev = model.repo.new_revision()
+        pkg = model.Package.by_name(self.pkgname)
         res0 = pkg.resources[0]
         del pkg.resources[0]
         pkg.resources.append(res0)
@@ -62,18 +70,20 @@ class TestPackageResource:
         # Why? According to docs for ordering list it does not reorder appended
         # elements by default (see
         # http://www.sqlalchemy.org/trac/browser/lib/sqlalchemy/ext/orderinglist.py#L197)
-        # Possible ways to deal with this:
-        # 1. Call reorder() on list. Problematic as this method is hidden by
-        #   StatefulList()
-        # 2. set res0.position = None
-        pkg.resources[1].position = None
+        # so we have to call reorder directly in supported versions
+        # of sqlalchemy and set position to None in older ones.
+        if sqav.startswith("0.4"):
+            pkg.resources[1].position = None
+        else:
+            pkg.resources.target.reorder()            
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(self.pkgname)
         assert len(pkg.resources) == 2, pkg.package_resources_all
         lastres = pkg.resources[1]
         assert lastres.position == 1, lastres
-        assert lastres.url == self.urls[0], pkg.lastres
+        assert lastres.url == self.urls[0]
+        
 
     def test_04_insert_resource(self):
         pkg = model.Package.by_name(self.pkgname)
@@ -120,6 +130,7 @@ class TestPackageResource:
 class TestResourceEdit:
     @classmethod
     def setup(self):
+        model.repo.init_db()
         self.pkgname = u'geodata'
         self.urls = [u'http://somewhere.com/',
                      u'http://elsewhere.com/',
@@ -144,7 +155,7 @@ class TestResourceEdit:
     @classmethod
     def teardown(self):
         model.Session.remove()
-        model.repo.rebuild_db()
+        model.repo.clean_db()
 
 
     def test_1_update_resources_no_ids(self):
@@ -228,3 +239,4 @@ class TestResourceEdit:
         assert pkg.resources[0].id == original_res_ids[0]
         assert pkg.resources[1].id == original_res_ids[2]
 
+1

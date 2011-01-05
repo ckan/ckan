@@ -3,6 +3,7 @@ import time
 import sqlalchemy as sa
 
 from ckan.tests import *
+from ckan.tests import is_search_supported
 from ckan import model
 import ckan.lib.search as search
 
@@ -13,6 +14,8 @@ class TestSearchIndex(TestController):
     
     @classmethod
     def setup_class(cls):
+        if not is_search_supported():
+            raise SkipTest("Search not supported")
         CreateTestData.create()
 
     @classmethod

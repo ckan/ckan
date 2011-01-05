@@ -11,10 +11,14 @@ class PackagesTestCase(BaseModelApiTestCase):
     commit_changesets = False
     reuse_common_fixtures = True
 
+    def setup(self):
+        model.Session.remove()
+        model.repo.init_db()
+        super(PackagesTestCase, self).setup()
+
     def teardown(self):
-        self.purge_package_by_name(self.package_fixture_data['name'])
-        self.purge_package_by_name(u'somethingnew')
         super(PackagesTestCase, self).teardown()
+        model.Session.connection().invalidate()
 
     def test_register_get_ok(self):
         offset = self.package_offset()
@@ -218,22 +222,20 @@ class PackagesTestCase(BaseModelApiTestCase):
     def test_entity_delete_ok(self):
         # create a package with package_fixture_data
         if not self.get_package_by_name(self.package_fixture_data['name']):
+            rev = model.repo.new_revision()
             package = model.Package()
             model.Session.add(package)
             package.name = self.package_fixture_data['name']
-            rev = model.repo.new_revision()
             model.repo.commit_and_remove()
-
+            rev = model.repo.new_revision()
             package = self.get_package_by_name(self.package_fixture_data['name'])
             model.setup_default_user_roles(package, [self.user])
-            rev = model.repo.new_revision()
             model.repo.commit_and_remove()
         assert self.get_package_by_name(self.package_fixture_data['name'])
-
         # delete it
         offset = self.package_offset(self.package_fixture_data['name'])
         res = self.app.delete(offset, status=self.STATUS_200_OK,
-                extra_environ=self.extra_environ)
+                              extra_environ=self.extra_environ)
         package = self.get_package_by_name(self.package_fixture_data['name'])
         self.assert_equal(package.state, 'deleted')
         model.Session.remove()

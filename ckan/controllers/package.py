@@ -296,6 +296,7 @@ class PackageController(BaseController):
         c.pkg = pkg = model.Package.get(id)
         if pkg is None:
             abort(404, '404 Not Found')
+        model.Session().autoflush = False
         am_authz = self.authorizer.am_authorized(c, model.Action.EDIT, pkg)
         if not am_authz:
             abort(401, str(gettext('User %r not authorized to edit %s') % (c.user, id)))
@@ -332,7 +333,7 @@ class PackageController(BaseController):
             except ValidationException, error:
                 fs = error.args[0]
                 c.form = self._render_edit_form(fs, request.params,
-                        clear_session=True)
+                                                clear_session=True)
                 return render('package/edit.html')
             except KeyError, error:
                 abort(400, 'Missing parameter: %s' % error.args)
@@ -343,6 +344,14 @@ class PackageController(BaseController):
                 self._adjust_license_id_options(pkg, fs)
             fs = fs.bind(pkg, data=dict(request.params))
             try:
+                # XXX if we don't touch pkg.groups here, then if
+                # there's a validation error, the rendering of the
+                # package edit form below fails with:
+                # DetachedInstanceError: Parent instance <Package at
+                # 0x4abc910> is not bound to a Session; lazy load operation of
+                # attribute 'groups' cannot proceed
+                # What is going on here?!
+                c.pkg.groups
                 PackageSaver().render_preview(fs, id, pkg.id,
                                               log_message=log_message,
                                               author=c.author, client=c)
@@ -505,8 +514,15 @@ class PackageController(BaseController):
         # expunge everything from session so we don't have any problematic
         # saves (this gets called on validation exceptions a lot)
         # Todo: Explain why there are 'saves' when rendering a form.
+        # XXX If the session is *expunged*, then the form can't be
+        # rendered; the Todo above needs doing!  I've settled with a
+        # rollback for now, which isn't necessarily what's wanted
+        # here. 
         if clear_session:
-            model.Session.clear()
+            try:
+                model.Session.rollback()
+            except AttributeError: # older SQLAlchemy versions
+                model.Session.clear()
         edit_form_html = fs.render()
         c.form = h.literal(edit_form_html)
         return h.literal(render('package/edit_form.html'))

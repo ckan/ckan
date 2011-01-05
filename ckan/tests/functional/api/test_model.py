@@ -1,18 +1,8 @@
 from ckan.tests.functional.api.base import *
+from ckan.lib.create_test_data import CreateTestData
+from ckan.tests import is_search_supported
 
 class ModelApiTestCase(BaseModelApiTestCase):
-
-    @classmethod
-    def setup_class(self):
-        model.Session.remove()
-        model.repo.rebuild_db()
-        model.Session.remove()
-
-    @classmethod
-    def teardown_class(self):
-        model.Session.remove()
-        model.repo.rebuild_db()
-        model.Session.remove()
 
     def setup(self):
         self.create_common_fixtures()
@@ -29,7 +19,8 @@ class ModelApiTestCase(BaseModelApiTestCase):
         self.job3 = None
 
     def teardown(self):
-        self.rebuild() 
+        #self.rebuild()
+        model.repo.clean_db()
         return
 #        if self.job:
 #            self.delete_commit(self.job)
@@ -95,10 +86,10 @@ class ModelApiTestCase(BaseModelApiTestCase):
         res = self.app.post(offset, params=postparams, status=200,
                 extra_environ=self.extra_environ)
         model.Session.remove()
+        rev = model.repo.new_revision()
         group = model.Group.by_name(self.testgroupvalues['name'])
         assert group
         model.setup_default_user_roles(group, [self.user])
-        rev = model.repo.new_revision()
         model.repo.commit_and_remove()
         group = model.Group.by_name(self.testgroupvalues['name'])
         assert group
@@ -208,10 +199,10 @@ class ModelApiTestCase(BaseModelApiTestCase):
     def test_10_edit_group_name_duplicate(self):
         # create a group with testgroupvalues
         if not model.Group.by_name(self.testgroupvalues['name']):
+            rev = model.repo.new_revision()
             group = model.Group()
             model.Session.add(group)
             group.name = self.testgroupvalues['name']
-            rev = model.repo.new_revision()
             model.Session.commit()
 
             group = model.Group.by_name(self.testgroupvalues['name'])
@@ -223,10 +214,10 @@ class ModelApiTestCase(BaseModelApiTestCase):
         # create a group with name 'dupname'
         dupname = u'dupname'
         if not model.Group.by_name(dupname):
+            rev = model.repo.new_revision()
             group = model.Group()
             model.Session.add(group)
             group.name = dupname
-            rev = model.repo.new_revision()
             model.Session.commit()
         assert model.Group.by_name(dupname)
 
@@ -244,15 +235,15 @@ class ModelApiTestCase(BaseModelApiTestCase):
         # create a group with testgroupvalues
         group = model.Group.by_name(self.testgroupvalues['name'])
         if not group:
+            rev = model.repo.new_revision()
             group = model.Group()
             model.Session.add(group)
             group.name = self.testgroupvalues['name']
-            rev = model.repo.new_revision()
             model.repo.commit_and_remove()
 
+            rev = model.repo.new_revision()
             group = model.Group.by_name(self.testgroupvalues['name'])
             model.setup_default_user_roles(group, [self.user])
-            rev = model.repo.new_revision()
             model.repo.commit_and_remove()
         assert group
         user = model.User.by_name(self.user_name)
@@ -571,6 +562,9 @@ class PackageSearchApiTestCase(ApiControllerTestCase):
 
     @classmethod
     def setup_class(self):
+        if not is_search_supported():
+            import nose
+            raise nose.SkipTest
         indexer = TestSearchIndexer()
         CreateTestData.create()
         self.package_fixture_data = {
@@ -930,6 +924,7 @@ class MiscApiTestCase(ApiControllerTestCase):
             CreateTestData.delete()
         except:
             pass
+        model.repo.init_db()
         model.Session.remove()
         CreateTestData.create()
 

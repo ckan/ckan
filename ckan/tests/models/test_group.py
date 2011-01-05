@@ -48,6 +48,7 @@ class TestGroupRevisions:
     @classmethod
     def setup_class(self):
         model.Session.remove()
+        CreateTestData.create()
         self.name = u'revisiontest'
 
         # create pkg
@@ -71,10 +72,11 @@ class TestGroupRevisions:
 
     @classmethod
     def teardown_class(self):
-        rev = model.repo.new_revision()
+        #rev = model.repo.new_revision()
         #grp = model.Group.by_name(self.name)
         #grp.purge()
-        model.repo.commit_and_remove()
+        #model.repo.commit_and_remove()
+        model.repo.clean_db()
 
     def test_1_all_revisions(self):
         all_rev = self.grp.all_revisions
