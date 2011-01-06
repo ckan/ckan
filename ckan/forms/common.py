@@ -4,7 +4,7 @@ from formalchemy import helpers as fa_h
 import formalchemy
 import genshi
 from pylons.templating import render_genshi as render
-from pylons import c
+from pylons import c, config
 from pylons.i18n import _, ungettext, N_, gettext
 
 from ckan.lib.helpers import literal
@@ -22,7 +22,12 @@ def name_validator(val, field=None):
         raise formalchemy.ValidationError(_('Name must be at least %s characters long') % min_length)
     if not name_match.match(val):
         raise formalchemy.ValidationError(_('Name must be purely lowercase alphanumeric (ascii) characters and these symbols: -_'))
-        
+
+def package_exists(val):
+    if model.Session.query(model.Package).autoflush(False).filter_by(name=val).count():
+        return True
+    return False
+
 def package_name_validator(val, field=None):
     name_validator(val, field)
     # we disable autoflush here since may get used in package preview
@@ -44,14 +49,45 @@ def harvest_source_url_validator(val, field=None):
         raise formalchemy.ValidationError(_('Harvest source URL is invalid (must start with "http://").'))
 
 
-def field_readonly_renderer(key, value, newline_reqd=True):
+def field_readonly_renderer(key, value, newline_reqd=False):
     if value is None:
         value = ''
-    html = literal('%s') % value
+    html = literal('<p>%s</p>') % value
     if newline_reqd:
         html += literal('<br/>')
     return html
 
+class CoreField(formalchemy.fields.Field):
+    '''A field which can sync to a core field in the model.
+    Use this for overriding AttributeFields when you want to be able
+    to set a default value without having to change the sqla Column default.'''
+    def sync(self):
+        if not self.is_readonly():
+            setattr(self.model, self.name, self._deserialize())
+    
+
+class DateTimeFieldRenderer(formalchemy.fields.DateTimeFieldRenderer):
+    def render_readonly(self, **kwargs):
+        return field_readonly_renderer(self.field.key,
+                formalchemy.fields.DateTimeFieldRenderer.render_readonly(self, **kwargs))
+
+class CheckboxFieldRenderer(formalchemy.fields.CheckBoxFieldRenderer):
+    def render_readonly(self, **kwargs):
+        value = u'yes' if self.raw_value else u'no'
+        return field_readonly_renderer(self.field.key, value)
+
+class TextRenderer(formalchemy.fields.TextFieldRenderer):
+    def render_readonly(self, **kwargs):
+        return field_readonly_renderer(self.field.key, self.raw_value)
+
+class SelectFieldRenderer(formalchemy.fields.SelectFieldRenderer):
+    def render_readonly(self, **kwargs):
+        return field_readonly_renderer(self.field.key,
+                formalchemy.fields.SelectFieldRenderer.render_readonly(self, **kwargs))
+
+class TextAreaRenderer(formalchemy.fields.TextAreaFieldRenderer):
+    def render_readonly(self, **kwargs):
+        return field_readonly_renderer(self.field.key, self.raw_value)
 
 class TextExtraRenderer(formalchemy.fields.TextFieldRenderer):
     def _get_value(self):
@@ -269,24 +305,29 @@ class TextRangeExtraField(RegExRangeValidatingField):
 class ResourcesField(ConfiguredField):
     '''A form field for multiple package resources.'''
 
-    def __init__(self, name, hidden_label=False):
+    def __init__(self, name, hidden_label=False, fields_required=None):
         super(ResourcesField, self).__init__(name)
         self._hidden_label = hidden_label
+        self.fields_required = fields_required or set(['url'])
+        assert isinstance(self.fields_required, set)
 
-    def url_validator(self, val, field=None):
+    def resource_validator(self, val, field=None):
         resources_data = val
         assert isinstance(resources_data, list)
-        url_regex = re.compile('\S') # Todo: Restrict this further?
-        errormsg = 'Package resources must have URLs.'
-        validator = formalchemy.validators.regex(url_regex, errormsg)
+        not_nothing_regex = re.compile('\S')
+        errormsg = _('Package resource(s) incomplete.')
+        not_nothing_validator = formalchemy.validators.regex(not_nothing_regex,
+                                                             errormsg)
         for resource_data in resources_data:
             assert isinstance(resource_data, dict)
-            resource_url = resource_data.get('url', '')
-            validator(resource_url, field)
-
+            for field in self.fields_required:
+                value = resource_data.get(field, '')
+                not_nothing_validator(value, field)
+            
     def get_configured(self):
-        field = self.ResourcesField(self.name).with_renderer(self.ResourcesRenderer).validate(self.url_validator)
+        field = self.ResourcesField(self.name).with_renderer(self.ResourcesRenderer).validate(self.resource_validator)
         field._hidden_label = self._hidden_label
+        field.fields_required = self.fields_required
         field.set(multiple=True)
         return field
 
@@ -306,6 +347,12 @@ class ResourcesField(ConfiguredField):
             # need this because it is a property
             return getattr(self.model, self.name)
 
+        def is_required(self, field_name=None):
+            if not field_name:
+                return False
+            else:
+                return field_name in self.fields_required
+
 
     class ResourcesRenderer(formalchemy.fields.FieldRenderer):
         def render(self, **kwargs):
@@ -314,6 +361,9 @@ class ResourcesField(ConfiguredField):
             c.resources = c.resources[:]
             c.resources.extend([None])
             c.id = self.name
+            c.columns = model.PackageResource.get_columns()
+            c.field = self.field
+            c.fieldset = self.field.parent
             return render('package/form_resources.html')            
 
         def stringify_value(self, v):
@@ -385,7 +435,9 @@ class TagField(ConfiguredField):
             pkg_id = self.field.parent.model.id or ''
             kwargs['value'] = self._tags_string()
             kwargs['size'] = 60
-            kwargs['data-tagcomplete-url'] = h.url_for(controller='tag', action='autocomplete', id=None)
+            api_url = config.get('ckan.api_url', '/').rstrip('/')
+            tagcomplete_url = api_url+h.url_for(controller='apiv2/package', action='autocomplete', id=None)
+            kwargs['data-tagcomplete-url'] = tagcomplete_url
             kwargs['data-tagcomplete-queryparam'] = 'incomplete'
             kwargs['class'] = 'long tagComplete'
             html = literal(fa_h.text_field(self.name, **kwargs))
@@ -405,7 +457,9 @@ class TagField(ConfiguredField):
                 tagnames = [ tag.name for tag in tags ]
             else:
                 tagnames = []
-            return literal(' '.join([literal('<a href="/tag/read/%s">%s</a>' % (str(tag), str(tag))) for tag in tagnames]))
+            site_url = config.get('ckan.site_url', '')
+            tag_links = [h.link_to(tagname, h.url_for(controller='tag', action='read', id=tagname)) for tagname in tagnames]
+            return literal(' '.join(tag_links))
 
         def render_readonly(self, **kwargs):
             tags_as_string = self._tag_links()
@@ -580,7 +634,7 @@ class GroupSelectField(ConfiguredField):
         self.allow_empty = allow_empty
         self.multiple = multiple
         if user_editable_groups == None:
-            raise Exception, "Group select field 'user_editable_groups' is not initialized."
+            raise Exception, _("Group select field 'user_editable_groups' is not initialized.")
         self.user_editable_groups = user_editable_groups
     
     def get_configured(self):
@@ -590,7 +644,6 @@ class GroupSelectField(ConfiguredField):
         return field
 
     class GroupSelectionField(formalchemy.Field):
-        
         def __init__(self, name, allow_empty):
             formalchemy.Field.__init__(self, name)
             self.allow_empty = allow_empty
@@ -600,7 +653,29 @@ class GroupSelectField(ConfiguredField):
                 self._update_groups()
 
         def _update_groups(self):
-            return self._deserialize() or []
+            new_group_ids = self._deserialize() or []
+            
+            # Get groups which have alread been associated.
+            old_groups = self.parent.model.groups
+
+            # Calculate which to append and which to remove.
+            editable_set = set([g.id for g in self.user_editable_groups])
+            old_group_ids = [g.id for g in old_groups]
+            new_set = set(new_group_ids)
+            old_set = set(old_group_ids)
+            append_set = (new_set - old_set).intersection(editable_set)
+            remove_set = (old_set - new_set).intersection(editable_set)
+            
+            # Create package group associations.
+            for id in append_set:
+                group = model.Session.query(model.Group).autoflush(False).get(id)
+                if group:
+                    self.parent.model.groups.append(group)
+
+            # Delete package group associations.
+            for group in self.parent.model.groups:
+                if group.id in remove_set:
+                    self.parent.model.groups.remove(group)
             
         def requires_label(self):
             return False
@@ -622,20 +697,32 @@ class GroupSelectField(ConfiguredField):
 
             # Make checkboxes HTML from selected groups.
             checkboxes_html = ''
+            checkbox_action = '<input type="checkbox" name="%(name)s" checked="checked" value="%(id)s" />'
+            checkbox_noaction = '&nbsp;'
             checkbox_template = '''
             <dt>
-              <label for="%(name)s">
-                <input type="checkbox" name="%(name)s" checked="checked" value="%(id)s" />
-              </label>
+                %(action)s
             </dt>
             <dd>
-                %(title)s
+                <label for="%(name)s">%(title)s</label><br/>
             </dd>
             '''
             for group in selected_groups:
-                # Make checkbox HTML from a group.
                 checkbox_context = {
                     'id': group.id,
+                    'name': self.name + '-' + group.id,
+                    'title': group.title
+                }
+                action = checkbox_noaction
+                if group in editable_groups:
+                    context = {
+                        'id': group.id,
+                        'name': self.name + '-' + group.id
+                    }
+                    action = checkbox_action % context
+                # Make checkbox HTML from a group.
+                checkbox_context = {
+                    'action': action,
                     'name': self.name + '-' + group.id,
                     'title': group.title
                 }
@@ -662,13 +749,13 @@ class GroupSelectField(ConfiguredField):
                 select_html = h.select(new_name, None, options)
             else:
                 # Todo: Translation call.
-                select_html = "Cannot add any groups."
+                select_html = _("Cannot add any groups.")
 
             # Make the field HTML.
             field_template = '''  
         <dl> %(checkboxes)s      
             <dt>
-                Group:
+                %(label)s
             </dt>
             <dd> %(select)s
             </dd>
@@ -677,6 +764,7 @@ class GroupSelectField(ConfiguredField):
             field_context = {
                 'checkboxes': checkboxes_html,
                 'select': select_html,
+                'label': _("Group"),
             } 
             field_html = field_template % field_context
 
@@ -691,10 +779,7 @@ class GroupSelectField(ConfiguredField):
             return [v for k, v in self.params.items() if k.startswith(name)]
         
         def deserialize(self):
-            # Get groups which are editable by the user.
-            editable_groups = self._get_user_editable_groups()
-
-            # Get groups which have just been selected by the user.
+            # Return groups which have just been selected by the user.
             new_group_ids = self._serialized_value()
             if new_group_ids and isinstance(new_group_ids, list):
                 # Either...
@@ -709,37 +794,17 @@ class GroupSelectField(ConfiguredField):
                     for (i, nested_value) in enumerate(new_group_ids):
                         if nested_value and isinstance(nested_value, list):
                             if len(nested_value) > 1:
-                                msg = "Can't derived new group selection from "
-                                msg += "serialized value structured like this:"
-                                msg += " %s" % nested_value
+                                msg = _("Can't derived new group selection from serialized value structured like this: %s") % nested_value
                                 raise Exception, msg
                             new_group_ids[i] = nested_value[0]
-                # Todo: Decide which is the structure of a multiple-group selection.
-
-            # Get groups which have alread been associated.
-            #old_groups = self._get_value()
-            old_groups = self.field.parent.model.groups
-
-            # Calculate which to append and which to remove.
-            editable_set = set([g.id for g in editable_groups])
-            old_group_ids = [g.id for g in old_groups]
-            new_set = set(new_group_ids)
-            old_set = set(old_group_ids)
-            append_set = (new_set - old_set).intersection(editable_set)
-            remove_set = (old_set - new_set).intersection(editable_set)
+                # Todo: Decide on the structure of a multiple-group selection.
             
-            # Create package group associations.
-            for id in append_set:
-                group = model.Session.query(model.Group).autoflush(False).get(id)
-                if group:
-                    self.field.parent.model.groups.append(group)
+            if new_group_ids and isinstance(new_group_ids, basestring):
+                new_group_ids = [new_group_ids]
 
-            # Delete package group associations.
-            for group in self.field.parent.model.groups:
-                if group.id in remove_set:
-                    self.field.parent.model.groups.remove(group)
+            return new_group_ids
 
-            return self.field.parent.model.groups
+            
 
 
 class SelectExtraField(TextExtraField):

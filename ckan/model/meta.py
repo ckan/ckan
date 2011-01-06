@@ -10,7 +10,7 @@ from sqlalchemy.types import *
 from sqlalchemy.orm import scoped_session, sessionmaker, create_session
 from sqlalchemy.orm import relation, backref
 
-import notifier
+from ckan.model import extension
 
 # __all__ = ['Session', 'engine', 'metadata', 'mapper']
 
@@ -22,14 +22,14 @@ if sqav.startswith("0.4"):
     Session = scoped_session(sessionmaker(
         autoflush=True,
         transactional=True,
-        extension=notifier.NotifierSessionTrigger(),
+        extension=extension.PluginSessionExtension(),
         ))
 elif sqav.startswith("0.5"):
     Session = scoped_session(sessionmaker(
         autoflush=True,
         autocommit=False,
         expire_on_commit=False,
-        extension=notifier.NotifierSessionTrigger(),
+        extension=extension.PluginSessionExtension(),
         ))
 else:
     raise ValueError("We can only work with SQLAlchemy 0.4 or 0.5 at present")

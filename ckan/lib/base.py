@@ -10,11 +10,12 @@ from pylons.controllers.util import abort, etag_cache, redirect_to, redirect
 from pylons.decorators import jsonify, validate
 from pylons.i18n import _, ungettext, N_, gettext
 from pylons.templating import cached_template, pylons_globals
+from genshi.template import MarkupTemplate
 from webhelpers.html import literal
 
 import ckan
 import ckan.lib.helpers as h
-from ckan.config import plugins
+from ckan.plugins import PluginImplementations, IGenshiStreamFilter
 from ckan.lib.helpers import json
 import ckan.model as model
 import os
@@ -32,17 +33,18 @@ ALLOWED_FIELDSET_PARAMS = ['package_form', 'restrict']
 
 
 def render(template_name, extra_vars=None, cache_key=None, cache_type=None, 
-           cache_expire=None, method='xhtml'):
+           cache_expire=None, method='xhtml', loader_class=MarkupTemplate):
     
     def render_template():
         globs = extra_vars or {}
         globs.update(pylons_globals())
-        template = globs['app_globals'].genshi_loader.load(template_name)
+        globs['actions'] = model.Action
+        template = globs['app_globals'].genshi_loader.load(template_name,
+            cls=loader_class)
         stream = template.generate(**globs)
         
-        # extension point for all plugins implementing 'render(self, stream)'.
-        for _filter in plugins.find_methods('render'):
-            stream = _filter(stream)
+        for item in PluginImplementations(IGenshiStreamFilter):
+            stream = item.filter(stream)
         
         return literal(stream.render(method=method, encoding=None))
     
@@ -107,6 +109,8 @@ class BaseController(WSGIController):
         return model.HarvestSource.get(reference)
 
     def _get_request_data(self):
+        self.log.debug('Retrieving request params: %r' % request.params)
+        self.log.debug('Retrieving request POST: %r' % request.POST)
         try:
             request_data = request.POST.keys()[0]
         except Exception, inst:
@@ -122,6 +126,7 @@ class BaseController(WSGIController):
             # if val is str then assume it is ascii, since json converts
             # utf8 encoded JSON to unicode
             request_data[key] = self._make_unicode(val)
+        self.log.debug('Request data extracted: %r' % request_data)
         return request_data
         
     def _make_unicode(self, entity):
@@ -168,18 +173,19 @@ class BaseController(WSGIController):
         c.time_call_stopped = self._get_now_time()
         
     def _write_call_timing(self):
-        call_duration = c.time_call_stopped - c.time_call_started
-        timing_data = {
-            "path": request.path, 
-            "started": c.time_call_started.isoformat(),
-            "duration": str(call_duration),
-        }
-        timing_msg = json.dumps(timing_data)
-        timing_cache_path = self._get_timing_cache_path()
-        timing_file_path = os.path.join(timing_cache_path, c.time_call_started.isoformat())
-        timing_file = file(timing_file_path, 'w')
-        timing_file.write(timing_msg)
-        timing_file.close()
+        if config.get('ckan.enable_call_timing', None):
+            call_duration = c.time_call_stopped - c.time_call_started
+            timing_data = {
+                "path": request.path, 
+                "started": c.time_call_started.isoformat(),
+                "duration": str(call_duration),
+            }
+            timing_msg = json.dumps(timing_data)
+            timing_cache_path = self._get_timing_cache_path()
+            timing_file_path = os.path.join(timing_cache_path, c.time_call_started.isoformat())
+            timing_file = file(timing_file_path, 'w')
+            timing_file.write(timing_msg)
+            timing_file.close()
 
     def _get_now_time(self):
         import datetime

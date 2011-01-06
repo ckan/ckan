@@ -1,4 +1,5 @@
 import cli
+from collections import defaultdict
 
 class CreateTestData(cli.CkanCommand):
     '''Create test data in the database.
@@ -87,9 +88,14 @@ class CreateTestData(cli.CkanCommand):
         '''Creates packages and a few extra objects as well at the
         same time if required.
         @param package_dicts - a list of dictionaries with the package
-                               properties
+                               properties.
+                               Extra keys allowed:
+                               "admins" - list of user names to make admin
+                                          for this package.
         @param extra_group_names - a list of group names to create. No
                                properties get set though.
+        @param admins - a list of user names to make admins of all the
+                               packages created.                           
         '''
         assert isinstance(relationships, (list, tuple))
         assert isinstance(extra_user_names, (list, tuple))
@@ -98,12 +104,13 @@ class CreateTestData(cli.CkanCommand):
         model.Session.remove()
         new_user_names = extra_user_names
         new_group_names = set()
-
-        admins_list = [] # list of (package_name, admin_names)
+        
+        rev = model.repo.new_revision() 
+        rev.author = self.author
+        rev.message = u'Creating test packages.'
+        
+        admins_list = defaultdict(list) # package_name: admin_names
         if package_dicts:
-            rev = model.repo.new_revision() 
-            rev.author = self.author
-            rev.message = u'Creating test packages.'
             if isinstance(package_dicts, dict):
                 package_dicts = [package_dicts]
             for item in package_dicts:
@@ -167,20 +174,22 @@ class CreateTestData(cli.CkanCommand):
                     elif attr == 'extras':
                         pkg.extras = val
                     elif attr == 'admins':
-                        # Todo: Use admins parameter to pass in admins (three tests).
                         assert isinstance(val, list)
-                        admins_list.append((item['name'], val))
+                        admins_list[item['name']].extend(val)
                         for user_name in val:
                             if user_name not in new_user_names:
                                 new_user_names.append(user_name)
                     else:
                         raise NotImplementedError(attr)
                 self.pkg_names.append(item['name'])
-                model.setup_default_user_roles(pkg, admins=admins)
+                model.setup_default_user_roles(pkg, admins=[])
+                for admin in admins:
+                    admins_list[item['name']].append(admin)
             model.repo.commit_and_remove()
 
         needs_commit = False
-
+        
+        rev = model.repo.new_revision() 
         for group_name in extra_group_names:
             group = model.Group(name=unicode(group_name))
             model.Session.add(group)
@@ -200,10 +209,17 @@ class CreateTestData(cli.CkanCommand):
                 needs_commit = True
 
         # setup authz for admins
-        for pkg_name, admins in admins_list:
+        for pkg_name, admins in admins_list.items():
             pkg = model.Package.by_name(unicode(pkg_name))
-            admins = [model.User.by_name(unicode(user_name)) for user_name in self.user_names]
-            model.setup_default_user_roles(pkg, admins)
+            admins_obj_list = []
+            for admin in admins:
+                if isinstance(admin, model.User):
+                    admin_obj = admin
+                else:
+                    admin_obj = model.User.by_name(unicode(admin))
+                assert admin_obj, admin
+                admins_obj_list.append(admin_obj)
+            model.setup_default_user_roles(pkg, admins_obj_list)
             needs_commit = True
 
         # setup authz for groups just created
@@ -241,6 +257,9 @@ class CreateTestData(cli.CkanCommand):
         All group fields can be filled, packages added and they can
         have an admin user.'''
         import ckan.model as model
+        rev = model.repo.new_revision()
+        # same name as user we create below
+        rev.author = self.author
         admin_user = model.User.by_name(admin_user_name)
         assert isinstance(group_dicts, (list, tuple))
         for group_dict in group_dicts:
@@ -360,6 +379,8 @@ left arrow <
         model.setup_default_user_roles(david, [russianfan])
         model.setup_default_user_roles(roger, [russianfan])
         model.add_user_to_role(visitor, model.Role.ADMIN, roger)
+        testsysadmin = model.User.by_name(u'testsysadmin')
+        model.add_user_to_role(testsysadmin, model.Role.ADMIN, model.System())
 
         model.repo.commit_and_remove()
 
@@ -373,6 +394,8 @@ left arrow <
         '''If you create a domain object manually in your test then you
         can name it here (flag it up) and it will be deleted when you next
         call CreateTestData.delete().'''
+        if isinstance(pkg_names, basestring):
+            pkg_names = [pkg_names]
         self.pkg_names.extend(pkg_names)
         self.tag_names.extend(tag_names)
         self.group_names = self.group_names.union(set(group_names))
@@ -396,21 +419,35 @@ left arrow <
             tag = model.Tag.by_name(unicode(tag_name))
             if tag:
                 tag.purge()
-        revs = model.Session.query(model.Revision).filter_by(author=self.author)
-        for rev in revs:
-            for pkg in rev.packages:
-                pkg.purge()
-            model.Session.delete(rev)
         for group_name in self.group_names:
             group = model.Group.by_name(unicode(group_name))
             if group:
                 model.Session.delete(group)
+        revs = model.Session.query(model.Revision).filter_by(author=self.author)
+        for rev in revs:
+            for pkg in rev.packages:
+                pkg.purge()
+            for grp in rev.groups:
+                grp.purge()
+            model.Session.delete(rev)
         for user_name in self.user_names:
             user = model.User.by_name(unicode(user_name))
             if user:
                 user.purge()
         model.Session.commit()
         model.Session.remove()
+        self.reset()
+
+    @classmethod
+    def reset(cls):
+        cls.pkg_names = []
+        cls.group_names = set()
+        cls.tag_names = []
+        cls.user_names = []
+
+    @classmethod
+    def get_all_data(cls):
+        return cls.pkg_names + list(cls.group_names) + cls.tag_names + cls.user_names
 
 
 search_items = [{'name':'gils',
@@ -545,7 +582,7 @@ gov_items = [
         'update_frequency':'annually',
         'geographic_granularity':'regional',
         'geographic_coverage':'100000: England',
-        'department':'Department for Children, Schools and Families',
+        'department':'Department for Education',
         'temporal_granularity':'years',
         'temporal_coverage-from':'2008-6',
         'temporal_coverage-to':'2009-6',
@@ -560,7 +597,7 @@ gov_items = [
     {'name':'weekly-fuel-prices',
      'title':'Weekly fuel prices',
      'notes':'Latest price as at start of week of unleaded petrol and diesel.',
-     'resources':[{'url':'', 'format':'XLS', 'description':''}],
+     'resources':[{'url':'http://www.decc.gov.uk/en/content/cms/statistics/prices.xls', 'format':'XLS', 'description':''}],
      'url':'http://www.decc.gov.uk/en/content/cms/statistics/source/prices/prices.aspx',
      'author':'DECC Energy Statistics Team',
      'author_email':'energy.stats@decc.gsi.gov.uk',

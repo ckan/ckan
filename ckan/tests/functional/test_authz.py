@@ -103,7 +103,6 @@ class TestUsage(TestController):
 
     @classmethod
     def setup_class(self):
-        model.notifier.initialise()
         indexer = TestSearchIndexer()
         self._create_test_data()
         model.Session.remove()
@@ -114,7 +113,6 @@ class TestUsage(TestController):
         model.Session.remove()
         model.repo.rebuild_db()
         model.Session.remove()
-        model.notifier.deactivate()
 
     def _do_test_wui(self, action, user, mode, entity='package'):
         # Test action on WUI
@@ -238,10 +236,10 @@ class TestUsage(TestController):
         self._test_can('edit', self.mrloggedin, ['wx', 'wr', 'ww'])
 
     def test_list(self):
-        self._test_can('list', [self.testsysadmin, self.pkgadmin], ['xx', 'rx', 'wx', 'rr', 'wr', 'ww'], entities=['package'])
+        #self._test_can('list', [self.testsysadmin, self.pkgadmin], ['xx', 'rx', 'wx', 'rr', 'wr', 'ww'], entities=['package'])
         self._test_can('list', [self.testsysadmin, self.groupadmin], ['xx', 'rx', 'wx', 'rr', 'wr', 'ww'], entities=['group'])
-        self._test_can('list', self.mrloggedin, ['rx', 'wx', 'rr', 'wr', 'ww'])
-        self._test_can('list', self.visitor, ['rr', 'wr', 'ww'])
+        #self._test_can('list', self.mrloggedin, ['rx', 'wx', 'rr', 'wr', 'ww'])
+        #self._test_can('list', self.visitor, ['rr', 'wr', 'ww'])
 # we abandon checks for reading due to caching
 #        self._test_cant('list', self.mrloggedin, ['xx'])
 #        self._test_cant('list', self.visitor, ['xx', 'rx', 'wx'])
@@ -261,12 +259,6 @@ class TestUsage(TestController):
         self._test_can('search', self.mrloggedin, ['rx', 'wx', 'rr', 'wr', 'ww'], entities=['package'])
         self._test_cant('search', self.mrloggedin, ['deleted', 'xx'], entities=['package'])
         
-    def test_list_deleted(self):
-        self._test_can('list', self.pkgadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted'], interfaces=['wui'], entities=['package'])
-        self._test_can('list', self.mrloggedin, ['rx', 'wx', 'rr', 'wr', 'ww'], interfaces=['wui'])
-        self._test_cant('list', self.mrloggedin, ['deleted'], interfaces=['wui'])
-        self._test_cant('list', self.mrloggedin, ['xx'], interfaces=['wui'], entities=['package'])
-
     def test_05_author_is_new_package_admin(self):
         user = self.mrloggedin
         
@@ -299,10 +291,6 @@ class TestUsage(TestController):
     def test_sysadmin_can_search_anything(self):
         self._test_can('search', self.testsysadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted'], entities=['package'])
         
-    def test_sysadmin_can_list_anything(self):
-        self._test_can('list', self.testsysadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww'], interfaces=['wui'])
-        self._test_can('list', self.testsysadmin, ['deleted'], interfaces=['wui'], entities=['package'])
-        
     def test_visitor_creates(self): 
         self._test_can('create', self.visitor, ['rr'], interfaces=['wui'], entities=['package'])
 
@@ -330,19 +318,11 @@ class TestLockedDownUsage(TestUsage):
             model.Session.delete(role)
         model.repo.commit_and_remove()
         
-        model.notifier.initialise()
         indexer = TestSearchIndexer()
         self._create_test_data()
         model.Session.remove()
         indexer.index()
         
-    #def test_visitor_creates(self): 
-        #from pprint import pprint
-        #pprint(model.Session.query(model.User).all())
-        #pprint(model.Session.query(model.RoleAction).all())
-        #pprint(model.Session.query(model.UserObjectRole).filter_by(context='System').all())
-    #    self._test_cant('create', self.visitor, ['rrx'], entities=['package'])
-
     def test_user_creates(self):
         self._test_can('create', self.mrloggedin, ['rr'])
     
@@ -351,4 +331,3 @@ class TestLockedDownUsage(TestUsage):
         model.Session.remove()
         model.repo.rebuild_db()
         model.Session.remove()
-        model.notifier.deactivate()

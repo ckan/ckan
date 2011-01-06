@@ -1,5 +1,6 @@
 import logging
 import urlparse
+from urllib import urlencode
 
 from sqlalchemy.orm import eagerload_all
 from sqlalchemy import or_
@@ -11,6 +12,7 @@ from ckan.lib.base import *
 from ckan.lib.search import query_for, QueryOptions, SearchError
 from ckan.lib.cache import proxy_cache
 from ckan.lib.package_saver import PackageSaver, ValidationException
+from ckan.plugins import PluginImplementations, IPackageController
 import ckan.forms
 import ckan.authz
 import ckan.rating
@@ -20,108 +22,142 @@ logger = logging.getLogger('ckan.controllers')
 
 class PackageController(BaseController):
     authorizer = ckan.authz.Authorizer()
-
-    def index(self):
-        query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
-        c.package_count = query.count()
-        return render('package/index.html')
-
-    @proxy_cache()
-    def list(self):
-        query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
-        query = query.options(eagerload_all('package_tags.tag'))
-        query = query.options(eagerload_all('package_resources_all'))
-        c.page = h.AlphaPage(
-            collection=query,
-            page=request.params.get('page', 'A'),
-            alpha_attribute='title',
-            other_text=_('Other'),
-        )
-        return render('package/list.html')
+    extensions = PluginImplementations(IPackageController)
 
     def search(self):        
-        c.q = request.params.get('q') # unicode format (decoded from utf8)
+        q = c.q = request.params.get('q') # unicode format (decoded from utf8)
         c.open_only = request.params.get('open_only')
         c.downloadable_only = request.params.get('downloadable_only')
-        if c.q:
-            c.query_error = False
+        if c.q is None or len(c.q.strip()) == 0:
+            q = '*:*'
+        c.query_error = False
+        try:
             page = int(request.params.get('page', 1))
-            limit = 20
-            query = query_for(model.Package)
-            try:
-                query.run(query=c.q,
-                          limit=limit,
-                          offset=(page-1)*limit,
-                          return_objects=True,
-                          filter_by_openness=c.open_only,
-                          filter_by_downloadable=c.downloadable_only,
-                          username=c.user)
-            
-                c.page = h.Page(
-                    collection=query.results,
-                    page=page,
-                    item_count=query.count,
-                    items_per_page=limit
-                )
-                c.page.items = query.results
-            except SearchError, se:
-                c.query_error = True
-                c.page = h.Page(collection=[])
-            
-            # tag search
-            c.tag_limit = 25
-            query = query_for('tag', backend='sql')
-            try:
-                query.run(query=c.q,
-                          return_objects=True,
-                          limit=c.tag_limit,
-                          username=c.user)
-                c.tags = query.results
-                c.tags_count = query.count
-            except SearchError, se:
-                c.tags = []
-                c.tags_count = 0
+        except ValueError, e:
+            abort(400, ('"page" parameter must be an integer'))
+        limit = 20
+        query = query_for(model.Package)
 
+        def drill_down_url(**by):
+            url = h.url_for(controller='package', action='search')
+            param = [(k, v.encode('utf-8')) for k, v in request.params.items()]
+            for k, v in by.items():
+                v = v.encode('utf-8')
+                if not (k, v) in param:
+                    param.append((k, v))
+            return url + u'?' + urlencode(param)
+        
+        c.drill_down_url = drill_down_url 
+        
+        def remove_field(key, value):
+            url = h.url_for(controller='package', action='search')
+            param = request.params.items()
+            param.remove((key, value))
+            return url + u'?' + urlencode(
+                [(k, v.encode('utf-8')) for k, v in param])
+        
+        c.remove_field = remove_field
+
+        try:
+            c.fields = []
+            for (param, value) in request.params.items():
+                if not param in ['q', 'open_only', 'downloadable_only', 'page']:
+                    c.fields.append((param, value))
+
+            query.run(query=q,
+                      fields=c.fields,
+                      facet_by=g.facets,
+                      limit=limit,
+                      offset=(page-1)*limit,
+                      return_objects=True,
+                      filter_by_openness=c.open_only,
+                      filter_by_downloadable=c.downloadable_only,
+                      username=c.user)
+            
+            c.page = h.Page(
+                collection=query.results,
+                page=page,
+                item_count=query.count,
+                items_per_page=limit
+            )
+            c.facets = query.facets
+            c.page.items = query.results
+        except SearchError, se:
+            c.query_error = True
+            c.facets = {}
+            c.page = h.Page(collection=[])
+        
         return render('package/search.html')
-    
-    def _pkg_cache_key(self, pkg):
+
+    @staticmethod
+    def _pkg_cache_key(pkg):
         # note: we need pkg.id in addition to pkg.revision.id because a
         # revision may have more than one package in it.
-        return str(hash((pkg.id, pkg.revision.id, c.user, pkg.get_average_rating())))
-        
+        return str(hash((pkg.id, pkg.latest_related_revision.id, c.user, pkg.get_average_rating())))
+
     def _clear_pkg_cache(self, pkg):
         read_cache = cache.get_cache('package/read.html', type='dbm')
         read_cache.remove_value(self._pkg_cache_key(pkg))
 
     @proxy_cache()
     def read(self, id):
-        pkg = model.Package.get(id)
-        if pkg is None:
+        
+        #check if package exists
+        c.pkg = model.Package.get(id)
+        if c.pkg is None:
             abort(404, gettext('Package not found'))
         
-        cache_key = self._pkg_cache_key(pkg)
+        cache_key = self._pkg_cache_key(c.pkg)        
         etag_cache(cache_key)
         
+        #set a cookie so we know whether to display the welcome message
+        c.hide_welcome_message = bool(request.cookies.get('hide_welcome_message', False))
+        response.set_cookie('hide_welcome_message', '1', max_age=3600) #(make cross-site?)
+
         # used by disqus plugin
-        c.current_package_id = pkg.id
+        c.current_package_id = c.pkg.id
         
         if config.get('rdf_packages'):
             accept_headers = request.headers.get('Accept', '')
             if 'application/rdf+xml' in accept_headers and \
                    not 'text/html' in accept_headers:
-                rdf_url = '%s%s' % (config['rdf_packages'], pkg.name)
+                rdf_url = '%s%s' % (config['rdf_packages'], c.pkg.name)
                 redirect(rdf_url, code=303)
 
-        auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, pkg)
+        #is the user allowed to see this package?
+        auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, c.pkg)
+        if not auth_for_read:
+            abort(401, str(gettext('Unauthorized to read package %s') % id))
+        
+        for item in self.extensions:
+            item.read(c.pkg)
+
+        #render the package
+        PackageSaver().render_package(c.pkg)
+        return render('package/read.html')
+
+    def comments(self, id):
+
+        #check if package exists
+        c.pkg = model.Package.get(id)
+        if c.pkg is None:
+            abort(404, gettext('Package not found'))
+
+        # used by disqus plugin
+        c.current_package_id = c.pkg.id
+
+        #is the user allowed to see this package?
+        auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, c.pkg)
         if not auth_for_read:
             abort(401, str(gettext('Unauthorized to read package %s') % id))
 
-        c.auth_for_authz = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, pkg)
-        c.auth_for_edit = self.authorizer.am_authorized(c, model.Action.EDIT, pkg)
-        c.auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, pkg)
+        for item in self.extensions:
+            item.read(c.pkg)
 
-        PackageSaver().render_package(pkg)
-        return render('package/read.html')
+        #render the package
+        PackageSaver().render_package(c.pkg)
+        return render('package/comments.html')
+
 
     def history(self, id):
         if 'diff' in request.params or 'selected1' in request.params:
@@ -135,6 +171,7 @@ class PackageController(BaseController):
                     id = request.params.getone('pkg_name')
                 c.error = _('Select two revisions before doing the comparison.')
             else:
+                params['diff_entity'] = 'package'
                 h.redirect_to(controller='revision', action='diff', **params)
 
         c.pkg = model.Package.get(id)
@@ -184,6 +221,8 @@ class PackageController(BaseController):
 
     def new(self):
         c.error = ''
+        api_url = config.get('ckan.api_url', '/').rstrip('/')
+        c.package_create_slug_api_url = api_url+h.url_for(controller='apiv2/package', action='create_slug')
         is_admin = self.authorizer.is_sysadmin(c.user)
         # Check access control for user to create a package.
         auth_for_create = self.authorizer.am_authorized(c, model.Action.PACKAGE_CREATE, model.System())
@@ -195,7 +234,6 @@ class PackageController(BaseController):
             if not request.params.has_key('log_message'):
                 abort(400, ('Missing parameter: log_message'))
             log_message = request.params['log_message']
-
         record = model.Package
         if request.params.has_key('save'):
             fs = fs.bind(record, data=dict(request.params) or None, session=model.Session)
@@ -210,6 +248,8 @@ class PackageController(BaseController):
                     if user:
                         admins = [user]
                 model.setup_default_user_roles(pkg, admins)
+                for item in self.extensions:
+                    item.create(pkg)
                 model.repo.commit_and_remove()
 
                 self._form_save_redirect(pkgname, 'new')
@@ -234,6 +274,8 @@ class PackageController(BaseController):
             fs = fs.bind(model.Package, data=data, session=model.Session)
         else:
             fs = fs.bind(session=model.Session)
+        #if 'preview' in request.params:
+        #    c.preview = ' '
         c.form = self._render_edit_form(fs, request.params, clear_session=True)
         if 'preview' in request.params:
             try:
@@ -251,16 +293,15 @@ class PackageController(BaseController):
     def edit(self, id=None): # allow id=None to allow posting
         # TODO: refactor to avoid duplication between here and new
         c.error = ''
-
-        pkg = model.Package.get(id)
+        c.pkg = pkg = model.Package.get(id)
         if pkg is None:
             abort(404, '404 Not Found')
         am_authz = self.authorizer.am_authorized(c, model.Action.EDIT, pkg)
         if not am_authz:
             abort(401, str(gettext('User %r not authorized to edit %s') % (c.user, id)))
 
-        c.auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, pkg)
-        fs = self._get_package_fieldset(is_admin=c.auth_for_change_state)
+        auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, pkg)
+        fs = self._get_package_fieldset(is_admin=auth_for_change_state)
         if 'save' in request.params or 'preview' in request.params:
             if not request.params.has_key('log_message'):
                 abort(400, ('Missing parameter: log_message'))
@@ -282,6 +323,8 @@ class PackageController(BaseController):
                                           # multidict which is read only
             fs = fs.bind(pkg, data=params or None)
             try:
+                for item in self.extensions:
+                    item.edit(fs.model)
                 PackageSaver().commit_pkg(fs, id, pkg.id, log_message, c.author, client=c)
                 # do not use package name from id, as it may have been edited
                 pkgname = fs.name.value
@@ -353,8 +396,8 @@ class PackageController(BaseController):
             abort(401, str(gettext('User %r not authorized to edit %s authorizations') % (c.user, id)))
 
         if 'save' in request.params: # form posted
-            # needed because request is nested
-            # multidict which is read only
+            # A dict needed for the params because request.params is a nested
+            # multidict, which is read only.
             params = dict(request.params)
             c.fs = ckan.forms.get_authz_fieldset('package_authz_fs').bind(pkg.roles, data=params or None)
             try:
@@ -378,10 +421,12 @@ class PackageController(BaseController):
                 # With FA no way to get new PackageRole back to set package attribute
                 # new_roles = ckan.forms.new_roles_fs.bind(model.PackageRole, data=params or None)
                 # new_roles.sync()
+                for item in self.extensions:
+                    item.authz_add_role(newpkgrole)
                 model.repo.commit_and_remove()
                 c.message = _(u'Added role \'%s\' for user \'%s\'') % (
                     newpkgrole.role,
-                    newpkgrole.user.name)
+                    newpkgrole.user.display_name)
             elif newrole_authzgroup_id != '__null_value__':
                 authzgroup = model.Session.query(model.AuthorizationGroup).get(newrole_authzgroup_id)
                 # TODO: chech user is not None (should go in validation ...)
@@ -391,6 +436,8 @@ class PackageController(BaseController):
                 # With FA no way to get new GroupRole back to set group attribute
                 # new_roles = ckan.forms.new_roles_fs.bind(model.GroupRole, data=params or None)
                 # new_roles.sync()
+                for item in self.extensions:
+                    item.authz_add_role(newpkgrole)
                 model.Session.commit()
                 model.Session.remove()
                 c.message = _(u'Added role \'%s\' for authorization group \'%s\'') % (
@@ -402,9 +449,11 @@ class PackageController(BaseController):
             if pkgrole is None:
                 c.error = _(u'Error: No role found with that id')
             else:
+                for item in self.extensions:
+                    item.authz_remove_role(pkgrole)
                 if pkgrole.user:
                     c.message = _(u'Deleted role \'%s\' for user \'%s\'') % \
-                                (pkgrole.role, pkgrole.user.name)
+                                (pkgrole.role, pkgrole.user.display_name)
                 elif pkgrole.authorized_group:
                     c.message = _(u'Deleted role \'%s\' for authorization group \'%s\'') % \
                                 (pkgrole.role, pkgrole.authorized_group.name)

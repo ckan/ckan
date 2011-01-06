@@ -6,25 +6,31 @@
   <py:def function="page_title">New - Data Packages</py:def>
 
   <py:def function="optional_head">
-    <link rel="stylesheet" href="/css/forms.css" type="text/css" media="screen, print" />
+    <link rel="stylesheet" href="${g.site_url}/css/forms.css" type="text/css" media="screen, print" />
 
     <!-- Reveal instructions --> 
-    <script type="text/javascript" src="/scripts/reveal_instructions.js"></script> 
-    <link rel="stylesheet" href="/css/reveal_instructions.css" /> 
+    <script type="text/javascript" src="${g.site_url}/scripts/reveal_instructions.js"></script> 
+    <link rel="stylesheet" href="${g.site_url}/css/reveal_instructions.css" /> 
 
     <!-- Flexitable --> 
-    <script type="text/javascript" src="/scripts/flexitable.js"></script> 
-    <link rel="stylesheet" href="/css/flexitable.css" /> 
+    <script type="text/javascript" src="${g.site_url}/scripts/flexitable.js"></script> 
+    <link rel="stylesheet" href="${g.site_url}/css/flexitable.css" /> 
  
     <!-- Tagcomplete --> 
-    <script type="text/javascript" src="/scripts/tagcomplete.js"></script> 
-    <link rel="stylesheet" href="/css/tagcomplete.css" /> 
+    <script type="text/javascript" src="${g.site_url}/scripts/tagcomplete.js"></script> 
+    <link rel="stylesheet" href="${g.site_url}/css/tagcomplete.css" /> 
   </py:def>
 
   <div py:match="content">
-    <h2>Register a New Data Package
-      <a href="#preview" py:if="c.preview">(skip to preview)</a>
-    </h2>
+    <h2>Register a New Data Package</h2>
+
+    <div id="preview" py:if="c.preview">
+      <hr />
+      <h3>Preview</h3>
+      <div style="border: 2px dashed red; padding: 5px;"> 
+        ${c.preview}
+      </div>
+    </div>
 
     <h3 py:if="c.error" class="form-errors">
       Error: ${c.error}
@@ -32,13 +38,6 @@
 
     ${h.literal(c.form)}
 
-    <div id="preview" style="margin-left: 20px;" py:if="c.preview">
-      <hr />
-      <h2>Preview</h2>
-      <div style="border: 2px dashed red; padding: 5px;"> 
-        ${c.preview}
-      </div>
-    </div>
   </div>
 
   <xi:include href="layout.html" />

@@ -6,39 +6,57 @@ import ckan.lib.importer as importer
 import ckan.lib.spreadsheet_importer as spreadsheet_importer
 
 EXAMPLES_DIR = 'ckan/tests/misc/'
-EXAMPLE_TESTFILE_FILEPATH = os.path.join(config['here'], EXAMPLES_DIR, 'test_importer_example')
-FULL_TESTFILE_FILEPATH = os.path.join(config['here'], EXAMPLES_DIR, 'test_importer_full')
+EXAMPLE_FILEBASE = 'test_importer'
+EXAMPLE_TESTFILE_SUFFIX = '_example'
+EXAMPLE_BIS_TESTFILE_SUFFIX = '_bis_example'
+CKAN_SRC_DIR = config['here']
 XL_EXTENSION = '.xls'
 CSV_EXTENSION = '.csv'
 EXTENSIONS = [CSV_EXTENSION, XL_EXTENSION]
-SPREADSHEET_CLASS_MAP = {XL_EXTENSION:spreadsheet_importer.XlData,
-                         CSV_EXTENSION:spreadsheet_importer.CsvData}
+SPREADSHEET_DATA_MAP = {XL_EXTENSION:spreadsheet_importer.XlData,
+                        CSV_EXTENSION:spreadsheet_importer.CsvData}
+
+class ExampleFiles(object):
+    def __init__(self, examples_dir, example_filebase):
+        '''
+        Easy accessor for info about test fixture files. 
+        @param examples_dir - relative from pyenv/src/ckan
+        '''
+        self.examples_dir = examples_dir
+        self.example_filebase = example_filebase
+        
+    def get_spreadsheet_filepath(self, test_file_suffix, extension):
+        return os.path.join(CKAN_SRC_DIR, self.examples_dir, self.example_filebase + test_file_suffix + extension)
+
+    def get_data(self, test_file_suffix, extension=XL_EXTENSION):
+        logger = BasicLogger()
+        filepath = self.get_spreadsheet_filepath(test_file_suffix, extension)
+        return SPREADSHEET_DATA_MAP[extension](logger, filepath=filepath)
+
+examples = ExampleFiles(EXAMPLES_DIR, EXAMPLE_FILEBASE)
 
 class BasicLogger:
     def __init__(self):
         self.log = []
-        
-    def log(self, msg):
-        self.log.append(msg)
-    
+
 
 class TestSpreadsheetData:
     def test_0_example_file_by_filepath(self):
         for extension in EXTENSIONS:
             logger = BasicLogger()
-            filepath = EXAMPLE_TESTFILE_FILEPATH + extension
-            data = SPREADSHEET_CLASS_MAP[extension](logger, filepath=filepath)
+            filepath = examples.get_spreadsheet_filepath(EXAMPLE_TESTFILE_SUFFIX, extension)
+            data = SPREADSHEET_DATA_MAP[extension](logger, filepath=filepath)
             self.assert_example_data(data)
             assert logger.log == [], logger.log
         
     def test_1_example_file_by_buf(self):
         for extension in EXTENSIONS:
             logger = BasicLogger()
-            filepath = EXAMPLE_TESTFILE_FILEPATH + extension
+            filepath = examples.get_spreadsheet_filepath(EXAMPLE_TESTFILE_SUFFIX, extension)
             f = open(filepath, 'rb')
             buf = f.read()
             f.close()
-            data = SPREADSHEET_CLASS_MAP[extension](logger, buf=buf)
+            data = SPREADSHEET_DATA_MAP[extension](logger, buf=buf)
             self.assert_example_data(data)
             assert logger.log == [], logger.log
 
@@ -57,20 +75,13 @@ class TestSpreadsheetData:
         if num_rows == 4:
             assert rows[3] == [], rows[3]
 
-def get_example_data():
-    logger = BasicLogger()
-    extension = XL_EXTENSION
-    filepath = EXAMPLE_TESTFILE_FILEPATH + extension
-    return SPREADSHEET_CLASS_MAP[extension](logger, filepath=filepath)
-
 class TestDataRecords:
     def test_0_example(self):
-        data = get_example_data()
+        data = examples.get_data(EXAMPLE_TESTFILE_SUFFIX, XL_EXTENSION)
         data_records = spreadsheet_importer.SpreadsheetDataRecords(data, 'title')
         assert data_records.titles == data.get_row(0), data_records.titles
         records = [record for record in data_records.records]
         assert len(records) == 2, records
-        print type(records[0])
         assert records[0].items() == [
             (u'name', u'wikipedia'),
             (u'title', u'Wikipedia'),
@@ -88,6 +99,15 @@ class TestDataRecords:
             (u'tags', u'tv encyclopedia'),
             ], records[1].items()
 
+    def test_1_bis_example(self):
+        data = examples.get_data(EXAMPLE_BIS_TESTFILE_SUFFIX, XL_EXTENSION)
+        data_records = spreadsheet_importer.SpreadsheetDataRecords(data, 'Dataset Ref#')
+        assert data_records.titles[:3] == [None, 'Dataset Ref#', 'Dataset Status'], data_records.titles
+        records = [record for record in data_records.records]
+        assert len(records) == 2, records
+        assert records[0]['Dataset Ref#'] == 'BIS-000002', records[0]['Dataset Ref#']
+        assert records[1]['Dataset Ref#'] == 'BIS-000003', records[1]['Dataset Ref#']
+
 class TestPackageImporter:
     def test_munge(self):
         def test_munge(title, expected_munge):
@@ -100,7 +120,7 @@ class TestPackageImporter:
         
     def test_0_example_by_filepath(self):
         for extension in EXTENSIONS:
-            filepath = EXAMPLE_TESTFILE_FILEPATH + extension
+            filepath = examples.get_spreadsheet_filepath(EXAMPLE_TESTFILE_SUFFIX, extension)
             package_import = spreadsheet_importer.SpreadsheetPackageImporter(filepath=filepath)
             self.assert_example_package_import(package_import)
 

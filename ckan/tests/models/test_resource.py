@@ -67,14 +67,10 @@ class TestPackageResource:
         #   StatefulList()
         # 2. set res0.position = None
         pkg.resources[1].position = None
-        print [ p.url for p in pkg.resources ]
-        print [ p.position for p in pkg.resources ]
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(self.pkgname)
         assert len(pkg.resources) == 2, pkg.package_resources_all
-        print [ p.url for p in pkg.resources ]
-        print [ p.position for p in pkg.resources ]
         lastres = pkg.resources[1]
         assert lastres.position == 1, lastres
         assert lastres.url == self.urls[0], pkg.lastres

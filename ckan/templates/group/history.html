@@ -1,0 +1,63 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+  
+  <py:def function="page_title">${c.group.title or c.group.name} - Groups - History</py:def>
+
+  <div py:match="content" class="group">
+    <h2 class="head">
+      ${c.group.title}
+      <span class="name">(${c.group.name})</span>
+    </h2>
+
+    <h3>
+      Revisions
+      <p class="atom-feed-link group-history-link">
+        <a
+          href="${url(controller='group', action='history', id=c.group.name, format='atom', days=7)}"
+          title="${g.site_title} - Group History - ${c.group.name}"
+          >
+          Subscribe &raquo;</a>
+      </p>
+    </h3>
+    <form id="group-revisions" action="diff" method="post"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      > 
+
+      <h3 py:if="c.error" class="form-errors">
+        Error: ${c.error}
+      </h3>
+
+      <input type="hidden" name="group_name" value="${c.group.name}"/>
+
+      <table>
+        <tr>
+          <th></th><th>Revision</th><th>Timestamp</th><th>Author</th><th>Log Message</th>
+        </tr>
+        <py:for each="index, rev in enumerate([rev for rev, obj_revs in c.group_revisions])">
+          <tr>
+            <td nowrap="nowrap">
+              ${h.radio("selected1", rev.id, checked=(index == 0))}
+              ${h.radio("selected2", rev.id, checked=(index == len(c.group_revisions)-1))}
+            </td>
+            <td>
+              <a href="${h.url_for(controller='revision',action='read',id=rev.id)}">${rev.id}</a>
+            </td>
+            <td>${rev.timestamp}</td>
+            <td>${h.linked_user(rev.author)}</td>
+            <td>${rev.message}</td>
+          </tr> 
+        </py:for>
+      </table>
+      ${h.submit('diff', _('Compare &raquo;'))}
+    </form>
+  </div> <!-- content -->
+
+  <py:def function="optional_feed">
+    <link rel="alternate" type="application/atom+xml" title="Group History"
+      href="${url(controller='group', action='history', id=c.group.name, format='atom', days=7)}" />
+  </py:def>
+
+  <xi:include href="layout.html" />
+</html>

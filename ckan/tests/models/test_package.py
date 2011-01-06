@@ -56,6 +56,16 @@ class TestPackage:
         assert package.license == None
         model.Session.remove() # forget change
 
+    def test_as_dict(self):
+        pkg = model.Package.by_name(self.name)
+        out = pkg.as_dict()
+        assert out['name'] == pkg.name
+        assert out['license'] == pkg.license.title
+        assert out['license_id'] == pkg.license.id
+        assert out['tags'] == [tag.name for tag in pkg.tags]
+        assert out['metadata_modified'] == pkg.metadata_modified.isoformat()
+        assert out['metadata_created'] == pkg.metadata_created.isoformat()
+
 
 class TestPackageWithTags:
     """
@@ -200,6 +210,7 @@ class TestPackageRevisions:
         self.pkg1 = model.Package(name=self.name)
         model.Session.add(self.pkg1)
         self.pkg1.notes = self.notes[0]
+        self.pkg1.extras['mykey'] = self.notes[0]
         model.repo.commit_and_remove()
 
         # edit pkg
@@ -207,6 +218,7 @@ class TestPackageRevisions:
             rev = model.repo.new_revision()
             pkg1 = model.Package.by_name(self.name)
             pkg1.notes = self.notes[i]
+            pkg1.extras['mykey'] = self.notes[i]
             model.repo.commit_and_remove()
 
         self.pkg1 = model.Package.by_name(self.name)        
@@ -224,7 +236,19 @@ class TestPackageRevisions:
         assert len(all_rev) == num_notes, len(all_rev)
         for i, rev in enumerate(all_rev):
             assert rev.notes == self.notes[num_notes - i - 1], '%s != %s' % (rev.notes, self.notes[i])
+            #assert rev.extras['mykey'] == self.notes[num_notes - i - 1], '%s != %s' % (rev.extras['mykey'], self.notes[i])
 
+    # put these in here as lots of revisions is good
+    def test_02_metadata_created_and_modified(self):
+        pkg = model.Package.by_name(self.name)
+        all_rev = pkg.all_revisions
+        out = pkg.metadata_created
+        exp = all_rev[-1].revision.timestamp
+        assert  out == exp, (out, exp)
+        out = pkg.metadata_modified
+        exp = all_rev[0].revision.timestamp
+        assert out == exp, (out, exp)
+        
 
 class TestRelatedRevisions:
     @classmethod
@@ -321,7 +345,6 @@ class TestRelatedRevisions:
             got_value = diff.get(key)
             expected_value = u'- \n+ %s' % expected_value
             assert got_value == expected_value, 'Key: %s Got: %r Expected: %r' % (key, got_value, expected_value)
-        print diff
         test_res(diff, self.res1, 'url', 'http://url1.com/edited')
         test_res(diff, self.res1, 'position', '0')
         test_res(diff, self.res1, 'format', 'xls')

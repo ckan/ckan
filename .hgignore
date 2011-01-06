@@ -1,6 +1,7 @@
 syntax: glob
 # generic
 *.pyc
+*.swp
 .DS_Store
 ckan.egg-info/*
 sandbox/*
@@ -10,7 +11,7 @@ development.ini*
 sstore/*
 data/*
 pylons_data/*
-ckan/i18n/*/*/*.mo
+#ckan/i18n/*/*/*.mo
 
 # other
 pip-requirements-local.txt
@@ -20,3 +21,4 @@ tmp/*
 solr_runtime/*
 fl_notes.txt
 *.ini
+.noseids

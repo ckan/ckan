@@ -14,19 +14,20 @@ setup(
     author='Open Knowledge Foundation',
     author_email='info@okfn.org',
     license=__license__,
-    url='http://knowledgeforge.net/ckan/',
+    url='http://ckan.org/',
     description=__description__,
     keywords='data packaging component tool server',
     long_description =__long_description__,
     install_requires=[
         'routes>=1.9,<=1.11.99',
         'vdm>=0.6,<0.8.99',
-        'ckanclient>=0.1,<0.4.99',
+        'ckanclient>=0.1,<0.5.99',
         'Pylons>=0.9.7.0,<0.9.7.99',
         'Genshi>=0.6',
         'SQLAlchemy>=0.4.8,<=0.4.99',
         'repoze.who>=1.0.0,<1.0.99',
-        'repoze.who.plugins.openid>=0.5,<0.5.99',
+        'repoze.who.plugins.openid>=0.5.3',
+        'pyutilib.component.core>=4.1',
         # uuid in python >= 2.5
         # 'uuid>=1.0',
         # for open licenses
@@ -54,9 +55,14 @@ setup(
     package_data={'ckan': ['i18n/*/LC_MESSAGES/*.mo']},
     message_extractors = {'ckan': [
             ('**.py', 'python', None),
-            ('templates/_util.html', 'ignore', None),
             ('templates/importer/**', 'ignore', None),
             ('templates/**.html', 'genshi', None),
+            ('templates/**.js', 'genshi', {
+                'template_class': 'genshi.template:TextTemplate'
+            }),
+            ('templates/**.txt', 'genshi', {
+                'template_class': 'genshi.template:TextTemplate'
+            }),
             ('public/**', 'ignore', None),
             ]},
     entry_points="""
@@ -70,13 +76,17 @@ setup(
     db = ckan.lib.cli:ManageDb
     load = ckan.lib.cli:Load
     create-test-data = ckan.lib.create_test_data:CreateTestData
-    test-data = ckan.lib.cli:TestData
     sysadmin = ckan.lib.cli:Sysadmin
     search-index = ckan.lib.cli:SearchIndexCommand
     ratings = ckan.lib.cli:Ratings
     changes = ckan.lib.cli:Changes
     notifications = ckan.lib.cli:Notifications
     harvester = ckan.lib.cli:Harvester
+    rights = ckan.lib.authztool:RightsCommand
+    roles = ckan.lib.authztool:RolesCommand
+    
+    [paste.paster_create_template]
+    ckanext=ckan.pastertemplates:CkanextTemplate
 
     [ckan.forms]
     standard = ckan.forms.package:get_standard_fieldset
@@ -87,7 +97,12 @@ setup(
 
     [ckan.search]
     sql = ckan.lib.search.sql:SqlSearchBackend
-    solr = ckan.lib.search.solr_:SolrSearchBackend
+
+    [ckan.plugins]
+    synchronous_search = ckan.lib.search.worker:SynchronousSearchPlugin
+
+    [ckan.system_plugins]
+    domain_object_mods = ckan.model.modification:DomainObjectModificationExtension
     """,
     # setup.py test command needs a TestSuite so does not work with py.test
     # test_suite = 'nose.collector',

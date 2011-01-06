@@ -63,7 +63,8 @@ class SearchBackend(object):
             _type_n = self._normalize_type(_type)
             return self._typed_indices[_type_n](self)
         except KeyError, ke:
-            raise SearchError("Unknown search type: %s" % _type)
+            log.warn("Unknown search type: %s" % _type)
+            return NoopSearchIndex(self)
             
     def types(self):
         return self._typed_queries.keys()
@@ -100,13 +101,15 @@ class SearchQuery(object):
                 attr_name = self.options.ref_entity_with_attr
                 self.results = [getattr(entity, attr_name) for entity in self.results]
     
-    def run(self, query=None, terms=[], fields={}, options=None, **kwargs):
+    def run(self, query=None, terms=[], fields={}, facet_by=[], options=None, **kwargs):
         if options is None:
             options = QueryOptions(**kwargs) 
         else:
             options.update(kwargs)
         self.options = options
         self.options.validate()
+        self.facet_by = facet_by
+        self.facets = dict()
         self.query = QueryParser(query, terms, fields)
         self.query.validate()
         self._run()

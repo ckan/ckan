@@ -1,5 +1,5 @@
 from sqlalchemy.sql import select, and_
-from ckan.lib.base import _, request, response
+from ckan.lib.base import _, request, response, c
 from ckan.lib.cache import ckan_cache
 from ckan.lib.helpers import json
 import ckan.model as model
@@ -8,6 +8,12 @@ import ckan
 from ckan.controllers.apiv1.package import PackageController as _PackageV1Controller
 
 log = __import__("logging").getLogger(__name__)
+
+# For form name auto-generation
+from ckan.forms.common import package_exists
+from ckan.lib.helpers import json
+from ckan.lib.importer import PackageImporter
+from ckan.lib.search import query_for
 
 class Rest2Controller(object):
     api_version = '2'
@@ -38,5 +44,41 @@ class PackageController(Rest2Controller, _PackageV1Controller):
             response_data = json.dumps(_('Access denied'))
         else:
             response_data = self._represent_package(pkg)
+        for item in self.extensions:
+            item.read(pkg)
         return self._finish_ok(response_data)
     
+    def create_slug(self):
+        title = request.params.get('title') or ''
+        name = PackageImporter.munge(title)
+        if package_exists(name):
+            valid = False
+        else:
+            valid = True
+        #response.content_type = 'application/javascript'
+        response_data = dict(name=name.replace('_', '-'), valid=valid)
+        return self._finish_ok(response_data)
+
+    def autocomplete(self):
+        incomplete = request.params.get('incomplete', '')
+        if incomplete:
+            query = query_for('tag', backend='sql')
+            query.run(query=incomplete,
+                      return_objects=True,
+                      limit=10,
+                      username=c.user)
+            tagNames = [t.name for t in query.results]
+        else:
+            tagNames = []
+        resultSet = {
+            "ResultSet": {
+                "Result": []
+            }
+        }
+        for tagName in tagNames[:10]:
+            result = {
+                "Name": tagName
+            }
+            resultSet["ResultSet"]["Result"].append(result)
+        return self._finish_ok(resultSet)
+

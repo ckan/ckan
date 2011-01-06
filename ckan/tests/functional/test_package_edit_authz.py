@@ -61,7 +61,6 @@ class TestPackageEditAuthz(TestController):
         offset = url_for(controller='package', action='authz', id=self.pkgname)
         res = self.app.get(offset, extra_environ={'REMOTE_USER':
             self.admin})
-        print res
         assert self.pkgname in res
         assert '<tr' in res
         assert self.admin in res

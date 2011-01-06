@@ -3,6 +3,7 @@ from sqlalchemy import orm
 import ckan.lib.helpers as h
 from ckan.lib.base import *
 import ckan.rating
+from pylons import g
 
 # Todo: Factor out unused original_name argument.
 
@@ -36,15 +37,14 @@ class PackageSaver(object):
         to the caller.'''
         c.pkg = pkg
         notes_formatted = ckan.misc.MarkdownFormat().to_html(pkg.notes)
+        c.pkg_extras = sorted([(k, v) for k, v in pkg.extras.items() \
+                               if k not in g.package_hide_extras])
         c.pkg_notes_formatted = genshi.HTML(notes_formatted)
         c.current_rating, c.num_ratings = ckan.rating.get_rating(pkg)
         c.pkg_url_link = h.link_to(c.pkg.url, c.pkg.url, target='_blank') if c.pkg.url else "No web page given"
         c.pkg_author_link = cls._person_email_link(c.pkg.author, c.pkg.author_email, "Author")
         c.pkg_maintainer_link = cls._person_email_link(c.pkg.maintainer, c.pkg.maintainer_email, "Maintainer")
         c.package_relationships = pkg.get_relationships_printable()
-        # Todo: Delete these lines?
-        # c.auth_for_change_state and c.auth_for_edit may also used
-        # return render('package/read')
 
     @classmethod
     def _preview_pkg(cls, fs, original_name, pkg_id,
@@ -89,6 +89,7 @@ class PackageSaver(object):
     def _update(cls, fs, original_name, pkg_id, log_message, author, commit=True, client=None):
         # Todo: Remove original_name and pkg_id, since they aren't used.
         # Todo: Consolidate log message field (and validation).
+        # Todo: Separate out the preview line of execution, it's confusing.
         rev = None
         # validation
         errors = cls._revision_validation(log_message)

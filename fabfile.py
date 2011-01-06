@@ -1,6 +1,44 @@
-'''Automate CKAN deployment, backup etc.
+'''
+CKAN Fabric
+===========
 
-For details of operations do fab -l.
+Purpose: to automate CKAN deployment, backup and other maintenance operations
+
+Usage: fab {config} {command}
+
+{config}:
+This parameter describes the configuration of the server where the CKAN
+instance is, including the host name, ssh user, pathnames, code branch, etc.
+  config_0:{host_name} - the default: ssh to okfn@{host_name},
+                         ckan is in ~/var/srvc/{host_name} and uses
+                         code from the metastable branch.
+  config_dev_hmg_ckan_net - a custom setup for dev-hmg.ckan.net because
+                         this instance uses code branch 'default'.
+  config_local:{base_dir},{instance_name} - for local operations. Host is
+                         'localhost' (it still has to ssh in, so requires
+                         password) and you must specify:
+                         * {base_dir} - path to ckan instances
+                         * {instance_name} - folder name for the specific
+                                             ckan instance you want
+  config_local_dev:{base_dir},{instance_name} - for local operations, but
+                         for developers that have their CKAN repo separate
+                         from their virtual environment. It assumes you have:
+                         * {base_dir}/{instance_name} - ckan code repo
+                         * {base_dir}/pyenv-{instance_name} - virtual env
+
+{command}:
+This parameter describes the operation you want to do on the CKAN instance
+specified in {config}. For example you can start with 'deploy' with host and
+database parameters to deploy the CKAN code, initialise the database and
+configure it to work. (There are then a couple of extra manual steps to
+complete the deployment - see doc/deployment.rst). Once there are some
+packages on there you can do a 'backup' of the db and later 'restore' the file.
+You can check the 'logs' for latest errors, switch to another 'apache_config'
+such as for a maintenance mode, check the version of the code running using
+'status'. When the code is updated you can load it on using 'deploy' (usually
+without specifying any parameters) then 'restart_apache'.
+
+For a list of all parameters from {config} & {command} do: fab -l
 
 Examples:
 =========
@@ -36,7 +74,7 @@ from fabric.contrib.files import *
 env.ckan_instance_name = 'test' # e.g. test.ckan.net
 env.base_dir = os.getcwd() # e.g. /home/jsmith/var/srvc
 env.local_backup_dir = os.path.expanduser('~/db_backup')
-env.ckan_repo = 'http://knowledgeforge.net/ckan/hg/raw-file/default/'
+env.ckan_repo = 'https://bitbucket.org/okfn/ckan/raw/default/'
 env.pip_requirements = 'pip-requirements.txt'
 env.skip_setup_db = False
 
@@ -73,9 +111,8 @@ def config_staging_hmg_ckan_net():
     env.pip_requirements = 'pip-requirements-stable.txt'
 
 def config_test_hmg_ckan_net():
-    config_staging_hmg_ckan_net()
-    env.ckan_instance_name = 'test.hmg.ckan.net'
-    env.hosts = ['ssh.' + env.ckan_instance_name]
+    name = 'test-hmg.ckan.net'
+    config_0(name, hosts_str=name, requirements='pip-requirements-stable.txt')
 
 def config_hmg_ckan_net_1():
     env.user = 'ckan1'
@@ -83,6 +120,7 @@ def config_hmg_ckan_net_1():
     env.cmd_pyenv = os.path.join(env.base_dir, 'ourenv')
     env.no_sudo = None
     env.ckan_instance_name = 'hmg.ckan.net'
+    env.apache_config = 'hmg.ckan.net'
     env.hosts = ['ssh.hmg.ckan.net']
     env.wsgi_script_filepath = None # os.path.join(env.base_dir, 'hmg.ckan.net/pyenv/bin/pylonsapp_modwsgi.py')
     env.pip_requirements = 'pip-requirements-stable.txt'
@@ -116,6 +154,9 @@ def config_hmg2_ckan_net():
 
 def config_test_ckan_net():
     config_0('test.ckan.net', requirements='pip-requirements.txt')
+
+def config_dev_hmg_ckan_net():
+    config_0('dev-hmg.ckan.net', requirements='pip-requirements.txt')
 
 def config_0(name, hosts_str='', requirements='pip-requirements-metastable.txt',
         db_pass=None):
@@ -171,7 +212,9 @@ def _setup():
     _default('db_host', 'localhost')
     _default('db_name', env.ckan_instance_name)
     _default('pip_from_pyenv', None)
-
+    _default('apache_sites_available', '/etc/apache2/sites-available/')
+    _default('apache_sites_enabled', '/etc/apache2/sites-enabled/')
+    _default('apache_config', env.ckan_instance_name)
 
 def deploy():
     '''Deploy app on server. Keeps existing config files.'''
@@ -277,6 +320,10 @@ def restart_apache():
     'Restart apache'
     sudo('/etc/init.d/apache2 restart')
 
+def reload_apache():
+    'Reload apache config'
+    sudo('/etc/init.d/apache2 reload')
+
 def status():
     'Provides version number info'
     _setup()
@@ -288,6 +335,38 @@ def status():
         run('hg branch')
         run('hg identify')
         run('grep version ckan/__init__.py')
+
+def apache_config(set_config=None):
+    '''View and change the currently enabled apache config for this site'''
+    _setup()
+    enabled_config = get_enabled_apache_config()
+    available_configs = get_available_apache_configs()
+    print 'Available modes: %s' % available_configs
+
+    if set_config == None:
+        print 'Current mode: %s' % enabled_config
+    else:
+        assert set_config in available_configs
+        if enabled_config:
+            sudo('a2dissite %s' % enabled_config)
+        sudo('a2ensite %s' % set_config)
+        reload_apache()
+
+def get_available_apache_configs():
+    available_configs = run('ls %s' % env.apache_sites_available).split('\n')
+    related_available_configs = [fname for fname in available_configs if env.apache_config in fname]
+    assert related_available_configs, \
+           'No recognised available apache config in: %r' % available_configs
+    return related_available_configs
+
+def get_enabled_apache_config():
+    with cd(env.apache_sites_enabled):
+        related_enabled_configs = run('ls %s*' % (env.apache_config)).split('\n')
+    assert len(related_enabled_configs) <= 1, \
+           'Seemingly more than one apache config enabled for this site: %r' %\
+           related_enabled_configs
+    return related_enabled_configs[0] if related_enabled_configs else None
+
 
 def backup():
     'Backup database'
@@ -392,6 +471,12 @@ def upload_i18n(lang):
     if current_lang != lang:
         print "Warning: current language set to '%s' not '%s'." % (current_lang, lang)
 
+def paster(cmd):
+    '''Run specified paster command'''
+    _setup()
+    with cd(env.instance_path):
+        _run_in_pyenv('paster --plugin ckan %s --config %s' % (cmd, env.config_ini_filename))
+
 def sysadmin_list():
     '''Lists sysadmins'''
     _setup()
@@ -400,7 +485,6 @@ def sysadmin_list():
 
 def sysadmin_create(open_id):
     '''Creates sysadmins with the given OpenID'''
-    assert open_id.startswith('http'), open_id
     _setup()
     with cd(env.instance_path):
         _run_in_pyenv('paster --plugin ckan sysadmin create %s --config %s' % (open_id, env.config_ini_filename))
@@ -423,13 +507,18 @@ def switch_instance():
     restart_apache()
     print 'Current instance changed %s -> %s' % (current_instance, next_instance)
 
-def log(cmd='tail', log='error'):
+def apache_log(cmd='tail', log='error'):
     '''Displays the apache log.
     @log - error or custom'''
     #todo make this more flexible
     filename = env.log_filename_pattern % log
     run_func = run if hasattr(env, 'no_sudo') else sudo
     run_func('%s /var/log/apache2/%s' % (cmd, filename))
+
+def log(cmd='tail'):
+    '''Displays the ckan log.'''
+    filepath = _get_ckan_log_filename()
+    run('%s %s' % (cmd, filepath))
 
 def current():
     '''Tells you which instance is current for switchable instances'''
@@ -470,7 +559,7 @@ def _get_ini_value(key, ini_filepath=None):
     if not ini_filepath:
         # default to config ini
         ini_filepath = os.path.join(env.instance_path, env.config_ini_filename)
-    assert exists(ini_filepath)
+    assert exists(ini_filepath), 'Could not find CKAN instance config at: ' % ini_filepath
     with settings(warn_only=True):
         output = run('grep -E "^%s" %s' % (key, ini_filepath))
     if output == '':
@@ -513,6 +602,30 @@ def _create_live_data_dir(readable_name, dir):
     else:
         print '%s directory already exists: %s' % (readable_name, dir)
         
+def _get_ckan_log_filename():
+    _setup()
+    ini_filepath = os.path.join(env.instance_path, env.config_ini_filename)
+    assert exists(ini_filepath)
+    key = 'args'
+    with settings(warn_only=True):
+        output = run('grep -E "^%s" %s' % (key, ini_filepath))
+    if output == '':
+        print 'Did not find key "%s" in config.' % key
+        return None
+    lines = output.split('\n')
+    matching_args = []
+    for line in lines:
+        match = re.match('^%s\s*=\s*\(["\'](.*?)["\'].*' % key, line)
+        if match:
+            matching_args.append(match.groups()[0])
+    if not matching_args:
+        print 'Could not find %r in config to find CKAN log.' % key
+        return None
+    if len(matching_args) > 1:
+        print 'Many matches for %r in config, looking for CKAN log: %r' % (key, matching_args)
+        return None
+    return matching_args[0]
+
 def _run_in_pyenv(command):
     '''For running commands that are installed the instance\'s python
     environment'''

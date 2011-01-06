@@ -107,6 +107,15 @@ class CswClient(object):
             raise CswError, msg
         # Todo: Change above code to use XPaths?
 
+    #def iter_records(self, max_records=None):
+    #    records = []
+    #    for id in self.get_identifiers():
+    #        record = self.get_record_by_id(id)
+    #        records.append(record)
+    #        if max_records and len(records) == max_records:
+    #            break
+    #    return records
+
     def get_records(self, max_records=None):
         records = []
         for id in self.get_identifiers():
@@ -155,7 +164,6 @@ class CswClient(object):
         return csw_request_xml
 
     def extract_identifiers(self, get_records_response):
-        print get_records_response
         parser = etree.XMLParser(remove_blank_text=True)
         tree = etree.fromstring(get_records_response, parser=parser)
         xpath = '//csw:Record/dc:identifier/text()'

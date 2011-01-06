@@ -3,5 +3,6 @@
 
 -e hg+https://knowledgeforge.net/okfn/vdm@vdm-0.7#egg=vdm
 -e hg+https://knowledgeforge.net/okfn/licenses@0.5#egg=licenses
--e hg+https://knowledgeforge.net/ckan/ckanclient/hg@ckanclient-v0.4#egg=ckanclient
--e hg+https://knowledgeforge.net/ckan/hg@stable#egg=ckan
+-e hg+https://knowledgeforge.net/ckan/ckanclient/hg@ckanclient-v0.5#egg=ckanclient
+-e hg+https://bitbucket.org/okfn/ckan@stable#egg=ckan
+psycopg2

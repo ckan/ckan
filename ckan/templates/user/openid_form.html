@@ -5,9 +5,9 @@
 
   <py:def function="optional_head">
     <!-- Simple OpenID Selector -->
-    <link rel="stylesheet" href="/css/openid.css" />
-    <link rel="stylesheet" href="/css/forms.css" type="text/css" media="screen, print" />
-    <script type="text/javascript" src="/scripts/openid-selector/js/openid-jquery.js"></script>
+    <link rel="stylesheet" href="${g.site_url}/css/openid.css" />
+    <link rel="stylesheet" href="${g.site_url}/css/forms.css" type="text/css" media="screen, print" />
+    <script type="text/javascript" src="${g.site_url}/scripts/openid-selector/js/openid-jquery.js"></script>
     <script type="text/javascript">
       $(document).ready(function() {
           openid.init('openid_identifier');

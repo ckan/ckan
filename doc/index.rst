@@ -20,7 +20,6 @@ Contents:
    plugins
    feeds
    loader_scripts
-   getdata
    importer
    forms
    form-integration
@@ -30,7 +29,7 @@ Contents:
    load_testing
    distributed
    database_dumps
-
+   admin
 
 Other material
 ==============

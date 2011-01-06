@@ -7,11 +7,18 @@ from domain_object import DomainObject
 revision_table = vdm.sqlalchemy.make_revision_table(metadata)
 
 class System(DomainObject):
-    def __str__(self):
-        return 'System'
-    __repr__ = __str__
+    
+    name = 'system'
+    
+    def __unicode__(self):
+        return u'<%s>' % self.__class__.__name__
+    
     def purge(self):
         pass
+        
+    @classmethod
+    def by_name(self, name): 
+        return System()        
 
 # VDM-specific domain objects
 State = vdm.sqlalchemy.State

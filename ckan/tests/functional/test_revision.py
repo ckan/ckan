@@ -71,7 +71,6 @@ class TestRevisionController(TestController):
         last_id = 1 + len(revisions) / 20
         res = self.app.get(offset, params={'page':last_id})
 
-        print str(res)
         assert 'Revision History' in res
         assert '1' in res
         assert 'Author' in res
@@ -148,7 +147,6 @@ class TestRevisionController(TestController):
         res = self.app.get(offset)
         # redirect
         res = res.follow()
-        print str(res)
         assert 'Revision History' in res
 
     def test_read(self):
@@ -156,7 +154,6 @@ class TestRevisionController(TestController):
         rev_id = anna.revision.id
         offset = url_for(controller='revision', action='read', id='%s' % rev_id)
         res = self.app.get(offset)
-        print str(res)
         assert 'Revision %s' % rev_id in res
         assert 'Revision: %s' % rev_id in res
         # Todo: Reinstate asserts below, failing on 'Test Revision Deleting'
