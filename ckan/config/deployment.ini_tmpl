@@ -117,11 +117,25 @@ package_form = standard
 ## NOTE this is mutually exclusive with ckan.async_notifier
 ckan.build_search_index_synchronously = true
 
-
+## Title of site (using in several places including templates and <title> tag
 #ckan.site_title = CKAN
+
+## Used in creating some absolute urls (such as rss feeds)
 ckan.site_url = http://www.ckan.net
-# Enable if the API is at a different domain
+
+## An 'id' for the site (using, for example, when creating entries in a common search index) 
+## If not specified derived from the site_url
+# ckan.site_id = ckan.net
+
+## API url to use (e.g. in AJAX callbacks)
+## Enable if the API is at a different domain
 # ckan.api_url = http://www.ckan.net
+
+## html content to be inserted just before </body> tag (e.g. google analytics code)
+## NB: can use html e.g. <strong>blah</strong>
+## NB: can have multiline strings just indent following lines
+# ckan.template_footer_end = 
+
 
 # Logging configuration
 [loggers]
