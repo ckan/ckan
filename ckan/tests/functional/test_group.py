@@ -39,7 +39,7 @@ class TestGroup(FunctionalTestCase):
 
     @classmethod
     def teardown_class(self):
-        CreateTestData.delete()
+        model.repo.clean_db()
 
     def test_mainmenu(self):
         offset = url_for(controller='home', action='index')

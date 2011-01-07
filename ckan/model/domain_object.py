@@ -75,6 +75,7 @@ class DomainObject(object):
         self.Session.delete(self)
 
     def purge(self):
+        self.Session().autoflush = False
         if hasattr(self, '__revisioned__'): # only for versioned objects ...
             # this actually should auto occur due to cascade relationships but
             # ...

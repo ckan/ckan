@@ -58,17 +58,6 @@ cmd.run([config_path])
 import ckan.model as model
 model.repo.rebuild_db()
 
-def monkeypatch_sqlite():
-    """This patch is needed against Sqlalchemy 0.6.x to get the test
-    suite to pass
-    """
-    try:
-        from sqlalchemy.dialects.sqlite.base import SQLiteDialect
-        SQLiteDialect.supports_sane_multi_rowcount = False
-    except ImportError:
-        pass
-
-monkeypatch_sqlite()
 
 class BaseCase(object):
 

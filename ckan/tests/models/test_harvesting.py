@@ -22,17 +22,6 @@ class HarvesterTestCase(TestCase):
         self.gemini = GeminiExamples()
 
     def teardown(self):
-        if self.document:
-            self.delete(self.document)
-        for document in HarvestedDocument.filter():
-            document.delete()
-        if self.job:
-            self.delete(self.job)
-        if self.source:
-            self.delete(self.source)
-        self.commit_remove()
-        self.purge_package_by_name('00a743bf-cca4-4c19-a8e5-e64f7edbcadd')
-        super(HarvesterTestCase, self).teardown()
         model.repo.clean_db()
 
     def create_fixture(self, domain_type, **kwds):

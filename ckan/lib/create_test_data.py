@@ -415,6 +415,7 @@ left arrow <
                 model.Session.execute(sql)
         model.repo.commit_and_remove()
         for pkg_name in self.pkg_names:
+            model.Session().autoflush = False
             pkg = model.Package.by_name(unicode(pkg_name))
             if pkg:
                 pkg.purge()
@@ -432,6 +433,7 @@ left arrow <
                 pkg.purge()
             for grp in rev.groups:
                 grp.purge()
+            model.Session.commit()
             model.Session.delete(rev)
         for user_name in self.user_names:
             user = model.User.by_name(unicode(user_name))
