@@ -42,14 +42,16 @@ def init_model(engine):
 class Repository(vdm.sqlalchemy.Repository):
     migrate_repository = ckan.migration.__path__[0]
 
+    inited = False
+
     def init_db(self, conditional=False):
-        if conditional:
-            already_done = Session.connection()\
-                           .engine.has_table("user")
-        else:
-            already_done = False
-        if not already_done:
+        #sqlite database needs to be recreted each time as the memory database
+        #is lost.
+        if not self.inited or self.metadata.bind.name == 'sqlite':
             super(Repository, self).init_db()
+
+        self.session.rollback()
+        self.session.remove()
         self.add_initial_data()
 
     def add_initial_data(self):
@@ -98,9 +100,9 @@ class Repository(vdm.sqlalchemy.Repository):
         else:
             tables = reversed(metadata.sorted_tables)
         for table in tables:
-            connection.execute('drop table "%s"' % table.name)
+            connection.execute('delete from "%s"' % table.name)
         self.session.commit()
-        #self.add_initial_data()
+        self.add_initial_data()
 
     def setup_migration_version_control(self, version=None):
         import migrate.versioning.exceptions

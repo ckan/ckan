@@ -56,7 +56,14 @@ cmd = paste.script.appinstall.SetupCommand('setup-app')
 cmd.run([config_path])
 
 import ckan.model as model
-model.repo.rebuild_db()
+model.repo.init_db()
+
+#make sure that the database is droped and recreated first
+#so that any schema changes will be made.
+model.repo.metadata.drop_all(bind=model.repo.metadata.bind)
+model.repo.init_db()
+#tell repo it does not need to drop and craete any more
+model.repo.inited = True
 
 
 class BaseCase(object):
