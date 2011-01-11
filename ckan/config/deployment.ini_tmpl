@@ -34,9 +34,12 @@ app_instance_uuid = ${app_instance_uuid}
 # execute malicious code after an exception is raised.
 set debug = false
 
-# Specify the database for SQLAlchemy to use via
-#sqlalchemy.url = sqlite:///%(here)s/somedb.db
+# Specify the database for SQLAlchemy to use:
+# * Postgres is currently required for a production CKAN deployment
+# * Sqlite (memory or file) can be used as a quick alternative for testing
 sqlalchemy.url = postgres://ckantest:pass@localhost/ckantest
+#sqlalchemy.url = sqlite:///
+#sqlalchemy.url = sqlite:///%(here)s/somedb.db
 
 # repoze.who config
 who.config_file = %(here)s/who.ini
