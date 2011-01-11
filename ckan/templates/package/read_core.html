@@ -54,7 +54,7 @@
           </tr>
         </py:for>
             <caption>
-                This is a list of all known formats and datasets for <em>${c.pkg.title}</em>. If you know of another (CSV, SPARQL end-pont etc.) ${h.subnav_link(c, 'please edit this page and add it to the list', controller='package', action='edit', id=c.pkg.name)}.
+                This is a list of all known formats and datasets for <em>${c.pkg.title}</em>. If you know of another (CSV, SPARQL end-point etc.) ${h.subnav_link(c, 'please edit this page and add it to the list', controller='package', action='edit', id=c.pkg.name)}.
             </caption>
       </table>
       <table py:otherwise=""><tr><th>Resources</th><td>None given for this package.</td></tr></table>
@@ -113,7 +113,7 @@
         <h4>${g.site_title} API / datapkg</h4>
         <div>
             <p>
-                This information on this page (the package metadata) is also available programatically via the <a href="http://knowledgeforge.net/ckan/doc/ckan/api.html">${g.site_title}</a>
+                This information on this page (the package metadata) is also available programatically via this site's <a href="http://knowledgeforge.net/ckan/doc/ckan/api.html">CKAN API</a>
             </p>
             <h5>JSON:</h5>
             <code>
