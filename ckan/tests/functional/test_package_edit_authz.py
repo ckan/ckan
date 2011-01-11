@@ -6,7 +6,7 @@ import ckan.authz as authz
 class TestPackageEditAuthz(TestController):
     @classmethod
     def setup_class(self):
-        model.repo.rebuild_db()
+        model.repo.init_db()
         model.repo.new_revision()
         
         self.sysadmin = 'madeup-sysadmin'
@@ -36,7 +36,7 @@ class TestPackageEditAuthz(TestController):
 
     @classmethod
     def teardown_class(self):
-        model.repo.rebuild_db()
+        model.repo.clean_db()
 
     def test_0_nonadmin_cannot_edit_authz(self):
         offset = url_for(controller='package', action='authz', id=self.pkgname)

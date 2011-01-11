@@ -2,6 +2,15 @@ from ckan.tests import *
 import ckan.model as model
 
 class TestUser:
+
+    @classmethod
+    def setup_class(self):
+        CreateTestData.create()
+
+    @classmethod
+    def teardown_class(self):
+        model.repo.clean_db()
+        
     def test_2_basic(self):
         user = model.User()
         openid = u'http://xyz.com'

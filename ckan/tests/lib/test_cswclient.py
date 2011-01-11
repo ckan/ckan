@@ -11,7 +11,7 @@ from ckan.lib.cswclient import GeoNetworkClient
 from mock_cswclient import MockGeoNetworkClient
 
 import socket
-socket.setdefaulttimeout(5)
+socket.setdefaulttimeout(1)
 
 class CswRequestTestCase(CheckMethods):
 

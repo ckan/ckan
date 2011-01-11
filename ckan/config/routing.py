@@ -6,7 +6,6 @@ refer to the routes manual at http://routes.groovie.org/docs/
 """
 from pylons import config
 from routes import Mapper
-from formalchemy.ext.pylons import maps # routes generator
 from ckan.plugins import PluginImplementations, IRoutes
 
 routing_plugins = PluginImplementations(IRoutes)
@@ -31,9 +30,6 @@ def make_map():
     map.connect('license', '/license', controller='home', action='license')
     map.connect('/language.js', controller='home', action='language')
     map.connect('about', '/about', controller='home', action='about')
-    map.connect('stats', '/stats', controller='home', action='stats')
-    # TODO get admin controller working again #829
-    #maps.admin_map(map, controller='admin', url='/admin')
     # CKAN API.
     map.connect('/api', controller='rest', action='get_api')
     map.connect('/api/form/package/create', controller='form', action='package_create')

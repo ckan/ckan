@@ -222,7 +222,9 @@ class BaseModelApiTestCase(ModelMethods, ApiControllerTestCase):
         self.init_extra_environ()
 
     def teardown(self):
-        self.reuse_or_delete_common_fixtures()
+        model.repo.clean_db()
+        #self.delete_common_fixtures()
+        #self.commit_remove()
         super(BaseModelApiTestCase, self).teardown()
 
     def init_extra_environ(self):

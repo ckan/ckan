@@ -126,7 +126,7 @@ tests. See: http://buildbot.okfn.org/waterfall
       psql -l
 
   It is advisable to ensure that the encoding of databases is 'UTF8', or 
-  internationalisation may be a problem. Since changing the encoding of Postgres
+  internationalisation may be a problem. Since changing the encoding of PostgreSQL
   may mean deleting existing databases, it is suggested that this is fixed before
   continuing with the CKAN install.
 
@@ -253,19 +253,32 @@ Ensure you have activated the environment:
 
     . pyenv/bin/activate
 
-Now start the starts:
+Now start the tests:
 
 ::
 
     cd pyenv/src/ckan
     nosetests ckan/tests
 
+The test suite takes a long time to run against standard PostgreSQL (approx. 15 minutes, or close to an hour on Ubuntu/10.04 Lucid).  
+
+This can be improved to between 5 and 15 minutes by turning off durability as described at <http://www.postgresql.org/docs/9.0/static/non-durability.html>. 
+
+However if you test against an in-memory SQLite database, this can drop to as low as 2 minutes.  To do this, change the sqlalchemy.url line in your development.ini:
+
+::
+
+  sqlalchemy.url = sqlite:///
+
 .. caution ::
 
-   There currently appears to be a bug on fresh installs of Ubuntu 10.04 which
-   means the tests take well over an hour to run. This is a known issue which
-   doesn't affect other versions of Ubuntu or earlier versions which were then
-   upgraded to 10.04.
+   Note that when running against SQLite: (a) some search-related 
+   tests are currently skipped due
+   to PostgreSQL-specific code; and (b) only PostgreSQL is currently
+   supported in production anyway.  Therefore, you should treat the
+   SQLite support as a convenience during development, and always run
+   the tests against PostgreSQL as a final check.
+
 
 Development
 ===========
@@ -274,7 +287,7 @@ CKAN is an open source project and contributions are welcome!
 
 There are a number of stakeholders in the direction of the project, so we discuss large changes and new features on the ckan-discuss list: http://lists.okfn.org/mailman/listinfo/ckan-discuss
 
-New developers should aquaint themselves with the documentation (see below) and proposed patches emailed to ckan-discuss. Once they are comfortable they should request write-access to the repo.
+New developers should aquaint themselves with the documentation (see below). Proposed changes should be made on a personal CKAN fork (on BitBucket for example). Request merging with the mainline via the ckan-discuss list.
 
 We have policies for check-ins that ensure the build doesn't break etc. on https://knowledgeforge.net/ckan/trac#ProjectProcessesandPolicies which should be followed unless someone builds concensus to change it.
 

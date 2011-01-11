@@ -1,0 +1,8 @@
+[ckan.ckan]
+file_filter = ckan/i18n/<lang>/LC_MESSAGES/ckan.po
+source_file = ckan/i18n/ckan.pot
+source_lang = en
+
+[main]
+host = http://www.transifex.net
+

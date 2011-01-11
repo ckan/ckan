@@ -67,11 +67,11 @@ class PackageSaver(object):
             fs.model.groups
             fs.model.ratings
         except ValidationException, e:
-            # remove everything from session so nothing can get saved accidentally
-            model.Session.clear()
             raise ValidationException(*e)
-        # remove everything from session so nothing can get saved accidentally
-        model.Session.clear()
+        finally:
+            # remove everything from session so nothing can get saved
+            # accidentally
+            model.Session.remove()
         return out
 
     @classmethod
@@ -97,13 +97,13 @@ class PackageSaver(object):
             client.errors = errors
         fs.validate()
         validates = not (errors or fs.errors)
-
+        if not validates:
+            raise ValidationException(fs)
         # sync
         try:
-            if commit:
-                rev = model.repo.new_revision()
-                rev.author = author
-                rev.message = log_message
+            rev = model.repo.new_revision()
+            rev.author = author
+            rev.message = log_message
             fs.sync()
         except Exception, inst:
             model.Session.rollback()
@@ -112,9 +112,7 @@ class PackageSaver(object):
             # only commit if desired and it validates ok
             if commit and validates:
                 model.Session.commit()
-            elif not validates:
-                raise ValidationException(fs)
-            else:
+            elif validates:
                 # i.e. preview
                 pkg = fs.model
                 return pkg

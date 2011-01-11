@@ -51,7 +51,6 @@ a:hover {
   line-height: normal;
   width: auto;
   float: left;
-  text-transform: uppercase;
   font-size: 40px;
   margin: 0;
   padding: 0;
@@ -59,11 +58,9 @@ a:hover {
   letter-spacing: -0.032em;
 }
 
-#site-title a {
-  font-weight:normal;
-}
-
+#site-title a,
 #site-title a:link, #site-title a:visited {
+  font-weight:normal;
   color: #333;
 }
 
@@ -89,8 +86,9 @@ a:hover {
   letter-spacing: normal;
   text-transform: none;
   margin: 0;
-  margin-top: -5px;
+  margin-top: 5px;
   padding: 0 0 0 50px;
+  font-family: Georgia, serif;
 }
 
 /* ===========================

@@ -31,38 +31,43 @@ def build_package_form(is_admin=False, user_editable_groups=None, **params):
     # Labels and instructions
     builder.set_field_text(
         'title',
-        instructions=_('The title of the data set.'),
-        further_instructions=_('Use a short descriptive title for the data set. It should not be a description though - save that for the Notes field. Do not give a trailing full stop.'),
+        instructions=_('A short descriptive title for the data set.'),
+        further_instructions=_('It should not be a description though - save that for the Notes field. Do not give a trailing full stop.'),
     )
     builder.set_field_text(
-        'name', _('Name'), 
-        hints=literal(_("<strong>Unique identifier</strong> for package.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'"))
+        'name', _('Name'),
+        instructions=_('A unique identifier for the package.'),
+        further_instructions=_('It should be broadly humanly readable, in the spirit of Semantic Web URIs. Only use an acronym if it is widely recognised. Renaming is possible but discouraged.'),
+        hints=_("2+ characters, lowercase, using only 'a-z0-9' and '-_'")
     )
     builder.set_field_text(
         'version',
-        instructions=_('A number representing the version (if applicable) e.g. 1.2.0'),
+        instructions=_('A number representing the version (if applicable)'),
+        hints='e.g. 1.2.0',
     )
     builder.set_field_text(
         'url',
-        instructions=_('This is usually the URL for the package project home page not the data itself.'),
+        instructions=_('The URL for the web page describing the data (not the data itself).'),
         hints=_('e.g. http://www.example.com/growth-figures.html'),
     )
     builder.set_field_text(
         'author',
-        instructions=_('The permanent contact name for enquiries about this particular dataset.'),
+        instructions=_('The name of the main contact, for enquiries about this particular dataset, using the e-mail address in the following field.'),
     )
     builder.set_field_text(
-        'author_email',
+        'maintainer',
+        instructions=_('If there is another important contact person (in addition to the person in the Author field) then provide details here.'),
     )
     builder.set_field_text(
         'license_id',
-        _('License'),
+        _('Licence'),
         instructions=_('The licence under which the dataset is released.'),
     )
     builder.set_field_text(
         'tags', 
         _('Tags'), 
-        _('(space separated list)')
+        instructions=literal(_('Terms that may link this dataset to similar ones. For more information on conventions, see <a href="%s">this wiki page</a>.') % 'http://wiki.okfn.org/ckan/doc/faq#TagConventions'),
+        hints=_('e.g. pollution rivers water-quality')
     )
     builder.set_field_text(
         'resources',
@@ -75,7 +80,7 @@ def build_package_form(is_admin=False, user_editable_groups=None, **params):
         _('Notes'), 
         instructions=_('The main description of the dataset'),
         further_instructions=_('It is often displayed with the package title. In particular, it should start with a short sentence that describes the data set succinctly, because the first few words alone may be used in some views of the data sets.'),
-        hints=literal(_('You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.'))
+        hints=literal(_('You can use %sMarkdown formatting%s here.') % ('<a href="http://daringfireball.net/projects/markdown/syntax">', '</a>'))
     )
 
     # Options/settings
@@ -86,13 +91,14 @@ def build_package_form(is_admin=False, user_editable_groups=None, **params):
 
     # Layout
     field_groups = OrderedDict([
-        (_('Basic information'), ['title', 'name', 'version', 'url',
-                               'notes', 'tags']),
+        (_('Basic information'), ['title', 'name', 'url',
+                               'notes', 'license_id', 'tags']),
         (_('Resources'), ['resources']),
         (_('Groups'), ['groups']),
         (_('Detail'), ['author', 'author_email',
-                    'maintainer', 'maintainer_email',
-                    'license_id']),
+                       'maintainer', 'maintainer_email',
+                       'version',
+                       ]),
         (_('Extras'), ['extras']),
         ])
     if is_admin:

@@ -3,6 +3,7 @@ import webhelpers
 import re
 
 from ckan.tests import *
+from ckan.tests import search_related
 import ckan.model as model
 import ckan.authz as authz
 from ckan.lib.base import ALLOWED_FIELDSET_PARAMS
@@ -197,6 +198,8 @@ class BaseFormsApiCase(ModelMethods, ApiControllerTestCase):
 
 class FormsApiTestCase(BaseFormsApiCase):
     def setup(self):
+        model.repo.init_db(conditional=True)
+        CreateTestData.create()
         self.package_name = u'formsapi'
         self.package_name_alt = u'formsapialt'
         self.package_name_alt2 = u'formsapialt2'
@@ -212,16 +215,9 @@ class FormsApiTestCase(BaseFormsApiCase):
         self.harvest_source = None
 
     def teardown(self):
-        #if self.user:
-        #    model.Session.remove()
-        #    model.Session.add(self.user)
-        #    self.user.purge()
-        self.purge_package_by_name(self.package_name)
-        self.purge_package_by_name(self.package_name_alt)
-        self.purge_package_by_name(self.package_name_alt2)
-        self.delete_harvest_source(u'http://localhost/')
-        if self.harvest_source:
-            self.delete_commit(self.harvest_source)
+        model.repo.clean_db()
+        model.Session.connection().invalidate()
+        
     def get_field_names(self, form):
         return form.fields.keys()
 
@@ -329,14 +325,28 @@ class FormsApiTestCase(BaseFormsApiCase):
         package_id = package.id
         # Nothing in name.
         invalid_name = ''
-        res = self.post_package_edit_form(package_id, name=invalid_name, status=[400])
+        maintainer_email = "foo@baz.com"
+        res = self.post_package_edit_form(package_id,
+                                          name=invalid_name,
+                                          maintainer_email=maintainer_email,
+                                          status=[400])
         # Check package is unchanged.
         assert self.get_package_by_name(self.package_name)
         # Check response is an error form.
         assert "class=\"field_error\"" in res
         form = self.form_from_res(res)
-        field_name = 'Package-%s-name' % (package_id)
-        self.assert_formfield(form, field_name, invalid_name)
+        name_field_name = 'Package-%s-name' % (package_id)
+        maintainer_field_name = 'Package-%s-maintainer_email' % (package_id)
+        # this test used to be 
+        #   self.assert_formfield(form, field_name, invalid_name)
+        # but since the formalchemy upgrade, we no longer sync data to
+        # the model if the validation fails (as this would cause an
+        # IntegrityError at the database level).
+        # and formalchemy.fields.FieldRenderer.value renders the model
+        # value if the passed in value is an empty string
+        self.assert_formfield(form, name_field_name, package.name)
+        # however, other fields which aren't blank should be preserved
+        self.assert_formfield(form, maintainer_field_name, maintainer_email)
 
         # Whitespace in name.
         invalid_name = ' '
@@ -354,6 +364,7 @@ class FormsApiTestCase(BaseFormsApiCase):
         assert not self.get_package_by_name(self.package_name)
         assert self.get_package_by_name(self.package_name_alt)
 
+    @search_related
     def test_package_create_example_page(self):
         self.ckan_server = self._start_ckan_server()
         try:
@@ -375,6 +386,7 @@ class FormsApiTestCase(BaseFormsApiCase):
         finally:
             self._stop_ckan_server(self.ckan_server)
 
+    @search_related
     def test_package_edit_example_page(self):
         self.ckan_server = self._start_ckan_server()
         try:

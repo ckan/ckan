@@ -5,6 +5,7 @@ import ckan.lib.search as search
 from ckan.lib.search import get_backend, query_for, QueryOptions
 import ckan.model as model
 from ckan.tests import *
+from ckan.tests import is_search_supported
 from ckan.lib.create_test_data import CreateTestData
 
 class TestSearch(TestController):
@@ -12,6 +13,8 @@ class TestSearch(TestController):
 
     @classmethod
     def setup_class(self):
+        if not is_search_supported():
+            raise SkipTest("Search not supported")
 
         indexer = TestSearchIndexer()
         model.Session.remove()
@@ -411,22 +414,21 @@ class TestExtraFields(TestController):
 class TestRank(TestController):
     @classmethod
     def setup_class(self):
-        self.purge_all_packages()
         indexer = TestSearchIndexer()
-
         init_data = [{'name':u'test1-penguin-canary',
                       'tags':u'canary goose squirrel wombat wombat'},
                      {'name':u'test2-squirrel-squirrel-canary-goose',
                       'tags':u'penguin wombat'},
                      ]
         CreateTestData.create_arbitrary(init_data)
-        indexer.index()
         self.pkg_names = [u'test1-penguin-canary',
                      u'test2-squirrel-squirrel-canary-goose']
+        indexer.index()
         self.backend = get_backend(backend='sql')
 
     @classmethod
     def teardown_class(self):
+        self.purge_all_packages()
         CreateTestData.delete()
     
     def _do_search(self, q, wanted_results):

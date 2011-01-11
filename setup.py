@@ -85,7 +85,6 @@ setup(
     rights = ckan.lib.authztool:RightsCommand
     roles = ckan.lib.authztool:RolesCommand
     
-
     [paste.paster_create_template]
     ckanext=ckan.pastertemplates:CkanextTemplate
 
@@ -98,7 +97,6 @@ setup(
 
     [ckan.search]
     sql = ckan.lib.search.sql:SqlSearchBackend
-    solr = ckan.lib.search.solr_:SolrSearchBackend
 
     [ckan.plugins]
     synchronous_search = ckan.lib.search.worker:SynchronousSearchPlugin

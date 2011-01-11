@@ -1,7 +1,7 @@
 import logging
 import pkg_resources
 from pylons import config
-from common import QueryOptions, SearchError
+from common import QueryOptions, SearchError, SearchQuery, SearchBackend, SearchIndex
 from worker import dispatch_by_operation
 
 log = logging.getLogger(__name__)

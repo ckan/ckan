@@ -12,9 +12,11 @@ import os
 import sys
 import re
 from unittest import TestCase
-from nose.tools import assert_equal, assert_not_equal
+from nose.tools import assert_equal, assert_not_equal, make_decorator
 from nose.plugins.skip import SkipTest
 import time
+
+from pylons import config
 
 import pkg_resources
 import paste.fixture
@@ -54,7 +56,15 @@ cmd = paste.script.appinstall.SetupCommand('setup-app')
 cmd.run([config_path])
 
 import ckan.model as model
-model.repo.rebuild_db()
+model.repo.init_db()
+
+# make sure that the database is dropped and recreated first
+# so that any schema changes will be made.
+model.repo.metadata.drop_all(bind=model.repo.metadata.bind)
+model.repo.init_db()
+# tell repo it does not need to drop and create any more
+model.repo.inited = True
+
 
 class BaseCase(object):
 
@@ -73,7 +83,6 @@ class BaseCase(object):
 
     @classmethod
     def _paster(cls, cmd, config_path_rel):
-        from pylons import config
         config_path = os.path.join(config['here'], config_path_rel)
         cls._system('paster --plugin ckan %s --config=%s' % (cmd, config_path))
 
@@ -86,9 +95,9 @@ class ModelMethods(BaseCase):
     commit_changesets = True
 
     def conditional_create_common_fixtures(self):
-        if self.require_common_fixtures and not ModelMethods.has_common_fixtures:
+        if self.require_common_fixtures: # XXX relies on state saved
+                                        # between tests?
             self.create_common_fixtures()
-            ModelMethods.has_common_fixtures = True
 
     def create_common_fixtures(self):
         CreateTestData.create(commit_changesets=self.commit_changesets)
@@ -287,14 +296,13 @@ class CkanServerCase(BaseCase):
 
     @staticmethod
     def _wait_for_url(url='http://127.0.0.1:5000/', timeout=15):
-        for i in range(int(timeout)):
+        for i in range(int(timeout)*100):
             import urllib2
             import time
             try:
                 response = urllib2.urlopen(url)
             except urllib2.URLError:
-                pass 
-                time.sleep(1)
+                time.sleep(0.01)
             else:
                 break
 
@@ -331,10 +339,32 @@ class TestSearchIndexer:
     
     def __init__(self):
         from ckan import plugins
+        if not is_search_supported():
+            raise SkipTest("Search not supported")
         plugins.load('synchronous_search')
 
     @classmethod
     def index(cls):
         pass     
 
+def is_search_supported():
+    supported_db = "sqlite" not in config.get('sqlalchemy.url')
+    return supported_db
 
+def is_regex_supported():
+    supported_db = "sqlite" not in config.get('sqlalchemy.url')
+    return supported_db
+
+def search_related(test):
+    def skip_test(*args):
+        raise SkipTest("Search not supported")
+    if not is_search_supported():
+        return make_decorator(test)(skip_test)
+    return make_decorator(test)
+    
+def regex_related(test):
+    def skip_test(*args):
+        raise SkipTest("Regex not supported")
+    if not is_regex_supported():
+        return make_decorator(test)(skip_test)
+    return make_decorator(test)
