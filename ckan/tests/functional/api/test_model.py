@@ -363,6 +363,7 @@ class RelationshipsApiTestCase(ApiControllerTestCase):
     def teardown(self):
         for relationship in self.anna.get_relationships():
             relationship.purge()
+        model.Session.commit()
         relationships = self.anna.get_relationships()
         assert relationships == [], "There are still some relationships: %s" % relationships
 
