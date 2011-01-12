@@ -37,17 +37,22 @@ class PackageController(Rest2Controller, _PackageV1Controller):
         """
         pkg = self._get_pkg(id)
         if pkg is None:
-            response.status_int = 404
-            response_data = json.dumps(_('Not found'))
+            response_args = {'status_int': 404,
+                             'content_type': 'json',
+                             'response_data': _('Not found')}
         elif not self._check_access(pkg, model.Action.READ):
-            response.status_int = 403
-            response_data = json.dumps(_('Access denied'))
+            response_args = {'status_int': 403,
+                             'content_type': 'json',
+                             'response_data': _('Access denied')}
         else:
             response_data = self._represent_package(pkg)
+            response_args = {'status_int': 200,
+                             'content_type': 'json',
+                             'response_data': response_data}
         for item in self.extensions:
             item.read(pkg)
-        return self._finish_ok(response_data)
-    
+        return self._finish(**response_args)
+
     def create_slug(self):
         title = request.params.get('title') or ''
         name = PackageImporter.munge(title)
