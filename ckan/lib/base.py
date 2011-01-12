@@ -218,8 +218,7 @@ class BaseController(WSGIController):
         import ckan.forms
         return ckan.forms.edit_package_dict(*args, **kwds)
 
-    def _get_package_fieldset(self, is_admin=False):
-        kwds= {}
+    def _get_package_fieldset(self, is_admin=False, **kwds):
         for key in request.params:
             if key in ALLOWED_FIELDSET_PARAMS:
                 kwds[key] = request.params[key]
