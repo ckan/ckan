@@ -142,7 +142,7 @@ class TestSearch(object):
         count = result['count']
         assert len(resources) == 2, resources
         assert count == all_resource_count
-        assert resources == all_resources[:2], resources
+        assert resources == all_resources[:2], '%r, %r' % (resources, all_resources)
 
         # offset
         options = QueryOptions(order_by='hash')
