@@ -813,7 +813,7 @@ class SelectExtraField(TextExtraField):
     
     def __init__(self, name, options, allow_empty=True):
         self.options = options[:]
-        self.allow_empty = allow_empty
+        self.is_required = not allow_empty
         # ensure options have key and value, not just a value
         for i, option in enumerate(self.options):
             if not isinstance(option, (tuple, list)):
@@ -822,28 +822,23 @@ class SelectExtraField(TextExtraField):
 
     def get_configured(self):
         field = self.TextExtraField(self.name, options=self.options)
-        field.allow_empty = self.allow_empty
-        return field.with_renderer(self.SelectRenderer)
-        
+        field_configured = field.with_renderer(self.SelectRenderer).validate(self.validate)
+        if self.is_required:
+            field_configured = field_configured.required()
+        return field_configured
 
-    class SelectRenderer(formalchemy.fields.FieldRenderer):
-        def _get_value(self, **kwargs):
-            extras = self.field.parent.model.extras
-            return self.value 
+    def validate(self, value):
+        if not value:
+            # if value is required then this is checked by 'required' validator
+            return True
+        return value in [id_ for text, id_ in self.options]
 
-        def render(self, options, **kwargs):
-            selected = self._get_value()
-            if self.field.allow_empty:
-                options = [(_('(None)'), '')] + options
-            
-            html = literal(fa_h.select(self.name, selected, options, **kwargs))
-            return html
-
-        def render_readonly(self, **kwargs):
-            return field_readonly_renderer(self.field.key, self._get_value())
-
+    class SelectRenderer(formalchemy.fields.SelectFieldRenderer):
         def _serialized_value(self):
             return self.params.get(self.name, u'')
+
+        def render_readonly(self, **kwargs):
+            return field_readonly_renderer(self.field.key, self.value)
 
 
 class SuggestedTextExtraField(TextExtraField):
