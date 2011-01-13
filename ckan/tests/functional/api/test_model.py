@@ -952,8 +952,8 @@ class TestModelApi1(Api1TestCase, ModelApiTestCase):
             }
         offset = self.package_offset()
         postparams = '%s=1' % self.dumps(test_params)
-        res = self.app.post(offset, params=postparams, status=[200],
-                extra_environ=self.extra_environ)
+        res = self.app.post(offset, params=postparams, 
+                            extra_environ=self.extra_environ)
         model.Session.remove()
         pkg = self.get_package_by_name(test_params['name'])
         assert pkg

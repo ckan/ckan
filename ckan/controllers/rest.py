@@ -87,7 +87,8 @@ class BaseApiController(BaseController):
         else:
             status_int = 200
 
-        return self._finish(200, response_data, content_type=content_type)
+        return self._finish(status_int, response_data,
+                            content_type=content_type)
 
     def _wrap_jsonp(self, callback, response_msg):
         return '%s(%s);' % (callback, response_msg)
