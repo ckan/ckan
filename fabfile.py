@@ -56,7 +56,7 @@ Deploy new.ckan.net but the DNS is not setup yet::
 
 Deploy to a local directory::
 
-    fab local:~/test,test deploy
+    fab config_local:~/test,test deploy
 
 '''
 from __future__ import with_statement
@@ -80,7 +80,7 @@ env.skip_setup_db = False
 
 def config_local(base_dir, ckan_instance_name, db_host=None, db_pass=None, 
                  skip_setup_db=None, no_sudo=None, pip_requirements=None):
-    '''Run on localhost. e.g. local:~/test,myhost.com
+    '''Run on localhost. e.g. config_local:~/test,myhost.com
                             puts it at ~/test/myhost.com
                             '''
     env.hosts = ['localhost']
