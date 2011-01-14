@@ -61,14 +61,17 @@ class PackageSaver(object):
         try:
             out = cls._update(fs, original_name, pkg_id, log_message,
                               author, commit=False, client=client)
-            # While pkg is still in the session, touch the relations so they
-            # lazy load, for use later.
-            fs.model.license
-            fs.model.groups
-            fs.model.ratings
         except ValidationException, e:
             raise ValidationException(*e)
         finally:
+            # While the package is still in the session, touch the relations
+            # so that they load (they are set to lazy load) because we will
+            # need to use their values later when we render the package
+            # object (i.e. preview it).
+            fs.model.license
+            fs.model.groups
+            fs.model.ratings
+            fs.model.extras
             # remove everything from session so nothing can get saved
             # accidentally
             model.Session.remove()
