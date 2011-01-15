@@ -159,7 +159,9 @@ def config_dev_hmg_ckan_net():
     config_0('dev-hmg.ckan.net', requirements='pip-requirements.txt')
 
 def config_0(name, hosts_str='', requirements='pip-requirements-metastable.txt',
-        db_pass=None):
+        db_pass='',
+        db_host='localhost'
+        ):
     '''Configurable configuration: fab -d gives full info.
     
     @param name: name of instance (e.g. xx.ckan.net)
@@ -168,6 +170,7 @@ def config_0(name, hosts_str='', requirements='pip-requirements-metastable.txt',
     @param requirements: pip requirements filename to use (defaults to
         pip-requirements-metastable.txt)
     @param db_pass: password to use when setting up db user (if needed)
+    @param db_host: db host to use when setting up db (if needed)
     '''
     env.user = 'okfn'
     if hosts_str:
@@ -191,6 +194,7 @@ def config_0(name, hosts_str='', requirements='pip-requirements-metastable.txt',
             print 'Found Squid cache but did not find host in config.'
     env.pip_requirements = requirements
     env.db_pass = db_pass
+    env.db_host = db_host
     env.log_filename_pattern = name + '.%s.log'
     
 def _setup():
@@ -303,6 +307,8 @@ def setup_db(db_details=None):
     if not db_details:
         db_details = _get_db_config()
     dbname = db_details['db_name']
+    if db_details['db_host'] != 'localhost':
+        raise Exception('Cannot setup db on non-local host (sudo will not work!)')
     output = sudo('psql -l', user='postgres')
     if ' %s ' % dbname in output:
         print 'DB already exists with name: %s' % dbname
@@ -577,7 +583,9 @@ def _get_db_config():
     return db_details
 
 def _get_ckan_pyenv_dict():
-    return {'here':os.path.join(env.pyenv_dir, 'src', 'ckan')}
+    # we would only have this path for dev installs so disabling ...
+    # return {'here':os.path.join(env.pyenv_dir, 'src', 'ckan')}
+    return {'here': env.instance_path}
 
 def _get_pylons_cache_dir():
     cache_dir = _get_ini_value('cache_dir')
