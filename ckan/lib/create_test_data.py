@@ -154,6 +154,7 @@ class CreateTestData(cli.CkanCommand):
                                 self.tag_names.append(tag_name)
                                 model.Session.add(tag)    
                             pkg.tags.append(tag)
+                            model.Session.flush()
                     elif attr == 'groups':
                         if isinstance(val, (str, unicode)):
                             group_names = val.split()
@@ -208,6 +209,10 @@ class CreateTestData(cli.CkanCommand):
                 model.Session.add(user)
                 self.user_names.append(user_name)
                 needs_commit = True
+
+        if needs_commit:
+            model.repo.commit_and_remove()
+            needs_commit = False
 
         # setup authz for admins
         for pkg_name, admins in admins_list.items():

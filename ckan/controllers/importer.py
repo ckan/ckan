@@ -135,6 +135,7 @@ class ImporterController(BaseController):
             fa_dict = self._edit_package_dict(existing_dict, pkg_dict, id=pkg_id)
             fs = self._get_standard_package_fieldset()
             fs = fs.bind(pkg, data=fa_dict)
+            model.Session.flush()
             yield fs
         
 

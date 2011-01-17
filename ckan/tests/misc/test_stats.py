@@ -130,6 +130,8 @@ class TestStats(TestController):
             group = model.Group.by_name(group_name)
             assert group, group_name
             add_user_to_role(user, model.authz.Role.ADMIN, group)
+
+        model.Session.commit()
         
         res = Stats().top_package_owners()
         assert len(res) == 3, res
