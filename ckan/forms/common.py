@@ -151,6 +151,10 @@ class TextExtraField(RegExValidatingField):
         return RegExValidatingField.get_configured(self, field)
 
     class TextExtraField(formalchemy.Field):
+        def __init__(self, *args, **kwargs):
+            self._null_option = (_('(None)'), u'')
+            super(self.__class__, self).__init__(*args, **kwargs)
+
         @property
         def raw_value(self):
             return self.model.extras.get(self.name)
@@ -829,18 +833,27 @@ class SelectExtraField(TextExtraField):
             field_configured = field_configured.required()
         return field_configured
 
-    def validate(self, value):
+    def validate(self, value, field=None):
         if not value:
             # if value is required then this is checked by 'required' validator
-            return True
-        return value in [id_ for text, id_ in self.options]
+            return
+        if value not in [id_ for label, id_ in self.options]:
+            raise formalchemy.ValidationError('Value %r is not one of the options.' % id_)
 
     class SelectRenderer(formalchemy.fields.SelectFieldRenderer):
         def _serialized_value(self):
             return self.params.get(self.name, u'')
 
-        def render(self, **kwargs):
-            return formalchemy.fields.SelectFieldRenderer.render(self, **kwargs)
+        def render(self, options, **kwargs):
+            # @param options - an iterable of (label, value)
+            if not self.field.is_required():
+                options = list(options)
+                if options[0] and isinstance(options[0], (tuple, list)):
+                    null_option = self.field._null_option
+                else:
+                    null_option = self.field._null_option[1]
+                options.insert(0, self.field._null_option)
+            return formalchemy.fields.SelectFieldRenderer.render(self, options, **kwargs)
 
         def render_readonly(self, **kwargs):
             return field_readonly_renderer(self.field.key, self.value)
