@@ -58,32 +58,18 @@ class DomainObject(DomainObject):
         query = Session.query(self).autoflush(False)
         return query.filter_by(**kwds)
 
-    @classmethod 
-    def create_save(self, **kwds):
-        # Create an object instance.
-        object = self.create(**kwds)
-        # Create a record for the object instance.
-        object.save()
-        # Return the object instance.
-        return object
-
-    @classmethod 
-    def create(self, **kwds):
-        # Initialise object key attribute.
-        if self.key_attr not in kwds:
-            kwds[self.key_attr] = self.create_key()
-        # Create an object instance.
-        return self(**kwds)
-
-    @classmethod 
-    def create_key(self, **kwds):
-        # By default, it's a new UUID.
-        return make_uuid()
-
 
 class HarvestSource(DomainObject):
-
+    """A source is essentially a URL plus some other metadata.  The
+    URL it points to should contain a manifest of links.
+    """
     def write_package(self, content):
+        """Create or update a Package based on some content that has
+        come from a URL.
+
+        Also store the raw content as a HarvestedDocument (with
+        references to its source and its package)
+        """
         from ckan.lib.base import _
         import ckan.forms
         import ckan.model as model
@@ -155,16 +141,17 @@ class HarvestSource(DomainObject):
                 model.Session.rollback()
                 model.Session.close()
                 raise
-            if harvested_document == None:
-                harvested_document = self.create_document(content=content, guid=gemini_guid, package=package)
-            else:
-                harvested_document.content = content
-                harvested_document.save()
+            harvested_document = self.create_document(content=content,
+                                                      guid=gemini_guid,
+                                                      package=package)
+            harvested_document.save()
             return package
         else:
             if gemini_values == harvested_document.read_values():
                 return None
             else:
+                harvested_document.content = content
+                harvested_document.save()
                 from ckan.forms import GetPackageFieldset
                 fieldset = GetPackageFieldset().fieldset
                 from ckan.forms import GetEditFieldsetPackageData
@@ -193,7 +180,9 @@ class HarvestSource(DomainObject):
                     return package
 
     def create_document(self, content, guid, package):
-        document = HarvestedDocument.create_save(content=content, guid=guid, package=package)
+        document = HarvestedDocument(content=content,
+                                            guid=guid,
+                                            package=package)
         self.documents.append(document)
         self.save()
         return document
