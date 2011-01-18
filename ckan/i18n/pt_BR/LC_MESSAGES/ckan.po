@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: ckan 1.1c\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2010-07-19 18:49+0200\n"
-"PO-Revision-Date: 2010-12-24 11:44+0000\n"
+"PO-Revision-Date: 2011-01-18 09:50+0000\n"
 "Last-Translator: Augusto Herrmann <augusto.herrmann at gmail>\n"
 "Language-Team: pt <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -16,6 +16,10 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.5\n"
+
+#: ckan/misc.py:47
+msgid "<strong>Warning:</string>: Text could not be rendered."
+msgstr ""
 
 #: ckan/controllers/authorization_group.py:34 ckan/controllers/group.py:36
 #, python-format
@@ -43,35 +47,35 @@ msgid "Not authorized to edit authorization for group"
 msgstr "Não autorizado a editar autorização para grupo"
 
 #: ckan/controllers/authorization_group.py:170 ckan/controllers/group.py:185
-#: ckan/controllers/package.py:414
+#: ckan/controllers/package.py:423
 msgid "Please select either a user or an authorization group, not both."
 msgstr ""
 
 #: ckan/controllers/authorization_group.py:182 ckan/controllers/group.py:199
-#: ckan/controllers/package.py:427
+#: ckan/controllers/package.py:436
 #, python-format
 msgid "Added role '%s' for user '%s'"
 msgstr "Adicionado papel '%s' ao usuário '%s'"
 
 #: ckan/controllers/authorization_group.py:196 ckan/controllers/group.py:215
-#: ckan/controllers/package.py:443
+#: ckan/controllers/package.py:452
 #, fuzzy, python-format
 msgid "Added role '%s' for authorization group '%s'"
 msgstr "Adicionado papel '%s' ao usuário '%s'"
 
 #: ckan/controllers/authorization_group.py:203 ckan/controllers/group.py:222
-#: ckan/controllers/package.py:450
+#: ckan/controllers/package.py:459
 msgid "Error: No role found with that id"
 msgstr "Erro: papel não encontrado com esta id"
 
 #: ckan/controllers/authorization_group.py:207 ckan/controllers/group.py:228
-#: ckan/controllers/package.py:455
+#: ckan/controllers/package.py:464
 #, python-format
 msgid "Deleted role '%s' for user '%s'"
 msgstr "Apagado papel '%s' para o usuário '%s'"
 
 #: ckan/controllers/authorization_group.py:210 ckan/controllers/group.py:231
-#: ckan/controllers/package.py:458
+#: ckan/controllers/package.py:467
 #, fuzzy, python-format
 msgid "Deleted role '%s' for authorization group '%s'"
 msgstr "Apagado papel '%s' para o usuário '%s'"
@@ -130,30 +134,30 @@ msgid_plural "Imported %i packages."
 msgstr[0] "Importado %i pacote."
 msgstr[1] "Importados %i pacotes."
 
-#: ckan/controllers/importer.py:154
+#: ckan/controllers/importer.py:155
 msgid "Could not access import file any more."
 msgstr "Não foi mais possível acessar o arquivo de importação."
 
-#: ckan/controllers/importer.py:166
+#: ckan/controllers/importer.py:167
 msgid "User is not logged in"
 msgstr "Usuário não está autenticado"
 
-#: ckan/controllers/importer.py:170
+#: ckan/controllers/importer.py:171
 msgid "Error with user account. Log out and log in again."
 msgstr "Erro com a conta do usuário. Saia e entre novamente."
 
-#: ckan/controllers/importer.py:173
+#: ckan/controllers/importer.py:174
 #, python-format
 msgid "Package %s already exists in database. Import will edit the fields."
 msgstr "Pacote %s já existe na base de dados. A importação editará os campos."
 
-#: ckan/controllers/importer.py:176
+#: ckan/controllers/importer.py:177
 #, python-format
 msgid "User %r unauthorized to edit existing package %s"
 msgstr "O usuário %r não está autorizado a editar o pacote existente %s"
 
 #: ckan/controllers/package.py:108 ckan/controllers/package.py:144
-#: ckan/controllers/package.py:179 ckan/controllers/package.py:390
+#: ckan/controllers/package.py:179 ckan/controllers/package.py:399
 msgid "Package not found"
 msgstr "Pacote não encontrado"
 
@@ -171,21 +175,21 @@ msgstr "Histórico de Revisões de Pacotes CKAN"
 msgid "Unauthorized to create a package"
 msgstr "Não autorizado a ler o pacote %s"
 
-#: ckan/controllers/package.py:301
+#: ckan/controllers/package.py:302
 #, python-format
 msgid "User %r not authorized to edit %s"
 msgstr "Usuário %r não autorizado a editar %s"
 
-#: ckan/controllers/package.py:396
+#: ckan/controllers/package.py:405
 #, python-format
 msgid "User %r not authorized to edit %s authorizations"
 msgstr "Usuário %r não autorizado a editar as autorizações %s"
 
-#: ckan/controllers/package.py:475
+#: ckan/controllers/package.py:484
 msgid "404 Package Not Found"
 msgstr "404 Pacote Não Encontrado"
 
-#: ckan/controllers/package.py:482
+#: ckan/controllers/package.py:491
 msgid "Rating value invalid"
 msgstr "Valor de avaliação inválido"
 
@@ -312,11 +316,6 @@ msgstr ""
 msgid "You must supply a source_id."
 msgstr ""
 
-#: ckan/controllers/rest.py:667
-#, fuzzy, python-format
-msgid "Harvest source %s does not exist."
-msgstr "Pacote com o nome %r não existe."
-
 #: ckan/controllers/rest.py:724
 #, python-format
 msgid "REST API: Update package relationship: %s %s %s"
@@ -369,11 +368,6 @@ msgstr "Pacote não encontrado"
 #: ckan/controllers/apiv1/package.py:141
 msgid "Integrity Error"
 msgstr ""
-
-#: ckan/controllers/apiv1/package.py:166
-#, fuzzy, python-format
-msgid "REST API: Delete Package: %s"
-msgstr "Registrar um novo pacote"
 
 #: ckan/forms/common.py:22
 #, python-format
@@ -447,7 +441,7 @@ msgstr ""
 msgid "Cannot add any groups."
 msgstr "Criar um novo grupo"
 
-#: ckan/forms/common.py:767 ckan/templates/home/stats.html:89
+#: ckan/forms/common.py:767
 msgid "Group"
 msgstr "Grupo"
 
@@ -462,7 +456,7 @@ msgstr ""
 msgid "other - please specify"
 msgstr "outro - por favor especifique"
 
-#: ckan/forms/group.py:52 ckan/forms/package.py:38 ckan/forms/package.py:104
+#: ckan/forms/group.py:52 ckan/forms/package.py:38 ckan/forms/package.py:110
 msgid "Name"
 msgstr "Nome"
 
@@ -470,12 +464,11 @@ msgstr "Nome"
 msgid "Details"
 msgstr "Detalhes"
 
-#: ckan/forms/group.py:64 ckan/forms/package.py:96 ckan/forms/package.py:106
+#: ckan/forms/group.py:64 ckan/forms/package.py:102 ckan/forms/package.py:112
 msgid "Extras"
 msgstr "Extras"
 
-#: ckan/forms/group.py:88 ckan/templates/home/stats.html:73
-#: ckan/templates/home/stats.html:81
+#: ckan/forms/group.py:88
 msgid "Package"
 msgstr "Pacote"
 
@@ -485,68 +478,94 @@ msgid "Add packages"
 msgstr "Pacotes relacionados"
 
 #: ckan/forms/package.py:34
-msgid "The title of the data set."
+msgid "A short descriptive title for the data set."
 msgstr ""
 
 #: ckan/forms/package.py:35
 msgid ""
-"Use a short descriptive title for the data set. It should not be a "
-"description though - save that for the Notes field. Do not give a "
-"trailing full stop."
+"It should not be a description though - save that for the Notes field. Do"
+" not give a trailing full stop."
 msgstr ""
 
 #: ckan/forms/package.py:39
+#, fuzzy
+#| msgid "None given for this package."
+msgid "A unique identifier for the package."
+msgstr "Nenhum dado a este pacote."
+
+#: ckan/forms/package.py:40
 msgid ""
-"<strong>Unique identifier</strong> for package.<br/>2+ chars, lowercase, "
-"using only 'a-z0-9' and '-_'"
+"It should be broadly humanly readable, in the spirit of Semantic Web "
+"URIs. Only use an acronym if it is widely recognised. Renaming is "
+"possible but discouraged."
+msgstr ""
+
+#: ckan/forms/package.py:41
+#, fuzzy
+#| msgid "" "<strong>Unique identifier</strong> for package.<br/>2+ chars,
+#| lowercase, " "using only 'a-z0-9' and '-_'"
+msgid "2+ characters, lowercase, using only 'a-z0-9' and '-_'"
 msgstr ""
 "<strong>Identificador único</strong> para pacote.<br/>2+ caracteres não "
 "acentuados, caixa baixa, usando somente 'a-z0-9' e '-_'"
 
-#: ckan/forms/package.py:43
-msgid "A number representing the version (if applicable) e.g. 1.2.0"
+#: ckan/forms/package.py:45
+msgid "A number representing the version (if applicable)"
 msgstr ""
 
-#: ckan/forms/package.py:47
-msgid ""
-"This is usually the URL for the package project home page not the data "
-"itself."
+#: ckan/forms/package.py:50
+msgid "The URL for the web page describing the data (not the data itself)."
 msgstr ""
 
-#: ckan/forms/package.py:48
+#: ckan/forms/package.py:51
 msgid "e.g. http://www.example.com/growth-figures.html"
 msgstr ""
 
-#: ckan/forms/package.py:52
-msgid "The permanent contact name for enquiries about this particular dataset."
+#: ckan/forms/package.py:55
+msgid ""
+"The name of the main contact, for enquiries about this particular "
+"dataset, using the e-mail address in the following field."
 msgstr ""
 
-#: ckan/forms/package.py:59 ckan/forms/package.py:106
-#: ckan/templates/home/license.html:6 ckan/templates/home/license.html:9
-#: ckan/templates/package/read_core.html:85
-msgid "License"
+#: ckan/forms/package.py:59
+msgid ""
+"If there is another important contact person (in addition to the person "
+"in the Author field) then provide details here."
+msgstr ""
+
+#: ckan/forms/package.py:63
+#, fuzzy
+#| msgid "License"
+msgid "Licence"
 msgstr "Licença"
 
-#: ckan/forms/package.py:60
+#: ckan/forms/package.py:64
 msgid "The licence under which the dataset is released."
 msgstr ""
 
-#: ckan/forms/package.py:64 ckan/forms/package.py:106
-#: ckan/templates/layout_base.html:99 ckan/templates/layout_base.html:170
+#: ckan/forms/package.py:68 ckan/forms/package.py:112
+#: ckan/templates/layout_base.html:99 ckan/templates/layout_base.html:169
 #: ckan/templates/package/read.html:18 ckan/templates/tag/index.html:6
 #: ckan/templates/tag/index.html:9
 msgid "Tags"
 msgstr "Tags"
 
-#: ckan/forms/package.py:65
-msgid "(space separated list)"
-msgstr "(lista separada por espaços)"
-
 #: ckan/forms/package.py:69
-msgid "The files containing the data or address of the APIs for accessing it."
+#, python-format
+msgid ""
+"Terms that may link this dataset to similar ones. For more information on"
+" conventions, see <a href=\"%s\">this wiki page</a>."
 msgstr ""
 
 #: ckan/forms/package.py:70
+msgid "e.g. pollution rivers water-quality"
+msgstr ""
+
+#: ckan/forms/package.py:74
+msgid "The files containing the data or address of the APIs for accessing it."
+msgstr ""
+
+#: ckan/forms/package.py:75
 msgid ""
 "<br />These can be repeated as required. For example if the data is being"
 " supplied in multiple formats, or split into different areas or time "
@@ -562,21 +581,21 @@ msgid ""
 "to add to describe the resource.<br />"
 msgstr ""
 
-#: ckan/forms/package.py:71
+#: ckan/forms/package.py:76
 msgid ""
 "Format choices: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Other as "
 "appropriate"
 msgstr ""
 
-#: ckan/forms/package.py:75 ckan/forms/package.py:105
+#: ckan/forms/package.py:80 ckan/forms/package.py:111
 msgid "Notes"
 msgstr "Notas"
 
-#: ckan/forms/package.py:76
+#: ckan/forms/package.py:81
 msgid "The main description of the dataset"
 msgstr ""
 
-#: ckan/forms/package.py:77
+#: ckan/forms/package.py:82
 msgid ""
 "It is often displayed with the package title. In particular, it should "
 "start with a short sentence that describes the data set succinctly, "
@@ -584,67 +603,62 @@ msgid ""
 "sets."
 msgstr ""
 
-#: ckan/forms/package.py:78
-msgid ""
-"You can use <a "
-"href=\"http://daringfireball.net/projects/markdown/syntax\">Markdown "
-"formatting</a> here."
-msgstr ""
-"Você pode usar a <a "
-"href=\"http://daringfireball.net/projects/markdown/syntax\">formatação "
-"Markdown</a> aqui."
-
-#: ckan/forms/package.py:89 ckan/forms/package_gov.py:115
+#: ckan/forms/package.py:94 ckan/forms/package_gov.py:115
 msgid "Basic information"
 msgstr "Informações básicas"
 
-#: ckan/forms/package.py:91 ckan/forms/package.py:105
+#: ckan/forms/package.py:96 ckan/forms/package.py:111
 #: ckan/forms/package_gov.py:122 ckan/templates/package/read_core.html:60
 msgid "Resources"
 msgstr "Recursos"
 
-#: ckan/forms/package.py:92 ckan/templates/layout_base.html:100
-#: ckan/templates/layout_base.html:171 ckan/templates/group/index.html:9
+#: ckan/forms/package.py:97 ckan/templates/layout_base.html:100
+#: ckan/templates/layout_base.html:170 ckan/templates/group/index.html:9
 #: ckan/templates/package/read.html:26 ckan/templates/revision/read.html:40
 msgid "Groups"
 msgstr "Grupos"
 
-#: ckan/forms/package.py:93 ckan/forms/package.py:99
+#: ckan/forms/package.py:98 ckan/forms/package.py:105
 msgid "Detail"
 msgstr "Detalhes"
 
-#: ckan/forms/package.py:104 ckan/templates/_util.html:95
+#: ckan/forms/package.py:110 ckan/templates/_util.html:95
 #: ckan/templates/_util.html:108
 msgid "Title"
 msgstr "Título"
 
-#: ckan/forms/package.py:104
+#: ckan/forms/package.py:110
 msgid "Version"
 msgstr "Versão"
 
-#: ckan/forms/package.py:104
+#: ckan/forms/package.py:110
 msgid "URL"
 msgstr "URL"
 
-#: ckan/forms/package.py:105 ckan/templates/group/history.html:36
+#: ckan/forms/package.py:111 ckan/templates/group/history.html:36
 #: ckan/templates/home/index.html:82 ckan/templates/package/history.html:41
 #: ckan/templates/revision/list.html:21 ckan/templates/user/read.html:37
 msgid "Author"
 msgstr "Autor"
 
-#: ckan/forms/package.py:105
+#: ckan/forms/package.py:111
 msgid "Author email"
 msgstr "E-mail do autor"
 
-#: ckan/forms/package.py:105
+#: ckan/forms/package.py:111
 msgid "Maintainer"
 msgstr "Mantenedor"
 
-#: ckan/forms/package.py:106
+#: ckan/forms/package.py:112
 msgid "Maintainer email"
 msgstr "E-mail do mantenedor"
 
-#: ckan/forms/package.py:106
+#: ckan/forms/package.py:112 ckan/templates/home/license.html:6
+#: ckan/templates/home/license.html:9 ckan/templates/package/read_core.html:85
+msgid "License"
+msgstr "Licença"
+
+#: ckan/forms/package.py:112
 msgid "State"
 msgstr "Estado"
 
@@ -740,11 +754,11 @@ msgstr ""
 "Parâmetros de requisição devem estar na forma de um dicionário codificado"
 " em json."
 
-#: ckan/lib/package_saver.py:138
+#: ckan/lib/package_saver.py:136
 msgid "No links are allowed in the log_message."
 msgstr "Links não são permitidos em log_message."
 
-#: ckan/model/harvesting.py:120
+#: ckan/model/harvesting.py:131
 #, fuzzy, python-format
 msgid "Harvester: Created package %s"
 msgstr "Não autorizado a ler o pacote %s"
@@ -809,11 +823,10 @@ msgstr "[Conteúdo Aberto]"
 
 #: ckan/templates/_util.html:76
 #, fuzzy
-#| msgid "Package not found"
 msgid "Data Not Open"
 msgstr "Pacote não encontrado"
 
-#: ckan/templates/_util.html:95 ckan/templates/home/stats.html:89
+#: ckan/templates/_util.html:95
 msgid "Number of packages"
 msgstr "Quantidade de pacotes"
 
@@ -906,11 +919,10 @@ msgstr "Limpar busca"
 
 #: ckan/templates/layout_base.html:98 ckan/templates/package/search.html:14
 #, fuzzy
-#| msgid "Add packages"
 msgid "Add a package"
 msgstr "Pacotes relacionados"
 
-#: ckan/templates/layout_base.html:101 ckan/templates/layout_base.html:181
+#: ckan/templates/layout_base.html:101 ckan/templates/layout_base.html:180
 #: ckan/templates/home/about.html:6 ckan/templates/home/index.html:45
 #: ckan/templates/user/read.html:23
 msgid "About"
@@ -928,33 +940,25 @@ msgstr "Pacotes"
 
 #: ckan/templates/layout_base.html:158
 #, fuzzy
-#| msgid "Register a package"
 msgid "Register a new Package"
 msgstr "Registrar um novo pacote"
 
-#: ckan/templates/layout_base.html:159 ckan/templates/home/index.html:48
-#: ckan/templates/home/stats.html:6 ckan/templates/home/stats.html:14
-msgid "Statistics"
-msgstr "Estatísticas"
-
-#: ckan/templates/layout_base.html:160 ckan/templates/revision/list.html:5
+#: ckan/templates/layout_base.html:159 ckan/templates/revision/list.html:5
 #: ckan/templates/revision/list.html:8
 msgid "Revision History"
 msgstr "Histórico de Revisões"
 
-#: ckan/templates/layout_base.html:167
+#: ckan/templates/layout_base.html:166
 #, fuzzy
-#| msgid "Groups of Data Packages"
 msgid "Groups & Tags"
 msgstr "Grupos de Pacotes de Dados"
 
-#: ckan/templates/layout_base.html:172
+#: ckan/templates/layout_base.html:171
 #, fuzzy
-#| msgid "Create a new group"
 msgid "Create a new Group"
 msgstr "Criar um novo grupo"
 
-#: ckan/templates/layout_base.html:173
+#: ckan/templates/layout_base.html:172
 #: ckan/templates/authorization_group/index.html:6
 #: ckan/templates/authorization_group/index.html:9
 #: ckan/templates/authorization_group/layout.html:23
@@ -962,30 +966,29 @@ msgstr "Criar um novo grupo"
 msgid "Authorization Groups"
 msgstr "Autorização para o groupo:"
 
-#: ckan/templates/layout_base.html:174
+#: ckan/templates/layout_base.html:173
 #, fuzzy
-#| msgid "Create a new authorization group"
 msgid "Create a new Authorization Group"
 msgstr "Criar um novo grupo"
 
-#: ckan/templates/layout_base.html:185
+#: ckan/templates/layout_base.html:184
 msgid "Project Home Page"
 msgstr "Página do Projeto"
 
-#: ckan/templates/layout_base.html:188
+#: ckan/templates/layout_base.html:187
 msgid "Contact Us"
 msgstr "Contato"
 
-#: ckan/templates/layout_base.html:191
+#: ckan/templates/layout_base.html:190
 msgid "Privacy Policy"
 msgstr "Política de Privacidade"
 
-#: ckan/templates/layout_base.html:202
+#: ckan/templates/layout_base.html:201
 #, fuzzy
 msgid "Credits"
 msgstr "[editar]"
 
-#: ckan/templates/layout_base.html:205
+#: ckan/templates/layout_base.html:204
 #, fuzzy
 msgid ""
 "[1:]\n"
@@ -993,23 +996,23 @@ msgid ""
 "                [2:Open Knowledge Foundation] Project"
 msgstr "[1:] CKAN é um projeto da [2:Open Knowledge Foundation]"
 
-#: ckan/templates/layout_base.html:211
+#: ckan/templates/layout_base.html:210
 msgid "Open Knowledge Foundation"
 msgstr ""
 
-#: ckan/templates/layout_base.html:215 ckan/templates/layout_base.html:220
+#: ckan/templates/layout_base.html:214 ckan/templates/layout_base.html:219
 msgid "This Content and Data is Open"
 msgstr "Este Conteúdo e Dados são Abertos"
 
-#: ckan/templates/layout_base.html:237
+#: ckan/templates/layout_base.html:236
 msgid "CKAN"
 msgstr ""
 
-#: ckan/templates/layout_base.html:238
+#: ckan/templates/layout_base.html:237
 msgid "Powered by CKAN"
 msgstr ""
 
-#: ckan/templates/layout_base.html:240
+#: ckan/templates/layout_base.html:239
 #, fuzzy, python-format
 msgid "v%(version)s"
 msgstr "Versão"
@@ -1202,7 +1205,6 @@ msgstr "Comparar »"
 
 #: ckan/templates/group/history.html:58
 #, fuzzy
-#| msgid "- Groups - History"
 msgid "Group History"
 msgstr "- Pacotes de Dados - Histórico"
 
@@ -1462,6 +1464,10 @@ msgstr "Mais informações"
 msgid "User Guide"
 msgstr "Guia do Usuário"
 
+#: ckan/templates/home/index.html:48
+msgid "Statistics"
+msgstr "Estatísticas"
+
 #: ckan/templates/home/index.html:49
 msgid "CKAN development"
 msgstr "Desenvolvimento da CKAN"
@@ -1490,7 +1496,7 @@ msgstr ""
 msgid "[1:%(package_count)s registered data packages] available."
 msgstr "[1:%(package_count)s pacotes de dados registrados] disponíveis."
 
-#: ckan/templates/home/index.html:68 ckan/templates/home/stats.html:95
+#: ckan/templates/home/index.html:68
 msgid "Top Tags"
 msgstr "Tags mais usadas"
 
@@ -1575,46 +1581,6 @@ msgstr ""
 "total da base CKAN. Este arquivo de descarga (compactado com gzip) é "
 "atualizado diariamente e pode ser descarregado de "
 "[1:http://www.ckan.net/dump/]."
-
-#: ckan/templates/home/stats.html:16
-msgid "Total number of packages"
-msgstr "Quantidade total de pacotes"
-
-#: ckan/templates/home/stats.html:35
-msgid "Revisions to packages per week"
-msgstr "Revisões em pacotes por semana"
-
-#: ckan/templates/home/stats.html:71
-msgid "Top Rated Packages"
-msgstr "Pacotes Melhores Avaliados"
-
-#: ckan/templates/home/stats.html:73
-msgid "Average rating"
-msgstr "Avaliação média"
-
-#: ckan/templates/home/stats.html:73
-msgid "Number of ratings"
-msgstr "Quantidade de avaliações"
-
-#: ckan/templates/home/stats.html:79
-msgid "Most Edited Packages"
-msgstr "Pacotes Mais Editados"
-
-#: ckan/templates/home/stats.html:81
-msgid "Number of edits"
-msgstr "Quantidade de edições"
-
-#: ckan/templates/home/stats.html:87
-msgid "Largest Groups"
-msgstr "Maiores Grupos"
-
-#: ckan/templates/home/stats.html:102
-msgid "Users owning most packages"
-msgstr "Usuários que têm mais pacotes"
-
-#: ckan/templates/home/stats.html:109
-msgid "Page last updated:"
-msgstr "Última atualização na página:"
 
 #: ckan/templates/package/authz.html:5
 msgid "- Authorization - Data Packages"
@@ -1725,13 +1691,11 @@ msgstr "com o valor"
 
 #: ckan/templates/package/history.html:10
 #, fuzzy
-#| msgid "Date updated"
 msgid "Updates"
 msgstr "Data de atualização"
 
 #: ckan/templates/package/history.html:24
 #, fuzzy
-#| msgid "History"
 msgid "- History"
 msgstr "Histórico"
 
@@ -1829,13 +1793,11 @@ msgstr "Versão RDF"
 
 #: ckan/templates/package/read_core.html:20
 #, fuzzy
-#| msgid "Resources"
 msgid "Source:"
 msgstr "Recursos"
 
 #: ckan/templates/package/read_core.html:32
 #, fuzzy
-#| msgid "Downloadable resources"
 msgid "Downloads & Resources"
 msgstr "Recursos descarregáveis"
 
@@ -1853,7 +1815,6 @@ msgstr "Descarregar"
 
 #: ckan/templates/package/read_core.html:48
 #, fuzzy
-#| msgid "Description"
 msgid "(no description)"
 msgstr "Descrição"
 
@@ -1862,7 +1823,7 @@ msgid "This is a list of all known formats and datasets for"
 msgstr ""
 
 #: ckan/templates/package/read_core.html:57
-msgid ". If you know of another (CSV, SPARQL end-pont etc.)"
+msgid ". If you know of another (CSV, SPARQL end-point etc.)"
 msgstr ""
 
 #: ckan/templates/package/read_core.html:60
@@ -1871,7 +1832,6 @@ msgstr "Nenhum dado a este pacote."
 
 #: ckan/templates/package/read_core.html:78
 #, fuzzy
-#| msgid "Edit this Package"
 msgid "About this package"
 msgstr "Edite este Pacote"
 
@@ -1886,7 +1846,11 @@ msgstr ""
 #: ckan/templates/package/read_core.html:115
 msgid ""
 "This information on this page (the package metadata) is also available "
-"programatically via the"
+"programatically via this site's"
+msgstr ""
+
+#: ckan/templates/package/read_core.html:116
+msgid "CKAN API"
 msgstr ""
 
 #: ckan/templates/package/read_core.html:118
@@ -1909,7 +1873,6 @@ msgstr ""
 
 #: ckan/templates/package/read_core.html:135
 #, fuzzy
-#| msgid "Authorization for Data Package:"
 msgid "Information about this package:"
 msgstr "Autorização para Pacote de Dados:"
 
@@ -1919,7 +1882,6 @@ msgstr ""
 
 #: ckan/templates/package/read_core.html:137
 #, fuzzy
-#| msgid "Download"
 msgid "Download:"
 msgstr "Descarregar"
 
@@ -1937,7 +1899,6 @@ msgstr "Algunsrecursos"
 
 #: ckan/templates/package/search.html:9
 #, fuzzy
-#| msgid "Search"
 msgid "Search -"
 msgstr "Limpar busca"
 
@@ -1957,7 +1918,6 @@ msgstr ""
 
 #: ckan/templates/package/search.html:44
 #, fuzzy, python-format
-#| msgid "[1:%(item_count)s] packages found."
 msgid "[1:%(item_count)s] packages found"
 msgstr "[1:%(item_count)s] pacotes encontrados."
 
@@ -1971,7 +1931,6 @@ msgstr ""
 
 #: ckan/templates/package/search_form.html:15
 #, fuzzy
-#| msgid "open license"
 msgid "packages with open licenses"
 msgstr "licença aberta"
 
@@ -2264,69 +2223,77 @@ msgstr "Quantidade de pacotes administrados:"
 msgid "Recent changes"
 msgstr "Alterações recentes"
 
-#~ msgid "Data Packages"
-#~ msgstr "Pacotes de Dados"
-
-#~ msgid "Register"
+#~ msgid "The title of the data set."
 #~ msgstr ""
-
-#~ msgid "Atom Feed"
-#~ msgstr "Alimentação Atom"
-
-#~ msgid "Version [1:%(pkg_version)s]"
-#~ msgstr "Versão [1:%(pkg_version)s]"
-
-#~ msgid "No resources"
-#~ msgstr "Nenhum recurso"
 
 #~ msgid ""
-#~ "Can you help us keep this page up to date?\n"
-#~ "          If so, why not\n"
-#~ "          [1:\n"
-#~ "            update the package information]."
+#~ "Use a short descriptive title for "
+#~ "the data set. It should not be "
+#~ "a description though - save that "
+#~ "for the Notes field. Do not give"
+#~ " a trailing full stop."
 #~ msgstr ""
-#~ "Você pode ajudar manter atualizado este pacote?\n"
-#~ "          Se sim, que tal\n"
-#~ "          [1:\n"
-#~ "            atualizar as informações do pacote]."
 
-#~ msgid "Alternative metadata formats"
-#~ msgstr "Formatos alternativos de metadados"
+#~ msgid "A number representing the version (if applicable) e.g. 1.2.0"
+#~ msgstr ""
 
-#~ msgid "JSON format"
-#~ msgstr "Formato JSON"
+#~ msgid ""
+#~ "This is usually the URL for the"
+#~ " package project home page not the"
+#~ " data itself."
+#~ msgstr ""
 
-#~ msgid "JSON"
-#~ msgstr "JSON"
+#~ msgid "The permanent contact name for enquiries about this particular dataset."
+#~ msgstr ""
 
-#~ msgid "RDF format"
-#~ msgstr "Formato RDF"
+#~ msgid "(space separated list)"
+#~ msgstr "(lista separada por espaços)"
 
-#~ msgid "RDF"
-#~ msgstr "RDF"
+#~ msgid ""
+#~ "You can use <a "
+#~ "href=\"http://daringfireball.net/projects/markdown/syntax\">Markdown"
+#~ " formatting</a> here."
+#~ msgstr ""
+#~ "Você pode usar a <a "
+#~ "href=\"http://daringfireball.net/projects/markdown/syntax\">formatação"
+#~ " Markdown</a> aqui."
 
-#~ msgid "Tags:"
-#~ msgstr "Tags:"
+#~ msgid "Total number of packages"
+#~ msgstr "Quantidade total de pacotes"
 
-#~ msgid "A curated collection of packages"
-#~ msgstr "Uma coleção de pacotes sob curadoria"
+#~ msgid "Revisions to packages per week"
+#~ msgstr "Revisões em pacotes por semana"
 
-#~ msgid "Groups:"
-#~ msgstr "Grupos:"
+#~ msgid "Top Rated Packages"
+#~ msgstr "Pacotes Melhores Avaliados"
 
-#~ msgid "Rating"
-#~ msgstr "Avaliação"
+#~ msgid "Average rating"
+#~ msgstr "Avaliação média"
 
-#~ msgid "Search - Data Packages"
-#~ msgstr "Busca - Pacotes de Dados"
+#~ msgid "Number of ratings"
+#~ msgstr "Quantidade de avaliações"
 
-# | msgid "Search Data Packages"
-#~ msgid "Discover Data Packages"
-#~ msgstr "Buscar Pacotes de Dados"
+#~ msgid "Most Edited Packages"
+#~ msgstr "Pacotes Mais Editados"
 
-#~ msgid "Filters:"
-#~ msgstr "Filtros:"
+#~ msgid "Number of edits"
+#~ msgstr "Quantidade de edições"
 
-#~ msgid "downloadable"
-#~ msgstr "descarregável"
+#~ msgid "Largest Groups"
+#~ msgstr "Maiores Grupos"
+
+#~ msgid "Users owning most packages"
+#~ msgstr "Usuários que têm mais pacotes"
+
+#~ msgid "Page last updated:"
+#~ msgstr "Última atualização na página:"
+
+#~ msgid ". If you know of another (CSV, SPARQL end-pont etc.)"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "This information on this page (the "
+#~ "package metadata) is also available "
+#~ "programatically via the"
+#~ msgstr ""
 
