@@ -848,7 +848,7 @@ class SelectExtraField(TextExtraField):
             # @param options - an iterable of (label, value)
             if not self.field.is_required():
                 options = list(options)
-                if options[0] and isinstance(options[0], (tuple, list)):
+                if options and isinstance(options[0], (tuple, list)):
                     null_option = self.field._null_option
                 else:
                     null_option = self.field._null_option[1]
