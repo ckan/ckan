@@ -1,6 +1,7 @@
 from ckan.tests.functional.api.base import *
 from ckan.lib.create_test_data import CreateTestData
 from ckan.tests import is_search_supported
+from ckan.tests import TestController as ControllerTestCase
 
 class ModelApiTestCase(BaseModelApiTestCase):
 
@@ -345,7 +346,7 @@ class ModelApiTestCase(BaseModelApiTestCase):
 
 
 # Note well, relationships are actually part of the Model API.
-class RelationshipsApiTestCase(ApiControllerTestCase):
+class RelationshipsApiTestCase(ApiTestCase, ControllerTestCase):
 
     @classmethod
     def setup_class(self):
@@ -559,7 +560,7 @@ class RelationshipsApiTestCase(ApiControllerTestCase):
         assert rel_dict['comment'] == comment, (rel_dict, comment)
 
 # Todo: Rename to PackageSearchApiTestCase.
-class PackageSearchApiTestCase(ApiControllerTestCase):
+class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
 
     @classmethod
     def setup_class(self):
@@ -825,7 +826,7 @@ class PackageSearchApiTestCase(ApiControllerTestCase):
         assert t == datetime.datetime(2012, 3, 4, 5, 6, 7, 890123), t
 
 
-class ResourceSearchApiTestCase(ApiControllerTestCase):
+class ResourceSearchApiTestCase(ApiTestCase, ControllerTestCase):
 
     @classmethod
     def setup_class(self):
@@ -898,7 +899,7 @@ class ResourceSearchApiTestCase(ApiControllerTestCase):
         assert 'package_id' in result.body, result.body
 
 
-class QosApiTestCase(ApiControllerTestCase):
+class QosApiTestCase(ApiTestCase, ControllerTestCase):
 
     def test_throughput(self):
         if not config.get('ckan.enable_call_timing', None):
@@ -917,7 +918,7 @@ class QosApiTestCase(ApiControllerTestCase):
         assert throughput > 1, throughput
  
 
-class MiscApiTestCase(ApiControllerTestCase):
+class MiscApiTestCase(ApiTestCase, ControllerTestCase):
 
     @classmethod
     def setup_class(self):
