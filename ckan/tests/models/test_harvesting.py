@@ -1,8 +1,12 @@
 import os
+
+from nose.plugins.skip import SkipTest
+
 from ckan.tests import *
 from ckan.model.harvesting import HarvestSource
 from ckan.model.harvesting import HarvestingJob
 from ckan.model.harvesting import HarvestedDocument
+from ckan.model.harvesting import decode_response
 import ckan.model as model
 
 class HarvesterTestCase(TestCase):
@@ -10,6 +14,7 @@ class HarvesterTestCase(TestCase):
     require_common_fixtures = False
 
     def setup(self):
+        CreateTestData.create()
         super(HarvesterTestCase, self).setup()
         self.source = None
         self.job = None
@@ -17,17 +22,7 @@ class HarvesterTestCase(TestCase):
         self.gemini = GeminiExamples()
 
     def teardown(self):
-        if self.document:
-            self.delete(self.document)
-        for document in HarvestedDocument.filter():
-            document.delete()
-        if self.job:
-            self.delete(self.job)
-        if self.source:
-            self.delete(self.source)
-        self.commit_remove()
-        self.purge_package_by_name('00a743bf-cca4-4c19-a8e5-e64f7edbcadd')
-        super(HarvesterTestCase, self).teardown()
+        model.repo.clean_db()
 
     def create_fixture(self, domain_type, **kwds):
         # Create and check new fixture.
@@ -246,9 +241,9 @@ class TestHarvestCswSource(HarvesterTestCase):
         super(TestHarvestCswSource, self).setup()
         self.assert_false(self.source)
         from pylons import config
-        base_url=config.get('example_csw_url', '')
-        if not base_url:
-            raise SkipTest
+        self.base_url=config.get('example_csw_url', '')
+        if not self.base_url:
+            return
         self.source = self.create_harvest_source(
             url=base_url,
         )
@@ -258,6 +253,8 @@ class TestHarvestCswSource(HarvesterTestCase):
         )
 
     def test_harvest_documents_from_csw(self):
+        if not self.base_url:
+            raise SkipTest
         before_count = self.count_packages()
         self.assert_false(self.job.report)
         self.job.harvest_documents()
@@ -320,12 +317,14 @@ class TestHarvestCswSourceRandomWebsite(HarvesterTestCase):
         before_count = self.count_packages()
         self.assert_false(self.job.report)
         self.job.harvest_documents()
+        error = self.job.report['errors'][0]
+        if "timeout" in error or "service not known" in error:
+            raise SkipTest("Couldn't connect to internet for test")
         after_count = self.count_packages()
         self.assert_equal(after_count, before_count)
         self.assert_true(self.job.report)
         self.assert_len(self.job.report['packages'], 0)
         self.assert_len(self.job.report['errors'], 1)
-        error = self.job.report['errors'][0]
         self.assert_contains(error, "Couldn't find any links to metadata files.")
 
 
@@ -562,7 +561,5 @@ class GeminiExamples(object):
     def get_content(self, url):
         import urllib2
         resource = urllib2.urlopen(url)
-        # Todo: Check the encoding is okay (perhaps change model attribute type)?
-        content = resource.read()
-        return content
+        return decode_response(resource)
 

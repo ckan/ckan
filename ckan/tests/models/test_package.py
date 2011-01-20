@@ -6,6 +6,7 @@ import ckan.model as model
 class TestPackage:
     @classmethod
     def setup_class(self):
+        CreateTestData.create()
         self.name = u'geodata'
         self.notes = u'Written by Puccini'
         pkgs = model.Session.query(model.Package).filter_by(name=self.name).all()
@@ -25,7 +26,22 @@ class TestPackage:
         pkg1 = model.Session.query(model.Package).filter_by(name=self.name).one()
         pkg1.purge()
         model.Session.commit()
+        model.repo.clean_db()
         model.Session.remove()
+
+    def test_basic_revisioning(self):
+        # create a package with package_fixture_data
+        name = "frob"
+        rev = model.repo.new_revision()
+        package = model.Package(name=name)
+        model.Session.add(package)
+        model.repo.commit_and_remove()
+
+        # change it
+        rev = model.repo.new_revision()
+        package = model.Package.by_name(name)
+        package.title = "wobsnasm"
+        model.repo.commit_and_remove()
 
     def test_create_package(self):
         package = model.Package.by_name(self.name)
@@ -43,7 +59,10 @@ class TestPackage:
         pkg.notes = newnotes
         rev2.author = u'jones'
         model.Session.commit()
-        model.Session.clear()
+        try:
+            model.Session.expunge_all()
+        except AttributeError: # sqlalchemy 0.4
+            model.Session.clear()
         outpkg = model.Package.by_name(self.name)
         assert outpkg.notes == newnotes
         assert len(outpkg.all_revisions) > 0
@@ -76,6 +95,7 @@ class TestPackageWithTags:
 
     @classmethod
     def setup_class(self):
+        model.repo.init_db()
         rev1 = model.repo.new_revision()
         self.tagname = u'testtagm2m'
         self.tagname2 = u'testtagm2m2'
@@ -107,6 +127,7 @@ class TestPackageWithTags:
         t3 = model.Tag.by_name(self.tagname3)
         t3.purge()
         model.Session.commit()
+        model.repo.clean_db()
 
     def test_1(self):
         pkg = model.Package.by_name(self.pkgname)
@@ -126,14 +147,20 @@ class TestPackageWithTags:
         pkg = model.Package.by_name(self.pkgname)
         pkg.add_tag_by_name(self.tagname3)
         model.Session.commit()
-        model.Session.clear()
+        try:
+            model.Session.expunge_all()
+        except AttributeError: # sqlalchemy 0.4
+            model.Session.clear()
         outpkg = model.Package.by_name(self.pkgname)
         assert len(outpkg.tags) == 3
         t1 = model.Tag.by_name(self.tagname)
         assert len(t1.package_tags) == 1
 
     def test_add_tag_by_name_existing(self):
-        model.Session.clear()
+        try:
+            model.Session.expunge_all()
+        except AttributeError: # sqlalchemy 0.4
+            model.Session.clear()
         pkg = model.Package.by_name(self.pkgname)
         assert len(pkg.tags) == 3
         pkg.add_tag_by_name(self.tagname)
@@ -202,6 +229,7 @@ class TestPackageRevisions:
     @classmethod
     def setup_class(self):
         model.Session.remove()
+        model.repo.init_db()
         self.name = u'revisiontest'
 
         # create pkg
@@ -229,6 +257,7 @@ class TestPackageRevisions:
         pkg1 = model.Package.by_name(self.name)
         pkg1.purge()
         model.repo.commit_and_remove()
+        model.repo.clean_db()
 
     def test_1_all_revisions(self):
         all_rev = self.pkg1.all_revisions
@@ -253,6 +282,7 @@ class TestPackageRevisions:
 class TestRelatedRevisions:
     @classmethod
     def setup_class(self):
+        CreateTestData.create()
         model.Session.remove()
         self.name = u'difftest'
 
@@ -321,6 +351,7 @@ class TestRelatedRevisions:
         pkg1 = model.Package.by_name(self.name)
         pkg1.purge()
         model.repo.commit_and_remove()
+        model.repo.clean_db()
 
     def test_1_all_revisions(self):
         assert len(self.pkg1.all_revisions) == 3, self.pkg1.all_revisions

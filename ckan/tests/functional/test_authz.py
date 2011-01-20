@@ -23,6 +23,8 @@ class TestUsage(TestController):
         #   r = Allowed to read
         #   w = Allowed to read/write
         #   x = Not allowed either
+        model.repo.init_db()
+        rev = model.repo.new_revision()
         self.modes = ('xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted')
         for mode in self.modes:
             model.Session.add(model.Package(name=unicode(mode)))
@@ -43,7 +45,6 @@ class TestUsage(TestController):
         model.Session.add(model.User(name=u'groupeditor'))
         model.Session.add(model.User(name=u'groupreader'))
         visitor_name = '123.12.12.123'
-        rev = model.repo.new_revision()
         model.repo.commit_and_remove()
 
         testsysadmin = model.User.by_name(u'testsysadmin')
@@ -67,9 +68,9 @@ class TestUsage(TestController):
                 model.add_user_to_role(groupeditor, model.Role.EDITOR, group)
                 model.add_user_to_role(groupreader, model.Role.READER, group)
             if mode == u'deleted':
+                rev = model.repo.new_revision()
                 pkg = model.Package.by_name(unicode(mode))
                 pkg.state = model.State.DELETED
-                rev = model.repo.new_revision()
                 model.repo.commit_and_remove()
             else:
                 if mode[0] == u'r':
@@ -111,7 +112,7 @@ class TestUsage(TestController):
     @classmethod
     def teardown_class(self):
         model.Session.remove()
-        model.repo.rebuild_db()
+        model.repo.clean_db()
         model.Session.remove()
 
     def _do_test_wui(self, action, user, mode, entity='package'):
@@ -312,6 +313,7 @@ class TestLockedDownUsage(TestUsage):
     
     @classmethod
     def setup_class(self):
+        model.repo.init_db()
         q = model.Session.query(model.UserObjectRole).filter(model.UserObjectRole.role==Role.EDITOR)
         q = q.filter(model.UserObjectRole.user==model.User.by_name(u"visitor"))
         for role in q:
@@ -328,6 +330,5 @@ class TestLockedDownUsage(TestUsage):
     
     @classmethod
     def teardown_class(self):
-        model.Session.remove()
-        model.repo.rebuild_db()
+        model.repo.clean_db()
         model.Session.remove()

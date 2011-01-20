@@ -10,9 +10,9 @@ class TestUserController(FunctionalTestCase):
 
         # make 3 changes, authored by annafan
         for i in range(3):
+            rev = model.repo.new_revision()
             pkg = model.Package.by_name(u'annakarenina')
             pkg.notes = u'Changed notes %i' % i
-            rev = model.repo.new_revision()
             rev.author = u'annafan'
             model.repo.commit_and_remove()
 

@@ -1,4 +1,5 @@
 import sqlalchemy as sa
+from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 import ckan.model as model
 
@@ -138,6 +139,26 @@ class Authorizer(object):
         
         q = q.filter(sa.or_(*filters))
         return [pr.role for pr in q]
+    
+    @classmethod
+    def am_admin_package_names(cls, username):
+        q = model.Session.query(model.Package.name)
+        q = q.autoflush(False)
+        if not cls.is_sysadmin(username):
+            visitor = model.User.by_name(model.PSEUDO_USER__VISITOR, autoflush=False)
+            filters = [model.PackageRole.user==visitor]
+            user = model.User.by_name(username, autoflush=False)
+            if user is not None:
+                logged_in = model.User.by_name(model.PSEUDO_USER__LOGGED_IN,
+                                               autoflush=False)
+                filters.extend([model.PackageRole.user==user, 
+                                model.PackageRole.user==logged_in])
+            for authz_group in cls.get_authorization_groups(username):
+                filters.append(model.PackageRole.authorized_group==authz_group)
+            q = q.outerjoin('roles')
+            q = q.filter(model.PackageRole.role==model.Role.ADMIN)
+            q = q.filter(sa.or_(*filters))
+        return [r[0] for r in q.all()]
 
     @classmethod
     def is_sysadmin(cls, username):
@@ -171,34 +192,38 @@ class Authorizer(object):
             user = model.User.by_name(username, autoflush=False)
         else:
             user = None
-
+        entity.roles.property.mapper.class_ 
         visitor = model.User.by_name(model.PSEUDO_USER__VISITOR, autoflush=False)
-        logged_in = model.User.by_name(model.PSEUDO_USER__LOGGED_IN, autoflush=False)
-
+        logged_in = model.User.by_name(model.PSEUDO_USER__LOGGED_IN,
+                                       autoflush=False)
         if not cls.is_sysadmin(username):
+            # This gets the role table the entity is joined to. we
+            # need to use this in the queries below as if we use
+            # model.UserObjectRole a cross join happens always
+            # returning all the roles.  
+            role_cls = entity.roles.property.mapper.class_
             q = q.outerjoin('roles')
             if hasattr(entity, 'state'):
                 state = entity.state
             else:
-                state = model.State.ACTIVE
+                state = None
                 
             filters = [model.UserObjectRole.user==visitor]
             for authz_group in cls.get_authorization_groups(username):
-                filters.append(model.UserObjectRole.authorized_group==authz_group)
-                
+                filters.append(role_cls.authorized_group==authz_group)
             if user:
-                filters.append(model.UserObjectRole.user==user)
-                filters.append(model.UserObjectRole.user==logged_in)
+                filters.append(role_cls.user==user)
+                filters.append(role_cls.user==logged_in)
                 q = q.filter(sa.or_(
-                    sa.and_(model.UserObjectRole.role==model.RoleAction.role,
+                    sa.and_(role_cls.role==model.RoleAction.role,
                             model.RoleAction.action==action,
-                            state==model.State.ACTIVE),
-                    model.UserObjectRole.role==model.Role.ADMIN))
+                            state and state==model.State.ACTIVE),
+                    role_cls.role==model.Role.ADMIN))
             else:
                 q = q.filter(
-                    sa.and_(model.UserObjectRole.role==model.RoleAction.role,
+                    sa.and_(role_cls.role==model.RoleAction.role,
                             model.RoleAction.action==action,
-                            state==model.State.ACTIVE),
+                            state and state==model.State.ACTIVE),
                     )
             q = q.filter(sa.or_(*filters))   
             q = q.distinct()

@@ -39,7 +39,7 @@ pkg_to_xl_dict = dumper.PackagesXlWriter.pkg_to_xl_dict
 class Test0FilesCreation(TestController):
     @classmethod
     def setup_class(self):
-        model.repo.rebuild_db()
+        model.repo.init_db()
         CreateTestData.create()
         full_row_dicts = [pkg_to_xl_dict(pkg) for pkg in [model.Package.by_name(u'annakarenina'), model.Package.by_name(u'warandpeace')]]
         creators = [ (dumper.PackagesXlWriter, XL_EXTENSION),
@@ -48,6 +48,10 @@ class Test0FilesCreation(TestController):
         for creator, extension in creators:
             creator(full_row_dicts).save(open(TEST_FILES_DIR + TEST_FILE_FULL + extension, 'wb'))
             creator(EXAMPLE_XL_DICTS).save(open(TEST_FILES_DIR + TEST_FILE_EXAMPLE + extension, 'wb'))
+
+    @classmethod
+    def teardown_class(self):
+        model.repo.clean_db()
 
     def test_exist(self):
         for filename in (TEST_FILE_EXAMPLE, TEST_FILE_FULL):
@@ -59,7 +63,7 @@ class Test1Import(TestController):
     @classmethod
     def setup_class(self):
         model.Session.remove()
-        model.repo.rebuild_db()
+        model.repo.init_db()
         CreateTestData.create()
         anna = model.Package.by_name(u'annakarenina')
         war = model.Package.by_name(u'warandpeace')
@@ -78,7 +82,7 @@ class Test1Import(TestController):
     @classmethod
     def teardown_class(self):
         model.Session.remove()
-        model.repo.rebuild_db()
+        model.repo.clean_db()
 
     def _get_row(self, sheet, row_index):
         return [cell.value for cell in sheet.row(row_index)]

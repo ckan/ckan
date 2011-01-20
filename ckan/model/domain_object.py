@@ -35,7 +35,8 @@ class DomainObject(object):
 
     @classmethod
     def by_name(self, name, autoflush=True):
-        obj = Session.query(self).autoflush(autoflush).filter_by(name=name).first()
+        obj = Session.query(self).autoflush(autoflush)\
+              .filter_by(name=name).first()
         return obj
 
     @classmethod
@@ -74,6 +75,7 @@ class DomainObject(object):
         self.Session.delete(self)
 
     def purge(self):
+        self.Session().autoflush = False
         if hasattr(self, '__revisioned__'): # only for versioned objects ...
             # this actually should auto occur due to cascade relationships but
             # ...

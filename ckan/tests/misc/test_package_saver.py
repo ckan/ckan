@@ -8,8 +8,12 @@ from ckan.tests.pylons_controller import PylonsTestCase
 class TestPreview(PylonsTestCase):
 
     @classmethod
+    def setup_class(self):
+        model.repo.init_db()
+
+    @classmethod
     def teardown_class(self):
-        model.repo.rebuild_db()
+        model.repo.clean_db()
 
     params = {
         u'name':u'name_after',

@@ -13,11 +13,11 @@ from ckan.model import setup_default_user_roles
 class TestCase(object):
 
     def setup(self):
-        model.repo.clean_db()
-        model.repo.rebuild_db()
+        model.repo.init_db()
         model.Session.remove()
 
     def teardown(self):
+        model.repo.clean_db()
         model.Session.remove()
 
     def assert_true(self, value):
@@ -51,7 +51,6 @@ class TestChangesetRegister(TestCase):
         self.changes = ChangeRegister()
 
     def teardown(self):
-        return
         self.changesets = None
         for name in [u'annie', u'annie1', u'annie2']:
             annie = self.packages.get(name, None, attr='name')
@@ -459,11 +458,13 @@ class TestChangesetRegister(TestCase):
 class TestChangeset(TestCase):
 
     def setup(self):
+        super(TestChangeset, self).setup()
         self.changeset = Changeset()
         model.Session.add(self.changeset)
         model.Session.commit()
 
     def teardown(self):
+        super(TestChangeset, self).teardown()
         self.changeset.purge()
         model.Session.commit()
         model.Session.remove()
@@ -472,6 +473,7 @@ class TestChangeset(TestCase):
 class TestChange(TestCase):
 
     def setup(self):
+        super(TestChange, self).setup()
         diff = u"""{
             "new": {
                 "id": "f711c90b-6406-498b-8ddc-2d9e33dc25b9",
@@ -487,11 +489,13 @@ class TestChange(TestCase):
         self.change.purge()
         model.Session.commit()
         model.Session.remove()
+        super(TestChange, self).teardown()
    
 
 class TestArithmetic(TestCase):
 
     def setup(self):
+        super(TestArithmetic, self).setup()
         self.name0 = 'namezero'
         self.name1 = 'nameone'
         self.name2 = 'nametwo'
@@ -536,9 +540,7 @@ class TestArithmetic(TestCase):
         model.Session.commit()
 
     def teardown(self):
-        model.repo.clean_db()
-        model.repo.rebuild_db()
-        model.Session.remove()
+        super(TestArithmetic, self).teardown()
 
     def test_range1_2(self):
         range = self.create_range(self.cs1, self.cs2)

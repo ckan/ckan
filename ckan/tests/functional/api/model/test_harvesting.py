@@ -12,6 +12,7 @@ class HarvestingTestCase(BaseModelApiTestCase):
     reuse_common_fixtures = True
 
     def setup(self):
+        model.repo.init_db()
         super(HarvestingTestCase, self).setup()
         self.source = None
         self.source1 = None
@@ -25,26 +26,6 @@ class HarvestingTestCase(BaseModelApiTestCase):
         self.job3 = None
 
     def teardown(self):
-        if self.job:
-            self.delete_commit(self.job)
-        if self.job1:
-            self.delete_commit(self.job1)
-        if self.job2:
-            self.delete_commit(self.job2)
-        if self.job3:
-            self.delete_commit(self.job3)
-        if self.source:
-            self.delete_commit(self.source)
-        if self.source1:
-            self.delete_commit(self.source1)
-        if self.source2:
-            self.delete_commit(self.source2)
-        if self.source3:
-            self.delete_commit(self.source3)
-        if self.source4:
-            self.delete_commit(self.source4)
-        if self.source5:
-            self.delete_commit(self.source5)
         super(HarvestingTestCase, self).teardown()
 
     def _create_harvest_source_fixture(self, **kwds):
