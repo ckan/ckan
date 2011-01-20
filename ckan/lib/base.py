@@ -29,8 +29,6 @@ PAGINATE_ITEMS_PER_PAGE = 50
 APIKEY_HEADER_NAME_KEY = 'apikey_header_name'
 APIKEY_HEADER_NAME_DEFAULT = 'X-CKAN-API-Key'
 
-ALLOWED_FIELDSET_PARAMS = ['package_form', 'restrict']
-
 
 def render(template_name, extra_vars=None, cache_key=None, cache_type=None, 
            cache_expire=None, method='xhtml', loader_class=MarkupTemplate):
@@ -221,9 +219,7 @@ class BaseController(WSGIController):
 
     @classmethod
     def _get_package_fieldset(cls, is_admin=False, **kwds):
-        for key in request.params:
-            if key in ALLOWED_FIELDSET_PARAMS:
-                kwds[key] = request.params[key]
+        kwds.update(request.params)
         kwds['user_editable_groups'] = cls._get_user_editable_groups()
         kwds['is_admin'] = is_admin
         from ckan.forms import GetPackageFieldset

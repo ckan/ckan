@@ -33,6 +33,7 @@ __all__ = ['url_for',
            'TestSearchIndexer',
            'ModelMethods',
            'CheckMethods',
+           'CommonFixtureMethods',
            'TestCase',
            'SkipTest',
         ]
