@@ -172,13 +172,12 @@ def config_0(name, hosts_str='', requirements='pip-requirements-metastable.txt',
     @param db_pass: password to use when setting up db user (if needed)
     @param db_host: db host to use when setting up db (if needed)
     '''
-    env.user = 'okfn'
+    env.user = os.environ['USER']
     if hosts_str:
         env.hosts = hosts_str.split()
     if not hosts_str and not env.hosts:
         env.hosts = [name]
     env.ckan_instance_name = name
-    env.base_dir = '/home/%s/var/srvc' % env.user
     env.config_ini_filename = '%s.ini' % name
     # check if the host is just a squid caching a ckan running on another host
     assert len(env.hosts) == 1, 'Must specify one host'
@@ -190,8 +189,10 @@ def config_0(name, hosts_str='', requirements='pip-requirements-metastable.txt',
             host_txt = conf_line.split()[1].replace('_sites', '.okfn.org')
             env.hosts = [host_txt]
             print 'Found Squid cache is of CKAN host: %s' % host_txt
+            env.user = 'okfn'
         else:
             print 'Found Squid cache but did not find host in config.'
+    env.base_dir = '/home/%s/var/srvc' % env.user
     env.pip_requirements = requirements
     env.db_pass = db_pass
     env.db_host = db_host
