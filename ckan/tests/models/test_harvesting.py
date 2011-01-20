@@ -1,16 +1,17 @@
 import os
 
-from nose.plugins.skip import SkipTest
-
 from ckan.tests import *
 from ckan.model.harvesting import HarvestSource
 from ckan.model.harvesting import HarvestingJob
 from ckan.model.harvesting import HarvestedDocument
-from ckan.model.harvesting import decode_response
+from ckan.controllers.harvesting import decode_response
+from ckan.controllers.harvesting import HarvestingJobController
+
 import ckan.model as model
 
 from ckan.tests.gemini2_examples.expected_values import expect_values0
 from ckan.tests.gemini2_examples.expected_values import expect_values1
+
 
 class HarvesterTestCase(TestCase):
 
@@ -18,7 +19,6 @@ class HarvesterTestCase(TestCase):
 
     def setup(self):
         CreateTestData.create()
-        super(HarvesterTestCase, self).setup()
         self.gemini_example = GeminiExamples()
 
     def teardown(self):
@@ -45,9 +45,11 @@ class TestHarvestSource(HarvesterTestCase):
         """
         url = self.gemini_example.url_for(file_index=0)
         source = HarvestSource(url=url)
-        content = self.gemini_example.get_from_url(url)
         count_before_write = self.count_packages()
-        source.write_package(content=content)
+        job = HarvestingJob(source=source,
+                            user_ref="me")
+        controller = HarvestingJobController(job)
+        controller.harvest_documents()
         count_after_write = self.count_packages()
         self.assert_equal(count_after_write, count_before_write + 1)
         self.delete_commit(source)
@@ -72,6 +74,7 @@ class TestHarvestingJob(HarvesterTestCase):
             user_ref=self.fixture_user_ref
         )
         self.job.save()
+        self.controller = HarvestingJobController(job)
         self.job2 = None
         self.source2 = None
 
@@ -91,52 +94,55 @@ class TestHarvestingJob(HarvesterTestCase):
 
     def test_harvest_documents(self):
         before_count = self.count_packages()
-        self.job.harvest_documents()
+        job = self.controller.harvest_documents()
         after_count = self.count_packages()
         self.assert_equal(after_count, before_count + 1)
-        self.assert_equal(self.job.source.documents[0].package.id,
-                          (self.job.report['packages'][0]))
-        self.assert_true(self.job.report)
-        self.assert_len(self.job.report['errors'], 0)
-        self.assert_len(self.job.report['packages'], 1)
+        self.assert_equal(job.source.documents[0].package.id,
+                          (job.report['packages'][0]))
+        self.assert_true(job.report)
+        self.assert_len(job.report['errors'], 0)
+        self.assert_len(job.report['packages'], 1)
 
     def test_harvest_documents_twice_unchanged(self):
-        self.job.harvest_documents()
-        self.assert_len(self.job.report['errors'], 0)
-        self.assert_len(self.job.report['packages'], 1)
-        self.job2 = HarvestingJob(
-            source=self.source,
-            user_ref=self.fixture_user_ref
-        )
-        self.job2.harvest_documents()
-        self.assert_len(self.job2.report['errors'], 0)
-        self.assert_len(self.job2.report['packages'], 0)
+        job = self.controller.harvest_documents()
+        self.assert_len(job.report['errors'], 0)
+        self.assert_len(job.report['packages'], 1)
+        job2 = HarvestingJobController(
+            HarvestingJob(
+                source=self.source,
+                user_ref=self.fixture_user_ref
+                )
+            ).harvest_documents()
+        self.assert_len(job2.report['errors'], 0)
+        self.assert_len(job2.report['packages'], 0)
 
     def test_harvest_documents_twice_changed(self):
-        self.job.harvest_documents()
-        self.assert_len(self.job.report['errors'], 0)
-        self.assert_len(self.job.report['packages'], 1)
+        job = self.controller.harvest_documents()
+        self.assert_len(job.report['errors'], 0)
+        self.assert_len(job.report['packages'], 1)
         self.source.url = self.gemini_example.url_for(file_index=2)
         self.source.save()
-        self.job2 = HarvestingJob(
-            source=self.source,
-            user_ref=self.fixture_user_ref
-        )
-        self.job2.harvest_documents()
-        self.assert_len(self.job2.report['errors'], 0)
-        self.assert_len(self.job2.report['packages'], 1)
+        job2 = HarvestingJobController(
+            HarvestingJob(
+                source=self.source,
+                user_ref=self.fixture_user_ref
+                )
+            ).harvest_documents()
+        self.assert_len(job2.report['errors'], 0)
+        self.assert_len(job2.report['packages'], 1)
 
     def test_harvest_documents_source_guid_contention(self):
-        self.job.harvest_documents()
-        self.source2 = HarvestSource(
+        job = self.controller.harvest_documents()
+        source2 = HarvestSource(
             url=self.gemini_example.url_for(file_index=2)
-        )
-        self.job2 = HarvestingJob(
-            source=self.source2,
-            user_ref=self.fixture_user_ref
-        )
-        self.job2.harvest_documents()
-        error = self.job2.report['errors'][0]
+            )
+        job2 = HarvestingJobController(
+            HarvestingJob(
+                source=source2,
+                user_ref=self.fixture_user_ref
+                )
+            ).harvest_documents()
+        error = job2.report['errors'][0]
         self.assert_contains(error, "Another source is using metadata GUID")
 
     def test_harvest_bad_source_url(self):
@@ -149,7 +155,7 @@ class TestHarvestingJob(HarvesterTestCase):
             )
         before_count = self.count_packages()
         self.assert_false(job.report)
-        job.harvest_documents()
+        job = HarvestingJobController(job).harvest_documents()
         after_count = self.count_packages()
         self.assert_equal(after_count, before_count)
         self.assert_len(job.report['packages'], 0)
@@ -178,7 +184,7 @@ class TestHarvesterSourceTypes(HarvesterTestCase):
                          'documents': 0},
                         #
                         'http://www.google.com':
-                        {'errors': ["Couldn't find any links to metadata files."],
+                        {'errors': ["Couldn't find any links to metadata"],
                          'packages': 0,
                          'documents': 0}
                         }
@@ -186,25 +192,25 @@ class TestHarvesterSourceTypes(HarvesterTestCase):
     def test_various_sources(self):
         for url, expected in self.sources.items():
             source = HarvestSource(url=url)
-            self.job = HarvestingJob(
+            job = HarvestingJob(
                 source=source,
                 user_ref=self.fixture_user_ref
                 )
             before_count = self.count_packages()
-            self.assert_false(self.job.report)
-            self.job.harvest_documents()
+            self.assert_false(job.report)
+            job = HarvestingJobController(job).harvest_documents()
             after_count = self.count_packages()
             self.assert_equal(after_count,
                               before_count + expected['packages'])
-            for (idx, error) in enumerate(self.job.report['errors']):
+            for (idx, error) in enumerate(job.report['errors']):
                 assert expected['errors'][idx] in error
             # report['packages'] is a list, appended to each time a
             # package is touched.
-            self.assert_equal(len(self.job.report['packages']),
+            self.assert_equal(len(job.source.documents),
                                   expected['documents'])
-            for (idx, doc) in enumerate(self.job.source.documents):
-                self.assert_equal(doc.package.id,
-                                  self.job.report['packages'][idx])
+            for (idx, doc) in enumerate(job.source.documents):
+                self.assert_true(doc.package)
+                assert (doc.package.id in job.report['packages'])
 
 
 class TestHarvestedDocument(HarvesterTestCase):

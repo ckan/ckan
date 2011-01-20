@@ -14,7 +14,6 @@ from genshi.template import MarkupTemplate
 from webhelpers.html import literal
 
 import ckan
-import ckan.lib.helpers as h
 from ckan.plugins import PluginImplementations, IGenshiStreamFilter
 from ckan.lib.helpers import json
 import ckan.model as model
@@ -128,8 +127,10 @@ class BaseController(WSGIController):
             request_data[key] = self._make_unicode(val)
         self.log.debug('Request data extracted: %r' % request_data)
         return request_data
-        
+
     def _make_unicode(self, entity):
+        """Cast bare strings and strings in lists or dicts to Unicode
+        """
         if isinstance(entity, str):
             return unicode(entity)
         elif isinstance(entity, list):
@@ -219,7 +220,7 @@ class BaseController(WSGIController):
         return ckan.forms.edit_package_dict(*args, **kwds)
 
     def _get_package_fieldset(self, is_admin=False):
-        kwds= {}
+        kwds = {}
         for key in request.params:
             if key in ALLOWED_FIELDSET_PARAMS:
                 kwds[key] = request.params[key]
