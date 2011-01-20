@@ -1,20 +1,21 @@
-# Albanian translations for ckan.
-# Copyright (C) 2010 ORGANIZATION
+# Translations template for ckan.
+# Copyright (C) 2011 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
-#
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN (Comprehensive Knowledge Archive Network)\n"
 "Report-Msgid-Bugs-To: http://www.ckan.org/\n"
-"POT-Creation-Date: 2010-12-24 11:43+0000\n"
-"PO-Revision-Date: 2011-01-18 09:50+0000\n"
+"POT-Creation-Date: 2011-01-18 09:50+0000\n"
+"PO-Revision-Date: 2011-01-20 19:41+0000\n"
 "Last-Translator: abrahaj <a_brahaj@yahoo.com>\n"
 "Language-Team: Albanian <None>\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: sq\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "Generated-By: Babel 0.9.5\n"
 
 #: ckan/misc.py:47
@@ -379,9 +380,7 @@ msgid "Name must be at least %s characters long"
 msgstr "Emri duhet të jetë të paktën %s karaktere"
 
 #: ckan/forms/common.py:24
-msgid ""
-"Name must be purely lowercase alphanumeric (ascii) characters and these "
-"symbols: -_"
+msgid "Name must be purely lowercase alphanumeric (ascii) characters and these symbols: -_"
 msgstr "Emri duhet të jetë me shkronja (ascii) të vogla dhe me këto simbole: -_"
 
 #: ckan/forms/common.py:37
@@ -448,12 +447,8 @@ msgstr "Grup"
 
 #: ckan/forms/common.py:797
 #, python-format
-msgid ""
-"Can't derived new group selection from serialized value structured like "
-"this: %s"
-msgstr ""
-"Nuk mund të rrjedhin përzgjedhje të reja grup nga vlera e strukturuar si "
-"kjo:%s"
+msgid "Can't derived new group selection from serialized value structured like this: %s"
+msgstr "Nuk mund të rrjedhin përzgjedhje të reja grup nga vlera e strukturuar si kjo:%s"
 
 #: ckan/forms/common.py:870
 msgid "other - please specify"
@@ -480,51 +475,28 @@ msgid "Add packages"
 msgstr "Shto paketa"
 
 #: ckan/forms/package.py:34
-#, fuzzy
-#| msgid "The title of the data set."
 msgid "A short descriptive title for the data set."
-msgstr "Titulli i të dhënave të përcaktuara."
+msgstr ""
 
 #: ckan/forms/package.py:35
-#, fuzzy
-#| msgid "" "Use a short descriptive title for the data set. It should not be a
-#| " "description though - save that for the Notes field. Do not give a "
-#| "trailing full stop."
-msgid ""
-"It should not be a description though - save that for the Notes field. Do"
-" not give a trailing full stop."
+msgid "It should not be a description though - save that for the Notes field. Do not give a trailing full stop."
 msgstr ""
-"Përdorni një titull të shkurtër përshkruese për të dhënat e përcaktuara. "
-"Ai nuk duhet të jetë një përshkrim  - ruajeni për fushën Notes. Mos jepni"
-" enter në fund"
 
 #: ckan/forms/package.py:39
-#, fuzzy
-#| msgid "None given for this package."
 msgid "A unique identifier for the package."
-msgstr "Asnjë e ofruar në këtë paketë."
+msgstr ""
 
 #: ckan/forms/package.py:40
-msgid ""
-"It should be broadly humanly readable, in the spirit of Semantic Web "
-"URIs. Only use an acronym if it is widely recognised. Renaming is "
-"possible but discouraged."
+msgid "It should be broadly humanly readable, in the spirit of Semantic Web URIs. Only use an acronym if it is widely recognised. Renaming is possible but discouraged."
 msgstr ""
 
 #: ckan/forms/package.py:41
-#, fuzzy
-#| msgid "" "<strong>Unique identifier</strong> for package.<br/>2+ chars,
-#| lowercase, " "using only 'a-z0-9' and '-_'"
 msgid "2+ characters, lowercase, using only 'a-z0-9' and '-_'"
 msgstr ""
-"<strong>Identifikuesi unik</strong> për paketën .<br/>2+ karaktere, "
-"shkronja të vogla dhe vetëm 'a-z0-9' dhe '-_'"
 
 #: ckan/forms/package.py:45
-#, fuzzy
-#| msgid "A number representing the version (if applicable) e.g. 1.2.0"
 msgid "A number representing the version (if applicable)"
-msgstr "Një numër përfaqëson version (nëse aplikohet) p.sh. 1.2.0"
+msgstr ""
 
 #: ckan/forms/package.py:50
 msgid "The URL for the web page describing the data (not the data itself)."
@@ -535,27 +507,16 @@ msgid "e.g. http://www.example.com/growth-figures.html"
 msgstr "p.sh. http://www.example.com/growth-figures.html"
 
 #: ckan/forms/package.py:55
-#, fuzzy
-#| msgid "The permanent contact name for enquiries about this particular
-#| dataset."
-msgid ""
-"The name of the main contact, for enquiries about this particular "
-"dataset, using the e-mail address in the following field."
+msgid "The name of the main contact, for enquiries about this particular dataset, using the e-mail address in the following field."
 msgstr ""
-"Emri i përhershëm kontaktit për hetimet në lidhje me këtë dataset të "
-"veçantë."
 
 #: ckan/forms/package.py:59
-msgid ""
-"If there is another important contact person (in addition to the person "
-"in the Author field) then provide details here."
+msgid "If there is another important contact person (in addition to the person in the Author field) then provide details here."
 msgstr ""
 
 #: ckan/forms/package.py:63
-#, fuzzy
-#| msgid "License"
 msgid "Licence"
-msgstr "Licenca"
+msgstr ""
 
 #: ckan/forms/package.py:64
 msgid "The licence under which the dataset is released."
@@ -570,9 +531,7 @@ msgstr "Terma"
 
 #: ckan/forms/package.py:69
 #, python-format
-msgid ""
-"Terms that may link this dataset to similar ones. For more information on"
-" conventions, see <a href=\"%s\">this wiki page</a>."
+msgid "Terms that may link this dataset to similar ones. For more information on conventions, see <a href=\"%s\">this wiki page</a>."
 msgstr ""
 
 #: ckan/forms/package.py:70
@@ -584,40 +543,12 @@ msgid "The files containing the data or address of the APIs for accessing it."
 msgstr "Skedarët përmbajnë të dhëna ose adresën e APIt dhe qasjen në të."
 
 #: ckan/forms/package.py:75
-msgid ""
-"<br />These can be repeated as required. For example if the data is being"
-" supplied in multiple formats, or split into different areas or time "
-"periods, each file is a different 'resource' which should be described "
-"differently. They will all appear on the dataset page on CKAN "
-"together.<br /><br /> <b>URL:</b> This is the Internet link directly to "
-"the data - by selecting this link in a web browser, the user will "
-"immediately download the full data set. Note that datasets are not hosted"
-" on this site, but by the publisher of the data. Alternatively the URL "
-"can point to an API server such as a SPARQL endpoint or JSON-P "
-"service.<br /> <b>Format:</b> This should give the file format in which "
-"the data is supplied. <br /><b>Description</b> Any information you want "
-"to add to describe the resource.<br />"
-msgstr ""
-"<br />These can be repeated as required. For example if the data is being"
-" supplied in multiple formats, or split into different areas or time "
-"periods, each file is a different 'resource' which should be described "
-"differently. They will all appear on the dataset page on CKAN "
-"together.<br /><br /> <b>URL:</b> This is the Internet link directly to "
-"the data - by selecting this link in a web browser, the user will "
-"immediately download the full data set. Note that datasets are not hosted"
-" on this site, but by the publisher of the data. Alternatively the URL "
-"can point to an API server such as a SPARQL endpoint or JSON-P "
-"service.<br /> <b>Format:</b> This should give the file format in which "
-"the data is supplied. <br /><b>Description</b> Any information you want "
-"to add to describe the resource.<br />"
+msgid "<br />These can be repeated as required. For example if the data is being supplied in multiple formats, or split into different areas or time periods, each file is a different 'resource' which should be described differently. They will all appear on the dataset page on CKAN together.<br /><br /> <b>URL:</b> This is the Internet link directly to the data - by selecting this link in a web browser, the user will immediately download the full data set. Note that datasets are not hosted on this site, but by the publisher of the data. Alternatively the URL can point to an API server such as a SPARQL endpoint or JSON-P service.<br /> <b>Format:</b> This should give the file format in which the data is supplied. <br /><b>Description</b> Any information you want to add to describe the resource.<br />"
+msgstr "<br />These can be repeated as required. For example if the data is being supplied in multiple formats, or split into different areas or time periods, each file is a different 'resource' which should be described differently. They will all appear on the dataset page on CKAN together.<br /><br /> <b>URL:</b> This is the Internet link directly to the data - by selecting this link in a web browser, the user will immediately download the full data set. Note that datasets are not hosted on this site, but by the publisher of the data. Alternatively the URL can point to an API server such as a SPARQL endpoint or JSON-P service.<br /> <b>Format:</b> This should give the file format in which the data is supplied. <br /><b>Description</b> Any information you want to add to describe the resource.<br />"
 
 #: ckan/forms/package.py:76
-msgid ""
-"Format choices: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Other as "
-"appropriate"
-msgstr ""
-"zgjedhje Formati: CSV | RDF | XML | XBRL | SDMX | HTML + RDFa | Tjera "
-"sipas rastit"
+msgid "Format choices: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Other as appropriate"
+msgstr "zgjedhje Formati: CSV | RDF | XML | XBRL | SDMX | HTML + RDFa | Tjera sipas rastit"
 
 #: ckan/forms/package.py:80 ckan/forms/package.py:111
 msgid "Notes"
@@ -628,16 +559,13 @@ msgid "The main description of the dataset"
 msgstr "Përshkrimi kryesore të dhënave"
 
 #: ckan/forms/package.py:82
-msgid ""
-"It is often displayed with the package title. In particular, it should "
-"start with a short sentence that describes the data set succinctly, "
-"because the first few words alone may be used in some views of the data "
-"sets."
+msgid "It is often displayed with the package title. In particular, it should start with a short sentence that describes the data set succinctly, because the first few words alone may be used in some views of the data sets."
+msgstr "Kjo është shfaqur shpesh me titullin pako. Në veçanti, ai duhet të fillojë me një fjali të shkurtër që përshkruan të dhënat e vendosur shkurtimisht, sepse fjalët e para vetëm mund të përdoret në disa pikëpamje të vendos të dhënave."
+
+#: ckan/forms/package.py:83
+#, python-format
+msgid "You can use %sMarkdown formatting%s here."
 msgstr ""
-"Kjo është shfaqur shpesh me titullin pako. Në veçanti, ai duhet të "
-"fillojë me një fjali të shkurtër që përshkruan të dhënat e vendosur "
-"shkurtimisht, sepse fjalët e para vetëm mund të përdoret në disa "
-"pikëpamje të vendos të dhënave."
 
 #: ckan/forms/package.py:94 ckan/forms/package_gov.py:115
 msgid "Basic information"
@@ -784,9 +712,7 @@ msgstr "Nuk mund të gjej data në kërkesën POST %s: %s"
 
 #: ckan/lib/base.py:123
 msgid "Request params must be in form of a json encoded dictionary."
-msgstr ""
-"Parametrat e kërkimit duhet të jenë në formë json ose në një fjalor të "
-"koduar json"
+msgstr "Parametrat e kërkimit duhet të jenë në formë json ose në një fjalor të koduar json"
 
 #: ckan/lib/package_saver.py:136
 msgid "No links are allowed in the log_message."
@@ -1101,19 +1027,13 @@ msgstr "Autorizimi"
 
 #: ckan/templates/authorization_group/layout.html:24
 msgid ""
-"Instead of specifying the privileges of specific users on a package or "
-"group,\n"
-"          you can also specify a set of users that will share the same "
-"rights. To do that, an    \n"
-"          [1:authorization group] can be set-up and users can be added to"
-" it."
+"Instead of specifying the privileges of specific users on a package or group,\n"
+"          you can also specify a set of users that will share the same rights. To do that, an    \n"
+"          [1:authorization group] can be set-up and users can be added to it."
 msgstr ""
-"Në vend që të përcaktoni privilegje të përdoruesve apo grupeve të "
-"vecantë,\n"
-"          ju mund të përcaktoni një grup përdoruesish që kanë të njëjtat "
-"të drejta. Për të bërë këtë, një    \n"
-"          [1:authorization group] mund të krijohet dhe përdorues mund të "
-"shtohen në të."
+"Në vend që të përcaktoni privilegje të përdoruesve apo grupeve të vecantë,\n"
+"          ju mund të përcaktoni një grup përdoruesish që kanë të njëjtat të drejta. Për të bërë këtë, një    \n"
+"          [1:authorization group] mund të krijohet dhe përdorues mund të shtohen në të."
 
 #: ckan/templates/authorization_group/layout.html:28
 msgid "To create a new authorization group, please first"
@@ -1234,16 +1154,8 @@ msgid "Groups section"
 msgstr "Seksionet e grupit"
 
 #: ckan/templates/group/layout.html:12
-msgid ""
-"Whilst tags are great at collecting packages together, there are "
-"occasions when you want to restrict users from editing a collection. A "
-"[1:group] can be set-up to specify which users have permission to add or "
-"remove packages from it."
-msgstr ""
-"Megjithëse termat janë një mënyrë e mirë për të grupuar paketat, ka raste"
-" kur doni të kufizoni përdoruesit që të modifikojnë një paketë. Një "
-"[1:group] mund të krijohet duke përcaktuar cili përdorues mund të shtojë "
-"dhe të heqë paketa nga ai"
+msgid "Whilst tags are great at collecting packages together, there are occasions when you want to restrict users from editing a collection. A [1:group] can be set-up to specify which users have permission to add or remove packages from it."
+msgstr "Megjithëse termat janë një mënyrë e mirë për të grupuar paketat, ka raste kur doni të kufizoni përdoruesit që të modifikojnë një paketë. Një [1:group] mund të krijohet duke përcaktuar cili përdorues mund të shtojë dhe të heqë paketa nga ai"
 
 #: ckan/templates/group/layout.html:14
 msgid "To create a new group, please first"
@@ -1288,12 +1200,10 @@ msgstr "Rreth CKAN"
 
 #: ckan/templates/home/about.html:11
 msgid ""
-"CKAN is the Comprehensive Knowledge Archive Network, a [1:registry] of "
-"[2:open knowledge] packages and projects\n"
+"CKAN is the Comprehensive Knowledge Archive Network, a [1:registry] of [2:open knowledge] packages and projects\n"
 "    (and a few closed ones)."
 msgstr ""
-"CKAN është Comprehensive Knowledge Archive Network, një [1:registry] i "
-"[2:open knowledge] paketave dhe projekteve \n"
+"CKAN është Comprehensive Knowledge Archive Network, një [1:registry] i [2:open knowledge] paketave dhe projekteve \n"
 "    (dhe disa të mbyllur)."
 
 #: ckan/templates/home/about.html:15
@@ -1316,53 +1226,30 @@ msgstr "Vecoritë e CKAN"
 #: ckan/templates/home/about.html:24
 msgid ""
 "As the diagram shows, CKAN combines the features of a listing/registry,\n"
-"\t\ta package index and a wiki. As a registry it acts like [1:freshmeat] "
-"but for open data and\n"
+"\t\ta package index and a wiki. As a registry it acts like [1:freshmeat] but for open data and\n"
 "\t\tcontent resources. However it adds to a simple registry in key ways."
 msgstr ""
-"Sic tregohet dhe në diagram, CKAN bashkon vecoritë e një listuesi/arkive,"
-"\n"
-"<span class=\"whitespace other\" title=\"Tab\">»</span><span "
-"class=\"whitespace other\" title=\"Tab\">»</span>një paketë dhe një wiki."
-" Si një arkivë ai veprin si  [1:freshmeat] por për open data dhe\n"
-"<span class=\"whitespace other\" title=\"Tab\">»</span><span "
-"class=\"whitespace other\" title=\"Tab\">»</span>burime përmbajtje. "
-"Sidoqoftë ai ofron ruajtje të dhënash në varësi të celësave."
+"Sic tregohet dhe në diagram, CKAN bashkon vecoritë e një listuesi/arkive,\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>një paketë dhe një wiki. Si një arkivë ai veprin si  [1:freshmeat] por për open data dhe\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>burime përmbajtje. Sidoqoftë ai ofron ruajtje të dhënash në varësi të celësave."
 
 #: ckan/templates/home/about.html:29
 msgid ""
 "First, thanks to its underlying [1:versioned domain model] CKAN has a\n"
-"\t\twiki-like interface that lets anyone add and material held in it. "
-"Second,\n"
-"\t\tand unlike a wiki, CKAN can store 'structured' information, which "
-"allows it\n"
-"\t\tto provide 'index'-like features such as automated registration, "
-"discovery\n"
-"\t\tand installation of material. In this respect it behaves like "
-"[2:CPAN] or [3:PyPI] in the software world -- though\n"
+"\t\twiki-like interface that lets anyone add and material held in it. Second,\n"
+"\t\tand unlike a wiki, CKAN can store 'structured' information, which allows it\n"
+"\t\tto provide 'index'-like features such as automated registration, discovery\n"
+"\t\tand installation of material. In this respect it behaves like [2:CPAN] or [3:PyPI] in the software world -- though\n"
 "\t\tagain for [4:open data and content]\n"
 "\t\tnot code."
 msgstr ""
-"Fillimisht, thanks to its underlying [1:versioned domain model] CKAN has "
-"a\n"
-"<span class=\"whitespace other\" title=\"Tab\">»</span><span "
-"class=\"whitespace other\" title=\"Tab\">»</span>wiki-like interface that"
-" lets anyone add and material held in it. Second,\n"
-"<span class=\"whitespace other\" title=\"Tab\">»</span><span "
-"class=\"whitespace other\" title=\"Tab\">»</span>and unlike a wiki, CKAN "
-"can store 'structured' information, which allows it\n"
-"<span class=\"whitespace other\" title=\"Tab\">»</span><span "
-"class=\"whitespace other\" title=\"Tab\">»</span>to provide 'index'-like "
-"features such as automated registration, discovery\n"
-"<span class=\"whitespace other\" title=\"Tab\">»</span><span "
-"class=\"whitespace other\" title=\"Tab\">»</span>and installation of "
-"material. In this respect it behaves like [2:CPAN] or [3:PyPI] in the "
-"software world -- though\n"
-"<span class=\"whitespace other\" title=\"Tab\">»</span><span "
-"class=\"whitespace other\" title=\"Tab\">»</span>again for [4:open data "
-"and content]\n"
-"<span class=\"whitespace other\" title=\"Tab\">»</span><span "
-"class=\"whitespace other\" title=\"Tab\">»</span>not code."
+"Fillimisht, thanks to its underlying [1:versioned domain model] CKAN has a\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>wiki-like interface that lets anyone add and material held in it. Second,\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>and unlike a wiki, CKAN can store 'structured' information, which allows it\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>to provide 'index'-like features such as automated registration, discovery\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>and installation of material. In this respect it behaves like [2:CPAN] or [3:PyPI] in the software world -- though\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>again for [4:open data and content]\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>not code."
 
 #: ckan/templates/home/about.html:40
 msgid ""
@@ -1370,8 +1257,7 @@ msgid ""
 "    be found in [1:these\n"
 "      slides]."
 msgstr ""
-"Më shumë mbi CKAN dhe historikun e krijimit të tij mund të gjendet në  "
-"[1:these\n"
+"Më shumë mbi CKAN dhe historikun e krijimit të tij mund të gjendet në  [1:these\n"
 "      slides]."
 
 #: ckan/templates/home/about.html:46 ckan/templates/home/index.html:46
@@ -1380,29 +1266,16 @@ msgstr "API"
 
 #: ckan/templates/home/about.html:48
 #, python-format
-msgid ""
-"In addition to use of this website, %(site_title)s data can be viewed and"
-" changed by using CKAN's Application Programming Interface (API)."
-msgstr ""
-"Përvec përdorimit të kësaj faqeje, %(site_title)s të dhënat mund të "
-"shikohen dhe të modifikohen duke përdorur Ndërfaqen e Programimit të CKAN"
-" (API)."
+msgid "In addition to use of this website, %(site_title)s data can be viewed and changed by using CKAN's Application Programming Interface (API)."
+msgstr "Përvec përdorimit të kësaj faqeje, %(site_title)s të dhënat mund të shikohen dhe të modifikohen duke përdorur Ndërfaqen e Programimit të CKAN (API)."
 
 #: ckan/templates/home/about.html:50
-msgid ""
-"The API takes the form of a RESTful (Representational State Transfer) "
-"style API for accessing CKAN database objects and a Search API."
-msgstr ""
-"API merr informacion në formatin  RESTful (Representational State "
-"Transfer) për të aksesuar databazën e CKAN."
+msgid "The API takes the form of a RESTful (Representational State Transfer) style API for accessing CKAN database objects and a Search API."
+msgstr "API merr informacion në formatin  RESTful (Representational State Transfer) për të aksesuar databazën e CKAN."
 
 #: ckan/templates/home/about.html:52
-msgid ""
-"For full details of accessing the API, see the documentation at: "
-"[1:http://knowledgeforge.net/ckan/doc/ckan/api.html]"
-msgstr ""
-"Informacione për të aksesuar API shikoni dokumentacionin tek: "
-"[1:http://knowledgeforge.net/ckan/doc/ckan/api.html]"
+msgid "For full details of accessing the API, see the documentation at: [1:http://knowledgeforge.net/ckan/doc/ckan/api.html]"
+msgstr "Informacione për të aksesuar API shikoni dokumentacionin tek: [1:http://knowledgeforge.net/ckan/doc/ckan/api.html]"
 
 #: ckan/templates/home/about.html:55
 msgid "Who's Behind CKAN?"
@@ -1410,18 +1283,14 @@ msgstr "Kush është pas CKAN?"
 
 #: ckan/templates/home/about.html:57
 msgid ""
-"The CKAN software and site is developed and maintained by the [1:Open "
-"Knowledge Foundation]. Both the\n"
+"The CKAN software and site is developed and maintained by the [1:Open Knowledge Foundation]. Both the\n"
 "    CKAN code and data are open: [2:free for anyone to use\n"
-"      and reuse]. To find out more check out the the [3:CKAN project "
-"page] on the Open\n"
+"      and reuse]. To find out more check out the the [3:CKAN project page] on the Open\n"
 "    Knowledge Foundation site."
 msgstr ""
-"The CKAN software and site is developed and maintained by the [1:Open "
-"Knowledge Foundation]. Both the\n"
+"The CKAN software and site is developed and maintained by the [1:Open Knowledge Foundation]. Both the\n"
 "    CKAN code and data are open: [2:free for anyone to use\n"
-"      and reuse]. To find out more check out the the [3:CKAN project "
-"page] on the Open\n"
+"      and reuse]. To find out more check out the the [3:CKAN project page] on the Open\n"
 "    Knowledge Foundation site."
 
 #: ckan/templates/home/about.html:64
@@ -1429,9 +1298,7 @@ msgid "Contributors"
 msgstr "Kontribues"
 
 #: ckan/templates/home/about.html:66
-msgid ""
-"Various people and projects have contributed to the development of CKAN "
-"including:"
+msgid "Various people and projects have contributed to the development of CKAN including:"
 msgstr "Individë të ndryshëm kanë kontribuar në zhvillimin e CKAN duke përfshirë:"
 
 #: ckan/templates/home/about.html:68
@@ -1509,9 +1376,7 @@ msgid ""
 msgstr ""
 "%(title)s është një\n"
 "      [1:open registry]\n"
-"      të dhënash dhe përmbajtje në një paketë. Kjo faqe lehtëson gjetjen,"
-" ndarjen dhe ripërdorimin e përmbajtjes dhe të dhënave, veçanërisht të "
-"atyre që janë të automatizuara mekanikisht."
+"      të dhënash dhe përmbajtje në një paketë. Kjo faqe lehtëson gjetjen, ndarjen dhe ripërdorimin e përmbajtjes dhe të dhënave, veçanërisht të atyre që janë të automatizuara mekanikisht."
 
 #: ckan/templates/home/index.html:64
 #, python-format
@@ -1560,15 +1425,12 @@ msgstr "Kodi"
 
 #: ckan/templates/home/license.html:12
 msgid ""
-"The CKAN code that runs this site is open-source and licensed under the "
-"[1:GNU Affero GPL\n"
+"The CKAN code that runs this site is open-source and licensed under the [1:GNU Affero GPL\n"
 "      ]. It is hosted on [2:KnowledgeForge], and the project\n"
 "    home page is here: [3:http://knowledgeforge.net/project/ckan/]."
 msgstr ""
-"Kodi CKAN që mundëson këtë faqe është open-source dhe i licencuar nën "
-"[1:GNU Affero GPL\n"
-"      ]. Hostohet në  [2:KnowledgeForge], dhe faqja e projektit gjendet "
-"këtu: [3:http://knowledgeforge.net/project/ckan/]."
+"Kodi CKAN që mundëson këtë faqe është open-source dhe i licencuar nën [1:GNU Affero GPL\n"
+"      ]. Hostohet në  [2:KnowledgeForge], dhe faqja e projektit gjendet këtu: [3:http://knowledgeforge.net/project/ckan/]."
 
 #: ckan/templates/home/license.html:21
 msgid "Content and Data"
@@ -1577,32 +1439,18 @@ msgstr "Përmbajtja dhe të dhënat"
 #: ckan/templates/home/license.html:22
 msgid ""
 "All material on this site is [1:open] and can be freely used, reused\n"
-"    and redistributed. Formally, the data/database is licensed under the "
-"[2:Open Data Commons Open\n"
+"    and redistributed. Formally, the data/database is licensed under the [2:Open Data Commons Open\n"
 "      Database License v1.0], with all copyrightable content in that\n"
-"    database plus any additional content on this site licensed under a "
-"[3:Creative Commons\n"
+"    database plus any additional content on this site licensed under a [3:Creative Commons\n"
 "      Attribution Share-Alike v3.0 license]."
 msgstr ""
-"I gjithë materiali në këtë faqe është [1:open] dhe mund të ripërdoret "
-"falas, të rigjenerohet dhe të shpërndahet po falas. Informacioni i "
-"formatuar është i lirë nën licencën  [2:Open Data Commons Open\n"
-"      Database License v1.0], bashkë me përmbajtjen, databazën dhe cdo "
-"informacion tjetër në këtë faqe që është e licencuar nën [3:Creative "
-"Commons\n"
+"I gjithë materiali në këtë faqe është [1:open] dhe mund të ripërdoret falas, të rigjenerohet dhe të shpërndahet po falas. Informacioni i formatuar është i lirë nën licencën  [2:Open Data Commons Open\n"
+"      Database License v1.0], bashkë me përmbajtjen, databazën dhe cdo informacion tjetër në këtë faqe që është e licencuar nën [3:Creative Commons\n"
 "      Attribution Share-Alike v3.0 license]."
 
 #: ckan/templates/home/license.html:30
-msgid ""
-"For convenience, all material - including all package, tag and revision "
-"information - is available in bulk, in the form of a full dump of the "
-"CKAN database. This (gzipped) dump file is updated daily and can be "
-"downloaded from [1:http://www.ckan.net/dump/]."
-msgstr ""
-"Për lehtësi, i gjithë materiali, duke përfshire paketat, termat dhe "
-"historikun e ndryshimeve është i ofruar dhe në format të papërpunuar që "
-"mund ta shkarkoni si db CKAN. Skedari i kompresuar (gzip) përditësohet "
-"cdo ditë dhe mund të shkarkohet nga [1:http://www.ckan.net/dump/]."
+msgid "For convenience, all material - including all package, tag and revision information - is available in bulk, in the form of a full dump of the CKAN database. This (gzipped) dump file is updated daily and can be downloaded from [1:http://www.ckan.net/dump/]."
+msgstr "Për lehtësi, i gjithë materiali, duke përfshire paketat, termat dhe historikun e ndryshimeve është i ofruar dhe në format të papërpunuar që mund ta shkarkoni si db CKAN. Skedari i kompresuar (gzip) përditësohet cdo ditë dhe mund të shkarkohet nga [1:http://www.ckan.net/dump/]."
 
 #: ckan/templates/package/authz.html:5
 msgid "- Authorization - Data Packages"
@@ -1612,7 +1460,8 @@ msgstr "- Autorizimi - Paketa të dhënash"
 msgid "Authorization for Data Package:"
 msgstr "Autorizimi për të dhënat e paketës:"
 
-#: ckan/templates/package/comments.html:5 ckan/templates/package/history.html:5
+#: ckan/templates/package/comments.html:5
+#: ckan/templates/package/history.html:5
 msgid "- Data Packages - History"
 msgstr "- Paketa të dhënash - Historia"
 
@@ -1664,8 +1513,7 @@ msgid ""
 "By submitting content, you agree to release your contributions\n"
 "        under the open license specified on the"
 msgstr ""
-"Duke ofruar përmbajtje, ju keni rënë dakort që të botoni kontributin tuaj"
-"\n"
+"Duke ofruar përmbajtje, ju keni rënë dakort që të botoni kontributin tuaj\n"
 "        nën licencen e specifikuar "
 
 #: ckan/templates/package/edit_form.html:34
@@ -1801,8 +1649,7 @@ msgid ""
 msgstr ""
 "Kjo paketë është [1:not open] pasi nuk është\n"
 "      [2:not openly licensed] ose është\n"
-"      [3:missing downloadable resources]. Ndihmoni që kjo paketë të hapet"
-" duke \n"
+"      [3:missing downloadable resources]. Ndihmoni që kjo paketë të hapet duke \n"
 "        [4:starting an enquiry]\n"
 "        duke përdorur\n"
 "        [5:Is It Open\n"
@@ -1838,15 +1685,11 @@ msgstr "(Asnjë përshkrim)"
 
 #: ckan/templates/package/read_core.html:56
 msgid "This is a list of all known formats and datasets for"
-msgstr ""
-"Kjo është një listë e të gjitha formatet e njohura dhe të grupeve të të "
-"dhënave për"
+msgstr "Kjo është një listë e të gjitha formatet e njohura dhe të grupeve të të dhënave për"
 
 #: ckan/templates/package/read_core.html:57
-#, fuzzy
-#| msgid ". If you know of another (CSV, SPARQL end-pont etc.)"
 msgid ". If you know of another (CSV, SPARQL end-point etc.)"
-msgstr ". Nëse ju e dini e një tjetër (CSV, SPARQL, etj)"
+msgstr ""
 
 #: ckan/templates/package/read_core.html:60
 msgid "None given for this package."
@@ -1865,15 +1708,8 @@ msgid "API / datapkg"
 msgstr "API / datapkg"
 
 #: ckan/templates/package/read_core.html:115
-#, fuzzy
-#| msgid "" "This information on this page (the package metadata) is also
-#| available " "programatically via the"
-msgid ""
-"This information on this page (the package metadata) is also available "
-"programatically via this site's"
+msgid "This information on this page (the package metadata) is also available programatically via this site's"
 msgstr ""
-"Ky informacion në këtë faqe (metadata) është gjithashtu në dispozicion në"
-" mënyrë të programuar nëpërmjet"
 
 #: ckan/templates/package/read_core.html:116
 msgid "CKAN API"
@@ -1888,12 +1724,8 @@ msgid "RDF:"
 msgstr "RDF:"
 
 #: ckan/templates/package/read_core.html:131
-msgid ""
-"The information on this page and the downloads / resources are also "
-"available using the"
-msgstr ""
-"Të dhënat në këtë faqe dhe shkarkime / burimet janë gjithashtu në "
-"dispozicion duke përdorur"
+msgid "The information on this page and the downloads / resources are also available using the"
+msgstr "Të dhënat në këtë faqe dhe shkarkime / burimet janë gjithashtu në dispozicion duke përdorur"
 
 #: ckan/templates/package/read_core.html:133
 msgid "datapkg command line utility"
@@ -2005,8 +1837,7 @@ msgid ""
 "This page lists all changes to package database, with most recent\n"
 "    changes first."
 msgstr ""
-"Kjo faqe liston të gjitha ndryshimet tek paketa e të dhënace, me "
-"ndryshimet më të reja \n"
+"Kjo faqe liston të gjitha ndryshimet tek paketa e të dhënace, me ndryshimet më të reja \n"
 "    në fillim."
 
 #: ckan/templates/revision/list.html:21
@@ -2178,15 +2009,9 @@ msgstr "Ju lutem klikoni ofruesin e llogarisë tuaj:"
 
 #: ckan/templates/user/openid_form.html:37
 msgid ""
-"OpenID is service that allows you to log-on to many different websites "
-"using a single identity.\n"
-"    Find out [1:more about OpenID] and [2:how to get an OpenID enabled "
-"account]."
-msgstr ""
-"OpenID është shërbim që ju lejon të hyni-në në faqet e internetit të "
-"ndryshme duke përdorur një identitet të vetëm. Gjeni më shumë [1: më "
-"shumë për OpenID] dhe [2: si për të marrë një OpenID aktivizuar "
-"llogarinë]."
+"OpenID is service that allows you to log-on to many different websites using a single identity.\n"
+"    Find out [1:more about OpenID] and [2:how to get an OpenID enabled account]."
+msgstr "OpenID është shërbim që ju lejon të hyni-në në faqet e internetit të ndryshme duke përdorur një identitet të vetëm. Gjeni më shumë [1: më shumë për OpenID] dhe [2: si për të marrë një OpenID aktivizuar llogarinë]."
 
 #: ckan/templates/user/openid_form.html:43
 msgid "Don't have an OpenID?"
@@ -2197,15 +2022,9 @@ msgid ""
 "OpenID is service that allows you to log-on to many different websites\n"
 "      using a single identity. Find out [1:more\n"
 "      about OpenID] and [2:how to get an\n"
-"      OpenID enabled account]. Probably the simplest way is sign up with "
-"a\n"
+"      OpenID enabled account]. Probably the simplest way is sign up with a\n"
 "      free OpenID provider such as [3:https://www.myopenid.com/]."
-msgstr ""
-"OpenID është shërbim që ju lejon të hyni-në në faqet e internetit të "
-"ndryshme duke përdorur një identitet të vetëm. Find out [1: më shumë për "
-"OpenID] dhe [2: si për të marrë një OpenID aktivizuar llogarinë]. Ndoshta"
-" mënyra më e thjeshtë është të nënshkruajë me një ofrues të OpenID lirë "
-"të tilla si [3:https://www.myopenid.com/]."
+msgstr "OpenID është shërbim që ju lejon të hyni-në në faqet e internetit të ndryshme duke përdorur një identitet të vetëm. Find out [1: më shumë për OpenID] dhe [2: si për të marrë një OpenID aktivizuar llogarinë]. Ndoshta mënyra më e thjeshtë është të nënshkruajë me një ofrues të OpenID lirë të tilla si [3:https://www.myopenid.com/]."
 
 #: ckan/templates/user/read.html:11
 msgid "User:"
@@ -2246,55 +2065,3 @@ msgstr "Numri i pakove të administruara:"
 #: ckan/templates/user/read.html:34
 msgid "Recent changes"
 msgstr "Ndryshimet e fundit"
-
-#~ msgid ""
-#~ "This is usually the URL for the"
-#~ " package project home page not the"
-#~ " data itself."
-#~ msgstr ""
-#~ "Kjo është zakonisht URL për faqen "
-#~ "e paketës dhe jo të të dhënave "
-#~ "në vetvete."
-
-#~ msgid "(space separated list)"
-#~ msgstr "(listë e ndarë me hapësirë)"
-
-#~ msgid ""
-#~ "You can use <a "
-#~ "href=\"http://daringfireball.net/projects/markdown/syntax\">Markdown"
-#~ " formatting</a> here."
-#~ msgstr ""
-#~ "Ju mund të përdorni <a "
-#~ "href=\"http://daringfireball.net/projects/markdown/syntax\">Markdown"
-#~ " formatting</a> këtu."
-
-#~ msgid "Total number of packages"
-#~ msgstr "Numri total i paketave"
-
-#~ msgid "Revisions to packages per week"
-#~ msgstr "Historiku i paketave për javë"
-
-#~ msgid "Top Rated Packages"
-#~ msgstr "Paketat më të vlerësuara"
-
-#~ msgid "Average rating"
-#~ msgstr "Vlerësimi mesatar"
-
-#~ msgid "Number of ratings"
-#~ msgstr "Numri i vlerësimeve"
-
-#~ msgid "Most Edited Packages"
-#~ msgstr "Paketat më të modifikuara"
-
-#~ msgid "Number of edits"
-#~ msgstr "Numri i modifikimeve"
-
-#~ msgid "Largest Groups"
-#~ msgstr "Grupi më i madh"
-
-#~ msgid "Users owning most packages"
-#~ msgstr "Përdoruesi me më shumë paketa"
-
-#~ msgid "Page last updated:"
-#~ msgstr "Faqja është përditësuar së fundmi:"
-

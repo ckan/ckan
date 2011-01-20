@@ -1,25 +1,26 @@
-# Norwegian translations for ckan.
-# Copyright (C) 2010 ORGANIZATION
+# Translations template for ckan.
+# Copyright (C) 2011 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
-#
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN (Comprehensive Knowledge Archive Network)\n"
 "Report-Msgid-Bugs-To: http://www.ckan.org/\n"
-"POT-Creation-Date: 2010-12-24 11:43+0000\n"
-"PO-Revision-Date: 2011-01-18 09:50+0000\n"
-"Last-Translator: oovrebo <olav.ovrebo@gmail.com>\n"
+"POT-Creation-Date: 2011-01-18 09:50+0000\n"
+"PO-Revision-Date: 2011-01-20 19:41+0000\n"
+"Last-Translator: okfn <sysadmin@okfn.org>\n"
 "Language-Team: Norwegian <>\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: no\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "Generated-By: Babel 0.9.5\n"
 
 #: ckan/misc.py:47
 msgid "<strong>Warning:</string>: Text could not be rendered."
-msgstr ""
+msgstr "<strong>Advarsel:</strong> Tekst kunne ikke gjengis."
 
 #: ckan/controllers/authorization_group.py:34 ckan/controllers/group.py:36
 #, python-format
@@ -379,12 +380,8 @@ msgid "Name must be at least %s characters long"
 msgstr "Navnet må være minst %s tegn langt"
 
 #: ckan/forms/common.py:24
-msgid ""
-"Name must be purely lowercase alphanumeric (ascii) characters and these "
-"symbols: -_"
-msgstr ""
-"Navnet kan kun skrives med små bokstaver med ascii-tegn og disse "
-"symbolene: -_"
+msgid "Name must be purely lowercase alphanumeric (ascii) characters and these symbols: -_"
+msgstr "Navnet kan kun skrives med små bokstaver med ascii-tegn og disse symbolene: -_"
 
 #: ckan/forms/common.py:37
 msgid "Package name already exists in database"
@@ -415,9 +412,7 @@ msgstr "Lengden til stikkordet \"%s\" er kortere enn minimum %s"
 #: ckan/forms/common.py:492
 #, python-format
 msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
-msgstr ""
-"Stikkordet \"%s\" må skrives med alfanumeriske tegn (ascii) og symboler: "
-"-_."
+msgstr "Stikkordet \"%s\" må skrives med alfanumeriske tegn (ascii) og symboler: -_."
 
 #: ckan/forms/common.py:494
 #, python-format
@@ -452,12 +447,8 @@ msgstr "Gruppe"
 
 #: ckan/forms/common.py:797
 #, python-format
-msgid ""
-"Can't derived new group selection from serialized value structured like "
-"this: %s"
-msgstr ""
-"Kan ikke avlede nytt valg av gruppe fra serialisert verdi strukturert "
-"slik:%s"
+msgid "Can't derived new group selection from serialized value structured like this: %s"
+msgstr "Kan ikke avlede nytt valg av gruppe fra serialisert verdi strukturert slik:%s"
 
 #: ckan/forms/common.py:870
 msgid "other - please specify"
@@ -484,78 +475,46 @@ msgid "Add packages"
 msgstr "Legg til datakilder"
 
 #: ckan/forms/package.py:34
-#, fuzzy
-#| msgid "The title of the data set."
 msgid "A short descriptive title for the data set."
-msgstr "Datakildens tittel."
+msgstr "Gi datakilden en kort, beskrivende tittel."
 
 #: ckan/forms/package.py:35
-#, fuzzy
-#| msgid "" "Use a short descriptive title for the data set. It should not be a
-#| " "description though - save that for the Notes field. Do not give a "
-#| "trailing full stop."
-msgid ""
-"It should not be a description though - save that for the Notes field. Do"
-" not give a trailing full stop."
-msgstr ""
-"Gi datasettet en kort, beskrivende tittel. Den skal ikke være en "
-"fullstendig beskrivelse - til det brukes Notater-feltet. Ikke sett "
-"punktum etter tittelen."
+msgid "It should not be a description though - save that for the Notes field. Do not give a trailing full stop."
+msgstr "Dette skal ikke være en fullstendig beskrivelse - til det brukes Notater-feltet. Ikke sett punktum etter tittelen."
 
 #: ckan/forms/package.py:39
-#, fuzzy
-#| msgid "None given for this package."
 msgid "A unique identifier for the package."
-msgstr "Ingen spesifisert for denne datakilden."
+msgstr "Et unikt navn for datakilden."
 
 #: ckan/forms/package.py:40
-msgid ""
-"It should be broadly humanly readable, in the spirit of Semantic Web "
-"URIs. Only use an acronym if it is widely recognised. Renaming is "
-"possible but discouraged."
-msgstr ""
+msgid "It should be broadly humanly readable, in the spirit of Semantic Web URIs. Only use an acronym if it is widely recognised. Renaming is possible but discouraged."
+msgstr "Det bør være forståelig for brukere, i henhold til den semantiske webbens prinsipper for URIer. Akronymer bør bare brukes hvis de er i alminnelig bruk. Du kan endre et eksisterende navn, men dette anbefales ikke."
 
 #: ckan/forms/package.py:41
-#, fuzzy
-#| msgid "" "<strong>Unique identifier</strong> for package.<br/>2+ chars,
-#| lowercase, " "using only 'a-z0-9' and '-_'"
 msgid "2+ characters, lowercase, using only 'a-z0-9' and '-_'"
-msgstr ""
-"<strong>Unik identifikator</strong> for pakken. <br/>Må bestå av minst 2 "
-"tegn. Bruk kun små bokstaver og kun tegnene 'a-z', '0-9' og '-_'"
+msgstr "Minst 2 tegn, kun små bokstaver. Bare disse tegnene kan brukes: a-z, 0-9 og -_"
 
 #: ckan/forms/package.py:45
-#, fuzzy
-#| msgid "A number representing the version (if applicable) e.g. 1.2.0"
 msgid "A number representing the version (if applicable)"
-msgstr "Et versjonsnummer (hvis relevant), f.eks. 1.2.0"
+msgstr "Et versjonsnummer for datakilden (hvis relevant)."
 
 #: ckan/forms/package.py:50
 msgid "The URL for the web page describing the data (not the data itself)."
-msgstr ""
+msgstr "URL for websiden der datakilden beskrives (ikke for selve dataene)."
 
 #: ckan/forms/package.py:51
 msgid "e.g. http://www.example.com/growth-figures.html"
 msgstr "f.eks http://www.example.com/growth-figures.html"
 
 #: ckan/forms/package.py:55
-#, fuzzy
-#| msgid "The permanent contact name for enquiries about this particular
-#| dataset."
-msgid ""
-"The name of the main contact, for enquiries about this particular "
-"dataset, using the e-mail address in the following field."
-msgstr "Person som kan kontaktes for informasjon om dette datasettet."
+msgid "The name of the main contact, for enquiries about this particular dataset, using the e-mail address in the following field."
+msgstr "Navn på person som kan kontaktes for spørsmål om denne datakilden. Bruk epost-adresse i feltet nedenfor."
 
 #: ckan/forms/package.py:59
-msgid ""
-"If there is another important contact person (in addition to the person "
-"in the Author field) then provide details here."
-msgstr ""
+msgid "If there is another important contact person (in addition to the person in the Author field) then provide details here."
+msgstr "Navn på annen viktig kontaktperson (i tillegg til navnet i forfatterfeltet) kan legges inn her."
 
 #: ckan/forms/package.py:63
-#, fuzzy
-#| msgid "License"
 msgid "Licence"
 msgstr "Lisens"
 
@@ -572,55 +531,24 @@ msgstr "Stikkord (tags)"
 
 #: ckan/forms/package.py:69
 #, python-format
-msgid ""
-"Terms that may link this dataset to similar ones. For more information on"
-" conventions, see <a href=\"%s\">this wiki page</a>."
-msgstr ""
+msgid "Terms that may link this dataset to similar ones. For more information on conventions, see <a href=\"%s\">this wiki page</a>."
+msgstr "Termer som kan koble dette datasettet til liknende datasett. For mer informasjon om konvensjoner, se <a href=\"%s\">denne wiki-siden</a> ."
 
 #: ckan/forms/package.py:70
 msgid "e.g. pollution rivers water-quality"
-msgstr ""
+msgstr "f.eks. forurensning elver vannkvalitet"
 
 #: ckan/forms/package.py:74
 msgid "The files containing the data or address of the APIs for accessing it."
-msgstr ""
-"Filer som inneholder dataene, eller adresse til et API som gir tilgang "
-"til dataene."
+msgstr "Filer som inneholder dataene, eller adresse til et API som gir tilgang til dataene."
 
 #: ckan/forms/package.py:75
-msgid ""
-"<br />These can be repeated as required. For example if the data is being"
-" supplied in multiple formats, or split into different areas or time "
-"periods, each file is a different 'resource' which should be described "
-"differently. They will all appear on the dataset page on CKAN "
-"together.<br /><br /> <b>URL:</b> This is the Internet link directly to "
-"the data - by selecting this link in a web browser, the user will "
-"immediately download the full data set. Note that datasets are not hosted"
-" on this site, but by the publisher of the data. Alternatively the URL "
-"can point to an API server such as a SPARQL endpoint or JSON-P "
-"service.<br /> <b>Format:</b> This should give the file format in which "
-"the data is supplied. <br /><b>Description</b> Any information you want "
-"to add to describe the resource.<br />"
-msgstr ""
-"<br />Flere URLer kan oppgis etter behov. Hvis dataene f.eks. publiseres "
-"i flere formater eller er delt opp i områder eller tidsperioder, vil hver"
-" fil være en unik \"ressurs\" som bør beskrives for seg. Alle vil vises "
-"på datakildens side. <br /><br /> <b>URL:</b> Dette er lenken som fører "
-"brukeren direkte til dataene. Ved å gå til denne URLen, vil brukeren "
-"umiddelbart laste ned hele datasettet. Merk at datasett ikke er lagret på"
-" dette nettstedet, men av den som har publisert dataene. Alternativt kan "
-"URLen vise til en API-server, som et SPARQL-endepunkt eller en "
-"JSON-P-tjeneste. <br /><b>Format:</b> Her oppgis filformatet som dataene "
-"er tilgjengelig i. <br /><b>Beskrivelse</b> Informasjon du ønsker å legge"
-" til for å beskrive datakilden.<br />"
+msgid "<br />These can be repeated as required. For example if the data is being supplied in multiple formats, or split into different areas or time periods, each file is a different 'resource' which should be described differently. They will all appear on the dataset page on CKAN together.<br /><br /> <b>URL:</b> This is the Internet link directly to the data - by selecting this link in a web browser, the user will immediately download the full data set. Note that datasets are not hosted on this site, but by the publisher of the data. Alternatively the URL can point to an API server such as a SPARQL endpoint or JSON-P service.<br /> <b>Format:</b> This should give the file format in which the data is supplied. <br /><b>Description</b> Any information you want to add to describe the resource.<br />"
+msgstr "<br />Flere URLer kan oppgis etter behov. Hvis dataene f.eks. publiseres i flere formater eller er delt opp i områder eller tidsperioder, vil hver fil være en unik \"ressurs\" som bør beskrives for seg. Alle vil vises på datakildens side. <br /><br /> <b>URL:</b> Dette er lenken som fører brukeren direkte til dataene. Ved å gå til denne URLen, vil brukeren umiddelbart laste ned hele datasettet. Merk at datasett ikke er lagret på dette nettstedet, men av den som har publisert dataene. Alternativt kan URLen vise til en API-server, som et SPARQL-endepunkt eller en JSON-P-tjeneste. <br /><b>Format:</b> Her oppgis filformatet som dataene er tilgjengelig i. <br /><b>Beskrivelse</b> Informasjon du ønsker å legge til for å beskrive datakilden.<br />"
 
 #: ckan/forms/package.py:76
-msgid ""
-"Format choices: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Other as "
-"appropriate"
-msgstr ""
-"Format-typer: CSV | XLS | RDF | XML | XBRL | SDMX | HTML+RDFa | Andre "
-"relevante"
+msgid "Format choices: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Other as appropriate"
+msgstr "Format-typer: CSV | XLS | RDF | XML | XBRL | SDMX | HTML+RDFa | Andre relevante"
 
 #: ckan/forms/package.py:80 ckan/forms/package.py:111
 msgid "Notes"
@@ -631,15 +559,13 @@ msgid "The main description of the dataset"
 msgstr "Beskrivelse av datakilden"
 
 #: ckan/forms/package.py:82
-msgid ""
-"It is often displayed with the package title. In particular, it should "
-"start with a short sentence that describes the data set succinctly, "
-"because the first few words alone may be used in some views of the data "
-"sets."
-msgstr ""
-"Denne vises ofte sammen med datakildens tittel. Innled helst med en kort "
-"setning som beskriver datakilden presist. I enkelte opplistinger av "
-"datakilder vises kun de første ordene i beskrivelsen."
+msgid "It is often displayed with the package title. In particular, it should start with a short sentence that describes the data set succinctly, because the first few words alone may be used in some views of the data sets."
+msgstr "Denne vises ofte sammen med datakildens tittel. Innled helst med en kort setning som beskriver datakilden presist. I enkelte opplistinger av datakilder vises kun de første ordene i beskrivelsen."
+
+#: ckan/forms/package.py:83
+#, python-format
+msgid "You can use %sMarkdown formatting%s here."
+msgstr "Du kan bruke %sMarkdown-formatering%s her."
 
 #: ckan/forms/package.py:94 ckan/forms/package_gov.py:115
 msgid "Basic information"
@@ -1096,17 +1022,12 @@ msgstr "Autorisering"
 
 #: ckan/templates/authorization_group/layout.html:24
 msgid ""
-"Instead of specifying the privileges of specific users on a package or "
-"group,\n"
-"          you can also specify a set of users that will share the same "
-"rights. To do that, an    \n"
-"          [1:authorization group] can be set-up and users can be added to"
-" it."
+"Instead of specifying the privileges of specific users on a package or group,\n"
+"          you can also specify a set of users that will share the same rights. To do that, an    \n"
+"          [1:authorization group] can be set-up and users can be added to it."
 msgstr ""
-"Istedenfor å spesifisere rettighetene til spesifikke brukere i forhold "
-"til en pakke eller gruppe,\n"
-" kan du også spesifisere en gruppe av brukere som vil dele samme "
-"rettigheter. For å gjøre det, kan en \n"
+"Istedenfor å spesifisere rettighetene til spesifikke brukere i forhold til en pakke eller gruppe,\n"
+" kan du også spesifisere en gruppe av brukere som vil dele samme rettigheter. For å gjøre det, kan en \n"
 " [autoriseringsgruppe] bli satt opp og brukere lagt til."
 
 #: ckan/templates/authorization_group/layout.html:28
@@ -1228,16 +1149,8 @@ msgid "Groups section"
 msgstr "Gruppeseksjon"
 
 #: ckan/templates/group/layout.html:12
-msgid ""
-"Whilst tags are great at collecting packages together, there are "
-"occasions when you want to restrict users from editing a collection. A "
-"[1:group] can be set-up to specify which users have permission to add or "
-"remove packages from it."
-msgstr ""
-"Selv om stikkord (tags) egner seg glimrende til å samle pakker, kan det "
-"også hende at du ønsker å begrense brukernes adgang til å redigere en "
-"samling. I en [1:gruppe] kan du spesifisere hvilke brukere som har "
-"tillatelse til å legge til eller fjerne pakker."
+msgid "Whilst tags are great at collecting packages together, there are occasions when you want to restrict users from editing a collection. A [1:group] can be set-up to specify which users have permission to add or remove packages from it."
+msgstr "Selv om stikkord (tags) egner seg glimrende til å samle pakker, kan det også hende at du ønsker å begrense brukernes adgang til å redigere en samling. I en [1:gruppe] kan du spesifisere hvilke brukere som har tillatelse til å legge til eller fjerne pakker."
 
 #: ckan/templates/group/layout.html:14
 msgid "To create a new group, please first"
@@ -1282,21 +1195,16 @@ msgstr "Om CKAN"
 
 #: ckan/templates/home/about.html:11
 msgid ""
-"CKAN is the Comprehensive Knowledge Archive Network, a [1:registry] of "
-"[2:open knowledge] packages and projects\n"
+"CKAN is the Comprehensive Knowledge Archive Network, a [1:registry] of [2:open knowledge] packages and projects\n"
 "    (and a few closed ones)."
-msgstr ""
-"CKAN står for Comprehensive Knowledge Archive Network, et [1:register] "
-"over [2:åpen kunnskap] i form av data og innholdsressurser."
+msgstr "CKAN står for Comprehensive Knowledge Archive Network, et [1:register] over [2:åpen kunnskap] i form av data og innholdsressurser."
 
 #: ckan/templates/home/about.html:15
 msgid ""
 "CKAN makes it easy to [1:find, share and reuse open\n"
 "      content and data], especially in ways that are machine\n"
 "      automatable."
-msgstr ""
-"CKAN gjør det lett å [1:finne, dele og gjenbruke åpent innhold og data], "
-"særlig i maskinlesbar, automatisert form. "
+msgstr "CKAN gjør det lett å [1:finne, dele og gjenbruke åpent innhold og data], særlig i maskinlesbar, automatisert form. "
 
 #: ckan/templates/home/about.html:20
 msgid "As a system CKAN functions as a synthesis of several different services:"
@@ -1309,47 +1217,29 @@ msgstr "Oversikt over CKANs funksjoner"
 #: ckan/templates/home/about.html:24
 msgid ""
 "As the diagram shows, CKAN combines the features of a listing/registry,\n"
-"\t\ta package index and a wiki. As a registry it acts like [1:freshmeat] "
-"but for open data and\n"
+"\t\ta package index and a wiki. As a registry it acts like [1:freshmeat] but for open data and\n"
 "\t\tcontent resources. However it adds to a simple registry in key ways."
 msgstr ""
-"Som diagrammet viser, kombinerer CKAN funksjonene i et register, en "
-"liste,\n"
-"\t\t en pakkeindeks og en wiki. Som register fungerer det som "
-"[1:freshmeat], men tar for seg åpne data og innholdsressurser. I forhold "
-"til et vanlig register har CKAN avgjørende fordeler."
+"Som diagrammet viser, kombinerer CKAN funksjonene i et register, en liste,\n"
+"\t\t en pakkeindeks og en wiki. Som register fungerer det som [1:freshmeat], men tar for seg åpne data og innholdsressurser. I forhold til et vanlig register har CKAN avgjørende fordeler."
 
 #: ckan/templates/home/about.html:29
 msgid ""
 "First, thanks to its underlying [1:versioned domain model] CKAN has a\n"
-"\t\twiki-like interface that lets anyone add and material held in it. "
-"Second,\n"
-"\t\tand unlike a wiki, CKAN can store 'structured' information, which "
-"allows it\n"
-"\t\tto provide 'index'-like features such as automated registration, "
-"discovery\n"
-"\t\tand installation of material. In this respect it behaves like "
-"[2:CPAN] or [3:PyPI] in the software world -- though\n"
+"\t\twiki-like interface that lets anyone add and material held in it. Second,\n"
+"\t\tand unlike a wiki, CKAN can store 'structured' information, which allows it\n"
+"\t\tto provide 'index'-like features such as automated registration, discovery\n"
+"\t\tand installation of material. In this respect it behaves like [2:CPAN] or [3:PyPI] in the software world -- though\n"
 "\t\tagain for [4:open data and content]\n"
 "\t\tnot code."
-msgstr ""
-"For det første, takket være at den er basert på en [1:versjonert "
-"domenemodell] har CKAN et wiki-lignende grensesnitt som lar alle legge "
-"til og redigere det lagrede innholdet. For det andre: til forskjell fra "
-"en wiki, kan CKAN lagre 'strukturert' informasjon, som gjør det mulig å "
-"tilby 'indeks'-aktige funksjoner som automatisert registrering, "
-"oppdagelse og installasjon av materiale. På denne måten oppfører det seg "
-"som [2:CPAN] eller [3:PyPI] i programvareverdenen - men igjen tilpasset "
-"[4:åpne data og innhold], ikke kode."
+msgstr "For det første, takket være at den er basert på en [1:versjonert domenemodell] har CKAN et wiki-lignende grensesnitt som lar alle legge til og redigere det lagrede innholdet. For det andre: til forskjell fra en wiki, kan CKAN lagre 'strukturert' informasjon, som gjør det mulig å tilby 'indeks'-aktige funksjoner som automatisert registrering, oppdagelse og installasjon av materiale. På denne måten oppfører det seg som [2:CPAN] eller [3:PyPI] i programvareverdenen - men igjen tilpasset [4:åpne data og innhold], ikke kode."
 
 #: ckan/templates/home/about.html:40
 msgid ""
 "More about CKAN, and the background to its creation can\n"
 "    be found in [1:these\n"
 "      slides]."
-msgstr ""
-"Mer om CKAN og om bakgrunnen for at det ble startet finnes i [1:disse "
-"lysbildene]."
+msgstr "Mer om CKAN og om bakgrunnen for at det ble startet finnes i [1:disse lysbildene]."
 
 #: ckan/templates/home/about.html:46 ckan/templates/home/index.html:46
 msgid "API"
@@ -1357,28 +1247,16 @@ msgstr "API"
 
 #: ckan/templates/home/about.html:48
 #, python-format
-msgid ""
-"In addition to use of this website, %(site_title)s data can be viewed and"
-" changed by using CKAN's Application Programming Interface (API)."
-msgstr ""
-"I tillegg til bruk av dette nettstedet, kan %(site_title)s data også ses "
-"og endres ved å bruke CKANs programmeringsgrensesnitt (API)."
+msgid "In addition to use of this website, %(site_title)s data can be viewed and changed by using CKAN's Application Programming Interface (API)."
+msgstr "I tillegg til bruk av dette nettstedet, kan %(site_title)s data også ses og endres ved å bruke CKANs programmeringsgrensesnitt (API)."
 
 #: ckan/templates/home/about.html:50
-msgid ""
-"The API takes the form of a RESTful (Representational State Transfer) "
-"style API for accessing CKAN database objects and a Search API."
-msgstr ""
-"API-et er et RESTful (Representational State Transfer) API for tilgang "
-"til objekter i CKAN-databasen, og et API for søk."
+msgid "The API takes the form of a RESTful (Representational State Transfer) style API for accessing CKAN database objects and a Search API."
+msgstr "API-et er et RESTful (Representational State Transfer) API for tilgang til objekter i CKAN-databasen, og et API for søk."
 
 #: ckan/templates/home/about.html:52
-msgid ""
-"For full details of accessing the API, see the documentation at: "
-"[1:http://knowledgeforge.net/ckan/doc/ckan/api.html]"
-msgstr ""
-"Alle detaljer om tilgang til API-et finner du på dokumentasjonssiden: "
-"[1:http://knowledgeforge.net/ckan/doc/ckan/api.html]"
+msgid "For full details of accessing the API, see the documentation at: [1:http://knowledgeforge.net/ckan/doc/ckan/api.html]"
+msgstr "Alle detaljer om tilgang til API-et finner du på dokumentasjonssiden: [1:http://knowledgeforge.net/ckan/doc/ckan/api.html]"
 
 #: ckan/templates/home/about.html:55
 msgid "Who's Behind CKAN?"
@@ -1386,26 +1264,18 @@ msgstr "Hvem står bak CKAN?"
 
 #: ckan/templates/home/about.html:57
 msgid ""
-"The CKAN software and site is developed and maintained by the [1:Open "
-"Knowledge Foundation]. Both the\n"
+"The CKAN software and site is developed and maintained by the [1:Open Knowledge Foundation]. Both the\n"
 "    CKAN code and data are open: [2:free for anyone to use\n"
-"      and reuse]. To find out more check out the the [3:CKAN project "
-"page] on the Open\n"
+"      and reuse]. To find out more check out the the [3:CKAN project page] on the Open\n"
 "    Knowledge Foundation site."
-msgstr ""
-"CKANs programvare og nettsted er utviklet og drives av [1:Open Knowledge "
-"Foundation]. Både CKANs kode og data er åpne og [2:kan fritt brukes og "
-"gjenbrukes av alle]. Mer informasjon er tilgjengelig på [3:CKANs "
-"prosjektside] på Open Knowledge Foundations nettsted."
+msgstr "CKANs programvare og nettsted er utviklet og drives av [1:Open Knowledge Foundation]. Både CKANs kode og data er åpne og [2:kan fritt brukes og gjenbrukes av alle]. Mer informasjon er tilgjengelig på [3:CKANs prosjektside] på Open Knowledge Foundations nettsted."
 
 #: ckan/templates/home/about.html:64
 msgid "Contributors"
 msgstr "Bidragsytere"
 
 #: ckan/templates/home/about.html:66
-msgid ""
-"Various people and projects have contributed to the development of CKAN "
-"including:"
+msgid "Various people and projects have contributed to the development of CKAN including:"
 msgstr "Mange personer og prosjekter har bidratt til utviklingen av CKAN:"
 
 #: ckan/templates/home/about.html:68
@@ -1481,14 +1351,9 @@ msgid ""
 "      site makes it easy to find, share and reuse content and data,\n"
 "      especially in ways that are machine automatable."
 msgstr ""
-"%(title)s er et register over [1:åpne data og åpent innhold]. Ved bruk av"
-" programvaren CKAN gjør dette nettstedet det lett å finne, dele og "
-"gjenbruke åpne data og innhold, særlig på måter som er maskinlesbare og "
-"automatiserbare. \r\n"
+"%(title)s er et register over [1:åpne data og åpent innhold]. Ved bruk av programvaren CKAN gjør dette nettstedet det lett å finne, dele og gjenbruke åpne data og innhold, særlig på måter som er maskinlesbare og automatiserbare. \r\n"
 "\r\n"
-"Dette nettstedet er i ferd med å bytte navn til datakilder.no. Det "
-"erstatter det tidligere nettstedet med samme navn. Datakildene som var "
-"registrert på det gamle datakilder.no er inkludert her."
+"Dette nettstedet er i ferd med å bytte navn til datakilder.no. Det erstatter det tidligere nettstedet med samme navn. Datakildene som var registrert på det gamle datakilder.no er inkludert her."
 
 #: ckan/templates/home/index.html:64
 #, python-format
@@ -1523,7 +1388,9 @@ msgstr "Mer »"
 msgid ""
 "';\n"
 "var MSG_ADD_ROW = '"
-msgstr "'; Var MSG_ADD_ROW ='"
+msgstr ""
+"';\n"
+"var MSG_ADD_ROW ='"
 
 #: ckan/templates/home/language.js:2
 msgid "Add row to table"
@@ -1535,14 +1402,10 @@ msgstr "Kildekode"
 
 #: ckan/templates/home/license.html:12
 msgid ""
-"The CKAN code that runs this site is open-source and licensed under the "
-"[1:GNU Affero GPL\n"
+"The CKAN code that runs this site is open-source and licensed under the [1:GNU Affero GPL\n"
 "      ]. It is hosted on [2:KnowledgeForge], and the project\n"
 "    home page is here: [3:http://knowledgeforge.net/project/ckan/]."
-msgstr ""
-"CKANs kildekode er åpen og lisensiert under [1:GNU Affero GPL]. Den er "
-"lagret på [2:KnowledgeForge], og her er prosjektets hjemmeside: "
-"[3:http://knowledgeforge.net/project/ckan/]."
+msgstr "CKANs kildekode er åpen og lisensiert under [1:GNU Affero GPL]. Den er lagret på [2:KnowledgeForge], og her er prosjektets hjemmeside: [3:http://knowledgeforge.net/project/ckan/]."
 
 #: ckan/templates/home/license.html:21
 msgid "Content and Data"
@@ -1551,32 +1414,15 @@ msgstr "Innhold og data"
 #: ckan/templates/home/license.html:22
 msgid ""
 "All material on this site is [1:open] and can be freely used, reused\n"
-"    and redistributed. Formally, the data/database is licensed under the "
-"[2:Open Data Commons Open\n"
+"    and redistributed. Formally, the data/database is licensed under the [2:Open Data Commons Open\n"
 "      Database License v1.0], with all copyrightable content in that\n"
-"    database plus any additional content on this site licensed under a "
-"[3:Creative Commons\n"
+"    database plus any additional content on this site licensed under a [3:Creative Commons\n"
 "      Attribution Share-Alike v3.0 license]."
-msgstr ""
-"Alt materiale på dette nettstedet er [1:åpent] og kan fritt brukes, "
-"gjenbrukes og distribueres videre. Dataene/databasen er formelt "
-"lisensiert under [2:Open Data Commons Open Database License v1.0], og alt"
-" innhold som kan være gjenstand for opphavsrett i denne databasen samt "
-"alt øvrig innhold på dette nettstedet er lisensiert under en [3:Creative "
-"Commons Attribution Share-Alike v3.0-lisens]."
+msgstr "Alt materiale på dette nettstedet er [1:åpent] og kan fritt brukes, gjenbrukes og distribueres videre. Dataene/databasen er formelt lisensiert under [2:Open Data Commons Open Database License v1.0], og alt innhold som kan være gjenstand for opphavsrett i denne databasen samt alt øvrig innhold på dette nettstedet er lisensiert under en [3:Creative Commons Attribution Share-Alike v3.0-lisens]."
 
 #: ckan/templates/home/license.html:30
-msgid ""
-"For convenience, all material - including all package, tag and revision "
-"information - is available in bulk, in the form of a full dump of the "
-"CKAN database. This (gzipped) dump file is updated daily and can be "
-"downloaded from [1:http://www.ckan.net/dump/]."
-msgstr ""
-"Av praktiske hensyn er alt materiale - inkludert all informasjon om "
-"pakker, stikkord (tags) og revisjoner - tilgjengelig i sin helhet, som en"
-" kopi av hele CKAN-databasen. Denne databasedump-filen (komprimert med "
-"gzip) blir oppdatert daglig og kan lastes ned fra "
-"[1:http://www.ckan.net/dump/]."
+msgid "For convenience, all material - including all package, tag and revision information - is available in bulk, in the form of a full dump of the CKAN database. This (gzipped) dump file is updated daily and can be downloaded from [1:http://www.ckan.net/dump/]."
+msgstr "Av praktiske hensyn er alt materiale - inkludert all informasjon om pakker, stikkord (tags) og revisjoner - tilgjengelig i sin helhet, som en kopi av hele CKAN-databasen. Denne databasedump-filen (komprimert med gzip) blir oppdatert daglig og kan lastes ned fra [1:http://www.ckan.net/dump/]."
 
 #: ckan/templates/package/authz.html:5
 msgid "- Authorization - Data Packages"
@@ -1586,7 +1432,8 @@ msgstr "- Autorisering - datakilder"
 msgid "Authorization for Data Package:"
 msgstr "Autorisering for datakilde:"
 
-#: ckan/templates/package/comments.html:5 ckan/templates/package/history.html:5
+#: ckan/templates/package/comments.html:5
+#: ckan/templates/package/history.html:5
 msgid "- Data Packages - History"
 msgstr "Datakilder - historikk"
 
@@ -1771,10 +1618,7 @@ msgid ""
 "        using the\n"
 "        [5:Is It Open\n"
 "          Data service]."
-msgstr ""
-"Denne datakilden er [1:ikke åpen] siden den ikke har en [2:åpen lisens] "
-"eller [3:mangler nedlastbare ressurser]. Bidra til å åpne den ved å "
-"[4:undersøke] ved hjelp av tjenesten [5:Is It Open Data]."
+msgstr "Denne datakilden er [1:ikke åpen] siden den ikke har en [2:åpen lisens] eller [3:mangler nedlastbare ressurser]. Bidra til å åpne den ved å [4:undersøke] ved hjelp av tjenesten [5:Is It Open Data]."
 
 #: ckan/templates/package/read.html:115
 msgid "RDF Version"
@@ -1809,10 +1653,8 @@ msgid "This is a list of all known formats and datasets for"
 msgstr "Dette er en liste over alle kjente formater og datasett for"
 
 #: ckan/templates/package/read_core.html:57
-#, fuzzy
-#| msgid ". If you know of another (CSV, SPARQL end-pont etc.)"
 msgid ". If you know of another (CSV, SPARQL end-point etc.)"
-msgstr ". Hvis du vet om et annet (CSV, SPARQL endepunkt osv.)"
+msgstr ". Hvis du vet om et annet format (CSV, SPARQL endepunkt osv.)"
 
 #: ckan/templates/package/read_core.html:60
 msgid "None given for this package."
@@ -1831,19 +1673,12 @@ msgid "API / datapkg"
 msgstr "API / datapkg"
 
 #: ckan/templates/package/read_core.html:115
-#, fuzzy
-#| msgid "" "This information on this page (the package metadata) is also
-#| available " "programatically via the"
-msgid ""
-"This information on this page (the package metadata) is also available "
-"programatically via this site's"
-msgstr ""
-"Informasjonen på denne siden (metadata for datakilden) er også "
-"tilgjengelig automagisk via"
+msgid "This information on this page (the package metadata) is also available programatically via this site's"
+msgstr "Informasjonen på denne siden (datakildens metadata) er også tilgjengelig automagisk via dette nettstedets"
 
 #: ckan/templates/package/read_core.html:116
 msgid "CKAN API"
-msgstr ""
+msgstr "CKAN API"
 
 #: ckan/templates/package/read_core.html:118
 msgid "JSON:"
@@ -1854,12 +1689,8 @@ msgid "RDF:"
 msgstr "RDF:"
 
 #: ckan/templates/package/read_core.html:131
-msgid ""
-"The information on this page and the downloads / resources are also "
-"available using the"
-msgstr ""
-"Informasjonen på denne siden og nedlasting/ressurser er også tilgjengelig"
-" ved å bruke"
+msgid "The information on this page and the downloads / resources are also available using the"
+msgstr "Informasjonen på denne siden og nedlasting/ressurser er også tilgjengelig ved å bruke"
 
 #: ckan/templates/package/read_core.html:133
 msgid "datapkg command line utility"
@@ -1920,7 +1751,7 @@ msgstr "Ønsker du å [1:opprette en ny datakilde?]"
 
 #: ckan/templates/package/search_form.html:15
 msgid "Filter by"
-msgstr "Filtrer med"
+msgstr "Søkefilter:"
 
 #: ckan/templates/package/search_form.html:15
 msgid "packages with open licenses"
@@ -2143,14 +1974,9 @@ msgstr "Vennligst velg din leverandør"
 
 #: ckan/templates/user/openid_form.html:37
 msgid ""
-"OpenID is service that allows you to log-on to many different websites "
-"using a single identity.\n"
-"    Find out [1:more about OpenID] and [2:how to get an OpenID enabled "
-"account]."
-msgstr ""
-"OpenID er en tjeneste som gjør det mulig for deg å logge deg inn på mange"
-" ulike nettsteder med samme brukernavn. Finn ut [1:mer om OpenID] og "
-"[2:hvordan du kan få en OpenID-støttet brukerkonto]."
+"OpenID is service that allows you to log-on to many different websites using a single identity.\n"
+"    Find out [1:more about OpenID] and [2:how to get an OpenID enabled account]."
+msgstr "OpenID er en tjeneste som gjør det mulig for deg å logge deg inn på mange ulike nettsteder med samme brukernavn. Finn ut [1:mer om OpenID] og [2:hvordan du kan få en OpenID-støttet brukerkonto]."
 
 #: ckan/templates/user/openid_form.html:43
 msgid "Don't have an OpenID?"
@@ -2161,15 +1987,9 @@ msgid ""
 "OpenID is service that allows you to log-on to many different websites\n"
 "      using a single identity. Find out [1:more\n"
 "      about OpenID] and [2:how to get an\n"
-"      OpenID enabled account]. Probably the simplest way is sign up with "
-"a\n"
+"      OpenID enabled account]. Probably the simplest way is sign up with a\n"
 "      free OpenID provider such as [3:https://www.myopenid.com/]."
-msgstr ""
-"OpenID er en tjeneste som gjør det mulig for deg å logge deg inn på mange"
-" ulike nettsteder med samme brukernavn. Finn ut [1:mer om OpenID] og "
-"[2:hvordan du kan få en OpenID-støttet brukerkonto]. Antakelig er den "
-"enkleste måten å registrere seg hos en gratis OpenID-leverandør som "
-"[3:https://www.myopenid.com/]. "
+msgstr "OpenID er en tjeneste som gjør det mulig for deg å logge deg inn på mange ulike nettsteder med samme brukernavn. Finn ut [1:mer om OpenID] og [2:hvordan du kan få en OpenID-støttet brukerkonto]. Antakelig er den enkleste måten å registrere seg hos en gratis OpenID-leverandør som [3:https://www.myopenid.com/]. "
 
 #: ckan/templates/user/read.html:11
 msgid "User:"
@@ -2210,55 +2030,3 @@ msgstr "Antall pakker administrert:"
 #: ckan/templates/user/read.html:34
 msgid "Recent changes"
 msgstr "Siste endringer"
-
-#~ msgid ""
-#~ "This is usually the URL for the"
-#~ " package project home page not the"
-#~ " data itself."
-#~ msgstr ""
-#~ "Dette er vanligvis URL for nettside "
-#~ "som beskriver datakidlen, ikke selve "
-#~ "dataene."
-
-#~ msgid "(space separated list)"
-#~ msgstr "(mellomrom skiller hvert stikkord)"
-
-#~ msgid ""
-#~ "You can use <a "
-#~ "href=\"http://daringfireball.net/projects/markdown/syntax\">Markdown"
-#~ " formatting</a> here."
-#~ msgstr ""
-#~ "Du kan bruke <a "
-#~ "href=\"http://daringfireball.net/projects/markdown/syntax"
-#~ "\">Markdown-formatering</a> her."
-
-#~ msgid "Total number of packages"
-#~ msgstr "Totalt antall datakilder"
-
-#~ msgid "Revisions to packages per week"
-#~ msgstr "Revisjoner av datakilder per uke"
-
-#~ msgid "Top Rated Packages"
-#~ msgstr "Høyest rangerte datakilder"
-
-#~ msgid "Average rating"
-#~ msgstr "Gjennomsnittlig rangering"
-
-#~ msgid "Number of ratings"
-#~ msgstr "Antall rangeringer"
-
-#~ msgid "Most Edited Packages"
-#~ msgstr "Mest redigerte datakilder"
-
-#~ msgid "Number of edits"
-#~ msgstr "Antall redigeringer"
-
-#~ msgid "Largest Groups"
-#~ msgstr "Største grupper"
-
-#~ msgid "Users owning most packages"
-#~ msgstr "Brukere som eier flest datakilder"
-
-#~ msgid "Page last updated:"
-#~ msgstr "Siden sist oppdatert:"
-

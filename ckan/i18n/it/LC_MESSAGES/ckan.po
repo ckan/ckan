@@ -1,20 +1,21 @@
-# Italian translations for ckan.
-# Copyright (C) 2010 ORGANIZATION
+# Translations template for ckan.
+# Copyright (C) 2011 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
-#
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN (Comprehensive Knowledge Archive Network)\n"
 "Report-Msgid-Bugs-To: http://www.ckan.org/\n"
-"POT-Creation-Date: 2010-12-24 11:43+0000\n"
-"PO-Revision-Date: 2011-01-18 09:50+0000\n"
+"POT-Creation-Date: 2011-01-18 09:50+0000\n"
+"PO-Revision-Date: 2011-01-20 19:41+0000\n"
 "Last-Translator: okfn <sysadmin@okfn.org>\n"
 "Language-Team: Italian <None>\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: it\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "Generated-By: Babel 0.9.5\n"
 
 #: ckan/misc.py:47
@@ -146,9 +147,7 @@ msgstr "Errore con l'account utente. Esci ed entra di nuovo."
 #: ckan/controllers/importer.py:174
 #, python-format
 msgid "Package %s already exists in database. Import will edit the fields."
-msgstr ""
-"Il pacchetto %s esiste già nel database. L'importazione modificherà i "
-"campi."
+msgstr "Il pacchetto %s esiste già nel database. L'importazione modificherà i campi."
 
 #: ckan/controllers/importer.py:177
 #, python-format
@@ -381,12 +380,8 @@ msgid "Name must be at least %s characters long"
 msgstr "Il nome deve essere lungo almeno %s caratteri"
 
 #: ckan/forms/common.py:24
-msgid ""
-"Name must be purely lowercase alphanumeric (ascii) characters and these "
-"symbols: -_"
-msgstr ""
-"Il nome deve essere composto da caratteri alfanumerici minuscoli e dai "
-"simboli -_"
+msgid "Name must be purely lowercase alphanumeric (ascii) characters and these symbols: -_"
+msgstr "Il nome deve essere composto da caratteri alfanumerici minuscoli e dai simboli -_"
 
 #: ckan/forms/common.py:37
 msgid "Package name already exists in database"
@@ -432,9 +427,7 @@ msgstr "Chiave duplicata \"%s\""
 #: ckan/forms/common.py:514
 #, python-format
 msgid "Extra key-value pair: key is not set for value \"%s\"."
-msgstr ""
-"Coppia extra di chiave-valore: la chiave non è impostata per il valore "
-"\"%s\"."
+msgstr "Coppia extra di chiave-valore: la chiave non è impostata per il valore \"%s\"."
 
 #: ckan/forms/common.py:637
 msgid "Group select field 'user_editable_groups' is not initialized."
@@ -454,9 +447,7 @@ msgstr "Gruppo"
 
 #: ckan/forms/common.py:797
 #, python-format
-msgid ""
-"Can't derived new group selection from serialized value structured like "
-"this: %s"
+msgid "Can't derived new group selection from serialized value structured like this: %s"
 msgstr ""
 
 #: ckan/forms/common.py:870
@@ -488,32 +479,20 @@ msgid "A short descriptive title for the data set."
 msgstr ""
 
 #: ckan/forms/package.py:35
-msgid ""
-"It should not be a description though - save that for the Notes field. Do"
-" not give a trailing full stop."
+msgid "It should not be a description though - save that for the Notes field. Do not give a trailing full stop."
 msgstr ""
 
 #: ckan/forms/package.py:39
-#, fuzzy
-#| msgid "None given for this package."
 msgid "A unique identifier for the package."
-msgstr "Nessuno per questo pacchetto."
+msgstr ""
 
 #: ckan/forms/package.py:40
-msgid ""
-"It should be broadly humanly readable, in the spirit of Semantic Web "
-"URIs. Only use an acronym if it is widely recognised. Renaming is "
-"possible but discouraged."
+msgid "It should be broadly humanly readable, in the spirit of Semantic Web URIs. Only use an acronym if it is widely recognised. Renaming is possible but discouraged."
 msgstr ""
 
 #: ckan/forms/package.py:41
-#, fuzzy
-#| msgid "" "<strong>Unique identifier</strong> for package.<br/>2+ chars,
-#| lowercase, " "using only 'a-z0-9' and '-_'"
 msgid "2+ characters, lowercase, using only 'a-z0-9' and '-_'"
 msgstr ""
-"<strong>Identificativo univoco</strong> per il pacchetto.<br/>Più di 2 "
-"caratteri, minuscolo, solo caratteri alfanumerici e i simboli '-_'"
 
 #: ckan/forms/package.py:45
 msgid "A number representing the version (if applicable)"
@@ -528,22 +507,16 @@ msgid "e.g. http://www.example.com/growth-figures.html"
 msgstr ""
 
 #: ckan/forms/package.py:55
-msgid ""
-"The name of the main contact, for enquiries about this particular "
-"dataset, using the e-mail address in the following field."
+msgid "The name of the main contact, for enquiries about this particular dataset, using the e-mail address in the following field."
 msgstr ""
 
 #: ckan/forms/package.py:59
-msgid ""
-"If there is another important contact person (in addition to the person "
-"in the Author field) then provide details here."
+msgid "If there is another important contact person (in addition to the person in the Author field) then provide details here."
 msgstr ""
 
 #: ckan/forms/package.py:63
-#, fuzzy
-#| msgid "License"
 msgid "Licence"
-msgstr "Licenza"
+msgstr ""
 
 #: ckan/forms/package.py:64
 msgid "The licence under which the dataset is released."
@@ -558,9 +531,7 @@ msgstr "Tag"
 
 #: ckan/forms/package.py:69
 #, python-format
-msgid ""
-"Terms that may link this dataset to similar ones. For more information on"
-" conventions, see <a href=\"%s\">this wiki page</a>."
+msgid "Terms that may link this dataset to similar ones. For more information on conventions, see <a href=\"%s\">this wiki page</a>."
 msgstr ""
 
 #: ckan/forms/package.py:70
@@ -572,25 +543,11 @@ msgid "The files containing the data or address of the APIs for accessing it."
 msgstr ""
 
 #: ckan/forms/package.py:75
-msgid ""
-"<br />These can be repeated as required. For example if the data is being"
-" supplied in multiple formats, or split into different areas or time "
-"periods, each file is a different 'resource' which should be described "
-"differently. They will all appear on the dataset page on CKAN "
-"together.<br /><br /> <b>URL:</b> This is the Internet link directly to "
-"the data - by selecting this link in a web browser, the user will "
-"immediately download the full data set. Note that datasets are not hosted"
-" on this site, but by the publisher of the data. Alternatively the URL "
-"can point to an API server such as a SPARQL endpoint or JSON-P "
-"service.<br /> <b>Format:</b> This should give the file format in which "
-"the data is supplied. <br /><b>Description</b> Any information you want "
-"to add to describe the resource.<br />"
+msgid "<br />These can be repeated as required. For example if the data is being supplied in multiple formats, or split into different areas or time periods, each file is a different 'resource' which should be described differently. They will all appear on the dataset page on CKAN together.<br /><br /> <b>URL:</b> This is the Internet link directly to the data - by selecting this link in a web browser, the user will immediately download the full data set. Note that datasets are not hosted on this site, but by the publisher of the data. Alternatively the URL can point to an API server such as a SPARQL endpoint or JSON-P service.<br /> <b>Format:</b> This should give the file format in which the data is supplied. <br /><b>Description</b> Any information you want to add to describe the resource.<br />"
 msgstr ""
 
 #: ckan/forms/package.py:76
-msgid ""
-"Format choices: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Other as "
-"appropriate"
+msgid "Format choices: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Other as appropriate"
 msgstr ""
 
 #: ckan/forms/package.py:80 ckan/forms/package.py:111
@@ -602,11 +559,12 @@ msgid "The main description of the dataset"
 msgstr ""
 
 #: ckan/forms/package.py:82
-msgid ""
-"It is often displayed with the package title. In particular, it should "
-"start with a short sentence that describes the data set succinctly, "
-"because the first few words alone may be used in some views of the data "
-"sets."
+msgid "It is often displayed with the package title. In particular, it should start with a short sentence that describes the data set succinctly, because the first few words alone may be used in some views of the data sets."
+msgstr ""
+
+#: ckan/forms/package.py:83
+#, python-format
+msgid "You can use %sMarkdown formatting%s here."
 msgstr ""
 
 #: ckan/forms/package.py:94 ckan/forms/package_gov.py:115
@@ -750,9 +708,7 @@ msgstr "Agenzia"
 #: ckan/lib/base.py:117
 #, python-format
 msgid "Can't find entity data in request POST data %s: %s"
-msgstr ""
-"Impossibile trovare dati di entità nei parametri della richiesta POST %s:"
-" %s"
+msgstr "Impossibile trovare dati di entità nei parametri della richiesta POST %s: %s"
 
 #: ckan/lib/base.py:123
 msgid "Request params must be in form of a json encoded dictionary."
@@ -1068,17 +1024,12 @@ msgstr "Autorizzazione"
 
 #: ckan/templates/authorization_group/layout.html:24
 msgid ""
-"Instead of specifying the privileges of specific users on a package or "
-"group,\n"
-"          you can also specify a set of users that will share the same "
-"rights. To do that, an    \n"
-"          [1:authorization group] can be set-up and users can be added to"
-" it."
+"Instead of specifying the privileges of specific users on a package or group,\n"
+"          you can also specify a set of users that will share the same rights. To do that, an    \n"
+"          [1:authorization group] can be set-up and users can be added to it."
 msgstr ""
-"Piuttosto che specificare i permessi di utenti specifici su un pacchetto "
-"o su un gruppo di pacchetti,\n"
-" è anche possibile indicare un insieme di utenti che condivideranno gli "
-"stessi permessi. Per fare questo, è sufficiente creare un \n"
+"Piuttosto che specificare i permessi di utenti specifici su un pacchetto o su un gruppo di pacchetti,\n"
+" è anche possibile indicare un insieme di utenti che condivideranno gli stessi permessi. Per fare questo, è sufficiente creare un \n"
 " [1:gruppo di utenti] e aggiungervi gli utenti desiderati."
 
 #: ckan/templates/authorization_group/layout.html:28
@@ -1200,16 +1151,8 @@ msgid "Groups section"
 msgstr "Sezione gruppi"
 
 #: ckan/templates/group/layout.html:12
-msgid ""
-"Whilst tags are great at collecting packages together, there are "
-"occasions when you want to restrict users from editing a collection. A "
-"[1:group] can be set-up to specify which users have permission to add or "
-"remove packages from it."
-msgstr ""
-"Sebbene i tag siano ottimi per raccogliere pacchetti, ci sono delle "
-"occasioni in cui è necessario impedire che qualunque utente possa "
-"modificare la raccolta. Si può impostare un [1:gruppo] per indicare quali"
-" utenti hanno il permesso di aggiungere o rimuovere pacchetti dal gruppo."
+msgid "Whilst tags are great at collecting packages together, there are occasions when you want to restrict users from editing a collection. A [1:group] can be set-up to specify which users have permission to add or remove packages from it."
+msgstr "Sebbene i tag siano ottimi per raccogliere pacchetti, ci sono delle occasioni in cui è necessario impedire che qualunque utente possa modificare la raccolta. Si può impostare un [1:gruppo] per indicare quali utenti hanno il permesso di aggiungere o rimuovere pacchetti dal gruppo."
 
 #: ckan/templates/group/layout.html:14
 msgid "To create a new group, please first"
@@ -1254,12 +1197,10 @@ msgstr "Informazioni su CKAN"
 
 #: ckan/templates/home/about.html:11
 msgid ""
-"CKAN is the Comprehensive Knowledge Archive Network, a [1:registry] of "
-"[2:open knowledge] packages and projects\n"
+"CKAN is the Comprehensive Knowledge Archive Network, a [1:registry] of [2:open knowledge] packages and projects\n"
 "    (and a few closed ones)."
 msgstr ""
-"CKAN è il Comprehensive Knowledge Archive Network, un [1:catalogo] di "
-"progetti e [2:dati liberi]\n"
+"CKAN è il Comprehensive Knowledge Archive Network, un [1:catalogo] di progetti e [2:dati liberi]\n"
 " (e alcuni non liberi)."
 
 #: ckan/templates/home/about.html:15
@@ -1283,40 +1224,28 @@ msgstr "Panoramica delle funzionalità di CKAN"
 #: ckan/templates/home/about.html:24
 msgid ""
 "As the diagram shows, CKAN combines the features of a listing/registry,\n"
-"\t\ta package index and a wiki. As a registry it acts like [1:freshmeat] "
-"but for open data and\n"
+"\t\ta package index and a wiki. As a registry it acts like [1:freshmeat] but for open data and\n"
 "\t\tcontent resources. However it adds to a simple registry in key ways."
 msgstr ""
-"Come mostrato nel diagramma, CKAN combina le caratteristiche di un "
-"catalogo,\n"
-"\t\tdi un indice di pacchetti e di un wiki. Il catalogo funziona come "
-"[1:freshmeat] ma per i dati e\n"
+"Come mostrato nel diagramma, CKAN combina le caratteristiche di un catalogo,\n"
+"\t\tdi un indice di pacchetti e di un wiki. Il catalogo funziona come [1:freshmeat] ma per i dati e\n"
 "\t le risorse libere. Tuttavia, CKAN è più di un semplice catalogo."
 
 #: ckan/templates/home/about.html:29
 msgid ""
 "First, thanks to its underlying [1:versioned domain model] CKAN has a\n"
-"\t\twiki-like interface that lets anyone add and material held in it. "
-"Second,\n"
-"\t\tand unlike a wiki, CKAN can store 'structured' information, which "
-"allows it\n"
-"\t\tto provide 'index'-like features such as automated registration, "
-"discovery\n"
-"\t\tand installation of material. In this respect it behaves like "
-"[2:CPAN] or [3:PyPI] in the software world -- though\n"
+"\t\twiki-like interface that lets anyone add and material held in it. Second,\n"
+"\t\tand unlike a wiki, CKAN can store 'structured' information, which allows it\n"
+"\t\tto provide 'index'-like features such as automated registration, discovery\n"
+"\t\tand installation of material. In this respect it behaves like [2:CPAN] or [3:PyPI] in the software world -- though\n"
 "\t\tagain for [4:open data and content]\n"
 "\t\tnot code."
 msgstr ""
-"Anzitutto, grazie al [1:versioned domain model] che è alla base del suo "
-"funzionamento, CKAN ha una\n"
-"\t\tinterfaccia wiki che permette a chiunque di aggiungere materiali. In "
-"secondo luogo\n"
-"\t\tdiversamente da un wiki, CKAN memorizza informazioni 'strutturate', "
-"che gli permettono\n"
-"\t\tdi funzionare come un 'indice' con registrazione automatica, ricerca "
-"e installazione\n"
-"\t\tdi materiale. In questo senso funziona come [2:CPAN] oppure [3:PyPI] "
-"nel mondo del software -- ma per i [4:dati e contenuti aperti]."
+"Anzitutto, grazie al [1:versioned domain model] che è alla base del suo funzionamento, CKAN ha una\n"
+"\t\tinterfaccia wiki che permette a chiunque di aggiungere materiali. In secondo luogo\n"
+"\t\tdiversamente da un wiki, CKAN memorizza informazioni 'strutturate', che gli permettono\n"
+"\t\tdi funzionare come un 'indice' con registrazione automatica, ricerca e installazione\n"
+"\t\tdi materiale. In questo senso funziona come [2:CPAN] oppure [3:PyPI] nel mondo del software -- ma per i [4:dati e contenuti aperti]."
 
 #: ckan/templates/home/about.html:40
 msgid ""
@@ -1334,30 +1263,16 @@ msgstr "API"
 
 #: ckan/templates/home/about.html:48
 #, python-format
-msgid ""
-"In addition to use of this website, %(site_title)s data can be viewed and"
-" changed by using CKAN's Application Programming Interface (API)."
-msgstr ""
-"In aggiunta all'interfaccia web del sito, i dati di %(site_title)s "
-"possono essere visualizzati e modificati usando la Application "
-"Programming Interface (API) di CKAN."
+msgid "In addition to use of this website, %(site_title)s data can be viewed and changed by using CKAN's Application Programming Interface (API)."
+msgstr "In aggiunta all'interfaccia web del sito, i dati di %(site_title)s possono essere visualizzati e modificati usando la Application Programming Interface (API) di CKAN."
 
 #: ckan/templates/home/about.html:50
-msgid ""
-"The API takes the form of a RESTful (Representational State Transfer) "
-"style API for accessing CKAN database objects and a Search API."
-msgstr ""
-"La API segue lo stile RESTful (Representational State Transfer) per "
-"accedere al database di CKAN ed effettuare ricerche."
+msgid "The API takes the form of a RESTful (Representational State Transfer) style API for accessing CKAN database objects and a Search API."
+msgstr "La API segue lo stile RESTful (Representational State Transfer) per accedere al database di CKAN ed effettuare ricerche."
 
 #: ckan/templates/home/about.html:52
-msgid ""
-"For full details of accessing the API, see the documentation at: "
-"[1:http://knowledgeforge.net/ckan/doc/ckan/api.html]"
-msgstr ""
-"Per ulteriori dettagli su come accedere alla API, si può consultare la "
-"documentazione completa all'indirizzo "
-"[1:http://knowledgeforge.net/ckan/doc/ckan/api.html]"
+msgid "For full details of accessing the API, see the documentation at: [1:http://knowledgeforge.net/ckan/doc/ckan/api.html]"
+msgstr "Per ulteriori dettagli su come accedere alla API, si può consultare la documentazione completa all'indirizzo [1:http://knowledgeforge.net/ckan/doc/ckan/api.html]"
 
 #: ckan/templates/home/about.html:55
 msgid "Who's Behind CKAN?"
@@ -1365,19 +1280,14 @@ msgstr "Chi c'è dietro CKAN?"
 
 #: ckan/templates/home/about.html:57
 msgid ""
-"The CKAN software and site is developed and maintained by the [1:Open "
-"Knowledge Foundation]. Both the\n"
+"The CKAN software and site is developed and maintained by the [1:Open Knowledge Foundation]. Both the\n"
 "    CKAN code and data are open: [2:free for anyone to use\n"
-"      and reuse]. To find out more check out the the [3:CKAN project "
-"page] on the Open\n"
+"      and reuse]. To find out more check out the the [3:CKAN project page] on the Open\n"
 "    Knowledge Foundation site."
 msgstr ""
-"Il software di CKAN è mantenuto dalla [1:Open Knowledge Foundation]. "
-"Questo sito è mantenuto dalla Open Knowledge Foundation e dal Centro NEXA"
-" del Politecnico di Torino. Il codice e i dati di \n"
+"Il software di CKAN è mantenuto dalla [1:Open Knowledge Foundation]. Questo sito è mantenuto dalla Open Knowledge Foundation e dal Centro NEXA del Politecnico di Torino. Il codice e i dati di \n"
 " CKAN sono aperti: [2:chiunque può usarli\n"
-" e riutilizzarli]. Per maggiori informazioni è possibile consultare il "
-"[3:sito del progetto CKAN] sul sito web della Open\n"
+" e riutilizzarli]. Per maggiori informazioni è possibile consultare il [3:sito del progetto CKAN] sul sito web della Open\n"
 " Knowledge Foundation."
 
 #: ckan/templates/home/about.html:64
@@ -1385,12 +1295,8 @@ msgid "Contributors"
 msgstr "Supporto"
 
 #: ckan/templates/home/about.html:66
-msgid ""
-"Various people and projects have contributed to the development of CKAN "
-"including:"
-msgstr ""
-"Diverse persone e progetti hanno contribuito allo sviluppo di CKAN, tra "
-"cui:"
+msgid "Various people and projects have contributed to the development of CKAN including:"
+msgstr "Diverse persone e progetti hanno contribuito allo sviluppo di CKAN, tra cui:"
 
 #: ckan/templates/home/about.html:68
 msgid "Rufus Pollock"
@@ -1467,8 +1373,7 @@ msgid ""
 msgstr ""
 "%(title)s è un [1:catalogo aperto] di\n"
 " dati. Grazie al software CKAN, questo\n"
-" sito rende più facile trovare, condividere e riutilizzare dati e "
-"contenuti liberi, specialmente in modalità\n"
+" sito rende più facile trovare, condividere e riutilizzare dati e contenuti liberi, specialmente in modalità\n"
 " automatizzata."
 
 #: ckan/templates/home/index.html:64
@@ -1516,15 +1421,12 @@ msgstr "Codice"
 
 #: ckan/templates/home/license.html:12
 msgid ""
-"The CKAN code that runs this site is open-source and licensed under the "
-"[1:GNU Affero GPL\n"
+"The CKAN code that runs this site is open-source and licensed under the [1:GNU Affero GPL\n"
 "      ]. It is hosted on [2:KnowledgeForge], and the project\n"
 "    home page is here: [3:http://knowledgeforge.net/project/ckan/]."
 msgstr ""
-"Il codice di CKAN in esecuzione su questo sito è software libero "
-"disponibile nei termini della [1:GNU Affero GPL\n"
-" ]. È ospitato su [2:KnowledgeForge], e la pagina del progetto si trova "
-"qui: [3:http://knowledgeforge.net/project/ckan/]."
+"Il codice di CKAN in esecuzione su questo sito è software libero disponibile nei termini della [1:GNU Affero GPL\n"
+" ]. È ospitato su [2:KnowledgeForge], e la pagina del progetto si trova qui: [3:http://knowledgeforge.net/project/ckan/]."
 
 #: ckan/templates/home/license.html:21
 msgid "Content and Data"
@@ -1533,33 +1435,19 @@ msgstr "Contenuti e dati"
 #: ckan/templates/home/license.html:22
 msgid ""
 "All material on this site is [1:open] and can be freely used, reused\n"
-"    and redistributed. Formally, the data/database is licensed under the "
-"[2:Open Data Commons Open\n"
+"    and redistributed. Formally, the data/database is licensed under the [2:Open Data Commons Open\n"
 "      Database License v1.0], with all copyrightable content in that\n"
-"    database plus any additional content on this site licensed under a "
-"[3:Creative Commons\n"
+"    database plus any additional content on this site licensed under a [3:Creative Commons\n"
 "      Attribution Share-Alike v3.0 license]."
 msgstr ""
-"Tutti i contenuti di questo sito sono [1:liberi] e possono essere "
-"liberamente usati, riutilizzati e ridistribuiti. Formalmente, i dati e il"
-" database sono licenziati nei termini della [2:Open Data Commons Open\n"
-" Database License v1.0], con tutti i contenuti passibili di diritto "
-"d'autore\n"
-" nel database e altri contenuti aggiuntivi licenziati nei termini della "
-"[3:licenza Creative Commons\n"
+"Tutti i contenuti di questo sito sono [1:liberi] e possono essere liberamente usati, riutilizzati e ridistribuiti. Formalmente, i dati e il database sono licenziati nei termini della [2:Open Data Commons Open\n"
+" Database License v1.0], con tutti i contenuti passibili di diritto d'autore\n"
+" nel database e altri contenuti aggiuntivi licenziati nei termini della [3:licenza Creative Commons\n"
 " Attribution Share-Alike v3.0]."
 
 #: ckan/templates/home/license.html:30
-msgid ""
-"For convenience, all material - including all package, tag and revision "
-"information - is available in bulk, in the form of a full dump of the "
-"CKAN database. This (gzipped) dump file is updated daily and can be "
-"downloaded from [1:http://www.ckan.net/dump/]."
-msgstr ""
-"Per comodità, tutto il materiale - inclusi tutti i pacchetti, tag e "
-"cronologia delle revisioni - è disponibile in blocco, sotto forma di dump"
-" del database CKAN. Questo dump file (compresso con gzip) è aggiornato "
-"quotidianamente e può essere scaricato da [1:http://www.ckan.net/dump/]."
+msgid "For convenience, all material - including all package, tag and revision information - is available in bulk, in the form of a full dump of the CKAN database. This (gzipped) dump file is updated daily and can be downloaded from [1:http://www.ckan.net/dump/]."
+msgstr "Per comodità, tutto il materiale - inclusi tutti i pacchetti, tag e cronologia delle revisioni - è disponibile in blocco, sotto forma di dump del database CKAN. Questo dump file (compresso con gzip) è aggiornato quotidianamente e può essere scaricato da [1:http://www.ckan.net/dump/]."
 
 #: ckan/templates/package/authz.html:5
 msgid "- Authorization - Data Packages"
@@ -1569,7 +1457,8 @@ msgstr "Autorizzazioni per il pacchetto:"
 msgid "Authorization for Data Package:"
 msgstr "Autorizzazioni per il pacchetto:"
 
-#: ckan/templates/package/comments.html:5 ckan/templates/package/history.html:5
+#: ckan/templates/package/comments.html:5
+#: ckan/templates/package/history.html:5
 msgid "- Data Packages - History"
 msgstr "Cronologia del pacchetto"
 
@@ -1621,8 +1510,7 @@ msgid ""
 "By submitting content, you agree to release your contributions\n"
 "        under the open license specified on the"
 msgstr ""
-"Inviando questi contenuti, si accetta di rilasciare il proprio contributo"
-"\n"
+"Inviando questi contenuti, si accetta di rilasciare il proprio contributo\n"
 "       nei termini della licenza indicata nel"
 
 #: ckan/templates/package/edit_form.html:34
@@ -1817,9 +1705,7 @@ msgid "API / datapkg"
 msgstr ""
 
 #: ckan/templates/package/read_core.html:115
-msgid ""
-"This information on this page (the package metadata) is also available "
-"programatically via this site's"
+msgid "This information on this page (the package metadata) is also available programatically via this site's"
 msgstr ""
 
 #: ckan/templates/package/read_core.html:116
@@ -1835,9 +1721,7 @@ msgid "RDF:"
 msgstr ""
 
 #: ckan/templates/package/read_core.html:131
-msgid ""
-"The information on this page and the downloads / resources are also "
-"available using the"
+msgid "The information on this page and the downloads / resources are also available using the"
 msgstr ""
 
 #: ckan/templates/package/read_core.html:133
@@ -1950,8 +1834,7 @@ msgid ""
 "This page lists all changes to package database, with most recent\n"
 "    changes first."
 msgstr ""
-"Questa pagina elenca tutte le modifiche al database dei pacchetti, con le"
-" modifiche più recenti\n"
+"Questa pagina elenca tutte le modifiche al database dei pacchetti, con le modifiche più recenti\n"
 " in alto."
 
 #: ckan/templates/revision/list.html:21
@@ -2123,15 +2006,11 @@ msgstr "Selezionare il proprio provider"
 
 #: ckan/templates/user/openid_form.html:37
 msgid ""
-"OpenID is service that allows you to log-on to many different websites "
-"using a single identity.\n"
-"    Find out [1:more about OpenID] and [2:how to get an OpenID enabled "
-"account]."
+"OpenID is service that allows you to log-on to many different websites using a single identity.\n"
+"    Find out [1:more about OpenID] and [2:how to get an OpenID enabled account]."
 msgstr ""
-"OpenID è un servizio che permette l'accesso a diversi siti internet "
-"usando una singola identità.\n"
-" Cerca [1:maggiori informazioni su OpenID] e [2:come ottenere un account "
-"OpenID]."
+"OpenID è un servizio che permette l'accesso a diversi siti internet usando una singola identità.\n"
+" Cerca [1:maggiori informazioni su OpenID] e [2:come ottenere un account OpenID]."
 
 #: ckan/templates/user/openid_form.html:43
 msgid "Don't have an OpenID?"
@@ -2142,15 +2021,11 @@ msgid ""
 "OpenID is service that allows you to log-on to many different websites\n"
 "      using a single identity. Find out [1:more\n"
 "      about OpenID] and [2:how to get an\n"
-"      OpenID enabled account]. Probably the simplest way is sign up with "
-"a\n"
+"      OpenID enabled account]. Probably the simplest way is sign up with a\n"
 "      free OpenID provider such as [3:https://www.myopenid.com/]."
 msgstr ""
-"OpenID è un servizio che permette l'accesso a diversi siti internet "
-"usando una singola identità.\n"
-" Cerca [1:maggiori informazioni su OpenID] e [2:come ottenere un account "
-"OpenID]. Probabilmente il modo più semplice è tramite un fornitore di "
-"servizi OpenID gratuito come [3:https://www.myopenid.com/]."
+"OpenID è un servizio che permette l'accesso a diversi siti internet usando una singola identità.\n"
+" Cerca [1:maggiori informazioni su OpenID] e [2:come ottenere un account OpenID]. Probabilmente il modo più semplice è tramite un fornitore di servizi OpenID gratuito come [3:https://www.myopenid.com/]."
 
 #: ckan/templates/user/read.html:11
 msgid "User:"
@@ -2191,78 +2066,3 @@ msgstr "Numero di pacchetti gestiti:"
 #: ckan/templates/user/read.html:34
 msgid "Recent changes"
 msgstr "Modifiche recenti"
-
-#~ msgid "The title of the data set."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Use a short descriptive title for "
-#~ "the data set. It should not be "
-#~ "a description though - save that "
-#~ "for the Notes field. Do not give"
-#~ " a trailing full stop."
-#~ msgstr ""
-
-#~ msgid "A number representing the version (if applicable) e.g. 1.2.0"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "This is usually the URL for the"
-#~ " package project home page not the"
-#~ " data itself."
-#~ msgstr ""
-
-#~ msgid "The permanent contact name for enquiries about this particular dataset."
-#~ msgstr ""
-
-#~ msgid "(space separated list)"
-#~ msgstr "(lista separata da spazi)"
-
-#~ msgid ""
-#~ "You can use <a "
-#~ "href=\"http://daringfireball.net/projects/markdown/syntax\">Markdown"
-#~ " formatting</a> here."
-#~ msgstr ""
-#~ "Si può usare la <a "
-#~ "href=\"http://daringfireball.net/projects/markdown/syntax\">formattazione"
-#~ " Markdown</a> qui."
-
-#~ msgid "Total number of packages"
-#~ msgstr "Numero totale di pacchetti"
-
-#~ msgid "Revisions to packages per week"
-#~ msgstr "Revisioni ai pacchetti per settimana"
-
-#~ msgid "Top Rated Packages"
-#~ msgstr "Pacchetti più votati"
-
-#~ msgid "Average rating"
-#~ msgstr "Voto medio"
-
-#~ msgid "Number of ratings"
-#~ msgstr "Numero di voti"
-
-#~ msgid "Most Edited Packages"
-#~ msgstr "Pacchetti più modificati"
-
-#~ msgid "Number of edits"
-#~ msgstr "Numero di modifiche"
-
-#~ msgid "Largest Groups"
-#~ msgstr "Gruppi più grandi"
-
-#~ msgid "Users owning most packages"
-#~ msgstr "Utenti con il maggior numero di pacchetti"
-
-#~ msgid "Page last updated:"
-#~ msgstr "Ultimo aggiornamento della pagina:"
-
-#~ msgid ". If you know of another (CSV, SPARQL end-pont etc.)"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "This information on this page (the "
-#~ "package metadata) is also available "
-#~ "programatically via the"
-#~ msgstr ""
-
