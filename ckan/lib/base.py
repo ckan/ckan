@@ -197,7 +197,8 @@ class BaseController(WSGIController):
              os.makedirs(path)
         return path
 
-    def _get_user_editable_groups(self): 
+    @classmethod
+    def _get_user_editable_groups(cls): 
         if not hasattr(c, 'user'):
             c.user = model.PSEUDO_USER__VISITOR
         import ckan.authz # Todo: Move import to top of this file?
@@ -218,11 +219,12 @@ class BaseController(WSGIController):
         import ckan.forms
         return ckan.forms.edit_package_dict(*args, **kwds)
 
-    def _get_package_fieldset(self, is_admin=False, **kwds):
+    @classmethod
+    def _get_package_fieldset(cls, is_admin=False, **kwds):
         for key in request.params:
             if key in ALLOWED_FIELDSET_PARAMS:
                 kwds[key] = request.params[key]
-        kwds['user_editable_groups'] = self._get_user_editable_groups()
+        kwds['user_editable_groups'] = cls._get_user_editable_groups()
         kwds['is_admin'] = is_admin
         from ckan.forms import GetPackageFieldset
         return GetPackageFieldset(**kwds).fieldset

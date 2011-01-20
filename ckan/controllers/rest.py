@@ -28,22 +28,27 @@ class BaseApiController(BaseController):
     content_type_html = 'text/html;charset=utf-8'
     content_type_json = 'application/json;charset=utf-8'
 
-    def _ref_package(self, package):
-        assert self.ref_package_by in ['id', 'name']
-        return getattr(package, self.ref_package_by)
+    @classmethod
+    def _ref_package(cls, package):
+        assert cls.ref_package_by in ['id', 'name']
+        return getattr(package, cls.ref_package_by)
 
-    def _ref_group(self, group):
-        assert self.ref_group_by in ['id', 'name']
-        return getattr(group, self.ref_group_by)
+    @classmethod
+    def _ref_group(cls, group):
+        assert cls.ref_group_by in ['id', 'name']
+        return getattr(group, cls.ref_group_by)
 
-    def _ref_harvest_source(self, harvest_source):
+    @classmethod
+    def _ref_harvest_source(cls, harvest_source):
         return getattr(harvest_source, 'id')
 
-    def _list_package_refs(self, packages):
-        return [getattr(p, self.ref_package_by) for p in packages]
+    @classmethod
+    def _list_package_refs(cls, packages):
+        return [getattr(p, cls.ref_package_by) for p in packages]
 
-    def _list_group_refs(self, groups):
-        return [getattr(p, self.ref_group_by) for p in groups]
+    @classmethod
+    def _list_group_refs(cls, groups):
+        return [getattr(p, cls.ref_group_by) for p in groups]
 
     def _finish(self, status_int, response_data=None,
                 content_type='text'):
