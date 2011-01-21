@@ -20,13 +20,13 @@ engine = None
 if sqav.startswith("0.4"):
     # SQLAlchemy session manager. Updated by model.init_model()
     Session = scoped_session(sessionmaker(
-        autoflush=True,
+        autoflush=False,
         transactional=True,
         extension=extension.PluginSessionExtension(),
         ))
 else:
     Session = scoped_session(sessionmaker(
-        autoflush=True,
+        autoflush=False,
         autocommit=False,
         expire_on_commit=False,
         extension=extension.PluginSessionExtension(),

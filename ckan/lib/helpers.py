@@ -28,10 +28,14 @@ except ImportError:
 
 # FIXME: shouldn't have to pass the c object in to this.
 def nav_link(c, text, controller, **kwargs):
+    highlight_actions = kwargs.pop("highlight_actions", 
+                                   kwargs["action"]).split()
     return link_to(
         text,
         url_for(controller=controller, **kwargs),
-        class_=('active' if c.controller == controller else '')
+        class_=('active' if 
+                c.controller == controller and c.action in highlight_actions
+                else '')
     )
 
 # FIXME: shouldn't have to pass the c object in to this.
