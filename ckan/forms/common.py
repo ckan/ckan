@@ -44,10 +44,6 @@ def group_name_validator(val, field=None):
         if group != field.parent.model:
             raise formalchemy.ValidationError(_('Group name already exists in database'))
 
-def harvest_source_url_validator(val, field=None):
-    if not val.strip().startswith('http://'):
-        raise formalchemy.ValidationError(_('Harvest source URL is invalid (must start with "http://").'))
-
 
 def field_readonly_renderer(key, value, newline_reqd=False):
     if value is None:
