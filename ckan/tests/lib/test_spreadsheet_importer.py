@@ -127,5 +127,5 @@ class TestPackageImporter:
     def assert_example_package_import(self, package_import):
         pkg_dicts = [pkg_dict for pkg_dict in package_import.pkg_dict()]
         assert len(pkg_dicts) == 2, pkg_dicts
-        assert pkg_dicts[0].items() == [(u'name', u'wikipedia'), (u'title', u'Wikipedia'), ('resources', [{'url': u'http://static.wikipedia.org/downloads/2008-06/en/wikipedia-en-html.tar.7z', 'hash': u'', 'description': u'In English', 'format': u'html'}]), (u'tags', u'encyclopedia reference')], pkg_dicts[0].items()
-        assert pkg_dicts[1].items() == [(u'name', u'tviv'), (u'title', u'TV IV'), ('resources', [{'url': u'http://tviv.org/Category:Grids', 'hash': u'', 'description': u'', 'format': u''}]), (u'tags', u'tv encyclopedia')], pkg_dicts[1].items()        
+        assert pkg_dicts[0].items() == [(u'name', u'wikipedia'), (u'title', u'Wikipedia'), ('resources', [{'url': u'http://static.wikipedia.org/downloads/2008-06/en/wikipedia-en-html.tar.7z', 'hash': u'', 'description': u'In English', 'format': u'html', u'alt_url': u'', u'size':u''}]), (u'tags', u'encyclopedia reference')], pkg_dicts[0].items()
+        assert pkg_dicts[1].items() == [(u'name', u'tviv'), (u'title', u'TV IV'), ('resources', [{'url': u'http://tviv.org/Category:Grids', 'hash': u'', 'description': u'', 'format': u'', u'alt_url': u'', u'size':u''}]), (u'tags', u'tv encyclopedia')], pkg_dicts[1].items()        

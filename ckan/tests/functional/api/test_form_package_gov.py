@@ -113,6 +113,8 @@ class FormsApiTestCase(BaseFormsApiCase):
         self.assert_formfield(form, 'Package--resources-0-description', '')
         self.assert_formfield(form, 'Package--resources-0-hash', '')
         self.assert_formfield(form, 'Package--resources-0-id', '')
+        self.assert_formfield(form, 'Package--resources-0-alt_url', '')
+        self.assert_formfield(form, 'Package--resources-0-size', '')
         self.assert_formfield(form, 'Package--author', '')
         self.assert_formfield(form, 'Package--author_email', '')
         self.assert_formfield(form, 'Package--maintainer', '')

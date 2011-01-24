@@ -151,11 +151,15 @@ class PackagesTestCase(BaseModelApiTestCase):
                 u'format':u'xml',
                 u'description':u'Appendix 1',
                 u'hash':u'def123',
+                u'alt_url':u'alt123',
+                u'size':u'400',
             },{
                 u'url':u'http://blah.com/file3.xml',
                 u'format':u'xml',
                 u'description':u'Appenddic 2',
                 u'hash':u'ghi123',
+                u'alt_url':u'alt123',
+                u'size':u'400',
             }],
             'extras': {
                 u'key3': u'val3', 
@@ -186,11 +190,15 @@ class PackagesTestCase(BaseModelApiTestCase):
         self.assert_equal(resource.format, u'xml')
         self.assert_equal(resource.description, u'Appendix 1')
         self.assert_equal(resource.hash, u'def123')
+        self.assert_equal(resource.alt_url, u'alt123')
+        self.assert_equal(resource.size, u'400')
         resource = package.resources[1]
         self.assert_equal(resource.url, 'http://blah.com/file3.xml')
         self.assert_equal(resource.format, u'xml')
         self.assert_equal(resource.description, u'Appenddic 2')
         self.assert_equal(resource.hash, u'ghi123')
+        self.assert_equal(resource.alt_url, u'alt123')
+        self.assert_equal(resource.size, u'400')
 
         # Check unsubmitted fields have not changed.
         # - url

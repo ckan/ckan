@@ -232,7 +232,8 @@ class FormsApiTestCase(BaseFormsApiCase):
         self.assert_formfield(form, 'Package--resources-0-format', '')
         self.assert_formfield(form, 'Package--resources-0-description', '')
         self.assert_formfield(form, 'Package--resources-0-hash', '')
-        self.assert_formfield(form, 'Package--resources-0-id', '')
+        self.assert_formfield(form, 'Package--resources-0-alt_url', '')
+        self.assert_formfield(form, 'Package--resources-0-size', '')
         self.assert_formfield(form, 'Package--author', '')
         self.assert_formfield(form, 'Package--author_email', '')
         self.assert_formfield(form, 'Package--maintainer', '')
@@ -286,6 +287,8 @@ class FormsApiTestCase(BaseFormsApiCase):
             'resources-0-url':'http://someurl.com/download.csv',
             'resources-0-format':'CSV',
             'resources-0-description':'A csv file',
+            'resources-0-size':'200',
+            'resources-0-alt_url':'alt_url',
             'author':'Brian',
             'author_email':'brian@company.com',
             'maintainer':'Jim',
