@@ -23,14 +23,6 @@ Search API
 .. include:: search_methods.rst.inc
 .. include:: search_formats.rst.inc
 
-Form API
---------
-
-.. include:: form_preamble.rst.inc
-.. include:: form_resources.rst.inc
-.. include:: form_methods.rst.inc
-.. include:: form_formats.rst.inc
-
 .. include:: bottom.rst.inc
 
 .. |site| replace:: CKAN

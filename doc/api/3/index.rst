@@ -11,8 +11,6 @@ CKAN API Version 3
 
 .. include:: search/index.rst.inc
 
-.. include:: form/index.rst.inc
-
 .. include:: status.rst.inc
 
 .. include:: example.rst.inc

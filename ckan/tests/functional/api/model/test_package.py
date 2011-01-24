@@ -30,7 +30,8 @@ class PackagesTestCase(BaseModelApiTestCase):
         assert not self.get_package_by_name(self.package_fixture_data['name'])
         offset = self.package_offset()
         postparams = '%s=1' % self.dumps(self.package_fixture_data)
-        res = self.app.post(offset, params=postparams, status=self.STATUS_200_OK,
+        res = self.app.post(offset, params=postparams,
+                            status=self.STATUS_201_CREATED,
                 extra_environ=self.extra_environ)
         # Check the value of the Location header.
         location = res.header('Location')

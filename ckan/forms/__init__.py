@@ -5,7 +5,6 @@ from authorization_group import *
 from registry import *
 from authz import *
 from package_dict import *
-from harvest_source import *
 
 from ckan.model.types import JsonType
 from formalchemy import forms
