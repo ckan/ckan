@@ -20,30 +20,7 @@ class ModelApiTestCase(BaseModelApiTestCase):
         self.job3 = None
 
     def teardown(self):
-        #self.rebuild()
         model.repo.clean_db()
-        return
-#        if self.job:
-#            self.delete_commit(self.job)
-#        if self.job1:
-#            self.delete_commit(self.job1)
-#        if self.job2:
-#            self.delete_commit(self.job2)
-#        if self.job3:
-#            self.delete_commit(self.job3)
-#        if self.source:
-#            self.delete_commit(self.source)
-#        if self.source1:
-#            self.delete_commit(self.source1)
-#        if self.source2:
-#            self.delete_commit(self.source2)
-#        if self.source3:
-#            self.delete_commit(self.source3)
-#        if self.source4:
-#            self.delete_commit(self.source4)
-#        if self.source5:
-#            self.delete_commit(self.source5)
-#        self.delete_common_fixtures()
 
     def test_02_get_tag_register_ok(self):
         # Test Packages Register Get 200.
@@ -345,7 +322,6 @@ class ModelApiTestCase(BaseModelApiTestCase):
             assert license['url'] == license.url
 
 
-# Note well, relationships are actually part of the Model API.
 class RelationshipsApiTestCase(ApiTestCase, ControllerTestCase):
 
     @classmethod
@@ -559,7 +535,7 @@ class RelationshipsApiTestCase(ApiTestCase, ControllerTestCase):
         assert rel_dict['type'] == type, (rel_dict, type)
         assert rel_dict['comment'] == comment, (rel_dict, comment)
 
-# Todo: Rename to PackageSearchApiTestCase.
+
 class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
 
     @classmethod

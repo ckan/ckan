@@ -82,10 +82,8 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             id = res_dict.get('id')
             if id:
                 res = Session.query(resource.PackageResource).autoflush(autoflush).get(id)
-                index_to_res[i] = res
-            elif res_dict.has_key('id'):
-                # get rid of blank id - disrupts creation of new resource
-                del res_dict['id']
+                if res:
+                    index_to_res[i] = res
         # Edit resources and create the new ones
         new_res_list = []
         for i, res_dict in enumerate(res_dicts):
@@ -94,6 +92,10 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                 for col, value in res_dict.items():
                     setattr(res, col, value)
             else:
+                # ignore particular keys that disrupt creation of new resource
+                for key in ('id', 'position'):
+                    if res_dict.has_key(key):
+                        del res_dict[key]
                 res = resource.PackageResource(**res_dict)
             new_res_list.append(res)
         self.resources = new_res_list
