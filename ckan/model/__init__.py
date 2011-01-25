@@ -109,7 +109,7 @@ class Repository(vdm.sqlalchemy.Repository):
         import migrate.versioning.api as mig
         # set up db version control (if not already)
         try:
-            mig.version_control(self.metadata.bind.url,
+            mig.version_control(str(self.metadata.bind.url),
                     self.migrate_repository, version)
         except migrate.versioning.exceptions.DatabaseAlreadyControlledError:
             pass
@@ -137,7 +137,7 @@ class Repository(vdm.sqlalchemy.Repository):
         '''
         import migrate.versioning.api as mig
         self.setup_migration_version_control()
-        mig.upgrade(self.metadata.bind.url, self.migrate_repository, version=version)
+        mig.upgrade(str(self.metadata.bind.url), self.migrate_repository, version=version)
         validate_authorization_setup()
 
 
