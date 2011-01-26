@@ -68,8 +68,7 @@ ckan.controllers.apiv2.package.list.expires = -1
 ckan.controllers.apiv2.package.show.expires = -1
 
 # CKAN QoS monitoring
-# any non-empty value enables it
-enable_call_timing =
+enable_call_timing = false
 
 # Location of RDF versions of packages
 # e.g. rdf_packages = http://semantic.ckan.net/package/
