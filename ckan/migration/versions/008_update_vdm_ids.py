@@ -6,7 +6,7 @@ from migrate import *
 import migrate.changeset
 from migrate.changeset.constraint import ForeignKeyConstraint, PrimaryKeyConstraint
 
-metadata = MetaData(migrate_engine)
+metadata = MetaData()
 
 def make_uuid():
     return unicode(uuid.uuid4())
@@ -15,7 +15,8 @@ def make_uuid():
 # 2 alter type of revision id and foreign keys
 # 3 create foreign key constraints (using cascade!)
 # 4 create uuids for revisions (auto cascades elsewhere!)
-def upgrade():
+def upgrade(migrate_engine):
+    metadata.bind = migrate_engine
     dropped_fk_constraints = drop_constraints_and_alter_types()
     upgrade2(dropped_fk_constraints)
 
@@ -76,5 +77,5 @@ def upgrade2(dropped_fk_constraints):
         update = revision_table.update().where(revision_table.c.id==row.id).values(id=make_uuid())
         migrate_engine.execute(update)
 
-def downgrade():
+def downgrade(migrate_engine):
     raise NotImplementedError()

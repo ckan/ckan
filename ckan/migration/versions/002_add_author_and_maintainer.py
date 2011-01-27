@@ -2,9 +2,10 @@ from sqlalchemy import *
 from migrate import *
 import migrate.changeset
 
-metadata = MetaData(migrate_engine)
+metadata = MetaData()
 
-def upgrade():
+def upgrade(migrate_engine):
+    metadata.bind = migrate_engine
     # Upgrade operations go here. Don't create your own engine; use the engine
     # named 'migrate_engine' imported from migrate.
     package = Table('package', metadata, autoload=True)
@@ -26,5 +27,5 @@ def upgrade():
     for col in columns2:
         col.create(package_revision)
 
-def downgrade():
+def downgrade(migrate_engine):
     raise NotImplementedError()

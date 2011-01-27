@@ -7,7 +7,7 @@ from migrate import *
 import migrate.changeset
 from migrate.changeset.constraint import ForeignKeyConstraint, PrimaryKeyConstraint
 
-metadata = MetaData(migrate_engine)
+metadata = MetaData()
 
 def make_uuid():
     return unicode(uuid.uuid4())
@@ -30,7 +30,8 @@ def make_uuid():
 ##        ('package_role', 'package_id'),
 ##        ('package_group', 'package_id'),
 
-def upgrade():
+def upgrade(migrate_engine):
+    metadata.bind = migrate_engine
     primary_table_name = 'package'
     foreign_tables = ['package_revision',
                       'package_tag', 'package_tag_revision',
@@ -158,5 +159,5 @@ def create_uuids(primary_table_name, revision_table_name):
         q = revision_table.update().values(id=revision_table.c.continuity_id)
         migrate_engine.execute(q)
             
-def downgrade():
+def downgrade(migrate_engine):
     raise NotImplementedError()

@@ -30,7 +30,7 @@ class JsonType(types.TypeDecorator):
 def make_uuid():
     return unicode(uuid.uuid4())
 
-metadata = MetaData(migrate_engine)
+metadata = MetaData()
 
 group_table = Table('group', metadata, autoload=True)
 group_extra_table = Table('group_extra', metadata,
@@ -40,8 +40,9 @@ group_extra_table = Table('group_extra', metadata,
     Column('value', JsonType),
 )
 
-def upgrade():
+def upgrade(migrate_engine):
+    metadata.bind(migrate_engine)
     group_extra_table.create()
 
-def downgrade():
+def downgrade(migrate_engine):
     raise NotImplementedError()

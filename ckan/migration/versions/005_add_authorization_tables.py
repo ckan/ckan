@@ -2,7 +2,7 @@ from sqlalchemy import *
 from migrate import *
 import uuid
 
-metadata = MetaData(migrate_engine)
+metadata = MetaData()
 
 def make_uuid():
     return unicode(uuid.uuid4())
@@ -37,7 +37,8 @@ group_role_table = Table('group_role', metadata,
            Column('group_id', UnicodeText, ForeignKey('group.id')),
            )
 
-def upgrade():
+def upgrade(migrate_engine):
+    metadata.bind = migrate_engine
     role_action_table.create()
     user_object_role_table.create()
     package_role_table.create()
@@ -49,5 +50,5 @@ def upgrade():
     # call this explicitly elsewhere
     # model.give_all_packages_default_user_roles()
 
-def downgrade():
+def downgrade(migrate_engine):
     raise NotImplementedError()

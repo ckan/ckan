@@ -9,7 +9,7 @@ from sqlalchemy import types
 def make_uuid():
     return unicode(uuid.uuid4())
 
-metadata = MetaData(migrate_engine)
+metadata = MetaData()
 
 user_table = Table('user', metadata, autoload=True)
 
@@ -38,7 +38,8 @@ authorization_group_role_table = Table('authorization_group_role', metadata,
     )
 
 
-def upgrade():
+def upgrade(migrate_engine):
+    metadata.bind = migrate_engine
     authorization_group_table.create()
     authorization_group_user_table.create()
     authorization_group_role_table.create()
@@ -46,7 +47,7 @@ def upgrade():
                                     ForeignKey('authorization_group.id'), nullable=True)
     authorization_group_id.create(user_object_role_table)
 
-def downgrade():
+def downgrade(migrate_engine):
     raise NotImplementedError()
 
 

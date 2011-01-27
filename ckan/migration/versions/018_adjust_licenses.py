@@ -2,7 +2,7 @@ from sqlalchemy import *
 from migrate import *
 import uuid
 
-metadata = MetaData(migrate_engine)
+metadata = MetaData()
 
 map = {
     u'OSI Approved::Mozilla Public License 1.1 (MPL)': 'mozilla1.1', 
@@ -84,7 +84,8 @@ map = {
     u'OSI Approved::zlib/libpng license': 'zlib-license'
 }
 
-def upgrade():
+def upgrade(migrate_engine):
+    metadata.bind = migrate_engine
     print "Changing package license_ids to strings."
 
     # Get licenses, package license ids, and package revision license ids.
@@ -114,7 +115,7 @@ def upgrade():
     _set_new_package_license_ids(new_package_license_ids)
     _set_new_package_revision_license_ids(new_package_revision_license_ids)
 
-def downgrade():
+def downgrade(migrate_engine):
     raise NotImplementedError()
 
 def _check_map_has_old_license_titles(old_license_titles, map):

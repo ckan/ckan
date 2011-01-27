@@ -2,7 +2,7 @@ from sqlalchemy import *
 from migrate import *
 import uuid
 
-metadata = MetaData(migrate_engine)
+metadata = MetaData()
 
 def make_uuid():
     return unicode(uuid.uuid4())
@@ -19,8 +19,9 @@ rating_table = Table('rating', metadata,
                      Column('rating', Float)
                      )
 
-def upgrade():
+def upgrade(migrate_engine):
+    metadata.bind = migrate_engine
     rating_table.create()
 
-def downgrade():
+def downgrade(migrate_engine):
     raise NotImplementedError()

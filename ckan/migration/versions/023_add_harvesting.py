@@ -4,7 +4,7 @@ import datetime
 import uuid
 from migrate.changeset.constraint import PrimaryKeyConstraint
 
-metadata = MetaData(migrate_engine)
+metadata = MetaData()
 
 def make_uuid():
     return unicode(uuid.uuid4())
@@ -28,11 +28,13 @@ harvesting_job_table = Table('harvesting_job', metadata,
         Column('source_id', UnicodeText, ForeignKey('harvest_source.id')), 
 )
 
-def upgrade():
+def upgrade(migrate_engine):
+    metadata.bind(migrate_engine)
     harvest_source_table.create()
     harvesting_job_table.create()
 
-def downgrade():
+def downgrade(migrate_engine):
+    metadata.bind(migrate_engine)
     harvesting_job_table.drop()
     harvest_source_table.drop()
 
