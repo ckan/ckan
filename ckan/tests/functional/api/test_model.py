@@ -1,3 +1,4 @@
+from paste.deploy.converters import asbool
 from ckan.tests.functional.api.base import *
 from ckan.lib.create_test_data import CreateTestData
 from ckan.tests import is_search_supported
@@ -901,7 +902,7 @@ class ResourceSearchApiTestCase(ApiControllerTestCase):
 class QosApiTestCase(ApiControllerTestCase):
 
     def test_throughput(self):
-        if not config.get('ckan.enable_call_timing', None):
+        if not asbool(config.get('ckan.enable_call_timing', "false")):
             raise SkipTest
         # Create some throughput.
         import datetime
