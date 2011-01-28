@@ -1,6 +1,7 @@
 from pylons import config
 from sqlalchemy import MetaData, __version__ as sqav
 from sqlalchemy.schema import Index
+from paste.deploy.converters import asbool
 
 import meta
 from domain_object import DomainObjectOperation
@@ -36,7 +37,7 @@ def init_model(engine):
         version_table = Table('migrate_version', metadata, autoload=True)
     except sqlalchemy.exceptions.NoSuchTableError:
         pass
-
+                                         
 
 
 class Repository(vdm.sqlalchemy.Repository):
@@ -85,7 +86,7 @@ class Repository(vdm.sqlalchemy.Repository):
         return version
 
     def clean_db(self):
-        if config.get('faster_db_test_hacks', False) != 'False':
+        if asbool(config.get('faster_db_test_hacks')):
             self.delete_all()
         else:
             super(Repository, self).clean_db()
@@ -115,7 +116,7 @@ class Repository(vdm.sqlalchemy.Repository):
             pass
 
     def create_indexes(self):
-        if config.get('faster_db_test_hacks', False) != 'False':
+        if asbool(config.get('faster_db_test_hacks')):
             return
         import os
         from migrate.versioning.script import SqlScript
@@ -139,8 +140,6 @@ class Repository(vdm.sqlalchemy.Repository):
         self.setup_migration_version_control()
         mig.upgrade(self.metadata.bind, self.migrate_repository, version=version)
         validate_authorization_setup()
-
-
 
 repo = Repository(metadata, Session,
         versioned_objects=[Package, PackageTag, PackageResource, PackageExtra, PackageGroup, Group]

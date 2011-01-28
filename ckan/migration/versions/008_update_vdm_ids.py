@@ -18,7 +18,7 @@ def make_uuid():
 def upgrade(migrate_engine):
     metadata.bind = migrate_engine
     dropped_fk_constraints = drop_constraints_and_alter_types()
-    upgrade2(dropped_fk_constraints)
+    upgrade2(migrate_engine, dropped_fk_constraints)
 
 def drop_constraints_and_alter_types():
     # 1 drop all foreign key constraints
@@ -32,13 +32,12 @@ def drop_constraints_and_alter_types():
                 foreign_key_cols = [key.column for key in constraint.elements]
                 fk_col = foreign_key_cols[0]
                 if fk_col.table == revision_table:
-                    orig_fk = ForeignKeyConstraint(constraint.columns, foreign_key_cols, name=constraint.name)
+                    orig_fk = ForeignKeyConstraint(constraint.columns, foreign_key_cols, name=constraint.name, table=table)
                     orig_fk.drop()
                     dropped_fk_constraints.append((constraint.columns, foreign_key_cols, constraint.name, table.name))
-                    # print 'CON', dropped_fk_constraints[-1]
 
     # 2 alter type of revision id and foreign keys
-                    id_col = list(constraint.columns)[0]
+                    id_col = constraint.table.columns[constraint.columns[0]]
                     id_col.alter(type=UnicodeText)
 
     revision_table = Table('revision', metadata, autoload=True)
@@ -48,7 +47,8 @@ def drop_constraints_and_alter_types():
 
     return dropped_fk_constraints
 
-def upgrade2(dropped_fk_constraints):
+def upgrade2(migrate_engine, dropped_fk_constraints):
+    # have changed type of cols so recreate metadata
     metadata = MetaData(migrate_engine)
 
     # 3 create foreign key constraints
@@ -67,7 +67,7 @@ def upgrade2(dropped_fk_constraints):
             REFERENCES revision (id)
             ON UPDATE CASCADE
             ''' % {'table':table_name, 'fkeyname':constraint_name,
-                    'col_name':constraint_columns.keys()[0] }
+                    'col_name':constraint_columns[0] }
         migrate_engine.execute(oursql)
 
     # 4 create uuids for revisions and in related tables

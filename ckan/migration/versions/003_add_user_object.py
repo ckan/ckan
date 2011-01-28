@@ -13,10 +13,10 @@ user_table = Table('user', metadata,
         Column('apikey', UnicodeText, default=make_uuid)
         )
 
-apikey_table = Table('apikey', metadata, autoload=True)
-
 def upgrade(migrate_engine):
     metadata.bind = migrate_engine
+    apikey_table = Table('apikey', metadata, autoload=True)
+
     user_table.create()
     apikey_table.drop()
 

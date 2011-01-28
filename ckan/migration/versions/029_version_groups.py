@@ -85,12 +85,13 @@ group_extra_revision_table = Table('group_extra_revision', metadata,
     Column('continuity_id', UnicodeText, ForeignKey('group.id'))
     )
 
-revision_table = Table('revision', metadata, autoload=True)
-package_table = Table('package', metadata, autoload=True)
-
 
 def upgrade(migrate_engine):
     metadata.bind = migrate_engine
+
+    revision_table = Table('revision', metadata, autoload=True)
+    package_table = Table('package', metadata, autoload=True)
+
     rev_id = make_uuid()
     q = revision_table.insert(values={'id': rev_id, 
                                       'author': u'system',

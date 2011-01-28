@@ -12,7 +12,7 @@ harvested_document_table = Table('harvested_document', metadata,
 )
 
 def upgrade(migrate_engine):
-    metadata.bind = engine
+    metadata.bind = migrate_engine
     harvested_document_table.create()
 
 def downgrade(migrate_engine):

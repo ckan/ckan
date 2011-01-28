@@ -11,35 +11,36 @@ def make_uuid():
 
 metadata = MetaData()
 
-user_table = Table('user', metadata, autoload=True)
-
-authorization_group_table = Table('authorization_group', metadata,
-    Column('id', UnicodeText, primary_key=True, default=make_uuid),
-    Column('name', UnicodeText),
-    Column('created', DateTime, default=datetime.now),
-    )
-
-authorization_group_user_table = Table('authorization_group_user', metadata,
-    Column('authorization_group_id', UnicodeText, ForeignKey('authorization_group.id'), nullable=False),
-    Column('user_id', UnicodeText, ForeignKey('user.id'), nullable=False)
-    )
-
-# make user nullable: 
-user_object_role_table = Table('user_object_role', metadata,
-    Column('id', UnicodeText, primary_key=True, default=make_uuid),
-    Column('user_id', UnicodeText, ForeignKey('user.id'), nullable=True),
-    Column('context', UnicodeText, nullable=False),
-    Column('role', UnicodeText)
-    )
-    
-authorization_group_role_table = Table('authorization_group_role', metadata,
-    Column('user_object_role_id', UnicodeText, ForeignKey('user_object_role.id'), primary_key=True),
-    Column('authorization_group_id', UnicodeText, ForeignKey('authorization_group.id')),
-    )
-
 
 def upgrade(migrate_engine):
     metadata.bind = migrate_engine
+
+    user_table = Table('user', metadata, autoload=True)
+
+    authorization_group_table = Table('authorization_group', metadata,
+        Column('id', UnicodeText, primary_key=True, default=make_uuid),
+        Column('name', UnicodeText),
+        Column('created', DateTime, default=datetime.now),
+        )
+
+    authorization_group_user_table = Table('authorization_group_user', metadata,
+        Column('authorization_group_id', UnicodeText, ForeignKey('authorization_group.id'), nullable=False),
+        Column('user_id', UnicodeText, ForeignKey('user.id'), nullable=False)
+        )
+
+    # make user nullable: 
+    user_object_role_table = Table('user_object_role', metadata,
+        Column('id', UnicodeText, primary_key=True, default=make_uuid),
+        Column('user_id', UnicodeText, ForeignKey('user.id'), nullable=True),
+        Column('context', UnicodeText, nullable=False),
+        Column('role', UnicodeText)
+        )
+
+    authorization_group_role_table = Table('authorization_group_role', metadata,
+        Column('user_object_role_id', UnicodeText, ForeignKey('user_object_role.id'), primary_key=True),
+        Column('authorization_group_id', UnicodeText, ForeignKey('authorization_group.id')),
+        )
+    
     authorization_group_table.create()
     authorization_group_user_table.create()
     authorization_group_role_table.create()

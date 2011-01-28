@@ -29,12 +29,12 @@ harvesting_job_table = Table('harvesting_job', metadata,
 )
 
 def upgrade(migrate_engine):
-    metadata.bind(migrate_engine)
+    metadata.bind = migrate_engine
     harvest_source_table.create()
     harvesting_job_table.create()
 
 def downgrade(migrate_engine):
-    metadata.bind(migrate_engine)
+    metadata.bind = migrate_engine
     harvesting_job_table.drop()
     harvest_source_table.drop()
 
