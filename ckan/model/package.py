@@ -48,9 +48,9 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     text_search_fields = ['name', 'title']
 
     @classmethod
-    def search_by_name(self, text_query):
+    def search_by_name(cls, text_query):
         text_query = text_query
-        return Session.query(self).filter(self.name.contains(text_query.lower()))
+        return Session.query(cls).filter(cls.name.contains(text_query.lower()))
 
     @classmethod
     def get(cls, reference):
@@ -272,14 +272,14 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     ## Licenses are currently integrated into the domain model here.   
  
     @classmethod
-    def get_license_register(self):
-        if not hasattr(self, '_license_register'):
-            self._license_register = LicenseRegister()
-        return self._license_register
+    def get_license_register(cls):
+        if not hasattr(cls, '_license_register'):
+            cls._license_register = LicenseRegister()
+        return cls._license_register
 
     @classmethod
-    def get_license_options(self):
-        register = self.get_license_register()
+    def get_license_options(cls):
+        register = cls.get_license_register()
         return [(l.title, l.id) for l in register.values()]
 
     def get_license(self):

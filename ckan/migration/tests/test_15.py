@@ -2,8 +2,8 @@ from ckan.migration.tests import *
 
 class Test15(TestMigrationBase):
     @classmethod
-    def setup_class(self):
-        self.setup_db()
+    def setup_class(cls):
+        cls.setup_db()
 
     def test_complex(self):
         self.run('paster db --config %s upgrade' % CONFIG_FILE)

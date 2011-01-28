@@ -166,7 +166,7 @@ class CommonFixtureMethods(BaseCase):
         CreateTestData.create_arbitrary(package_dicts=[data or kwds], admins=admins)
 
     @classmethod
-    def create_user(self, **kwds):
+    def create_user(cls, **kwds):
         user = model.User(name=kwds['name'])             
         model.Session.add(user)
         model.Session.commit()
@@ -199,7 +199,7 @@ class CommonFixtureMethods(BaseCase):
             self.commit_remove()
 
     @classmethod
-    def purge_packages(self, pkg_names):
+    def purge_packages(cls, pkg_names):
         for pkg_name in pkg_names:
             pkg = model.Package.by_name(unicode(pkg_name))
             if pkg:

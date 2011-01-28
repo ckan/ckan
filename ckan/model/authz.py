@@ -22,18 +22,18 @@ class NotRealUserException(Exception):
 
 class Enum(object):
     @classmethod
-    def is_valid(self, val):
-        return val in self.get_all()
+    def is_valid(cls, val):
+        return val in cls.get_all()
 
     @classmethod
-    def get_all(self):
-        if not hasattr(self, '_all_items'):
+    def get_all(cls):
+        if not hasattr(cls, '_all_items'):
             vals = []
-            for key, val in self.__dict__.items():
+            for key, val in cls.__dict__.items():
                 if not key.startswith('_'):
                     vals.append(val)
-            self._all_items = vals
-        return self._all_items
+            cls._all_items = vals
+        return cls._all_items
 
 class Action(Enum):
     EDIT = u'edit'
@@ -111,7 +111,7 @@ class UserObjectRole(DomainObject):
     protected_object = None
 
     @classmethod
-    def get_object_role_class(self, domain_obj):
+    def get_object_role_class(cls, domain_obj):
         protected_object = protected_objects.get(domain_obj.__class__, None)
         if protected_object is None:
             # TODO: make into an authz exception
@@ -185,7 +185,7 @@ class UserObjectRole(DomainObject):
 
     @classmethod
     def remove_authorization_group_from_role(cls, authorization_group, role, domain_obj):
-        q = self._authorized_group_query(authorization_group, role, domain_obj)
+        q = cls._authorized_group_query(authorization_group, role, domain_obj)
         ago_role = q.one()
         Session.delete(agu_role)
         Session.commit()

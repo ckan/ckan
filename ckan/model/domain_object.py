@@ -30,29 +30,29 @@ class DomainObject(object):
             setattr(self, k, v)
 
     @classmethod
-    def count(self):
-        self.Session.query(self).count()
+    def count(cls):
+        cls.Session.query(cls).count()
 
     @classmethod
-    def by_name(self, name, autoflush=True):
-        obj = Session.query(self).autoflush(autoflush)\
+    def by_name(cls, name, autoflush=True):
+        obj = Session.query(cls).autoflush(autoflush)\
               .filter_by(name=name).first()
         return obj
 
     @classmethod
-    def text_search(self, query, term):
-        register = self
+    def text_search(cls, query, term):
+        register = cls
         make_like = lambda x,y: x.ilike('%' + y + '%')
         q = None
-        for field in self.text_search_fields:
+        for field in cls.text_search_fields:
             attr = getattr(register, field)
             q = or_(q, make_like(attr, term))
         return query.filter(q)
 
     @classmethod
-    def active(self):
+    def active(cls):
         from core import State
-        return Session.query(self).filter_by(state=State.ACTIVE)
+        return Session.query(cls).filter_by(state=State.ACTIVE)
 
     def save(self):
         self.add()

@@ -67,7 +67,7 @@ class PackageImporter(object):
         raise StopIteration
 
     @classmethod
-    def license_2_license_id(self, license_title, logger=None):
+    def license_2_license_id(cls, license_title, logger=None):
         licenses = LicenseRegister()
         license_obj = licenses.get_by_title(license_title)
         if license_obj:
@@ -77,7 +77,7 @@ class PackageImporter(object):
 
 
     @classmethod
-    def munge(self, name):
+    def munge(cls, name):
         '''Munge a title into a name.
 
         Note this function must be only carefully changed, as reimporting
@@ -108,7 +108,7 @@ class PackageImporter(object):
         return name
 
     @classmethod
-    def name_munge(self, input_name):
+    def name_munge(cls, input_name):
         '''Munges the name field in case it is not to spec.
 
         Note this function must be only carefully changed, as reimporting
@@ -116,10 +116,10 @@ class PackageImporter(object):
         For this reason, this munge function is for use by the importers only.
         Other users should use the API slug creation functionality.
         '''
-        return self.munge(input_name.replace(' ', '').replace('.', '_').replace('&', 'and'))
+        return cls.munge(input_name.replace(' ', '').replace('.', '_').replace('&', 'and'))
 
     @classmethod
-    def tidy_url(self, url, logger=None):
+    def tidy_url(cls, url, logger=None):
         if url and not url.startswith('http') and not url.startswith('webcal:'):
             if url.startswith('www.'):
                 url = url.replace('www.', 'http://www.')

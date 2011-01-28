@@ -33,10 +33,10 @@ class Tag(DomainObject):
         self.purge()
 
     @classmethod
-    def search_by_name(self, text_query):
+    def search_by_name(cls, text_query):
         text_query = text_query.strip().lower()
-        q = Session.query(self).filter(self.name.contains(text_query))
-        q = q.distinct().join(self.package_tags)
+        q = Session.query(cls).filter(cls.name.contains(text_query))
+        q = q.distinct().join(cls.package_tags)
         return q
         
     #@classmethod
@@ -46,9 +46,9 @@ class Tag(DomainObject):
     #    return q.first()
         
     @classmethod
-    def all(self):
-        q = Session.query(self)
-        q = q.distinct().join(self.package_tags)
+    def all(cls):
+        q = Session.query(cls)
+        q = q.distinct().join(cls.package_tags)
         return q
 
     @property
