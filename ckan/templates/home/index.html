@@ -45,7 +45,6 @@
         <li>${h.link_to(_('About'), h.url_for('about'))}</li>
         <li>${h.link_to(_('API'), h.url_for('about', anchor='api'))}</li>
         <li>${h.link_to(_('User Guide'), h.url_for('guide'))}</li>
-        <li>${h.link_to(_('Statistics'), h.url_for('stats'))}</li>
       </ul>
     </li>
   </py:match>
@@ -74,26 +73,11 @@
 
     <hr />
 
-    <h4>Recently changed</h4>
-    <table class="recent-changes">
-      <tr>
-        <th>Packages</th>
-        <th>Author</th>
-        <th class="greyed">Time</th>
-      </tr>
-      <tr py:for="rev in c.revisions">
-        <td>
-        <py:for each="pkg in rev.packages[:10]">
-        <a href="${h.url_for(controller='package', action='read', id=pkg.name)}">${pkg.name}</a>
-        </py:for>
-        ${'...' if len(rev.packages) > 10 else ''}
-        </td>
-        <td>${h.linked_user(rev.author)}</td>
-        <td class="greyed">${rev.timestamp.replace(microsecond=0)}</td>
-      </tr>
-    </table>
+    <h4>Recently changed packages</h4>
+    ${package_list(c.latest_packages)}
+
     <p><a href="${h.url_for(controller='revision', action='index',
-      id=None)}">View older changes &raquo;</a></p>
+      id=None)}">View revision log &raquo;</a></p>
   </div>
 
   <xi:include href="layout.html" />
