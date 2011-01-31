@@ -32,7 +32,6 @@ setup(
         # 'uuid>=1.0',
         # for open licenses
         'licenses==0.4,<0.6.99',
-        # last version to work with sqlalchemy < 0.5 
         'sqlalchemy-migrate==0.6',
         # latest version of Routes (1.10) depends on webob in middleware but
         # does not declare the dependency!

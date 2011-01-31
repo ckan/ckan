@@ -118,6 +118,8 @@ class Repository(vdm.sqlalchemy.Repository):
     def create_indexes(self):
         if asbool(config.get('faster_db_test_hacks')):
             return
+        assert meta.engine.name in ('postgres', 'postgresql'), \
+            'Only postgresql engine supported (not %s).' % meta.engine.name
         import os
         from migrate.versioning.script import SqlScript
         from sqlalchemy.exceptions import ProgrammingError
