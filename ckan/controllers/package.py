@@ -20,6 +20,12 @@ import ckan.misc
 
 logger = logging.getLogger('ckan.controllers')
 
+def search_url(params):
+    url = h.url_for(controller='package', action='search')
+    params = [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v)) \
+                    for k, v in params]
+    return url + u'?' + urlencode(params)
+
 class PackageController(BaseController):
     authorizer = ckan.authz.Authorizer()
     extensions = PluginImplementations(IPackageController)
@@ -38,25 +44,27 @@ class PackageController(BaseController):
         limit = 20
         query = query_for(model.Package)
 
+        # most search operations should reset the page counter:
+        params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
+        
         def drill_down_url(**by):
-            url = h.url_for(controller='package', action='search')
-            param = [(k, v.encode('utf-8')) for k, v in request.params.items()]
-            for k, v in by.items():
-                v = v.encode('utf-8')
-                if not (k, v) in param:
-                    param.append((k, v))
-            return url + u'?' + urlencode(param)
+            params = list(params_nopage)
+            params.extend(by.items())
+            return search_url(set(params))
         
         c.drill_down_url = drill_down_url 
         
         def remove_field(key, value):
-            url = h.url_for(controller='package', action='search')
-            param = request.params.items()
-            param.remove((key, value))
-            return url + u'?' + urlencode(
-                [(k, v.encode('utf-8')) for k, v in param])
-        
+            params = list(params_nopage)
+            params.remove((key, value))
+            return search_url(params)
+
         c.remove_field = remove_field
+        
+        def pager_url(q=None, page=None):
+            params = list(params_nopage)
+            params.append(('page', page))
+            return search_url(params)
 
         try:
             c.fields = []
@@ -73,10 +81,11 @@ class PackageController(BaseController):
                       filter_by_openness=c.open_only,
                       filter_by_downloadable=c.downloadable_only,
                       username=c.user)
-            
+                       
             c.page = h.Page(
                 collection=query.results,
                 page=page,
+                url=pager_url,
                 item_count=query.count,
                 items_per_page=limit
             )

@@ -9,7 +9,8 @@
     <div py:if="len(h.facet_items(c, code, limit=limit))" class="facet-box">
         <h2>${h.facet_title(code)}</h2>
         <ul class="facet-options">
-            <li py:for="name, count in h.facet_items(c, code, limit=limit)">
+            <li py:for="name, count in h.facet_items(c, code, limit=limit)"
+                py:if="not (code, name) in c.fields">
                 <a href="${c.drill_down_url(**{code: name})}">${label(name)}</a> (${count})
             </li>
         </ul>
