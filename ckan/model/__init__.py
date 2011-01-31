@@ -124,7 +124,7 @@ class Repository(vdm.sqlalchemy.Repository):
         try:
             path = os.path.join(self.migrate_repository,
                                 'versions',
-                                '021_postgres_upgrade.sql')
+                                '021_postgresql_upgrade.sql')
             script = SqlScript(path)
             script.run(meta.engine, step=None)
         except ProgrammingError, e:
