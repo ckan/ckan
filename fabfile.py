@@ -156,11 +156,14 @@ def config_test_ckan_net():
     config_0('test.ckan.net', requirements='pip-requirements.txt')
 
 def config_dev_hmg_ckan_net():
-    config_0('dev-hmg.ckan.net', requirements='pip-requirements.txt')
+    config_0('dev-hmg.ckan.net', requirements='pip-requirements.txt',
+             user='okfn')
 
-def config_0(name, hosts_str='', requirements='pip-requirements-metastable.txt',
-        db_pass='',
-        db_host='localhost'
+def config_0(name, hosts_str='',
+             requirements='pip-requirements-metastable.txt',
+             db_pass='',
+             db_host='localhost',
+             user=None
         ):
     '''Configurable configuration: fab -d gives full info.
     
@@ -171,8 +174,9 @@ def config_0(name, hosts_str='', requirements='pip-requirements-metastable.txt',
         pip-requirements-metastable.txt)
     @param db_pass: password to use when setting up db user (if needed)
     @param db_host: db host to use when setting up db (if needed)
+    @param user: user to log into host as, if not current user
     '''
-    env.user = os.environ['USER']
+    env.user = user or os.environ['USER']
     if hosts_str:
         env.hosts = hosts_str.split()
     if not hosts_str and not env.hosts:
