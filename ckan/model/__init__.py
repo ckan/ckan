@@ -77,10 +77,8 @@ class Repository(vdm.sqlalchemy.Repository):
         # 2009-09-11 interesting all the tests will work if you run them after
         # doing paster db clean && paster db upgrade !
         # self.upgrade_db()
-        self.setup_migration_version_control(self.latest_migration_version())
-        # sqlite memory database sometimes gets lost after version control
-        # is run so do create_all again
-        self.metadata.create_all(bind=self.metadata.bind)    
+        if not asbool(config.get('faster_db_test_hacks')):
+            self.setup_migration_version_control(self.latest_migration_version())
         self.create_indexes()
 
     def latest_migration_version(self):
