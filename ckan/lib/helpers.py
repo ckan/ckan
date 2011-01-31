@@ -75,13 +75,15 @@ def linked_user(user):
     if user in [model.PSEUDO_USER__LOGGED_IN, model.PSEUDO_USER__VISITOR]:
         return user
     if not isinstance(user, model.User):
-        user = model.User.get(unicode(user))
+        user_name = unicode(user)
+        user = model.User.get(user_name)
+        if not user:
+            return user_name
     if user:
         _name = user.name if model.User.VALID_NAME.match(user.name) else user.id
         _icon = icon("user") + " "
         return _icon + link_to(user.display_name, 
                        url_for(controller='user', action='read', id=_name))
-    return user
 
 def group_name_to_title(name):
     from ckan import model
