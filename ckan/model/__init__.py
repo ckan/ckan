@@ -78,6 +78,9 @@ class Repository(vdm.sqlalchemy.Repository):
         # doing paster db clean && paster db upgrade !
         # self.upgrade_db()
         self.setup_migration_version_control(self.latest_migration_version())
+        # sqlite memory database sometimes gets lost after version control
+        # is run so do create_all again
+        self.metadata.create_all(bind=self.metadata.bind)    
         self.create_indexes()
 
     def latest_migration_version(self):
@@ -138,6 +141,8 @@ class Repository(vdm.sqlalchemy.Repository):
 
         @param version: version to upgrade to (if None upgrade to latest)
         '''
+        assert meta.engine.name in ('postgres', 'postgresql'), \
+            'Only postgresql engine supported (not %s).' % meta.engine.name
         import migrate.versioning.api as mig
         self.setup_migration_version_control()
         mig.upgrade(self.metadata.bind, self.migrate_repository, version=version)
