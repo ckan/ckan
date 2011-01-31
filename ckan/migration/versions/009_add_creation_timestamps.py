@@ -4,11 +4,12 @@ from sqlalchemy import *
 from migrate import *
 import migrate.changeset
 
-metadata = MetaData(migrate_engine)
+metadata = MetaData()
 
 domain_obj_names = ['rating', 'group', 'user']
 
-def upgrade():
+def upgrade(migrate_engine):
+    metadata.bind = migrate_engine
     # Use sql instead of migrate.changeset because user and group are sql
     # reserved words and migrate doesn't quote them.
     for domain_obj_name in domain_obj_names:
@@ -20,5 +21,5 @@ def upgrade():
         table = Table(domain_obj_name, metadata, autoload=True)
         migrate_engine.execute(table.update(values={table.c.created:now}))
 
-def downgrade():
+def downgrade(migrate_engine):
     raise NotImplementedError()

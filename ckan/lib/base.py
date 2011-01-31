@@ -2,8 +2,12 @@
 
 Provides the BaseController class for subclassing.
 """
+from datetime import datetime
+from hashlib import md5
 import logging
+import os
 
+from paste.deploy.converters import asbool
 from pylons import c, cache, config, g, request, response, session
 from pylons.controllers import WSGIController
 from pylons.controllers.util import abort, etag_cache, redirect_to, redirect
@@ -18,7 +22,6 @@ import ckan.lib.helpers as h
 from ckan.plugins import PluginImplementations, IGenshiStreamFilter
 from ckan.lib.helpers import json
 import ckan.model as model
-import os
 
 # nuke cache
 #from pylons import cache
@@ -69,7 +72,8 @@ class BaseController(WSGIController):
     log = logging.getLogger(__name__)
 
     def __before__(self, action, **params):
-        self._start_call_timing()
+        c.time_call_started = datetime.now()
+
         # what is different between session['user'] and environ['REMOTE_USER']
         c.__version__ = ckan.__version__
         c.user = request.environ.get('REMOTE_USER', None)
@@ -96,7 +100,7 @@ class BaseController(WSGIController):
             model.Session.remove()
 
     def __after__(self, action, **params):
-        self._stop_call_timing()
+        c.time_call_stopped = datetime.now()
         self._write_call_timing()
 
     def _get_user(self, reference):
@@ -166,14 +170,8 @@ class BaseController(WSGIController):
         user = query.filter_by(apikey=apikey).first()
         return user
 
-    def _start_call_timing(self):
-        c.time_call_started = self._get_now_time()
-
-    def _stop_call_timing(self):
-        c.time_call_stopped = self._get_now_time()
-        
     def _write_call_timing(self):
-        if config.get('ckan.enable_call_timing', None):
+        if asbool(config.get('ckan.enable_call_timing', "False")):
             call_duration = c.time_call_stopped - c.time_call_started
             timing_data = {
                 "path": request.path, 
@@ -181,20 +179,13 @@ class BaseController(WSGIController):
                 "duration": str(call_duration),
             }
             timing_msg = json.dumps(timing_data)
-            timing_cache_path = self._get_timing_cache_path()
             timing_file_path = os.path.join(timing_cache_path, c.time_call_started.isoformat())
             timing_file = file(timing_file_path, 'w')
             timing_file.write(timing_msg)
             timing_file.close()
 
-    def _get_now_time(self):
-        import datetime
-        return datetime.datetime.now()
-
     def _get_timing_cache_path(self):
-        path = os.path.join(config['pylons.cache_dir'], 'call_timing')
-        if not os.path.exists(path):
-             os.makedirs(path)
+
         return path
 
     def _get_user_editable_groups(self): 

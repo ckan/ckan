@@ -139,7 +139,7 @@ class Authorizer(object):
         
         q = q.filter(sa.or_(*filters))
         return [pr.role for pr in q]
-
+    
     @classmethod
     def is_sysadmin(cls, username):
         user = model.User.by_name(username, autoflush=False)

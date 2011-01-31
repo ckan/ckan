@@ -56,7 +56,7 @@ Deploy new.ckan.net but the DNS is not setup yet::
 
 Deploy to a local directory::
 
-    fab local:~/test,test deploy
+    fab config_local:~/test,test deploy
 
 '''
 from __future__ import with_statement
@@ -80,7 +80,7 @@ env.skip_setup_db = False
 
 def config_local(base_dir, ckan_instance_name, db_host=None, db_pass=None, 
                  skip_setup_db=None, no_sudo=None, pip_requirements=None):
-    '''Run on localhost. e.g. local:~/test,myhost.com
+    '''Run on localhost. e.g. config_local:~/test,myhost.com
                             puts it at ~/test/myhost.com
                             '''
     env.hosts = ['localhost']
@@ -156,10 +156,15 @@ def config_test_ckan_net():
     config_0('test.ckan.net', requirements='pip-requirements.txt')
 
 def config_dev_hmg_ckan_net():
-    config_0('dev-hmg.ckan.net', requirements='pip-requirements.txt')
+    config_0('dev-hmg.ckan.net', requirements='pip-requirements.txt',
+             user='okfn')
 
-def config_0(name, hosts_str='', requirements='pip-requirements-metastable.txt',
-        db_pass=None):
+def config_0(name, hosts_str='',
+             requirements='pip-requirements-metastable.txt',
+             db_pass='',
+             db_host='localhost',
+             user=None
+        ):
     '''Configurable configuration: fab -d gives full info.
     
     @param name: name of instance (e.g. xx.ckan.net)
@@ -168,14 +173,15 @@ def config_0(name, hosts_str='', requirements='pip-requirements-metastable.txt',
     @param requirements: pip requirements filename to use (defaults to
         pip-requirements-metastable.txt)
     @param db_pass: password to use when setting up db user (if needed)
+    @param db_host: db host to use when setting up db (if needed)
+    @param user: user to log into host as, if not current user
     '''
-    env.user = 'okfn'
+    env.user = user or os.environ['USER']
     if hosts_str:
         env.hosts = hosts_str.split()
     if not hosts_str and not env.hosts:
         env.hosts = [name]
     env.ckan_instance_name = name
-    env.base_dir = '/home/%s/var/srvc' % env.user
     env.config_ini_filename = '%s.ini' % name
     # check if the host is just a squid caching a ckan running on another host
     assert len(env.hosts) == 1, 'Must specify one host'
@@ -187,10 +193,13 @@ def config_0(name, hosts_str='', requirements='pip-requirements-metastable.txt',
             host_txt = conf_line.split()[1].replace('_sites', '.okfn.org')
             env.hosts = [host_txt]
             print 'Found Squid cache is of CKAN host: %s' % host_txt
+            env.user = 'okfn'
         else:
             print 'Found Squid cache but did not find host in config.'
+    env.base_dir = '/home/%s/var/srvc' % env.user
     env.pip_requirements = requirements
     env.db_pass = db_pass
+    env.db_host = db_host
     env.log_filename_pattern = name + '.%s.log'
     
 def _setup():
@@ -303,6 +312,8 @@ def setup_db(db_details=None):
     if not db_details:
         db_details = _get_db_config()
     dbname = db_details['db_name']
+    if db_details['db_host'] != 'localhost':
+        raise Exception('Cannot setup db on non-local host (sudo will not work!)')
     output = sudo('psql -l', user='postgres')
     if ' %s ' % dbname in output:
         print 'DB already exists with name: %s' % dbname
@@ -382,7 +393,8 @@ def backup():
         assert exists(env.config_ini_filename), "Can't find config file: %s/%s" % (env.instance_path, env.config_ini_filename)
     db_details = _get_db_config()
     assert db_details['db_type'] == 'postgres'
-    run('export PGPASSWORD=%s&&pg_dump -U %s -h %s %s > %s' % (db_details['db_pass'], db_details['db_user'], db_details['db_host'], db_details['db_name'], pg_dump_filepath), shell=False)
+    port_option = '-p %s' % db_details['db_port'] if db_details['db_port'] else ''
+    run('export PGPASSWORD=%s&&pg_dump -U %s -h %s %s %s > %s' % (db_details['db_pass'], db_details['db_user'], db_details['db_host'], port_option, db_details['db_name'], pg_dump_filepath), shell=False)
     assert exists(pg_dump_filepath)
     run('ls -l %s' % pg_dump_filepath)
     # copy backup locally
@@ -429,7 +441,8 @@ def restore(pg_dump_filepath):
     with cd(env.instance_path):
         _run_in_pyenv('paster --plugin ckan db clean --config %s' % env.config_ini_filename)
     assert db_details['db_type'] == 'postgres'
-    run('export PGPASSWORD=%s&&psql -U %s -d %s -h %s -f %s' % (db_details['db_pass'], db_details['db_user'], db_details['db_name'], db_details['db_host'], pg_dump_filepath), shell=False)
+    port_option = '-p %s'  % db_details['db_port'] if db_details['db_port'] else ''
+    run('export PGPASSWORD=%s&&psql -U %s -d %s -h %s %s -f %s' % (db_details['db_pass'], db_details['db_user'], db_details['db_name'], db_details['db_host'], port_option, pg_dump_filepath), shell=False)
     with cd(env.instance_path):
         _run_in_pyenv('paster --plugin ckan db upgrade --config %s' % env.config_ini_filename)
         _run_in_pyenv('paster --plugin ckan db init --config %s' % env.config_ini_filename)
@@ -573,11 +586,16 @@ def _get_ini_value(key, ini_filepath=None):
 def _get_db_config():
     url = _get_ini_value('sqlalchemy.url')
     # e.g. 'postgres://tester:pass@localhost/ckantest3'
-    db_details = re.match('^\s*(?P<db_type>\w*)://(?P<db_user>\w*):(?P<db_pass>[^@]*)@(?P<db_host>[\w\.]*)/(?P<db_name>[\w.-]*)', url).groupdict()
+    db_details_match = re.match('^\s*(?P<db_type>\w*)://(?P<db_user>\w*):?(?P<db_pass>[^@]*)@(?P<db_host>[^/:]*):?(?P<db_port>[^/]*)/(?P<db_name>[\w.-]*)', url)
+    if not db_details_match:
+        raise Exception('Could not extract db details from url: %r' % url)
+    db_details = db_details_match.groupdict()
     return db_details
 
 def _get_ckan_pyenv_dict():
-    return {'here':os.path.join(env.pyenv_dir, 'src', 'ckan')}
+    # we would only have this path for dev installs so disabling ...
+    # return {'here':os.path.join(env.pyenv_dir, 'src', 'ckan')}
+    return {'here': env.instance_path}
 
 def _get_pylons_cache_dir():
     cache_dir = _get_ini_value('cache_dir')

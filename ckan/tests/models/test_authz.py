@@ -318,6 +318,7 @@ class TestMigrate:
         model.repo.commit_and_remove()
 
         model.give_all_packages_default_user_roles()
+        model.Session.commit()
 
         anna = model.Package.by_name(u'annakarenina')
         war = model.Package.by_name(u'warandpeace')
@@ -349,6 +350,7 @@ class TestUseCasePermissions:
         model.clear_user_roles(anna)
         annakarenina_creator = model.User(name=u'annakarenina_creator')
         model.Session.add(annakarenina_creator)
+        model.repo.commit_and_remove()
         model.setup_default_user_roles(anna, [annakarenina_creator])
         model.repo.commit_and_remove()
 

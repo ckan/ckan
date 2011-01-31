@@ -6,7 +6,7 @@ import migrate.changeset
 import uuid
 from migrate.changeset.constraint import ForeignKeyConstraint
 
-metadata = MetaData(migrate_engine)
+metadata = MetaData()
 
 
 from ckan.lib.helpers import json
@@ -85,11 +85,13 @@ group_extra_revision_table = Table('group_extra_revision', metadata,
     Column('continuity_id', UnicodeText, ForeignKey('group.id'))
     )
 
-revision_table = Table('revision', metadata, autoload=True)
-package_table = Table('package', metadata, autoload=True)
 
+def upgrade(migrate_engine):
+    metadata.bind = migrate_engine
 
-def upgrade():
+    revision_table = Table('revision', metadata, autoload=True)
+    package_table = Table('package', metadata, autoload=True)
+
     rev_id = make_uuid()
     q = revision_table.insert(values={'id': rev_id, 
                                       'author': u'system',
@@ -165,5 +167,5 @@ def upgrade():
         migrate_engine.execute(q)
 
 
-def downgrade():
+def downgrade(migrate_engine):
     raise NotImplementedError()

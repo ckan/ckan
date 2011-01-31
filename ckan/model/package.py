@@ -267,7 +267,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                        parent_rel_as_object.type == rel_as_subject.type:
                     type_printable = PackageRelationship.inferred_types_printable['sibling']
                     rel_list.append((child_pkg, type_printable, None))
-        return sorted(rel_list)
+        return sorted(list(set(rel_list)))
     #
     ## Licenses are currently integrated into the domain model here.   
  

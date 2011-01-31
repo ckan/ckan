@@ -2,7 +2,7 @@ from sqlalchemy import *
 from migrate import *
 import uuid
 
-metadata = MetaData(migrate_engine)
+metadata = MetaData()
 
 map = {
     u'OSI Approved::Mozilla Public License 1.1 (MPL)': 'mozilla1.1', 
@@ -84,13 +84,14 @@ map = {
     u'OSI Approved::zlib/libpng license': 'zlib-license'
 }
 
-def upgrade():
+def upgrade(migrate_engine):
+    metadata.bind = migrate_engine
     print "Changing package license_ids to strings."
 
     # Get licenses, package license ids, and package revision license ids.
-    old_license_titles = _get_old_license_titles()
-    old_package_license_ids = _get_old_package_license_ids()
-    old_package_revision_license_ids = _get_old_package_revision_license_ids()
+    old_license_titles = _get_old_license_titles(migrate_engine)
+    old_package_license_ids = _get_old_package_license_ids(migrate_engine)
+    old_package_revision_license_ids = _get_old_package_revision_license_ids(migrate_engine)
     _check_map_has_old_license_titles(old_license_titles, map)
     
     # Upgrade database scheme.
@@ -111,10 +112,10 @@ def upgrade():
             old_package_license_ids, old_license_titles, map)
     new_package_revision_license_ids = _switch_package_license_ids(
             old_package_revision_license_ids, old_license_titles, map)
-    _set_new_package_license_ids(new_package_license_ids)
-    _set_new_package_revision_license_ids(new_package_revision_license_ids)
+    _set_new_package_license_ids(migrate_engine, new_package_license_ids)
+    _set_new_package_revision_license_ids(migrate_engine, new_package_revision_license_ids)
 
-def downgrade():
+def downgrade(migrate_engine):
     raise NotImplementedError()
 
 def _check_map_has_old_license_titles(old_license_titles, map):
@@ -122,7 +123,7 @@ def _check_map_has_old_license_titles(old_license_titles, map):
         if title not in map:
             raise Exception, "The old license title '%s' wasn't found in the upgrade map. Decide which new license id should be substituted for this license and add an entry to the map (in ckan/migration/versions/018_adjust_licenses.py)." % title
 
-def _get_old_license_titles():
+def _get_old_license_titles(migrate_engine):
     "Returns a dict of old license titles, keyed by old license id."
     titles = {}
     select_licenses = "SELECT id, name FROM license;"
@@ -131,7 +132,7 @@ def _get_old_license_titles():
         titles[id] = title
     return titles
 
-def _get_old_package_license_ids():
+def _get_old_package_license_ids(migrate_engine):
     "Returns a dict of old license ids, keyed by package id."
     old_ids = {}
     select_licenses = "SELECT id, license_id FROM package;"
@@ -140,7 +141,7 @@ def _get_old_package_license_ids():
         old_ids[id] = license_id
     return old_ids
 
-def _get_old_package_revision_license_ids():
+def _get_old_package_revision_license_ids(migrate_engine):
     "Returns a dict of old license ids, keyed by package_revision id."
     old_ids = {}
     select_licenses = "SELECT id, license_id FROM package_revision;"
@@ -160,19 +161,19 @@ def _switch_package_license_ids(old_ids, old_license_titles, map):
             print "Switched license_id %s to %s" % (old_license_id, new_license_id)
     return new_ids
 
-def _set_new_package_license_ids(new_ids):
+def _set_new_package_license_ids(migrate_engine, new_ids):
     for (package_id, license_id) in new_ids.items():
-        _set_package_license_id(package_id, license_id)
+        _set_package_license_id(migrate_engine, package_id, license_id)
 
-def _set_package_license_id(package_id, license_id):
+def _set_package_license_id(migrate_engine, package_id, license_id):
     set_package_license_id = """UPDATE package SET license_id ='%s' where id = '%s';""" % (license_id, package_id)
     migrate_engine.execute(set_package_license_id)
 
-def _set_new_package_revision_license_ids(new_ids):
+def _set_new_package_revision_license_ids(migrate_engine, new_ids):
     for (package_id, license_id) in new_ids.items():
-        _set_package_revision_license_id(package_id, license_id)
+        _set_package_revision_license_id(migrate_engine, package_id, license_id)
 
-def _set_package_revision_license_id(package_id, license_id):
+def _set_package_revision_license_id(migrate_engine, package_id, license_id):
     set_package_license_id = """UPDATE package_revision SET license_id ='%s' where id = '%s';""" % (license_id, package_id)
     migrate_engine.execute(set_package_license_id)
 
