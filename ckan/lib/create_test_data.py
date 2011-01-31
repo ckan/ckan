@@ -562,10 +562,13 @@ family_items = [{'name':u'abraham', 'title':u'Abraham'},
                 {'name':u'beer', 'title':u'Beer'},
                 {'name':u'bart', 'title':u'Bart'},
                 {'name':u'lisa', 'title':u'Lisa'},
+                {'name':u'marge', 'title':u'Marge'},
                 ]
 family_relationships = [('abraham', 'parent_of', 'homer'),
                         ('homer', 'parent_of', 'bart'),
                         ('homer', 'parent_of', 'lisa'),
+                        ('marge', 'parent_of', 'lisa'),
+                        ('marge', 'parent_of', 'bart'),
                         ('homer_derived', 'derives_from', 'homer'),
                         ('homer', 'depends_on', 'beer'),
                         ]
