@@ -238,7 +238,7 @@ class PackageController(BaseController):
         if request.params.has_key('save'):
             fs = fs.bind(record, data=dict(request.params) or None, session=model.Session)
             try:
-                PackageSaver().commit_pkg(fs, None, None, log_message, c.author, client=c)
+                PackageSaver().commit_pkg(fs, log_message, c.author, client=c)
                 pkgname = fs.name.value
 
                 pkg = model.Package.by_name(pkgname)
@@ -279,7 +279,7 @@ class PackageController(BaseController):
         c.form = self._render_edit_form(fs, request.params, clear_session=True)
         if 'preview' in request.params:
             try:
-                PackageSaver().render_preview(fs, id, record.id,
+                PackageSaver().render_preview(fs,
                                               log_message=log_message,
                                               author=c.author, client=c)
                 c.preview = h.literal(render('package/read_core.html'))
@@ -326,7 +326,7 @@ class PackageController(BaseController):
             try:
                 for item in self.extensions:
                     item.edit(fs.model)
-                PackageSaver().commit_pkg(fs, id, pkg.id, log_message, c.author, client=c)
+                PackageSaver().commit_pkg(fs, log_message, c.author, client=c)
                 # do not use package name from id, as it may have been edited
                 pkgname = fs.name.value
                 self._form_save_redirect(pkgname, 'edit')
@@ -344,7 +344,7 @@ class PackageController(BaseController):
                 self._adjust_license_id_options(pkg, fs)
             fs = fs.bind(pkg, data=dict(request.params))
             try:
-                PackageSaver().render_preview(fs, id, pkg.id,
+                PackageSaver().render_preview(fs,
                                               log_message=log_message,
                                               author=c.author, client=c)
                 c.pkgname = fs.name.value
