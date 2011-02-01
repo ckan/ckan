@@ -178,6 +178,11 @@ class BaseRestController(BaseApiController):
             objects = model.HarvestingJob.filter(**filter_kwds)
             response_data = [o.id for o in objects]
             return self._finish_ok(response_data)
+        elif register == u'harvesteddocument':
+            filter_kwds = {}
+            objects = model.HarvestedDocument.filter(**filter_kwds)
+            response_data = [o.guid for o in objects]
+            return self._finish_ok(response_data)
         else:
             response.status_int = 400
             return gettext('Cannot list entity of this type: %s') % register
@@ -240,7 +245,6 @@ class BaseRestController(BaseApiController):
                            (id, subregister, id2)
             response_data = [rel.as_dict(pkg1, ref_package_by=self.ref_package_by) for rel in relationships]
             return self._finish_ok(response_data)
-
         elif register == u'group':
             group = model.Group.by_name(id)
             if group is None:
@@ -268,6 +272,45 @@ class BaseRestController(BaseApiController):
                 return ''            
             response_data = obj.as_dict()
             return self._finish_ok(response_data)
+        elif register == u'harvesteddocument':
+            objs = model.Session.query(model.HarvestedDocument).filter(model.HarvestedDocument.guid==id)
+            if not objs:
+                response.status_int = 404
+                return ''            
+            obj = objs[0]
+            if not subregister:
+                response_data = obj.as_dict()
+                return self._finish_ok(response_data)
+            elif subregister == 'xml':
+                response_data = obj.as_dict()['content']
+                response.headers['Content-Type'] = 'text/xml'
+                response.status_int = 200
+                response.charset = 'utf-8'
+                return response_data
+            elif subregister == 'html':
+                d = obj.as_dict()
+                content = {
+                    'html': d['content'].replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;\n'),
+                    'title': d['id'],
+                }
+                response_data = """
+                <html>
+                <head>
+                <title>Harvested Document %(title)s</title>
+                </head>
+                <body>
+                <h1>Harvested Document %(title)s</h1>
+                <pre style="background: #ffc">%(html)s</pre>
+                </body>
+                </html>
+                """%content
+                response.headers['Content-Type'] = 'text/html'
+                response.status_int = 200
+                response.charset = 'utf-8'
+                return response_data
+            else:
+                response.status_int = 404
+                return ''            
         elif register == u'harvestingjob':
             obj = model.HarvestingJob.get(id, default=None)
             if obj is None:
@@ -492,7 +535,15 @@ class BaseRestController(BaseApiController):
         # must be logged in to start with
         if not self._check_access(None, None):
             return json.dumps(_('Access denied'))
-
+        # XXX Currently no security on this call
+        if register == 'harvestsource' and not subregister:
+            source = model.HarvestSource.get(id, default=None)
+            jobs = model.HarvestingJob.filter(source=source)
+            for job in jobs:
+                job.delete()
+            source.delete()
+            model.repo.commit()        
+            return self._finish_ok()
         if register == 'package' and not subregister:
             entity = self._get_pkg(id)
             if not entity:
@@ -529,15 +580,12 @@ class BaseRestController(BaseApiController):
         if not entity:
             response.status_int = 404
             return ''
-
         if not self._check_access(entity, model.Action.PURGE):
             return json.dumps(_('Access denied'))
-
         if revisioned_details:
             rev = model.repo.new_revision()
             rev.author = self.rest_api_user
             rev.message = _(u'REST API: Delete %s') % revisioned_details
-            
         try:
             if register == 'package' and not subregister:
                 for item in PluginImplementations(IPackageController):
@@ -545,13 +593,11 @@ class BaseRestController(BaseApiController):
             elif register == 'group' and not subregister:
                 for item in PluginImplementations(IGroupController):
                     item.delete(entity)
-
             entity.delete()
             model.repo.commit()        
         except Exception, inst:
             log.exception(inst)
             raise
-
         return self._finish_ok()
 
     def search(self, register=None):

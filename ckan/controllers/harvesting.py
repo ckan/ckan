@@ -25,7 +25,6 @@ from ckan.lib.cswclient import CswError
 
 logger = logging.getLogger('ckan.controllers')
 
-
 def decode_response(resp):
     """Decode a response to unicode
     """
@@ -37,10 +36,8 @@ def decode_response(resp):
         data = unicode(content, 'utf8')  # XXX is this a fair assumption?
     return data
 
-
 class HarvestingSourceController(BaseController):
     pass
-
 
 class ExampleController(BaseController):
     authorizer = ckan.authz.Authorizer()
@@ -62,8 +59,11 @@ class ExampleController(BaseController):
         PackageSaver().render_package(c.pkg)
         return render('package/read.html')
 
-
 class HarvestingJobController(object):
+    """\
+    This is not a controller in the Pylons sense, just an object for managing
+    harvesting.
+    """
     def __init__(self, job):
         self.job = job
 
@@ -124,6 +124,7 @@ class HarvestingJobController(object):
                 raise HarvesterError(
                     "Another source is using metadata GUID %s" % \
                                     self.job.source.id)
+            # XXX Not strictly true - we need to check the title, package resources etc
             if harvested_doc.read_values() == gemini_values:
                 # nothing's changed
                 return None
@@ -131,20 +132,57 @@ class HarvestingJobController(object):
         else:
             harvested_doc = None
             package = None
-        package_data = {
-            'name': gemini_values['guid'],
-            'title': gemini_values['title'],
-            'extras': gemini_values,
+
+        extras = {
+            'publisher': int(self.job.source.publisher_ref or 0),
+            'INSPIRE': 'True',
         }
+        # Just add some of the metadata as extras, not the whole lot
+        for name in ['bbox-east-long', 'bbox-north-lat', 'bbox-south-lat', 'bbox-west-long', 'abstract', 'guid']:
+            extras[name] = gemini_values[name]
+        package_data = {
+            'name': str(gemini_guid),
+            'title': gemini_values['title'],
+            'extras': extras,
+        }
+        resource_locator = gemini_values.get('resource-locator', []) and gemini_values['resource-locator'][0].get('url') or ''
+        if resource_locator:
+            package_data['resources'] = [
+                {
+                    'url': resource_locator,
+                    'description': 'Resource locator',
+                    'format': 'Unverified',
+                },
+                {
+                    'url': '%s/api/2/rest/harvesteddocument/%s/xml/%s.xml'%(
+                        config.get('ckan.api_url', '/').rstrip('/'),
+                        gemini_guid, 
+                        gemini_guid,
+                    ),
+                    'description': 'Source GEMINI 2 document',
+                    'format': 'XML',
+                },
+                {
+                    'url': '%s/api/2/rest/harvesteddocument/%s/html/%s.html'%(
+                        config.get('ckan.api_url', '/').rstrip('/'),
+                        gemini_guid, 
+                        gemini_guid,
+                    ),
+                    'description': 'Formatted GEMINI 2 document', 
+                    'format': 'HTML',
+                },
+            ]
         if package == None:
             # Create new package from data.
             package = self._create_package_from_data(package_data)
         else:
             package = self._update_package_from_data(package, package_data)
-        harvested_doc = HarvestedDocument(content=content,
-                                          guid=gemini_guid,
-                                          package=package,
-                                          source=self.job.source)
+        harvested_doc = HarvestedDocument(
+            content=content,
+            guid=gemini_guid,
+            package=package,
+            source=self.job.source,
+        )
         harvested_doc.save()
         return package
 
@@ -290,6 +328,11 @@ class HarvestingJobController(object):
                 error_msg = error[1][0]
                 msg += ' %s: %s' % (attr_name.capitalize(), error_msg)
             raise HarvesterError(msg)
+        #from ckan.lib.search.sql import PackageSqlSearchIndex
+        #from ckan.lib.search import get_backend 
+        #PackageSqlSearchIndex(
+        #    backend=get_backend(backend='sql')
+        #).insert_dict(package.as_dict())
         return package
 
     def _update_package_from_data(self, package, package_data):
