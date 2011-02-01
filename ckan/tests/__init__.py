@@ -190,7 +190,9 @@ class CommonFixtureMethods(BaseCase):
         return model.HarvestSource.get(source_url, default, 'url')
 
     def create_harvest_source(self, **kwds):
-        return model.HarvestSource.create_save(**kwds)             
+        source = model.HarvestSource(**kwds)
+        source.save()
+        return source
 
     def purge_package_by_name(self, package_name):
         package = self.get_package_by_name(package_name)

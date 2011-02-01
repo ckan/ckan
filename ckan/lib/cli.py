@@ -975,7 +975,10 @@ class Harvester(CkanCommand):
         else:
             source = HarvestSource.get(source_id)
 
-        job = HarvestingJob.create_save(source=source, user_ref=user_ref, status=u"New")
+        job = HarvestingJob.create(source=source,
+                                   user_ref=user_ref,
+                                   status=u"New")
+        job.save()
         print "Created new harvesting job:"
         self.print_harvesting_job(job)
         status = u"New"
@@ -1016,11 +1019,15 @@ class Harvester(CkanCommand):
 
     def create_harvest_source(self, **kwds):
         from ckan.model import HarvestSource
-        return HarvestSource.create_save(**kwds)
+        source = HarvestSource(**kwds)
+        source.save()
+        return source
 
     def create_harvesting_job(self, **kwds):
         from ckan.model import HarvestingJob
-        return HarvestingJob.create_save(**kwds)
+        job = HarvestingJob(**kwds)
+        job.save()
+        return job
 
     def print_harvest_sources(self, sources):
         if sources:
