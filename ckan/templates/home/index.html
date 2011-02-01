@@ -62,16 +62,17 @@
     <p i18n:msg="package_count"><strong>${c.package_count} registered data packages</strong> available.</p>
 
     <xi:include href="../package/search_form.html" />
-
-    <h4>Top Tags</h4>
-    <div id="tagcloud">
-    <py:for each="tag_name, count in c.tag_counts">
-      <a rel="${count}" title="${count}" href="${h.url_for(controller='tag',
-        action='read', id=tag_name)}">${tag_name}</a>
-    </py:for>
-    </div>
-
-    <hr />
+    
+    <py:if test="len(c.tag_counts)">
+        <h4>Top Tags</h4>
+        <div id="tagcloud">
+        <py:for each="tag_name, count in c.tag_counts">
+          <a rel="${count}" title="${count}" href="${h.url_for(controller='tag',
+            action='read', id=tag_name)}">${tag_name}</a>
+        </py:for>
+        </div>
+        <hr />
+    </py:if>
 
     <h4>Recently changed packages</h4>
     ${package_list(c.latest_packages)}
