@@ -58,11 +58,11 @@ cmd.run([config_path])
 import ckan.model as model
 model.repo.init_db()
 
-#make sure that the database is droped and recreated first
-#so that any schema changes will be made.
+# make sure that the database is dropped and recreated first
+# so that any schema changes will be made.
 model.repo.metadata.drop_all(bind=model.repo.metadata.bind)
 model.repo.init_db()
-#tell repo it does not need to drop and craete any more
+# tell repo it does not need to drop and create any more
 model.repo.inited = True
 
 

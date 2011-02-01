@@ -25,6 +25,9 @@ class TestImporter(FunctionalTestCase):
     def teardown_class(self):
         model.repo.clean_db()
 
+    def teardown(self):
+        model.Session.remove()
+
     def test_0_index(self):
         offset = url_for(controller='importer')
         res = self.app.get(offset)

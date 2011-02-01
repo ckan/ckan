@@ -2,14 +2,16 @@ from sqlalchemy import *
 from migrate import *
 import migrate.changeset
 
-metadata = MetaData(migrate_engine)
+metadata = MetaData()
 
-package_relationship_table = Table('package_relationship',
-                                   metadata, autoload=True)
-package_relationship_revision_table = Table('package_relationship_revision',
-                                            metadata, autoload=True)
+def upgrade(migrate_engine):
+    metadata.bind = migrate_engine
 
-def upgrade():
+    package_relationship_table = Table('package_relationship',
+                                       metadata, autoload=True)
+    package_relationship_revision_table = Table('package_relationship_revision',
+                                                metadata, autoload=True)
+
     state_column = Column('state', UnicodeText)
     state_column.create(package_relationship_table)
     state_column = Column('state', UnicodeText)
@@ -17,6 +19,6 @@ def upgrade():
     # No package relationship objects exist to migrate, so no
     # need to populate state column
 
-def downgrade():
+def downgrade(migrate_engine):
     raise NotImplementedError()
     

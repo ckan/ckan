@@ -2,9 +2,10 @@ from sqlalchemy import *
 from migrate import *
 import migrate.changeset
 
-metadata = MetaData(migrate_engine)
+metadata = MetaData()
 
-def upgrade():
+def upgrade(migrate_engine):
+    metadata.bind = migrate_engine
     # When adding a column to a revisioned object, need to add it to it's
     # counterpart revision object too. Here is the counter-part for that in
     # 013_add_hash.py
@@ -12,5 +13,5 @@ def upgrade():
     column = Column('hash', UnicodeText)
     column.create(package_resource_revision)
 
-def downgrade():
+def downgrade(migrate_engine):
     raise NotImplementedError()

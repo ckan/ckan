@@ -7,7 +7,7 @@ from migrate import *
 import migrate.changeset
 from migrate.changeset.constraint import ForeignKeyConstraint, PrimaryKeyConstraint
 
-metadata = MetaData(migrate_engine)
+metadata = MetaData()
 
 def make_uuid():
     return unicode(uuid.uuid4())
@@ -30,7 +30,8 @@ def make_uuid():
 ##        ('package_role', 'package_id'),
 ##        ('package_group', 'package_id'),
 
-def upgrade():
+def upgrade(migrate_engine):
+    metadata.bind = migrate_engine
     primary_table_name = 'package'
     foreign_tables = ['package_revision',
                       'package_tag', 'package_tag_revision',
@@ -39,29 +40,29 @@ def upgrade():
                       'rating', 'package_search',
                       'package_role', 'package_group']
     revision_table_name = 'package_revision'
-    convert_to_uuids(primary_table_name, foreign_tables, revision_table_name)
+    convert_to_uuids(migrate_engine, primary_table_name, foreign_tables, revision_table_name)
 
     primary_table_name = 'package_resource'
     foreign_tables = ['package_resource_revision']
     revision_table_name = 'package_resource_revision'
-    convert_to_uuids(primary_table_name, foreign_tables, revision_table_name)
+    convert_to_uuids(migrate_engine, primary_table_name, foreign_tables, revision_table_name)
 
     primary_table_name = 'package_tag'
     foreign_tables = ['package_tag_revision']
     revision_table_name = 'package_tag_revision'
-    convert_to_uuids(primary_table_name, foreign_tables, revision_table_name)
+    convert_to_uuids(migrate_engine, primary_table_name, foreign_tables, revision_table_name)
 
     primary_table_name = 'package_extra'
     foreign_tables = ['package_extra_revision']
     revision_table_name = 'package_extra_revision'
-    convert_to_uuids(primary_table_name, foreign_tables, revision_table_name)
+    convert_to_uuids(migrate_engine, primary_table_name, foreign_tables, revision_table_name)
 
     primary_table_name = 'tag'
     foreign_tables = ['package_tag', 'package_tag_revision']
     revision_table_name = None
-    convert_to_uuids(primary_table_name, foreign_tables, revision_table_name)
+    convert_to_uuids(migrate_engine, primary_table_name, foreign_tables, revision_table_name)
 
-def convert_to_uuids(primary_table_name, foreign_tables, revision_table_name=None):
+def convert_to_uuids(migrate_engine, primary_table_name, foreign_tables, revision_table_name=None):
     '''Convert an id column in Primary Table to string type UUIDs.
     How it works:
        1 drop all foreign key constraints
@@ -76,13 +77,13 @@ def convert_to_uuids(primary_table_name, foreign_tables, revision_table_name=Non
           of its related revision table, so that it can be updated at the same
           time.
           '''
-    print('** Processing %s' % primary_table_name)
-    print('*** Dropping fk constraints')
+    #print('** Processing %s' % primary_table_name)
+    #print('*** Dropping fk constraints')
     dropped_fk_constraints = drop_constraints_and_alter_types(primary_table_name, foreign_tables, revision_table_name)
-    print('*** Adding fk constraints (with cascade)')
-    add_fk_constraints(dropped_fk_constraints, primary_table_name)
-    print('*** Creating UUIDs')
-    create_uuids(primary_table_name, revision_table_name)
+    #print('*** Adding fk constraints (with cascade)')
+    add_fk_constraints(migrate_engine, dropped_fk_constraints, primary_table_name)
+    #print('*** Creating UUIDs')
+    create_uuids(migrate_engine, primary_table_name, revision_table_name)
 
 def drop_constraints_and_alter_types(primary_table_name, foreign_tables, revision_table_name):
     # 1 drop all foreign key constraints
@@ -95,13 +96,13 @@ def drop_constraints_and_alter_types(primary_table_name, foreign_tables, revisio
                 foreign_key_cols = [key.column for key in constraint.elements]
                 fk_col = foreign_key_cols[0]
                 if fk_col.table == primary_table:
-                    orig_fk = ForeignKeyConstraint(constraint.columns, foreign_key_cols, name=constraint.name)
+                    orig_fk = ForeignKeyConstraint(constraint.columns, foreign_key_cols, name=constraint.name, table=table)
                     orig_fk.drop()
                     dropped_fk_constraints.append((constraint.columns, foreign_key_cols, constraint.name, table.name))
                     #print 'CON', dropped_fk_constraints[-1]
 
     # 2 alter type of primary table id and foreign keys
-                    id_col = list(constraint.columns)[0]
+                    id_col = constraint.table.columns[constraint.columns[0]]
                     id_col.alter(type=UnicodeText)
 
     primary_table = Table(primary_table_name, metadata, autoload=True)
@@ -116,7 +117,7 @@ def drop_constraints_and_alter_types(primary_table_name, foreign_tables, revisio
 
     return dropped_fk_constraints
 
-def add_fk_constraints(dropped_fk_constraints, primary_table_name):
+def add_fk_constraints(migrate_engine, dropped_fk_constraints, primary_table_name):
     # 3 create foreign key constraints
     for fk_constraint in dropped_fk_constraints:
         # cascade doesn't work
@@ -133,11 +134,11 @@ def add_fk_constraints(dropped_fk_constraints, primary_table_name):
             REFERENCES %(primary_table_name)s (id)
             ON UPDATE CASCADE
             ''' % {'table':table_name, 'fkeyname':constraint_name,
-                   'col_name':constraint_columns.keys()[0],
+                   'col_name':constraint_columns[0],
                    'primary_table_name':primary_table_name}
         migrate_engine.execute(oursql)
 
-def create_uuids(primary_table_name, revision_table_name):
+def create_uuids(migrate_engine, primary_table_name, revision_table_name):
     # have changed type of cols so recreate metadata
     metadata = MetaData(migrate_engine)
 
@@ -158,5 +159,5 @@ def create_uuids(primary_table_name, revision_table_name):
         q = revision_table.update().values(id=revision_table.c.continuity_id)
         migrate_engine.execute(q)
             
-def downgrade():
+def downgrade(migrate_engine):
     raise NotImplementedError()

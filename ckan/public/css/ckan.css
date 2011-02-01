@@ -790,14 +790,14 @@ ul.package_formats li {
   display: none;
 }
 
-#content .package h3, #content h4, 
+#content .package .subsection h3,
 #content #comments h3, #content #comments h4 {
   background-color: #444;
   padding: 10px;
   color: white;
 }
 
-.package h4 {
+.package h3, .package h4 {
 	font-weight: bold;
 	margin: 1em 0 0.6em 0;
 }

@@ -219,7 +219,7 @@ class Sysadmin(CkanCommand):
 
     Usage:
       sysadmin list                 - lists sysadmins
-      sysadmin create <user-name>   - creates sysadmin user
+      sysadmin add <user-name>      - add a user as a sysadmin
       sysadmin remove <user-name>   - removes user from sysadmins
     '''
 
@@ -235,8 +235,8 @@ class Sysadmin(CkanCommand):
         cmd = self.args[0]
         if cmd == 'list':
             self.list()
-        elif cmd == 'create':
-            self.create()
+        elif cmd == 'add':
+            self.add()
         elif cmd == 'remove':
             self.remove()
         else:
@@ -249,7 +249,7 @@ class Sysadmin(CkanCommand):
         for sysadmin in sysadmins:
             print 'name=%s id=%s' % (sysadmin.user.name, sysadmin.user.id)
 
-    def create(self):
+    def add(self):
         from ckan import model
 
         if len(self.args) < 2:
@@ -259,10 +259,17 @@ class Sysadmin(CkanCommand):
 
         user = model.User.by_name(unicode(username))
         if not user:
-            print 'User "%s" not found - creating' % username
-            user = model.User(name=unicode(username))
+            print 'User "%s" not found' % username
+            makeuser = raw_input('Create new user: %s? [y/n]' % username)
+            if makeuser == 'y':
+                print('Creating %s user' % username)
+                user = model.User(name=unicode(username))
+            else:
+                print 'Exiting ...'
+                return
         model.add_user_to_role(user, model.Role.ADMIN, model.System())
         model.repo.commit_and_remove()
+        print 'Added %s as sysadmin' % username
 
     def remove(self):
         from ckan import model

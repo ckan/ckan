@@ -34,9 +34,12 @@ app_instance_uuid = ${app_instance_uuid}
 # execute malicious code after an exception is raised.
 set debug = false
 
-# Specify the database for SQLAlchemy to use via
-#sqlalchemy.url = sqlite:///%(here)s/somedb.db
+# Specify the database for SQLAlchemy to use:
+# * Postgres is currently required for a production CKAN deployment
+# * Sqlite (memory or file) can be used as a quick alternative for testing
 sqlalchemy.url = postgres://ckantest:pass@localhost/ckantest
+#sqlalchemy.url = sqlite:///
+#sqlalchemy.url = sqlite:///%(here)s/somedb.db
 
 # repoze.who config
 who.config_file = %(here)s/who.ini
@@ -65,8 +68,7 @@ ckan.controllers.apiv2.package.list.expires = -1
 ckan.controllers.apiv2.package.show.expires = -1
 
 # CKAN QoS monitoring
-# any non-empty value enables it
-enable_call_timing =
+ckan.enable_call_timing = false
 
 # Location of RDF versions of packages
 # e.g. rdf_packages = http://semantic.ckan.net/package/
@@ -117,11 +119,25 @@ package_form = standard
 ## NOTE this is mutually exclusive with ckan.async_notifier
 ckan.build_search_index_synchronously = true
 
-
+## Title of site (using in several places including templates and <title> tag
 #ckan.site_title = CKAN
+
+## Used in creating some absolute urls (such as rss feeds)
 ckan.site_url = http://www.ckan.net
-# Enable if the API is at a different domain
+
+## An 'id' for the site (using, for example, when creating entries in a common search index) 
+## If not specified derived from the site_url
+# ckan.site_id = ckan.net
+
+## API url to use (e.g. in AJAX callbacks)
+## Enable if the API is at a different domain
 # ckan.api_url = http://www.ckan.net
+
+## html content to be inserted just before </body> tag (e.g. google analytics code)
+## NB: can use html e.g. <strong>blah</strong>
+## NB: can have multiline strings just indent following lines
+# ckan.template_footer_end = 
+
 
 # Logging configuration
 [loggers]

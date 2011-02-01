@@ -98,13 +98,13 @@ tests. See: http://buildbot.okfn.org/waterfall
 
    ::
 
-       wget http://knowledgeforge.net/ckan/hg/raw-file/default/pip-requirements.txt
+       wget https://bitbucket.org/okfn/ckan/raw/default/pip-requirements.txt
 
    Or for the 'metastable' branch (used for most server installs):
 
    ::
 
-       wget http://knowledgeforge.net/ckan/hg/raw-file/default/pip-requirements-metastable.txt
+       wget https://bitbucket.org/okfn/ckan/raw/default/pip-requirements-metastable.txt
 
    Install all the dependencies listed in the requirements file by running the
    command below in your activated shell (adjusting the filename as necessary 
@@ -126,7 +126,7 @@ tests. See: http://buildbot.okfn.org/waterfall
       psql -l
 
   It is advisable to ensure that the encoding of databases is 'UTF8', or 
-  internationalisation may be a problem. Since changing the encoding of Postgres
+  internationalisation may be a problem. Since changing the encoding of PostgreSQL
   may mean deleting existing databases, it is suggested that this is fixed before
   continuing with the CKAN install.
 
@@ -260,9 +260,11 @@ Now start the tests:
     cd pyenv/src/ckan
     nosetests ckan/tests
 
-The test suite takes a very long time to run against a standard postgres.  You can make postgres run faster by turning off durability as described at <http://www.postgresql.org/docs/9.0/static/non-durability.html>.
+The test suite takes a long time to run against standard PostgreSQL (approx. 15 minutes, or close to an hour on Ubuntu/10.04 Lucid).  
 
-Even with durability turned off, the full test suite can take around 15 minutes to run.  If you test against an in-memory sqlite database, this can drop to as low as 5 minutes.  To do this, uncomment the following line in test.ini:
+This can be improved to between 5 and 15 minutes by turning off durability as described at <http://www.postgresql.org/docs/9.0/static/non-durability.html>. 
+
+However if you test against an in-memory SQLite database, this can drop to as low as 2 minutes.  To do this, change the sqlalchemy.url line in your development.ini:
 
 ::
 
@@ -270,11 +272,12 @@ Even with durability turned off, the full test suite can take around 15 minutes 
 
 .. caution ::
 
-   Note that (a) some search-related tests are currently skipped due
-   to postgres-specific code; and (b) only postgres is currently
+   Note that when running against SQLite: (a) some search-related 
+   tests are currently skipped due
+   to PostgreSQL-specific code; and (b) only PostgreSQL is currently
    supported in production anyway.  Therefore, you should treat the
-   sqlite support as a convenience during development, and always run
-   the tests against postgres as a final check.
+   SQLite support as a convenience during development, and always run
+   the tests against PostgreSQL as a final check.
 
 
 Development
@@ -284,7 +287,7 @@ CKAN is an open source project and contributions are welcome!
 
 There are a number of stakeholders in the direction of the project, so we discuss large changes and new features on the ckan-discuss list: http://lists.okfn.org/mailman/listinfo/ckan-discuss
 
-New developers should aquaint themselves with the documentation (see below) and proposed patches emailed to ckan-discuss. Once they are comfortable they should request write-access to the repo.
+New developers should aquaint themselves with the documentation (see below). Proposed changes should be made on a personal CKAN fork (on BitBucket for example). Request merging with the mainline via the ckan-discuss list.
 
 We have policies for check-ins that ensure the build doesn't break etc. on https://knowledgeforge.net/ckan/trac#ProjectProcessesandPolicies which should be followed unless someone builds concensus to change it.
 
@@ -292,7 +295,7 @@ We have policies for check-ins that ensure the build doesn't break etc. on https
 Documentation
 =============
 
-The home page for the CKAN project is: http://knowledgeforge.net/ckan
+The home page for the CKAN project is: http://ckan.org
 
 This README file is part of the Developer Documentation, viewable at:
 http://knowledgeforge.net/ckan/doc/ckan/index.html and stored in the CKAN
