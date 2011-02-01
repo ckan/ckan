@@ -307,3 +307,4 @@ class HarvestingJobController(object):
                     msgs.append(msg)
             msg = "Fieldset validation errors: %s" % msgs
             raise HarvesterError(msg)
+        return package

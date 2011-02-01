@@ -18,6 +18,7 @@ from genshi.template import MarkupTemplate
 from webhelpers.html import literal
 
 import ckan
+import ckan.lib.helpers as h
 from ckan.plugins import PluginImplementations, IGenshiStreamFilter
 from ckan.lib.helpers import json
 import ckan.model as model
