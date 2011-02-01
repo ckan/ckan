@@ -194,7 +194,7 @@ class BaseController(WSGIController):
         import ckan.authz # Todo: Move import to top of this file?
         groups = ckan.authz.Authorizer.authorized_query(c.user, model.Group, 
             action=model.Action.EDIT).all()
-        return groups
+        return [g for g in groups if g.state==model.State.ACTIVE] 
 
     def _get_package_dict(self, *args, **kwds):
         import ckan.forms
