@@ -25,7 +25,7 @@ class HarvesterTestCase(TestCase):
         model.repo.clean_db()
 
 
-class xTestHarvestSource(HarvesterTestCase):
+class TestHarvestSource(HarvesterTestCase):
 
     def test_create_delete_harvest_source(self):
         url = self.gemini_example.url_for(file_index=0)
@@ -60,7 +60,7 @@ class xTestHarvestSource(HarvesterTestCase):
         return package, source
 
 
-class xTestHarvestingJob(HarvesterTestCase):
+class TestHarvestingJob(HarvesterTestCase):
 
     fixture_user_ref = u'publisheruser1'
 
@@ -177,7 +177,18 @@ class TestHarvesterSourceTypes(HarvesterTestCase):
                         {'errors': [],
                          'packages': 2,
                          'documents': 3},
+                        #
+                        'http://127.0.0.1:44444':
+                        {'errors': ['Unable to get content for URL'],
+                         'packages': 0,
+                         'documents': 0},
+                        #
+                        'http://www.google.com':
+                        {'errors': ["Couldn't find any links to metadata"],
+                         'packages': 0,
+                         'documents': 0}
                         }
+        }
 
     def test_various_sources(self):
         for url, expected in self.sources.items():
