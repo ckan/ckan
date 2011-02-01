@@ -159,7 +159,8 @@ def config_dev_hmg_ckan_net():
     config_0('dev-hmg.ckan.net', requirements='pip-requirements.txt',
              user='okfn')
 
-def config_0(name, hosts_str='',
+def config_0(name,
+             hosts_str='',
              requirements='pip-requirements-metastable.txt',
              db_pass='',
              db_host='localhost',

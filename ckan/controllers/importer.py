@@ -185,7 +185,7 @@ class ImporterController(BaseController):
 
     def package_render(self, fs, errors, warnings):
         try:
-            PackageSaver().render_preview(fs, None, None) # create a new package for now
+            PackageSaver().render_preview(fs) # create a new package for now
             preview = h.literal(render('package/read_core.html'))
         except ValidationException, error:
             c.error, fs = error.args

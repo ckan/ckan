@@ -247,7 +247,7 @@ class PackageController(BaseController):
         if request.params.has_key('save'):
             fs = fs.bind(record, data=dict(request.params) or None, session=model.Session)
             try:
-                PackageSaver().commit_pkg(fs, None, None, log_message, c.author, client=c)
+                PackageSaver().commit_pkg(fs, log_message, c.author, client=c)
                 pkgname = fs.name.value
 
                 pkg = model.Package.by_name(pkgname)
@@ -288,7 +288,7 @@ class PackageController(BaseController):
         c.form = self._render_edit_form(fs, request.params, clear_session=True)
         if 'preview' in request.params:
             try:
-                PackageSaver().render_preview(fs, id, record.id,
+                PackageSaver().render_preview(fs,
                                               log_message=log_message,
                                               author=c.author, client=c)
                 c.preview = h.literal(render('package/read_core.html'))
@@ -335,7 +335,7 @@ class PackageController(BaseController):
             try:
                 for item in self.extensions:
                     item.edit(fs.model)
-                PackageSaver().commit_pkg(fs, id, pkg.id, log_message, c.author, client=c)
+                PackageSaver().commit_pkg(fs, log_message, c.author, client=c)
                 # do not use package name from id, as it may have been edited
                 pkgname = fs.name.value
                 self._form_save_redirect(pkgname, 'edit')
@@ -353,15 +353,7 @@ class PackageController(BaseController):
                 self._adjust_license_id_options(pkg, fs)
             fs = fs.bind(pkg, data=dict(request.params))
             try:
-                # XXX if we don't touch pkg.groups here, then if
-                # there's a validation error, the rendering of the
-                # package edit form below fails with:
-                # DetachedInstanceError: Parent instance <Package at
-                # 0x4abc910> is not bound to a Session; lazy load operation of
-                # attribute 'groups' cannot proceed
-                # What is going on here?!
-                c.pkg.groups
-                PackageSaver().render_preview(fs, id, pkg.id,
+                PackageSaver().render_preview(fs,
                                               log_message=log_message,
                                               author=c.author, client=c)
                 c.pkgname = fs.name.value
@@ -520,14 +512,23 @@ class PackageController(BaseController):
     def _render_edit_form(self, fs, params={}, clear_session=False):
         # errors arrive in c.error and fs.errors
         c.log_message = params.get('log_message', '')
-        # expunge everything from session so we don't have any problematic
-        # saves (this gets called on validation exceptions a lot)
-        # Todo: Explain why there are 'saves' when rendering a form.
-        # XXX If the session is *expunged*, then the form can't be
-        # rendered; the Todo above needs doing!  I've settled with a
-        # rollback for now, which isn't necessarily what's wanted
-        # here. 
+        # rgrp: expunge everything from session before dealing with
+        # validation errors) so we don't have any problematic saves
+        # when the fs.render causes a flush.
+        # seb: If the session is *expunged*, then the form can't be
+        # rendered; I've settled with a rollback for now, which isn't
+        # necessarily what's wanted here.
+        # dread: I think this only happened with tags because until
+        # this changeset, Tag objects were created in the Renderer
+        # every time you hit preview. So I don't believe we need to
+        # clear the session any more. Just in case I'm leaving it in
+        # with the log comments to find out.
         if clear_session:
+            # log to see if clearing the session is ever required
+            if model.Session.new or model.Session.dirty or model.Session.deleted:
+                log.warn('Expunging session changes which were not expected: '
+                         '%r %r %r', (model.Session.new, model.Session.dirty,
+                                      model.Session.deleted))
             try:
                 model.Session.rollback()
             except AttributeError: # older SQLAlchemy versions
