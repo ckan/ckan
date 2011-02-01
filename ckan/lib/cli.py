@@ -943,6 +943,7 @@ class Harvester(CkanCommand):
         pylons.translator._push_object(_get_translator(pylons.config.get('lang')))
 
         from ckan.model import HarvestingJob
+        from ckan.controllers.harvesting import HarvestingJobController
         jobs = HarvestingJob.filter(status=u"New").all()
         jobs_len = len(jobs)
         jobs_count = 0
@@ -954,12 +955,9 @@ class Harvester(CkanCommand):
         for job in jobs:
             jobs_count += 1
             print "Running job %s/%s: %s" % (jobs_count, jobs_len, job.id)
-            job.harvest_documents()
-            #self.print_harvesting_job(job)
-            print ""
-            job = HarvestingJob.get(job.id)
             self.print_harvesting_job(job)
-
+            job_controller = HarvestingJobController(job)
+            job_controller.harvest_documents()
 
     def register_harvesting_job(self, source_id, user_ref):
         from ckan.model import HarvestSource
@@ -975,9 +973,11 @@ class Harvester(CkanCommand):
         else:
             source = HarvestSource.get(source_id)
 
-        job = HarvestingJob.create(source=source,
-                                   user_ref=user_ref,
-                                   status=u"New")
+        job = HarvestingJob(
+            source=source,
+            user_ref=user_ref,
+            status=u"New",
+        )
         job.save()
         print "Created new harvesting job:"
         self.print_harvesting_job(job)

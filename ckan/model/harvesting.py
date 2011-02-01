@@ -721,9 +721,12 @@ class GeminiDocument(MappedXmlDocument):
     def infer_contact_email(self, values):
         value = ''
         for responsible_party in values['responsible-organisation']:
-            value = responsible_party['contact-info']['email']
-            if value:
-                break
+            if isinstance(responsible_party, dict) and \
+               isinstance(responsible_party.get('contact-info'), dict) and \
+               responsible_party['contact-info'].has_key('email'):
+                value = responsible_party['contact-info']['email']
+                if value:
+                    break
         values['contact-email'] = value
 
 
