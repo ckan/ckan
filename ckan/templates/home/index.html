@@ -63,10 +63,10 @@
 
     <xi:include href="../package/search_form.html" />
     
-    <py:if test="len(c.tag_counts)">
+    <py:if test="len(c.facets.get('tags', {}))">
         <h4>Top Tags</h4>
         <div id="tagcloud">
-        <py:for each="tag_name, count in c.tag_counts">
+        <py:for each="tag_name, count in c.facets.get('tags', {}).items()">
           <a rel="${count}" title="${count}" href="${h.url_for(controller='tag',
             action='read', id=tag_name)}">${tag_name}</a>
         </py:for>

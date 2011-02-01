@@ -22,7 +22,8 @@ class HomeController(BaseController):
         query = query_for(model.Package)
         query.run(query='*:*', facet_by=g.facets,
                   limit=0, offset=0, username=c.user)
-
+        c.facets = query.facets
+        c.fields = []
         c.package_count = query.count
         c.latest_packages = self.authorizer.authorized_query(c.user, model.Package)\
             .join('revision').order_by(model.Revision.timestamp.desc())\
@@ -34,7 +35,6 @@ class HomeController(BaseController):
             cache_key = "fresh-install"
         
         etag_cache(cache_key)
-        c.tag_counts = query.facets.get('tags', {}).items()
         return render('home/index.html', cache_key=cache_key,
                 cache_expire=cache_expires)
 
