@@ -37,7 +37,7 @@ def init_model(engine):
         version_table = Table('migrate_version', metadata, autoload=True)
     except sqlalchemy.exceptions.NoSuchTableError:
         pass
-                                         
+
 
 
 class Repository(vdm.sqlalchemy.Repository):
@@ -139,12 +139,12 @@ class Repository(vdm.sqlalchemy.Repository):
 
         @param version: version to upgrade to (if None upgrade to latest)
         '''
-        assert meta.engine.name in ('postgres', 'postgresql'), \
-            'Only postgresql engine supported (not %s).' % meta.engine.name
         import migrate.versioning.api as mig
         self.setup_migration_version_control()
-        mig.upgrade(self.metadata.bind, self.migrate_repository, version=version)
+        mig.upgrade(self.metadata.bind.url, self.migrate_repository, version=version)
         validate_authorization_setup()
+
+
 
 repo = Repository(metadata, Session,
         versioned_objects=[Package, PackageTag, PackageResource, PackageExtra, PackageGroup, Group]

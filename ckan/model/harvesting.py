@@ -2,15 +2,12 @@ import logging
 import datetime
 from meta import *
 from lxml import etree
-import urllib2
 
 from types import make_uuid
 from types import JsonType
 from core import *
 from domain_object import DomainObject
 from package import Package
-from ckan.lib.cswclient import CswClient
-from ckan.lib.cswclient import CswError
 
 log = logging.getLogger(__name__)
 
@@ -20,26 +17,20 @@ __all__ = [
     'HarvestedDocument', 'harvested_document_table',
 ]
 
-def decode_response(resp):
-    """Decode a response to unicode
-    """
-    encoding = resp.headers['content-type'].split('charset=')[-1]
-    content = resp.read()
-    try:
-        data = unicode(content, encoding)
-    except LookupError:
-        data = unicode(content, 'utf8') # XXX is this a fair assumption?
-    return data
+
 
 class HarvesterError(Exception): pass
 
+
 class HarvesterUrlError(HarvesterError): pass
 
-class DomainObject(DomainObject):
 
+class HarvestDomainObject(DomainObject):
+    """Convenience methods for searching objects
+    """
     key_attr = 'id'
 
-    @classmethod 
+    @classmethod
     def get(self, key, default=Exception, attr=None):
         """Finds a single entity in the register."""
         if attr == None:
@@ -51,193 +42,27 @@ class DomainObject(DomainObject):
         if default != Exception:
             return default
         else:
-            raise Exception, "%s not found: %s" % (self.__name__, key)
+            raise Exception("%s not found: %s" % (self.__name__, key))
 
-    @classmethod 
-    def filter(self, **kwds): 
+    @classmethod
+    def filter(self, **kwds):
         query = Session.query(self).autoflush(False)
         return query.filter_by(**kwds)
 
-    @classmethod 
-    def create_save(self, **kwds):
-        # Create an object instance.
-        object = self.create(**kwds)
-        # Create a record for the object instance.
-        object.save()
-        # Return the object instance.
-        return object
 
-    @classmethod 
-    def create(self, **kwds):
-        # Initialise object key attribute.
-        if self.key_attr not in kwds:
-            kwds[self.key_attr] = self.create_key()
-        # Create an object instance.
-        return self(**kwds)
-
-    @classmethod 
-    def create_key(self, **kwds):
-        # By default, it's a new UUID.
-        return make_uuid()
+class HarvestSource(HarvestDomainObject):
+    """A source is essentially a URL plus some other metadata.  The
+    URL it points to should contain a manifest of resources that can
+    be turned into packges; or an index page containing links to such
+    manifests.
+    """
+    pass
 
 
-class HarvestSource(DomainObject):
-
-    def write_package(self, content):
-        from ckan.lib.base import _
-        import ckan.forms
-        import ckan.model as model
-        package = None
-        # Look for document with matching Gemini GUID.
-        gemini_document = GeminiDocument(content)
-        gemini_values = gemini_document.read_values()
-        gemini_guid = gemini_values['guid']
-        harvested_documents = HarvestedDocument.filter(guid=gemini_guid).all()
-        if len(harvested_documents) > 1:
-            # A programming error.
-            raise Exception, "More than one harvested document GUID %s in database." % gemini_guid
-        elif len(harvested_documents) == 1:
-            harvested_document = harvested_documents[0]
-            if harvested_document.source.id != self.id:
-                # A 'user' error.
-                raise HarvesterError, "Another source is using metadata GUID %s." % self.id
-            package = harvested_document.package
-        else:
-            harvested_document = None
-            package = None
-        package_data = {
-            'name': gemini_values['guid'],
-            'title': gemini_values['title'],
-            'extras': gemini_values,
-        }
-        if package == None:
-            # Create package from data.
-            try:
-                user_editable_groups = []
-                fs = ckan.forms.get_standard_fieldset(user_editable_groups=user_editable_groups)
-                try:
-                    fa_dict = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(fs=fs, user_editable_groups=user_editable_groups), package_data)
-                except ckan.forms.PackageDictFormatError, exception:
-                    msg = 'Package format incorrect: %r' % exception
-                    raise Exception, msg
-                else:
-                    fs = fs.bind(model.Package, data=fa_dict, session=model.Session)
-                    # Validate the fieldset.
-                    is_valid = fs.validate()
-                    if is_valid:
-                        # Construct new revision.
-                        rev = model.repo.new_revision()
-                        #rev.author = self.rest_api_user
-                        rev.message = _(u'Harvester: Created package %s') % str(fs.model.id)
-                        # Construct catalogue entity.
-                        fs.sync()
-                        # Construct access control entities.
-                        #if self.rest_api_user:
-                        #    admins = [model.User.by_name(self.rest_api_user.decode('utf8'))]
-                        #else:
-                        #    admins = []
-                        # Todo: Better 'admins' than this?
-                        admins = []
-                        model.setup_default_user_roles(fs.model, admins)
-                        # Commit
-                        model.repo.commit()        
-                        package = fs.model
-                    else:
-                        # Complain about validation errors.
-                        msg = 'Validation error:'
-                        errors = fs.errors.items()
-                        for error in errors:
-                            attr_name = error[0].name
-                            error_msg = error[1][0]
-                            msg += ' %s: %s' % (attr_name.capitalize(), error_msg)
-                        raise HarvesterError, msg
-            except:
-                model.Session.rollback()
-                model.Session.close()
-                raise
-            if harvested_document == None:
-                harvested_document = self.create_document(content=content, guid=gemini_guid, package=package)
-            else:
-                harvested_document.content = content
-                harvested_document.save()
-            return package
-        else:
-            if gemini_values == harvested_document.read_values():
-                return None
-            else:
-                from ckan.forms import GetPackageFieldset
-                fieldset = GetPackageFieldset().fieldset
-                from ckan.forms import GetEditFieldsetPackageData
-                fieldset_data = GetEditFieldsetPackageData(
-                    fieldset=fieldset, package=package, data=package_data).data
-                bound_fieldset = fieldset.bind(package, data=fieldset_data)
-                log_message = u'harvester'
-                author = u''
-                from ckan.lib.package_saver import WritePackageFromBoundFieldset
-                from ckan.lib.package_saver import ValidationException
-                try:
-                    WritePackageFromBoundFieldset(
-                        fieldset=bound_fieldset,
-                        log_message=log_message,
-                        author=author,
-                    )
-                except ValidationException:
-                    msgs = []
-                    for (field, errors) in bound_fieldset.errors.items():
-                        for error in errors:
-                            msg = "%s: %s" % (field.name, error)
-                            msgs.append(msg)
-                    msg = "Fieldset validation errors: %s" % msgs
-                    raise HarvesterError, msg
-                else:
-                    return package
-
-    def create_document(self, content, guid, package):
-        document = HarvestedDocument.create_save(content=content, guid=guid, package=package)
-        self.documents.append(document)
-        self.save()
-        return document
-
-
-class HarvestingJob(DomainObject):
-
-    def harvest_documents(self):
-        self.get_report()
-        self.set_status_running()
-        self.save()
-        try:
-            try:
-                content = self.get_source_content()
-            except HarvesterUrlError, exception:
-                msg = "Error harvesting source: %s" % exception
-                self.report_error(msg)
-            else:
-                source_type = self.detect_source_type(content)
-                if source_type == None:
-                    self.report_error("Unable to detect source type from content.")
-                elif source_type == 'doc':
-                    self.harvest_document(content=content)
-                elif source_type == 'csw':
-                    self.harvest_csw_documents(url=self.source.url)
-                elif source_type == 'waf':
-                    self.harvest_waf_documents(content=content)
-                else:
-                    raise Exception, "Source type '%s' not supported." % source_type
-        except Exception, inst:
-            self.set_status_error()
-            self.report_error("Harvesting system error.")
-            self.save()
-            self.save_report()
-            raise
-        else:
-            if self.report_has_errors():
-                self.set_status_error()
-            else:
-                self.set_status_success()
-            self.save()
-            self.save_report()
+class HarvestingJob(HarvestDomainObject):
 
     def report_error(self, msg):
+        self.set_status(u"Error")
         self.get_report()['errors'].append(msg)
         self.errors += msg
 
@@ -252,114 +77,20 @@ class HarvestingJob(DomainObject):
             }
         return self._report
 
-    def save_report(self):
-        self.report = self.get_report()
+    def start_report(self):
+        self.get_report()
+        self.set_status(u"Running")
         self.save()
+
+    def save(self):
+        self.report = self.get_report()
+        super(HarvestingJob, self).save()
 
     def report_has_errors(self):
         return bool(self.get_report()['errors'])
 
-    def get_source_content(self):
-        return self.get_content(self.source.url)
-
-    def get_content(self, url):
-        try:
-            http_response = urllib2.urlopen(url)
-            return decode_response(http_response)
-        except Exception, inst:
-            msg = "Unable to get content for URL: %s: %r" % (url, inst)
-            raise HarvesterUrlError(msg)
-
-    def detect_source_type(self, content):
-        if "<gmd:MD_Metadata" in content:
-            return 'doc'
-        if "<ows:ExceptionReport" in content:
-            return 'csw'
-        if "<html" in content:
-            return 'waf'
-
-    def harvest_document(self, content):
-        try:
-            self.validate_document(content)
-        except Exception, exception:
-            msg = "Error validating harvested content: %s" % exception
-            self.report_error(msg)
-        else:
-            try:
-                package = self.source.write_package(content)
-            except HarvesterError, exception:
-                msg = "%s" % exception
-                self.report_error(msg)
-            except Exception, exception:
-                msg = "System error writing package from harvested content: %s" % exception
-                self.report_error(msg)
-                # Todo: Print traceback to exception log?
-                raise
-            else:
-                if package:
-                    self.report_package(package.id)
-
-    def harvest_csw_documents(self, url):
-        try:
-            csw_client = CswClient(base_url=url)
-            records = csw_client.get_records()
-        except CswError, error:
-            msg = "Couldn't get records from CSW: %s: %s" % (url, error)
-            self.report_error(msg)
-
-        for content in records:
-            self.harvest_document(content=content)
-
-    def harvest_waf_documents(self, content):
-        for url in self.extract_urls(content):
-            try:
-                content = self.get_content(url)
-            except HarvesterError, error:
-                msg = "Couldn't harvest WAF link: %s: %s" % (url, error)
-                self.report_error(msg)
-            else:
-                if "<gmd:MD_Metadata" in content:
-                    self.harvest_document(content=content)
-        if not self.get_report()['packages']:
-            self.report_error("Couldn't find any links to metadata files.")
-
-    def extract_urls(self, content):
-        try:
-            parser = etree.HTMLParser()
-            tree = etree.fromstring(content, parser=parser)
-        except Exception, inst:
-            msg = "Couldn't parse content into a tree: %s: %s" % (inst, content)
-            raise HarvesterError, msg
-        urls = []
-        for url in tree.xpath('//a/@href'):
-            url = url.strip()
-            if not url:
-                continue
-            if '?' in url:
-                continue
-            if '/' in url:
-                continue
-            urls.append(url)
-        base_url = self.source.url
-        base_url = base_url.split('/')
-        if 'index' in base_url[-1]:
-            base_url.pop()
-        base_url = '/'.join(base_url)
-        base_url.rstrip('/')
-        base_url += '/'
-        return [base_url + i for i in urls]
-
-    def validate_document(self, content):
-        pass
-
     def set_status_success(self):
         self.set_status(u"Success")
-
-    def set_status_running(self):
-        self.set_status(u"Running")
-
-    def set_status_error(self):
-        self.set_status(u"Error")
 
     def set_status(self, status):
         self.status = status
@@ -454,14 +185,16 @@ class MappedXmlElement(MappedXmlObject):
     def fix_multiplicity(self, values):
         if self.multiplicity == "0":
             if values:
-                raise HarvesterError, "Values found for element '%s': %s" % (self.name, values)
+                raise HarvesterError(
+                    "Values found for element '%s': %s" % (self.name, values))
             else:
                 return ""
         elif self.multiplicity == "1":
             if values:
                 return values[0]
             else:
-                raise HarvesterError, "Value not found for element '%s'" % self.name
+                raise HarvesterError(
+                    "Value not found for element '%s'" % self.name)
         elif self.multiplicity == "*":
             return values
         elif self.multiplicity == "0..1":
@@ -472,7 +205,9 @@ class MappedXmlElement(MappedXmlObject):
         elif self.multiplicity == "1..*":
             return values
         else:
-            raise HarvesterError, "Can't fix element values for multiplicity '%s'." % self.multiplicity
+            raise HarvesterError(
+                "Can't fix element values for multiplicity '%s'." % \
+                                self.multiplicity)
 
 
 class GeminiElement(MappedXmlElement):
@@ -986,13 +721,16 @@ class GeminiDocument(MappedXmlDocument):
     def infer_contact_email(self, values):
         value = ''
         for responsible_party in values['responsible-organisation']:
-            value = responsible_party['contact-info']['email']
-            if value:
-                break
+            if isinstance(responsible_party, dict) and \
+               isinstance(responsible_party.get('contact-info'), dict) and \
+               responsible_party['contact-info'].has_key('email'):
+                value = responsible_party['contact-info']['email']
+                if value:
+                    break
         values['contact-email'] = value
 
 
-class HarvestedDocument(DomainObject):
+class HarvestedDocument(HarvestDomainObject):
 
     def read_values(self):
         if "gmd:MD_Metadata" in self.content:
