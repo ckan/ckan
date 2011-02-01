@@ -74,7 +74,7 @@ class TestHarvestingJob(HarvesterTestCase):
             user_ref=self.fixture_user_ref
         )
         self.job.save()
-        self.controller = HarvestingJobController(job)
+        self.controller = HarvestingJobController(self.job)
         self.job2 = None
         self.source2 = None
 
@@ -173,21 +173,22 @@ class TestHarvesterSourceTypes(HarvesterTestCase):
         self.gemini_example = GeminiExamples()
         # XXX put real-life CSW examples here if you want, and if they
         # arrive...
-        self.sources = {self.gemini_example.url_for(file_index='index.html'):
-                        {'errors': [],
-                         'packages': 2,
-                         'documents': 3},
-                        #
-                        'http://127.0.0.1:44444':
-                        {'errors': ['Unable to get content for URL'],
-                         'packages': 0,
-                         'documents': 0},
-                        #
-                        'http://www.google.com':
-                        {'errors': ["Couldn't find any links to metadata"],
-                         'packages': 0,
-                         'documents': 0}
-                        }
+        self.sources = {
+            self.gemini_example.url_for(file_index='index.html'): {
+                'errors': [],
+                'packages': 2,
+                'documents': 3,
+            },
+            'http://127.0.0.1:44444': {
+                'errors': ['Unable to get content for URL'],
+                'packages': 0,
+                'documents': 0,
+            },
+            'http://www.google.com': {
+                'errors': ["Couldn't find any links to metadata"],
+                'packages': 0,
+                'documents': 0,
+            },
         }
 
     def test_various_sources(self):
