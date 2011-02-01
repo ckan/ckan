@@ -98,13 +98,13 @@ tests. See: http://buildbot.okfn.org/waterfall
 
    ::
 
-       wget https://bitbucket.org/okfn/ckan/raw/tip/pip-requirements.txt
+       wget https://bitbucket.org/okfn/ckan/raw/default/pip-requirements.txt
 
    Or for the 'metastable' branch (used for most server installs):
 
    ::
 
-       wget https://bitbucket.org/okfn/ckan/raw/tip/pip-requirements-metastable.txt
+       wget https://bitbucket.org/okfn/ckan/raw/default/pip-requirements-metastable.txt
 
    Install all the dependencies listed in the requirements file by running the
    command below in your activated shell (adjusting the filename as necessary 
