@@ -2,6 +2,7 @@ from paste.deploy.converters import asbool
 from ckan.tests.functional.api.base import *
 from ckan.lib.create_test_data import CreateTestData
 from ckan.tests import is_search_supported
+from ckan.tests import TestController as ControllerTestCase
 
 class ModelApiTestCase(BaseModelApiTestCase):
 
@@ -20,30 +21,7 @@ class ModelApiTestCase(BaseModelApiTestCase):
         self.job3 = None
 
     def teardown(self):
-        #self.rebuild()
         model.repo.clean_db()
-        return
-#        if self.job:
-#            self.delete_commit(self.job)
-#        if self.job1:
-#            self.delete_commit(self.job1)
-#        if self.job2:
-#            self.delete_commit(self.job2)
-#        if self.job3:
-#            self.delete_commit(self.job3)
-#        if self.source:
-#            self.delete_commit(self.source)
-#        if self.source1:
-#            self.delete_commit(self.source1)
-#        if self.source2:
-#            self.delete_commit(self.source2)
-#        if self.source3:
-#            self.delete_commit(self.source3)
-#        if self.source4:
-#            self.delete_commit(self.source4)
-#        if self.source5:
-#            self.delete_commit(self.source5)
-#        self.delete_common_fixtures()
 
     def test_02_get_tag_register_ok(self):
         # Test Packages Register Get 200.
@@ -345,8 +323,7 @@ class ModelApiTestCase(BaseModelApiTestCase):
             assert license['url'] == license.url
 
 
-# Note well, relationships are actually part of the Model API.
-class RelationshipsApiTestCase(ApiControllerTestCase):
+class RelationshipsApiTestCase(ApiTestCase, ControllerTestCase):
 
     @classmethod
     def setup_class(self):
@@ -559,8 +536,8 @@ class RelationshipsApiTestCase(ApiControllerTestCase):
         assert rel_dict['type'] == type, (rel_dict, type)
         assert rel_dict['comment'] == comment, (rel_dict, comment)
 
-# Todo: Rename to PackageSearchApiTestCase.
-class PackageSearchApiTestCase(ApiControllerTestCase):
+
+class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
 
     @classmethod
     def setup_class(self):
@@ -826,7 +803,7 @@ class PackageSearchApiTestCase(ApiControllerTestCase):
         assert t == datetime.datetime(2012, 3, 4, 5, 6, 7, 890123), t
 
 
-class ResourceSearchApiTestCase(ApiControllerTestCase):
+class ResourceSearchApiTestCase(ApiTestCase, ControllerTestCase):
 
     @classmethod
     def setup_class(self):
@@ -899,7 +876,7 @@ class ResourceSearchApiTestCase(ApiControllerTestCase):
         assert 'package_id' in result.body, result.body
 
 
-class QosApiTestCase(ApiControllerTestCase):
+class QosApiTestCase(ApiTestCase, ControllerTestCase):
 
     def test_throughput(self):
         if not asbool(config.get('ckan.enable_call_timing', "false")):
@@ -918,7 +895,7 @@ class QosApiTestCase(ApiControllerTestCase):
         assert throughput > 1, throughput
  
 
-class MiscApiTestCase(ApiControllerTestCase):
+class MiscApiTestCase(ApiTestCase, ControllerTestCase):
 
     @classmethod
     def setup_class(self):
@@ -953,8 +930,8 @@ class TestModelApi1(Api1TestCase, ModelApiTestCase):
             }
         offset = self.package_offset()
         postparams = '%s=1' % self.dumps(test_params)
-        res = self.app.post(offset, params=postparams, status=[200],
-                extra_environ=self.extra_environ)
+        res = self.app.post(offset, params=postparams, 
+                            extra_environ=self.extra_environ)
         model.Session.remove()
         pkg = self.get_package_by_name(test_params['name'])
         assert pkg
