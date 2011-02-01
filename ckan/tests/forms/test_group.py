@@ -10,7 +10,7 @@ class TestGroupFieldset(PylonsTestCase):
 
     @classmethod
     def teardown_class(self):
-        ckan.tests.CreateTestData.delete()
+        model.repo.clean_db()
 
     def test_1(self):
         group = model.Group.by_name(u'roger')
