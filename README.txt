@@ -68,11 +68,11 @@ tests. See: http://buildbot.okfn.org/waterfall
 
   For the most recent version use::
 
-  $ wget http://knowledgeforge.net/ckan/hg/raw-file/default/pip-requirements.txt
+  $ wget https://bitbucket.org/okfn/ckan/raw/default/pip-requirements.txt
 
   Or for the 'metastable' branch (used for most server installs)::
 
-  $ wget http://knowledgeforge.net/ckan/hg/raw-file/default/pip-requirements-metastable.txt
+  $ wget https://bitbucket.org/okfn/ckan/raw/default/pip-requirements-metastable.txt
 
   And install::
 
@@ -190,7 +190,7 @@ We have policies for check-ins that ensure the build doesn't break etc. on https
 Documentation
 =============
 
-The home page for the CKAN project is: http://knowledgeforge.net/ckan
+The home page for the CKAN project is: http://ckan.org
 
 This README file is part of the Developer Documentation, viewable at:
 `http://knowledgeforge.net/ckan/doc/ckan/index.html`_ and stored in the CKAN
