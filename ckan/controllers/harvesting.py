@@ -67,37 +67,37 @@ class HarvestingJobController(object):
     def __init__(self, job):
         self.job = job
 
-     def harvest_documents(self):
-         self.job.start_report()
-         try:
-             try:
-                 content = self.get_content(self.job.source.url)
-             except HarvesterUrlError, exception:
-                 msg = "Error harvesting source: %s" % exception
-                 self.job.report_error(msg)
-             else:
-                 source_type = self.detect_source_type(content)
-                 if source_type == None:
-                     self.job.report_error(
-                         "Unable to detect source type from content")
-                 elif source_type == 'doc':
-                     self.harvest_gemini_document(content)
-                 elif source_type == 'csw':
-                     self.harvest_csw_documents(url=self.job.source.url)
-                 elif source_type == 'waf':
-                     self.harvest_waf_documents(content)
-                 else:
-                     raise HarvesterError(
-                         "Source type '%s' not supported" % source_type)
-         except Exception, e:
-             self.job.report_error("Harvesting system error: %r" % e)
-             self.job.save()
-             raise
-         else:
-             if not self.job.report_has_errors():
-                 self.job.set_status_success()
-         self.job.save()
-         return self.job
+    def harvest_documents(self):
+        self.job.start_report()
+        try:
+            try:
+                content = self.get_content(self.job.source.url)
+            except HarvesterUrlError, exception:
+                msg = "Error harvesting source: %s" % exception
+                self.job.report_error(msg)
+            else:
+                source_type = self.detect_source_type(content)
+                if source_type == None:
+                    self.job.report_error(
+                        "Unable to detect source type from content")
+                elif source_type == 'doc':
+                    self.harvest_gemini_document(content)
+                elif source_type == 'csw':
+                    self.harvest_csw_documents(url=self.job.source.url)
+                elif source_type == 'waf':
+                    self.harvest_waf_documents(content)
+                else:
+                    raise HarvesterError(
+                        "Source type '%s' not supported" % source_type)
+        except Exception, e:
+            self.job.report_error("Harvesting system error: %r" % e)
+            self.job.save()
+            raise
+        else:
+            if not self.job.report_has_errors():
+                self.job.set_status_success()
+        self.job.save()
+        return self.job
 
     def write_package_from_gemini_string(self, content):
         """Create or update a Package based on some content that has
@@ -209,6 +209,9 @@ class HarvestingJobController(object):
             self.job.report_error("Couldn't find any links to metadata files.")
 
     def extract_urls(self, content):
+        """\
+        Get the URLs out of a WAF index page
+        """
         try:
             parser = etree.HTMLParser()
             tree = etree.fromstring(content, parser=parser)
@@ -236,6 +239,9 @@ class HarvestingJobController(object):
         return [base_url + i for i in urls]
 
     def validate_document(self, content):
+        """\
+        This should run the schema validation, the schematron validation *and* any checks we want to make.
+        """
         pass
 
     def _create_package_from_data(self, package_data):
@@ -308,3 +314,4 @@ class HarvestingJobController(object):
             msg = "Fieldset validation errors: %s" % msgs
             raise HarvesterError(msg)
         return package
+

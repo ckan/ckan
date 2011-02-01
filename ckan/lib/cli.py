@@ -870,12 +870,18 @@ class Harvester(CkanCommand):
       harvester source {url} [{user-ref} [{publisher-ref}]]     
         - create new harvest source
 
+      harvester rmsource {url}
+        - remove a harvester source (and associated jobs)
+
       harvester sources                                 
         - lists harvest sources
 
       harvester job {source-id} [{user-ref}]
         - create new harvesting job
 
+      harvester rmjob {job-id}
+        - remove a harvesting job
+  
       harvester jobs
         - lists harvesting jobs
 
@@ -909,6 +915,9 @@ class Harvester(CkanCommand):
             else:
                 publisher_ref = u''
             self.register_harvest_source(url, user_ref, publisher_ref)
+        elif cmd == "rmsource":
+            url = unicode(self.args[1])
+            self.remove_harvest_source(url)
         elif cmd == 'sources':
             self.list_harvest_sources()
         elif cmd == 'job':
@@ -923,6 +932,9 @@ class Harvester(CkanCommand):
             else:
                 user_ref = u''
             self.register_harvesting_job(source_id, user_ref)
+        elif cmd == "rmjob":
+            job_id = unicode(self.args[1])
+            self.remove_harvesting_job(job_id)
         elif cmd == 'jobs':
             self.list_harvesting_jobs()
         elif cmd == 'run':
@@ -958,6 +970,16 @@ class Harvester(CkanCommand):
             self.print_harvesting_job(job)
             job_controller = HarvestingJobController(job)
             job_controller.harvest_documents()
+
+    def remove_harvesting_job(self, job_id):
+        from ckan import model
+        try:
+            job = model.HarvestingJob.get(job_id)
+            job.delete()
+            model.repo.commit_and_remove()
+            print "Removed job: %s" % job_id
+        except model.HarvestingObjectNotFound:
+            print "No such job"
 
     def register_harvesting_job(self, source_id, user_ref):
         from ckan.model import HarvestSource
@@ -998,6 +1020,21 @@ class Harvester(CkanCommand):
             self.print_harvest_source(source)
             sources = self.get_harvest_sources()
             self.print_there_are("harvest source", sources)
+
+    def remove_harvest_source(self, url):
+        from ckan import model
+        sources = model.HarvestSource.filter(url=url)
+        if sources.count() == 0:
+            print "No such source"
+        else:
+            source = sources[0]
+            jobs = model.HarvestingJob.filter(source=source)
+            print "Removing %d jobs" % jobs.count()
+            for job in jobs:
+                job.delete()
+            source.delete()
+            model.repo.commit_and_remove()
+            print "Removed harvest source: %s" % url
 
     def list_harvest_sources(self):
         sources = self.get_harvest_sources()
