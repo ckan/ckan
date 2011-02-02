@@ -21,8 +21,8 @@ a:visited {
   color: #b22;
   text-decoration: none;
 }
+
 #main a:visited {
-  color: #95332c;
   text-decoration: none;
 }
 
@@ -172,46 +172,6 @@ a:hover {
 
 .entry-content {
   padding-top: 0;
-}
-
-#minornavigation {
-  margin: 0;
-  padding: 0 15px 0 0;
-}
-
-#minornavigation ul {
-  margin: -5px 0 10px 0;
-  text-align:right;
-}
-
-#minornavigation ul li {
-  display: inline;
-  margin-right: 5px;
-}
-
-#minornavigation ul li a {
-  padding: 8px 5px 5px 3px;
-  background: #eee;
-	border: 1px solid #aaa;
-	border-left: none;
-	border-top: none;
-	border-radius: 0.5em;
-	-moz-border-radius: 0.5em;
-	-webkit-border-radius: 0.5em;
-}
-
-#minornavigation ul li a img {
-  margin: 0 0 0 0;
-  margin-right: 3px;
-  padding: 0;
-  position:relative;
-  top:3px;
-  left:2px;
-}
-
-#minornavigation ul li a:hover {
-  text-decoration: none;
-  background: transparent;
 }
 
 /* ===========================

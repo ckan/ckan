@@ -1,0 +1,60 @@
+/* @override http://localhost:5000/style/tabs.css */
+
+ul.tabbed {
+	position: relative;
+	float: left;
+	width: 100%;
+	padding: 0;
+	margin: 0 0 1em 0;
+	list-style: none;
+	line-height: 1em;
+	border-bottom: 1px solid #aaa; 
+}
+
+ul.tabbed li {
+	float: left;
+	margin: 0 0 0 0.5em;
+	padding: 0; 
+}
+
+ul.tabbed a {
+	display: block;
+	color: #bbb;
+	text-decoration: none;
+	font-weight: bold;
+	background: #fff;
+	margin: 0;
+	padding: 4px 0.6em;
+	border-left: 1px solid #eaeaea;
+	border-top: 1px solid #eaeaea;
+	border-right: 1px solid #eaeaea; 
+	-moz-border-radius: 0.4em 0.4em 0 0;
+	-webkit-border-top-left-radius: 0.4em;
+	-webkit-border-top-right-radius: 0.4em;
+}
+
+ul.tabbed li a:hover,
+ul.tabbed li a:active {
+	color: #444;
+	background: #fff;
+	border-color: #aaa;
+	border-bottom-color: #fff;
+}
+
+ul.tabbed .hidden a {
+	display: none;
+}
+
+ul.tabbed a.active,
+ul.tabbed a.active:link,
+ul.tabbed a.active:visited
+{
+	position: relative;
+	top: 1px;
+	z-index: 102;
+	color: #444;
+	background: #fff;
+	border-color: #aaa;
+	border-bottom-color: #fff;
+	display: block;
+}
