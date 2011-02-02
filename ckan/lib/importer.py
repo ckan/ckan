@@ -26,10 +26,10 @@ class DataRecords(object):
 class PackageImporter(object):
     '''Base class for an importer that converts a particular file type
     and creates corresponding package dictionaries.'''
+    _log = []
 
     def __init__(self, filepath=None, buf=None):
         assert filepath or buf, 'Must specify a filepath or a buf.'
-        self._log = []
         self._filepath = filepath
         self._buf = buf
         self.import_into_package_records()
@@ -39,11 +39,17 @@ class PackageImporter(object):
         stores the resulting DataRecords in self._package_data_records.'''
         raise NotImplementedError()
 
-    def log(self, msg):
-        self._log.append(msg)
+    @classmethod
+    def log(cls, msg):
+        cls._log.append(msg)
 
-    def get_log(self):
-        return self._log
+    @classmethod
+    def get_log(cls):
+        return cls._log
+
+    @classmethod
+    def clear_log(cls):
+        cls._log = []
 
     def record_2_package(self, record_dict):
         '''Converts a raw record into a package dictionary.

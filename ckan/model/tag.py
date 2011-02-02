@@ -71,8 +71,15 @@ class PackageTag(vdm.sqlalchemy.RevisionedObjectMixin,
             setattr(self, k, v)
 
     def __repr__(self):
-        return '<PackageTag %s %s>' % (self.package, self.tag)
+        return '<PackageTag package=%s tag=%s>' % (self.package.name, self.tag.name)
 
+    @classmethod
+    def by_name(self, package_name, tag_name, autoflush=True):
+        q = Session.query(self).autoflush(autoflush).\
+            join('package').filter(Package.name==package_name).\
+            join('tag').filter(Tag.name==tag_name)
+        assert q.count() <= 1, q.all()
+        return q.first()
 
 mapper(Tag, tag_table, properties={
     'package_tags':relation(PackageTag, backref='tag',

@@ -16,15 +16,12 @@ class PackageSaver(object):
     @param author: optional - only supply this if you want it validated
     '''
     @classmethod
-    def render_preview(cls, fs, original_name, record_id,
-                       log_message=None,
-                       author=None, client=None):
+    def render_preview(cls, fs, log_message=None, author=None, client=None):
         '''Renders a package on the basis of a fieldset - perfect for
         preview of form data.
         Note that the actual calling of render('package/read') is left
         to the caller.'''
-        pkg = cls._preview_pkg(fs, original_name, record_id,
-                               log_message, author, client=client)
+        pkg = cls._preview_pkg(fs, log_message, author, client=client)
         cls.render_package(pkg)
 
     # TODO: rename to something more correct like prepare_for_render
@@ -47,47 +44,44 @@ class PackageSaver(object):
         c.package_relationships = pkg.get_relationships_printable()
 
     @classmethod
-    def _preview_pkg(cls, fs, original_name, pkg_id,
-                     log_message=None, author=None, client=None):
+    def _preview_pkg(cls, fs, log_message=None, author=None, client=None):
         '''Previews the POST data (associated with a package edit)
         @input c.error
         @input fs      FieldSet with the param data bound to it
-        @input original_name Name of the package before this edit
-        @input pkg_id Package id
         @param log_message: only supply this if you want it validated
         @param author: only supply this if you want it validated
         @return package object
         '''
         try:
-            out = cls._update(fs, original_name, pkg_id, log_message,
+            out = cls._update(fs, log_message,
                               author, commit=False, client=client)
-            # While pkg is still in the session, touch the relations so they
-            # lazy load, for use later.
-            fs.model.license
-            fs.model.groups
-            fs.model.ratings
         except ValidationException, e:
             raise ValidationException(*e)
         finally:
+            # While the package is still in the session, touch the relations
+            # so that they load (they are set to lazy load) because we will
+            # need to use their values later when we render the package
+            # object (i.e. preview it).
+            fs.model.license
+            fs.model.groups
+            fs.model.ratings
+            fs.model.extras
             # remove everything from session so nothing can get saved
             # accidentally
             model.Session.remove()
         return out
 
     @classmethod
-    def commit_pkg(cls, fs, original_name, pkg_id, log_message, author, client=None):
+    def commit_pkg(cls, fs, log_message, author, client=None):
         '''Writes the POST data (associated with a package edit) to the
         database
         @input c.error
         @input fs      FieldSet with the param data bound to it
-        @input original_name Name of the package before this edit
-        @input pkg_id Package id
         '''
-        cls._update(fs, original_name, pkg_id, log_message, author, commit=True, client=client)
+        cls._update(fs, log_message, author, commit=True, client=client)
 
     @classmethod
-    def _update(cls, fs, original_name, pkg_id, log_message, author, commit=True, client=None):
-        # Todo: Remove original_name and pkg_id, since they aren't used.
+    def _update(cls, fs, log_message, author, commit=True, client=None):
         # Todo: Consolidate log message field (and validation).
         # Todo: Separate out the preview line of execution, it's confusing.
         rev = None
@@ -154,5 +148,5 @@ class WritePackageFromBoundFieldset(object):
         self.write_package()
 
     def write_package(self):
-        PackageSaver().commit_pkg(self.fieldset, None, None, self.log_message, self.author, self.client)
+        PackageSaver().commit_pkg(self.fieldset, self.log_message, self.author, self.client)
 

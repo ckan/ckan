@@ -14,46 +14,97 @@ from ckan.plugins import PluginImplementations, IGroupController, IPackageContro
 log = logging.getLogger(__name__)
 
 IGNORE_FIELDS = ['q']
-
+CONTENT_TYPES = {
+    'text': 'text/plain;charset=utf-8',
+    'html': 'text/html;charset=utf-8',
+    'json': 'application/json;charset=utf-8',
+    }
 class BaseApiController(BaseController):
 
     api_version = ''
     ref_package_by = ''
     ref_group_by = ''
+    content_type_text = 'text/;charset=utf-8'
+    content_type_html = 'text/html;charset=utf-8'
     content_type_json = 'application/json;charset=utf-8'
 
-    def _ref_package(self, package):
-        assert self.ref_package_by in ['id', 'name']
-        return getattr(package, self.ref_package_by)
+    @classmethod
+    def _ref_package(cls, package):
+        assert cls.ref_package_by in ['id', 'name']
+        return getattr(package, cls.ref_package_by)
 
-    def _ref_group(self, group):
-        assert self.ref_group_by in ['id', 'name']
-        return getattr(group, self.ref_group_by)
+    @classmethod
+    def _ref_group(cls, group):
+        assert cls.ref_group_by in ['id', 'name']
+        return getattr(group, cls.ref_group_by)
 
-    def _ref_harvest_source(self, harvest_source):
+    @classmethod
+    def _ref_harvest_source(cls, harvest_source):
         return getattr(harvest_source, 'id')
 
-    def _list_package_refs(self, packages):
-        return [getattr(p, self.ref_package_by) for p in packages]
+    @classmethod
+    def _list_package_refs(cls, packages):
+        return [getattr(p, cls.ref_package_by) for p in packages]
 
-    def _list_group_refs(self, groups):
-        return [getattr(p, self.ref_group_by) for p in groups]
+    @classmethod
+    def _list_group_refs(cls, groups):
+        return [getattr(p, cls.ref_group_by) for p in groups]
 
-    def _finish_ok(self, response_data=None):
-        # response.status_int = 200 -- already will be so
-        response.headers['Content-Type'] = self.content_type_json
+    def _finish(self, status_int, response_data=None,
+                content_type='text'):
+        '''When a controller method has completed, call this method
+        to prepare the response.
+        @return response message - return this value from the controller
+                                   method
+                 e.g. return self._finish(404, 'Package not found')
+        '''
+        assert(isinstance(status_int, int))
+        response.status_int = status_int
         response_msg = ''
         if response_data is not None:
-            response_msg = json.dumps(response_data)
+            response.headers['Content-Type'] = CONTENT_TYPES[content_type]
+            if content_type == 'json':
+                response_msg = json.dumps(response_data)
+            else:
+                response_msg = response_data
             # Support "JSONP" callback.
-            if request.params.has_key('callback') and request.method == 'GET':
+            if status_int==200 and request.params.has_key('callback') and \
+                   request.method == 'GET':
                 callback = request.params['callback']
                 response_msg = self._wrap_jsonp(callback, response_msg)
         return response_msg
 
+    def _finish_ok(self, response_data=None,
+                   content_type='json',
+                   newly_created_resource_location=None):
+        '''If a controller method has completed successfully then
+        calling this method will prepare the response.
+        @param newly_created_resource_location - specify this if a new
+           resource has just been created.
+        @return response message - return this value from the controller
+                                   method
+                                   e.g. return self._finish_ok(pkg_dict)
+        '''
+        if newly_created_resource_location:
+            status_int = 201
+            self._set_response_header('Location',
+                                      newly_created_resource_location)
+        else:
+            status_int = 200
+
+        return self._finish(status_int, response_data,
+                            content_type=content_type)
+
     def _wrap_jsonp(self, callback, response_msg):
         return '%s(%s);' % (callback, response_msg)
 
+    def _set_response_header(self, name, value):
+        try:
+            value = str(value)
+        except Exception, inst:
+            msg = "Couldn't convert '%s' header value '%s' to string: %s" % (name, value, inst)
+            raise Exception, msg
+        response.headers[name] = value
 
 class ApiVersion1(BaseApiController):
 
@@ -127,6 +178,11 @@ class BaseRestController(BaseApiController):
             objects = model.HarvestingJob.filter(**filter_kwds)
             response_data = [o.id for o in objects]
             return self._finish_ok(response_data)
+        elif register == u'harvesteddocument':
+            filter_kwds = {}
+            objects = model.HarvestedDocument.filter(**filter_kwds)
+            response_data = [o.guid for o in objects]
+            return self._finish_ok(response_data)
         else:
             response.status_int = 400
             return gettext('Cannot list entity of this type: %s') % register
@@ -189,7 +245,6 @@ class BaseRestController(BaseApiController):
                            (id, subregister, id2)
             response_data = [rel.as_dict(pkg1, ref_package_by=self.ref_package_by) for rel in relationships]
             return self._finish_ok(response_data)
-
         elif register == u'group':
             group = model.Group.by_name(id)
             if group is None:
@@ -217,6 +272,45 @@ class BaseRestController(BaseApiController):
                 return ''            
             response_data = obj.as_dict()
             return self._finish_ok(response_data)
+        elif register == u'harvesteddocument':
+            objs = model.Session.query(model.HarvestedDocument).filter(model.HarvestedDocument.guid==id)
+            if not objs:
+                response.status_int = 404
+                return ''            
+            obj = objs[0]
+            if not subregister:
+                response_data = obj.as_dict()
+                return self._finish_ok(response_data)
+            elif subregister == 'xml':
+                response_data = obj.as_dict()['content']
+                response.headers['Content-Type'] = 'text/xml'
+                response.status_int = 200
+                response.charset = 'utf-8'
+                return response_data
+            elif subregister == 'html':
+                d = obj.as_dict()
+                content = {
+                    'html': d['content'].replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;\n'),
+                    'title': d['id'],
+                }
+                response_data = """
+                <html>
+                <head>
+                <title>Harvested Document %(title)s</title>
+                </head>
+                <body>
+                <h1>Harvested Document %(title)s</h1>
+                <pre style="background: #ffc">%(html)s</pre>
+                </body>
+                </html>
+                """%content
+                response.headers['Content-Type'] = 'text/html'
+                response.status_int = 200
+                response.charset = 'utf-8'
+                return response_data
+            else:
+                response.status_int = 404
+                return ''            
         elif register == u'harvestingjob':
             obj = model.HarvestingJob.get(id, default=None)
             if obj is None:
@@ -441,7 +535,15 @@ class BaseRestController(BaseApiController):
         # must be logged in to start with
         if not self._check_access(None, None):
             return json.dumps(_('Access denied'))
-
+        # XXX Currently no security on this call
+        if register == 'harvestsource' and not subregister:
+            source = model.HarvestSource.get(id, default=None)
+            jobs = model.HarvestingJob.filter(source=source)
+            for job in jobs:
+                job.delete()
+            source.delete()
+            model.repo.commit()        
+            return self._finish_ok()
         if register == 'package' and not subregister:
             entity = self._get_pkg(id)
             if not entity:
@@ -478,15 +580,12 @@ class BaseRestController(BaseApiController):
         if not entity:
             response.status_int = 404
             return ''
-
         if not self._check_access(entity, model.Action.PURGE):
             return json.dumps(_('Access denied'))
-
         if revisioned_details:
             rev = model.repo.new_revision()
             rev.author = self.rest_api_user
             rev.message = _(u'REST API: Delete %s') % revisioned_details
-            
         try:
             if register == 'package' and not subregister:
                 for item in PluginImplementations(IPackageController):
@@ -494,13 +593,11 @@ class BaseRestController(BaseApiController):
             elif register == 'group' and not subregister:
                 for item in PluginImplementations(IGroupController):
                     item.delete(entity)
-
             entity.delete()
             model.repo.commit()        
         except Exception, inst:
             log.exception(inst)
             raise
-
         return self._finish_ok()
 
     def search(self, register=None):

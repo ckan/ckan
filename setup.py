@@ -21,7 +21,7 @@ setup(
     install_requires=[
         'routes>=1.9,<=1.11.99',
         'vdm>=0.9,<0.9.99',
-        'ckanclient>=0.1,<0.5.99',
+        'ckanclient>=0.1,<0.6.99',
         'Pylons>=0.9.7.0,<0.9.7.99',
         'Genshi>=0.6,<0.6.99',
         'SQLAlchemy>=0.4.8,<0.6.99',
@@ -32,8 +32,7 @@ setup(
         # 'uuid>=1.0',
         # for open licenses
         'licenses==0.4,<0.6.99',
-        # last version to work with sqlalchemy < 0.5 
-        'sqlalchemy-migrate==0.4.5',
+        'sqlalchemy-migrate==0.6',
         # latest version of Routes (1.10) depends on webob in middleware but
         # does not declare the dependency!
         # (not sure we need this except in tests but ...)

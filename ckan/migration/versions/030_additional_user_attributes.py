@@ -5,9 +5,10 @@ from datetime import datetime
 import migrate.changeset
 import uuid
 
-metadata = MetaData(migrate_engine)
+metadata = MetaData()
     
-def upgrade():
+def upgrade(migrate_engine):
+    metadata.bind = migrate_engine
     user_sql = 'ALTER TABLE "user" ADD openid TEXT'
     migrate_engine.execute(user_sql)
     user_sql = 'ALTER TABLE "user" ADD password TEXT'
@@ -17,5 +18,5 @@ def upgrade():
     user_sql = 'ALTER TABLE "user" ADD email TEXT'
     migrate_engine.execute(user_sql)
     
-def downgrade():
+def downgrade(migrate_engine):
     raise NotImplementedError()

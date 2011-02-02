@@ -1,5 +1,10 @@
 import re
+import logging
 import webhelpers.markdown
+
+from pylons.i18n import _
+
+log = logging.getLogger(__name__)
 
 class TextFormat(object):
 
@@ -19,23 +24,27 @@ class MarkdownFormat(TextFormat):
         if text is None:
             return ''
         
-        # Encode whitelist elements.
-        text = self.whitelist_elem.sub(r'\\\\xfc\\\\xfd\1\\\\xfd\\\\xfc', text)
+        try: 
+            # Encode whitelist elements.
+            text = self.whitelist_elem.sub(r'\\\\xfc\\\\xfd\1\\\\xfd\\\\xfc', text)
 
-        # Convert internal links.
-        text = self.internal_link.sub(r'[\1:\2] (/\1/read/\2)', text)
+            # Convert internal links.
+            text = self.internal_link.sub(r'[\1:\2] (/\1/read/\2)', text)
 
-        # Convert <link> to markdown format.
-        text = self.normal_link.sub(r'[\1] (\1)', text)
+            # Convert <link> to markdown format.
+            text = self.normal_link.sub(r'[\1] (\1)', text)
 
-        # Convert <link> to markdown format.
-        text = self.normal_link.sub(r'[\1] (\1)', text)
+            # Convert <link> to markdown format.
+            text = self.normal_link.sub(r'[\1] (\1)', text)
 
-        # Markdown to HTML.
-        text = webhelpers.markdown.markdown(text, safe_mode=True)
+            # Markdown to HTML.
+            text = webhelpers.markdown.markdown(text, safe_mode=True)
 
-        # Decode whitelist elements.
-        text = self.whitelist_escp.sub(r'<\1>', text)
+            # Decode whitelist elements.
+            text = self.whitelist_escp.sub(r'<\1>', text)
+        except Exception, e: 
+            log.exception(e)
+            text = _("<strong>Warning:</string>: Text could not be rendered.")
 
         return text
 

@@ -4,6 +4,8 @@ import sys
 from pylons import cache, config
 from genshi.template import NewTextTemplate
 
+from ckan.authz import Authorizer
+from ckan.lib.search import query_for, QueryOptions, SearchError
 from ckan.lib.cache import proxy_cache, get_cache_expires
 from ckan.lib.base import *
 import ckan.lib.stats
@@ -11,37 +13,28 @@ import ckan.lib.stats
 cache_expires = get_cache_expires(sys.modules[__name__])
 
 class HomeController(BaseController):
-    repo = model.repo
+    repo = model.repo   
+
+    authorizer = Authorizer()
 
     @proxy_cache(expires=cache_expires)
     def index(self):
-        c.package_count = model.Session.query(model.Package).count()
-        c.revisions = model.Session.query(model.Revision).limit(10).all()
-        if len(c.revisions):
-            cache_key = str(hash((c.revisions[0].id, c.user)))
+        query = query_for(model.Package)
+        query.run(query='*:*', facet_by=g.facets,
+                  limit=0, offset=0, username=c.user)
+        c.facets = query.facets
+        c.fields = []
+        c.package_count = query.count
+        c.latest_packages = self.authorizer.authorized_query(c.user, model.Package)\
+            .join('revision').order_by(model.Revision.timestamp.desc())\
+            .limit(5).all()
+
+        if len(c.latest_packages):
+            cache_key = str(hash((c.latest_packages[0].id, c.user)))
         else:
             cache_key = "fresh-install"
         
         etag_cache(cache_key)
-        def tag_counts():
-            '''Top 50 tags (by package counts) in random order (to make cloud
-            look nice).
-            '''
-            # More efficient alternative to get working:
-            # sql: select tag.name, count(*) from tag join package_tag on tag.id =
-            # package_tag.tag_id where pacakge_tag.state = 'active'
-            # c.tags = model.Session.query(model.Tag).join('package_tag').order_by(func.count('*')).limit(100)
-            tags = model.Session.query(model.Tag).all()
-            # we take the name as dbm cache does not like Tag objects - get:
-            # Error: can't pickle function objects
-            tag_counts = ckan.lib.stats.Stats().top_tags(limit=50,
-                                            returned_tag_info='name')
-            tag_counts = [ tuple(row) for row in tag_counts ]
-            random.shuffle(tag_counts)
-            return tag_counts
-        mycache = cache.get_cache('tag_counts', type='dbm')
-        c.tag_counts = mycache.get_value(key='tag_counts_home_page',
-                createfunc=tag_counts, expiretime=cache_expires)
         return render('home/index.html', cache_key=cache_key,
                 cache_expire=cache_expires)
 

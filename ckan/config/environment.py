@@ -23,6 +23,26 @@ def load_environment(global_conf, app_conf):
     """Configure the Pylons environment via the ``pylons.config``
     object
     """
+    
+    ######  Pylons monkey-patch
+    # this must be run at a time when the env is semi-setup, thus inlined here. 
+    # Required by the deliverance plugin and iATI
+    from pylons.wsgiapp import PylonsApp
+    import pkg_resources
+    find_controller_generic = PylonsApp.find_controller
+    # This is from pylons 1.0 source, will monkey-patch into 0.9.7
+    def find_controller(self, controller):
+        if controller in self.controller_classes:
+            return self.controller_classes[controller]
+        # Check to see if its a dotted name
+        if '.' in controller or ':' in controller:
+            mycontroller = pkg_resources.EntryPoint.parse('x=%s' % controller).load(False)
+            self.controller_classes[controller] = mycontroller
+            return mycontroller
+        return find_controller_generic(self, controller)
+    PylonsApp.find_controller = find_controller
+    ###### END evil monkey-patch 
+
     # Pylons paths
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     paths = dict(root=root,

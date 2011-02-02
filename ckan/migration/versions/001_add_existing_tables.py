@@ -1,7 +1,7 @@
 from sqlalchemy import *
 from migrate import *
 
-meta = MetaData(migrate_engine)
+meta = MetaData()
 
 state = Table('state', meta,
   Column('id', Integer() ,  primary_key=True, nullable=False),
@@ -98,8 +98,9 @@ package_extra_revision = Table('package_extra_revision', meta,
 )
 
 
-def upgrade():
+def upgrade(migrate_engine):
+    meta.bind = migrate_engine
     meta.create_all()
 
-def downgrade():
+def downgrade(migrate_engine):
     raise NotImplementedError()

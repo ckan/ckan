@@ -3,7 +3,7 @@ from migrate import *
 import datetime
 from migrate.changeset.constraint import PrimaryKeyConstraint
 
-metadata = MetaData(migrate_engine)
+metadata = MetaData()
 
 revision_table = Table('revision', metadata,
         Column('id', UnicodeText, primary_key=True),
@@ -34,11 +34,12 @@ changemask_table = Table('changemask', metadata,
 )
 
 
-def upgrade():
+def upgrade(migrate_engine):
+    metadata.bind = migrate_engine
     changeset_table.create()
     change_table.create()
 
-def downgrade():
+def downgrade(migrate_engine):
     change_table.drop()
     changeset_table.drop()
 

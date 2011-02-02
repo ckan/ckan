@@ -5,7 +5,7 @@ from datetime import datetime
 import migrate.changeset
 import uuid
 
-metadata = MetaData(migrate_engine)
+metadata = MetaData()
 
 def make_uuid():
     return unicode(uuid.uuid4())
@@ -22,7 +22,8 @@ user_table = Table('user', metadata,
     Column('about', UnicodeText),
     )
     
-def upgrade():
+def upgrade(migrate_engine):
+    metadata.bind = migrate_engine
     for row in migrate_engine.execute(user_table.select()):
         user = dict(row.items())
         name = user.get('name').lower().strip()
@@ -32,5 +33,5 @@ def upgrade():
                               values=user)
         migrate_engine.execute(q)
     
-def downgrade():
+def downgrade(migrate_engine):
     raise NotImplementedError()

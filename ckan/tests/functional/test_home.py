@@ -13,6 +13,7 @@ class TestHomeController(TestController):
     def teardown_class(self):
         model.repo.clean_db()
 
+    @search_related
     def test_home_page(self):
         offset = url_for('home')
         res = self.app.get(offset)
@@ -24,6 +25,7 @@ class TestHomeController(TestController):
         res = self.app.get(offset)
         res.click('Search', index=0)
         
+    @search_related
     def test_tags_link(self):
         offset = url_for('home')
         res = self.app.get(offset)
@@ -52,12 +54,14 @@ class TestHomeController(TestController):
         assert 'Search - ' in results_page, results_page
         assert '>0<' in results_page, results_page
     
+    @search_related
     def test_template_footer_end(self):
         offset = url_for('home')
         res = self.app.get(offset)
         assert '<strong>TEST TEMPLATE_FOOTER_END TEST</strong>'
 
     # DISABLED because this is not on home page anymore
+    @search_related
     def _test_register_new_package(self):
         offset = url_for('home')
         res = self.app.get(offset)

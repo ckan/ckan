@@ -141,26 +141,6 @@ class Authorizer(object):
         return [pr.role for pr in q]
     
     @classmethod
-    def am_admin_package_names(cls, username):
-        q = model.Session.query(model.Package.name)
-        q = q.autoflush(False)
-        if not cls.is_sysadmin(username):
-            visitor = model.User.by_name(model.PSEUDO_USER__VISITOR, autoflush=False)
-            filters = [model.PackageRole.user==visitor]
-            user = model.User.by_name(username, autoflush=False)
-            if user is not None:
-                logged_in = model.User.by_name(model.PSEUDO_USER__LOGGED_IN,
-                                               autoflush=False)
-                filters.extend([model.PackageRole.user==user, 
-                                model.PackageRole.user==logged_in])
-            for authz_group in cls.get_authorization_groups(username):
-                filters.append(model.PackageRole.authorized_group==authz_group)
-            q = q.outerjoin('roles')
-            q = q.filter(model.PackageRole.role==model.Role.ADMIN)
-            q = q.filter(sa.or_(*filters))
-        return [r[0] for r in q.all()]
-
-    @classmethod
     def is_sysadmin(cls, username):
         user = model.User.by_name(username, autoflush=False)
         if user:

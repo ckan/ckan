@@ -213,17 +213,20 @@ class TestComplicated:
         check(rels, 'homer_derived', 'derives_from', 'homer')
         check(rels, 'homer', 'depends_on', 'beer')
         rels = model.Package.by_name(u'bart').get_relationships()
-        assert len(rels) == 1, len(rels)
+        assert len(rels) == 2, len(rels)
         check(rels, 'bart', 'child_of', 'homer')
+        check(rels, 'bart', 'child_of', 'marge')
 
     def test_02_deletion(self):
         "delete bart is child of homer"
         rels = model.Package.by_name(u'bart').get_relationships()
-        assert len(rels) == 1
+        assert len(rels) == 2
         assert rels[0].state == model.State.ACTIVE
 
-        rels[0].delete()
+    
         model.repo.new_revision()
+        rels[0].delete()
+        rels[1].delete()
         model.repo.commit_and_remove()
         
         rels = model.Package.by_name(u'bart').get_relationships()
@@ -231,7 +234,7 @@ class TestComplicated:
 
         bart = model.Package.by_name(u'bart')
         q = model.Session.query(model.PackageRelationship).filter_by(subject=bart)
-        assert q.count() == 1
+        assert q.count() == 2
         assert q.first().state == model.State.DELETED
         q = q.filter_by(state=model.State.ACTIVE)
         assert q.count() == 0
@@ -240,21 +243,29 @@ class TestComplicated:
         "recreate bart is child of homer"
         bart = model.Package.by_name(u"bart")
         homer = model.Package.by_name(u"homer")
+        marge = model.Package.by_name(u"marge")
 
         rels = bart.get_relationships()
         assert len(rels) == 0, "expected bart to have no relations, found %s" % rels
 
         model.repo.new_revision()
         bart.add_relationship(u"child_of", homer)
+        bart.add_relationship(u"child_of", marge)
         model.repo.commit_and_remove()
 
         rels = bart.get_relationships()
-        assert len(rels) == 1, "expected bart to have one relation, found %s" % rels
+        assert len(rels) == 2, "expected bart to have one relation, found %s" % rels
 
         q = model.Session.query(model.PackageRelationship).filter_by(subject=bart)
         count = q.count()
-        assert count == 1, "bart has %d relationships, expected 1" % count
+        assert count == 2, "bart has %d relationships, expected 2" % count
         active = q.filter_by(state=model.State.ACTIVE).count()
-        assert active == 1, "bart has %d active relationships, expected 1" % active
+        assert active == 2, "bart has %d active relationships, expected 2" % active
         deleted = q.filter_by(state=model.State.DELETED).count()
         assert deleted == 0, "bart has %d deleted relationships, expect 0" % deleted
+
+    def test_04_relationship_display(self):
+
+        bart = model.Package.by_name(u"bart")
+        assert len(bart.get_relationships_printable()) == 3, len(bart.get_relationships_printable())
+

@@ -154,6 +154,7 @@ class CreateTestData(cli.CkanCommand):
                                 self.tag_names.append(tag_name)
                                 model.Session.add(tag)    
                             pkg.tags.append(tag)
+                            model.Session.flush()
                     elif attr == 'groups':
                         if isinstance(val, (str, unicode)):
                             group_names = val.split()
@@ -208,6 +209,10 @@ class CreateTestData(cli.CkanCommand):
                 model.Session.add(user)
                 self.user_names.append(user_name)
                 needs_commit = True
+
+        if needs_commit:
+            model.repo.commit_and_remove()
+            needs_commit = False
 
         # setup authz for admins
         for pkg_name, admins in admins_list.items():
@@ -557,10 +562,13 @@ family_items = [{'name':u'abraham', 'title':u'Abraham'},
                 {'name':u'beer', 'title':u'Beer'},
                 {'name':u'bart', 'title':u'Bart'},
                 {'name':u'lisa', 'title':u'Lisa'},
+                {'name':u'marge', 'title':u'Marge'},
                 ]
 family_relationships = [('abraham', 'parent_of', 'homer'),
                         ('homer', 'parent_of', 'bart'),
                         ('homer', 'parent_of', 'lisa'),
+                        ('marge', 'parent_of', 'lisa'),
+                        ('marge', 'parent_of', 'bart'),
                         ('homer_derived', 'derives_from', 'homer'),
                         ('homer', 'depends_on', 'beer'),
                         ]

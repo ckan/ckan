@@ -39,8 +39,9 @@ class TestGroup(FunctionalTestCase):
 
     @classmethod
     def teardown_class(self):
-        CreateTestData.delete()
+        model.repo.clean_db()
 
+    @search_related
     def test_mainmenu(self):
         offset = url_for(controller='home', action='index')
         res = self.app.get(offset)

@@ -4,8 +4,8 @@
 sphinx<0.9
 psycopg2
 -e hg+https://solrpy.googlecode.com/hg#egg=solrpy
--e hg+https://knowledgeforge.net/okfn/vdm#egg=vdm
--e hg+https://knowledgeforge.net/okfn/licenses#egg=licenses
--e hg+https://knowledgeforge.net/ckan/ckanclient/hg#egg=ckanclient
+-e hg+https://bitbucket.org/okfn/vdm#egg=vdm
+-e hg+https://bitbucket.org/okfn/licenses#egg=licenses
+-e hg+https://bitbucket.org/okfn/ckanclient#egg=ckanclient
 -e hg+https://bitbucket.org/okfn/ckan#egg=ckan
 
