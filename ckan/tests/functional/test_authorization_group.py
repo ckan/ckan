@@ -27,6 +27,7 @@ class TestAuthorizationGroup(FunctionalTestCase):
         model.repo.clean_db()
         model.Session.remove()
 
+    @search_related
     def test_mainmenu(self):
         offset = url_for(controller='home', action='index')
         res = self.app.get(offset)
