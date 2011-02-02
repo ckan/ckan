@@ -746,11 +746,6 @@ ul.package_formats li {
   display: inline;
 }
 
-.package-atom-feed {
-  float: right;
-  display: none;
-}
-
 #content .package h3, #content h4, 
 #content #comments h3, #content #comments h4 {
   background-color: #444;
@@ -861,4 +856,8 @@ p.atom-feed-link {
 p.atom-feed-link a {
   background: url('../images/icons/atom_feed.png') no-repeat;
   padding-left: 20px;
+}
+
+p.atom-feed-link.package-history-link {
+  float: none;
 }
