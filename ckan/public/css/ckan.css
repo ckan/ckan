@@ -38,6 +38,34 @@ a:hover {
 }
 
 /* ===========================
+ * Flash messages
+*/
+
+.flash-banner-box {
+    margin-bottom: -1em;
+}
+
+.flash-banner {
+    width: auto;
+    font-size: 1.1em;
+    padding: 0.6em;
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 2px solid #333;
+    color: #000;
+}
+
+.flash-banner.notice {
+    background-color: #aad400;
+    border-bottom-color: #88aa00;
+}
+
+.flash-banner.error {
+    background-color: #ff7f2a;
+    border-bottom-color: #ff6600;
+}
+
+/* ===========================
  * Masthead
 */
 

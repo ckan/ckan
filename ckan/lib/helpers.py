@@ -10,6 +10,7 @@ from webhelpers.html.tools import mail_to
 from webhelpers.html.tags import *
 from webhelpers.markdown import markdown
 from webhelpers import paginate
+from webhelpers.pylonslib import Flash as _Flash
 from webhelpers.text import truncate
 from pylons.decorators.cache import beaker_cache
 from routes import url_for, redirect_to
@@ -25,6 +26,15 @@ try:
     import json
 except ImportError:
     import simplejson as json
+
+
+_flash = _Flash()
+
+def flash_notice(message): 
+    _flash(message, category='notice')
+
+def flash_error(message): 
+    _flash(message, category='error')
 
 # FIXME: shouldn't have to pass the c object in to this.
 def nav_link(c, text, controller, **kwargs):
