@@ -28,6 +28,14 @@
       <label for="about">About user:</label>
       <textarea id="about" rows="5" name="about" cols="60">${c.user_about}</textarea>
       <p class="small" i18n:msg="">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.</p>
+
+      <h3>Change your password</h3>
+      <label for="password1">Password:</label>
+      <input name="password1" value="" />
+      <br/>
+      <label for="password2">Password (repeat):</label>
+      <input name="password2" value="" />
+      <br/>
       <div>
         <input name="preview" type="submit" value="Preview" />
         ${h.submit('save', _('Save'))}

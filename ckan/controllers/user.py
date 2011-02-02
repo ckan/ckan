@@ -37,6 +37,7 @@ class UserController(BaseController):
     
     def openid(self):
         if c.user:
+            print c.user
             userobj = model.User.by_name(c.user)
             response.set_cookie("ckan_user", userobj.name)
             response.set_cookie("ckan_display_name", userobj.display_name)
@@ -77,21 +78,30 @@ class UserController(BaseController):
             c.user_fullname = request.params.getone('fullname')
             c.user_email = request.params.getone('email')
         elif 'save' in request.params:
-            about = request.params.getone('about')
-            fullname = request.params.getone('fullname')
-            email = request.params.getone('email')
             try:
                 rev = model.repo.new_revision()
                 rev.author = c.author
                 rev.message = _(u'Changed user details')
-                user.about = about
-                user.fullname = fullname
-                user.email = email 
+                user.about = request.params.getone('about')
+                user.fullname = request.params.getone('fullname')
+                user.email = request.params.getone('email')
+                password1 = request.params.getone('password1')
+                password2 = request.params.getone('password2')
+                if password1:
+                    if not len(password1) >= 4:
+                        h.flash_error(_("Your password must be 4 characters or longer."))
+                        return render('user/edit.html')
+                    elif not password1 == password2:
+                        h.flash_error(_("The passwords you entered do not match."))
+                        return render('user/edit.html')
+                    else:
+                        user.password = password1
             except Exception, inst:
                 model.Session.rollback()
                 raise
             else:
                 model.Session.commit()
+                h.flash_notice(_("Your account has been updated."))
             response.set_cookie("ckan_display_name", user.display_name)
             h.redirect_to(controller='user', action='read', id=user.id)
             
