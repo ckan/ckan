@@ -14,7 +14,12 @@ ul.tabbed {
 ul.tabbed li {
 	float: left;
 	margin: 0 0 0 0.5em;
-	padding: 0; 
+	border-left: 1px solid #eaeaea;
+	border-top: 1px solid #eaeaea;
+	border-right: 1px solid #eaeaea; 
+	-moz-border-radius: 0.4em 0.4em 0 0;
+	-webkit-border-top-left-radius: 0.4em;
+	-webkit-border-top-right-radius: 0.4em;
 }
 
 ul.tabbed a {
@@ -25,12 +30,6 @@ ul.tabbed a {
 	background: #fff;
 	margin: 0;
 	padding: 4px 0.6em;
-	border-left: 1px solid #eaeaea;
-	border-top: 1px solid #eaeaea;
-	border-right: 1px solid #eaeaea; 
-	-moz-border-radius: 0.4em 0.4em 0 0;
-	-webkit-border-top-left-radius: 0.4em;
-	-webkit-border-top-right-radius: 0.4em;
 }
 
 ul.tabbed li a:hover,
@@ -57,4 +56,8 @@ ul.tabbed a.active:visited
 	border-color: #aaa;
 	border-bottom-color: #fff;
 	display: block;
+}
+
+ul.tabbed a img {
+  margin-bottom: -2px;
 }

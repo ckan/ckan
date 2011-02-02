@@ -116,14 +116,15 @@ a:hover {
 -------------------------------------------------------------- */
 
 #access {
-  border-top: 1px dotted #AAA;
-  border-bottom: 1px dotted #AAA;
-	background: transparent;
+  border-top: 1px solid #aaa; 
+  border-bottom: 1px solid #aaa; 
+  background: transparent;
 }
 
 #access ul li a {
-	color: #A95A5A;
+  color: #b22;
   text-decoration: none;
+  font-weight: bold;
 }
 
 #access ul li a.active {
