@@ -78,7 +78,8 @@ env.ckan_repo = 'https://bitbucket.org/okfn/ckan/raw/default/'
 env.pip_requirements = 'pip-requirements.txt'
 env.skip_setup_db = False
 
-def config_local(base_dir, ckan_instance_name, db_host=None, db_pass=None, 
+def config_local(base_dir, ckan_instance_name, db_user=None, db_host=None,
+                 db_pass=None, 
                  skip_setup_db=None, no_sudo=None, pip_requirements=None):
     '''Run on localhost. e.g. config_local:~/test,myhost.com
                             puts it at ~/test/myhost.com
@@ -86,6 +87,8 @@ def config_local(base_dir, ckan_instance_name, db_host=None, db_pass=None,
     env.hosts = ['localhost']
     env.ckan_instance_name = ckan_instance_name # e.g. 'test.ckan.net'
     env.base_dir = os.path.expanduser(base_dir)    # e.g. ~/var/srvc
+    if db_user:
+        env.db_user = db_user
     if db_pass:
         env.db_pass = db_pass
     if db_host:
@@ -162,6 +165,7 @@ def config_dev_hmg_ckan_net():
 def config_0(name,
              hosts_str='',
              requirements='pip-requirements-metastable.txt',
+             db_user=None,
              db_pass='',
              db_host='localhost',
              user=None
@@ -173,6 +177,8 @@ def config_0(name,
         Defaults to name if not supplied.
     @param requirements: pip requirements filename to use (defaults to
         pip-requirements-metastable.txt)
+    @param db_user: db user name (assumes it is already created). Defaults to
+                    value of 'user'.
     @param db_pass: password to use when setting up db user (if needed)
     @param db_host: db host to use when setting up db (if needed)
     @param user: user to log into host as, if not current user
@@ -199,6 +205,7 @@ def config_0(name,
             print 'Found Squid cache but did not find host in config.'
     env.base_dir = '/home/%s/var/srvc' % env.user
     env.pip_requirements = requirements
+    env.db_user = db_user or env.user
     env.db_pass = db_pass
     env.db_host = db_host
     env.log_filename_pattern = name + '.%s.log'
