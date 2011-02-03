@@ -96,8 +96,7 @@ class ModelMethods(BaseCase):
     commit_changesets = True
 
     def conditional_create_common_fixtures(self):
-        if self.require_common_fixtures: # XXX relies on state saved
-                                        # between tests?
+        if self.require_common_fixtures:
             self.create_common_fixtures()
 
     def create_common_fixtures(self):

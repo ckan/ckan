@@ -2,6 +2,7 @@ from sqlalchemy.sql import select, and_
 from ckan.lib.base import _, request, response, c
 from ckan.lib.cache import ckan_cache
 from ckan.lib.helpers import json
+from ckan.lib.munge import munge_title_to_name
 import ckan.model as model
 import ckan
 
@@ -12,7 +13,6 @@ log = __import__("logging").getLogger(__name__)
 # For form name auto-generation
 from ckan.forms.common import package_exists
 from ckan.lib.helpers import json
-from ckan.lib.importer import PackageImporter
 from ckan.lib.search import query_for
 
 class Rest2Controller(object):
@@ -55,7 +55,7 @@ class PackageController(Rest2Controller, _PackageV1Controller):
 
     def create_slug(self):
         title = request.params.get('title') or ''
-        name = PackageImporter.munge(title)
+        name = munge_title_to_name(title)
         if package_exists(name):
             valid = False
         else:
