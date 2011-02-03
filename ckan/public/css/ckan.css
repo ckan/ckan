@@ -42,27 +42,35 @@ a:hover {
 */
 
 .flash-banner-box {
-    margin-bottom: -1em;
+  margin-top: -20px;
+  margin-bottom: 10px;
 }
 
 .flash-banner {
-    width: auto;
-    font-size: 1.1em;
-    padding: 0.6em;
-    font-weight: bold;
-    text-align: center;
-    border-bottom: 2px solid #333;
-    color: #000;
+  width: auto;
+  font-size: 1.1em;
+  padding: 0.6em;
+  font-weight: bold;
+  text-align: center;
+  border-bottom: 2px solid #333;
+  color: #133362;
 }
 
 .flash-banner.notice {
-    background-color: #aad400;
-    border-bottom-color: #88aa00;
+  background-color: #dde7ef;
+  border-bottom-color: #dddddd;
+}
+
+.flash-banner.success {
+  background-color: #e7f9e0;
+  border-bottom-color: #ccc;
+  color: #2d6b00;
 }
 
 .flash-banner.error {
-    background-color: #ff7f2a;
-    border-bottom-color: #ff6600;
+  background-color: #ffeae8;
+  border-bottom-color: #ccc;
+  color: #b50000;
 }
 
 /* ===========================

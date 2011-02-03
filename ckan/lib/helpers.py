@@ -36,6 +36,9 @@ def flash_notice(message):
 def flash_error(message): 
     _flash(message, category='error')
 
+def flash_success(message): 
+    _flash(message, category='success')
+
 # FIXME: shouldn't have to pass the c object in to this.
 def nav_link(c, text, controller, **kwargs):
     highlight_actions = kwargs.pop("highlight_actions", 

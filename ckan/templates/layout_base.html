@@ -49,13 +49,7 @@
   </py:if>
 </head>
 
-<body class="${value_of('body_class', default='')}"
-      py:with="messages = list(h._flash.pop_messages())">
-<div class="flash-banner-box" py:if="len(messages)">
-  <div class="flash-banner ${m.category}" py:for="m in messages">
-    ${m.message}
-  </div>
-</div>
+<body class="${value_of('body_class', default='')}">
 
 <div id="wrapper" class="hfeed">
   <div id="header">
@@ -114,12 +108,19 @@
   </div><!-- #header -->  
 
   <div id="main"> 
+  <py:with vars="messages = list(h._flash.pop_messages())">
+  <div class="flash-banner-box" py:if="len(messages)">
+    <div class="flash-banner ${m.category}" py:for="m in messages">
+      ${m.message}
+    </div>
+  </div>
+  </py:with>
+
     <div id="container"> 
       <div id="minornavigation">
         <minornavigation></minornavigation> 
       </div>
       <div id="content" role="main"> 
-
         <div class="page type-page hentry">
           <div class="entry-content">
             <!-- support both options for defining content -->
