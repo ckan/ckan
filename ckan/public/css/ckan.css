@@ -146,6 +146,10 @@ a:hover {
   width: 120px;
 }
 
+#top-bar-login .ckan-logged-in img {
+  margin-bottom: -3px;
+}
+
 
 /* =Menu
 -------------------------------------------------------------- */
