@@ -41,8 +41,6 @@ setup(
         'FormAlchemy>=1.3.4',
         'carrot>=0.10.5',
         'blinker>=1.0',
-        'xlrd>=0.7.1',
-        'xlwt>=0.7.2',
         ## required for harvesting
         ## TODO: this could be removed if harvesting moved to worker
         'lxml',
@@ -74,7 +72,6 @@ setup(
 
     [paste.paster_command]
     db = ckan.lib.cli:ManageDb
-    load = ckan.lib.cli:Load
     create-test-data = ckan.lib.create_test_data:CreateTestData
     sysadmin = ckan.lib.cli:Sysadmin
     search-index = ckan.lib.cli:SearchIndexCommand

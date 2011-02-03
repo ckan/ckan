@@ -1,10 +1,7 @@
 CKAN Extensions, Plugins Interfaces and Workers
 +++++++++++++++++++++++++++++++++++++++++++++++
 
-**NOTE: CKAN plugin support is under development. All features documented on this page 
-are subject to frequent and breaking changes and should only be used with that in mind.**
-
-**Also please note that the terms "extension", "plugin interface" and "worker"
+**Note: the terms "extension", "plugin interface" and "worker"
 now have very precise meanings and that the use of the generic word "plugin" to
 describe any way in which CKAN might be extended is deprecated.**
 
@@ -115,7 +112,7 @@ You'll get prompted to complete a number of variables which will be used in your
     Enter description (One-line description of the package) ['']: Great extension package
     Enter author (Author name) ['']: James Gardner
     Enter author_email (Author email) ['']: james.gardner@okfn.org
-    Enter url (URL of homepage) ['']: http://jimmgy.org
+    Enter url (URL of homepage) ['']: http://jimmyg.org
     Enter license_name (License name) ['']: GPL
     Creating template ckanext
     Creating directory ./ckanext-myname
