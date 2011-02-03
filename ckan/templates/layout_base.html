@@ -79,7 +79,7 @@
         <span class="ckan_logged_in" style="display: none;">
                 Logged in as <strong>${h.icon('user')} <span id="ckan_user_name">username</span></strong>
                 &middot; <a href="${h.url_for(controller='user',action=None,id=None)}">My account</a>
-          &middot; <a href="${h.url_for('/logout')}">Logout</a>
+          &middot; <a href="${h.url_for('/user/logout')}">Logout</a>
         </span>
         <span class="ckan_logged_out">
                 <a href="${h.url_for(controller='user',action='login', id=None)}">Login</a> &middot;

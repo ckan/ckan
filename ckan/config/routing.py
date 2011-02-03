@@ -237,7 +237,7 @@ def make_map():
     map.connect('/user/register', controller='user', action='register')
     map.connect('/user/login', controller='user', action='login')
     map.connect('/user/logged_in', controller='user', action='logged_in')
-    map.connect('/user/logout', controller='user', action='logout')
+    map.connect('/user/logged_out', controller='user', action='logged_out')
     map.connect('/user/apikey', controller='user', action='apikey')
     map.connect('/user/:id', controller='user', action='read')
     map.connect('/{controller}', action='index')

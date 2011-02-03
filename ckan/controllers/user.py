@@ -64,7 +64,7 @@ class UserController(BaseController):
         else:
             self.login()
           
-    def logout(self):
+    def logged_out(self):
         c.user = None
         response.delete_cookie("ckan_user")
         response.delete_cookie("ckan_display_name")

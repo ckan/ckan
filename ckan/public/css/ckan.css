@@ -415,6 +415,9 @@ form.simple-form fieldset input {
     width: 40%;
 }
 
+form.simple-form textarea {
+    width: 99%;
+}
 
 /* ===========================
  * Tables
