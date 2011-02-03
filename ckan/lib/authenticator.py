@@ -14,8 +14,7 @@ class OpenIDAuthenticator(object):
                 # TODO: Implement a mask to ask for an alternative user 
                 # name instead of just using the OpenID identifier. 
                 name = identity.get('repoze.who.plugins.openid.nickname')
-                if not name or not len(name.strip()) \
-                    or not User.VALID_NAME.match(name):
+                if not User.check_name_available(name):
                     name = openid
                 if User.by_name(name):
                     name = openid
@@ -29,4 +28,16 @@ class OpenIDAuthenticator(object):
         return None
     
 
+class UsernamePasswordAuthenticator(object):
+    implements(IAuthenticator)
+    
+    def authenticate(self, environ, identity):
+        if not 'login' in identity or not 'password' in identity:
+            return None
+        user = User.by_name(identity.get('login'))
+        if user is None: 
+            return None
+        if user.validate_password(identity.get('password')):
+            return user.name
+        return None
 

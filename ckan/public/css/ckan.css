@@ -403,6 +403,18 @@ form #log_message {
   margin-bottom: 12px;
 }
 
+form.simple-form label {
+    display: inline-block; 
+    float: left;
+    min-width: 40%;
+}
+
+form.simple-form fieldset input {
+    border: 1px solid #E7E7E7;
+    padding: 0.3em; 
+    width: 40%;
+}
+
 
 /* ===========================
  * Tables

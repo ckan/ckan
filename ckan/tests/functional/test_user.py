@@ -104,7 +104,7 @@ class TestUserController(FunctionalTestCase):
         # cannot use click because it does not allow a 401 response ...
         # could get round this by checking that url is correct and then doing a
         # get but then we are back to test_user_login
-        res.click('Login with')
+        res.click('Login')
         # assert 'Please Sign In' in res
 
     def test_apikey(self):

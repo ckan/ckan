@@ -4,6 +4,7 @@ from base import FunctionalTestCase
 
 from ckan.plugins import SingletonPlugin, implements, IGroupController
 from ckan import plugins
+from ckan.tests import search_related
 
 class MockGroupControllerPlugin(SingletonPlugin):
     implements(IGroupController)

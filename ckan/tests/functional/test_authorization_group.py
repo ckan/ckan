@@ -4,6 +4,7 @@ from ckan.tests import *
 from ckan.authz import Authorizer
 import ckan.model as model
 from base import FunctionalTestCase
+from ckan.tests import search_related
 
 class TestAuthorizationGroup(FunctionalTestCase):
 

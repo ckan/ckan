@@ -14,14 +14,41 @@
       });
     </script>
   </py:def>
-
+  
+  <py:match path="primarysidebar">
+    <li class="widget-container widget_text">
+      <h2>Not a member?</h2>
+      <p>
+      Join CKAN to contribute packages under your own name.
+      </p>
+      <ul>
+        <li>${h.link_to(_('Register'), h.url_for(controller='user', action='register'))}</li>
+        <li>${h.link_to(_('Privacy Policy'), 'http://www.okfn.org/privacy-policy/')}</li>
+      </ul>
+    </li>
+  </py:match>
+  
   <py:def function="page_title">Login - User</py:def>
 
   <div py:match="content">
     <h2>Login</h2>
+    
+    <form action="/login_generic" method="post" class="simple-form" id="generic_form">  
+      <fieldset>
+        <!--legend i18n:msg="site_title">Login</legend-->
+
+        <label for="login">Login:</label>
+        <input name="login" value="" />
+        <br/>
+        <label for="password">Password:</label>
+        <input type="password" name="password" value="" />
+        <br/>
+      </fieldset>
+      ${h.submit('s', _('Login'))}
+    </form>
 
     <!-- Simple OpenID Selector -->
-    <form action="FORM_ACTION" method="post" id="openid_form">
+    <form action="/login_openid" method="post" id="openid_form">
       <input type="hidden" name="action" value="verify" />
       <fieldset>
         <legend i18n:msg="site_title">Login using Open ID</legend>

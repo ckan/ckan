@@ -3,6 +3,7 @@ import re
 import os
 from hashlib import sha1
 from sqlalchemy.sql.expression import or_
+from sqlalchemy.orm import synonym
 
 from meta import *
 from core import DomainObject
@@ -73,6 +74,8 @@ class User(DomainObject):
         :return: Whether the password is valid.
         :rtype: bool
         """
+        if not password or not self.password: 
+            return False
         if isinstance(password, unicode):
             password_8bit = password.encode('ascii', 'ignore')
         else:
@@ -81,12 +84,23 @@ class User(DomainObject):
         return self.password[40:] == hashed_pass.hexdigest()
 
     password = property(_get_password, _set_password)
-        
+    
+    @classmethod
+    def check_name_available(cls, name):
+        if not name \
+           or not len(name.strip()) \
+           or not cls.VALID_NAME.match(name):
+           return False
+        return cls.by_name(name)==None
+
     def as_dict(self):
         _dict = DomainObject.as_dict(self)
         del _dict['password']
         return _dict
 
 mapper(User, user_table,
+    properties = {
+        'password': synonym('_password', map_column=True)
+    },
     order_by=user_table.c.name)
 
