@@ -39,8 +39,6 @@ setup(
         # (not sure we need this except in tests but ...)
         'WebOb',
         'FormAlchemy>=1.3.4',
-        'carrot>=0.10.5',
-        'blinker>=1.0',
         ## required for harvesting
         ## TODO: this could be removed if harvesting moved to worker
         'lxml',
