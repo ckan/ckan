@@ -22,6 +22,7 @@ class TestRevisionController(TestController):
             rev.author = "Test Revision %s" % i
             model.repo.commit()
 
+    @search_related
     def test_link_major_navigation(self):
         offset = url_for(controller='home')
         res = self.app.get(offset)
