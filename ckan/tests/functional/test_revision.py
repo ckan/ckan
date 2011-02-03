@@ -1,4 +1,4 @@
-from ckan.tests import *
+from ckan.tests import search_related, TestController, CreateTestData, url_for
 import ckan.model as model
 
 # TODO: purge revisions after creating them
