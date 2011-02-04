@@ -11,7 +11,7 @@ class TestHomeController(TestController):
         
     @classmethod
     def teardown_class(self):
-        model.repo.clean_db()
+        model.repo.rebuild_db()
 
     @search_related
     def test_home_page(self):

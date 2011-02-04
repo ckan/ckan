@@ -9,7 +9,7 @@ class TestUser:
 
     @classmethod
     def teardown_class(self):
-        model.repo.clean_db()
+        model.repo.rebuild_db()
         
     def test_2_basic(self):
         user = model.User()

@@ -157,7 +157,7 @@ class TimedRevision(TestController):
         
     @classmethod
     def teardown_class(self):
-        model.repo.clean_db()
+        model.repo.rebuild_db()
 
     @classmethod
     def _create_old_objects(self, num_packages, date, object_class):
@@ -199,7 +199,7 @@ class TestRateStatsSimple(TimedRevision):
 
     @classmethod
     def teardown_class(self):
-        model.repo.clean_db()
+        model.repo.rebuild_db()
 
     def test_get_new_packages(self):
         new_pkgs = RevisionStats().get_new_packages()
@@ -266,7 +266,7 @@ class TestRateStats(TimedRevision):
 
     @classmethod
     def teardown_class(self):
-        model.repo.clean_db()
+        model.repo.rebuild_db()
 
     def test_get_new_packages_by_week(self):
         pkgs_by_week = RevisionStats().get_by_week('new_packages')

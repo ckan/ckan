@@ -26,7 +26,7 @@ class TestPages:
 
     @classmethod
     def teardown_class(cls):
-        model.repo.clean_db()
+        model.repo.rebuild_db()
 
     def test_01_package_page(self):
         query = model.Session.query(model.Package)
@@ -99,7 +99,7 @@ class TestTooFewToPage:
 
     @classmethod
     def teardown_class(cls):
-        model.repo.clean_db()
+        model.repo.rebuild_db()
 
     def test_01_package_page(self):
         query = model.Session.query(model.Package)

@@ -35,7 +35,7 @@ class TestPackageResource:
             pkg.purge()
         model.repo.commit_and_remove()
         # XXX do we need above?
-        model.repo.clean_db()
+        model.repo.rebuild_db()
         
     def test_01_create_package_resources(self):
         pkg = model.Package.by_name(self.pkgname)
@@ -155,7 +155,7 @@ class TestResourceEdit:
     @classmethod
     def teardown(self):
         model.Session.remove()
-        model.repo.clean_db()
+        model.repo.rebuild_db()
 
 
     def test_1_update_resources_no_ids(self):

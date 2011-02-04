@@ -86,6 +86,13 @@ class Repository(vdm.sqlalchemy.Repository):
         version = mig.version(self.migrate_repository)
         return version
 
+    def rebuild_db(self):
+        '''Clean and init the db'''
+        self.clean_db
+        self.session.remove()
+        self.init_db()
+        self.session.flush()
+        
     def clean_db(self):
         if asbool(config.get('faster_db_test_hacks')):
             self.delete_all()

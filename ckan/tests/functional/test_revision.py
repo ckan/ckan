@@ -14,7 +14,7 @@ class TestRevisionController(TestController):
 
     @classmethod
     def teardown_class(self):
-        model.repo.clean_db()
+        model.repo.rebuild_db()
 
     def create_40_revisions(self):
         for i in range(0,40):

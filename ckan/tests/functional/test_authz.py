@@ -112,7 +112,7 @@ class TestUsage(TestController):
     @classmethod
     def teardown_class(self):
         model.Session.remove()
-        model.repo.clean_db()
+        model.repo.rebuild_db()
         model.Session.remove()
 
     def _do_test_wui(self, action, user, mode, entity='package'):
@@ -329,5 +329,5 @@ class TestLockedDownUsage(TestUsage):
     
     @classmethod
     def teardown_class(self):
-        model.repo.clean_db()
+        model.repo.rebuild_db()
         model.Session.remove()

@@ -112,9 +112,6 @@ class ModelMethods(BaseCase):
     def delete_common_fixtures(self):
         CreateTestData.delete()
 
-    def dropall(self):
-        model.repo.clean_db()
-
     def rebuild(self):
         model.repo.rebuild_db()
         self.remove()
