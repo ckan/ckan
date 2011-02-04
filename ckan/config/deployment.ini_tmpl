@@ -120,7 +120,13 @@ package_form = standard
 ckan.build_search_index_synchronously = true
 
 ## Title of site (using in several places including templates and <title> tag
-#ckan.site_title = CKAN
+ckan.site_title = CKAN
+
+## Logo image to use (replaces site_title string on front page if defined)
+ckan.site_logo = http://assets.okfn.org/p/ckan/img/ckan_logo_largetext.png
+
+## Site tagline / description (used on front page)
+ckan.site_description = 
 
 ## Used in creating some absolute urls (such as rss feeds)
 ckan.site_url = http://www.ckan.net

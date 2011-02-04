@@ -38,9 +38,8 @@
         var ckan_user = $.cookie("ckan_display_name");
         if (ckan_user) {
             ckan_user = eval(ckan_user); // get rid of spurious quotes
-            $("#ckan_user_name")[0].innerHTML = ckan_user;
-            $(".ckan_logged_out").hide();
-            $(".ckan_logged_in").show();
+            $(".ckan-logged-out").hide();
+            $(".ckan-logged-in").show();
         }
     });
   </script>
@@ -65,17 +64,16 @@
           </py:if>
         </a>
       </h1>
-      <div id="site-description">${getattr(g, 'site_description', '')}</div>
+      <div id="site-description">${g.site_description}</div>
     </div> <!-- /branding -->
 
     <div id="top-bar">
       <div id="top-bar-login">
-        <span class="ckan_logged_in" style="display: none;">
-                Logged in as <strong>${h.icon('user')} <span id="ckan_user_name">username</span></strong>
-                &middot; <a href="${h.url_for(controller='user',action=None,id=None)}">My account</a>
+        <span class="ckan-logged-in" style="display: none;">
+          <a href="${h.url_for(controller='user',action=None,id=None)}">${h.icon('user')} My account</a>
           &middot; <a href="${h.url_for('/user/logout')}">Logout</a>
         </span>
-        <span class="ckan_logged_out">
+        <span class="ckan-logged-out">
                 <a href="${h.url_for(controller='user',action='login', id=None)}">Login</a> &middot;
                 <a href="${h.url_for(controller='user',action='register', id=None)}">Register</a>
         </span>
