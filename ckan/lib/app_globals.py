@@ -18,6 +18,7 @@ class Globals(object):
         self.site_title = config.get('ckan.site_title', '')
         self.site_logo = config.get('ckan.site_logo', '')
         self.site_url = config.get('ckan.site_url', '')
+        self.site_description = config.get('ckan.site_description', '')
         
         self.facets = config.get('search.facets', 'groups tags res_format license').split()
         
