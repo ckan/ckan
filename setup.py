@@ -62,6 +62,9 @@ setup(
             ('public/**', 'ignore', None),
             ]},
     entry_points="""
+    [nose.plugins.0.10]
+    main = ckan.tests.ckan_nose_plugin:CkanNose
+
     [paste.app_factory]
     main = ckan.config.middleware:make_app
 

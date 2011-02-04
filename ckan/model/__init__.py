@@ -48,7 +48,7 @@ class Repository(vdm.sqlalchemy.Repository):
     def init_db(self):
         # sqlite database needs to be recreated each time as the
         # memory database is lost.
-        if not self.inited or not asbool(config.get('faster_db_test_hacks')):
+        if not self.inited or self.metadata.bind.name == 'sqlite':
             # this creates the tables, which isn't required inbetween tests
             # that have simply called rebuild_db.
             super(Repository, self).init_db()

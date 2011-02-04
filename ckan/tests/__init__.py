@@ -26,6 +26,7 @@ from routes import url_for
 
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib import search
+import ckan.model as model
 
 __all__ = ['url_for',
            'TestController',
@@ -41,30 +42,31 @@ __all__ = ['url_for',
 here_dir = os.path.dirname(os.path.abspath(__file__))
 conf_dir = os.path.dirname(os.path.dirname(here_dir))
 
-sys.path.insert(0, conf_dir)
-pkg_resources.working_set.add_entry(conf_dir)
-pkg_resources.require('Paste')
-pkg_resources.require('PasteScript')
+def setup_tests(config_path = None):
 
-def config_abspath(file_path):
-    if os.path.isabs(file_path):
-        return file_path
-    return os.path.join(conf_dir, file_path)
+    if not config_path:
+        sys.path.insert(0, conf_dir)
+        pkg_resources.working_set.add_entry(conf_dir)
+        pkg_resources.require('Paste')
+        pkg_resources.require('PasteScript')
 
-config_path = config_abspath('test.ini')
+        def config_abspath(file_path):
+            if os.path.isabs(file_path):
+                return file_path
+            return os.path.join(conf_dir, file_path)
 
-cmd = paste.script.appinstall.SetupCommand('setup-app')
-cmd.run([config_path])
+        config_path = config_abspath('test.ini')
 
-import ckan.model as model
-model.repo.init_db()
 
-# make sure that the database is dropped and recreated first
-# so that any schema changes will be made.
-model.repo.metadata.drop_all(bind=model.repo.metadata.bind)
-model.repo.init_db()
-# tell repo it does not need to drop and create any more
-model.repo.inited = True
+    model.repo.clean_db()
+    cmd = paste.script.appinstall.SetupCommand('setup-app')
+    cmd.run([config_path])
+
+    # make sure that the database is dropped and recreated first
+    # so that any schema changes will be made.
+    #model.repo.init_db()
+    # tell repo it does not need to drop and create any more
+    model.repo.inited = True
 
 
 class BaseCase(object):
