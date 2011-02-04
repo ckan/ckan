@@ -15,7 +15,7 @@
     </li>
 
     <li class="widget-container widget_text">
-        <h4>Tags</h4>
+        <h3>Tags</h3>
         ${tag_list(c.pkg.tags)}
         <p class="widget_action">
             ${h.subnav_link(c, 'Add a new Tag', controller='package', action='edit', id=c.pkg.name)}
@@ -23,7 +23,7 @@
     </li>
 
     <li class="widget-container widget_text">
-        <h4>Groups</h4>
+        <h3>Groups</h3>
         <py:if test="c.pkg.groups">        
             <ul>
               <li py:for="group in c.pkg.groups">
@@ -32,7 +32,7 @@
             </ul>
         </py:if>
         <py:if test="not c.pkg.groups">
-             Groups are collecitons of packages maintained by users of ${g.site_title}. This package has not been added to any groups yet.
+             Groups are collections of packages maintained by users of ${g.site_title}. This package has not been added to any groups yet.
         </py:if>
         <p class="widget_action">
             ${h.subnav_link(c, 'Add to a Group', controller='package', action='edit', id=c.pkg.name)}        
@@ -56,53 +56,39 @@
     </py:if>
     
     <li class="widget-container widget_text">
-      <h2>Openness:
+    <py:if test="c.pkg.isopen() and c.pkg.resources">
+      <h3>
+        This Package is Open
+      </h3>
+      <p py:if="c.pkg.license_id">
+        License:
         <py:choose test="">
-        <span py:when="c.pkg.isopen() and c.pkg.resources" class="okd">
-          OPEN
-        </span>
-        <span py:otherwise="">
-          NOT OPEN
-        </span>
+          <strong py:when="c.pkg.license and c.pkg.license.url"><br /><a href="${c.pkg.license.url}">${c.pkg.license.title}</a></strong>
+          <strong py:when="c.pkg.license"><br />${c.pkg.license.title}</strong>
+          <strong py:when="c.pkg.license_id"><br />${c.pkg.license_id}</strong>
         </py:choose>
-      </h2>
-      <py:choose test="">
-        <p py:when="c.pkg.license_id">
-          This package is licensed with
-          <py:choose test="">
-            <strong py:when="c.pkg.license and c.pkg.license.url"><br /><a href="${c.pkg.license.url}">${c.pkg.license.title}</a></strong>
-            <strong py:when="c.pkg.license"><br />${c.pkg.license.title}</strong>
-            <strong py:when="c.pkg.license_id"><br />${c.pkg.license_id}</strong>
-          </py:choose>
-        </p>
-        <p py:otherwise="">
-          License not given
-        </p>
-      </py:choose>
+      </p>
+      <p class="okd">
+        <a
+          href="http://www.opendefinition.org/okd/"
+          title="This package satisfies the Open Knowledge Definition.">
+          <img src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" /></a>
+        <a
+          href="http://www.opendefinition.org/okd/"
+          title="This package satisfies the Open Knowledge Definition.">
+          <img src="http://assets.okfn.org/images/ok_buttons/oc_80x15_blue.png" alt="[Open Content]" /></a>
+      </p>
+    </py:if>
 
-      <py:choose>
-        <p py:when="c.pkg.isopen() and c.pkg.resources" class="okd">
-          <a
-            href="http://www.opendefinition.org/okd/"
-            title="This package satisfies the Open Knowledge Definition.">
-            <img src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" /></a>
-          <a
-            href="http://www.opendefinition.org/okd/"
-            title="This package satisfies the Open Knowledge Definition.">
-            <img src="http://assets.okfn.org/images/ok_buttons/oc_80x15_blue.png" alt="[Open Content]" /></a>
-        </p>
-      <div py:otherwise="">
-      <h5>Help Make This Package Open!</h5>
-      <p i18n:msg="">This package is <strong>not open</strong> as it is
-      <strong>not openly licensed</strong> or is
-      <strong>missing downloadable resources</strong>. Help
-      make it open by 
-        <a href="http://www.isitopendata.org/enquiry/start/?ckan_package=${c.pkg.name}">starting an enquiry</a>
-        using the
-        <a href="http://www.isitopendata.org/">Is It Open
-          Data service</a>.</p>
-      </div>
-      </py:choose>
+    <py:if test="not(c.pkg.isopen() and c.pkg.resources)">
+      <h3 i18n:msg="">This package is Not Open</h3> 
+      
+      <p>Either because it is not openly licensed or is missing
+      downloadable resources.</p>
+      <p class="widget_action">
+        <a href="http://isitopendata.org/enquiry/start/?ckan_package=${c.pkg.name}">Start an enquiry on IsItOpenData &raquo;</a>
+      </p>
+    </py:if>
     </li>
   </py:match>
 
