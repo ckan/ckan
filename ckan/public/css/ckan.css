@@ -109,6 +109,7 @@ a:hover {
   display: block;
   border: none;
   margin: 0;
+  max-height: 60px;
 }
 
 #site-description {
