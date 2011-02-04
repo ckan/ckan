@@ -102,7 +102,6 @@ class CreateTestData(cli.CkanCommand):
         assert isinstance(extra_group_names, (list, tuple))
         import ckan.model as model
         model.Session.remove()
-        model.repo.init_db(conditional=True)
         new_user_names = extra_user_names
         new_group_names = set()
         
@@ -288,8 +287,6 @@ class CreateTestData(cli.CkanCommand):
     def create(self, commit_changesets=False):
         import ckan.model as model
         model.Session.remove()
-        # if a user doesn't exist, the repo needs init
-        model.repo.init_db(conditional=True)
         self.create_user()
         rev = model.repo.new_revision()
         # same name as user we create below
