@@ -110,6 +110,10 @@ class UserObjectRole(DomainObject):
     name = None
     protected_object = None
 
+    def __repr__(self):
+        return '<%s user="%s" role="%s" context="%s">' % \
+               (self.__class__.__name__, self.user.name, self.role, self.context)
+
     @classmethod
     def get_object_role_class(self, domain_obj):
         protected_object = protected_objects.get(domain_obj.__class__, None)
@@ -265,13 +269,13 @@ def setup_user_roles(domain_object, visitor_roles, logged_in_roles, admins=[]):
     assert type(admins) == type([])
     admin_roles = [Role.ADMIN]
     visitor = User.by_name(PSEUDO_USER__VISITOR)
-    if visitor:
-        for role in visitor_roles:
-            add_user_to_role(visitor, role, domain_object)
+    assert visitor
+    for role in visitor_roles:
+        add_user_to_role(visitor, role, domain_object)
     logged_in = User.by_name(PSEUDO_USER__LOGGED_IN)
-    if logged_in:
-        for role in logged_in_roles:
-            add_user_to_role(logged_in, role, domain_object)
+    assert logged_in
+    for role in logged_in_roles:
+        add_user_to_role(logged_in, role, domain_object)
     for admin in admins:
         # not sure if admin would reasonably by None
         if admin is not None:

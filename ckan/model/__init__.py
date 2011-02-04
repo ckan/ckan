@@ -62,6 +62,7 @@ class Repository(vdm.sqlalchemy.Repository):
             logged_in = User(name=PSEUDO_USER__LOGGED_IN)
             Session.add(visitor)
             Session.add(logged_in)
+        Session.flush() # so that the users objects can be used next
         validate_authorization_setup()
         if Session.query(Revision).count() == 0:
             rev = Revision()

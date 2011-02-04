@@ -293,7 +293,7 @@ class BaseRestController(BaseApiController):
                     'html': d['content'].replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;\n'),
                     'title': d['id'],
                 }
-                response_data = """
+                response_data = '''
                 <html>
                 <head>
                 <title>Harvested Document %(title)s</title>
@@ -303,7 +303,7 @@ class BaseRestController(BaseApiController):
                 <pre style="background: #ffc">%(html)s</pre>
                 </body>
                 </html>
-                """%content
+                ''' % content
                 response.headers['Content-Type'] = 'text/html'
                 response.status_int = 200
                 response.charset = 'utf-8'
