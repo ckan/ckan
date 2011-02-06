@@ -1,5 +1,6 @@
 from nose.plugins import Plugin
 from inspect import isclass
+import os
 
 
 class CkanNose(Plugin):
@@ -20,7 +21,9 @@ class CkanNose(Plugin):
 
     def configure(self, options, config):
         self.options = options
-        self.enabled = True
+        # try and make sure plugin only runs for ckan tests 
+        if options.ckan_ini or 'ckan' in os.getcwd().split("/"):
+            self.enabled = True
 
     def begin(self):
         from ckan.tests import setup_tests
