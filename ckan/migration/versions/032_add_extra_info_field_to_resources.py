@@ -6,7 +6,7 @@ import migrate.changeset
 import uuid
 
     
-def upgrade():
+def upgrade(migrate_engine):
     metadata = MetaData(migrate_engine)
     user_sql = 'ALTER TABLE package_resource ADD COLUMN extra_info text'
     migrate_engine.execute(user_sql)
