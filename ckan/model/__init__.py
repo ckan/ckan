@@ -1,7 +1,6 @@
 from pylons import config
 from sqlalchemy import MetaData, __version__ as sqav
 from sqlalchemy.schema import Index
-from paste.deploy.converters import asbool
 
 import meta
 from domain_object import DomainObjectOperation

@@ -21,16 +21,21 @@ class TestSearch(object):
                  {'url':self.ab,
                   'description':'This is site ab.',
                   'format':'Excel spreadsheet',
-                  'hash':'abc-123'},
+                  'hash':'abc-123',
+                  'alt_url': 'alt1',
+                  'size': '100'},
                  {'url':self.cd,
                   'description':'This is site cd.',
                   'format':'Office spreadsheet',
-                  'hash':'qwe-456'},
+                  'hash':'qwe-456',
+                  'alt_url':'alt2',
+                  'size':'200'},
                  ]             
              },
             {'name':'pkg2',
              'resources':[
                  {'url':self.cd,
+                  'alt_url': 'alt1',
                   'description':'This is site cd.'},
                  {'url':self.ef,
                   'description':'This is site ef.'},
@@ -161,3 +166,14 @@ class TestSearch(object):
         resources = result['results']
         assert len(resources) == 2, resources
         assert resources == all_resources[4:6]
+
+    def test_14_extra_info(self):
+
+        fields = {'alt_url':'alt1'}
+        result = self.backend.query_for(model.PackageResource).run(fields=fields)
+        assert result['count'] == 2, result
+
+        fields = {'alt_url':'alt2'}
+        result = self.backend.query_for(model.PackageResource).run(fields=fields)
+        assert result['count'] == 1, result
+
