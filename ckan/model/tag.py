@@ -53,8 +53,11 @@ class Tag(DomainObject):
 
     @property
     def packages_ordered(self):
+        ## make sure packages are active
+        packages = [package for package in self.packages 
+                    if package.state == State.ACTIVE]
         ourcmp = lambda pkg1, pkg2: cmp(pkg1.name, pkg2.name)
-        return sorted(self.packages, cmp=ourcmp)
+        return sorted(packages, cmp=ourcmp)
 
     def __repr__(self):
         return '<Tag %s>' % self.name
