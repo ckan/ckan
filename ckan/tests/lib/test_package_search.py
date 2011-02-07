@@ -144,10 +144,6 @@ class TestSearch(TestController):
         result = self.backend.query_for(model.Package).run(query=u'tags:country-sweden tags:somethingrandom')
         assert self._pkg_names(result) == '', self._pkg_names(result)
 
-    def test_tags_token_blank(self):
-        result = self.backend.query_for(model.Package).run(query=u'tags: wildlife')
-        assert self._pkg_names(result) == 'us-gov-images', self._pkg_names(result)
-
     def test_tag_basic(self):
         result = self.backend.query_for('tag').run(query=u'gov')
         assert result['count'] == 2, result

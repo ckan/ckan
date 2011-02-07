@@ -113,34 +113,37 @@ class PackageSqlSearchQuery(SqlSearchQuery):
         q = authz.Authorizer().authorized_query(self.options.get('username'), model.Package)
         make_like = lambda x,y: x.ilike(u'%' + unicode(y) + u'%')
         q = q.filter(model.package_search_table.c.package_id==model.Package.id)
-
-        # Full search by general terms (and field specific terms but not by field)
-        terms_set = set(self.query.terms)
-        terms_set.update(self.query.fields.values())
-        all_terms = u' '.join(terms_set)
         
-        q = q.filter(u'package_search.search_vector @@ plainto_tsquery(:terms)')
-        q = q.params(terms=all_terms)
-        
-        # Filter by field specific terms
-        for field, terms in self.query.fields.items():
-            if field == 'tags':
-                q = self._filter_by_tag(q, terms)
-                continue
-            elif field == 'groups':
-                q = self._filter_by_group(q, terms)
-                continue
+        all_terms = ''
+        if self.query.query != '*:*': 
+            # Full search by general terms (and field specific terms but not by field)
+            terms_set = set(self.query.terms)
+            terms_set.update(self.query.fields.values())
+            all_terms = u' '.join(map(unicode, terms_set))
             
-            if isinstance(terms, basestring):
-                terms = terms.split()
+            if len(all_terms.strip()): 
+                q = q.filter(u'package_search.search_vector @@ plainto_tsquery(:terms)')
+                q = q.params(terms=all_terms)
+            
+            # Filter by field specific terms
+            for field, terms in self.query.fields.items():
+                if field == 'tags':
+                    q = self._filter_by_tag(q, terms)
+                    continue
+                elif field == 'groups':
+                    q = self._filter_by_group(q, terms)
+                    continue
                 
-            if hasattr(model.Package, field):
-                model_attr = getattr(model.Package, field)
-                for term in terms:
-                    q = q.filter(make_like(model_attr, term))
-            else:
-                q = self._filter_by_extra(q, field, terms)
-        
+                if isinstance(terms, basestring):
+                    terms = terms.split()
+                   
+                if hasattr(model.Package, field):
+                    model_attr = getattr(model.Package, field)
+                    for term in terms:
+                        q = q.filter(make_like(model_attr, term))
+                else:
+                    q = self._filter_by_extra(q, field, terms)
+            
         # Filter for options
         if self.options.filter_by_downloadable:
             q = q.join('package_resources_all', aliased=True)
