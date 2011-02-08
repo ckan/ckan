@@ -6,26 +6,27 @@ import os
 class CkanNose(Plugin):
 
     def startContext(self, ctx):
-
-        #import needs to be here or setup happens too early
+        # import needs to be here or setup happens too early
         import ckan.model as model
-        #this is run at the start of every class
+
+        if self.is_first_test:
+            model.repo.clean_db()
+            self.is_first_test = False
+
+        # init_db is run at the start of every class because
+        # when you use an in-memory sqlite db, it appears that
+        # the db is destroyed after every test when you Session.Remove().
         if isclass(ctx):
             model.repo.init_db()
 
     def options(self, parser, env):
         parser.add_option(
-                        "--ckan_ini", action="store", dest="ckan_ini",
-                        default = None,
-                        help="specify the ckan ini file you want to use")
+            "--ckan",
+            action='store_true',
+            dest="is_ckan",
+            help="Always set this when testing CKAN.")
 
     def configure(self, options, config):
-        self.options = options
-        # try and make sure plugin only runs for ckan tests 
-        if options.ckan_ini or 'ckan' in os.getcwd().split("/"):
+        if options.is_ckan:
             self.enabled = True
-
-    def begin(self):
-        from ckan.tests import setup_tests
-        setup_tests(self.options.ckan_ini)
-
+            self.is_first_test = True
