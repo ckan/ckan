@@ -14,7 +14,7 @@ class TestWsgiCkanClient(TestController):
         
     def teardown(self):
         CreateTestData.delete()
-        model.repo.clean_db()
+        model.repo.rebuild_db()
 
     def test_get_package_registry(self):
         register = self.client.package_register_get()

@@ -36,7 +36,7 @@ class TestPackageEditAuthz(TestController):
 
     @classmethod
     def teardown_class(self):
-        model.repo.clean_db()
+        model.repo.rebuild_db()
 
     def test_0_nonadmin_cannot_edit_authz(self):
         offset = url_for(controller='package', action='authz', id=self.pkgname)

@@ -21,7 +21,7 @@ class ModelApiTestCase(BaseModelApiTestCase):
         self.job3 = None
 
     def teardown(self):
-        model.repo.clean_db()
+        model.repo.rebuild_db()
 
     def test_02_get_tag_register_ok(self):
         # Test Packages Register Get 200.

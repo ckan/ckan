@@ -22,7 +22,7 @@ class HarvesterTestCase(TestCase):
         self.gemini_example = GeminiExamples()
 
     def teardown(self):
-        model.repo.clean_db()
+        model.repo.rebuild_db()
 
 
 class TestHarvestSource(HarvesterTestCase):

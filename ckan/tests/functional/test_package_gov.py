@@ -57,7 +57,7 @@ class TestEdit(TestPackageBase):
     @classmethod
     def teardown_class(self):
         model.Session.remove()
-        model.repo.clean_db()
+        model.repo.rebuild_db()
 
     def test_edit_bad_name(self):
         init_data = [{'name':'edittest',
@@ -409,7 +409,7 @@ class TestNew(TestPackageBase):
             pkg.purge()
         model.Session.commit()
         model.Session.remove()
-        model.repo.clean_db()
+        model.repo.rebuild_db()
         
     def test_new_simple(self):
         # new package

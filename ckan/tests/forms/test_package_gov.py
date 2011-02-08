@@ -23,7 +23,7 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
     @classmethod
     def teardown_class(self):
         model.Session.remove()
-        model.repo.clean_db()
+        model.repo.rebuild_db()
        
     def test_0_field_names(self):
         fs = get_fieldset()

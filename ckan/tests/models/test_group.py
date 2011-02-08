@@ -76,7 +76,7 @@ class TestGroupRevisions:
         #grp = model.Group.by_name(self.name)
         #grp.purge()
         #model.repo.commit_and_remove()
-        model.repo.clean_db()
+        model.repo.rebuild_db()
 
     def test_1_all_revisions(self):
         all_rev = self.grp.all_revisions

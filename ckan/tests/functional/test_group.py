@@ -40,7 +40,7 @@ class TestGroup(FunctionalTestCase):
 
     @classmethod
     def teardown_class(self):
-        model.repo.clean_db()
+        model.repo.rebuild_db()
 
     @search_related
     def test_mainmenu(self):
@@ -334,7 +334,7 @@ class TestRevisions(FunctionalTestCase):
     @classmethod
     def teardown_class(self):
         self.purge_packages([self.name])
-        model.repo.clean_db()
+        model.repo.rebuild_db()
 
     def test_0_read_history(self):
         offset = url_for(controller='group', action='history', id=self.grp.name)

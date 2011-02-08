@@ -25,7 +25,7 @@ class TestAuthorizationGroup(FunctionalTestCase):
     @classmethod
     def teardown_class(self):
         model.Session.remove()
-        model.repo.clean_db()
+        model.repo.rebuild_db()
         model.Session.remove()
 
     @search_related

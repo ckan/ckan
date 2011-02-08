@@ -13,7 +13,7 @@ class TestPreview(PylonsTestCase):
 
     @classmethod
     def teardown_class(self):
-        model.repo.clean_db()
+        model.repo.rebuild_db()
 
     params = {
         u'name':u'name_after',

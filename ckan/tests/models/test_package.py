@@ -26,7 +26,7 @@ class TestPackage:
         pkg1 = model.Session.query(model.Package).filter_by(name=self.name).one()
         pkg1.purge()
         model.Session.commit()
-        model.repo.clean_db()
+        model.repo.rebuild_db()
         model.Session.remove()
 
     def test_basic_revisioning(self):
@@ -127,7 +127,7 @@ class TestPackageWithTags:
         t3 = model.Tag.by_name(self.tagname3)
         t3.purge()
         model.Session.commit()
-        model.repo.clean_db()
+        model.repo.rebuild_db()
 
     def test_1(self):
         pkg = model.Package.by_name(self.pkgname)
@@ -257,7 +257,7 @@ class TestPackageRevisions:
         pkg1 = model.Package.by_name(self.name)
         pkg1.purge()
         model.repo.commit_and_remove()
-        model.repo.clean_db()
+        model.repo.rebuild_db()
 
     def test_1_all_revisions(self):
         all_rev = self.pkg1.all_revisions
@@ -351,7 +351,7 @@ class TestRelatedRevisions:
         pkg1 = model.Package.by_name(self.name)
         pkg1.purge()
         model.repo.commit_and_remove()
-        model.repo.clean_db()
+        model.repo.rebuild_db()
 
     def test_1_all_revisions(self):
         assert len(self.pkg1.all_revisions) == 3, self.pkg1.all_revisions

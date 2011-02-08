@@ -10,7 +10,7 @@ class TestRevisionExtraAttributes:
     @classmethod
     def teardown_class(self):
         CreateTestData.delete()
-        model.repo.clean_db()
+        model.repo.rebuild_db()
 
     def test_revision_packages(self):
         rev = model.repo.youngest_revision()
