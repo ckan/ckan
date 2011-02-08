@@ -10,7 +10,8 @@ import os
 from paste.deploy.converters import asbool
 from pylons import c, cache, config, g, request, response, session
 from pylons.controllers import WSGIController
-from pylons.controllers.util import abort, etag_cache, redirect_to, redirect
+from pylons.controllers.util import abort as _abort
+from pylons.controllers.util import etag_cache, redirect_to, redirect
 from pylons.decorators import jsonify, validate
 from pylons.i18n import _, ungettext, N_, gettext
 from pylons.templating import cached_template, pylons_globals
@@ -34,6 +35,13 @@ APIKEY_HEADER_NAME_DEFAULT = 'X-CKAN-API-Key'
 
 ALLOWED_FIELDSET_PARAMS = ['package_form', 'restrict']
 
+def abort(status_code=None, detail='', headers=None, comment=None):
+    if detail:
+        h.flash_error(detail)
+    return _abort(status_code=status_code, 
+                  detail=detail, 
+                  headers=headers, 
+                  comment=comment)
 
 def render(template_name, extra_vars=None, cache_key=None, cache_type=None, 
            cache_expire=None, method='xhtml', loader_class=MarkupTemplate):
