@@ -45,10 +45,12 @@ class Repository(vdm.sqlalchemy.Repository):
 
     inited = False
 
-    def init_db(self, conditional=False):
-        # sqlite database needs to be recreated each time as the memory database
-        # is lost.
+    def init_db(self):
+        # sqlite database needs to be recreated each time as the
+        # memory database is lost.
         if not self.inited or self.metadata.bind.name == 'sqlite':
+            # this creates the tables, which isn't required inbetween tests
+            # that have simply called rebuild_db.
             super(Repository, self).init_db()
 
         self.session.rollback()
@@ -62,7 +64,7 @@ class Repository(vdm.sqlalchemy.Repository):
             logged_in = User(name=PSEUDO_USER__LOGGED_IN)
             Session.add(visitor)
             Session.add(logged_in)
-        Session.flush() # so that the users objects can be used next
+        Session.flush() # so that these objects can be used
         validate_authorization_setup()
         if Session.query(Revision).count() == 0:
             rev = Revision()
@@ -78,23 +80,29 @@ class Repository(vdm.sqlalchemy.Repository):
         # 2009-09-11 interesting all the tests will work if you run them after
         # doing paster db clean && paster db upgrade !
         # self.upgrade_db()
-        if not asbool(config.get('faster_db_test_hacks')):
+        if self.metadata.bind.name != 'sqlite':
             self.setup_migration_version_control(self.latest_migration_version())
-        self.create_indexes()
+            self.create_indexes()
 
     def latest_migration_version(self):
         import migrate.versioning.api as mig
         version = mig.version(self.migrate_repository)
         return version
 
-    def clean_db(self):
+    def rebuild_db(self):
+        '''Clean and init the db'''
         if asbool(config.get('faster_db_test_hacks')):
+            # just delete data, leaving tables - this is faster
             self.delete_all()
         else:
-            super(Repository, self).clean_db()
+            # delete tables and data
+            self.clean_db()
+        self.session.remove()
+        self.init_db()
         self.session.flush()
-
+        
     def delete_all(self):
+        '''Delete all data from all tables.'''
         self.session.remove()
         ## use raw connection for performance
         connection = self.session.connection()
@@ -105,7 +113,6 @@ class Repository(vdm.sqlalchemy.Repository):
         for table in tables:
             connection.execute('delete from "%s"' % table.name)
         self.session.commit()
-        self.add_initial_data()
 
     def setup_migration_version_control(self, version=None):
         import migrate.versioning.exceptions
@@ -118,8 +125,6 @@ class Repository(vdm.sqlalchemy.Repository):
             pass
 
     def create_indexes(self):
-        if asbool(config.get('faster_db_test_hacks')):
-            return
         assert meta.engine.name in ('postgres', 'postgresql'), \
             'Only postgresql engine supported (not %s).' % meta.engine.name
         import os
