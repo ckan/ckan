@@ -59,9 +59,9 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
         # Display error documents for 401, 403, 404 status codes (and
         # 500 when debug is disabled)
         if asbool(config['debug']):
-            app = StatusCodeRedirect(app)
+            app = StatusCodeRedirect(app, [400, 404])
         else:
-            app = StatusCodeRedirect(app, [400, 401, 403, 404, 500])
+            app = StatusCodeRedirect(app, [400, 404, 500])
     
     # Initialize repoze.who
     who_parser = WhoConfig(global_conf['here'])
