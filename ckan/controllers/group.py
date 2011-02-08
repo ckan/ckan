@@ -57,7 +57,7 @@ class GroupController(BaseController):
         
         auth_for_create = self.authorizer.am_authorized(c, model.Action.GROUP_CREATE, model.System())
         if not auth_for_create:
-            abort(401, str(gettext('Unauthorized to create a group')))
+            abort(401, gettext('Unauthorized to create a group'))
         
         is_admin = self.authorizer.is_sysadmin(c.user)
         fs = ckan.forms.get_group_fieldset(is_admin=is_admin)
