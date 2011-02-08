@@ -113,7 +113,6 @@ class Repository(vdm.sqlalchemy.Repository):
         for table in tables:
             connection.execute('delete from "%s"' % table.name)
         self.session.commit()
-        self.add_initial_data()
 
     def setup_migration_version_control(self, version=None):
         import migrate.versioning.exceptions

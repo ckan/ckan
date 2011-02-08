@@ -26,6 +26,7 @@ class HarvestingTestCase(BaseModelApiTestCase):
         self.job3 = None
 
     def teardown(self):
+        model.repo.init_db() # hack for in-memory sqlite
         super(HarvestingTestCase, self).teardown()
 
     def _create_harvest_source_fixture(self, **kwds):
