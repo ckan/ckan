@@ -136,7 +136,7 @@ class PackageController(BaseController):
         #is the user allowed to see this package?
         auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, c.pkg)
         if not auth_for_read:
-            abort(401, str(gettext('Unauthorized to read package %s') % id))
+            abort(401, gettext('Unauthorized to read package %s') % id)
         
         for item in self.extensions:
             item.read(c.pkg)
@@ -158,7 +158,7 @@ class PackageController(BaseController):
         #is the user allowed to see this package?
         auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, c.pkg)
         if not auth_for_read:
-            abort(401, str(gettext('Unauthorized to read package %s') % id))
+            abort(401, gettext('Unauthorized to read package %s') % id)
 
         for item in self.extensions:
             item.read(c.pkg)
@@ -236,7 +236,7 @@ class PackageController(BaseController):
         # Check access control for user to create a package.
         auth_for_create = self.authorizer.am_authorized(c, model.Action.PACKAGE_CREATE, model.System())
         if not auth_for_create:
-            abort(401, str(gettext('Unauthorized to create a package')))
+            abort(401, gettext('Unauthorized to create a package'))
         # Get the name of the package form.
         fs = self._get_package_fieldset(is_admin=is_admin)
         if 'save' in request.params or 'preview' in request.params:
@@ -308,7 +308,7 @@ class PackageController(BaseController):
         model.Session().autoflush = False
         am_authz = self.authorizer.am_authorized(c, model.Action.EDIT, pkg)
         if not am_authz:
-            abort(401, str(gettext('User %r not authorized to edit %s') % (c.user, id)))
+            abort(401, gettext('User %r not authorized to edit %s') % (c.user, id))
 
         auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, pkg)
         fs = self._get_package_fieldset(is_admin=auth_for_change_state)
@@ -403,7 +403,7 @@ class PackageController(BaseController):
 
         c.authz_editable = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, pkg)
         if not c.authz_editable:
-            abort(401, str(gettext('User %r not authorized to edit %s authorizations') % (c.user, id)))
+            abort(401, gettext('User %r not authorized to edit %s authorizations') % (c.user, id))
 
         if 'save' in request.params: # form posted
             # A dict needed for the params because request.params is a nested
