@@ -147,7 +147,7 @@ class Repository(vdm.sqlalchemy.Repository):
         '''
         import migrate.versioning.api as mig
         self.setup_migration_version_control()
-        mig.upgrade(self.metadata.bind.url, self.migrate_repository, version=version)
+        mig.upgrade(self.metadata.bind, self.migrate_repository, version=version)
         validate_authorization_setup()
 
 
