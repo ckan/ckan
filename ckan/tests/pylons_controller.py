@@ -23,7 +23,7 @@ class MockTranslator(object):
         return singular
 
     
-class PylonsTestCase(TestController): 
+class PylonsTestCase(object): 
     """A basic test case which allows access to pylons.c and pylons.request. 
     """ 
     def setup(self): 
