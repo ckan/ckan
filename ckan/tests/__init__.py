@@ -17,6 +17,8 @@ from nose.plugins.skip import SkipTest
 import time
 
 from pylons import config
+from pylons.test import pylonsapp
+from paste.script.appinstall import SetupCommand
 
 import pkg_resources
 import paste.fixture
@@ -42,6 +44,8 @@ __all__ = ['url_for',
 here_dir = os.path.dirname(os.path.abspath(__file__))
 conf_dir = os.path.dirname(os.path.dirname(here_dir))
 
+# Invoke websetup with the current config file
+SetupCommand('setup-app').run([config['__file__']])
 
 class BaseCase(object):
 
@@ -249,17 +253,12 @@ class TestCase(CommonFixtureMethods, ModelMethods, CheckMethods, BaseCase):
 
 
 class WsgiAppCase(BaseCase):
-    @property
-    def app(self):
-        # Note, this is a property not run on import, because the wrong
-        # config file is specified in config on import. The --with-pylons
-        # config file is passed into config only by the time tests are run.
-        if not hasattr(WsgiAppCase, '_app'):
-            
-            config_filename = os.path.basename(config['__file__'])
-            wsgiapp = loadapp('config:%s' % config_filename, relative_to=conf_dir)
-            WsgiAppCase._app = paste.fixture.TestApp(wsgiapp)
-        return WsgiAppCase._app
+    wsgiapp = pylonsapp
+    assert wsgiapp, 'You need to run nose with --with-pylons'
+    # Either that, or this file got imported somehow before the tests started
+    # running, meaning the pylonsapp wasn't setup yet (which is done in
+    # pylons.test.py:begin())
+    app = paste.fixture.TestApp(wsgiapp)
 
 
 def config_abspath(file_path):
