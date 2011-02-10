@@ -273,6 +273,7 @@ class CkanServerCase(BaseCase):
         cls._paster('db clean', config_path)
         cls._paster('db init', config_path)
         cls._paster('create-test-data', config_path)
+        cls._paster('search-index rebuild', config_path)
 
     @staticmethod
     def _start_ckan_server(config_file=None):
