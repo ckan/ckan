@@ -2,7 +2,6 @@ from sqlalchemy import *
 from migrate import *
 import uuid
 
-metadata = MetaData()
 
 map = {
     u'OSI Approved::Mozilla Public License 1.1 (MPL)': 'mozilla1.1', 
@@ -85,6 +84,7 @@ map = {
 }
 
 def upgrade(migrate_engine):
+    metadata = MetaData()
     metadata.bind = migrate_engine
     #print "Changing package license_ids to strings."
 

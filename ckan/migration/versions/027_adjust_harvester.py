@@ -2,9 +2,9 @@ from sqlalchemy import *
 from migrate import *
 import migrate.changeset
 
-metadata = MetaData()
 
 def upgrade(migrate_engine):
+    metadata = MetaData()
     metadata.bind = migrate_engine
 
     harvest_source_table = Table('harvest_source', metadata, autoload=True)

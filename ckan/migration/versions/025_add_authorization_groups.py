@@ -9,10 +9,10 @@ from sqlalchemy import types
 def make_uuid():
     return unicode(uuid.uuid4())
 
-metadata = MetaData()
 
 
 def upgrade(migrate_engine):
+    metadata = MetaData()
     metadata.bind = migrate_engine
 
     user_table = Table('user', metadata, autoload=True)

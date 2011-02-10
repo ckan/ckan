@@ -31,6 +31,8 @@ def make_uuid():
 ##        ('package_group', 'package_id'),
 
 def upgrade(migrate_engine):
+    global metadata
+    metadata = MetaData()
     metadata.bind = migrate_engine
     primary_table_name = 'package'
     foreign_tables = ['package_revision',

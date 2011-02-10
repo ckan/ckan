@@ -3,10 +3,10 @@ from migrate import *
 import migrate.changeset
 import vdm.sqlalchemy
 
-metadata = MetaData()
 
 
 def upgrade(migrate_engine):
+    metadata = MetaData()
     metadata.bind = migrate_engine
 
     package_table = Table('package', metadata, autoload=True)

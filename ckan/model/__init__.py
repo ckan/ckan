@@ -153,6 +153,10 @@ class Repository(vdm.sqlalchemy.Repository):
         self.setup_migration_version_control()
         mig.upgrade(self.metadata.bind, self.migrate_repository, version=version)
         self.add_initial_data()
+        
+        ##this prints the diffs in a readable format
+        ##import pprint
+        ##pprint.pprint(getDiffOfModelAgainstDatabase(self.metadata, self.metadata.bind).colDiffs)
 
 
 
