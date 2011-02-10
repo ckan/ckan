@@ -248,14 +248,26 @@ Default value:  ``CKAN``
 This sets the name of the site, as displayed in the CKAN web interface.
 
 
-site_logo
-----------
+site_description
+----------------
 
 Example::
 
- ckan.site_logo=http://myregistry/logo.png
+ ckan.site_description=
 
-Default value:  ``/images/ckan_logo_fullname_long.png`` (CKAN Logo)
+Default value:  (none)
+
+This is for a description, or tag line for the site, as displayed in the header of the CKAN web interface.
+
+
+site_logo
+---------
+
+Example::
+
+ ckan.site_logo=/images/ckan_logo_fullname_long.png
+
+Default value:  (none)
 
 This sets the logo used in the title bar.
 
@@ -267,9 +279,12 @@ Example::
 
  ckan.site_url=http://scotdata.ckan.net
 
-Default value:  ``http://www.ckan.net``
+Default value:  (none)
 
-The primary URL used by this site. 
+The primary URL used by this site. Uses::
+
+ * in the API to provide packages with links to themselves in the web UI.
+
 
 api_url
 --------
