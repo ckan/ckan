@@ -41,7 +41,7 @@ very roughly:
 All, the code is open-source and if you want to see the actual
 model definitions in code see here (probably start with core.py):
 
-<http://knowledgeforge.net/ckan/hg/file/tip/ckan/model/>
+<https://bitbucket.org/okfn/ckan/src/default/ckan/model/>
 
 One thing to note here is that all changes to package data are versioned in a
 wiki-like manner. This gives us a lot of flexibility in how we manage access to
@@ -49,5 +49,5 @@ the system (as well as providing features like change logging for free!).
 
 The rdfizing code can be found here:
 
-<http://knowledgeforge.net/ckan/hg/file/tip/ckan/lib/rdf.py>
+<https://bitbucket.org/okfn/ckan/src/default/ckan/lib/rdf.py>
 

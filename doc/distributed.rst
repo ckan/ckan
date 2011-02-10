@@ -2,7 +2,7 @@
 Distributed Revision Control for Data: Format and Protocol
 ==========================================================
 
-See also: http://knowledgeforge.net/ckan/trac/wiki/DistributingChanges
+See also: http://ckan.org/wiki/DistributingChanges
 
 Aim
 ===
@@ -28,7 +28,7 @@ many of the concepts and approach of these existing solutions.
 
 More on the analogies can be found on the wiki page which details the specific
 application of this protocol to CKAN:
-http://knowledgeforge.net/ckan/trac/wiki/DistributingChanges 
+http://ckan.org/wiki/DistributingChanges
 
 Further details of the distributed revision control systems for code can be
 found in the appendix below.
