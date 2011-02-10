@@ -28,6 +28,7 @@ from routes import url_for
 
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib import search
+from ckan.lib.helpers import _flash
 import ckan.model as model
 
 __all__ = ['url_for',
@@ -356,3 +357,6 @@ def regex_related(test):
     if not is_regex_supported():
         return make_decorator(test)(skip_test)
     return make_decorator(test)
+
+def clear_flash(res=None):
+    messages = _flash.pop_messages()

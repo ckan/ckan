@@ -5,7 +5,7 @@ from ckan.model import Role, Action
 import sqlalchemy as sa
 import ckan.model as model
 from ckan.model import authz as mauthz
-from ckan.tests import *
+from ckan.tests import TestController, TestSearchIndexer, url_for
 from ckan.lib.base import *
 import ckan.authz as authz
 from ckan.lib.helpers import json
@@ -134,8 +134,10 @@ class TestUsage(TestController):
         else:
             raise NotImplementedError
         res = self.app.get(offset, extra_environ={'REMOTE_USER': user.name.encode('utf8')}, expect_errors=True)
-        #print res
         is_ok = search_for in res and u'error' not in res and res.status in (200, 201) and not '0 packages found' in res
+        # clear flash messages - these might make the next page request
+        # look like it has an error
+        self.app.reset()
         return is_ok
 
     def _do_test_rest(self, action, user, mode, entity='package'):
