@@ -18,14 +18,14 @@ def _test_anna():
 
 class Test_0_Empty(TestMigrationBase):
     @classmethod
-    def setup_class(self):
-        self.paster('db clean')
-        self.paster('db upgrade')
-        self.paster('db init')
-        self.paster('create-test-data')
+    def setup_class(cls):
+        cls.paster('db clean')
+        cls.paster('db upgrade')
+        cls.paster('db init')
+        cls.paster('create-test-data')
 
     @classmethod
-    def teardown_class(self):
+    def teardown_class(cls):
         from ckan import model
         model.Session.close()
 
@@ -41,12 +41,12 @@ class Test_0_Empty(TestMigrationBase):
 
 class Test_1_BasicData(TestMigrationBase):
     @classmethod
-    def setup_class(self):
-        self.setup_db(os.path.join(TEST_DUMPS_PATH, 'test_data_15.pg_dump'))
-        self.paster('db upgrade')
+    def setup_class(cls):
+        cls.setup_db(os.path.join(TEST_DUMPS_PATH, 'test_data_15.pg_dump'))
+        cls.paster('db upgrade')
 
     @classmethod
-    def teardown_class(self):
+    def teardown_class(cls):
         from ckan import model
         model.Session.close()
 
@@ -80,10 +80,10 @@ class Test_1_BasicData(TestMigrationBase):
         
 class Test_2_RealData(TestMigrationBase):
     @classmethod
-    def setup_class(self):
-        self.paster('db clean')
-        self.setup_db()
-        self.paster('db upgrade')
+    def setup_class(cls):
+        cls.paster('db clean')
+        cls.setup_db()
+        cls.paster('db upgrade')
         # pass
 
     def test_ckan_net(self):

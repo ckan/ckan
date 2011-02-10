@@ -595,7 +595,7 @@ class Sequence(object):
 class Json(object):
     """Dumps and loads JSON strings into Python objects."""
 
-    def dumps(self, data):
+    def dumps(cls, data):
         try:
             json_str = json.dumps(data, indent=2)
         except Exception, inst:
@@ -605,7 +605,7 @@ class Json(object):
 
     dumps = classmethod(dumps)
 
-    def loads(self, json_str):
+    def loads(cls, json_str):
         try:
             data = json.loads(json_str)
         except Exception, inst:

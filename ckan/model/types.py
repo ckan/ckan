@@ -18,7 +18,7 @@ class UuidType(types.TypeDecorator):
         return UuidType(self.impl.length)
 
     @classmethod
-    def default(self):
+    def default(cls):
         # return uuid.uuid4()
         return unicode(uuid.uuid4())
 
