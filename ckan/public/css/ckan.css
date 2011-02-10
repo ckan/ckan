@@ -117,14 +117,14 @@ a:hover {
   float: left;
   clear: left;
   color: #000;
-  font-style: italic;
-  font-size: 15px;
+  font-style: normal;
+  font-size: 13px;
   letter-spacing: normal;
   text-transform: none;
-  margin: 0;
-  margin-top: -5px;
-  padding: 0 0 10px 0;
+  margin: -5px 0 10px 3px;
+  padding: 0;
   font-family: 'Lucida Grande', 'Lucida Sans Unicode', Lucida, Arial, Helvetica, sans-serif;
+  font-family: 'Helvetica Neue', Arial, Helvetica, 'Nimbus Sans L', sans-serif;
 }
 
 /* ===========================
