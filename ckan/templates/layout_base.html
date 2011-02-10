@@ -31,6 +31,7 @@
   <script type="text/javascript" src="${g.site_url}/language.js"></script>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
   <script src="http://assets.okfn.org/ext/jquery.cookie/jquery.cookie.min.js"></script>
+  <script src="http://assets.okfn.org/ext/jquery.placeholder/jquery.placeholder.js"></script>
   <script type="text/javascript" src="${g.site_url}/scripts/application.js"></script>
   
   <script type="text/javascript">
@@ -41,6 +42,7 @@
             $(".ckan-logged-out").hide();
             $(".ckan-logged-in").show();
         }
+        $('input[placeholder], textarea[placeholder]').placeholder();
     });
   </script>
   <py:if test="defined('optional_head')">
