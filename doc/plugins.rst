@@ -208,7 +208,7 @@ Here's a list of some of the more commonly used plugin interfaces:
     Pass configuration to plugins and extensions
 
 If you look in `ckan/plugins/interfaces.py
-<http://knowledgeforge.net/ckan/hg/file/tip/ckan/plugins/interfaces.py>`_ you
+<https://bitbucket.org/okfn/ckan/src/default/ckan/plugins/interfaces.py>`_ you
 will see the latest plugin interfaces. Alternativlly see the `Plugin API
 documentation`_ below.
 

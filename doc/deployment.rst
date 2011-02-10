@@ -50,7 +50,7 @@ your local machine. You need fabric and python-dev modules installed locally.
 If you don't have the ckan repo checked out locally then download the 
 fabfile.py using::
 
-  $ wget https://knowledgeforge.net/ckan/hg/raw-file/default/fabfile.py
+  $ wget https://bitbucket.org/okfn/ckan/raw/default/fabfile.py
 
 Now you can then do the deployment with something like::
 
@@ -111,11 +111,11 @@ Now you can then do the deployment with something like::
 
   For the most recent stable version use::
 
-  $ wget http://knowledgeforge.net/ckan/hg/raw-file/default/pip-requirements-metastable.txt
+  $ wget https://bitbucket.org/okfn/ckan/raw/default/pip-requirements-metastable.txt
 
   Or for the bleeding edge use::
 
-  $ wget http://knowledgeforge.net/ckan/hg/raw-file/default/pip-requirements.txt
+  $ wget https://bitbucket.org/okfn/ckan/raw/default/pip-requirements.txt
 
   And install::
 
