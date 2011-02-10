@@ -30,6 +30,6 @@ class CkanNose(Plugin):
             help='Always set this when testing CKAN.')
         
     def configure(self, options, config):
-        if options.is_ckan or options.ckan_config:
+        if options.is_ckan:
             self.enabled = True
             self.is_first_test = True
