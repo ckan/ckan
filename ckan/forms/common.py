@@ -456,7 +456,6 @@ class TagField(ConfiguredField):
 
         def _tag_links(self):
             tags = self.value
-            site_url = config.get('ckan.site_url', '')
             tag_links = [h.link_to(tagname, h.url_for(controller='tag', action='read', id=tagname)) for tagname in tags]
             return literal(' '.join(tag_links))
 
