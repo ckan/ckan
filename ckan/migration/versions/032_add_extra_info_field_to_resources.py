@@ -8,9 +8,9 @@ import uuid
     
 def upgrade(migrate_engine):
     metadata = MetaData(migrate_engine)
-    user_sql = 'ALTER TABLE package_resource ADD COLUMN extra_info text'
+    user_sql = 'ALTER TABLE package_resource ADD COLUMN extras text'
     migrate_engine.execute(user_sql)
-    user_sql = 'ALTER TABLE package_resource_revision ADD COLUMN extra_info text'
+    user_sql = 'ALTER TABLE package_resource_revision ADD COLUMN extras text'
     migrate_engine.execute(user_sql)
 
 def downgrade():

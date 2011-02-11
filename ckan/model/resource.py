@@ -22,7 +22,7 @@ package_resource_table = Table(
     Column('description', types.UnicodeText),
     Column('hash', types.UnicodeText),
     Column('position', types.Integer),
-    Column('extra_info', JsonDictType),
+    Column('extras', JsonDictType),
     )
 
 vdm.sqlalchemy.make_table_stateful(package_resource_table)
@@ -34,6 +34,7 @@ class PackageResource(vdm.sqlalchemy.RevisionedObjectMixin,
     extra_columns = None
     def __init__(self, package_id=None, url=u'', 
                  format=u'', description=u'', hash=u'',
+                 extras=None,
                  **kwargs):
         if package_id:
             self.package_id = package_id
@@ -41,7 +42,7 @@ class PackageResource(vdm.sqlalchemy.RevisionedObjectMixin,
         self.format = format
         self.description = description
         self.hash = hash
-        self.extra_info = {} 
+        self.extras = extras or {}
 
         extra_columns = self.get_extra_columns()
         for field in extra_columns:
@@ -57,6 +58,8 @@ class PackageResource(vdm.sqlalchemy.RevisionedObjectMixin,
             cols = ['id', 'package_id'] + cols + ['position']
         for col in cols:
             _dict[col] = getattr(self, col)
+        for k, v in self.extras.items():
+            _dict[k] = v
         return _dict
         
     @classmethod
@@ -72,7 +75,7 @@ class PackageResource(vdm.sqlalchemy.RevisionedObjectMixin,
         if cls.extra_columns is None:
             cls.extra_columns = config.get('ckan.extra_resource_fields', '').split()
             for field in cls.extra_columns:
-                setattr(cls, field, DictProxy(field, 'extra_info'))
+                setattr(cls, field, DictProxy(field, 'extras'))
         return cls.extra_columns
 
     

@@ -98,7 +98,7 @@ class ResourceSqlSearchQuery(SqlSearchQuery):
                 if field == 'hash':                
                     q = q.filter(model_attr.ilike(unicode(term) + '%'))
                 elif field in model.PackageResource.get_extra_columns():
-                    model_attr = getattr(model.PackageResource, 'extra_info')
+                    model_attr = getattr(model.PackageResource, 'extras')
 
                     like = or_(model_attr.ilike(u'''%%"%s": "%%%s%%",%%''' % (field, term)),
                                model_attr.ilike(u'''%%"%s": "%%%s%%"}''' % (field, term))
