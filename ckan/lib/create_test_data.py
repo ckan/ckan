@@ -53,25 +53,25 @@ class CreateTestData(cli.CkanCommand):
             print 'Creating %s test data: Complete!' % cmd
 
     @classmethod
-    def create_basic_test_data(self):
-        self.create()
+    def create_basic_test_data(cls):
+        cls.create()
 
     @classmethod
-    def create_search_test_data(self):
-        self.create_arbitrary(search_items)
+    def create_search_test_data(cls):
+        cls.create_arbitrary(search_items)
 
     @classmethod
-    def create_gov_test_data(self, extra_users=[]):
-        self.create_arbitrary(gov_items, extra_user_names=extra_users)
+    def create_gov_test_data(cls, extra_users=[]):
+        cls.create_arbitrary(gov_items, extra_user_names=extra_users)
 
     @classmethod
-    def create_family_test_data(self, extra_users=[]):
-        self.create_arbitrary(family_items,
+    def create_family_test_data(cls, extra_users=[]):
+        cls.create_arbitrary(family_items,
                               relationships=family_relationships,
                               extra_user_names=extra_users)
 
     @classmethod
-    def create_user(self):
+    def create_user(cls):
         import ckan.model as model
         tester = model.User.by_name(u'tester')
         if tester is None:
@@ -79,10 +79,10 @@ class CreateTestData(cli.CkanCommand):
             model.Session.add(tester)
             model.Session.commit()
         model.Session.remove()
-        self.user_names = [u'tester']
+        cls.user_names = [u'tester']
 
     @classmethod
-    def create_arbitrary(self, package_dicts, relationships=[],
+    def create_arbitrary(cls, package_dicts, relationships=[],
             extra_user_names=[], extra_group_names=[], 
             commit_changesets=False, admins=[]):
         '''Creates packages and a few extra objects as well at the
@@ -106,7 +106,7 @@ class CreateTestData(cli.CkanCommand):
         new_group_names = set()
         
         rev = model.repo.new_revision() 
-        rev.author = self.author
+        rev.author = cls.author
         rev.message = u'Creating test packages.'
         
         admins_list = defaultdict(list) # package_name: admin_names
@@ -115,7 +115,7 @@ class CreateTestData(cli.CkanCommand):
                 package_dicts = [package_dicts]
             for item in package_dicts:
                 pkg_dict = {}
-                for field in self.pkg_core_fields:
+                for field in cls.pkg_core_fields:
                     if item.has_key(field):
                         pkg_dict[field] = unicode(item[field])
                 pkg = model.Package(**pkg_dict)
@@ -125,19 +125,16 @@ class CreateTestData(cli.CkanCommand):
                         val = unicode(val)
                     if attr=='name':
                         continue                
-                    if attr in self.pkg_core_fields:
+                    if attr in cls.pkg_core_fields:
                         pass
                     elif attr == 'download_url':
                         pkg.add_resource(unicode(val))
                     elif attr == 'resources':
                         assert isinstance(val, (list, tuple))
                         for res_dict in val:
-                            pkg.add_resource(
-                                url=unicode(res_dict['url']),
-                                format=unicode(res_dict.get('format')),
-                                description=unicode(res_dict.get('description')),
-                                hash=unicode(res_dict.get('hash')),
-                                )
+                            non_extras = dict([(unicode(k), unicode(v)) for k, v in res_dict.items() if k != 'extras'])
+                            extras = dict([(unicode(k), unicode(v)) for k, v in res_dict.get('extras', {}).items()])
+                            pkg.add_resource(extras=extras, **non_extras)
                     elif attr == 'tags':
                         if isinstance(val, (str, unicode)):
                             tags = val.split()
@@ -150,7 +147,7 @@ class CreateTestData(cli.CkanCommand):
                             tag = model.Tag.by_name(tag_name)
                             if not tag:
                                 tag = model.Tag(name=tag_name)
-                                self.tag_names.append(tag_name)
+                                cls.tag_names.append(tag_name)
                                 model.Session.add(tag)    
                             pkg.tags.append(tag)
                             model.Session.flush()
@@ -182,7 +179,7 @@ class CreateTestData(cli.CkanCommand):
                                 new_user_names.append(user_name)
                     else:
                         raise NotImplementedError(attr)
-                self.pkg_names.append(item['name'])
+                cls.pkg_names.append(item['name'])
                 model.setup_default_user_roles(pkg, admins=[])
                 for admin in admins:
                     admins_list[item['name']].append(admin)
@@ -206,7 +203,7 @@ class CreateTestData(cli.CkanCommand):
             if not model.User.by_name(unicode(user_name)):
                 user = model.User(name=unicode(user_name))
                 model.Session.add(user)
-                self.user_names.append(user_name)
+                cls.user_names.append(user_name)
                 needs_commit = True
 
         if needs_commit:
@@ -231,7 +228,7 @@ class CreateTestData(cli.CkanCommand):
         for group_name in new_group_names:
             group = model.Group.by_name(unicode(group_name))
             model.setup_default_user_roles(group)
-            self.group_names.add(group_name)
+            cls.group_names.add(group_name)
             needs_commit = True
 
         if needs_commit:
@@ -240,7 +237,7 @@ class CreateTestData(cli.CkanCommand):
 
         if relationships:
             rev = model.repo.new_revision() 
-            rev.author = self.author
+            rev.author = cls.author
             rev.message = u'Creating package relationships.'
 
             def pkg(pkg_name):
@@ -257,14 +254,14 @@ class CreateTestData(cli.CkanCommand):
             changeset_ids = ChangesetRegister().commit()
 
     @classmethod
-    def create_groups(self, group_dicts, admin_user_name):
+    def create_groups(cls, group_dicts, admin_user_name):
         '''A more featured interface for creating groups.
         All group fields can be filled, packages added and they can
         have an admin user.'''
         import ckan.model as model
         rev = model.repo.new_revision()
         # same name as user we create below
-        rev.author = self.author
+        rev.author = cls.author
         admin_user = model.User.by_name(admin_user_name)
         assert isinstance(group_dicts, (list, tuple))
         for group_dict in group_dicts:
@@ -280,24 +277,24 @@ class CreateTestData(cli.CkanCommand):
                 pkg.groups.append(group)
             model.Session.add(group)
             model.setup_default_user_roles(group, [admin_user])
-            self.group_names.add(group_dict['name'])
+            cls.group_names.add(group_dict['name'])
         model.repo.commit_and_remove()
 
     @classmethod
-    def create(self, commit_changesets=False):
+    def create(cls, commit_changesets=False):
         import ckan.model as model
         model.Session.remove()
-        self.create_user()
+        cls.create_user()
         rev = model.repo.new_revision()
         # same name as user we create below
-        rev.author = self.author
+        rev.author = cls.author
         rev.message = u'''Creating test data.
  * Package: annakarenina
  * Package: warandpeace
  * Associated tags, etc etc
 '''
-        self.pkg_names = [u'annakarenina', u'warandpeace']
-        pkg1 = model.Package(name=self.pkg_names[0])
+        cls.pkg_names = [u'annakarenina', u'warandpeace']
+        pkg1 = model.Package(name=cls.pkg_names[0])
         model.Session.add(pkg1)
         pkg1.title = u'A Novel By Tolstoy'
         pkg1.version = u'0.7a'
@@ -308,12 +305,16 @@ class CreateTestData(cli.CkanCommand):
             format=u'plain text',
             description=u'Full text. Needs escaping: " Umlaut: \xfc',
             hash=u'abc123',
+            alt_url=u'alt123',
+            extras={'size': u'123'},
             )
         pr2 = model.PackageResource(
             url=u'http://www.annakarenina.com/index.json',
             format=u'json',
             description=u'Index of the novel',
             hash=u'def456',
+            alt_url=u'alt345',
+            extras={'size': u'345'},
             )
         model.Session.add(pr1)
         model.Session.add(pr2)
@@ -338,14 +339,14 @@ left arrow <
 <http://ckan.net/>
 
 '''
-        pkg2 = model.Package(name=self.pkg_names[1])
+        pkg2 = model.Package(name=cls.pkg_names[1])
         tag1 = model.Tag(name=u'russian')
         tag2 = model.Tag(name=u'tolstoy')
         for obj in [pkg2, tag1, tag2]:
             model.Session.add(obj)
         pkg1.tags = [tag1, tag2]
         pkg2.tags = [ tag1 ]
-        self.tag_names = [u'russian', u'tolstoy']
+        cls.tag_names = [u'russian', u'tolstoy']
         pkg1.license_id = u'other-open'
         pkg2.title = u'A Wonderful Story'
         pkg1.extras = {u'genre':'romantic novel',
@@ -359,8 +360,8 @@ left arrow <
                              description=u'Roger likes these books.')
         for obj in [david, roger]:
             model.Session.add(obj)
-        self.group_names.add(u'david')
-        self.group_names.add(u'roger')
+        cls.group_names.add(u'david')
+        cls.group_names.add(u'roger')
         david.packages = [pkg1, pkg2]
         roger.packages = [pkg1]
         # authz
@@ -370,7 +371,7 @@ left arrow <
         testsysadmin = model.User(name=u'testsysadmin')
         for obj in [joeadmin, annafan, russianfan, testsysadmin]:
             model.Session.add(obj)
-        self.user_names.extend([u'joeadmin', u'annafan', u'russianfan', u'testsysadmin'])
+        cls.user_names.extend([u'joeadmin', u'annafan', u'russianfan', u'testsysadmin'])
         model.repo.commit_and_remove()
 
         visitor = model.User.by_name(model.PSEUDO_USER__VISITOR)
@@ -394,42 +395,42 @@ left arrow <
             changeset_ids = ChangesetRegister().commit()
 
     @classmethod
-    def flag_for_deletion(self, pkg_names=[], tag_names=[], group_names=[],
+    def flag_for_deletion(cls, pkg_names=[], tag_names=[], group_names=[],
                           user_names=[]):
         '''If you create a domain object manually in your test then you
         can name it here (flag it up) and it will be deleted when you next
         call CreateTestData.delete().'''
         if isinstance(pkg_names, basestring):
             pkg_names = [pkg_names]
-        self.pkg_names.extend(pkg_names)
-        self.tag_names.extend(tag_names)
-        self.group_names = self.group_names.union(set(group_names))
-        self.user_names.extend(user_names)
+        cls.pkg_names.extend(pkg_names)
+        cls.tag_names.extend(tag_names)
+        cls.group_names = cls.group_names.union(set(group_names))
+        cls.user_names.extend(user_names)
 
     @classmethod
-    def delete(self):
+    def delete(cls):
         '''Purges packages etc. that were created by this class.'''
         import ckan.model as model
-        for pkg_name in self.pkg_names:
+        for pkg_name in cls.pkg_names:
             pkg = model.Package.by_name(unicode(pkg_name))
             if pkg:
                 sql = "DELETE FROM package_search WHERE package_id='%s'" % pkg.id
                 model.Session.execute(sql)
         model.repo.commit_and_remove()
-        for pkg_name in self.pkg_names:
+        for pkg_name in cls.pkg_names:
             model.Session().autoflush = False
             pkg = model.Package.by_name(unicode(pkg_name))
             if pkg:
                 pkg.purge()
-        for tag_name in self.tag_names:
+        for tag_name in cls.tag_names:
             tag = model.Tag.by_name(unicode(tag_name))
             if tag:
                 tag.purge()
-        for group_name in self.group_names:
+        for group_name in cls.group_names:
             group = model.Group.by_name(unicode(group_name))
             if group:
                 model.Session.delete(group)
-        revs = model.Session.query(model.Revision).filter_by(author=self.author)
+        revs = model.Session.query(model.Revision).filter_by(author=cls.author)
         for rev in revs:
             for pkg in rev.packages:
                 pkg.purge()
@@ -437,13 +438,13 @@ left arrow <
                 grp.purge()
             model.Session.commit()
             model.Session.delete(rev)
-        for user_name in self.user_names:
+        for user_name in cls.user_names:
             user = model.User.by_name(unicode(user_name))
             if user:
                 user.purge()
         model.Session.commit()
         model.Session.remove()
-        self.reset()
+        cls.reset()
 
     @classmethod
     def reset(cls):

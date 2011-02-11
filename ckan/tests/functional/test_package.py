@@ -142,7 +142,7 @@ class TestPackageForm(TestPackageBase):
         for res_index, resource in enumerate(resources):
             if by_resource:
                 values = []
-            for i, res_field in enumerate(model.PackageResource.get_columns()):
+            for i, res_field in enumerate(model.PackageResource.get_columns(extra_columns = False)):
                 if isinstance(resource, (str, unicode)):
                     expected_value = resource if res_field == 'url' else ''
                 elif hasattr(resource, res_field):
@@ -662,8 +662,8 @@ u with umlaut \xc3\xbc
             title = u'Test Title'
             version = u'1.1'
             url = u'http://something.com/somewhere.zip'
-            resources = ((u'http://something.com/somewhere-else.xml', u'xml', u'Best', u'hash1'),
-                         (u'http://something.com/somewhere-else2.xml', u'xml2', u'Best2', u'hash2'),
+            resources = ((u'http://something.com/somewhere-else.xml', u'xml', u'Best', u'hash1', 'alt'),
+                         (u'http://something.com/somewhere-else2.xml', u'xml2', u'Best2', u'hash2', 'alt'),
                          )
             assert len(resources[0]) == len(model.PackageResource.get_columns())
             notes = u'Very important'
@@ -1386,7 +1386,7 @@ alert('Hello world!');
         assert fragment not in self.body, (fragment, self.body)
 
 
-class TestEtags(TestPackageBase, PylonsTestCase):
+class TestEtags(PylonsTestCase, TestPackageBase):
     @classmethod
     def setup_class(self):
         CreateTestData.create()

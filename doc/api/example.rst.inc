@@ -17,7 +17,7 @@ There are several ways you might access this URL:
 
 * use the Python library `CKAN Client <http://pypi.python.org/pypi/ckanclient>`_
 
-* use command-line tool `Datapkg <http://knowledgeforge.net/ckan/doc/datapkg/>`_. It manages datasets in a similar way as getting software packages with `apt-get` or `CPAN`.
+* use command-line tool `Datapkg <http://packages.python.org/datapkg/>`_. It manages datasets in a similar way as getting software packages with `apt-get` or `CPAN`.
 
 You could search for packages to do with 'open street map' like this: `<http://ckan.net/api/search/package?q=open+street+map>`_ returning::
 

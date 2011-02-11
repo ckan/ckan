@@ -97,13 +97,23 @@ To set the expiry times (in seconds) for specific controllers (which use the pro
 licenses_group_url
 ------------------
 
+A url pointing to a JSON file containing a list of license objects. This list
+determines the licenses offered by the system to users, for example when
+creating or editing a package.
+
+This is entirely optional -- by default the system will use the ckan list of
+licenses available in the `licenses package`_.
+
+.. _licenses python package: http://pypi.python.org/pypi/licenses
+
+More details about the license objects including the license format and some
+example license lists can be found on the open license service at
+http://licenses.opendefinition.org/.
+
 Example::
  
- licenses_group_url = http://licenses.opendefinition.org/2.0/ckan_canada
-
-This specifies a CKAN license service. It determines which licenses are offered when you create or edit a package.
-
-The URL in the option should point to a store of license information (in JSON format) that has been deployed by the CKAN License package and served over HTTP. If you don't specify this then it displays the full list from the CKAN License module.
+ licenses_group_url = file:///path/to/my/local/json-list-of-licenses.js
+ licenses_group_url = http://licenses.opendefinition.org/2.0/ckan_original
 
 
 lang
@@ -248,14 +258,26 @@ Default value:  ``CKAN``
 This sets the name of the site, as displayed in the CKAN web interface.
 
 
-site_logo
-----------
+site_description
+----------------
 
 Example::
 
- ckan.site_logo=http://myregistry/logo.png
+ ckan.site_description=
 
-Default value:  ``/images/ckan_logo_fullname_long.png`` (CKAN Logo)
+Default value:  (none)
+
+This is for a description, or tag line for the site, as displayed in the header of the CKAN web interface.
+
+
+site_logo
+---------
+
+Example::
+
+ ckan.site_logo=/images/ckan_logo_fullname_long.png
+
+Default value:  (none)
 
 This sets the logo used in the title bar.
 
@@ -267,9 +289,12 @@ Example::
 
  ckan.site_url=http://scotdata.ckan.net
 
-Default value:  ``http://www.ckan.net``
+Default value:  (none)
 
-The primary URL used by this site. 
+The primary URL used by this site. Uses::
+
+ * in the API to provide packages with links to themselves in the web UI.
+
 
 api_url
 --------

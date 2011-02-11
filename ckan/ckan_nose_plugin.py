@@ -39,6 +39,6 @@ class CkanNose(Plugin):
 
     def configure(self, options, config):
         self.options = options
-        if options.is_ckan or options.ckan_config or options.ckan_migration:
+        if options.is_ckan:
             self.enabled = True
             self.is_first_test = True

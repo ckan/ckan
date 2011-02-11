@@ -1,10 +1,8 @@
 ==========================================
-Welcome to CKAN's developer documentation!
+Welcome to CKAN's Developer Documentation!
 ==========================================
 
-This Developer Documentation provides more advanced help for CKAN.
-
-The main documentation is found at `CKAN on KnowledgeForge <https://knowledgeforge.net/ckan/trac>`_.
+This Developer Documentation provides more advanced help for `CKAN <http://ckan.org>`_ development and administration. The latest released version of this documentation is found at: http://packages.python.org/ckan/
 
 
 Contents:

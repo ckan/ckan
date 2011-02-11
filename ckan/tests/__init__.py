@@ -28,6 +28,7 @@ from routes import url_for
 
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib import search
+from ckan.lib.helpers import _flash
 import ckan.model as model
 
 __all__ = ['url_for',
@@ -143,7 +144,7 @@ class CommonFixtureMethods(BaseCase):
         CreateTestData.create_arbitrary(package_dicts=[data or kwds], admins=admins)
 
     @classmethod
-    def create_user(self, **kwds):
+    def create_user(cls, **kwds):
         user = model.User(name=kwds['name'])             
         model.Session.add(user)
         model.Session.commit()
@@ -178,7 +179,7 @@ class CommonFixtureMethods(BaseCase):
             self.commit_remove()
 
     @classmethod
-    def purge_packages(self, pkg_names):
+    def purge_packages(cls, pkg_names):
         for pkg_name in pkg_names:
             pkg = model.Package.by_name(unicode(pkg_name))
             if pkg:
@@ -272,6 +273,7 @@ class CkanServerCase(BaseCase):
         cls._paster('db clean', config_path)
         cls._paster('db init', config_path)
         cls._paster('create-test-data', config_path)
+        cls._paster('search-index rebuild', config_path)
 
     @staticmethod
     def _start_ckan_server(config_file=None):
@@ -356,3 +358,6 @@ def regex_related(test):
     if not is_regex_supported():
         return make_decorator(test)(skip_test)
     return make_decorator(test)
+
+def clear_flash(res=None):
+    messages = _flash.pop_messages()

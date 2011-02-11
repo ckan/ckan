@@ -23,8 +23,8 @@ Version 2
 
 The |version_2_doc| is the latest API. Since edting the names of packages and groups is now possible, packages and groups are identified by their UUID in entity representations.
 
-Version 3
-~~~~~~~~~
+.. Version 3
+   ~~~~~~~~~
 
-The |version_3_doc| is the next CKAN API, and is currently unstable. Various resource locations are being changed to consolidate the interface design and help simplify the documentation and client implementations.
+   The |version_3_doc| is the next CKAN API, and is currently unstable. Various resource locations are being changed to consolidate the interface design and help simplify the documentation and client implementations.
 

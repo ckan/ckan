@@ -20,7 +20,7 @@ def datetime2date(datetime_):
 
 class Stats(object):
     @classmethod
-    def top_rated_packages(self, limit=10):
+    def top_rated_packages(cls, limit=10):
         # NB Not using sqlalchemy as sqla 0.4 doesn't work using both group_by
         # and apply_avg
         package = table('package')
@@ -34,7 +34,7 @@ class Stats(object):
         return res_pkgs
             
     @classmethod
-    def most_edited_packages(self, limit=10):
+    def most_edited_packages(cls, limit=10):
         package_revision = table('package_revision')
         s = select([package_revision.c.id, func.count(package_revision.c.revision_id)]).\
             group_by(package_revision.c.id).\
@@ -45,7 +45,7 @@ class Stats(object):
         return res_pkgs
         
     @classmethod
-    def largest_groups(self, limit=10):
+    def largest_groups(cls, limit=10):
         package_group = table('package_group')
         s = select([package_group.c.group_id, func.count(package_group.c.package_id)]).\
             group_by(package_group.c.group_id).\
@@ -56,7 +56,7 @@ class Stats(object):
         return res_groups
 
     @classmethod
-    def top_tags(self, limit=10, returned_tag_info='object'): # by package
+    def top_tags(cls, limit=10, returned_tag_info='object'): # by package
         assert returned_tag_info in ('name', 'id', 'object')
         tag = table('tag')
         package_tag = table('package_tag')
@@ -80,7 +80,7 @@ class Stats(object):
             return res_tags
         
     @classmethod
-    def top_package_owners(self, limit=10):
+    def top_package_owners(cls, limit=10):
         package_role = table('package_role')
         user_object_role = table('user_object_role')
         s = select([user_object_role.c.user_id, func.count(user_object_role.c.role)], from_obj=[user_object_role.join(package_role)]).\
@@ -95,19 +95,19 @@ class Stats(object):
 
 class RevisionStats(object):
     @classmethod
-    def package_addition_rate(self, weeks_ago=0):
-        week_commenced = self.get_date_weeks_ago(weeks_ago)
-        return self.get_objects_in_a_week(week_commenced,
+    def package_addition_rate(cls, weeks_ago=0):
+        week_commenced = cls.get_date_weeks_ago(weeks_ago)
+        return cls.get_objects_in_a_week(week_commenced,
                                           type_='package_addition_rate')
 
     @classmethod
-    def package_revision_rate(self, weeks_ago=0):
-        week_commenced = self.get_date_weeks_ago(weeks_ago)
-        return self.get_objects_in_a_week(week_commenced,
+    def package_revision_rate(cls, weeks_ago=0):
+        week_commenced = cls.get_date_weeks_ago(weeks_ago)
+        return cls.get_objects_in_a_week(week_commenced,
                                           type_='package_revision_rate')
 
     @classmethod
-    def get_date_weeks_ago(self, weeks_ago):
+    def get_date_weeks_ago(cls, weeks_ago):
         '''
         @param weeks_ago: specify how many weeks ago to give count for
                           (0 = this week so far)
@@ -117,7 +117,7 @@ class RevisionStats(object):
                              datetime.date.weekday(date_) + 7 * weeks_ago)
 
     @classmethod
-    def get_week_dates(self, weeks_ago):
+    def get_week_dates(cls, weeks_ago):
         '''
         @param weeks_ago: specify how many weeks ago to give count for
                           (0 = this week so far)
@@ -132,14 +132,14 @@ class RevisionStats(object):
         return (date_from, date_to)
 
     @classmethod
-    def get_date_week_started(self, date_):
+    def get_date_week_started(cls, date_):
         assert isinstance(date_, datetime.date)
         if isinstance(date_, datetime.datetime):
             date_ = datetime2date(date_)
         return date_ - datetime.timedelta(days=datetime.date.weekday(date_))
 
     @classmethod
-    def get_package_revisions(self):
+    def get_package_revisions(cls):
         '''
         @return: Returns list of revisions and date of them, in
                  format: [(id, date), ...]
@@ -151,7 +151,7 @@ class RevisionStats(object):
         return res
     
     @classmethod
-    def get_new_packages(self):
+    def get_new_packages(cls):
         '''
         @return: Returns list of new pkgs and date when they were created, in
                  format: [(id, date_ordinal), ...]
@@ -168,7 +168,7 @@ class RevisionStats(object):
                 res_pickleable.append((pkg_id, created_datetime.toordinal()))
             return res_pickleable
         if cache_enabled:
-            week_commences = self.get_date_week_started(datetime.date.today())
+            week_commences = cls.get_date_week_started(datetime.date.today())
             key = 'all_new_packages_%s' + week_commences.strftime(DATE_FORMAT)
             new_packages = our_cache.get_value(key=key,
                                                createfunc=new_packages)
@@ -177,31 +177,31 @@ class RevisionStats(object):
         return new_packages
 
     @classmethod
-    def get_by_week(self, object_type):
-        self._object_type = object_type
+    def get_by_week(cls, object_type):
+        cls._object_type = object_type
         def objects_by_week():
-            if self._object_type == 'new_packages':
-                objects = self.get_new_packages()
+            if cls._object_type == 'new_packages':
+                objects = cls.get_new_packages()
                 def get_date(object_date):
                     return datetime.date.fromordinal(object_date)
-            elif self._object_type == 'package_revisions':
-                objects = self.get_package_revisions()
+            elif cls._object_type == 'package_revisions':
+                objects = cls.get_package_revisions()
                 def get_date(object_date):
                     return datetime2date(object_date)
             else:
                 raise NotImplementedError()
             first_date = get_date(objects[0][1]) if objects else datetime.date.today()
-            week_commences = self.get_date_week_started(first_date)
+            week_commences = cls.get_date_week_started(first_date)
             week_ends = week_commences + datetime.timedelta(days=7)
             week_index = 0
             weekly_pkg_ids = [] # [(week_commences, [pkg_id1, pkg_id2, ...])]
             pkg_id_stack = []
-            self._cumulative_num_pkgs = 0
+            cls._cumulative_num_pkgs = 0
             def build_weekly_stats(week_commences, pkg_ids):
                 num_pkgs = len(pkg_ids)
-                self._cumulative_num_pkgs += num_pkgs
+                cls._cumulative_num_pkgs += num_pkgs
                 return (week_commences.strftime(DATE_FORMAT),
-                        pkg_ids, num_pkgs, self._cumulative_num_pkgs)
+                        pkg_ids, num_pkgs, cls._cumulative_num_pkgs)
             for pkg_id, date_field in objects:
                 date_ = get_date(date_field)
                 if date_ >= week_ends:
@@ -218,8 +218,8 @@ class RevisionStats(object):
                 weekly_pkg_ids.append(build_weekly_stats(week_commences, []))
             return weekly_pkg_ids
         if cache_enabled:
-            week_commences = self.get_date_week_started(datetime.date.today())
-            key = '%s_by_week_%s' % (self._object_type, week_commences.strftime(DATE_FORMAT))
+            week_commences = cls.get_date_week_started(datetime.date.today())
+            key = '%s_by_week_%s' % (cls._object_type, week_commences.strftime(DATE_FORMAT))
             objects_by_week_ = our_cache.get_value(key=key,
                                     createfunc=objects_by_week)
         else:
@@ -227,7 +227,7 @@ class RevisionStats(object):
         return objects_by_week_
         
     @classmethod
-    def get_objects_in_a_week(self, date_week_commences,
+    def get_objects_in_a_week(cls, date_week_commences,
                                  type_='new-package-rate'):
         '''
         @param type: Specifies what to return about the specified week:
@@ -245,7 +245,7 @@ class RevisionStats(object):
             object_type = 'package_revisions'
         else:
             raise NotImplementedError()
-        objects_by_week = self.get_by_week(object_type)
+        objects_by_week = cls.get_by_week(object_type)
         date_wc_str = date_week_commences.strftime(DATE_FORMAT)
         object_ids = None
         for objects_in_a_week in objects_by_week:

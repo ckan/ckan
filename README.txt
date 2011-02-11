@@ -293,7 +293,7 @@ There are a number of stakeholders in the direction of the project, so we discus
 
 New developers should aquaint themselves with the documentation (see below). Proposed changes should be made on a personal CKAN fork (on BitBucket for example). Request merging with the mainline via the ckan-discuss list.
 
-We have policies for check-ins that ensure the build doesn't break etc. on https://knowledgeforge.net/ckan/trac#ProjectProcessesandPolicies which should be followed unless someone builds concensus to change it.
+We have policies for check-ins that ensure the build doesn't break etc. on http://ckan.org/#ProjectProcessesandPolicies which should be followed unless someone builds concensus to change it.
 
 
 Documentation
@@ -302,7 +302,7 @@ Documentation
 The home page for the CKAN project is: http://ckan.org
 
 This README file is part of the Developer Documentation, viewable at:
-http://knowledgeforge.net/ckan/doc/ckan/index.html and stored in the CKAN
+http://packages.python.org/ckan/ and stored in the CKAN
 repo at ``ckan/doc``. 
 
 The Developer Docs are built using `Sphinx <http://sphinx.pocoo.org/>`_:
@@ -312,7 +312,7 @@ The Developer Docs are built using `Sphinx <http://sphinx.pocoo.org/>`_:
 The docs are uploaded to packages.python.org/ckan/ and also (via dav) to
 http://knowledgeforge.net/ckan/doc/ckan/ (http://knowledgeforge.net/ location
 is for backwards compatability).
- 
+
 
 Contributors
 ============
