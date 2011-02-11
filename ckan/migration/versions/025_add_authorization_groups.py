@@ -24,6 +24,7 @@ def upgrade(migrate_engine):
         )
 
     authorization_group_user_table = Table('authorization_group_user', metadata,
+        Column('id', UnicodeText, primary_key=True, default=make_uuid),
         Column('authorization_group_id', UnicodeText, ForeignKey('authorization_group.id'), nullable=False),
         Column('user_id', UnicodeText, ForeignKey('user.id'), nullable=False)
         )

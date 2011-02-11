@@ -18,6 +18,7 @@ class CkanNose(Plugin):
                 model.repo.clean_db()
                 self.is_first_test = False
                 if self.options.ckan_migration:
+                    model.Session.remove()
                     model.repo.upgrade_db()
             # init_db is run at the start of every class because
             # when you use an in-memory sqlite db, it appears that
