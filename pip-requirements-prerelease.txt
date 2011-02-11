@@ -6,6 +6,6 @@ psycopg2
 -e hg+https://solrpy.googlecode.com/hg#egg=solrpy
 -e hg+https://bitbucket.org/okfn/vdm#egg=vdm
 -e hg+https://bitbucket.org/okfn/licenses#egg=licenses
--e hg+https://bitbucket.org/okfn/ckanclient@0.6#egg=ckanclient
+-e hg+https://bitbucket.org/okfn/ckanclient@ckanclient-v0.6#egg=ckanclient
 -e hg+https://bitbucket.org/okfn/ckan@ckan-1.3#egg=ckan
 
