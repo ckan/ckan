@@ -55,7 +55,7 @@ class ExampleController(BaseController):
                                                       model.Action.READ,
                                                       c.pkg)
         if not auth_for_read:
-            abort(401, gettext('Unauthorized to read package %s') % id)
+            abort(401, _('Unauthorized to read package %s') % id)
         PackageSaver().render_package(c.pkg)
         return render('package/read.html')
 

@@ -2,6 +2,7 @@ import genshi
 
 from sqlalchemy.orm import eagerload_all
 from ckan.lib.base import *
+from pylons.i18n import get_lang, _
 import ckan.authz as authz
 import ckan.forms
 from ckan.lib.helpers import Page
@@ -31,7 +32,7 @@ class AuthorizationGroupController(BaseController):
         auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, 
                                                       c.authorization_group)
         if not auth_for_read:
-            abort(401, gettext('Not authorized to read %s') % id.encode('utf8'))
+            abort(401, _('Not authorized to read %s') % id.encode('utf8'))
         
         import ckan.misc
         c.authorization_group_admins = self.authorizer.get_admins(c.authorization_group)
@@ -49,7 +50,7 @@ class AuthorizationGroupController(BaseController):
         
         auth_for_create = self.authorizer.am_authorized(c, model.Action.AUTHZ_GROUP_CREATE, model.System())
         if not auth_for_create:
-            abort(401, gettext('Unauthorized to create a group'))
+            abort(401, _('Unauthorized to create a group'))
         
         is_admin = self.authorizer.is_sysadmin(c.user)
         
@@ -97,7 +98,7 @@ class AuthorizationGroupController(BaseController):
             abort(404, '404 Not Found')
         am_authz = self.authorizer.am_authorized(c, model.Action.EDIT, authorization_group)
         if not am_authz:
-            abort(401, gettext('User %r not authorized to edit %r') % (c.user, id))
+            abort(401, _('User %r not authorized to edit %r') % (c.user, id))
             
         is_admin = self.authorizer.is_sysadmin(c.user)
         
@@ -141,13 +142,13 @@ class AuthorizationGroupController(BaseController):
     def authz(self, id):
         c.authorization_group = model.AuthorizationGroup.by_name(id)
         if c.authorization_group is None:
-            abort(404, gettext('Group not found'))
+            abort(404, _('Group not found'))
         c.authorization_group_name = c.authorization_group.name
         
         c.authz_editable = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, 
                                                          c.authorization_group)
         if not c.authz_editable:
-            abort(401, gettext('Not authorized to edit authorization for group'))
+            abort(401, _('Not authorized to edit authorization for group'))
 
         if 'save' in request.params: # form posted
             # needed because request is nested
