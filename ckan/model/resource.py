@@ -1,9 +1,10 @@
 from sqlalchemy.util import OrderedDict
 from sqlalchemy.ext.orderinglist import ordering_list
+from pylons import config
 import vdm.sqlalchemy
 
 from meta import *
-from types import make_uuid
+from types import make_uuid, JsonDictType
 from core import *
 from package import *
 from ckan.lib.helpers import json
@@ -21,6 +22,7 @@ package_resource_table = Table(
     Column('description', types.UnicodeText),
     Column('hash', types.UnicodeText),
     Column('position', types.Integer),
+    Column('extra_info', JsonDictType),
     )
 
 vdm.sqlalchemy.make_table_stateful(package_resource_table)
@@ -29,13 +31,24 @@ resource_revision_table = vdm.sqlalchemy.make_revisioned_table(package_resource_
 class PackageResource(vdm.sqlalchemy.RevisionedObjectMixin,
                       vdm.sqlalchemy.StatefulObjectMixin,
                       DomainObject):
-    def __init__(self, package_id=None, url=u'', format=u'', description=u'', hash=u''):
+    extra_columns = None
+    def __init__(self, package_id=None, url=u'', 
+                 format=u'', description=u'', hash=u'',
+                 **kwargs):
         if package_id:
             self.package_id = package_id
         self.url = url
         self.format = format
         self.description = description
         self.hash = hash
+        self.extra_info = {} 
+
+        extra_columns = self.get_extra_columns()
+        for field in extra_columns:
+            value = kwargs.pop(field, u"")
+            setattr(self, field, value)
+        if kwargs:
+            raise TypeError("unexpected keywords %s" % kwargs)
 
     def as_dict(self, core_columns_only=False):
         _dict = OrderedDict()
@@ -46,10 +59,23 @@ class PackageResource(vdm.sqlalchemy.RevisionedObjectMixin,
             _dict[col] = getattr(self, col)
         return _dict
         
-    @staticmethod
-    def get_columns():
+    @classmethod
+    def get_columns(cls, extra_columns = True):
         '''Returns the core editable columns of the resource.'''
-        return ['url', 'format', 'description', 'hash']
+        if extra_columns:
+            return ['url', 'format', 'description', 'hash'] + cls.get_extra_columns()
+        else:
+            return ['url', 'format', 'description', 'hash']
+
+    @classmethod
+    def get_extra_columns(cls):
+        if cls.extra_columns is None:
+            cls.extra_columns = config.get('ckan.extra_resource_fields', "").split()
+            for field in cls.extra_columns:
+                setattr(cls, field, DictProxy(field, "extra_info"))
+        return cls.extra_columns
+
+    
 
 mapper(PackageResource, package_resource_table, properties={
     'package':orm.relation(Package,
@@ -96,4 +122,37 @@ def package_resource_identifier(obj):
     return json.dumps(obj.as_dict(core_columns_only=True))
 add_stateful_m21(Package, 'resources', 'package_resources_all',
                  package_resource_identifier)
+
+
+
+class DictProxy(object):
+
+    def __init__(self, target_key, target_dict, data_type = unicode):
+        self.target_key = target_key
+        self.target_dict = target_dict
+        self.data_type = data_type
+
+    def __get__(self, obj, type):
+
+        if not obj:
+            return self
+
+        proxied_dict = getattr(obj, self.target_dict)
+        if proxied_dict:
+            return proxied_dict.get(self.target_key)
+
+    def __set__(self, obj, value):
+
+        proxied_dict = getattr(obj, self.target_dict)
+        if proxied_dict is None:
+            proxied_dict = {}
+            setattr(obj, self.target_dict, proxied_dict)
+
+        proxied_dict[self.target_key] = self.data_type(value)
+
+    def __delete__(self, obj):
+
+        proxied_dict = getattr(obj, self.target_dict)
+        proxied_dict.pop(self.target_key)
+
 

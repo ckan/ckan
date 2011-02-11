@@ -151,13 +151,15 @@ class PackagesTestCase(BaseModelApiTestCase):
                 u'format':u'xml',
                 u'description':u'Appendix 1',
                 u'hash':u'def123',
-                u'position':'ignore-this',
-                u'id':'ignore-this',
+                u'alt_url':u'alt123',
+                u'size':u'400',
             },{
                 u'url':u'http://blah.com/file3.xml',
                 u'format':u'xml',
                 u'description':u'Appenddic 2',
                 u'hash':u'ghi123',
+                u'alt_url':u'alt123',
+                u'size':u'400',
             }],
             'extras': {
                 u'key3': u'val3', 
@@ -189,11 +191,15 @@ class PackagesTestCase(BaseModelApiTestCase):
         self.assert_equal(resource.format, u'xml')
         self.assert_equal(resource.description, u'Appendix 1')
         self.assert_equal(resource.hash, u'def123')
+        self.assert_equal(resource.alt_url, u'alt123')
+        self.assert_equal(resource.size, u'400')
         resource = package.resources[1]
         self.assert_equal(resource.url, 'http://blah.com/file3.xml')
         self.assert_equal(resource.format, u'xml')
         self.assert_equal(resource.description, u'Appenddic 2')
         self.assert_equal(resource.hash, u'ghi123')
+        self.assert_equal(resource.alt_url, u'alt123')
+        self.assert_equal(resource.size, u'400')
 
         # Check unsubmitted fields have not changed.
         # - url
@@ -204,9 +210,9 @@ class PackagesTestCase(BaseModelApiTestCase):
                            u'key3':u'val3',
                            u'key4':u''}.items():
             self.assert_equal(package.extras[key], value)
-        # NB: key4 set to '' creates it
-        # but: key2 set to None will delete it
-        assert not package.extras.has_key('key2')
+        # Todo: Something about the fact that extras are not unsubmitted!
+        # Todo: Check what happens to key2.
+        # Todo: Figure out why key2 is set to None - do we need a test for key2 not existing.
 
     def test_package_update_ok_by_id(self):
         self.assert_package_update_ok('id')

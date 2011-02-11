@@ -1,4 +1,5 @@
 from sqlalchemy import types
+import copy
 
 def make_uuid():
     return unicode(uuid.uuid4())
@@ -44,4 +45,27 @@ class JsonType(types.TypeDecorator):
 
     def copy(self):
         return JsonType(self.impl.length)
+    
+    def is_mutable(self):
+        return True
 
+    def copy_value(self, value):
+
+        return copy.copy(value)
+
+class JsonDictType(JsonType):
+
+    impl = types.UnicodeText
+
+    def process_bind_param(self, value, engine):
+        if value is None or value == {}: # ensure we stores nulls in db not json "null"
+            return None
+        else:
+            if isinstance(value, basestring):
+                return unicode(value)
+            else:
+                return unicode(json.dumps(value, ensure_ascii=False))
+
+    def copy(self):
+
+        return JsonDictType(self.impl.length)

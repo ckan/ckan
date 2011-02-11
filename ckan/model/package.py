@@ -100,14 +100,15 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             new_res_list.append(res)
         self.resources = new_res_list
 
-    def add_resource(self, url, format=u'', description=u'', hash=u''):
+    def add_resource(self, url, format=u'', description=u'', hash=u'', **kw):
         import resource
         self.resources.append(resource.PackageResource(
             package_id=self.id,
             url=url,
             format=format,
             description=description,
-            hash=hash))
+            hash=hash,
+            **kw))
 
     def add_tag_by_name(self, tagname, autoflush=True):
         from tag import Tag

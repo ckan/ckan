@@ -94,6 +94,8 @@ class TestForms(PylonsTestCase, HtmlCheckMethods):
             assert res.format in out, out_printable
             assert u'Full text. Needs escaping: &#34; Umlaut: \xfc"' in out, out_printable        
             assert res.hash in out, out_printable        
+            assert res.alt_url in out, out_printable        
+            assert res.size in out, out_printable        
 
     def test_2_fields(self):
         fs = self._get_standard_fieldset()
@@ -129,6 +131,9 @@ class TestForms(PylonsTestCase, HtmlCheckMethods):
         indict['Package--resources-0-url'] = u'http:/1'
         indict['Package--resources-0-format'] = u'xml'
         indict['Package--resources-0-description'] = u'test desc'
+        indict['Package--resources-0-alt_url'] = u'http:/2'
+        indict['Package--resources-0-size'] = u'200'
+
         fs = self._get_standard_fieldset().bind(model.Package, data=indict)
 
         model.repo.new_revision()
@@ -160,6 +165,8 @@ class TestForms(PylonsTestCase, HtmlCheckMethods):
         assert res.url == u'http:/1', res.url
         assert res.description == u'test desc', res.description
         assert res.format == u'xml', res.format
+        assert res.alt_url == u'http:/2', res.format
+        assert res.size == u'200', res.size
         
 
     def test_4_sync_update(self):
@@ -176,6 +183,8 @@ class TestForms(PylonsTestCase, HtmlCheckMethods):
         indict[prefix + 'resources-0-url'] = u'http:/1'
         indict[prefix + 'resources-0-format'] = u'xml'
         indict[prefix + 'resources-0-description'] = u'test desc'
+        indict[prefix + 'resources-0-alt_url'] = u'alt'
+        indict[prefix + 'resources-0-size'] = u'200'
         
         fs = self._get_standard_fieldset().bind(anna, data=indict)
         model.repo.new_revision()
@@ -208,6 +217,8 @@ class TestForms(PylonsTestCase, HtmlCheckMethods):
         assert res.url == u'http:/1', res.url
         assert res.description == u'test desc', res.description
         assert res.format == u'xml', res.format
+        assert res.alt_url == u'alt', res.description
+        assert res.size == u'200', res.size
 
         model.repo.commit_and_remove()
 
