@@ -17,7 +17,7 @@
     <li class="widget-container widget_text">
         <h3>Tags</h3>
         ${tag_list(c.pkg.tags)}
-        <p class="widget_action">
+        <p class="widget_action" py:if="h.am_authorized(c, actions.EDIT, c.pkg)">
             ${h.subnav_link(c, 'Add a new Tag', controller='package', action='edit', id=c.pkg.name)}
         </p>
     </li>
@@ -34,7 +34,7 @@
         <py:if test="not c.pkg.groups">
              Groups are collections of packages maintained by users of ${g.site_title}. This package has not been added to any groups yet.
         </py:if>
-        <p class="widget_action">
+        <p class="widget_action" py:if="h.am_authorized(c, actions.EDIT, c.pkg)">
             ${h.subnav_link(c, 'Add to a Group', controller='package', action='edit', id=c.pkg.name)}        
         </p>
     </li>
