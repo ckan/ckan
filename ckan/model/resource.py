@@ -45,10 +45,10 @@ class PackageResource(vdm.sqlalchemy.RevisionedObjectMixin,
 
         extra_columns = self.get_extra_columns()
         for field in extra_columns:
-            value = kwargs.pop(field, u"")
+            value = kwargs.pop(field, u'')
             setattr(self, field, value)
         if kwargs:
-            raise TypeError("unexpected keywords %s" % kwargs)
+            raise TypeError('unexpected keywords %s' % kwargs)
 
     def as_dict(self, core_columns_only=False):
         _dict = OrderedDict()
@@ -60,7 +60,7 @@ class PackageResource(vdm.sqlalchemy.RevisionedObjectMixin,
         return _dict
         
     @classmethod
-    def get_columns(cls, extra_columns = True):
+    def get_columns(cls, extra_columns=True):
         '''Returns the core editable columns of the resource.'''
         if extra_columns:
             return ['url', 'format', 'description', 'hash'] + cls.get_extra_columns()
@@ -70,9 +70,9 @@ class PackageResource(vdm.sqlalchemy.RevisionedObjectMixin,
     @classmethod
     def get_extra_columns(cls):
         if cls.extra_columns is None:
-            cls.extra_columns = config.get('ckan.extra_resource_fields', "").split()
+            cls.extra_columns = config.get('ckan.extra_resource_fields', '').split()
             for field in cls.extra_columns:
-                setattr(cls, field, DictProxy(field, "extra_info"))
+                setattr(cls, field, DictProxy(field, 'extra_info'))
         return cls.extra_columns
 
     
@@ -94,7 +94,7 @@ mapper(PackageResource, package_resource_table, properties={
 )
     
 vdm.sqlalchemy.modify_base_object_mapper(PackageResource, Revision, State)
-PackageResourceRevision= vdm.sqlalchemy.create_object_version(
+PackageResourceRevision = vdm.sqlalchemy.create_object_version(
     mapper, PackageResource, resource_revision_table)
 
 import vdm.sqlalchemy.stateful
@@ -127,7 +127,7 @@ add_stateful_m21(Package, 'resources', 'package_resources_all',
 
 class DictProxy(object):
 
-    def __init__(self, target_key, target_dict, data_type = unicode):
+    def __init__(self, target_key, target_dict, data_type=unicode):
         self.target_key = target_key
         self.target_dict = target_dict
         self.data_type = data_type
