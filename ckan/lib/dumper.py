@@ -293,7 +293,9 @@ class PackagesXlWriter:
             if key=='resources':
                 for i, res in enumerate(value):
                     prefix = 'resource-%i' % i
-                    for field in model.PackageResource.get_columns():
+                    keys = model.PackageResource.get_columns()
+                    keys += [key_ for key_ in pkg.resources[i].extras.keys() if key_ not in keys]
+                    for field in keys:
                         dict_['%s-%s' % (prefix, field)] = res[field]
                 del dict_[key]
             elif isinstance(value, (list, tuple)):

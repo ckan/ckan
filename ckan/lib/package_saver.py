@@ -33,15 +33,19 @@ class PackageSaver(object):
         Note that the actual calling of render('package/read') is left
         to the caller.'''
         c.pkg = pkg
-        notes_formatted = ckan.misc.MarkdownFormat().to_html(pkg.notes)
-        c.pkg_extras = sorted([(k, v) for k, v in pkg.extras.items() \
-                               if k not in g.package_hide_extras])
-        c.pkg_notes_formatted = genshi.HTML(notes_formatted)
+        try:
+            notes_formatted = ckan.misc.MarkdownFormat().to_html(pkg.notes)
+            c.pkg_notes_formatted = genshi.HTML(notes_formatted)
+        except Exception, e:
+            error_msg = "<span class='inline-warning'>%s</span>" % _("Cannot render package description")
+            c.pkg_notes_formatted = genshi.HTML(error_msg)
         c.current_rating, c.num_ratings = ckan.rating.get_rating(pkg)
-        c.pkg_url_link = h.link_to(c.pkg.url, c.pkg.url, target='_blank') if c.pkg.url else "No web page given"
+        c.pkg_url_link = h.link_to(c.pkg.url, c.pkg.url, target='_blank') if c.pkg.url else _("No web page given")
         c.pkg_author_link = cls._person_email_link(c.pkg.author, c.pkg.author_email, "Author")
         c.pkg_maintainer_link = cls._person_email_link(c.pkg.maintainer, c.pkg.maintainer_email, "Maintainer")
         c.package_relationships = pkg.get_relationships_printable()
+        c.pkg_extras = sorted([(k, v) for k, v in pkg.extras.items() \
+                               if k not in g.package_hide_extras])
 
     @classmethod
     def _preview_pkg(cls, fs, log_message=None, author=None, client=None):
