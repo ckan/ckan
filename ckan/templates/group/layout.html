@@ -22,7 +22,7 @@
   </py:match>
 
   <py:match path="minornavigation" py:if="c.group">
-  <ul>
+  <ul class="tabbed">
     <li>${h.subnav_link(c, h.icon('group') + _('View'), controller='group', action='read', id=c.group.name)}</li>
     <li py:if="h.am_authorized(c, actions.EDIT, c.group)">
       ${h.subnav_link(c, h.icon('group_edit') + _('Edit'), controller='group', action='edit', id=c.group.name)}
