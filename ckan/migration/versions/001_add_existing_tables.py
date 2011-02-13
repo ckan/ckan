@@ -33,7 +33,7 @@ def upgrade(migrate_engine):
 
     package = Table('package', meta,
       Column('id', Integer() ,  primary_key=True, nullable=False),
-      Column('name', Unicode(100) ,  nullable=False),
+      Column('name', Unicode(100) ,  nullable=False, unique=True),
       Column('title', UnicodeText()),
       Column('version', Unicode(100)),
       Column('url', UnicodeText()),
@@ -60,7 +60,7 @@ def upgrade(migrate_engine):
 
     tag = Table('tag', meta,
       Column('id', Integer() ,  primary_key=True, nullable=False),
-      Column('name', Unicode(100), nullable=False),
+      Column('name', Unicode(100), nullable=False, unique=True),
     )
 
     package_tag = Table('package_tag', meta,

@@ -67,7 +67,6 @@ def upgrade2(migrate_engine, dropped_fk_constraints):
             ADD CONSTRAINT %(fkeyname)s
             FOREIGN KEY (%(col_name)s)
             REFERENCES revision (id)
-            ON UPDATE CASCADE
             ''' % {'table':table_name, 'fkeyname':constraint_name,
                     'col_name':constraint_columns[0] }
         migrate_engine.execute(oursql)

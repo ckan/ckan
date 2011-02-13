@@ -64,7 +64,6 @@ class HarvestingJob(HarvestDomainObject):
     def report_error(self, msg):
         self.set_status(u"Error")
         self.get_report()['errors'].append(msg)
-        self.errors += msg
 
     def report_package(self, msg):
         self.get_report()['packages'].append(msg)
@@ -755,7 +754,6 @@ harvesting_job_table = Table('harvesting_job', metadata,
         Column('created', DateTime, default=datetime.datetime.utcnow),
         Column('user_ref', types.UnicodeText, nullable=False),
         Column('report', JsonType),
-        Column('errors', types.UnicodeText, default=u''),
         Column('source_id', types.UnicodeText, ForeignKey('harvest_source.id')),
 )
 

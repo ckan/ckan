@@ -22,11 +22,10 @@ def upgrade(migrate_engine):
 
     harvesting_job_table = Table('harvesting_job', metadata,
             Column('id', UnicodeText, primary_key=True, default=make_uuid),
-            Column('status', UnicodeText, default=u''),
+            Column('status', UnicodeText, default=u'', nullable=False),
             Column('created', DateTime, default=datetime.datetime.utcnow),
             Column('user_ref', UnicodeText, nullable=False),
             Column('report', UnicodeText, default=u''),                     
-            Column('errors', UnicodeText, default=u''),
             Column('source_id', UnicodeText, ForeignKey('harvest_source.id')), 
     )
 

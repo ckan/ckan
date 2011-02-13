@@ -64,6 +64,8 @@ def upgrade(migrate_engine):
     revision_table_name = None
     convert_to_uuids(migrate_engine, primary_table_name, foreign_tables, revision_table_name)
 
+    drop_sequencies(migrate_engine)
+
 def convert_to_uuids(migrate_engine, primary_table_name, foreign_tables, revision_table_name=None):
     '''Convert an id column in Primary Table to string type UUIDs.
     How it works:
@@ -134,7 +136,6 @@ def add_fk_constraints(migrate_engine, dropped_fk_constraints, primary_table_nam
             ADD CONSTRAINT %(fkeyname)s
             FOREIGN KEY (%(col_name)s)
             REFERENCES %(primary_table_name)s (id)
-            ON UPDATE CASCADE
             ''' % {'table':table_name, 'fkeyname':constraint_name,
                    'col_name':constraint_columns[0],
                    'primary_table_name':primary_table_name}
@@ -160,6 +161,22 @@ def create_uuids(migrate_engine, primary_table_name, revision_table_name):
         # ensure each id in revision table match its continuity id.
         q = revision_table.update().values(id=revision_table.c.continuity_id)
         migrate_engine.execute(q)
+
+def drop_sequencies(migrate_engine):
+
+    sequencies = ['package_extra', 'package_extra_revision', 'package',
+                  'package_resource', 'package_resource_revision',
+                  'package_revision',' package_tag', 'package_tag_revision',
+                  'revision', 'tag']
+
+
+    for sequence in sequencies:
+        migrate_engine.execute('ALTER TABLE %s ALTER COLUMN id DROP DEFAULT;' % sequence)
+
+    for sequence in sequencies:
+        migrate_engine.execute('drop sequence %s_id_seq;' % sequence)
+
+
             
 def downgrade(migrate_engine):
     raise NotImplementedError()

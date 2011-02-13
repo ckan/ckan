@@ -21,7 +21,6 @@ def upgrade(migrate_engine):
             Column('timestamp', DateTime, default=datetime.datetime.utcnow),
             Column('is_working', Boolean, default=False),
             Column('revision_id', UnicodeText, ForeignKey('revision.id'), nullable=True),
-            Column('status', UnicodeText, nullable=True),
             Column('added_here', DateTime, default=datetime.datetime.utcnow),
     )
 
@@ -38,6 +37,7 @@ def upgrade(migrate_engine):
     metadata.bind = migrate_engine
     changeset_table.create()
     change_table.create()
+    changemask_table.create()
 
 def downgrade(migrate_engine):
     change_table.drop()

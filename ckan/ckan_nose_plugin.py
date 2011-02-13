@@ -14,6 +14,8 @@ class CkanNose(Plugin):
         import ckan.model as model
 
         if isclass(ctx):
+            if hasattr(ctx, "no_db") and ctx.no_db:
+                return
             if self.is_first_test or self.options.ckan_migration:
                 model.repo.clean_db()
                 self.is_first_test = False
