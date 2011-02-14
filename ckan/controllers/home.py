@@ -5,6 +5,7 @@ from pylons import cache, config
 from genshi.template import NewTextTemplate
 
 from ckan.authz import Authorizer
+from ckan.i18n import set_session_locale
 from ckan.lib.search import query_for, QueryOptions, SearchError
 from ckan.lib.cache import proxy_cache, get_cache_expires
 from ckan.lib.base import *
@@ -48,6 +49,21 @@ class HomeController(BaseController):
         response.content_type = 'text/json'
         return render('home/language.js', cache_expire=cache_expires,
                       method='text', loader_class=NewTextTemplate)
+    
+    def locale(self): 
+        return_to = request.params.get('return_to', '/')
+        locale = request.params.get('locale')
+        if locale is not None:
+            h.flash_notice(_("Language has been set to: English"))
+            set_session_locale(locale)
+        else:
+            h.flash_notice(_("No language given!"))
+        b = int(random.random()*100000)
+        if '?' in return_to:
+            return_to += '&__cache=%s' % b
+        else:
+            return_to += '?__cache=%s' % b
+        redirect_to(return_to.encode('utf-8'))
 
     def cache(self, id):
         '''Manual way to clear the caches'''

@@ -19,6 +19,7 @@ from genshi.template import MarkupTemplate
 from webhelpers.html import literal
 
 import ckan
+from ckan import i18n
 import ckan.lib.helpers as h
 from ckan.plugins import PluginImplementations, IGenshiStreamFilter
 from ckan.lib.helpers import json
@@ -96,6 +97,7 @@ class BaseController(WSGIController):
         else:
             c.author = c.remote_addr
         c.author = unicode(c.author)
+        i18n.handle_request(request, c)
 
     def __call__(self, environ, start_response):
         """Invoke the Controller"""

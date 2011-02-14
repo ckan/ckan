@@ -28,6 +28,7 @@ setup(
         'repoze.who>=1.0.0,<1.0.99',
         'repoze.who.plugins.openid>=0.5.3',
         'repoze.who-friendlyform>=1.0.8',
+        'Babel>=0.9.5', 
         'pyutilib.component.core>=4.1,<4.1.99',
         # uuid in python >= 2.5
         # 'uuid>=1.0',

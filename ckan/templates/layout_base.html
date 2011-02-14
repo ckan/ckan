@@ -201,6 +201,22 @@
           </div>
           </li>
         </ul>
+        <ul class="xoxo">
+          <li class="widget-container widget_text">
+          <h3 class="widget-title">Language</h3>
+          <div class="textwidget">
+            <ul>
+              <li py:for="locale in h.get_available_locales()">
+              <a href="${url(controller='home', action='locale', 
+                             locale=str(locale), 
+                             return_to=url.current().encode('utf-8'))}">
+                  ${locale.display_name}
+                </a>
+              </li>
+            </ul>
+          </div>
+          </li>
+        </ul>
       </div><!-- #first .widget-area -->
 
       <div id="fourth" class="widget-area">

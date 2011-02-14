@@ -16,6 +16,7 @@ from pylons.decorators.cache import beaker_cache
 from routes import url_for, redirect_to
 from alphabet_paginate import AlphaPage
 from lxml.html import fromstring
+from ckan.i18n import get_available_locales
 
 try:
     from collections import OrderedDict # from python 2.7

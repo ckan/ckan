@@ -69,7 +69,8 @@ class PackageController(BaseController):
         try:
             c.fields = []
             for (param, value) in request.params.items():
-                if not param in ['q', 'open_only', 'downloadable_only', 'page'] and len(value):
+                if not param in ['q', 'open_only', 'downloadable_only', 'page'] \
+                        and len(value) and not param.startswith('_'):
                     c.fields.append((param, value))
 
             query.run(query=q,
