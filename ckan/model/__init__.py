@@ -1,3 +1,4 @@
+import warnings
 from pylons import config
 from sqlalchemy import MetaData, __version__ as sqav
 from sqlalchemy.schema import Index
@@ -156,8 +157,8 @@ class Repository(vdm.sqlalchemy.Repository):
         
         ##this prints the diffs in a readable format
         ##import pprint
+        ##from migrate.versioning.schemadiff import getDiffOfModelAgainstDatabase
         ##pprint.pprint(getDiffOfModelAgainstDatabase(self.metadata, self.metadata.bind).colDiffs)
-
 
 
 repo = Repository(metadata, Session,
