@@ -10,10 +10,10 @@ from package import *
 from ckan.lib.helpers import json
 from ckan.model import extension
 
-__all__ = ['PackageResource', 'package_resource_table',
-           'PackageResourceRevision', 'resource_revision_table']
+__all__ = ['Resource', 'resource_table',
+           'ResourceRevision', 'resource_revision_table']
 
-package_resource_table = Table(
+resource_table = Table(
     'package_resource', metadata,
     Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
     Column('package_id', types.UnicodeText, ForeignKey('package.id')),
@@ -25,12 +25,12 @@ package_resource_table = Table(
     Column('extras', JsonDictType),
     )
 
-vdm.sqlalchemy.make_table_stateful(package_resource_table)
-resource_revision_table = vdm.sqlalchemy.make_revisioned_table(package_resource_table)
+vdm.sqlalchemy.make_table_stateful(resource_table)
+resource_revision_table = vdm.sqlalchemy.make_revisioned_table(resource_table)
 
-class PackageResource(vdm.sqlalchemy.RevisionedObjectMixin,
-                      vdm.sqlalchemy.StatefulObjectMixin,
-                      DomainObject):
+class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
+               vdm.sqlalchemy.StatefulObjectMixin,
+               DomainObject):
     extra_columns = None
     def __init__(self, package_id=None, url=u'', 
                  format=u'', description=u'', hash=u'',
@@ -80,25 +80,25 @@ class PackageResource(vdm.sqlalchemy.RevisionedObjectMixin,
 
     
 
-mapper(PackageResource, package_resource_table, properties={
+mapper(Resource, resource_table, properties={
     'package':orm.relation(Package,
         # all resources including deleted
         backref=orm.backref('package_resources_all',
                             collection_class=ordering_list('position'),
                             cascade='all, delete, delete-orphan',
-                            order_by=package_resource_table.c.position,
+                            order_by=resource_table.c.position,
                             ),
                        )
     },
-    order_by=[package_resource_table.c.package_id],
+    order_by=[resource_table.c.package_id],
     extension=[vdm.sqlalchemy.Revisioner(resource_revision_table),
                extension.PluginMapperExtension(),
                ],
 )
     
-vdm.sqlalchemy.modify_base_object_mapper(PackageResource, Revision, State)
-PackageResourceRevision = vdm.sqlalchemy.create_object_version(
-    mapper, PackageResource, resource_revision_table)
+vdm.sqlalchemy.modify_base_object_mapper(Resource, Revision, State)
+ResourceRevision = vdm.sqlalchemy.create_object_version(
+    mapper, Resource, resource_revision_table)
 
 import vdm.sqlalchemy.stateful
 # TODO: move this into vdm

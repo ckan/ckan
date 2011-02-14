@@ -315,21 +315,21 @@ class TestRelatedRevisions:
         rev.message = u'Added tags'
         model.repo.commit_and_remove()
 
-        # edit pkg - PackageResourceRevision
+        # edit pkg - ResourceRevision
         rev = model.repo.new_revision()
         pkg1 = model.Package.by_name(self.name)
-        pkg1.resources.append(model.PackageResource(url=u'http://url1.com',
+        pkg1.resources.append(model.Resource(url=u'http://url1.com',
                                                     format=u'xls',
                                                     description=u'It is.',
                                                     hash=u'abc123'))
         rev.message = u'Added resource'
         model.repo.commit_and_remove()
 
-        # edit pkg - PackageResourceRevision
+        # edit pkg - ResourceRevision
         rev = model.repo.new_revision()
         pkg1 = model.Package.by_name(self.name)
         pkg1.resources[0].url = u'http://url1.com/edited'
-        pkg1.resources.append(model.PackageResource(url=u'http://url2.com'))
+        pkg1.resources.append(model.Resource(url=u'http://url2.com'))
         rev.message = u'Added resource'
         model.repo.commit_and_remove()
 
@@ -341,8 +341,8 @@ class TestRelatedRevisions:
         model.repo.commit_and_remove()
 
         self.pkg1 = model.Package.by_name(self.name)
-        self.res1 = model.Session.query(model.PackageResource).filter_by(url=u'http://url1.com/edited').one()
-        self.res2 = model.Session.query(model.PackageResource).filter_by(url=u'http://url2.com').one()
+        self.res1 = model.Session.query(model.Resource).filter_by(url=u'http://url1.com/edited').one()
+        self.res2 = model.Session.query(model.Resource).filter_by(url=u'http://url2.com').one()
         assert self.pkg1
 
     @classmethod
@@ -372,7 +372,7 @@ class TestRelatedRevisions:
         assert diff.get('PackageExtra-c-value') == u'- \n+ d', diff
         assert diff.get('PackageExtra-c-state') == u'- \n+ active', diff
         def test_res(diff, res, field, expected_value):
-            key = 'PackageResource-%s-%s' % (res.id[:4], field)
+            key = 'Resource-%s-%s' % (res.id[:4], field)
             got_value = diff.get(key)
             expected_value = u'- \n+ %s' % expected_value
             assert got_value == expected_value, 'Key: %s Got: %r Expected: %r' % (key, got_value, expected_value)

@@ -68,9 +68,9 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         '''Change this package\'s resources.
         @param res_dicts - ordered list of dicts, each detailing a resource
         The resource dictionaries contain 'url', 'format' etc. Optionally they
-        can also provide the 'id' of the PackageResource, to help matching
-        res_dicts to existing PackageResources. Otherwise, it searches
-        for an exactly matching PackageResource.
+        can also provide the 'id' of the Resource, to help matching
+        res_dicts to existing Resources. Otherwise, it searches
+        for an exactly matchinrce.
         The caller is responsible for creating a revision and committing.'''
         import resource
         assert isinstance(res_dicts, (list, tuple))
@@ -81,7 +81,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             assert isinstance(res_dict, dict)
             id = res_dict.get('id')
             if id:
-                res = Session.query(resource.PackageResource).autoflush(autoflush).get(id)
+                res = Session.query(resource.Resource).autoflush(autoflush).get(id)
                 if res:
                     index_to_res[i] = res
         # Edit resources and create the new ones
@@ -96,13 +96,13 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                 for key in ('id', 'position'):
                     if res_dict.has_key(key):
                         del res_dict[key]
-                res = resource.PackageResource(**res_dict)
+                res = resource.Resource(**res_dict)
             new_res_list.append(res)
         self.resources = new_res_list
 
     def add_resource(self, url, format=u'', description=u'', hash=u'', **kw):
         import resource
-        self.resources.append(resource.PackageResource(
+        self.resources.append(resource.Resource(
             package_id=self.id,
             url=url,
             format=format,
@@ -310,7 +310,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     def all_related_revisions(self):
         '''Returns chronological list of all object revisions related to
         this package. Includes PackageRevisions, PackageTagRevisions,
-        PackageExtraRevisions and PackageResourceRevisions.
+        PackageExtraRevisions and ResourceRevisions.
         @return List of tuples (revision, [list of object revisions of this
                                            revision])
                 Ordered by most recent first.
@@ -344,7 +344,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         import package_extra, resource
         results = {} # field_name:diffs
         results.update(super(Package, self).diff(to_revision, from_revision))
-        # Iterate over PackageTag, PackageExtra, PackageResources etc.
+        # Iterate over PackageTag, PackageExtra, Resources etc.
         for obj_class in get_revisioned_classes_related_to_package():
             obj_rev_class = obj_class.__revision_class__
             # Query for object revisions related to this package            
@@ -402,8 +402,8 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                  model.package_relationship_table.c.revision_id == model.revision_table.c.id, *where),
             and_(model.package_relationship_table.c.object_package_id == model.package_table.c.id,
                  model.package_relationship_table.c.revision_id == model.revision_table.c.id, *where),
-            and_(model.package_resource_table.c.package_id == model.package_table.c.id,
-                 model.package_resource_table.c.revision_id == model.revision_table.c.id, *where),
+            and_(model.resource_table.c.package_id == model.package_table.c.id,
+                 model.resource_table.c.revision_id == model.revision_table.c.id, *where),
             and_(model.package_tag_table.c.package_id == model.package_table.c.id,
                  model.package_tag_table.c.revision_id == model.revision_table.c.id, *where)
             ]
@@ -459,6 +459,6 @@ def get_revisioned_classes_related_to_package():
     import resource
     import package_extra
     import tag
-    return [tag.PackageTag, resource.PackageResource,
+    return [tag.PackageTag, resource.Resource,
             package_extra.PackageExtra]
 

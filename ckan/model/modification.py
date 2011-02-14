@@ -10,7 +10,7 @@ from ckan.model.extension import ObserverNotifier
 from ckan.model.domain_object import DomainObjectOperation
 
 from ckan.model.package import Package
-from ckan.model.resource import PackageResource
+from ckan.model.resource import Resource
 from ckan.model.package_extra import PackageExtra
 from ckan.model.tag import PackageTag
 
@@ -62,7 +62,7 @@ class DomainObjectModificationExtension(SingletonPlugin, ObserverNotifier):
 
         if isinstance(instance, Package):
             self.notify(instance, operation)
-        elif isinstance(instance, PackageResource):
+        elif isinstance(instance, Resource):
             self.notify(instance, operation)
             self.notify(instance.package, DomainObjectOperation.changed)
         elif isinstance(instance, (PackageExtra, PackageTag)):

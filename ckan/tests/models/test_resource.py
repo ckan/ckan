@@ -5,12 +5,12 @@ from ckan.tests import *
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 
-class TestPackageResource:
+class TestResource:
     def setup(self):
         model.repo.init_db()
         self.pkgname = u'resourcetest'
         assert not model.Package.by_name(self.pkgname)
-        assert model.Session.query(model.PackageResource).count() == 0
+        assert model.Session.query(model.Resource).count() == 0
         self.urls = [u'http://somewhere.com/', u'http://elsewhere.com/']
         self.format = u'csv'
         self.description = u'Important part.'
@@ -21,7 +21,7 @@ class TestPackageResource:
         pkg = model.Package(name=self.pkgname)
         model.Session.add(pkg)
         for url in self.urls:
-            pr = model.PackageResource(url=url,
+            pr = model.Resource(url=url,
                                        format=self.format,
                                        description=self.description,
                                        hash=self.hash,
@@ -122,7 +122,7 @@ class TestPackageResource:
         rev = model.repo.new_revision()
         newurl = u'http://xxxxxxxxxxxxxxx'
 
-        resource = model.PackageResource(url=newurl)
+        resource = model.Resource(url=newurl)
 
         pkg.resources.insert(0, resource)
         model.repo.commit_and_remove()
@@ -134,8 +134,8 @@ class TestPackageResource:
 
     def test_05_delete_package(self):
         pkg = model.Package.by_name(self.pkgname)
-        all_resources = model.Session.query(model.PackageResource)
-        active_resources = model.Session.query(model.PackageResource).\
+        all_resources = model.Session.query(model.Resource)
+        active_resources = model.Session.query(model.Resource).\
                            filter_by(state=model.State.ACTIVE)
         assert all_resources.count() == 2, all_resources.all()
         assert active_resources.count() == 2, active_resources.all()
@@ -150,14 +150,14 @@ class TestPackageResource:
 
     def test_06_purge_package(self):
         pkg = model.Package.by_name(self.pkgname)
-        all_resources = model.Session.query(model.PackageResource).all()
+        all_resources = model.Session.query(model.Resource).all()
         assert len(all_resources) == 2, pkg.resources
         rev = model.repo.new_revision()
         pkg.purge()
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(self.pkgname)
-        all_resources = model.Session.query(model.PackageResource).\
+        all_resources = model.Session.query(model.Resource).\
                         filter_by(state=model.State.ACTIVE).all()
         assert len(all_resources) == 0, pkg.resources
 
@@ -181,7 +181,7 @@ class TestResourceEdit:
         pkg = model.Package.by_name(self.pkgname)
         rev = model.repo.new_revision()
         for url in self.urls:
-            pkg.resources.append(model.PackageResource(url=url,
+            pkg.resources.append(model.Resource(url=url,
                                        format=self.format,
                                        description=self.description,
                                        hash=self.hash))
@@ -224,7 +224,7 @@ class TestResourceEdit:
         assert pkg.resources[1].id != original_res_ids[1]
 
         # package resource revisions
-        prr_q = model.Session.query(model.PackageResourceRevision)
+        prr_q = model.Session.query(model.ResourceRevision)
         assert len(prr_q.all()) == offset + 2 + 1, prr_q.all() # 2 deletions, 1 new one
         prr1 = prr_q.\
                filter_by(revision_id=rev.id).\
@@ -234,12 +234,12 @@ class TestResourceEdit:
         assert prr1.url == self.urls[1], '%s != %s' % (prr1.url, self.urls[1])
         assert prr1.revision.id == rev.id, '%s != %s' % (prr1.revision.id, rev.id)
         # revision contains package resource revisions
-        rev_prrs = model.repo.list_changes(rev)[model.PackageResource]
+        rev_prrs = model.repo.list_changes(rev)[model.Resource]
         assert len(rev_prrs) == 3, rev_prrs # 2 deleted, 1 new
 
         # previous revision still contains previous ones
         previous_rev = model.repo.history()[1]
-        previous_rev_prrs = model.repo.list_changes(previous_rev)[model.PackageResource]
+        previous_rev_prrs = model.repo.list_changes(previous_rev)[model.Resource]
         assert len(previous_rev_prrs) == offset, rev_prrs
 
     def test_2_update_resources_with_ids(self):

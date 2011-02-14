@@ -38,7 +38,7 @@ class RevisionController(BaseController):
             for revision in revision_query:
                 package_indications = []
                 revision_changes = model.repo.list_changes(revision)
-                package_resource_revisions = revision_changes[model.PackageResource]
+                package_resource_revisions = revision_changes[model.Resource]
                 package_extra_revisions = revision_changes[model.PackageExtra]
                 for package in revision.packages:
                     number = len(package.all_revisions)
