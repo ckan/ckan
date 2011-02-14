@@ -7,7 +7,7 @@
   >
 
   <py:match path="minornavigation" py:if="c.authorization_group">
-  <ul>
+  <ul class="tabbed">
     <li>${h.subnav_link(c, h.icon('authorization_group') + _('View'), controller='authorization_group', action='read', id=c.authorization_group.name)}</li>
     <li py:if="h.am_authorized(c, actions.EDIT, c.authorization_group)">
       ${h.subnav_link(c, h.icon('authorization_group_edit') + _('Edit'), controller='authorization_group', action='edit', id=c.authorization_group.name)}

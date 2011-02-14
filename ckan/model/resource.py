@@ -58,7 +58,7 @@ class PackageResource(vdm.sqlalchemy.RevisionedObjectMixin,
             cols = ['id', 'package_id'] + cols + ['position']
         for col in cols:
             _dict[col] = getattr(self, col)
-        for k, v in self.extras.items():
+        for k, v in self.extras.items() if self.extras else []:
             _dict[k] = v
         return _dict
         
