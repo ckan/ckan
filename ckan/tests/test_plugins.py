@@ -169,9 +169,9 @@ class TestPlugins(TestCase):
         assert mapper_plugin.added[0].name == 'testpkg'
 
     def test_routes_plugin_fired(self):
-        config = appconfig('config:test.ini', relative_to=conf_dir)
-        config.local_conf['ckan.plugins'] = 'routes_plugin'
-        app = make_app(config.global_conf, **config.local_conf)
+        local_config = appconfig('config:%s' % config['__file__'], relative_to=conf_dir)
+        local_config.local_conf['ckan.plugins'] = 'routes_plugin'
+        app = make_app(local_config.global_conf, **local_config.local_conf)
         routes_plugin = PluginGlobals.plugin_registry['RoutesPlugin'].__instance__
         assert routes_plugin.calls_made == ['before_map', 'after_map'], \
                routes_plugin.calls_made
