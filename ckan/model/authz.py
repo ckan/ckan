@@ -101,7 +101,10 @@ system_role_table = Table('system_role', metadata,
 
 
 class RoleAction(DomainObject):
-    pass
+    def __repr__(self):
+        return '<%s role="%s" action="%s" context="%s">' % \
+               (self.__class__.__name__, self.role, self.action, self.context)
+    
 
 # dictionary mapping protected objects (e.g. Package) to related ObjectRole
 protected_objects = {}
@@ -246,12 +249,15 @@ def remove_authorization_group_from_role(authorization_group, role, domain_obj):
     objectrole = UserObjectRole.get_object_role_class(domain_obj)
     objectrole.remove_authorization_group_from_role(authorization_group, role, domain_obj)
     
-
-def validate_authorization_setup():
+def init_authz_configuration_data():
+    setup_default_user_roles(System())
+    Session.commit()
+    Session.remove()
+    
+def init_authz_const_data():
     # since some of the authz config mgmt is taking place in DB, this should 
     # be validated on launch. it is a bit like a lazy migration, but seems 
     # sensible to make sure authz is always correct.
-    setup_default_user_roles(System())
     # setup all role-actions
     # context is blank as not currently used
     # Note that Role.ADMIN can already do anything - hardcoded in.
