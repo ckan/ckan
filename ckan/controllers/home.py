@@ -58,11 +58,8 @@ class HomeController(BaseController):
             set_session_locale(locale)
         else:
             h.flash_notice(_("No language given!"))
-        b = int(random.random()*100000)
-        if '?' in return_to:
-            return_to += '&__cache=%s' % b
-        else:
-            return_to += '?__cache=%s' % b
+        return_to += '&' if '?' in return_to else '?'
+        return_to += '__cache=%s' %  int(random.random()*100000000)
         redirect_to(return_to.encode('utf-8'))
 
     def cache(self, id):
