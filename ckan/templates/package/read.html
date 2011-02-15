@@ -26,8 +26,8 @@
         <h3>Groups</h3>
         <py:if test="c.pkg.groups">        
             <ul>
-              <li py:for="group in c.pkg.groups">
-                  <a href="${h.url_for(controller='group', action='read', id=group.name)}">${group.name}</a>
+              <li py:for="group in sorted(c.pkg.groups, key=lambda g: g.display_name)">
+                  <a href="${h.url_for(controller='group', action='read', id=group.name)}">${group.display_name}</a>
               </li>
             </ul>
         </py:if>

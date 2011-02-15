@@ -45,6 +45,12 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         self.name = name
         self.title = title
         self.description = description
+    
+    @property
+    def display_name(self): 
+        if self.title is not None and len(self.title): 
+            return "%s (%s)" % (self.title, self.name)
+        return self.name
 
     # not versioned
     def delete(self):

@@ -19,6 +19,8 @@ class GroupController(BaseController):
         from ckan.lib.helpers import Page
 
         query = ckan.authz.Authorizer().authorized_query(c.user, model.Group)
+        query = query.order_by(model.Group.name.asc())
+        query = query.order_by(model.Group.title.asc())
         query = query.options(eagerload_all('packages'))
         c.page = Page(
             collection=query,
@@ -160,7 +162,7 @@ class GroupController(BaseController):
         if c.group is None:
             abort(404, _('Group not found'))
         c.groupname = c.group.name
-        c.grouptitle = c.group.title
+        c.grouptitle = c.group.display_name
 
         c.authz_editable = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, c.group)
         if not c.authz_editable:
@@ -265,7 +267,8 @@ class GroupController(BaseController):
             feed = Atom1Feed(
                 title=_(u'CKAN Group Revision History'),
                 link=h.url_for(controller='group', action='read', id=c.group.name),
-                description=_(u'Recent changes to CKAN Package: ') + (c.group.title or ''),
+                description=_(u'Recent changes to CKAN Group: ') +
+                    c.group.display_name,
                 language=unicode(get_lang()),
             )
             for revision, obj_rev in c.group.all_related_revisions:

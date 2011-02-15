@@ -103,7 +103,7 @@ def group_name_to_title(name):
     from ckan import model
     group = model.Group.by_name(name)
     if group is not None:
-        return group.title
+        return group.display_name
     return name
 
 def markdown_extract(text):
