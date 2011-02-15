@@ -17,7 +17,7 @@ class System(DomainObject):
         pass
         
     @classmethod
-    def by_name(self, name): 
+    def by_name(cls, name): 
         return System()        
 
 # VDM-specific domain objects

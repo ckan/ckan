@@ -39,7 +39,7 @@ def abort(status_code=None, detail='', headers=None, comment=None):
     if detail:
         h.flash_error(detail)
     return _abort(status_code=status_code, 
-                  detail=detail, 
+                  detail=detail,
                   headers=headers, 
                   comment=comment)
 

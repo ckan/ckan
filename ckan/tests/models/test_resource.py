@@ -1,4 +1,5 @@
 from sqlalchemy import MetaData, __version__ as sqav
+from nose.tools import assert_equal
 
 from ckan.tests import *
 import ckan.model as model
@@ -14,6 +15,8 @@ class TestPackageResource:
         self.format = u'csv'
         self.description = u'Important part.'
         self.hash = u'abc123'
+        self.alt_url = u'http://alturl' 
+        self.size = 200
         rev = model.repo.new_revision()
         pkg = model.Package(name=self.pkgname)
         model.Session.add(pkg)
@@ -22,6 +25,8 @@ class TestPackageResource:
                                        format=self.format,
                                        description=self.description,
                                        hash=self.hash,
+                                       alt_url=self.alt_url,
+                                       extras={u'size':self.size},
                                        )
             pkg.resources.append(pr)
         model.repo.commit_and_remove()
@@ -44,8 +49,35 @@ class TestPackageResource:
         assert pkg.resources[0].description == self.description, pkg.resources[0]
         assert pkg.resources[0].hash == self.hash, pkg.resources[0]
         assert pkg.resources[0].position == 0, pkg.resources[0].position
+        assert pkg.resources[0].alt_url == self.alt_url, pkg.resources[0].alt_url
+        assert_equal(pkg.resources[0].extras[u'size'], self.size)
+
         resources = pkg.resources
         assert resources[0].package == pkg, resources[0].package
+
+        generated_dict = pkg.resources[0].as_dict()
+        assert generated_dict['alt_url'] == u'http://alturl', generated_dict['alt_url']
+        assert_equal(generated_dict['size'], 200)
+
+        ## check to see if extra descriptor deletes properly
+        rev = model.repo.new_revision()
+        del pkg.resources[0].extras[u'size']
+        assert pkg.resources[0].extras == {u'alt_url': u'http://alturl'}, pkg.resources[0].extras
+
+        del pkg.resources[0].alt_url
+        assert pkg.resources[0].extras == {}, pkg.resources[0].extras
+        assert pkg.resources[0].alt_url is None
+
+        pkg.resources[0].alt_url = 'weeee'
+        assert pkg.resources[0].extras == {u'alt_url': u'weeee'}, pkg.resources[0].extras
+
+        model.Session.add(pkg.resources[0])
+
+        model.repo.commit_and_remove()
+        pkg = model.Package.by_name(self.pkgname)
+
+        assert pkg.resources[0].extras == {u'alt_url': u'weeee'}, pkg.resources[0].extras
+        assert pkg.resources[0].alt_url == 'weeee', pkg.resources[0].alt_url
 
     def test_02_delete_resource(self):
         pkg = model.Package.by_name(self.pkgname)
@@ -72,7 +104,7 @@ class TestPackageResource:
         # http://www.sqlalchemy.org/trac/browser/lib/sqlalchemy/ext/orderinglist.py#L197)
         # so we have to call reorder directly in supported versions
         # of sqlalchemy and set position to None in older ones.
-        if sqav.startswith("0.4"):
+        if sqav.startswith('0.4'):
             pkg.resources[1].position = None
         else:
             pkg.resources.target.reorder()            
@@ -89,7 +121,10 @@ class TestPackageResource:
         pkg = model.Package.by_name(self.pkgname)
         rev = model.repo.new_revision()
         newurl = u'http://xxxxxxxxxxxxxxx'
-        pkg.resources.insert(0, model.PackageResource(url=newurl))
+
+        resource = model.PackageResource(url=newurl)
+
+        pkg.resources.insert(0, resource)
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(self.pkgname)

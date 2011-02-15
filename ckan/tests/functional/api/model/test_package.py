@@ -52,9 +52,18 @@ class PackagesTestCase(BaseModelApiTestCase):
         for (i, expected_resource) in enumerate(self.package_fixture_data['resources']):
             package_resource = package.resources[i]
             for key in expected_resource.keys():
-                package_resource_value = getattr(package_resource, key)
-                expected_resource_value = expected_resource[key]
-                self.assert_equal(package_resource_value, expected_resource_value)
+                if key == 'extras':
+                    package_resource_extras = getattr(package_resource, key)
+                    expected_resource_extras = expected_resource[key].items()
+                    for expected_extras_key, expected_extras_value in expected_resource_extras:
+                        package_resource_value = package_resource_extras[expected_extras_key],\
+                         'Package:%r Extras:%r Expected_extras:%r' % \
+                         (self.package_fixture_data['name'],
+                          package_resource_extras, expected_resource)
+                else:
+                    package_resource_value = getattr(package_resource, key)
+                    expected_resource_value = expected_resource[key]
+                    self.assert_equal(package_resource_value, expected_resource_value)
 
         # Test Package Entity Get 200.
         offset = self.package_offset(self.package_fixture_data['name'])
@@ -151,13 +160,15 @@ class PackagesTestCase(BaseModelApiTestCase):
                 u'format':u'xml',
                 u'description':u'Appendix 1',
                 u'hash':u'def123',
-                u'position':'ignore-this',
-                u'id':'ignore-this',
+                u'alt_url':u'alt123',
+                u'extras':{u'size':u'400'},
             },{
                 u'url':u'http://blah.com/file3.xml',
                 u'format':u'xml',
                 u'description':u'Appenddic 2',
                 u'hash':u'ghi123',
+                u'alt_url':u'alt123',
+                u'extras':{u'size':u'400'},
             }],
             'extras': {
                 u'key3': u'val3', 
@@ -189,11 +200,15 @@ class PackagesTestCase(BaseModelApiTestCase):
         self.assert_equal(resource.format, u'xml')
         self.assert_equal(resource.description, u'Appendix 1')
         self.assert_equal(resource.hash, u'def123')
+        self.assert_equal(resource.alt_url, u'alt123')
+        self.assert_equal(resource.extras['size'], u'400')
         resource = package.resources[1]
         self.assert_equal(resource.url, 'http://blah.com/file3.xml')
         self.assert_equal(resource.format, u'xml')
         self.assert_equal(resource.description, u'Appenddic 2')
         self.assert_equal(resource.hash, u'ghi123')
+        self.assert_equal(resource.alt_url, u'alt123')
+        self.assert_equal(resource.extras['size'], u'400')
 
         # Check unsubmitted fields have not changed.
         # - url

@@ -1,6 +1,7 @@
 import logging
 
 import sqlalchemy
+from sqlalchemy.sql import or_
 from sqlalchemy.exceptions import UnboundExecutionError
 
 from common import SearchBackend, SearchQuery, SearchError
@@ -96,6 +97,13 @@ class ResourceSqlSearchQuery(SqlSearchQuery):
                 model_attr = getattr(model.PackageResource, field)
                 if field == 'hash':                
                     q = q.filter(model_attr.ilike(unicode(term) + '%'))
+                elif field in model.PackageResource.get_extra_columns():
+                    model_attr = getattr(model.PackageResource, 'extras')
+
+                    like = or_(model_attr.ilike(u'''%%"%s": "%%%s%%",%%''' % (field, term)),
+                               model_attr.ilike(u'''%%"%s": "%%%s%%"}''' % (field, term))
+                              )
+                    q = q.filter(like)
                 else:
                     q = q.filter(model_attr.ilike('%' + unicode(term) + '%'))
         

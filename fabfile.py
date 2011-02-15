@@ -448,7 +448,7 @@ def restore(pg_dump_filepath):
             default=False)
     with cd(env.instance_path):
         _run_in_pyenv('paster --plugin ckan db clean --config %s' % env.config_ini_filename)
-    assert db_details['db_type'] == 'postgres'
+    assert db_details['db_type'] in ('postgres', 'postgresql')
     port_option = '-p %s'  % db_details['db_port'] if db_details['db_port'] else ''
     run('export PGPASSWORD=%s&&psql -U %s -d %s -h %s %s -f %s' % (db_details['db_pass'], db_details['db_user'], db_details['db_name'], db_details['db_host'], port_option, pg_dump_filepath), shell=False)
     with cd(env.instance_path):
