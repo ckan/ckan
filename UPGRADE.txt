@@ -25,9 +25,6 @@ cd ../../../
 # bring db up to date
 paster --plugin ckan db upgrade --config {config.ini}
 
-# NB: if you have updates to licenses you need to to
-# paster --plugin ckan db init --config {config.ini}
-
 # Restart apache (so modpython has latest code)
 sudo /etc/init.d/apache2 restart
 

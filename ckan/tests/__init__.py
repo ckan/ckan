@@ -344,6 +344,10 @@ def is_regex_supported():
     supported_db = "sqlite" not in config.get('sqlalchemy.url')
     return supported_db
 
+def is_migration_supported():
+    supported_db = "sqlite" not in config.get('sqlalchemy.url')
+    return supported_db
+
 def search_related(test):
     def skip_test(*args):
         raise SkipTest("Search not supported")
