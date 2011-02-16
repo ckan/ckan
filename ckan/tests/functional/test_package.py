@@ -9,6 +9,7 @@ from nose.plugins.skip import SkipTest
 
 from ckan.tests import *
 from ckan.tests import search_related
+from ckan.tests.html_check import HtmlCheckMethods
 from ckan.tests.pylons_controller import PylonsTestCase
 from base import FunctionalTestCase
 import ckan.model as model
@@ -59,8 +60,11 @@ class TestPackageBase(FunctionalTestCase):
         assert 'class="field_error"' in res, res
 
     def diff_responses(self, res1, res2):
-        return '\n'.join(unified_diff(res1.body.split('\n'),
-                                      res2.body.split('\n')))
+        return self.diff_html(res1.body, res2.body)
+
+    def diff_html(self, html1, html2):
+        return '\n'.join(unified_diff(html1.split('\n'),
+                                      html2.split('\n')))
 
 class TestPackageForm(TestPackageBase):
     '''Inherit this in tests for these form testing methods'''
@@ -252,14 +256,14 @@ class TestPackageForm(TestPackageBase):
                     pkg.purge()
                 model.repo.commit_and_remove()
 
-class TestReadOnly(TestPackageForm):
+class TestReadOnly(TestPackageForm, HtmlCheckMethods):
 
     @classmethod
-    def setup_class(self):
+    def setup_class(cls):
         CreateTestData.create()
 
     @classmethod
-    def teardown_class(self):
+    def teardown_class(cls):
         CreateTestData.delete()
         model.repo.rebuild_db()
 
@@ -272,23 +276,23 @@ class TestReadOnly(TestPackageForm):
 
     def test_read(self):
         name = u'annakarenina'
+        c.hide_welcome_message = True
         offset = url_for(controller='package', action='read', id=name)
         res = self.app.get(offset)
-        # check you get the same thing referring to pkg by id
+        # check you get the same html when specifying the pkg by id
+        # instead of by name
         offset = url_for(controller='package', action='read', id=self.anna.id)
         res_by_id = self.app.get(offset)
-        # XXX the following fails nondeterministically
-        # when it *does* fail, it's due to the following difference:
-        # 247,248d246
-        # <       <a href="/tag/russian">russian</a>
-        # <     </li><li>
-        # 249a248,249
-        # >     </li><li>
-        # >       <a href="/tag/russian">russian</a>
-        # therefore, commented out original test and replaced by a
-        # less stringent one
-        #assert res_by_id.body == res.body
-        assert len(res_by_id.body) == len(res.body)
+        # just check the stuff in the package div
+        pkg_by_name_main = self.named_div('package', res)
+        pkg_by_id_main = self.named_div('package', res_by_id)
+        # rename some things which may be in the wrong order sometimes
+        txt_order_non_deterministic = ('russian', 'tolstoy', 'david', 'roger')
+        for txt in txt_order_non_deterministic:
+            for pkg_ in (pkg_by_name_main, pkg_by_id_main):
+                pkg_ = pkg_.replace(txt, 'placeholder')
+        res_diff = self.diff_html(pkg_by_name_main, pkg_by_id_main)
+        assert not res_diff, res_diff
         # only retrieve after app has been called
         anna = self.anna
         assert name in res
@@ -769,9 +773,6 @@ u with umlaut \xc3\xbc
 
 
     def test_edit_bad_log_message(self):
-        # XXX to make this test pass, I had to do a strange hack that
-        # I didn't understand -- look for XXX in 
-        # controllers.package.PackageController.edit
         fv = self.res.forms['package-edit']
         prefix = 'Package-%s-' % self.pkgid
         fv['log_message'] = u'Free enlargements: http://drugs.com/' # spam
@@ -786,7 +787,6 @@ u with umlaut \xc3\xbc
         assert 'No links are allowed' in res, res
 
     def test_edit_bad_name(self):
-        # XXX fails with same error as above
         fv = self.res.forms['package-edit']
         prefix = 'Package-%s-' % self.pkgid
         fv[prefix + 'name'] = u'a' # invalid name
@@ -1388,11 +1388,11 @@ alert('Hello world!');
 
 class TestEtags(TestPackageBase, PylonsTestCase):
     @classmethod
-    def setup_class(self):
+    def setup_class(cls):
         CreateTestData.create()
 
     @classmethod
-    def teardown_class(self):
+    def teardown_class(cls):
         CreateTestData.delete()
         model.repo.rebuild_db()
 
