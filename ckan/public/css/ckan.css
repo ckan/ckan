@@ -48,16 +48,17 @@ a:hover {
 
 .flash-banner {
   width: auto;
-  font-size: 1.1em;
-  padding: 0.6em;
+  line-height: 1em;
+  font-size: 14px;
+  padding: 0.8em 1.5%; 
   font-weight: bold;
   text-align: center;
-  border-bottom: 2px solid #333;
+  border-bottom: solid 1px #9f9f9f;
   color: #133362;
 }
 
 .flash-banner.notice {
-  background-color: #dde7ef;
+  background: #f4a83d;
   border-bottom-color: #dddddd;
 }
 
