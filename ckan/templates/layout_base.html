@@ -48,7 +48,7 @@
   </py:if>
 </head>
 
-<body class="${value_of('body_class', default='')}">
+<body class="${value_of('body_class', default=lambda: c.body_class)()}">
 
 <div id="wrapper" class="hfeed">
   <div id="header">
