@@ -8,22 +8,24 @@ class HtmlCheckMethods(object):
     '''A collection of methods to check properties of a html page, usually
     in the form returned by paster.'''
     
+    def named_div(self, div_name, html):
+        'strips html to just the <div id="DIV_NAME"> section'
+        the_html = html.body.decode('utf8')
+        div_html = the_html[the_html.find(u'<div id="%s"' % div_name):the_html.find(u'<!-- /%s -->' % div_name)]
+        assert div_html
+        return div_html
+
     def main_div(self, html):
         'strips html to just the <div id="main"> section'
-        the_html = html.body.decode('utf8')
-        return the_html[the_html.find(u'<div id="main">'):the_html.find(u'<!-- /main -->')]
+        return self.named_div('main', html)
 
     def preview_div(self, html):
         'strips html to just the <div id="preview"> section'
-        the_html = html.body.decode('utf8')
-        preview_html = the_html[the_html.find(u'<div id="preview"'):the_html.find(u'<!-- /preview -->')]
-        assert preview_html, the_html
-        return preview_html
+        return self.named_div('preview', html)
 
     def sidebar(self, html):
         'strips html to just the <div id="primary"> section'
-        the_html = str(html)
-        return the_html[the_html.find('<div id="primary"'):the_html.find('<div id="main">')]
+        return self.named_div('primary', html)
 
     def strip_tags(self, res):
         '''Call strip_tags on a TestResponse object to strip any and all HTML and normalise whitespace.'''
