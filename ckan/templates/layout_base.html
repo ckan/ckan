@@ -162,7 +162,9 @@
             <ul>
                 <li>${h.nav_link(c, _('Search'), controller='package', action='search', id=None)}</li>                
                 <li py:if="h.am_authorized(c, actions.PACKAGE_CREATE)">${h.nav_link(c, _('Register a new Package'), controller='package', action='new', id=None)}</li>
-                <li>${h.nav_link(c, _('Revision History'), controller='revision', action='index', id=None)}</li>                
+                <li>${h.nav_link(c, _('Revision History'), controller='revision', action='index', id=None)}</li>
+                <li>${h.link_to(_('API'), h.url_for(controller='rest', action='get_api'))}</li>
+                <li>${h.link_to(_('API Docs'), 'http://ckan.org/wiki/API')}</li>
             </ul>
           </div>
           </li>

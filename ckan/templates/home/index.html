@@ -38,17 +38,6 @@
   </style>
   </py:def>
 
-  <py:match path="primarysidebar">
-    <li class="widget-container widget_text">
-      <h2>More information</h2>
-      <ul>
-        <li>${h.link_to(_('About'), h.url_for('about'))}</li>
-        <li>${h.link_to(_('API'), 'http://ckan.org/wiki/API')}</li>
-        <li>${h.link_to(_('User Guide'), h.url_for('guide'))}</li>
-      </ul>
-    </li>
-  </py:match>
-
   <div py:match="content">
     <h2>Welcome to ${g.site_title}</h2>
     <p i18n:msg="title">
