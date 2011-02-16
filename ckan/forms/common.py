@@ -712,7 +712,7 @@ class GroupSelectField(ConfiguredField):
                 checkbox_context = {
                     'id': group.id,
                     'name': self.name + '-' + group.id,
-                    'title': group.title
+                    'title': group.display_name
                 }
                 action = checkbox_noaction
                 if group in editable_groups:
@@ -725,7 +725,7 @@ class GroupSelectField(ConfiguredField):
                 checkbox_context = {
                     'action': action,
                     'name': self.name + '-' + group.id,
-                    'title': group.title
+                    'title': group.display_name
                 }
                 checkbox_html = checkbox_template % checkbox_context
                 checkboxes_html += checkbox_html
@@ -742,7 +742,7 @@ class GroupSelectField(ConfiguredField):
                 if self.field.allow_empty or len(selected_groups):
                     options.append(('', _('(None)')))
             for group in addable_groups:
-                options.append((group.id, group.title))
+                options.append((group.id, group.display_name))
 
             # Make select HTML.
             if len(options):

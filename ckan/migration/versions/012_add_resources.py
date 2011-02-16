@@ -3,13 +3,14 @@ from migrate import *
 import migrate.changeset
 import vdm.sqlalchemy
 
-metadata = MetaData()
 
 
 def upgrade(migrate_engine):
+    metadata = MetaData()
     metadata.bind = migrate_engine
 
     package_table = Table('package', metadata, autoload=True)
+    package_revision_table = Table('package_revision', metadata, autoload=True)
     package_resource_table = Table('package_resource', metadata,
         Column('id', Integer, primary_key=True),
         Column('package_id', Integer, ForeignKey('package.id')),
@@ -71,6 +72,7 @@ def upgrade(migrate_engine):
             engine.execute(insert_sql)
 
     package_table.c.download_url.drop()
+    package_revision_table.c.download_url.drop()
 
 def downgrade(migrate_engine):
     raise NotImplementedError()

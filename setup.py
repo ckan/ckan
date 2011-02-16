@@ -21,13 +21,14 @@ setup(
     install_requires=[
         'routes>=1.9,<=1.11.99',
         'vdm>=0.9,<0.9.99',
-        'ckanclient>=0.1,<0.6.99',
+        'ckanclient>=0.1,<0.7.99',
         'Pylons>=0.9.7.0,<0.9.7.99',
         'Genshi>=0.6,<0.6.99',
         'SQLAlchemy>=0.6,<0.6.99',
         'repoze.who>=1.0.0,<1.0.99',
         'repoze.who.plugins.openid>=0.5.3',
         'repoze.who-friendlyform>=1.0.8',
+        'Babel>=0.9.5', 
         'pyutilib.component.core>=4.1,<4.1.99',
         # uuid in python >= 2.5
         # 'uuid>=1.0',

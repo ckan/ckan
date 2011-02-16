@@ -101,60 +101,60 @@ class PackageRelationship(vdm.sqlalchemy.RevisionedObjectMixin,
         return (type_str, other_package)
         
     @classmethod
-    def by_subject(self, package):
-        return Session.query(self).filter(self.subject_package_id==package.id)
+    def by_subject(cls, package):
+        return Session.query(cls).filter(cls.subject_package_id==package.id)
 
     @classmethod
-    def by_object(self, package):
-        return Session.query(self).filter(self.object_package_id==package.id)
+    def by_object(cls, package):
+        return Session.query(cls).filter(cls.object_package_id==package.id)
     
     @classmethod
-    def get_forward_types(self):
-        if not hasattr(self, 'fwd_types'):
-            self.fwd_types = [fwd for fwd, rev in self.types]
-        return self.fwd_types
+    def get_forward_types(cls):
+        if not hasattr(cls, 'fwd_types'):
+            cls.fwd_types = [fwd for fwd, rev in cls.types]
+        return cls.fwd_types
 
     @classmethod
-    def get_reverse_types(self):
-        if not hasattr(self, 'rev_types'):
-            self.rev_types = [rev for fwd, rev in self.types]
-        return self.rev_types
+    def get_reverse_types(cls):
+        if not hasattr(cls, 'rev_types'):
+            cls.rev_types = [rev for fwd, rev in cls.types]
+        return cls.rev_types
 
     @classmethod
-    def get_all_types(self):
-        if not hasattr(self, 'all_types'):
-            self.all_types = []
-            for fwd, rev in self.types:
-                self.all_types.append(fwd)
-                self.all_types.append(rev)
-        return self.all_types
+    def get_all_types(cls):
+        if not hasattr(cls, 'all_types'):
+            cls.all_types = []
+            for fwd, rev in cls.types:
+                cls.all_types.append(fwd)
+                cls.all_types.append(rev)
+        return cls.all_types
 
     @classmethod
-    def reverse_to_forward_type(self, reverse_type):
-        for fwd, rev in self.types:
+    def reverse_to_forward_type(cls, reverse_type):
+        for fwd, rev in cls.types:
             if rev == reverse_type:
                 return fwd        
 
     @classmethod
-    def forward_to_reverse_type(self, forward_type):
-        for fwd, rev in self.types:
+    def forward_to_reverse_type(cls, forward_type):
+        for fwd, rev in cls.types:
             if fwd == forward_type:
                 return rev
 
     @classmethod
-    def reverse_type(self, forward_or_reverse_type):
-        for fwd, rev in self.types:
+    def reverse_type(cls, forward_or_reverse_type):
+        for fwd, rev in cls.types:
             if fwd == forward_or_reverse_type:
                 return rev
             if rev == forward_or_reverse_type:
                 return fwd        
 
     @classmethod
-    def make_type_printable(self, type_):
-        for i, types in enumerate(self.types):
+    def make_type_printable(cls, type_):
+        for i, types in enumerate(cls.types):
             for j in range(2):
                 if type_ == types[j]:
-                    return self.types_printable[i][j]
+                    return cls.types_printable[i][j]
         raise TypeError, type_
 
 mapper(PackageRelationship, package_relationship_table, properties={

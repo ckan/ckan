@@ -30,14 +30,14 @@ class TestMigrationBase(object):
     psqlbase = 'export PGPASSWORD=pass && psql -q -h localhost --user %s %s' % (DB_USER, DB_NAME)
 
     @classmethod
-    def setup_db(self, pg_dump_file=None):
+    def setup_db(cls, pg_dump_file=None):
         if not pg_dump_file:
             pg_dump_file = RESTORE_FILEPATH
         assert pg_dump_file
-        self.run(self.psqlbase + ' -o /tmp/psql.tmp < %s' % pg_dump_file)
+        cls.run(cls.psqlbase + ' -o /tmp/psql.tmp < %s' % pg_dump_file)
 
     @classmethod
-    def run(self, cmd, ok_to_fail=False):
+    def run(cls, cmd, ok_to_fail=False):
         try:
             proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             output = proc.communicate()
@@ -56,14 +56,14 @@ class TestMigrationBase(object):
                 assert retcode == 0, 'Error %i running "%s": %s' % (retcode, cmd, output)
 
     @classmethod
-    def paster(self, paster_cmd):
-        self.run('paster %s --config=%s' % (paster_cmd, CONFIG_FILE))
+    def paster(cls, paster_cmd):
+        cls.run('paster %s --config=%s' % (paster_cmd, CONFIG_FILE))
 
     @classmethod
-    def rebuild_db(self):
+    def rebuild_db(cls):
         print "Need sudo to rebuild the database"
-        self.run('sudo -u postgres dropdb %s' % DB_NAME, ok_to_fail=True)
-        self.run('sudo -u postgres createdb --owner %s %s' % (DB_USER, DB_NAME))
+        cls.run('sudo -u postgres dropdb %s' % DB_NAME, ok_to_fail=True)
+        cls.run('sudo -u postgres createdb --owner %s %s' % (DB_USER, DB_NAME))
 
 # Recreate database before all tests.
 # Note this complains of current users of the database if you run it

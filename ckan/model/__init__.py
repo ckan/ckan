@@ -1,3 +1,4 @@
+import warnings
 from pylons import config
 from sqlalchemy import MetaData, __version__ as sqav
 from sqlalchemy.schema import Index
@@ -146,7 +147,8 @@ class Repository(vdm.sqlalchemy.Repository):
 
     def create_indexes(self):
         assert meta.engine.name in ('postgres', 'postgresql'), \
-            'Only postgresql engine supported (not %s).' % meta.engine.name
+            'Search indexing - only Postgresql engine supported (not %s).' %\
+            meta.engine.name
         import os
         from migrate.versioning.script import SqlScript
         from sqlalchemy.exceptions import ProgrammingError
@@ -165,11 +167,18 @@ class Repository(vdm.sqlalchemy.Repository):
 
         @param version: version to upgrade to (if None upgrade to latest)
         '''
+        assert meta.engine.name in ('postgres', 'postgresql'), \
+            'Database migration - only Postgresql engine supported (not %s).' %\
+            meta.engine.name
         import migrate.versioning.api as mig
         self.setup_migration_version_control()
         mig.upgrade(self.metadata.bind, self.migrate_repository, version=version)
         self.init_const_data()
-
+        
+        ##this prints the diffs in a readable format
+        ##import pprint
+        ##from migrate.versioning.schemadiff import getDiffOfModelAgainstDatabase
+        ##pprint.pprint(getDiffOfModelAgainstDatabase(self.metadata, self.metadata.bind).colDiffs)
 
 repo = Repository(metadata, Session,
         versioned_objects=[Package, PackageTag, PackageResource, PackageExtra, PackageGroup, Group]

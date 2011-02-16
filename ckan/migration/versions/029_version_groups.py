@@ -6,7 +6,6 @@ import migrate.changeset
 import uuid
 from migrate.changeset.constraint import ForeignKeyConstraint
 
-metadata = MetaData()
 
 
 from ckan.lib.helpers import json
@@ -34,60 +33,62 @@ class JsonType(types.TypeDecorator):
 def make_uuid():
     return unicode(uuid.uuid4())
 
-group_table = Table('group', metadata,
-    Column('id', UnicodeText, primary_key=True, default=make_uuid),
-    Column('name', UnicodeText, unique=True, nullable=False),
-    Column('title', UnicodeText),
-    Column('description', UnicodeText),
-    Column('created', DateTime, default=datetime.now),
-    )
-
-group_revision_table = Table('group_revision', metadata,
-    Column('id', UnicodeText, primary_key=True, default=make_uuid),
-    Column('name', UnicodeText, unique=True, nullable=False),
-    Column('title', UnicodeText),
-    Column('description', UnicodeText),
-    Column('created', DateTime, default=datetime.now),
-    Column('state', UnicodeText),
-    Column('revision_id', UnicodeText, ForeignKey('revision.id')),
-    Column('continuity_id', UnicodeText)
-    )
-
-package_group_table = Table('package_group', metadata,
-    Column('id', UnicodeText, primary_key=True, default=make_uuid),
-    Column('package_id', UnicodeText, ForeignKey('package.id')),
-    Column('group_id', UnicodeText, ForeignKey('group.id')),
-    )
-
-package_group_revision_table = Table('package_group_revision', metadata,
-    Column('id', UnicodeText, primary_key=True, default=make_uuid),
-    Column('package_id', UnicodeText, ForeignKey('package.id')),
-    Column('group_id', UnicodeText, ForeignKey('group.id')),
-    Column('state', UnicodeText),
-    Column('revision_id', UnicodeText, ForeignKey('revision.id')),
-    Column('continuity_id', UnicodeText, ForeignKey('group.id'))
-    )
-
-group_extra_table = Table('group_extra', metadata,
-    Column('id', UnicodeText, primary_key=True, default=make_uuid),
-    Column('group_id', UnicodeText, ForeignKey('group.id')),
-    Column('key', UnicodeText),
-    Column('value', JsonType),
-    )
-    
-group_extra_revision_table = Table('group_extra_revision', metadata,
-    Column('id', UnicodeText, primary_key=True, default=make_uuid),
-    Column('group_id', UnicodeText, ForeignKey('group.id')),
-    Column('key', UnicodeText),
-    Column('value', JsonType),
-    Column('state', UnicodeText),
-    Column('revision_id', UnicodeText, ForeignKey('revision.id')),
-    Column('continuity_id', UnicodeText, ForeignKey('group.id'))
-    )
 
 
 def upgrade(migrate_engine):
+    metadata = MetaData()
     metadata.bind = migrate_engine
+
+    group_table = Table('group', metadata,
+        Column('id', UnicodeText, primary_key=True, default=make_uuid),
+        Column('name', UnicodeText, unique=True, nullable=False),
+        Column('title', UnicodeText),
+        Column('description', UnicodeText),
+        Column('created', DateTime, default=datetime.now),
+        )
+
+    group_revision_table = Table('group_revision', metadata,
+        Column('id', UnicodeText, primary_key=True, default=make_uuid),
+        Column('name', UnicodeText, nullable=False),
+        Column('title', UnicodeText),
+        Column('description', UnicodeText),
+        Column('created', DateTime, default=datetime.now),
+        Column('state', UnicodeText),
+        Column('revision_id', UnicodeText, ForeignKey('revision.id'), primary_key=True),
+        Column('continuity_id', UnicodeText, ForeignKey('group.id'))
+        )
+
+    package_group_table = Table('package_group', metadata,
+        Column('id', UnicodeText, primary_key=True, default=make_uuid),
+        Column('package_id', UnicodeText, ForeignKey('package.id')),
+        Column('group_id', UnicodeText, ForeignKey('group.id')),
+        )
+
+    package_group_revision_table = Table('package_group_revision', metadata,
+        Column('id', UnicodeText, primary_key=True, default=make_uuid),
+        Column('package_id', UnicodeText, ForeignKey('package.id')),
+        Column('group_id', UnicodeText, ForeignKey('group.id')),
+        Column('state', UnicodeText),
+        Column('revision_id', UnicodeText, ForeignKey('revision.id'), primary_key=True),
+        Column('continuity_id', UnicodeText, ForeignKey('package_group.id'))
+        )
+
+    group_extra_table = Table('group_extra', metadata,
+        Column('id', UnicodeText, primary_key=True, default=make_uuid),
+        Column('group_id', UnicodeText, ForeignKey('group.id')),
+        Column('key', UnicodeText),
+        Column('value', JsonType),
+        )
+        
+    group_extra_revision_table = Table('group_extra_revision', metadata,
+        Column('id', UnicodeText, primary_key=True, default=make_uuid),
+        Column('group_id', UnicodeText, ForeignKey('group.id')),
+        Column('key', UnicodeText),
+        Column('value', JsonType),
+        Column('state', UnicodeText),
+        Column('revision_id', UnicodeText, ForeignKey('revision.id'), primary_key=True),
+        Column('continuity_id', UnicodeText, ForeignKey('group_extra.id'))
+        )
 
     revision_table = Table('revision', metadata, autoload=True)
     package_table = Table('package', metadata, autoload=True)
@@ -141,7 +142,7 @@ def upgrade(migrate_engine):
     q = package_group_table.update(values={'state': u'active',
                                            'revision_id': rev_id})
     migrate_engine.execute(q)
-    fk = ForeignKeyConstraint(['revision_id'], [revision_table.c.id], table=package_group_table)
+    fk = ForeignKeyConstraint(['revision_id'], [revision_table.c.id], table=package_group_table, name = 'package_group_revision_id_fkey')
     fk.create(migrate_engine)
     package_group_revision_table.create()
     for row in migrate_engine.execute(package_group_table.select()):
@@ -157,7 +158,7 @@ def upgrade(migrate_engine):
     q = group_extra_table.update(values={'state': u'active',
                                          'revision_id': rev_id})
     migrate_engine.execute(q)
-    fk = ForeignKeyConstraint(['revision_id'], [revision_table.c.id], table=group_extra_table)
+    fk = ForeignKeyConstraint(['revision_id'], [revision_table.c.id], table=group_extra_table, name='group_extra_revision_id_fkey')
     fk.create(migrate_engine)
     group_extra_revision_table.create()
     for row in migrate_engine.execute(group_extra_table.select()):

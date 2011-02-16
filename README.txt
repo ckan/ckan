@@ -283,6 +283,11 @@ The test suite takes a long time to run against standard PostgreSQL (approx. 15 
 
 This can be improved to between 5 and 15 minutes by running PostgreSQL in memory and turning off durability, as described at <http://www.postgresql.org/docs/9.0/static/non-durability.html>. 
 
+If there is a database migration in your changeset then run the following::
+
+    nosetests ckan/tests --ckan --ckan-migrate --with-pylons=test-core.ini
+
+This will run all the tests as though the database has been upgraded from scratch and is the most thorough way of testing.  It will take around 20 minutes. 
 
 Development
 ===========
