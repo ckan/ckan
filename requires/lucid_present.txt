@@ -6,14 +6,17 @@
 # sudo apt-get install python-pylons python-formalchemy python-repoze.who
 # sudo apt-get install python-repoze.who-plugins python-tempita python-zope.interface
 
-psycopg2==0.9.4
+psycopg2==2.0.13
 lxml==2.2.4
 sphinx==0.6.4
 Pylons==0.9.7
-FormAlchemy==1.3.6
+# We use 1.3.6 but that isn't available, any of these should be fine
+FormAlchemy==1.3.5
 repoze.who==1.0.18
 SQLAlchemy==0.5.8
-repoze.who.plugins.openid>=0.5.3
+# Actually from python-repoze.who-plugins but the openid plugin in the same
+# package is too old
+repoze.who-friendlyform==1.0.8
 tempita==0.4
 zope.interface==3.5.3
 
