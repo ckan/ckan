@@ -1,0 +1,22 @@
+# These CKAN dependencies are already in Lucid and should be installed via
+# apt-get if you are on that platform. If you are using a different platform
+# you can install these dependencies via pip instead.
+#
+# sudo apt-get install python-psycopg2 python-lxml python-sphinx 
+# sudo apt-get install python-pylons python-formalchemy python-repoze.who
+# sudo apt-get install python-repoze.who-plugins python-tempita python-zope.interface
+
+psycopg2==0.9.4
+lxml==2.2.4
+sphinx==0.6.4
+Pylons==0.9.7
+FormAlchemy==1.3.6
+repoze.who==1.0.18
+SQLAlchemy==0.5.8
+repoze.who.plugins.openid>=0.5.3
+tempita==0.4
+zope.interface==3.5.3
+
+# NOTE: Developers, please do not edit the versions, these versions are fixed
+#       in Lucid. If you start to depend on a different vesion you'll need to
+#       remove the version here and package your version as a conflict.
