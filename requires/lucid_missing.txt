@@ -7,8 +7,9 @@
 -e svn+https://software.sandia.gov/svn/public/pyutilib/pyutilib.component.core/trunk@1972#egg=pyutilib.component.core
 # licenses==0.4,<0.6.99
 -e hg+https://bitbucket.org/okfn/licenses@0eed4a13296b#egg=licenses
-# vdm>=0.9,<0.9.99
--e hg+https://bitbucket.org/okfn/vdm@4dcf50ca227d#egg=vdm
+# At the moment the 0.9 code is not checked in, using 0.9 from egg instead.
+vdm>=0.9,<0.9.99
+# -e hg+https://bitbucket.org/okfn/vdm@4dcf50ca227d#egg=vdm
 # ckanclient>=0.1,<0.7.99
 -e hg+https://bitbucket.org/okfn/ckanclient@6756586299cc#egg=ckanclient
 
