@@ -19,6 +19,9 @@ SQLAlchemy==0.5.8
 repoze.who-friendlyform==1.0.8
 tempita==0.4
 zope.interface==3.5.3
+# These are both combined into the python-repoze.who-plugins package
+repoze.who.plugins.openid
+repoze.who-friendlyform
 
 # NOTE: Developers, please do not edit the versions, these versions are fixed
 #       in Lucid. If you start to depend on a different vesion you'll need to

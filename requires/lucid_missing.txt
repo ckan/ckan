@@ -1,15 +1,12 @@
 # These are packages that we rely on that aren't present in Lucid. We package
 # them and put them in our own CKAN repository
 
-# CKAN itself
--e hg+https://bitbucket.org/okfn/ckan#egg=ckan
 # pyutilib.component.core>=4.1,<4.1.99
 -e svn+https://software.sandia.gov/svn/public/pyutilib/pyutilib.component.core/trunk@1972#egg=pyutilib.component.core
 # licenses==0.4,<0.6.99
 -e hg+https://bitbucket.org/okfn/licenses@0eed4a13296b#egg=licenses
-# At the moment the 0.9 code is not checked in, using 0.9 from egg instead.
-vdm>=0.9,<0.9.99
-# -e hg+https://bitbucket.org/okfn/vdm@4dcf50ca227d#egg=vdm
+# vdm>=0.9,<0.9.99
+-e hg+https://bitbucket.org/okfn/vdm@vdm-0.9#egg=vdm
 # ckanclient>=0.1,<0.7.99
 -e hg+https://bitbucket.org/okfn/ckanclient@6756586299cc#egg=ckanclient
 
