@@ -164,6 +164,29 @@ class TextExtraField(RegExValidatingField):
     class TextExtraRenderer(TextExtraRenderer):
         pass
 
+class TextAreaExtraField(RegExValidatingField):
+    '''A form field for basic text in an "extras" field.'''
+    def get_configured(self):
+        field = self.TextAreaExtraField(self.name).with_renderer(self.TextAreaRenderer, **self.kwargs)
+        return RegExValidatingField.get_configured(self, field)
+
+    class TextAreaExtraField(formalchemy.Field):
+        def __init__(self, *args, **kwargs):
+            super(self.__class__, self).__init__(*args, **kwargs)
+
+        @property
+        def raw_value(self):
+            return self.model.extras.get(self.name)
+            
+        def sync(self):
+            if not self.is_readonly():
+                pkg = self.model
+                val = self._deserialize() or u''
+                pkg.extras[self.name] = val
+
+    class TextAreaRenderer(TextAreaRenderer):
+        pass
+
 class DateExtraField(ConfiguredField):
     '''A form field for DateType data stored in an 'extra' field.'''
     def get_configured(self):
@@ -805,7 +828,6 @@ class GroupSelectField(ConfiguredField):
 
             return new_group_ids
 
-            
 
 
 class SelectExtraField(TextExtraField):
@@ -857,8 +879,9 @@ class SelectExtraField(TextExtraField):
 class SuggestedTextExtraField(TextExtraField):
     '''A form field for text suggested from from a list of options, that is
     stored in an "extras" field.'''
-    def __init__(self, name, options):
+    def __init__(self, name, options, default=None):
         self.options = options[:]
+        self.default = default
         # ensure options have key and value, not just a value
         for i, option in enumerate(self.options):
             if not isinstance(option, (tuple, list)):
@@ -866,11 +889,15 @@ class SuggestedTextExtraField(TextExtraField):
         super(SuggestedTextExtraField, self).__init__(name)
 
     def get_configured(self):
-        return self.TextExtraField(self.name, options=self.options).with_renderer(self.SelectRenderer)
+        field = self.TextExtraField(self.name, options=self.options)
+        field.default = self.default
+        return field.with_renderer(self.SelectRenderer)
 
     class SelectRenderer(formalchemy.fields.FieldRenderer):
         def render(self, options, **kwargs):
-            selected = self.value
+            selected = self.value 
+            if selected is None: 
+                selected = self.field.default
             options = [('', '')] + options + [(_('other - please specify'), 'other')]
             option_keys = [key for value, key in options]
             if selected in option_keys:
@@ -884,7 +911,8 @@ class SuggestedTextExtraField(TextExtraField):
                 text_field_value = u''
             fa_version_nums = formalchemy.__version__.split('.')
             # Requires FA 1.3.2 onwards for this select i/f
-            html = literal(fa_h.select(self.name, select_field_selected, options, class_="short", **kwargs))
+            html = literal(fa_h.select(self.name, select_field_selected,
+                options, class_="short", **kwargs))
                 
             other_name = self.name+'-other'
             html += literal('<label class="inline" for="%s">%s: %s</label>') % (other_name, _('Other'), literal(fa_h.text_field(other_name, value=text_field_value, class_="medium-width", **kwargs)))
