@@ -7,7 +7,7 @@
 . pyenv/bin/activate
 
 # update pip-requirements.txt (or pip-requirements-metastable.txt / pip-requirements-stable.txt)
-wget http://knowledgeforge.net/ckan/hg/raw-file/default/pip-requirements.txt
+wget http://bitbucket.org/okfn/ckan/raw/default/pip-requirements.txt
 
 # EITHER update all modules
 pip -E pyenv install -r pip-requirements.txt
