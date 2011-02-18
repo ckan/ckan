@@ -24,7 +24,6 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
     def teardown_class(self):
         model.Session.remove()
         model.repo.rebuild_db()
-
        
     def test_0_field_names(self):
         fs = get_fieldset()
@@ -55,11 +54,11 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
             (fs.temporal_granularity, 'years'),
             (fs.temporal_coverage, None, '6/2008 - 6/2009'),
             (fs.categories, 'other=Health, well-being and Care'),
-            (fs.national_statistic, 'True', 'yes'),
+            (fs.national_statistic, 'checked', 'yes'),
             (fs.precision, 'Numbers to nearest 10, percentage to nearest whole number'),
             (fs.url, 'http://www.dcsf.gov.uk/rsgateway/DB/SFR/s000859/index.shtml'),
             (fs.taxonomy_url, '', ''),
-            (fs.department, 'Department for Children, Schools and Families'),
+            (fs.department, 'Department for Education'),
             (fs.agency, '', ''),
             (fs.author, 'DCSF Data Services Group'),
             (fs.author_email, 'statistics@dcsf.gsi.gov.uk'),
@@ -97,6 +96,13 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
         self.check_tag(fs.temporal_coverage.render(), 'temporal_coverage-from', 'value="6/2008"')
         self.check_tag(fs.temporal_coverage.render(), 'temporal_coverage-to', 'value="6/2009"')
 
+        pkg = model.Package.by_name(u'weekly-fuel-prices')
+        fs = fs.bind(pkg)
+        out = fs.render()
+        assert out
+        self.check_tag(fs.national_statistic.render(), 'national_statistic', '!checked="checked"')
+        
+
     def test_2_field_department_selected(self):
         fs = get_fieldset()
         pkg = model.Package.by_name(u'private-fostering-england-2009')
@@ -104,11 +110,11 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
 
         dept = fs.department.render()
         assert '<select' in dept, dept
-        self.check_tag(dept, 'option', 'value="Department for Children, Schools and Families"', 'selected')
+        self.check_tag(dept, 'option', 'value="Department for Education"', 'selected')
         assert 'option value="other">' in dept, dept
         assert 'Other:' in dept, dept
         assert 'value=""' in dept, dept
-        assert 'Department for Children, Schools and Families' in fs.department.render_readonly(), fs.department.render_readonly()
+        assert 'Department for Education' in fs.department.render_readonly(), fs.department.render_readonly()
 
     def test_2_field_department_none(self):
         # Create package
@@ -145,7 +151,7 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
         dept = fs.department.render()
         dept_readonly = fs.department.render_readonly()
         assert '<select' in dept, dept
-        self.check_tag(dept, 'option', 'value="Department for Children, Schools and Families"', '!selected')
+        self.check_tag(dept, 'option', 'value="Department for Education"', '!selected')
         self.check_tag(dept, 'option', 'value="other"', 'selected')
         assert 'Other:' in dept, dept
         assert 'value="Not on the list"' in dept, dept
@@ -366,6 +372,7 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
         CreateTestData.flag_for_deletion(new_name)
         
         model.repo.new_revision()
+
         fs.sync()
         model.repo.commit_and_remove()
 

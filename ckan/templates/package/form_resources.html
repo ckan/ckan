@@ -3,16 +3,19 @@
       class="flexitable">
 
           <thead> 
-            <tr><th>URL</th><th>Format</th><th>Description</th><th class="resource-hash">Hash</th></tr> 
+              <tr>
+                <th class="${c.field.is_required(column) and 'field_req' or 'field_opt'} resource-${column}" py:for="column in c.columns">
+                  ${c.fieldset.prettify(column)}
+                  <py:if test="c.field.is_required(column)">*</py:if>
+                </th>
+              </tr>
           </thead> 
           <tbody> 
             <tr py:for="i, res in enumerate(c.resources)"> 
-              <td class="resource-url"><input name="${c.id}-${i}-url" type="url" value="${res['url'] if res else ''}" /></td> 
-              <td class="resource-format"><input name="${c.id}-${i}-format" type="text" class="short" value="${res['format'] if res else ''}" /></td> 
-              <td class="resource-description"><input name="${c.id}-${i}-description" type="text" class="medium-width" value="${res['description'] if res else ''}" /></td> 
-              <td class="resource-hash"><input name="${c.id}-${i}-hash"
-                type="text" class="short" value="${res['hash'] if res else ''}" /></td>
-              <td class="resource-id"><input name="${c.id}-${i}-id" type="hidden" value="${res.get('id', '') if res else ''}" /></td> 
+              <td py:for="column in c.columns" class="resource-${column}">
+                <input name="${c.id}-${i}-${column}" type="${'url' if column == 'url' else 'text'}" value="${res[column] if res else ''}" class="${{'format':'short', 'description':'medium-width', 'hash':'short'}.get(column, '')}"/>
+              </td> 
+              <td class="resource-id"><input name="${c.id}-${i}-id" type="hidden" value="${res.get('id', '') if res else ''}" /></td>
             </tr>
           </tbody>
 </table>

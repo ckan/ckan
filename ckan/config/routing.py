@@ -6,10 +6,9 @@ refer to the routes manual at http://routes.groovie.org/docs/
 """
 from pylons import config
 from routes import Mapper
-from formalchemy.ext.pylons import maps # routes generator
-from ckan.plugins import ExtensionPoint, IRoutesExtension
+from ckan.plugins import PluginImplementations, IRoutes
 
-routing_plugins = ExtensionPoint(IRoutesExtension)
+routing_plugins = PluginImplementations(IRoutes)
 
 def make_map():
     """Create, configure and return the routes Mapper"""
@@ -29,15 +28,10 @@ def make_map():
     map.connect('home', '/', controller='home', action='index')
     map.connect('guide', config.get('guide_url', 'http://wiki.okfn.org/ckan/doc/'), _static=True)
     map.connect('license', '/license', controller='home', action='license')
+    map.connect('/language.js', controller='home', action='language')
     map.connect('about', '/about', controller='home', action='about')
-    map.connect('stats', '/stats', controller='home', action='stats')
-    maps.admin_map(map, controller='admin', url='/admin')
     # CKAN API.
     map.connect('/api', controller='rest', action='get_api')
-    map.connect('/api/form/package/create', controller='form', action='package_create')
-    map.connect('/api/form/package/edit/:id', controller='form', action='package_edit')
-    map.connect('/api/form/harvestsource/create', controller='form', action='harvest_source_create')
-    map.connect('/api/form/harvestsource/edit/:id', controller='form', action='harvest_source_edit')
 
     map.connect('/api/search/:register', controller='rest', action='search')
     map.connect('/api/tag_counts', controller='rest', action='tag_counts')
@@ -103,10 +97,6 @@ def make_map():
 
     # CKAN API v1.
     map.connect('/api/1', controller='rest', action='get_api')
-    map.connect('/api/1/form/package/create', controller='form', action='package_create')
-    map.connect('/api/1/form/package/edit/:id', controller='form', action='package_edit')
-    map.connect('/api/1/form/harvestsource/create', controller='form', action='harvest_source_create')
-    map.connect('/api/1/form/harvestsource/edit/:id', controller='form', action='harvest_source_edit')
 
     map.connect('/api/1/search/:register', controller='rest', action='search')
     map.connect('/api/1/tag_counts', controller='rest', action='tag_counts')
@@ -159,10 +149,6 @@ def make_map():
 
     # CKAN API v2.
     map.connect('/api/2', controller='rest2', action='get_api')
-    map.connect('/api/2/form/package/create', controller='form2', action='package_create')
-    map.connect('/api/2/form/package/edit/:id', controller='form2', action='package_edit')
-    map.connect('/api/2/form/harvestsource/create', controller='form', action='harvest_source_create')
-    map.connect('/api/2/form/harvestsource/edit/:id', controller='form', action='harvest_source_edit')
 
     map.connect('/api/2/search/:register', controller='rest2', action='search')
     map.connect('/api/2/tag_counts', controller='rest2', action='tag_counts')
@@ -219,9 +205,10 @@ def make_map():
 
     map.redirect("/packages", "/package")
     map.redirect("/packages/{url:.*}", "/package/{url}")
-    map.connect('/package/', controller='package', action='index')
+    map.connect('/package', controller='package', action='search')
+    map.connect('/package/', controller='package', action='search')
     map.connect('/package/search', controller='package', action='search')
-    map.connect('/package/list', controller='package', action='list')
+    map.connect('/package/list', controller='package', action='search')
     map.connect('/package/new', controller='package', action='new')
     map.connect('/package/new_title_to_slug', controller='package', action='new_title_to_slug')
     map.connect('/package/autocomplete', controller='package', action='autocomplete')
@@ -246,11 +233,11 @@ def make_map():
     map.connect('/tag/', controller='tag', action='index')
     map.connect('/tag/:id', controller='tag', action='read')
     map.redirect("/users/{url:.*}", "/user/{url}")
-    map.connect('/user/all', controller='user', action='all')
     map.connect('/user/edit', controller='user', action='edit')
+    map.connect('/user/register', controller='user', action='register')
     map.connect('/user/login', controller='user', action='login')
-    map.connect('/user/openid', controller='user', action='openid')
-    map.connect('/user/logout', controller='user', action='logout')
+    map.connect('/user/logged_in', controller='user', action='logged_in')
+    map.connect('/user/logged_out', controller='user', action='logged_out')
     map.connect('/user/apikey', controller='user', action='apikey')
     map.connect('/user/:id', controller='user', action='read')
     map.connect('/{controller}', action='index')

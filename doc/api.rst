@@ -14,7 +14,7 @@
 
 .. |version_2_doc| replace:: :doc:`api/version2`
 
-.. |version_3_doc| replace:: :doc:`api/version3`
+.. #|version_3_doc| replace:: :doc:`api/version3`
 
 |site| |api|
 ======================

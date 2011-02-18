@@ -6,14 +6,14 @@ from pylons.i18n import get_lang, _
 import ckan.authz as authz
 import ckan.forms
 from ckan.lib.helpers import Page
-from ckan.plugins import ExtensionPoint, IGroupController
+from ckan.plugins import PluginImplementations, IGroupController
 
 class GroupController(BaseController):
     
     def __init__(self):
         BaseController.__init__(self)
         self.authorizer = authz.Authorizer()
-        self.extensions = ExtensionPoint(IGroupController)
+        self.extensions = PluginImplementations(IGroupController)
     
     def index(self):
         from ckan.lib.helpers import Page
@@ -57,7 +57,7 @@ class GroupController(BaseController):
         
         auth_for_create = self.authorizer.am_authorized(c, model.Action.GROUP_CREATE, model.System())
         if not auth_for_create:
-            abort(401, str(gettext('Unauthorized to create a group')))
+            abort(401, gettext('Unauthorized to create a group'))
         
         is_admin = self.authorizer.is_sysadmin(c.user)
         fs = ckan.forms.get_group_fieldset(is_admin=is_admin)

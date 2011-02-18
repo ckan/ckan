@@ -21,7 +21,7 @@ PACKAGE_VERSION_MAX_LENGTH = 100
 package_table = Table('package', metadata,
         Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
         Column('name', types.Unicode(PACKAGE_NAME_MAX_LENGTH),
-               unique=True, nullable=False),
+               nullable=False, unique=True),
         Column('title', types.UnicodeText),
         Column('version', types.Unicode(PACKAGE_VERSION_MAX_LENGTH)),
         Column('url', types.UnicodeText),
@@ -36,7 +36,6 @@ package_table = Table('package', metadata,
 
 vdm.sqlalchemy.make_table_stateful(package_table)
 package_revision_table = vdm.sqlalchemy.make_revisioned_table(package_table)
-
 
 ## -------------------
 ## Mapped classes
@@ -83,10 +82,8 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             id = res_dict.get('id')
             if id:
                 res = Session.query(resource.PackageResource).autoflush(autoflush).get(id)
-                index_to_res[i] = res
-            elif res_dict.has_key('id'):
-                # get rid of blank id - disrupts creation of new resource
-                del res_dict['id']
+                if res:
+                    index_to_res[i] = res
         # Edit resources and create the new ones
         new_res_list = []
         for i, res_dict in enumerate(res_dicts):
@@ -95,6 +92,10 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                 for col, value in res_dict.items():
                     setattr(res, col, value)
             else:
+                # ignore particular keys that disrupt creation of new resource
+                for key in ('id', 'position'):
+                    if res_dict.has_key(key):
+                        del res_dict[key]
                 res = resource.PackageResource(**res_dict)
             new_res_list.append(res)
         self.resources = new_res_list
@@ -268,7 +269,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                        parent_rel_as_object.type == rel_as_subject.type:
                     type_printable = PackageRelationship.inferred_types_printable['sibling']
                     rel_list.append((child_pkg, type_printable, None))
-        return sorted(rel_list)
+        return sorted(list(set(rel_list)))
     #
     ## Licenses are currently integrated into the domain model here.   
  

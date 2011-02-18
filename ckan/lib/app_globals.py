@@ -15,10 +15,19 @@ class Globals(object):
         'app_globals' variable
 
         """
-        self.site_title = config.get('ckan.site_title', 'CKAN')
-        self.site_logo = config.get('ckan.site_logo', '/images/ckan_logo_fullname_long.png')
-        self.site_url = config.get('ckan.site_url', 'http://www.ckan.net')
+        self.site_title = config.get('ckan.site_title', '')
+        self.site_logo = config.get('ckan.site_logo', '')
+        self.site_url = config.get('ckan.site_url', '')
+        self.site_description = config.get('ckan.site_description', '')
+        
+        self.facets = config.get('search.facets', 'groups tags res_format license').split()
         
         # has been setup in load_environment():
         self.site_id = config.get('ckan.site_id')
+
+        self.template_footer_end = config.get('ckan.template_footer_end', '')
+        
+        # hide these extras fields on package read
+        self.package_hide_extras = config.get('package_hide_extras', '').split()
+        self.has_commenting = False
         

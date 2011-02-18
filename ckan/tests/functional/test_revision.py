@@ -1,4 +1,4 @@
-from ckan.tests import *
+from ckan.tests import search_related, TestController, CreateTestData, url_for
 import ckan.model as model
 
 # TODO: purge revisions after creating them
@@ -9,7 +9,7 @@ class TestRevisionController(TestController):
         model.Session.remove()
         # rebuild db before this test as it depends delicately on what
         # revisions exist
-        model.repo.rebuild_db()
+        model.repo.init_db()
         CreateTestData.create()
 
     @classmethod
@@ -22,6 +22,7 @@ class TestRevisionController(TestController):
             rev.author = "Test Revision %s" % i
             model.repo.commit()
 
+    @search_related
     def test_link_major_navigation(self):
         offset = url_for(controller='home')
         res = self.app.get(offset)

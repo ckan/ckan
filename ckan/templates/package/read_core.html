@@ -3,51 +3,65 @@
   py:strip=""
   >
   <xi:include href="../_util.html" />
-
-  <div class="package">
-    <div class="package-atom-feed"><a href="?format=atom"><img style="height:16; width:16; margin-bottom:-0.3em" src="/images/icons/atom_feed.png" alt="Atom Feed" title="${g.site_title} - Package History - ${c.pkg.name}"/></a> <a href="/package/history/${c.pkg.name}?format=atom&amp;days=7">Subscribe &raquo;</a></div>
+  <div id="package" class="package">
+    <!-- Title -->
     <h2 class="head">
       ${c.pkg.title}
-      <span class="name">(${c.pkg.name})</span>
+      <p class="atom-feed-link package-history-link">
+        <a
+          href="${url(controller='package', action='history', id=c.pkg.name, format='atom', days=7)}"
+          title="${g.site_title} - Package History - ${c.pkg.name}">
+          Subscribe &raquo;</a>
+      </p>
     </h2>
+    
+    <!-- Source URL -->    
     <div class="url" py:if="c.pkg.url">
       <p>
-        ${c.pkg_url_link}
+        Source: ${c.pkg_url_link}
       </p>
     </div>
-
-    <div class="tags">
-      <div class="item-list">
-        Tags: ${tag_list(c.pkg.tags)}
-      </div>
-      <div class="item-list">
-        <span title="A curated collection of packages">Groups:</span>
-        <ul>
-          <li py:for="group in c.pkg.groups">
-          <a href="${h.url_for(controller='group', action='read', id=group.name)}">${group.name}</a>
-          </li>
-        </ul>
-      </div>
+    
+    <!-- About package -->
+    <div class="notes" py:if="str(c.pkg_notes_formatted).strip()">
+      ${c.pkg_notes_formatted}
     </div>
-
-    <div class="resources">
-      <h4>Resources</h4>
+    
+    <!-- Downloads and resources -->
+    <div class="resources subsection">
+      <h3>Downloads &amp; Resources</h3>
       <py:choose test="">
       <table py:when="c.pkg.resources">
-        <tr><th>URL</th><th>Format</th><th>Description</th><th>Hash</th></tr>
+        <tr>
+            <th>Description</th>
+            <th>Format</th>
+            <th>Hash</th>
+        </tr>
         <py:for each="res in c.pkg.resources">
-          <tr><td><a href="${res.url}" target="_blank">Download</a></td><td>${res.format}</td><td>${res.description}</td><td>${res.hash}</td></tr>
+          <tr>
+              <td>
+                  <py:choose test="">
+                    <py:when test="res.description">
+                      <a href="${res.url}" target="_blank">${res.description}</a>  
+                    </py:when>
+                    <py:otherwise test="">
+                      <a href="${res.url}" target="_blank">Download <em>(no description)</em></a>  
+                    </py:otherwise>
+                  </py:choose>
+              </td>
+              <td>${res.format}</td>
+              <td>${res.hash}</td>
+          </tr>
         </py:for>
+            <caption>
+                This is a list of all known formats and datasets for <em>${c.pkg.title}</em>. If you know of another (CSV, SPARQL end-point etc.) ${h.subnav_link(c, 'please edit this page and add it to the list', controller='package', action='edit', id=c.pkg.name)}.
+            </caption>
       </table>
       <table py:otherwise=""><tr><th>Resources</th><td>None given for this package.</td></tr></table>
       </py:choose>
     </div>
 
     <hr class="cleared" />
-
-    <div class="notes" py:if="str(c.pkg_notes_formatted).strip()">
-      ${c.pkg_notes_formatted}
-    </div>
 
     <py:def function="details_item(label, value)">
         <tr>
@@ -60,8 +74,8 @@
         </tr>
     </py:def>
 
-    <div class="details">
-    <h4>Details</h4>
+    <div class="details subsection">
+    <h3>About this package</h3>
     <table>
       <tbody>
         ${details_item('Author', c.pkg_author_link)}
@@ -84,18 +98,45 @@
           </py:choose>
           </td>
         </tr>
-        <tr py:for="key, value in sorted(c.pkg.extras.items())">
+        <tr py:for="key, value in c.pkg_extras">
           <td class="package-label">${key}</td>
           <td class="package-details">${value}</td>
         </tr>
       </tbody>
+          <caption>
+              Something missing? ${h.subnav_link(c, 'Please help improve this page by adding more information', controller='package', action='edit', id=c.pkg.name)}.
+          </caption>
     </table>
     </div>
-
-
-    <div class="rating">
-      <h4>Rating</h4>
-      ${package_rating(c.pkg)}
+    
+    <div class="api subsection">
+        <h3>${g.site_title} API / datapkg</h3>
+        <div>
+            <p>
+                This information on this page (the package metadata) is also available programatically via this site's <a href="http://knowledgeforge.net/ckan/doc/ckan/api.html">CKAN API</a>
+            </p>
+            <h5>JSON:</h5>
+            <code>
+                <py:if test="config.get('ckan.api_url')">                
+                  <a href="${config.get('ckan.api_url') + h.url_for(controller='rest', register='package', action='show', id=c.pkg.name)}">${config.get('ckan.api_url') + h.url_for(controller='rest', register='package', action='show', id=c.pkg.name)}</a>
+                </py:if>                
+                <py:if test="not config.get('ckan.api_url')">
+                    <a href="${h.url_for(controller='rest', register='package', action='show', id=c.pkg.name)}">${h.url_for(controller='rest', register='package', action='show', id=c.pkg.name)}</a>
+                </py:if>
+            </code>
+            <py:if test="config.get('rdf_packages')">
+                <h5>RDF:</h5>
+                <code><a href="${config.get('rdf_packages') + c.pkg.name[0] + '/' + c.pkg.name[1] + '/' + c.pkg.name}">${config.get('rdf_packages') + c.pkg.name[0] + '/' + c.pkg.name[1] + '/' + c.pkg.name}</a></code>
+            </py:if>
+            <p>
+                The information on this page and the downloads / resources are also available using the 
+                <a href="http://blog.okfn.org/2010/02/23/introducing-datapkg/">datapkg command line utility</a>.
+            </p>
+            <h5>Information about this package:</h5>
+            <code>$ datapkg info ckan://${c.pkg.name}</code>            
+            <h5>Download:</h5>
+            <code>$ datapkg download ckan://${c.pkg.name} .</code>            
+        </div>
     </div>
 
     <ul>
@@ -105,6 +146,6 @@
     </ul>
 
     <hr class="cleared" />
-  </div>
+  </div> <!-- /package -->
 
 </html>

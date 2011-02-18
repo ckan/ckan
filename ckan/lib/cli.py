@@ -200,6 +200,7 @@ class SearchIndexCommand(CkanCommand):
 
     def command(self):
         self._load_config()
+        from ckan.lib.search import rebuild
 
         if not self.args:
             # default to run
@@ -218,8 +219,8 @@ class Sysadmin(CkanCommand):
 
     Usage:
       sysadmin list                 - lists sysadmins
-      sysadmin create <user-name>   - creates sysadmin user
-      sysadmin remove <user-name>   - removes user fr
+      sysadmin add <user-name>      - add a user as a sysadmin
+      sysadmin remove <user-name>   - removes user from sysadmins
     '''
 
     summary = __doc__.split('\n')[0]
@@ -234,8 +235,8 @@ class Sysadmin(CkanCommand):
         cmd = self.args[0]
         if cmd == 'list':
             self.list()
-        elif cmd == 'create':
-            self.create()
+        elif cmd == 'add':
+            self.add()
         elif cmd == 'remove':
             self.remove()
         else:
@@ -248,7 +249,7 @@ class Sysadmin(CkanCommand):
         for sysadmin in sysadmins:
             print 'name=%s id=%s' % (sysadmin.user.name, sysadmin.user.id)
 
-    def create(self):
+    def add(self):
         from ckan import model
 
         if len(self.args) < 2:
@@ -258,10 +259,17 @@ class Sysadmin(CkanCommand):
 
         user = model.User.by_name(unicode(username))
         if not user:
-            print 'User "%s" not found - creating' % username
-            user = model.User(name=unicode(username))
+            print 'User "%s" not found' % username
+            makeuser = raw_input('Create new user: %s? [y/n]' % username)
+            if makeuser == 'y':
+                print('Creating %s user' % username)
+                user = model.User(name=unicode(username))
+            else:
+                print 'Exiting ...'
+                return
         model.add_user_to_role(user, model.Role.ADMIN, model.System())
         model.repo.commit_and_remove()
+        print 'Added %s as sysadmin' % username
 
     def remove(self):
         from ckan import model
@@ -776,84 +784,6 @@ class Notifications(CkanCommand):
         from ckan.lib import monitor
         monitor = monitor.Monitor()
 
-class Load(CkanCommand):
-    '''Load data to a remote CKAN instance.
-
-    load bis {filepath.xls} {ckan-api-url} {api-key}
-    load ons {number_of_days_worth} {ckan-api-url} {api-key}
-    '''
-    summary = __doc__.split('\n')[0]
-    usage = __doc__
-    max_args = None
-    min_args = 1
-
-    def command(self):
-        # Avoids vdm logging warning
-        logging.basicConfig(level=logging.ERROR)
-        
-        self._load_config()
-        from ckan import model
-
-        data_type = self.args[0]
-        if data_type == 'bis':
-            if len(self.args) != 4:
-                print 'Error: Wrong number of arguments for data type: %s' % data_type
-                print self.usage
-                sys.exit(1)
-            filepath, api_url, api_key = self.args[1:]
-            assert api_url.startswith('http://') and api_url.endswith('/api'), api_url
-            # import them
-            from ckanext.dgu.bis.bis import BisImporter, BisLoader
-            importer = BisImporter(filepath=filepath)
-            loader = BisLoader
-        elif data_type == 'ons':
-            from ckanext.dgu.ons.importer import OnsImporter
-            from ckanext.dgu.ons.loader import OnsLoader
-            from ckanext.dgu.ons.downloader import OnsData
-            if len(self.args) != 4:
-                print 'Error: Wrong number of arguments for data type: %s' % data_type
-                print self.usage
-                sys.exit(1)
-            days, api_url, api_key = self.args[1:]
-            days = int(days)
-            assert api_url.startswith('http://') and api_url.endswith('/api'), api_url
-            # download data
-            ons_data = OnsData()
-            url, url_name = ons_data._get_url_recent(days=days)
-            data_filepath = ons_data.download(url, url_name, force_download=True)
-            
-            # import them
-            importer = OnsImporter(filepath=data_filepath)
-            loader = OnsLoader
-        else:
-            print 'Error: Data type %r not recognised' % data_type
-            print self.usage
-            sys.exit(1)
-
-        pkg_dicts = [pkg_dict for pkg_dict in importer.pkg_dict()]
-        print '%i packages' % len(pkg_dicts)
-        if pkg_dicts:
-            #raw_input('Press return to load packages')
-            print 'Loading packages...'
-            # load them
-            from ckanclient import CkanClient
-            client = CkanClient(api_key=api_key, base_location=api_url,
-                                is_verbose=False)
-            loader = loader(client)
-            res = loader.load_packages(pkg_dicts)
-            if res['num_errors'] == 0 and res['num_loaded']:
-                print 'SUCCESS'
-            else:
-                print '%i ERRORS' % res['num_errors']
-            print '%i package loaded' % res['num_loaded']
-
-            if res['num_loaded']:
-                #raw_input('Press return to add them to the ukgov group')
-
-                # add them to the group
-                print 'Adding them to the ukgov group...'
-                loader.add_pkgs_to_group(res['pkg_names'], 'ukgov')
-                print '...SUCCESS'
 
 class Harvester(CkanCommand):
     '''Harvests remotely mastered metadata
@@ -862,12 +792,18 @@ class Harvester(CkanCommand):
       harvester source {url} [{user-ref} [{publisher-ref}]]     
         - create new harvest source
 
+      harvester rmsource {url}
+        - remove a harvester source (and associated jobs)
+
       harvester sources                                 
         - lists harvest sources
 
       harvester job {source-id} [{user-ref}]
         - create new harvesting job
 
+      harvester rmjob {job-id}
+        - remove a harvesting job
+  
       harvester jobs
         - lists harvesting jobs
 
@@ -901,6 +837,9 @@ class Harvester(CkanCommand):
             else:
                 publisher_ref = u''
             self.register_harvest_source(url, user_ref, publisher_ref)
+        elif cmd == "rmsource":
+            url = unicode(self.args[1])
+            self.remove_harvest_source(url)
         elif cmd == 'sources':
             self.list_harvest_sources()
         elif cmd == 'job':
@@ -915,6 +854,9 @@ class Harvester(CkanCommand):
             else:
                 user_ref = u''
             self.register_harvesting_job(source_id, user_ref)
+        elif cmd == "rmjob":
+            job_id = unicode(self.args[1])
+            self.remove_harvesting_job(job_id)
         elif cmd == 'jobs':
             self.list_harvesting_jobs()
         elif cmd == 'run':
@@ -935,6 +877,7 @@ class Harvester(CkanCommand):
         pylons.translator._push_object(_get_translator(pylons.config.get('lang')))
 
         from ckan.model import HarvestingJob
+        from ckan.controllers.harvesting import HarvestingJobController
         jobs = HarvestingJob.filter(status=u"New").all()
         jobs_len = len(jobs)
         jobs_count = 0
@@ -946,12 +889,19 @@ class Harvester(CkanCommand):
         for job in jobs:
             jobs_count += 1
             print "Running job %s/%s: %s" % (jobs_count, jobs_len, job.id)
-            job.harvest_documents()
-            #self.print_harvesting_job(job)
-            print ""
-            job = HarvestingJob.get(job.id)
             self.print_harvesting_job(job)
+            job_controller = HarvestingJobController(job)
+            job_controller.harvest_documents()
 
+    def remove_harvesting_job(self, job_id):
+        from ckan import model
+        try:
+            job = model.HarvestingJob.get(job_id)
+            job.delete()
+            model.repo.commit_and_remove()
+            print "Removed job: %s" % job_id
+        except model.HarvestingObjectNotFound:
+            print "No such job"
 
     def register_harvesting_job(self, source_id, user_ref):
         from ckan.model import HarvestSource
@@ -967,7 +917,12 @@ class Harvester(CkanCommand):
         else:
             source = HarvestSource.get(source_id)
 
-        job = HarvestingJob.create_save(source=source, user_ref=user_ref, status=u"New")
+        job = HarvestingJob(
+            source=source,
+            user_ref=user_ref,
+            status=u"New",
+        )
+        job.save()
         print "Created new harvesting job:"
         self.print_harvesting_job(job)
         status = u"New"
@@ -987,6 +942,21 @@ class Harvester(CkanCommand):
             self.print_harvest_source(source)
             sources = self.get_harvest_sources()
             self.print_there_are("harvest source", sources)
+
+    def remove_harvest_source(self, url):
+        from ckan import model
+        sources = model.HarvestSource.filter(url=url)
+        if sources.count() == 0:
+            print "No such source"
+        else:
+            source = sources[0]
+            jobs = model.HarvestingJob.filter(source=source)
+            print "Removing %d jobs" % jobs.count()
+            for job in jobs:
+                job.delete()
+            source.delete()
+            model.repo.commit_and_remove()
+            print "Removed harvest source: %s" % url
 
     def list_harvest_sources(self):
         sources = self.get_harvest_sources()
@@ -1008,11 +978,15 @@ class Harvester(CkanCommand):
 
     def create_harvest_source(self, **kwds):
         from ckan.model import HarvestSource
-        return HarvestSource.create_save(**kwds)
+        source = HarvestSource(**kwds)
+        source.save()
+        return source
 
     def create_harvesting_job(self, **kwds):
         from ckan.model import HarvestingJob
-        return HarvestingJob.create_save(**kwds)
+        job = HarvestingJob(**kwds)
+        job.save()
+        return job
 
     def print_harvest_sources(self, sources):
         if sources:

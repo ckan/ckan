@@ -101,7 +101,10 @@ system_role_table = Table('system_role', metadata,
 
 
 class RoleAction(DomainObject):
-    pass
+    def __repr__(self):
+        return '<%s role="%s" action="%s" context="%s">' % \
+               (self.__class__.__name__, self.role, self.action, self.context)
+    
 
 # dictionary mapping protected objects (e.g. Package) to related ObjectRole
 protected_objects = {}
@@ -109,6 +112,10 @@ protected_objects = {}
 class UserObjectRole(DomainObject):
     name = None
     protected_object = None
+
+    def __repr__(self):
+        return '<%s user="%s" role="%s" context="%s">' % \
+               (self.__class__.__name__, self.user.name, self.role, self.context)
 
     @classmethod
     def get_object_role_class(self, domain_obj):
@@ -156,7 +163,8 @@ class UserObjectRole(DomainObject):
 
     @classmethod
     def add_user_to_role(cls, user, role, domain_obj):
-        # role assignment already exists
+        '''role assignment already exists
+        NB: leaves caller to commit change'''
         if cls.user_has_role(user, role, domain_obj):
             return
         objectrole = cls(role=role, user=user)
@@ -241,12 +249,15 @@ def remove_authorization_group_from_role(authorization_group, role, domain_obj):
     objectrole = UserObjectRole.get_object_role_class(domain_obj)
     objectrole.remove_authorization_group_from_role(authorization_group, role, domain_obj)
     
-
-def validate_authorization_setup():
+def init_authz_configuration_data():
+    setup_default_user_roles(System())
+    Session.commit()
+    Session.remove()
+    
+def init_authz_const_data():
     # since some of the authz config mgmt is taking place in DB, this should 
     # be validated on launch. it is a bit like a lazy migration, but seems 
     # sensible to make sure authz is always correct.
-    setup_default_user_roles(System())
     # setup all role-actions
     # context is blank as not currently used
     # Note that Role.ADMIN can already do anything - hardcoded in.
@@ -260,16 +271,17 @@ def validate_authorization_setup():
 
 ## TODO: this should be in ckan/authz.py
 def setup_user_roles(domain_object, visitor_roles, logged_in_roles, admins=[]):
+    '''NB: leaves caller to commit change'''
     assert type(admins) == type([])
     admin_roles = [Role.ADMIN]
     visitor = User.by_name(PSEUDO_USER__VISITOR)
-    if visitor:
-        for role in visitor_roles:
-            add_user_to_role(visitor, role, domain_object)
+    assert visitor
+    for role in visitor_roles:
+        add_user_to_role(visitor, role, domain_object)
     logged_in = User.by_name(PSEUDO_USER__LOGGED_IN)
-    if logged_in:
-        for role in logged_in_roles:
-            add_user_to_role(logged_in, role, domain_object)
+    assert logged_in
+    for role in logged_in_roles:
+        add_user_to_role(logged_in, role, domain_object)
     for admin in admins:
         # not sure if admin would reasonably by None
         if admin is not None:
@@ -307,9 +319,11 @@ def give_all_packages_default_user_roles():
         setup_default_user_roles(pkg, admins)
 
 def setup_default_user_roles(domain_object, admins=[]):
-    # sets up roles for visitor, logged-in user and any admins provided
-    # admins is a list of User objects
-    assert isinstance(domain_object, (Package, Group, System, AuthorizationGroup))
+    ''' sets up roles for visitor, logged-in user and any admins provided
+    @param admins - a list of User objects
+    NB: leaves caller to commit change.
+    '''
+    assert isinstance(domain_object, (Package, Group, System, AuthorizationGroup)), domain_object
     assert isinstance(admins, list)
     if type(domain_object) == Package:
         visitor_roles = [Role.EDITOR]

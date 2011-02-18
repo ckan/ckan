@@ -44,10 +44,6 @@ def group_name_validator(val, field=None):
         if group != field.parent.model:
             raise formalchemy.ValidationError(_('Group name already exists in database'))
 
-def harvest_source_url_validator(val, field=None):
-    if not val.strip().startswith('http://'):
-        raise formalchemy.ValidationError(_('Harvest source URL is invalid (must start with "http://").'))
-
 
 def field_readonly_renderer(key, value, newline_reqd=False):
     if value is None:
@@ -56,6 +52,15 @@ def field_readonly_renderer(key, value, newline_reqd=False):
     if newline_reqd:
         html += literal('<br/>')
     return html
+
+class CoreField(formalchemy.fields.Field):
+    '''A field which can sync to a core field in the model.
+    Use this for overriding AttributeFields when you want to be able
+    to set a default value without having to change the sqla Column default.'''
+    def sync(self):
+        if not self.is_readonly():
+            setattr(self.model, self.name, self._deserialize())
+    
 
 class DateTimeFieldRenderer(formalchemy.fields.DateTimeFieldRenderer):
     def render_readonly(self, **kwargs):
@@ -81,17 +86,12 @@ class TextAreaRenderer(formalchemy.fields.TextAreaFieldRenderer):
         return field_readonly_renderer(self.field.key, self.raw_value)
 
 class TextExtraRenderer(formalchemy.fields.TextFieldRenderer):
-    def _get_value(self):
-        extras = self.field.parent.model.extras # db
-        return self.value or extras.get(self.field.name, u'') or u''
-
     def render(self, **kwargs):
-        value = self._get_value()
         kwargs['size'] = '40'
-        return fa_h.text_field(self.name, value=value, maxlength=self.length, **kwargs)
+        return fa_h.text_field(self.name, value=self.value, maxlength=self.length, **kwargs)
 
     def render_readonly(self, **kwargs):
-        return field_readonly_renderer(self.field.key, self._get_value())
+        return field_readonly_renderer(self.field.key, self.value)
 
 
 # Common fields paired with their renderer and maybe validator
@@ -147,6 +147,14 @@ class TextExtraField(RegExValidatingField):
         return RegExValidatingField.get_configured(self, field)
 
     class TextExtraField(formalchemy.Field):
+        def __init__(self, *args, **kwargs):
+            self._null_option = (_('(None)'), u'')
+            super(self.__class__, self).__init__(*args, **kwargs)
+
+        @property
+        def raw_value(self):
+            return self.model.extras.get(self.name)
+            
         def sync(self):
             if not self.is_readonly():
                 pkg = self.model
@@ -162,23 +170,26 @@ class DateExtraField(ConfiguredField):
         return self.DateExtraFieldField(self.name).with_renderer(self.DateExtraRenderer).validate(field_types.DateType.form_validator)
 
     class DateExtraFieldField(formalchemy.Field):
+        @property
+        def raw_value(self):
+            db_date = self.model.extras.get(self.name)
+            if db_date:
+                return field_types.DateType.db_to_form(db_date)
+            else:
+                return None
+            
         def sync(self):
             if not self.is_readonly():
-                pkg = self.model
                 form_date = self._deserialize()
                 date_db = field_types.DateType.form_to_db(form_date, may_except=False)
-                pkg.extras[self.name] = date_db
+                self.model.extras[self.name] = date_db
 
     class DateExtraRenderer(TextExtraRenderer):
         def __init__(self, field):
             super(DateExtraField.DateExtraRenderer, self).__init__(field)
 
-        def _get_value(self):
-            form_date = TextExtraRenderer._get_value(self)
-            return field_types.DateType.db_to_form(form_date)
-
         def render_readonly(self, **kwargs):
-            return field_readonly_renderer(self.field.key, self._get_value())
+            return field_readonly_renderer(self.field.key, self.value)
 
 class DateRangeExtraField(ConfiguredField):
     '''A form field for two DateType fields, representing a date range,
@@ -187,12 +198,26 @@ class DateRangeExtraField(ConfiguredField):
         return self.DateRangeField(self.name).with_renderer(self.DateRangeRenderer).validate(self.validator)
 
     def validator(self, form_date_tuple, field=None):
-        assert isinstance(form_date_tuple, tuple), form_date_tuple
+        assert isinstance(form_date_tuple, (tuple, list)), form_date_tuple
         from_, to_ = form_date_tuple
         return field_types.DateType.form_validator(from_) and \
                field_types.DateType.form_validator(to_)
 
     class DateRangeField(formalchemy.Field):
+        @property
+        def raw_value(self):
+            extras = self.model.extras
+            from_ = extras.get(self.name + '-from', u'')
+            to = extras.get(self.name + '-to', u'')
+            from_form = field_types.DateType.db_to_form(from_)
+            to_form = field_types.DateType.db_to_form(to)
+            return (from_form, to_form)
+
+        @property
+        def is_collection(self):
+            # Become a collection to allow two values to be passed around.
+            return True
+
         def sync(self):
             if not self.is_readonly():
                 pkg = self.model
@@ -201,29 +226,15 @@ class DateRangeExtraField(ConfiguredField):
                 pkg.extras[self.name + '-to'] = field_types.DateType.form_to_db(vals[1], may_except=False)
 
     class DateRangeRenderer(formalchemy.fields.FieldRenderer):
-        def _get_value(self):
-            extras = self.field.parent.model.extras
-            if self.value:
-                from_form, to_form = self.value
-            else:
-                from_ = extras.get(self.field.name + '-from') or u''
-                to = extras.get(self.field.name + '-to') or u''
-                from_form = field_types.DateType.db_to_form(from_)
-                to_form = field_types.DateType.db_to_form(to)
-            return (from_form, to_form)
-
         def render(self, **kwargs):
-            from_, to = self._get_value()
+            from_, to = self.value
             from_html = fa_h.text_field(self.name + '-from', value=from_, class_="medium-width", **kwargs)
             to_html = fa_h.text_field(self.name + '-to', value=to, class_="medium-width", **kwargs)
             html = '%s - %s' % (from_html, to_html)
             return html
 
         def render_readonly(self, **kwargs):
-            val = self._get_value()
-            if not val:
-                val = u'', u''
-            from_, to = val
+            from_, to = self.value or (u'', u'')
             if to:
                 val_str = '%s - %s' % (from_, to)
             else:            
@@ -237,8 +248,6 @@ class DateRangeExtraField(ConfiguredField):
             param_val_to = self.params.get(self.name + '-to', u'')
             return param_val_from, param_val_to
 
-        def deserialize(self):
-            return self._serialized_value()
 
 class TextRangeExtraField(RegExRangeValidatingField):
     '''A form field for two TextType fields, representing a range,
@@ -257,6 +266,7 @@ class TextRangeExtraField(RegExRangeValidatingField):
 
     class TextRangeRenderer(formalchemy.fields.FieldRenderer):
         def _get_value(self):
+            #TODO Refactor this into field raw_value, like in DateRangeExtraField
             extras = self.field.parent.model.extras
             if self.value:
                 from_form, to_form = self.value
@@ -296,24 +306,29 @@ class TextRangeExtraField(RegExRangeValidatingField):
 class ResourcesField(ConfiguredField):
     '''A form field for multiple package resources.'''
 
-    def __init__(self, name, hidden_label=False):
+    def __init__(self, name, hidden_label=False, fields_required=None):
         super(ResourcesField, self).__init__(name)
         self._hidden_label = hidden_label
+        self.fields_required = fields_required or set(['url'])
+        assert isinstance(self.fields_required, set)
 
-    def url_validator(self, val, field=None):
+    def resource_validator(self, val, field=None):
         resources_data = val
         assert isinstance(resources_data, list)
-        url_regex = re.compile('\S') # Todo: Restrict this further?
-        errormsg = 'Package resources must have URLs.'
-        validator = formalchemy.validators.regex(url_regex, errormsg)
+        not_nothing_regex = re.compile('\S')
+        errormsg = _('Package resource(s) incomplete.')
+        not_nothing_validator = formalchemy.validators.regex(not_nothing_regex,
+                                                             errormsg)
         for resource_data in resources_data:
             assert isinstance(resource_data, dict)
-            resource_url = resource_data.get('url', '')
-            validator(resource_url, field)
-
+            for field in self.fields_required:
+                value = resource_data.get(field, '')
+                not_nothing_validator(value, field)
+            
     def get_configured(self):
-        field = self.ResourcesField(self.name).with_renderer(self.ResourcesRenderer).validate(self.url_validator)
+        field = self.ResourcesField(self.name).with_renderer(self.ResourcesRenderer).validate(self.resource_validator)
         field._hidden_label = self._hidden_label
+        field.fields_required = self.fields_required
         field.set(multiple=True)
         return field
 
@@ -333,6 +348,12 @@ class ResourcesField(ConfiguredField):
             # need this because it is a property
             return getattr(self.model, self.name)
 
+        def is_required(self, field_name=None):
+            if not field_name:
+                return False
+            else:
+                return field_name in self.fields_required
+
 
     class ResourcesRenderer(formalchemy.fields.FieldRenderer):
         def render(self, **kwargs):
@@ -341,6 +362,9 @@ class ResourcesField(ConfiguredField):
             c.resources = c.resources[:]
             c.resources.extend([None])
             c.id = self.name
+            c.columns = model.PackageResource.get_columns()
+            c.field = self.field
+            c.fieldset = self.field.parent
             return render('package/form_resources.html')            
 
         def stringify_value(self, v):
@@ -388,29 +412,39 @@ class TagField(ConfiguredField):
         return self.TagField(self.name).with_renderer(self.TagEditRenderer).validate(self.tag_name_validator)
 
     class TagField(formalchemy.Field):
+        @property
+        def raw_value(self):
+            tag_objects = self.model.tags
+            tag_names = [tag.name for tag in tag_objects]
+            return tag_names
+        
         def sync(self):
             if not self.is_readonly():
-                # NOTE this should work - not sure why not
-    #            setattr(self.model, self.name, self._deserialize())
+                # Note: You might think that you could just assign
+                # self.model.tags with tag objects, but the model 
+                # (add_stateful_versioned_m2m) doesn't support this -
+                # you must edit each PackageTag individually.
                 self._update_tags()
 
         def _update_tags(self):
             pkg = self.model
-            tags = self._deserialize()
-            # discard duplicates
-            taglist = list(set([tag.name for tag in tags]))
-            current_tags = [ tag.name for tag in pkg.tags ]
-            for name in taglist:
-                if name not in current_tags:
-                    pkg.add_tag_by_name(name, autoflush=False)
+            updated_tags = set(self._deserialize())
+            existing_tags = set(self.raw_value)
+            for tag in updated_tags - existing_tags:
+                pkg.add_tag_by_name(tag, autoflush=False)
+            tags_to_delete = existing_tags - updated_tags
             for pkgtag in pkg.package_tags:
-                if pkgtag.tag.name not in taglist:
+                if pkgtag.tag.name in tags_to_delete:
                     pkgtag.delete()
+
+        @property
+        def is_collection(self):
+            # Become a collection to allow value to be a list of tag strings
+            return True
 
     class TagEditRenderer(formalchemy.fields.FieldRenderer):
         def render(self, **kwargs):
-            pkg_id = self.field.parent.model.id or ''
-            kwargs['value'] = self._tags_string()
+            kwargs['value'] = ' '.join(self.value)
             kwargs['size'] = 60
             api_url = config.get('ckan.api_url', '/').rstrip('/')
             tagcomplete_url = api_url+h.url_for(controller='apiv2/package', action='autocomplete', id=None)
@@ -419,54 +453,34 @@ class TagField(ConfiguredField):
             kwargs['class'] = 'long tagComplete'
             html = literal(fa_h.text_field(self.name, **kwargs))
             return html
-                           
-        def _tags_string(self):
-            tags = self.field.parent.tags.value or self.field.parent.model.tags or []
-            if tags:
-                tagnames = [ tag.name for tag in tags ]
-            else:
-                tagnames = []
-            return ' '.join(tagnames)
 
         def _tag_links(self):
-            tags = self.field.parent.tags.value or self.field.parent.model.tags or []
-            if tags:
-                tagnames = [ tag.name for tag in tags ]
-            else:
-                tagnames = []
-            return literal(' '.join([literal('<a href="/tag/read/%s">%s</a>' % (str(tag), str(tag))) for tag in tagnames]))
+            tags = self.value
+            tag_links = [h.link_to(tagname, h.url_for(controller='tag', action='read', id=tagname)) for tagname in tags]
+            return literal(' '.join(tag_links))
 
         def render_readonly(self, **kwargs):
-            tags_as_string = self._tag_links()
-            return field_readonly_renderer(self.field.key, tags_as_string)
+            tag_links = self._tag_links()
+            return field_readonly_renderer(self.field.key, tag_links)
 
-        # Looks remarkably similar to _update_tags above
-        def deserialize(self):
-            tags_as_string = self._serialized_value() # space separated string
-            package = self.field.parent.model
-            #self._update_tags(package, tags_as_string)
-
-            tags_as_string = tags_as_string.replace(',', ' ').lower()
-            taglist = tags_as_string.split()
-            def find_or_create_tag(name):
-                tag = model.Tag.by_name(name, autoflush=False)
-                if not tag:
-                    tag = model.Tag(name=name)
-                return tag
-            tags = [find_or_create_tag(x) for x in taglist]
+        def _serialized_value(self):
+            # despite being a collection, there is only one field to get
+            # the values from
+            tags_as_string = self.params.getone(self.name)
+            tags = tags_as_string.replace(',', ' ').lower().split()
             return tags
-
+            
     tagname_match = re.compile('[\w\-_.]*$', re.UNICODE)
     tagname_uppercase = re.compile('[A-Z]')
     def tag_name_validator(self, val, field):
         for tag in val:
             min_length = 2
-            if len(tag.name) < min_length:
-                raise formalchemy.ValidationError(_('Tag "%s" length is less than minimum %s') % (tag.name, min_length))
-            if not self.tagname_match.match(tag.name):
-                raise formalchemy.ValidationError(_('Tag "%s" must be alphanumeric characters or symbols: -_.') % (tag.name))
-            if self.tagname_uppercase.search(tag.name):
-                raise formalchemy.ValidationError(_('Tag "%s" must not be uppercase' % (tag.name)))
+            if len(tag) < min_length:
+                raise formalchemy.ValidationError(_('Tag "%s" length is less than minimum %s') % (tag, min_length))
+            if not self.tagname_match.match(tag):
+                raise formalchemy.ValidationError(_('Tag "%s" must be alphanumeric characters or symbols: -_.') % (tag))
+            if self.tagname_uppercase.search(tag):
+                raise formalchemy.ValidationError(_('Tag "%s" must not be uppercase' % (tag)))
 
 class ExtrasField(ConfiguredField):
     '''A form field for arbitrary "extras" package data.'''
@@ -489,6 +503,15 @@ class ExtrasField(ConfiguredField):
                 raise formalchemy.ValidationError(_('Extra key-value pair: key is not set for value "%s".') % value)
 
     class ExtrasField(formalchemy.Field):
+        @property
+        def raw_value(self):
+            return self.model.extras.items() or []
+            
+        @property
+        def is_collection(self):
+            # Become a collection to allow multiple values to be passed around.
+            return True
+
         def sync(self):
             if not self.is_readonly():
                 self._update_extras()
@@ -515,16 +538,21 @@ class ExtrasField(ConfiguredField):
             return not self._hidden_label
         requires_label = property(requires_label)
 
-
     class ExtrasRenderer(formalchemy.fields.FieldRenderer):
-        def _get_value(self):
-            extras = self.field.parent.extras.value
-            if extras is None:
-                extras = self.field.parent.model.extras.items() or []
-            return extras
+        @property
+        def value(self):
+            '''
+            Override 'value' method to avoid stringifying each
+            extra key-value pair.
+            '''
+            if not self.field.is_readonly() and self.params is not None:
+                v = self.deserialize()
+            else:
+                v = None
+            return v or self.field.model_value
 
         def render(self, **kwargs):
-            extras = self._get_value()
+            extras = self.value
             html = ''
             field_values = []
             for key, value in extras:
@@ -541,8 +569,7 @@ class ExtrasField(ConfiguredField):
 
         def render_readonly(self, **kwargs):
             html_items = []
-            extras = self._get_value()
-            for key, value in extras:
+            for key, value in self.value:
                 html_items.append(field_readonly_renderer(key, value))
             return html_items
 
@@ -608,8 +635,7 @@ class GroupSelectField(ConfiguredField):
         super(GroupSelectField, self).__init__(name)
         self.allow_empty = allow_empty
         self.multiple = multiple
-        if user_editable_groups == None:
-            raise Exception, "Group select field 'user_editable_groups' is not initialized."
+        assert user_editable_groups is not None
         self.user_editable_groups = user_editable_groups
     
     def get_configured(self):
@@ -622,7 +648,7 @@ class GroupSelectField(ConfiguredField):
         def __init__(self, name, allow_empty):
             formalchemy.Field.__init__(self, name)
             self.allow_empty = allow_empty
-        
+
         def sync(self):
             if not self.is_readonly():
                 self._update_groups()
@@ -769,9 +795,7 @@ class GroupSelectField(ConfiguredField):
                     for (i, nested_value) in enumerate(new_group_ids):
                         if nested_value and isinstance(nested_value, list):
                             if len(nested_value) > 1:
-                                msg = "Can't derived new group selection from "
-                                msg += "serialized value structured like this:"
-                                msg += " %s" % nested_value
+                                msg = _("Can't derived new group selection from serialized value structured like this: %s") % nested_value
                                 raise Exception, msg
                             new_group_ids[i] = nested_value[0]
                 # Todo: Decide on the structure of a multiple-group selection.
@@ -790,7 +814,7 @@ class SelectExtraField(TextExtraField):
     
     def __init__(self, name, options, allow_empty=True):
         self.options = options[:]
-        self.allow_empty = allow_empty
+        self.is_required = not allow_empty
         # ensure options have key and value, not just a value
         for i, option in enumerate(self.options):
             if not isinstance(option, (tuple, list)):
@@ -799,28 +823,35 @@ class SelectExtraField(TextExtraField):
 
     def get_configured(self):
         field = self.TextExtraField(self.name, options=self.options)
-        field.allow_empty = self.allow_empty
-        return field.with_renderer(self.SelectRenderer)
-        
+        field_configured = field.with_renderer(self.SelectRenderer).validate(self.validate)
+        if self.is_required:
+            field_configured = field_configured.required()
+        return field_configured
 
-    class SelectRenderer(formalchemy.fields.FieldRenderer):
-        def _get_value(self, **kwargs):
-            extras = self.field.parent.model.extras
-            return self.value 
+    def validate(self, value, field=None):
+        if not value:
+            # if value is required then this is checked by 'required' validator
+            return
+        if value not in [id_ for label, id_ in self.options]:
+            raise formalchemy.ValidationError('Value %r is not one of the options.' % id_)
 
-        def render(self, options, **kwargs):
-            selected = self._get_value()
-            if self.field.allow_empty:
-                options = [(_('(None)'), '')] + options
-            
-            html = literal(fa_h.select(self.name, selected, options, **kwargs))
-            return html
-
-        def render_readonly(self, **kwargs):
-            return field_readonly_renderer(self.field.key, self._get_value())
-
+    class SelectRenderer(formalchemy.fields.SelectFieldRenderer):
         def _serialized_value(self):
             return self.params.get(self.name, u'')
+
+        def render(self, options, **kwargs):
+            # @param options - an iterable of (label, value)
+            if not self.field.is_required():
+                options = list(options)
+                if options and isinstance(options[0], (tuple, list)):
+                    null_option = self.field._null_option
+                else:
+                    null_option = self.field._null_option[1]
+                options.insert(0, self.field._null_option)
+            return formalchemy.fields.SelectFieldRenderer.render(self, options, **kwargs)
+
+        def render_readonly(self, **kwargs):
+            return field_readonly_renderer(self.field.key, self.value)
 
 
 class SuggestedTextExtraField(TextExtraField):
@@ -838,12 +869,8 @@ class SuggestedTextExtraField(TextExtraField):
         return self.TextExtraField(self.name, options=self.options).with_renderer(self.SelectRenderer)
 
     class SelectRenderer(formalchemy.fields.FieldRenderer):
-        def _get_value(self, **kwargs):
-            extras = self.field.parent.model.extras
-            return unicode(kwargs.get('selected', '') or self.value or extras.get(self.field.name, ''))
-
         def render(self, options, **kwargs):
-            selected = self._get_value()
+            selected = self.value
             options = [('', '')] + options + [(_('other - please specify'), 'other')]
             option_keys = [key for value, key in options]
             if selected in option_keys:
@@ -864,7 +891,7 @@ class SuggestedTextExtraField(TextExtraField):
             return html
 
         def render_readonly(self, **kwargs):
-            return field_readonly_renderer(self.field.key, self._get_value())
+            return field_readonly_renderer(self.field.key, self.value)
 
         def _serialized_value(self):
             main_value = self.params.get(self.name, u'')
@@ -875,32 +902,28 @@ class CheckboxExtraField(TextExtraField):
     '''A form field for a checkbox value, stored in an "extras" field as
     "yes" or "no".'''
     def get_configured(self):
-        return self.TextExtraField(self.name).with_renderer(self.CheckboxExtraRenderer)
+        return self.CheckboxExtraField(self.name).with_renderer(self.CheckboxExtraRenderer)
 
+    class CheckboxExtraField(formalchemy.fields.Field):
+        @property
+        def raw_value(self):
+            extras = self.model.extras
+            return u'yes' if extras.get(self.name) == u'yes' else u'no'
+
+        def sync(self):
+            if not self.is_readonly():
+                store_value = u'yes' if self._deserialize() else u'no'
+                self.model.extras[self.name] = store_value
+    
     class CheckboxExtraRenderer(formalchemy.fields.CheckBoxFieldRenderer):
-        def _get_value(self):
-            extras = self.field.parent.model.extras
-            return bool(self.value or extras.get(self.field.name) == u'yes')
-
         def render(self, **kwargs):
-            value = self._get_value()
             kwargs['size'] = '40'
-            return fa_h.check_box(self.name, True, checked=value, **kwargs)
-            return fa_h.text_field(self.name, value=value, maxlength=self.length, **kwargs)
+            bool_value = (self.value == u'yes')
+            return fa_h.check_box(self.name, u'yes', checked=bool_value, **kwargs)
+            return fa_h.text_field(self.name, value=bool_value, maxlength=self.length, **kwargs)
 
         def render_readonly(self, **kwargs):
-            value = u'yes' if self._get_value() else u'no'
-            return field_readonly_renderer(self.field.key, value)
-
-        def _serialized_value(self):
-            # interpret params like this:
-            # 'Package--some_field', u'True'
-            param_val = self.params.get(self.name, u'')
-            val = param_val == 'True'
-            return val
-
-        def deserialize(self):
-            return u'yes' if self._serialized_value() else u'no'
+            return field_readonly_renderer(self.field.key, self.value)
 
 
 class PackageNameField(ConfiguredField):
@@ -909,15 +932,9 @@ class PackageNameField(ConfiguredField):
         return self.PackageNameField(self.name).with_renderer(self.PackageNameRenderer)
 
     class PackageNameField(formalchemy.Field):
-        #def sync(self):
-        #    if not self.is_readonly():
         pass
         
     class PackageNameRenderer(formalchemy.fields.FieldRenderer):
-        #def _get_value(self):
-        #    package_id = self.field.parent.model.package_id
-        #    pkg = model.Package.get(package_id)
-        #    return pkg.name
         pass
 
 

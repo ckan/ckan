@@ -11,10 +11,14 @@ class PackagesTestCase(BaseModelApiTestCase):
     commit_changesets = False
     reuse_common_fixtures = True
 
+    def setup(self):
+        model.Session.remove()
+        model.repo.init_db()
+        super(PackagesTestCase, self).setup()
+
     def teardown(self):
-        self.purge_package_by_name(self.package_fixture_data['name'])
-        self.purge_package_by_name(u'somethingnew')
         super(PackagesTestCase, self).teardown()
+        model.Session.connection().invalidate()
 
     def test_register_get_ok(self):
         offset = self.package_offset()
@@ -26,7 +30,8 @@ class PackagesTestCase(BaseModelApiTestCase):
         assert not self.get_package_by_name(self.package_fixture_data['name'])
         offset = self.package_offset()
         postparams = '%s=1' % self.dumps(self.package_fixture_data)
-        res = self.app.post(offset, params=postparams, status=self.STATUS_200_OK,
+        res = self.app.post(offset, params=postparams,
+                            status=self.STATUS_201_CREATED,
                 extra_environ=self.extra_environ)
         # Check the value of the Location header.
         location = res.header('Location')
@@ -104,7 +109,6 @@ class PackagesTestCase(BaseModelApiTestCase):
         self.assert_msg_represents_anna(msg=msg)
 
     def test_entity_get_not_found(self):
-        # Don't use package_offset('22222') because there isn't a '22222'.
         offset = self.offset('/rest/package/22222')
         res = self.app.get(offset, status=self.STATUS_404_NOT_FOUND)
         self.remove()
@@ -118,13 +122,13 @@ class PackagesTestCase(BaseModelApiTestCase):
         offset = self.anna_offset()
         res = self.app.delete(offset, status=self.STATUS_403_ACCESS_DENIED)
 
-    #def test_09_update_package_entity_not_found(self):
-    #    # Don't use package_offset('22222') because there isn't a '22222'.
-    #    offset = self.offset('/rest/package/22222')
-    #    postparams = '%s=1' % self.dumps(self.package_fixture_data)
-    #    res = self.app.post(offset, params=postparams, status=[404],
-    #           extra_environ=self.extra_environ)
-    #    self.remove()
+    def test_09_update_package_entity_not_found(self):
+        offset = self.offset('/rest/package/22222')
+        postparams = '%s=1' % self.dumps(self.package_fixture_data)
+        res = self.app.post(offset, params=postparams,
+                            status=self.STATUS_404_NOT_FOUND,
+                            extra_environ=self.extra_environ)
+        self.remove()
 
     def create_package_roles_revision(self, package_data):
         self.create_package(admins=[self.user], data=package_data)
@@ -147,6 +151,8 @@ class PackagesTestCase(BaseModelApiTestCase):
                 u'format':u'xml',
                 u'description':u'Appendix 1',
                 u'hash':u'def123',
+                u'position':'ignore-this',
+                u'id':'ignore-this',
             },{
                 u'url':u'http://blah.com/file3.xml',
                 u'format':u'xml',
@@ -155,6 +161,7 @@ class PackagesTestCase(BaseModelApiTestCase):
             }],
             'extras': {
                 u'key3': u'val3', 
+                u'key4': u'',
                 u'key2': None
              },
             'tags': [u'tag1', u'tag2', u'tag4', u'tag5'],
@@ -192,12 +199,14 @@ class PackagesTestCase(BaseModelApiTestCase):
         # - url
         self.assert_equal(package.url, self.package_fixture_data['url'])
         # - extras
-        self.assert_equal(len(package.extras), 2)
-        for key, value in {u'key1':u'val1', u'key3':u'val3'}.items():
+        self.assert_equal(len(package.extras), 3)
+        for key, value in {u'key1':u'val1',
+                           u'key3':u'val3',
+                           u'key4':u''}.items():
             self.assert_equal(package.extras[key], value)
-        # Todo: Something about the fact that extras are not unsubmitted!
-        # Todo: Check what happens to key2.
-        # Todo: Figure out why key2 is set to None - do we need a test for key2 not existing.
+        # NB: key4 set to '' creates it
+        # but: key2 set to None will delete it
+        assert not package.extras.has_key('key2')
 
     def test_package_update_ok_by_id(self):
         self.assert_package_update_ok('id')
@@ -218,22 +227,20 @@ class PackagesTestCase(BaseModelApiTestCase):
     def test_entity_delete_ok(self):
         # create a package with package_fixture_data
         if not self.get_package_by_name(self.package_fixture_data['name']):
+            rev = model.repo.new_revision()
             package = model.Package()
             model.Session.add(package)
             package.name = self.package_fixture_data['name']
-            rev = model.repo.new_revision()
             model.repo.commit_and_remove()
-
+            rev = model.repo.new_revision()
             package = self.get_package_by_name(self.package_fixture_data['name'])
             model.setup_default_user_roles(package, [self.user])
-            rev = model.repo.new_revision()
             model.repo.commit_and_remove()
         assert self.get_package_by_name(self.package_fixture_data['name'])
-
         # delete it
         offset = self.package_offset(self.package_fixture_data['name'])
         res = self.app.delete(offset, status=self.STATUS_200_OK,
-                extra_environ=self.extra_environ)
+                              extra_environ=self.extra_environ)
         package = self.get_package_by_name(self.package_fixture_data['name'])
         self.assert_equal(package.state, 'deleted')
         model.Session.remove()

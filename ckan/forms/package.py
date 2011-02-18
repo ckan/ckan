@@ -31,55 +31,56 @@ def build_package_form(is_admin=False, user_editable_groups=None, **params):
     # Labels and instructions
     builder.set_field_text(
         'title',
-        instructions='The title of the data set.',
-        further_instructions='Use a short descriptive title for the data set. It should not be a description though - save that for the Notes field. Do not give a trailing full stop.',
+        instructions=_('A short descriptive title for the data set.'),
+        further_instructions=_('It should not be a description though - save that for the Notes field. Do not give a trailing full stop.'),
     )
     builder.set_field_text(
-        'name', 
-        '%s %s' % (
-            _('Name'),
-            _('(required)')
-        ), 
-        hints=literal(_("<strong>Unique identifier</strong> for package.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'"))
+        'name', _('Name'),
+        instructions=_('A unique identifier for the package.'),
+        further_instructions=_('It should be broadly humanly readable, in the spirit of Semantic Web URIs. Only use an acronym if it is widely recognised. Renaming is possible but discouraged.'),
+        hints=_("2+ characters, lowercase, using only 'a-z0-9' and '-_'")
     )
     builder.set_field_text(
         'version',
-        instructions='A number representing the version (if applicable) e.g. 1.2.0',
+        instructions=_('A number representing the version (if applicable)'),
+        hints='e.g. 1.2.0',
     )
     builder.set_field_text(
         'url',
-        instructions='This is usually the URL for the package project home page not the data itself.',
-        hints='e.g. http://www.example.com/growth-figures.html',
+        instructions=_('The URL for the web page describing the data (not the data itself).'),
+        hints=_('e.g. http://www.example.com/growth-figures.html'),
     )
     builder.set_field_text(
         'author',
-        instructions='The permanent contact name for enquiries about this particular dataset.',
+        instructions=_('The name of the main contact, for enquiries about this particular dataset, using the e-mail address in the following field.'),
     )
     builder.set_field_text(
-        'author_email',
+        'maintainer',
+        instructions=_('If there is another important contact person (in addition to the person in the Author field) then provide details here.'),
     )
     builder.set_field_text(
         'license_id',
-        _('License'),
-        instructions='The licence under which the dataset is released.',
+        _('Licence'),
+        instructions=_('The licence under which the dataset is released.'),
     )
     builder.set_field_text(
         'tags', 
         _('Tags'), 
-        _('(space separated list)')
+        instructions=literal(_('Terms that may link this dataset to similar ones. For more information on conventions, see <a href="%s">this wiki page</a>.') % 'http://wiki.okfn.org/ckan/doc/faq#TagConventions'),
+        hints=_('e.g. pollution rivers water-quality')
     )
     builder.set_field_text(
         'resources',
-        instructions='The files containing the data or address of the APIs for accessing it.',
-        further_instructions=literal('<br />These can be repeated as required. For example if the data is being supplied in multiple formats, or split into different areas or time periods, each file is a different \'resource\' which should be described differently. They will all appear on the dataset page on CKAN together.<br /><br /> <b>URL:</b> This is the Internet link directly to the data - by selecting this link in a web browser, the user will immediately download the full data set. Note that datasets are not hosted on this site, but by the publisher of the data. Alternatively the URL can point to an API server such as a SPARQL endpoint or JSON-P service.<br /> <b>Format:</b> This should give the file format in which the data is supplied. <br /><b>Description</b> Any information you want to add to describe the resource.<br />'),  
-        hints='Format choices: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Other as appropriate'
+        instructions=_('The files containing the data or address of the APIs for accessing it.'),
+        further_instructions=literal(_('<br />These can be repeated as required. For example if the data is being supplied in multiple formats, or split into different areas or time periods, each file is a different \'resource\' which should be described differently. They will all appear on the dataset page on CKAN together.<br /><br /> <b>URL:</b> This is the Internet link directly to the data - by selecting this link in a web browser, the user will immediately download the full data set. Note that datasets are not hosted on this site, but by the publisher of the data. Alternatively the URL can point to an API server such as a SPARQL endpoint or JSON-P service.<br /> <b>Format:</b> This should give the file format in which the data is supplied. <br /><b>Description</b> Any information you want to add to describe the resource.<br />')),  
+        hints=_('Format choices: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Other as appropriate')
     )
     builder.set_field_text(
         'notes', 
         _('Notes'), 
-        instructions='The main description of the dataset',
-        further_instructions='It is often displayed with the package title. In particular, it should start with a short sentence that describes the data set succinctly, because the first few words alone may be used in some views of the data sets.',
-        hints=literal(_('You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.'))
+        instructions=_('The main description of the dataset'),
+        further_instructions=_('It is often displayed with the package title. In particular, it should start with a short sentence that describes the data set succinctly, because the first few words alone may be used in some views of the data sets.'),
+        hints=literal(_('You can use %sMarkdown formatting%s here.') % ('<a href="http://daringfireball.net/projects/markdown/syntax">', '</a>'))
     )
 
     # Options/settings
@@ -90,13 +91,14 @@ def build_package_form(is_admin=False, user_editable_groups=None, **params):
 
     # Layout
     field_groups = OrderedDict([
-        (_('Basic information'), ['title', 'name', 'version', 'url',
-                               'notes', 'tags']),
+        (_('Basic information'), ['title', 'name', 'url',
+                               'notes', 'license_id', 'tags']),
         (_('Resources'), ['resources']),
         (_('Groups'), ['groups']),
         (_('Detail'), ['author', 'author_email',
-                    'maintainer', 'maintainer_email',
-                    'license_id']),
+                       'maintainer', 'maintainer_email',
+                       'version',
+                       ]),
         (_('Extras'), ['extras']),
         ])
     if is_admin:

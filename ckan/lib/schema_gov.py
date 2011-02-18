@@ -13,9 +13,9 @@ Commissioners for the Reduction of the National Debt
 Crown Estate
 Crown Prosecution Service
 Department for Business, Innovation and Skills
-Department for Children, Schools and Families
 Department for Communities and Local Government
 Department for Culture, Media and Sport
+Department for Education
 Department for Environment, Food and Rural Affairs
 Department for International Development
 Department for Transport
@@ -68,7 +68,7 @@ for line in government_depts_raw.split('\n'):
     if line:
         government_depts.append(unicode(line.strip()))
 
-department_agency_abbreviations = {'DCSF':'Department for Children, Schools and Families', 'VLA':'Vetinary Laboratories Agency', 'MFA':'Marine and Fisheries Agency', 'CEFAS':'Centre of Environment, Fisheries and Aquaculture Science', 'FERA':'Food and Environment Research Agency', 'DEFRA':'Department for Environment, Food and Rural Affairs', 'Department for the Environment, Food and Rural Affairs':'Department for Environment, Food and Rural Affairs', 'CRB':'Criminal Records Bureau', 'UKBA':'UK Border Agency', 'IPS':'Identity and Passport Service', 'NPIA':'National Policing Improvement Agency', 'CIB':'Company Investigation Branch', 'IPO':'Intellectual Property Office', 'SFO':'Serious Fraud Office', 'HM Revenue and Customs':"Her Majesty's Revenue and Customs", 'HM Treasury':"Her Majesty's Treasury", 'DfT':'Department for Transport', 'socitm':'Society of Information Technology Management', 'Communities and Local government':'Department for Communities and Local Government'}
+department_agency_abbreviations = {'VLA':'Vetinary Laboratories Agency', 'MFA':'Marine and Fisheries Agency', 'CEFAS':'Centre of Environment, Fisheries and Aquaculture Science', 'FERA':'Food and Environment Research Agency', 'DEFRA':'Department for Environment, Food and Rural Affairs', 'Department for the Environment, Food and Rural Affairs':'Department for Environment, Food and Rural Affairs', 'CRB':'Criminal Records Bureau', 'UKBA':'UK Border Agency', 'IPS':'Identity and Passport Service', 'NPIA':'National Policing Improvement Agency', 'CIB':'Company Investigation Branch', 'IPO':'Intellectual Property Office', 'SFO':'Serious Fraud Office', 'HM Revenue and Customs':"Her Majesty's Revenue and Customs", 'HM Treasury':"Her Majesty's Treasury", 'DfT':'Department for Transport', 'socitm':'Society of Information Technology Management', 'Communities and Local government':'Department for Communities and Local Government', 'Department of Communities and Local Government':'Department for Communities and Local Government', 'Department for Education (DfE)':'Department for Education', 'HM Customs and Revenue':"Her Majesty's Revenue and Customs"}
 
 geographic_granularity_options = ['national', 'regional', 'local authority', 'ward', 'point']
 
@@ -84,7 +84,7 @@ region_abbreviations = {'UK':'United Kingdom', 'N. Ireland':'Northern Ireland', 
 
 update_frequency_suggestions = ('annually', 'quarterly', 'monthly', 'never')
 
-tag_pool = ['accident', 'road', 'traffic', 'health', 'illness', 'disease', 'population', 'school', 'accommodation', 'children', 'married', 'emissions', 'benefit', 'alcohol', 'deaths', 'mortality', 'disability', 'unemployment', 'employment', 'armed forces', 'asylum', 'cancer', 'births', 'burglary', 'child', 'tax credit', 'criminal damage', 'drug', 'earnings', 'education', 'economic', 'fire', 'fraud', 'forgery', 'fuel', 'green', 'greenhouse gas', 'homeless', 'hospital', 'waiting list', 'housing', 'care', 'income', 'census', 'mental health', 'disablement allowance', 'jobseekers allowance', 'national curriculum', 'older people', 'living environment', 'higher education', 'living environment', 'school absence', 'local authority', 'carbon dioxide', 'energy', 'teachers', 'fostering', 'tide', 'gas', 'electricity', 'transport', 'veterinary', 'fishing', 'export', 'fisheries', 'pest', 'recycling', 'waste', 'crime', 'anti-social behaviour', 'police', 'refugee', 'identity card', 'immigration', 'planning', 'communities', 'lettings', 'finance', 'ethnicity', 'trading standards', 'trade', 'business', 'child protection']
+tag_pool = ['accident', 'road', 'traffic', 'health', 'illness', 'disease', 'population', 'school', 'accommodation', 'children', 'married', 'emissions', 'benefit', 'alcohol', 'deaths', 'mortality', 'disability', 'unemployment', 'employment', 'armed forces', 'asylum', 'cancer', 'births', 'burglary', 'child', 'tax credit', 'criminal damage', 'drug', 'earnings', 'education', 'economic', 'fire', 'fraud', 'forgery', 'fuel', 'green', 'greenhouse gas', 'homeless', 'hospital', 'waiting list', 'housing', 'care', 'income', 'census', 'mental health', 'disablement allowance', 'jobseekers allowance', 'national curriculum', 'older people', 'living environment', 'higher education', 'living environment', 'school absence', 'local authority', 'carbon dioxide', 'energy', 'teachers', 'fostering', 'tide', 'gas', 'electricity', 'transport', 'veterinary', 'fishing', 'export', 'fisheries', 'pest', 'recycling', 'waste', 'crime', 'anti-social behaviour', 'police', 'refugee', 'identity card', 'immigration', 'planning', 'communities', 'lettings', 'finance', 'ethnicity', 'trading standards', 'trade', 'business', 'child protection', 'jobs', 'weather', 'climate', 'rainfall', 'cloud', 'snow', 'humidity', 'pressure', 'precipitation', 'sunshine', 'frost', 'temperature']
 
 tag_search_fields = ['name', 'title', 'notes', 'categories', 'agency']
 

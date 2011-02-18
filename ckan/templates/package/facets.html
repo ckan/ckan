@@ -1,0 +1,32 @@
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip=""
+  >
+
+<py:def function="facet_sidebar(code, limit=5, label=lambda n: n)">
+    <div py:if="len(h.facet_items(c, code, limit=limit))" class="facet-box">
+        <h2>${h.facet_title(code)}</h2>
+        <ul class="facet-options">
+            <li py:for="name, count in h.facet_items(c, code, limit=limit)"
+                py:if="not (code, name) in c.fields">
+                <a href="${c.drill_down_url(**{code: name})}">${label(name)}</a> (${count})
+            </li>
+        </ul>
+    </div>
+</py:def>
+
+<py:def function="field_list()">
+    <div class="search-field-list" py:if="c.fields">
+        <div class="search-field" py:for="(field, value) in c.fields">
+            <span class="search-field-name">${h.facet_title(field)}</span>
+            <span class="search-field-value">${value}</span>
+            <a class="search-field-remove" href="${c.remove_field(field, value)}">
+                ${h.icon('unfilter')}
+            </a>
+        </div>  
+    </div>
+</py:def>
+
+</html>

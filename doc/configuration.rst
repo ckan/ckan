@@ -40,6 +40,19 @@ Default value:  ``standard``
 This sets the name of the form to use when editing a package. This can be a form defined in the core CKAN code or in another setuputils-managed python module. The only requirement is that the setup.py has an entrypoint for the form defined in the `ckan.forms` section. See :doc:`forms`
 
 
+package_hide_extras
+-------------------
+
+Example::
+
+ package_hide_extras = my_private_field other_field
+
+Default value:  (empty)
+
+This sets a space-seperated list of extra field key values which will not be shown on the package read page. While this is useful to create internal notes etc., it is not a security measure in any way. The keys will 
+still be available via the API and in revision diffs. 
+
+
 rdf_packages
 ------------
 
@@ -235,14 +248,26 @@ Default value:  ``CKAN``
 This sets the name of the site, as displayed in the CKAN web interface.
 
 
-site_logo
-----------
+site_description
+----------------
 
 Example::
 
- ckan.site_logo=http://myregistry/logo.png
+ ckan.site_description=
 
-Default value:  ``/images/ckan_logo_fullname_long.png`` (CKAN Logo)
+Default value:  (none)
+
+This is for a description, or tag line for the site, as displayed in the header of the CKAN web interface.
+
+
+site_logo
+---------
+
+Example::
+
+ ckan.site_logo=/images/ckan_logo_fullname_long.png
+
+Default value:  (none)
 
 This sets the logo used in the title bar.
 
@@ -254,9 +279,12 @@ Example::
 
  ckan.site_url=http://scotdata.ckan.net
 
-Default value:  ``http://www.ckan.net``
+Default value:  (none)
 
-The primary URL used by this site. 
+The primary URL used by this site. Uses::
+
+ * in the API to provide packages with links to themselves in the web UI.
+
 
 api_url
 --------

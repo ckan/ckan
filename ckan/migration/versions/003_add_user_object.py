@@ -2,7 +2,7 @@ from sqlalchemy import *
 from migrate import *
 import uuid
 
-metadata = MetaData(migrate_engine)
+metadata = MetaData()
 
 def make_uuid():
     return unicode(uuid.uuid4())
@@ -13,12 +13,13 @@ user_table = Table('user', metadata,
         Column('apikey', UnicodeText, default=make_uuid)
         )
 
-apikey_table = Table('apikey', metadata, autoload=True)
+def upgrade(migrate_engine):
+    metadata.bind = migrate_engine
+    apikey_table = Table('apikey', metadata, autoload=True)
 
-def upgrade():
     user_table.create()
     apikey_table.drop()
 
-def downgrade():
+def downgrade(migrate_engine):
     raise NotImplementedError()
 

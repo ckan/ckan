@@ -27,5 +27,5 @@ The loader shoud be given a command line interface using the `Command` base clas
 Example
 =======
 
-To get a flavour of what these scripts look like, take a look at the ONS scripts: https://knowledgeforge.net/ckan/dgu/file/tip/ckanext/dgu/ons/
+To get a flavour of what these scripts look like, take a look at the ONS scripts: https://bitbucket.org/okfn/ckanext-dgu/src/default/ckanext/dgu/ons/
 

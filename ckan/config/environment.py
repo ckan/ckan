@@ -23,6 +23,26 @@ def load_environment(global_conf, app_conf):
     """Configure the Pylons environment via the ``pylons.config``
     object
     """
+    
+    ######  Pylons monkey-patch
+    # this must be run at a time when the env is semi-setup, thus inlined here. 
+    # Required by the deliverance plugin and iATI
+    from pylons.wsgiapp import PylonsApp
+    import pkg_resources
+    find_controller_generic = PylonsApp.find_controller
+    # This is from pylons 1.0 source, will monkey-patch into 0.9.7
+    def find_controller(self, controller):
+        if controller in self.controller_classes:
+            return self.controller_classes[controller]
+        # Check to see if its a dotted name
+        if '.' in controller or ':' in controller:
+            mycontroller = pkg_resources.EntryPoint.parse('x=%s' % controller).load(False)
+            self.controller_classes[controller] = mycontroller
+            return mycontroller
+        return find_controller_generic(self, controller)
+    PylonsApp.find_controller = find_controller
+    ###### END evil monkey-patch 
+
     # Pylons paths
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     paths = dict(root=root,
@@ -33,16 +53,24 @@ def load_environment(global_conf, app_conf):
     # Initialize config with the basic options
     config.init_app(global_conf, app_conf, package='ckan', paths=paths)
     
+    # load all CKAN plugins
+    plugins.load_all(config)
+
+    from ckan.plugins import PluginImplementations
+    from ckan.plugins.interfaces import IConfigurer
+    
+    for plugin in PluginImplementations(IConfigurer):
+        # must do update in place as this does not work:
+        # config = plugin.update_config(config)
+        plugin.update_config(config)
+    
     # This is set up before globals are initialized
-    site_url = config.get('ckan.site_url', 'http://www.ckan.net')
+    site_url = config.get('ckan.site_url', '')
     ckan_host = config['ckan.host'] = urlparse(site_url).netloc
     if config.get('ckan.site_id') is None:
         if ':' in ckan_host:
             ckan_host, port = ckan_host.split(':')
         config['ckan.site_id'] = ckan_host
-    
-    # load all CKAN plugins
-    plugins.load_all(config)
     
     config['routes.map'] = make_map()
     config['pylons.app_globals'] = app_globals.Globals()
@@ -74,9 +102,9 @@ def load_environment(global_conf, app_conf):
     engine = engine_from_config(config, 'sqlalchemy.', pool_threadlocal=True)
     model.init_model(engine)
     
-    from ckan.plugins import ExtensionPoint
+    from ckan.plugins import PluginImplementations
     from ckan.plugins.interfaces import IConfigurable
     
-    for service in ExtensionPoint(IConfigurable):
-        service.configure(config)
+    for plugin in PluginImplementations(IConfigurable):
+        plugin.configure(config)
     

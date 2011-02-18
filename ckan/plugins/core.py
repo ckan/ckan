@@ -6,7 +6,7 @@ import logging
 from inspect import isclass
 from itertools import chain
 from pkg_resources import iter_entry_points
-from pyutilib.component.core import PluginGlobals, ExtensionPoint, implements
+from pyutilib.component.core import PluginGlobals, ExtensionPoint as PluginImplementations, implements
 from pyutilib.component.core import SingletonPlugin as _pca_SingletonPlugin
 from pyutilib.component.core import Plugin as _pca_Plugin
 from pyutilib.component.core import PluginEnvironment
@@ -15,7 +15,7 @@ from sqlalchemy.orm.interfaces import MapperExtension
 from ckan.plugins.interfaces import IPluginObserver
 
 __all__ = [
-    'ExtensionPoint', 'implements',
+    'PluginImplementations', 'implements',
     'PluginNotFoundException', 'Plugin', 'SingletonPlugin',
     'load', 'load_all', 'unload', 'unload_all',
     'reset'
@@ -110,7 +110,7 @@ def load(plugin):
     """
     Load a single plugin, given a plugin name, class or instance
     """
-    observers = ExtensionPoint(IPluginObserver)
+    observers = PluginImplementations(IPluginObserver)
     for observer_plugin in observers:
         observer_plugin.before_load(plugin)
     service = _get_service(plugin)
@@ -131,7 +131,7 @@ def unload(plugin):
     """
     Unload a single plugin, given a plugin name, class or instance
     """
-    observers = ExtensionPoint(IPluginObserver)
+    observers = PluginImplementations(IPluginObserver)
     service = _get_service(plugin)
     for observer_plugin in observers:
         observer_plugin.before_unload(service)
@@ -170,27 +170,3 @@ def find_system_plugins():
         for ep in iter_entry_points(group=SYSTEM_PLUGINS_ENTRY_POINT_GROUP)
     )
 
-######  Pylons monkey-patch
-# Required by the deliverance plugin and iATI
-
-from pylons.wsgiapp import PylonsApp
-import pkg_resources
-
-log.info("Monkey-patching Pylons to allow loading of controllers via entry point mechanism")
-
-find_controller_generic = PylonsApp.find_controller
-
-# This is from pylons 1.0 source, will monkey-patch into 0.9.7
-def find_controller(self, controller):
-    if controller in self.controller_classes:
-        return self.controller_classes[controller]
-
-    # Check to see if its a dotted name
-    if '.' in controller or ':' in controller:
-        mycontroller = pkg_resources.EntryPoint.parse('x=%s' % controller).load(False)
-        self.controller_classes[controller] = mycontroller
-        return mycontroller
-
-    return find_controller_generic(self, controller)
-
-PylonsApp.find_controller = find_controller

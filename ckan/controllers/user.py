@@ -29,23 +29,42 @@ class UserController(BaseController):
         c.activity = revisions_q.limit(20).all()
         return render('user/read.html')
     
+    def register(self):
+        if request.method == 'POST': 
+            c.login = request.params.getone('login')
+            c.fullname = request.params.getone('fullname')
+            c.email = request.params.getone('email')
+            if not model.User.check_name_available(c.login):
+                h.flash_error(_("That username is not available."))
+                return render("user/register.html")
+            try:
+                password = self._get_form_password()
+            except ValueError, ve:
+                h.flash_error(ve)
+                return render('user/register.html')
+            user = model.User(name=c.login, fullname=c.fullname,
+                              email=c.email, password=password)
+            model.Session.add(user)
+            model.Session.commit() 
+            model.Session.remove()
+            h.redirect_to(str('/login_generic?login=%s&password=%s' % (c.login, password.encode('utf-8'))))
+        return render('user/register.html')
+
     def login(self):
-        form = render('user/openid_form.html')
-        # /login_openid page need not exist -- request gets intercepted by openid plugin
-        form = form.replace('FORM_ACTION', '/login_openid')
-        return form
+        return render('user/login.html')
     
-    def openid(self):
+    def logged_in(self):
         if c.user:
             userobj = model.User.by_name(c.user)
             response.set_cookie("ckan_user", userobj.name)
             response.set_cookie("ckan_display_name", userobj.display_name)
             response.set_cookie("ckan_apikey", userobj.apikey)
-            h.redirect_to(controller='user', action=None, id=None)
+            h.flash_notice(_("Welcome back, %s") % userobj.display_name)
+            h.redirect_to(controller='home', action='index', id=None)
         else:
             self.login()
           
-    def logout(self):
+    def logged_out(self):
         c.user = None
         response.delete_cookie("ckan_user")
         response.delete_cookie("ckan_display_name")
@@ -77,21 +96,26 @@ class UserController(BaseController):
             c.user_fullname = request.params.getone('fullname')
             c.user_email = request.params.getone('email')
         elif 'save' in request.params:
-            about = request.params.getone('about')
-            fullname = request.params.getone('fullname')
-            email = request.params.getone('email')
             try:
                 rev = model.repo.new_revision()
                 rev.author = c.author
                 rev.message = _(u'Changed user details')
-                user.about = about
-                user.fullname = fullname
-                user.email = email 
+                user.about = request.params.getone('about')
+                user.fullname = request.params.getone('fullname')
+                user.email = request.params.getone('email')
+                try:
+                    password = self._get_form_password()
+                    if password: 
+                        user.password = password
+                except ValueError, ve:
+                    h.flash_error(ve)
+                    return render('user/edit.html')
             except Exception, inst:
                 model.Session.rollback()
                 raise
             else:
                 model.Session.commit()
+                h.flash_notice(_("Your account has been updated."))
             response.set_cookie("ckan_display_name", user.display_name)
             h.redirect_to(controller='user', action='read', id=user.id)
             
@@ -99,5 +123,16 @@ class UserController(BaseController):
         
     def _format_about(self, about):
         about_formatted = ckan.misc.MarkdownFormat().to_html(about)
-        return genshi.HTML(about_formatted)        
+        return genshi.HTML(about_formatted) 
+
+    def _get_form_password(self):
+        password1 = request.params.getone('password1')
+        password2 = request.params.getone('password2')
+        if password1:
+            if not len(password1) >= 4:
+                raise ValueError(_("Your password must be 4 characters or longer."))
+            elif not password1 == password2:
+                raise ValueError(_("The passwords you entered do not match."))
+            return password1
+        
 

@@ -2,6 +2,7 @@ from sqlalchemy.sql import select, and_
 from ckan.lib.base import _, request, response, c
 from ckan.lib.cache import ckan_cache
 from ckan.lib.helpers import json
+from ckan.lib.munge import munge_title_to_name
 import ckan.model as model
 import ckan
 
@@ -12,7 +13,6 @@ log = __import__("logging").getLogger(__name__)
 # For form name auto-generation
 from ckan.forms.common import package_exists
 from ckan.lib.helpers import json
-from ckan.lib.importer import PackageImporter
 from ckan.lib.search import query_for
 
 class Rest2Controller(object):
@@ -37,20 +37,25 @@ class PackageController(Rest2Controller, _PackageV1Controller):
         """
         pkg = self._get_pkg(id)
         if pkg is None:
-            response.status_int = 404
-            response_data = json.dumps(_('Not found'))
+            response_args = {'status_int': 404,
+                             'content_type': 'json',
+                             'response_data': _('Not found')}
         elif not self._check_access(pkg, model.Action.READ):
-            response.status_int = 403
-            response_data = json.dumps(_('Access denied'))
+            response_args = {'status_int': 403,
+                             'content_type': 'json',
+                             'response_data': _('Access denied')}
         else:
             response_data = self._represent_package(pkg)
+            response_args = {'status_int': 200,
+                             'content_type': 'json',
+                             'response_data': response_data}
         for item in self.extensions:
             item.read(pkg)
-        return self._finish_ok(response_data)
-    
+        return self._finish(**response_args)
+
     def create_slug(self):
         title = request.params.get('title') or ''
-        name = PackageImporter.munge(title)
+        name = munge_title_to_name(title)
         if package_exists(name):
             valid = False
         else:

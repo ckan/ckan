@@ -1,21 +1,35 @@
 from ckan.tests import *
+from ckan.lib.create_test_data import CreateTestData
+import ckan.model as model
+from ckan.tests import search_related
 
 class TestHomeController(TestController):
+    @classmethod
+    def setup_class(self):
+        model.repo.init_db()
+        CreateTestData.create()
+        
+    @classmethod
+    def teardown_class(self):
+        model.repo.rebuild_db()
 
+    @search_related
     def test_home_page(self):
         offset = url_for('home')
         res = self.app.get(offset)
         assert 'Packages' in res
 
+    @search_related
     def test_packages_link(self):
         offset = url_for('home')
         res = self.app.get(offset)
-        res.click('Packages', index=0)
+        res.click('Search', index=0)
         
+    @search_related
     def test_tags_link(self):
         offset = url_for('home')
         res = self.app.get(offset)
-        res.click('Tags')
+        res.click('Tags', index=0)
         
     def test_404(self):
         offset = '/some_nonexistent_url'
@@ -30,16 +44,24 @@ class TestHomeController(TestController):
         url = url_for('guide')
         assert url == 'http://wiki.okfn.org/ckan/doc/'
 
+    @search_related
     def test_search_packages(self):
         offset = url_for('home')
         res = self.app.get(offset)
         form = res.forms['package-search']
         form['q'] =  'anna'
         results_page = form.submit()
-        assert 'Search - Data Packages' in results_page, results_page
+        assert 'Search - ' in results_page, results_page
         assert '>0<' in results_page, results_page
+    
+    @search_related
+    def test_template_footer_end(self):
+        offset = url_for('home')
+        res = self.app.get(offset)
+        assert '<strong>TEST TEMPLATE_FOOTER_END TEST</strong>'
 
     # DISABLED because this is not on home page anymore
+    @search_related
     def _test_register_new_package(self):
         offset = url_for('home')
         res = self.app.get(offset)

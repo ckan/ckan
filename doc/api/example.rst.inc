@@ -17,7 +17,7 @@ There are several ways you might access this URL:
 
 * use the Python library `CKAN Client <http://pypi.python.org/pypi/ckanclient>`_
 
-* use command-line tool `Datapkg <http://knowledgeforge.net/ckan/doc/datapkg/>`_. It manages datasets in a similar way as getting software packages with `apt-get` or `CPAN`.
+* use command-line tool `Datapkg <http://packages.python.org/datapkg/>`_. It manages datasets in a similar way as getting software packages with `apt-get` or `CPAN`.
 
 You could search for packages to do with 'open street map' like this: `<http://ckan.net/api/search/package?q=open+street+map>`_ returning::
 
@@ -31,7 +31,7 @@ You might add a tag by a PUT to ``http://ckan.net/api/rest/package/osm`` with th
 
 {"tags": ["navigation", "openstreetmap", "map", "geo", "geodata", "xml", "publicdomain", "osm", "my-new-tag"]}
 
-Here we use `curl` to create a new package::
+Here we use `curl` to create a new package (you'll need your own :doc:`API Key <api/version2>` to try this)::
 
 $ curl http://test.ckan.net/api/rest/package -d '{"name":"test", "title":"Test package"}' -H "Authorization: 474d34e4-b710-4b77-b89f-2e909c336b91"
 

@@ -34,31 +34,41 @@ app_instance_uuid = ${app_instance_uuid}
 # execute malicious code after an exception is raised.
 set debug = false
 
-# Specify the database for SQLAlchemy to use via
+# Specify the database for SQLAlchemy to use:
+# * Postgres is currently required for a production CKAN deployment
+# * Sqlite (memory or file) can be used as a quick alternative for testing
+sqlalchemy.url = postgresql://ckantest:pass@localhost/ckantest
+#sqlalchemy.url = sqlite:///
 #sqlalchemy.url = sqlite:///%(here)s/somedb.db
-sqlalchemy.url = postgres://ckantest:pass@localhost/ckantest
 
 # repoze.who config
 who.config_file = %(here)s/who.ini
 who.log_level = warning
 who.log_file = %(cache_dir)s/who_log.ini
 
+# CKAN auth configuration (TODO: rename to ckan.auth or similar ...)
+# space separated list ...
+auth.admins = 
+
 # CKAN caching 
 cache_enabled = False
 # cache to persistent files
 beaker.cache.type = file
+# default expiry time for the cache (where not specified specifically)
+ckan.cache.default_expires = -1
 # cache expiry settings for specific controllers
 # by default these are disabled, enable as needed to a time in seconds
-ckan.controllers.package.list.expires = 0
-ckan.controllers.tag.read.expires = 0
-ckan.controllers.apiv1.package.list.expires = 0
-ckan.controllers.apiv1.package.show.expires = 0
-ckan.controllers.apiv2.package.list.expires = 0
-ckan.controllers.apiv2.package.show.expires = 0
+ckan.controllers.expires = -1
+ckan.controllers.home.expires = -1
+ckan.controllers.package.list.expires = -1
+ckan.controllers.tag.read.expires = -1
+ckan.controllers.apiv1.package.list.expires = -1
+ckan.controllers.apiv1.package.show.expires = -1
+ckan.controllers.apiv2.package.list.expires = -1
+ckan.controllers.apiv2.package.show.expires = -1
 
 # CKAN QoS monitoring
-# any non-empty value enables it
-enable_call_timing =
+ckan.enable_call_timing = false
 
 # Location of RDF versions of packages
 # e.g. rdf_packages = http://semantic.ckan.net/package/
@@ -69,6 +79,9 @@ rdf_packages =
 
 # Package form to use
 package_form = standard
+
+# Hide certain extras fields from package read form:
+# package_hide_extras = for_search_index_only
 
 # API configuration
 #apikey_header_name = X-CKAN-API-Key
@@ -106,11 +119,31 @@ package_form = standard
 ## NOTE this is mutually exclusive with ckan.async_notifier
 ckan.build_search_index_synchronously = true
 
+## Title of site (using in several places including templates and <title> tag
+ckan.site_title = CKAN
 
-#ckan.site_title = CKAN
+## Logo image to use (replaces site_title string on front page if defined)
+ckan.site_logo = http://assets.okfn.org/p/ckan/img/ckan_logo_largetext.png
+
+## Site tagline / description (used on front page)
+ckan.site_description = 
+
+## Used in creating some absolute urls (such as rss feeds)
 ckan.site_url = http://www.ckan.net
-# Enable if the API is at a different domain
+
+## An 'id' for the site (using, for example, when creating entries in a common search index) 
+## If not specified derived from the site_url
+# ckan.site_id = ckan.net
+
+## API url to use (e.g. in AJAX callbacks)
+## Enable if the API is at a different domain
 # ckan.api_url = http://www.ckan.net
+
+## html content to be inserted just before </body> tag (e.g. google analytics code)
+## NB: can use html e.g. <strong>blah</strong>
+## NB: can have multiline strings just indent following lines
+# ckan.template_footer_end = 
+
 
 # Logging configuration
 [loggers]

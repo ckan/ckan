@@ -1,6 +1,6 @@
 from ckan.tests.functional.api.base import *
 
-class ApiTestCase(ApiControllerTestCase): 
+class ApiTestCase(ApiTestCase, ControllerTestCase): 
 
     def test_get_api(self):
         offset = self.offset('')

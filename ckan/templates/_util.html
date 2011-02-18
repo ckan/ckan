@@ -1,5 +1,6 @@
 <html
   xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
   xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip=""
@@ -28,7 +29,6 @@
     <li py:for="tag in tags">
       ${h.link_to(tag.name, h.url_for(controller='tag', action='read', id=tag.name))}
     </li>
-    <p py:if="not tags">No results</p>
   </ul>
   
   <!--! List of tags: pass in a collection of users and this renders the standard
@@ -37,7 +37,6 @@
       <li py:for="user in users">
         ${h.link_to(user.display_name, h.url_for(controller='user', action='read', id=user.id))}
       </li>
-      <p py:if="not users">No results</p>
     </ul>
 
   <!--! List of packages: pass in a collection of tags and this renders the
@@ -49,26 +48,45 @@
 			<span class="title">
 				${h.link_to(package.title or package.name, h.url_for(controller='package', action='read', id=package.name))}
 			</span>
+			
+			<p class="search_meta">
+    			<py:if test="package.resources">
+        			<ul class="package_formats">
+        			    <py:for each="resource in package.resources">
+        			        <py:if test="resource.format and not resource.format == ''">
+        				        <li>${resource.format}</li>
+                            </py:if>
+        				</py:for>
+        			</ul>
+        		</py:if>
+        		<ul class="openness">
+            		<py:choose>
+                        <li py:when="package.isopen() and package.resources">
+                            <a href="http://www.opendefinition.org/okd/" title="This package satisfies the Open Knowledge Definition.">
+                                <img src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" />
+                            </a>
+                        </li>
+                        <li py:when="package.isopen() and package.resources">
+                            <a href="http://www.opendefinition.org/okd/" title="This package satisfies the Open Knowledge Definition.">
+                                <img src="http://assets.okfn.org/images/ok_buttons/oc_80x15_blue.png" alt="[Open Content]" />
+                            </a>
+                        </li>
+                        <li py:otherwise="">
+                            <span class="closed">
+                                ${h.icon('lock')} Data Not Open
+                            </span>
+                        </li>
+                    </py:choose>
+                </ul>
+            </p>
 		</div>
 		<div class="extract">
 			${h.markdown_extract(package.notes)}
 		</div>
-		${package_license_icon(package)}
-        ${package_resources_icon(package)}
-		<span class="name">
-		 	<b>${package.name}</b>
-		</span>
-		<py:if test="package.license">
-		    <span class="license">
-		        &middot;
-			    ${package.license.title.split('::')[-1]}
-		    </span>
-		</py:if>
         <!--ul py:if="package.tags" class="tags">
           <li py:for="tag in package.tags">${tag.name}</li>
         </ul-->
     </li>
-    <p py:if="not packages">No results</p>
   </ul>
 
   <!--! List of data package groups: pass in a collection of data package groups 
@@ -100,7 +118,7 @@
 
   <!--! Package openness icons -->
   <img py:def="package_license_icon(package)"
-    src="/images/icons/door_${'open' if package.isopen() else 'grey'}.png"
+    src="${g.site_url}/images/icons/door_${'open' if package.isopen() else 'grey'}.png"
     title="License: ${package.license.title if hasattr(package.license, 'title') else '?'}"
     alt="${'OPEN' if package.isopen() else 'CLOSED'}" />
 

@@ -20,19 +20,17 @@ engine = None
 if sqav.startswith("0.4"):
     # SQLAlchemy session manager. Updated by model.init_model()
     Session = scoped_session(sessionmaker(
-        autoflush=True,
+        autoflush=False,
         transactional=True,
         extension=extension.PluginSessionExtension(),
         ))
-elif sqav.startswith("0.5"):
+else:
     Session = scoped_session(sessionmaker(
-        autoflush=True,
+        autoflush=False,
         autocommit=False,
         expire_on_commit=False,
         extension=extension.PluginSessionExtension(),
         ))
-else:
-    raise ValueError("We can only work with SQLAlchemy 0.4 or 0.5 at present")
 
 #mapper = Session.mapper
 mapper = orm.mapper

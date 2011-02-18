@@ -6,7 +6,7 @@ import ckan.authz as authz
 class TestPackageEditAuthz(TestController):
     @classmethod
     def setup_class(self):
-        model.repo.rebuild_db()
+        model.repo.init_db()
         model.repo.new_revision()
         
         self.sysadmin = 'madeup-sysadmin'

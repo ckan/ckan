@@ -4,7 +4,6 @@ import ckan.model as model
 class TestRevisionExtraAttributes:
     @classmethod
     def setup_class(self):
-        model.repo.rebuild_db()
         model.Session.remove()
         CreateTestData.create()
 

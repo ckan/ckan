@@ -5,6 +5,7 @@ import ckan.authz
 
 from copy import copy
 from ckan.model import Role, Action
+from ckan.tests import *
 
 class TestBlacklister(object):
 
@@ -22,6 +23,8 @@ class TestAuthorizer(object):
 
     @classmethod
     def setup_class(self):
+        CreateTestData.create()
+        model.repo.new_revision()
         model.Session.add(model.Package(name=u'testpkg'))
         model.Session.add(model.Package(name=u'testpkg2'))
         model.Session.add(model.User(name=u'testadmin'))
@@ -29,7 +32,6 @@ class TestAuthorizer(object):
         model.Session.add(model.User(name=u'notadmin'))
         model.Session.add(model.Group(name=u'testgroup'))
         model.Session.add(model.Group(name=u'testgroup2'))
-        model.repo.new_revision()
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(u'testpkg')
@@ -110,13 +112,14 @@ class TestLockedDownAuthorizer(object):
 
     @classmethod
     def setup_class(self):
+        CreateTestData.create()
         q = model.Session.query(model.UserObjectRole).filter(sa.or_(model.UserObjectRole.role==Role.EDITOR,
                                                                     model.UserObjectRole.role==Role.READER))
         q = q.filter(model.UserObjectRole.user==model.User.by_name(u"visitor"))
         for role in q:
             model.Session.delete(role)
         model.repo.commit_and_remove()
-        
+        model.repo.new_revision()        
         model.Session.add(model.Package(name=u'testpkg'))
         model.Session.add(model.Package(name=u'testpkg2'))
         model.Session.add(model.User(name=u'testadmin'))
@@ -124,7 +127,6 @@ class TestLockedDownAuthorizer(object):
         model.Session.add(model.User(name=u'notadmin'))
         model.Session.add(model.Group(name=u'testgroup'))
         model.Session.add(model.Group(name=u'testgroup2'))
-        model.repo.new_revision()
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(u'testpkg')
@@ -182,13 +184,14 @@ class TestAuthorizationGroups(object):
 
     @classmethod
     def setup_class(self):
+        CreateTestData.create()
+        model.repo.new_revision()
         model.Session.add(model.Package(name=u'testpkgag'))
         model.Session.add(model.Group(name=u'testgroupag'))
         model.Session.add(model.User(name=u'ag_member'))
         model.Session.add(model.User(name=u'ag_admin'))
         model.Session.add(model.User(name=u'ag_notmember'))
         model.Session.add(model.AuthorizationGroup(name=u'authz_group'))
-        model.repo.new_revision()
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(u'testpkgag')

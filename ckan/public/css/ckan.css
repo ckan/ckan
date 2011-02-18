@@ -1,3 +1,14 @@
+/* The main css styles for CKAN (specific UI elements may have thier own css linked via style.css) */
+
+body, input, textarea, .page-title span, .pingback a.url {
+    font-family: "Lucida Grande", Lucida, Verdana, sans-serif;
+}
+
+#content, #content input, #content textarea {
+    font-size: 14px;
+    line-height: 20px;
+}
+
 a { 
   color: #b00; 
   text-decoration: none;
@@ -7,9 +18,13 @@ a:link {
   text-decoration: none;
 }
 a:visited {
-  color: #c22;
+  color: #b22;
   text-decoration: none;
 }
+#main a:visited {
+  text-decoration: none;
+}
+
 a:active {
   color: #f22;
   text-decoration: none;
@@ -20,6 +35,43 @@ a:hover {
 
 #content p, #content ul, #content ol, #content dd, #content pre, #content hr, #content dl {
   margin-bottom: 14px;
+}
+
+/* ===========================
+ * Flash messages
+*/
+
+.flash-banner-box {
+  margin-top: -20px;
+  margin-bottom: 10px;
+}
+
+.flash-banner {
+  width: auto;
+  line-height: 1em;
+  font-size: 14px;
+  padding: 0.8em 1.5%; 
+  font-weight: bold;
+  text-align: center;
+  border-bottom: solid 1px #9f9f9f;
+  color: #133362;
+}
+
+.flash-banner.notice {
+  background: #f4a83d;
+  border-bottom-color: #dddddd;
+}
+
+.flash-banner.success {
+  background-color: #e7f9e0;
+  border-bottom-color: #ccc;
+  color: #2d6b00;
+}
+
+.flash-banner.error {
+  background-color: #ffeae8;
+  border-bottom-color: #ccc;
+  color: #b50000;
 }
 
 /* ===========================
@@ -35,24 +87,17 @@ a:hover {
   line-height: normal;
   width: auto;
   float: left;
-  text-transform: uppercase;
   font-size: 40px;
   margin: 0;
-  padding: 0;
+  padding: 0 0 5px 0;
   font-weight: normal;
   letter-spacing: -0.032em;
 }
 
-#site-title a {
-  font-weight:normal;
-}
-
+#site-title a,
 #site-title a:link, #site-title a:visited {
+  font-weight:normal;
   color: #333;
-}
-
-#site-title a:hover, #site-title a:active {
-  color: #d06;
 }
 
 /* hide the main twentyten image */
@@ -65,20 +110,22 @@ a:hover {
   display: block;
   border: none;
   margin: 0;
+  max-height: 50px;
 }
 
 #site-description {
   width:auto;
   float: left;
   clear: left;
-  color: #888;
+  color: #000;
   font-style: italic;
   font-size: 15px;
   letter-spacing: normal;
   text-transform: none;
   margin: 0;
   margin-top: -5px;
-  padding: 0 0 0 50px;
+  padding: 0 0 10px 0;
+  font-family: 'Lucida Grande', 'Lucida Sans Unicode', Lucida, Arial, Helvetica, sans-serif;
 }
 
 /* ===========================
@@ -101,19 +148,24 @@ a:hover {
   width: 120px;
 }
 
+#top-bar-login .ckan-logged-in img {
+  margin-bottom: -3px;
+}
+
 
 /* =Menu
 -------------------------------------------------------------- */
 
 #access {
-  border-top: 1px dotted #AAA;
-  border-bottom: 1px dotted #AAA;
-	background: transparent;
+  border-top: 1px solid #aaa; 
+  border-bottom: 1px solid #aaa; 
+  background: transparent;
 }
 
 #access ul li a {
-	color: #A95A5A;
+  color: #b22;
   text-decoration: none;
+  font-weight: bold;
 }
 
 #access ul li a.active {
@@ -164,47 +216,13 @@ a:hover {
   padding-top: 0;
 }
 
-#minornavigation {
-  margin: 0;
-  padding: 0;
-}
-
-#minornavigation ul {
-  margin: -5px 0 10px 0;
-  font-size: 80%;
-}
-
-#minornavigation ul li {
-  display: inline;
-  margin-right: 5px;
-}
-
-#minornavigation ul li a {
-  padding: 8px 5px 5px 3px;
-  background: #eee;
-	border: 1px solid #aaa;
-	border-left: none;
-	border-top: none;
-	border-radius: 0.5em;
-	-moz-border-radius: 0.5em;
-	-webkit-border-radius: 0.5em;
-}
-
-#minornavigation ul li a img {
-  margin: 0;
-  margin-right: 3px;
-  padding: 0;
-}
-
-#minornavigation ul li a:hover {
-  text-decoration: none;
-  background: transparent;
-}
-
 /* ===========================
  * Sidebar
  */
-
+#primary
+{
+    padding-top:40px;    
+}
 #primary .widget-container
 {
   background: #f9f2ce;
@@ -222,6 +240,86 @@ a:hover {
 #primary .widget-container h2 {
   margin-bottom: 10px;
 }
+
+#primary .widget-container h4 {
+  margin-bottom: 10px;
+  font-weight:bold;
+}
+
+#primary .widget-container .widget_action{
+   text-align:right;
+   margin:18px 0 0 0;
+   font-weight:bold;
+}
+
+/* ==========================
+ * Facets
+ */
+
+.facet-box {
+
+}
+
+.facet-box h2 {
+    color: #000;
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-top: 1em;
+}
+
+.facet-options {
+    margin-top: 0.5em;
+}
+
+.facet-options li {
+    padding-top: 0.2em;
+    font-size: 1.2em; 
+    color: #000; 
+}
+
+.register-link {
+    padding-top: 10px;
+}
+
+.register-link a {
+    color: white; 
+    background: #199150;
+    font-weight: bold;
+    padding: 5px;
+    width: 100%;
+    font-size: 1.3em;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+    
+}
+
+.package-search-filters {
+    margin-top: 15px;
+}
+
+.search-field {
+    display: inline-block;
+    margin-right: 5px;
+    margin-bottom: 10px;
+    padding: 1px 1px 3px 2px;
+    font-size: 14px;
+    background-color: #eee;
+    line-height: 16px;
+    -moz-box-shadow: 1px 1px 3px #bbb;
+    -webkit-box-shadow: 1px 1px 3px #bbb;
+    box-shadow: 1px 1px 3px #bbb;
+    
+}
+
+.search-field-name::after {
+    content: ":";
+}
+
+.search-field-value {
+    font-weight: bold;
+}
+
 
 /* ===========================
  * Footer
@@ -319,6 +417,21 @@ form #log_message {
   margin-bottom: 12px;
 }
 
+form.simple-form label {
+    display: inline-block; 
+    float: left;
+    min-width: 40%;
+}
+
+form.simple-form fieldset input {
+    border: 1px solid #E7E7E7;
+    padding: 0.3em; 
+    width: 40%;
+}
+
+form.simple-form textarea {
+    width: 99%;
+}
 
 /* ===========================
  * Tables
@@ -332,3 +445,475 @@ form #log_message {
   padding: 6px 12px;
 }
 
+caption {
+    caption-side:bottom;
+    text-align:left;
+    font-size:0.85em;
+    line-height:1.4em;
+    padding-top:0.5em;
+    color:#888;
+    padding-left:0.8em;
+}
+
+
+
+/* ============= */
+/* = Utilities = */
+/* ============= */
+
+.clearfix:after {
+	content: ".";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
+}
+
+.clearfix { display: inline-block; } /* for IE/Mac */
+
+.cleared { clear: both; }
+hr.cleared {
+	height: 0 ! important;
+	visibility: hidden;
+}
+
+hr.nomargin { margin: 0; }
+
+/* ======================= */
+/* = Fixes to KForge CSS = */
+/* ======================= */
+
+table {
+	border-collapse: collapse;
+	border: none;
+	border-radius: 1em;
+	margin: 0 0 1.2em 0;
+}
+
+table th, table td {
+	border: 1px solid #ccc;
+	border-top-color: #eee;
+	border-left-color: #eee;
+	padding: 0.3em;
+}
+
+table td {
+	background: #f0f0f0;
+}
+
+table th {
+	background: #fff;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-family: 'Lucida Grande', 'Lucida Sans Unicode', Lucida, Arial, Helvetica, sans-serif;
+	letter-spacing: -0.02em;
+}
+
+/* ================ */
+/* = Search boxes = */
+/* ================ */
+
+form.package-search input.search {
+  width: 99%;
+  padding: 5px;
+  font-size: 1.1em;
+  margin: 0px;
+  -webkit-appearance: textfield;
+}
+
+.package-search input.button {
+    display: inline-block;
+    float: right;
+    margin-top: 5px;
+    margin-right: 10px !important;
+    margin-bottom: 1px !important;
+}
+
+/* ========================================= */
+/* = Changes/additions to kforge forms.css = */
+/* ========================================= */
+
+input.openid {
+	background: transparent url(../images/icons/openid.png) 2px 2px no-repeat;
+	padding-left: 22px;
+}
+
+input.openid:focus {
+	background-position: 1px 1px;
+	padding-left: 21px;
+}
+
+/* ============== */
+/* = Pagination = */
+/* ============== */
+
+.pager {
+	width: 100%;
+	text-align: center;
+	margin: 0 0 1.2em 0;
+	clear: both;
+}
+
+.pager span, .pager a {
+	text-decoration: none;
+	margin: 0em;
+	border: none;
+	padding: 0.3em 0.1em;
+}
+
+.pager a:hover, .pager a:active {
+	color: #fff;
+	background-color: #c22;
+}
+
+.pager span.pager_dotdot {
+	color: #aaa;
+}
+
+.pager span.pager_curpage {
+	font-weight: bold;
+	border: 1px solid #ddd;
+}
+
+/* ======================= */
+/* = Various iconography = */
+/* ======================= */
+
+img.icon {
+	height: 25px;
+}
+
+a.icon {
+	display: block;
+	height: 0;
+	overflow: hidden;
+	padding-top: 20px;
+	width: 20px;
+}
+
+table.no-margin { margin: 0; }
+
+div.extras-new-field label {
+	display: inline;
+	line-height: 2.6em;
+}
+
+label.inline {
+	display:inline;
+	margin: 1em 0 0 1em;
+}
+
+dl.icons dt {
+	float: left;
+	clear: both;
+	margin: 0.4em 0 0 0;
+	height: 16px;
+	width: 16px;
+}
+
+dl.icons dt img {
+	vertical-align: middle;
+}
+
+dl.icons dd {
+	float: left;
+	margin: 0.4em 0 0 10px;
+}
+
+dl.icons dd.tiny {
+	font-size: 75%;
+	color: #888;
+	line-height: 1.2em;
+	margin: 0 0 0 26px;
+}
+
+/* ========================= */
+/* = Tag and Group listing = */
+/* ========================= */
+
+.item-list {
+  border-top: solid 1px #cbcbcb;
+  border-bottom: solid 1px #cbcbcb;
+  margin-top: 5px;
+}
+
+.item-list ul, ul.tags {
+  margin: 0 0 0.75em 0;
+  padding:0;
+  list-style: none;
+}
+
+.item-list ul li, ul.tags li {
+  padding-left: 0;
+  padding-right: 3px;
+}
+
+.tags a {
+	text-decoration: none;
+  color: #b00;
+}
+
+.tags a:hover {
+}
+
+/* tags small is for autocomplete list in package editor */
+.tags.small a {
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+/* =================== */
+/* = Package listing = */
+/* =================== */
+
+ul.packages {
+	padding-left: 0;
+        margin: 0 0 18px 0;
+}
+
+.packages .header {
+    font-weight: bold;
+}
+
+.packages .extract {
+	font-size: 0.9em;
+	padding-top:10px;
+}
+
+.packages li {
+	list-style: none;
+	padding: 0.4em 0 0.4em 0.0em;
+	border-left: 0.5em solid #fff;
+	border-bottom: 1px solid #ececec;
+	overflow: hidden;
+	/*white-space: nowrap;*/
+}
+
+.packages li a {
+	text-decoration: none;
+}
+
+.packages li img {
+	margin-bottom: -2px;
+}
+
+.search_meta {
+    float:right;
+}
+
+ul.package_formats {
+    float:right;    
+    padding:0 0 3px 0; margin:0;
+}
+
+ul.package_formats li {
+    display:inline;
+    margin:0;
+    padding:0 5px 0 5px;
+    border:none;
+    font-weight:normal;
+    font-size:0.8em;
+    color:#808080;
+    background:#ececec;
+}
+
+.openness {
+    clear:right;
+    float:right;
+    font-size:0.8em;
+}
+
+.openness img {
+    vertical-align:top;
+}
+
+.openness li {
+    margin:0;
+    padding:0;
+    border:none;    
+}
+
+/*
+.packages li.fullyopen {
+	border-left: 0.5em solid #AFC6E9;
+}
+*/
+
+.packages li .tags {
+	margin: 0 0 0 0.5em;
+	font-size: 80%;
+	opacity: 0.3;
+}
+
+.packages li:hover .tags {
+	opacity: 1;
+}
+
+.packages .name, 
+.packages .license {
+    color: #666;
+	font-weight: normal;
+	font-size: 0.9em;
+}
+
+/* ==================== */
+/* = Extra RHS styles = */
+/* ==================== */
+
+.sidebar dl {
+	margin: 0 1em 0.8em 1em;
+	padding: 0;
+}
+
+.sidebar hr {
+	width: 90%;
+	color: #EBDBA7;
+	background-color: #EBDBA7;
+	border: none;
+	height: 1px;
+}
+
+.sidebar .buttons {
+	margin-top: 0;
+}
+
+.sidebar .buttons a, .sidebar .buttons button {
+	margin-bottom: 0.3em;
+}
+
+.okdstripe {
+	/* Amusingly, this has to be a slightly different color to look the same
+	   as the stripe on a white background */
+	border-left: 0.5em solid #8FB0DE;
+	padding-left: 0.4em ! important;
+}
+
+/* ===================== */
+/* = Package read view = */
+/* ===================== */
+
+#primary .widget-container .formats ul {
+  background: transparent;
+}
+
+#primary .widget-container .formats ul li {
+  background: transparent;
+  display: inline;
+}
+
+#content .package .subsection h3,
+#content #comments h3, #content #comments h4 {
+  background-color: #444;
+  padding: 10px;
+  color: white;
+}
+
+.package h3, .package h4 {
+	font-weight: bold;
+	margin: 1em 0 0.6em 0;
+}
+
+.package div.tags {
+  margin: 20px 0;
+}
+
+.package .resources {
+  margin-bottom: 2em;
+}
+
+.package .resources table {
+  width: 100%;
+}
+
+.package h2.head {
+  margin-bottom: 0.3em!important;
+  line-height: 1.0;
+}
+
+.package .name, .group .name {
+	color: #888;
+	font-family: monospace;
+}
+
+.package div.url {
+  margin: 0 ;
+}
+
+.package .url a {
+	text-decoration: none;
+}
+
+.package .notes, .group .description {
+	padding: 0.2em 0 0.2em 0;
+	margin: 0 3% 0.5 0 ! important;
+}
+
+.package .notes span.nonegiven {
+	opacity: 0.5;
+}
+.package .notes span.nonegiven:hover {
+	opacity: 1;
+}
+
+.package .details table {
+  border-collapse: collapse;
+  background: transparent;
+  border-color: grey;
+  border-spacing: 2px 2px;
+}
+
+.package .details table tr {
+  border: none;
+  border-bottom: solid 1px #888;
+}
+
+.package .details td {
+  background: transparent;
+  border: none;
+}
+
+.package .details td.package-label {
+  width: 150px;
+}
+
+.package .api div {
+    background:#f0f0f0;
+    padding:10px;
+}
+
+.package .api h5 {
+    font-weight:bold;
+    margin-bottom:1em!important;
+    font-size:1em;
+}
+
+.package .api code {
+    background:#444;
+    color:#fff;
+    padding:3px 10px ;
+    margin-bottom:1em;
+    display:block;
+}
+.package .api code a {
+    color:#fff;
+}
+
+.relationship_comment {
+  font-style: italic;
+}
+
+p.atom-feed-link {
+  float: right;
+  display: inline;
+  font-size: 14px;
+}
+
+p.atom-feed-link a {
+  background: url('../images/icons/atom_feed.png') no-repeat;
+  padding-left: 20px;
+}
+
+p.atom-feed-link.package-history-link {
+  float: none;
+}

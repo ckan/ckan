@@ -12,38 +12,34 @@
 <head>
   <title>${page_title()} - ${g.site_title}</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link rel="shortcut icon" href="http://assets.okfn.org/images/logo/favicon.ico" type="image/x-icon" />
+  <link rel="shortcut icon" href="http://assets.okfn.org/p/ckan/img/ckan.ico" type="image/x-icon" />
   <py:choose>
   <py:when test="defined('optional_feed')">
     ${optional_feed()}
   </py:when>
   <py:otherwise>
-  <link rel="alternate" type="application/atom+xml" title="${g.site_title} - Recent Revision History" href="${h.url_for(controller='revision', action='list', format='atom', days=1)}" />
+  <link rel="alternate" type="application/atom+xml" title="${g.site_title} - Recent Revision History" href="${h.url_for(controller='revision', action='list', id=None, format='atom', days=1)}" />
   </py:otherwise>
   </py:choose>
 
-  <style type="text/css"> 
-    @import url(http://openbiblio.net/wp-content/themes/twentyten/style.css);
-  </style> 
-
-  <link rel="stylesheet" href="/css/ckan.master.css" type="text/css" media="screen, print" />
+  <link rel="stylesheet" href="${g.site_url}/css/style.css" type="text/css" media="screen, print" />
 
   <!--[if IE]>
-  <link rel="stylesheet" href="/css/ie.css" type="text/css" media="screen, print" />
+  <link rel="stylesheet" href="${g.site_url}/css/ie.css" type="text/css" media="screen, print" />
   <![endif]-->
-
+  
+  <script type="text/javascript" src="${g.site_url}/language.js"></script>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
   <script src="http://assets.okfn.org/ext/jquery.cookie/jquery.cookie.min.js"></script>
-  <script type="text/javascript" src="/scripts/application.js"></script>
-
+  <script type="text/javascript" src="${g.site_url}/scripts/application.js"></script>
+  
   <script type="text/javascript">
     $(document).ready(function() {
         var ckan_user = $.cookie("ckan_display_name");
         if (ckan_user) {
             ckan_user = eval(ckan_user); // get rid of spurious quotes
-            $("#ckan_user_name")[0].innerHTML = ckan_user;
-            $(".ckan_logged_out").hide();
-            $(".ckan_logged_in").show();
+            $(".ckan-logged-out").hide();
+            $(".ckan-logged-in").show();
         }
     });
   </script>
@@ -52,7 +48,7 @@
   </py:if>
 </head>
 
-<body class="${value_of('body_class', default='')}">
+<body class="${value_of('body_class', default=lambda: c.body_class)()}">
 
 <div id="wrapper" class="hfeed">
   <div id="header">
@@ -68,18 +64,18 @@
           </py:if>
         </a>
       </h1>
-      <div id="site-description">${getattr(g, 'site_description', '')}</div>
+      <div id="site-description">${g.site_description}</div>
     </div> <!-- /branding -->
 
     <div id="top-bar">
       <div id="top-bar-login">
-        <span class="ckan_logged_in" style="display: none;">
-                Logged in as <strong>${h.icon('user')} <span id="ckan_user_name">username</span></strong>
-                &middot; <a href="${h.url_for(controller='user',action=None,id=None)}">My account</a>
-          &middot; <a href="${h.url_for('/logout_openid')}">Logout</a>
+        <span class="ckan-logged-in" style="display: none;">
+          <a href="${h.url_for(controller='user',action=None,id=None)}">${h.icon('user')} My account</a>
+          &middot; <a href="${h.url_for('/user/logout')}">Logout</a>
         </span>
-        <span class="ckan_logged_out">
-                <a href="${h.url_for(controller='user',action='login', id=None)}">Login with ${h.icon('openid')} OpenID</a>
+        <span class="ckan-logged-out">
+                <a href="${h.url_for(controller='user',action='login', id=None)}">Login</a> &middot;
+                <a href="${h.url_for(controller='user',action='register', id=None)}">Register</a>
         </span>
       </div>
 
@@ -96,36 +92,12 @@
       </div> 
       <div class="menu">
         <ul>
-          <li>${h.nav_link(c, _('Home'), controller='home', action='index', id=None)}
-          <ul class="children">
-            <li class="page_item">${h.subnav_link(c, _('About'), controller='home', action='about', id=None)}</li>
-            <li class="page_item">${h.subnav_link(c, _('Statistics'), controller='home', action='stats', id=None)}</li>
-          </ul>
-        </li>
-        <li>${h.nav_link(c, _('Data Packages'), controller='package', action='index', id=None)}
-          <ul class="children">
-            <li class="page_item">${h.subnav_link(c, _('Browse'), controller='package', action='list', id=None)}</li>
-            <li class="page_item" py:if="h.am_authorized(c, actions.PACKAGE_CREATE)">
-              ${h.subnav_link(c, _('Register'), controller='package', action='new', id=None)}
-            </li>
-          </ul>
-        </li>
-        <li>${h.nav_link(c, _('Tags'), controller='tag', action='index', id=None)}</li>
-        <li>${h.nav_link(c, _('Groups'), controller='group', action='index', id=None)}
-          <ul class="children">
-            <li class="page_item" py:if="h.am_authorized(c, actions.GROUP_CREATE)">
-            ${h.subnav_link(c, _('Create a new group'), controller='group', action='new', id=None)}
-            </li>
-          </ul>
-        </li>
-        <li>${h.nav_link(c, _('Authorization Groups'), controller='authorization_group', action='index', id=None)}
-          <ul class="children">
-            <li class="page_item" py:if="h.am_authorized(c, actions.AUTHZ_GROUP_CREATE)">
-              ${h.subnav_link(c, _('Create a new authorization group'), controller='authorization_group', action='new', id=None)}
-            </li>
-          </ul>
-        </li>
-        <li>${h.nav_link(c, _('Revision History'), controller='revision', action='index', id=None)}</li>
+          <li>${h.nav_link(c, _('Home'), controller='home', action='index', id=None)}</li>
+          <li>${h.nav_link(c, _('Search'), controller='package', action='index', id=None, highlight_actions = 'search index')}</li>
+          <li py:if="h.am_authorized(c, actions.PACKAGE_CREATE)">${h.nav_link(c, _('Add a package'), controller='package', action='new', id=None)}</li>
+          <li>${h.nav_link(c, _('Tags'), controller='tag', action='index', id=None)}</li>
+          <li>${h.nav_link(c, _('Groups'), controller='group', action='index', id=None, highlight_actions = 'new index')}</li>
+          <li>${h.nav_link(c, _('About'), controller='home', action='about', id=None)}</li>                        
       </ul>
       </div> <!-- .menu -->
     </div> <!-- #access -->
@@ -134,14 +106,21 @@
   </div><!-- #header -->  
 
   <div id="main"> 
-    <div id="container"> 
-      <div id="content" role="main"> 
+  <py:with vars="messages = list(h._flash.pop_messages())">
+  <div class="flash-banner-box" py:if="len(messages)">
+    <div class="flash-banner ${m.category}" py:for="m in messages">
+      ${m.message}
+    </div>
+  </div>
+  </py:with>
 
+    <div id="container"> 
+      <div id="minornavigation">
+        <minornavigation></minornavigation> 
+      </div>
+      <div id="content" role="main"> 
         <div class="page type-page hentry">
           <div class="entry-content">
-            <div id="minornavigation">
-              <minornavigation></minornavigation> 
-            </div>
             <!-- support both options for defining content -->
             <py:if test="defined('content')">
             ${content()}
@@ -176,6 +155,34 @@
     <div id="footer-widget-area" role="complementary">
 
       <div id="first" class="widget-area">
+        <ul class="xoxo">
+          <li class="widget-container widget_text">
+          <h3 class="widget-title">Packages</h3>
+          <div class="textwidget">
+            <ul>
+                <li>${h.nav_link(c, _('Search'), controller='package', action='search', id=None)}</li>                
+                <li py:if="h.am_authorized(c, actions.PACKAGE_CREATE)">${h.nav_link(c, _('Register a new Package'), controller='package', action='new', id=None)}</li>
+                <li>${h.nav_link(c, _('Revision History'), controller='revision', action='index', id=None)}</li>
+                <li>${h.link_to(_('API'), h.url_for(controller='rest', action='get_api', id=None))}</li>
+                <li>${h.link_to(_('API Docs'), 'http://ckan.org/wiki/API')}</li>
+            </ul>
+          </div>
+          </li>
+        </ul>
+        <ul class="xoxo">
+          <li class="widget-container widget_text">
+          <h3 class="widget-title">Groups &amp; Tags</h3>
+          <div class="textwidget">
+            <ul>
+              <li>${h.nav_link(c, _('Tags'), controller='tag', action='index', id=None)}</li>
+              <li>${h.nav_link(c, _('Groups'), controller='group', action='index', id=None)}</li>
+              <li py:if="h.am_authorized(c, actions.GROUP_CREATE)">${h.nav_link(c, _('Create a new Group'), controller='group', action='new', id=None)}</li>
+              <li>${h.nav_link(c, _('Authorization Groups'), controller='authorization_group', action='index', id=None)}</li>
+              <li class="page_item" py:if="h.am_authorized(c, actions.AUTHZ_GROUP_CREATE)">${h.nav_link(c, _('Create a new Authorization Group'), controller='authorization_group', action='new', id=None)}</li>
+            </ul>
+          </div>
+          </li>
+        </ul>
         <ul class="xoxo">
           <li class="widget-container widget_text">
           <h3 class="widget-title">About</h3>
@@ -234,7 +241,7 @@
     </div><!-- #site-info -->
 
     <div id="site-generator">
-      <a href="http://okfn.org/projects/ckan/"
+      <a href="http://ckan.org/"
         title="CKAN" rel="generator">
         Powered by CKAN
         <span i18n:msg="version">
@@ -247,19 +254,6 @@
 
 </div><!-- #wrapper -->
 
-<!--! No need to load GA in development -->
-<py:if test="not config['debug']">
-  <!-- Google Analytics -->
-  <script src='http://www.google-analytics.com/ga.js' type='text/javascript'></script>
-  <script type="text/javascript">
-  try {
-  var pageTracker = _gat._getTracker("UA-8271754-2");
-  pageTracker._setDomainName(".ckan.net");
-  pageTracker._trackPageview();
-  } catch(err) {}
-  </script>
-  <!-- /Google Analytics -->
-</py:if>
-${getattr(g, 'template_footer_end', '')}
+${h.literal(getattr(g, 'template_footer_end', ''))}
 </body>
 </html>

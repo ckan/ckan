@@ -1,3 +1,4 @@
+import inspect
 from time import gmtime, mktime, strftime, time
 from decorator import decorator
 from paste.deploy.converters import asbool
@@ -5,7 +6,7 @@ from pylons.decorators.cache import beaker_cache, create_cache_key, _make_dict_f
 from pylons.decorators.util import get_pylons
 import pylons.config
 
-__all__ = ["ckan_cache"]
+__all__ = ["ckan_cache", "get_cache_expires"]
 
 cache_enabled = asbool(pylons.config.get("cache_enabled", "False"))
 
@@ -167,7 +168,7 @@ def proxy_cache(expires=None):
             return result
 
         cfg_expires = "%s.expires" % _func_cname(func)
-        cache_expires = expires if expires else int(pylons.config.get(cfg_expires, 900))
+        cache_expires = expires if expires else int(pylons.config.get(cfg_expires, 0))
 
         headers = pylons.response.headers
         status = pylons.response.status
@@ -180,9 +181,27 @@ def proxy_cache(expires=None):
     return decorator(wrapper)
 
 def _func_cname(func):
-    if hasattr(func, "im_class"):
-        base = "%s.%s" % (func.im_class.__module__, func.im_class.__name__)
-        func = func.im_func
+    if inspect.ismodule(func):
+        base = '%s' % func.__name__
+        func_name = ''
     else:
-        base = func.__module__
-    return "%s.%s" % (base, func.func_name)
+        if hasattr(func, "im_class"):
+            base = "%s.%s" % (func.im_class.__module__, func.im_class.__name__)
+            func_name = '.' + func.im_func.func_name
+        else:
+            base = func.__module__
+            func_name = ''
+    return "%s%s" % (base, func_name)
+
+
+def get_cache_expires(module_or_func):
+    # very weird experience (in tests): at module level it does not appear that
+    # config option is defined but it is defined here (must be to do with when
+    # config is loaded ...)
+    default_expires = pylons.config.get('ckan.cache.default_expires', -1)
+    if not cache_enabled:
+        return -1
+    cfg_expires = '%s.expires' % _func_cname(module_or_func)
+    cache_expires = int(pylons.config.get(cfg_expires, default_expires))
+    return cache_expires
+

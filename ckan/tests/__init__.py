@@ -12,9 +12,13 @@ import os
 import sys
 import re
 from unittest import TestCase
-from nose.tools import assert_equal, assert_not_equal
+from nose.tools import assert_equal, assert_not_equal, make_decorator
 from nose.plugins.skip import SkipTest
 import time
+
+from pylons import config
+from pylons.test import pylonsapp
+from paste.script.appinstall import SetupCommand
 
 import pkg_resources
 import paste.fixture
@@ -24,6 +28,8 @@ from routes import url_for
 
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib import search
+from ckan.lib.helpers import _flash
+import ckan.model as model
 
 __all__ = ['url_for',
            'TestController',
@@ -31,6 +37,7 @@ __all__ = ['url_for',
            'TestSearchIndexer',
            'ModelMethods',
            'CheckMethods',
+           'CommonFixtureMethods',
            'TestCase',
            'SkipTest',
         ]
@@ -38,23 +45,8 @@ __all__ = ['url_for',
 here_dir = os.path.dirname(os.path.abspath(__file__))
 conf_dir = os.path.dirname(os.path.dirname(here_dir))
 
-sys.path.insert(0, conf_dir)
-pkg_resources.working_set.add_entry(conf_dir)
-pkg_resources.require('Paste')
-pkg_resources.require('PasteScript')
-
-def config_abspath(file_path):
-    if os.path.isabs(file_path):
-        return file_path
-    return os.path.join(conf_dir, file_path)
-
-config_path = config_abspath('test.ini')
-
-cmd = paste.script.appinstall.SetupCommand('setup-app')
-cmd.run([config_path])
-
-import ckan.model as model
-model.repo.rebuild_db()
+# Invoke websetup with the current config file
+SetupCommand('setup-app').run([config['__file__']])
 
 class BaseCase(object):
 
@@ -64,16 +56,17 @@ class BaseCase(object):
     def teardown(self):
         pass
 
-    def _system(self, cmd):
+    @staticmethod
+    def _system(cmd):
         import commands
         (status, output) = commands.getstatusoutput(cmd)
         if status:
             raise Exception, "Couldn't execute cmd: %s: %s" % (cmd, output)
 
-    def _paster(self, cmd, config_path_rel):
-        from pylons import config
+    @classmethod
+    def _paster(cls, cmd, config_path_rel):
         config_path = os.path.join(config['here'], config_path_rel)
-        self._system('paster --plugin ckan %s --config=%s' % (cmd, config_path))
+        cls._system('paster --plugin ckan %s --config=%s' % (cmd, config_path))
 
 
 class ModelMethods(BaseCase):
@@ -84,9 +77,8 @@ class ModelMethods(BaseCase):
     commit_changesets = True
 
     def conditional_create_common_fixtures(self):
-        if self.require_common_fixtures and not ModelMethods.has_common_fixtures:
+        if self.require_common_fixtures:
             self.create_common_fixtures()
-            ModelMethods.has_common_fixtures = True
 
     def create_common_fixtures(self):
         CreateTestData.create(commit_changesets=self.commit_changesets)
@@ -100,9 +92,6 @@ class ModelMethods(BaseCase):
 
     def delete_common_fixtures(self):
         CreateTestData.delete()
-
-    def dropall(self):
-        model.repo.clean_db()
 
     def rebuild(self):
         model.repo.rebuild_db()
@@ -179,7 +168,9 @@ class CommonFixtureMethods(BaseCase):
         return model.HarvestSource.get(source_url, default, 'url')
 
     def create_harvest_source(self, **kwds):
-        return model.HarvestSource.create_save(**kwds)             
+        source = model.HarvestSource(**kwds)
+        source.save()
+        return source
 
     def purge_package_by_name(self, package_name):
         package = self.get_package_by_name(package_name)
@@ -253,7 +244,6 @@ class CheckMethods(BaseCase):
 
 
 class TestCase(CommonFixtureMethods, ModelMethods, CheckMethods, BaseCase):
-
     def setup(self):
         super(TestCase, self).setup()
         self.conditional_create_common_fixtures()
@@ -264,37 +254,49 @@ class TestCase(CommonFixtureMethods, ModelMethods, CheckMethods, BaseCase):
 
 
 class WsgiAppCase(BaseCase):
-
-    wsgiapp = loadapp('config:test.ini', relative_to=conf_dir)
+    wsgiapp = pylonsapp
+    assert wsgiapp, 'You need to run nose with --with-pylons'
+    # Either that, or this file got imported somehow before the tests started
+    # running, meaning the pylonsapp wasn't setup yet (which is done in
+    # pylons.test.py:begin())
     app = paste.fixture.TestApp(wsgiapp)
 
 
+def config_abspath(file_path):
+            if os.path.isabs(file_path):
+                return file_path
+            return os.path.join(conf_dir, file_path)
+
 class CkanServerCase(BaseCase):
+    @classmethod
+    def _recreate_ckan_server_testdata(cls, config_path):
+        cls._paster('db clean', config_path)
+        cls._paster('db init', config_path)
+        cls._paster('create-test-data', config_path)
 
-    def _recreate_ckan_server_testdata(self, config_path):
-        self._paster('db clean', config_path)
-        self._paster('db init', config_path)
-        self._paster('create-test-data', config_path)
-
-    def _start_ckan_server(self, config_file='test.ini'):
+    @staticmethod
+    def _start_ckan_server(config_file=None):
+        if not config_file:
+            config_file = config['__file__']
         config_path = config_abspath(config_file)
         import subprocess
         process = subprocess.Popen(['paster', 'serve', config_path])
         return process
 
-    def _wait_for_url(self, url='http://127.0.0.1:5000/', timeout=15):
-        for i in range(int(timeout)):
+    @staticmethod
+    def _wait_for_url(url='http://127.0.0.1:5000/', timeout=15):
+        for i in range(int(timeout)*100):
             import urllib2
             import time
             try:
                 response = urllib2.urlopen(url)
             except urllib2.URLError:
-                pass 
-                time.sleep(1)
+                time.sleep(0.01)
             else:
                 break
 
-    def _stop_ckan_server(self, process): 
+    @staticmethod
+    def _stop_ckan_server(process): 
         pid = process.pid
         pid = int(pid)
         if os.system("kill -9 %d" % pid):
@@ -326,10 +328,39 @@ class TestSearchIndexer:
     
     def __init__(self):
         from ckan import plugins
+        if not is_search_supported():
+            raise SkipTest("Search not supported")
         plugins.load('synchronous_search')
 
     @classmethod
     def index(cls):
         pass     
 
+def is_search_supported():
+    supported_db = "sqlite" not in config.get('sqlalchemy.url')
+    return supported_db
 
+def is_regex_supported():
+    supported_db = "sqlite" not in config.get('sqlalchemy.url')
+    return supported_db
+
+def is_migration_supported():
+    supported_db = "sqlite" not in config.get('sqlalchemy.url')
+    return supported_db
+
+def search_related(test):
+    def skip_test(*args):
+        raise SkipTest("Search not supported")
+    if not is_search_supported():
+        return make_decorator(test)(skip_test)
+    return make_decorator(test)
+    
+def regex_related(test):
+    def skip_test(*args):
+        raise SkipTest("Regex not supported")
+    if not is_regex_supported():
+        return make_decorator(test)(skip_test)
+    return make_decorator(test)
+
+def clear_flash(res=None):
+    messages = _flash.pop_messages()

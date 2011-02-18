@@ -1,14 +1,14 @@
 import ckan.model as model
 import ckan.forms
 from ckan.tests import *
+from ckan.lib.create_test_data import CreateTestData
 import ckan.authz
 import ckan.forms.authz
 
 class TestRender(object):
     @classmethod
     def setup_class(self):
-        model.Session.remove()
-        ckan.tests.CreateTestData.create()
+        CreateTestData.create()
         self.authorizer = ckan.authz.Authorizer()
 
     @classmethod
@@ -35,18 +35,14 @@ class TestRender(object):
         assert '<a href="/package/authz/%s' % pr.package.name in out, out
 
 
-# TODO (?): reinstate? (most of this is being tested via functional tests)
-class _TestSync:
+class TestSync:
     @classmethod
     def setup_class(self):
-        model.Session.remove()
-        ckan.tests.CreateTestData.create()
+        CreateTestData.create_arbitrary([], extra_user_names=[u'friend'])
         self.authorizer = ckan.authz.Authorizer()
-        model.repo.commit_and_remove()
 
     @classmethod
     def teardown_class(self):
-        model.Session.remove()
         model.repo.rebuild_db()
 
     def test_0_no_change(self):
@@ -62,7 +58,9 @@ class _TestSync:
         num_prs_after = model.Session.query(model.PackageRole).filter_by(user_id=user.id).count()
         assert num_prs_before == num_prs_after, '%i %i' % (num_prs_before, num_prs_after)
 
-    def test_1_add_role(self):
+    def _test_1_add_role(self):
+        # disabled this test. Adding roles can't be tested here at form level
+        # because the code is only in the controller(!)
         pkg_name, user = self._new_pkg(1)
         before_roles = { 'visitor': 'editor',
                          'logged_in': 'editor',
@@ -104,25 +102,24 @@ class _TestSync:
 
     def _new_pkg(self, index):
         pkg_name = u'testpkg%i' % index
-        model.Package(name=pkg_name)
-        model.User(name=u'friend')
-        model.repo.new_revision()
-        model.repo.commit_and_remove()
-
+        CreateTestData.create_arbitrary([{'name':pkg_name,
+                                          'admins':[u'annafan']}])
         pkg = model.Package.by_name(pkg_name)
         user = model.User.by_name(u'annafan')
-        model.setup_default_user_roles(pkg, [user])
+        assert pkg
+        assert user
+        model.repo.commit_and_remove()
 
         user = model.User.by_name(u'annafan')        
         return pkg_name, user
 
     def _test_change(self, before_roles, after_roles, pkg_name):
         pkg = model.Package.by_name(pkg_name)
-        # self._check_package_roles(pkg.roles, before_roles)
+        self._check_package_roles(pkg.roles, before_roles)
 
         params = self._make_params(pkg.roles, after_roles)
         roles = pkg.roles
-        fs = ckan.forms.get_authz_fieldset('authz_fs').bind(roles, data=params)
+        fs = ckan.forms.get_authz_fieldset('package_authz_fs').bind(roles, data=params)
         fs.sync()
         model.repo.commit_and_remove()
 

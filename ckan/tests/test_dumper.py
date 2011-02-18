@@ -89,7 +89,7 @@ class TestDumper(object):
 
     # Disabled 22/9/09 because not used anymore
     def _test_load(self):
-        model.repo.clean_db()
+        model.repo.rebuild_db()
         model.repo.create_db()
         d = Dumper()
         d.load_json(self.outpath)

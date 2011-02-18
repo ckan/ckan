@@ -3,17 +3,18 @@ import webhelpers.util
 import re
 
 from ckan.tests import *
-from ckan.tests import TestController as ControllerTestCase
 import ckan.model as model
 import ckan.authz as authz
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib.helpers import json, url_escape
+from ckan.tests import TestController as ControllerTestCase
 
 ACCESS_DENIED = [403]
 
-class ApiControllerTestCase(ControllerTestCase):
+class ApiTestCase(object):
 
     STATUS_200_OK = 200
+    STATUS_201_CREATED = 201
     STATUS_400_BAD_REQUEST = 400
     STATUS_403_ACCESS_DENIED = 403
     STATUS_404_NOT_FOUND = 404
@@ -143,7 +144,7 @@ class ApiControllerTestCase(ControllerTestCase):
             raise Exception, "Couldn't loads string '%s': %s" % (chars, inst)
 
 # Todo: Rename to Version1TestCase.
-class Api1TestCase(ApiControllerTestCase):
+class Api1TestCase(ApiTestCase):
 
     api_version = '1'
     ref_package_by = 'name'
@@ -154,7 +155,7 @@ class Api1TestCase(ApiControllerTestCase):
         assert '"download_url": "http://www.annakarenina.com/download/x=1&y=2"' in msg, msg
 
 
-class Api2TestCase(ApiControllerTestCase):
+class Api2TestCase(ApiTestCase):
 
     api_version = '2'
     ref_package_by = 'id'
@@ -174,7 +175,7 @@ class ApiUnversionedTestCase(Api1TestCase):
         return self.oldest_api_version
 
 
-class BaseModelApiTestCase(ModelMethods, ApiControllerTestCase):
+class BaseModelApiTestCase(ModelMethods, ApiTestCase, ControllerTestCase):
 
     testpackage_license_id = u'gpl-3.0'
     package_fixture_data = {
@@ -222,7 +223,9 @@ class BaseModelApiTestCase(ModelMethods, ApiControllerTestCase):
         self.init_extra_environ()
 
     def teardown(self):
-        self.reuse_or_delete_common_fixtures()
+        model.repo.rebuild_db()
+        #self.delete_common_fixtures()
+        #self.commit_remove()
         super(BaseModelApiTestCase, self).teardown()
 
     def init_extra_environ(self):

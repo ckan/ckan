@@ -1,0 +1,17 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+  
+  <py:def function="page_title">${c.pkg.title or c.pkg.name} - Data Packages - History</py:def>
+
+  <div py:match="content" class="package">
+    <h2 class="head">
+      ${c.pkg.title}
+      <span class="name">(${c.pkg.name})</span>
+    </h2>
+    
+    <div id="comments"></div>
+    
+  </div> <!-- content -->
+  <xi:include href="layout.html" />
+</html>

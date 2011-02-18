@@ -1,18 +1,22 @@
-from ckan.tests import *
+from routes import url_for
+
+from ckan.tests import search_related, CreateTestData
 import ckan.model as model
 from base import FunctionalTestCase
 
 class TestUserController(FunctionalTestCase):
     @classmethod
     def setup_class(self):
+        model.repo.init_db()
         model.repo.rebuild_db()
+        model.repo.init_db()
         CreateTestData.create()
 
         # make 3 changes, authored by annafan
         for i in range(3):
+            rev = model.repo.new_revision()
             pkg = model.Package.by_name(u'annakarenina')
             pkg.notes = u'Changed notes %i' % i
-            rev = model.repo.new_revision()
             rev.author = u'annafan'
             model.repo.commit_and_remove()
 
@@ -63,7 +67,8 @@ class TestUserController(FunctionalTestCase):
     def test_logout(self):
         offset = url_for(controller='user', action='logout')
         res = self.app.get(offset)
-        assert 'You have logged out successfully.' in res
+        res2 = res.follow()
+        assert 'You have logged out successfully.' in res2, res2
 
     #def test_user_created_on_login(self):
     #    username = u'okfntest'
@@ -98,13 +103,14 @@ class TestUserController(FunctionalTestCase):
      # a) a username at top of page
      # b) logout link
 
+    @search_related
     def test_home_login(self):
         offset = url_for('home')
         res = self.app.get(offset)
         # cannot use click because it does not allow a 401 response ...
         # could get round this by checking that url is correct and then doing a
         # get but then we are back to test_user_login
-        res.click('Login with')
+        res.click('Login')
         # assert 'Please Sign In' in res
 
     def test_apikey(self):

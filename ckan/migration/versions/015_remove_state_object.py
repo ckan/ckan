@@ -4,9 +4,10 @@ import sqlalchemy.sql as sql
 from migrate import *
 import migrate.changeset
 
-metadata = MetaData(migrate_engine)
+metadata = MetaData()
 
-def upgrade():
+def upgrade(migrate_engine):
+    metadata.bind = migrate_engine
     stateful_tables = [
             'license',
             'package', 'package_revision',
@@ -28,5 +29,5 @@ def upgrade():
     table = Table('state', metadata, autoload=True)
     table.drop()
 
-def downgrade():
+def downgrade(migrate_engine):
     raise NotImplementedError()

@@ -12,6 +12,5 @@ def setup_app(command, conf, vars):
     from ckan import model
     log.debug('Creating tables')
     model.repo.create_db()
-    model.repo.init_db()
     log.info('Creating tables: SUCCESS')
 

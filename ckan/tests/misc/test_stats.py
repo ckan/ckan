@@ -130,6 +130,8 @@ class TestStats(TestController):
             group = model.Group.by_name(group_name)
             assert group, group_name
             add_user_to_role(user, model.authz.Role.ADMIN, group)
+
+        model.Session.commit()
         
         res = Stats().top_package_owners()
         assert len(res) == 3, res
@@ -148,6 +150,14 @@ class TimedRevision(TestController):
     date_this_week_started = datetime.date.today() - datetime.timedelta(days=datetime.date.weekday(datetime.date.today()))
     date_last_week_started = datetime.date.today() - datetime.timedelta(days=datetime.date.weekday(datetime.date.today()) + 7)
     date_two_weeks_ago_started = datetime.date.today() - datetime.timedelta(days=datetime.date.weekday(datetime.date.today()) + 14)
+
+    @classmethod
+    def setup_class(self):
+        model.repo.init_db()
+        
+    @classmethod
+    def teardown_class(self):
+        model.repo.rebuild_db()
 
     @classmethod
     def _create_old_objects(self, num_packages, date, object_class):
@@ -179,6 +189,7 @@ class TimedRevision(TestController):
 class TestRateStatsSimple(TimedRevision):
     @classmethod
     def setup_class(self):
+        model.repo.init_db()
         # created a package last week
         names = self._create_old_objects(1, self.datetime_last_week_started, model.Package)
         self.pkg_name = names[0]
@@ -237,6 +248,7 @@ class TestRateStatsSimple(TimedRevision):
 class TestRateStats(TimedRevision):
     @classmethod
     def setup_class(self):
+        model.repo.init_db()
         # create some packages for last week
         self._create_old_objects(5, self.datetime_last_week_started, model.Package)
         self._create_old_objects(2, self.datetime_two_weeks_ago_started + datetime.timedelta(days=0), model.Package)

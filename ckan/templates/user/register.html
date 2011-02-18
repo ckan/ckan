@@ -1,0 +1,48 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+  
+  <py:match path="primarysidebar">
+    <li class="widget-container widget_text">
+      <h2>Have an OpenID?</h2>
+      <p>
+        If you have an account with Google, Yahoo or one of many other 
+        OpenID providers, you can log in without signing up. 
+      </p>
+      <ul>
+        <li>${h.link_to(_('Log in now'), h.url_for(conroller='user', action='login'))}</li>
+      </ul>
+    </li>
+  </py:match>
+  
+  <py:def function="page_title">Register - User</py:def>
+
+  <div py:match="content">
+    <h2>Join the community</h2>
+    
+    <form action="/user/register" method="post" class="simple-form" id="register_form">  
+      <fieldset>
+        <legend i18n:msg="site_title">Register with CKAN</legend>
+
+        <label for="login">Login:</label>
+        <input name="login" value="${c.login}" />
+        <br/>
+        <label for="fullname">Full name (optional):</label>
+        <input name="fullname" value="${c.fullname}" />
+        <br/>
+        <label for="email">E-Mail (optional):</label>
+        <input name="email" value="${c.email}" />
+        <br/>
+        <label for="password1">Password:</label>
+        <input type="password" name="password1" value="" />
+        <br/>
+        <label for="password2">Password (repeat):</label>
+        <input type="password" name="password2" value="" />
+        <br/>
+      </fieldset>
+      ${h.submit('s', _('Sign up'))}
+    </form>
+  </div>
+  <xi:include href="layout.html" />
+</html>

@@ -1,0 +1,2070 @@
+# Translations template for ckan.
+# Copyright (C) 2011 ORGANIZATION
+# This file is distributed under the same license as the ckan project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: CKAN (Comprehensive Knowledge Archive Network)\n"
+"Report-Msgid-Bugs-To: http://www.ckan.org/\n"
+"POT-Creation-Date: 2011-01-18 09:50+0000\n"
+"PO-Revision-Date: 2011-01-20 19:41+0000\n"
+"Last-Translator: OpenDataBaas <paul@oller.nl>\n"
+"Language-Team: Dutch <>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: nl\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"Generated-By: Babel 0.9.5\n"
+
+#: ckan/misc.py:47
+msgid "<strong>Warning:</string>: Text could not be rendered."
+msgstr ""
+
+#: ckan/controllers/authorization_group.py:34 ckan/controllers/group.py:36
+#, python-format
+msgid "Not authorized to read %s"
+msgstr "U ben niet gemachtigd om dit te lezen%s"
+
+#: ckan/controllers/authorization_group.py:52 ckan/controllers/group.py:60
+msgid "Unauthorized to create a group"
+msgstr "Groep selectie veld 'user_editable_groups' is niet geinitialiseerd"
+
+#: ckan/controllers/authorization_group.py:100 ckan/controllers/group.py:114
+#, python-format
+msgid "User %r not authorized to edit %r"
+msgstr "Gebruiker %r is niet gemachtigd om %r aan te passen"
+
+#: ckan/controllers/authorization_group.py:144 ckan/controllers/group.py:161
+#: ckan/controllers/group.py:260
+msgid "Group not found"
+msgstr "De titel van de dataset."
+
+#: ckan/controllers/authorization_group.py:150 ckan/controllers/group.py:167
+msgid "Not authorized to edit authorization for group"
+msgstr "Gebruik een korte, beschrijvende titel voor de dataset. Een omschrijving kan worden gegeven in het notitie veld. gebruik geen afsluitende punten..."
+
+#: ckan/controllers/authorization_group.py:170 ckan/controllers/group.py:185
+#: ckan/controllers/package.py:423
+msgid "Please select either a user or an authorization group, not both."
+msgstr "Selecteer een gebruiker of een autorisatie groep, niet beide"
+
+#: ckan/controllers/authorization_group.py:182 ckan/controllers/group.py:199
+#: ckan/controllers/package.py:436
+#, python-format
+msgid "Added role '%s' for user '%s'"
+msgstr "Rol '%s' toegevoegd aan gebruiker(s) '%s'"
+
+#: ckan/controllers/authorization_group.py:196 ckan/controllers/group.py:215
+#: ckan/controllers/package.py:452
+#, python-format
+msgid "Added role '%s' for authorization group '%s'"
+msgstr "Rol '%s' voor autorisatie groep '%s'"
+
+#: ckan/controllers/authorization_group.py:203 ckan/controllers/group.py:222
+#: ckan/controllers/package.py:459
+msgid "Error: No role found with that id"
+msgstr "Foutmelding: Geen rol gevonden met die id"
+
+#: ckan/controllers/authorization_group.py:207 ckan/controllers/group.py:228
+#: ckan/controllers/package.py:464
+#, python-format
+msgid "Deleted role '%s' for user '%s'"
+msgstr "Rol '%s' verwijdert voor de gebruiker '%s'"
+
+#: ckan/controllers/authorization_group.py:210 ckan/controllers/group.py:231
+#: ckan/controllers/package.py:467
+#, python-format
+msgid "Deleted role '%s' for authorization group '%s'"
+msgstr "Rol '%s' verwijderd voor autorisatie groep '%s'"
+
+#: ckan/controllers/group.py:253 ckan/controllers/package.py:172
+msgid "Select two revisions before doing the comparison."
+msgstr "Selecteer twee revisies voordat u een vergelijking maakt."
+
+#: ckan/controllers/group.py:266
+msgid "CKAN Group Revision History"
+msgstr "CKAN Groep revisie historie"
+
+#: ckan/controllers/group.py:268 ckan/controllers/package.py:187
+msgid "Recent changes to CKAN Package: "
+msgstr "Recente CKAN Package aanpassingen: "
+
+#: ckan/controllers/group.py:287 ckan/controllers/package.py:206
+msgid "Log message: "
+msgstr "Logboek bericht: "
+
+#: ckan/controllers/importer.py:42
+msgid "Need to login before importing."
+msgstr "Inloggen is nodig om te kunnen importeren."
+
+#: ckan/controllers/importer.py:47
+msgid "Need to specify a filename."
+msgstr "Bestandsnaam nodig"
+
+#: ckan/controllers/importer.py:50
+msgid "Did not receive file successfully."
+msgstr "Bestand is niet goed ontvangen."
+
+#: ckan/controllers/importer.py:56
+#, python-format
+msgid "File '%s' not found."
+msgstr "Bestand '%s' is niet gevonden"
+
+#: ckan/controllers/importer.py:61 ckan/controllers/importer.py:90
+#, python-format
+msgid "Error importing file '%s' as Excel or CSV format: %s"
+msgstr "Er is een fout opgetreden bij importeren bestand '%s' als Excel- of CSV formaat: %s"
+
+#: ckan/controllers/importer.py:101
+msgid "Errors remain - see preview."
+msgstr "De fout is nog niet opgelost - zie preview."
+
+#: ckan/controllers/importer.py:115
+msgid "Problem with user account."
+msgstr "Probleem met gebruikersaccount"
+
+#: ckan/controllers/importer.py:122
+#, python-format
+msgid "Imported %i package."
+msgid_plural "Imported %i packages."
+msgstr[0] "Package %i is geïmporteerd"
+msgstr[1] "%i packages zijn geïmporteerd"
+
+#: ckan/controllers/importer.py:155
+msgid "Could not access import file any more."
+msgstr "Kan geen toegang meer krijgen tot het te importeren bestand."
+
+#: ckan/controllers/importer.py:167
+msgid "User is not logged in"
+msgstr "De gebruiker is niet ingelogd"
+
+#: ckan/controllers/importer.py:171
+msgid "Error with user account. Log out and log in again."
+msgstr "Er is een fout opgetreden met dit gebruikersaccount. Log uit en probeer opnieuw in te loggen."
+
+#: ckan/controllers/importer.py:174
+#, python-format
+msgid "Package %s already exists in database. Import will edit the fields."
+msgstr "Package %s bestaat al in de database. Importeren zal de velden aanpassen."
+
+#: ckan/controllers/importer.py:177
+#, python-format
+msgid "User %r unauthorized to edit existing package %s"
+msgstr "Gebruiker %r is niet gemachtigd om de huidige package %s aan te passen"
+
+#: ckan/controllers/package.py:108 ckan/controllers/package.py:144
+#: ckan/controllers/package.py:179 ckan/controllers/package.py:399
+msgid "Package not found"
+msgstr "Package is niet gevonden"
+
+#: ckan/controllers/package.py:130 ckan/controllers/package.py:152
+#, python-format
+msgid "Unauthorized to read package %s"
+msgstr "Niet gemachtigd om package in te zien %s"
+
+#: ckan/controllers/package.py:185
+msgid "CKAN Package Revision History"
+msgstr "CKAN Package Revisie Geschiedenis"
+
+#: ckan/controllers/package.py:230
+msgid "Unauthorized to create a package"
+msgstr "Niet geautoriseerd om een package aan te maken"
+
+#: ckan/controllers/package.py:302
+#, python-format
+msgid "User %r not authorized to edit %s"
+msgstr "Gebruiker %r is niet gemachtigd om %s aan te passen"
+
+#: ckan/controllers/package.py:405
+#, python-format
+msgid "User %r not authorized to edit %s authorizations"
+msgstr "Gebruiker %r is niet gemachtigd om machtigingen van %s aan te passen"
+
+#: ckan/controllers/package.py:484
+msgid "404 Package Not Found"
+msgstr "404 Package Niet Gevonden"
+
+#: ckan/controllers/package.py:491
+msgid "Rating value invalid"
+msgstr "Rating waarde incorrect"
+
+#: ckan/controllers/rest.py:132
+#, python-format
+msgid "Cannot list entity of this type: %s"
+msgstr "Kan items van dit type niet laten zien: %s"
+
+#: ckan/controllers/rest.py:229
+#, python-format
+msgid "Cannot read entity of this type: %s"
+msgstr "Kan een entiteit van dit type niet lezen: %s"
+
+#: ckan/controllers/rest.py:238 ckan/controllers/rest.py:345
+#: ckan/controllers/rest.py:381 ckan/controllers/rest.py:443
+#: ckan/controllers/rest.py:483 ckan/controllers/apiv1/package.py:42
+#: ckan/controllers/apiv1/package.py:51 ckan/controllers/apiv1/package.py:111
+#: ckan/controllers/apiv1/package.py:162 ckan/controllers/apiv2/package.py:44
+msgid "Access denied"
+msgstr "Toestemming geweigerd"
+
+#: ckan/controllers/rest.py:244 ckan/controllers/rest.py:387
+#: ckan/controllers/apiv1/package.py:100 ckan/controllers/apiv1/package.py:148
+#, python-format
+msgid "JSON Error: %s"
+msgstr "JSON Error: %s"
+
+#: ckan/controllers/rest.py:254 ckan/controllers/rest.py:397
+#: ckan/controllers/apiv1/package.py:104 ckan/controllers/apiv1/package.py:151
+#, python-format
+msgid "Package format incorrect: %s"
+msgstr "Package formaat niet juist: %s"
+
+#: ckan/controllers/rest.py:274
+#, python-format
+msgid "REST API: Create package relationship: %s %s %s"
+msgstr "REST API: Maak package relatie: %s %s %s"
+
+#: ckan/controllers/rest.py:296
+#, python-format
+msgid "Cannot create new entity of this type: %s %s"
+msgstr "Kan geen nieuwe entiteit aanmaken van type: %s %s"
+
+#: ckan/controllers/rest.py:307 ckan/controllers/apiv1/package.py:74
+#, python-format
+msgid "REST API: Create object %s"
+msgstr "REST API: Maak object %s"
+
+#: ckan/controllers/rest.py:373
+#, python-format
+msgid "Cannot update entity of this type: %s"
+msgstr "Kan entiteit niet aanpassen van type: %s"
+
+#: ckan/controllers/rest.py:413 ckan/controllers/apiv1/package.py:131
+#, python-format
+msgid "REST API: Update object %s"
+msgstr "REST API: Update object %s"
+
+#: ckan/controllers/rest.py:477
+#, python-format
+msgid "Cannot delete entity of this type: %s %s"
+msgstr "Kan entiteit niet aanpassen van type: %s %s"
+
+#: ckan/controllers/rest.py:488
+#, python-format
+msgid "REST API: Delete %s"
+msgstr "REST API: Verwijder %s"
+
+#: ckan/controllers/rest.py:515
+#, python-format
+msgid "There is no revision with id: %s"
+msgstr "Er is geen revisie met id: %s"
+
+#: ckan/controllers/rest.py:526
+msgid "Missing search term ('since_id=UUID' or 'since_time=TIMESTAMP')"
+msgstr "Ontbrekende zoek term ('since_id=UUID' or 'since_time=TIMESTAMP')"
+
+#: ckan/controllers/rest.py:533
+msgid "Blank qjson parameter"
+msgstr "Lege qjson parameter"
+
+#: ckan/controllers/rest.py:542
+#, python-format
+msgid "Search params: %s"
+msgstr "Zoek parameters: %s"
+
+#: ckan/controllers/rest.py:580
+#, python-format
+msgid "Bad search option: %s"
+msgstr "Ongeldige zoek optie: %s"
+
+#: ckan/controllers/rest.py:583
+#, python-format
+msgid "Unknown register: %s"
+msgstr "Onbekend register: %s"
+
+#: ckan/controllers/rest.py:624
+msgid "You must supply a package id or name (parameter \"package\")."
+msgstr "Er moet een package id of naam worden opgegeven (parameter \"package\")"
+
+#: ckan/controllers/rest.py:626
+msgid "You must supply a rating (parameter \"rating\")."
+msgstr "Een waardering is vereist (parameter \"rating\")."
+
+#: ckan/controllers/rest.py:631
+msgid "Rating must be an integer value."
+msgstr "Waardering moet hele waarde hebben."
+
+#: ckan/controllers/rest.py:635
+#, python-format
+msgid "Rating must be between %i and %i."
+msgstr "Waardering moet tussen %i en %i liggen."
+
+#: ckan/controllers/rest.py:637
+#, python-format
+msgid "Package with name %r does not exist."
+msgstr "Package met de naam %r bestaat niet."
+
+#: ckan/controllers/rest.py:661
+msgid "You must supply a user_ref."
+msgstr "Er moet een user_ref worden gegeven"
+
+#: ckan/controllers/rest.py:663
+msgid "You must supply a source_id."
+msgstr "Er moet een source_id worden gegeven"
+
+#: ckan/controllers/rest.py:667
+#, python-format
+msgid "Harvest source %s does not exist."
+msgstr "Harvest bron %s bestaat niet."
+
+#: ckan/controllers/rest.py:724
+#, python-format
+msgid "REST API: Update package relationship: %s %s %s"
+msgstr "REST API: Bijwerken package relaties: %s %s %s"
+
+#: ckan/controllers/revision.py:19
+msgid "CKAN Repository Revision History"
+msgstr "CKAN Repository Revisie Geschiedenis"
+
+#: ckan/controllers/revision.py:21
+msgid "Recent changes to the CKAN repository."
+msgstr "Recente aanpassingen aan de CKAN repository"
+
+#: ckan/controllers/revision.py:75
+#, python-format
+msgid "Packages affected: %s.\n"
+msgstr "Packages veranderd: %s.\n"
+
+#: ckan/controllers/revision.py:146
+msgid "No revision id specified"
+msgstr "Geen revisie id benoemd"
+
+#: ckan/controllers/revision.py:149
+msgid "You are not authorized to perform this action"
+msgstr "U bent niet gemachtigd deze handeling uit te voeren"
+
+#: ckan/controllers/revision.py:158
+#, python-format
+msgid "Purge of revision failed: %s"
+msgstr "Purge van revisie niet geslaagd: %s"
+
+#: ckan/controllers/tag.py:38 ckan/forms/common.py:886
+msgid "Other"
+msgstr "Andere"
+
+#: ckan/controllers/user.py:86
+msgid "Changed user details"
+msgstr "Informatie van gebruiker aangepast"
+
+#: ckan/controllers/apiv1/package.py:39 ckan/controllers/apiv2/package.py:41
+msgid "Not found"
+msgstr "Niet gevonden"
+
+#: ckan/controllers/apiv1/package.py:115 ckan/controllers/apiv1/package.py:158
+msgid "Package was not found."
+msgstr "Package is niet gevonden"
+
+#: ckan/controllers/apiv1/package.py:141
+msgid "Integrity Error"
+msgstr "Integriteits fout"
+
+#: ckan/controllers/apiv1/package.py:166
+#, python-format
+msgid "REST API: Delete Package: %s"
+msgstr "REST API: Verwijder Package: %s"
+
+#: ckan/forms/common.py:22
+#, python-format
+msgid "Name must be at least %s characters long"
+msgstr "Naam moet tenminste %s karakters lang zijn"
+
+#: ckan/forms/common.py:24
+msgid "Name must be purely lowercase alphanumeric (ascii) characters and these symbols: -_"
+msgstr "Naam kan alleen bestaan uit kleine (ascii) karakters en de volgende symbolen: -_"
+
+#: ckan/forms/common.py:37
+msgid "Package name already exists in database"
+msgstr "Package-naam is al gebruikt in database"
+
+#: ckan/forms/common.py:45
+msgid "Group name already exists in database"
+msgstr "De naam van de groep bestaat al in database"
+
+#: ckan/forms/common.py:49
+msgid "Harvest source URL is invalid (must start with \"http://\")."
+msgstr "Harvest bron URL is ongeldig (hoort te beginnen met \"http://\")."
+
+#: ckan/forms/common.py:143
+#, python-format
+msgid "Value does not match required format: %s"
+msgstr "Waarde komt niet overeen met gewenste formaat: %s"
+
+#: ckan/forms/common.py:318
+msgid "Package resource(s) incomplete."
+msgstr "Package bronnen niet compleet()"
+
+#: ckan/forms/common.py:490
+#, python-format
+msgid "Tag \"%s\" length is less than minimum %s"
+msgstr "Tag \"%s\" lengte is minder dan vereiste %s"
+
+#: ckan/forms/common.py:492
+#, python-format
+msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
+msgstr "Tag \"%s\" moet een alfanumeriek karakter zijn of symbolen: -_."
+
+#: ckan/forms/common.py:494
+#, python-format
+msgid "Tag \"%s\" must not be uppercase"
+msgstr "Tag \"%s\" mag geen hoofdletters bevatten"
+
+#: ckan/forms/common.py:511
+#, python-format
+msgid "Duplicate key \"%s\""
+msgstr "Dubbele sleutel \"%s\""
+
+#: ckan/forms/common.py:514
+#, python-format
+msgid "Extra key-value pair: key is not set for value \"%s\"."
+msgstr "Extra sleutel-waarde koppel: sleutel is niet aangepast voor waarde \"%s\"."
+
+#: ckan/forms/common.py:637
+msgid "Group select field 'user_editable_groups' is not initialized."
+msgstr "Groep selectie veld 'user_editable_groups' is niet geinitialiseerd."
+
+#: ckan/forms/common.py:742 ckan/forms/common.py:837
+msgid "(None)"
+msgstr "(Geen)"
+
+#: ckan/forms/common.py:752
+msgid "Cannot add any groups."
+msgstr "Kan geen groep toevoegen"
+
+#: ckan/forms/common.py:767
+msgid "Group"
+msgstr "Groep"
+
+#: ckan/forms/common.py:797
+#, python-format
+msgid "Can't derived new group selection from serialized value structured like this: %s"
+msgstr "Kan geen nieuwe groep selectie afleiden uit geserialiseerde waarde gestructureerd als volgt: %s"
+
+#: ckan/forms/common.py:870
+msgid "other - please specify"
+msgstr "anders - (toelichting)"
+
+#: ckan/forms/group.py:52 ckan/forms/package.py:38 ckan/forms/package.py:110
+msgid "Name"
+msgstr "Naam"
+
+#: ckan/forms/group.py:63 ckan/forms/package_gov.py:117
+msgid "Details"
+msgstr "Details"
+
+#: ckan/forms/group.py:64 ckan/forms/package.py:102 ckan/forms/package.py:112
+msgid "Extras"
+msgstr "Extra's"
+
+#: ckan/forms/group.py:88
+msgid "Package"
+msgstr "Package"
+
+#: ckan/forms/group.py:89
+msgid "Add packages"
+msgstr "Package toevoegen"
+
+#: ckan/forms/package.py:34
+msgid "A short descriptive title for the data set."
+msgstr ""
+
+#: ckan/forms/package.py:35
+msgid "It should not be a description though - save that for the Notes field. Do not give a trailing full stop."
+msgstr ""
+
+#: ckan/forms/package.py:39
+msgid "A unique identifier for the package."
+msgstr ""
+
+#: ckan/forms/package.py:40
+msgid "It should be broadly humanly readable, in the spirit of Semantic Web URIs. Only use an acronym if it is widely recognised. Renaming is possible but discouraged."
+msgstr ""
+
+#: ckan/forms/package.py:41
+msgid "2+ characters, lowercase, using only 'a-z0-9' and '-_'"
+msgstr ""
+
+#: ckan/forms/package.py:45
+msgid "A number representing the version (if applicable)"
+msgstr ""
+
+#: ckan/forms/package.py:50
+msgid "The URL for the web page describing the data (not the data itself)."
+msgstr ""
+
+#: ckan/forms/package.py:51
+msgid "e.g. http://www.example.com/growth-figures.html"
+msgstr "Bijvoorbeeld http://www.example.com/growth-figures.html"
+
+#: ckan/forms/package.py:55
+msgid "The name of the main contact, for enquiries about this particular dataset, using the e-mail address in the following field."
+msgstr ""
+
+#: ckan/forms/package.py:59
+msgid "If there is another important contact person (in addition to the person in the Author field) then provide details here."
+msgstr ""
+
+#: ckan/forms/package.py:63
+msgid "Licence"
+msgstr ""
+
+#: ckan/forms/package.py:64
+msgid "The licence under which the dataset is released."
+msgstr "De licentievoorwaarden voor deze dataset."
+
+#: ckan/forms/package.py:68 ckan/forms/package.py:112
+#: ckan/templates/layout_base.html:99 ckan/templates/layout_base.html:169
+#: ckan/templates/package/read.html:18 ckan/templates/tag/index.html:6
+#: ckan/templates/tag/index.html:9
+msgid "Tags"
+msgstr "Tags"
+
+#: ckan/forms/package.py:69
+#, python-format
+msgid "Terms that may link this dataset to similar ones. For more information on conventions, see <a href=\"%s\">this wiki page</a>."
+msgstr ""
+
+#: ckan/forms/package.py:70
+msgid "e.g. pollution rivers water-quality"
+msgstr ""
+
+#: ckan/forms/package.py:74
+msgid "The files containing the data or address of the APIs for accessing it."
+msgstr "De bestanden met de data of het adres van de API om toegang te krijgen."
+
+#: ckan/forms/package.py:75
+msgid "<br />These can be repeated as required. For example if the data is being supplied in multiple formats, or split into different areas or time periods, each file is a different 'resource' which should be described differently. They will all appear on the dataset page on CKAN together.<br /><br /> <b>URL:</b> This is the Internet link directly to the data - by selecting this link in a web browser, the user will immediately download the full data set. Note that datasets are not hosted on this site, but by the publisher of the data. Alternatively the URL can point to an API server such as a SPARQL endpoint or JSON-P service.<br /> <b>Format:</b> This should give the file format in which the data is supplied. <br /><b>Description</b> Any information you want to add to describe the resource.<br />"
+msgstr "<br /> Deze kan herhaald worden als het nodig is. Bijvoorbeeld als de gegevens worden geleverd in verschillende formaten, of verdeeld in verschillende onderwerpen of perioden, elk bestand is een andere 'bron' die specifiek moet worden beschreven. De datasets worden gezamenlijk worden getoond op de dataset pagina op CKAN. <br /><br /> <b>URL:</b> Dit is de link direct naar de gegevens - door het selecteren van deze link in een web browser zal direct worden gestart met het downloaden van de volledige dataset. Merk op dat de datasets niet worden gehost op deze site, maar door de eigenaar van de datasets. Als alternatief kan de URL verwijzen naar een API-server, zoals een SPARQL eindpunt of JSON-P service. <br /> <b>Formaat:</b> Dit geeft het bestandsformaat waarin de gegevens worden geleverd. <br /> <b>Omschrijving</b> Alle informatie die u wilt toevoegen om de bron te beschrijven. <br />"
+
+#: ckan/forms/package.py:76
+msgid "Format choices: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Other as appropriate"
+msgstr "Keuzes voor het formaat: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Anders, indien van toepassing"
+
+#: ckan/forms/package.py:80 ckan/forms/package.py:111
+msgid "Notes"
+msgstr "Notities"
+
+#: ckan/forms/package.py:81
+msgid "The main description of the dataset"
+msgstr "De beschrijving van de dataset"
+
+#: ckan/forms/package.py:82
+msgid "It is often displayed with the package title. In particular, it should start with a short sentence that describes the data set succinctly, because the first few words alone may be used in some views of the data sets."
+msgstr "Het wordt meestal getoond met de package titel. Begin met een korte zin die de dataset beschrijft."
+
+#: ckan/forms/package.py:83
+#, python-format
+msgid "You can use %sMarkdown formatting%s here."
+msgstr ""
+
+#: ckan/forms/package.py:94 ckan/forms/package_gov.py:115
+msgid "Basic information"
+msgstr "Basis informatie"
+
+#: ckan/forms/package.py:96 ckan/forms/package.py:111
+#: ckan/forms/package_gov.py:122 ckan/templates/package/read_core.html:60
+msgid "Resources"
+msgstr "Bronnen"
+
+#: ckan/forms/package.py:97 ckan/templates/layout_base.html:100
+#: ckan/templates/layout_base.html:170 ckan/templates/group/index.html:9
+#: ckan/templates/package/read.html:26 ckan/templates/revision/read.html:40
+msgid "Groups"
+msgstr "Groepen"
+
+#: ckan/forms/package.py:98 ckan/forms/package.py:105
+msgid "Detail"
+msgstr "Detail"
+
+#: ckan/forms/package.py:110 ckan/templates/_util.html:95
+#: ckan/templates/_util.html:108
+msgid "Title"
+msgstr "Titel"
+
+#: ckan/forms/package.py:110
+msgid "Version"
+msgstr "Versie"
+
+#: ckan/forms/package.py:110
+msgid "URL"
+msgstr "URL"
+
+#: ckan/forms/package.py:111 ckan/templates/group/history.html:36
+#: ckan/templates/home/index.html:82 ckan/templates/package/history.html:41
+#: ckan/templates/revision/list.html:21 ckan/templates/user/read.html:37
+msgid "Author"
+msgstr "Auteur"
+
+#: ckan/forms/package.py:111
+msgid "Author email"
+msgstr "E-mail auteur"
+
+#: ckan/forms/package.py:111
+msgid "Maintainer"
+msgstr "Beheerder"
+
+#: ckan/forms/package.py:112
+msgid "Maintainer email"
+msgstr "Beheerder e-mail"
+
+#: ckan/forms/package.py:112 ckan/templates/home/license.html:6
+#: ckan/templates/home/license.html:9 ckan/templates/package/read_core.html:85
+msgid "License"
+msgstr "Licentie"
+
+#: ckan/forms/package.py:112
+msgid "State"
+msgstr "Provincie"
+
+#: ckan/forms/package_dict.py:95
+#, python-format
+msgid "Resource should be a dictionary: %r"
+msgstr "Bron moet een woordenboek zijn: %r"
+
+#: ckan/forms/package_dict.py:112
+#, python-format
+msgid "Key unknown: %s"
+msgstr "Sleutel onbekend: %s"
+
+#: ckan/forms/package_dict.py:114
+msgid "Key blank"
+msgstr "Sleutel leeg"
+
+#: ckan/forms/package_gov.py:74
+#, python-format
+msgid "<div>Suggestions (preview refreshes): %s</div>"
+msgstr "<div> Suggesties (voorvertoning ververst): %s</div>"
+
+#: ckan/forms/package_gov.py:104 ckan/forms/package_gov.py:136
+msgid "National Statistic"
+msgstr "Nationale statistieken"
+
+#: ckan/forms/package_gov.py:123 ckan/forms/package_gov.py:129
+msgid "More details"
+msgstr "Meer details"
+
+#: ckan/forms/package_gov.py:133
+msgid "External reference"
+msgstr "Externe referenties"
+
+#: ckan/forms/package_gov.py:133
+msgid "Date released"
+msgstr "Publicatiedatum"
+
+#: ckan/forms/package_gov.py:133
+msgid "Date updated"
+msgstr "Bijgewerkt"
+
+#: ckan/forms/package_gov.py:134
+msgid "Update frequency"
+msgstr "Frequentie bijwerken"
+
+#: ckan/forms/package_gov.py:134
+msgid "Geographic granularity"
+msgstr "Geografische granulariteit"
+
+#: ckan/forms/package_gov.py:135
+msgid "Geographic coverage"
+msgstr "Geografisch bereik"
+
+#: ckan/forms/package_gov.py:135
+msgid "Temporal granularity"
+msgstr "Tijd granulariteit"
+
+#: ckan/forms/package_gov.py:136
+msgid "Temporal coverage"
+msgstr "Tijd bereik"
+
+#: ckan/forms/package_gov.py:136
+msgid "Categories"
+msgstr "Categoriën"
+
+#: ckan/forms/package_gov.py:137
+msgid "Precision"
+msgstr "Nauwkeurigheid"
+
+#: ckan/forms/package_gov.py:137
+msgid "Taxonomy URL"
+msgstr "Taxonomy URL"
+
+#: ckan/forms/package_gov.py:137
+msgid "Department"
+msgstr "Afdeling"
+
+#: ckan/forms/package_gov.py:137
+msgid "Agency"
+msgstr "Uitvoeringsorganisatie"
+
+#: ckan/lib/base.py:117
+#, python-format
+msgid "Can't find entity data in request POST data %s: %s"
+msgstr "Kan geen entiteits data vinden in request POST data %s: %s"
+
+#: ckan/lib/base.py:123
+msgid "Request params must be in form of a json encoded dictionary."
+msgstr "Opgevraagde parameters moeten zich bevinden in een json encoded dictionary"
+
+#: ckan/lib/package_saver.py:136
+msgid "No links are allowed in the log_message."
+msgstr "Links zijn niet toegestaan in het logboekbericht"
+
+#: ckan/model/harvesting.py:131
+#, python-format
+msgid "Harvester: Created package %s"
+msgstr "Harvester: package %s aangemaakt"
+
+#: ckan/model/package_relationship.py:48
+#, python-format
+msgid "depends on %s"
+msgstr "hangt af van %s"
+
+#: ckan/model/package_relationship.py:48
+#, python-format
+msgid "is a dependency of %s"
+msgstr "is een afhankelijkheid van %s"
+
+#: ckan/model/package_relationship.py:49
+#, python-format
+msgid "derives from %s"
+msgstr "vloeit voort uit %s"
+
+#: ckan/model/package_relationship.py:49
+#, python-format
+msgid "has derivation %s"
+msgstr "heeft afgeleide %s"
+
+#: ckan/model/package_relationship.py:50
+#, python-format
+msgid "links to %s"
+msgstr "linkt naar %s"
+
+#: ckan/model/package_relationship.py:50
+#, python-format
+msgid "is linked from %s"
+msgstr "is naar gelinkt vanaf %s"
+
+#: ckan/model/package_relationship.py:51
+#, python-format
+msgid "is a child of %s"
+msgstr "is een kind van %s"
+
+#: ckan/model/package_relationship.py:51
+#, python-format
+msgid "is a parent of %s"
+msgstr "is een ouder van %s"
+
+#: ckan/model/package_relationship.py:55
+#, python-format
+msgid "has sibling %s"
+msgstr "heeft broer %s"
+
+#: ckan/templates/_util.html:65 ckan/templates/_util.html:70
+#: ckan/templates/package/read.html:85 ckan/templates/package/read.html:89
+msgid "This package satisfies the Open Knowledge Definition."
+msgstr "Deze package voldoet aan de Open Kennis Definitie"
+
+#: ckan/templates/_util.html:66 ckan/templates/package/read.html:88
+msgid "[Open Data]"
+msgstr "[Open Data]"
+
+#: ckan/templates/_util.html:71 ckan/templates/package/read.html:92
+msgid "[Open Content]"
+msgstr "[Open Content]"
+
+#: ckan/templates/_util.html:76
+msgid "Data Not Open"
+msgstr "Data niet Open"
+
+#: ckan/templates/_util.html:95
+msgid "Number of packages"
+msgstr "Aantal packages"
+
+#: ckan/templates/_util.html:95 ckan/templates/package/read_core.html:36
+msgid "Description"
+msgstr "Omschrijving"
+
+#: ckan/templates/_util.html:108
+msgid "Number of members"
+msgstr "Aantal leden"
+
+#: ckan/templates/_util.html:128
+msgid "View package resources"
+msgstr "Bekijk package bronnen"
+
+#: ckan/templates/_util.html:128
+msgid "DOWNLOAD"
+msgstr "DOWNLOAD"
+
+#: ckan/templates/_util.html:131
+msgid "No downloadable resources."
+msgstr "Geen downloadbare bronnen."
+
+#: ckan/templates/_util.html:149
+msgid "no ratings yet"
+msgstr "Nog geen beoordeling"
+
+#: ckan/templates/_util.html:150
+msgid ""
+"–\n"
+"    rate it now"
+msgstr ""
+"–\n"
+"    Nu beoordelen"
+
+#: ckan/templates/error_document_template.html:5
+#, python-format
+msgid "Error %(code)s"
+msgstr "Fout %(code)s"
+
+#: ckan/templates/error_document_template.html:7
+#, python-format
+msgid "%(message)s"
+msgstr "%(message)s"
+
+#: ckan/templates/layout_base.html:73
+msgid "Logged in as"
+msgstr "Ingelogd als"
+
+#: ckan/templates/layout_base.html:74
+msgid "username"
+msgstr "gebruikersnaam"
+
+#: ckan/templates/layout_base.html:75
+msgid "My account"
+msgstr "mijn account"
+
+#: ckan/templates/layout_base.html:76 ckan/templates/user/logout.html:8
+msgid "Logout"
+msgstr "Uitloggen"
+
+#: ckan/templates/layout_base.html:79
+msgid "Login with"
+msgstr "Inloggen met"
+
+#: ckan/templates/layout_base.html:79
+msgid "OpenID"
+msgstr "OpenID"
+
+#: ckan/templates/layout_base.html:92
+msgid "Skip to content"
+msgstr "Ga verder naar de content"
+
+#: ckan/templates/layout_base.html:96 ckan/templates/home/index.html:6
+msgid "Home"
+msgstr "Home"
+
+#: ckan/templates/layout_base.html:97 ckan/templates/layout_base.html:157
+#: ckan/templates/package/search.html:34
+#: ckan/templates/package/search_form.html:17
+msgid "Search"
+msgstr "Zoek"
+
+#: ckan/templates/layout_base.html:98 ckan/templates/package/search.html:14
+msgid "Add a package"
+msgstr "Voeg een package toe"
+
+#: ckan/templates/layout_base.html:101 ckan/templates/layout_base.html:180
+#: ckan/templates/home/about.html:6 ckan/templates/home/index.html:45
+#: ckan/templates/user/read.html:23
+msgid "About"
+msgstr "Over"
+
+#: ckan/templates/layout_base.html:123
+msgid "Master content template placeholder … please replace me."
+msgstr "Hoofd content template placeholder … vervang mij."
+
+#: ckan/templates/layout_base.html:154 ckan/templates/group/edit_form.html:10
+#: ckan/templates/home/index.html:81 ckan/templates/revision/read.html:21
+#: ckan/templates/user/read.html:37
+msgid "Packages"
+msgstr "Packages"
+
+#: ckan/templates/layout_base.html:158
+msgid "Register a new Package"
+msgstr "Registreer een nieuw package"
+
+#: ckan/templates/layout_base.html:159 ckan/templates/revision/list.html:5
+#: ckan/templates/revision/list.html:8
+msgid "Revision History"
+msgstr "Revisie Historie"
+
+#: ckan/templates/layout_base.html:166
+msgid "Groups & Tags"
+msgstr "Groepen & Labels"
+
+#: ckan/templates/layout_base.html:171
+msgid "Create a new Group"
+msgstr "Maak een nieuwe groep"
+
+#: ckan/templates/layout_base.html:172
+#: ckan/templates/authorization_group/index.html:6
+#: ckan/templates/authorization_group/index.html:9
+#: ckan/templates/authorization_group/layout.html:23
+msgid "Authorization Groups"
+msgstr "Autorisatie Groepen"
+
+#: ckan/templates/layout_base.html:173
+msgid "Create a new Authorization Group"
+msgstr "Maak een nieuwe autorisatie Groep"
+
+#: ckan/templates/layout_base.html:184
+msgid "Project Home Page"
+msgstr "Project Home Page"
+
+#: ckan/templates/layout_base.html:187
+msgid "Contact Us"
+msgstr "Neem contact op"
+
+#: ckan/templates/layout_base.html:190
+msgid "Privacy Policy"
+msgstr "Privacy beleid"
+
+#: ckan/templates/layout_base.html:201
+msgid "Credits"
+msgstr "Credits"
+
+#: ckan/templates/layout_base.html:204
+msgid ""
+"[1:]\n"
+"                An\n"
+"                [2:Open Knowledge Foundation] Project"
+msgstr ""
+"[1:]\n"
+"                Een\n"
+"                [2:Open Knowledge Foundation] Project"
+
+#: ckan/templates/layout_base.html:210
+msgid "Open Knowledge Foundation"
+msgstr "Open Knowledge Foundation"
+
+#: ckan/templates/layout_base.html:214 ckan/templates/layout_base.html:219
+msgid "This Content and Data is Open"
+msgstr "Deze content en Data is Open"
+
+#: ckan/templates/layout_base.html:236
+msgid "CKAN"
+msgstr "CKAN"
+
+#: ckan/templates/layout_base.html:237
+msgid "Powered by CKAN"
+msgstr "Aangedreven door CKAN"
+
+#: ckan/templates/layout_base.html:239
+#, python-format
+msgid "v%(version)s"
+msgstr "v%(version)s"
+
+#: ckan/templates/authorization_group/authz.html:5
+msgid "- Authorization - AuthorizationGroups"
+msgstr "- Autorisatie - Autoristatiegroepen"
+
+#: ckan/templates/authorization_group/authz.html:8
+msgid "Authorization for authorization group:"
+msgstr "Autorisatie voor autorisatie groep:"
+
+#: ckan/templates/authorization_group/authz.html:15
+#: ckan/templates/group/authz.html:15 ckan/templates/package/authz.html:15
+msgid "Update Existing Roles"
+msgstr "Bijwerken bestaande rollen"
+
+#: ckan/templates/authorization_group/authz.html:20
+msgid "Create New User or Authorization Group Roles"
+msgstr "Creeer nieuwe gebruiker of autorisatie groep rollen"
+
+#: ckan/templates/authorization_group/authz.html:25
+#: ckan/templates/authorization_group/edit_form.html:24
+#: ckan/templates/group/authz.html:25 ckan/templates/group/edit_form.html:23
+#: ckan/templates/package/authz.html:25
+#: ckan/templates/package/edit_form.html:29 ckan/templates/user/edit.html:33
+msgid "Save"
+msgstr "Bewaar"
+
+#: ckan/templates/authorization_group/edit.html:5
+msgid "- Edit - AuthorizationGroups"
+msgstr "- Aanpassen - Autorisatiegroepen"
+
+#: ckan/templates/authorization_group/edit.html:17
+msgid "Edit Authorization Group:"
+msgstr "Aanpassen Autorisatie Groep:"
+
+#: ckan/templates/authorization_group/edit_form.html:10
+msgid "Users"
+msgstr "Gebruikers"
+
+#: ckan/templates/authorization_group/edit_form.html:17
+msgid "There are no users currently in this group."
+msgstr "Er zijn geen gebruikers in deze groep"
+
+#: ckan/templates/authorization_group/index.html:11
+#, python-format
+msgid "There are [1:%(item_count)s] authorization groups."
+msgstr "Er zijn [1:%(item_count)s] autorisatie groepen"
+
+#: ckan/templates/authorization_group/layout.html:11
+#: ckan/templates/group/layout.html:26 ckan/templates/package/layout.html:11
+msgid "View"
+msgstr "Bekijk"
+
+#: ckan/templates/authorization_group/layout.html:13
+#: ckan/templates/group/layout.html:28 ckan/templates/package/layout.html:13
+msgid "Edit"
+msgstr "Bijwerk"
+
+#: ckan/templates/authorization_group/layout.html:16
+#: ckan/templates/group/layout.html:32 ckan/templates/package/layout.html:20
+msgid "Authorization"
+msgstr "Autorisatie"
+
+#: ckan/templates/authorization_group/layout.html:24
+msgid ""
+"Instead of specifying the privileges of specific users on a package or group,\n"
+"          you can also specify a set of users that will share the same rights. To do that, an    \n"
+"          [1:authorization group] can be set-up and users can be added to it."
+msgstr ""
+"In plaats van het specificeren van de rechten van bepaalde gebruikers op een package of groep,\n"
+"          is het ook mogelijk een groep gebruikers te benoemen die dezelfde rechten delen. Daarvoor, kan een    \n"
+"          [1:authorization group] worden opgesteld waaraan gebruikers kunnen worden toegevoegd."
+
+#: ckan/templates/authorization_group/layout.html:28
+msgid "To create a new authorization group, please first"
+msgstr "Om een nieuwe autorisatie groep aan te maken, gelieve eerst"
+
+#: ckan/templates/authorization_group/layout.html:29
+#: ckan/templates/group/layout.html:15
+msgid "login"
+msgstr "Inloggen"
+
+#: ckan/templates/authorization_group/layout.html:32
+msgid "Create a new authorization group"
+msgstr "Creeer een nieuwe autorisatie groep"
+
+#: ckan/templates/authorization_group/new.html:5
+msgid "New - Authorization Groups"
+msgstr "Nieuw - Autorisatie Groepen"
+
+#: ckan/templates/authorization_group/new.html:17
+msgid "New Authorization Group"
+msgstr "Nieuwe Autorisatie Groep"
+
+#: ckan/templates/authorization_group/read.html:6
+msgid "- Authorization Groups"
+msgstr "- Autorisatie Groepen"
+
+#: ckan/templates/authorization_group/read.html:15
+#: ckan/templates/group/read.html:24
+msgid "Administrators:"
+msgstr "Beheerders:"
+
+#: ckan/templates/authorization_group/read.html:21
+msgid "Users:"
+msgstr "Gebruikers:"
+
+#: ckan/templates/authorization_group/read.html:25
+#, python-format
+msgid "There are %(item_count)s users in this authorization group."
+msgstr "Er zijn %(item_count)s gebruikers in deze autorisatie groep"
+
+#: ckan/templates/group/authz.html:5
+msgid "- Authorization - Groups"
+msgstr "- Autorisatie - Groepen"
+
+#: ckan/templates/group/authz.html:8
+msgid "Authorization for group:"
+msgstr "Autorisatie voor groep:"
+
+#: ckan/templates/group/authz.html:20 ckan/templates/package/authz.html:20
+msgid "Create New User Roles"
+msgstr "Maak nieuwe gebruikersrollen"
+
+#: ckan/templates/group/edit.html:5
+msgid "- Edit - Groups"
+msgstr "- Aanpassen - Groepen"
+
+#: ckan/templates/group/edit.html:17
+msgid "Edit Group:"
+msgstr "Bijwerken groep"
+
+#: ckan/templates/group/edit_form.html:17
+msgid "There are no packages currently in this group."
+msgstr "Deze groep heeft geen packages."
+
+#: ckan/templates/group/history.html:5
+msgid "- Groups - History"
+msgstr "- Groepen - Historie"
+
+#: ckan/templates/group/history.html:13 ckan/templates/package/history.html:27
+msgid "Revisions"
+msgstr "Revisies"
+
+#: ckan/templates/group/history.html:19 ckan/templates/package/history.html:14
+#: ckan/templates/package/read_core.html:13
+#: ckan/templates/revision/list.html:11
+msgid "Subscribe »"
+msgstr "Abonneer »"
+
+#: ckan/templates/group/history.html:28 ckan/templates/package/history.html:33
+#: ckan/templates/package/new.html:35
+msgid "Error:"
+msgstr "Fout:"
+
+#: ckan/templates/group/history.html:36 ckan/templates/package/history.html:41
+#: ckan/templates/revision/read.html:5 ckan/templates/user/read.html:37
+msgid "Revision"
+msgstr "Revisie"
+
+#: ckan/templates/group/history.html:36 ckan/templates/package/history.html:41
+#: ckan/templates/revision/list.html:21 ckan/templates/user/read.html:37
+msgid "Timestamp"
+msgstr "Datum stempel"
+
+#: ckan/templates/group/history.html:36 ckan/templates/package/history.html:41
+#: ckan/templates/revision/list.html:21 ckan/templates/user/read.html:37
+msgid "Log Message"
+msgstr "Logboekbericht"
+
+#: ckan/templates/group/history.html:53 ckan/templates/package/history.html:58
+msgid "Compare »"
+msgstr "Vergelijk »"
+
+#: ckan/templates/group/history.html:58
+msgid "Group History"
+msgstr "Groep Historie"
+
+#: ckan/templates/group/index.html:6
+msgid "Groups of Data Packages"
+msgstr "Groep van Data Packages"
+
+#: ckan/templates/group/index.html:11
+#, python-format
+msgid "There are [1:%(item_count)s] groups."
+msgstr "Er zijn [1:%(item_count)s] groepen."
+
+#: ckan/templates/group/layout.html:11
+msgid "Groups section"
+msgstr "Groepen sectie"
+
+#: ckan/templates/group/layout.html:12
+msgid "Whilst tags are great at collecting packages together, there are occasions when you want to restrict users from editing a collection. A [1:group] can be set-up to specify which users have permission to add or remove packages from it."
+msgstr "Hoewel tags een uitstekende manier zijn om packages te groeperen is het soms handig een groep samen te stellen die niet vrij bewerkt kan worden. Een[1:groep] kan worden ingericht om om te specificeren welke gebruikers beheerdersrechten hebben."
+
+#: ckan/templates/group/layout.html:14
+msgid "To create a new group, please first"
+msgstr "Om een nieuwe groep te maken, eerst"
+
+#: ckan/templates/group/layout.html:18
+msgid "Create a new group"
+msgstr "Maak een nieuwe groep"
+
+#: ckan/templates/group/layout.html:30 ckan/templates/package/layout.html:18
+msgid "History"
+msgstr "Geschiedenis"
+
+#: ckan/templates/group/new.html:5
+msgid "New - Groups"
+msgstr "Nieuwe - Groepen"
+
+#: ckan/templates/group/new.html:17
+msgid "New Group"
+msgstr "Nieuwe groep"
+
+#: ckan/templates/group/read.html:6
+msgid "- Groups"
+msgstr "- Groepen"
+
+#: ckan/templates/group/read.html:12
+msgid "No Title"
+msgstr "Geen titel"
+
+#: ckan/templates/group/read.html:30
+msgid "Packages:"
+msgstr "Packages:"
+
+#: ckan/templates/group/read.html:31
+#, python-format
+msgid "There are %(item_count)s packages in this group."
+msgstr "Er zijn %(item_count)s packages in deze groep"
+
+#: ckan/templates/home/about.html:9
+msgid "About CKAN"
+msgstr "Over CKAN"
+
+#: ckan/templates/home/about.html:11
+msgid ""
+"CKAN is the Comprehensive Knowledge Archive Network, a [1:registry] of [2:open knowledge] packages and projects\n"
+"    (and a few closed ones)."
+msgstr ""
+"CKAN is het uitgebreide Kennis Archief Netwerk, een [1:register] van[2:open kennis] packages en projecten\n"
+"    (en een paar afgesloten projecten)."
+
+#: ckan/templates/home/about.html:15
+msgid ""
+"CKAN makes it easy to [1:find, share and reuse open\n"
+"      content and data], especially in ways that are machine\n"
+"      automatable."
+msgstr "CKAN maakt het gemakkelijk om [1:data te vinden, delen en hergebruiken], vooral op een computerleesbare wijze."
+
+#: ckan/templates/home/about.html:20
+msgid "As a system CKAN functions as a synthesis of several different services:"
+msgstr "CKAN functioneert als een systeem van samengevoegde services:"
+
+#: ckan/templates/home/about.html:22
+msgid "CKAN Features Overview"
+msgstr "CKAN functionaliteiten overzicht"
+
+#: ckan/templates/home/about.html:24
+msgid ""
+"As the diagram shows, CKAN combines the features of a listing/registry,\n"
+"\t\ta package index and a wiki. As a registry it acts like [1:freshmeat] but for open data and\n"
+"\t\tcontent resources. However it adds to a simple registry in key ways."
+msgstr ""
+"Zoals het diagram laat zien, combineert CKAN de eigenschappen van een listing/register,\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>een package index en een wiki. Als register werkt het als [1:freshmeat] maar dan voor open data en\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>content bronnen. Op enkele belangrijke manieren echter voegt het iets toe aan de werking van een simpel register."
+
+#: ckan/templates/home/about.html:29
+msgid ""
+"First, thanks to its underlying [1:versioned domain model] CKAN has a\n"
+"\t\twiki-like interface that lets anyone add and material held in it. Second,\n"
+"\t\tand unlike a wiki, CKAN can store 'structured' information, which allows it\n"
+"\t\tto provide 'index'-like features such as automated registration, discovery\n"
+"\t\tand installation of material. In this respect it behaves like [2:CPAN] or [3:PyPI] in the software world -- though\n"
+"\t\tagain for [4:open data and content]\n"
+"\t\tnot code."
+msgstr ""
+"Ten eerste, dankzij het [1:geversioneerde domein model] heeft CKAN een\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>wiki-achtige interface waarmee iedereen materiaal kan toevoegen. Ten tweede,\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>en niet zoals in een wiki, kan CKAN 'gestructureerde' informatie opslaan, waardoor het mogelijk is\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>'index'-achtige eigenschappen toe te voegen zoals geautomatiseerde registratie, ontdekking\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>en installatie van materiaal. In dit opzicht werkt het als [2:CPAN] or [3:PyPI] in de software wereld -- maar \n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>dan voor [4:open data en content]\n"
+"<span class=\"whitespace other\" title=\"Tab\">»</span><span class=\"whitespace other\" title=\"Tab\">»</span>niet voor code."
+
+#: ckan/templates/home/about.html:40
+msgid ""
+"More about CKAN, and the background to its creation can\n"
+"    be found in [1:these\n"
+"      slides]."
+msgstr ""
+"Meer over CKAN, en info over de totstandkoming is\n"
+"    te vinden in [1:deze\n"
+"      slides]."
+
+#: ckan/templates/home/about.html:46 ckan/templates/home/index.html:46
+msgid "API"
+msgstr "API"
+
+#: ckan/templates/home/about.html:48
+#, python-format
+msgid "In addition to use of this website, %(site_title)s data can be viewed and changed by using CKAN's Application Programming Interface (API)."
+msgstr "Naast het gebruiken van deze website, kan %(site_title)s data worden bekeken en veranderd via CKAN's Application Programming Interface (API)."
+
+#: ckan/templates/home/about.html:50
+msgid "The API takes the form of a RESTful (Representational State Transfer) style API for accessing CKAN database objects and a Search API."
+msgstr "De API is een RESTful (Representational State Transfer) style API voor toegang tot CKAN database objects en een Search API."
+
+#: ckan/templates/home/about.html:52
+msgid "For full details of accessing the API, see the documentation at: [1:http://knowledgeforge.net/ckan/doc/ckan/api.html]"
+msgstr "voor volledige specificties van de API, bekijk de documentatie op: [1:http://knowledgeforge.net/ckan/doc/ckan/api.html]"
+
+#: ckan/templates/home/about.html:55
+msgid "Who's Behind CKAN?"
+msgstr "Wie zitten er achter CKAN?"
+
+#: ckan/templates/home/about.html:57
+msgid ""
+"The CKAN software and site is developed and maintained by the [1:Open Knowledge Foundation]. Both the\n"
+"    CKAN code and data are open: [2:free for anyone to use\n"
+"      and reuse]. To find out more check out the the [3:CKAN project page] on the Open\n"
+"    Knowledge Foundation site."
+msgstr ""
+"De CKAN software en site wordt ontwikkeld en onderhouden door de [1:Open Knowledge Foundation]. Zowel de\n"
+"    CKAN code als data zijn open: [2:vrijelijk voor iedereen te gebruiken\n"
+"      of hergebruiken]. Meer informatie op de [3:CKAN project page] op de website van de Open\n"
+"    Knowledge Foundation."
+
+#: ckan/templates/home/about.html:64
+msgid "Contributors"
+msgstr "Bijdragen van:"
+
+#: ckan/templates/home/about.html:66
+msgid "Various people and projects have contributed to the development of CKAN including:"
+msgstr "Verscheidene mensen en projecten hebben bijgedragen aan de ontwikkeling van CKAN"
+
+#: ckan/templates/home/about.html:68
+msgid "Rufus Pollock"
+msgstr "Rufus Pollock"
+
+#: ckan/templates/home/about.html:69
+msgid "David Read"
+msgstr "David Read"
+
+#: ckan/templates/home/about.html:70
+msgid "Nick Stenning"
+msgstr "Nick Stenning"
+
+#: ckan/templates/home/about.html:70
+msgid "(css and js)"
+msgstr "(css en js)"
+
+#: ckan/templates/home/about.html:71
+msgid "John Bywater"
+msgstr "John Bywater"
+
+#: ckan/templates/home/about.html:72
+msgid "CKAN logo: \""
+msgstr "CKAN logo: \""
+
+#: ckan/templates/home/about.html:72
+msgid "angry"
+msgstr "boos"
+
+#: ckan/templates/home/about.html:72
+msgid "hamster"
+msgstr "Hamster"
+
+#: ckan/templates/home/about.html:73
+msgid "famfamfam.com for silk icons"
+msgstr "famfamfam.com voor silk icons"
+
+#: ckan/templates/home/about.html:74
+msgid "Pylons"
+msgstr "Pylons"
+
+#: ckan/templates/home/about.html:75
+msgid "Genshi"
+msgstr "Genshi"
+
+#: ckan/templates/home/index.html:43
+msgid "More information"
+msgstr "Meer informatie"
+
+#: ckan/templates/home/index.html:47
+msgid "User Guide"
+msgstr "Gebruikers Gids"
+
+#: ckan/templates/home/index.html:48
+msgid "Statistics"
+msgstr "Statistieken"
+
+#: ckan/templates/home/index.html:49
+msgid "CKAN development"
+msgstr "CKAN ontwikkeling"
+
+#: ckan/templates/home/index.html:55
+msgid "Welcome to"
+msgstr "Welkom!"
+
+#: ckan/templates/home/index.html:56
+#, python-format
+msgid ""
+"%(title)s is an\n"
+"      [1:open registry]\n"
+"      of data and content packages. Harnessing the CKAN software, this\n"
+"      site makes it easy to find, share and reuse content and data,\n"
+"      especially in ways that are machine automatable."
+msgstr ""
+"%(title)s is een\n"
+"      [1:open register]\n"
+"met verwijzingen naar datasets bij overheidsorganisaties. Het register is gebaseerd op CKAN software. Meer informatie over CKAN kunt u vinden onder Over. Op deze site kunt u verwijzingen naar datasets vinden wilt u een dataset toevoegen kunt u gebruik maken van het webformulier op http://data.overheid.nl"
+
+#: ckan/templates/home/index.html:64
+#, python-format
+msgid "[1:%(package_count)s registered data packages] available."
+msgstr "[1:%(package_count)s geregistreerde data packages] beschikbaar."
+
+#: ckan/templates/home/index.html:68
+msgid "Top Tags"
+msgstr "Meest gebruikte tags"
+
+#: ckan/templates/home/index.html:78
+msgid "Recently changed"
+msgstr "Onlangs aangepast"
+
+#: ckan/templates/home/index.html:83
+msgid "Time"
+msgstr "Tijd"
+
+#: ckan/templates/home/index.html:97
+msgid "View older changes »"
+msgstr "Bekijk oudere aanpassingen"
+
+#: ckan/templates/home/language.js:1
+msgid "var MSG_MORE_HELP = '"
+msgstr "var MSG_MORE_HELP = '"
+
+#: ckan/templates/home/language.js:1
+msgid "More &raquo;"
+msgstr "More &raquo;"
+
+#: ckan/templates/home/language.js:1
+msgid ""
+"';\n"
+"var MSG_ADD_ROW = '"
+msgstr ""
+"';\n"
+"var MSG_ADD_ROW = '"
+
+#: ckan/templates/home/language.js:2
+msgid "Add row to table"
+msgstr "Voeg rij aan tabel toe"
+
+#: ckan/templates/home/license.html:11
+msgid "Code"
+msgstr "Code"
+
+#: ckan/templates/home/license.html:12
+msgid ""
+"The CKAN code that runs this site is open-source and licensed under the [1:GNU Affero GPL\n"
+"      ]. It is hosted on [2:KnowledgeForge], and the project\n"
+"    home page is here: [3:http://knowledgeforge.net/project/ckan/]."
+msgstr ""
+"De CKAN code gebruikt in deze site is open-source en gelicentieerd onder [1:GNU Affero GPL\n"
+"      ]. De code is beschikbaar op [2:KnowledgeForge], en de project\n"
+"    home page is te vinden op: [3:http://knowledgeforge.net/project/ckan/]."
+
+#: ckan/templates/home/license.html:21
+msgid "Content and Data"
+msgstr "Content en Data"
+
+#: ckan/templates/home/license.html:22
+msgid ""
+"All material on this site is [1:open] and can be freely used, reused\n"
+"    and redistributed. Formally, the data/database is licensed under the [2:Open Data Commons Open\n"
+"      Database License v1.0], with all copyrightable content in that\n"
+"    database plus any additional content on this site licensed under a [3:Creative Commons\n"
+"      Attribution Share-Alike v3.0 license]."
+msgstr ""
+"Al het materiaal op deze site is [1:open] en kan vrijelijk worden gebruikt, hergebruikt\n"
+"    en geredistribueerd. Formeel, is de data/database gelicentieerd onder de [2:Open Data Commons Open\n"
+"      Database License v1.0], waarbij alle auteursrechtelijk beschermde content in deze\n"
+"    database plus alle overige content op deze site is gelicentieerd onder een [3:Creative Commons\n"
+"      Attribution Share-Alike v3.0 licentie]."
+
+#: ckan/templates/home/license.html:30
+msgid "For convenience, all material - including all package, tag and revision information - is available in bulk, in the form of a full dump of the CKAN database. This (gzipped) dump file is updated daily and can be downloaded from [1:http://www.ckan.net/dump/]."
+msgstr "Voor het gemak, is al het materiaal - inclusief alle package, tags en revisie informatie - beschikbaar in bulk, in de vorm van een volledige dump van de CKAN database. Dit (gzipped) dump bestand word dagelijks bijgewerkt en kan worden gedownload van [1:http://www.ckan.net/dump/]."
+
+#: ckan/templates/package/authz.html:5
+msgid "- Authorization - Data Packages"
+msgstr "- Autorisatie - Data Packages"
+
+#: ckan/templates/package/authz.html:8
+msgid "Authorization for Data Package:"
+msgstr "Autorisatie voor Data Package"
+
+#: ckan/templates/package/comments.html:5
+#: ckan/templates/package/history.html:5
+msgid "- Data Packages - History"
+msgstr "- Data Packages - Historie"
+
+#: ckan/templates/package/edit.html:6
+msgid "- Edit - Data Packages"
+msgstr "- Edit - Data Packages"
+
+#: ckan/templates/package/edit.html:21
+msgid "Edit Data Package:"
+msgstr "Data Package aanpassen:"
+
+#: ckan/templates/package/edit.html:23 ckan/templates/user/edit.html:15
+msgid "(skip to preview)"
+msgstr "(sping naar preview)"
+
+#: ckan/templates/package/edit.html:30 ckan/templates/package/new.html:29
+#: ckan/templates/user/edit.html:40
+msgid "Preview"
+msgstr "Preview"
+
+#: ckan/templates/package/edit_form.html:13
+msgid "Edit summary (briefly describe the changes you have made)"
+msgstr "Samenvatting (korte omschrijving van de wijzigingen)"
+
+#: ckan/templates/package/edit_form.html:17
+#: ckan/templates/package/edit_form.html:20
+#: ckan/templates/revision/read.html:12
+msgid "Author:"
+msgstr "Auteur:"
+
+#: ckan/templates/package/edit_form.html:21
+msgid "Since you have not signed in this will just be your IP address."
+msgstr "Aangezien je niet bent ingelogd is dit je IP adres"
+
+#: ckan/templates/package/edit_form.html:23
+msgid "Click here to sign in"
+msgstr "Hier inloggen"
+
+#: ckan/templates/package/edit_form.html:23
+msgid "before saving (opens in new window)."
+msgstr "Voor opslaan (opent in nieuw scherm)"
+
+#: ckan/templates/package/edit_form.html:33
+msgid "Important:"
+msgstr "Belangrijk:"
+
+#: ckan/templates/package/edit_form.html:33
+msgid ""
+"By submitting content, you agree to release your contributions\n"
+"        under the open license specified on the"
+msgstr ""
+"Door het toevoegen van content, gaat u akkoord met het\n"
+"        verspreiden van de content onder de open licentie"
+
+#: ckan/templates/package/edit_form.html:34
+msgid "license page"
+msgstr "licentie pagina"
+
+#: ckan/templates/package/edit_form.html:35
+msgid ". Please"
+msgstr ". Alstublieft"
+
+#: ckan/templates/package/edit_form.html:35
+msgid "refrain"
+msgstr "onderneem geen"
+
+#: ckan/templates/package/edit_form.html:35
+msgid "from editing this page if you are"
+msgstr "wijzigingen in deze pagina als u zich"
+
+#: ckan/templates/package/edit_form.html:35
+msgid "not"
+msgstr "niet"
+
+#: ckan/templates/package/edit_form.html:35
+msgid "happy to do this."
+msgstr "prettig voelt dit te doen."
+
+#: ckan/templates/package/form.html:7
+msgid "Errors in form"
+msgstr "Fouten in formulier"
+
+#: ckan/templates/package/form.html:8
+msgid "The form contains invalid entries:"
+msgstr "Het formulier bevat onjuiste informatie:"
+
+#: ckan/templates/package/form_extra_fields.html:12
+msgid "New key"
+msgstr "Nieuwe sleutel"
+
+#: ckan/templates/package/form_extra_fields.html:22
+msgid "Delete"
+msgstr "Verwijderen"
+
+#: ckan/templates/package/form_extra_fields.html:26
+msgid "with value"
+msgstr "met waarde"
+
+#: ckan/templates/package/history.html:10
+msgid "Updates"
+msgstr "Updates"
+
+#: ckan/templates/package/history.html:24
+msgid "- History"
+msgstr "- Historie"
+
+#: ckan/templates/package/history.html:63 ckan/templates/package/read.html:120
+msgid "Package History"
+msgstr "Package geschiedenis"
+
+#: ckan/templates/package/layout.html:16
+msgid "Comments & Quesitons"
+msgstr "Reacties & Vragen"
+
+#: ckan/templates/package/new.html:6
+msgid "New - Data Packages"
+msgstr "Nieuwe - Data Packages"
+
+#: ckan/templates/package/new.html:25
+msgid "Register a New Data Package"
+msgstr "Registreer een nieuw Data Package"
+
+#: ckan/templates/package/read.html:6
+msgid "- Data Packages"
+msgstr "- Data Packages"
+
+#: ckan/templates/package/read.html:11
+msgid "First time at"
+msgstr "Eerste keer op"
+
+#: ckan/templates/package/read.html:13
+msgid "is a catalogue for data."
+msgstr "is een catalogus voor data."
+
+#: ckan/templates/package/read.html:13
+msgid "Click here to find out more ..."
+msgstr "Klik hier voor meer informatie ..."
+
+#: ckan/templates/package/read.html:34
+msgid "Groups are collecitons of packages maintained by users of"
+msgstr "Groepen zijn verzamelingen van packages die worden beheerd door de gebruikers van"
+
+#: ckan/templates/package/read.html:35
+msgid ". This package has not been added to any groups yet."
+msgstr ". Dit package is nog niet toegevoegd aan een groep."
+
+#: ckan/templates/package/read.html:44
+msgid "Related packages"
+msgstr "Gerelateerde packages"
+
+#: ckan/templates/package/read.html:59
+msgid "Openness:"
+msgstr "Openheid"
+
+#: ckan/templates/package/read.html:61
+msgid "OPEN"
+msgstr "OPEN"
+
+#: ckan/templates/package/read.html:64
+msgid "NOT OPEN"
+msgstr "NIET OPEN"
+
+#: ckan/templates/package/read.html:70
+msgid "This package is licensed with"
+msgstr "Deze package heeft de licentie"
+
+#: ckan/templates/package/read.html:78
+msgid "License not given"
+msgstr "Licentie niet beschikbaar"
+
+#: ckan/templates/package/read.html:95
+msgid "Help Make This Package Open!"
+msgstr "Help met het Open maken van deze package!"
+
+#: ckan/templates/package/read.html:96
+msgid ""
+"This package is [1:not open] as it is\n"
+"      [2:not openly licensed] or is\n"
+"      [3:missing downloadable resources]. Help\n"
+"      make it open by \n"
+"        [4:starting an enquiry]\n"
+"        using the\n"
+"        [5:Is It Open\n"
+"          Data service]."
+msgstr ""
+"Deze package is [1:niet open] in deze vorm\n"
+"      [2:heeft geen open licentie] of er\n"
+"      [3:ontbreken downloadbare bronnen]. Help\n"
+"      het open te maken door \n"
+"        [4:een aanvraag in te dienen]\n"
+"        met de\n"
+"        [5:Is het Open\n"
+"          Data service]."
+
+#: ckan/templates/package/read.html:115
+msgid "RDF Version"
+msgstr "RDF versie"
+
+#: ckan/templates/package/read_core.html:20
+msgid "Source:"
+msgstr "Bron:"
+
+#: ckan/templates/package/read_core.html:32
+msgid "Downloads & Resources"
+msgstr "Downloads & Bronnen"
+
+#: ckan/templates/package/read_core.html:37
+msgid "Format"
+msgstr "Formaat"
+
+#: ckan/templates/package/read_core.html:38
+msgid "Hash"
+msgstr "Hash"
+
+#: ckan/templates/package/read_core.html:48
+msgid "Download"
+msgstr "Download"
+
+#: ckan/templates/package/read_core.html:48
+msgid "(no description)"
+msgstr "(Geen beschrijving)"
+
+#: ckan/templates/package/read_core.html:56
+msgid "This is a list of all known formats and datasets for"
+msgstr "Dit is een lijst van alle bekende formaten en datasets voor"
+
+#: ckan/templates/package/read_core.html:57
+msgid ". If you know of another (CSV, SPARQL end-point etc.)"
+msgstr ""
+
+#: ckan/templates/package/read_core.html:60
+msgid "None given for this package."
+msgstr "Niet ingevuld voor deze package."
+
+#: ckan/templates/package/read_core.html:78
+msgid "About this package"
+msgstr "Over dit package"
+
+#: ckan/templates/package/read_core.html:106
+msgid "Something missing?"
+msgstr "Ontbreekt er iets?"
+
+#: ckan/templates/package/read_core.html:113
+msgid "API / datapkg"
+msgstr "API / datapkg"
+
+#: ckan/templates/package/read_core.html:115
+msgid "This information on this page (the package metadata) is also available programatically via this site's"
+msgstr ""
+
+#: ckan/templates/package/read_core.html:116
+msgid "CKAN API"
+msgstr ""
+
+#: ckan/templates/package/read_core.html:118
+msgid "JSON:"
+msgstr "JSON:"
+
+#: ckan/templates/package/read_core.html:128
+msgid "RDF:"
+msgstr "RDF:"
+
+#: ckan/templates/package/read_core.html:131
+msgid "The information on this page and the downloads / resources are also available using the"
+msgstr "De informatie op deze pagina en de downloads / bronnen zijn ook beschikbaar via de"
+
+#: ckan/templates/package/read_core.html:133
+msgid "datapkg command line utility"
+msgstr "datapkg command line utility"
+
+#: ckan/templates/package/read_core.html:135
+msgid "Information about this package:"
+msgstr "Informatie over deze package:"
+
+#: ckan/templates/package/read_core.html:136
+msgid "$ datapkg info ckan://"
+msgstr "$ datapkg info ckan://"
+
+#: ckan/templates/package/read_core.html:137
+msgid "Download:"
+msgstr "Download:"
+
+#: ckan/templates/package/read_core.html:138
+msgid "$ datapkg download ckan://"
+msgstr "$ datapkg download ckan://"
+
+#: ckan/templates/package/read_core.html:144
+msgid "State:"
+msgstr "Status:"
+
+#: ckan/templates/package/resources.html:2
+msgid "Someresources"
+msgstr "Enkele bronnen"
+
+#: ckan/templates/package/search.html:9
+msgid "Search -"
+msgstr "Zoek -"
+
+#: ckan/templates/package/search.html:15
+msgid "Do you know of a dataset that should be added to"
+msgstr "Ken jij een dataset die zou moeten worden toegevoegd aan"
+
+#: ckan/templates/package/search.html:22
+msgid "Register it now"
+msgstr "Registreer nu"
+
+#: ckan/templates/package/search.html:40
+msgid ""
+"[1:There was an error while searching.] \n"
+"            Please try another search term."
+msgstr ""
+"[1:Er was een foutmelding tijdens het zoeken.] \n"
+"Probeer het eens met een andere zoekterm."
+
+#: ckan/templates/package/search.html:44
+#, python-format
+msgid "[1:%(item_count)s] packages found"
+msgstr "[1:%(item_count)s] packages gevonden"
+
+#: ckan/templates/package/search.html:47
+msgid "Would you like to [1:create a new package?]"
+msgstr "Wilt u [1:een nieuwe package maken?]"
+
+#: ckan/templates/package/search_form.html:15
+msgid "Filter by"
+msgstr "Filteren op"
+
+#: ckan/templates/package/search_form.html:15
+msgid "packages with open licenses"
+msgstr "packages met open licenties"
+
+#: ckan/templates/package/search_form.html:16
+msgid "packages with downloads"
+msgstr "packages met downloads"
+
+#: ckan/templates/revision/common.html:20
+msgid "Purge"
+msgstr "Verwijderen"
+
+#: ckan/templates/revision/common.html:20
+msgid "Are you sure?"
+msgstr "Ben je zeker?"
+
+#: ckan/templates/revision/diff.html:5
+msgid "Differences - Revisions"
+msgstr "Verschillen - revisies"
+
+#: ckan/templates/revision/diff.html:8
+msgid "Revision Differences -"
+msgstr "Revisie verschillen - "
+
+#: ckan/templates/revision/diff.html:20
+msgid "From:"
+msgstr "Van:"
+
+#: ckan/templates/revision/diff.html:24
+msgid "To:"
+msgstr "Tot:"
+
+#: ckan/templates/revision/diff.html:31
+msgid "Field"
+msgstr "Veld"
+
+#: ckan/templates/revision/diff.html:31
+msgid "Difference"
+msgstr "Verschil"
+
+#: ckan/templates/revision/diff.html:39
+msgid "No differences"
+msgstr "Geen verschil"
+
+#: ckan/templates/revision/list.html:14
+msgid ""
+"This page lists all changes to package database, with most recent\n"
+"    changes first."
+msgstr ""
+"Deze pagina toont alle veranderingen in de packages databaes, met de meest recente\n"
+"     wijzigingen eerst."
+
+#: ckan/templates/revision/list.html:21
+msgid "Number"
+msgstr "Aantal"
+
+#: ckan/templates/revision/list.html:21
+msgid "Entity"
+msgstr "Entiteit"
+
+#: ckan/templates/revision/purge.html:5
+msgid "Purge - Revisions"
+msgstr "Verwijder - Revisies"
+
+#: ckan/templates/revision/purge.html:8
+msgid "Revision Purge"
+msgstr "Revisie verwijderen"
+
+#: ckan/templates/revision/purge.html:9
+msgid "There was an error:"
+msgstr "Er is een probleem opgetreden:"
+
+#: ckan/templates/revision/purge.html:10
+msgid "Purge successful."
+msgstr "Verwijderen geslaagd"
+
+#: ckan/templates/revision/read.html:8
+msgid "Revision:"
+msgstr "Revisie:"
+
+#: ckan/templates/revision/read.html:15
+msgid "Timestamp:"
+msgstr "Tijdsstempel"
+
+#: ckan/templates/revision/read.html:17
+msgid "Log Message:"
+msgstr "Logboekbericht:"
+
+#: ckan/templates/revision/read.html:20
+msgid "Changes"
+msgstr "Veranderingen"
+
+#: ckan/templates/revision/read.html:30
+msgid "Packages' Tags"
+msgstr "Tags van package"
+
+#: ckan/templates/revision/read.html:33
+msgid "Package -"
+msgstr "Package -"
+
+#: ckan/templates/revision/read.html:34
+msgid ""
+",\n"
+"      Tag -"
+msgstr ""
+",\n"
+"      Tag -"
+
+#: ckan/templates/tag/index.html:20 ckan/templates/tag/index.html:23
+msgid "There are"
+msgstr "Er zijn"
+
+#: ckan/templates/tag/index.html:21
+msgid "results for ‘"
+msgstr "resultaten voor"
+
+#: ckan/templates/tag/index.html:24
+msgid "results for tags."
+msgstr "resultaten voor tags"
+
+#: ckan/templates/tag/index.html:34
+msgid "Clear search"
+msgstr "verwijder zoekopdracht"
+
+#: ckan/templates/tag/index.html:34
+msgid "and see all tags."
+msgstr "en bekijk alle tags"
+
+#: ckan/templates/tag/read.html:6
+msgid "- Tags"
+msgstr "- Tags"
+
+#: ckan/templates/tag/read.html:9
+msgid "Tag:"
+msgstr "Tag:"
+
+#: ckan/templates/tag/read.html:10
+#, python-format
+msgid "There are %(package_count)s packages tagged with [1:%(tagname)s]:"
+msgstr "Er zijn %(package_count)s packages getagged met [1:%(tagname)s]:"
+
+#: ckan/templates/user/apikey.html:5
+msgid "API Key -"
+msgstr "API Key -"
+
+#: ckan/templates/user/apikey.html:5 ckan/templates/user/read.html:7
+msgid "- User"
+msgstr "- User"
+
+#: ckan/templates/user/apikey.html:8
+msgid "API Key"
+msgstr "API key"
+
+#: ckan/templates/user/apikey.html:9
+msgid "Your API key is:"
+msgstr "Uw API key is:"
+
+#: ckan/templates/user/edit.html:6
+msgid "- Edit - User"
+msgstr "- Edit - Gebruiker"
+
+#: ckan/templates/user/edit.html:13
+msgid "Edit User:"
+msgstr "Bijwerken gebruiker:"
+
+#: ckan/templates/user/edit.html:22 ckan/templates/user/edit.html:41
+msgid "Full name:"
+msgstr "Volledige naam:"
+
+#: ckan/templates/user/edit.html:25
+msgid "E-Mail:"
+msgstr "E-Mail:"
+
+#: ckan/templates/user/edit.html:28
+msgid "About user:"
+msgstr "Over gebruiker:"
+
+#: ckan/templates/user/edit.html:30
+msgid "You can use [1:Markdown formatting] here."
+msgstr "U kunt hier van [1:Markdown vormgeving] gebruik maken."
+
+#: ckan/templates/user/login_form.html:5
+#: ckan/templates/user/openid_form.html:18
+msgid "Login - User"
+msgstr "Gebruiker inloggen"
+
+#: ckan/templates/user/login_form.html:8
+#: ckan/templates/user/openid_form.html:21
+msgid "Login"
+msgstr "Inloggen"
+
+#: ckan/templates/user/login_form.html:9
+msgid "Please login now."
+msgstr "Logt u alstublieft in."
+
+#: ckan/templates/user/login_form.html:12
+msgid "Username:"
+msgstr "Gebruikersnaam:"
+
+#: ckan/templates/user/login_form.html:14
+msgid "Password:"
+msgstr "Wachtwoord:"
+
+#: ckan/templates/user/logout.html:5
+msgid "Logout - User"
+msgstr "Afmelden - Gebruiker"
+
+#: ckan/templates/user/logout.html:9
+msgid "You have logged out successfully."
+msgstr "U bent succesvol uitgelogd."
+
+#: ckan/templates/user/openid_form.html:27
+msgid "Login using Open ID"
+msgstr "Inloggen met Open ID"
+
+#: ckan/templates/user/openid_form.html:29
+msgid "Please click your account provider:"
+msgstr "Kies uw account leverancier"
+
+#: ckan/templates/user/openid_form.html:37
+msgid ""
+"OpenID is service that allows you to log-on to many different websites using a single identity.\n"
+"    Find out [1:more about OpenID] and [2:how to get an OpenID enabled account]."
+msgstr "OpenID is een dienst die het mogelijk maakt op allerlei verschillende websites in te loggen met een enkele identiteit. Lees [1:meer over OpenID] en [2:hoe je met OpenID een login aanmaakt]."
+
+#: ckan/templates/user/openid_form.html:43
+msgid "Don't have an OpenID?"
+msgstr "Heeft u geen OpenID?"
+
+#: ckan/templates/user/openid_form.html:44
+msgid ""
+"OpenID is service that allows you to log-on to many different websites\n"
+"      using a single identity. Find out [1:more\n"
+"      about OpenID] and [2:how to get an\n"
+"      OpenID enabled account]. Probably the simplest way is sign up with a\n"
+"      free OpenID provider such as [3:https://www.myopenid.com/]."
+msgstr "OpenID is een dienst die het mogelijk maakt op allerlei verschillende websites in te loggen met een enkele identiteit. Lees [1:meer over OpenID] en [2:hoe je met OpenID een login aanmaakt]. Een makkelijke manier is om je te registreren bij een gratis OpenID provider zoals [3:https://www.myopenid.com/]."
+
+#: ckan/templates/user/read.html:11
+msgid "User:"
+msgstr "Gebruiker:"
+
+#: ckan/templates/user/read.html:13
+msgid "My Account"
+msgstr "Mijn account"
+
+#: ckan/templates/user/read.html:15
+msgid "You are logged in."
+msgstr "U bent ingelogd."
+
+#: ckan/templates/user/read.html:17
+msgid "View your API key"
+msgstr "Bekijk uw API Key"
+
+#: ckan/templates/user/read.html:18
+msgid "Edit your profile"
+msgstr "Verander uw profiel"
+
+#: ckan/templates/user/read.html:19
+msgid "Log out"
+msgstr "Uitloggen"
+
+#: ckan/templates/user/read.html:28
+msgid "Activity"
+msgstr "Activiteit"
+
+#: ckan/templates/user/read.html:30
+msgid "Number of edits:"
+msgstr "Aantal wijzigen:"
+
+#: ckan/templates/user/read.html:31
+msgid "Number of packages administered:"
+msgstr "Aantal packages die worden beheerd:"
+
+#: ckan/templates/user/read.html:34
+msgid "Recent changes"
+msgstr "Recente veranderingen"

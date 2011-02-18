@@ -1,4 +1,5 @@
 import cli
+from collections import defaultdict
 
 class CreateTestData(cli.CkanCommand):
     '''Create test data in the database.
@@ -87,9 +88,14 @@ class CreateTestData(cli.CkanCommand):
         '''Creates packages and a few extra objects as well at the
         same time if required.
         @param package_dicts - a list of dictionaries with the package
-                               properties
+                               properties.
+                               Extra keys allowed:
+                               "admins" - list of user names to make admin
+                                          for this package.
         @param extra_group_names - a list of group names to create. No
                                properties get set though.
+        @param admins - a list of user names to make admins of all the
+                               packages created.                           
         '''
         assert isinstance(relationships, (list, tuple))
         assert isinstance(extra_user_names, (list, tuple))
@@ -103,7 +109,7 @@ class CreateTestData(cli.CkanCommand):
         rev.author = self.author
         rev.message = u'Creating test packages.'
         
-        admins_list = [] # list of (package_name, admin_names)
+        admins_list = defaultdict(list) # package_name: admin_names
         if package_dicts:
             if isinstance(package_dicts, dict):
                 package_dicts = [package_dicts]
@@ -147,6 +153,7 @@ class CreateTestData(cli.CkanCommand):
                                 self.tag_names.append(tag_name)
                                 model.Session.add(tag)    
                             pkg.tags.append(tag)
+                            model.Session.flush()
                     elif attr == 'groups':
                         if isinstance(val, (str, unicode)):
                             group_names = val.split()
@@ -168,16 +175,17 @@ class CreateTestData(cli.CkanCommand):
                     elif attr == 'extras':
                         pkg.extras = val
                     elif attr == 'admins':
-                        # Todo: Use admins parameter to pass in admins (three tests).
                         assert isinstance(val, list)
-                        admins_list.append((item['name'], val))
+                        admins_list[item['name']].extend(val)
                         for user_name in val:
                             if user_name not in new_user_names:
                                 new_user_names.append(user_name)
                     else:
                         raise NotImplementedError(attr)
                 self.pkg_names.append(item['name'])
-                model.setup_default_user_roles(pkg, admins=admins)
+                model.setup_default_user_roles(pkg, admins=[])
+                for admin in admins:
+                    admins_list[item['name']].append(admin)
             model.repo.commit_and_remove()
 
         needs_commit = False
@@ -201,11 +209,22 @@ class CreateTestData(cli.CkanCommand):
                 self.user_names.append(user_name)
                 needs_commit = True
 
+        if needs_commit:
+            model.repo.commit_and_remove()
+            needs_commit = False
+
         # setup authz for admins
-        for pkg_name, admins in admins_list:
+        for pkg_name, admins in admins_list.items():
             pkg = model.Package.by_name(unicode(pkg_name))
-            admins = [model.User.by_name(unicode(user_name)) for user_name in self.user_names]
-            model.setup_default_user_roles(pkg, admins)
+            admins_obj_list = []
+            for admin in admins:
+                if isinstance(admin, model.User):
+                    admin_obj = admin
+                else:
+                    admin_obj = model.User.by_name(unicode(admin))
+                assert admin_obj, admin
+                admins_obj_list.append(admin_obj)
+            model.setup_default_user_roles(pkg, admins_obj_list)
             needs_commit = True
 
         # setup authz for groups just created
@@ -365,6 +384,8 @@ left arrow <
         model.setup_default_user_roles(david, [russianfan])
         model.setup_default_user_roles(roger, [russianfan])
         model.add_user_to_role(visitor, model.Role.ADMIN, roger)
+        testsysadmin = model.User.by_name(u'testsysadmin')
+        model.add_user_to_role(testsysadmin, model.Role.ADMIN, model.System())
 
         model.repo.commit_and_remove()
 
@@ -396,6 +417,7 @@ left arrow <
                 model.Session.execute(sql)
         model.repo.commit_and_remove()
         for pkg_name in self.pkg_names:
+            model.Session().autoflush = False
             pkg = model.Package.by_name(unicode(pkg_name))
             if pkg:
                 pkg.purge()
@@ -413,6 +435,7 @@ left arrow <
                 pkg.purge()
             for grp in rev.groups:
                 grp.purge()
+            model.Session.commit()
             model.Session.delete(rev)
         for user_name in self.user_names:
             user = model.User.by_name(unicode(user_name))
@@ -536,10 +559,13 @@ family_items = [{'name':u'abraham', 'title':u'Abraham'},
                 {'name':u'beer', 'title':u'Beer'},
                 {'name':u'bart', 'title':u'Bart'},
                 {'name':u'lisa', 'title':u'Lisa'},
+                {'name':u'marge', 'title':u'Marge'},
                 ]
 family_relationships = [('abraham', 'parent_of', 'homer'),
                         ('homer', 'parent_of', 'bart'),
                         ('homer', 'parent_of', 'lisa'),
+                        ('marge', 'parent_of', 'lisa'),
+                        ('marge', 'parent_of', 'bart'),
                         ('homer_derived', 'derives_from', 'homer'),
                         ('homer', 'depends_on', 'beer'),
                         ]
@@ -566,7 +592,7 @@ gov_items = [
         'update_frequency':'annually',
         'geographic_granularity':'regional',
         'geographic_coverage':'100000: England',
-        'department':'Department for Children, Schools and Families',
+        'department':'Department for Education',
         'temporal_granularity':'years',
         'temporal_coverage-from':'2008-6',
         'temporal_coverage-to':'2009-6',
@@ -598,7 +624,7 @@ gov_items = [
         'temporal_granularity':'weeks',
         'temporal_coverage-from':'2008-11-24',
         'temporal_coverage-to':'2009-11-24',
-        'national_statistic':'yes',
+        'national_statistic':'no',
         'import_source':'DECC-Jan-09',
         }
      }

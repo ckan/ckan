@@ -50,6 +50,7 @@ class TestRead(TestPackageBase):
 class TestEdit(TestPackageBase):
     @classmethod
     def setup_class(self):
+        model.repo.init_db()
         model.Session.add(model.User(name=u'testadmin'))
         model.repo.commit_and_remove()
 
@@ -57,7 +58,6 @@ class TestEdit(TestPackageBase):
     def teardown_class(self):
         model.Session.remove()
         model.repo.rebuild_db()
-
 
     def test_edit_bad_name(self):
         init_data = [{'name':'edittest',
@@ -399,14 +399,18 @@ class TestNew(TestPackageBase):
     pkgname = u'testpkg'
 
     @classmethod
+    def setup_class(self):
+        CreateTestData.create()        
+
+    @classmethod
     def teardown_class(self):
-        model.Session.remove()
         pkg = model.Package.by_name(self.pkgname)
         if pkg:
             pkg.purge()
         model.Session.commit()
         model.Session.remove()
-
+        model.repo.rebuild_db()
+        
     def test_new_simple(self):
         # new package
         prefix = 'Package--'

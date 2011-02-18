@@ -14,35 +14,31 @@ setup(
     author='Open Knowledge Foundation',
     author_email='info@okfn.org',
     license=__license__,
-    url='http://knowledgeforge.net/ckan/',
+    url='http://ckan.org/',
     description=__description__,
     keywords='data packaging component tool server',
     long_description =__long_description__,
     install_requires=[
         'routes>=1.9,<=1.11.99',
-        'vdm>=0.6,<0.8.99',
-        'ckanclient>=0.1,<0.5.99',
+        'vdm>=0.9,<0.9.99',
+        'ckanclient>=0.1,<0.6.99',
         'Pylons>=0.9.7.0,<0.9.7.99',
         'Genshi>=0.6,<0.6.99',
-        'SQLAlchemy>=0.4.8,<=0.4.99',
+        'SQLAlchemy>=0.6,<0.6.99',
         'repoze.who>=1.0.0,<1.0.99',
         'repoze.who.plugins.openid>=0.5.3',
+        'repoze.who-friendlyform>=1.0.8',
         'pyutilib.component.core>=4.1,<4.1.99',
         # uuid in python >= 2.5
         # 'uuid>=1.0',
         # for open licenses
         'licenses==0.4,<0.6.99',
-        # last version to work with sqlalchemy < 0.5 
-        'sqlalchemy-migrate==0.4.5',
+        'sqlalchemy-migrate==0.6',
         # latest version of Routes (1.10) depends on webob in middleware but
         # does not declare the dependency!
         # (not sure we need this except in tests but ...)
         'WebOb',
         'FormAlchemy>=1.3.4',
-        'carrot>=0.10.5',
-        'blinker>=1.0',
-        'xlrd>=0.7.1',
-        'xlwt>=0.7.2',
         ## required for harvesting
         ## TODO: this could be removed if harvesting moved to worker
         'lxml',
@@ -55,12 +51,20 @@ setup(
     package_data={'ckan': ['i18n/*/LC_MESSAGES/*.mo']},
     message_extractors = {'ckan': [
             ('**.py', 'python', None),
-            ('templates/_util.html', 'ignore', None),
             ('templates/importer/**', 'ignore', None),
             ('templates/**.html', 'genshi', None),
+            ('templates/**.js', 'genshi', {
+                'template_class': 'genshi.template:TextTemplate'
+            }),
+            ('templates/**.txt', 'genshi', {
+                'template_class': 'genshi.template:TextTemplate'
+            }),
             ('public/**', 'ignore', None),
             ]},
     entry_points="""
+    [nose.plugins.0.10]
+    main = ckan.ckan_nose_plugin:CkanNose
+
     [paste.app_factory]
     main = ckan.config.middleware:make_app
 
@@ -69,7 +73,6 @@ setup(
 
     [paste.paster_command]
     db = ckan.lib.cli:ManageDb
-    load = ckan.lib.cli:Load
     create-test-data = ckan.lib.create_test_data:CreateTestData
     sysadmin = ckan.lib.cli:Sysadmin
     search-index = ckan.lib.cli:SearchIndexCommand
@@ -77,9 +80,11 @@ setup(
     changes = ckan.lib.cli:Changes
     notifications = ckan.lib.cli:Notifications
     harvester = ckan.lib.cli:Harvester
-
+    rights = ckan.lib.authztool:RightsCommand
+    roles = ckan.lib.authztool:RolesCommand
+    
     [paste.paster_create_template]
-    ckan_plugin=ckan.pastertemplates:CkanextPluginTemplate
+    ckanext=ckan.pastertemplates:CkanextTemplate
 
     [ckan.forms]
     standard = ckan.forms.package:get_standard_fieldset
@@ -90,7 +95,6 @@ setup(
 
     [ckan.search]
     sql = ckan.lib.search.sql:SqlSearchBackend
-    solr = ckan.lib.search.solr_:SolrSearchBackend
 
     [ckan.plugins]
     synchronous_search = ckan.lib.search.worker:SynchronousSearchPlugin

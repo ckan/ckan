@@ -1,7 +1,11 @@
 .. toctree::
    :hidden:
 
-.. include:: top.rst.inc
+.. include:: title.rst.inc
+.. include:: purpose.rst.inc
+.. include:: overview.rst.inc
+.. include:: interfaces2.rst.inc
+.. include:: location.rst.inc
 
 Model API
 ---------
@@ -18,14 +22,6 @@ Search API
 .. include:: search_resources.rst.inc
 .. include:: search_methods.rst.inc
 .. include:: search_formats.rst.inc
-
-Form API
---------
-
-.. include:: form_preamble.rst.inc
-.. include:: form_resources.rst.inc
-.. include:: form_methods.rst.inc
-.. include:: form_formats.rst.inc
 
 .. include:: bottom.rst.inc
 
@@ -88,7 +84,7 @@ This URL:
 
 ::
 
-    /api/2/util/tag/autocomplete?incomplete=title=ru
+    /api/2/util/tag/autocomplete?incomplete=ru
 
 Returns:
 

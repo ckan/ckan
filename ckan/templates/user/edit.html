@@ -6,7 +6,7 @@
   <py:def function="page_title">${c.user} - Edit - User</py:def>
 
   <py:def function="optional_head">
-    <link rel="stylesheet" href="/css/forms.css" type="text/css" media="screen, print" />
+    <link rel="stylesheet" href="${g.site_url}/css/forms.css" type="text/css" media="screen, print" />
   </py:def>
 
   <div py:match="content">
@@ -15,19 +15,31 @@
       <a href="#preview" py:if="c.preview">(skip to preview)</a>
     </h2>
 
-    <form id="user-edit" action="" method="post"
+    <form id="user-edit" action="" method="post" class="simple-form" 
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       >
-      <label for="fullname">Full name:</label>
-      <input name="fullname" value="${c.user_fullname}" />
-      <br/>
-      <label for="email">E-Mail:</label>
-      <input name="email" value="${c.user_email}" />
-      <br/>
+      <fieldset>
+        <legend>Base details</legend>
+        <label for="fullname">Full name:</label>
+        <input name="fullname" value="${c.user_fullname}" /><br/>
+         
+        <label for="email">E-Mail:</label>
+        <input name="email" value="${c.user_email}" /><br/>
+      </fieldset>
+      <fieldset>
+        <legend>Change your password</legend>
+        <label for="password1">Password:</label>
+        <input name="password1" value="" />
+        <br/>
+        <label for="password2">Password (repeat):</label>
+        <input name="password2" value="" />
+        <br/>
+      </fieldset>
       <label for="about">About user:</label>
       <textarea id="about" rows="5" name="about" cols="60">${c.user_about}</textarea>
       <p class="small" i18n:msg="">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.</p>
+
       <div>
         <input name="preview" type="submit" value="Preview" />
         ${h.submit('save', _('Save'))}

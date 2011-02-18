@@ -4,13 +4,13 @@ from ckan.lib.cache import ckan_cache
 from ckan.lib.helpers import json
 import ckan.model as model
 import ckan
-from ckan.plugins import ExtensionPoint, IPackageController
+from ckan.plugins import PluginImplementations, IPackageController
 
 log = __import__("logging").getLogger(__name__)
 
 class PackageController(RestController):
 
-    extensions = ExtensionPoint(IPackageController)
+    extensions = PluginImplementations(IPackageController)
 
     @ckan_cache(test=model.Package.last_modified, query_args=True)
     def list(self):
@@ -35,16 +35,21 @@ class PackageController(RestController):
         """
         pkg = self._get_pkg(id)
         if pkg is None:
-            response.status_int = 404
-            response_data = json.dumps(_('Not found'))
+            response_args = {'status_int': 404,
+                             'content_type': 'json',
+                             'response_data': _('Not found')}
         elif not self._check_access(pkg, model.Action.READ):
-            response.status_int = 403
-            response_data = json.dumps(_('Access denied'))
+            response_args = {'status_int': 403,
+                             'content_type': 'json',
+                             'response_data': _('Access denied')}
         else:
             response_data = self._represent_package(pkg)
+            response_args = {'status_int': 200,
+                             'content_type': 'json',
+                             'response_data': response_data}
         for item in self.extensions:
             item.read(pkg)
-        return self._finish_ok(response_data)
+        return self._finish(**response_args)
     
     def create(self):
         if not self._check_access(model.System(), model.Action.PACKAGE_CREATE):
@@ -64,8 +69,8 @@ class PackageController(RestController):
             if not validation:
                 # Complain about validation errors.
                 log.error('Validation error: %r' % repr(fs.errors))
-                response.status_int = 409
-                response.write(json.dumps(repr(fs.errors)))
+                response.write(self._finish(409, repr(fs.errors),
+                                            content_type='json'))
             else:
                 try:
                     # Construct new revision.
@@ -88,8 +93,9 @@ class PackageController(RestController):
                     location = str('%s/%s' % (request.path, obj.id))
                     response.headers['Location'] = location
                     log.debug('Response headers: %r' % (response.headers))
-                    # Todo: Return 201, not 200.
-                    response.write(self._finish_ok(obj.as_dict()))
+                    response.write(self._finish_ok(
+                        obj.as_dict(),
+                        newly_created_resource_location=location))
                 except Exception, inst:
                     log.exception(inst)
                     model.Session.rollback()
@@ -122,8 +128,8 @@ class PackageController(RestController):
                 fs = fs.bind(entity, data=request_fa_dict)
                 validation = fs.validate()
                 if not validation:
-                    response.status_int = 409
-                    response.write(json.dumps(repr(fs.errors)))
+                    response.write(self._finish(409, repr(fs.errors),
+                                                content_type='json'))
                 else:
                     try:
                         rev = model.repo.new_revision()
