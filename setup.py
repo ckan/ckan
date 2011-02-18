@@ -24,7 +24,13 @@ setup(
     },
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
-    package_data={'ckan': ['i18n/*/LC_MESSAGES/*.mo']},
+    package_data={'ckan': [
+        'i18n/*/LC_MESSAGES/*.mo',
+        'migration/migrate.cfg',
+        'migration/README',
+        'migration/tests/test_dumps/*',
+        'migration/versions/*',
+    ]},
     message_extractors = {'ckan': [
             ('**.py', 'python', None),
             ('templates/importer/**', 'ignore', None),
