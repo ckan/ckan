@@ -908,7 +908,7 @@ class CheckboxExtraField(TextExtraField):
         @property
         def raw_value(self):
             extras = self.model.extras
-            return bool(extras.get(self.name) == u'yes')
+            return u'yes' if extras.get(self.name) == u'yes' else u'no'
 
         def sync(self):
             if not self.is_readonly():
@@ -918,12 +918,12 @@ class CheckboxExtraField(TextExtraField):
     class CheckboxExtraRenderer(formalchemy.fields.CheckBoxFieldRenderer):
         def render(self, **kwargs):
             kwargs['size'] = '40'
-            return fa_h.check_box(self.name, True, checked=self.value, **kwargs)
-            return fa_h.text_field(self.name, value=self.value, maxlength=self.length, **kwargs)
+            bool_value = (self.value == u'yes')
+            return fa_h.check_box(self.name, u'yes', checked=bool_value, **kwargs)
+            return fa_h.text_field(self.name, value=bool_value, maxlength=self.length, **kwargs)
 
         def render_readonly(self, **kwargs):
-            value = u'yes' if self.value else u'no'
-            return field_readonly_renderer(self.field.key, value)
+            return field_readonly_renderer(self.field.key, self.value)
 
 
 class PackageNameField(ConfiguredField):

@@ -624,7 +624,7 @@ gov_items = [
         'temporal_granularity':'weeks',
         'temporal_coverage-from':'2008-11-24',
         'temporal_coverage-to':'2009-11-24',
-        'national_statistic':'yes',
+        'national_statistic':'no',
         'import_source':'DECC-Jan-09',
         }
      }
