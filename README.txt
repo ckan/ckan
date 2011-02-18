@@ -98,13 +98,9 @@ tests. See: http://buildbot.okfn.org/waterfall
 
    ::
 
-       wget https://bitbucket.org/okfn/ckan/raw/default/pip-requirements.txt
-
-   Or for the 'metastable' branch (used for most server installs):
-
-   ::
-
-       wget https://bitbucket.org/okfn/ckan/raw/default/pip-requirements-metastable.txt
+       wget https://bitbucket.org/okfn/ckan/raw/default/requires/lucid_missing.txt
+       wget https://bitbucket.org/okfn/ckan/raw/default/requires/lucid_conflict.txt
+       wget https://bitbucket.org/okfn/ckan/raw/default/requires/lucid_present.txt
 
    Install all the dependencies listed in the requirements file by running the
    command below in your activated shell (adjusting the filename as necessary 
@@ -112,7 +108,9 @@ tests. See: http://buildbot.okfn.org/waterfall
 
    ::
 
-       pip install -r pip-requirements.txt
+       pip install -r lucid_missing.txt
+       pip install -r lucid_conflict.txt 
+       pip install -r lucid_present.txt
 
    This will take a **long** time. Particularly the install of the ``lxml``
    package.

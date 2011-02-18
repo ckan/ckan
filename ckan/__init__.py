@@ -14,3 +14,12 @@ Those familiar with freshmeat or CPAN can think of CKAN as providing an
 analogous service for open knowledge. 
 '''
 __license__ = 'AGPL'
+
+try:
+    # Ths automatically modifies sys.path so that the CKAN versions of
+    # key dependencies are used instead of the ones already installed.
+    import ckan_deps
+except ImportError:
+    # This installation of CKAN probably isn't using the ckan_deps
+    pass
+
