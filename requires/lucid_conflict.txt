@@ -8,6 +8,7 @@ Babel>=0.9.5
 Genshi>=0.6,<0.6.99
 sqlalchemy-migrate==0.6
 sqlalchemy==0.6.6
+webhelpers==1.2
 
 #+-e hg+https://formalchemy.googlecode.com/hg/#egg=formalchemy
 

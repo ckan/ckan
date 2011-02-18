@@ -92,7 +92,7 @@ tests. See: http://buildbot.okfn.org/waterfall
 
 4. Install CKAN code and required Python packages into the new environment
 
-   Next you'll need to install CKAN. For the latest version run:
+   First you'll need to install CKAN. For the latest version run:
 
    ::
 
@@ -107,7 +107,16 @@ tests. See: http://buildbot.okfn.org/waterfall
    The ``--ignore-installed`` option ensures ``pip`` installs software into
    this virtual environment even if it is already present on the system.
 
-   If you are not using Ubuntu Lucid you'll also need to install all the
+   If you are using Ubuntu Lucid you can install the rest of the dependencies
+   from the system versions like this:
+
+   ::
+
+       sudo apt-get install python-psycopg2 python-lxml python-sphinx 
+       sudo apt-get install python-pylons python-formalchemy python-repoze.who
+       sudo apt-get install python-repoze.who-plugins python-tempita python-zope.interface
+       
+   If you are not using Ubuntu Lucid you'll still need to install all the
    dependencies that would have been met in the ``apt-get install`` command
    at the start. You can do so like this:
 
@@ -287,6 +296,13 @@ Now start the tests:
 
     cd pyenv/src/ckan
     nosetests ckan/tests --ckan
+
+You *must* run the tests from the CKAN directory as shown above, otherwise the
+``--ckan`` plugin won't work correctly.
+
+Also, if you want to test any CKAN extensions, you must still run them from the
+main CKAN directory, but specify a different path for the tests instead of
+``ckan/tests``.
 
 .. caution ::
 
