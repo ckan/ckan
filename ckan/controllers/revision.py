@@ -38,7 +38,8 @@ class RevisionController(BaseController):
             for revision in revision_query:
                 package_indications = []
                 revision_changes = model.repo.list_changes(revision)
-                package_resource_revisions = revision_changes[model.Resource]
+                resource_revisions = revision_changes[model.Resource]
+                resource_group_revisions = revision_changes[model.ResourceGroup]
                 package_extra_revisions = revision_changes[model.PackageExtra]
                 for package in revision.packages:
                     number = len(package.all_revisions)
@@ -55,9 +56,13 @@ class RevisionController(BaseController):
                         transition = 'created'
                     else:
                         transition = 'updated'
-                        for package_resource_revision in package_resource_revisions:
-                            if package_resource_revision.package_id == package.id:
+                        for resource_revision in resource_revisions:
+                            if resource_revision.continuity.resource_group.package_id == package.id:
                                 transition += ':resources'
+                                break
+                        for resource_group_revision in resource_group_revisions:
+                            if resource_group_revision.package_id == package.id:
+                                transition += ':resource_group'
                                 break
                         for package_extra_revision in package_extra_revisions:
                             if package_extra_revision.package_id == package.id:

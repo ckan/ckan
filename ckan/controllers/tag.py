@@ -46,7 +46,7 @@ class TagController(BaseController):
         query = query.filter(model.Tag.name==id)
         query = query.options(eagerload_all('package_tags.package'))
         query = query.options(eagerload_all('package_tags.package.package_tags.tag'))
-        query = query.options(eagerload_all('package_tags.package.package_resources_all'))
+        query = query.options(eagerload_all('package_tags.package.resource_groups_all.resources_all'))
         c.tag = query.first()
         if c.tag is None:
             abort(404)

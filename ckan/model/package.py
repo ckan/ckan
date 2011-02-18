@@ -47,6 +47,12 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     
     text_search_fields = ['name', 'title']
 
+    def __init__(self, **kw):
+        from ckan import model
+        super(Package, self).__init__(**kw)
+        resource_group = model.ResourceGroup(label="default")
+        self.resource_groups.append(resource_group)
+
     @classmethod
     def search_by_name(cls, text_query):
         text_query = text_query
@@ -57,12 +63,19 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         '''Returns a package object referenced by its id or name.'''
         query = Session.query(cls).filter(cls.id==reference)
         query = query.options(eagerload_all('package_tags.tag'))
-        query = query.options(eagerload_all('package_resources_all'))
+        query = query.options(eagerload_all('resource_groups_all.resources_all'))
         pkg = query.first()
         if pkg == None:
             pkg = cls.by_name(reference)            
         return pkg
     # Todo: Make sure package names can't be changed to look like package IDs?
+
+    @property
+    def resources(self):
+        assert len(self.resource_groups) == 1, "can only use resources on packages if there is only one resource_group"
+
+        return self.resource_groups[0].resources
+    
 
     def update_resources(self, res_dicts, autoflush=True):
         '''Change this package\'s resources.
@@ -86,6 +99,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                     index_to_res[i] = res
         # Edit resources and create the new ones
         new_res_list = []
+
         for i, res_dict in enumerate(res_dicts):
             if i in index_to_res:
                 res = index_to_res[i]
@@ -98,12 +112,12 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                         del res_dict[key]
                 res = resource.Resource(**res_dict)
             new_res_list.append(res)
-        self.resources = new_res_list
+        self.resource_groups[0].resources = new_res_list
 
     def add_resource(self, url, format=u'', description=u'', hash=u'', **kw):
         import resource
         self.resources.append(resource.Resource(
-            package_id=self.id,
+            resource_group_id=self.resource_groups[0].id,
             url=url,
             format=format,
             description=description,
@@ -315,18 +329,28 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                                            revision])
                 Ordered by most recent first.
         '''
+        from tag import PackageTag
+        from resource import ResourceGroup, Resource
+        from package_extra import PackageExtra
+
         results = {} # revision:[PackageRevision1, PackageTagRevision1, etc.]
         for pkg_rev in self.all_revisions:
             if not results.has_key(pkg_rev.revision):
                 results[pkg_rev.revision] = []
             results[pkg_rev.revision].append(pkg_rev)
-        for class_ in get_revisioned_classes_related_to_package():
+        for class_ in [ResourceGroup, Resource, PackageExtra, PackageTag]:
             rev_class = class_.__revision_class__
-            obj_revisions = Session.query(rev_class).filter_by(package_id=self.id).all()
+            if class_ == Resource:
+                q = Session.query(rev_class).join('continuity',
+                                                  'resource_group')
+                obj_revisions = q.filter(ResourceGroup.package_id == self.id).all()
+            else:
+                obj_revisions = Session.query(rev_class).filter_by(package_id=self.id).all()
             for obj_rev in obj_revisions:
                 if not results.has_key(obj_rev.revision):
                     results[obj_rev.revision] = []
                 results[obj_rev.revision].append(obj_rev)
+
         result_list = results.items()
         ourcmp = lambda rev_tuple1, rev_tuple2: \
                  cmp(rev_tuple2[0].timestamp, rev_tuple1[0].timestamp)
@@ -341,25 +365,38 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     def diff(self, to_revision=None, from_revision=None):
         '''Overrides the diff in vdm, so that related obj revisions are
         diffed as well as PackageRevisions'''
-        import package_extra, resource
+        from tag import PackageTag
+        from resource import ResourceGroup, Resource
+        from package_extra import PackageExtra
+
         results = {} # field_name:diffs
         results.update(super(Package, self).diff(to_revision, from_revision))
         # Iterate over PackageTag, PackageExtra, Resources etc.
-        for obj_class in get_revisioned_classes_related_to_package():
+        for obj_class in [ResourceGroup, Resource, PackageExtra, PackageTag]:
             obj_rev_class = obj_class.__revision_class__
             # Query for object revisions related to this package            
-            obj_rev_query = Session.query(obj_rev_class).\
-                            filter_by(package_id=self.id).\
-                            join('revision').\
-                            order_by(Revision.timestamp.desc())
+            if obj_class == Resource:
+                obj_rev_query = Session.query(obj_rev_class).\
+                                join('continuity', 'resource_group').\
+                                join('revision').\
+                                filter(ResourceGroup.package_id == self.id).\
+                                order_by(Revision.timestamp.desc())
+            else:
+                obj_rev_query = Session.query(obj_rev_class).\
+                                filter_by(package_id=self.id).\
+                                join('revision').\
+                                order_by(Revision.timestamp.desc())
             # Columns to include in the diff
             cols_to_diff = obj_class.revisioned_fields()
             cols_to_diff.remove('id')
-            cols_to_diff.remove('package_id')
+            if obj_class is Resource:
+                cols_to_diff.remove('resource_group_id')
+            else:
+                cols_to_diff.remove('package_id')
             # Particular object types are better known by an invariant field
-            if obj_class.__name__ == 'PackageTag':
+            if obj_class is PackageTag:
                 cols_to_diff.remove('tag_id')
-            elif obj_class.__name__ == 'PackageExtra':
+            elif obj_class is PackageExtra:
                 cols_to_diff.remove('key')
             # Iterate over each object ID
             # e.g. for PackageTag, iterate over Tag objects
@@ -402,7 +439,10 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                  model.package_relationship_table.c.revision_id == model.revision_table.c.id, *where),
             and_(model.package_relationship_table.c.object_package_id == model.package_table.c.id,
                  model.package_relationship_table.c.revision_id == model.revision_table.c.id, *where),
-            and_(model.resource_table.c.package_id == model.package_table.c.id,
+            and_(model.resource_group_table.c.package_id == model.package_table.c.id,
+                 model.resource_group_table.c.revision_id == model.revision_table.c.id, *where),
+            and_(model.resource_group_table.c.package_id == model.package_table.c.id,
+                 model.resource_table.c.resource_group_id == model.resource_group_table.c.id,
                  model.resource_table.c.revision_id == model.revision_table.c.id, *where),
             and_(model.package_tag_table.c.package_id == model.package_table.c.id,
                  model.package_tag_table.c.revision_id == model.revision_table.c.id, *where)
@@ -455,10 +495,4 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
         return fields
 
-def get_revisioned_classes_related_to_package():
-    import resource
-    import package_extra
-    import tag
-    return [tag.PackageTag, resource.Resource,
-            package_extra.PackageExtra]
 

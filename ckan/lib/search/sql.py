@@ -154,7 +154,7 @@ class PackageSqlSearchQuery(SqlSearchQuery):
             
         # Filter for options
         if self.options.filter_by_downloadable:
-            q = q.join('package_resources_all', aliased=True)
+            q = q.join('resource_groups_all', 'resources_all', aliased=True)
             q = q.filter(sqlalchemy.and_(
                 model.Resource.state==model.State.ACTIVE,
                 model.Resource.package_id==model.Package.id))
