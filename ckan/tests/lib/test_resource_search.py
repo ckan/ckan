@@ -1,10 +1,12 @@
 from webob.multidict import UnicodeMultiDict, MultiDict
+from nose.tools import assert_raises, assert_equal
 
 from ckan.tests import *
 from ckan.tests import is_search_supported
 from ckan.lib.search import get_backend, QueryOptions
 from ckan import model
 from ckan.lib.create_test_data import CreateTestData
+from ckan.lib.search.common import SearchError
 
 class TestSearch(object):
     @classmethod
@@ -21,16 +23,23 @@ class TestSearch(object):
                  {'url':self.ab,
                   'description':'This is site ab.',
                   'format':'Excel spreadsheet',
-                  'hash':'abc-123'},
+                  'hash':'abc-123',
+                  'alt_url': 'alt1',
+                  'extras':{'size': '100'},
+                  },
                  {'url':self.cd,
                   'description':'This is site cd.',
                   'format':'Office spreadsheet',
-                  'hash':'qwe-456'},
+                  'hash':'qwe-456',
+                  'alt_url':'alt2',
+                  'extras':{'size':'200'},
+                  },
                  ]             
              },
             {'name':'pkg2',
              'resources':[
                  {'url':self.cd,
+                  'alt_url': 'alt1',
                   'description':'This is site cd.'},
                  {'url':self.ef,
                   'description':'This is site ef.'},
@@ -112,9 +121,9 @@ class TestSearch(object):
         res_dict = result['results'][0]
         assert isinstance(res_dict, dict)
         res_keys = set(res_dict.keys())
-        expected_res_keys = model.PackageResource.get_columns() + \
-                            ['id', 'package_id', 'position']
-        assert res_keys == set(expected_res_keys), res_keys
+        expected_res_keys = set(model.PackageResource.get_columns())
+        expected_res_keys.update(['id', 'package_id', 'position', 'size'])
+        assert_equal(res_keys, expected_res_keys)
         pkg1 = model.Package.by_name(u'pkg1')
         ab = pkg1.resources[0]
         assert res_dict['id'] == ab.id
@@ -161,3 +170,20 @@ class TestSearch(object):
         resources = result['results']
         assert len(resources) == 2, resources
         assert resources == all_resources[4:6]
+
+    def test_14_extra_info(self):
+
+        fields = {'alt_url':'alt1'}
+        result = self.backend.query_for(model.PackageResource).run(fields=fields)
+        assert result['count'] == 2, result
+
+        fields = {'alt_url':'alt2'}
+        result = self.backend.query_for(model.PackageResource).run(fields=fields)
+        assert result['count'] == 1, result
+
+        # Document that resource extras not in ckan.extra_resource_fields
+        # can't be searched
+        fields = {'size':'100'}
+        assert_raises(SearchError, self.backend.query_for(model.PackageResource).run, fields=fields)
+
+

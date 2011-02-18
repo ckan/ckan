@@ -19,6 +19,8 @@ class GroupController(BaseController):
         from ckan.lib.helpers import Page
 
         query = ckan.authz.Authorizer().authorized_query(c.user, model.Group)
+        query = query.order_by(model.Group.name.asc())
+        query = query.order_by(model.Group.title.asc())
         query = query.options(eagerload_all('packages'))
         c.page = Page(
             collection=query,
@@ -33,7 +35,7 @@ class GroupController(BaseController):
             abort(404)
         auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, c.group)
         if not auth_for_read:
-            abort(401, gettext('Not authorized to read %s') % id.encode('utf8'))
+            abort(401, _('Not authorized to read %s') % id.encode('utf8'))
         
         import ckan.misc
         format = ckan.misc.MarkdownFormat()
@@ -57,7 +59,7 @@ class GroupController(BaseController):
         
         auth_for_create = self.authorizer.am_authorized(c, model.Action.GROUP_CREATE, model.System())
         if not auth_for_create:
-            abort(401, gettext('Unauthorized to create a group'))
+            abort(401, _('Unauthorized to create a group'))
         
         is_admin = self.authorizer.is_sysadmin(c.user)
         fs = ckan.forms.get_group_fieldset(is_admin=is_admin)
@@ -111,7 +113,7 @@ class GroupController(BaseController):
             abort(404, '404 Not Found')
         am_authz = self.authorizer.am_authorized(c, model.Action.EDIT, group)
         if not am_authz:
-            abort(401, gettext('User %r not authorized to edit %r') % (c.user, id))
+            abort(401, _('User %r not authorized to edit %r') % (c.user, id))
             
         auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, group)
         
@@ -158,13 +160,13 @@ class GroupController(BaseController):
     def authz(self, id):
         c.group = model.Group.by_name(id)
         if c.group is None:
-            abort(404, gettext('Group not found'))
+            abort(404, _('Group not found'))
         c.groupname = c.group.name
-        c.grouptitle = c.group.title
+        c.grouptitle = c.group.display_name
 
         c.authz_editable = self.authorizer.am_authorized(c, model.Action.EDIT_PERMISSIONS, c.group)
         if not c.authz_editable:
-            abort(401, gettext('Not authorized to edit authorization for group'))
+            abort(401, _('Not authorized to edit authorization for group'))
 
         if 'save' in request.params: # form posted
             # needed because request is nested
@@ -257,7 +259,7 @@ class GroupController(BaseController):
 
         c.group = model.Group.by_name(id)
         if not c.group:
-            abort(404, gettext('Group not found'))
+            abort(404, _('Group not found'))
         format = request.params.get('format', '')
         if format == 'atom':
             # Generate and return Atom 1.0 document.
@@ -265,7 +267,8 @@ class GroupController(BaseController):
             feed = Atom1Feed(
                 title=_(u'CKAN Group Revision History'),
                 link=h.url_for(controller='group', action='read', id=c.group.name),
-                description=_(u'Recent changes to CKAN Package: ') + (c.group.title or ''),
+                description=_(u'Recent changes to CKAN Group: ') +
+                    c.group.display_name,
                 language=unicode(get_lang()),
             )
             for revision, obj_rev in c.group.all_related_revisions:

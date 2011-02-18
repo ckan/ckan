@@ -2,12 +2,11 @@
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
   
-  <py:def function="page_title">${c.group.title or c.group.name} - Groups - History</py:def>
+  <py:def function="page_title">${c.group.display_name} - Groups - History</py:def>
 
   <div py:match="content" class="group">
     <h2 class="head">
-      ${c.group.title}
-      <span class="name">(${c.group.name})</span>
+      ${c.group.display_name}
     </h2>
 
     <h3>

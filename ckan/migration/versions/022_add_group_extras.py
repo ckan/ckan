@@ -30,10 +30,10 @@ class JsonType(types.TypeDecorator):
 def make_uuid():
     return unicode(uuid.uuid4())
 
-metadata = MetaData()
 
 
 def upgrade(migrate_engine):
+    metadata = MetaData()
     metadata.bind = migrate_engine
 
     group_table = Table('group', metadata, autoload=True)

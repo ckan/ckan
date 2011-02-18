@@ -36,30 +36,38 @@ tests. See: http://buildbot.okfn.org/waterfall
    =====================  ===============================================
 
    For ubuntu you can install these like so:
-
+   
    ::
-
+   
        sudo apt-get install build-essential libxml2-dev libxslt-dev 
        sudo apt-get install wget mercurial postgresql libpq-dev 
        sudo apt-get install python-dev python-psycopg2 python-virtualenv
-
+   
 2. Create a python virtual environment
-
+   
    In your home directory run the command below. It is currently important to
    call your virtual environment ``pyenv`` so that the automated deployment tools
    work correctly.
-
+   
    ::
-
+   
        cd ~
-       virtualenv --no-site-packages pyenv
-
+       virtualenv pyenv
+   
    .. tip ::
-
+   
        If you don't have a ``python-virtualenv`` package in your distribution
        you can get a ``virtualenv.py`` script from within the 
        `virtualenv source distribution <http://pypi.python.org/pypi/virtualenv/>`_
        and then run ``python virtualenv.py pyenv`` instead.
+   
+       To help with automatically installing CKAN dependencies we use a tool
+       called ``pip``. Make sure you have activated your environment (see step 3)
+       and then install it from an activated shell like this:
+   
+       ::
+   
+           easy_install pip
    
 3. Activate your virtual environment
 
@@ -84,38 +92,40 @@ tests. See: http://buildbot.okfn.org/waterfall
 
 4. Install CKAN code and required Python packages into the new environment
 
-   To help with automatically installing CKAN dependencies we use a tool
-   called ``pip``. Make sure you have activated your environment (see step 3)
-   and then install it from an activated shell like this:
+   Next you'll need to install CKAN. For the latest version run:
 
    ::
 
-       easy_install pip
+       pip install --ignore-installed -e hg+http://bitbucket.org/okfn/ckan#egg=ckan
 
-   The ``pip`` command will now be available in your virtual environment.
-
-   Next you'll need a requirements file. For the latest version run:
+   CKAN has a set of dependencies it requires which you should install too:
 
    ::
 
-       wget https://bitbucket.org/okfn/ckan/raw/default/pip-requirements.txt
+       pip install --ignore-installed -r pyenv/src/ckan/requires/lucid_missing.txt -r pyenv/src/ckan/requires/lucid_conflict.txt
 
-   Or for the 'metastable' branch (used for most server installs):
+   The ``--ignore-installed`` option ensures ``pip`` installs software into
+   this virtual environment even if it is already present on the system.
 
-   ::
-
-       wget https://bitbucket.org/okfn/ckan/raw/default/pip-requirements-metastable.txt
-
-   Install all the dependencies listed in the requirements file by running the
-   command below in your activated shell (adjusting the filename as necessary 
-   for the version you are using):
+   If you are not using Ubuntu Lucid you'll also need to install all the
+   dependencies that would have been met in the ``apt-get install`` command
+   at the start. You can do so like this:
 
    ::
 
-       pip install -r pip-requirements.txt
-
+       pip install --ignore-installed -r pyenv/src/ckan/requires/lucid_present.txt
+   
    This will take a **long** time. Particularly the install of the ``lxml``
    package.
+
+   At this point you will need to deactivate and then re-activate your
+   virtual environment to ensure that all the scripts point to the correct
+   locations:
+
+   ::
+   
+       deactivate
+       . pyenv/bin/activate
 
 5. Setup a PostgreSQL database
 
@@ -245,12 +255,30 @@ If you ever want to upgrade to a more recent version of CKAN, read the
 Test
 ====
 
-Make sure you've created a config file: pyenv/ckan/development.ini 
+Make sure you've created a config file: ``pyenv/ckan/development.ini``
 
 Ensure you have activated the environment:
 
 ::
 
+    . pyenv/bin/activate
+
+
+Install nose into your virtual environment if you haven't already (otherwise
+CKAN may use the system's ``nosetests`` and complain about missing dependencies
+such as ``babel``):
+
+::
+
+    pip install --ignore-installed nose
+
+At this point you will need to deactivate and then re-activate your
+virtual environment to ensure that all the scripts point to the correct
+locations:
+
+::
+
+    deactivate
     . pyenv/bin/activate
 
 Now start the tests:
@@ -262,12 +290,16 @@ Now start the tests:
 
 .. caution ::
 
-  By default, the test run is 'quick and dirty' - only good enough as a check before commit coding. Instead of using PostgreSQL the tests use an in-memory Sqlite database, which causes two problems:
+   By default, the test run is 'quick and dirty' - only good enough as a check
+   before commit coding. Instead of using PostgreSQL the tests use an in-memory
+   SQLite database, which causes two problems:
 
-    1. In production you have to PostgreSQL, so any subtleties of this are missed
-    2. The search system relies on PostgreSQL, so these (50 or so) tests are skipped.
+       1. In production you have to PostgreSQL, so any subtleties of this are missed
+       2. The search system relies on PostgreSQL, so these (50 or so) tests are skipped.
 
-  So when working on search, or doing changes closely related to the database, it is wise to test against PostgreSQL - see the next section on Configuring Tests.
+   So when working on search, or doing changes closely related to the database,
+   it is wise to test against PostgreSQL - see the next section on Configuring
+   Tests.
 
 
 Configuring tests
@@ -283,6 +315,11 @@ The test suite takes a long time to run against standard PostgreSQL (approx. 15 
 
 This can be improved to between 5 and 15 minutes by running PostgreSQL in memory and turning off durability, as described at <http://www.postgresql.org/docs/9.0/static/non-durability.html>. 
 
+If there is a database migration in your changeset then run the following::
+
+    nosetests ckan/tests --ckan --ckan-migrate --with-pylons=test-core.ini
+
+This will run all the tests as though the database has been upgraded from scratch and is the most thorough way of testing.  It will take around 20 minutes. 
 
 Development
 ===========

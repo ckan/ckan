@@ -10,14 +10,14 @@ def _test_anna():
     
 class Test_0_Empty(TestMigrationBase):
     @classmethod
-    def setup_class(self):
-        self.paster('db clean')
-        self.paster('db upgrade')
-        self.paster('db init')
-        self.paster('create-test-data')
+    def setup_class(cls):
+        cls.paster('db clean')
+        cls.paster('db upgrade')
+        cls.paster('db init')
+        cls.paster('create-test-data')
 
     @classmethod
-    def teardown_class(self):
+    def teardown_class(cls):
         from ckan import model
         model.Session.close()
 
@@ -30,15 +30,15 @@ class Test_0_Empty(TestMigrationBase):
 
 class Test_1_BasicData(TestMigrationBase):
     @classmethod
-    def setup_class(self):
-        self.setup_db(os.path.join(TEST_DUMPS_PATH, 'test_data_16.pg_dump'))
+    def setup_class(cls):
+        cls.setup_db(os.path.join(TEST_DUMPS_PATH, 'test_data_16.pg_dump'))
         # This dump was created on a v.16 repo with something like this:
         # $ paster db clean && paster db init && paster create-test-data
         # $ export PGPASSWORD=pass&&pg_dump -U tester -D ckantest -h localhost > ../ckan/ckan/migration/tests/test_dumps/test_data_16.pg_dump
-        self.paster('db upgrade')
+        cls.paster('db upgrade')
 
     @classmethod
-    def teardown_class(self):
+    def teardown_class(cls):
         from ckan import model
         model.Session.close()
 

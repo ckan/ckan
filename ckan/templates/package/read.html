@@ -17,7 +17,7 @@
     <li class="widget-container widget_text">
         <h3>Tags</h3>
         ${tag_list(c.pkg.tags)}
-        <p class="widget_action">
+        <p class="widget_action" py:if="h.am_authorized(c, actions.EDIT, c.pkg)">
             ${h.subnav_link(c, 'Add a new Tag', controller='package', action='edit', id=c.pkg.name)}
         </p>
     </li>
@@ -26,15 +26,15 @@
         <h3>Groups</h3>
         <py:if test="c.pkg.groups">        
             <ul>
-              <li py:for="group in c.pkg.groups">
-                  <a href="${h.url_for(controller='group', action='read', id=group.name)}">${group.name}</a>
+              <li py:for="group in sorted(c.pkg.groups, key=lambda g: g.display_name)">
+                  <a href="${h.url_for(controller='group', action='read', id=group.name)}">${group.display_name}</a>
               </li>
             </ul>
         </py:if>
         <py:if test="not c.pkg.groups">
              Groups are collections of packages maintained by users of ${g.site_title}. This package has not been added to any groups yet.
         </py:if>
-        <p class="widget_action">
+        <p class="widget_action" py:if="h.am_authorized(c, actions.EDIT, c.pkg)">
             ${h.subnav_link(c, 'Add to a Group', controller='package', action='edit', id=c.pkg.name)}        
         </p>
     </li>
