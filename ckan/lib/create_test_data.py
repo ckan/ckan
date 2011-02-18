@@ -79,6 +79,7 @@ class CreateTestData(cli.CkanCommand):
             model.Session.add(tester)
             model.Session.commit()
         model.Session.remove()
+        print 'Created user %s with apikey %s' % ('tester', 'tester')
         cls.user_names = [u'tester']
 
     @classmethod
