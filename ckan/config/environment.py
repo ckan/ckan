@@ -100,7 +100,9 @@ def load_environment(global_conf, app_conf):
 
     # Setup the SQLAlchemy database engine
     engine = engine_from_config(config, 'sqlalchemy.', pool_threadlocal=True)
-    model.init_model(engine)
+
+    if not model.meta.engine:
+        model.init_model(engine)
     
     from ckan.plugins import PluginImplementations
     from ckan.plugins.interfaces import IConfigurable
