@@ -290,19 +290,14 @@ locations:
     deactivate
     . pyenv/bin/activate
 
-Now start the tests:
-
-::
+Now start the quick development tests (see Configuring tests below to find out
+how to run the full tests):
 
     cd pyenv/src/ckan
     nosetests ckan/tests --ckan
 
 You *must* run the tests from the CKAN directory as shown above, otherwise the
-``--ckan`` plugin won't work correctly.
-
-Also, if you want to test any CKAN extensions, you must still run them from the
-main CKAN directory, but specify a different path for the tests instead of
-``ckan/tests``.
+``--ckan`` plugin won't work correctly. 
 
 .. caution ::
 
@@ -317,25 +312,85 @@ main CKAN directory, but specify a different path for the tests instead of
    it is wise to test against PostgreSQL - see the next section on Configuring
    Tests.
 
-
 Configuring tests
 -----------------
 
-The default way to run tests is defined in test.ini (which is the default config file for nose - change it with option "--with-pylons"). This specifies to use Sqlite and sets faster_db_test_hacks.
+The full test suite is designed to run against standard PostgreSQL and takes
+about 20 minutes to complete. This can be improved to between 5 and 15 minutes
+by running PostgreSQL in memory and turning off durability, as described at
+<http://www.postgresql.org/docs/9.0/static/non-durability.html>. For
+development work, even this can be too long so many of the tests are designed
+to run against in-memory SQLite as well.
 
-To use a PostgreSQL database, specify it in your development.ini in the value for `sqlalchemy.url` and then tell nose to use the test-core.ini::
+For development we usually test against SQLite, then once we are ready to
+commit, we run against PostgreSQL.
+
+Development tests are run using the options in ``test.ini``. ``test.ini``
+inherits from ``test-core.ini`` which itself inherits from ``development.ini``.
+This means that the options you specify in ``development.ini`` also affect the
+tests unless they are overridden in ``test-core.ini`` or ``test.ini``. 
+
+In particular the ``test.ini`` file contains these two lines to enable the
+faster tests and against an in-memory SQLite database.
+
+::
+
+    faster_db_test_hacks = True
+    sqlalchemy.url = sqlite:///
+
+
+To run the development tests you would type this:
+
+::
+
+    cd pyenv/src/ckan
+    nosetests ckan/tests --ckan
+
+The ``test.ini`` file is used by default. You *must* use the ``--ckan`` option
+and run the tests from the CKAN directory as shown above, otherwise the
+``--ckan`` plugin won't work correctly. 
+
+To run the full PostgreSQL tests you would run this:
+
+::
 
     nosetests ckan/tests --ckan --with-pylons=test-core.ini
 
-The test suite takes a long time to run against standard PostgreSQL (approx. 15 minutes, or close to an hour on Ubuntu/10.04 Lucid).
+.. caution ::
 
-This can be improved to between 5 and 15 minutes by running PostgreSQL in memory and turning off durability, as described at <http://www.postgresql.org/docs/9.0/static/non-durability.html>. 
+    Ordinarily, ``development.ini`` contains settings for a PostgreSQL database
+    so these also get used when running ``test-core.ini`` since ``test-core.ini``
+    inherits from ``development.ini``. If you were to change the ``sqlalchemy.url``
+    option in your ``development.ini`` file to use SQLite, the command above would
+    actually test SQLite rather than PostgreSQL so always check the setting in
+    ``development.ini`` to ensure you are running the full tests.
 
-If there is a database migration in your changeset then run the following::
+If there is a database migration in your changeset then run the following:
+
+::
 
     nosetests ckan/tests --ckan --ckan-migrate --with-pylons=test-core.ini
 
-This will run all the tests as though the database has been upgraded from scratch and is the most thorough way of testing.  It will take around 20 minutes. 
+This will run all the tests as though the database has been upgraded from
+scratch and is the most thorough way of testing.  It will take around 20
+minutes. 
+
+Also, if you want to test any CKAN extensions, you must still run them from the
+main CKAN directory, but specify a different path for the tests instead of
+``ckan/tests``. For example:
+
+::
+
+    nosetests ../ckanext-qa/tests --ckan --with-pylons=test-core.ini
+
+Extensions cannot be tested from their own directory.
+
+.. note ::
+
+   You should be careful not to accidentally check-in any changes to
+   ``test.ini`` or ``test-core.ini`` because the former would affect other
+   people's developer tests and the latter would affect the CKAN automated
+   buildbot.
 
 Development
 ===========
