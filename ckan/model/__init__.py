@@ -65,6 +65,11 @@ class Repository(vdm.sqlalchemy.Repository):
             self.init_const_data()
             self.init_configuration_data()
 
+    def clean_db(self):
+        metadata = MetaData(self.metadata.bind)
+        metadata.reflect()
+        metadata.drop_all()
+
     def init_const_data(self):
         '''Creates 'constant' objects that should always be there in
         the database. If they are already there, this method does nothing.'''
@@ -101,7 +106,6 @@ class Repository(vdm.sqlalchemy.Repository):
         # self.upgrade_db()
         if self.metadata.bind.name != 'sqlite':
             self.setup_migration_version_control(self.latest_migration_version())
-            self.create_indexes()
         self.init_const_data()
         self.init_configuration_data()
 
@@ -144,23 +148,6 @@ class Repository(vdm.sqlalchemy.Repository):
                     self.migrate_repository, version)
         except migrate.versioning.exceptions.DatabaseAlreadyControlledError:
             pass
-
-    def create_indexes(self):
-        assert meta.engine.name in ('postgres', 'postgresql'), \
-            'Search indexing - only Postgresql engine supported (not %s).' %\
-            meta.engine.name
-        import os
-        from migrate.versioning.script import SqlScript
-        from sqlalchemy.exceptions import ProgrammingError
-        try:
-            path = os.path.join(self.migrate_repository,
-                                'versions',
-                                '021_postgresql_upgrade.sql')
-            script = SqlScript(path)
-            script.run(meta.engine, step=None)
-        except ProgrammingError, e:
-            if not 'already exists' in repr(e):
-                raise
 
     def upgrade_db(self, version=None):
         '''Upgrade db using sqlalchemy migrations.
