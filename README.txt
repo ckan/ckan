@@ -36,30 +36,38 @@ tests. See: http://buildbot.okfn.org/waterfall
    =====================  ===============================================
 
    For ubuntu you can install these like so:
-
+   
    ::
-
+   
        sudo apt-get install build-essential libxml2-dev libxslt-dev 
        sudo apt-get install wget mercurial postgresql libpq-dev 
        sudo apt-get install python-dev python-psycopg2 python-virtualenv
-
+   
 2. Create a python virtual environment
-
+   
    In your home directory run the command below. It is currently important to
    call your virtual environment ``pyenv`` so that the automated deployment tools
    work correctly.
-
+   
    ::
-
+   
        cd ~
-       virtualenv --no-site-packages pyenv
-
+       virtualenv pyenv
+   
    .. tip ::
-
+   
        If you don't have a ``python-virtualenv`` package in your distribution
        you can get a ``virtualenv.py`` script from within the 
        `virtualenv source distribution <http://pypi.python.org/pypi/virtualenv/>`_
        and then run ``python virtualenv.py pyenv`` instead.
+   
+       To help with automatically installing CKAN dependencies we use a tool
+       called ``pip``. Make sure you have activated your environment (see step 3)
+       and then install it from an activated shell like this:
+   
+       ::
+   
+           easy_install pip
    
 3. Activate your virtual environment
 
@@ -84,36 +92,49 @@ tests. See: http://buildbot.okfn.org/waterfall
 
 4. Install CKAN code and required Python packages into the new environment
 
-   To help with automatically installing CKAN dependencies we use a tool
-   called ``pip``. Make sure you have activated your environment (see step 3)
-   and then install it from an activated shell like this:
+   First you'll need to install CKAN. For the latest version run:
 
    ::
 
-       easy_install pip
+       pip install --ignore-installed -e hg+http://bitbucket.org/okfn/ckan#egg=ckan
 
-   The ``pip`` command will now be available in your virtual environment.
-
-   Next you'll need a requirements file. For the latest version run:
+   CKAN has a set of dependencies it requires which you should install too:
 
    ::
 
-       wget https://bitbucket.org/okfn/ckan/raw/default/requires/lucid_missing.txt
-       wget https://bitbucket.org/okfn/ckan/raw/default/requires/lucid_conflict.txt
-       wget https://bitbucket.org/okfn/ckan/raw/default/requires/lucid_present.txt
+       pip install --ignore-installed -r pyenv/src/ckan/requires/lucid_missing.txt -r pyenv/src/ckan/requires/lucid_conflict.txt
 
-   Install all the dependencies listed in the requirements file by running the
-   command below in your activated shell (adjusting the filename as necessary 
-   for the version you are using):
+   The ``--ignore-installed`` option ensures ``pip`` installs software into
+   this virtual environment even if it is already present on the system.
+
+   If you are using Ubuntu Lucid you can install the rest of the dependencies
+   from the system versions like this:
 
    ::
 
-       pip install -r lucid_missing.txt
-       pip install -r lucid_conflict.txt 
-       pip install -r lucid_present.txt
+       sudo apt-get install python-psycopg2 python-lxml python-sphinx 
+       sudo apt-get install python-pylons python-formalchemy python-repoze.who
+       sudo apt-get install python-repoze.who-plugins python-tempita python-zope.interface
+       
+   If you are not using Ubuntu Lucid you'll still need to install all the
+   dependencies that would have been met in the ``apt-get install`` command
+   at the start. You can do so like this:
 
+   ::
+
+       pip install --ignore-installed -r pyenv/src/ckan/requires/lucid_present.txt
+   
    This will take a **long** time. Particularly the install of the ``lxml``
    package.
+
+   At this point you will need to deactivate and then re-activate your
+   virtual environment to ensure that all the scripts point to the correct
+   locations:
+
+   ::
+   
+       deactivate
+       . pyenv/bin/activate
 
 5. Setup a PostgreSQL database
 
@@ -243,7 +264,7 @@ If you ever want to upgrade to a more recent version of CKAN, read the
 Test
 ====
 
-Make sure you've created a config file: pyenv/ckan/development.ini 
+Make sure you've created a config file: ``pyenv/ckan/development.ini``
 
 Ensure you have activated the environment:
 
@@ -251,41 +272,125 @@ Ensure you have activated the environment:
 
     . pyenv/bin/activate
 
-Now start the tests:
+
+Install nose into your virtual environment if you haven't already (otherwise
+CKAN may use the system's ``nosetests`` and complain about missing dependencies
+such as ``babel``):
+
+::
+
+    pip install --ignore-installed nose
+
+At this point you will need to deactivate and then re-activate your
+virtual environment to ensure that all the scripts point to the correct
+locations:
+
+::
+
+    deactivate
+    . pyenv/bin/activate
+
+Now start the quick development tests (see Configuring tests below to find out
+how to run the full tests):
+
+    cd pyenv/src/ckan
+    nosetests ckan/tests --ckan
+
+You *must* run the tests from the CKAN directory as shown above, otherwise the
+``--ckan`` plugin won't work correctly. 
+
+.. caution ::
+
+   By default, the test run is 'quick and dirty' - only good enough as a check
+   before commit coding. Instead of using PostgreSQL the tests use an in-memory
+   SQLite database, which causes two problems:
+
+       1. In production you have to PostgreSQL, so any subtleties of this are missed
+       2. The search system relies on PostgreSQL, so these (50 or so) tests are skipped.
+
+   So when working on search, or doing changes closely related to the database,
+   it is wise to test against PostgreSQL - see the next section on Configuring
+   Tests.
+
+Configuring tests
+-----------------
+
+The full test suite is designed to run against standard PostgreSQL and takes
+about 20 minutes to complete. This can be improved to between 5 and 15 minutes
+by running PostgreSQL in memory and turning off durability, as described at
+<http://www.postgresql.org/docs/9.0/static/non-durability.html>. For
+development work, even this can be too long so many of the tests are designed
+to run against in-memory SQLite as well.
+
+For development we usually test against SQLite, then once we are ready to
+commit, we run against PostgreSQL.
+
+Development tests are run using the options in ``test.ini``. ``test.ini``
+inherits from ``test-core.ini`` which itself inherits from ``development.ini``.
+This means that the options you specify in ``development.ini`` also affect the
+tests unless they are overridden in ``test-core.ini`` or ``test.ini``. 
+
+In particular the ``test.ini`` file contains these two lines to enable the
+faster tests and against an in-memory SQLite database.
+
+::
+
+    faster_db_test_hacks = True
+    sqlalchemy.url = sqlite:///
+
+
+To run the development tests you would type this:
 
 ::
 
     cd pyenv/src/ckan
     nosetests ckan/tests --ckan
 
-.. caution ::
+The ``test.ini`` file is used by default. You *must* use the ``--ckan`` option
+and run the tests from the CKAN directory as shown above, otherwise the
+``--ckan`` plugin won't work correctly. 
 
-  By default, the test run is 'quick and dirty' - only good enough as a check before commit coding. Instead of using PostgreSQL the tests use an in-memory Sqlite database, which causes two problems:
+To run the full PostgreSQL tests you would run this:
 
-    1. In production you have to PostgreSQL, so any subtleties of this are missed
-    2. The search system relies on PostgreSQL, so these (50 or so) tests are skipped.
-
-  So when working on search, or doing changes closely related to the database, it is wise to test against PostgreSQL - see the next section on Configuring Tests.
-
-
-Configuring tests
------------------
-
-The default way to run tests is defined in test.ini (which is the default config file for nose - change it with option "--with-pylons"). This specifies to use Sqlite and sets faster_db_test_hacks.
-
-To use a PostgreSQL database, specify it in your development.ini in the value for `sqlalchemy.url` and then tell nose to use the test-core.ini::
+::
 
     nosetests ckan/tests --ckan --with-pylons=test-core.ini
 
-The test suite takes a long time to run against standard PostgreSQL (approx. 15 minutes, or close to an hour on Ubuntu/10.04 Lucid).
+.. caution ::
 
-This can be improved to between 5 and 15 minutes by running PostgreSQL in memory and turning off durability, as described at <http://www.postgresql.org/docs/9.0/static/non-durability.html>. 
+    Ordinarily, ``development.ini`` contains settings for a PostgreSQL database
+    so these also get used when running ``test-core.ini`` since ``test-core.ini``
+    inherits from ``development.ini``. If you were to change the ``sqlalchemy.url``
+    option in your ``development.ini`` file to use SQLite, the command above would
+    actually test SQLite rather than PostgreSQL so always check the setting in
+    ``development.ini`` to ensure you are running the full tests.
 
-If there is a database migration in your changeset then run the following::
+If there is a database migration in your changeset then run the following:
+
+::
 
     nosetests ckan/tests --ckan --ckan-migrate --with-pylons=test-core.ini
 
-This will run all the tests as though the database has been upgraded from scratch and is the most thorough way of testing.  It will take around 20 minutes. 
+This will run all the tests as though the database has been upgraded from
+scratch and is the most thorough way of testing.  It will take around 20
+minutes. 
+
+Also, if you want to test any CKAN extensions, you must still run them from the
+main CKAN directory, but specify a different path for the tests instead of
+``ckan/tests``. For example:
+
+::
+
+    nosetests ../ckanext-qa/tests --ckan --with-pylons=test-core.ini
+
+Extensions cannot be tested from their own directory.
+
+.. note ::
+
+   You should be careful not to accidentally check-in any changes to
+   ``test.ini`` or ``test-core.ini`` because the former would affect other
+   people's developer tests and the latter would affect the CKAN automated
+   buildbot.
 
 Development
 ===========

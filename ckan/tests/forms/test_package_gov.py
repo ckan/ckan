@@ -54,7 +54,7 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
             (fs.temporal_granularity, 'years'),
             (fs.temporal_coverage, None, '6/2008 - 6/2009'),
             (fs.categories, 'other=Health, well-being and Care'),
-            (fs.national_statistic, 'True', 'yes'),
+            (fs.national_statistic, 'checked', 'yes'),
             (fs.precision, 'Numbers to nearest 10, percentage to nearest whole number'),
             (fs.url, 'http://www.dcsf.gov.uk/rsgateway/DB/SFR/s000859/index.shtml'),
             (fs.taxonomy_url, '', ''),
@@ -95,6 +95,13 @@ class TestForm(PylonsTestCase, HtmlCheckMethods):
         self.check_tag(fs.geographic_coverage.render(), 'geographic_coverage-england', 'value="True"')
         self.check_tag(fs.temporal_coverage.render(), 'temporal_coverage-from', 'value="6/2008"')
         self.check_tag(fs.temporal_coverage.render(), 'temporal_coverage-to', 'value="6/2009"')
+
+        pkg = model.Package.by_name(u'weekly-fuel-prices')
+        fs = fs.bind(pkg)
+        out = fs.render()
+        assert out
+        self.check_tag(fs.national_statistic.render(), 'national_statistic', '!checked="checked"')
+        
 
     def test_2_field_department_selected(self):
         fs = get_fieldset()

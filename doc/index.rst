@@ -28,6 +28,7 @@ Contents:
    distributed
    database_dumps
    admin
+   deb
 
 Other material
 ==============

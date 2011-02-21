@@ -20,6 +20,9 @@ repoze.who.plugins.openid
 # Actually from python-repoze.who-plugins but the openid plugin in the same
 # package is too old
 repoze.who-friendlyform==1.0.8
+routes==1.11
+paste==1.7.2
+pastescript==1.7.3
 
 # NOTE: Developers, please do not edit the versions, these versions are fixed
 #       in Lucid. If you start to depend on a different vesion you'll need to

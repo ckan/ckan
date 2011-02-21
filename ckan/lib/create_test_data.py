@@ -79,6 +79,7 @@ class CreateTestData(cli.CkanCommand):
             model.Session.add(tester)
             model.Session.commit()
         model.Session.remove()
+        print 'Created user %s with apikey %s' % ('tester', 'tester')
         cls.user_names = [u'tester']
 
     @classmethod
@@ -132,8 +133,8 @@ class CreateTestData(cli.CkanCommand):
                     elif attr == 'resources':
                         assert isinstance(val, (list, tuple))
                         for res_dict in val:
-                            non_extras = dict([(unicode(k), unicode(v)) for k, v in res_dict.items() if k != 'extras'])
-                            extras = dict([(unicode(k), unicode(v)) for k, v in res_dict.get('extras', {}).items()])
+                            non_extras = dict([(str(k), unicode(v)) for k, v in res_dict.items() if k != 'extras'])
+                            extras = dict([(str(k), unicode(v)) for k, v in res_dict.get('extras', {}).items()])
                             pkg.add_resource(extras=extras, **non_extras)
                     elif attr == 'tags':
                         if isinstance(val, (str, unicode)):
@@ -630,7 +631,7 @@ gov_items = [
         'temporal_granularity':'weeks',
         'temporal_coverage-from':'2008-11-24',
         'temporal_coverage-to':'2009-11-24',
-        'national_statistic':'yes',
+        'national_statistic':'no',
         'import_source':'DECC-Jan-09',
         }
      }
