@@ -264,20 +264,17 @@ If you ever want to upgrade to a more recent version of CKAN, read the
 Test
 ====
 
+Setting up to test
+------------------
+
 Make sure you've created a config file: ``pyenv/ckan/development.ini``
 
-Ensure you have activated the environment:
-
-::
+Ensure you have activated the environment::
 
     . pyenv/bin/activate
 
 
-Install nose into your virtual environment if you haven't already (otherwise
-CKAN may use the system's ``nosetests`` and complain about missing dependencies
-such as ``babel``):
-
-::
+Install nose into your virtual environment if you haven't already::
 
     pip install --ignore-installed nose
 
@@ -290,8 +287,11 @@ locations:
     deactivate
     . pyenv/bin/activate
 
-Now start the quick development tests (see Configuring tests below to find out
-how to run the full tests):
+
+Running developer tests
+-----------------------
+
+Here's how you start the quick development tests::
 
     cd pyenv/src/ckan
     nosetests ckan/tests --ckan
@@ -302,95 +302,65 @@ You *must* run the tests from the CKAN directory as shown above, otherwise the
 .. caution ::
 
    By default, the test run is 'quick and dirty' - only good enough as a check
-   before commit coding. Instead of using PostgreSQL the tests use an in-memory
-   SQLite database, which causes two problems:
-
-       1. In production you have to PostgreSQL, so any subtleties of this are missed
-       2. The search system relies on PostgreSQL, so these (50 or so) tests are skipped.
-
-   So when working on search, or doing changes closely related to the database,
-   it is wise to test against PostgreSQL - see the next section on Configuring
-   Tests.
-
-Configuring tests
------------------
-
-The full test suite is designed to run against standard PostgreSQL and takes
-about 20 minutes to complete. This can be improved to between 5 and 15 minutes
-by running PostgreSQL in memory and turning off durability, as described at
-<http://www.postgresql.org/docs/9.0/static/non-durability.html>. For
-development work, even this can be too long so many of the tests are designed
-to run against in-memory SQLite as well.
-
-For development we usually test against SQLite, then once we are ready to
-commit, we run against PostgreSQL.
-
-Development tests are run using the options in ``test.ini``. ``test.ini``
-inherits from ``test-core.ini`` which itself inherits from ``development.ini``.
-This means that the options you specify in ``development.ini`` also affect the
-tests unless they are overridden in ``test-core.ini`` or ``test.ini``. 
-
-In particular the ``test.ini`` file contains these two lines to enable the
-faster tests and against an in-memory SQLite database.
-
-::
-
-    faster_db_test_hacks = True
-    sqlalchemy.url = sqlite:///
+   before committing code. See the next section for improved ways of running tests.
 
 
-To run the development tests you would type this:
+Test configurations
+-------------------
+
+The default way to run tests is defined in test.ini (which is the default config file for nose - change it with option "--with-pylons"). This specifies to use Sqlite and sets faster_db_test_hacks, which are compromises.
 
 ::
 
     cd pyenv/src/ckan
     nosetests ckan/tests --ckan
 
-The ``test.ini`` file is used by default. You *must* use the ``--ckan`` option
-and run the tests from the CKAN directory as shown above, otherwise the
-``--ckan`` plugin won't work correctly. 
+Although Sqlite is useful for testing a large proportion of CKAN, actually in deployment, CKAN must run with PostgreSQL. Running the tests against PosgreSQL is slower but more thorough for two reasons:
+       1. You test subtleties of PostgreSQL
+       2. CKAN's default search relies on PostgreSQL's custom Full Text Search, so these (100 or so) tests are skipped when running against Sqlite.
 
-To run the full PostgreSQL tests you would run this:
+So when making changes to anything involved with search or closely related to the database, it is wise to test against PostgreSQL.
+
+To test against PosgreSQL:
+       1. Edit your local development.ini to specify a PostgreSQL database with the `sqlalchemy.url` parameter.
+       2. Tell nose to use test-core.ini (which imports settings from development.ini)
 
 ::
 
-    nosetests ckan/tests --ckan --with-pylons=test-core.ini
+     nosetests ckan/tests --ckan --with-pylons=test-core.ini
+ 
+The test suite takes a long time to run against standard PostgreSQL (approx. 15 minutes, or close to an hour on Ubuntu/10.04 Lucid).
+
+This can be improved to between 5 and 15 minutes by running PostgreSQL in memory and turning off durability, as described at <http://www.postgresql.org/docs/9.0/static/non-durability.html>. 
+
+If your changes require a model change, you'll need to write a migration script. To ensure this is tested as well, you should instead run the tests this way::
+
+     nosetests ckan/tests --ckan --ckan-migrate --with-pylons=test-core.ini
+ 
+By default, tests are run using the model defined in ckan/model, but by using the ``--ckan-migrate`` option the tests will run using a database that has been created using the migration scripts, which is the way the database is created and upgraded in production. These tests are the most thorough and will take around 20 minutes.
 
 .. caution ::
 
-    Ordinarily, ``development.ini`` contains settings for a PostgreSQL database
-    so these also get used when running ``test-core.ini`` since ``test-core.ini``
+    Ordinarily, you should set ``development.ini`` to specify a PostgreSQL database
+    so these also get used when running ``test-core.ini``, since ``test-core.ini``
     inherits from ``development.ini``. If you were to change the ``sqlalchemy.url``
     option in your ``development.ini`` file to use SQLite, the command above would
     actually test SQLite rather than PostgreSQL so always check the setting in
     ``development.ini`` to ensure you are running the full tests.
 
-If there is a database migration in your changeset then run the following:
-
-::
-
-    nosetests ckan/tests --ckan --ckan-migrate --with-pylons=test-core.ini
-
-This will run all the tests as though the database has been upgraded from
-scratch and is the most thorough way of testing.  It will take around 20
-minutes. 
-
-Also, if you want to test any CKAN extensions, you must still run them from the
-main CKAN directory, but specify a different path for the tests instead of
-``ckan/tests``. For example:
-
-::
-
-    nosetests ../ckanext-qa/tests --ckan --with-pylons=test-core.ini
-
-Extensions cannot be tested from their own directory.
-
 .. note ::
 
-   You should be careful not to accidentally check-in any changes to
-   ``test.ini`` or ``test-core.ini`` because the former would affect other
-   people's developer tests and the latter would affect the CKAN automated
-   buildbot.
+   A common error when wanting to run tests against a particular database is to change the sqlalchemy.url in test.ini or test-core.ini. The problem is that these are versioned files and people have checked in these by mistake, creating problems for all other developers and the buildbot. This is easily avoided by only changing the sqlalchemy.url in your local development.ini and testing --with-pylons=test-core.ini.
+
+Testing extensions
+------------------
+
+CKAN extensions ordinarily have their own test.ini that refers to the ckan test.ini, so you can run them in exactly the same way. For example::
+::
+    cd ckanext-dgu
+    nosetests ckanext/dgu/tests --ckan
+    nosetests ckanext/dgu/tests --ckan --with-pylons=test-core.ini
+
 
 Development
 ===========
@@ -417,9 +387,9 @@ The Developer Docs are built using `Sphinx <http://sphinx.pocoo.org/>`_:
 
       python setup.py build_sphinx
 
-The docs are uploaded to packages.python.org/ckan/ and also (via dav) to
-http://knowledgeforge.net/ckan/doc/ckan/ (http://knowledgeforge.net/ location
-is for backwards compatability).
+(An admin might upload the resulting html to packages.python.org/ckan/ by doing: `easy_install sphinx-pypi-upload` and `python setup.py upload_sphinx`)
+
+(The docs are also uploaded via dav to http://knowledgeforge.net/ckan/doc/ckan/for backwards compatability).
 
 
 Contributors
@@ -443,7 +413,7 @@ been possible:
 Copying and License
 ===================
 
-This material is copyright (c) 2006-2010 Open Knowledge Foundation.
+This material is copyright (c) 2006-2011 Open Knowledge Foundation.
 
 It is open and licensed under the GNU Affero General Public License (AGPL) v3.0
 whose full text may be found at:
