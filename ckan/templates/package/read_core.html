@@ -103,7 +103,7 @@
           <td class="package-details">${value}</td>
         </tr>
       </tbody>
-          <caption>
+          <caption py:if="h.am_authorized(c, actions.EDIT, c.pkg)">
               Something missing? ${h.subnav_link(c, 'Please help improve this page by adding more information', controller='package', action='edit', id=c.pkg.name)}.
           </caption>
     </table>

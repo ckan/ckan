@@ -1,0 +1,16 @@
+# These are packages where we require a different version of a package from
+# the one in Lucid. Rather than packaging a backport which could potentially
+# interfere with a user's other installed software, we put these modules into
+# a single location which CKAN imports from in preference to the Lucid 
+# equivalent.
+
+Babel>=0.9.5
+Genshi>=0.6,<0.6.99
+sqlalchemy-migrate==0.6
+sqlalchemy==0.6.6
+webhelpers==1.2
+
+# NOTE: Developers, our build script for the Debian packages relies on the 
+#       requirements above being specified as editable resources with their
+#       mercurial, SVN or git repository specified at the correct revision to
+#       package.

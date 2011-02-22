@@ -73,7 +73,7 @@ class TestGroup(FunctionalTestCase):
         offset = url_for(controller='group', action='read', id=name)
         res = self.app.get(offset)
         main_res = self.main_div(res)
-        assert '%s - Groups' % title in res, res
+        assert title in res, res
         #assert 'edit' not in main_res, main_res
         assert 'Administrators:' in main_res, main_res
         assert 'russianfan' in main_res, main_res
@@ -98,7 +98,7 @@ class TestGroup(FunctionalTestCase):
         pkgname = u'warandpeace'
         offset = url_for(controller='group', action='read', id=name)
         res = self.app.get(offset, extra_environ={'REMOTE_USER': 'russianfan'})
-        assert '%s - Groups' % title in res, res
+        assert title in res, res
         assert 'edit' in res
         assert name in res
 

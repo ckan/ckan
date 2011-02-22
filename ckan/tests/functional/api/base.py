@@ -187,11 +187,15 @@ class BaseModelApiTestCase(ModelMethods, ApiTestCase, ControllerTestCase):
             u'format':u'xml',
             u'description':u'Main file',
             u'hash':u'abc123',
+            u'alt_url':u'alt_url',
+            u'extras':{u'size':u'200'},
         }, {
             u'url':u'http://blah.com/file2.xml',
             u'format':u'xml',
             u'description':u'Second file',
             u'hash':u'def123',
+            u'alt_url':u'alt_url',
+            u'extras':{u'size':u'200'},
         }],
         'tags': [u'russion', u'novel'],
         'license_id': testpackage_license_id,
@@ -223,6 +227,7 @@ class BaseModelApiTestCase(ModelMethods, ApiTestCase, ControllerTestCase):
         self.init_extra_environ()
 
     def teardown(self):
+        model.Session.remove()
         model.repo.rebuild_db()
         #self.delete_common_fixtures()
         #self.commit_remove()

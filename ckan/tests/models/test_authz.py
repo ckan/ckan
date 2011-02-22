@@ -112,11 +112,15 @@ class TestCreation(object):
 class TestDefaultRoles(object):
     @classmethod
     def setup_class(self):
+        model.Session.remove()
         CreateTestData.create()
+        model.Session.remove()
 
     @classmethod
     def teardown_class(self):
+        model.Session.remove()
         model.repo.rebuild_db()
+        model.Session.remove()
         
     def is_allowed(self, role, action):
         action_query = model.Session.query(model.RoleAction).filter_by(role=role,
@@ -285,8 +289,10 @@ class TestUsage(object):
 class TestMigrate:
     @classmethod
     def setup_class(self):
+        model.Session.remove()
         model.repo.init_db()
         model.repo.commit_and_remove()
+        model.Session.remove()
 
     @classmethod
     def teardown_class(self):
@@ -334,6 +340,7 @@ class TestMigrate:
 class TestUseCasePermissions:
     @classmethod
     def setup_class(self):
+        model.Session.remove()
         CreateTestData.create()
         model.Session.remove()
         self.authorizer = authz.Authorizer()

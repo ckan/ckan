@@ -2,9 +2,9 @@ from sqlalchemy import *
 from migrate import *
 import migrate.changeset
 
-metadata = MetaData()
 
 def upgrade(migrate_engine):
+    metadata = MetaData()
     metadata.bind = migrate_engine
     # Using sql because migrate doesn't quote reserved word 'user'
     user_sql = 'ALTER TABLE "user" ADD about TEXT'

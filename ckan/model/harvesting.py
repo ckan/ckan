@@ -31,22 +31,22 @@ class HarvestDomainObject(DomainObject):
     key_attr = 'id'
 
     @classmethod
-    def get(self, key, default=Exception, attr=None):
+    def get(cls, key, default=Exception, attr=None):
         """Finds a single entity in the register."""
         if attr == None:
-            attr = self.key_attr
+            attr = cls.key_attr
         kwds = {attr: key}
-        o = self.filter(**kwds).first()
+        o = cls.filter(**kwds).first()
         if o:
             return o
         if default != Exception:
             return default
         else:
-            raise Exception("%s not found: %s" % (self.__name__, key))
+            raise Exception("%s not found: %s" % (cls.__name__, key))
 
     @classmethod
-    def filter(self, **kwds):
-        query = Session.query(self).autoflush(False)
+    def filter(cls, **kwds): 
+        query = Session.query(cls).autoflush(False)
         return query.filter_by(**kwds)
 
 
@@ -64,7 +64,6 @@ class HarvestingJob(HarvestDomainObject):
     def report_error(self, msg):
         self.set_status(u"Error")
         self.get_report()['errors'].append(msg)
-        self.errors += msg
 
     def report_package(self, msg):
         self.get_report()['packages'].append(msg)
@@ -755,7 +754,6 @@ harvesting_job_table = Table('harvesting_job', metadata,
         Column('created', DateTime, default=datetime.datetime.utcnow),
         Column('user_ref', types.UnicodeText, nullable=False),
         Column('report', JsonType),
-        Column('errors', types.UnicodeText, default=u''),
         Column('source_id', types.UnicodeText, ForeignKey('harvest_source.id')),
 )
 

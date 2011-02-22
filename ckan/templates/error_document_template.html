@@ -2,11 +2,11 @@
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
   
-  <py:def function="page_title">Error %(code)s</py:def>
+  <py:def function="page_title">Error ${c.code}</py:def>
 
   <div py:match="content">
 
-    %(message)s
+    ${c.content}
 
   </div>
 

@@ -95,7 +95,7 @@
     <tr><th>Title</th><th>Number of packages</th><th>Description</th></tr>
     <py:for each="group in groups">
     <tr>
-      <td><a href="${h.url_for(controller='group', action='read', id=group.name)}">${group.title}</a></td>
+      <td><a href="${h.url_for(controller='group', action='read', id=group.name)}">${group.display_name}</a></td>
       <td>${len(group.packages)}</td>
       <td>${h.truncate(group.description, length=80, whole_word=True)}</td>
     </tr>

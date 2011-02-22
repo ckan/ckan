@@ -6,6 +6,8 @@ syntax: glob
 .DS_Store
 ckan.egg-info/*
 sandbox/*
+theme/*
+theme
 
 # pylons
 development.ini*

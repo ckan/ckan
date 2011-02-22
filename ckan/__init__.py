@@ -1,4 +1,4 @@
-__version__ = '1.3.1'
+__version__ = '1.4a'
 __description__ = 'Comprehensive Knowledge Archive Network (CKAN) Software'
 __long_description__ = \
 '''The CKAN software is used to run the Comprehensive Knowledge Archive
@@ -14,3 +14,12 @@ Those familiar with freshmeat or CPAN can think of CKAN as providing an
 analogous service for open knowledge. 
 '''
 __license__ = 'AGPL'
+
+try:
+    # Ths automatically modifies sys.path so that the CKAN versions of
+    # key dependencies are used instead of the ones already installed.
+    import ckan_deps
+except ImportError:
+    # This installation of CKAN probably isn't using the ckan_deps
+    pass
+

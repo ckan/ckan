@@ -39,7 +39,7 @@ class CkanCommand(paste.script.command.Command):
 class ManageDb(CkanCommand):
     '''Perform various tasks on the database.
     
-    db create # create
+    db create # alias of db upgrade
     db init # create and put in default data
     db clean
     db upgrade [{version no.}] # Data migrate
@@ -49,6 +49,7 @@ class ManageDb(CkanCommand):
     db simple-dump-json {file-path}
     db send-rdf {talis-store} {username} {password}
     db load {file-path} # load a dump from a file
+    db test-create 
     db migrate06
     db migrate09a
     db migrate09b
@@ -68,7 +69,7 @@ class ManageDb(CkanCommand):
 
         cmd = self.args[0]
         if cmd == 'create':
-            model.repo.create_db()
+            model.repo.upgrade_db()
             if self.verbose:
                 print 'Creating DB: SUCCESS'
         elif cmd == 'init':
@@ -92,6 +93,10 @@ class ManageDb(CkanCommand):
             self.simple_dump_json(cmd)
         elif cmd == 'dump-rdf':
             self.dump_rdf(cmd)
+        elif cmd == 'test-create':
+            model.repo.create_db()
+            if self.verbose:
+                print 'Creating DB: SUCCESS'
         elif cmd == 'send-rdf':
             self.send_rdf(cmd)
         elif cmd == 'migrate06':
