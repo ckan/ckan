@@ -102,7 +102,7 @@ determines the licenses offered by the system to users, for example when
 creating or editing a package.
 
 This is entirely optional -- by default the system will use the ckan list of
-licenses available in the `licenses package`_.
+licenses available in the Licenses package.
 
 .. _licenses python package: http://pypi.python.org/pypi/licenses
 
@@ -110,7 +110,7 @@ More details about the license objects including the license format and some
 example license lists can be found on the open license service at
 http://licenses.opendefinition.org/.
 
-Example::
+Examples::
  
  licenses_group_url = file:///path/to/my/local/json-list-of-licenses.js
  licenses_group_url = http://licenses.opendefinition.org/2.0/ckan_original

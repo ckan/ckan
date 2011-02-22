@@ -333,6 +333,8 @@ The test suite takes a long time to run against standard PostgreSQL (approx. 15 
 
 This can be improved to between 5 and 15 minutes by running PostgreSQL in memory and turning off durability, as described at <http://www.postgresql.org/docs/9.0/static/non-durability.html>. 
 
+.. _migrationtesting:
+
 If your changes require a model change, you'll need to write a migration script. To ensure this is tested as well, you should instead run the tests this way::
 
      nosetests ckan/tests --ckan --ckan-migrate --with-pylons=test-core.ini
@@ -356,7 +358,7 @@ Testing extensions
 ------------------
 
 CKAN extensions ordinarily have their own test.ini that refers to the ckan test.ini, so you can run them in exactly the same way. For example::
-::
+
     cd ckanext-dgu
     nosetests ckanext/dgu/tests --ckan
     nosetests ckanext/dgu/tests --ckan --with-pylons=test-core.ini
