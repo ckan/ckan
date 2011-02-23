@@ -44,8 +44,13 @@ class PackageSaver(object):
         c.pkg_author_link = cls._person_email_link(c.pkg.author, c.pkg.author_email, "Author")
         c.pkg_maintainer_link = cls._person_email_link(c.pkg.maintainer, c.pkg.maintainer_email, "Maintainer")
         c.package_relationships = pkg.get_relationships_printable()
-        c.pkg_extras = sorted([(k, v) for k, v in pkg.extras.items() \
-                               if k not in g.package_hide_extras])
+        c.pkg_extras = []
+        for k, v in sorted(pkg.extras.items()):
+            if k in g.package_hide_extras:
+                continue
+            if isinstance(v, (list, tuple)):
+                v = ", ".join(map(unicode, v))
+            c.pkg_extras.append((k, v))
 
     @classmethod
     def _preview_pkg(cls, fs, log_message=None, author=None, client=None):
