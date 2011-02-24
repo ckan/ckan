@@ -277,12 +277,10 @@ def deploy():
             sed(config_path, dburi, newdburi, backup='')
             if not env.skip_setup_db:
                 setup_db()
-            _run_in_pyenv('paster --plugin ckan db create --config %s' % env.config_ini_filename)
             _run_in_pyenv('paster --plugin ckan db init --config %s' % env.config_ini_filename)
         else:
             print 'Config file already exists: %s/%s' % (env.instance_path, env.config_ini_filename)
             _run_in_pyenv('paster --plugin ckan db upgrade --config %s' % env.config_ini_filename)
-            _run_in_pyenv('paster --plugin ckan db init --config %s' % env.config_ini_filename)
 
         # create wsgi script
         if env.wsgi_script_filepath:
