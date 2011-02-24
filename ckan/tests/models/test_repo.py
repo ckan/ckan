@@ -100,7 +100,7 @@ class TestUpgrade(object):
 
         # db will already be on the latest version so
         # this should only reinstate the constant objects
-        model.repo.upgrade_db()
+        model.repo.init_const_data()
         
     @classmethod
     def teardown_class(cls):

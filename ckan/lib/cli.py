@@ -49,7 +49,7 @@ class ManageDb(CkanCommand):
     db simple-dump-json {file-path}
     db send-rdf {talis-store} {username} {password}
     db load {file-path} # load a dump from a file
-    db test-create 
+    db create-from-model # create database from the model (indexes not made)
     db migrate06
     db migrate09a
     db migrate09b
@@ -68,11 +68,7 @@ class ManageDb(CkanCommand):
         from ckan import model
 
         cmd = self.args[0]
-        if cmd == 'create':
-            model.repo.upgrade_db()
-            if self.verbose:
-                print 'Creating DB: SUCCESS'
-        elif cmd == 'init':
+        if cmd == 'init':
             model.repo.init_db()
             if self.verbose:
                 print 'Initialising DB: SUCCESS'
@@ -93,7 +89,7 @@ class ManageDb(CkanCommand):
             self.simple_dump_json(cmd)
         elif cmd == 'dump-rdf':
             self.dump_rdf(cmd)
-        elif cmd == 'test-create':
+        elif cmd == 'create-from-model':
             model.repo.create_db()
             if self.verbose:
                 print 'Creating DB: SUCCESS'
