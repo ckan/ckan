@@ -1,8 +1,0 @@
-# To use this requirements file: (assumes virtualenv at ./pyenv)
-# pip -E pyenv install -r pip-requirements-stable.txt
-
--e hg+https://bitbucket.org/okfn/vdm@vdm-0.7#egg=vdm
--e hg+https://bitbucket.org/okfn/licenses@0.5#egg=licenses
--e hg+https://bitbucket.org/okfn/ckanclient@ckanclient-v0.5#egg=ckanclient
--e hg+https://bitbucket.org/okfn/ckan@stable#egg=ckan
-psycopg2
