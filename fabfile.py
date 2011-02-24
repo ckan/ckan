@@ -100,12 +100,11 @@ def config_local(base_dir, ckan_instance_name, db_user=None, db_host=None,
     env.revision = revision if revision else 'metastable'
         
 
-def config_local_dev(base_dir, ckan_instance_name, revision):
+def config_local_dev(base_dir, ckan_instance_name):
     config_local(base_dir, ckan_instance_name)
     env.config_ini_filename = 'development.ini'
     env.pyenv_dir = os.path.join(base_dir, 'pyenv-%s' % ckan_instance_name)
     env.serve_url = 'localhost:5000'
-    env.revision = revision if revision else 'metastable'
 
 def config_staging_hmg_ckan_net():
     env.user = 'ckan1'
