@@ -62,7 +62,8 @@ class UserController(BaseController):
             h.flash_notice(_("Welcome back, %s") % userobj.display_name)
             h.redirect_to(controller='home', action='index', id=None)
         else:
-            self.login()
+            h.flash_error('Login failed. Bad username or password.')
+            h.redirect_to(controller='user', action='login')
           
     def logged_out(self):
         c.user = None
