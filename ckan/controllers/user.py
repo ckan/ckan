@@ -2,6 +2,7 @@ import genshi
 
 import ckan.misc
 from ckan.lib.base import *
+from sqlalchemy import or_, func, desc
 
 def login_form():
     return render('user/login_form.html').replace('FORM_ACTION', '%s')
@@ -9,13 +10,26 @@ def login_form():
 class UserController(BaseController):
 
     def index(self, id=None):
-        c.q  = request.params.get('q', '')
         LIMIT = 20
-
-        query = model.Session.query(model.User)
         page = int(request.params.get('page', 1))
+        c.q  = request.params.get('q', '')
+        c.order_by = request.params.get('order_by', 'name')
+
+        query = model.Session.query(model.User, func.count(model.User.id))
         if c.q:
-            pass
+            query = model.User.search(c.q, query)
+
+        if c.order_by == 'edits':
+            query = query.join((model.Revision, or_(
+                    model.Revision.author==model.User.name,
+                    model.Revision.author==model.User.openid
+                    )))
+            query = query.group_by(model.User)
+            query = query.order_by(desc(func.count(model.User.id)))
+        else:
+            query = query.group_by(model.User)
+            query = query.order_by(model.User.name)
+
         c.page = h.Page(
             collection=query,
             page=page,

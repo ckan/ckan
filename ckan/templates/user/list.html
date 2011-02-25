@@ -8,20 +8,24 @@
 
   <div py:match="content">
     <h2>Users</h2>
+    <div class="sort">
+      <a href="?q=${c.q}&amp;order_by=edits">Sort by edits</a>
+      <a href="?q=${c.q}&amp;order_by=name">Sort by name</a>
+    </div>
 
     <form id="user-search" action="" method="GET">
       <input type="text" id="q" name="q" value="${c.q}" />
-      <input type="submit" name="search" value="Search &raquo;" />
+      <input type="submit" name="" value="Search &raquo;" />
     </form>
     
     <p i18n:msg="item_count">
-        <strong>${c.page.item_count}</strong> users found.
+      <strong>${c.page.item_count}</strong> users found.
     </p>
     
     <hr />
     
     <ul class="userlist">
-      <li py:for="user in c.page.items" class="user">
+      <li py:for="(user,count) in c.page.items" class="user">
         <ul>
           <li class="username">
           ${h.linked_user(user, maxlength=20)}
@@ -45,7 +49,7 @@
         </ul>
       </li>
     </ul>
-    ${c.page.pager(q=c.q)}
+    ${c.page.pager(q=c.q,order_by=c.order_by)}
   </div>
 
   <xi:include href="layout.html" />

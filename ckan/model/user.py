@@ -113,6 +113,23 @@ class User(DomainObject):
         q = q.filter_by(user=self, role=model.Role.ADMIN)
         return q.count()
 
+    @classmethod
+    def search(cls, querystr, sqlalchemy_query=None):
+        '''Search name, fullname, email and openid.
+         
+        '''
+        import ckan.model as model
+        if sqlalchemy_query is None:
+            query = model.Session.query(cls)
+        else:
+            query = sqlalchemy_query
+        qstr = '%' + querystr + '%'
+        query = query.filter(or_(
+            cls.name.ilike(qstr),
+            cls.fullname.ilike(qstr), cls.openid.ilike(qstr),
+            cls.email.ilike(qstr)
+            ))
+        return query
 
 mapper(User, user_table,
     properties = {
