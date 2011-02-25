@@ -1,0 +1,45 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+  
+  <py:def function="page_title">Users</py:def>
+  <py:def function="body_class">user-list</py:def>
+
+  <div py:match="content">
+    <h2>Users</h2>
+
+    <form id="user-search" action="" method="GET">
+      <input type="text" id="q" name="q" value="${c.q}" />
+      <input type="submit" name="search" value="Search &raquo;" />
+    </form>
+    
+    <hr />
+    
+    <p i18n:msg="item_count">
+        There are <strong>${c.page.item_count}</strong> users.
+    </p>
+    
+    <ul class="userlist">
+      <li py:for="user in c.page.items">
+        <ul>
+          <li>
+          ${h.linked_user(user)}
+          </li>
+          <li>
+            <span class="edits" title="${user.number_of_edits()} Edits">
+              ${user.number_of_edits()}
+            </span>
+            <span class="edits"
+              title="${user.number_administered_packages()} Administered">
+              ${user.number_administered_packages()}
+            </span>
+          </li>
+        </ul>
+      </li>
+    </ul>
+    ${c.page.pager(q=c.q)}
+  </div>
+
+  <xi:include href="layout.html" />
+</html>

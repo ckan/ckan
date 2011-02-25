@@ -9,9 +9,20 @@ def login_form():
 class UserController(BaseController):
 
     def index(self, id=None):
-        if not c.user:
-            h.redirect_to(controller='user', action='login', id=None)
-        return self.read()
+        c.q  = request.params.get('q', '')
+        LIMIT = 25
+
+        query = model.Session.query(model.User)
+        page = int(request.params.get('page', 1))
+        if c.q:
+            pass
+        c.page = h.Page(
+            collection=query,
+            page=page,
+            item_count=query.count(),
+            items_per_page=LIMIT
+            )
+        return render('user/list.html')
 
     def read(self, id=None):
         if id:
