@@ -38,7 +38,6 @@
     $(document).ready(function() {
         var ckan_user = $.cookie("ckan_display_name");
         if (ckan_user) {
-            ckan_user = eval(ckan_user); // get rid of spurious quotes
             $(".ckan-logged-out").hide();
             $(".ckan-logged-in").show();
         }
