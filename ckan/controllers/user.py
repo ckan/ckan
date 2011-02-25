@@ -29,6 +29,11 @@ class UserController(BaseController):
         c.activity = revisions_q.limit(20).all()
         return render('user/read.html')
     
+    def me(self):
+        if not c.user:
+            h.redirect_to(controller='user', action='login', id=None)
+        h.redirect_to(controller='user', action='read', id=c.user)
+
     def register(self):
         if request.method == 'POST': 
             c.login = request.params.getone('login')

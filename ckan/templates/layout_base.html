@@ -71,7 +71,7 @@
     <div id="top-bar">
       <div id="top-bar-login">
         <span class="ckan-logged-in" style="display: none;">
-          <a href="${h.url_for(controller='user',action=None,id=None)}">${h.icon('user')} My account</a>
+          <a href="${h.url_for(controller='user',action='me',id=None)}">${h.icon('user')} My account</a>
           &middot; <a href="${h.url_for('/user/logout')}">Logout</a>
         </span>
         <span class="ckan-logged-out">
