@@ -130,14 +130,12 @@ class UserObjectRole(DomainObject):
     @classmethod
     def user_has_role(cls, user, role, domain_obj):
         assert isinstance(user, User), user
-        assert Role.is_valid(role), role
         q = cls._user_query(user, role, domain_obj)
         return q.count() == 1
         
     @classmethod
     def authorization_group_has_role(cls, authorized_group, role, domain_obj):
         assert isinstance(authorized_group, AuthorizationGroup), authorized_group
-        assert Role.is_valid(role), role
         q = cls._authorized_group_query(authorized_group, role, domain_obj)
         return q.count() == 1
         

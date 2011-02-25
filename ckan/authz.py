@@ -44,7 +44,6 @@ class Authorizer(object):
         if isinstance(username, str):
             username = username.decode('utf8')
         assert isinstance(username, unicode), type(username)
-        assert model.Action.is_valid(action), action
         
         # sysadmins can do everything
         if cls.is_sysadmin(username) or domain_object is None:
