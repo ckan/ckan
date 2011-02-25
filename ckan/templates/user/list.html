@@ -21,17 +21,23 @@
     </p>
     
     <ul class="userlist">
-      <li py:for="user in c.page.items">
+      <li py:for="user in c.page.items" class="user">
         <ul>
-          <li>
-          ${h.linked_user(user)}
+          <li class="username">
+          ${h.linked_user(user, maxlength=20)}
+          </li>
+          <li class="created">
+            Member since ${user.created}
           </li>
           <li>
             <span class="edits" title="${user.number_of_edits()} Edits">
               ${user.number_of_edits()}
             </span>
-            <span class="edits"
+            <span class="administered"
               title="${user.number_administered_packages()} Administered">
+              <span class="badge">
+                ●
+              </span>
               ${user.number_administered_packages()}
             </span>
           </li>
