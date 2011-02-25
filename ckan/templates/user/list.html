@@ -27,7 +27,8 @@
           ${h.linked_user(user, maxlength=20)}
           </li>
           <li class="created">
-            Member since ${user.created}
+            Member for ${h.date.time_ago_in_words(user.created,
+              granularity='month')}
           </li>
           <li>
             <span class="edits" title="${user.number_of_edits()} Edits">

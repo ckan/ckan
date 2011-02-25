@@ -956,6 +956,10 @@ ul.userlist li.user .username {
   margin-bottom: -3px;
 }
 
+ul.userlist .created {
+  font-size: 80%;
+}
+
 ul.userlist .badge {
   color: #fc0;
 }
