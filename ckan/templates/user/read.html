@@ -5,10 +5,11 @@
   <xi:include href="../revision/common.html" />
 
   <py:def function="page_title">${c.read_user} - User</py:def>
+  <py:def function="body_class">user-view</py:def>
 
   <div py:match="content">
 
-    <h2>User: ${c.read_user}</h2>
+    <h2>${c.read_user}</h2>
     <py:if test="c.is_myself">
       <h3>My Account</h3>
 
@@ -20,27 +21,29 @@
       </ul>
     </py:if>
 
-    <h3>About</h3>
-    <div>
+    <div class="about">
       ${c.about_formatted}
     </div>
 
-    <h3>Activity</h3>
-    <ul>
-      <li><strong>Number of edits:</strong> ${c.num_edits}</li>
-      <li><strong>Number of packages administered:</strong> ${c.num_pkg_admin}</li>
-    </ul>
+    <div class="activity">
+      <h3>Activity</h3>
+      <ul>
+        <li><strong>Number of edits:</strong> ${c.num_edits}</li>
+        <li><strong>Number of packages administered:</strong> ${c.num_pkg_admin}</li>
+      </ul>
+    </div>
 
-    <h3>Recent changes</h3>
-    <table border="1">
-      <tr>
-        <th>Revision</th><th>Timestamp</th><th>Author</th><th>Packages</th><th>Log Message</th>
-      </tr>
-      <py:for each="revision in c.activity">
-      ${revision_row(revision)}
-      </py:for>
-    </table>
-
+    <div class="changes">
+      <h3>Recent changes</h3>
+      <table>
+        <tr>
+          <th>Revision</th><th>Timestamp</th><th>Author</th><th>Packages</th><th>Log Message</th>
+        </tr>
+        <py:for each="revision in c.activity">
+        ${revision_row(revision)}
+        </py:for>
+      </table>
+    </div>
   </div>
 
   <xi:include href="layout.html" />

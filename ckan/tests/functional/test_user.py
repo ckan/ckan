@@ -162,7 +162,7 @@ class TestUserController(FunctionalTestCase):
         # commit
         res = res.follow()
         main_res = self.main_div(res)
-        assert 'User: testedit' in main_res, main_res
+        assert 'testedit' in main_res, main_res
         assert new_about in main_res, main_res
 
         # read, not logged in
