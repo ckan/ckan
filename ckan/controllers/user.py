@@ -34,9 +34,10 @@ class UserController(BaseController):
         c.read_user = user.display_name
         c.is_myself = user.name == c.user
         c.about_formatted = self._format_about(user.about)
-        revisions_q = model.Session.query(model.Revision).filter_by(author=user.name)
-        c.num_edits = revisions_q.count()
-        c.num_pkg_admin = model.Session.query(model.PackageRole).filter_by(user=user, role=model.Role.ADMIN).count()
+        revisions_q = model.Session.query(model.Revision
+                ).filter_by(author=user.name)
+        c.num_edits = user.number_of_edits()
+        c.num_pkg_admin = user.number_administered_packages()
         c.activity = revisions_q.limit(20).all()
         return render('user/read.html')
     
