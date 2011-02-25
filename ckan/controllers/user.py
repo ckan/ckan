@@ -10,7 +10,7 @@ class UserController(BaseController):
 
     def index(self, id=None):
         c.q  = request.params.get('q', '')
-        LIMIT = 25
+        LIMIT = 20
 
         query = model.Session.query(model.User)
         page = int(request.params.get('page', 1))

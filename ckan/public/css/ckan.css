@@ -940,6 +940,7 @@ ul.userlist li.user {
   width: 200px;
   padding: 5px;
   font-size: 90%;
+  margin-bottom: 15px;
 }
 
 ul.userlist li ul span.edits {

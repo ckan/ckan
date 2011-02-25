@@ -14,11 +14,11 @@
       <input type="submit" name="search" value="Search &raquo;" />
     </form>
     
-    <hr />
-    
     <p i18n:msg="item_count">
-        There are <strong>${c.page.item_count}</strong> users.
+        <strong>${c.page.item_count}</strong> users found.
     </p>
+    
+    <hr />
     
     <ul class="userlist">
       <li py:for="user in c.page.items" class="user">
