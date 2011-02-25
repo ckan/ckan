@@ -40,7 +40,8 @@ class CreateTestData(cli.CkanCommand):
             self.create_basic_test_data()
         elif cmd == 'user':
             self.create_user()
-            print 'Created user %r with apikey %r' % ('tester', 'tester')
+            print 'Created user %r with password %r and apikey %r' % ('tester',
+                    'tester', 'tester')
         elif cmd == 'search':
             self.create_search_test_data()
         elif cmd == 'gov':
@@ -76,7 +77,8 @@ class CreateTestData(cli.CkanCommand):
         import ckan.model as model
         tester = model.User.by_name(u'tester')
         if tester is None:
-            tester = model.User(name=u'tester', apikey=u'tester')
+            tester = model.User(name=u'tester', apikey=u'tester',
+                password=u'tester')
             model.Session.add(tester)
             model.Session.commit()
         model.Session.remove()
@@ -371,7 +373,7 @@ left arrow <
         roger.packages = [pkg1]
         # authz
         model.Session.add_all([
-            model.User(name=u'tester', apikey=u'tester'),
+            model.User(name=u'tester', apikey=u'tester', password=u'tester'),
             model.User(name=u'joeadmin'),
             model.User(name=u'annafan', about=u'I love reading Annakarenina'),
             model.User(name=u'russianfan'),
