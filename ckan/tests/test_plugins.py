@@ -17,13 +17,17 @@ from ckan.plugins import Interface, implements
 from ckan.lib.create_test_data import CreateTestData
 
 
-# Create the ckantestplugin setuptools distribution
-mydir = os.path.dirname(__file__)
-egg_info = os.path.join(mydir, 'ckantestplugin', 'ckantestplugin.egg-info')
-base_dir = os.path.dirname(egg_info)
-metadata = PathMetadata(base_dir, egg_info)
-dist_name = os.path.splitext(os.path.basename(egg_info))[0]
-ckantestplugin_dist = Distribution(base_dir, project_name=dist_name, metadata=metadata)
+def install_ckantestplugin():
+    # Create the ckantestplugin setuptools distribution
+    mydir = os.path.dirname(__file__)
+    egg_info = os.path.join(mydir, 'ckantestplugin', 'ckantestplugin.egg-info')
+    base_dir = os.path.dirname(egg_info)
+    metadata = PathMetadata(base_dir, egg_info)
+    dist_name = os.path.splitext(os.path.basename(egg_info))[0]
+    ckantestplugin_dist = Distribution(
+        base_dir, project_name=dist_name, metadata=metadata)
+    working_set.add(ckantestplugin_dist)
+
 
 class IFoo(Interface):
     pass
@@ -99,7 +103,7 @@ class TestPlugins(TestCase):
         self._saved_plugins_config = config.get('ckan.plugins', '')
         config['ckan.plugins'] = ''
         plugins.reset()
-        working_set.add(ckantestplugin_dist)
+        install_ckantestplugin()
 
     def tearDown(self):
         # Ideally this would remove the ckantestplugin_dist from the working

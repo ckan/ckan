@@ -2,6 +2,8 @@ import sqlalchemy as sa
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 import ckan.model as model
+from ckan.plugins import PluginImplementations
+from ckan.plugins.interfaces import IAuthorizer
 
 class Blacklister(object):
     '''Blacklist by username.
@@ -24,7 +26,8 @@ class Authorizer(object):
     '''An access controller.
     '''
     blacklister = Blacklister
-
+    extensions = PluginImplementations(IAuthorizer)
+    
     @classmethod
     def am_authorized(cls, c, action, domain_object):
         username = c.user or c.author
@@ -41,11 +44,17 @@ class Authorizer(object):
 
         :returns: True or False
         '''
+        authorized = False
         if isinstance(username, str):
             username = username.decode('utf8')
         assert isinstance(username, unicode), type(username)
         assert model.Action.is_valid(action), action
-        
+        for extension in cls.extensions:
+            authorized = extension.is_authorized(username,
+                                                 action,
+                                                 domain_object)
+            if authorized:
+                return True
         # sysadmins can do everything
         if cls.is_sysadmin(username) or domain_object is None:
             return True
@@ -111,7 +120,12 @@ class Authorizer(object):
                             sa.or_(model.User.name==model.PSEUDO_USER__VISITOR,
                                    model.User.name==model.PSEUDO_USER__LOGGED_IN,
                                    model.User.name==username)))
-        return q.all()
+
+        groups = q.all()
+        for extension in cls.extensions:
+            extra_groups = extension.get_authorization_groups(username)
+            groups.extend(extra_groups)
+        return groups
 
     @classmethod
     def get_roles(cls, username, domain_obj):
