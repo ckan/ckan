@@ -66,6 +66,10 @@ def upgrade(migrate_engine):
         Column('revision_id', UnicodeText, ForeignKey('revision.id'), primary_key=True),
         Column('continuity_id', UnicodeText, ForeignKey('resource_group.id'))
         )
+    
+    resource_count = migrate_engine.execute('''select count(*) from package_resource''').first()[0]
+    package_count = migrate_engine.execute('''select count(*) from package''').first()[0]
+
 
     # change field names
     resource.c.package_id.alter(name = 'resource_group_id')
@@ -156,6 +160,33 @@ ALTER TABLE resource_revision
 ALTER TABLE resource_revision
 	ADD CONSTRAINT resource_revision_revision_id_fkey FOREIGN KEY (revision_id) REFERENCES revision(id);
 ''')
+
+    resource_count_after = migrate_engine.execute('''select count(*) from resource''').first()[0]
+    resource_group_after = migrate_engine.execute('''select count(*) from resource_group''').first()[0]
+    package_count_after = migrate_engine.execute('''select count(*) from package''').first()[0]
+
+    all_joined = migrate_engine.execute('''select count(*) from package p 
+                                           join resource_group rg on rg.package_id = p.id
+                                           join resource r on r.resource_group_id = rg.id
+                                        ''').first()[0]
+
+    all_uuids = migrate_engine.execute('''
+                                     select count(*) from 
+                                     (select id from resource union 
+                                     select id from resource_group union 
+                                     select id from package) sub
+                                     ''').first()[0]
+
+    assert resource_count_after == resource_count 
+    assert resource_group_after == package_count 
+    assert package_count_after == package_count 
+
+    ## this makes sure all uuids are unique (union dedupes)
+    assert all_uuids == resource_count + package_count * 2 
+
+    ## this makes sure all uuids are unique (union dedupes)
+    assert all_joined == resource_count 
+
 
 
 def make_new_uuid(column_name):
