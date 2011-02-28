@@ -116,7 +116,7 @@ class TestDistributingChanges(TestControllerWithForeign):
             (u'http://something.com/somewhere-else2.xml', u'xml2', u'Best2', u'hash2'),
         )
 
-        assert len(resources[0]) == len(model.PackageResource.get_columns())
+        assert len(resources[0]) == len(model.Resource.get_columns())
         notes = u'Very important'
         state = model.State.ACTIVE
         tags = (u'tag1', u'tag2', u'tag3')
@@ -132,7 +132,7 @@ class TestDistributingChanges(TestControllerWithForeign):
         fv[prefix+'version'] = version
         fv[prefix+'url'] = url
         for res_index, resource in enumerate(resources):
-            for field_index, res_field in enumerate(model.PackageResource.get_columns()):
+            for field_index, res_field in enumerate(model.Resource.get_columns()):
                 fv[prefix+'resources-%s-%s' % (res_index, res_field)] = resource[field_index]
         fv[prefix+'notes'] = notes
         fv[prefix+'license_id'] = license_id

@@ -110,9 +110,9 @@ class TestRevisionController(TestController):
         package = self.get_package(name)
         if 'resources' in kwds:
             resources = kwds.pop('resources')
-            package.resources = []
+            package.resource_groups[0].resources = []
             for resource in resources:
-                resource = model.PackageResource(**resource)
+                resource = model.Resource(**resource)
                 model.Session.add(resource)
                 package.resources.append(resource)
         if 'extras' in kwds:

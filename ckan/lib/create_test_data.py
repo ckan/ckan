@@ -302,12 +302,12 @@ class CreateTestData(cli.CkanCommand):
         pkg1.version = u'0.7a'
         pkg1.url = u'http://www.annakarenina.com'
         # put an & in the url string to test escaping
-        if 'alt_url' in model.PackageResource.get_extra_columns():
+        if 'alt_url' in model.Resource.get_extra_columns():
             configured_extras = ({'alt_url': u'alt123'},
                                  {'alt_url': u'alt345'})
         else:
             configured_extras = ({}, {})
-        pr1 = model.PackageResource(
+        pr1 = model.Resource(
             url=u'http://www.annakarenina.com/download/x=1&y=2',
             format=u'plain text',
             description=u'Full text. Needs escaping: " Umlaut: \xfc',
@@ -315,7 +315,7 @@ class CreateTestData(cli.CkanCommand):
             extras={'size': u'123'},
             **configured_extras[0]
             )
-        pr2 = model.PackageResource(
+        pr2 = model.Resource(
             url=u'http://www.annakarenina.com/index.json',
             format=u'json',
             description=u'Index of the novel',

@@ -664,7 +664,7 @@ class BaseRestController(BaseApiController):
             try:
                 backend = None
                 if register == 'resource': 
-                    query = query_for(model.PackageResource, backend='sql')
+                    query = query_for(model.Resource, backend='sql')
                 else:
                     query = query_for(model.Package)
                 results = query.run(query=params.get('q'), 

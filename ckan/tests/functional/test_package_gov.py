@@ -91,9 +91,9 @@ class TestEdit(TestPackageBase):
         model.Session.add(pkg)
         pkg.title = u'This is a Test Title'
         pkg.url = u'editpkgurl.com'
-        pr1 = model.PackageResource(url=u'editpkgurl1',
+        pr1 = model.Resource(url=u'editpkgurl1',
               format=u'plain text', description=u'Full text')
-        pr2 = model.PackageResource(url=u'editpkgurl2',
+        pr2 = model.Resource(url=u'editpkgurl2',
               format=u'plain text2', description=u'Full text2')
         model.Session.add(pr1)
         model.Session.add(pr2)        

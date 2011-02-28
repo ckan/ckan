@@ -146,7 +146,7 @@ class TestPackageForm(TestPackageBase):
         for res_index, resource in enumerate(resources):
             if by_resource:
                 values = []
-            for i, res_field in enumerate(model.PackageResource.get_columns(extra_columns = False)):
+            for i, res_field in enumerate(model.Resource.get_columns(extra_columns = False)):
                 if isinstance(resource, (str, unicode)):
                     expected_value = resource if res_field == 'url' else ''
                 elif hasattr(resource, res_field):
@@ -630,10 +630,10 @@ u with umlaut \xc3\xbc
             pkg = model.Package(name=pkg_name)
             pkg.title = u'This is a Test Title'
             pkg.url = u'editpkgurl.com'
-            pr1 = model.PackageResource(url=u'editpkgurl1',
+            pr1 = model.Resource(url=u'editpkgurl1',
                   format=u'plain text', description=u'Full text',
                   hash=u'123abc',)
-            pr2 = model.PackageResource(url=u'editpkgurl2',
+            pr2 = model.Resource(url=u'editpkgurl2',
                   format=u'plain text2', description=u'Full text2',
                   hash=u'456abc',)
             pkg.resources.append(pr1)
@@ -672,7 +672,7 @@ u with umlaut \xc3\xbc
             resources = ((u'http://something.com/somewhere-else.xml', u'xml', u'Best', u'hash1', 'alt'),
                          (u'http://something.com/somewhere-else2.xml', u'xml2', u'Best2', u'hash2', 'alt'),
                          )
-            assert len(resources[0]) == len(model.PackageResource.get_columns())
+            assert len(resources[0]) == len(model.Resource.get_columns())
             notes = u'Very important'
             license_id = u'gpl-3.0'
             state = model.State.ACTIVE
@@ -689,7 +689,7 @@ u with umlaut \xc3\xbc
             fv[prefix+'version'] = version
             fv[prefix+'url'] = url
             for res_index, resource in enumerate(resources):
-                for field_index, res_field in enumerate(model.PackageResource.get_columns()):
+                for field_index, res_field in enumerate(model.Resource.get_columns()):
                     fv[prefix+'resources-%s-%s' % (res_index, res_field)] = resource[field_index]
             fv[prefix+'notes'] = notes
             fv[prefix+'license_id'] = license_id
@@ -750,7 +750,7 @@ u with umlaut \xc3\xbc
             assert pkg.version == version
             assert pkg.url == url
             for res_index, resource in enumerate(resources):
-                for field_index, res_field in enumerate(model.PackageResource.get_columns()):
+                for field_index, res_field in enumerate(model.Resource.get_columns()):
                     assert getattr(pkg.resources[res_index], res_field) == resource[field_index]
             assert pkg.notes == notes
             assert pkg.license.id == license_id

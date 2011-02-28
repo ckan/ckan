@@ -67,7 +67,7 @@ class TestPreview(PylonsTestCase):
         assert model.Package.by_name(u'name_before')
         assert not model.Package.by_name(u'name_after')
         assert not model.Tag.by_name(u'three')
-        resources = model.Session.query(model.PackageResource).filter_by(url=u'dlu2c').first()
+        resources = model.Session.query(model.Resource).filter_by(url=u'dlu2c').first()
         assert resources is None, resources
 
     def _check_preview_pkg(self, pkg, params):

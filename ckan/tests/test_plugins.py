@@ -165,7 +165,7 @@ class TestPlugins(TestCase):
         plugins.load_all(config)
         CreateTestData.create_arbitrary([{'name':u'testpkg'}])
         mapper_plugin = PluginGlobals.plugin_registry['MapperPlugin'].__instance__
-        assert len(mapper_plugin.added) == 1
+        assert len(mapper_plugin.added) == 2 # resource group table added automatically
         assert mapper_plugin.added[0].name == 'testpkg'
 
     def test_routes_plugin_fired(self):
