@@ -921,3 +921,58 @@ p.atom-feed-link a {
 p.atom-feed-link.package-history-link {
   float: none;
 }
+
+/* ===================== */
+/* = User Listing      = */
+/* ===================== */
+
+body.user-list #content {
+  margin-right: 20px;
+}
+
+ul.userlist, ul.userlist ul {
+  list-style-type: none;
+  margin: 0;
+}
+
+ul.userlist li.user {
+  display: inline-block;
+  width: 200px;
+  padding: 5px;
+  font-size: 90%;
+  margin-bottom: 15px;
+}
+
+ul.userlist li ul span.edits {
+  color: #333;
+  font-size: 110%;
+  font-weight: bold;
+  margin-left: 3px;
+}
+
+ul.userlist li.user .username {
+}
+
+#content ul.userlist .username img {
+  margin-bottom: -3px;
+}
+
+ul.userlist .created {
+  font-size: 80%;
+}
+
+ul.userlist .badge {
+  color: #fc0;
+}
+
+body.user-list .sort {
+  float: right;
+}
+
+body.user-list .sort a {
+  font-size: 85%;
+  background: #eee;
+  padding: 5px;
+  border-bottom: 1px solid #ccc; 
+  border-right: 1px solid #ccc; 
+}

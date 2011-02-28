@@ -1,0 +1,56 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+  
+  <py:def function="page_title">Users</py:def>
+  <py:def function="body_class">user-list</py:def>
+
+  <div py:match="content">
+    <h2>Users</h2>
+    <div class="sort">
+      <a href="?q=${c.q}&amp;order_by=edits" rel="nofollow">Sort by edits</a>
+      <a href="?q=${c.q}&amp;order_by=name" rel="nofollow">Sort by name</a>
+    </div>
+
+    <form id="user-search" action="" method="GET">
+      <input type="text" id="q" name="q" value="${c.q}" />
+      <input type="submit" name="" value="Search &raquo;" />
+    </form>
+    
+    <p i18n:msg="item_count">
+      <strong>${c.page.item_count}</strong> users found.
+    </p>
+    
+    <hr />
+    
+    <ul class="userlist">
+      <li py:for="(user,count) in c.page.items" class="user">
+        <ul>
+          <li class="username">
+          ${h.linked_user(user, maxlength=20)}
+          </li>
+          <li class="created">
+            Member for ${h.date.time_ago_in_words(user.created,
+              granularity='month')}
+          </li>
+          <li>
+            <span class="edits" title="${user.number_of_edits()} Edits">
+              ${user.number_of_edits()}
+            </span>
+            <span class="administered"
+              title="${user.number_administered_packages()} Administered">
+              <span class="badge">
+                ●
+              </span>
+              ${user.number_administered_packages()}
+            </span>
+          </li>
+        </ul>
+      </li>
+    </ul>
+    ${c.page.pager(q=c.q,order_by=c.order_by)}
+  </div>
+
+  <xi:include href="layout.html" />
+</html>

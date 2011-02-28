@@ -2,6 +2,7 @@ import genshi
 
 import ckan.misc
 from ckan.lib.base import *
+from sqlalchemy import or_, func, desc
 
 def login_form():
     return render('user/login_form.html').replace('FORM_ACTION', '%s')
@@ -9,9 +10,33 @@ def login_form():
 class UserController(BaseController):
 
     def index(self, id=None):
-        if not c.user:
-            h.redirect_to(controller='user', action='login', id=None)
-        return self.read()
+        LIMIT = 20
+        page = int(request.params.get('page', 1))
+        c.q  = request.params.get('q', '')
+        c.order_by = request.params.get('order_by', 'name')
+
+        query = model.Session.query(model.User, func.count(model.User.id))
+        if c.q:
+            query = model.User.search(c.q, query)
+
+        if c.order_by == 'edits':
+            query = query.join((model.Revision, or_(
+                    model.Revision.author==model.User.name,
+                    model.Revision.author==model.User.openid
+                    )))
+            query = query.group_by(model.User)
+            query = query.order_by(desc(func.count(model.User.id)))
+        else:
+            query = query.group_by(model.User)
+            query = query.order_by(model.User.name)
+
+        c.page = h.Page(
+            collection=query,
+            page=page,
+            item_count=query.count(),
+            items_per_page=LIMIT
+            )
+        return render('user/list.html')
 
     def read(self, id=None):
         if id:
@@ -23,12 +48,18 @@ class UserController(BaseController):
         c.read_user = user.display_name
         c.is_myself = user.name == c.user
         c.about_formatted = self._format_about(user.about)
-        revisions_q = model.Session.query(model.Revision).filter_by(author=user.name)
-        c.num_edits = revisions_q.count()
-        c.num_pkg_admin = model.Session.query(model.PackageRole).filter_by(user=user, role=model.Role.ADMIN).count()
+        revisions_q = model.Session.query(model.Revision
+                ).filter_by(author=user.name)
+        c.num_edits = user.number_of_edits()
+        c.num_pkg_admin = user.number_administered_packages()
         c.activity = revisions_q.limit(20).all()
         return render('user/read.html')
     
+    def me(self):
+        if not c.user:
+            h.redirect_to(controller='user', action='login', id=None)
+        h.redirect_to(controller='user', action='read', id=c.user)
+
     def register(self):
         if request.method == 'POST': 
             c.login = request.params.getone('login')

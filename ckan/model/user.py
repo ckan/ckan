@@ -9,6 +9,7 @@ from meta import *
 from core import DomainObject
 from types import make_uuid
 
+
 user_table = Table('user', metadata,
         Column('id', UnicodeText, primary_key=True, default=make_uuid),
         Column('name', UnicodeText),
@@ -97,6 +98,38 @@ class User(DomainObject):
         _dict = DomainObject.as_dict(self)
         del _dict['password']
         return _dict
+
+    def number_of_edits(self):
+        # have to import here to avoid circular imports
+        import ckan.model as model
+        revisions_q = model.Session.query(model.Revision).filter_by(author=self.name)
+        return revisions_q.count()
+
+    def number_administered_packages(self):
+        # have to import here to avoid circular imports
+        import ckan.model as model
+        revisions_q = model.Session.query(model.Revision).filter_by(author=self.name)
+        q = model.Session.query(model.PackageRole)
+        q = q.filter_by(user=self, role=model.Role.ADMIN)
+        return q.count()
+
+    @classmethod
+    def search(cls, querystr, sqlalchemy_query=None):
+        '''Search name, fullname, email and openid.
+         
+        '''
+        import ckan.model as model
+        if sqlalchemy_query is None:
+            query = model.Session.query(cls)
+        else:
+            query = sqlalchemy_query
+        qstr = '%' + querystr + '%'
+        query = query.filter(or_(
+            cls.name.ilike(qstr),
+            cls.fullname.ilike(qstr), cls.openid.ilike(qstr),
+            cls.email.ilike(qstr)
+            ))
+        return query
 
 mapper(User, user_table,
     properties = {

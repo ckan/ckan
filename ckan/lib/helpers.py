@@ -11,6 +11,7 @@ from webhelpers.html.tags import *
 from webhelpers.markdown import markdown
 from webhelpers import paginate
 from webhelpers.text import truncate
+import webhelpers.date as date
 from pylons.decorators.cache import beaker_cache
 from routes import url_for, redirect_to
 from alphabet_paginate import AlphaPage
@@ -149,7 +150,7 @@ def am_authorized(c, action, domain_object=None):
         domain_object = model.System()
     return Authorizer.am_authorized(c, action, domain_object)
 
-def linked_user(user):
+def linked_user(user, maxlength=0):
     from ckan import model
     from urllib import quote
     if user in [model.PSEUDO_USER__LOGGED_IN, model.PSEUDO_USER__VISITOR]:
@@ -162,7 +163,10 @@ def linked_user(user):
     if user:
         _name = user.name if model.User.VALID_NAME.match(user.name) else user.id
         _icon = icon("user") + " "
-        return _icon + link_to(user.display_name, 
+        displayname = user.display_name
+        if maxlength and len(user.display_name) > maxlength:
+            displayname = displayname[:maxlength] + '...'
+        return _icon + link_to(displayname, 
                        url_for(controller='user', action='read', id=_name))
 
 def group_name_to_title(name):
