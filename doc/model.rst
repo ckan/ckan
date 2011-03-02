@@ -30,10 +30,6 @@ A migration script should be checked into CKAN at the same time as the model cha
 
 To create a new migration script, create a python file in ckan/migration/versions/ and name it with a prefix numbered one higher than the previous one and some words describing the change.
 
-The golden rule with writing the script is that you don't import the model, however tempting this is. You must work at a lower level than the object level to manipulate the tables. 
-
-  Reasoning: If you were to import the model, then you would get the new model's ORM which may not relate to the current table structure. Imagine you have a database at model version 10 and migration scripts exist to take it to version 15. During running script 11, importing the model will try and run a model version 15 on a database which is at best at version 11. Note that you may not spot the problem until scripts for 12-15 are written and you need to upgrade 10->15. So don't import the model!
-
 You need to use the special engine provided by the SqlAlchemy Migrate. Here is the standard header for your migrate script::
 
  from sqlalchemy import *
@@ -46,28 +42,55 @@ The migration operations go in the upgrade function::
      metadata = MetaData()
      metadata.bind = migrate_engine
 
-To get a table you need to reflect from the database. e.g.::
+The following process should be followed when doing a migration.  This process is here to make the process easier and to validate if any mistakes have been made.
 
-     package_table = Table('package', metadata, autoload=True)
+1. Get a dump of the database schema before you add your new migrate scripts.
 
-See the `SqlAlchemy Migrate documentation <http://packages.python.org/sqlalchemy-migrate/>`_ for full operations. You might add a new table::
+   paster db clean
+   paster db upgrade
+   pg_dump -h host -s -f old.sql dbname
 
-     package_relationship_table = Table('package_relationship', metadata,
-         Column('id', UnicodeText, primary_key=True),
-         Column('subject_package_id', UnicodeText, ForeignKey('package.id')),
-         Column('object_package_id', UnicodeText, ForeignKey('package.id')),
-         Column('type', UnicodeText),
-         Column('comment', UnicodeText),
-         )
-     package_relationship_table.create()
+2.  Get a dump of the database as you have specified it in the model.
 
-Or add a column to an existing table like this::
+   paster db clean
+   paster db create-test  #this makes the database as defined in the model
+   pg_dump -h host -s -f new.sql dbname
 
-     column = Column('author', UnicodeText)
-     column.create(package)
+3. Get agpdiff (apt-get it).  It produces sql it thinks that you need to run on the database in order to get it to the updated schema.
 
-(Note: To add 'create' and other useful migration methods to the SqlAlchemy objects you will have to also import migrate.changeset)
+   apgdiff old.sql new.sql > upgrade.diff
+   (or if you don't want to install java use http://apgdiff.startnet.biz/diff_online.php)
 
-If you are creating a revisioned object (vdm feature) then you need to remember to add the revision_id column and related revision table too. See 017_add_pkg_relationships.py for an example.
+4. The upgrade.diff file created will have all the changes needed in sql.  Delete the drop index lines as they are not created in the model.
 
-More complicated migrations require dropping the foreign key constraints. See 016_uuids_everywhere.py for an example of changing primary keys.
+5. Put the resulting sql in your migrate script.
+
+   eg migrate_engine.execute('''update table .........; update table ....''')
+
+6.  Do a dump again, then a diff again to see if the the only thing left are drop index statements.
+
+7.  run nosetests with --ckan-migrate flag.
+
+Its that simple.  Well almost..
+
+*  If you are doing any table/field renaming adding that to your new migrate script first and use this as a base for your diff (i.e add a migrate script with these renaming before 1).  This way the resulting sql wont try and drop and recreate the field/table!!
+*  It sometimes drops the foreign key constraints in the wrong order causing an error so you may need to rearrange the order in the resulting upgrade.diff. 
+*  If you need to do any data transfer in the migrations then do it between the dropping of the constraints and adding of new ones.
+*  May need to add some tests if you are doing data migrations.
+
+An example of a script doing it this way is 034_resource_group_table.py.  This script copies the definitions of the original tables in order to do the renaming the tables/fields.
+
+In order to do some basic data migration testing extra assertions should be added to the migration script.
+
+Examples of this can also be found in 034_resource_group_table.py for example.
+
+This statement is run at the top of the migration script to get the count of rows::
+
+    package_count = migrate_engine.execute('''select count(*) from package''').first()[0]
+
+And the following is run after to make sure that row count is the same::
+
+    resource_group_after = migrate_engine.execute('''select count(*) from resource_group''').first()[0]
+    assert resource_group_after == package_count 
+
+
