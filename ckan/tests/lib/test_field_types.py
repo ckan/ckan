@@ -1,7 +1,6 @@
 import formalchemy
 
 from ckan.lib.field_types import *
-import ckan.lib.schema_gov as schema_gov
 from ckan.tests import *
 from unittest import TestCase
 
@@ -84,16 +83,3 @@ class TestDate(TestCase):
         out = DateType.strip_iso_timezone('Wed, 06 Jan 2010 09:30:00 +0100')
         assert out == 'Wed, 06 Jan 2010 09:30:00', out
 
-class TestGovTags(object):
-    def test_tags_parse(self):
-        def test_parse(tag_str, expected_tags):
-            tags = schema_gov.tags_parse(tag_str)
-            assert tags == expected_tags, 'Got %s not %s' % (tags, expected_tags)
-        test_parse('one two three', ['one', 'two', 'three'])
-        test_parse('one, two, three', ['one', 'two', 'three'])
-        test_parse('one,two,three', ['one', 'two', 'three'])
-        test_parse('one-two,three', ['one-two', 'three'])
-        test_parse('One, two&three', ['one', 'twothree'])
-        test_parse('One, two_three', ['one', 'two-three'])
-        test_parse('ordnance survey stuff', ['ordnance-survey', 'stuff'])
-        test_parse('ordnance stuff survey', ['ordnance', 'stuff', 'survey'])
