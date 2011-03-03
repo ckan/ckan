@@ -27,6 +27,10 @@ class UuidType(types.TypeDecorator):
 from ckan.lib.helpers import json
 class JsonType(types.TypeDecorator):
     '''Store data as JSON serializing on save and unserializing on use.
+
+    Note that default values don't appear to work correctly with this
+    type, a workaround is to instead override ``__init__()`` to explicitly
+    set any default values you expect.
     '''
     impl = types.UnicodeText
 
@@ -50,7 +54,6 @@ class JsonType(types.TypeDecorator):
         return True
 
     def copy_value(self, value):
-
         return copy.copy(value)
 
 class JsonDictType(JsonType):
@@ -67,5 +70,4 @@ class JsonDictType(JsonType):
                 return unicode(json.dumps(value, ensure_ascii=False))
 
     def copy(self):
-
         return JsonDictType(self.impl.length)

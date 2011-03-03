@@ -1,16 +1,16 @@
 import urllib2
-import logging
 from lxml import etree
 
 from pylons.i18n import _
 
 from ckan.lib.base import *
+from ckan.lib.helpers import literal
 from ckan.lib.cache import proxy_cache
 from ckan.lib.package_saver import PackageSaver, ValidationException
 from ckan.lib.package_saver import WritePackageFromBoundFieldset
 from ckan.lib.base import BaseController
 from ckan.plugins import PluginImplementations, IPackageController
-from ckan.model.harvesting import HarvesterError, HarvesterUrlError
+from ckan.model.harvesting import HarvesterError, HarvesterUrlError, ValidationError
 from ckan.model.harvesting import GeminiDocument
 from ckan.model.harvesting import HarvestedDocument
 import ckan.forms
@@ -20,10 +20,9 @@ import ckan.model as model
 import ckan.authz
 import ckan.rating
 import ckan.misc
-from ckan.lib.cswclient import CswClient
-from ckan.lib.cswclient import CswError
+from ckan.lib.munge import munge_title_to_name
 
-logger = logging.getLogger('ckan.controllers')
+log = __import__("logging").getLogger(__name__)
 
 def decode_response(resp):
     """Decode a response to unicode
@@ -33,8 +32,26 @@ def decode_response(resp):
     try:
         data = unicode(content, encoding)
     except LookupError:
-        data = unicode(content, 'utf8')  # XXX is this a fair assumption?
+        # XXX is this a fair assumption? No, we should let the parser take the value from the XML encoding specified in the document
+        data = unicode(content, 'utf8') 
+        # data = content
     return data
+
+def gen_new_name(title):
+    name = munge_title_to_name(title).replace('_', '-')
+    while '--' in name:
+        name = name.replace('--', '-')
+    like_q = u"%s%%" % name
+    pkg_query = model.Session.query(model.Package).filter(model.Package.name.ilike(like_q)).limit(100)
+    taken = [pkg.name for pkg in pkg_query]
+    if name not in taken:
+        return name
+    else:
+        counter = 1
+        while counter < 101:
+            if name+str(counter) not in taken:
+                return name+str(counter)
+        return None
 
 class HarvestingSourceController(BaseController):
     pass
@@ -55,7 +72,7 @@ class ExampleController(BaseController):
                                                       model.Action.READ,
                                                       c.pkg)
         if not auth_for_read:
-            abort(401, _('Unauthorized to read package %s') % id)
+            abort(401, str(gettext('Unauthorized to read package %s') % id))
         PackageSaver().render_package(c.pkg)
         return render('package/read.html')
 
@@ -64,38 +81,52 @@ class HarvestingJobController(object):
     This is not a controller in the Pylons sense, just an object for managing
     harvesting.
     """
-    def __init__(self, job):
+    def __init__(self, job, validator=None):
         self.job = job
+        self.validator = validator
 
     def harvest_documents(self):
-        self.job.start_report()
         try:
-            try:
-                content = self.get_content(self.job.source.url)
-            except HarvesterUrlError, exception:
-                msg = "Error harvesting source: %s" % exception
-                self.job.report_error(msg)
-            else:
-                source_type = self.detect_source_type(content)
+            content = self.get_content(self.job.source.url)
+        except HarvesterUrlError, exception:
+            msg = "Error harvesting source: %s" % exception
+            self.job.report['errors'].append(msg)
+        else:
+            # @@@ This is very ugly. Essentially for remote (CSW) services
+            # we purposely cause an error to detect what they are.
+            # Likely a much better idea just to have a type in the
+            # source table
+            source_type = self.detect_source_type(content)
+            if source_type not in ['doc', 'waf', 'csw']:
                 if source_type == None:
-                    self.job.report_error(
-                        "Unable to detect source type from content")
-                elif source_type == 'doc':
+                    self.job.report['errors'].append(
+                        "Unable to detect source type from content",
+                    )
+                else:
+                    self.job.report['errors'].append(
+                        "Source type '%s' not supported" % source_type
+                    )
+            else:
+                # @@@ We want a model where the harvesting returns
+                # documents, then each document is parsed and errors
+                # are associated with the document itself, and the 
+                # documents are serialised afterwards I think.
+                # Here everything is done in one go.
+                if source_type == 'doc':
                     self.harvest_gemini_document(content)
                 elif source_type == 'csw':
                     self.harvest_csw_documents(url=self.job.source.url)
                 elif source_type == 'waf':
                     self.harvest_waf_documents(content)
-                else:
-                    raise HarvesterError(
-                        "Source type '%s' not supported" % source_type)
-        except Exception, e:
-            self.job.report_error("Harvesting system error: %r" % e)
-            self.job.save()
-            raise
-        else:
-            if not self.job.report_has_errors():
-                self.job.set_status_success()
+        # Set the status based on the outcome
+        if not self.job.report.get('errors', []):
+            self.job.status = u"Success"
+        elif self.job.report.get('added', []) and self.job.report.get('errors', []):
+            self.job.status = u"Partial Success"
+        elif not self.job.report.get('added', []) and not self.job.report.get('errors', []):
+            self.job.status = u"No Change"
+        elif not self.job.report.get('added', []) and self.job.report.get('errors', []):
+            self.job.status = u"Failed"
         self.job.save()
         return self.job
 
@@ -107,6 +138,8 @@ class HarvestingJobController(object):
         references to its source and its package)
         """
         # Look for previously harvested document matching Gemini GUID
+        harvested_doc = None
+        package = None
         gemini_document = GeminiDocument(content)
         gemini_values = gemini_document.read_values()
         gemini_guid = gemini_values['guid']
@@ -114,37 +147,81 @@ class HarvestingJobController(object):
         if len(harvested_documents) > 1:
             # A programming error; should never happen
             raise Exception(
-                "More than one harvested document GUID %s" % gemini_guid)
+                "More than one harvested document GUID %s" % gemini_guid
+            )
         elif len(harvested_documents) == 1:
              # we've previously harvested this (i.e. it's an update)
             harvested_doc = harvested_documents[0]
+            if harvested_doc.source is None:
+                # The source has been deleted, we can re-use it
+                log.info('This document existed from another source which was deleted, using your document instead')
+                harvested_doc.source = self.job.source
+                package = harvested_doc.package
+                harvested_doc.save()
+                package.save()
+                return None
             if harvested_doc.source.id != self.job.source.id:
                 # A 'user' error: there are two or more sources
                 # pointing to the same harvested document
+                if self.job.source.id is None:
+                    raise Exception('You cannot have an unsaved job source')
                 raise HarvesterError(
-                    "Another source is using metadata GUID %s" % \
-                                    self.job.source.id)
-            # XXX Not strictly true - we need to check the title, package resources etc
-            if harvested_doc.read_values() == gemini_values:
-                # nothing's changed
+                    literal("Another source %s (publisher %s, user %s) is using metadata GUID %s" % (
+                        harvested_doc.source.url,
+                        harvested_doc.source.publisher_ref,
+                        harvested_doc.source.user_ref,
+                        gemini_guid,
+                    ))
+                )
+            if harvested_doc.content == content:
+                log.info("Document with GUID %s unchanged, skipping..." % (gemini_guid))
                 return None
+            else:
+                log.info("Harvested document with GUID %s has changed, re-creating..." % (gemini_guid))
+            log.info("Updating package for %s" % gemini_guid)
             package = harvested_doc.package
         else:
-            harvested_doc = None
-            package = None
-
+            log.info("No package with GEMINI guid %s found, let's create one" % gemini_guid)
         extras = {
-            'publisher': int(self.job.source.publisher_ref or 0),
+            'published_by': int(self.job.source.publisher_ref or 0),
             'INSPIRE': 'True',
         }
         # Just add some of the metadata as extras, not the whole lot
-        for name in ['bbox-east-long', 'bbox-north-lat', 'bbox-south-lat', 'bbox-west-long', 'abstract', 'guid']:
+        for name in [
+            # Essentials
+            'bbox-east-long', 
+            'bbox-north-lat', 
+            'bbox-south-lat', 
+            'bbox-west-long', 
+            'guid', 
+            # Usefuls
+            'spatial-reference-system',
+            'dataset-reference-date',
+            'resource-type',
+            'metadata-language', # Language
+            'metadata-date', # Released
+        ]:
             extras[name] = gemini_values[name]
+        extras['constraint'] = '; '.join(gemini_values.get("use-constraints", '')+gemini_values.get("limitations-on-public-access"))
+        if gemini_values.has_key('temporal-extent-begin'):
+            #gemini_values['temporal-extent-begin'].sort()
+            extras['temporal_coverage-from'] = gemini_values['temporal-extent-begin']
+        if gemini_values.has_key('temporal-extent-end'):
+            #gemini_values['temporal-extent-end'].sort()
+            extras['temporal_coverage-to'] = gemini_values['temporal-extent-end']
         package_data = {
-            'name': str(gemini_guid),
             'title': gemini_values['title'],
+            'notes': gemini_values['abstract'],
             'extras': extras,
+            'tags': gemini_values['tags'],
         }
+        if package is None or package.title != gemini_values['title']:
+            name = gen_new_name(gemini_values['title'])
+            if not name:
+                name = gen_new_name(str(gemini_guid))
+            if not name:
+                raise Exception('Could not generate a unique name from the title or the GUID. Please choose a more unique title.')
+            package_data['name'] = name
         resource_locator = gemini_values.get('resource-locator', []) and gemini_values['resource-locator'][0].get('url') or ''
         if resource_locator:
             package_data['resources'] = [
@@ -153,38 +230,50 @@ class HarvestingJobController(object):
                     'description': 'Resource locator',
                     'format': 'Unverified',
                 },
-                {
-                    'url': '%s/api/2/rest/harvesteddocument/%s/xml/%s.xml'%(
-                        config.get('ckan.api_url', '/').rstrip('/'),
-                        gemini_guid, 
-                        gemini_guid,
-                    ),
-                    'description': 'Source GEMINI 2 document',
-                    'format': 'XML',
-                },
-                {
-                    'url': '%s/api/2/rest/harvesteddocument/%s/html/%s.html'%(
-                        config.get('ckan.api_url', '/').rstrip('/'),
-                        gemini_guid, 
-                        gemini_guid,
-                    ),
-                    'description': 'Formatted GEMINI 2 document', 
-                    'format': 'HTML',
-                },
+                # These are generated in Drupal now
+                #{
+                #    'url': '%s/api/2/rest/harvesteddocument/%s/xml/%s.xml'%(
+                #        config.get('ckan.api_url', '/').rstrip('/'),
+                #        gemini_guid, 
+                #        gemini_guid,
+                #    ),
+                #    'description': 'Source GEMINI 2 document',
+                #    'format': 'XML',
+                #},
+                #{
+                #    'url': '%s/api/rest/harvesteddocument/%s/html'%(
+                #        config.get('ckan.api_url', '/').rstrip('/'),
+                #        gemini_guid,
+                #    ),
+                #    'description': 'Formatted GEMINI 2 document', 
+                #    'format': 'HTML',
+                #},
             ]
         if package == None:
             # Create new package from data.
             package = self._create_package_from_data(package_data)
+            log.info("Created new package ID %s with GEMINI guid %s", package.id, gemini_guid)
+            harvested_doc = HarvestedDocument(
+                content=content,
+                guid=gemini_guid,
+                package=package,
+                source=self.job.source,
+            )
+            harvested_doc.save()
+            if not harvested_doc.source_id:
+                raise Exception('Failed to set the source for document %r'%harvested_doc.id)
+            assert gemini_guid == package.documents[0].guid
+            return package
         else:
             package = self._update_package_from_data(package, package_data)
-        harvested_doc = HarvestedDocument(
-            content=content,
-            guid=gemini_guid,
-            package=package,
-            source=self.job.source,
-        )
-        harvested_doc.save()
-        return package
+            log.info("Updated existing package ID %s with existing GEMINI guid %s", package.id, gemini_guid)
+            harvested_doc.content = content
+            harvested_doc.source = self.job.source
+            harvested_doc.save()
+            if not harvested_doc.source_id:
+                raise Exception('Failed to set the source for document %r'%harvested_doc.id)
+            assert gemini_guid == package.documents[0].guid
+            return package
 
     def get_content(self, url):
         try:
@@ -204,34 +293,59 @@ class HarvestingJobController(object):
 
     def harvest_gemini_document(self, gemini_string):
         try:
-            self.validate_document(gemini_string)
-        except Exception, exception:
-            msg = "Error validating harvested content: %s" % exception
-            self.job.report_error(msg)
+            if self.validator is not None:
+                # sigh... encoding, decoding, encoding, decoding
+                # convention really should be, parse into etree at
+                # the first opportunity and then only pass that
+                # around internally...
+                xml = etree.fromstring(gemini_string)
+                valid, messages = self.validator.isvalid(xml)
+                if not valid:
+                    raise ValidationError(*messages)
+            package = self.write_package_from_gemini_string(gemini_string)
+        except HarvesterError, exception:
+            for msg in [str(x) for x in exception.args]:
+                log.error(msg)
+                self.job.report['errors'].append(msg)
+        except Exception, e:
+            raise
+            self.job.report['errors'].append('se: %r'%str(e))
         else:
-            try:
-                package = self.write_package_from_gemini_string(gemini_string)
-            except HarvesterError, exception:
-                msg = "%s" % exception
-                self.job.report_error(msg)
-            except Exception, exception:
-                msg = ("System error writing package from harvested"
-                       "content: %s" % exception)
-                self.job.report_error(msg)
-                raise
-            else:
-                if package:
-                    self.job.report_package(package.id)
+            if package:
+                self.job.report['added'].append(package.name)
 
     def harvest_csw_documents(self, url):
         try:
-            csw_client = CswClient(base_url=url)
-            records = csw_client.get_records()
-        except CswError, error:
-            msg = "Couldn't get records from CSW: %s: %s" % (url, error)
-            self.job.report_error(msg)
-        for gemini_string in records:
-            self.harvest_gemini_document(gemini_string)
+            from ckanext.csw.services import CswService
+            from owslib.csw import namespaces
+        except ImportError:
+            self.job.report['errors'].append('No CSW support installed -- install ckanext-csw')
+            raise
+        csw = CswService(url)
+        used_identifiers = []
+        try:
+            for identifier in csw.getidentifiers(page=10):
+                log.info('Got identifier %s from the CSW', identifier)
+                if identifier in used_identifiers:
+                    log.error('CSW identifier %r already used, skipping...' % identifier)
+                    continue
+                if identifier is None:
+                    self.job.report['errors'].append('CSW returned identifier %r, skipping...' % identifier)
+                    log.error('CSW returned identifier %r, skipping...' % identifier)
+                    ## log an error here? happens with the dutch data
+                    continue
+                used_identifiers.append(identifier)
+                record = csw.getrecordbyid([identifier])
+                if record is None:
+                    self.job.report['errors'].append('Empty record for ID %s' % identifier)
+                    log.error('Empty record for ID %s' % identifier)
+                    continue
+                ## we could maybe do something better here by using the
+                ## parsed metadata...
+                log.info('Parsing the record XML len %s', len(record['xml']))
+                self.harvest_gemini_document(record['xml'])
+        except Exception, e:
+            self.job.report['errors'].append('Problem connecting to the CSW: %s'%e)
 
     def harvest_waf_documents(self, content):
         for url in self.extract_urls(content):
@@ -239,12 +353,12 @@ class HarvestingJobController(object):
                 content = self.get_content(url)
             except HarvesterError, error:
                 msg = "Couldn't harvest WAF link: %s: %s" % (url, error)
-                self.job.report_error(msg)
+                self.job.report['errors'].append(msg)
             else:
                 if "<gmd:MD_Metadata" in content:
                     self.harvest_gemini_document(content)
-        if not self.job.get_report()['packages']:
-            self.job.report_error("Couldn't find any links to metadata files.")
+        if not self.job.report['added']:
+            self.job.report['errors'].append("Couldn't find any links to metadata files.")
 
     def extract_urls(self, content):
         """\
@@ -275,12 +389,6 @@ class HarvestingJobController(object):
         base_url.rstrip('/')
         base_url += '/'
         return [base_url + i for i in urls]
-
-    def validate_document(self, content):
-        """\
-        This should run the schema validation, the schematron validation *and* any checks we want to make.
-        """
-        pass
 
     def _create_package_from_data(self, package_data):
         user_editable_groups = []
@@ -321,7 +429,7 @@ class HarvestingJobController(object):
             model.repo.commit()
         else:
             # Complain about validation errors.
-            msg = 'Validation error:'
+            msg = 'CKAN Validation error:'
             errors = fs.errors.items()
             for error in errors:
                 attr_name = error[0].name

@@ -44,7 +44,7 @@ class TestHarvestSource(HarvesterTestCase):
         """Create a package, then ensure that deleting its source
         doesn't delete the package.
         """
-        raise SkipTest('This needs fixing, but JG is going to refactor this. 2011-2-10.')
+        #raise SkipTest('This needs fixing, but JG is going to refactor this. 2011-2-10.')
         url = self.gemini_example.url_for(file_index=0)
         source = HarvestSource(url=url)
         count_before_write = self.count_packages()
@@ -99,16 +99,16 @@ class TestHarvestingJob(HarvesterTestCase):
         job = self.controller.harvest_documents()
         after_count = self.count_packages()
         self.assert_equal(after_count, before_count + 1)
-        self.assert_equal(job.source.documents[0].package.id,
-                          (job.report['packages'][0]))
+        self.assert_equal(job.source.documents[0].package.name,
+                          (job.report['added'][0]))
         self.assert_true(job.report)
         self.assert_len(job.report['errors'], 0)
-        self.assert_len(job.report['packages'], 1)
+        self.assert_len(job.report['added'], 1)
 
     def test_harvest_documents_twice_unchanged(self):
         job = self.controller.harvest_documents()
         self.assert_len(job.report['errors'], 0)
-        self.assert_len(job.report['packages'], 1)
+        self.assert_len(job.report['added'], 1)
         job2 = HarvestingJobController(
             HarvestingJob(
                 source=self.source,
@@ -116,12 +116,12 @@ class TestHarvestingJob(HarvesterTestCase):
                 )
             ).harvest_documents()
         self.assert_len(job2.report['errors'], 0)
-        self.assert_len(job2.report['packages'], 0)
+        self.assert_len(job2.report['added'], 0)
 
     def test_harvest_documents_twice_changed(self):
         job = self.controller.harvest_documents()
         self.assert_len(job.report['errors'], 0)
-        self.assert_len(job.report['packages'], 1)
+        self.assert_len(job.report['added'], 1)
         self.source.url = self.gemini_example.url_for(file_index=2)
         self.source.save()
         job2 = HarvestingJobController(
@@ -131,13 +131,15 @@ class TestHarvestingJob(HarvesterTestCase):
                 )
             ).harvest_documents()
         self.assert_len(job2.report['errors'], 0)
-        self.assert_len(job2.report['packages'], 1)
+        self.assert_len(job2.report['added'], 1)
 
     def test_harvest_documents_source_guid_contention(self):
         job = self.controller.harvest_documents()
         source2 = HarvestSource(
-            url=self.gemini_example.url_for(file_index=2)
-            )
+            url=self.gemini_example.url_for(file_index=2),
+        )
+        # Make sure it has an id by saving it
+        source2.save()
         job2 = HarvestingJobController(
             HarvestingJob(
                 source=source2,
@@ -145,7 +147,9 @@ class TestHarvestingJob(HarvesterTestCase):
                 )
             ).harvest_documents()
         error = job2.report['errors'][0]
-        self.assert_contains(error, "Another source is using metadata GUID")
+        # XXX Should not allow file:// URLs, security implications
+        # The one that is conflicting doesn't have a user or publisher set up, otherwise the integers would show here
+        self.assert_equal(error, 'Another source file://%s/ckan/tests/gemini2_examples/00a743bf-cca4-4c19-a8e5-e64f7edbcadd_gemini2.xml (publisher , user ) is using metadata GUID 00a743bf-cca4-4c19-a8e5-e64f7edbcadd'%os.getcwd())
 
     def test_harvest_bad_source_url(self):
         source = HarvestSource(
@@ -156,11 +160,12 @@ class TestHarvestingJob(HarvesterTestCase):
             user_ref=self.fixture_user_ref
             )
         before_count = self.count_packages()
-        self.assert_false(job.report)
+        self.assert_false(job.report['added'])
+        self.assert_false(job.report['errors'])
         job = HarvestingJobController(job).harvest_documents()
         after_count = self.count_packages()
         self.assert_equal(after_count, before_count)
-        self.assert_len(job.report['packages'], 0)
+        self.assert_len(job.report['added'], 0)
         self.assert_len(job.report['errors'], 1)
         error = job.report['errors'][0]
         self.assert_contains(error,
@@ -175,47 +180,98 @@ class TestHarvesterSourceTypes(HarvesterTestCase):
         self.gemini_example = GeminiExamples()
         # XXX put real-life CSW examples here if you want, and if they
         # arrive...
-        self.sources = {
-            self.gemini_example.url_for(file_index='index.html'): {
-                'errors': [],
-                'packages': 2,
-                'documents': 3,
-            },
-            'http://127.0.0.1:44444': {
-                'errors': ['Unable to get content for URL'],
-                'packages': 0,
-                'documents': 0,
-            },
-            'http://www.google.com': {
-                'errors': ["Couldn't find any links to metadata"],
-                'packages': 0,
-                'documents': 0,
-            },
-        }
+        self.sources = [
+            (
+                'http://127.0.0.1:44444',
+                {
+                    'errors': ["Error harvesting source: Unable to get content for URL: http://127.0.0.1:44444: URLError(error(111, 'Connection refused'),)"],
+                    'packages': 0,
+                    'documents': 0,
+                },
+            ),
+            (
+                'http://www.google.com',
+                {
+                    'errors': ["Couldn't find any links to metadata"],
+                    'packages': 0,
+                    'documents': 0,
+                },
+            ),
+            (
+                self.gemini_example.url_for(file_index='index.html'),
+                {
+                    'errors': [],
+                    'packages': 2,
+                    'documents': 2,
+                },
+            ),
+        ]
+        self.updated_sources = [
+            (
+                self.gemini_example.url_for(file_index='index.updated.html'),
+                {
+                    'errors': [],
+                    'packages': 2,
+                    'documents': 2,
+                },
+            ),
+        ]
 
     def test_various_sources(self):
-        for url, expected in self.sources.items():
+        sources = []
+        for url, expected in self.sources:
             source = HarvestSource(url=url)
+            # Create an ID for it
+            source.save()
+            sources.append(source)
             job = HarvestingJob(
                 source=source,
                 user_ref=self.fixture_user_ref
-                )
+            )
             before_count = self.count_packages()
-            self.assert_false(job.report)
+            self.assert_false(job.report['added'])
+            self.assert_false(job.report['errors'])
             job = HarvestingJobController(job).harvest_documents()
             after_count = self.count_packages()
             self.assert_equal(after_count,
                               before_count + expected['packages'])
             for (idx, error) in enumerate(job.report['errors']):
                 assert expected['errors'][idx] in error
-            # report['packages'] is a list, appended to each time a
+            # report['added'] is a list, appended to each time a
             # package is touched.
-            self.assert_equal(len(job.source.documents),
-                                  expected['documents'])
+            self.assert_equal(
+                len(job.source.documents),
+                expected['documents'],
+            )
             for (idx, doc) in enumerate(job.source.documents):
                 self.assert_true(doc.package)
-                assert (doc.package.id in job.report['packages'])
+                assert (doc.package.name in job.report['added'])
 
+        # Now test updated sources
+        for url, expected in self.updated_sources:
+            sources[-1].url = url
+            sources[-1].save()
+            job = HarvestingJob(
+                # We'll use the last source updated above to test updating a 
+                # document
+                source=sources[-1],
+                user_ref=self.fixture_user_ref
+            )
+            self.assert_false(job.report['added'])
+            self.assert_false(job.report['errors'])
+            before_count = self.count_packages()
+            before_content = [doc.content for doc in job.source.documents]
+            job = HarvestingJobController(job).harvest_documents()
+            after_count = self.count_packages()
+            after_content = [doc.content for doc in job.source.documents]
+            self.assert_true(after_count == before_count == long(expected['packages']))
+            # Represents an updated record
+            self.assert_equal(len(job.report['added']), 1)
+            self.assert_equal(
+                len(job.source.documents),
+                expected['documents'],
+            )
+            self.assert_false(before_content == after_content)
 
 class TestHarvestedDocument(HarvesterTestCase):
     def test_create_and_delete_document(self):
@@ -273,6 +329,8 @@ class GeminiExamples(object):
     def url_for(self, file_index=None):
         if file_index in [None, 'index.html']:
             name = "index.html"
+        elif file_index in ['index.updated.html']:
+            name = "index.updated.html"
         else:
             name = self.file_names[file_index]
         path = os.path.join(self.folder_path(), name)

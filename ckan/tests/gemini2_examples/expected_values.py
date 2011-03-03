@@ -19,7 +19,7 @@ expect_values0 = {
         ],
         'date-released': '',
         'date-updated': '2009-10-08',
-        'unique-resource-identifier': '<gmd:RS_Identifier xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xlink="http://www.w3.org/1999/xlink"><gmd:code><gco:CharacterString>BBC:000006</gco:CharacterString></gmd:code><gmd:codeSpace><gco:CharacterString>Barrow Borough Council</gco:CharacterString></gmd:codeSpace></gmd:RS_Identifier>',
+        #'unique-resource-identifier': '<gmd:RS_Identifier xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xlink="http://www.w3.org/1999/xlink"><gmd:code><gco:CharacterString>BBC:000006</gco:CharacterString></gmd:code><gmd:codeSpace><gco:CharacterString>Barrow Borough Council</gco:CharacterString></gmd:codeSpace></gmd:RS_Identifier>',
         'abstract': 'Location of Council owned litter bins within Borough.',
         'responsible-organisation': [
             {
@@ -39,7 +39,7 @@ expect_values0 = {
         'keyword-controlled-other': ['Utility and governmental services'],
         'keyword-free-text': [],
         'tags': ['Utility and governmental services'],
-        'limitations-on-public-access': [],
+        'limitations-on-public-access': ['(e) intellectual property rights;'],
         'use-constraints': ['conditions unknown'],
         'spatial-data-service-type': '',
         'spatial-resolution': '',
@@ -91,7 +91,7 @@ expect_values1 = {
         ],
         'date-released': '',
         'date-updated': '',
-        'unique-resource-identifier': '<gmd:RS_Identifier xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gts="http://www.isotc211.org/2005/gts" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:gmx="http://www.isotc211.org/2005/gmx" xmlns:gsr="http://www.isotc211.org/2005/gsr" xmlns:gss="http://www.isotc211.org/2005/gss" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><gmd:code><gco:CharacterString>OSMM Imagery</gco:CharacterString></gmd:code><gmd:codeSpace><gco:CharacterString>http://www.ordnancesurvey.co.uk</gco:CharacterString></gmd:codeSpace></gmd:RS_Identifier>',
+        #'unique-resource-identifier': '<gmd:RS_Identifier xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gts="http://www.isotc211.org/2005/gts" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:gmx="http://www.isotc211.org/2005/gmx" xmlns:gsr="http://www.isotc211.org/2005/gsr" xmlns:gss="http://www.isotc211.org/2005/gss" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><gmd:code><gco:CharacterString>OSMM Imagery</gco:CharacterString></gmd:code><gmd:codeSpace><gco:CharacterString>http://www.ordnancesurvey.co.uk</gco:CharacterString></gmd:codeSpace></gmd:RS_Identifier>',
         'abstract': u'High resolution, national, fully Orthorectified colour imagery product. Complements other OS Mastermap\xae Layers. Regularly maintained and updated. Available to order over the internet.',
         'responsible-organisation': [
             {

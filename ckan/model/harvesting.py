@@ -6,6 +6,7 @@ from lxml import etree
 from types import make_uuid
 from types import JsonType
 from core import *
+from sqlalchemy.orm import backref, relation
 from domain_object import DomainObject
 from package import Package
 
@@ -17,13 +18,14 @@ __all__ = [
     'HarvestedDocument', 'harvested_document_table',
 ]
 
+class HarvesterError(Exception):
+    pass
 
+class HarvesterUrlError(HarvesterError):
+    pass
 
-class HarvesterError(Exception): pass
-
-
-class HarvesterUrlError(HarvesterError): pass
-
+class ValidationError(HarvesterError):
+    pass
 
 class HarvestDomainObject(DomainObject):
     """Convenience methods for searching objects
@@ -31,22 +33,22 @@ class HarvestDomainObject(DomainObject):
     key_attr = 'id'
 
     @classmethod
-    def get(cls, key, default=Exception, attr=None):
+    def get(self, key, default=Exception, attr=None):
         """Finds a single entity in the register."""
         if attr == None:
-            attr = cls.key_attr
+            attr = self.key_attr
         kwds = {attr: key}
-        o = cls.filter(**kwds).first()
+        o = self.filter(**kwds).first()
         if o:
             return o
         if default != Exception:
             return default
         else:
-            raise Exception("%s not found: %s" % (cls.__name__, key))
+            raise Exception("%s not found: %s" % (self.__name__, key))
 
     @classmethod
-    def filter(cls, **kwds): 
-        query = Session.query(cls).autoflush(False)
+    def filter(self, **kwds):
+        query = Session.query(self).autoflush(False)
         return query.filter_by(**kwds)
 
 
@@ -58,50 +60,21 @@ class HarvestSource(HarvestDomainObject):
     """
     pass
 
-
 class HarvestingJob(HarvestDomainObject):
 
-    def report_error(self, msg):
-        self.set_status(u"Error")
-        self.get_report()['errors'].append(msg)
-
-    def report_package(self, msg):
-        self.get_report()['packages'].append(msg)
-
-    def get_report(self):
-        if not hasattr(self, '_report'):
-            self._report = {
-                'packages': [],
-                'errors': [],
-            }
-        return self._report
-
-    def start_report(self):
-        self.get_report()
-        self.set_status(u"Running")
-        self.save()
-
-    def save(self):
-        self.report = self.get_report()
-        super(HarvestingJob, self).save()
-
-    def report_has_errors(self):
-        return bool(self.get_report()['errors'])
-
-    def set_status_success(self):
-        self.set_status(u"Success")
-
-    def set_status(self, status):
-        self.status = status
-
+    def __init__(self, **p):
+        if 'report' in p.keys():
+            raise Exception(
+                "You cannot set the 'report' key in the constructor"
+            )
+        HarvestDomainObject.__init__(self, **p)
+        self.report = {'added': [], 'errors': []}
 
 class MappedXmlObject(object):
-
     elements = []
 
 
 class MappedXmlDocument(MappedXmlObject):
-
     def __init__(self, content):
         self.content = content
 
@@ -126,7 +99,6 @@ class MappedXmlDocument(MappedXmlObject):
 
 
 class MappedXmlElement(MappedXmlObject):
-
     namespaces = {}
 
     def __init__(self, name, search_paths=[], multiplicity="*", elements=[]):
@@ -403,15 +375,15 @@ class GeminiDocument(MappedXmlDocument):
             ],
             multiplicity="*",
         ),
-        # Todo: Suggestion from PP not to bother pulling this into the package.
-        GeminiElement(
-            name="unique-resource-identifier",
-            search_paths=[
-                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier",
-                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier",
-            ],
-            multiplicity="1",
-        ),
+        ## Todo: Suggestion from PP not to bother pulling this into the package.
+        #GeminiElement(
+        #    name="unique-resource-identifier",
+        #    search_paths=[
+        #        "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier",
+        #        "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier",
+        #    ],
+        #    multiplicity="1",
+        #),
         GeminiElement(
             name="abstract",
             search_paths=[
@@ -465,8 +437,8 @@ class GeminiDocument(MappedXmlDocument):
         GeminiElement(
             name="limitations-on-public-access",
             search_paths=[
-                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:accessConstraints/gmd:otherConstraints/gco:CharacterString/text()",
-                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:accessConstraints/gmd:otherConstraints/gco:CharacterString/text()",
+                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:otherConstraints/gco:CharacterString/text()",
+                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:otherConstraints/gco:CharacterString/text()",
             ],
             multiplicity="1..*",
         ),
@@ -493,14 +465,14 @@ class GeminiDocument(MappedXmlDocument):
             ],
             multiplicity="0..1",
         ),
-        GeminiElement(
-            name="spatial-resolution-units",
-            search_paths=[
-                "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gco:Distance/@uom",
-                "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gco:Distance/@uom",
-            ],
-            multiplicity="0..1",
-        ),
+        #GeminiElement(
+        #    name="spatial-resolution-units",
+        #    search_paths=[
+        #        "gmd:identificationInfo/gmd:MD_DataIdentification/gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gco:Distance/@uom",
+        #        "gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:spatialResolution/gmd:MD_Resolution/gmd:distance/gco:Distance/@uom",
+        #    ],
+        #    multiplicity="0..1",
+        #),
         GeminiElement(
             name="equivalent-scale",
             search_paths=[
@@ -693,12 +665,12 @@ class GeminiDocument(MappedXmlDocument):
         values['url'] = value
 
     def infer_tags(self, values):
-        value = []
-        value += values['keyword-inspire-theme']
-        value += values['keyword-controlled-other']
-        value += values['keyword-free-text']
-        value = list(set(value))
-        values['tags'] = value
+        tags = []
+        for key in ['keyword-inspire-theme', 'keyword-controlled-other', 'keyword-free-text']:
+            for item in values[key]:
+                if item not in tags:
+                    tags.append(item)
+        values['tags'] = tags
 
     def infer_publisher(self, values):
         value = ''
@@ -738,47 +710,58 @@ class HarvestedDocument(HarvestDomainObject):
             raise HarvesterError, "Can't identify type of document content: %s" % self.content
         return gemini_document.read_values()
 
-
 harvest_source_table = Table('harvest_source', metadata,
-        Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
-        Column('url', types.UnicodeText, unique=True, nullable=False),
-        Column('description', types.UnicodeText, default=u''),
-        Column('user_ref', types.UnicodeText, default=u''),
-        Column('publisher_ref', types.UnicodeText, default=u''),
-        Column('created', DateTime, default=datetime.datetime.utcnow),
+    Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
+    Column('url', types.UnicodeText, unique=True, nullable=False),
+    Column('description', types.UnicodeText, default=u''),
+    Column('user_ref', types.UnicodeText, default=u''),
+    Column('publisher_ref', types.UnicodeText, default=u''),
+    Column('created', DateTime, default=datetime.datetime.utcnow),
 )
-
 harvesting_job_table = Table('harvesting_job', metadata,
-        Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
-        Column('status', types.UnicodeText, default=u'New', nullable=False),
-        Column('created', DateTime, default=datetime.datetime.utcnow),
-        Column('user_ref', types.UnicodeText, nullable=False),
-        Column('report', JsonType),
-        Column('source_id', types.UnicodeText, ForeignKey('harvest_source.id')),
+    Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
+    Column('status', types.UnicodeText, default=u'New', nullable=False),
+    Column('created', DateTime, default=datetime.datetime.utcnow),
+    Column('user_ref', types.UnicodeText, nullable=False),
+    Column('report', JsonType),
+    Column('source_id', types.UnicodeText, ForeignKey('harvest_source.id')),
 )
-
 harvested_document_table = Table('harvested_document', metadata,
-        Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
-        Column('guid', types.UnicodeText, default=''),
-        Column('created', DateTime, default=datetime.datetime.utcnow),
-        Column('content', types.UnicodeText, nullable=False),
-        Column('source_id', types.UnicodeText, ForeignKey('harvest_source.id')),
-        Column('package_id', types.UnicodeText, ForeignKey('package.id')),
+    Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
+    Column('guid', types.UnicodeText, default=''),
+    Column('created', DateTime, default=datetime.datetime.utcnow),
+    Column('content', types.UnicodeText, nullable=False),
+    Column('source_id', types.UnicodeText, ForeignKey('harvest_source.id')),
+    Column('package_id', types.UnicodeText, ForeignKey('package.id')),
 )
-
-
-mapper(HarvestedDocument, harvested_document_table, properties={
-    'package':relation(Package),
-})
-
-mapper(HarvestingJob, harvesting_job_table, properties={
-    'source':relation(HarvestSource),
-})
-
-mapper(HarvestSource, harvest_source_table, properties={ 
-    'documents': relation(HarvestedDocument,
-        backref='source',
-    #    cascade='all, delete, delete-orphan',
-    )
-})
+mapper(
+    HarvestedDocument, 
+    harvested_document_table, 
+    properties={
+        'package':relation(
+            Package,
+            # Using the plural but there should only ever be one
+            backref='documents',
+        ),
+    }
+)
+mapper(
+    HarvestingJob, 
+    harvesting_job_table,
+)
+mapper(
+    HarvestSource, 
+    harvest_source_table,
+    properties={ 
+        'documents': relation(
+            HarvestedDocument,
+            backref='source',
+        ),
+        'jobs': relation(
+            HarvestingJob,
+            backref=u'source', 
+            order_by=harvesting_job_table.c.created,
+        ),
+    },
+)
 

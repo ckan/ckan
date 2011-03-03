@@ -1,6 +1,7 @@
 import os
 import sys
 import logging
+from pprint import pprint
 
 import paste.script
 from paste.script.util.logging_config import fileConfig
@@ -821,6 +822,9 @@ class Harvester(CkanCommand):
         self._load_config()
         # Clear the 'No handlers could be found for logger "vdm"' warning message.
         print ""
+        if len(self.args) == 0:
+            self.parser.print_usage()
+            sys.exit(1)
         cmd = self.args[0]
         if cmd == 'source':
             if len(self.args) >= 2:
@@ -879,20 +883,37 @@ class Harvester(CkanCommand):
 
         from ckan.model import HarvestingJob
         from ckan.controllers.harvesting import HarvestingJobController
+        from ckanext.csw.validation import Validator
+
         jobs = HarvestingJob.filter(status=u"New").all()
         jobs_len = len(jobs)
         jobs_count = 0
         if jobs_len:
             print "Running %s harvesting jobs..." % jobs_len
+            profiles = [
+                x.strip() for x in
+                pylons.config.get(
+                    "ckan.harvestor.validator.profiles", 
+                    "iso19139,gemini2",
+                ).split(",")
+            ]
+            validator = Validator(profiles=profiles)
+            print ""
+            for job in jobs:
+                jobs_count += 1
+                if job.source is None:
+                    print 'ERRROR: no source associated with this job'
+                else:
+                    print "Running job %s/%s: %s" % (jobs_count, jobs_len, job.id)
+                    self.print_harvesting_job(job)
+                    job_controller = HarvestingJobController(job, validator)
+                    job_controller.harvest_documents()
+                    pprint (job.report)
         else:
             print "There are no new harvesting jobs."
-        print ""
-        for job in jobs:
-            jobs_count += 1
-            print "Running job %s/%s: %s" % (jobs_count, jobs_len, job.id)
-            self.print_harvesting_job(job)
-            job_controller = HarvestingJobController(job)
-            job_controller.harvest_documents()
+        ### kludge since front page and packages now use the FTS index
+        from ckan.lib.search import rebuild
+        rebuild()
 
     def remove_harvesting_job(self, job_id):
         from ckan import model
@@ -917,7 +938,9 @@ class Harvester(CkanCommand):
                 source = self.create_harvest_source(url=source_url, user_ref=user_ref, publisher_ref=u'')
         else:
             source = HarvestSource.get(source_id)
-
+        objects = HarvestingJob.filter(status='New', source=source)
+        if objects.count():
+            raise Exception('There is already an unrun job for the harvest source %r'%source.id)
         job = HarvestingJob(
             source=source,
             user_ref=user_ref,
@@ -939,6 +962,7 @@ class Harvester(CkanCommand):
             sys.exit(1)
         else:
             source = self.create_harvest_source(url=url, user_ref=user_ref, publisher_ref=publisher_ref)
+            self.register_harvesting_job(source.id, user_ref)
             print "Created new harvest source:"
             self.print_harvest_source(source)
             sources = self.get_harvest_sources()
@@ -1017,8 +1041,8 @@ class Harvester(CkanCommand):
         print "source: %s" % job.source.id
         print "   url: %s" % job.source.url
         #print "report: %s" % job.report
-        if job.report and job.report['packages']:
-            for package_id in job.report['packages']:
+        if job.report and job.report['added']:
+            for package_id in job.report['added']:
                 print "   doc: %s" % package_id
         if job.report and job.report['errors']:
             for msg in job.report['errors']:
