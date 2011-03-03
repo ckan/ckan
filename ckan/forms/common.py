@@ -385,18 +385,18 @@ class ResourcesField(ConfiguredField):
             c.resources = c.resources[:]
             c.resources.extend([None])
             c.id = self.name
-            c.columns = model.PackageResource.get_columns()
+            c.columns = model.Resource.get_columns()
             c.field = self.field
             c.fieldset = self.field.parent
             return render('package/form_resources.html')            
 
         def stringify_value(self, v):
             # actually returns dict here for _value
-            # multiple=True means v is a PackageResource
+            # multiple=True means v is a Resource
             res_dict = {}
             if v:
-                assert isinstance(v, model.PackageResource)
-                for col in model.PackageResource.get_columns() + ['id']:
+                assert isinstance(v, model.Resource)
+                for col in model.Resource.get_columns() + ['id']:
                     res_dict[col] = getattr(v, col)
             return res_dict
 
@@ -419,7 +419,7 @@ class ResourcesField(ConfiguredField):
                     break
                 new_resource = {}
                 blank_row = True
-                for col in model.PackageResource.get_columns() + ['id']:
+                for col in model.Resource.get_columns() + ['id']:
                     value = params.get('%s-%i-%s' % (self.name, row, col), u'')
                     new_resource[col] = value
                     if col != 'id' and value:

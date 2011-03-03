@@ -9,7 +9,7 @@ __all__ = [
     'IMapper', 'ISession',
     'IDomainObjectModification', 'IGroupController', 
     'IPackageController', 'IPluginObserver',
-    'IConfigurable', 'IConfigurer'
+    'IConfigurable', 'IConfigurer', 'IAuthorizer'
 ]
 
 from inspect import isclass
@@ -260,4 +260,32 @@ class IConfigurer(Interface):
         
         :param config: ``pylons.config`` object
         """
+
+
+class IAuthorizer(Interface):
+    """
+    Allow customisation of default Authorization implementation
+    """
+    def get_authorization_groups(self, username):
+        """
+        Called by Authorizer to extend the list of groups to which a
+        user belongs.  Should return a list of AuthorizationGroups.
+        """
+
+    def get_roles(self, username, domain_obj):
+        """
+        Called by Authorizer to extend the list of roles which a user
+        has in the context of the supplied object.  Should return a
+        list of strings which are the names of valid UserObjectRoles.
+        """
+
+    def is_authorized(self, username, action, domain_obj):
+        """
+        Called by Authorizer to assert that a user ```username``` can
+        perform ``action``` on ```domain_obj```.
+
+        Should return True or False.  A value of False will allow
+        other Authorizers to run; True will shortcircuit and return.
+        """
+        
 

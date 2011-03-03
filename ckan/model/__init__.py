@@ -169,7 +169,7 @@ class Repository(vdm.sqlalchemy.Repository):
         ##pprint.pprint(getDiffOfModelAgainstDatabase(self.metadata, self.metadata.bind).colDiffs)
 
 repo = Repository(metadata, Session,
-        versioned_objects=[Package, PackageTag, PackageResource, PackageExtra, PackageGroup, Group]
+        versioned_objects=[Package, PackageTag, Resource, ResourceGroup, PackageExtra, PackageGroup, Group]
         )
 
 

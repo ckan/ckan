@@ -73,7 +73,6 @@ setup(
     package = ckan.forms.package:get_standard_fieldset
     group = ckan.forms.group:get_group_fieldset
     package_group = ckan.forms.group:get_package_group_fieldset
-    gov = ckan.forms.package_gov:get_gov_fieldset
 
     [ckan.search]
     sql = ckan.lib.search.sql:SqlSearchBackend

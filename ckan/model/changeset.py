@@ -55,7 +55,7 @@ from meta import *
 from vdm.sqlalchemy import StatefulObjectMixin
 from ckan.model.core import DomainObject, State
 from ckan.model import Session, Revision, Package
-from ckan.model import PackageResource, Tag, Group
+from ckan.model import Resource, Tag, Group
 from ckan.model import setup_default_user_roles
 from ckan.lib.helpers import json
 import datetime
@@ -1632,7 +1632,7 @@ class PackageRegister(TrackedObjectRegister):
         if 'resources' in vector.new:
             entity.resources = []
             for resource_data in vector.new['resources']:
-                package_resource = PackageResource(
+                package_resource = Resource(
                     url=resource_data.get('url', u''),
                     format=resource_data.get('format', u''),
                     description=resource_data.get('description', u''),

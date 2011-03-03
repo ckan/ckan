@@ -62,7 +62,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
                join('groups').filter_by(id=self.id)
         if load_eager:
             query = query.options(eagerload_all('package_tags.tag'))
-            query = query.options(eagerload_all('package_resources_all'))
+            query = query.options(eagerload_all('resource_groups_all.resources_all'))
         return query
 
     @classmethod

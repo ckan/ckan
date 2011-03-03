@@ -843,7 +843,7 @@ class ResourceSearchApiTestCase(ApiTestCase, ControllerTestCase):
     def assert_urls_in_search_results(self, offset, expected_urls):
         result = self.app.get(offset, status=200)
         result_dict = self.loads(result.body)
-        resources = [model.Session.query(model.PackageResource).get(resource_id) for resource_id in result_dict['results']]
+        resources = [model.Session.query(model.Resource).get(resource_id) for resource_id in result_dict['results']]
         urls = set([resource.url for resource in resources])
         assert urls == set(expected_urls), urls
         
@@ -865,7 +865,7 @@ class ResourceSearchApiTestCase(ApiTestCase, ControllerTestCase):
         result = self.app.post(offset, params=json_query, status=200)
         expected_urls = [self.ab, self.cd]
         result_dict = self.loads(result.body)
-        resources = [model.Session.query(model.PackageResource).get(resource_id) for resource_id in result_dict['results']]
+        resources = [model.Session.query(model.Resource).get(resource_id) for resource_id in result_dict['results']]
         urls = set([resource.url for resource in resources])
         assert urls == set(expected_urls), urls
 
