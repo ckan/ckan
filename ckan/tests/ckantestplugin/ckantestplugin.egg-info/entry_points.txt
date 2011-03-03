@@ -1,5 +1,6 @@
 [ckan.plugins]
 routes_plugin = ckantestplugin:RoutesPlugin
+authorizer_plugin = ckantestplugin:AuthorizerPlugin
 mapper_plugin2 = ckantestplugin:MapperPlugin2
 mapper_plugin = ckantestplugin:MapperPlugin
 test_observer_plugin = ckantestplugin:PluginObserverPlugin

@@ -1,11 +1,35 @@
 import sqlalchemy as sa
-import ckan.model as model
-import ckan.model.authz as mauthz
-import ckan.authz
+from pylons import config
+from nose.tools import make_decorator
 
-from copy import copy
-from ckan.model import Role, Action
+import ckan.model as model
+import ckan.authz
+from ckan import plugins
+from ckan.model import Role
 from ckan.tests import *
+
+
+def uses_example_auth_plugin(func):
+    def decorate(func):
+        def wrapper(*args, **kwargs):
+            def _plugin_setup():
+                from ckan.tests.test_plugins import install_ckantestplugin
+                _saved_plugins_config = config.get('ckan.plugins', '')
+                install_ckantestplugin()
+                config['ckan.plugins'] = 'authorizer_plugin'
+                plugins.load_all(config)
+                return _saved_plugins_config
+
+            def _plugin_teardown(_saved_plugins_config):
+                plugins.unload_all()
+                config['ckan.plugins'] = _saved_plugins_config
+                plugins.load_all(config)
+            _saved_plugins_config = _plugin_setup()
+            func(*args, **kwargs)
+            _plugin_teardown(_saved_plugins_config)
+        wrapper = make_decorator(func)(wrapper)
+        return wrapper
+    return decorate(func)
 
 class TestBlacklister(object):
 
@@ -65,6 +89,13 @@ class TestAuthorizer(object):
         assert self.authorizer.is_authorized(self.admin.name, action, self.pkg)
         assert not self.authorizer.is_authorized(self.admin.name, action, self.pkg2)
         assert not self.authorizer.is_authorized(u'blah', action, self.pkg)
+
+    @uses_example_auth_plugin
+    def test_pkg_admin_with_plugin(self):
+        action = model.Action.PURGE
+        assert self.authorizer.is_authorized(self.notadmin.name,
+                                             action,
+                                             self.pkg2)
 
     def test_grp_admin(self):
         action = model.Action.PURGE
@@ -226,6 +257,11 @@ class TestAuthorizationGroups(object):
         assert self.authzgrp.id == self.authorizer.get_authorization_groups(self.member.name)[0].id
         assert not self.authorizer.get_authorization_groups(self.notmember.name)
 
+    @uses_example_auth_plugin
+    def test_get_groups_with_plugin(self):
+        groups = self.authorizer.get_authorization_groups(self.member.name)
+        assert len(groups) == 2, len(groups)
+
     def test_edit_via_grp(self):
         action = model.Action.EDIT
         assert not self.authorizer.is_authorized(self.notmember.name, action, self.pkg)
@@ -277,3 +313,7 @@ class TestAuthorizationGroups(object):
         q = self.authorizer.authorized_query(self.member.name, model.Package)
         q = q.filter(model.Package.name==self.pkg.name)
         assert len(q.all()) == 1
+
+    @uses_example_auth_plugin
+    def test_authorized_query_with_plugin(self):
+        assert self.authorizer.is_authorized(self.notmember.name, model.Action.READ, self.pkg)

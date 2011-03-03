@@ -207,6 +207,9 @@ Here's a list of some of the more commonly used plugin interfaces:
 ``IConfigurable``
     Pass configuration to plugins and extensions
 
+``IAuthorizer``
+    Allows customisation of the default Authorization behaviour
+
 If you look in `ckan/plugins/interfaces.py
 <https://bitbucket.org/okfn/ckan/src/default/ckan/plugins/interfaces.py>`_ you
 will see the latest plugin interfaces. Alternativlly see the `Plugin API
