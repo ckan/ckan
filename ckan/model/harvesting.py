@@ -70,6 +70,15 @@ class HarvestingJob(HarvestDomainObject):
         HarvestDomainObject.__init__(self, **p)
         self.report = {'added': [], 'errors': []}
 
+    def save(self):
+        # Why is this necessary? If I don't add it the report field isn't saved
+        if self.report is not None:
+            _report = self.report
+            self.report = str(dict(_report))
+            HarvestDomainObject.save(self)
+            self.report = _report
+        HarvestDomainObject.save(self)
+
 class MappedXmlObject(object):
     elements = []
 

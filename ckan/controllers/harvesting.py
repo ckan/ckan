@@ -24,18 +24,18 @@ from ckan.lib.munge import munge_title_to_name
 
 log = __import__("logging").getLogger(__name__)
 
-def decode_response(resp):
-    """Decode a response to unicode
-    """
-    encoding = resp.headers['content-type'].split('charset=')[-1]
-    content = resp.read()
-    try:
-        data = unicode(content, encoding)
-    except LookupError:
-        # XXX is this a fair assumption? No, we should let the parser take the value from the XML encoding specified in the document
-        data = unicode(content, 'utf8') 
-        # data = content
-    return data
+#def decode_response(resp):
+#    """Decode a response to unicode
+#    """
+#    encoding = resp.headers['content-type'].split('charset=')[-1]
+#    content = resp.read()
+#    try:
+#        data = unicode(content, encoding)
+#    except LookupError:
+#        # XXX is this a fair assumption? No, we should let the parser take the value from the XML encoding specified in the document
+#        data = unicode(content, 'utf8') 
+#        # data = content
+#    return data
 
 def gen_new_name(title):
     name = munge_title_to_name(title).replace('_', '-')
@@ -278,7 +278,7 @@ class HarvestingJobController(object):
     def get_content(self, url):
         try:
             http_response = urllib2.urlopen(url)
-            return decode_response(http_response)
+            return http_response.read() #decode_response(http_response)
         except Exception, inst:
             msg = "Unable to get content for URL: %s: %r" % (url, inst)
             raise HarvesterUrlError(msg)
@@ -293,16 +293,20 @@ class HarvestingJobController(object):
 
     def harvest_gemini_document(self, gemini_string):
         try:
+            xml = etree.fromstring(gemini_string)
             if self.validator is not None:
-                # sigh... encoding, decoding, encoding, decoding
+                # ww: sigh... encoding, decoding, encoding, decoding
                 # convention really should be, parse into etree at
                 # the first opportunity and then only pass that
                 # around internally...
-                xml = etree.fromstring(gemini_string)
+                # jg: I've modified the code to use the document from
+                # the elementree parse, hopefully avoiding one encoding
+                # guess
                 valid, messages = self.validator.isvalid(xml)
                 if not valid:
                     raise ValidationError(*messages)
-            package = self.write_package_from_gemini_string(gemini_string)
+            unicode_gemini_string = etree.tostring(xml, encoding=unicode, pretty_print=True)
+            package = self.write_package_from_gemini_string(unicode_gemini_string) 
         except HarvesterError, exception:
             for msg in [str(x) for x in exception.args]:
                 log.error(msg)

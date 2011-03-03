@@ -1,4 +1,5 @@
 import os
+from lxml import etree
 
 from nose.plugins.skip import SkipTest
 
@@ -6,7 +7,6 @@ from ckan import model
 from ckan.model.harvesting import HarvestSource
 from ckan.model.harvesting import HarvestingJob
 from ckan.model.harvesting import HarvestedDocument
-from ckan.controllers.harvesting import decode_response
 from ckan.controllers.harvesting import HarvestingJobController
 
 from ckan.tests import *
@@ -363,4 +363,9 @@ class GeminiExamples(object):
     def get_from_url(self, url):
         import urllib2
         resource = urllib2.urlopen(url)
-        return decode_response(resource)
+        # This returns the raw, data
+        data = resource.read()
+        # To get it as unicode we need to decode it
+        xml = etree.fromstring(data)
+        return etree.tostring(xml, encoding=unicode, pretty_print=True)
+
