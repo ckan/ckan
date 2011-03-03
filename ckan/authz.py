@@ -44,7 +44,6 @@ class Authorizer(object):
 
         :returns: True or False
         '''
-        authorized = False
         if isinstance(username, str):
             username = username.decode('utf8')
         assert isinstance(username, unicode), type(username)
