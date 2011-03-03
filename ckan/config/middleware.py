@@ -12,6 +12,8 @@ from pylons.wsgiapp import PylonsApp
 from routes.middleware import RoutesMiddleware
 from repoze.who.config import WhoConfig
 from repoze.who.middleware import PluggableAuthenticationMiddleware
+from ckan.plugins import PluginImplementations
+from ckan.plugins.interfaces import IMiddleware
 
 from ckan.config.environment import load_environment
 
@@ -44,11 +46,15 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
     # The Pylons WSGI app
     app = PylonsApp()
 
+    for plugin in PluginImplementations(IMiddleware):
+        app = plugin.make_middleware(app, config)
+
     # Routing/Session/Cache Middleware
     app = RoutesMiddleware(app, config['routes.map'])
     app = SessionMiddleware(app, config)
     app = CacheMiddleware(app, config)
     
+
     # CUSTOM MIDDLEWARE HERE (filtered by error handling middlewares)
     #app = QueueLogMiddleware(app)
     
@@ -94,5 +100,5 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
                               extra_public_paths.split(',')] + static_parsers
             
         app = Cascade(static_parsers)
-    
+
     return app
