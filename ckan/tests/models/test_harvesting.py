@@ -274,14 +274,25 @@ class TestHarvesterSourceTypes(HarvesterTestCase):
             self.assert_false(before_content == after_content)
 
 class TestHarvestedDocument(HarvesterTestCase):
-    def test_create_and_delete_document(self):
+    def test_01_document_revisioned(self):
         url = self.gemini_example.url_for(0)
+        model.repo.new_revision()
         content = self.gemini_example.get_from_url(url)
-        document = HarvestedDocument(url=url, content=content)
+        document = HarvestedDocument(content=content)
         document.save()
+        assert len(document.all_revisions_unordered) == 1
+
+        model.repo.new_revision()
+        url = self.gemini_example.url_for(1)
+        content = self.gemini_example.get_from_url(url)
+        document.content = content
+        document.save()
+        model.Session().expire(document)
+        assert len(document.all_revisions) == 2
+
         document_id = document.id
-        self.assert_equal(document.url, url)
         self.assert_equal(document.content, content)
+
         self.delete_commit(document)
         self.assert_raises(Exception, HarvestedDocument.get, document_id)
 

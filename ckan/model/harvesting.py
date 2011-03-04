@@ -710,7 +710,10 @@ class GeminiDocument(MappedXmlDocument):
         values['contact-email'] = value
 
 
-class HarvestedDocument(HarvestDomainObject):
+class HarvestedDocument(HarvestDomainObject,
+                        vdm.sqlalchemy.RevisionedObjectMixin,
+                        vdm.sqlalchemy.StatefulObjectMixin,
+                        ):
 
     def read_values(self):
         if "gmd:MD_Metadata" in self.content:
@@ -743,6 +746,10 @@ harvested_document_table = Table('harvested_document', metadata,
     Column('source_id', types.UnicodeText, ForeignKey('harvest_source.id')),
     Column('package_id', types.UnicodeText, ForeignKey('package.id')),
 )
+
+vdm.sqlalchemy.make_table_stateful(harvested_document_table)
+harvested_document_revision_table = vdm.sqlalchemy.make_revisioned_table(harvested_document_table)
+
 mapper(
     HarvestedDocument, 
     harvested_document_table, 
@@ -752,7 +759,12 @@ mapper(
             # Using the plural but there should only ever be one
             backref='documents',
         ),
-    }
+    },
+    extension=[
+        vdm.sqlalchemy.Revisioner(
+            harvested_document_revision_table
+        ),
+    ]
 )
 mapper(
     HarvestingJob, 
@@ -774,3 +786,6 @@ mapper(
     },
 )
 
+vdm.sqlalchemy.modify_base_object_mapper(HarvestedDocument, Revision, State)
+HarvestedDocumentRevision = vdm.sqlalchemy.create_object_version(
+                mapper, HarvestedDocument, harvested_document_revision_table)
