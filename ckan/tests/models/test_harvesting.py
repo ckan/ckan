@@ -149,7 +149,9 @@ class TestHarvestingJob(HarvesterTestCase):
         error = job2.report['errors'][0]
         # XXX Should not allow file:// URLs, security implications
         # The one that is conflicting doesn't have a user or publisher set up, otherwise the integers would show here
-        self.assert_equal(error, 'Another source file://%s/ckan/tests/gemini2_examples/00a743bf-cca4-4c19-a8e5-e64f7edbcadd_gemini2.xml (publisher , user ) is using metadata GUID 00a743bf-cca4-4c19-a8e5-e64f7edbcadd'%os.getcwd())
+        assert 'Another source' in error
+        assert 'ckan/tests/gemini2_examples/00a743bf-cca4-4c19-a8e5-e64f7edbcadd_gemini2.xml' in error
+        assert 'is using metadata GUID 00a743bf-cca4-4c19-a8e5-e64f7edbcadd' in error
 
     def test_harvest_bad_source_url(self):
         source = HarvestSource(
