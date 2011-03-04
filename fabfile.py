@@ -107,10 +107,9 @@ def config_local_dev(base_dir, ckan_instance_name):
     env.serve_url = 'localhost:5000'
 
 def config_staging_hmg_ckan_net():
-    env.user = 'ckan1'
+    env.user = 'okfn'
     env.base_dir = '/home/%s' % env.user
-    env.cmd_pyenv = os.path.join(env.base_dir, 'ourenv')
-    env.ckan_instance_name = 'staging.hmg2.ckan.net'
+    env.ckan_instance_name = 'staging-hmg.ckan.net'
     env.revision = 'stable'
 
 def config_test_hmg_ckan_net():
