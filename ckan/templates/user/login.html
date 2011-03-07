@@ -48,7 +48,7 @@
     </form>
 
     <!-- Simple OpenID Selector -->
-    <form action="/login_openid" method="post" id="openid_form">
+    <form py:if="g.openid_enabled" action="/login_openid" method="post" id="openid_form">
       <input type="hidden" name="action" value="verify" />
       <fieldset>
         <legend i18n:msg="site_title">Login using Open ID</legend>
@@ -66,16 +66,18 @@
         </noscript>
       </fieldset>
     </form>
-
-    <h3>Don't have an OpenID?</h3>
-    <p i18n:msg="">
-      OpenID is service that allows you to log-on to many different websites
-      using a single identity. Find out <a href="http://openid.net/what/">more
-      about OpenID</a> and <a href="http://openid.net/get/">how to get an
-      OpenID enabled account</a>. Probably the simplest way is sign up with a
-      free OpenID provider such as <a 
-      href="https://www.myopenid.com/">https://www.myopenid.com/</a>.
-    </p>
+    
+    <div py:if="g.openid_enabled">
+      <h3>Don't have an OpenID?</h3>
+      <p i18n:msg="">
+        OpenID is service that allows you to log-on to many different websites
+        using a single identity. Find out <a href="http://openid.net/what/">more
+        about OpenID</a> and <a href="http://openid.net/get/">how to get an
+        OpenID enabled account</a>. Probably the simplest way is sign up with a
+        free OpenID provider such as <a 
+        href="https://www.myopenid.com/">https://www.myopenid.com/</a>.
+      </p>
+    </div>
   </div>
   <xi:include href="layout.html" />
 </html>
