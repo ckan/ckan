@@ -29,7 +29,7 @@ class ErrorController(BaseController):
         if original_request.path.startswith('/api'):
             return original_response.body
         # Otherwise, decorate original response with error template.
-        c.content = literal(original_response.body) or cgi.escape(request.GET.get('message', ''))
+        c.content = literal(original_response.unicode_body) or cgi.escape(request.GET.get('message', ''))
         c.prefix=request.environ.get('SCRIPT_NAME', ''),
         c.code=cgi.escape(request.GET.get('code', str(original_response.status_int))),
         return render('error_document_template.html')
