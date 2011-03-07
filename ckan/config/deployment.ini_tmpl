@@ -17,7 +17,7 @@ port = 5000
 [app:main]
 use = egg:ckan
 full_stack = true
-cache_dir = /var/lib/ckan/data
+cache_dir = %(here)s/data
 beaker.session.key = ckan
 beaker.session.secret = ${app_instance_secret}
 app_instance_uuid = ${app_instance_uuid}
@@ -128,7 +128,7 @@ ckan.site_logo = http://assets.okfn.org/p/ckan/img/ckan_logo_largetext.png
 ## Site tagline / description (used on front page)
 ckan.site_description = 
 
-## Used in creating some absolute urls (such as rss feeds)
+## Used in creating some absolute urls (such as rss feeds) and dump filenames
 ckan.site_url = http://www.ckan.net
 
 ## An 'id' for the site (using, for example, when creating entries in a common search index) 
@@ -144,6 +144,14 @@ ckan.site_url = http://www.ckan.net
 ## NB: can have multiline strings just indent following lines
 # ckan.template_footer_end = 
 
+# Directory for logs (produced by cron scripts associated with ckan)
+ckan.log_dir = %(here)s/log
+
+# Directory for JSON/CSV dumps (must match setting in apache config)
+ckan.dump_dir = %(here)s/dump
+
+# Directory for SQL database backups
+ckan.backup_dir = %(here)s/backup
 
 # Logging configuration
 [loggers]
