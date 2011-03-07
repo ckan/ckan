@@ -63,10 +63,9 @@ class DomainObjectModificationExtension(SingletonPlugin, ObserverNotifier):
         if isinstance(instance, Package):
             self.notify(instance, operation)
         elif isinstance(instance, ResourceGroup):
-            self.notify(instance, operation)
             self.notify(instance.package, DomainObjectOperation.changed)
         elif isinstance(instance, Resource):
-            self.notify(instance, operation)
+            self.notify(instance.resource_group.package, DomainObjectOperation.changed)
         elif isinstance(instance, (PackageExtra, PackageTag)):
             self.notify(instance.package, DomainObjectOperation.changed)
         else:
