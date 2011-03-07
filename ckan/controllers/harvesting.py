@@ -1,3 +1,8 @@
+"""\
+Note: This isn't a normal Pylons controller so it should be moved to ``lib``
+
+Eventually, harvesting code should move to ckanext-csw
+"""
 import urllib2
 from lxml import etree
 
@@ -24,19 +29,6 @@ from ckan.lib.munge import munge_title_to_name
 
 log = __import__("logging").getLogger(__name__)
 
-#def decode_response(resp):
-#    """Decode a response to unicode
-#    """
-#    encoding = resp.headers['content-type'].split('charset=')[-1]
-#    content = resp.read()
-#    try:
-#        data = unicode(content, encoding)
-#    except LookupError:
-#        # XXX is this a fair assumption? No, we should let the parser take the value from the XML encoding specified in the document
-#        data = unicode(content, 'utf8') 
-#        # data = content
-#    return data
-
 def gen_new_name(title):
     name = munge_title_to_name(title).replace('_', '-')
     while '--' in name:
@@ -52,29 +44,6 @@ def gen_new_name(title):
             if name+str(counter) not in taken:
                 return name+str(counter)
         return None
-
-class HarvestingSourceController(BaseController):
-    pass
-
-class ExampleController(BaseController):
-    authorizer = ckan.authz.Authorizer()
-    extensions = PluginImplementations(IPackageController)
-
-    # XXX examples
-    def search(self):
-        c.q = request.params.get('q')  # unicode format (decoded from utf8)
-        return render('package/search.html')
-
-    @proxy_cache()
-    def read(self, id):
-        # is the user allowed to see this package?
-        auth_for_read = self.authorizer.am_authorized(c,
-                                                      model.Action.READ,
-                                                      c.pkg)
-        if not auth_for_read:
-            abort(401, str(gettext('Unauthorized to read package %s') % id))
-        PackageSaver().render_package(c.pkg)
-        return render('package/read.html')
 
 class HarvestingJobController(object):
     """\
@@ -265,7 +234,7 @@ class HarvestingJobController(object):
             assert gemini_guid == package.documents[0].guid
             return package
         else:
-            package = self._update_package_from_data(package, package_data)
+            package = self._create_package_from_data(package_data, package = package)
             log.info("Updated existing package ID %s with existing GEMINI guid %s", package.id, gemini_guid)
             harvested_doc.content = content
             harvested_doc.source = self.job.source
@@ -394,79 +363,71 @@ class HarvestingJobController(object):
         base_url += '/'
         return [base_url + i for i in urls]
 
-    def _create_package_from_data(self, package_data):
-        user_editable_groups = []
-        # mock up a form so we can validate data
-        fs = ckan.forms.get_standard_fieldset(
-            user_editable_groups=user_editable_groups)
-        try:
-            fa_dict = ckan.forms.edit_package_dict(
-                ckan.forms.get_package_dict(
-                    fs=fs,
-                    user_editable_groups=user_editable_groups),
-                package_data)
-        except ckan.forms.PackageDictFormatError, exception:
-            msg = 'Package format incorrect: %r' % exception
-            raise Exception(msg)
-        fs = fs.bind(model.Package,
-                     data=fa_dict,
-                     session=model.Session)
-        # Validate the fieldset.
-        is_valid = fs.validate()
-        if is_valid:
-            rev = model.repo.new_revision()
-            #rev.author = self.rest_api_user
-            rev.message = _(u'Harvester: Created package %s') \
-                          % str(fs.model.id)
-            # Construct catalogue entity.
-            fs.sync()
-            # Construct access control entities.
-            #if self.rest_api_user:
-            #    admins = [model.User.by_name(
-            #               self.rest_api_user.decode('utf8'))]
-            #else:
-            #    admins = []
-            # Todo: Better 'admins' than this?
-            admins = []
-            package = fs.model
-            model.setup_default_user_roles(package, admins)
-            model.repo.commit()
-        else:
-            # Complain about validation errors.
-            msg = 'CKAN Validation error:'
-            errors = fs.errors.items()
-            for error in errors:
-                attr_name = error[0].name
-                error_msg = error[1][0]
-                msg += ' %s: %s' % (attr_name.capitalize(), error_msg)
-            raise HarvesterError(msg)
-        #from ckan.lib.search.sql import PackageSqlSearchIndex
-        #from ckan.lib.search import get_backend 
-        #PackageSqlSearchIndex(
-        #    backend=get_backend(backend='sql')
-        #).insert_dict(package.as_dict())
-        return package
+    def _create_package_from_data(self, package_data, package = None):
+        ''' 
+        {'extras': {'INSPIRE': 'True',
+                    'bbox-east-long': '-3.12442',
+                    'bbox-north-lat': '54.218407',
+                    'bbox-south-lat': '54.039634',
+                    'bbox-west-long': '-3.32485',
+                    'constraint': 'conditions unknown; (e) intellectual property rights;',
+                    'dataset-reference-date': [{'type': 'creation',
+                                                'value': '2008-10-10'},
+                                               {'type': 'revision',
+                                                'value': '2009-10-08'}],
+                    'guid': '00a743bf-cca4-4c19-a8e5-e64f7edbcadd',
+                    'metadata-date': '2009-10-16',
+                    'metadata-language': 'eng',
+                    'published_by': 0,
+                    'resource-type': 'dataset',
+                    'spatial-reference-system': '<gmd:MD_ReferenceSystem xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xlink="http://www.w3.org/1999/xlink"><gmd:referenceSystemIdentifier><gmd:RS_Identifier><gmd:code><gco:CharacterString>urn:ogc:def:crs:EPSG::27700</gco:CharacterString></gmd:code></gmd:RS_Identifier></gmd:referenceSystemIdentifier></gmd:MD_ReferenceSystem>',
+                    'temporal_coverage-from': '1977-03-10T11:45:30',
+                    'temporal_coverage-to': '2005-01-15T09:10:00'},
+         'name': 'council-owned-litter-bins',
+         'notes': 'Location of Council owned litter bins within Borough.',
+         'resources': [{'description': 'Resource locator',
+                        'format': 'Unverified',
+                        'url': 'http://www.barrowbc.gov.uk'}],
+         'tags': ['Utility and governmental services'],
+         'title': 'Council Owned Litter Bins'}
+        '''
 
-    def _update_package_from_data(self, package, package_data):
-        fieldset = GetPackageFieldset().fieldset
-        fieldset_data = GetEditFieldsetPackageData(
-            fieldset=fieldset, package=package, data=package_data).data
-        bound_fieldset = fieldset.bind(package, data=fieldset_data)
-        log_message = u'harvester'
-        author = u''
-        try:
-            WritePackageFromBoundFieldset(
-                fieldset=bound_fieldset,
-                log_message=log_message,
-                author=author,
-            )
-        except ValidationException:
-            msgs = []
-            for (field, errors) in bound_fieldset.errors.items():
-                for error in errors:
-                    msg = "%s: %s" % (field.name, error)
-                    msgs.append(msg)
-            msg = "Fieldset validation errors: %s" % msgs
-            raise HarvesterError(msg)
+        if not package:
+            package = model.Package()
+
+        rev = model.repo.new_revision()
+        
+        relationship_attr = ['extras', 'resources', 'tags']
+
+        package_properties = {}
+        for key, value in package_data.iteritems():
+            if key not in relationship_attr:
+                setattr(package, key, value)
+
+        tags = package_data.get('tags', [])
+
+        for tag in tags:
+            package.add_tag_by_name(tag, autoflush=False)
+        
+        for resource_dict in package_data.get("resources", []):
+            resource = model.Resource(**resource_dict)
+            package.resources[:] = []
+            package.resources.append(resource)
+
+        for key, value in package_data.get("extras", {}).iteritems():
+            extra = model.PackageExtra(key=key, value=value)
+            package._extras[key] = extra
+
+        model.Session.add(package)
+        model.Session.flush()
+
+        model.setup_default_user_roles(package, [])
+
+        rev.message = _(u'Harvester: Created package %s') \
+                      % str(package.id)
+
+        model.Session.add(rev)
+        model.Session.commit()
+
         return package
 

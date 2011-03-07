@@ -7,6 +7,7 @@ __all__ = [
     'Interface',
     'IGenshiStreamFilter', 'IRoutes',
     'IMapper', 'ISession',
+    'IMiddleware',
     'IDomainObjectModification', 'IGroupController', 
     'IPackageController', 'IPluginObserver',
     'IConfigurable', 'IConfigurer', 'IAuthorizer'
@@ -14,6 +15,7 @@ __all__ = [
 
 from inspect import isclass
 from pyutilib.component.core import Interface as _pca_Interface
+
 
 class Interface(_pca_Interface):
 
@@ -31,6 +33,15 @@ class Interface(_pca_Interface):
             return False
 
 
+class IMiddleware(Interface):
+    '''Hook into Pylons middleware stack
+    '''
+    def make_middleware(self, app, config):
+        '''Return an app configured with this middleware
+        '''
+        return app
+
+
 class IGenshiStreamFilter(Interface):
     '''
     Hook into template rendering.
@@ -46,6 +57,7 @@ class IGenshiStreamFilter(Interface):
         :returns: filtered Genshi stream
         """
         return stream
+
 
 class IRoutes(Interface):
     """
