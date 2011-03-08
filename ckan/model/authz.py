@@ -316,6 +316,42 @@ def give_all_packages_default_user_roles():
         print 'Creating default user for for %s with admins %s' % (pkg.name, admins)
         setup_default_user_roles(pkg, admins)
 
+# default user roles - used when the config doesn't specify them
+default_default_user_roles = {
+    'Package': {"visitor": ["editor"], "logged_in": ["editor"]},
+    'Group': {"visitor": ["reader"], "logged_in": ["reader"]},
+    'System': {"visitor": ["reader"], "logged_in": ["editor"]},
+    'AuthorizationGroup': {"visitor": ["reader"], "logged_in": ["reader"]},
+    }
+
+global _default_user_roles_cache
+_default_user_roles_cache = {}
+
+def get_default_user_roles(domain_object):
+    # TODO: Should this func go in lib rather than model now?
+    from ckan.lib.helpers import json
+    from pylons import config
+    def _get_default_user_roles(domain_object):
+        config_key = 'ckan.default_roles.%s' % obj_type
+        user_roles_json = config.get(config_key)
+        if user_roles_json is None:
+            user_roles_str = default_default_user_roles[obj_type]
+        else:
+            user_roles_str = json.loads(user_roles_json) if user_roles_json else {}
+        unknown_keys = set(user_roles_str.keys()) - set(('visitor', 'logged_in'))
+        assert not unknown_keys, 'Auth config for %r has unknown key %r' % \
+               (domain_object, unknown_keys)
+        user_roles_ = {}
+        for user in ('visitor', 'logged_in'):
+            roles_str = user_roles_str.get(user, [])
+            user_roles_[user] = [getattr(Role, role_str.upper()) for role_str in roles_str]
+        return user_roles_
+    obj_type = domain_object.__class__.__name__
+    global _default_user_roles_cache
+    if not _default_user_roles_cache.has_key(domain_object):
+        _default_user_roles_cache[domain_object] = _get_default_user_roles(domain_object)
+    return _default_user_roles_cache[domain_object]
+        
 def setup_default_user_roles(domain_object, admins=[]):
     ''' sets up roles for visitor, logged-in user and any admins provided
     @param admins - a list of User objects
@@ -323,19 +359,11 @@ def setup_default_user_roles(domain_object, admins=[]):
     '''
     assert isinstance(domain_object, (Package, Group, System, AuthorizationGroup)), domain_object
     assert isinstance(admins, list)
-    if type(domain_object) == Package:
-        visitor_roles = [Role.EDITOR]
-        logged_in_roles = [Role.EDITOR]
-    elif type(domain_object) == Group:
-        visitor_roles = [Role.READER]
-        logged_in_roles = [Role.READER]
-    elif type(domain_object) == System:
-        visitor_roles = [Role.READER]
-        logged_in_roles = [Role.EDITOR]
-    elif type(domain_object) == AuthorizationGroup:
-        visitor_roles = [Role.READER]
-        logged_in_roles = [Role.READER]
-    setup_user_roles(domain_object, visitor_roles, logged_in_roles, admins)
+    user_roles_ = get_default_user_roles(domain_object)
+    setup_user_roles(domain_object,
+                     user_roles_['visitor'],
+                     user_roles_['logged_in'],
+                     admins)
 
 def clear_user_roles(domain_object):
     assert isinstance(domain_object, DomainObject)
