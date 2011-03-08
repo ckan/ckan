@@ -308,3 +308,23 @@ Default value:  ``/api``
 The URL which resolves to the CKAN API part of the site. This is useful if the
 API is hosted on a different domain, for example when a third party site uses
 the forms API.
+
+default_roles
+-------------
+
+This allows you to set the default authorization roles (i.e. permissions) for new objects. Currently this extends to new packages, groups, authorization groups and the 'system' object. For full details of these, see :doc:`authorization`.
+
+The value is a strict JSON dictionary of user names "visitor" and "logged_in" with lists of their roles.
+
+Example::
+
+ ckan.default_roles.Package = {"visitor": ["reader"], "logged_in": ["reader"]}
+
+With this example setting, visitors (any user who is not logged in) and logged in users can only read packages that get created (only sysadmins can edit).
+
+Defaults::
+
+ ckan.default_roles.Package = {"visitor": ["editor"], "logged_in": ["editor"]}
+ ckan.default_roles.Group = {"visitor": ["reader"], "logged_in": ["reader"]}
+ ckan.default_roles.System = {"visitor": ["reader"], "logged_in": ["editor"]}
+ ckan.default_roles.AuthorizationGroup = {"visitor": ["reader"], "logged_in": ["reader"]}

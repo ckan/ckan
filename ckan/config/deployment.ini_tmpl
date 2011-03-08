@@ -153,6 +153,12 @@ ckan.dump_dir = %(here)s/dump
 # Directory for SQL database backups
 ckan.backup_dir = %(here)s/backup
 
+# Default authorizations for new domain objects
+ckan.default_roles.Package = {"visitor": ["editor"], "logged_in": ["editor"]}
+ckan.default_roles.Group = {"visitor": ["reader"], "logged_in": ["reader"]}
+ckan.default_roles.System = {"visitor": ["reader"], "logged_in": ["editor"]}
+ckan.default_roles.AuthorizationGroup = {"visitor": ["reader"], "logged_in": ["reader"]}
+
 # Logging configuration
 [loggers]
 keys = root
