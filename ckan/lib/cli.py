@@ -296,6 +296,7 @@ class UserCmd(CkanCommand):
       user                            - lists users
       user <user-name>                - shows user properties
       user add <user-name> [<apikey>] - add a user (prompts for password)
+      user setpass <user-name>        - set user password (prompts)
       user remove <user-name>         - removes user from users
       user search <query>             - searches for a user name
     '''
@@ -318,9 +319,10 @@ class UserCmd(CkanCommand):
                 self.remove()
             elif cmd == 'search':
                 self.search()
+            elif cmd == 'setpass':
+                self.setpass()
             else:
                 self.show()
-#                print 'Command or user %r not recognized' % cmd
 
     def get_user_str(self, user):
         user_str = 'name=%s' % user.name
@@ -341,6 +343,28 @@ class UserCmd(CkanCommand):
         username = self.args[0]
         user = model.User.get(unicode(username))
         print 'User: \n', user
+
+    def setpass(self):
+        from ckan import model
+        import getpass
+        
+        if len(self.args) < 2:
+            print 'Need name of the user.'
+            return
+        username = self.args[1]
+        user = model.User.get(username)
+        print('Editing user: %r' % user.name)
+
+        password1 = None
+        while not password1:
+            password1 = getpass.getpass('Password: ')
+        password2 = getpass.getpass('Confirm password: ')
+        if password1 != password2:
+            print 'Passwords do not match'
+            sys.exit(1)
+        user.password = password1
+        model.repo.commit_and_remove()
+        print 'Done'
 
     def search(self):
         from ckan import model
