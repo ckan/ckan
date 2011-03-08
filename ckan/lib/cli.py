@@ -217,7 +217,7 @@ class SearchIndexCommand(CkanCommand):
 
 
 class Sysadmin(CkanCommand):
-    '''Gives sysadmin rights to a named 
+    '''Gives sysadmin rights to a named user
 
     Usage:
       sysadmin list                 - lists sysadmins
@@ -287,6 +287,122 @@ class Sysadmin(CkanCommand):
             return
         model.remove_user_from_role(user, model.Role.ADMIN, model.System())
         model.repo.commit_and_remove()
+
+
+class UserCmd(CkanCommand):
+    '''Manage users
+
+    Usage:
+      user                            - lists users
+      user <user-name>                - shows user properties
+      user add <user-name> [<apikey>] - add a user (prompts for password)
+      user remove <user-name>         - removes user from users
+      user search <query>             - searches for a user name
+    '''
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    max_args = 3
+    min_args = 0
+
+    def command(self):
+        self._load_config()
+        from ckan import model
+
+        if not self.args:
+            self.list()
+        else:
+            cmd = self.args[0]
+            if cmd == 'add':
+                self.add()
+            elif cmd == 'remove':
+                self.remove()
+            elif cmd == 'search':
+                self.search()
+            else:
+                self.show()
+#                print 'Command or user %r not recognized' % cmd
+
+    def get_user_str(self, user):
+        user_str = 'name=%s' % user.name
+        if user.name != user.display_name:
+            user_str += ' display=%s' % user.display_name
+        return user_str
+        
+    def list(self):
+        from ckan import model
+        print 'Users:'
+        users = model.Session.query(model.User).all()
+        for user in users:
+            print self.get_user_str(user)
+
+    def show(self):
+        from ckan import model
+
+        username = self.args[0]
+        user = model.User.get(unicode(username))
+        print 'User: \n', user
+
+    def search(self):
+        from ckan import model
+
+        if len(self.args) < 2:
+            print 'Need user name query string.'
+            return
+        query_str = self.args[1]
+
+        query = model.User.search(query_str)
+        print '%i users matching %r:' % (query.count(), query_str)
+        for user in query.all():
+            print self.get_user_str(user)
+
+    def add(self):
+        from ckan import model
+        import getpass
+        
+        if len(self.args) < 2:
+            print 'Need name of the user.'
+            return
+        username = self.args[1]
+        apikey = self.args[2] if len(self.args) > 2 else None
+
+        user = model.User.by_name(unicode(username))
+        if user:
+            print 'User "%s" already found' % username
+            sys.exit(1)
+        
+        print('Creating user: %r' % username)
+        password1 = None
+        while not password1:
+            password1 = getpass.getpass('Password: ')
+        password2 = getpass.getpass('Confirm password: ')
+        if password1 != password2:
+            print 'Passwords do not match'
+            sys.exit(1)
+        user_params = {'name': unicode(username),
+                   'password': password1}
+        if apikey:
+            user_params['apikey'] = unicode(apikey)
+        user = model.User(**user_params)
+        model.Session.add(user)
+        model.repo.commit_and_remove()
+        user = model.User.by_name(unicode(username))
+        print user
+
+    def remove(self):
+        from ckan import model
+
+        if len(self.args) < 2:
+            print 'Need name of the user.'
+            return
+        username = self.args[1]
+
+        user = model.User.by_name(unicode(username))
+        if not user:
+            print 'Error: user "%s" not found!' % username
+            return
+        user.delete()
+        model.repo.commit_and_remove()
+        print('Deleted user: %s' % username)
         
 
 class Ratings(CkanCommand):
