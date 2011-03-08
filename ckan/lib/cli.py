@@ -911,9 +911,6 @@ class Harvester(CkanCommand):
                     pprint (job.report)
         else:
             print "There are no new harvesting jobs."
-        ### kludge since front page and packages now use the FTS index
-        from ckan.lib.search import rebuild
-        rebuild()
 
     def remove_harvesting_job(self, job_id):
         from ckan import model
