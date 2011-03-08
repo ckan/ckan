@@ -20,6 +20,7 @@ Roles:
   
 Objects (prefix defaults to 'package:'):
   package:datablob  - A package called 'datablob'
+  package:all       - All packages
   group:literature  - A package group called 'literature'
   agroup:editors    - An authorization group called 'editors'
   system:           - The entire system (relevant to entity creation)
@@ -45,22 +46,27 @@ class RightsCommand(CkanCommand):
         assert subj is not None, "No such %s: %s" % (_type, name)
         return subj
         
-    def find_object(self, obj):
+    def find_objects(self, obj):
         _type, name = 'package', obj
         if obj == 'system':
             _type = 'system'
         elif ':' in obj:
             _type, name = obj.split(':', 1)
-        finder = {
-            'package': model.Package.by_name,
-            'group': model.Group.by_name,
-            'agroup': model.AuthorizationGroup.by_name,
-            'system': model.System.by_name
+        obj_class = {
+            'package': model.Package,
+            'group': model.Group,
+            'agroup': model.AuthorizationGroup,
+            'system': model.System,
         }.get(_type)
-        assert finder is not None, "No subject object type: %s" % _type
-        objn = finder(name)
-        assert objn is not None, "No such %s: %s" % (_type, name)
-        return objn
+        if name == 'all':
+            objn = model.Session.query(obj_class).all()
+            return objn
+        else:
+            finder = obj_class.by_name
+            assert finder is not None, "No subject object type: %s" % _type
+            objn = finder(name)
+            assert objn is not None, "No such %s: %s" % (_type, name)
+            return [objn]
         
     def ensure_role(self, role):
         roles = model.Role.get_all()
@@ -80,25 +86,26 @@ class RightsCommand(CkanCommand):
             self.list()
             return
         
-        assert len(self.args) == 4, "Not enough paramters!" + RIGHTS_HELP
+        assert len(self.args) == 4, "Not enough parameters!" + RIGHTS_HELP
         cmd, subj, role, obj = self.args
         subj = self.find_subject(unicode(subj))
         role = self.ensure_role(unicode(role))
-        obj = self.find_object(unicode(obj))
-        if cmd == 'make':
-            if isinstance(subj, model.User):
-                model.add_user_to_role(subj, role, obj)
-            elif isinstance(subj, model.AuthorizationGroup):
-                model.add_authorization_group_to_role(subj, role, obj)
-            print "made", 
-        elif cmd == 'remove':
-            if isinstance(subj, model.User):
-                model.remove_user_from_role(subj, role, obj)
-            elif isinstance(subj, model.AuthorizationGroup):
-                model.remove_authorization_group_from_role(subj, role, obj)
-            print "remove", 
+        objs = self.find_objects(unicode(obj))
+        for obj in objs:
+            if cmd == 'make':
+                if isinstance(subj, model.User):
+                    model.add_user_to_role(subj, role, obj)
+                elif isinstance(subj, model.AuthorizationGroup):
+                    model.add_authorization_group_to_role(subj, role, obj)
+                print "made", 
+            elif cmd == 'remove':
+                if isinstance(subj, model.User):
+                    model.remove_user_from_role(subj, role, obj)
+                elif isinstance(subj, model.AuthorizationGroup):
+                    model.remove_authorization_group_from_role(subj, role, obj)
+                print "remove",
+            self.print_row(subj, role, obj)
         model.repo.commit_and_remove()
-        self.print_row(subj, role, obj)
 
     def list(self):
         for uor in model.Session.query(model.UserObjectRole):
