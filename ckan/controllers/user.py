@@ -53,6 +53,7 @@ class UserController(BaseController):
             h.redirect_to(controller='user', action='login', id=None)
         c.read_user = user.display_name
         c.is_myself = user.name == c.user
+        c.api_key = user.apikey
         c.about_formatted = self._format_about(user.about)
         revisions_q = model.Session.query(model.Revision
                 ).filter_by(author=user.name)
@@ -110,15 +111,6 @@ class UserController(BaseController):
         response.delete_cookie("ckan_display_name")
         response.delete_cookie("ckan_apikey")
         return render('user/logout.html')
-
-    def apikey(self):
-        # logged in
-        if not c.user:
-            abort(401)
-        else:
-            user = model.User.by_name(c.user)
-            c.api_key = user.apikey
-        return render('user/apikey.html')
 
     def edit(self):
         # logged in

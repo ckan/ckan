@@ -15,7 +15,7 @@
 
       <p>You are logged in.</p>
       <ul>
-        <li><a href="${h.url_for(controller='user', action='apikey')}">View your API key</a></li>
+        <li>Your API key is: ${c.api_key}</li>
         <li><a href="${h.url_for(controller='user', action='edit')}">Edit your profile</a></li>
         <li><a href="${h.url_for('/user/logout')}">Log out</a></li>
       </ul>
