@@ -11,6 +11,10 @@ class UserController(BaseController):
 
     def index(self, id=None):
         LIMIT = 20
+
+        if not self.authorizer.am_authorized(c, model.Action.USER_READ, model.System):
+            abort(401, _('Not authorized to see this page'))
+
         page = int(request.params.get('page', 1))
         c.q  = request.params.get('q', '')
         c.order_by = request.params.get('order_by', 'name')
@@ -39,6 +43,8 @@ class UserController(BaseController):
         return render('user/list.html')
 
     def read(self, id=None):
+        if not self.authorizer.am_authorized(c, model.Action.USER_READ, model.System):
+            abort(401, _('Not authorized to see this page'))
         if id:
             user = model.User.get(id)
         else:
@@ -61,6 +67,8 @@ class UserController(BaseController):
         h.redirect_to(controller='user', action='read', id=c.user)
 
     def register(self):
+        if not self.authorizer.am_authorized(c, model.Action.USER_CREATE, model.System):
+            abort(401, _('Not authorized to see this page'))
         if request.method == 'POST': 
             c.login = request.params.getone('login')
             c.fullname = request.params.getone('fullname')

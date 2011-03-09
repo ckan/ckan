@@ -19,6 +19,7 @@ from genshi.template import MarkupTemplate
 from webhelpers.html import literal
 
 import ckan
+from ckan import authz
 from ckan import i18n
 import ckan.lib.helpers as h
 from ckan.plugins import PluginImplementations, IGenshiStreamFilter
@@ -78,6 +79,7 @@ class ValidationException(Exception):
 
 class BaseController(WSGIController):
     repo = model.repo
+    authorizer = authz.Authorizer()
     log = logging.getLogger(__name__)
 
     def __before__(self, action, **params):

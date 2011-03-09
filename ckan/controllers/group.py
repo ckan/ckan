@@ -4,7 +4,7 @@ from sqlalchemy.orm import eagerload_all
 from ckan.lib.base import *
 from pylons.i18n import get_lang, _
 import ckan.authz as authz
-import ckan.forms
+from ckan.model import System
 from ckan.lib.helpers import Page
 from ckan.plugins import PluginImplementations, IGroupController
 
@@ -12,12 +12,14 @@ class GroupController(BaseController):
     
     def __init__(self):
         BaseController.__init__(self)
-        self.authorizer = authz.Authorizer()
         self.extensions = PluginImplementations(IGroupController)
     
     def index(self):
         from ckan.lib.helpers import Page
-
+        
+        if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
+            abort(401, _('Not authorized to see this page'))
+        
         query = ckan.authz.Authorizer().authorized_query(c.user, model.Group)
         query = query.order_by(model.Group.name.asc())
         query = query.order_by(model.Group.title.asc())
@@ -161,6 +163,7 @@ class GroupController(BaseController):
         c.group = model.Group.by_name(id)
         if c.group is None:
             abort(404, _('Group not found'))
+        
         c.groupname = c.group.name
         c.grouptitle = c.group.display_name
 
@@ -260,6 +263,9 @@ class GroupController(BaseController):
         c.group = model.Group.by_name(id)
         if not c.group:
             abort(404, _('Group not found'))
+        if not self.authorizer.am_authorized(c, model.Action.EDIT, group):
+            abort(401, _('User %r not authorized to edit %r') % (c.user, id))
+
         format = request.params.get('format', '')
         if format == 'atom':
             # Generate and return Atom 1.0 document.

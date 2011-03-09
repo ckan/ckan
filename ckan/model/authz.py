@@ -44,6 +44,9 @@ class Action(Enum):
     PACKAGE_CREATE = u'create-package'
     GROUP_CREATE = u'create-group'
     AUTHZ_GROUP_CREATE = u'create-authorization-group'
+    SITE_READ = u'read-site'
+    USER_READ = u'read-user'
+    USER_CREATE = u'create-user'
 
 class Role(Enum):
     ADMIN = u'admin'
@@ -55,8 +58,14 @@ default_role_actions = [
     (Role.EDITOR, Action.PACKAGE_CREATE),
     (Role.EDITOR, Action.GROUP_CREATE),
     (Role.EDITOR, Action.AUTHZ_GROUP_CREATE),
-    (Role.EDITOR, Action.READ),        
+    (Role.EDITOR, Action.USER_CREATE),
+    (Role.EDITOR, Action.USER_READ),
+    (Role.EDITOR, Action.SITE_READ),
+    (Role.EDITOR, Action.READ),
     (Role.READER, Action.PACKAGE_CREATE),
+    (Role.READER, Action.USER_CREATE),
+    (Role.READER, Action.USER_READ),
+    (Role.READER, Action.SITE_READ),
     #(Role.READER, Action.GROUP_CREATE),
     (Role.READER, Action.READ),
     ]
