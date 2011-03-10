@@ -10,6 +10,7 @@ from ckan.lib.search import query_for, QueryOptions, SearchError
 from ckan.lib.cache import proxy_cache, get_cache_expires
 from ckan.lib.base import *
 import ckan.lib.stats
+import ckan.lib.hash
 
 cache_expires = get_cache_expires(sys.modules[__name__])
 
@@ -52,13 +53,19 @@ class HomeController(BaseController):
     
     def locale(self): 
         return_to = request.params.get('return_to', '/')
+        hash_given = request.params.get('hash', '')
         locale = request.params.get('locale')
         if locale is not None:
             h.flash_notice(_("Language has been set to: English"))
             set_session_locale(locale)
         else:
             h.flash_notice(_("No language given!"))
+        hash_expected = ckan.lib.hash.get_message_hash(return_to)
+        if hash_given != hash_expected:
+            # no need for error, just don't redirect
+            return 
         return_to += '&' if '?' in return_to else '?'
+        # hack to prevent next page being cached
         return_to += '__cache=%s' %  int(random.random()*100000000)
         redirect_to(return_to.encode('utf-8'))
 

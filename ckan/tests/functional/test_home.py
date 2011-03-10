@@ -71,3 +71,33 @@ class TestHomeController(TestController):
         assert 'Register a New Package' in results_page, results_page
         assert '<input id="Package--title" name="Package--title" size="40" type="text" value="test title">' in results_page, results_page
         
+    @search_related
+    def test_locale_change(self):
+        offset = url_for('home')
+        res = self.app.get(offset)
+        res = res.click('Deutsch')
+        res = res.follow()
+        assert 'Willkommen' in res.body
+        res = res.click('English')
+
+    @search_related
+    def test_locale_change_with_false_hash(self):
+        offset = url_for('home')
+        res = self.app.get(offset)
+        found_html, found_desc, found_attrs = res._find_element(
+            tag='a', href_attr='href',
+            href_extract=None,
+            content='Deutsch',
+            id=None, 
+            href_pattern=None,
+            html_pattern=None,
+            index=None, verbose=False)
+        href = found_attrs['uri']
+        assert href
+        res = res.goto(href)
+        assert res.status == 302, res.status # redirect
+        
+        href = href.replace('return_to=%2F&', 'return_to=%2Fhackedurl&')
+        res = res.goto(href)
+        assert res.status == 200, res.status # doesn't redirect
+        
