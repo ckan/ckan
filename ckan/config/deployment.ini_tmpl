@@ -173,11 +173,22 @@ keys = generic
 level = INFO
 handlers = console
 
+[logger_ckan]
+level = DEBUG
+handlers = file
+qualname = ckan
+
 [handler_console]
 class = StreamHandler
 args = (sys.stderr,)
 level = NOTSET
 formatter = generic
+
+[handler_file]
+class = handlers.RotatingFileHandler
+formatter = generic
+level = NOTSET
+args = ('/var/log/ckan/ckan.log', 'a', 2000000, 9)
 
 [formatter_generic]
 format = %(asctime)s %(levelname)-5.5s [%(name)s] %(message)s

@@ -1,3 +1,5 @@
+import copy
+
 from ckan.controllers.rest import RestController
 from ckan.lib.base import _, request, response
 from ckan.lib.cache import ckan_cache
@@ -7,6 +9,11 @@ import ckan
 from ckan.plugins import PluginImplementations, IPackageController
 
 log = __import__("logging").getLogger(__name__)
+
+readonly_keys = ('id', 'relationships', 'ratings_average',
+                 'ratings_count', 'ckan_url',
+                 'metadata_modified',
+                 'metadata_created')
 
 class PackageController(RestController):
 
@@ -59,6 +66,7 @@ class PackageController(RestController):
         fs = self._get_standard_package_fieldset()
         try:
             request_data = self._get_request_data()
+            request_data = self._strip_readonly_keys(request_data)
             request_fa_dict = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(fs=fs), request_data)
             fs = fs.bind(model.Package, data=request_fa_dict, session=model.Session)
             log.debug('Created object %s' % str(fs.name.value))
@@ -124,6 +132,8 @@ class PackageController(RestController):
             orig_entity_dict = ckan.forms.get_package_dict(pkg=entity, fs=fs)
             try:
                 request_data = self._get_request_data()
+                request_data = self._strip_readonly_keys(request_data,
+                                                         entity.as_dict())
                 request_fa_dict = ckan.forms.edit_package_dict(orig_entity_dict, request_data, id=entity.id)
                 fs = fs.bind(entity, data=request_fa_dict)
                 validation = fs.validate()
@@ -179,3 +189,23 @@ class PackageController(RestController):
             log.exception(inst)
             raise
         return self._finish_ok()
+
+    def _strip_readonly_keys(self, request_dict, existing_pkg_dict=None):
+        '''Removes keys that are readonly. If there is an existing package,
+        the values of the keys are checked against to see if they have
+        been inadvertantly edited - if so, raise an error.
+        '''
+        stripped_package_dict = copy.deepcopy(request_dict)
+        for key in readonly_keys:
+            if request_dict.has_key(key):
+                if existing_pkg_dict:
+                    if request_dict[key] != existing_pkg_dict.get(key):
+                        raise ckan.forms.PackageDictFormatError(
+                            'Key %r is readonly - do not include in the '
+                            'package or leave it unchanged.')
+                else:
+                    raise ckan.forms.PackageDictFormatError(
+                        'Key %r is readonly - do not include in the '
+                        'package.')                    
+                del stripped_package_dict[key]# = request_dict[key]
+        return stripped_package_dict

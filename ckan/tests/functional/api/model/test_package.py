@@ -84,7 +84,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         postparams = '%s=1' % self.dumps(self.package_fixture_data)
         res = self.app.post(offset, params=postparams, status=self.STATUS_409_CONFLICT,
                 extra_environ=self.extra_environ)
-        self.remove()
+        self.remove()        
 
     def test_register_post_bad_request(self):
         test_params = {
@@ -100,6 +100,17 @@ class PackagesTestCase(BaseModelApiTestCase):
         offset = self.offset('/rest/package')
         postparams = '%s=1' % self.dumps(self.package_fixture_data)
         res = self.app.post(offset, params=postparams, status=self.STATUS_403_ACCESS_DENIED)
+
+    def test_register_post_readonly_fields(self):
+        # (ticket 662) Post a package with readonly field such as 'id'
+        offset = self.offset('/rest/package')
+        data = {'name': u'test_readonly',
+                'id': u'not allowed to be set',
+                }
+        postparams = '%s=1' % self.dumps(data)
+        res = self.app.post(offset, params=postparams,
+                            status=self.STATUS_400_BAD_REQUEST,
+                            extra_environ=self.extra_environ)
 
     def test_entity_get_ok(self):
         package_refs = [self.anna.name, self.anna.id]
@@ -121,6 +132,28 @@ class PackagesTestCase(BaseModelApiTestCase):
         offset = self.offset('/rest/package/22222')
         res = self.app.get(offset, status=self.STATUS_404_NOT_FOUND)
         self.remove()
+
+    def test_entity_get_then_post(self):
+        # (ticket 662) Ensure an entity you 'get' from a register can be
+        # returned by posting it back
+        offset = self.package_offset(self.war.name)
+        res = self.app.get(offset, status=self.STATUS_200_OK)
+        data = self.loads(res.body)
+        postparams = '%s=1' % self.dumps(data)
+        res = self.app.post(offset, params=postparams,
+                            status=self.STATUS_200_OK,
+                            extra_environ=self.extra_environ)
+
+    def test_entity_post_changed_readonly(self):
+        # (ticket 662) Edit a readonly field gives error
+        offset = self.package_offset(self.war.name)
+        res = self.app.get(offset, status=self.STATUS_200_OK)
+        data = self.loads(res.body)
+        data['id'] = 'illegally changed value'
+        postparams = '%s=1' % self.dumps(data)
+        res = self.app.post(offset, params=postparams,
+                            status=self.STATUS_400_BAD_REQUEST,
+                            extra_environ=self.extra_environ)
 
     def test_entity_update_denied(self):
         offset = self.anna_offset()
