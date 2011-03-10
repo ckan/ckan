@@ -2,6 +2,8 @@
 from ckan import model
 from cli import CkanCommand
 
+from sqlalchemy.orm.exc import NoResultFound
+
 RIGHTS_HELP = '''
 
 Operations (defaults to 'list'):
@@ -92,18 +94,21 @@ class RightsCommand(CkanCommand):
         role = self.ensure_role(unicode(role))
         objs = self.find_objects(unicode(obj))
         for obj in objs:
-            if cmd == 'make':
-                if isinstance(subj, model.User):
-                    model.add_user_to_role(subj, role, obj)
-                elif isinstance(subj, model.AuthorizationGroup):
-                    model.add_authorization_group_to_role(subj, role, obj)
-                print "made", 
-            elif cmd == 'remove':
-                if isinstance(subj, model.User):
-                    model.remove_user_from_role(subj, role, obj)
-                elif isinstance(subj, model.AuthorizationGroup):
-                    model.remove_authorization_group_from_role(subj, role, obj)
-                print "remove",
+            try:
+                if cmd == 'make':
+                    if isinstance(subj, model.User):
+                        model.add_user_to_role(subj, role, obj)
+                    elif isinstance(subj, model.AuthorizationGroup):
+                        model.add_authorization_group_to_role(subj, role, obj)
+                    print "made", 
+                elif cmd == 'remove':
+                    if isinstance(subj, model.User):
+                        model.remove_user_from_role(subj, role, obj)
+                    elif isinstance(subj, model.AuthorizationGroup):
+                        model.remove_authorization_group_from_role(subj, role, obj)
+                    print "remove",
+            except NoResultFound, e:
+                print "! not found",
             self.print_row(subj, role, obj)
         model.repo.commit_and_remove()
 
