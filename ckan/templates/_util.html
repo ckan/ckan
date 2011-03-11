@@ -35,7 +35,7 @@
           user listing -->
     <ul py:def="user_list(users)" class="users">
       <li py:for="user in users">
-        ${h.link_to(user.display_name, h.url_for(controller='user', action='read', id=user.id))}
+        ${h.linked_user(user)}
       </li>
     </ul>
 
