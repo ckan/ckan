@@ -1,5 +1,6 @@
 from sqlalchemy.util import OrderedDict
 from sqlalchemy.ext.orderinglist import ordering_list
+from sqlalchemy import orm
 from pylons import config
 import vdm.sqlalchemy
 
@@ -62,8 +63,9 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
 
         extra_columns = self.get_extra_columns()
         for field in extra_columns:
-            value = kwargs.pop(field, u'')
-            setattr(self, field, value)
+            value = kwargs.pop(field, None)
+            if value is not None:
+                setattr(self, field, value)
         if kwargs:
             raise TypeError('unexpected keywords %s' % kwargs)
 

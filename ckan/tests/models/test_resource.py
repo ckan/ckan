@@ -33,6 +33,13 @@ class TestResource:
                                 )
             rg.resources.append(pr)
             pkg.resource_groups.append(rg)
+        pr = model.Resource(url="no_extra",
+                            format=self.format,
+                            description=self.description,
+                            hash=self.hash,
+                            )
+        rg.resources.append(pr)
+        pkg.resource_groups.append(rg)
         model.repo.commit_and_remove()
 
     def teardown(self):
@@ -42,7 +49,7 @@ class TestResource:
 
         pkg = model.Package.by_name(self.pkgname)
         assert len(pkg.resource_groups) == 1
-        assert len(pkg.resource_groups[0].resources) == len(self.urls), pkg.resource_groups[0].resources
+        assert len(pkg.resource_groups[0].resources) == 3, pkg.resource_groups[0].resources
 
         resource_group_0 = pkg.resource_groups[0]
         assert resource_group_0.label == 'default', resource_group_0
@@ -87,20 +94,24 @@ class TestResource:
         assert resource_0.extras == {u'alt_url': u'weeee'}, resource_0.extras
         assert resource_0.alt_url == 'weeee', resource_0.alt_url
 
+        pkg = model.Package.by_name(self.pkgname)
+
+        assert pkg.resources[2].extras == {}, pkg.resources[2].extras
+
 
     def test_02_delete_resource(self):
         pkg = model.Package.by_name(self.pkgname)
         rg = pkg.resource_groups[0]
         res = rg.resources[0]
-        assert len(rg.resources) == 2, rg.resources
+        assert len(rg.resources) == 3, rg.resources
         rev = model.repo.new_revision()
         res.delete()
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(self.pkgname)
         rg = pkg.resource_groups[0]
-        assert len(rg.resources) == 1, rg.resources
-        assert len(rg.resources_all) == 2, rg.resources_all
+        assert len(rg.resources) == 2, rg.resources
+        assert len(rg.resources_all) == 3, rg.resources_all
     
     def test_03_reorder_resources(self):
         rev = model.repo.new_revision()
@@ -124,10 +135,10 @@ class TestResource:
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(self.pkgname)
-        assert len(rg.resources) == 2, rg.resources
-        lastres = rg.resources[1]
-        assert lastres.position == 1, lastres
-        assert lastres.url == self.urls[0]
+        assert len(rg.resources) == 3, rg.resources
+        lastres = rg.resources[2]
+        assert lastres.position == 2, lastres
+        assert lastres.url == self.urls[0], lastres.url
         
 
     def test_04_insert_resource(self):
@@ -142,7 +153,7 @@ class TestResource:
         model.repo.commit_and_remove()
 
         rg = model.Package.by_name(self.pkgname).resource_groups[0]
-        assert len(rg.resources) == 3, rg.resources
+        assert len(rg.resources) == 4, rg.resources
         assert rg.resources[1].url == self.urls[0]
         assert len(rg.resources[1].all_revisions) == 2
 
@@ -151,16 +162,16 @@ class TestResource:
         all_resources = model.Session.query(model.Resource)
         active_resources = model.Session.query(model.Resource).\
                            filter_by(state=model.State.ACTIVE)
-        assert all_resources.count() == 2, all_resources.all()
-        assert active_resources.count() == 2, active_resources.all()
+        assert all_resources.count() == 3, all_resources.all()
+        assert active_resources.count() == 3, active_resources.count()
         rev = model.repo.new_revision()
         pkg.delete()
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(self.pkgname)
         # OK for resources remain active
-        assert all_resources.count() == 2, all_resources.all()
-        assert active_resources.count() == 2, active_resources.all()
+        assert all_resources.count() == 3, all_resources.all()
+        assert active_resources.count() == 3, active_resources.count()
 
     @raises(AssertionError)
     def test_06_not_allow_two_resource_groups(self):
@@ -172,7 +183,7 @@ class TestResource:
     def test_07_purge_package(self):
         pkg = model.Package.by_name(self.pkgname)
         all_resources = model.Session.query(model.Resource).all()
-        assert len(all_resources) == 2, pkg.resources
+        assert len(all_resources) == 3, pkg.resources
         rev = model.repo.new_revision()
         pkg.purge()
         model.repo.commit_and_remove()
