@@ -94,4 +94,100 @@ to package one thing you can do so like this:
 
     python -m buildkit.deb /path/to/virtualenv ckan-deps 1.3 http://ckan.org python-dep-1 python-dep-2 ... etc
 
+Version Numbers
+===============
+
+To release an upgrade of a package it must have a higher version number. There
+is a chance you may want to release a more recent version of a package despite
+the fact the underlying version number hasn't changed. For this reason, we
+always add a ``~`` character followed by a two digit number to the end of the
+actual version number as specified in ``setup.py`` for the package. 
+
+For example, the version number for CKAN may be ``1.4.0a~01``, producing a
+package named ``python-ckan_1.4.0a~01_amd64.deb``.
+
+Relase Process
+==============
+
+For any instance of CKAN, the following release process occurs:
+
+* Import from each 
+
+::
+
+    sudo reprepro includedeb lucid /home/ubuntu/*.deb
+    sudo reprepro remove lucid python2.4-pgsql
+
+Here's what a directory looks like:
+
+::
+
+    $ find /var/packages/debian/pool/universe/ | grep "\.deb"
+    $ ls /home/ubuntu/release/2011030701/
+    python-apachemiddleware_0.1.0-1_amd64.deb  python-ckanext-dgu_1.3-1_amd64.deb    python-pyutilib.component.core_4.1-1_amd64.deb
+    python-ckan_1.4a4-1_amd64.deb              python-formalchemy_1.3.6-1_amd64.deb  python-solrpy_0.9.3-1_amd64.deb
+    python-ckanclient_0.6-1_amd64.deb          python-licenses_0.6-1_amd64.deb       python-vdm_0.9-1_amd64.deb
+    python-ckan-deps_1.3.4-1_amd64.deb         python-markupsafe_0.9.2-1_amd64.deb
+    
+Setting up the Repositories
+===========================
+
+Convert a Python package installed into a virtualenv into a Debian package automatically
+
+Usage:
+
+::
+
+    python -m buildkit.deb /home/okfn/pyenv ckan 1.3 http://ckan.org python-routes python-vdm python-pylons python-genshi python-sqlalchemy python-repoze.who python-repoze.who-plugins python-pyutilib.component.core python-migrate python-formalchemy python-sphinx
+
+For this to work you need a modern Ubuntu with these packages installed:
+
+::
+
+    sudo apt-get install -y python wget dh-make devscripts build-essential fakeroot cdbs
+
+There's a dependency on postfix. Choose internet site and the default hostname unless you know better.
+
+Once you have packages you'll want to put them in a repo. You can do that as described here:
+
+http://joseph.ruscio.org/blog/2010/08/19/setting-up-an-apt-repository/
+
+Then add them like this:
+
+::
+
+    cd /var/packages/debian/
+    sudo reprepro includedeb lucid ~/*.deb
+
+Todo
+
+* Make this convert all files in a virtualenv recursively
+* Automatically extract the dependencies using buildkit
+* Save the changelogs somewhere and put them back once they are updated
+
+Testing in a VM
+===============
+
+If you aren't running Lucid, you may need to test in a VM. You can create one like this:
+
+::
+
+    sudo vmbuilder kvm ubuntu --suite lucid --flavour virtual --arch amd64  -o --mirror http://localhost:9999/ubuntu
+
+This assumes you already have an apt mirror set up on port 9999 and that you
+can build bridged networks yourself. I'll document both in due course, but for
+now, just ask.
+
+
+Next Steps
+==========
+
+* Write a ``ckan`` command.
+* Add the ``debian`` directories
+* Agree a naming convention and paths
+* Delayed updates
+
+Install Guide with 
+
+dpkg-deb -b . ..
 

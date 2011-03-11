@@ -3,4 +3,5 @@ recursive-include ckan/public *
 recursive-include ckan/templates *
 recursive-include ckan/requires *
 recursive-include ckan *.ini
+prune .hg
 include CHANGELOG.txt
