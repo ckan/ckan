@@ -1,5 +1,6 @@
 """The application's Globals object"""
 
+from paste.deploy.converters import asbool
 from pylons import config
 
 class Globals(object):
@@ -30,4 +31,6 @@ class Globals(object):
         # hide these extras fields on package read
         self.package_hide_extras = config.get('package_hide_extras', '').split()
         self.has_commenting = False
+
+        self.openid_enabled = asbool(config.get('openid_enabled', 'true'))
         

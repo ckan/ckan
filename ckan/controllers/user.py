@@ -11,6 +11,10 @@ class UserController(BaseController):
 
     def index(self, id=None):
         LIMIT = 20
+
+        if not self.authorizer.am_authorized(c, model.Action.USER_READ, model.System):
+            abort(401, _('Not authorized to see this page'))
+
         page = int(request.params.get('page', 1))
         c.q  = request.params.get('q', '')
         c.order_by = request.params.get('order_by', 'name')
@@ -39,6 +43,8 @@ class UserController(BaseController):
         return render('user/list.html')
 
     def read(self, id=None):
+        if not self.authorizer.am_authorized(c, model.Action.USER_READ, model.System):
+            abort(401, _('Not authorized to see this page'))
         if id:
             user = model.User.get(id)
         else:
@@ -47,6 +53,7 @@ class UserController(BaseController):
             h.redirect_to(controller='user', action='login', id=None)
         c.read_user = user.display_name
         c.is_myself = user.name == c.user
+        c.api_key = user.apikey
         c.about_formatted = self._format_about(user.about)
         revisions_q = model.Session.query(model.Revision
                 ).filter_by(author=user.name)
@@ -61,6 +68,8 @@ class UserController(BaseController):
         h.redirect_to(controller='user', action='read', id=c.user)
 
     def register(self):
+        if not self.authorizer.am_authorized(c, model.Action.USER_CREATE, model.System):
+            abort(401, _('Not authorized to see this page'))
         if request.method == 'POST': 
             c.login = request.params.getone('login')
             c.fullname = request.params.getone('fullname')
@@ -102,15 +111,6 @@ class UserController(BaseController):
         response.delete_cookie("ckan_display_name")
         response.delete_cookie("ckan_apikey")
         return render('user/logout.html')
-
-    def apikey(self):
-        # logged in
-        if not c.user:
-            abort(401)
-        else:
-            user = model.User.by_name(c.user)
-            c.api_key = user.apikey
-        return render('user/apikey.html')
 
     def edit(self):
         # logged in

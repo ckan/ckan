@@ -11,6 +11,11 @@ LIMIT = 25
 
 class TagController(BaseController):
 
+    def __before__(self, action, **env):
+        BaseController.__before__(self, action, **env)
+        if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
+            abort(401, _('Not authorized to see this page'))
+
     def index(self):
         c.q = request.params.get('q', '')
         

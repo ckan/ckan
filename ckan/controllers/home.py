@@ -15,9 +15,12 @@ import ckan.lib.hash
 cache_expires = get_cache_expires(sys.modules[__name__])
 
 class HomeController(BaseController):
-    repo = model.repo   
+    repo = model.repo
 
-    authorizer = Authorizer()
+    def __before__(self, action, **env):
+        BaseController.__before__(self, action, **env)
+        if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
+            abort(401, _('Not authorized to see this page'))
 
     @proxy_cache(expires=cache_expires)
     def index(self):
