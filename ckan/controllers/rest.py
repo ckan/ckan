@@ -39,10 +39,6 @@ class BaseApiController(BaseController):
         return getattr(group, cls.ref_group_by)
 
     @classmethod
-    def _ref_harvest_source(cls, harvest_source):
-        return getattr(harvest_source, 'id')
-
-    @classmethod
     def _list_package_refs(cls, packages):
         return [getattr(p, cls.ref_package_by) for p in packages]
 
