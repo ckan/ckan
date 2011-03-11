@@ -11,8 +11,14 @@ const_role_actions = [
     '<RoleAction role="editor" action="create-group" context="">',
     '<RoleAction role="editor" action="create-authorization-group" context="">',
     '<RoleAction role="editor" action="read" context="">',
+    '<RoleAction role="editor" action="read-site" context="">',
+    '<RoleAction role="editor" action="read-user" context="">',
+    '<RoleAction role="editor" action="create-user" context="">',
     '<RoleAction role="reader" action="create-package" context="">',
     '<RoleAction role="reader" action="read" context="">',
+    '<RoleAction role="reader" action="read-site" context="">',
+    '<RoleAction role="reader" action="read-user" context="">',
+    '<RoleAction role="reader" action="create-user" context="">',
 ]
 
 class InitialStateTestCase(object):

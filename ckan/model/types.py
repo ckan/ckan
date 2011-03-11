@@ -43,7 +43,7 @@ class JsonType(types.TypeDecorator):
 
     def process_result_value(self, value, engine):
         if value is None:
-            return None
+            return {}
         else:
             return json.loads(value)
 

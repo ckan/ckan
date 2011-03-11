@@ -17,10 +17,7 @@ class SqlSearchBackend(SearchBackend):
     
     @property
     def connection(self):
-        try:
-            return meta.Session.connection()
-        except UnboundExecutionError:
-            return meta.engine.connect()
+        return meta.Session.connection(model.Package)
        
     def _setup(self):
         self.register(model.Package, PackageSqlSearchIndex, PackageSqlSearchQuery)

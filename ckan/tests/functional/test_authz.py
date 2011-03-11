@@ -26,8 +26,12 @@ class TestUsage(TestController):
         model.repo.init_db()
         rev = model.repo.new_revision()
         self.modes = ('xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted')
+        tag = model.Tag("test")
+        model.Session.add(tag)
         for mode in self.modes:
-            model.Session.add(model.Package(name=unicode(mode)))
+            pkg = model.Package(name=unicode(mode))
+            model.Session.add(pkg)
+            pkg.tags.append(tag)
             if mode != 'deleted':
                 # Groups aren't stateful
                 model.Session.add(model.Group(name=unicode(mode)))
@@ -310,7 +314,7 @@ class TestUsage(TestController):
         self._test_can('delete', self.testsysadmin, [str(pkg.id)], interfaces=['rest'], entities=['package'])
     
         
-class TestLockedDownUsage(TestUsage):
+class TestLockedDownUsage(TestController):
     
     @classmethod
     def setup_class(self):
@@ -319,16 +323,48 @@ class TestLockedDownUsage(TestUsage):
         q = q.filter(model.UserObjectRole.user==model.User.by_name(u"visitor"))
         for role in q:
             model.Session.delete(role)
-        model.repo.commit_and_remove()
         
+        q = model.Session.query(model.RoleAction).filter(model.RoleAction.role==Role.READER)
+        for role_action in q:
+            model.Session.delete(role_action)
+        
+        model.repo.commit_and_remove()
         indexer = TestSearchIndexer()
-        self._create_test_data()
+        TestUsage._create_test_data()
         model.Session.remove()
         indexer.index()
-        
-    def test_user_creates(self):
-        self._test_can('create', self.mrloggedin, ['rr'])
+        self.user_name = TestUsage.mrloggedin.name.encode('utf-8')
     
+    def _check_for_users_only(self, offset):
+        res = self.app.get(offset, extra_environ={})
+        assert res.status not in [200], res.status
+        res = self.app.get(offset, extra_environ={'REMOTE_USER': self.user_name})
+        assert res.status in [200], res.status
+
+    def test_home_for_editors_only(self):
+        self._check_for_users_only('/')
+        self._check_for_users_only('/about')
+        self._check_for_users_only('/license')
+    
+    def test_tags_for_editors_only(self):
+        self._check_for_users_only('/tag')
+        self._check_for_users_only('/tag/test')
+
+    def test_revisions_for_editors_only(self):
+        self._check_for_users_only('/revision')
+
+    def test_users_for_editors_only(self):
+        self._check_for_users_only('/user')
+        self._check_for_users_only('/user/' + self.user_name)
+        res = self.app.get('/user/login', extra_environ={})
+        assert res.status in [200], res.status
+        #res = self.app.get('/user/register', extra_environ={})
+        #assert res.status in [200], res.status
+    
+    def test_user_new_package(self):
+        offset = url_for(controller='package', action='new')
+        self._check_for_users_only(offset)
+
     @classmethod
     def teardown_class(self):
         model.repo.rebuild_db()

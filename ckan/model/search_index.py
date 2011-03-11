@@ -2,7 +2,7 @@ import sqlalchemy
 
 from meta import Table, Column, UnicodeText, ForeignKey, mapper, metadata
 
-__all__ = ['package_search_table']
+__all__ = ['package_search_table', 'PackageSearch']
 
 def setup_db(event, schema_item, engine):
     sql = 'ALTER TABLE package_search ADD COLUMN search_vector tsvector'
