@@ -671,8 +671,7 @@ class BaseRestController(BaseApiController):
         self.rest_api_user = self._get_username()
         log.debug('check access - user %r' % self.rest_api_user)
         
-        if action and entity and not isinstance(entity, model.PackageRelationship) \
-                and not isinstance(entity, model.HarvestingJob):
+        if action and entity and not isinstance(entity, model.PackageRelationship):
             if action != model.Action.READ and self.rest_api_user in (model.PSEUDO_USER__VISITOR, ''):
                 self.log.debug("Valid API key needed to make changes")
                 response.status_int = 403
