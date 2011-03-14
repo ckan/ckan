@@ -300,6 +300,29 @@ class PackagesTestCase(BaseModelApiTestCase):
         res = self.app.delete(offset, status=self.STATUS_404_NOT_FOUND,
                               extra_environ=self.extra_environ)
 
+    def test_package_history(self):
+
+        res = self.app.get(self.offset('/rest/package_history/%s' % 'annakarenina'))
+        
+        revisions = res.json
+        assert len(revisions) == 1, len(revisions)
+
+        pkg = model.Package.by_name('annakarenina')
+        model.repo.new_revision()
+        pkg.title = 'Tolstoy'
+        model.repo.commit_and_remove()
+        
+        res = self.app.get(self.offset('/rest/package_history/%s' % 'annakarenina'))
+        
+        revisions = res.json
+        assert len(revisions) == 2, len(revisions)
+
+        assert revisions[0]["timestamp"] > revisions[1]["timestamp"]
+
+
+        
+
+
 
 class TestPackagesVersion1(Version1TestCase, PackagesTestCase): pass
 class TestPackagesVersion2(Version2TestCase, PackagesTestCase): pass
