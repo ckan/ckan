@@ -93,12 +93,12 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
         static_parsers = [static_app, app]
 
         # Configurable extra static file paths
-        extra_public_paths = config.get('extra_public_paths')
-        if extra_public_paths:
-            static_parsers = [StaticURLParser(public_path) \
-                              for public_path in \
-                              extra_public_paths.split(',')] + static_parsers
-            
-        app = Cascade(static_parsers)
+        extra_static_parsers = []
+        for public_path in config.get('extra_public_paths').split(','):
+            if public_path.strip():
+                extra_static_parsers.append(
+                    StaticURLParser(public_path.strip())
+                )
+        app = Cascade(extra_static_parsers+static_parsers)
 
     return app
