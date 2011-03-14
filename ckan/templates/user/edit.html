@@ -11,7 +11,7 @@
 
   <div py:match="content">
     <h2>
-      Edit User: ${c.user}
+      Edit User: ${c.userobj.display_name} (${c.userobj.name})
       <a href="#preview" py:if="c.preview">(skip to preview)</a>
     </h2>
 

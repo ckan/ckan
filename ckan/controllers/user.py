@@ -112,11 +112,17 @@ class UserController(BaseController):
         response.delete_cookie("ckan_apikey")
         return render('user/logout.html')
 
-    def edit(self):
-        # logged in
-        if not c.user:
+    def edit(self, id=None):
+        if id is not None:
+            user = model.User.by_name(id)
+        else:
+            user = model.User.by_name(c.user)
+        if user is None:
+            abort(404)
+        currentuser = model.User.by_name(c.user)
+        if not (ckan.authz.Authorizer().is_sysadmin(unicode(c.user)) or user == currentuser):
             abort(401)
-        user = model.User.by_name(c.user)
+        c.userobj = user
         if not 'save' in request.params and not 'preview' in request.params:
             c.user_about = user.about
             c.user_fullname = user.fullname
