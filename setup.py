@@ -62,7 +62,6 @@ setup(
     ratings = ckan.lib.cli:Ratings
     changes = ckan.lib.cli:Changes
     notifications = ckan.lib.cli:Notifications
-    harvester = ckan.lib.cli:Harvester
     rights = ckan.lib.authztool:RightsCommand
     roles = ckan.lib.authztool:RolesCommand
     
