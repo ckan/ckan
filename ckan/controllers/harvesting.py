@@ -15,9 +15,10 @@ from ckan.lib.package_saver import PackageSaver, ValidationException
 from ckan.lib.package_saver import WritePackageFromBoundFieldset
 from ckan.lib.base import BaseController
 from ckan.plugins import PluginImplementations, IPackageController
-from ckan.model.harvesting import HarvesterError, HarvesterUrlError, ValidationError
-from ckan.model.harvesting import GeminiDocument
-from ckan.model.harvesting import HarvestedDocument
+from ckanext.harvest.model import HarvesterError, HarvesterUrlError, ValidationError
+from ckanext.harvest.model import GeminiDocument
+from ckanext.harvest.model import HarvestedDocument
+
 import ckan.forms
 from ckan.forms import GetPackageFieldset
 from ckan.forms import GetEditFieldsetPackageData
