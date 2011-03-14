@@ -31,6 +31,8 @@ class PackageController(BaseController):
     extensions = PluginImplementations(IPackageController)
 
     def search(self):        
+        if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
+            abort(401, _('Not authorized to see this page'))
         q = c.q = request.params.get('q') # unicode format (decoded from utf8)
         c.open_only = request.params.get('open_only')
         c.downloadable_only = request.params.get('downloadable_only')

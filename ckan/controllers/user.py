@@ -160,7 +160,7 @@ class UserController(BaseController):
     def _get_form_password(self):
         password1 = request.params.getone('password1')
         password2 = request.params.getone('password2')
-        if password1:
+        if password1 is not None:
             if not len(password1) >= 4:
                 raise ValueError(_("Your password must be 4 characters or longer."))
             elif not password1 == password2:
