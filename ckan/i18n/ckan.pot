@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ckan 1.4a\n"
+"Project-Id-Version: ckan 1.3.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2011-02-24 22:49+0000\n"
+"POT-Creation-Date: 2011-03-15 18:43+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -94,28 +94,27 @@ msgstr ""
 msgid "Log message: "
 msgstr ""
 
-#: ckan/controllers/harvesting.py:58 ckan/controllers/package.py:140
-#: ckan/controllers/package.py:162
-#, python-format
-msgid "Unauthorized to read package %s"
-msgstr ""
-
-#: ckan/controllers/harvesting.py:307
+#: ckan/controllers/harvesting.py:426
 #, python-format
 msgid "Harvester: Created package %s"
 msgstr ""
 
-#: ckan/controllers/home.py:57
+#: ckan/controllers/home.py:59
 msgid "Language has been set to: English"
 msgstr ""
 
-#: ckan/controllers/home.py:60
+#: ckan/controllers/home.py:62
 msgid "No language given!"
 msgstr ""
 
 #: ckan/controllers/package.py:118 ckan/controllers/package.py:154
 #: ckan/controllers/package.py:189 ckan/controllers/package.py:401
 msgid "Package not found"
+msgstr ""
+
+#: ckan/controllers/package.py:140 ckan/controllers/package.py:162
+#, python-format
+msgid "Unauthorized to read package %s"
 msgstr ""
 
 #: ckan/controllers/package.py:195
@@ -160,20 +159,20 @@ msgstr ""
 
 #: ckan/controllers/rest.py:332 ckan/controllers/rest.py:439
 #: ckan/controllers/rest.py:475 ckan/controllers/rest.py:537
-#: ckan/controllers/rest.py:584 ckan/controllers/apiv1/package.py:44
-#: ckan/controllers/apiv1/package.py:56 ckan/controllers/apiv1/package.py:117
-#: ckan/controllers/apiv1/package.py:168 ckan/controllers/apiv2/package.py:46
+#: ckan/controllers/rest.py:584 ckan/controllers/apiv1/package.py:51
+#: ckan/controllers/apiv1/package.py:63 ckan/controllers/apiv1/package.py:125
+#: ckan/controllers/apiv1/package.py:178 ckan/controllers/apiv2/package.py:46
 msgid "Access denied"
 msgstr ""
 
 #: ckan/controllers/rest.py:338 ckan/controllers/rest.py:481
-#: ckan/controllers/apiv1/package.py:106 ckan/controllers/apiv1/package.py:154
+#: ckan/controllers/apiv1/package.py:114 ckan/controllers/apiv1/package.py:164
 #, python-format
 msgid "JSON Error: %s"
 msgstr ""
 
 #: ckan/controllers/rest.py:348 ckan/controllers/rest.py:491
-#: ckan/controllers/apiv1/package.py:110 ckan/controllers/apiv1/package.py:157
+#: ckan/controllers/apiv1/package.py:118 ckan/controllers/apiv1/package.py:167
 #, python-format
 msgid "Package format incorrect: %s"
 msgstr ""
@@ -188,7 +187,7 @@ msgstr ""
 msgid "Cannot create new entity of this type: %s %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:401 ckan/controllers/apiv1/package.py:79
+#: ckan/controllers/rest.py:401 ckan/controllers/apiv1/package.py:87
 #, python-format
 msgid "REST API: Create object %s"
 msgstr ""
@@ -198,7 +197,7 @@ msgstr ""
 msgid "Cannot update entity of this type: %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:507 ckan/controllers/apiv1/package.py:137
+#: ckan/controllers/rest.py:507 ckan/controllers/apiv1/package.py:147
 #, python-format
 msgid "REST API: Update object %s"
 msgstr ""
@@ -289,20 +288,20 @@ msgstr ""
 msgid "Recent changes to the CKAN repository."
 msgstr ""
 
-#: ckan/controllers/revision.py:75
+#: ckan/controllers/revision.py:80
 #, python-format
 msgid "Packages affected: %s.\n"
 msgstr ""
 
-#: ckan/controllers/revision.py:146
+#: ckan/controllers/revision.py:151
 msgid "No revision id specified"
 msgstr ""
 
-#: ckan/controllers/revision.py:149
+#: ckan/controllers/revision.py:154
 msgid "You are not authorized to perform this action"
 msgstr ""
 
-#: ckan/controllers/revision.py:158
+#: ckan/controllers/revision.py:163
 #, python-format
 msgid "Purge of revision failed: %s"
 msgstr ""
@@ -311,44 +310,44 @@ msgstr ""
 msgid "Other"
 msgstr ""
 
-#: ckan/controllers/user.py:38
+#: ckan/controllers/user.py:69
 msgid "That username is not available."
 msgstr ""
 
-#: ckan/controllers/user.py:62
+#: ckan/controllers/user.py:93
 #, python-format
 msgid "Welcome back, %s"
 msgstr ""
 
-#: ckan/controllers/user.py:102
+#: ckan/controllers/user.py:134
 msgid "Changed user details"
 msgstr ""
 
-#: ckan/controllers/user.py:118
+#: ckan/controllers/user.py:150
 msgid "Your account has been updated."
 msgstr ""
 
-#: ckan/controllers/user.py:133
+#: ckan/controllers/user.py:165
 msgid "Your password must be 4 characters or longer."
 msgstr ""
 
-#: ckan/controllers/user.py:135
+#: ckan/controllers/user.py:167
 msgid "The passwords you entered do not match."
 msgstr ""
 
-#: ckan/controllers/apiv1/package.py:40 ckan/controllers/apiv2/package.py:42
+#: ckan/controllers/apiv1/package.py:47 ckan/controllers/apiv2/package.py:42
 msgid "Not found"
 msgstr ""
 
-#: ckan/controllers/apiv1/package.py:121 ckan/controllers/apiv1/package.py:164
+#: ckan/controllers/apiv1/package.py:129 ckan/controllers/apiv1/package.py:174
 msgid "Package was not found."
 msgstr ""
 
-#: ckan/controllers/apiv1/package.py:147
+#: ckan/controllers/apiv1/package.py:157
 msgid "Integrity Error"
 msgstr ""
 
-#: ckan/controllers/apiv1/package.py:172
+#: ckan/controllers/apiv1/package.py:182
 #, python-format
 msgid "REST API: Delete Package: %s"
 msgstr ""
@@ -433,7 +432,7 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
-#: ckan/forms/group.py:63 ckan/forms/package_gov.py:117
+#: ckan/forms/group.py:63
 msgid "Details"
 msgstr ""
 
@@ -507,7 +506,7 @@ msgid "The licence under which the dataset is released."
 msgstr ""
 
 #: ckan/forms/package.py:68 ckan/forms/package.py:112
-#: ckan/templates/layout_base.html:100 ckan/templates/layout_base.html:179
+#: ckan/templates/layout_base.html:99 ckan/templates/layout_base.html:178
 #: ckan/templates/package/read.html:18 ckan/templates/tag/index.html:6
 #: ckan/templates/tag/index.html:9
 msgid "Tags"
@@ -569,17 +568,17 @@ msgstr ""
 msgid "You can use %sMarkdown formatting%s here."
 msgstr ""
 
-#: ckan/forms/package.py:94 ckan/forms/package_gov.py:115
+#: ckan/forms/package.py:94
 msgid "Basic information"
 msgstr ""
 
-#: ckan/forms/package.py:96 ckan/forms/package.py:111 ckan/forms/package_gov.py:122
+#: ckan/forms/package.py:96 ckan/forms/package.py:111
 #: ckan/templates/package/read_core.html:60
 msgid "Resources"
 msgstr ""
 
-#: ckan/forms/package.py:97 ckan/templates/layout_base.html:101
-#: ckan/templates/layout_base.html:180 ckan/templates/group/index.html:9
+#: ckan/forms/package.py:97 ckan/templates/layout_base.html:100
+#: ckan/templates/layout_base.html:179 ckan/templates/group/index.html:9
 #: ckan/templates/package/read.html:26 ckan/templates/revision/read.html:40
 msgid "Groups"
 msgstr ""
@@ -603,7 +602,7 @@ msgstr ""
 
 #: ckan/forms/package.py:111 ckan/templates/group/history.html:35
 #: ckan/templates/package/history.html:41 ckan/templates/revision/list.html:21
-#: ckan/templates/user/read.html:37
+#: ckan/templates/user/read.html:40
 msgid "Author"
 msgstr ""
 
@@ -642,77 +641,12 @@ msgstr ""
 msgid "Key blank"
 msgstr ""
 
-#: ckan/forms/package_gov.py:74
-#, python-format
-msgid "<div>Suggestions (preview refreshes): %s</div>"
-msgstr ""
-
-#: ckan/forms/package_gov.py:104 ckan/forms/package_gov.py:136
-msgid "National Statistic"
-msgstr ""
-
-#: ckan/forms/package_gov.py:123 ckan/forms/package_gov.py:129
-msgid "More details"
-msgstr ""
-
-#: ckan/forms/package_gov.py:133
-msgid "External reference"
-msgstr ""
-
-#: ckan/forms/package_gov.py:133
-msgid "Date released"
-msgstr ""
-
-#: ckan/forms/package_gov.py:133
-msgid "Date updated"
-msgstr ""
-
-#: ckan/forms/package_gov.py:134
-msgid "Update frequency"
-msgstr ""
-
-#: ckan/forms/package_gov.py:134
-msgid "Geographic granularity"
-msgstr ""
-
-#: ckan/forms/package_gov.py:135
-msgid "Geographic coverage"
-msgstr ""
-
-#: ckan/forms/package_gov.py:135
-msgid "Temporal granularity"
-msgstr ""
-
-#: ckan/forms/package_gov.py:136
-msgid "Temporal coverage"
-msgstr ""
-
-#: ckan/forms/package_gov.py:136
-msgid "Categories"
-msgstr ""
-
-#: ckan/forms/package_gov.py:137
-msgid "Precision"
-msgstr ""
-
-#: ckan/forms/package_gov.py:137
-msgid "Taxonomy URL"
-msgstr ""
-
-#: ckan/forms/package_gov.py:137
-msgid "Department"
-msgstr ""
-
-#: ckan/forms/package_gov.py:137
-msgid "Agency"
-msgstr ""
-
-#: ckan/lib/base.py:130
+#: ckan/lib/base.py:128
 #, python-format
 msgid "Can't find entity data in request POST data %s: %s"
 msgstr ""
 
-#: ckan/lib/base.py:136
+#: ckan/lib/base.py:134
 msgid "Request params must be in form of a json encoded dictionary."
 msgstr ""
 
@@ -828,134 +762,134 @@ msgstr ""
 msgid "Error"
 msgstr ""
 
-#: ckan/templates/layout_base.html:75
+#: ckan/templates/layout_base.html:74
 msgid "My account"
 msgstr ""
 
-#: ckan/templates/layout_base.html:76 ckan/templates/user/logout.html:8
+#: ckan/templates/layout_base.html:75 ckan/templates/user/logout.html:8
 msgid "Logout"
 msgstr ""
 
-#: ckan/templates/layout_base.html:79 ckan/templates/user/login.html:34
+#: ckan/templates/layout_base.html:78 ckan/templates/user/login.html:34
 #: ckan/templates/user/login.html:47
 msgid "Login"
 msgstr ""
 
-#: ckan/templates/layout_base.html:80 ckan/templates/user/login.html:25
+#: ckan/templates/layout_base.html:79 ckan/templates/user/login.html:25
 msgid "Register"
 msgstr ""
 
-#: ckan/templates/layout_base.html:93
+#: ckan/templates/layout_base.html:92
 msgid "Skip to content"
 msgstr ""
 
-#: ckan/templates/layout_base.html:97 ckan/templates/home/index.html:6
+#: ckan/templates/layout_base.html:96 ckan/templates/home/index.html:6
 msgid "Home"
 msgstr ""
 
-#: ckan/templates/layout_base.html:98 ckan/templates/layout_base.html:165
+#: ckan/templates/layout_base.html:97 ckan/templates/layout_base.html:164
 #: ckan/templates/package/search.html:31 ckan/templates/package/search_form.html:17
 msgid "Search"
 msgstr ""
 
-#: ckan/templates/layout_base.html:99 ckan/templates/package/search.html:14
+#: ckan/templates/layout_base.html:98 ckan/templates/package/search.html:14
 msgid "Add a package"
 msgstr ""
 
-#: ckan/templates/layout_base.html:102 ckan/templates/layout_base.html:190
-#: ckan/templates/home/about.html:6 ckan/templates/user/read.html:23
+#: ckan/templates/layout_base.html:101 ckan/templates/layout_base.html:189
+#: ckan/templates/home/about.html:6
 msgid "About"
 msgstr ""
 
-#: ckan/templates/layout_base.html:131
+#: ckan/templates/layout_base.html:130
 msgid "Master content template placeholder … please replace me."
 msgstr ""
 
-#: ckan/templates/layout_base.html:162 ckan/templates/group/edit_form.html:10
-#: ckan/templates/revision/read.html:21 ckan/templates/user/read.html:37
+#: ckan/templates/layout_base.html:161 ckan/templates/group/edit_form.html:10
+#: ckan/templates/revision/read.html:21 ckan/templates/user/read.html:40
 msgid "Packages"
 msgstr ""
 
-#: ckan/templates/layout_base.html:166
+#: ckan/templates/layout_base.html:165
 msgid "Register a new Package"
 msgstr ""
 
-#: ckan/templates/layout_base.html:167 ckan/templates/revision/list.html:5
+#: ckan/templates/layout_base.html:166 ckan/templates/revision/list.html:5
 #: ckan/templates/revision/list.html:8
 msgid "Revision History"
 msgstr ""
 
-#: ckan/templates/layout_base.html:168
+#: ckan/templates/layout_base.html:167
 msgid "API"
 msgstr ""
 
-#: ckan/templates/layout_base.html:169
+#: ckan/templates/layout_base.html:168
 msgid "API Docs"
 msgstr ""
 
-#: ckan/templates/layout_base.html:176
+#: ckan/templates/layout_base.html:175
 msgid "Groups & Tags"
 msgstr ""
 
-#: ckan/templates/layout_base.html:181
+#: ckan/templates/layout_base.html:180
 msgid "Create a new Group"
 msgstr ""
 
-#: ckan/templates/layout_base.html:182
+#: ckan/templates/layout_base.html:181
 #: ckan/templates/authorization_group/index.html:6
 #: ckan/templates/authorization_group/index.html:9
 #: ckan/templates/authorization_group/layout.html:23
 msgid "Authorization Groups"
 msgstr ""
 
-#: ckan/templates/layout_base.html:183
+#: ckan/templates/layout_base.html:182
 msgid "Create a new Authorization Group"
 msgstr ""
 
-#: ckan/templates/layout_base.html:194
+#: ckan/templates/layout_base.html:193
 msgid "Project Home Page"
 msgstr ""
 
-#: ckan/templates/layout_base.html:197
+#: ckan/templates/layout_base.html:196
 msgid "Contact Us"
 msgstr ""
 
-#: ckan/templates/layout_base.html:200 ckan/templates/user/login.html:26
+#: ckan/templates/layout_base.html:199 ckan/templates/user/login.html:26
 msgid "Privacy Policy"
 msgstr ""
 
-#: ckan/templates/layout_base.html:208
+#: ckan/templates/layout_base.html:207
 msgid "Language"
 msgstr ""
 
-#: ckan/templates/layout_base.html:227
+#: ckan/templates/layout_base.html:232
 msgid "Credits"
 msgstr ""
 
-#: ckan/templates/layout_base.html:230
+#: ckan/templates/layout_base.html:235
 msgid ""
 "[1:]\n"
 "                An\n"
 "                [2:Open Knowledge Foundation] Project"
 msgstr ""
 
-#: ckan/templates/layout_base.html:236
+#: ckan/templates/layout_base.html:241
 msgid "Open Knowledge Foundation"
 msgstr ""
 
-#: ckan/templates/layout_base.html:240 ckan/templates/layout_base.html:245
+#: ckan/templates/layout_base.html:245 ckan/templates/layout_base.html:250
 msgid "This Content and Data is Open"
 msgstr ""
 
-#: ckan/templates/layout_base.html:262
+#: ckan/templates/layout_base.html:267
 msgid "CKAN"
 msgstr ""
 
-#: ckan/templates/layout_base.html:263
+#: ckan/templates/layout_base.html:268
 msgid "Powered by CKAN"
 msgstr ""
 
-#: ckan/templates/layout_base.html:265
+#: ckan/templates/layout_base.html:270
 #, python-format
 msgid "v%(version)s"
 msgstr ""
@@ -994,6 +928,7 @@ msgid "Edit Authorization Group:"
 msgstr ""
 
 #: ckan/templates/authorization_group/edit_form.html:10
+#: ckan/templates/user/list.html:6 ckan/templates/user/list.html:10
 msgid "Users"
 msgstr ""
 
@@ -1112,17 +1047,17 @@ msgid "Error:"
 msgstr ""
 
 #: ckan/templates/group/history.html:35 ckan/templates/package/history.html:41
-#: ckan/templates/revision/read.html:5 ckan/templates/user/read.html:37
+#: ckan/templates/revision/read.html:5 ckan/templates/user/read.html:40
 msgid "Revision"
 msgstr ""
 
 #: ckan/templates/group/history.html:35 ckan/templates/package/history.html:41
-#: ckan/templates/revision/list.html:21 ckan/templates/user/read.html:37
+#: ckan/templates/revision/list.html:21 ckan/templates/user/read.html:40
 msgid "Timestamp"
 msgstr ""
 
 #: ckan/templates/group/history.html:35 ckan/templates/package/history.html:41
-#: ckan/templates/revision/list.html:21 ckan/templates/user/read.html:37
+#: ckan/templates/revision/list.html:21 ckan/templates/user/read.html:40
 msgid "Log Message"
 msgstr ""
 
@@ -1839,6 +1774,27 @@ msgstr ""
 msgid "You can use [1:Markdown formatting] here."
 msgstr ""
 
+#: ckan/templates/user/list.html:7
+msgid "user-list"
+msgstr ""
+
+#: ckan/templates/user/list.html:12
+msgid "Sort by edits"
+msgstr ""
+
+#: ckan/templates/user/list.html:13
+msgid "Sort by name"
+msgstr ""
+
+#: ckan/templates/user/list.html:21
+#, python-format
+msgid "[1:%(item_count)s] users found."
+msgstr ""
+
+#: ckan/templates/user/list.html:33
+msgid "Member for"
+msgstr ""
+
 #: ckan/templates/user/login.html:20
 msgid "Not a member?"
 msgstr ""
@@ -1892,43 +1848,43 @@ msgstr ""
 msgid "You have logged out successfully."
 msgstr ""
 
-#: ckan/templates/user/read.html:11
-msgid "User:"
+#: ckan/templates/user/read.html:8
+msgid "user-view"
 msgstr ""
 
-#: ckan/templates/user/read.html:13
+#: ckan/templates/user/read.html:14
 msgid "My Account"
 msgstr ""
 
-#: ckan/templates/user/read.html:15
+#: ckan/templates/user/read.html:16
 msgid "You are logged in."
 msgstr ""
 
-#: ckan/templates/user/read.html:17
+#: ckan/templates/user/read.html:18
 msgid "View your API key"
 msgstr ""
 
-#: ckan/templates/user/read.html:18
+#: ckan/templates/user/read.html:19
 msgid "Edit your profile"
 msgstr ""
 
-#: ckan/templates/user/read.html:19
+#: ckan/templates/user/read.html:20
 msgid "Log out"
 msgstr ""
 
-#: ckan/templates/user/read.html:28
+#: ckan/templates/user/read.html:29
 msgid "Activity"
 msgstr ""
 
-#: ckan/templates/user/read.html:30
+#: ckan/templates/user/read.html:31
 msgid "Number of edits:"
 msgstr ""
 
-#: ckan/templates/user/read.html:31
+#: ckan/templates/user/read.html:32
 msgid "Number of packages administered:"
 msgstr ""
 
-#: ckan/templates/user/read.html:34
+#: ckan/templates/user/read.html:37
 msgid "Recent changes"
 msgstr ""
 
