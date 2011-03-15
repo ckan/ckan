@@ -28,6 +28,7 @@ from paste.deploy import loadapp
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib import search
 from ckan.lib.helpers import _flash, url_for
+from ckan.lib.helpers import json
 import ckan.model as model
 
 __all__ = ['url_for',
@@ -46,6 +47,14 @@ conf_dir = os.path.dirname(os.path.dirname(here_dir))
 
 # Invoke websetup with the current config file
 SetupCommand('setup-app').run([config['__file__']])
+
+# monkey patch paste.fixtures.TestRespose
+# webtest (successor library) already has this
+# http://pythonpaste.org/webtest/#parsing-the-body
+def _getjson(self):
+    return json.loads(self.body)
+paste.fixture.TestResponse.json = property(_getjson)
+
 
 class BaseCase(object):
 

@@ -10,7 +10,8 @@
   <legend>Users</legend>
   <ul py:for="user in c.fieldset.model.users">
     <li>
-        <input checked="checked" id="AuthorizationGroup-users-current" name="AuthorizationGroup-user-current" type="checkbox" value="${user.name}" />
+        <input checked="checked" id="AuthorizationGroup-users-current"
+        name="AuthorizationGroup-users-current" type="checkbox" value="${user.name}" />
         <label for="AuthorizationGroup-users_${user.name}" style="display: inline;">${user.name}</label>
     </li>
   </ul>

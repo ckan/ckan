@@ -94,6 +94,18 @@ To set the expiry times (in seconds) for specific controllers (which use the pro
  ckan.controllers.apiv2.package.show.expires = 600
 
 
+openid_enabled
+-------------
+
+Example::
+
+ openid_enabled = False
+
+Default value:  ``True``
+
+Setting this option to Fase turns off openid for login.
+
+
 licenses_group_url
 ------------------
 

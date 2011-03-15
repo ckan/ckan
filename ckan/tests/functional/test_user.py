@@ -53,7 +53,6 @@ class TestUserController(FunctionalTestCase):
 	#assert 'annafan' in res.header["Set-Cookie"]
         #print res
         #self.check_named_element(res, 'p', 'Logged in as', user.name)
-        assert 'View your API key' in res
         main_res = self.main_div(res)
         assert 'Edit' in main_res, main_res
 
@@ -65,8 +64,7 @@ class TestUserController(FunctionalTestCase):
         assert 'Don\'t have an OpenID' in res, res
 
     def test_logout(self):
-        offset = url_for(controller='user', action='logout')
-        res = self.app.get(offset)
+        res = self.app.get('/user/logout')
         res2 = res.follow()
         assert 'You have logged out successfully.' in res2, res2
 
@@ -83,7 +81,6 @@ class TestUserController(FunctionalTestCase):
     #    user = model.User.by_name(u'okfntest')
     #    assert user
     #    assert len(user.apikey) == 36
-
 
     def test_apikey(self):
         # not_logged_in
@@ -123,10 +120,11 @@ class TestUserController(FunctionalTestCase):
             model.Session.remove()
 
         # not logged in
-        offset = url_for(controller='user', action='apikey')
+        offset = url_for(controller='user', action='read')
         res = self.app.get(offset, status=[302]) 
 
-        res = self.app.get(offset, extra_environ=dict(REMOTE_USER='okfntest'))
+        offset = url_for(controller='user', action='read', id='okfntest')
+        res = self.app.get(offset, extra_environ={'REMOTE_USER': 'okfntest'})
         assert 'Your API key is: %s' % user.apikey in res, res
 
     def test_user_edit(self):

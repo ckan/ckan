@@ -204,6 +204,13 @@ def make_map():
         controller='rest', action='throughput',
         conditions=dict(method=['GET']))
 
+    map.connect('/api/2/util/user/autocomplete', controller='apiv2/user',
+            action='autocomplete')
+
+    ###########
+    ## /END API
+    ###########
+
     map.redirect("/packages", "/package")
     map.redirect("/packages/{url:.*}", "/package/{url}")
     map.connect('/package', controller='package', action='search')
@@ -235,6 +242,7 @@ def make_map():
     map.connect('/tag/:id', controller='tag', action='read')
     map.redirect("/users/{url:.*}", "/user/{url}")
     map.connect('/user/edit', controller='user', action='edit')
+    map.connect('/user/edit/:id', controller='user', action='edit')
     map.connect('/user/register', controller='user', action='register')
     map.connect('/user/login', controller='user', action='login')
     map.connect('/user/logged_in', controller='user', action='logged_in')

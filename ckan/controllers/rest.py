@@ -28,6 +28,11 @@ class BaseApiController(BaseController):
     content_type_html = 'text/html;charset=utf-8'
     content_type_json = 'application/json;charset=utf-8'
 
+    def __before__(self, action, **env):
+        BaseController.__before__(self, action, **env)
+        if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
+            abort(401, _('Not authorized to see this page'))
+
     @classmethod
     def _ref_package(cls, package):
         assert cls.ref_package_by in ['id', 'name']
