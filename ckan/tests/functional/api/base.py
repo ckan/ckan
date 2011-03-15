@@ -210,15 +210,6 @@ class BaseModelApiTestCase(ModelMethods, ApiTestCase, ControllerTestCase):
         'description' : u'Great group!',
         'packages' : [u'annakarenina', u'warandpeace'],
     }
-    testharvestsourcevalues = {
-        'url' : u'http://localhost/',
-        'description' : u'My metadata.',
-        'user_ref': u'a_publisher_user',
-        'publisher_ref': u'a_publisher',
-    }
-    testharvestingjobvalues = {
-        'user_ref': u'a_publisher_user',
-    }
     user_name = u'http://myrandom.openidservice.org/'
 
     def setup(self):
