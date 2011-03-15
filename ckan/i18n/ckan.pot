@@ -94,15 +94,10 @@ msgstr ""
 msgid "Log message: "
 msgstr ""
 
-#: ckan/controllers/harvesting.py:58 ckan/controllers/package.py:140
+#: ckan/controllers/package.py:140
 #: ckan/controllers/package.py:162
 #, python-format
 msgid "Unauthorized to read package %s"
-msgstr ""
-
-#: ckan/controllers/harvesting.py:307
-#, python-format
-msgid "Harvester: Created package %s"
 msgstr ""
 
 #: ckan/controllers/home.py:57
@@ -269,11 +264,6 @@ msgstr ""
 
 #: ckan/controllers/rest.py:760
 msgid "You must supply a source_id."
-msgstr ""
-
-#: ckan/controllers/rest.py:764
-#, python-format
-msgid "Harvest source %s does not exist."
 msgstr ""
 
 #: ckan/controllers/rest.py:821
