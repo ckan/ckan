@@ -94,7 +94,7 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
 
         # Configurable extra static file paths
         extra_static_parsers = []
-        for public_path in config.get('extra_public_paths').split(','):
+        for public_path in config.get('extra_public_paths', '').split(','):
             if public_path.strip():
                 extra_static_parsers.append(
                     StaticURLParser(public_path.strip())
