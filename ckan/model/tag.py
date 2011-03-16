@@ -49,6 +49,7 @@ class Tag(DomainObject):
     def all(cls):
         q = Session.query(cls)
         q = q.distinct().join(cls.package_tags)
+        q = q.filter(PackageTag.state == 'active')
         return q
 
     @property
