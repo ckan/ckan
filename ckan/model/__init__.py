@@ -21,7 +21,6 @@ from resource import *
 from rating import *
 from package_relationship import *
 from changeset import Changeset, Change, Changemask
-from harvesting import HarvestSource, HarvestingJob, HarvestedDocument
 import ckan.migration
 
 # set up in init_model after metadata is bound

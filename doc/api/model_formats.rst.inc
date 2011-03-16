@@ -18,19 +18,6 @@ Here are the data formats for the Model API.
 .. |format-group-entity| replace:: { name: Name-String, title: String, description: String, packages: Package-List }
 
 
-.. |format-harvest-source-ref| replace:: HarvestSource-Id
-
-.. |format-harvest-source-register| replace:: [ |format-harvest-source-ref|, |format-harvest-source-ref|, |format-harvest-source-ref|, ... ]
-
-.. |format-harvest-source-entity| replace:: { id: Uuid, status: Sring, created: Date-Time, url: String, description: String, publisher_ref: String, user_ref: String }
-
-
-.. |format-harvesting-job-ref| replace:: HarvestingJob-Id
-
-.. |format-harvesting-job-register| replace:: [ |format-harvesting-job-ref|, |format-harvesting-job-ref|, |format-harvesting-job-ref|, ... ]
-
-.. |format-harvesting-job-entity| replace:: { id: Uuid, status: String, created: Date-Time, source_id: Uuid, user_ref: String, report: Dict}
-
 To send request data, create the JSON-format string (encode in UTF8) put it in the request body and send it using PUT or POST.
 
 Response data will be in the response body in JSON format.

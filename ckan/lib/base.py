@@ -118,9 +118,6 @@ class BaseController(WSGIController):
     def _get_pkg(self, reference):
         return model.Package.get(reference)
 
-    def _get_harvest_source(self, reference):
-        return model.HarvestSource.get(reference)
-
     def _get_request_data(self):
         self.log.debug('Retrieving request params: %r' % request.params)
         self.log.debug('Retrieving request POST: %r' % request.POST)

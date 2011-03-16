@@ -94,11 +94,6 @@ msgstr ""
 msgid "Log message: "
 msgstr ""
 
-#: ckan/controllers/harvesting.py:426
-#, python-format
-msgid "Harvester: Created package %s"
-msgstr ""
-
 #: ckan/controllers/home.py:59
 msgid "Language has been set to: English"
 msgstr ""
@@ -268,11 +263,6 @@ msgstr ""
 
 #: ckan/controllers/rest.py:760
 msgid "You must supply a source_id."
-msgstr ""
-
-#: ckan/controllers/rest.py:764
-#, python-format
-msgid "Harvest source %s does not exist."
 msgstr ""
 
 #: ckan/controllers/rest.py:821
