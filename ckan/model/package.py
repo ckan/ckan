@@ -114,6 +114,9 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             new_res_list.append(res)
         self.resource_groups[0].resources = new_res_list
 
+    def related_packages(self):
+        return [self]
+
     def add_resource(self, url, format=u'', description=u'', hash=u'', **kw):
         import resource
         self.resources.append(resource.Resource(
@@ -280,8 +283,9 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                     continue
                 # and check children
                 child_pkg = parent_rel_as_object.subject
-                if child_pkg != self and \
-                       parent_rel_as_object.type == rel_as_subject.type:
+                if (child_pkg != self and 
+                    parent_rel_as_object.type == rel_as_subject.type and
+                    child_pkg.state == State.ACTIVE):
                     type_printable = PackageRelationship.inferred_types_printable['sibling']
                     rel_list.append((child_pkg, type_printable, None))
         return sorted(list(set(rel_list)))

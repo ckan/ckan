@@ -52,10 +52,6 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             return "%s (%s)" % (self.title, self.name)
         return self.name
 
-    # not versioned
-    def delete(self):
-        self.purge()
-
     def active_packages(self, load_eager=True):
         query = Session.query(Package).\
                filter_by(state=vdm.sqlalchemy.State.ACTIVE).\

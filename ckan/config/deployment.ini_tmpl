@@ -175,8 +175,15 @@ handlers = console
 
 [logger_ckan]
 level = DEBUG
-handlers = file
+handlers = console, file
 qualname = ckan
+propagate = 0
+
+[logger_ckanext]
+level = DEBUG
+handlers = console, file
+qualname = ckanext
+propagate = 0
 
 [handler_console]
 class = StreamHandler

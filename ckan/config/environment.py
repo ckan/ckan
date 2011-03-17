@@ -99,7 +99,7 @@ def load_environment(global_conf, app_conf):
     # any Pylons config options)    
 
     # Setup the SQLAlchemy database engine
-    engine = engine_from_config(config, 'sqlalchemy.', pool_threadlocal=True)
+    engine = engine_from_config(config, 'sqlalchemy.')
 
     if not model.meta.engine:
         model.init_model(engine)

@@ -232,7 +232,15 @@ class ModelApiTestCase(BaseModelApiTestCase):
         offset = self.offset('/rest/group/%s' % self.testgroupvalues['name'])
         res = self.app.delete(offset, status=[200],
                 extra_environ=self.extra_environ)
-        assert not model.Group.by_name(self.testgroupvalues['name'])
+
+        group = model.Group.by_name(self.testgroupvalues['name'])
+        assert group
+        assert group.state == 'deleted', group.state
+
+        res = self.app.get(offset, status=[403])
+        res = self.app.get(offset, status=[200],
+                           extra_environ=self.extra_environ)
+
         model.Session.remove()
 
     def test_12_get_group_404(self):

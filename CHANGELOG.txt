@@ -1,6 +1,29 @@
 CKAN CHANGELOG
 ++++++++++++++
 
+v1.3.2 2011-3-15
+================
+Major:
+  * User list in the Web interface (#1010)
+  * CKAN packaged as .deb for install on Ubuntu
+  * CSW Harvesting - numerous of fixes & improvements. Ready for deployment. (#738 etc)
+ 
+Minor:
+  * Wordpress integration refactored as a Middleware plugin (#1013)
+  * Unauthorized actions lead to a flash message (#366)
+  * Resources Groups to group Resources in Packages (#956)
+  * Plugin interface for authorization (#1011)
+  * Database migrations tested better and corrected (#805, #998)
+  * Government form moved out into ckanext-dgu repo (#1018)
+  * Command-line user authorization tools extended (#1038, #1026)
+  * Default user roles read from config file (#1039)
+
+Bugfixes:
+  * Mounting of filesystem (affected versions since 1.0.1) (#1040)
+  * Resubmitting a package via the API (affected versions since 0.6?) (#662)
+  * Open redirect (affected v1.3) (#1026)
+
+
 v1.3 2011-02-18
 ===============
 http://ckan.org/milestone/ckan-v1.3

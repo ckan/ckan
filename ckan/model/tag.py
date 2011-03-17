@@ -49,6 +49,7 @@ class Tag(DomainObject):
     def all(cls):
         q = Session.query(cls)
         q = q.distinct().join(cls.package_tags)
+        q = q.filter(PackageTag.state == 'active')
         return q
 
     @property
@@ -83,6 +84,9 @@ class PackageTag(vdm.sqlalchemy.RevisionedObjectMixin,
             join('tag').filter(Tag.name==tag_name)
         assert q.count() <= 1, q.all()
         return q.first()
+
+    def related_packages(self):
+        return [self.package]
 
 mapper(Tag, tag_table, properties={
     'package_tags':relation(PackageTag, backref='tag',
