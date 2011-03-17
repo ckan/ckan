@@ -17,11 +17,23 @@ class TestUser(object):
         model.repo.rebuild_db()
 
     def test_number_of_edits(self):
-         assert model.User.by_name(u'annafan').number_of_edits() == 0, \
+        # initially annafan won't have made any edits
+        assert model.User.by_name(u'annafan').number_of_edits() == 0, \
                     "annafan shouldn't have made any edits"
 
-        # should now take a user, get him to edit something, and 
-        # test that this number has increased.
+        # so we'll get him to edit his package twice
+        for i in [1,2]:
+
+            rev = model.repo.new_revision()
+            pkg = model.Package.by_name(u'annakarenina')
+            pkg.notes = u'Changed notes %i' % i
+            rev.author = u'annafan'
+            model.repo.commit_and_remove()
+
+            #and each time check that number_of_edits is correct
+            assert model.User.by_name(u'annafan').number_of_edits() == i, \
+                   "annafan should have made %i edit(s)" % i
+
 
     def test_number_of_administered_packages(self):
         model.User.by_name(u'annafan').number_administered_packages() == 1, \
