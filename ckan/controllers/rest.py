@@ -697,6 +697,28 @@ class BaseRestController(BaseApiController):
         self.log.debug("Access OK.")
         response.status_int = 200
         return True                
+    
+    def package_history(self, id):
+        pkg = self._get_pkg(id)
+        if pkg is None:
+            response_args = {'status_int': 404,
+                             'content_type': 'json',
+                             'response_data': _('Not found')}
+        elif not self._check_access(pkg, model.Action.READ):
+            response_args = {'status_int': 403,
+                             'content_type': 'json',
+                             'response_data': _('Access denied')}
+        else:
+            revisions = []
+            for revision, value in pkg.all_related_revisions:
+                result = {"revision": revision.id,
+                          "timestamp": revision.timestamp.isoformat(),
+                          "author": revision.author}
+                revisions.append(result)
+            response_args = {'status_int': 200,
+                             'content_type': 'json',
+                             'response_data': revisions}
+        return self._finish(**response_args)
 
     def _update_package_relationship(self, relationship, comment):
         is_changed = relationship.comment != comment
