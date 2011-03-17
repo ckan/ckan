@@ -17,7 +17,7 @@ class SqlSearchBackend(SearchBackend):
     
     @property
     def connection(self):
-        return meta.Session.connection(model.Package)
+        return meta.Session.connection()
        
     def _setup(self):
         self.register(model.Package, PackageSqlSearchIndex, PackageSqlSearchQuery)
