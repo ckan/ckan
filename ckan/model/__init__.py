@@ -177,12 +177,12 @@ repo = Repository(metadata, Session,
 def _get_packages(self):
     changes = repo.list_changes(self)
     pkgs = set()
-    for pkg_rev in changes.pop(Package):
-        pkgs.add(pkg_rev.continuity)
-    for non_pkg_rev_list in changes.values():
-        for non_pkg_rev in non_pkg_rev_list:
-            if hasattr(non_pkg_rev.continuity, 'package'):
-                pkgs.add(non_pkg_rev.continuity.package)
+    for revision_list in changes.values():
+        for revision in revision_list:
+            obj = revision.continuity
+            if hasattr(obj, 'related_packages'):
+                pkgs.update(obj.related_packages())
+
     return list(pkgs)
 
 def _get_groups(self):

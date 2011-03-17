@@ -114,6 +114,9 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             new_res_list.append(res)
         self.resource_groups[0].resources = new_res_list
 
+    def related_packages(self):
+        return [self]
+
     def add_resource(self, url, format=u'', description=u'', hash=u'', **kw):
         import resource
         self.resources.append(resource.Resource(
