@@ -713,6 +713,7 @@ class BaseRestController(BaseApiController):
             for revision, value in pkg.all_related_revisions:
                 result = {"revision": revision.id,
                           "timestamp": revision.timestamp.isoformat(),
+                          "message": revision.message,
                           "author": revision.author}
                 revisions.append(result)
             response_args = {'status_int': 200,
