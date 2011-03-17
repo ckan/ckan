@@ -113,7 +113,6 @@ class PackageController(BaseController):
 
     @proxy_cache()
     def read(self, id):
-        
         #check if package exists
         c.pkg = model.Package.get(id)
         if c.pkg is None:
