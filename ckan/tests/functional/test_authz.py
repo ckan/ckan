@@ -327,17 +327,31 @@ class TestSiteRead(TestController, AuthzTestBase):
     def _create_test_data(cls):
         CreateTestData.create()
 
+        # Remove visitor and logged in roles
+        roles = []
+        q = model.Session.query(model.UserObjectRole).\
+            filter(model.UserObjectRole.user==model.User.by_name(u"visitor"))
+        roles.extend(q.all())
+        q = model.Session.query(model.UserObjectRole).\
+            filter(model.UserObjectRole.user==model.User.by_name(u"logged_in"))
+        roles.extend(q.all())
+        for role in roles:
+            model.Session.delete(role)
+
         rev = model.repo.new_revision()
         model.Session.add_all([
-            model.User(name=u'pkgadmin'),
+            model.User(name=u'pkggroupadmin'),
             model.User(name=u'site_reader'),
             model.User(name=u'outcast'),
             model.Package(name=cls.ENTITY_NAME),
             model.Package(name=u'deleted'),
             model.Group(name=cls.ENTITY_NAME),
             model.Group(name=u'deleted'),
+            model.Tag(name=cls.ENTITY_NAME),
             model.RoleAction(role=cls.TRUSTED_ROLE, context=u'',
                              action=model.Action.SITE_READ),
+            model.RoleAction(role=cls.TRUSTED_ROLE, context=u'',
+                             action=model.Action.READ),
             ])
         model.repo.commit_and_remove()
 
@@ -345,25 +359,56 @@ class TestSiteRead(TestController, AuthzTestBase):
         # annafan is package admin for annakarenina
         rev = model.repo.new_revision()
         site_reader = model.User.by_name(u'site_reader')
-        pkgadmin = model.User.by_name(u'pkgadmin')
+        pkggroupadmin = model.User.by_name(u'pkggroupadmin')
         pkg = model.Package.by_name(cls.ENTITY_NAME)
+        group = model.Group.by_name(cls.ENTITY_NAME)
+        tag = model.Tag.by_name(cls.ENTITY_NAME)
+        pkg.tags.append(tag)
+        model.add_user_to_role(site_reader, cls.TRUSTED_ROLE, model.System())
         model.add_user_to_role(site_reader, cls.TRUSTED_ROLE, pkg)
-        model.add_user_to_role(pkgadmin, model.Role.ADMIN, pkg)
+        model.add_user_to_role(site_reader, cls.TRUSTED_ROLE, group)
+        model.add_user_to_role(pkggroupadmin, model.Role.ADMIN, pkg)
+        model.add_user_to_role(pkggroupadmin, model.Role.ADMIN, group)
         model.Package.by_name(u'deleted').delete()
         model.Group.by_name(u'deleted').delete()
         model.repo.commit_and_remove()
 
         cls.testsysadmin = model.User.by_name(u'testsysadmin')
-        cls.annafan = model.User.by_name(u'annafan')
+        cls.pkggroupadmin = model.User.by_name(u'pkggroupadmin')
         cls.site_reader = model.User.by_name(u'site_reader')
         cls.outcast = model.User.by_name(u'outcast')
 
     def test_sysadmin_can_read_anything(self):
-        self._test_can('read', self.testsysadmin, self.ENTITY_NAME, entities=['package'])
-        self._test_can('read', self.testsysadmin, 'deleted') # groups not stateful
+        self._test_can('read', self.testsysadmin, self.ENTITY_NAME)
+        self._test_can('read', self.testsysadmin, 'deleted')
+
+    def test_sysadmin_can_edit_anything(self):
+        self._test_can('edit', self.testsysadmin, self.ENTITY_NAME)
+        self._test_can('edit', self.testsysadmin, 'deleted')
 
     def test_sysadmin_can_search_anything(self):
-        self._test_can('search', self.testsysadmin, self.ENTITY_NAME, entities=['package'])
+        self._test_can('search', self.testsysadmin, self.ENTITY_NAME, entities=['package']) # cannot search groups
+
+    def test_pkggroupadmin_read(self):
+        self._test_can('read', self.pkggroupadmin, self.ENTITY_NAME)
+        self._test_cant('read', self.pkggroupadmin, 'deleted') #???
+
+    def test_pkggroupadmin_edit(self):
+        self._test_can('edit', self.pkggroupadmin, self.ENTITY_NAME)
+        self._test_cant('edit', self.pkggroupadmin, 'deleted') #???
+
+    def test_pkggroupadmin_search(self):
+        # can't search as not a site reader
+        self._test_cant('search', self.pkggroupadmin, self.ENTITY_NAME, entities=['package'])
+
+    def test_site_reader(self):
+        self._test_can('search', self.site_reader, self.ENTITY_NAME, entities=['package']) # cannot search groups
+        self._test_can('read', self.site_reader, self.ENTITY_NAME, entities=['tag'])
+
+    def test_outcast_search(self):
+        self._test_cant('search', self.outcast, self.ENTITY_NAME, entities=['package']) # cannot search groups
+        self._test_cant('read', self.outcast, self.ENTITY_NAME, entities=['tag'])
+
         
 class TestLockedDownUsage(TestController):
     '''Use case:

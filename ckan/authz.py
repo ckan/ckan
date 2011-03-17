@@ -1,9 +1,12 @@
+import logging
+
 import sqlalchemy as sa
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 import ckan.model as model
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IAuthorizer
+
 
 class Blacklister(object):
     '''Blacklist by username.
@@ -66,7 +69,7 @@ class Authorizer(object):
         roles = cls.get_roles(username, domain_object)
         if not roles:
             return False
-        # print '%r has roles %s on object %s. Checking permission to %s' % (username, roles, domain_object.name, action)
+        #print '%r has roles %s on object %s. Checking permission to %s' % (username, roles, domain_object.name, action)
 
         if model.Role.ADMIN in roles:
             return True

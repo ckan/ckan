@@ -31,7 +31,8 @@ class BaseApiController(BaseController):
     def __before__(self, action, **env):
         BaseController.__before__(self, action, **env)
         if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
-            self._finish(403, _('Not authorized to see this page'))
+            import pdb; pdb.set_trace()
+            return self._finish(403, _('Not authorized to see this page'))
 
     @classmethod
     def _ref_package(cls, package):
