@@ -1,10 +1,11 @@
-from types import make_uuid
-
-from meta import *
+from sqlalchemy.orm import eagerload_all
 import vdm.sqlalchemy
-from core import *
+
+from types import make_uuid
+from meta import *
 from domain_object import DomainObject
 from package import Package
+from core import *
 
 __all__ = ['tag_table', 'package_tag_table', 'Tag', 'PackageTag',
            'PackageTagRevision']
@@ -31,6 +32,17 @@ class Tag(DomainObject):
     # not stateful so same as purge
     def delete(self):
         self.purge()
+
+    @classmethod
+    def get(cls, reference):
+        '''Returns a tag object referenced by its id or name.'''
+        query = Session.query(cls).filter(cls.id==reference)
+        query = query.options(eagerload_all('package_tags'))
+        tag = query.first()
+        if tag == None:
+            tag = cls.by_name(reference)
+        return tag
+    # Todo: Make sure tag names can't be changed to look like tag IDs?
 
     @classmethod
     def search_by_name(cls, text_query):

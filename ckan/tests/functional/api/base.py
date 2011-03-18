@@ -1,6 +1,8 @@
+import re
+
 from pylons import config
 import webhelpers.util
-import re
+from nose.tools import assert_equal
 
 from ckan.tests import *
 import ckan.model as model
@@ -88,6 +90,15 @@ class ApiTestCase(object):
         assert self.ref_package_by in ['id', 'name']
         return getattr(package, self.ref_package_by)
 
+    def group_offset(self, group_name=None):
+        if group_name == None:
+            # Group Register
+            return self.offset('/rest/group')
+        else:
+            # Group Entity
+            group_ref = self.group_ref_from_name(group_name)
+            return self.offset('/rest/group/%s' % group_ref)
+
     def group_ref_from_name(self, group_name):
         group = self.get_group_by_name(unicode(group_name))
         if group == None:
@@ -101,6 +112,44 @@ class ApiTestCase(object):
 
     def anna_offset(self, postfix=''):
         return self.package_offset('annakarenina') + postfix
+
+    def tag_offset(self, tag_name=None):
+        if tag_name == None:
+            # Tag Register
+            return self.offset('/rest/tag')
+        else:
+            # Tag Entity
+            tag_ref = self.tag_ref_from_name(tag_name)
+            return self.offset('/rest/tag/%s' % tag_ref)
+
+    def tag_ref_from_name(self, tag_name):
+        tag = self.get_tag_by_name(unicode(tag_name))
+        if tag == None:
+            return tag_name
+        else:
+            return self.ref_tag(tag)
+
+    def ref_tag(self, tag):
+        assert self.ref_tag_by in ['id', 'name']
+        return getattr(tag, self.ref_tag_by)
+
+    @classmethod
+    def _ref_package(cls, package):
+        assert cls.ref_package_by in ['id', 'name']
+        return getattr(package, cls.ref_package_by)
+
+    @classmethod
+    def _ref_group(cls, group):
+        assert cls.ref_group_by in ['id', 'name']
+        return getattr(group, cls.ref_group_by)
+
+    @classmethod
+    def _list_package_refs(cls, packages):
+        return [getattr(p, cls.ref_package_by) for p in packages]
+
+    @classmethod
+    def _list_group_refs(cls, groups):
+        return [getattr(p, cls.ref_group_by) for p in groups]
 
     def assert_msg_represents_anna(self, msg):
         assert 'annakarenina' in msg, msg
@@ -128,6 +177,27 @@ class ApiTestCase(object):
         assert 'ckan_url' in msg
         assert '"ckan_url": "http://test.ckan.net/package/annakarenina"' in msg, msg
 
+    def assert_msg_represents_roger(self, msg):
+        assert 'roger' in msg, msg
+        data = self.loads(msg)
+        keys = set(data.keys())
+        expected_keys = set(['id', 'name', 'title', 'description', 'created',
+                            'state', 'revision_id', 'packages'])
+        missing_keys = expected_keys - keys
+        assert not missing_keys, missing_keys
+        assert_equal(data['name'], 'roger')
+        assert_equal(data['title'], 'Roger\'s books')
+        assert_equal(data['description'], 'Roger likes these books.')
+        assert_equal(data['state'], 'active')
+        assert_equal(data['packages'], [self._ref_package(self.anna)])
+
+    def assert_msg_represents_russian(self, msg):
+        data = self.loads(msg)
+        pkgs = set(data)
+        expected_pkgs = set(['annakarenina', 'warandpeace'])
+        missing_pkgs = expected_pkgs - pkgs
+        assert not missing_pkgs, missing_pkgs
+
     def data_from_res(self, res):
         return self.loads(res.body)
 
@@ -149,6 +219,7 @@ class Api1TestCase(ApiTestCase):
     api_version = '1'
     ref_package_by = 'name'
     ref_group_by = 'name'
+    ref_tag_by = 'name'
 
     def assert_msg_represents_anna(self, msg):
         super(Api1TestCase, self).assert_msg_represents_anna(msg)
@@ -160,6 +231,7 @@ class Api2TestCase(ApiTestCase):
     api_version = '2'
     ref_package_by = 'id'
     ref_group_by = 'id'
+    ref_tag_by = 'id'
 
     def assert_msg_represents_anna(self, msg):
         super(Api2TestCase, self).assert_msg_represents_anna(msg)

@@ -52,6 +52,17 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             return "%s (%s)" % (self.title, self.name)
         return self.name
 
+    @classmethod
+    def get(cls, reference):
+        '''Returns a group object referenced by its id or name.'''
+        query = Session.query(cls).filter(cls.id==reference)
+        query = query.options(eagerload_all('packages'))
+        group = query.first()
+        if group == None:
+            group = cls.by_name(reference)
+        return group
+    # Todo: Make sure group names can't be changed to look like group IDs?
+
     def active_packages(self, load_eager=True):
         query = Session.query(Package).\
                filter_by(state=vdm.sqlalchemy.State.ACTIVE).\

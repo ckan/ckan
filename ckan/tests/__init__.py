@@ -171,6 +171,10 @@ class CommonFixtureMethods(BaseCase):
     def get_user_by_name(name):
         return model.User.by_name(name)
 
+    @staticmethod
+    def get_tag_by_name(name):
+        return model.Tag.by_name(name)
+
     def purge_package_by_name(self, package_name):
         package = self.get_package_by_name(package_name)
         if package:
@@ -206,6 +210,21 @@ class CommonFixtureMethods(BaseCase):
     def anna(self):
         return self.get_package_by_name(u'annakarenina')
 
+    @property
+    def roger(self):
+        return self.get_group_by_name(u'roger')
+
+    @property
+    def david(self):
+        return self.get_group_by_name(u'david')
+
+    @property
+    def russian(self):
+        return self.get_tag_by_name(u'russian')
+
+    @property
+    def tolstoy(self):
+        return self.get_tag_by_name(u'tolstoy')
 
 class CheckMethods(BaseCase):
 

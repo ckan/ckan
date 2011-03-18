@@ -228,7 +228,7 @@ class BaseRestController(BaseApiController):
             response_data = [rel.as_dict(pkg1, ref_package_by=self.ref_package_by) for rel in relationships]
             return self._finish_ok(response_data)
         elif register == u'group':
-            group = model.Group.by_name(id)
+            group = self._get_group(id)
             if group is None:
                 response.status_int = 404
                 return ''
@@ -241,7 +241,7 @@ class BaseRestController(BaseApiController):
             #TODO check it's not none
             return self._finish_ok(_dict)
         elif register == u'tag':
-            obj = model.Tag.by_name(id) #TODO tags
+            obj = self._get_tag(id) #TODO tags
             if obj is None:
                 response.status_int = 404
                 return ''            
@@ -384,7 +384,7 @@ class BaseRestController(BaseApiController):
                 return 'This relationship between the packages was not found.'
             entity = existing_rels[0]
         elif register == 'group' and not subregister:
-            entity = model.Group.by_name(id)
+            entity = self._get_group(id)
             if entity == None:
                 response.status_int = 404
                 return 'Group was not found.'
@@ -483,7 +483,7 @@ class BaseRestController(BaseApiController):
             entity = existing_rels[0]
             revisioned_details = 'Package Relationship: %s %s %s' % (id, subregister, id2)
         elif register == 'group' and not subregister:
-            entity = model.Group.by_name(id)
+            entity = self._get_group(id)
             if not entity:
                 response.status_int = 404
                 return 'Group was not found.'
