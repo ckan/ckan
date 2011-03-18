@@ -28,11 +28,18 @@ class BaseApiController(BaseController):
     content_type_html = 'text/html;charset=utf-8'
     content_type_json = 'application/json;charset=utf-8'
 
-    def __before__(self, action, **env):
-        BaseController.__before__(self, action, **env)
+    def __call__(self, environ, start_response):
+        self._identify_user()
         if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
-            import pdb; pdb.set_trace()
-            return self._finish(403, _('Not authorized to see this page'))
+            response_msg = self._finish(403, _('Not authorized to see this page'))
+            # Call start_response manually instead of the parent __call__
+            # because we want to end the request instead of continuing.
+            response_msg = response_msg.encode('utf8')
+            body = '%i %s' % (response.status_int, response_msg)
+            start_response(body, response.headers.items())
+            return [response_msg]
+        else:
+            return BaseController.__call__(self, environ, start_response)
 
     @classmethod
     def _ref_package(cls, package):

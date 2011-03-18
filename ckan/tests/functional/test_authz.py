@@ -25,31 +25,37 @@ class AuthzTestBase(object):
         model.repo.rebuild_db()
         model.Session.remove()
 
-    def _test_can(self, action, users, entity_name, interfaces=['wui', 'rest'], entities=['package', 'group']):
+    def _test_can(self, action, users, entity_names, interfaces=['wui', 'rest'], entity_types=['package', 'group']):
         if isinstance(users, model.User):
             users = [users]
+        if isinstance(entity_names, basestring):
+            entity_names = [entity_names]            
         for user in users:
-            if 'wui' in interfaces:
-                for entity in entities:
-                    ok_wui = self._test_via_wui(action, user, entity_name, entity)
-                    assert ok_wui, 'Should be able to %s %s %r as user %r (WUI interface)' % (action, entity, entity_name, user.name)
-            if 'rest' in interfaces:
-                for entity in entities:
-                    ok_rest = self._test_via_api(action, user, entity_name, entity)
-                    assert ok_rest, 'Should be able to %s %s %r as user %r (REST interface)' % (action, entity, entity_name, user.name)
+            for entity_name in entity_names:
+                if 'wui' in interfaces:
+                    for entity_type in entity_types:
+                        ok_wui = self._test_via_wui(action, user, entity_name, entity_type)
+                        assert ok_wui, 'Should be able to %s %s %r as user %r (WUI interface)' % (action, entity_type, entity_name, user.name)
+                if 'rest' in interfaces:
+                    for entity_type in entity_types:
+                        ok_rest = self._test_via_api(action, user, entity_name, entity_type)
+                        assert ok_rest, 'Should be able to %s %s %r as user %r (REST interface)' % (action, entity_type, entity_name, user.name)
 
-    def _test_cant(self, action, users, entity_name, interfaces=['wui', 'rest'], entities=['package', 'group']):
+    def _test_cant(self, action, users, entity_names, interfaces=['wui', 'rest'], entity_types=['package', 'group']):
         if isinstance(users, model.User):
             users = [users]
+        if isinstance(entity_names, basestring):
+            entity_names = [entity_names]            
         for user in users:
-            if 'wui' in interfaces:
-                for entity in entities:
-                    ok_wui = self._test_via_wui(action, user, entity_name, entity)
-                    assert not ok_wui, 'Should NOT be able to %s %s %r as user %r (WUI interface)' % (action, entity, entity_name, user.name)
-            if 'rest' in interfaces:
-                for entity in entities:
-                    ok_rest = self._test_via_api(action, user, entity_name)
-                    assert not ok_rest, 'Should NOT be able to %s %s %r as user %r (REST interface)' % (action, entity, entity_name, user.name)
+            for entity_name in entity_names:
+                if 'wui' in interfaces:
+                    for entity_type in entity_types:
+                        ok_wui = self._test_via_wui(action, user, entity_name, entity_type)
+                        assert not ok_wui, 'Should NOT be able to %s %s %r as user %r (WUI interface)' % (action, entity_type, entity_name, user.name)
+                if 'rest' in interfaces:
+                    for entity_type in entity_types:
+                        ok_rest = self._test_via_api(action, user, entity_name)
+                        assert not ok_rest, 'Should NOT be able to %s %s %r as user %r (REST interface)' % (action, entity_type, entity_name, user.name)
 
     def _test_via_wui(self, action, user, entity_name, entity='package'):
         # Test action on WUI
@@ -210,14 +216,6 @@ class TestUsage(TestController, AuthzTestBase):
         self.mrloggedin = model.User.by_name(name=u'mrloggedin')
         self.visitor = model.User.by_name(name=model.PSEUDO_USER__VISITOR)
         
-    def _test_can(self, action, users, modes, interfaces=['wui', 'rest'], entities=['package', 'group']):
-        for mode in modes:
-            super(TestUsage, self)._test_can(action, users, mode, interfaces, entities)
-                  
-    def _test_cant(self, action, users, modes, interfaces=['wui', 'rest'], entities=['package', 'group']):
-        for mode in modes:
-            super(TestUsage, self)._test_cant(action, users, mode, interfaces, entities)
-
     # Tests numbered by the use case
 
     def test_14_visitor_reads_stopped(self):
@@ -248,8 +246,8 @@ class TestUsage(TestController, AuthzTestBase):
     
     def test_list(self):
         # NB this no listing of package in wui interface any more
-        self._test_can('list', [self.testsysadmin, self.pkggroupadmin], ['xx', 'rx', 'wx', 'rr', 'wr', 'ww'], entities=['package'], interfaces=['rest'])
-        self._test_can('list', [self.testsysadmin, self.groupadmin], ['xx', 'rx', 'wx', 'rr', 'wr', 'ww'], entities=['group'])
+        self._test_can('list', [self.testsysadmin, self.pkggroupadmin], ['xx', 'rx', 'wx', 'rr', 'wr', 'ww'], entity_types=['package'], interfaces=['rest'])
+        self._test_can('list', [self.testsysadmin, self.groupadmin], ['xx', 'rx', 'wx', 'rr', 'wr', 'ww'], entity_types=['group'])
         self._test_can('list', self.mrloggedin, ['rx', 'wx', 'rr', 'wr', 'ww'], interfaces=['rest'])
         self._test_can('list', self.visitor, ['rr', 'wr', 'ww'], interfaces=['rest'])
         self._test_cant('list', self.mrloggedin, ['xx'])
@@ -264,9 +262,9 @@ class TestUsage(TestController, AuthzTestBase):
         self._test_cant('read', self.mrloggedin, ['deleted'])
 
     def test_search_deleted(self):
-        self._test_can('search', self.pkggroupadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted'], entities=['package'])
-        self._test_can('search', self.mrloggedin, ['rx', 'wx', 'rr', 'wr', 'ww'], entities=['package'])
-        self._test_cant('search', self.mrloggedin, ['deleted', 'xx'], entities=['package'])
+        self._test_can('search', self.pkggroupadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted'], entity_types=['package'])
+        self._test_can('search', self.mrloggedin, ['rx', 'wx', 'rr', 'wr', 'ww'], entity_types=['package'])
+        self._test_cant('search', self.mrloggedin, ['deleted', 'xx'], entity_types=['package'])
         
     def test_05_author_is_new_package_admin(self):
         user = self.mrloggedin
@@ -296,10 +294,10 @@ class TestUsage(TestController, AuthzTestBase):
         self._test_can('edit', self.testsysadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted'])
         
     def test_sysadmin_can_search_anything(self):
-        self._test_can('search', self.testsysadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted'], entities=['package'])
+        self._test_can('search', self.testsysadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted'], entity_types=['package'])
         
     def test_visitor_creates(self): 
-        self._test_can('create', self.visitor, ['rr'], interfaces=['wui'], entities=['package'])
+        self._test_can('create', self.visitor, ['rr'], interfaces=['wui'], entity_types=['package'])
 
     def test_user_creates(self):
         self._test_can('create', self.mrloggedin, ['rr'])
@@ -307,12 +305,12 @@ class TestUsage(TestController, AuthzTestBase):
     def test_visitor_deletes(self):
         pkg = model.Package.by_name(u'delete_admin_rest')
         assert pkg is not None
-        self._test_cant('delete', self.visitor, [str(pkg.id)], interfaces=['rest'], entities=['package'])
+        self._test_cant('delete', self.visitor, [str(pkg.id)], interfaces=['rest'], entity_types=['package'])
         
     def test_sysadmin_deletes(self):
         pkg = model.Package.by_name(u'delete_admin_rest')
         assert pkg is not None
-        self._test_can('delete', self.testsysadmin, [str(pkg.id)], interfaces=['rest'], entities=['package'])
+        self._test_can('delete', self.testsysadmin, [str(pkg.id)], interfaces=['rest'], entity_types=['package'])
     
 
 class TestSiteRead(TestController, AuthzTestBase):
@@ -387,27 +385,33 @@ class TestSiteRead(TestController, AuthzTestBase):
         self._test_can('edit', self.testsysadmin, 'deleted')
 
     def test_sysadmin_can_search_anything(self):
-        self._test_can('search', self.testsysadmin, self.ENTITY_NAME, entities=['package']) # cannot search groups
+        self._test_can('search', self.testsysadmin, self.ENTITY_NAME, entity_types=['package']) # cannot search groups
 
     def test_pkggroupadmin_read(self):
-        self._test_can('read', self.pkggroupadmin, self.ENTITY_NAME)
-        self._test_cant('read', self.pkggroupadmin, 'deleted') #???
+        # These don't make sense - there should be no difference between
+        # read/write in WUI and REST interface.
+        self._test_can('read', self.pkggroupadmin, self.ENTITY_NAME, interfaces=['wui'])
+        self._test_cant('read', self.pkggroupadmin, self.ENTITY_NAME, interfaces=['rest'])
+        self._test_cant('read', self.pkggroupadmin, 'deleted')
 
     def test_pkggroupadmin_edit(self):
-        self._test_can('edit', self.pkggroupadmin, self.ENTITY_NAME)
-        self._test_cant('edit', self.pkggroupadmin, 'deleted') #???
+        # These don't make sense - there should be no difference between
+        # read/write in WUI and REST interface.
+        self._test_can('edit', self.pkggroupadmin, self.ENTITY_NAME, interfaces=['wui'])
+        self._test_cant('edit', self.pkggroupadmin, self.ENTITY_NAME, interfaces=['rest'])
+        self._test_cant('edit', self.pkggroupadmin, 'deleted')
 
     def test_pkggroupadmin_search(self):
         # can't search as not a site reader
-        self._test_cant('search', self.pkggroupadmin, self.ENTITY_NAME, entities=['package'])
+        self._test_cant('search', self.pkggroupadmin, self.ENTITY_NAME, entity_types=['package'])
 
     def test_site_reader(self):
-        self._test_can('search', self.site_reader, self.ENTITY_NAME, entities=['package']) # cannot search groups
-        self._test_can('read', self.site_reader, self.ENTITY_NAME, entities=['tag'])
+        self._test_can('search', self.site_reader, self.ENTITY_NAME, entity_types=['package']) # cannot search groups
+        self._test_can('read', self.site_reader, self.ENTITY_NAME, entity_types=['tag'])
 
     def test_outcast_search(self):
-        self._test_cant('search', self.outcast, self.ENTITY_NAME, entities=['package']) # cannot search groups
-        self._test_cant('read', self.outcast, self.ENTITY_NAME, entities=['tag'])
+        self._test_cant('search', self.outcast, self.ENTITY_NAME, entity_types=['package']) # cannot search groups
+        self._test_cant('read', self.outcast, self.ENTITY_NAME, entity_types=['tag'])
 
         
 class TestLockedDownUsage(TestController):
