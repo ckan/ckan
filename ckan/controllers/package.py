@@ -30,7 +30,7 @@ class PackageController(BaseController):
     authorizer = ckan.authz.Authorizer()
     extensions = PluginImplementations(IPackageController)
 
-    def search(self):
+    def search(self):        
         if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
             abort(401, _('Not authorized to see this page'))
         q = c.q = request.params.get('q') # unicode format (decoded from utf8)
@@ -84,7 +84,7 @@ class PackageController(BaseController):
                       filter_by_openness=c.open_only,
                       filter_by_downloadable=c.downloadable_only,
                       username=c.user)
-
+                       
             c.page = h.Page(
                 collection=query.results,
                 page=page,
@@ -113,6 +113,7 @@ class PackageController(BaseController):
 
     @proxy_cache()
     def read(self, id):
+        
         #check if package exists
         c.pkg = model.Package.get(id)
         if c.pkg is None:
