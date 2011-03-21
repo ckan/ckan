@@ -1,7 +1,7 @@
 import copy
 
 from ckan.controllers.rest import RestController
-from ckan.lib.base import _, request, response
+from ckan.lib.base import _, request, response, c
 from ckan.lib.cache import ckan_cache
 from ckan.lib.helpers import json
 import ckan.model as model
@@ -24,7 +24,7 @@ class PackageController(RestController):
         """
         Return a list of all packages
         """
-        query = ckan.authz.Authorizer().authorized_query(self._get_username(), model.Package)
+        query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
         packages = query.all()
         response_data = self._list_package_refs(packages)
         return self._finish_ok(response_data)

@@ -94,7 +94,7 @@ class BaseController(WSGIController):
             c.remote_addr = request.environ.get('REMOTE_ADDR', 'Unknown IP Address')
 
         # what is different between session['user'] and environ['REMOTE_USER']
-        c.user = request.environ.get('REMOTE_USER', None)
+        c.user = request.environ.get('REMOTE_USER', '')
         if c.user:
             c.user = c.user.decode('utf8')
             c.userobj = model.User.by_name(c.user)

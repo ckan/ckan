@@ -29,7 +29,7 @@ class BaseApiController(BaseController):
     content_type_json = 'application/json;charset=utf-8'
 
     def __before__(self, action, **env):
-        BaseController.__before__(self, action, **env)
+        super(BaseApiController, self).__before__(action, **env)
         if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
             abort(401, _('Not authorized to see this page'))
 
@@ -139,7 +139,7 @@ class BaseRestController(BaseApiController):
             revs = model.Session.query(model.Revision).all()
             return self._finish_ok([rev.id for rev in revs])
         elif register == u'package' and not subregister:
-            query = ckan.authz.Authorizer().authorized_query(self._get_username(), model.Package)
+            query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
             packages = query.all()
             response_data = self._list_package_refs(packages)
             return self._finish_ok(response_data)
@@ -648,7 +648,7 @@ class BaseRestController(BaseApiController):
                 if (k in DEFAULT_OPTIONS.keys()):
                     options[k] = v
             options.update(params)
-            options.username = self._get_username()
+            options.username = c.user
             options.search_tags = False
             options.return_objects = False
             
@@ -779,10 +779,6 @@ class BaseRestController(BaseApiController):
         ret_dict = job.as_dict()
         return self._finish_ok(ret_dict)
 
-    def _get_username(self):
-        user = self._get_user_for_apikey()
-        return user and user.name or u''
-
     def _check_access(self, entity, action):
         # Checks apikey is okay and user is authorized to do the specified
         # action on the specified package (or other entity).
@@ -792,7 +788,7 @@ class BaseRestController(BaseApiController):
         # Todo: Remove unused 'isOk' variable.
         isOk = False
 
-        self.rest_api_user = self._get_username()
+        self.rest_api_user = c.user
         log.debug('check access - user %r' % self.rest_api_user)
         
         if action and entity and not isinstance(entity, model.PackageRelationship) \
