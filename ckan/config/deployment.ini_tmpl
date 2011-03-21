@@ -131,6 +131,10 @@ ckan.site_description =
 ## Used in creating some absolute urls (such as rss feeds) and dump filenames
 ckan.site_url = http://www.ckan.net
 
+## Favicon (default is the CKAN software favicon)
+ckan.favicon = http://assets.okfn.org/p/ckan/img/ckan.ico
+
+
 ## An 'id' for the site (using, for example, when creating entries in a common search index) 
 ## If not specified derived from the site_url
 # ckan.site_id = ckan.net
