@@ -36,7 +36,7 @@ class PackagesField(common.ConfiguredField):
                 packages_as_string = unicode(value)
                 packages_as_string = packages_as_string.replace(',', ' ')
                 pkg_list = packages_as_string.split()
-            packages = [model.Package.by_name(pkg_name) for pkg_name in pkg_list]
+            packages = [model.Package.get(pkg_ref) for pkg_ref in pkg_list]
             return packages        
 
 # For new_package_group_fs

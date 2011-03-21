@@ -1,10 +1,11 @@
-from types import make_uuid
-
-from meta import *
+from sqlalchemy.orm import eagerload_all
 import vdm.sqlalchemy
-from core import *
+
+from types import make_uuid
+from meta import *
 from domain_object import DomainObject
 from package import Package
+from core import *
 
 __all__ = ['tag_table', 'package_tag_table', 'Tag', 'PackageTag',
            'PackageTagRevision']
@@ -33,6 +34,17 @@ class Tag(DomainObject):
         self.purge()
 
     @classmethod
+    def get(cls, reference):
+        '''Returns a tag object referenced by its id or name.'''
+        query = Session.query(cls).filter(cls.id==reference)
+        query = query.options(eagerload_all('package_tags'))
+        tag = query.first()
+        if tag == None:
+            tag = cls.by_name(reference)
+        return tag
+    # Todo: Make sure tag names can't be changed to look like tag IDs?
+
+    @classmethod
     def search_by_name(cls, text_query):
         text_query = text_query.strip().lower()
         q = Session.query(cls).filter(cls.name.contains(text_query))
@@ -49,6 +61,7 @@ class Tag(DomainObject):
     def all(cls):
         q = Session.query(cls)
         q = q.distinct().join(cls.package_tags)
+        q = q.filter(PackageTag.state == 'active')
         return q
 
     @property
@@ -83,6 +96,9 @@ class PackageTag(vdm.sqlalchemy.RevisionedObjectMixin,
             join('tag').filter(Tag.name==tag_name)
         assert q.count() <= 1, q.all()
         return q.first()
+
+    def related_packages(self):
+        return [self.package]
 
 mapper(Tag, tag_table, properties={
     'package_tags':relation(PackageTag, backref='tag',

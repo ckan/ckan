@@ -17,6 +17,8 @@ class Globals(object):
 
         """
         self.site_title = config.get('ckan.site_title', '')
+        self.favicon = config.get('ckan.favicon',
+                                  'http://assets.okfn.org/p/ckan/img/ckan.ico')
         self.site_logo = config.get('ckan.site_logo', '')
         self.site_url = config.get('ckan.site_url', '')
         self.site_description = config.get('ckan.site_description', '')

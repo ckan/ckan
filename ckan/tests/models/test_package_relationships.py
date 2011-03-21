@@ -269,3 +269,15 @@ class TestComplicated:
         bart = model.Package.by_name(u"bart")
         assert len(bart.get_relationships_printable()) == 3, len(bart.get_relationships_printable())
 
+        model.repo.new_revision()
+        lisa = model.Package.by_name(u"lisa")
+        lisa.state = 'deleted'
+        model.Session.commit()
+
+        bart = model.Package.by_name(u"bart")
+        assert len(bart.get_relationships_printable()) == 2, len(bart.get_relationships_printable())
+
+
+
+
+

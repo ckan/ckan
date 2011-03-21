@@ -127,8 +127,11 @@ class BaseController(WSGIController):
     def _get_pkg(self, reference):
         return model.Package.get(reference)
 
-    def _get_harvest_source(self, reference):
-        return model.HarvestSource.get(reference)
+    def _get_group(self, reference):
+        return model.Group.get(reference)
+
+    def _get_tag(self, reference):
+        return model.Tag.get(reference)
 
     def _get_request_data(self):
         self.log.debug('Retrieving request params: %r' % request.params)

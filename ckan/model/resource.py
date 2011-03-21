@@ -98,6 +98,9 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
                 setattr(cls, field, DictProxy(field, 'extras'))
         return cls.extra_columns
 
+    def related_packages(self):
+        return [self.resource_group.package]
+
 
 class ResourceGroup(vdm.sqlalchemy.RevisionedObjectMixin,
                vdm.sqlalchemy.StatefulObjectMixin,
