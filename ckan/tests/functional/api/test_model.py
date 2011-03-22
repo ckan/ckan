@@ -337,6 +337,7 @@ class RelationshipsApiTestCase(ApiTestCase, ControllerTestCase):
     def setup_class(self):
         CreateTestData.create()
         self.user = self.create_user(name=u'barry')
+        self.testsysadmin = model.User.by_name(u'testsysadmin')
         self.extra_environ={ 'Authorization' : str(self.user.apikey) }
         self.comment = u'Comment umlaut: \xfc.'
 
