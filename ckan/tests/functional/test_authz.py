@@ -66,8 +66,8 @@ class AuthzTestBase(object):
                             entity_name = '%s_%s_%s' % (action, user.name, interface)
                             entity_class = getattr(model, entity_type.capitalize())
                             entity = entity_class.by_name(entity_name)
-                            assert entity, 'Have not created package to ' 
-                            '%s: %r' % (action, entity_name)
+                            assert entity, 'Have not created %s to ' 
+                            '%s: %r' % (entity_type, action, entity_name)
                             entity_name = str(entity.id)
                         ok, diagnostics = test_func(action, user, entity_name, entity_type)
                         if ok != expect_it_works:
