@@ -170,7 +170,7 @@ class BaseRestController(BaseApiController):
             response_data = [rel.as_dict(package=pkg, ref_package_by=self.ref_package_by) for rel in relationships]
             return self._finish_ok(response_data)
         elif register == u'group':
-            query = ckan.authz.Authorizer().authorized_query(self._get_username(), model.Group)
+            query = ckan.authz.Authorizer().authorized_query(c.user, model.Group)
             groups = query.all() 
             response_data = self._list_group_refs(groups)
             return self._finish_ok(response_data)

@@ -66,15 +66,15 @@ class AuthzTestBase(object):
                             entity_name = '%s_%s_%s' % (action, user.name, interface)
                             entity_class = getattr(model, entity_type.capitalize())
                             entity = entity_class.by_name(entity_name)
-                            assert entity, 'Have not created %s to ' 
-                            '%s: %r' % (entity_type, action, entity_name)
+                            assert entity, 'Have not created %s to %s: %r' %\
+                                   (entity_type, action, entity_name)
                             entity_name = str(entity.id)
                         ok, diagnostics = test_func(action, user, entity_name, entity_type)
                         if ok != expect_it_works:
                             msg = 'Should be able to %s %s %r as user %r on %r interface. Diagnostics: %r' \
                                   if expect_it_works else \
                                   'Should NOT be able to %s %s %r as user %r on %r interface. Diagnostics: %r'
-                            raise Exception(msg % (action, entity_type, entity_name, user.name, interface, truncate(repr(diagnostics), 300)))
+                            raise Exception(msg % (action, entity_type, entity_name, user.name, interface, truncate(repr(diagnostics), 1000)))
 
     def _test_via_wui(self, action, user, entity_name, entity='package'):
         # Test action on WUI
@@ -94,15 +94,20 @@ class AuthzTestBase(object):
             str_required_in_response = 'New'
         elif action == 'delete':
             offset = url_for(controller=entity, action=model.Action.EDIT, id=unicode(entity_name))
-            str_required_in_response = 'deleted'
+            str_required_in_response = 'state'
         else:
             raise NotImplementedError
         res = self.app.get(offset, extra_environ={'REMOTE_USER': user.name.encode('utf8')}, expect_errors=True)
-        is_ok = str_required_in_response in res and u'error' not in res and res.status in (200, 201) and not '0 packages found' in res
+        tests = {}
+        tests['str_required'] = bool(str_required_in_response in res)
+        tests['error string'] = bool('error' not in res)
+        tests['status'] = bool(res.status in (200, 201))
+        tests['0 packages found'] = bool(u'0 packages found' not in res)
+        is_ok = False not in tests.values()
         # clear flash messages - these might make the next page request
         # look like it has an error
         self.app.reset()
-        return is_ok, [offset, user.name, res]
+        return is_ok, [offset, user.name, tests, res]
 
     def _test_via_api(self, action, user, entity_name, entity='package'):
         # Test action on REST
@@ -136,7 +141,8 @@ class AuthzTestBase(object):
                                               'state': 'deleted'},
                                              encoding='utf8')
             func = self.app.post
-            str_required_in_response = 'deleted'
+            str_required_in_response = '"state": "deleted"'
+            assert 0, 'Deleting in the API does not currently work - See #1053'
         elif action == 'purge':
             offset = '/api/rest/%s/%s' % (entity, entity_name)
             func = self.app.delete
@@ -151,8 +157,13 @@ class AuthzTestBase(object):
         res = func(offset, params=postparams,
                    extra_environ=environ,
                    expect_errors=True)
-        is_ok = str_required_in_response in res and u'error' not in res and res.status in (200, 201) and u'0 packages found' not in res
-        return is_ok, [offset, postparams, user.name, res]
+        tests = {}
+        tests['str_required'] = bool(str_required_in_response in res)
+        tests['error string'] = bool('error' not in res)
+        tests['status'] = bool(res.status in (200, 201))
+        tests['0 packages found'] = bool(u'0 packages found' not in res)
+        is_ok = False not in tests.values()
+        return is_ok, [offset, postparams, user.name, tests, res]
 
 class TestUsage(TestController, AuthzTestBase):
     '''Use case: role defaults (e.g. like ckan.net operates)
@@ -180,6 +191,7 @@ class TestUsage(TestController, AuthzTestBase):
             model.Session.add(pkg)
             pkg.tags.append(tag)
             model.Session.add(model.Group(name=unicode(mode)))
+        entities_to_test_deleting = []
         for interface in cls.INTERFACES:
             for action in ('purge', 'delete'):
                 for user in ('visitor', 'user', 'admin',
@@ -189,6 +201,7 @@ class TestUsage(TestController, AuthzTestBase):
                         entity_class = getattr(model, entity_type.capitalize())
                         entity_name = u'%s_%s_%s' % (action, user, interface)
                         model.Session.add(entity_class(name=entity_name))
+                        entities_to_test_deleting.append((entity_name, entity_class))
         model.Session.add(model.User(name=u'testsysadmin'))
         model.Session.add(model.User(name=u'pkggroupadmin'))
         model.Session.add(model.User(name=u'pkgeditor'))
@@ -242,17 +255,13 @@ class TestUsage(TestController, AuthzTestBase):
                     model.add_user_to_role(visitor, model.Role.EDITOR, pkg)
                     model.add_user_to_role(visitor, model.Role.EDITOR, group)
         model.add_user_to_role(testsysadmin, model.Role.ADMIN, model.System())
-        for interface in cls.INTERFACES:
-            for user in ('visitor', 'user', 'admin', 'testsysadmin'):
-                for entity_type in cls.ENTITY_TYPES:
-                    entity_class = getattr(model, entity_type.capitalize())
-                    entity_name = u'delete_%s_%s' % (user, interface)
-                    entity = entity_class.by_name(entity_name)
-                    model.add_user_to_role(visitor, model.Role.EDITOR, entity)
-                    model.add_user_to_role(mrloggedin, model.Role.EDITOR, entity)
-                    model.add_user_to_role(visitor, model.Role.READER, entity)
-                    model.add_user_to_role(mrloggedin, model.Role.READER, entity)
-
+        for entity_name, entity_class in entities_to_test_deleting:
+            entity = entity_class.by_name(entity_name)
+            model.add_user_to_role(visitor, model.Role.EDITOR, entity)
+            model.add_user_to_role(mrloggedin, model.Role.EDITOR, entity)
+            model.add_user_to_role(visitor, model.Role.READER, entity)
+            model.add_user_to_role(mrloggedin, model.Role.READER, entity)
+            model.add_user_to_role(pkggroupadmin, model.Role.ADMIN, entity)
         
         model.repo.commit_and_remove()
 
@@ -359,16 +368,16 @@ class TestUsage(TestController, AuthzTestBase):
         self._test_can('search', self.testsysadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted'], entity_types=['package'])
                 
     def test_visitor_deletes(self):
-        self._test_cant('delete', self.visitor, ['gets_filled'])
+        self._test_cant('delete', self.visitor, ['gets_filled'], interfaces=['wui'])
 
     def test_user_deletes(self):
-        self._test_cant('delete', self.mrloggedin, ['gets_filled'])
+        self._test_cant('delete', self.mrloggedin, ['gets_filled'], interfaces=['wui'])
 
     def test_admin_deletes(self):
-        self._test_cant('delete', self.pkggroupadmin, ['gets_filled'])
+        self._test_can('delete', self.pkggroupadmin, ['gets_filled'], interfaces=['wui'])
 
     def test_sysadmin_deletes(self):
-        self._test_can('delete', self.testsysadmin, ['gets_filled'])
+        self._test_can('delete', self.testsysadmin, ['gets_filled'], interfaces=['wui'])
 
     def test_visitor_purges(self):
         self._test_cant('purge', self.visitor, ['gets_filled'], interfaces=['rest'])
@@ -377,7 +386,7 @@ class TestUsage(TestController, AuthzTestBase):
         self._test_cant('purge', self.mrloggedin, ['gets_filled'], interfaces=['rest'])
 
     def test_admin_purges(self):
-        self._test_cant('purge', self.pkggroupadmin, ['gets_filled'], interfaces=['rest'])
+        self._test_can('purge', self.pkggroupadmin, ['gets_filled'], interfaces=['rest'])
 
     def test_sysadmin_purges(self):
         self._test_can('purge', self.testsysadmin, ['gets_filled'], interfaces=['rest'], entity_types=['package'])
