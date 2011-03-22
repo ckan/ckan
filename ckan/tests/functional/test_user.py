@@ -159,10 +159,10 @@ class TestUserController(FunctionalTestCase):
         assert new_about in before_preview, before_preview
         in_preview = main_res[main_res.find('Preview'):]
         assert new_about in in_preview, in_preview
-        assert res.status == 302, self.main_div(res)
 
         # commit
         res = fv.submit('save', extra_environ={'REMOTE_USER':username})      
+        assert res.status == 302, self.main_div(res).encode('utf8')
         res = res.follow()
         main_res = self.main_div(res)
         assert 'testedit' in main_res, main_res

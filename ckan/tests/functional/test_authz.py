@@ -13,7 +13,7 @@ from ckan.lib.helpers import json, truncate
 
 class AuthzTestBase(object):
     INTERFACES = ['wui', 'rest']
-    ENTITY_TYPES = ['package', 'group']
+    DEFAULT_ENTITY_TYPES = ['package', 'group']
     
     @classmethod
     def setup_class(self):
@@ -30,7 +30,7 @@ class AuthzTestBase(object):
 
     def _test_can(self, action, users, entity_names,
                   interfaces=INTERFACES,
-                  entity_types=ENTITY_TYPES):
+                  entity_types=DEFAULT_ENTITY_TYPES):
         self._test_expectation(action, users, entity_names,
                                interfaces=interfaces,
                                entity_types=entity_types,
@@ -38,16 +38,15 @@ class AuthzTestBase(object):
 
     def _test_cant(self, action, users, entity_names,
                   interfaces=INTERFACES,
-                  entity_types=ENTITY_TYPES):
+                  entity_types=DEFAULT_ENTITY_TYPES):
         self._test_expectation(action, users, entity_names,
                                interfaces=interfaces,
                                entity_types=entity_types,
                                expect_it_works=False)
 
     def _test_expectation(self, action, users, entity_names,
-                          interfaces=INTERFACES,
-                          entity_types=ENTITY_TYPES,
-                          expect_it_works=True):
+                          interfaces, entity_types,
+                          expect_it_works):
         if isinstance(users, model.User):
             users = [users]
         if isinstance(entity_names, basestring):
@@ -197,7 +196,7 @@ class TestUsage(TestController, AuthzTestBase):
                 for user in ('visitor', 'user', 'admin',
                              'mrloggedin', 'testsysadmin',
                              'pkggroupadmin'):
-                    for entity_type in cls.ENTITY_TYPES:
+                    for entity_type in cls.DEFAULT_ENTITY_TYPES:
                         entity_class = getattr(model, entity_type.capitalize())
                         entity_name = u'%s_%s_%s' % (action, user, interface)
                         model.Session.add(entity_class(name=entity_name))
@@ -212,6 +211,15 @@ class TestUsage(TestController, AuthzTestBase):
         model.Session.add(model.User(name=u'groupeditor'))
         model.Session.add(model.User(name=u'groupreader'))
         visitor_name = '123.12.12.123'
+        model.repo.commit_and_remove()
+
+        rev = model.repo.new_revision()
+        model.Session.add(model.PackageRelationship(subject=u'xx',
+                                                    object=u'ww',
+                                                    type=u'depends_on'))
+        model.Session.add(model.PackageRelationship(subject=u'xx',
+                                                    object=u'wr',
+                                                    type=u'links_to'))
         model.repo.commit_and_remove()
 
         testsysadmin = model.User.by_name(u'testsysadmin')
@@ -391,6 +399,9 @@ class TestUsage(TestController, AuthzTestBase):
     def test_sysadmin_purges(self):
         self._test_can('purge', self.testsysadmin, ['gets_filled'], interfaces=['rest'], entity_types=['package'])
     
+    def test_relationships(self):
+        self._test_can('edit', self.testsysadmin, [('ww', 'rw')], interfaces=['rest'], entity_types=['package_relationship'])
+        
 
 class TestSiteRead(TestController, AuthzTestBase):
     '''User case:
