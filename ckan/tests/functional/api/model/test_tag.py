@@ -15,8 +15,8 @@ class TagsTestCase(BaseModelApiTestCase):
     def test_register_get_ok(self):
         offset = self.tag_offset()
         res = self.app.get(offset, status=self.STATUS_200_OK)
-        assert self.ref_tag(self.russian) in res, res
-        assert self.ref_tag(self.tolstoy) in res, res
+        assert self.russian.name in res, res
+        assert self.tolstoy.name in res, res
     
     def test_entity_get_ok(self):
         offset = self.tag_offset(self.russian.name)
