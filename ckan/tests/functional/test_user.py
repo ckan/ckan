@@ -133,12 +133,14 @@ class TestUserController(FunctionalTestCase):
         about = u'Test About'
         user = model.User.by_name(unicode(username))
         if not user:
-            model.Session.add(model.User(name=unicode(username), about=about))            
+            model.Session.add(model.User(name=unicode(username), about=about,
+                                         password='letmein'))
             model.repo.commit_and_remove()
             user = model.User.by_name(unicode(username))
 
         # edit
         new_about = u'Changed about'
+        new_password = u'testpass'
         offset = url_for(controller='user', action='edit', id=user.id)
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':username})
         main_res = self.main_div(res)
@@ -146,6 +148,8 @@ class TestUserController(FunctionalTestCase):
         assert about in main_res, main_res
         fv = res.forms['user-edit']
         fv['about'] = new_about
+        fv['password1'] = new_password
+        fv['password2'] = new_password
         res = fv.submit('preview', extra_environ={'REMOTE_USER':username})
         
         # preview
@@ -156,6 +160,7 @@ class TestUserController(FunctionalTestCase):
         in_preview = main_res[main_res.find('Preview'):]
         assert new_about in in_preview, in_preview
         res = fv.submit('save', extra_environ={'REMOTE_USER':username})
+        assert res.status == 302, self.main_div(res)
 
         # commit
         res = res.follow()

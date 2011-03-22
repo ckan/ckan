@@ -114,7 +114,7 @@ class UserController(BaseController):
 
     def edit(self, id=None):
         if id is not None:
-            user = model.User.by_name(id)
+            user = model.User.get(id)
         else:
             user = model.User.by_name(c.user)
         if user is None:
