@@ -33,7 +33,7 @@ class GroupController(BaseController):
         return render('group/index.html')
 
     def read(self, id):
-        c.group = model.Group.by_name(id)
+        c.group = model.Group.get(id)
         if c.group is None:
             abort(404)
         auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, c.group)
@@ -83,13 +83,13 @@ class GroupController(BaseController):
             # do not use groupname from id as may have changed
             c.groupname = c.fs.name.value
             c.grouptitle = c.fs.title.value
-            group = model.Group.by_name(c.groupname)
+            group = model.Group.get(c.groupname)
             assert group
             admins = []
             user = model.User.by_name(c.user)
             admins = [user]
             model.setup_default_user_roles(group, admins)
-            group = model.Group.by_name(c.groupname)
+            group = model.Group.get(c.groupname)
             pkgs = [model.Package.by_name(name) for name in request.params.getall('Group-packages-current')]
             group.packages = pkgs
             pkgnames = request.params.getall('PackageGroup--package_name')
@@ -111,7 +111,7 @@ class GroupController(BaseController):
 
     def edit(self, id=None): # allow id=None to allow posting
         c.error = ''
-        group = model.Group.by_name(id)
+        group = model.Group.get(id)
         if group is None:
             abort(404, '404 Not Found')
         am_authz = self.authorizer.am_authorized(c, model.Action.EDIT, group)
@@ -161,7 +161,7 @@ class GroupController(BaseController):
             h.redirect_to(action='read', id=c.groupname)
 
     def authz(self, id):
-        c.group = model.Group.by_name(id)
+        c.group = model.Group.get(id)
         if c.group is None:
             abort(404, _('Group not found'))
         
@@ -239,7 +239,7 @@ class GroupController(BaseController):
                 model.Session.commit()
 
         # retrieve group again ...
-        c.group = model.Group.by_name(id)
+        c.group = model.Group.get(id)
         fs = ckan.forms.get_authz_fieldset('group_authz_fs').bind(c.group.roles)
         c.form = fs.render()
         c.new_roles_form = \
@@ -261,7 +261,7 @@ class GroupController(BaseController):
                 params['diff_entity'] = 'group'
                 h.redirect_to(controller='revision', action='diff', **params)
 
-        c.group = model.Group.by_name(id)
+        c.group = model.Group.get(id)
         if not c.group:
             abort(404, _('Group not found'))
         if not self.authorizer.am_authorized(c, model.Action.READ, c.group):
