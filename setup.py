@@ -57,11 +57,11 @@ setup(
     db = ckan.lib.cli:ManageDb
     create-test-data = ckan.lib.create_test_data:CreateTestData
     sysadmin = ckan.lib.cli:Sysadmin
+    user = ckan.lib.cli:UserCmd
     search-index = ckan.lib.cli:SearchIndexCommand
     ratings = ckan.lib.cli:Ratings
     changes = ckan.lib.cli:Changes
-    notifications = ckan.lib.cli:Notifications
-    harvester = ckan.lib.cli:Harvester
+    notify = ckan.lib.cli:Notification
     rights = ckan.lib.authztool:RightsCommand
     roles = ckan.lib.authztool:RolesCommand
     

@@ -72,9 +72,9 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
     @property
     def resources(self):
-        assert len(self.resource_groups) == 1, "can only use resources on packages if there is only one resource_group"
+        assert len(self.resource_groups_all) == 1, "can only use resources on packages if there is only one resource_group"
 
-        return self.resource_groups[0].resources
+        return self.resource_groups_all[0].resources
     
 
     def update_resources(self, res_dicts, autoflush=True):
@@ -113,6 +113,9 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                 res = resource.Resource(**res_dict)
             new_res_list.append(res)
         self.resource_groups[0].resources = new_res_list
+
+    def related_packages(self):
+        return [self]
 
     def add_resource(self, url, format=u'', description=u'', hash=u'', **kw):
         import resource
@@ -280,8 +283,9 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                     continue
                 # and check children
                 child_pkg = parent_rel_as_object.subject
-                if child_pkg != self and \
-                       parent_rel_as_object.type == rel_as_subject.type:
+                if (child_pkg != self and 
+                    parent_rel_as_object.type == rel_as_subject.type and
+                    child_pkg.state == State.ACTIVE):
                     type_printable = PackageRelationship.inferred_types_printable['sibling']
                     rel_list.append((child_pkg, type_printable, None))
         return sorted(list(set(rel_list)))

@@ -26,17 +26,19 @@ class TestUsage(TestController):
         model.repo.init_db()
         rev = model.repo.new_revision()
         self.modes = ('xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted')
+        tag = model.Tag("test")
+        model.Session.add(tag)
         for mode in self.modes:
-            model.Session.add(model.Package(name=unicode(mode)))
-            if mode != 'deleted':
-                # Groups aren't stateful
-                model.Session.add(model.Group(name=unicode(mode)))
+            pkg = model.Package(name=unicode(mode))
+            model.Session.add(pkg)
+            pkg.tags.append(tag)
+            model.Session.add(model.Group(name=unicode(mode)))
         
         model.Session.add(model.Package(name=u'delete_visitor_rest'))
         model.Session.add(model.Package(name=u'delete_admin_rest'))
         
         model.Session.add(model.User(name=u'testsysadmin'))
-        model.Session.add(model.User(name=u'pkgadmin'))
+        model.Session.add(model.User(name=u'pkggroupadmin'))
         model.Session.add(model.User(name=u'pkgeditor'))
         model.Session.add(model.User(name=u'pkgreader'))
         model.Session.add(model.User(name=u'mrloggedin'))
@@ -48,7 +50,7 @@ class TestUsage(TestController):
         model.repo.commit_and_remove()
 
         testsysadmin = model.User.by_name(u'testsysadmin')
-        pkgadmin = model.User.by_name(u'pkgadmin')
+        pkggroupadmin = model.User.by_name(u'pkggroupadmin')
         pkgeditor = model.User.by_name(u'pkgeditor')
         pkgreader = model.User.by_name(u'pkgreader')
         groupadmin = model.User.by_name(u'groupadmin')
@@ -58,19 +60,21 @@ class TestUsage(TestController):
         visitor = model.User.by_name(name=model.PSEUDO_USER__VISITOR)
         for mode in self.modes:
             pkg = model.Package.by_name(unicode(mode))
-            model.add_user_to_role(pkgadmin, model.Role.ADMIN, pkg)
+            model.add_user_to_role(pkggroupadmin, model.Role.ADMIN, pkg)
             model.add_user_to_role(pkgeditor, model.Role.EDITOR, pkg)
             model.add_user_to_role(pkgreader, model.Role.READER, pkg)
-            if mode != 'deleted':
-                group = model.Group.by_name(unicode(mode))
-                group.packages = model.Session.query(model.Package).all()
-                model.add_user_to_role(groupadmin, model.Role.ADMIN, group)
-                model.add_user_to_role(groupeditor, model.Role.EDITOR, group)
-                model.add_user_to_role(groupreader, model.Role.READER, group)
+            group = model.Group.by_name(unicode(mode))
+            group.packages = model.Session.query(model.Package).all()
+            model.add_user_to_role(pkggroupadmin, model.Role.ADMIN, group)
+            model.add_user_to_role(groupadmin, model.Role.ADMIN, group)
+            model.add_user_to_role(groupeditor, model.Role.EDITOR, group)
+            model.add_user_to_role(groupreader, model.Role.READER, group)
             if mode == u'deleted':
                 rev = model.repo.new_revision()
                 pkg = model.Package.by_name(unicode(mode))
                 pkg.state = model.State.DELETED
+                group = model.Package.by_name(unicode(mode))
+                group.state = model.State.DELETED
                 model.repo.commit_and_remove()
             else:
                 if mode[0] == u'r':
@@ -92,7 +96,7 @@ class TestUsage(TestController):
         assert model.Package.by_name(u'deleted').state == model.State.DELETED
 
         self.testsysadmin = model.User.by_name(u'testsysadmin')
-        self.pkgadmin = model.User.by_name(u'pkgadmin')
+        self.pkggroupadmin = model.User.by_name(u'pkggroupadmin')
         self.pkgadminfriend = model.User.by_name(u'pkgadminfriend')
         self.pkgeditor = model.User.by_name(u'pkgeditor')
         self.pkgreader = model.User.by_name(u'pkgreader')
@@ -239,7 +243,7 @@ class TestUsage(TestController):
     
     def test_list(self):
         # NB this no listing of package in wui interface any more
-        self._test_can('list', [self.testsysadmin, self.pkgadmin], ['xx', 'rx', 'wx', 'rr', 'wr', 'ww'], entities=['package'], interfaces=['rest'])
+        self._test_can('list', [self.testsysadmin, self.pkggroupadmin], ['xx', 'rx', 'wx', 'rr', 'wr', 'ww'], entities=['package'], interfaces=['rest'])
         self._test_can('list', [self.testsysadmin, self.groupadmin], ['xx', 'rx', 'wx', 'rr', 'wr', 'ww'], entities=['group'])
         self._test_can('list', self.mrloggedin, ['rx', 'wx', 'rr', 'wr', 'ww'], interfaces=['rest'])
         self._test_can('list', self.visitor, ['rr', 'wr', 'ww'], interfaces=['rest'])
@@ -247,17 +251,15 @@ class TestUsage(TestController):
         self._test_cant('list', self.visitor, ['xx', 'rx', 'wx'])
 
     def test_admin_edit_deleted(self):
-        self._test_can('edit', self.pkgadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted'], entities=['package'])
-        self._test_can('edit', self.groupadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww'], entities=['group'])
+        self._test_can('edit', self.pkggroupadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted'])
         self._test_cant('edit', self.mrloggedin, ['deleted'])
 
     def test_admin_read_deleted(self):
-        self._test_can('read', self.pkgadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted'], entities=['package'])
-        self._test_can('read', self.groupadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww'], entities=['group'])
+        self._test_can('read', self.pkggroupadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted'])
         self._test_cant('read', self.mrloggedin, ['deleted'])
 
     def test_search_deleted(self):
-        self._test_can('search', self.pkgadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted'], entities=['package'])
+        self._test_can('search', self.pkggroupadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted'], entities=['package'])
         self._test_can('search', self.mrloggedin, ['rx', 'wx', 'rr', 'wr', 'ww'], entities=['package'])
         self._test_cant('search', self.mrloggedin, ['deleted', 'xx'], entities=['package'])
         
@@ -283,12 +285,10 @@ class TestUsage(TestController):
         assert not model.Role.ADMIN in roles, roles
 
     def test_sysadmin_can_read_anything(self):
-        self._test_can('read', self.testsysadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww'])
-        self._test_can('read', self.testsysadmin, ['deleted'], entities=['package']) # groups not stateful
+        self._test_can('read', self.testsysadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted'])
         
     def test_sysadmin_can_edit_anything(self):
-        self._test_can('edit', self.testsysadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww'])
-        self._test_can('edit', self.testsysadmin, ['deleted'], entities=['package'])
+        self._test_can('edit', self.testsysadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted'])
         
     def test_sysadmin_can_search_anything(self):
         self._test_can('search', self.testsysadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted'], entities=['package'])
@@ -310,7 +310,7 @@ class TestUsage(TestController):
         self._test_can('delete', self.testsysadmin, [str(pkg.id)], interfaces=['rest'], entities=['package'])
     
         
-class TestLockedDownUsage(TestUsage):
+class TestLockedDownUsage(TestController):
     
     @classmethod
     def setup_class(self):
@@ -319,16 +319,49 @@ class TestLockedDownUsage(TestUsage):
         q = q.filter(model.UserObjectRole.user==model.User.by_name(u"visitor"))
         for role in q:
             model.Session.delete(role)
-        model.repo.commit_and_remove()
         
+        q = model.Session.query(model.RoleAction).filter(model.RoleAction.role==Role.READER)
+        for role_action in q:
+            model.Session.delete(role_action)
+        
+        model.repo.commit_and_remove()
         indexer = TestSearchIndexer()
-        self._create_test_data()
+        TestUsage._create_test_data()
         model.Session.remove()
         indexer.index()
-        
-    def test_user_creates(self):
-        self._test_can('create', self.mrloggedin, ['rr'])
+        self.user_name = TestUsage.mrloggedin.name.encode('utf-8')
     
+    def _check_logged_in_users_authorized_only(self, offset):
+        '''Checks the offset is accessible to logged in users only.'''
+        res = self.app.get(offset, extra_environ={})
+        assert res.status not in [200], res.status
+        res = self.app.get(offset, extra_environ={'REMOTE_USER': self.user_name})
+        assert res.status in [200], res.status
+
+    def test_home(self):
+        self._check_logged_in_users_authorized_only('/')
+        self._check_logged_in_users_authorized_only('/about')
+        self._check_logged_in_users_authorized_only('/license')
+    
+    def test_tags_pages(self):
+        self._check_logged_in_users_authorized_only('/tag')
+        self._check_logged_in_users_authorized_only('/tag/test')
+
+    def test_revision_pages(self):
+        self._check_logged_in_users_authorized_only('/revision')
+
+    def test_user_pages(self):
+        self._check_logged_in_users_authorized_only('/user')
+        self._check_logged_in_users_authorized_only('/user/' + self.user_name)
+        res = self.app.get('/user/login', extra_environ={})
+        assert res.status in [200], res.status
+        #res = self.app.get('/user/register', extra_environ={})
+        #assert res.status in [200], res.status
+    
+    def test_new_package(self):
+        offset = url_for(controller='package', action='new')
+        self._check_logged_in_users_authorized_only(offset)
+
     @classmethod
     def teardown_class(self):
         model.repo.rebuild_db()

@@ -131,6 +131,10 @@ ckan.site_description =
 ## Used in creating some absolute urls (such as rss feeds) and dump filenames
 ckan.site_url = http://www.ckan.net
 
+## Favicon (default is the CKAN software favicon)
+ckan.favicon = http://assets.okfn.org/p/ckan/img/ckan.ico
+
+
 ## An 'id' for the site (using, for example, when creating entries in a common search index) 
 ## If not specified derived from the site_url
 # ckan.site_id = ckan.net
@@ -173,11 +177,29 @@ keys = generic
 level = INFO
 handlers = console
 
+[logger_ckan]
+level = DEBUG
+handlers = console, file
+qualname = ckan
+propagate = 0
+
+[logger_ckanext]
+level = DEBUG
+handlers = console, file
+qualname = ckanext
+propagate = 0
+
 [handler_console]
 class = StreamHandler
 args = (sys.stderr,)
 level = NOTSET
 formatter = generic
+
+[handler_file]
+class = handlers.RotatingFileHandler
+formatter = generic
+level = NOTSET
+args = ('/var/log/ckan/ckan.log', 'a', 2000000, 9)
 
 [formatter_generic]
 format = %(asctime)s %(levelname)-5.5s [%(name)s] %(message)s

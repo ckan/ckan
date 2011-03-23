@@ -28,6 +28,7 @@ from paste.deploy import loadapp
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib import search
 from ckan.lib.helpers import _flash, url_for
+from ckan.lib.helpers import json
 import ckan.model as model
 
 __all__ = ['url_for',
@@ -46,6 +47,14 @@ conf_dir = os.path.dirname(os.path.dirname(here_dir))
 
 # Invoke websetup with the current config file
 SetupCommand('setup-app').run([config['__file__']])
+
+# monkey patch paste.fixtures.TestRespose
+# webtest (successor library) already has this
+# http://pythonpaste.org/webtest/#parsing-the-body
+def _getjson(self):
+    return json.loads(self.body)
+paste.fixture.TestResponse.json = property(_getjson)
+
 
 class BaseCase(object):
 
@@ -163,13 +172,8 @@ class CommonFixtureMethods(BaseCase):
         return model.User.by_name(name)
 
     @staticmethod
-    def get_harvest_source_by_url(source_url, default=Exception):
-        return model.HarvestSource.get(source_url, default, 'url')
-
-    def create_harvest_source(self, **kwds):
-        source = model.HarvestSource(**kwds)
-        source.save()
-        return source
+    def get_tag_by_name(name):
+        return model.Tag.by_name(name)
 
     def purge_package_by_name(self, package_name):
         package = self.get_package_by_name(package_name)
@@ -206,6 +210,21 @@ class CommonFixtureMethods(BaseCase):
     def anna(self):
         return self.get_package_by_name(u'annakarenina')
 
+    @property
+    def roger(self):
+        return self.get_group_by_name(u'roger')
+
+    @property
+    def david(self):
+        return self.get_group_by_name(u'david')
+
+    @property
+    def russian(self):
+        return self.get_tag_by_name(u'russian')
+
+    @property
+    def tolstoy(self):
+        return self.get_tag_by_name(u'tolstoy')
 
 class CheckMethods(BaseCase):
 

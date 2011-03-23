@@ -11,10 +11,12 @@ class AuthorizationGroupController(BaseController):
     
     def __init__(self):
         BaseController.__init__(self)
-        self.authorizer = authz.Authorizer()
     
     def index(self):
         from ckan.lib.helpers import Page
+
+        if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
+            abort(401, _('Not authorized to see this page'))
 
         query = ckan.authz.Authorizer().authorized_query(c.user, model.AuthorizationGroup)
         query = query.options(eagerload_all('users'))

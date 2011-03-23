@@ -23,7 +23,9 @@ extra_revision_table= vdm.sqlalchemy.make_revisioned_table(package_extra_table)
 class PackageExtra(vdm.sqlalchemy.RevisionedObjectMixin,
         vdm.sqlalchemy.StatefulObjectMixin,
         DomainObject):
-    pass
+
+    def related_packages(self):
+        return [self.package]
 
 mapper(PackageExtra, package_extra_table, properties={
     'package': orm.relation(Package,

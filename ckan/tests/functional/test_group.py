@@ -70,19 +70,21 @@ class TestGroup(FunctionalTestCase):
         name = u'david'
         title = u'Dave\'s books'
         pkgname = u'warandpeace'
-        offset = url_for(controller='group', action='read', id=name)
-        res = self.app.get(offset)
-        main_res = self.main_div(res)
-        assert title in res, res
-        #assert 'edit' not in main_res, main_res
-        assert 'Administrators:' in main_res, main_res
-        assert 'russianfan' in main_res, main_res
-        assert name in res, res
-        assert 'There are 2 packages in this group' in self.strip_tags(main_res), main_res
-        pkg = model.Package.by_name(pkgname)
-        res = res.click(pkg.title)
-        assert '%s - Data Packages' % pkg.title in res
-        
+        group = model.Group.by_name(name)
+        for group_ref in (group.name, group.id):
+            offset = url_for(controller='group', action='read', id=group_ref)
+            res = self.app.get(offset)
+            main_res = self.main_div(res)
+            assert title in res, res
+            #assert 'edit' not in main_res, main_res
+            assert 'Administrators:' in main_res, main_res
+            assert 'russianfan' in main_res, main_res
+            assert name in res, res
+            assert 'There are 2 packages in this group' in self.strip_tags(main_res), main_res
+            pkg = model.Package.by_name(pkgname)
+            res = res.click(pkg.title)
+            assert '%s - Data Packages' % pkg.title in res
+
     def test_read_plugin_hook(self):
         plugin = MockGroupControllerPlugin()
         plugins.load(plugin)

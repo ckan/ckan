@@ -4,7 +4,8 @@ from sqlalchemy.orm import eagerload_all
 from ckan.lib.base import *
 from pylons.i18n import get_lang, _
 import ckan.authz as authz
-import ckan.forms
+from ckan import forms
+from ckan.model import System
 from ckan.lib.helpers import Page
 from ckan.plugins import PluginImplementations, IGroupController
 
@@ -12,13 +13,15 @@ class GroupController(BaseController):
     
     def __init__(self):
         BaseController.__init__(self)
-        self.authorizer = authz.Authorizer()
         self.extensions = PluginImplementations(IGroupController)
     
     def index(self):
         from ckan.lib.helpers import Page
-
-        query = ckan.authz.Authorizer().authorized_query(c.user, model.Group)
+        
+        if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
+            abort(401, _('Not authorized to see this page'))
+        
+        query = authz.Authorizer().authorized_query(c.user, model.Group)
         query = query.order_by(model.Group.name.asc())
         query = query.order_by(model.Group.title.asc())
         query = query.options(eagerload_all('packages'))
@@ -30,7 +33,7 @@ class GroupController(BaseController):
         return render('group/index.html')
 
     def read(self, id):
-        c.group = model.Group.by_name(id)
+        c.group = model.Group.get(id)
         if c.group is None:
             abort(404)
         auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, c.group)
@@ -80,13 +83,13 @@ class GroupController(BaseController):
             # do not use groupname from id as may have changed
             c.groupname = c.fs.name.value
             c.grouptitle = c.fs.title.value
-            group = model.Group.by_name(c.groupname)
+            group = model.Group.get(c.groupname)
             assert group
             admins = []
             user = model.User.by_name(c.user)
             admins = [user]
             model.setup_default_user_roles(group, admins)
-            group = model.Group.by_name(c.groupname)
+            group = model.Group.get(c.groupname)
             pkgs = [model.Package.by_name(name) for name in request.params.getall('Group-packages-current')]
             group.packages = pkgs
             pkgnames = request.params.getall('PackageGroup--package_name')
@@ -101,14 +104,14 @@ class GroupController(BaseController):
             h.redirect_to(action='read', id=c.groupname)
 
         if request.params:
-            data = ckan.forms.edit_group_dict(ckan.forms.get_group_dict(), request.params)
+            data = forms.edit_group_dict(ckan.forms.get_group_dict(), request.params)
             fs = fs.bind(data=data, session=model.Session)
         c.form = self._render_edit_form(fs)
         return render('group/new.html')
 
     def edit(self, id=None): # allow id=None to allow posting
         c.error = ''
-        group = model.Group.by_name(id)
+        group = model.Group.get(id)
         if group is None:
             abort(404, '404 Not Found')
         am_authz = self.authorizer.am_authorized(c, model.Action.EDIT, group)
@@ -122,7 +125,7 @@ class GroupController(BaseController):
             c.groupname = group.name
             c.grouptitle = group.title
             
-            fs = ckan.forms.get_group_fieldset(is_admin=auth_for_change_state).bind(c.group)
+            fs = forms.get_group_fieldset(is_admin=auth_for_change_state).bind(c.group)
             c.form = self._render_edit_form(fs)
             return render('group/edit.html')
         else:
@@ -158,9 +161,10 @@ class GroupController(BaseController):
             h.redirect_to(action='read', id=c.groupname)
 
     def authz(self, id):
-        c.group = model.Group.by_name(id)
+        c.group = model.Group.get(id)
         if c.group is None:
             abort(404, _('Group not found'))
+        
         c.groupname = c.group.name
         c.grouptitle = c.group.display_name
 
@@ -235,7 +239,7 @@ class GroupController(BaseController):
                 model.Session.commit()
 
         # retrieve group again ...
-        c.group = model.Group.by_name(id)
+        c.group = model.Group.get(id)
         fs = ckan.forms.get_authz_fieldset('group_authz_fs').bind(c.group.roles)
         c.form = fs.render()
         c.new_roles_form = \
@@ -257,9 +261,12 @@ class GroupController(BaseController):
                 params['diff_entity'] = 'group'
                 h.redirect_to(controller='revision', action='diff', **params)
 
-        c.group = model.Group.by_name(id)
+        c.group = model.Group.get(id)
         if not c.group:
             abort(404, _('Group not found'))
+        if not self.authorizer.am_authorized(c, model.Action.READ, c.group):
+            abort(401, _('User %r not authorized to edit %r') % (c.user, id))
+
         format = request.params.get('format', '')
         if format == 'atom':
             # Generate and return Atom 1.0 document.

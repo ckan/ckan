@@ -21,7 +21,6 @@ from resource import *
 from rating import *
 from package_relationship import *
 from changeset import Changeset, Change, Changemask
-from harvesting import HarvestSource, HarvestingJob, HarvestedDocument
 import ckan.migration
 
 # set up in init_model after metadata is bound
@@ -29,6 +28,7 @@ version_table = None
 
 def init_model(engine):
     '''Call me before using any of the tables or classes in the model'''
+    meta.Session.remove()
     meta.Session.configure(bind=engine)
     meta.engine = engine
     meta.metadata.bind = engine
@@ -177,12 +177,12 @@ repo = Repository(metadata, Session,
 def _get_packages(self):
     changes = repo.list_changes(self)
     pkgs = set()
-    for pkg_rev in changes.pop(Package):
-        pkgs.add(pkg_rev.continuity)
-    for non_pkg_rev_list in changes.values():
-        for non_pkg_rev in non_pkg_rev_list:
-            if hasattr(non_pkg_rev.continuity, 'package'):
-                pkgs.add(non_pkg_rev.continuity.package)
+    for revision_list in changes.values():
+        for revision in revision_list:
+            obj = revision.continuity
+            if hasattr(obj, 'related_packages'):
+                pkgs.update(obj.related_packages())
+
     return list(pkgs)
 
 def _get_groups(self):

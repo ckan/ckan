@@ -39,14 +39,4 @@
 |                    | family: String, url: String, maintainer: String,           |
 |                    | date_created: Date-Time, status: String }                  |
 +--------------------+------------------------------------------------------------+
-| HarvestSource-List | |format-harvest-source-register|                           |
-+--------------------+------------------------------------------------------------+
-| HarvestSource      | |format-harvest-source-entity|                             |
-+--------------------+------------------------------------------------------------+
-| HarvestingJob-List | |format-harvesting-job-register|                           |
-+--------------------+------------------------------------------------------------+
-| HarvestingJob      | |format-harvesting-job-entity|                             |
-+--------------------+------------------------------------------------------------+
-| Name-String        | An alphanumeric string.                                    |
-+--------------------+------------------------------------------------------------+
 

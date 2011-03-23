@@ -19,6 +19,7 @@ from genshi.template import MarkupTemplate
 from webhelpers.html import literal
 
 import ckan
+from ckan import authz
 from ckan import i18n
 import ckan.lib.helpers as h
 from ckan.plugins import PluginImplementations, IGenshiStreamFilter
@@ -78,24 +79,34 @@ class ValidationException(Exception):
 
 class BaseController(WSGIController):
     repo = model.repo
+    authorizer = authz.Authorizer()
     log = logging.getLogger(__name__)
 
     def __before__(self, action, **params):
-
-        # what is different between session['user'] and environ['REMOTE_USER']
         c.__version__ = ckan.__version__
-        c.user = request.environ.get('REMOTE_USER', None)
+        self._identify_user()
+        i18n.handle_request(request, c)
+
+    def _identify_user(self):
         # see if it was proxied first
         c.remote_addr = request.environ.get('HTTP_X_FORWARDED_FOR', '')
         if not c.remote_addr:
             c.remote_addr = request.environ.get('REMOTE_ADDR', 'Unknown IP Address')
+
+        # what is different between session['user'] and environ['REMOTE_USER']
+        c.user = request.environ.get('REMOTE_USER', '')
         if c.user:
             c.user = c.user.decode('utf8')
+            c.userobj = model.User.by_name(c.user)
+        else:
+            c.userobj = self._get_user_for_apikey()
+            if c.userobj is not None:
+                c.user = c.userobj.name
+        if c.user:
             c.author = c.user
         else:
             c.author = c.remote_addr
         c.author = unicode(c.author)
-        i18n.handle_request(request, c)
 
     def __call__(self, environ, start_response):
         """Invoke the Controller"""
@@ -116,8 +127,11 @@ class BaseController(WSGIController):
     def _get_pkg(self, reference):
         return model.Package.get(reference)
 
-    def _get_harvest_source(self, reference):
-        return model.HarvestSource.get(reference)
+    def _get_group(self, reference):
+        return model.Group.get(reference)
+
+    def _get_tag(self, reference):
+        return model.Tag.get(reference)
 
     def _get_request_data(self):
         self.log.debug('Retrieving request params: %r' % request.params)
