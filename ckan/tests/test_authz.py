@@ -1,6 +1,6 @@
 import sqlalchemy as sa
 from pylons import config
-from nose.tools import make_decorator
+from nose.tools import make_decorator, assert_equal
 
 import ckan.model as model
 import ckan.authz
@@ -51,6 +51,7 @@ class TestAuthorizer(object):
         model.repo.new_revision()
         model.Session.add(model.Package(name=u'testpkg'))
         model.Session.add(model.Package(name=u'testpkg2'))
+        model.Session.add(model.Package(name=u'private_pkg'))
         model.Session.add(model.User(name=u'testadmin'))
         model.Session.add(model.User(name=u'testsysadmin'))
         model.Session.add(model.User(name=u'notadmin'))
@@ -58,18 +59,30 @@ class TestAuthorizer(object):
         model.Session.add(model.Group(name=u'testgroup2'))
         model.repo.commit_and_remove()
 
+        model.repo.new_revision()
+        pkg = model.Package.by_name(u'testpkg')
+        pkg2 = model.Package.by_name(u'testpkg2')
+        private_pkg = model.Package.by_name(u'private_pkg')
+        pkg.add_relationship(u'depends_on', pkg2)
+        pkg.add_relationship(u'depends_on', private_pkg)
+        model.repo.commit_and_remove()
+
         pkg = model.Package.by_name(u'testpkg')
         grp = model.Group.by_name(u'testgroup')
         admin = model.User.by_name(u'testadmin')
         sysadmin = model.User.by_name(u'testsysadmin')
+        notadmin = model.User.by_name(u'notadmin')
         model.add_user_to_role(admin, model.Role.ADMIN, pkg)
         model.add_user_to_role(admin, model.Role.ADMIN, grp)
         model.add_user_to_role(sysadmin, model.Role.ADMIN, model.System())
+        model.add_user_to_role(notadmin, model.Role.READER, pkg)
+        model.add_user_to_role(notadmin, model.Role.READER, pkg2)
         model.repo.commit_and_remove()
 
         self.authorizer = ckan.authz.Authorizer()
         self.pkg = model.Package.by_name(u'testpkg')
         self.pkg2 = model.Package.by_name(u'testpkg2')
+        self.private_pkg = model.Package.by_name(u'private_pkg')
         self.grp = model.Group.by_name(u'testgroup')
         self.grp2 = model.Group.by_name(u'testgroup2')
         self.admin = model.User.by_name(u'testadmin')
@@ -138,6 +151,36 @@ class TestAuthorizer(object):
                 model.Revision)
         assert not isnot, isnot
 
+    def test_authorized_query(self):
+        assert self.authorizer.is_authorized(self.notadmin.name, model.Action.READ, self.pkg)
+        assert not self.authorizer.is_authorized(self.notadmin.name, model.Action.READ, self.private_pkg)
+        
+        q = self.authorizer.authorized_query(self.notadmin.name, model.Package)
+        pkgs = set([pkg.name for pkg in q.all()])
+        expected_pkgs = set([u'testpkg', u'testpkg2', u'annakarenina', u'warandpeace'])
+        assert_equal(pkgs, expected_pkgs)
+
+    def _assert_relationships(self, rels, expected_rels):
+        rels = set([repr(rel) for rel in rels])
+        assert_equal(rels, set(expected_rels))
+
+    def test_package_relationships_as_notadmin(self):
+        rels = self.authorizer.authorized_package_relationships( \
+            self.notadmin.name, self.pkg, None, action=model.Action.READ)
+        self._assert_relationships(rels, ['<*PackageRelationship testpkg depends_on testpkg2>'])
+
+        rels = self.authorizer.authorized_package_relationships( \
+            self.notadmin.name, self.pkg, self.pkg2, action=model.Action.READ)
+        self._assert_relationships(rels, ['<*PackageRelationship testpkg depends_on testpkg2>'])
+
+    def test_package_relationships_as_sysadmin(self):
+        rels = self.authorizer.authorized_package_relationships( \
+            self.sysadmin.name, self.pkg, None, action=model.Action.READ)
+        self._assert_relationships(rels, ['<*PackageRelationship testpkg depends_on testpkg2>', '<*PackageRelationship testpkg depends_on private_pkg>'])
+
+        rels = self.authorizer.authorized_package_relationships( \
+            self.notadmin.name, self.pkg, self.pkg2, action=model.Action.READ)
+        self._assert_relationships(rels, ['<*PackageRelationship testpkg depends_on testpkg2>'])
 
 class TestLockedDownAuthorizer(object):
 

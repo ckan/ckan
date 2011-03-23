@@ -1,42 +1,238 @@
 from time import time
 from copy import copy
-from ckan.model import Role, Action
+import random
 
 import sqlalchemy as sa
+
 import ckan.model as model
-from ckan.model import authz as mauthz
 from ckan.tests import TestController, TestSearchIndexer, url_for
 from ckan.lib.base import *
+from ckan.lib.create_test_data import CreateTestData
 import ckan.authz as authz
-from ckan.lib.helpers import json
+from ckan.lib.helpers import json, truncate
 
-class TestUsage(TestController):
-    deleted = model.State.DELETED
-    active = model.State.ACTIVE
-    
+class AuthzTestBase(object):
+    INTERFACES = ['wui', 'rest']
+    DEFAULT_ENTITY_TYPES = ['package', 'group']
+    ENTITY_CLASS_MAP = {'package': model.Package,
+                        'group': model.Group,
+                        'package_relationship': model.PackageRelationship}
+        
     @classmethod
-    def _create_test_data(self):
-        # Mode pairs:
-        #   First letter is for logged in users
-        #   Second letter is for visitors
+    def setup_class(self):
+        indexer = TestSearchIndexer()
+        self._create_test_data()
+        model.Session.remove()
+        indexer.index()
+
+    @classmethod
+    def teardown_class(self):
+        model.Session.remove()
+        model.repo.rebuild_db()
+        model.Session.remove()
+
+    def _test_can(self, action, users, entity_names,
+                  interfaces=INTERFACES,
+                  entity_types=DEFAULT_ENTITY_TYPES):
+        self._test_expectation(action, users, entity_names,
+                               interfaces=interfaces,
+                               entity_types=entity_types,
+                               expect_it_works=True)
+
+    def _test_cant(self, action, users, entity_names,
+                  interfaces=INTERFACES,
+                  entity_types=DEFAULT_ENTITY_TYPES):
+        self._test_expectation(action, users, entity_names,
+                               interfaces=interfaces,
+                               entity_types=entity_types,
+                               expect_it_works=False)
+
+    def _test_expectation(self, action, users, entity_names,
+                          interfaces, entity_types,
+                          expect_it_works):
+        if isinstance(users, model.User):
+            users = [users]
+        if isinstance(entity_names, basestring):
+            entity_names = [entity_names]
+        if action == 'create' and 'package_relationship' not in entity_types:
+            entity_names = [str(random.random()*100000000).replace('.', '-')]
+        if action in ('delete', 'purge'):
+            entity_names = ['filled in later']
+        for user in users:
+            for entity_name in entity_names:
+                for interface in interfaces:
+                    test_func = {'rest':self._test_via_api,
+                                 'wui':self._test_via_wui}[interface]
+                    for entity_type in entity_types:
+                        if action in ('delete', 'purge'):
+                            if entity_type != 'package_relationship':
+                                entity_name = '%s_%s_%s' % (action, user.name, interface)
+                                entity_class = self.ENTITY_CLASS_MAP[entity_type]
+                            else:
+                                raise NotImplementedError
+                            entity = entity_class.by_name(entity_name)
+                            assert entity, 'Have not created %s to %s: %r' %\
+                                   (entity_type, action, entity_name)
+                            entity_name = str(entity.id)
+                        ok, diagnostics = test_func(action, user, entity_name, entity_type)
+                        if ok != expect_it_works:
+                            msg = 'Should be able to %s %s %r as user %r on %r interface. Diagnostics: %r' \
+                                  if expect_it_works else \
+                                  'Should NOT be able to %s %s %r as user %r on %r interface. Diagnostics: %r'
+                            raise Exception(msg % (action, entity_type, entity_name, user.name, interface, truncate(repr(diagnostics), 1000)))
+
+    def _test_via_wui(self, action, user, entity_name, entity='package'):
+        # Test action on WUI
+        str_required_in_response = entity_name
+        if action in (model.Action.EDIT, model.Action.READ):
+            offset = url_for(controller=entity, action=action, id=unicode(entity_name))
+        elif action == 'search':
+            offset = '/%s/search?q=%s' % (entity, entity_name)
+            str_required_in_response = '/%s"' % entity_name
+        elif action == 'list':
+            if entity == 'group':
+                offset = '/group'
+            else:
+                offset = '/%s/list' % entity
+        elif action == 'create':
+            offset = '/%s/new' % entity
+            str_required_in_response = 'New'
+        elif action == 'delete':
+            offset = url_for(controller=entity, action=model.Action.EDIT, id=unicode(entity_name))
+            str_required_in_response = 'state'
+        else:
+            raise NotImplementedError
+        res = self.app.get(offset, extra_environ={'REMOTE_USER': user.name.encode('utf8')}, expect_errors=True)
+        tests = {}
+        tests['str_required (%s)' % str_required_in_response] = bool(str_required_in_response in res)
+        tests['error string'] = bool('error' not in res)
+        tests['status'] = bool(res.status in (200, 201))
+        tests['0 packages found'] = bool(u'0 packages found' not in res)
+        is_ok = False not in tests.values()
+        # clear flash messages - these might make the next page request
+        # look like it has an error
+        self.app.reset()
+        return is_ok, [offset, user.name, tests, res.status, res.body]
+
+    def _test_via_api(self, action, user, entity_name, entity_type='package'):
+        # Test action on REST
+        str_required_in_response = entity_name
+        if action == model.Action.EDIT:
+            offset = '/api/rest/%s/%s' % (entity_type, entity_name)
+            postparams = '%s=1' % json.dumps({'title':u'newtitle'}, encoding='utf8')
+            func = self.app.post
+        elif action == model.Action.READ:
+            offset = '/api/rest/%s/%s' % (entity_type, entity_name)
+            postparams = None
+            func = self.app.get
+        elif action == 'search':
+            offset = '/api/search/%s?q=%s' % (entity_type, entity_name)
+            postparams = None
+            func = self.app.get
+        elif action == 'list':
+            offset = '/api/rest/%s' % (entity_type)
+            postparams = None
+            func = self.app.get
+        elif action == 'create':
+            offset = '/api/rest/%s' % (entity_type)
+            postparams = '%s=1' % json.dumps({'name': unicode(entity_name), 
+                                              'title': u'newtitle'},
+                                             encoding='utf8')
+            func = self.app.post
+            str_required_in_response = u'newtitle'
+        elif action == 'delete':
+            offset = '/api/rest/%s/%s' % (entity_type, entity_name)
+            postparams = '%s=1' % json.dumps({'name': unicode(entity_name),
+                                              'state': 'deleted'},
+                                             encoding='utf8')
+            func = self.app.post
+            str_required_in_response = '"state": "deleted"'
+            assert 0, 'Deleting in the API does not currently work - See #1053'
+        elif action == 'purge':
+            offset = '/api/rest/%s/%s' % (entity_type, entity_name)
+            func = self.app.delete
+            postparams = {}
+            str_required_in_response = ''
+        else:
+            raise NotImplementedError, action
+        if entity_type == 'package_relationship':
+            if action == 'edit':
+                func = self.app.put
+            if isinstance(entity_name, basestring):
+                offset = '/api/rest/package/%s/relationships' % entity_name
+            else:
+                assert isinstance(entity_name, tuple)
+                if len(entity_name) == 1:
+                    offset = '/api/rest/package/%s/relationships' % entity_name[0]
+                else:
+                    if len(entity_name) == 2:
+                        entity_properties = {'entity1': entity_name[0],
+                                             'entity2': entity_name[1],
+                                             'type': 'relationships'}
+                    elif len(entity_name) == 3:
+                        entity_properties = {'entity1': entity_name[0],
+                                             'entity2': entity_name[2],
+                                             'type': entity_name[1]}
+                    else:
+                        raise NotImplementedError
+                    if action in 'list':
+                        offset = '/api/rest/package/%(entity1)s/relationships/%(entity2)s' % entity_properties
+                    else:
+                        offset = '/api/rest/package/%(entity1)s/%(type)s/%(entity2)s' % entity_properties
+                    str_required_in_response = '"object": "%(entity2)s", "type": "%(type)s", "subject": "%(entity1)s"' % entity_properties
+                
+        if user.name == 'visitor':
+            environ = {}
+        else:
+            environ = {'Authorization' : str(user.apikey)}
+        res = func(offset, params=postparams,
+                   extra_environ=environ,
+                   expect_errors=True)
+        tests = {}
+        tests['str_required (%s)' % str_required_in_response] = bool(str_required_in_response in res)
+        tests['error string'] = bool('error' not in res)
+        tests['status'] = bool(res.status in (200, 201))
+        tests['0 packages found'] = bool(u'0 packages found' not in res)
+        is_ok = False not in tests.values()
+        return is_ok, [offset, postparams, user.name, tests, res.status, res.body]
+
+class TestUsage(TestController, AuthzTestBase):
+    '''Use case: role defaults (e.g. like ckan.net operates)
+       * reader can read only
+       * editor can edit most properties of a package
+       
+    '''
+    @classmethod
+    def _create_test_data(cls):
+        # Entities (Packages/Groups) are named after what roles (permissions)
+        # are assigned to them:
+        #   First letter is the role for logged in users
+        #   Second letter is the role for visitors
         # Where:
         #   r = Allowed to read
         #   w = Allowed to read/write
         #   x = Not allowed either
         model.repo.init_db()
         rev = model.repo.new_revision()
-        self.modes = ('xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted')
+        cls.roles = ('xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted')
         tag = model.Tag("test")
         model.Session.add(tag)
-        for mode in self.modes:
+        for mode in cls.roles:
             pkg = model.Package(name=unicode(mode))
             model.Session.add(pkg)
             pkg.tags.append(tag)
             model.Session.add(model.Group(name=unicode(mode)))
-        
-        model.Session.add(model.Package(name=u'delete_visitor_rest'))
-        model.Session.add(model.Package(name=u'delete_admin_rest'))
-        
+        entities_to_test_deleting = []
+        for interface in cls.INTERFACES:
+            for action in ('purge', 'delete'):
+                for user in ('visitor', 'user', 'admin',
+                             'mrloggedin', 'testsysadmin',
+                             'pkggroupadmin'):
+                    for entity_type in cls.DEFAULT_ENTITY_TYPES:
+                        entity_class = cls.ENTITY_CLASS_MAP[entity_type]
+                        entity_name = u'%s_%s_%s' % (action, user, interface)
+                        model.Session.add(entity_class(name=entity_name))
+                        entities_to_test_deleting.append((entity_name, entity_class))
         model.Session.add(model.User(name=u'testsysadmin'))
         model.Session.add(model.User(name=u'pkggroupadmin'))
         model.Session.add(model.User(name=u'pkgeditor'))
@@ -49,6 +245,11 @@ class TestUsage(TestController):
         visitor_name = '123.12.12.123'
         model.repo.commit_and_remove()
 
+        rev = model.repo.new_revision()
+        model.Package.by_name(u'ww').add_relationship(u'depends_on', model.Package.by_name(u'xx'))
+        model.Package.by_name(u'ww').add_relationship(u'links_to', model.Package.by_name(u'wr'))
+        model.repo.commit_and_remove()
+
         testsysadmin = model.User.by_name(u'testsysadmin')
         pkggroupadmin = model.User.by_name(u'pkggroupadmin')
         pkgeditor = model.User.by_name(u'pkgeditor')
@@ -58,7 +259,7 @@ class TestUsage(TestController):
         groupreader = model.User.by_name(u'groupreader')
         mrloggedin = model.User.by_name(name=u'mrloggedin')
         visitor = model.User.by_name(name=model.PSEUDO_USER__VISITOR)
-        for mode in self.modes:
+        for mode in cls.roles:
             pkg = model.Package.by_name(unicode(mode))
             model.add_user_to_role(pkggroupadmin, model.Role.ADMIN, pkg)
             model.add_user_to_role(pkgeditor, model.Role.EDITOR, pkg)
@@ -90,129 +291,29 @@ class TestUsage(TestController):
                     model.add_user_to_role(visitor, model.Role.EDITOR, pkg)
                     model.add_user_to_role(visitor, model.Role.EDITOR, group)
         model.add_user_to_role(testsysadmin, model.Role.ADMIN, model.System())
+        for entity_name, entity_class in entities_to_test_deleting:
+            entity = entity_class.by_name(entity_name)
+            model.add_user_to_role(visitor, model.Role.EDITOR, entity)
+            model.add_user_to_role(mrloggedin, model.Role.EDITOR, entity)
+            model.add_user_to_role(visitor, model.Role.READER, entity)
+            model.add_user_to_role(mrloggedin, model.Role.READER, entity)
+            model.add_user_to_role(pkggroupadmin, model.Role.ADMIN, entity)
         
         model.repo.commit_and_remove()
 
         assert model.Package.by_name(u'deleted').state == model.State.DELETED
 
-        self.testsysadmin = model.User.by_name(u'testsysadmin')
-        self.pkggroupadmin = model.User.by_name(u'pkggroupadmin')
-        self.pkgadminfriend = model.User.by_name(u'pkgadminfriend')
-        self.pkgeditor = model.User.by_name(u'pkgeditor')
-        self.pkgreader = model.User.by_name(u'pkgreader')
-        self.groupadmin = model.User.by_name(u'groupadmin')
-        self.groupeditor = model.User.by_name(u'groupeditor')
-        self.groupreader = model.User.by_name(u'groupreader')
-        self.mrloggedin = model.User.by_name(name=u'mrloggedin')
-        self.visitor = model.User.by_name(name=model.PSEUDO_USER__VISITOR)
-
-    @classmethod
-    def setup_class(self):
-        indexer = TestSearchIndexer()
-        self._create_test_data()
-        model.Session.remove()
-        indexer.index()
-
-    @classmethod
-    def teardown_class(self):
-        model.Session.remove()
-        model.repo.rebuild_db()
-        model.Session.remove()
-
-    def _do_test_wui(self, action, user, mode, entity='package'):
-        # Test action on WUI
-        search_for = mode
-        if action in (model.Action.EDIT, model.Action.READ):
-            offset = url_for(controller=entity, action=action, id=unicode(mode))
-        elif action == 'search':
-            offset = '/%s/search?q=%s' % (entity, mode)
-            search_for = '/%s"' % mode
-        elif action == 'list':
-            if entity == 'group':
-                offset = '/group'
-            else:
-                offset = '/%s/list' % entity
-        elif action == 'create':
-            offset = '/%s/new' % entity
-            search_for = 'New'
-        else:
-            raise NotImplementedError
-        res = self.app.get(offset, extra_environ={'REMOTE_USER': user.name.encode('utf8')}, expect_errors=True)
-        is_ok = search_for in res and u'error' not in res and res.status in (200, 201) and not '0 packages found' in res
-        # clear flash messages - these might make the next page request
-        # look like it has an error
-        self.app.reset()
-        return is_ok
-
-    def _do_test_rest(self, action, user, mode, entity='package'):
-        # Test action on REST
-        search_for = mode
-        if action == model.Action.EDIT:
-            offset = '/api/rest/%s/%s' % (entity, mode)
-            postparams = '%s=1' % json.dumps({'title':u'newtitle'}, encoding='utf8')
-            func = self.app.post
-        elif action == model.Action.READ:
-            offset = '/api/rest/%s/%s' % (entity, mode)
-            postparams = None
-            func = self.app.get
-        elif action == 'search':
-            offset = '/api/search/%s?q=%s' % (entity, mode)
-            postparams = None
-            func = self.app.get
-        elif action == 'list':
-            offset = '/api/rest/%s' % (entity)
-            postparams = None
-            func = self.app.get
-        elif action == 'create':
-            offset = '/api/rest/%s' % (entity)
-            postparams = '%s=1' % json.dumps({'name': u'%s-%s' % (mode, int(time())), 
-                                              'title': u'newtitle'}, encoding='utf8')
-            func = self.app.post
-            search_for = ''
-        elif action == 'delete':
-            offset = '/api/rest/%s/%s' % (entity, mode)
-            func = self.app.delete
-            postparams = {}
-            search_for = ''
-        else:
-            raise NotImplementedError, action
-        if user.name == 'visitor':
-            environ = {}
-        else:
-            environ = {'Authorization' : str(user.apikey)}
-        res = func(offset, params=postparams,
-                   extra_environ=environ,
-                   expect_errors=True)
-        return search_for in res and u'error' not in res and res.status in (200, 201) and u'0 packages found' not in res
+        cls.testsysadmin = model.User.by_name(u'testsysadmin')
+        cls.pkggroupadmin = model.User.by_name(u'pkggroupadmin')
+        cls.pkgadminfriend = model.User.by_name(u'pkgadminfriend')
+        cls.pkgeditor = model.User.by_name(u'pkgeditor')
+        cls.pkgreader = model.User.by_name(u'pkgreader')
+        cls.groupadmin = model.User.by_name(u'groupadmin')
+        cls.groupeditor = model.User.by_name(u'groupeditor')
+        cls.groupreader = model.User.by_name(u'groupreader')
+        cls.mrloggedin = model.User.by_name(name=u'mrloggedin')
+        cls.visitor = model.User.by_name(name=model.PSEUDO_USER__VISITOR)
         
-    def _test_can(self, action, users, modes, interfaces=['wui', 'rest'], entities=['package', 'group']):
-        if isinstance(users, model.User):
-            users = [users]
-        for user in users:
-            for i, mode in enumerate(modes):
-                if 'wui' in interfaces:
-                    for entity in entities:
-                        ok_wui = self._do_test_wui(action, user, mode, entity)
-                        assert ok_wui, '(%i) Should be able to %s %s %r as user %r (WUI interface)' % (i, action, entity, mode, user.name)
-                if 'rest' in interfaces:
-                    for entity in entities:
-                        ok_rest = self._do_test_rest(action, user, mode, entity)
-                        assert ok_rest, '(%i) Should be able to %s %s %r as user %r (REST interface)' % (i, action, entity, mode, user.name)
-
-    def _test_cant(self, action, users, modes, interfaces=['wui', 'rest'], entities=['package', 'group']):
-        if isinstance(users, model.User):
-            users = [users]
-        for user in users:
-            for i, mode in enumerate(modes):
-                if 'wui' in interfaces:
-                    for entity in entities:
-                        ok_wui = self._do_test_wui(action, user, mode, entity)
-                        assert not ok_wui, '(%i) Should NOT be able to %s %s %r as user %r (WUI interface)' % (i, action, entity, mode, user.name)
-                if 'rest' in interfaces:
-                    for entity in entities:
-                        ok_rest = self._do_test_rest(action, user, mode)
-                        assert not ok_rest, '(%i) Should NOT be able to %s %s %r as user %r (REST interface)' % (i, action, entity, mode, user.name)
-
     # Tests numbered by the use case
 
     def test_14_visitor_reads_stopped(self):
@@ -221,13 +322,17 @@ class TestUsage(TestController):
         self._test_can('read', self.visitor, ['rr', 'wr', 'ww'])
 
     def test_12_visitor_edits_stopped(self):
-        self._test_cant('edit', self.visitor, ['ww'], interfaces=['rest'])
-        self._test_cant('edit', self.visitor, ['xx', 'rx', 'wx', 'rr', 'wr'], interfaces=['wui'])
         self._test_cant('edit', self.visitor, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww'], interfaces=['rest'])
+        self._test_cant('edit', self.visitor, ['xx', 'rx', 'wx', 'rr', 'wr'], interfaces=['wui'])
         
     def test_02_visitor_edits(self):
         self._test_can('edit', self.visitor, ['ww'], interfaces=['wui'])
         self._test_can('edit', self.visitor, [], interfaces=['rest'])
+
+    def test_visitor_creates(self):
+        self._test_can('create', self.visitor, [], interfaces=['wui'], entity_types=['package'])
+        self._test_cant('create', self.visitor, [], interfaces=['wui'], entity_types=['group']) # need to be sysadmin
+        self._test_cant('create', self.visitor, [], interfaces=['rest'])
 
     def test_15_user_reads_stopped(self):
         self._test_cant('read', self.mrloggedin, ['xx'])
@@ -240,11 +345,12 @@ class TestUsage(TestController):
     def test_04_user_edits(self):
         self._test_can('edit', self.mrloggedin, ['wx', 'wr', 'ww'])
 
+    def test_user_creates(self):
+        self._test_can('create', self.mrloggedin, [])
     
     def test_list(self):
-        # NB this no listing of package in wui interface any more
-        self._test_can('list', [self.testsysadmin, self.pkggroupadmin], ['xx', 'rx', 'wx', 'rr', 'wr', 'ww'], entities=['package'], interfaces=['rest'])
-        self._test_can('list', [self.testsysadmin, self.groupadmin], ['xx', 'rx', 'wx', 'rr', 'wr', 'ww'], entities=['group'])
+        # NB there is no listing of package in wui interface any more
+        self._test_can('list', [self.testsysadmin, self.pkggroupadmin], ['xx', 'rx', 'wx', 'rr', 'wr', 'ww'], interfaces=['rest'])
         self._test_can('list', self.mrloggedin, ['rx', 'wx', 'rr', 'wr', 'ww'], interfaces=['rest'])
         self._test_can('list', self.visitor, ['rr', 'wr', 'ww'], interfaces=['rest'])
         self._test_cant('list', self.mrloggedin, ['xx'])
@@ -259,9 +365,10 @@ class TestUsage(TestController):
         self._test_cant('read', self.mrloggedin, ['deleted'])
 
     def test_search_deleted(self):
-        self._test_can('search', self.pkggroupadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted'], entities=['package'])
-        self._test_can('search', self.mrloggedin, ['rx', 'wx', 'rr', 'wr', 'ww'], entities=['package'])
-        self._test_cant('search', self.mrloggedin, ['deleted', 'xx'], entities=['package'])
+        # can't search groups
+        self._test_can('search', self.pkggroupadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted'], entity_types=['package'])
+        self._test_can('search', self.mrloggedin, ['rx', 'wx', 'rr', 'wr', 'ww'], entity_types=['package'])
+        self._test_cant('search', self.mrloggedin, ['deleted', 'xx'], entity_types=['package'])
         
     def test_05_author_is_new_package_admin(self):
         user = self.mrloggedin
@@ -290,37 +397,192 @@ class TestUsage(TestController):
     def test_sysadmin_can_edit_anything(self):
         self._test_can('edit', self.testsysadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted'])
         
-    def test_sysadmin_can_search_anything(self):
-        self._test_can('search', self.testsysadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted'], entities=['package'])
-        
-    def test_visitor_creates(self): 
-        self._test_can('create', self.visitor, ['rr'], interfaces=['wui'], entities=['package'])
+    def test_sysadmin_can_create_anything(self):
+        self._test_can('create', self.testsysadmin, [])
 
-    def test_user_creates(self):
-        self._test_can('create', self.mrloggedin, ['rr'])
-        
+    def test_sysadmin_can_search_anything(self):
+        self._test_can('search', self.testsysadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted'], entity_types=['package'])
+                
     def test_visitor_deletes(self):
-        pkg = model.Package.by_name(u'delete_admin_rest')
-        assert pkg is not None
-        self._test_cant('delete', self.visitor, [str(pkg.id)], interfaces=['rest'], entities=['package'])
-        
+        self._test_cant('delete', self.visitor, ['gets_filled'], interfaces=['wui'])
+
+    def test_user_deletes(self):
+        self._test_cant('delete', self.mrloggedin, ['gets_filled'], interfaces=['wui'])
+
+    def test_admin_deletes(self):
+        self._test_can('delete', self.pkggroupadmin, ['gets_filled'], interfaces=['wui'])
+
     def test_sysadmin_deletes(self):
-        pkg = model.Package.by_name(u'delete_admin_rest')
-        assert pkg is not None
-        self._test_can('delete', self.testsysadmin, [str(pkg.id)], interfaces=['rest'], entities=['package'])
+        self._test_can('delete', self.testsysadmin, ['gets_filled'], interfaces=['wui'])
+
+    def test_visitor_purges(self):
+        self._test_cant('purge', self.visitor, ['gets_filled'], interfaces=['rest'])
+
+    def test_user_purges(self):
+        self._test_cant('purge', self.mrloggedin, ['gets_filled'], interfaces=['rest'])
+
+    def test_admin_purges(self):
+        self._test_can('purge', self.pkggroupadmin, ['gets_filled'], interfaces=['rest'])
+
+    def test_sysadmin_purges(self):
+        self._test_can('purge', self.testsysadmin, ['gets_filled'], interfaces=['rest'], entity_types=['package'])
     
+    def test_sysadmin_relationships(self):
+        opts = {'interfaces': ['rest'],
+                'entity_types': ['package_relationship']}
+        self._test_can('list', self.testsysadmin, [('ww')], **opts)
+        self._test_can('list', self.testsysadmin, [('ww', 'links_to', 'wr'), ('ww', 'depends_on', 'xx')], **opts)
+        self._test_can('create', self.testsysadmin, [('ww', 'child_of', 'wr'), ('ww', 'child_of', 'xx')], **opts)
+        self._test_can('edit', self.testsysadmin, [('ww', 'links_to', 'wr'), ('ww', 'depends_on', 'xx')], **opts)
+        #TODO self._test_can('delete', self.testsysadmin, [('ww', 'links_to', 'wr')], **opts)
+
+    def test_admin_relationships(self):
+        opts = {'interfaces': ['rest'],
+                'entity_types': ['package_relationship']}
+        self._test_can('list', self.pkggroupadmin, [('ww')], **opts)
+        self._test_can('list', self.pkggroupadmin, [('ww', 'links_to', 'wr'), ('ww', 'depends_on', 'xx')], **opts)
+        self._test_can('edit', self.pkggroupadmin, [('ww', 'links_to', 'wr'), ('ww', 'depends_on', 'xx')], **opts)
+        #TODO self._test_can('delete', self.pkggroupadmin, [('ww', 'links_to', 'wr')], **opts)
+
+    def test_user_relationships(self):
+        opts = {'interfaces': ['rest'],
+                'entity_types': ['package_relationship']}
+        self._test_can('list', self.mrloggedin, [('ww')], **opts)
+        self._test_can('list', self.mrloggedin, [('ww', 'links_to', 'wr')], **opts)
+        self._test_cant('list', self.mrloggedin, [('ww', 'depends_on', 'xx')], **opts)
+        self._test_can('create', self.mrloggedin, [('ww', 'derives_from', 'wr')], **opts)
+        self._test_cant('create', self.mrloggedin, [('ww', 'derives_from', 'xx')], **opts)
+        self._test_can('edit', self.mrloggedin, [('ww', 'links_to', 'wr')], **opts)
+        self._test_cant('edit', self.mrloggedin, [('ww', 'depends_on', 'xx')], **opts)
+        #TODO self._test_cant('delete', self.mrloggedin, [('ww', 'links_to', 'wr')], **opts)
         
-class TestLockedDownUsage(TestController):
-    
+    def test_visitor_relationships(self):
+        opts = {'interfaces': ['rest'],
+                'entity_types': ['package_relationship']}
+        self._test_can('list', self.visitor, [('ww')], **opts)
+        self._test_can('list', self.visitor, [('ww', 'links_to', 'wr')], **opts)
+        self._test_cant('list', self.visitor, [('ww', 'depends_on', 'xx')], **opts)
+        self._test_cant('create', self.visitor, [('ww', 'derives_from', 'wr'), ('ww', 'derives_from', 'xx')], **opts)
+        self._test_cant('edit', self.visitor, [('ww', 'links_to', 'wr'), ('ww', 'depends_on', 'xx')], **opts)
+        #TODO self._test_cant('delete', self.visitor, [('ww', 'links_to', 'wr')], **opts)
+
+class TestSiteRead(TestController, AuthzTestBase):
+    '''User case:
+           * 'Visitor' and 'Logged in' cannot SITE_READ System
+           * 'TrustedRole' is a new Role that can SITE_READ System
+
+    '''
+    TRUSTED_ROLE = u'TrustedRole'
+    ENTITY_NAME = u'test'
+    @classmethod
+    def _create_test_data(cls):
+        CreateTestData.create()
+
+        # Remove visitor and logged in roles
+        roles = []
+        q = model.Session.query(model.UserObjectRole).\
+            filter(model.UserObjectRole.user==model.User.by_name(u"visitor"))
+        roles.extend(q.all())
+        q = model.Session.query(model.UserObjectRole).\
+            filter(model.UserObjectRole.user==model.User.by_name(u"logged_in"))
+        roles.extend(q.all())
+        for role in roles:
+            model.Session.delete(role)
+
+        rev = model.repo.new_revision()
+        model.Session.add_all([
+            model.User(name=u'pkggroupadmin'),
+            model.User(name=u'site_reader'),
+            model.User(name=u'outcast'),
+            model.Package(name=cls.ENTITY_NAME),
+            model.Package(name=u'deleted'),
+            model.Group(name=cls.ENTITY_NAME),
+            model.Group(name=u'deleted'),
+            model.Tag(name=cls.ENTITY_NAME),
+            model.RoleAction(role=cls.TRUSTED_ROLE, context=u'',
+                             action=model.Action.SITE_READ),
+            model.RoleAction(role=cls.TRUSTED_ROLE, context=u'',
+                             action=model.Action.READ),
+            ])
+        model.repo.commit_and_remove()
+
+        # testsysadmin is sysadmin
+        # annafan is package admin for annakarenina
+        rev = model.repo.new_revision()
+        site_reader = model.User.by_name(u'site_reader')
+        pkggroupadmin = model.User.by_name(u'pkggroupadmin')
+        pkg = model.Package.by_name(cls.ENTITY_NAME)
+        group = model.Group.by_name(cls.ENTITY_NAME)
+        tag = model.Tag.by_name(cls.ENTITY_NAME)
+        pkg.tags.append(tag)
+        model.add_user_to_role(site_reader, cls.TRUSTED_ROLE, model.System())
+        model.add_user_to_role(site_reader, cls.TRUSTED_ROLE, pkg)
+        model.add_user_to_role(site_reader, cls.TRUSTED_ROLE, group)
+        model.add_user_to_role(pkggroupadmin, model.Role.ADMIN, pkg)
+        model.add_user_to_role(pkggroupadmin, model.Role.ADMIN, group)
+        model.Package.by_name(u'deleted').delete()
+        model.Group.by_name(u'deleted').delete()
+        model.repo.commit_and_remove()
+
+        cls.testsysadmin = model.User.by_name(u'testsysadmin')
+        cls.pkggroupadmin = model.User.by_name(u'pkggroupadmin')
+        cls.site_reader = model.User.by_name(u'site_reader')
+        cls.outcast = model.User.by_name(u'outcast')
+
+    def test_sysadmin_can_read_anything(self):
+        self._test_can('read', self.testsysadmin, self.ENTITY_NAME)
+        self._test_can('read', self.testsysadmin, 'deleted')
+
+    def test_sysadmin_can_edit_anything(self):
+        self._test_can('edit', self.testsysadmin, self.ENTITY_NAME)
+        self._test_can('edit', self.testsysadmin, 'deleted')
+
+    def test_sysadmin_can_search_anything(self):
+        self._test_can('search', self.testsysadmin, self.ENTITY_NAME, entity_types=['package']) # cannot search groups
+
+    def test_pkggroupadmin_read(self):
+        # These don't make sense - there should be no difference between
+        # read/write in WUI and REST interface.
+        self._test_can('read', self.pkggroupadmin, self.ENTITY_NAME, interfaces=['wui'])
+        self._test_cant('read', self.pkggroupadmin, self.ENTITY_NAME, interfaces=['rest'])
+        self._test_cant('read', self.pkggroupadmin, 'deleted')
+
+    def test_pkggroupadmin_edit(self):
+        # These don't make sense - there should be no difference between
+        # read/write in WUI and REST interface.
+        self._test_can('edit', self.pkggroupadmin, self.ENTITY_NAME, interfaces=['wui'])
+        self._test_cant('edit', self.pkggroupadmin, self.ENTITY_NAME, interfaces=['rest'])
+        self._test_cant('edit', self.pkggroupadmin, 'deleted')
+
+    def test_pkggroupadmin_search(self):
+        # can't search as not a site reader
+        self._test_cant('search', self.pkggroupadmin, self.ENTITY_NAME, entity_types=['package'])
+
+    def test_site_reader(self):
+        self._test_can('search', self.site_reader, self.ENTITY_NAME, entity_types=['package']) # cannot search groups
+        self._test_can('read', self.site_reader, self.ENTITY_NAME, entity_types=['tag'])
+
+    def test_outcast_search(self):
+        self._test_cant('search', self.outcast, self.ENTITY_NAME, entity_types=['package']) # cannot search groups
+        self._test_cant('read', self.outcast, self.ENTITY_NAME, entity_types=['tag'])
+
+        
+class TestLockedDownViaRoles(TestController):
+    '''Use case:
+           * 'Visitor' has no edit rights
+           * 'Reader' role is redefined to not be able to READ (!) or SITE_READ
+
+    '''
     @classmethod
     def setup_class(self):
         model.repo.init_db()
-        q = model.Session.query(model.UserObjectRole).filter(model.UserObjectRole.role==Role.EDITOR)
-        q = q.filter(model.UserObjectRole.user==model.User.by_name(u"visitor"))
+        q = model.Session.query(model.UserObjectRole) \
+            .filter(model.UserObjectRole.role==model.Role.EDITOR) \
+            .filter(model.UserObjectRole.user==model.User.by_name(u"visitor"))
         for role in q:
             model.Session.delete(role)
         
-        q = model.Session.query(model.RoleAction).filter(model.RoleAction.role==Role.READER)
+        q = model.Session.query(model.RoleAction).filter(model.RoleAction.role==model.Role.READER)
         for role_action in q:
             model.Session.delete(role_action)
         

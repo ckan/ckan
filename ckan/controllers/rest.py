@@ -28,10 +28,18 @@ class BaseApiController(BaseController):
     content_type_html = 'text/html;charset=utf-8'
     content_type_json = 'application/json;charset=utf-8'
 
-    def __before__(self, action, **env):
-        super(BaseApiController, self).__before__(action, **env)
+    def __call__(self, environ, start_response):
+        self._identify_user()
         if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
-            abort(401, _('Not authorized to see this page'))
+            response_msg = self._finish(403, _('Not authorized to see this page'))
+            # Call start_response manually instead of the parent __call__
+            # because we want to end the request instead of continuing.
+            response_msg = response_msg.encode('utf8')
+            body = '%i %s' % (response.status_int, response_msg)
+            start_response(body, response.headers.items())
+            return [response_msg]
+        else:
+            return BaseController.__call__(self, environ, start_response)
 
     @classmethod
     def _ref_package(cls, package):
@@ -96,6 +104,20 @@ class BaseApiController(BaseController):
         return self._finish(status_int, response_data,
                             content_type=content_type)
 
+    def _finish_not_authz(self):
+        response_data = _('Access denied')
+        return self._finish(status_int=403,
+                            response_data=response_data,
+                            content_type='json')
+
+    def _finish_not_found(self, extra_msg=None):
+        response_data = _('Not found')
+        if extra_msg:
+            response_data = '%s - %s' % (response_data, extra_msg)
+        return self._finish(status_int=404,
+                            response_data=response_data,
+                            content_type='json')
+
     def _wrap_jsonp(self, callback, response_msg):
         return '%s(%s);' % (callback, response_msg)
 
@@ -135,21 +157,20 @@ class BaseRestController(BaseApiController):
             revs = model.Session.query(model.Revision).all()
             return self._finish_ok([rev.id for rev in revs])
         elif register == u'package' and not subregister:
-            query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
-            packages = query.all()
-            response_data = self._list_package_refs(packages)
-            return self._finish_ok(response_data)
+            # see /apiv1/PackageController
+            raise NotImplementedError
         elif register == u'package' and subregister == 'relationships':
-            #TODO authz stuff for this and related packages
             pkg = self._get_pkg(id)
             if not pkg:
-                response.status_int = 404
-                return 'First package named in request was not found.'
-            relationships = pkg.get_relationships()
+                return self._finish_not_found('First package named in request was not found.')
+            relationships = ckan.authz.Authorizer().\
+                            authorized_package_relationships(\
+                c.user, pkg, action=model.Action.READ)
             response_data = [rel.as_dict(package=pkg, ref_package_by=self.ref_package_by) for rel in relationships]
             return self._finish_ok(response_data)
         elif register == u'group':
-            groups = model.Session.query(model.Group).all() 
+            query = ckan.authz.Authorizer().authorized_query(c.user, model.Group)
+            groups = query.all() 
             response_data = self._list_group_refs(groups)
             return self._finish_ok(response_data)
         elif register == u'tag':
@@ -175,8 +196,7 @@ class BaseRestController(BaseApiController):
             # Todo: Implement access control for revisions.
             rev = model.Session.query(model.Revision).get(id)
             if rev is None:
-                response.status_int = 404
-                return ''
+                return self._finish_not_found()
             response_data = {
                 'id': rev.id,
                 'timestamp': model.strftimestamp(rev.timestamp),
@@ -192,8 +212,7 @@ class BaseRestController(BaseApiController):
             #if not self._check_access(changeset, model.Action.READ):
             #    return ''
             if changeset is None:
-                response.status_int = 404
-                return ''            
+                return self._finish_not_found()
             response_data = changeset.as_dict()
             return self._finish_ok(response_data)
         elif register == u'package' and not subregister:
@@ -216,15 +235,17 @@ class BaseRestController(BaseApiController):
             if not pkg2:
                 response.status_int = 404
                 return 'Second package named in address was not found.'
-            if subregister == 'relationships':
-                relationships = pkg1.get_relationships_with(pkg2)
-            else:
-                relationships = pkg1.get_relationships_with(pkg2,
-                                                            type=subregister)
-                if not relationships:
-                    response.status_int = 404
-                    return 'Relationship "%s %s %s" not found.' % \
-                           (id, subregister, id2)
+            rel_type = subregister if subregister != 'relationships' else None
+
+            relationships = ckan.authz.Authorizer().\
+                            authorized_package_relationships(\
+                c.user, pkg1, pkg2, relationship_type=rel_type,
+                action=model.Action.READ)
+
+            if subregister != 'relationships' and not relationships:
+                return self._finish_not_found('Relationship "%s %s %s" not found.'\
+                                         % (id, subregister, id2))
+            
             response_data = [rel.as_dict(pkg1, ref_package_by=self.ref_package_by) for rel in relationships]
             return self._finish_ok(response_data)
         elif register == u'group':
@@ -234,7 +255,7 @@ class BaseRestController(BaseApiController):
                 return ''
 
             if not self._check_access(group, model.Action.READ):
-                return ''
+                return self._finish_not_authz()
             for item in PluginImplementations(IGroupController):
                 item.read(group)
             _dict = group.as_dict(ref_package_by=self.ref_package_by)
@@ -258,7 +279,7 @@ class BaseRestController(BaseApiController):
         log.debug('create %s/%s/%s/%s params: %r' % (register, id, subregister, id2, request.params))
         # Check an API key given, otherwise deny access.
         if not self._check_access(None, None):
-            return json.dumps(_('Access denied'))
+            return self._finish_not_authz()
         # Read the request data.
         try:
             request_data = self._get_request_data()
@@ -267,16 +288,8 @@ class BaseRestController(BaseApiController):
             return gettext('JSON Error: %s') % str(inst)
         try:
             if register == 'package' and not subregister:
-                # Create a Package.
-                fs = self._get_standard_package_fieldset()
-                try:
-                    request_fa_dict = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(fs=fs), request_data)
-                except ckan.forms.PackageDictFormatError, inst:
-                    log.error('Package format incorrect: %s' % str(inst))
-                    response.status_int = 400
-                    return gettext('Package format incorrect: %s') % str(inst)
-                fs = fs.bind(model.Package, data=request_fa_dict, session=model.Session)
-                # ...continues below.
+                # see /apiv1/PackageController
+                raise NotImplementedError
             elif register == 'package' and subregister in model.PackageRelationship.get_all_types():
                 # Create a Package Relationship.
                 pkg1 = self._get_pkg(id)
@@ -287,6 +300,11 @@ class BaseRestController(BaseApiController):
                 if not pkg2:
                     response.status_int = 404
                     return 'Second package named in address was not found.'
+                am_authorized = ckan.authz.Authorizer().\
+                                authorized_package_relationship(\
+                    c.user, pkg1, pkg2, action=model.Action.EDIT)
+                if not am_authorized:
+                    return self._finish_not_authz()
                 comment = request_data.get('comment', u'')
                 existing_rels = pkg1.get_relationships_with(pkg2, subregister)
                 if existing_rels:
@@ -301,6 +319,8 @@ class BaseRestController(BaseApiController):
                 return self._finish_ok(response_data)
             elif register == 'group' and not subregister:
                 # Create a Group.
+                if not self._check_access(model.System(), model.Action.GROUP_CREATE):
+                    return self._finish_not_authz()
                 is_admin = ckan.authz.Authorizer().is_sysadmin(c.user)
                 request_fa_dict = ckan.forms.edit_group_dict(ckan.forms.get_group_dict(), request_data)
                 fs = ckan.forms.get_group_fieldset(combined=True, is_admin=is_admin)
@@ -335,8 +355,8 @@ class BaseRestController(BaseApiController):
             model.setup_default_user_roles(fs.model, admins)
             # Commit
             if register == 'package' and not subregister:
-                for item in PluginImplementations(IPackageController):
-                    item.create(fs.model)
+                # see /apiv1/PackageController
+                raise NotImplementedError
             elif register == 'group' and not subregister:
                 for item in PluginImplementations(IGroupController):
                     item.create(fs.model)
@@ -362,13 +382,11 @@ class BaseRestController(BaseApiController):
         log.debug('update %s/%s/%s/%s' % (register, id, subregister, id2))
         # must be logged in to start with
         if not self._check_access(None, None):
-            return json.dumps(_('Access denied'))
+            return self._finish_not_authz()
 
         if register == 'package' and not subregister:
-            entity = self._get_pkg(id)
-            if entity == None:
-                response.status_int = 404
-                return 'Package was not found.'
+            # see /apiv1/PackageController
+            raise NotImplementedError
         elif register == 'package' and subregister in model.PackageRelationship.get_all_types():
             pkg1 = self._get_pkg(id)
             pkg2 = self._get_pkg(id2)
@@ -378,6 +396,11 @@ class BaseRestController(BaseApiController):
             if not pkg2:
                 response.status_int = 404
                 return 'Second package named in address was not found.'
+            am_authorized = ckan.authz.Authorizer().\
+                            authorized_package_relationship(\
+                c.user, pkg1, pkg2, action=model.Action.EDIT)
+            if not am_authorized:
+                return self._finish_not_authz()
             existing_rels = pkg1.get_relationships_with(pkg2, subregister)
             if not existing_rels:
                 response.status_int = 404
@@ -388,6 +411,8 @@ class BaseRestController(BaseApiController):
             if entity == None:
                 response.status_int = 404
                 return 'Group was not found.'
+            if not self._check_access(entity, model.Action.EDIT):
+                return self._finish_not_authz()
         else:
             response.status_int = 400
             return gettext('Cannot update entity of this type: %s') % register
@@ -398,7 +423,7 @@ class BaseRestController(BaseApiController):
         if (not subregister and \
             not self._check_access(entity, model.Action.EDIT)) \
             or not self._check_access(None, None):
-            return json.dumps(_('Access denied'))
+            return self._finish_not_authz()
 
         try:
             request_data = self._get_request_data()
@@ -408,13 +433,8 @@ class BaseRestController(BaseApiController):
 
         if not subregister:
             if register == 'package':
-                fs = self._get_standard_package_fieldset()
-                try:
-                    request_fa_dict = ckan.forms.GetEditFieldsetPackageData(
-                        fieldset=fs, package=entity, data=request_data).data
-                except ckan.forms.PackageDictFormatError, inst:
-                    response.status_int = 400
-                    return gettext('Package format incorrect: %s') % str(inst)
+                # see /apiv1/PackageController
+                raise NotImplementedError
             elif register == 'group':
                 auth_for_change_state = ckan.authz.Authorizer().am_authorized(c, 
                     model.Action.CHANGE_STATE, entity)
@@ -460,13 +480,10 @@ class BaseRestController(BaseApiController):
         log.debug('delete %s/%s/%s/%s' % (register, id, subregister, id2))
         # must be logged in to start with
         if not self._check_access(None, None):
-            return json.dumps(_('Access denied'))
+            return self._finish_not_authz()
         if register == 'package' and not subregister:
-            entity = self._get_pkg(id)
-            if not entity:
-                response.status_int = 404
-                return 'Package was not found.'
-            revisioned_details = 'Package: %s' % entity.name
+            # see /apiv1/PackageController
+            raise NotImplementedError
         elif register == 'package' and subregister in model.PackageRelationship.get_all_types():
             pkg1 = self._get_pkg(id)
             pkg2 = self._get_pkg(id2)
@@ -476,6 +493,11 @@ class BaseRestController(BaseApiController):
             if not pkg2:
                 response.status_int = 404
                 return 'Second package named in address was not found.'
+            am_authorized = ckan.authz.Authorizer().\
+                            authorized_package_relationship(\
+                c.user, pkg1, pkg2, action=model.Action.EDIT)
+            if not am_authorized:
+                return self._finish_not_authz()
             existing_rels = pkg1.get_relationships_with(pkg2, subregister)
             if not existing_rels:
                 response.status_int = 404
@@ -495,15 +517,15 @@ class BaseRestController(BaseApiController):
             response.status_int = 404
             return ''
         if not self._check_access(entity, model.Action.PURGE):
-            return json.dumps(_('Access denied'))
+            return self._finish_not_authz()
         if revisioned_details:
             rev = model.repo.new_revision()
             rev.author = self.rest_api_user
             rev.message = _(u'REST API: Delete %s') % revisioned_details
         try:
             if register == 'package' and not subregister:
-                for item in PluginImplementations(IPackageController):
-                    item.delete(entity)
+                # see /apiv1/PackageController
+                raise NotImplementedError
             elif register == 'group' and not subregister:
                 for item in PluginImplementations(IGroupController):
                     item.delete(entity)
@@ -698,24 +720,21 @@ class BaseRestController(BaseApiController):
     def package_history(self, id):
         pkg = self._get_pkg(id)
         if pkg is None:
-            response_args = {'status_int': 404,
-                             'content_type': 'json',
-                             'response_data': _('Not found')}
-        elif not self._check_access(pkg, model.Action.READ):
-            response_args = {'status_int': 403,
-                             'content_type': 'json',
-                             'response_data': _('Access denied')}
-        else:
-            revisions = []
-            for revision, value in pkg.all_related_revisions:
-                result = {"revision": revision.id,
-                          "timestamp": revision.timestamp.isoformat(),
-                          "message": revision.message,
-                          "author": revision.author}
-                revisions.append(result)
-            response_args = {'status_int': 200,
-                             'content_type': 'json',
-                             'response_data': revisions}
+            return self._finish_not_found()
+
+        if not self._check_access(pkg, model.Action.READ):
+            return self._finish_not_authz()
+
+        revisions = []
+        for revision, value in pkg.all_related_revisions:
+            result = {"revision": revision.id,
+                      "timestamp": revision.timestamp.isoformat(),
+                      "message": revision.message,
+                      "author": revision.author}
+            revisions.append(result)
+        response_args = {'status_int': 200,
+                         'content_type': 'json',
+                         'response_data': revisions}
         return self._finish(**response_args)
 
     def _update_package_relationship(self, relationship, comment):
@@ -726,7 +745,9 @@ class BaseRestController(BaseApiController):
             rev.message = _(u'REST API: Update package relationship: %s %s %s') % (relationship.subject, relationship.type, relationship.object)
             relationship.comment = comment
             model.repo.commit_and_remove()
-        return self._finish_ok(relationship.as_dict())
+        rel_dict = relationship.as_dict(package=relationship.subject,
+                                        ref_package_by=self.ref_package_by)
+        return self._finish_ok(rel_dict)
 
 
 class RestController(ApiVersion1, BaseRestController):
