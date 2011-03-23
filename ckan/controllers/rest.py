@@ -157,16 +157,15 @@ class BaseRestController(BaseApiController):
             revs = model.Session.query(model.Revision).all()
             return self._finish_ok([rev.id for rev in revs])
         elif register == u'package' and not subregister:
-            query = ckan.authz.Authorizer().authorized_query(c.user, model.Package)
-            packages = query.all()
-            response_data = self._list_package_refs(packages)
-            return self._finish_ok(response_data)
+            # see /apiv1/PackageController
+            raise NotImplementedError
         elif register == u'package' and subregister == 'relationships':
-            #TODO authz stuff for this and related packages
             pkg = self._get_pkg(id)
             if not pkg:
                 return self._finish_not_found('First package named in request was not found.')
-            relationships = pkg.get_relationships()
+            relationships = ckan.authz.Authorizer().\
+                            authorized_package_relationships(\
+                c.user, pkg, action=model.Action.READ)
             response_data = [rel.as_dict(package=pkg, ref_package_by=self.ref_package_by) for rel in relationships]
             return self._finish_ok(response_data)
         elif register == u'group':
@@ -236,15 +235,17 @@ class BaseRestController(BaseApiController):
             if not pkg2:
                 response.status_int = 404
                 return 'Second package named in address was not found.'
-            if subregister == 'relationships':
-                relationships = pkg1.get_relationships_with(pkg2)
-            else:
-                relationships = pkg1.get_relationships_with(pkg2,
-                                                            type=subregister)
-                if not relationships:
-                    response.status_int = 404
-                    return 'Relationship "%s %s %s" not found.' % \
-                           (id, subregister, id2)
+            rel_type = subregister if subregister != 'relationships' else None
+
+            relationships = ckan.authz.Authorizer().\
+                            authorized_package_relationships(\
+                c.user, pkg1, pkg2, relationship_type=rel_type,
+                action=model.Action.READ)
+
+            if subregister != 'relationships' and not relationships:
+                return self._finish_not_found('Relationship "%s %s %s" not found.'\
+                                         % (id, subregister, id2))
+            
             response_data = [rel.as_dict(pkg1, ref_package_by=self.ref_package_by) for rel in relationships]
             return self._finish_ok(response_data)
         elif register == u'group':
@@ -299,6 +300,11 @@ class BaseRestController(BaseApiController):
                 if not pkg2:
                     response.status_int = 404
                     return 'Second package named in address was not found.'
+                am_authorized = ckan.authz.Authorizer().\
+                                authorized_package_relationship(\
+                    c.user, pkg1, pkg2, action=model.Action.EDIT)
+                if not am_authorized:
+                    return self._finish_not_authz()
                 comment = request_data.get('comment', u'')
                 existing_rels = pkg1.get_relationships_with(pkg2, subregister)
                 if existing_rels:
@@ -390,6 +396,11 @@ class BaseRestController(BaseApiController):
             if not pkg2:
                 response.status_int = 404
                 return 'Second package named in address was not found.'
+            am_authorized = ckan.authz.Authorizer().\
+                            authorized_package_relationship(\
+                c.user, pkg1, pkg2, action=model.Action.EDIT)
+            if not am_authorized:
+                return self._finish_not_authz()
             existing_rels = pkg1.get_relationships_with(pkg2, subregister)
             if not existing_rels:
                 response.status_int = 404
@@ -482,6 +493,11 @@ class BaseRestController(BaseApiController):
             if not pkg2:
                 response.status_int = 404
                 return 'Second package named in address was not found.'
+            am_authorized = ckan.authz.Authorizer().\
+                            authorized_package_relationship(\
+                c.user, pkg1, pkg2, action=model.Action.EDIT)
+            if not am_authorized:
+                return self._finish_not_authz()
             existing_rels = pkg1.get_relationships_with(pkg2, subregister)
             if not existing_rels:
                 response.status_int = 404
@@ -729,7 +745,9 @@ class BaseRestController(BaseApiController):
             rev.message = _(u'REST API: Update package relationship: %s %s %s') % (relationship.subject, relationship.type, relationship.object)
             relationship.comment = comment
             model.repo.commit_and_remove()
-        return self._finish_ok(relationship.as_dict())
+        rel_dict = relationship.as_dict(package=relationship.subject,
+                                        ref_package_by=self.ref_package_by)
+        return self._finish_ok(rel_dict)
 
 
 class RestController(ApiVersion1, BaseRestController):

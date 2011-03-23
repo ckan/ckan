@@ -14,7 +14,10 @@ from ckan.lib.helpers import json, truncate
 class AuthzTestBase(object):
     INTERFACES = ['wui', 'rest']
     DEFAULT_ENTITY_TYPES = ['package', 'group']
-    
+    ENTITY_CLASS_MAP = {'package': model.Package,
+                        'group': model.Group,
+                        'package_relationship': model.PackageRelationship}
+        
     @classmethod
     def setup_class(self):
         indexer = TestSearchIndexer()
@@ -51,7 +54,7 @@ class AuthzTestBase(object):
             users = [users]
         if isinstance(entity_names, basestring):
             entity_names = [entity_names]
-        if action == 'create':
+        if action == 'create' and 'package_relationship' not in entity_types:
             entity_names = [str(random.random()*100000000).replace('.', '-')]
         if action in ('delete', 'purge'):
             entity_names = ['filled in later']
@@ -62,8 +65,11 @@ class AuthzTestBase(object):
                                  'wui':self._test_via_wui}[interface]
                     for entity_type in entity_types:
                         if action in ('delete', 'purge'):
-                            entity_name = '%s_%s_%s' % (action, user.name, interface)
-                            entity_class = getattr(model, entity_type.capitalize())
+                            if entity_type != 'package_relationship':
+                                entity_name = '%s_%s_%s' % (action, user.name, interface)
+                                entity_class = self.ENTITY_CLASS_MAP[entity_type]
+                            else:
+                                raise NotImplementedError
                             entity = entity_class.by_name(entity_name)
                             assert entity, 'Have not created %s to %s: %r' %\
                                    (entity_type, action, entity_name)
@@ -98,7 +104,7 @@ class AuthzTestBase(object):
             raise NotImplementedError
         res = self.app.get(offset, extra_environ={'REMOTE_USER': user.name.encode('utf8')}, expect_errors=True)
         tests = {}
-        tests['str_required'] = bool(str_required_in_response in res)
+        tests['str_required (%s)' % str_required_in_response] = bool(str_required_in_response in res)
         tests['error string'] = bool('error' not in res)
         tests['status'] = bool(res.status in (200, 201))
         tests['0 packages found'] = bool(u'0 packages found' not in res)
@@ -106,36 +112,36 @@ class AuthzTestBase(object):
         # clear flash messages - these might make the next page request
         # look like it has an error
         self.app.reset()
-        return is_ok, [offset, user.name, tests, res]
+        return is_ok, [offset, user.name, tests, res.status, res.body]
 
-    def _test_via_api(self, action, user, entity_name, entity='package'):
+    def _test_via_api(self, action, user, entity_name, entity_type='package'):
         # Test action on REST
         str_required_in_response = entity_name
         if action == model.Action.EDIT:
-            offset = '/api/rest/%s/%s' % (entity, entity_name)
+            offset = '/api/rest/%s/%s' % (entity_type, entity_name)
             postparams = '%s=1' % json.dumps({'title':u'newtitle'}, encoding='utf8')
             func = self.app.post
         elif action == model.Action.READ:
-            offset = '/api/rest/%s/%s' % (entity, entity_name)
+            offset = '/api/rest/%s/%s' % (entity_type, entity_name)
             postparams = None
             func = self.app.get
         elif action == 'search':
-            offset = '/api/search/%s?q=%s' % (entity, entity_name)
+            offset = '/api/search/%s?q=%s' % (entity_type, entity_name)
             postparams = None
             func = self.app.get
         elif action == 'list':
-            offset = '/api/rest/%s' % (entity)
+            offset = '/api/rest/%s' % (entity_type)
             postparams = None
             func = self.app.get
         elif action == 'create':
-            offset = '/api/rest/%s' % (entity)
+            offset = '/api/rest/%s' % (entity_type)
             postparams = '%s=1' % json.dumps({'name': unicode(entity_name), 
                                               'title': u'newtitle'},
                                              encoding='utf8')
             func = self.app.post
             str_required_in_response = u'newtitle'
         elif action == 'delete':
-            offset = '/api/rest/%s/%s' % (entity, entity_name)
+            offset = '/api/rest/%s/%s' % (entity_type, entity_name)
             postparams = '%s=1' % json.dumps({'name': unicode(entity_name),
                                               'state': 'deleted'},
                                              encoding='utf8')
@@ -143,12 +149,38 @@ class AuthzTestBase(object):
             str_required_in_response = '"state": "deleted"'
             assert 0, 'Deleting in the API does not currently work - See #1053'
         elif action == 'purge':
-            offset = '/api/rest/%s/%s' % (entity, entity_name)
+            offset = '/api/rest/%s/%s' % (entity_type, entity_name)
             func = self.app.delete
             postparams = {}
             str_required_in_response = ''
         else:
             raise NotImplementedError, action
+        if entity_type == 'package_relationship':
+            if action == 'edit':
+                func = self.app.put
+            if isinstance(entity_name, basestring):
+                offset = '/api/rest/package/%s/relationships' % entity_name
+            else:
+                assert isinstance(entity_name, tuple)
+                if len(entity_name) == 1:
+                    offset = '/api/rest/package/%s/relationships' % entity_name[0]
+                else:
+                    if len(entity_name) == 2:
+                        entity_properties = {'entity1': entity_name[0],
+                                             'entity2': entity_name[1],
+                                             'type': 'relationships'}
+                    elif len(entity_name) == 3:
+                        entity_properties = {'entity1': entity_name[0],
+                                             'entity2': entity_name[2],
+                                             'type': entity_name[1]}
+                    else:
+                        raise NotImplementedError
+                    if action in 'list':
+                        offset = '/api/rest/package/%(entity1)s/relationships/%(entity2)s' % entity_properties
+                    else:
+                        offset = '/api/rest/package/%(entity1)s/%(type)s/%(entity2)s' % entity_properties
+                    str_required_in_response = '"object": "%(entity2)s", "type": "%(type)s", "subject": "%(entity1)s"' % entity_properties
+                
         if user.name == 'visitor':
             environ = {}
         else:
@@ -157,12 +189,12 @@ class AuthzTestBase(object):
                    extra_environ=environ,
                    expect_errors=True)
         tests = {}
-        tests['str_required'] = bool(str_required_in_response in res)
+        tests['str_required (%s)' % str_required_in_response] = bool(str_required_in_response in res)
         tests['error string'] = bool('error' not in res)
         tests['status'] = bool(res.status in (200, 201))
         tests['0 packages found'] = bool(u'0 packages found' not in res)
         is_ok = False not in tests.values()
-        return is_ok, [offset, postparams, user.name, tests, res]
+        return is_ok, [offset, postparams, user.name, tests, res.status, res.body]
 
 class TestUsage(TestController, AuthzTestBase):
     '''Use case: role defaults (e.g. like ckan.net operates)
@@ -197,7 +229,7 @@ class TestUsage(TestController, AuthzTestBase):
                              'mrloggedin', 'testsysadmin',
                              'pkggroupadmin'):
                     for entity_type in cls.DEFAULT_ENTITY_TYPES:
-                        entity_class = getattr(model, entity_type.capitalize())
+                        entity_class = cls.ENTITY_CLASS_MAP[entity_type]
                         entity_name = u'%s_%s_%s' % (action, user, interface)
                         model.Session.add(entity_class(name=entity_name))
                         entities_to_test_deleting.append((entity_name, entity_class))
@@ -214,12 +246,8 @@ class TestUsage(TestController, AuthzTestBase):
         model.repo.commit_and_remove()
 
         rev = model.repo.new_revision()
-        model.Session.add(model.PackageRelationship(subject=u'xx',
-                                                    object=u'ww',
-                                                    type=u'depends_on'))
-        model.Session.add(model.PackageRelationship(subject=u'xx',
-                                                    object=u'wr',
-                                                    type=u'links_to'))
+        model.Package.by_name(u'ww').add_relationship(u'depends_on', model.Package.by_name(u'xx'))
+        model.Package.by_name(u'ww').add_relationship(u'links_to', model.Package.by_name(u'wr'))
         model.repo.commit_and_remove()
 
         testsysadmin = model.User.by_name(u'testsysadmin')
@@ -399,9 +427,44 @@ class TestUsage(TestController, AuthzTestBase):
     def test_sysadmin_purges(self):
         self._test_can('purge', self.testsysadmin, ['gets_filled'], interfaces=['rest'], entity_types=['package'])
     
-    def test_relationships(self):
-        self._test_can('edit', self.testsysadmin, [('ww', 'rw')], interfaces=['rest'], entity_types=['package_relationship'])
+    def test_sysadmin_relationships(self):
+        opts = {'interfaces': ['rest'],
+                'entity_types': ['package_relationship']}
+        self._test_can('list', self.testsysadmin, [('ww')], **opts)
+        self._test_can('list', self.testsysadmin, [('ww', 'links_to', 'wr'), ('ww', 'depends_on', 'xx')], **opts)
+        self._test_can('create', self.testsysadmin, [('ww', 'child_of', 'wr'), ('ww', 'child_of', 'xx')], **opts)
+        self._test_can('edit', self.testsysadmin, [('ww', 'links_to', 'wr'), ('ww', 'depends_on', 'xx')], **opts)
+        #TODO self._test_can('delete', self.testsysadmin, [('ww', 'links_to', 'wr')], **opts)
+
+    def test_admin_relationships(self):
+        opts = {'interfaces': ['rest'],
+                'entity_types': ['package_relationship']}
+        self._test_can('list', self.pkggroupadmin, [('ww')], **opts)
+        self._test_can('list', self.pkggroupadmin, [('ww', 'links_to', 'wr'), ('ww', 'depends_on', 'xx')], **opts)
+        self._test_can('edit', self.pkggroupadmin, [('ww', 'links_to', 'wr'), ('ww', 'depends_on', 'xx')], **opts)
+        #TODO self._test_can('delete', self.pkggroupadmin, [('ww', 'links_to', 'wr')], **opts)
+
+    def test_user_relationships(self):
+        opts = {'interfaces': ['rest'],
+                'entity_types': ['package_relationship']}
+        self._test_can('list', self.mrloggedin, [('ww')], **opts)
+        self._test_can('list', self.mrloggedin, [('ww', 'links_to', 'wr')], **opts)
+        self._test_cant('list', self.mrloggedin, [('ww', 'depends_on', 'xx')], **opts)
+        self._test_can('create', self.mrloggedin, [('ww', 'derives_from', 'wr')], **opts)
+        self._test_cant('create', self.mrloggedin, [('ww', 'derives_from', 'xx')], **opts)
+        self._test_can('edit', self.mrloggedin, [('ww', 'links_to', 'wr')], **opts)
+        self._test_cant('edit', self.mrloggedin, [('ww', 'depends_on', 'xx')], **opts)
+        #TODO self._test_cant('delete', self.mrloggedin, [('ww', 'links_to', 'wr')], **opts)
         
+    def test_visitor_relationships(self):
+        opts = {'interfaces': ['rest'],
+                'entity_types': ['package_relationship']}
+        self._test_can('list', self.visitor, [('ww')], **opts)
+        self._test_can('list', self.visitor, [('ww', 'links_to', 'wr')], **opts)
+        self._test_cant('list', self.visitor, [('ww', 'depends_on', 'xx')], **opts)
+        self._test_cant('create', self.visitor, [('ww', 'derives_from', 'wr'), ('ww', 'derives_from', 'xx')], **opts)
+        self._test_cant('edit', self.visitor, [('ww', 'links_to', 'wr'), ('ww', 'depends_on', 'xx')], **opts)
+        #TODO self._test_cant('delete', self.visitor, [('ww', 'links_to', 'wr')], **opts)
 
 class TestSiteRead(TestController, AuthzTestBase):
     '''User case:
