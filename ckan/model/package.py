@@ -124,9 +124,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                     del res_dict[key]
                 res = resource.Resource(**res_dict)
             new_res_list.append(res)
-        ## there should not need to be a reversed here,
-        ## this is in lieu of a vdm patch.
-        self.resource_groups[0].resources = reversed(new_res_list)
+        self.resource_groups[0].resources = new_res_list
 
     def related_packages(self):
         return [self]
