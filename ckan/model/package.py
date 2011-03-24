@@ -92,8 +92,6 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         # Match up the res_dicts by id
         def get_identity(resource):
             res_dict = resource.as_dict(core_columns_only=True)
-            # Remove keys with None values - extras can cause issues
-            res_dict = dict([(k, v) for k, v in res_dict.items() if v is not None])
             return res_dict
         existing_res_identites = [get_identity(res) for res in self.resources]
         for i, res_dict in enumerate(res_dicts):
@@ -104,7 +102,8 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                 if res:
                     index_to_res[i] = res
             else:
-                identity = res_dict
+                fake_resource = resource.Resource(**res_dict)
+                identity = fake_resource.as_dict(core_columns_only=True)
                 try:
                     matching_res_index = existing_res_identites.index(identity)
                 except ValueError:
@@ -125,7 +124,9 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                     del res_dict[key]
                 res = resource.Resource(**res_dict)
             new_res_list.append(res)
-        self.resource_groups[0].resources = new_res_list
+        ## there should not need to be a reversed here,
+        ## this is in lieu of a vdm patch.
+        self.resource_groups[0].resources = reversed(new_res_list)
 
     def related_packages(self):
         return [self]
