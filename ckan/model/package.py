@@ -83,13 +83,19 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         The resource dictionaries contain 'url', 'format' etc. Optionally they
         can also provide the 'id' of the Resource, to help matching
         res_dicts to existing Resources. Otherwise, it searches
-        for an exactly matchinrce.
+        for an otherwise exactly matching Resource.
         The caller is responsible for creating a revision and committing.'''
         import resource
         assert isinstance(res_dicts, (list, tuple))
         # Map the incoming res_dicts (by index) to existing resources
         index_to_res = {}
         # Match up the res_dicts by id
+        def get_identity(resource):
+            res_dict = resource.as_dict(core_columns_only=True)
+            # Remove keys with None values - extras can cause issues
+            res_dict = dict([(k, v) for k, v in res_dict.items() if v is not None])
+            return res_dict
+        existing_res_identites = [get_identity(res) for res in self.resources]
         for i, res_dict in enumerate(res_dicts):
             assert isinstance(res_dict, dict)
             id = res_dict.get('id')
@@ -97,19 +103,26 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                 res = Session.query(resource.Resource).autoflush(autoflush).get(id)
                 if res:
                     index_to_res[i] = res
+            else:
+                identity = res_dict
+                try:
+                    matching_res_index = existing_res_identites.index(identity)
+                except ValueError:
+                    continue
+                index_to_res[i] = self.resources[matching_res_index]
+                
         # Edit resources and create the new ones
         new_res_list = []
 
         for i, res_dict in enumerate(res_dicts):
             if i in index_to_res:
                 res = index_to_res[i]
-                for col, value in res_dict.items():
-                    setattr(res, col, value)
+                for col in set(res_dict.keys()) - set(('id', 'position')):
+                    setattr(res, col, res_dict[col])
             else:
                 # ignore particular keys that disrupt creation of new resource
-                for key in ('id', 'position'):
-                    if res_dict.has_key(key):
-                        del res_dict[key]
+                for key in set(res_dict.keys()) & set(('id', 'position')):
+                    del res_dict[key]
                 res = resource.Resource(**res_dict)
             new_res_list.append(res)
         self.resource_groups[0].resources = new_res_list

@@ -234,7 +234,7 @@ class TestResourceEdit:
         assert len(rg.resources) == offset, rg.resources
         original_res_ids = [res.id for res in rg.resources]
         def print_resources(caption, resources):
-            print caption, '\n'.join(['<url=%s format=%s>' % (res.url, res.format) for res in resources])
+            print '%s\n%s' % (caption, '\n'.join(['<id=%s url=%s format=%s>' % (res.id[:3], res.url, res.format) for res in resources]))
         print_resources('BEFORE', rg.resources)
         
         rev = model.repo.new_revision()
@@ -261,7 +261,11 @@ class TestResourceEdit:
 
         # package resource revisions
         prr_q = model.Session.query(model.ResourceRevision)
-        assert len(prr_q.all()) == offset + 2 + 1, prr_q.all() # 2 deletions, 1 new one
+        if prr_q.count() != offset + 2 + 1: # 2 deletions, 1 new one
+            print offset, prr_q.count()
+            for prr in prr_q:
+                print prr
+            raise AssertionError
         prr1 = prr_q.\
                filter_by(revision_id=rev.id).\
                order_by(model.resource_revision_table.c.position).\
