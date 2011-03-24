@@ -4,7 +4,10 @@ from difflib import unified_diff
 
 from ckan.lib.create_test_data import CreateTestData
 from ckan import model
-from ckan.dictization import table_dictize, package_dictize, package_to_api1
+from ckan.dictization import (table_dictize,
+                              package_dictize,
+                              package_to_api1,
+                              package_to_api2)
 
 class TestBasicDictize:
     @classmethod
@@ -154,7 +157,7 @@ class TestBasicDictize:
 
         assert package_to_api1(pkg, state) == pkg.as_dict()
 
-    def test_04_package_to_api1(self):
+    def test_04_package_to_api1_with_relationship(self):
 
         state = {"model": model,
                  "session": model.Session}
@@ -176,3 +179,43 @@ class TestBasicDictize:
         print dictize_string
 
         assert as_dict == dictize, "\n".join(unified_diff(as_dict_string.split("\n"), dictize_string.split("\n")))
+
+    def test_05_package_to_api2(self):
+
+        state = {"model": model,
+                 "session": model.Session}
+
+        pkg = model.Session.query(model.Package).filter_by(name='annakarenina').first()
+
+        as_dict = pkg.as_dict(ref_package_by='id', ref_group_by='id')
+        dictize = package_to_api2(pkg, state)
+
+        as_dict_string = pformat(as_dict)
+        dictize_string = pformat(dictize)
+        print as_dict_string
+        print dictize_string
+
+        assert package_to_api2(pkg, state) == dictize, "\n".join(unified_diff(as_dict_string.split("\n"), dictize_string.split("\n")))
+
+
+    def test_06_package_to_api2_with_relationship(self):
+
+        state = {"model": model,
+                 "session": model.Session}
+
+        pkg = model.Session.query(model.Package).filter_by(name='homer').one()
+
+        as_dict = pkg.as_dict(ref_package_by='id', ref_group_by='id')
+        dictize = package_to_api2(pkg, state)
+
+        as_dict["relationships"].sort(key=lambda x:x.items())
+        dictize["relationships"].sort(key=lambda x:x.items())
+
+        as_dict_string = pformat(as_dict)
+        dictize_string = pformat(dictize)
+        print as_dict_string
+        print dictize_string
+
+        assert as_dict == dictize, "\n".join(unified_diff(as_dict_string.split("\n"), dictize_string.split("\n")))
+
+

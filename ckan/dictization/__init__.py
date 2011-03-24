@@ -64,6 +64,16 @@ def package_dictize(pkg, state):
 
     return result_dict
 
+
+def resource_dict_to_api(res_dict, package_id, state):
+    for key, value in res_dict["extras"].iteritems():
+        if key not in res_dict:
+            res_dict[key] = value
+    res_dict.pop("extras")
+    res_dict.pop("revision_id")
+    res_dict.pop("state")
+    res_dict["package_id"] = package_id
+
 def package_to_api1(pkg, state):
 
     dictized = package_dictize(pkg, state)
@@ -75,13 +85,7 @@ def package_to_api1(pkg, state):
     resources = dictized["resources"] 
    
     for resource in resources:
-        for key, value in resource["extras"].iteritems():
-            if key not in resource:
-                resource[key] = value
-        resource.pop("extras")
-        resource.pop("revision_id")
-        resource.pop("state")
-        resource["package_id"] = pkg.id
+        resource_dict_to_api(resource, pkg.id, state)
             
     dictized['license'] = pkg.license.title if pkg.license else None
 
@@ -118,3 +122,50 @@ def package_to_api1(pkg, state):
     dictized['relationships'] = relationships 
     return dictized
 
+def package_to_api2(pkg, state):
+
+    dictized = package_dictize(pkg, state)
+    dictized["groups"] = [group["id"] for group in dictized["groups"]]
+    dictized["tags"] = [tag["name"] for tag in dictized["tags"]]
+    dictized["extras"] = dict((extra["key"], extra["value"]) 
+                              for extra in dictized["extras"])
+
+    resources = dictized["resources"] 
+   
+    for resource in resources:
+        resource_dict_to_api(resource,pkg.id, state)
+            
+    dictized['license'] = pkg.license.title if pkg.license else None
+
+    dictized['ratings_average'] = pkg.get_average_rating()
+    dictized['ratings_count'] = len(pkg.ratings)
+    site_url = config.get('ckan.site_url', None)
+    if site_url:
+        dictized['ckan_url'] = '%s/package/%s' % (site_url, pkg.name)
+    dictized['metadata_modified'] = pkg.metadata_modified.isoformat() \
+        if pkg.metadata_modified else None
+    dictized['metadata_created'] = pkg.metadata_created.isoformat() \
+        if pkg.metadata_created else None
+
+    subjects = dictized.pop("relationships_as_subject") 
+    objects = dictized.pop("relationships_as_object") 
+    
+    relationships = []
+    for relationship in objects:
+        model = state['model']
+        swap_types = model.PackageRelationship.forward_to_reverse_type
+        type = swap_types(relationship['type'])
+        relationships.append({'subject': relationship['object_package_id'],
+                              'type': type,
+                              'object': relationship['subject_package_id'],
+                              'comment': relationship["comment"]})
+    for relationship in subjects:
+        model = state['model']
+        relationships.append({'subject': relationship['subject_package_id'],
+                              'type': relationship['type'],
+                              'object': relationship['object_package_id'],
+                              'comment': relationship["comment"]})
+        
+        
+    dictized['relationships'] = relationships 
+    return dictized
