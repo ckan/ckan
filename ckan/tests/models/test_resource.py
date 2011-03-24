@@ -5,6 +5,7 @@ from ckan.tests import *
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 
+
 class TestResource:
     def setup(self):
         model.repo.init_db()
@@ -226,7 +227,6 @@ class TestResourceEdit:
         model.Session.remove()
         model.repo.rebuild_db()
 
-
     def test_1_update_resources_no_ids(self):
         pkg = model.Package.by_name(self.pkgname)
         rg = pkg.resource_groups[0]
@@ -310,3 +310,86 @@ class TestResourceEdit:
         assert pkg.resources[0].id == original_res_ids[0]
         assert pkg.resources[1].id == original_res_ids[2]
 
+class TestResourceEditOrdering:
+    @classmethod
+    def setup(cls):
+        cls.pkgname = 'test3'
+        CreateTestData.create_arbitrary({'name':cls.pkgname})
+        cls.res_dicts = [
+            {'url':'0'},
+            {'url':'1'},
+            {'url':'2'},
+            {'url':'3'},
+            {'url':'4'},
+            {'url':'5'},
+            ]
+        pkg = model.Package.by_name(cls.pkgname)
+        resource_group = pkg.resource_groups[0]
+        for res_dict in cls.res_dicts:
+            res = model.Resource(**res_dict)
+            model.Session.add(res)
+            resource_group.resources.append(res)
+            model.Session.flush() # to create the id
+            res_dict['id'] = res.id
+        model.repo.commit_and_remove()
+
+    @classmethod
+    def teardown(cls):
+        model.repo.rebuild_db()
+
+    def _try_resources(self, res_dicts, expected_order):
+        pkg = model.Package.by_name(self.pkgname)
+        # comment this print to make tests work! 
+        print "RESOURCES", pkg.resource_groups[0].resources
+        rev = model.repo.new_revision()
+        pkg.update_resources(res_dicts)
+        model.repo.commit_and_remove()
+
+        pkg = model.Package.by_name(self.pkgname)
+        urls = ''.join([res.url for res in pkg.resources])
+        assert_equal(urls, expected_order)
+                
+    def test_0_new(self):
+        self._try_resources(
+            self.res_dicts + [{'url':'6'}],
+            '0123456')
+
+    def test_1_new_inserted(self):
+        self._try_resources(
+            self.res_dicts[:3] + [{'url':'6'}] + self.res_dicts[3:],
+            '0126345')
+
+    def test_2_delete(self):
+        self._try_resources(
+            self.res_dicts[1:4],
+            '123')
+
+    def test_3_reverse(self):
+        self._try_resources(
+            self.res_dicts[::-1],
+            '543210')
+
+    def test_4_two_new(self):
+        self._try_resources(
+            self.res_dicts[0:1] + [{'url':'6'}] + self.res_dicts[1:3] + \
+            [{'url':'7'}] + self.res_dicts[4:],
+            '0612745')
+
+    def test_5_change(self):
+        self.res_dicts[2]['url'] = '2a'
+        self._try_resources(
+            self.res_dicts,
+            '012a345')
+
+    def test_6_change_and_move(self):
+        self.res_dicts[2]['url'] = '2a'
+        self._try_resources(
+            self.res_dicts[0:2] + self.res_dicts[3:4] + \
+            self.res_dicts[2:3] + self.res_dicts[4:],
+            '0132a45')
+
+    def test_7_change_and_new(self):
+        self.res_dicts[2]['url'] = '2a'
+        self._try_resources(
+            self.res_dicts + [{'url':'6'}],
+            '012a3456')
