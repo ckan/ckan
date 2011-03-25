@@ -329,6 +329,7 @@ class TestResourceEditOrdering:
             ]
         pkg = model.Package.by_name(cls.pkgname)
         resource_group = pkg.resource_groups[0]
+        rev = model.repo.new_revision()
         for res_dict in cls.res_dicts:
             res = model.Resource(**res_dict)
             model.Session.add(res)

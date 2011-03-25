@@ -76,7 +76,6 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
         return self.resource_groups_all[0].resources
     
-
     def update_resources(self, res_dicts, autoflush=True):
         '''Change this package\'s resources.
         @param res_dicts - ordered list of dicts, each detailing a resource
@@ -134,6 +133,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                 for key in set(res_dict.keys()) & set(('id', 'position')):
                     del res_dict[key]
                 res = model.Resource(**res_dict)
+                model.Session.add(res)
             new_res_list.append(res)
         self.resource_groups[0].resources = new_res_list
 
