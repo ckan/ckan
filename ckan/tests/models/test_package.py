@@ -1,3 +1,5 @@
+from nose.tools import assert_equal
+
 from ckan.tests import *
 import ckan.model as model
 
@@ -8,7 +10,7 @@ class TestPackage:
     def setup_class(self):
         CreateTestData.create()
         self.name = u'geodata'
-        self.notes = u'Written by Puccini'
+        self.notes = 'A <b>great</b> package <script href="dodgy.js"/> like package:pollution_stats'
         pkgs = model.Session.query(model.Package).filter_by(name=self.name).all()
         for p in pkgs:
             p.purge()
@@ -84,6 +86,8 @@ class TestPackage:
         assert out['tags'] == [tag.name for tag in pkg.tags]
         assert out['metadata_modified'] == pkg.metadata_modified.isoformat()
         assert out['metadata_created'] == pkg.metadata_created.isoformat()
+        assert_equal(out['notes'], pkg.notes)
+        assert_equal(out['notes_rendered'], '<p>A <b>great</b> package [HTML_REMOVED] like <a href="/package/pollution_stats">package:pollution_stats</a>\n</p>')
 
 
 class TestPackageWithTags:

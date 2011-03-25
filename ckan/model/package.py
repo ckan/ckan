@@ -11,6 +11,7 @@ from types import make_uuid
 from core import *
 from license import License, LicenseRegister
 from domain_object import DomainObject
+import ckan.misc
 
 __all__ = ['Package', 'package_table', 'package_revision_table',
            'PACKAGE_NAME_MAX_LENGTH', 'PACKAGE_VERSION_MAX_LENGTH']
@@ -203,6 +204,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             if self.metadata_modified else None
         _dict['metadata_created'] = self.metadata_created.isoformat() \
             if self.metadata_created else None
+        _dict['notes_rendered'] = ckan.misc.MarkdownFormat().to_html(self.notes)
         return _dict
 
     def add_relationship(self, type_, related_package, comment=u''):

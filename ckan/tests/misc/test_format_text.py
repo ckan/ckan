@@ -34,7 +34,7 @@ class TestFormatText:
         
     def test_internal_link(self):
         instr = 'package:test-_pkg'
-        exp = '<a href="/package/read/test-_pkg">package:test-_pkg</a>'
+        exp = '<a href="/package/test-_pkg">package:test-_pkg</a>'
         format = MarkdownFormat()
         out = format.to_html(instr)
         assert exp in out, '\nGot: %s\nWanted: %s' % (out, exp)
