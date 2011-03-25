@@ -85,27 +85,38 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         res_dicts to existing Resources. Otherwise, it searches
         for an otherwise exactly matching Resource.
         The caller is responsible for creating a revision and committing.'''
-        import resource
+        from ckan import model
         assert isinstance(res_dicts, (list, tuple))
         # Map the incoming res_dicts (by index) to existing resources
         index_to_res = {}
         # Match up the res_dicts by id
-        def get_identity(resource):
+        def get_resource_identity(resource_obj_or_dict):
+            if isinstance(resource_obj_or_dict, dict):
+                # Convert dict into a Resource object, since that ensures
+                # all columns exist when you redictize it. This object is
+                # garbage collected as it isn't added to the Session.
+                res_keys = set(resource_obj_or_dict.keys()) - \
+                           set(('id', 'position'))
+                res_dict = dict([(res_key, resource_obj_or_dict[res_key]) \
+                                 for res_key in res_keys])
+                resource = model.Resource(**res_dict)
+            else:
+                resource = resource_obj_or_dict
             res_dict = resource.as_dict(core_columns_only=True)
             return res_dict
-        existing_res_identites = [get_identity(res) for res in self.resources]
+        existing_res_identites = [get_resource_identity(res) \
+                                  for res in self.resources]
         for i, res_dict in enumerate(res_dicts):
             assert isinstance(res_dict, dict)
             id = res_dict.get('id')
             if id:
-                res = Session.query(resource.Resource).autoflush(autoflush).get(id)
+                res = Session.query(model.Resource).autoflush(autoflush).get(id)
                 if res:
                     index_to_res[i] = res
             else:
-                fake_resource = resource.Resource(**res_dict)
-                identity = fake_resource.as_dict(core_columns_only=True)
+                res_identity = get_resource_identity(res_dict)
                 try:
-                    matching_res_index = existing_res_identites.index(identity)
+                    matching_res_index = existing_res_identites.index(res_identity)
                 except ValueError:
                     continue
                 index_to_res[i] = self.resources[matching_res_index]
@@ -122,7 +133,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                 # ignore particular keys that disrupt creation of new resource
                 for key in set(res_dict.keys()) & set(('id', 'position')):
                     del res_dict[key]
-                res = resource.Resource(**res_dict)
+                res = model.Resource(**res_dict)
             new_res_list.append(res)
         self.resource_groups[0].resources = new_res_list
 
