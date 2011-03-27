@@ -106,8 +106,6 @@ def table_dict_save(table_dict, ModelClass, state):
         obj = ModelClass()
 
     for key, value in table_dict.iteritems():
-        if key == 'revision_id':
-            continue
         if isinstance(value, list):
             continue
         setattr(obj, key, value)

@@ -35,6 +35,15 @@ class TestBasicDictize:
                     self.remove_changable_columns(new_dict)
         return dict
 
+    def remove_revision_id(self, dict):
+        for key, value in dict.items():
+            if key == 'revision_id':
+                dict.pop(key)
+            if isinstance(value, list):
+                for new_dict in value:
+                    self.remove_revision_id(new_dict)
+        return dict
+
 
     def test_01_dictize_main_objects_simple(self):
         
@@ -283,8 +292,6 @@ class TestBasicDictize:
 
         pkg = model.Session.query(model.Package).filter_by(name='annakarenina_changed').one()
 
-        print pkg.resources
-
         package_dictized = package_dictize(pkg, state)
 
         anna_original = pformat(anna_dictized)
@@ -293,5 +300,6 @@ class TestBasicDictize:
         print anna_original
         print anna_after_save
 
-        assert anna_dictized == package_dictized, "\n".join(unified_diff(anna_original.split("\n"), anna_after_save.split("\n")))
+        assert self.remove_revision_id(anna_dictized) == self.remove_revision_id(package_dictized),\
+                "\n".join(unified_diff(anna_original.split("\n"), anna_after_save.split("\n")))
 
