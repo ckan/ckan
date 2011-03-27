@@ -5,9 +5,14 @@ from difflib import unified_diff
 from ckan.lib.create_test_data import CreateTestData
 from ckan import model
 from ckan.dictization import (table_dictize,
-                              package_dictize,
-                              package_to_api1,
-                              package_to_api2)
+                              table_dict_save,
+                             )
+
+from ckan.dictization.model_dictize import (package_dictize,
+                                            package_to_api1,
+                                            package_to_api2)
+
+from ckan.dictization.model_save import package_dict_save
 
 class TestBasicDictize:
     @classmethod
@@ -25,12 +30,10 @@ class TestBasicDictize:
         for key, value in dict.items():
             if key.endswith('id') and key <> 'license_id':
                 dict.pop(key)
-            if key == 'created':
-                dict.pop(key)
             if isinstance(value, list):
                 for new_dict in value:
                     self.remove_changable_columns(new_dict)
-
+        return dict
 
 
     def test_01_dictize_main_objects_simple(self):
@@ -42,7 +45,6 @@ class TestBasicDictize:
 
         pkg = model.Session.query(model.Package).filter_by(name='annakarenina').first()
         result = table_dictize(pkg, state)
-        print result
         self.remove_changable_columns(result)
 
         assert result == {
@@ -197,7 +199,6 @@ class TestBasicDictize:
 
         assert package_to_api2(pkg, state) == dictize, "\n".join(unified_diff(as_dict_string.split("\n"), dictize_string.split("\n")))
 
-
     def test_06_package_to_api2_with_relationship(self):
 
         state = {"model": model,
@@ -218,4 +219,79 @@ class TestBasicDictize:
 
         assert as_dict == dictize, "\n".join(unified_diff(as_dict_string.split("\n"), dictize_string.split("\n")))
 
+    def test_07_table_simple_save(self):
+
+        state = {"model": model,
+                 "session": model.Session}
+
+        anna1 = model.Session.query(model.Package).filter_by(name='annakarenina').one()
+
+        anna_dictized = self.remove_changable_columns(table_dictize(anna1, state))
+
+        anna_dictized["name"] = 'annakarenina2' 
+
+        model.repo.new_revision()
+        table_dict_save(anna_dictized, model.Package, state)
+        model.Session.commit()
+
+        pkg = model.Session.query(model.Package).filter_by(name='annakarenina2').one()
+
+        assert self.remove_changable_columns(table_dictize(pkg, state)) == anna_dictized, self.remove_changable_columns(table_dictize(pkg, state))
+
+    def test_08_package_save(self):
+
+        state = {"model": model,
+                 "session": model.Session}
+
+        anna1 = model.Session.query(model.Package).filter_by(name='annakarenina').one()
+
+        anna_dictized = self.remove_changable_columns(package_dictize(anna1, state))
+
+        anna_dictized["name"] = u'annakarenina3' 
+
+        model.repo.new_revision()
+        package_dict_save(anna_dictized, state)
+        model.Session.commit()
+
+        pkg = model.Session.query(model.Package).filter_by(name='annakarenina3').one()
+
+        package_dictized = self.remove_changable_columns(package_dictize(pkg, state))
+
+        anna_original = pformat(anna_dictized)
+        anna_after_save = pformat(package_dictized)
+        print anna_original
+        print anna_after_save
+
+        assert self.remove_changable_columns(package_dictize(pkg, state)) == anna_dictized, "\n".join(unified_diff(anna_original.split("\n"), anna_after_save.split("\n")))
+
+    def test_10_package_alter(self):
+
+        state = {"model": model,
+                 "session": model.Session}
+
+        anna1 = model.Session.query(model.Package).filter_by(name='annakarenina').one()
+
+        anna_dictized = package_dictize(anna1, state)
+
+        anna_dictized["name"] = u'annakarenina_changed' 
+        anna_dictized["resources"][0]["url"] = u'new_url' 
+
+        model.repo.new_revision()
+        package_dict_save(anna_dictized, state)
+        model.Session.commit()
+        model.Session.remove()
+
+        pkg = model.Session.query(model.Package).filter_by(name='annakarenina_changed').one()
+
+        print pkg.resources
+
+        package_dictized = package_dictize(pkg, state)
+
+        anna_original = pformat(anna_dictized)
+        anna_after_save = pformat(package_dictized)
+
+        print anna_original
+        print anna_after_save
+
+        assert anna_dictized == package_dictized, "\n".join(unified_diff(anna_original.split("\n"), anna_after_save.split("\n")))
 

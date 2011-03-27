@@ -1,8 +1,15 @@
 import datetime
 from sqlalchemy.orm import class_mapper
+import sqlalchemy
 from pylons import config
 
+# NOTE   
+# The functions in this file contain very generic methods for dictizing objects
+# and saving dictized objects. If a specilized use
+
+
 def table_dictize(obj, state):
+    '''Get any model object and reprisent it as a dict'''
 
     result_dict = {}
 
@@ -34,6 +41,7 @@ def table_dictize(obj, state):
 
 
 def obj_list_dictize(obj_list, state, sort_key=lambda x:x):
+    '''Get a list of model object and reprisent it as a list of dicts'''
 
     result_list = []
 
@@ -43,6 +51,8 @@ def obj_list_dictize(obj_list, state, sort_key=lambda x:x):
     return sorted(result_list, key=sort_key)
 
 def obj_dict_dictize(obj_dict, state, sort_key=lambda x:x):
+    '''Get a dict whose values are model objects 
+    and reprisent it as a list of dicts'''
 
     result_list = []
 
@@ -51,121 +61,57 @@ def obj_dict_dictize(obj_dict, state, sort_key=lambda x:x):
 
     return sorted(result_list, key=sort_key)
 
-def package_dictize(pkg, state):
 
-    result_dict = table_dictize(pkg, state)
+def get_unique_constraints(table, state):
+    '''Get a list of unique constraints for a sqlalchemy table'''
 
-    result_dict["resources"] = obj_list_dictize(pkg.resources, state)
-    result_dict["tags"] = obj_list_dictize(pkg.tags, state, lambda x: x["name"])
-    result_dict["extras"] = obj_dict_dictize(pkg._extras, state)
-    result_dict["groups"] = obj_list_dictize(pkg.groups, state)
-    result_dict["relationships_as_subject"] = obj_list_dictize(pkg.relationships_as_subject, state)
-    result_dict["relationships_as_object"] = obj_list_dictize(pkg.relationships_as_object, state)
+    list_of_constraints = []
 
-    return result_dict
+    for contraint in table.constraints:
+        if isinstance(contraint, sqlalchemy.UniqueConstraint):
+            columns = [column.name for column in contraint.columns]
+            list_of_constraints.append(columns)
 
+    return list_of_constraints
 
-def resource_dict_to_api(res_dict, package_id, state):
-    for key, value in res_dict["extras"].iteritems():
-        if key not in res_dict:
-            res_dict[key] = value
-    res_dict.pop("extras")
-    res_dict.pop("revision_id")
-    res_dict.pop("state")
-    res_dict["package_id"] = package_id
+def table_dict_save(table_dict, ModelClass, state):
+    '''Given a dict and a model class update or create a sqlalchemy object.
+    This will use an existing object if "id" is supplied OR if any unique 
+    contraints are met. e.g supplying just a tag name will get out that tag obj.
+    '''
 
-def package_to_api1(pkg, state):
+    model = state["model"]
+    session = state["session"]
 
-    dictized = package_dictize(pkg, state)
-    dictized["groups"] = [group["name"] for group in dictized["groups"]]
-    dictized["tags"] = [tag["name"] for tag in dictized["tags"]]
-    dictized["extras"] = dict((extra["key"], extra["value"]) 
-                              for extra in dictized["extras"])
+    table = class_mapper(ModelClass).mapped_table
 
-    resources = dictized["resources"] 
-   
-    for resource in resources:
-        resource_dict_to_api(resource, pkg.id, state)
-            
-    dictized['license'] = pkg.license.title if pkg.license else None
+    obj = None
 
-    dictized['ratings_average'] = pkg.get_average_rating()
-    dictized['ratings_count'] = len(pkg.ratings)
-    site_url = config.get('ckan.site_url', None)
-    if site_url:
-        dictized['ckan_url'] = '%s/package/%s' % (site_url, pkg.name)
-    dictized['metadata_modified'] = pkg.metadata_modified.isoformat() \
-        if pkg.metadata_modified else None
-    dictized['metadata_created'] = pkg.metadata_created.isoformat() \
-        if pkg.metadata_created else None
+    unique_constriants = get_unique_constraints(table, state)
 
-    subjects = dictized.pop("relationships_as_subject") 
-    objects = dictized.pop("relationships_as_object") 
+    id = table_dict.get("id")
     
-    relationships = []
-    for relationship in objects:
-        model = state['model']
-        swap_types = model.PackageRelationship.forward_to_reverse_type
-        type = swap_types(relationship['type'])
-        relationships.append({'subject': pkg.get(relationship['object_package_id']).name,
-                              'type': type,
-                              'object': pkg.get(relationship['subject_package_id']).name,
-                              'comment': relationship["comment"]})
-    for relationship in subjects:
-        model = state['model']
-        relationships.append({'subject': pkg.get(relationship['subject_package_id']).name,
-                              'type': relationship['type'],
-                              'object': pkg.get(relationship['object_package_id']).name,
-                              'comment': relationship["comment"]})
-        
-        
-    dictized['relationships'] = relationships 
-    return dictized
+    if id:
+        obj = session.query(ModelClass).get(id)
 
-def package_to_api2(pkg, state):
+    if not obj:
+        unique_constriants = get_unique_constraints(table, state)
+        for constraint in unique_constriants:
+            params = dict((key, table_dict[key]) for key in constraint)
+            obj = session.query(ModelClass).filter_by(**params).first()
+            if obj:
+                break
 
-    dictized = package_dictize(pkg, state)
-    dictized["groups"] = [group["id"] for group in dictized["groups"]]
-    dictized["tags"] = [tag["name"] for tag in dictized["tags"]]
-    dictized["extras"] = dict((extra["key"], extra["value"]) 
-                              for extra in dictized["extras"])
+    if not obj:
+        obj = ModelClass()
 
-    resources = dictized["resources"] 
-   
-    for resource in resources:
-        resource_dict_to_api(resource,pkg.id, state)
-            
-    dictized['license'] = pkg.license.title if pkg.license else None
+    for key, value in table_dict.iteritems():
+        if key == 'revision_id':
+            continue
+        if isinstance(value, list):
+            continue
+        setattr(obj, key, value)
 
-    dictized['ratings_average'] = pkg.get_average_rating()
-    dictized['ratings_count'] = len(pkg.ratings)
-    site_url = config.get('ckan.site_url', None)
-    if site_url:
-        dictized['ckan_url'] = '%s/package/%s' % (site_url, pkg.name)
-    dictized['metadata_modified'] = pkg.metadata_modified.isoformat() \
-        if pkg.metadata_modified else None
-    dictized['metadata_created'] = pkg.metadata_created.isoformat() \
-        if pkg.metadata_created else None
+    session.add(obj)
 
-    subjects = dictized.pop("relationships_as_subject") 
-    objects = dictized.pop("relationships_as_object") 
-    
-    relationships = []
-    for relationship in objects:
-        model = state['model']
-        swap_types = model.PackageRelationship.forward_to_reverse_type
-        type = swap_types(relationship['type'])
-        relationships.append({'subject': relationship['object_package_id'],
-                              'type': type,
-                              'object': relationship['subject_package_id'],
-                              'comment': relationship["comment"]})
-    for relationship in subjects:
-        model = state['model']
-        relationships.append({'subject': relationship['subject_package_id'],
-                              'type': relationship['type'],
-                              'object': relationship['object_package_id'],
-                              'comment': relationship["comment"]})
-        
-        
-    dictized['relationships'] = relationships 
-    return dictized
+    return obj
