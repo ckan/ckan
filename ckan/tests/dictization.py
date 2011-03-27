@@ -5,14 +5,15 @@ from difflib import unified_diff
 from ckan.lib.create_test_data import CreateTestData
 from ckan import model
 from ckan.dictization import (table_dictize,
-                              table_dict_save,
-                             )
+                              table_dict_save)
 
 from ckan.dictization.model_dictize import (package_dictize,
+                                            resource_dictize,
                                             package_to_api1,
                                             package_to_api2)
 
-from ckan.dictization.model_save import package_dict_save
+from ckan.dictization.model_save import (package_dict_save,
+                                         resource_dict_save)
 
 class TestBasicDictize:
     @classmethod
@@ -302,4 +303,41 @@ class TestBasicDictize:
 
         assert self.remove_revision_id(anna_dictized) == self.remove_revision_id(package_dictized),\
                 "\n".join(unified_diff(anna_original.split("\n"), anna_after_save.split("\n")))
+
+
+    def test_11_resource_no_id(self):
+
+        state = {"model": model,
+                 "session": model.Session}
+
+        model.repo.new_revision()
+        model.Session.commit()
+
+        new_resource = {
+            'alt_url': u'empty resource group id',
+            'description': u'Full text. Needs escaping: " Umlaut: \xfc',
+            'extras': {u'alt_url': u'empty resource group id', u'size': u'123'},
+            'format': u'plain text',
+            'hash': u'abc123',
+            'position': 0,
+            'state': u'active',
+            'url': u'test'
+        }
+
+        model.repo.new_revision()
+        resource_dict_save(new_resource, state)
+        model.Session.commit()
+        model.Session.remove()
+
+        res = model.Session.query(model.Resource).filter_by(url=u'test').one()
+
+
+        res_dictized = self.remove_changable_columns(resource_dictize(res, state))
+
+        pprint(res_dictized)
+        pprint(new_resource)
+
+        assert res_dictized == new_resource, res_dictized 
+
+
 
