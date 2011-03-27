@@ -40,6 +40,7 @@ __all__ = ['url_for',
            'CommonFixtureMethods',
            'TestCase',
            'SkipTest',
+           'CkanServerCase',
         ]
 
 here_dir = os.path.dirname(os.path.abspath(__file__))
@@ -372,14 +373,14 @@ def search_related(test):
         raise SkipTest("Search not supported")
     if not is_search_supported():
         return make_decorator(test)(skip_test)
-    return make_decorator(test)
-    
+    return test
+
 def regex_related(test):
     def skip_test(*args):
         raise SkipTest("Regex not supported")
     if not is_regex_supported():
         return make_decorator(test)(skip_test)
-    return make_decorator(test)
+    return test
 
 def clear_flash(res=None):
     messages = _flash.pop_messages()

@@ -10,10 +10,13 @@ from ckan.plugins import PluginImplementations, IPackageController
 
 log = __import__("logging").getLogger(__name__)
 
-readonly_keys = ('id', 'relationships', 'ratings_average',
+readonly_keys = ('id', 'relationships',
+                 'license',
+                 'ratings_average',
                  'ratings_count', 'ckan_url',
                  'metadata_modified',
-                 'metadata_created')
+                 'metadata_created',
+                 'notes_rendered')
 
 class PackageController(RestController):
 

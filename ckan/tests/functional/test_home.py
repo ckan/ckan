@@ -76,9 +76,11 @@ class TestHomeController(TestController):
         offset = url_for('home')
         res = self.app.get(offset)
         res = res.click('Deutsch')
-        res = res.follow()
-        assert 'Willkommen' in res.body
-        res = res.click('English')
+        try:
+            res = res.follow()
+            assert 'Willkommen' in res.body
+        finally:
+            res = res.click('English')
 
     @search_related
     def test_locale_change_with_false_hash(self):
@@ -95,9 +97,13 @@ class TestHomeController(TestController):
         href = found_attrs['uri']
         assert href
         res = res.goto(href)
-        assert res.status == 302, res.status # redirect
-        
-        href = href.replace('return_to=%2F&', 'return_to=%2Fhackedurl&')
-        res = res.goto(href)
-        assert res.status == 200, res.status # doesn't redirect
-        
+        try:
+            assert res.status == 302, res.status # redirect
+
+            href = href.replace('return_to=%2F&', 'return_to=%2Fhackedurl&')
+            res = res.goto(href)
+            assert res.status == 200, res.status # doesn't redirect
+        finally:
+            offset = url_for('home')
+            res = self.app.get(offset)
+            res = res.click('English')

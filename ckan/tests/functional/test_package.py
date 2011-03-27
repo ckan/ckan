@@ -256,11 +256,13 @@ class TestPackageForm(TestPackageBase):
                     pkg.purge()
                 model.repo.commit_and_remove()
 
-class TestReadOnly(TestPackageForm, HtmlCheckMethods):
+class TestReadOnly(TestPackageForm, HtmlCheckMethods, TestSearchIndexer):
 
     @classmethod
     def setup_class(cls):
+        cls.tsi = TestSearchIndexer()
         CreateTestData.create()
+        cls.tsi.index()
 
     @classmethod
     def teardown_class(cls):
@@ -396,7 +398,10 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods):
         assert 'Search - ' in results_page, results_page
         results_page = self.main_div(results_page)
         for required in requireds:
-            assert required in results_page, "%s : %s" % (results_page, required)
+            if required not in results_page:
+                print results_page
+                print 'Could not find %r' % required
+                raise AssertionError
     
     def test_history(self):
         name = 'annakarenina'

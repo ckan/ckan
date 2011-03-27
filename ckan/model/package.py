@@ -11,6 +11,7 @@ from types import make_uuid
 from core import *
 from license import License, LicenseRegister
 from domain_object import DomainObject
+import ckan.misc
 
 __all__ = ['Package', 'package_table', 'package_revision_table',
            'PACKAGE_NAME_MAX_LENGTH', 'PACKAGE_VERSION_MAX_LENGTH']
@@ -76,41 +77,64 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
         return self.resource_groups_all[0].resources
     
-
     def update_resources(self, res_dicts, autoflush=True):
         '''Change this package\'s resources.
         @param res_dicts - ordered list of dicts, each detailing a resource
         The resource dictionaries contain 'url', 'format' etc. Optionally they
         can also provide the 'id' of the Resource, to help matching
         res_dicts to existing Resources. Otherwise, it searches
-        for an exactly matchinrce.
+        for an otherwise exactly matching Resource.
         The caller is responsible for creating a revision and committing.'''
-        import resource
+        from ckan import model
         assert isinstance(res_dicts, (list, tuple))
         # Map the incoming res_dicts (by index) to existing resources
         index_to_res = {}
         # Match up the res_dicts by id
+        def get_resource_identity(resource_obj_or_dict):
+            if isinstance(resource_obj_or_dict, dict):
+                # Convert dict into a Resource object, since that ensures
+                # all columns exist when you redictize it. This object is
+                # garbage collected as it isn't added to the Session.
+                res_keys = set(resource_obj_or_dict.keys()) - \
+                           set(('id', 'position'))
+                res_dict = dict([(res_key, resource_obj_or_dict[res_key]) \
+                                 for res_key in res_keys])
+                resource = model.Resource(**res_dict)
+            else:
+                resource = resource_obj_or_dict
+            res_dict = resource.as_dict(core_columns_only=True)
+            return res_dict
+        existing_res_identites = [get_resource_identity(res) \
+                                  for res in self.resources]
         for i, res_dict in enumerate(res_dicts):
             assert isinstance(res_dict, dict)
             id = res_dict.get('id')
             if id:
-                res = Session.query(resource.Resource).autoflush(autoflush).get(id)
+                res = Session.query(model.Resource).autoflush(autoflush).get(id)
                 if res:
                     index_to_res[i] = res
+            else:
+                res_identity = get_resource_identity(res_dict)
+                try:
+                    matching_res_index = existing_res_identites.index(res_identity)
+                except ValueError:
+                    continue
+                index_to_res[i] = self.resources[matching_res_index]
+                
         # Edit resources and create the new ones
         new_res_list = []
 
         for i, res_dict in enumerate(res_dicts):
             if i in index_to_res:
                 res = index_to_res[i]
-                for col, value in res_dict.items():
-                    setattr(res, col, value)
+                for col in set(res_dict.keys()) - set(('id', 'position')):
+                    setattr(res, col, res_dict[col])
             else:
                 # ignore particular keys that disrupt creation of new resource
-                for key in ('id', 'position'):
-                    if res_dict.has_key(key):
-                        del res_dict[key]
-                res = resource.Resource(**res_dict)
+                for key in set(res_dict.keys()) & set(('id', 'position')):
+                    del res_dict[key]
+                res = model.Resource(**res_dict)
+                model.Session.add(res)
             new_res_list.append(res)
         self.resource_groups[0].resources = new_res_list
 
@@ -180,6 +204,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             if self.metadata_modified else None
         _dict['metadata_created'] = self.metadata_created.isoformat() \
             if self.metadata_created else None
+        _dict['notes_rendered'] = ckan.misc.MarkdownFormat().to_html(self.notes)
         return _dict
 
     def add_relationship(self, type_, related_package, comment=u''):

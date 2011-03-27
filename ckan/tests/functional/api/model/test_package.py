@@ -1,3 +1,5 @@
+from nose.tools import assert_equal
+
 from ckan.tests.functional.api.base import BaseModelApiTestCase
 from ckan.tests.functional.api.base import Api1TestCase as Version1TestCase 
 from ckan.tests.functional.api.base import Api2TestCase as Version2TestCase 
@@ -143,6 +145,9 @@ class PackagesTestCase(BaseModelApiTestCase):
         res = self.app.post(offset, params=postparams,
                             status=self.STATUS_200_OK,
                             extra_environ=self.extra_environ)
+        data_returned = self.loads(res.body)
+        assert_equal(data['name'], data_returned['name'])
+        assert_equal(data['license_id'], data_returned['license_id'])
 
     def test_entity_post_changed_readonly(self):
         # (ticket 662) Edit a readonly field gives error
