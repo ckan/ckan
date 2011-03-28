@@ -1,8 +1,27 @@
 CKAN CHANGELOG
 ++++++++++++++
 
-v1.3.2 2011-3-15
-================
+v1.3.3 2011-XX-XX
+=================
+Major:
+  * Authorization checks added to editing Groups and PackageRelationships (#1052)
+
+Minor:
+  * API can take auth credentials from cookie (#1001)
+  * Ability to set custom favicon (#1051)
+  * Importer code moved out into ckanext-importlib repo (#1042)
+  * API: Group can be referred to by ID (in addition to name) (#1045)
+
+Bug fixes:
+  * SITE_READ role setting couldn't be overridden by sysadmins (#1044)
+  * Resource ordering went wrong when editing and adding at same time (#1054)
+  * GET followed by PUTting a package stored an incorrect license value (#662)
+  * Sibling package relationships were shown for deleted packages (#664)
+  * Tags were displayed when they only apply to deleted packages (#920)
+
+
+v1.3.2 2011-03-15
+=================
 Major:
   * User list in the Web interface (#1010)
   * CKAN packaged as .deb for install on Ubuntu
@@ -18,7 +37,7 @@ Minor:
   * Command-line user authorization tools extended (#1038, #1026)
   * Default user roles read from config file (#1039)
 
-Bugfixes:
+Bug fixes:
   * Mounting of filesystem (affected versions since 1.0.1) (#1040)
   * Resubmitting a package via the API (affected versions since 0.6?) (#662)
   * Open redirect (affected v1.3) (#1026)
