@@ -5,11 +5,12 @@ from pylons import config
 
 # NOTE   
 # The functions in this file contain very generic methods for dictizing objects
-# and saving dictized objects. If a specilized use
+# and saving dictized objects. If a specialised use is needed please do NOT extend
+# these functions.  Copy code from here as needed.
 
 
 def table_dictize(obj, context):
-    '''Get any model object and reprisent it as a dict'''
+    '''Get any model object and represent it as a dict'''
 
     result_dict = {}
 
@@ -41,7 +42,7 @@ def table_dictize(obj, context):
 
 
 def obj_list_dictize(obj_list, context, sort_key=lambda x:x):
-    '''Get a list of model object and reprisent it as a list of dicts'''
+    '''Get a list of model object and represent it as a list of dicts'''
 
     result_list = []
 
@@ -52,7 +53,7 @@ def obj_list_dictize(obj_list, context, sort_key=lambda x:x):
 
 def obj_dict_dictize(obj_dict, context, sort_key=lambda x:x):
     '''Get a dict whose values are model objects 
-    and reprisent it as a list of dicts'''
+    and represent it as a list of dicts'''
 
     result_list = []
 
@@ -77,7 +78,7 @@ def get_unique_constraints(table, context):
 def table_dict_save(table_dict, ModelClass, context):
     '''Given a dict and a model class update or create a sqlalchemy object.
     This will use an existing object if "id" is supplied OR if any unique 
-    contraints are met. e.g supplying just a tag name will get out that tag obj.
+    constraints are met. e.g supplying just a tag name will get out that tag obj.
     '''
 
     model = context["model"]
