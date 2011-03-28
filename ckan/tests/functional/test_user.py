@@ -35,7 +35,7 @@ class TestUserController(FunctionalTestCase):
         main_res = self.main_div(res)
         assert 'annafan - User' in res, res
         assert 'Logged in' not in main_res, main_res
-        assert 'About' in main_res, main_res
+        assert 'about' in main_res, main_res
         assert 'I love reading Annakarenina' in res, main_res
         assert 'Edit' not in main_res, main_res
         assert 'Number of edits:</strong> 3' in res, res

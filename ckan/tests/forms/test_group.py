@@ -6,6 +6,7 @@ from ckan.tests.pylons_controller import PylonsTestCase
 class TestGroupFieldset(PylonsTestCase):
     @classmethod
     def setup_class(self):
+        PylonsTestCase.setup_class()
         ckan.tests.CreateTestData.create()
 
     @classmethod

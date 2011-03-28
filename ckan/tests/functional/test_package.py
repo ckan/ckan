@@ -256,10 +256,11 @@ class TestPackageForm(TestPackageBase):
                     pkg.purge()
                 model.repo.commit_and_remove()
 
-class TestReadOnly(TestPackageForm, HtmlCheckMethods, TestSearchIndexer):
+class TestReadOnly(TestPackageForm, HtmlCheckMethods, TestSearchIndexer, PylonsTestCase):
 
     @classmethod
     def setup_class(cls):
+        PylonsTestCase.setup_class()
         cls.tsi = TestSearchIndexer()
         CreateTestData.create()
         cls.tsi.index()
@@ -294,7 +295,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, TestSearchIndexer):
             for pkg_ in (pkg_by_name_main, pkg_by_id_main):
                 pkg_ = pkg_.replace(txt, 'placeholder')
         res_diff = self.diff_html(pkg_by_name_main, pkg_by_id_main)
-        assert not res_diff, res_diff
+        assert not res_diff, res_diff.encode('utf8')
         # not true as language selection link return url differs: 
         #assert len(res_by_id.body) == len(res.body)
 
@@ -342,8 +343,11 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, TestSearchIndexer):
         offset = url_for(controller='package', action='read', id=pkg_name)
         res = self.app.get(offset)
         def check_link(res, controller, id):
-            link = '<a href="/%s/read/%s">%s:%s</a>' % (controller, id, controller, id)
-            assert link in res, self.main_div(res) + link
+            link = '<a href="/%s/%s">%s:%s</a>' % (controller, id, controller, id)
+            if link not in res:
+                print self.main_div(res).encode('utf8')
+                print 'Missing link: %r' % link
+                raise AssertionError
         check_link(res, 'package', 'pkg-1')
         check_link(res, 'tag', 'tag_1')
         check_link(res, 'group', 'test-group-1')
