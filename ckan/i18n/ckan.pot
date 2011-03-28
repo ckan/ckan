@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ckan 1.3.2\n"
+"Project-Id-Version: ckan 1.3.3b\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2011-03-15 18:43+0000\n"
+"POT-Creation-Date: 2011-03-28 15:19+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,326 +18,328 @@ msgstr ""
 "Generated-By: Babel 0.9.5\n"
 
 #: ckan/misc.py:47
-msgid "<strong>Warning:</string>: Text could not be rendered."
+msgid "<strong>Warning:</strong>: Text could not be rendered."
 msgstr ""
 
-#: ckan/controllers/authorization_group.py:35 ckan/controllers/group.py:38
+#: ckan/controllers/authorization_group.py:19 ckan/controllers/group.py:22
+#: ckan/controllers/home.py:23 ckan/controllers/package.py:35
+#: ckan/controllers/rest.py:34 ckan/controllers/revision.py:13
+#: ckan/controllers/tag.py:17 ckan/controllers/user.py:16
+#: ckan/controllers/user.py:47 ckan/controllers/user.py:72
+msgid "Not authorized to see this page"
+msgstr ""
+
+#: ckan/controllers/authorization_group.py:37 ckan/controllers/group.py:41
 #, python-format
 msgid "Not authorized to read %s"
 msgstr ""
 
-#: ckan/controllers/authorization_group.py:53 ckan/controllers/group.py:62
+#: ckan/controllers/authorization_group.py:55 ckan/controllers/group.py:65
 msgid "Unauthorized to create a group"
 msgstr ""
 
-#: ckan/controllers/authorization_group.py:101 ckan/controllers/group.py:116
+#: ckan/controllers/authorization_group.py:103 ckan/controllers/group.py:119
+#: ckan/controllers/group.py:268
 #, python-format
 msgid "User %r not authorized to edit %r"
 msgstr ""
 
-#: ckan/controllers/authorization_group.py:145 ckan/controllers/group.py:163
-#: ckan/controllers/group.py:262
+#: ckan/controllers/authorization_group.py:147 ckan/controllers/group.py:166
+#: ckan/controllers/group.py:266
 msgid "Group not found"
 msgstr ""
 
-#: ckan/controllers/authorization_group.py:151 ckan/controllers/group.py:169
+#: ckan/controllers/authorization_group.py:153 ckan/controllers/group.py:173
 msgid "Not authorized to edit authorization for group"
 msgstr ""
 
-#: ckan/controllers/authorization_group.py:171 ckan/controllers/group.py:187
-#: ckan/controllers/package.py:425
+#: ckan/controllers/authorization_group.py:173 ckan/controllers/group.py:191
+#: ckan/controllers/package.py:433
 msgid "Please select either a user or an authorization group, not both."
 msgstr ""
 
-#: ckan/controllers/authorization_group.py:183 ckan/controllers/group.py:201
-#: ckan/controllers/package.py:438
+#: ckan/controllers/authorization_group.py:185 ckan/controllers/group.py:205
+#: ckan/controllers/package.py:446
 #, python-format
 msgid "Added role '%s' for user '%s'"
 msgstr ""
 
-#: ckan/controllers/authorization_group.py:197 ckan/controllers/group.py:217
-#: ckan/controllers/package.py:454
+#: ckan/controllers/authorization_group.py:199 ckan/controllers/group.py:221
+#: ckan/controllers/package.py:462
 #, python-format
 msgid "Added role '%s' for authorization group '%s'"
 msgstr ""
 
-#: ckan/controllers/authorization_group.py:204 ckan/controllers/group.py:224
-#: ckan/controllers/package.py:461
+#: ckan/controllers/authorization_group.py:206 ckan/controllers/group.py:228
+#: ckan/controllers/package.py:469
 msgid "Error: No role found with that id"
 msgstr ""
 
-#: ckan/controllers/authorization_group.py:208 ckan/controllers/group.py:230
-#: ckan/controllers/package.py:466
+#: ckan/controllers/authorization_group.py:210 ckan/controllers/group.py:234
+#: ckan/controllers/package.py:474
 #, python-format
 msgid "Deleted role '%s' for user '%s'"
 msgstr ""
 
-#: ckan/controllers/authorization_group.py:211 ckan/controllers/group.py:233
-#: ckan/controllers/package.py:469
+#: ckan/controllers/authorization_group.py:213 ckan/controllers/group.py:237
+#: ckan/controllers/package.py:477
 #, python-format
 msgid "Deleted role '%s' for authorization group '%s'"
 msgstr ""
 
-#: ckan/controllers/group.py:255 ckan/controllers/package.py:182
+#: ckan/controllers/group.py:259 ckan/controllers/package.py:184
 msgid "Select two revisions before doing the comparison."
 msgstr ""
 
-#: ckan/controllers/group.py:268
+#: ckan/controllers/group.py:275
 msgid "CKAN Group Revision History"
 msgstr ""
 
-#: ckan/controllers/group.py:270
+#: ckan/controllers/group.py:277
 msgid "Recent changes to CKAN Group: "
 msgstr ""
 
-#: ckan/controllers/group.py:290 ckan/controllers/package.py:216
+#: ckan/controllers/group.py:297 ckan/controllers/package.py:218
 msgid "Log message: "
 msgstr ""
 
-#: ckan/controllers/home.py:59
+#: ckan/controllers/home.py:63
+msgid "Invalid language specified"
+msgstr ""
+
+#: ckan/controllers/home.py:64
 msgid "Language has been set to: English"
 msgstr ""
 
-#: ckan/controllers/home.py:62
+#: ckan/controllers/home.py:66
 msgid "No language given!"
 msgstr ""
 
-#: ckan/controllers/package.py:118 ckan/controllers/package.py:154
-#: ckan/controllers/package.py:189 ckan/controllers/package.py:401
+#: ckan/controllers/package.py:120 ckan/controllers/package.py:156
+#: ckan/controllers/package.py:191 ckan/controllers/package.py:409
 msgid "Package not found"
 msgstr ""
 
-#: ckan/controllers/package.py:140 ckan/controllers/package.py:162
+#: ckan/controllers/package.py:142 ckan/controllers/package.py:164
 #, python-format
 msgid "Unauthorized to read package %s"
 msgstr ""
 
-#: ckan/controllers/package.py:195
+#: ckan/controllers/package.py:197
 msgid "CKAN Package Revision History"
 msgstr ""
 
-#: ckan/controllers/package.py:197
+#: ckan/controllers/package.py:199
 msgid "Recent changes to CKAN Package: "
 msgstr ""
 
-#: ckan/controllers/package.py:240
+#: ckan/controllers/package.py:242
 msgid "Unauthorized to create a package"
 msgstr ""
 
-#: ckan/controllers/package.py:312
+#: ckan/controllers/package.py:317
 #, python-format
 msgid "User %r not authorized to edit %s"
 msgstr ""
 
-#: ckan/controllers/package.py:407
+#: ckan/controllers/package.py:415
 #, python-format
 msgid "User %r not authorized to edit %s authorizations"
 msgstr ""
 
-#: ckan/controllers/package.py:486
+#: ckan/controllers/package.py:494
 msgid "404 Package Not Found"
 msgstr ""
 
-#: ckan/controllers/package.py:493
+#: ckan/controllers/package.py:501
 msgid "Rating value invalid"
 msgstr ""
 
-#: ckan/controllers/rest.py:188
+#: ckan/controllers/rest.py:108 ckan/controllers/apiv1/package.py:55
+#: ckan/controllers/apiv2/package.py:46
+msgid "Access denied"
+msgstr ""
+
+#: ckan/controllers/rest.py:114 ckan/controllers/apiv1/package.py:51
+#: ckan/controllers/apiv2/package.py:42
+msgid "Not found"
+msgstr ""
+
+#: ckan/controllers/rest.py:191
 #, python-format
 msgid "Cannot list entity of this type: %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:323
+#: ckan/controllers/rest.py:273
 #, python-format
 msgid "Cannot read entity of this type: %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:332 ckan/controllers/rest.py:439
-#: ckan/controllers/rest.py:475 ckan/controllers/rest.py:537
-#: ckan/controllers/rest.py:584 ckan/controllers/apiv1/package.py:51
-#: ckan/controllers/apiv1/package.py:63 ckan/controllers/apiv1/package.py:125
-#: ckan/controllers/apiv1/package.py:178 ckan/controllers/apiv2/package.py:46
-msgid "Access denied"
-msgstr ""
-
-#: ckan/controllers/rest.py:338 ckan/controllers/rest.py:481
-#: ckan/controllers/apiv1/package.py:114 ckan/controllers/apiv1/package.py:164
+#: ckan/controllers/rest.py:288 ckan/controllers/rest.py:432
+#: ckan/controllers/apiv1/package.py:118 ckan/controllers/apiv1/package.py:167
 #, python-format
 msgid "JSON Error: %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:348 ckan/controllers/rest.py:491
-#: ckan/controllers/apiv1/package.py:118 ckan/controllers/apiv1/package.py:167
-#, python-format
-msgid "Package format incorrect: %s"
-msgstr ""
-
-#: ckan/controllers/rest.py:368
+#: ckan/controllers/rest.py:315
 #, python-format
 msgid "REST API: Create package relationship: %s %s %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:390
+#: ckan/controllers/rest.py:336
 #, python-format
 msgid "Cannot create new entity of this type: %s %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:401 ckan/controllers/apiv1/package.py:87
+#: ckan/controllers/rest.py:347 ckan/controllers/apiv1/package.py:91
 #, python-format
 msgid "REST API: Create object %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:467
+#: ckan/controllers/rest.py:418
 #, python-format
 msgid "Cannot update entity of this type: %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:507 ckan/controllers/apiv1/package.py:147
+#: ckan/controllers/rest.py:453 ckan/controllers/apiv1/package.py:150
 #, python-format
 msgid "REST API: Update object %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:579
+#: ckan/controllers/rest.py:515
 #, python-format
 msgid "Cannot delete entity of this type: %s %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:588
+#: ckan/controllers/rest.py:524
 #, python-format
 msgid "REST API: Delete %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:612
+#: ckan/controllers/rest.py:548
 #, python-format
 msgid "There is no revision with id: %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:623
+#: ckan/controllers/rest.py:559
 msgid "Missing search term ('since_id=UUID' or 'since_time=TIMESTAMP')"
 msgstr ""
 
-#: ckan/controllers/rest.py:630
+#: ckan/controllers/rest.py:566
 msgid "Blank qjson parameter"
 msgstr ""
 
-#: ckan/controllers/rest.py:639
+#: ckan/controllers/rest.py:575
 #, python-format
 msgid "Search params: %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:677
+#: ckan/controllers/rest.py:613
 #, python-format
 msgid "Bad search option: %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:680
+#: ckan/controllers/rest.py:616
 #, python-format
 msgid "Unknown register: %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:721
+#: ckan/controllers/rest.py:657
 msgid "You must supply a package id or name (parameter \"package\")."
 msgstr ""
 
-#: ckan/controllers/rest.py:723
+#: ckan/controllers/rest.py:659
 msgid "You must supply a rating (parameter \"rating\")."
 msgstr ""
 
-#: ckan/controllers/rest.py:728
+#: ckan/controllers/rest.py:664
 msgid "Rating must be an integer value."
 msgstr ""
 
-#: ckan/controllers/rest.py:732
+#: ckan/controllers/rest.py:668
 #, python-format
 msgid "Rating must be between %i and %i."
 msgstr ""
 
-#: ckan/controllers/rest.py:734
+#: ckan/controllers/rest.py:670
 #, python-format
 msgid "Package with name %r does not exist."
 msgstr ""
 
-#: ckan/controllers/rest.py:758
-msgid "You must supply a user_ref."
-msgstr ""
-
-#: ckan/controllers/rest.py:760
-msgid "You must supply a source_id."
-msgstr ""
-
-#: ckan/controllers/rest.py:821
+#: ckan/controllers/rest.py:745
 #, python-format
 msgid "REST API: Update package relationship: %s %s %s"
 msgstr ""
 
-#: ckan/controllers/revision.py:19
+#: ckan/controllers/revision.py:24
 msgid "CKAN Repository Revision History"
 msgstr ""
 
-#: ckan/controllers/revision.py:21
+#: ckan/controllers/revision.py:26
 msgid "Recent changes to the CKAN repository."
 msgstr ""
 
-#: ckan/controllers/revision.py:80
+#: ckan/controllers/revision.py:85
 #, python-format
 msgid "Packages affected: %s.\n"
 msgstr ""
 
-#: ckan/controllers/revision.py:151
+#: ckan/controllers/revision.py:156
 msgid "No revision id specified"
 msgstr ""
 
-#: ckan/controllers/revision.py:154
+#: ckan/controllers/revision.py:159
 msgid "You are not authorized to perform this action"
 msgstr ""
 
-#: ckan/controllers/revision.py:163
+#: ckan/controllers/revision.py:168
 #, python-format
 msgid "Purge of revision failed: %s"
 msgstr ""
 
-#: ckan/controllers/tag.py:38 ckan/forms/common.py:918
+#: ckan/controllers/tag.py:43 ckan/forms/common.py:918
 msgid "Other"
 msgstr ""
 
-#: ckan/controllers/user.py:69
+#: ckan/controllers/user.py:78
 msgid "That username is not available."
 msgstr ""
 
-#: ckan/controllers/user.py:93
+#: ckan/controllers/user.py:102
 #, python-format
 msgid "Welcome back, %s"
 msgstr ""
 
-#: ckan/controllers/user.py:134
+#: ckan/controllers/user.py:140
 msgid "Changed user details"
 msgstr ""
 
-#: ckan/controllers/user.py:150
+#: ckan/controllers/user.py:156
 msgid "Your account has been updated."
 msgstr ""
 
-#: ckan/controllers/user.py:165
+#: ckan/controllers/user.py:171
 msgid "Your password must be 4 characters or longer."
 msgstr ""
 
-#: ckan/controllers/user.py:167
+#: ckan/controllers/user.py:173
 msgid "The passwords you entered do not match."
 msgstr ""
 
-#: ckan/controllers/apiv1/package.py:47 ckan/controllers/apiv2/package.py:42
-msgid "Not found"
+#: ckan/controllers/apiv1/package.py:122 ckan/controllers/apiv1/package.py:170
+#, python-format
+msgid "Package format incorrect: %s"
 msgstr ""
 
-#: ckan/controllers/apiv1/package.py:129 ckan/controllers/apiv1/package.py:174
+#: ckan/controllers/apiv1/package.py:132 ckan/controllers/apiv1/package.py:177
 msgid "Package was not found."
 msgstr ""
 
-#: ckan/controllers/apiv1/package.py:157
+#: ckan/controllers/apiv1/package.py:160
 msgid "Integrity Error"
 msgstr ""
 
-#: ckan/controllers/apiv1/package.py:182
+#: ckan/controllers/apiv1/package.py:184
 #, python-format
 msgid "REST API: Delete Package: %s"
 msgstr ""
@@ -430,11 +432,11 @@ msgstr ""
 msgid "Extras"
 msgstr ""
 
-#: ckan/forms/group.py:88
+#: ckan/forms/group.py:87
 msgid "Package"
 msgstr ""
 
-#: ckan/forms/group.py:89
+#: ckan/forms/group.py:88
 msgid "Add packages"
 msgstr ""
 
@@ -631,12 +633,12 @@ msgstr ""
 msgid "Key blank"
 msgstr ""
 
-#: ckan/lib/base.py:128
+#: ckan/lib/base.py:142
 #, python-format
 msgid "Can't find entity data in request POST data %s: %s"
 msgstr ""
 
-#: ckan/lib/base.py:134
+#: ckan/lib/base.py:148
 msgid "Request params must be in form of a json encoded dictionary."
 msgstr ""
 
@@ -902,7 +904,7 @@ msgid "Create New User or Authorization Group Roles"
 msgstr ""
 
 #: ckan/templates/authorization_group/authz.html:25
-#: ckan/templates/authorization_group/edit_form.html:24
+#: ckan/templates/authorization_group/edit_form.html:25
 #: ckan/templates/group/authz.html:25 ckan/templates/group/edit_form.html:23
 #: ckan/templates/package/authz.html:25 ckan/templates/package/edit_form.html:29
 #: ckan/templates/user/edit.html:45
@@ -922,7 +924,7 @@ msgstr ""
 msgid "Users"
 msgstr ""
 
-#: ckan/templates/authorization_group/edit_form.html:17
+#: ckan/templates/authorization_group/edit_form.html:18
 msgid "There are no users currently in this group."
 msgstr ""
 
@@ -1707,22 +1709,6 @@ msgstr ""
 msgid "There are %(package_count)s packages tagged with [1:%(tagname)s]:"
 msgstr ""
 
-#: ckan/templates/user/apikey.html:5
-msgid "API Key -"
-msgstr ""
-
-#: ckan/templates/user/apikey.html:5 ckan/templates/user/read.html:7
-msgid "- User"
-msgstr ""
-
-#: ckan/templates/user/apikey.html:8
-msgid "API Key"
-msgstr ""
-
-#: ckan/templates/user/apikey.html:9
-msgid "Your API key is:"
-msgstr ""
-
 #: ckan/templates/user/edit.html:6
 msgid "- Edit - User"
 msgstr ""
@@ -1817,17 +1803,17 @@ msgid ""
 "account]."
 msgstr ""
 
-#: ckan/templates/user/login.html:70
+#: ckan/templates/user/login.html:71
 msgid "Don't have an OpenID?"
 msgstr ""
 
-#: ckan/templates/user/login.html:71
+#: ckan/templates/user/login.html:72
 msgid ""
 "OpenID is service that allows you to log-on to many different websites\n"
-"      using a single identity. Find out [1:more\n"
-"      about OpenID] and [2:how to get an\n"
-"      OpenID enabled account]. Probably the simplest way is sign up with a\n"
-"      free OpenID provider such as [3:https://www.myopenid.com/]."
+"        using a single identity. Find out [1:more\n"
+"        about OpenID] and [2:how to get an\n"
+"        OpenID enabled account]. Probably the simplest way is sign up with a\n"
+"        free OpenID provider such as [3:https://www.myopenid.com/]."
 msgstr ""
 
 #: ckan/templates/user/logout.html:5
@@ -1836,6 +1822,10 @@ msgstr ""
 
 #: ckan/templates/user/logout.html:9
 msgid "You have logged out successfully."
+msgstr ""
+
+#: ckan/templates/user/read.html:7
+msgid "- User"
 msgstr ""
 
 #: ckan/templates/user/read.html:8
@@ -1851,7 +1841,7 @@ msgid "You are logged in."
 msgstr ""
 
 #: ckan/templates/user/read.html:18
-msgid "View your API key"
+msgid "Your API key is:"
 msgstr ""
 
 #: ckan/templates/user/read.html:19
