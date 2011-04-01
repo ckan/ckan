@@ -203,11 +203,10 @@ class PackageController(RestController):
                 if existing_pkg_dict:
                     if request_dict[key] != existing_pkg_dict.get(key):
                         raise ckan.forms.PackageDictFormatError(
-                            'Key %r is readonly - do not include in the '
-                            'package or leave it unchanged.')
+                            'Cannot change value of key %r from %r to %r. This key is read-only.' % (key, existing_pkg_dict.get(key), request_dict[key]))
                 else:
                     raise ckan.forms.PackageDictFormatError(
-                        'Key %r is readonly - do not include in the '
-                        'package.')                    
+                        'Key %r is read-only - do not include in the '
+                        'package.' % key)                    
                 del stripped_package_dict[key]# = request_dict[key]
         return stripped_package_dict
