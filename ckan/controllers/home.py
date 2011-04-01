@@ -57,8 +57,11 @@ class HomeController(BaseController):
     def locale(self): 
         locale = request.params.get('locale')
         if locale is not None:
+            try:
+                set_session_locale(locale)
+            except ValueError:
+                abort(400, _('Invalid language specified'))
             h.flash_notice(_("Language has been set to: English"))
-            set_session_locale(locale)
         else:
             h.flash_notice(_("No language given!"))
         return_to = get_redirect()
