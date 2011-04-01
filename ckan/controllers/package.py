@@ -243,8 +243,6 @@ class PackageController(BaseController):
         # Get the name of the package form.
         fs = self._get_package_fieldset(is_admin=is_admin)
 
-        from nose.tools import set_trace; set_trace()
-        
         if 'save' in request.params or 'preview' in request.params:
             if not request.params.has_key('log_message'):
                 abort(400, ('Missing parameter: log_message'))
