@@ -44,12 +44,12 @@ class ManageDb(CkanCommand):
     db init # create and put in default data
     db clean
     db upgrade [{version no.}] # Data migrate
-    db dump {file-path} # dump to a file (json)
+    db dump {file-path} # dump to a pg_dump file
     db dump-rdf {package-name} {file-path}
     db simple-dump-csv {file-path}
     db simple-dump-json {file-path}
     db send-rdf {talis-store} {username} {password}
-    db load {file-path} # load a dump from a file
+    db load {file-path} # load a pg_dump from a file
     db create-from-model # create database from the model (indexes not made)
     db migrate06
     db migrate09a
@@ -120,22 +120,64 @@ class ManageDb(CkanCommand):
             print 'Command %s not recognized' % cmd
             sys.exit(1)
 
+    def _get_db_config(self):
+        from pylons import config
+        url = config['sqlalchemy.url']
+        # e.g. 'postgres://tester:pass@localhost/ckantest3'
+        db_details_match = re.match('^\s*(?P<db_type>\w*)://(?P<db_user>\w*):?(?P<db_pass>[^@]*)@(?P<db_host>[^/:]*):?(?P<db_port>[^/]*)/(?P<db_name>[\w.-]*)', url)
+        if not db_details_match:
+            raise Exception('Could not extract db details from url: %r' % url)
+        db_details = db_details_match.groupdict()
+        return db_details
+
+    def _get_postgres_cmd(self, command):
+        self.db_details = self._get_db_config()
+        if self.db_details.get('db_type') not in ('postgres', 'postgresql'):
+            raise AssertionError('Expected postgres database - not %r' % self.db_details.get('db_type'))
+        pg_cmd = command
+        pg_cmd += ' -U %(db_user)s' % self.db_details
+        if self.db_details.get('db_pass') not in (None, ''):
+            pg_cmd = 'export PGPASSWORD=%(db_pass)s && ' % self.db_details + pg_cmd
+        if self.db_details.get('db_host') not in (None, '', 'localhost'):
+            pg_cmd += ' -h %(db_host)s' % self.db_details
+        if self.db_details.get('db_port') not in (None, ''):
+            pg_cmd += ' -p %(db_port)s' % self.db_details
+        return pg_cmd
+
+    def _get_psql_cmd(self):
+        psql_cmd = self._get_postgres_cmd('psql')
+        psql_cmd += ' -d %(db_name)s' % self.db_details
+        return psql_cmd
+
+    def _postgres_dump(self, filepath):
+        pg_dump_cmd = self._get_postgres_cmd('pg_dump')
+        pg_dump_cmd += ' %(db_name)s' % self.db_details
+        pg_dump_cmd += ' > %s' % filepath
+        self._run_cmd(pg_dump_cmd)
+
+    def _postgres_load(self, filepath):
+        pg_cmd = self._get_psql_cmd() + ' -f %s' % filepath
+        self._run_cmd(pg_cmd)
+
+    def _run_cmd(self, command_line):
+        import subprocess    
+        subprocess.call(command_line, shell=True)
+
     def dump_or_load(self, cmd):
-        print 'This functionality is mothballed for now.'
-        return
         if len(self.args) < 2:
-            print 'Need dump path'
+            print 'Need pg_dump filepath'
             return
         dump_path = self.args[1]
-        import ckan.lib.dumper
-        dumper = ckan.lib.dumper.Dumper()
-        verbose = (self.verbose >= 2)
+
+        psql_cmd = self._get_psql_cmd() + ' -f %s'
         if cmd == 'load':
-            dumper.load_json(dump_path, verbose=verbose)
+            pg_cmd = self._postgres_load(dump_path)
         elif cmd == 'dump':
-            dumper.dump_json(dump_path, verbose=verbose)
+            pg_cmd = self._postgres_dump(dump_path)
         else:
             print 'Unknown command', cmd
+        if cmd == 'load':
+            print 'Now remember you have to call \'db upgrade\'.'
 
     def simple_dump_csv(self, cmd):
         from ckan import model
