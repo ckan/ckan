@@ -53,6 +53,10 @@ class Role(Enum):
     EDITOR = u'editor'
     READER = u'reader'
 
+# These define what is meant by 'editor' and 'reader' for all ckan
+# instances - locked down or otherwise. They get refreshed on every db_upgrade.
+# So if you want to lock down an ckan instance, change Visitor and LoggedIn
+# to have a new role which for which you can allow your customised actions.
 default_role_actions = [
     (Role.EDITOR, Action.EDIT),
     (Role.EDITOR, Action.PACKAGE_CREATE),
@@ -62,11 +66,9 @@ default_role_actions = [
     (Role.EDITOR, Action.USER_READ),
     (Role.EDITOR, Action.SITE_READ),
     (Role.EDITOR, Action.READ),
-    (Role.READER, Action.PACKAGE_CREATE),
     (Role.READER, Action.USER_CREATE),
     (Role.READER, Action.USER_READ),
     (Role.READER, Action.SITE_READ),
-    #(Role.READER, Action.GROUP_CREATE),
     (Role.READER, Action.READ),
     ]
 
