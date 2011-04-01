@@ -241,7 +241,10 @@ class PackageController(BaseController):
         if not auth_for_create:
             abort(401, _('Unauthorized to create a package'))
         # Get the name of the package form.
-        fs = self._get_package_fieldset(is_admin=is_admin)
+        try:
+            fs = self._get_package_fieldset(is_admin=is_admin)
+        except ValueError, e:
+            abort(400, e)
         if 'save' in request.params or 'preview' in request.params:
             if not request.params.has_key('log_message'):
                 abort(400, ('Missing parameter: log_message'))
@@ -314,7 +317,10 @@ class PackageController(BaseController):
             abort(401, _('User %r not authorized to edit %s') % (c.user, id))
 
         auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, pkg)
-        fs = self._get_package_fieldset(is_admin=auth_for_change_state)
+        try:
+            fs = self._get_package_fieldset(is_admin=auth_for_change_state)
+        except ValueError, e:
+            abort(400, e)
         if 'save' in request.params or 'preview' in request.params:
             if not request.params.has_key('log_message'):
                 abort(400, ('Missing parameter: log_message'))
