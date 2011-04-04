@@ -78,9 +78,9 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         return Session.query(cls).filter(cls.name.contains(text_query))
 
     def as_dict(self, ref_package_by='name'):
-        _dict = DomainObject.as_dict(cls)
+        _dict = DomainObject.as_dict(self)
         _dict['packages'] = [getattr(package, ref_package_by) for package in self.packages]
-        _dict['extras'] = dict([(key, value) for key, value in cls.extras.items()])
+        _dict['extras'] = dict([(key, value) for key, value in self.extras.items()])
         return _dict
 
     def add_package_by_name(self, package_name):
