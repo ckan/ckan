@@ -160,7 +160,8 @@ class ManageDb(CkanCommand):
         self._run_cmd(pg_cmd)
 
     def _run_cmd(self, command_line):
-        import subprocess    
+        import subprocess
+        print command_line
         subprocess.call(command_line, shell=True)
 
     def dump_or_load(self, cmd):
