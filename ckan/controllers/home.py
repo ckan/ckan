@@ -43,6 +43,9 @@ class HomeController(BaseController):
         return render('home/index.html', cache_key=cache_key,
                 cache_expire=cache_expires)
 
+    def license(self):
+        return render('home/license.html', cache_expire=cache_expires)
+
     def about(self):
         return render('home/about.html', cache_expire=cache_expires)
         
