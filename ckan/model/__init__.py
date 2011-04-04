@@ -22,6 +22,7 @@ from rating import *
 from package_relationship import *
 from changeset import Changeset, Change, Changemask
 import ckan.migration
+from ckan.lib.helpers import OrderedDict
 
 # set up in init_model after metadata is bound
 version_table = None
@@ -213,3 +214,14 @@ def strptimestamp(s):
 def strftimestamp(t):
     return t.isoformat()
 
+def revision_as_dict(revision, include_packages=True, ref_package_by='name'):
+    revision_dict = OrderedDict((
+        ('id', revision.id),
+        ('timestamp', strftimestamp(revision.timestamp)),
+        ('message', revision.message),
+        ('author', revision.author),
+        ))
+    if include_packages:
+        revision_dict['packages'] = [getattr(pkg, ref_package_by) \
+                                     for pkg in revision.packages]
+    return revision_dict

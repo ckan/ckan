@@ -51,8 +51,6 @@ def make_map():
                 conditions=dict(method=['PUT']))
     map.connect('/api/rest/package/:id', controller='apiv1/package', action='delete',
                 conditions=dict(method=['DELETE']))
-    map.connect('/api/rest/package_history/:id', controller='apiv1/package', action='package_history',
-                conditions=dict(method=['GET']))
 
     map.connect('/api/rest/package', controller='apiv1/package', action='list',
                 conditions=dict(method=['GET']))
@@ -66,8 +64,6 @@ def make_map():
                 conditions=dict(method=['PUT']))
     map.connect('/api/rest/package/:id', controller='apiv1/package', action='delete',
                 conditions=dict(method=['DELETE']))
-    map.connect('/api/rest/package_history/:id', controller='apiv1/package', action='package_history',
-                conditions=dict(method=['GET']))
 
     map.connect('/api/rest/:register', controller='rest', action='list',
         conditions=dict(method=['GET']))
@@ -120,8 +116,6 @@ def make_map():
                 conditions=dict(method=['PUT']))
     map.connect('/api/1/rest/package/:id', controller='apiv1/package', action='delete',
                 conditions=dict(method=['DELETE']))
-    map.connect('/api/1/rest/package_history/:id', controller='apiv1/package', action='package_history',
-                conditions=dict(method=['GET']))
 
     map.connect('/api/1/rest/:register', controller='rest', action='list',
         conditions=dict(method=['GET']))
@@ -178,8 +172,6 @@ def make_map():
                 conditions=dict(method=['PUT']))
     map.connect('/api/2/rest/package/:id', controller='apiv2/package', action='delete',
                 conditions=dict(method=['DELETE']))
-    map.connect('/api/2/rest/package_history/:id', controller='apiv1/package', action='package_history',
-                conditions=dict(method=['GET']))
 
     map.connect('/api/2/rest/:register', controller='rest2', action='list',
         conditions=dict(method=['GET']))

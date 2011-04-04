@@ -25,9 +25,16 @@
 |                    | object: Package-Name-String, type: Relationship-Type,      |
 |                    | comment: String }                                          |
 +--------------------+------------------------------------------------------------+
+| Pkg-Revisions      | [ Pkg-Revision, Pkg-Revision, Pkg-Revision, ... ]          |
++--------------------+------------------------------------------------------------+
+| Pkg-Revision       | { id: Uuid, message: String, author: String,               |
+|                    | timestamp: Date-Time }                                     |
++--------------------+------------------------------------------------------------+
 |Relationship-Type   | One of: 'depends_on', 'dependency_of',                     |
 |                    | 'derives_from', 'has_derivation',                          |
 |                    | 'child_of', 'parent_of'.                                   |
++--------------------+------------------------------------------------------------+
+| Revision-List      | [ revision_id, revision_id, revision_id, ... ]             |
 +--------------------+------------------------------------------------------------+
 | Revision           | { id: Uuid, message: String, author: String,               |
 |                    | timestamp: Date-Time, packages: Package-List }             |
