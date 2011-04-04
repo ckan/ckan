@@ -5,6 +5,7 @@ v1.3.3 2011-XX-XX
 =================
 Major:
   * Authorization checks added to editing Groups and PackageRelationships (#1052)
+  * API: Added package revision history (#1012)
 
 Minor:
   * API can take auth credentials from cookie (#1001)
