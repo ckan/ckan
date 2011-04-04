@@ -1138,7 +1138,7 @@ class TestNew(TestPackageForm):
         # (Spammers can cause this)
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
-        assert 'New - Data Packages' in res
+        assert 'New - Data Packages' in res, res
         prefix = 'Package--'
         fv = res.forms['package-edit']
         fv[prefix + 'name'] = 'anything'
@@ -1401,6 +1401,7 @@ alert('Hello world!');
 class TestEtags(PylonsTestCase, TestPackageBase):
     @classmethod
     def setup_class(cls):
+        PylonsTestCase.setup_class()
         CreateTestData.create()
 
     @classmethod

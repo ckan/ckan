@@ -188,6 +188,7 @@ class TestLockedDownAuthorizer(object):
     def setup_class(self):
         CreateTestData.create()
         q = model.Session.query(model.UserObjectRole).filter(sa.or_(model.UserObjectRole.role==Role.EDITOR,
+                                                                    model.UserObjectRole.role==Role.ANON_EDITOR,
                                                                     model.UserObjectRole.role==Role.READER))
         q = q.filter(model.UserObjectRole.user==model.User.by_name(u"visitor"))
         for role in q:
