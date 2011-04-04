@@ -1,4 +1,5 @@
 from ckan.lib.dictization import table_dict_save
+from sqlalchemy.orm import class_mapper
 
 ##package saving
 
@@ -17,14 +18,18 @@ def resource_dict_save(res_dict, context):
     if not obj:
         obj = model.Resource()
 
-    obj.extras = res_dict.get("extras", {})
+    table = class_mapper(model.Resource).mapped_table
+    fields = [field.name for field in table.c]
 
     for key, value in res_dict.iteritems():
         if isinstance(value, list):
             continue
         if key == 'extras':
             continue
-        setattr(obj, key, value)
+        if key in fields:
+            setattr(obj, key, value)
+        else:
+            obj.extras[key] = value
 
     session.add(obj)
 

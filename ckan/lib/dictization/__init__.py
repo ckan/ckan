@@ -21,8 +21,6 @@ def table_dictize(obj, context):
     table = class_mapper(ModelClass).mapped_table
 
     fields = [field.name for field in table.c]
-    if hasattr(obj, "get_extra_columns"):
-        fields.extend(obj.get_extra_columns())
 
     for field in fields:
         name = field

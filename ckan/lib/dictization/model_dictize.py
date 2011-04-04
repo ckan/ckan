@@ -21,12 +21,16 @@ def resource_list_dictize(res_list, context):
 
     result_list = []
     for res in res_list:
-        result_list.append(table_dictize(res, context))
+        result_list.append(resource_dictize(res, context))
 
     return sorted(result_list, key=lambda x: x["position"])
 
 def resource_dictize(res, context):
-    return table_dictize(res, context)
+    resource = table_dictize(res, context)
+    extras = resource.pop("extras", None)
+    if extras:
+        resource.update(extras)
+    return resource
 
 def package_dictize(pkg, context):
 
@@ -64,10 +68,6 @@ def group_dictize(group, context):
 ## conversion to api
 
 def resource_dict_to_api(res_dict, package_id, context):
-    for key, value in res_dict["extras"].iteritems():
-        if key not in res_dict:
-            res_dict[key] = value
-    res_dict.pop("extras")
     res_dict.pop("revision_id")
     res_dict.pop("state")
     res_dict["package_id"] = package_id

@@ -22,6 +22,10 @@ from ckan.lib.dictization.model_save import (package_dict_save,
                                              group_api2_to_dict,
                                             )
 
+from ckan.lib.dictization.model_schema import default_package_schema
+
+from ckan.lib.navl.dictization_functions import validate
+
 class TestBasicDictize:
     @classmethod
     def setup_class(cls):
@@ -79,19 +83,18 @@ class TestBasicDictize:
 
         resource = pkg.resource_groups[0].resources[0]
 
-        result = table_dictize(resource, context)
+        result = resource_dictize(resource, context)
         self.remove_changable_columns(result)
 
         assert result == {
-            'alt_url': u'alt123',
-            'description': u'Full text. Needs escaping: " Umlaut: \xfc',
-            'extras': {u'alt_url': u'alt123', u'size': u'123'},
-            'format': u'plain text',
-            'hash': u'abc123',
-            'position': 0,
-            'state': u'active',
-            'url': u'http://www.annakarenina.com/download/x=1&y=2'
-        }, pprint(result)
+             'alt_url': u'alt123',
+             'description': u'Full text. Needs escaping: " Umlaut: \xfc',
+             'format': u'plain text',
+             'hash': u'abc123',
+             'position': 0,
+             'size': u'123',
+             'state': u'active',
+             'url': u'http://www.annakarenina.com/download/x=1&y=2'}, pprint(result)
 
         ## package extra
 
@@ -139,7 +142,7 @@ class TestBasicDictize:
              'relationships_as_subject': [],
              'resources': [{'alt_url': u'alt123',
                             'description': u'Full text. Needs escaping: " Umlaut: \xfc',
-                            'extras': {u'alt_url': u'alt123', u'size': u'123'},
+                            'size': u'123',
                             'format': u'plain text',
                             'hash': u'abc123',
                             'position': 0,
@@ -147,7 +150,7 @@ class TestBasicDictize:
                             'url': u'http://www.annakarenina.com/download/x=1&y=2'},
                            {'alt_url': u'alt345',
                             'description': u'Index of the novel',
-                            'extras': {u'alt_url': u'alt345', u'size': u'345'},
+                            'size': u'345',
                             'format': u'json',
                             'hash': u'def456',
                             'position': 1,
@@ -320,7 +323,7 @@ class TestBasicDictize:
         new_resource = {
             'alt_url': u'empty resource group id',
             'description': u'Full text. Needs escaping: " Umlaut: \xfc',
-            'extras': {u'alt_url': u'empty resource group id', u'size': u'123'},
+            'size': u'123',
             'format': u'plain text',
             'hash': u'abc123',
             'position': 0,
@@ -499,3 +502,8 @@ class TestBasicDictize:
                                                            'name': u'testgroup',
                                                            'packages': [{'id': u'idffdsfsafsafa'}, {'id': u'idffdsfsafs'}],
                                                            'title': u'Some Group Title'}, pformat(group_api2_to_dict(api2_group, context))
+
+
+
+
+
