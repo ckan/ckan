@@ -9,11 +9,18 @@ from ckan.lib.dictization import (table_dictize,
 
 from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 resource_dictize,
+                                                group_dictize,
                                                 package_to_api1,
-                                                package_to_api2)
+                                                package_to_api2,
+                                               )
 
 from ckan.lib.dictization.model_save import (package_dict_save,
-                                             resource_dict_save)
+                                             resource_dict_save,
+                                             group_dict_save,
+                                             package_api_to_dict,
+                                             group_api1_to_dict,
+                                             group_api2_to_dict,
+                                            )
 
 class TestBasicDictize:
     @classmethod
@@ -336,5 +343,159 @@ class TestBasicDictize:
 
         assert res_dictized == new_resource, res_dictized 
 
+    def test_12_api_to_dictize(self):
+
+        context = {"model": model,
+                 "session": model.Session}
+
+        api_data = {
+            'name' : u'testpkg',
+            'title': u'Some Title',
+            'url': u'http://blahblahblah.mydomain',
+            'resources': [ {
+                u'url':u'http://blah.com/file2.xml',
+                u'format':u'xml',
+                u'description':u'Second file',
+                u'hash':u'def123',
+                u'alt_url':u'alt_url',
+                u'extras':{u'size':u'200'},
+            },
+                {
+                u'url':u'http://blah.com/file.xml',
+                u'format':u'xml',
+                u'description':u'Main file',
+                u'hash':u'abc123',
+                u'alt_url':u'alt_url',
+                u'extras':{u'size':u'200'},
+            },
+            ],
+            'tags': u'russion novel',
+            'license_id': u'gpl-3.0',
+            'extras': {
+                'genre' : u'horror',
+                'media' : u'dvd',
+            },
+        }
+
+        dictized = package_api_to_dict(api_data, context)
+
+        assert dictized == {'extras': [{'key': 'genre', 'value': u'horror'},
+                                       {'key': 'media', 'value': u'dvd'}],
+                            'license_id': u'gpl-3.0',
+                            'name': u'testpkg',
+                            'resources': [{u'alt_url': u'alt_url',
+                                          u'description': u'Second file',
+                                          u'extras': {u'size': u'200'},
+                                          u'format': u'xml',
+                                          u'hash': u'def123',
+                                          u'url': u'http://blah.com/file2.xml'},
+                                          {u'alt_url': u'alt_url',
+                                          u'description': u'Main file',
+                                          u'extras': {u'size': u'200'},
+                                          u'format': u'xml',
+                                          u'hash': u'abc123',
+                                          u'url': u'http://blah.com/file.xml'}],
+                            'tags': [{'name': u'russion'}, {'name': u'novel'}],
+                            'title': u'Some Title',
+                            'url': u'http://blahblahblah.mydomain'}
+
+        model.repo.new_revision()
+
+        package_dict_save(dictized, context)
+        model.Session.commit()
+        model.Session.remove()
+
+        pkg = model.Session.query(model.Package).filter_by(name=u'testpkg').one()
+
+        package_dictized = self.remove_changable_columns(package_dictize(pkg, context))
+        pprint(package_dictized)
+
+    def test_13_group_dictized(self):
+
+        context = {"model": model,
+                  "session": model.Session}
+
+        pkg = model.Session.query(model.Package).filter_by(name='annakarenina3').first()
+
+        group_dict = {'name': 'help',
+                      'title': 'help',
+                      'extras': [{'key': 'genre', 'value': u'horror'},
+                                 {'key': 'media', 'value': u'dvd'}],
+                      'packages':[{'name': 'annakarenina2'}, {'id': pkg.id}]
+                      }
 
 
+        model.repo.new_revision()
+        group_dict_save(group_dict, context)
+        model.Session.commit()
+        model.Session.remove()
+
+        group = model.Session.query(model.Group).filter_by(name=u'help').one()
+
+        group_dictized = group_dictize(group, context)
+
+        expected =  {'description': u'',
+                    'extras': [{'key': u'genre', 'state': u'active', 'value': u'horror'},
+                               {'key': u'media', 'state': u'active', 'value': u'dvd'}],
+                    'name': u'help',
+                    'packages': [{'author': None,
+                                  'author_email': None,
+                                  'license_id': u'other-open',
+                                  'maintainer': None,
+                                  'maintainer_email': None,
+                                  'name': u'annakarenina3',
+                                  'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n \nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
+                                  'state': u'active',
+                                  'title': u'A Novel By Tolstoy',
+                                  'url': u'http://www.annakarenina.com',
+                                  'version': u'0.7a'},
+                                 {'author': None,
+                                  'author_email': None,
+                                  'license_id': u'other-open',
+                                  'maintainer': None,
+                                  'maintainer_email': None,
+                                  'name': u'annakarenina2',
+                                  'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n \nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
+                                  'state': u'active',
+                                  'title': u'A Novel By Tolstoy',
+                                  'url': u'http://www.annakarenina.com',
+                                  'version': u'0.7a'}],
+                    'state': u'active',
+                    'title': u'help'}
+
+        expected['packages'] = sorted(expected['packages'], key=lambda x: x['name'])
+
+        result = self.remove_changable_columns(group_dictized)
+        result['packages'] = sorted(result['packages'], key=lambda x: x['name'])
+
+        assert result == expected, pformat(result)
+
+
+    def test_14_group_apis_to_dict(self):
+
+        context = {"model": model,
+                  "session": model.Session}
+
+        api1_group = {
+            'name' : u'testgroup',
+            'title' : u'Some Group Title',
+            'description' : u'Great group!',
+            'packages' : [u'annakarenina', u'warandpeace'],
+        }
+
+        api2_group = {
+            'name' : u'testgroup',
+            'title' : u'Some Group Title',
+            'description' : u'Great group!',
+            'packages' : [u'idffdsfsafsafa', u'idffdsfsafs'],
+        }
+
+        assert group_api1_to_dict(api1_group, context) == {'description': u'Great group!',
+                                                           'name': u'testgroup',
+                                                           'packages': [{'name': u'annakarenina'}, {'name': u'warandpeace'}],
+                                                           'title': u'Some Group Title'}, pformat(group_api1_to_dict(api1_group, context))
+
+        assert group_api2_to_dict(api2_group, context) == {'description': u'Great group!',
+                                                           'name': u'testgroup',
+                                                           'packages': [{'id': u'idffdsfsafsafa'}, {'id': u'idffdsfsafs'}],
+                                                           'title': u'Some Group Title'}, pformat(group_api2_to_dict(api2_group, context))
