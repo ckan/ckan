@@ -3,7 +3,23 @@ import formencode as fe
 import inspect
 
 class Missing(object):
-    pass
+    def __unicode__(self):
+        raise Invalid(fe.api._stdtrans('Missing value'))
+    def __str__(self):
+        raise Invalid(fe.api._stdtrans('Missing value'))
+    def __int__(self):
+        raise Invalid(fe.api._stdtrans('Missing value'))
+    def __complex__(self):
+        raise Invalid(fe.api._stdtrans('Missing value'))
+    def __long__(self):
+        raise Invalid(fe.api._stdtrans('Missing value'))
+    def __float__(self):
+        raise Invalid(fe.api._stdtrans('Missing value'))
+    def __oct__(self):
+        raise Invalid(fe.api._stdtrans('Missing value'))
+    def __hex__(self):
+        raise Invalid(fe.api._stdtrans('Missing value'))
+
 missing = Missing()
 
 class State(object):
@@ -150,6 +166,9 @@ def convert(converter, key, converted_data, errors, context):
         ## number of arguements given.
         if not converter.__name__ in e.message:
             raise
+    except Invalid, e:
+        errors[key].append(e.error)
+        return
 
     try:
         converter(key, converted_data, errors, context)
