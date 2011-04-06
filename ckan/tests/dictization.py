@@ -22,10 +22,6 @@ from ckan.lib.dictization.model_save import (package_dict_save,
                                              group_api2_to_dict,
                                             )
 
-from ckan.lib.dictization.model_schema import default_package_schema
-
-from ckan.lib.navl.dictization_functions import validate
-
 class TestBasicDictize:
     @classmethod
     def setup_class(cls):
@@ -361,7 +357,7 @@ class TestBasicDictize:
                 u'description':u'Second file',
                 u'hash':u'def123',
                 u'alt_url':u'alt_url',
-                u'extras':{u'size':u'200'},
+                u'size':u'200',
             },
                 {
                 u'url':u'http://blah.com/file.xml',
@@ -369,7 +365,7 @@ class TestBasicDictize:
                 u'description':u'Main file',
                 u'hash':u'abc123',
                 u'alt_url':u'alt_url',
-                u'extras':{u'size':u'200'},
+                u'size':u'200',
             },
             ],
             'tags': u'russion novel',
@@ -388,13 +384,13 @@ class TestBasicDictize:
                             'name': u'testpkg',
                             'resources': [{u'alt_url': u'alt_url',
                                           u'description': u'Second file',
-                                          u'extras': {u'size': u'200'},
+                                          u'size': u'200',
                                           u'format': u'xml',
                                           u'hash': u'def123',
                                           u'url': u'http://blah.com/file2.xml'},
                                           {u'alt_url': u'alt_url',
                                           u'description': u'Main file',
-                                          u'extras': {u'size': u'200'},
+                                          u'size': u'200',
                                           u'format': u'xml',
                                           u'hash': u'abc123',
                                           u'url': u'http://blah.com/file.xml'}],

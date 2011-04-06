@@ -31,7 +31,7 @@ def flatten_schema(schema, flattened=None, key=None):
     for key, value in schema.iteritems():
         new_key = old_key + [key]
         if isinstance(value, dict):
-            flatten_schema(value, flattened, new_key)
+            flattened = flatten_schema(value, flattened, new_key)
         else:
             flattened[tuple(new_key)] = value
 
@@ -115,9 +115,11 @@ def augment_data(data, schema):
 def validate(data, schema, context=None):
     '''validate an unflattened nested dict agiast a schema'''
 
+    context = context or {}
+
     assert isinstance(data, dict)
     flattened = flatten_dict(data)
-    converted_data, errors = validate_flattened(flattened, schema)
+    converted_data, errors = validate_flattened(flattened, schema, context)
     converted_data = unflatten(converted_data)
     return converted_data, errors
 
@@ -143,14 +145,20 @@ def convert(converter, key, converted_data, errors, context):
         value = converter(converted_data.get(key))
         converted_data[key] = value
         return
-    except TypeError:
-        pass
+    except TypeError, e:
+        ## hack to make sure the type error was caused by the wrong
+        ## number of arguements given.
+        if not converter.__name__ in e.message:
+            raise
 
     try:
         converter(key, converted_data, errors, context)
         return
-    except TypeError:
-        pass
+    except TypeError, e:
+        ## hack to make sure the type error was caused by the wrong
+        ## number of arguements given.
+        if not converter.__name__ in e.message:
+            raise
 
     try:
         value = converter(converted_data.get(key), context)
@@ -159,8 +167,6 @@ def convert(converter, key, converted_data, errors, context):
     except Invalid, e:
         errors[key].append(e.error)
         return
-    except TypeError:
-        from nose.tools import set_trace; set_trace()
         
 
 

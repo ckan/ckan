@@ -86,9 +86,15 @@ def group_list_save(group_dicts, context):
     session = context["session"]
 
     group_list = []
-    for table_dict in group_dicts:
-        obj = table_dict_save(table_dict, model.Group, context)
-        group_list.append(obj)
+    for group_dict in group_dicts:
+        id = group_dict.get("id")
+        name = group_dict.get("name")
+        if id:
+            group = session.query(model.Group).get(id)
+        else:
+            group = session.query(model.Group).filter_by(name=name).first()
+
+        group_list.append(group)
 
     return group_list
     

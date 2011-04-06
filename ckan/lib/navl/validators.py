@@ -18,6 +18,18 @@ def not_empty(key, data, errors, context):
         errors[key].append(formencode.api._stdtrans('Missing value'))
         raise StopOnError
 
+def both_not_empty(other_key):
+
+    def callable(key, data, errors, context):
+        value = data.get(key)
+        other_value = data.get(key[:-1] + (other_key,))
+        if (not value or value is missing and
+            not other_value or other_value is missing):
+            errors[key].append(formencode.api._stdtrans('Missing value'))
+            raise StopOnError
+
+    return callable
+
 def empty(key, data, errors, context):
 
     value = data.get(key)
