@@ -1,12 +1,14 @@
 import copy
 
-from ckan.controllers.rest import RestController
+from ckan.controllers.rest import RestController, ApiVersion1, ApiVersion2
 from ckan.lib.base import _, request, response, c
 from ckan.lib.cache import ckan_cache
 from ckan.lib.helpers import json
 import ckan.model as model
 import ckan
 from ckan.plugins import PluginImplementations, IPackageController
+from ckan.lib.dictization.model_dictize import package_dictize, package_to_api1
+from ckan.lib.dictization.model_dictize import package_to_api2
 
 log = __import__("logging").getLogger(__name__)
 
@@ -45,22 +47,30 @@ class PackageController(RestController):
         Return the specified package
         """
         pkg = self._get_pkg(id)
+        
         if pkg is None:
-            response_args = {'status_int': 404,
-                             'content_type': 'json',
-                             'response_data': _('Not found')}
+            status_int = 404
+            response_data = _('Not found')
         elif not self._check_access(pkg, model.Action.READ):
-            response_args = {'status_int': 403,
-                             'content_type': 'json',
-                             'response_data': _('Access denied')}
+            status_int = 403
+            response_data = _('Access denied')
         else:
+            status_int = 200
+            context = {'model': model,
+                       'session': model.Session}
+            if isinstance(self, ApiVersion1):
+                response_data = package_to_api1(pkg, context)
+            else:
+                response_data = package_to_api2(pkg, context)
             response_data = self._represent_package(pkg)
-            response_args = {'status_int': 200,
-                             'content_type': 'json',
-                             'response_data': response_data}
+
         for item in self.extensions:
             item.read(pkg)
-        return self._finish(**response_args)
+
+        return self._finish(status_int=status_int,
+                            response_data=response_data,
+                            content_type='json'
+                            )
     
     def create(self):
         if not self._check_access(model.System(), model.Action.PACKAGE_CREATE):
