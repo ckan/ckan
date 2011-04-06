@@ -12,18 +12,18 @@ Overview
 
 CKAN implements a fine-grained role-based access control system.
 
+    *In a nutshell*: For a particular **package** (or other protected object) a **user** can be assigned a **role** which specifies permitted **actions** (edit, delete, change permissions, etc.).
+
 Protected Objects and Authorization
 -----------------------------------
 
 There are variety of **protected objects** to which access can be controlled, 
-for example the ``System``, ``Packages```, Package ``Groups`` and 
+for example the ``System``, ``Packages``, Package ``Groups`` and 
 ``Authorization Groups``. Access control is fine-grained in that it can be 
 set for each individual package, group or authorization group instance.
 
 For each protected object there are a set of relevant **actions** such as 
-create', 'admin', 'edit' etc. To facilitate that mapping, actions are 
-aggregated into a set of **roles** (e.g. an editor role would have 'edit' 
-and 'read' action).
+create', 'admin', 'edit' etc. To facilitate mapping Users and Objects with Actions, Actions are aggregated into a set of **roles** (e.g. an 'editor' role would have 'edit' and 'read' action).
 
 A special role is taken by the ``System`` object, which serves as an 
 authorization object for any assignments which do not relate to a specific
@@ -95,29 +95,38 @@ Roles
 
 Each role has a list of permitted *actions* appropriate for a protected object.
 
-Currently there are three basic roles:
+Currently there are three basic roles (although you can add others if these defaults do not suit):
 
   * **reader**: can read the object
-  * **editor**: can edit and read the object
+  * **anon_editor**: (anonymous i.e. not logged in) can edit and read the object
+  * **editor**: can edit, read and create new objects
   * **admin**: admin can do anything including: edit, read, delete,
     update-permissions (change authorizations for that object)
 
-In addition, at the System or Protected Object 'type' level there are some 
-additional actions:
+When you install a new CKAN extension or upgrade your version of CKAN then new actions may be created, and permissions may given to these basic roles, according to the broad intention of the name of the roles. 
 
-  * create instances
-  * update assignment of system level role
+It is suggested that if the broad idea of these basic roles and their actions are not suitable for your CKAN instance then you create new roles and assign them actions of your own choosing, rather than edit the roles. If the definition of the roles drift from their name then it can be confusing for admins and cause problems for CKAN upgrades and new extensions.
 
-The actions associated with a role may be "context" specific, i.e. they may
-vary with the type of protected object (the context). For example, the set of
-actions for the 'admin' role may be different for the System Protected Object
-from a Package Protected Object.
+Actions
+-------
+
+Actions are defined in the Action enumeration in ckan/model/authz.py and currently include: `edit`, `change-state`, `read`, `purge`, `edit-permissions`, `create-package`, `create-group`, `create-authorization-group`, `read-site`, `read-user`, `create-user`.
+
+Obviously, some of these (e.g. `read`) have meaning for any type of Domain Object, and some (e.g. `create-package`) can not be associated with any particular Domain Object, so the Context for Roles with these Actions is `system`.
+
+The `read-site` action (with System context) is designed to provide/deny access to pages not associated with Domain Objects. This currently includes:
+ 
+ * Package Search
+ * Group index
+ * Tags index 
+ * Authorization Group index
+ * all requests to the API (on top of any other authorization requirements)
 
 There are also some shortcuts that are provided directly by the authorization
 system (rather than being expressed as subject-object-role tuples):
 
-  * (system) admin can do everything on anything
-  * admin can do everything on the given object
+  * A user given the admin right for the System object is a 'System Admin' and can do any action on any object. (A shortcut for creating a System Admin is by using the ``paster sysadmin`` command.)
+  * A user given the admin right for a particular object can do any action to that object.
 
 Examples
 --------
@@ -126,9 +135,9 @@ Example 1: Package 'paper-industry-stats':
 
   * David Brent is an 'admin'
   * Gareth Keenan is an 'editor'
-  * Logged-in is an 'reader' (This is a special user, meaning 'anyone who is
+  * Logged-in is a 'reader' (This is a special user, meaning 'anyone who is
     logged in')
-  * Visitor is an 'reader' (Another special user, meaning 'anyone')
+  * Visitor is a 'reader' (Another special user, meaning 'anyone')
 
 That is, Gareth and David can edit this package, but only Gareth can assign
 roles (privileges) to new team members. Anyone can see (read) the package.
@@ -144,15 +153,13 @@ concretely referring to the special sets of users, namely those that are a) not
 logged-in ("visitor") and b) logged-in ("Logged-in")
 
 User Notes
-==========
+----------
 
-When a new package is created its creator automatically become admin for
-it and you can assign which other users have write or read access.
+When a new package is created, its creator automatically become admin for
+it. This user can then change permissions for other users.
 
-NB: by default any user (including someone who is not-logged-in) will be able
-to read and write.
-
-There are "system" level admins for CKAN who may alter permissions on any package.
+NB: by default any user (including someone who is not logged-in) will be able
+to read and write. This default can be changed in the CKAN configuration - see ``default_roles`` in :doc:`configuration`.
 
 
 Developer Notes
