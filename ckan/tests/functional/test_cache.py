@@ -3,11 +3,12 @@ from pylons import config
 from ckan.lib.base import BaseController
 import ckan.lib.cache
 from ckan.lib.cache import ckan_cache, get_cache_expires
-from time import gmtime, time, mktime, strptime, sleep
+from time import gmtime, time, strptime, sleep
+from calendar import timegm
 import sys
 
 def now():
-    return mktime(gmtime())
+    return timegm(gmtime())
 start = now()
 
 class TestCacheBasics:
@@ -71,7 +72,7 @@ class TestCacheController(TestController):
         # check last modified
         last_modified = headers["Last-Modified"]
         last_modified = strptime(last_modified, "%a, %d %b %Y %H:%M:%S GMT")
-        assert mktime(last_modified) == 0, last_modified
+        assert timegm(last_modified) == 0, last_modified
 
         # check no-cache does not appear
         assert "no-cache" not in headers["Cache-Control"], headers["Cache-Control"]
@@ -86,7 +87,7 @@ class TestCacheController(TestController):
         # check last modified
         last_modified = headers["Last-Modified"]
         last_modified = strptime(last_modified, "%a, %d %b %Y %H:%M:%S GMT")
-        assert mktime(last_modified) == 0, last_modified
+        assert timegm(last_modified) == 0, last_modified
 
         # check no-cache does not appear
         assert "no-cache" not in headers["Cache-Control"], headers["Cache-Control"]
@@ -110,7 +111,7 @@ class TestCacheController(TestController):
         # check last modified
         last_modified = headers["Last-Modified"]
         last_modified = strptime(last_modified, "%a, %d %b %Y %H:%M:%S GMT")
-        last_modified = mktime(last_modified)
+        last_modified = timegm(last_modified)
         assert last_modified == start + 3600, (start + 3600, last_modified)
         
         # should have been a cache miss
@@ -127,7 +128,7 @@ class TestCacheController(TestController):
         headers = dict(resp.headers)
         first_modified = headers["Last-Modified"]
         first_modified = strptime(first_modified, "%a, %d %b %Y %H:%M:%S GMT")
-        first_modified = mktime(first_modified)
+        first_modified = timegm(first_modified)
 
         # check no-cache does not appear
         assert "no-cache" not in headers["Cache-Control"], headers["Cache-Control"]
@@ -142,7 +143,7 @@ class TestCacheController(TestController):
         headers = dict(resp.headers)
         last_modified = headers["Last-Modified"]
         last_modified = strptime(last_modified, "%a, %d %b %Y %H:%M:%S GMT")
-        last_modified = mktime(last_modified)
+        last_modified = timegm(last_modified)
 
         # check last-modified
         assert last_modified > first_modified, (first_modified, last_modified)
