@@ -18,6 +18,16 @@ def not_empty(key, data, errors, context):
         errors[key].append(formencode.api._stdtrans('Missing value'))
         raise StopOnError
 
+def if_empty_same_as(other_key):
+
+    def callable(key, data, errors, context):
+        value = data.get(key)
+        if not value or value is missing:
+            data[key] = data[key[:-1] + (other_key,)]
+
+    return callable
+
+
 def both_not_empty(other_key):
 
     def callable(key, data, errors, context):
@@ -32,9 +42,9 @@ def both_not_empty(other_key):
 
 def empty(key, data, errors, context):
 
-    value = data.get(key)
+    value = data.pop(key, None)
     
-    if value:
+    if value and value is not missing:
         errors[key].append(formencode.api._stdtrans(
             'The input field %(name)s was not expected.') % {"name": key[-1]})
 
@@ -55,10 +65,10 @@ def default(defalult_value):
 
 def ignore_missing(key, data, errors, context):
 
-    value = data[key]
+    value = data.get(key)
 
     if not value or value is missing:
-        data.pop(key)
+        data.pop(key, None)
         raise StopOnError
 
 def convert_int(value, context):

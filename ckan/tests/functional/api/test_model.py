@@ -939,7 +939,7 @@ class TestModelApi1(Api1TestCase, ModelApiTestCase):
     def test_06_create_pkg_using_download_url(self):
         test_params = {
             'name':u'testpkg06',
-            'download_url':u'testurl',
+            'download_url':u'ftp://ftp.monash.edu.au/pub/nihongo/JMdict.gz',
             }
         offset = self.package_offset()
         postparams = '%s=1' % self.dumps(test_params)

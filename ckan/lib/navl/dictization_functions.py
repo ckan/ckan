@@ -26,6 +26,10 @@ class State(object):
     pass
 
 class Invalid(Exception):
+    def __init__(self, error, key=None):
+        self.error = error
+
+class DataError(Exception):
     def __init__(self, error):
         self.error = error
 
@@ -164,7 +168,7 @@ def convert(converter, key, converted_data, errors, context):
     except TypeError, e:
         ## hack to make sure the type error was caused by the wrong
         ## number of arguements given.
-        if not converter.__name__ in e.message:
+        if not converter.__name__ in str(e):
             raise
     except Invalid, e:
         errors[key].append(e.error)
@@ -176,7 +180,7 @@ def convert(converter, key, converted_data, errors, context):
     except TypeError, e:
         ## hack to make sure the type error was caused by the wrong
         ## number of arguements given.
-        if not converter.__name__ in e.message:
+        if not converter.__name__ in str(e):
             raise
 
     try:
@@ -258,7 +262,8 @@ def flatten_list(data, flattened=None, old_key=None):
     old_key = old_key or []
 
     for num, value in enumerate(data):
-        assert isinstance(value, dict)
+        if not isinstance(value, dict):
+            raise DataError('Values in lists need to be dicts')
         new_key = old_key + [num]
         flatten_dict(value, flattened, new_key)
 

@@ -63,7 +63,10 @@ class PackagesTestCase(BaseModelApiTestCase):
                          (self.package_fixture_data['name'],
                           package_resource_extras, expected_resource)
                 else:
-                    package_resource_value = getattr(package_resource, key)
+                    package_resource_value = getattr(package_resource, key, None)
+                    if not package_resource_value:
+                        package_resource_value = package_resource.extras[key]
+
                     expected_resource_value = expected_resource[key]
                     self.assert_equal(package_resource_value, expected_resource_value)
 
@@ -111,7 +114,7 @@ class PackagesTestCase(BaseModelApiTestCase):
                 }
         postparams = '%s=1' % self.dumps(data)
         res = self.app.post(offset, params=postparams,
-                            status=self.STATUS_400_BAD_REQUEST,
+                            status=self.STATUS_409_CONFLICT,
                             extra_environ=self.extra_environ)
 
     def test_entity_get_ok(self):

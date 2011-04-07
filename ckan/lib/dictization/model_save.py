@@ -119,23 +119,31 @@ def package_dict_save(pkg_dict, context):
     pkg = table_dict_save(pkg_dict, Package, context)
 
     resources = resource_list_save(pkg_dict.get("resources", []), context)
-    pkg.resources[:] = resources
+    if resources:
+        pkg.resources[:] = resources
 
     tags = tag_list_save(pkg_dict.get("tags", []), context)
-    pkg.tags[:] = tags
+    if tags:
+        pkg.tags[:] = tags
 
     groups = group_list_save(pkg_dict.get("groups", []), context)
-    pkg.groups[:] = groups
+    if groups:
+        pkg.groups[:] = groups
 
     subjects = pkg_dict.get("relationships_as_subject", [])
+    if subjects:
+        pkg.relationships_as_subject[:] = relationship_list_save(subjects, context)
     objects = pkg_dict.get("relationships_as_object", [])
-    pkg.relationships_as_subject[:] = relationship_list_save(subjects, context)
-    pkg.relationships_as_object[:] = relationship_list_save(objects, context)
+    if objects:
+        pkg.relationships_as_object[:] = relationship_list_save(objects, context)
 
     extras = package_extras_save(pkg_dict.get("extras", []), pkg, context)
-    pkg._extras.clear()
-    for key, value in extras.iteritems():
-        pkg._extras[key] = value
+    if extras:
+        pkg._extras.clear()
+        for key, value in extras.iteritems():
+            pkg._extras[key] = value
+
+    return pkg
 
 
 def group_dict_save(group_dict, context):
@@ -183,8 +191,13 @@ def package_api_to_dict(api1_dict, context):
         if key == 'extras':
             new_value = [{"key": extra_key, "value": value[extra_key]} 
                          for extra_key in value]
+
         dictized[key] = new_value
 
+    download_url = dictized.pop('download_url', None)
+    if download_url and not dictized.get('resources'):
+        dictized["resources"] = [{'url': download_url}]
+    
     return dictized
 
 def group_api1_to_dict(api1_dict, context):

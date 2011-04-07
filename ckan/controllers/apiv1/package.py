@@ -7,8 +7,10 @@ from ckan.lib.helpers import json
 import ckan.model as model
 import ckan
 from ckan.plugins import PluginImplementations, IPackageController
-from ckan.lib.dictization.model_dictize import package_dictize, package_to_api1
-from ckan.lib.dictization.model_dictize import package_to_api2
+from ckan.lib.dictization.model_dictize import package_to_api1, package_to_api2
+from ckan.lib.dictization.model_save import package_api_to_dict, package_dict_save
+from ckan.lib.dictization.model_schema import default_create_package_schema
+from ckan.lib.navl.dictization_functions import validate, DataError
 
 log = __import__("logging").getLogger(__name__)
 
@@ -76,56 +78,62 @@ class PackageController(RestController):
         if not self._check_access(model.System(), model.Action.PACKAGE_CREATE):
             return self._finish_not_authz()
 
-        # Create a Package.
-        fs = self._get_standard_package_fieldset()
         try:
             request_data = self._get_request_data()
-            request_data = self._strip_readonly_keys(request_data)
-            request_fa_dict = ckan.forms.edit_package_dict(ckan.forms.get_package_dict(fs=fs), request_data)
-            fs = fs.bind(model.Package, data=request_fa_dict, session=model.Session)
-            log.debug('Created object %s' % str(fs.name.value))
-            obj = fs.model
-            
-            # Validate the fieldset.
-            validation = fs.validate()
-            if not validation:
-                # Complain about validation errors.
-                log.error('Validation error: %r' % repr(fs.errors))
-                response.write(self._finish(409, repr(fs.errors),
-                                            content_type='json'))
-            else:
-                try:
-                    # Construct new revision.
-                    rev = model.repo.new_revision()
-                    rev.author = self.rest_api_user
-                    rev.message = _(u'REST API: Create object %s') % str(fs.name.value)
-                    # Construct catalogue entity.
-                    fs.sync()
-                    # Construct access control entities.
-                    if self.rest_api_user:
-                        admins = [model.User.by_name(self.rest_api_user.decode('utf8'))]
-                    else:
-                        admins = []
-                    model.setup_default_user_roles(fs.model, admins)
-                    for item in self.extensions:
-                        item.create(fs.model)
-                    # Commit
-                    model.repo.commit()        
-                    # Set location header with new ID.
-                    location = str('%s/%s' % (request.path, obj.id))
-                    response.headers['Location'] = location
-                    log.debug('Response headers: %r' % (response.headers))
-                    response.write(self._finish_ok(
-                        obj.as_dict(),
-                        newly_created_resource_location=location))
-                except Exception, inst:
-                    log.exception(inst)
-                    model.Session.rollback()
-                    log.error('Exception creating object %s: %r' % (str(fs.name.value), inst))
-                    raise
         except ValueError, inst:
             response.status_int = 400
             response.write(_(u'JSON Error: %s') % str(inst))
+            return response
+
+        context = {'model': model, 'session': model.Session}
+        dictized_package = package_api_to_dict(request_data, context)
+        try:
+            data, errors = validate(dictized_package,
+                                    default_create_package_schema(),
+                                    context)
+        except DataError:
+            log.error('Package format incorrect: %s' % request_data)
+            response.status_int = 400
+            response.write(_(u'Package format incorrect: %s') % request_data)
+            return response
+
+        if errors:
+            log.error('Validation error: %r' % errors)
+            response.write(self._finish(409, repr(errors),
+                                        content_type='json'))
+            return response
+        
+        try:
+            # Construct new revision.
+            rev = model.repo.new_revision()
+            rev.author = self.rest_api_user
+            rev.message = _(u'REST API: Create object %s') % data["name"]
+            # Construct catalogue entity.
+
+            pkg = package_dict_save(data, context)
+
+            # Construct access control entities.
+            if self.rest_api_user:
+                admins = [model.User.by_name(self.rest_api_user.decode('utf8'))]
+            else:
+                admins = []
+            model.setup_default_user_roles(pkg, admins)
+            for item in self.extensions:
+                item.create(pkg)
+            # Commit
+            model.repo.commit()        
+            # Set location header with new ID.
+            location = str('%s/%s' % (request.path, pkg.id))
+            response.headers['Location'] = location
+            log.debug('Response headers: %r' % (response.headers))
+            response.write(
+                self._finish_ok(data, newly_created_resource_location=location)
+            )
+        except Exception, inst:
+            log.exception(inst)
+            model.Session.rollback()
+            log.error('Exception creating object %s: %r' % (str(fs.name.value), inst))
+            raise
         except ckan.forms.PackageDictFormatError, inst:
             log.error('Package format incorrect: %s' % str(inst))
             response.status_int = 400
