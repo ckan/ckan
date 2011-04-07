@@ -8,20 +8,13 @@ import ckan.model as model
 import ckan
 from ckan.plugins import PluginImplementations, IPackageController
 from ckan.lib.dictization.model_dictize import package_to_api1, package_to_api2
-from ckan.lib.dictization.model_save import package_api_to_dict, package_dict_save
-from ckan.lib.dictization.model_schema import default_create_package_schema
+from ckan.lib.dictization.model_save import (package_api_to_dict,
+                                             package_dict_save)
+from ckan.lib.dictization.model_schema import (default_create_package_schema,
+                                               default_update_package_schema)
 from ckan.lib.navl.dictization_functions import validate, DataError
 
 log = __import__("logging").getLogger(__name__)
-
-readonly_keys = ('id', 'revision_id',
-                 'relationships',
-                 'license',
-                 'ratings_average', 'ratings_count',
-                 'ckan_url',
-                 'metadata_modified',
-                 'metadata_created',
-                 'notes_rendered')
 
 class PackageController(RestController):
 
@@ -104,15 +97,12 @@ class PackageController(RestController):
             return response
         
         try:
-            # Construct new revision.
             rev = model.repo.new_revision()
             rev.author = self.rest_api_user
             rev.message = _(u'REST API: Create object %s') % data["name"]
-            # Construct catalogue entity.
 
             pkg = package_dict_save(data, context)
 
-            # Construct access control entities.
             if self.rest_api_user:
                 admins = [model.User.by_name(self.rest_api_user.decode('utf8'))]
             else:
@@ -129,63 +119,71 @@ class PackageController(RestController):
             response.write(
                 self._finish_ok(data, newly_created_resource_location=location)
             )
+            
+            return response
         except Exception, inst:
             log.exception(inst)
             model.Session.rollback()
-            log.error('Exception creating object %s: %r' % (str(fs.name.value), inst))
+            log.error('Exception creating object %s: %r' % (str(pkg), inst))
             raise
-        except ckan.forms.PackageDictFormatError, inst:
-            log.error('Package format incorrect: %s' % str(inst))
-            response.status_int = 400
-            response.write(_(u'Package format incorrect: %s') % str(inst))
-        return response
+
     
     def update(self, id):
-        entity = self._get_pkg(id)
-        if entity is not None and not self._check_access(entity, model.Action.EDIT):
+        pkg = self._get_pkg(id)
+        if pkg is not None and not self._check_access(pkg, model.Action.EDIT):
             return self._finish_not_authz()
         
-        if entity is None:
+        if pkg is None:
             response.status_int = 404
             response.write(_('Package was not found.'))
-        else:
-            fs = self._get_standard_package_fieldset()
-            orig_entity_dict = ckan.forms.get_package_dict(pkg=entity, fs=fs)
-            try:
-                request_data = self._get_request_data()
-                request_data = self._strip_readonly_keys(request_data,
-                                                         entity.as_dict())
-                request_fa_dict = ckan.forms.edit_package_dict(orig_entity_dict, request_data, id=entity.id)
-                fs = fs.bind(entity, data=request_fa_dict)
-                validation = fs.validate()
-                if not validation:
-                    response.write(self._finish(409, repr(fs.errors),
-                                                content_type='json'))
-                else:
-                    try:
-                        rev = model.repo.new_revision()
-                        rev.author = self.rest_api_user
-                        rev.message = _(u'REST API: Update object %s') % str(fs.name.value)
-                        fs.sync()
-                        for item in self.extensions:
-                            item.edit(fs.model)
-                        model.repo.commit()        
-                    except Exception, inst:
-                        log.exception(inst)
-                        model.Session.rollback()
-                        if inst.__class__.__name__ == 'IntegrityError':
-                            response.status_int = 409
-                            response.write(_(u'Integrity Error'))
-                        else:
-                            raise
-                    obj = fs.model
-                    response.write(self._finish_ok(obj.as_dict()))
-            except ValueError, inst:
-                response.status_int = 400
-                response.write(_('JSON Error: %s') % str(inst))
-            except ckan.forms.PackageDictFormatError, inst:
-                response.status_int = 400
-                response.write(_(u'Package format incorrect: %s') % str(inst))
+            return response
+
+        try:
+            request_data = self._get_request_data()
+        except ValueError, inst:
+            response.status_int = 400
+            response.write(_(u'JSON Error: %s') % str(inst))
+            return response
+
+        context = {'model': model, 'session': model.Session, 'package' : pkg}
+        dictized_package = package_api_to_dict(request_data, context)
+
+        try:
+            data, errors = validate(dictized_package,
+                                    default_update_package_schema(),
+                                    context)
+        except DataError, e:
+            log.error('Package format incorrect: %s' % request_data)
+            response.status_int = 400
+            response.write(_(u'Package format incorrect: %s') % request_data)
+            return response
+
+        if errors:
+            log.error('Validation error: %s' % errors)
+            response.write(self._finish(409, repr(errors),
+                                        content_type='json'))
+            return response
+
+        try:
+            rev = model.repo.new_revision()
+            rev.author = self.rest_api_user
+            rev.message = _(u'REST API: Update object %s') % pkg.name
+
+            pkg = package_dict_save(data, context)
+            for item in self.extensions:
+                item.edit(pkg)
+            model.repo.commit()        
+            data["name"] = pkg.name
+            response.write(self._finish_ok(data))
+
+        except Exception, inst:
+            log.exception(inst)
+            model.Session.rollback()
+            if inst.__class__.__name__ == 'IntegrityError':
+                response.status_int = 409
+                response.write(_(u'Integrity Error'))
+            else:
+                raise
         return response
 
     def delete(self, id):
@@ -210,22 +208,3 @@ class PackageController(RestController):
             raise
         return self._finish_ok()
 
-    def _strip_readonly_keys(self, request_dict, existing_pkg_dict=None):
-        '''Removes keys that are readonly. If there is an existing package,
-        the values of the keys are checked against to see if they have
-        been inadvertantly edited - if so, raise an error.
-        '''
-        stripped_package_dict = copy.deepcopy(request_dict)
-        for key in readonly_keys:
-            if request_dict.has_key(key):
-                if existing_pkg_dict:
-                    if request_dict[key] != existing_pkg_dict.get(key):
-                        raise ckan.forms.PackageDictFormatError(
-                            'Key %r is readonly - do not include in the '
-                            'package or leave it unchanged.')
-                else:
-                    raise ckan.forms.PackageDictFormatError(
-                        'Key %r is readonly - do not include in the '
-                        'package.')                    
-                del stripped_package_dict[key]# = request_dict[key]
-        return stripped_package_dict

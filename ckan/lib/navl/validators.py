@@ -11,6 +11,13 @@ def keep_extras(key, data, errors, context):
     for extras_key, value in extras.iteritems():
         data[key[:-1] + (extras_key,)] = value
 
+def not_missing(key, data, errors, context):
+
+    value = data.get(key)
+    if value is missing:
+        errors[key].append(formencode.api._stdtrans('Missing value'))
+        raise StopOnError
+
 def not_empty(key, data, errors, context):
 
     value = data.get(key)

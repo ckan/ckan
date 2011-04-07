@@ -265,7 +265,7 @@ def flatten_list(data, flattened=None, old_key=None):
         if not isinstance(value, dict):
             raise DataError('Values in lists need to be dicts')
         new_key = old_key + [num]
-        flatten_dict(value, flattened, new_key)
+        flattened = flatten_dict(value, flattened, new_key)
 
     return flattened
 
@@ -278,7 +278,7 @@ def flatten_dict(data, flattened=None, old_key=None):
     for key, value in data.iteritems():
         new_key = old_key + [key]
         if isinstance(value, list):
-            flatten_list(value, flattened, new_key)
+            flattened = flatten_list(value, flattened, new_key)
         else:
             flattened[tuple(new_key)] = value
 

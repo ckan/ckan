@@ -144,6 +144,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         offset = self.package_offset(self.war.name)
         res = self.app.get(offset, status=self.STATUS_200_OK)
         data = self.loads(res.body)
+
         postparams = '%s=1' % self.dumps(data)
         res = self.app.post(offset, params=postparams,
                             status=self.STATUS_200_OK,
@@ -160,7 +161,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         data['id'] = 'illegally changed value'
         postparams = '%s=1' % self.dumps(data)
         res = self.app.post(offset, params=postparams,
-                            status=self.STATUS_400_BAD_REQUEST,
+                            status=self.STATUS_409_CONFLICT,
                             extra_environ=self.extra_environ)
 
     def test_entity_update_denied(self):
@@ -202,14 +203,14 @@ class PackagesTestCase(BaseModelApiTestCase):
                 u'description':u'Appendix 1',
                 u'hash':u'def123',
                 u'alt_url':u'alt123',
-                u'extras':{u'size':u'400'},
+                u'size':u'400',
             },{
                 u'url':u'http://blah.com/file3.xml',
                 u'format':u'xml',
                 u'description':u'Appenddic 2',
                 u'hash':u'ghi123',
                 u'alt_url':u'alt123',
-                u'extras':{u'size':u'400'},
+                u'size':u'400',
             }],
             'extras': {
                 u'key3': u'val3', 

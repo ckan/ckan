@@ -49,12 +49,11 @@ def package_extras_save(extras_dicts, pkg, context):
     model = context["model"]
     session = context["session"]
 
-    obj_dict = {}
+    result_dict = {}
     for extra_dict in extras_dicts:
-        obj = table_dict_save(extra_dict, model.PackageExtra, context)
-        obj_dict[extra_dict["key"]] = obj
+        result_dict[extra_dict["key"]] = extra_dict["value"]
 
-    return obj_dict
+    return result_dict
 
 def group_extras_save(extras_dicts, pkg, context):
 
@@ -114,6 +113,9 @@ def relationship_list_save(relationship_dicts, context):
 def package_dict_save(pkg_dict, context):
 
     model = context["model"]
+    package = context.get("package")
+    if package:
+        pkg_dict["id"] = package.id 
     Package = model.Package
 
     pkg = table_dict_save(pkg_dict, Package, context)
@@ -137,11 +139,14 @@ def package_dict_save(pkg_dict, context):
     if objects:
         pkg.relationships_as_object[:] = relationship_list_save(objects, context)
 
-    extras = package_extras_save(pkg_dict.get("extras", []), pkg, context)
+    extras = package_extras_save(pkg_dict.get("extras", {}), pkg, context)
     if extras:
-        pkg._extras.clear()
-        for key, value in extras.iteritems():
-            pkg._extras[key] = value
+        old_extras = set(pkg.extras.keys())
+        new_extras = set(extras.keys())
+        for key in old_extras - new_extras:
+            del pkg.extras[key]
+        for key in new_extras:
+            pkg.extras[key] = extras[key] 
 
     return pkg
 
@@ -179,6 +184,8 @@ def group_dict_save(group_dict, context):
 
 def package_api_to_dict(api1_dict, context):
 
+    package = context.get("package")
+
     dictized = {}
 
     for key, value in api1_dict.iteritems():
@@ -189,14 +196,24 @@ def package_api_to_dict(api1_dict, context):
             else:
                 new_value = [{"name": item} for item in value]
         if key == 'extras':
-            new_value = [{"key": extra_key, "value": value[extra_key]} 
-                         for extra_key in value]
+            updated_extras = {}
+            if package:
+                updated_extras.update(package.extras)
+            updated_extras.update(value)
+
+            new_value = []
+            for extras_key, extras_value in updated_extras.iteritems():
+                if extras_value is not None:
+                    new_value.append({"key": extras_key, "value": extras_value})
 
         dictized[key] = new_value
 
+    groups = dictized.pop('groups', None)
     download_url = dictized.pop('download_url', None)
     if download_url and not dictized.get('resources'):
         dictized["resources"] = [{'url': download_url}]
+
+    download_url = dictized.pop('download_url', None)
     
     return dictized
 
