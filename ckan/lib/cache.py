@@ -1,5 +1,6 @@
 import inspect
-from time import gmtime, mktime, strftime, time
+from time import gmtime, strftime, time
+from calendar import timegm
 from decorator import decorator
 from paste.deploy.converters import asbool
 from pylons.decorators.cache import beaker_cache, create_cache_key, _make_dict_from_args
@@ -49,8 +50,8 @@ def ckan_cache(test=lambda *av, **kw: 0,
         def controller():
             return "I never expire, last-modified is the epoch"
 
-        from time import mktime, gmtime
-        @cache(test=lambda *av, **kw: mktime(gmtime()))
+        from time import timegm, gmtime
+        @cache(test=lambda *av, **kw: timegm(gmtime()))
         def controller():
             return "I am never cached locally but set cache-control headers"
 

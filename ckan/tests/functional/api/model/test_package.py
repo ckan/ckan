@@ -116,6 +116,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         res = self.app.post(offset, params=postparams,
                             status=self.STATUS_409_CONFLICT,
                             extra_environ=self.extra_environ)
+        assert_equal(res.body, "Package format incorrect: Key 'id' is read-only - do not include in the package.")
 
     def test_entity_get_ok(self):
         package_refs = [self.anna.name, self.anna.id]
@@ -163,6 +164,8 @@ class PackagesTestCase(BaseModelApiTestCase):
         res = self.app.post(offset, params=postparams,
                             status=self.STATUS_409_CONFLICT,
                             extra_environ=self.extra_environ)
+        assert "Package format incorrect: Cannot change value of key 'id' from " in res.body, res.body
+        assert "to u'illegally changed value'. This key is read-only." in res.body, res.body
 
     def test_entity_update_denied(self):
         offset = self.anna_offset()
@@ -309,28 +312,39 @@ class PackagesTestCase(BaseModelApiTestCase):
         res = self.app.delete(offset, status=self.STATUS_404_NOT_FOUND,
                               extra_environ=self.extra_environ)
 
-    def test_package_history(self):
-
-        res = self.app.get(self.offset('/rest/package_history/%s' % 'annakarenina'))
-        
+    def test_package_revisions(self):
+        # check original revision
+        res = self.app.get(self.offset('/rest/package/%s/revisions' % 'annakarenina'))
         revisions = res.json
         assert len(revisions) == 1, len(revisions)
+        expected_keys = set(('id', 'message', 'author', 'timestamp'))
+        keys = set(revisions[0].keys())
+        assert_equal(keys, expected_keys)
 
+        # edit anna
         pkg = model.Package.by_name('annakarenina')
         model.repo.new_revision()
         pkg.title = 'Tolstoy'
         model.repo.commit_and_remove()
-        
-        res = self.app.get(self.offset('/rest/package_history/%s' % 'annakarenina'))
-        
+
+        # check new revision is there
+        res = self.app.get(self.offset('/rest/package/%s/revisions' % 'annakarenina'))
         revisions = res.json
         assert len(revisions) == 2, len(revisions)
 
+        # check ordering
         assert revisions[0]["timestamp"] > revisions[1]["timestamp"]
 
+        # edit related extra
+        pkg = model.Package.by_name('annakarenina')
+        model.repo.new_revision()
+        pkg.extras['genre'] = 'literary'
+        model.repo.commit_and_remove()
 
-        
-
+        # check new revision is there
+        res = self.app.get(self.offset('/rest/package/%s/revisions' % 'annakarenina'))
+        revisions = res.json
+        assert len(revisions) == 3, len(revisions)
 
 
 class TestPackagesVersion1(Version1TestCase, PackagesTestCase): pass

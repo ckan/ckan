@@ -1,5 +1,6 @@
 import datetime
-from time import mktime, gmtime
+from time import gmtime
+from calendar import timegm
 
 from sqlalchemy.sql import select, and_, union, expression
 from sqlalchemy.orm import eagerload_all
@@ -485,13 +486,14 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             usecs = float(result[0].microsecond) / 1e6
         else:
             timestamp, usecs = gmtime(), 0
-        return mktime(timestamp) + usecs
+        # use timegm instead of mktime, because we don't want it localised
+        return timegm(timestamp) + usecs
 
     @property
     def metadata_modified(self):
         import ckan.model as model
         epochtime = self.last_modified(model.package_table.c.id==self.id)
-        return datetime.datetime.fromtimestamp(epochtime)
+        return datetime.datetime.utcfromtimestamp(epochtime)
     
     @property
     def metadata_created(self):

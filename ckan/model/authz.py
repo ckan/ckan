@@ -51,8 +51,13 @@ class Action(Enum):
 class Role(Enum):
     ADMIN = u'admin'
     EDITOR = u'editor'
+    ANON_EDITOR = u'anon_editor'
     READER = u'reader'
 
+# These define what is meant by 'editor' and 'reader' for all ckan
+# instances - locked down or otherwise. They get refreshed on every db_upgrade.
+# So if you want to lock down an ckan instance, change Visitor and LoggedIn
+# to have a new role which for which you can allow your customised actions.
 default_role_actions = [
     (Role.EDITOR, Action.EDIT),
     (Role.EDITOR, Action.PACKAGE_CREATE),
@@ -62,11 +67,15 @@ default_role_actions = [
     (Role.EDITOR, Action.USER_READ),
     (Role.EDITOR, Action.SITE_READ),
     (Role.EDITOR, Action.READ),
-    (Role.READER, Action.PACKAGE_CREATE),
+    (Role.ANON_EDITOR, Action.EDIT),
+    (Role.ANON_EDITOR, Action.PACKAGE_CREATE),
+    (Role.ANON_EDITOR, Action.USER_CREATE),
+    (Role.ANON_EDITOR, Action.USER_READ),
+    (Role.ANON_EDITOR, Action.SITE_READ),
+    (Role.ANON_EDITOR, Action.READ),
     (Role.READER, Action.USER_CREATE),
     (Role.READER, Action.USER_READ),
     (Role.READER, Action.SITE_READ),
-    #(Role.READER, Action.GROUP_CREATE),
     (Role.READER, Action.READ),
     ]
 
@@ -262,12 +271,14 @@ def init_authz_configuration_data():
     Session.remove()
     
 def init_authz_const_data():
-    # since some of the authz config mgmt is taking place in DB, this should 
-    # be validated on launch. it is a bit like a lazy migration, but seems 
-    # sensible to make sure authz is always correct.
-    # setup all role-actions
-    # context is blank as not currently used
-    # Note that Role.ADMIN can already do anything - hardcoded in.
+    '''Setup all default role-actions.
+
+    These should be the same for all CKAN instances. Make custom roles if
+    you want to divert from these.
+
+    Note that Role.ADMIN can already do anything - hardcoded in.
+
+    '''
     for role, action in default_role_actions:
         ra = Session.query(RoleAction).filter_by(role=role, action=action).first()
         if ra is not None: continue
@@ -329,7 +340,7 @@ def give_all_packages_default_user_roles():
 default_default_user_roles = {
     'Package': {"visitor": ["editor"], "logged_in": ["editor"]},
     'Group': {"visitor": ["reader"], "logged_in": ["reader"]},
-    'System': {"visitor": ["reader"], "logged_in": ["editor"]},
+    'System': {"visitor": ["anon_editor"], "logged_in": ["editor"]},
     'AuthorizationGroup': {"visitor": ["reader"], "logged_in": ["reader"]},
     }
 

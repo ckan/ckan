@@ -7,9 +7,9 @@ from sqlalchemy.orm.exc import NoResultFound
 RIGHTS_HELP = '''
 
 Operations (defaults to 'list'):
-  rights list |grep ...
-  rights make [subject] [role] [object]
-  rights remove [subject] [role] [object]
+  rights list [[[<subject/object/role>] <subject/object/role>] ... ]
+  rights make <subject> <role> <object>
+  rights remove <subject> <role> <object>
 
 Subjects (prefix defaults to 'user:'):
   user:fluffy87     - A user called 'fluffy87'
@@ -85,7 +85,10 @@ class RightsCommand(CkanCommand):
         self._load_config()
         cmd = self.args[0] if len(self.args) else 'list'
         if cmd == 'list':
-            self.list()
+            args = self.args
+            if 'list' in args:
+                del args[args.index('list')]
+            self.list(args)
             return
         
         assert len(self.args) == 4, "Not enough parameters!" + RIGHTS_HELP
@@ -112,9 +115,58 @@ class RightsCommand(CkanCommand):
             self.print_row(subj, role, obj)
         model.repo.commit_and_remove()
 
-    def list(self):
-        for uor in model.Session.query(model.UserObjectRole):
-            obj = getattr(uor, uor.name) if uor.name else model.System()
+    def _filter_query(self, query, args):
+        for arg in self.args:
+            arg = unicode(arg)
+            for interpret_func, column_name in ((self.ensure_role, 'role'),
+                                                (self.find_subject, 'user'),
+                                                (self.find_objects, 'object')):
+                try:
+                    filter_by_obj = interpret_func(arg)
+                except AssertionError:
+                    continue
+                assert filter_by_obj, 'Could not interpret parameter: %r' % arg
+                if column_name == 'user':
+                    if isinstance(filter_by_obj, model.User):
+                        column_name = 'user'
+                    elif isinstance(filter_by_obj, model.AuthorizationGroup):
+                        column_name = 'authorized_group'
+                    else:
+                        raise NotImplementedError
+                if column_name == 'object':
+                    if isinstance(filter_by_obj, list):
+                        assert len(filter_by_obj) == 1, 'Can only filter by one object: %r' % arg
+                        filter_by_obj = filter_by_obj[0]
+                    protected_object = model.protected_objects[filter_by_obj.__class__]
+                    column_name = protected_object.name
+                    query = query.join(protected_object)
+                    if column_name:
+                        column = getattr(protected_object, column_name)
+                    else:
+                        # this is the case for SystemRole
+                        # (just joining with the protected object is enough)
+                        column = None
+                else:
+                    column = getattr(model.UserObjectRole, column_name)
+                if column:
+                    query = query.filter(column==filter_by_obj)
+                break
+            else:
+                assert False, 'Could not find matching subject/object/role: %r' % arg
+        return query
+
+    def list(self, args):
+        q = model.Session.query(model.UserObjectRole)
+        q = self._filter_query(q, args)
+        if q.count() == 0:
+            print 'No results'
+        else:
+            print '%i results' % q.count()
+        for uor in q:
+            if uor.name:
+                obj = getattr(uor, uor.name)
+            else:
+                obj = model.System()
             self.print_row(uor.user if uor.user else uor.authorized_group,
                            uor.role, obj)
 

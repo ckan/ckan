@@ -168,6 +168,17 @@ class BaseRestController(BaseApiController):
                 c.user, pkg, action=model.Action.READ)
             response_data = [rel.as_dict(package=pkg, ref_package_by=self.ref_package_by) for rel in relationships]
             return self._finish_ok(response_data)
+        elif register == u'package' and subregister == 'revisions':
+            pkg = self._get_pkg(id)
+            if pkg is None:
+                return self._finish_not_found()
+            if not self._check_access(pkg, model.Action.READ):
+                return self._finish_not_authz()
+            revision_dicts = []
+            for revision, object_revisions in pkg.all_related_revisions:
+                revision_dicts.append(model.revision_as_dict(revision,
+                                                             include_packages=False))
+            return self._finish_ok(revision_dicts)
         elif register == u'group':
             query = ckan.authz.Authorizer().authorized_query(c.user, model.Group)
             groups = query.all() 
@@ -197,14 +208,9 @@ class BaseRestController(BaseApiController):
             rev = model.Session.query(model.Revision).get(id)
             if rev is None:
                 return self._finish_not_found()
-            response_data = {
-                'id': rev.id,
-                'timestamp': model.strftimestamp(rev.timestamp),
-                'author': rev.author,
-                'message': rev.message,
-                'packages': self._list_package_refs(rev.packages),
-            }
-            return self._finish_ok(response_data)
+            rev_dict = model.revision_as_dict(rev, include_packages=True,
+                                              ref_package_by=self.ref_package_by)
+            return self._finish_ok(rev_dict)
         elif register == u'changeset':
             from ckan.model.changeset import ChangesetRegister
             changesets = ChangesetRegister()
@@ -717,26 +723,6 @@ class BaseRestController(BaseApiController):
         response.status_int = 200
         return True                
     
-    def package_history(self, id):
-        pkg = self._get_pkg(id)
-        if pkg is None:
-            return self._finish_not_found()
-
-        if not self._check_access(pkg, model.Action.READ):
-            return self._finish_not_authz()
-
-        revisions = []
-        for revision, value in pkg.all_related_revisions:
-            result = {"revision": revision.id,
-                      "timestamp": revision.timestamp.isoformat(),
-                      "message": revision.message,
-                      "author": revision.author}
-            revisions.append(result)
-        response_args = {'status_int': 200,
-                         'content_type': 'json',
-                         'response_data': revisions}
-        return self._finish(**response_args)
-
     def _update_package_relationship(self, relationship, comment):
         is_changed = relationship.comment != comment
         if is_changed:

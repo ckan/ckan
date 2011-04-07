@@ -14,7 +14,12 @@ const_role_actions = [
     '<RoleAction role="editor" action="read-site" context="">',
     '<RoleAction role="editor" action="read-user" context="">',
     '<RoleAction role="editor" action="create-user" context="">',
-    '<RoleAction role="reader" action="create-package" context="">',
+    '<RoleAction role="anon_editor" action="edit" context="">',
+    '<RoleAction role="anon_editor" action="create-package" context="">',
+    '<RoleAction role="anon_editor" action="read" context="">',
+    '<RoleAction role="anon_editor" action="read-site" context="">',
+    '<RoleAction role="anon_editor" action="read-user" context="">',
+    '<RoleAction role="anon_editor" action="create-user" context="">',
     '<RoleAction role="reader" action="read" context="">',
     '<RoleAction role="reader" action="read-site" context="">',
     '<RoleAction role="reader" action="read-user" context="">',
@@ -42,7 +47,7 @@ class InitialStateTestCase(object):
         uors = model.Session.query(model.UserObjectRole).all()
         uors_str = [repr(uor) for uor in uors]
         expected_uors_str = [
-            '<SystemRole user="visitor" role="reader" context="System">',
+            '<SystemRole user="visitor" role="anon_editor" context="System">',
             '<SystemRole user="logged_in" role="editor" context="System">',
             ]
         uor_differences = set(uors_str) ^ set(expected_uors_str)

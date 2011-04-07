@@ -129,16 +129,21 @@ class TestDefaultRoles(object):
         
     def test_read(self):
         assert self.is_allowed(model.Role.READER, model.Action.READ)
+        assert self.is_allowed(model.Role.ANON_EDITOR, model.Action.READ)
         assert self.is_allowed(model.Role.EDITOR, model.Action.READ)
 
     def test_edit(self):
         assert not self.is_allowed(model.Role.READER, model.Action.EDIT)
+        assert self.is_allowed(model.Role.ANON_EDITOR, model.Action.EDIT)
         assert self.is_allowed(model.Role.EDITOR, model.Action.EDIT)
 
     def test_create(self):
-        assert self.is_allowed(model.Role.READER, model.Action.PACKAGE_CREATE)
+        assert not self.is_allowed(model.Role.READER, model.Action.PACKAGE_CREATE)
+        assert self.is_allowed(model.Role.ANON_EDITOR, model.Action.PACKAGE_CREATE)
         assert self.is_allowed(model.Role.EDITOR, model.Action.PACKAGE_CREATE)
+
         assert not self.is_allowed(model.Role.READER, model.Action.GROUP_CREATE)
+        assert not self.is_allowed(model.Role.ANON_EDITOR, model.Action.GROUP_CREATE)
         assert self.is_allowed(model.Role.EDITOR, model.Action.GROUP_CREATE)
 
     def test_edit_permissions(self):
@@ -147,10 +152,12 @@ class TestDefaultRoles(object):
 
     def test_change_state(self):
         assert not self.is_allowed(model.Role.READER, model.Action.CHANGE_STATE)
+        assert not self.is_allowed(model.Role.ANON_EDITOR, model.Action.CHANGE_STATE)
         assert not self.is_allowed(model.Role.EDITOR, model.Action.CHANGE_STATE)
 
     def test_purge(self):
         assert not self.is_allowed(model.Role.READER, model.Action.PURGE)
+        assert not self.is_allowed(model.Role.ANON_EDITOR, model.Action.PURGE)
         assert not self.is_allowed(model.Role.EDITOR, model.Action.PURGE)
 
 class TestDefaultPackageUserRoles(object):

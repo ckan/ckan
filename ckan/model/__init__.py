@@ -22,6 +22,7 @@ from rating import *
 from package_relationship import *
 from changeset import Changeset, Change, Changemask
 import ckan.migration
+from ckan.lib.helpers import OrderedDict
 
 # set up in init_model after metadata is bound
 version_table = None
@@ -44,7 +45,9 @@ def init_model(engine):
 class Repository(vdm.sqlalchemy.Repository):
     migrate_repository = ckan.migration.__path__[0]
 
-    tables_created = False
+    # note: tables_created value is not sustained between instantiations so
+    #       only useful for tests. The alternative is to use are_tables_created().
+    tables_created = False 
 
     def init_db(self):
         '''Ensures tables, const data and some default config is created.
@@ -168,6 +171,12 @@ class Repository(vdm.sqlalchemy.Repository):
         ##from migrate.versioning.schemadiff import getDiffOfModelAgainstDatabase
         ##pprint.pprint(getDiffOfModelAgainstDatabase(self.metadata, self.metadata.bind).colDiffs)
 
+    def are_tables_created(self):
+        metadata = MetaData(self.metadata.bind)
+        metadata.reflect()
+        return bool(metadata.tables)
+
+
 repo = Repository(metadata, Session,
         versioned_objects=[Package, PackageTag, Resource, ResourceGroup, PackageExtra, PackageGroup, Group]
         )
@@ -213,3 +222,14 @@ def strptimestamp(s):
 def strftimestamp(t):
     return t.isoformat()
 
+def revision_as_dict(revision, include_packages=True, ref_package_by='name'):
+    revision_dict = OrderedDict((
+        ('id', revision.id),
+        ('timestamp', strftimestamp(revision.timestamp)),
+        ('message', revision.message),
+        ('author', revision.author),
+        ))
+    if include_packages:
+        revision_dict['packages'] = [getattr(pkg, ref_package_by) \
+                                     for pkg in revision.packages]
+    return revision_dict

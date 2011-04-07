@@ -25,23 +25,24 @@ class MockTranslator(object):
     
 class PylonsTestCase(object):
     """A basic test case which allows access to pylons.c and pylons.request. 
-    """ 
-    def setup(self): 
-        self.registry=Registry() 
-        self.registry.prepare() 
+    """
+    @classmethod
+    def setup_class(cls):
+        cls.registry=Registry() 
+        cls.registry.prepare() 
 
-        self.context_obj=ContextObj() 
-        self.registry.register(pylons.c, self.context_obj)
+        cls.context_obj=ContextObj() 
+        cls.registry.register(pylons.c, cls.context_obj)
         pylons.c.errors = None
 
-        self.request_obj=Request(dict(HTTP_HOST="nohost")) 
-        self.registry.register(pylons.request, self.request_obj) 
+        cls.request_obj=Request(dict(HTTP_HOST="nohost")) 
+        cls.registry.register(pylons.request, cls.request_obj) 
 
-        self.translator_obj=MockTranslator() 
-        self.registry.register(pylons.translator, self.translator_obj) 
+        cls.translator_obj=MockTranslator() 
+        cls.registry.register(pylons.translator, cls.translator_obj) 
 
-        self.buffet = pylons.templating.Buffet('genshi', template_root='ckan.templates')
-        self.registry.register(pylons.buffet, self.buffet)
+        cls.buffet = pylons.templating.Buffet('genshi', template_root='ckan.templates')
+        cls.registry.register(pylons.buffet, cls.buffet)
 
-        self.registry.register(pylons.response, Response())
-        self.registry.register(pylons.url, None)
+        cls.registry.register(pylons.response, Response())
+        cls.registry.register(pylons.url, None)

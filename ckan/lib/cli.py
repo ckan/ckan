@@ -51,10 +51,6 @@ class ManageDb(CkanCommand):
     db send-rdf {talis-store} {username} {password}
     db load {file-path} # load a pg_dump from a file
     db create-from-model # create database from the model (indexes not made)
-    db migrate06
-    db migrate09a
-    db migrate09b
-    db migrate09c
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
@@ -96,26 +92,6 @@ class ManageDb(CkanCommand):
                 print 'Creating DB: SUCCESS'
         elif cmd == 'send-rdf':
             self.send_rdf(cmd)
-        elif cmd == 'migrate06':
-            import ckan.lib.converter
-            dumper = ckan.lib.converter.Dumper()
-            dumper.migrate_06_to_07()
-        elif cmd == 'migrate09a':
-            import ckan.model as model
-            sql = '''ALTER TABLE package ADD version VARCHAR(100)'''
-            model.metadata.bind.execute(sql)
-            sql = '''ALTER TABLE package_revision ADD version VARCHAR(100)'''
-            model.metadata.bind.execute(sql)
-            if self.verbose:
-                print 'Migrated successfully' 
-        elif cmd == 'migrate09b':
-            import ckan.model as model
-            print 'Re-initting DB to update license list'
-            model.repo.init_db()
-        elif cmd == 'migrate09c':
-            import ckan.model as model
-            print 'Creating new db tables (package_extra)'
-            model.repo.create_db()
         else:
             print 'Command %s not recognized' % cmd
             sys.exit(1)
@@ -156,6 +132,8 @@ class ManageDb(CkanCommand):
         self._run_cmd(pg_dump_cmd)
 
     def _postgres_load(self, filepath):
+        from ckan import model
+        assert not model.repo.are_tables_created(), "Tables already found. You need to 'db clean' before a load."
         pg_cmd = self._get_psql_cmd() + ' -f %s' % filepath
         self._run_cmd(pg_cmd)
 
@@ -244,7 +222,7 @@ class SearchIndexCommand(CkanCommand):
 
     def command(self):
         self._load_config()
-        from ckan.lib.search import rebuild
+        from ckan.lib.search import rebuild, check
 
         if not self.args:
             # default to run
@@ -254,6 +232,8 @@ class SearchIndexCommand(CkanCommand):
         
         if cmd == 'rebuild':
             rebuild()
+        elif cmd == 'check':
+            check()
         else:
             print 'Command %s not recognized' % cmd
 

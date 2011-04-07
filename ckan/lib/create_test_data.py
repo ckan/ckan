@@ -355,7 +355,7 @@ left arrow <
         pkg2.tags = [ tag1 ]
         cls.tag_names = [u'russian', u'tolstoy']
         pkg1.license_id = u'other-open'
-        pkg2.license_id = u'cc-by'
+        pkg2.license_id = u'cc-nc' # closed license
         pkg2.title = u'A Wonderful Story'
         pkg1.extras = {u'genre':'romantic novel',
                        u'original media':'book'}

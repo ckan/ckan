@@ -577,7 +577,8 @@ class TestLockedDownViaRoles(TestController):
     def setup_class(self):
         model.repo.init_db()
         q = model.Session.query(model.UserObjectRole) \
-            .filter(model.UserObjectRole.role==model.Role.EDITOR) \
+            .filter(sa.or_(model.UserObjectRole.role==model.Role.EDITOR,
+                           model.UserObjectRole.role==model.Role.ANON_EDITOR)) \
             .filter(model.UserObjectRole.user==model.User.by_name(u"visitor"))
         for role in q:
             model.Session.delete(role)

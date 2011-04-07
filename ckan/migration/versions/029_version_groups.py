@@ -97,7 +97,7 @@ def upgrade(migrate_engine):
     q = revision_table.insert(values={'id': rev_id, 
                                       'author': u'system',
                                       'message': u"Add versioning to groups, group_extras and package_groups",
-                                      'timestamp': datetime.now(),
+                                      'timestamp': datetime.utcnow(),
                                       'state': u'active'})
     r = migrate_engine.execute(q)
     
