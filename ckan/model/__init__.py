@@ -45,7 +45,9 @@ def init_model(engine):
 class Repository(vdm.sqlalchemy.Repository):
     migrate_repository = ckan.migration.__path__[0]
 
-    tables_created = False
+    # note: tables_created value is not sustained between instantiations so
+    #       only useful for tests. The alternative is to use are_tables_created().
+    tables_created = False 
 
     def init_db(self):
         '''Ensures tables, const data and some default config is created.
@@ -168,6 +170,12 @@ class Repository(vdm.sqlalchemy.Repository):
         ##import pprint
         ##from migrate.versioning.schemadiff import getDiffOfModelAgainstDatabase
         ##pprint.pprint(getDiffOfModelAgainstDatabase(self.metadata, self.metadata.bind).colDiffs)
+
+    def are_tables_created(self):
+        metadata = MetaData(self.metadata.bind)
+        metadata.reflect()
+        return bool(metadata.tables)
+
 
 repo = Repository(metadata, Session,
         versioned_objects=[Package, PackageTag, Resource, ResourceGroup, PackageExtra, PackageGroup, Group]

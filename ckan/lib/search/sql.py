@@ -248,11 +248,13 @@ class PackageSqlSearchIndex(SqlSearchIndex):
         tx = conn.begin_nested()    
         try:
             res = conn.execute(sql, params)
+            results = res.fetchall() if not res.closed else None
             res.close()
             tx.commit()
         except Exception, e:
             tx.rollback()
             raise
+        return results
 
     def insert_dict(self, pkg_dict):
         if not 'id' in pkg_dict or not 'name' in pkg_dict:
@@ -286,3 +288,9 @@ class PackageSqlSearchIndex(SqlSearchIndex):
         
     def clear(self):
         self._run_sql("DELETE FROM package_search WHERE 1=1", {})
+
+    def get_all_entity_ids(self):
+        sql = 'SELECT package_id FROM package_search'
+        results = self._run_sql(sql, [])
+        return [res[0] for res in results]
+        
