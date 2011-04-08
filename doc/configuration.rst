@@ -95,7 +95,7 @@ To set the expiry times (in seconds) for specific controllers (which use the pro
 
 
 openid_enabled
--------------
+--------------
 
 Example::
 
