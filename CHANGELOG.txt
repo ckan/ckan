@@ -1,7 +1,7 @@
 CKAN CHANGELOG
 ++++++++++++++
 
-v1.3.3 2011-XX-XX
+v1.3.3 2011-04-08
 =================
 Major:
   * Authorization checks added to editing Groups and PackageRelationships (#1052)
