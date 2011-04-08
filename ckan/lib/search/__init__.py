@@ -48,11 +48,22 @@ def rebuild():
         package_index.insert_entity(pkg)
     model.Session.commit()
 
+def check():
+    from ckan import model
+    backend = get_backend()
+    package_index = backend.index_for(model.Package)
+
+    log.debug("Checking packages search index...")
+    pkgs_q = model.Session.query(model.Package).filter_by(state=model.State.ACTIVE)
+    pkgs = set([pkg.id for pkg in pkgs_q])
+    indexed_pkgs = set(package_index.get_all_entity_ids())
+    pkgs_not_indexed = pkgs - indexed_pkgs
+    print 'Packages not indexed = %i out of %i' % (len(pkgs_not_indexed), len(pkgs))
+    for pkg_id in pkgs_not_indexed:
+        pkg = model.Session.query(model.Package).get(pkg_id)
+        print pkg.revision.timestamp.strftime('%Y-%m-%d'), pkg.name
 
 def query_for(_type, backend=None):
     """ Query for entities of a specified type (name, class, instance). """
     return get_backend(backend=backend).query_for(_type)
 
-
-
-    

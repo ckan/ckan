@@ -47,6 +47,20 @@ def package_dictize(pkg, context):
 
     return result_dict
 
+def group_dictize(group, context):
+
+    result_dict = table_dictize(group, context)
+    result_dict.pop("created")
+
+    result_dict["extras"] = obj_dict_dictize(
+        group._extras, context, lambda x: x["key"])
+
+    result_dict["packages"] = obj_list_dictize(
+        group.packages, context)
+
+    return result_dict
+
+
 ## conversion to api
 
 def resource_dict_to_api(res_dict, package_id, context):
