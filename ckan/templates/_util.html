@@ -172,7 +172,9 @@
     </tr>
     <py:for each="user in users">
       <tr>
-        <td>  ${h.linked_user(user)}  </td>
+        <td>
+          ${h.linked_user(user)}
+        </td>
         <py:for each="role in roles">
           <td> 
             <input type="hidden" name="${ h.literal( '%s$%s' % (user,role)) }" value="submitted"/>
@@ -202,7 +204,9 @@
      </py:for>
     </tr>
     <tr>
-      <td>  <input type="textbox" name="new_user_name"/> </td>
+      <td>
+        <input type="textbox" name="new_user_name" class="autocomplete-user" />
+      </td>
       <py:for each="role in roles">
         <td> 
           <input type="hidden" name="${ h.literal( '%s' % role) }" value="submitted"/>

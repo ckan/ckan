@@ -1,3 +1,5 @@
+// TODO: Remove as this appears to be unused code. (Check this).
+
 (function () {
   
   function extractDataAttributes() {
