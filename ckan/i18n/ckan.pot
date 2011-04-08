@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ckan 1.3.3b\n"
+"Project-Id-Version: ckan 1.3.3\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2011-03-28 15:19+0100\n"
+"POT-Creation-Date: 2011-04-08 11:48+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -165,108 +165,108 @@ msgstr ""
 msgid "Not found"
 msgstr ""
 
-#: ckan/controllers/rest.py:191
+#: ckan/controllers/rest.py:202
 #, python-format
 msgid "Cannot list entity of this type: %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:273
+#: ckan/controllers/rest.py:279
 #, python-format
 msgid "Cannot read entity of this type: %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:288 ckan/controllers/rest.py:432
+#: ckan/controllers/rest.py:294 ckan/controllers/rest.py:438
 #: ckan/controllers/apiv1/package.py:118 ckan/controllers/apiv1/package.py:167
 #, python-format
 msgid "JSON Error: %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:315
+#: ckan/controllers/rest.py:321
 #, python-format
 msgid "REST API: Create package relationship: %s %s %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:336
+#: ckan/controllers/rest.py:342
 #, python-format
 msgid "Cannot create new entity of this type: %s %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:347 ckan/controllers/apiv1/package.py:91
+#: ckan/controllers/rest.py:353 ckan/controllers/apiv1/package.py:91
 #, python-format
 msgid "REST API: Create object %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:418
+#: ckan/controllers/rest.py:424
 #, python-format
 msgid "Cannot update entity of this type: %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:453 ckan/controllers/apiv1/package.py:150
+#: ckan/controllers/rest.py:459 ckan/controllers/apiv1/package.py:150
 #, python-format
 msgid "REST API: Update object %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:515
+#: ckan/controllers/rest.py:521
 #, python-format
 msgid "Cannot delete entity of this type: %s %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:524
+#: ckan/controllers/rest.py:530
 #, python-format
 msgid "REST API: Delete %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:548
+#: ckan/controllers/rest.py:554
 #, python-format
 msgid "There is no revision with id: %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:559
+#: ckan/controllers/rest.py:565
 msgid "Missing search term ('since_id=UUID' or 'since_time=TIMESTAMP')"
 msgstr ""
 
-#: ckan/controllers/rest.py:566
+#: ckan/controllers/rest.py:572
 msgid "Blank qjson parameter"
 msgstr ""
 
-#: ckan/controllers/rest.py:575
+#: ckan/controllers/rest.py:581
 #, python-format
 msgid "Search params: %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:613
+#: ckan/controllers/rest.py:619
 #, python-format
 msgid "Bad search option: %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:616
+#: ckan/controllers/rest.py:622
 #, python-format
 msgid "Unknown register: %s"
 msgstr ""
 
-#: ckan/controllers/rest.py:657
+#: ckan/controllers/rest.py:663
 msgid "You must supply a package id or name (parameter \"package\")."
 msgstr ""
 
-#: ckan/controllers/rest.py:659
+#: ckan/controllers/rest.py:665
 msgid "You must supply a rating (parameter \"rating\")."
 msgstr ""
 
-#: ckan/controllers/rest.py:664
+#: ckan/controllers/rest.py:670
 msgid "Rating must be an integer value."
 msgstr ""
 
-#: ckan/controllers/rest.py:668
+#: ckan/controllers/rest.py:674
 #, python-format
 msgid "Rating must be between %i and %i."
 msgstr ""
 
-#: ckan/controllers/rest.py:670
+#: ckan/controllers/rest.py:676
 #, python-format
 msgid "Package with name %r does not exist."
 msgstr ""
 
-#: ckan/controllers/rest.py:745
+#: ckan/controllers/rest.py:731
 #, python-format
 msgid "REST API: Update package relationship: %s %s %s"
 msgstr ""
