@@ -163,4 +163,53 @@
     </div>
   </div><!--! /rating-group -->
 
+  <table py:def="authz_form_table(id, roles, users, user_role_dict)">
+    <tr>
+      <th> System Roles</th>
+      <py:for each="role in roles">
+      <th> ${role} </th>
+      </py:for>
+    </tr>
+    <py:for each="user in users">
+      <tr>
+        <td>  ${h.linked_user(user)}  </td>
+        <py:for each="role in roles">
+          <td> 
+            <input type="hidden" name="${ h.literal( '%s$%s' % (user,role)) }" value="submitted"/>
+            <py:choose>
+              <py:when test="user_role_dict[(user,role)]"> 
+                <input type="checkbox" 
+                   name="${ h.literal( '%s$%s' % (user,role)) }" 
+                   checked='checked'/>
+              </py:when>
+              <py:otherwise>
+                <input type="checkbox" 
+                       name="${ h.literal( '%s$%s' % (user,role)) }" 
+                       />
+              </py:otherwise>
+            </py:choose>
+          </td>
+        </py:for>
+      </tr>
+    </py:for>
+  </table>
+
+  <table py:def="authz_add_table(roles)">
+    <tr>
+      <th>User</th>
+      <py:for each="role in roles">
+       <th> ${role} </th>
+     </py:for>
+    </tr>
+    <tr>
+      <td>  <input type="textbox" name="new_user_name"/> </td>
+      <py:for each="role in roles">
+        <td> 
+          <input type="hidden" name="${ h.literal( '%s' % role) }" value="submitted"/>
+          <input type="checkbox" name="${ h.literal( '%s' % role) }"/>
+        </td>
+      </py:for>
+    </tr>
+  </table>
+
 </html>
