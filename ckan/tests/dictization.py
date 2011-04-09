@@ -500,6 +500,3 @@ class TestBasicDictize:
                                                            'title': u'Some Group Title'}, pformat(group_api2_to_dict(api2_group, context))
 
 
-
-
-
