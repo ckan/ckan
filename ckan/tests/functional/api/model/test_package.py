@@ -116,7 +116,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         res = self.app.post(offset, params=postparams,
                             status=self.STATUS_409_CONFLICT,
                             extra_environ=self.extra_environ)
-        assert_equal(res.body, "Package format incorrect: Key 'id' is read-only - do not include in the package.")
+        assert_equal(res.body, '{"id": ["The input field id was not expected."]}')
 
     def test_entity_get_ok(self):
         package_refs = [self.anna.name, self.anna.id]
@@ -164,8 +164,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         res = self.app.post(offset, params=postparams,
                             status=self.STATUS_409_CONFLICT,
                             extra_environ=self.extra_environ)
-        assert "Package format incorrect: Cannot change value of key 'id' from " in res.body, res.body
-        assert "to u'illegally changed value'. This key is read-only." in res.body, res.body
+        assert "{'id': [u'Integrity Error']}" in res.body, res.body
 
     def test_entity_update_denied(self):
         offset = self.anna_offset()

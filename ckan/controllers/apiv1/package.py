@@ -91,8 +91,8 @@ class PackageController(RestController):
             return response
 
         if errors:
-            log.error('Validation error: %r' % errors)
-            response.write(self._finish(409, repr(errors),
+            log.error('Validation error: %r' % str(errors))
+            response.write(self._finish(409, errors,
                                         content_type='json'))
             return response
         

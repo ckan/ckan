@@ -132,17 +132,6 @@ def augment_data(data, schema):
 
     return new_data
 
-def validate(data, schema, context=None):
-    '''validate an unflattened nested dict agiast a schema'''
-
-    context = context or {}
-
-    assert isinstance(data, dict)
-    flattened = flatten_dict(data)
-    converted_data, errors = validate_flattened(flattened, schema, context)
-    converted_data = unflatten(converted_data)
-    return converted_data, errors
-
 def convert(converter, key, converted_data, errors, context):
 
     if inspect.isclass(converter) and issubclass(converter, fe.Validator):
@@ -190,15 +179,63 @@ def convert(converter, key, converted_data, errors, context):
     except Invalid, e:
         errors[key].append(e.error)
         return
-        
 
+def _remove_blank_keys(schema):
 
+    for key, value in schema.items():
+        if isinstance(value[0], dict):
+            for item in value:
+                _remove_blank_keys(item)
+            if not any(value):
+                schema.pop(key)
 
-def validate_flattened(data, schema, context=None):
-    '''validate a flattened dict agiast a schema'''
-    
+    return schema
+
+def validate(data, schema, context=None):
+    '''validate an unflattened nested dict agiast a schema'''
+
     context = context or {}
 
+    assert isinstance(data, dict)
+    flattened = flatten_dict(data)
+    converted_data, errors = _validate(flattened, schema, context)
+    converted_data = unflatten(converted_data)
+
+    errors_unflattened = unflatten(errors)
+
+    ##remove validators that passed
+    dicts_to_process = [errors_unflattened]
+    while dicts_to_process:
+        dict_to_process = dicts_to_process.pop()
+        for key, value in dict_to_process.items():
+            if not value:
+                dict_to_process.pop(key)
+                continue
+            if isinstance(value[0], dict):
+                dicts_to_process.extend(value)
+
+    _remove_blank_keys(errors_unflattened)
+
+    return converted_data, errors_unflattened
+
+def validate_flattened(data, schema, context=None):
+
+    context = context or {}
+    assert isinstance(data, dict)
+    flattened = flatten_dict(data)
+    converted_data, errors = _validate(flattened, schema, context)
+    converted_data = unflatten(converted_data)
+
+    for key, value in errors.items():
+        if not value:
+            errors.pop(key)
+
+    return converted_data, errors
+
+
+def _validate(data, schema, context):
+    '''validate a flattened dict agiast a schema'''
+    
     converted_data = augment_data(data, schema)
     full_schema = make_full_schema(data, schema)
 
@@ -248,9 +285,6 @@ def validate_flattened(data, schema, context=None):
             except StopOnError:
                 break
 
-    for key, value in errors.items():
-        if not value:
-            errors.pop(key)
 
     return converted_data, errors
 
