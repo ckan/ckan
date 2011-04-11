@@ -170,8 +170,10 @@ class TestBasicDictize:
 
         pprint(package_to_api1(pkg, context))
         pprint(pkg.as_dict())
+        asdict = pkg.as_dict()
+        asdict['download_url'] = asdict['resources'][0]['url']
 
-        assert package_to_api1(pkg, context) == pkg.as_dict()
+        assert package_to_api1(pkg, context) == asdict
 
     def test_04_package_to_api1_with_relationship(self):
 

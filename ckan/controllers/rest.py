@@ -159,9 +159,6 @@ class BaseRestController(BaseApiController):
         if register == 'revision':
             revs = model.Session.query(model.Revision).all()
             return self._finish_ok([rev.id for rev in revs])
-        elif register == u'package' and not subregister:
-            # see /apiv1/PackageController
-            raise NotImplementedError
         elif register == u'package' and subregister == 'relationships':
             pkg = self._get_pkg(id)
             if not pkg:
@@ -223,17 +220,6 @@ class BaseRestController(BaseApiController):
             if changeset is None:
                 return self._finish_not_found()
             response_data = changeset.as_dict()
-            return self._finish_ok(response_data)
-        elif register == u'package' and not subregister:
-            pkg = self._get_pkg(id)
-            if pkg == None:
-                response.status_int = 404
-                return ''
-            if not self._check_access(pkg, model.Action.READ):
-                return ''
-            for item in PluginImplementations(IPackageController):
-                item.read(pkg)
-            response_data = self._represent_package(pkg)
             return self._finish_ok(response_data)
         elif register == u'package' and (subregister == 'relationships' or subregister in model.PackageRelationship.get_all_types()):
             pkg1 = self._get_pkg(id)
@@ -362,18 +348,15 @@ class BaseRestController(BaseApiController):
 
                 group = group_dict_save(data, context)
 
-                # Construct access control entities.
                 if self.rest_api_user:
                     admins = [model.User.by_name(self.rest_api_user.decode('utf8'))]
                 else:
                     admins = []
                 model.setup_default_user_roles(group, admins)
-                # Commit
                 for item in PluginImplementations(IGroupController):
                     item.create(group)
                 model.repo.commit()        
                 log.debug('Created object %s' % str(group.name))
-                # Set location header with new ID.
 
                 location = str('%s/%s' % (request.path, group.id))
                 response.headers['Location'] = location

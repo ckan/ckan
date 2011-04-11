@@ -57,7 +57,6 @@ class PackageController(RestController):
                 response_data = package_to_api1(pkg, context)
             else:
                 response_data = package_to_api2(pkg, context)
-            response_data = self._represent_package(pkg)
 
         for item in self.extensions:
             item.read(pkg)

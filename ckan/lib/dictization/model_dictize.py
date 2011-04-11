@@ -102,6 +102,9 @@ def package_to_api1(pkg, context):
    
     for resource in resources:
         resource_dict_to_api(resource, pkg.id, context)
+
+    if pkg.resources:
+        dictized['download_url'] = pkg.resources[0].url
             
     dictized['license'] = pkg.license.title if pkg.license else None
 
