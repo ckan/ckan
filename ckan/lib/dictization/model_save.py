@@ -181,6 +181,8 @@ def group_dict_save(group_dict, context):
 
     group.packages[:] = packages
 
+    return group
+
 
 def package_api_to_dict(api1_dict, context):
 
@@ -217,22 +219,7 @@ def package_api_to_dict(api1_dict, context):
     
     return dictized
 
-def group_api1_to_dict(api1_dict, context):
-
-    dictized = {}
-
-    for key, value in api1_dict.iteritems():
-        new_value = value
-        if key == 'packages':
-            new_value = [{"name": item} for item in value]
-        if key == 'extras':
-            new_value = [{"key": extra_key, "value": value[extra_key]} 
-                         for extra_key in value]
-        dictized[key] = new_value
-
-    return dictized
-
-def group_api2_to_dict(api1_dict, context):
+def group_api_to_dict(api1_dict, context):
 
     dictized = {}
 
@@ -246,3 +233,4 @@ def group_api2_to_dict(api1_dict, context):
         dictized[key] = new_value
 
     return dictized
+

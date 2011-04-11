@@ -18,8 +18,7 @@ from ckan.lib.dictization.model_save import (package_dict_save,
                                              resource_dict_save,
                                              group_dict_save,
                                              package_api_to_dict,
-                                             group_api1_to_dict,
-                                             group_api2_to_dict,
+                                             group_api_to_dict,
                                             )
 
 class TestBasicDictize:
@@ -35,6 +34,8 @@ class TestBasicDictize:
     def remove_changable_columns(self, dict):
         for key, value in dict.items():
             if key.endswith('id') and key <> 'license_id':
+                dict.pop(key)
+            if key == 'created':
                 dict.pop(key)
             if isinstance(value, list):
                 for new_dict in value:
@@ -465,6 +466,7 @@ class TestBasicDictize:
         expected['packages'] = sorted(expected['packages'], key=lambda x: x['name'])
 
         result = self.remove_changable_columns(group_dictized)
+
         result['packages'] = sorted(result['packages'], key=lambda x: x['name'])
 
         assert result == expected, pformat(result)
@@ -475,28 +477,18 @@ class TestBasicDictize:
         context = {"model": model,
                   "session": model.Session}
 
-        api1_group = {
+        api_group = {
             'name' : u'testgroup',
             'title' : u'Some Group Title',
             'description' : u'Great group!',
             'packages' : [u'annakarenina', u'warandpeace'],
         }
 
-        api2_group = {
-            'name' : u'testgroup',
-            'title' : u'Some Group Title',
-            'description' : u'Great group!',
-            'packages' : [u'idffdsfsafsafa', u'idffdsfsafs'],
-        }
 
-        assert group_api1_to_dict(api1_group, context) == {'description': u'Great group!',
+        assert group_api_to_dict(api_group, context) == {'description': u'Great group!',
                                                            'name': u'testgroup',
-                                                           'packages': [{'name': u'annakarenina'}, {'name': u'warandpeace'}],
-                                                           'title': u'Some Group Title'}, pformat(group_api1_to_dict(api1_group, context))
+                                                           'packages': [{'id': u'annakarenina'}, {'id': u'warandpeace'}],
+                                                           'title': u'Some Group Title'}, pformat(group_api1_to_dict(api_group, context))
 
-        assert group_api2_to_dict(api2_group, context) == {'description': u'Great group!',
-                                                           'name': u'testgroup',
-                                                           'packages': [{'id': u'idffdsfsafsafa'}, {'id': u'idffdsfsafs'}],
-                                                           'title': u'Some Group Title'}, pformat(group_api2_to_dict(api2_group, context))
 
 

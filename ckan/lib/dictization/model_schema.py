@@ -9,7 +9,7 @@ from ckan.lib.navl.validators import (ignore_missing,
                                      )
 from ckan.lib.dictization.validators import (package_id_not_changed,
                                              package_id_exists,
-                                             package_name_exists,
+                                             package_id_or_name_exists,
                                              extras_unicode_convert,
                                              name_validator,
                                              package_name_validator,
@@ -106,10 +106,10 @@ def default_group_schema():
         'title': [ignore_missing, unicode],
         'description': [ignore_missing, unicode],
         'state': [ignore],
+        'created': [ignore],
         'extras': default_extras_schema(),
         'packages': {
-            "id": [ignore_missing, unicode, package_id_exists],
-            "name": [both_not_empty("id"), ignore_missing, unicode, package_name_exists],
+            "id": [not_empty, unicode, package_id_or_name_exists],
             "__extras": [ignore]
         }
     }

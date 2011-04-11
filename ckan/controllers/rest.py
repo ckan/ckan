@@ -2,14 +2,17 @@ import sqlalchemy.orm
 import logging
 
 from paste.util.multidict import MultiDict 
-from ckan.lib.base import *
+from ckan.lib.base import BaseController, response, c, _, gettext, request
 from ckan.lib.helpers import json
 import ckan.model as model
 import ckan.forms
 from ckan.lib.search import query_for, QueryOptions, SearchError, DEFAULT_OPTIONS
-import ckan.authz
-import ckan.rating
 from ckan.plugins import PluginImplementations, IGroupController, IPackageController
+from ckan.lib.dictization.model_dictize import group_to_api1, group_to_api2
+from ckan.lib.dictization.model_save import (group_api_to_dict,
+                                             group_dict_save)
+from ckan.lib.dictization.model_schema import default_group_schema
+from ckan.lib.navl.dictization_functions import validate, DataError
 
 log = logging.getLogger(__name__)
 
@@ -264,7 +267,11 @@ class BaseRestController(BaseApiController):
                 return self._finish_not_authz()
             for item in PluginImplementations(IGroupController):
                 item.read(group)
-            _dict = group.as_dict(ref_package_by=self.ref_package_by)
+            context = {"session": model.Session, "model": model}
+            if isinstance(self, ApiVersion2):
+                _dict = group_to_api2(group, context)
+            else:
+                _dict = group_to_api1(group, context)
             #TODO check it's not none
             return self._finish_ok(_dict)
         elif register == u'tag':
@@ -328,10 +335,51 @@ class BaseRestController(BaseApiController):
                 if not self._check_access(model.System(), model.Action.GROUP_CREATE):
                     return self._finish_not_authz()
                 is_admin = ckan.authz.Authorizer().is_sysadmin(c.user)
-                request_fa_dict = ckan.forms.edit_group_dict(ckan.forms.get_group_dict(), request_data)
-                fs = ckan.forms.get_group_fieldset(combined=True, is_admin=is_admin)
-                fs = fs.bind(model.Group, data=request_fa_dict, session=model.Session)
-                # ...continues below.
+
+                context = {'model': model, 'session': model.Session}
+                dictized = group_api_to_dict(request_data, context)
+
+                try:
+                    data, errors = validate(dictized,
+                                            default_group_schema(),
+                                            context)
+                except DataError:
+                    log.error('Group format incorrect: %s' % request_data)
+                    response.status_int = 400
+                    #TODO make better error message
+                    response.write(_(u'Integrity Error') % request_data)
+                    return response
+
+                if errors:
+                    log.error('Validation error: %r' % str(errors))
+                    response.write(self._finish(409, errors,
+                                                content_type='json'))
+                    return response
+
+                rev = model.repo.new_revision()
+                rev.author = self.rest_api_user
+                rev.message = _(u'REST API: Create object %s') % data['name']
+
+                group = group_dict_save(data, context)
+
+                # Construct access control entities.
+                if self.rest_api_user:
+                    admins = [model.User.by_name(self.rest_api_user.decode('utf8'))]
+                else:
+                    admins = []
+                model.setup_default_user_roles(group, admins)
+                # Commit
+                for item in PluginImplementations(IGroupController):
+                    item.create(group)
+                model.repo.commit()        
+                log.debug('Created object %s' % str(group.name))
+                # Set location header with new ID.
+
+                location = str('%s/%s' % (request.path, group.id))
+                response.headers['Location'] = location
+                log.debug('Response headers: %r' % (response.headers))
+                # Todo: Return 201, not 200.
+                return self._finish_ok(data)
             elif register == 'rating' and not subregister:
                 # Create a Rating.
                 return self._create_rating(request_data)
@@ -341,48 +389,14 @@ class BaseRestController(BaseApiController):
                 response.status_int = 400
                 return gettext('Cannot create new entity of this type: %s %s') % (register, subregister)
             # Validate the fieldset.
-            validation = fs.validate()
-            if not validation:
-                # Complain about validation errors.
-                log.error('Validation error: %r' % repr(fs.errors))
-                response.status_int = 409
-                return json.dumps(repr(fs.errors))
-            # Construct new revision.
-            rev = model.repo.new_revision()
-            rev.author = self.rest_api_user
-            rev.message = _(u'REST API: Create object %s') % str(fs.name.value)
-            # Construct catalogue entity.
-            fs.sync()
-            # Construct access control entities.
-            if self.rest_api_user:
-                admins = [model.User.by_name(self.rest_api_user.decode('utf8'))]
-            else:
-                admins = []
-            model.setup_default_user_roles(fs.model, admins)
-            # Commit
-            if register == 'package' and not subregister:
-                # see /apiv1/PackageController
-                raise NotImplementedError
-            elif register == 'group' and not subregister:
-                for item in PluginImplementations(IGroupController):
-                    item.create(fs.model)
-            model.repo.commit()        
         except Exception, inst:
             log.exception(inst)
             model.Session.rollback()
-            if 'fs' in dir():
-                log.error('Exception creating object %s: %r' % (str(fs.name.value), inst))
+            if 'group' in dir():
+                log.error('Exception creating object %s: %r' % (group.name, inst))
             else:
                 log.error('Exception creating object fieldset for register %r: %r' % (register, inst))                
             raise
-        log.debug('Created object %s' % str(fs.name.value))
-        obj = fs.model
-        # Set location header with new ID.
-        location = str('%s/%s' % (request.path, obj.id))
-        response.headers['Location'] = location
-        log.debug('Response headers: %r' % (response.headers))
-        # Todo: Return 201, not 200.
-        return self._finish_ok(obj.as_dict())
             
     def update(self, register, id, subregister=None, id2=None):
         log.debug('update %s/%s/%s/%s' % (register, id, subregister, id2))

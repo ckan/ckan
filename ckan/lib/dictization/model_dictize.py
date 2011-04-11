@@ -54,7 +54,6 @@ def package_dictize(pkg, context):
 def group_dictize(group, context):
 
     result_dict = table_dictize(group, context)
-    result_dict.pop("created")
 
     result_dict["extras"] = obj_dict_dictize(
         group._extras, context, lambda x: x["key"])
@@ -66,6 +65,23 @@ def group_dictize(group, context):
 
 
 ## conversion to api
+
+def group_to_api1(group, context):
+    
+    dictized = group_dictize(group, context)
+    dictized["extras"] = dict((extra["key"], extra["value"]) 
+                              for extra in dictized["extras"])
+    dictized["packages"] = sorted([package["name"] for package in dictized["packages"]])
+    return dictized
+
+def group_to_api2(group, context):
+    
+    dictized = group_dictize(group, context)
+    dictized["extras"] = dict((extra["key"], extra["value"]) 
+                              for extra in dictized["extras"])
+    dictized["packages"] = sorted([package["id"] for package in dictized["packages"]])
+    return dictized
+
 
 def resource_dict_to_api(res_dict, package_id, context):
     res_dict.pop("revision_id")

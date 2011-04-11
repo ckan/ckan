@@ -29,6 +29,22 @@ def package_name_exists(value, context):
         raise Invalid(_('Package with name %r does not exist.') % str(value))
     return value
 
+def package_id_or_name_exists(value, context):
+
+    model = context['model']
+    session = context['session']
+
+    result = session.query(model.Package).get(value)
+    if result:
+        return value
+
+    result = session.query(model.Package).filter_by(name=value).first()
+
+    if not result:
+        raise Invalid(_('Package was not found.'))
+
+    return result.id
+
 def extras_unicode_convert(extras, context):
     for extra in extras:
         extras[extra] = unicode(extras[extra])
