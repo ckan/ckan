@@ -132,8 +132,16 @@ class UserObjectRole(DomainObject):
     protected_object = None
 
     def __repr__(self):
-        return '<%s user="%s" role="%s" context="%s">' % \
-               (self.__class__.__name__, self.user.name, self.role, self.context)
+        if self.user:
+            return '<%s user="%s" role="%s" context="%s">' % \
+                (self.__class__.__name__, self.user.name, self.role, self.context)
+        elif self.authorized_group:
+            return '<%s group="%s" role="%s" context="%s">' % \
+                (self.__class__.__name__, self.authorized_group.name, self.role, self.context)
+        else:
+            assert False, "UserObjectRole is neither for an authzgroup or for a user" 
+            
+
 
     @classmethod
     def get_object_role_class(cls, domain_obj):
@@ -210,7 +218,7 @@ class UserObjectRole(DomainObject):
     def remove_authorization_group_from_role(cls, authorization_group, role, domain_obj):
         q = cls._authorized_group_query(authorization_group, role, domain_obj)
         ago_role = q.one()
-        Session.delete(agu_role)
+        Session.delete(ago_role)
         Session.commit()
         Session.remove()
 
