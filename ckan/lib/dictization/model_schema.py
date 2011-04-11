@@ -115,6 +115,10 @@ def default_group_schema():
     }
     return schema
 
+def default_update_group_schema():
+    schema = default_group_schema()
+    schema["name"] = [ignore_missing, unicode]
+    return schema
 
 def default_extras_schema():
 

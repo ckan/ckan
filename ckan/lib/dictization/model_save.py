@@ -155,8 +155,11 @@ def group_dict_save(group_dict, context):
 
     model = context["model"]
     session = context["session"]
+    group = context.get("group")
     Group = model.Group
     Package = model.Package
+    if group:
+        group_dict["id"] = group.id 
 
     group = table_dict_save(group_dict, Group, context)
 

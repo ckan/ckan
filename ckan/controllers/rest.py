@@ -11,7 +11,7 @@ from ckan.plugins import PluginImplementations, IGroupController, IPackageContro
 from ckan.lib.dictization.model_dictize import group_to_api1, group_to_api2
 from ckan.lib.dictization.model_save import (group_api_to_dict,
                                              group_dict_save)
-from ckan.lib.dictization.model_schema import default_group_schema
+from ckan.lib.dictization.model_schema import default_group_schema, default_update_group_schema
 from ckan.lib.navl.dictization_functions import validate, DataError
 
 log = logging.getLogger(__name__)
@@ -404,9 +404,6 @@ class BaseRestController(BaseApiController):
         if not self._check_access(None, None):
             return self._finish_not_authz()
 
-        if register == 'package' and not subregister:
-            # see /apiv1/PackageController
-            raise NotImplementedError
         elif register == 'package' and subregister in model.PackageRelationship.get_all_types():
             pkg1 = self._get_pkg(id)
             pkg2 = self._get_pkg(id2)
@@ -451,50 +448,55 @@ class BaseRestController(BaseApiController):
             response.status_int = 400
             return gettext('JSON Error: %s') % str(inst)
 
-        if not subregister:
-            if register == 'package':
-                # see /apiv1/PackageController
-                raise NotImplementedError
-            elif register == 'group':
-                auth_for_change_state = ckan.authz.Authorizer().am_authorized(c, 
-                    model.Action.CHANGE_STATE, entity)
-                orig_entity_dict = ckan.forms.get_group_dict(entity)
-                request_fa_dict = ckan.forms.edit_group_dict(orig_entity_dict, request_data, id=entity.id)
-                fs = ckan.forms.get_group_fieldset(combined=True, is_admin=auth_for_change_state)
-            fs = fs.bind(entity, data=request_fa_dict)
-            
-            validation = fs.validate()
-            if not validation:
-                response.status_int = 409
-                return json.dumps(repr(fs.errors))
-            try:
-                rev = model.repo.new_revision()
-                rev.author = self.rest_api_user
-                rev.message = _(u'REST API: Update object %s') % str(fs.name.value)
-                fs.sync()
-                
-                if register == 'package' and not subregister:
-                    for item in PluginImplementations(IPackageController):
-                        item.edit(fs.model)
-                elif register == 'group' and not subregister:
-                    for item in PluginImplementations(IGroupController):
-                        item.edit(fs.model)
+        if register == 'package' and subregister:
+            comment = request_data.get('comment', u'')
+            return self._update_package_relationship(entity, comment)
 
-                model.repo.commit()        
-            except Exception, inst:
-                log.exception(inst)
-                model.Session.rollback()
-                if inst.__class__.__name__ == 'IntegrityError':
-                    response.status_int = 409
-                    return ''
-                else:
-                    raise
-            obj = fs.model
-            return self._finish_ok(obj.as_dict())
-        else:
-            if register == 'package':
-                comment = request_data.get('comment', u'')
-                return self._update_package_relationship(entity, comment)
+        auth_for_change_state = ckan.authz.Authorizer().am_authorized(c, 
+            model.Action.CHANGE_STATE, entity)
+
+        context = {'model': model, 'session': model.Session, 'group': entity}
+        dictized = group_api_to_dict(request_data, context)
+
+        try:
+            data, errors = validate(dictized,
+                                    default_update_group_schema(),
+                                    context)
+        except DataError:
+            log.error('Group format incorrect: %s' % request_data)
+            response.status_int = 400
+            #TODO make better error message
+            response.write(_(u'Integrity Error') % request_data)
+            return response
+        
+        if errors:
+            log.error('Validation error: %r' % str(errors))
+            response.write(self._finish(409, errors,
+                                        content_type='json'))
+            return response
+
+        try:
+            rev = model.repo.new_revision()
+            rev.author = self.rest_api_user
+            
+            group = group_dict_save(data, context)
+            rev.message = _(u'REST API: Update object %s') % group.name
+
+            for item in PluginImplementations(IGroupController):
+                item.edit(group)
+
+            model.repo.commit()        
+            data["name"] = group.name
+            data["title"] = group.title
+        except Exception, inst:
+            log.exception(inst)
+            model.Session.rollback()
+            if inst.__class__.__name__ == 'IntegrityError':
+                response.status_int = 409
+                return ''
+            else:
+                raise
+        return self._finish_ok(data)
 
     def delete(self, register, id, subregister=None, id2=None):
         log.debug('delete %s/%s/%s/%s' % (register, id, subregister, id2))
