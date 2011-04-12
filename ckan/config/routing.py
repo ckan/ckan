@@ -242,14 +242,16 @@ def make_map():
     map.connect('/tag/:id', controller='tag', action='read')
     map.redirect("/users/{url:.*}", "/user/{url}")
     map.connect('/user/edit', controller='user', action='edit')
-    map.connect('/user/edit/:id', controller='user', action='edit')
+    # Note: openid users have slashes in their ids, so need the wildcard
+    # in the route.
+    map.connect('/user/edit/{id:.*}', controller='user', action='edit')
     map.connect('/user/register', controller='user', action='register')
     map.connect('/user/login', controller='user', action='login')
     map.connect('/user/logged_in', controller='user', action='logged_in')
     map.connect('/user/logged_out', controller='user', action='logged_out')
     map.connect('/user/apikey', controller='user', action='apikey')
     map.connect('/user/me', controller='user', action='me')
-    map.connect('/user/:id', controller='user', action='read')
+    map.connect('/user/{id:.*}', controller='user', action='read')
     map.connect('/{controller}', action='index')
     map.connect('/:controller/{action}')
     map.connect('/{controller}/{action}/{id}')

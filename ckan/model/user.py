@@ -9,7 +9,6 @@ from meta import *
 from core import DomainObject
 from types import make_uuid
 
-
 user_table = Table('user', metadata,
         Column('id', UnicodeText, primary_key=True, default=make_uuid),
         Column('name', UnicodeText),
@@ -25,18 +24,23 @@ user_table = Table('user', metadata,
 class User(DomainObject):
     
     VALID_NAME = re.compile(r"^[a-zA-Z0-9_\-]{3,255}$")
-
+    DOUBLE_SLASH = re.compile(':\/([^/])')
+    
     @classmethod
     def by_openid(cls, openid):
         obj = Session.query(cls).autoflush(False)
         return obj.filter_by(openid=openid).first()
     
     @classmethod
-    def get(cls, identifier):
+    def get(cls, user_reference):
+        # double slashes in an openid often get turned into single slashes
+        # by browsers, so correct that for the openid lookup
+        corrected_openid_user_ref = cls.DOUBLE_SLASH.sub('://\\1',
+                                                         user_reference)
         query = Session.query(cls).autoflush(False)
-        query = query.filter(or_(cls.name==identifier,
-                                 cls.openid==identifier,
-                                 cls.id==identifier))
+        query = query.filter(or_(cls.name==user_reference,
+                                 cls.openid==corrected_openid_user_ref,
+                                 cls.id==user_reference))
         return query.first()
 
     @property
@@ -45,6 +49,22 @@ class User(DomainObject):
             return self.fullname
         return self.name
         
+    def get_reference_preferred_for_uri(self):
+        '''Returns a reference (e.g. name, id, openid) for this user
+        suitable for the user\'s URI.
+        When there is a choice, the most preferable one will be
+        given, based on readability. This is expected when repoze.who can
+        give a more friendly name for an openid user.
+        The result is not escaped (will get done in url_for/redirect_to).
+        '''
+        if self.name:
+            ref = self.name
+        elif self.openid:
+            ref = self.openid
+        else:
+            ref = self.id
+        return ref
+            
     def _set_password(self, password):
         """Hash password on the fly."""
         if isinstance(password, unicode):
