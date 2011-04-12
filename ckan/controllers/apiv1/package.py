@@ -10,8 +10,8 @@ from ckan.plugins import PluginImplementations, IPackageController
 from ckan.lib.dictization.model_dictize import package_to_api1, package_to_api2
 from ckan.lib.dictization.model_save import (package_api_to_dict,
                                              package_dict_save)
-from ckan.lib.dictization.model_schema import (default_create_package_schema,
-                                               default_update_package_schema)
+from ckan.logic.schema import (default_create_package_schema,
+                               default_update_package_schema)
 from ckan.lib.navl.dictization_functions import validate, DataError
 
 log = __import__("logging").getLogger(__name__)

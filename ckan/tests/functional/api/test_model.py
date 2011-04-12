@@ -289,33 +289,6 @@ class ModelApiTestCase(BaseModelApiTestCase):
         res = self.app.get(offset, status=404)
         model.Session.remove()
 
-    def test_15_list_changesets(self):
-        offset = self.offset('/rest/changeset')
-        res = self.app.get(offset, status=[200])
-        from ckan.model.changeset import ChangesetRegister
-        changesets = ChangesetRegister()
-        assert len(changesets), "No changesets found in model."
-        for id in changesets:
-            assert id in res, "Didn't find changeset id '%s' in: %s" % (id, res)
-
-    def test_15_get_changeset(self):
-        from ckan.model.changeset import ChangesetRegister
-        changesets = ChangesetRegister()
-        assert len(changesets), "No changesets found in model."
-        for id in changesets:
-            offset = self.offset('/rest/changeset/%s' % id)
-            res = self.app.get(offset, status=[200])
-            changeset_data = self.data_from_res(res)
-            assert 'id' in changeset_data, "No 'id' in changeset data: %s" % changeset_data
-            assert 'meta' in changeset_data, "No 'meta' in changeset data: %s" % changeset_data
-            assert 'changes' in changeset_data, "No 'changes' in changeset data: %s" % changeset_data
-
-    def test_15_get_changeset_404(self):
-        changeset_id = "xxxxxxxxxxxxxxxxxxxxxxxxxx"
-        offset = self.offset('/rest/changeset/%s' % changeset_id)
-        res = self.app.get(offset, status=404)
-        model.Session.remove()
-
     def test_16_list_licenses(self):
         from ckan.model.license import LicenseRegister
         register = LicenseRegister()

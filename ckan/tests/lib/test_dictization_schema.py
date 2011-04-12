@@ -13,7 +13,7 @@ from ckan.lib.dictization.model_dictize import (package_dictize,
 
 from ckan.lib.dictization.model_save import package_dict_save
 
-from ckan.lib.dictization.model_schema import default_package_schema, default_group_schema
+from ckan.logic.schema import default_package_schema, default_group_schema
 
 from ckan.lib.navl.dictization_functions import validate
 

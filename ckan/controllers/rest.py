@@ -7,12 +7,14 @@ from ckan.lib.helpers import json
 import ckan.model as model
 import ckan.forms
 from ckan.lib.search import query_for, QueryOptions, SearchError, DEFAULT_OPTIONS
-from ckan.plugins import PluginImplementations, IGroupController, IPackageController
+from ckan.plugins import PluginImplementations, IGroupController
 from ckan.lib.dictization.model_dictize import group_to_api1, group_to_api2
 from ckan.lib.dictization.model_save import (group_api_to_dict,
                                              group_dict_save)
-from ckan.lib.dictization.model_schema import default_group_schema, default_update_group_schema
+from ckan.logic.schema import default_group_schema, default_update_group_schema
 from ckan.lib.navl.dictization_functions import validate, DataError
+import ckan.logic.action.listing as listing
+from ckan.logic import NotFound, NotAuthorized
 
 log = logging.getLogger(__name__)
 
@@ -146,7 +148,6 @@ class ApiVersion2(BaseApiController):
     ref_group_by = 'id'
 
 
-
 class BaseRestController(BaseApiController):
 
     def get_api(self):
@@ -156,50 +157,35 @@ class BaseRestController(BaseApiController):
 
     def list(self, register, subregister=None, id=None):
         log.debug('list %s' % (request.path))
-        if register == 'revision':
-            revs = model.Session.query(model.Revision).all()
-            return self._finish_ok([rev.id for rev in revs])
-        elif register == u'package' and subregister == 'relationships':
-            pkg = self._get_pkg(id)
-            if not pkg:
-                return self._finish_not_found('First package named in request was not found.')
-            relationships = ckan.authz.Authorizer().\
-                            authorized_package_relationships(\
-                c.user, pkg, action=model.Action.READ)
-            response_data = [rel.as_dict(package=pkg, ref_package_by=self.ref_package_by) for rel in relationships]
-            return self._finish_ok(response_data)
-        elif register == u'package' and subregister == 'revisions':
-            pkg = self._get_pkg(id)
-            if pkg is None:
-                return self._finish_not_found()
-            if not self._check_access(pkg, model.Action.READ):
-                return self._finish_not_authz()
-            revision_dicts = []
-            for revision, object_revisions in pkg.all_related_revisions:
-                revision_dicts.append(model.revision_as_dict(revision,
-                                                             include_packages=False))
-            return self._finish_ok(revision_dicts)
-        elif register == u'group':
-            query = ckan.authz.Authorizer().authorized_query(c.user, model.Group)
-            groups = query.all() 
-            response_data = self._list_group_refs(groups)
-            return self._finish_ok(response_data)
-        elif register == u'tag':
-            tags = model.Session.query(model.Tag).all() #TODO
-            response_data = [tag.name for tag in tags]
-            return self._finish_ok(response_data)
-        elif register == u'changeset':
-            from ckan.model.changeset import ChangesetRegister
-            response_data = ChangesetRegister().keys()
-            return self._finish_ok(response_data)
-        elif register == u'licenses':
-            from ckan.model.license import LicenseRegister
-            licenses = LicenseRegister().values()
-            response_data = [l.as_dict() for l in licenses]
-            return self._finish_ok(response_data)
-        else:
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': c.user,
+            'id': id,
+            'api_version': self.api_version
+        }
+        action_map = {
+            'revision': listing.revision_list,
+            'group': listing.group_list,
+            'tag': listing.tag_list,
+            'licenses': listing.licence_list,
+            ('package', 'relationships'): listing.package_relationships_list,
+            ('package', 'revisions'): listing.package_revision_list,
+        }
+
+        action = action_map.get((register, subregister)) 
+        if not action:
+            action = action_map.get(register)
+        if not action:
             response.status_int = 400
             return gettext('Cannot list entity of this type: %s') % register
+        try:
+            return self._finish_ok(action(context))
+        except NotFound:
+            return self._finish_not_found()
+        except NotAuthorized:
+            return self._finish_not_authz()
+
 
     def show(self, register, id, subregister=None, id2=None):
         log.debug('show %s/%s/%s/%s' % (register, id, subregister, id2))
@@ -211,16 +197,6 @@ class BaseRestController(BaseApiController):
             rev_dict = model.revision_as_dict(rev, include_packages=True,
                                               ref_package_by=self.ref_package_by)
             return self._finish_ok(rev_dict)
-        elif register == u'changeset':
-            from ckan.model.changeset import ChangesetRegister
-            changesets = ChangesetRegister()
-            changeset = changesets.get(id, None)
-            #if not self._check_access(changeset, model.Action.READ):
-            #    return ''
-            if changeset is None:
-                return self._finish_not_found()
-            response_data = changeset.as_dict()
-            return self._finish_ok(response_data)
         elif register == u'package' and (subregister == 'relationships' or subregister in model.PackageRelationship.get_all_types()):
             pkg1 = self._get_pkg(id)
             pkg2 = self._get_pkg(id2)

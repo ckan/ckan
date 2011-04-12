@@ -7,7 +7,7 @@ from ckan.lib.navl.validators import (ignore_missing,
                                       if_empty_same_as,
                                       not_missing
                                      )
-from ckan.lib.dictization.validators import (package_id_not_changed,
+from ckan.logic.validators import (package_id_not_changed,
                                              package_id_exists,
                                              package_id_or_name_exists,
                                              extras_unicode_convert,
