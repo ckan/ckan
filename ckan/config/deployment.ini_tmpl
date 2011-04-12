@@ -128,8 +128,9 @@ ckan.site_logo = http://assets.okfn.org/p/ckan/img/ckan_logo_largetext.png
 ## Site tagline / description (used on front page)
 ckan.site_description = 
 
-## Used in creating some absolute urls (such as rss feeds) and dump filenames
-ckan.site_url = http://www.ckan.net
+## Used in creating some absolute urls (such as rss feeds, css files) and 
+## dump filenames
+ckan.site_url =
 
 ## Favicon (default is the CKAN software favicon)
 ckan.favicon = http://assets.okfn.org/p/ckan/img/ckan.ico
