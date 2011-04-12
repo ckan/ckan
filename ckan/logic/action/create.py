@@ -8,22 +8,9 @@ from ckan.lib.dictization.model_save import (group_api_to_dict,
                                              group_dict_save)
 from ckan.logic.schema import default_group_schema
 from ckan.lib.navl.dictization_functions import validate
+from ckan.logic.action.update import _update_package_relationship
 log = logging.getLogger(__name__)
 
-def _update_package_relationship(relationship, comment, context):
-    model = context['model']
-    api = context.get('api_version') or '1'
-    ref_package_by = 'id' if api == '2' else 'name'
-    is_changed = relationship.comment != comment
-    if is_changed:
-        rev = model.repo.new_revision()
-        rev.author = context["user"]
-        rev.message = _(u'REST API: Update package relationship: %s %s %s') % (relationship.subject, relationship.type, relationship.object)
-        relationship.comment = comment
-        model.repo.commit_and_remove()
-    rel_dict = relationship.as_dict(package=relationship.subject,
-                                    ref_package_by=ref_package_by)
-    return rel_dict
 
 def package_relationship_create(data_dict, context):
 

@@ -7,12 +7,10 @@ import ckan.model as model
 import ckan.rating
 from ckan.lib.search import query_for, QueryOptions, SearchError, DEFAULT_OPTIONS
 from ckan.plugins import PluginImplementations, IGroupController
-from ckan.lib.dictization.model_save import (group_api_to_dict,
-                                             group_dict_save)
-from ckan.logic.schema import default_update_group_schema
-from ckan.lib.navl.dictization_functions import validate, DataError
+from ckan.lib.navl.dictization_functions import DataError
 import ckan.logic.action.get as get 
 import ckan.logic.action.create as create
+import ckan.logic.action.update as update
 from ckan.logic import NotFound, NotAuthorized, ValidationError
 
 
@@ -182,17 +180,18 @@ class BaseRestController(BaseApiController):
         except NotAuthorized:
             return self._finish_not_authz()
 
-
     def show(self, register, id, subregister=None, id2=None):
-        context = {'model': model, 'session': model.Session, 'user': c.user,
-                   'id': id, 'id2': id2, 'rel': subregister,
-                   'api_version': self.api_version}
+
         action_map = {
             'revision': get.revision_show,
             'group': get.group_show,
             'tag': get.tag_show,
             ('package', 'relationships'): get.package_relationships_list,
         }
+
+        context = {'model': model, 'session': model.Session, 'user': c.user,
+                   'id': id, 'id2': id2, 'rel': subregister,
+                   'api_version': self.api_version}
         for type in model.PackageRelationship.get_all_types():
             action_map[('package', type)] = get.package_relationships_list
         log.debug('show: %s' % context)
@@ -215,9 +214,7 @@ class BaseRestController(BaseApiController):
         return package.as_dict(ref_package_by=self.ref_package_by, ref_group_by=self.ref_group_by)
 
     def create(self, register, id=None, subregister=None, id2=None):
-        context = {'model': model, 'session': model.Session, 'user': c.user,
-                   'id': id, 'id2': id2, 'rel': subregister,
-                   'api_version': self.api_version}
+
         action_map = {
             ('package', 'relationships'): create.package_relationship_create,
              'group': create.group_create,
@@ -225,6 +222,10 @@ class BaseRestController(BaseApiController):
         }
         for type in model.PackageRelationship.get_all_types():
             action_map[('package', type)] = create.package_relationship_create
+
+        context = {'model': model, 'session': model.Session, 'user': c.user,
+                   'id': id, 'id2': id2, 'rel': subregister,
+                   'api_version': self.api_version}
         log.debug('create: %s' % (context))
         try:
             request_data = self._get_request_data()
@@ -251,109 +252,56 @@ class BaseRestController(BaseApiController):
             log.error('Validation error: %r' % str(e.error_dict))
             return self._finish(409, e.error_dict, content_type='json')
         except DataError:
-            log.error('Group format incorrect: %s' % request_data)
+            log.error('Format incorrect: %s' % request_data)
             #TODO make better error message
             return self._finish(409, _(u'Integrity Error') % request_data)
+        except:
+            model.Session.rollback()
+            raise
             
     def update(self, register, id, subregister=None, id2=None):
-        log.debug('update %s/%s/%s/%s' % (register, id, subregister, id2))
-        # must be logged in to start with
-        if not self._check_access(None, None):
-            return self._finish_not_authz()
 
-        elif register == 'package' and subregister in model.PackageRelationship.get_all_types():
-            pkg1 = self._get_pkg(id)
-            pkg2 = self._get_pkg(id2)
-            if not pkg1:
-                response.status_int = 404
-                return 'First package named in address was not found.'
-            if not pkg2:
-                response.status_int = 404
-                return 'Second package named in address was not found.'
-            am_authorized = ckan.authz.Authorizer().\
-                            authorized_package_relationship(\
-                c.user, pkg1, pkg2, action=model.Action.EDIT)
-            if not am_authorized:
-                return self._finish_not_authz()
-            existing_rels = pkg1.get_relationships_with(pkg2, subregister)
-            if not existing_rels:
-                response.status_int = 404
-                return 'This relationship between the packages was not found.'
-            entity = existing_rels[0]
-        elif register == 'group' and not subregister:
-            entity = self._get_group(id)
-            if entity == None:
-                response.status_int = 404
-                return 'Group was not found.'
-            if not self._check_access(entity, model.Action.EDIT):
-                return self._finish_not_authz()
-        else:
-            response.status_int = 400
-            return gettext('Cannot update entity of this type: %s') % register
-        if not entity:
-            response.status_int = 404
-            return ''
+        action_map = {
+            ('package', 'relationships'): update.package_relationship_update,
+             'group': update.group_update,
+        }
+        for type in model.PackageRelationship.get_all_types():
+            action_map[('package', type)] = update.package_relationship_update
 
-        if (not subregister and \
-            not self._check_access(entity, model.Action.EDIT)) \
-            or not self._check_access(None, None):
-            return self._finish_not_authz()
-
+        context = {'model': model, 'session': model.Session, 'user': c.user,
+                   'id': id, 'id2': id2, 'rel': subregister,
+                   'api_version': self.api_version}
+        log.debug('update: %s' % (context))
         try:
             request_data = self._get_request_data()
         except ValueError, inst:
             response.status_int = 400
             return gettext('JSON Error: %s') % str(inst)
-
-        if register == 'package' and subregister:
-            comment = request_data.get('comment', u'')
-            return self._update_package_relationship(entity, comment)
-
-        auth_for_change_state = ckan.authz.Authorizer().am_authorized(c, 
-            model.Action.CHANGE_STATE, entity)
-
-        context = {'model': model, 'session': model.Session, 'group': entity}
-        dictized = group_api_to_dict(request_data, context)
-
-        try:
-            data, errors = validate(dictized,
-                                    default_update_group_schema(),
-                                    context)
-        except DataError:
-            log.error('Group format incorrect: %s' % request_data)
+        action = action_map.get((register, subregister)) 
+        if not action:
+            action = action_map.get(register)
+        if not action:
             response.status_int = 400
-            #TODO make better error message
-            response.write(_(u'Integrity Error') % request_data)
-            return response
-        
-        if errors:
-            log.error('Validation error: %r' % str(errors))
-            response.write(self._finish(409, errors,
-                                        content_type='json'))
-            return response
-
+            return gettext('Cannot update entity of this type: %s') % register
         try:
-            rev = model.repo.new_revision()
-            rev.author = self.rest_api_user
-            
-            group = group_dict_save(data, context)
-            rev.message = _(u'REST API: Update object %s') % group.name
-
-            for item in PluginImplementations(IGroupController):
-                item.edit(group)
-
-            model.repo.commit()        
-            data["name"] = group.name
-            data["title"] = group.title
-        except Exception, inst:
-            log.exception(inst)
-            model.Session.rollback()
-            if inst.__class__.__name__ == 'IntegrityError':
-                response.status_int = 409
-                return ''
-            else:
-                raise
-        return self._finish_ok(data)
+            response_data = action(request_data, context)
+            if "id" in context:
+                location = str('%s/%s' % (request.path, context.get("id")))
+                response.headers['Location'] = location
+                log.debug('Response headers: %r' % (response.headers))
+            return self._finish_ok(response_data)
+        except NotAuthorized:
+            return self._finish_not_authz()
+        except NotFound, e:
+            extra_msg = e.extra_msg
+            return self._finish_not_found(extra_msg)
+        except ValidationError, e:
+            log.error('Validation error: %r' % str(e.error_dict))
+            return self._finish(409, e.error_dict, content_type='json')
+        except DataError:
+            log.error('Format incorrect: %s' % request_data)
+            #TODO make better error message
+            return self._finish(409, _(u'Integrity Error') % request_data)
 
     def delete(self, register, id, subregister=None, id2=None):
         log.debug('delete %s/%s/%s/%s' % (register, id, subregister, id2))

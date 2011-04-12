@@ -117,7 +117,7 @@ def default_group_schema():
 
 def default_update_group_schema():
     schema = default_group_schema()
-    schema["name"] = [ignore_missing, unicode]
+    schema["name"] = [ignore_missing, group_name_validator, unicode]
     return schema
 
 def default_extras_schema():
