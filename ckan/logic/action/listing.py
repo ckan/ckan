@@ -1,5 +1,5 @@
 import ckan.authz
-from ckan.logic import NotFound, NotAuthorized, check_access
+from ckan.logic import NotFound, check_access
 
 def revision_list(context):
 
@@ -52,16 +52,33 @@ def package_relationships_list(context):
     model = context['model']
     user = context['user']
     id = context["id"]
+    id2 = context.get("id2")
+    rel = context.get("rel")
     api = context.get('api_version') or '1'
-    ref_package_by = 'name' if api == '1' else 'id';
+    ref_package_by = 'id' if api == '2' else 'name';
 
-    pkg = model.Package.get(id)
-    if not pkg:
+    pkg1 = model.Package.get(id)
+    pkg2 = None
+    if not pkg1:
         raise NotFound('First package named in request was not found.')
+    if id2:
+        pkg2 = model.Package.get(id2)
+        if not pkg2:
+            raise NotFound('Second package named in address was not found.')
+
+    if rel == 'relationships':
+        rel = None
 
     relationships = ckan.authz.Authorizer().\
                     authorized_package_relationships(\
-                    user, pkg, action=model.Action.READ)
-    relationship_dicts = [rel.as_dict(package=pkg, ref_package_by=ref_package_by) for rel in relationships]
+                    user, pkg1, pkg2, rel, model.Action.READ)
+
+    if rel and not relationships:
+        raise NotFound('Relationship "%s %s %s" not found.'
+                                 % (id, rel, id2))
+    
+    relationship_dicts = [rel.as_dict(pkg1, ref_package_by=ref_package_by) 
+                          for rel in relationships]
+
     return relationship_dicts
 

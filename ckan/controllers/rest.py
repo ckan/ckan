@@ -1,19 +1,18 @@
-import sqlalchemy.orm
 import logging
 
 from paste.util.multidict import MultiDict 
 from ckan.lib.base import BaseController, response, c, _, gettext, request
 from ckan.lib.helpers import json
 import ckan.model as model
-import ckan.forms
+import ckan.rating
 from ckan.lib.search import query_for, QueryOptions, SearchError, DEFAULT_OPTIONS
 from ckan.plugins import PluginImplementations, IGroupController
-from ckan.lib.dictization.model_dictize import group_to_api1, group_to_api2
 from ckan.lib.dictization.model_save import (group_api_to_dict,
                                              group_dict_save)
 from ckan.logic.schema import default_group_schema, default_update_group_schema
 from ckan.lib.navl.dictization_functions import validate, DataError
 import ckan.logic.action.listing as listing
+import ckan.logic.action.show as show
 from ckan.logic import NotFound, NotAuthorized
 
 log = logging.getLogger(__name__)
@@ -156,7 +155,6 @@ class BaseRestController(BaseApiController):
         return self._finish_ok(response_data) 
 
     def list(self, register, subregister=None, id=None):
-        log.debug('list %s' % (request.path))
         context = {
             'model': model,
             'session': model.Session,
@@ -164,6 +162,7 @@ class BaseRestController(BaseApiController):
             'id': id,
             'api_version': self.api_version
         }
+        log.debug('listing: %s' % context)
         action_map = {
             'revision': listing.revision_list,
             'group': listing.group_list,
@@ -181,71 +180,46 @@ class BaseRestController(BaseApiController):
             return gettext('Cannot list entity of this type: %s') % register
         try:
             return self._finish_ok(action(context))
-        except NotFound:
-            return self._finish_not_found()
+        except NotFound, e:
+            extra_msg = e.extra_msg
+            return self._finish_not_found(extra_msg)
         except NotAuthorized:
             return self._finish_not_authz()
 
 
     def show(self, register, id, subregister=None, id2=None):
-        log.debug('show %s/%s/%s/%s' % (register, id, subregister, id2))
-        if register == u'revision':
-            # Todo: Implement access control for revisions.
-            rev = model.Session.query(model.Revision).get(id)
-            if rev is None:
-                return self._finish_not_found()
-            rev_dict = model.revision_as_dict(rev, include_packages=True,
-                                              ref_package_by=self.ref_package_by)
-            return self._finish_ok(rev_dict)
-        elif register == u'package' and (subregister == 'relationships' or subregister in model.PackageRelationship.get_all_types()):
-            pkg1 = self._get_pkg(id)
-            pkg2 = self._get_pkg(id2)
-            if not pkg1:
-                response.status_int = 404
-                return 'First package named in address was not found.'
-            if not pkg2:
-                response.status_int = 404
-                return 'Second package named in address was not found.'
-            rel_type = subregister if subregister != 'relationships' else None
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': c.user,
+            'id': id,
+            'id2': id2,
+            'rel': subregister,
+            'api_version': self.api_version
+        }
+        log.debug('show: %s' % context)
+        action_map = {
+            'revision': show.revision_show,
+            'group': show.group_show,
+            'tag': show.tag_show,
+            ('package', 'relationships'): listing.package_relationships_list,
+        }
+        for type in model.PackageRelationship.get_all_types():
+            action_map[('package', type)] = listing.package_relationships_list
 
-            relationships = ckan.authz.Authorizer().\
-                            authorized_package_relationships(\
-                c.user, pkg1, pkg2, relationship_type=rel_type,
-                action=model.Action.READ)
-
-            if subregister != 'relationships' and not relationships:
-                return self._finish_not_found('Relationship "%s %s %s" not found.'\
-                                         % (id, subregister, id2))
-            
-            response_data = [rel.as_dict(pkg1, ref_package_by=self.ref_package_by) for rel in relationships]
-            return self._finish_ok(response_data)
-        elif register == u'group':
-            group = self._get_group(id)
-            if group is None:
-                response.status_int = 404
-                return ''
-
-            if not self._check_access(group, model.Action.READ):
-                return self._finish_not_authz()
-            for item in PluginImplementations(IGroupController):
-                item.read(group)
-            context = {"session": model.Session, "model": model}
-            if isinstance(self, ApiVersion2):
-                _dict = group_to_api2(group, context)
-            else:
-                _dict = group_to_api1(group, context)
-            #TODO check it's not none
-            return self._finish_ok(_dict)
-        elif register == u'tag':
-            obj = self._get_tag(id) #TODO tags
-            if obj is None:
-                response.status_int = 404
-                return ''            
-            response_data = [pkgtag.package.name for pkgtag in obj.package_tags]
-            return self._finish_ok(response_data)
-        else:
+        action = action_map.get((register, subregister)) 
+        if not action:
+            action = action_map.get(register)
+        if not action:
             response.status_int = 400
             return gettext('Cannot read entity of this type: %s') % register
+        try:
+            return self._finish_ok(action(context))
+        except NotFound, e:
+            extra_msg = e.extra_msg
+            return self._finish_not_found(extra_msg)
+        except NotAuthorized:
+            return self._finish_not_authz()
 
     def _represent_package(self, package):
         return package.as_dict(ref_package_by=self.ref_package_by, ref_group_by=self.ref_group_by)

@@ -2,7 +2,8 @@ import logging
 import ckan.authz
 
 class ActionError(Exception):
-    pass
+    def __init__(self, extra_msg=None):
+        self.extra_msg = extra_msg
 
 class NotFound(ActionError):
     pass

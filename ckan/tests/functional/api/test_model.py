@@ -330,7 +330,7 @@ class RelationshipsApiTestCase(ApiTestCase, ControllerTestCase):
     def test_01_create_and_read_relationship(self):
         # check anna has no existing relationships
         assert not self.anna.get_relationships()
-        assert self.get_relationships(package1_name='annakarenina') == []
+        assert self.get_relationships(package1_name='annakarenina') == [], self.get_relationships(package1_name='annakarenina')
         assert self.get_relationships(package1_name='annakarenina',
                                        package2_name='warandpeace') == []
         assert self.get_relationships(package1_name='annakarenina',
