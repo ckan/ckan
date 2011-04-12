@@ -330,13 +330,9 @@ The value is a strict JSON dictionary of user names "visitor" and "logged_in" wi
 
 Example::
 
- ckan.default_roles.Package = {"visitor": ["reader"], "logged_in": ["reader"]}
+ ckan.default_roles.Package = {"visitor": ["editor"], "logged_in": ["editor"]}
+ ckan.default_roles.Group = {"visitor": ["reader"], "logged_in": ["reader"]}
 
 With this example setting, visitors (any user who is not logged in) and logged in users can only read packages that get created (only sysadmins can edit).
 
-Defaults::
-
- ckan.default_roles.Package = {"visitor": ["editor"], "logged_in": ["editor"]}
- ckan.default_roles.Group = {"visitor": ["reader"], "logged_in": ["reader"]}
- ckan.default_roles.System = {"visitor": ["reader"], "logged_in": ["editor"]}
- ckan.default_roles.AuthorizationGroup = {"visitor": ["reader"], "logged_in": ["reader"]}
+Defaults: see in ckan/model/authz.py for: ``default_default_user_roles``
