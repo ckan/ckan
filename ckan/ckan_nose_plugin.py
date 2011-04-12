@@ -8,6 +8,7 @@ from paste.deploy import loadapp
 pylonsapp = None
 
 class CkanNose(Plugin):
+    settings = None
 
     def startContext(self, ctx):
         # import needs to be here or setup happens too early
@@ -16,11 +17,11 @@ class CkanNose(Plugin):
         if isclass(ctx):
             if hasattr(ctx, "no_db") and ctx.no_db:
                 return
-            if self.is_first_test or self.options.ckan_migration:
+            if self.is_first_test or CkanNose.settings.ckan_migration:
                 model.Session.close_all()
                 model.repo.clean_db()
                 self.is_first_test = False
-                if self.options.ckan_migration:
+                if CkanNose.settings.ckan_migration:
                     model.Session.close_all()
                     model.repo.upgrade_db()
             # init_db is run at the start of every class because
@@ -40,8 +41,8 @@ class CkanNose(Plugin):
             dest='ckan_migration',
             help='set this when wanting to test migrations')        
 
-    def configure(self, options, config):
-        self.options = options
-        if options.is_ckan:
+    def configure(self, settings, config):
+        CkanNose.settings = settings
+        if settings.is_ckan:
             self.enabled = True
             self.is_first_test = True
