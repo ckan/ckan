@@ -1,8 +1,10 @@
+import re
+
 import genshi
+from sqlalchemy import or_, func, desc
 
 import ckan.misc
 from ckan.lib.base import *
-from sqlalchemy import or_, func, desc
 
 def login_form():
     return render('user/login_form.html').replace('FORM_ACTION', '%s')
@@ -47,8 +49,6 @@ class UserController(BaseController):
             abort(401, _('Not authorized to see this page'))
         if id:
             user = model.User.get(id)
-        else:
-            user = model.User.by_name(c.user)
         if not user:
             h.redirect_to(controller='user', action='login', id=None)
         c.read_user = user.display_name
@@ -65,7 +65,8 @@ class UserController(BaseController):
     def me(self):
         if not c.user:
             h.redirect_to(controller='user', action='login', id=None)
-        h.redirect_to(controller='user', action='read', id=c.user)
+        user_ref = c.userobj.get_reference_preferred_for_uri()
+        h.redirect_to(controller='user', action='read', id=user_ref)
 
     def register(self):
         if not self.authorizer.am_authorized(c, model.Action.USER_CREATE, model.System):

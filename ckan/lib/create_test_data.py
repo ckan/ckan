@@ -20,7 +20,7 @@ class CreateTestData(cli.CkanCommand):
     pkg_names = []
     tag_names = []
     group_names = set()
-    user_names = []
+    user_refs = []
     
     pkg_core_fields = ['name', 'title', 'version', 'url', 'notes',
                        'author', 'author_email',
@@ -39,7 +39,7 @@ class CreateTestData(cli.CkanCommand):
         if cmd == 'basic':
             self.create_basic_test_data()
         elif cmd == 'user':
-            self.create_user()
+            self.create_test_user()
             print 'Created user %r with password %r and apikey %r' % ('tester',
                     'tester', 'tester')
         elif cmd == 'search':
@@ -73,7 +73,7 @@ class CreateTestData(cli.CkanCommand):
                               extra_user_names=extra_users)
 
     @classmethod
-    def create_user(cls):
+    def create_test_user(cls):
         import ckan.model as model
         tester = model.User.by_name(u'tester')
         if tester is None:
@@ -82,7 +82,7 @@ class CreateTestData(cli.CkanCommand):
             model.Session.add(tester)
             model.Session.commit()
         model.Session.remove()
-        cls.user_names = [u'tester']
+        cls.user_refs.append(u'tester')
 
     @classmethod
     def create_arbitrary(cls, package_dicts, relationships=[],
@@ -206,7 +206,7 @@ class CreateTestData(cli.CkanCommand):
             if not model.User.by_name(unicode(user_name)):
                 user = model.User(name=unicode(user_name))
                 model.Session.add(user)
-                cls.user_names.append(user_name)
+                cls.user_refs.append(user_name)
                 needs_commit = True
 
         if needs_commit:
@@ -380,7 +380,7 @@ left arrow <
             model.User(name=u'russianfan'),
             model.User(name=u'testsysadmin'),
             ])
-        cls.user_names.extend([u'tester', u'joeadmin', u'annafan', u'russianfan', u'testsysadmin'])
+        cls.user_refs.extend([u'tester', u'joeadmin', u'annafan', u'russianfan', u'testsysadmin'])
         model.repo.commit_and_remove()
 
         visitor = model.User.by_name(model.PSEUDO_USER__VISITOR)
@@ -406,6 +406,21 @@ left arrow <
             changeset_ids = ChangesetRegister().commit()
 
     @classmethod
+    def create_user(cls, name='', **kwargs):
+        import ckan.model as model
+        # User objects are not revisioned
+        user_ref = name or kwargs['openid']
+        assert user_ref
+        for k, v in kwargs.items():
+            if v:
+                # avoid unicode warnings
+                kwargs[k] = unicode(v)
+        user = model.User(name=unicode(name), **kwargs)
+        model.Session.add(user)
+        model.Session.commit()
+        cls.user_refs.append(user_ref)
+
+    @classmethod
     def flag_for_deletion(cls, pkg_names=[], tag_names=[], group_names=[],
                           user_names=[]):
         '''If you create a domain object manually in your test then you
@@ -416,7 +431,7 @@ left arrow <
         cls.pkg_names.extend(pkg_names)
         cls.tag_names.extend(tag_names)
         cls.group_names = cls.group_names.union(set(group_names))
-        cls.user_names.extend(user_names)
+        cls.user_refs.extend(user_names)
 
     @classmethod
     def delete(cls):
@@ -449,8 +464,8 @@ left arrow <
                 grp.purge()
             model.Session.commit()
             model.Session.delete(rev)
-        for user_name in cls.user_names:
-            user = model.User.by_name(unicode(user_name))
+        for user_name in cls.user_refs:
+            user = model.User.get(unicode(user_name))
             if user:
                 user.purge()
         model.Session.commit()
@@ -462,11 +477,11 @@ left arrow <
         cls.pkg_names = []
         cls.group_names = set()
         cls.tag_names = []
-        cls.user_names = []
+        cls.user_refs = []
 
     @classmethod
     def get_all_data(cls):
-        return cls.pkg_names + list(cls.group_names) + cls.tag_names + cls.user_names
+        return cls.pkg_names + list(cls.group_names) + cls.tag_names + cls.user_refs
 
 
 search_items = [{'name':'gils',
