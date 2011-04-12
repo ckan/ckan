@@ -139,7 +139,7 @@ class ModelApiTestCase(BaseModelApiTestCase):
         rating_opts = {'package':u'warandpeace',
                        'rating':0}
         postparams = '%s=1' % self.dumps(rating_opts)
-        res = self.app.post(offset, params=postparams, status=[400],
+        res = self.app.post(offset, params=postparams, status=[409],
                 extra_environ=self.extra_environ)
         model.Session.remove()
         pkg = self.get_package_by_name(rating_opts['package'])

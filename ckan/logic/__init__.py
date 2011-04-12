@@ -11,6 +11,11 @@ class NotFound(ActionError):
 class NotAuthorized(ActionError):
     pass
 
+class ValidationError(ActionError):
+    def __init__(self, error_dict, extra_msg=None):
+        self.error_dict = extra_msg
+        self.extra_msg = extra_msg
+
 log = logging.getLogger(__name__)
 
 def check_access(entity, action, context):

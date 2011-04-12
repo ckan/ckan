@@ -1,5 +1,8 @@
-import ckan.authz
 from ckan.logic import NotFound, check_access
+from ckan.plugins import PluginImplementations, IGroupController
+import ckan.authz
+
+from ckan.lib.dictization.model_dictize import group_to_api1, group_to_api2
 
 def revision_list(context):
 
@@ -81,4 +84,52 @@ def package_relationships_list(context):
                           for rel in relationships]
 
     return relationship_dicts
+
+
+def revision_show(context):
+    model = context['model']
+    api = context.get('api_version') or '1'
+    id = context['id']
+    ref_package_by = 'id' if api == '2' else 'name'
+
+    rev = model.Session.query(model.Revision).get(id)
+    if rev is None:
+        raise NotFound
+    rev_dict = model.revision_as_dict(rev, include_packages=True,
+                                      ref_package_by=ref_package_by)
+    return rev_dict
+
+def group_show(context):
+    model = context['model']
+    id = context['id']
+    api = context.get('api_version') or '1'
+
+    group = model.Group.get(id)
+    if group is None:
+        raise NotFound
+
+    check_access(group, model.Action.READ, context)
+
+    for item in PluginImplementations(IGroupController):
+        item.read(group)
+    context = {'session': model.Session, 'model': model}
+    if api == '2':
+        _dict = group_to_api2(group, context)
+    else:
+        _dict = group_to_api1(group, context)
+    #TODO check it's not none
+    return _dict
+
+def tag_show(context):
+    model = context['model']
+    api = context.get('api') or '1'
+    id = context['id']
+    ref_package_by = 'id' if api == '2' else 'name'
+    obj = model.Tag.get(id) #TODO tags
+    if obj is None:
+        raise NotFound
+    package_list = [getattr(pkgtag.package, ref_package_by)
+                    for pkgtag in obj.package_tags]
+    return package_list 
+
 
