@@ -21,8 +21,6 @@ def table_dictize(obj, context):
     table = class_mapper(ModelClass).mapped_table
 
     fields = [field.name for field in table.c]
-    if hasattr(obj, "get_extra_columns"):
-        fields.extend(obj.get_extra_columns())
 
     for field in fields:
         name = field
@@ -98,7 +96,7 @@ def table_dict_save(table_dict, ModelClass, context):
     if not obj:
         unique_constriants = get_unique_constraints(table, context)
         for constraint in unique_constriants:
-            params = dict((key, table_dict[key]) for key in constraint)
+            params = dict((key, table_dict.get(key)) for key in constraint)
             obj = session.query(ModelClass).filter_by(**params).first()
             if obj:
                 break
