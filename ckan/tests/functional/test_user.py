@@ -57,7 +57,7 @@ class TestUserController(FunctionalTestCase):
         assert 'Edit' in main_res, main_res
 
     def test_user_login(self):
-        offset = url_for(controller='user', action='login')
+        offset = url_for(controller='user', action='login', id=None)
         res = self.app.get(offset, status=200)
         assert 'Login' in res, res
         assert 'Please click your account provider' in res, res
