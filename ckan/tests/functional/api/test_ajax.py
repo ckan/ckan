@@ -16,7 +16,7 @@ class TestAjaxApi(ControllerTestCase):
         
     def test_package_create_slug(self):
         response = self.app.get(
-            url=url_for(controller='rest', action='create_slug'),
+            url=url_for(controller='api', action='create_slug'),
             params={
                'title': u'A New Title * With & Funny CHARacters',
             },
@@ -28,7 +28,7 @@ class TestAjaxApi(ControllerTestCase):
     def test_tag_autocomplete(self):
         CreateTestData.create()
 
-        url = url_for(controller='rest', action='tag_autocomplete')
+        url = url_for(controller='api', action='tag_autocomplete')
         assert_equal(url, '/api/2/util/tag/autocomplete')
         response = self.app.get(
             url=url,

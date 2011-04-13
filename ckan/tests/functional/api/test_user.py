@@ -16,7 +16,7 @@ class TestUserApi(ControllerTestCase):
         
     def test_autocomplete(self):
         response = self.app.get(
-            url=url_for(controller='rest', action='user_autocomplete'),
+            url=url_for(controller='api', action='user_autocomplete'),
             params={
                'q': u'sysadmin',
             },
@@ -29,7 +29,7 @@ class TestUserApi(ControllerTestCase):
 
     def test_autocomplete_multiple(self):
         response = self.app.get(
-            url=url_for(controller='rest', action='user_autocomplete'),
+            url=url_for(controller='api', action='user_autocomplete'),
             params={
                'q': u'tes',
             },
@@ -40,7 +40,7 @@ class TestUserApi(ControllerTestCase):
 
     def test_autocomplete_limit(self):
         response = self.app.get(
-            url=url_for(controller='rest', action='user_autocomplete'),
+            url=url_for(controller='api', action='user_autocomplete'),
             params={
                'q': u'tes',
                'limit': 1

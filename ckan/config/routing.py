@@ -33,89 +33,89 @@ def make_map():
     map.connect('about', '/about', controller='home', action='about')
 
     # CKAN API versioned.
-    map.connect('/api/{ver:1|2}', controller='rest', action='get_api')
+    map.connect('/api/{ver:1|2}', controller='api', action='get_api')
 
-    map.connect('/api/{ver:1|2}/search/:register', controller='rest', action='search')
-    map.connect('/api/{ver:1|2}/tag_counts', controller='rest', action='tag_counts')
+    map.connect('/api/{ver:1|2}/search/:register', controller='api', action='search')
+    map.connect('/api/{ver:1|2}/tag_counts', controller='api', action='tag_counts')
 
-    map.connect('/api/{ver:1|2}/rest', controller='rest', action='index')
+    map.connect('/api/{ver:1|2}/rest', controller='api', action='index')
 
-    map.connect('/api/{ver:1|2}/rest/:register', controller='rest', action='list',
+    map.connect('/api/{ver:1|2}/rest/:register', controller='api', action='list',
         conditions=dict(method=['GET']))
-    map.connect('/api/{ver:1|2}/rest/:register', controller='rest', action='create',
+    map.connect('/api/{ver:1|2}/rest/:register', controller='api', action='create',
         conditions=dict(method=['POST']))
-    map.connect('/api/{ver:1|2}/rest/:register/:id', controller='rest', action='show',
+    map.connect('/api/{ver:1|2}/rest/:register/:id', controller='api', action='show',
         conditions=dict(method=['GET']))
-    map.connect('/api/{ver:1|2}/rest/:register/:id', controller='rest', action='update',
+    map.connect('/api/{ver:1|2}/rest/:register/:id', controller='api', action='update',
         conditions=dict(method=['PUT']))
-    map.connect('/api/{ver:1|2}/rest/:register/:id', controller='rest', action='update',
+    map.connect('/api/{ver:1|2}/rest/:register/:id', controller='api', action='update',
         conditions=dict(method=['POST']))
-    map.connect('/api/{ver:1|2}/rest/:register/:id', controller='rest', action='delete',
+    map.connect('/api/{ver:1|2}/rest/:register/:id', controller='api', action='delete',
         conditions=dict(method=['DELETE']))
     map.connect('/api/{ver:1|2}/rest/:register/:id/:subregister',
-        controller='rest', action='list',
+        controller='api', action='list',
         conditions=dict(method=['GET']))
     map.connect('/api/{ver:1|2}/rest/:register/:id/:subregister/:id2',
-        controller='rest', action='create',
+        controller='api', action='create',
         conditions=dict(method=['POST']))
     map.connect('/api/{ver:1|2}/rest/:register/:id/:subregister/:id2',
-        controller='rest', action='show',
+        controller='api', action='show',
         conditions=dict(method=['GET']))
     map.connect('/api/{ver:1|2}/rest/:register/:id/:subregister/:id2',
-        controller='rest', action='update',
+        controller='api', action='update',
         conditions=dict(method=['PUT']))
     map.connect('/api/{ver:1|2}/rest/:register/:id/:subregister/:id2',
-        controller='rest', action='delete',
+        controller='api', action='delete',
         conditions=dict(method=['DELETE']))
     map.connect('/api/{ver:1|2}/qos/throughput/',
-        controller='rest', action='throughput',
+        controller='api', action='throughput',
         conditions=dict(method=['GET']))
 
     # CKAN API unversioned.
-    map.connect('/api', controller='rest', action='get_api')
+    map.connect('/api', controller='api', action='get_api')
 
-    map.connect('/api/search/:register', controller='rest', action='search')
-    map.connect('/api/tag_counts', controller='rest', action='tag_counts')
+    map.connect('/api/search/:register', controller='api', action='search')
+    map.connect('/api/tag_counts', controller='api', action='tag_counts')
     
-    map.connect('/api/rest', controller='rest', action='index')
+    map.connect('/api/rest', controller='api', action='index')
 
-    map.connect('/api/rest/:register', controller='rest', action='list',
+    map.connect('/api/rest/:register', controller='api', action='list',
         conditions=dict(method=['GET']))
-    map.connect('/api/rest/:register', controller='rest', action='create',
+    map.connect('/api/rest/:register', controller='api', action='create',
         conditions=dict(method=['POST']))
-    map.connect('/api/rest/:register/:id', controller='rest', action='show',
+    map.connect('/api/rest/:register/:id', controller='api', action='show',
         conditions=dict(method=['GET']))
-    map.connect('/api/rest/:register/:id', controller='rest', action='update',
+    map.connect('/api/rest/:register/:id', controller='api', action='update',
         conditions=dict(method=['PUT']))
-    map.connect('/api/rest/:register/:id', controller='rest', action='update',
+    map.connect('/api/rest/:register/:id', controller='api', action='update',
         conditions=dict(method=['POST']))
-    map.connect('/api/rest/:register/:id', controller='rest', action='delete',
+    map.connect('/api/rest/:register/:id', controller='api', action='delete',
         conditions=dict(method=['DELETE']))
     map.connect('/api/rest/:register/:id/:subregister',
-        controller='rest', action='list',
+        controller='api', action='list',
         conditions=dict(method=['GET']))
     map.connect('/api/rest/:register/:id/:subregister/:id2',
-        controller='rest', action='create',
+        controller='api', action='create',
         conditions=dict(method=['POST']))
     map.connect('/api/rest/:register/:id/:subregister/:id2',
-        controller='rest', action='show',
+        controller='api', action='show',
         conditions=dict(method=['GET']))
     map.connect('/api/rest/:register/:id/:subregister/:id2',
-        controller='rest', action='update',
+        controller='api', action='update',
         conditions=dict(method=['PUT']))
     map.connect('/api/rest/:register/:id/:subregister/:id2',
-        controller='rest', action='delete',
+        controller='api', action='delete',
         conditions=dict(method=['DELETE']))
     map.connect('/api/qos/throughput/',
-        controller='rest', action='throughput',
+        controller='api', action='throughput',
         conditions=dict(method=['GET']))
 
 
-    map.connect('/api/2/util/user/autocomplete', controller='rest',
+    map.connect('/api/2/util/user/autocomplete', controller='api',
         action='user_autocomplete')
-    map.connect('/api/2/util/package/create_slug', controller='rest', action='create_slug',
+    map.connect('/api/2/util/package/create_slug', controller='api', action='create_slug',
                 conditions=dict(method=['GET']))
-    map.connect('/api/2/util/tag/autocomplete', controller='rest', action='tag_autocomplete',
+    map.connect('/api/2/util/tag/autocomplete', controller='api', action='tag_autocomplete',
                 conditions=dict(method=['GET']))
 
     ###########

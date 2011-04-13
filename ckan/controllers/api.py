@@ -26,7 +26,7 @@ CONTENT_TYPES = {
     'html': 'text/html;charset=utf-8',
     'json': 'application/json;charset=utf-8',
     }
-class RestController(BaseController):
+class ApiController(BaseController):
 
     content_type_text = 'text/;charset=utf-8'
     content_type_html = 'text/html;charset=utf-8'
