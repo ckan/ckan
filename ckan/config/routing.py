@@ -206,6 +206,9 @@ def make_map():
 
     map.connect('/api/2/util/user/autocomplete', controller='apiv2/user',
             action='autocomplete')
+    map.connect('/api/2/util/authorizationgroup/autocomplete', controller='apiv2/authorization_group',
+            action='autocomplete')
+
 
     ###########
     ## /END API
