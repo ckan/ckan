@@ -26,11 +26,8 @@ CONTENT_TYPES = {
     'html': 'text/html;charset=utf-8',
     'json': 'application/json;charset=utf-8',
     }
-class BaseApiController(BaseController):
+class RestController(BaseController):
 
-    api_version = ''
-    ref_package_by = ''
-    ref_group_by = ''
     content_type_text = 'text/;charset=utf-8'
     content_type_html = 'text/html;charset=utf-8'
     content_type_json = 'application/json;charset=utf-8'
@@ -47,24 +44,6 @@ class BaseApiController(BaseController):
             return [response_msg]
         else:
             return BaseController.__call__(self, environ, start_response)
-
-    @classmethod
-    def _ref_package(cls, package):
-        assert cls.ref_package_by in ['id', 'name']
-        return getattr(package, cls.ref_package_by)
-
-    @classmethod
-    def _ref_group(cls, group):
-        assert cls.ref_group_by in ['id', 'name']
-        return getattr(group, cls.ref_group_by)
-
-    @classmethod
-    def _list_package_refs(cls, packages):
-        return [getattr(p, cls.ref_package_by) for p in packages]
-
-    @classmethod
-    def _list_group_refs(cls, groups):
-        return [getattr(p, cls.ref_group_by) for p in groups]
 
     def _finish(self, status_int, response_data=None,
                 content_type='text'):
@@ -135,22 +114,6 @@ class BaseApiController(BaseController):
             msg = "Couldn't convert '%s' header value '%s' to string: %s" % (name, value, inst)
             raise Exception, msg
         response.headers[name] = value
-
-class ApiVersion1(BaseApiController):
-
-    api_version = '1'
-    ref_package_by = 'name'
-    ref_group_by = 'name'
-
-
-class ApiVersion2(BaseApiController):
-
-    api_version = '2'
-    ref_package_by = 'id'
-    ref_group_by = 'id'
-
-
-class BaseRestController(BaseApiController):
 
     def get_api(self, ver=None):
         response_data = {}
@@ -446,42 +409,6 @@ class BaseRestController(BaseApiController):
         # Todo: Clear old records.
         return float(call_count) / period
 
-
-
-    def _check_access(self, entity, action):
-        # Checks apikey is okay and user is authorized to do the specified
-        # action on the specified package (or other entity).
-        # If both args are None then just check the apikey corresponds
-        # to a user.
-        api_key = None
-        # Todo: Remove unused 'isOk' variable.
-        isOk = False
-
-        self.rest_api_user = c.user
-        log.debug('check access - user %r' % self.rest_api_user)
-        
-        if action and entity and not isinstance(entity, model.PackageRelationship):
-            if action != model.Action.READ and self.rest_api_user in (model.PSEUDO_USER__VISITOR, ''):
-                self.log.debug("Valid API key needed to make changes")
-                response.status_int = 403
-                response.headers['Content-Type'] = self.content_type_json
-                return False                
-            
-            am_authz = ckan.authz.Authorizer().is_authorized(self.rest_api_user, action, entity)
-            if not am_authz:
-                self.log.debug("User is not authorized to %s %s" % (action, entity))
-                response.status_int = 403
-                response.headers['Content-Type'] = self.content_type_json
-                return False
-        elif not self.rest_api_user:
-            self.log.debug("No valid API key provided.")
-            response.status_int = 403
-            response.headers['Content-Type'] = self.content_type_json
-            return False
-        self.log.debug("Access OK.")
-        response.status_int = 200
-        return True                
-
     @jsonpify
     def user_autocomplete(self):
         q = request.params.get('q', '')
@@ -536,12 +463,4 @@ class BaseRestController(BaseApiController):
             }
             resultSet["ResultSet"]["Result"].append(result)
         return self._finish_ok(resultSet)
-
-class RestController(ApiVersion1, BaseRestController):
-    # Implements CKAN API Version 1.
-
-    def _represent_package(self, package):
-        msg_data = super(RestController, self)._represent_package(package)
-        msg_data['download_url'] = package.resources[0].url if package.resources else ''
-        return msg_data
 
