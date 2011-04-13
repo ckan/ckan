@@ -7,12 +7,15 @@ import ckan.model as model
 import ckan.rating
 from ckan.lib.search import query_for, QueryOptions, SearchError, DEFAULT_OPTIONS
 from ckan.plugins import PluginImplementations, IGroupController
+from ckan.lib.munge import munge_title_to_name
 from ckan.lib.navl.dictization_functions import DataError
 import ckan.logic.action.get as get 
 import ckan.logic.action.create as create
 import ckan.logic.action.update as update
 import ckan.logic.action.delete as delete
 from ckan.logic import NotFound, NotAuthorized, ValidationError
+from ckan.lib.jsonp import jsonpify
+from ckan.forms.common import package_exists
 
 
 log = logging.getLogger(__name__)
@@ -149,14 +152,14 @@ class ApiVersion2(BaseApiController):
 
 class BaseRestController(BaseApiController):
 
-    def get_api(self):
+    def get_api(self, ver=None):
         response_data = {}
-        response_data['version'] = self.api_version
+        response_data['version'] = ver or '1'
         return self._finish_ok(response_data) 
 
-    def list(self, register, subregister=None, id=None):
+    def list(self, ver=None, register=None, subregister=None, id=None):
         context = {'model': model, 'session': model.Session,
-                   'user': c.user, 'id': id, 'api_version': self.api_version}
+                   'user': c.user, 'id': id, 'api_version': ver}
         log.debug('listing: %s' % context)
         action_map = {
             'revision': get.revision_list,
@@ -182,7 +185,7 @@ class BaseRestController(BaseApiController):
         except NotAuthorized:
             return self._finish_not_authz()
 
-    def show(self, register, id, subregister=None, id2=None):
+    def show(self, ver=None, register=None, subregister=None, id=None, id2=None):
 
         action_map = {
             'revision': get.revision_show,
@@ -194,7 +197,7 @@ class BaseRestController(BaseApiController):
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
                    'id': id, 'id2': id2, 'rel': subregister,
-                   'api_version': self.api_version}
+                   'api_version': ver}
         for type in model.PackageRelationship.get_all_types():
             action_map[('package', type)] = get.package_relationships_list
         log.debug('show: %s' % context)
@@ -216,7 +219,7 @@ class BaseRestController(BaseApiController):
     def _represent_package(self, package):
         return package.as_dict(ref_package_by=self.ref_package_by, ref_group_by=self.ref_group_by)
 
-    def create(self, register, id=None, subregister=None, id2=None):
+    def create(self, ver=None, register=None, subregister=None, id=None, id2=None):
 
         action_map = {
             ('package', 'relationships'): create.package_relationship_create,
@@ -229,7 +232,7 @@ class BaseRestController(BaseApiController):
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
                    'id': id, 'id2': id2, 'rel': subregister,
-                   'api_version': self.api_version}
+                   'api_version': ver}
         log.debug('create: %s' % (context))
         try:
             request_data = self._get_request_data()
@@ -263,7 +266,7 @@ class BaseRestController(BaseApiController):
             model.Session.rollback()
             raise
             
-    def update(self, register, id, subregister=None, id2=None):
+    def update(self, ver=None, register=None, subregister=None, id=None, id2=None):
 
         action_map = {
             ('package', 'relationships'): update.package_relationship_update,
@@ -275,7 +278,7 @@ class BaseRestController(BaseApiController):
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
                    'id': id, 'id2': id2, 'rel': subregister,
-                   'api_version': self.api_version}
+                   'api_version': ver}
         log.debug('update: %s' % (context))
         try:
             request_data = self._get_request_data()
@@ -304,7 +307,7 @@ class BaseRestController(BaseApiController):
             #TODO make better error message
             return self._finish(400, _(u'Integrity Error') % request_data)
 
-    def delete(self, register, id, subregister=None, id2=None):
+    def delete(self, ver=None, register=None, subregister=None, id=None, id2=None):
         action_map = {
             ('package', 'relationships'): delete.package_relationship_delete,
              'group': delete.group_delete,
@@ -315,7 +318,7 @@ class BaseRestController(BaseApiController):
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
                    'id': id, 'id2': id2, 'rel': subregister,
-                   'api_version': self.api_version}
+                   'api_version': ver}
         log.debug('delete %s/%s/%s/%s' % (register, id, subregister, id2))
 
         action = action_map.get((register, subregister)) 
@@ -336,7 +339,7 @@ class BaseRestController(BaseApiController):
             log.error('Validation error: %r' % str(e.error_dict))
             return self._finish(409, e.error_dict, content_type='json')
 
-    def search(self, register=None):
+    def search(self, ver=None, register=None):
         log.debug('search %s params: %r' % (register, request.params))
         if register == 'revision':
             since_time = None
@@ -396,7 +399,7 @@ class BaseRestController(BaseApiController):
                     query_fields.add(field, v)
             
             if register == 'package':
-                options.ref_entity_with_attr = self.ref_package_by
+                options.ref_entity_with_attr = 'id' if ver == '2' else 'name'
             try:
                 backend = None
                 if register == 'resource': 
@@ -415,7 +418,7 @@ class BaseRestController(BaseApiController):
             response.status_int = 404
             return gettext('Unknown register: %s') % register
 
-    def tag_counts(self):
+    def tag_counts(self, ver=None):
         log.debug('tag counts')
         tags = model.Session.query(model.Tag).all()
         results = []
@@ -424,12 +427,12 @@ class BaseRestController(BaseApiController):
             results.append((tag.name, tag_count))
         return self._finish_ok(results)
 
-    def throughput(self):
+    def throughput(self, ver=None):
         qos = self._calc_throughput()
         qos = str(qos)
         return self._finish_ok(qos)
 
-    def _calc_throughput(self):
+    def _calc_throughput(self, ver=None):
         period = 10  # Seconds.
         timing_cache_path = self._get_timing_cache_path()
         call_count = 0
@@ -479,6 +482,60 @@ class BaseRestController(BaseApiController):
         response.status_int = 200
         return True                
 
+    @jsonpify
+    def user_autocomplete(self):
+        q = request.params.get('q', '')
+        limit = request.params.get('limit', 20)
+        try:
+            limit = int(limit)
+        except:
+            limit = 20
+        limit = min(50, limit)
+    
+        query = model.User.search(q)
+        def convert_to_dict(user):
+            out = {}
+            for k in ['id', 'name', 'fullname']:
+                out[k] = getattr(user, k)
+            return out
+        query = query.limit(limit)
+        out = map(convert_to_dict, query.all())
+        return out
+
+    def create_slug(self):
+
+        title = request.params.get('title') or ''
+        name = munge_title_to_name(title)
+        if package_exists(name):
+            valid = False
+        else:
+            valid = True
+        #response.content_type = 'application/javascript'
+        response_data = dict(name=name.replace('_', '-'), valid=valid)
+        return self._finish_ok(response_data)
+
+    def tag_autocomplete(self):
+        incomplete = request.params.get('incomplete', '')
+        if incomplete:
+            query = query_for('tag', backend='sql')
+            query.run(query=incomplete,
+                      return_objects=True,
+                      limit=10,
+                      username=c.user)
+            tagNames = [t.name for t in query.results]
+        else:
+            tagNames = []
+        resultSet = {
+            "ResultSet": {
+                "Result": []
+            }
+        }
+        for tagName in tagNames[:10]:
+            result = {
+                "Name": tagName
+            }
+            resultSet["ResultSet"]["Result"].append(result)
+        return self._finish_ok(resultSet)
 
 class RestController(ApiVersion1, BaseRestController):
     # Implements CKAN API Version 1.
