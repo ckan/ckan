@@ -2,8 +2,6 @@
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
   
-  <xi:include href="../revision/common.html" />
-
   <py:def function="page_title">${c.read_user} - User</py:def>
   <py:def function="body_class">user-view</py:def>
 
@@ -35,14 +33,7 @@
 
     <div class="changes">
       <h3>Recent changes</h3>
-      <table>
-        <tr>
-          <th>Revision</th><th>Timestamp</th><th>Author</th><th>Packages</th><th>Log Message</th>
-        </tr>
-        <py:for each="revision in c.activity">
-        ${revision_row(revision)}
-        </py:for>
-      </table>
+      ${revision_list(c.activity)}
     </div>
   </div>
 
