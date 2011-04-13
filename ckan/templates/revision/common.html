@@ -6,7 +6,7 @@
   py:strip=""
   >
 
-      <tr py:def="revision_row(item)">
+    <tr py:def="revision_row(item)" class="state-${item.state}">
         <td>
           ${
             h.link_to(item.id,
@@ -16,16 +16,23 @@
                 id=item.id)
               )
           }
-          <py:if test="c.show_purge_links">
-          ${
-            h.link_to(_('Purge'),
-              h.url_for(
-                controller='revision',
-                action='purge',
-                id=item.id),
-              confirm=_('Are you sure?')
-              )
-          }
+          <py:if test="c.revision_change_state_allowed">
+          <div class="actions">
+            <form
+              method="POST"
+              action="${h.url_for(controller='revision',
+                  action='edit',
+                  id=item.id)}"
+              class="revision-delete"
+              >
+              <py:if test="item.state!='deleted'">
+              <button type="submit" name="action" value="delete">Delete</button>
+              </py:if>
+              <py:if test="item.state=='deleted'">
+              <button type="submit" name="action" value="undelete">Undelete</button>
+              </py:if>
+            </form>
+          </div>
           </py:if>
         </td>
         <td>${h.render_datetime(item.timestamp)}</td>

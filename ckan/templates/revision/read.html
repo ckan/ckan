@@ -3,11 +3,15 @@
   py:strip="">
   
   <py:def function="page_title">Revision ${c.revision.id}</py:def>
+  <py:def function="body_class">revision</py:def>
 
-  <div py:match="content">
+  <div py:match="content" class="revision state-${c.revision.state}">
     <h2>
       Revision: ${c.revision.id}
     </h2>
+    <p py:if="c.revision.state != 'active'" class="state-notice">
+      ${c.revision.state} 
+    </p>
     <p>
       <strong>Author:</strong> ${c.revision.author}
     </p>
