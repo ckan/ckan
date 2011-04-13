@@ -22,8 +22,24 @@ class HomeController(BaseController):
         if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
             abort(401, _('Not authorized to see this page'))
 
+    @staticmethod
+    def _home_cache_key(latest_revision_id=None):
+        '''Calculate the etag cache key for the home page. If you have
+        the latest revision id then supply it as a param.'''
+        if not latest_revision_id:
+            latest_revision_id = model.repo.youngest_revision().id
+        user_name = c.user
+        if latest_revision_id:
+            cache_key = str(hash((latest_revision_id, user_name)))
+        else:
+            cache_key = 'fresh-install'
+        return cache_key
+
     @proxy_cache(expires=cache_expires)
     def index(self):
+        cache_key = self._home_cache_key()
+        etag_cache(cache_key)
+
         query = query_for(model.Package)
         query.run(query='*:*', facet_by=g.facets,
                   limit=0, offset=0, username=c.user)
@@ -33,13 +49,7 @@ class HomeController(BaseController):
         c.latest_packages = self.authorizer.authorized_query(c.user, model.Package)\
             .join('revision').order_by(model.Revision.timestamp.desc())\
             .limit(5).all()
-
-        if len(c.latest_packages):
-            cache_key = str(hash((c.latest_packages[0].id, c.user)))
-        else:
-            cache_key = "fresh-install"
         
-        etag_cache(cache_key)
         return render('home/index.html', cache_key=cache_key,
                 cache_expire=cache_expires)
 

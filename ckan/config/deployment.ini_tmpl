@@ -51,7 +51,8 @@ who.log_file = %(cache_dir)s/who_log.ini
 auth.admins = 
 
 # CKAN caching 
-cache_enabled = False
+ckan.cache_enabled = False
+ckan.cache_validation_enabled = True
 # cache to persistent files
 beaker.cache.type = file
 # default expiry time for the cache (where not specified specifically)

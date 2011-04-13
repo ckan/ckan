@@ -69,16 +69,30 @@ Configure this if you have an RDF store of the same packages as are in your CKAN
 3. A visible RDF link on the page in the 'Alternative metadata formats' box. e.g. `<a href="http://semantic.ckan.net/package/pollution-2008">`
 
 
+cache_validation_enabled
+------------------------
+
+Example::
+
+ ckan.cache_validation_enabled = False
+
+Default value:  ``True``
+
+This option determines whether browsers (or other caching services running between the browser and CKAN) are helped to cache particular CKAN pages, by validating when the page content hasn't changed. This is achieved using ETags headers provided by CKAN, which is a hash that changes when the content has changed. 
+
+Developers editing the templates should set this to False, since Etags hashes don't look for template changes.
+
+
 cache_enabled
 -------------
 
 Example::
 
- cache_enabled = True
+ ckan.cache_enabled = True
 
 Default value:  ``False``
 
-Setting this option to True turns on several caches. When the caching is on, caching can be further configured as follows.
+Setting this option to True turns on several server-side caches. When the caching is on, caching can be further configured as follows. (The key has been renamed from ``cache_enabled``, which is deprecated, but still works ``ckan.cache_enabled`` for now.)
 
 To set the type of Beaker storage::
  

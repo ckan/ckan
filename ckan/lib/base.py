@@ -11,7 +11,7 @@ from paste.deploy.converters import asbool
 from pylons import c, cache, config, g, request, response, session
 from pylons.controllers import WSGIController
 from pylons.controllers.util import abort as _abort
-from pylons.controllers.util import etag_cache, redirect_to, redirect
+from pylons.controllers.util import redirect_to, redirect
 from pylons.decorators import jsonify, validate
 from pylons.i18n import _, ungettext, N_, gettext
 from pylons.templating import cached_template, pylons_globals
@@ -25,6 +25,7 @@ import ckan.lib.helpers as h
 from ckan.plugins import PluginImplementations, IGenshiStreamFilter
 from ckan.lib.helpers import json
 import ckan.model as model
+from ckan.lib.cache import etag_cache
 
 # nuke cache
 #from pylons import cache

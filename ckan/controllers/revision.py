@@ -110,7 +110,7 @@ class RevisionController(BaseController):
             h.redirect_to(controller='revision', action='list')
         
         cache_key = str(hash(id))
-        etag_cache(cache_key)    
+        etag_cache(cache_key)
         
         c.revision = model.Session.query(model.Revision).get(id)
         if c.revision is None:

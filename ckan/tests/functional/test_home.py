@@ -1,11 +1,17 @@
-from ckan.tests import *
+from pylons import c
+
 from ckan.lib.create_test_data import CreateTestData
+from ckan.controllers.home import HomeController
 import ckan.model as model
+
+from ckan.tests import *
+from ckan.tests.pylons_controller import PylonsTestCase
 from ckan.tests import search_related
 
-class TestHomeController(TestController):
+class TestHomeController(TestController, PylonsTestCase):
     @classmethod
-    def setup_class(self):
+    def setup_class(cls):
+        PylonsTestCase.setup_class()
         model.repo.init_db()
         CreateTestData.create()
         
@@ -18,6 +24,23 @@ class TestHomeController(TestController):
         offset = url_for('home')
         res = self.app.get(offset)
         assert 'Packages' in res
+
+    def test_calculate_etag_hash(self):
+        c.user = 'test user'
+        get_hash = HomeController._home_cache_key
+        hash_1 = get_hash()
+        hash_2 = get_hash()
+        self.assert_equal(hash_1, hash_2)
+
+        c.user = 'another user'
+        hash_3 = get_hash()
+        assert hash_2 != hash_3
+
+        model.repo.new_revision()
+        model.Session.add(model.Package(name=u'test_etag'))
+        model.repo.commit_and_remove()
+        hash_4 = get_hash()
+        assert hash_3 != hash_4
 
     @search_related
     def test_packages_link(self):
