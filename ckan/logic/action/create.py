@@ -1,16 +1,57 @@
 import logging
 
 import ckan.authz
-from ckan.plugins import PluginImplementations, IGroupController
+from ckan.plugins import (PluginImplementations,
+                          IGroupController,
+                          IPackageController)
 from ckan.logic import NotFound, check_access, NotAuthorized, ValidationError
 from ckan.lib.base import _
 from ckan.lib.dictization.model_save import (group_api_to_dict,
-                                             group_dict_save)
+                                             group_dict_save,
+                                             package_api_to_dict,
+                                             package_dict_save)
+
+from ckan.lib.dictization.model_dictize import group_dictize, package_dictize
+
+from ckan.logic.schema import default_create_package_schema
+
 from ckan.logic.schema import default_group_schema
 from ckan.lib.navl.dictization_functions import validate
 from ckan.logic.action.update import _update_package_relationship
 log = logging.getLogger(__name__)
 
+
+def package_create(data_dict, context):
+    model = context['model']
+    user = context['user']
+    check_access(model.System(), model.Action.PACKAGE_CREATE, context)
+
+    dictized_package = package_api_to_dict(data_dict, context)
+
+    data, errors = validate(dictized_package,
+                            default_create_package_schema(),
+                            context)
+
+    if errors:
+        raise ValidationError(errors)
+
+    rev = model.repo.new_revision()
+    rev.author = user
+    rev.message = _(u'REST API: Create object %s') % data["name"]
+
+    pkg = package_dict_save(data, context)
+
+    if user:
+        admins = [model.User.by_name(user.decode('utf8'))]
+    else:
+        admins = []
+    model.setup_default_user_roles(pkg, admins)
+    for item in PluginImplementations(IPackageController):
+        item.create(pkg)
+    model.repo.commit()        
+    context["id"] = pkg.id
+    log.debug('Created object %s' % str(pkg.name))
+    return package_dictize(pkg, context)
 
 def package_relationship_create(data_dict, context):
 
@@ -83,7 +124,7 @@ def group_create(data_dict, context):
     model.repo.commit()        
     context["id"] = group.id
     log.debug('Created object %s' % str(group.name))
-    return data
+    return group_dictize(group, context)
 
 def rating_create(data_dict, context):
 

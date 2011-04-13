@@ -8,6 +8,7 @@ def package_id_not_changed(value, context):
     if package and value != package.id:
         raise Invalid(_('Cannot change value of key from %s to %s. '
                         'This key is read-only') % (package.id, value))
+    return value
 
 def package_id_exists(value, context):
 
@@ -55,7 +56,7 @@ name_match = re.compile('[a-z0-9_\-]*$')
 def name_validator(val, context):
     # check basic textual rules
     if len(val) < 2:
-        raise Invalid(_('Name must be at least %s characters long') % min_length)
+        raise Invalid(_('Name must be at least %s characters long') % 2)
     if not name_match.match(val):
         raise Invalid(_('Name must be purely lowercase alphanumeric '
                         '(ascii) characters and these symbols: -_'))

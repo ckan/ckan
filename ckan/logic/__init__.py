@@ -13,7 +13,7 @@ class NotAuthorized(ActionError):
 
 class ValidationError(ActionError):
     def __init__(self, error_dict, extra_msg=None):
-        self.error_dict = extra_msg
+        self.error_dict = error_dict
         self.extra_msg = extra_msg
 
 log = logging.getLogger(__name__)

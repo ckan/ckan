@@ -38,32 +38,6 @@ def make_map():
     map.connect('/api/tag_counts', controller='rest', action='tag_counts')
     
     map.connect('/api/rest', controller='rest', action='index')
-    
-    map.connect('/api/rest/package', controller='apiv1/package', action='list',
-                conditions=dict(method=['GET']))
-    map.connect('/api/rest/package', controller='apiv1/package', action='create',
-                conditions=dict(method=['POST']))
-    map.connect('/api/rest/package/:id', controller='apiv1/package', action='show',
-                conditions=dict(method=['GET']))
-    map.connect('/api/rest/package/:id', controller='apiv1/package', action='update',
-                conditions=dict(method=['POST']))
-    map.connect('/api/rest/package/:id', controller='apiv1/package', action='update',
-                conditions=dict(method=['PUT']))
-    map.connect('/api/rest/package/:id', controller='apiv1/package', action='delete',
-                conditions=dict(method=['DELETE']))
-
-    map.connect('/api/rest/package', controller='apiv1/package', action='list',
-                conditions=dict(method=['GET']))
-    map.connect('/api/rest/package', controller='apiv1/package', action='create',
-                conditions=dict(method=['POST']))
-    map.connect('/api/rest/package/:id', controller='apiv1/package', action='show',
-                conditions=dict(method=['GET']))
-    map.connect('/api/rest/package/:id', controller='apiv1/package', action='update',
-                conditions=dict(method=['POST']))
-    map.connect('/api/rest/package/:id', controller='apiv1/package', action='update',
-                conditions=dict(method=['PUT']))
-    map.connect('/api/rest/package/:id', controller='apiv1/package', action='delete',
-                conditions=dict(method=['DELETE']))
 
     map.connect('/api/rest/:register', controller='rest', action='list',
         conditions=dict(method=['GET']))

@@ -1,8 +1,22 @@
 from ckan.logic import NotFound, check_access
-from ckan.plugins import PluginImplementations, IGroupController
+from ckan.plugins import (PluginImplementations,
+                          IGroupController,
+                          IPackageController)
 import ckan.authz
 
 from ckan.lib.dictization.model_dictize import group_to_api1, group_to_api2
+from ckan.lib.dictization.model_dictize import package_to_api1, package_to_api2
+
+
+def package_list(context):
+    model = context["model"]
+    user = context["user"]
+    api = context["api_version"]
+    ref_package_by = 'id' if api == '2' else 'name'
+
+    query = ckan.authz.Authorizer().authorized_query(user, model.Package)
+    packages = query.all()
+    return [getattr(p, ref_package_by) for p in packages]
 
 def revision_list(context):
 
@@ -85,6 +99,28 @@ def package_relationships_list(context):
 
     return relationship_dicts
 
+def package_show(context):
+
+    model = context['model']
+    api = context.get('api_version') or '1'
+    id = context['id']
+
+    pkg = model.Package.get(id)
+    
+    if pkg is None:
+        raise NotFound
+    check_access(pkg, model.Action.READ, context)
+
+    if api == '1':
+        package_dict = package_to_api1(pkg, context)
+    else:
+        package_dict = package_to_api2(pkg, context)
+
+    for item in PluginImplementations(IPackageController):
+        item.read(pkg)
+
+    return package_dict
+
 
 def revision_show(context):
     model = context['model']
@@ -112,7 +148,6 @@ def group_show(context):
 
     for item in PluginImplementations(IGroupController):
         item.read(group)
-    context = {'session': model.Session, 'model': model}
     if api == '2':
         _dict = group_to_api2(group, context)
     else:

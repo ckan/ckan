@@ -1,7 +1,30 @@
 from ckan.logic import NotFound, check_access, NotAuthorized
 from ckan.lib.base import _
 import ckan.authz
-from ckan.plugins import PluginImplementations, IGroupController
+from ckan.plugins import PluginImplementations, IGroupController, IPackageController
+
+
+def package_delete(context):
+
+    model = context['model']
+    user = context['user']
+    id = context["id"]
+
+    entity = model.Package.get(id)
+    check_access(entity, model.Action.PURGE, context)
+
+    if entity is None:
+        raise NotFound
+    
+    rev = model.repo.new_revision()
+    rev.author = user
+    rev.message = _(u'REST API: Delete Package: %s') % entity.name
+
+    for item in PluginImplementations(IPackageController):
+        item.delete(entity)
+    entity.delete()
+    model.repo.commit()        
+
 
 def package_relationship_delete(context):
 

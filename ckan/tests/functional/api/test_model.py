@@ -62,7 +62,7 @@ class ModelApiTestCase(BaseModelApiTestCase):
     def test_06_create_group_entity_ok(self):
         offset = self.offset('/rest/group')
         postparams = '%s=1' % self.dumps(self.testgroupvalues)
-        res = self.app.post(offset, params=postparams, status=200,
+        res = self.app.post(offset, params=postparams, status=201,
                 extra_environ=self.extra_environ)
         model.Session.remove()
         rev = model.repo.new_revision()
@@ -105,7 +105,7 @@ class ModelApiTestCase(BaseModelApiTestCase):
         rating_opts = {'package':u'warandpeace',
                        'rating':5}
         postparams = '%s=1' % self.dumps(rating_opts)
-        res = self.app.post(offset, params=postparams, status=[200],
+        res = self.app.post(offset, params=postparams, status=[201],
                 extra_environ=self.extra_environ)
         model.Session.remove()
         pkg = self.get_package_by_name(rating_opts['package'])
@@ -125,7 +125,7 @@ class ModelApiTestCase(BaseModelApiTestCase):
         # Rerate package
         offset = self.offset('/rest/rating')
         postparams = '%s=1' % self.dumps(rating_opts)
-        res = self.app.post(offset, params=postparams, status=[200],
+        res = self.app.post(offset, params=postparams, status=[201],
                 extra_environ=self.extra_environ)
         model.Session.remove()
         pkg = self.get_package_by_name(rating_opts['package'])
@@ -152,7 +152,7 @@ class ModelApiTestCase(BaseModelApiTestCase):
         if not group:
             offset = self.offset('/rest/group')
             postparams = '%s=1' % self.dumps(self.testgroupvalues)
-            res = self.app.post(offset, params=postparams, status=[200],
+            res = self.app.post(offset, params=postparams, status=[201],
                     extra_environ=self.extra_environ)
             model.Session.remove()
             group = model.Group.by_name(self.testgroupvalues['name'])
@@ -431,7 +431,7 @@ class RelationshipsApiTestCase(ApiTestCase, ControllerTestCase):
         # created by posting a relationship to a relationship **register**.
         offset = self.offset('/rest/package/annakarenina/parent_of/warandpeace')
         postparams = '%s=1' % self.dumps({'comment':self.comment})
-        res = self.app.post(offset, params=postparams, status=[200],
+        res = self.app.post(offset, params=postparams, status=[201],
                             extra_environ=self.extra_environ)
         # Check the model, directly.
         rels = self.anna.get_relationships()
@@ -443,7 +443,7 @@ class RelationshipsApiTestCase(ApiTestCase, ControllerTestCase):
     def update_annakarenina_parent_of_war_and_peace(self, comment=u'New comment.'):
         offset = self.offset('/rest/package/annakarenina/parent_of/warandpeace')
         postparams = '%s=1' % self.dumps({'comment':comment})
-        res = self.app.post(offset, params=postparams, status=[200], extra_environ=self.extra_environ)
+        res = self.app.post(offset, params=postparams, status=[201], extra_environ=self.extra_environ)
         return res
 
     def delete_annakarenina_parent_of_war_and_peace(self):

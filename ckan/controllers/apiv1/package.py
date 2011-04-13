@@ -116,7 +116,7 @@ class PackageController(RestController):
             response.headers['Location'] = location
             log.debug('Response headers: %r' % (response.headers))
             response.write(
-                self._finish_ok(data, newly_created_resource_location=location)
+                self._finish_ok(data, resource_location=location)
             )
             
             return response

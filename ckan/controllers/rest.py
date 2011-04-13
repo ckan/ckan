@@ -89,19 +89,19 @@ class BaseApiController(BaseController):
 
     def _finish_ok(self, response_data=None,
                    content_type='json',
-                   newly_created_resource_location=None):
+                   resource_location=None):
         '''If a controller method has completed successfully then
         calling this method will prepare the response.
-        @param newly_created_resource_location - specify this if a new
+        @param resource_location - specify this if a new
            resource has just been created.
         @return response message - return this value from the controller
                                    method
                                    e.g. return self._finish_ok(pkg_dict)
         '''
-        if newly_created_resource_location:
+        if resource_location:
             status_int = 201
             self._set_response_header('Location',
-                                      newly_created_resource_location)
+                                      resource_location)
         else:
             status_int = 200
 
@@ -161,6 +161,7 @@ class BaseRestController(BaseApiController):
         action_map = {
             'revision': get.revision_list,
             'group': get.group_list,
+            'package': get.package_list,
             'tag': get.tag_list,
             'licenses': get.licence_list,
             ('package', 'relationships'): get.package_relationships_list,
@@ -187,6 +188,7 @@ class BaseRestController(BaseApiController):
             'revision': get.revision_show,
             'group': get.group_show,
             'tag': get.tag_show,
+            'package': get.package_show,
             ('package', 'relationships'): get.package_relationships_list,
         }
 
@@ -219,6 +221,7 @@ class BaseRestController(BaseApiController):
         action_map = {
             ('package', 'relationships'): create.package_relationship_create,
              'group': create.group_create,
+             'package': create.package_create,
              'rating': create.rating_create,
         }
         for type in model.PackageRelationship.get_all_types():
@@ -242,11 +245,11 @@ class BaseRestController(BaseApiController):
             return gettext('Cannot create new entity of this type: %s %s') % (register, subregister)
         try:
             response_data = action(request_data, context)
+            location = None
             if "id" in context:
                 location = str('%s/%s' % (request.path, context.get("id")))
-                response.headers['Location'] = location
-                log.debug('Response headers: %r' % (response.headers))
-            return self._finish_ok(response_data)
+            return self._finish_ok(response_data,
+                                   resource_location=location)
         except NotAuthorized:
             return self._finish_not_authz()
         except ValidationError, e:
@@ -255,7 +258,7 @@ class BaseRestController(BaseApiController):
         except DataError:
             log.error('Format incorrect: %s' % request_data)
             #TODO make better error message
-            return self._finish(409, _(u'Integrity Error') % request_data)
+            return self._finish(400, _(u'Integrity Error') % request_data)
         except:
             model.Session.rollback()
             raise
@@ -264,6 +267,7 @@ class BaseRestController(BaseApiController):
 
         action_map = {
             ('package', 'relationships'): update.package_relationship_update,
+             'package': update.package_update,
              'group': update.group_update,
         }
         for type in model.PackageRelationship.get_all_types():
@@ -298,12 +302,13 @@ class BaseRestController(BaseApiController):
         except DataError:
             log.error('Format incorrect: %s' % request_data)
             #TODO make better error message
-            return self._finish(409, _(u'Integrity Error') % request_data)
+            return self._finish(400, _(u'Integrity Error') % request_data)
 
     def delete(self, register, id, subregister=None, id2=None):
         action_map = {
             ('package', 'relationships'): delete.package_relationship_delete,
              'group': delete.group_delete,
+             'package': delete.package_delete,
         }
         for type in model.PackageRelationship.get_all_types():
             action_map[('package', type)] = delete.package_relationship_delete
