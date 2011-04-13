@@ -23,7 +23,6 @@
               action="${h.url_for(controller='revision',
                   action='edit',
                   id=item.id)}"
-              class="revision-delete"
               >
               <py:if test="item.state!='deleted'">
               <button type="submit" name="action" value="delete">Delete</button>
