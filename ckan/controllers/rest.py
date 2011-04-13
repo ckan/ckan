@@ -543,18 +543,6 @@ class BaseRestController(BaseApiController):
         self.log.debug("Access OK.")
         response.status_int = 200
         return True                
-    
-    def _update_package_relationship(self, relationship, comment):
-        is_changed = relationship.comment != comment
-        if is_changed:
-            rev = model.repo.new_revision()
-            rev.author = self.rest_api_user
-            rev.message = _(u'REST API: Update package relationship: %s %s %s') % (relationship.subject, relationship.type, relationship.object)
-            relationship.comment = comment
-            model.repo.commit_and_remove()
-        rel_dict = relationship.as_dict(package=relationship.subject,
-                                        ref_package_by=self.ref_package_by)
-        return self._finish_ok(rel_dict)
 
 
 class RestController(ApiVersion1, BaseRestController):
