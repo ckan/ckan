@@ -61,7 +61,7 @@ class TestHomeController(TestController, PylonsTestCase):
     def test_license(self):
         offset = url_for('license')
         res = self.app.get(offset)
-        assert 'The CKAN code that runs this site is open-source' in res
+        assert 'License' in res
 
     def test_guide(self):
         url = url_for('guide')
