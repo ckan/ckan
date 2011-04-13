@@ -437,6 +437,19 @@ form.simple-form textarea {
     width: 99%;
 }
 
+.purge-button {
+  border: none;
+  background: none;
+  background-color: #b33a3a;
+  color: white;
+  display: block;
+  margin-bottom: 1em;
+}
+
+.purge-button:hover {
+  border: none;
+}
+
 /* ===========================
  * Tables
  */
