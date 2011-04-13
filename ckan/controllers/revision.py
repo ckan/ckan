@@ -109,9 +109,6 @@ class RevisionController(BaseController):
         if id is None:
             h.redirect_to(controller='revision', action='list')
         
-        cache_key = str(hash(id))
-        etag_cache(cache_key)
-        
         c.revision = model.Session.query(model.Revision).get(id)
         if c.revision is None:
             abort(404)
@@ -121,7 +118,7 @@ class RevisionController(BaseController):
         c.pkgtags = [ pkgtag.continuity for pkgtag in pkgtags ]
         grps = model.Session.query(model.GroupRevision).filter_by(revision=c.revision)
         c.groups = [ grp.continuity for grp in grps ]
-        return render('revision/read.html', cache_key=cache_key)
+        return render('revision/read.html')
 
     def diff(self, id=None):
         if 'diff' not in request.params or 'oldid' not in request.params:
