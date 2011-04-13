@@ -18,7 +18,7 @@ class TestAuthorizationGroupApi(ControllerTestCase):
                 
     @classmethod
     def teardown(cls):
-        CreateTestData.delete()
+        model.repo.rebuild_db()
         
     def test_autocomplete(self):
         response = self.app.get(
