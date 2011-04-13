@@ -42,8 +42,8 @@ class GroupsTestCase(BaseModelApiTestCase):
         group = self.loads(res.body)
         expected_group = copy.deepcopy(self.testgroupvalues)
         expected_group['packages'] = \
-               [self.ref_package(self.get_package_by_name(pkg_name)) \
-                for pkg_name in expected_group['packages']]
+               sorted([self.ref_package(self.get_package_by_name(pkg_name)) \
+                for pkg_name in expected_group['packages']])
         for expected_key, expected_value in expected_group.items():
             assert_equal(group.get(expected_key), expected_value)
 

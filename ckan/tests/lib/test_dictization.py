@@ -18,8 +18,7 @@ from ckan.lib.dictization.model_save import (package_dict_save,
                                              resource_dict_save,
                                              group_dict_save,
                                              package_api_to_dict,
-                                             group_api1_to_dict,
-                                             group_api2_to_dict,
+                                             group_api_to_dict,
                                             )
 
 class TestBasicDictize:
@@ -35,6 +34,8 @@ class TestBasicDictize:
     def remove_changable_columns(self, dict):
         for key, value in dict.items():
             if key.endswith('id') and key <> 'license_id':
+                dict.pop(key)
+            if key == 'created':
                 dict.pop(key)
             if isinstance(value, list):
                 for new_dict in value:
@@ -79,19 +80,18 @@ class TestBasicDictize:
 
         resource = pkg.resource_groups[0].resources[0]
 
-        result = table_dictize(resource, context)
+        result = resource_dictize(resource, context)
         self.remove_changable_columns(result)
 
         assert result == {
-            'alt_url': u'alt123',
-            'description': u'Full text. Needs escaping: " Umlaut: \xfc',
-            'extras': {u'alt_url': u'alt123', u'size': u'123'},
-            'format': u'plain text',
-            'hash': u'abc123',
-            'position': 0,
-            'state': u'active',
-            'url': u'http://www.annakarenina.com/download/x=1&y=2'
-        }, pprint(result)
+             'alt_url': u'alt123',
+             'description': u'Full text. Needs escaping: " Umlaut: \xfc',
+             'format': u'plain text',
+             'hash': u'abc123',
+             'position': 0,
+             'size': u'123',
+             'state': u'active',
+             'url': u'http://www.annakarenina.com/download/x=1&y=2'}, pprint(result)
 
         ## package extra
 
@@ -139,7 +139,7 @@ class TestBasicDictize:
              'relationships_as_subject': [],
              'resources': [{'alt_url': u'alt123',
                             'description': u'Full text. Needs escaping: " Umlaut: \xfc',
-                            'extras': {u'alt_url': u'alt123', u'size': u'123'},
+                            'size': u'123',
                             'format': u'plain text',
                             'hash': u'abc123',
                             'position': 0,
@@ -147,7 +147,7 @@ class TestBasicDictize:
                             'url': u'http://www.annakarenina.com/download/x=1&y=2'},
                            {'alt_url': u'alt345',
                             'description': u'Index of the novel',
-                            'extras': {u'alt_url': u'alt345', u'size': u'345'},
+                            'size': u'345',
                             'format': u'json',
                             'hash': u'def456',
                             'position': 1,
@@ -170,8 +170,10 @@ class TestBasicDictize:
 
         pprint(package_to_api1(pkg, context))
         pprint(pkg.as_dict())
+        asdict = pkg.as_dict()
+        asdict['download_url'] = asdict['resources'][0]['url']
 
-        assert package_to_api1(pkg, context) == pkg.as_dict()
+        assert package_to_api1(pkg, context) == asdict
 
     def test_04_package_to_api1_with_relationship(self):
 
@@ -320,7 +322,7 @@ class TestBasicDictize:
         new_resource = {
             'alt_url': u'empty resource group id',
             'description': u'Full text. Needs escaping: " Umlaut: \xfc',
-            'extras': {u'alt_url': u'empty resource group id', u'size': u'123'},
+            'size': u'123',
             'format': u'plain text',
             'hash': u'abc123',
             'position': 0,
@@ -358,7 +360,7 @@ class TestBasicDictize:
                 u'description':u'Second file',
                 u'hash':u'def123',
                 u'alt_url':u'alt_url',
-                u'extras':{u'size':u'200'},
+                u'size':u'200',
             },
                 {
                 u'url':u'http://blah.com/file.xml',
@@ -366,7 +368,7 @@ class TestBasicDictize:
                 u'description':u'Main file',
                 u'hash':u'abc123',
                 u'alt_url':u'alt_url',
-                u'extras':{u'size':u'200'},
+                u'size':u'200',
             },
             ],
             'tags': u'russion novel',
@@ -385,13 +387,13 @@ class TestBasicDictize:
                             'name': u'testpkg',
                             'resources': [{u'alt_url': u'alt_url',
                                           u'description': u'Second file',
-                                          u'extras': {u'size': u'200'},
+                                          u'size': u'200',
                                           u'format': u'xml',
                                           u'hash': u'def123',
                                           u'url': u'http://blah.com/file2.xml'},
                                           {u'alt_url': u'alt_url',
                                           u'description': u'Main file',
-                                          u'extras': {u'size': u'200'},
+                                          u'size': u'200',
                                           u'format': u'xml',
                                           u'hash': u'abc123',
                                           u'url': u'http://blah.com/file.xml'}],
@@ -466,6 +468,7 @@ class TestBasicDictize:
         expected['packages'] = sorted(expected['packages'], key=lambda x: x['name'])
 
         result = self.remove_changable_columns(group_dictized)
+
         result['packages'] = sorted(result['packages'], key=lambda x: x['name'])
 
         assert result == expected, pformat(result)
@@ -476,26 +479,18 @@ class TestBasicDictize:
         context = {"model": model,
                   "session": model.Session}
 
-        api1_group = {
+        api_group = {
             'name' : u'testgroup',
             'title' : u'Some Group Title',
             'description' : u'Great group!',
             'packages' : [u'annakarenina', u'warandpeace'],
         }
 
-        api2_group = {
-            'name' : u'testgroup',
-            'title' : u'Some Group Title',
-            'description' : u'Great group!',
-            'packages' : [u'idffdsfsafsafa', u'idffdsfsafs'],
-        }
 
-        assert group_api1_to_dict(api1_group, context) == {'description': u'Great group!',
+        assert group_api_to_dict(api_group, context) == {'description': u'Great group!',
                                                            'name': u'testgroup',
-                                                           'packages': [{'name': u'annakarenina'}, {'name': u'warandpeace'}],
-                                                           'title': u'Some Group Title'}, pformat(group_api1_to_dict(api1_group, context))
+                                                           'packages': [{'id': u'annakarenina'}, {'id': u'warandpeace'}],
+                                                           'title': u'Some Group Title'}, pformat(group_api1_to_dict(api_group, context))
 
-        assert group_api2_to_dict(api2_group, context) == {'description': u'Great group!',
-                                                           'name': u'testgroup',
-                                                           'packages': [{'id': u'idffdsfsafsafa'}, {'id': u'idffdsfsafs'}],
-                                                           'title': u'Some Group Title'}, pformat(group_api2_to_dict(api2_group, context))
+
+
