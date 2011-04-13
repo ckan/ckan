@@ -164,7 +164,8 @@ class PackagesTestCase(BaseModelApiTestCase):
         res = self.app.post(offset, params=postparams,
                             status=self.STATUS_409_CONFLICT,
                             extra_environ=self.extra_environ)
-        assert "{'id': [u'Integrity Error']}" in res.body, res.body
+        assert "Cannot change value of key from" in res.body, res.body
+        assert "to illegally changed value. This key is read-only" in res.body, res.body
 
     def test_entity_update_denied(self):
         offset = self.anna_offset()

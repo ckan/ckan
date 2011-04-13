@@ -484,7 +484,7 @@ class RelationshipsApiTestCase(ApiTestCase, ControllerTestCase):
             if len_relationships:
                 msg += ' Found: '
                 for r in relationships:
-                    msg += '%s %s %s; ' % r['subject'], r['type'], r['object']
+                    msg += '%s %s %s; ' % (r['subject'], r['type'], r['object'])
                 msg += '.'
             raise Exception, msg
 

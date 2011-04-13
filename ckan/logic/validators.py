@@ -4,9 +4,10 @@ from ckan.lib.navl.dictization_functions import Invalid, missing
 
 def package_id_not_changed(value, context):
 
-    package = context['package']
-    if value != package.id:
-        raise Invalid(_('Integrity Error'))
+    package = context.get('package')
+    if package and value != package.id:
+        raise Invalid(_('Cannot change value of key from %s to %s. '
+                        'This key is read-only') % (package.id, value))
 
 def package_id_exists(value, context):
 

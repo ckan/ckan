@@ -11,6 +11,7 @@ from ckan.lib.navl.dictization_functions import DataError
 import ckan.logic.action.get as get 
 import ckan.logic.action.create as create
 import ckan.logic.action.update as update
+import ckan.logic.action.delete as delete
 from ckan.logic import NotFound, NotAuthorized, ValidationError
 
 
@@ -285,10 +286,6 @@ class BaseRestController(BaseApiController):
             return gettext('Cannot update entity of this type: %s') % register
         try:
             response_data = action(request_data, context)
-            if "id" in context:
-                location = str('%s/%s' % (request.path, context.get("id")))
-                response.headers['Location'] = location
-                log.debug('Response headers: %r' % (response.headers))
             return self._finish_ok(response_data)
         except NotAuthorized:
             return self._finish_not_authz()
@@ -304,64 +301,35 @@ class BaseRestController(BaseApiController):
             return self._finish(409, _(u'Integrity Error') % request_data)
 
     def delete(self, register, id, subregister=None, id2=None):
+        action_map = {
+            ('package', 'relationships'): delete.package_relationship_delete,
+             'group': delete.group_delete,
+        }
+        for type in model.PackageRelationship.get_all_types():
+            action_map[('package', type)] = delete.package_relationship_delete
+
+        context = {'model': model, 'session': model.Session, 'user': c.user,
+                   'id': id, 'id2': id2, 'rel': subregister,
+                   'api_version': self.api_version}
         log.debug('delete %s/%s/%s/%s' % (register, id, subregister, id2))
-        # must be logged in to start with
-        if not self._check_access(None, None):
-            return self._finish_not_authz()
-        if register == 'package' and not subregister:
-            # see /apiv1/PackageController
-            raise NotImplementedError
-        elif register == 'package' and subregister in model.PackageRelationship.get_all_types():
-            pkg1 = self._get_pkg(id)
-            pkg2 = self._get_pkg(id2)
-            if not pkg1:
-                response.status_int = 404
-                return 'First package named in address was not found.'
-            if not pkg2:
-                response.status_int = 404
-                return 'Second package named in address was not found.'
-            am_authorized = ckan.authz.Authorizer().\
-                            authorized_package_relationship(\
-                c.user, pkg1, pkg2, action=model.Action.EDIT)
-            if not am_authorized:
-                return self._finish_not_authz()
-            existing_rels = pkg1.get_relationships_with(pkg2, subregister)
-            if not existing_rels:
-                response.status_int = 404
-                return ''
-            entity = existing_rels[0]
-            revisioned_details = 'Package Relationship: %s %s %s' % (id, subregister, id2)
-        elif register == 'group' and not subregister:
-            entity = self._get_group(id)
-            if not entity:
-                response.status_int = 404
-                return 'Group was not found.'
-            revisioned_details = 'Group: %s' % entity.name
-        else:
+
+        action = action_map.get((register, subregister)) 
+        if not action:
+            action = action_map.get(register)
+        if not action:
             response.status_int = 400
             return gettext('Cannot delete entity of this type: %s %s') % (register, subregister or '')
-        if not entity:
-            response.status_int = 404
-            return ''
-        if not self._check_access(entity, model.Action.PURGE):
-            return self._finish_not_authz()
-        if revisioned_details:
-            rev = model.repo.new_revision()
-            rev.author = self.rest_api_user
-            rev.message = _(u'REST API: Delete %s') % revisioned_details
         try:
-            if register == 'package' and not subregister:
-                # see /apiv1/PackageController
-                raise NotImplementedError
-            elif register == 'group' and not subregister:
-                for item in PluginImplementations(IGroupController):
-                    item.delete(entity)
-            entity.delete()
-            model.repo.commit()        
-        except Exception, inst:
-            log.exception(inst)
-            raise
-        return self._finish_ok()
+            response_data = action(context)
+            return self._finish_ok(response_data)
+        except NotAuthorized:
+            return self._finish_not_authz()
+        except NotFound, e:
+            extra_msg = e.extra_msg
+            return self._finish_not_found(extra_msg)
+        except ValidationError, e:
+            log.error('Validation error: %r' % str(e.error_dict))
+            return self._finish(409, e.error_dict, content_type='json')
 
     def search(self, register=None):
         log.debug('search %s params: %r' % (register, request.params))
@@ -470,44 +438,6 @@ class BaseRestController(BaseApiController):
         # Todo: Clear old records.
         return float(call_count) / period
 
-    def _create_rating(self, params):
-        """ Example data:
-               rating_opts = {'package':u'warandpeace',
-                              'rating':5}
-        """
-        # check options
-        package_ref = params.get('package')
-        rating = params.get('rating')
-        user = self.rest_api_user
-        opts_err = None
-        if not package_ref:
-            opts_err = gettext('You must supply a package id or name (parameter "package").')
-        elif not rating:
-            opts_err = gettext('You must supply a rating (parameter "rating").')
-        else:
-            try:
-                rating_int = int(rating)
-            except ValueError:
-                opts_err = gettext('Rating must be an integer value.')
-            else:
-                package = self._get_pkg(package_ref)
-                if rating < ckan.rating.MIN_RATING or rating > ckan.rating.MAX_RATING:
-                    opts_err = gettext('Rating must be between %i and %i.') % (ckan.rating.MIN_RATING, ckan.rating.MAX_RATING)
-                elif not package:
-                    opts_err = gettext('Package with name %r does not exist.') % package_ref
-        if opts_err:
-            self.log.debug(opts_err)
-            response.status_int = 400
-            response.headers['Content-Type'] = self.content_type_json
-            return opts_err
-
-        user = model.User.by_name(self.rest_api_user)
-        ckan.rating.set_rating(user, package, rating_int)
-
-        package = self._get_pkg(package_ref)
-        ret_dict = {'rating average':package.get_average_rating(),
-                    'rating count': len(package.ratings)}
-        return self._finish_ok(ret_dict)
 
 
     def _check_access(self, entity, action):
