@@ -165,7 +165,7 @@
 
   <table py:def="authz_form_table(id, roles, users, user_role_dict)">
     <tr>
-      <th> System Roles</th>
+      <th> User </th>
       <py:for each="role in roles">
       <th> ${role} </th>
       </py:for>
@@ -200,7 +200,7 @@
 <!-- table rows. How to combine the two? -->
   <table py:def="authz_form_group_table(id, roles, users, user_role_dict)">
     <tr>
-      <th> System Roles</th>
+      <th>User Group</th>
       <py:for each="role in roles">
       <th> ${role} </th>
       </py:for>
@@ -256,7 +256,7 @@
   <!-- again, copy-and-paste of above, this time to attach different autocompletion -->
   <table py:def="authz_add_group_table(roles)">
     <tr>
-      <th>User</th>
+      <th>User Group</th>
       <py:for each="role in roles">
        <th> ${role} </th>
      </py:for>
