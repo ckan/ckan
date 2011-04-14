@@ -15,6 +15,16 @@ from ckan.lib.navl.dictization_functions import validate
 log = logging.getLogger(__name__)
 
 
+def package_update_rest(data_dict, context):
+
+    model = context['model']
+    id = context["id"]
+    pkg = model.Package.get(id)
+    context["package"] = pkg
+    dictized_package = package_api_to_dict(data_dict, context)
+    return package_update(dictized_package, context)
+
+
 def package_update(data_dict, context):
 
     model = context['model']
@@ -28,9 +38,7 @@ def package_update(data_dict, context):
 
     check_access(pkg, model.Action.EDIT, context)
 
-    dictized_package = package_api_to_dict(data_dict, context)
-
-    data, errors = validate(dictized_package,
+    data, errors = validate(data_dict,
                             default_update_package_schema(),
                             context)
     if errors:
@@ -95,6 +103,12 @@ def package_relationship_update(data_dict, context):
     comment = data_dict.get('comment', u'')
     return _update_package_relationship(entity, comment, context)
 
+
+def group_update_rest(data_dict, context):
+
+    dictized = group_api_to_dict(data_dict, context)
+    return group_update(dictized, context)
+
 def group_update(data_dict, context):
 
     model = context['model']
@@ -108,9 +122,7 @@ def group_update(data_dict, context):
 
     check_access(group, model.Action.EDIT, context)
 
-    dictized = group_api_to_dict(data_dict, context)
-
-    data, errors = validate(dictized,
+    data, errors = validate(data_dict,
                             default_update_group_schema(),
                             context)
     if errors:
