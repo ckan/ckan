@@ -437,6 +437,19 @@ form.simple-form textarea {
     width: 99%;
 }
 
+.purge-button {
+  border: none;
+  background: none;
+  background-color: #b33a3a;
+  color: white;
+  display: block;
+  margin-bottom: 1em;
+}
+
+.purge-button:hover {
+  border: none;
+}
+
 /* ===========================
  * Tables
  */
@@ -975,4 +988,29 @@ body.user-list .sort a {
   padding: 5px;
   border-bottom: 1px solid #ccc; 
   border-right: 1px solid #ccc; 
+}
+
+/* ===================== */
+/* = Stateful stuff    = */
+/* ===================== */
+
+.state-deleted, .state-deleted a, .state-deleted * {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.state-deleted {
+  padding-left: 3px;
+}
+
+.state-deleted:hover * {
+  color: rgba(0, 0, 0, 0.8);
+}
+
+.state-notice {
+  text-transform: uppercase;
+  font-size: 120%;
+  background: #f4a83d;
+  padding: 15px;
+  text-align: center;
+  color: #fff;
 }

@@ -1,5 +1,6 @@
 """The application's Globals object"""
 
+from paste.deploy.converters import asbool
 from pylons import config
 
 class Globals(object):
@@ -16,6 +17,8 @@ class Globals(object):
 
         """
         self.site_title = config.get('ckan.site_title', '')
+        self.favicon = config.get('ckan.favicon',
+                                  'http://assets.okfn.org/p/ckan/img/ckan.ico')
         self.site_logo = config.get('ckan.site_logo', '')
         self.site_url = config.get('ckan.site_url', '')
         self.site_description = config.get('ckan.site_description', '')
@@ -30,4 +33,6 @@ class Globals(object):
         # hide these extras fields on package read
         self.package_hide_extras = config.get('package_hide_extras', '').split()
         self.has_commenting = False
+
+        self.openid_enabled = asbool(config.get('openid_enabled', 'true'))
         

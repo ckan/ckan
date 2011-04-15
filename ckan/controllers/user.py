@@ -1,8 +1,10 @@
+import re
+
 import genshi
+from sqlalchemy import or_, func, desc
 
 import ckan.misc
 from ckan.lib.base import *
-from sqlalchemy import or_, func, desc
 
 def login_form():
     return render('user/login_form.html').replace('FORM_ACTION', '%s')
@@ -11,6 +13,10 @@ class UserController(BaseController):
 
     def index(self, id=None):
         LIMIT = 20
+
+        if not self.authorizer.am_authorized(c, model.Action.USER_READ, model.System):
+            abort(401, _('Not authorized to see this page'))
+
         page = int(request.params.get('page', 1))
         c.q  = request.params.get('q', '')
         c.order_by = request.params.get('order_by', 'name')
@@ -39,14 +45,15 @@ class UserController(BaseController):
         return render('user/list.html')
 
     def read(self, id=None):
+        if not self.authorizer.am_authorized(c, model.Action.USER_READ, model.System):
+            abort(401, _('Not authorized to see this page'))
         if id:
             user = model.User.get(id)
-        else:
-            user = model.User.by_name(c.user)
         if not user:
             h.redirect_to(controller='user', action='login', id=None)
         c.read_user = user.display_name
         c.is_myself = user.name == c.user
+        c.api_key = user.apikey
         c.about_formatted = self._format_about(user.about)
         revisions_q = model.Session.query(model.Revision
                 ).filter_by(author=user.name)
@@ -58,9 +65,12 @@ class UserController(BaseController):
     def me(self):
         if not c.user:
             h.redirect_to(controller='user', action='login', id=None)
-        h.redirect_to(controller='user', action='read', id=c.user)
+        user_ref = c.userobj.get_reference_preferred_for_uri()
+        h.redirect_to(controller='user', action='read', id=user_ref)
 
     def register(self):
+        if not self.authorizer.am_authorized(c, model.Action.USER_CREATE, model.System):
+            abort(401, _('Not authorized to see this page'))
         if request.method == 'POST': 
             c.login = request.params.getone('login')
             c.fullname = request.params.getone('fullname')
@@ -103,20 +113,17 @@ class UserController(BaseController):
         response.delete_cookie("ckan_apikey")
         return render('user/logout.html')
 
-    def apikey(self):
-        # logged in
-        if not c.user:
-            abort(401)
+    def edit(self, id=None):
+        if id is not None:
+            user = model.User.get(id)
         else:
             user = model.User.by_name(c.user)
-            c.api_key = user.apikey
-        return render('user/apikey.html')
-
-    def edit(self):
-        # logged in
-        if not c.user:
+        if user is None:
+            abort(404)
+        currentuser = model.User.by_name(c.user)
+        if not (ckan.authz.Authorizer().is_sysadmin(unicode(c.user)) or user == currentuser):
             abort(401)
-        user = model.User.by_name(c.user)
+        c.userobj = user
         if not 'save' in request.params and not 'preview' in request.params:
             c.user_about = user.about
             c.user_fullname = user.fullname
@@ -160,11 +167,10 @@ class UserController(BaseController):
     def _get_form_password(self):
         password1 = request.params.getone('password1')
         password2 = request.params.getone('password2')
-        if password1:
+        if (password1 is not None and password1 != ''):
             if not len(password1) >= 4:
                 raise ValueError(_("Your password must be 4 characters or longer."))
             elif not password1 == password2:
                 raise ValueError(_("The passwords you entered do not match."))
             return password1
         
-

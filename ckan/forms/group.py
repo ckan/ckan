@@ -36,7 +36,7 @@ class PackagesField(common.ConfiguredField):
                 packages_as_string = unicode(value)
                 packages_as_string = packages_as_string.replace(',', ' ')
                 pkg_list = packages_as_string.split()
-            packages = [model.Package.by_name(pkg_name) for pkg_name in pkg_list]
+            packages = [model.Package.get(pkg_ref) for pkg_ref in pkg_list]
             return packages        
 
 # For new_package_group_fs
@@ -68,16 +68,15 @@ def build_group_form(is_admin=False, with_packages=False):
 fieldsets = {}
 
 def get_group_fieldset(combined=False, is_admin=False):
-    if not 'group_fs' in fieldsets:
-        # group_fs has no packages - first half of the WUI form
-        fieldsets['group_fs'] = build_group_form(is_admin=is_admin).get_fieldset()
-        
-        # group_fs_combined has packages - used for REST interface
-        fieldsets['group_fs_combined'] = build_group_form(is_admin=is_admin, 
-                                                          with_packages=True).get_fieldset()
+    fs_name = 'group_fs'
+    if is_admin:
+        fs_name += '_admin'
     if combined:
-        return fieldsets['group_fs_combined']
-    return fieldsets['group_fs']
+        fs_name += '_combined'
+    if not fs_name in fieldsets:
+        # group_fs has no packages - first half of the WUI form
+        fieldsets[fs_name] = build_group_form(is_admin=is_admin, with_packages=combined).get_fieldset()
+    return fieldsets[fs_name]
 
 def get_package_group_fieldset():
     if not 'new_package_group_fs' in fieldsets:

@@ -17,7 +17,7 @@ class SqlSearchBackend(SearchBackend):
     
     @property
     def connection(self):
-        return meta.Session.connection(model.Package)
+        return meta.Session.connection()
        
     def _setup(self):
         self.register(model.Package, PackageSqlSearchIndex, PackageSqlSearchQuery)
@@ -154,7 +154,7 @@ class PackageSqlSearchQuery(SqlSearchQuery):
             q = q.join('resource_groups_all', 'resources_all', aliased=True)
             q = q.filter(sqlalchemy.and_(
                 model.Resource.state==model.State.ACTIVE,
-                model.Resource.package_id==model.Package.id))
+                model.ResourceGroup.package_id==model.Package.id))
         if self.options.filter_by_openness:
             q = q.filter(model.Package.license_id.in_(self.open_licenses))
         
@@ -248,11 +248,13 @@ class PackageSqlSearchIndex(SqlSearchIndex):
         tx = conn.begin_nested()    
         try:
             res = conn.execute(sql, params)
+            results = res.fetchall() if not res.closed else None
             res.close()
             tx.commit()
         except Exception, e:
             tx.rollback()
             raise
+        return results
 
     def insert_dict(self, pkg_dict):
         if not 'id' in pkg_dict or not 'name' in pkg_dict:
@@ -286,3 +288,9 @@ class PackageSqlSearchIndex(SqlSearchIndex):
         
     def clear(self):
         self._run_sql("DELETE FROM package_search WHERE 1=1", {})
+
+    def get_all_entity_ids(self):
+        sql = 'SELECT package_id FROM package_search'
+        results = self._run_sql(sql, [])
+        return [res[0] for res in results]
+        

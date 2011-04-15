@@ -12,7 +12,7 @@
 <head>
   <title>${page_title()} - ${g.site_title}</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link rel="shortcut icon" href="http://assets.okfn.org/p/ckan/img/ckan.ico" type="image/x-icon" />
+  <link rel="shortcut icon" href="${g.favicon}" type="image/x-icon" />
   <py:choose>
   <py:when test="defined('optional_feed')">
     ${optional_feed()}
@@ -22,6 +22,7 @@
   </py:otherwise>
   </py:choose>
 
+  <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/themes/ui-lightness/jquery-ui.css" type="text/css" media="screen, print" />
   <link rel="stylesheet" href="${g.site_url}/css/style.css" type="text/css" media="screen, print" />
 
   <!--[if IE]>
@@ -29,9 +30,10 @@
   <![endif]-->
   
   <script type="text/javascript" src="${g.site_url}/language.js"></script>
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
-  <script src="http://assets.okfn.org/ext/jquery.cookie/jquery.cookie.min.js"></script>
-  <script src="http://assets.okfn.org/ext/jquery.placeholder/jquery.placeholder.js"></script>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+  <script type="text/javascript" src="http://assets.okfn.org/ext/jquery.cookie/jquery.cookie.min.js"></script>
+  <script type="text/javascript" src="http://assets.okfn.org/ext/jquery.placeholder/jquery.placeholder.js"></script>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js"></script>
   <script type="text/javascript" src="${g.site_url}/scripts/application.js"></script>
   
   <script type="text/javascript">

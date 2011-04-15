@@ -1,14 +1,18 @@
 import inspect
-from time import gmtime, mktime, strftime, time
+from time import gmtime, strftime, time
+from calendar import timegm
 from decorator import decorator
 from paste.deploy.converters import asbool
 from pylons.decorators.cache import beaker_cache, create_cache_key, _make_dict_from_args
 from pylons.decorators.util import get_pylons
+from pylons.controllers.util import etag_cache as pylons_etag_cache
 import pylons.config
 
 __all__ = ["ckan_cache", "get_cache_expires"]
 
-cache_enabled = asbool(pylons.config.get("cache_enabled", "False"))
+cache_enabled = asbool(pylons.config.get('cache_enabled', 'False')) or \
+                asbool(pylons.config.get('ckan.cache_enabled', 'False'))
+cache_validation_enabled = asbool(pylons.config.get('ckan.cache_validation_enabled', 'True'))
 
 def ckan_cache(test=lambda *av, **kw: 0,
           key="cache_default",
@@ -49,8 +53,8 @@ def ckan_cache(test=lambda *av, **kw: 0,
         def controller():
             return "I never expire, last-modified is the epoch"
 
-        from time import mktime, gmtime
-        @cache(test=lambda *av, **kw: mktime(gmtime()))
+        from time import timegm, gmtime
+        @cache(test=lambda *av, **kw: timegm(gmtime()))
         def controller():
             return "I am never cached locally but set cache-control headers"
 
@@ -205,3 +209,6 @@ def get_cache_expires(module_or_func):
     cache_expires = int(pylons.config.get(cfg_expires, default_expires))
     return cache_expires
 
+def etag_cache(page_hash):
+    if cache_validation_enabled:
+        pylons_etag_cache(page_hash)

@@ -1,3 +1,5 @@
+from nose.tools import assert_equal
+
 from ckan.tests.functional.api.base import BaseModelApiTestCase
 from ckan.tests.functional.api.base import Api1TestCase as Version1TestCase 
 from ckan.tests.functional.api.base import Api2TestCase as Version2TestCase 
@@ -61,7 +63,10 @@ class PackagesTestCase(BaseModelApiTestCase):
                          (self.package_fixture_data['name'],
                           package_resource_extras, expected_resource)
                 else:
-                    package_resource_value = getattr(package_resource, key)
+                    package_resource_value = getattr(package_resource, key, None)
+                    if not package_resource_value:
+                        package_resource_value = package_resource.extras[key]
+
                     expected_resource_value = expected_resource[key]
                     self.assert_equal(package_resource_value, expected_resource_value)
 
@@ -109,8 +114,9 @@ class PackagesTestCase(BaseModelApiTestCase):
                 }
         postparams = '%s=1' % self.dumps(data)
         res = self.app.post(offset, params=postparams,
-                            status=self.STATUS_400_BAD_REQUEST,
+                            status=self.STATUS_409_CONFLICT,
                             extra_environ=self.extra_environ)
+        assert_equal(res.body, '{"id": ["The input field id was not expected."]}')
 
     def test_entity_get_ok(self):
         package_refs = [self.anna.name, self.anna.id]
@@ -139,10 +145,14 @@ class PackagesTestCase(BaseModelApiTestCase):
         offset = self.package_offset(self.war.name)
         res = self.app.get(offset, status=self.STATUS_200_OK)
         data = self.loads(res.body)
+
         postparams = '%s=1' % self.dumps(data)
         res = self.app.post(offset, params=postparams,
                             status=self.STATUS_200_OK,
                             extra_environ=self.extra_environ)
+        data_returned = self.loads(res.body)
+        assert_equal(data['name'], data_returned['name'])
+        assert_equal(data['license_id'], data_returned['license_id'])
 
     def test_entity_post_changed_readonly(self):
         # (ticket 662) Edit a readonly field gives error
@@ -152,8 +162,10 @@ class PackagesTestCase(BaseModelApiTestCase):
         data['id'] = 'illegally changed value'
         postparams = '%s=1' % self.dumps(data)
         res = self.app.post(offset, params=postparams,
-                            status=self.STATUS_400_BAD_REQUEST,
+                            status=self.STATUS_409_CONFLICT,
                             extra_environ=self.extra_environ)
+        assert "Cannot change value of key from" in res.body, res.body
+        assert "to illegally changed value. This key is read-only" in res.body, res.body
 
     def test_entity_update_denied(self):
         offset = self.anna_offset()
@@ -194,14 +206,14 @@ class PackagesTestCase(BaseModelApiTestCase):
                 u'description':u'Appendix 1',
                 u'hash':u'def123',
                 u'alt_url':u'alt123',
-                u'extras':{u'size':u'400'},
+                u'size':u'400',
             },{
                 u'url':u'http://blah.com/file3.xml',
                 u'format':u'xml',
                 u'description':u'Appenddic 2',
                 u'hash':u'ghi123',
                 u'alt_url':u'alt123',
-                u'extras':{u'size':u'400'},
+                u'size':u'400',
             }],
             'extras': {
                 u'key3': u'val3', 
@@ -299,6 +311,40 @@ class PackagesTestCase(BaseModelApiTestCase):
         offset = self.offset('/rest/package/%s' % package_name)
         res = self.app.delete(offset, status=self.STATUS_404_NOT_FOUND,
                               extra_environ=self.extra_environ)
+
+    def test_package_revisions(self):
+        # check original revision
+        res = self.app.get(self.offset('/rest/package/%s/revisions' % 'annakarenina'))
+        revisions = res.json
+        assert len(revisions) == 1, len(revisions)
+        expected_keys = set(('id', 'message', 'author', 'timestamp'))
+        keys = set(revisions[0].keys())
+        assert_equal(keys, expected_keys)
+
+        # edit anna
+        pkg = model.Package.by_name('annakarenina')
+        model.repo.new_revision()
+        pkg.title = 'Tolstoy'
+        model.repo.commit_and_remove()
+
+        # check new revision is there
+        res = self.app.get(self.offset('/rest/package/%s/revisions' % 'annakarenina'))
+        revisions = res.json
+        assert len(revisions) == 2, len(revisions)
+
+        # check ordering
+        assert revisions[0]["timestamp"] > revisions[1]["timestamp"]
+
+        # edit related extra
+        pkg = model.Package.by_name('annakarenina')
+        model.repo.new_revision()
+        pkg.extras['genre'] = 'literary'
+        model.repo.commit_and_remove()
+
+        # check new revision is there
+        res = self.app.get(self.offset('/rest/package/%s/revisions' % 'annakarenina'))
+        revisions = res.json
+        assert len(revisions) == 3, len(revisions)
 
 
 class TestPackagesVersion1(Version1TestCase, PackagesTestCase): pass

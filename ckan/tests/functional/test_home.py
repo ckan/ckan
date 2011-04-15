@@ -1,11 +1,17 @@
-from ckan.tests import *
+from pylons import c
+
 from ckan.lib.create_test_data import CreateTestData
+from ckan.controllers.home import HomeController
 import ckan.model as model
+
+from ckan.tests import *
+from ckan.tests.pylons_controller import PylonsTestCase
 from ckan.tests import search_related
 
-class TestHomeController(TestController):
+class TestHomeController(TestController, PylonsTestCase):
     @classmethod
-    def setup_class(self):
+    def setup_class(cls):
+        PylonsTestCase.setup_class()
         model.repo.init_db()
         CreateTestData.create()
         
@@ -18,6 +24,23 @@ class TestHomeController(TestController):
         offset = url_for('home')
         res = self.app.get(offset)
         assert 'Packages' in res
+
+    def test_calculate_etag_hash(self):
+        c.user = 'test user'
+        get_hash = HomeController._home_cache_key
+        hash_1 = get_hash()
+        hash_2 = get_hash()
+        self.assert_equal(hash_1, hash_2)
+
+        c.user = 'another user'
+        hash_3 = get_hash()
+        assert hash_2 != hash_3
+
+        model.repo.new_revision()
+        model.Session.add(model.Package(name=u'test_etag'))
+        model.repo.commit_and_remove()
+        hash_4 = get_hash()
+        assert hash_3 != hash_4
 
     @search_related
     def test_packages_link(self):
@@ -38,7 +61,7 @@ class TestHomeController(TestController):
     def test_license(self):
         offset = url_for('license')
         res = self.app.get(offset)
-        assert 'The CKAN code that runs this site is open-source' in res
+        assert 'License' in res
 
     def test_guide(self):
         url = url_for('guide')
@@ -76,9 +99,11 @@ class TestHomeController(TestController):
         offset = url_for('home')
         res = self.app.get(offset)
         res = res.click('Deutsch')
-        res = res.follow()
-        assert 'Willkommen' in res.body
-        res = res.click('English')
+        try:
+            res = res.follow()
+            assert 'Willkommen' in res.body
+        finally:
+            res = res.click('English')
 
     @search_related
     def test_locale_change_with_false_hash(self):
@@ -95,9 +120,13 @@ class TestHomeController(TestController):
         href = found_attrs['uri']
         assert href
         res = res.goto(href)
-        assert res.status == 302, res.status # redirect
-        
-        href = href.replace('return_to=%2F&', 'return_to=%2Fhackedurl&')
-        res = res.goto(href)
-        assert res.status == 200, res.status # doesn't redirect
-        
+        try:
+            assert res.status == 302, res.status # redirect
+
+            href = href.replace('return_to=%2F&', 'return_to=%2Fhackedurl&')
+            res = res.goto(href)
+            assert res.status == 200, res.status # doesn't redirect
+        finally:
+            offset = url_for('home')
+            res = self.app.get(offset)
+            res = res.click('English')

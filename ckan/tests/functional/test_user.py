@@ -35,7 +35,7 @@ class TestUserController(FunctionalTestCase):
         main_res = self.main_div(res)
         assert 'annafan - User' in res, res
         assert 'Logged in' not in main_res, main_res
-        assert 'About' in main_res, main_res
+        assert 'about' in main_res, main_res
         assert 'I love reading Annakarenina' in res, main_res
         assert 'Edit' not in main_res, main_res
         assert 'Number of edits:</strong> 3' in res, res
@@ -53,20 +53,18 @@ class TestUserController(FunctionalTestCase):
 	#assert 'annafan' in res.header["Set-Cookie"]
         #print res
         #self.check_named_element(res, 'p', 'Logged in as', user.name)
-        assert 'View your API key' in res
         main_res = self.main_div(res)
         assert 'Edit' in main_res, main_res
 
     def test_user_login(self):
-        offset = url_for(controller='user', action='login')
+        offset = url_for(controller='user', action='login', id=None)
         res = self.app.get(offset, status=200)
         assert 'Login' in res, res
         assert 'Please click your account provider' in res, res
         assert 'Don\'t have an OpenID' in res, res
 
     def test_logout(self):
-        offset = url_for(controller='user', action='logout')
-        res = self.app.get(offset)
+        res = self.app.get('/user/logout')
         res2 = res.follow()
         assert 'You have logged out successfully.' in res2, res2
 
@@ -83,7 +81,6 @@ class TestUserController(FunctionalTestCase):
     #    user = model.User.by_name(u'okfntest')
     #    assert user
     #    assert len(user.apikey) == 36
-
 
     def test_apikey(self):
         # not_logged_in
@@ -123,10 +120,11 @@ class TestUserController(FunctionalTestCase):
             model.Session.remove()
 
         # not logged in
-        offset = url_for(controller='user', action='apikey')
+        offset = url_for(controller='user', action='read')
         res = self.app.get(offset, status=[302]) 
 
-        res = self.app.get(offset, extra_environ=dict(REMOTE_USER='okfntest'))
+        offset = url_for(controller='user', action='read', id='okfntest')
+        res = self.app.get(offset, extra_environ={'REMOTE_USER': 'okfntest'})
         assert 'Your API key is: %s' % user.apikey in res, res
 
     def test_user_edit(self):
@@ -135,12 +133,14 @@ class TestUserController(FunctionalTestCase):
         about = u'Test About'
         user = model.User.by_name(unicode(username))
         if not user:
-            model.Session.add(model.User(name=unicode(username), about=about))            
+            model.Session.add(model.User(name=unicode(username), about=about,
+                                         password='letmein'))
             model.repo.commit_and_remove()
             user = model.User.by_name(unicode(username))
 
         # edit
         new_about = u'Changed about'
+        new_password = u'testpass'
         offset = url_for(controller='user', action='edit', id=user.id)
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':username})
         main_res = self.main_div(res)
@@ -148,6 +148,8 @@ class TestUserController(FunctionalTestCase):
         assert about in main_res, main_res
         fv = res.forms['user-edit']
         fv['about'] = new_about
+        fv['password1'] = new_password
+        fv['password2'] = new_password
         res = fv.submit('preview', extra_environ={'REMOTE_USER':username})
         
         # preview
@@ -157,9 +159,10 @@ class TestUserController(FunctionalTestCase):
         assert new_about in before_preview, before_preview
         in_preview = main_res[main_res.find('Preview'):]
         assert new_about in in_preview, in_preview
-        res = fv.submit('save', extra_environ={'REMOTE_USER':username})
 
         # commit
+        res = fv.submit('save', extra_environ={'REMOTE_USER':username})      
+        assert res.status == 302, self.main_div(res).encode('utf8')
         res = res.follow()
         main_res = self.main_div(res)
         assert 'testedit' in main_res, main_res

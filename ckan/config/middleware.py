@@ -72,17 +72,25 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
     # Initialize repoze.who
     who_parser = WhoConfig(global_conf['here'])
     who_parser.parse(open(app_conf['who.config_file']))
+
+    if asbool(config.get('openid_enabled', 'true')):
+        from repoze.who.plugins.openid.identification import OpenIdIdentificationPlugin
+        who_parser.identifiers = [i for i in who_parser.identifiers if \
+                not isinstance(i, OpenIdIdentificationPlugin)]
+        who_parser.challengers = [i for i in who_parser.challengers if \
+                not isinstance(i, OpenIdIdentificationPlugin)]
+    
     app = PluggableAuthenticationMiddleware(app,
-                    who_parser.identifiers,
-                    who_parser.authenticators,
-                    who_parser.challengers,
-                    who_parser.mdproviders,
-                    who_parser.request_classifier,
-                    who_parser.challenge_decider,
-                    logging.getLogger('repoze.who'),
-                    logging.WARN, # ignored
-                    who_parser.remote_user_key,
-               )
+                who_parser.identifiers,
+                who_parser.authenticators,
+                who_parser.challengers,
+                who_parser.mdproviders,
+                who_parser.request_classifier,
+                who_parser.challenge_decider,
+                logging.getLogger('repoze.who'),
+                logging.WARN, # ignored
+                who_parser.remote_user_key,
+           )
     
     # Establish the Registry for this application
     app = RegistryManager(app)
@@ -93,12 +101,12 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
         static_parsers = [static_app, app]
 
         # Configurable extra static file paths
-        extra_public_paths = config.get('extra_public_paths')
-        if extra_public_paths:
-            static_parsers = [StaticURLParser(public_path) \
-                              for public_path in \
-                              extra_public_paths.split(',')] + static_parsers
-            
-        app = Cascade(static_parsers)
+        extra_static_parsers = []
+        for public_path in config.get('extra_public_paths', '').split(','):
+            if public_path.strip():
+                extra_static_parsers.append(
+                    StaticURLParser(public_path.strip())
+                )
+        app = Cascade(extra_static_parsers+static_parsers)
 
     return app

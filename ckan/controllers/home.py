@@ -10,17 +10,36 @@ from ckan.lib.search import query_for, QueryOptions, SearchError
 from ckan.lib.cache import proxy_cache, get_cache_expires
 from ckan.lib.base import *
 import ckan.lib.stats
-import ckan.lib.hash
+from ckan.lib.hash import get_redirect
 
 cache_expires = get_cache_expires(sys.modules[__name__])
 
 class HomeController(BaseController):
-    repo = model.repo   
+    repo = model.repo
 
-    authorizer = Authorizer()
+    def __before__(self, action, **env):
+        BaseController.__before__(self, action, **env)
+        if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
+            abort(401, _('Not authorized to see this page'))
+
+    @staticmethod
+    def _home_cache_key(latest_revision_id=None):
+        '''Calculate the etag cache key for the home page. If you have
+        the latest revision id then supply it as a param.'''
+        if not latest_revision_id:
+            latest_revision_id = model.repo.youngest_revision().id
+        user_name = c.user
+        if latest_revision_id:
+            cache_key = str(hash((latest_revision_id, user_name)))
+        else:
+            cache_key = 'fresh-install'
+        return cache_key
 
     @proxy_cache(expires=cache_expires)
     def index(self):
+        cache_key = self._home_cache_key()
+        etag_cache(cache_key)
+
         query = query_for(model.Package)
         query.run(query='*:*', facet_by=g.facets,
                   limit=0, offset=0, username=c.user)
@@ -30,13 +49,7 @@ class HomeController(BaseController):
         c.latest_packages = self.authorizer.authorized_query(c.user, model.Package)\
             .join('revision').order_by(model.Revision.timestamp.desc())\
             .limit(5).all()
-
-        if len(c.latest_packages):
-            cache_key = str(hash((c.latest_packages[0].id, c.user)))
-        else:
-            cache_key = "fresh-install"
         
-        etag_cache(cache_key)
         return render('home/index.html', cache_key=cache_key,
                 cache_expire=cache_expires)
 
@@ -47,27 +60,28 @@ class HomeController(BaseController):
         return render('home/about.html', cache_expire=cache_expires)
         
     def language(self):
-        response.content_type = 'text/json'
+        response.content_type = 'text/javascript'
         return render('home/language.js', cache_expire=cache_expires,
                       method='text', loader_class=NewTextTemplate)
     
     def locale(self): 
-        return_to = request.params.get('return_to', '/')
-        hash_given = request.params.get('hash', '')
         locale = request.params.get('locale')
         if locale is not None:
+            try:
+                set_session_locale(locale)
+            except ValueError:
+                abort(400, _('Invalid language specified'))
             h.flash_notice(_("Language has been set to: English"))
-            set_session_locale(locale)
         else:
             h.flash_notice(_("No language given!"))
-        hash_expected = ckan.lib.hash.get_message_hash(return_to)
-        if hash_given != hash_expected:
+        return_to = get_redirect()
+        if not return_to:
             # no need for error, just don't redirect
             return 
         return_to += '&' if '?' in return_to else '?'
         # hack to prevent next page being cached
         return_to += '__cache=%s' %  int(random.random()*100000000)
-        redirect_to(return_to.encode('utf-8'))
+        redirect_to(return_to)
 
     def cache(self, id):
         '''Manual way to clear the caches'''

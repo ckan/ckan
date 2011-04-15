@@ -26,7 +26,7 @@ The current version the database is migrated to is also stored in the database. 
 Creating a new migration script
 ===============================
 
-A migration script should be checked into CKAN at the same time as the model changes it is related to. Before pushing the changes, ensure the tests pass when running against the migrated model, which requires the ``--ckan-migrate`` setting - see `<README.html#migrationtesting>`_.
+A migration script should be checked into CKAN at the same time as the model changes it is related to. Before pushing the changes, ensure the tests pass when running against the migrated model, which requires the ``--ckan-migration`` setting - see `<README.html#migrationtesting>`_.
 
 To create a new migration script, create a python file in ckan/migration/versions/ and name it with a prefix numbered one higher than the previous one and some words describing the change.
 
@@ -69,7 +69,7 @@ The following process should be followed when doing a migration.  This process i
 
 6.  Do a dump again, then a diff again to see if the the only thing left are drop index statements.
 
-7.  run nosetests with --ckan-migrate flag.
+7.  run nosetests with --ckan-migration flag.
 
 Its that simple.  Well almost..
 

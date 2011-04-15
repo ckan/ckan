@@ -223,6 +223,36 @@ class Authorizer(object):
         return q
 
     @classmethod
+    def authorized_package_relationships(cls, username,
+                                         package1,
+                                         package2=None,
+                                         relationship_type=None,
+                                         action=model.Action.READ):
+        '''For a given package(s) returns a list of relationships that
+        the specified user is allowed to do the specified action on.'''
+        # Maybe there is an sqlalchemy query to do this all in one, but
+        # it would be rather complex.
+        rels = package1.get_relationships(with_package=package2,
+                                          type=relationship_type)
+        authorized_rels = []
+        for rel in rels:
+            if cls.authorized_package_relationship(
+                username, rel.subject, rel.object, action):
+                authorized_rels.append(rel)
+        return authorized_rels
+
+    @classmethod
+    def authorized_package_relationship(cls, username,
+                                        package1,
+                                        package2,
+                                        action=model.Action.READ):
+        '''Returns a boolean - whether a user is authorized to perform the
+        specified action on a package relationship between the specified
+        packages.'''
+        return cls.is_authorized(username, action, package1) and \
+               cls.is_authorized(username, action, package2)
+
+    @classmethod
     def _get_roles_query(cls, domain_obj):
         q = model.Session.query(model.UserObjectRole)
         q = q.autoflush(False)

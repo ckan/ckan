@@ -28,7 +28,9 @@ from paste.deploy import loadapp
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib import search
 from ckan.lib.helpers import _flash, url_for
+from ckan.lib.helpers import json
 import ckan.model as model
+from ckan import ckan_nose_plugin
 
 __all__ = ['url_for',
            'TestController',
@@ -39,6 +41,7 @@ __all__ = ['url_for',
            'CommonFixtureMethods',
            'TestCase',
            'SkipTest',
+           'CkanServerCase',
         ]
 
 here_dir = os.path.dirname(os.path.abspath(__file__))
@@ -46,6 +49,18 @@ conf_dir = os.path.dirname(os.path.dirname(here_dir))
 
 # Invoke websetup with the current config file
 SetupCommand('setup-app').run([config['__file__']])
+
+# monkey patch paste.fixtures.TestRespose
+# webtest (successor library) already has this
+# http://pythonpaste.org/webtest/#parsing-the-body
+def _getjson(self):
+    return json.loads(self.body)
+paste.fixture.TestResponse.json = property(_getjson)
+
+# Check config is correct for sqlite
+if config['sqlalchemy.url'].startswith('sqlite:'):
+    assert ckan_nose_plugin.CkanNose.settings.is_ckan, \
+           'You forgot the "--ckan" nosetest setting - see README.txt'
 
 class BaseCase(object):
 
@@ -162,6 +177,10 @@ class CommonFixtureMethods(BaseCase):
     def get_user_by_name(name):
         return model.User.by_name(name)
 
+    @staticmethod
+    def get_tag_by_name(name):
+        return model.Tag.by_name(name)
+
     def purge_package_by_name(self, package_name):
         package = self.get_package_by_name(package_name)
         if package:
@@ -197,6 +216,21 @@ class CommonFixtureMethods(BaseCase):
     def anna(self):
         return self.get_package_by_name(u'annakarenina')
 
+    @property
+    def roger(self):
+        return self.get_group_by_name(u'roger')
+
+    @property
+    def david(self):
+        return self.get_group_by_name(u'david')
+
+    @property
+    def russian(self):
+        return self.get_tag_by_name(u'russian')
+
+    @property
+    def tolstoy(self):
+        return self.get_tag_by_name(u'tolstoy')
 
 class CheckMethods(BaseCase):
 
@@ -344,14 +378,14 @@ def search_related(test):
         raise SkipTest("Search not supported")
     if not is_search_supported():
         return make_decorator(test)(skip_test)
-    return make_decorator(test)
-    
+    return test
+
 def regex_related(test):
     def skip_test(*args):
         raise SkipTest("Regex not supported")
     if not is_regex_supported():
         return make_decorator(test)(skip_test)
-    return make_decorator(test)
+    return test
 
 def clear_flash(res=None):
     messages = _flash.pop_messages()

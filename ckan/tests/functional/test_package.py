@@ -256,11 +256,14 @@ class TestPackageForm(TestPackageBase):
                     pkg.purge()
                 model.repo.commit_and_remove()
 
-class TestReadOnly(TestPackageForm, HtmlCheckMethods):
+class TestReadOnly(TestPackageForm, HtmlCheckMethods, TestSearchIndexer, PylonsTestCase):
 
     @classmethod
     def setup_class(cls):
+        PylonsTestCase.setup_class()
+        cls.tsi = TestSearchIndexer()
         CreateTestData.create()
+        cls.tsi.index()
 
     @classmethod
     def teardown_class(cls):
@@ -292,7 +295,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods):
             for pkg_ in (pkg_by_name_main, pkg_by_id_main):
                 pkg_ = pkg_.replace(txt, 'placeholder')
         res_diff = self.diff_html(pkg_by_name_main, pkg_by_id_main)
-        assert not res_diff, res_diff
+        assert not res_diff, res_diff.encode('utf8')
         # not true as language selection link return url differs: 
         #assert len(res_by_id.body) == len(res.body)
 
@@ -340,8 +343,11 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods):
         offset = url_for(controller='package', action='read', id=pkg_name)
         res = self.app.get(offset)
         def check_link(res, controller, id):
-            link = '<a href="/%s/read/%s">%s:%s</a>' % (controller, id, controller, id)
-            assert link in res, self.main_div(res) + link
+            link = '<a href="/%s/%s">%s:%s</a>' % (controller, id, controller, id)
+            if link not in res:
+                print self.main_div(res).encode('utf8')
+                print 'Missing link: %r' % link
+                raise AssertionError
         check_link(res, 'package', 'pkg-1')
         check_link(res, 'tag', 'tag_1')
         check_link(res, 'group', 'test-group-1')
@@ -396,7 +402,10 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods):
         assert 'Search - ' in results_page, results_page
         results_page = self.main_div(results_page)
         for required in requireds:
-            assert required in results_page, "%s : %s" % (results_page, required)
+            if required not in results_page:
+                print results_page
+                print 'Could not find %r' % required
+                raise AssertionError
     
     def test_history(self):
         name = 'annakarenina'
@@ -1129,7 +1138,7 @@ class TestNew(TestPackageForm):
         # (Spammers can cause this)
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
-        assert 'New - Data Packages' in res
+        assert 'New - Data Packages' in res, res
         prefix = 'Package--'
         fv = res.forms['package-edit']
         fv[prefix + 'name'] = 'anything'
@@ -1392,6 +1401,7 @@ alert('Hello world!');
 class TestEtags(PylonsTestCase, TestPackageBase):
     @classmethod
     def setup_class(cls):
+        PylonsTestCase.setup_class()
         CreateTestData.create()
 
     @classmethod

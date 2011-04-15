@@ -18,7 +18,8 @@ def get_default_locale():
             Locale.parse('en')
 
 def set_session_locale(locale):
-    assert locale in _KNOWN_LOCALES
+    if locale not in _KNOWN_LOCALES:
+        raise ValueError
     from pylons import session
     session['locale'] = locale
     session.save()

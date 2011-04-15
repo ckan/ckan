@@ -45,16 +45,24 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         self.name = name
         self.title = title
         self.description = description
-    
-    @property
-    def display_name(self): 
-        if self.title is not None and len(self.title): 
-            return "%s (%s)" % (self.title, self.name)
-        return self.name
 
-    # not versioned
-    def delete(self):
-        self.purge()
+    @property
+    def display_name(self):
+        if self.title is not None and len(self.title):
+            return self.title
+        else:
+            return self.name
+
+    @classmethod
+    def get(cls, reference):
+        '''Returns a group object referenced by its id or name.'''
+        query = Session.query(cls).filter(cls.id==reference)
+        query = query.options(eagerload_all('packages'))
+        group = query.first()
+        if group == None:
+            group = cls.by_name(reference)
+        return group
+    # Todo: Make sure group names can't be changed to look like group IDs?
 
     def active_packages(self, load_eager=True):
         query = Session.query(Package).\
@@ -70,10 +78,10 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         text_query = text_query.strip().lower()
         return Session.query(cls).filter(cls.name.contains(text_query))
 
-    def as_dict(cls, ref_package_by='name'):
-        _dict = DomainObject.as_dict(cls)
-        _dict['packages'] = [getattr(package, ref_package_by) for package in cls.packages]
-        _dict['extras'] = dict([(key, value) for key, value in cls.extras.items()])
+    def as_dict(self, ref_package_by='name'):
+        _dict = DomainObject.as_dict(self)
+        _dict['packages'] = [getattr(package, ref_package_by) for package in self.packages]
+        _dict['extras'] = dict([(key, value) for key, value in self.extras.items()])
         return _dict
 
     def add_package_by_name(self, package_name):

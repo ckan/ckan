@@ -29,7 +29,7 @@ class MarkdownFormat(TextFormat):
             text = self.whitelist_elem.sub(r'\\\\xfc\\\\xfd\1\\\\xfd\\\\xfc', text)
 
             # Convert internal links.
-            text = self.internal_link.sub(r'[\1:\2] (/\1/read/\2)', text)
+            text = self.internal_link.sub(r'[\1:\2] (/\1/\2)', text)
 
             # Convert <link> to markdown format.
             text = self.normal_link.sub(r'[\1] (\1)', text)
@@ -44,7 +44,6 @@ class MarkdownFormat(TextFormat):
             text = self.whitelist_escp.sub(r'<\1>', text)
         except Exception, e: 
             log.exception(e)
-            text = _("<strong>Warning:</string>: Text could not be rendered.")
+            text = '<p>%s</p>' % _('<strong>Warning:</strong>: Text could not be rendered.')
 
         return text
-

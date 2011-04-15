@@ -282,13 +282,9 @@ class PackagesXlWriter:
         dict_ = pkg.as_dict()
 
         for key, value in dict_.items():
-            if (
-                key.endswith('_id')
-                or
-                key.startswith('rating') or key == 'id'
-                or
-                key in ['metadata_modified', 'metadata_created']
-                ):
+            # Not interested in dumping IDs - for internal use only really
+            if (key.endswith('_id') or key == 'id'
+                or key.startswith('rating')):
                 del dict_[key]
             if key=='resources':
                 for i, res in enumerate(value):

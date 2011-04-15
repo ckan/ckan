@@ -8,7 +8,6 @@ from meta import *
 from types import make_uuid, JsonDictType
 from core import *
 from package import *
-from ckan.lib.helpers import json
 from ckan.model import extension
 
 __all__ = ['Resource', 'resource_table', 
@@ -53,6 +52,7 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
                  format=u'', description=u'', hash=u'',
                  extras=None,
                  **kwargs):
+        self.id = make_uuid()
         if resource_group_id:
             self.resource_group_id = resource_group_id
         self.url = url
@@ -97,6 +97,9 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
             for field in cls.extra_columns:
                 setattr(cls, field, DictProxy(field, 'extras'))
         return cls.extra_columns
+
+    def related_packages(self):
+        return [self.resource_group.package]
 
 
 class ResourceGroup(vdm.sqlalchemy.RevisionedObjectMixin,
@@ -154,7 +157,7 @@ mapper(Resource, resource_table, properties={
         # formally package_resources_all
         backref=orm.backref('resources_all',
                             collection_class=ordering_list('position'),
-                            cascade='all, delete, delete-orphan',
+                            cascade='all, delete',
                             order_by=resource_table.c.position,
                             ),
                        )
@@ -213,7 +216,7 @@ def add_stateful_m21(object_to_alter, m21_property_name,
     setattr(object_to_alter, m21_property_name, active_list)
 
 def resource_identifier(obj):
-    return json.dumps(obj.as_dict(core_columns_only=True))
+    return obj.id
 
 
 add_stateful_m21(Package, 'resource_groups', 'resource_groups_all',

@@ -62,7 +62,7 @@ class ModelApiTestCase(BaseModelApiTestCase):
     def test_06_create_group_entity_ok(self):
         offset = self.offset('/rest/group')
         postparams = '%s=1' % self.dumps(self.testgroupvalues)
-        res = self.app.post(offset, params=postparams, status=200,
+        res = self.app.post(offset, params=postparams, status=201,
                 extra_environ=self.extra_environ)
         model.Session.remove()
         rev = model.repo.new_revision()
@@ -105,7 +105,7 @@ class ModelApiTestCase(BaseModelApiTestCase):
         rating_opts = {'package':u'warandpeace',
                        'rating':5}
         postparams = '%s=1' % self.dumps(rating_opts)
-        res = self.app.post(offset, params=postparams, status=[200],
+        res = self.app.post(offset, params=postparams, status=[201],
                 extra_environ=self.extra_environ)
         model.Session.remove()
         pkg = self.get_package_by_name(rating_opts['package'])
@@ -125,7 +125,7 @@ class ModelApiTestCase(BaseModelApiTestCase):
         # Rerate package
         offset = self.offset('/rest/rating')
         postparams = '%s=1' % self.dumps(rating_opts)
-        res = self.app.post(offset, params=postparams, status=[200],
+        res = self.app.post(offset, params=postparams, status=[201],
                 extra_environ=self.extra_environ)
         model.Session.remove()
         pkg = self.get_package_by_name(rating_opts['package'])
@@ -139,7 +139,7 @@ class ModelApiTestCase(BaseModelApiTestCase):
         rating_opts = {'package':u'warandpeace',
                        'rating':0}
         postparams = '%s=1' % self.dumps(rating_opts)
-        res = self.app.post(offset, params=postparams, status=[400],
+        res = self.app.post(offset, params=postparams, status=[409],
                 extra_environ=self.extra_environ)
         model.Session.remove()
         pkg = self.get_package_by_name(rating_opts['package'])
@@ -152,7 +152,7 @@ class ModelApiTestCase(BaseModelApiTestCase):
         if not group:
             offset = self.offset('/rest/group')
             postparams = '%s=1' % self.dumps(self.testgroupvalues)
-            res = self.app.post(offset, params=postparams, status=[200],
+            res = self.app.post(offset, params=postparams, status=[201],
                     extra_environ=self.extra_environ)
             model.Session.remove()
             group = model.Group.by_name(self.testgroupvalues['name'])
@@ -232,7 +232,15 @@ class ModelApiTestCase(BaseModelApiTestCase):
         offset = self.offset('/rest/group/%s' % self.testgroupvalues['name'])
         res = self.app.delete(offset, status=[200],
                 extra_environ=self.extra_environ)
-        assert not model.Group.by_name(self.testgroupvalues['name'])
+
+        group = model.Group.by_name(self.testgroupvalues['name'])
+        assert group
+        assert group.state == 'deleted', group.state
+
+        res = self.app.get(offset, status=[403])
+        res = self.app.get(offset, status=[200],
+                           extra_environ=self.extra_environ)
+
         model.Session.remove()
 
     def test_12_get_group_404(self):
@@ -281,33 +289,6 @@ class ModelApiTestCase(BaseModelApiTestCase):
         res = self.app.get(offset, status=404)
         model.Session.remove()
 
-    def test_15_list_changesets(self):
-        offset = self.offset('/rest/changeset')
-        res = self.app.get(offset, status=[200])
-        from ckan.model.changeset import ChangesetRegister
-        changesets = ChangesetRegister()
-        assert len(changesets), "No changesets found in model."
-        for id in changesets:
-            assert id in res, "Didn't find changeset id '%s' in: %s" % (id, res)
-
-    def test_15_get_changeset(self):
-        from ckan.model.changeset import ChangesetRegister
-        changesets = ChangesetRegister()
-        assert len(changesets), "No changesets found in model."
-        for id in changesets:
-            offset = self.offset('/rest/changeset/%s' % id)
-            res = self.app.get(offset, status=[200])
-            changeset_data = self.data_from_res(res)
-            assert 'id' in changeset_data, "No 'id' in changeset data: %s" % changeset_data
-            assert 'meta' in changeset_data, "No 'meta' in changeset data: %s" % changeset_data
-            assert 'changes' in changeset_data, "No 'changes' in changeset data: %s" % changeset_data
-
-    def test_15_get_changeset_404(self):
-        changeset_id = "xxxxxxxxxxxxxxxxxxxxxxxxxx"
-        offset = self.offset('/rest/changeset/%s' % changeset_id)
-        res = self.app.get(offset, status=404)
-        model.Session.remove()
-
     def test_16_list_licenses(self):
         from ckan.model.license import LicenseRegister
         register = LicenseRegister()
@@ -329,6 +310,7 @@ class RelationshipsApiTestCase(ApiTestCase, ControllerTestCase):
     def setup_class(self):
         CreateTestData.create()
         self.user = self.create_user(name=u'barry')
+        self.testsysadmin = model.User.by_name(u'testsysadmin')
         self.extra_environ={ 'Authorization' : str(self.user.apikey) }
         self.comment = u'Comment umlaut: \xfc.'
 
@@ -348,7 +330,7 @@ class RelationshipsApiTestCase(ApiTestCase, ControllerTestCase):
     def test_01_create_and_read_relationship(self):
         # check anna has no existing relationships
         assert not self.anna.get_relationships()
-        assert self.get_relationships(package1_name='annakarenina') == []
+        assert self.get_relationships(package1_name='annakarenina') == [], self.get_relationships(package1_name='annakarenina')
         assert self.get_relationships(package1_name='annakarenina',
                                        package2_name='warandpeace') == []
         assert self.get_relationships(package1_name='annakarenina',
@@ -449,7 +431,7 @@ class RelationshipsApiTestCase(ApiTestCase, ControllerTestCase):
         # created by posting a relationship to a relationship **register**.
         offset = self.offset('/rest/package/annakarenina/parent_of/warandpeace')
         postparams = '%s=1' % self.dumps({'comment':self.comment})
-        res = self.app.post(offset, params=postparams, status=[200],
+        res = self.app.post(offset, params=postparams, status=[201],
                             extra_environ=self.extra_environ)
         # Check the model, directly.
         rels = self.anna.get_relationships()
@@ -461,7 +443,7 @@ class RelationshipsApiTestCase(ApiTestCase, ControllerTestCase):
     def update_annakarenina_parent_of_war_and_peace(self, comment=u'New comment.'):
         offset = self.offset('/rest/package/annakarenina/parent_of/warandpeace')
         postparams = '%s=1' % self.dumps({'comment':comment})
-        res = self.app.post(offset, params=postparams, status=[200], extra_environ=self.extra_environ)
+        res = self.app.post(offset, params=postparams, status=[201], extra_environ=self.extra_environ)
         return res
 
     def delete_annakarenina_parent_of_war_and_peace(self):
@@ -502,7 +484,7 @@ class RelationshipsApiTestCase(ApiTestCase, ControllerTestCase):
             if len_relationships:
                 msg += ' Found: '
                 for r in relationships:
-                    msg += '%s %s %s; ' % r['subject'], r['type'], r['object']
+                    msg += '%s %s %s; ' % (r['subject'], r['type'], r['object'])
                 msg += '.'
             raise Exception, msg
 
@@ -930,7 +912,7 @@ class TestModelApi1(Api1TestCase, ModelApiTestCase):
     def test_06_create_pkg_using_download_url(self):
         test_params = {
             'name':u'testpkg06',
-            'download_url':u'testurl',
+            'download_url':u'ftp://ftp.monash.edu.au/pub/nihongo/JMdict.gz',
             }
         offset = self.package_offset()
         postparams = '%s=1' % self.dumps(test_params)
