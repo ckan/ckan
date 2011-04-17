@@ -1,6 +1,7 @@
 # These are packages that we rely on that aren't present in Lucid. We package
 # them and put them in our own CKAN repository
 
+autoneg>=0.5
 # pyutilib.component.core>=4.1,<4.1.99
 -e svn+https://software.sandia.gov/svn/public/pyutilib/pyutilib.component.core/trunk@1972#egg=pyutilib.component.core
 # licenses==0.4,<0.6.99

@@ -98,7 +98,8 @@
 
   <py:if test="config.get('rdf_packages')">
     <py:def function="optional_head">
-      <link rel="alternate" type="application/rdf+xml" title="RDF Version" href="${config['rdf_packages'] + c.pkg.name[0] + '/' + c.pkg.name[1] + '/' + c.pkg.name}" />
+      <link rel="alternate" type="application/rdf+xml" title="RDF/XML" href="${config['rdf_packages'] + '/' + c.pkg.id + '.rdf' }" />
+      <link rel="alternate" type="application/turtle" title="RDF/Turtle" href="${config['rdf_packages'] + '/' + c.pkg.id + '.ttl' }" />
     </py:def>
   </py:if>
 
