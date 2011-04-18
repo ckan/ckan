@@ -1,15 +1,52 @@
 import logging
 
 import ckan.authz
-from ckan.plugins import PluginImplementations, IGroupController
+from ckan.plugins import PluginImplementations, IGroupController, IPackageController
 from ckan.logic import NotFound, check_access, NotAuthorized, ValidationError
 from ckan.lib.base import _
-from ckan.lib.dictization.model_dictize import group_dictize
+from ckan.lib.dictization.model_dictize import group_dictize, package_dictize
 from ckan.lib.dictization.model_save import (group_api_to_dict,
-                                             group_dict_save)
-from ckan.logic.schema import default_update_group_schema
+                                             package_api_to_dict,
+                                             group_dict_save,
+                                             package_dict_save)
+from ckan.logic.schema import (default_update_group_schema,
+                               default_update_package_schema)
 from ckan.lib.navl.dictization_functions import validate
 log = logging.getLogger(__name__)
+
+
+def package_update(data_dict, context):
+
+    model = context['model']
+    user = context['user']
+    id = context["id"]
+    pkg = model.Package.get(id)
+    context["package"] = pkg
+
+    if pkg is None:
+        raise NotFound(_('Package was not found.'))
+
+    check_access(pkg, model.Action.EDIT, context)
+
+    dictized_package = package_api_to_dict(data_dict, context)
+
+    data, errors = validate(dictized_package,
+                            default_update_package_schema(),
+                            context)
+    if errors:
+        raise ValidationError(errors)
+
+    rev = model.repo.new_revision()
+    rev.author = user
+    rev.message = _(u'REST API: Update object %s') % pkg.name
+
+    pkg = package_dict_save(data, context)
+    for item in PluginImplementations(IPackageController):
+        item.edit(pkg)
+
+    model.repo.commit()        
+    return package_dictize(pkg, context)
+
 
 def _update_package_relationship(relationship, comment, context):
     model = context['model']

@@ -3,11 +3,38 @@
   py:strip="">
   
   <py:def function="page_title">Revision ${c.revision.id}</py:def>
+  <py:def function="body_class">revision</py:def>
 
-  <div py:match="content">
+  <py:match path="primarysidebar">
+    <li class="widget-container widget_text">
+      <h2>Revision Actions</h2>
+      <py:if test="c.revision_change_state_allowed">
+      <div class="actions">
+        <form
+          method="POST"
+          action="${h.url_for(controller='revision',
+              action='edit',
+              id=c.revision.id)}"
+          >
+          <py:if test="c.revision.state!='deleted'">
+          <button type="submit" name="action" value="delete">Delete</button>
+          </py:if>
+          <py:if test="c.revision.state=='deleted'">
+          <button type="submit" name="action" value="undelete">Undelete</button>
+          </py:if>
+        </form>
+      </div>
+      </py:if>
+    </li>
+  </py:match>
+
+  <div py:match="content" class="revision state-${c.revision.state}">
     <h2>
       Revision: ${c.revision.id}
     </h2>
+    <p py:if="c.revision.state != 'active'" class="state-notice">
+      ${c.revision.state} 
+    </p>
     <p>
       <strong>Author:</strong> ${c.revision.author}
     </p>
@@ -45,7 +72,6 @@
       </li>
       </py:for>
     </ul>
-    
   </div>
 
   <xi:include href="layout.html" />

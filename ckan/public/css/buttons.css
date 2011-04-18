@@ -21,7 +21,6 @@
 
 .buttons a, button {
 	display: block;
-	float: left;
 	margin: 0 7px 0 0;
 	background-color: #f0f0f0;
 	border: 1px solid #dedede;

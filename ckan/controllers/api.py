@@ -7,12 +7,15 @@ import ckan.model as model
 import ckan.rating
 from ckan.lib.search import query_for, QueryOptions, SearchError, DEFAULT_OPTIONS
 from ckan.plugins import PluginImplementations, IGroupController
+from ckan.lib.munge import munge_title_to_name
 from ckan.lib.navl.dictization_functions import DataError
 import ckan.logic.action.get as get 
 import ckan.logic.action.create as create
 import ckan.logic.action.update as update
 import ckan.logic.action.delete as delete
 from ckan.logic import NotFound, NotAuthorized, ValidationError
+from ckan.lib.jsonp import jsonpify
+from ckan.forms.common import package_exists
 
 
 log = logging.getLogger(__name__)
@@ -23,11 +26,8 @@ CONTENT_TYPES = {
     'html': 'text/html;charset=utf-8',
     'json': 'application/json;charset=utf-8',
     }
-class BaseApiController(BaseController):
+class ApiController(BaseController):
 
-    api_version = ''
-    ref_package_by = ''
-    ref_group_by = ''
     content_type_text = 'text/;charset=utf-8'
     content_type_html = 'text/html;charset=utf-8'
     content_type_json = 'application/json;charset=utf-8'
@@ -44,24 +44,6 @@ class BaseApiController(BaseController):
             return [response_msg]
         else:
             return BaseController.__call__(self, environ, start_response)
-
-    @classmethod
-    def _ref_package(cls, package):
-        assert cls.ref_package_by in ['id', 'name']
-        return getattr(package, cls.ref_package_by)
-
-    @classmethod
-    def _ref_group(cls, group):
-        assert cls.ref_group_by in ['id', 'name']
-        return getattr(group, cls.ref_group_by)
-
-    @classmethod
-    def _list_package_refs(cls, packages):
-        return [getattr(p, cls.ref_package_by) for p in packages]
-
-    @classmethod
-    def _list_group_refs(cls, groups):
-        return [getattr(p, cls.ref_group_by) for p in groups]
 
     def _finish(self, status_int, response_data=None,
                 content_type='text'):
@@ -89,19 +71,19 @@ class BaseApiController(BaseController):
 
     def _finish_ok(self, response_data=None,
                    content_type='json',
-                   newly_created_resource_location=None):
+                   resource_location=None):
         '''If a controller method has completed successfully then
         calling this method will prepare the response.
-        @param newly_created_resource_location - specify this if a new
+        @param resource_location - specify this if a new
            resource has just been created.
         @return response message - return this value from the controller
                                    method
                                    e.g. return self._finish_ok(pkg_dict)
         '''
-        if newly_created_resource_location:
+        if resource_location:
             status_int = 201
             self._set_response_header('Location',
-                                      newly_created_resource_location)
+                                      resource_location)
         else:
             status_int = 200
 
@@ -133,34 +115,19 @@ class BaseApiController(BaseController):
             raise Exception, msg
         response.headers[name] = value
 
-class ApiVersion1(BaseApiController):
-
-    api_version = '1'
-    ref_package_by = 'name'
-    ref_group_by = 'name'
-
-
-class ApiVersion2(BaseApiController):
-
-    api_version = '2'
-    ref_package_by = 'id'
-    ref_group_by = 'id'
-
-
-class BaseRestController(BaseApiController):
-
-    def get_api(self):
+    def get_api(self, ver=None):
         response_data = {}
-        response_data['version'] = self.api_version
+        response_data['version'] = ver or '1'
         return self._finish_ok(response_data) 
 
-    def list(self, register, subregister=None, id=None):
+    def list(self, ver=None, register=None, subregister=None, id=None):
         context = {'model': model, 'session': model.Session,
-                   'user': c.user, 'id': id, 'api_version': self.api_version}
+                   'user': c.user, 'id': id, 'api_version': ver}
         log.debug('listing: %s' % context)
         action_map = {
             'revision': get.revision_list,
             'group': get.group_list,
+            'package': get.package_list,
             'tag': get.tag_list,
             'licenses': get.licence_list,
             ('package', 'relationships'): get.package_relationships_list,
@@ -181,18 +148,19 @@ class BaseRestController(BaseApiController):
         except NotAuthorized:
             return self._finish_not_authz()
 
-    def show(self, register, id, subregister=None, id2=None):
+    def show(self, ver=None, register=None, subregister=None, id=None, id2=None):
 
         action_map = {
             'revision': get.revision_show,
             'group': get.group_show,
             'tag': get.tag_show,
+            'package': get.package_show,
             ('package', 'relationships'): get.package_relationships_list,
         }
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
                    'id': id, 'id2': id2, 'rel': subregister,
-                   'api_version': self.api_version}
+                   'api_version': ver}
         for type in model.PackageRelationship.get_all_types():
             action_map[('package', type)] = get.package_relationships_list
         log.debug('show: %s' % context)
@@ -214,11 +182,12 @@ class BaseRestController(BaseApiController):
     def _represent_package(self, package):
         return package.as_dict(ref_package_by=self.ref_package_by, ref_group_by=self.ref_group_by)
 
-    def create(self, register, id=None, subregister=None, id2=None):
+    def create(self, ver=None, register=None, subregister=None, id=None, id2=None):
 
         action_map = {
             ('package', 'relationships'): create.package_relationship_create,
              'group': create.group_create,
+             'package': create.package_create,
              'rating': create.rating_create,
         }
         for type in model.PackageRelationship.get_all_types():
@@ -226,7 +195,7 @@ class BaseRestController(BaseApiController):
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
                    'id': id, 'id2': id2, 'rel': subregister,
-                   'api_version': self.api_version}
+                   'api_version': ver}
         log.debug('create: %s' % (context))
         try:
             request_data = self._get_request_data()
@@ -242,11 +211,11 @@ class BaseRestController(BaseApiController):
             return gettext('Cannot create new entity of this type: %s %s') % (register, subregister)
         try:
             response_data = action(request_data, context)
+            location = None
             if "id" in context:
                 location = str('%s/%s' % (request.path, context.get("id")))
-                response.headers['Location'] = location
-                log.debug('Response headers: %r' % (response.headers))
-            return self._finish_ok(response_data)
+            return self._finish_ok(response_data,
+                                   resource_location=location)
         except NotAuthorized:
             return self._finish_not_authz()
         except ValidationError, e:
@@ -255,15 +224,16 @@ class BaseRestController(BaseApiController):
         except DataError:
             log.error('Format incorrect: %s' % request_data)
             #TODO make better error message
-            return self._finish(409, _(u'Integrity Error') % request_data)
+            return self._finish(400, _(u'Integrity Error') % request_data)
         except:
             model.Session.rollback()
             raise
             
-    def update(self, register, id, subregister=None, id2=None):
+    def update(self, ver=None, register=None, subregister=None, id=None, id2=None):
 
         action_map = {
             ('package', 'relationships'): update.package_relationship_update,
+             'package': update.package_update,
              'group': update.group_update,
         }
         for type in model.PackageRelationship.get_all_types():
@@ -271,7 +241,7 @@ class BaseRestController(BaseApiController):
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
                    'id': id, 'id2': id2, 'rel': subregister,
-                   'api_version': self.api_version}
+                   'api_version': ver}
         log.debug('update: %s' % (context))
         try:
             request_data = self._get_request_data()
@@ -298,19 +268,20 @@ class BaseRestController(BaseApiController):
         except DataError:
             log.error('Format incorrect: %s' % request_data)
             #TODO make better error message
-            return self._finish(409, _(u'Integrity Error') % request_data)
+            return self._finish(400, _(u'Integrity Error') % request_data)
 
-    def delete(self, register, id, subregister=None, id2=None):
+    def delete(self, ver=None, register=None, subregister=None, id=None, id2=None):
         action_map = {
             ('package', 'relationships'): delete.package_relationship_delete,
              'group': delete.group_delete,
+             'package': delete.package_delete,
         }
         for type in model.PackageRelationship.get_all_types():
             action_map[('package', type)] = delete.package_relationship_delete
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
                    'id': id, 'id2': id2, 'rel': subregister,
-                   'api_version': self.api_version}
+                   'api_version': ver}
         log.debug('delete %s/%s/%s/%s' % (register, id, subregister, id2))
 
         action = action_map.get((register, subregister)) 
@@ -331,7 +302,7 @@ class BaseRestController(BaseApiController):
             log.error('Validation error: %r' % str(e.error_dict))
             return self._finish(409, e.error_dict, content_type='json')
 
-    def search(self, register=None):
+    def search(self, ver=None, register=None):
         log.debug('search %s params: %r' % (register, request.params))
         if register == 'revision':
             since_time = None
@@ -391,7 +362,7 @@ class BaseRestController(BaseApiController):
                     query_fields.add(field, v)
             
             if register == 'package':
-                options.ref_entity_with_attr = self.ref_package_by
+                options.ref_entity_with_attr = 'id' if ver == '2' else 'name'
             try:
                 backend = None
                 if register == 'resource': 
@@ -410,7 +381,7 @@ class BaseRestController(BaseApiController):
             response.status_int = 404
             return gettext('Unknown register: %s') % register
 
-    def tag_counts(self):
+    def tag_counts(self, ver=None):
         log.debug('tag counts')
         tags = model.Session.query(model.Tag).all()
         results = []
@@ -419,12 +390,12 @@ class BaseRestController(BaseApiController):
             results.append((tag.name, tag_count))
         return self._finish_ok(results)
 
-    def throughput(self):
+    def throughput(self, ver=None):
         qos = self._calc_throughput()
         qos = str(qos)
         return self._finish_ok(qos)
 
-    def _calc_throughput(self):
+    def _calc_throughput(self, ver=None):
         period = 10  # Seconds.
         timing_cache_path = self._get_timing_cache_path()
         call_count = 0
@@ -438,48 +409,58 @@ class BaseRestController(BaseApiController):
         # Todo: Clear old records.
         return float(call_count) / period
 
+    @jsonpify
+    def user_autocomplete(self):
+        q = request.params.get('q', '')
+        limit = request.params.get('limit', 20)
+        try:
+            limit = int(limit)
+        except:
+            limit = 20
+        limit = min(50, limit)
+    
+        query = model.User.search(q)
+        def convert_to_dict(user):
+            out = {}
+            for k in ['id', 'name', 'fullname']:
+                out[k] = getattr(user, k)
+            return out
+        query = query.limit(limit)
+        out = map(convert_to_dict, query.all())
+        return out
 
+    def create_slug(self):
 
-    def _check_access(self, entity, action):
-        # Checks apikey is okay and user is authorized to do the specified
-        # action on the specified package (or other entity).
-        # If both args are None then just check the apikey corresponds
-        # to a user.
-        api_key = None
-        # Todo: Remove unused 'isOk' variable.
-        isOk = False
+        title = request.params.get('title') or ''
+        name = munge_title_to_name(title)
+        if package_exists(name):
+            valid = False
+        else:
+            valid = True
+        #response.content_type = 'application/javascript'
+        response_data = dict(name=name.replace('_', '-'), valid=valid)
+        return self._finish_ok(response_data)
 
-        self.rest_api_user = c.user
-        log.debug('check access - user %r' % self.rest_api_user)
-        
-        if action and entity and not isinstance(entity, model.PackageRelationship):
-            if action != model.Action.READ and self.rest_api_user in (model.PSEUDO_USER__VISITOR, ''):
-                self.log.debug("Valid API key needed to make changes")
-                response.status_int = 403
-                response.headers['Content-Type'] = self.content_type_json
-                return False                
-            
-            am_authz = ckan.authz.Authorizer().is_authorized(self.rest_api_user, action, entity)
-            if not am_authz:
-                self.log.debug("User is not authorized to %s %s" % (action, entity))
-                response.status_int = 403
-                response.headers['Content-Type'] = self.content_type_json
-                return False
-        elif not self.rest_api_user:
-            self.log.debug("No valid API key provided.")
-            response.status_int = 403
-            response.headers['Content-Type'] = self.content_type_json
-            return False
-        self.log.debug("Access OK.")
-        response.status_int = 200
-        return True                
-
-
-class RestController(ApiVersion1, BaseRestController):
-    # Implements CKAN API Version 1.
-
-    def _represent_package(self, package):
-        msg_data = super(RestController, self)._represent_package(package)
-        msg_data['download_url'] = package.resources[0].url if package.resources else ''
-        return msg_data
+    def tag_autocomplete(self):
+        incomplete = request.params.get('incomplete', '')
+        if incomplete:
+            query = query_for('tag', backend='sql')
+            query.run(query=incomplete,
+                      return_objects=True,
+                      limit=10,
+                      username=c.user)
+            tagNames = [t.name for t in query.results]
+        else:
+            tagNames = []
+        resultSet = {
+            "ResultSet": {
+                "Result": []
+            }
+        }
+        for tagName in tagNames[:10]:
+            result = {
+                "Name": tagName
+            }
+            resultSet["ResultSet"]["Result"].append(result)
+        return self._finish_ok(resultSet)
 

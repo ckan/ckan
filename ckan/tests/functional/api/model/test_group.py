@@ -24,7 +24,7 @@ class GroupsTestCase(BaseModelApiTestCase):
         postparams = '%s=1' % self.dumps(data)
         offset = self.group_offset()
         res = self.app.post(offset, params=postparams,
-                            status=self.STATUS_200_OK,
+                            status=self.STATUS_201_CREATED,
                             extra_environ=self.extra_environ)
         # check group object
         group = self.get_group_by_name(self.testgroupvalues['name'])

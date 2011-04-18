@@ -91,7 +91,7 @@ def default_update_package_schema():
 
     schema = default_package_schema()
     schema["id"] = [ignore_missing, package_id_not_changed]
-    schema["name"] = [ignore_missing, unicode]
+    schema["name"] = [ignore_missing, name_validator, package_name_validator, unicode]
     schema["title"] = [ignore_missing, unicode]
 
     return schema
