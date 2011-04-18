@@ -187,7 +187,7 @@ class ApiController(BaseController):
         action_map = {
             ('package', 'relationships'): create.package_relationship_create,
              'group': create.group_create,
-             'package': create.package_create,
+             'package': create.package_create_rest,
              'rating': create.rating_create,
         }
         for type in model.PackageRelationship.get_all_types():
@@ -233,8 +233,8 @@ class ApiController(BaseController):
 
         action_map = {
             ('package', 'relationships'): update.package_relationship_update,
-             'package': update.package_update,
-             'group': update.group_update,
+             'package': update.package_update_rest,
+             'group': update.group_update_rest,
         }
         for type in model.PackageRelationship.get_all_types():
             action_map[('package', type)] = update.package_relationship_update

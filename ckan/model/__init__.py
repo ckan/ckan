@@ -73,6 +73,7 @@ class Repository(vdm.sqlalchemy.Repository):
     def clean_db(self):
         metadata = MetaData(self.metadata.bind)
         metadata.reflect()
+        
         metadata.drop_all()
         self.tables_created = False
 
@@ -128,10 +129,12 @@ class Repository(vdm.sqlalchemy.Repository):
     def delete_all(self):
         '''Delete all data from all tables.'''
         self.session.remove()
+        metadata = MetaData(self.metadata.bind)
+        metadata.reflect()
         ## use raw connection for performance
         connection = self.session.connection()
         if sqav.startswith("0.4"):
-            tables = self.metadata.table_iterator()
+            tables = metadata.table_iterator()
         else:
             tables = reversed(metadata.sorted_tables)
         for table in tables:
