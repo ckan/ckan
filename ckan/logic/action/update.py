@@ -15,15 +15,6 @@ from ckan.lib.navl.dictization_functions import validate
 log = logging.getLogger(__name__)
 
 
-def package_update_rest(data_dict, context):
-
-    model = context['model']
-    id = context["id"]
-    pkg = model.Package.get(id)
-    context["package"] = pkg
-    dictized_package = package_api_to_dict(data_dict, context)
-    return package_update(dictized_package, context)
-
 
 def package_update(data_dict, context):
 
@@ -143,4 +134,14 @@ def group_update(data_dict, context):
 
     return group_dictize(group, context)
 
+## Modifications for rest api
+
+def package_update_rest(data_dict, context):
+
+    model = context['model']
+    id = context["id"]
+    pkg = model.Package.get(id)
+    context["package"] = pkg
+    dictized_package = package_api_to_dict(data_dict, context)
+    return package_update(dictized_package, context)
 

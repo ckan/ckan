@@ -24,22 +24,6 @@ from ckan.logic.action.update import _update_package_relationship
 log = logging.getLogger(__name__)
 
 
-def package_create_rest(data_dict, context):
-
-    api = context.get('api_version') or '1'
-
-    dictized_package = package_api_to_dict(data_dict, context)
-    dictized_after = package_create(dictized_package, context) 
-
-    pkg = context["package"]
-
-    if api == '1':
-        package_dict = package_to_api1(pkg, context)
-    else:
-        package_dict = package_to_api2(pkg, context)
-
-    return package_dict
-
 def package_create(data_dict, context):
     model = context['model']
     user = context['user']
@@ -189,3 +173,23 @@ def rating_create(data_dict, context):
     ret_dict = {'rating average':package.get_average_rating(),
                 'rating count': len(package.ratings)}
     return ret_dict
+
+
+## Modifications for rest api
+
+def package_create_rest(data_dict, context):
+
+    api = context.get('api_version') or '1'
+
+    dictized_package = package_api_to_dict(data_dict, context)
+    dictized_after = package_create(dictized_package, context) 
+
+    pkg = context["package"]
+
+    if api == '1':
+        package_dict = package_to_api1(pkg, context)
+    else:
+        package_dict = package_to_api2(pkg, context)
+
+    return package_dict
+
