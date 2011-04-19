@@ -168,6 +168,7 @@ class Repository(vdm.sqlalchemy.Repository):
         self.setup_migration_version_control()
         mig.upgrade(self.metadata.bind, self.migrate_repository, version=version)
         self.init_const_data()
+        self.tables_created = True
         
         ##this prints the diffs in a readable format
         ##import pprint

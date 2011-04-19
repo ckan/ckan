@@ -50,10 +50,9 @@ def group_list(context):
     return [getattr(p, ref_group_by) for p in groups]
 
 def licence_list(context):
-
     model = context["model"]
-    from ckan.model.license import LicenseRegister
-    licenses = LicenseRegister().values()
+    license_register = model.Package.get_license_register()
+    licenses = license_register.values()
     licences = [l.as_dict() for l in licenses]
     return licences
 
