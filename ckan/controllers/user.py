@@ -100,8 +100,8 @@ class UserController(BaseController):
             response.set_cookie("ckan_user", userobj.name)
             response.set_cookie("ckan_display_name", userobj.display_name)
             response.set_cookie("ckan_apikey", userobj.apikey)
-            h.flash_notice(_("Welcome back, %s") % userobj.display_name)
-            h.redirect_to(controller='home', action='index', id=None)
+            h.flash_success(_("Welcome back, %s") % userobj.display_name)
+            h.redirect_to(controller='user', action='me', id=None)
         else:
             h.flash_error('Login failed. Bad username or password.')
             h.redirect_to(controller='user', action='login')
