@@ -22,7 +22,7 @@ class TestAuthorizationGroupApi(ControllerTestCase):
         
     def test_autocomplete(self):
         response = self.app.get(
-            url=url_for(controller='apiv2/authorization_group', action='autocomplete'),
+            url=url_for(controller='api', action='authorizationgroup_autocomplete'),
             params={
                'q': u'anauthzgroup',
             },
@@ -35,7 +35,7 @@ class TestAuthorizationGroupApi(ControllerTestCase):
 
     def test_autocomplete_multiple(self):
         response = self.app.get(
-            url=url_for(controller='apiv2/authorization_group', action='autocomplete'),
+            url=url_for(controller='api', action='authorizationgroup_autocomplete'),
             params={
                'q': u'authz',
             },
@@ -46,7 +46,7 @@ class TestAuthorizationGroupApi(ControllerTestCase):
 
     def test_autocomplete_limit(self):
         response = self.app.get(
-            url=url_for(controller='apiv2/authorization_group', action='autocomplete'),
+            url=url_for(controller='api', action='authorizationgroup_autocomplete'),
             params={
                'q': u'authz',
                'limit': 1
