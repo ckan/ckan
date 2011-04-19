@@ -25,13 +25,15 @@ log = logging.getLogger(__name__)
 
 
 def package_create(data_dict, context):
+
     model = context['model']
     user = context['user']
+    schema = context.get('schema') or default_create_package_schema()
 
     check_access(model.System(), model.Action.PACKAGE_CREATE, context)
 
     data, errors = validate(data_dict,
-                            default_create_package_schema(),
+                            schema,
                             context)
 
     if errors:

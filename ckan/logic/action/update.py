@@ -21,6 +21,8 @@ def package_update(data_dict, context):
     model = context['model']
     user = context['user']
     id = context["id"]
+    schema = context.get('schema') or default_update_package_schema()
+
     pkg = model.Package.get(id)
     context["package"] = pkg
 
