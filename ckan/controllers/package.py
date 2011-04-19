@@ -304,6 +304,7 @@ class PackageController(BaseController):
         #    c.preview = ' '
         c.form = self._render_edit_form(fs, request.params, clear_session=True)
         if 'preview' in request.params:
+            c.is_preview = True
             try:
                 PackageSaver().render_preview(fs,
                                               log_message=log_message,
@@ -367,6 +368,7 @@ class PackageController(BaseController):
             except KeyError, error:
                 abort(400, 'Missing parameter: %s' % error.args)
         else: # Must be preview
+            c.is_preview = True
             c.pkgname = pkg.name
             c.pkgtitle = pkg.title
             if pkg.license_id:

@@ -20,10 +20,7 @@
   <div py:match="content" class="package">
     <h2>
       Edit Data Package: ${c.pkgname}
-      <a href="#preview" py:if="c.preview">(skip to preview)</a>
     </h2>
-
-    ${c.form}
 
     <div id="preview" style="margin-left: 20px;" py:if="c.preview">
       <hr />
@@ -32,6 +29,9 @@
         ${c.preview}
       </div>
     </div><!-- /preview -->
+
+    ${c.form}
+
   </div>
 
   <xi:include href="layout.html" />
