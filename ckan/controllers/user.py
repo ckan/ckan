@@ -49,6 +49,8 @@ class UserController(BaseController):
             abort(401, _('Not authorized to see this page'))
         if id:
             user = model.User.get(id)
+        else:
+            user = c.userobj
         if not user:
             h.redirect_to(controller='user', action='login', id=None)
         c.read_user = user.display_name
