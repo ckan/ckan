@@ -252,6 +252,14 @@ a:hover {
    font-weight:bold;
 }
 
+.hide-sidebar #primary { 
+   display: none;
+}
+
+.hide-sidebar #content {
+   margin: 0 20px 0 20px;
+}
+
 /* ==========================
  * Facets
  */
