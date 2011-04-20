@@ -405,6 +405,33 @@ left arrow <
             from ckan.model.changeset import ChangesetRegister
             changeset_ids = ChangesetRegister().commit()
 
+        # Create a couple of authorization groups
+        for ag_name in [u'anauthzgroup', u'anotherauthzgroup']:
+            ag=model.AuthorizationGroup.by_name(ag_name) 
+            if not ag: #may already exist, if not create
+                ag=model.AuthorizationGroup(name=ag_name)
+                model.Session.add(ag)
+
+        model.repo.commit_and_remove()
+
+        # and give them a range of roles on various things
+        ag = model.AuthorizationGroup.by_name(u'anauthzgroup')
+        aag = model.AuthorizationGroup.by_name(u'anotherauthzgroup')
+        pkg = model.Package.by_name(u'warandpeace')
+        g = model.Group.by_name('david')
+
+        model.add_authorization_group_to_role(ag, u'editor', model.System())
+        model.add_authorization_group_to_role(ag, u'reader', pkg)
+        model.add_authorization_group_to_role(ag, u'admin', aag)
+        model.add_authorization_group_to_role(aag, u'editor', ag)
+        model.add_authorization_group_to_role(ag, u'editor', g)
+
+        model.repo.commit_and_remove()
+
+
+
+
+
     @classmethod
     def create_user(cls, name='', **kwargs):
         import ckan.model as model
