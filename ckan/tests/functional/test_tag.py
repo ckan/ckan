@@ -75,8 +75,8 @@ class TestTagController(TestController):
         assert 'tolstoy' in res, res
 
     def test_autocomplete(self):
-        controller = 'apiv2/package'
-        action = 'autocomplete'
+        controller = 'api'
+        action = 'tag_autocomplete'
         offset = url_for(controller=controller, action=action)
         res = self.app.get(offset)
         assert '[]' in res

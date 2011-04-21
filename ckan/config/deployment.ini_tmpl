@@ -51,7 +51,8 @@ who.log_file = %(cache_dir)s/who_log.ini
 auth.admins = 
 
 # CKAN caching 
-cache_enabled = False
+ckan.cache_enabled = False
+ckan.cache_validation_enabled = True
 # cache to persistent files
 beaker.cache.type = file
 # default expiry time for the cache (where not specified specifically)
@@ -128,8 +129,9 @@ ckan.site_logo = http://assets.okfn.org/p/ckan/img/ckan_logo_largetext.png
 ## Site tagline / description (used on front page)
 ckan.site_description = 
 
-## Used in creating some absolute urls (such as rss feeds) and dump filenames
-ckan.site_url = http://www.ckan.net
+## Used in creating some absolute urls (such as rss feeds, css files) and 
+## dump filenames
+ckan.site_url =
 
 ## Favicon (default is the CKAN software favicon)
 ckan.favicon = http://assets.okfn.org/p/ckan/img/ckan.ico
@@ -158,10 +160,10 @@ ckan.dump_dir = %(here)s/dump
 ckan.backup_dir = %(here)s/backup
 
 # Default authorizations for new domain objects
-ckan.default_roles.Package = {"visitor": ["editor"], "logged_in": ["editor"]}
-ckan.default_roles.Group = {"visitor": ["reader"], "logged_in": ["reader"]}
-ckan.default_roles.System = {"visitor": ["reader"], "logged_in": ["editor"]}
-ckan.default_roles.AuthorizationGroup = {"visitor": ["reader"], "logged_in": ["reader"]}
+#ckan.default_roles.Package = {"visitor": ["editor"], "logged_in": ["editor"]}
+#ckan.default_roles.Group = {"visitor": ["reader"], "logged_in": ["reader"]}
+#ckan.default_roles.System = {"visitor": ["anon_editor"], "logged_in": ["editor"]}
+#ckan.default_roles.AuthorizationGroup = {"visitor": ["reader"], "logged_in": ["reader"]}
 
 # Logging configuration
 [loggers]

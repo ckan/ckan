@@ -145,10 +145,7 @@ class TestRevisionController(TestController):
     def test_read_redirect_at_base(self):
         # have to put None as o/w seems to still be at url set in previous test
         offset = url_for(controller='revision', action='read', id=None)
-        res = self.app.get(offset)
-        # redirect
-        res = res.follow()
-        assert 'Revision History' in res
+        res = self.app.get(offset, status=404)
 
     def test_read(self):
         anna = model.Package.by_name(u'annakarenina')
@@ -166,13 +163,6 @@ class TestRevisionController(TestController):
         #res = res.click('annakarenina', index=0)
         #assert 'Packages - annakarenina' in res
         
-    def test_purge(self):
-        offset = url_for(controller='revision', action='purge', id=None)
-        res = self.app.get(offset)
-        assert 'No revision id specified' in res
-        # hmmm i have to be logged in to do proper testing 
-        # TODO: come back once login is sorted out
-
     def test_list_format_atom(self):
         self.create_40_revisions()
         self.create_updating_revision(u'warandpeace',

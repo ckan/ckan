@@ -21,12 +21,16 @@ def resource_list_dictize(res_list, context):
 
     result_list = []
     for res in res_list:
-        result_list.append(table_dictize(res, context))
+        result_list.append(resource_dictize(res, context))
 
     return sorted(result_list, key=lambda x: x["position"])
 
 def resource_dictize(res, context):
-    return table_dictize(res, context)
+    resource = table_dictize(res, context)
+    extras = resource.pop("extras", None)
+    if extras:
+        resource.update(extras)
+    return resource
 
 def package_dictize(pkg, context):
 
@@ -47,13 +51,39 @@ def package_dictize(pkg, context):
 
     return result_dict
 
+def group_dictize(group, context):
+
+    result_dict = table_dictize(group, context)
+
+    result_dict["extras"] = obj_dict_dictize(
+        group._extras, context, lambda x: x["key"])
+
+    result_dict["packages"] = obj_list_dictize(
+        group.packages, context)
+
+    return result_dict
+
+
 ## conversion to api
 
+def group_to_api1(group, context):
+    
+    dictized = group_dictize(group, context)
+    dictized["extras"] = dict((extra["key"], extra["value"]) 
+                              for extra in dictized["extras"])
+    dictized["packages"] = sorted([package["name"] for package in dictized["packages"]])
+    return dictized
+
+def group_to_api2(group, context):
+    
+    dictized = group_dictize(group, context)
+    dictized["extras"] = dict((extra["key"], extra["value"]) 
+                              for extra in dictized["extras"])
+    dictized["packages"] = sorted([package["id"] for package in dictized["packages"]])
+    return dictized
+
+
 def resource_dict_to_api(res_dict, package_id, context):
-    for key, value in res_dict["extras"].iteritems():
-        if key not in res_dict:
-            res_dict[key] = value
-    res_dict.pop("extras")
     res_dict.pop("revision_id")
     res_dict.pop("state")
     res_dict["package_id"] = package_id
@@ -72,6 +102,9 @@ def package_to_api1(pkg, context):
    
     for resource in resources:
         resource_dict_to_api(resource, pkg.id, context)
+
+    if pkg.resources:
+        dictized['download_url'] = pkg.resources[0].url
             
     dictized['license'] = pkg.license.title if pkg.license else None
 

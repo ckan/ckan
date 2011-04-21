@@ -9,11 +9,10 @@ from ckanclient import CkanApiError
 class TestWsgiCkanClient(TestController):
     def setup(self):
         self.client = WsgiCkanClient(self.app)
-        model.repo.init_db()
         CreateTestData.create()
         
     def teardown(self):
-        model.repo.delete_all()
+        model.repo.rebuild_db()
 
     def test_get_package_registry(self):
         register = self.client.package_register_get()

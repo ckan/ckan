@@ -109,7 +109,7 @@
     </table>
     </div>
     
-    <div class="api subsection">
+    <div class="api subsection" py:if="not c.is_preview">
         <h3>${g.site_title} API / datapkg</h3>
         <div>
             <p>
@@ -126,7 +126,9 @@
             </code>
             <py:if test="config.get('rdf_packages')">
                 <h5>RDF:</h5>
-                <code><a href="${config.get('rdf_packages') + c.pkg.name[0] + '/' + c.pkg.name[1] + '/' + c.pkg.name}">${config.get('rdf_packages') + c.pkg.name[0] + '/' + c.pkg.name[1] + '/' + c.pkg.name}</a></code>
+                <code><a href="${config.get('rdf_packages') + '/' + c.pkg.id + '.rdf'}">RDF/XML</a></code>
+                <code><a href="${config.get('rdf_packages') + '/' + c.pkg.id + '.ttl'}">Turtle</a></code>
+                <code><a href="${config.get('rdf_packages') + '/' + c.pkg.id + '.nt'}">N-Triples</a></code>
             </py:if>
             <p>
                 The information on this page and the downloads / resources are also available using the 

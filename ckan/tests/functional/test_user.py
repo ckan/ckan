@@ -24,17 +24,14 @@ class TestUserController(FunctionalTestCase):
     def teardown_class(self):
         model.repo.rebuild_db()
 
-    def test_user_index(self):
-        offset = url_for(controller='user')
-        # TODO
-
     def test_user_read(self):
         user = model.User.by_name(u'annafan')
-        offset = url_for(controller='user', action='read', id=user.id)
+        offset = '/user/%s' % user.id
         res = self.app.get(offset, status=200)
         main_res = self.main_div(res)
-        assert 'annafan - User' in res, res
+        assert 'annafan' in res, res
         assert 'Logged in' not in main_res, main_res
+        assert 'My Account' not in main_res, main_res
         assert 'about' in main_res, main_res
         assert 'I love reading Annakarenina' in res, main_res
         assert 'Edit' not in main_res, main_res
@@ -42,22 +39,29 @@ class TestUserController(FunctionalTestCase):
         assert 'Number of packages administered:</strong> 1' in res, res
         assert 'Revision History' in res, res
 
+    def test_user_read_without_id(self):
+        offset = '/user/'
+        res = self.app.get(offset, status=302)
+
+    def test_user_read_without_id_but_logged_in(self):
+        user = model.User.by_name(u'annafan')
+        offset = '/user/'
+        res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': str(user.name)})
+        main_res = self.main_div(res)
+        assert 'annafan' in main_res, main_res
+        assert 'My Account' in main_res, main_res
+
     def test_user_read_logged_in(self):
         user = model.User.by_name(u'annafan')
-        offset = url_for(controller='user', action='read', id=user.id)
+        offset = '/user/%s' % user.id
         res = self.app.get(offset, extra_environ={'REMOTE_USER': str(user.name)})
-        #assert 'annafan - User' in res, res
-	#print dir(res)
-	#print res.header
-	#print res.headers
-	#assert 'annafan' in res.header["Set-Cookie"]
-        #print res
-        #self.check_named_element(res, 'p', 'Logged in as', user.name)
         main_res = self.main_div(res)
+        assert 'annafan' in res, res
+        assert 'My Account' in main_res, main_res
         assert 'Edit' in main_res, main_res
 
     def test_user_login(self):
-        offset = url_for(controller='user', action='login')
+        offset = url_for(controller='user', action='login', id=None)
         res = self.app.get(offset, status=200)
         assert 'Login' in res, res
         assert 'Please click your account provider' in res, res

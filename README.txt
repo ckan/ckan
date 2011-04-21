@@ -33,7 +33,8 @@ tests. See: http://buildbot.okfn.org/waterfall
    python-virtualenv      Python virtual environments
    wget                   Command line tool for downloading from the web
    build-essential        Tools for building source code
-   git-core               Git source control (for MarkupSafe)
+   git-core               Git source control (for getting MarkupSafe src)
+   subversion             Subversion source control (for pyutilib)
    =====================  ===============================================
 
    For ubuntu you can install these like so:
@@ -43,6 +44,7 @@ tests. See: http://buildbot.okfn.org/waterfall
        sudo apt-get install build-essential libxml2-dev libxslt-dev 
        sudo apt-get install wget mercurial postgresql libpq-dev git-core
        sudo apt-get install python-dev python-psycopg2 python-virtualenv
+       sudo apt-get install subversion
    
 2. Create a python virtual environment
    

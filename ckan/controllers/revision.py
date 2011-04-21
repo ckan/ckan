@@ -1,14 +1,23 @@
+import sys
+from datetime import datetime, timedelta
+
 from pylons.i18n import get_lang
 
 from ckan.lib.base import *
 from ckan.lib.helpers import Page
 import ckan.authz
-from datetime import datetime, timedelta
+from ckan.lib.cache import proxy_cache, get_cache_expires
+cache_expires = get_cache_expires(sys.modules[__name__])
 
 class RevisionController(BaseController):
 
     def __before__(self, action, **env):
         BaseController.__before__(self, action, **env)
+        c.revision_change_state_allowed = (
+            c.user and
+            self.authorizer.is_authorized(c.user, model.Action.CHANGE_STATE,
+                model.Revision)
+            )
         if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
             abort(401, _('Not authorized to see this page'))
 
@@ -96,7 +105,6 @@ class RevisionController(BaseController):
             feed.content_type = 'application/atom+xml'
             return feed.writeString('utf-8')
         else:
-            c.show_purge_links = self._has_purge_permissions()
             query = model.Session.query(model.Revision)
             c.page = Page(
                 collection=query,
@@ -107,21 +115,18 @@ class RevisionController(BaseController):
 
     def read(self, id=None):
         if id is None:
-            h.redirect_to(controller='revision', action='list')
-        
-        cache_key = str(hash(id))
-        etag_cache(cache_key)    
-        
+            abort(404)
         c.revision = model.Session.query(model.Revision).get(id)
         if c.revision is None:
             abort(404)
+        
         pkgs = model.Session.query(model.PackageRevision).filter_by(revision=c.revision)
         c.packages = [ pkg.continuity for pkg in pkgs ]
         pkgtags = model.Session.query(model.PackageTagRevision).filter_by(revision=c.revision)
         c.pkgtags = [ pkgtag.continuity for pkgtag in pkgtags ]
         grps = model.Session.query(model.GroupRevision).filter_by(revision=c.revision)
         c.groups = [ grp.continuity for grp in grps ]
-        return render('revision/read.html', cache_key=cache_key)
+        return render('revision/read.html')
 
     def diff(self, id=None):
         if 'diff' not in request.params or 'oldid' not in request.params:
@@ -145,26 +150,24 @@ class RevisionController(BaseController):
         c.diff.sort()
         return render('revision/diff.html')
 
-    def _has_purge_permissions(self):
-        authorizer = ckan.authz.Authorizer()
-        action = model.Action.PURGE
-        return ( c.user and authorizer.is_authorized(c.user, action,
-            model.Revision) )
-
-    def purge(self, id=None):
+    def edit(self, id=None):
         if id is None:
-            c.error = _('No revision id specified')
-            return render('revision/purge.html')
-        if not self._has_purge_permissions():
-            c.error = _('You are not authorized to perform this action')
-            return render('revision/purge.html')
-        else:
-            revision = model.Session.query(model.Revision).get(id)
-            try:
-                model.repo.purge_revision(revision, leave_record=True)
-            except Exception, inst:
-                # is this a security risk?
-                # probably not because only admins get to here
-                c.error = _('Purge of revision failed: %s') % inst
-            return render('revision/purge.html')
+            abort(404)
+        revision = model.Session.query(model.Revision).get(id)
+        if revision is None:
+            abort(404)
+        action = request.params.get('action', '')
+        if action in ['delete', 'undelete']:
+            # this should be at a lower level (e.g. logic layer)
+            if not c.revision_change_state_allowed:
+                abort(401)
+            if action == 'delete':
+                revision.state = model.State.DELETED
+            elif action == 'undelete':
+                revision.state = model.State.ACTIVE
+            model.Session.commit()
+            h.flash_success(_('Revision updated'))
+            h.redirect_to(
+                h.url_for(controller='revision', action='read', id=id)
+                )
 

@@ -78,10 +78,10 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         text_query = text_query.strip().lower()
         return Session.query(cls).filter(cls.name.contains(text_query))
 
-    def as_dict(cls, ref_package_by='name'):
-        _dict = DomainObject.as_dict(cls)
-        _dict['packages'] = [getattr(package, ref_package_by) for package in cls.packages]
-        _dict['extras'] = dict([(key, value) for key, value in cls.extras.items()])
+    def as_dict(self, ref_package_by='name'):
+        _dict = DomainObject.as_dict(self)
+        _dict['packages'] = [getattr(package, ref_package_by) for package in self.packages]
+        _dict['extras'] = dict([(key, value) for key, value in self.extras.items()])
         return _dict
 
     def add_package_by_name(self, package_name):

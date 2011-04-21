@@ -282,5 +282,9 @@ class SearchIndex(object):
     def clear(self):
         """ Delete the complete index. """
         log.debug("NOOP Index reset")
+
+    def get_all_entity_ids(self):
+        """ Return a list of entity IDs in the index. """
+        raise NotImplemented
         
 class NoopSearchIndex(SearchIndex): pass

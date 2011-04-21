@@ -30,6 +30,7 @@ from ckan.lib import search
 from ckan.lib.helpers import _flash, url_for
 from ckan.lib.helpers import json
 import ckan.model as model
+from ckan import ckan_nose_plugin
 
 __all__ = ['url_for',
            'TestController',
@@ -56,6 +57,10 @@ def _getjson(self):
     return json.loads(self.body)
 paste.fixture.TestResponse.json = property(_getjson)
 
+# Check config is correct for sqlite
+if config['sqlalchemy.url'].startswith('sqlite:'):
+    assert ckan_nose_plugin.CkanNose.settings.is_ckan, \
+           'You forgot the "--ckan" nosetest setting - see README.txt'
 
 class BaseCase(object):
 

@@ -7,6 +7,7 @@ from sqlalchemy import or_
 import genshi
 from pylons import config, cache
 from pylons.i18n import get_lang, _
+from autoneg.accept import negotiate
 
 from ckan.lib.base import *
 from ckan.lib.search import query_for, QueryOptions, SearchError
@@ -25,6 +26,15 @@ def search_url(params):
     params = [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v)) \
                     for k, v in params]
     return url + u'?' + urlencode(params)
+
+autoneg_cfg = [
+    ("application", "xhtml+xml", ["html"]),
+    ("text", "html", ["html"]),
+    ("application", "rdf+xml", ["rdf"]),
+    ("application", "turtle", ["ttl"]),
+    ("text", "plain", ["nt"]),
+    ("text", "x-graphviz", ["dot"]),
+    ]
 
 class PackageController(BaseController):
     authorizer = ckan.authz.Authorizer()
@@ -129,13 +139,14 @@ class PackageController(BaseController):
         # used by disqus plugin
         c.current_package_id = c.pkg.id
         
-        if config.get('rdf_packages'):
-            accept_headers = request.headers.get('Accept', '')
-            if 'application/rdf+xml' in accept_headers and \
-                   not 'text/html' in accept_headers:
-                rdf_url = '%s%s' % (config['rdf_packages'], c.pkg.name)
-                redirect(rdf_url, code=303)
-
+        if config.get('rdf_packages') is not None:
+            accept_header = request.headers.get('Accept', '*/*')
+            for content_type, exts in negotiate(autoneg_cfg, accept_header):
+                if "html" not in exts: 
+                    rdf_url = '%s%s.%s' % (config['rdf_packages'], c.pkg.id, exts[0])
+                    redirect(rdf_url, code=303)
+                break
+            
         #is the user allowed to see this package?
         auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, c.pkg)
         if not auth_for_read:
@@ -293,6 +304,7 @@ class PackageController(BaseController):
         #    c.preview = ' '
         c.form = self._render_edit_form(fs, request.params, clear_session=True)
         if 'preview' in request.params:
+            c.is_preview = True
             try:
                 PackageSaver().render_preview(fs,
                                               log_message=log_message,
@@ -356,6 +368,7 @@ class PackageController(BaseController):
             except KeyError, error:
                 abort(400, 'Missing parameter: %s' % error.args)
         else: # Must be preview
+            c.is_preview = True
             c.pkgname = pkg.name
             c.pkgtitle = pkg.title
             if pkg.license_id:

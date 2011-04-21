@@ -45,7 +45,9 @@ def init_model(engine):
 class Repository(vdm.sqlalchemy.Repository):
     migrate_repository = ckan.migration.__path__[0]
 
-    tables_created = False
+    # note: tables_created value is not sustained between instantiations so
+    #       only useful for tests. The alternative is to use are_tables_created().
+    tables_created_and_initialised = False 
 
     def init_db(self):
         '''Ensures tables, const data and some default config is created.
@@ -63,16 +65,17 @@ class Repository(vdm.sqlalchemy.Repository):
             # that have simply called rebuild_db.
             self.create_db()
         else:
-            if not self.tables_created:
+            if not self.tables_created_and_initialised:
                 self.upgrade_db()
                 self.init_configuration_data()
-                self.tables_created = True
+                self.tables_created_and_initialised = True
 
     def clean_db(self):
         metadata = MetaData(self.metadata.bind)
         metadata.reflect()
+        
         metadata.drop_all()
-        self.tables_created = False
+        self.tables_created_and_initialised = False
 
     def init_const_data(self):
         '''Creates 'constant' objects that should always be there in
@@ -113,9 +116,13 @@ class Repository(vdm.sqlalchemy.Repository):
 
     def rebuild_db(self):
         '''Clean and init the db'''
-        if self.tables_created:
+        if self.tables_created_and_initialised:
             # just delete data, leaving tables - this is faster
             self.delete_all()
+            # re-add default data
+            self.init_const_data()
+            self.init_configuration_data()
+            self.session.commit()
         else:
             # delete tables and data
             self.clean_db()
@@ -126,18 +133,16 @@ class Repository(vdm.sqlalchemy.Repository):
     def delete_all(self):
         '''Delete all data from all tables.'''
         self.session.remove()
+        metadata = MetaData(self.metadata.bind)
+        metadata.reflect()
         ## use raw connection for performance
         connection = self.session.connection()
         if sqav.startswith("0.4"):
-            tables = self.metadata.table_iterator()
+            tables = metadata.table_iterator()
         else:
             tables = reversed(metadata.sorted_tables)
         for table in tables:
             connection.execute('delete from "%s"' % table.name)
-        self.session.commit()
-        ##add default data
-        self.init_const_data()
-        self.init_configuration_data()
         self.session.commit()
 
 
@@ -168,6 +173,12 @@ class Repository(vdm.sqlalchemy.Repository):
         ##import pprint
         ##from migrate.versioning.schemadiff import getDiffOfModelAgainstDatabase
         ##pprint.pprint(getDiffOfModelAgainstDatabase(self.metadata, self.metadata.bind).colDiffs)
+
+    def are_tables_created(self):
+        metadata = MetaData(self.metadata.bind)
+        metadata.reflect()
+        return bool(metadata.tables)
+
 
 repo = Repository(metadata, Session,
         versioned_objects=[Package, PackageTag, Resource, ResourceGroup, PackageExtra, PackageGroup, Group]
