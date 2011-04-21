@@ -75,6 +75,7 @@ class PackageSaver(object):
             fs.model.groups
             fs.model.ratings
             fs.model.extras
+            fs.model.resources
             # remove everything from session so nothing can get saved
             # accidentally
             model.Session.remove()

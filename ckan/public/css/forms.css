@@ -46,9 +46,9 @@ input[type=url], input.url {
 input.title {
   font-size: 1.5em; }
 input.short {
-  width: 5em; }
+  width: 15em; }
 input.medium-width {
-  width: 12em; }
+  width: 25em; }
 input.long {
   width: 100%; }
  
