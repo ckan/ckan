@@ -20,7 +20,21 @@ authorization_group_user_table = Table('authorization_group_user', metadata,
 
 
 class AuthorizationGroup(DomainObject):
-    pass
+
+    @classmethod
+    def search(cls, querystr, sqlalchemy_query=None):
+        '''Search name.         
+        '''
+        import ckan.model as model
+        if sqlalchemy_query is None:
+            query = model.Session.query(cls)
+        else:
+            query = sqlalchemy_query
+        qstr = '%' + querystr + '%'
+        query = query.filter(or_(
+            cls.name.ilike(qstr)))
+        return query
+
     
 class AuthorizationGroupUser(DomainObject):
     pass

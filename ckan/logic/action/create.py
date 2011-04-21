@@ -6,14 +6,17 @@ from ckan.plugins import (PluginImplementations,
                           IPackageController)
 from ckan.logic import NotFound, check_access, NotAuthorized, ValidationError
 from ckan.lib.base import _
+from ckan.lib.dictization.model_dictize import package_to_api1, package_to_api2
 from ckan.lib.dictization.model_save import (group_api_to_dict,
                                              group_dict_save,
                                              package_api_to_dict,
                                              package_dict_save)
 
-from ckan.lib.dictization.model_dictize import group_dictize, package_dictize
+from ckan.lib.dictization.model_dictize import (group_dictize,
+                                                package_dictize)
 
-from ckan.logic.schema import default_create_package_schema
+
+from ckan.logic.schema import default_create_package_schema, default_resource_schema
 
 from ckan.logic.schema import default_group_schema
 from ckan.lib.navl.dictization_functions import validate
@@ -22,14 +25,15 @@ log = logging.getLogger(__name__)
 
 
 def package_create(data_dict, context):
+
     model = context['model']
     user = context['user']
+    schema = context.get('schema') or default_create_package_schema()
+
     check_access(model.System(), model.Action.PACKAGE_CREATE, context)
 
-    dictized_package = package_api_to_dict(data_dict, context)
-
-    data, errors = validate(dictized_package,
-                            default_create_package_schema(),
+    data, errors = validate(data_dict,
+                            schema,
                             context)
 
     if errors:
@@ -49,9 +53,21 @@ def package_create(data_dict, context):
     for item in PluginImplementations(IPackageController):
         item.create(pkg)
     model.repo.commit()        
+    ## need to let rest api create
+    context["package"] = pkg
+    ## this is added so that the rest controller can make a new location 
     context["id"] = pkg.id
     log.debug('Created object %s' % str(pkg.name))
     return package_dictize(pkg, context)
+
+def resource_create(data_dict, context):
+    model = context['model']
+    user = context['user']
+
+    data, errors = validate(data_dict,
+                            default_resource_schema(),
+                            context)
+
 
 def package_relationship_create(data_dict, context):
 
@@ -159,3 +175,23 @@ def rating_create(data_dict, context):
     ret_dict = {'rating average':package.get_average_rating(),
                 'rating count': len(package.ratings)}
     return ret_dict
+
+
+## Modifications for rest api
+
+def package_create_rest(data_dict, context):
+
+    api = context.get('api_version') or '1'
+
+    dictized_package = package_api_to_dict(data_dict, context)
+    dictized_after = package_create(dictized_package, context) 
+
+    pkg = context["package"]
+
+    if api == '1':
+        package_dict = package_to_api1(pkg, context)
+    else:
+        package_dict = package_to_api2(pkg, context)
+
+    return package_dict
+

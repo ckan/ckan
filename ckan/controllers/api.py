@@ -187,7 +187,7 @@ class ApiController(BaseController):
         action_map = {
             ('package', 'relationships'): create.package_relationship_create,
              'group': create.group_create,
-             'package': create.package_create,
+             'package': create.package_create_rest,
              'rating': create.rating_create,
         }
         for type in model.PackageRelationship.get_all_types():
@@ -233,8 +233,8 @@ class ApiController(BaseController):
 
         action_map = {
             ('package', 'relationships'): update.package_relationship_update,
-             'package': update.package_update,
-             'group': update.group_update,
+             'package': update.package_update_rest,
+             'group': update.group_update_rest,
         }
         for type in model.PackageRelationship.get_all_types():
             action_map[('package', type)] = update.package_relationship_update
@@ -423,6 +423,27 @@ class ApiController(BaseController):
         def convert_to_dict(user):
             out = {}
             for k in ['id', 'name', 'fullname']:
+                out[k] = getattr(user, k)
+            return out
+        query = query.limit(limit)
+        out = map(convert_to_dict, query.all())
+        return out
+
+
+    @jsonpify
+    def authorizationgroup_autocomplete(self):
+        q = request.params.get('q', '')
+        limit = request.params.get('limit', 20)
+        try:
+            limit = int(limit)
+        except:
+            limit = 20
+        limit = min(50, limit)
+    
+        query = model.AuthorizationGroup.search(q)
+        def convert_to_dict(user):
+            out = {}
+            for k in ['id', 'name']:
                 out[k] = getattr(user, k)
             return out
         query = query.limit(limit)
