@@ -47,7 +47,7 @@ class Repository(vdm.sqlalchemy.Repository):
 
     # note: tables_created value is not sustained between instantiations so
     #       only useful for tests. The alternative is to use are_tables_created().
-    tables_created = False 
+    tables_created_and_initialised = False 
 
     def init_db(self):
         '''Ensures tables, const data and some default config is created.
@@ -65,16 +65,16 @@ class Repository(vdm.sqlalchemy.Repository):
             # that have simply called rebuild_db.
             self.create_db()
         else:
-            if not self.tables_created:
+            if not self.tables_created_and_initialised:
                 self.upgrade_db()
                 self.init_configuration_data()
-                self.tables_created = True
+                self.tables_created_and_initialised = True
 
     def clean_db(self):
         metadata = MetaData(self.metadata.bind)
         metadata.reflect()
         metadata.drop_all()
-        self.tables_created = False
+        self.tables_created_and_initialised = False
 
     def init_const_data(self):
         '''Creates 'constant' objects that should always be there in
@@ -115,9 +115,13 @@ class Repository(vdm.sqlalchemy.Repository):
 
     def rebuild_db(self):
         '''Clean and init the db'''
-        if self.tables_created:
+        if self.tables_created_and_initialised:
             # just delete data, leaving tables - this is faster
             self.delete_all()
+            # re-add default data
+            self.init_const_data()
+            self.init_configuration_data()
+            self.session.commit()
         else:
             # delete tables and data
             self.clean_db()
@@ -138,10 +142,6 @@ class Repository(vdm.sqlalchemy.Repository):
             tables = reversed(metadata.sorted_tables)
         for table in tables:
             connection.execute('delete from "%s"' % table.name)
-        self.session.commit()
-        ##add default data
-        self.init_const_data()
-        self.init_configuration_data()
         self.session.commit()
 
 
@@ -167,7 +167,6 @@ class Repository(vdm.sqlalchemy.Repository):
         self.setup_migration_version_control()
         mig.upgrade(self.metadata.bind, self.migrate_repository, version=version)
         self.init_const_data()
-        self.tables_created = True
         
         ##this prints the diffs in a readable format
         ##import pprint
