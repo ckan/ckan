@@ -8,7 +8,6 @@ from ckan.lib.create_test_data import CreateTestData
 
 class TestResource:
     def setup(self):
-        model.repo.init_db()
         self.pkgname = u'resourcetest'
         assert not model.Package.by_name(self.pkgname)
         assert model.Session.query(model.Resource).count() == 0
@@ -44,7 +43,7 @@ class TestResource:
         model.repo.commit_and_remove()
 
     def teardown(self):
-        model.repo.delete_all()
+        model.repo.rebuild_db()
         
     def test_01_create_package_resources(self):
 
@@ -198,7 +197,6 @@ class TestResource:
 class TestResourceEdit:
     @classmethod
     def setup(self):
-        model.repo.init_db()
         self.pkgname = u'geodata'
         self.urls = [u'http://somewhere.com/',
                      u'http://elsewhere.com/',

@@ -131,7 +131,7 @@ class TestSearchOverallWithSynchronousIndexing(TestSearchOverall):
 
     @classmethod
     def teardown_class(self):
-        model.repo.delete_all()
+        model.repo.rebuild_db()
 
 # Stop parent class tests from running
 #TestSearchOverall = None
