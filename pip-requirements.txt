@@ -1,4 +1,4 @@
-# This file allows you to install the latest development version of CKAN and
+# This file allows you to install the 1.3.4 version of CKAN and
 # all its dependencies in a virtual environment.
 #
 # Use it like this:
@@ -6,7 +6,7 @@
 #     pip install --ignore-installed -r pip-requirements.txt
 
 # Latest CKAN from default branch
--e hg+https://bitbucket.org/okfn/ckan#egg=ckan
+-e hg+https://bitbucket.org/okfn/ckan@default#egg=ckan
 # CKAN dependencies
 -r https://bitbucket.org/okfn/ckan/raw/default/requires/lucid_conflict.txt
 -r https://bitbucket.org/okfn/ckan/raw/default/requires/lucid_present.txt
