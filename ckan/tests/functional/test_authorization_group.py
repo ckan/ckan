@@ -125,3 +125,22 @@ class TestEdit(TestController):
         
         # now look at packages
         assert len(group.users) == 2
+
+
+class TestAuthorizationGroupWalkthrough(FunctionalTestCase):
+
+    @classmethod
+    def setup_class(self):
+        model.Session.remove()
+        model.repo.init_db()
+        CreateTestData.create()
+        model.repo.commit_and_remove()
+
+    @classmethod
+    def teardown_class(self):
+        model.Session.remove()
+        model.repo.rebuild_db()
+        model.Session.remove()
+
+    def authzgroups_walkthrough(self):
+        assert False, "deliberate fail"
