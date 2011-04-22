@@ -143,4 +143,63 @@ class TestAuthorizationGroupWalkthrough(FunctionalTestCase):
         model.Session.remove()
 
     def authzgroups_walkthrough(self):
+        # log in as annafan, look at authorization groups page, http://localhost:5000/authorizationgroup, should be 0 groups
+        auth_group_index_url = url_for(controller='authorization_group', action='index')
+
+        # look as annafan
+        res = self.app.get(auth_group_index_url, status=200, extra_environ={'REMOTE_USER': 'annafan'})
+        assert 'There are <strong>0</strong> auth' in res, "Should lie to annafan about number of groups"
+
+        # look as testsysadmin, should see the two groups in the test data
+        res = self.app.get(auth_group_index_url, status=200, extra_environ={'REMOTE_USER': 'testsysadmin'})
+        assert 'There are <strong>2</strong> auth' in res, "Should be accurate for testsysadmin"
+
+        anauthzgroup_url = url_for(controller='authorizationgroup', action='anauthzgroup')
+        res = self.app.get(anauthzgroup_url, status=200, extra_environ={'REMOTE_USER': 'testsysadmin'})
+        assert 'There are 0 users in this' in res, 'testsysadmin should see the page, there should be no users in the group'
+
+        # now testsysadmin adds annafan to anauthzgroup
+        anauthzgroup_edit_url = url_for(controller='authorizationgroup', action='edit', id='anauthzgroup')
+        res = self.app.get(anauthzgroup_edit_url, status=200, extra_environ={'REMOTE_USER': 'testsysadmin'})
+        group_edit_form = res.forms['group-edit']
+        user_field = group_edit_form.fields['AuthorizationGroupUser--user_name'][0]
+        user_field.value = u'annafan'
+        submit_res = group_edit_form.submit(extra_environ={'REMOTE_USER': 'testsysadmin'})
+
+        print model.AuthorizationGroup.by_name('anauthzgroup').users
+
+        # if we've got this far, drop into the debugger
+
+        import re
+        s = re.compile('There are.*auth').findall(res.body)
+        print s
+
+        import pdb
+        pdb.set_trace()
+
+
+  
+        # anauthzgroup should now have one member, annafan, and she should be a reader on the group
+        # anauthzgroup is an admin for anotherauthzgroup, so she has control over it.
+        # Now go and look at the groups http://localhost:5000/authorizationgroup as annafan  
+        # She should be able to see both groups
+        # If she goes to anauthzgroup http://localhost:5000/authorizationgroup/anauthzgroup then she should see the list of users (her)
+        # If she goes to anotherauthzgroup  http://localhost:5000/authorizationgroup/anotherauthzgroup then she should be able to see the admin page
+        # She can downgrade anauthzgroup to only be an editor on anotherauthzgroup
+        # This should lock her out of the page, surely? But it doesn't. 
+        # The admin tab goes, but she is still seeing the form. However if she tries to put it back then she's redirected.
+        # She can't see the admin page anymore, but she should still be able to edit the userlist for the group.
+        # She adds tester, russianfan, and herself, necessitating three separate visits to the edit page.
+        # Why in the search box doesn't searcing for 'Wonderful' find 'A Wonderful Story'? Create ticket for this.
+        # She goes to A Wonderful Story, which it appears she's an admin on, because visitor is!
+        # And adds anotherauthzgroup as admin on A Wonderful Story, and removes all other entries.
+        # She should be able to see the authz page, as should testsysadmin and tester
+        # She goes to anotherauthzgroup, and removes tester. Tester should no longer be able to see that A Wonderful Story even exists
+        # http://localhost:5000/package/authz/warandpeace
+        # She puts him back in, and he should be able to see the authz page again. 
+
+
+
+        import pdb
+        pdb.set_trace()
         assert False, "deliberate fail"
