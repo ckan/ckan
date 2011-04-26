@@ -86,18 +86,6 @@ class TestUserController(FunctionalTestCase):
     #    assert user
     #    assert len(user.apikey) == 36
 
-    def test_apikey(self):
-        # not_logged_in
-        user = model.User.by_name(u'okfntest')
-        if user:
-            user.purge()
-            model.Session.commit()
-            model.Session.remove()
-
-        offset = url_for(controller='user', action='login')
-        res = self.app.get(offset, extra_environ=dict(REMOTE_USER='okfntest'))
-        res = self.app.get(offset, status=[302]) 
-
     # -----------
     # tests for top links present in every page
      # TODO: test sign in results in:
@@ -124,8 +112,9 @@ class TestUserController(FunctionalTestCase):
             model.Session.remove()
 
         # not logged in
-        offset = url_for(controller='user', action='read')
-        res = self.app.get(offset, status=[302]) 
+        offset = url_for(controller='user', action='read', id=username)
+        res = self.app.get(offset) 
+        assert not 'API key' in res
 
         offset = url_for(controller='user', action='read', id='okfntest')
         res = self.app.get(offset, extra_environ={'REMOTE_USER': 'okfntest'})
