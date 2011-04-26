@@ -3,6 +3,7 @@
 The more specific and detailed routes should be defined first so they
 may take precedent over the more generic routes. For more information
 refer to the routes manual at http://routes.groovie.org/docs/
+
 """
 from pylons import config
 from routes import Mapper
@@ -33,78 +34,114 @@ def make_map():
     map.connect('about', '/about', controller='home', action='about')
 
     # CKAN API versioned.
+    register_list = [
+            'package',
+            'resource',
+            'tag',
+            'group',
+            'authorizationgroup',
+            'revision',
+            'licenses',
+            'rating'
+            ]
+    register_list_str = '|'.join(register_list)
+
     map.connect('/api/{ver:1|2}', controller='api', action='get_api')
 
-    map.connect('/api/{ver:1|2}/search/:register', controller='api', action='search')
+    map.connect('/api/{ver:1|2}/search/{register}', controller='api', action='search')
     map.connect('/api/{ver:1|2}/tag_counts', controller='api', action='tag_counts')
 
     map.connect('/api/{ver:1|2}/rest', controller='api', action='index')
 
-    map.connect('/api/{ver:1|2}/rest/:register', controller='api', action='list',
+    map.connect('/api/{ver:1|2}/rest/{register}', controller='api', action='list',
+        requirements=dict(register=register_list_str),
         conditions=dict(method=['GET']))
-    map.connect('/api/{ver:1|2}/rest/:register', controller='api', action='create',
+    map.connect('/api/{ver:1|2}/rest/{register}', controller='api', action='create',
+        requirements=dict(register=register_list_str),
         conditions=dict(method=['POST']))
-    map.connect('/api/{ver:1|2}/rest/:register/:id', controller='api', action='show',
+    map.connect('/api/{ver:1|2}/rest/{register}/{id}', controller='api', action='show',
+        requirements=dict(register=register_list_str),
         conditions=dict(method=['GET']))
-    map.connect('/api/{ver:1|2}/rest/:register/:id', controller='api', action='update',
+    map.connect('/api/{ver:1|2}/rest/{register}/{id}', controller='api', action='update',
+        requirements=dict(register=register_list_str),
         conditions=dict(method=['PUT']))
-    map.connect('/api/{ver:1|2}/rest/:register/:id', controller='api', action='update',
+    map.connect('/api/{ver:1|2}/rest/{register}/{id}', controller='api', action='update',
+        requirements=dict(register=register_list_str),
         conditions=dict(method=['POST']))
-    map.connect('/api/{ver:1|2}/rest/:register/:id', controller='api', action='delete',
+    map.connect('/api/{ver:1|2}/rest/{register}/{id}', controller='api', action='delete',
+        requirements=dict(register=register_list_str),
         conditions=dict(method=['DELETE']))
-    map.connect('/api/{ver:1|2}/rest/:register/:id/:subregister',
+    map.connect('/api/{ver:1|2}/rest/{register}/{id}/:subregister',
         controller='api', action='list',
+        requirements=dict(register=register_list_str),
         conditions=dict(method=['GET']))
-    map.connect('/api/{ver:1|2}/rest/:register/:id/:subregister/:id2',
+    map.connect('/api/{ver:1|2}/rest/{register}/{id}/:subregister/{id2}',
         controller='api', action='create',
+        requirements=dict(register=register_list_str),
         conditions=dict(method=['POST']))
-    map.connect('/api/{ver:1|2}/rest/:register/:id/:subregister/:id2',
+    map.connect('/api/{ver:1|2}/rest/{register}/{id}/:subregister/{id2}',
         controller='api', action='show',
+        requirements=dict(register=register_list_str),
         conditions=dict(method=['GET']))
-    map.connect('/api/{ver:1|2}/rest/:register/:id/:subregister/:id2',
+    map.connect('/api/{ver:1|2}/rest/{register}/{id}/:subregister/{id2}',
         controller='api', action='update',
+        requirements=dict(register=register_list_str),
         conditions=dict(method=['PUT']))
-    map.connect('/api/{ver:1|2}/rest/:register/:id/:subregister/:id2',
+    map.connect('/api/{ver:1|2}/rest/{register}/{id}/:subregister/{id2}',
         controller='api', action='delete',
+        requirements=dict(register=register_list_str),
         conditions=dict(method=['DELETE']))
     map.connect('/api/{ver:1|2}/qos/throughput/',
         controller='api', action='throughput',
+        requirements=dict(register=register_list_str),
         conditions=dict(method=['GET']))
 
     # CKAN API unversioned.
     map.connect('/api', controller='api', action='get_api')
 
-    map.connect('/api/search/:register', controller='api', action='search')
+    map.connect('/api/search/{register}', controller='api', action='search')
     map.connect('/api/tag_counts', controller='api', action='tag_counts')
     
     map.connect('/api/rest', controller='api', action='index')
 
-    map.connect('/api/rest/:register', controller='api', action='list',
-        conditions=dict(method=['GET']))
-    map.connect('/api/rest/:register', controller='api', action='create',
+    map.connect('/api/rest/{register}', controller='api', action='list',
+        requirements=dict(register=register_list_str),
+        conditions=dict(method=['GET'])
+        )
+    map.connect('/api/rest/{register}', controller='api', action='create',
+        requirements=dict(register=register_list_str),
         conditions=dict(method=['POST']))
-    map.connect('/api/rest/:register/:id', controller='api', action='show',
+    map.connect('/api/rest/{register}/{id}', controller='api', action='show',
+        requirements=dict(register=register_list_str),
         conditions=dict(method=['GET']))
-    map.connect('/api/rest/:register/:id', controller='api', action='update',
+    map.connect('/api/rest/{register}/{id}', controller='api', action='update',
+        requirements=dict(register=register_list_str),
         conditions=dict(method=['PUT']))
-    map.connect('/api/rest/:register/:id', controller='api', action='update',
+    map.connect('/api/rest/{register}/{id}', controller='api', action='update',
+        requirements=dict(register=register_list_str),
         conditions=dict(method=['POST']))
-    map.connect('/api/rest/:register/:id', controller='api', action='delete',
+    map.connect('/api/rest/{register}/{id}', controller='api', action='delete',
+        requirements=dict(register=register_list_str),
         conditions=dict(method=['DELETE']))
-    map.connect('/api/rest/:register/:id/:subregister',
+    map.connect('/api/rest/{register}/{id}/:subregister',
         controller='api', action='list',
+        requirements=dict(register=register_list_str),
         conditions=dict(method=['GET']))
-    map.connect('/api/rest/:register/:id/:subregister/:id2',
+    map.connect('/api/rest/{register}/{id}/:subregister/{id2}',
         controller='api', action='create',
+        requirements=dict(register=register_list_str),
         conditions=dict(method=['POST']))
-    map.connect('/api/rest/:register/:id/:subregister/:id2',
+    map.connect('/api/rest/{register}/{id}/:subregister/{id2}',
         controller='api', action='show',
+        requirements=dict(register=register_list_str),
         conditions=dict(method=['GET']))
-    map.connect('/api/rest/:register/:id/:subregister/:id2',
+    map.connect('/api/rest/{register}/{id}/:subregister/{id2}',
         controller='api', action='update',
+        requirements=dict(register=register_list_str),
         conditions=dict(method=['PUT']))
-    map.connect('/api/rest/:register/:id/:subregister/:id2',
+    map.connect('/api/rest/{register}/{id}/:subregister/{id2}',
         controller='api', action='delete',
+        requirements=dict(register=register_list_str),
         conditions=dict(method=['DELETE']))
     map.connect('/api/qos/throughput/',
         controller='api', action='throughput',
@@ -124,33 +161,53 @@ def make_map():
 
     map.redirect("/packages", "/package")
     map.redirect("/packages/{url:.*}", "/package/{url}")
-    map.connect('/package', controller='package', action='search')
-    map.connect('/package/', controller='package', action='search')
-    map.connect('/package/search', controller='package', action='search')
-    map.connect('/package/list', controller='package', action='search')
-    map.connect('/package/new', controller='package', action='new')
-    map.connect('/package/new_title_to_slug', controller='package', action='new_title_to_slug')
-    map.connect('/package/autocomplete', controller='package', action='autocomplete')
-    map.connect('/package/:id', controller='package', action='read')
+    map.connect('/package/{action}', controller='package',
+        requirements=dict(action='|'.join([
+            'search',
+            'list',
+            'new',
+            'autocomplete'
+            ]))
+        )
+    # for backwards compatability
+    map.connect('/package', controller='package', action='index')
+    map.connect('/package/{action}/{id}', controller='package',
+        requirements=dict(action='|'.join([
+        'edit',
+        'authz',
+        'history'
+        ]))
+        )
+    map.connect('/package/{id}', controller='package', action='read')
+    # group
     map.redirect("/groups", "/group")
     map.redirect("/groups/{url:.*}", "/group/{url}")
-    map.connect('/group/', controller='group', action='index')
+    map.connect('/group', controller='group', action='index')
     map.connect('/group/list', controller='group', action='list')
     map.connect('/group/new', controller='group', action='new')
-    map.connect('/group/:id', controller='group', action='read')
+    map.connect('/group/{action}/{id}', controller='group',
+        requirements=dict(actions='|'.join([
+        'edit',
+        'authz'
+        ]))
+        )
+    map.connect('/group/{id}', controller='group', action='read')
+    # authz group
     map.redirect("/authorizationgroups", "/authorizationgroup")
     map.redirect("/authorizationgroups/{url:.*}", "/authorizationgroup/{url}")
     map.connect('/authorizationgroup', controller='authorization_group', action='index')
     map.connect('/authorizationgroup/list', controller='authorization_group', action='list')
     map.connect('/authorizationgroup/new', controller='authorization_group', action='new')
-    map.connect('/authorizationgroup/edit/:id', controller='authorization_group', action='edit')
-    map.connect('/authorizationgroup/authz/:id', controller='authorization_group', action='authz')
-    map.connect('/authorizationgroup/:id', controller='authorization_group', action='read')
+    map.connect('/authorizationgroup/edit/{id}', controller='authorization_group', action='edit')
+    map.connect('/authorizationgroup/authz/{id}', controller='authorization_group', action='authz')
+    map.connect('/authorizationgroup/{id}', controller='authorization_group', action='read')
+    # tags
     map.redirect("/tags", "/tag")
     map.redirect("/tags/{url:.*}", "/tag/{url}")
     map.redirect("/tag/read/{url:.*}", "/tag/{url}", _redirect_code='301 Moved Permanently')
-    map.connect('/tag/', controller='tag', action='index')
-    map.connect('/tag/:id', controller='tag', action='read')
+    map.connect('/tag', controller='tag', action='index')
+    map.connect('/tag/{id}', controller='tag', action='read')
+    # users
     map.redirect("/users/{url:.*}", "/user/{url}")
     map.connect('/user/edit', controller='user', action='edit')
     # Note: openid users have slashes in their ids, so need the wildcard
@@ -162,9 +219,9 @@ def make_map():
     map.connect('/user/logged_out', controller='user', action='logged_out')
     map.connect('/user/me', controller='user', action='me')
     map.connect('/user/{id:.*}', controller='user', action='read')
-    map.connect('/{controller}', action='index')
-    map.connect('/:controller/{action}')
-    map.connect('/{controller}/{action}/{id}')
+    map.connect('/revision/{action}/{id}', controller='revision')
+    map.connect('/revision/{action}', controller='revision')
+    map.connect('/revision', controller='revision', action='index')
     
     for plugin in routing_plugins:
         map = plugin.after_map(map)
