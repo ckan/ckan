@@ -1,5 +1,6 @@
 from ckan.lib.dictization import table_dict_save
 from sqlalchemy.orm import class_mapper
+import json
 
 ##package saving
 
@@ -51,7 +52,7 @@ def package_extras_save(extras_dicts, pkg, context):
 
     result_dict = {}
     for extra_dict in extras_dicts:
-        result_dict[extra_dict["key"]] = extra_dict["value"]
+        result_dict[extra_dict["key"]] = json.loads(extra_dict["value"])
 
     return result_dict
 
@@ -209,7 +210,8 @@ def package_api_to_dict(api1_dict, context):
             new_value = []
             for extras_key, extras_value in updated_extras.iteritems():
                 if extras_value is not None:
-                    new_value.append({"key": extras_key, "value": extras_value})
+                    new_value.append({"key": extras_key,
+                                      "value": json.dumps(extras_value)})
 
         dictized[key] = new_value
 

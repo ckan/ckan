@@ -367,6 +367,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, TestSearchIndexer, PylonsT
     @search_related
     def test_search(self):
         offset = url_for(controller='package', action='search')
+        print offset
         res = self.app.get(offset)
         assert 'Search - ' in res
         self._check_search_results(res, 'annakarenina', ['<strong>1</strong>', 'A Novel By Tolstoy'] )
