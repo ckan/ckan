@@ -38,7 +38,7 @@ class TestAuthorizationGroup(FunctionalTestCase):
         assert '<h2>Authorization Groups</h2>' in res, res
 
     def test_index(self):
-        offset = url_for(controller='authorizationgroup')
+        offset = url_for(controller='authorization_group')
         res = self.app.get(offset, extra_environ={'REMOTE_USER': 'russianfan'})
         assert '<h2>Authorization Groups</h2>' in res, res
         group_count = Authorizer.authorized_query(u'russianfan', model.AuthorizationGroup).count()
