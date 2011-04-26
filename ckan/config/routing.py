@@ -155,6 +155,15 @@ def make_map():
     map.connect('/api/2/util/tag/autocomplete', controller='api', action='tag_autocomplete',
                 conditions=dict(method=['GET']))
 
+    map.connect('/api/2/util/authorizationgroup/autocomplete', controller='api',
+        action='authorizationgroup_autocomplete')
+
+
+
+
+
+
+
     ###########
     ## /END API
     ###########
