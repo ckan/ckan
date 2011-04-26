@@ -158,21 +158,15 @@ def make_map():
     map.connect('/api/2/util/authorizationgroup/autocomplete', controller='api',
         action='authorizationgroup_autocomplete')
 
-
-
-
-
-
-
     ###########
     ## /END API
     ###########
 
     map.redirect("/packages", "/package")
     map.redirect("/packages/{url:.*}", "/package/{url}")
+    map.connect('/package', controller='package', action='search')
     map.connect('/package/{action}', controller='package',
         requirements=dict(action='|'.join([
-            'search',
             'list',
             'new',
             'autocomplete'
