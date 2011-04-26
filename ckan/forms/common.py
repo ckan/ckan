@@ -470,7 +470,8 @@ class TagField(ConfiguredField):
             kwargs['value'] = ' '.join(self.value)
             kwargs['size'] = 60
             api_url = config.get('ckan.api_url', '/').rstrip('/')
-            tagcomplete_url = api_url+h.url_for(controller='apiv2/package', action='autocomplete', id=None)
+            tagcomplete_url = api_url+h.url_for(controller='api',
+                    action='tag_autocomplete', id=None)
             kwargs['data-tagcomplete-url'] = tagcomplete_url
             kwargs['data-tagcomplete-queryparam'] = 'incomplete'
             kwargs['class'] = 'long tagComplete'
