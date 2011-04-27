@@ -361,6 +361,11 @@ class TestSearchIndexer:
     def index(cls):
         pass     
 
+    @classmethod
+    def list(cls):
+        return [model.Package.get(pkg_index.package_id).name for pkg_index in model.Session.query(model.PackageSearch)]
+            
+
 def is_search_supported():
     supported_db = "sqlite" not in config.get('sqlalchemy.url')
     return supported_db

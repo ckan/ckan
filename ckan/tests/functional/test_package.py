@@ -263,11 +263,9 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, TestSearchIndexer, PylonsT
         PylonsTestCase.setup_class()
         cls.tsi = TestSearchIndexer()
         CreateTestData.create()
-        cls.tsi.index()
 
     @classmethod
     def teardown_class(cls):
-        CreateTestData.delete()
         model.repo.rebuild_db()
 
     @search_related
@@ -366,7 +364,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, TestSearchIndexer, PylonsT
 
     @search_related
     def test_search(self):
-        offset = url_for(controller='package', action='search')
+        offset = url_for(controller='package', action='search', id=None)
         res = self.app.get(offset)
         assert 'Search - ' in res
         self._check_search_results(res, 'annakarenina', ['<strong>1</strong>', 'A Novel By Tolstoy'] )
