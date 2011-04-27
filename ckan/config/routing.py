@@ -169,7 +169,8 @@ def make_map():
         requirements=dict(action='|'.join([
             'list',
             'new',
-            'autocomplete'
+            'autocomplete',
+            'search'
             ]))
         )
     # for backwards compatability
@@ -222,6 +223,10 @@ def make_map():
     map.connect('/user/logged_out', controller='user', action='logged_out')
     map.connect('/user/me', controller='user', action='me')
     map.connect('/user/{id:.*}', controller='user', action='read')
+    map.connect('/user', controller='revision', action='index')
+
+
+
     map.connect('/revision/{action}/{id}', controller='revision')
     map.connect('/revision/{action}', controller='revision')
     map.connect('/revision', controller='revision', action='index')

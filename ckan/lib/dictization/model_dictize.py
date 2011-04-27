@@ -4,6 +4,7 @@ from ckan.lib.dictization import (obj_list_dictize,
                                   obj_dict_dictize,
                                   table_dictize)
 import ckan.misc
+import json
 
 ## package save
 
@@ -25,6 +26,15 @@ def resource_list_dictize(res_list, context):
 
     return sorted(result_list, key=lambda x: x["position"])
 
+def extras_dict_dictize(extras_dict, context):
+    result_list = []
+    for name, extra in extras_dict.iteritems():
+        dictized = table_dictize(extra, context)
+        dictized["value"] = json.dumps(dictized["value"])
+        result_list.append(dictized)
+
+    return sorted(result_list, key=lambda x: x["key"])
+
 def resource_dictize(res, context):
     resource = table_dictize(res, context)
     extras = resource.pop("extras", None)
@@ -40,8 +50,8 @@ def package_dictize(pkg, context):
 
     result_dict["tags"] = obj_list_dictize(
         pkg.tags, context, lambda x: x["name"])
-    result_dict["extras"] = obj_dict_dictize(
-        pkg._extras, context, lambda x: x["key"])
+    result_dict["extras"] = extras_dict_dictize(
+        pkg._extras, context)
     result_dict["groups"] = group_list_dictize(
         pkg.groups, context, lambda x: x["name"])
     result_dict["relationships_as_subject"] = obj_list_dictize(
@@ -94,7 +104,7 @@ def package_to_api1(pkg, context):
     dictized = package_dictize(pkg, context)
     dictized["groups"] = [group["name"] for group in dictized["groups"]]
     dictized["tags"] = [tag["name"] for tag in dictized["tags"]]
-    dictized["extras"] = dict((extra["key"], extra["value"]) 
+    dictized["extras"] = dict((extra["key"], json.loads(extra["value"])) 
                               for extra in dictized["extras"])
     dictized['notes_rendered'] = ckan.misc.MarkdownFormat().to_html(pkg.notes)
 
@@ -146,7 +156,7 @@ def package_to_api2(pkg, context):
     dictized = package_dictize(pkg, context)
     dictized["groups"] = [group["id"] for group in dictized["groups"]]
     dictized["tags"] = [tag["name"] for tag in dictized["tags"]]
-    dictized["extras"] = dict((extra["key"], extra["value"]) 
+    dictized["extras"] = dict((extra["key"], json.loads(extra["value"])) 
                               for extra in dictized["extras"])
 
     resources = dictized["resources"] 

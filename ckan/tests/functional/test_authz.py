@@ -353,8 +353,8 @@ class TestUsage(TestController, AuthzTestBase):
         self._test_can('list', [self.testsysadmin, self.pkggroupadmin], ['xx', 'rx', 'wx', 'rr', 'wr', 'ww'], interfaces=['rest'])
         self._test_can('list', self.mrloggedin, ['rx', 'wx', 'rr', 'wr', 'ww'], interfaces=['rest'])
         self._test_can('list', self.visitor, ['rr', 'wr', 'ww'], interfaces=['rest'])
-        self._test_cant('list', self.mrloggedin, ['xx'])
-        self._test_cant('list', self.visitor, ['xx', 'rx', 'wx'])
+        self._test_cant('list', self.mrloggedin, ['xx'], interfaces=['rest'])
+        self._test_cant('list', self.visitor, ['xx', 'rx', 'wx'], interfaces=['rest'])
 
     def test_admin_edit_deleted(self):
         self._test_can('edit', self.pkggroupadmin, ['xx', 'rx', 'wx', 'rr', 'wr', 'ww', 'deleted'])

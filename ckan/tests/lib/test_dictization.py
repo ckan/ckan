@@ -121,7 +121,7 @@ class TestBasicDictize:
         assert result ==\
             {'author': None,
              'author_email': None,
-             'extras': [{'key': u'original media', 'state': u'active', 'value': u'book'}],
+             'extras': [{'key': u'original media', 'state': u'active', 'value': u'"book"'}],
              'groups': [{'description': u'These are books that David likes.',
                          'name': u'david',
                          'state': u'active',
@@ -381,8 +381,8 @@ class TestBasicDictize:
 
         dictized = package_api_to_dict(api_data, context)
 
-        assert dictized == {'extras': [{'key': 'genre', 'value': u'horror'},
-                                       {'key': 'media', 'value': u'dvd'}],
+        assert dictized == {'extras': [{'key': 'genre', 'value': u'"horror"'},
+                                       {'key': 'media', 'value': u'"dvd"'}],
                             'license_id': u'gpl-3.0',
                             'name': u'testpkg',
                             'resources': [{u'alt_url': u'alt_url',
@@ -421,8 +421,8 @@ class TestBasicDictize:
 
         group_dict = {'name': 'help',
                       'title': 'help',
-                      'extras': [{'key': 'genre', 'value': u'horror'},
-                                 {'key': 'media', 'value': u'dvd'}],
+                      'extras': [{'key': 'genre', 'value': u'"horror"'},
+                                 {'key': 'media', 'value': u'"dvd"'}],
                       'packages':[{'name': 'annakarenina2'}, {'id': pkg.id}]
                       }
 
@@ -437,8 +437,8 @@ class TestBasicDictize:
         group_dictized = group_dictize(group, context)
 
         expected =  {'description': u'',
-                    'extras': [{'key': u'genre', 'state': u'active', 'value': u'horror'},
-                               {'key': u'media', 'state': u'active', 'value': u'dvd'}],
+                    'extras': [{'key': u'genre', 'state': u'active', 'value': u'"horror"'},
+                               {'key': u'media', 'state': u'active', 'value': u'"dvd"'}],
                     'name': u'help',
                     'packages': [{'author': None,
                                   'author_email': None,

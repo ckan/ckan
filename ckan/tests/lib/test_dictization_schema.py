@@ -66,8 +66,8 @@ class TestBasicDictize:
 
 
         pprint(errors)
-        assert converted_data == {'extras': [{'key': u'genre', 'value': u'romantic novel'},
-                                            {'key': u'original media', 'value': u'book'}],
+        assert converted_data == {'extras': [{'key': u'genre', 'value': u'"romantic novel"'},
+                                            {'key': u'original media', 'value': u'"book"'}],
 #                                 'groups': [{'name': u'david'}, {'name': u'roger'}],
                                  'license_id': u'other-open',
                                  'name': u'anna2',
