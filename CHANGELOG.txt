@@ -1,6 +1,12 @@
 CKAN CHANGELOG
 ++++++++++++++
 
+v1.3.5 2011-XX-XX
+=================
+Major:
+  * Authorization forms now in grid format (#1074)
+  * Links to RDF, N3 and Turtle metadata formats provided by semantic.ckan.net (#1088)
+
 v1.3.4 2011-XX-XX
 =================
 Major:
