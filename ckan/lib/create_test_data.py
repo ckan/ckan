@@ -28,8 +28,10 @@ class CreateTestData(cli.CkanCommand):
                        ]
 
     def command(self):
+        from ckan import plugins
         self._load_config()
         self._setup_app()
+        plugins.load('synchronous_search') # so packages get indexed
         if self.args:
             cmd = self.args[0]
         else:
