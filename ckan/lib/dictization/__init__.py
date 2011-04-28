@@ -33,6 +33,8 @@ def table_dictize(obj, context):
             result_dict[name] = value
         elif isinstance(value, datetime.datetime):
             result_dict[name] = value.isoformat()
+        elif isinstance(value, list):
+            result_dict[name] = value
         else:
             result_dict[name] = unicode(value)
 
