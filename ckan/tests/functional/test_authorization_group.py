@@ -143,15 +143,22 @@ class TestAuthorizationGroupWalkthrough(FunctionalTestCase):
         model.Session.remove()
 
     def authzgroups_walkthrough(self):
-        # log in as annafan, look at authorization groups page, http://localhost:5000/authorizationgroup, should be 0 groups
+        # log in as annafan, look at authorization groups page, 
+        # (http://localhost:5000/authorizationgroup), there should be 0 groups
+        # (two groups actually exist in the default test data, but annafan has read permission
+        # on neither)
         auth_group_index_url = url_for(controller='authorization_group', action='index')
 
         # look as annafan
-        res = self.app.get(auth_group_index_url, status=200, extra_environ={'REMOTE_USER': 'annafan'})
-        assert 'There are <strong>0</strong> auth' in res, "Should lie to annafan about number of groups"
+        res = self.app.get(auth_group_index_url, status=200, 
+                           extra_environ={'REMOTE_USER': 'annafan'})
 
-        # look as testsysadmin, should see the two groups in the test data
-        res = self.app.get(auth_group_index_url, status=200, extra_environ={'REMOTE_USER': 'testsysadmin'})
+        assert 'There are <strong>0</strong> auth' in res, \
+                                  "Should lie to annafan about number of groups"
+
+        # look as testsysadmin, who should be able to see the two groups in the test data
+        res = self.app.get(auth_group_index_url, status=200, 
+                                        extra_environ={'REMOTE_USER': 'testsysadmin'})
         assert 'There are <strong>2</strong> auth' in res, "Should be accurate for testsysadmin"
 
         anauthzgroup_url = url_for(controller='authorizationgroup', action='anauthzgroup')
@@ -164,9 +171,12 @@ class TestAuthorizationGroupWalkthrough(FunctionalTestCase):
         group_edit_form = res.forms['group-edit']
         user_field = group_edit_form.fields['AuthorizationGroupUser--user_name'][0]
         user_field.value = u'annafan'
-        submit_res = group_edit_form.submit(extra_environ={'REMOTE_USER': 'testsysadmin'})
+        submit_res = group_edit_form.submit('save',extra_environ={'REMOTE_USER': 'testsysadmin'})
 
-        print model.AuthorizationGroup.by_name('anauthzgroup').users
+        # anauthzgroup should now have one member, annafan, and she should be a reader on the group
+        anauthzgroup_users=[x.name for x in model.AuthorizationGroup.by_name('anauthzgroup').users]
+        assert anauthzgroup_users==[u'annafan'], 'anauthzgroup should contain annafan (only)'
+
 
         # if we've got this far, drop into the debugger
 
@@ -179,7 +189,7 @@ class TestAuthorizationGroupWalkthrough(FunctionalTestCase):
 
 
   
-        # anauthzgroup should now have one member, annafan, and she should be a reader on the group
+
         # anauthzgroup is an admin for anotherauthzgroup, so she has control over it.
         # Now go and look at the groups http://localhost:5000/authorizationgroup as annafan  
         # She should be able to see both groups
