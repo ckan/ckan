@@ -19,7 +19,7 @@ from ckan.lib.dictization.model_dictize import (group_dictize,
 from ckan.logic.schema import default_create_package_schema, default_resource_schema
 
 from ckan.logic.schema import default_group_schema
-from ckan.lib.navl.dictization_functions import validate
+from ckan.lib.navl.dictization_functions import validate, validate_flattened, unflatten
 from ckan.logic.action.update import _update_package_relationship
 log = logging.getLogger(__name__)
 
@@ -28,20 +28,26 @@ def package_create(data_dict, context):
 
     model = context['model']
     user = context['user']
+    flat = context.get('flat', False)
     schema = context.get('schema') or default_create_package_schema()
 
     check_access(model.System(), model.Action.PACKAGE_CREATE, context)
 
-    data, errors = validate(data_dict,
-                            schema,
-                            context)
+    if flat:
+        data, errors = validate_flattened(data_dict, schema, context)
+        data = unflatten(data)
+    else:
+        data, errors = validate(data_dict, schema, context)
 
     if errors:
         raise ValidationError(errors)
 
     rev = model.repo.new_revision()
     rev.author = user
-    rev.message = _(u'REST API: Create object %s') % data["name"]
+    if 'message' in context:
+        rev.message = context['message']
+    else:
+        rev.message = _(u'REST API: Create object %s') % data.get("name")
 
     pkg = package_dict_save(data, context)
 

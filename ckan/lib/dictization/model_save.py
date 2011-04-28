@@ -49,10 +49,15 @@ def package_extras_save(extras_dicts, pkg, context):
 
     model = context["model"]
     session = context["session"]
+    extras_as_string = context.get("extras_as_string", False)
 
     result_dict = {}
     for extra_dict in extras_dicts:
-        result_dict[extra_dict["key"]] = json.loads(extra_dict["value"])
+        if extras_as_string:
+            result_dict[extra_dict["key"]] = extra_dict["value"]
+        else:
+            result_dict[extra_dict["key"]] = json.loads(extra_dict["value"])
+
 
     return result_dict
 
@@ -212,7 +217,6 @@ def package_api_to_dict(api1_dict, context):
                 if extras_value is not None:
                     new_value.append({"key": extras_key,
                                       "value": json.dumps(extras_value)})
-
         dictized[key] = new_value
 
     groups = dictized.pop('groups', None)

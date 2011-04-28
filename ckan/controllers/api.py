@@ -154,7 +154,7 @@ class ApiController(BaseController):
             'revision': get.revision_show,
             'group': get.group_show,
             'tag': get.tag_show,
-            'package': get.package_show,
+            'package': get.package_show_rest,
             ('package', 'relationships'): get.package_relationships_list,
         }
 

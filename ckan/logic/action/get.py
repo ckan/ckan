@@ -5,7 +5,7 @@ from ckan.plugins import (PluginImplementations,
 import ckan.authz
 
 from ckan.lib.dictization.model_dictize import group_to_api1, group_to_api2
-from ckan.lib.dictization.model_dictize import package_to_api1, package_to_api2
+from ckan.lib.dictization.model_dictize import package_to_api1, package_to_api2, package_dictize
 
 
 def package_list(context):
@@ -105,15 +105,14 @@ def package_show(context):
     id = context['id']
 
     pkg = model.Package.get(id)
-    
+
+    context['package'] = pkg
+
     if pkg is None:
         raise NotFound
     check_access(pkg, model.Action.READ, context)
 
-    if api == '1':
-        package_dict = package_to_api1(pkg, context)
-    else:
-        package_dict = package_to_api2(pkg, context)
+    package_dict = package_dictize(pkg, context)
 
     for item in PluginImplementations(IPackageController):
         item.read(pkg)
@@ -167,3 +166,17 @@ def tag_show(context):
     return package_list 
 
 
+def package_show_rest(context):
+
+    package_show(context)
+
+    api = context.get('api_version') or '1'
+
+    pkg = context['package']
+
+    if api == '1':
+        package_dict = package_to_api1(pkg, context)
+    else:
+        package_dict = package_to_api2(pkg, context)
+
+    return package_dict

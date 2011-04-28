@@ -18,6 +18,30 @@ class ValidationError(ActionError):
 
 log = logging.getLogger(__name__)
 
+def clean_dict(data_dict):
+    return dict((k, v) for k, v in data_dict.items() if v)
+
+def tuplize_dict(data_dict):
+    ''' gets a dict with keys of the form 'table__0__key' and converts them
+    to a tuple like ('table', 0, 'key')'''
+
+    tuplized_dict = {}
+    for key, value in data_dict.iteritems():
+        key_list = key.split('__')
+        for num, key in enumerate(key_list):
+            if num % 2 == 1:
+                key_list[num] = int(key)
+        tuplized_dict[tuple(key_list)] = value
+    return tuplized_dict
+
+def untuplize_dict(tuplized_dict):
+
+    data_dict = {}
+    for key, value in tuplized_dict.iteritems():
+        new_key = '__'.join([str(item) for item in key])
+        data_dict[new_key] = value
+    return data_dict
+
 def check_access(entity, action, context):
     model = context["model"]
     user = context.get("user")

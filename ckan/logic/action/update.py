@@ -11,7 +11,7 @@ from ckan.lib.dictization.model_save import (group_api_to_dict,
                                              package_dict_save)
 from ckan.logic.schema import (default_update_group_schema,
                                default_update_package_schema)
-from ckan.lib.navl.dictization_functions import validate
+from ckan.lib.navl.dictization_functions import validate, validate_flattened, unflatten
 log = logging.getLogger(__name__)
 
 
@@ -21,6 +21,7 @@ def package_update(data_dict, context):
     model = context['model']
     user = context['user']
     id = context["id"]
+    flat = context.get('flat', False)
     schema = context.get('schema') or default_update_package_schema()
 
     pkg = model.Package.get(id)
@@ -31,9 +32,12 @@ def package_update(data_dict, context):
 
     check_access(pkg, model.Action.EDIT, context)
 
-    data, errors = validate(data_dict,
-                            default_update_package_schema(),
-                            context)
+    if flat:
+        data, errors = validate_flattened(data_dict, schema, context)
+        data = unflatten(data)
+    else:
+        data, errors = validate(data_dict, schema, context)
+
     if errors:
         raise ValidationError(errors)
 
@@ -135,6 +139,8 @@ def group_update(data_dict, context):
         raise ValidationError(errors)
 
     return group_dictize(group, context)
+
+## Modifications for rest api
 
 ## Modifications for rest api
 

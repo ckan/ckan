@@ -222,9 +222,7 @@ def validate_flattened(data, schema, context=None):
 
     context = context or {}
     assert isinstance(data, dict)
-    flattened = flatten_dict(data)
-    converted_data, errors = _validate(flattened, schema, context)
-    converted_data = unflatten(converted_data)
+    converted_data, errors = _validate(data, schema, context)
 
     for key, value in errors.items():
         if not value:

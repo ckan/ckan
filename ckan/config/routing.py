@@ -165,6 +165,11 @@ def make_map():
     map.redirect("/packages", "/package")
     map.redirect("/packages/{url:.*}", "/package/{url}")
     map.connect('/package', controller='package', action='search')
+    map.connect('/package/new', controller='package_logic', action='new')
+    map.connect('/package/edit/{id}', controller='package_logic', action='edit')
+    map.connect('/package/save/', controller='package_logic', action='save')
+    map.connect('/package/save/{id}', controller='package_logic', action='save')
+
     map.connect('/package/{action}', controller='package',
         requirements=dict(action='|'.join([
             'list',
