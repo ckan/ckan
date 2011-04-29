@@ -135,23 +135,32 @@ class BaseController(WSGIController):
         return model.Tag.get(reference)
 
     def _get_request_data(self):
+        '''Returns a dictionary, extracted from a request. The request data is
+        in POST data and formatted as a dictionary that has been
+        JSON-encoded.
+
+        If there is no data, None or "" is returned.
+        ValueError will be raised if the data is not a JSON-formatted dict.
+        
+        '''
         self.log.debug('Retrieving request params: %r' % request.params)
         self.log.debug('Retrieving request POST: %r' % request.POST)
         try:
-            request_data = request.POST.keys()[0]
+            request_data = request.POST.keys()
         except Exception, inst:
-            msg = _("Can't find entity data in request POST data %s: %s") % (
-                request.POST, str(inst)
-            )
+            msg = _("Could not find the POST data: %r : %s") % \
+                  (request.POST, inst)
             raise ValueError, msg
-        request_data = json.loads(request_data, encoding='utf8')
-        if not isinstance(request_data, dict):
-            raise ValueError, _("Request params must be in form of a json encoded dictionary.")
-        # ensure unicode values
-        for key, val in request_data.items():
-            # if val is str then assume it is ascii, since json converts
-            # utf8 encoded JSON to unicode
-            request_data[key] = self._make_unicode(val)
+        if request_data:
+            request_data = request_data[0]
+            request_data = json.loads(request_data, encoding='utf8')
+            if not isinstance(request_data, dict):
+                raise ValueError, _("Request params must be in form of a json encoded dictionary.")
+            # ensure unicode values
+            for key, val in request_data.items():
+                # if val is str then assume it is ascii, since json converts
+                # utf8 encoded JSON to unicode
+                request_data[key] = self._make_unicode(val)
         self.log.debug('Request data extracted: %r' % request_data)
         return request_data
         

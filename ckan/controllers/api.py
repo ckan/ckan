@@ -327,19 +327,19 @@ class ApiController(BaseController):
             return self._finish_ok([rev.id for rev in revs])
         elif register == 'package' or register == 'resource':
             if request.params.has_key('qjson'):
-                if not request.params['qjson']:
+                try:
+                    params = json.loads(request.params['qjson'])
+                except ValueError, e:
                     response.status_int = 400
-                    return gettext('Blank qjson parameter')
-                params = json.loads(request.params['qjson'])
-            elif request.params.values() and request.params.values() != [u''] and request.params.values() != [u'1']:
+                    return gettext('Malformed qjson value') + ': %r' % e
+            elif request.params.values() and request.params.values() != [u'']:
                 params = request.params
             else:
                 try:
-                    params = self._get_request_data()
+                    params = self._get_request_data() or {}
                 except ValueError, inst:
                     response.status_int = 400
                     return gettext(u'Search params: %s') % unicode(inst)
-            
             options = QueryOptions()
             for k, v in params.items():
                 if (k in DEFAULT_OPTIONS.keys()):

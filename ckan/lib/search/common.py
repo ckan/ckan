@@ -1,6 +1,7 @@
 import logging
 
 from paste.util.multidict import MultiDict 
+from paste.deploy.converters import asbool
 from ckan import model
 
 log = logging.getLogger(__name__)
@@ -145,7 +146,7 @@ class QueryOptions(dict):
     def validate(self):
         for key, value in self.items():
             if key in self.BOOLEAN_OPTIONS:
-                value = value == 1 or value
+                value = asbool(value)
             elif key in self.INTEGER_OPTIONS:
                 value = int(value)
             self[key] = value    
@@ -233,14 +234,13 @@ class QueryParser(object):
     
     def validate(self):
         """ Check that this is a valid query. """
-        if not len(self.query):
-            raise SearchError("No query has been specified")
+        pass
     
     def __str__(self):
         return self.query
         
     def __repr__(self):
-        return "Query(%s)" % self
+        return "Query(%r)" % self.query
 
 
 class SearchIndex(object):
