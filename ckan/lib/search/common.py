@@ -233,8 +233,7 @@ class QueryParser(object):
     
     def validate(self):
         """ Check that this is a valid query. """
-        if not len(self.query):
-            raise SearchError("No query has been specified")
+        pass
     
     def __str__(self):
         return self.query
