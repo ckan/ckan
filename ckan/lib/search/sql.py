@@ -294,3 +294,11 @@ class PackageSqlSearchIndex(SqlSearchIndex):
         results = self._run_sql(sql, [])
         return [res[0] for res in results]
         
+    def get_index(self, pkg_ref):
+        pkg = model.Package.get(pkg_ref)
+        assert pkg
+        sql = "SELECT package_id, search_vector FROM package_search WHERE package_id = %s"
+        res = self.backend.connection.execute(sql, pkg.id)
+        search_vector = res.fetchall()
+        res.close()
+        return search_vector

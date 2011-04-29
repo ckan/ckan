@@ -212,17 +212,19 @@ class SearchIndexCommand(CkanCommand):
     '''Creates a search index for all packages
 
     Usage:
-      search-index rebuild                 - indexes all packages
+      search-index rebuild                 - indexes all packages (default)
+      search-index check                   - checks for packages not indexed
+      search-index show {package-name}     - shows index of a package
     '''
 
     summary = __doc__.split('\n')[0]
     usage = __doc__
-    max_args = 1
+    max_args = 2
     min_args = 0
 
     def command(self):
         self._load_config()
-        from ckan.lib.search import rebuild, check
+        from ckan.lib.search import rebuild, check, show
 
         if not self.args:
             # default to run
@@ -234,6 +236,11 @@ class SearchIndexCommand(CkanCommand):
             rebuild()
         elif cmd == 'check':
             check()
+        elif cmd == 'show':
+            if not len(self.args) == 2:
+                import pdb; pdb.set_trace()
+                self.args
+            show(self.args[1])
         else:
             print 'Command %s not recognized' % cmd
 

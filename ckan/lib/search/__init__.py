@@ -63,6 +63,12 @@ def check():
         pkg = model.Session.query(model.Package).get(pkg_id)
         print pkg.revision.timestamp.strftime('%Y-%m-%d'), pkg.name
 
+def show(package_reference):
+    from ckan import model
+    backend = get_backend()
+    package_index = backend.index_for(model.Package)
+    print package_index.get_index(package_reference)
+
 def query_for(_type, backend=None):
     """ Query for entities of a specified type (name, class, instance). """
     return get_backend(backend=backend).query_for(_type)
