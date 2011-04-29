@@ -277,15 +277,75 @@ class TestAuthorizationGroupWalkthrough(FunctionalTestCase):
         res = self.app.get(annasauthzgroup_authz_url, status=401, extra_environ={'REMOTE_USER': 'annafan'})
 
         # testsysadmin can put her back. 
-        # res = self.app.get(annasauthzgroup_authz_url, status=200, extra_environ={'REMOTE_USER': 'testsysadmin'})
+        # It appears that the select boxes on this form need to be set by id
+        anauthzgroupid = model.AuthorizationGroup.by_name(u'anauthzgroup').id
+        annafanid = model.User.by_name(u'annafan').id
 
+        # first try to make both anauthzgroup and annafan editors. This should fail.
+        res = self.app.get(annasauthzgroup_authz_url, status=200, extra_environ={'REMOTE_USER': 'testsysadmin'})
+        gaf= res.forms['group-authz']
+        gaf['AuthorizationGroupRole--authorized_group_id'] = anauthzgroupid
+        gaf['AuthorizationGroupRole--role'] = 'editor'
+        gaf['AuthorizationGroupRole--user_id'] = annafanid
+        res = gaf.submit('save', status=200, extra_environ={'REMOTE_USER': 'testsysadmin'})
+        assert 'Please select either a user or an authorization group, not both.' in res,\
+             'request should fail if you change both user and authz group'
 
+        # settle for just anauthzgroup
+        res = self.app.get(annasauthzgroup_authz_url, status=200, extra_environ={'REMOTE_USER': 'testsysadmin'})
+        gaf= res.forms['group-authz']
+        gaf['AuthorizationGroupRole--authorized_group_id'] = anauthzgroupid
+        gaf['AuthorizationGroupRole--role'] = 'editor'
+        res = gaf.submit('save',status=200, extra_environ={'REMOTE_USER': 'testsysadmin'})
+        assert "Added role 'editor' for authorization group 'anauthzgroup'" in res, "no flash message"
+
+        # and make annafan a reader 
+        res = self.app.get(annasauthzgroup_authz_url, status=200, extra_environ={'REMOTE_USER': 'testsysadmin'})
+        gaf= res.forms['group-authz']
+        gaf['AuthorizationGroupRole--user_id'] = annafanid
+        gaf['AuthorizationGroupRole--role'] = 'reader'
+        res = gaf.submit('save', status=200, extra_environ={'REMOTE_USER': 'testsysadmin'})
+        assert "Added role 'reader' for user 'annafan'" in res, "no flash message"
+
+        # annafan should now be able to add her friends to annasauthzgroup
+        annasauthzgroup_edit_url = url_for(controller='authorizationgroup', action='edit', id='anotherauthzgroup')
+        res = self.app.get(anotherauthzgroup_edit_url, status=200, extra_environ={'REMOTE_USER': 'annafan'})
+        res.forms['group-edit']['AuthorizationGroupUser--user_name']='tester'
+        # this follows the post/redirect/get pattern
+        res = res.forms['group-edit'].submit('save', status=302, extra_environ={'REMOTE_USER': 'annafan'})
+        res = res.follow(status=200, extra_environ={'REMOTE_USER': 'annafan'})
+        #she gets redirected to the group view page
+        assert 'tester' in res, 'tester not added?'
+ 
+        # she needs to do them one by one
+        res = self.app.get(anotherauthzgroup_edit_url, status=200, extra_environ={'REMOTE_USER': 'annafan'})
+        assert 'tester' in res, 'tester not in edit form'
+        res.forms['group-edit']['AuthorizationGroupUser--user_name']='russianfan'        
+        res = res.forms['group-edit'].submit('save', status=302, extra_environ={'REMOTE_USER': 'annafan'})
+        res = res.follow(status=200, extra_environ={'REMOTE_USER': 'annafan'})
+        
+        # and finally adds herself
+        res = self.app.get(anotherauthzgroup_edit_url, status=200, extra_environ={'REMOTE_USER': 'annafan'})
+        assert 'russianfan' in res, 'russianfan not added?'
+        res.forms['group-edit']['AuthorizationGroupUser--user_name']='annafan'        
+        res = res.forms['group-edit'].submit('save', status=302, extra_environ={'REMOTE_USER': 'annafan'})
+        res = res.follow(status=200, extra_environ={'REMOTE_USER': 'annafan'})
+        assert 'annafan' in res, 'annafan not added?'
 
         # if we've got this far, drop into the debugger
-        # print "success so far, entering debugger" 
-        # import pdb
-        # pdb.set_trace()
+        print "success so far, entering debugger" 
+        import pdb
+        pdb.set_trace()
 
+
+
+ 
+
+        #delete_links = re.compile('<a href="(.*)" title="delete">').findall(res.body)
+
+
+
+ 
 
 
         
@@ -298,12 +358,7 @@ class TestAuthorizationGroupWalkthrough(FunctionalTestCase):
 
   
 
-        # If she goes to anotherauthzgroup  http://localhost:5000/authorizationgroup/anotherauthzgroup then she should be able to see the admin page
-        # She can downgrade anauthzgroup to only be an editor on anotherauthzgroup
-        # This should lock her out of the page, surely? But it doesn't. 
-        # The admin tab goes, but she is still seeing the form. However if she tries to put it back then she's redirected.
-        # She can't see the admin page anymore, but she should still be able to edit the userlist for the group.
-        # She adds tester, russianfan, and herself, necessitating three separate visits to the edit page.
+
         # Why in the search box doesn't searcing for 'Wonderful' find 'A Wonderful Story'? Create ticket for this.
         # She goes to A Wonderful Story, which it appears she's an admin on, because visitor is!
         # And adds anotherauthzgroup as admin on A Wonderful Story, and removes all other entries.
