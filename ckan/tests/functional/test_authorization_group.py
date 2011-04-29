@@ -161,11 +161,12 @@ class TestAuthorizationGroupWalkthrough(FunctionalTestCase):
                                         extra_environ={'REMOTE_USER': 'testsysadmin'})
         assert 'There are <strong>2</strong> auth' in res, "Should be accurate for testsysadmin"
 
+        # now testsysadmin goes and looks at the page for anauthzgroup, he should see that it has no members
         anauthzgroup_url = url_for(controller='authorizationgroup', action='anauthzgroup')
         res = self.app.get(anauthzgroup_url, status=200, extra_environ={'REMOTE_USER': 'testsysadmin'})
         assert 'There are 0 users in this' in res, 'testsysadmin should see the page, there should be no users in the group'
 
-        # now testsysadmin adds annafan to anauthzgroup
+        # now testsysadmin adds annafan to anauthzgroup via the edit page
         anauthzgroup_edit_url = url_for(controller='authorizationgroup', action='edit', id='anauthzgroup')
         res = self.app.get(anauthzgroup_edit_url, status=200, extra_environ={'REMOTE_USER': 'testsysadmin'})
         group_edit_form = res.forms['group-edit']
@@ -186,9 +187,9 @@ class TestAuthorizationGroupWalkthrough(FunctionalTestCase):
 
         assert anauthzgroup_authzgroup_roles == [(u'anotherauthzgroup', u'editor')]
 
-        # now, since annafan is a reader on anauthzgroup, she should be able to see it,
-        # and since she is now a member of anauthzgroup, which is an admin on anotherauthzgroup, she should
-        # also be able to see that, so if she looks at the authzgroups page, she should be able to see both groups
+        # annafan should now be able to see both the groups, since she is a
+        # reader on and a member of anauthzgroup, which group is an admin on
+        # anotherauthzgroup
         res = self.app.get(auth_group_index_url, status=200, 
                            extra_environ={'REMOTE_USER': 'annafan'})
 
@@ -201,42 +202,94 @@ class TestAuthorizationGroupWalkthrough(FunctionalTestCase):
         assert 'There are 1 users in this' in res, 'annafan should be able to see the list of members'
         assert 'annafan' in res, 'annafan should be listed as a member'
 
-        # but she shouldn't be able to see the edit page for that group
-        # behaviour here is a bit weird, since in the browser I she gets redirected to the login page,
-        # but from these tests, she just gets a 401, with no apparent redirect.
+        # but she shouldn't be able to see the edit page for that group.  the
+        # behaviour here is a bit weird, since in the browser she gets
+        # redirected to the login page, but from these tests, she just gets a
+        # 401, with no apparent redirect.
         anauthzgroup_edit_url = url_for(controller='authorizationgroup', action='edit', id='anauthzgroup')
         res = self.app.get(anauthzgroup_edit_url, status=401, extra_environ={'REMOTE_USER': 'annafan'})
         assert 'not authorized to edit' in res, 'annafan should not be able to edit the list of members'
         # that means that we get a flash message left over for the next page
- 
-        # I'm going to assert that behaviour here, just to note it. It's most definitely not 
-        # required functionality!
-        # We'll do a dummy fetch of the main page for anauthzgroup
+  
+        # I'm going to assert that behaviour here, just to note it. It's most
+        # definitely not required functionality!  We'll do a dummy fetch of the
+        # main page for anauthzgroup, which will have the errant flash message
         res = self.app.get(anauthzgroup_url,extra_environ={'REMOTE_USER': 'annafan'})
         assert 'not authorized to edit' in res, 'flash message should carry over to next fetch'
         # But if we do the dummy fetch twice, the flash message should have gone
         res = self.app.get(anauthzgroup_url,extra_environ={'REMOTE_USER': 'annafan'})
         assert 'not authorized to edit' not in res, 'flash message should have gone'
 
-
-
-        # # however she should be able to see the edit page for anotherauthzgroup, since she's an admin
-        # # on it by virtue of being a member of anauthzgroup
+        # however she should be able to see the edit page for anotherauthzgroup, since she's an admin
+        # on it by virtue of being a member of anauthzgroup
         anotherauthzgroup_edit_url = url_for(controller='authorizationgroup', action='edit', id='anotherauthzgroup')
         res = self.app.get(anotherauthzgroup_edit_url, status=200, extra_environ={'REMOTE_USER': 'annafan'})
         # for reasons of complete paranoia, check that the flash message hasn't carried over into this page
         assert 'not authorized to edit' not in res, 'flash message should not be there!, what on earth...'
+        assert 'There are no users' in res, "shouldn't be any users in this group"
+
+        # That means that she can change the name of the group
+        # note that she could change the name of to anauthzgroup, which causes problems.
+        # We'll change it to something less vexing.
+        import re
+        p = re.compile('AuthorizationGroup-.*-name')
+        groupnamebox = [ v for k,v in res.forms['group-edit'].fields.items() if p.match(k)][0][0]
+        groupnamebox.value = 'annasauthzgroup'
+        res = res.forms['group-edit'].submit('save').follow()
+        
+
+        ## BUG HERE: PAGE DOES NOT GET RENAMED. (HOWEVER IT DOES SEEM TO FROM BROWSER)
+
+        # annafan should be able to see the admin page of the newly renamed
+        # group by virtue of being a member of anauthzgroup
+        annasauthzgroup_authz_url = url_for(controller='authorizationgroup', action='authz', id='annasauthzgroup')
+        res = self.app.get(annasauthzgroup_authz_url, status=404, extra_environ={'REMOTE_USER': 'annafan'})
+
+        # Let's try the old address for that
+        annasauthzgroup_authz_url = url_for(controller='authorizationgroup', action='authz', id='anotherauthzgroup')
+        res = self.app.get(annasauthzgroup_authz_url, status=200, extra_environ={'REMOTE_USER': 'annafan'})
+
+        # So she can remove anauthzgroup's admin role on her group
+        # The button to remove that role is a link, rather than a submit
+        # I assume there is a better way to do this than searching by regex, but I can't find it
+        import re
+        delete_links = re.compile('<a href="(.*)" title="delete">').findall(res.body)
+        assert len(delete_links) == 1, "There should only be one delete link here"
+        delete_link = delete_links[0]
+
+        # Paranoid check, try to follow link without credentials. Should be redirected.
+        res = self.app.get(delete_link, status=302)
+        res = res.follow()
+        assert 'Not authorized to edit authorization for group' in res,\
+                  "following link without credentials should result in redirection to login page"
+
+
+        # Now follow it as annafan, which should work.
+        res = self.app.get(delete_link, status=200, extra_environ={'REMOTE_USER': 'annafan'})
+        assert "Deleted role 'admin' for authorization group 'anauthzgroup'" in res,\
+                                                     "Page should mention the deleted role"
+        
+        # Trying it a second time should fail since she's now not an admin.
+        res = self.app.get(delete_link, status=401, extra_environ={'REMOTE_USER': 'annafan'})
+
+        # No one should now have any rights on annasauthzgroup, including annafan herself.
+        # So this should fail too. Again, get a 401 error here, but in the browser we get redirected if we try.
+        res = self.app.get(annasauthzgroup_authz_url, status=401, extra_environ={'REMOTE_USER': 'annafan'})
+
+        # testsysadmin can put her back. 
+        # res = self.app.get(annasauthzgroup_authz_url, status=200, extra_environ={'REMOTE_USER': 'testsysadmin'})
 
 
 
-
-        # # # if we've got this far, drop into the debugger
+        # if we've got this far, drop into the debugger
         # print "success so far, entering debugger" 
+        # import pdb
+        # pdb.set_trace()
+
+
 
         
  
-        # import pdb
-        # pdb.set_trace()
 
 
 
