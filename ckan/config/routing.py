@@ -190,9 +190,10 @@ def make_map():
     map.connect('/group/list', controller='group', action='list')
     map.connect('/group/new', controller='group', action='new')
     map.connect('/group/{action}/{id}', controller='group',
-        requirements=dict(actions='|'.join([
+        requirements=dict(action='|'.join([
         'edit',
-        'authz'
+        'authz',
+        'history'
         ]))
         )
     map.connect('/group/{id}', controller='group', action='read')
@@ -225,11 +226,11 @@ def make_map():
     map.connect('/user/{id:.*}', controller='user', action='read')
     map.connect('/user', controller='revision', action='index')
 
-
-
-    map.connect('/revision/{action}/{id}', controller='revision')
-    map.connect('/revision/{action}', controller='revision')
     map.connect('/revision', controller='revision', action='index')
+    map.connect('/revision/edit/{id}', controller='revision', action='edit')
+    map.connect('/revision/diff/{id}', controller='revision', action='diff')
+    map.connect('/revision/list', controller='revision', action='list')
+    map.connect('/revision/{id}', controller='revision', action='read')
     
     for plugin in routing_plugins:
         map = plugin.after_map(map)

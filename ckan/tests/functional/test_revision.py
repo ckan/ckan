@@ -84,7 +84,7 @@ class TestRevisionController(TestController):
         try:
             # paginate links are also just numbers
             # res2 = res.click('^%s$' % link_exp)
-            res2 = res.click(href='revision/read/%s$' % link_exp)
+            res2 = res.click(link_exp)
         except:
             print "\nThe first response (list):\n\n"
             print str(res)
@@ -142,11 +142,6 @@ class TestRevisionController(TestController):
     def get_package(self, name):
         return model.Package.by_name(name) 
 
-    def test_read_redirect_at_base(self):
-        # have to put None as o/w seems to still be at url set in previous test
-        offset = url_for(controller='revision', action='read', id=None)
-        res = self.app.get(offset, status=404)
-
     def test_read(self):
         anna = model.Package.by_name(u'annakarenina')
         rev_id = anna.revision.id
@@ -192,14 +187,16 @@ class TestRevisionController(TestController):
         # Todo: Test for first revision on last page.
         # Todo: Test for last revision minus 50 on second page.
         # Page 1.   (Implied id=1)
-        offset = url_for(controller='revision', action='list')
-        res = self.app.get(offset + '?format=atom')
+        offset = url_for(controller='revision', action='list', format='atom')
+        res = self.app.get(offset)
         assert '<feed' in res, res
         assert 'xmlns="http://www.w3.org/2005/Atom"' in res, res
         assert '</feed>' in res, res
         # Todo: Better test for 'days' request param.
         #  - fake some older revisions and check they aren't included.
-        res = self.app.get(offset + '?format=atom&days=30')
+        offset = url_for(controller='revision', action='list', format='atom',
+                days=30)
+        res = self.app.get(offset)
         assert '<feed' in res, res
         assert 'xmlns="http://www.w3.org/2005/Atom"' in res, res
         assert '</feed>' in res, res
