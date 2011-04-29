@@ -34,28 +34,23 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
                          for expected_package_name in expected_package_names]
         assert_equal(set(res_dict['results']), set(expected_pkgs))
 
+    def package_ref_from_name(self, package_name):
+        package = self.get_package_by_name(package_name)
+        return self.ref_package(package)
+
     def test_01_uri_q(self):
         offset = self.base_url + '?q=%s' % self.package_fixture_data['name']
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
-        self.assert_package_search_results(res_dict['results'])
+        self.assert_results(res_dict, ['testpkg'])
         assert res_dict['count'] == 1, res_dict['count']
-
-    def assert_package_search_results(self, results, names=[u'testpkg']):
-        for name in names:
-            ref = self.package_ref_from_name(name)
-            assert ref in results, (ref, results)
-
-    def package_ref_from_name(self, package_name):
-        package = self.get_package_by_name(package_name)
-        return self.ref_package(package)
 
     def test_02_post_q(self):
         offset = self.base_url
         query = {'q':'testpkg'}
         res = self.app.post(offset, params=query, status=200)
         res_dict = self.data_from_res(res)
-        self.assert_package_search_results(res_dict['results'])
+        self.assert_results(res_dict, ['testpkg'])
         assert res_dict['count'] == 1, res_dict['count']
 
     def test_03_uri_qjson(self):
@@ -64,7 +59,7 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
-        self.assert_package_search_results(res_dict['results'])
+        self.assert_results(res_dict, ['testpkg'])
         assert res_dict['count'] == 1, res_dict['count']
 
     def test_04_post_qjson(self):
@@ -73,7 +68,7 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
         offset = self.base_url
         res = self.app.post(offset, params=json_query, status=200)
         res_dict = self.data_from_res(res)
-        self.assert_package_search_results(res_dict['results'])
+        self.assert_results(res_dict, ['testpkg'])
         assert res_dict['count'] == 1, res_dict['count']
 
     def test_05_uri_qjson_tags(self):
@@ -82,7 +77,7 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
-        self.assert_package_search_results(res_dict['results'], names=[u'annakarenina'])
+        self.assert_results(res_dict, [u'annakarenina'])
         assert res_dict['count'] == 1, res_dict
         
     def test_05_uri_qjson_tags_multiple(self):
@@ -91,7 +86,7 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
-        self.assert_package_search_results(res_dict['results'], names=[u'annakarenina'])
+        self.assert_results(res_dict, [u'annakarenina'])
         assert res_dict['count'] == 1, res_dict
 
     def test_06_uri_q_tags(self):
@@ -99,7 +94,7 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
         offset = self.base_url + '?q=%s' % query
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
-        self.assert_package_search_results(res_dict['results'], names=[u'annakarenina'])
+        self.assert_results(res_dict, [u'annakarenina'])
         assert res_dict['count'] == 1, res_dict['count']
 
     def test_07_uri_qjson_tags(self):
@@ -108,7 +103,7 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
-        self.assert_package_search_results(res_dict['results'], names=[u'annakarenina'])
+        self.assert_results(res_dict, [u'annakarenina'])
         assert res_dict['count'] == 1, res_dict
 
     def test_07_uri_qjson_tags_multiple(self):
@@ -118,7 +113,7 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
         print offset
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
-        self.assert_package_search_results(res_dict['results'], names=[u'annakarenina'])
+        self.assert_results(res_dict, [u'annakarenina'])
         assert res_dict['count'] == 1, res_dict
 
     def test_07_uri_qjson_tags_reverse(self):
@@ -127,7 +122,7 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
-        self.assert_package_search_results(res_dict['results'], names=[u'annakarenina'])
+        self.assert_results(res_dict, [u'annakarenina', u'warandpeace'])
         assert res_dict['count'] == 2, res_dict
 
     def test_07_uri_qjson_extras(self):
@@ -136,7 +131,7 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
-        self.assert_package_search_results(res_dict['results'])
+        self.assert_results(res_dict, ['testpkg'])
         assert res_dict['count'] == 1, res_dict
 
     def test_07_uri_qjson_extras_2(self):
@@ -145,7 +140,7 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
         offset = self.base_url + '?qjson=%s' % json_query
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
-        self.assert_package_search_results(res_dict['results'])
+        self.assert_results(res_dict, ['testpkg'])
         assert res_dict['count'] == 1, res_dict
 
     def test_08_uri_qjson_malformed(self):
@@ -238,7 +233,7 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
         res_dict = self.data_from_res(res)
         assert_equal(res_dict['count'], 3)
 
-    def test_12_filter_by_openness(self):
+    def test_12_filter_by_openness_qjson(self):
         query = {'q': '', 'filter_by_openness': '1'}
         json_query = self.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
@@ -247,10 +242,23 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
         assert_equal(res_dict['count'], 2)
         self.assert_results(res_dict, (u'annakarenina', u'testpkg'))
 
-    def test_12_filter_by_openness_off(self):
+    def test_12_filter_by_openness_q(self):
+        offset = self.base_url + '?filter_by_openness=1'
+        res = self.app.get(offset, status=200)
+        res_dict = self.data_from_res(res)
+        assert_equal(res_dict['count'], 2)
+        self.assert_results(res_dict, (u'annakarenina', u'testpkg'))
+
+    def test_12_filter_by_openness_off_qjson(self):
         query = {'q': '', 'filter_by_openness': '0'}
         json_query = self.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
+        res = self.app.get(offset, status=200)
+        res_dict = self.data_from_res(res)
+        assert_equal(res_dict['count'], 3)
+
+    def test_12_filter_by_openness_off_q(self):
+        offset = self.base_url + '?filter_by_openness=0'
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
         assert_equal(res_dict['count'], 3)

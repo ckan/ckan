@@ -332,7 +332,7 @@ class ApiController(BaseController):
                 except ValueError, e:
                     response.status_int = 400
                     return gettext('Malformed qjson value') + ': %r' % e
-            elif request.params.values() and request.params.values() != [u''] and request.params.values() != [u'1']:
+            elif request.params.values() and request.params.values() != [u'']:
                 params = request.params
             else:
                 try:
@@ -340,7 +340,6 @@ class ApiController(BaseController):
                 except ValueError, inst:
                     response.status_int = 400
                     return gettext(u'Search params: %s') % unicode(inst)
-            
             options = QueryOptions()
             for k, v in params.items():
                 if (k in DEFAULT_OPTIONS.keys()):
