@@ -238,6 +238,23 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
         res_dict = self.data_from_res(res)
         assert_equal(res_dict['count'], 3)
 
+    def test_12_filter_by_openness(self):
+        query = {'q': '', 'filter_by_openness': '1'}
+        json_query = self.dumps(query)
+        offset = self.base_url + '?qjson=%s' % json_query
+        res = self.app.get(offset, status=200)
+        res_dict = self.data_from_res(res)
+        assert_equal(res_dict['count'], 2)
+        self.assert_results(res_dict, (u'annakarenina', u'testpkg'))
+
+    def test_12_filter_by_openness_off(self):
+        query = {'q': '', 'filter_by_openness': '0'}
+        json_query = self.dumps(query)
+        offset = self.base_url + '?qjson=%s' % json_query
+        res = self.app.get(offset, status=200)
+        res_dict = self.data_from_res(res)
+        assert_equal(res_dict['count'], 3)
+
     def test_strftimestamp(self):
         import datetime
         t = datetime.datetime(2012, 3, 4, 5, 6, 7, 890123)

@@ -1,6 +1,7 @@
 import logging
 
 from paste.util.multidict import MultiDict 
+from paste.deploy.converters import asbool
 from ckan import model
 
 log = logging.getLogger(__name__)
@@ -145,7 +146,7 @@ class QueryOptions(dict):
     def validate(self):
         for key, value in self.items():
             if key in self.BOOLEAN_OPTIONS:
-                value = value == 1 or value
+                value = asbool(value)
             elif key in self.INTEGER_OPTIONS:
                 value = int(value)
             self[key] = value    
