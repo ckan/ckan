@@ -332,22 +332,21 @@ class TestAuthorizationGroupWalkthrough(FunctionalTestCase):
         res = res.follow(status=200, extra_environ={'REMOTE_USER': 'annafan'})
         assert 'annafan' in res, 'annafan not added?'
 
-        # if we've got this far, drop into the debugger
-        # print "success so far, entering debugger" 
-        # import pdb
-        # pdb.set_trace()
+        # finally let's check that annafan can create an authzgroup
+        new_authzgroup_url = url_for(controller='authorizationgroup', action='new', id="")
+        # I think our url is wrong for some reason because we get redirected
+        res = self.app.get(new_authzgroup_url, status=301, extra_environ={'REMOTE_USER': 'annafan'})
+        res = res.follow(status=200, extra_environ={'REMOTE_USER': 'annafan'})
+        assert 'New Authorization Group' in res, "wrong page"
 
-
-        # import re
-        # s = re.compile('There are.*auth').findall(res.body)
-
-        # Why in the search box doesn't searcing for 'Wonderful' find 'A Wonderful Story'? Create ticket for this.
-        # She goes to A Wonderful Story, which it appears she's an admin on, because visitor is!
-        # And adds anotherauthzgroup as admin on A Wonderful Story, and removes all other entries.
-        # She should be able to see the authz page, as should testsysadmin and tester
-        # She goes to anotherauthzgroup, and removes tester. Tester should no longer be able to see that A Wonderful Story even exists
-        # http://localhost:5000/package/authz/warandpeace
-        # She puts him back in, and he should be able to see the authz page again. 
-
-
+        gef = res.forms['group-edit']
+        gef['AuthorizationGroup--name']="newgroup"
+        gef['AuthorizationGroupUser--user_name'] = "russianfan"
+        res = gef.submit('save', status=302, extra_environ={'REMOTE_USER': 'annafan'})
+        #post/redirect/get
+        res = res.follow(status=200, extra_environ={'REMOTE_USER': 'annafan'})
+        
+        assert 'newgroup'   in res, "should have redirected to the newgroup page"
+        assert 'russianfan' in res, "no russianfan"
+        assert 'There are 1 users in this authorization group' in res, "missing text"
 
