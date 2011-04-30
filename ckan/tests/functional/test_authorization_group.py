@@ -333,31 +333,13 @@ class TestAuthorizationGroupWalkthrough(FunctionalTestCase):
         assert 'annafan' in res, 'annafan not added?'
 
         # if we've got this far, drop into the debugger
-        print "success so far, entering debugger" 
-        import pdb
-        pdb.set_trace()
-
-
-
- 
-
-        #delete_links = re.compile('<a href="(.*)" title="delete">').findall(res.body)
-
-
-
- 
-
-
-        
- 
-
+        # print "success so far, entering debugger" 
+        # import pdb
+        # pdb.set_trace()
 
 
         # import re
         # s = re.compile('There are.*auth').findall(res.body)
-
-  
-
 
         # Why in the search box doesn't searcing for 'Wonderful' find 'A Wonderful Story'? Create ticket for this.
         # She goes to A Wonderful Story, which it appears she's an admin on, because visitor is!
