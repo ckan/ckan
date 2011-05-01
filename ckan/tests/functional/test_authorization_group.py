@@ -143,94 +143,114 @@ class TestAuthorizationGroupWalkthrough(FunctionalTestCase):
         model.Session.remove()
 
     def authzgroups_walkthrough(self):
-        # log in as annafan, look at authorization groups page, 
-        # (http://localhost:5000/authorizationgroup), there should be 0 groups
-        # (two groups actually exist in the default test data, but annafan has read permission
-        # on neither)
+        # very long test sequence repeating the series of things I did to
+        # convince myself that the authzgroups system worked as expected,
+        # starting off with the default test data
+        
+        # The first thing to notice is that the authzgroup page:
         auth_group_index_url = url_for(controller='authorization_group', action='index')
+        # displays differently for different users.
 
-        # look as annafan
-        res = self.app.get(auth_group_index_url, status=200, 
-                           extra_environ={'REMOTE_USER': 'annafan'})
+        def get_page(url, expect_status, username, assert_text=None, error_text=None):
+            res= self.app.get(url, 
+                              status=expect_status, 
+                              extra_environ={'REMOTE_USER': username})
+            if assert_text and assert_text not in res:
+                print res
+                assert False, error_text
+            return res
 
-        assert 'There are <strong>0</strong> auth' in res, \
-                                  "Should lie to annafan about number of groups"
+        # testsysadmin sees the true picture, where the test data contains two groups
+        get_page(auth_group_index_url, 200, 'testsysadmin',
+                'There are <strong>2</strong> authorization groups',
+                'Should be accurate for testsysadmin')
 
-        # look as testsysadmin, who should be able to see the two groups in the test data
-        res = self.app.get(auth_group_index_url, status=200, 
-                                        extra_environ={'REMOTE_USER': 'testsysadmin'})
-        assert 'There are <strong>2</strong> auth' in res, "Should be accurate for testsysadmin"
+        # But if we look at the same page as annafan, who does not have read 
+        # permissions on these groups, we should see neither
+        get_page(auth_group_index_url, 200, 'annafan',
+                'There are <strong>0</strong> authorization groups',
+                'Should lie to annafan about number of groups')
 
-        # now testsysadmin goes and looks at the page for anauthzgroup, he should see that it has no members
+        # There is a page for each group
         anauthzgroup_url = url_for(controller='authorizationgroup', action='anauthzgroup')
-        res = self.app.get(anauthzgroup_url, status=200, extra_environ={'REMOTE_USER': 'testsysadmin'})
-        assert 'There are 0 users in this' in res, 'testsysadmin should see the page, there should be no users in the group'
+        # And an edit page
+        anauthzgroup_edit_url = url_for(controller='authorizationgroup',
+                                                         action='edit', id='anauthzgroup')
+        # testsysadmin should be able to see this, and check that there are no members
+        get_page(anauthzgroup_url, 200, 'testsysadmin',
+                 'There are 0 users in this',
+                 'should be no users in anauthzgroup')
 
         # now testsysadmin adds annafan to anauthzgroup via the edit page
-        anauthzgroup_edit_url = url_for(controller='authorizationgroup', action='edit', id='anauthzgroup')
-        res = self.app.get(anauthzgroup_edit_url, status=200, extra_environ={'REMOTE_USER': 'testsysadmin'})
+        res = self.app.get(anauthzgroup_edit_url, status=200, 
+                                      extra_environ={'REMOTE_USER': 'testsysadmin'})
         group_edit_form = res.forms['group-edit']
-        user_field = group_edit_form.fields['AuthorizationGroupUser--user_name'][0]
-        user_field.value = u'annafan'
-        submit_res = group_edit_form.submit('save',extra_environ={'REMOTE_USER': 'testsysadmin'})
+        group_edit_form['AuthorizationGroupUser--user_name'] = u'annafan'
+        submit_res = group_edit_form.submit('save',
+                                      extra_environ={'REMOTE_USER': 'testsysadmin'})
 
-        # anauthzgroup should now have one member, annafan, and she should be a reader on the group
-        anauthzgroup_users=[x.name for x in model.AuthorizationGroup.by_name('anauthzgroup').users]
-        assert anauthzgroup_users==[u'annafan'], 'anauthzgroup should contain annafan (only)'
+        # adding a user to a group should both make her a member, and give her
+        # read permission on the group. We'll check those things have actually
+        # happened by looking directly in the model.
+        anauthzgroup = model.AuthorizationGroup.by_name('anauthzgroup')
+        anauthzgroup_users = [x.name for x in anauthzgroup.users]
+        anauthzgroup_user_roles = [(x.user.name, x.role) for x in anauthzgroup.roles if x.user]
+        assert anauthzgroup_users == [u'annafan'], \
+                                         'anauthzgroup should contain annafan (only)'
+        assert anauthzgroup_user_roles == [(u'annafan', u'reader')],\
+                                         'annafan should be a reader'
 
-        # she should be the only user who is a reader
-        anauthzgroup_user_roles = [(x.user.name, x.role) for x in model.AuthorizationGroup.by_name('anauthzgroup').roles if x.user]
-        assert anauthzgroup_user_roles == [(u'annafan', u'reader')], 'annafan should be a reader'
+        # Since annafan has been added to anauthzgroup, which is an admin on
+        # anotherauthzgroup, she should now be able to see both the groups.
+        get_page(auth_group_index_url, 200, 'annafan',
+                 'There are <strong>2</strong> auth',
+                 "annafan should now be able to see both groups")
 
-        # and anotherauthzgroup should be the only authzgroup with a role, which should be 'editor'
-        anauthzgroup_authzgroup_roles = [(x.authorized_group.name, x.role) for x in model.AuthorizationGroup.by_name('anauthzgroup').roles if x.authorized_group]
+        # When annafan looks at the page for anauthzgroup now
+        # She should see that there's one user:
+        get_page(anauthzgroup_url, 200,'annafan',
+                       'There are 1 users in this', 
+                       'annafan should be able to see the list of members')
+        # Which is her:
+        get_page(anauthzgroup_url, 200,'annafan',
+                       'annafan', 
+                       'annafan should be listed as a member')
 
-        assert anauthzgroup_authzgroup_roles == [(u'anotherauthzgroup', u'editor')]
+        # But she shouldn't be able to see the edit page for that group.  
 
-        # annafan should now be able to see both the groups, since she is a
-        # reader on and a member of anauthzgroup, which group is an admin on
-        # anotherauthzgroup
-        res = self.app.get(auth_group_index_url, status=200, 
-                           extra_environ={'REMOTE_USER': 'annafan'})
-
-        assert 'There are <strong>2</strong> auth' in res, \
-                                  "annafan should now be able to see both groups"
-
-        # If she goes to the page for anauthzgroup then she should see the list of users (just her)
-        anauthzgroup_url = url_for(controller='authorizationgroup', action='anauthzgroup')
-        res = self.app.get(anauthzgroup_url, status=200, extra_environ={'REMOTE_USER': 'annafan'})
-        assert 'There are 1 users in this' in res, 'annafan should be able to see the list of members'
-        assert 'annafan' in res, 'annafan should be listed as a member'
-
-        # but she shouldn't be able to see the edit page for that group.  the
-        # behaviour here is a bit weird, since in the browser she gets
-        # redirected to the login page, but from these tests, she just gets a
-        # 401, with no apparent redirect.
-        anauthzgroup_edit_url = url_for(controller='authorizationgroup', action='edit', id='anauthzgroup')
-        res = self.app.get(anauthzgroup_edit_url, status=401, extra_environ={'REMOTE_USER': 'annafan'})
-        assert 'not authorized to edit' in res, 'annafan should not be able to edit the list of members'
-        # that means that we get a flash message left over for the next page
+        # The behaviour of the test setup here is a bit weird, since in the
+        # browser she gets redirected to the login page, but from these tests,
+        # she just gets a 401, with no apparent redirect.  My sources inform me
+        # that this is normal, and to do with repoze being in the application
+        # stack but not in the test stack.
+        get_page(anauthzgroup_edit_url, 401, 'annafan',
+                 'not authorized to edit', 
+                 'annafan should not be able to edit the list of members')
+        # that also means that we get a flash message left over, which appears on 
+        # whatever the next page is.
   
         # I'm going to assert that behaviour here, just to note it. It's most
         # definitely not required functionality!  We'll do a dummy fetch of the
         # main page for anauthzgroup, which will have the errant flash message
-        res = self.app.get(anauthzgroup_url,extra_environ={'REMOTE_USER': 'annafan'})
-        assert 'not authorized to edit' in res, 'flash message should carry over to next fetch'
+        get_page(anauthzgroup_url, 200, 'annafan',
+                 'not authorized to edit', 
+                 'flash message should carry over to next fetch')
+
         # But if we do the dummy fetch twice, the flash message should have gone
         res = self.app.get(anauthzgroup_url,extra_environ={'REMOTE_USER': 'annafan'})
         assert 'not authorized to edit' not in res, 'flash message should have gone'
 
-        # however she should be able to see the edit page for anotherauthzgroup, since she's an admin
-        # on it by virtue of being a member of anauthzgroup
+        # Since annafan is now a member of anauthzgroup, she should have admin privileges
+        # on anotherauthzgroup
         anotherauthzgroup_edit_url = url_for(controller='authorizationgroup', action='edit', id='anotherauthzgroup')
-        res = self.app.get(anotherauthzgroup_edit_url, status=200, extra_environ={'REMOTE_USER': 'annafan'})
-        # for reasons of complete paranoia, check that the flash message hasn't carried over into this page
-        assert 'not authorized to edit' not in res, 'flash message should not be there!, what on earth...'
-        assert 'There are no users' in res, "shouldn't be any users in this group"
 
-        # That means that she can change the name of the group
-        # note that she could change the name of to anauthzgroup, which causes problems.
-        # We'll change it to something less vexing.
+
+        # Which means that she can go to the edit page:
+        res = get_page(anotherauthzgroup_edit_url, 200, 'annafan',
+                 'There are no users',
+                 "There shouldn't be any users in anotherauthzgroup")
+
+        # And change the name of the group
         import re
         p = re.compile('AuthorizationGroup-.*-name')
         groupnamebox = [ v for k,v in res.forms['group-edit'].fields.items() if p.match(k)][0][0]
@@ -238,20 +258,32 @@ class TestAuthorizationGroupWalkthrough(FunctionalTestCase):
         res = res.forms['group-edit'].submit('save').follow()
         
 
-        ## BUG HERE: PAGE DOES NOT GET RENAMED. (HOWEVER IT DOES SEEM TO FROM BROWSER)
+        ## POTENTIAL BUG:
+        # note that she could change the name of to anauthzgroup, which causes problems due
+        # to the name collision. This should be guarded against.
+
+
+        ## BUG HERE: PAGE DOES NOT GET RENAMED.
 
         # annafan should be able to see the admin page of the newly renamed
         # group by virtue of being a member of anauthzgroup
         annasauthzgroup_authz_url = url_for(controller='authorizationgroup', action='authz', id='annasauthzgroup')
-        res = self.app.get(annasauthzgroup_authz_url, status=404, extra_environ={'REMOTE_USER': 'annafan'})
+        # But actually it seems that the page does not get renamed, and we get a 404
+        get_page(annasauthzgroup_authz_url, 404, 'annafan')
+
+        ## END BUG:  I can't reproduce this in the browser, and the way to carry on with this
+        ## test seems to be to just use the old address.
 
         # Let's try the old address for that
         annasauthzgroup_authz_url = url_for(controller='authorizationgroup', action='authz', id='anotherauthzgroup')
-        res = self.app.get(annasauthzgroup_authz_url, status=200, extra_environ={'REMOTE_USER': 'annafan'})
+        res = get_page(annasauthzgroup_authz_url, 200, 'annafan',
+                       'Authorization for authorization group: anotherauthzgroup',
+                       'should be authz page')
 
-        # So she can remove anauthzgroup's admin role on her group
-        # The button to remove that role is a link, rather than a submit
-        # I assume there is a better way to do this than searching by regex, but I can't find it
+        # annafan has the power to remove anauthzgroup's admin role on her group
+        # The button to remove that role is a link, rather than a submit I
+        # assume there is a better way to do this than searching by regex, but I
+        # can't find it
         import re
         delete_links = re.compile('<a href="(.*)" title="delete">').findall(res.body)
         assert len(delete_links) == 1, "There should only be one delete link here"
@@ -261,20 +293,20 @@ class TestAuthorizationGroupWalkthrough(FunctionalTestCase):
         res = self.app.get(delete_link, status=302)
         res = res.follow()
         assert 'Not authorized to edit authorization for group' in res,\
-                  "following link without credentials should result in redirection to login page"
-
+                "following link without credentials should result in redirection to login page"
 
         # Now follow it as annafan, which should work.
-        res = self.app.get(delete_link, status=200, extra_environ={'REMOTE_USER': 'annafan'})
-        assert "Deleted role 'admin' for authorization group 'anauthzgroup'" in res,\
-                                                     "Page should mention the deleted role"
+        get_page(delete_link, 200,'annafan',
+                 "Deleted role 'admin' for authorization group 'anauthzgroup'",
+                 "Page should mention the deleted role")
         
         # Trying it a second time should fail since she's now not an admin.
-        res = self.app.get(delete_link, status=401, extra_environ={'REMOTE_USER': 'annafan'})
-
-        # No one should now have any rights on annasauthzgroup, including annafan herself.
-        # So this should fail too. Again, get a 401 error here, but in the browser we get redirected if we try.
-        res = self.app.get(annasauthzgroup_authz_url, status=401, extra_environ={'REMOTE_USER': 'annafan'})
+        get_page(delete_link, 401,'annafan')
+ 
+        # No one should now have any rights on annasauthzgroup, including
+        # annafan herself.  So this should fail too. Again, get a 401 error
+        # here, but in the browser we get redirected if we try.
+        get_page(annasauthzgroup_authz_url, 401,'annafan')
 
         # testsysadmin can put her back. 
         # It appears that the select boxes on this form need to be set by id
@@ -282,7 +314,7 @@ class TestAuthorizationGroupWalkthrough(FunctionalTestCase):
         annafanid = model.User.by_name(u'annafan').id
 
         # first try to make both anauthzgroup and annafan editors. This should fail.
-        res = self.app.get(annasauthzgroup_authz_url, status=200, extra_environ={'REMOTE_USER': 'testsysadmin'})
+        res = get_page(annasauthzgroup_authz_url,200, 'testsysadmin')
         gaf= res.forms['group-authz']
         gaf['AuthorizationGroupRole--authorized_group_id'] = anauthzgroupid
         gaf['AuthorizationGroupRole--role'] = 'editor'
@@ -291,16 +323,17 @@ class TestAuthorizationGroupWalkthrough(FunctionalTestCase):
         assert 'Please select either a user or an authorization group, not both.' in res,\
              'request should fail if you change both user and authz group'
 
-        # settle for just anauthzgroup
-        res = self.app.get(annasauthzgroup_authz_url, status=200, extra_environ={'REMOTE_USER': 'testsysadmin'})
+        # settle for just doing one at a time. make anauthzgroup an editor
+        res = get_page(annasauthzgroup_authz_url, 200, 'testsysadmin')
         gaf= res.forms['group-authz']
         gaf['AuthorizationGroupRole--authorized_group_id'] = anauthzgroupid
         gaf['AuthorizationGroupRole--role'] = 'editor'
         res = gaf.submit('save',status=200, extra_environ={'REMOTE_USER': 'testsysadmin'})
-        assert "Added role 'editor' for authorization group 'anauthzgroup'" in res, "no flash message"
+        assert "Added role 'editor' for authorization group 'anauthzgroup'" in res, \
+                                                            "no flash message"
 
         # and make annafan a reader 
-        res = self.app.get(annasauthzgroup_authz_url, status=200, extra_environ={'REMOTE_USER': 'testsysadmin'})
+        res = get_page(annasauthzgroup_authz_url, 200, 'testsysadmin')
         gaf= res.forms['group-authz']
         gaf['AuthorizationGroupRole--user_id'] = annafanid
         gaf['AuthorizationGroupRole--role'] = 'reader'
@@ -308,18 +341,20 @@ class TestAuthorizationGroupWalkthrough(FunctionalTestCase):
         assert "Added role 'reader' for user 'annafan'" in res, "no flash message"
 
         # annafan should now be able to add her friends to annasauthzgroup
-        annasauthzgroup_edit_url = url_for(controller='authorizationgroup', action='edit', id='anotherauthzgroup')
-        res = self.app.get(anotherauthzgroup_edit_url, status=200, extra_environ={'REMOTE_USER': 'annafan'})
+        res = get_page(anotherauthzgroup_edit_url, 200, 'annafan')
         res.forms['group-edit']['AuthorizationGroupUser--user_name']='tester'
         # this follows the post/redirect/get pattern
-        res = res.forms['group-edit'].submit('save', status=302, extra_environ={'REMOTE_USER': 'annafan'})
+        res = res.forms['group-edit'].submit('save', status=302,
+                                             extra_environ={'REMOTE_USER': 'annafan'})
         res = res.follow(status=200, extra_environ={'REMOTE_USER': 'annafan'})
-        #she gets redirected to the group view page
+        # and she gets redirected to the group view page
         assert 'tester' in res, 'tester not added?'
  
         # she needs to do them one by one
-        res = self.app.get(anotherauthzgroup_edit_url, status=200, extra_environ={'REMOTE_USER': 'annafan'})
-        assert 'tester' in res, 'tester not in edit form'
+        res = get_page(anotherauthzgroup_edit_url, 200, 'annafan',
+                       'tester', 
+                       'tester not in edit form')
+
         res.forms['group-edit']['AuthorizationGroupUser--user_name']='russianfan'        
         res = res.forms['group-edit'].submit('save', status=302, extra_environ={'REMOTE_USER': 'annafan'})
         res = res.follow(status=200, extra_environ={'REMOTE_USER': 'annafan'})
@@ -337,7 +372,7 @@ class TestAuthorizationGroupWalkthrough(FunctionalTestCase):
         # I think our url is wrong for some reason because we get redirected
         res = self.app.get(new_authzgroup_url, status=301, extra_environ={'REMOTE_USER': 'annafan'})
         res = res.follow(status=200, extra_environ={'REMOTE_USER': 'annafan'})
-        assert 'New Authorization Group' in res, "wrong page"
+        assert 'New Athorization Group' in res, "wrong page"
 
         gef = res.forms['group-edit']
         gef['AuthorizationGroup--name']="newgroup"
