@@ -1,6 +1,8 @@
 import logging
 
 from paste.util.multidict import MultiDict 
+from webob.multidict import UnicodeMultiDict
+
 from ckan.lib.base import BaseController, response, c, _, gettext, request
 from ckan.lib.helpers import json
 import ckan.model as model
@@ -326,20 +328,11 @@ class ApiController(BaseController):
             revs = model.Session.query(model.Revision).filter(model.Revision.timestamp>since_time)
             return self._finish_ok([rev.id for rev in revs])
         elif register == 'package' or register == 'resource':
-            if request.params.has_key('qjson'):
-                try:
-                    params = json.loads(request.params['qjson'])
-                except ValueError, e:
-                    response.status_int = 400
-                    return gettext('Malformed qjson value') + ': %r' % e
-            elif request.params.values() and request.params.values() != [u'']:
-                params = request.params
-            else:
-                try:
-                    params = self._get_request_data() or {}
-                except ValueError, inst:
-                    response.status_int = 400
-                    return gettext(u'Search params: %s') % unicode(inst)
+            try:
+                params = self._get_search_params(request.params)
+            except ValueError, e:
+                response.status_int = 400
+                return gettext('Could not read parameters: %r' % e)
             options = QueryOptions()
             for k, v in params.items():
                 if (k in DEFAULT_OPTIONS.keys()):
@@ -380,6 +373,24 @@ class ApiController(BaseController):
         else:
             response.status_int = 404
             return gettext('Unknown register: %s') % register
+
+    @classmethod
+    def _get_search_params(cls, request_params):
+        if request_params.has_key('qjson'):
+            try:
+                params = json.loads(request_params['qjson'], encoding='utf8')
+            except ValueError, e:
+                raise ValueError, gettext('Malformed qjson value') + ': %r' % e
+        elif len(request_params) == 1 and \
+                 len(request_params.values()[0]) < 2 and \
+                 request_params.keys()[0].startswith('{'):
+            # e.g. {some-json}='1' or {some-json}=''
+            params = json.loads(request_params.keys()[0], encoding='utf8')
+        else:
+            params = request_params
+        if not isinstance(params, (UnicodeMultiDict, dict)):
+            raise ValueError, _('Request params must be in form of a json encoded dictionary.')
+        return params        
 
     def tag_counts(self, ver=None):
         log.debug('tag counts')

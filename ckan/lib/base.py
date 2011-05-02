@@ -134,7 +134,8 @@ class BaseController(WSGIController):
     def _get_tag(self, reference):
         return model.Tag.get(reference)
 
-    def _get_request_data(self):
+    @classmethod
+    def _get_request_data(cls):
         '''Returns a dictionary, extracted from a request. The request data is
         in POST data and formatted as a dictionary that has been
         JSON-encoded.
@@ -143,8 +144,8 @@ class BaseController(WSGIController):
         ValueError will be raised if the data is not a JSON-formatted dict.
         
         '''
-        self.log.debug('Retrieving request params: %r' % request.params)
-        self.log.debug('Retrieving request POST: %r' % request.POST)
+        cls.log.debug('Retrieving request params: %r' % request.params)
+        cls.log.debug('Retrieving request POST: %r' % request.POST)
         try:
             request_data = request.POST.keys()
         except Exception, inst:
@@ -160,11 +161,12 @@ class BaseController(WSGIController):
             for key, val in request_data.items():
                 # if val is str then assume it is ascii, since json converts
                 # utf8 encoded JSON to unicode
-                request_data[key] = self._make_unicode(val)
-        self.log.debug('Request data extracted: %r' % request_data)
+                request_data[key] = cls._make_unicode(val)
+        cls.log.debug('Request data extracted: %r' % request_data)
         return request_data
-        
-    def _make_unicode(self, entity):
+
+    @classmethod
+    def _make_unicode(cls, entity):
         """Cast bare strings and strings in lists or dicts to Unicode
         """
         if isinstance(entity, str):
@@ -172,12 +174,12 @@ class BaseController(WSGIController):
         elif isinstance(entity, list):
             new_items = []
             for item in entity:
-                new_items.append(self._make_unicode(item))
+                new_items.append(cls._make_unicode(item))
             return new_items
         elif isinstance(entity, dict):
             new_dict = {}
             for key, val in entity.items():
-                new_dict[key] = self._make_unicode(val)
+                new_dict[key] = cls._make_unicode(val)
             return new_dict
         else:
             return entity

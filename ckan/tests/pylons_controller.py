@@ -14,6 +14,9 @@ from pylons.controllers.util import Request, Response
 from ckan.tests import *
 
 class MockTranslator(object): 
+    def gettext(self, value): 
+        return value 
+
     def ugettext(self, value): 
         return value 
 

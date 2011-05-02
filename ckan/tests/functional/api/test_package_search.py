@@ -1,6 +1,10 @@
+from nose.tools import assert_raises
+
 from ckan.tests import is_search_supported
 from ckan.tests.functional.api.base import *
 from ckan.tests import TestController as ControllerTestCase
+from ckan.controllers.api import ApiController
+from webob.multidict import UnicodeMultiDict
 
 class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
 
@@ -37,6 +41,35 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
     def package_ref_from_name(self, package_name):
         package = self.get_package_by_name(package_name)
         return self.ref_package(package)
+
+    def test_00_read_search_params(self):
+        def check(request_params, expected_params):
+            params = ApiController._get_search_params(request_params)
+            assert_equal(params, expected_params)
+        # uri parameters
+        check(UnicodeMultiDict({'q': '', 'ref': 'boris'}),
+              {"q": "", "ref": "boris"})
+        check(UnicodeMultiDict({'filter_by_openness': '1'}),
+              {'filter_by_openness': '1'})
+        # uri json
+        check(UnicodeMultiDict({'qjson': '{"q": "", "ref": "boris"}'}),
+              {"q": "", "ref": "boris"})
+        # posted json
+        check(UnicodeMultiDict({'{"q": "", "ref": "boris"}': u'1'}),
+              {"q": "", "ref": "boris"})
+        check(UnicodeMultiDict({'{"q": "", "ref": "boris"}': u''}),
+              {"q": "", "ref": "boris"})
+        # no parameters
+        check(UnicodeMultiDict({}),
+              {})
+
+    def test_00_read_search_params_with_errors(self):
+        def check_error(request_params):
+            assert_raises(ValueError, ApiController._get_search_params, request_params)            
+        # uri json
+        check_error(UnicodeMultiDict({'qjson': '{"q": illegal json}'}))
+        # posted json
+        check_error(UnicodeMultiDict({'{"q": illegal json}': u'1'}))
 
     def test_01_uri_q(self):
         offset = self.base_url + '?q=%s' % self.package_fixture_data['name']
