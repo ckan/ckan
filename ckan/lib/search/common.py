@@ -240,7 +240,7 @@ class QueryParser(object):
         return self.query
         
     def __repr__(self):
-        return "Query(%s)" % self
+        return "Query(%r)" % self.query
 
 
 class SearchIndex(object):
