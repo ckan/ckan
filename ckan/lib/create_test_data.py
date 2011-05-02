@@ -377,10 +377,10 @@ left arrow <
         # authz
         model.Session.add_all([
             model.User(name=u'tester', apikey=u'tester', password=u'tester'),
-            model.User(name=u'joeadmin'),
-            model.User(name=u'annafan', about=u'I love reading Annakarenina'),
-            model.User(name=u'russianfan'),
-            model.User(name=u'testsysadmin'),
+            model.User(name=u'joeadmin', password=u'joeadmin'),
+            model.User(name=u'annafan', about=u'I love reading Annakarenina', password=u'annafan'),
+            model.User(name=u'russianfan', password=u'russianfan'),
+            model.User(name=u'testsysadmin', password=u'testsysadmin'),
             ])
         cls.user_refs.extend([u'tester', u'joeadmin', u'annafan', u'russianfan', u'testsysadmin'])
         model.repo.commit_and_remove()
@@ -406,6 +406,33 @@ left arrow <
         if commit_changesets:
             from ckan.model.changeset import ChangesetRegister
             changeset_ids = ChangesetRegister().commit()
+
+        # Create a couple of authorization groups
+        for ag_name in [u'anauthzgroup', u'anotherauthzgroup']:
+            ag=model.AuthorizationGroup.by_name(ag_name) 
+            if not ag: #may already exist, if not create
+                ag=model.AuthorizationGroup(name=ag_name)
+                model.Session.add(ag)
+
+        model.repo.commit_and_remove()
+
+        # and give them a range of roles on various things
+        ag = model.AuthorizationGroup.by_name(u'anauthzgroup')
+        aag = model.AuthorizationGroup.by_name(u'anotherauthzgroup')
+        pkg = model.Package.by_name(u'warandpeace')
+        g = model.Group.by_name('david')
+
+        model.add_authorization_group_to_role(ag, u'editor', model.System())
+        model.add_authorization_group_to_role(ag, u'reader', pkg)
+        model.add_authorization_group_to_role(ag, u'admin', aag)
+        model.add_authorization_group_to_role(aag, u'editor', ag)
+        model.add_authorization_group_to_role(ag, u'editor', g)
+
+        model.repo.commit_and_remove()
+
+
+
+
 
     @classmethod
     def create_user(cls, name='', **kwargs):

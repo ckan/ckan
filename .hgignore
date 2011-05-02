@@ -27,3 +27,6 @@ fl_notes.txt
 .noseids
 *~
 
+# nosetest coverage output
+.coverage
+htmlcov/*
