@@ -46,8 +46,6 @@ class PackageController(BaseController):
         q = c.q = request.params.get('q') # unicode format (decoded from utf8)
         c.open_only = request.params.get('open_only')
         c.downloadable_only = request.params.get('downloadable_only')
-        if c.q is None or len(c.q.strip()) == 0:
-            q = '*:*'
         c.query_error = False
         try:
             page = int(request.params.get('page', 1))
