@@ -77,7 +77,7 @@ class AuthorizationGroupController(BaseController):
             model.setup_default_user_roles(authorization_group, [user])
             users = [model.User.by_name(name) for name in \
                      request.params.getall('AuthorizationGroup-users-current')]
-            authorization_group.users = list(set(users + [user]))
+            authorization_group.users = list(set(users))
             usernames = request.params.getall('AuthorizationGroupUser--user_name')
             for username in usernames:
                 if username:
@@ -131,7 +131,7 @@ class AuthorizationGroupController(BaseController):
             user = model.User.by_name(c.user)
             users = [model.User.by_name(name) for name in \
                      request.params.getall('AuthorizationGroup-users-current')]
-            authorization_group.users = list(set(users + [user]))
+            authorization_group.users = list(set(users))
             usernames = request.params.getall('AuthorizationGroupUser--user_name')
             for username in usernames:
                 if username:
