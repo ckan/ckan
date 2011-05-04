@@ -224,7 +224,7 @@ def make_map():
     map.connect('/user/logged_out', controller='user', action='logged_out')
     map.connect('/user/me', controller='user', action='me')
     map.connect('/user/{id:.*}', controller='user', action='read')
-    map.connect('/user', controller='revision', action='index')
+    map.connect('/user', controller='user', action='index')
 
     map.connect('/revision', controller='revision', action='index')
     map.connect('/revision/edit/{id}', controller='revision', action='edit')
