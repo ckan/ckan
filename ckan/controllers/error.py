@@ -26,7 +26,7 @@ class ErrorController(BaseController):
         original_request = request.environ.get('pylons.original_request')
         original_response = request.environ.get('pylons.original_response')
         # Bypass error template for API operations.
-        if original_request.path.startswith('/api'):
+        if original_request and original_request.path.startswith('/api'):
             return original_response.body
         # Otherwise, decorate original response with error template.
         c.content = literal(original_response.unicode_body) or cgi.escape(request.GET.get('message', ''))
