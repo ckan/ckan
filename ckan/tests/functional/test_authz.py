@@ -379,7 +379,7 @@ class TestUsage(TestController, AuthzTestBase):
         res = self.app.get(offset, extra_environ={'REMOTE_USER': user.name.encode('utf8')})
         assert 'New - Data Packages' in res
         fv = res.forms['package-edit']
-        prefix = 'Package--'
+        prefix = ''
         fv[prefix + 'name'] = u'annakarenina'
         res = fv.submit('save', extra_environ={'REMOTE_USER': user.name.encode('utf8')})
 

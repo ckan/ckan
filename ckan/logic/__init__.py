@@ -12,14 +12,23 @@ class NotAuthorized(ActionError):
     pass
 
 class ValidationError(ActionError):
-    def __init__(self, error_dict, extra_msg=None):
+    def __init__(self, error_dict, error_summary=None, extra_msg=None):
         self.error_dict = error_dict
+        self.error_summary = error_summary
         self.extra_msg = extra_msg
 
 log = logging.getLogger(__name__)
 
 def clean_dict(data_dict):
-    return dict((k, v) for k, v in data_dict.items() if v)
+    for key, value in data_dict.items():
+        if not isinstance(value, list):
+            continue
+        for inner_dict in value[:]:
+            if not any(inner_dict.values()):
+                value.remove(inner_dict)
+            else:
+                clean_dict(inner_dict)
+    return data_dict
 
 def tuplize_dict(data_dict):
     ''' gets a dict with keys of the form 'table__0__key' and converts them

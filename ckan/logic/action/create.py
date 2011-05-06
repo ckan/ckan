@@ -19,52 +19,55 @@ from ckan.lib.dictization.model_dictize import (group_dictize,
 from ckan.logic.schema import default_create_package_schema, default_resource_schema
 
 from ckan.logic.schema import default_group_schema
-from ckan.lib.navl.dictization_functions import validate, validate_flattened, unflatten
-from ckan.logic.action.update import _update_package_relationship
+from ckan.lib.navl.dictization_functions import validate 
+from ckan.logic.action.update import (_update_package_relationship,
+                                      package_error_summary,
+                                      check_group_auth)
 log = logging.getLogger(__name__)
-
 
 def package_create(data_dict, context):
 
     model = context['model']
     user = context['user']
+    preview = context.get('preview', False)
     flat = context.get('flat', False)
     schema = context.get('schema') or default_create_package_schema()
+    model.Session.remove()
 
     check_access(model.System(), model.Action.PACKAGE_CREATE, context)
+    check_group_auth(data_dict, context)
 
-    if flat:
-        data, errors = validate_flattened(data_dict, schema, context)
-        data = unflatten(data)
-    else:
-        data, errors = validate(data_dict, schema, context)
+    data, errors = validate(data_dict, schema, context)
 
     if errors:
-        raise ValidationError(errors)
+        model.Session.rollback()
+        raise ValidationError(errors, package_error_summary(errors))
 
-    rev = model.repo.new_revision()
-    rev.author = user
-    if 'message' in context:
-        rev.message = context['message']
-    else:
-        rev.message = _(u'REST API: Create object %s') % data.get("name")
+    if not preview:
+        rev = model.repo.new_revision()
+        rev.author = user
+        if 'message' in context:
+            rev.message = context['message']
+        else:
+            rev.message = _(u'REST API: Create object %s') % data.get("name")
 
     pkg = package_dict_save(data, context)
-
+    admins = []
     if user:
         admins = [model.User.by_name(user.decode('utf8'))]
-    else:
-        admins = []
-    model.setup_default_user_roles(pkg, admins)
-    for item in PluginImplementations(IPackageController):
-        item.create(pkg)
-    model.repo.commit()        
-    ## need to let rest api create
+
+    if not preview:
+        model.setup_default_user_roles(pkg, admins)
+        for item in PluginImplementations(IPackageController):
+            item.create(pkg)
+        model.repo.commit()        
+
+    ## need to let rest api create and preview
     context["package"] = pkg
     ## this is added so that the rest controller can make a new location 
     context["id"] = pkg.id
     log.debug('Created object %s' % str(pkg.name))
-    return package_dictize(pkg, context)
+    return package_dictize(pkg, context) 
 
 def resource_create(data_dict, context):
     model = context['model']

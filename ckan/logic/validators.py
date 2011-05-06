@@ -1,6 +1,7 @@
 import re
 from pylons.i18n import _, ungettext, N_, gettext
-from ckan.lib.navl.dictization_functions import Invalid, missing
+from ckan.lib.navl.dictization_functions import Invalid, missing, unflatten
+from ckan.authz import Authorizer
 
 def package_id_not_changed(value, context):
 
@@ -9,6 +10,14 @@ def package_id_not_changed(value, context):
         raise Invalid(_('Cannot change value of key from %s to %s. '
                         'This key is read-only') % (package.id, value))
     return value
+
+def no_http(value, context):
+
+    model = context['model']
+    session = context['session']
+
+    if 'http:' in value:
+        raise Invalid(_('No links are allowed in the log_message.'))
 
 def package_id_exists(value, context):
 
@@ -78,6 +87,20 @@ def package_name_validator(key, data, errors, context):
     if result:
         errors[key].append(_('Package name already exists in database'))
 
+def duplicate_extras_key(key, data, errors, context):
+
+    unflattened = unflatten(data)
+    extras = unflattened.get('extras', [])
+    extras_keys = []
+    for extra in extras:
+        if not extra.get('delete'):
+            extras_keys.append(extra['key'])
+    
+    for extra_key in set(extras_keys):
+        extras_keys.remove(extra_key)
+    if extras_keys:
+        errors[key].append(_('Duplicate key "%s"') % extras_keys[0])
+    
 def group_name_validator(key, data, errors, context):
     model = context['model']
     session = context['session']
@@ -116,3 +139,31 @@ def tag_not_uppercase(value, context):
     if tagname_uppercase.search(value):
         raise Invalid(_('Tag "%s" must not be uppercase' % (value)))
     return value
+
+def tag_string_convert(key, data, errors, context):
+
+    value = data[key]
+
+    tags = value.split()
+    for num, tag in enumerate(tags):
+        data[('tags', num, 'name')] = tag.lower()
+
+    for tag in tags:
+        tag_length_validator(tag, context)
+        tag_name_validator(tag, context)
+
+def ignore_not_admin(key, data, errors, context):
+
+    model = context['model']
+    user = context.get('user')
+
+    if user and Authorizer.is_sysadmin(user):
+        return
+
+    pkg = context.get('package')
+    if (user and pkg and 
+        Authorizer().is_authorized(user, model.Action.CHANGE_STATE, pkg)):
+        return
+
+    data.pop(key)
+

@@ -53,11 +53,12 @@ def package_extras_save(extras_dicts, pkg, context):
 
     result_dict = {}
     for extra_dict in extras_dicts:
+        if extra_dict.get("delete"):
+            continue
         if extras_as_string:
             result_dict[extra_dict["key"]] = extra_dict["value"]
         else:
             result_dict[extra_dict["key"]] = json.loads(extra_dict["value"])
-
 
     return result_dict
 
@@ -120,6 +121,7 @@ def package_dict_save(pkg_dict, context):
 
     model = context["model"]
     package = context.get("package")
+    allow_partial_update = context.get("allow_partial_update", False)
     if package:
         pkg_dict["id"] = package.id 
     Package = model.Package
@@ -131,22 +133,22 @@ def package_dict_save(pkg_dict, context):
         pkg.resources[:] = resources
 
     tags = tag_list_save(pkg_dict.get("tags", []), context)
-    if tags:
+    if tags or not allow_partial_update:
         pkg.tags[:] = tags
 
     groups = group_list_save(pkg_dict.get("groups", []), context)
-    if groups:
+    if groups or not allow_partial_update:
         pkg.groups[:] = groups
 
     subjects = pkg_dict.get("relationships_as_subject", [])
-    if subjects:
+    if subjects or not allow_partial_update:
         pkg.relationships_as_subject[:] = relationship_list_save(subjects, context)
     objects = pkg_dict.get("relationships_as_object", [])
-    if objects:
+    if objects or not allow_partial_update:
         pkg.relationships_as_object[:] = relationship_list_save(objects, context)
 
     extras = package_extras_save(pkg_dict.get("extras", {}), pkg, context)
-    if extras:
+    if extras or not allow_partial_update:
         old_extras = set(pkg.extras.keys())
         new_extras = set(extras.keys())
         for key in old_extras - new_extras:

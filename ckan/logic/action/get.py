@@ -39,7 +39,6 @@ def package_revision_list(context):
     return revision_dicts
 
 def group_list(context):
-
     model = context["model"]
     user = context["user"]
     api = context.get('api_version') or '1'
@@ -48,6 +47,28 @@ def group_list(context):
     query = ckan.authz.Authorizer().authorized_query(user, model.Group)
     groups = query.all() 
     return [getattr(p, ref_group_by) for p in groups]
+
+def group_list_authz(context):
+    model = context['model']
+    user = context['user']
+    pkg = context.get('package')
+
+    query = ckan.authz.Authorizer().authorized_query(user, model.Group, model.Action.EDIT)
+    groups = set(query.all())
+    return set([group.id for group in groups])
+
+def group_list_availible(context):
+    model = context['model']
+    user = context['user']
+    pkg = context.get('package')
+
+    query = ckan.authz.Authorizer().authorized_query(user, model.Group, model.Action.EDIT)
+    groups = set(query.all())
+
+    if pkg:
+        groups = groups - set(pkg.groups)
+
+    return [(group.id, group.name) for group in groups]
 
 def licence_list(context):
     model = context["model"]
@@ -152,6 +173,7 @@ def group_show(context):
         _dict = group_to_api1(group, context)
     #TODO check it's not none
     return _dict
+
 
 def tag_show(context):
     model = context['model']

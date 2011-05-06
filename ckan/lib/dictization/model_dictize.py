@@ -30,6 +30,8 @@ def extras_dict_dictize(extras_dict, context):
     result_list = []
     for name, extra in extras_dict.iteritems():
         dictized = table_dictize(extra, context)
+        if not extra.state == 'active':
+            continue
         value = dictized["value"]
         ## This is to make sure the frontend does not show a plain string
         ## as json with brackets.

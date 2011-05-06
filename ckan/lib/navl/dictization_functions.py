@@ -19,6 +19,8 @@ class Missing(object):
         raise Invalid(fe.api._stdtrans('Missing value'))
     def __hex__(self):
         raise Invalid(fe.api._stdtrans('Missing value'))
+    def __nonzero__(self):
+        return False
 
 missing = Missing()
 
@@ -165,6 +167,9 @@ def convert(converter, key, converted_data, errors, context):
 
     try:
         converter(key, converted_data, errors, context)
+        return
+    except Invalid, e:
+        errors[key].append(e.error)
         return
     except TypeError, e:
         ## hack to make sure the type error was caused by the wrong

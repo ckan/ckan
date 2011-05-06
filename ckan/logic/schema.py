@@ -3,20 +3,23 @@ from ckan.lib.navl.validators import (ignore_missing,
                                       not_empty,
                                       empty,
                                       ignore,
-                                      both_not_empty,
                                       if_empty_same_as,
                                       not_missing
                                      )
 from ckan.logic.validators import (package_id_not_changed,
-                                             package_id_exists,
-                                             package_id_or_name_exists,
-                                             extras_unicode_convert,
-                                             name_validator,
-                                             package_name_validator,
-                                             group_name_validator,
-                                             tag_length_validator,
-                                             tag_name_validator,
-                                             tag_not_uppercase)
+                                   package_id_exists,
+                                   package_id_or_name_exists,
+                                   extras_unicode_convert,
+                                   name_validator,
+                                   package_name_validator,
+                                   group_name_validator,
+                                   tag_length_validator,
+                                   tag_name_validator,
+                                   tag_string_convert,
+                                   duplicate_extras_key,
+                                   ignore_not_admin,
+                                   no_http,
+                                   tag_not_uppercase)
 from formencode.validators import OneOf
 import ckan.model
 
@@ -65,7 +68,8 @@ def default_package_schema():
         'notes': [ignore_missing, unicode],
         'url': [ignore_missing, unicode],#, URL(add_http=False)],
         'version': [ignore_missing, unicode],
-        'state': [ignore],
+        'state': [ignore_not_admin, ignore_missing],
+        'tag_string': [ignore_missing, tag_string_convert],
         '__extras': [ignore],
         '__junk': [empty],
         'resources': default_resource_schema(),
@@ -74,10 +78,11 @@ def default_package_schema():
         'relationships_as_object': default_relationship_schema(),
         'relationships_as_subject': default_relationship_schema(),
         'groups': {
+            'id': [ignore_missing, unicode],
             '__extras': [ignore],
+            'keep': [ignore_missing, unicode],
         }
     }
-
     return schema
 
 def default_create_package_schema():
@@ -96,6 +101,29 @@ def default_update_package_schema():
 
     return schema
 
+def package_form_schema():
+
+    schema = default_package_schema()
+    ##new
+    schema['log_message'] = [unicode, no_http]
+    schema['groups'] = {
+            'id': [not_empty, unicode],
+            '__extras': [empty],
+            'keep': [ignore_missing, unicode],
+    }
+    schema['tag_string'] = [ignore_missing, tag_string_convert]
+    schema['extras_validation'] = [duplicate_extras_key, ignore]
+    schema['save'] = [ignore]
+    schema['preview'] = [ignore]
+    schema['return_to'] = [ignore]
+
+    ##changes
+    schema.pop("id")
+    schema.pop('tags')
+    schema.pop('relationships_as_object')
+    schema.pop('revision_id')
+    schema.pop('relationships_as_subject')
+    return schema
 
 def default_group_schema():
 
@@ -127,6 +155,7 @@ def default_extras_schema():
         'key': [not_empty, unicode],
         'value': [not_missing, unicode],
         'state': [ignore],
+        'delete': [ignore_missing],
     }
     return schema
 

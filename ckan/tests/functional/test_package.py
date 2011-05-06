@@ -89,23 +89,19 @@ class TestPackageForm(TestPackageBase):
         if params.has_key('state'):
             assert 'State: %s' % params['state'] in main_div.replace('</strong>', ''), main_div_str
         if isinstance(params['extras'], dict):
-            extras = params['extras'].items()
+            extras = []
+            for key, value in params['extras'].items():
+                extras.append((key, value, False))
         elif isinstance(params['extras'], (list, tuple)):
             extras = params['extras']
         else:
             raise NotImplementedError
-        for key, value in extras:
-            key_in_html_body = self.escape_for_html_body(key)
-            value_in_html_body = self.escape_for_html_body(value)
-            self.check_named_element(main_div, 'tr', key_in_html_body, value_in_html_body)
-        if params.has_key('deleted_extras'):
-            if isinstance(params['deleted_extras'], dict):
-                deleted_extras = params['deleted_extras'].items()
-            elif isinstance(params['deleted_extras'], (list, tuple)):
-                deleted_extras = params['deleted_extras']
+        for key, value, deleted in extras:
+            if not deleted:
+                key_in_html_body = self.escape_for_html_body(key)
+                value_in_html_body = self.escape_for_html_body(value)
+                self.check_named_element(main_div, 'tr', key_in_html_body, value_in_html_body)
             else:
-                raise NotImplementedError
-            for key, value in params['deleted_extras']:
                 self.check_named_element(main_div, 'tr', '!' + key)
                 self.check_named_element(main_div, 'tr', '!' + value)
 
@@ -130,12 +126,12 @@ class TestPackageForm(TestPackageBase):
             assert str(params['state']) in preview, preview
         else:
             assert 'state' not in preview
-        for key, value in params['extras']:
-            key_html = self.escape_for_html_body(key)
-            value_html = self.escape_for_html_body(value)
-            self.check_named_element(preview, 'tr', key_html, value_html)
-        if params.has_key('deleted_extras'):
-            for key, value in params['deleted_extras']:
+        for key, value, deleted in params['extras']:
+            if not deleted:
+                key_html = self.escape_for_html_body(key)
+                value_html = self.escape_for_html_body(value)
+                self.check_named_element(preview, 'tr', key_html, value_html)
+            else:
                 key_html = self.escape_for_html_body(key)
                 value_html = self.escape_for_html_body(value)
                 self.check_named_element(preview, 'tr', '!' + key_html)
@@ -174,14 +170,14 @@ class TestPackageForm(TestPackageBase):
                 if key == 'license':
                     key = 'license_id'
                 params[key] = value
-        prefix = 'Package-%s-' % params['id']
+        prefix = ''
         main_res = self.main_div(res)
         self.check_tag(main_res, prefix+'name', params['name'])
         self.check_tag(main_res, prefix+'title', params['title'])
         self.check_tag(main_res, prefix+'version', params['version'])
         self.check_tag(main_res, prefix+'url', params['url'])
         for res_index, res_field, expected_value in self._get_resource_values(params['resources']):
-            self.check_tag(main_res, '%sresources-%i-%s' % (prefix, res_index, res_field), expected_value)
+            self.check_tag(main_res, '%sresources__%i__%s' % (prefix, res_index, res_field), expected_value)
         self.check_tag_and_data(main_res, prefix+'notes', params['notes'])
         self.check_tag_and_data(main_res, 'selected', params['license_id'])
         if isinstance(params['tags'], (str, unicode)):
@@ -189,20 +185,25 @@ class TestPackageForm(TestPackageBase):
         else:
             tags = params['tags']
         for tag in tags:
-            self.check_tag(main_res, prefix+'tags', tag)
+            self.check_tag(main_res, prefix+'tag_string', tag)
         if params.has_key('state'):
             self.check_tag_and_data(main_res, 'selected', str(params['state']))
         if isinstance(params['extras'], dict):
-            extras = params['extras'].items()
+            extras = []
+            for key, value in params['extras'].items():
+                extras.append((key, value, False))
         else:
             extras = params['extras']
-        for key, value in extras:
+        for num, (key, value, deleted) in enumerate(sorted(extras)):
             key_in_html_body = self.escape_for_html_body(key)
             value_in_html_body = self.escape_for_html_body(value)
             key_escaped = genshi_escape(key)
             value_escaped = genshi_escape(value)
-            self.check_tag_and_data(main_res, 'Package-%s-extras-%s' % (params['id'], key_escaped), key_in_html_body.capitalize())
-            self.check_tag(main_res, 'Package-%s-extras-%s' % (params['id'], key_escaped), value_escaped)
+            self.check_tag(main_res, 'extras__%s__key' % num, key_in_html_body)
+            self.check_tag(main_res, 'extras__%s__value' % num, value_escaped)
+            if deleted:
+                self.check_tag(main_res, 'extras__%s__delete' % num, 'checked')
+
         assert params['log_message'] in main_res, main_res
     
     def _check_redirect(self, return_url_param, expected_redirect,
@@ -233,7 +234,7 @@ class TestPackageForm(TestPackageBase):
             res = self.app.get(offset)
             assert 'Packages -' in res
             fv = res.forms['package-edit']
-            prefix = 'Package-%s-' % pkg_id
+            prefix = ''
             fv[prefix + 'name'] = new_name
             res = fv.submit('preview')
             assert not 'Error' in res, res
@@ -474,7 +475,7 @@ class TestEdit(TestPackageForm):
             new_name = u'new-name'
             new_title = u'New Title'
             fv = self.res.forms['package-edit']
-            prefix = 'Package-%s-' % self.pkgid
+            prefix = ''
             fv[prefix + 'name'] = new_name
             fv[prefix + 'title'] = new_title
             res = fv.submit('save')
@@ -503,11 +504,11 @@ class TestEdit(TestPackageForm):
             newlicense_id = u'cc-by'
             newversion = u'0.9b'
             fv = self.res.forms['package-edit']
-            prefix = 'Package-%s-' % self.pkgid
+            prefix = ''
             fv[prefix + 'name'] = new_name
             fv[prefix + 'title'] =  new_title
             fv[prefix + 'url'] =  newurl
-            fv[prefix + 'resources-0-url'] =  new_download_url
+            fv[prefix + 'resources__0__url'] =  new_download_url
             fv[prefix + 'license_id'] =  newlicense_id
             fv[prefix + 'version'] = newversion
             res = fv.submit('save')
@@ -537,7 +538,7 @@ class TestEdit(TestPackageForm):
             new_name = u'new-name'
             new_title = u'A Short Description of this Package'
             fv = self.res.forms['package-edit']
-            prefix = 'Package-%s-' % self.pkgid
+            prefix = ''
             fv[prefix + 'name'] = new_name
             fv[prefix + 'title'] =  new_title
             res = fv.submit('save')
@@ -563,8 +564,8 @@ class TestEdit(TestPackageForm):
         newtags = newtagnames
         tagvalues = ' '.join(newtags)
         fv = self.res.forms['package-edit']
-        prefix = 'Package-%s-' % self.pkgid
-        fv[prefix + 'tags'] =  tagvalues
+        prefix = ''
+        fv[prefix + 'tag_string'] = tagvalues
         exp_log_message = 'test_edit_2: making some changes'
         fv['log_message'] =  exp_log_message
         res = fv.submit('save')
@@ -593,7 +594,7 @@ u with umlaut \xc3\xbc
 
 '''
         fv = self.res.forms['package-edit']
-        prefix = 'Package-%s-' % self.pkgid
+        prefix = ''
         fv[prefix + 'url'] =  newurl
         fv[prefix + 'notes'] =  newnotes
         res = fv.submit('preview')
@@ -611,10 +612,9 @@ u with umlaut \xc3\xbc
         res = fv.submit('save', status=400)
 
         fv = self.res.forms['package-edit']
-        prefix = 'Package-%s-' % self.pkgid
+        prefix = ''
         del fv.fields[prefix + 'license_id']
-        res = fv.submit('save', status=400)     
-
+        res = fv.submit('save', status=400)
 
     def test_redirect_after_edit_using_param(self):
         return_url = 'http://random.site.com/package/<NAME>?test=param'
@@ -686,42 +686,42 @@ u with umlaut \xc3\xbc
             state = model.State.ACTIVE
             tags = (u'tag1', u'tag2', u'tag3')
             tags_txt = u' '.join(tags)
-            extra_changed = 'key1', self.value1 + ' CHANGED'
-            extra_new = 'newkey', 'newvalue'
+            extra_changed = 'key1', self.value1 + ' CHANGED', False
+            extra_new = 'newkey', 'newvalue', False
             log_message = 'This is a comment'
             assert not model.Package.by_name(name)
             fv = res.forms['package-edit']
-            prefix = 'Package-%s-' % pkg.id
+            prefix = ''
             fv[prefix+'name'] = name
             fv[prefix+'title'] = title
             fv[prefix+'version'] = version
             fv[prefix+'url'] = url
             for res_index, resource in enumerate(resources):
                 for field_index, res_field in enumerate(model.Resource.get_columns()):
-                    fv[prefix+'resources-%s-%s' % (res_index, res_field)] = resource[field_index]
+                    fv[prefix+'resources__%s__%s' % (res_index, res_field)] = resource[field_index]
             fv[prefix+'notes'] = notes
             fv[prefix+'license_id'] = license_id
-            fv[prefix+'tags'] = tags_txt
+            fv[prefix+'tag_string'] = tags_txt
             fv[prefix+'state'] = state
-            fv[prefix+'extras-%s' % extra_changed[0]] = extra_changed[1].encode('utf8')
-            fv[prefix+'extras-newfield0-key'] = extra_new[0].encode('utf8')
-            fv[prefix+'extras-newfield0-value'] = extra_new[1].encode('utf8')
-            fv[prefix+'extras-key3-checkbox'] = True
+            fv[prefix+'extras__0__value'] = extra_changed[1].encode('utf8')
+            fv[prefix+'extras__3__key'] = extra_new[0].encode('utf8')
+            fv[prefix+'extras__3__value'] = extra_new[1].encode('utf8')
+            fv[prefix+'extras__2__delete'] = True
             fv['log_message'] = log_message
             res = fv.submit('preview', extra_environ={'REMOTE_USER':'testadmin'})
             assert not 'Error' in res, res
 
             # Check preview is correct
-            current_extras = (('key2', extras['key2']),
-                              extra_changed,
-                              extra_new)
-            deleted_extras = [('key3', extras['key3'])]
+            extras = (('key2', extras['key2'], False),
+                       extra_changed,
+                       extra_new,
+                       ('key3', extras['key3'], True))
+
             self._check_preview(res, name=name, title=title, version=version,
                                 url=url,
                                 download_url='',
                                 resources=resources, notes=notes, license_id=license_id,
-                                tags=tags, extras=current_extras,
-                                deleted_extras=deleted_extras,
+                                tags=tags, extras=extras,
                                 state=state)
 
             # Check form is correctly filled
@@ -729,8 +729,7 @@ u with umlaut \xc3\xbc
                                              title=title, version=version,
                                              url=url, resources=resources,
                                              notes=notes, license_id=license_id,
-                                             tags=tags, extras=current_extras,
-                                             deleted_extras=deleted_extras,
+                                             tags=tags, extras=extras,
                                              log_message=log_message,
                                              state=state)
 
@@ -746,8 +745,7 @@ u with umlaut \xc3\xbc
                                      resources=resources, notes=notes,
                                      license_id=license_id, 
                                      tags=tags,
-                                     extras=current_extras,
-                                     deleted_extras=deleted_extras,
+                                     extras=extras,
                                      state=state,
                                      )
 
@@ -768,9 +766,10 @@ u with umlaut \xc3\xbc
             expected_tagnames.sort()
             assert saved_tagnames == expected_tagnames
             assert pkg.state == state
-            assert len(pkg.extras) == len(current_extras)
-            for key, value in current_extras:
-                assert pkg.extras[key] == value
+            assert len(pkg.extras) == len([extra for extra in extras if not extra[-1]])
+            for key, value, deleted in extras:
+                if not deleted:
+                    assert pkg.extras[key] == value
 
             # for some reason environ['REMOTE_ADDR'] is undefined
             rev = model.Revision.youngest(model.Session)
@@ -785,7 +784,7 @@ u with umlaut \xc3\xbc
 
     def test_edit_bad_log_message(self):
         fv = self.res.forms['package-edit']
-        prefix = 'Package-%s-' % self.pkgid
+        prefix = ''
         fv['log_message'] = u'Free enlargements: http://drugs.com/' # spam
         res = fv.submit('preview')
         assert 'Error' in res, res
@@ -799,7 +798,7 @@ u with umlaut \xc3\xbc
 
     def test_edit_bad_name(self):
         fv = self.res.forms['package-edit']
-        prefix = 'Package-%s-' % self.pkgid
+        prefix = ''
         fv[prefix + 'name'] = u'a' # invalid name
         res = fv.submit('preview')
         assert 'Error' in res, res
@@ -823,7 +822,7 @@ u with umlaut \xc3\xbc
             new_name = u'new-name'
             new_title = u'New Title'
             fv = res.forms['package-edit']
-            prefix = 'Package-%s-' % self.pkgid
+            prefix = ''
             fv[prefix + 'name'] = new_name
             fv[prefix + 'title'] = new_title
             res = fv.submit('save')
@@ -840,16 +839,16 @@ u with umlaut \xc3\xbc
             assert len(pkg.groups) == 0
             offset = url_for(controller='package', action='edit', id=pkg.name)
             res = self.app.get(offset)
-            prefix = 'Package-%s-' % pkg.id
+            prefix = ''
             fv = res.forms['package-edit']
-            name = prefix + 'groups-new'
+            name = prefix + 'groups__0__id'
             # XXX the following assertion fails since upgrade to
             # sqlalchemy 0.6.5; apparently outer joins are handled
             # differently in such a way that
             # ckan.lib.base._get_user_editable_groups (which calls 
             # ckan.authz.authorized_query) now returns groups when it
             # shouldn't.                             
-            assert not name in fv.fields.keys()
+            assert not name in fv.fields.keys(), fv.fields.keys()
             res = fv.submit('save')
             res = res.follow()
             pkg = model.Package.by_name(u'editpkgtest')
@@ -865,11 +864,11 @@ u with umlaut \xc3\xbc
             offset = url_for(controller='package', action='edit', id=pkg.name)
             
             res = self.app.get(offset, extra_environ={'REMOTE_USER':'russianfan'})
-            prefix = 'Package-%s-' % pkg.id
-            field_name = prefix + "groups-%s" % grp.id
-            assert not field_name in res
+            prefix = ''
+            field_name = prefix + "groups__0__id"
+            assert field_name in res
             fv = res.forms['package-edit']
-            fv[prefix + 'groups-new'] = grp.id
+            fv[prefix + 'groups__0__id'] = grp.id
             res = fv.submit('save', extra_environ={'REMOTE_USER':'russianfan'})
             res = res.follow()
             pkg = model.Package.by_name(u'editpkgtest')
@@ -890,8 +889,8 @@ u with umlaut \xc3\xbc
             assert len(pkg.groups) == 1
             offset = url_for(controller='package', action='edit', id=pkg.name)
             res = self.app.get(offset, extra_environ={'REMOTE_USER':'russianfan'})
-            prefix = 'Package-%s-' % pkg.id
-            field_name = prefix + "groups-%s" % grp.id
+            prefix = ''
+            field_name = prefix + "groups__0__id"
             fv = res.forms['package-edit']
             fv[field_name] = False
             res = fv.submit('save', extra_environ={'REMOTE_USER':'russianfan'})
@@ -917,19 +916,19 @@ class TestNew(TestPackageForm):
                 url='http://xxx.org')
         res = self.app.get(offset)
         form = res.forms['package-edit']
-        form['Package--url'].value == 'http://xxx.org/'
-        form['Package--name'].value == 'xxx.org'
+        form['url'].value == 'http://xxx.org/'
+        form['name'].value == 'xxx.org'
 
     def test_new_with_params_2(self):
         offset = url_for(controller='package', action='new',
                 url='http://www.xxx.org')
         res = self.app.get(offset)
         form = res.forms['package-edit']
-        form['Package--name'].value == 'xxx.org'
+        form['name'].value == 'xxx.org'
 
     def test_new_without_resource(self):
         # new package
-        prefix = 'Package--'
+        prefix = ''
         name = u'test_no_res'
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
@@ -965,18 +964,18 @@ class TestNew(TestPackageForm):
         res = self.app.get(offset)
         assert 'New - Data Packages' in res
         fv = res.forms['package-edit']
-        prefix = 'Package--'
+        prefix = ''
         fv[prefix + 'name'] = 'annakarenina'
         self.pkg_names.append('annakarenina')
         res = fv.submit('save')
         assert not 'Error' in res, res
 
     def test_new_bad_name(self):
-        offset = url_for(controller='package', action='new')
+        offset = url_for(controller='package', action='new', id=None)
         res = self.app.get(offset)
         assert 'New - Data Packages' in res
         fv = res.forms['package-edit']
-        prefix = 'Package--'
+        prefix = ''
         fv[prefix + 'name'] = u'a' # invalid name
         res = fv.submit('preview')
         assert 'Error' in res, res
@@ -1020,19 +1019,19 @@ class TestNew(TestPackageForm):
         res = self.app.get(offset)
         assert 'New - Data Packages' in res
         fv = res.forms['package-edit']
-        prefix = 'Package--'
+        prefix = ''
         fv[prefix+'name'] = name
         fv[prefix+'title'] = title
         fv[prefix+'version'] = version
         fv[prefix+'url'] = url
-        fv[prefix+'resources-0-url'] = download_url
-        fv[prefix+'resources-0-description'] = u'description escape: & umlaut: \xfc quote "'.encode('utf8')
+        fv[prefix+'resources__0__url'] = download_url
+        fv[prefix+'resources__0__description'] = u'description escape: & umlaut: \xfc quote "'.encode('utf8')
         fv[prefix+'notes'] = notes
         fv[prefix+'license_id'] = license_id
-        fv[prefix+'tags'] = tags_txt
-        for i, extra in enumerate(extras.items()):
-            fv[prefix+'extras-newfield%s-key' % i] = extra[0].encode('utf8')
-            fv[prefix+'extras-newfield%s-value' % i] = extra[1].encode('utf8')
+        fv[prefix+'tag_string'] = tags_txt
+        for i, extra in enumerate(sorted(extras.items())):
+            fv[prefix+'extras__%s__key' % i] = extra[0].encode('utf8')
+            fv[prefix+'extras__%s__value' % i] = extra[1].encode('utf8')
         fv['log_message'] = log_message
         res = fv.submit('preview')
         assert not 'Error' in res, res
@@ -1040,11 +1039,14 @@ class TestNew(TestPackageForm):
         # Check preview is correct
         resources = [[download_url, u'', u'description escape: & umlaut: \xfc quote "', u'']]
         resources_escaped = [[download_url, u'', u'description escape: &amp; umlaut: \xfc quote "', u'']]
+
+        extras_list = [(key, value, False) for key, value in sorted(extras.items())]
+
         self._check_preview(res, name=name, title=title, version=version,
                             url=url,
                             resources=resources_escaped, notes=notes,
                             license_id=license_id,
-                            tags=tags, extras=extras.items(),
+                            tags=tags, extras=extras_list,
                             )
 
         # Check form is correctly filled
@@ -1052,11 +1054,9 @@ class TestNew(TestPackageForm):
                                          title=title, version=version,
                                          url=url, resources=[download_url],
                                          notes=notes, license_id=license_id,
-                                         tags=[tag.lower() for tag in tags],
+                                         tags=[tag for tag in tags],
                                          extras=extras,
-#                                         deleted_extras=deleted_extras,
                                          log_message=log_message,
-#                                         state=state
                                          )
         # Submit
         fv = res.forms['package-edit']
@@ -1108,11 +1108,11 @@ class TestNew(TestPackageForm):
         pkgname = u'testpkg'
         pkgtitle = u'mytesttitle'
         assert not model.Package.by_name(pkgname)
-        offset = url_for(controller='package', action='new')
+        offset = url_for(controller='package', action='new', id=None)
         res = self.app.get(offset)
         assert 'New - Data Packages' in res
         fv = res.forms['package-edit']
-        prefix = 'Package--'
+        prefix = ''
         fv[prefix + 'name'] = pkgname
         self.pkg_names.append(pkgname)
         res = fv.submit('save')
@@ -1138,7 +1138,7 @@ class TestNew(TestPackageForm):
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset)
         assert 'New - Data Packages' in res, res
-        prefix = 'Package--'
+        prefix = ''
         fv = res.forms['package-edit']
         fv[prefix + 'name'] = 'anything'
         del fv.fields['log_message']
@@ -1150,12 +1150,12 @@ class TestNew(TestPackageForm):
         assert 'New - Data Packages' in res
         fv = res.forms['package-edit']
         fv[prefix + 'name'] = 'anything'
-        prefix = 'Package--'
+        prefix = ''
         del fv.fields[prefix + 'notes']
         # NOTE Missing dropdowns fields don't cause KeyError in
         # _serialized_value so don't register as an error here like
         # text field tested here.
-        res = fv.submit('save', status=400)     
+        res = fv.submit('save', status=400)
 
     def test_multi_resource_bug(self):
         # ticket:276
@@ -1163,10 +1163,10 @@ class TestNew(TestPackageForm):
         res = self.app.get(offset)
         assert 'New - Data Packages' in res
         fv = res.forms['package-edit']
-        prefix = 'Package--'
+        prefix = ''
         fv[prefix + 'name'] = 'name276'
         resformat = u'xls'    
-        fv[prefix + 'resources-0-format'] = resformat
+        fv[prefix + 'resources__0__format'] = resformat
         res = fv.submit('preview')
 
         res = self.main_div(res)
@@ -1180,7 +1180,7 @@ class TestNew(TestPackageForm):
         res = self.app.get(offset)
         new_name = u'plugged'
         fv = res.forms['package-edit']
-        prefix = 'Package--'
+        prefix = ''
         fv[prefix + 'name'] = new_name
         res = fv.submit('save')
         # get redirected ...
@@ -1209,7 +1209,7 @@ class TestNewPreview(TestPackageBase):
         res = self.app.get(offset)
         assert 'New - Data Packages' in res
         fv = res.forms['package-edit']
-        prefix = 'Package--'
+        prefix = ''
         fv[prefix + 'name'] = self.pkgname
         fv[prefix + 'title'] = self.pkgtitle
         res = fv.submit('preview')
@@ -1224,6 +1224,7 @@ class TestNewPreview(TestPackageBase):
         
 
 class TestNonActivePackages(TestPackageBase):
+
 
     @classmethod
     def setup_class(self):
