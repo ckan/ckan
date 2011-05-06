@@ -156,7 +156,7 @@ class ApiController(BaseController):
             'revision': get.revision_show,
             'group': get.group_show,
             'tag': get.tag_show,
-            'package': get.package_show,
+            'package': get.package_show_rest,
             ('package', 'relationships'): get.package_relationships_list,
         }
 
@@ -305,6 +305,7 @@ class ApiController(BaseController):
             return self._finish(409, e.error_dict, content_type='json')
 
     def search(self, ver=None, register=None):
+        
         log.debug('search %s params: %r' % (register, request.params))
         if register == 'revision':
             since_time = None
