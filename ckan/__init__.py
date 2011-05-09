@@ -1,4 +1,4 @@
-__version__ = '1.3.5b'
+__version__ = '1.4a'
 __description__ = 'Comprehensive Knowledge Archive Network (CKAN) Software'
 __long_description__ = \
 '''The CKAN software is used to run the Comprehensive Knowledge Archive
@@ -15,6 +15,7 @@ analogous service for open knowledge.
 '''
 __license__ = 'AGPL'
 
+# The packaging system replies on this import, please do not remove it
 try:
     # Ths automatically modifies sys.path so that the CKAN versions of
     # key dependencies are used instead of the ones already installed.

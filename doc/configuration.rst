@@ -350,3 +350,13 @@ Example::
 With this example setting, visitors (any user who is not logged in) and logged in users can only read packages that get created (only sysadmins can edit).
 
 Defaults: see in ckan/model/authz.py for: ``default_default_user_roles``
+
+
+plugins
+-------
+
+Example::
+
+  ckan.plugins = disqus synchronous_search datapreview googleanalytics stats storage admin follower
+
+Specify which CKAN extensions are to be enabled. If you specify an extension but have not installed the code then CKAN will not start. Format in a space separated list of the extension names. The extension name is the key in the [ckan.plugins] section of the extension's setup.py.
