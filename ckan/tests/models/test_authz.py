@@ -305,8 +305,11 @@ class TestUsage(object):
         print tester_roles()
         assert len(tester_roles()) == 0, "wrong number of roles for tester"
         model.add_user_to_role(tester, model.Role.ADMIN, war)
+        model.repo.commit_and_remove()
         assert len(tester_roles()) == 1, "wrong number of roles for tester"
         model.add_user_to_role(tester, model.Role.ADMIN, war)
+        model.repo.commit_and_remove()
+
         assert len(tester_roles()) == 1, "wrong number of roles for tester"
         model.remove_user_from_role(tester, model.Role.ADMIN, war)
         assert len(tester_roles()) == 0, "wrong number of roles for tester"
