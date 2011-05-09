@@ -246,6 +246,12 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
         assert len(res_dict['results']) == 1, res_dict
         assert res_dict['results'][0]['name'] == 'warandpeace', res_dict['results'][0]['name']
 
+    def test_11_pagination_syntax_error(self):
+        offset = self.base_url + '?all_fields=1&tags=russian&offset=should_be_integer&limit=1&order_by=name' # invalid offset value
+        res = self.app.get(offset, status=400)
+        assert('integer' in res.body)
+        assert('offset' in res.body)
+
     def test_12_all_packages_qjson(self):
         query = {'q': ''}
         json_query = self.dumps(query)

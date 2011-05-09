@@ -148,7 +148,10 @@ class QueryOptions(dict):
             if key in self.BOOLEAN_OPTIONS:
                 value = asbool(value)
             elif key in self.INTEGER_OPTIONS:
-                value = int(value)
+                try:
+                    value = int(value)
+                except ValueError:
+                    raise SearchError('Value for search option %r must be an integer but received %r' % (key, value))
             self[key] = value    
     
     def __getattr__(self, name):
