@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+
+# The packaging system requires this script at ckan/wsgi.py, please do not
+# move it.
+
 usage = """
 WSGI Script for CKAN
 ====================
@@ -18,8 +22,8 @@ Example:
       WSGIScriptAlias / /etc/ckan/dgu.py
 
   dgu.py will load the Pylons config: dgu.ini (looking in the same directory.)
-
 """
+
 import os
 import sys
 from apachemiddleware import MaintenanceResponse

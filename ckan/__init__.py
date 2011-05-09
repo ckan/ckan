@@ -15,6 +15,7 @@ analogous service for open knowledge.
 '''
 __license__ = 'AGPL'
 
+# The packaging system replies on this import, please do not remove it
 try:
     # Ths automatically modifies sys.path so that the CKAN versions of
     # key dependencies are used instead of the ones already installed.
