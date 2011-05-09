@@ -293,6 +293,27 @@ class TestUsage(object):
                                              action=model.Action.READ,
                                              domain_object=self.anna)
 
+    def test_3_add_twice_remove_twice(self):
+        tester = model.User.by_name(u'tester')
+        war = model.Package.by_name(u'warandpeace')
+
+        def tester_roles():
+            return [x.role \
+             for x in model.Session.query(model.PackageRole).all() \
+             if x.user and x.user.name=='tester' and x.package.name==u'warandpeace']
+          
+        print tester_roles()
+        assert len(tester_roles()) == 0, "wrong number of roles for tester"
+        model.add_user_to_role(tester, model.Role.ADMIN, war)
+        assert len(tester_roles()) == 1, "wrong number of roles for tester"
+        model.add_user_to_role(tester, model.Role.ADMIN, war)
+        assert len(tester_roles()) == 1, "wrong number of roles for tester"
+        model.remove_user_from_role(tester, model.Role.ADMIN, war)
+        assert len(tester_roles()) == 0, "wrong number of roles for tester"
+        model.remove_user_from_role(tester, model.Role.ADMIN, war)
+        assert len(tester_roles()) == 0, "wrong number of roles for tester"
+
+
 class TestMigrate:
     @classmethod
     def setup_class(self):
