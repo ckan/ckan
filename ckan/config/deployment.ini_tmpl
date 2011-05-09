@@ -22,6 +22,9 @@ beaker.session.key = ckan
 beaker.session.secret = ${app_instance_secret}
 app_instance_uuid = ${app_instance_uuid}
 
+# Add any CKAN plugins here. Note: This line is required to be here for 
+# packaging, even if it is empty.
+ckan.plugins = 
 
 # If you'd like to fine-tune the individual locations of the cache data dirs
 # for the Cache data, or the Session saves, un-comment the desired settings
@@ -167,17 +170,17 @@ ckan.backup_dir = %(here)s/backup
 
 # Logging configuration
 [loggers]
-keys = root
+keys = root, ckan, ckanext
 
 [handlers]
-keys = console
+keys = console, file
 
 [formatters]
 keys = generic
 
 [logger_root]
-level = INFO
-handlers = console
+level = WARNING
+handlers = console, file
 
 [logger_ckan]
 level = DEBUG
@@ -201,7 +204,7 @@ formatter = generic
 class = handlers.RotatingFileHandler
 formatter = generic
 level = NOTSET
-args = ('/var/log/ckan/ckan.log', 'a', 2000000, 9)
+args = ('%(here)s/ckan.log', 'a', 2000000, 9)
 
 [formatter_generic]
 format = %(asctime)s %(levelname)-5.5s [%(name)s] %(message)s
