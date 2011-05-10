@@ -57,7 +57,7 @@ def default_package_schema():
 
     schema = {
         'id': [ignore_missing, unicode, package_id_exists],
-        'revision_id': [ignore_missing, unicode],
+        'revision_id': [ignore],
         'name': [not_empty, unicode, name_validator, package_name_validator],
         'title': [if_empty_same_as("name"), unicode],
         'author': [ignore_missing, unicode],
@@ -80,7 +80,6 @@ def default_package_schema():
         'groups': {
             'id': [ignore_missing, unicode],
             '__extras': [ignore],
-            'keep': [ignore_missing, unicode],
         }
     }
     return schema
@@ -109,7 +108,6 @@ def package_form_schema():
     schema['groups'] = {
             'id': [not_empty, unicode],
             '__extras': [empty],
-            'keep': [ignore_missing, unicode],
     }
     schema['tag_string'] = [ignore_missing, tag_string_convert]
     schema['extras_validation'] = [duplicate_extras_key, ignore]
@@ -129,13 +127,14 @@ def default_group_schema():
 
     schema = {
         'id': [ignore_missing, unicode],
-        'revision_id': [ignore_missing, unicode],
+        'revision_id': [ignore],
         'name': [not_empty, unicode, name_validator, group_name_validator],
         'title': [ignore_missing, unicode],
         'description': [ignore_missing, unicode],
         'state': [ignore],
         'created': [ignore],
         'extras': default_extras_schema(),
+        '__extras': [ignore],
         'packages': {
             "id": [not_empty, unicode, package_id_or_name_exists],
             "__extras": [ignore]
@@ -143,10 +142,21 @@ def default_group_schema():
     }
     return schema
 
+def group_form_schema():
+    schema = default_group_schema()
+    #schema['extras_validation'] = [duplicate_extras_key, ignore]
+    schema['packages'] = {
+        "name": [not_empty, unicode],
+        "__extras": [ignore]
+    }
+    return schema
+
+
 def default_update_group_schema():
     schema = default_group_schema()
     schema["name"] = [ignore_missing, group_name_validator, unicode]
     return schema
+
 
 def default_extras_schema():
 
@@ -155,7 +165,7 @@ def default_extras_schema():
         'key': [not_empty, unicode],
         'value': [not_missing, unicode],
         'state': [ignore],
-        'delete': [ignore_missing],
+        'deleted': [ignore_missing],
     }
     return schema
 

@@ -4,7 +4,6 @@
   xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude">
 
-  <xi:include href="new_package_form.js"/>
 
 <div class="error-explanation" py:if="error_summary">
 <h2>Errors in form</h2>
@@ -15,10 +14,7 @@
 </div>
 
 <fieldset>
-  <legend>
-    Basic information
-  </legend>
-
+  <legend> Basic information</legend>
   <dl>
     <dt><label class="field_opt" for="title">Title</label></dt>
     <dd><input id="title" name="title" type="text" value="${data.get('title', '')}"/></dd>
@@ -58,7 +54,7 @@
     <dt><label class="field_opt" for="tags">Tags</label></dt>
     <dd>
       <input class="long tagComplete" data-tagcomplete-queryparam="incomplete" 
-               data-tagcomplete-url="/apiv2/package/autocomplete" id="tag_string" name="tag_string" size="60" type="text" 
+               data-tagcomplete-url="/api/2/util/tag/autocomplete" id="tag_string" name="tag_string" size="60" type="text" 
                value="${data.get('tag_string') or ' '.join([tag['name'] for tag in data.get('tags', [])])}" />
     </dd>
     <dd class="instructions basic">Terms that may link this dataset to similar ones. For more information on conventions, see <a href="http://wiki.okfn.org/ckan/doc/faq#TagConventions">this wiki page</a>.</dd>
@@ -155,16 +151,14 @@
 
 <fieldset>
   <legend>Extras</legend>
-
   <dl>
-
     <py:with vars="extras = data.get('extras', [])">
     <py:for each="num, extra in enumerate(data.get('extras', []))">
     <dt><label for="extras__${num}__value">${extra.get('key')}</label></dt>
     <dd>
       <input id="extras__${num}__key" name="extras__${num}__key" type="hidden" value="${extra.get('key')}" />
       <input id="extras__${num}__value" name="extras__${num}__value" type="text" value="${extra.get('value')}" />
-      <input type="checkbox" name="extras__${num}__delete" checked="${extra.get('delete')}">Delete</input>
+      <input type="checkbox" name="extras__${num}__deleted" checked="${extra.get('deleted')}">Delete</input>
     </dd>
     </py:for>
 

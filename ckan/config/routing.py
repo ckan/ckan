@@ -190,6 +190,10 @@ def make_map():
     # group
     map.redirect("/groups", "/group")
     map.redirect("/groups/{url:.*}", "/group/{url}")
+
+    map.connect('/group/new', controller='group_logic', action='new')
+    map.connect('/group/edit/{id}', controller='group_logic', action='edit')
+
     map.connect('/group', controller='group', action='index')
     map.connect('/group/list', controller='group', action='list')
     map.connect('/group/new', controller='group', action='new')

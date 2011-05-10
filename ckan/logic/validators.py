@@ -93,7 +93,7 @@ def duplicate_extras_key(key, data, errors, context):
     extras = unflattened.get('extras', [])
     extras_keys = []
     for extra in extras:
-        if not extra.get('delete'):
+        if not extra.get('deleted'):
             extras_keys.append(extra['key'])
     
     for extra_key in set(extras_keys):

@@ -202,7 +202,7 @@ class TestPackageForm(TestPackageBase):
             self.check_tag(main_res, 'extras__%s__key' % num, key_in_html_body)
             self.check_tag(main_res, 'extras__%s__value' % num, value_escaped)
             if deleted:
-                self.check_tag(main_res, 'extras__%s__delete' % num, 'checked')
+                self.check_tag(main_res, 'extras__%s__deleted' % num, 'checked')
 
         assert params['log_message'] in main_res, main_res
     
@@ -706,7 +706,7 @@ u with umlaut \xc3\xbc
             fv[prefix+'extras__0__value'] = extra_changed[1].encode('utf8')
             fv[prefix+'extras__3__key'] = extra_new[0].encode('utf8')
             fv[prefix+'extras__3__value'] = extra_new[1].encode('utf8')
-            fv[prefix+'extras__2__delete'] = True
+            fv[prefix+'extras__2__deleted'] = True
             fv['log_message'] = log_message
             res = fv.submit('preview', extra_environ={'REMOTE_USER':'testadmin'})
             assert not 'Error' in res, res

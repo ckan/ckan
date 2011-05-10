@@ -141,7 +141,6 @@ class TestBasicDictize:
                                  'packages': sorted([{'id': group.packages[0].id},
                                               {'id': group.packages[1].id,
                                                }], key=lambda x:x["id"]),
-                                 'revision_id': group.revision_id,
                                  'title': u"Dave's books"}
 
 

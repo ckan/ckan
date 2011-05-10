@@ -6,7 +6,7 @@
 
 (function ($) {
 
-  var fieldNameRegex = /^(\S+)-(\d+)-(\S+)$/;
+  var fieldNameRegex = /^(\S+)__(\d+)__(\S+)$/;
 
   var controlsHtml = '<td><div class="controls">' +
                        '<a class="moveUp"   title="Move this row up" href="#moveUp">Move up</a>' +
@@ -24,8 +24,8 @@
   function setRowNumber(tr, num) {
     $(tr).find('input').each(function () {
       $(this).attr({
-        id:   $(this).attr('id').replace(fieldNameRegex, "$1-" + num + "-$3"),
-        name: $(this).attr('name').replace(fieldNameRegex, "$1-" + num + "-$3")
+        id:   $(this).attr('id').replace(fieldNameRegex, "$1__" + num + "__$3"),
+        name: $(this).attr('name').replace(fieldNameRegex, "$1__" + num + "__$3")
       });
     });
   }

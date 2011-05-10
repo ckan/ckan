@@ -33,6 +33,18 @@ def package_error_summary(error_dict):
             error_summary[_(prettify(key))] = error[0]
     return error_summary
 
+def group_error_summary(error_dict):
+
+    error_summary = {}
+    for key, error in error_dict.iteritems():
+        if key == 'extras':
+            error_summary[_('Extras')] = _('Missing Value')
+        elif key == 'extras_validation':
+            error_summary[_('Extras')] = error[0]
+        else:
+            error_summary[_(prettify(key))] = error[0]
+    return error_summary
+
 def check_group_auth(data_dict, context):
     model = context['model']
     pkg = context.get("package")
@@ -145,15 +157,12 @@ def package_relationship_update(data_dict, context):
     return _update_package_relationship(entity, comment, context)
 
 
-def group_update_rest(data_dict, context):
-
-    dictized = group_api_to_dict(data_dict, context)
-    return group_update(dictized, context)
 
 def group_update(data_dict, context):
 
     model = context['model']
     user = context['user']
+    schema = context.get('schema') or default_update_group_schema()
     id = context['id']
 
     group = model.Group.get(id)
@@ -163,17 +172,20 @@ def group_update(data_dict, context):
 
     check_access(group, model.Action.EDIT, context)
 
-    data, errors = validate(data_dict,
-                            default_update_group_schema(),
-                            context)
+    data, errors = validate(data_dict, schema, context)
     if errors:
-        raise ValidationError(errors)
+        model.Session.rollback()
+        raise ValidationError(errors, group_error_summary(errors))
 
     rev = model.repo.new_revision()
     rev.author = user
     
+    if 'message' in context:
+        rev.message = context['message']
+    else:
+        rev.message = _(u'REST API: Create object %s') % data.get("name")
+
     group = group_dict_save(data, context)
-    rev.message = _(u'REST API: Update object %s') % group.name
 
     for item in PluginImplementations(IGroupController):
         item.edit(group)
@@ -195,4 +207,14 @@ def package_update_rest(data_dict, context):
     context["allow_partial_update"] = True
     dictized_package = package_api_to_dict(data_dict, context)
     return package_update(dictized_package, context)
+
+def group_update_rest(data_dict, context):
+
+    model = context['model']
+    id = context["id"]
+    group = model.Group.get(id)
+    context["group"] = group
+    context["allow_partial_update"] = True
+    dictized_package = group_api_to_dict(data_dict, context)
+    return group_update(dictized_package, context)
 

@@ -16,7 +16,6 @@ log = logging.getLogger(__name__)
 
 class PackageLogicController(BaseController):
 
-
     def new(self, data=None, errors=None, error_summary=None):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,

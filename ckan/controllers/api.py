@@ -154,7 +154,7 @@ class ApiController(BaseController):
 
         action_map = {
             'revision': get.revision_show,
-            'group': get.group_show,
+            'group': get.group_show_rest,
             'tag': get.tag_show,
             'package': get.package_show_rest,
             ('package', 'relationships'): get.package_relationships_list,
@@ -174,6 +174,7 @@ class ApiController(BaseController):
             response.status_int = 400
             return gettext('Cannot read entity of this type: %s') % register
         try:
+            
             return self._finish_ok(action(context))
         except NotFound, e:
             extra_msg = e.extra_msg
@@ -188,12 +189,14 @@ class ApiController(BaseController):
 
         action_map = {
             ('package', 'relationships'): create.package_relationship_create,
-             'group': create.group_create,
+             'group': create.group_create_rest,
              'package': create.package_create_rest,
              'rating': create.rating_create,
         }
+
         for type in model.PackageRelationship.get_all_types():
             action_map[('package', type)] = create.package_relationship_create
+
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
                    'id': id, 'id2': id2, 'rel': subregister,

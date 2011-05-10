@@ -71,8 +71,8 @@ def group_dictize(group, context):
 
     result_dict = table_dictize(group, context)
 
-    result_dict["extras"] = obj_dict_dictize(
-        group._extras, context, lambda x: x["key"])
+    result_dict["extras"] = extras_dict_dictize(
+        group._extras, context)
 
     result_dict["packages"] = obj_list_dictize(
         group.packages, context)

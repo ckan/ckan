@@ -5,7 +5,10 @@ from ckan.plugins import (PluginImplementations,
 import ckan.authz
 
 from ckan.lib.dictization.model_dictize import group_to_api1, group_to_api2
-from ckan.lib.dictization.model_dictize import package_to_api1, package_to_api2, package_dictize
+from ckan.lib.dictization.model_dictize import (package_to_api1,
+                                                package_to_api2,
+                                                package_dictize,
+                                                group_dictize)
 
 
 def package_list(context):
@@ -159,20 +162,20 @@ def group_show(context):
     id = context['id']
     api = context.get('api_version') or '1'
 
+
     group = model.Group.get(id)
+    context['group'] = group
+
     if group is None:
         raise NotFound
-
     check_access(group, model.Action.READ, context)
+
+    group_dict = group_dictize(group, context)
 
     for item in PluginImplementations(IGroupController):
         item.read(group)
-    if api == '2':
-        _dict = group_to_api2(group, context)
-    else:
-        _dict = group_to_api1(group, context)
-    #TODO check it's not none
-    return _dict
+
+    return group_dict
 
 
 def tag_show(context):
@@ -202,3 +205,17 @@ def package_show_rest(context):
         package_dict = package_to_api2(pkg, context)
 
     return package_dict
+
+def group_show_rest(context):
+
+    group_show(context)
+    api = context.get('api_version') or '1'
+    group = context['group']
+
+    if api == '2':
+        group_dict = group_to_api2(group, context)
+    else:
+        group_dict = group_to_api1(group, context)
+
+    return group_dict
+
