@@ -93,7 +93,7 @@ against. There are three categories of dependant Python libraries:
 ``present``
     Those that already exist as packages in Ubuntu Lucid
 
-``misssing``
+``missing``
     Those that don't exist as packages in Ubuntu Lucid
 
 ``conflict``
@@ -138,7 +138,7 @@ Packaging Dependencies Listed in ``lucid_missing.txt``
 
 .. note ::
 
-   These are already packaged, so you don't need to pacakge them yourself, this
+   These are already packaged, so you don't need to package them yourself, this
    section just describes how you *could* do if you wanted to.
 
 Python dependencies listed in the ``lucid_missing.txt`` file are ``pip``
@@ -169,7 +169,7 @@ Now run the BuildKit command like this:
     cd missing
     bin/python -m buildkit.update_all .
 
-For each pacakge you'll be loaded into ``vim`` to edit the changelog. Save and
+For each package you'll be loaded into ``vim`` to edit the changelog. Save and
 quit when you are done. Names, version numbers and dependencies are
 automatically generated.
 
@@ -177,7 +177,7 @@ automatically generated.
 
    Most of the time you will never use the automatic process above for lazy
    batch packaging. You'll more likely generate a single package with explicit
-   version numners using the ``buildkit.deb`` command or build your package
+   version numbers using the ``buildkit.deb`` command or build your package
    manually. Both approaches are described later.
 
 Packaging Conflicting Python dependencies from ``lucid_conflicts.txt``
@@ -185,15 +185,15 @@ Packaging Conflicting Python dependencies from ``lucid_conflicts.txt``
 
 .. note ::
 
-   These are already packaged, so you don't need to pacakge them yourself, this
+   These are already packaged, so you don't need to package them yourself, this
    section just describes how you *could* do if you wanted to.
 
 Python packages where CKAN depends on a version that is different from the one
 in the Ubuntu Lucid repositories are handled slightly differently. If we were
 to simply package them up and make them available the same way we do with
 missing packages there is a slim chance that any existing software which used
-the other version of the libray would stop working. To avoid the risk of
-interfering with other software on the sytem we take the following approach:
+the other version of the library would stop working. To avoid the risk of
+interfering with other software on the system we take the following approach:
 
 * Create a ``python-ckan-deps`` package with copies of all the libraries we need
 * Change the ``python-ckan`` library to automatically try to import
@@ -245,7 +245,7 @@ Let's break this down.
 
 ``/path/to/virtualenv``
     I think this can just be the path to the directory containing the 
-    installed source code directoty you wish to package, it doesn't
+    installed source code directory you wish to package, it doesn't
     have to be a virtualenv does it?
 
 ``ckanext-qa``
@@ -254,7 +254,7 @@ Let's break this down.
 
 ``1.3~01+lucid``
     The version number of the package. There are three parts to this:
-
+x
     ``1.3``
         This should always match exactly the version number specified in the 
         ``setup.py`` file for the library being packaged.
@@ -279,7 +279,7 @@ Let's break this down.
 
 ``python-owslib python-ckanext-csw ... etc``
 
-    Any extra arguments are treated as the Debain names of dependencies.  These
+    Any extra arguments are treated as the Debian names of dependencies.  These
     always begin ``python-`` for Python libraries and would usually follow
     ``ckanext-`` for all CKAN extensions. 
 
@@ -305,7 +305,7 @@ looked at.
 
 .. note ::
    
-    All pacakges that CKAN itself depends on are already packaged according to
+    All packages that CKAN itself depends on are already packaged according to
     the settings in the three ``requires`` files that from part of the ``ckan``
     source distribution so you shouldn't need to use the approach above to 
     package any of them, you should only need to do this for your own extensions
@@ -644,7 +644,7 @@ To package everything automatically, run it like this:
     cd missing
     bin/python -m buildkit.update_all .
 
-For each pacakge you'll be loaded into ``vim`` to edit the changelog. Save and
+For each package you'll be loaded into ``vim`` to edit the changelog. Save and
 quit when you are done. Names, version numbers and dependencies are
 automatically generated.
 
