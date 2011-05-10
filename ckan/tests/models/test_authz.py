@@ -214,7 +214,8 @@ class TestUsage(object):
         mreditor = model.User(name=u'mreditor')
         mrreader = model.User(name=u'mrreader')
         tester = model.User(name=u'tester')
-        for obj in [anna, war, mradmin, mreditor, mrreader, tester]:
+        anauthzgroup = model.AuthorizationGroup(name=u'anauthzgroup')
+        for obj in [anna, war, mradmin, mreditor, mrreader, tester, anauthzgroup]:
             model.Session.add(obj)
         model.repo.commit_and_remove()
 
@@ -302,7 +303,6 @@ class TestUsage(object):
              for x in model.Session.query(model.PackageRole).all() \
              if x.user and x.user.name=='tester' and x.package.name==u'warandpeace']
           
-        print tester_roles()
         assert len(tester_roles()) == 0, "wrong number of roles for tester"
         model.add_user_to_role(tester, model.Role.ADMIN, war)
         model.repo.commit_and_remove()
@@ -315,6 +315,30 @@ class TestUsage(object):
         assert len(tester_roles()) == 0, "wrong number of roles for tester"
         model.remove_user_from_role(tester, model.Role.ADMIN, war)
         assert len(tester_roles()) == 0, "wrong number of roles for tester"
+
+    def test_4_add_twice_remove_twice_for_authzgroups(self):
+        aag = model.AuthorizationGroup.by_name(u'anauthzgroup')
+        war = model.Package.by_name(u'warandpeace')
+
+        def aag_roles():
+            return [x.role \
+             for x in model.Session.query(model.PackageRole).all() \
+             if x.authorized_group and x.authorized_group.name=='anauthzgroup' and x.package.name==u'warandpeace']
+          
+        assert len(aag_roles()) == 0, "wrong number of roles for anauthzgroup"
+        model.add_authorization_group_to_role(aag, model.Role.ADMIN, war)
+        model.repo.commit_and_remove()
+        assert len(aag_roles()) == 1, "wrong number of roles for anauthzgroup"
+        model.add_authorization_group_to_role(aag, model.Role.ADMIN, war)
+        model.repo.commit_and_remove()
+
+        assert len(aag_roles()) == 1, "wrong number of roles for anauthzgroup"
+        model.remove_authorization_group_from_role(aag, model.Role.ADMIN, war)
+        assert len(aag_roles()) == 0, "wrong number of roles for anauthzgroup"
+        model.remove_authorization_group_from_role(aag, model.Role.ADMIN, war)
+        assert len(aag_roles()) == 0, "wrong number of roles for anauthzgroup"
+
+
 
 
 class TestMigrate:
