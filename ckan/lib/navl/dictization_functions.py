@@ -19,6 +19,8 @@ class Missing(object):
         raise Invalid(fe.api._stdtrans('Missing value'))
     def __hex__(self):
         raise Invalid(fe.api._stdtrans('Missing value'))
+    def __nonzero__(self):
+        return False
 
 missing = Missing()
 
@@ -166,6 +168,9 @@ def convert(converter, key, converted_data, errors, context):
     try:
         converter(key, converted_data, errors, context)
         return
+    except Invalid, e:
+        errors[key].append(e.error)
+        return
     except TypeError, e:
         ## hack to make sure the type error was caused by the wrong
         ## number of arguements given.
@@ -222,9 +227,7 @@ def validate_flattened(data, schema, context=None):
 
     context = context or {}
     assert isinstance(data, dict)
-    flattened = flatten_dict(data)
-    converted_data, errors = _validate(flattened, schema, context)
-    converted_data = unflatten(converted_data)
+    converted_data, errors = _validate(data, schema, context)
 
     for key, value in errors.items():
         if not value:

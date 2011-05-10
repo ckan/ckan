@@ -30,7 +30,13 @@ def extras_dict_dictize(extras_dict, context):
     result_list = []
     for name, extra in extras_dict.iteritems():
         dictized = table_dictize(extra, context)
-        dictized["value"] = json.dumps(dictized["value"])
+        if not extra.state == 'active':
+            continue
+        value = dictized["value"]
+        ## This is to make sure the frontend does not show a plain string
+        ## as json with brackets.
+        if not(context.get("extras_as_string") and isinstance(value, basestring)):
+            dictized["value"] = json.dumps(value)
         result_list.append(dictized)
 
     return sorted(result_list, key=lambda x: x["key"])
@@ -65,8 +71,8 @@ def group_dictize(group, context):
 
     result_dict = table_dictize(group, context)
 
-    result_dict["extras"] = obj_dict_dictize(
-        group._extras, context, lambda x: x["key"])
+    result_dict["extras"] = extras_dict_dictize(
+        group._extras, context)
 
     result_dict["packages"] = obj_list_dictize(
         group.packages, context)

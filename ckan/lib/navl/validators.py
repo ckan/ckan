@@ -74,7 +74,7 @@ def ignore_missing(key, data, errors, context):
 
     value = data.get(key)
 
-    if not value or value is missing:
+    if value is missing or value is None:
         data.pop(key, None)
         raise StopOnError
 

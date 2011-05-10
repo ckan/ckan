@@ -6,7 +6,11 @@ from ckan.plugins import (PluginImplementations,
                           IPackageController)
 from ckan.logic import NotFound, check_access, NotAuthorized, ValidationError
 from ckan.lib.base import _
-from ckan.lib.dictization.model_dictize import package_to_api1, package_to_api2
+from ckan.lib.dictization.model_dictize import (package_to_api1,
+                                                package_to_api2,
+                                                group_to_api1,
+                                                group_to_api2)
+
 from ckan.lib.dictization.model_save import (group_api_to_dict,
                                              group_dict_save,
                                              package_api_to_dict,
@@ -19,46 +23,55 @@ from ckan.lib.dictization.model_dictize import (group_dictize,
 from ckan.logic.schema import default_create_package_schema, default_resource_schema
 
 from ckan.logic.schema import default_group_schema
-from ckan.lib.navl.dictization_functions import validate
-from ckan.logic.action.update import _update_package_relationship
+from ckan.lib.navl.dictization_functions import validate 
+from ckan.logic.action.update import (_update_package_relationship,
+                                      package_error_summary,
+                                      group_error_summary,
+                                      check_group_auth)
 log = logging.getLogger(__name__)
-
 
 def package_create(data_dict, context):
 
     model = context['model']
     user = context['user']
+    preview = context.get('preview', False)
     schema = context.get('schema') or default_create_package_schema()
+    model.Session.remove()
 
     check_access(model.System(), model.Action.PACKAGE_CREATE, context)
+    check_group_auth(data_dict, context)
 
-    data, errors = validate(data_dict,
-                            schema,
-                            context)
+    data, errors = validate(data_dict, schema, context)
 
     if errors:
-        raise ValidationError(errors)
+        model.Session.rollback()
+        raise ValidationError(errors, package_error_summary(errors))
 
-    rev = model.repo.new_revision()
-    rev.author = user
-    rev.message = _(u'REST API: Create object %s') % data["name"]
+    if not preview:
+        rev = model.repo.new_revision()
+        rev.author = user
+        if 'message' in context:
+            rev.message = context['message']
+        else:
+            rev.message = _(u'REST API: Create object %s') % data.get("name")
 
     pkg = package_dict_save(data, context)
-
+    admins = []
     if user:
         admins = [model.User.by_name(user.decode('utf8'))]
-    else:
-        admins = []
-    model.setup_default_user_roles(pkg, admins)
-    for item in PluginImplementations(IPackageController):
-        item.create(pkg)
-    model.repo.commit()        
-    ## need to let rest api create
+
+    if not preview:
+        model.setup_default_user_roles(pkg, admins)
+        for item in PluginImplementations(IPackageController):
+            item.create(pkg)
+        model.repo.commit()        
+
+    ## need to let rest api create and preview
     context["package"] = pkg
     ## this is added so that the rest controller can make a new location 
     context["id"] = pkg.id
     log.debug('Created object %s' % str(pkg.name))
-    return package_dictize(pkg, context)
+    return package_dictize(pkg, context) 
 
 def resource_create(data_dict, context):
     model = context['model']
@@ -111,22 +124,23 @@ def package_relationship_create(data_dict, context):
 def group_create(data_dict, context):
     model = context['model']
     user = context['user']
+    schema = context.get('schema') or default_group_schema()
 
     check_access(model.System(), model.Action.GROUP_CREATE, context)
 
-    context = {'model': model, 'session': model.Session}
-    dictized = group_api_to_dict(data_dict, context)
-
-    data, errors = validate(dictized,
-                            default_group_schema(),
-                            context)
+    data, errors = validate(data_dict, schema, context)
 
     if errors:
-        raise ValidationError(errors)
+        model.Session.rollback()
+        raise ValidationError(errors, group_error_summary(errors))
 
     rev = model.repo.new_revision()
     rev.author = user
-    rev.message = _(u'REST API: Create object %s') % data['name']
+
+    if 'message' in context:
+        rev.message = context['message']
+    else:
+        rev.message = _(u'REST API: Create object %s') % data.get("name")
 
     group = group_dict_save(data, context)
 
@@ -138,6 +152,7 @@ def group_create(data_dict, context):
     for item in PluginImplementations(IGroupController):
         item.create(group)
     model.repo.commit()        
+    context["group"] = group
     context["id"] = group.id
     log.debug('Created object %s' % str(group.name))
     return group_dictize(group, context)
@@ -186,7 +201,7 @@ def package_create_rest(data_dict, context):
     dictized_package = package_api_to_dict(data_dict, context)
     dictized_after = package_create(dictized_package, context) 
 
-    pkg = context["package"]
+    pkg = context['package']
 
     if api == '1':
         package_dict = package_to_api1(pkg, context)
@@ -194,4 +209,20 @@ def package_create_rest(data_dict, context):
         package_dict = package_to_api2(pkg, context)
 
     return package_dict
+
+def group_create_rest(data_dict, context):
+
+    api = context.get('api_version') or '1'
+
+    dictized_group = group_api_to_dict(data_dict, context)
+    dictized_after = group_create(dictized_group, context) 
+
+    group = context['group']
+
+    if api == '1':
+        group_dict = group_to_api1(group, context)
+    else:
+        group_dict = group_to_api2(group, context)
+
+    return group_dict
 

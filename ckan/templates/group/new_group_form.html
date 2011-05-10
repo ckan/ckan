@@ -1,0 +1,90 @@
+<form id="group-edit" action="" method="post" 
+    py:attrs="{'class':'has-errors'} if errors else {}"
+    xmlns:i18n="http://genshi.edgewall.org/i18n"
+    xmlns:py="http://genshi.edgewall.org/"
+    xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<div class="error-explanation" py:if="error_summary">
+<h2>Errors in form</h2>
+<p>The form contains invalid entries:</p>
+<ul>
+  <li py:for="key, error in error_summary.items()">${"%s: %s" % (key, error)}</li>
+</ul>
+</div>
+
+<fieldset>
+  <legend>Details</legend>
+  <dl>
+    <dt><label class="field_opt" for="name">Name *</label></dt>
+    <dd><input id="name" name="name" type="text" value="${data.get('name', '')}"/></dd>
+    <dd class="instructions basic"><br/><strong>Unique identifier</strong> for group.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'</dd>
+    <dd class="field_error" py:if="errors.get('name', '')">${errors.get('name', '')}</dd>
+
+    <dt><label class="field_opt" for="title">Title</label></dt>
+    <dd><input id="title" name="title" type="text" value="${data.get('title', '')}"/></dd>
+    <dd class="field_error" py:if="errors.get('title', '')">${errors.get('title', '')}</dd>
+
+    <dt><label class="field_opt" for="title">Description</label></dt>
+    <dd><textarea cols="60" id="description" name="description" rows="15">${data.get('description', '')}</textarea></dd>
+
+    <dt py:if="c.is_sysadmin or c.auth_for_change_state"><label class="field_opt" for="state">State</label></dt>
+    <dd py:if="c.is_sysadmin or c.auth_for_change_state">
+    <select id="state" name="state" >
+      <option py:attrs="{'selected': 'selected' if data.get('state') == 'active' else None}" value="active">active</option>
+      <option py:attrs="{'selected': 'selected' if data.get('state') == 'deleted' else None}" value="deleted">deleted</option>
+    </select>
+    </dd>
+  </dl>
+</fieldset>
+  
+<fieldset>
+  <legend>Extras</legend>
+  <dl>
+    <py:with vars="extras = data.get('extras', [])">
+    <py:for each="num, extra in enumerate(data.get('extras', []))">
+    <dt><label for="extras__${num}__value">${extra.get('key')}</label></dt>
+    <dd>
+      <input id="extras__${num}__key" name="extras__${num}__key" type="hidden" value="${extra.get('key')}" />
+      <input id="extras__${num}__value" name="extras__${num}__value" type="text" value="${extra.get('value')}" />
+      <input type="checkbox" name="extras__${num}__deleted" checked="${extra.get('deleted')}">Delete</input>
+    </dd>
+    </py:for>
+
+    <py:for each="num in range(len(extras), len(extras) + 4)">
+    <dt><label for="extras__${num}__key">New key</label></dt>
+    <dd>
+      <input class="medium-width" id="extras__${num}__key" name="extras__${num}__key" type="text" />
+      with value
+      <input class="medium-width" id="extras__${num}__value" name="extras__${num}__value" type="text" />
+    </dd>
+    </py:for>
+    </py:with>
+  </dl>
+</fieldset>
+
+<fieldset>
+  <legend>Packages</legend>
+  <dl py:if="data.get('packages')">
+    <py:for each="num, package in enumerate(data.get('packages'))">
+      <dt><input checked="checked" id="packages__${num}__name" name="packages__${num}__name" type="checkbox" value="${package['name']}"/></dt>
+      <dd>
+        <label for="packages__${num}__name">${package['name']}</label>
+      </dd>
+    </py:for>
+  </dl>
+  <p py:if="not data.get('packages')">There are no packages currently in this group.</p>
+</fieldset>
+
+<fieldset>
+  <legend>
+    Add packages
+  </legend>
+  <dl>
+    <dt><label class="field_opt" for="packages__${len(data.get('packages', []))}__name">Package</label></dt>
+    <dd><input class="autocomplete" id="packages__${len(data.get('packages', []))}__name" name="packages__${len(data.get('packages', []))}__name" type="text" /></dd>
+  </dl>
+</fieldset>
+
+  <br />
+  <input id="save" name="save" type="submit" value="Save" />
+</form>

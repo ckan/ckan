@@ -147,8 +147,8 @@ class TestEdit(FunctionalTestCase):
 
         form = res.forms['group-edit']
         group = model.Group.by_name(self.groupname)
-        titlefn = 'Group-%s-title' % group.id
-        descfn = 'Group-%s-description' % group.id
+        titlefn = 'title'
+        descfn = 'description'
         newtitle = 'xxxxxxx'
         newdesc = '''### Lots of stuff here
 
@@ -158,7 +158,7 @@ Ho ho ho
         form[titlefn] = newtitle
         form[descfn] = newdesc
         pkg = model.Package.by_name(self.packagename)
-        form['PackageGroup--package_name'] = pkg.name
+        form['packages__2__name'] = pkg.name
 
         
         res = form.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
@@ -201,7 +201,7 @@ Ho ho ho
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
         form = res.forms['group-edit']
         group = model.Group.by_name(self.groupname)
-        form['Group-%s-title' % group.id] = "huhuhu"
+        form['title'] = "huhuhu"
         res = form.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
         assert plugin.calls['edit'] == 1, plugin.calls
         plugins.unload(plugin)
@@ -233,7 +233,7 @@ class TestNew(FunctionalTestCase):
         assert res.request.url.startswith('/user/login')
 
     def test_2_new(self):
-        prefix = 'Group--'
+        prefix = ''
         group_name = u'testgroup'
         group_title = u'Test Title'
         group_description = u'A Description'
@@ -246,14 +246,14 @@ class TestNew(FunctionalTestCase):
         assert fv[prefix+'name'].value == '', fv.fields
         assert fv[prefix+'title'].value == ''
         assert fv[prefix+'description'].value == ''
-        assert fv['PackageGroup--package_name'].value == '', fv['PackageGroup--package_name'].value
+        assert fv['packages__0__name'].value == '', fv['PackageGroup--package_name'].value
 
         # Edit form
         fv[prefix+'name'] = group_name
         fv[prefix+'title'] = group_title
         fv[prefix+'description'] = group_description
         pkg = model.Package.by_name(self.packagename)
-        fv['PackageGroup--package_name'] = pkg.name
+        fv['packages__0__name'] = pkg.name
         res = fv.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
         res = res.follow()
         assert '%s' % group_title in res, res
@@ -267,7 +267,7 @@ class TestNew(FunctionalTestCase):
         assert group.packages == [pkg]
 
     def test_3_new_duplicate(self):
-        prefix = 'Group--'
+        prefix = ''
 
         # Create group
         group_name = u'testgrp1'
@@ -302,8 +302,8 @@ class TestNew(FunctionalTestCase):
         offset = url_for(controller='group', action='new')
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
         form = res.forms['group-edit']
-        form['Group--name'] = "hahaha"
-        form['Group--title'] = "huhuhu"
+        form['name'] = "hahaha"
+        form['title'] = "huhuhu"
         res = form.submit('save', status=302, extra_environ={'REMOTE_USER': 'russianfan'})
         assert plugin.calls['create'] == 1, plugin.calls
         plugins.unload(plugin)

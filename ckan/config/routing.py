@@ -165,6 +165,10 @@ def make_map():
     map.redirect("/packages", "/package")
     map.redirect("/packages/{url:.*}", "/package/{url}")
     map.connect('/package', controller='package', action='search')
+
+    map.connect('/package/new', controller='package_logic', action='new')
+    map.connect('/package/edit/{id}', controller='package_logic', action='edit')
+
     map.connect('/package/{action}', controller='package',
         requirements=dict(action='|'.join([
             'list',
@@ -186,6 +190,10 @@ def make_map():
     # group
     map.redirect("/groups", "/group")
     map.redirect("/groups/{url:.*}", "/group/{url}")
+
+    map.connect('/group/new', controller='group_logic', action='new')
+    map.connect('/group/edit/{id}', controller='group_logic', action='edit')
+
     map.connect('/group', controller='group', action='index')
     map.connect('/group/list', controller='group', action='list')
     map.connect('/group/new', controller='group', action='new')

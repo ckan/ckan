@@ -2,33 +2,27 @@
 
 (function () {
   
-  function extractDataAttributes() {
-    var el = $(this);
-    $.each(this.attributes, function () {
-      var m = this.name.match(/data\-(\S+)/);
-      if (m) { el.data(m[1], this.value); }
-    });
-  }
-  
   function processResult(e, item) {
-		console.log(item);
-    $(this).val('')
-           .parent('dd').before(
-      '<input type="hidden" name="PackageGroup--package_name" value="' + item[1] + '">' +
+    var input_box = $(this)
+    input_box.val('')
+    var parent_dd = input_box.parent('dd')
+    var old_name = input_box.attr('name')
+    var field_name_regex = /^(\S+)__(\d+)__(\S+)$/;
+    var split = old_name.match(field_name_regex)
+
+    var new_name = split[1] + '__' + (parseInt(split[2]) + 1) + '__' + split[3]
+
+    input_box.attr('name', new_name)
+    input_box.attr('id', new_name)
+
+    parent_dd.before(
+      '<input type="hidden" name="' + old_name + '" value="' + item[1] + '">' +
       '<dd>' + item[0] + '</dd>'
     );
   }
   
   $(document).ready(function () {
-    $('input.autocomplete').each(function () {
-      extractDataAttributes.apply(this);
-      
-      var url = $(this).data('autocomplete-url');
-      
-      if (url) {
-        $(this).autocomplete(url, {})
+    $('input.autocomplete').autocomplete('/package/autocomplete', {})
                .result(processResult);
-      }
-    });
   });
 })(jQuery);

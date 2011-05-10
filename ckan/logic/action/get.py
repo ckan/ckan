@@ -5,7 +5,10 @@ from ckan.plugins import (PluginImplementations,
 import ckan.authz
 
 from ckan.lib.dictization.model_dictize import group_to_api1, group_to_api2
-from ckan.lib.dictization.model_dictize import package_to_api1, package_to_api2
+from ckan.lib.dictization.model_dictize import (package_to_api1,
+                                                package_to_api2,
+                                                package_dictize,
+                                                group_dictize)
 
 
 def package_list(context):
@@ -39,7 +42,6 @@ def package_revision_list(context):
     return revision_dicts
 
 def group_list(context):
-
     model = context["model"]
     user = context["user"]
     api = context.get('api_version') or '1'
@@ -48,6 +50,28 @@ def group_list(context):
     query = ckan.authz.Authorizer().authorized_query(user, model.Group)
     groups = query.all() 
     return [getattr(p, ref_group_by) for p in groups]
+
+def group_list_authz(context):
+    model = context['model']
+    user = context['user']
+    pkg = context.get('package')
+
+    query = ckan.authz.Authorizer().authorized_query(user, model.Group, model.Action.EDIT)
+    groups = set(query.all())
+    return set([group.id for group in groups])
+
+def group_list_availible(context):
+    model = context['model']
+    user = context['user']
+    pkg = context.get('package')
+
+    query = ckan.authz.Authorizer().authorized_query(user, model.Group, model.Action.EDIT)
+    groups = set(query.all())
+
+    if pkg:
+        groups = groups - set(pkg.groups)
+
+    return [(group.id, group.name) for group in groups]
 
 def licence_list(context):
     model = context["model"]
@@ -105,15 +129,14 @@ def package_show(context):
     id = context['id']
 
     pkg = model.Package.get(id)
-    
+
+    context['package'] = pkg
+
     if pkg is None:
         raise NotFound
     check_access(pkg, model.Action.READ, context)
 
-    if api == '1':
-        package_dict = package_to_api1(pkg, context)
-    else:
-        package_dict = package_to_api2(pkg, context)
+    package_dict = package_dictize(pkg, context)
 
     for item in PluginImplementations(IPackageController):
         item.read(pkg)
@@ -139,20 +162,21 @@ def group_show(context):
     id = context['id']
     api = context.get('api_version') or '1'
 
+
     group = model.Group.get(id)
+    context['group'] = group
+
     if group is None:
         raise NotFound
-
     check_access(group, model.Action.READ, context)
+
+    group_dict = group_dictize(group, context)
 
     for item in PluginImplementations(IGroupController):
         item.read(group)
-    if api == '2':
-        _dict = group_to_api2(group, context)
-    else:
-        _dict = group_to_api1(group, context)
-    #TODO check it's not none
-    return _dict
+
+    return group_dict
+
 
 def tag_show(context):
     model = context['model']
@@ -166,4 +190,32 @@ def tag_show(context):
                     for pkgtag in obj.package_tags]
     return package_list 
 
+
+def package_show_rest(context):
+
+    package_show(context)
+
+    api = context.get('api_version') or '1'
+
+    pkg = context['package']
+
+    if api == '1':
+        package_dict = package_to_api1(pkg, context)
+    else:
+        package_dict = package_to_api2(pkg, context)
+
+    return package_dict
+
+def group_show_rest(context):
+
+    group_show(context)
+    api = context.get('api_version') or '1'
+    group = context['group']
+
+    if api == '2':
+        group_dict = group_to_api2(group, context)
+    else:
+        group_dict = group_to_api1(group, context)
+
+    return group_dict
 
