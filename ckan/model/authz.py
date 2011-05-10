@@ -204,7 +204,12 @@ class UserObjectRole(DomainObject):
          
     @classmethod
     def add_authorization_group_to_role(cls, authorization_group, role, domain_obj):
-        # role assignment already exists
+        '''NB: Leaves the caller to commit the change. If called twice without a
+        commit, will add the role to the database twice. Since some other
+        functions count the number of occurrences, that leaves a fairly obvious
+        bug. But adding a commit here seems to break various tests.
+        So don't call this twice without committing, I guess...
+        '''
         if cls.authorization_group_has_role(authorization_group, role, domain_obj):
             return
         objectrole = cls(role=role, authorized_group=authorization_group)
@@ -223,8 +228,8 @@ class UserObjectRole(DomainObject):
     @classmethod
     def remove_authorization_group_from_role(cls, authorization_group, role, domain_obj):
         q = cls._authorized_group_query(authorization_group, role, domain_obj)
-        ago_role = q.one()
-        Session.delete(ago_role)
+        for ago_role in q.all():
+            Session.delete(ago_role)
         Session.commit()
         Session.remove()
 
