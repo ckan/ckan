@@ -425,9 +425,25 @@ class PackageController(BaseController):
         if not c.authz_editable:
             abort(401, gettext('User %r not authorized to edit %s authorizations') % (c.user, id))
 
-#=========================================
-# Cut and paste from admin extension here
+        # Three different ways of getting the list of userobjectroles for this package
+        # particular package They all take a frighteningly long time to retrieve
+        # the data, but I can't tell how they'll scale. On a large dataset it might
+        # be worth working out which is quickest, so I've made a function for
+        # ease of changing the query.
+        def get_userobjectroles():
+            # we already have a pkg variable in scope, but I found while testing
+            # that it occasionally mysteriously loses its value! The Lord alone
+            # knows why. Redefine it here and hope it doesn't forget before the
+            # next statement.
+            pkg = model.Package.get(id)
 
+            # my original query, get them all and filter in python:
+            # uors = [uor for uor in model.Session.query(model.PackageRole).all() if uor.package==pkg]
+            # dread's suggestion:
+            uors = model.Session.query(model.PackageRole).join('package').filter_by(name=pkg.name).all()
+            # rgrp's version:
+            # uors = model.Session.query(model.PackageRole).filter_by(package=pkg)
+            return uors
 
         def action_save_form(users_or_authz_groups):
             # The permissions grid has been saved
@@ -458,8 +474,7 @@ class PackageController(BaseController):
             # and make a dictionary of them
             #current_uors = model.Session.query(model.SystemRole).all()
 
-            current_uors = [uor for uor in model.Session.query(model.PackageRole).all() if uor.package==pkg]
-
+            current_uors = get_userobjectroles()
 
             if users_or_authz_groups=='users':
                 current_users_roles = [( uor.user.name, uor.role) for uor in current_uors if uor.user]
@@ -506,13 +521,6 @@ class PackageController(BaseController):
             model.repo.commit_and_remove()
             h.flash_success("Changes Saved")
 
-        if ('save' in request.POST):
-            action_save_form('users')
-
-        if ('authz_save' in request.POST):
-            action_save_form('authz_groups')
-
-
 
 
         def action_add_form(users_or_authz_groups):
@@ -534,7 +542,7 @@ class PackageController(BaseController):
             # again, in order to avoid either creating a role twice or deleting one which is
             # non-existent, we need to get the users' current roles (if any)
   
-            current_uors = [uor for uor in model.Session.query(model.PackageRole).all() if uor.package==pkg]
+            current_uors = get_userobjectroles()
 
             if users_or_authz_groups=='users':
                 current_roles = [uor.role for uor in current_uors if ( uor.user and uor.user.name == new_user )]
@@ -576,28 +584,28 @@ class PackageController(BaseController):
             # and finally commit all these changes to the database
             model.repo.commit_and_remove()
 
+
+        # =================
+        # Display the page
+
         if 'add' in request.POST:
             action_add_form('users')
         if 'authz_add' in request.POST:
             action_add_form('authz_groups')
 
+        if ('save' in request.POST):
+            action_save_form('users')
 
-        # =================
-        # Display the page
+        if ('authz_save' in request.POST):
+            action_save_form('authz_groups')
 
-        # Find out all the possible roles. For the system object that's just all of them.
+        # Find out all the possible roles. At the moment, any role can be
+        # associated with any object, so that's easy:
         possible_roles = model.Role.get_all()
 
+        # get the list of users who have roles on this object, with their roles
+        uors = get_userobjectroles()
 
-
-
-        # get the list of users who have roles on the System, with their roles
-
-        # I haven't the faintest idea why, but you have to reevaluate this here, or the remainder
-        # of the thing fails:
-        pkg = model.Package.get(id)
-
-        uors = [uor for uor in model.Session.query(model.PackageRole).all() if uor.package==pkg]
         # uniquify and sort
         users = sorted(list(set([uor.user.name for uor in uors if uor.user])))
         authz_groups = sorted(list(set([uor.authorized_group.name for uor in uors if uor.authorized_group])))
@@ -612,7 +620,6 @@ class PackageController(BaseController):
                 else:
                     user_role_dict[(u,r)]=False
 
-
         # and similarly make a dictionary from (authz_group, role) to True, False
         authz_groups_roles = [( uor.authorized_group.name, uor.role) for uor in uors if uor.authorized_group]
         authz_groups_role_dict={}
@@ -623,8 +630,6 @@ class PackageController(BaseController):
                 else:
                     authz_groups_role_dict[(u,r)]=False
 
-        
-
         # pass these variables to the template for rendering
         c.roles = possible_roles
 
@@ -634,12 +639,10 @@ class PackageController(BaseController):
         c.authz_groups = authz_groups
         c.authz_groups_role_dict = authz_groups_role_dict
 
-
-#=========================================
-
-
-
         return render('package/authz.html')
+
+
+
 
     def rate(self, id):
         package_name = id
