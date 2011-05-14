@@ -115,11 +115,11 @@ class TestPackageEditAuthz(TestController):
         pkg = model.Package.by_name(pkgname)
         return dict([ (getattr(r.user, 'name', 'USER NAME IS NONE'), r) for r in pkg.roles ])
 
-    def test_3_admin_changes_role(self):
+
+    def change_roles(self, user):
         # load authz page
         offset = url_for(controller='package', action='authz', id=self.pkgname)
-        res = self.app.get(offset, extra_environ={'REMOTE_USER':
-            self.admin})
+        res = self.app.get(offset, extra_environ={'REMOTE_USER':user})
         assert self.pkgname in res
 
         prs=package_roles(self.pkgname)
@@ -135,7 +135,7 @@ class TestPackageEditAuthz(TestController):
         check_and_set_checkbox(form, u'visitor', u'editor', True, True)
         check_and_set_checkbox(form, u'logged_in', u'editor', True, False)
 
-        res = form.submit('save', extra_environ={'REMOTE_USER': self.admin})
+        res = form.submit('save', extra_environ={'REMOTE_USER': user})
 
         # ensure db was changed
         prs=package_roles(self.pkgname)
@@ -147,8 +147,7 @@ class TestPackageEditAuthz(TestController):
 
         # ensure rerender of form is changed
         offset = url_for(controller='package', action='authz', id=self.pkgname)
-        res = self.app.get(offset, extra_environ={'REMOTE_USER':
-            self.admin})
+        res = self.app.get(offset, extra_environ={'REMOTE_USER':user})
         assert self.pkgname in res
 
         # check that the checkbox states are what we think they should be
@@ -158,48 +157,13 @@ class TestPackageEditAuthz(TestController):
         check_and_set_checkbox(form, u'logged_in', u'admin', True, False)
         check_and_set_checkbox(form, u'visitor', u'editor', True, True)
         check_and_set_checkbox(form, u'logged_in', u'editor', False, True)
-        res = form.submit('save', extra_environ={'REMOTE_USER': self.admin})
+        res = form.submit('save', extra_environ={'REMOTE_USER': user})
 
+    def test_3_admin_changes_role(self):
+        self.change_roles(self.admin)
 
     def test_3_sysadmin_changes_role(self):
-        # load authz page
-        offset = url_for(controller='package', action='authz', id=self.pkgname2)
-        res = self.app.get(offset, extra_environ={'REMOTE_USER':
-            self.sysadmin})
-        assert self.pkgname2 in res
-
-        def _r(r):
-            return 'PackageRole-%s-role' % r.id
-        def _u(r):
-            return 'PackageRole-%s-user_id' % r.id
-
-        prs = self._prs(self.pkgname2)
-        assert prs['visitor'].role == model.Role.EDITOR
-        assert prs['logged_in'].role == model.Role.EDITOR
-        form = res.forms['package-authz']
-        
-        # change role assignments
-        form.select(_r(prs['visitor']), model.Role.READER)
-        form.select(_r(prs['logged_in']), model.Role.ADMIN)
-        res = form.submit('save', extra_environ={'REMOTE_USER': self.sysadmin})
-        model.repo.commit_and_remove()
-
-        # ensure db was changed
-        prs = self._prs(self.pkgname2)
-        assert len(prs) == 3, prs
-        assert prs['visitor'].role == model.Role.READER
-        assert prs['logged_in'].role == model.Role.ADMIN
-
-        # ensure rerender of form is changed
-        offset = url_for(controller='package', action='authz', id=self.pkgname2)
-        res = self.app.get(offset, extra_environ={'REMOTE_USER':
-            self.sysadmin})
-        assert self.pkgname2 in res
-        fv = res.forms['package-authz']
-        visitor_options = fv[_r(prs['visitor'])].options
-        assert ('reader', True) in visitor_options, visitor_options
-        logged_in_options = fv[_r(prs['logged_in'])].options
-        assert ('admin', True) in logged_in_options, logged_in_options
+        self.change_roles(self.sysadmin)
     
     def test_4_admin_deletes_role(self):
         pkg = model.Package.by_name(self.pkgname)
