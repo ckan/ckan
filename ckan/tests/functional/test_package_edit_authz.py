@@ -3,9 +3,38 @@ from ckan.tests import *
 from ckan.lib.base import *
 import ckan.authz as authz
 
+
+def check_and_set_checkbox(theform, user, role, should_be, set_to):
+   '''Given an authz form, find the checkbox associated with the strings user and role,
+   assert that it's in the state 'should_be', and set it to 'set_to' '''
+   user_role_string = '%s$%s' % (user, role)
+   checkboxes = [x for x in theform.fields[user_role_string] \
+                                   if x.__class__.__name__ == 'Checkbox']
+
+   assert(len(checkboxes)==1), \
+        "there should only be one checkbox for %s/%s" % (user, role)
+   checkbox = checkboxes[0]
+
+   #checkbox should be unticked
+   assert checkbox.checked==should_be, \
+                 "%s/%s checkbox in unexpected state" % (user, role)
+
+   #tick or untick the box and return the form
+   checkbox.checked=set_to
+   return theform
+
+def package_roles(pkgname):
+    pkg = model.Package.by_name(pkgname)
+    return [ (r.user.name, r.role) for r in pkg.roles ]
+
+
+
 class TestPackageEditAuthz(TestController):
     @classmethod
     def setup_class(self):
+        # for the authorization editing tests we set up test data so:
+        # three users, madeup-sysadmin , madeup-administrator, and madeup-another
+        # two packages test6 and test6a, m-a is admin on both
         model.repo.init_db()
         model.repo.new_revision()
         
@@ -77,6 +106,11 @@ class TestPackageEditAuthz(TestController):
         href = '%s' % pr.id
         assert href in res, res
 
+
+#################################################################
+#################################################################
+
+
     def _prs(self, pkgname):
         pkg = model.Package.by_name(pkgname)
         return dict([ (getattr(r.user, 'name', 'USER NAME IS NONE'), r) for r in pkg.roles ])
@@ -88,38 +122,44 @@ class TestPackageEditAuthz(TestController):
             self.admin})
         assert self.pkgname in res
 
-        def _r(r):
-            return 'PackageRole-%s-role' % r.id
-        def _u(r):
-            return 'PackageRole-%s-user_id' % r.id
+        prs=package_roles(self.pkgname)
+        assert len(prs) == 3
+        assert ('madeup-administrator', 'admin') in prs 
+        assert ('visitor', 'editor') in prs 
+        assert ('logged_in', 'editor') in prs
 
-        prs = self._prs(self.pkgname)
-        assert prs['visitor'].role == model.Role.EDITOR
-        assert prs['logged_in'].role == model.Role.EDITOR
-        form = res.forms['package-authz']
-        
-        # change role assignments
-        form.select(_r(prs['visitor']), model.Role.READER)
-        form.select(_r(prs['logged_in']), model.Role.ADMIN)
+        #admin makes visitor a reader and logged in an admin
+        form = res.forms['theform']
+        check_and_set_checkbox(form, u'visitor', u'reader', False, True)
+        check_and_set_checkbox(form, u'logged_in', u'admin', False, True)
+        check_and_set_checkbox(form, u'visitor', u'editor', True, True)
+        check_and_set_checkbox(form, u'logged_in', u'editor', True, False)
+
         res = form.submit('save', extra_environ={'REMOTE_USER': self.admin})
-        model.repo.commit_and_remove()
 
         # ensure db was changed
-        prs = self._prs(self.pkgname)
-        assert len(prs) == 3, prs
-        assert prs['visitor'].role == model.Role.READER
-        assert prs['logged_in'].role == model.Role.ADMIN
+        prs=package_roles(self.pkgname)
+        assert len(prs) == 4
+        assert ('madeup-administrator', 'admin') in prs 
+        assert ('visitor', 'reader') in prs 
+        assert ('visitor', 'editor') in prs
+        assert ('logged_in', 'admin') in prs
 
         # ensure rerender of form is changed
         offset = url_for(controller='package', action='authz', id=self.pkgname)
         res = self.app.get(offset, extra_environ={'REMOTE_USER':
             self.admin})
         assert self.pkgname in res
-        fv = res.forms['package-authz']
-        visitor_options = fv[_r(prs['visitor'])].options
-        assert ('reader', True) in visitor_options, visitor_options
-        logged_in_options = fv[_r(prs['logged_in'])].options
-        assert ('admin', True) in logged_in_options, logged_in_options
+
+        # check that the checkbox states are what we think they should be
+        # and put things back how they were.
+        form = res.forms['theform']
+        check_and_set_checkbox(form, u'visitor', u'reader', True, False)
+        check_and_set_checkbox(form, u'logged_in', u'admin', True, False)
+        check_and_set_checkbox(form, u'visitor', u'editor', True, True)
+        check_and_set_checkbox(form, u'logged_in', u'editor', False, True)
+        res = form.submit('save', extra_environ={'REMOTE_USER': self.admin})
+
 
     def test_3_sysadmin_changes_role(self):
         # load authz page
