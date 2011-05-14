@@ -72,10 +72,7 @@ class TestPackageEditAuthz(TestController):
         res = self.app.get(offset, status=[302, 401])
         res = res.follow()
         assert res.request.url.startswith('/user/login')
-        # Alternative if we allowed read-only access
-        # res = self.app.get(offset)
-        # assert not '<form' in res, res
-    
+     
     def test_1_admin_has_access(self):
         offset = url_for(controller='package', action='authz', id=self.pkgname)
         res = self.app.get(offset, extra_environ={'REMOTE_USER':
@@ -97,13 +94,6 @@ class TestPackageEditAuthz(TestController):
         for (user,role) in package_roles(self.pkgname):
             assert user in res
             assert role in res
-
-
-
-    def _prs(self, pkgname):
-        pkg = model.Package.by_name(pkgname)
-        return dict([ (getattr(r.user, 'name', 'USER NAME IS NONE'), r) for r in pkg.roles ])
-
 
     def change_roles(self, user):
         # load authz page
@@ -153,13 +143,6 @@ class TestPackageEditAuthz(TestController):
 
     def test_3_sysadmin_changes_role(self):
         self.change_roles(self.sysadmin)
-
-
-
-#################################################################
-#################################################################
-    
-    
 
     def delete_role_as(self,user):
         # get the authz page, check that visitor's in there
