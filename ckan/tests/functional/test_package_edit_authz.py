@@ -107,10 +107,6 @@ class TestPackageEditAuthz(TestController):
         assert href in res, res
 
 
-#################################################################
-#################################################################
-
-
     def _prs(self, pkgname):
         pkg = model.Package.by_name(pkgname)
         return dict([ (getattr(r.user, 'name', 'USER NAME IS NONE'), r) for r in pkg.roles ])
@@ -164,23 +160,99 @@ class TestPackageEditAuthz(TestController):
 
     def test_3_sysadmin_changes_role(self):
         self.change_roles(self.sysadmin)
+
+
+
+#################################################################
+#################################################################
+
     
     def test_4_admin_deletes_role(self):
-        pkg = model.Package.by_name(self.pkgname)
-        assert len(pkg.roles) == 3
-        # make sure not admin
-        pr_id = [ r for r in pkg.roles if r.user.name != self.admin ][0].id
-        offset = url_for(controller='package', action='authz', id=self.pkgname,
-                role_to_delete=pr_id)
-        # need this here as o/w conflicts over session binding
-        model.Session.remove()
-        res = self.app.get(offset, extra_environ={'REMOTE_USER':
-            self.admin})
-        assert 'Deleted role' in res, res
-        assert 'error' not in res, res
-        pkg = model.Package.by_name(self.pkgname)
-        assert len(pkg.roles) == 2
-        assert model.Session.query(model.PackageRole).filter_by(id=pr_id).count() == 0
+        # get the authz page, check that visitor's in there
+        # remove visitor's role on the package
+        # re-get the page and make sure that visitor's not in there at all
+        offset = url_for(controller='package', action='authz', id=self.pkgname)
+        res = self.app.get(offset, extra_environ={'REMOTE_USER':self.admin})
+        assert self.pkgname in res
+
+        prs=package_roles(self.pkgname)
+        assert len(prs) == 3
+        assert ('madeup-administrator', 'admin') in prs 
+        assert ('visitor', 'editor') in prs 
+        assert ('logged_in', 'editor') in prs
+
+        assert 'visitor' in res
+        assert 'madeup-administrator' in res
+        assert 'logged_in' in res
+
+        #admin removes visitor's only role
+        form = res.forms['theform']
+        check_and_set_checkbox(form, u'visitor', u'editor', True, False)
+        res = form.submit('save', extra_environ={'REMOTE_USER': self.admin})
+
+        # ensure db was changed
+        prs=package_roles(self.pkgname)
+        assert len(prs) == 2
+        assert ('madeup-administrator', 'admin') in prs 
+        assert ('logged_in', 'editor') in prs
+
+        # ensure rerender of form is changed
+        offset = url_for(controller='package', action='authz', id=self.pkgname)
+        res = self.app.get(offset, extra_environ={'REMOTE_USER':self.admin})
+        assert self.pkgname in res
+
+        assert 'visitor' not in res
+        assert 'madeup-administrator' in res
+        assert 'logged_in' in res
+
+        # check that the checkbox states are what we think they should be
+        form = res.forms['theform']
+        check_and_set_checkbox(form, u'logged_in', u'editor', True, True)
+        check_and_set_checkbox(form, u'madeup-administrator', u'admin', True, True)
+
+        # now we should add visitor back in, let's make him a reader
+        form = res.forms['addform']
+        form.fields['new_user_name'][0].value='visitor'
+        checkbox = [x for x in form.fields['reader'] \
+                      if x.__class__.__name__ == 'Checkbox'][0]
+        # check it's currently unticked
+        assert checkbox.checked == False
+        # tick it and submit
+        checkbox.checked=True
+        res = form.submit('add', extra_environ={'REMOTE_USER':self.admin})
+        assert "User Added" in res, "don't see flash message"
+
+       # check that the page contains strings for everyone
+        assert 'visitor' in res
+        assert 'madeup-administrator' in res
+        assert 'logged_in' in res
+
+        # check that the roles in the db are back to normal
+        prs=package_roles(self.pkgname)
+        assert len(prs) == 3
+        assert ('madeup-administrator', 'admin') in prs 
+        assert ('visitor', 'reader') in prs 
+        assert ('logged_in', 'editor') in prs
+
+        # now change him back to being an editor
+        form = res.forms['theform']
+        check_and_set_checkbox(form, u'visitor', u'reader', True, False)
+        check_and_set_checkbox(form, u'visitor', u'editor', False, True)
+        res = form.submit('save', extra_environ={'REMOTE_USER': self.admin})
+ 
+        # check that the page contains strings for everyone
+        assert 'visitor' in res
+        assert 'madeup-administrator' in res
+        assert 'logged_in' in res
+
+        # check that the roles in the db are back to normal
+        prs=package_roles(self.pkgname)
+        assert len(prs) == 3
+        assert ('madeup-administrator', 'admin') in prs 
+        assert ('visitor', 'editor') in prs 
+        assert ('logged_in', 'editor') in prs
+
+
 
     def test_4_sysadmin_deletes_role(self):
         pkg = model.Package.by_name(self.pkgname2)
