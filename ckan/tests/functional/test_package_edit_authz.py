@@ -91,20 +91,13 @@ class TestPackageEditAuthz(TestController):
         res = self.app.get(offset, extra_environ={'REMOTE_USER':
             self.admin})
         assert self.pkgname in res
-        assert '<tr' in res
-        assert self.admin in res
-        assert 'Role' in res
-        for uname in [ model.PSEUDO_USER__VISITOR, self.admin ]:
-            assert '%s' % uname in res
-        # crude but roughly correct
-        pkg = model.Package.by_name(self.pkgname)
-        for r in pkg.roles:
-            assert '<select id="PackageRole-%s-role' % r.id in res
 
-        # now test delete links
-        pr = pkg.roles[0]
-        href = '%s' % pr.id
-        assert href in res, res
+        # all the package's users and roles should appear in tables
+        assert '<tr' in res
+        for (user,role) in package_roles(self.pkgname):
+            assert user in res
+            assert role in res
+
 
 
     def _prs(self, pkgname):
@@ -165,14 +158,15 @@ class TestPackageEditAuthz(TestController):
 
 #################################################################
 #################################################################
-
     
-    def test_4_admin_deletes_role(self):
+    
+
+    def delete_role_as(self,user):
         # get the authz page, check that visitor's in there
         # remove visitor's role on the package
         # re-get the page and make sure that visitor's not in there at all
         offset = url_for(controller='package', action='authz', id=self.pkgname)
-        res = self.app.get(offset, extra_environ={'REMOTE_USER':self.admin})
+        res = self.app.get(offset, extra_environ={'REMOTE_USER':user})
         assert self.pkgname in res
 
         prs=package_roles(self.pkgname)
@@ -188,7 +182,7 @@ class TestPackageEditAuthz(TestController):
         #admin removes visitor's only role
         form = res.forms['theform']
         check_and_set_checkbox(form, u'visitor', u'editor', True, False)
-        res = form.submit('save', extra_environ={'REMOTE_USER': self.admin})
+        res = form.submit('save', extra_environ={'REMOTE_USER': user})
 
         # ensure db was changed
         prs=package_roles(self.pkgname)
@@ -198,7 +192,7 @@ class TestPackageEditAuthz(TestController):
 
         # ensure rerender of form is changed
         offset = url_for(controller='package', action='authz', id=self.pkgname)
-        res = self.app.get(offset, extra_environ={'REMOTE_USER':self.admin})
+        res = self.app.get(offset, extra_environ={'REMOTE_USER':user})
         assert self.pkgname in res
 
         assert 'visitor' not in res
@@ -219,7 +213,7 @@ class TestPackageEditAuthz(TestController):
         assert checkbox.checked == False
         # tick it and submit
         checkbox.checked=True
-        res = form.submit('add', extra_environ={'REMOTE_USER':self.admin})
+        res = form.submit('add', extra_environ={'REMOTE_USER':user})
         assert "User Added" in res, "don't see flash message"
 
        # check that the page contains strings for everyone
@@ -238,7 +232,7 @@ class TestPackageEditAuthz(TestController):
         form = res.forms['theform']
         check_and_set_checkbox(form, u'visitor', u'reader', True, False)
         check_and_set_checkbox(form, u'visitor', u'editor', False, True)
-        res = form.submit('save', extra_environ={'REMOTE_USER': self.admin})
+        res = form.submit('save', extra_environ={'REMOTE_USER': user})
  
         # check that the page contains strings for everyone
         assert 'visitor' in res
@@ -253,67 +247,10 @@ class TestPackageEditAuthz(TestController):
         assert ('logged_in', 'editor') in prs
 
 
+    def test_4_admin_deletes_role(self):
+        self.delete_role_as(self.admin)
 
     def test_4_sysadmin_deletes_role(self):
-        pkg = model.Package.by_name(self.pkgname2)
-        assert len(pkg.roles) == 3
-        # make sure not admin
-        pr_id = [ r for r in pkg.roles if r.user.name != self.admin ][0].id
-        offset = url_for(controller='package', action='authz', id=self.pkgname2,
-                role_to_delete=pr_id)
-        # need this here as o/w conflicts over session binding
-        model.Session.remove()
-        res = self.app.get(offset, extra_environ={'REMOTE_USER':
-            self.sysadmin})
-        assert 'Deleted role' in res, res
-        assert 'error' not in res, res
-        pkg = model.Package.by_name(self.pkgname2)
-        assert len(pkg.roles) == 2
-        assert model.Session.query(model.PackageRole).filter_by(id=pr_id).count() == 0
+        self.delete_role_as(self.sysadmin)
 
-    def test_5_admin_adds_role(self):
-        offset = url_for(controller='package', action='authz', id=self.pkgname)
-        res = self.app.get(offset, extra_environ={'REMOTE_USER':
-            self.admin})
-        assert self.pkgname in res
-        prs = self._prs(self.pkgname) 
-        startlen = len(prs)
-        # could be 2 or 3 depending on whether we ran this test alone or not
-        # assert len(prs) == 2, prs
-
-        assert 'Create New User Roles' in res
-        assert '<select id=' in res, res
-        form = res.forms['package-authz']
-        another = model.User.by_name(self.another)
-        form.select('PackageRole--user_id', another.id)
-        form.select('PackageRole--role', model.Role.ADMIN)
-        res = form.submit('save', extra_environ={'REMOTE_USER': self.admin})
-        model.Session.remove()
-
-        prs = self._prs(self.pkgname)
-        assert len(prs) == startlen+1, prs
-        assert prs[self.another].role == model.Role.ADMIN
-
-    def test_5_sysadmin_adds_role(self):
-        offset = url_for(controller='package', action='authz', id=self.pkgname2)
-        res = self.app.get(offset, extra_environ={'REMOTE_USER':
-            self.sysadmin})
-        assert self.pkgname2 in res
-        prs = self._prs(self.pkgname2) 
-        startlen = len(prs)
-        # could be 2 or 3 depending on whether we ran this test alone or not
-        # assert len(prs) == 2, prs
-
-        assert 'Create New User Roles' in res
-        assert '<select id=' in res, res
-        form = res.forms['package-authz']
-        another = model.User.by_name(self.another)
-        form.select('PackageRole--user_id', another.id)
-        form.select('PackageRole--role', model.Role.ADMIN)
-        res = form.submit('save', extra_environ={'REMOTE_USER': self.sysadmin})
-        model.Session.remove()
-
-        prs = self._prs(self.pkgname2)
-        assert len(prs) == startlen+1, prs
-        assert prs[self.another].role == model.Role.ADMIN
 
