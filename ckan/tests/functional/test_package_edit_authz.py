@@ -23,11 +23,6 @@ def check_and_set_checkbox(theform, user, role, should_be, set_to):
    checkbox.checked=set_to
    return theform
 
-def package_roles(pkgname):
-    pkg = model.Package.by_name(pkgname)
-    list = [ (r.user.name, r.role) for r in pkg.roles if r.user]
-    list.extend([(r.authorized_group.name, r.role) for r in pkg.roles if r.authorized_group])
-    return list
 
 class TestPackageEditAuthz(TestController):
     @classmethod
@@ -94,9 +89,27 @@ class TestPackageEditAuthz(TestController):
 
         # all the package's users and roles should appear in tables
         assert '<tr' in res
-        for (user,role) in package_roles(self.pkgname):
+        for (user,role) in self.package_roles():
             assert user in res
             assert role in res
+
+
+    def package_roles(self):
+        pkg = model.Package.by_name(self.pkgname)
+        list = [ (r.user.name, r.role) for r in pkg.roles if r.user]
+        list.extend([(r.authorized_group.name, r.role) for r in pkg.roles if r.authorized_group])
+        return list
+
+    def assert_package_roles_to_be(self, roles_list):
+        prs=self.package_roles()
+        ok = ( len(prs) == len(roles_list) )
+        for r in roles_list:
+           if not r in prs:
+               ok = False
+        if not ok:
+           print "expected roles: ", roles_list
+           print "actual roles: ", prs
+           assert False, "roles not as expected"
 
     def change_roles(self, user):
         # load authz page
@@ -239,19 +252,6 @@ class TestPackageEditAuthz(TestController):
 
     def test_4_sysadmin_deletes_role(self):
         self.delete_role_as(self.sysadmin)
-
-
-    def assert_package_roles_to_be(self, roles_list):
-        prs=package_roles(self.pkgname)
-        ok = ( len(prs) == len(roles_list) )
-        for r in roles_list:
-           if not r in prs:
-               ok = False
-
-        if not ok:
-           print "expected roles: ", roles_list
-           print "actual roles: ", prs
-           assert False, "roles not as expected"
 
 
     def test_5_add_change_delete_authzgroup(self):
