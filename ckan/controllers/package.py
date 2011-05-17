@@ -425,24 +425,23 @@ class PackageController(BaseController):
         if not c.authz_editable:
             abort(401, gettext('User %r not authorized to edit %s authorizations') % (c.user, id))
 
-        # Three different ways of getting the list of userobjectroles for this package
-        # particular package They all take a frighteningly long time to retrieve
+        # Three different ways of getting the list of userobjectroles for this package.
+        # They all take a frighteningly long time to retrieve
         # the data, but I can't tell how they'll scale. On a large dataset it might
         # be worth working out which is quickest, so I've made a function for
         # ease of changing the query.
         def get_userobjectroles():
             # we already have a pkg variable in scope, but I found while testing
-            # that it occasionally mysteriously loses its value! The Lord alone
-            # knows why. Redefine it here and hope it doesn't forget before the
-            # next statement.
+            # that it occasionally mysteriously loses its value!  Redefine it
+            # here. 
             pkg = model.Package.get(id)
 
-            # my original query, get them all and filter in python:
-            # uors = [uor for uor in model.Session.query(model.PackageRole).all() if uor.package==pkg]
-            # dread's suggestion:
+            # dread's suggestion for 'get all userobjectroles for this package':
             uors = model.Session.query(model.PackageRole).join('package').filter_by(name=pkg.name).all()
             # rgrp's version:
             # uors = model.Session.query(model.PackageRole).filter_by(package=pkg)
+            # get them all and filter in python:
+            # uors = [uor for uor in model.Session.query(model.PackageRole).all() if uor.package==pkg]
             return uors
 
         def action_save_form(users_or_authz_groups):
@@ -472,8 +471,6 @@ class PackageController(BaseController):
                
             # we get the current user/role assignments 
             # and make a dictionary of them
-            #current_uors = model.Session.query(model.SystemRole).all()
-
             current_uors = get_userobjectroles()
 
             if users_or_authz_groups=='users':
@@ -490,13 +487,9 @@ class PackageController(BaseController):
             # and now we can loop through our dictionary of desired states
             # checking whether a change needs to be made, and if so making it
 
-            # WORRY: Here it seems that we have to check whether someone is already assigned
-            # a role, in order to avoid assigning it twice, or attempting to delete it when
-            # it doesn't exist. Otherwise problems occur. However this doesn't affect the 
-            # index page, which would seem to be prone to suffer the same effect. 
-            # Why the difference?
-
-
+            # Here we check whether someone is already assigned a role, in order
+            # to avoid assigning it twice, or attempting to delete it when it
+            # doesn't exist. Otherwise problems can occur.
             if users_or_authz_groups=='users':
                 for ((u,r), val) in new_user_role_dict.items():
                     if val:
@@ -585,19 +578,22 @@ class PackageController(BaseController):
             model.repo.commit_and_remove()
 
 
-        # =================
-        # Display the page
-
+        # In the event of a post request, work out which of the four possible actions
+        # is to be done, and do it before displaying the page
         if 'add' in request.POST:
             action_add_form('users')
+
         if 'authz_add' in request.POST:
             action_add_form('authz_groups')
 
-        if ('save' in request.POST):
+        if 'save' in request.POST:
             action_save_form('users')
 
-        if ('authz_save' in request.POST):
+        if 'authz_save' in request.POST:
             action_save_form('authz_groups')
+
+        # =================
+        # Display the page
 
         # Find out all the possible roles. At the moment, any role can be
         # associated with any object, so that's easy:
