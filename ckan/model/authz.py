@@ -187,18 +187,29 @@ class UserObjectRole(DomainObject):
 
     @classmethod
     def add_user_to_role(cls, user, role, domain_obj):
-        '''role assignment already exists
-        NB: leaves caller to commit change'''
+        '''NB: Leaves the caller to commit the change. If called twice without a
+        commit, will add the role to the database twice. Since some other
+        functions count the number of occurrences, that leaves a fairly obvious
+        bug. But adding a commit here seems to break various tests.
+        So don't call this twice without committing, I guess...
+        '''
+        # Here we're trying to guard against adding the same role twice, but
+        # that won't work if the transaction hasn't been committed yet, which allows a role to be added twice (you can do this from the interface)
         if cls.user_has_role(user, role, domain_obj):
             return
         objectrole = cls(role=role, user=user)
         if cls.name is not None:
             setattr(objectrole, cls.name, domain_obj)
         Session.add(objectrole)
-        
+         
     @classmethod
     def add_authorization_group_to_role(cls, authorization_group, role, domain_obj):
-        # role assignment already exists
+        '''NB: Leaves the caller to commit the change. If called twice without a
+        commit, will add the role to the database twice. Since some other
+        functions count the number of occurrences, that leaves a fairly obvious
+        bug. But adding a commit here seems to break various tests.
+        So don't call this twice without committing, I guess...
+        '''
         if cls.authorization_group_has_role(authorization_group, role, domain_obj):
             return
         objectrole = cls(role=role, authorized_group=authorization_group)
@@ -209,16 +220,16 @@ class UserObjectRole(DomainObject):
     @classmethod
     def remove_user_from_role(cls, user, role, domain_obj):
         q = cls._user_query(user, role, domain_obj)
-        uo_role = q.one()
-        Session.delete(uo_role)
+        for uo_role in q.all():
+            Session.delete(uo_role)
         Session.commit()
         Session.remove()
 
     @classmethod
     def remove_authorization_group_from_role(cls, authorization_group, role, domain_obj):
         q = cls._authorized_group_query(authorization_group, role, domain_obj)
-        ago_role = q.one()
-        Session.delete(ago_role)
+        for ago_role in q.all():
+            Session.delete(ago_role)
         Session.commit()
         Session.remove()
 
