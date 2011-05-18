@@ -78,6 +78,14 @@ def ignore_missing(key, data, errors, context):
         data.pop(key, None)
         raise StopOnError
 
+def ignore_empty(key, data, errors, context):
+
+    value = data.get(key)
+
+    if value is missing or not value:
+        data.pop(key, None)
+        raise StopOnError
+
 def convert_int(value, context):
 
     try:

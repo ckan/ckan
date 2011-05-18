@@ -18,6 +18,7 @@ def no_http(value, context):
 
     if 'http:' in value:
         raise Invalid(_('No links are allowed in the log_message.'))
+    return value
 
 def package_id_exists(value, context):
 

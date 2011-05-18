@@ -115,6 +115,15 @@ def augment_data(data, schema):
     for key, value in new_data.items():
         if key in full_schema:
             continue
+
+        ## check if any thing naugthy is placed against subschemas
+        initial_tuple = key[::2]
+        if initial_tuple in [initial_key[:len(initial_tuple)] 
+                             for initial_key in flattented_schema]:
+            if data[key] <> []:
+                raise DataError('Only lists of dicts can be placed against'
+                                'subschema %s' % key)
+                
         if key[:-1] in key_combinations:
             extras_key = key[:-1] + ('__extras',)
             extras = new_data.get(extras_key, {})
@@ -314,7 +323,7 @@ def flatten_dict(data, flattened=None, old_key=None):
 
     for key, value in data.iteritems():
         new_key = old_key + [key]
-        if isinstance(value, list):
+        if isinstance(value, list) and value and isinstance(value[0], dict):
             flattened = flatten_list(value, flattened, new_key)
         else:
             flattened[tuple(new_key)] = value

@@ -19,11 +19,25 @@ class ValidationError(ActionError):
 
 log = logging.getLogger(__name__)
 
+def parse_params(params):
+    parsed = {}
+    for key in params:
+        value = params.getall(key)
+        if not value:
+            value = ''
+        if len(value) == 1:
+            value = value[0]
+        parsed[key] = value
+    return parsed
+
+
 def clean_dict(data_dict):
     for key, value in data_dict.items():
         if not isinstance(value, list):
             continue
         for inner_dict in value[:]:
+            if isinstance(inner_dict, basestring):
+                break
             if not any(inner_dict.values()):
                 value.remove(inner_dict)
             else:

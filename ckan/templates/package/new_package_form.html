@@ -177,17 +177,18 @@
 
 <label for="log_message">Edit summary (briefly describe the changes you have made)</label>
 <textarea id="log_message" name="log_message" class="short wide">${data.get('log_message', '')}</textarea>
+
 <div class="ckan-logged-in" style="display: none;">
-<p>Author: 127.0.0.1</p>
+  <p>Author: ${c.author}</p>
 </div>
 <div class="ckan-logged-out">
-  <label>Author: 127.0.0.1</label>
-
+  <label>Author: ${c.author}</label>
   <p class="hints">
   Since you have not signed in this will just be your IP address.
-  <a href="/user/login" target="_blank">Click here to sign in</a> before saving (opens in new window).
+  <a href="${h.url_for(controller='user', action='login', id=None)}" target="_blank">Click here to sign in</a> before saving (opens in new window).
   </p>
 </div>
+
 <div class="submit">
   <input name="preview" type="submit" value="Preview" />
   <input id="save" name="save" type="submit" value="Save" />

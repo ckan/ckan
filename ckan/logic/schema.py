@@ -4,7 +4,8 @@ from ckan.lib.navl.validators import (ignore_missing,
                                       empty,
                                       ignore,
                                       if_empty_same_as,
-                                      not_missing
+                                      not_missing,
+                                      ignore_empty
                                      )
 from ckan.logic.validators import (package_id_not_changed,
                                    package_id_exists,
@@ -27,7 +28,7 @@ import ckan.model
 def default_resource_schema():
 
     schema = {
-        'id': [ignore_missing, unicode],
+        'id': [ignore_empty, unicode],
         'revistion_id': [ignore_missing, unicode],
         'resource_group_id': [ignore],
         'package_id': [ignore],
@@ -69,7 +70,6 @@ def default_package_schema():
         'url': [ignore_missing, unicode],#, URL(add_http=False)],
         'version': [ignore_missing, unicode],
         'state': [ignore_not_admin, ignore_missing],
-        'tag_string': [ignore_missing, tag_string_convert],
         '__extras': [ignore],
         '__junk': [empty],
         'resources': default_resource_schema(),
