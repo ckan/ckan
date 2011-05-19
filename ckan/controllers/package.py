@@ -9,17 +9,26 @@ from pylons import config, cache
 from pylons.i18n import get_lang, _
 from autoneg.accept import negotiate
 
-from ckan.lib.base import *
-from ckan.lib.search import query_for, QueryOptions, SearchError
+import ckan.logic.action.create as create
+import ckan.logic.action.update as update
+import ckan.logic.action.get as get
+from ckan.logic.schema import package_form_schema
+from ckan.lib.base import request, c, BaseController, model, abort, h, g, render
+from ckan.lib.base import etag_cache, response, redirect, gettext
+from ckan.authz import Authorizer
+from ckan.lib.search import query_for, SearchError
 from ckan.lib.cache import proxy_cache
 from ckan.lib.package_saver import PackageSaver, ValidationException
+from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
+from ckan.logic import NotFound, NotAuthorized, ValidationError
+from ckan.logic import tuplize_dict, clean_dict, parse_params
 from ckan.plugins import PluginImplementations, IPackageController
 import ckan.forms
 import ckan.authz
 import ckan.rating
 import ckan.misc
 
-logger = logging.getLogger('ckan.controllers')
+log = logging.getLogger('ckan.controllers')
 
 def search_url(params):
     url = h.url_for(controller='package', action='search')
@@ -37,6 +46,47 @@ autoneg_cfg = [
     ]
 
 class PackageController(BaseController):
+
+    ## hooks for subclasses 
+    package_form = 'package/new_package_form.html'
+
+    def _form_to_db_schema(self):
+        return package_form_schema()
+
+    def _db_to_form_schema(self):
+        '''This is an interface to manipulate data from the database
+        into a format suitable for the form (optional)'''
+
+    def _check_data_dict(self, data_dict):
+        '''Check if the return data is correct, mostly for checking out if
+        spammers are submitting only part of the form'''
+
+        surplus_keys_schema = ['__extras', '__junk', 'state', 'groups',
+                               'extras_validation', 'save', 'preview',
+                               'return_to']
+
+        schema_keys = package_form_schema().keys()
+        keys_in_schema = set(schema_keys) - set(surplus_keys_schema)
+
+        if keys_in_schema - set(data_dict.keys()):
+            log.info('incorrect form fields posted')
+            raise DataError(data_dict)
+
+    def _setup_template_variables(self, context):
+        c.groups = get.group_list_availible(context)
+        c.groups_authz = get.group_list_authz(context)
+        c.licences = [('', '')] + model.Package.get_license_options()
+        c.is_sysadmin = Authorizer().is_sysadmin(c.user)
+        c.resource_columns = model.Resource.get_columns()
+
+        ## This is messy as auths take domain object not data_dict
+        pkg = context.get('package') or c.pkg
+        if pkg:
+            c.auth_for_change_state = Authorizer().am_authorized(
+                c, model.Action.CHANGE_STATE, pkg)
+
+    ## end hooks
+
     authorizer = ckan.authz.Authorizer()
     extensions = PluginImplementations(IPackageController)
 
@@ -240,153 +290,115 @@ class PackageController(BaseController):
         c.pkg_revisions = c.pkg.all_related_revisions
         return render('package/history.html')
 
-    def new(self):
-        c.error = ''
-        api_url = config.get('ckan.api_url', '/').rstrip('/')
-        c.package_create_slug_api_url = api_url+h.url_for(controller='api', action='create_slug')
-        is_admin = self.authorizer.is_sysadmin(c.user)
-        # Check access control for user to create a package.
-        auth_for_create = self.authorizer.am_authorized(c, model.Action.PACKAGE_CREATE, model.System())
+    def new(self, data=None, errors=None, error_summary=None):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'extras_as_string': True,
+                   'preview': 'preview' in request.params,
+                   'save': 'save' in request.params,
+                   'schema': self._form_to_db_schema()}
+
+        auth_for_create = Authorizer().am_authorized(c, model.Action.PACKAGE_CREATE, model.System())
         if not auth_for_create:
             abort(401, _('Unauthorized to create a package'))
-        # Get the name of the package form.
-        try:
-            fs = self._get_package_fieldset(is_admin=is_admin)
-        except ValueError, e:
-            abort(400, e)
-        if 'save' in request.params or 'preview' in request.params:
-            if not request.params.has_key('log_message'):
-                abort(400, ('Missing parameter: log_message'))
-            log_message = request.params['log_message']
-        record = model.Package
-        if request.params.has_key('save'):
-            fs = fs.bind(record, data=dict(request.params) or None, session=model.Session)
-            try:
-                PackageSaver().commit_pkg(fs, log_message, c.author, client=c)
-                pkgname = fs.name.value
 
-                pkg = model.Package.by_name(pkgname)
-                admins = []
-                if c.user:
-                    user = model.User.by_name(c.user)
-                    if user:
-                        admins = [user]
-                model.setup_default_user_roles(pkg, admins)
-                for item in self.extensions:
-                    item.create(pkg)
-                model.repo.commit_and_remove()
+        if (context['save'] or context['preview']) and not data:
+            return self._save_new(context)
 
-                self._form_save_redirect(pkgname, 'new')
-            except ValidationException, error:
-                fs = error.args[0]
-                c.form = self._render_edit_form(fs, request.params,
-                        clear_session=True)
-                return render('package/new.html')
-            except KeyError, error:
-                abort(400, ('Missing parameter: %s' % error.args).encode('utf8'))
+        data = data or {}
+        errors = errors or {}
+        error_summary = error_summary or {}
+        vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
-        # use request params even when starting to allow posting from "outside"
-        # (e.g. bookmarklet)
-        if 'preview' in request.params or 'name' in request.params or 'url' in request.params:
-            if 'name' not in request.params and 'url' in request.params:
-                url = request.params.get('url')
-                domain = urlparse.urlparse(url)[1]
-                if domain.startswith('www.'):
-                    domain = domain[4:]
-            # ensure all fields specified in params (formalchemy needs this on bind)
-            data = ckan.forms.add_to_package_dict(ckan.forms.get_package_dict(fs=fs), request.params)
-            fs = fs.bind(model.Package, data=data, session=model.Session)
-        else:
-            fs = fs.bind(session=model.Session)
-        #if 'preview' in request.params:
-        #    c.preview = ' '
-        c.form = self._render_edit_form(fs, request.params, clear_session=True)
-        if 'preview' in request.params:
-            c.is_preview = True
-            try:
-                PackageSaver().render_preview(fs,
-                                              log_message=log_message,
-                                              author=c.author, client=c)
-                c.preview = h.literal(render('package/read_core.html'))
-            except ValidationException, error:
-                fs = error.args[0]
-                c.form = self._render_edit_form(fs, request.params,
-                        clear_session=True)
-                return render('package/new.html')
+        self._setup_template_variables(context)
+        c.form = render(self.package_form, extra_vars=vars)
         return render('package/new.html')
 
-    def edit(self, id=None): # allow id=None to allow posting
-        # TODO: refactor to avoid duplication between here and new
-        c.error = ''
-        c.pkg = pkg = model.Package.get(id)
-        if pkg is None:
-            abort(404, '404 Not Found')
-        model.Session().autoflush = False
-        am_authz = self.authorizer.am_authorized(c, model.Action.EDIT, pkg)
+
+    def edit(self, id, data=None, errors=None, error_summary=None):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'extras_as_string': True,
+                   'preview': 'preview' in request.params,
+                   'save': 'save' in request.params,
+                   'id': id,
+                   'schema': self._form_to_db_schema()}
+
+        if (context['save'] or context['preview']) and not data:
+            return self._save_edit(id, context)
+
+        try:
+            old_data = get.package_show(context)
+            schema = self._db_to_form_schema()
+            if schema:
+                old_data, errors = validate(old_data, schema)
+            data = data or old_data
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read package %s') % '')
+
+        c.pkg = context.get("package")
+
+        am_authz = self.authorizer.am_authorized(c, model.Action.EDIT, c.pkg)
         if not am_authz:
             abort(401, _('User %r not authorized to edit %s') % (c.user, id))
 
-        auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, pkg)
-        try:
-            fs = self._get_package_fieldset(is_admin=auth_for_change_state)
-        except ValueError, e:
-            abort(400, e)
-        if 'save' in request.params or 'preview' in request.params:
-            if not request.params.has_key('log_message'):
-                abort(400, ('Missing parameter: log_message'))
-            log_message = request.params['log_message']
+        errors = errors or {}
+        vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
-        if not 'save' in request.params and not 'preview' in request.params:
-            # edit
-            c.pkgname = pkg.name
-            c.pkgtitle = pkg.title
-            if pkg.license_id:
-                self._adjust_license_id_options(pkg, fs)
-            fs = fs.bind(pkg)
-            c.form = self._render_edit_form(fs, request.params)
-            return render('package/edit.html')
-        elif request.params.has_key('save'):
-            # id is the name (pre-edited state)
-            pkgname = id
-            params = dict(request.params) # needed because request is nested
-                                          # multidict which is read only
-            fs = fs.bind(pkg, data=params or None)
-            try:
-                for item in self.extensions:
-                    item.edit(fs.model)
-                PackageSaver().commit_pkg(fs, log_message, c.author, client=c)
-                # do not use package name from id, as it may have been edited
-                pkgname = fs.name.value
-                self._form_save_redirect(pkgname, 'edit')
-            except ValidationException, error:
-                fs = error.args[0]
-                c.form = self._render_edit_form(fs, request.params,
-                                                clear_session=True)
-                return render('package/edit.html')
-            except KeyError, error:
-                abort(400, 'Missing parameter: %s' % error.args)
-        else: # Must be preview
-            c.is_preview = True
-            c.pkgname = pkg.name
-            c.pkgtitle = pkg.title
-            if pkg.license_id:
-                self._adjust_license_id_options(pkg, fs)
-            fs = fs.bind(pkg, data=dict(request.params))
-            try:
-                PackageSaver().render_preview(fs,
-                                              log_message=log_message,
-                                              author=c.author, client=c)
-                c.pkgname = fs.name.value
-                c.pkgtitle = fs.title.value
-                read_core_html = render('package/read_core.html') #utf8 format
-                c.preview = h.literal(read_core_html)
-                c.form = self._render_edit_form(fs, request.params)
-            except ValidationException, error:
-                fs = error.args[0]
-                c.form = self._render_edit_form(fs, request.params,
-                        clear_session=True)
-                return render('package/edit.html')
-            return render('package/edit.html') # uses c.form and c.preview
+        self._setup_template_variables(context)
+        c.form = render(self.package_form, extra_vars=vars)
+        return render('package/edit.html')
+
+    def _save_new(self, context):
+        try:
+            data_dict = clean_dict(unflatten(
+                tuplize_dict(parse_params(request.params))))
+            self._check_data_dict(data_dict)
+            context['message'] = data_dict.get('log_message', '')
+            pkg = create.package_create(data_dict, context)
+
+            if context['preview']:
+                PackageSaver().render_package(context['package'])
+                c.is_preview = True
+                c.preview = render('package/read_core.html')
+                return self.new(data_dict)
+
+            self._form_save_redirect(pkg['name'], 'new')
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read package %s') % '')
+        except NotFound, e:
+            abort(404, _('Package not found'))
+        except DataError:
+            abort(400, _(u'Integrity Error'))
+        except ValidationError, e:
+            errors = e.error_dict
+            error_summary = e.error_summary
+            return self.new(data_dict, errors, error_summary)
+
+    def _save_edit(self, id, context):
+        try:
+            data_dict = clean_dict(unflatten(
+                tuplize_dict(parse_params(request.params))))
+            self._check_data_dict(data_dict)
+            context['message'] = data_dict.get('log_message', '')
+            pkg = update.package_update(data_dict, context)
+            c.pkg = context['package']
+
+            if context['preview']:
+                c.is_preview = True
+                PackageSaver().render_package(context['package'])
+                c.preview = render('package/read_core.html')
+                return self.edit(id, data_dict)
+
+            self._form_save_redirect(pkg['name'], 'edit')
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read package %s') % id)
+        except NotFound, e:
+            abort(404, _('Package not found'))
+        except DataError:
+            abort(400, _(u'Integrity Error'))
+        except ValidationError, e:
+            errors = e.error_dict
+            error_summary = e.error_summary
+            return self.edit(id, data_dict, errors, error_summary)
 
     def _form_save_redirect(self, pkgname, action):
         '''This redirects the user to the CKAN package/read page,
@@ -401,7 +413,7 @@ class PackageController(BaseController):
         if url:
             url = url.replace('<NAME>', pkgname)
         else:
-            url = h.url_for(action='read', id=pkgname)
+            url = h.url_for(controller='package', action='read', id=pkgname)
         redirect(url)        
         
     def _adjust_license_id_options(self, pkg, fs):

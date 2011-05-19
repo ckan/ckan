@@ -142,8 +142,12 @@ class TestEdit(FunctionalTestCase):
         
     def test_2_edit(self):
         offset = url_for(controller='group', action='edit', id=self.groupname)
+        print offset
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER': 'russianfan'})
         assert 'Edit Group: %s' % self.groupname in res, res
+
+        print res
+        
 
         form = res.forms['group-edit']
         group = model.Group.by_name(self.groupname)

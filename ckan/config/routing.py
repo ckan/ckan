@@ -166,8 +166,9 @@ def make_map():
     map.redirect("/packages/{url:.*}", "/package/{url}")
     map.connect('/package', controller='package', action='search')
 
-    map.connect('/package/new', controller='package_logic', action='new')
-    map.connect('/package/edit/{id}', controller='package_logic', action='edit')
+    ##to get back formalchemy uncomment these lines
+    ##map.connect('/package/new', controller='package_formalchemy', action='new')
+    ##map.connect('/package/edit/{id}', controller='package_formalchemy', action='edit')
 
     map.connect('/package/{action}', controller='package',
         requirements=dict(action='|'.join([
@@ -177,7 +178,6 @@ def make_map():
             'search'
             ]))
         )
-    # for backwards compatability
     map.connect('/package', controller='package', action='index')
     map.connect('/package/{action}/{id}', controller='package',
         requirements=dict(action='|'.join([
@@ -191,8 +191,9 @@ def make_map():
     map.redirect("/groups", "/group")
     map.redirect("/groups/{url:.*}", "/group/{url}")
 
-    map.connect('/group/new', controller='group_logic', action='new')
-    map.connect('/group/edit/{id}', controller='group_logic', action='edit')
+    ##to get back formalchemy uncomment these lines
+    ##map.connect('/group/new', controller='group_formalchemy', action='new')
+    ##map.connect('/group/edit/{id}', controller='group_formalchemy', action='edit')
 
     map.connect('/group', controller='group', action='index')
     map.connect('/group/list', controller='group', action='list')

@@ -1,13 +1,84 @@
-Forms
-=====
+Forms Using Templates
+=====================
 
 The forms used to edit Packages and Groups in CKAN can be customised. This makes it easier to help users input data, helping them choose from sensible options or to use different data formats. This document sets out to show how this is achieved, without getting embroilled in the main CKAN code.
 
-Each form is defined in a python script and then 'plugged-in' to the CKAN code.
-The form script uses the FormBuilder to simply select from the standard field types, or even define some more field types. You can easily specify the content of drop-downs, hint text and the order of fields which are displayed.
-
 Note that this section deals with the form used to *edit* packages and groups, not the way they are displayed. Display is done in the CKAN templates.
 
+Location of related code
+------------------------
+ 
+ * ckan/controllers/package.py
+ * ckan/templates/package/new_package_form.html
+
+Building a package form
+-----------------------
+
+Basics
+^^^^^^
+
+You will firstly need to make a new controller in your extension.  This should subclass PackageController like::
+
+ from ckan.controllers.package import PackageController
+ class PackageNew(PackageController):
+     package_form = 'custom_package_form.html'
+
+The package_form variable in the subclass will be used as the new form template.
+
+It is recommended that you copy the package form (named new_package_form.html) and make modifications to it. However, it is possible to start from scratch.
+
+In order for you to get this new controller pointed at correctly, your extension should look like the following::
+
+ class CustomForm(SingletonPlugin):
+
+     implements(IRoutes)
+     implements(IConfigurer)
+
+     def before_map(self, map):
+         map.connect('/package/new', controller='ckanext.extension_name.controllers.PackageNewController:PackageNew', action='new')
+         map.connect('/package/edit/{id}', controller='ckanext.extension_name.controllers.PackageNewController:PackageNew', action='edit')
+         return map
+
+     def after_map(self, map):
+         return map
+
+     def update_config(self, config):
+         configure_template_directory(config, 'templates')
+
+Replace extension_name with the name of your extension. This also assumes that custom_package_form.html is located in templates subdirectory of your extension i.e ckanext/extension_name/templates/custom_package_form.html.
+
+Advanced Use
+^^^^^^^^^^^^
+
+The PackageController has a more hooks to customize how and what data is displayed. These functions can be overridden subclass of PackageController::
+
+  _setup_template_variables(self, context)
+
+This is for setting up new variables for your templates::
+
+  _form_to_db_schema(self)
+
+This defines a navl schema to customize validation and conversion to the database::
+
+  _db_to_form_schema(self)
+
+This defines a navl schema to customize conversion from the database to the form.
+
+An example of the use of these hooks can be best found on in the extension ckanext-dgu.
+
+
+Forms using FormAlchemy (depreciated)
+=====================================
+
+This is now depreciated in order to get this to work your extention must implement IRoutes and have a before_map like the following::
+
+ class Plugin(SingletonPlugin):
+     implements(IRoutes)
+
+     def before_map(self, map):
+        map.connect('/package/new', controller='package_formalchemy', action='new')
+        map.connect('/package/edit/{id}', controller='package_formalchemy', action='edit')
+        return map
 
 Location of related code
 ------------------------

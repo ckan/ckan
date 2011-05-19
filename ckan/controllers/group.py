@@ -1,22 +1,50 @@
 import genshi
 
 from sqlalchemy.orm import eagerload_all
-from ckan.lib.base import *
+from ckan.lib.base import BaseController, c, model, request, render, h
+from ckan.lib.base import ValidationException, abort
 from pylons.i18n import get_lang, _
 import ckan.authz as authz
-from ckan import forms
-from ckan.model import System
+from ckan.authz import Authorizer
 from ckan.lib.helpers import Page
 from ckan.plugins import PluginImplementations, IGroupController
+import ckan.logic.action.create as create
+import ckan.logic.action.update as update
+import ckan.logic.action.get as get
+from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
+from ckan.logic import NotFound, NotAuthorized, ValidationError
+from ckan.logic.schema import group_form_schema
+from ckan.logic import tuplize_dict, clean_dict, parse_params
+import ckan.forms
 
 class GroupController(BaseController):
-    
+
+    ## hooks for subclasses 
+    group_form = 'group/new_group_form.html'
+
+    def _form_to_db_schema(self):
+        return group_form_schema()
+
+    def _db_to_form_schema(self):
+        '''This is an interface to manipulate data from the database
+        into a format suitable for the form (optional)'''
+
+    def _setup_template_variables(self, context):
+        c.is_sysadmin = Authorizer().is_sysadmin(c.user)
+
+        ## This is messy as auths take domain object not data_dict
+        group = context.get('group') or c.pkg
+        if group:
+            c.auth_for_change_state = Authorizer().am_authorized(
+                c, model.Action.CHANGE_STATE, group)
+
+    ## end hooks
+
     def __init__(self):
         BaseController.__init__(self)
         self.extensions = PluginImplementations(IGroupController)
     
     def index(self):
-        from ckan.lib.helpers import Page
         
         if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
             abort(401, _('Not authorized to see this page'))
@@ -31,6 +59,7 @@ class GroupController(BaseController):
             items_per_page=20
         )
         return render('group/index.html')
+
 
     def read(self, id):
         c.group = model.Group.get(id)
@@ -56,109 +85,99 @@ class GroupController(BaseController):
             extension.read(c.group)
         return render('group/read.html')
 
-    def new(self):
-        record = model.Group
-        c.error = ''
-        
-        auth_for_create = self.authorizer.am_authorized(c, model.Action.GROUP_CREATE, model.System())
+    def new(self, data=None, errors=None, error_summary=None):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'extras_as_string': True,
+                   'schema': self._form_to_db_schema(),
+                   'save': 'save' in request.params}
+
+        auth_for_create = Authorizer().am_authorized(c, model.Action.GROUP_CREATE, model.System())
         if not auth_for_create:
             abort(401, _('Unauthorized to create a group'))
+
+        if context['save'] and not data:
+            return self._save_new(context)
         
-        is_admin = self.authorizer.is_sysadmin(c.user)
-        fs = ckan.forms.get_group_fieldset(is_admin=is_admin)
+        data = data or {}
+        errors = errors or {}
+        error_summary = error_summary or {}
+        vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
-        if request.params.has_key('save'):
-            rev = model.repo.new_revision()
-            rev.author = c.author
-            # needed because request is nested
-            # multidict which is read only
-            params = dict(request.params)
-            c.fs = fs.bind(record, data=params or None, session=model.Session)
-            try:
-                self._update(c.fs, id, record.id)
-            except ValidationException, error:
-                fs = error.args[0]
-                c.form = self._render_edit_form(fs)
-                return render('group/edit.html')
-            # do not use groupname from id as may have changed
-            c.groupname = c.fs.name.value
-            c.grouptitle = c.fs.title.value
-            group = model.Group.get(c.groupname)
-            assert group
-            admins = []
-            user = model.User.by_name(c.user)
-            admins = [user]
-            model.setup_default_user_roles(group, admins)
-            group = model.Group.get(c.groupname)
-            pkgs = [model.Package.by_name(name) for name in request.params.getall('Group-packages-current')]
-            group.packages = pkgs
-            pkgnames = request.params.getall('PackageGroup--package_name')
-            for pkgname in pkgnames:
-                if pkgname:
-                    package = model.Package.by_name(pkgname)
-                    if package and package not in group.packages:
-                        group.packages.append(package)
-            for extension in self.extensions:
-                extension.create(group)
-            model.repo.commit_and_remove()
-            h.redirect_to(action='read', id=c.groupname)
-
-        if request.params:
-            data = forms.edit_group_dict(ckan.forms.get_group_dict(), request.params)
-            fs = fs.bind(data=data, session=model.Session)
-        c.form = self._render_edit_form(fs)
+        self._setup_template_variables(context)
+        c.form = render(self.group_form, extra_vars=vars)
         return render('group/new.html')
 
-    def edit(self, id=None): # allow id=None to allow posting
-        c.error = ''
-        group = model.Group.get(id)
-        if group is None:
-            abort(404, '404 Not Found')
+    def edit(self, id, data=None, errors=None, error_summary=None):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'extras_as_string': True,
+                   'save': 'save' in request.params,
+                   'schema': self._form_to_db_schema(),
+                   'id': id}
+
+        if context['save'] and not data:
+            return self._save_edit(id, context)
+
+        try:
+            old_data = get.group_show(context)
+            c.grouptitle = old_data.get('title')
+            c.groupname = old_data.get('name')
+            schema = self._db_to_form_schema()
+            if schema:
+                old_data, errors = validate(old_data, schema)
+
+            data = data or old_data
+
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read group %s') % '')
+
+        group = context.get("group")
+
         am_authz = self.authorizer.am_authorized(c, model.Action.EDIT, group)
         if not am_authz:
-            abort(401, _('User %r not authorized to edit %r') % (c.user, id))
-            
-        auth_for_change_state = self.authorizer.am_authorized(c, model.Action.CHANGE_STATE, group)
-        
-        if not 'save' in request.params:
-            c.group = group
-            c.groupname = group.name
-            c.grouptitle = group.title
-            
-            fs = forms.get_group_fieldset(is_admin=auth_for_change_state).bind(c.group)
-            c.form = self._render_edit_form(fs)
-            return render('group/edit.html')
-        else:
-            rev = model.repo.new_revision()
-            rev.author = c.author
-            # id is the name (pre-edited state)
-            c.groupname = id
-            # needed because request is nested
-            # multidict which is read only
-            params = dict(request.params)
-            fs = ckan.forms.get_group_fieldset(is_admin=auth_for_change_state)
-            c.fs = fs.bind(group, data=params or None)
-            try:
-                self._update(c.fs, id, group.id)
-                # do not use groupname from id as may have changed
-                c.groupname = c.fs.name.value
-                c.grouptitle = c.fs.title.value
-            except ValidationException, error:
-                fs = error.args[0]
-                c.form = self._render_edit_form(fs)
-                return render('group/edit.html')
-            pkgs = [model.Package.by_name(name) for name in request.params.getall('Group-packages-current')]
-            group.packages = pkgs
-            pkgnames = request.params.getall('PackageGroup--package_name')
-            for pkgname in pkgnames:
-                if pkgname:
-                    package = model.Package.by_name(pkgname)
-                    if package and package not in group.packages:
-                        group.packages.append(package)
-            for extension in self.extensions: 
-                extension.edit(group)
-            model.repo.commit_and_remove()
-            h.redirect_to(action='read', id=c.groupname)
+            abort(401, _('User %r not authorized to edit %s') % (c.user, id))
+
+        errors = errors or {}
+        vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
+
+        self._setup_template_variables(context)
+        c.form = render(self.group_form, extra_vars=vars)
+        return render('group/edit.html')
+
+    def _save_new(self, context):
+        try:
+            data_dict = clean_dict(unflatten(
+                tuplize_dict(parse_params(request.params))))
+            context['message'] = data_dict.get('log_message', '')
+            group = create.group_create(data_dict, context)
+            h.redirect_to(controller='group', action='read', id=group['name'])
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read group %s') % '')
+        except NotFound, e:
+            abort(404, _('Package not found'))
+        except DataError:
+            abort(400, _(u'Integrity Error'))
+        except ValidationError, e:
+            errors = e.error_dict
+            error_summary = e.error_summary
+            return self.new(data_dict, errors, error_summary)
+
+    def _save_edit(self, id, context):
+        try:
+            data_dict = clean_dict(unflatten(
+                tuplize_dict(parse_params(request.params))))
+            context['message'] = data_dict.get('log_message', '')
+            group = update.group_update(data_dict, context)
+            h.redirect_to(controller='group', action='read', id=group['name'])
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read group %s') % id)
+        except NotFound, e:
+            abort(404, _('Package not found'))
+        except DataError:
+            abort(400, _(u'Integrity Error'))
+        except ValidationError, e:
+            errors = e.error_dict
+            error_summary = e.error_summary
+            return self.edit(id, data_dict, errors, error_summary)
 
     def authz(self, id):
         c.group = model.Group.get(id)
@@ -215,7 +234,7 @@ class GroupController(BaseController):
                 # new_roles = ckan.forms.new_roles_fs.bind(model.GroupRole, data=params or None)
                 # new_roles.sync()
                 for extension in self.extensions:
-                    extensions.authz_add_role(newgrouprole)
+                    extension.authz_add_role(newgrouprole)
                 model.Session.commit()
                 model.Session.remove()
                 c.message = _(u'Added role \'%s\' for authorization group \'%s\'') % (
