@@ -4,7 +4,7 @@ CKAN Authorization and Access Control
 
 This document gives an overview of CKAN's authorization capabilities and model
 in relation to access control. The authentication/identification aspects of
-access control are dealt with separately in :doc:`authorization`.
+access control are dealt with separately in :doc:`authentication`.
 
 
 Overview
@@ -45,8 +45,7 @@ based authorization manager, detailed below.
 Command-line authorization management
 -------------------------------------
 
-To allow for fine-grained control of the authorization system, CKAN has 
-several command related to the management of roles and access permissions. 
+Although the Admin Extension provides a Web interface for managing authorization, there is a set of more powerful :doc:`paster` commands for fine-grained control.
 
 The ``roles`` command will list and modify the assignment of actions to 
 roles::
@@ -127,6 +126,34 @@ system (rather than being expressed as subject-object-role tuples):
 
   * A user given the admin right for the System object is a 'System Admin' and can do any action on any object. (A shortcut for creating a System Admin is by using the ``paster sysadmin`` command.)
   * A user given the admin right for a particular object can do any action to that object.
+
+Publisher mode setup
+--------------------
+
+Although ckan.net is forging ahead with the Wikipedia model of allowing anyone to add and improve metadata, some CKAN instances prefer to operate in 'Publisher mode' which allows edits only from authorized users.
+
+To operate in this mode:
+
+  1. Remove the rights for general public to edit existing packages and create new ones.::
+
+    paster rights remove visitor anon_editor package:all
+    paster rights remove logged_in editor package:all
+    paster rights remove visitor anon_editor system
+    paster rights remove logged_in editor system
+
+  2. If logged-in users have already created packages in your system then you may also wish to remove admin rights. e.g.::
+
+    paster rights remove bob admin package:all
+
+  3. Change the default rights for newly created packages. Do this by using these values in your config (.ini file)::
+
+    ckan.default_roles.Package = {"visitor": ["reader"], "logged_in": ["reader"]}
+    ckan.default_roles.Group = {"visitor": ["reader"], "logged_in": ["reader"]}
+    ckan.default_roles.System = {"visitor": ["reader"], "logged_in": ["reader"]}
+    ckan.default_roles.AuthorizationGroup = {"visitor": ["reader"], "logged_in": ["reader"]} 
+
+  Note there is also the possibility to restrict package edits by a user's authorization group. See http://wiki.ckan.net/Publisher_Mode
+
 
 Examples
 --------

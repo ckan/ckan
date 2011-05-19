@@ -1,24 +1,69 @@
 Testing CKAN in a VM
 ++++++++++++++++++++
 
-WARNING: This document is still under development, use only if you are a member
-of the CKAN team who wishes to be an early adopter and are interested in
-experimenting with virtual machines.
+.. WARNING::
+  This document is still under development, use only if you are a member
+  of the CKAN team who wishes to be an early adopter and are interested in
+  experimenting with virtual machines.
 
-If you aren't running Lucid, you may need to test in a VM. First set up a cache
-of the repositories so that you don't need to fetch packages each time you
+If you aren't running Lucid, you may need to test in a VM. 
+
+Repository cache
+================
+
+First set up a cache of the repositories so that you don't need to fetch packages each time you
 build a VM:
 
 ::
 
-    sudo apt-get install apt-proxy
+    $ sudo apt-get install apt-proxy
+    $ sudo apt-get install uml-utilities
+
+Now find your local host's ethernet port name, IP address, netmask::
+
+    $ ifconfig
+    eth0      Link encap:Ethernet  HWaddr 1c:6f:65:8a:0a:d8
+              inet addr:50.56.101.208  Bcast:50.56.101.255  Mask:255.255.255.0
+
+i.e.::
+
+    ethernet port name: eth0
+    IP address: 50.56.101.208
+    netmask: 255.255.255.0
+
+These instructions assume these values, so replace them with yours.
+
+Now edit your apt-get config::
+
+    $ sudo vim /etc/apt-proxy/apt-proxy.conf
+
+And set these two lines. The first is your host's IP address::
+
+    ;; Server IP to listen on
+    address = 50.56.101.208
+
+    ;; Server port to listen on
+    port = 9998
+
+Now restart it::
+
+    $ sudo /etc/init.d/apt-proxy restart
 
 Once this is complete, your (empty) proxy is ready for use on
-http://mirroraddress:9999 and will find Ubuntu repository under ``/ubuntu``.
+http://<host-machine-ip>:9998 and will find Ubuntu repository under ``/ubuntu``.
 
 See also:
 
 * https://help.ubuntu.com/community/AptProxy
+
+
+VM creation
+===========
+
+Install the VM program::
+
+    sudo apt-get install python-vm-builder
+    sudo apt-get install kvm-pxe
 
 Now create a directory ``~/Vms`` for your virtual machines.
 
@@ -29,14 +74,21 @@ Now create a directory ``~/Vms`` for your virtual machines.
 
 We'll use manual bridging and networking rather than relying on the magic provided by ``libvirt``. Out virtual network for the VMs will be 192.168.100.xxx. You can use any number from 2-253 inclusive for the last bit of the IP. This first machine will have the IP address 192.168.100.2. Each virtual machine afterwards must have a unique IP address.
 
-First set some variables:
+First set some variables (use your own IP address for HOST_IP):
 
 ::
 
     export THIS_IP="4"
-    export HOST_IP="192.168.0.2"
+    export HOST_IP="50.56.101.208"
 
-You can get the host IP by looking at the output from ``ifconifg``. 
+Check your CPU has native VM support::
+
+    $ kvm-ok
+
+If your CPU doesn't support KVM extensions:
+
+1. change ``kvm`` to ``qemu`` in the vmbuilder step coming up next
+2. use ``/usr/bin/qemu`` instead of ``/usr/bin/kvm``
 
 Now create the VM:
 
@@ -46,7 +98,7 @@ Now create the VM:
     export BASE_IP="192.168.100"
     sudo vmbuilder kvm ubuntu \
         --mem 512 \
-        --cpus 4 \
+        --cpus 6 \
         --domain ckan_${THIS_IP} \
         --dest ckan_${THIS_IP} \
         --flavour virtual \
@@ -63,13 +115,13 @@ Now create the VM:
         --bcast ${BASE_IP}.255 \
         --gw ${BASE_IP}.254 \
         --dns ${BASE_IP}.254 \
-        --proxy http://${HOST_IP}:9999/ubuntu \
+        --proxy http://${HOST_IP}:9998/ubuntu \
         --components main,universe \
         --addpkg vim \
         --addpkg openssh-server \
         --addpkg wget
 
-This assumes you already have an apt mirror set up on port 9999 as described
+This assumes you already have an apt mirror set up on port 9998 as described
 above and that you are putting everything in ``~/Vms``.
 
 Now for the networking. 
@@ -116,17 +168,18 @@ Now save this as ``~/Vms/start.sh``:
     echo "Starting VM ${IMAGE} on ${TUNNEL} via ${NETWORK_DEVICE} with MAC ${MACADDR}..."
     sudo /usr/bin/kvm -M pc-0.12 -enable-kvm -m ${MEM} -smp ${CPUS} -name dev -monitor pty -boot c -drive file=${IMAGE},if=ide,index=0,boot=on -net nic,macaddr=${MACADDR} -net tap,ifname=${TUNNEL},script=no,downscript=no -serial none -parallel none -usb ${EXTRA}
 
+
 Make it executable:
 
 ::
 
     chmod a+x ~/Vms/start.sh
 
-Now you can start it:
+Now you can start it along the lines of this:
 
 ::
 
-    ./start.sh eth1 qtap0 512M 1 /home/james/Vms/ckan_3/tmpuNIv2h.qcow2
+    ./start.sh eth0 qtap0 512M 1 /home/james/Vms/ckan_4/tmpuNIv2h.qcow2
 
 Now login:
 
@@ -184,3 +237,11 @@ Here's how mine look:
     nameserver 8.8.8.8
 
 
+VNC access
+==========
+
+To add ability to VNC into the VM as it runs (useful for debug), add this line to the start.sh command::
+
+    -vnc :1
+
+Then you can vnc to it when running using a VNC Client.

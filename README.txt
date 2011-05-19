@@ -28,6 +28,7 @@ tests. See: http://buildbot.okfn.org/waterfall
    python-dev             Python interpreter v2.5 - v2.7 and dev headers
    postgresql             PostgreSQL database
    libpq-dev              PostgreSQL library
+   python-psycopg2        PostgreSQL python module
    libxml2-dev            XML library development files
    libxslt-dev            XSLT library development files
    python-virtualenv      Python virtual environments
@@ -37,7 +38,7 @@ tests. See: http://buildbot.okfn.org/waterfall
    subversion             Subversion source control (for pyutilib)
    =====================  ===============================================
 
-   For ubuntu you can install these like so:
+   For Ubuntu you can install these like so:
    
    ::
    
