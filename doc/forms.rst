@@ -64,7 +64,7 @@ This defines a navl schema to customize validation and conversion to the databas
 
 This defines a navl schema to customize conversion from the database to the form.
 
-An example of the use of these hooks can be best found on in the extension ckanext-dgu.
+A complicated example of the use of these hooks can be found in extension ckanext-dgu.
 
 
 Forms using FormAlchemy (depreciated)
