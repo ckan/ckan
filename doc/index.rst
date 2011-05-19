@@ -14,6 +14,7 @@ Contents:
    design
    deployment
    configuration
+   paster
    api
    plugins
    feeds
@@ -29,6 +30,8 @@ Contents:
    database_dumps
    admin
    deb
+   vm
+   buildbot
 
 Other material
 ==============

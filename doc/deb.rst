@@ -1,9 +1,10 @@
 CKAN's Approach to Dependencies
 +++++++++++++++++++++++++++++++
 
-WARNING: This document is still under development, use only if you are a member
-of the CKAN team who wishes to be an early adopter and are interested in
-experimenting with Debian packaging.
+.. WARNING::
+  This document is still under development, use only if you are a member
+  of the CKAN team who wishes to be an early adopter and are interested in
+  experimenting with virtual machines.
 
 .. contents ::
 
@@ -216,6 +217,12 @@ Python packaging approach described next. (The example in the next section is
 actually for a CKAN Python extension called ``python-ckanext-qa`` but the same
 process applies).
 
+hg clone ckan-deps
+
+::
+  
+    python -m buildkit.deb /path/to/ckan-deps/.. python-ckan-deps 1.3~01+lucid http://ckan.org
+
 
 Semi-Manual Python Packaging
 ============================
@@ -325,7 +332,7 @@ Naming Conventions
 The base naming conventions we use for packages are as follows:
 
 ``ckan``
-    Unstalls CKAN, PostgreSQL, Apache etc. It adds the ``ckan-instance-create`` command which is then the only thing you need to create a new instance.
+    Uninstalls CKAN, PostgreSQL, Apache etc. It adds the ``ckan-instance-create`` command which is then the only thing you need to create a new instance.
 
 ``python-ckan``
     The CKAN Python library packaged from code at http://bitbucket.org/okfn/ckan
@@ -392,7 +399,7 @@ such as:
     the web user interface)
 
 In the simple cases, these scripts can then be used in your client application
-CKAN extension's ``posinst`` script to set up the custom instance. In more
+CKAN extension's ``postinst`` script to set up the custom instance. In more
 complex cases you may write a ``postinst`` script from scratch. The
 ``postinst`` script then forms part of the package and is run by the apt system
 as part of the package installation or upgrade process to configure your CKAN
@@ -413,8 +420,8 @@ Before we look at how to actually create an apt repository for your packages
 and how to publish your packages to it, let's understand what a user of your
 package will do to install it.
 
-Understaning How a User Installs from an apt repository
-=======================================================
+Understanding How a User Installs from an apt repository
+========================================================
 
 A user will follow the following process:
 
@@ -605,7 +612,7 @@ Build individual dependencies like this:
 
     python -m buildkit.deb . ckanext-inspire 0.1~03 http://ckan.org python-ckan
     python -m buildkit.deb . ckanext-spatial 0.1~04 http://ckan.org python-ckan
-    python -m buildkit.deb . ckanext-harvest 0.1~15 htthp://ckan.org python-ckan python-ckanext-spatial python-carrot
+    python -m buildkit.deb . ckanext-harvest 0.1~15 http://ckan.org python-ckan python-ckanext-spatial python-carrot
     python -m buildkit.deb . ckanext-csw 0.3~10 http://ckan.org python-ckanext-harvest python-owslib python-ckan
     python -m buildkit.deb . ckanext-dgu 0.2~11 http://ckan.org python-ckan python-ckanext-importlib python-ckanext-dgu python-ckanext-csw python-ckan python-ckanext-spatial python-ckanext-inspire
     python -m buildkit.deb . ckanext-qa 0.1~19 http://ckan.org python-ckan

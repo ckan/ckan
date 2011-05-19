@@ -302,6 +302,12 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
         res_dict = self.data_from_res(res)
         assert_equal(res_dict['count'], 3)
 
+    def test_13_just_groups(self):
+        offset = self.base_url + '?groups=roger'
+        res = self.app.get(offset, status=200)
+        res_dict = self.data_from_res(res)
+        assert res_dict['count'] == 1, res_dict
+
     def test_strftimestamp(self):
         import datetime
         t = datetime.datetime(2012, 3, 4, 5, 6, 7, 890123)
