@@ -55,7 +55,7 @@ class TestSearch(object):
 
     @classmethod
     def teardown_class(self):
-        CreateTestData.delete()
+        model.repo.rebuild_db()
 
     def res_search(self, query='', fields={}, terms=[], options=QueryOptions()):
         result = self.backend.query_for(model.Resource).run(query=query, fields=fields, terms=terms, options=options)

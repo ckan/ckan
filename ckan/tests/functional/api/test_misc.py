@@ -7,18 +7,11 @@ class MiscApiTestCase(ApiTestCase, ControllerTestCase):
 
     @classmethod
     def setup_class(self):
-        try:
-            CreateTestData.delete()
-        except:
-            pass
-        model.repo.init_db()
-        model.Session.remove()
         CreateTestData.create()
 
     @classmethod
     def teardown_class(self):
-        model.Session.remove()
-        CreateTestData.delete()
+        model.repo.rebuild_db()
 
     # Todo: Move this method to the Model API?
     def test_0_tag_counts(self):

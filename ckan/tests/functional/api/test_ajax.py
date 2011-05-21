@@ -12,7 +12,7 @@ class TestAjaxApi(ControllerTestCase):
                 
     @classmethod
     def teardown(cls):
-        CreateTestData.delete()
+        model.repo.rebuild_db()
         
     def test_package_create_slug(self):
         response = self.app.get(

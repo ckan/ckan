@@ -464,7 +464,6 @@ class TestEdit(TestPackageForm):
 
     @classmethod
     def teardown_class(self):
-        CreateTestData.delete()
         model.repo.rebuild_db()
 
     def test_edit_basic(self):
@@ -1248,8 +1247,6 @@ class TestNonActivePackages(TestPackageBase):
 
     @classmethod
     def teardown_class(self):
-        CreateTestData.delete()
-        self.purge_packages([self.non_active_name])
         model.repo.rebuild_db()
 
     def test_read(self):
@@ -1300,7 +1297,6 @@ class TestRevisions(TestPackageBase):
 
     @classmethod
     def teardown_class(self):
-        self.purge_packages([self.name])
         model.repo.rebuild_db()
     
     def test_0_read_history(self):
@@ -1380,7 +1376,6 @@ alert('Hello world!');
         self.res = self.app.get(offset)
 
     def teardown(self):
-        CreateTestData.delete()
         model.repo.rebuild_db()
 
     def test_markdown_html_whitelist(self):
@@ -1406,7 +1401,6 @@ class TestEtags(PylonsTestCase, TestPackageBase):
 
     @classmethod
     def teardown_class(cls):
-        CreateTestData.delete()
         model.repo.rebuild_db()
 
     def test_calculate_etag_hash(self):

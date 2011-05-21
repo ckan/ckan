@@ -20,7 +20,7 @@ class TestSearchIndex(TestController):
 
     @classmethod
     def teardown_class(cls):
-        CreateTestData.delete()        
+        model.repo.rebuild_db()
 
     def test_index(self):
         search.dispatch_by_operation('Package', {'title': 'penguin'}, 'new', 
@@ -72,7 +72,7 @@ class TestPostgresSearch:
 
     @classmethod
     def teardown_class(self):
-        CreateTestData.delete()
+        model.repo.rebuild_db()
 
     def test_0_indexing(self):
         searches = model.metadata.bind.execute('SELECT package_id, search_vector FROM package_search').fetchall()

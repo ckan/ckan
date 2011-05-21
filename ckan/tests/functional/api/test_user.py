@@ -7,12 +7,12 @@ from ckan.tests import url_for
 
 class TestUserApi(ControllerTestCase):
     @classmethod
-    def setup(cls):
+    def setup_class(cls):
         CreateTestData.create()
                 
     @classmethod
-    def teardown(cls):
-        CreateTestData.delete()
+    def teardown_class(cls):
+        model.repo.rebuild_db()
         
     def test_autocomplete(self):
         response = self.app.get(

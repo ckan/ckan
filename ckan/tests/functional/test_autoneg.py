@@ -22,7 +22,6 @@ class TestAutoneg(_TestPackageForm, PylonsTestCase):
 
     @classmethod
     def teardown_class(cls):
-        CreateTestData.delete()
         model.repo.rebuild_db()
 
     def test_default(self):

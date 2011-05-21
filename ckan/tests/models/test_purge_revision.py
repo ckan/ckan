@@ -11,7 +11,7 @@ class TestRevisionPurge:
 
     @classmethod
     def teardown_class(self):
-        CreateTestData.delete()
+        model.repo.rebuild_db()
 
     def setup(self):
         self.pkgname = u'revision-purge-test'

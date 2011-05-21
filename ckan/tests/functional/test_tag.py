@@ -12,7 +12,7 @@ class TestTagController(TestController):
 
     @classmethod
     def teardown_class(self):
-        CreateTestData.delete()
+        model.repo.rebuild_db()
 
     def test_index(self):
         offset = url_for(controller='tag')

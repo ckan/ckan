@@ -71,7 +71,7 @@ class TestDumper(object):
 
     @classmethod
     def teardown_class(self):
-        CreateTestData.delete()
+        model.repo.rebuild_db()
 
     def test_dump(self):
         assert os.path.exists(self.outpath) 

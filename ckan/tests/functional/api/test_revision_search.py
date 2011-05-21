@@ -9,7 +9,7 @@ class RevisionSearchApiTestCase(ApiTestCase, ControllerTestCase):
 
     @classmethod
     def teardown_class(self):
-        CreateTestData.delete()
+        model.repo.rebuild_db()
 
     def test_12_search_revision_basic(self):
         offset = self.offset('/search/revision')

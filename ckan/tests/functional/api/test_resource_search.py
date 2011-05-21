@@ -36,7 +36,7 @@ class ResourceSearchApiTestCase(ApiTestCase, ControllerTestCase):
 
     @classmethod
     def teardown_class(self):
-        CreateTestData.delete()
+        model.repo.rebuild_db()
 
     def assert_urls_in_search_results(self, offset, expected_urls):
         result = self.app.get(offset, status=200)

@@ -117,20 +117,6 @@ class TestPackageWithTags:
 
     @classmethod
     def teardown_class(self):
-        # should only be one but maybe things have gone wrong
-        # p = model.Package.by_name(self.pkgname)
-        pkgs = model.Session.query(model.Package).filter_by(name=self.pkgname)
-        for p in pkgs:
-            for pt in p.package_tags:
-                pt.purge()
-            p.purge()
-        t1 = model.Tag.by_name(self.tagname)
-        t1.purge()
-        t2 = model.Tag.by_name(self.tagname2)
-        t2.purge()
-        t3 = model.Tag.by_name(self.tagname3)
-        t3.purge()
-        model.Session.commit()
         model.repo.rebuild_db()
 
     def test_1(self):

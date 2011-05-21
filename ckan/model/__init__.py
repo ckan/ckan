@@ -56,6 +56,7 @@ class Repository(vdm.sqlalchemy.Repository):
         that may have been setup with either upgrade_db or a previous run of
         init_db.
         '''
+        warnings.filterwarnings('ignore', 'SAWarning')
         self.session.rollback()
         self.session.remove()
         # sqlite database needs to be recreated each time as the
@@ -72,8 +73,10 @@ class Repository(vdm.sqlalchemy.Repository):
 
     def clean_db(self):
         metadata = MetaData(self.metadata.bind)
-        metadata.reflect()
-        
+        with warnings.catch_warnings():
+            warnings.filterwarnings('ignore', '.*(reflection|tsvector).*')
+            metadata.reflect()
+
         metadata.drop_all()
         self.tables_created_and_initialised = False
 
@@ -133,14 +136,12 @@ class Repository(vdm.sqlalchemy.Repository):
     def delete_all(self):
         '''Delete all data from all tables.'''
         self.session.remove()
-        metadata = MetaData(self.metadata.bind)
-        metadata.reflect()
         ## use raw connection for performance
         connection = self.session.connection()
         if sqav.startswith("0.4"):
-            tables = metadata.table_iterator()
+            tables = self.metadata.table_iterator()
         else:
-            tables = reversed(metadata.sorted_tables)
+            tables = reversed(self.metadata.sorted_tables)
         for table in tables:
             connection.execute('delete from "%s"' % table.name)
         self.session.commit()

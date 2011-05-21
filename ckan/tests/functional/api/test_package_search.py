@@ -30,8 +30,8 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
         self.base_url = self.offset('/search/package')
 
     @classmethod
-    def teardown_class(self):
-        CreateTestData.delete()
+    def teardown_class(cls):
+        model.repo.rebuild_db()
 
     def assert_results(self, res_dict, expected_package_names):
         expected_pkgs = [self.package_ref_from_name(expected_package_name) \

@@ -32,14 +32,12 @@ class TestResource:
                                 extras={u'size':self.size},
                                 )
             rg.resources.append(pr)
-            pkg.resource_groups.append(rg)
         pr = model.Resource(url="no_extra",
                             format=self.format,
                             description=self.description,
                             hash=self.hash,
                             )
         rg.resources.append(pr)
-        pkg.resource_groups.append(rg)
         model.repo.commit_and_remove()
 
     def teardown(self):
