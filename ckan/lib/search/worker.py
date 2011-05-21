@@ -31,9 +31,13 @@ class SynchronousSearchPlugin(SingletonPlugin):
     implements(IDomainObjectModification, inherit=True)
 
     def notify(self, entity, operation):
-        if hasattr(entity, 'as_dict'):
+        
+        if hasattr(entity, 'as_dict') and operation != DomainObjectOperation.deleted:
             dispatch_by_operation(entity.__class__.__name__, 
                                   entity.as_dict(), operation)
+        elif operation == DomainObjectOperation.deleted:
+            dispatch_by_operation(entity.__class__.__name__, 
+                                  {'id': entity.id}, operation)
         else:
             log.warn("Discarded Sync. indexing for: %s" % entity)
             

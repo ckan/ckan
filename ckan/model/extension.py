@@ -34,13 +34,8 @@ class ObserverNotifier(object):
         :param func: Any callable, which will be called for each observer
         :returns: EXT_CONTINUE if no errors encountered, otherwise EXT_STOP
         """
-        try:
-            for observer in self.observers:
-                func(observer)
-            return EXT_CONTINUE
-        except Exception, e:
-            log.exception(e)
-            return EXT_STOP
+        for observer in self.observers:
+            func(observer)
 
 class PluginMapperExtension(MapperExtension, ObserverNotifier):
     """
@@ -95,7 +90,7 @@ class PluginSessionExtension(SessionExtension, ObserverNotifier):
     
     def before_flush(self, session, flush_context, instances):
         return self.notify_observers(
-            methodcaller('after_begin', session, flush_context, instances)
+            methodcaller('before_flush', session, flush_context, instances)
         )
                                   
     def after_flush(self, session, flush_context):
