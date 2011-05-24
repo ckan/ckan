@@ -209,85 +209,102 @@ class TestEditAuthz(TestController):
         self.change_roles(self.sysadmin)
 
     def delete_role_as(self,user):
-        # get the authz page, check that visitor's in there
-        # remove visitor's role on the package
-        # re-get the page and make sure that visitor's not in there at all
-        offset = url_for(controller='package', action='authz', id=self.pkg)
-        res = self.app.get(offset, extra_environ={'REMOTE_USER':user})
-        assert self.pkg in res
 
-        self.assert_roles_to_be(self.package_roles(), [
-           ('administrator', 'admin'),
-           ('visitor', 'editor'),
-           ('logged_in', 'editor')])
+        normal_roles=[('administrator', 'admin'),
+                      ('visitor', 'editor'),
+                      ('logged_in', 'editor')]
 
-        assert 'visitor' in res
-        assert 'administrator' in res
-        assert 'logged_in' in res
+        changed_roles=[('administrator', 'admin'),
+                       ('logged_in', 'editor')]
 
-        #admin removes visitor's only role
-        form = res.forms['theform']
-        check_and_set_checkbox(form, u'visitor', u'editor', True, False)
-        res = form.submit('save', extra_environ={'REMOTE_USER': user})
+        changed_roles2=[('administrator', 'admin'),
+                        ('visitor', 'reader'),
+                        ('logged_in', 'editor')]
 
-        # ensure db was changed
-        self.assert_roles_to_be(self.package_roles(), [
-           ('administrator', 'admin'),
-           ('logged_in', 'editor')])
 
-        # ensure rerender of form is changed
-        offset = url_for(controller='package', action='authz', id=self.pkg)
-        res = self.app.get(offset, extra_environ={'REMOTE_USER':user})
-        assert self.pkg in res
+        # loop variables here are the controller string, the name of the object we're changing, and three functions, 
+        # the first fn gets the roles which we'd like to change, and the other two get the roles which we'd like to stay the same.
+        for (c,i,var,const1,const2) in [('package', self.pkg, self.package_roles, self.group_roles, self.authzgroup_roles),\
+                        ('group', self.group, self.group_roles, self.package_roles, self.authzgroup_roles),\
+                        ('authorization_group', self.authzgroup, self.authzgroup_roles, self.package_roles, self.group_roles)]:
 
-        assert 'visitor' not in res
-        assert 'administrator' in res
-        assert 'logged_in' in res
+           # get the authz page, check that visitor's in there
+           # remove visitor's role on the package
+           # re-get the page and make sure that visitor's not in there at all
+           offset = url_for(controller=c, action='authz', id=i)
+           res = self.app.get(offset, extra_environ={'REMOTE_USER':user})
+           assert self.pkg in res
 
-        # check that the checkbox states are what we think they should be
-        form = res.forms['theform']
-        check_and_set_checkbox(form, u'logged_in', u'editor', True, True)
-        check_and_set_checkbox(form, u'administrator', u'admin', True, True)
+           self.assert_roles_to_be(var(), normal_roles)
+           self.assert_roles_to_be(const1(), normal_roles)
+           self.assert_roles_to_be(const2(), normal_roles)
 
-        # now we should add visitor back in, let's make him a reader
-        form = res.forms['addform']
-        form.fields['new_user_name'][0].value='visitor'
-        checkbox = [x for x in form.fields['reader'] \
-                      if x.__class__.__name__ == 'Checkbox'][0]
-        # check it's currently unticked
-        assert checkbox.checked == False
-        # tick it and submit
-        checkbox.checked=True
-        res = form.submit('add', extra_environ={'REMOTE_USER':user})
-        assert "User Added" in res, "don't see flash message"
+           assert 'visitor' in res
+           assert 'administrator' in res
+           assert 'logged_in' in res
 
-       # check that the page contains strings for everyone
-        assert 'visitor' in res
-        assert 'administrator' in res
-        assert 'logged_in' in res
+           #admin removes visitor's only role
+           form = res.forms['theform']
+           check_and_set_checkbox(form, u'visitor', u'editor', True, False)
+           res = form.submit('save', extra_environ={'REMOTE_USER': user})
 
-        # check that the roles in the db are back to normal
-        self.assert_roles_to_be(self.package_roles(), [
-           ('administrator', 'admin'),
-           ('visitor', 'reader'),
-           ('logged_in', 'editor')])
+           # ensure db was changed
+           self.assert_roles_to_be(var(), changed_roles)
+           self.assert_roles_to_be(const1(), normal_roles)
+           self.assert_roles_to_be(const2(), normal_roles)
 
-        # now change him back to being an editor
-        form = res.forms['theform']
-        check_and_set_checkbox(form, u'visitor', u'reader', True, False)
-        check_and_set_checkbox(form, u'visitor', u'editor', False, True)
-        res = form.submit('save', extra_environ={'REMOTE_USER': user})
- 
-        # check that the page contains strings for everyone
-        assert 'visitor' in res
-        assert 'administrator' in res
-        assert 'logged_in' in res
+           # ensure rerender of form is changed
+           offset = url_for(controller=c, action='authz', id=i)
+           res = self.app.get(offset, extra_environ={'REMOTE_USER':user})
+           assert self.pkg in res
 
-        # check that the roles in the db are back to normal
-        self.assert_roles_to_be(self.package_roles(), [
-           ('administrator', 'admin'),
-           ('visitor', 'editor'),
-           ('logged_in', 'editor')])
+           assert 'visitor' not in res
+           assert 'administrator' in res
+           assert 'logged_in' in res
+
+           # check that the checkbox states are what we think they should be
+           form = res.forms['theform']
+           check_and_set_checkbox(form, u'logged_in', u'editor', True, True)
+           check_and_set_checkbox(form, u'administrator', u'admin', True, True)
+
+           # now we should add visitor back in, let's make him a reader
+           form = res.forms['addform']
+           form.fields['new_user_name'][0].value='visitor'
+           checkbox = [x for x in form.fields['reader'] \
+                         if x.__class__.__name__ == 'Checkbox'][0]
+           # check it's currently unticked
+           assert checkbox.checked == False
+           # tick it and submit
+           checkbox.checked=True
+           res = form.submit('add', extra_environ={'REMOTE_USER':user})
+           assert "User Added" in res, "don't see flash message"
+
+           # check that the page contains strings for everyone
+           assert 'visitor' in res
+           assert 'administrator' in res
+           assert 'logged_in' in res
+
+           # check that the roles in the db are back to normal
+           self.assert_roles_to_be(var(), changed_roles2)
+           self.assert_roles_to_be(const1(), normal_roles)
+           self.assert_roles_to_be(const2(), normal_roles)
+
+           # now change him back to being an editor
+           form = res.forms['theform']
+           check_and_set_checkbox(form, u'visitor', u'reader', True, False)
+           check_and_set_checkbox(form, u'visitor', u'editor', False, True)
+           res = form.submit('save', extra_environ={'REMOTE_USER': user})
+
+           # check that the page contains strings for everyone
+           assert 'visitor' in res
+           assert 'administrator' in res
+           assert 'logged_in' in res
+
+           # check that the roles in the db are back to normal
+           self.assert_roles_to_be(var(), normal_roles)
+           self.assert_roles_to_be(const1(), normal_roles)
+           self.assert_roles_to_be(const2(), normal_roles)
+
 
 
     def test_4_admin_deletes_role(self):
