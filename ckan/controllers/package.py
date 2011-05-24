@@ -1,6 +1,7 @@
 import logging
 import urlparse
 from urllib import urlencode
+import json
 
 from sqlalchemy.orm import eagerload_all
 from sqlalchemy import or_
@@ -21,8 +22,9 @@ from ckan.lib.cache import proxy_cache
 from ckan.lib.package_saver import PackageSaver, ValidationException
 from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
 from ckan.logic import NotFound, NotAuthorized, ValidationError
-from ckan.logic import tuplize_dict, clean_dict, parse_params
+from ckan.logic import tuplize_dict, clean_dict, parse_params, flatten_to_string_key
 from ckan.plugins import PluginImplementations, IPackageController
+from ckan.lib.dictization import table_dictize
 import ckan.forms
 import ckan.authz
 import ckan.rating
@@ -346,6 +348,49 @@ class PackageController(BaseController):
         self._setup_template_variables(context)
         c.form = render(self.package_form, extra_vars=vars)
         return render('package/edit.html')
+
+    def read_ajax(self, id, revision=None):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author,
+                   'id': id, 'extras_as_string': True,
+                   'schema': self._form_to_db_schema()}
+
+        try:
+            data = get.package_show(context)
+            schema = self._db_to_form_schema()
+            if schema:
+                data, errors = validate(data, schema)
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read package %s') % '')
+
+        ## hack as db_to_form schema should have this
+        data['tag_string'] = ' '.join([tag['name'] for tag in data.get('tags', [])])
+        data.pop('tags')
+        data = flatten_to_string_key(data)
+        
+        if revision:
+            revision = model.Session.query(model.PackageRevision).filter_by(
+                revision_id=revision, id=data['id']).one()
+            data.update(table_dictize(revision, context))
+
+        response.headers['Content-Type'] = 'application/json;charset=utf-8'
+        return json.dumps(data)
+
+    def history_ajax(self, id):
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author,
+                   'id': id, 'extras_as_string': True}
+        pkg = model.Package.get(id)
+        data = []
+        for num, (revision, revision_obj) in enumerate(pkg.all_related_revisions):
+            data.append({'revision_id': revision.id,
+                         'message': revision.message,
+                         'timestamp': revision.timestamp.isoformat(),
+                         'current_approved': True if num == 0 else False})
+
+        response.headers['Content-Type'] = 'application/json;charset=utf-8'
+        return json.dumps(data)
 
     def _save_new(self, context):
         try:
