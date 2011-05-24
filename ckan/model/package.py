@@ -37,7 +37,7 @@ package_table = Table('package', metadata,
 
 
 vdm.sqlalchemy.make_table_stateful(package_table)
-package_revision_table = vdm.sqlalchemy.make_revisioned_table(package_table)
+package_revision_table = make_revisioned_table(package_table)
 
 ## -------------------
 ## Mapped classes

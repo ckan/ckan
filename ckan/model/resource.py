@@ -39,10 +39,10 @@ resource_group_table = Table(
     )
 
 vdm.sqlalchemy.make_table_stateful(resource_table)
-resource_revision_table = vdm.sqlalchemy.make_revisioned_table(resource_table)
+resource_revision_table = make_revisioned_table(resource_table)
 
 vdm.sqlalchemy.make_table_stateful(resource_group_table)
-resource_group_revision_table = vdm.sqlalchemy.make_revisioned_table(resource_group_table)
+resource_group_revision_table = make_revisioned_table(resource_group_table)
 
 class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
                vdm.sqlalchemy.StatefulObjectMixin,

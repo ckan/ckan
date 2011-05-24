@@ -37,13 +37,34 @@ class TestPackage:
         rev = model.repo.new_revision()
         package = model.Package(name=name)
         model.Session.add(package)
+        model.Session.flush()
+        revision_id = model.Session().revision.id
+        timestamp = model.Session().revision.timestamp
         model.repo.commit_and_remove()
+
+        package = model.Package.by_name(name)
+        assert len(package.all_revisions) == 1
+        assert package.all_revisions[0].revision_id == revision_id
+        assert package.all_revisions[0].revision_timestamp == timestamp
+        assert package.all_revisions[0].expired_id is None
 
         # change it
         rev = model.repo.new_revision()
         package = model.Package.by_name(name)
         package.title = "wobsnasm"
+        revision_id2 = model.Session().revision.id
+        timestamp2 = model.Session().revision.timestamp
         model.repo.commit_and_remove()
+
+        package = model.Package.by_name(name)
+        assert len(package.all_revisions) == 2
+        assert package.all_revisions[0].revision_id == revision_id2
+        assert package.all_revisions[0].revision_timestamp == timestamp2
+        assert package.all_revisions[0].expired_id is None
+
+        assert package.all_revisions[1].revision_id == revision_id
+        assert package.all_revisions[1].revision_timestamp == timestamp
+        assert package.all_revisions[1].expired_id == revision_id2
 
     def test_create_package(self):
         package = model.Package.by_name(self.name)
