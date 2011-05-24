@@ -70,6 +70,7 @@ class TestEditAuthz(TestController):
         model.repo.rebuild_db()
 
     def test_access_to_authz(self):
+        #for each of the three authz pages, check that the access permissions work correctly
         for (c,i) in [('package', self.pkg),('group', self.group),('authorization_group', self.authzgroup)]:
             offset = url_for(controller=c, action='authz', id=i)
 
@@ -92,10 +93,12 @@ class TestEditAuthz(TestController):
 
 
     def roles_list(self, authzobj):
+        # get a list of username/roles for a given authorizable object
         list = [ (r.user.name, r.role) for r in authzobj.roles if r.user]
         list.extend([(r.authorized_group.name, r.role) for r in authzobj.roles if r.authorized_group])
         return list
 
+    # get the users/roles for the specific objects created in our test data
     def package_roles(self):
         return self.roles_list(model.Package.by_name(self.pkg))
 
@@ -105,6 +108,7 @@ class TestEditAuthz(TestController):
     def authzgroup_roles(self):
         return self.roles_list(model.AuthorizationGroup.by_name(self.authzgroup))
 
+    # check that the authz page for each object contains certain key strings
     def test_2_read_ok(self):
         for (c,i,m) in [('package', self.pkg, self.package_roles),\
                         ('group', self.group, self.group_roles),\
@@ -122,6 +126,8 @@ class TestEditAuthz(TestController):
 
 
     def assert_roles_to_be(self, actual_roles_list, expected_roles_list):
+        # given an actual and an expected list of user/roles, assert that they're as expected, 
+        # modulo ordering.
         ok = ( len(actual_roles_list) == len(expected_roles_list) )
         for r in actual_roles_list:
            if not r in expected_roles_list:
@@ -132,6 +138,9 @@ class TestEditAuthz(TestController):
            assert False, "roles not as expected"
 
 
+    # check that when we change one role and add another, that both the checkbox states and the database
+    # change as we expect them to, and that the roles on the other objects don't get changed by accident.
+    # this should guard against certain errors which might be introduced by copy and pasting the controller code.
     def change_roles(self, user):
 
         normal_roles=[('administrator', 'admin'),
@@ -143,7 +152,8 @@ class TestEditAuthz(TestController):
                        ('visitor', 'reader'),
                        ('logged_in', 'admin')]
 
-
+        # loop variables here are the controller string, the name of the object we're changing, and three functions, 
+        # the first fn gets the roles which we'd like to change, and the other two get the roles which we'd like to stay the same.
         for (c,i,var,const1,const2) in [('package', self.pkg, self.package_roles, self.group_roles, self.authzgroup_roles),\
                         ('group', self.group, self.group_roles, self.package_roles, self.authzgroup_roles),\
                         ('authorization_group', self.authzgroup, self.authzgroup_roles, self.package_roles, self.group_roles)]:
@@ -191,7 +201,7 @@ class TestEditAuthz(TestController):
             self.assert_roles_to_be(const2(), normal_roles)
 
 
-
+    # do the change roles both as package/group/authzgroup admin, and also as sysadmin.
     def test_3_admin_changes_role(self):
         self.change_roles(self.admin)
 
@@ -202,17 +212,17 @@ class TestEditAuthz(TestController):
         # get the authz page, check that visitor's in there
         # remove visitor's role on the package
         # re-get the page and make sure that visitor's not in there at all
-        offset = url_for(controller='package', action='authz', id=self.pkgname)
+        offset = url_for(controller='package', action='authz', id=self.pkg)
         res = self.app.get(offset, extra_environ={'REMOTE_USER':user})
-        assert self.pkgname in res
+        assert self.pkg in res
 
-        self.assert_package_roles_to_be([
-           ('madeup-administrator', 'admin'),
+        self.assert_roles_to_be(self.package_roles(), [
+           ('administrator', 'admin'),
            ('visitor', 'editor'),
            ('logged_in', 'editor')])
 
         assert 'visitor' in res
-        assert 'madeup-administrator' in res
+        assert 'administrator' in res
         assert 'logged_in' in res
 
         #admin removes visitor's only role
@@ -221,23 +231,23 @@ class TestEditAuthz(TestController):
         res = form.submit('save', extra_environ={'REMOTE_USER': user})
 
         # ensure db was changed
-        self.assert_package_roles_to_be([
-           ('madeup-administrator', 'admin'),
+        self.assert_roles_to_be(self.package_roles(), [
+           ('administrator', 'admin'),
            ('logged_in', 'editor')])
 
         # ensure rerender of form is changed
-        offset = url_for(controller='package', action='authz', id=self.pkgname)
+        offset = url_for(controller='package', action='authz', id=self.pkg)
         res = self.app.get(offset, extra_environ={'REMOTE_USER':user})
-        assert self.pkgname in res
+        assert self.pkg in res
 
         assert 'visitor' not in res
-        assert 'madeup-administrator' in res
+        assert 'administrator' in res
         assert 'logged_in' in res
 
         # check that the checkbox states are what we think they should be
         form = res.forms['theform']
         check_and_set_checkbox(form, u'logged_in', u'editor', True, True)
-        check_and_set_checkbox(form, u'madeup-administrator', u'admin', True, True)
+        check_and_set_checkbox(form, u'administrator', u'admin', True, True)
 
         # now we should add visitor back in, let's make him a reader
         form = res.forms['addform']
@@ -253,12 +263,12 @@ class TestEditAuthz(TestController):
 
        # check that the page contains strings for everyone
         assert 'visitor' in res
-        assert 'madeup-administrator' in res
+        assert 'administrator' in res
         assert 'logged_in' in res
 
         # check that the roles in the db are back to normal
-        self.assert_package_roles_to_be([
-           ('madeup-administrator', 'admin'),
+        self.assert_roles_to_be(self.package_roles(), [
+           ('administrator', 'admin'),
            ('visitor', 'reader'),
            ('logged_in', 'editor')])
 
@@ -270,12 +280,12 @@ class TestEditAuthz(TestController):
  
         # check that the page contains strings for everyone
         assert 'visitor' in res
-        assert 'madeup-administrator' in res
+        assert 'administrator' in res
         assert 'logged_in' in res
 
         # check that the roles in the db are back to normal
-        self.assert_package_roles_to_be([
-           ('madeup-administrator', 'admin'),
+        self.assert_roles_to_be(self.package_roles(), [
+           ('administrator', 'admin'),
            ('visitor', 'editor'),
            ('logged_in', 'editor')])
 
