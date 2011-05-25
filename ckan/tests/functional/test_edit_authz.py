@@ -53,6 +53,8 @@ class TestEditAuthz(TestController):
             model.Session.add(obj)
 
         model.add_user_to_role(sysadmin_user, model.Role.ADMIN, model.System())
+        model.repo.commit_and_remove()
+
         model.repo.new_revision()
 
         self.pkg = u'package'
