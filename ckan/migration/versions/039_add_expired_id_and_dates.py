@@ -78,6 +78,9 @@ ALTER TABLE package_relationship_revision
 	ADD COLUMN revision_timestamp timestamp without time zone,
 	ADD COLUMN expired_timestamp timestamp without time zone;
 
+ALTER TABLE revision
+	ADD COLUMN approved_timestamp timestamp without time zone;
+
 create table tmp_expired_id(id text, revision_id text, revision_timestamp timestamp, expired_timestamp timestamp, expired_id text);
 create index id_exp on tmp_expired_id(id, revision_id);
 
@@ -177,20 +180,20 @@ create index idx_group_extra_period_group on group_extra_revision(revision_times
 create index idx_group_extra_expired on group_extra_revision(expired_timestamp);
 
 drop table tmp_expired_id;
+
+-- change state of revision tables
+
+update revision set state = 'active', approved_timestamp = timestamp;
 '''
     
     migrate_engine.execute('begin;  ' + make_missing_revisions + update_schema + ' commit;')
     
     for table in ['package', 'resource', 'resource_group', 'package_extra', 
                   'package_tag', 'package_relationship', 'group', 'group_extra']:
-        print table
         count = migrate_engine.execute('''select count(*) from "%s"''' % table).first()[0]
         revision_expired_id_count = migrate_engine.execute('''select count(*) from %s_revision where %s_revision.expired_id is null''' % (table, table)).first()[0]
         revision_expired_data_count = migrate_engine.execute('''select count(*) from %s_revision where %s_revision.expired_timestamp = '9999-12-31' ''' % (table, table)).first()[0]
         assert count == revision_expired_id_count
         assert count == revision_expired_data_count
 
-
     
-    package_count = migrate_engine.execute('''select count(*) from package''').first()[0]
-    resource_count = migrate_engine.execute('''select count(*) from resource''').first()[0]

@@ -6,6 +6,7 @@ from domain_object import DomainObject
 
 ## VDM-specific tables
 revision_table = vdm.sqlalchemy.make_revision_table(metadata)
+revision_table.append_column(Column('approved_timestamp', DateTime))
 
 class System(DomainObject):
     
