@@ -335,6 +335,7 @@ The URL which resolves to the CKAN API part of the site. This is useful if the
 API is hosted on a different domain, for example when a third party site uses
 the forms API.
 
+
 default_roles
 -------------
 
@@ -360,3 +361,14 @@ Example::
   ckan.plugins = disqus synchronous_search datapreview googleanalytics stats storage admin follower
 
 Specify which CKAN extensions are to be enabled. If you specify an extension but have not installed the code then CKAN will not start. Format in a space separated list of the extension names. The extension name is the key in the [ckan.plugins] section of the extension's setup.py.
+
+
+dumps_url & dumps_format
+------------------------
+
+Example::
+
+  ckan.dumps_url = http://ckan.net/dump/
+  ckan.dumps_format = CSV/JSON
+
+If there is a page which allows you to download a dump of the entire catalogue then specify the URL and the format here, so that it can be advertised in the web interface. The dumps_format is just a string for display.
