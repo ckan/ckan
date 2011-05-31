@@ -187,7 +187,7 @@ class PackageController(BaseController):
         # used by disqus plugin
         c.current_package_id = c.pkg.id
         
-        if config.get('rdf_packages') is not None:
+        if config.get('rdf_packages'):
             accept_header = request.headers.get('Accept', '*/*')
             for content_type, exts in negotiate(autoneg_cfg, accept_header):
                 if "html" not in exts: 
