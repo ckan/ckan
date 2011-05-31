@@ -58,15 +58,15 @@ rdf_packages
 
 Example::
 
- rdf_packages = http://semantic.ckan.net/package/
+ rdf_packages = http://semantic.ckan.net/record/
 
 Configure this if you have an RDF store of the same packages as are in your CKAN instance. It will provide three sorts of links from each package page to the equivalent RDF URL given in `rdf_packages`:
 
-1. 303 redirects for clients that content-negotiate rdf-xml. e.g. client GETs `http://ckan.net/package/pollution-2008` with accept header `application/rdf+xml`. CKAN's response is a 303 redirect to `http://semantic.ckan.net/package/pollution-2008`
+1. 303 redirects for clients that content-negotiate rdf-xml or turtle. e.g. client GETs `http://ckan.net/package/pollution-2008` with accept header `application/rdf+xml` ``curl -H "Accept: application/rdf+xml" http://ckan.net/package/pollution-2008``. CKAN's response is a 303 redirect to `http://semantic.ckan.net/package/pollution-2008` which can be obtained with: ``curl -L -H "Accept: application/rdf+xml" http://ckan.net/package/pollution-2008``
 
-2. Embedded links for browsers that are aware. e.g. `<link rel="alternate" type="application/rdf+xml" href="http://semantic.ckan.net/package/pollution-2008">`
+2. Embedded links for browsers that are aware. e.g. `<link rel="alternate" type="application/rdf+xml" href="http://semantic.ckan.net/record/b410e678-8a96-40cf-8e46-e8bd4bf02684.rdf">`
 
-3. A visible RDF link on the page in the 'Alternative metadata formats' box. e.g. `<a href="http://semantic.ckan.net/package/pollution-2008">`
+3. A visible RDF link on the page. e.g. `<a href="http://semantic.ckan.net/record/b410e678-8a96-40cf-8e46-e8bd4bf02684.rdf">`
 
 
 cache_validation_enabled
