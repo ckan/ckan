@@ -48,6 +48,7 @@ v1.3.2 2011-03-15
 Major:
   * User list in the Web interface (#1010)
   * CKAN packaged as .deb for install on Ubuntu
+  * Resources can have extra fields (although not in web interface yet) (#826)
   * CSW Harvesting - numerous of fixes & improvements. Ready for deployment. (#738 etc)
  
 Minor:
