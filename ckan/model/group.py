@@ -123,7 +123,8 @@ mapper(Group, group_table, properties={
     'packages': relation(Package, secondary=package_group_table,
         backref='groups',
         order_by=package_table.c.name
-    )},
+    ),
+},
     extension=[vdm.sqlalchemy.Revisioner(group_revision_table),],
 )
 
@@ -133,7 +134,14 @@ GroupRevision = vdm.sqlalchemy.create_object_version(mapper, Group,
         group_revision_table)
 
 
-mapper(PackageGroup, package_group_table,
+mapper(PackageGroup, package_group_table, properties={
+    'group': relation(Group,
+        backref='package_group_all',
+    ),
+    'package': relation(Package,
+        backref='package_group_all',
+    ),
+},
     extension=[vdm.sqlalchemy.Revisioner(package_group_revision_table),],
 )
 

@@ -33,6 +33,11 @@ mapper(PackageExtra, package_extra_table, properties={
             collection_class=orm.collections.attribute_mapped_collection(u'key'),
             cascade='all, delete, delete-orphan',
             ),
+        ),
+    'package_no_state': orm.relation(Package,
+        backref=orm.backref('extras_list',
+            cascade='all, delete, delete-orphan',
+            ),
         )
     },
     order_by=[package_extra_table.c.package_id, package_extra_table.c.key],

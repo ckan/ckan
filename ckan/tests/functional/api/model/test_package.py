@@ -260,6 +260,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         # - url
         self.assert_equal(package.url, self.package_fixture_data['url'])
         # - extras
+
         self.assert_equal(len(package.extras), 4)
         for key, value in {u'key1':u'val1',
                            u'key3':u'val3',

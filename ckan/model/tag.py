@@ -103,12 +103,15 @@ class PackageTag(vdm.sqlalchemy.RevisionedObjectMixin,
 mapper(Tag, tag_table, properties={
     'package_tags':relation(PackageTag, backref='tag',
         cascade='all, delete, delete-orphan',
-        )
+        ),
     },
     order_by=tag_table.c.name,
     )
 
 mapper(PackageTag, package_tag_table, properties={
+    'pkg':relation(Package, backref='package_tag_all',
+        cascade='none',
+        )
     },
     order_by=package_tag_table.c.id,
     extension=[vdm.sqlalchemy.Revisioner(package_tag_revision_table),

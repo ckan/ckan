@@ -893,6 +893,7 @@ u with umlaut \xc3\xbc
             fv = res.forms['package-edit']
             fv[field_name] = False
             res = fv.submit('save', extra_environ={'REMOTE_USER':'russianfan'})
+            model.repo.commit_and_remove()
             pkg = model.Package.by_name(u'editpkgtest')
             assert len(pkg.groups) == 0
         finally:

@@ -1,3 +1,4 @@
+from datetime import datetime
 """SQLAlchemy Metadata and Session object"""
 from sqlalchemy import MetaData, __version__ as sqav
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -28,6 +29,7 @@ class CkanSessionExtension(SessionExtension):
         session._object_cache['deleted'].update(session.deleted)
         session._object_cache['changed'].update(changed)
 
+
     def before_commit(self, session):
         session.flush()
         try:
@@ -44,11 +46,17 @@ class CkanSessionExtension(SessionExtension):
             if not hasattr(obj, '__revision_class__'):
                 continue
 
+            if 'pending' not in obj.state:
+                revision.approved_timestamp = datetime.now()
+
             revision_cls = obj.__revision_class__
             q = session.query(revision_cls)
             q = q.filter_by(expired_timestamp='9999-12-31', id=obj.id)
+            if 'pending' in obj.state:
+                q = q.filter(revision_cls.state.in_(
+                    'pending-active', 'pending-deleted'))
+                revision.state = 'pending'
             results = q.all()
-            assert len(results) <= 2
 
             for rev_obj in results:
                 if rev_obj.revision_id == revision.id:

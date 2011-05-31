@@ -111,6 +111,10 @@ def table_dict_save(table_dict, ModelClass, context):
             continue
         setattr(obj, key, value)
 
+    if context.get('pending'):
+        if session.is_modified(obj, include_collections=False):
+            obj.state = 'pending'
+
     session.add(obj)
 
     return obj
