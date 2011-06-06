@@ -1,5 +1,6 @@
 import logging
 import re
+import datetime
 
 import ckan.authz
 from ckan.plugins import PluginImplementations, IGroupController, IPackageController
@@ -67,8 +68,73 @@ def check_group_auth(data_dict, context):
     for group in groups:
         check_access(group, model.Action.EDIT, context)
 
-def package_update(data_dict, context):
+def _make_latest_rev_active(context, obj_list):
 
+    latest_rev = sorted(obj_list, key=lambda x: x.revision_timestamp)[-1]
+    if latest_rev.state == 'pending-deleted':
+        latest_rev.state = 'deleted'
+    else:
+        latest_rev.state = 'active'
+    for obj_rev in obj_list:
+        if obj_rev == latest_rev:
+            continue
+
+        obj_rev.expired_id = latest_rev.revision_id
+        obj_rev.expired_timestamp = latest_rev.revision_timestamp
+        context['model'].Session.add(obj_rev)
+        
+        ##this is just a way to get the latest revision that changed
+        ##in order to timestamp
+        old_latest = context.get('latest_revision_date')
+        if old_latest:
+            if latest_rev.revision_timestamp > old_latest:
+                context['latest_revision_date'] = latest_rev.revision_timestamp
+                context['latest_revision'] = latest_rev.revision_id
+
+def make_latest_pending_package_active(context):
+
+    model = context['model']
+    session = model.Session
+    id = context["id"]
+    pkg = model.Package.get(id)
+
+    check_access(pkg, model.Action.EDIT, context)
+
+    #packages
+    q = session.query(model.PackageRevision)
+    pkgrevs = q.filter_by(id=id, expired_timestamp='9999-12-31').all()
+    _make_latest_rev_active(context, pkgrevs)
+
+    #resources
+    for resource in pkg.resource_groups_all[0].resources_all:
+        res_revs = session.query(model.ResourceRevision).filter_by(
+            id=resource.id, expired_timestamp='9999-12-31').all()
+        _make_latest_rev_active(context, res_revs)
+
+    #tags
+    for tag in pkg.package_tag_all:
+        tags_revs = session.query(model.PackageTagRevision).filter_by(
+            id=tag.id, expired_timestamp='9999-12-31').all()
+        _make_latest_rev_active(context, tags_revs)
+
+    #extras
+    for extra in pkg.extras_list:
+        extras_revs = session.query(model.PackageExtraRevision).filter_by(
+            id=extra.id, expired_timestamp='9999-12-31').all()
+        _make_latest_rev_active(context, extras_revs)
+
+    latest_revision = context.get('latest_revision')
+    if not latest_revision:
+        return
+
+    q = session.query(model.ResourceRevision).filter_by(id=latest_revision)
+    revision = q.first()
+    revision.approved_timestamp = datetime.datetime.now()
+    session.add(revision)
+    model.repo.commit()        
+
+
+def package_update(data_dict, context):
     model = context['model']
     user = context['user']
     id = context["id"]
@@ -155,8 +221,6 @@ def package_relationship_update(data_dict, context):
     entity = existing_rels[0]
     comment = data_dict.get('comment', u'')
     return _update_package_relationship(entity, comment, context)
-
-
 
 def group_update(data_dict, context):
 

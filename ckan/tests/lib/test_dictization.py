@@ -13,13 +13,13 @@ from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 package_to_api1,
                                                 package_to_api2,
                                                )
-
 from ckan.lib.dictization.model_save import (package_dict_save,
                                              resource_dict_save,
                                              group_dict_save,
                                              package_api_to_dict,
                                              group_api_to_dict,
                                             )
+from ckan.logic.action.update import make_latest_pending_package_active
 
 class TestBasicDictize:
     @classmethod
@@ -30,6 +30,11 @@ class TestBasicDictize:
     def teardown_class(cls):
         model.repo.rebuild_db()
         model.Session.remove()
+
+    def teardonwn(self):
+        model.Session.remove()
+
+
 
     def remove_changable_columns(self, dict):
         for key, value in dict.items():
@@ -54,10 +59,9 @@ class TestBasicDictize:
     def test_01_dictize_main_objects_simple(self):
         
         context = {"model": model,
-                 "session": model.Session}
+                   "session": model.Session}
 
         ## package
-
         pkg = model.Session.query(model.Package).filter_by(name='annakarenina').first()
         result = table_dictize(pkg, context)
         self.remove_changable_columns(result)
@@ -112,6 +116,7 @@ class TestBasicDictize:
         context = {"model": model,
                  "session": model.Session}
 
+        model.Session.remove()
         pkg = model.Session.query(model.Package).filter_by(name='annakarenina').first()
 
         result = package_dictize(pkg, context)
@@ -121,7 +126,11 @@ class TestBasicDictize:
         assert result ==\
             {'author': None,
              'author_email': None,
-             'extras': [{'key': u'original media', 'state': u'active', 'value': u'"book"'}],
+             'extras': [
+                {'key': u'genre',
+                 'state': u'active',
+                 'value': '"romantic novel"'},
+                {'key': u'original media', 'state': u'active', 'value': u'"book"'}],
              'groups': [{'description': u'These are books that David likes.',
                          'name': u'david',
                          'state': u'active',
@@ -257,9 +266,11 @@ class TestBasicDictize:
     def test_08_package_save(self):
 
         context = {"model": model,
-                 "session": model.Session}
+                   "session": model.Session}
 
         anna1 = model.Session.query(model.Package).filter_by(name='annakarenina').one()
+
+        
 
         anna_dictized = self.remove_changable_columns(package_dictize(anna1, context))
 
@@ -275,12 +286,10 @@ class TestBasicDictize:
 
         anna_original = pformat(anna_dictized)
         anna_after_save = pformat(package_dictized)
-        print anna_original
-        print anna_after_save
 
         assert self.remove_changable_columns(package_dictize(pkg, context)) == anna_dictized, "\n".join(unified_diff(anna_original.split("\n"), anna_after_save.split("\n")))
 
-    def test_10_package_alter(self):
+    def test_09_package_alter(self):
 
         context = {"model": model,
                  "session": model.Session}
@@ -307,11 +316,237 @@ class TestBasicDictize:
         print anna_original
         print anna_after_save
 
+
         assert self.remove_revision_id(anna_dictized) == self.remove_revision_id(package_dictized),\
                 "\n".join(unified_diff(anna_original.split("\n"), anna_after_save.split("\n")))
 
+    def test_10_package_alter_pending(self):
 
-    def test_11_resource_no_id(self):
+        context = {'model': model,
+                   'session': model.Session,
+                   'pending': True}
+
+        anna1 = model.Session.query(model.Package).filter_by(name='annakarenina_changed').one()
+
+        anna_dictized = package_dictize(anna1, context)
+
+        anna_dictized['name'] = u'annakarenina_changed2' 
+        anna_dictized['resources'][0]['url'] = u'new_url2' 
+        anna_dictized['tags'][0]['name'] = u'new_tag' 
+        anna_dictized['tags'][0].pop('id') #test if 
+        anna_dictized['extras'][0]['value'] = u'"new_value"' 
+
+        model.repo.new_revision()
+        package_dict_save(anna_dictized, context)
+        model.Session.commit()
+        model.Session.remove()
+
+        pkgrevisions = model.Session.query(model.PackageRevision).filter_by(id=anna1.id).all()
+
+        sorted_packages = sorted(pkgrevisions, key=lambda x:x.revision_timestamp)[::-1]
+
+        assert len(sorted_packages) == 3
+        assert sorted_packages[0].state == 'pending'
+        assert sorted_packages[1].state == 'active'
+        assert sorted_packages[2].state == 'active'
+
+        assert str(sorted_packages[0].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_packages[1].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_packages[2].expired_timestamp) != '9999-12-31 00:00:00'
+
+        resources_revisions = model.Session.query(model.ResourceRevision).filter_by(resource_group_id=anna1.resource_groups[0].id).all()
+
+        sorted_resources = sorted(resources_revisions, key=lambda x: (x.revision_timestamp, x.url))[::-1]
+
+        assert len(sorted_resources) == 4
+        assert sorted_resources[0].state == 'pending'
+        assert sorted_resources[1].state == 'active'
+        assert sorted_resources[2].state == 'active'
+        assert sorted_resources[3].state == 'active'
+
+        assert str(sorted_resources[0].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_resources[1].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_resources[2].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_resources[3].expired_timestamp) != '9999-12-31 00:00:00'
+
+        tag_revisions = model.Session.query(model.PackageTagRevision).filter_by(package_id=anna1.id).all()
+
+        sorted_tags = sorted(tag_revisions, key=lambda x: (x.revision_timestamp, x.tag.name))[::-1]
+
+        print [(tag.state, tag.tag.name) for tag in sorted_tags]
+
+        assert len(sorted_tags) == 4, len(sorted_tags)
+        assert sorted_tags[0].state == 'pending-deleted'
+        assert sorted_tags[1].state == 'pending'
+        assert sorted_tags[2].state == 'active'
+        assert sorted_tags[3].state == 'active'
+
+        assert str(sorted_tags[0].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_tags[1].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_tags[2].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_tags[3].expired_timestamp) == '9999-12-31 00:00:00'
+
+        extras_revisions = model.Session.query(model.PackageExtraRevision).filter_by(package_id=anna1.id).all()
+
+        sorted_extras = sorted(extras_revisions, 
+                               key=lambda x: (x.revision_timestamp, x.key))[::-1]
+
+        assert sorted_extras[0].state == 'pending'
+        assert sorted_extras[1].state == 'active'
+        assert sorted_extras[2].state == 'active'
+
+        assert str(sorted_extras[0].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_extras[1].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_extras[2].expired_timestamp) == '9999-12-31 00:00:00'
+
+
+    def test_11_add_pending(self):
+
+        context = {'model': model,
+                   'session': model.Session,
+                   'pending': True}
+
+        anna1 = model.Session.query(model.Package).filter_by(name='annakarenina_changed2').one()
+        anna_dictized = package_dictize(anna1, context)
+
+
+        anna_dictized['resources'].append({
+                            'format': u'plain text',
+                            'url': u'newurl'}
+                            )
+        anna_dictized['tags'].append({'name': u'newnew_tag'})
+        anna_dictized['extras'].append({'key': 'david', 
+                                        'value': u'"new_value"'})
+
+        model.repo.new_revision()
+        package_dict_save(anna_dictized, context)
+        model.Session.commit()
+        model.Session.remove()
+
+        resources_revisions = model.Session.query(model.ResourceRevision).filter_by(resource_group_id=anna1.resource_groups[0].id).all()
+
+        sorted_resources = sorted(resources_revisions, key=lambda x: (x.revision_timestamp, x.url))[::-1]
+
+        assert len(sorted_resources) == 5
+        assert sorted_resources[0].state == 'pending'
+        assert sorted_resources[1].state == 'pending'
+        assert sorted_resources[2].state == 'active'
+        assert sorted_resources[3].state == 'active'
+        assert sorted_resources[4].state == 'active'
+
+        assert str(sorted_resources[0].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_resources[1].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_resources[2].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_resources[3].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_resources[4].expired_timestamp) != '9999-12-31 00:00:00'
+
+        tag_revisions = model.Session.query(model.PackageTagRevision).filter_by(package_id=anna1.id).all()
+
+        sorted_tags = sorted(tag_revisions, key=lambda x: (x.revision_timestamp, x.tag.name))[::-1]
+
+        print [(tag.state, tag.tag.name) for tag in sorted_tags]
+
+        assert len(sorted_tags) == 6, len(sorted_tags)
+        assert sorted_tags[0].state == 'pending'
+        assert sorted_tags[1].state == 'pending-deleted'
+        assert sorted_tags[2].state == 'pending-deleted'
+        assert sorted_tags[3].state == 'pending'
+        assert sorted_tags[4].state == 'active'
+        assert sorted_tags[5].state == 'active'
+
+        assert str(sorted_tags[0].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_tags[1].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_tags[2].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_tags[3].expired_timestamp) != '9999-12-31 00:00:00'
+        assert str(sorted_tags[4].expired_timestamp) == '9999-12-31 00:00:00'
+
+        extras_revisions = model.Session.query(model.PackageExtraRevision).filter_by(package_id=anna1.id).all()
+
+        sorted_extras = sorted(extras_revisions, 
+                               key=lambda x: (x.revision_timestamp, x.key))[::-1]
+
+        print [(extra.state, extra.key, extra.value) for extra in sorted_extras]
+
+        assert sorted_extras[0].state == 'pending-deleted'
+        assert sorted_extras[1].state == 'pending'
+        assert sorted_extras[2].state == 'pending'
+        assert sorted_extras[3].state == 'active'
+        assert sorted_extras[4].state == 'active'
+
+        assert str(sorted_extras[0].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_extras[1].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_extras[2].expired_timestamp) != '9999-12-31 00:00:00'
+        assert str(sorted_extras[3].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_extras[4].expired_timestamp) == '9999-12-31 00:00:00'
+
+    def test_12_make_active(self):
+
+        anna1 = model.Session.query(model.Package).filter_by(name='annakarenina_changed2').one()
+        context = {"model": model,
+                   "session": model.Session,
+                   'user': 'testsysadmin',
+                   "id": anna1.id}
+        make_latest_pending_package_active(context)
+
+        resources_revisions = model.Session.query(model.ResourceRevision).filter_by(resource_group_id=anna1.resource_groups[0].id).all()
+        sorted_resources = sorted(resources_revisions, key=lambda x: (x.revision_timestamp, x.url))[::-1]
+
+        assert len(sorted_resources) == 5
+        for res in sorted_resources:
+            print res.id, res.revision_timestamp, res.expired_timestamp, res.state
+        assert sorted_resources[0].state == 'active'
+        assert sorted_resources[1].state == 'active'
+        assert sorted_resources[2].state == 'active'
+        assert sorted_resources[3].state == 'active'
+        assert sorted_resources[4].state == 'active'
+
+        assert str(sorted_resources[0].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_resources[1].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_resources[2].expired_timestamp) != '9999-12-31 00:00:00'
+        assert str(sorted_resources[3].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_resources[4].expired_timestamp) != '9999-12-31 00:00:00'
+
+        tag_revisions = model.Session.query(model.PackageTagRevision).filter_by(package_id=anna1.id).all()
+
+        sorted_tags = sorted(tag_revisions, key=lambda x: (x.revision_timestamp, x.tag.name))[::-1]
+
+        print [(tag.state, tag.tag.name) for tag in sorted_tags]
+
+        assert len(sorted_tags) == 6, len(sorted_tags)
+        assert sorted_tags[0].state == 'active'
+        assert sorted_tags[1].state == 'deleted'
+        assert sorted_tags[2].state == 'deleted'
+        assert sorted_tags[3].state == 'pending'
+        assert sorted_tags[4].state == 'active'
+        assert sorted_tags[5].state == 'active'
+
+        assert str(sorted_tags[0].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_tags[1].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_tags[2].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_tags[3].expired_timestamp) != '9999-12-31 00:00:00'
+        assert str(sorted_tags[4].expired_timestamp) == '9999-12-31 00:00:00'
+
+        extras_revisions = model.Session.query(model.PackageExtraRevision).filter_by(package_id=anna1.id).all()
+
+        sorted_extras = sorted(extras_revisions, 
+                               key=lambda x: (x.revision_timestamp, x.key))[::-1]
+
+        print [(extra.state, extra.key, extra.value) for extra in sorted_extras]
+
+        assert sorted_extras[0].state == 'deleted'
+        assert sorted_extras[1].state == 'active'
+        assert sorted_extras[2].state == 'pending'
+        assert sorted_extras[3].state == 'active'
+        assert sorted_extras[4].state == 'active'
+
+        assert str(sorted_extras[0].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_extras[1].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_extras[2].expired_timestamp) != '9999-12-31 00:00:00'
+        assert str(sorted_extras[3].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_extras[4].expired_timestamp) != '9999-12-31 00:00:00'
+
+
+    def test_12_resource_no_id(self):
 
         context = {"model": model,
                  "session": model.Session}
@@ -337,15 +572,11 @@ class TestBasicDictize:
 
         res = model.Session.query(model.Resource).filter_by(url=u'test').one()
 
-
         res_dictized = self.remove_changable_columns(resource_dictize(res, context))
-
-        pprint(res_dictized)
-        pprint(new_resource)
 
         assert res_dictized == new_resource, res_dictized 
 
-    def test_12_api_to_dictize(self):
+    def test_13_api_to_dictize(self):
 
         context = {"model": model,
                  "session": model.Session}
@@ -410,9 +641,8 @@ class TestBasicDictize:
         pkg = model.Session.query(model.Package).filter_by(name=u'testpkg').one()
 
         package_dictized = self.remove_changable_columns(package_dictize(pkg, context))
-        pprint(package_dictized)
 
-    def test_13_group_dictized(self):
+    def test_14_group_dictized(self):
 
         context = {"model": model,
                   "session": model.Session}
@@ -488,9 +718,6 @@ class TestBasicDictize:
 
 
         assert group_api_to_dict(api_group, context) == {'description': u'Great group!',
-                                                           'name': u'testgroup',
-                                                           'packages': [{'id': u'annakarenina'}, {'id': u'warandpeace'}],
-                                                           'title': u'Some Group Title'}, pformat(group_api1_to_dict(api_group, context))
-
-
-
+                                                         'name': u'testgroup',
+                                                         'packages': [{'id': u'annakarenina'}, {'id': u'warandpeace'}],
+                                                         'title': u'Some Group Title'}, pformat(group_api_to_dict(api_group, context))

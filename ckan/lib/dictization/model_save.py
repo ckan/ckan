@@ -127,6 +127,7 @@ def group_extras_save(extras_dicts, context):
 
 def package_tag_list_save(tag_dicts, package, context):
 
+    
     allow_partial_update = context.get("allow_partial_update", False)
     if not tag_dicts and allow_partial_update:
         return
@@ -152,7 +153,8 @@ def package_tag_list_save(tag_dicts, package, context):
             package_tag.state = 'deleted'
 
     for tag in tags - set(tag_package_tag.keys()):
-        package_tag_obj = model.PackageTag(package, tag, 'active')
+        state = 'pending' if pending else 'active'
+        package_tag_obj = model.PackageTag(package, tag, state)
         session.add(package_tag_obj)
         tag_package_tag[tag] = package_tag_obj
 

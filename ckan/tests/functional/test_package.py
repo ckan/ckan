@@ -293,6 +293,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, TestSearchIndexer, PylonsT
         for txt in txt_order_non_deterministic:
             for pkg_ in (pkg_by_name_main, pkg_by_id_main):
                 pkg_ = pkg_.replace(txt, 'placeholder')
+        print pkg_by_name_main
         res_diff = self.diff_html(pkg_by_name_main, pkg_by_id_main)
         assert not res_diff, res_diff.encode('utf8')
         # not true as language selection link return url differs: 

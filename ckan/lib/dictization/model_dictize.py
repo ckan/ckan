@@ -52,7 +52,7 @@ def package_dictize(pkg, context):
 
     result_dict = table_dictize(pkg, context)
 
-    result_dict["resources"] = resource_list_dictize(pkg.resources, context)
+    result_dict["resources"] = resource_list_dictize(pkg.resource_groups[0].resources_all, context)
 
     result_dict["tags"] = obj_list_dictize(
         pkg.tags, context, lambda x: x["name"])

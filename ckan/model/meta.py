@@ -53,8 +53,8 @@ class CkanSessionExtension(SessionExtension):
             q = session.query(revision_cls)
             q = q.filter_by(expired_timestamp='9999-12-31', id=obj.id)
             if 'pending' in obj.state:
-                q = q.filter(revision_cls.state.in_(
-                    'pending-active', 'pending-deleted'))
+                q = q.filter(revision_cls.state.in_([
+                    'pending', 'pending-deleted']))
                 revision.state = 'pending'
             results = q.all()
 
