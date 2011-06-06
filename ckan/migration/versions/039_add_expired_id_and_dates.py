@@ -90,6 +90,7 @@ insert into tmp_expired_id select pr.id, revision_id, timestamp, lead(timestamp,
 update package_revision pr set revision_timestamp = (select revision_timestamp from tmp_expired_id tmp where tmp.revision_id = pr.revision_id and tmp.id = pr.id),
                                expired_timestamp = (select expired_timestamp from tmp_expired_id tmp where tmp.revision_id = pr.revision_id and tmp.id = pr.id),
                                expired_id = (select expired_id from tmp_expired_id tmp where tmp.revision_id = pr.revision_id and tmp.id = pr.id);
+update package_revision set state = 'active-current' where expired_timestamp = '9999-12-31';
 
 create index idx_package_period on package_revision(revision_timestamp, expired_timestamp, id);
 create index idx_package_expired on package_revision(expired_timestamp);
@@ -100,6 +101,7 @@ insert into tmp_expired_id select pr.id, revision_id, timestamp, lead(timestamp,
 update package_extra_revision pr set revision_timestamp = (select revision_timestamp from tmp_expired_id tmp where tmp.revision_id = pr.revision_id and tmp.id = pr.id),
                                expired_timestamp = (select expired_timestamp from tmp_expired_id tmp where tmp.revision_id = pr.revision_id and tmp.id = pr.id),
                                expired_id = (select expired_id from tmp_expired_id tmp where tmp.revision_id = pr.revision_id and tmp.id = pr.id);
+update package_extra_revision set state = 'active-current' where expired_timestamp = '9999-12-31';
 
 create index idx_package_extra_period on package_extra_revision(revision_timestamp, expired_timestamp, id);
 create index idx_package_extra_period_package on package_extra_revision(revision_timestamp, expired_timestamp, package_id);
@@ -111,6 +113,7 @@ insert into tmp_expired_id select pr.id, revision_id, timestamp, lead(timestamp,
 update package_group_revision pr set revision_timestamp = (select revision_timestamp from tmp_expired_id tmp where tmp.revision_id = pr.revision_id and tmp.id = pr.id),
                                expired_timestamp = (select expired_timestamp from tmp_expired_id tmp where tmp.revision_id = pr.revision_id and tmp.id = pr.id),
                                expired_id = (select expired_id from tmp_expired_id tmp where tmp.revision_id = pr.revision_id and tmp.id = pr.id);
+update package_group_revision set state = 'active-current' where expired_timestamp = '9999-12-31';
 
 create index idx_package_group_period_package_group on package_group_revision(revision_timestamp, expired_timestamp, package_id, group_id);
 create index idx_package_group_expired on package_group_revision(expired_timestamp);
@@ -122,6 +125,7 @@ insert into tmp_expired_id select pr.id, revision_id, timestamp, lead(timestamp,
 update package_tag_revision pr set revision_timestamp = (select revision_timestamp from tmp_expired_id tmp where tmp.revision_id = pr.revision_id and tmp.id = pr.id),
                                expired_timestamp = (select expired_timestamp from tmp_expired_id tmp where tmp.revision_id = pr.revision_id and tmp.id = pr.id),
                                expired_id = (select expired_id from tmp_expired_id tmp where tmp.revision_id = pr.revision_id and tmp.id = pr.id);
+update package_tag_revision set state = 'active-current' where expired_timestamp = '9999-12-31';
 
 create index idx_period_package_tag on package_tag_revision(revision_timestamp, expired_timestamp, package_id, tag_id);
 create index idx_package_tag_expired on package_tag_revision(expired_timestamp);
@@ -132,6 +136,7 @@ insert into tmp_expired_id select pr.id, revision_id, timestamp, lead(timestamp,
 update package_relationship_revision pr set revision_timestamp = (select revision_timestamp from tmp_expired_id tmp where tmp.revision_id = pr.revision_id and tmp.id = pr.id),
                                expired_timestamp = (select expired_timestamp from tmp_expired_id tmp where tmp.revision_id = pr.revision_id and tmp.id = pr.id),
                                expired_id = (select expired_id from tmp_expired_id tmp where tmp.revision_id = pr.revision_id and tmp.id = pr.id);
+update package_relationship_revision set state = 'active-current' where expired_timestamp = '9999-12-31';
 
 create index idx_period_package_relationship on package_relationship_revision(revision_timestamp, expired_timestamp, object_package_id, subject_package_id);
 create index idx_package_relationship_expired on package_relationship_revision(expired_timestamp);
@@ -142,6 +147,7 @@ insert into tmp_expired_id select pr.id, revision_id, timestamp, lead(timestamp,
 update resource_revision pr set revision_timestamp = (select revision_timestamp from tmp_expired_id tmp where tmp.revision_id = pr.revision_id and tmp.id = pr.id),
                                expired_timestamp = (select expired_timestamp from tmp_expired_id tmp where tmp.revision_id = pr.revision_id and tmp.id = pr.id),
                                expired_id = (select expired_id from tmp_expired_id tmp where tmp.revision_id = pr.revision_id and tmp.id = pr.id);
+update resource_revision set state = 'active-current' where expired_timestamp = '9999-12-31';
 
 create index idx_resource_period on resource_revision(revision_timestamp, expired_timestamp, id);
 create index idx_resource_period_resource_group on resource_revision(revision_timestamp, expired_timestamp, resource_group_id);
@@ -153,6 +159,7 @@ insert into tmp_expired_id select pr.id, revision_id, timestamp, lead(timestamp,
 update resource_group_revision pr set revision_timestamp = (select revision_timestamp from tmp_expired_id tmp where tmp.revision_id = pr.revision_id and tmp.id = pr.id),
                                expired_timestamp = (select expired_timestamp from tmp_expired_id tmp where tmp.revision_id = pr.revision_id and tmp.id = pr.id),
                                expired_id = (select expired_id from tmp_expired_id tmp where tmp.revision_id = pr.revision_id and tmp.id = pr.id);
+update resource_group_revision set state = 'active-current' where expired_timestamp = '9999-12-31';
 
 create index idx_resource_group_period on resource_group_revision(revision_timestamp, expired_timestamp, id);
 create index idx_resource_group_period_package on resource_group_revision(revision_timestamp, expired_timestamp, package_id);
@@ -164,6 +171,7 @@ insert into tmp_expired_id select pr.id, revision_id, timestamp, lead(timestamp,
 update group_revision pr set revision_timestamp = (select revision_timestamp from tmp_expired_id tmp where tmp.revision_id = pr.revision_id and tmp.id = pr.id),
                                expired_timestamp = (select expired_timestamp from tmp_expired_id tmp where tmp.revision_id = pr.revision_id and tmp.id = pr.id),
                                expired_id = (select expired_id from tmp_expired_id tmp where tmp.revision_id = pr.revision_id and tmp.id = pr.id);
+update group_revision set state = 'active-current' where expired_timestamp = '9999-12-31';
 
 create index idx_group_period on group_revision(revision_timestamp, expired_timestamp, id);
 create index idx_group_expired on group_revision(expired_timestamp);
@@ -174,6 +182,7 @@ insert into tmp_expired_id select pr.id, revision_id, timestamp, lead(timestamp,
 update group_extra_revision pr set revision_timestamp = (select revision_timestamp from tmp_expired_id tmp where tmp.revision_id = pr.revision_id and tmp.id = pr.id),
                                expired_timestamp = (select expired_timestamp from tmp_expired_id tmp where tmp.revision_id = pr.revision_id and tmp.id = pr.id),
                                expired_id = (select expired_id from tmp_expired_id tmp where tmp.revision_id = pr.revision_id and tmp.id = pr.id);
+update group_extra_revision set state = 'active-current' where expired_timestamp = '9999-12-31';
 
 create index idx_group_extra_period on group_extra_revision(revision_timestamp, expired_timestamp, id);
 create index idx_group_extra_period_group on group_extra_revision(revision_timestamp, expired_timestamp, group_id);
@@ -193,7 +202,9 @@ update revision set state = 'active', approved_timestamp = timestamp;
         count = migrate_engine.execute('''select count(*) from "%s"''' % table).first()[0]
         revision_expired_id_count = migrate_engine.execute('''select count(*) from %s_revision where %s_revision.expired_id is null''' % (table, table)).first()[0]
         revision_expired_data_count = migrate_engine.execute('''select count(*) from %s_revision where %s_revision.expired_timestamp = '9999-12-31' ''' % (table, table)).first()[0]
+        revision_current = migrate_engine.execute('''select count(*) from %s_revision where %s_revision.state = 'active-current' ''' % (table, table)).first()[0]
         assert count == revision_expired_id_count
         assert count == revision_expired_data_count
+        assert count == revision_current
 
     

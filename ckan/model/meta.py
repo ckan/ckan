@@ -46,21 +46,28 @@ class CkanSessionExtension(SessionExtension):
             if not hasattr(obj, '__revision_class__'):
                 continue
 
+            revision_cls = obj.__revision_class__
+
+            ## when a normal active transaction happens
             if 'pending' not in obj.state:
                 revision.approved_timestamp = datetime.now()
+                old = session.query(revision_cls).filter_by(
+                    state='active-current',
+                    id = obj.id
+                ).first()
+                if old:
+                    old.state = 'active'
+                    session.add(old)
 
-            revision_cls = obj.__revision_class__
             q = session.query(revision_cls)
             q = q.filter_by(expired_timestamp='9999-12-31', id=obj.id)
-            if 'pending' in obj.state:
-                q = q.filter(revision_cls.state.in_([
-                    'pending', 'pending-deleted']))
-                revision.state = 'pending'
             results = q.all()
 
             for rev_obj in results:
                 if rev_obj.revision_id == revision.id:
                     rev_obj.revision_timestamp = revision.timestamp
+                    if 'pending' not in obj.state:
+                        rev_obj.state = 'active-current'
                 else:
                     rev_obj.expired_id = revision.id
                     rev_obj.expired_timestamp = revision.timestamp

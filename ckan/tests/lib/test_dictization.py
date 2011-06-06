@@ -347,11 +347,11 @@ class TestBasicDictize:
 
         assert len(sorted_packages) == 3
         assert sorted_packages[0].state == 'pending'
-        assert sorted_packages[1].state == 'active'
+        assert sorted_packages[1].state == 'active-current'
         assert sorted_packages[2].state == 'active'
 
         assert str(sorted_packages[0].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_packages[1].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_packages[1].expired_timestamp) != '9999-12-31 00:00:00'
         assert str(sorted_packages[2].expired_timestamp) != '9999-12-31 00:00:00'
 
         resources_revisions = model.Session.query(model.ResourceRevision).filter_by(resource_group_id=anna1.resource_groups[0].id).all()
@@ -360,12 +360,12 @@ class TestBasicDictize:
 
         assert len(sorted_resources) == 4
         assert sorted_resources[0].state == 'pending'
-        assert sorted_resources[1].state == 'active'
-        assert sorted_resources[2].state == 'active'
+        assert sorted_resources[1].state == 'active-current'
+        assert sorted_resources[2].state == 'active-current'
         assert sorted_resources[3].state == 'active'
 
         assert str(sorted_resources[0].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_resources[1].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_resources[1].expired_timestamp) != '9999-12-31 00:00:00'
         assert str(sorted_resources[2].expired_timestamp) == '9999-12-31 00:00:00'
         assert str(sorted_resources[3].expired_timestamp) != '9999-12-31 00:00:00'
 
@@ -378,13 +378,13 @@ class TestBasicDictize:
         assert len(sorted_tags) == 4, len(sorted_tags)
         assert sorted_tags[0].state == 'pending-deleted'
         assert sorted_tags[1].state == 'pending'
-        assert sorted_tags[2].state == 'active'
-        assert sorted_tags[3].state == 'active'
+        assert sorted_tags[2].state == 'active-current'
+        assert sorted_tags[3].state == 'active-current'
 
         assert str(sorted_tags[0].expired_timestamp) == '9999-12-31 00:00:00'
         assert str(sorted_tags[1].expired_timestamp) == '9999-12-31 00:00:00'
         assert str(sorted_tags[2].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_tags[3].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_tags[3].expired_timestamp) != '9999-12-31 00:00:00'
 
         extras_revisions = model.Session.query(model.PackageExtraRevision).filter_by(package_id=anna1.id).all()
 
@@ -392,12 +392,12 @@ class TestBasicDictize:
                                key=lambda x: (x.revision_timestamp, x.key))[::-1]
 
         assert sorted_extras[0].state == 'pending'
-        assert sorted_extras[1].state == 'active'
-        assert sorted_extras[2].state == 'active'
+        assert sorted_extras[1].state == 'active-current'
+        assert sorted_extras[2].state == 'active-current'
 
         assert str(sorted_extras[0].expired_timestamp) == '9999-12-31 00:00:00'
         assert str(sorted_extras[1].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_extras[2].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_extras[2].expired_timestamp) != '9999-12-31 00:00:00'
 
 
     def test_11_add_pending(self):
@@ -430,13 +430,13 @@ class TestBasicDictize:
         assert len(sorted_resources) == 5
         assert sorted_resources[0].state == 'pending'
         assert sorted_resources[1].state == 'pending'
-        assert sorted_resources[2].state == 'active'
-        assert sorted_resources[3].state == 'active'
+        assert sorted_resources[2].state == 'active-current'
+        assert sorted_resources[3].state == 'active-current'
         assert sorted_resources[4].state == 'active'
 
         assert str(sorted_resources[0].expired_timestamp) == '9999-12-31 00:00:00'
         assert str(sorted_resources[1].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_resources[2].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_resources[2].expired_timestamp) != '9999-12-31 00:00:00'
         assert str(sorted_resources[3].expired_timestamp) == '9999-12-31 00:00:00'
         assert str(sorted_resources[4].expired_timestamp) != '9999-12-31 00:00:00'
 
@@ -451,8 +451,8 @@ class TestBasicDictize:
         assert sorted_tags[1].state == 'pending-deleted'
         assert sorted_tags[2].state == 'pending-deleted'
         assert sorted_tags[3].state == 'pending'
-        assert sorted_tags[4].state == 'active'
-        assert sorted_tags[5].state == 'active'
+        assert sorted_tags[4].state == 'active-current'
+        assert sorted_tags[5].state == 'active-current'
 
         assert str(sorted_tags[0].expired_timestamp) == '9999-12-31 00:00:00'
         assert str(sorted_tags[1].expired_timestamp) == '9999-12-31 00:00:00'
@@ -470,14 +470,14 @@ class TestBasicDictize:
         assert sorted_extras[0].state == 'pending-deleted'
         assert sorted_extras[1].state == 'pending'
         assert sorted_extras[2].state == 'pending'
-        assert sorted_extras[3].state == 'active'
-        assert sorted_extras[4].state == 'active'
+        assert sorted_extras[3].state == 'active-current'
+        assert sorted_extras[4].state == 'active-current'
 
         assert str(sorted_extras[0].expired_timestamp) == '9999-12-31 00:00:00'
         assert str(sorted_extras[1].expired_timestamp) == '9999-12-31 00:00:00'
         assert str(sorted_extras[2].expired_timestamp) != '9999-12-31 00:00:00'
         assert str(sorted_extras[3].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_extras[4].expired_timestamp) == '9999-12-31 00:00:00'
+        assert str(sorted_extras[4].expired_timestamp) != '9999-12-31 00:00:00'
 
     def test_12_make_active(self):
 
@@ -488,16 +488,24 @@ class TestBasicDictize:
                    "id": anna1.id}
         make_latest_pending_package_active(context)
 
+        pkgrevisions = model.Session.query(model.PackageRevision).filter_by(id=anna1.id).all()
+        sorted_packages = sorted(pkgrevisions, key=lambda x:x.revision_timestamp)[::-1]
+
+        assert len(sorted_packages) == 3
+        assert sorted_packages[0].state == 'active-current' #was pending
+        assert sorted_packages[1].state == 'active' #was active-current
+        assert sorted_packages[2].state == 'active'
+
         resources_revisions = model.Session.query(model.ResourceRevision).filter_by(resource_group_id=anna1.resource_groups[0].id).all()
         sorted_resources = sorted(resources_revisions, key=lambda x: (x.revision_timestamp, x.url))[::-1]
 
         assert len(sorted_resources) == 5
         for res in sorted_resources:
             print res.id, res.revision_timestamp, res.expired_timestamp, res.state
-        assert sorted_resources[0].state == 'active'
-        assert sorted_resources[1].state == 'active'
+        assert sorted_resources[0].state == 'active-current'
+        assert sorted_resources[1].state == 'active-current'
         assert sorted_resources[2].state == 'active'
-        assert sorted_resources[3].state == 'active'
+        assert sorted_resources[3].state == 'active-current'
         assert sorted_resources[4].state == 'active'
 
         assert str(sorted_resources[0].expired_timestamp) == '9999-12-31 00:00:00'
@@ -513,11 +521,11 @@ class TestBasicDictize:
         print [(tag.state, tag.tag.name) for tag in sorted_tags]
 
         assert len(sorted_tags) == 6, len(sorted_tags)
-        assert sorted_tags[0].state == 'active'
+        assert sorted_tags[0].state == 'active-current'
         assert sorted_tags[1].state == 'deleted'
         assert sorted_tags[2].state == 'deleted'
         assert sorted_tags[3].state == 'pending'
-        assert sorted_tags[4].state == 'active'
+        assert sorted_tags[4].state == 'active-current'
         assert sorted_tags[5].state == 'active'
 
         assert str(sorted_tags[0].expired_timestamp) == '9999-12-31 00:00:00'
@@ -534,9 +542,9 @@ class TestBasicDictize:
         print [(extra.state, extra.key, extra.value) for extra in sorted_extras]
 
         assert sorted_extras[0].state == 'deleted'
-        assert sorted_extras[1].state == 'active'
+        assert sorted_extras[1].state == 'active-current'
         assert sorted_extras[2].state == 'pending'
-        assert sorted_extras[3].state == 'active'
+        assert sorted_extras[3].state == 'active-current'
         assert sorted_extras[4].state == 'active'
 
         assert str(sorted_extras[0].expired_timestamp) == '9999-12-31 00:00:00'

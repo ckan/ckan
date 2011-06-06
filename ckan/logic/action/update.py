@@ -68,28 +68,29 @@ def check_group_auth(data_dict, context):
     for group in groups:
         check_access(group, model.Action.EDIT, context)
 
-def _make_latest_rev_active(context, obj_list):
+def _make_latest_rev_active(context, q):
 
-    latest_rev = sorted(obj_list, key=lambda x: x.revision_timestamp)[-1]
-    if latest_rev.state == 'pending-deleted':
+    session = context['model'].Session
+
+    old_current = q.filter_by(state='active-current').first()
+    if old_current:
+        old_current.state = 'active'
+        session.add(old_current)
+
+    latest_rev = q.filter_by(expired_timestamp='9999-12-31').one()
+    if latest_rev.state in ('pending-deleted', 'deleted'):
         latest_rev.state = 'deleted'
     else:
-        latest_rev.state = 'active'
-    for obj_rev in obj_list:
-        if obj_rev == latest_rev:
-            continue
-
-        obj_rev.expired_id = latest_rev.revision_id
-        obj_rev.expired_timestamp = latest_rev.revision_timestamp
-        context['model'].Session.add(obj_rev)
+        latest_rev.state = 'active-current'
+    session.add(latest_rev)
         
-        ##this is just a way to get the latest revision that changed
-        ##in order to timestamp
-        old_latest = context.get('latest_revision_date')
-        if old_latest:
-            if latest_rev.revision_timestamp > old_latest:
-                context['latest_revision_date'] = latest_rev.revision_timestamp
-                context['latest_revision'] = latest_rev.revision_id
+    ##this is just a way to get the latest revision that changed
+    ##in order to timestamp
+    old_latest = context.get('latest_revision_date')
+    if old_latest:
+        if latest_rev.revision_timestamp > old_latest:
+            context['latest_revision_date'] = latest_rev.revision_timestamp
+            context['latest_revision'] = latest_rev.revision_id
 
 def make_latest_pending_package_active(context):
 
@@ -101,33 +102,29 @@ def make_latest_pending_package_active(context):
     check_access(pkg, model.Action.EDIT, context)
 
     #packages
-    q = session.query(model.PackageRevision)
-    pkgrevs = q.filter_by(id=id, expired_timestamp='9999-12-31').all()
-    _make_latest_rev_active(context, pkgrevs)
+    q = session.query(model.PackageRevision).filter_by(id=id)
+    _make_latest_rev_active(context, q)
 
     #resources
     for resource in pkg.resource_groups_all[0].resources_all:
-        res_revs = session.query(model.ResourceRevision).filter_by(
-            id=resource.id, expired_timestamp='9999-12-31').all()
-        _make_latest_rev_active(context, res_revs)
+        q = session.query(model.ResourceRevision).filter_by(id=resource.id)
+        _make_latest_rev_active(context, q)
 
     #tags
     for tag in pkg.package_tag_all:
-        tags_revs = session.query(model.PackageTagRevision).filter_by(
-            id=tag.id, expired_timestamp='9999-12-31').all()
-        _make_latest_rev_active(context, tags_revs)
+        q = session.query(model.PackageTagRevision).filter_by(id=tag.id)
+        _make_latest_rev_active(context, q)
 
     #extras
     for extra in pkg.extras_list:
-        extras_revs = session.query(model.PackageExtraRevision).filter_by(
-            id=extra.id, expired_timestamp='9999-12-31').all()
-        _make_latest_rev_active(context, extras_revs)
+        q = session.query(model.PackageExtraRevision).filter_by(id=extra.id)
+        _make_latest_rev_active(context, q)
 
     latest_revision = context.get('latest_revision')
     if not latest_revision:
         return
 
-    q = session.query(model.ResourceRevision).filter_by(id=latest_revision)
+    q = session.query(model.Revision).filter_by(id=latest_revision)
     revision = q.first()
     revision.approved_timestamp = datetime.datetime.now()
     session.add(revision)
