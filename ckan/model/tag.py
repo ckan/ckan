@@ -8,7 +8,7 @@ from package import Package
 from core import *
 
 __all__ = ['tag_table', 'package_tag_table', 'Tag', 'PackageTag',
-           'PackageTagRevision']
+           'PackageTagRevision', 'package_tag_revision_table']
 
 tag_table = Table('tag', metadata,
         Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
@@ -23,7 +23,7 @@ package_tag_table = Table('package_tag', metadata,
 
 vdm.sqlalchemy.make_table_stateful(package_tag_table)
 # TODO: this has a composite primary key ...
-package_tag_revision_table = vdm.sqlalchemy.make_revisioned_table(package_tag_table)
+package_tag_revision_table = make_revisioned_table(package_tag_table)
 
 class Tag(DomainObject):
     def __init__(self, name=''):
@@ -103,12 +103,15 @@ class PackageTag(vdm.sqlalchemy.RevisionedObjectMixin,
 mapper(Tag, tag_table, properties={
     'package_tags':relation(PackageTag, backref='tag',
         cascade='all, delete, delete-orphan',
-        )
+        ),
     },
     order_by=tag_table.c.name,
     )
 
 mapper(PackageTag, package_tag_table, properties={
+    'pkg':relation(Package, backref='package_tag_all',
+        cascade='none',
+        )
     },
     order_by=package_tag_table.c.id,
     extension=[vdm.sqlalchemy.Revisioner(package_tag_revision_table),

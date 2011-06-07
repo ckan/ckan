@@ -38,6 +38,7 @@ def default_resource_schema():
         'hash': [ignore_missing, unicode],
         'state': [ignore],
         'position': [ignore],
+        'revision_timestamp': [ignore],
         '__extras': [ignore_missing, extras_unicode_convert, keep_extras],
     }
 
@@ -166,6 +167,7 @@ def default_extras_schema():
         'value': [not_missing, unicode],
         'state': [ignore],
         'deleted': [ignore_missing],
+        'revision_timestamp': [ignore],
     }
     return schema
 

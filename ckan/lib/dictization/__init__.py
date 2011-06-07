@@ -17,13 +17,19 @@ def table_dictize(obj, context):
     model = context["model"]
     session = context["session"]
 
-    ModelClass = obj.__class__
-    table = class_mapper(ModelClass).mapped_table
-
-    fields = [field.name for field in table.c]
+    if isinstance(obj, sqlalchemy.engine.base.RowProxy):
+        fields = obj.keys()
+    else:
+        ModelClass = obj.__class__
+        table = class_mapper(ModelClass).mapped_table
+        fields = [field.name for field in table.c]
 
     for field in fields:
         name = field
+        if name in ('current', 'expired_timestamp', 'expired_id'):
+            continue
+        if name == 'continuity_id':
+            continue
         value = getattr(obj, name)
         if value is None:
             result_dict[name] = value
@@ -110,6 +116,10 @@ def table_dict_save(table_dict, ModelClass, context):
         if isinstance(value, list):
             continue
         setattr(obj, key, value)
+
+    if context.get('pending'):
+        if session.is_modified(obj, include_collections=False):
+            obj.state = 'pending'
 
     session.add(obj)
 

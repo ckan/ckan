@@ -981,7 +981,7 @@ class TrackedObjectRegister(ObjectRegister):
 
     def get_columns(self):
         """Returns the model of the entity attributes."""
-        from ckan.model.core import orm
+        from sqlalchemy import orm
         table = orm.class_mapper(self.object_type).mapped_table
         return table.c
 

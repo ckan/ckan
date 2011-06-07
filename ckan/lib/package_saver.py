@@ -45,7 +45,10 @@ class PackageSaver(object):
         c.pkg_maintainer_link = cls._person_email_link(c.pkg.maintainer, c.pkg.maintainer_email, "Maintainer")
         c.package_relationships = pkg.get_relationships_printable()
         c.pkg_extras = []
-        for k, v in sorted(pkg.extras.items()):
+        for extra in sorted(pkg.extras_list, key=lambda x:x.key):
+            if extra.state == 'deleted':
+                continue
+            k, v = extra.key, extra.value
             if k in g.package_hide_extras:
                 continue
             if isinstance(v, (list, tuple)):

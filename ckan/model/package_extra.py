@@ -7,7 +7,8 @@ from package import *
 from types import JsonType
 from ckan.model import extension
 
-__all__ = ['PackageExtra', 'package_extra_table', 'PackageExtraRevision']
+__all__ = ['PackageExtra', 'package_extra_table', 'PackageExtraRevision',
+           'extra_revision_table']
 
 package_extra_table = Table('package_extra', metadata,
     Column('id', UnicodeText, primary_key=True, default=make_uuid),
@@ -18,7 +19,7 @@ package_extra_table = Table('package_extra', metadata,
 )
 
 vdm.sqlalchemy.make_table_stateful(package_extra_table)
-extra_revision_table= vdm.sqlalchemy.make_revisioned_table(package_extra_table)
+extra_revision_table= make_revisioned_table(package_extra_table)
 
 class PackageExtra(vdm.sqlalchemy.RevisionedObjectMixin,
         vdm.sqlalchemy.StatefulObjectMixin,
@@ -31,6 +32,11 @@ mapper(PackageExtra, package_extra_table, properties={
     'package': orm.relation(Package,
         backref=orm.backref('_extras',
             collection_class=orm.collections.attribute_mapped_collection(u'key'),
+            cascade='all, delete, delete-orphan',
+            ),
+        ),
+    'package_no_state': orm.relation(Package,
+        backref=orm.backref('extras_list',
             cascade='all, delete, delete-orphan',
             ),
         )

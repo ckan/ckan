@@ -9,21 +9,40 @@
       Authorization for group: ${c.grouptitle or c.groupname}
     </h2>
 
-    <p py:if="c.message">${c.message}</p>
+    <h2>Update Existing Roles</h2>
 
-    <form id="group-authz" action="" method="post">
-      <h3>Update Existing Roles</h3>
-      <table>
-      ${h.literal(c.form)}
-      </table>
-
-      <h3>Create New User Roles</h3>
-      ${h.literal(c.new_roles_form)}
-        
-      <br/>
-
-      ${h.submit('save', _('Save'))}
+    <form id="theform" method="POST">
+      ${authz_form_table('theform', c.roles, c.users, c.user_role_dict)}
+      <button type="submit" name="save">
+        Save
+      </button>
     </form>
+
+    <h2>Add Roles for Any User</h2>
+
+    <form id="addform" method="POST">
+      ${authz_add_table(c.roles)}
+      <button type="submit" name="add"> Add </button>
+    </form>
+
+    <hr/>
+
+    <h2>Existing Roles for Authorization Groups</h2>
+
+    <form id="authzgroup_form" method="POST">
+      ${authz_form_group_table('authzgroup_form', c.roles, c.authz_groups, c.authz_groups_role_dict)}
+      <button type="submit" name="authz_save">
+        Save
+      </button>
+    </form>
+
+    <h2>Add Roles for Any Authorization Group</h2>
+
+    <form id="authzgroup_addform" method="POST">
+      ${authz_add_group_table(c.roles)}
+      <button type="submit" name="authz_add"> Add </button>
+    </form>
+
   </div>
 
   <xi:include href="layout.html" />
