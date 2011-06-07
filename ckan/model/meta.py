@@ -43,6 +43,7 @@ class CkanSessionExtension(SessionExtension):
         deleted = obj_cache['deleted']
 
         for obj in new | changed | deleted:
+            
             if not hasattr(obj, '__revision_class__'):
                 continue
 
@@ -52,11 +53,11 @@ class CkanSessionExtension(SessionExtension):
             if 'pending' not in obj.state:
                 revision.approved_timestamp = datetime.now()
                 old = session.query(revision_cls).filter_by(
-                    state='active-current',
+                    current='1',
                     id = obj.id
                 ).first()
                 if old:
-                    old.state = 'active'
+                    old.current = '0'
                     session.add(old)
 
             q = session.query(revision_cls)
@@ -67,7 +68,7 @@ class CkanSessionExtension(SessionExtension):
                 if rev_obj.revision_id == revision.id:
                     rev_obj.revision_timestamp = revision.timestamp
                     if 'pending' not in obj.state:
-                        rev_obj.state = 'active-current'
+                        rev_obj.current = '1'
                 else:
                     rev_obj.expired_id = revision.id
                     rev_obj.expired_timestamp = revision.timestamp

@@ -8,7 +8,7 @@ from package import Package
 from core import *
 
 __all__ = ['tag_table', 'package_tag_table', 'Tag', 'PackageTag',
-           'PackageTagRevision']
+           'PackageTagRevision', 'package_tag_revision_table']
 
 tag_table = Table('tag', metadata,
         Column('id', types.UnicodeText, primary_key=True, default=make_uuid),

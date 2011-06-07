@@ -7,7 +7,8 @@ from package import *
 from types import JsonType
 from ckan.model import extension
 
-__all__ = ['PackageExtra', 'package_extra_table', 'PackageExtraRevision']
+__all__ = ['PackageExtra', 'package_extra_table', 'PackageExtraRevision',
+           'extra_revision_table']
 
 package_extra_table = Table('package_extra', metadata,
     Column('id', UnicodeText, primary_key=True, default=make_uuid),

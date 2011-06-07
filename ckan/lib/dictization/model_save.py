@@ -21,11 +21,11 @@ def resource_dict_save(res_dict, context):
 
     table = class_mapper(model.Resource).mapped_table
     fields = [field.name for field in table.c]
-
+    
     for key, value in res_dict.iteritems():
         if isinstance(value, list):
             continue
-        if key == 'extras':
+        if key in ('extras', 'revision_timestamp'):
             continue
         if key in fields:
             setattr(obj, key, value)
@@ -200,7 +200,6 @@ def package_group_list_save(group_dicts, package, context):
             package_group.state = 'pending-deleted'
         else:
             package_group.state = 'deleted'
-
 
     package.package_group_all[:] = group_package_group.values()
 

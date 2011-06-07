@@ -883,7 +883,7 @@ u with umlaut \xc3\xbc
             assert len(pkg.groups) == 0
             grp = model.Group.by_name(u'david')
             model.repo.new_revision()
-            pkg.groups.append(grp)
+            model.Session.add(model.PackageGroup(package=pkg, group=grp))
             model.repo.commit_and_remove()
             pkg = model.Package.by_name(u'editpkgtest')
             assert len(pkg.groups) == 1
@@ -892,6 +892,7 @@ u with umlaut \xc3\xbc
             prefix = ''
             field_name = prefix + "groups__0__id"
             fv = res.forms['package-edit']
+            print field_name
             fv[field_name] = False
             res = fv.submit('save', extra_environ={'REMOTE_USER':'russianfan'})
             model.repo.commit_and_remove()

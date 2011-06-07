@@ -10,7 +10,8 @@ import vdm.sqlalchemy
 from ckan.model import extension
 
 __all__ = ['group_table', 'Group', 'package_revision_table',
-           'PackageGroup', 'GroupRevision', 'PackageGroupRevision']
+           'PackageGroup', 'GroupRevision', 'PackageGroupRevision',
+           'package_group_revision_table']
 
 package_group_table = Table('package_group', metadata,
     Column('id', UnicodeText, primary_key=True, default=make_uuid),

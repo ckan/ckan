@@ -72,16 +72,18 @@ def _make_latest_rev_active(context, q):
 
     session = context['model'].Session
 
-    old_current = q.filter_by(state='active-current').first()
+    old_current = q.filter_by(current=True).first()
     if old_current:
-        old_current.state = 'active'
+        old_current.current = '0'
         session.add(old_current)
 
     latest_rev = q.filter_by(expired_timestamp='9999-12-31').one()
+    latest_rev.current = True
     if latest_rev.state in ('pending-deleted', 'deleted'):
         latest_rev.state = 'deleted'
     else:
-        latest_rev.state = 'active-current'
+        latest_rev.state = 'active'
+
     session.add(latest_rev)
         
     ##this is just a way to get the latest revision that changed
