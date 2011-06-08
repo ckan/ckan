@@ -77,7 +77,6 @@ def _execute_with_revision(q, rev_table, context):
     model = context['model']
     meta = model.meta
     session = model.Session
-    active = context.get('active', False)
     revision_id = context.get('revision_id')
     revision_date = context.get('revision_date')
     pending = context.get('pending')
@@ -93,8 +92,6 @@ def _execute_with_revision(q, rev_table, context):
         q = q.where(rev_table.c.expired_timestamp == '9999-12-31')
     else:
         q = q.where(rev_table.c.current == True)
-    if active:
-        q = q.where(rev_table.c.state.in_(['active', 'pending']))
 
     return session.execute(q)
 

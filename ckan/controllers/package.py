@@ -353,7 +353,8 @@ class PackageController(BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
                    'id': id, 'extras_as_string': True,
-                   'schema': self._form_to_db_schema()}
+                   'schema': self._form_to_db_schema(),
+                   'revision_id': revision}
 
         try:
             data = get.package_show(context)
@@ -367,12 +368,6 @@ class PackageController(BaseController):
         data['tag_string'] = ' '.join([tag['name'] for tag in data.get('tags', [])])
         data.pop('tags')
         data = flatten_to_string_key(data)
-        
-        if revision:
-            revision = model.Session.query(model.PackageRevision).filter_by(
-                revision_id=revision, id=data['id']).one()
-            data.update(table_dictize(revision, context))
-
         response.headers['Content-Type'] = 'application/json;charset=utf-8'
         return json.dumps(data)
 
@@ -383,12 +378,16 @@ class PackageController(BaseController):
                    'id': id, 'extras_as_string': True}
         pkg = model.Package.get(id)
         data = []
+        approved = False
         for num, (revision, revision_obj) in enumerate(pkg.all_related_revisions):
+            if not approved and revision.approved_timestamp:
+                current_approved, approved = True, True
+            else:
+                current_approved = False
             data.append({'revision_id': revision.id,
                          'message': revision.message,
                          'timestamp': revision.timestamp.isoformat(),
-                         'current_approved': True if num == 0 else False})
-
+                         'current_approved': current_approved})
         response.headers['Content-Type'] = 'application/json;charset=utf-8'
         return json.dumps(data)
 
