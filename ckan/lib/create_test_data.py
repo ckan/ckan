@@ -378,7 +378,7 @@ left arrow <
         model.Session.add_all([
             model.User(name=u'tester', apikey=u'tester', password=u'tester'),
             model.User(name=u'joeadmin', password=u'joeadmin'),
-            model.User(name=u'annafan', about=u'I love reading Annakarenina', password=u'annafan'),
+            model.User(name=u'annafan', about=u'I love reading Annakarenina. My site: <a href="http://anna.com">anna.com</a>', password=u'annafan'),
             model.User(name=u'russianfan', password=u'russianfan'),
             model.User(name=u'testsysadmin', password=u'testsysadmin'),
             ])

@@ -19,31 +19,31 @@ class MarkdownFormat(TextFormat):
     html_whitelist = 'a b center li ol p table td tr ul'.split(' ')
     whitelist_elem = re.compile(r'<(\/?(%s)[^>]*)>' % "|".join(html_whitelist), re.IGNORECASE)
     whitelist_escp = re.compile(r'\\xfc\\xfd(\/?(%s)[^>]*?)\\xfd\\xfc' % "|".join(html_whitelist), re.IGNORECASE)
+    html_link = re.compile(r'<a href="([^"]*)">')
     
     def to_html(self, text):
         if text is None:
             return ''
-        
-        try: 
-            # Encode whitelist elements.
-            text = self.whitelist_elem.sub(r'\\\\xfc\\\\xfd\1\\\\xfd\\\\xfc', text)
 
-            # Convert internal links.
-            text = self.internal_link.sub(r'[\1:\2] (/\1/\2)', text)
+        # Encode whitelist elements.
+        text = self.whitelist_elem.sub(r'\\\\xfc\\\\xfd\1\\\\xfd\\\\xfc', text)
 
-            # Convert <link> to markdown format.
-            text = self.normal_link.sub(r'[\1] (\1)', text)
+        # Convert internal links.
+        text = self.internal_link.sub(r'[\1:\2] (/\1/\2)', text)
 
-            # Convert <link> to markdown format.
-            text = self.normal_link.sub(r'[\1] (\1)', text)
+        # Convert <link> to markdown format.
+        text = self.normal_link.sub(r'[\1] (\1)', text)
 
-            # Markdown to HTML.
-            text = webhelpers.markdown.markdown(text, safe_mode=True)
+        # Convert <link> to markdown format.
+        text = self.normal_link.sub(r'[\1] (\1)', text)
 
-            # Decode whitelist elements.
-            text = self.whitelist_escp.sub(r'<\1>', text)
-        except Exception, e: 
-            log.exception(e)
-            text = '<p>%s</p>' % _('<strong>Warning:</strong>: Text could not be rendered.')
+        # Markdown to HTML.
+        text = webhelpers.markdown.markdown(text, safe_mode=True)
+
+        # Decode whitelist elements.
+        text = self.whitelist_escp.sub(r'<\1>', text)
+
+        # Make links safer.
+        text = self.html_link.sub(r'<a href="\1" target="_blank" rel="nofollow">', text)
 
         return text

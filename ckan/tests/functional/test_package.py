@@ -307,6 +307,10 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, TestSearchIndexer, PylonsT
         assert anna.resources[0].description in res
         assert anna.resources[0].hash in res
         assert 'Some test notes' in res
+        self.check_named_element(res, 'a',
+                                 'http://ckan.net/',
+                                 'target="_blank"',
+                                 'rel="nofollow"')
         assert '<strong>Some bolded text.</strong>' in res
         self.check_tag_and_data(res, 'left arrow', '&lt;')
         self.check_tag_and_data(res, 'umlaut', u'\xfc')

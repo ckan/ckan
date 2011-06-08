@@ -1,10 +1,11 @@
 from routes import url_for
 
 from ckan.tests import search_related, CreateTestData
+from ckan.tests.html_check import HtmlCheckMethods
 import ckan.model as model
 from base import FunctionalTestCase
 
-class TestUserController(FunctionalTestCase):
+class TestUserController(FunctionalTestCase, HtmlCheckMethods):
     @classmethod
     def setup_class(self):
         model.repo.init_db()
@@ -34,6 +35,10 @@ class TestUserController(FunctionalTestCase):
         assert 'My Account' not in main_res, main_res
         assert 'about' in main_res, main_res
         assert 'I love reading Annakarenina' in res, main_res
+        self.check_named_element(res, 'a',
+                                 'http://anna.com',
+                                 'target="_blank"',
+                                 'rel="nofollow"')
         assert 'Edit' not in main_res, main_res
         assert 'Number of edits:</strong> 3' in res, res
         assert 'Number of packages administered:</strong> 1' in res, res
