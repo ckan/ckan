@@ -51,8 +51,11 @@ def obj_list_dictize(obj_list, context, sort_key=lambda x:x):
     '''Get a list of model object and represent it as a list of dicts'''
 
     result_list = []
+    active = context.get('active', True)
 
     for obj in obj_list:
+        if active and obj.state not in ('active', 'pending'):
+            continue
         result_list.append(table_dictize(obj, context))
 
     return sorted(result_list, key=sort_key)

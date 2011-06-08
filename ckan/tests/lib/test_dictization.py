@@ -25,6 +25,52 @@ class TestBasicDictize:
     @classmethod
     def setup_class(cls):
         CreateTestData.create()
+
+        cls.package_expected = {
+            'author': None,
+            'author_email': None,
+            'extras': [
+               {'key': u'genre',
+                'state': u'active',
+                'value': '"romantic novel"'},
+               {'key': u'original media', 'state': u'active', 'value': u'"book"'}],
+            'groups': [{'description': u'These are books that David likes.',
+                        'name': u'david',
+                        'state': u'active',
+                        'title': u"Dave's books"},
+                       {'description': u'Roger likes these books.',
+                        'name': u'roger',
+                        'state': u'active',
+                        'title': u"Roger's books"}],
+            'license_id': u'other-open',
+            'maintainer': None,
+            'maintainer_email': None,
+            'name': u'annakarenina',
+            'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n \nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
+            'relationships_as_object': [],
+            'relationships_as_subject': [],
+            'resources': [{'alt_url': u'alt123',
+                           'description': u'Full text. Needs escaping: " Umlaut: \xfc',
+                           'size': u'123',
+                           'format': u'plain text',
+                           'hash': u'abc123',
+                           'position': 0,
+                           'state': u'active',
+                           'url': u'http://www.annakarenina.com/download/x=1&y=2'},
+                          {'alt_url': u'alt345',
+                           'description': u'Index of the novel',
+                           'size': u'345',
+                           'format': u'json',
+                           'hash': u'def456',
+                           'position': 1,
+                           'state': u'active',
+                           'url': u'http://www.annakarenina.com/index.json'}],
+            'state': u'active',
+                        'tags': [{'name': u'russian', 'state': u'active'},
+                                 {'name': u'tolstoy', 'state': u'active'}],
+            'title': u'A Novel By Tolstoy',
+            'url': u'http://www.annakarenina.com',
+            'version': u'0.7a'}
         
 
     @classmethod
@@ -91,6 +137,7 @@ class TestBasicDictize:
         result = resource_dictize(resource, context)
         self.remove_changable_columns(result)
 
+
         assert result == {
              'alt_url': u'alt123',
              'description': u'Full text. Needs escaping: " Umlaut: \xfc',
@@ -126,56 +173,11 @@ class TestBasicDictize:
         result = package_dictize(pkg, context)
         self.remove_changable_columns(result)
 
-        
-        expected = {'author': None,
-             'author_email': None,
-             'extras': [
-                {'key': u'genre',
-                 'state': u'active',
-                 'value': '"romantic novel"'},
-                {'key': u'original media', 'state': u'active', 'value': u'"book"'}],
-             'groups': [{'description': u'These are books that David likes.',
-                         'name': u'david',
-                         'state': u'active',
-                         'title': u"Dave's books"},
-                        {'description': u'Roger likes these books.',
-                         'name': u'roger',
-                         'state': u'active',
-                         'title': u"Roger's books"}],
-             'license_id': u'other-open',
-             'maintainer': None,
-             'maintainer_email': None,
-             'name': u'annakarenina',
-             'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n \nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
-             'relationships_as_object': [],
-             'relationships_as_subject': [],
-             'resources': [{'alt_url': u'alt123',
-                            'description': u'Full text. Needs escaping: " Umlaut: \xfc',
-                            'size': u'123',
-                            'format': u'plain text',
-                            'hash': u'abc123',
-                            'position': 0,
-                            'state': u'active',
-                            'url': u'http://www.annakarenina.com/download/x=1&y=2'},
-                           {'alt_url': u'alt345',
-                            'description': u'Index of the novel',
-                            'size': u'345',
-                            'format': u'json',
-                            'hash': u'def456',
-                            'position': 1,
-                            'state': u'active',
-                            'url': u'http://www.annakarenina.com/index.json'}],
-             'state': u'active',
-             'tags': [{'name': u'russian'}, {'name': u'tolstoy'}],
-             'title': u'A Novel By Tolstoy',
-             'url': u'http://www.annakarenina.com',
-             'version': u'0.7a'}
-
         pprint(result)
-        pprint(expected)
+        pprint(self.package_expected)
 
-        assert sorted(result.values()) == sorted(expected.values())
-        assert result == expected
+        assert sorted(result.values()) == sorted(self.package_expected.values())
+        assert result == self.package_expected
 
 
 
@@ -433,6 +435,7 @@ class TestBasicDictize:
         anna_dictized = package_dictize(anna1, context)
 
 
+        anna_dictized['notes'] = 'wee'
         anna_dictized['resources'].append({
                             'format': u'plain text',
                             'url': u'newurl'}
@@ -520,11 +523,13 @@ class TestBasicDictize:
         pkgrevisions = model.Session.query(model.PackageRevision).filter_by(id=anna1.id).all()
         sorted_packages = sorted(pkgrevisions, key=lambda x:x.revision_timestamp)[::-1]
 
-        assert len(sorted_packages) == 3
+        assert len(sorted_packages) == 4
         assert sorted_packages[0].state == 'active', sorted_packages[0].state #was pending
-        assert sorted_packages[0].current == True #was pending
-        assert sorted_packages[1].state == 'active' #was active-current
+        assert sorted_packages[0].current == True 
+
+        assert sorted_packages[1].state == 'pending' 
         assert sorted_packages[2].state == 'active'
+        assert sorted_packages[3].state == 'active'
 
         resources_revisions = model.Session.query(model.ResourceRevision).filter_by(resource_group_id=anna1.resource_groups[0].id).all()
         sorted_resources = sorted(resources_revisions, key=lambda x: (x.revision_timestamp, x.url))[::-1]
@@ -586,7 +591,64 @@ class TestBasicDictize:
         assert str(sorted_extras[2].expired_timestamp) == '9999-12-31 00:00:00'
         assert str(sorted_extras[3].expired_timestamp) != '9999-12-31 00:00:00'
 
-    def test_12_resource_no_id(self):
+    def test_13_get_package_in_past(self):
+
+        context = {'model': model,
+                   'session': model.Session}
+
+        anna1 = model.Session.query(model.Package).filter_by(name='annakarenina_changed2').one()
+
+        pkgrevisions = model.Session.query(model.PackageRevision).filter_by(id=anna1.id).all()
+        sorted_packages = sorted(pkgrevisions, key=lambda x:x.revision_timestamp)
+
+        context['revision_id'] = sorted_packages[0].revision_id #original state
+
+        first_dictized = self.remove_changable_columns(package_dictize(anna1, context))
+        assert self.package_expected == first_dictized
+
+        context['revision_id'] = sorted_packages[1].revision_id #original state
+
+        second_dictized = self.remove_changable_columns(package_dictize(anna1, context))
+
+        first_dictized["name"] = u'annakarenina_changed' 
+        first_dictized["resources"][0]["url"] = u'new_url' 
+
+        assert second_dictized == first_dictized
+
+        context['revision_id'] = sorted_packages[2].revision_id #original state
+        third_dictized = self.remove_changable_columns(package_dictize(anna1, context))
+        
+        second_dictized['name'] = u'annakarenina_changed2' 
+        second_dictized['resources'][0]['url'] = u'new_url2' 
+        second_dictized['tags'][0]['name'] = u'new_tag' 
+        second_dictized['extras'][0]['value'] = u'"new_value"' 
+        second_dictized['state'] = 'pending'
+
+        assert second_dictized == third_dictized
+
+        context['revision_id'] = sorted_packages[3].revision_id #original state
+        forth_dictized = self.remove_changable_columns(package_dictize(anna1, context))
+
+        third_dictized['notes'] = 'wee'
+        third_dictized['resources'].insert(2, {u'description': u'',
+                                            u'format': u'plain text',
+                                            u'hash': u'',
+                                            u'position': 2,
+                                            u'state': u'active',
+                                            u'url': u'newurl'})
+
+        third_dictized['tags'].insert(1, {'name': u'newnew_tag', 'state': 'active'})
+        third_dictized['extras'].insert(0, {'key': 'david', 
+                                         'value': u'"new_value"',
+                                         'state': u'active'})
+        third_dictized['state'] = 'active'
+
+        pprint(third_dictized)
+        pprint(forth_dictized)
+
+        assert third_dictized == forth_dictized
+
+    def test_14_resource_no_id(self):
 
         context = {"model": model,
                  "session": model.Session}
@@ -616,7 +678,7 @@ class TestBasicDictize:
 
         assert res_dictized == new_resource, res_dictized 
 
-    def test_13_api_to_dictize(self):
+    def test_15_api_to_dictize(self):
 
         context = {"model": model,
                  "session": model.Session}
@@ -682,7 +744,7 @@ class TestBasicDictize:
 
         package_dictized = self.remove_changable_columns(package_dictize(pkg, context))
 
-    def test_14_group_dictized(self):
+    def test_16_group_dictized(self):
 
         context = {"model": model,
                   "session": model.Session}
@@ -744,7 +806,7 @@ class TestBasicDictize:
         assert result == expected, pformat(result)
 
 
-    def test_14_group_apis_to_dict(self):
+    def test_17_group_apis_to_dict(self):
 
         context = {"model": model,
                   "session": model.Session}

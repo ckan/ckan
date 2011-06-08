@@ -8,30 +8,30 @@ from ckan.lib.dictization import (obj_list_dictize,
 import ckan.misc
 import json
 
-END_DATE = datetime.datetime(9999,12,31)
-
-class FakeSqlAlchemyObject(object):
-
-    def __init__(self, **kw):
-        for key, value in kw.iteritems():
-            self.key = value
-
 ## package save
 
 def group_list_dictize(obj_list, context, sort_key=lambda x:x):
+
+    active = context.get('active', True)
 
     result_list = []
 
     for obj in obj_list:
         group_dict = table_dictize(obj, context)
         group_dict.pop('created')
+        if active and obj.state not in ('active', 'pending'):
+            continue
+
         result_list.append(group_dict)
     return sorted(result_list, key=sort_key)
 
 def resource_list_dictize(res_list, context):
 
+    active = context.get('active', True)
     result_list = []
     for res in res_list:
+        if active and res.state not in ('active', 'pending'):
+            continue
         result_list.append(resource_dictize(res, context))
 
     return sorted(result_list, key=lambda x: x["position"])
@@ -53,7 +53,10 @@ def extras_dict_dictize(extras_dict, context):
 
 def extras_list_dictize(extras_list, context):
     result_list = []
+    active = context.get('active', True)
     for extra in extras_list:
+        if active and extra.state not in ('active', 'pending'):
+            continue
         dictized = table_dictize(extra, context)
         value = dictized["value"]
         if not(context.get("extras_as_string") and isinstance(value, basestring)):
@@ -74,20 +77,25 @@ def _execute_with_revision(q, rev_table, context):
     model = context['model']
     meta = model.meta
     session = model.Session
-    revision_id = context.get('revision_date')
+    active = context.get('active', False)
+    revision_id = context.get('revision_id')
     revision_date = context.get('revision_date')
     pending = context.get('pending')
 
     if revision_id:
-        model = session.query(context['model'].Revision).filter_by()
+        revision_date = session.query(context['model'].Revision).filter_by(
+            id=revision_id).one().timestamp
     
     if revision_date:
-        q = q.where(rev_table.c.revision_timestamp >= revision_date)
-        q = q.where(rev_table.c.expired_timestamp < revision_date)
+        q = q.where(rev_table.c.revision_timestamp <= revision_date)
+        q = q.where(rev_table.c.expired_timestamp > revision_date)
     elif pending:
         q = q.where(rev_table.c.expired_timestamp == '9999-12-31')
     else:
-        q = q.where(rev_table.c.current == '1')
+        q = q.where(rev_table.c.current == True)
+    if active:
+        q = q.where(rev_table.c.state.in_(['active', 'pending']))
+
     return session.execute(q)
 
 
@@ -109,7 +117,7 @@ def package_dictize(pkg, context):
     #tags
     tag_rev = model.package_tag_revision_table
     tag = model.tag_table
-    q = select([tag], 
+    q = select([tag, tag_rev.c.state, tag_rev.c.revision_timestamp], 
         from_obj=tag_rev.join(tag, tag.c.id == tag_rev.c.tag_id)
         ).where(tag_rev.c.package_id == pkg.id)
     result = _execute_with_revision(q, tag_rev, context)

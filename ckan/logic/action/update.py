@@ -74,7 +74,7 @@ def _make_latest_rev_active(context, q):
 
     old_current = q.filter_by(current=True).first()
     if old_current:
-        old_current.current = '0'
+        old_current.current = False
         session.add(old_current)
 
     latest_rev = q.filter_by(expired_timestamp='9999-12-31').one()
@@ -93,6 +93,9 @@ def _make_latest_rev_active(context, q):
         if latest_rev.revision_timestamp > old_latest:
             context['latest_revision_date'] = latest_rev.revision_timestamp
             context['latest_revision'] = latest_rev.revision_id
+    else:
+        context['latest_revision_date'] = latest_rev.revision_timestamp
+        context['latest_revision'] = latest_rev.revision_id
 
 def make_latest_pending_package_active(context):
 
@@ -130,7 +133,9 @@ def make_latest_pending_package_active(context):
     revision = q.first()
     revision.approved_timestamp = datetime.datetime.now()
     session.add(revision)
-    model.repo.commit()        
+    
+    session.commit()        
+    session.remove()        
 
 
 def package_update(data_dict, context):
