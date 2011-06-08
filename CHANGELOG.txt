@@ -1,6 +1,18 @@
 CKAN CHANGELOG
 ++++++++++++++
 
+v1.4.1 2011-XX-XX
+=================
+Minor:
+  * Links in user-supplied text made less attractive to spammers (nofollow) #1181 
+  * Package change notifications - remove duplicates (#1149)
+  * Metadata dump linked to (#1169)
+  * Refactor authorization code to be common across Package, Group and Authorization Group (#1074)
+  * Refactor Web interface to use logic layer rather than model objects directly (#1078)
+
+Bug fixes
+  * Duplicate authorization roles were difficult to delete (#1083)
+
 v1.4 2011-05-19
 ===============
 Major:
