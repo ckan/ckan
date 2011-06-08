@@ -425,25 +425,25 @@ Understanding How a User Installs from an apt repository
 
 A user will follow the following process:
 
-First create the file ``/etc/apt/sources.list.d/okfn.list`` with this line, replacing ``lucid`` with the correct repo you want to use:
+First create the file ``/etc/apt/sources.list.d/okfn.list`` using this command, replacing ``ubuntu_ckan_dev`` with the correct repo you want to use:
 
 ::
 
-    echo "deb http://apt-alpha.ckan.org/lucid lucid universe" | sudo tee /etc/apt/sources.list.d/okfn.list
+    echo "deb http://apt.okfn.org/ubuntu_ckan_dev lucid universe" | sudo tee /etc/apt/sources.list.d/okfn.list
 
 Then add the package key to say you trust packages from this repository:
 
 ::
 
     sudo apt-get install wget
-    wget -qO-  http://apt-alpha.ckan.org/packages.okfn.key | sudo apt-key add -
+    wget -qO-  http://apt.okfn.org/packages.okfn.key | sudo apt-key add -
     sudo apt-get update
 
 Now you can not install a CKAN extension application, just like any other Debian package:
 
 ::
 
-    sudo apt-get install ckan-dgu
+    sudo apt-get install ckan-std
 
 At this point you should have a running instance. You may need to copy across
 an existing database if you need your instance pre-populated with data.
@@ -616,7 +616,7 @@ Build individual dependencies like this:
     python -m buildkit.deb . ckanext-csw 0.3~10 http://ckan.org python-ckanext-harvest python-owslib python-ckan
     python -m buildkit.deb . ckanext-dgu 0.2~11 http://ckan.org python-ckan python-ckanext-importlib python-ckanext-dgu python-ckanext-csw python-ckan python-ckanext-spatial python-ckanext-inspire
     python -m buildkit.deb . ckanext-qa 0.1~19 http://ckan.org python-ckan
-    python -m buildkit.deb . ckan 1.3.4~02 http://ckan.org python-routes python-vdm python-pylons python-genshi python-sqlalchemy python-repoze.who python-repoze.who-plugins python-pyutilib.component.core python-migrate python-formalchemy python-sphinx python-markupsafe python-setuptools python-psycopg2 python-licenses python-ckan-deps
+    python -m buildkit.deb . ckan 1.4~01 http://ckan.org python-routes python-vdm python-pylons python-genshi python-sqlalchemy python-repoze.who python-repoze.who-plugins python-pyutilib.component.core python-migrate python-formalchemy python-sphinx python-markupsafe python-setuptools python-psycopg2 python-licenses python-ckan-deps
 
 There's a dependency on postfix. Choose internet site and the default hostname unless you know better.
 
