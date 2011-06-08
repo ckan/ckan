@@ -346,11 +346,8 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, TestSearchIndexer, PylonsT
         offset = url_for(controller='package', action='read', id=pkg_name)
         res = self.app.get(offset)
         def check_link(res, controller, id):
-            link = '<a href="/%s/%s">%s:%s</a>' % (controller, id, controller, id)
-            if link not in res:
-                print self.main_div(res).encode('utf8')
-                print 'Missing link: %r' % link
-                raise AssertionError
+            self.check_tag_and_data(res, 'a ', '/%s/%s' % (controller, id),
+                                    '%s:%s' % (controller, id))
         check_link(res, 'package', 'pkg-1')
         check_link(res, 'tag', 'tag_1')
         check_link(res, 'group', 'test-group-1')
