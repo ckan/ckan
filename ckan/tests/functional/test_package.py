@@ -899,6 +899,11 @@ u with umlaut \xc3\xbc
         finally:
             self._reset_data()
 
+    def test_edit_404(self):
+        self.offset = url_for(controller='package', action='edit', id='random_name')
+        self.res = self.app.get(self.offset, status=404)
+
+
 class TestNew(TestPackageForm):
     pkg_names = []
 

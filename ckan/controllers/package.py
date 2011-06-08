@@ -333,6 +333,8 @@ class PackageController(BaseController):
             data = data or old_data
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
+        except NotFound:
+            abort(404, _('Package not found'))
 
         c.pkg = context.get("package")
 
@@ -656,7 +658,7 @@ class PackageController(BaseController):
         package_name = id
         package = model.Package.get(package_name)
         if package is None:
-            abort(404, gettext('404 Package Not Found'))
+            abort(404, gettext('Package Not Found'))
         self._clear_pkg_cache(package)
         rating = request.params.get('rating', '')
         if rating:
