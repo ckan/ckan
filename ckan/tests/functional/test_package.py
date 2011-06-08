@@ -1383,7 +1383,7 @@ alert('Hello world!');
         self.body = str(self.res)
         self.assert_fragment('<table width="100%" border="1">')
         self.assert_fragment('<td rowspan="2"><b>Description</b></td>')
-        self.assert_fragment('<a href="http://www.nber.org/patents/subcategories.txt">subcategory.txt</a>')
+        self.assert_fragment('<a href="http://www.nber.org/patents/subcategories.txt" target="_blank" rel="nofollow">subcategory.txt</a>')
         self.assert_fragment('<td colspan="2"><center>--</center></td>')
         self.fail_if_fragment('<script>')
 

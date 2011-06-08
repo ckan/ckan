@@ -8,9 +8,6 @@ from base import FunctionalTestCase
 class TestUserController(FunctionalTestCase, HtmlCheckMethods):
     @classmethod
     def setup_class(self):
-        model.repo.init_db()
-        model.repo.rebuild_db()
-        model.repo.init_db()
         CreateTestData.create()
 
         # make 3 changes, authored by annafan
@@ -21,6 +18,10 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods):
             rev.author = u'annafan'
             model.repo.commit_and_remove()
 
+        CreateTestData.create_user('unfinisher', about='<a href="http://unfinished.tag')
+        CreateTestData.create_user('uncloser', about='<a href="http://unclosed.tag">')
+        CreateTestData.create_user('spammer', about=u'<a href="http://mysite">mysite</a> <a href=\u201dhttp://test2\u201d>test2</a>')
+        
     @classmethod
     def teardown_class(self):
         model.repo.rebuild_db()
@@ -65,6 +66,39 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods):
         assert 'My Account' in main_res, main_res
         assert 'Edit' in main_res, main_res
 
+    def test_user_read_about_unfinished(self):
+        user = model.User.by_name(u'unfinisher')
+        offset = '/user/%s' % user.id
+        res = self.app.get(offset, status=200)
+        main_res = self.main_div(res)
+        assert 'unfinisher' in res, res
+        assert '&lt;a href="http://unfinished.tag' in main_res, main_res
+
+    def test_user_read_about_unclosed(self):
+        user = model.User.by_name(u'uncloser')
+        offset = '/user/%s' % user.id
+        res = self.app.get(offset, status=200)
+        main_res = self.main_div(res)
+        assert 'unclosed' in res, res
+        # tag gets closed by genshi
+        assert '<a href="http://unclosed.tag" target="_blank" rel="nofollow">\n</a>' in main_res, main_res
+
+    def test_user_read_about_spam(self):
+        user = model.User.by_name(u'spammer')
+        offset = '/user/%s' % user.id
+        res = self.app.get(offset, status=200)
+        main_res = self.main_div(res)
+        assert 'spammer' in res, res
+        self.check_named_element(res, 'a',
+                                 'href="http://mysite"',
+                                 'target="_blank"',
+                                 'rel="nofollow"')
+
+        self.check_named_element(res, 'a',
+                                 'href="TAG MALFORMED"',
+                                 'target="_blank"',
+                                 'rel="nofollow"')
+        
     def test_user_login(self):
         offset = url_for(controller='user', action='login', id=None)
         res = self.app.get(offset, status=200)
