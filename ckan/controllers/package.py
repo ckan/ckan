@@ -390,7 +390,7 @@ class PackageController(BaseController):
             data.append({'revision_id': revision.id,
                          'message': revision.message,
                          'timestamp': format_datetime(revision.timestamp, 
-                                                      locale=get_lang()[0] or 'en'),
+                                                      locale=get_lang() or ['en'])[0],
                          'approved': bool(revision.approved_timestamp),
                          'current_approved': current_approved})
                 
