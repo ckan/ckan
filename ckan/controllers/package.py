@@ -304,7 +304,7 @@ class PackageController(BaseController):
         if (context['save'] or context['preview']) and not data:
             return self._save_new(context)
 
-        data = data or {}
+        data = data or dict(request.params) 
         errors = errors or {}
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
