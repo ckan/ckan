@@ -107,7 +107,7 @@ def make_latest_pending_package_active(context):
     check_access(pkg, model.Action.EDIT, context)
 
     #packages
-    q = session.query(model.PackageRevision).filter_by(id=id)
+    q = session.query(model.PackageRevision).filter_by(id=pkg.id)
     _make_latest_rev_active(context, q)
 
     #resources

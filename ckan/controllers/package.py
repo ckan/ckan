@@ -321,7 +321,7 @@ class PackageController(BaseController):
                    'user': c.user or c.author, 'extras_as_string': True,
                    'preview': 'preview' in request.params,
                    'save': 'save' in request.params,
-                   'id': id, 'approved': request.params.get('approved'),
+                   'id': id, 'moderated': request.params.get('moderated'),
                    'pending': True,
                    'schema': self._form_to_db_schema()}
 
@@ -388,6 +388,7 @@ class PackageController(BaseController):
             data.append({'revision_id': revision.id,
                          'message': revision.message,
                          'timestamp': revision.timestamp.isoformat(),
+                         'approved': bool(revision.approved_timestamp),
                          'current_approved': current_approved})
         response.headers['Content-Type'] = 'application/json;charset=utf-8'
         return json.dumps(data)
@@ -424,10 +425,10 @@ class PackageController(BaseController):
                 tuplize_dict(parse_params(request.params))))
             self._check_data_dict(data_dict)
             context['message'] = data_dict.get('log_message', '')
-            if not context['approved']:
+            if not context['moderated']:
                 context['pending'] = False
             pkg = update.package_update(data_dict, context)
-            if context.get('approved', '') == 'yes':
+            if request.params.get('save', '') == 'Approve':
                 update.make_latest_pending_package_active(context)
             c.pkg = context['package']
 
