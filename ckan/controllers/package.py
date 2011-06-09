@@ -387,16 +387,12 @@ class PackageController(BaseController):
             else:
                 current_approved = False
             
-            try:
-                data.append({'revision_id': revision.id,
-                             'message': revision.message,
-                             'timestamp': format_datetime(revision.timestamp, 
-                                                          locale=get_lang()[0] or 'en'),
-                             'approved': bool(revision.approved_timestamp),
-                             'current_approved': current_approved})
-            except Exception, e:
-                from nose.tools import set_trace; set_trace()
-                pass
+            data.append({'revision_id': revision.id,
+                         'message': revision.message,
+                         'timestamp': format_datetime(revision.timestamp, 
+                                                      locale=get_lang()[0] or 'en'),
+                         'approved': bool(revision.approved_timestamp),
+                         'current_approved': current_approved})
                 
         response.headers['Content-Type'] = 'application/json;charset=utf-8'
         return json.dumps(data)
