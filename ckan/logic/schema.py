@@ -109,7 +109,7 @@ def package_form_schema():
     ##new
     schema['log_message'] = [unicode, no_http]
     schema['groups'] = {
-            'id': [not_empty, unicode],
+            'id': [ignore_missing, unicode],
             '__extras': [empty],
             'name': [ignore, unicode],
     }

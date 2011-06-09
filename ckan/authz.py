@@ -73,7 +73,7 @@ class Authorizer(object):
 
         # check it's active
         if domain_object.__class__ != type and hasattr(domain_object, 'state'):
-            if domain_object.state != model.State.ACTIVE:
+            if domain_object.state == model.State.DELETED:
                 return False
 
         # check if any of the roles allows the action requested
@@ -209,13 +209,13 @@ class Authorizer(object):
                 q = q.filter(sa.or_(
                     sa.and_(role_cls.role==model.RoleAction.role,
                             model.RoleAction.action==action,
-                            state and state==model.State.ACTIVE),
+                            state and state!=model.State.DELETED),
                     role_cls.role==model.Role.ADMIN))
             else:
                 q = q.filter(
                     sa.and_(role_cls.role==model.RoleAction.role,
                             model.RoleAction.action==action,
-                            state and state==model.State.ACTIVE),
+                            state and state!=model.State.DELETED),
                     )
             q = q.filter(sa.or_(*filters))   
             q = q.distinct()
