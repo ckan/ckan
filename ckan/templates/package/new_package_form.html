@@ -100,6 +100,7 @@
     <py:for each="num, group in enumerate(data.get('groups', []))">
       <dt>
       <input type="${'checkbox' if group['id'] in c.groups_authz else 'hidden'}" name="groups__${num}__id" checked="checked" value="${group['id']}" />
+      <input type="hidden" name="groups__${num}__name" value="${group['name']}" />
       </dt>     
       <dd><label for="groups__${num}__checked">${group['name']}</label></dd>
     </py:for>

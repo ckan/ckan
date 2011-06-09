@@ -9,6 +9,7 @@ import genshi
 from pylons import config, cache
 from pylons.i18n import get_lang, _
 from autoneg.accept import negotiate
+from babel.dates import format_date, format_datetime, format_time
 
 import ckan.logic.action.create as create
 import ckan.logic.action.update as update
@@ -385,11 +386,18 @@ class PackageController(BaseController):
                 current_approved, approved = True, True
             else:
                 current_approved = False
-            data.append({'revision_id': revision.id,
-                         'message': revision.message,
-                         'timestamp': revision.timestamp.isoformat(),
-                         'approved': bool(revision.approved_timestamp),
-                         'current_approved': current_approved})
+            
+            try:
+                data.append({'revision_id': revision.id,
+                             'message': revision.message,
+                             'timestamp': format_datetime(revision.timestamp, 
+                                                          locale=get_lang()[0] or 'en'),
+                             'approved': bool(revision.approved_timestamp),
+                             'current_approved': current_approved})
+            except Exception, e:
+                from nose.tools import set_trace; set_trace()
+                pass
+                
         response.headers['Content-Type'] = 'application/json;charset=utf-8'
         return json.dumps(data)
 

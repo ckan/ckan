@@ -111,6 +111,7 @@ def package_form_schema():
     schema['groups'] = {
             'id': [not_empty, unicode],
             '__extras': [empty],
+            'name': [ignore, unicode],
     }
     schema['tag_string'] = [ignore_missing, tag_string_convert]
     schema['extras_validation'] = [duplicate_extras_key, ignore]
