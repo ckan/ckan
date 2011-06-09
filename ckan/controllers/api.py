@@ -258,7 +258,8 @@ class ApiController(BaseController):
             action = action_map.get(register)
         if not action:
             response.status_int = 400
-            return gettext('Cannot update entity of this type: %s') % register
+            return gettext('Cannot update entity of this type: %s') % \
+                    register.encode('utf-8')
         try:
             response_data = action(request_data, context)
             return self._finish_ok(response_data)
