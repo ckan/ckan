@@ -106,8 +106,9 @@ def package_form_schema():
     ##new
     schema['log_message'] = [unicode, no_http]
     schema['groups'] = {
-            'id': [not_empty, unicode],
+            'id': [ignore_missing, unicode],
             '__extras': [empty],
+            'name': [ignore, unicode],
     }
     schema['tag_string'] = [ignore_missing, tag_string_convert]
     schema['extras_validation'] = [duplicate_extras_key, ignore]
