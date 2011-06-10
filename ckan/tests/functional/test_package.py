@@ -6,6 +6,7 @@ from pylons import c
 from genshi.core import escape as genshi_escape
 from difflib import unified_diff
 from nose.plugins.skip import SkipTest
+from nose.tools import assert_equal
 
 from ckan.tests import *
 from ckan.tests import search_related
@@ -918,18 +919,11 @@ class TestNew(TestPackageForm):
 
     def test_new_with_params_1(self):
         offset = url_for(controller='package', action='new',
-                url='http://xxx.org')
+                url='http://xxx.org', name='xxx.org')
         res = self.app.get(offset)
         form = res.forms['package-edit']
-        form['url'].value == 'http://xxx.org/'
-        form['name'].value == 'xxx.org'
-
-    def test_new_with_params_2(self):
-        offset = url_for(controller='package', action='new',
-                url='http://www.xxx.org')
-        res = self.app.get(offset)
-        form = res.forms['package-edit']
-        form['name'].value == 'xxx.org'
+        assert_equal(form['url'].value, 'http://xxx.org')
+        assert_equal(form['name'].value, 'xxx.org')
 
     def test_new_without_resource(self):
         # new package
