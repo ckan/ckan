@@ -324,7 +324,6 @@ class PackageController(BaseController):
 
         if (context['save'] or context['preview']) and not data:
             return self._save_edit(id, context)
-
         try:
             old_data = get.package_show(context)
             schema = self._db_to_form_schema()
@@ -352,7 +351,7 @@ class PackageController(BaseController):
     def _save_new(self, context):
         try:
             data_dict = clean_dict(unflatten(
-                tuplize_dict(parse_params(request.params))))
+                tuplize_dict(parse_params(request.POST))))
             self._check_data_dict(data_dict)
             context['message'] = data_dict.get('log_message', '')
             pkg = create.package_create(data_dict, context)
@@ -378,7 +377,7 @@ class PackageController(BaseController):
     def _save_edit(self, id, context):
         try:
             data_dict = clean_dict(unflatten(
-                tuplize_dict(parse_params(request.params))))
+                tuplize_dict(parse_params(request.POST))))
             self._check_data_dict(data_dict)
             context['message'] = data_dict.get('log_message', '')
             pkg = update.package_update(data_dict, context)
