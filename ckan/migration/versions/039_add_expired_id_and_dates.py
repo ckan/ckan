@@ -103,7 +103,7 @@ update package_revision set state = 'active-current' where expired_timestamp = '
 update package_revision set current = '1' where expired_timestamp = '9999-12-31';
 
 create index idx_package_period on package_revision(revision_timestamp, expired_timestamp, id);
-create index idx_package_expired on package_revision(expired_timestamp);
+create index idx_package_current on package_revision(current);
 
 --package extra revision 
 truncate tmp_expired_id;
@@ -115,7 +115,7 @@ update package_extra_revision set current = '1' where expired_timestamp = '9999-
 
 create index idx_package_extra_period on package_extra_revision(revision_timestamp, expired_timestamp, id);
 create index idx_package_extra_period_package on package_extra_revision(revision_timestamp, expired_timestamp, package_id);
-create index idx_package_extra_expired on package_extra_revision(expired_timestamp);
+create index idx_package_extra_current on package_extra_revision(current);
 
 --package group revision
 truncate tmp_expired_id;
@@ -126,7 +126,7 @@ update package_group_revision pr set revision_timestamp = (select revision_times
 update package_group_revision set current = '1' where expired_timestamp = '9999-12-31';
 
 create index idx_package_group_period_package_group on package_group_revision(revision_timestamp, expired_timestamp, package_id, group_id);
-create index idx_package_group_expired on package_group_revision(expired_timestamp);
+create index idx_package_group_current on package_group_revision(current);
 
 
 -- package_tags
@@ -138,7 +138,7 @@ update package_tag_revision pr set revision_timestamp = (select revision_timesta
 update package_tag_revision set current = '1' where expired_timestamp = '9999-12-31';
 
 create index idx_period_package_tag on package_tag_revision(revision_timestamp, expired_timestamp, package_id, tag_id);
-create index idx_package_tag_expired on package_tag_revision(expired_timestamp);
+create index idx_package_tag_current on package_tag_revision(current);
 
 -- package relationship
 truncate tmp_expired_id;
@@ -149,7 +149,7 @@ update package_relationship_revision pr set revision_timestamp = (select revisio
 update package_relationship_revision set current = '1' where expired_timestamp = '9999-12-31';
 
 create index idx_period_package_relationship on package_relationship_revision(revision_timestamp, expired_timestamp, object_package_id, subject_package_id);
-create index idx_package_relationship_expired on package_relationship_revision(expired_timestamp);
+create index idx_package_relationship_current on package_relationship_revision(current);
 
 -- resource revision
 truncate tmp_expired_id;
@@ -161,7 +161,7 @@ update resource_revision set current = '1' where expired_timestamp = '9999-12-31
 
 create index idx_resource_period on resource_revision(revision_timestamp, expired_timestamp, id);
 create index idx_resource_period_resource_group on resource_revision(revision_timestamp, expired_timestamp, resource_group_id);
-create index idx_resource_expired on resource_revision(expired_timestamp);
+create index idx_resource_current on resource_revision(current);
 
 -- resource group revision;
 truncate tmp_expired_id;
@@ -173,7 +173,7 @@ update resource_group_revision set current = '1' where expired_timestamp = '9999
 
 create index idx_resource_group_period on resource_group_revision(revision_timestamp, expired_timestamp, id);
 create index idx_resource_group_period_package on resource_group_revision(revision_timestamp, expired_timestamp, package_id);
-create index idx_resource_group_expired on resource_group_revision(expired_timestamp);
+create index idx_resource_group_current on resource_group_revision(current);
 
 --group revision;
 truncate tmp_expired_id;
@@ -184,7 +184,7 @@ update group_revision pr set revision_timestamp = (select revision_timestamp fro
 update group_revision set current = '1' where expired_timestamp = '9999-12-31';
 
 create index idx_group_period on group_revision(revision_timestamp, expired_timestamp, id);
-create index idx_group_expired on group_revision(expired_timestamp);
+create index idx_group_current on group_revision(current);
 
 --group extra revision 
 truncate tmp_expired_id;
@@ -196,7 +196,7 @@ update group_extra_revision set current = '1' where expired_timestamp = '9999-12
 
 create index idx_group_extra_period on group_extra_revision(revision_timestamp, expired_timestamp, id);
 create index idx_group_extra_period_group on group_extra_revision(revision_timestamp, expired_timestamp, group_id);
-create index idx_group_extra_expired on group_extra_revision(expired_timestamp);
+create index idx_group_extra_current on group_extra_revision(current);
 
 drop table tmp_expired_id;
 
