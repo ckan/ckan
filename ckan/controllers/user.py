@@ -138,9 +138,6 @@ class UserController(BaseController):
             c.user_email = request.params.getone('email')
         elif 'save' in request.params:
             try:
-                rev = model.repo.new_revision()
-                rev.author = c.author
-                rev.message = _(u'Changed user details')
                 user.about = request.params.getone('about')
                 user.fullname = request.params.getone('fullname')
                 user.email = request.params.getone('email')
