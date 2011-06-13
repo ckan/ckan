@@ -97,7 +97,8 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
 
     if asbool(static_files):
         # Serve static files
-        static_app = StaticURLParser(config['pylons.paths']['static_files'])
+        static_app = StaticURLParser(config['pylons.paths']['static_files'],
+                cache_max_age=3600)
         static_parsers = [static_app, app]
 
         # Configurable extra static file paths
@@ -105,7 +106,8 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
         for public_path in config.get('extra_public_paths', '').split(','):
             if public_path.strip():
                 extra_static_parsers.append(
-                    StaticURLParser(public_path.strip())
+                    StaticURLParser(public_path.strip(),
+                        cache_max_age=3600)
                 )
         app = Cascade(extra_static_parsers+static_parsers)
 
