@@ -174,11 +174,20 @@ class PackageController(BaseController):
 
     @proxy_cache()
     def read(self, id):
-        
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'extras_as_string': True,
+                   'schema': self._form_to_db_schema(),
+                   'id': id}
         #check if package exists
-        c.pkg = model.Package.get(id)
-        if c.pkg is None:
+        try:
+            c.pkg_dict = get.package_show(context)
+            c.pkg = context['package']
+        except NotFound:
             abort(404, _('Package not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read package %s') % id)
+
         
         cache_key = self._pkg_cache_key(c.pkg)        
         etag_cache(cache_key)
@@ -197,39 +206,34 @@ class PackageController(BaseController):
                     rdf_url = '%s%s.%s' % (config['rdf_packages'], c.pkg.id, exts[0])
                     redirect(rdf_url, code=303)
                 break
-            
-        #is the user allowed to see this package?
-        auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, c.pkg)
-        if not auth_for_read:
-            abort(401, _('Unauthorized to read package %s') % id)
-        
-        for item in self.extensions:
-            item.read(c.pkg)
 
         #render the package
-        PackageSaver().render_package(c.pkg)
+        PackageSaver().render_package(c.pkg_dict, context)
         return render('package/read.html')
 
     def comments(self, id):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'extras_as_string': True,
+                   'schema': self._form_to_db_schema(),
+                   'id': id}
 
         #check if package exists
-        c.pkg = model.Package.get(id)
-        if c.pkg is None:
+        try:
+            c.pkg_dict = get.package_show(context)
+            c.pkg = context['package']
+        except NotFound:
             abort(404, _('Package not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read package %s') % id)
 
         # used by disqus plugin
         c.current_package_id = c.pkg.id
 
-        #is the user allowed to see this package?
-        auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, c.pkg)
-        if not auth_for_read:
-            abort(401, _('Unauthorized to read package %s') % id)
-
         for item in self.extensions:
             item.read(c.pkg)
 
         #render the package
-        PackageSaver().render_package(c.pkg)
+        PackageSaver().render_package(c.pkg_dict)
         return render('package/comments.html')
 
 
@@ -406,7 +410,9 @@ class PackageController(BaseController):
             pkg = create.package_create(data_dict, context)
 
             if context['preview']:
-                PackageSaver().render_package(context['package'])
+                PackageSaver().render_package(pkg, context)
+                c.pkg = context['package']
+                c.pkg_dict = data_dict
                 c.is_preview = True
                 c.preview = render('package/read_core.html')
                 return self.new(data_dict)
@@ -435,10 +441,11 @@ class PackageController(BaseController):
             if request.params.get('save', '') == 'Approve':
                 update.make_latest_pending_package_active(context)
             c.pkg = context['package']
+            c.pkg_dict = pkg
 
             if context['preview']:
                 c.is_preview = True
-                PackageSaver().render_package(context['package'])
+                PackageSaver().render_package(pkg, context)
                 c.preview = render('package/read_core.html')
                 return self.edit(id, data_dict)
 

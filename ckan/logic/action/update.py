@@ -179,8 +179,8 @@ def package_update(data_dict, context):
         for item in PluginImplementations(IPackageController):
             item.edit(pkg)
         model.repo.commit()        
-
-    return package_dictize(pkg, context)
+        return package_dictize(pkg, context)
+    return data
 
 
 def _update_package_relationship(relationship, comment, context):

@@ -99,7 +99,6 @@ insert into tmp_expired_id select pr.id, revision_id, timestamp, lead(timestamp,
 update package_revision pr set revision_timestamp = (select revision_timestamp from tmp_expired_id tmp where tmp.revision_id = pr.revision_id and tmp.id = pr.id),
                                expired_timestamp = (select expired_timestamp from tmp_expired_id tmp where tmp.revision_id = pr.revision_id and tmp.id = pr.id),
                                expired_id = (select expired_id from tmp_expired_id tmp where tmp.revision_id = pr.revision_id and tmp.id = pr.id);
-update package_revision set state = 'active-current' where expired_timestamp = '9999-12-31';
 update package_revision set current = '1' where expired_timestamp = '9999-12-31';
 
 create index idx_package_period on package_revision(revision_timestamp, expired_timestamp, id);

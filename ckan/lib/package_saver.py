@@ -26,29 +26,31 @@ class PackageSaver(object):
 
     # TODO: rename to something more correct like prepare_for_render
     @classmethod
-    def render_package(cls, pkg):
+    def render_package(cls, pkg, context):
         '''Prepares for rendering a package. Takes a Package object and
         formats it for the various context variables required to call
         render. 
         Note that the actual calling of render('package/read') is left
         to the caller.'''
-        c.pkg = pkg
         try:
-            notes_formatted = ckan.misc.MarkdownFormat().to_html(pkg.notes)
+            notes_formatted = ckan.misc.MarkdownFormat().to_html(pkg.get('notes',''))
             c.pkg_notes_formatted = genshi.HTML(notes_formatted)
         except Exception, e:
             error_msg = "<span class='inline-warning'>%s</span>" % _("Cannot render package description")
             c.pkg_notes_formatted = genshi.HTML(error_msg)
-        c.current_rating, c.num_ratings = ckan.rating.get_rating(pkg)
-        c.pkg_url_link = h.link_to(c.pkg.url, c.pkg.url, target='_blank') if c.pkg.url else _("No web page given")
-        c.pkg_author_link = cls._person_email_link(c.pkg.author, c.pkg.author_email, "Author")
-        c.pkg_maintainer_link = cls._person_email_link(c.pkg.maintainer, c.pkg.maintainer_email, "Maintainer")
-        c.package_relationships = pkg.get_relationships_printable()
+        c.current_rating, c.num_ratings = ckan.rating.get_rating(context['package'])
+        url = pkg.get('url', '')
+        c.pkg_url_link = h.link_to(url, url, target='_blank') if url else _("No web page given")
+        c.pkg_author_link = cls._person_email_link(pkg.get('author', ''), pkg.get('author_email', ''), "Author")
+        maintainer = pkg.get('maintainer', '')
+        maintainer_email = pkg.get('maintainer_email', '')
+        c.pkg_maintainer_link = cls._person_email_link(maintainer, maintainer_email, "Maintainer")
+        c.package_relationships = context['package'].get_relationships_printable()
         c.pkg_extras = []
-        for extra in sorted(pkg.extras_list, key=lambda x:x.key):
-            if extra.state == 'deleted':
+        for extra in sorted(pkg.get('extras',[]), key=lambda x:x['key']):
+            if extra.get('state') == 'deleted':
                 continue
-            k, v = extra.key, extra.value
+            k, v = extra['key'], extra['value']
             if k in g.package_hide_extras:
                 continue
             if isinstance(v, (list, tuple)):

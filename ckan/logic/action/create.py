@@ -73,6 +73,8 @@ def package_create(data_dict, context):
     log.debug('Created object %s' % str(pkg.name))
     if not preview:
         return package_dictize(pkg, context) 
+    else:
+        return data
 
 def resource_create(data_dict, context):
     model = context['model']
