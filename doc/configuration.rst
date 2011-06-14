@@ -107,6 +107,10 @@ To set the expiry times (in seconds) for specific controllers (which use the pro
  ckan.controllers.apiv2.package.list.expires = 600
  ckan.controllers.apiv2.package.show.expires = 600
 
+There is also en option to set the max-age value of static files delivered by
+paster::
+
+ ckan.static_max_age = 3600
 
 openid_enabled
 --------------
