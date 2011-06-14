@@ -13,7 +13,7 @@
 </ul>
 </div>
 
-<fieldset>
+<fieldset id="basic-information">
   <legend> Basic information</legend>
   <dl>
     <dt><label class="field_opt" for="title">Title</label></dt>
@@ -63,7 +63,7 @@
   </dl>
 </fieldset>
 
-<fieldset>
+<fieldset id="resources">
   <legend>Resources</legend>
   <table class="flexitable">
     <thead>
@@ -94,7 +94,7 @@
   <div class="field_error" py:if="errors.get('resources', '')">Package resource(s) incomplete.</div>
 </fieldset>
 
-<fieldset>
+<fieldset id="groups">
   <legend>Groups</legend>
   <dl>
     <py:for each="num, group in enumerate(data.get('groups', []))">
@@ -117,7 +117,7 @@
     <dd py:if="not c.groups">Cannot add any groups.</dd>
   </dl>
 </fieldset>
-<fieldset>
+<fieldset id='detail'>
   <legend>Detail</legend>
   <dl>
     <dt><label class="field_opt" for="author">Author</label></dt>
@@ -150,7 +150,7 @@
   </dl>
 </fieldset>
 
-<fieldset>
+<fieldset id='extras'>
   <legend>Extras</legend>
   <dl>
     <py:with vars="extras = data.get('extras', [])">
