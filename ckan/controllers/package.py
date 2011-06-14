@@ -326,7 +326,7 @@ class PackageController(BaseController):
                    'user': c.user or c.author, 'extras_as_string': True,
                    'preview': 'preview' in request.params,
                    'save': 'save' in request.params,
-                   'id': id, 'moderated': request.params.get('moderated'),
+                   'id': id, 'moderated': config.get('moderated'),
                    'pending': True,
                    'schema': self._form_to_db_schema()}
 
