@@ -15,7 +15,7 @@ def table_dictize(obj, context):
     result_dict = {}
 
     model = context["model"]
-    session = context["session"]
+    session = model.Session
 
     if isinstance(obj, sqlalchemy.engine.base.RowProxy):
         fields = obj.keys()
