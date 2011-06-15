@@ -5,6 +5,7 @@ import datetime
 from ckan.lib.dictization import (obj_list_dictize,
                                   obj_dict_dictize,
                                   table_dictize)
+from ckan.logic import NotFound
 import ckan.misc
 import json
 
@@ -102,6 +103,8 @@ def package_dictize(pkg, context):
     package_rev = model.package_revision_table
     q = select([package_rev]).where(package_rev.c.id == pkg.id)
     result = _execute_with_revision(q, package_rev, context).first()
+    if not result:
+        raise NotFound
     result_dict = table_dictize(result, context)
     #resources
     res_rev = model.resource_revision_table

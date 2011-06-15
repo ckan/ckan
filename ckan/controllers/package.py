@@ -2,6 +2,8 @@ import logging
 import urlparse
 from urllib import urlencode
 import json
+import datetime
+import re
 
 from sqlalchemy.orm import eagerload_all
 from sqlalchemy import or_
@@ -174,11 +176,18 @@ class PackageController(BaseController):
 
     @proxy_cache()
     def read(self, id):
-
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
                    'schema': self._form_to_db_schema(),
                    'id': id}
+        split = id.split('@')
+        if len(split) == 2:
+            context['id'], revision = split
+            try:
+                date = datetime.datetime(*map(int, re.split('[^\d]', revision)))
+                context['revision_date'] = date
+            except ValueError:
+                context['revision_id'] = revision
         #check if package exists
         try:
             c.pkg_dict = get.package_show(context)
@@ -187,7 +196,6 @@ class PackageController(BaseController):
             abort(404, _('Package not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % id)
-
         
         cache_key = self._pkg_cache_key(c.pkg)        
         etag_cache(cache_key)
