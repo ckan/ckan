@@ -216,6 +216,32 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods):
         main_res = self.main_div(res)
         assert new_about in main_res, main_res
 
+    def test_edit_spammer(self):
+        # create user
+        username = 'testeditspam'
+        about = u'Test About <a href="http://spamsite.net">spamsite</a>'
+        user = model.User.by_name(unicode(username))
+        if not user:
+            model.Session.add(model.User(name=unicode(username), about=about,
+                                         password='letmein'))
+            model.repo.commit_and_remove()
+            user = model.User.by_name(unicode(username))
+
+        # edit
+        offset = url_for(controller='user', action='edit', id=user.id)
+        res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':username})
+        main_res = self.main_div(res)
+        assert 'Edit User: ' in main_res, main_res
+        assert 'Test About &lt;a href="http://spamsite.net"&gt;spamsite&lt;/a&gt;' in main_res, main_res
+        fv = res.forms['user-edit']
+        res = fv.submit('preview', extra_environ={'REMOTE_USER':username})
+        # commit
+        res = fv.submit('save', extra_environ={'REMOTE_USER':username})      
+        assert res.status == 200, res.status
+        main_res = self.main_div(res)
+        assert 'looks like spam' in main_res, main_res
+        assert 'Edit User: ' in main_res, main_res
+
 
     ############
     # Disabled

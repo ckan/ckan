@@ -141,10 +141,15 @@ class UserController(BaseController):
             c.user_email = request.params.getone('email')
         elif 'save' in request.params:
             try:
-                rev = model.repo.new_revision()
-                rev.author = c.author
-                rev.message = _(u'Changed user details')
-                user.about = request.params.getone('about')
+                about = request.params.getone('about')
+                if 'http://' in about or 'https://' in about:
+                    msg = _('Edit not allowed as it looks like spam. Please avoid links in your description.')
+                    h.flash_error(msg)
+                    c.user_about = about
+                    c.user_fullname = request.params.getone('fullname')
+                    c.user_email = request.params.getone('email')
+                    return render('user/edit.html')
+                user.about = about
                 user.fullname = request.params.getone('fullname')
                 user.email = request.params.getone('email')
                 try:
