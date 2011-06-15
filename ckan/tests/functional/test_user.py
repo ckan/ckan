@@ -21,6 +21,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods):
         CreateTestData.create_user('unfinisher', about='<a href="http://unfinished.tag')
         CreateTestData.create_user('uncloser', about='<a href="http://unclosed.tag">')
         CreateTestData.create_user('spammer', about=u'<a href="http://mysite">mysite</a> <a href=\u201dhttp://test2\u201d>test2</a>')
+        CreateTestData.create_user('spammer2', about=u'<a href="http://spamsite1.com\u201d>spamsite1</a>\r\n<a href="http://www.spamsite2.com\u201d>spamsite2</a>\r\n')
         
     @classmethod
     def teardown_class(self):
@@ -98,6 +99,15 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods):
                                  'href="TAG MALFORMED"',
                                  'target="_blank"',
                                  'rel="nofollow"')
+
+    def test_user_read_about_spam2(self):
+        user = model.User.by_name(u'spammer2')
+        offset = '/user/%s' % user.id
+        res = self.app.get(offset, status=200)
+        main_res = self.main_div(res)
+        assert 'spammer2' in res, res
+        assert 'spamsite2' not in res, res
+        assert 'Error: Could not parse About text' in res, res
         
     def test_user_login(self):
         offset = url_for(controller='user', action='login', id=None)

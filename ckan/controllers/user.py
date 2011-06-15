@@ -1,10 +1,13 @@
 import re
+import logging
 
 import genshi
 from sqlalchemy import or_, func, desc
 
 import ckan.misc
 from ckan.lib.base import *
+
+log = logging.getLogger(__name__)
 
 def login_form():
     return render('user/login_form.html').replace('FORM_ACTION', '%s')
@@ -164,8 +167,13 @@ class UserController(BaseController):
         
     def _format_about(self, about):
         about_formatted = ckan.misc.MarkdownFormat().to_html(about)
-        return genshi.HTML(about_formatted) 
-
+        try:
+            html = genshi.HTML(about_formatted)
+        except genshi.ParseError, e:
+            log.error('Could not print "about" field Field: %r Error: %r', about, e)
+            html = 'Error: Could not parse About text'
+        return html
+    
     def _get_form_password(self):
         password1 = request.params.getone('password1')
         password2 = request.params.getone('password2')

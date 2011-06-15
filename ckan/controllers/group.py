@@ -72,7 +72,11 @@ class GroupController(BaseController):
         import ckan.misc
         format = ckan.misc.MarkdownFormat()
         desc_formatted = format.to_html(c.group.description)
-        desc_formatted = genshi.HTML(desc_formatted)
+        try: 
+            desc_formatted = genshi.HTML(desc_formatted)
+        except genshi.ParseError, e:
+            log.error('Could not print group description: %r Error: %r', c.group.description, e)
+            desc_formatted = 'Error: Could not parse group description'
         c.group_description_formatted = desc_formatted
         c.group_admins = self.authorizer.get_admins(c.group)
 
