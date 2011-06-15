@@ -201,7 +201,7 @@ drop table tmp_expired_id;
 
 -- change state of revision tables
 
-update revision set state = 'active', approved_timestamp = timestamp;
+update revision set approved_timestamp = timestamp;
 '''
     
     migrate_engine.execute('begin;  ' + make_missing_revisions + update_schema + ' commit;')
