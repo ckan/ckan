@@ -2,10 +2,11 @@
 # apt-get if you are on that platform. If you are using a different platform
 # you can install these dependencies via pip instead.
 #
-# sudo apt-get install python-psycopg2 python-lxml python-sphinx 
+# sudo apt-get install python-psycopg2 python-lxml python-sphinx python-pybabel
 # sudo apt-get install python-pylons python-formalchemy python-repoze.who
 # sudo apt-get install python-repoze.who-plugins python-tempita python-zope.interface
 
+babel==0.9.4
 psycopg2==2.0.13
 lxml==2.2.4
 sphinx==0.6.4
