@@ -403,6 +403,7 @@ class PackageController(BaseController):
                          'message': revision.message,
                          'timestamp': format_datetime(revision.timestamp, 
                                                       locale=(get_lang() or ['en'])[0]),
+                         'author': revision.author,
                          'approved': bool(revision.approved_timestamp),
                          'current_approved': current_approved})
                 
