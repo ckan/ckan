@@ -52,7 +52,6 @@ class GroupController(BaseController):
         query = authz.Authorizer().authorized_query(c.user, model.Group)
         query = query.order_by(model.Group.name.asc())
         query = query.order_by(model.Group.title.asc())
-        query = query.options(eagerload_all('packages'))
         c.page = Page(
             collection=query,
             page=request.params.get('page', 1),

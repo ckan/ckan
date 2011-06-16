@@ -528,4 +528,3 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
         return fields
 
-

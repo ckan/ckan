@@ -15,6 +15,8 @@ class TestStats(TestController):
     
     @classmethod
     def setup_class(self):
+        from ckan import plugins
+        plugins.load('synchronous_search')
         CreateTestData.create_search_test_data()
 
     @classmethod
@@ -186,7 +188,7 @@ class TimedRevision(TestController):
         model.repo.commit_and_remove()
         return pkg_name
 
-class TestRateStatsSimple(TimedRevision):
+class fdsTestRateStatsSimple(TimedRevision):
     @classmethod
     def setup_class(self):
         model.repo.init_db()
@@ -245,7 +247,7 @@ class TestRateStatsSimple(TimedRevision):
         assert res == 1, res
 
 
-class TestRateStats(TimedRevision):
+class fdsTestRateStats(TimedRevision):
     @classmethod
     def setup_class(self):
         model.repo.init_db()

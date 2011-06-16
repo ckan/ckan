@@ -192,7 +192,7 @@ class PackageSqlSearchQuery(SqlSearchQuery):
         group = model.Group.by_name(unicode(term), autoflush=False)
         if group:
             # need to keep joining for each filter
-            q = q.join('groups', aliased=True).filter(
+            q = q.join('package_group_all', 'group', aliased=True).filter(
                 model.Group.id==group.id)
         else:
             # unknown group, so torpedo search
