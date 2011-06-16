@@ -10,8 +10,6 @@ psycopg2==2.0.13
 lxml==2.2.4
 sphinx==0.6.4
 Pylons==0.9.7
-# We use 1.3.6 but that isn't available, any of these should be fine
-FormAlchemy==1.3.5
 repoze.who==1.0.18
 tempita==0.4
 zope.interface==3.5.3
