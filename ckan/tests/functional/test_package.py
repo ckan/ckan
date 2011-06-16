@@ -870,7 +870,7 @@ u with umlaut \xc3\xbc
             assert field_name in res
             fv = res.forms['package-edit']
             fv[prefix + 'groups__0__id'] = grp.id
-            res = fv.submit('preview',extra_environ={'REMOTE_USER':'russianfan'})
+            res = fv.submit('preview', extra_environ={'REMOTE_USER':'russianfan'})
             assert not 'error' in res
             res = fv.submit('save', extra_environ={'REMOTE_USER':'russianfan'})
             res = res.follow()

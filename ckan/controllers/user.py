@@ -1,10 +1,13 @@
 import re
+import logging
 
 import genshi
 from sqlalchemy import or_, func, desc
 
 import ckan.misc
 from ckan.lib.base import *
+
+log = logging.getLogger(__name__)
 
 def login_form():
     return render('user/login_form.html').replace('FORM_ACTION', '%s')
@@ -138,10 +141,15 @@ class UserController(BaseController):
             c.user_email = request.params.getone('email')
         elif 'save' in request.params:
             try:
-                rev = model.repo.new_revision()
-                rev.author = c.author
-                rev.message = _(u'Changed user details')
-                user.about = request.params.getone('about')
+                about = request.params.getone('about')
+                if 'http://' in about or 'https://' in about:
+                    msg = _('Edit not allowed as it looks like spam. Please avoid links in your description.')
+                    h.flash_error(msg)
+                    c.user_about = about
+                    c.user_fullname = request.params.getone('fullname')
+                    c.user_email = request.params.getone('email')
+                    return render('user/edit.html')
+                user.about = about
                 user.fullname = request.params.getone('fullname')
                 user.email = request.params.getone('email')
                 try:
@@ -164,8 +172,13 @@ class UserController(BaseController):
         
     def _format_about(self, about):
         about_formatted = ckan.misc.MarkdownFormat().to_html(about)
-        return genshi.HTML(about_formatted) 
-
+        try:
+            html = genshi.HTML(about_formatted)
+        except genshi.ParseError, e:
+            log.error('Could not print "about" field Field: %r Error: %r', about, e)
+            html = 'Error: Could not parse About text'
+        return html
+    
     def _get_form_password(self):
         password1 = request.params.getone('password1')
         password2 = request.params.getone('password2')

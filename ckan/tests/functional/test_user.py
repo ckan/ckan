@@ -21,6 +21,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods):
         CreateTestData.create_user('unfinisher', about='<a href="http://unfinished.tag')
         CreateTestData.create_user('uncloser', about='<a href="http://unclosed.tag">')
         CreateTestData.create_user('spammer', about=u'<a href="http://mysite">mysite</a> <a href=\u201dhttp://test2\u201d>test2</a>')
+        CreateTestData.create_user('spammer2', about=u'<a href="http://spamsite1.com\u201d>spamsite1</a>\r\n<a href="http://www.spamsite2.com\u201d>spamsite2</a>\r\n')
         
     @classmethod
     def teardown_class(self):
@@ -98,6 +99,15 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods):
                                  'href="TAG MALFORMED"',
                                  'target="_blank"',
                                  'rel="nofollow"')
+
+    def test_user_read_about_spam2(self):
+        user = model.User.by_name(u'spammer2')
+        offset = '/user/%s' % user.id
+        res = self.app.get(offset, status=200)
+        main_res = self.main_div(res)
+        assert 'spammer2' in res, res
+        assert 'spamsite2' not in res, res
+        assert 'Error: Could not parse About text' in res, res
         
     def test_user_login(self):
         offset = url_for(controller='user', action='login', id=None)
@@ -205,6 +215,32 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods):
         res = self.app.get(offset, status=200)
         main_res = self.main_div(res)
         assert new_about in main_res, main_res
+
+    def test_edit_spammer(self):
+        # create user
+        username = 'testeditspam'
+        about = u'Test About <a href="http://spamsite.net">spamsite</a>'
+        user = model.User.by_name(unicode(username))
+        if not user:
+            model.Session.add(model.User(name=unicode(username), about=about,
+                                         password='letmein'))
+            model.repo.commit_and_remove()
+            user = model.User.by_name(unicode(username))
+
+        # edit
+        offset = url_for(controller='user', action='edit', id=user.id)
+        res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':username})
+        main_res = self.main_div(res)
+        assert 'Edit User: ' in main_res, main_res
+        assert 'Test About &lt;a href="http://spamsite.net"&gt;spamsite&lt;/a&gt;' in main_res, main_res
+        fv = res.forms['user-edit']
+        res = fv.submit('preview', extra_environ={'REMOTE_USER':username})
+        # commit
+        res = fv.submit('save', extra_environ={'REMOTE_USER':username})      
+        assert res.status == 200, res.status
+        main_res = self.main_div(res)
+        assert 'looks like spam' in main_res, main_res
+        assert 'Edit User: ' in main_res, main_res
 
 
     ############
