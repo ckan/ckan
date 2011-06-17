@@ -80,9 +80,15 @@ class UserController(BaseController):
             c.login = request.params.getone('login')
             c.fullname = request.params.getone('fullname')
             c.email = request.params.getone('email')
+            if not c.login:
+                h.flash_error(_("Please enter a login name."))
+                return render("user/register.html")                
             if not model.User.check_name_available(c.login):
                 h.flash_error(_("That username is not available."))
                 return render("user/register.html")
+            if not request.params.getone('password1'):
+                h.flash_error(_("Please enter a password."))
+                return render("user/register.html")                
             try:
                 password = self._get_form_password()
             except ValueError, ve:
