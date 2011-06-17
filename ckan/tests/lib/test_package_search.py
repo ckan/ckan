@@ -99,6 +99,11 @@ class TestSearch(TestController):
         result = self.backend.query_for(model.Package).run(query=u'Expenditure Government China')
         assert len(result['results']) == 0, self._pkg_names(result)
 
+    def test_3_licence(self):
+        ## this should result, but it is here to check that at least it does not error
+        result = self.backend.query_for(model.Package).run(query=u'license:"OKD::Other (PublicsDomain)"')
+        assert result['count'] == 0, result
+
 # Quotation not supported now
 ##        # multiple words quoted
 ##        result = Search().search(u'"Government Expenditure"')
