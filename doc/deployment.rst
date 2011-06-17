@@ -13,7 +13,7 @@ Here's an example for deploying CKAN to http://demo.ckan.net/ via Apache.
    Package                Notes
    =====================  ============================================
    mercurial              Source control
-   python                 Python interpreter
+   python-dev             Python interpreter v2.5 - v2.7 and dev headers
    apache2                Web server
    libapache2-mod-python  Apache module for python
    libapache2-mod-wsgi    Apache module for WSGI
@@ -25,16 +25,18 @@ Here's an example for deploying CKAN to http://demo.ckan.net/ via Apache.
    python-libxslt1        Python XSLT library
    libxml2-dev            XML library development files
    libxslt1-dev           XSLT library development files
+   git-core               Git source control (for getting MarkupSafe src)
+   subversion             Subversion source control (for pyutilib)
    =====================  ============================================
 
    Now use easy_install (which comes with python-setuptools) to install
-   these packages:
+   these python packages:
    (e.g. sudo easy_install <package-name>)
 
    =====================  ============================================
-   Package                Notes
+   Python Package         Notes
    =====================  ============================================
-   python-virtualenv      Python virtual environment sandboxing
+   virtualenv             Python virtual environment sandboxing
    pip                    Python installer
    =====================  ============================================
 
@@ -61,7 +63,7 @@ Now you can then do the deployment with something like::
 
   List existing databases::
 
-  $ psql -l
+  $ sudo -u postgres psql -l
 
   It is advisable to ensure that the encoding of databases is 'UTF8', or 
   internationalisation may be a problem. Since changing the encoding of Postgres
@@ -92,7 +94,7 @@ Now you can then do the deployment with something like::
 
 5. Create the Pylons WSGI script
 
-  Create a file ~/var/srvc/demo.ckan.net/pyenv/bin/demp.ckan.net.py as follows (editing the first couple of variables as necessary)::
+  Create a file ~/var/srvc/demo.ckan.net/pyenv/bin/demo.ckan.net.py as follows (editing the first couple of variables as necessary)::
 
     import os
     instance_dir = '/home/USER/var/srvc/demo.ckan.net'
@@ -109,17 +111,19 @@ Now you can then do the deployment with something like::
 
 6. Install code and dependent packages into the environment
 
-  For the most recent stable version use::
+  Decide which release of CKAN you want to install. The CHANGELOG.txt has details on the releases. You'll need the exact tag name, and these are listed on the bitbucket page: https://bitbucket.org/okfn/ckan/src and hover over tags to see the options, e.g. ``ckan-1.4``.
 
-  $ wget https://bitbucket.org/okfn/ckan/raw/default/pip-requirements-metastable.txt
+  $ wget https://bitbucket.org/okfn/ckan/raw/ckan-1.4/pip-requirements.txt
 
   Or for the bleeding edge use::
 
   $ wget https://bitbucket.org/okfn/ckan/raw/default/pip-requirements.txt
 
-  And install::
+  And now install::
 
-  $ pip -E pyenv install -r pip-requirements-metastable.txt 
+  $ pip -E pyenv install -r pip-requirements.txt 
+
+  If everything goes correctly then you'll finally see: ``Successfully installed``.
 
 
 7. Create CKAN config file
@@ -150,7 +154,7 @@ Now you can then do the deployment with something like::
     
   8.3. loggers
      
-    CKAN can make a log file if you change the [loggers] section to this::
+    CKAN can make a log file if you change the ``[loggers]`` section to this::
 
       [loggers]
       keys = root, ckan
@@ -231,5 +235,40 @@ Now you can then do the deployment with something like::
   $ sudo /etc/init.d/apache2 restart
 
 
-14. Browse website at http://demo.ckan.net/
+14. Browse CKAN website at http://demo.ckan.net/ (assuming you have the DNS setup for this server). Should you have problems, take a look at the log files specified in your apache config and ckan oconfig. e.g. ``/var/log/apache2/demo.ckan.net.error.log`` and ``/var/log/ckan/demo.ckan.log``.
+
+
+Upgrade
+=======
+
+Ideally production deployments are upgraded with fabric, but here are the manual instructions.
+
+1. Activate the virtual environment for your install::
+
+   $ cd ~/var/srvc/demo.ckan.net
+   $ . pyenv/bin/activate
+
+2. It's probably wise to backup your database::
+
+   $ paster --plugin=ckan db dump demo_ckan_backup.pg_dump --config=demo.ckan.net.ini
+
+3. Get a version of pip-requirements.txt for the new version you want to install (see info on finding a suitable tag name above)::
+
+   $ wget https://bitbucket.org/okfn/ckan/raw/ckan-1.4/pip-requirements.txt
+
+4. Update all the modules::
+
+   $ pip -E pyenv install -r pip-requirements.txt
+
+5. Upgrade the database::
+
+   $ paster --plugin ckan db upgrade --config {config.ini}
+
+6. Restart apache (so modpython has the latest code)::
+
+   $ sudo /etc/init.d/apache2 restart
+
+7. You could manually try CKAN works in a browser, or better still run the smoke tests found in ckanext/blackbox. To do this, install ckanext and run ckanext from another machine - see ckanext README.txt for instructions: https://bitbucket.org/okfn/ckanext and then run::
+
+   $ python blackbox/smoke.py blackbox/ckan.net.profile.json
 

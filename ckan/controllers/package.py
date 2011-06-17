@@ -207,7 +207,7 @@ class PackageController(BaseController):
         # used by disqus plugin
         c.current_package_id = c.pkg.id
         
-        if config.get('rdf_packages') is not None:
+        if config.get('rdf_packages'):
             accept_header = request.headers.get('Accept', '*/*')
             for content_type, exts in negotiate(autoneg_cfg, accept_header):
                 if "html" not in exts: 
@@ -319,7 +319,7 @@ class PackageController(BaseController):
         if (context['save'] or context['preview']) and not data:
             return self._save_new(context)
 
-        data = data or {}
+        data = data or dict(request.params) 
         errors = errors or {}
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
@@ -340,7 +340,6 @@ class PackageController(BaseController):
 
         if (context['save'] or context['preview']) and not data:
             return self._save_edit(id, context)
-
         try:
             old_data = get.package_show(context)
             schema = self._db_to_form_schema()
@@ -349,6 +348,8 @@ class PackageController(BaseController):
             data = data or old_data
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
+        except NotFound:
+            abort(404, _('Package not found'))
 
         c.pkg = context.get("package")
 
@@ -413,7 +414,7 @@ class PackageController(BaseController):
     def _save_new(self, context):
         try:
             data_dict = clean_dict(unflatten(
-                tuplize_dict(parse_params(request.params))))
+                tuplize_dict(parse_params(request.POST))))
             self._check_data_dict(data_dict)
             context['message'] = data_dict.get('log_message', '')
             pkg = create.package_create(data_dict, context)
@@ -441,7 +442,7 @@ class PackageController(BaseController):
     def _save_edit(self, id, context):
         try:
             data_dict = clean_dict(unflatten(
-                tuplize_dict(parse_params(request.params))))
+                tuplize_dict(parse_params(request.POST))))
             self._check_data_dict(data_dict)
             context['message'] = data_dict.get('log_message', '')
             if not context['moderated']:
@@ -726,7 +727,7 @@ class PackageController(BaseController):
         package_name = id
         package = model.Package.get(package_name)
         if package is None:
-            abort(404, gettext('404 Package Not Found'))
+            abort(404, gettext('Package Not Found'))
         self._clear_pkg_cache(package)
         rating = request.params.get('rating', '')
         if rating:

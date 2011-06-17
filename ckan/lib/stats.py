@@ -49,6 +49,7 @@ class Stats(object):
         package_group = table('package_group')
         s = select([package_group.c.group_id, func.count(package_group.c.package_id)]).\
             group_by(package_group.c.group_id).\
+            where(package_group.c.group_id!=None).\
             order_by(func.count(package_group.c.package_id).desc()).\
             limit(limit)
         res_ids = model.Session.execute(s).fetchall()        

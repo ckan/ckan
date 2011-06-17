@@ -12,20 +12,9 @@ from pylons.util import ContextObj
 from pylons.controllers.util import Request, Response 
 
 from ckan.tests import *
+from ckan.lib.cli import MockTranslator
 
-class MockTranslator(object): 
-    def gettext(self, value): 
-        return value 
 
-    def ugettext(self, value): 
-        return value 
-
-    def ungettext(self, singular, plural, n):
-        if n > 1:
-            return plural
-        return singular
-
-    
 class PylonsTestCase(object):
     """A basic test case which allows access to pylons.c and pylons.request. 
     """

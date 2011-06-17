@@ -6,6 +6,7 @@ from pylons import c
 from genshi.core import escape as genshi_escape
 from difflib import unified_diff
 from nose.plugins.skip import SkipTest
+from nose.tools import assert_equal
 
 from ckan.tests import *
 from ckan.tests import search_related
@@ -308,6 +309,10 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, TestSearchIndexer, PylonsT
         assert anna.resources[0].description in res
         assert anna.resources[0].hash in res
         assert 'Some test notes' in res
+        self.check_named_element(res, 'a',
+                                 'http://ckan.net/',
+                                 'target="_blank"',
+                                 'rel="nofollow"')
         assert '<strong>Some bolded text.</strong>' in res
         self.check_tag_and_data(res, 'left arrow', '&lt;')
         self.check_tag_and_data(res, 'umlaut', u'\xfc')
@@ -343,11 +348,8 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, TestSearchIndexer, PylonsT
         offset = url_for(controller='package', action='read', id=pkg_name)
         res = self.app.get(offset)
         def check_link(res, controller, id):
-            link = '<a href="/%s/%s">%s:%s</a>' % (controller, id, controller, id)
-            if link not in res:
-                print self.main_div(res).encode('utf8')
-                print 'Missing link: %r' % link
-                raise AssertionError
+            self.check_tag_and_data(res, 'a ', '/%s/%s' % (controller, id),
+                                    '%s:%s' % (controller, id))
         check_link(res, 'package', 'pkg-1')
         check_link(res, 'tag', 'tag_1')
         check_link(res, 'group', 'test-group-1')
@@ -869,6 +871,8 @@ u with umlaut \xc3\xbc
             assert field_name in res
             fv = res.forms['package-edit']
             fv[prefix + 'groups__0__id'] = grp.id
+            res = fv.submit('preview', extra_environ={'REMOTE_USER':'russianfan'})
+            assert not 'error' in res
             res = fv.submit('save', extra_environ={'REMOTE_USER':'russianfan'})
             res = res.follow()
             pkg = model.Package.by_name(u'editpkgtest')
@@ -901,6 +905,11 @@ u with umlaut \xc3\xbc
         finally:
             self._reset_data()
 
+    def test_edit_404(self):
+        self.offset = url_for(controller='package', action='edit', id='random_name')
+        self.res = self.app.get(self.offset, status=404)
+
+
 class TestNew(TestPackageForm):
     pkg_names = []
 
@@ -915,18 +924,11 @@ class TestNew(TestPackageForm):
 
     def test_new_with_params_1(self):
         offset = url_for(controller='package', action='new',
-                url='http://xxx.org')
+                url='http://xxx.org', name='xxx.org')
         res = self.app.get(offset)
         form = res.forms['package-edit']
-        form['url'].value == 'http://xxx.org/'
-        form['name'].value == 'xxx.org'
-
-    def test_new_with_params_2(self):
-        offset = url_for(controller='package', action='new',
-                url='http://www.xxx.org')
-        res = self.app.get(offset)
-        form = res.forms['package-edit']
-        form['name'].value == 'xxx.org'
+        assert_equal(form['url'].value, 'http://xxx.org')
+        assert_equal(form['name'].value, 'xxx.org')
 
     def test_new_without_resource(self):
         # new package
@@ -1385,7 +1387,7 @@ alert('Hello world!');
         self.body = str(self.res)
         self.assert_fragment('<table width="100%" border="1">')
         self.assert_fragment('<td rowspan="2"><b>Description</b></td>')
-        self.assert_fragment('<a href="http://www.nber.org/patents/subcategories.txt">subcategory.txt</a>')
+        self.assert_fragment('<a href="http://www.nber.org/patents/subcategories.txt" target="_blank" rel="nofollow">subcategory.txt</a>')
         self.assert_fragment('<td colspan="2"><center>--</center></td>')
         self.fail_if_fragment('<script>')
 

@@ -66,6 +66,7 @@ class TestAutoneg(_TestPackageForm, PylonsTestCase):
         assert response.status == 303, response.status
         location = response.header("Location")
         assert location.endswith(".rdf"), location
+        assert location.startswith('http://test.com/package/'), location
 
     def test_turtle(self):
         url = url_for(controller='package', action='read', id='annakarenina')
@@ -73,4 +74,5 @@ class TestAutoneg(_TestPackageForm, PylonsTestCase):
         assert response.status == 303, response.status
         location = response.header("Location")
         assert location.endswith(".ttl"), location
+        assert location.startswith('http://test.com/package/'), location
 

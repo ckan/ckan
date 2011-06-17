@@ -1,0 +1,3 @@
+# These are packages that required when running ckan tests
+
+-e hg+https://bitbucket.org/okfn/ckanclient#egg=ckanclient

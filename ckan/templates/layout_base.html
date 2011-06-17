@@ -97,7 +97,10 @@
         <ul>
           <li>${h.nav_link(c, _('Home'), controller='home', action='index', id=None)}</li>
           <li>${h.nav_link(c, _('Search'), controller='package', action='index', id=None, highlight_actions = 'search index')}</li>
-          <li py:if="h.am_authorized(c, actions.PACKAGE_CREATE)">${h.nav_link(c, _('Add a package'), controller='package', action='new', id=None)}</li>
+<?python
+    am_authorized_package_create = h.am_authorized(c, actions.PACKAGE_CREATE)
+?>
+          <li py:if="am_authorized_package_create">${h.nav_link(c, _('Add a package'), controller='package', action='new', id=None)}</li>
           <li>${h.nav_link(c, _('Tags'), controller='tag', action='index', id=None)}</li>
           <li>${h.nav_link(c, _('Groups'), controller='group', action='index', id=None, highlight_actions = 'new index')}</li>
           <li>${h.nav_link(c, _('About'), controller='home', action='about', id=None)}</li>
@@ -164,10 +167,16 @@
           <div class="textwidget">
             <ul>
                 <li>${h.nav_link(c, _('Search'), controller='package', action='search', id=None)}</li>                
-                <li py:if="h.am_authorized(c, actions.PACKAGE_CREATE)">${h.nav_link(c, _('Register a new Package'), controller='package', action='new', id=None)}</li>
+                <li py:if="am_authorized_package_create">${h.nav_link(c, _('Register a new Package'), controller='package', action='new', id=None)}</li>
                 <li>${h.nav_link(c, _('Revision History'), controller='revision', action='index', id=None)}</li>
                 <li>${h.link_to(_('API'), h.url_for(controller='api', action='get_api', id=None))}</li>
                 <li>${h.link_to(_('API Docs'), 'http://wiki.ckan.net/API')}</li>
+<?python
+  from pylons import config
+  dumps_url = config.get('ckan.dumps_url')
+  dumps_format = config.get('ckan.dumps_format', '')
+?>
+                <li py:if="dumps_url">${h.link_to(_('Full %s dump') % dumps_format, dumps_url)}</li>
             </ul>
           </div>
           </li>

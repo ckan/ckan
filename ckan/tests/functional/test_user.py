@@ -1,15 +1,14 @@
 from routes import url_for
+from nose.tools import assert_equal
 
 from ckan.tests import search_related, CreateTestData
+from ckan.tests.html_check import HtmlCheckMethods
 import ckan.model as model
 from base import FunctionalTestCase
 
-class TestUserController(FunctionalTestCase):
+class TestUserController(FunctionalTestCase, HtmlCheckMethods):
     @classmethod
     def setup_class(self):
-        model.repo.init_db()
-        model.repo.rebuild_db()
-        model.repo.init_db()
         CreateTestData.create()
 
         # make 3 changes, authored by annafan
@@ -20,9 +19,18 @@ class TestUserController(FunctionalTestCase):
             rev.author = u'annafan'
             model.repo.commit_and_remove()
 
+        CreateTestData.create_user('unfinisher', about='<a href="http://unfinished.tag')
+        CreateTestData.create_user('uncloser', about='<a href="http://unclosed.tag">')
+        CreateTestData.create_user('spammer', about=u'<a href="http://mysite">mysite</a> <a href=\u201dhttp://test2\u201d>test2</a>')
+        CreateTestData.create_user('spammer2', about=u'<a href="http://spamsite1.com\u201d>spamsite1</a>\r\n<a href="http://www.spamsite2.com\u201d>spamsite2</a>\r\n')
+        
     @classmethod
     def teardown_class(self):
         model.repo.rebuild_db()
+
+    def teardown(self):
+        # just ensure we're not logged in
+        self.app.get('/user/logout')
 
     def test_user_read(self):
         user = model.User.by_name(u'annafan')
@@ -34,6 +42,10 @@ class TestUserController(FunctionalTestCase):
         assert 'My Account' not in main_res, main_res
         assert 'about' in main_res, main_res
         assert 'I love reading Annakarenina' in res, main_res
+        self.check_named_element(res, 'a',
+                                 'http://anna.com',
+                                 'target="_blank"',
+                                 'rel="nofollow"')
         assert 'Edit' not in main_res, main_res
         assert 'Number of edits:</strong> 3' in res, res
         assert 'Number of packages administered:</strong> 1' in res, res
@@ -60,6 +72,48 @@ class TestUserController(FunctionalTestCase):
         assert 'My Account' in main_res, main_res
         assert 'Edit' in main_res, main_res
 
+    def test_user_read_about_unfinished(self):
+        user = model.User.by_name(u'unfinisher')
+        offset = '/user/%s' % user.id
+        res = self.app.get(offset, status=200)
+        main_res = self.main_div(res)
+        assert 'unfinisher' in res, res
+        assert '&lt;a href="http://unfinished.tag' in main_res, main_res
+
+    def test_user_read_about_unclosed(self):
+        user = model.User.by_name(u'uncloser')
+        offset = '/user/%s' % user.id
+        res = self.app.get(offset, status=200)
+        main_res = self.main_div(res)
+        assert 'unclosed' in res, res
+        # tag gets closed by genshi
+        assert '<a href="http://unclosed.tag" target="_blank" rel="nofollow">\n</a>' in main_res, main_res
+
+    def test_user_read_about_spam(self):
+        user = model.User.by_name(u'spammer')
+        offset = '/user/%s' % user.id
+        res = self.app.get(offset, status=200)
+        main_res = self.main_div(res)
+        assert 'spammer' in res, res
+        self.check_named_element(res, 'a',
+                                 'href="http://mysite"',
+                                 'target="_blank"',
+                                 'rel="nofollow"')
+
+        self.check_named_element(res, 'a',
+                                 'href="TAG MALFORMED"',
+                                 'target="_blank"',
+                                 'rel="nofollow"')
+
+    def test_user_read_about_spam2(self):
+        user = model.User.by_name(u'spammer2')
+        offset = '/user/%s' % user.id
+        res = self.app.get(offset, status=200)
+        main_res = self.main_div(res)
+        assert 'spammer2' in res, res
+        assert 'spamsite2' not in res, res
+        assert 'Error: Could not parse About text' in res, res
+        
     def test_user_login(self):
         offset = url_for(controller='user', action='login', id=None)
         res = self.app.get(offset, status=200)
@@ -120,6 +174,154 @@ class TestUserController(FunctionalTestCase):
         res = self.app.get(offset, extra_environ={'REMOTE_USER': 'okfntest'})
         assert 'Your API key is: %s' % user.apikey in res, res
 
+    def test_user_create(self):
+        # create/register user
+        username = 'testcreate'
+        fullname = u'Test Create'
+        password = u'testpassword'
+        assert not model.User.by_name(unicode(username))
+
+        offset = url_for(controller='user', action='register')
+        res = self.app.get(offset, status=200)
+        main_res = self.main_div(res)
+        assert 'Register' in main_res, main_res
+        fv = res.forms['register_form']
+        fv['login'] = username
+        fv['fullname'] = fullname
+        fv['password1'] = password
+        fv['password2'] = password
+        res = fv.submit('signup')
+        
+        # view user
+        assert res.status == 302, self.main_div(res).encode('utf8')
+        res = res.follow()
+        if res.status == 302:
+            res = res.follow()
+        if res.status == 302:
+            res = res.follow()
+        if res.status == 302:
+            res = res.follow()
+        assert res.status == 200, res
+        main_res = self.main_div(res)
+        assert username in main_res, main_res
+        assert fullname in main_res, main_res
+
+        user = model.User.by_name(unicode(username))
+        assert user
+        assert_equal(user.name, username)
+        assert_equal(user.fullname, fullname)
+        assert user.password
+
+    def test_user_create_unicode(self):
+        # create/register user
+        username = u'testcreate4'
+        fullname = u'Test Create\xc2\xa0'
+        password = u'testpassword\xc2\xa0'
+        assert not model.User.by_name(username)
+
+        offset = url_for(controller='user', action='register')
+        res = self.app.get(offset, status=200)
+        main_res = self.main_div(res)
+        assert 'Register' in main_res, main_res
+        fv = res.forms['register_form']
+        fv['login'] = username
+        fv['fullname'] = fullname.encode('utf8')
+        fv['password1'] = password.encode('utf8')
+        fv['password2'] = password.encode('utf8')
+        res = fv.submit('signup')
+        
+        # view user
+        assert res.status == 302, self.main_div(res).encode('utf8')
+        res = res.follow()
+        if res.status == 302:
+            res = res.follow()
+        if res.status == 302:
+            res = res.follow()
+        if res.status == 302:
+            res = res.follow()
+        assert res.status == 200, res
+        main_res = self.main_div(res)
+        assert username in main_res, main_res
+        assert fullname in main_res, main_res
+
+        user = model.User.by_name(unicode(username))
+        assert user
+        assert_equal(user.name, username)
+        assert_equal(user.fullname, fullname)
+        assert user.password
+
+    def test_user_create_no_name(self):
+        # create/register user
+        password = u'testpassword'
+
+        offset = url_for(controller='user', action='register')
+        res = self.app.get(offset, status=200)
+        main_res = self.main_div(res)
+        assert 'Register' in main_res, main_res
+        fv = res.forms['register_form']
+        fv['password1'] = password
+        fv['password2'] = password
+        res = fv.submit('signup')
+        assert res.status == 200, res
+        main_res = self.main_div(res)
+        assert 'Please enter a login name' in main_res, main_res
+
+    def test_user_create_bad_name(self):
+        # create/register user
+        username = u'%%%%%%' # characters not allowed
+        password = 'testpass'
+
+        offset = url_for(controller='user', action='register')
+        res = self.app.get(offset, status=200)
+        main_res = self.main_div(res)
+        assert 'Register' in main_res, main_res
+        fv = res.forms['register_form']
+        fv['login'] = username
+        fv['password1'] = password
+        fv['password2'] = password
+        res = fv.submit('signup')
+        assert res.status == 200, res
+        main_res = self.main_div(res)
+        assert 'login name is not valid' in main_res, main_res
+        self.check_named_element(main_res, 'input', 'name="login"', 'value="%s"' % username)
+
+    def test_user_create_bad_password(self):
+        # create/register user
+        username = 'testcreate2'
+        password = u'a' # too short
+
+        offset = url_for(controller='user', action='register')
+        res = self.app.get(offset, status=200)
+        main_res = self.main_div(res)
+        assert 'Register' in main_res, main_res
+        fv = res.forms['register_form']
+        fv['login'] = username
+        fv['password1'] = password
+        fv['password2'] = password
+        res = fv.submit('signup')
+        assert res.status == 200, res
+        main_res = self.main_div(res)
+        assert 'password must be 4 characters or longer' in main_res, main_res
+        self.check_named_element(main_res, 'input', 'name="login"', 'value="%s"' % username)
+
+    def test_user_create_without_password(self):
+        # create/register user
+        username = 'testcreate3'
+        user = model.User.by_name(unicode(username))
+
+        offset = url_for(controller='user', action='register')
+        res = self.app.get(offset, status=200)
+        main_res = self.main_div(res)
+        assert 'Register' in main_res, main_res
+        fv = res.forms['register_form']
+        fv['login'] = username
+        # no password
+        res = fv.submit('signup')
+        assert res.status == 200, res
+        main_res = self.main_div(res)
+        assert 'Please enter a password' in main_res, main_res
+        self.check_named_element(main_res, 'input', 'name="login"', 'value="%s"' % username)
+
     def test_user_edit(self):
         # create user
         username = 'testedit'
@@ -166,6 +368,32 @@ class TestUserController(FunctionalTestCase):
         res = self.app.get(offset, status=200)
         main_res = self.main_div(res)
         assert new_about in main_res, main_res
+
+    def test_edit_spammer(self):
+        # create user
+        username = 'testeditspam'
+        about = u'Test About <a href="http://spamsite.net">spamsite</a>'
+        user = model.User.by_name(unicode(username))
+        if not user:
+            model.Session.add(model.User(name=unicode(username), about=about,
+                                         password='letmein'))
+            model.repo.commit_and_remove()
+            user = model.User.by_name(unicode(username))
+
+        # edit
+        offset = url_for(controller='user', action='edit', id=user.id)
+        res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':username})
+        main_res = self.main_div(res)
+        assert 'Edit User: ' in main_res, main_res
+        assert 'Test About &lt;a href="http://spamsite.net"&gt;spamsite&lt;/a&gt;' in main_res, main_res
+        fv = res.forms['user-edit']
+        res = fv.submit('preview', extra_environ={'REMOTE_USER':username})
+        # commit
+        res = fv.submit('save', extra_environ={'REMOTE_USER':username})      
+        assert res.status == 200, res.status
+        main_res = self.main_div(res)
+        assert 'looks like spam' in main_res, main_res
+        assert 'Edit User: ' in main_res, main_res
 
 
     ############

@@ -4,8 +4,21 @@ import logging
 from pprint import pprint
 
 import paste.script
+from paste.registry import Registry
 from paste.script.util.logging_config import fileConfig
 import re
+
+class MockTranslator(object): 
+    def gettext(self, value): 
+        return value 
+
+    def ugettext(self, value): 
+        return value 
+
+    def ungettext(self, singular, plural, n):
+        if n > 1:
+            return plural
+        return singular
 
 class CkanCommand(paste.script.command.Command):
     parser = paste.script.command.Command.standard_parser(verbose=True)
@@ -30,7 +43,12 @@ class CkanCommand(paste.script.command.Command):
         except Exception: pass
         conf = appconfig('config:' + self.filename)
         load_environment(conf.global_conf, conf.local_conf)
-        
+
+        self.registry=Registry()
+        self.registry.prepare()
+        import pylons
+        self.translator_obj = MockTranslator()
+        self.registry.register(pylons.translator, self.translator_obj)
 
     def _setup_app(self):
         cmd = paste.script.appinstall.SetupCommand('setup-app') 

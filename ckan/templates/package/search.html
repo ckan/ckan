@@ -25,6 +25,22 @@
     ${facet_sidebar('res_format')}
     ${facet_sidebar('license')}
 
+    <li class="widget-container widget_text">
+        <h4>Other access</h4>
+<?python
+  from pylons import config
+  dumps_url = config.get('ckan.dumps_url')
+  dumps_format = config.get('ckan.dumps_format', '')
+?>
+        <p>
+            You can also access this registry using the 
+            ${h.link_to(_('API'), h.url_for(controller='api', action='get_api', id=None))}
+            (see ${h.link_to(_('API Docs'), 'http://wiki.ckan.net/API')})<py:if test="dumps_url">
+                or download a <a href="${dumps_url}">full ${dumps_format} 
+                dump</a></py:if>.
+        </p>
+    </li>
+ 
   </py:match>
 
   <div py:match="content">

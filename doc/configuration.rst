@@ -58,15 +58,15 @@ rdf_packages
 
 Example::
 
- rdf_packages = http://semantic.ckan.net/package/
+ rdf_packages = http://semantic.ckan.net/record/
 
 Configure this if you have an RDF store of the same packages as are in your CKAN instance. It will provide three sorts of links from each package page to the equivalent RDF URL given in `rdf_packages`:
 
-1. 303 redirects for clients that content-negotiate rdf-xml. e.g. client GETs `http://ckan.net/package/pollution-2008` with accept header `application/rdf+xml`. CKAN's response is a 303 redirect to `http://semantic.ckan.net/package/pollution-2008`
+1. 303 redirects for clients that content-negotiate rdf-xml or turtle. e.g. client GETs `http://ckan.net/package/pollution-2008` with accept header `application/rdf+xml` ``curl -H "Accept: application/rdf+xml" http://ckan.net/package/pollution-2008``. CKAN's response is a 303 redirect to `http://semantic.ckan.net/package/pollution-2008` which can be obtained with: ``curl -L -H "Accept: application/rdf+xml" http://ckan.net/package/pollution-2008``
 
-2. Embedded links for browsers that are aware. e.g. `<link rel="alternate" type="application/rdf+xml" href="http://semantic.ckan.net/package/pollution-2008">`
+2. Embedded links for browsers that are aware. e.g. `<link rel="alternate" type="application/rdf+xml" href="http://semantic.ckan.net/record/b410e678-8a96-40cf-8e46-e8bd4bf02684.rdf">`
 
-3. A visible RDF link on the page in the 'Alternative metadata formats' box. e.g. `<a href="http://semantic.ckan.net/package/pollution-2008">`
+3. A visible RDF link on the page. e.g. `<a href="http://semantic.ckan.net/record/b410e678-8a96-40cf-8e46-e8bd4bf02684.rdf">`
 
 
 cache_validation_enabled
@@ -335,6 +335,7 @@ The URL which resolves to the CKAN API part of the site. This is useful if the
 API is hosted on a different domain, for example when a third party site uses
 the forms API.
 
+
 default_roles
 -------------
 
@@ -360,3 +361,14 @@ Example::
   ckan.plugins = disqus synchronous_search datapreview googleanalytics stats storage admin follower
 
 Specify which CKAN extensions are to be enabled. If you specify an extension but have not installed the code then CKAN will not start. Format in a space separated list of the extension names. The extension name is the key in the [ckan.plugins] section of the extension's setup.py.
+
+
+dumps_url & dumps_format
+------------------------
+
+Example::
+
+  ckan.dumps_url = http://ckan.net/dump/
+  ckan.dumps_format = CSV/JSON
+
+If there is a page which allows you to download a dump of the entire catalogue then specify the URL and the format here, so that it can be advertised in the web interface. The dumps_format is just a string for display.

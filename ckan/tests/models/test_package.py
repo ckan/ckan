@@ -26,6 +26,7 @@ class TestPackage:
     @classmethod
     def teardown_class(self):
         pkg1 = model.Session.query(model.Package).filter_by(name=self.name).one()
+        
         pkg1.purge()
         model.Session.commit()
         model.repo.rebuild_db()
@@ -394,3 +395,17 @@ class TestRelatedRevisions:
         test_res(diff, self.res1, 'hash', 'abc123')
         test_res(diff, self.res1, 'state', 'active')
         test_res(diff, self.res2, 'url', 'http://url2.com')
+
+class TestPackagePurge:
+    @classmethod
+    def setup_class(self):
+        CreateTestData.create()
+    def test_purge(self):
+        pkgs = model.Session.query(model.Package).all()
+        for p in pkgs:
+           p.purge()
+        model.Session.commit()
+        pkgs = model.Session.query(model.Package).all()
+        assert len(pkgs) == 0
+
+

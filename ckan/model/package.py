@@ -75,8 +75,10 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
     @property
     def resources(self):
-        assert len(self.resource_groups_all) == 1, "can only use resources on packages if there is only one resource_group"
+        if len(self.resource_groups_all) == 0:
+            return []
 
+        assert len(self.resource_groups_all) == 1, "can only use resources on packages if there is only one resource_group"
         return self.resource_groups_all[0].resources
     
     def update_resources(self, res_dicts, autoflush=True):
@@ -526,5 +528,4 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                 fields.remove(field)
 
         return fields
-
 

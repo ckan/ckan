@@ -555,6 +555,28 @@ At this point you should be able to write your own plugins and extensions
 together with their tests. Over time we hope to move more functionality out
 into CKAN extensions.
 
+Ordering of extensions
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. caution ::
+ 
+  The order that extensions are initially loaded is **different** to the order that their plugins are run.
+
+The order that extensions are initially loaded is as follows:
+
+1. System plugins (in setup.py under ``ckan.system_plugins``).
+
+2. In order of the plugins specified in the config file: ``plugins =``.
+
+3. If more than one module has a plug-in with the same name specified in the config, then all those are loaded, in the order the modules appear in ``sys.path``.
+
+The order that a plugins are run in, for example the order that IRoutes extensions have their ``before_map`` method run, is alphabetical by the plugin class.
+
+e.g. here is the order for these four extensions: ``<Plugin DguInventoryPlugin>``, ``<Plugin FormApiPlugin>``, ``<Plugin StatsPlugin>``, ``<Plugin WalesThemePlugin>``
+
+(This alphabetical ordering is done by ``pyutilib.component.core:ExtensionPoint.extensions()``)
+
+
 Plugin API documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -8,6 +8,7 @@ from package import *
 from types import make_uuid
 import vdm.sqlalchemy
 from ckan.model import extension
+from sqlalchemy.ext.associationproxy import association_proxy
 
 __all__ = ['group_table', 'Group', 'package_revision_table',
            'PackageGroup', 'GroupRevision', 'PackageGroupRevision',
@@ -58,7 +59,6 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
     def get(cls, reference):
         '''Returns a group object referenced by its id or name.'''
         query = Session.query(cls).filter(cls.id==reference)
-        query = query.options(eagerload_all('packages'))
         group = query.first()
         if group == None:
             group = cls.by_name(reference)
@@ -68,7 +68,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
     def active_packages(self, load_eager=True):
         query = Session.query(Package).\
                filter_by(state=vdm.sqlalchemy.State.ACTIVE).\
-               join('groups').filter_by(id=self.id)
+               join('package_group_all', 'group').filter_by(id=self.id)
         if load_eager:
             query = query.options(eagerload_all('package_tags.tag'))
             query = query.options(eagerload_all('resource_groups_all.resources_all'))
@@ -120,13 +120,8 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         return '<Group %s>' % self.name
 
 
-mapper(Group, group_table, properties={
-    'packages': relation(Package, secondary=package_group_table,
-        backref='groups',
-        order_by=package_table.c.name
-    ),
-},
-    extension=[vdm.sqlalchemy.Revisioner(group_revision_table),],
+mapper(Group, group_table, 
+       extension=[vdm.sqlalchemy.Revisioner(group_revision_table),],
 )
 
 
@@ -134,17 +129,25 @@ vdm.sqlalchemy.modify_base_object_mapper(Group, Revision, State)
 GroupRevision = vdm.sqlalchemy.create_object_version(mapper, Group,
         group_revision_table)
 
-
 mapper(PackageGroup, package_group_table, properties={
     'group': relation(Group,
-        backref='package_group_all',
+        backref=backref('package_group_all', cascade='all, delete-orphan'),
     ),
     'package': relation(Package,
-        backref='package_group_all',
+        backref=backref('package_group_all', cascade='all, delete-orphan'),
     ),
 },
     extension=[vdm.sqlalchemy.Revisioner(package_group_revision_table),],
 )
+
+def _create_group(group):
+    return PackageGroup(group=group)
+
+def _create_package(package):
+    return PackageGroup(package=package)
+
+Package.groups = association_proxy('package_group_all', 'group', creator=_create_group)
+Group.packages = association_proxy('package_group_all', 'package', creator=_create_package)
 
 
 vdm.sqlalchemy.modify_base_object_mapper(PackageGroup, Revision, State)

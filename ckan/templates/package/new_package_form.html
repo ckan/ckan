@@ -98,11 +98,11 @@
   <legend>Groups</legend>
   <dl>
     <py:for each="num, group in enumerate(data.get('groups', []))">
-      <dt>
+      <dt py:if="'id' in group">
       <input type="${'checkbox' if group['id'] in c.groups_authz else 'hidden'}" name="groups__${num}__id" checked="checked" value="${group['id']}" />
-      <input type="hidden" name="groups__${num}__name" value="${group['name']}" />
+      <input type="hidden" name="groups__${num}__name" value="${group.get('name', c.groups_authz.get(group['id']))}" />
       </dt>     
-      <dd><label for="groups__${num}__checked">${group['name']}</label></dd>
+      <dd py:if="'id' in group"><label for="groups__${num}__checked">${group.get('name', c.groups_authz.get(group['id']))}</label></dd>
     </py:for>
 
     <dt>Group</dt>

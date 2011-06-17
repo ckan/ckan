@@ -89,7 +89,7 @@ def group_list_authz(context):
 
     query = ckan.authz.Authorizer().authorized_query(user, model.Group, model.Action.EDIT)
     groups = set(query.all())
-    return set([group.id for group in groups])
+    return dict((group.id, group.name) for group in groups)
 
 def group_list_availible(context):
     model = context['model']
