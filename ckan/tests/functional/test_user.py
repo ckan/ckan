@@ -28,6 +28,10 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods):
     def teardown_class(self):
         model.repo.rebuild_db()
 
+    def teardown(self):
+        # just ensure we're not logged in
+        self.app.get('/user/logout')
+
     def test_user_read(self):
         user = model.User.by_name(u'annafan')
         offset = '/user/%s' % user.id
@@ -48,7 +52,6 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods):
         assert 'Revision History' in res, res
 
     def test_user_read_without_id(self):
-        res = self.app.get('/user/logout') # just ensure we're not logged in
         offset = '/user/'
         res = self.app.get(offset, status=302)
 
@@ -209,6 +212,44 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods):
         assert_equal(user.fullname, fullname)
         assert user.password
 
+    def test_user_create_unicode(self):
+        # create/register user
+        username = u'testcreate4'
+        fullname = u'Test Create\xc2\xa0'
+        password = u'testpassword\xc2\xa0'
+        assert not model.User.by_name(username)
+
+        offset = url_for(controller='user', action='register')
+        res = self.app.get(offset, status=200)
+        main_res = self.main_div(res)
+        assert 'Register' in main_res, main_res
+        fv = res.forms['register_form']
+        fv['login'] = username
+        fv['fullname'] = fullname.encode('utf8')
+        fv['password1'] = password.encode('utf8')
+        fv['password2'] = password.encode('utf8')
+        res = fv.submit('signup')
+        
+        # view user
+        assert res.status == 302, self.main_div(res).encode('utf8')
+        res = res.follow()
+        if res.status == 302:
+            res = res.follow()
+        if res.status == 302:
+            res = res.follow()
+        if res.status == 302:
+            res = res.follow()
+        assert res.status == 200, res
+        main_res = self.main_div(res)
+        assert username in main_res, main_res
+        assert fullname in main_res, main_res
+
+        user = model.User.by_name(unicode(username))
+        assert user
+        assert_equal(user.name, username)
+        assert_equal(user.fullname, fullname)
+        assert user.password
+
     def test_user_create_no_name(self):
         # create/register user
         password = u'testpassword'
@@ -224,6 +265,25 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods):
         assert res.status == 200, res
         main_res = self.main_div(res)
         assert 'Please enter a login name' in main_res, main_res
+
+    def test_user_create_bad_name(self):
+        # create/register user
+        username = u'%%%%%%' # characters not allowed
+        password = 'testpass'
+
+        offset = url_for(controller='user', action='register')
+        res = self.app.get(offset, status=200)
+        main_res = self.main_div(res)
+        assert 'Register' in main_res, main_res
+        fv = res.forms['register_form']
+        fv['login'] = username
+        fv['password1'] = password
+        fv['password2'] = password
+        res = fv.submit('signup')
+        assert res.status == 200, res
+        main_res = self.main_div(res)
+        assert 'login name is not valid' in main_res, main_res
+        self.check_named_element(main_res, 'input', 'name="login"', 'value="%s"' % username)
 
     def test_user_create_bad_password(self):
         # create/register user

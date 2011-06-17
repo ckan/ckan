@@ -3,6 +3,7 @@ import logging
 
 import genshi
 from sqlalchemy import or_, func, desc
+from urllib import quote
 
 import ckan.misc
 from ckan.lib.base import *
@@ -82,9 +83,12 @@ class UserController(BaseController):
             c.email = request.params.getone('email')
             if not c.login:
                 h.flash_error(_("Please enter a login name."))
-                return render("user/register.html")                
+                return render("user/register.html")
+            if not model.User.check_name_valid(c.login):
+                h.flash_error(_('That login name is not valid. It must be at least 3 characters, restricted to alphanumerics and these symbols: %s') % '_\-')
+                return render("user/register.html")
             if not model.User.check_name_available(c.login):
-                h.flash_error(_("That username is not available."))
+                h.flash_error(_("That login name is not available."))
                 return render("user/register.html")
             if not request.params.getone('password1'):
                 h.flash_error(_("Please enter a password."))
@@ -99,7 +103,8 @@ class UserController(BaseController):
             model.Session.add(user)
             model.Session.commit() 
             model.Session.remove()
-            h.redirect_to(str('/login_generic?login=%s&password=%s' % (c.login, password.encode('utf-8'))))
+            h.redirect_to('/login_generic?login=%s&password=%s' % (str(c.login), quote(password.encode('utf-8'))))
+
         return render('user/register.html')
 
     def login(self):
