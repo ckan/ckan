@@ -142,7 +142,7 @@ class PackageSqlSearchQuery(SqlSearchQuery):
                 if isinstance(terms, basestring):
                     terms = terms.split()
                    
-                if hasattr(model.Package, field):
+                if field in model.package_table.c:
                     model_attr = getattr(model.Package, field)
                     for term in terms:
                         q = q.filter(make_like(model_attr, term))
