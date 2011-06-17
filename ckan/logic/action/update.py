@@ -80,7 +80,7 @@ def _make_latest_rev_active(context, q):
         old_current.current = False
         session.add(old_current)
 
-    latest_rev = q.filter_by(expired_timestamp='9999-12-31').one()
+    latest_rev = q.filter_by(expired_timestamp=datetime.datetime(9999, 12, 31)).one()
     latest_rev.current = True
     if latest_rev.state in ('pending-deleted', 'deleted'):
         latest_rev.state = 'deleted'

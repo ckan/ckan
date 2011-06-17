@@ -90,7 +90,7 @@ def _execute_with_revision(q, rev_table, context):
         q = q.where(rev_table.c.revision_timestamp <= revision_date)
         q = q.where(rev_table.c.expired_timestamp > revision_date)
     elif pending:
-        q = q.where(rev_table.c.expired_timestamp == '9999-12-31')
+        q = q.where(rev_table.c.expired_timestamp == datetime.datetime(9999, 12, 31))
     else:
         q = q.where(rev_table.c.current == True)
 

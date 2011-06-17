@@ -61,7 +61,7 @@ class CkanSessionExtension(SessionExtension):
                     session.add(old)
 
             q = session.query(revision_cls)
-            q = q.filter_by(expired_timestamp='9999-12-31', id=obj.id)
+            q = q.filter_by(expired_timestamp=datetime(9999, 12, 31), id=obj.id)
             results = q.all()
 
             for rev_obj in results:

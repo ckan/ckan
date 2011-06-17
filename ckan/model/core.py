@@ -29,12 +29,13 @@ Revision = vdm.sqlalchemy.make_Revision(mapper, revision_table)
 
 
 def make_revisioned_table(table):
+    import datetime
     revision_table = vdm.sqlalchemy.make_revisioned_table(table)
     revision_table.append_column(Column('expired_id', 
                                  Text))
     revision_table.append_column(Column('revision_timestamp', DateTime))
     revision_table.append_column(Column('expired_timestamp', DateTime, 
-                                 default='9999-12-31'))
+                                 default=datetime.datetime(9999, 12, 31)))
     revision_table.append_column(Column('current', Boolean))
     return revision_table
 
