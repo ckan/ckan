@@ -1,10 +1,14 @@
 import re
+import logging
 
 import genshi
 from sqlalchemy import or_, func, desc
+from urllib import quote
 
 import ckan.misc
 from ckan.lib.base import *
+
+log = logging.getLogger(__name__)
 
 def login_form():
     return render('user/login_form.html').replace('FORM_ACTION', '%s')
@@ -77,9 +81,18 @@ class UserController(BaseController):
             c.login = request.params.getone('login')
             c.fullname = request.params.getone('fullname')
             c.email = request.params.getone('email')
-            if not model.User.check_name_available(c.login):
-                h.flash_error(_("That username is not available."))
+            if not c.login:
+                h.flash_error(_("Please enter a login name."))
                 return render("user/register.html")
+            if not model.User.check_name_valid(c.login):
+                h.flash_error(_('That login name is not valid. It must be at least 3 characters, restricted to alphanumerics and these symbols: %s') % '_\-')
+                return render("user/register.html")
+            if not model.User.check_name_available(c.login):
+                h.flash_error(_("That login name is not available."))
+                return render("user/register.html")
+            if not request.params.getone('password1'):
+                h.flash_error(_("Please enter a password."))
+                return render("user/register.html")                
             try:
                 password = self._get_form_password()
             except ValueError, ve:
@@ -90,7 +103,8 @@ class UserController(BaseController):
             model.Session.add(user)
             model.Session.commit() 
             model.Session.remove()
-            h.redirect_to(str('/login_generic?login=%s&password=%s' % (c.login, password.encode('utf-8'))))
+            h.redirect_to('/login_generic?login=%s&password=%s' % (str(c.login), quote(password.encode('utf-8'))))
+
         return render('user/register.html')
 
     def login(self):
@@ -138,6 +152,15 @@ class UserController(BaseController):
             c.user_email = request.params.getone('email')
         elif 'save' in request.params:
             try:
+                about = request.params.getone('about')
+                if 'http://' in about or 'https://' in about:
+                    msg = _('Edit not allowed as it looks like spam. Please avoid links in your description.')
+                    h.flash_error(msg)
+                    c.user_about = about
+                    c.user_fullname = request.params.getone('fullname')
+                    c.user_email = request.params.getone('email')
+                    return render('user/edit.html')
+
                 user.about = request.params.getone('about')
                 user.fullname = request.params.getone('fullname')
                 user.email = request.params.getone('email')
@@ -161,8 +184,13 @@ class UserController(BaseController):
         
     def _format_about(self, about):
         about_formatted = ckan.misc.MarkdownFormat().to_html(about)
-        return genshi.HTML(about_formatted) 
-
+        try:
+            html = genshi.HTML(about_formatted)
+        except genshi.ParseError, e:
+            log.error('Could not print "about" field Field: %r Error: %r', about, e)
+            html = 'Error: Could not parse About text'
+        return html
+    
     def _get_form_password(self):
         password1 = request.params.getone('password1')
         password2 = request.params.getone('password2')

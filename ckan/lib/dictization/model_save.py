@@ -21,31 +21,94 @@ def resource_dict_save(res_dict, context):
 
     table = class_mapper(model.Resource).mapped_table
     fields = [field.name for field in table.c]
-
+    
     for key, value in res_dict.iteritems():
         if isinstance(value, list):
             continue
-        if key == 'extras':
+        if key in ('extras', 'revision_timestamp'):
             continue
         if key in fields:
             setattr(obj, key, value)
         else:
             obj.extras[key] = value
 
+    if context.get('pending'):
+        if session.is_modified(obj, include_collections=False):
+            obj.state = 'pending'
+
     session.add(obj)
 
     return obj
 
-def resource_list_save(res_dicts, context):
+def package_resource_list_save(res_dicts, package, context):
+
+    pending = context.get('pending')
+
+    resource_list = package.resource_groups_all[0].resources_all
+    old_list = package.resource_groups_all[0].resources_all[:]
 
     obj_list = []
     for res_dict in res_dicts:
         obj = resource_dict_save(res_dict, context)
         obj_list.append(obj)
 
-    return obj_list
+    resource_list[:] = obj_list
 
-def extras_save(extras_dicts, context):
+    for resource in set(old_list) - set(obj_list):
+        if pending and resource.state <> 'deleted':
+            resource.state = 'pending-deleted'
+        else:
+            resource.state = 'deleted'
+        resource_list.append(resource)
+    tag_package_tag = dict((package_tag.tag, package_tag) 
+                            for package_tag in
+                            package.package_tag_all)
+
+
+def package_extras_save(extra_dicts, obj, context):
+
+    allow_partial_update = context.get("allow_partial_update", False)
+    if not extra_dicts and allow_partial_update:
+        return
+    model = context["model"]
+    session = context["session"]
+
+    extras_as_string = context.get("extras_as_string", False)
+    extras_list = obj.extras_list
+    old_extras = dict((extra.key, extra) for extra in extras_list)
+
+    new_extras = {}
+    for extra_dict in extra_dicts:
+        if extra_dict.get("deleted"):
+            continue
+        if extras_as_string:
+            new_extras[extra_dict["key"]] = extra_dict["value"]
+        else:
+            new_extras[extra_dict["key"]] = json.loads(extra_dict["value"])
+    #new
+    for key in set(new_extras.keys()) - set(old_extras.keys()):
+        state = 'pending' if context.get('pending') else 'active'
+        extra = model.PackageExtra(state=state, key=key, value=new_extras[key])
+        session.add(extra)
+        extras_list.append(extra)
+    #changed
+    for key in set(new_extras.keys()) & set(old_extras.keys()):
+        extra = old_extras[key]
+        if new_extras[key] == extra.value:
+            continue
+        state = 'pending' if context.get('pending') else 'active'
+        extra.value = new_extras[key]
+        extra.state = state
+        session.add(extra)
+    #deleted
+    for key in set(old_extras.keys()) - set(new_extras.keys()):
+        extra = old_extras[key]
+        if extra.state == 'deleted':
+            continue
+        state = 'pending-deleted' if context.get('pending') else 'delete'
+        extra.state = state
+
+def group_extras_save(extras_dicts, context):
 
     model = context["model"]
     session = context["session"]
@@ -62,25 +125,55 @@ def extras_save(extras_dicts, context):
 
     return result_dict
 
+def package_tag_list_save(tag_dicts, package, context):
 
-def tag_list_save(tag_dicts, context):
-
-    model = context["model"]
-    session = context["session"]
-
-    tag_list = []
-    for table_dict in tag_dicts:
-        obj = table_dict_save(table_dict, model.Tag, context)
-        tag_list.append(obj)
-
-    return list(set(tag_list))
-
-def group_list_save(group_dicts, context):
+    
+    allow_partial_update = context.get("allow_partial_update", False)
+    if not tag_dicts and allow_partial_update:
+        return
 
     model = context["model"]
     session = context["session"]
+    pending = context.get('pending')
 
-    group_list = []
+    tag_package_tag = dict((package_tag.tag, package_tag) 
+                            for package_tag in
+                            package.package_tag_all)
+
+    tags = set()
+    for tag_dict in tag_dicts:
+        obj = table_dict_save(tag_dict, model.Tag, context)
+        tags.add(obj)
+
+    for tag in set(tag_package_tag.keys()) - tags:
+        package_tag = tag_package_tag[tag]
+        if pending and package_tag.state <> 'deleted':
+            package_tag.state = 'pending-deleted'
+        else:
+            package_tag.state = 'deleted'
+
+    for tag in tags - set(tag_package_tag.keys()):
+        state = 'pending' if pending else 'active'
+        package_tag_obj = model.PackageTag(package, tag, state)
+        session.add(package_tag_obj)
+        tag_package_tag[tag] = package_tag_obj
+
+    package.package_tag_all[:] = tag_package_tag.values()
+
+def package_group_list_save(group_dicts, package, context):
+
+    allow_partial_update = context.get("allow_partial_update", False)
+    if not group_dicts and allow_partial_update:
+        return
+
+    model = context["model"]
+    session = context["session"]
+    pending = context.get('pending')
+
+    group_package_group = dict((package_group.group, package_group) 
+                               for package_group in
+                               package.package_group_all)
+    groups = set()
     for group_dict in group_dicts:
         id = group_dict.get("id")
         name = group_dict.get("name")
@@ -88,23 +181,55 @@ def group_list_save(group_dicts, context):
             group = session.query(model.Group).get(id)
         else:
             group = session.query(model.Group).filter_by(name=name).first()
+        groups.add(group)
 
-        group_list.append(group)
+    for group in groups - set(group_package_group.keys()):
+        package_group_obj = model.PackageGroup(package = package,
+                                               group = group,
+                                               state = 'active')
+        session.add(package_group_obj)
+        group_package_group[group] = package_group_obj
 
-    return group_list
+    for group in set(group_package_group.keys()) - groups:
+        group_package_group.pop(group)
+        continue
+        ### this is alternate behavioiur below which is correct
+        ### but not compatible with old behaviour
+        package_group = group_package_group[group]
+        if pending and package_group.state <> 'deleted':
+            package_group.state = 'pending-deleted'
+        else:
+            package_group.state = 'deleted'
+
+    package.package_group_all[:] = group_package_group.values()
+
     
-def relationship_list_save(relationship_dicts, context):
+def relationship_list_save(relationship_dicts, package, attr, context):
 
+    allow_partial_update = context.get("allow_partial_update", False)
+    if not relationship_dicts and allow_partial_update:
+        return
     model = context["model"]
     session = context["session"]
+    pending = context.get('pending')
 
-    relationship_list = []
+    relationship_list = getattr(package, attr)
+    old_list = relationship_list[:]
+
+    relationships = []
     for relationship_dict in relationship_dicts:
         obj = table_dict_save(relationship_dict, 
                               model.PackageRelationship, context)
-        relationship_list.append(obj)
+        relationships.append(obj)
 
-    return relationship_list
+    relationship_list[:] = relationships
+
+    for relationship in set(old_list) - set(relationship_list):
+        if pending and relationship.state <> 'deleted':
+            relationship.state = 'pending-deleted'
+        else:
+            relationship.state = 'deleted'
+        relationship_list.append(relationship)
 
 def package_dict_save(pkg_dict, context):
 
@@ -117,33 +242,16 @@ def package_dict_save(pkg_dict, context):
 
     pkg = table_dict_save(pkg_dict, Package, context)
 
-    resources = resource_list_save(pkg_dict.get("resources", []), context)
-    if resources:
-        pkg.resources[:] = resources
+    package_resource_list_save(pkg_dict.get("resources", []), pkg, context)
+    package_tag_list_save(pkg_dict.get("tags", []), pkg, context)
+    package_group_list_save(pkg_dict.get("groups", []), pkg, context)
 
-    tags = tag_list_save(pkg_dict.get("tags", []), context)
-    if tags or not allow_partial_update:
-        pkg.tags[:] = tags
+    subjects = pkg_dict.get('relationships_as_subject', [])
+    relationship_list_save(subjects, pkg, 'relationships_as_subject', context)
+    objects = pkg_dict.get('relationships_as_object', [])
+    relationship_list_save(subjects, pkg, 'relationships_as_object', context)
 
-    groups = group_list_save(pkg_dict.get("groups", []), context)
-    if groups or not allow_partial_update:
-        pkg.groups[:] = groups
-
-    subjects = pkg_dict.get("relationships_as_subject", [])
-    if subjects or not allow_partial_update:
-        pkg.relationships_as_subject[:] = relationship_list_save(subjects, context)
-    objects = pkg_dict.get("relationships_as_object", [])
-    if objects or not allow_partial_update:
-        pkg.relationships_as_object[:] = relationship_list_save(objects, context)
-
-    extras = extras_save(pkg_dict.get("extras", {}), context)
-    if extras or not allow_partial_update:
-        old_extras = set(pkg.extras.keys())
-        new_extras = set(extras.keys())
-        for key in old_extras - new_extras:
-            del pkg.extras[key]
-        for key in new_extras:
-            pkg.extras[key] = extras[key] 
+    extras = package_extras_save(pkg_dict.get("extras", []), pkg, context)
 
     return pkg
 
@@ -161,7 +269,7 @@ def group_dict_save(group_dict, context):
         group_dict["id"] = group.id 
 
     group = table_dict_save(group_dict, Group, context)
-    extras = extras_save(group_dict.get("extras", {}), context)
+    extras = group_extras_save(group_dict.get("extras", {}), context)
     if extras or not allow_partial_update:
         old_extras = set(group.extras.keys())
         new_extras = set(extras.keys())

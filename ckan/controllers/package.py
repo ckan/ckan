@@ -1,6 +1,9 @@
 import logging
 import urlparse
 from urllib import urlencode
+import json
+import datetime
+import re
 
 from sqlalchemy.orm import eagerload_all
 from sqlalchemy import or_
@@ -8,6 +11,7 @@ import genshi
 from pylons import config, cache
 from pylons.i18n import get_lang, _
 from autoneg.accept import negotiate
+from babel.dates import format_date, format_datetime, format_time
 
 import ckan.logic.action.create as create
 import ckan.logic.action.update as update
@@ -21,8 +25,9 @@ from ckan.lib.cache import proxy_cache
 from ckan.lib.package_saver import PackageSaver, ValidationException
 from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
 from ckan.logic import NotFound, NotAuthorized, ValidationError
-from ckan.logic import tuplize_dict, clean_dict, parse_params
+from ckan.logic import tuplize_dict, clean_dict, parse_params, flatten_to_string_key
 from ckan.plugins import PluginImplementations, IPackageController
+from ckan.lib.dictization import table_dictize
 import ckan.forms
 import ckan.authz
 import ckan.rating
@@ -171,11 +176,26 @@ class PackageController(BaseController):
 
     @proxy_cache()
     def read(self, id):
-        
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'extras_as_string': True,
+                   'schema': self._form_to_db_schema(),
+                   'id': id}
+        split = id.split('@')
+        if len(split) == 2:
+            context['id'], revision = split
+            try:
+                date = datetime.datetime(*map(int, re.split('[^\d]', revision)))
+                context['revision_date'] = date
+            except ValueError:
+                context['revision_id'] = revision
         #check if package exists
-        c.pkg = model.Package.get(id)
-        if c.pkg is None:
+        try:
+            c.pkg_dict = get.package_show(context)
+            c.pkg = context['package']
+        except NotFound:
             abort(404, _('Package not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read package %s') % id)
         
         cache_key = self._pkg_cache_key(c.pkg)        
         etag_cache(cache_key)
@@ -194,38 +214,33 @@ class PackageController(BaseController):
                     rdf_url = '%s%s.%s' % (config['rdf_packages'], c.pkg.id, exts[0])
                     redirect(rdf_url, code=303)
                 break
-            
-        #is the user allowed to see this package?
-        auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, c.pkg)
-        if not auth_for_read:
-            abort(401, _('Unauthorized to read package %s') % id)
-        
-        #render the package
-        PackageSaver().render_package(c.pkg)
-        for item in self.extensions:
-            item.read(c.pkg)
+
+        PackageSaver().render_package(c.pkg_dict, context)
         return render('package/read.html')
 
     def comments(self, id):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'extras_as_string': True,
+                   'schema': self._form_to_db_schema(),
+                   'id': id}
 
         #check if package exists
-        c.pkg = model.Package.get(id)
-        if c.pkg is None:
+        try:
+            c.pkg_dict = get.package_show(context)
+            c.pkg = context['package']
+        except NotFound:
             abort(404, _('Package not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read package %s') % id)
 
         # used by disqus plugin
         c.current_package_id = c.pkg.id
 
-        #is the user allowed to see this package?
-        auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, c.pkg)
-        if not auth_for_read:
-            abort(401, _('Unauthorized to read package %s') % id)
-
         for item in self.extensions:
             item.read(c.pkg)
 
         #render the package
-        PackageSaver().render_package(c.pkg)
+        PackageSaver().render_package(c.pkg_dict)
         return render('package/comments.html')
 
 
@@ -303,7 +318,7 @@ class PackageController(BaseController):
         if (context['save'] or context['preview']) and not data:
             return self._save_new(context)
 
-        data = data or {}
+        data = data or dict(request.params) 
         errors = errors or {}
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
@@ -318,12 +333,12 @@ class PackageController(BaseController):
                    'user': c.user or c.author, 'extras_as_string': True,
                    'preview': 'preview' in request.params,
                    'save': 'save' in request.params,
-                   'id': id,
+                   'id': id, 'moderated': config.get('moderated'),
+                   'pending': True,
                    'schema': self._form_to_db_schema()}
 
         if (context['save'] or context['preview']) and not data:
             return self._save_edit(id, context)
-
         try:
             old_data = get.package_show(context)
             schema = self._db_to_form_schema()
@@ -332,6 +347,8 @@ class PackageController(BaseController):
             data = data or old_data
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
+        except NotFound:
+            abort(404, _('Package not found'))
 
         c.pkg = context.get("package")
 
@@ -346,16 +363,65 @@ class PackageController(BaseController):
         c.form = render(self.package_form, extra_vars=vars)
         return render('package/edit.html')
 
+    def read_ajax(self, id, revision=None):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author,
+                   'id': id, 'extras_as_string': True,
+                   'schema': self._form_to_db_schema(),
+                   'revision_id': revision}
+
+        try:
+            data = get.package_show(context)
+            schema = self._db_to_form_schema()
+            if schema:
+                data, errors = validate(data, schema)
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read package %s') % '')
+
+        ## hack as db_to_form schema should have this
+        data['tag_string'] = ' '.join([tag['name'] for tag in data.get('tags', [])])
+        data.pop('tags')
+        data = flatten_to_string_key(data)
+        response.headers['Content-Type'] = 'application/json;charset=utf-8'
+        return json.dumps(data)
+
+    def history_ajax(self, id):
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author,
+                   'id': id, 'extras_as_string': True}
+        pkg = model.Package.get(id)
+        data = []
+        approved = False
+        for num, (revision, revision_obj) in enumerate(pkg.all_related_revisions):
+            if not approved and revision.approved_timestamp:
+                current_approved, approved = True, True
+            else:
+                current_approved = False
+            
+            data.append({'revision_id': revision.id,
+                         'message': revision.message,
+                         'timestamp': format_datetime(revision.timestamp, 
+                                                      locale=(get_lang() or ['en'])[0]),
+                         'author': revision.author,
+                         'approved': bool(revision.approved_timestamp),
+                         'current_approved': current_approved})
+                
+        response.headers['Content-Type'] = 'application/json;charset=utf-8'
+        return json.dumps(data)
+
     def _save_new(self, context):
         try:
             data_dict = clean_dict(unflatten(
-                tuplize_dict(parse_params(request.params))))
+                tuplize_dict(parse_params(request.POST))))
             self._check_data_dict(data_dict)
             context['message'] = data_dict.get('log_message', '')
             pkg = create.package_create(data_dict, context)
 
             if context['preview']:
-                PackageSaver().render_package(context['package'])
+                PackageSaver().render_package(pkg, context)
+                c.pkg = context['package']
+                c.pkg_dict = data_dict
                 c.is_preview = True
                 c.preview = render('package/read_core.html')
                 return self.new(data_dict)
@@ -375,15 +441,20 @@ class PackageController(BaseController):
     def _save_edit(self, id, context):
         try:
             data_dict = clean_dict(unflatten(
-                tuplize_dict(parse_params(request.params))))
+                tuplize_dict(parse_params(request.POST))))
             self._check_data_dict(data_dict)
             context['message'] = data_dict.get('log_message', '')
+            if not context['moderated']:
+                context['pending'] = False
             pkg = update.package_update(data_dict, context)
+            if request.params.get('save', '') == 'Approve':
+                update.make_latest_pending_package_active(context)
             c.pkg = context['package']
+            c.pkg_dict = pkg
 
             if context['preview']:
                 c.is_preview = True
-                PackageSaver().render_package(context['package'])
+                PackageSaver().render_package(pkg, context)
                 c.preview = render('package/read_core.html')
                 return self.edit(id, data_dict)
 
@@ -655,7 +726,7 @@ class PackageController(BaseController):
         package_name = id
         package = model.Package.get(package_name)
         if package is None:
-            abort(404, gettext('404 Package Not Found'))
+            abort(404, gettext('Package Not Found'))
         self._clear_pkg_cache(package)
         rating = request.params.get('rating', '')
         if rating:

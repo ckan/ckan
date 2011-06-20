@@ -142,7 +142,7 @@ class PackageSqlSearchQuery(SqlSearchQuery):
                 if isinstance(terms, basestring):
                     terms = terms.split()
                    
-                if hasattr(model.Package, field):
+                if field in model.package_table.c:
                     model_attr = getattr(model.Package, field)
                     for term in terms:
                         q = q.filter(make_like(model_attr, term))
@@ -192,7 +192,7 @@ class PackageSqlSearchQuery(SqlSearchQuery):
         group = model.Group.by_name(unicode(term), autoflush=False)
         if group:
             # need to keep joining for each filter
-            q = q.join('groups', aliased=True).filter(
+            q = q.join('package_group_all', 'group', aliased=True).filter(
                 model.Group.id==group.id)
         else:
             # unknown group, so torpedo search

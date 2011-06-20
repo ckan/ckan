@@ -26,6 +26,7 @@ class TestPackage:
     @classmethod
     def teardown_class(self):
         pkg1 = model.Session.query(model.Package).filter_by(name=self.name).one()
+        
         pkg1.purge()
         model.Session.commit()
         model.repo.rebuild_db()
@@ -37,13 +38,34 @@ class TestPackage:
         rev = model.repo.new_revision()
         package = model.Package(name=name)
         model.Session.add(package)
+        model.Session.flush()
+        revision_id = model.Session().revision.id
+        timestamp = model.Session().revision.timestamp
         model.repo.commit_and_remove()
+
+        package = model.Package.by_name(name)
+        assert len(package.all_revisions) == 1
+        assert package.all_revisions[0].revision_id == revision_id
+        assert package.all_revisions[0].revision_timestamp == timestamp
+        assert package.all_revisions[0].expired_id is None
 
         # change it
         rev = model.repo.new_revision()
         package = model.Package.by_name(name)
         package.title = "wobsnasm"
+        revision_id2 = model.Session().revision.id
+        timestamp2 = model.Session().revision.timestamp
         model.repo.commit_and_remove()
+
+        package = model.Package.by_name(name)
+        assert len(package.all_revisions) == 2
+        assert package.all_revisions[0].revision_id == revision_id2
+        assert package.all_revisions[0].revision_timestamp == timestamp2
+        assert package.all_revisions[0].expired_id is None
+
+        assert package.all_revisions[1].revision_id == revision_id
+        assert package.all_revisions[1].revision_timestamp == timestamp
+        assert package.all_revisions[1].expired_id == revision_id2
 
     def test_create_package(self):
         package = model.Package.by_name(self.name)
@@ -87,7 +109,7 @@ class TestPackage:
         assert out['metadata_modified'] == pkg.metadata_modified.isoformat()
         assert out['metadata_created'] == pkg.metadata_created.isoformat()
         assert_equal(out['notes'], pkg.notes)
-        assert_equal(out['notes_rendered'], '<p>A <b>great</b> package [HTML_REMOVED] like <a href="/package/pollution_stats" target="_blank" rel="nofollow">package:pollution_stats</a>\n</p>')
+        assert_equal(out['notes_rendered'], '<p>A <b>great</b> package [HTML_REMOVED] like <a href="/package/pollution_stats">package:pollution_stats</a>\n</p>')
 
 
 class TestPackageWithTags:
@@ -373,3 +395,17 @@ class TestRelatedRevisions:
         test_res(diff, self.res1, 'hash', 'abc123')
         test_res(diff, self.res1, 'state', 'active')
         test_res(diff, self.res2, 'url', 'http://url2.com')
+
+class TestPackagePurge:
+    @classmethod
+    def setup_class(self):
+        CreateTestData.create()
+    def test_purge(self):
+        pkgs = model.Session.query(model.Package).all()
+        for p in pkgs:
+           p.purge()
+        model.Session.commit()
+        pkgs = model.Session.query(model.Package).all()
+        assert len(pkgs) == 0
+
+

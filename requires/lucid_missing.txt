@@ -15,6 +15,8 @@
 -e hg+http://hg.saddi.com/flup@301a58656bfb#egg=flup
 # All the conflicting dependencies from the lucid_conflict.txt file
 -e hg+https://bitbucket.org/okfn/ckan-deps@6287665a1965#egg=ckan-deps
+# FormAlchemy
+-e git+https://github.com/FormAlchemy/formalchemy.git@1.3.9#egg=formalchemy
 
 # NOTE: Developers, our build script for the Debian packages relies on the 
 #       requirements above being specified as editable resources with their

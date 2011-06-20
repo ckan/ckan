@@ -132,14 +132,15 @@ class TestBasicDictize:
         data = group_dictize(group, context)
 
         converted_data, errors = validate(data, default_group_schema(), context)
-        group.packages.sort(key=lambda x:x.id)
+        group_pack = sorted(group.packages, key=lambda x:x.id)
+
         converted_data["packages"] = sorted(converted_data["packages"], key=lambda x:x["id"])
 
         expected = {'description': u'These are books that David likes.',
                                  'id': group.id,
                                  'name': u'david',
-                                 'packages': sorted([{'id': group.packages[0].id},
-                                              {'id': group.packages[1].id,
+                                 'packages': sorted([{'id': group_pack[0].id},
+                                              {'id': group_pack[1].id,
                                                }], key=lambda x:x["id"]),
                                  'title': u"Dave's books"}
 

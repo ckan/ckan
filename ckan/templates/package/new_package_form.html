@@ -13,7 +13,7 @@
 </ul>
 </div>
 
-<fieldset>
+<fieldset id="basic-information">
   <legend> Basic information</legend>
   <dl>
     <dt><label class="field_opt" for="title">Title</label></dt>
@@ -63,7 +63,7 @@
   </dl>
 </fieldset>
 
-<fieldset>
+<fieldset id="resources">
   <legend>Resources</legend>
   <table class="flexitable">
     <thead>
@@ -94,14 +94,15 @@
   <div class="field_error" py:if="errors.get('resources', '')">Package resource(s) incomplete.</div>
 </fieldset>
 
-<fieldset>
+<fieldset id="groups">
   <legend>Groups</legend>
   <dl>
     <py:for each="num, group in enumerate(data.get('groups', []))">
-      <dt>
+      <dt py:if="'id' in group">
       <input type="${'checkbox' if group['id'] in c.groups_authz else 'hidden'}" name="groups__${num}__id" checked="checked" value="${group['id']}" />
+      <input type="hidden" name="groups__${num}__name" value="${group.get('name', c.groups_authz.get(group['id']))}" />
       </dt>     
-      <dd><label for="groups__${num}__checked">${group['name']}</label></dd>
+      <dd py:if="'id' in group"><label for="groups__${num}__checked">${group.get('name', c.groups_authz.get(group['id']))}</label></dd>
     </py:for>
 
     <dt>Group</dt>
@@ -116,7 +117,7 @@
     <dd py:if="not c.groups">Cannot add any groups.</dd>
   </dl>
 </fieldset>
-<fieldset>
+<fieldset id='detail'>
   <legend>Detail</legend>
   <dl>
     <dt><label class="field_opt" for="author">Author</label></dt>
@@ -149,7 +150,7 @@
   </dl>
 </fieldset>
 
-<fieldset>
+<fieldset id='extras'>
   <legend>Extras</legend>
   <dl>
     <py:with vars="extras = data.get('extras', [])">

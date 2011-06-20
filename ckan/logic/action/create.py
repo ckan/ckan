@@ -71,7 +71,10 @@ def package_create(data_dict, context):
     ## this is added so that the rest controller can make a new location 
     context["id"] = pkg.id
     log.debug('Created object %s' % str(pkg.name))
-    return package_dictize(pkg, context) 
+    if not preview:
+        return package_dictize(pkg, context) 
+    else:
+        return data
 
 def resource_create(data_dict, context):
     model = context['model']

@@ -1,5 +1,6 @@
 import logging
 import re
+import datetime
 
 import ckan.authz
 from ckan.plugins import PluginImplementations, IGroupController, IPackageController
@@ -56,7 +57,10 @@ def check_group_auth(data_dict, context):
     group_dicts = data_dict.get("groups", [])
     groups = set()
     for group_dict in group_dicts:
-        grp = model.Group.get(group_dict['id'])
+        id = group_dict.get('id')
+        if not id:
+            continue
+        grp = model.Group.get(id)
         if grp is None:
             raise NotFound(_('Group was not found.'))
         groups.add(grp)
@@ -67,8 +71,77 @@ def check_group_auth(data_dict, context):
     for group in groups:
         check_access(group, model.Action.EDIT, context)
 
-def package_update(data_dict, context):
+def _make_latest_rev_active(context, q):
 
+    session = context['model'].Session
+
+    old_current = q.filter_by(current=True).first()
+    if old_current:
+        old_current.current = False
+        session.add(old_current)
+
+    latest_rev = q.filter_by(expired_timestamp=datetime.datetime(9999, 12, 31)).one()
+    latest_rev.current = True
+    if latest_rev.state in ('pending-deleted', 'deleted'):
+        latest_rev.state = 'deleted'
+    else:
+        latest_rev.state = 'active'
+
+    session.add(latest_rev)
+        
+    ##this is just a way to get the latest revision that changed
+    ##in order to timestamp
+    old_latest = context.get('latest_revision_date')
+    if old_latest:
+        if latest_rev.revision_timestamp > old_latest:
+            context['latest_revision_date'] = latest_rev.revision_timestamp
+            context['latest_revision'] = latest_rev.revision_id
+    else:
+        context['latest_revision_date'] = latest_rev.revision_timestamp
+        context['latest_revision'] = latest_rev.revision_id
+
+def make_latest_pending_package_active(context):
+
+    model = context['model']
+    session = model.Session
+    id = context["id"]
+    pkg = model.Package.get(id)
+
+    check_access(pkg, model.Action.EDIT, context)
+
+    #packages
+    q = session.query(model.PackageRevision).filter_by(id=pkg.id)
+    _make_latest_rev_active(context, q)
+
+    #resources
+    for resource in pkg.resource_groups_all[0].resources_all:
+        q = session.query(model.ResourceRevision).filter_by(id=resource.id)
+        _make_latest_rev_active(context, q)
+
+    #tags
+    for tag in pkg.package_tag_all:
+        q = session.query(model.PackageTagRevision).filter_by(id=tag.id)
+        _make_latest_rev_active(context, q)
+
+    #extras
+    for extra in pkg.extras_list:
+        q = session.query(model.PackageExtraRevision).filter_by(id=extra.id)
+        _make_latest_rev_active(context, q)
+
+    latest_revision = context.get('latest_revision')
+    if not latest_revision:
+        return
+
+    q = session.query(model.Revision).filter_by(id=latest_revision)
+    revision = q.first()
+    revision.approved_timestamp = datetime.datetime.now()
+    session.add(revision)
+    
+    session.commit()        
+    session.remove()        
+
+
+def package_update(data_dict, context):
     model = context['model']
     user = context['user']
     id = context["id"]
@@ -83,9 +156,10 @@ def package_update(data_dict, context):
         raise NotFound(_('Package was not found.'))
 
     check_access(pkg, model.Action.EDIT, context)
-    check_group_auth(data_dict, context)
 
     data, errors = validate(data_dict, schema, context)
+
+    check_group_auth(data, context)
 
     if errors:
         model.Session.rollback()
@@ -105,8 +179,8 @@ def package_update(data_dict, context):
         for item in PluginImplementations(IPackageController):
             item.edit(pkg)
         model.repo.commit()        
-
-    return package_dictize(pkg, context)
+        return package_dictize(pkg, context)
+    return data
 
 
 def _update_package_relationship(relationship, comment, context):
@@ -155,8 +229,6 @@ def package_relationship_update(data_dict, context):
     entity = existing_rels[0]
     comment = data_dict.get('comment', u'')
     return _update_package_relationship(entity, comment, context)
-
-
 
 def group_update(data_dict, context):
 

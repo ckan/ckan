@@ -38,6 +38,7 @@ def default_resource_schema():
         'hash': [ignore_missing, unicode],
         'state': [ignore],
         'position': [ignore],
+        'revision_timestamp': [ignore],
         '__extras': [ignore_missing, extras_unicode_convert, keep_extras],
     }
 
@@ -51,6 +52,8 @@ def default_tags_schema():
                  tag_length_validator,
                  tag_name_validator,
                  tag_not_uppercase],
+        'revision_timestamp': [ignore],
+        'state': [ignore],
     }
     return schema
 
@@ -106,8 +109,9 @@ def package_form_schema():
     ##new
     schema['log_message'] = [unicode, no_http]
     schema['groups'] = {
-            'id': [not_empty, unicode],
+            'id': [ignore_missing, unicode],
             '__extras': [empty],
+            'name': [ignore, unicode],
     }
     schema['tag_string'] = [ignore_missing, tag_string_convert]
     schema['extras_validation'] = [duplicate_extras_key, ignore]
@@ -166,6 +170,7 @@ def default_extras_schema():
         'value': [not_missing, unicode],
         'state': [ignore],
         'deleted': [ignore_missing],
+        'revision_timestamp': [ignore],
     }
     return schema
 

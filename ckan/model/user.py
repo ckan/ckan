@@ -107,12 +107,16 @@ class User(DomainObject):
     password = property(_get_password, _set_password)
     
     @classmethod
-    def check_name_available(cls, name):
+    def check_name_valid(cls, name):
         if not name \
-           or not len(name.strip()) \
-           or not cls.VALID_NAME.match(name):
-           return False
-        return cls.by_name(name)==None
+            or not len(name.strip()) \
+            or not cls.VALID_NAME.match(name):
+            return False
+        return True
+
+    @classmethod
+    def check_name_available(cls, name):
+        return cls.by_name(name) == None
 
     def as_dict(self):
         _dict = DomainObject.as_dict(self)
