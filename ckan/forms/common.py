@@ -402,14 +402,14 @@ class ResourcesField(ConfiguredField):
 
         def _serialized_value(self):
             package = self.field.parent.model
-            params = dict(self.params)
+            params = self.params
             new_resources = []
             rest_key = self.name
 
             # REST param format
             # e.g. 'Package-1-resources': [{u'url':u'http://ww...
-            if params.has_key(rest_key) and isinstance(params[rest_key], (list, tuple)):
-                new_resources = params[rest_key][:] # copy, so don't edit orig
+            if params.has_key(rest_key) and any(params.getall(rest_key)):
+                new_resources = params.getall(rest_key)[:] # copy, so don't edit orig
 
             # formalchemy form param format
             # e.g. 'Package-1-resources-0-url': u'http://ww...'
