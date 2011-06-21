@@ -77,10 +77,13 @@ class UserController(BaseController):
     def register(self):
         if not self.authorizer.am_authorized(c, model.Action.USER_CREATE, model.System):
             abort(401, _('Not authorized to see this page'))
-        if request.method == 'POST': 
-            c.login = request.params.getone('login')
-            c.fullname = request.params.getone('fullname')
-            c.email = request.params.getone('email')
+        if request.method == 'POST':
+            try:
+                c.login = request.params.getone('login')
+                c.fullname = request.params.getone('fullname')
+                c.email = request.params.getone('email')
+            except KeyError, e:
+                abort(401, _('Missing parameter: %r') % e)
             if not c.login:
                 h.flash_error(_("Please enter a login name."))
                 return render("user/register.html")
