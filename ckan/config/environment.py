@@ -1,6 +1,7 @@
 """Pylons environment configuration"""
 import os
 from urlparse import urlparse
+import logging
 
 from paste.deploy.converters import asbool
 
@@ -87,6 +88,11 @@ def load_environment(global_conf, app_conf):
     translator = Translator(pylons.translator)
     def template_loaded(template):
         translator.setup(template)
+
+    # Markdown ignores the logger config, so to get rid of excessive
+    # markdown debug messages in the log, set it to the level of the
+    # root logger.
+    logging.getLogger("MARKDOWN").setLevel(logging.getLogger().level)
 
     # Create the Genshi TemplateLoader
     # config['pylons.app_globals'].genshi_loader = TemplateLoader(
