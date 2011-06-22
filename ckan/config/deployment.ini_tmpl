@@ -152,12 +152,13 @@ ckan.favicon = http://assets.okfn.org/p/ckan/img/ckan.ico
 ## NB: can have multiline strings just indent following lines
 # ckan.template_footer_end = 
 
+# These three settings (ckan.log_dir, ckan.dump_dir and ckan.backup_dir) are
+# all used in cron jobs, not in CKAN itself. CKAN logging is configured 
+# in the logging configuration below
 # Directory for logs (produced by cron scripts associated with ckan)
 ckan.log_dir = %(here)s/log
-
 # Directory for JSON/CSV dumps (must match setting in apache config)
 ckan.dump_dir = %(here)s/dump
-
 # Directory for SQL database backups
 ckan.backup_dir = %(here)s/backup
 
@@ -203,7 +204,7 @@ formatter = generic
 class = logging.handlers.RotatingFileHandler
 formatter = generic
 level = NOTSET
-args = ('%(here)s/ckan.log', 'a', 2e7, 9)
+args = ("ckan.log", "a", 20000000, 9)
 
 [formatter_generic]
 format = %(asctime)s %(levelname)-5.5s [%(name)s] %(message)s
