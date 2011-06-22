@@ -163,7 +163,8 @@ class UserController(BaseController):
                     c.user_fullname = request.params.getone('fullname')
                     c.user_email = request.params.getone('email')
                     return render('user/edit.html')
-                user.about = about
+
+                user.about = request.params.getone('about')
                 user.fullname = request.params.getone('fullname')
                 user.email = request.params.getone('email')
                 try:

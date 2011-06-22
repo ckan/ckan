@@ -73,7 +73,7 @@ class Authorizer(object):
 
         # check it's active
         if domain_object.__class__ != type and hasattr(domain_object, 'state'):
-            if domain_object.state != model.State.ACTIVE:
+            if domain_object.state == model.State.DELETED:
                 return False
 
         # check if any of the roles allows the action requested
@@ -184,7 +184,6 @@ class Authorizer(object):
             user = model.User.by_name(username, autoflush=False)
         else:
             user = None
-        entity.roles.property.mapper.class_ 
         visitor = model.User.by_name(model.PSEUDO_USER__VISITOR, autoflush=False)
         logged_in = model.User.by_name(model.PSEUDO_USER__LOGGED_IN,
                                        autoflush=False)
@@ -193,8 +192,15 @@ class Authorizer(object):
             # need to use this in the queries below as if we use
             # model.UserObjectRole a cross join happens always
             # returning all the roles.  
-            role_cls = entity.roles.property.mapper.class_
-            q = q.outerjoin('roles')
+            if hasattr(entity, 'continuity'):
+                q = q.filter_by(current=True)
+                q = q.outerjoin('continuity', 'roles')
+                continuity = entity.continuity.property.mapper.class_
+                role_cls = continuity.roles.property.mapper.class_ 
+            else:
+                role_cls = entity.roles.property.mapper.class_ 
+                q = q.outerjoin('roles')
+
             if hasattr(entity, 'state'):
                 state = entity.state
             else:
@@ -209,13 +215,13 @@ class Authorizer(object):
                 q = q.filter(sa.or_(
                     sa.and_(role_cls.role==model.RoleAction.role,
                             model.RoleAction.action==action,
-                            state and state==model.State.ACTIVE),
+                            state and state!=model.State.DELETED),
                     role_cls.role==model.Role.ADMIN))
             else:
                 q = q.filter(
                     sa.and_(role_cls.role==model.RoleAction.role,
                             model.RoleAction.action==action,
-                            state and state==model.State.ACTIVE),
+                            state and state!=model.State.DELETED),
                     )
             q = q.filter(sa.or_(*filters))   
             q = q.distinct()

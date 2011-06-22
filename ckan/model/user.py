@@ -17,7 +17,7 @@ user_table = Table('user', metadata,
         Column('fullname', UnicodeText),
         Column('email', UnicodeText),
         Column('apikey', UnicodeText, default=make_uuid),
-        Column('created', DateTime, default=datetime.datetime.now),
+        Column('created', DateTime, default=datetime.now),
         Column('about', UnicodeText),
         )
 

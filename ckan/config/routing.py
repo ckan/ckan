@@ -179,11 +179,14 @@ def make_map():
             ]))
         )
     map.connect('/package', controller='package', action='index')
+    map.connect('/package/{action}/{id}/{revision}', controller='package', action='read_ajax')
     map.connect('/package/{action}/{id}', controller='package',
         requirements=dict(action='|'.join([
         'edit',
         'authz',
-        'history'
+        'history',
+        'read_ajax',
+        'history_ajax',
         ]))
         )
     map.connect('/package/{id}', controller='package', action='read')

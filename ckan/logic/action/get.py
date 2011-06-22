@@ -1,13 +1,16 @@
+from sqlalchemy.sql import select
 from ckan.logic import NotFound, check_access
 from ckan.plugins import (PluginImplementations,
                           IGroupController,
                           IPackageController)
 import ckan.authz
 
+from ckan.lib.dictization import table_dictize
 from ckan.lib.dictization.model_dictize import group_to_api1, group_to_api2
 from ckan.lib.dictization.model_dictize import (package_to_api1,
                                                 package_to_api2,
                                                 package_dictize,
+                                                resource_list_dictize,
                                                 group_dictize)
 
 
@@ -20,6 +23,35 @@ def package_list(context):
     query = ckan.authz.Authorizer().authorized_query(user, model.Package)
     packages = query.all()
     return [getattr(p, ref_package_by) for p in packages]
+
+def current_package_list_with_resources(context):
+    model = context["model"]
+    user = context["user"]
+    limit = context.get("limit")
+
+    q = ckan.authz.Authorizer().authorized_query(user, model.PackageRevision)
+    q = q.order_by(model.package_revision_table.c.revision_timestamp.desc())
+    if limit:
+        q = q.limit(limit)
+    pack_rev = q.all()
+    package_list = []
+    for package in pack_rev:
+        result_dict = table_dictize(package, context)
+        res_rev = model.resource_revision_table
+        resource_group = model.resource_group_table
+        q = select([res_rev], from_obj = res_rev.join(resource_group, 
+                   resource_group.c.id == res_rev.c.resource_group_id))
+        q = q.where(resource_group.c.package_id == package.id)
+        result = q.where(res_rev.c.current == True).execute()
+        result_dict["resources"] = resource_list_dictize(result, context)
+        license_id = result_dict['license_id']
+        if license_id:
+            isopen = model.Package.get_license_register()[license_id].isopen()
+            result_dict['isopen'] = isopen
+        else:
+            result_dict['isopen'] = False
+        package_list.append(result_dict)
+    return package_list
 
 def revision_list(context):
 

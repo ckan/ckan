@@ -1,5 +1,3 @@
-import datetime
-
 from meta import *
 from core import *
 from package import *
@@ -14,7 +12,7 @@ rating_table = Table('rating', metadata,
                      Column('user_ip_address', UnicodeText), # alternative to user_id if not logged in
                      Column('package_id', UnicodeText, ForeignKey('package.id')),
                      Column('rating', Float),
-                     Column('created', DateTime, default=datetime.datetime.now),
+                     Column('created', DateTime, default=datetime.now),
                      )
 
 class Rating(DomainObject):

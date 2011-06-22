@@ -294,6 +294,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, TestSearchIndexer, PylonsT
         for txt in txt_order_non_deterministic:
             for pkg_ in (pkg_by_name_main, pkg_by_id_main):
                 pkg_ = pkg_.replace(txt, 'placeholder')
+        print pkg_by_name_main
         res_diff = self.diff_html(pkg_by_name_main, pkg_by_id_main)
         assert not res_diff, res_diff.encode('utf8')
         # not true as language selection link return url differs: 
@@ -886,7 +887,7 @@ u with umlaut \xc3\xbc
             assert len(pkg.groups) == 0
             grp = model.Group.by_name(u'david')
             model.repo.new_revision()
-            pkg.groups.append(grp)
+            model.Session.add(model.PackageGroup(package=pkg, group=grp))
             model.repo.commit_and_remove()
             pkg = model.Package.by_name(u'editpkgtest')
             assert len(pkg.groups) == 1
@@ -895,8 +896,10 @@ u with umlaut \xc3\xbc
             prefix = ''
             field_name = prefix + "groups__0__id"
             fv = res.forms['package-edit']
+            print field_name
             fv[field_name] = False
             res = fv.submit('save', extra_environ={'REMOTE_USER':'russianfan'})
+            model.repo.commit_and_remove()
             pkg = model.Package.by_name(u'editpkgtest')
             assert len(pkg.groups) == 0
         finally:
