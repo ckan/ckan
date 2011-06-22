@@ -147,7 +147,7 @@
 
     <ul>
       <py:if test="h.am_authorized(c, actions.CHANGE_STATE, c.pkg)">
-         <li><strong>State:</strong> ${c.pkg.state}</li>
+         <li><strong>State:</strong> ${c.pkg_dict.get('state', '')}</li>
       </py:if>
     </ul>
 
