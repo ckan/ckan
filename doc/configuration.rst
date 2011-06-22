@@ -376,3 +376,33 @@ Example::
   ckan.dumps_format = CSV/JSON
 
 If there is a page which allows you to download a dump of the entire catalogue then specify the URL and the format here, so that it can be advertised in the web interface. The dumps_format is just a string for display.
+
+
+log_dir
+-------
+
+Example::
+
+  ckan.log_dir = /var/log/ckan/
+
+This is a directory where CKAN cron scripts (if there are any installed) should write log files to. Note: this setting is nothing to do with the main CKAN log file, whose filepath is set in the [handler_file] args.
+
+
+dump_dir
+--------
+
+Example::
+
+  ckan.dump_dir = /var/lib/ckan/dump/
+
+This is a directory where JSON or CSV dumps of the database are to be written, assuming a script has been installed to do this. Note it is usual to setup the apache config to serve this directory.
+
+
+backup_dir
+----------
+
+Example::
+
+  ckan.backup_dir = /var/backup/ckan/
+
+This is a directory where SQL database backups are to be written, assuming a script has been installed to do this.
