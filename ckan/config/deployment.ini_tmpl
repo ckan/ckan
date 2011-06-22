@@ -203,7 +203,7 @@ formatter = generic
 class = logging.handlers.RotatingFileHandler
 formatter = generic
 level = NOTSET
-args = ('%(here)s/ckan.log', 'a', 2e7, 9)
+args = ('%%(here)s/ckan.log', 'a', 2e7, 9)
 
 [formatter_generic]
 format = %(asctime)s %(levelname)-5.5s [%(name)s] %(message)s
