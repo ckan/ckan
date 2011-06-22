@@ -200,11 +200,10 @@ class PackageController(BaseController):
         if not auth_for_read:
             abort(401, _('Unauthorized to read package %s') % id)
         
-        for item in self.extensions:
-            item.read(c.pkg)
-
         #render the package
         PackageSaver().render_package(c.pkg)
+        for item in self.extensions:
+            item.read(c.pkg)
         return render('package/read.html')
 
     def comments(self, id):

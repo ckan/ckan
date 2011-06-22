@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime
 
 from meta import *
 from core import *
@@ -27,7 +27,7 @@ group_table = Table('group', metadata,
     Column('name', UnicodeText, nullable=False, unique=True),
     Column('title', UnicodeText),
     Column('description', UnicodeText),
-    Column('created', DateTime, default=datetime.now),
+    Column('created', DateTime, default=datetime.datetime.now),
     )
 
 vdm.sqlalchemy.make_table_stateful(group_table)

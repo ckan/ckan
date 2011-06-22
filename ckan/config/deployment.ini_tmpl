@@ -99,7 +99,7 @@ package_form = standard
 ## extra places to look for templates and public files (comma separated lists)
 ## any templates/files found will override correspondingly named ones in
 ## ckan/templates/ and ckan/public
-## (e.g. to override main layout template layout.html or add in css/extra.css)
+## (e.g. to override main layout template layout.html or add extra css files)
 # extra_template_paths = %(here)s/my-templates
 # extra_public_paths = %(here)s/my-public
 

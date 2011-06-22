@@ -4,7 +4,6 @@
 # a single location which CKAN imports from in preference to the Lucid 
 # equivalent.
 
-Babel>=0.9.5
 Genshi>=0.6,<0.6.99
 sqlalchemy-migrate==0.6
 sqlalchemy==0.6.6

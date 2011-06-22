@@ -40,7 +40,8 @@ class PackageSaver(object):
             error_msg = "<span class='inline-warning'>%s</span>" % _("Cannot render package description")
             c.pkg_notes_formatted = genshi.HTML(error_msg)
         c.current_rating, c.num_ratings = ckan.rating.get_rating(pkg)
-        c.pkg_url_link = h.link_to(c.pkg.url, c.pkg.url, target='_blank') if c.pkg.url else _("No web page given")
+        c.pkg_url_link = h.link_to(c.pkg.url, c.pkg.url, rel='foaf:homepage', target='_blank') \
+                if c.pkg.url else _("No web page given")
         c.pkg_author_link = cls._person_email_link(c.pkg.author, c.pkg.author_email, "Author")
         c.pkg_maintainer_link = cls._person_email_link(c.pkg.maintainer, c.pkg.maintainer_email, "Maintainer")
         c.package_relationships = pkg.get_relationships_printable()
