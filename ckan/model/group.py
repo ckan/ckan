@@ -1,3 +1,5 @@
+import datetime
+
 from meta import *
 from core import *
 from sqlalchemy.orm import eagerload_all
@@ -26,7 +28,7 @@ group_table = Table('group', metadata,
     Column('name', UnicodeText, nullable=False, unique=True),
     Column('title', UnicodeText),
     Column('description', UnicodeText),
-    Column('created', DateTime, default=datetime.now),
+    Column('created', DateTime, default=datetime.datetime.now),
     )
 
 vdm.sqlalchemy.make_table_stateful(group_table)

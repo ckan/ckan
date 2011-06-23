@@ -1,6 +1,13 @@
 CKAN CHANGELOG
 ++++++++++++++
 
+v1.4.2 2011-XX-XX
+=================
+Major:
+  * Packages revisions can be marked as 'moderated' (#1141)
+  * Viewing of a package at any revision (#1141)
+
+
 v1.4.1 2011-XX-XX
 =================
 Minor:
@@ -12,6 +19,7 @@ Minor:
 
 Bug fixes
   * Duplicate authorization roles were difficult to delete (#1083)
+
 
 v1.4 2011-05-19
 ===============
