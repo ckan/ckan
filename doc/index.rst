@@ -11,7 +11,6 @@ Contents:
    :maxdepth: 2
 
    README
-   design
    deployment
    configuration
    paster
