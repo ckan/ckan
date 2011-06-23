@@ -1,4 +1,5 @@
 import re
+import logging
 
 from formalchemy import helpers as fa_h
 import formalchemy
@@ -13,6 +14,8 @@ import ckan.model as model
 import ckan.lib.helpers as h
 import ckan.lib.field_types as field_types
 import ckan.misc
+
+log = logging.getLogger(__name__)
 
 name_match = re.compile('[a-z0-9_\-]*$')
 def name_validator(val, field=None):
@@ -402,14 +405,14 @@ class ResourcesField(ConfiguredField):
 
         def _serialized_value(self):
             package = self.field.parent.model
-            params = dict(self.params)
+            params = self.params
             new_resources = []
             rest_key = self.name
 
             # REST param format
             # e.g. 'Package-1-resources': [{u'url':u'http://ww...
-            if params.has_key(rest_key) and isinstance(params[rest_key], (list, tuple)):
-                new_resources = params[rest_key][:] # copy, so don't edit orig
+            if params.has_key(rest_key) and any(params.getall(rest_key)):
+                new_resources = params.getall(rest_key)[:] # copy, so don't edit orig
 
             # formalchemy form param format
             # e.g. 'Package-1-resources-0-url': u'http://ww...'
@@ -623,7 +626,7 @@ class ExtrasField(ConfiguredField):
                 elif key_parts[2].startswith('newfield'):
                     newfield_match = self.newfield_re.match(key_parts[2])
                     if not newfield_match:
-                        print 'Warning: did not parse newfield correctly: ', key_parts
+                        log.warn('Did not parse newfield correctly: %r', key_parts)
                         continue
                     new_field_index, key_or_value = newfield_match.groups()
                     if key_or_value == 'key':
@@ -639,7 +642,7 @@ class ExtrasField(ConfiguredField):
                         if not self.params.has_key(key_key):
                             extra_fields.append(('', value))
                     else:
-                        print 'Warning: expected key or value for newfield: ', key
+                        log.warn('Expected key or value for newfield: %r' % key)
                 elif key_parts[2].endswith('-checkbox'):
                     continue
                 else:
