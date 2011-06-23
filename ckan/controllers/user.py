@@ -138,7 +138,12 @@ class UserController(BaseController):
             c.user_email = request.params.getone('email')
         elif 'save' in request.params:
             try:
-                user.about = request.params.getone('about')
+                about = request.params.getone('about')
+                if 'http://' in about:
+                    msg = 'Edit not allowed as looks like spam. Please avoid links in your description'
+                    h.flash_error(msg)
+                    return render('user/edit.html')
+                user.about = about
                 user.fullname = request.params.getone('fullname')
                 user.email = request.params.getone('email')
                 try:
