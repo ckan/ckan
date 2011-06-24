@@ -1,15 +1,16 @@
-from datetime import datetime, timedelta
 import smtplib
 import logging
+import uuid
 from time import time
-
 from email.mime.text import MIMEText
 from email.header import Header
 from email import Utils
+from urlparse import urljoin
 
 from pylons.i18n.translation import _
 from pylons import config, g
-from ckan import __version__
+from ckan import model, __version__
+from ckan.lib.helpers import url_for
 
 log = logging.getLogger(__name__)
 
@@ -27,14 +28,14 @@ def _mail_recipient(recipient_name, recipient_email,
     for k, v in headers.items(): msg[k] = v
     subject = Header(subject.encode('utf-8'), 'utf-8')
     msg['Subject'] = subject
-    msg['From'] = _("%s <%s>") % (sender_url, mail_from)
+    msg['From'] = _("%s <%s>") % (sender_name, mail_from)
     recipient = u"%s <%s>" % (recipient_name, recipient_email)
     msg['To'] = Header(recipient, 'utf-8')
     msg['Date'] = Utils.formatdate(time())
     msg['X-Mailer'] = "CKAN %s" % __version__
     try:
         server = smtplib.SMTP(config.get('smtp_server', 'localhost'))
-        server.set_debuglevel(1)
+        #server.set_debuglevel(1)
         server.sendmail(mail_from, [recipient_email], msg.as_string())
         server.quit()
     except Exception, e:
@@ -51,5 +52,35 @@ def mail_user(recipient, subject, body, headers={}):
         raise MailerException(_("No recipient email address available!"))
     mail_recipient(recipient.display_name, recipient.email, subject, 
             body, headers=headers)
+
+
+def make_key():
+    return uuid.uuid4().hex[:10]
+
+RESET_LINK_MESSAGE = _(
+'''You have requested your password on %(site_title)s to be reset.
+
+Please click the following link to confirm this request:
+
+   %(reset_link)s
+''')
+
+def send_reset_link(user):
+    user.reset_key = make_key()
+    model.Session.add(user)
+    model.Session.commit()
+    d = {
+        'reset_link': urljoin(g.site_url, url_for(controller='user',
+            action='perform_reset', id=user.id, key=user.reset_key)),
+        'site_title': g.site_title
+        }
+    body = RESET_LINK_MESSAGE % d
+    mail_user(user, _('Reset your password'), body)
+
+def verify_reset_link(user, key):
+    if not user.reset_key or len(user.reset_key) < 5:
+        return False
+    return key.strip() == user.reset_key
+
 
 

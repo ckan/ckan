@@ -23,6 +23,7 @@
       </p>
       <ul>
         <li>${h.link_to(_('Register'), h.url_for(action='register'))}</li>
+        <li>${h.link_to(_('Reset your password'), h.url_for(action='request_reset'))}</li>
         <li>${h.link_to(_('Privacy Policy'), 'http://www.okfn.org/privacy-policy/')}</li>
       </ul>
     </li>
@@ -44,7 +45,8 @@
         <input type="password" name="password" value="" />
         <br/>
       </fieldset>
-      ${h.submit('s', _('Login'))}
+      ${h.submit('s', _('Login'))} &mdash; 
+      <a href="${h.url_for('reset')}">Forgot your password?</a>
     </form>
 
     <!-- Simple OpenID Selector -->
