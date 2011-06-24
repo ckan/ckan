@@ -10,7 +10,12 @@ class HtmlCheckMethods(object):
     
     def named_div(self, div_name, html):
         'strips html to just the <div id="DIV_NAME"> section'
-        the_html = html.body.decode('utf8')
+        if isinstance(html, paste.fixture.TestResponse):
+            the_html = html.body.decode('utf8')
+        elif isinstance(html, basestring):
+            the_html = html
+        else:
+            raise NotImplementedError
         start_div = the_html.find(u'<div id="%s"' % div_name)
         end_div = the_html.find(u'<!-- #%s -->' % div_name)
         if end_div == -1:
