@@ -18,7 +18,7 @@ group_extra_table = Table('group_extra', metadata,
 )
 
 vdm.sqlalchemy.make_table_stateful(group_extra_table)
-group_extra_revision_table = vdm.sqlalchemy.make_revisioned_table(group_extra_table)
+group_extra_revision_table = make_revisioned_table(group_extra_table)
 
 
 class GroupExtra(vdm.sqlalchemy.RevisionedObjectMixin,

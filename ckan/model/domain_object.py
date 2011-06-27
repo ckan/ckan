@@ -1,8 +1,9 @@
 import datetime
 
+from sqlalchemy import orm
 from sqlalchemy.util import OrderedDict
 
-from meta import *
+from meta import Session 
 
 class Enum(set):
     '''Simple enumeration

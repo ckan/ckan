@@ -370,10 +370,12 @@ left arrow <
                              description=u'Roger likes these books.')
         for obj in [david, roger]:
             model.Session.add(obj)
+        
         cls.group_names.add(u'david')
         cls.group_names.add(u'roger')
-        david.packages = [pkg1, pkg2]
-        roger.packages = [pkg1]
+        model.Session.add(model.PackageGroup(package=pkg1, group=david))
+        model.Session.add(model.PackageGroup(package=pkg2, group=david))
+        model.Session.add(model.PackageGroup(package=pkg1, group=roger))
         # authz
         model.Session.add_all([
             model.User(name=u'tester', apikey=u'tester', password=u'tester'),

@@ -1,5 +1,6 @@
 import logging
 import ckan.authz
+from ckan.lib.navl.dictization_functions import flatten_dict
 
 class ActionError(Exception):
     def __init__(self, extra_msg=None):
@@ -64,6 +65,11 @@ def untuplize_dict(tuplized_dict):
         new_key = '__'.join([str(item) for item in key])
         data_dict[new_key] = value
     return data_dict
+
+def flatten_to_string_key(dict):
+
+    flattented = flatten_dict(dict)
+    return untuplize_dict(flattented)
 
 def check_access(entity, action, context):
     model = context["model"]

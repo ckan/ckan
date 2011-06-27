@@ -24,7 +24,7 @@ package_relationship_table = Table('package_relationship', metadata,
      )
 
 vdm.sqlalchemy.make_table_stateful(package_relationship_table)
-package_relationship_revision_table = vdm.sqlalchemy.make_revisioned_table(package_relationship_table)
+package_relationship_revision_table = make_revisioned_table(package_relationship_table)
 
 class PackageRelationship(vdm.sqlalchemy.RevisionedObjectMixin,
                           vdm.sqlalchemy.StatefulObjectMixin,

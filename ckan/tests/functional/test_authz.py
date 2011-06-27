@@ -188,6 +188,7 @@ class AuthzTestBase(object):
         res = func(offset, params=postparams,
                    extra_environ=environ,
                    expect_errors=True)
+        
         tests = {}
         tests['str_required (%s)' % str_required_in_response] = bool(str_required_in_response in res)
         tests['error string'] = bool('error' not in res)
@@ -313,7 +314,7 @@ class TestUsage(TestController, AuthzTestBase):
         cls.groupreader = model.User.by_name(u'groupreader')
         cls.mrloggedin = model.User.by_name(name=u'mrloggedin')
         cls.visitor = model.User.by_name(name=model.PSEUDO_USER__VISITOR)
-        
+
     # Tests numbered by the use case
 
     def test_14_visitor_reads_stopped(self):

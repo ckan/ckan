@@ -3,7 +3,7 @@
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
 
-  <py:def function="page_title">${c.pkg.title or c.pkg.name} - Data Packages</py:def>
+  <py:def function="page_title">${c.pkg_dict.get('title', c.pkg_dict['name'])} - Data Packages</py:def>
       
   <py:match path="primarysidebar">
   
@@ -16,7 +16,7 @@
 
     <li class="widget-container widget_text">
         <h3>Tags</h3>
-        ${tag_list(c.pkg.tags)}
+        ${tag_list(c.pkg_dict.get('tags', ''))}
         <p class="widget_action" py:if="h.am_authorized(c, actions.EDIT, c.pkg)">
             ${h.subnav_link(c, 'Add a new Tag', controller='package', action='edit', id=c.pkg.name)}
         </p>
