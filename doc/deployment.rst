@@ -251,6 +251,12 @@ Ideally production deployments are upgraded with fabric, but here are the manual
 2. It's probably wise to backup your database::
 
    $ paster --plugin=ckan db dump demo_ckan_backup.pg_dump --config=demo.ckan.net.ini
+ 
+   If you get a message about the command being 'mothballed' then you have a particularly old ckan! In this case, use pg_dump directly, specifying the database details from your config file.
+
+   $ grep -i sqlalchemy.url demo.ckan.net.ini 
+   sqlalchemy.url = postgres://okfn:testpassword@psql.okfn.org/demo.okfn.org
+   $ pg_dump -U okfn -h psql.okfn.org >demo_ckan_backup.pg_dump
 
 3. Get a version of pip-requirements.txt for the new version you want to install (see info on finding a suitable tag name above)::
 
