@@ -146,7 +146,10 @@ class QueryOptions(dict):
     def validate(self):
         for key, value in self.items():
             if key in self.BOOLEAN_OPTIONS:
-                value = asbool(value)
+                try:
+                    value = asbool(value)
+                except ValueError:
+                    raise SearchError('Value for search option %r must be True or False (1 or 0) but received %r' % (key, value))
             elif key in self.INTEGER_OPTIONS:
                 try:
                     value = int(value)
