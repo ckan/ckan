@@ -154,6 +154,7 @@ def package_update(data_dict, context):
 
     if pkg is None:
         raise NotFound(_('Package was not found.'))
+    context["id"] = pkg.id
 
     check_access(pkg, model.Action.EDIT, context)
 
