@@ -30,6 +30,7 @@ def current_package_list_with_resources(context):
     limit = context.get("limit")
 
     q = ckan.authz.Authorizer().authorized_query(user, model.PackageRevision)
+    q = q.filter_by(state='active', current=True)
     q = q.order_by(model.package_revision_table.c.revision_timestamp.desc())
     if limit:
         q = q.limit(limit)
