@@ -239,7 +239,7 @@ Now you can then do the deployment with something like::
 
 
 Upgrade
-=======
+-------
 
 Ideally production deployments are upgraded with fabric, but here are the manual instructions.
 
@@ -274,7 +274,7 @@ Ideally production deployments are upgraded with fabric, but here are the manual
 
    $ sudo /etc/init.d/apache2 restart
 
-7. You could manually try CKAN works in a browser, or better still run the smoke tests found in ckanext/blackbox. To do this, install ckanext and run ckanext from another machine - see ckanext README.txt for instructions: https://bitbucket.org/okfn/ckanext and then run::
+7. You could manually try CKAN in a browser, or better still run the smoke tests found in ckanext/blackbox. To do this, install ckanext and run ckanext from another machine - see ckanext README.txt for instructions: https://bitbucket.org/okfn/ckanext and then run::
 
    $ python blackbox/smoke.py blackbox/ckan.net.profile.json
 
