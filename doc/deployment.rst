@@ -111,7 +111,7 @@ Now you can then do the deployment with something like::
 
 6. Install code and dependent packages into the environment
 
-  Decide which release of CKAN you want to install. The CHANGELOG.txt has details on the releases. You'll need the exact tag name, and these are listed on the bitbucket page: https://bitbucket.org/okfn/ckan/src and hover over tags to see the options, e.g. ``ckan-1.4``.
+  Decide which release of CKAN you want to install. The CHANGELOG.txt has details on the releases. You'll need the exact tag name, and these are listed on the bitbucket page: https://bitbucket.org/okfn/ckan/src and hover over tags to see the options, e.g. ``ckan-1.4``. ::
 
   $ wget https://bitbucket.org/okfn/ckan/raw/ckan-1.4/pip-requirements.txt
 
