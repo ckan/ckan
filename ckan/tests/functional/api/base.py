@@ -1,8 +1,13 @@
 import re
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from StringIO import StringIO
 
 from pylons import config
 import webhelpers.util
 from nose.tools import assert_equal
+from paste.fixture import TestRequest
 
 from ckan.tests import *
 import ckan.model as model
@@ -300,3 +305,20 @@ class BaseModelApiTestCase(ModelMethods, ApiTestCase, ControllerTestCase):
         self.user = model.User.by_name(self.user_name)
         self.extra_environ={'Authorization' : str(self.user.apikey)}
 
+    def post_json(self, offset, data, status=None, extra_environ=None):
+        ''' Posts data in the body in application/json format, used by
+        javascript libraries.
+        (rather than Paste Fixture\'s default format of
+        application/x-www-form-urlencoded)
+
+        '''
+        environ = self.app._make_environ()
+        environ['CONTENT_TYPE'] = 'application/json'
+        environ['CONTENT_LENGTH'] = str(len(data))
+        environ['REQUEST_METHOD'] = 'POST'
+        environ['wsgi.input'] = StringIO(data)
+        if extra_environ:
+            environ.update(extra_environ)
+        self.app._set_headers({}, environ)
+        req = TestRequest(offset, environ, expect_errors=False)
+        return self.app.do_request(req, status=status)        

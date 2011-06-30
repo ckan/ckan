@@ -28,7 +28,6 @@ Contents:
    load_testing
    distributed
    database_dumps
-   admin
    deb
    vm
    buildbot
