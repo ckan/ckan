@@ -91,6 +91,19 @@ class PackagesTestCase(BaseModelApiTestCase):
                 extra_environ=self.extra_environ)
         self.remove()        
 
+    def test_register_post_json(self):
+        assert not self.get_package_by_name(self.package_fixture_data['name'])
+        offset = self.package_offset()
+        data = self.dumps(self.package_fixture_data)
+        res = self.post_json(offset, data, status=self.STATUS_201_CREATED,
+                             extra_environ=self.extra_environ)
+        # Check the database record.
+        self.remove()
+        package = self.get_package_by_name(self.package_fixture_data['name'])
+        assert package
+        self.assert_equal(package.title, self.package_fixture_data['title'])
+        
+
     def test_register_post_bad_request(self):
         test_params = {
             'name':u'testpackage06_400',

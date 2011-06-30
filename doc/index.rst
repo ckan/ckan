@@ -26,7 +26,6 @@ Contents:
    authorization
    load_testing
    database_dumps
-   admin
    deb
    vm
    buildbot
