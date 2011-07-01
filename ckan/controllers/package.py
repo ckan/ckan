@@ -377,6 +377,8 @@ class PackageController(BaseController):
                 data, errors = validate(data, schema)
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
+        except NotFound:
+            abort(404, _('Package not found'))
 
         ## hack as db_to_form schema should have this
         data['tag_string'] = ' '.join([tag['name'] for tag in data.get('tags', [])])
