@@ -4,11 +4,9 @@ import ckan.lib.helpers as h
 from ckan.lib.base import *
 import ckan.rating
 from pylons import g
+from ckan.lib.dictization import table_dictize
 
 # Todo: Factor out unused original_name argument.
-
-class ValidationException(Exception):
-    pass
 
 class PackageSaver(object):
     '''Use this to validate, preview and save packages to the db.
@@ -22,7 +20,14 @@ class PackageSaver(object):
         Note that the actual calling of render('package/read') is left
         to the caller.'''
         pkg = cls._preview_pkg(fs, log_message, author, client=client)
-        cls.render_package(pkg)
+
+        pkg_dict = table_dictize(pkg, {'model': model})
+        pkg_dict['extras'] = []
+        c.pkg = pkg
+        for key, value in pkg.extras.iteritems():
+            pkg_dict['extras'].append(dict(key=key, value=value))
+
+        cls.render_package(pkg_dict, {'package': pkg})
 
     # TODO: rename to something more correct like prepare_for_render
     @classmethod
