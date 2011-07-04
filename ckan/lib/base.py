@@ -146,7 +146,7 @@ class BaseController(WSGIController):
         '''
         cls.log.debug('Retrieving request params: %r' % request.params)
         cls.log.debug('Retrieving request POST: %r' % request.POST)
-        cls.log.debug('Retrieving request POST body: %r' % request.body)
+
         if request.POST:
             try:
                 request_data = request.POST.keys() or request.body
@@ -156,6 +156,7 @@ class BaseController(WSGIController):
                 raise ValueError, msg
             request_data = request_data[0]
         elif request.body:
+            cls.log.debug('Retrieving request POST body: %r' % request.body)
             try:
                 request_data = request.body
             except Exception, inst:
