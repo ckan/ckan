@@ -298,7 +298,7 @@ class Sysadmin(CkanCommand):
     '''Gives sysadmin rights to a named user
 
     Usage:
-      sysadmin list                 - lists sysadmins
+      sysadmin list (default)       - lists sysadmins
       sysadmin add <user-name>      - add a user as a sysadmin
       sysadmin remove <user-name>   - removes user from sysadmins
     '''
@@ -306,14 +306,14 @@ class Sysadmin(CkanCommand):
     summary = __doc__.split('\n')[0]
     usage = __doc__
     max_args = 2
-    min_args = 1
+    min_args = 0
 
     def command(self):
         self._load_config()
         from ckan import model
 
-        cmd = self.args[0]
-        if cmd == 'list':
+        cmd = self.args[0] if self.args else None
+        if cmd == None or cmd == 'list':
             self.list()
         elif cmd == 'add':
             self.add()
@@ -325,9 +325,14 @@ class Sysadmin(CkanCommand):
     def list(self):
         from ckan import model
         print 'Sysadmins:'
-        sysadmins = model.Session.query(model.SystemRole).filter_by(role=model.Role.ADMIN).all()
+        sysadmins = model.Session.query(model.SystemRole).filter_by(role=model.Role.ADMIN)
+        print 'count = %i' % sysadmins.count()
         for sysadmin in sysadmins:
-            print 'name=%s id=%s' % (sysadmin.user.name, sysadmin.user.id)
+            user_or_authgroup = sysadmin.user or sysadmin.authorized_group
+            assert user_or_authgroup, 'Could not extract entity with this priviledge from: %r' % sysadmin
+            print '%s name=%s id=%s' % (user_or_authgroup.__class__.__name__,
+                                        user_or_authgroup.name,
+                                        user_or_authgroup.id)
 
     def add(self):
         from ckan import model
