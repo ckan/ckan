@@ -298,7 +298,8 @@ class Sysadmin(CkanCommand):
     '''Gives sysadmin rights to a named user
 
     Usage:
-      sysadmin list (default)       - lists sysadmins
+      sysadmin                      - lists sysadmins
+      sysadmin list                 - lists sysadmins
       sysadmin add <user-name>      - add a user as a sysadmin
       sysadmin remove <user-name>   - removes user from sysadmins
     '''
@@ -347,8 +348,10 @@ class Sysadmin(CkanCommand):
             print 'User "%s" not found' % username
             makeuser = raw_input('Create new user: %s? [y/n]' % username)
             if makeuser == 'y':
+                password = UserCmd.password_prompt()
                 print('Creating %s user' % username)
-                user = model.User(name=unicode(username))
+                user = model.User(name=unicode(username),
+                                  password=password)
             else:
                 print 'Exiting ...'
                 return
@@ -377,6 +380,7 @@ class UserCmd(CkanCommand):
 
     Usage:
       user                            - lists users
+      user list                       - lists users
       user <user-name>                - shows user properties
       user add <user-name> [<apikey>] - add a user (prompts for password)
       user setpass <user-name>        - set user password (prompts)
@@ -404,6 +408,8 @@ class UserCmd(CkanCommand):
                 self.search()
             elif cmd == 'setpass':
                 self.setpass()
+            elif cmd == 'list':
+                self.list()
             else:
                 self.show()
 
@@ -416,7 +422,8 @@ class UserCmd(CkanCommand):
     def list(self):
         from ckan import model
         print 'Users:'
-        users = model.Session.query(model.User).all()
+        users = model.Session.query(model.User)
+        print 'count = %i' % users.count()        
         for user in users:
             print self.get_user_str(user)
 
@@ -429,7 +436,6 @@ class UserCmd(CkanCommand):
 
     def setpass(self):
         from ckan import model
-        import getpass
         
         if len(self.args) < 2:
             print 'Need name of the user.'
@@ -438,14 +444,8 @@ class UserCmd(CkanCommand):
         user = model.User.get(username)
         print('Editing user: %r' % user.name)
 
-        password1 = None
-        while not password1:
-            password1 = getpass.getpass('Password: ')
-        password2 = getpass.getpass('Confirm password: ')
-        if password1 != password2:
-            print 'Passwords do not match'
-            sys.exit(1)
-        user.password = password1
+        password = self.password_prompt()
+        user.password = password
         model.repo.commit_and_remove()
         print 'Done'
 
@@ -462,22 +462,9 @@ class UserCmd(CkanCommand):
         for user in query.all():
             print self.get_user_str(user)
 
-    def add(self):
-        from ckan import model
+    @classmethod
+    def password_prompt(cls):
         import getpass
-        
-        if len(self.args) < 2:
-            print 'Need name of the user.'
-            return
-        username = self.args[1]
-        apikey = self.args[2] if len(self.args) > 2 else None
-
-        user = model.User.by_name(unicode(username))
-        if user:
-            print 'User "%s" already found' % username
-            sys.exit(1)
-        
-        print('Creating user: %r' % username)
         password1 = None
         while not password1:
             password1 = getpass.getpass('Password: ')
@@ -485,8 +472,27 @@ class UserCmd(CkanCommand):
         if password1 != password2:
             print 'Passwords do not match'
             sys.exit(1)
+        return password1
+
+    def add(self):
+        from ckan import model
+        
+        if len(self.args) < 2:
+            print 'Need name of the user.'
+            return
+        username = self.args[1]
+        apikey = self.args[2] if len(self.args) > 2 else None
+        password = self.password_prompt()
+        user = model.User.by_name(unicode(username))
+        if user:
+            print 'User "%s" already found' % username
+            sys.exit(1)
+        
+        print('Creating user: %r' % username)
+
+        
         user_params = {'name': unicode(username),
-                   'password': password1}
+                       'password': password}
         if apikey:
             user_params['apikey'] = unicode(apikey)
         user = model.User(**user_params)
