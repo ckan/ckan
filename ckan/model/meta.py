@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime
 """SQLAlchemy Metadata and Session object"""
 from sqlalchemy import MetaData, __version__ as sqav
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -51,7 +51,7 @@ class CkanSessionExtension(SessionExtension):
 
             ## when a normal active transaction happens
             if 'pending' not in obj.state:
-                revision.approved_timestamp = datetime.now()
+                revision.approved_timestamp = datetime.datetime.now()
                 old = session.query(revision_cls).filter_by(
                     current='1',
                     id = obj.id
@@ -61,7 +61,7 @@ class CkanSessionExtension(SessionExtension):
                     session.add(old)
 
             q = session.query(revision_cls)
-            q = q.filter_by(expired_timestamp=datetime(9999, 12, 31), id=obj.id)
+            q = q.filter_by(expired_timestamp=datetime.datetime(9999, 12, 31), id=obj.id)
             results = q.all()
 
             for rev_obj in results:

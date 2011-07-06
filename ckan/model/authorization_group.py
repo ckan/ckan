@@ -8,7 +8,7 @@ from types import make_uuid
 authorization_group_table = Table('authorization_group', metadata,
     Column('id', UnicodeText, primary_key=True, default=make_uuid),
     Column('name', UnicodeText),
-    Column('created', DateTime, default=datetime.now),
+    Column('created', DateTime, default=datetime.datetime.now),
     )
 
 authorization_group_user_table = Table('authorization_group_user', metadata,
