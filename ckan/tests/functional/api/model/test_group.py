@@ -83,7 +83,7 @@ class GroupsTestCase(BaseModelApiTestCase):
     def test_05_get_group_entity_not_found(self):
         offset = self.offset('/rest/group/22222')
         res = self.app.get(offset, status=404)
-        self.assert_json_response(res, 'not found')
+        self.assert_json_response(res, 'Not found')
 
     def test_10_edit_group(self):
         # create a group with testgroupvalues
@@ -186,7 +186,7 @@ class GroupsTestCase(BaseModelApiTestCase):
         assert not model.Session.query(model.Group).filter_by(name=self.testgroupvalues['name']).count()
         offset = self.group_offset(self.testgroupvalues['name'])
         res = self.app.get(offset, status=404)
-        self.assert_json_response(res, 'not found')
+        self.assert_json_response(res, 'Not found')
 
     def test_13_delete_group_404(self):
         # Test Packages Entity Delete 404.

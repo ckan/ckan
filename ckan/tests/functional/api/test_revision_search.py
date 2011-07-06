@@ -11,17 +11,19 @@ class RevisionSearchApiTestCase(ApiTestCase, ControllerTestCase):
     def teardown_class(self):
         model.repo.rebuild_db()
 
-    def test_12_search_revision_basic(self):
+    def test_12_search_revision_bad_requests(self):
         offset = self.offset('/search/revision')
         # Check bad request.
         res = self.app.get(offset, status=400)
-        self.assert_json_response(res, 'bad request')
+        self.assert_json_response(res, 'Bad request - Missing search term')
         res = self.app.get(offset+'?since_rev=2010-01-01T00:00:00', status=400)
-        self.assert_json_response(res, 'bad request')
+        self.assert_json_response(res, 'Bad request - Missing search term')
         res = self.app.get(offset+'?since_revision=2010-01-01T00:00:00', status=400)
-        self.assert_json_response(res, 'bad request')
+        self.assert_json_response(res, 'Bad request - Missing search term')
         res = self.app.get(offset+'?since_id=', status=400)
-        self.assert_json_response(res, 'bad request')
+        self.assert_json_response(res, 'Bad request - No revision specified')
+        res = self.app.get(offset+'?since_id=1234', status=404)
+        self.assert_json_response(res, 'Not found - There is no revision')
 
     def test_12_search_revision_since_rev(self):
         offset = self.offset('/search/revision')
@@ -59,7 +61,7 @@ class RevisionSearchApiTestCase(ApiTestCase, ControllerTestCase):
         # Check bad format.
         params = "?since_time=2010-04-31T23:45"
         res = self.app.get(offset+params, status=400)
-        self.assert_json_response(res, 'bad request')
+        self.assert_json_response(res, 'Bad request - ValueError: day is out of range for month')
 
 
 class TestRevisionSearchApi1(Api1TestCase, RevisionSearchApiTestCase): pass

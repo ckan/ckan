@@ -70,7 +70,7 @@ class ResourceSearchApiTestCase(ApiTestCase, ControllerTestCase):
     def test_04_bad_option(self):
         offset = self.base_url + '?random=option'
         result = self.app.get(offset, status=400)
-        self.assert_json_response(result, 'bad request')
+        self.assert_json_response(result, 'Bad request - Bad search option')
 
     def test_05_options(self):
         offset = self.base_url + '?url=site&all_fields=1&callback=mycallback'

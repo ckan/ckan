@@ -28,73 +28,16 @@ class ModelApiTestCase(BaseModelApiTestCase):
         assert 'russian' in res, res
         assert 'tolstoy' in res, res
 
-    def test_02_get_group_register_ok(self):
-        offset = self.offset('/rest/group')
-        res = self.app.get(offset, status=[200])
-        assert self.group_ref_from_name('david') in res, res
-        assert self.group_ref_from_name('roger') in res, res
-
     def test_04_get_tag(self):
         offset = self.offset('/rest/tag/tolstoy')
         res = self.app.get(offset, status=[200])
         assert 'annakarenina' in res, res
         assert not 'warandpeace' in res, res
-
-    def test_04_get_group(self):
-        offset = self.offset('/rest/group/roger')
-        res = self.app.get(offset, status=[200])
-        assert self.package_ref_from_name('annakarenina') in res, res
-        assert self.group_ref_from_name('roger') in res, res
-        assert not self.package_ref_from_name('warandpeace') in res, res
         
-    def test_05_get_group_entity_not_found(self):
-        offset = self.offset('/rest/group/22222')
-        res = self.app.get(offset, status=404)
-        self.assert_json_response(res, 'not found')
-
     def test_05_get_tag_entity_not_found(self):
         offset = self.offset('/rest/tag/doesntexist')
         res = self.app.get(offset, status=404)
-        self.assert_json_response(res, 'not found')
-
-    def test_06_create_group_entity_ok(self):
-        offset = self.offset('/rest/group')
-        postparams = '%s=1' % self.dumps(self.testgroupvalues)
-        res = self.app.post(offset, params=postparams, status=201,
-                extra_environ=self.extra_environ)
-        model.Session.remove()
-        rev = model.repo.new_revision()
-        group = model.Group.by_name(self.testgroupvalues['name'])
-        assert group
-        model.setup_default_user_roles(group, [self.user])
-        model.repo.commit_and_remove()
-        group = model.Group.by_name(self.testgroupvalues['name'])
-        assert group
-        assert group.title == self.testgroupvalues['title'], group
-        assert group.description == self.testgroupvalues['description'], group
-        assert len(group.packages) == 2, len(group.packages)
-        anna = self.anna
-        warandpeace = self.war
-        assert anna in group.packages
-        assert warandpeace in group.packages
-
-        # Check group packages.
-        offset = self.offset('/rest/group/%s' % self.testgroupvalues['name'])
-        res = self.app.get(offset, status=[200])
-        assert self.testgroupvalues['name'] in res, res
-        assert self.package_ref_from_name(self.testgroupvalues['packages'][0]) in res, res
-        ref = self.package_ref_from_name(self.testgroupvalues['packages'][0])
-        assert ref in res, res
-        ref = self.package_ref_from_name(self.testgroupvalues['packages'][1])
-        assert ref in res, res
-        model.Session.remove()
-        
-        # Check create group entity conflict.
-        offset = self.offset('/rest/group')
-        postparams = '%s=1' % self.dumps(self.testgroupvalues)
-        res = self.app.post(offset, params=postparams, status=[409],
-                extra_environ=self.extra_environ)
-        self.assert_json_response(res, 'Group name already exists')
+        self.assert_json_response(res, 'Not found')
 
     def test_06_rate_package(self):
         # Test Rating Register Post 200.
@@ -145,121 +88,6 @@ class ModelApiTestCase(BaseModelApiTestCase):
         assert pkg
         assert len(pkg.ratings) == 0
 
-    def test_10_edit_group(self):
-        # create a group with testgroupvalues
-        group = model.Group.by_name(self.testgroupvalues['name'])
-        if not group:
-            offset = self.offset('/rest/group')
-            postparams = '%s=1' % self.dumps(self.testgroupvalues)
-            res = self.app.post(offset, params=postparams, status=[201],
-                    extra_environ=self.extra_environ)
-            model.Session.remove()
-            group = model.Group.by_name(self.testgroupvalues['name'])
-        assert group
-        assert len(group.packages) == 2, group.packages
-        user = model.User.by_name(self.user_name)
-        model.setup_default_user_roles(group, [user])
-
-        # edit it
-        group_vals = {'name':u'somethingnew', 'title':u'newtesttitle',
-                      'packages':[u'annakarenina']}
-        offset = self.offset('/rest/group/%s' % self.testgroupvalues['name'])
-        postparams = '%s=1' % self.dumps(group_vals)
-        res = self.app.post(offset, params=postparams, status=[200],
-                            extra_environ=self.extra_environ)
-        model.Session.remove()
-        group = model.Session.query(model.Group).filter_by(name=group_vals['name']).one()
-        assert group.name == group_vals['name']
-        assert group.title == group_vals['title']
-        assert len(group.packages) == 1, group.packages
-        assert group.packages[0].name == group_vals['packages'][0]
-
-    def test_10_edit_group_name_duplicate(self):
-        # create a group with testgroupvalues
-        if not model.Group.by_name(self.testgroupvalues['name']):
-            rev = model.repo.new_revision()
-            group = model.Group()
-            model.Session.add(group)
-            group.name = self.testgroupvalues['name']
-            model.Session.commit()
-
-            group = model.Group.by_name(self.testgroupvalues['name'])
-            model.setup_default_user_roles(group, [self.user])
-            rev = model.repo.new_revision()
-            model.repo.commit_and_remove()
-        assert model.Group.by_name(self.testgroupvalues['name'])
-        
-        # create a group with name 'dupname'
-        dupname = u'dupname'
-        if not model.Group.by_name(dupname):
-            rev = model.repo.new_revision()
-            group = model.Group()
-            model.Session.add(group)
-            group.name = dupname
-            model.Session.commit()
-        assert model.Group.by_name(dupname)
-
-        # edit first group to have dupname
-        group_vals = {'name':dupname}
-        offset = self.offset('/rest/group/%s' % self.testgroupvalues['name'])
-        postparams = '%s=1' % self.dumps(group_vals)
-        res = self.app.post(offset, params=postparams, status=[409],
-                            extra_environ=self.extra_environ)
-        self.assert_json_response(res, 'Group name already exists')
-        model.Session.remove()
-        
-    def test_11_delete_group(self):
-        # Test Groups Entity Delete 200.
-
-        # create a group with testgroupvalues
-        group = model.Group.by_name(self.testgroupvalues['name'])
-        if not group:
-            rev = model.repo.new_revision()
-            group = model.Group()
-            model.Session.add(group)
-            group.name = self.testgroupvalues['name']
-            model.repo.commit_and_remove()
-
-            rev = model.repo.new_revision()
-            group = model.Group.by_name(self.testgroupvalues['name'])
-            model.setup_default_user_roles(group, [self.user])
-            model.repo.commit_and_remove()
-        assert group
-        user = model.User.by_name(self.user_name)
-        model.setup_default_user_roles(group, [user])
-
-        # delete it
-        offset = self.offset('/rest/group/%s' % self.testgroupvalues['name'])
-        res = self.app.delete(offset, status=[200],
-                extra_environ=self.extra_environ)
-
-        group = model.Group.by_name(self.testgroupvalues['name'])
-        assert group
-        assert group.state == 'deleted', group.state
-
-        res = self.app.get(offset, status=[403])
-        self.assert_json_response(res, 'Access denied')
-        res = self.app.get(offset, status=[200],
-                           extra_environ=self.extra_environ)
-
-        model.Session.remove()
-
-    def test_12_get_group_404(self):
-        # Test Package Entity Get 404.
-        assert not model.Session.query(model.Group).filter_by(name=self.testgroupvalues['name']).count()
-        offset = self.offset('/rest/group/%s' % self.testgroupvalues['name'])
-        res = self.app.get(offset, status=404)
-        self.assert_json_response(res, 'not found')
-        model.Session.remove()
-
-    def test_13_delete_group_404(self):
-        # Test Packages Entity Delete 404.
-        assert not model.Session.query(model.Group).filter_by(name=self.testgroupvalues['name']).count()
-        offset = self.offset('/rest/group/%s' % self.testgroupvalues['name'])
-        res = self.app.delete(offset, status=[404],
-                              extra_environ=self.extra_environ)
-        self.assert_json_response(res, 'not found')
-
     def test_14_list_revisions(self):
         # Check mock register behaviour.
         offset = self.offset('/rest/revision')
@@ -290,7 +118,7 @@ class ModelApiTestCase(BaseModelApiTestCase):
         revision_id = "xxxxxxxxxxxxxxxxxxxxxxxxxx"
         offset = self.offset('/rest/revision/%s' % revision_id)
         res = self.app.get(offset, status=404)
-        self.assert_json_response(res, 'not found')
+        self.assert_json_response(res, 'Not found')
         model.Session.remove()
 
     def test_16_list_licenses(self):
