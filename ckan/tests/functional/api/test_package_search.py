@@ -179,6 +179,7 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
     def test_08_uri_qjson_malformed(self):
         offset = self.base_url + '?qjson="q":""' # user forgot the curly braces
         res = self.app.get(offset, status=400)
+        self.assert_json_response(res, 'bum')
         
     def test_08_all_fields(self):
         rating = model.Rating(user_ip_address=u'123.1.2.3',
@@ -211,6 +212,7 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
         res = self.app.get(offset, status=400)
         assert('boolean' in res.body)
         assert('all_fields' in res.body)
+        self.assert_json_response(res, 'boolean')
 
     def test_09_just_tags(self):
         offset = self.base_url + '?tags=russian&all_fields=1'
@@ -257,6 +259,7 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
         res = self.app.get(offset, status=400)
         assert('integer' in res.body)
         assert('offset' in res.body)
+        self.assert_json_response(res, 'integer')
 
     def test_12_all_packages_qjson(self):
         query = {'q': ''}

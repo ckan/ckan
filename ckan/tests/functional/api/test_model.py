@@ -50,12 +50,12 @@ class ModelApiTestCase(BaseModelApiTestCase):
     def test_05_get_group_entity_not_found(self):
         offset = self.offset('/rest/group/22222')
         res = self.app.get(offset, status=404)
-        model.Session.remove()
+        self.assert_json_response(res, 'not found')
 
     def test_05_get_tag_entity_not_found(self):
         offset = self.offset('/rest/tag/doesntexist')
         res = self.app.get(offset, status=404)
-        model.Session.remove()
+        self.assert_json_response(res, 'not found')
 
     def test_06_create_group_entity_ok(self):
         offset = self.offset('/rest/group')
@@ -94,7 +94,7 @@ class ModelApiTestCase(BaseModelApiTestCase):
         postparams = '%s=1' % self.dumps(self.testgroupvalues)
         res = self.app.post(offset, params=postparams, status=[409],
                 extra_environ=self.extra_environ)
-        model.Session.remove()
+        self.assert_json_response(res, 'Group name already exists')
 
     def test_06_rate_package(self):
         # Test Rating Register Post 200.
@@ -139,6 +139,7 @@ class ModelApiTestCase(BaseModelApiTestCase):
         postparams = '%s=1' % self.dumps(rating_opts)
         res = self.app.post(offset, params=postparams, status=[409],
                 extra_environ=self.extra_environ)
+        self.assert_json_response(res, 'rating')
         model.Session.remove()
         pkg = self.get_package_by_name(rating_opts['package'])
         assert pkg
@@ -204,6 +205,7 @@ class ModelApiTestCase(BaseModelApiTestCase):
         postparams = '%s=1' % self.dumps(group_vals)
         res = self.app.post(offset, params=postparams, status=[409],
                             extra_environ=self.extra_environ)
+        self.assert_json_response(res, 'Group name already exists')
         model.Session.remove()
         
     def test_11_delete_group(self):
@@ -236,6 +238,7 @@ class ModelApiTestCase(BaseModelApiTestCase):
         assert group.state == 'deleted', group.state
 
         res = self.app.get(offset, status=[403])
+        self.assert_json_response(res, 'Access denied')
         res = self.app.get(offset, status=[200],
                            extra_environ=self.extra_environ)
 
@@ -246,6 +249,7 @@ class ModelApiTestCase(BaseModelApiTestCase):
         assert not model.Session.query(model.Group).filter_by(name=self.testgroupvalues['name']).count()
         offset = self.offset('/rest/group/%s' % self.testgroupvalues['name'])
         res = self.app.get(offset, status=404)
+        self.assert_json_response(res, 'not found')
         model.Session.remove()
 
     def test_13_delete_group_404(self):
@@ -254,6 +258,7 @@ class ModelApiTestCase(BaseModelApiTestCase):
         offset = self.offset('/rest/group/%s' % self.testgroupvalues['name'])
         res = self.app.delete(offset, status=[404],
                               extra_environ=self.extra_environ)
+        self.assert_json_response(res, 'not found')
 
     def test_14_list_revisions(self):
         # Check mock register behaviour.
@@ -285,6 +290,7 @@ class ModelApiTestCase(BaseModelApiTestCase):
         revision_id = "xxxxxxxxxxxxxxxxxxxxxxxxxx"
         offset = self.offset('/rest/revision/%s' % revision_id)
         res = self.app.get(offset, status=404)
+        self.assert_json_response(res, 'not found')
         model.Session.remove()
 
     def test_16_list_licenses(self):

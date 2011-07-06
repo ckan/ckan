@@ -14,10 +14,14 @@ class RevisionSearchApiTestCase(ApiTestCase, ControllerTestCase):
     def test_12_search_revision_basic(self):
         offset = self.offset('/search/revision')
         # Check bad request.
-        self.app.get(offset, status=400)
-        self.app.get(offset+'?since_rev=2010-01-01T00:00:00', status=400)
-        self.app.get(offset+'?since_revision=2010-01-01T00:00:00', status=400)
-        self.app.get(offset+'?since_id=', status=400)
+        res = self.app.get(offset, status=400)
+        self.assert_json_response(res, 'bad request')
+        res = self.app.get(offset+'?since_rev=2010-01-01T00:00:00', status=400)
+        self.assert_json_response(res, 'bad request')
+        res = self.app.get(offset+'?since_revision=2010-01-01T00:00:00', status=400)
+        self.assert_json_response(res, 'bad request')
+        res = self.app.get(offset+'?since_id=', status=400)
+        self.assert_json_response(res, 'bad request')
 
     def test_12_search_revision_since_rev(self):
         offset = self.offset('/search/revision')
@@ -54,8 +58,9 @@ class RevisionSearchApiTestCase(ApiTestCase, ControllerTestCase):
         assert res_list == [], res_list
         # Check bad format.
         params = "?since_time=2010-04-31T23:45"
-        self.app.get(offset+params, status=400)
+        res = self.app.get(offset+params, status=400)
+        self.assert_json_response(res, 'bad request')
 
 
-class TestPackageSearchApi1(Api1TestCase, RevisionSearchApiTestCase): pass
-class TestPackageSearchApi2(Api2TestCase, RevisionSearchApiTestCase): pass
+class TestRevisionSearchApi1(Api1TestCase, RevisionSearchApiTestCase): pass
+class TestRevisionSearchApi2(Api2TestCase, RevisionSearchApiTestCase): pass

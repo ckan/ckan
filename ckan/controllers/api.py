@@ -30,10 +30,6 @@ CONTENT_TYPES = {
     }
 class ApiController(BaseController):
 
-    content_type_text = 'text/;charset=utf-8'
-    content_type_html = 'text/html;charset=utf-8'
-    content_type_json = 'application/json;charset=utf-8'
-
     def __call__(self, environ, start_response):
         self._identify_user()
         if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):

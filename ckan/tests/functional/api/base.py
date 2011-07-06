@@ -218,6 +218,16 @@ class ApiTestCase(object):
         except ValueError, inst:
             raise Exception, "Couldn't loads string '%s': %s" % (chars, inst)
 
+    def assert_json_response(self, res, expected_in_body=None):
+        content_type = res.header_dict['Content-Type']
+        assert 'application/json' in content_type, content_type
+        res_json = self.loads(res.body)
+        if expected_in_body:
+            assert expected_in_body in res_json or \
+                   expected_in_body in str(res_json), \
+                   'Expected to find %r in JSON response %r' % \
+                   (expected_in_body, res_json)
+
 # Todo: Rename to Version1TestCase.
 class Api1TestCase(ApiTestCase):
 
