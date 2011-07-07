@@ -392,7 +392,7 @@ class BaseModelApiTestCase(ModelMethods, ApiTestCase, ControllerTestCase):
             environ['CONTENT_TYPE'] = content_type
         if content_length is not None:
             environ['CONTENT_LENGTH'] = str(content_length)
-        environ['REQUEST_METHOD'] = 'POST'
+        environ['REQUEST_METHOD'] = request_method
         environ['wsgi.input'] = StringIO(data)
         if extra_environ:
             environ.update(extra_environ)
