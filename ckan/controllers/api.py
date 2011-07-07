@@ -30,10 +30,6 @@ CONTENT_TYPES = {
     }
 class ApiController(BaseController):
 
-    content_type_text = 'text/;charset=utf-8'
-    content_type_html = 'text/html;charset=utf-8'
-    content_type_json = 'application/json;charset=utf-8'
-
     def __call__(self, environ, start_response):
         self._identify_user()
         if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
@@ -45,6 +41,8 @@ class ApiController(BaseController):
             start_response(body, response.headers.items())
             return [response_msg]
         else:
+            # avoid status_code_redirect intercepting error responses
+            environ['pylons.status_code_redirect'] = True
             return BaseController.__call__(self, environ, start_response)
 
     def _finish(self, status_int, response_data=None,
@@ -106,6 +104,14 @@ class ApiController(BaseController):
                             response_data=response_data,
                             content_type='json')
 
+    def _finish_bad_request(self, extra_msg=None):
+        response_data = _('Bad request')
+        if extra_msg:
+            response_data = '%s - %s' % (response_data, extra_msg)
+        return self._finish(status_int=400,
+                            response_data=response_data,
+                            content_type='json')
+
     def _wrap_jsonp(self, callback, response_msg):
         return '%s(%s);' % (callback, response_msg)
 
@@ -140,8 +146,8 @@ class ApiController(BaseController):
         if not action:
             action = action_map.get(register)
         if not action:
-            response.status_int = 400
-            return gettext('Cannot list entity of this type: %s') % register
+            return self._finish_bad_request(
+                gettext('Cannot list entity of this type: %s') % register)
         try:
             return self._finish_ok(action(context))
         except NotFound, e:
@@ -151,7 +157,6 @@ class ApiController(BaseController):
             return self._finish_not_authz()
 
     def show(self, ver=None, register=None, subregister=None, id=None, id2=None):
-
         action_map = {
             'revision': get.revision_show,
             'group': get.group_show_rest,
@@ -171,8 +176,8 @@ class ApiController(BaseController):
         if not action:
             action = action_map.get(register)
         if not action:
-            response.status_int = 400
-            return gettext('Cannot read entity of this type: %s') % register
+            return self._finish_bad_request(
+                gettext('Cannot read entity of this type: %s') % register)
         try:
             
             return self._finish_ok(action(context))
@@ -205,15 +210,16 @@ class ApiController(BaseController):
         try:
             request_data = self._get_request_data()
         except ValueError, inst:
-            response.status_int = 400
-            return gettext('JSON Error: %s') % str(inst)
+            return self._finish_bad_request(
+                gettext('JSON Error: %s') % str(inst))
 
         action = action_map.get((register, subregister)) 
         if not action:
             action = action_map.get(register)
         if not action:
-            response.status_int = 400
-            return gettext('Cannot create new entity of this type: %s %s') % (register, subregister)
+            return self._finish_bad_request(
+                gettext('Cannot create new entity of this type: %s %s') % \
+                (register, subregister))
         try:
             response_data = action(request_data, context)
             location = None
@@ -251,15 +257,15 @@ class ApiController(BaseController):
         try:
             request_data = self._get_request_data()
         except ValueError, inst:
-            response.status_int = 400
-            return gettext('JSON Error: %s') % str(inst)
+            return self._finish_bad_request(
+                gettext('JSON Error: %s') % str(inst))
         action = action_map.get((register, subregister)) 
         if not action:
             action = action_map.get(register)
         if not action:
-            response.status_int = 400
-            return gettext('Cannot update entity of this type: %s') % \
-                    register.encode('utf-8')
+            return self._finish_bad_request(
+                gettext('Cannot update entity of this type: %s') % \
+                    register.encode('utf-8'))
         try:
             response_data = action(request_data, context)
             return self._finish_ok(response_data)
@@ -294,8 +300,9 @@ class ApiController(BaseController):
         if not action:
             action = action_map.get(register)
         if not action:
-            response.status_int = 400
-            return gettext('Cannot delete entity of this type: %s %s') % (register, subregister or '')
+            return self._finish_bad_request(
+                gettext('Cannot delete entity of this type: %s %s') %\
+                (register, subregister or ''))
         try:
             response_data = action(context)
             return self._finish_ok(response_data)
@@ -315,29 +322,31 @@ class ApiController(BaseController):
             since_time = None
             if request.params.has_key('since_id'):
                 id = request.params['since_id']
+                if not id:
+                    return self._finish_bad_request(
+                        gettext(u'No revision specified'))
                 rev = model.Session.query(model.Revision).get(id)
                 if rev is None:
-                    response.status_int = 400
-                    return gettext(u'There is no revision with id: %s') % id
+                    return self._finish_not_found(
+                        gettext(u'There is no revision with id: %s') % id)
                 since_time = rev.timestamp
             elif request.params.has_key('since_time'):
                 since_time_str = request.params['since_time']
                 try:
                     since_time = model.strptimestamp(since_time_str)
                 except ValueError, inst:
-                    response.status_int = 400
-                    return 'ValueError: %s' % inst
+                    return self._finish_bad_request('ValueError: %s' % inst)
             else:
-                response.status_int = 400
-                return gettext("Missing search term ('since_id=UUID' or 'since_time=TIMESTAMP')")
+                return self._finish_bad_request(
+                    gettext("Missing search term ('since_id=UUID' or 'since_time=TIMESTAMP')"))
             revs = model.Session.query(model.Revision).filter(model.Revision.timestamp>since_time)
             return self._finish_ok([rev.id for rev in revs])
         elif register == 'package' or register == 'resource':
             try:
                 params = self._get_search_params(request.params)
             except ValueError, e:
-                response.status_int = 400
-                return gettext('Could not read parameters: %r' % e)
+                return self._finish_bad_request(
+                    gettext('Could not read parameters: %r' % e))
             options = QueryOptions()
             for k, v in params.items():
                 if (k in DEFAULT_OPTIONS.keys()):
@@ -373,11 +382,11 @@ class ApiController(BaseController):
                 return self._finish_ok(results)
             except SearchError, e:
                 log.exception(e)
-                response.status_int = 400
-                return gettext('Bad search option: %s') % e
+                return self._finish_bad_request(
+                    gettext('Bad search option: %s') % e)
         else:
-            response.status_int = 404
-            return gettext('Unknown register: %s') % register
+            return self._finish_not_found(
+                gettext('Unknown register: %s') % register)
 
     @classmethod
     def _get_search_params(cls, request_params):
