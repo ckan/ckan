@@ -361,9 +361,37 @@ class BaseModelApiTestCase(ModelMethods, ApiTestCase, ControllerTestCase):
         application/x-www-form-urlencoded)
 
         '''
+        return self.http_request(offset, data, content_type='application/json',
+                                 request_method='POST',
+                                 content_length=len(data),
+                                 status=status, extra_environ=extra_environ)
+
+    def delete_request(self, offset, status=None, extra_environ=None):
+        ''' Sends a delete request. Similar to the paste.delete but it
+        does not send the content type or content length.
+        '''
+        return self.http_request(offset, data='', content_type=None,
+                                 request_method='DELETE',
+                                 content_length=None,
+                                 status=status,
+                                 extra_environ=extra_environ)
+
+    def http_request(self, offset, data,
+                     content_type='application/json',
+                     request_method='POST',
+                     content_length=None,
+                     status=None,
+                     extra_environ=None):
+        ''' Posts data in the body in a user-specified format.
+        (rather than Paste Fixture\'s default Content-Type of
+        application/x-www-form-urlencoded)
+
+        '''
         environ = self.app._make_environ()
-        environ['CONTENT_TYPE'] = 'application/json'
-        environ['CONTENT_LENGTH'] = str(len(data))
+        if content_type:
+            environ['CONTENT_TYPE'] = content_type
+        if content_length is not None:
+            environ['CONTENT_LENGTH'] = str(content_length)
         environ['REQUEST_METHOD'] = 'POST'
         environ['wsgi.input'] = StringIO(data)
         if extra_environ:
