@@ -160,7 +160,6 @@ class RelationshipsTestCase(BaseModelApiTestCase):
         # Check the response (normalised to 'child_of')
         rel = self.loads(res.body)
         assert_equal(rel['type'], 'child_of')
-        import pdb; pdb.set_trace()
         assert_equal(rel['subject'], self.ref_package(self.war))
         assert_equal(rel['object'], self.ref_package(self.anna))
 
