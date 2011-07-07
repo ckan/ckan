@@ -240,9 +240,10 @@ class ApiTestCase(object):
     def assert_msg_represents_russian(self, msg):
         data = self.loads(msg)
         pkgs = set(data)
-        expected_pkgs = set(['annakarenina', 'warandpeace'])
-        missing_pkgs = expected_pkgs - pkgs
-        assert not missing_pkgs, missing_pkgs
+        expected_pkgs = set([self.package_ref_from_name('annakarenina'),
+                             self.package_ref_from_name('warandpeace')])
+        differences = expected_pkgs ^ pkgs
+        assert not differences, '%r != %r' % (pkgs, expected_pkgs)
 
     def data_from_res(self, res):
         return self.loads(res.body)

@@ -212,7 +212,7 @@ def group_show(context):
 
 def tag_show(context):
     model = context['model']
-    api = context.get('api') or '1'
+    api = context.get('api_version') or '1'
     id = context['id']
     ref_package_by = 'id' if api == '2' else 'name'
     obj = model.Tag.get(id) #TODO tags

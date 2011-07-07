@@ -35,6 +35,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         res = self.app.post(offset, params=postparams,
                             status=self.STATUS_201_CREATED,
                             extra_environ=self.extra_environ)
+        
         # Check the value of the Location header.
         location = res.header('Location')
         assert offset in location
