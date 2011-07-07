@@ -367,7 +367,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         self.remove()
         package = self.get_package_by_name(new_fixture_data['name'])
         # - title
-        self.assert_equal(package.extras, [])
+        self.assert_equal(package.extras, {})
 
     def test_package_update_do_not_delete_last_extra(self):
         old_fixture_data = {

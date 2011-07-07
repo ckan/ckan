@@ -67,9 +67,6 @@ def package_resource_list_save(res_dicts, package, context):
 
 def package_extras_save(extra_dicts, obj, context):
 
-    allow_partial_update = context.get("allow_partial_update", False)
-    if not extra_dicts and allow_partial_update:
-        return
     model = context["model"]
     session = context["session"]
 
@@ -81,7 +78,10 @@ def package_extras_save(extra_dicts, obj, context):
     for extra_dict in extra_dicts:
         if extra_dict.get("deleted"):
             continue
-        if extras_as_string:
+        
+        if extra_dict['value'] is None:
+            pass
+        elif extras_as_string:
             new_extras[extra_dict["key"]] = extra_dict["value"]
         else:
             new_extras[extra_dict["key"]] = json.loads(extra_dict["value"])
@@ -318,10 +318,15 @@ def package_api_to_dict(api1_dict, context):
             updated_extras.update(value)
 
             new_value = []
+            
             for extras_key, extras_value in updated_extras.iteritems():
                 if extras_value is not None:
                     new_value.append({"key": extras_key,
                                       "value": json.dumps(extras_value)})
+                else:
+                    new_value.append({"key": extras_key,
+                                      "value": None})
+
         dictized[key] = new_value
 
     groups = dictized.pop('groups', None)
