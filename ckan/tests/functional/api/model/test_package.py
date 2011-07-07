@@ -363,7 +363,52 @@ class PackagesTestCase(BaseModelApiTestCase):
         assert len(revisions) == 3, len(revisions)
 
 
-class TestPackagesVersion1(Version1TestCase, PackagesTestCase): pass
+class TestPackagesVersion1(Version1TestCase, PackagesTestCase):
+    def test_06_create_pkg_using_download_url(self):
+        test_params = {
+            'name':u'testpkg06',
+            'download_url':u'ftp://ftp.monash.edu.au/pub/nihongo/JMdict.gz',
+            }
+        offset = self.package_offset()
+        postparams = '%s=1' % self.dumps(test_params)
+        res = self.app.post(offset, params=postparams, 
+                            extra_environ=self.extra_environ)
+        model.Session.remove()
+        pkg = self.get_package_by_name(test_params['name'])
+        assert pkg
+        assert pkg.name == test_params['name'], pkg
+        assert len(pkg.resources) == 1, pkg.resources
+        assert pkg.resources[0].url == test_params['download_url'], pkg.resources[0]
+
+    def test_10_edit_pkg_with_download_url(self):
+        test_params = {
+            'name':u'testpkg10',
+            'download_url':u'testurl',
+            }
+        rev = model.repo.new_revision()
+        pkg = model.Package()
+        model.Session.add(pkg)
+        pkg.name = test_params['name']
+        pkg.download_url = test_params['download_url']
+        model.Session.commit()
+
+        pkg = self.get_package_by_name(test_params['name'])
+        model.setup_default_user_roles(pkg, [self.user])
+        rev = model.repo.new_revision()
+        model.repo.commit_and_remove()
+        assert self.get_package_by_name(test_params['name'])
+
+        # edit it
+        pkg_vals = {'download_url':u'newurl'}
+        offset = self.package_offset(test_params['name'])
+        postparams = '%s=1' % self.dumps(pkg_vals)
+        res = self.app.post(offset, params=postparams, status=[200],
+                            extra_environ=self.extra_environ)
+        model.Session.remove()
+        pkg = model.Session.query(model.Package).filter_by(name=test_params['name']).one()
+        assert len(pkg.resources) == 1, pkg.resources
+        assert pkg.resources[0].url == pkg_vals['download_url']
+
 class TestPackagesVersion2(Version2TestCase, PackagesTestCase): pass
 class TestPackagesUnversioned(UnversionedTestCase, PackagesTestCase): pass
 

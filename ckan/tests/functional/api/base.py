@@ -69,7 +69,7 @@ class ApiTestCase(object):
         return '%s%s' % (base, path)
 
     def package_offset(self, package_name=None):
-        if package_name == None:
+        if package_name is None:
             # Package Register
             return self.offset('/rest/package')
         else:
@@ -79,14 +79,14 @@ class ApiTestCase(object):
 
     def package_ref_from_name(self, package_name):
         package = self.get_package_by_name(unicode(package_name))
-        if package == None:
+        if package is None:
             return package_name
         else:
             return self.ref_package(package)
 
     def package_id_from_ref(self, package_name):
         package = self.get_package_by_name(unicode(package_name))
-        if package == None:
+        if package is None:
             return package_name
         else:
             return self.ref_package(package)
@@ -96,7 +96,7 @@ class ApiTestCase(object):
         return getattr(package, self.ref_package_by)
 
     def group_offset(self, group_name=None):
-        if group_name == None:
+        if group_name is None:
             # Group Register
             return self.offset('/rest/group')
         else:
@@ -106,7 +106,7 @@ class ApiTestCase(object):
 
     def group_ref_from_name(self, group_name):
         group = self.get_group_by_name(unicode(group_name))
-        if group == None:
+        if group is None:
             return group_name
         else:
             return self.ref_group(group)
@@ -115,11 +115,52 @@ class ApiTestCase(object):
         assert self.ref_group_by in ['id', 'name']
         return getattr(group, self.ref_group_by)
 
+    def revision_offset(self, revision_id=None):
+        if revision_id is None:
+            # Revision Register
+            return self.offset('/rest/revision')
+        else:
+            # Revision Entity
+            return self.offset('/rest/revision/%s' % revision_id)
+
+    def rating_offset(self, package_name=None):
+        if package_name is None:
+            # Revision Register
+            return self.offset('/rest/rating')
+        else:
+            # Revision Entity
+            package_ref = self.package_ref_from_name(package_name)
+            return self.offset('/rest/rating/%s' % package_ref)
+
+    def relationship_offset(self, package_1_name=None,
+                            relationship_type=None,
+                            package_2_name=None,
+                            ):
+        assert package_1_name
+        package_1_ref = self.package_ref_from_name(package_1_name)
+        if package_2_name is None:
+            if not relationship_type:
+                return self.offset('/rest/package/%s/relationships' % \
+                                   package_1_ref)
+            else:
+                return self.offset('/rest/package/%s/%s' %
+                                   (package_1_ref, relationship_type))
+        else:
+            package_2_ref = self.package_ref_from_name(package_2_name)
+            if not relationship_type:
+                return self.offset('/rest/package/%s/relationships/%s' % \
+                                   (package_1_ref, package_2_ref))
+            else:
+                return self.offset('/rest/package/%s/%s/%s' % \
+                                   (package_1_ref,
+                                    relationship_type,
+                                    package_2_ref))
+
     def anna_offset(self, postfix=''):
         return self.package_offset('annakarenina') + postfix
 
     def tag_offset(self, tag_name=None):
-        if tag_name == None:
+        if tag_name is None:
             # Tag Register
             return self.offset('/rest/tag')
         else:
@@ -129,7 +170,7 @@ class ApiTestCase(object):
 
     def tag_ref_from_name(self, tag_name):
         tag = self.get_tag_by_name(unicode(tag_name))
-        if tag == None:
+        if tag is None:
             return tag_name
         else:
             return self.ref_tag(tag)
@@ -307,8 +348,6 @@ class BaseModelApiTestCase(ModelMethods, ApiTestCase, ControllerTestCase):
     def teardown(self):
         model.Session.remove()
         model.repo.rebuild_db()
-        #self.delete_common_fixtures()
-        #self.commit_remove()
         super(BaseModelApiTestCase, self).teardown()
 
     def init_extra_environ(self):
