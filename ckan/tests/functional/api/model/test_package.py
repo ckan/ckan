@@ -260,7 +260,13 @@ class PackagesTestCase(BaseModelApiTestCase):
             'tags': [u'tag1', u'tag2', u'tag4', u'tag5'],
         }
         self.create_package_roles_revision(old_fixture_data)
-        offset = self.package_offset(old_fixture_data['name'])
+        pkg = self.get_package_by_name(old_fixture_data['name'])
+        # This is the one occasion where we reference package explicitly
+        # by name or ID, rather than use the value from self.ref_package_by
+        # because you should be able to specify the package both ways round
+        # for both versions of the API.
+        package_ref = getattr(pkg, package_ref_attribute)
+        offset = self.offset('/rest/package/%s' % package_ref)
         params = '%s=1' % self.dumps(new_fixture_data)
         method_func = getattr(self.app, method_str)
         res = method_func(offset, params=params, status=self.STATUS_200_OK,
@@ -331,6 +337,68 @@ class PackagesTestCase(BaseModelApiTestCase):
     def test_entity_update_ok_by_name_by_put(self):
         self.assert_package_update_ok('name', 'put')
 
+    def test_package_update_delete_last_extra(self):
+        old_fixture_data = {
+            'name': self.package_fixture_data['name'],
+            'extras': {
+                u'key1': u'val1',
+            },
+        }
+        new_fixture_data = {
+            'name':u'somethingnew',
+            'extras': {
+                u'key1': None, 
+                },
+        }
+        self.create_package_roles_revision(old_fixture_data)
+        offset = self.package_offset(old_fixture_data['name'])
+        params = '%s=1' % self.dumps(new_fixture_data)
+        res = self.app.post(offset, params=params, status=self.STATUS_200_OK,
+                            extra_environ=self.extra_environ)
+
+        # Check the returned package is as expected
+        pkg = self.loads(res.body)
+        assert_equal(pkg['name'], new_fixture_data['name'])
+        expected_extras = copy.deepcopy(new_fixture_data['extras'])
+        del expected_extras['key1']
+        assert_equal(pkg['extras'], expected_extras)
+
+        # Check extra was deleted
+        self.remove()
+        package = self.get_package_by_name(new_fixture_data['name'])
+        # - title
+        self.assert_equal(package.extras, [])
+
+    def test_package_update_do_not_delete_last_extra(self):
+        old_fixture_data = {
+            'name': self.package_fixture_data['name'],
+            'extras': {
+                u'key1': u'val1',
+            },
+        }
+        new_fixture_data = {
+            'name':u'somethingnew',
+            'extras': {}, # no extras specified, but existing
+                          # ones should be left alone
+        }
+        self.create_package_roles_revision(old_fixture_data)
+        offset = self.package_offset(old_fixture_data['name'])
+        params = '%s=1' % self.dumps(new_fixture_data)
+        res = self.app.post(offset, params=params, status=self.STATUS_200_OK,
+                            extra_environ=self.extra_environ)
+
+        # Check the returned package is as expected
+        pkg = self.loads(res.body)
+        assert_equal(pkg['name'], new_fixture_data['name'])
+        expected_extras = {u'key1': u'val1'} # should not be deleted
+        assert_equal(pkg['extras'], expected_extras)
+
+        # Check extra was not deleted
+        self.remove()
+        package = self.get_package_by_name(new_fixture_data['name'])
+        # - title
+        assert len(package.extras) == 1, package.extras
+
     def test_entity_update_conflict(self):
         package1_name = self.package_fixture_data['name']
         package1_data = {'name': package1_name}
@@ -340,6 +408,15 @@ class PackagesTestCase(BaseModelApiTestCase):
         package2 = self.create_package_roles_revision(package2_data)
         package1_offset = self.package_offset(package1_name)
         self.post(package1_offset, package2_data, self.STATUS_409_CONFLICT)
+
+    def test_entity_update_empty(self):
+        package1_name = self.package_fixture_data['name']
+        package1_data = {'name': package1_name}
+        package1 = self.create_package_roles_revision(package1_data)
+        package2_data = '' # this is the error
+        package1_offset = self.package_offset(package1_name)
+        self.app.put(package1_offset, package2_data,
+                     status=self.STATUS_400_BAD_REQUEST)
 
     def test_entity_delete_ok(self):
         # create a package with package_fixture_data

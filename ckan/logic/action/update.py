@@ -176,7 +176,7 @@ def package_update(data_dict, context):
         if 'message' in context:
             rev.message = context['message']
         else:
-            rev.message = _(u'REST API: Create object %s') % data.get("name")
+            rev.message = _(u'REST API: Update object %s') % data.get("name")
 
     pkg = package_dict_save(data, context)
 
@@ -260,7 +260,7 @@ def group_update(data_dict, context):
     if 'message' in context:
         rev.message = context['message']
     else:
-        rev.message = _(u'REST API: Create object %s') % data.get("name")
+        rev.message = _(u'REST API: Update object %s') % data.get("name")
 
     group = group_dict_save(data, context)
 
