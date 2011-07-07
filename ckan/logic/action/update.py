@@ -6,7 +6,12 @@ import ckan.authz
 from ckan.plugins import PluginImplementations, IGroupController, IPackageController
 from ckan.logic import NotFound, check_access, NotAuthorized, ValidationError
 from ckan.lib.base import _
-from ckan.lib.dictization.model_dictize import group_dictize, package_dictize
+from ckan.lib.dictization.model_dictize import (package_dictize,
+                                                package_to_api1,
+                                                package_to_api2,
+                                                group_dictize,
+                                                group_to_api1,
+                                                group_to_api2)
 from ckan.lib.dictization.model_save import (group_api_to_dict,
                                              package_api_to_dict,
                                              group_dict_save,
@@ -274,19 +279,38 @@ def package_update_rest(data_dict, context):
 
     model = context['model']
     id = context["id"]
+    api = context.get('api_version') or '1'
     pkg = model.Package.get(id)
     context["package"] = pkg
     context["allow_partial_update"] = True
     dictized_package = package_api_to_dict(data_dict, context)
-    return package_update(dictized_package, context)
+    dictized_after = package_update(dictized_package, context)
+
+    pkg = context['package']
+
+    if api == '1':
+        package_dict = package_to_api1(pkg, context)
+    else:
+        package_dict = package_to_api2(pkg, context)
+
+    return package_dict
 
 def group_update_rest(data_dict, context):
 
     model = context['model']
     id = context["id"]
+    api = context.get('api_version') or '1'
     group = model.Group.get(id)
     context["group"] = group
     context["allow_partial_update"] = True
     dictized_package = group_api_to_dict(data_dict, context)
-    return group_update(dictized_package, context)
+    dictized_after = group_update(dictized_package, context)
 
+    group = context['group']
+
+    if api == '1':
+        group_dict = group_to_api1(group, context)
+    else:
+        group_dict = group_to_api2(group, context)
+
+    return group_dict

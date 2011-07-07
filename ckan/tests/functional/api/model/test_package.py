@@ -1,3 +1,5 @@
+import copy
+
 from nose.tools import assert_equal
 
 from ckan.tests.functional.api.base import BaseModelApiTestCase
@@ -36,6 +38,14 @@ class PackagesTestCase(BaseModelApiTestCase):
                             status=self.STATUS_201_CREATED,
                             extra_environ=self.extra_environ)
         
+        # Check the returned package is as expected
+        pkg = self.loads(res.body)
+        assert_equal(pkg['name'], self.package_fixture_data['name'])
+        assert_equal(pkg['title'], self.package_fixture_data['title'])
+        assert_equal(set(pkg['tags']), set(self.package_fixture_data['tags']))
+        assert_equal(len(pkg['resources']), len(self.package_fixture_data['resources']))
+        assert_equal(pkg['extras'], self.package_fixture_data['extras'])
+
         # Check the value of the Location header.
         location = res.header('Location')
         assert offset in location
@@ -103,8 +113,19 @@ class PackagesTestCase(BaseModelApiTestCase):
         package = self.get_package_by_name(self.package_fixture_data['name'])
         assert package
         self.assert_equal(package.title, self.package_fixture_data['title'])
-        
 
+    def test_register_post_json(self):
+        assert not self.get_package_by_name(self.package_fixture_data['name'])
+        offset = self.package_offset()
+        data = self.dumps(self.package_fixture_data)
+        res = self.post_json(offset, data, status=self.STATUS_201_CREATED,
+                             extra_environ=self.extra_environ)
+        # Check the database record.
+        self.remove()
+        package = self.get_package_by_name(self.package_fixture_data['name'])
+        assert package
+        self.assert_equal(package.title, self.package_fixture_data['title'])
+        
     def test_register_post_bad_request(self):
         test_params = {
             'name':u'testpackage06_400',
@@ -201,7 +222,8 @@ class PackagesTestCase(BaseModelApiTestCase):
     def create_package_roles_revision(self, package_data):
         self.create_package(admins=[self.user], data=package_data)
 
-    def assert_package_update_ok(self, package_ref_attribute):
+    def assert_package_update_ok(self, package_ref_attribute,
+                                 method_str):
         old_fixture_data = {
             'name': self.package_fixture_data['name'],
             'url': self.package_fixture_data['url'],
@@ -240,8 +262,20 @@ class PackagesTestCase(BaseModelApiTestCase):
         self.create_package_roles_revision(old_fixture_data)
         offset = self.package_offset(old_fixture_data['name'])
         params = '%s=1' % self.dumps(new_fixture_data)
-        res = self.app.post(offset, params=params, status=self.STATUS_200_OK,
-                            extra_environ=self.extra_environ)
+        method_func = getattr(self.app, method_str)
+        res = method_func(offset, params=params, status=self.STATUS_200_OK,
+                          extra_environ=self.extra_environ)
+
+        # Check the returned package is as expected
+        pkg = self.loads(res.body)
+        assert_equal(pkg['name'], new_fixture_data['name'])
+        assert_equal(pkg['title'], new_fixture_data['title'])
+        assert_equal(set(pkg['tags']), set(new_fixture_data['tags']))
+        assert_equal(len(pkg['resources']), len(new_fixture_data['resources']))
+        expected_extras = copy.deepcopy(new_fixture_data['extras'])
+        del expected_extras['key2']
+        expected_extras['key1'] = old_fixture_data['extras']['key1']
+        assert_equal(pkg['extras'], expected_extras)
 
         # Check submitted field have changed.
         self.remove()
@@ -286,10 +320,16 @@ class PackagesTestCase(BaseModelApiTestCase):
         assert not package.extras.has_key('key2')
 
     def test_package_update_ok_by_id(self):
-        self.assert_package_update_ok('id')
+        self.assert_package_update_ok('id', 'post')
 
     def test_entity_update_ok_by_name(self):
-        self.assert_package_update_ok('name')
+        self.assert_package_update_ok('name', 'post')
+
+    def test_package_update_ok_by_id_by_put(self):
+        self.assert_package_update_ok('id', 'put')
+
+    def test_entity_update_ok_by_name_by_put(self):
+        self.assert_package_update_ok('name', 'put')
 
     def test_entity_update_conflict(self):
         package1_name = self.package_fixture_data['name']
