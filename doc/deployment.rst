@@ -111,7 +111,7 @@ Now you can then do the deployment with something like::
 
 6. Install code and dependent packages into the environment
 
-  Decide which release of CKAN you want to install. The CHANGELOG.txt has details on the releases. You'll need the exact tag name, and these are listed on the bitbucket page: https://bitbucket.org/okfn/ckan/src and hover over tags to see the options, e.g. ``ckan-1.4``.
+  Decide which release of CKAN you want to install. The CHANGELOG.txt has details on the releases. You'll need the exact tag name, and these are listed on the bitbucket page: https://bitbucket.org/okfn/ckan/src and hover over tags to see the options, e.g. ``ckan-1.4``. ::
 
   $ wget https://bitbucket.org/okfn/ckan/raw/ckan-1.4/pip-requirements.txt
 
@@ -239,7 +239,7 @@ Now you can then do the deployment with something like::
 
 
 Upgrade
-=======
+-------
 
 Ideally production deployments are upgraded with fabric, but here are the manual instructions.
 
@@ -251,6 +251,12 @@ Ideally production deployments are upgraded with fabric, but here are the manual
 2. It's probably wise to backup your database::
 
    $ paster --plugin=ckan db dump demo_ckan_backup.pg_dump --config=demo.ckan.net.ini
+ 
+   If you get a message about the command being 'mothballed' then you have a particularly old ckan! In this case, use pg_dump directly, specifying the database details from your config file.
+
+   $ grep -i sqlalchemy.url demo.ckan.net.ini 
+   sqlalchemy.url = postgres://okfn:testpassword@psql.okfn.org/demo.okfn.org
+   $ pg_dump -U okfn -h psql.okfn.org >demo_ckan_backup.pg_dump
 
 3. Get a version of pip-requirements.txt for the new version you want to install (see info on finding a suitable tag name above)::
 
@@ -268,7 +274,7 @@ Ideally production deployments are upgraded with fabric, but here are the manual
 
    $ sudo /etc/init.d/apache2 restart
 
-7. You could manually try CKAN works in a browser, or better still run the smoke tests found in ckanext/blackbox. To do this, install ckanext and run ckanext from another machine - see ckanext README.txt for instructions: https://bitbucket.org/okfn/ckanext and then run::
+7. You could manually try CKAN in a browser, or better still run the smoke tests found in ckanext/blackbox. To do this, install ckanext and run ckanext from another machine - see ckanext README.txt for instructions: https://bitbucket.org/okfn/ckanext and then run::
 
    $ python blackbox/smoke.py blackbox/ckan.net.profile.json
 

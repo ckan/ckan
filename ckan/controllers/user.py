@@ -1,4 +1,3 @@
-import re
 import logging
 
 import genshi
@@ -7,6 +6,7 @@ from urllib import quote
 
 import ckan.misc
 from ckan.lib.base import *
+from ckan.lib import mailer
 
 log = logging.getLogger(__name__)
 
@@ -163,8 +163,7 @@ class UserController(BaseController):
                     c.user_fullname = request.params.getone('fullname')
                     c.user_email = request.params.getone('email')
                     return render('user/edit.html')
-
-                user.about = request.params.getone('about')
+                user.about = about
                 user.fullname = request.params.getone('fullname')
                 user.email = request.params.getone('email')
                 try:
@@ -184,7 +183,40 @@ class UserController(BaseController):
             h.redirect_to(controller='user', action='read', id=user.id)
             
         return render('user/edit.html')
-        
+    
+    def request_reset(self):
+        if request.method == 'POST':
+            id = request.params.get('user')
+            user = model.User.get(id)
+            if user is None:
+                h.flash_error(_('No such user: %s') % id)
+            try:
+                mailer.send_reset_link(user)
+                h.flash_success(_('Please check your inbox for a reset code.'))
+                redirect('/')
+            except mailer.MailerException, e:
+                h.flash_error(_('Could not send reset link: %s') % unicode(e))
+        return render('user/request_reset.html')
+
+    def perform_reset(self, id):
+        user = model.User.get(id)
+        if user is None:
+            abort(404)
+        c.reset_key = request.params.get('key')
+        if not mailer.verify_reset_link(user, c.reset_key):
+            h.flash_error(_('Invalid reset key. Please try again.'))
+            abort(403)
+        if request.method == 'POST':
+            try:
+                user.password = self._get_form_password()
+                model.Session.add(user)
+                model.Session.commit()
+                h.flash_success(_("Your password has been reset."))
+                redirect('/')
+            except ValueError, ve:
+                h.flash_error(unicode(ve))
+        return render('user/perform_reset.html')
+
     def _format_about(self, about):
         about_formatted = ckan.misc.MarkdownFormat().to_html(about)
         try:

@@ -11,7 +11,6 @@ Contents:
    :maxdepth: 2
 
    README
-   design
    deployment
    configuration
    paster
@@ -26,7 +25,6 @@ Contents:
    authentication
    authorization
    load_testing
-   distributed
    database_dumps
    deb
    vm

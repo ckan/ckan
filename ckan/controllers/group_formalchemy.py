@@ -65,7 +65,7 @@ class GroupFormalchemyController(GroupController):
             for extension in self.extensions:
                 extension.create(group)
             model.repo.commit_and_remove()
-            h.redirect_to(action='read', id=c.groupname)
+            h.redirect_to(controller='group', action='read', id=c.groupname)
 
         if request.params:
             data = forms.edit_group_dict(ckan.forms.get_group_dict(), request.params)
@@ -122,4 +122,4 @@ class GroupFormalchemyController(GroupController):
             for extension in self.extensions: 
                 extension.edit(group)
             model.repo.commit_and_remove()
-            h.redirect_to(action='read', id=c.groupname)
+            h.redirect_to(controller='group', action='read', id=c.groupname)

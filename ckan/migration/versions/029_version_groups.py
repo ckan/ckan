@@ -147,7 +147,7 @@ def upgrade(migrate_engine):
     package_group_revision_table.create()
     for row in migrate_engine.execute(package_group_table.select()):
         pkg_group_rev = dict(row.items())
-        pkg_group_rev['continuity_id'] = group_rev['id']
+        pkg_group_rev['continuity_id'] = pkg_group_rev['id']
         q = package_group_revision_table.insert(values=pkg_group_rev)
         migrate_engine.execute(q)
     

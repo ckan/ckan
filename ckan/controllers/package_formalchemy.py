@@ -66,8 +66,11 @@ class PackageFormalchemyController(PackageController):
                 if domain.startswith('www.'):
                     domain = domain[4:]
             # ensure all fields specified in params (formalchemy needs this on bind)
-            data = ckan.forms.add_to_package_dict(ckan.forms.get_package_dict(fs=fs), request.params)
+            from ckan.forms import add_to_package_dict,get_package_dict
+
+            data = add_to_package_dict(get_package_dict(fs=fs), request.params)
             fs = fs.bind(model.Package, data=data, session=model.Session)
+
         else:
             fs = fs.bind(session=model.Session)
         #if 'preview' in request.params:
