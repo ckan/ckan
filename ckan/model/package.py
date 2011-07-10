@@ -225,7 +225,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             subject = related_package
             object_ = self
         else:
-            raise NotImplementedError, 'Package relationship type: %r' % type_
+            raise KeyError, 'Package relationship type: %r' % type_
 
         rels = self.get_relationships(with_package=related_package,
                                       type=type_, active=False, direction="forward")

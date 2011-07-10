@@ -222,7 +222,7 @@ class PackageSqlSearchIndex(SqlSearchIndex):
 
         document_a = u' '.join((pkg_dict.get('name') or u'', pkg_dict.get('title') or u''))
         document_b_items = []
-        for field_name in ['notes', 'tags', 'groups', 'author', 'maintainer']:
+        for field_name in ['notes', 'tags', 'groups', 'author', 'maintainer', 'url']:
             val = pkg_dict.get(field_name)
             if val:
                 document_b_items.append(val)

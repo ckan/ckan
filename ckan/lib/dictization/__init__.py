@@ -122,7 +122,10 @@ def table_dict_save(table_dict, ModelClass, context):
 
     if context.get('pending'):
         if session.is_modified(obj, include_collections=False):
-            obj.state = 'pending'
+            if table_dict.get('state', '') == 'deleted':
+                obj.state = 'pending-deleted'
+            else:
+                obj.state = 'pending'
 
     session.add(obj)
 

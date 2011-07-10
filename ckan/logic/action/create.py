@@ -91,7 +91,7 @@ def package_relationship_create(data_dict, context):
     user = context['user']
     id = context["id"]
     id2 = context["id2"]
-    rel = context["rel"]
+    rel_type = context["rel"]
     api = context.get('api_version') or '1'
     ref_package_by = 'id' if api == '2' else 'name'
 
@@ -112,14 +112,14 @@ def package_relationship_create(data_dict, context):
     ##FIXME should have schema
     comment = data_dict.get('comment', u'')
 
-    existing_rels = pkg1.get_relationships_with(pkg2, rel)
+    existing_rels = pkg1.get_relationships_with(pkg2, rel_type)
     if existing_rels:
         return _update_package_relationship(existing_rels[0],
                                             comment, context)
     rev = model.repo.new_revision()
     rev.author = user
-    rev.message = _(u'REST API: Create package relationship: %s %s %s') % (pkg1, rel, pkg2)
-    rel = pkg1.add_relationship(rel, pkg2, comment=comment)
+    rev.message = _(u'REST API: Create package relationship: %s %s %s') % (pkg1, rel_type, pkg2)
+    rel = pkg1.add_relationship(rel_type, pkg2, comment=comment)
     model.repo.commit_and_remove()
     relationship_dicts = rel.as_dict(ref_package_by=ref_package_by)
     return relationship_dicts
