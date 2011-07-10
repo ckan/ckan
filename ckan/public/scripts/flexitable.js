@@ -62,8 +62,9 @@
     if (confirm('Are you sure you wish to remove this row?')) {
       var row = $(this).parents('tr'),
           following = row.nextAll();
+          prev = row.prevAll();
 
-      if (following.length == 0) {
+      if (following.length + prev.length  == 0) {
           row.find('input').val('')
           return
       }
