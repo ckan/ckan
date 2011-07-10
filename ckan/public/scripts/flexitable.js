@@ -62,7 +62,11 @@
     if (confirm('Are you sure you wish to remove this row?')) {
       var row = $(this).parents('tr'),
           following = row.nextAll();
-      
+
+      if (following.length == 0) {
+          row.find('input').val('')
+          return
+      }
       row.remove();
       following.each(function () {
         setRowNumber(this, getRowNumber(this) - 1);
