@@ -1,7 +1,9 @@
-Paster commands
-+++++++++++++++
+Command Line Administration
++++++++++++++++++++++++++++
 
 Paster commands provide a number of useful ways to administer a CKAN installation. These are run on the command line on the server running CKAN.
+
+## To add: db update and db save. ##
 
 Commands
 ========

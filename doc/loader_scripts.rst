@@ -1,11 +1,13 @@
-==============
-Loader scripts
-==============
+============
+Loading Data
+============
 
 Introduction
 ============
 
-'Loader scripts' provide a simple way to take any format metadata and bulk upload it to a remote CKAN instance. Essentially each custom script has to convert the metadata to the standard 'package' dictionary format, and the loader does the work of loading it into CKAN in an intelligent way.
+'Loader scripts' provide a simple way to take any format metadata and bulk upload it to a remote CKAN instance. 
+
+Essentially each custom script has to convert the metadata to the standard 'package' dictionary format, and the loader does the work of loading it into CKAN in an intelligent way.
 
 
 Structure
