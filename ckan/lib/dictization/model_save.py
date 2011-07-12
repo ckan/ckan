@@ -105,7 +105,7 @@ def package_extras_save(extra_dicts, obj, context):
         extra = old_extras[key]
         if extra.state == 'deleted':
             continue
-        state = 'pending-deleted' if context.get('pending') else 'delete'
+        state = 'pending-deleted' if context.get('pending') else 'deleted'
         extra.state = state
 
 def group_extras_save(extras_dicts, context):
