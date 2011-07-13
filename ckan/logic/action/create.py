@@ -30,7 +30,7 @@ from ckan.logic.action.update import (_update_package_relationship,
                                       check_group_auth)
 log = logging.getLogger(__name__)
 
-def package_create(data_dict, context):
+def package_create(context, data_dict):
 
     model = context['model']
     user = context['user']
@@ -39,7 +39,7 @@ def package_create(data_dict, context):
     model.Session.remove()
 
     check_access(model.System(), model.Action.PACKAGE_CREATE, context)
-    check_group_auth(data_dict, context)
+    check_group_auth(context, data_dict)
 
     data, errors = validate(data_dict, schema, context)
 
@@ -76,7 +76,7 @@ def package_create(data_dict, context):
     else:
         return data
 
-def resource_create(data_dict, context):
+def resource_create(context, data_dict):
     model = context['model']
     user = context['user']
 
@@ -85,13 +85,13 @@ def resource_create(data_dict, context):
                             context)
 
 
-def package_relationship_create(data_dict, context):
+def package_relationship_create(context, data_dict):
 
     model = context['model']
     user = context['user']
-    id = context["id"]
-    id2 = context["id2"]
-    rel_type = context["rel"]
+    id = data_dict["id"]
+    id2 = data_dict["id2"]
+    rel_type = data_dict["rel"]
     api = context.get('api_version') or '1'
     ref_package_by = 'id' if api == '2' else 'name'
 
@@ -124,7 +124,7 @@ def package_relationship_create(data_dict, context):
     relationship_dicts = rel.as_dict(ref_package_by=ref_package_by)
     return relationship_dicts
 
-def group_create(data_dict, context):
+def group_create(context, data_dict):
     model = context['model']
     user = context['user']
     schema = context.get('schema') or default_group_schema()
@@ -160,7 +160,7 @@ def group_create(data_dict, context):
     log.debug('Created object %s' % str(group.name))
     return group_dictize(group, context)
 
-def rating_create(data_dict, context):
+def rating_create(context, data_dict):
 
     model = context['model']
     user = context.get("user") 
@@ -197,12 +197,12 @@ def rating_create(data_dict, context):
 
 ## Modifications for rest api
 
-def package_create_rest(data_dict, context):
+def package_create_rest(context, data_dict):
 
     api = context.get('api_version') or '1'
 
     dictized_package = package_api_to_dict(data_dict, context)
-    dictized_after = package_create(dictized_package, context) 
+    dictized_after = package_create(context, dictized_package) 
 
     pkg = context['package']
 
@@ -211,14 +211,16 @@ def package_create_rest(data_dict, context):
     else:
         package_dict = package_to_api2(pkg, context)
 
+    data_dict['id'] = pkg.id
+
     return package_dict
 
-def group_create_rest(data_dict, context):
+def group_create_rest(context, data_dict):
 
     api = context.get('api_version') or '1'
 
     dictized_group = group_api_to_dict(data_dict, context)
-    dictized_after = group_create(dictized_group, context) 
+    dictized_after = group_create(context, dictized_group) 
 
     group = context['group']
 
@@ -226,6 +228,8 @@ def group_create_rest(data_dict, context):
         group_dict = group_to_api1(group, context)
     else:
         group_dict = group_to_api2(group, context)
+
+    data_dict['id'] = group.id
 
     return group_dict
 

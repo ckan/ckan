@@ -14,7 +14,7 @@ from ckan.lib.dictization.model_dictize import (package_to_api1,
                                                 group_dictize)
 
 
-def package_list(context):
+def package_list(context, data_dict):
     model = context["model"]
     user = context["user"]
     api = context["api_version"]
@@ -24,10 +24,10 @@ def package_list(context):
     packages = query.all()
     return [getattr(p, ref_package_by) for p in packages]
 
-def current_package_list_with_resources(context):
+def current_package_list_with_resources(context, data_dict):
     model = context["model"]
     user = context["user"]
-    limit = context.get("limit")
+    limit = data_dict.get("limit")
 
     q = ckan.authz.Authorizer().authorized_query(user, model.PackageRevision)
     q = q.filter(model.PackageRevision.state=='active')
@@ -56,15 +56,15 @@ def current_package_list_with_resources(context):
         package_list.append(result_dict)
     return package_list
 
-def revision_list(context):
+def revision_list(context, data_dict):
 
     model = context["model"]
     revs = model.Session.query(model.Revision).all()
     return [rev.id for rev in revs]
 
-def package_revision_list(context):
+def package_revision_list(context, data_dict):
     model = context["model"]
-    id = context["id"]
+    id = data_dict["id"]
     pkg = model.Package.get(id)
     if pkg is None:
         raise NotFound
@@ -76,7 +76,7 @@ def package_revision_list(context):
                                                      include_packages=False))
     return revision_dicts
 
-def group_list(context):
+def group_list(context, data_dict):
     model = context["model"]
     user = context["user"]
     api = context.get('api_version') or '1'
@@ -86,7 +86,7 @@ def group_list(context):
     groups = query.all() 
     return [getattr(p, ref_group_by) for p in groups]
 
-def group_list_authz(context):
+def group_list_authz(context, data_dict):
     model = context['model']
     user = context['user']
     pkg = context.get('package')
@@ -95,7 +95,7 @@ def group_list_authz(context):
     groups = set(query.all())
     return dict((group.id, group.name) for group in groups)
 
-def group_list_availible(context):
+def group_list_availible(context, data_dict):
     model = context['model']
     user = context['user']
     pkg = context.get('package')
@@ -108,30 +108,30 @@ def group_list_availible(context):
 
     return [(group.id, group.name) for group in groups]
 
-def licence_list(context):
+def licence_list(context, data_dict):
     model = context["model"]
     license_register = model.Package.get_license_register()
     licenses = license_register.values()
     licences = [l.as_dict() for l in licenses]
     return licences
 
-def tag_list(context):
+def tag_list(context, data_dict):
     model = context["model"]
     tags = model.Session.query(model.Tag).all() #TODO
     tag_list = [tag.name for tag in tags]
     return tag_list
 
-def package_relationships_list(context):
+def package_relationships_list(context, data_dict):
 
     ##TODO needs to work with dictization layer
     model = context['model']
     user = context['user']
-    id = context["id"]
-    id2 = context.get("id2")
-    rel = context.get("rel")
     api = context.get('api_version') or '1'
-    ref_package_by = 'id' if api == '2' else 'name';
 
+    id = data_dict["id"]
+    id2 = data_dict.get("id2")
+    rel = data_dict.get("rel")
+    ref_package_by = 'id' if api == '2' else 'name';
     pkg1 = model.Package.get(id)
     pkg2 = None
     if not pkg1:
@@ -157,11 +157,11 @@ def package_relationships_list(context):
 
     return relationship_dicts
 
-def package_show(context):
+def package_show(context, data_dict):
 
     model = context['model']
     api = context.get('api_version') or '1'
-    id = context['id']
+    id = data_dict['id']
 
     pkg = model.Package.get(id)
 
@@ -179,10 +179,10 @@ def package_show(context):
     return package_dict
 
 
-def revision_show(context):
+def revision_show(context, data_dict):
     model = context['model']
     api = context.get('api_version') or '1'
-    id = context['id']
+    id = data_dict['id']
     ref_package_by = 'id' if api == '2' else 'name'
 
     rev = model.Session.query(model.Revision).get(id)
@@ -192,9 +192,9 @@ def revision_show(context):
                                       ref_package_by=ref_package_by)
     return rev_dict
 
-def group_show(context):
+def group_show(context, data_dict):
     model = context['model']
-    id = context['id']
+    id = data_dict['id']
     api = context.get('api_version') or '1'
 
 
@@ -213,10 +213,10 @@ def group_show(context):
     return group_dict
 
 
-def tag_show(context):
+def tag_show(context, data_dict):
     model = context['model']
     api = context.get('api_version') or '1'
-    id = context['id']
+    id = data_dict['id']
     ref_package_by = 'id' if api == '2' else 'name'
     obj = model.Tag.get(id) #TODO tags
     if obj is None:
@@ -226,12 +226,11 @@ def tag_show(context):
     return package_list 
 
 
-def package_show_rest(context):
+def package_show_rest(context, data_dict):
 
-    package_show(context)
+    package_show(context, data_dict)
 
     api = context.get('api_version') or '1'
-
     pkg = context['package']
 
     if api == '1':
@@ -241,9 +240,9 @@ def package_show_rest(context):
 
     return package_dict
 
-def group_show_rest(context):
+def group_show_rest(context, data_dict):
 
-    group_show(context)
+    group_show(context, data_dict)
     api = context.get('api_version') or '1'
     group = context['group']
 

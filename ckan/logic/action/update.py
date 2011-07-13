@@ -51,7 +51,7 @@ def group_error_summary(error_dict):
             error_summary[_(prettify(key))] = error[0]
     return error_summary
 
-def check_group_auth(data_dict, context):
+def check_group_auth(context, data_dict):
     model = context['model']
     pkg = context.get("package")
 
@@ -105,11 +105,11 @@ def _make_latest_rev_active(context, q):
         context['latest_revision_date'] = latest_rev.revision_timestamp
         context['latest_revision'] = latest_rev.revision_id
 
-def make_latest_pending_package_active(context):
+def make_latest_pending_package_active(context, data_dict):
 
     model = context['model']
     session = model.Session
-    id = context["id"]
+    id = data_dict["id"]
     pkg = model.Package.get(id)
 
     check_access(pkg, model.Action.EDIT, context)
@@ -146,10 +146,11 @@ def make_latest_pending_package_active(context):
     session.remove()        
 
 
-def package_update(data_dict, context):
+def package_update(context, data_dict):
     model = context['model']
     user = context['user']
-    id = context["id"]
+    
+    id = data_dict["id"]
     preview = context.get('preview', False)
     schema = context.get('schema') or default_update_package_schema()
     model.Session.remove()
@@ -159,13 +160,13 @@ def package_update(data_dict, context):
 
     if pkg is None:
         raise NotFound(_('Package was not found.'))
-    context["id"] = pkg.id
+    data_dict["id"] = pkg.id
 
     check_access(pkg, model.Action.EDIT, context)
 
     data, errors = validate(data_dict, schema, context)
 
-    check_group_auth(data, context)
+    check_group_auth(context, data)
 
     if errors:
         model.Session.rollback()
@@ -205,13 +206,13 @@ def _update_package_relationship(relationship, comment, context):
                                     ref_package_by=ref_package_by)
     return rel_dict
 
-def package_relationship_update(data_dict, context):
+def package_relationship_update(context, data_dict):
 
     model = context['model']
     user = context['user']
-    id = context["id"]
-    id2 = context["id2"]
-    rel = context["rel"]
+    id = data_dict["id"]
+    id2 = data_dict["id2"]
+    rel = data_dict["rel"]
     api = context.get('api_version') or '1'
     ref_package_by = 'id' if api == '2' else 'name'
 
@@ -236,12 +237,12 @@ def package_relationship_update(data_dict, context):
     comment = data_dict.get('comment', u'')
     return _update_package_relationship(entity, comment, context)
 
-def group_update(data_dict, context):
+def group_update(context, data_dict):
 
     model = context['model']
     user = context['user']
     schema = context.get('schema') or default_update_group_schema()
-    id = context['id']
+    id = data_dict['id']
 
     group = model.Group.get(id)
     context["group"] = group
@@ -276,16 +277,28 @@ def group_update(data_dict, context):
 
 ## Modifications for rest api
 
-def package_update_rest(data_dict, context):
+def package_update_rest(context, data_dict):
 
     model = context['model']
-    id = context["id"]
+    id = data_dict.get("id")
+    request_id = context['id']
     api = context.get('api_version') or '1'
-    pkg = model.Package.get(id)
+    pkg = model.Package.get(request_id)
+
+    if not pkg:
+        raise NotFound
+
+    if id and id != pkg.id:
+        pkg_from_data = model.Package.get(id)
+        if pkg_from_data != pkg:
+            error_dict = {id:('Cannot change value of key from %s to %s. '
+                'This key is read-only') % (pkg.id, id)}
+            raise ValidationError(error_dict)
+
     context["package"] = pkg
     context["allow_partial_update"] = True
     dictized_package = package_api_to_dict(data_dict, context)
-    dictized_after = package_update(dictized_package, context)
+    dictized_after = package_update(context, dictized_package)
 
     pkg = context['package']
 
@@ -296,16 +309,16 @@ def package_update_rest(data_dict, context):
 
     return package_dict
 
-def group_update_rest(data_dict, context):
+def group_update_rest(context, data_dict):
 
     model = context['model']
-    id = context["id"]
+    id = data_dict["id"]
     api = context.get('api_version') or '1'
     group = model.Group.get(id)
     context["group"] = group
     context["allow_partial_update"] = True
     dictized_package = group_api_to_dict(data_dict, context)
-    dictized_after = group_update(dictized_package, context)
+    dictized_after = group_update(context, dictized_package)
 
     group = context['group']
 

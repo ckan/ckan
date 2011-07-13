@@ -48,6 +48,7 @@ class PackagesTestCase(BaseModelApiTestCase):
 
         # Check the value of the Location header.
         location = res.header('Location')
+        
         assert offset in location
         res = self.app.get(location, status=self.STATUS_200_OK)
         # Check the database record.

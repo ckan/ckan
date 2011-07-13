@@ -128,9 +128,55 @@ class ApiController(BaseController):
         response_data['version'] = ver or '1'
         return self._finish_ok(response_data) 
 
+    def get_action(self, action):
+        if hasattr(self, '_actions'):
+            return self._actions[action]
+
+        self._actions = {}
+        for name, function in get.__dict__:
+            if not (name.startswith('_') and callable(action) and name == action):
+                self.action[name] = function
+        for name, function in update.__dict__:
+            if not (name.startswith('_') and callable(action) and name == action):
+                self.action[name] = function
+        for name, function in create.__dict__:
+            if not (name.startswith('_') and callable(action) and name == action):
+                self.action[name] = function
+        return self._actions[action]
+    
+    def action(self, action):
+        function = self.get_action(action)
+        context = {'model': model, 'session': model.Session, 'user': c.user}
+        return_dict = {'help': function.__doc__}
+
+        try:
+            request_data = self._get_request_data()
+        except ValueError, inst:
+            return self._finish_bad_request(
+                gettext('JSON Error: %s') % str(inst))
+        try:
+            result = function(context, request_data)
+            return_dict['success'] = True
+            return_dict['result'] = result
+        except DataError:
+            log.error('Format incorrect: %s' % request_data)
+            #TODO make better error message
+            return self._finish(400, _(u'Integrity Error') % request_data)
+        except NotAuthorized:
+            return_dict['error'] = {'__type': 'Authorization Error',
+                                    'message': _('Access denied')}
+            result['success'] = False
+        except ValidationError, e:
+            error_dict = e.error_dict 
+            error_dict['__type'] = 'Validtion Error'
+            return_dict['error'] = error_dict
+            result['success'] = False
+            log.error('Validation error: %r' % str(e.error_dict))
+        return self._finish_ok(return_dict)
+
     def list(self, ver=None, register=None, subregister=None, id=None):
         context = {'model': model, 'session': model.Session,
-                   'user': c.user, 'id': id, 'api_version': ver}
+                   'user': c.user, 'api_version': ver}
         log.debug('listing: %s' % context)
         action_map = {
             'revision': get.revision_list,
@@ -149,7 +195,7 @@ class ApiController(BaseController):
             return self._finish_bad_request(
                 gettext('Cannot list entity of this type: %s') % register)
         try:
-            return self._finish_ok(action(context))
+            return self._finish_ok(action(context, {'id': id}))
         except NotFound, e:
             extra_msg = e.extra_msg
             return self._finish_not_found(extra_msg)
@@ -166,8 +212,9 @@ class ApiController(BaseController):
         }
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
-                   'id': id, 'id2': id2, 'rel': subregister,
                    'api_version': ver}
+        data_dict = {'id': id, 'id2': id2, 'rel': subregister}
+
         for type in model.PackageRelationship.get_all_types():
             action_map[('package', type)] = get.package_relationships_list
         log.debug('show: %s' % context)
@@ -180,7 +227,7 @@ class ApiController(BaseController):
                 gettext('Cannot read entity of this type: %s') % register)
         try:
             
-            return self._finish_ok(action(context))
+            return self._finish_ok(action(context, data_dict))
         except NotFound, e:
             extra_msg = e.extra_msg
             return self._finish_not_found(extra_msg)
@@ -202,13 +249,13 @@ class ApiController(BaseController):
         for type in model.PackageRelationship.get_all_types():
             action_map[('package', type)] = create.package_relationship_create
 
-
         context = {'model': model, 'session': model.Session, 'user': c.user,
-                   'id': id, 'id2': id2, 'rel': subregister,
                    'api_version': ver}
         log.debug('create: %s' % (context))
         try:
             request_data = self._get_request_data()
+            data_dict = {'id': id, 'id2': id2, 'rel': subregister}
+            data_dict.update(request_data)
         except ValueError, inst:
             return self._finish_bad_request(
                 gettext('JSON Error: %s') % str(inst))
@@ -221,10 +268,10 @@ class ApiController(BaseController):
                 gettext('Cannot create new entity of this type: %s %s') % \
                 (register, subregister))
         try:
-            response_data = action(request_data, context)
+            response_data = action(context, data_dict)
             location = None
-            if "id" in context:
-                location = str('%s/%s' % (request.path, context.get("id")))
+            if "id" in data_dict:
+                location = str('%s/%s' % (request.path, data_dict.get("id")))
             return self._finish_ok(response_data,
                                    resource_location=location)
         except NotAuthorized:
@@ -251,11 +298,12 @@ class ApiController(BaseController):
             action_map[('package', type)] = update.package_relationship_update
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
-                   'id': id, 'id2': id2, 'rel': subregister,
-                   'api_version': ver}
+                   'api_version': ver, 'id': id}
         log.debug('update: %s' % (context))
         try:
             request_data = self._get_request_data()
+            data_dict = {'id': id, 'id2': id2, 'rel': subregister}
+            data_dict.update(request_data)
         except ValueError, inst:
             return self._finish_bad_request(
                 gettext('JSON Error: %s') % str(inst))
@@ -267,7 +315,7 @@ class ApiController(BaseController):
                 gettext('Cannot update entity of this type: %s') % \
                     register.encode('utf-8'))
         try:
-            response_data = action(request_data, context)
+            response_data = action(context, data_dict)
             return self._finish_ok(response_data)
         except NotAuthorized:
             return self._finish_not_authz()

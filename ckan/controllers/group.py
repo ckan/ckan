@@ -115,13 +115,14 @@ class GroupController(BaseController):
                    'user': c.user or c.author, 'extras_as_string': True,
                    'save': 'save' in request.params,
                    'schema': self._form_to_db_schema(),
-                   'id': id}
+                   }
+        data_dict = {'id': id}
 
         if context['save'] and not data:
             return self._save_edit(id, context)
 
         try:
-            old_data = get.group_show(context)
+            old_data = get.group_show(context, data_dict)
             c.grouptitle = old_data.get('title')
             c.groupname = old_data.get('name')
             schema = self._db_to_form_schema()
@@ -151,7 +152,7 @@ class GroupController(BaseController):
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.params))))
             context['message'] = data_dict.get('log_message', '')
-            group = create.group_create(data_dict, context)
+            group = create.group_create(context, data_dict)
             h.redirect_to(controller='group', action='read', id=group['name'])
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % '')
@@ -169,7 +170,8 @@ class GroupController(BaseController):
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.params))))
             context['message'] = data_dict.get('log_message', '')
-            group = update.group_update(data_dict, context)
+            data_dict['id'] = id
+            group = update.group_update(context, data_dict)
             h.redirect_to(controller='group', action='read', id=group['name'])
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % id)

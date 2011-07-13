@@ -77,9 +77,9 @@ class PackageController(BaseController):
             log.info('incorrect form fields posted')
             raise DataError(data_dict)
 
-    def _setup_template_variables(self, context):
-        c.groups = get.group_list_availible(context)
-        c.groups_authz = get.group_list_authz(context)
+    def _setup_template_variables(self, context, data_dict):
+        c.groups = get.group_list_availible(context, data_dict)
+        c.groups_authz = get.group_list_authz(context, data_dict)
         c.licences = [('', '')] + model.Package.get_license_options()
         c.is_sysadmin = Authorizer().is_sysadmin(c.user)
         c.resource_columns = model.Resource.get_columns()
@@ -178,11 +178,11 @@ class PackageController(BaseController):
     def read(self, id):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
-                   'schema': self._form_to_db_schema(),
-                   'id': id}
+                   'schema': self._form_to_db_schema()}
+        data_dict = {'id': id}
         split = id.split('@')
         if len(split) == 2:
-            context['id'], revision = split
+            data_dict['id'], revision = split
             try:
                 date = datetime.datetime(*map(int, re.split('[^\d]', revision)))
                 context['revision_date'] = date
@@ -190,7 +190,7 @@ class PackageController(BaseController):
                 context['revision_id'] = revision
         #check if package exists
         try:
-            c.pkg_dict = get.package_show(context)
+            c.pkg_dict = get.package_show(context, data_dict)
             c.pkg = context['package']
         except NotFound:
             abort(404, _('Package not found'))
@@ -221,12 +221,11 @@ class PackageController(BaseController):
     def comments(self, id):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
-                   'schema': self._form_to_db_schema(),
-                   'id': id}
+                   'schema': self._form_to_db_schema()}
 
         #check if package exists
         try:
-            c.pkg_dict = get.package_show(context)
+            c.pkg_dict = get.package_show(context, {'id':id})
             c.pkg = context['package']
         except NotFound:
             abort(404, _('Package not found'))
@@ -323,7 +322,7 @@ class PackageController(BaseController):
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
-        self._setup_template_variables(context)
+        self._setup_template_variables(context, {'id': id})
         c.form = render(self.package_form, extra_vars=vars)
         return render('package/new.html')
 
@@ -333,14 +332,14 @@ class PackageController(BaseController):
                    'user': c.user or c.author, 'extras_as_string': True,
                    'preview': 'preview' in request.params,
                    'save': 'save' in request.params,
-                   'id': id, 'moderated': config.get('moderated'),
+                   'moderated': config.get('moderated'),
                    'pending': True,
                    'schema': self._form_to_db_schema()}
 
         if (context['save'] or context['preview']) and not data:
             return self._save_edit(id, context)
         try:
-            old_data = get.package_show(context)
+            old_data = get.package_show(context, {'id':id})
             schema = self._db_to_form_schema()
             if schema:
                 old_data, errors = validate(old_data, schema)
@@ -359,19 +358,19 @@ class PackageController(BaseController):
         errors = errors or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
-        self._setup_template_variables(context)
+        self._setup_template_variables(context, {'id':'id'})
         c.form = render(self.package_form, extra_vars=vars)
         return render('package/edit.html')
 
     def read_ajax(self, id, revision=None):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
-                   'id': id, 'extras_as_string': True,
+                   'extras_as_string': True,
                    'schema': self._form_to_db_schema(),
                    'revision_id': revision}
 
         try:
-            data = get.package_show(context)
+            data = get.package_show(context, {'id': id})
             schema = self._db_to_form_schema()
             if schema:
                 data, errors = validate(data, schema)
@@ -389,9 +388,6 @@ class PackageController(BaseController):
 
     def history_ajax(self, id):
 
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
-                   'id': id, 'extras_as_string': True}
         pkg = model.Package.get(id)
         data = []
         approved = False
@@ -418,7 +414,7 @@ class PackageController(BaseController):
                 tuplize_dict(parse_params(request.POST))))
             self._check_data_dict(data_dict)
             context['message'] = data_dict.get('log_message', '')
-            pkg = create.package_create(data_dict, context)
+            pkg = create.package_create(context, data_dict)
 
             if context['preview']:
                 PackageSaver().render_package(pkg, context)
@@ -448,9 +444,10 @@ class PackageController(BaseController):
             context['message'] = data_dict.get('log_message', '')
             if not context['moderated']:
                 context['pending'] = False
-            pkg = update.package_update(data_dict, context)
+            data_dict['id'] = id
+            pkg = update.package_update(context, data_dict)
             if request.params.get('save', '') == 'Approve':
-                update.make_latest_pending_package_active(context)
+                update.make_latest_pending_package_active(context, data_dict)
             c.pkg = context['package']
             c.pkg_dict = pkg
 
