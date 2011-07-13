@@ -19,7 +19,6 @@ class TestHomeController(TestController, PylonsTestCase):
     def teardown_class(self):
         model.repo.rebuild_db()
 
-    @search_related
     def test_home_page(self):
         offset = url_for('home')
         res = self.app.get(offset)
@@ -48,7 +47,6 @@ class TestHomeController(TestController, PylonsTestCase):
         res = self.app.get(offset)
         res.click('Search', index=0)
         
-    @search_related
     def test_tags_link(self):
         offset = url_for('home')
         res = self.app.get(offset)
@@ -77,14 +75,12 @@ class TestHomeController(TestController, PylonsTestCase):
         assert 'Search - ' in results_page, results_page
         assert '>0<' in results_page, results_page
     
-    @search_related
     def test_template_footer_end(self):
         offset = url_for('home')
         res = self.app.get(offset)
         assert '<strong>TEST TEMPLATE_FOOTER_END TEST</strong>'
 
     # DISABLED because this is not on home page anymore
-    @search_related
     def _test_register_new_package(self):
         offset = url_for('home')
         res = self.app.get(offset)
@@ -94,7 +90,6 @@ class TestHomeController(TestController, PylonsTestCase):
         assert 'Register a New Package' in results_page, results_page
         assert '<input id="Package--title" name="Package--title" size="40" type="text" value="test title">' in results_page, results_page
         
-    @search_related
     def test_locale_change(self):
         offset = url_for('home')
         res = self.app.get(offset)
@@ -105,7 +100,6 @@ class TestHomeController(TestController, PylonsTestCase):
         finally:
             res = res.click('English')
 
-    @search_related
     def test_locale_change_with_false_hash(self):
         offset = url_for('home')
         res = self.app.get(offset)

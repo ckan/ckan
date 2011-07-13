@@ -43,7 +43,8 @@ class HomeController(BaseController):
 
         query = query_for(model.Package)
         query.run(query='*:*', facet_by=g.facets,
-                  limit=0, offset=0, username=c.user)
+                  limit=0, offset=0, username=c.user,
+                  order_by=None)
         c.facets = query.facets
         c.fields = []
         c.package_count = query.count

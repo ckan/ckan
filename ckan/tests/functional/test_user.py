@@ -3,12 +3,17 @@ from nose.tools import assert_equal
 
 from ckan.tests import search_related, CreateTestData
 from ckan.tests.html_check import HtmlCheckMethods
+from ckan.tests.pylons_controller import PylonsTestCase
+from ckan.tests.mock_mail_server import SmtpServerHarness
 import ckan.model as model
 from base import FunctionalTestCase
+from ckan.lib.mailer import get_reset_link, create_reset_key
 
-class TestUserController(FunctionalTestCase, HtmlCheckMethods):
+class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, SmtpServerHarness):
     @classmethod
     def setup_class(self):
+        PylonsTestCase.setup_class()
+        SmtpServerHarness.setup_class()
         CreateTestData.create()
 
         # make 3 changes, authored by annafan
@@ -26,6 +31,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods):
         
     @classmethod
     def teardown_class(self):
+        SmtpServerHarness.teardown_class()
         model.repo.rebuild_db()
 
     def teardown(self):
@@ -444,3 +450,93 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods):
         # but for some reason this does not work ...
         return res
 
+    def test_request_reset_user_password_link_user_incorrect(self):
+        offset = url_for(controller='user',
+                         action='request_reset')
+        res = self.app.get(offset)
+        fv = res.forms['user-password-reset']
+        fv['user'] = 'unknown'
+        res = fv.submit()
+        main_res = self.main_div(res)
+        assert 'No such user: unknown' in main_res, main_res # error
+
+    def test_request_reset_user_password_using_search(self):
+        CreateTestData.create_user(name='larry1', email='kittens@john.com')
+        offset = url_for(controller='user',
+                         action='request_reset')
+        res = self.app.get(offset)
+        fv = res.forms['user-password-reset']
+        fv['user'] = 'kittens'
+        res = fv.submit()
+        assert_equal(res.status, 302)
+        assert_equal(res.header_dict['Location'], 'http://localhost/')
+
+        CreateTestData.create_user(name='larry2', fullname='kittens')
+        res = self.app.get(offset)
+        fv = res.forms['user-password-reset']
+        fv['user'] = 'kittens'
+        res = fv.submit()
+        main_res = self.main_div(res)
+        assert '"kittens" matched several users' in main_res, main_res
+        assert 'larry1' not in main_res, main_res
+        assert 'larry2' not in main_res, main_res
+
+        res = self.app.get(offset)
+        fv = res.forms['user-password-reset']
+        fv['user'] = ''
+        res = fv.submit()
+        main_res = self.main_div(res)
+        assert 'No such user:' in main_res, main_res
+
+        res = self.app.get(offset)
+        fv = res.forms['user-password-reset']
+        fv['user'] = 'l'
+        res = fv.submit()
+        main_res = self.main_div(res)
+        assert 'No such user:' in main_res, main_res
+
+    def test_reset_user_password_link(self):
+        # Set password
+        CreateTestData.create_user(name='bob', email='bob@bob.net', password='test1')
+        
+        # Set password to something new
+        model.User.by_name(u'bob').password = 'test2'
+        model.repo.commit_and_remove()
+        test2_encoded = model.User.by_name(u'bob').password
+        assert test2_encoded != 'test2'
+        assert model.User.by_name(u'bob').password == test2_encoded
+
+        # Click link from reset password email
+        create_reset_key(model.User.by_name(u'bob'))
+        reset_password_link = get_reset_link(model.User.by_name(u'bob'))
+        offset = reset_password_link.replace('http://test.ckan.net', '')
+        print offset
+        res = self.app.get(offset)
+
+        # Reset password form
+        fv = res.forms['user-reset']
+        fv['password1'] = 'test1'
+        fv['password2'] = 'test1'
+        res = fv.submit('save', status=302)
+
+        # Check a new password is stored
+        assert model.User.by_name(u'bob').password != test2_encoded
+
+    def test_perform_reset_user_password_link_key_incorrect(self):
+        CreateTestData.create_user(name='jack', password='test1')
+        # Make up a key - i.e. trying to hack this
+        user = model.User.by_name(u'jack')
+        offset = url_for(controller='user',
+                         action='perform_reset',
+                         id=user.id,
+                         key='randomness') # i.e. incorrect
+        res = self.app.get(offset, status=403) # error
+
+    def test_perform_reset_user_password_link_user_incorrect(self):
+        # Make up a key - i.e. trying to hack this
+        user = model.User.by_name(u'jack')
+        offset = url_for(controller='user',
+                         action='perform_reset',
+                         id='randomness',  # i.e. incorrect
+                         key='randomness')
+        res = self.app.get(offset, status=404)
