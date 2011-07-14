@@ -167,7 +167,7 @@ def config_0(name,
              db_user=None,
              db_pass='',
              db_host='localhost',
-             user=None
+             user='okfn'
         ):
     '''Configurable configuration: fab -d gives full info.
     
