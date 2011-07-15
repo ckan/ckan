@@ -15,9 +15,10 @@ from ckan.lib.dictization.model_dictize import (package_to_api1,
 
 
 def package_list(context, data_dict):
+    '''Lists the package by name'''
     model = context["model"]
     user = context["user"]
-    api = context["api_version"]
+    api = context.get("api_version", '1')
     ref_package_by = 'id' if api == '2' else 'name'
 
     query = ckan.authz.Authorizer().authorized_query(user, model.Package)

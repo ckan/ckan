@@ -154,6 +154,7 @@ def package_update(context, data_dict):
     preview = context.get('preview', False)
     schema = context.get('schema') or default_update_package_schema()
     model.Session.remove()
+    model.Session()._context = context
 
     pkg = model.Package.get(id)
     context["package"] = pkg

@@ -37,6 +37,7 @@ def package_create(context, data_dict):
     preview = context.get('preview', False)
     schema = context.get('schema') or default_create_package_schema()
     model.Session.remove()
+    model.Session()._context = context
 
     check_access(model.System(), model.Action.PACKAGE_CREATE, context)
     check_group_auth(context, data_dict)
@@ -83,7 +84,6 @@ def resource_create(context, data_dict):
     data, errors = validate(data_dict,
                             default_resource_schema(),
                             context)
-
 
 def package_relationship_create(context, data_dict):
 

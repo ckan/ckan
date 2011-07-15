@@ -30,6 +30,8 @@ CONTENT_TYPES = {
     }
 class ApiController(BaseController):
 
+    _actions = {}
+
     def __call__(self, environ, start_response):
         self._identify_user()
         if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
@@ -128,30 +130,40 @@ class ApiController(BaseController):
         response_data['version'] = ver or '1'
         return self._finish_ok(response_data) 
 
-    def get_action(self, action):
-        if hasattr(self, '_actions'):
-            return self._actions[action]
+    @classmethod
+    def create_actions(cls):
+        if cls._actions:
+            return 
+        for name, action in get.__dict__.iteritems():
+            if not name.startswith('_') and callable(action):
+                cls._actions[name] = action
+        for name, action in update.__dict__.iteritems():
+            if not name.startswith('_') and callable(action):
+                cls._actions[name] = action
+        for name, action in create.__dict__.iteritems():
+            if not name.startswith('_') and callable(action):
+                cls._actions[name] = action
 
-        self._actions = {}
-        for name, function in get.__dict__:
-            if not (name.startswith('_') and callable(action) and name == action):
-                self.action[name] = function
-        for name, function in update.__dict__:
-            if not (name.startswith('_') and callable(action) and name == action):
-                self.action[name] = function
-        for name, function in create.__dict__:
-            if not (name.startswith('_') and callable(action) and name == action):
-                self.action[name] = function
+    def get_action(self, action):
+        self.create_actions()
         return self._actions[action]
+
+    @classmethod
+    def register_action(cls, name, function):
+        cls.create_actions()
+        cls._actions[name] = function
     
-    def action(self, action):
-        function = self.get_action(action)
+    def action(self, logic_function):
+        function = self.get_action(logic_function)
+        
         context = {'model': model, 'session': model.Session, 'user': c.user}
+        model.Session()._context = context
         return_dict = {'help': function.__doc__}
 
         try:
             request_data = self._get_request_data()
         except ValueError, inst:
+
             return self._finish_bad_request(
                 gettext('JSON Error: %s') % str(inst))
         try:
@@ -165,12 +177,12 @@ class ApiController(BaseController):
         except NotAuthorized:
             return_dict['error'] = {'__type': 'Authorization Error',
                                     'message': _('Access denied')}
-            result['success'] = False
+            return_dict['success'] = False
         except ValidationError, e:
             error_dict = e.error_dict 
             error_dict['__type'] = 'Validtion Error'
             return_dict['error'] = error_dict
-            result['success'] = False
+            return_dict['success'] = False
             log.error('Validation error: %r' % str(e.error_dict))
         return self._finish_ok(return_dict)
 
@@ -557,4 +569,5 @@ class ApiController(BaseController):
             }
             resultSet["ResultSet"]["Result"].append(result)
         return self._finish_ok(resultSet)
+
 
