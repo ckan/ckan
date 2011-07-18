@@ -230,10 +230,12 @@ def make_map():
     # Note: openid users have slashes in their ids, so need the wildcard
     # in the route.
     map.connect('/user/edit/{id:.*}', controller='user', action='edit')
+    map.connect('/user/reset/{id:.*}', controller='user', action='perform_reset')
     map.connect('/user/register', controller='user', action='register')
     map.connect('/user/login', controller='user', action='login')
     map.connect('/user/logged_in', controller='user', action='logged_in')
     map.connect('/user/logged_out', controller='user', action='logged_out')
+    map.connect('/user/reset', controller='user', action='request_reset')
     map.connect('/user/me', controller='user', action='me')
     map.connect('/user/{id:.*}', controller='user', action='read')
     map.connect('/user', controller='user', action='index')

@@ -10,7 +10,7 @@ class HtmlCheckMethods(object):
     
     def named_div(self, div_name, html):
         'strips html to just the <div id="DIV_NAME"> section'
-        the_html = html.body.decode('utf8')
+        the_html = self._get_html_from_res(html)
         start_div = the_html.find(u'<div id="%s"' % div_name)
         end_div = the_html.find(u'<!-- #%s -->' % div_name)
         if end_div == -1:
@@ -94,7 +94,7 @@ class HtmlCheckMethods(object):
         if partly_matching_tags:
             assert 0, "Couldn't find %s in html. Closest matches were:\n%s" % (', '.join(["'%s'" % html.encode('utf8') for html in html_to_find]), '\n'.join([tag.encode('utf8') for tag in partly_matching_tags]))
         else:
-            assert 0, "Couldn't find %s in html. Tags matched were:\n%s" % (', '.join(["'%s'" % html.encode('utf8') for html in html_to_find]), '\n'.join([tag.encode('utf8') for tag in regex_compiled.finditer(html_str)]))
+            assert 0, "Couldn't find %s in html. Tags matched were:\n%s" % (', '.join(["'%s'" % html.encode('utf8') for html in html_to_find]), '\n'.join([tag.group() for tag in regex_compiled.finditer(html_str)]))
 
 
 
