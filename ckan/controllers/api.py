@@ -178,12 +178,14 @@ class ApiController(BaseController):
             return_dict['error'] = {'__type': 'Authorization Error',
                                     'message': _('Access denied')}
             return_dict['success'] = False
+            return self._finish(403, return_dict, content_type='json')
         except ValidationError, e:
             error_dict = e.error_dict 
             error_dict['__type'] = 'Validtion Error'
             return_dict['error'] = error_dict
             return_dict['success'] = False
             log.error('Validation error: %r' % str(e.error_dict))
+            return self._finish(409, return_dict, content_type='json')
         return self._finish_ok(return_dict)
 
     def list(self, ver=None, register=None, subregister=None, id=None):
