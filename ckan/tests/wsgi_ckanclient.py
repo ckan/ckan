@@ -2,7 +2,12 @@ import urllib
 
 import paste.fixture
 
-from ckanclient import CkanClient, Request, CkanApiError
+from ckanclient import CkanClient, CkanApiError
+try:
+    from ckanclient import ApiRequest
+except ImportError:
+    # older versions of ckanclient
+    from ckanclient import Request as ApiRequest
 
 __all__ = ['WsgiCkanClient', 'ClientError']
 
@@ -27,7 +32,7 @@ class WsgiCkanClient(CkanClient):
         if data != None:
             data = urllib.urlencode({data: 1})
         # Don't use request beyond getting the method
-        req = Request(location, data, headers, method=method)
+        req = ApiRequest(location, data, headers, method=method)
 
         # Make header values ascii strings
         for key, value in headers.items():
