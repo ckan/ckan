@@ -10,9 +10,9 @@ babel==0.9.4
 psycopg2==2.0.13
 lxml==2.2.4
 sphinx==0.6.4
-# Specifying not to use later webob because of incompatibility
+# Specifying particular version of WebOb because later version has incompatibility
 # with pylons 0.9.7 (change to imports of Multidict)
-webob<=1.0.8
+webob==1.0.8
 Pylons==0.9.7
 repoze.who==1.0.18
 tempita==0.4

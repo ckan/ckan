@@ -74,7 +74,7 @@ class HomeController(BaseController):
                 abort(400, _('Invalid language specified'))
             h.flash_notice(_("Language has been set to: English"))
         else:
-            h.flash_notice(_("No language given!"))
+            abort(400, _("No language given!"))
         return_to = get_redirect()
         if not return_to:
             # no need for error, just don't redirect

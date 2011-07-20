@@ -111,15 +111,16 @@ class UserController(BaseController):
         return render('user/register.html')
 
     def login(self):
+        if 'error' in request.params:
+            h.flash_error(request.params['error'])
         return render('user/login.html')
     
     def logged_in(self):
-        if c.user:
-            userobj = model.User.by_name(c.user)
-            response.set_cookie("ckan_user", userobj.name)
-            response.set_cookie("ckan_display_name", userobj.display_name)
-            response.set_cookie("ckan_apikey", userobj.apikey)
-            h.flash_success(_("Welcome back, %s") % userobj.display_name)
+        if c.userobj:
+            response.set_cookie("ckan_user", c.userobj.name)
+            response.set_cookie("ckan_display_name", c.userobj.display_name)
+            response.set_cookie("ckan_apikey", c.userobj.apikey)
+            h.flash_success(_("Welcome back, %s") % c.userobj.display_name)
             h.redirect_to(controller='user', action='me', id=None)
         else:
             h.flash_error('Login failed. Bad username or password.')
@@ -136,10 +137,10 @@ class UserController(BaseController):
         if id is not None:
             user = model.User.get(id)
         else:
-            user = model.User.by_name(c.user)
+            user = c.userobj
         if user is None:
             abort(404)
-        currentuser = model.User.by_name(c.user)
+        currentuser = c.userobj
         if not (ckan.authz.Authorizer().is_sysadmin(unicode(c.user)) or user == currentuser):
             abort(401)
         c.userobj = user

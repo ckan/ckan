@@ -401,6 +401,12 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert 'looks like spam' in main_res, main_res
         assert 'Edit User: ' in main_res, main_res
 
+    def test_login_openid_error(self):
+        # comes back as a params like this:
+        # e.g. /user/login?error=Error%20in%20discovery:%20Error%20fetching%20XRDS%20document:%20(6,%20%22Couldn't%20resolve%20host%20'mysite.myopenid.com'%22)
+        res = self.app.get("/user/login?error=Error%20in%20discovery:%20Error%20fetching%20XRDS%20document:%20(6,%20%22Couldn't%20resolve%20host%20'mysite.myopenid.com'%22")
+        main_res = self.main_div(res)
+        assert "Couldn't resolve host" in main_res, main_res
 
     ############
     # Disabled
