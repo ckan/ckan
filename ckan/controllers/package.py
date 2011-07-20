@@ -170,10 +170,6 @@ class PackageController(BaseController):
         # revision may have more than one package in it.
         return str(hash((pkg.id, pkg.latest_related_revision.id, c.user, pkg.get_average_rating())))
 
-    def _clear_pkg_cache(self, pkg):
-        read_cache = cache.get_cache('package/read.html', type='dbm')
-        read_cache.remove_value(self._pkg_cache_key(pkg))
-
     @proxy_cache()
     def read(self, id):
         context = {'model': model, 'session': model.Session,
@@ -729,7 +725,7 @@ class PackageController(BaseController):
         package = model.Package.get(package_name)
         if package is None:
             abort(404, gettext('Package Not Found'))
-        self._clear_pkg_cache(package)
+        #self._clear_pkg_cache(package)
         rating = request.params.get('rating', '')
         if rating:
             try:
