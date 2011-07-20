@@ -743,7 +743,7 @@ class PackageController(BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
 
-        data_dict = {'query':q}
+        data_dict = {'q':q}
 
         packages = get.package_autocomplete(context,data_dict)
 

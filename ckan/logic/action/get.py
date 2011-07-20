@@ -257,11 +257,11 @@ def group_show_rest(context, data_dict):
     return group_dict
 
 def package_autocomplete(context, data_dict):
-
+    '''Returns packages containing the provided string'''
     model = context['model']
     session = context['session']
     user = context['user']
-    q = data_dict['query']
+    q = data_dict['q']
 
     like_q = u"%s%%" % q
 
@@ -278,3 +278,7 @@ def package_autocomplete(context, data_dict):
         pkg_list.append(result_dict)
 
     return pkg_list
+
+def package_search(context, data_dict):
+    pass
+

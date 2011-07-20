@@ -22,9 +22,11 @@ class TestAction(WsgiAppCase):
                                         "result": ["annakarenina", "warandpeace"]}
 
     def test_02_package_autocomplete(self):
-        query = 'a'
-        res = self.app.get('/package/autocomplete?q=%s' % query)
-        assert res.body == "annakarenina|annakarenina\nA Wonderful Story (warandpeace)|warandpeace"
+        postparams = '%s=1' % json.dumps({'q':'a'})
+        res = self.app.post('/api/action/package_autocomplete', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj['success'] == True
+        assert res_obj['result'][0]['name'] == 'annakarenina'
 
     def test_03_create_update_package(self):
 
