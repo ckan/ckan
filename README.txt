@@ -371,6 +371,11 @@ Common problems running tests
 
         python -c "import pylons"
 
+* `OperationalError: (OperationalError) no such function: plainto_tsquery ...`
+
+   This error usually results from running a test which involves search functionality, which requires using a PostgreSQL database, but another (such as SQLite) is configured. The particular test is either missing a `@search_related` decorator or there is a mixup with the test configuration files leading to the wrong database being used.
+
+
 Testing extensions
 ------------------
 
