@@ -1,4 +1,6 @@
 from sqlalchemy.sql import select
+from sqlalchemy import or_
+
 from ckan.logic import NotFound, check_access
 from ckan.plugins import (PluginImplementations,
                           IGroupController,
@@ -254,3 +256,25 @@ def group_show_rest(context, data_dict):
 
     return group_dict
 
+def package_autocomplete(context, data_dict):
+
+    model = context['model']
+    session = context['session']
+    user = context['user']
+    q = data_dict['query']
+
+    like_q = u"%s%%" % q
+
+    #TODO: Auth
+    pkg_query = ckan.authz.Authorizer().authorized_query(user, model.Package)
+    pkg_query = session.query(model.Package) \
+                    .filter(or_(model.Package.name.ilike(like_q),
+                                model.Package.title.ilike(like_q)))
+    pkg_query = pkg_query.limit(10)
+
+    pkg_list = []
+    for package in pkg_query:
+        result_dict = table_dictize(package, context)
+        pkg_list.append(result_dict)
+
+    return pkg_list

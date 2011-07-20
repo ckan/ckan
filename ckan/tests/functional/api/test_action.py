@@ -21,7 +21,12 @@ class TestAction(WsgiAppCase):
                                         "success": True,
                                         "result": ["annakarenina", "warandpeace"]}
 
-    def test_02_create_update_package(self):
+    def test_02_package_autocomplete(self):
+        query = 'a'
+        res = self.app.get('/package/autocomplete?q=%s' % query)
+        assert res.body == "annakarenina|annakarenina\nA Wonderful Story (warandpeace)|warandpeace"
+
+    def test_03_create_update_package(self):
 
         package = {
             'author': None,
@@ -69,4 +74,5 @@ class TestAction(WsgiAppCase):
         package_created.pop('revision_id')
         package_created.pop('revision_timestamp')
         assert package_updated == package_created#, (pformat(json.loads(res.body)), pformat(package_created['result']))
+
 
