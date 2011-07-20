@@ -257,39 +257,48 @@ class PackageController(BaseController):
                 params['diff_entity'] = 'package'
                 h.redirect_to(controller='revision', action='diff', **params)
 
-        c.pkg = model.Package.get(id)
-        if not c.pkg:
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author,
+                   'extras_as_string': True,}
+        data_dict = {'id':id}
+        try:
+            c.pkg_dict = get.package_show(context, data_dict)
+            c.pkg_revisions = get.package_revision_list(context, data_dict)
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read package %s') % '')
+        except NotFound:
             abort(404, _('Package not found'))
+
         format = request.params.get('format', '')
         if format == 'atom':
             # Generate and return Atom 1.0 document.
             from webhelpers.feedgenerator import Atom1Feed
             feed = Atom1Feed(
                 title=_(u'CKAN Package Revision History'),
-                link=h.url_for(controller='revision', action='read', id=c.pkg.name),
-                description=_(u'Recent changes to CKAN Package: ') + (c.pkg.title or ''),
+                link=h.url_for(controller='revision', action='read', id=c.pkg_dict['name']),
+                description=_(u'Recent changes to CKAN Package: ') + (c.pkg_dict['title'] or ''),
                 language=unicode(get_lang()),
             )
-            for revision, obj_rev in c.pkg.all_related_revisions:
+            for revision_dict in c.pkg_revisions:
                 try:
                     dayHorizon = int(request.params.get('days'))
                 except:
                     dayHorizon = 30
                 try:
-                    dayAge = (datetime.now() - revision.timestamp).days
+                    dayAge = (datetime.now() - revision_dict['timestamp']).days
                 except:
                     dayAge = 0
                 if dayAge >= dayHorizon:
                     break
-                if revision.message:
-                    item_title = u'%s' % revision.message.split('\n')[0]
+                if revision_dict['message']:
+                    item_title = u'%s' % revision_dict['message'].split('\n')[0]
                 else:
-                    item_title = u'%s' % revision.id
-                item_link = h.url_for(controller='revision', action='read', id=revision.id)
+                    item_title = u'%s' % revision_dict['id']
+                item_link = h.url_for(controller='revision', action='read', id=revision_dict['id'])
                 item_description = _('Log message: ')
-                item_description += '%s' % (revision.message or '')
-                item_author_name = revision.author
-                item_pubdate = revision.timestamp
+                item_description += '%s' % (revision_dict['message'] or '')
+                item_author_name = revision_dict['author']
+                item_pubdate = datetime.datetime.strptime(revision_dict['timestamp'], '%Y-%m-%dT%H:%M:%S.%f')
                 feed.add_item(
                     title=item_title,
                     link=item_link,
@@ -299,7 +308,6 @@ class PackageController(BaseController):
                 )
             feed.content_type = 'application/atom+xml'
             return feed.writeString('utf-8')
-        c.pkg_revisions = c.pkg.all_related_revisions
         return render('package/history.html')
 
     def new(self, data=None, errors=None, error_summary=None):
@@ -387,21 +395,31 @@ class PackageController(BaseController):
 
     def history_ajax(self, id):
 
-        pkg = model.Package.get(id)
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author,
+                   'extras_as_string': True,}
+        data_dict = {'id':id}
+        try:
+            pkg_revisions = get.package_revision_list(context, data_dict)
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read package %s') % '')
+        except NotFound:
+            abort(404, _('Package not found'))
+
+
         data = []
         approved = False
-        for num, (revision, revision_obj) in enumerate(pkg.all_related_revisions):
-            if not approved and revision.approved_timestamp:
+        for num, revision in enumerate(pkg_revisions):
+            if not approved and revision['approved_timestamp']:
                 current_approved, approved = True, True
             else:
                 current_approved = False
             
-            data.append({'revision_id': revision.id,
-                         'message': revision.message,
-                         'timestamp': format_datetime(revision.timestamp, 
-                                                      locale=(get_lang() or ['en'])[0]),
-                         'author': revision.author,
-                         'approved': bool(revision.approved_timestamp),
+            data.append({'revision_id': revision['id'],
+                         'message': revision['message'],
+                         'timestamp': revision['timestamp'],
+                         'author': revision['author'],
+                         'approved': bool(revision['approved_timestamp']),
                          'current_approved': current_approved})
                 
         response.headers['Content-Type'] = 'application/json;charset=utf-8'
