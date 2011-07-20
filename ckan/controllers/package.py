@@ -717,23 +717,6 @@ class PackageController(BaseController):
 
         return render('package/authz.html')
 
-
-
-
-    def rate(self, id):
-        package_name = id
-        package = model.Package.get(package_name)
-        if package is None:
-            abort(404, gettext('Package Not Found'))
-        self._clear_pkg_cache(package)
-        rating = request.params.get('rating', '')
-        if rating:
-            try:
-                ckan.rating.set_my_rating(c, package, rating)
-            except ckan.rating.RatingValueException, e:
-                abort(400, gettext('Rating value invalid'))
-        h.redirect_to(controller='package', action='read', id=package_name, rating=str(rating))
-
     def autocomplete(self):
         q = unicode(request.params.get('q', ''))
         if not len(q): 
