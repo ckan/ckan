@@ -401,7 +401,7 @@ def backup():
     with cd(env.instance_path):
         assert exists(env.config_ini_filename), "Can't find config file: %s/%s" % (env.instance_path, env.config_ini_filename)
     db_details = _get_db_config()
-    assert db_details['db_type'] == 'postgres'
+    assert db_details['db_type'] in ('postgres', 'postgresql')
     port_option = '-p %s' % db_details['db_port'] if db_details['db_port'] else ''
     run('export PGPASSWORD=%s&&pg_dump -U %s -h %s %s %s > %s' % (db_details['db_pass'], db_details['db_user'], db_details['db_host'], port_option, db_details['db_name'], pg_dump_filepath), shell=False)
     assert exists(pg_dump_filepath)
