@@ -9,15 +9,18 @@ from ckan.lib.base import _
 from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 package_to_api1,
                                                 package_to_api2,
+                                                resource_dictize,
                                                 group_dictize,
                                                 group_to_api1,
                                                 group_to_api2)
 from ckan.lib.dictization.model_save import (group_api_to_dict,
                                              package_api_to_dict,
                                              group_dict_save,
-                                             package_dict_save)
+                                             package_dict_save,
+                                             resource_dict_save)
 from ckan.logic.schema import (default_update_group_schema,
-                               default_update_package_schema)
+                               default_update_package_schema,
+                               default_update_resource_schema)
 from ckan.lib.navl.dictization_functions import validate
 log = logging.getLogger(__name__)
 
@@ -32,6 +35,18 @@ def package_error_summary(error_dict):
         if key == 'resources':
             error_summary[_('Resources')] = _('Package resource(s) incomplete')
         elif key == 'extras':
+            error_summary[_('Extras')] = _('Missing Value')
+        elif key == 'extras_validation':
+            error_summary[_('Extras')] = error[0]
+        else:
+            error_summary[_(prettify(key))] = error[0]
+    return error_summary
+
+def resource_error_summary(error_dict):
+
+    error_summary = {}
+    for key, error in error_dict.iteritems():
+        if key == 'extras':
             error_summary[_('Extras')] = _('Missing Value')
         elif key == 'extras_validation':
             error_summary[_('Extras')] = error[0]
@@ -144,6 +159,42 @@ def make_latest_pending_package_active(context):
     
     session.commit()        
     session.remove()        
+
+
+def resource_update(data_dict, context):
+    model = context['model']
+    user = context['user']
+    id = context["id"]
+    schema = context.get('schema') or default_update_resource_schema()
+    model.Session.remove()
+
+    resource = model.Resource.get(id)
+    context["resource"] = resource
+
+    if resource is None:
+        raise NotFound(_('Resource was not found.'))
+    context["id"] = resource.id
+
+    # TODO: check_access needs to be called against the package 
+    #       rather than the resource
+    check_access(resource, model.Action.EDIT, context)
+
+    data, errors = validate(data_dict, schema, context)
+
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors, resource_error_summary(errors))
+
+    rev = model.repo.new_revision()
+    rev.author = user
+    if 'message' in context:
+        rev.message = context['message']
+    else:
+        rev.message = _(u'REST API: Update object %s') % data.get("name")
+
+    resource = resource_dict_save(data, context)
+    model.repo.commit()        
+    return resource_dictize(resource, context)
 
 
 def package_update(data_dict, context):

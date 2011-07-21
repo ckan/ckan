@@ -81,6 +81,15 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
         if self.resource_group and not core_columns_only:
             _dict["package_id"] = self.resource_group.package_id
         return _dict
+
+    @classmethod
+    def get(cls, reference):
+        '''Returns a resource object referenced by its id.'''
+        query = Session.query(ResourceRevision).filter(ResourceRevision.id==reference)
+        query = query.filter(and_(
+            ResourceRevision.state == 'active', ResourceRevision.current == True
+        ))
+        return query.first()
         
     @classmethod
     def get_columns(cls, extra_columns=True):
