@@ -14,7 +14,7 @@ def resource_dict_save(res_dict, context):
     id = res_dict.get("id")
     
     if id:
-        obj = session.query(model.Resource).get(id)
+        obj = model.Resource.get(id)
 
     if not obj:
         obj = model.Resource()
