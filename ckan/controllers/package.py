@@ -19,7 +19,7 @@ from ckan.logic.schema import package_form_schema
 from ckan.lib.base import request, c, BaseController, model, abort, h, g, render
 from ckan.lib.base import etag_cache, response, redirect, gettext
 from ckan.authz import Authorizer
-from ckan.lib.search import query_for, SearchError
+from ckan.lib.search import SearchError
 from ckan.lib.cache import proxy_cache
 from ckan.lib.package_saver import PackageSaver, ValidationException
 from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
@@ -106,7 +106,6 @@ class PackageController(BaseController):
         except ValueError, e:
             abort(400, ('"page" parameter must be an integer'))
         limit = 20
-        query = query_for(model.Package)
 
         # most search operations should reset the page counter:
         params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
@@ -137,25 +136,30 @@ class PackageController(BaseController):
                         and len(value) and not param.startswith('_'):
                     c.fields.append((param, value))
 
-            query.run(query=q,
-                      fields=c.fields,
-                      facet_by=g.facets,
-                      limit=limit,
-                      offset=(page-1)*limit,
-                      return_objects=True,
-                      filter_by_openness=c.open_only,
-                      filter_by_downloadable=c.downloadable_only,
-                      username=c.user)
-                       
+            context = {'model': model, 'session': model.Session,
+                       'user': c.user or c.author}
+
+            data_dict = {'q':q,
+                         'fields':c.fields,
+                         'facet_by':g.facets,
+                         'limit':limit,
+                         'offset':(page-1)*limit,
+                         'return_objects':True,
+                         'filter_by_openness':c.open_only,
+                         'filter_by_downloadable':c.downloadable_only,
+                        }
+
+            query = get.package_search(context,data_dict)
+
             c.page = h.Page(
-                collection=query.results,
+                collection=query['results'],
                 page=page,
                 url=pager_url,
-                item_count=query.count,
+                item_count=query['count'],
                 items_per_page=limit
             )
-            c.facets = query.facets
-            c.page.items = query.results
+            c.facets = query['facets']
+            c.page.items = query['results']
         except SearchError, se:
             c.query_error = True
             c.facets = {}

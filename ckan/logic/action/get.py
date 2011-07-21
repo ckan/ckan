@@ -14,7 +14,7 @@ from ckan.lib.dictization.model_dictize import (package_to_api1,
                                                 package_dictize,
                                                 resource_list_dictize,
                                                 group_dictize)
-
+from ckan.lib.search import query_for
 
 def package_list(context, data_dict):
     '''Lists the package by name'''
@@ -280,5 +280,52 @@ def package_autocomplete(context, data_dict):
     return pkg_list
 
 def package_search(context, data_dict):
-    pass
+    model = context['model']
+    session = context['session']
+    user = context['user']
 
+    q=data_dict.get('q','')
+    fields=data_dict.get('fields',[])
+    facet_by=data_dict.get('facet_by',[])
+    limit=data_dict.get('limit',20)
+    offset=data_dict.get('offset',0)
+    return_objects=data_dict.get('return_objects',False)
+    filter_by_openness=data_dict.get('filter_by_openness',False)
+    filter_by_downloadable=data_dict.get('filter_by_downloadable',False)
+
+    query = query_for(model.Package)
+    query.run(query=q,
+              fields=fields,
+              facet_by=facet_by,
+              limit=limit,
+              offset=offset,
+              return_objects=return_objects,
+              filter_by_openness=filter_by_openness,
+              filter_by_downloadable=filter_by_downloadable,
+              username=user)
+    
+    results = []
+    for package in query.results:
+        result_dict = table_dictize(package, context)
+        resources = session.query(model.Resource)\
+                    .join(model.ResourceGroup)\
+                    .filter(model.ResourceGroup.package_id == package.id)\
+                    .all()
+        if resources:
+            result_dict['resources'] = resource_list_dictize(resources, context)
+        else:
+            result_dict['resources'] = []
+        license_id = result_dict['license_id']
+        if license_id:
+            isopen = model.Package.get_license_register()[license_id].isopen()
+            result_dict['isopen'] = isopen
+        else:
+            result_dict['isopen'] = False
+
+        results.append(result_dict)
+
+    return {
+        'count': query.count,
+        'facets': query.facets,
+        'results': results
+    }
