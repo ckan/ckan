@@ -190,6 +190,31 @@ def package_update(context, data_dict):
         return package_dictize(pkg, context)
     return data
 
+def package_update_validate(context, data_dict):
+    model = context['model']
+    user = context['user']
+    
+    id = data_dict["id"]
+    preview = context.get('preview', False)
+    schema = context.get('schema') or default_update_package_schema()
+    model.Session.remove()
+    model.Session()._context = context
+
+    pkg = model.Package.get(id)
+    context["package"] = pkg
+
+    if pkg is None:
+        raise NotFound(_('Package was not found.'))
+    data_dict["id"] = pkg.id
+
+    check_access(pkg, model.Action.EDIT, context)
+    data, errors = validate(data_dict, schema, context)
+
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors, package_error_summary(errors))
+    return data
+
 
 def _update_package_relationship(relationship, comment, context):
     model = context['model']

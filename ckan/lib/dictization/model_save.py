@@ -126,7 +126,6 @@ def group_extras_save(extras_dicts, context):
     return result_dict
 
 def package_tag_list_save(tag_dicts, package, context):
-
     
     allow_partial_update = context.get("allow_partial_update", False)
     if not tag_dicts and allow_partial_update:
