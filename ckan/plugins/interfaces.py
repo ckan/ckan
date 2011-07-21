@@ -10,7 +10,8 @@ __all__ = [
     'IMiddleware',
     'IDomainObjectModification', 'IGroupController', 
     'IPackageController', 'IPluginObserver',
-    'IConfigurable', 'IConfigurer', 'IAuthorizer'
+    'IConfigurable', 'IConfigurer', 'IAuthorizer',
+    'IActions'
 ]
 
 from inspect import isclass
