@@ -11,6 +11,7 @@ from ckan.lib.search import query_for, QueryOptions, SearchError, DEFAULT_OPTION
 from ckan.plugins import PluginImplementations, IGroupController
 from ckan.lib.munge import munge_title_to_name
 from ckan.lib.navl.dictization_functions import DataError
+from ckan.logic import get_action
 import ckan.logic.action.get as get 
 import ckan.logic.action.create as create
 import ckan.logic.action.update as update
@@ -129,32 +130,9 @@ class ApiController(BaseController):
         response_data = {}
         response_data['version'] = ver or '1'
         return self._finish_ok(response_data) 
-
-    @classmethod
-    def create_actions(cls):
-        if cls._actions:
-            return 
-        for name, action in get.__dict__.iteritems():
-            if not name.startswith('_') and callable(action):
-                cls._actions[name] = action
-        for name, action in update.__dict__.iteritems():
-            if not name.startswith('_') and callable(action):
-                cls._actions[name] = action
-        for name, action in create.__dict__.iteritems():
-            if not name.startswith('_') and callable(action):
-                cls._actions[name] = action
-
-    def get_action(self, action):
-        self.create_actions()
-        return self._actions[action]
-
-    @classmethod
-    def register_action(cls, name, function):
-        cls.create_actions()
-        cls._actions[name] = function
     
     def action(self, logic_function):
-        function = self.get_action(logic_function)
+        function = get_action(logic_function)
         
         context = {'model': model, 'session': model.Session, 'user': c.user}
         model.Session()._context = context
@@ -254,10 +232,10 @@ class ApiController(BaseController):
     def create(self, ver=None, register=None, subregister=None, id=None, id2=None):
 
         action_map = {
-            ('package', 'relationships'): create.package_relationship_create,
-             'group': create.group_create_rest,
-             'package': create.package_create_rest,
-             'rating': create.rating_create,
+            ('package', 'relationships'): get_action('package_relationship_create'),
+             'group': get_action('group_create_rest'),
+             'package': get_action('package_create_rest'),
+             'rating': get_action('rating_create'),
         }
 
         for type in model.PackageRelationship.get_all_types():
@@ -304,9 +282,9 @@ class ApiController(BaseController):
     def update(self, ver=None, register=None, subregister=None, id=None, id2=None):
 
         action_map = {
-            ('package', 'relationships'): update.package_relationship_update,
-             'package': update.package_update_rest,
-             'group': update.group_update_rest,
+            ('package', 'relationships'): get_action('package_relationship_update'),
+             'package': get_action('package_update_rest'),
+             'group': get_action('group_update_rest'),
         }
         for type in model.PackageRelationship.get_all_types():
             action_map[('package', type)] = update.package_relationship_update
