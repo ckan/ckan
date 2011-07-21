@@ -8,12 +8,17 @@ from ckan.plugins import (PluginImplementations,
 import ckan.authz
 
 from ckan.lib.dictization import table_dictize
-from ckan.lib.dictization.model_dictize import group_to_api1, group_to_api2
+from ckan.lib.dictization.model_dictize import (package_dictize,
+                                                resource_list_dictize,
+                                                group_dictize,
+                                                tag_dictize)
+
 from ckan.lib.dictization.model_dictize import (package_to_api1,
                                                 package_to_api2,
-                                                package_dictize,
-                                                resource_list_dictize,
-                                                group_dictize)
+                                                group_to_api1,
+                                                group_to_api2,
+                                                tag_to_api1,
+                                                tag_to_api2)
 from ckan.lib.search import query_for
 
 def package_list(context, data_dict):
@@ -119,10 +124,28 @@ def licence_list(context, data_dict):
     return licences
 
 def tag_list(context, data_dict):
-    model = context["model"]
-    tags = model.Session.query(model.Tag).all() #TODO
+    model = context['model']
+    user = context['user']
+
+    q = data_dict.get('q','')
+    if q:
+        limit = data_dict.get('limit',25)
+        offset = data_dict.get('offset',0)
+        return_objects = data_dict.get('return_objects',True)
+
+        query = query_for(model.Tag, backend='sql')
+        query.run(query=q,
+                  limit=limit,
+                  offset=offset,
+                  return_objects=return_objects,
+                  username=user)
+        tags = query.results
+    else:
+        tags = model.Session.query(model.Tag).all() #TODO
+
     tag_list = [tag.name for tag in tags]
     return tag_list
+
 
 def package_relationships_list(context, data_dict):
 
@@ -220,10 +243,22 @@ def tag_show(context, data_dict):
     model = context['model']
     api = context.get('api_version') or '1'
     id = data_dict['id']
-    ref_package_by = 'id' if api == '2' else 'name'
-    obj = model.Tag.get(id) #TODO tags
-    if obj is None:
+    #ref_package_by = 'id' if api == '2' else 'name'
+
+    tag = model.Tag.get(id) #TODO tags
+    context['tag'] = tag
+
+    if tag is None:
         raise NotFound
+
+    tag_dict = tag_dictize(tag,context)
+    extended_packages = []
+    for package in tag_dict['packages']:
+        extended_packages.append(_extend_package_dict(package,context))
+
+    tag_dict['packages'] = extended_packages
+
+    return tag_dict
     package_list = [getattr(pkgtag.package, ref_package_by)
                     for pkgtag in obj.package_tags]
     return package_list 
@@ -255,6 +290,19 @@ def group_show_rest(context, data_dict):
         group_dict = group_to_api1(group, context)
 
     return group_dict
+
+def tag_show_rest(context, data_dict):
+
+    tag_show(context, data_dict)
+    api = context.get('api_version') or '1'
+    tag = context['tag']
+
+    if api == '2':
+        tag_dict = tag_to_api2(tag, context)
+    else:
+        tag_dict = tag_to_api1(tag, context)
+
+    return tag_dict
 
 def package_autocomplete(context, data_dict):
     '''Returns packages containing the provided string'''
@@ -307,20 +355,7 @@ def package_search(context, data_dict):
     results = []
     for package in query.results:
         result_dict = table_dictize(package, context)
-        resources = session.query(model.Resource)\
-                    .join(model.ResourceGroup)\
-                    .filter(model.ResourceGroup.package_id == package.id)\
-                    .all()
-        if resources:
-            result_dict['resources'] = resource_list_dictize(resources, context)
-        else:
-            result_dict['resources'] = []
-        license_id = result_dict['license_id']
-        if license_id:
-            isopen = model.Package.get_license_register()[license_id].isopen()
-            result_dict['isopen'] = isopen
-        else:
-            result_dict['isopen'] = False
+        result_dict = _extend_package_dict(result_dict,context)
 
         results.append(result_dict)
 
@@ -329,3 +364,23 @@ def package_search(context, data_dict):
         'facets': query.facets,
         'results': results
     }
+
+def _extend_package_dict(package_dict,context):
+    model = context['model']
+
+    resources = model.Session.query(model.Resource)\
+                .join(model.ResourceGroup)\
+                .filter(model.ResourceGroup.package_id == package_dict['id'])\
+                .all()
+    if resources:
+        package_dict['resources'] = resource_list_dictize(resources, context)
+    else:
+        package_dict['resources'] = []
+    license_id = package_dict['license_id']
+    if license_id:
+        isopen = model.Package.get_license_register()[license_id].isopen()
+        package_dict['isopen'] = isopen
+    else:
+        package_dict['isopen'] = False
+
+    return package_dict

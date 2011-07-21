@@ -220,7 +220,7 @@ class ApiController(BaseController):
         action_map = {
             'revision': get.revision_show,
             'group': get.group_show_rest,
-            'tag': get.tag_show,
+            'tag': get.tag_show_rest,
             'package': get.package_show_rest,
             ('package', 'relationships'): get.package_relationships_list,
         }

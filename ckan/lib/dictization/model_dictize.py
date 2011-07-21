@@ -157,6 +157,15 @@ def group_dictize(group, context):
 
     return result_dict
 
+def tag_dictize(tag, context):
+
+    result_dict = table_dictize(tag, context)
+
+    result_dict["packages"] = obj_list_dictize(
+        tag.packages_ordered, context)
+    
+    return result_dict 
+
 
 ## conversion to api
 
@@ -176,6 +185,15 @@ def group_to_api2(group, context):
     dictized["packages"] = sorted([package["id"] for package in dictized["packages"]])
     return dictized
 
+def tag_to_api1(tag, context):
+    
+    dictized = tag_dictize(tag, context)
+    return sorted([package["name"] for package in dictized["packages"]])
+
+def tag_to_api2(tag, context):
+
+    dictized = tag_dictize(tag, context)
+    return sorted([package["id"] for package in dictized["packages"]])
 
 def resource_dict_to_api(res_dict, package_id, context):
     res_dict.pop("revision_id")
