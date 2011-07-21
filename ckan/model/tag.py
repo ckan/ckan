@@ -1,4 +1,5 @@
 from sqlalchemy.orm import eagerload_all
+from sqlalchemy import and_
 import vdm.sqlalchemy
 
 from types import make_uuid
@@ -61,7 +62,9 @@ class Tag(DomainObject):
     def all(cls):
         q = Session.query(cls)
         q = q.distinct().join(PackageTagRevision)
-        q = q.filter(PackageTagRevision.state == 'active')
+        q = q.filter(and_(
+            PackageTagRevision.state == 'active', PackageTagRevision.current == True
+        ))
         return q
 
     @property
@@ -69,7 +72,9 @@ class Tag(DomainObject):
         q = Session.query(Package)
         q = q.join(PackageTagRevision)
         q = q.filter(PackageTagRevision.tag_id == self.id)
-        q = q.filter(PackageTagRevision.state == 'active')
+        q = q.filter(and_(
+            PackageTagRevision.state == 'active', PackageTagRevision.current == True
+        ))
         packages = [p for p in q]
         ourcmp = lambda pkg1, pkg2: cmp(pkg1.name, pkg2.name)
         return sorted(packages, cmp=ourcmp)
