@@ -5,6 +5,7 @@
 Consists of functions to typically be used within templates, but also
 available to Controllers. This module is available to templates as 'h'.
 """
+from datetime import datetime
 from webhelpers.html import escape, HTML, literal, url_escape
 from webhelpers.html.tools import mail_to
 from webhelpers.html.tags import *
@@ -209,3 +210,5 @@ def render_datetime(datetime_):
     else:
         return ''
 
+def time_ago_in_words_from_str(date_str, format='%Y-%m-%dT%H:%M:%S.%f',granularity='month'):
+    return date.time_ago_in_words(datetime.strptime(date_str, format), granularity=granularity)

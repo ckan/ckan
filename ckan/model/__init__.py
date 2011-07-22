@@ -226,7 +226,7 @@ def strptimestamp(s):
 def strftimestamp(t):
     return t.isoformat()
 
-def revision_as_dict(revision, include_packages=True, ref_package_by='name'):
+def revision_as_dict(revision, include_packages=True, include_groups=True,ref_package_by='name'):
     revision_dict = OrderedDict((
         ('id', revision.id),
         ('timestamp', strftimestamp(revision.timestamp)),
@@ -237,4 +237,8 @@ def revision_as_dict(revision, include_packages=True, ref_package_by='name'):
     if include_packages:
         revision_dict['packages'] = [getattr(pkg, ref_package_by) \
                                      for pkg in revision.packages]
+    if include_groups:
+        revision_dict['groups'] = [getattr(grp, ref_package_by) \
+                                     for grp in revision.groups]
+       
     return revision_dict

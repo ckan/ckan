@@ -77,4 +77,30 @@ class TestAction(WsgiAppCase):
         package_created.pop('revision_timestamp')
         assert package_updated == package_created#, (pformat(json.loads(res.body)), pformat(package_created['result']))
 
+    def test_04_user_list(self):
+        postparams = '%s=1' % json.dumps({})
+        res = self.app.post('/api/action/user_list', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj['help'] == 'Lists the current users'
+        assert res_obj['success'] == True
+        assert len(res_obj['result']) == 7
+        assert res_obj['result'][0]['name'] == 'annafan'
+        assert res_obj['result'][0]['about'] == 'I love reading Annakarenina. My site: <a href="http://anna.com">anna.com</a>'
+        assert not 'apikey' in res_obj['result'][0]
+
+    def test_05_user_show(self):
+        postparams = '%s=1' % json.dumps({'id':'annafan'})
+        res = self.app.post('/api/action/user_show', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj['help'] == 'Shows user details'
+        assert res_obj['success'] == True
+        result = res_obj['result']
+        assert result['name'] == 'annafan'
+        assert result['about'] == 'I love reading Annakarenina. My site: <a href="http://anna.com">anna.com</a>'
+        assert 'apikey' in result
+        assert 'activity' in result
+        assert 'created' in result
+        assert 'display_name' in result
+        assert 'number_administered_packages' in result
+        assert 'number_of_edits' in result
 

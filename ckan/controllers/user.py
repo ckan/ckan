@@ -1,12 +1,13 @@
 import logging
 
 import genshi
-from sqlalchemy import or_, func, desc
 from urllib import quote
 
 import ckan.misc
 from ckan.lib.base import *
 from ckan.lib import mailer
+
+import ckan.logic.action.get as get
 
 log = logging.getLogger(__name__)
 
@@ -15,7 +16,7 @@ def login_form():
 
 class UserController(BaseController):
 
-    def index(self, id=None):
+    def index(self):
         LIMIT = 20
 
         if not self.authorizer.am_authorized(c, model.Action.USER_READ, model.System):
@@ -25,25 +26,18 @@ class UserController(BaseController):
         c.q  = request.params.get('q', '')
         c.order_by = request.params.get('order_by', 'name')
 
-        query = model.Session.query(model.User, func.count(model.User.id))
-        if c.q:
-            query = model.User.search(c.q, query)
+        context = {'model': model,
+                   'user': c.user or c.author}
 
-        if c.order_by == 'edits':
-            query = query.join((model.Revision, or_(
-                    model.Revision.author==model.User.name,
-                    model.Revision.author==model.User.openid
-                    )))
-            query = query.group_by(model.User)
-            query = query.order_by(desc(func.count(model.User.id)))
-        else:
-            query = query.group_by(model.User)
-            query = query.order_by(model.User.name)
+        data_dict = {'q':c.q,
+                     'order_by':c.order_by}
+
+        users_list = get.user_list(context,data_dict)
 
         c.page = h.Page(
-            collection=query,
+            collection=users_list,
             page=page,
-            item_count=query.count(),
+            item_count=len(users_list),
             items_per_page=LIMIT
             )
         return render('user/list.html')
@@ -51,21 +45,21 @@ class UserController(BaseController):
     def read(self, id=None):
         if not self.authorizer.am_authorized(c, model.Action.USER_READ, model.System):
             abort(401, _('Not authorized to see this page'))
-        if id:
-            user = model.User.get(id)
-        else:
-            user = c.userobj
-        if not user:
+
+        context = {'model': model,
+                   'user': c.user or c.author}
+
+        data_dict = {'id':id,
+                     'user':c.userobj}
+
+        user_dict = get.user_show(context,data_dict)
+        if not user_dict:
             h.redirect_to(controller='user', action='login', id=None)
-        c.read_user = user.display_name
-        c.is_myself = user.name == c.user
-        c.api_key = user.apikey
-        c.about_formatted = self._format_about(user.about)
-        revisions_q = model.Session.query(model.Revision
-                ).filter_by(author=user.name)
-        c.num_edits = user.number_of_edits()
-        c.num_pkg_admin = user.number_administered_packages()
-        c.activity = revisions_q.limit(20).all()
+
+        c.user_dict = user_dict
+        c.is_myself = user_dict['name'] == c.user
+        c.about_formatted = self._format_about(user_dict['about'])
+
         return render('user/read.html')
     
     def me(self):

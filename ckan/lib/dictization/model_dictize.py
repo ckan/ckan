@@ -166,6 +166,17 @@ def tag_dictize(tag, context):
     
     return result_dict 
 
+def user_dictize(user, context):
+
+    result_dict = table_dictize(user, context)
+
+    del result_dict['password']
+    
+    result_dict['display_name'] = user.display_name
+    result_dict['number_of_edits'] = user.number_of_edits()
+    result_dict['number_administered_packages'] = user.number_administered_packages()
+
+    return result_dict 
 
 ## conversion to api
 

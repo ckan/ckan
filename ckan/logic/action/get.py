@@ -1,5 +1,5 @@
 from sqlalchemy.sql import select
-from sqlalchemy import or_
+from sqlalchemy import or_, func, desc
 
 from ckan.logic import NotFound, check_access
 from ckan.plugins import (PluginImplementations,
@@ -11,7 +11,8 @@ from ckan.lib.dictization import table_dictize
 from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 resource_list_dictize,
                                                 group_dictize,
-                                                tag_dictize)
+                                                tag_dictize,
+                                                user_dictize)
 
 from ckan.lib.dictization.model_dictize import (package_to_api1,
                                                 package_to_api2,
@@ -81,7 +82,8 @@ def package_revision_list(context, data_dict):
     revision_dicts = []
     for revision, object_revisions in pkg.all_related_revisions:
         revision_dicts.append(model.revision_as_dict(revision,
-                                                     include_packages=False))
+                                                     include_packages=False,
+                                                     include_groups=False))
     return revision_dicts
 
 def group_list(context, data_dict):
@@ -146,6 +148,37 @@ def tag_list(context, data_dict):
     tag_list = [tag.name for tag in tags]
     return tag_list
 
+def user_list(context, data_dict):
+    '''Lists the current users'''
+    model = context['model']
+    user = context['user']
+
+    q = data_dict.get('q','')
+    order_by = data_dict.get('order_by','name')
+
+    query = model.Session.query(model.User, func.count(model.User.id))
+    if q:
+        query = model.User.search(q, query)
+
+    if order_by == 'edits':
+        query = query.join((model.Revision, or_(
+                model.Revision.author==model.User.name,
+                model.Revision.author==model.User.openid
+                )))
+        query = query.group_by(model.User)
+        query = query.order_by(desc(func.count(model.User.id)))
+    else:
+        query = query.group_by(model.User)
+        query = query.order_by(model.User.name)
+
+    users_list = []
+
+    for user in query.all():
+        result_dict = user_dictize(user[0], context)
+        del result_dict['apikey']
+        users_list.append(result_dict)
+
+    return users_list
 
 def package_relationships_list(context, data_dict):
 
@@ -243,9 +276,8 @@ def tag_show(context, data_dict):
     model = context['model']
     api = context.get('api_version') or '1'
     id = data_dict['id']
-    #ref_package_by = 'id' if api == '2' else 'name'
 
-    tag = model.Tag.get(id) #TODO tags
+    tag = model.Tag.get(id)
     context['tag'] = tag
 
     if tag is None:
@@ -259,10 +291,36 @@ def tag_show(context, data_dict):
     tag_dict['packages'] = extended_packages
 
     return tag_dict
-    package_list = [getattr(pkgtag.package, ref_package_by)
-                    for pkgtag in obj.package_tags]
-    return package_list 
 
+def user_show(context, data_dict):
+    '''Shows user details'''
+    model = context['model']
+
+    id = data_dict.get('id',None)
+    provided_user = data_dict.get('user',None)
+    if id:
+        user = model.User.get(id)
+        context['user'] = user
+    elif provided_user:
+        context['user'] = user = provided_user
+    else:
+        return None
+
+    user_dict = user_dictize(user,context)
+
+
+    revisions_q = model.Session.query(model.Revision
+            ).filter_by(author=user.name)
+    
+    revisions_list = []
+    for revision in revisions_q.limit(20).all():
+        revision_dict = revision_show(context,{'id':revision.id})
+        revision_dict['state'] = revision.state
+        revisions_list.append(revision_dict)
+
+    user_dict['activity'] = revisions_list
+
+    return user_dict
 
 def package_show_rest(context, data_dict):
 
