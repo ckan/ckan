@@ -126,6 +126,7 @@ def licence_list(context, data_dict):
     return licences
 
 def tag_list(context, data_dict):
+    '''Lists tags by name'''
     model = context['model']
     user = context['user']
 
@@ -273,6 +274,8 @@ def group_show(context, data_dict):
 
 
 def tag_show(context, data_dict):
+    '''Shows tag details'''
+
     model = context['model']
     api = context.get('api_version') or '1'
     id = data_dict['id']

@@ -104,3 +104,21 @@ class TestAction(WsgiAppCase):
         assert 'number_administered_packages' in result
         assert 'number_of_edits' in result
 
+    def test_06_tag_list(self):
+        postparams = '%s=1' % json.dumps({})
+        res = self.app.post('/api/action/tag_list', params=postparams)
+        assert json.loads(res.body) == {'help': 'Lists tags by name',
+                                        'success': True,
+                                        'result': ['russian', 'tolstoy']}
+
+    def test_07_tag_show(self):
+        postparams = '%s=1' % json.dumps({'id':'russian'})
+        res = self.app.post('/api/action/tag_show', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj['help'] == 'Shows tag details'
+        assert res_obj['success'] == True
+        result = res_obj['result']
+        assert result['name'] == 'russian'
+        assert 'id' in result
+        assert 'packages' in result and len(result['packages']) == 3 
+        assert [package['name'] for package in result['packages']].sort() == ['annakarenina', 'warandpeace', 'moo'].sort()
