@@ -176,14 +176,24 @@ class PackageController(BaseController):
                    'user': c.user or c.author, 'extras_as_string': True,
                    'schema': self._form_to_db_schema(),
                    'id': id}
+
+        # interpret @<revision_id> or @<date> suffix
         split = id.split('@')
         if len(split) == 2:
-            context['id'], revision = split
-            try:
-                date = datetime.datetime(*map(int, re.split('[^\d]', revision)))
-                context['revision_date'] = date
-            except ValueError:
-                context['revision_id'] = revision
+            context['id'], revision_ref = split
+            if model.is_id(revision_ref):
+                context['revision_id'] = revision_ref
+            else:
+                try:
+                    date = model.strptimestamp(revision_ref)
+                    context['revision_date'] = date
+                except TypeError, e:
+                    abort(400, _('Invalid revision format: %r') % e.args)
+                except ValueError, e:
+                    abort(400, _('Invalid revision format: %r') % e.args)
+        elif len(split) > 2:
+            abort(400, _('Invalid revision format: %r') % 'Too many "@" symbols')
+            
         #check if package exists
         try:
             c.pkg_dict = get.package_show(context)

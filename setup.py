@@ -65,6 +65,9 @@ setup(
     rights = ckan.lib.authztool:RightsCommand
     roles = ckan.lib.authztool:RolesCommand
     
+    [console_scripts]
+    ckan-admin = bin.ckan_admin:Command
+
     [paste.paster_create_template]
     ckanext=ckan.pastertemplates:CkanextTemplate
 
