@@ -139,12 +139,19 @@ def package_tag_list_save(tag_dicts, package, context):
     tag_package_tag = dict((package_tag.tag, package_tag) 
                             for package_tag in
                             package.package_tag_all)
+    
+    tag_package_tag_inactive = dict(
+        [ (tag,pt) for tag,pt in tag_package_tag.items() if
+            pt.state in ['deleted', 'pending-deleted'] ]
+        )
 
     tags = set()
     for tag_dict in tag_dicts:
         obj = table_dict_save(tag_dict, model.Tag, context)
         tags.add(obj)
 
+    # 3 cases
+    # case 1: currently active but not in new list
     for tag in set(tag_package_tag.keys()) - tags:
         package_tag = tag_package_tag[tag]
         if pending and package_tag.state <> 'deleted':
@@ -152,11 +159,18 @@ def package_tag_list_save(tag_dicts, package, context):
         else:
             package_tag.state = 'deleted'
 
+    # in new list but never used before
     for tag in tags - set(tag_package_tag.keys()):
         state = 'pending' if pending else 'active'
         package_tag_obj = model.PackageTag(package, tag, state)
         session.add(package_tag_obj)
         tag_package_tag[tag] = package_tag_obj
+
+    # in new list and already used but in deleted state
+    for tag in tags.intersection(set(tag_package_tag_inactive.keys())):
+        state = 'pending' if pending else 'active'
+        package_tag = tag_package_tag[tag]
+        package_tag.state = state
 
     package.package_tag_all[:] = tag_package_tag.values()
 

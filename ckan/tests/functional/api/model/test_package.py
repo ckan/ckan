@@ -419,6 +419,37 @@ class PackagesTestCase(BaseModelApiTestCase):
         # - title
         assert len(package.extras) == 1, package.extras
 
+    def test_entity_update_readd_tag(self):
+        name = self.package_fixture_data['name']
+        old_fixture_data = {
+            'name': name,
+            'tags': ['tag1', 'tag2']
+        }
+        new_fixture_data = {
+            'name': name,
+            'tags': ['tag1']
+        }
+        self.create_package_roles_revision(old_fixture_data)
+        offset = self.package_offset(name)
+        params = '%s=1' % self.dumps(new_fixture_data)
+        res = self.app.post(offset, params=params, status=self.STATUS_200_OK,
+                            extra_environ=self.extra_environ)
+
+        # Check the returned package is as expected
+        pkg = self.loads(res.body)
+        assert_equal(pkg['name'], new_fixture_data['name'])
+        assert_equal(pkg['tags'], ['tag1'])
+
+        package = self.get_package_by_name(new_fixture_data['name'])
+        assert len(package.tags) == 1, package.tags
+
+        # now reinstate the tag
+        params = '%s=1' % self.dumps(old_fixture_data)
+        res = self.app.post(offset, params=params, status=self.STATUS_200_OK,
+                            extra_environ=self.extra_environ)
+        pkg = self.loads(res.body)
+        assert_equal(pkg['tags'], ['tag1', 'tag2'])
+
     def test_entity_update_conflict(self):
         package1_name = self.package_fixture_data['name']
         package1_data = {'name': package1_name}
