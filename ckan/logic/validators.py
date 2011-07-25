@@ -1,6 +1,6 @@
 import re
 from pylons.i18n import _, ungettext, N_, gettext
-from ckan.lib.navl.dictization_functions import Invalid, missing, unflatten
+from ckan.lib.navl.dictization_functions import Invalid, Missing, missing, unflatten
 from ckan.authz import Authorizer
 
 def package_id_not_changed(value, context):
@@ -168,3 +168,52 @@ def ignore_not_admin(key, data, errors, context):
 
     data.pop(key)
 
+def user_name_validator(value,context):
+    model = context['model']
+
+    if not model.User.check_name_valid(value):
+        raise Invalid(
+            _('That login name is not valid. It must be at least 3 characters, restricted to alphanumerics and these symbols: %s') % '_\-'
+        )
+
+    if not model.User.check_name_available(value):
+        raise Invalid(
+            _("That login name is not available.")
+        )
+
+    return value
+
+def user_both_passwords_entered(key, data, errors, context):
+    
+    password1 = data.get(('password1',),None)
+    password2 = data.get(('password2',),None)
+
+    if password1 is None or password1 == '' or \
+       password2 is None or password2 == '':
+        errors[('password',)].append(_('Please enter both passwords'))
+
+def user_password_validator(key, data, errors, context):
+    value = data[key]
+       
+    if not isinstance(value, Missing) and not len(value) >= 4:
+        errors[('password',)].append(_('Your password must be 4 characters or longer'))
+
+def user_passwords_match(key, data, errors, context):
+    
+    password1 = data.get(('password1',),None)
+    password2 = data.get(('password2',),None)
+
+    if not password1 == password2:
+        errors[key].append(_('The passwords you entered do not match'))
+    else:
+        #Set correct password
+        data[('password',)] = password1
+
+def user_password_not_empty(key, data, errors, context):
+    '''Only check if password is present if the user is created via action API.
+       If not, user_both_passwords_entered will handle the validation'''
+     
+    if not ('password1',) in data and not ('password2',) in data:
+        password = data.get(('password',),None)
+        if not password:
+            errors[key].append(_('Missing value'))

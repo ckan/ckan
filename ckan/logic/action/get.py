@@ -304,13 +304,14 @@ def user_show(context, data_dict):
     if id:
         user = model.User.get(id)
         context['user'] = user
+        if user is None:
+            raise NotFound
     elif provided_user:
         context['user'] = user = provided_user
     else:
         return None
 
     user_dict = user_dictize(user,context)
-
 
     revisions_q = model.Session.query(model.Revision
             ).filter_by(author=user.name)

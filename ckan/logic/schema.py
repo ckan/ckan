@@ -20,7 +20,12 @@ from ckan.logic.validators import (package_id_not_changed,
                                    duplicate_extras_key,
                                    ignore_not_admin,
                                    no_http,
-                                   tag_not_uppercase)
+                                   tag_not_uppercase,
+                                   user_name_validator,
+                                   user_password_validator,
+                                   user_both_passwords_entered,
+                                   user_passwords_match,
+                                   user_password_not_empty)
 from formencode.validators import OneOf
 import ckan.model
 
@@ -185,4 +190,27 @@ def default_relationship_schema():
          'state': [ignore],
      }
 
+def default_user_schema():
+
+    schema = {
+        'id': [ignore_missing, unicode],
+        'name': [not_empty, unicode, user_name_validator],
+        'fullname': [ignore_missing, unicode],
+        'password': [user_password_validator, user_password_not_empty, ignore_missing, unicode],
+        'email': [ignore_missing, unicode],
+        'about': [ignore_missing, unicode],
+        'created': [ignore],
+        'openid': [ignore],
+        'apikey': [ignore],
+        'reset_key': [ignore],
+    }
+    return schema
+
+def user_form_schema():
+    schema = default_user_schema()
+    
+    schema['password1'] = [unicode,user_both_passwords_entered,user_password_validator,user_passwords_match]
+    schema['password2'] = [unicode]
+
+    return schema
 

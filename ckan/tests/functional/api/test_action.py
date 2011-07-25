@@ -6,9 +6,21 @@ from pprint import pprint, pformat
 
 class TestAction(WsgiAppCase):
 
+    STATUS_200_OK = 200
+    STATUS_201_CREATED = 201
+    STATUS_400_BAD_REQUEST = 400
+    STATUS_403_ACCESS_DENIED = 403
+    STATUS_404_NOT_FOUND = 404
+    STATUS_409_CONFLICT = 409
+
+    sysadmin_user = None
+
+
     @classmethod
     def setup_class(self):
         CreateTestData.create()
+
+        self.sysadmin_user = model.User.get('testsysadmin')
 
     @classmethod
     def teardown_class(self):
@@ -120,5 +132,71 @@ class TestAction(WsgiAppCase):
         result = res_obj['result']
         assert result['name'] == 'russian'
         assert 'id' in result
-        assert 'packages' in result and len(result['packages']) == 3 
+        assert 'packages' in result and len(result['packages']) == 3
         assert [package['name'] for package in result['packages']].sort() == ['annakarenina', 'warandpeace', 'moo'].sort()
+
+    def test_08_user_create_not_authorized(self):
+        postparams = '%s=1' % json.dumps({'name':'test_create_from_action_api', 'password':'testpass'})
+        res = self.app.post('/api/action/user_create', params=postparams,
+                            status=self.STATUS_403_ACCESS_DENIED)
+        res_obj = json.loads(res.body)
+        assert res_obj == {'help': 'Creates a new user',
+                           'success': False,
+                           'error': {'message': 'Access denied', '__type': 'Authorization Error'}}
+
+    def test_09_user_create(self):
+        user_dict = {'name':'test_create_from_action_api',
+                      'about': 'Just a test user',
+                      'password':'testpass'}
+
+        postparams = '%s=1' % json.dumps(user_dict)
+        res = self.app.post('/api/action/user_create', params=postparams,
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
+        res_obj = json.loads(res.body)
+        assert res_obj['help'] == 'Creates a new user'
+        assert res_obj['success'] == True
+        result = res_obj['result']
+        assert result['name'] == user_dict['name']
+        assert result['about'] == user_dict['about']
+        assert 'apikey' in result
+        assert 'created' in result
+        assert 'display_name' in result
+        assert 'number_administered_packages' in result
+        assert 'number_of_edits' in result
+
+    def test_10_user_create_parameters_missing(self):
+        user_dict = {}
+
+        postparams = '%s=1' % json.dumps(user_dict)
+        res = self.app.post('/api/action/user_create', params=postparams,
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+                            status=self.STATUS_409_CONFLICT)
+        res_obj = json.loads(res.body)
+        assert res_obj == {
+            'error': {
+                '__type': 'Validation Error',
+                'name': ['Missing value'],
+                'password': ['Missing value']
+            },
+            'help': 'Creates a new user',
+            'success': False
+        }
+
+    def test_11_user_create_wrong_password(self):
+        user_dict = {'name':'test_create_from_action_api_2',
+                      'password':'tes'} #Too short
+
+        postparams = '%s=1' % json.dumps(user_dict)
+        res = self.app.post('/api/action/user_create', params=postparams,
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+                            status=self.STATUS_409_CONFLICT)
+
+        res_obj = json.loads(res.body)
+        assert res_obj == {
+            'error': {
+                '__type': 'Validation Error',
+                'password': ['Your password must be 4 characters or longer']
+            },
+            'help': 'Creates a new user',
+            'success': False
+        }
