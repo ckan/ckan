@@ -181,7 +181,7 @@ class ApiController(BaseController):
             return self._finish(403, return_dict, content_type='json')
         except ValidationError, e:
             error_dict = e.error_dict 
-            error_dict['__type'] = 'Validtion Error'
+            error_dict['__type'] = 'Validation Error'
             return_dict['error'] = error_dict
             return_dict['success'] = False
             log.error('Validation error: %r' % str(e.error_dict))
