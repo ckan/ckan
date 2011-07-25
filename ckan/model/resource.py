@@ -87,7 +87,7 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
         '''Returns a resource object referenced by its id.'''
         query = Session.query(ResourceRevision).filter(ResourceRevision.id==reference)
         query = query.filter(and_(
-            ResourceRevision.state == 'active', ResourceRevision.current == True
+            ResourceRevision.state == u'active', ResourceRevision.current == True
         ))
         return query.first()
         
