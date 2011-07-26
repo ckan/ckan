@@ -1,13 +1,13 @@
-Setting up buildbot
-+++++++++++++++++++
+============
+Use Buildbot
+============
 
-These directions provide some rough information for setting up a build bot on a Lucid machine.
-
+This section provides information for CKAN core developers setting up buildbot on an Ubuntu Lucid machine.
 
 Apt Installs
 ============
 
-Install CKAN core dependencies from Lucid distribution (as per :doc:`README`)::
+Install CKAN core dependencies from Lucid distribution::
 
   sudo apt-get install build-essential libxml2-dev libxslt-dev 
   sudo apt-get install wget mercurial postgresql libpq-dev git-core
@@ -22,7 +22,7 @@ Buildbot software::
 
   sudo apt-get install buildbot
 
-Deb building software (as per :doc:`deb`)::
+Deb building software::
 
   sudo apt-get install -y dh-make devscripts fakeroot cdbs 
 
@@ -36,7 +36,7 @@ If you get errors with postgres and locales you might need to do these::
   sudo dpkg-reconfigure locales
 
 
-Postgres setup
+Postgres Setup
 ==============
 
 If installation before failed to create a cluster, do this after fixing errors::
@@ -51,7 +51,7 @@ Create users and databases::
   sudo -u postgres createdb -O buildslave ckanext
 
 
-Buildslave setup
+Buildslave Setup
 ================
 
 Rough commands::
@@ -74,7 +74,7 @@ Rough commands::
   pip -E pyenv-tools install buildkit
 
 
-Buildmaster setup
+Buildmaster Setup
 =================
 
 Rough commands::
@@ -113,23 +113,23 @@ Start master and slave (according to /etc/default/buildbot)::
 
   sudo /etc/init.d/buildbot start
 
-Now check you can view buildbot at: http://localhost:8010/
+Now check you can view buildbot at http://localhost:8010/
 
 
-Connect ports
+Connect Ports
 =============
 
 It's preferable to view the buildbot site at port 80 rather than 8010.
 
-If there is no other web service on this machine, you might connect up the addresses using iptables::
+If there is no other web service on this machine, you might connect up the addresses using ``iptables``::
 
   sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8010
 
-Otherwise it is best to do a reverse proxy. Using apache, edit this file::
+Otherwise it is best to set up a reverse proxy. Using Apache, edit this file::
 
   sudo vim /etc/apache2/sites-available/buildbot.okfn.org
 
-to be like this::
+to look like this::
 
   <VirtualHost *:80>
      ServerName buildbot.okfn.org

@@ -97,6 +97,7 @@ Returns:
 .. |site| replace:: CKAN
 .. |api| replace:: API
 .. |version| replace:: Version 2
+.. |warning| replace:: This is the latest version of the API. 
 .. |base_location| replace:: ``http://ckan.net/api/2``
 .. |main_doc| replace:: :doc:`../api`
 .. |usage| replace:: to view and change

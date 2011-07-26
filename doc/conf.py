@@ -94,7 +94,11 @@ pygments_style = 'sphinx'
 
 html_theme = 'default'
 html_theme_options = {
-'sidebarbgcolor': '#ffffff'
+"relbarbgcolor": "#777",
+'sidebarbgcolor': '#F2F2F2',
+'sidebartextcolor': 'black',
+'sidebarlinkcolor': '#355F7C',
+'headfont': 'Trebuchet MS'    
 }
 
 # The style sheet to use for HTML and HTML Help pages. A file of that name

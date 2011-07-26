@@ -2,34 +2,37 @@
 Welcome to CKAN's Administration Guide
 =======================================
 
-This Administration Guide covers how to set up and manage `CKAN <http://ckan.org>`_ (Comprehensive Knowledge Archive Network) software. For high-level information on what CKAN is and does, see http://ckan.org.
+This Administration Guide covers how to set up and manage `CKAN <http://ckan.org>`_ (Comprehensive Knowledge Archive Network) software. 
+
+* The first half of the Guide covers installation and common administration tasks, including theming and authorization. 
+* The second half (from :doc:`developer-install` onwards) covers advanced tasks, including extensions and forms. 
+
+For high-level information on what CKAN is, see the `CKAN website <http://ckan.org>`_.
 
 Contents:
 
 .. toctree::
    :maxdepth: 2
 
-   introduction
+   preparation
    install
-   deployment
    theming
-   i18n
+   loading_data
    paster
+   authorization
+   database_dumps
+   upgrade
+   i18n
+   configuration
+   api
+   developer-install
+   test
+   extensions
    plugins
-   loader_scripts
    forms
    form-integration
-   authentication
-   authorization
-   distributed
-   database_dumps
-   admin
-   deb
-   vm
-   api
    buildbot
-   test
-   upgrade
+   about
 
 Other material
 ==============

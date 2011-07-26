@@ -1,6 +1,6 @@
-=====
-Model
-=====
+============================
+Making Changes to Model Code
+============================
 
 The structure of the CKAN data is described in the 'model'. This is in the code at::
 

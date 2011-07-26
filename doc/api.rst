@@ -16,14 +16,19 @@
 
 .. #|version_3_doc| replace:: :doc:`api/version3`
 
-|site| |api|
-======================
+.. index:: API
+
+===========================
+Reference: The |site| |api|
+===========================
 
 .. toctree::
    :hidden:
    :maxdepth: 1
 
 The |site| |api| presents the catalog of metadata behind |site|.
+
+.. note:: This section contains general information about the |site| API. If you are looking for API documentation, please see |version_2_doc|.
 
 .. include:: api/overview.rst.inc
 

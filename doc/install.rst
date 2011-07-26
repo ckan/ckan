@@ -2,260 +2,97 @@
 Installation
 ============
 
-These are instructions to get developing with CKAN. Instructions for deploying
-CKAN to a server are at: :doc:`deployment` (doc/deployment.rst).
-
-Before you start it may be worth checking CKAN has passed the auto build and
-tests. See: http://buildbot.okfn.org/waterfall
-
-
-1. Ensure these packages are installed:
-
-   =====================  ===============================================
-   Package                Description
-   =====================  ===============================================
-   mercurial              Source control
-   python-dev             Python interpreter v2.5 - v2.7 and dev headers
-   postgresql             PostgreSQL database
-   libpq-dev              PostgreSQL library
-   python-psycopg2        PostgreSQL python module
-   libxml2-dev            XML library development files
-   libxslt-dev            XSLT library development files
-   python-virtualenv      Python virtual environments
-   wget                   Command line tool for downloading from the web
-   build-essential        Tools for building source code
-   git-core               Git source control (for getting MarkupSafe src)
-   subversion             Subversion source control (for pyutilib)
-   =====================  ===============================================
-
-   For Ubuntu you can install these like so:
-   
-   ::
-   
-       sudo apt-get install build-essential libxml2-dev libxslt-dev 
-       sudo apt-get install wget mercurial postgresql libpq-dev git-core
-       sudo apt-get install python-dev python-psycopg2 python-virtualenv
-       sudo apt-get install subversion
-   
-2. Create a python virtual environment
-   
-   In your home directory run the command below. It is currently important to
-   call your virtual environment ``pyenv`` so that the automated deployment tools
-   work correctly.
-   
-   ::
-   
-       cd ~
-       virtualenv pyenv
-   
-   .. tip ::
-   
-       If you don't have a ``python-virtualenv`` package in your distribution
-       you can get a ``virtualenv.py`` script from within the 
-       `virtualenv source distribution <http://pypi.python.org/pypi/virtualenv/>`_
-       and then run ``python virtualenv.py pyenv`` instead.
-   
-       To help with automatically installing CKAN dependencies we use a tool
-       called ``pip``. Make sure you have activated your environment (see step 3)
-       and then install it from an activated shell like this:
-   
-       ::
-   
-           easy_install pip
-   
-3. Activate your virtual environment
+After you have set up your Ubuntu 10.04 system, you can begin installing CKAN. 
 
-   To work with CKAN it is best to adjust your shell settings so that your
-   shell uses the virtual environment you just created. You can do this like
-   so:
+.. note:: CKAN currently requires Ubuntu 10.04. Before starting, you should set up Ubuntu 10.04 using VirtualBox or Amazon EC2. See :doc:`preparation`. 
 
-   ::
+Run the Package Installer
+=========================
 
-       . pyenv/bin/activate
+On your Ubuntu 10.04 system, open a terminal window and switch to the root user: 
 
-   When your shell is activated you will see the prompt change to something
-   like this:
+::
 
-   ::
+    sudo -s
 
-       (pyenv)[ckan@host ~/]$
+Install the CKAN packages as follows:
 
-   An activated shell looks in your virtual environment first when choosing
-   which commands to run. If you enter ``python`` now it will actually 
-   run ``~/pyenv/bin/python`` which is what you want.
+::
 
-4. Install CKAN code and required Python packages into the new environment
+	echo 'deb http://apt.okfn.org/ubuntu_ckan-std_dev lucid universe' > /etc/apt/sources.list.d/okfn.list
+	wget -qO-  http://apt.okfn.org/packages.okfn.key | sudo apt-key add -
+	apt-get update
+	apt-get install ckan-std
 
-   First you'll need to install CKAN. For the latest version run:
+Wait for the output to finish, then create your CKAN instance:
 
-   ::
+::
 
-       pip install --ignore-installed -e hg+http://bitbucket.org/okfn/ckan#egg=ckan
+    ckan-std-install
 
-   CKAN has a set of dependencies it requires which you should install too:
+If you are using Amazon EC2, you will additionally need to set the hostname of your server. To do this, run the command below, replacing ``ec2-46-51-149-132.eu-west-1.compute.amazonaws.com`` with the public DNS of your EC2 instance. Leave the ``/`` at the end, as it is part of the ``sed`` command. Then restart Apache. You can skip this if installing on VirtualBox or a local server. 
 
-   ::
+::
 
-       pip install --ignore-installed -r pyenv/src/ckan/requires/lucid_missing.txt -r pyenv/src/ckan/requires/lucid_conflict.txt
+    sudo sed -e "s/ServerAlias \(.*\)/ServerAlias ec2-46-51-149-132.eu-west-1.compute.amazonaws.com/" \
+             -i /etc/apache2/sites-available/std.common
+    sudo /etc/init.d/apache2 restart
 
-   The ``--ignore-installed`` option ensures ``pip`` installs software into
-   this virtual environment even if it is already present on the system.
+Finally visit your CKAN instance - either at your Amazon EC2 hostname, or at http://localhost. You'll be redirected to the login screen because you won't have set up any permissions yet, so the welcome screen will look something like this. 
 
-   If you are using Ubuntu Lucid you can install the rest of the dependencies
-   from the system versions like this:
+.. image :: images/9.png
+  :width: 807px
 
-   ::
+.. _create-admin-user:
 
-       sudo apt-get install python-psycopg2 python-lxml python-sphinx 
-       sudo apt-get install python-pylons python-formalchemy python-repoze.who
-       sudo apt-get install python-repoze.who-plugins python-tempita python-zope.interface
-       
-   If you are not using Ubuntu Lucid you'll still need to install all the
-   dependencies that would have been met in the ``apt-get install`` command
-   at the start. You can do so like this:
+Create an Admin User
+====================
 
-   ::
+By default, CKAN has a set of locked-down permissions. To begin
+working with it you need to set up a user and some permissions. 
 
-       pip install --ignore-installed -r pyenv/src/ckan/requires/lucid_present.txt
-   
-   This will take a **long** time. Particularly the install of the ``lxml``
-   package.
+First create an admin account from the command line (you must be root, ``sudo -s``):
 
-   At this point you will need to deactivate and then re-activate your
-   virtual environment to ensure that all the scripts point to the correct
-   locations:
+::
 
-   ::
-   
-       deactivate
-       . pyenv/bin/activate
+    paster --plugin=ckan user add admin --config=/etc/ckan/std/std.ini
 
-5. Setup a PostgreSQL database
+When prompted, enter a password - this is the password you will use to log in to CKAN. In the resulting output, note that you will also get assigned a CKAN API key.
 
-  List existing databases:
+.. note :: This command is your first introduction to some important CKAN concepts. 
+    * paster is the script used to run CKAN commands. 
+    * std.ini is the CKAN config file. You can change options in this file to configure CKAN. 
 
-  ::
+For exploratory purposes, you might was well make the ``admin`` user a
+sysadmin. You obviously wouldn't give most users these rights as they would
+then be able to do anything. You can make the ``admin`` user a sysadmin like
+this:
 
-      psql -l
+::
 
-  It is advisable to ensure that the encoding of databases is 'UTF8', or 
-  internationalisation may be a problem. Since changing the encoding of PostgreSQL
-  may mean deleting existing databases, it is suggested that this is fixed before
-  continuing with the CKAN install.
+    paster --plugin=ckan sysadmin add admin --config=/etc/ckan/std/std.ini
 
-  Next you'll need to create a database user if one doesn't already exist.
+You can now login to the CKAN frontend with the username ``admin`` and the password you set up.
 
-  .. tip ::
+.. _create-test-data:
 
-      If you choose a database name, user or password which are different from those 
-      suggested below then you'll need to update the configuration file you'll create in
-      the next step.
+Load Test Data
+==============
 
-  Here we choose ``ckantest`` as the database and ``ckanuser`` as the user:
+Finally, it can be handy to have some test data to start with. You can get test data like this:
 
-  ::
+::
 
-      sudo -u postgres createuser -S -D -R -P ckantest
+    paster --plugin=ckan create-test-data --config=/etc/ckan/std/std.ini
 
-  It should prompt you for a new password for the CKAN data in the database.
-  It is suggested you enter ``pass`` for the password.
+You now have a CKAN instance that you can log in to, with some test data to check everything
+works. 
 
-  Now create the database, which we'll call ``ckantest`` (the last argument):
+You can now proceed to :doc:`theming`.
 
-  ::
+Deployment Notes
+================
 
-      sudo -u postgres createdb -O ckantest ckantest
+Standard production deployment of CKAN is Apache with modwsgi. 
 
-6. Create a CKAN config file
-
-  Make sure you are in an activated environment (see step 3) so that Python
-  Paste and other modules are put on the python path (your command prompt will
-  start with ``(pyenv)`` if you have) then change into the ``ckan`` directory
-  which will have been created when you installed CKAN in step 4 and create the
-  config file ``development.ini`` using Paste:
-
-  ::
-
-      cd pyenv/src/ckan
-      paster make-config ckan development.ini
-
-  You can give your config file a different name but the tests will expect you
-  to have used ``development.ini`` so it is strongly recommended you use this
-  name, at least to start with.
-
-  If you used a different database name or password when creating the database
-  in step 5 you'll need to now edit ``development.ini`` and change the
-  ``sqlalchemy.url`` line, filling in the database name, user and password you used.
-
-  ::
-  
-      sqlalchemy.url = postgresql://ckantest:pass@localhost/ckantest
-
-  Other configuration, such as setting the language of the site or editing the
-  visual theme are described in :doc:`configuration` (doc/configuration.rst)  
-
-  .. caution ::
-
-     Advanced users: If you are using CKAN's fab file capability you currently need to create
-     your config file as ``pyenv/ckan.net.ini`` so you will probably have 
-     ignored the advice about creating a ``development.ini`` file in the 
-     ``pyenv/src/ckan`` directory. This is fine but CKAN probably won't be 
-     able to find your ``who.ini`` file. To fix this edit ``pyenv/ckan.net.ini``, 
-     search for the line ``who.config_file = %(here)s/who.ini`` and change it
-     to ``who.config_file = who.ini``.
-
-     We are moving to a new deployment system where this incompatibility 
-     will be fixed.
-
-7. Create database tables
-
-  Now that you have a configuration file that has the correct settings for
-  your database, you'll need to create the tables. Make sure you are still in an
-  activated environment with ``(pyenv)`` at the front of the command prompt and
-  then from the ``pyenv/src/ckan`` directory run this command:
-
-   ::
-
-       paster db init
-
-  You should see ``Initialising DB: SUCCESS``. If you are not in the
-  ``pyenv/src/ckan`` directory or you don't have an activated shell, the command
-  will not work.
-
-  If the command prompts for a password it is likely you haven't set up the 
-  database configuration correctly in step 6.
-
-8. Create the cache directory
-
-  You need to create the Pylon's cache directory specified by 'cache_dir' 
-  in the config file.
-
-  (from the ``pyenv/src/ckan`` directory):
-
-  ::
-
-      mkdir data
-
-
-9. Run the CKAN webserver
-
-  NB If you've started a new shell, you'll have to activate the environment
-  again first - see step 3.
-
-  (from the pyenv/src/ckan directory):
-
-  ::
-
-      paster serve development.ini
-
-10. Point your web browser at: http://127.0.0.1:5000/
-
-    The CKAN homepage should load without problems.
-
-If you ever want to upgrade to a more recent version of CKAN, read the
-``UPGRADE.txt`` file in ``pyenv/src/ckan/``.
-
-
-
-
-
+However CKAN has been successfully deployed via a variety of other methods including Apache reverse proxy + paster, nginx reverse proxy + paster, and nginx + uwsgi.
