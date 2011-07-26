@@ -25,7 +25,8 @@ from ckan.logic.validators import (package_id_not_changed,
                                    user_password_validator,
                                    user_both_passwords_entered,
                                    user_passwords_match,
-                                   user_password_not_empty)
+                                   user_password_not_empty,
+                                   user_about_validator)
 from formencode.validators import OneOf
 import ckan.model
 
@@ -198,7 +199,7 @@ def default_user_schema():
         'fullname': [ignore_missing, unicode],
         'password': [user_password_validator, user_password_not_empty, ignore_missing, unicode],
         'email': [ignore_missing, unicode],
-        'about': [ignore_missing, unicode],
+        'about': [ignore_missing, user_about_validator, unicode],
         'created': [ignore],
         'openid': [ignore],
         'apikey': [ignore],
@@ -206,11 +207,27 @@ def default_user_schema():
     }
     return schema
 
-def user_form_schema():
+def user_new_form_schema():
     schema = default_user_schema()
     
     schema['password1'] = [unicode,user_both_passwords_entered,user_password_validator,user_passwords_match]
     schema['password2'] = [unicode]
+
+    return schema
+
+def user_edit_form_schema():
+    schema = default_user_schema()
+
+    schema['name'] = [ignore_missing]   
+    schema['password1'] = [unicode,user_both_passwords_entered,user_password_validator,user_passwords_match]
+    schema['password2'] = [unicode]
+
+    return schema
+
+def default_update_user_schema():
+    schema = default_user_schema()
+    
+    schema['name'] = [ignore_missing]
 
     return schema
 

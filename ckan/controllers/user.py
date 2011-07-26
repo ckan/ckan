@@ -10,10 +10,11 @@ from ckan.authz import Authorizer
 from ckan.lib.navl.dictization_functions import DataError, unflatten
 from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.logic import tuplize_dict, clean_dict, parse_params
-from ckan.logic.schema import user_form_schema
+from ckan.logic.schema import user_new_form_schema, user_edit_form_schema 
 
 import ckan.logic.action.get as get
 import ckan.logic.action.create as create
+import ckan.logic.action.update as update
 
 log = logging.getLogger(__name__)
 
@@ -23,12 +24,20 @@ def login_form():
 class UserController(BaseController):
 
     ## hooks for subclasses 
-    user_form = 'user/new_user_form.html'
+    new_user_form = 'user/new_user_form.html'
+    edit_user_form = 'user/edit_user_form.html'
 
-    def _form_to_db_schema(self):
-        return user_form_schema()
+    def _new_form_to_db_schema(self):
+        return user_new_form_schema()
 
-    def _db_to_form_schema(self):
+    def _db_to_new_form_schema(self):
+        '''This is an interface to manipulate data from the database
+        into a format suitable for the form (optional)'''
+
+    def _edit_form_to_db_schema(self):
+        return user_edit_form_schema()
+
+    def _db_to_edit_form_schema(self):
         '''This is an interface to manipulate data from the database
         into a format suitable for the form (optional)'''
 
@@ -71,7 +80,7 @@ class UserController(BaseController):
                    'user': c.user or c.author}
 
         data_dict = {'id':id,
-                     'user':c.userobj}
+                     'user_obj':c.userobj}
         try:
             user_dict = get.user_show(context,data_dict)
         except NotFound:
@@ -98,7 +107,7 @@ class UserController(BaseController):
     def new(self, data=None, errors=None, error_summary=None):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
-                   'schema': self._form_to_db_schema(),
+                   'schema': self._new_form_to_db_schema(),
                    'save': 'save' in request.params}
 
         auth_for_create = Authorizer().am_authorized(c, model.Action.USER_CREATE, model.System())
@@ -114,7 +123,7 @@ class UserController(BaseController):
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
         self._setup_template_variables(context)
-        c.form = render(self.user_form, extra_vars=vars)
+        c.form = render(self.new_user_form, extra_vars=vars)
         return render('user/new.html')
 
     def _save_new(self, context):
@@ -134,6 +143,77 @@ class UserController(BaseController):
             errors = e.error_dict
             error_summary = e.error_summary
             return self.new(data_dict, errors, error_summary)
+
+    def edit(self, id, data=None, errors=None, error_summary=None):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author,
+                   'preview': 'preview' in request.params,
+                   'save': 'save' in request.params,
+                   'schema': self._edit_form_to_db_schema(),
+                   }
+        data_dict = {'id': id}
+
+        if (context['save'] or context['preview']) and not data:
+            return self._save_edit(id, context)
+
+        try:
+            old_data = get.user_show(context, data_dict)
+
+            schema = self._db_to_edit_form_schema()
+            if schema:
+                old_data, errors = validate(old_data, schema)
+
+            c.display_name = old_data.get('display_name')
+            c.user_name = old_data.get('name')
+
+            data = data or old_data
+
+        except NotAuthorized:
+            abort(401, _('Unauthorized to edit user %s') % '')
+
+        user_obj = context.get('user_obj')
+        
+        if not (ckan.authz.Authorizer().is_sysadmin(unicode(c.user)) or c.user == user_obj.name):
+            abort(401, _('User %s not authorized to edit %s') % (str(c.user), id))
+        
+        errors = errors or {}
+        vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
+
+        self._setup_template_variables(context)
+
+        c.form = render(self.edit_user_form, extra_vars=vars)
+
+        return render('user/edit.html')
+
+    def _save_edit(self, id, context):
+        try:
+            data_dict = clean_dict(unflatten(
+                tuplize_dict(parse_params(request.params))))
+            context['message'] = data_dict.get('log_message', '')
+            data_dict['id'] = id
+            user = update.user_update(context, data_dict)
+
+            if context['preview']:
+                about = request.params.getone('about')
+                c.preview = self._format_about(about)
+                c.user_about = about
+                c.full_name = request.params.get('fullname','')
+                c.email = request.params.getone('email')
+
+                return self.edit(id, data_dict)
+
+            h.redirect_to(controller='user', action='read', id=user['id'])
+        except NotAuthorized:
+            abort(401, _('Unauthorized to edit user %s') % id)
+        except NotFound, e:
+            abort(404, _('User not found'))
+        except DataError:
+            abort(400, _(u'Integrity Error'))
+        except ValidationError, e:
+            errors = e.error_dict
+            error_summary = e.error_summary
+            return self.edit(id, data_dict, errors, error_summary)
+
 
     def login(self):
         return render('user/login.html')
@@ -162,58 +242,6 @@ class UserController(BaseController):
         response.delete_cookie("ckan_display_name")
         response.delete_cookie("ckan_apikey")
         return render('user/logout.html')
-
-    def edit(self, id=None):
-        if id is not None:
-            user = model.User.get(id)
-        else:
-            user = model.User.by_name(c.user)
-        if user is None:
-            abort(404)
-        currentuser = model.User.by_name(c.user)
-        if not (ckan.authz.Authorizer().is_sysadmin(unicode(c.user)) or user == currentuser):
-            abort(401)
-        c.userobj = user
-        if not 'save' in request.params and not 'preview' in request.params:
-            c.user_about = user.about
-            c.user_fullname = user.fullname
-            c.user_email = user.email
-        elif 'preview' in request.params:
-            about = request.params.getone('about')
-            c.preview = self._format_about(about)
-            c.user_about = about
-            c.user_fullname = request.params.getone('fullname')
-            c.user_email = request.params.getone('email')
-        elif 'save' in request.params:
-            try:
-                about = request.params.getone('about')
-                if 'http://' in about or 'https://' in about:
-                    msg = _('Edit not allowed as it looks like spam. Please avoid links in your description.')
-                    h.flash_error(msg)
-                    c.user_about = about
-                    c.user_fullname = request.params.getone('fullname')
-                    c.user_email = request.params.getone('email')
-                    return render('user/edit.html')
-                user.about = about
-                user.fullname = request.params.getone('fullname')
-                user.email = request.params.getone('email')
-                try:
-                    password = self._get_form_password()
-                    if password: 
-                        user.password = password
-                except ValueError, ve:
-                    h.flash_error(ve)
-                    return render('user/edit.html')
-            except Exception, inst:
-                model.Session.rollback()
-                raise
-            else:
-                model.Session.commit()
-                h.flash_notice(_("Your account has been updated."))
-            response.set_cookie("ckan_display_name", user.display_name)
-            h.redirect_to(controller='user', action='read', id=user.id)
-            
-        return render('user/edit.html')
     
     def request_reset(self):
         if request.method == 'POST':

@@ -14,13 +14,16 @@ class TestAction(WsgiAppCase):
     STATUS_409_CONFLICT = 409
 
     sysadmin_user = None
-
+    
+    normal_user = None
 
     @classmethod
     def setup_class(self):
         CreateTestData.create()
 
         self.sysadmin_user = model.User.get('testsysadmin')
+
+        self.normal_user = model.User.get('annafan')
 
     @classmethod
     def teardown_class(self):
@@ -163,6 +166,7 @@ class TestAction(WsgiAppCase):
         assert 'display_name' in result
         assert 'number_administered_packages' in result
         assert 'number_of_edits' in result
+        assert not 'password' in result
 
     def test_10_user_create_parameters_missing(self):
         user_dict = {}
@@ -200,3 +204,79 @@ class TestAction(WsgiAppCase):
             'help': 'Creates a new user',
             'success': False
         }
+
+    def test_12_user_update(self):
+        normal_user_dict = {'id': self.normal_user.id,
+                            'password': self.normal_user.password,
+                            'fullname': 'Updated normal user full name',
+                            'about':'Updated normal user about'}
+
+        sysadmin_user_dict = {'id': self.sysadmin_user.id,
+                            'password': self.sysadmin_user.password,
+                            'fullname': 'Updated sysadmin user full name',
+                            'about':'Updated sysadmin user about'} 
+
+        #Normal users can update themselves
+        postparams = '%s=1' % json.dumps(normal_user_dict)
+        res = self.app.post('/api/action/user_update', params=postparams,
+                            extra_environ={'Authorization': str(self.normal_user.apikey)})
+
+        res_obj = json.loads(res.body)
+        assert res_obj['help'] == 'Updates the user\'s details'
+        assert res_obj['success'] == True
+        result = res_obj['result']
+        assert result['id'] == self.normal_user.id
+        assert result['name'] == self.normal_user.name
+        assert result['fullname'] == normal_user_dict['fullname']
+        assert result['about'] == normal_user_dict['about']
+        assert 'apikey' in result
+        assert 'created' in result
+        assert 'display_name' in result
+        assert 'number_administered_packages' in result
+        assert 'number_of_edits' in result
+        assert not 'password' in result
+
+        #Sysadmin users can update themselves
+        postparams = '%s=1' % json.dumps(sysadmin_user_dict)
+        res = self.app.post('/api/action/user_update', params=postparams,
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
+
+        res_obj = json.loads(res.body)
+        assert res_obj['help'] == 'Updates the user\'s details'
+        assert res_obj['success'] == True
+        result = res_obj['result']
+        assert result['id'] == self.sysadmin_user.id
+        assert result['name'] == self.sysadmin_user.name
+        assert result['fullname'] == sysadmin_user_dict['fullname']
+        assert result['about'] == sysadmin_user_dict['about']
+
+        #Sysadmin users can update all users
+        postparams = '%s=1' % json.dumps(normal_user_dict)
+        res = self.app.post('/api/action/user_update', params=postparams,
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
+
+        res_obj = json.loads(res.body)
+        assert res_obj['help'] == 'Updates the user\'s details'
+        assert res_obj['success'] == True
+        result = res_obj['result']
+        assert result['id'] == self.normal_user.id
+        assert result['name'] == self.normal_user.name
+        assert result['fullname'] == normal_user_dict['fullname']
+        assert result['about'] == normal_user_dict['about']
+
+        #Normal users can not update other users
+        postparams = '%s=1' % json.dumps(sysadmin_user_dict)
+        res = self.app.post('/api/action/user_update', params=postparams,
+                            extra_environ={'Authorization': str(self.normal_user.apikey)},
+                            status=self.STATUS_403_ACCESS_DENIED)
+
+        res_obj = json.loads(res.body)
+        assert res_obj == {
+            'error': {
+                '__type': 'Authorization Error',
+                'message': 'Access denied'
+            },
+            'help': 'Updates the user\'s details',
+            'success': False
+        }
+

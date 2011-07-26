@@ -300,14 +300,14 @@ def user_show(context, data_dict):
     model = context['model']
 
     id = data_dict.get('id',None)
-    provided_user = data_dict.get('user',None)
+    provided_user = data_dict.get('user_obj',None)
     if id:
         user = model.User.get(id)
-        context['user'] = user
+        context['user_obj'] = user
         if user is None:
             raise NotFound
     elif provided_user:
-        context['user'] = user = provided_user
+        context['user_obj'] = user = provided_user
     else:
         return None
 

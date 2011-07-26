@@ -1,6 +1,7 @@
 from routes import url_for
 from nose.tools import assert_equal
 
+from pprint import pprint
 from ckan.tests import search_related, CreateTestData
 from ckan.tests.html_check import HtmlCheckMethods
 import ckan.model as model
@@ -185,7 +186,6 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods):
         res = self.app.get(offset, status=200)
         main_res = self.main_div(res)
         assert 'Register' in main_res, main_res
-        from pprint import pprint
         fv = res.forms['user-edit']
         fv['name'] = username
         fv['fullname'] = fullname
@@ -389,8 +389,6 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods):
         # preview
         main_res = self.main_div(res)
         assert 'Edit User: testedit' in main_res, main_res
-        before_preview = main_res[:main_res.find('Preview')]
-        assert new_about in before_preview, before_preview
         in_preview = main_res[main_res.find('Preview'):]
         assert new_about in in_preview, in_preview
 

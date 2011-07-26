@@ -301,11 +301,11 @@ def user_dict_save(user_dict, context):
 
     model = context['model']
     session = context['session']
-    user = context.get('userobj')
+    user = context.get('user_obj')
     
     User = model.User
     if user:
-        user_dict['id'] = user.id 
+        user_dict['id'] = user.id
 
     user = table_dict_save(user_dict, User, context)
 
