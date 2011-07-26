@@ -102,34 +102,27 @@ tests. See: http://buildbot.okfn.org/waterfall
 
        pip install --ignore-installed -e hg+http://bitbucket.org/okfn/ckan#egg=ckan
 
-   CKAN has a set of dependencies it requires which you should install too:
+   CKAN has dependent packages it requires you install. They are listed in the three pyenv/src/ckan/requires files. 
 
-   ::
-
-       pip install --ignore-installed -r pyenv/src/ckan/requires/lucid_missing.txt -r pyenv/src/ckan/requires/lucid_conflict.txt
-
-   The ``--ignore-installed`` option ensures ``pip`` installs software into
-   this virtual environment even if it is already present on the system.
-
-   If you are using Ubuntu Lucid you can install the rest of the dependencies
-   from the system versions like this:
-
-   ::
+   If you are running Ubuntu Lucid then it is recommended you take advantage of the Lucid packages to cover the dependencies listed in lucid_present.txt. In this case you should install the Lucid present packages::
 
        sudo apt-get install python-psycopg2 python-lxml python-sphinx 
        sudo apt-get install python-pylons python-formalchemy python-repoze.who
        sudo apt-get install python-repoze.who-plugins python-tempita python-zope.interface
        
-   If you are not using Ubuntu Lucid you'll still need to install all the
-   dependencies that would have been met in the ``apt-get install`` command
-   at the start. You can do so like this:
+   And the remaining (non-Lucid) packages are installed like this::
 
-   ::
+       pip install --ignore-installed -r pyenv/src/ckan/requires/lucid_missing.txt -r pyenv/src/ckan/requires/lucid_conflict.txt
 
-       pip install --ignore-installed -r pyenv/src/ckan/requires/lucid_present.txt
+   If you are not using Ubuntu Lucid then should install all three sets of dependencies with this single command::
+
+       pip install --ignore-installed -r pyenv/src/ckan/requires/lucid_present.txt -r pyenv/src/ckan/requires/lucid_missing.txt -r pyenv/src/ckan/requires/lucid_conflict.txt
    
    This will take a **long** time. Particularly the install of the ``lxml``
    package.
+
+   The ``--ignore-installed`` option ensures ``pip`` installs software into
+   this virtual environment even if it is already present on the system. Because of this, to ensure you get a mutually agreeable version of WebOb installed, you shouldn't install each requirements file on its own with this option.
 
    At this point you will need to deactivate and then re-activate your
    virtual environment to ensure that all the scripts point to the correct
@@ -203,6 +196,10 @@ tests. See: http://buildbot.okfn.org/waterfall
 
   Other configuration, such as setting the language of the site or editing the
   visual theme are described in :doc:`configuration` (doc/configuration.rst)  
+
+  .. note :: 
+
+     If the paster command gives you ``ImportError: cannot import name UnicodeMultiDict`` then you have gotten a version of WebOb that is too new for our Pylons. This usually occurs if you install Remove WebOb and reinstall version 1.0.8.
 
   .. caution ::
 
