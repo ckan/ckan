@@ -246,32 +246,64 @@ class UserController(BaseController):
     def request_reset(self):
         if request.method == 'POST':
             id = request.params.get('user')
-            user = model.User.get(id)
-            if user is None:
-                h.flash_error(_('No such user: %s') % id)
+
+            context = {'model': model,
+                       'user': c.user}
+
+            data_dict = {'id':id}
+
             try:
-                mailer.send_reset_link(user)
-                h.flash_success(_('Please check your inbox for a reset code.'))
-                redirect('/')
-            except mailer.MailerException, e:
-                h.flash_error(_('Could not send reset link: %s') % unicode(e))
+                user_dict = get.user_show(context,data_dict)
+                user_obj = context['user_obj']
+
+                if user_dict is None:
+                    h.flash_error(_('No such user: %s') % id)
+                try:
+                    mailer.send_reset_link(user_obj)
+                    h.flash_success(_('Please check your inbox for a reset code.'))
+                    redirect('/')
+                except mailer.MailerException, e:
+                    h.flash_error(_('Could not send reset link: %s') % unicode(e))
+
+            except NotFound:
+                h.flash_error(_('No such user: %s') % id)
         return render('user/request_reset.html')
 
     def perform_reset(self, id):
-        user = model.User.get(id)
-        if user is None:
-            abort(404)
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user}
+
+        data_dict = {'id':id}
+
+        try:
+            user_dict = get.user_show(context,data_dict)
+            user_obj = context['user_obj']
+        except NotFound, e:
+            abort(404, _('User not found'))
+
         c.reset_key = request.params.get('key')
-        if not mailer.verify_reset_link(user, c.reset_key):
+        if not mailer.verify_reset_link(user_obj, c.reset_key):
             h.flash_error(_('Invalid reset key. Please try again.'))
             abort(403)
+
         if request.method == 'POST':
             try:
-                user.password = self._get_form_password()
-                model.Session.add(user)
-                model.Session.commit()
+                context['reset_password'] = True 
+                new_password = self._get_form_password()
+                user_dict['password'] = new_password
+                user_dict['reset_key'] = c.reset_key
+                user = update.user_update(context, user_dict)
+
                 h.flash_success(_("Your password has been reset."))
                 redirect('/')
+            except NotAuthorized:
+                h.flash_error(_('Unauthorized to edit user %s') % id)
+            except NotFound, e:
+                h.flash_error(_('User not found'))
+            except DataError:
+                h.flash_error(_(u'Integrity Error'))
+            except ValidationError, e:
+                h.flash_error(u'%r'% e.error_dict)
             except ValueError, ve:
                 h.flash_error(unicode(ve))
         return render('user/perform_reset.html')

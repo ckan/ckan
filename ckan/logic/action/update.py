@@ -293,7 +293,8 @@ def user_update(context, data_dict):
     if user_obj is None:
         raise NotFound('User was not found.')
 
-    if not (ckan.authz.Authorizer().is_sysadmin(unicode(user)) or user == user_obj.name):
+    if not (ckan.authz.Authorizer().is_sysadmin(unicode(user)) or user == user_obj.name) and \
+       not ('reset_key' in data_dict and data_dict['reset_key'] == user_obj['reset_key']):
         raise NotAuthorized( _('User %s not authorized to edit %s') % (str(user), id))
 
     data, errors = validate(data_dict, schema, context)
