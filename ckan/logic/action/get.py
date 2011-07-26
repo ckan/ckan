@@ -267,6 +267,8 @@ def revision_show(context, data_dict):
     return rev_dict
 
 def group_show(context, data_dict):
+    '''Shows group details'''
+
     model = context['model']
     id = data_dict['id']
     api = context.get('api_version') or '1'
@@ -277,6 +279,7 @@ def group_show(context, data_dict):
 
     if group is None:
         raise NotFound
+
     check_access(group, model.Action.READ, context)
 
     group_dict = group_dictize(group, context)

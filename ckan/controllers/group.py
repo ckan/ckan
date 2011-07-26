@@ -39,10 +39,6 @@ class GroupController(BaseController):
                 c, model.Action.CHANGE_STATE, group)
 
     ## end hooks
-
-    def __init__(self):
-        BaseController.__init__(self)
-        self.extensions = PluginImplementations(IGroupController)
     
     def index(self):
 
@@ -65,17 +61,21 @@ class GroupController(BaseController):
 
 
     def read(self, id):
-        c.group = model.Group.get(id)
-        if c.group is None:
-            abort(404)
-        auth_for_read = self.authorizer.am_authorized(c, model.Action.READ, c.group)
-        if not auth_for_read:
-            abort(401, _('Not authorized to read %s') % id.encode('utf8'))
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author,
+                   'schema': self._form_to_db_schema()}
+        data_dict = {'id': id}
+        try:
+            c.group_dict = get.group_show(context, data_dict)
+            c.group = context['group']
+        except NotFound:
+            abort(404, _('Group not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read group %s') % id)
         
-        import ckan.misc
-        format = ckan.misc.MarkdownFormat()
-        desc_formatted = format.to_html(c.group.description)
-        try: 
+        try:
+ 
+            desc_formatted = ckan.misc.MarkdownFormat().to_html(c.group.description)
             desc_formatted = genshi.HTML(desc_formatted)
         except genshi.ParseError, e:
             log.error('Could not print group description: %r Error: %r', c.group.description, e)
@@ -88,8 +88,7 @@ class GroupController(BaseController):
             page=request.params.get('page', 1),
             items_per_page=50
         )
-        for extension in self.extensions:
-            extension.read(c.group)
+
         return render('group/read.html')
 
     def new(self, data=None, errors=None, error_summary=None):

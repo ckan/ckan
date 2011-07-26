@@ -305,3 +305,35 @@ class TestAction(WsgiAppCase):
         assert 'id' in res_obj['result'][0]
         assert 'revision_id' in res_obj['result'][0]
         assert 'state' in res_obj['result'][0]
+
+    def test_14_group_show(self):
+        postparams = '%s=1' % json.dumps({'id':'david'})
+        res = self.app.post('/api/action/group_show', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj['help'] == 'Shows group details'
+        assert res_obj['success'] == True
+        result = res_obj['result']
+        assert result['name'] == 'david'
+        assert result['title'] == result['display_name'] == 'Dave\'s books'
+        assert result['state'] == 'active'
+        assert 'id' in result
+        assert 'revision_id' in result
+        assert len(result['packages']) == 2
+
+        #Group not found
+        postparams = '%s=1' % json.dumps({'id':'not_present_in_the_db'})
+        res = self.app.post('/api/action/group_show', params=postparams,
+                            status=self.STATUS_404_NOT_FOUND)
+
+        res_obj = json.loads(res.body)
+        pprint(res_obj)
+        assert res_obj == {
+            'error': {
+                '__type': 'Not Found Error',
+                'message': 'Not found'
+            },
+            'help': 'Shows group details',
+            'success': False
+        }
+
+
