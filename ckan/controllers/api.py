@@ -179,6 +179,11 @@ class ApiController(BaseController):
                                     'message': _('Access denied')}
             return_dict['success'] = False
             return self._finish(403, return_dict, content_type='json')
+        except NotFound:
+            return_dict['error'] = {'__type': 'Not Found Error',
+                                    'message': _('Not found')}
+            return_dict['success'] = False
+            return self._finish(404, return_dict, content_type='json')
         except ValidationError, e:
             error_dict = e.error_dict 
             error_dict['__type'] = 'Validation Error'
