@@ -49,8 +49,12 @@ def current_package_list_with_resources(context):
         result_dict["resources"] = resource_list_dictize(result, context)
         license_id = result_dict['license_id']
         if license_id:
-            isopen = model.Package.get_license_register()[license_id].isopen()
-            result_dict['isopen'] = isopen
+            try:
+                isopen = model.Package.get_license_register()[license_id].isopen()
+                result_dict['isopen'] = isopen
+            except KeyError:
+                # TODO: create a log message this error?
+                result_dict['isopen'] = False 
         else:
             result_dict['isopen'] = False
         package_list.append(result_dict)
