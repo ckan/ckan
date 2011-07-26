@@ -45,15 +45,19 @@ class GroupController(BaseController):
         self.extensions = PluginImplementations(IGroupController)
     
     def index(self):
-        
+
         if not self.authorizer.am_authorized(c, model.Action.SITE_READ, model.System):
             abort(401, _('Not authorized to see this page'))
-        
-        query = authz.Authorizer().authorized_query(c.user, model.Group)
-        query = query.order_by(model.Group.name.asc())
-        query = query.order_by(model.Group.title.asc())
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        data_dict = {'all_fields': True}
+               
+        results = get.group_list(context,data_dict)
+
         c.page = Page(
-            collection=query,
+            collection=results,
             page=request.params.get('page', 1),
             items_per_page=20
         )

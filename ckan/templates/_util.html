@@ -161,7 +161,20 @@
     </tr>
     </py:for>
   </table>
-  
+
+  <!--! List of data package groups: pass in a collection of data package groups 
+        and this renders the standard group listing. Same as the above, but using dictionaries -->
+  <table py:def="group_list_from_dict(groups)" class="groups">
+    <tr><th>Title</th><th>Number of packages</th><th>Description</th></tr>
+    <py:for each="group in groups">
+    <tr>
+      <td><a href="${h.url_for(controller='group', action='read', id=group['name'])}">${group['display_name']}</a></td>
+      <td>${group['packages']}</td>
+      <td>${h.truncate(group['description'], length=80, whole_word=True)}</td>
+    </tr>
+    </py:for>
+  </table>
+ 
   <!--! List of authorization groups: pass in a collection of authorization groups and 
         this renders the standard group listing -->
   <table py:def="authorization_group_list(authorization_groups)" class="authorization_groups">

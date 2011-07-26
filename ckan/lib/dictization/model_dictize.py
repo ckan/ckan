@@ -11,7 +11,7 @@ import json
 
 ## package save
 
-def group_list_dictize(obj_list, context, sort_key=lambda x:x):
+def group_list_dictize(obj_list, context, sort_key=lambda x:x['display_name']):
 
     active = context.get('active', True)
 
@@ -22,6 +22,10 @@ def group_list_dictize(obj_list, context, sort_key=lambda x:x):
         group_dict.pop('created')
         if active and obj.state not in ('active', 'pending'):
             continue
+
+        group_dict['display_name'] = obj.display_name
+
+        group_dict['packages'] = len(obj.packages)
 
         result_list.append(group_dict)
     return sorted(result_list, key=sort_key)
@@ -148,11 +152,13 @@ def package_dictize(pkg, context):
 def group_dictize(group, context):
 
     result_dict = table_dictize(group, context)
+    
+    result_dict['display_name'] = group.display_name
 
-    result_dict["extras"] = extras_dict_dictize(
+    result_dict['extras'] = extras_dict_dictize(
         group._extras, context)
 
-    result_dict["packages"] = obj_list_dictize(
+    result_dict['packages'] = obj_list_dictize(
         group.packages, context)
 
     return result_dict

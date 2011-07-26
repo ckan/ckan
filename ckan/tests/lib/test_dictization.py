@@ -771,6 +771,7 @@ class TestBasicDictize:
                     'extras': [{'key': u'genre', 'state': u'active', 'value': u'"horror"'},
                                {'key': u'media', 'state': u'active', 'value': u'"dvd"'}],
                     'name': u'help',
+                    'display_name': u'help',
                     'packages': [{'author': None,
                                   'author_email': None,
                                   'license_id': u'other-open',

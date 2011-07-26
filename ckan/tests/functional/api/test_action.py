@@ -278,3 +278,30 @@ class TestAction(WsgiAppCase):
             'success': False
         }
 
+    def test_13_group_list(self):
+        postparams = '%s=1' % json.dumps({})
+        res = self.app.post('/api/action/group_list', params=postparams)
+        res_obj = json.loads(res.body)
+        assert res_obj == {
+            'result': [
+                'david',
+                'roger'
+            ],
+            'help': 'Returns a list of groups',
+            'success': True
+        }
+        
+        #Get all fields
+        postparams = '%s=1' % json.dumps({'all_fields':True})
+        res = self.app.post('/api/action/group_list', params=postparams)
+        res_obj = json.loads(res.body)
+
+        assert res_obj['success'] == True
+        assert res_obj['result'][0]['name'] == 'david'
+        assert res_obj['result'][0]['display_name'] == 'Dave\'s books'
+        assert res_obj['result'][0]['packages'] == 2
+        assert res_obj['result'][1]['name'] == 'roger'
+        assert res_obj['result'][1]['packages'] == 1
+        assert 'id' in res_obj['result'][0]
+        assert 'revision_id' in res_obj['result'][0]
+        assert 'state' in res_obj['result'][0]

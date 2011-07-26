@@ -11,6 +11,7 @@ from ckan.lib.dictization import table_dictize
 from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 resource_list_dictize,
                                                 group_dictize,
+                                                group_list_dictize,
                                                 tag_dictize,
                                                 user_dictize)
 
@@ -87,14 +88,27 @@ def package_revision_list(context, data_dict):
     return revision_dicts
 
 def group_list(context, data_dict):
-    model = context["model"]
-    user = context["user"]
+    '''Returns a list of groups'''
+
+    model = context['model']
+    user = context['user']
     api = context.get('api_version') or '1'
     ref_group_by = 'id' if api == '2' else 'name';
 
+    all_fields = data_dict.get('all_fields',None)
+
     query = ckan.authz.Authorizer().authorized_query(user, model.Group)
-    groups = query.all() 
-    return [getattr(p, ref_group_by) for p in groups]
+    query = query.order_by(model.Group.name.asc())
+    query = query.order_by(model.Group.title.asc())
+
+    groups = query.all()
+
+    if not all_fields:
+        group_list = [getattr(p, ref_group_by) for p in groups]
+    else:
+        group_list = group_list_dictize(groups,context)
+    
+    return group_list
 
 def group_list_authz(context, data_dict):
     model = context['model']
