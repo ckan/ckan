@@ -218,9 +218,10 @@ def user_new_form_schema():
 def user_edit_form_schema():
     schema = default_user_schema()
 
-    schema['name'] = [ignore_missing]   
-    schema['password1'] = [unicode,user_both_passwords_entered,user_password_validator,user_passwords_match]
-    schema['password2'] = [unicode]
+    schema['name'] = [ignore_missing]
+    schema['password'] = [ignore_missing]
+    schema['password1'] = [ignore_missing,unicode,user_password_validator,user_passwords_match]
+    schema['password2'] = [ignore_missing,unicode]
 
     return schema
 
@@ -228,6 +229,6 @@ def default_update_user_schema():
     schema = default_user_schema()
     
     schema['name'] = [ignore_missing]
-
+    schema['password'] = [user_password_validator,ignore_missing, unicode]
     return schema
 

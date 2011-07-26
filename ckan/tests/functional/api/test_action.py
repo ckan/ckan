@@ -207,12 +207,10 @@ class TestAction(WsgiAppCase):
 
     def test_12_user_update(self):
         normal_user_dict = {'id': self.normal_user.id,
-                            'password': self.normal_user.password,
                             'fullname': 'Updated normal user full name',
                             'about':'Updated normal user about'}
 
         sysadmin_user_dict = {'id': self.sysadmin_user.id,
-                            'password': self.sysadmin_user.password,
                             'fullname': 'Updated sysadmin user full name',
                             'about':'Updated sysadmin user about'} 
 

@@ -194,8 +194,8 @@ def user_both_passwords_entered(key, data, errors, context):
 
 def user_password_validator(key, data, errors, context):
     value = data[key]
-       
-    if not isinstance(value, Missing) and not len(value) >= 4:
+
+    if not value == '' and not isinstance(value, Missing) and not len(value) >= 4:
         errors[('password',)].append(_('Your password must be 4 characters or longer'))
 
 def user_passwords_match(key, data, errors, context):
